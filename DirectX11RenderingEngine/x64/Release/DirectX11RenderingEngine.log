@@ -1,0 +1,48 @@
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(391,5): warning MSB8028: The intermediate directory (x64\Release\) contains files shared from another project (InsightEngine.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  Component.cpp
+  AABB.cpp
+  FileLoader.cpp
+  Camera2D.cpp
+  GameObject2D.cpp
+  GameObject3D.cpp
+  Color.cpp
+  GameObject.cpp
+  Camera3D.cpp
+  AdapterReader.cpp
+  ErrorLogger.cpp
+  Graphics.cpp
+  imgui.cpp
+  imgui_draw.cpp
+  imgui_impl_dx11.cpp
+  imgui_impl_win32.cpp
+  imgui_widgets.cpp
+  KeyboardClass.cpp
+  KeyboardEvent.cpp
+  Model.cpp
+  Mesh.cpp
+  Light.cpp
+  MouseClass.cpp
+  MouseEvent.cpp
+  RenderableGameObject.cpp
+  RenderWindow.cpp
+  Shaders.cpp
+  Source.cpp
+  Sprite.cpp
+  StringHelper.cpp
+  Texture.cpp
+  Timer.cpp
+  WindowContainer.cpp
+  Generating code
+  2 of 2636 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    3 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+DirectXTK.lib(CommonStates.obj) : warning LNK4099: PDB 'DirectXTK.pdb' was not found with 'DirectXTK.lib(CommonStates.obj)' or at 'C:\VSDev\Classes\GameEngines\InsightEngine\x64\Release\DirectXTK.pdb'; linking object as if no debug info
+DirectXTK.lib(DDSTextureLoader.obj) : warning LNK4099: PDB 'DirectXTK.pdb' was not found with 'DirectXTK.lib(DDSTextureLoader.obj)' or at 'C:\VSDev\Classes\GameEngines\InsightEngine\x64\Release\DirectXTK.pdb'; linking object as if no debug info
+DirectXTK.lib(BinaryReader.obj) : warning LNK4099: PDB 'DirectXTK.pdb' was not found with 'DirectXTK.lib(BinaryReader.obj)' or at 'C:\VSDev\Classes\GameEngines\InsightEngine\x64\Release\DirectXTK.pdb'; linking object as if no debug info
+DirectXTK.lib(pch.obj) : warning LNK4099: PDB 'DirectXTK.pdb' was not found with 'DirectXTK.lib(pch.obj)' or at 'C:\VSDev\Classes\GameEngines\InsightEngine\x64\Release\DirectXTK.pdb'; linking object as if no debug info
+DirectXTK.lib(SpriteBatch.obj) : warning LNK4099: PDB 'DirectXTK.pdb' was not found with 'DirectXTK.lib(SpriteBatch.obj)' or at 'C:\VSDev\Classes\GameEngines\InsightEngine\x64\Release\DirectXTK.pdb'; linking object as if no debug info
+DirectXTK.lib(SpriteFont.obj) : warning LNK4099: PDB 'DirectXTK.pdb' was not found with 'DirectXTK.lib(SpriteFont.obj)' or at 'C:\VSDev\Classes\GameEngines\InsightEngine\x64\Release\DirectXTK.pdb'; linking object as if no debug info
+DirectXTK.lib(VertexTypes.obj) : warning LNK4099: PDB 'DirectXTK.pdb' was not found with 'DirectXTK.lib(VertexTypes.obj)' or at 'C:\VSDev\Classes\GameEngines\InsightEngine\x64\Release\DirectXTK.pdb'; linking object as if no debug info
+DirectXTK.lib(WICTextureLoader.obj) : warning LNK4099: PDB 'DirectXTK.pdb' was not found with 'DirectXTK.lib(WICTextureLoader.obj)' or at 'C:\VSDev\Classes\GameEngines\InsightEngine\x64\Release\DirectXTK.pdb'; linking object as if no debug info
+  DirectX11RenderingEngine.vcxproj -> C:\VSDev\Classes\GameEngines\InsightEngine\x64\Release\DirectX11RenderingEngine.exe

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DEFECTS>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\vsdev\classes\gameengines\insightengine\directx11renderingengine\keyboard</FILEPATH>
+      <FILENAME>keyboardclass.cpp</FILENAME>
+      <LINE>3</LINE>
+      <COLUMN>15</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'KeyboardClass::keyStates' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>KeyboardClass::{ctor}</FUNCTION>
+    <DECORATED>??0KeyboardClass@@QEAA@XZ</DECORATED>
+    <FUNCLINE>3</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+</DEFECTS>

@@ -1,0 +1,7 @@
+﻿Model.obj : error LNK2001: unresolved external symbol _aiGetMaterialTextureCount
+Model.obj : error LNK2001: unresolved external symbol _aiGetMaterialColor
+Model.obj : error LNK2001: unresolved external symbol "public: struct aiScene const * __thiscall Assimp::Importer::ReadFile(char const *,unsigned int)" (?ReadFile@Importer@Assimp@@QAEPBUaiScene@@PBDI@Z)
+Model.obj : error LNK2001: unresolved external symbol "public: __thiscall Assimp::Importer::~Importer(void)" (??1Importer@Assimp@@QAE@XZ)
+Model.obj : error LNK2001: unresolved external symbol "public: __thiscall Assimp::Importer::Importer(void)" (??0Importer@Assimp@@QAE@XZ)
+Model.obj : error LNK2001: unresolved external symbol _aiGetMaterialTexture
+C:\VSDev\Classes\GameEngines\InsightEngine\Release\DirectX11RenderingEngine.exe : fatal error LNK1120: 6 unresolved externals

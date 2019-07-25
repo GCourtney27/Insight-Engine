@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DEFECTS>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\vsdev\classes\gameengines\insightengine\directx11renderingengine\components</FILEPATH>
+      <FILENAME>aabb.h</FILENAME>
+      <LINE>8</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'AABB::m_position' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>AABB::{ctor}</FUNCTION>
+    <DECORATED>??0AABB@@QEAA@M@Z</DECORATED>
+    <FUNCLINE>8</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+</DEFECTS>
