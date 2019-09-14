@@ -1,11 +1,18 @@
 #pragma once
 #include "Component.h"
 #include <DirectXMath.h>
+#include <d3d11.h >
+#include <SimpleMath.h>
 
 class AABB
 {
 public:
-	AABB(float radius, const DirectX::XMFLOAT3 & position) : m_position(position), m_radius(radius) {}
+	AABB() {}
+
+	AABB(float radius, const DirectX::XMFLOAT3 & position) 
+		:  m_radius(radius), m_position(position) {}
+
+	void Initialize(float radius, const DirectX::XMFLOAT3 & position);
 
 	void SetRadius(float value) { m_radius = value; }
 	void SetPosition(const DirectX::XMFLOAT3 & position) { m_position = position; }
@@ -16,6 +23,6 @@ public:
 	void Update(const DirectX::XMFLOAT3 parentPosition);
 
 private:
-	DirectX::XMFLOAT3 m_position;
 	float m_radius = 0.0f;
+	DirectX::SimpleMath::Vector3 m_position;
 };

@@ -2,6 +2,7 @@
 
 bool Model::Initialize(const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
 {
+	this->modelDirectory = filepath;
 	this->device = device;
 	this->deviceContext = deviceContext;
 	this->cb_vs_vertexshader = &cb_vs_vertexshader;

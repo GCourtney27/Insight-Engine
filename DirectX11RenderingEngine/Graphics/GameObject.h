@@ -7,6 +7,8 @@ class GameObject
 {
 public:
 	
+	void Initialize();
+
 	const XMVECTOR & GetPositionVector() const;
 	const DirectX::XMFLOAT3 & GetPositionFloat3() const;
 	const XMVECTOR & GetRotationVector() const;
@@ -42,7 +44,6 @@ public:
 
 protected:
 	virtual void UpdateMatrix();
-
 	// XMVECTOR
 	XMVECTOR posVector; // position in the world
 	XMVECTOR rotVector; // rotation in the world

@@ -11,6 +11,7 @@ bool FileLoader::LoadSceneFromFile(const std::string & sceneLocation, std::vecto
 
 	RenderableGameObject* go = new RenderableGameObject();
 	std::string name;
+	std::string modelFilepath;
 	float px, py, pz;
 	float rx, ry, rz;
 	float sx, sy, sz;
@@ -35,6 +36,11 @@ bool FileLoader::LoadSceneFromFile(const std::string & sceneLocation, std::vecto
 			s >> lineInformation >> name;
 		}
 
+		if (line[0] == 'f')
+		{
+			s >> lineInformation >> modelFilepath;
+		}
+
 		if (line[0] == 'p')
 		{
 			s >> lineInformation >> px >> py >> pz;
@@ -48,8 +54,8 @@ bool FileLoader::LoadSceneFromFile(const std::string & sceneLocation, std::vecto
 		if (line[0] == 's')
 		{
 			s >> lineInformation >> sx >> sy >> sz;
-			//if (!go->Initialize("Data\\Objects\\nanosuit\\nanosuit.obj", device, deviceContext, cb_vs_vertexshader))
-			if (!go->Initialize("Data\\Objects\\Dandelion\\Var1\\Textured_Flower.obj", device, deviceContext, cb_vs_vertexshader))
+
+			if (!go->Initialize(modelFilepath, device, deviceContext, cb_vs_vertexshader))
 				return false;
 			go->SetName(name);
 
@@ -74,6 +80,7 @@ bool FileLoader::WriteSceneToFile(std::vector<RenderableGameObject*>& gameObject
 	for (int i = 0; i < gos; i++)
 	{
 		os << "n " << gameObjectsToWrite[i]->GetName() << std::endl;
+		os << "f " << gameObjectsToWrite[i]->GetModel()->GetModelDirectory() << std::endl;
 		os << "p " << gameObjectsToWrite[i]->GetPositionFloat3().x << " " << gameObjectsToWrite[i]->GetPositionFloat3().y << " " << gameObjectsToWrite[i]->GetPositionFloat3().z << std::endl;
 		os << "r " << gameObjectsToWrite[i]->GetRotationFloat3().x << " " << gameObjectsToWrite[i]->GetRotationFloat3().y << " " << gameObjectsToWrite[i]->GetRotationFloat3().z << std::endl;
 		os << "s " << gameObjectsToWrite[i]->GetScale().x << " " << gameObjectsToWrite[i]->GetScale().y << " " << gameObjectsToWrite[i]->GetScale().z << std::endl;

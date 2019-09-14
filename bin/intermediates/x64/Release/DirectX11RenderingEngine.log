@@ -1,0 +1,60 @@
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(376,5): warning MSB8004: Intermediate Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Intermediate Directory.
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(377,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
+C:\VSDev\ComputerGraphics\DX11RenderingEngine\DirectX11RenderingEngine\pixelshader.hlsl(33,12-77): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see C:\VSDev\ComputerGraphics\DX11RenderingEngine\bin\x64\Release\pixelshader.cso
+  compilation object save succeeded; see C:\VSDev\ComputerGraphics\DX11RenderingEngine\bin\x64\Release\pixelshader_2d.cso
+C:\VSDev\ComputerGraphics\DX11RenderingEngine\DirectX11RenderingEngine\pixelshader_nolight.hlsl(16,12-77): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see C:\VSDev\ComputerGraphics\DX11RenderingEngine\bin\x64\Release\pixelshader_nolight.cso
+C:\VSDev\ComputerGraphics\DX11RenderingEngine\DirectX11RenderingEngine\vertexshader.hlsl(29,5-80): warning X3206: implicit truncation of vector type
+C:\VSDev\ComputerGraphics\DX11RenderingEngine\DirectX11RenderingEngine\vertexshader.hlsl(30,5-68): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see C:\VSDev\ComputerGraphics\DX11RenderingEngine\bin\x64\Release\vertexshader.cso
+  compilation object save succeeded; see C:\VSDev\ComputerGraphics\DX11RenderingEngine\bin\x64\Release\vertexshader_2d.cso
+  Component.cpp
+  AABB.cpp
+  FileLoader.cpp
+  Camera2D.cpp
+  GameObject2D.cpp
+  GameObject3D.cpp
+  Color.cpp
+  GameObject.cpp
+  Camera3D.cpp
+  AdapterReader.cpp
+  Engine.cpp
+  ErrorLogger.cpp
+  Graphics.cpp
+  imgui.cpp
+  imgui_draw.cpp
+  imgui_impl_dx11.cpp
+  imgui_impl_win32.cpp
+  imgui_widgets.cpp
+  KeyboardClass.cpp
+  KeyboardEvent.cpp
+  Model.cpp
+  Mesh.cpp
+  Light.cpp
+  MouseClass.cpp
+  MouseEvent.cpp
+  RenderableGameObject.cpp
+  RenderWindow.cpp
+  Shaders.cpp
+  Source.cpp
+  Sprite.cpp
+  StringHelper.cpp
+  Texture.cpp
+  Timer.cpp
+  WindowContainer.cpp
+  Generating code
+  All 2641 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+DirectXTK.lib(CommonStates.obj) : warning LNK4099: PDB 'DirectXTK.pdb' was not found with 'DirectXTK.lib(CommonStates.obj)' or at 'C:\VSDev\ComputerGraphics\DX11RenderingEngine\bin\x64\Release\DirectXTK.pdb'; linking object as if no debug info
+DirectXTK.lib(DDSTextureLoader.obj) : warning LNK4099: PDB 'DirectXTK.pdb' was not found with 'DirectXTK.lib(DDSTextureLoader.obj)' or at 'C:\VSDev\ComputerGraphics\DX11RenderingEngine\bin\x64\Release\DirectXTK.pdb'; linking object as if no debug info
+DirectXTK.lib(BinaryReader.obj) : warning LNK4099: PDB 'DirectXTK.pdb' was not found with 'DirectXTK.lib(BinaryReader.obj)' or at 'C:\VSDev\ComputerGraphics\DX11RenderingEngine\bin\x64\Release\DirectXTK.pdb'; linking object as if no debug info
+DirectXTK.lib(pch.obj) : warning LNK4099: PDB 'DirectXTK.pdb' was not found with 'DirectXTK.lib(pch.obj)' or at 'C:\VSDev\ComputerGraphics\DX11RenderingEngine\bin\x64\Release\DirectXTK.pdb'; linking object as if no debug info
+DirectXTK.lib(SpriteBatch.obj) : warning LNK4099: PDB 'DirectXTK.pdb' was not found with 'DirectXTK.lib(SpriteBatch.obj)' or at 'C:\VSDev\ComputerGraphics\DX11RenderingEngine\bin\x64\Release\DirectXTK.pdb'; linking object as if no debug info
+DirectXTK.lib(SpriteFont.obj) : warning LNK4099: PDB 'DirectXTK.pdb' was not found with 'DirectXTK.lib(SpriteFont.obj)' or at 'C:\VSDev\ComputerGraphics\DX11RenderingEngine\bin\x64\Release\DirectXTK.pdb'; linking object as if no debug info
+DirectXTK.lib(VertexTypes.obj) : warning LNK4099: PDB 'DirectXTK.pdb' was not found with 'DirectXTK.lib(VertexTypes.obj)' or at 'C:\VSDev\ComputerGraphics\DX11RenderingEngine\bin\x64\Release\DirectXTK.pdb'; linking object as if no debug info
+DirectXTK.lib(WICTextureLoader.obj) : warning LNK4099: PDB 'DirectXTK.pdb' was not found with 'DirectXTK.lib(WICTextureLoader.obj)' or at 'C:\VSDev\ComputerGraphics\DX11RenderingEngine\bin\x64\Release\DirectXTK.pdb'; linking object as if no debug info
+  DirectX11RenderingEngine.vcxproj -> C:\VSDev\ComputerGraphics\DX11RenderingEngine\\bin\x64\Release\DirectX11RenderingEngine.exe
