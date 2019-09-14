@@ -5,7 +5,6 @@
 class GameObject3D : public GameObject
 {
 public:
-
 	void SetLookAtPos(DirectX::XMFLOAT3 lookAtPos);
 	const XMVECTOR & GetForwardVector(bool omitY = false);
 	const XMVECTOR & GetRightVector(bool omitY = false);
@@ -13,6 +12,8 @@ public:
 	const XMVECTOR & GetLeftVector(bool omitY = false);
 
 	//Each GameObject can have a list of components vector<T> m_components
+
+	AABB* aabb;
 
 protected:
 	virtual void UpdateMatrix();

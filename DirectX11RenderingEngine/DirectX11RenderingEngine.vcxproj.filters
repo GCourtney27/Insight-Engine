@@ -46,9 +46,6 @@
     <Filter Include="Scenes">
       <UniqueIdentifier>{c17b5962-f686-4993-9c0d-b280001d21f0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Scriptor">
-      <UniqueIdentifier>{95743dbf-1d0c-42a8-84da-a28f2c152652}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp">
@@ -284,15 +281,6 @@
     <ClInclude Include="FileLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Editor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Scriptor\Compiler.h">
-      <Filter>Header Files\Scriptor</Filter>
-    </ClInclude>
-    <ClInclude Include="Scriptor\Script.h">
-      <Filter>Header Files\Scriptor</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="vertexshader.hlsl">
@@ -308,12 +296,6 @@
       <Filter>Resource Files</Filter>
     </FxCompile>
     <FxCompile Include="vertexshader_2d.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Skybox_vs.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Skybox_ps.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
   </ItemGroup>

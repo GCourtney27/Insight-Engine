@@ -1,7 +1,6 @@
 #include "Engine.h"
 #include <iostream>
 
-
 bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height)
 {
 	windowHeight = height;
@@ -11,10 +10,11 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	if (!this->render_window.Initialize(this, hInstance, window_title, window_class, width, height))
 		return false;
 
-	// Forward Renderer
+	/*if (!FileLoader::LoadSceneFromFile("Data//Scenes//Scene01.txt", gfx.m_gameObjects))
+		return false;*/
+
 	if (!gfx.Initialize(this->render_window.GetHWND(), width, height))
 		return false;
-
 
 	return true;
 }
@@ -28,8 +28,6 @@ void Engine::Update()
 {
 	float dt = (float)timer.GetMilisecondsElapsed();
 	timer.Restart();
-
-	gfx.Update();
 
 	while (!keyboard.CharBufferIsEmpty())
 	{
@@ -54,6 +52,25 @@ void Engine::Update()
 		}
 
 		/*Raycasting*/
+		//if (mouse.IsLeftDown())
+		//{
+		//	SimpleMath::Vector3 cameraPosition = gfx.camera3D.GetPositionFloat3();
+		//	SimpleMath::Vector3 mouseVector = GetMouseDirectionVector();
+		//	Ray* raycast = new Ray(cameraPosition, mouseVector);
+
+		//	SimpleMath::Vector3 spherePosition = SimpleMath::Vector3(0.0f, 10.0f, 0.0f);
+		//	float sphereRadius = 5.0f;
+		//	
+		//	
+		//	if (hit_sphere(gfx.gameObject.sphere_position, gfx.gameObject.sphere_radius, *raycast))
+		//	//if (hit_sphere(spherePosition, sphereRadius, *raycast))
+		//	{
+		//		//ErrorLogger::Log("Sphere hit");
+		//		
+		//	}
+		//	
+		//}
+
 		if (mouse.IsLeftDown())
 		{
 			SimpleMath::Vector3 cameraPosition = gfx.camera3D.GetPositionFloat3();
@@ -61,7 +78,7 @@ void Engine::Update()
 			
 			Ray* raycast = new Ray(cameraPosition, mouseVector);
 
-			/*int gos = (int)gfx.m_gameObjects.size();
+			int gos = (int)gfx.m_gameObjects.size();
 			for (int i = 0; i < gos; i++)
 			{
 				if (hit_sphere(gfx.m_gameObjects[i]->sphere_position, gfx.m_gameObjects[i]->sphere_radius, *raycast))
@@ -69,18 +86,20 @@ void Engine::Update()
 					gfx.selectedGameObject = gfx.m_gameObjects[i];
 					break;
 				}
-			}*/
-			int gos = (int)gfx.m_gameObjects.size();
-			for (int i = 0; i < gos; i++)
-			{
-				if (hit_sphere(gfx.m_gameObjects[i]->aabb.GetPosition(), gfx.m_gameObjects[i]->aabb.GetRadius(), *raycast))
-				{
-					gfx.selectedGameObject = gfx.m_gameObjects[i];
-					break;
-				}
 			}
+
 		}
 	}
+
+	// Rotate models
+	//this->gfx.gameObject.AdjustRotation(0.0f, 0.001f * dt, 0.0f);
+	//this->gfx.test.AdjustRotation(0.0f, 0.001f * dt, 0.0f);
+	//for (int i = 0; i < gfx.m_gameObjects.size(); i++)
+	//{
+		//gfx.m_gameObjects[i]->AdjustRotation(0.0f, 0.001f * dt, 0.0f);
+		//gfx.m_gameObjects[i]->AdjustPosition(0.0f, 0.0f, 0.0f);
+		//gfx.m_gameObjects[i]->AdjustScale(0.0f, 0.0f, 0.0f);
+	//}
 
 	float camera3DSpeed = 0.01f;
 	if (keyboard.KeyIsPressed(VK_SHIFT))
@@ -132,13 +151,8 @@ void Engine::Update()
 			ErrorLogger::Log("Failed to save scene");
 	}
 
-	for (int i = 0; i < gfx.m_gameObjects.size();i++)
-	{
-		gfx.m_gameObjects[i]->Update();
-	}
 }
 
-DirectX::XMFLOAT4X4 boxWorld;
 
 void Engine::RenderFrame()
 {

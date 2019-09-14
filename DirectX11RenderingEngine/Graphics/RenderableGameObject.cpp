@@ -9,10 +9,10 @@ bool RenderableGameObject::Initialize(const std::string & filepath, ID3D11Device
 	this->SetRotation(0.0f, 0.0f, 0.0f);
 	this->UpdateMatrix();
 
-	//sphere_radius = 20.0f;
-	//sphere_position = GetPositionFloat3();
+	sphere_radius = 20.0f;
+	sphere_position = GetPositionFloat3();
 
-	aabb.Initialize(20.0f, GetPositionFloat3());
+	//aabb = new AABB(20.0f, GetPositionFloat3());
 
 	return true;
 }
@@ -20,21 +20,14 @@ bool RenderableGameObject::Initialize(const std::string & filepath, ID3D11Device
 void RenderableGameObject::Draw(const XMMATRIX & viewProjectionMatrix)
 {
 	model.Draw(this->worldMatrix, viewProjectionMatrix);
-	
-	
-}
-
-void RenderableGameObject::Update()
-{
 	AdjustPosition(0.0f, 0.0f, 0.0f);
 	// TODO: Update sphere collider (Move this somewhere else)
 	sphere_position = GetPositionFloat3();
-	aabb.SetPosition(GetPositionFloat3());
 }
 
 
 void RenderableGameObject::UpdateMatrix()
 {
-	this->worldMatrix = XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z) * XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z) * XMMatrixTranslation(this->pos.x, this->pos.y, this->pos.z);
+	this->worldMatrix = XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z) * XMMatrixTranslation(this->pos.x, this->pos.y, this->pos.z) * XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z);
 	this->UpdateDirectionVectors();
 }

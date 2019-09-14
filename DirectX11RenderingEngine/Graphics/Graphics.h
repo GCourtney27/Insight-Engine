@@ -14,39 +14,19 @@
 #include "Camera2D.h"
 #include "Sprite.h"
 
-//#pragma comment(lib, "d3d11.lib")
-//#pragma comment(lib, "d3dx10.lib")
-#pragma comment (lib, "d3dx11.lib")
-//#pragma comment (lib, "D3D10_1.lib")
-//#pragma comment (lib, "DXGI.lib")
-//#pragma comment (lib, "D2D1.lib")
-//#pragma comment (lib, "dwrite.lib")
-//#pragma comment (lib, "dinput8.lib")
-//#pragma comment (lib, "dxguid.lib")
-
-#include <windows.h>
-#include <d3d11.h>
-#include <d3dx11.h>
-#include <d3dx10.h>
-#include <D3D10_1.h>
-#include <DXGI.h>
-#include <D2D1.h>
-#include <sstream>
-#include <dwrite.h>
-#include <dinput.h>
-#include <DDSTextureLoader.h>
 
 class Graphics
 {
 public:
 	bool Initialize(HWND hwnd, int width, int height);
 	void RenderFrame();
-	void Update();
 
 	Camera3D camera3D;
 	Camera2D camera2D;
 	Sprite sprite;
 	Light light;
+	RenderableGameObject gameObject;
+	RenderableGameObject test;
 
 	RenderableGameObject* selectedGameObject;
 
@@ -96,34 +76,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> grassTexture;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> pavementTexture;
 
-	// Skybox
-	XMMATRIX Rotationx;
-	XMMATRIX Rotationy;
-	XMMATRIX Rotationz;
-	XMMATRIX Scale;
-	XMMATRIX Translation;
-	XMMATRIX WVP;
-
-	ID3D11Buffer* sphereIndexBuffer;
-	ID3D11Buffer* sphereVertBuffer;
-
-	VertexShader SKYMAP_VS;
-	ConstantBuffer<CB_VS_vertexshader> cb_vs_skybox;
-	PixelShader SKYMAP_PS;
-	ID3D10Blob* SKYMAP_VS_Buffer;
-	ID3D10Blob* SKYMAP_PS_Buffer;
-
-	ID3D11ShaderResourceView* smrv;
-
-	ID3D11DepthStencilState* DSLessEqual;
-	ID3D11RasterizerState* RSCullNone;
-
-	int NumSphereVerticies;
-	int NumSphereFaces;
-
-	XMMATRIX sphereWorld;
-
-	void CreateSphere(int LatLines, int LongLines);
 
 	int windowWidth = 0;
 	int windowHeight = 0;

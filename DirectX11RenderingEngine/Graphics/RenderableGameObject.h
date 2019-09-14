@@ -5,15 +5,10 @@
 class RenderableGameObject : public GameObject3D
 {
 public:
-	RenderableGameObject() {}
 	bool Initialize(const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader); //float boundingSphere scale
 	void Draw(const XMMATRIX & viewProjectionMatrix);
 
-	void Update();
-
-	Model* GetModel() { return &model; }
-
-	AABB aabb;
+	//void UpdateAABB() { aabb->Update(GetPositionVector()); }
 
 	SimpleMath::Vector3 sphere_position;
 	float sphere_radius = 0.0f;

@@ -3,13 +3,11 @@
 #include "Timer.h"
 #include "FileLoader.h"
 #include "Graphics/Ray.h"
-#include "Editor.h"
+
 
 class Engine : WindowContainer
 {
 public:
-	Engine() {}
-	~Engine() {}
 	bool Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height);
 	bool ProccessMessages();
 	void Update();
@@ -23,10 +21,6 @@ public:
 
 private:
 	Timer timer;
-	Editor editor;
 	int windowWidth = 0;
 	int windowHeight = 0;
-
-	// DEFERRED RENDER
-	//DebugModels models;
 };
