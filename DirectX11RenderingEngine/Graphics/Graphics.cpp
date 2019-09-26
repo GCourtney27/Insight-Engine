@@ -40,7 +40,7 @@ void Graphics::RenderFrame()
 	cb_ps_light.data.dynamicLightAttenuation_a = light.attenuation_a;
 	cb_ps_light.data.dynamicLightAttenuation_b = light.attenuation_b;
 	cb_ps_light.data.dynamicLightAttenuation_c = light.attenuation_c;
-
+	
 	cb_ps_light.ApplyChanges();
 	deviceContext->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
 
@@ -379,7 +379,7 @@ bool Graphics::InitializeScene()
 		cb_ps_light.data.ambientLightStrength = 1.0f;
 
 		// Initialize Model(s)
-		if (!FileLoader::LoadSceneFromFile("Data//Scenes//Scene01.txt", m_gameObjects, device.Get(), deviceContext.Get(), cb_vs_vertexshader))
+		if (!FileLoader::LoadSceneFromFile("Data//Scenes//Scene02.txt", m_gameObjects, device.Get(), deviceContext.Get(), cb_vs_vertexshader))
 			return false;
 
 		cb_ps_light.data.ambientLightStrength = 0.268f;
@@ -388,7 +388,7 @@ bool Graphics::InitializeScene()
 		light.attenuation_a = 1.968f;
 		light.attenuation_b = 0.2f;
 		light.attenuation_c = 0.0f;
-
+		
 		// Light
 		if (!light.Initialize(device.Get(), deviceContext.Get(), cb_vs_vertexshader))
 			return false;
@@ -445,7 +445,7 @@ void Graphics::UpdateImGui()
 	// if(isEditorEnabled) Draw all windows
 	
 	ImGui::Begin("Editor");
-	if (ImGui::Button("Create Cube", { 20.0f, 20.0f }))
+	if (ImGui::Button("Create Cube", { 150.0f, 20.0f }))
 	{
 		RenderableGameObject* go = new RenderableGameObject();
 		if (!go->Initialize("Data\\Objects\\Primatives\\Cube.obj", device.Get(), deviceContext.Get(), cb_vs_vertexshader))
@@ -458,6 +458,27 @@ void Graphics::UpdateImGui()
 		m_gameObjects.push_back(go);
 	}
 	
+	if (ImGui::Button("Create Scriptable Cube", { 150.0f, 20.0f }))
+	{
+		compiler.Compile();
+		BaseScriptableGameObject* go = compiler.compiledGO;
+		if (!go->Initialize("Data\\Objects\\Primatives\\Cube.obj", device.Get(), deviceContext.Get(), cb_vs_vertexshader))
+			ErrorLogger::Log("Failed to Initialize Renderable Game object from editor window.");
+		go->SetName("Scripted Cube");
+
+		go->SetPosition(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
+		go->SetRotation(0.0f, 0.0f, 0.0f);
+		go->SetScale(1.0f, 1.0f, 1.0f);
+		m_gameObjects.push_back(go);
+	}
+
+	if (ImGui::Button("Recompile Cube", { 150.0f, 20.0f }))
+	{
+		compiler.Compile();
+		BaseScriptableGameObject* go = compiler.compiledGO;
+		m_gameObjects.push_back(go);
+
+	}
 
 	ImGui::End();
 

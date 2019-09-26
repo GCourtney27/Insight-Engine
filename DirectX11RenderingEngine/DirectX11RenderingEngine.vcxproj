@@ -186,6 +186,7 @@
     <ClCompile Include="Graphics\ImGui\imgui_impl_dx11.cpp" />
     <ClCompile Include="Graphics\ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="Graphics\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="Includes\dlfcn.c" />
     <ClCompile Include="Keyboard\KeyboardClass.cpp" />
     <ClCompile Include="Keyboard\KeyboardEvent.cpp" />
     <ClCompile Include="Graphics\Model.cpp" />
@@ -196,6 +197,7 @@
     <ClCompile Include="Graphics\RenderableGameObject.cpp" />
     <ClCompile Include="RenderWindow.cpp" />
     <ClCompile Include="Graphics\Shaders.cpp" />
+    <ClCompile Include="Scriptor\Compiler.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Graphics\Sprite.cpp" />
     <ClCompile Include="StringHelper.cpp" />
@@ -208,6 +210,7 @@
     <ClInclude Include="Components\AABB.h" />
     <ClInclude Include="Editor.h" />
     <ClInclude Include="FileLoader.h" />
+    <ClInclude Include="Graphics\BaseScriptableGameObject.h" />
     <ClInclude Include="Graphics\Camera2D.h" />
     <ClInclude Include="Graphics\GameObject2D.h" />
     <ClInclude Include="Graphics\GameObject3D.h" />
@@ -231,6 +234,7 @@
     <ClInclude Include="Graphics\ImGui\imstb_truetype.h" />
     <ClInclude Include="Graphics\IndexBuffer.h" />
     <ClInclude Include="Graphics\Ray.h" />
+    <ClInclude Include="Includes\dlfcn.h" />
     <ClInclude Include="Keyboard\KeyboardClass.h" />
     <ClInclude Include="Keyboard\KeyboardEvent.h" />
     <ClInclude Include="Graphics\Model.h" />
@@ -243,6 +247,7 @@
     <ClInclude Include="Graphics\Shaders.h" />
     <ClInclude Include="Graphics\Sprite.h" />
     <ClInclude Include="Scriptor\Compiler.h" />
+    <ClInclude Include="Scriptor\CompilerHelper.h" />
     <ClInclude Include="Scriptor\Script.h" />
     <ClInclude Include="StringHelper.h" />
     <ClInclude Include="Graphics\Vertex.h" />

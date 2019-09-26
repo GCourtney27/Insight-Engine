@@ -24,9 +24,8 @@ public:
 private:
 	Timer timer;
 	Editor editor;
+
 	int windowWidth = 0;
 	int windowHeight = 0;
 
-	// DEFERRED RENDER
-	//DebugModels models;
 };

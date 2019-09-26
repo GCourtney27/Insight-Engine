@@ -122,7 +122,7 @@ void Engine::Update()
 	if (keyboard.KeyIsPressed('C'))
 	{
 		//lightPosition += this->gfx.camera3D.GetForwardVector();
-		this->gfx.light.SetPosition(this->gfx.camera3D.GetPositionFloat3());
+		//this->gfx.light.SetPosition(this->gfx.camera3D.GetPositionFloat3());
 		//this->gfx.light.SetRotation(this->gfx.camera3D.GetRotationFloat3());
 	}
 
@@ -136,6 +136,7 @@ void Engine::Update()
 	{
 		gfx.m_gameObjects[i]->Update();
 	}
+
 }
 
 DirectX::XMFLOAT4X4 boxWorld;

@@ -49,6 +49,12 @@
     <Filter Include="Header Files\Scriptor">
       <UniqueIdentifier>{95743dbf-1d0c-42a8-84da-a28f2c152652}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Scripts">
+      <UniqueIdentifier>{9c35898e-9f5b-4196-9725-c5caee54b274}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Scripts">
+      <UniqueIdentifier>{5e110067-5da4-4108-8a12-c68e25a1bc0c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp">
@@ -151,6 +157,12 @@
       <Filter>Source Files\Components</Filter>
     </ClCompile>
     <ClCompile Include="FileLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Scriptor\Compiler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Includes\dlfcn.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -291,6 +303,15 @@
       <Filter>Header Files\Scriptor</Filter>
     </ClInclude>
     <ClInclude Include="Scriptor\Script.h">
+      <Filter>Header Files\Scriptor</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\BaseScriptableGameObject.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Includes\dlfcn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Scriptor\CompilerHelper.h">
       <Filter>Header Files\Scriptor</Filter>
     </ClInclude>
   </ItemGroup>

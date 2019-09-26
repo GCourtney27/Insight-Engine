@@ -36,6 +36,9 @@
 #include <dinput.h>
 #include <DDSTextureLoader.h>
 
+#include "../Scriptor/Compiler.h"
+#include "BaseScriptableGameObject.h"
+
 class Graphics
 {
 public:
@@ -46,11 +49,13 @@ public:
 	Camera3D camera3D;
 	Camera2D camera2D;
 	Sprite sprite;
-	Light light;
+	Light light; // uncomment for scene 1. ALL ATTRIBUTES FOR LIGHT HAVE BEEN COMMENTED OUT DONT FORGET TO UNCOMMENT THEM
 
 	RenderableGameObject* selectedGameObject;
 
 	std::vector<RenderableGameObject*> m_gameObjects;
+
+	Compiler compiler;
 
 private:
 	bool InitializeDirectX(HWND hwnd);

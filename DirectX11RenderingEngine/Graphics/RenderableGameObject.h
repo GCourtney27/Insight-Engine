@@ -8,7 +8,7 @@ public:
 	RenderableGameObject() {}
 	bool Initialize(const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader); //float boundingSphere scale
 	void Draw(const XMMATRIX & viewProjectionMatrix);
-
+	
 	void Update();
 
 	Model* GetModel() { return &model; }

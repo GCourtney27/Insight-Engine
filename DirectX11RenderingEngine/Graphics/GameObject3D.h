@@ -6,6 +6,8 @@ class GameObject3D : public GameObject
 {
 public:
 
+
+
 	void SetLookAtPos(DirectX::XMFLOAT3 lookAtPos);
 	const XMVECTOR & GetForwardVector(bool omitY = false);
 	const XMVECTOR & GetRightVector(bool omitY = false);
