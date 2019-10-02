@@ -25,7 +25,7 @@ void Model::Draw(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMa
 	
 	this->deviceContext->VSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());
 
-	for (int i = 0; i < meshes.size(); i++)
+	for (size_t i = 0; i < meshes.size(); i++)
 	{
 		// Update Constant Buffer with WVP Matrix
 		this->cb_vs_vertexshader->data.wvpMatrix = meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix; // Calculate World-ViewProjection Matrix
@@ -38,7 +38,7 @@ void Model::Draw(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMa
 bool Model::LoadModel(const std::string & filepath)
 {
 	this->directory = StringHelper::GetDirectoryFromPath(filepath);
-	Assimp::Importer importer;
+	Assimp::Importer importer; 
 	const aiScene* pScene = importer.ReadFile(filepath,
 												aiProcess_Triangulate | 
 												aiProcess_ConvertToLeftHanded);

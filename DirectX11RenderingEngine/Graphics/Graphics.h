@@ -78,6 +78,7 @@ private:
 	PixelShader pixelshader;
 	PixelShader pixelshader_2d;
 	PixelShader pixelshader_nolight;
+	PixelShader pixelshader_foliage;
 	ConstantBuffer<CB_VS_vertexshader_2d> cb_vs_vertexshader_2d;
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
 	

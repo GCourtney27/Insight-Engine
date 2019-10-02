@@ -2,10 +2,16 @@
 
 ScriptedGameObejct::ScriptedGameObejct()
 {
+	m_name = "Hello World";
 }
 
 ScriptedGameObejct::~ScriptedGameObejct()
 {
+}
+
+extern "C" ScriptedGameObejct * ScriptedGameObejct::factory()
+{
+	return new ScriptedGameObejct;
 }
 
 bool ScriptedGameObejct::Initialize(const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)

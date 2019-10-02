@@ -1,20 +1,40 @@
 #include "Compiler.h"
 #include <iostream>
+#include <stdlib.h>
+#include <shellapi.h>
+#include <Windows.h>
+
+bool Compiler::Initialize(HWND windHandle)
+{
+	m_windHandle = windHandle;
+	return true;
+}
 
 bool Compiler::Compile()
 {
+	//https://docs.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shellexecutea?redirectedfrom=MSDN
+	//https://stackoverflow.com/questions/6672257/how-to-properly-use-system-to-execute-a-command-in-c
+
 	// -- Create Library -- //
-	system("C:/MinGW/bin/g++ -shared Scriptor/Scripts/ScriptedGameObject.cpp -o Scriptor/Scripts/CompiledBinaries/libSGO.so");
+	//system("C:\\MinGW\\bin\\g++ Scriptor\\Scripts\\CompiledBinaries\\libSGO.dll -o Scriptor\\Scripts\\ScriptedGameObject.cpp");
+	//ShellExecuteExA("C:\\MinGW\\bin\\g++ -shared Scriptor\\Scripts\\ScriptedGameObject.cpp -o Scriptor\\Scripts\\CompiledBinaries\\libSGO.dll");
+	
+	LPCSTR operation = "open";
+	LPCSTR file = "C:/MinGW/bin/g++";
+	LPCSTR parameters = "-shared Scripts/ScriptedGameObject.cpp -o Scripts/CompiledBinaries/libSGO.dll";
+	LPCSTR directory = "C:/VSDev/ComputerGraphics/DX11RenderingEngine/DirectX11RenderingEngine/Scriptor";
+
+	
+	//HINSTANCE hInst = ShellExecuteA(m_windHandle, operation, file, parameters, directory, SW_SHOWNORMAL);
+	UINT res = WinExec("C:/MinGW/bin/g++ Scriptor/Scripts/ScriptedGameObject.cpp -o Scriptor/Scripts/CompiledBinaries/libSGO.dll", 1);
 
 	// -- Load library -- //      
-	fLib = dlopen("Scripts/CompiledBinaries/libSGO.so", RTLD_LAZY);
+	fLib = dlopen("Scriptor/Scripts/CompiledBinaries/libSGO.dll", RTLD_LAZY);
 	if (!fLib)
 	{
-		std::cerr << "Cannot open library for .h file: " << dlerror() << '\n';
+		char* error = dlerror();
+		//std::cerr << "Cannot open library for .cpp file: " << dlerror() << '\n';
 
-		//char* msg = dlerror();
-		//std::string dlError(msg);
-		//std::string error = "Cannot open library for .h file: " + dlError;
 		ErrorLogger::Log("Cannot open library from file");
 		return false;
 	}
@@ -29,12 +49,15 @@ bool Compiler::Compile()
 		return false;
 	}
 
-	if (fLib) {
+	if (fLib)
+	{
 		//Start = (VoidMethod_t)dlsym(fLib, "Start");
 		//Update = (VoidMethod_t)dlsym(fLib, "Update");
 		Factory = (ScriptableGameObject)dlsym(fLib, "factory");
 
 		compiledGO = Factory();
+
+
 
 		// Add to vector in graphics
 

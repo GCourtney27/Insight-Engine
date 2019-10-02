@@ -8,6 +8,7 @@ bool FileLoader::LoadSceneFromFile(const std::string & sceneLocation, std::vecto
 	std::fstream f(sceneLocation);
 	if (!f.is_open())
 		return false;
+	
 
 	RenderableGameObject* go = new RenderableGameObject();
 	std::string name;

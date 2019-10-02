@@ -49,11 +49,23 @@
     <Filter Include="Header Files\Scriptor">
       <UniqueIdentifier>{95743dbf-1d0c-42a8-84da-a28f2c152652}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Scripts">
-      <UniqueIdentifier>{9c35898e-9f5b-4196-9725-c5caee54b274}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Scripts">
       <UniqueIdentifier>{5e110067-5da4-4108-8a12-c68e25a1bc0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Objects">
+      <UniqueIdentifier>{80dd6cb6-fca5-4363-91bd-18663501045c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Objects">
+      <UniqueIdentifier>{40bebb09-a556-469e-a932-0fc696f83ecc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Event">
+      <UniqueIdentifier>{aa46ded3-eb06-4349-be5e-09ead2b8c732}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Math">
+      <UniqueIdentifier>{dc0e8a93-b771-435c-9a40-86aff99a3743}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Math">
+      <UniqueIdentifier>{eeefc430-427e-4c5b-a0e6-c60acfde412a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -164,6 +176,21 @@
     </ClCompile>
     <ClCompile Include="Includes\dlfcn.c">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Entity.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Object.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\ID.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Scene.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Transform.cpp">
+      <Filter>Source Files\Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -308,11 +335,32 @@
     <ClInclude Include="Graphics\BaseScriptableGameObject.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Includes\dlfcn.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Scriptor\CompilerHelper.h">
       <Filter>Header Files\Scriptor</Filter>
+    </ClInclude>
+    <ClInclude Include="Includes\dlfcn.h">
+      <Filter>Header Files\Scriptor</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Entity.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Object.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\ID.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Event\EventReciever.h">
+      <Filter>Header Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Event\Event.h">
+      <Filter>Header Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Scene.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Transform.h">
+      <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -335,6 +383,9 @@
       <Filter>Resource Files</Filter>
     </FxCompile>
     <FxCompile Include="Skybox_ps.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="pixelshader_foliage.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
   </ItemGroup>

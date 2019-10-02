@@ -49,6 +49,16 @@ const XMVECTOR & GameObject3D::GetRightVector(bool omitY)
 		return vec_right;
 }
 
+const XMVECTOR & GameObject3D::GetUpVector()
+{
+	return DEFAULT_UP_VECTOR;
+}
+
+const XMVECTOR & GameObject3D::GetDownVector()
+{
+	return DEFAULT_DOWN_VECTOR;
+}
+
 const XMVECTOR & GameObject3D::GetBackwardVector(bool omitY)
 {
 	if (omitY)

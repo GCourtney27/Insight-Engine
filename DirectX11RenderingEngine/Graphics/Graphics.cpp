@@ -1,5 +1,6 @@
 #include "Graphics.h"
 #include "../FileLoader.h"
+#include <thread>
 
 bool Graphics::Initialize(HWND hwnd, int width, int height)
 {
@@ -17,6 +18,12 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 
 	if (!InitializeScene())
 		return false;
+
+	if (!compiler.Initialize(hwnd))
+	{
+		ErrorLogger::Log("Failed to initialize compiler.");
+		return false;
+	}
 
 	//selectedGameObject = &gameObject;
 	selectedGameObject = m_gameObjects[0];
@@ -59,6 +66,7 @@ void Graphics::RenderFrame()
 	deviceContext->VSSetShader(testVertexshader.GetShader(), NULL, 0);
 	deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
 	deviceContext->PSSetShader(testPixelshader.GetShader(), NULL, 0);
+	deviceContext->PSSetShader(pixelshader_foliage.GetShader(), NULL, 0);
 
 	//deviceContext->IASetIndexBuffer(sphereIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	//deviceContext->IASetVertexBuffers(0, 1, &sphereVertBuffer, &stride, &offset);
@@ -100,7 +108,7 @@ void Graphics::RenderFrame()
 	}
 	{
 		deviceContext->PSSetShader(pixelshader_nolight.GetShader(), NULL, 0);
-		light.Draw(camera3D.GetViewMatrix() * camera3D.GetProjectionMatrix());
+		//light.Draw(camera3D.GetViewMatrix() * camera3D.GetProjectionMatrix());
 	}
 	//gameObject.UpdateAABB();
 
@@ -332,6 +340,9 @@ bool Graphics::InitializeShaders()
 	if (!pixelshader_nolight.Initialize(device, shaderfolder + L"pixelshader_nolight.cso"))
 		return false;
 
+	if (!pixelshader_foliage.Initialize(device, shaderfolder + L"pixelshader_foliage.cso"))
+		return false;
+
 	// -- Skybox -- //
 	if (!SKYMAP_PS.Initialize(device, shaderfolder + L"Skybox_ps.cso"))
 		return false;
@@ -380,21 +391,30 @@ bool Graphics::InitializeScene()
 
 		// Initialize Model(s)
 		if (!FileLoader::LoadSceneFromFile("Data//Scenes//Scene02.txt", m_gameObjects, device.Get(), deviceContext.Get(), cb_vs_vertexshader))
+		{
+			ErrorLogger::Log("Filed to laod scene");
 			return false;
+		}
 
 		cb_ps_light.data.ambientLightStrength = 0.268f;
 
-		light.lightStrength = 6.848f;
+		/*light.lightStrength = 6.848f;
 		light.attenuation_a = 1.968f;
 		light.attenuation_b = 0.2f;
-		light.attenuation_c = 0.0f;
+		light.attenuation_c = 0.0f;*/
 		
 		// Light
-		if (!light.Initialize(device.Get(), deviceContext.Get(), cb_vs_vertexshader))
+		/*if (!light.Initialize(device.Get(), deviceContext.Get(), cb_vs_vertexshader))
+		{
+			ErrorLogger::Log("Failed to initilize light");
 			return false;
+		}*/
 		// Hello World sprite
 		if (!sprite.Initialize(device.Get(), deviceContext.Get(), 256, 256, "Data/Textures/sprite_256x256.png", cb_vs_vertexshader_2d))
+		{
+			ErrorLogger::Log("Failed to initilize sprite");
 			return false;
+		}
 
 		camera2D.SetProjectionValues((float)windowWidth, (float)windowHeight, 0.0f, 1.0f);
 
@@ -461,6 +481,7 @@ void Graphics::UpdateImGui()
 	if (ImGui::Button("Create Scriptable Cube", { 150.0f, 20.0f }))
 	{
 		compiler.Compile();
+
 		BaseScriptableGameObject* go = compiler.compiledGO;
 		if (!go->Initialize("Data\\Objects\\Primatives\\Cube.obj", device.Get(), deviceContext.Get(), cb_vs_vertexshader))
 			ErrorLogger::Log("Failed to Initialize Renderable Game object from editor window.");
@@ -532,13 +553,13 @@ void Graphics::CreateSphere(int LatLines, int LongLines)
 	verticies[0].pos.y = 0.0f;
 	verticies[0].pos.z = 1.0f;
 
-	for (DWORD i = 0; i < LatLines - 2; i++)
+	for (int i = 0; i < LatLines - 2; i++)
 	{
-		spherePitch = (i + 1) * (3.14 / (LatLines - 1));
+		spherePitch = (i + 1) * (3.14f / (LatLines - 1));
 		Rotationx = XMMatrixRotationX(spherePitch);
-		for (DWORD j = 0; j < LongLines; j++)
+		for (int j = 0; j < LongLines; j++)
 		{
-			sphereYaw = j * (6.28 / (LongLines));
+			sphereYaw = j * (6.28f / (LongLines));
 			Rotationy = XMMatrixRotationZ(sphereYaw);
 			currentVertPos = XMVector3TransformNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), (Rotationx * Rotationy));
 			currentVertPos = XMVector3Normalize(currentVertPos);
@@ -574,7 +595,7 @@ void Graphics::CreateSphere(int LatLines, int LongLines)
 	std::vector<DWORD> indices(NumSphereFaces * 3);
 
 	int k = 0;
-	for (DWORD l = 0; l < LongLines - 1; l++)
+	for (int l = 0; l < LongLines - 1; l++)
 	{
 		indices[k] = 0;
 		indices[k + 1] = l + 1;
@@ -587,9 +608,9 @@ void Graphics::CreateSphere(int LatLines, int LongLines)
 	indices[k + 2] = 1;
 	k += 3;
 
-	for (DWORD i = 0; i < LatLines - 3; i++)
+	for (int i = 0; i < LatLines - 3; i++)
 	{
-		for (DWORD j = 0; j < LongLines - 1; j++)
+		for (int j = 0; j < LongLines - 1; j++)
 		{
 			indices[k] = i * LongLines + j + 1;
 			indices[k + 1] = i * LongLines + j + 2;
@@ -612,7 +633,7 @@ void Graphics::CreateSphere(int LatLines, int LongLines)
 		k += 6;
 	}
 
-	for (DWORD l = 0; l < LongLines - 1; l++)
+	for (int l = 0; l < LongLines - 1; l++)
 	{
 		indices[k] = NumSphereVerticies - 1;
 		indices[k + 1] = (NumSphereVerticies - 1) - (l + 1);

@@ -1,7 +1,5 @@
 #pragma once
 #include "Model.h"
-#include "../Components/Component.h"
-#include <vector>
 
 class GameObject
 {

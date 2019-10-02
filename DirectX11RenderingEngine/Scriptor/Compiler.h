@@ -2,7 +2,6 @@
 #include <iostream>
 #include <fstream>
 #include "dlfcn.h"
-#include <stdlib.h>
 #include <filesystem>
 #include "CompilerHelper.h"
 
@@ -15,6 +14,8 @@ public:
 	Compiler() {}
 	~Compiler() {}
 
+	bool Initialize(HWND windHandle);
+
 	bool Compile();
 
 	BaseScriptableGameObject* compiledGO = nullptr;
@@ -23,4 +24,5 @@ private:
 	VoidMethod_t Start;
 	VoidMethod_t Update;
 	ScriptableGameObject Factory;
+	HWND m_windHandle;
 };
