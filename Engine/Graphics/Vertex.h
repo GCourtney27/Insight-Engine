@@ -1,6 +1,6 @@
 #pragma once
-//#include <DirectXMath.h>
-#include "C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\DirectXMath.h"
+#include <DirectXMath.h>
+//#include "C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\DirectXMath.h"
 struct Vertex2D
 {
 	Vertex2D() {}

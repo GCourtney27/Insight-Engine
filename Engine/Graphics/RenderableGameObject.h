@@ -13,7 +13,7 @@ public:
 
 	Model* GetModel() { return &model; }
 
-	AABB aabb;
+	/*AABB aabb;*/
 
 	SimpleMath::Vector3 sphere_position;
 	float sphere_radius = 0.0f;

@@ -14,9 +14,14 @@ public:
 	~Scene() {}
 
 	bool Initialize();
-	void Update(float deltaTime); // Call this in engine.cpp and pass in delta time
+	void Update(const float& deltaTime); // Call this in engine.cpp and pass in delta time
 	void Draw();
 	void Shutdown();
+
+	// -- Runtime -- // 
+	bool OnStart();
+	void OnUpdate(float deltaTime);
+	void OnDestroy();
 
 	template<typename T>
 	T* AddEntity(const ID& id = ID())
@@ -33,6 +38,9 @@ public:
 	std::vector<Entity*> GetEntitiesWithTag(const ID& tag);
 	std::list<Entity*>* GetAllEntities() { return &m_entities; }
 
+
+
 protected:
 	std::list<Entity*> m_entities;
+	char* m_pName;
 };

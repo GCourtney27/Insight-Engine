@@ -1,0 +1,1 @@
+MakeSpriteFont "<name of font installed on your computer>" <name you want the file to be called>.spritefont /FontSize:<desired size>

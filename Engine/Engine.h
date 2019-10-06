@@ -1,10 +1,8 @@
 #pragma once
 #include "WindowContainer.h"
-#include "Systems\\Timer.h"
-#include "Systems\\FileLoader.h"
-#include "Physics\\Ray.h"
-#include "Editor\\Editor.h"
 #include "..\\Objects\\Scene.h"
+#include "Scriptor\\Compiler.h"
+#include "Objects\\Entity.h"
 
 class Engine : WindowContainer
 {
@@ -14,15 +12,23 @@ public:
 	bool Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height);
 	bool ProccessMessages();
 	void Update();
+	void Shutdown();
 	void RenderFrame();
-	bool SaveScene();
 	
+	Scene& GetScene() { return scene; }
+
+	int GetWindowWidth() { return windowWidth; }
+	int GetWindowHeight() { return windowHeight; }
+
+	Compiler* GetCompiler() { return &compiler; }
+
 private:
 	
-	Timer timer;
-	Editor editor; // Move ray casting into editor
+	// DEBUG
+	Entity* scriptedEntity = nullptr;
 
 	Scene scene;
+	Compiler compiler;
 
 	int windowWidth = 0;
 	int windowHeight = 0;

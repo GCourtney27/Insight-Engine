@@ -73,6 +73,7 @@ void Texture::InitializeColorTexture(ID3D11Device * device, const Color * colorD
 	initialData.SysMemPitch = width * sizeof(Color);
 	HRESULT hr = device->CreateTexture2D(&textureDesc, &initialData, &p2DTexture);
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize texture from color data.");
+	
 	texture = static_cast<ID3D11Texture2D*>(p2DTexture);
 	CD3D11_SHADER_RESOURCE_VIEW_DESC srvDesc(D3D11_SRV_DIMENSION_TEXTURE2D, textureDesc.Format);
 	hr = device->CreateShaderResourceView(texture.Get(), &srvDesc, textureView.GetAddressOf());

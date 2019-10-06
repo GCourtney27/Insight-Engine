@@ -5,6 +5,8 @@
 #include <wrl/client.h>
 #include "..\\ErrorLogger.h"
 
+// ConstantBuffers Take in ConstantBufferTypes objects
+
 template<class T>
 class ConstantBuffer
 {

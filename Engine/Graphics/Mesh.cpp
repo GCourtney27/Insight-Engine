@@ -37,6 +37,8 @@ void Mesh::Draw()
 
 	this->deviceContext->IASetVertexBuffers(0, 1, this->vertexBuffer.GetAddressOf(), this->vertexBuffer.StridePtr(), &offset);
 	this->deviceContext->IASetIndexBuffer(this->indexBuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+	
+	// vv Raw Draw Call vv //
 	this->deviceContext->DrawIndexed(this->indexBuffer.IndexCount(), 0, 0);
 }
 

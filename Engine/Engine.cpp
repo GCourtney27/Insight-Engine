@@ -1,27 +1,50 @@
 #include "Engine.h"
+#include "Editor\\Editor.h"
+#include "Systems\\Timer.h"
+#include "Graphics\\Graphics.h"
+#include "..\\Systems\\FileSystem.h"
+#include "Components\\MeshRenderComponent.h"
+#include "Components\\EditorSelectionComponent.h"
 #include <iostream>
-
 
 bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height)
 {
 	windowHeight = height;
 	windowWidth = width;
 
-	timer.Start();
+	Timer::Instance()->Start();
+	FileSystem::Instance()->Initialize(this);
+	compiler.Initialize();
+
 	if (!this->render_window.Initialize(this, hInstance, window_title, window_class, width, height))
 		return false;
 
-	// Forward Renderer
-	if (!gfx.Initialize(this->render_window.GetHWND(), width, height))
+	if (!Graphics::Instance()->Initialize(this->render_window.GetHWND(), width, height, this))
 		return false;
 
-	if (!FileLoader::LoadSceneFromFile("Data\\Scenes\\Scene01.txt", &scene, gfx.GetDevice(), gfx.GetDeviceContext(), gfx.GetDefaultVertexShader()))
+	/*if (!FileSystem::Instance()->LoadSceneFromFile("Data\\Scenes\\Scene01_PBRTest.txt", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader()))
 	{
 		ErrorLogger::Log("Failed to initialize scene.");
 		return false;
-	}
+	}*/
 
-	gfx.SetScene(&scene);
+	scriptedEntity = new Entity(&scene, *(new ID()));
+	MeshRenderer* me = scriptedEntity->AddComponent<MeshRenderer>();
+	me->Initialize("Data\\Objects\\Dandelion\\Var1\\Textured_Flower.obj", Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader());
+	scriptedEntity->GetTransform().SetPosition(0.0f, 0.0f, 0.0f);
+	scriptedEntity->GetTransform().SetScale(1.0f, 1.0f, 1.0f);
+	scriptedEntity->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
+
+	EditorSelection* esc = scriptedEntity->AddComponent<EditorSelection>();
+	esc->Initialize(20.0f, scriptedEntity->GetTransform().GetPosition());
+
+	scene.AddEntity(scriptedEntity);
+
+	//Graphics::Instance()->InitSkybox();
+
+	if (!Debug::Editor::Instance()->Initialize(this))
+		return false;
+
 
 	return true;
 }
@@ -33,105 +56,112 @@ bool Engine::ProccessMessages()
 
 void Engine::Update()
 {
-	float dt = (float)timer.GetMilisecondsElapsed();
-	timer.Restart();
+	float dt = (float)Timer::Instance()->GetDeltaTime();
+	Timer::Instance()->Restart();
 
-	gfx.Update();
-	//scene.Update(dt);
+	if (Debug::Editor::Instance()->PlayingGame())
+		scene.OnUpdate(dt);
 
-	while (!keyboard.CharBufferIsEmpty())
+
+
+	Debug::Editor::Instance()->Update();
+	Graphics::Instance()->Update();
+	scene.Update(dt);
+
+	while (!InputManager::Instance()->keyboard.CharBufferIsEmpty())
 	{
-		unsigned char ch = keyboard.ReadChar();
+		unsigned char ch = InputManager::Instance()->keyboard.ReadChar();
 	}
 
-	while (!keyboard.KeyBufferIsEmpty())
+	while (!InputManager::Instance()->keyboard.KeyBufferIsEmpty())
 	{
-		KeyboardEvent kbe = keyboard.ReadKey();
+		KeyboardEvent kbe = InputManager::Instance()->keyboard.ReadKey();
 		unsigned char keycode = kbe.GetKeyCode();
 	}
 
-	while (!mouse.EventBufferIsEmpty())
+	while (!InputManager::Instance()->mouse.EventBufferIsEmpty())
 	{
-		MouseEvent me = mouse.ReadEvent();
-		if (mouse.IsRightDown())
+		MouseEvent me = InputManager::Instance()->mouse.ReadEvent();
+		if (InputManager::Instance()->mouse.IsRightDown())
 		{
 			if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
 			{
-				this->gfx.camera3D.AdjustRotation((float)me.GetPosY() * 0.01f, (float)me.GetPosX() * 0.01f, 0);
+				Graphics::Instance()->camera3D.AdjustRotation((float)me.GetPosY() * 0.01f, (float)me.GetPosX() * 0.01f, 0);
 			}
 		}
 
 	}
 
 	float camera3DSpeed = 0.01f;
-	if (keyboard.KeyIsPressed(VK_SHIFT))
+	if (InputManager::Instance()->keyboard.KeyIsPressed(VK_SHIFT))
 	{
 		camera3DSpeed = 0.1f;
 	}
 
 
-	if (keyboard.KeyIsPressed('W'))
+	if (InputManager::Instance()->keyboard.KeyIsPressed('W'))
 	{
-		this->gfx.camera3D.AdjustPosition(this->gfx.camera3D.GetForwardVector() * camera3DSpeed * dt);
+		Graphics::Instance()->camera3D.AdjustPosition(Graphics::Instance()->camera3D.GetForwardVector() * camera3DSpeed * dt);
 	}
-	if (keyboard.KeyIsPressed('S'))
+	if (InputManager::Instance()->keyboard.KeyIsPressed('S'))
 	{
-		this->gfx.camera3D.AdjustPosition(this->gfx.camera3D.GetBackwardVector() * camera3DSpeed * dt);
+		Graphics::Instance()->camera3D.AdjustPosition(Graphics::Instance()->camera3D.GetBackwardVector() * camera3DSpeed * dt);
 	}
-	if (keyboard.KeyIsPressed('A'))
+	if (InputManager::Instance()->keyboard.KeyIsPressed('A'))
 	{
-		this->gfx.camera3D.AdjustPosition(this->gfx.camera3D.GetLeftVector() * camera3DSpeed * dt);
+		Graphics::Instance()->camera3D.AdjustPosition(Graphics::Instance()->camera3D.GetLeftVector() * camera3DSpeed * dt);
 	}
-	if (keyboard.KeyIsPressed('D'))
+	if (InputManager::Instance()->keyboard.KeyIsPressed('D'))
 	{
-		this->gfx.camera3D.AdjustPosition(this->gfx.camera3D.GetRightVector() * camera3DSpeed * dt);
+		Graphics::Instance()->camera3D.AdjustPosition(Graphics::Instance()->camera3D.GetRightVector() * camera3DSpeed * dt);
 	}
-	if (keyboard.KeyIsPressed('E'))
+	if (InputManager::Instance()->keyboard.KeyIsPressed('E'))
 	{
-		this->gfx.camera3D.AdjustPosition(0.0f, camera3DSpeed * dt, 0.0f);
+		Graphics::Instance()->camera3D.AdjustPosition(0.0f, camera3DSpeed * dt, 0.0f);
 	}
-	if (keyboard.KeyIsPressed('Q'))
+	if (InputManager::Instance()->keyboard.KeyIsPressed('Q'))
 	{
-		this->gfx.camera3D.AdjustPosition(0.0f, -camera3DSpeed * dt, 0.0f);
+		Graphics::Instance()->camera3D.AdjustPosition(0.0f, -camera3DSpeed * dt, 0.0f);
 	}
-	if (keyboard.KeyIsPressed(27))
+	if (InputManager::Instance()->keyboard.KeyIsPressed(27))
 	{
 		exit(0); // Performs no cleanup
 		//PostMessage(this->render_window.GetHWND(), WM_QUIT, 0, 0);
 	}
 
-	if (keyboard.KeyIsPressed('C'))
+	if (InputManager::Instance()->keyboard.KeyIsPressed('C'))
 	{
-		//lightPosition += this->gfx.camera3D.GetForwardVector();
-		this->gfx.light.SetPosition(this->gfx.camera3D.GetPositionFloat3());
-		this->gfx.light.SetRotation(this->gfx.camera3D.GetRotationFloat3());
+		//lightPosition += this->Graphics::Instance()->camera3D.GetForwardVector();
+		//Graphics::Instance()->light.SetPosition(Graphics::Instance()->camera3D.GetPositionFloat3());
+		//Graphics::Instance()->light.SetRotation(Graphics::Instance()->camera3D.GetRotationFloat3());
 	}
 
-	if (keyboard.KeyIsPressed(VK_CONTROL) && keyboard.KeyIsPressed('S'))
+	/*if (InputManager::Instance()->keyboard.KeyIsPressed(VK_CONTROL) && InputManager::Instance()->keyboard.KeyIsPressed('S'))
 	{
 		if(!SaveScene())
 			ErrorLogger::Log("Failed to save scene");
-	}
+	}*/
 
-	/*for (int i = 0; i < gfx.m_gameObjects.size();i++)
+	/*for (int i = 0; i < Graphics::Instance()->m_gameObjects.size();i++)
 	{
-		gfx.m_gameObjects[i]->Update();
+		Graphics::Instance()->m_gameObjects[i]->Update();
 	}*/
 
 }
+
+
 
 DirectX::XMFLOAT4X4 boxWorld;
 
 void Engine::RenderFrame()
 {
-	gfx.RenderFrame();
+	Graphics::Instance()->RenderFrame();
 }
 
-bool Engine::SaveScene()
+void Engine::Shutdown()
 {
-	/*if (!FileLoader::WriteSceneToFile(gfx.m_gameObjects))
-		return false;*/
-	return true;
+	scene.Shutdown();
+	Graphics::Instance()->Shutdown();
 }
 
 

@@ -1,16 +1,27 @@
 #pragma once
 #include <chrono>
+#include "..\\Framework\\Singleton.h"
+#include "..\\Engine.h"
 
-class Timer
+class Timer : public Singleton<Timer>
 {
 public:
 	Timer();
-	double GetMilisecondsElapsed();
+	bool Initialize(Engine* engine);
+
+
+	double GetDeltaTime();
 	void Restart();
-	bool Stop();
+
 	bool Start();
+	bool Stop();
 private:
+	Engine* m_engine;
+
 	bool isrunning = false;
+	float m_dt;
+	float m_timeScale;
+
 #ifdef _WIN32
 	std::chrono::time_point<std::chrono::steady_clock> start;
 	std::chrono::time_point<std::chrono::steady_clock> stop;

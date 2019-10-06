@@ -9,7 +9,7 @@ public:
 	InputManager() {}
 	~InputManager() {}
 
+	KeyboardClass keyboard;
+	MouseClass mouse;
 private:
-	KeyboardClass m_keyboard;
-	MouseClass m_mouse;
 };

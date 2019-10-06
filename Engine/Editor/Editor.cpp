@@ -1,98 +1,119 @@
 #include "Editor.h"
+#include "..\\Graphics\\Graphics.h"
+#include "..\\Systems\\FileSystem.h"
+#include "..\\Input\\InputManager.h"
 
-bool Editor::Initialize()
+namespace Debug
 {
 
-	return false;
-}
-
-void Editor::Update()
-{
-	/*Raycasting*/
-	if (mouse.IsLeftDown())
+	bool Editor::Initialize(Engine* engine)
 	{
-		/*SimpleMath::Vector3 cameraPosition = gfx.camera3D.GetPositionFloat3();
-		SimpleMath::Vector3 mouseVector = GetMouseDirectionVector();
+		m_engine = engine;
 
-		Ray* raycast = new Ray(cameraPosition, mouseVector);*/
-
-		// -- Using numerical radius -- //
-		/*int gos = (int)gfx.m_gameObjects.size();
-		for (int i = 0; i < gos; i++)
+		std::list<Entity*>* entities = m_engine->GetScene().GetAllEntities();
+		std::list<Entity*>::iterator iter;
+		for (iter = entities->begin(); iter != entities->end(); iter++)
 		{
-			if (hit_sphere(gfx.m_gameObjects[i]->sphere_position, gfx.m_gameObjects[i]->sphere_radius, *raycast))
-			{
-				gfx.selectedGameObject = gfx.m_gameObjects[i];
-				break;
-			}
-		}*/
-		// -- Using bounding sphere -- //
-		/*int gos = (int)gfx.m_gameObjects.size();
-		for (int i = 0; i < gos; i++)
-		{
-			if (hit_sphere(gfx.m_gameObjects[i]->aabb.GetPosition(), gfx.m_gameObjects[i]->aabb.GetRadius(), *raycast))
-			{
-				gfx.selectedGameObject = gfx.m_gameObjects[i];
-				break;
-			}
-		}*/
+			m_selectedEntity = (*iter);
+			break;
+		}
+
+		return true;
 	}
-}
 
-void Editor::Shutdown()
-{
-}
+	void Editor::Update()
+	{
+		/*Raycasting*/
+		//if (InputManager::Instance()->mouse.IsLeftDown())
+		//{
+		//	SimpleMath::Vector3 cameraPosition = Graphics::Instance()->camera3D.GetPositionFloat3();
+		//	SimpleMath::Vector3 mouseVector = GetMouseDirectionVector();
 
-DirectX::XMFLOAT3 Editor::GetMouseDirectionVector()
-{
-	/*int posX = mouse.GetPosX();
-	int posY = mouse.GetPosY();
+		//	Ray* raycast = new Ray(cameraPosition, mouseVector);
 
-	DirectX::XMVECTOR mouseNear = DirectX::XMVectorSet((float)posX, (float)posY, 0.0f, 0.0f);
+		//	// -- Using bounding sphere -- //
+		//	std::list<Entity*>* entities = m_engine->GetScene().GetAllEntities();
+		//	std::list<Entity*>::iterator iter;
+		//	for (iter = entities->begin(); iter != entities->end(); iter++)
+		//	{
+		//		if (hit_sphere((*iter)->GetComponent<EditorSelection>()->GetPosition(), (*iter)->GetComponent<EditorSelection>()->GetRadius(), *raycast))
+		//		{
+		//			m_selectedEntity = (*iter);
+		//			break;
+		//		}
+		//	}
+		//}
 
-	DirectX::XMVECTOR mouseFar = DirectX::XMVectorSet((float)posX, (float)posY, 1.0f, 0.0f);
+		//if (InputManager::Instance()->keyboard.KeyIsPressed(VK_CONTROL) && InputManager::Instance()->keyboard.KeyIsPressed('S'))
+		//{
+		//	if (!SaveScene())
+		//	{
+		//		ErrorLogger::Log("Failed to Save Scene");
+		//	}
+		//}
 
-	DirectX::XMVECTOR unprojectedNear = DirectX::XMVector3Unproject(mouseNear, 0, 0, (float)windowWidth, (float)windowHeight, gfx.camera3D.GetNearZ(), gfx.camera3D.GetFarZ(),
-		gfx.camera3D.GetProjectionMatrix(), gfx.camera3D.GetViewMatrix(), DirectX::XMMatrixIdentity());
-
-	DirectX::XMVECTOR unprojectedFar = DirectX::XMVector3Unproject(mouseFar, 0, 0, (float)windowWidth, (float)windowHeight, gfx.camera3D.GetNearZ(), gfx.camera3D.GetFarZ(),
-		gfx.camera3D.GetProjectionMatrix(), gfx.camera3D.GetViewMatrix(), DirectX::XMMatrixIdentity());
-
-	DirectX::XMVECTOR result = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(unprojectedFar, unprojectedNear));
-
-	DirectX::XMFLOAT3 direction;
-
-	DirectX::XMStoreFloat3(&direction, result);
-
-	return direction; */
-	DirectX::XMFLOAT3 direction;
-	return direction;
-}
-
-
-bool Editor::hit_sphere(const SimpleMath::Vector3& center, float radius, const Ray& r)
-{
-	SimpleMath::Vector3 oc = r.orgin() - center;
-
-	float a = r.direction().Dot(r.direction());
-	float b = 2.0f * oc.Dot(r.direction());
-	float c = oc.Dot(oc) - radius * radius;
-	float discriminant = b * b - 4 * a*c;
-	return (discriminant > 0.0f);
-}
-
-float Editor::intersection_distance(const SimpleMath::Vector3& center, float radius, const Ray& r)
-{
-	SimpleMath::Vector3 oc = r.orgin() - center;
-
-	float a = r.direction().Dot(r.direction());
-	float b = 2.0f * oc.Dot(r.direction());
-	float c = oc.Dot(oc) - radius * radius;
-	float discriminant = b * b - 4 * a*c;
-	if (discriminant < 0) {
-		return -1.0f;
 	}
-	else {
-		return (-b - sqrt(discriminant)) / (2.0f*a);
+
+	void Editor::Shutdown()
+	{
+	}
+
+	DirectX::XMFLOAT3 Editor::GetMouseDirectionVector()
+	{
+		int posX = InputManager::Instance()->mouse.GetPosX();
+		int posY = InputManager::Instance()->mouse.GetPosY();
+
+		DirectX::XMVECTOR mouseNear = DirectX::XMVectorSet((float)posX, (float)posY, 0.0f, 0.0f);
+
+		DirectX::XMVECTOR mouseFar = DirectX::XMVectorSet((float)posX, (float)posY, 1.0f, 0.0f);
+
+		DirectX::XMVECTOR unprojectedNear = DirectX::XMVector3Unproject(mouseNear, 0, 0, (float)m_engine->GetWindowWidth(), (float)m_engine->GetWindowHeight(), Graphics::Instance()->camera3D.GetNearZ(), Graphics::Instance()->camera3D.GetFarZ(),
+			Graphics::Instance()->camera3D.GetProjectionMatrix(), Graphics::Instance()->camera3D.GetViewMatrix(), DirectX::XMMatrixIdentity());
+
+		DirectX::XMVECTOR unprojectedFar = DirectX::XMVector3Unproject(mouseFar, 0, 0, (float)m_engine->GetWindowWidth(), (float)m_engine->GetWindowHeight(), Graphics::Instance()->camera3D.GetNearZ(), Graphics::Instance()->camera3D.GetFarZ(),
+			Graphics::Instance()->camera3D.GetProjectionMatrix(), Graphics::Instance()->camera3D.GetViewMatrix(), DirectX::XMMatrixIdentity());
+
+		DirectX::XMVECTOR result = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(unprojectedFar, unprojectedNear));
+
+		DirectX::XMFLOAT3 direction;
+
+		DirectX::XMStoreFloat3(&direction, result);
+
+		return direction;
+	}
+
+
+	bool Editor::hit_sphere(const SimpleMath::Vector3& center, float radius, const Ray& r)
+	{
+		SimpleMath::Vector3 oc = r.orgin() - center;
+
+		float a = r.direction().Dot(r.direction());
+		float b = 2.0f * oc.Dot(r.direction());
+		float c = oc.Dot(oc) - radius * radius;
+		float discriminant = b * b - 4 * a*c;
+		return (discriminant > 0.0f);
+	}
+
+	float Editor::intersection_distance(const SimpleMath::Vector3& center, float radius, const Ray& r)
+	{
+		SimpleMath::Vector3 oc = r.orgin() - center;
+
+		float a = r.direction().Dot(r.direction());
+		float b = 2.0f * oc.Dot(r.direction());
+		float c = oc.Dot(oc) - radius * radius;
+		float discriminant = b * b - 4 * a*c;
+		if (discriminant < 0) {
+			return -1.0f;
+		}
+		else {
+			return (-b - sqrt(discriminant)) / (2.0f*a);
+		}
+	}
+
+	bool Editor::SaveScene()
+	{
+		if (!FileSystem::WriteSceneToFile(m_engine->GetScene().GetAllEntities()))
+			return false;
+		return true;
 	}
 }

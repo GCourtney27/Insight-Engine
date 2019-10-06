@@ -1,6 +1,6 @@
 #pragma once
 #include "GameObject.h"
-#include "../Components/AABB.h"
+#include "../Components/EditorSelectionComponent.h"
 
 class GameObject3D : public GameObject
 {

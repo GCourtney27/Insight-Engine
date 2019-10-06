@@ -2,11 +2,18 @@
 
 Timer::Timer()
 {
-	start = std::chrono::high_resolution_clock::now();
-	stop = std::chrono::high_resolution_clock::now();
 }
 
-double Timer::GetMilisecondsElapsed()
+bool Timer::Initialize(Engine * engine)
+{
+	start = std::chrono::high_resolution_clock::now();
+	stop = std::chrono::high_resolution_clock::now();
+	m_timeScale = 1.0f;
+
+	return true;
+}
+
+double Timer::GetDeltaTime()
 {
 	if (isrunning)
 	{
@@ -16,7 +23,7 @@ double Timer::GetMilisecondsElapsed()
 	else
 	{
 		auto elapsed = std::chrono::duration<double, std::milli>(stop - start);
-		return elapsed.count();
+		return elapsed.count() / m_timeScale;
 	}
 }
 

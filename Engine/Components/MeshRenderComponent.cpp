@@ -8,6 +8,8 @@ bool MeshRenderer::Initialize(const std::string & filepath, ID3D11Device * devic
 		ErrorLogger::Log(error);
 		return false;
 	}
+	m_pName = "MeshRenderer";
+
 	return true;
 }
 

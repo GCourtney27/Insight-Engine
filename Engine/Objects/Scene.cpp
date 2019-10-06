@@ -10,7 +10,7 @@ bool Scene::Initialize()
 	return true;
 }
 
-void Scene::Update(float deltaTime)
+void Scene::Update(const float& deltaTime)
 {
 	for (Entity* entity : m_entities)
 	{
@@ -30,6 +30,23 @@ void Scene::Shutdown()
 		delete entity;
 	}
 	m_entities.clear();
+}
+
+bool Scene::OnStart()
+{
+	return false;
+}
+
+void Scene::OnUpdate(float deltaTime)
+{
+	for (Entity* entity : m_entities)
+	{
+		entity->OnUpdate(deltaTime);
+	}
+}
+
+void Scene::OnDestroy()
+{
 }
 
 
@@ -81,7 +98,7 @@ std::vector<Entity*> Scene::GetEntitiesWithTag(const ID & tag)
 
 	for (Entity* entity : m_entities)
 	{
-		if (entity->GetTag() == tag)
+		if (entity->GetID() == tag)
 		{
 			entities.push_back(entity);
 		}

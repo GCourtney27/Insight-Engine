@@ -1,6 +1,8 @@
 #pragma once
 #include <DirectXMath.h>
 
+// ConstantBufferTypes are owned by ConstantBuffer obejcts
+
 struct CB_VS_vertexshader
 {
 	DirectX::XMMATRIX wvpMatrix;
@@ -11,11 +13,6 @@ struct CB_VS_vertexshader_2d
 {
 	DirectX::XMMATRIX wvpMatrix;
 };
-
-//struct CB_PS_pixelshader
-//{
-//	float alpha = 1.0f;
-//};
 
 struct CB_PS_light
 {

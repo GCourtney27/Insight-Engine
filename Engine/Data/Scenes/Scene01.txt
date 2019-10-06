@@ -3,14 +3,14 @@ f Data\\Objects\\Dandelion\\Var1\\Textured_Flower.obj
 p -25.9 10.8 22.9
 r 0 13.4 0.2
 s 1 1 1
-n s
+n Flower
 f Data\\Objects\\Dandelion\\Var1\\Textured_Flower.obj
-p -75.7 -0.4 -11
+p -48.2 -4.1 -32.6
 r 0 0 0
 s 1 1 1
 n GameObject3
 f Data\\Objects\\Dandelion\\Var1\\Textured_Flower.obj
-p -1 46.1 30.5
+p -1.7 45 11.7
 r 0 0 0.3
 s 1 1 1
 n GameObject4
@@ -23,7 +23,7 @@ f Data\\Objects\\Primatives\\Cube.obj
 p 48.4 0 0
 r 0 0 0
 s 10 10 10
-n c
+n cube
 f Data\\Objects\\Primatives\\Cube.obj
 p 0 -13.6 -66.8
 r 0 0 0

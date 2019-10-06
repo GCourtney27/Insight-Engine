@@ -1,11 +1,15 @@
 #include "Graphics.h"
-#include "..\\Systems\\FileLoader.h"
-#include <thread>
+#include "..\\Components\\MeshRenderComponent.h"
+#include "..\\Editor\\Editor.h"
+#include "..\\Input\\InputManager.h"
 
-bool Graphics::Initialize(HWND hwnd, int width, int height)
+
+bool Graphics::Initialize(HWND hwnd, int width, int height, Engine* engine)
 {
 	windowWidth = width;
 	windowHeight = height;
+	m_pEngine = engine;
+
 	fpsTimer.Start();
 
 	if (!InitializeDirectX(hwnd))
@@ -18,132 +22,40 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 
 	if (!InitializeScene())
 		return false;
-
-	if (!compiler.Initialize(hwnd))
-	{
-		ErrorLogger::Log("Failed to initialize compiler.");
-		return false;
-	}
-
-	//selectedGameObject = &gameObject;
-	//selectedGameObject = m_gameObjects[0];
-
+	
+	pIO = new ImGuiIO();
 	// Setup ImGui
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
-	ImGui_ImplWin32_Init(hwnd);
-	ImGui_ImplDX11_Init(device.Get(), deviceContext.Get());
+	ImGuiIO& io = ImGui::GetIO(); 
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
 	ImGui::StyleColorsDark();
+	ImGuiStyle& style = ImGui::GetStyle();
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		style.WindowRounding = 0.0f;
+		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+	}
+	ImGui_ImplWin32_Init(hwnd);
+	ImGui_ImplDX11_Init(pDevice.Get(), pDeviceContext.Get());
+	*pIO = io;
 
 	return true;
 }
 
-void Graphics::RenderFrame()
+void Graphics::InitSkybox()
 {
-	// -- Update Light Shader Information -- //
-	cb_ps_light.data.dynamicLightColor = light.lightColor;
-	cb_ps_light.data.dynamicLightStrength = light.lightStrength;
-	cb_ps_light.data.dynamicLightPosition = light.GetPositionFloat3();
-	cb_ps_light.data.dynamicLightAttenuation_a = light.attenuation_a;
-	cb_ps_light.data.dynamicLightAttenuation_b = light.attenuation_b;
-	cb_ps_light.data.dynamicLightAttenuation_c = light.attenuation_c;
-	cb_ps_light.ApplyChanges();
-	deviceContext->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
-
-	// -- Clear Background Color for Scene -- //
-	float bgcolor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
-	deviceContext->ClearRenderTargetView(renderTargetView.Get(), bgcolor);
-	deviceContext->ClearDepthStencilView(depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-
-	deviceContext->IASetInputLayout(vertexshader.GetInputLayout());
-	deviceContext->IASetInputLayout(testVertexshader.GetInputLayout());
-	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	deviceContext->RSSetState(rasterizerState.Get());
-	deviceContext->OMSetDepthStencilState(depthStencilState.Get(), 0);
-	deviceContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);
-	deviceContext->PSSetSamplers(0, 1, samplerState.GetAddressOf());
-	deviceContext->VSSetShader(vertexshader.GetShader(), NULL, 0);
-	deviceContext->VSSetShader(testVertexshader.GetShader(), NULL, 0);
-	deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
-	deviceContext->PSSetShader(testPixelshader.GetShader(), NULL, 0);
-	deviceContext->PSSetShader(pixelshader_foliage.GetShader(), NULL, 0);
-
-	// -- Update Skybox Shaders -- //
-	//deviceContext->IASetIndexBuffer(sphereIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	//deviceContext->IASetVertexBuffers(0, 1, &sphereVertBuffer, &stride, &offset);
-	/*{
-		WVP = sphereWorld * gameCamera.GetViewMatrix() * camera3D.GetProjectionMatrix();
-		cb_vs_vertexshader.data.wvpMatrix = XMMatrixTranspose(WVP);
-		cb_vs_vertexshader.data.worldMatrix = XMMatrixTranspose(sphereWorld);
-		deviceContext->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
-		deviceContext->VSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
-		deviceContext->PSSetShaderResources(0, 1, &smrv);
-		deviceContext->PSSetSamplers(0, 1, &CubesTexSamplerState);
-
-		deviceContext->VSSetShader(SKYMAP_VS, 0, 0);
-		deviceContext->PSSetShader(SKYMAP_PS, 0, 0);
-		deviceContext->OMSetDepthStencilState(DSLessEqual, 0);
-		deviceContext->RSSetState(RSCullNone);
-		deviceContext->DrawIndexed(NumSphereFaces * 3, 0, 0);
-
-		deviceContext->VSSetShader(VS, 0, 0);
-		deviceContext->OMSetDepthStencilState(NULL, 0);
-	}*/
-
+	skybox = new Entity((&m_pEngine->GetScene()), *(new ID()));
+	MeshRenderer* me = skybox->AddComponent<MeshRenderer>();
+	me->Initialize("Data\\Objects\\SkyCube.fbx", pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader);
+	skybox->GetTransform().SetPosition(0.0f, 0.0f, 0.0f);
+	skybox->GetTransform().SetScale(150.0f, 150.0f, 150.0f);
+	skybox->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
+	m_pEngine->GetScene().AddEntity(skybox);
 	
-	std::list<Entity*>* entities = scene->GetAllEntities();
-	std::list<Entity*>::iterator iter;
-	for (iter = entities->begin(); iter != entities->end(); iter++)
-	{
-		(*iter)->Draw(camera3D.GetViewMatrix() * camera3D.GetProjectionMatrix());
-	}
-	
-
-	{
-		deviceContext->PSSetShader(pixelshader_nolight.GetShader(), NULL, 0);
-		//light.Draw(camera3D.GetViewMatrix() * camera3D.GetProjectionMatrix());
-	}
-
-	// -- Update 2D shader Information -- //
-	deviceContext->IASetInputLayout(vertexshader_2d.GetInputLayout());
-	deviceContext->PSSetShader(pixelshader_2d.GetShader(), NULL, 0);
-	deviceContext->VSSetShader(vertexshader_2d.GetShader(), NULL, 0);
-	sprite.Draw(camera2D.GetWorldmatrix() * camera2D.GetOrthoMatrix());
-
-	// -- Draw Text -- //
-	static int fpsCounter = 0;
-	static std::string fpsString = "FPS: 0";
-	fpsCounter += 1;
-	if (fpsTimer.GetMilisecondsElapsed() > 1000.0)
-	{
-		fpsString = "FPS: " + std::to_string(fpsCounter);
-		fpsCounter = 0;
-		fpsTimer.Restart();
-	}
-	spriteBatch->Begin();
-	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	spriteBatch->End();
-
-	UpdateImGui();
-
-	// Present Final Image on RTV -- //
-	swapchain->Present(0, NULL); // Enable Vertical sync with 1 or 0
-}
-
-void Graphics::Update()
-{
-	//Reset sphereWorld
-	sphereWorld = XMMatrixIdentity();
-
-	//Define sphereWorld's world space matrix
-	Scale = XMMatrixScaling(5.0f, 5.0f, 5.0f);
-	//Make sure the sphere is always centered around camera
-	Translation = XMMatrixTranslation(XMVectorGetX(camera3D.GetPositionVector()), XMVectorGetY(camera3D.GetPositionVector()), XMVectorGetZ(camera3D.GetPositionVector()));
-
-	//Set sphereWorld's world space using the transformations
-	sphereWorld = Scale * Translation;
 }
 
 bool Graphics::InitializeDirectX(HWND hwnd)
@@ -185,54 +97,45 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 			0, //NUmber of Feature levels in array
 			D3D11_SDK_VERSION,
 			&scd, // Swapchain desciption
-			swapchain.GetAddressOf(), // Swapchain address
-			device.GetAddressOf(), // Device address
+			pSwapchain.GetAddressOf(), // Swapchain address
+			pDevice.GetAddressOf(), // Device address
 			NULL, //Supported feature level
-			deviceContext.GetAddressOf()); // Device context address
+			pDeviceContext.GetAddressOf()); // Device context address
 		COM_ERROR_IF_FAILED(hr, "Failed to create device swap chain.");
 
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
-		hr = swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf()));
+		hr = pSwapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf()));
 		COM_ERROR_IF_FAILED(hr, "GetBuffer Failed.");
 
-		hr = device->CreateRenderTargetView(backBuffer.Get(), NULL, renderTargetView.GetAddressOf());
+		hr = pDevice->CreateRenderTargetView(backBuffer.Get(), NULL, pRenderTargetView.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create render target view.");
 
 		// Describe out Depth/Stencil Buffer
 		CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, windowWidth, windowHeight);
 		depthStencilDesc.MipLevels = 1;
 		depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-		hr = device->CreateTexture2D(&depthStencilDesc, NULL, depthStencilBuffer.GetAddressOf());
+		hr = pDevice->CreateTexture2D(&depthStencilDesc, NULL, pDepthStencilBuffer.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create depth stencil buffer Texture2D.");
 
-		hr = device->CreateDepthStencilView(depthStencilBuffer.Get(), NULL, depthStencilView.GetAddressOf());
+		hr = pDevice->CreateDepthStencilView(pDepthStencilBuffer.Get(), NULL, pDepthStencilView.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create depth stencil view.");
 
-		deviceContext->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), depthStencilView.Get());
-
+		pDeviceContext->OMSetRenderTargets(1, pRenderTargetView.GetAddressOf(), pDepthStencilView.Get());
+		
 		// Create depth stencil state
 		CD3D11_DEPTH_STENCIL_DESC depthstancildesc(D3D11_DEFAULT); // Z Buffer
 		depthstancildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
-		hr = device->CreateDepthStencilState(&depthstancildesc, depthStencilState.GetAddressOf());
+		hr = pDevice->CreateDepthStencilState(&depthstancildesc, pDepthStencilState.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Filaed to create depth stencil state.");
 
 		// Create and set the ViewPort
 		CD3D11_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(windowWidth), static_cast<float>(windowHeight));
-		deviceContext->RSSetViewports(1, &viewport);
-		
+		pDeviceContext->RSSetViewports(1, &viewport);
+
 		// Create Rasterizer State
 		CD3D11_RASTERIZER_DESC rasterizerDesc(D3D11_DEFAULT);
-		hr = device->CreateRasterizerState(&rasterizerDesc, rasterizerState.GetAddressOf());
+		hr = pDevice->CreateRasterizerState(&rasterizerDesc, pRasterizerState.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create rasterizer state.");
-
-		// Create rasterizer State for cull front
-		CD3D11_RASTERIZER_DESC rasterizerDesc_CullFront(D3D11_DEFAULT);
-		rasterizerDesc_CullFront.CullMode = D3D11_CULL_MODE::D3D11_CULL_FRONT;
-		hr = device->CreateRasterizerState(&rasterizerDesc_CullFront, rasterizerState_CullFront.GetAddressOf());
-		COM_ERROR_IF_FAILED(hr, "Failed to create rasterizer state for cull front.");
-
-		rasterizerDesc_CullFront.CullMode = D3D11_CULL_NONE;
-		hr = device->CreateRasterizerState(&rasterizerDesc_CullFront, &RSCullNone);
 
 		D3D11_DEPTH_STENCIL_DESC dssDesc;
 		ZeroMemory(&dssDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
@@ -240,7 +143,6 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 		dssDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 		dssDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 
-		device->CreateDepthStencilState(&dssDesc, &DSLessEqual);
 
 		// Create Blend State
 		D3D11_BLEND_DESC blendDesc = { 0 };
@@ -254,18 +156,18 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 		rtbd.BlendOpAlpha = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
 		rtbd.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE::D3D11_COLOR_WRITE_ENABLE_ALL;
 		blendDesc.RenderTarget[0] = rtbd;
-		hr = device->CreateBlendState(&blendDesc, blendState.GetAddressOf());
+		hr = pDevice->CreateBlendState(&blendDesc, pBlendState.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create blend state.");
 
-		spriteBatch = std::make_unique<DirectX::SpriteBatch>(deviceContext.Get());
-		spriteFont = std::make_unique<DirectX::SpriteFont>(device.Get(), L"Data\\Fonts\\comic_sans_ms_16.spritefont");
+		pSpriteBatch = std::make_unique<DirectX::SpriteBatch>(pDeviceContext.Get());
+		pSpriteFont = std::make_unique<DirectX::SpriteFont>(pDevice.Get(), L"Data\\Fonts\\calibri.spritefont");
 
 		// Create sampler description for sampler state
 		CD3D11_SAMPLER_DESC sampleDesc(D3D11_DEFAULT);
 		sampleDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 		sampleDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 		sampleDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-		hr = device->CreateSamplerState(&sampleDesc, samplerState.GetAddressOf());
+		hr = pDevice->CreateSamplerState(&sampleDesc, samplerState.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create sampler state.");
 	}
 	catch (COMException & exception)
@@ -276,11 +178,96 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 	return true;
 }
 
+
+void Graphics::RenderFrame()
+{
+	// -- Update Light Shader Information -- //
+	cb_ps_light.data.dynamicLightColor = light.lightColor;
+	cb_ps_light.data.dynamicLightStrength = light.lightStrength;
+	cb_ps_light.data.dynamicLightPosition = light.GetPositionFloat3();
+	cb_ps_light.data.dynamicLightAttenuation_a = light.attenuation_a;
+	cb_ps_light.data.dynamicLightAttenuation_b = light.attenuation_b;
+	cb_ps_light.data.dynamicLightAttenuation_c = light.attenuation_c;
+	cb_ps_light.ApplyChanges();
+
+	pDeviceContext->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
+
+	// -- Clear Background Color for Scene -- //
+	float bgcolor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	pDeviceContext->ClearRenderTargetView(pRenderTargetView.Get(), bgcolor);
+	pDeviceContext->ClearDepthStencilView(pDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	pDeviceContext->IASetInputLayout(default_vertexshader.GetInputLayout());
+	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	pDeviceContext->RSSetState(pRasterizerState.Get());
+	pDeviceContext->OMSetDepthStencilState(pDepthStencilState.Get(), 0);
+	pDeviceContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);
+	pDeviceContext->PSSetSamplers(0, 1, samplerState.GetAddressOf());
+
+	// Set Shaders to be used
+	pDeviceContext->VSSetShader(default_vertexshader.GetShader(), NULL, 0);
+	pDeviceContext->PSSetShader(default_pixelshader.GetShader(), NULL, 0);
+
+	// Set PBR Shader
+	//pDeviceContext->PSSetShader(PBR_pixelshader.GetShader(), NULL, 0);
+	
+	std::list<Entity*>* entities = m_pEngine->GetScene().GetAllEntities();
+	std::list<Entity*>::iterator iter;
+	for (iter = entities->begin(); iter != entities->end(); iter++)
+	{
+		(*iter)->Draw(camera3D.GetViewMatrix() * camera3D.GetProjectionMatrix());
+	}
+
+	// -- Update 2D shader Information -- //
+	pDeviceContext->IASetInputLayout(vertexshader_2d.GetInputLayout());
+	pDeviceContext->PSSetShader(pixelshader_2d.GetShader(), NULL, 0);
+	pDeviceContext->VSSetShader(vertexshader_2d.GetShader(), NULL, 0);
+	//sprite.Draw(camera2D.GetWorldmatrix() * camera2D.GetOrthoMatrix()); // Draws hello world sprite image
+
+	// -- Draw Text -- //
+	static int fpsCounter = 0;
+	static std::string fpsString = "FPS: 0";
+	fpsCounter += 1;
+	if (fpsTimer.GetDeltaTime() > 1000.0)
+	{
+		fpsString = "FPS: " + std::to_string(fpsCounter);
+		fpsCounter = 0;
+		fpsTimer.Restart();
+	}
+	pSpriteBatch->Begin();
+	pSpriteFont->DrawString(pSpriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	pSpriteBatch->End();
+		
+	UpdateImGui();
+
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	if (pIO->ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+	}
+
+	// -- Flip Buffer and Present-- //
+	pSwapchain->Present(1, NULL); // Enable Vertical sync with 1 or 0
+}
+
+void Graphics::Update()
+{
+	
+}
+
+void Graphics::Shutdown()
+{
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+}
+
+
 bool Graphics::InitializeShaders()
 {
 	std::wstring shaderfolder = L"";
 #pragma region DetermineShaderPath
-	//if (IsDebuggerPresent() == TRUE)
 	{
 #ifdef _DEBUG // Debug Mode
 #ifdef _WIN64 //x64
@@ -296,6 +283,7 @@ bool Graphics::InitializeShaders()
 #endif
 #endif
 	}
+	
 	// 2D shaders
 	D3D11_INPUT_ELEMENT_DESC layout2D[] =
 	{
@@ -305,50 +293,44 @@ bool Graphics::InitializeShaders()
 	};
 	UINT numElements2D = ARRAYSIZE(layout2D);
 
-	if (!vertexshader_2d.Initialize(device, shaderfolder + L"vertexshader_2d.cso", layout2D, numElements2D))
+	if (!vertexshader_2d.Initialize(pDevice, shaderfolder + L"vertexshader_2d.cso", layout2D, numElements2D))
 		return false;
 
-	if (!pixelshader_2d.Initialize(device, shaderfolder + L"pixelshader_2d.cso"))
+	if (!pixelshader_2d.Initialize(pDevice, shaderfolder + L"pixelshader_2d.cso"))
 		return false;
 
 	// 3D shaders
-	D3D11_INPUT_ELEMENT_DESC layout3D[] =
+	// -- Initialize Default Shaders -- //
+	D3D11_INPUT_ELEMENT_DESC defaultLayout3D[] =
 	{
 		{"POSITION", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"TEXCOORD", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
 		{"NORMAL", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  }
 	};
-	UINT numElements3D = ARRAYSIZE(layout3D);
+	UINT defaultNumElements3D = ARRAYSIZE(defaultLayout3D);
 
-	if (!vertexshader.Initialize(device, shaderfolder + L"vertexshader.cso", layout3D, numElements3D))
+
+	if (!default_vertexshader.Initialize(pDevice, shaderfolder + L"vertexshader.cso", defaultLayout3D, defaultNumElements3D))
 		return false;
 
-	if (!pixelshader.Initialize(device, shaderfolder + L"pixelshader.cso"))
+	if (!default_pixelshader.Initialize(pDevice, shaderfolder + L"pixelshader.cso"))
 		return false;
 
-	if (!testVertexshader.Initialize(device, shaderfolder + L"vertexshader.cso", layout3D, numElements3D))
+	// -- Initialize PBR Shaders -- //
+	/*D3D11_INPUT_ELEMENT_DESC PBRLayout3D[] =
+	{
+		{"POSITION", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"BASECOLOR", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
+		{"OPACITY", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
+		{"NORMAL", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  }
+	};
+	UINT PBRNumElements3D = ARRAYSIZE(PBRLayout3D);
+
+	if (!PBR_vertexshader.Initialize(pDevice, shaderfolder + L"PBR_vertexshader.cso", PBRLayout3D, PBRNumElements3D))
 		return false;
 
-	if (!testPixelshader.Initialize(device, shaderfolder + L"pixelshader.cso"))
-		return false;
-
-	if (!pixelshader_nolight.Initialize(device, shaderfolder + L"pixelshader_nolight.cso"))
-		return false;
-
-	if (!pixelshader_foliage.Initialize(device, shaderfolder + L"pixelshader_foliage.cso"))
-		return false;
-
-	// -- Skybox -- //
-	if (!SKYMAP_PS.Initialize(device, shaderfolder + L"Skybox_ps.cso"))
-		return false;
-	if (!SKYMAP_VS.Initialize(device, shaderfolder + L"skybox_vs.cso", layout3D, numElements3D))
-		return false;
-	//HRESULT hr = D3DX11CompileFromFile(L"Skybox_vs.vs", 0, 0, "SKYMAP_VS", "vs_4_0", 0, 0, 0, &SKYMAP_VS_Buffer, 0, 0);
-	//hr = D3DX11CompileFromFile(L"Skybox_ps.ps", 0, 0, "SKYMAP_PS", "ps_4_0", 0, 0, 0, &SKYMAP_PS_Buffer, 0, 0);
-
-	//hr = device->CreateVertexShader(SKYMAP_VS_Buffer->GetBufferPointer(), SKYMAP_VS_Buffer->GetBufferSize(), NULL, SKYMAP_VS.GetShaderAddress());
-	//hr = device->CreatePixelShader(SKYMAP_PS_Buffer->GetBufferPointer(), SKYMAP_PS_Buffer->GetBufferSize(), NULL, SKYMAP_PS.GetShaderAddress());
-
+	if (!PBR_pixelshader.Initialize(pDevice, shaderfolder + L"PBR_pixelshader.cso"))
+		return false;*/
 
 	return true;
 }
@@ -357,40 +339,19 @@ bool Graphics::InitializeScene()
 {
 	try
 	{
-		// Load Texture
-		HRESULT hr = DirectX::CreateWICTextureFromFile(device.Get(), L"Data\\Textures\\Grass_Diff.jpg", nullptr, grassTexture.GetAddressOf());
-		COM_ERROR_IF_FAILED(hr, "Failed to initialize wic Texture from file.");
-
-		hr = DirectX::CreateWICTextureFromFile(device.Get(), L"Data\\Textures\\PinkSquare_Diff.jpeg", nullptr, pinkTexture.GetAddressOf());
-		COM_ERROR_IF_FAILED(hr, "Failed to initialize wic Texture from file.");
-
-		hr = DirectX::CreateWICTextureFromFile(device.Get(), L"Data\\Textures\\TileFloor_Diff.jpg", nullptr, pavementTexture.GetAddressOf());
-		COM_ERROR_IF_FAILED(hr, "Failed to initialize wic Texture from file.");
-
 		// Initialize Constant Buffer(s)
-		hr = cb_vs_vertexshader_2d.Initialize(device.Get(), deviceContext.Get());
+		HRESULT hr = cb_vs_vertexshader_2d.Initialize(pDevice.Get(), pDeviceContext.Get());
 		COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer 2d for vertex shader.");
 
-		hr = cb_vs_vertexshader.Initialize(device.Get(), deviceContext.Get());
+		hr = cb_vs_vertexshader.Initialize(pDevice.Get(), pDeviceContext.Get());
 		COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer for vertex shader.");
-
-		// Test Vertex Shader
-		hr = test_cb_vs_vertexshader.Initialize(device.Get(), deviceContext.Get());
-		COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer for test vertex shader.");
-
-		hr = cb_ps_light.Initialize(device.Get(), deviceContext.Get());
+		
+		hr = cb_ps_light.Initialize(pDevice.Get(), pDeviceContext.Get());
 		COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer for pixel shader.");
 
+		// Initialize light shader values
 		cb_ps_light.data.ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 		cb_ps_light.data.ambientLightStrength = 1.0f;
-
-		// Initialize Model(s)
-		/*if (!FileLoader::LoadSceneFromFileGO("Data//Scenes//Scene02.txt", m_gameObjects, device.Get(), deviceContext.Get(), cb_vs_vertexshader))
-		{
-			ErrorLogger::Log("Filed to laod scene");
-			return false;
-		}*/
-
 		cb_ps_light.data.ambientLightStrength = 0.268f;
 
 		light.lightStrength = 6.848f;
@@ -398,49 +359,24 @@ bool Graphics::InitializeScene()
 		light.attenuation_b = 0.2f;
 		light.attenuation_c = 0.0f;
 		
+
 		// Light
-		if (!light.Initialize(device.Get(), deviceContext.Get(), cb_vs_vertexshader))
+		if (!light.Initialize(pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader))
 		{
 			ErrorLogger::Log("Failed to initilize light");
 			return false;
 		}
 		// Hello World sprite
-		if (!sprite.Initialize(device.Get(), deviceContext.Get(), 256, 256, "Data/Textures/sprite_256x256.png", cb_vs_vertexshader_2d))
+		if (!sprite.Initialize(pDevice.Get(), pDeviceContext.Get(), 256, 256, "Data\\Textures\\sprite_256x256.png", cb_vs_vertexshader_2d))
 		{
 			ErrorLogger::Log("Failed to initilize sprite");
 			return false;
 		}
 
 		camera2D.SetProjectionValues((float)windowWidth, (float)windowHeight, 0.0f, 1.0f);
-
 		camera3D.SetPosition(0.0f, 0.0f, -2.0f);
 		camera3D.SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
 		
-		{
-			/*CreateSphere(10, 10);
-			
-			D3DX11_IMAGE_LOAD_INFO loadSMInfo;
-			loadSMInfo.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
-
-			hr = CreateDDSTextureFromFile(device.Get(), )
-
-			ID3D11Texture2D* SMTexture = 0;
-			hr = D3DX11CreateTextureFromFile(device.Get(), L"skymap.dds",
-				&loadSMInfo, 0, (ID3D11Resource**)&SMTexture, 0);
-
-			D3D11_TEXTURE2D_DESC SMTextureDesc;
-			SMTexture->GetDesc(&SMTextureDesc);
-
-			D3D11_SHADER_RESOURCE_VIEW_DESC SMViewDesc;
-			SMViewDesc.Format = SMTextureDesc.Format;
-			SMViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-			SMViewDesc.TextureCube.MipLevels = SMTextureDesc.MipLevels;
-			SMViewDesc.TextureCube.MostDetailedMip = 0;
-
-			hr = device->CreateShaderResourceView(SMTexture, &SMViewDesc, &smrv);*/
-
-			
-		}
 	}
 	catch (COMException & exception)
 	{
@@ -452,207 +388,65 @@ bool Graphics::InitializeScene()
 
 void Graphics::UpdateImGui()
 {
-	// Start the Dear ImGui frame
+	using namespace Debug;
+
+	// Start ImGui frame
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	// if(isEditorEnabled) Draw all windows
+	/*bool show = true;
+	ImGui::ShowDemoWindow(&show);*/
 	
-	/*ImGui::Begin("Editor");
-	if (ImGui::Button("Create Cube", { 150.0f, 20.0f }))
-	{
-		RenderableGameObject* go = new RenderableGameObject();
-		if (!go->Initialize("Data\\Objects\\Primatives\\Cube.obj", device.Get(), deviceContext.Get(), cb_vs_vertexshader))
-			ErrorLogger::Log("Failed to Initialize Renderable Game object from editor window.");
-		go->SetName("Cube");
-
-		go->SetPosition(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
-		go->SetRotation(0.0f, 0.0f, 0.0f);
-		go->SetScale(1.0f, 1.0f, 1.0f);
-		m_gameObjects.push_back(go);
-	}
+	ImGui::Begin("Editor");
 	
-	if (ImGui::Button("Create Scriptable Cube", { 150.0f, 20.0f }))
+	if (ImGui::Button("Compile", { 150.0f, 20.0f }))
 	{
-		compiler.Compile();
+		//m_pEngine->GetCompiler()->CompileCPPFromFile("Scriptor\\Scripts\\FileEntity.cpp");
 
-		BaseScriptableGameObject* go = compiler.compiledGO;
-		if (!go->Initialize("Data\\Objects\\Primatives\\Cube.obj", device.Get(), deviceContext.Get(), cb_vs_vertexshader))
-			ErrorLogger::Log("Failed to Initialize Renderable Game object from editor window.");
-		go->SetName("Scripted Cube");
-
-		go->SetPosition(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
-		go->SetRotation(0.0f, 0.0f, 0.0f);
-		go->SetScale(1.0f, 1.0f, 1.0f);
-		m_gameObjects.push_back(go);
+	}
+	if (ImGui::Button("Play", { 150.0f, 20.0f }))
+	{
+		Editor::Instance()->PlayGame();
+		
 	}
 
-	if (ImGui::Button("Recompile Cube", { 150.0f, 20.0f }))
+	if (ImGui::Button("Stop", { 150.0f, 20.0f }))
 	{
-		compiler.Compile();
-		BaseScriptableGameObject* go = compiler.compiledGO;
-		m_gameObjects.push_back(go);
+		Editor::Instance()->StopGame();
 
 	}
 
-	ImGui::End();*/
+	ImGui::End();
 
 	// Create ImGui Test Window
 	ImGui::Begin("Light Controls");
 
-	ImGui::DragFloat3("Ambient Light Color", &cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
+	/*ImGui::DragFloat3("Ambient Light Color", &cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
 	ImGui::DragFloat("Ambient Light Strength", &cb_ps_light.data.ambientLightStrength, 0.01f, 0.0f, 1.0f);
 	ImGui::DragFloat3("Dynamic Light Color", &light.lightColor.x, 0.01f, 0.0f, 10.0f);
 	ImGui::DragFloat("Dynamic Light Strength", &light.lightStrength, 0.01f, 0.0f, 10.0f);
 	ImGui::DragFloat("DynamicLight Attenuation A", &light.attenuation_a, 0.01f, 0.1f, 10.0f);
 	ImGui::DragFloat("DynamicLight Attenuation B", &light.attenuation_b, 0.01f, 0.0f, 10.0f);
-	ImGui::DragFloat("DynamicLight Attenuation C", &light.attenuation_c, 0.01f, 0.0f, 10.0f);
+	ImGui::DragFloat("DynamicLight Attenuation C", &light.attenuation_c, 0.01f, 0.0f, 10.0f);*/
 
 	ImGui::End();
 
-	//std::string goName = selectedGameObject->GetName();
+	Entity* selectedEntity = Editor::Instance()->GetSelectedEntity();
+	std::string entityName = selectedEntity->GetID().GetName();
 	//char buffer[30] = {};
-	//ImGui::Begin("Inspector");
-	//if (ImGui::InputText(goName.c_str(), buffer, sizeof(buffer)))
-	//{
-	//	selectedGameObject->SetName(buffer);
-	//}
-	////ImGui::Text(goName.c_str());
-	//ImGui::DragFloat3("Position", &selectedGameObject->GetPosition().x, 0.1f, -100.0f, 100.0f);
-	//ImGui::DragFloat3("Rotation", &selectedGameObject->GetRotation().x, 0.1f, -100.0f, 100.0f);
-	//ImGui::DragFloat3("Scale", &selectedGameObject->GetScale().x, 0.1f, -100.0f, 100.0f);
-	////ImGui::DragFloat3("Position", &test.GetPosition().x, 0.1f, -100.0f, 100.0f);
-	//ImGui::End();
+	ImGui::Begin("Inspector");
+	/*if (ImGui::InputText(entityName.c_str(), buffer, sizeof(buffer)))
+	{
+		selectedGameObject->SetName(buffer);
+	}*/
+	ImGui::Text(entityName.c_str());
+	ImGui::DragFloat3("Position", &Editor::Instance()->GetSelectedEntity()->GetTransform().GetPosition().x, 0.1f, -100.0f, 100.0f);
+	ImGui::DragFloat3("Rotation", &Editor::Instance()->GetSelectedEntity()->GetTransform().GetRotation().x, 0.1f, -100.0f, 100.0f);
+	ImGui::DragFloat3("Scale", &Editor::Instance()->GetSelectedEntity()->GetTransform().GetScale().x, 0.1f, -100.0f, 100.0f);
+	ImGui::End();
 
-	// Assemble Together Draw Data
+	// Assemble Draw Data
 	ImGui::Render();
-	// Render Draw Data
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-
 }
-
-void Graphics::CreateSphere(int LatLines, int LongLines)
-{
-	NumSphereVerticies = ((LatLines - 2) * LongLines) + 2;
-	NumSphereFaces = ((LatLines - 3) * (LongLines) * 2) + (LongLines * 2);
-
-	float sphereYaw = 0.0f;
-	float spherePitch = 0.0f;
-
-	std::vector<Vertex3D> verticies(NumSphereVerticies);
-
-	XMVECTOR currentVertPos = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
-
-	verticies[0].pos.x = 0.0f;
-	verticies[0].pos.y = 0.0f;
-	verticies[0].pos.z = 1.0f;
-
-	for (int i = 0; i < LatLines - 2; i++)
-	{
-		spherePitch = (i + 1) * (3.14f / (LatLines - 1));
-		Rotationx = XMMatrixRotationX(spherePitch);
-		for (int j = 0; j < LongLines; j++)
-		{
-			sphereYaw = j * (6.28f / (LongLines));
-			Rotationy = XMMatrixRotationZ(sphereYaw);
-			currentVertPos = XMVector3TransformNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), (Rotationx * Rotationy));
-			currentVertPos = XMVector3Normalize(currentVertPos);
-			verticies[i * LongLines + j + 1].pos.x = XMVectorGetX(currentVertPos);
-			verticies[i * LongLines + j + 1].pos.y = XMVectorGetX(currentVertPos);
-			verticies[i * LongLines + j + 1].pos.z = XMVectorGetX(currentVertPos);
-		}
-	}
-
-	verticies[NumSphereVerticies - 1].pos.x = 0.0f;
-	verticies[NumSphereVerticies - 1].pos.y = 0.0f;
-	verticies[NumSphereVerticies - 1].pos.z = 1.0f;
-
-	D3D11_BUFFER_DESC vertexBufferDesc;
-	ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
-
-	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	vertexBufferDesc.ByteWidth = sizeof(Vertex3D) * NumSphereVerticies;
-	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexBufferDesc.CPUAccessFlags = 0;
-	vertexBufferDesc.MiscFlags = 0;
-
-	D3D11_SUBRESOURCE_DATA vertexBufferData;
-
-	ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
-	vertexBufferData.pSysMem = &verticies[0];
-	HRESULT hr = device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &sphereVertBuffer);
-	if (FAILED(hr))
-	{
-		ErrorLogger::Log(hr, "Fialed to createBuffer for sphere data");
-	}
-
-	std::vector<DWORD> indices(NumSphereFaces * 3);
-
-	int k = 0;
-	for (int l = 0; l < LongLines - 1; l++)
-	{
-		indices[k] = 0;
-		indices[k + 1] = l + 1;
-		indices[k + 2] = l + 2;
-		k += 3;
-	}
-
-	indices[k] = 0;
-	indices[k + 1] = LongLines;
-	indices[k + 2] = 1;
-	k += 3;
-
-	for (int i = 0; i < LatLines - 3; i++)
-	{
-		for (int j = 0; j < LongLines - 1; j++)
-		{
-			indices[k] = i * LongLines + j + 1;
-			indices[k + 1] = i * LongLines + j + 2;
-			indices[k + 2] = (i + 1) * LongLines + j + 1;
-
-			indices[k + 3] = (i + 1) * LongLines + j + 1;
-			indices[k + 4] = i * LongLines + j + 2;
-			indices[k + 5] = (i + 1) * LongLines + j + 2;
-
-			k += 6; // Next Quad
-		}
-		indices[k] = (i * LongLines) + LongLines;
-		indices[k + 1] = (i * LongLines) + 1;
-		indices[k + 2] = ((i + 1) * LongLines) + LongLines;
-
-		indices[k + 3] = ((i + 1) * LongLines) + LongLines;
-		indices[k + 4] = (i * LongLines) + 1;
-		indices[k + 5] = ((i + 1) * LongLines) + 1;
-
-		k += 6;
-	}
-
-	for (int l = 0; l < LongLines - 1; l++)
-	{
-		indices[k] = NumSphereVerticies - 1;
-		indices[k + 1] = (NumSphereVerticies - 1) - (l + 1);
-		indices[k + 2] = (NumSphereVerticies - 1) - (l + 2);
-		k += 3;
-	}
-
-	indices[k] = NumSphereVerticies - 1;
-	indices[k + 1] = (NumSphereVerticies - 1) - LongLines;
-	indices[k + 2] = NumSphereVerticies - 2;
-
-	D3D11_BUFFER_DESC indexBufferDesc;
-	ZeroMemory(&indexBufferDesc, sizeof(IndexBuffer));
-	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	indexBufferDesc.ByteWidth = sizeof(DWORD) * NumSphereFaces * 3;
-	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	indexBufferDesc.CPUAccessFlags = 0;
-	indexBufferDesc.MiscFlags = 0;
-
-	D3D11_SUBRESOURCE_DATA iinitData;
-	iinitData.pSysMem = &indices[0];
-	device->CreateBuffer(&indexBufferDesc, &iinitData, &sphereIndexBuffer);
-
-}
-
 

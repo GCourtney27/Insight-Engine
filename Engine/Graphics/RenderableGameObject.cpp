@@ -12,7 +12,7 @@ bool RenderableGameObject::Initialize(const std::string & filepath, ID3D11Device
 	//sphere_radius = 20.0f;
 	//sphere_position = GetPositionFloat3();
 
-	aabb.Initialize(20.0f, GetPositionFloat3());
+	//aabb.Initialize(20.0f, GetPositionFloat3());
 
 	return true;
 }
@@ -26,8 +26,8 @@ void RenderableGameObject::Update()
 {
 	AdjustPosition(0.0f, 0.0f, 0.0f);
 	// TODO: Update sphere collider (Move this somewhere else)
-	sphere_position = GetPositionFloat3();
-	aabb.SetPosition(GetPositionFloat3());
+	//sphere_position = GetPositionFloat3();
+	//aabb.SetPosition(GetPositionFloat3());
 }
 
 

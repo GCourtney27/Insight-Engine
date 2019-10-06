@@ -3,43 +3,47 @@
 #include <stdlib.h>
 #include <shellapi.h>
 #include <Windows.h>
+#include <stdio.h>
 
-bool Compiler::Initialize(HWND windHandle)
+bool Compiler::Initialize()
 {
-	m_windHandle = windHandle;
+	CreateConsoleWindow(500, 120, 32, 120);
 	return true;
 }
 
-bool Compiler::Compile()
+bool Compiler::CompileCPPFromFile(std::string fileToCompile)
 {
-	//https://docs.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shellexecutea?redirectedfrom=MSDN
-	//https://stackoverflow.com/questions/6672257/how-to-properly-use-system-to-execute-a-command-in-c
+	// -- Known Issues with this method-- \\
+	// x64
+	//		Entity.h included in FileEntity.h
+	//		- Error: No such file or directory for <DirectXMath.h>
+	//			- Fails to compile .dll
+	//		Entity.h not included
+	//		- Error: Scriptor/Scripts/CompiledBinaries/libEntity.dll is not a valid Win32 application
+	//			- Success Compiles .dll
+	// x86 (Light failed to compile | Multiple heap allignment warning)
+	//		Entity.h included in FileEntity.h
+	//		- Error(Same as x64): No such file or directory for <DirectXMath.h>
+	//			- Fails to compile .dll
+	//		Entity.h not included
+	//		- Success no errors
+	//			- Success Compiles .dll
 
-	// -- Create Library -- //
-	//system("C:\\MinGW\\bin\\g++ Scriptor\\Scripts\\CompiledBinaries\\libSGO.dll -o Scriptor\\Scripts\\ScriptedGameObject.cpp");
-	//ShellExecuteExA("C:\\MinGW\\bin\\g++ -shared Scriptor\\Scripts\\ScriptedGameObject.cpp -o Scriptor\\Scripts\\CompiledBinaries\\libSGO.dll");
+
+	//UINT result = WinExec("C:/MinGW/bin/g++ -shared Scriptor/Scripts/FileEntity.cpp -o Scriptor/Scripts/CompiledBinaries/libEntity.dll", 1);
 	
-	LPCSTR operation = "open";
-	LPCSTR file = "C:/MinGW/bin/g++";
-	LPCSTR parameters = "-shared Scripts/ScriptedGameObject.cpp -o Scripts/CompiledBinaries/libSGO.dll";
-	LPCSTR directory = "C:/VSDev/ComputerGraphics/DX11RenderingEngine/DirectX11RenderingEngine/Scriptor";
-
+	system("C:/MinGW/bin/g++ -shared Scriptor/Scripts/FileEntity.cpp -o Scriptor/Scripts/CompiledBinaries/libEntity.dll");
 	
-	//HINSTANCE hInst = ShellExecuteA(m_windHandle, operation, file, parameters, directory, SW_SHOWNORMAL);
-	UINT res = WinExec("C:/MinGW/bin/g++ Scriptor/Scripts/ScriptedGameObject.cpp -o Scriptor/Scripts/CompiledBinaries/libSGO.dll", 1);
-
 	// -- Load library -- //      
-	fLib = dlopen("Scriptor/Scripts/CompiledBinaries/libSGO.dll", RTLD_LAZY);
+	fLib = dlopen("Scriptor/Scripts/CompiledBinaries/libEntity.dll", RTLD_LAZY);
 	if (!fLib)
 	{
 		char* error = dlerror();
 		//std::cerr << "Cannot open library for .cpp file: " << dlerror() << '\n';
 
-		ErrorLogger::Log("Cannot open library from file");
+		printf(error);
 		return false;
 	}
-
-	// -- Load function pointers -- //
 	const char *dlsym_error = dlerror();
 	if (dlsym_error)
 	{
@@ -52,18 +56,42 @@ bool Compiler::Compile()
 	if (fLib)
 	{
 		//Start = (VoidMethod_t)dlsym(fLib, "Start");
-		//Update = (VoidMethod_t)dlsym(fLib, "Update");
-		Factory = (ScriptableGameObject)dlsym(fLib, "factory");
+		//OnUpdatePointer = (VoidMethod_t)dlsym(fLib, "Update");
+		Factory = (ScriptableEntity_t)dlsym(fLib, "factory");
 
-		compiledGO = Factory();
+		//compiledGO = Factory();
 
-
-
-		// Add to vector in graphics
-
-		// Run what is inside the functions
-		//Simulate();
 	}
 
-	return true;
+	return false;
+}
+
+void Compiler::CreateConsoleWindow(int bufferLines, int bufferColumns, int windowLines, int windowColumns)
+{
+	// Our temp console info struct
+	CONSOLE_SCREEN_BUFFER_INFO coninfo;
+
+	// Get the console info and set the number of lines
+	AllocConsole();
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &coninfo);
+	coninfo.dwSize.Y = bufferLines;
+	coninfo.dwSize.X = bufferColumns;
+	SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coninfo.dwSize);
+
+	SMALL_RECT rect;
+	rect.Left = 0;
+	rect.Top = 0;
+	rect.Right = windowColumns;
+	rect.Bottom = windowLines;
+	SetConsoleWindowInfo(GetStdHandle(STD_OUTPUT_HANDLE), TRUE, &rect);
+
+	FILE *stream;
+	freopen_s(&stream, "CONIN$", "r", stdin);
+	freopen_s(&stream, "CONOUT$", "w", stdout);
+	freopen_s(&stream, "CONOUT$", "w", stderr);
+
+	// Prevent accidental console window close
+	HWND consoleHandle = GetConsoleWindow();
+	HMENU hmenu = GetSystemMenu(consoleHandle, FALSE);
+	EnableMenuItem(hmenu, SC_CLOSE, MF_GRAYED);
 }

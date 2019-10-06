@@ -5,6 +5,7 @@
 #include "../Math/Transform.h"
 #include "../Event/Event.h"
 #include "../Event/EventReciever.h"
+#include "..\Scriptor\CompilerHelper.h"
 #include <vector>
 #include <assert.h>
 
@@ -30,10 +31,9 @@ public:
 	void Destroy();
 
 	// -- Runtime Methods -- //
-	bool OnStart();
-	void OnUpdate(float deltaTime);
-	void OnDraw(const XMMATRIX & viewProjectionMatrix);
-	void OnDestroy();
+	virtual bool OnStart();
+	virtual void OnUpdate(float deltaTime);
+	virtual void OnDestroy();
 
 	virtual void OnEvent(const Event& event);
 
@@ -67,14 +67,14 @@ public:
 
 	Scene* GetScene() { return m_scene; }
 	Transform& GetTransform() { return m_transform; }
+	
+	ID& GetID() { return m_id; }
 
-	void SetTag(const ID& tag) { m_tag = tag; }
-	const ID& GetTag() { return m_tag; }
-	void SetTagID(std::string id) { m_tag.SetUniqueID(id); }
+	void SetTagUID(std::string id) { m_id.SetUniqueID(id); }
 
 protected:
 	eState m_state = eState::ACTIVE;
-	ID m_tag;
+	ID m_id;
 	Transform m_transform;
 	Scene* m_scene;
 	std::vector<Component*> m_components;

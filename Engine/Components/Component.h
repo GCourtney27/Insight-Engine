@@ -15,4 +15,5 @@ public:
 
 protected:
 	Entity* m_owner = nullptr;
+	const char* m_pName;
 };

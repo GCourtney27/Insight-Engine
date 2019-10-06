@@ -1,5 +1,6 @@
 #include "Entity.h"
 #include "..\\Components\MeshRenderComponent.h"
+#include "..\\Components\\EditorSelectionComponent.h"
 
 bool Entity::Start()
 {
@@ -7,12 +8,22 @@ bool Entity::Start()
 	this->m_transform.SetPosition(0.0f, 0.0f, 0.0f);
 	this->m_transform.SetRotation(0.0f, 0.0f, 0.0f);
 	this->m_transform.UpdateMatrix();
+
+	
+
 	return success;
 }
 
 void Entity::Update(float deltaTime)
 {
 	m_transform.AdjustPosition(0.0f, 0.0f, 0.0f);
+	//m_transform.AdjustRotation(0.0f, 0.001f * deltaTime, 0.0f);
+
+	EditorSelection* es = GetComponent<EditorSelection>();
+	if (es != nullptr)
+	{
+		es->SetPosition(m_transform.GetPosition());
+	}
 
 	for (Component* component : m_components)
 	{
@@ -47,10 +58,6 @@ bool Entity::OnStart()
 }
 
 void Entity::OnUpdate(float deltaTime)
-{
-}
-
-void Entity::OnDraw(const XMMATRIX & viewProjectionMatrix)
 {
 }
 

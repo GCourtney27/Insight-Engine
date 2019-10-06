@@ -7,22 +7,16 @@
     <FxCompile Include="pixelshader_2d.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="pixelshader_foliage.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="pixelshader_nolight.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Skybox_ps.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Skybox_vs.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
     <FxCompile Include="vertexshader.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
     <FxCompile Include="vertexshader_2d.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="PBR_pixelshader.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="PBR_vertexshader.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
   </ItemGroup>
@@ -45,26 +39,8 @@
     <ClCompile Include="WindowContainer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Components\AABB.cpp">
-      <Filter>Source Files\Components</Filter>
-    </ClCompile>
     <ClCompile Include="Components\Component.cpp">
       <Filter>Source Files\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\ImGui\imgui.cpp">
-      <Filter>Source Files\Graphics\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\ImGui\imgui_draw.cpp">
-      <Filter>Source Files\Graphics\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\ImGui\imgui_impl_dx11.cpp">
-      <Filter>Source Files\Graphics\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\ImGui\imgui_impl_win32.cpp">
-      <Filter>Source Files\Graphics\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\ImGui\imgui_widgets.cpp">
-      <Filter>Source Files\Graphics\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\AdapterReader.cpp">
       <Filter>Source Files\Graphics</Filter>
@@ -132,9 +108,6 @@
     <ClCompile Include="Scriptor\Compiler.cpp">
       <Filter>Source Files\Scriptor</Filter>
     </ClCompile>
-    <ClCompile Include="Systems\FileLoader.cpp">
-      <Filter>Source Files\Systems</Filter>
-    </ClCompile>
     <ClCompile Include="Systems\Timer.cpp">
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
@@ -155,6 +128,33 @@
     </ClCompile>
     <ClCompile Include="Input\Keyboard\KeyboardEvent.cpp">
       <Filter>Source Files\Input\Keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\EditorSelectionComponent.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Systems\FileSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ImGui\imgui.cpp">
+      <Filter>Source Files\Graphics\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ImGui\imgui_demo.cpp">
+      <Filter>Source Files\Graphics\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ImGui\imgui_draw.cpp">
+      <Filter>Source Files\Graphics\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ImGui\imgui_impl_dx11.cpp">
+      <Filter>Source Files\Graphics\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ImGui\imgui_impl_win32.cpp">
+      <Filter>Source Files\Graphics\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ImGui\imgui_widgets.cpp">
+      <Filter>Source Files\Graphics\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\CPPScript.cpp">
+      <Filter>Header Files\Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -179,9 +179,6 @@
     <ClInclude Include="WindowContainer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Components\AABB.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
     <ClInclude Include="Components\Component.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
@@ -190,30 +187,6 @@
     </ClInclude>
     <ClInclude Include="Event\EventReciever.h">
       <Filter>Header Files\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ImGui\imconfig.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ImGui\imgui.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ImGui\imgui_impl_dx11.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ImGui\imgui_impl_win32.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ImGui\imgui_internal.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ImGui\imstb_rectpack.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ImGui\imstb_textedit.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ImGui\imstb_truetype.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\AdapterReader.h">
       <Filter>Header Files\Graphics</Filter>
@@ -302,9 +275,6 @@
     <ClInclude Include="Scriptor\Script.h">
       <Filter>Header Files\Scriptor</Filter>
     </ClInclude>
-    <ClInclude Include="Systems\FileLoader.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
     <ClInclude Include="Systems\Timer.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
@@ -337,6 +307,39 @@
     </ClInclude>
     <ClInclude Include="Framework\Singleton.h">
       <Filter>Header Files\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\EditorSelectionComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Systems\FileSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ImGui\imconfig.h">
+      <Filter>Header Files\Graphics\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ImGui\imgui.h">
+      <Filter>Header Files\Graphics\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ImGui\imgui_impl_dx11.h">
+      <Filter>Header Files\Graphics\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ImGui\imgui_impl_win32.h">
+      <Filter>Header Files\Graphics\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ImGui\imgui_internal.h">
+      <Filter>Header Files\Graphics\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ImGui\imstb_rectpack.h">
+      <Filter>Header Files\Graphics\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ImGui\imstb_textedit.h">
+      <Filter>Header Files\Graphics\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ImGui\imstb_truetype.h">
+      <Filter>Header Files\Graphics\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\CPPScript.h">
+      <Filter>Header Files\Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

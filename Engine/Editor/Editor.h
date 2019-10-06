@@ -1,33 +1,41 @@
 #pragma once
-#include "..\\Input\\Keyboard\\KeyboardClass.h"
-#include "..\\Input\\Mouse\\MouseClass.h"
 #include "..\\Input\\InputManager.h"
-
 #include "..\\Physics\\Ray.h"
 #include "..\\Objects\\Entity.h"
+#include "..\\Engine.h"
 
-class Editor
+namespace Debug
 {
-public:
-	Editor() {}
+	class Editor : public Singleton<Editor>
+	{
+	public:
+		Editor() {}
 
-	bool Initialize();
-	void Update();
-	void Shutdown();
+		bool Initialize(Engine* engine);
+		void Update();
+		void Shutdown();
+		//void ImGuiRender();
 
-	DirectX::XMFLOAT3 GetMouseDirectionVector();
-	bool hit_sphere(const SimpleMath::Vector3& center, float radius, const Ray& r);
-	float intersection_distance(const SimpleMath::Vector3& center, float radius, const Ray& r);
+		DirectX::XMFLOAT3 GetMouseDirectionVector();
+		bool hit_sphere(const SimpleMath::Vector3& center, float radius, const Ray& r);
+		float intersection_distance(const SimpleMath::Vector3& center, float radius, const Ray& r);
 
+		bool SaveScene();
 
-	void SetIsEditorEnabled(bool enabled) { m_isEditorEnabled = enabled; }
-	bool IsEditorEnabled() { return m_isEditorEnabled; }
+		bool PlayingGame() { return m_playingGame; }
+		void PlayGame() { m_playingGame = true; }
+		void StopGame() { m_playingGame = false; }
 
+		void SetIsEditorEnabled(bool enabled) { m_isEditorEnabled = enabled; }
+		bool IsEditorEnabled() { return m_isEditorEnabled; }
 
-private:
-	Entity* selectedEntity = nullptr;
+		Entity* GetSelectedEntity() { return m_selectedEntity; }
 
-	bool m_isEditorEnabled = true;
-	MouseClass mouse;
-	KeyboardClass keyboard;
-};
+	private:
+		Engine* m_engine;
+
+		Entity* m_selectedEntity = nullptr;
+		bool m_isEditorEnabled = true;
+		bool m_playingGame = false;
+	};
+}

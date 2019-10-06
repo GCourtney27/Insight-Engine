@@ -102,6 +102,7 @@ Mesh Model::ProcessMesh(aiMesh * mesh, const aiScene * scene, const XMMATRIX & t
 		for (UINT j = 0; j < face.mNumIndices; j++)
 			indicies.push_back(face.mIndices[j]);
 	}
+
 	std::vector<Texture> textures;
 	aiMaterial * material = scene->mMaterials[mesh->mMaterialIndex];
 	std::vector<Texture> diffuseTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_DIFFUSE, scene);
