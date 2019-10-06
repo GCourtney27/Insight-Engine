@@ -9,26 +9,26 @@ class Engine : WindowContainer
 public:
 	Engine() {}
 	~Engine() {}
+
+	// -- Engine -- //
 	bool Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height);
 	bool ProccessMessages();
 	void Update();
-	void Shutdown();
 	void RenderFrame();
+	void Shutdown();
 	
+	// -- Game -- //
+	void OnGameStart();
+
 	Scene& GetScene() { return scene; }
 
 	int GetWindowWidth() { return windowWidth; }
 	int GetWindowHeight() { return windowHeight; }
 
-	Compiler* GetCompiler() { return &compiler; }
 
 private:
-	
-	// DEBUG
-	Entity* scriptedEntity = nullptr;
 
 	Scene scene;
-	Compiler compiler;
 
 	int windowWidth = 0;
 	int windowHeight = 0;

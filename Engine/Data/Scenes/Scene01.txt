@@ -1,11 +1,11 @@
 n GameObject1
 f Data\\Objects\\Dandelion\\Var1\\Textured_Flower.obj
-p -25.9 10.8 22.9
+p -19.5 10.8 22.9
 r 0 13.4 0.2
 s 1 1 1
 n Flower
 f Data\\Objects\\Dandelion\\Var1\\Textured_Flower.obj
-p -48.2 -4.1 -32.6
+p -5.4 -4.1 -32.6
 r 0 0 0
 s 1 1 1
 n GameObject3

@@ -22,9 +22,23 @@ namespace Debug
 
 		bool SaveScene();
 
-		bool PlayingGame() { return m_playingGame; }
-		void PlayGame() { m_playingGame = true; }
-		void StopGame() { m_playingGame = false; }
+		bool PlayingGame() { return m_playingGame; } // Running
+		void PlayGame() 
+		{
+			m_playingGame = true; 
+			m_pEngine->OnGameStart();
+		}
+		
+		void StopGame() 
+		{
+			m_playingGame = false;
+			std::list<Entity*>* entities = m_pEngine->GetScene().GetAllEntities();
+			std::list<Entity*>::iterator iter;
+			for (iter = entities->begin(); iter != entities->end(); iter++)
+			{
+				(*iter)->OnEditorStop();
+			}
+		}
 
 		void SetIsEditorEnabled(bool enabled) { m_isEditorEnabled = enabled; }
 		bool IsEditorEnabled() { return m_isEditorEnabled; }
@@ -32,7 +46,7 @@ namespace Debug
 		Entity* GetSelectedEntity() { return m_selectedEntity; }
 
 	private:
-		Engine* m_engine;
+		Engine* m_pEngine;
 
 		Entity* m_selectedEntity = nullptr;
 		bool m_isEditorEnabled = true;

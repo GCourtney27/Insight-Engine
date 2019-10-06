@@ -1,4 +1,4 @@
-//#include "..\\..\\Objects\\Entity.h"
+#include "..\\..\\Objects\\Entity.h"
 
 class FileEntity
 {

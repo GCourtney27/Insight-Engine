@@ -251,7 +251,7 @@ void Graphics::RenderFrame()
 	pSwapchain->Present(1, NULL); // Enable Vertical sync with 1 or 0
 }
 
-void Graphics::Update()
+void Graphics::Update(const float& deltaTime)
 {
 	
 }
@@ -374,7 +374,8 @@ bool Graphics::InitializeScene()
 		}
 
 		camera2D.SetProjectionValues((float)windowWidth, (float)windowHeight, 0.0f, 1.0f);
-		camera3D.SetPosition(0.0f, 0.0f, -2.0f);
+
+		camera3D.SetPosition(0.0f, 5.0f, -10.0f);
 		camera3D.SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
 		
 	}
@@ -400,35 +401,29 @@ void Graphics::UpdateImGui()
 	
 	ImGui::Begin("Editor");
 	
-	if (ImGui::Button("Compile", { 150.0f, 20.0f }))
-	{
-		//m_pEngine->GetCompiler()->CompileCPPFromFile("Scriptor\\Scripts\\FileEntity.cpp");
-
-	}
 	if (ImGui::Button("Play", { 150.0f, 20.0f }))
 	{
-		Editor::Instance()->PlayGame();
-		
+		Editor::Instance()->PlayGame();// Editor calles scene OnStart
 	}
 
 	if (ImGui::Button("Stop", { 150.0f, 20.0f }))
 	{
-		Editor::Instance()->StopGame();
 
+		Editor::Instance()->StopGame();
 	}
 
 	ImGui::End();
 
-	// Create ImGui Test Window
+	
 	ImGui::Begin("Light Controls");
 
-	/*ImGui::DragFloat3("Ambient Light Color", &cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
+	ImGui::DragFloat3("Ambient Light Color", &cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
 	ImGui::DragFloat("Ambient Light Strength", &cb_ps_light.data.ambientLightStrength, 0.01f, 0.0f, 1.0f);
 	ImGui::DragFloat3("Dynamic Light Color", &light.lightColor.x, 0.01f, 0.0f, 10.0f);
 	ImGui::DragFloat("Dynamic Light Strength", &light.lightStrength, 0.01f, 0.0f, 10.0f);
 	ImGui::DragFloat("DynamicLight Attenuation A", &light.attenuation_a, 0.01f, 0.1f, 10.0f);
 	ImGui::DragFloat("DynamicLight Attenuation B", &light.attenuation_b, 0.01f, 0.0f, 10.0f);
-	ImGui::DragFloat("DynamicLight Attenuation C", &light.attenuation_c, 0.01f, 0.0f, 10.0f);*/
+	ImGui::DragFloat("DynamicLight Attenuation C", &light.attenuation_c, 0.01f, 0.0f, 10.0f);
 
 	ImGui::End();
 
@@ -444,6 +439,7 @@ void Graphics::UpdateImGui()
 	ImGui::DragFloat3("Position", &Editor::Instance()->GetSelectedEntity()->GetTransform().GetPosition().x, 0.1f, -100.0f, 100.0f);
 	ImGui::DragFloat3("Rotation", &Editor::Instance()->GetSelectedEntity()->GetTransform().GetRotation().x, 0.1f, -100.0f, 100.0f);
 	ImGui::DragFloat3("Scale", &Editor::Instance()->GetSelectedEntity()->GetTransform().GetScale().x, 0.1f, -100.0f, 100.0f);
+	
 	ImGui::End();
 
 	// Assemble Draw Data

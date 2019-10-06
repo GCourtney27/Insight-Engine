@@ -1,5 +1,27 @@
 #include "Transform.h"
 
+
+Transform::Transform(const Transform & t)
+{
+	posVector = t.posVector;
+	rotVector = t.rotVector;
+	scaleVector = t.scaleVector;
+
+	pos = t.pos;
+	rot = t.rot;
+	scale = t.scale;
+
+	vec_forward = t.vec_forward;
+	vec_left = t.vec_left;
+	vec_right = t.vec_right;
+	vec_backward = t.vec_backward;
+
+	vec_forward_noY = t.vec_forward_noY;
+	vec_left_noY = t.vec_left_noY;
+	vec_right_noY = t.vec_right_noY;
+	vec_backward_noY = t.vec_backward_noY;
+}
+
 const XMVECTOR & Transform::GetPositionVector() const
 {
 	return this->posVector;

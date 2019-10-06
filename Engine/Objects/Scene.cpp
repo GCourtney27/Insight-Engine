@@ -7,6 +7,12 @@
 
 bool Scene::Initialize()
 {
+	
+	std::list<Entity*>::iterator iter;
+	for (iter = m_entities.begin(); iter != m_entities.end(); iter++)
+	{
+		(*iter)->Initialize();
+	}
 	return true;
 }
 
@@ -32,9 +38,15 @@ void Scene::Shutdown()
 	m_entities.clear();
 }
 
+// -- Runtime -- //
+
 bool Scene::OnStart()
 {
-	return false;
+	for (Entity* entity : m_entities)
+	{
+		entity->OnStart();
+	}
+	return true;
 }
 
 void Scene::OnUpdate(float deltaTime)

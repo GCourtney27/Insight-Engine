@@ -4,6 +4,32 @@
 class Transform
 {
 public:
+	Transform() {}
+	Transform(const Transform& transform);
+	
+
+	Transform& operator = (const Transform & transform)
+	{
+		posVector = transform.posVector;
+		rotVector = transform.rotVector;
+		scaleVector = transform.scaleVector;
+		
+		pos = transform.pos;
+		rot = transform.rot;
+		scale = transform.scale;
+		
+		vec_forward = transform.vec_forward;
+		vec_left = transform.vec_left;
+		vec_right = transform.vec_right;
+		vec_backward = transform.vec_backward;
+		
+		vec_forward_noY = transform.vec_forward_noY;
+		vec_left_noY = transform.vec_left_noY;
+		vec_right_noY = transform.vec_right_noY;
+		vec_backward_noY = transform.vec_backward_noY;
+
+		return *this;
+	}
 
 	const XMVECTOR & GetPositionVector() const;
 	const DirectX::XMFLOAT3 & GetPositionFloat3() const;
@@ -55,6 +81,7 @@ protected:
 	XMVECTOR posVector; // position in the world
 	XMVECTOR rotVector; // rotation in the world
 	XMVECTOR scaleVector; // scale in the world
+
 	// DirectX::XMFLOAT3
 	DirectX::XMFLOAT3 pos;
 	DirectX::XMFLOAT3 rot;

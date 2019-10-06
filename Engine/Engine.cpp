@@ -14,7 +14,6 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 
 	Timer::Instance()->Start();
 	FileSystem::Instance()->Initialize(this);
-	compiler.Initialize();
 
 	if (!this->render_window.Initialize(this, hInstance, window_title, window_class, width, height))
 		return false;
@@ -22,23 +21,17 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	if (!Graphics::Instance()->Initialize(this->render_window.GetHWND(), width, height, this))
 		return false;
 
-	/*if (!FileSystem::Instance()->LoadSceneFromFile("Data\\Scenes\\Scene01_PBRTest.txt", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader()))
+	if (!FileSystem::Instance()->LoadSceneFromFile("Data\\Scenes\\Scene01.txt", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader()))
 	{
 		ErrorLogger::Log("Failed to initialize scene.");
 		return false;
-	}*/
+	}
 
-	scriptedEntity = new Entity(&scene, *(new ID()));
-	MeshRenderer* me = scriptedEntity->AddComponent<MeshRenderer>();
-	me->Initialize("Data\\Objects\\Dandelion\\Var1\\Textured_Flower.obj", Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader());
-	scriptedEntity->GetTransform().SetPosition(0.0f, 0.0f, 0.0f);
-	scriptedEntity->GetTransform().SetScale(1.0f, 1.0f, 1.0f);
-	scriptedEntity->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
-
-	EditorSelection* esc = scriptedEntity->AddComponent<EditorSelection>();
-	esc->Initialize(20.0f, scriptedEntity->GetTransform().GetPosition());
-
-	scene.AddEntity(scriptedEntity);
+	if (!scene.Initialize())
+	{
+		ErrorLogger::Log("Failed to initialize scene");
+		return false;
+	}
 
 	//Graphics::Instance()->InitSkybox();
 
@@ -59,14 +52,14 @@ void Engine::Update()
 	float dt = (float)Timer::Instance()->GetDeltaTime();
 	Timer::Instance()->Restart();
 
+	scene.Update(dt);
+
 	if (Debug::Editor::Instance()->PlayingGame())
 		scene.OnUpdate(dt);
 
-
-
 	Debug::Editor::Instance()->Update();
-	Graphics::Instance()->Update();
-	scene.Update(dt);
+	Graphics::Instance()->Update(dt);
+
 
 	while (!InputManager::Instance()->keyboard.CharBufferIsEmpty())
 	{
@@ -97,7 +90,6 @@ void Engine::Update()
 	{
 		camera3DSpeed = 0.1f;
 	}
-
 
 	if (InputManager::Instance()->keyboard.KeyIsPressed('W'))
 	{
@@ -132,8 +124,8 @@ void Engine::Update()
 	if (InputManager::Instance()->keyboard.KeyIsPressed('C'))
 	{
 		//lightPosition += this->Graphics::Instance()->camera3D.GetForwardVector();
-		//Graphics::Instance()->light.SetPosition(Graphics::Instance()->camera3D.GetPositionFloat3());
-		//Graphics::Instance()->light.SetRotation(Graphics::Instance()->camera3D.GetRotationFloat3());
+		Graphics::Instance()->light.SetPosition(Graphics::Instance()->camera3D.GetPositionFloat3());
+		Graphics::Instance()->light.SetRotation(Graphics::Instance()->camera3D.GetRotationFloat3());
 	}
 
 	/*if (InputManager::Instance()->keyboard.KeyIsPressed(VK_CONTROL) && InputManager::Instance()->keyboard.KeyIsPressed('S'))
@@ -162,6 +154,11 @@ void Engine::Shutdown()
 {
 	scene.Shutdown();
 	Graphics::Instance()->Shutdown();
+}
+
+void Engine::OnGameStart()
+{
+	scene.OnStart();
 }
 
 

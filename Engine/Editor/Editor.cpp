@@ -8,9 +8,9 @@ namespace Debug
 
 	bool Editor::Initialize(Engine* engine)
 	{
-		m_engine = engine;
+		m_pEngine = engine;
 
-		std::list<Entity*>* entities = m_engine->GetScene().GetAllEntities();
+		std::list<Entity*>* entities = m_pEngine->GetScene().GetAllEntities();
 		std::list<Entity*>::iterator iter;
 		for (iter = entities->begin(); iter != entities->end(); iter++)
 		{
@@ -24,33 +24,33 @@ namespace Debug
 	void Editor::Update()
 	{
 		/*Raycasting*/
-		//if (InputManager::Instance()->mouse.IsLeftDown())
-		//{
-		//	SimpleMath::Vector3 cameraPosition = Graphics::Instance()->camera3D.GetPositionFloat3();
-		//	SimpleMath::Vector3 mouseVector = GetMouseDirectionVector();
+		if (InputManager::Instance()->mouse.IsLeftDown())
+		{
+			SimpleMath::Vector3 cameraPosition = Graphics::Instance()->camera3D.GetPositionFloat3();
+			SimpleMath::Vector3 mouseVector = GetMouseDirectionVector();
 
-		//	Ray* raycast = new Ray(cameraPosition, mouseVector);
+			Ray* raycast = new Ray(cameraPosition, mouseVector);
 
-		//	// -- Using bounding sphere -- //
-		//	std::list<Entity*>* entities = m_engine->GetScene().GetAllEntities();
-		//	std::list<Entity*>::iterator iter;
-		//	for (iter = entities->begin(); iter != entities->end(); iter++)
-		//	{
-		//		if (hit_sphere((*iter)->GetComponent<EditorSelection>()->GetPosition(), (*iter)->GetComponent<EditorSelection>()->GetRadius(), *raycast))
-		//		{
-		//			m_selectedEntity = (*iter);
-		//			break;
-		//		}
-		//	}
-		//}
+			// -- Using bounding sphere -- //
+			std::list<Entity*>* entities = m_pEngine->GetScene().GetAllEntities();
+			std::list<Entity*>::iterator iter;
+			for (iter = entities->begin(); iter != entities->end(); iter++)
+			{
+				if (hit_sphere((*iter)->GetComponent<EditorSelection>()->GetPosition(), (*iter)->GetComponent<EditorSelection>()->GetRadius(), *raycast))
+				{
+					m_selectedEntity = (*iter);
+					break;
+				}
+			}
+		}
 
-		//if (InputManager::Instance()->keyboard.KeyIsPressed(VK_CONTROL) && InputManager::Instance()->keyboard.KeyIsPressed('S'))
-		//{
-		//	if (!SaveScene())
-		//	{
-		//		ErrorLogger::Log("Failed to Save Scene");
-		//	}
-		//}
+		if (InputManager::Instance()->keyboard.KeyIsPressed(VK_CONTROL) && InputManager::Instance()->keyboard.KeyIsPressed('S'))
+		{
+			if (!SaveScene())
+			{
+				ErrorLogger::Log("Failed to Save Scene");
+			}
+		}
 
 	}
 
@@ -67,10 +67,10 @@ namespace Debug
 
 		DirectX::XMVECTOR mouseFar = DirectX::XMVectorSet((float)posX, (float)posY, 1.0f, 0.0f);
 
-		DirectX::XMVECTOR unprojectedNear = DirectX::XMVector3Unproject(mouseNear, 0, 0, (float)m_engine->GetWindowWidth(), (float)m_engine->GetWindowHeight(), Graphics::Instance()->camera3D.GetNearZ(), Graphics::Instance()->camera3D.GetFarZ(),
+		DirectX::XMVECTOR unprojectedNear = DirectX::XMVector3Unproject(mouseNear, 0, 0, (float)m_pEngine->GetWindowWidth(), (float)m_pEngine->GetWindowHeight(), Graphics::Instance()->camera3D.GetNearZ(), Graphics::Instance()->camera3D.GetFarZ(),
 			Graphics::Instance()->camera3D.GetProjectionMatrix(), Graphics::Instance()->camera3D.GetViewMatrix(), DirectX::XMMatrixIdentity());
 
-		DirectX::XMVECTOR unprojectedFar = DirectX::XMVector3Unproject(mouseFar, 0, 0, (float)m_engine->GetWindowWidth(), (float)m_engine->GetWindowHeight(), Graphics::Instance()->camera3D.GetNearZ(), Graphics::Instance()->camera3D.GetFarZ(),
+		DirectX::XMVECTOR unprojectedFar = DirectX::XMVector3Unproject(mouseFar, 0, 0, (float)m_pEngine->GetWindowWidth(), (float)m_pEngine->GetWindowHeight(), Graphics::Instance()->camera3D.GetNearZ(), Graphics::Instance()->camera3D.GetFarZ(),
 			Graphics::Instance()->camera3D.GetProjectionMatrix(), Graphics::Instance()->camera3D.GetViewMatrix(), DirectX::XMMatrixIdentity());
 
 		DirectX::XMVECTOR result = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(unprojectedFar, unprojectedNear));
@@ -112,7 +112,7 @@ namespace Debug
 
 	bool Editor::SaveScene()
 	{
-		if (!FileSystem::WriteSceneToFile(m_engine->GetScene().GetAllEntities()))
+		if (!FileSystem::WriteSceneToFile(m_pEngine->GetScene().GetAllEntities()))
 			return false;
 		return true;
 	}

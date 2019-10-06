@@ -24,16 +24,18 @@ public:
 	Entity(Scene* scene, const ID& id) : m_scene(scene), Object(id) {}
 	virtual ~Entity() {}
 
-	// -- Editor Specific methods -- //
-	bool Start();
-	void Update(float deltaTime);
-	void Draw(const XMMATRIX & viewProjectionMatrix);
-	void Destroy();
+	// -- Editor Specific methods (Engine) -- //
+	bool Initialize(); // Called once when Engine starts
+	void Update(float deltaTime); // Update things like editor click sphere
+	void Draw(const XMMATRIX & viewProjectionMatrix); // Draw mesh renderer for componet, needs to be seen in editor and play mode
+	void Destroy(); // Unload resources
 
-	// -- Runtime Methods -- //
-	virtual bool OnStart();
-	virtual void OnUpdate(float deltaTime);
-	virtual void OnDestroy();
+	// -- Runtime Methods (Components / Game Logic) -- //
+	void OnStart(); // Run Start() components
+	void OnUpdate(float deltaTime); // Update() components 
+	void OnExit(); // When entity exits play
+
+	void OnEditorStop(); //Reset positions and transforms
 
 	virtual void OnEvent(const Event& event);
 
@@ -69,13 +71,16 @@ public:
 	Transform& GetTransform() { return m_transform; }
 	
 	ID& GetID() { return m_id; }
-
 	void SetTagUID(std::string id) { m_id.SetUniqueID(id); }
 
+	void UpdateTransformCopyWithTransform() { m_origionalTransform = m_transform; }
+	void UpdateTransformWithCopy() { m_transform = m_origionalTransform; }
+	
 protected:
 	eState m_state = eState::ACTIVE;
 	ID m_id;
 	Transform m_transform;
+	Transform m_origionalTransform;
 	Scene* m_scene;
 	std::vector<Component*> m_components;
 };

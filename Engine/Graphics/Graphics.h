@@ -25,7 +25,7 @@ class Graphics : public Singleton<Graphics>
 public:
 	bool Initialize(HWND hwnd, int width, int height, Engine* engine);
 	void RenderFrame();
-	void Update();
+	void Update(const float& deltaTime);
 	void Shutdown();
 
 	Camera3D camera3D;

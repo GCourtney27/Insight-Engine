@@ -13,12 +13,13 @@ public:
 	Scene() {}
 	~Scene() {}
 
+	// -- Engine -- //
 	bool Initialize();
-	void Update(const float& deltaTime); // Call this in engine.cpp and pass in delta time
+	void Update(const float& deltaTime);
 	void Draw();
 	void Shutdown();
 
-	// -- Runtime -- // 
+	// -- Runtime (Game Logic) -- // 
 	bool OnStart();
 	void OnUpdate(float deltaTime);
 	void OnDestroy();
