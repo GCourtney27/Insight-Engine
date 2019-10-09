@@ -1,19 +1,21 @@
 #include "json.h"
-#include "filesystem.h"
+#include <fstream>
 #include <iostream>
 
 bool json::load(const char* filename, rapidjson::Document& document)
 {
 	bool success = false;
 
-	std::string string;
+	std::fstream f(filename);
+	if (!f.is_open())
+		return false;
 
-	if (filesystem::read_file(filename, string))
-	{
-		document.Parse(string.c_str());
-		success = document.IsObject();
-	}
+	std::istreambuf_iterator<char> eos;
+	std::string string(std::istreambuf_iterator<char>(f), eos);
 
+	document.Parse(string.c_str());
+	success = document.IsObject();
+	
 	return success;
 }
 

@@ -6,7 +6,7 @@
 namespace Debug
 {
 
-	bool Editor::Initialize(Engine* engine)
+	bool Editor::Initialize(Engine* engine, HWND hwnd)
 	{
 		m_pEngine = engine;
 
@@ -14,9 +14,11 @@ namespace Debug
 		std::list<Entity*>::iterator iter;
 		for (iter = entities->begin(); iter != entities->end(); iter++)
 		{
-			m_selectedEntity = (*iter);
+			m_pSelectedEntity = (*iter);
 			break;
 		}
+
+		m_debugLog = "";
 
 		return true;
 	}
@@ -26,11 +28,10 @@ namespace Debug
 		/*Raycasting*/
 		if (InputManager::Instance()->mouse.IsLeftDown())
 		{
-			SimpleMath::Vector3 cameraPosition = Graphics::Instance()->camera3D.GetPositionFloat3();
+			SimpleMath::Vector3 cameraPosition = Graphics::Instance()->camera3D.GetPosition();
 			SimpleMath::Vector3 mouseVector = GetMouseDirectionVector();
-
 			Ray* raycast = new Ray(cameraPosition, mouseVector);
-
+			
 			// -- Using bounding sphere -- //
 			std::list<Entity*>* entities = m_pEngine->GetScene().GetAllEntities();
 			std::list<Entity*>::iterator iter;
@@ -38,12 +39,13 @@ namespace Debug
 			{
 				if (hit_sphere((*iter)->GetComponent<EditorSelection>()->GetPosition(), (*iter)->GetComponent<EditorSelection>()->GetRadius(), *raycast))
 				{
-					m_selectedEntity = (*iter);
+					m_pSelectedEntity = (*iter);
 					break;
 				}
 			}
 		}
 
+		/* Saving Scene */
 		if (InputManager::Instance()->keyboard.KeyIsPressed(VK_CONTROL) && InputManager::Instance()->keyboard.KeyIsPressed('S'))
 		{
 			if (!SaveScene())
@@ -51,6 +53,7 @@ namespace Debug
 				ErrorLogger::Log("Failed to Save Scene");
 			}
 		}
+
 
 	}
 
@@ -81,7 +84,6 @@ namespace Debug
 
 		return direction;
 	}
-
 
 	bool Editor::hit_sphere(const SimpleMath::Vector3& center, float radius, const Ray& r)
 	{

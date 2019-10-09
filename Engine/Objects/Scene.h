@@ -39,9 +39,11 @@ public:
 	std::vector<Entity*> GetEntitiesWithTag(const ID& tag);
 	std::list<Entity*>* GetAllEntities() { return &m_entities; }
 
-
+	std::string& GetSceneName() { return m_name; }
+	void SetSceneName(std::string name) { m_name = name; }
 
 protected:
 	std::list<Entity*> m_entities;
-	char* m_pName;
+	std::string m_name;
+	std::string m_sceneDiretory;
 };

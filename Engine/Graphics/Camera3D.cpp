@@ -27,7 +27,49 @@ const XMMATRIX & Camera3D::GetProjectionMatrix() const
 	return this->projectionMatrix;
 }
 
+float * Camera3D::GetViewMatAsFloatArr()
+{
+	float resultEx[16] =
+	{ 1.f, 0.f, 0.f, 0.f,
+		0.f, 1.f, 0.f, 0.f,
+		0.f, 0.f, 1.f, 0.f,
+		0.f, 0.f, 0.f, 1.f
+	};
 
+	XMFLOAT4X4 temp;
+	XMStoreFloat4x4(&temp, GetViewMatrix());
+
+	float result[16] =
+	{ temp._11, temp._12, temp._13, temp._14,
+		temp._21, temp._22, temp._23, temp._24,
+		temp._31, temp._32, temp._33, temp._34,
+		temp._41, temp._42, temp._43, temp._44
+	};
+
+	return result;
+}
+
+float * Camera3D::GetProjMatAsFloatArr()
+{
+	float resultEx[16] =
+	{ 1.f, 0.f, 0.f, 0.f,
+		0.f, 1.f, 0.f, 0.f,
+		0.f, 0.f, 1.f, 0.f,
+		0.f, 0.f, 0.f, 1.f
+	};
+
+	XMFLOAT4X4 temp;
+	XMStoreFloat4x4(&temp, GetProjectionMatrix());
+
+	float result[16] =
+	{ temp._11, temp._12, temp._13, temp._14,
+		temp._21, temp._22, temp._23, temp._24,
+		temp._31, temp._32, temp._33, temp._34,
+		temp._41, temp._42, temp._43, temp._44
+	};
+
+	return result;
+}
 
 void Camera3D::UpdateMatrix() // Update the view matrix and also updates the movement vectors
 {

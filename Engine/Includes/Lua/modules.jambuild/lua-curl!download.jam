@@ -1,0 +1,41 @@
+# Download instructions
+{
+
+	if $(NT) {
+		actions screenoutput Download:curl {
+			cd "$(SOURCE_DIR:P)"
+			del $(URL:BS)
+			rem curl -s -O $(URL)
+			wget --no-check-certificate $(URL)
+			unzip $(URL:BS)
+			del $(URL:BS)
+		}
+	} else {
+		actions screenoutput Download:curl {
+			cd "$(SOURCE_DIR:P)"
+			rm $(URL:BS)
+			wget $(URL)
+			unzip $(URL:BS)
+			rm $(URL:BS)
+		}
+	}
+
+	rule Download-curl TARGET : URL : ZIP_DIR {
+		TARGET = $(SUBDIR)/src/$(ZIP_DIR) ;
+		SOURCE_DIR on $(TARGET) = $(TARGET) ;
+		URL on $(TARGET) = $(URL) ;
+		Depends download:curl : $(TARGET) ;
+		Download:curl $(TARGET) ;
+		CleanTree clean:download:curl : $(TARGET) ;
+	}
+
+	Depends download:curl : $(SUBDIR) ;
+	Download-curl curl : https://curl.haxx.se/download/curl-7.58.0.zip : curl-7.58.0 ;
+
+	NotFile download:curl ;
+	Depends download : download:curl ;
+	Depends clean:download : clean:download:curl ;
+	NotFile clean:download:curl ;
+	Always clean:download:curl ;
+}
+

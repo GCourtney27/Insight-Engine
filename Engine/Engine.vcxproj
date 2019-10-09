@@ -174,15 +174,59 @@
     <ClCompile Include="Components\MeshRenderComponent.cpp" />
     <ClCompile Include="Editor\Editor.cpp" />
     <ClCompile Include="Graphics\ImGui\imgui.cpp" />
+    <ClCompile Include="Graphics\ImGui\ImGuizmo.cpp" />
     <ClCompile Include="Graphics\ImGui\imgui_demo.cpp" />
     <ClCompile Include="Graphics\ImGui\imgui_draw.cpp" />
     <ClCompile Include="Graphics\ImGui\imgui_impl_dx11.cpp" />
     <ClCompile Include="Graphics\ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="Graphics\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="Graphics\Material.cpp" />
+    <ClCompile Include="Graphics\SimpleShader.cpp" />
+    <ClCompile Include="Includes\json.cpp" />
+    <ClCompile Include="Includes\Lua\LuaPlus\lapi.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\lauxlib.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\lbaselib.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\lbitlib.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\lcode.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\lcorolib.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\lctype.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\ldblib.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\ldebug.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\ldo.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\ldump.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\lfunc.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\lgc.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\linit.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\liolib.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\llex.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\lmathlib.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\lmem.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\loadlib.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\lobject.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\lopcodes.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\loslib.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\lparser.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\lstate.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\lstring.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\lstrlib.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\ltable.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\ltablib.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\ltm.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\lua.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\luac.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\LuaPlus.cpp" />
+    <ClCompile Include="Includes\Lua\LuaPlus\LuaPlusAddons.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\LuaState_DumpObject.cpp" />
+    <ClCompile Include="Includes\Lua\LuaPlus\lundump.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\lutf8lib.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\lvm.c" />
+    <ClCompile Include="Includes\Lua\LuaPlus\lzio.c" />
     <ClCompile Include="Input\Keyboard\KeyboardClass.cpp" />
     <ClCompile Include="Input\Keyboard\KeyboardEvent.cpp" />
     <ClCompile Include="Input\Mouse\MouseClass.cpp" />
     <ClCompile Include="Input\Mouse\MouseEvent.cpp" />
+    <ClCompile Include="LUAScripting\LuaStateManager.cpp" />
+    <ClCompile Include="LUAScripting\ScriptExports.cpp" />
     <ClCompile Include="Systems\FileSystem.cpp" />
     <ClCompile Include="Graphics\Camera2D.cpp" />
     <ClCompile Include="Graphics\GameObject2D.cpp" />
@@ -218,6 +262,7 @@
     <ClInclude Include="Components\Component.h" />
     <ClInclude Include="Components\CPPScript.h" />
     <ClInclude Include="Components\EditorSelectionComponent.h" />
+    <ClInclude Include="Components\LuaScriptComponent.h" />
     <ClInclude Include="Components\MeshRenderComponent.h" />
     <ClInclude Include="Editor\Editor.h" />
     <ClInclude Include="Editor\EditorClickable.h" />
@@ -226,17 +271,67 @@
     <ClInclude Include="Framework\Singleton.h" />
     <ClInclude Include="Graphics\ImGui\imconfig.h" />
     <ClInclude Include="Graphics\ImGui\imgui.h" />
+    <ClInclude Include="Graphics\ImGui\ImGuizmo.h" />
     <ClInclude Include="Graphics\ImGui\imgui_impl_dx11.h" />
     <ClInclude Include="Graphics\ImGui\imgui_impl_win32.h" />
     <ClInclude Include="Graphics\ImGui\imgui_internal.h" />
     <ClInclude Include="Graphics\ImGui\imstb_rectpack.h" />
     <ClInclude Include="Graphics\ImGui\imstb_textedit.h" />
     <ClInclude Include="Graphics\ImGui\imstb_truetype.h" />
+    <ClInclude Include="Graphics\Material.h" />
+    <ClInclude Include="Graphics\SimpleShader.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\lapi.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\lauxlib.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\lcode.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\lctype.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\ldebug.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\ldo.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\lfunc.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\lgc.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\llex.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\llimits.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\lmem.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\lobject.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\lopcodes.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\lparser.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\lprefix.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\lstate.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\lstring.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\ltable.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\ltm.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\lua.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\lua.hpp" />
+    <ClInclude Include="Includes\Lua\LuaPlus\LuaAutoBlock.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\LuaCall.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\luaconf.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\LuaFunction.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\LuaHelper.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\LuaHelper_Object.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\LuaHelper_StackObject.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\lualib.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\LuaObject.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\LuaPlus.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\LuaPlusCD.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\LuaPlusConfig.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\LuaPlusInternal.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\LuaStackObject.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\LuaStackTableIterator.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\LuaState.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\LuaStateCD.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\LuaStateOutFile.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\LuaStateOutString.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\LuaTableIterator.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\lundump.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\lvm.h" />
+    <ClInclude Include="Includes\Lua\LuaPlus\lzio.h" />
     <ClInclude Include="Input\InputManager.h" />
     <ClInclude Include="Input\Keyboard\KeyboardClass.h" />
     <ClInclude Include="Input\Keyboard\KeyboardEvent.h" />
     <ClInclude Include="Input\Mouse\MouseClass.h" />
     <ClInclude Include="Input\Mouse\MouseEvent.h" />
+    <ClInclude Include="LUAScripting\ScriptExports.h" />
+    <ClInclude Include="LUAScripting\IScriptManager.h" />
+    <ClInclude Include="LUAScripting\LuaStateManager.h" />
     <ClInclude Include="Physics\Ray.h" />
     <ClInclude Include="Systems\FileSystem.h" />
     <ClInclude Include="Graphics\BaseScriptableGameObject.h" />
@@ -278,6 +373,77 @@
     <ClInclude Include="WindowContainer.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="IBLHeader.hlsli" />
+    <None Include="Includes\Lua\LuaPlus\Lua.jam" />
+    <None Include="Includes\Lua\LuaPlus\LuaC.jam" />
+    <None Include="Includes\Lua\LuaPlus\LuaCall.inl" />
+    <None Include="Includes\Lua\LuaPlus\LuaObject.inl" />
+    <None Include="Includes\Lua\LuaPlus\LuaPlusSharedLib.jam" />
+    <None Include="Includes\Lua\LuaPlus\LuaPlusStaticLib.jam" />
+    <None Include="Includes\Lua\LuaPlus\LuaStackObject.inl" />
+    <None Include="Includes\Lua\LuaPlus\LuaStackTableIterator.inl" />
+    <None Include="Includes\Lua\LuaPlus\LuaState.inl" />
+    <None Include="PBRHeader.hlsli">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <FileType>Document</FileType>
+    </None>
+    <FxCompile Include="ConvolutionPixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="IntegrateBRDFPixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="PBRMatPixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="PBRPixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="PBRVertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="PBR_pixelshader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
@@ -321,6 +487,16 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="PrefilterMapPixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="vertexshader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>

@@ -1,0 +1,78 @@
+language: c
+
+sudo: false
+
+env:
+  global:
+    - LCURL_CC_FLAGS="-O2 -fPIC -ftest-coverage -fprofile-arcs"
+    - LCURL_LD_FLAGS="-shared --coverage"
+
+matrix:
+  include:
+    - compiler: ": Lua51-osx"
+      env: LUA="lua 5.1"
+      os: osx
+    - compiler: ": Lua51"
+      env: LUA="lua 5.1"
+      os: linux
+    - compiler: ": Lua52"
+      env: LUA="lua 5.2"
+      os: linux
+    - compiler: ": Lua53"
+      env: LUA="lua 5.3"
+      os: linux
+    - compiler: ": LuaJIT20"
+      env: LUA="luajit 2.0"
+      os: linux
+    - compiler: ": LuaJIT21"
+      env: LUA="luajit 2.1"
+      os: linux
+
+cache:
+  directories:
+    - here
+    - $HOME/.cache/pip
+
+branches:
+  only:
+    - master
+
+before_install:
+  - export CC=gcc
+  - gcc --version
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH=$PATH:~/Library/Python/2.7/bin/; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export LCURL_LD_FLAGS="-bundle -undefined dynamic_lookup -all_load --coverage"; fi
+  - pip install --user cpp-coveralls
+  - pip install --user hererocks
+  - hererocks here -r^ --$LUA
+  - source here/bin/activate
+
+install:
+  - luarocks make rockspecs/lua-curl-scm-0.rockspec CFLAGS="$LCURL_CC_FLAGS" LIBFLAG="$LCURL_LD_FLAGS"
+
+before_script:
+  - luarocks show luacov-coveralls > /dev/null 2>&1 || luarocks install luacov-coveralls
+  - luarocks show lunitx > /dev/null 2>&1           || luarocks install lunitx
+  - luarocks show luafilesystem > /dev/null 2>&1    || luarocks install luafilesystem
+  - luarocks show dkjson > /dev/null 2>&1           || luarocks install dkjson --deps-mode=none
+
+script:
+  - cd test
+  - lua -e "print(require 'cURL.utils'.find_ca_bundle())"
+  - lunit.sh run.lua
+  - lua test_pause02.c.lua
+  - lua test_multi_callback.lua
+  - lua test_multi_nested_callback.lua
+  # - lunit.sh test_easy.lua
+  # - lunit.sh test_safe.lua
+  # - lunit.sh test_form.lua
+  # - lunit.sh test_curl.lua
+
+after_success:
+  - coveralls -b .. -r .. --dump c.report.json
+  - luacov-coveralls -j c.report.json -v
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always

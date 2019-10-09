@@ -1,0 +1,11 @@
+{
+
+local SRCS =
+		xlsx.lua
+;
+
+Lua.Module xlsx : : $(SRCS) ;
+
+CopyFiles xlsx : $(LUA_LDIR) : $(SUBDIR)/$(SRCS) ;
+
+}

@@ -21,11 +21,22 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	if (!Graphics::Instance()->Initialize(this->render_window.GetHWND(), width, height, this))
 		return false;
 
-	if (!FileSystem::Instance()->LoadSceneFromFile("Data\\Scenes\\Scene01.txt", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader()))
+	if (!FileSystem::Instance()->LoadSceneFromJSON("Data\\Scenes\\scene_json_test.txt", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader()))
 	{
 		ErrorLogger::Log("Failed to initialize scene.");
 		return false;
 	}
+
+	// Dandelion\\Var1\\Textured_Flower.obj
+	/*entity = new Entity(&scene, *(new ID("PBR_Entity")));
+	MeshRenderer* me = entity->AddComponent<MeshRenderer>();
+	me->Initialize("Data\\Objects\\Primatives\\Sphere.fbx", Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader(), Graphics::Instance()->GetWoodMaterial());
+	entity->GetTransform().SetPosition(0.0f, 0.0f, 0.0f);
+	entity->GetTransform().SetScale(10.0f, 10.0f, 10.0f);
+	entity->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
+	EditorSelection* es = entity->AddComponent<EditorSelection>();
+	es->Initialize(20.0f, entity->GetTransform().GetPosition());
+	scene.AddEntity(entity);*/
 
 	if (!scene.Initialize())
 	{
@@ -35,9 +46,10 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 
 	//Graphics::Instance()->InitSkybox();
 
-	if (!Debug::Editor::Instance()->Initialize(this))
+	if (!Debug::Editor::Instance()->Initialize(this, this->render_window.GetHWND()))
 		return false;
-
+	
+	Debug::Editor::Instance()->DebugLog("Hello from Engine!");
 
 	return true;
 }

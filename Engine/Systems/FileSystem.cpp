@@ -6,7 +6,9 @@
 #include "..\\Components\MeshRenderComponent.h"
 #include "..\\Components\\EditorSelectionComponent.h"
 
+#include "json.h"
 #include "document.h"
+#include <map>
 
 bool FileSystem::Initialize(Engine * engine)
 {
@@ -15,14 +17,199 @@ bool FileSystem::Initialize(Engine * engine)
 	return true;
 }
 
-bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * scene, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
+struct com_mesh;
+struct com_physics;
+
+struct com_base
 {
+	virtual void Load(const rapidjson::Value& value) = 0;
+	static com_base* Create(std::string& name);
+	//{
+	//	com_base* p = nullptr;
+	//	if (name == "mesh")
+	//	{
+	//		p = new com_mesh;
+	//	}
+	//	else if (name == "physics")
+	//	{
+	//		p = new com_physics;
+	//	}
+
+	//	return p;
+	//}
+};
+
+struct com_mesh : com_base
+{
+	void Load(const rapidjson::Value& value)
+	{
+		json::get_int(value, "size", size);
+	}
+
+	int size;
+};
+
+struct com_physics: com_base
+{
+	void Load(const rapidjson::Value& value)
+	{
+		json::get_float(value, "rate", rate);
+	}
+
+	float rate;
+};
+
+com_base* com_base::Create(std::string& name)
+{
+	com_base* p = nullptr;
+	if (name == "mesh")
+	{
+		p = new com_mesh;
+	}
+	else if (name == "physics")
+	{
+		p = new com_physics;
+	}
+
+	return p;
+}
+
+
+bool FileSystem::LoadSceneFromJSONExample(const std::string & sceneLocation, Scene * scene, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
+{
+	rapidjson::Document document;
+	json::load(sceneLocation.c_str(), document);
+
+	std::string name;
+	json::get_string(document, "name", name);
+
+	int i;
+	json::get_int(document, "int_value", i);
+
+	const rapidjson::Value& block = document["data"];
+	json::get_string(block, "name", name);
+	json::get_int(block, "int_value", i);
+
+	const rapidjson::Value& components = document["components"];
+	for (rapidjson::SizeType i = 0; i < components.Size(); i++)
+	{
+		const rapidjson::Value& component = components[i];
+
+		std::string type;
+		json::get_string(component, "type", type);
+
+		com_base* com = com_base::Create(type);
+		com->Load(component);
+
+	}
 
 	return true;
 }
 
-bool FileSystem::WriteSceneToJSON(std::list<Entity*>* gameObjectsToWrite)
+bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * scene, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
 {
+	// Load document from file and verify it was found
+	rapidjson::Document masterDocument;
+	if(!json::load(sceneLocation.c_str(), masterDocument))
+	{
+		ErrorLogger::Log("Failed to load scene from JSON file.");
+		return false;
+	}
+	// Parse scene name
+	std::string sceneName;
+	json::get_string(masterDocument, "SceneName", sceneName); // Find something that says 'SceneName' and load sceneName variable
+	scene->SetSceneName(sceneName);
+
+	ID* id = nullptr;
+	Entity* entity = nullptr;
+
+	
+
+	// Load objects
+	const rapidjson::Value& sceneObjects = masterDocument["Objects"]; // Arr
+	for (rapidjson::SizeType o = 0; o < sceneObjects.Size(); o++)
+	{
+		const rapidjson::Value& object = sceneObjects[o]; // Current object in Objects array  (unique entity, perform calls on this object)
+
+		std::string objectType;
+		json::get_string(object, "Type", objectType);
+		if (objectType == "Entity")
+		{
+			if (entity == nullptr)
+			{
+				id = new ID();
+				entity = new Entity(scene, (*id));
+			}
+		}
+		//else if (objectType == "Light") // TODO: Add light class
+		//{
+		//	if (entity != nullptr)
+		//	{
+		//		id = new ID();
+		//		entity = new Entity(scene, (*id));
+		//		//dynamic_cast<Light*>(entity);
+		//	}
+		//}
+		
+		std::string objectName;
+		json::get_string(object, "Name", objectName);
+		entity->GetID().SetName(objectName);
+		entity->GetID().SetTag("DEFAULT_TAG");
+
+#pragma region Load Transform
+		// Loop through transform array
+		float px, py, pz;
+		float rx, ry, rz;
+		float sx, sy, sz;
+		const rapidjson::Value& transform = sceneObjects[o]["Transform"]; // At spot o in the sceneObjects array (Number of spots is how ever many objects are in the scene)
+		const rapidjson::Value& position = transform[0]["Position"];
+		for (rapidjson::SizeType p = 0; p < position.Size(); p++)
+		{
+			json::get_float(position[p], "x", px);
+			json::get_float(position[p], "y", py);
+			json::get_float(position[p], "z", pz);
+		}
+		const rapidjson::Value& rotation = transform[1]["Rotation"];
+		for (rapidjson::SizeType r = 0; r < rotation.Size(); r++)
+		{
+			json::get_float(rotation[r], "x", rx);
+			json::get_float(rotation[r], "y", ry);
+			json::get_float(rotation[r], "z", rz);
+		}
+		const rapidjson::Value& scale = transform[2]["Scale"];
+		for (rapidjson::SizeType s = 0; s < scale.Size(); s++)
+		{
+			json::get_float(scale[s], "x", sx);
+			json::get_float(scale[s], "y", sy);
+			json::get_float(scale[s], "z", sz);
+		}
+		entity->GetTransform().SetPosition(DirectX::XMFLOAT3(px, py, pz));
+		entity->GetTransform().SetRotation(rx, ry, rz);
+		entity->GetTransform().SetScale(sx, sy, sz);
+#pragma endregion Load Entity transform
+
+		std::string modelFilePath = "Data\\Objects\\Dandelion\\Var1\\Textured_Flower.obj";
+		//std::string modelFilePath = "Data\\Objects\\cube.obj";
+		MeshRenderer* me = entity->AddComponent<MeshRenderer>();
+		me->Initialize(modelFilePath, device, deviceContext, cb_vs_vertexshader);
+
+		EditorSelection* esc = entity->AddComponent<EditorSelection>();
+		esc->Initialize(20.0f, entity->GetTransform().GetPosition());
+
+		scene->AddEntity(entity);
+
+		id = nullptr;
+		entity = nullptr;
+
+	}// End Load Entity
+
+	return true;
+}
+
+bool FileSystem::WriteSceneToJSON(Scene* scene)
+{
+	std::ofstream os("Data\\Scenes\\scene_json_test.txt");
+
 
 	return true;
 }
@@ -198,7 +385,6 @@ bool FileSystem::WriteSceneToFile(std::list<Entity*>* entitiesToWrite)
 {
 	std::ofstream os("Data//Scenes//Scene01.txt");
 
-	//std::list<Entity*>* entities = m_engine->GetScene().GetAllEntities();
 	std::list<Entity*>::iterator iter;
 	for (iter = entitiesToWrite->begin(); iter != entitiesToWrite->end(); iter++)
 	{

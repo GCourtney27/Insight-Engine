@@ -1,0 +1,171 @@
+ActiveTarget wx ;
+
+if $(NT)
+{
+
+local SRCS =
+	modules/luamodule/luamodule.cpp
+	modules/luamodule/luamoduledefs.h
+	modules/wxbind/include/wxbinddefs.h
+
+	# wxbindadv
+	modules/wxbind/include/wxadv_bind.h
+	modules/wxbind/include/wxadv_wxladv.h
+	modules/wxbind/src/wxadv_bind.cpp
+	modules/wxbind/src/wxadv_wxladv.cpp
+
+	# wxbindaui
+	modules/wxbind/include/wxaui_bind.h
+	modules/wxbind/src/wxaui_bind.cpp
+
+	# wxbindbase
+	modules/wxbind/include/wxbase_bind.h
+	modules/wxbind/src/wxbase_base.cpp
+	modules/wxbind/src/wxbase_bind.cpp
+	modules/wxbind/src/wxbase_config.cpp
+	modules/wxbind/src/wxbase_data.cpp
+	modules/wxbind/src/wxbase_datetime.cpp
+	modules/wxbind/src/wxbase_file.cpp
+
+	# wxbindcore
+	modules/wxbind/include/wxcore_bind.h
+	modules/wxbind/include/wxcore_wxlcore.h
+	modules/wxbind/src/wxcore_appframe.cpp
+	modules/wxbind/src/wxcore_bind.cpp
+	modules/wxbind/src/wxcore_clipdrag.cpp
+	modules/wxbind/src/wxcore_controls.cpp
+	modules/wxbind/src/wxcore_core.cpp
+	modules/wxbind/src/wxcore_defsutils.cpp
+	modules/wxbind/src/wxcore_dialogs.cpp
+	modules/wxbind/src/wxcore_event.cpp
+	modules/wxbind/src/wxcore_gdi.cpp
+	modules/wxbind/src/wxcore_geometry.cpp
+	modules/wxbind/src/wxcore_help.cpp
+	modules/wxbind/src/wxcore_image.cpp
+	modules/wxbind/src/wxcore_mdi.cpp
+	modules/wxbind/src/wxcore_menutool.cpp
+	modules/wxbind/src/wxcore_picker.cpp
+	modules/wxbind/src/wxcore_print.cpp
+	modules/wxbind/src/wxcore_sizer.cpp
+	modules/wxbind/src/wxcore_windows.cpp
+	modules/wxbind/src/wxcore_wxlcore.cpp
+
+	# wxbindgl
+	modules/wxbind/include/wxgl_bind.h
+	modules/wxbind/src/wxgl_bind.cpp
+
+	# wxbindhtml
+	modules/wxbind/include/wxhtml_bind.h
+	modules/wxbind/include/wxhtml_wxlhtml.h
+	modules/wxbind/src/wxhtml_bind.cpp
+	modules/wxbind/src/wxhtml_wxlhtml.cpp
+
+	# wxbindmedia
+	modules/wxbind/include/wxmedia_bind.h
+	modules/wxbind/src/wxmedia_bind.cpp
+
+	# wxbindnet
+	modules/wxbind/include/wxnet_bind.h
+	modules/wxbind/src/wxnet_bind.cpp
+
+	# wxbindpropgrid
+	modules/wxbind/include/wxpropgrid_bind.h
+	modules/wxbind/src/wxpropgrid_bind.cpp
+
+	# wxbindrichtext
+	modules/wxbind/include/wxrichtext_bind.h
+	modules/wxbind/src/wxrichtext_bind.cpp
+
+	# wxbindstc
+	modules/wxbind/include/wxstc_bind.h
+	modules/wxbind/src/wxstc_bind.cpp
+
+	# wxbindwebview
+	modules/wxbind/include/wxwebview_bind.h
+	modules/wxbind/src/wxwebview_bind.cpp
+
+	# wxbindxml
+	modules/wxbind/include/wxxml_bind.h
+	modules/wxbind/src/wxxml_bind.cpp
+
+	# wxbindxrc
+	modules/wxbind/include/wxxrc_bind.h
+	modules/wxbind/src/wxxrc_bind.cpp
+
+	# wxlua
+	modules/wxlua/atomic.h
+	modules/wxlua/sharedptr.h
+	modules/wxlua/wxlbind.h
+	modules/wxlua/wxlcallb.h
+	modules/wxlua/wxlconsole.h
+	modules/wxlua/wxldefs.h
+	modules/wxlua/wxllua.h
+	modules/wxlua/wxlobject.h
+	modules/wxlua/wxlstate.h
+	modules/wxlua/wxlua.h
+	modules/wxlua/wxlua_bind.h
+	modules/wxlua/wxlversion.h
+	modules/wxlua/dummy.cpp
+	modules/wxlua/lbitlib.c
+	modules/wxlua/wxlbind.cpp
+	modules/wxlua/wxlcallb.cpp
+	modules/wxlua/wxlconsole.cpp
+	modules/wxlua/wxllua.cpp
+	modules/wxlua/wxlobject.cpp
+	modules/wxlua/wxlstate.cpp
+	modules/wxlua/wxlua_bind.cpp
+
+	# wxluadebug
+	modules/wxlua/debug/wxldebug.h
+	modules/wxlua/debug/wxlstack.h
+	modules/wxlua/debug/wxluadebugdefs.h
+	modules/wxlua/debug/dummy.cpp
+	modules/wxlua/debug/wxldebug.cpp
+	modules/wxlua/debug/wxlstack.cpp
+
+	# wxluadebugger
+	modules/wxlua/debugger/wxldserv.h
+	modules/wxlua/debugger/wxldtarg.h
+	modules/wxlua/debugger/wxlsock.h
+	modules/wxlua/debugger/wxluadebugger_bind.h
+	modules/wxlua/debugger/wxluadebuggerdefs.h
+	modules/wxlua/debugger/dummy.cpp
+	modules/wxlua/debugger/wxldserv.cpp
+	modules/wxlua/debugger/wxldtarg.cpp
+	modules/wxlua/debugger/wxlsock.cpp
+	modules/wxlua/debugger/wxluadebugger_bind.cpp
+
+	# Precompiled Header
+#	modules/luamodule/wxLua_InternalPch.cpp
+;
+
+if [ C.WxWidgets : : test ] {
+	C.WxWidgets : xrc xml net media propgrid richtext aui scintilla stc webview html adv core base gl : linklibs ;
+
+	if $(LUA_VERSION) in lua52 lua52-luaplus {
+		C.Defines : LUA_COMPAT_MODULE ;
+	}
+	C.Defines : WXMAKINGDLL_LUAMODULE ISOLATION_AWARE_ENABLED ;
+
+	C.IncludeDirectories :
+			.
+			modules
+			modules/wxbind/setup
+			$(wxWidgets_ROOT)/contrib/include
+	;
+
+	if $(NT) {
+#		C.PrecompiledHeader : modules/luamodule/wxLua_InternalPch.cpp wx/wxprec.h : $(SRCS) ;
+	}
+
+	C.BatchCompileGroupSize : 5 ;
+
+	if $(MSVCNT) {
+		C.C++Flags : /EHsc ;
+	}
+
+	C.LinkPrebuiltLibraries : comctl32 winmm winspool ;
+	Lua.CModule : : $(SRCS) ;
+} # wxWidgets_FOUND
+
+}

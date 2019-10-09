@@ -12,8 +12,10 @@ public:
 
 public:
 	ID();
-	ID(const std::string& id) : m_id(id) {}
-	ID(const char* id) : m_id(id) {}
+	ID(const std::string& id)
+		: m_name(id), m_id(id), m_tag(id) {}
+	ID(const char* id)
+		: m_name(id), m_id(id), m_tag(id) {}
 
 	bool operator == (const ID& id) const { return m_id == id.m_id; }
 	bool operator != (const ID& id) const { return m_id != id.m_id; }
@@ -35,6 +37,7 @@ public:
 
 	void SetLayer(const int& layer) { m_layer = layer; }
 	int GetLayer() const { return m_layer; }
+
 protected:
 	std::string m_name;
 	std::string m_id;

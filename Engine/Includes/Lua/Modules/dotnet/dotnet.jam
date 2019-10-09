@@ -1,0 +1,15 @@
+if $(DOTNETINTERFACE_ENABLED)  &&  $(OS) = NT  &&  $(MSVCNT)  &&  $(COMPILER) != vc6 {
+
+local SRCS =
+		dotnet.cpp
+		luastdcall.cpp
+		luastdcall.h
+;
+
+C.DotNet luanet ;
+
+C.Defines luanet : LUA_COMPAT_MODULE ;
+C.LinkPrebuiltLibraries luanet : mscoree ;
+Lua.CModule luanet : : $(SRCS) ;
+
+}

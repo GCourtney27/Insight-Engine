@@ -15,6 +15,9 @@ public:
 	float GetNearZ() const { return m_nearZ; }
 	float GetFarZ() const { return m_farZ; }
 
+	float* GetViewMatAsFloatArr();
+
+	float* GetProjMatAsFloatArr();
 private:
 	void UpdateMatrix() override;
 

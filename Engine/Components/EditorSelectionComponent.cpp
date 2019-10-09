@@ -15,6 +15,10 @@ void EditorSelection::Destroy()
 {
 }
 
+void EditorSelection::OnImGuiRender()
+{
+}
+
 
 //void EditorSelectionComponent::Update(const DirectX::XMFLOAT3 parentPosition)
 //{

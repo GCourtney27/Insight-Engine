@@ -9,14 +9,17 @@
 #include "..\\Framework\\Singleton.h"
 #include "..\\Engine.h"
 #include "..\\Systems\\Timer.h"
-
+#include "Material.h"
 
 #include "ImGui\\imgui.h"
 #include "ImGui\\imgui_impl_win32.h"
 #include "ImGui\\imgui_impl_dx11.h"
+#include "ImGui/ImGuizmo.h"
 #include <SpriteBatch.h>
 #include <SpriteFont.h>
 #include <WICTextureLoader.h>
+#include <DDSTextureLoader.h>
+
 #pragma comment (lib, "d3dx11.lib")
 
 
@@ -40,6 +43,7 @@ public:
 	ID3D11DeviceContext* GetDeviceContext() { return pDeviceContext.Get(); }
 
 	ConstantBuffer<CB_VS_vertexshader>& GetDefaultVertexShader() { return cb_vs_vertexshader; }
+	//Material* GetWoodMaterial() { return materialWood; }
 
 	void InitSkybox();
 
@@ -47,6 +51,7 @@ private:
 	bool InitializeDirectX(HWND hwnd);
 	bool InitializeShaders();
 	bool InitializeScene();
+	void InitializeMaterials();
 	void UpdateImGui();
 
 	Engine* m_pEngine;
@@ -70,8 +75,30 @@ private:
 	VertexShader default_vertexshader;
 	PixelShader default_pixelshader;
 
-	VertexShader PBR_vertexshader; // Start with foliage rendering for PBR to get another texture into the shader
-	PixelShader PBR_pixelshader;
+	// PBR (Testing in progress)
+	//	- Idea situation would be to have the material class hold a vector of 
+	//	  Texture objects. Each texture object would have a ID3D11ShaderResourceView*
+	//VertexShader PBR_vertexshader; // Start with foliage rendering for PBR to get another texture into the shader
+	//PixelShader PBR_pixelshader;
+	//SimpleVertexShader* PBRVertexShader;
+	//SimplePixelShader* PBRPixelShader;
+	//SimplePixelShader* PBRMatPixelShader;
+	//SimplePixelShader* ConvolutionPixelShader;
+	//SimplePixelShader* PrefilterMapPixelShader;
+	//SimplePixelShader* IntegrateBRDFPixelShader;
+	//SimpleVertexShader* QuadVertexShader;
+	//Material* materialWood;
+	//ID3D11ShaderResourceView* Wood_Albedo;
+	//ID3D11ShaderResourceView* Wood_Normal;
+	//ID3D11ShaderResourceView* Wood_Metalic;
+	//ID3D11ShaderResourceView* Wood_Rough;
+	//// Sky Resouces
+	//ID3D11ShaderResourceView* skySRV;
+	//ID3D11RasterizerState* skyRasterierState;
+	//ID3D11DepthStencilState* skyDepthStencilState;
+	//
+	//ID3D11ShaderResourceView* skyIR;
+
 
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
 	ConstantBuffer<CB_PS_light> cb_ps_light;

@@ -28,6 +28,9 @@ public:
 
 private:
 
+	// DEBUG
+	Entity* entity = nullptr;
+
 	Scene scene;
 
 	int windowWidth = 0;

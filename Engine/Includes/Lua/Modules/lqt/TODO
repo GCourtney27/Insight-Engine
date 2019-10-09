@@ -1,0 +1,1 @@
+- fix cmake script to use external cpptoxml, until then build also cpptoxml

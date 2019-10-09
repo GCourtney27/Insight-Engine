@@ -1,0 +1,11 @@
+if $(LUA_VERSION) in lua51 lua51-luaplus
+{
+
+local SRCS =
+		slnudata.c
+		slnunico.c
+;
+
+Lua.CModule slnunicode : unicode : $(SRCS) ;
+
+}

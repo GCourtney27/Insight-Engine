@@ -7,7 +7,6 @@ public:
 	Transform() {}
 	Transform(const Transform& transform);
 	
-
 	Transform& operator = (const Transform & transform)
 	{
 		posVector = transform.posVector;
@@ -31,62 +30,106 @@ public:
 		return *this;
 	}
 
-	const XMVECTOR & GetPositionVector() const;
-	const DirectX::XMFLOAT3 & GetPositionFloat3() const;
-	const XMVECTOR & GetRotationVector() const;
-	const DirectX::XMFLOAT3 & GetRotationFloat3() const;
+	// -- Return and grant modification -- //
+	// Returns Position of object in world space
+	XMFLOAT3 & GetPosition() { return this->pos; }
+	// Returns Rotation of object in world space
+	XMFLOAT3 & GetRotation() { return this->rot; }
+	// Returns Scale of object in world space
+	XMFLOAT3 & GetScale() { return this->scale; }
 
+	// Return but do not grant modification
+	// (Const) Returns Position Vector of object in World Space
+	const XMVECTOR & GetPositionVector() const;
+	// (Const) Returns Position Float3 of object in World Space
+	const XMFLOAT3 & GetPositionFloat3() const;
+	// (Const) Returns Rotation Vector of object in World Space
+	const XMVECTOR & GetRotationVector() const;
+	// (Const) Returns Rotation Float3 of object in World Space
+	const XMFLOAT3 & GetRotationFloat3() const;
+	// (Const) Returns Scale Vector of object in World Space
+	const XMVECTOR & GetScaleVector() const;
+	// (Const) Returns Scale Float3 of object in World Space
+	const XMFLOAT3 & GetScaleFloat3() const;
+
+	// All operations end up storing as a XMFLOAT3 to updata the world matrix
+
+	/* Position */
+	// Immediately set position with Vector, no blending can be done
 	void SetPosition(const XMVECTOR & pos);
-	void SetPosition(const DirectX::XMFLOAT3 & pos);
+	// Immediately set position with Float3, no blending can be done
+	void SetPosition(const XMFLOAT3 & pos);
+	// Immediately set position with float x y z, no blending can be done
 	void SetPosition(float x, float y, float z);
+	// Adds value to position with Vector, can be blended. Good for moving with delta time for example
 	void AdjustPosition(const XMVECTOR & pos);
-	void AdjustPosition(const DirectX::XMFLOAT3 & pos);
+	// Adds value to position with Float3, can be blended. Good for moving with delta time for example
+	void AdjustPosition(const XMFLOAT3 & pos);
+	// Adds value to position with float x y z, can be blended. Good for moving with delta time for example
 	void AdjustPosition(float x, float y, float z);
 
+	/* Rotation */
+	// Immediately set rotation with Vector, no blending can be done
 	void SetRotation(const XMVECTOR & rot);
-	void SetRotation(const DirectX::XMFLOAT3 & rot);
+	// Immediately set rotation with Float3, no blending can be done
+	void SetRotation(const XMFLOAT3 & rot);
+	// Immediately set rotation with float x y z, no blending can be done
 	void SetRotation(float x, float y, float z);
+	// Adds value to rotation with Vector, can be blended. Good for moving with delta time for example
 	void AdjustRotation(const XMVECTOR & rot);
-	void AdjustRotation(const DirectX::XMFLOAT3 & rot);
+	// Adds value to rotation with Float3, can be blended. Good for moving with delta time for example
+	void AdjustRotation(const XMFLOAT3 & rot);
+	// Adds value to rotation with float x y z, can be blended. Good for moving with delta time for example
 	void AdjustRotation(float x, float y, float z);
 
+	/* Scale */
+	// Immediately set scale with Vector, no blending can be done
 	void SetScale(const XMVECTOR & scale);
-	void SetScale(const DirectX::XMFLOAT3 & scale);
+	// Immediately set scale with Float3, no blending can be done
+	void SetScale(const XMFLOAT3 & scale);
+	// Immediately set scale with float x y z, no blending can be done
 	void SetScale(float xScale, float yScale, float zScale = 1.0f);
+	// Adds value to scale with Vector, can be blended. Good for moving with delta time for example
 	void AdjustScale(const XMVECTOR & scale);
-	void AdjustScale(const DirectX::XMFLOAT3 & scale);
+	// Adds value to scale with Float3, can be blended. Good for moving with delta time for example
+	void AdjustScale(const XMFLOAT3 & scale);
+	// Adds value to scale with float x y z, can be blended. Good for moving with delta time for example
 	void AdjustScale(float x, float y, float z);
-
-	XMFLOAT3 & GetPosition() { return this->pos; }
-	XMFLOAT3 & GetRotation() { return this->rot; }
-	XMFLOAT3 & GetScale() { return this->scale; }
 	
-
-	void SetLookAtPos(DirectX::XMFLOAT3 lookAtPos);
+	/* This objects default directional vectors*/
+	// Returns objects local forward vector
 	const XMVECTOR & GetForwardVector(bool omitY = false);
+	// Returns objects local backward vector
 	const XMVECTOR & GetBackwardVector(bool omitY = false);
+	// Returns objects local left vector
 	const XMVECTOR & GetLeftVector(bool omitY = false);
+	// Returns objects local right vector
 	const XMVECTOR & GetRightVector(bool omitY = false);
+	// Returns objects local up vector
 	const XMVECTOR & GetUpVector();
+	// Returns objects local down vector
 	const XMVECTOR & GetDownVector();
 
-	void UpdateMatrix();
-
+	// Have object look at an object
+	void SetLookAtPos(XMFLOAT3 lookAtPos);
+	// Returns objects world matrix
 	XMMATRIX& GetWorldMatrix() { return worldMatrix; }
+	float* GetWorldMatAsFloatArr();
 
 protected:
 	XMMATRIX worldMatrix = XMMatrixIdentity();
 
 	// XMVECTOR
-	XMVECTOR posVector; // position in the world
-	XMVECTOR rotVector; // rotation in the world
-	XMVECTOR scaleVector; // scale in the world
+	XMVECTOR posVector;
+	XMVECTOR rotVector;
+	XMVECTOR scaleVector; 
 
-	// DirectX::XMFLOAT3
-	DirectX::XMFLOAT3 pos;
-	DirectX::XMFLOAT3 rot;
-	DirectX::XMFLOAT3 scale;
+	// XMFLOAT3
+	XMFLOAT3 pos;
+	XMFLOAT3 rot;
+	XMFLOAT3 scale;
 
+	void UpdateMatrix();
 	void UpdateDirectionVectors();
 
 	const XMVECTOR DEFAULT_FOREWARD_VECTOR = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);

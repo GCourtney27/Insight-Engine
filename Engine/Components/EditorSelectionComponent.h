@@ -21,6 +21,8 @@ public:
 	void Update() override;
 	void Destroy() override;
 	//void Update(const DirectX::XMFLOAT3 parentPosition);
+	void OnImGuiRender() override;
+
 
 private:
 	float m_radius = 0.0f;

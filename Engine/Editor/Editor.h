@@ -4,6 +4,13 @@
 #include "..\\Objects\\Entity.h"
 #include "..\\Engine.h"
 
+// ImGui
+#include "..\Graphics\ImGui\imgui.h"
+#include "..\Graphics\ImGui\imgui_impl_win32.h"
+#include "..\Graphics\ImGui\imgui_impl_dx11.h"
+#include "..\Graphics\ImGui\ImGuizmo.h"
+
+
 namespace Debug
 {
 	class Editor : public Singleton<Editor>
@@ -11,10 +18,12 @@ namespace Debug
 	public:
 		Editor() {}
 
-		bool Initialize(Engine* engine);
+		bool Initialize(Engine* engine, HWND hwnd);
 		void Update();
 		void Shutdown();
-		//void ImGuiRender();
+
+		std::string GetLogStatement() { return m_debugLog; }
+		void DebugLog(std::string log) { m_debugLog += log + "\n"; }
 
 		DirectX::XMFLOAT3 GetMouseDirectionVector();
 		bool hit_sphere(const SimpleMath::Vector3& center, float radius, const Ray& r);
@@ -22,13 +31,12 @@ namespace Debug
 
 		bool SaveScene();
 
-		bool PlayingGame() { return m_playingGame; } // Running
+		bool PlayingGame() { return m_playingGame; }
 		void PlayGame() 
 		{
 			m_playingGame = true; 
 			m_pEngine->OnGameStart();
 		}
-		
 		void StopGame() 
 		{
 			m_playingGame = false;
@@ -43,13 +51,16 @@ namespace Debug
 		void SetIsEditorEnabled(bool enabled) { m_isEditorEnabled = enabled; }
 		bool IsEditorEnabled() { return m_isEditorEnabled; }
 
-		Entity* GetSelectedEntity() { return m_selectedEntity; }
-
+		Entity* GetSelectedEntity() { return m_pSelectedEntity; }
+		void SetSelectedEntity(Entity* entity) { m_pSelectedEntity = entity; }
 	private:
 		Engine* m_pEngine;
+		Entity* m_pSelectedEntity = nullptr;
+		ImGuiIO* m_pImGuiIO = nullptr;
 
-		Entity* m_selectedEntity = nullptr;
 		bool m_isEditorEnabled = true;
 		bool m_playingGame = false;
+
+		std::string m_debugLog;
 	};
 }

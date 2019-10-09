@@ -42,6 +42,16 @@ const DirectX::XMFLOAT3 & Transform::GetRotationFloat3() const
 	return this->rot;
 }
 
+const XMVECTOR & Transform::GetScaleVector() const
+{
+	return this->scaleVector;
+}
+
+const XMFLOAT3 & Transform::GetScaleFloat3() const
+{
+	return this->scale;
+}
+
 void Transform::SetPosition(const XMVECTOR & pos)
 {
 	XMStoreFloat3(&this->pos, pos);
@@ -210,6 +220,22 @@ void Transform::SetLookAtPos(DirectX::XMFLOAT3 lookAtPos)
 	}
 
 	SetRotation(pitch, yaw, 0.0f);
+}
+
+float * Transform::GetWorldMatAsFloatArr()
+{
+
+	XMFLOAT4X4 temp;
+	XMStoreFloat4x4(&temp, worldMatrix);
+
+	float result[16] =
+	{ temp._11, temp._12, temp._13, temp._14,
+	  temp._21, temp._22, temp._23, temp._24,
+	  temp._31, temp._32, temp._33, temp._34,
+	  temp._41, temp._42, temp._43, temp._44
+	};
+
+	return result;
 }
 
 const XMVECTOR & Transform::GetForwardVector(bool omitY)
