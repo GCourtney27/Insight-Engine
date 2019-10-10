@@ -2,8 +2,9 @@
 #include "..\\ErrorLogger.h"
 #include "..\Graphics\ImGui\imgui.h"
 
-bool MeshRenderer::Initialize(const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
+bool MeshRenderer::Initialize(Entity* owner, const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
 {
+	this->m_owner = owner;
 	if (!model.Initialize(filepath, device, deviceContext, cb_vs_vertexshader))
 	{
 		std::string error = "Failed to Initialize model for Entity";

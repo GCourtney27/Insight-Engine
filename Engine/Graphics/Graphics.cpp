@@ -86,6 +86,8 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 			return false;
 		}
 
+
+		// -- Initialize Swap Chain -- //
 		DXGI_SWAP_CHAIN_DESC scd = { 0 };
 		scd.BufferDesc.Width = windowWidth;
 		scd.BufferDesc.Height = windowHeight;
@@ -94,7 +96,6 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 		scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		scd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 		scd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-
 		scd.SampleDesc.Count = 1;
 		scd.SampleDesc.Quality = 0;
 		scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -399,7 +400,8 @@ bool Graphics::InitializeScene()
 		// Initialize light shader values
 cb_ps_light.data.ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 cb_ps_light.data.ambientLightStrength = 1.0f;
-cb_ps_light.data.ambientLightStrength = 0.268f;
+//cb_ps_light.data.ambientLightStrength = 0.268f;
+cb_ps_light.data.ambientLightStrength = 1.0f;
 
 light.lightStrength = 6.848f;
 light.attenuation_a = 1.968f;

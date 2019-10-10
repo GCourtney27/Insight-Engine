@@ -57,7 +57,7 @@ void Entity::OnStart()
 
 void Entity::OnUpdate(float deltaTime)
 {
-	m_transform.AdjustRotation(0.0f, 0.0f, 0.001f * deltaTime); // This line is not needed, It is a Debug line to test Playing Game feature
+	//m_transform.AdjustRotation(0.0f, 0.0f, 0.001f * deltaTime); // This line is not needed, It is a Debug line to test Playing Game feature
 
 	for (Component* component : m_components)
 	{
@@ -72,6 +72,7 @@ void Entity::OnExit()
 void Entity::OnEditorStop()
 {
 	UpdateTransformWithCopy();
+
 	///// CHANGE THIS!!!////
 	LuaScript* ls = GetComponent<LuaScript>();
 	if (ls != nullptr)

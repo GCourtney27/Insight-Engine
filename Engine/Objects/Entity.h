@@ -70,7 +70,10 @@ public:
 
 	Scene* GetScene() { return m_scene; }
 	Transform& GetTransform() { return m_transform; }
-	
+	void lua_AdjustPosition(float x, float y, float z) { GetTransform().AdjustPosition(x, y, z); }
+	void lua_AdjustRotation(float x, float y, float z) { GetTransform().AdjustRotation(x, y, z); }
+	void lua_AdjustScale(float x, float y, float z) { GetTransform().AdjustScale(x, y, z); }
+
 	ID& GetID() { return m_id; }
 	void SetTagUID(std::string id) { m_id.SetUniqueID(id); }
 

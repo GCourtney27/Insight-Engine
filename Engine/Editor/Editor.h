@@ -24,6 +24,7 @@ namespace Debug
 
 		std::string GetLogStatement() { return m_debugLog; }
 		void DebugLog(std::string log) { m_debugLog += log + "\n"; }
+		void DebugLogChar(const char* log) { m_debugLog += log; }
 		void ClearConsole() { m_debugLog = ""; }
 
 		DirectX::XMFLOAT3 GetMouseDirectionVector();

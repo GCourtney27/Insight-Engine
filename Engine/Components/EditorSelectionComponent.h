@@ -10,7 +10,7 @@ public:
 	EditorSelection(Entity* owner)
 		: Component(owner) {}
 	
-	void Initialize(float radius, const DirectX::XMFLOAT3 & position);
+	void Initialize(Entity* owner, float radius, const DirectX::XMFLOAT3 & position);
 
 	void SetRadius(float value) { m_radius = value; }
 	void SetPosition(const DirectX::XMFLOAT3 & position) { m_position = position; }

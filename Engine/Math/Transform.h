@@ -1,6 +1,13 @@
 #pragma once
 #include "../Graphics/Model.h"
 
+extern "C"
+{
+#include "Lua535/lua.h";
+#include "Lua535/lauxlib.h"
+#include "Lua535/lualib.h"
+}
+
 class Transform
 {
 public:
@@ -67,7 +74,7 @@ public:
 	void AdjustPosition(const XMFLOAT3 & pos);
 	// Adds value to position with float x y z, can be blended. Good for moving with delta time for example
 	void AdjustPosition(float x, float y, float z);
-
+	
 	/* Rotation */
 	// Immediately set rotation with Vector, no blending can be done
 	void SetRotation(const XMVECTOR & rot);
@@ -115,7 +122,7 @@ public:
 	// Returns objects world matrix
 	XMMATRIX& GetWorldMatrix() { return worldMatrix; }
 	float* GetWorldMatAsFloatArr();
-
+	
 protected:
 	XMMATRIX worldMatrix = XMMatrixIdentity();
 

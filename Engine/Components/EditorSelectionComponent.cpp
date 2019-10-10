@@ -1,7 +1,8 @@
 #include "EditorSelectionComponent.h"
 
-void EditorSelection::Initialize(float radius, const DirectX::XMFLOAT3 & position)
+void EditorSelection::Initialize(Entity* owner, float radius, const DirectX::XMFLOAT3 & position)
 {
+	this->m_owner = owner;
 	m_position = position;
 	m_radius = radius;
 	m_pName = "EditorSelection";

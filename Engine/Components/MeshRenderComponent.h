@@ -9,7 +9,7 @@ public:
 	MeshRenderer(Entity* owner)
 		: Component(owner) {}
 
-	bool Initialize(const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader); //float boundingSphere scale
+	bool Initialize(Entity* owner, const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader); //float boundingSphere scale
 	//bool Initialize(const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader, Material* material); //float boundingSphere scale
 	void Draw(const XMMATRIX & viewProjectionMatrix);
 	

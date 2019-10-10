@@ -171,9 +171,6 @@
     <ClCompile Include="Graphics\ImGui\imgui_widgets.cpp">
       <Filter>Source Files\Graphics\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="Components\CPPScript.cpp">
-      <Filter>Header Files\Components</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\Material.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
@@ -307,6 +304,9 @@
       <Filter>Source Files\LUAScripting</Filter>
     </ClCompile>
     <ClCompile Include="Components\LuaScriptComponent.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\CPPScript.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
   </ItemGroup>

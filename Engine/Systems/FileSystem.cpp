@@ -192,13 +192,13 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 		std::string modelFilePath = "Data\\Objects\\Dandelion\\Var1\\Textured_Flower.obj";
 		//std::string modelFilePath = "Data\\Objects\\cube.obj";
 		MeshRenderer* me = entity->AddComponent<MeshRenderer>();
-		me->Initialize(modelFilePath, device, deviceContext, cb_vs_vertexshader);
+		me->Initialize(entity, modelFilePath, device, deviceContext, cb_vs_vertexshader);
 
 		EditorSelection* esc = entity->AddComponent<EditorSelection>();
-		esc->Initialize(20.0f, entity->GetTransform().GetPosition());
+		esc->Initialize(entity, 20.0f, entity->GetTransform().GetPosition());
 
 		LuaScript* ls = entity->AddComponent<LuaScript>();
-		ls->Initialize("LuaScripts\\Test.lua");
+		ls->Initialize(entity, "LuaScripts\\Test.lua");
 
 		scene->AddEntity(entity);
 
@@ -258,7 +258,7 @@ bool FileSystem::LoadSceneFromFile(const std::string & sceneLocation, Scene * sc
 		{
 			s >> lineInformation >> modelFilepath;
 			MeshRenderer* me = entity->AddComponent<MeshRenderer>();
-			me->Initialize(modelFilepath, device, deviceContext, cb_vs_vertexshader);
+			me->Initialize(entity, modelFilepath, device, deviceContext, cb_vs_vertexshader);
 		}
 
 		if (line[0] == 'p')
@@ -284,7 +284,7 @@ bool FileSystem::LoadSceneFromFile(const std::string & sceneLocation, Scene * sc
 			entity->GetTransform().SetScale(sx, sy, sz);
 
 			EditorSelection* esc = entity->AddComponent<EditorSelection>();
-			esc->Initialize(20.0f, entity->GetTransform().GetPosition());
+			esc->Initialize(entity, 20.0f, entity->GetTransform().GetPosition());
 
 			scene->AddEntity(entity);
 
