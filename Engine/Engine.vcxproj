@@ -171,6 +171,7 @@
     <ClCompile Include="Components\Component.cpp" />
     <ClCompile Include="Components\CPPScript.cpp" />
     <ClCompile Include="Components\EditorSelectionComponent.cpp" />
+    <ClCompile Include="Components\LuaScriptComponent.cpp" />
     <ClCompile Include="Components\MeshRenderComponent.cpp" />
     <ClCompile Include="Editor\Editor.cpp" />
     <ClCompile Include="Graphics\ImGui\imgui.cpp" />
@@ -383,6 +384,7 @@
     <None Include="Includes\Lua\LuaPlus\LuaStackObject.inl" />
     <None Include="Includes\Lua\LuaPlus\LuaStackTableIterator.inl" />
     <None Include="Includes\Lua\LuaPlus\LuaState.inl" />
+    <None Include="LuaScripts\Test.lua" />
     <None Include="PBRHeader.hlsli">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>

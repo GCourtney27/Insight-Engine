@@ -27,6 +27,12 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 		return false;
 	}
 
+	if (!LuaStateManager::GetStateManager()->Create())
+	{
+		ErrorLogger::Log("Failed to initialize Lua state manager");
+		return false;
+	}
+
 	// Dandelion\\Var1\\Textured_Flower.obj
 	/*entity = new Entity(&scene, *(new ID("PBR_Entity")));
 	MeshRenderer* me = entity->AddComponent<MeshRenderer>();

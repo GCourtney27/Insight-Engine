@@ -24,6 +24,7 @@ namespace Debug
 
 		std::string GetLogStatement() { return m_debugLog; }
 		void DebugLog(std::string log) { m_debugLog += log + "\n"; }
+		void ClearConsole() { m_debugLog = ""; }
 
 		DirectX::XMFLOAT3 GetMouseDirectionVector();
 		bool hit_sphere(const SimpleMath::Vector3& center, float radius, const Ray& r);
@@ -35,6 +36,7 @@ namespace Debug
 		void PlayGame() 
 		{
 			m_playingGame = true; 
+			if (m_clearConsoleOnPlay && !m_playingGame) ClearConsole();
 			m_pEngine->OnGameStart();
 		}
 		void StopGame() 
@@ -53,6 +55,10 @@ namespace Debug
 
 		Entity* GetSelectedEntity() { return m_pSelectedEntity; }
 		void SetSelectedEntity(Entity* entity) { m_pSelectedEntity = entity; }
+
+		bool& GetClearConsoleOnPlay() { return m_clearConsoleOnPlay; }
+		void SetCLearConsoleOnPlay(bool cop) { m_clearConsoleOnPlay = cop; }
+
 	private:
 		Engine* m_pEngine;
 		Entity* m_pSelectedEntity = nullptr;
@@ -60,6 +66,8 @@ namespace Debug
 
 		bool m_isEditorEnabled = true;
 		bool m_playingGame = false;
+
+		bool m_clearConsoleOnPlay = false;
 
 		std::string m_debugLog;
 	};

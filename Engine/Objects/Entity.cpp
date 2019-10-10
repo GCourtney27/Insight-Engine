@@ -1,6 +1,7 @@
 #include "Entity.h"
 #include "..\\Components\MeshRenderComponent.h"
 #include "..\\Components\\EditorSelectionComponent.h"
+#include "..\\Components\\LuaScriptComponent.h"
 #include "..\Editor\Editor.h"
 
 bool Entity::Initialize()
@@ -71,7 +72,12 @@ void Entity::OnExit()
 void Entity::OnEditorStop()
 {
 	UpdateTransformWithCopy();
-
+	///// CHANGE THIS!!!////
+	LuaScript* ls = GetComponent<LuaScript>();
+	if (ls != nullptr)
+	{
+		ls->SetCallCounter(1);
+	}
 }
 
 void Entity::OnEvent(const Event & event)

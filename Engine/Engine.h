@@ -3,6 +3,7 @@
 #include "..\\Objects\\Scene.h"
 #include "Scriptor\\Compiler.h"
 #include "Objects\\Entity.h"
+#include "LUAScripting/LuaStateManager.h"
 
 class Engine : WindowContainer
 {

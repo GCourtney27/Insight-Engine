@@ -306,6 +306,9 @@
     <ClCompile Include="LUAScripting\ScriptExports.cpp">
       <Filter>Source Files\LUAScripting</Filter>
     </ClCompile>
+    <ClCompile Include="Components\LuaScriptComponent.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="COMException.h">
@@ -742,6 +745,9 @@
     <Filter Include="LuaUsings">
       <UniqueIdentifier>{6da2f7fc-100a-4437-8848-b567e9bf93b7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="LuaScripts">
+      <UniqueIdentifier>{ec3e7a93-bb23-4959-9a8b-675cf4c48d4e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Data\Scenes\Scene01.txt">
@@ -781,6 +787,9 @@
     </None>
     <None Include="Includes\Lua\LuaPlus\LuaState.inl">
       <Filter>LuaUsings</Filter>
+    </None>
+    <None Include="LuaScripts\Test.lua">
+      <Filter>LuaScripts</Filter>
     </None>
   </ItemGroup>
 </Project>

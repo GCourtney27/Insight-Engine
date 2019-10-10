@@ -397,40 +397,40 @@ bool Graphics::InitializeScene()
 		COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer for pixel shader.");
 
 		// Initialize light shader values
-		cb_ps_light.data.ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-		cb_ps_light.data.ambientLightStrength = 1.0f;
-		cb_ps_light.data.ambientLightStrength = 0.268f;
+cb_ps_light.data.ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+cb_ps_light.data.ambientLightStrength = 1.0f;
+cb_ps_light.data.ambientLightStrength = 0.268f;
 
-		light.lightStrength = 6.848f;
-		light.attenuation_a = 1.968f;
-		light.attenuation_b = 0.2f;
-		light.attenuation_c = 0.0f;
-		
+light.lightStrength = 6.848f;
+light.attenuation_a = 1.968f;
+light.attenuation_b = 0.2f;
+light.attenuation_c = 0.0f;
 
-		// Light
-		if (!light.Initialize(pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader))
-		{
-			ErrorLogger::Log("Failed to initilize light");
-			return false;
-		}
-		// Hello World sprite
-		if (!sprite.Initialize(pDevice.Get(), pDeviceContext.Get(), 256, 256, "Data\\Textures\\sprite_256x256.png", cb_vs_vertexshader_2d))
-		{
-			ErrorLogger::Log("Failed to initilize sprite");
-			return false;
-		}
 
-		camera2D.SetProjectionValues((float)windowWidth, (float)windowHeight, 0.0f, 1.0f);
+// Light
+if (!light.Initialize(pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader))
+{
+	ErrorLogger::Log("Failed to initilize light");
+	return false;
+}
+// Hello World sprite
+if (!sprite.Initialize(pDevice.Get(), pDeviceContext.Get(), 256, 256, "Data\\Textures\\sprite_256x256.png", cb_vs_vertexshader_2d))
+{
+	ErrorLogger::Log("Failed to initilize sprite");
+	return false;
+}
 
-		camera3D.SetPosition(0.0f, 5.0f, -10.0f);
-		camera3D.SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
-		
-		//Texture()
-		//CreateWICTextureFromFile(pDevice.Get(), pDeviceContext.Get(), L"Data/Textures/Wood/Wood_Albedo.png", 0, &Wood_Albedo);
-		//CreateWICTextureFromFile(pDevice.Get(), pDeviceContext.Get(), L"Data/Textures/Wood/Wood_Normal.png", 0, &Wood_Normal);
-		//CreateWICTextureFromFile(pDevice.Get(), pDeviceContext.Get(), L"Data/Textures/Wood/Wood_Metallic.png", 0, &Wood_Metalic);
-		//CreateWICTextureFromFile(pDevice.Get(), pDeviceContext.Get(), L"Data/Textures/Wood/Wood_Roughness.png", 0, &Wood_Rough);
-																		  
+camera2D.SetProjectionValues((float)windowWidth, (float)windowHeight, 0.0f, 1.0f);
+
+camera3D.SetPosition(0.0f, 5.0f, -10.0f);
+camera3D.SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
+
+//Texture()
+//CreateWICTextureFromFile(pDevice.Get(), pDeviceContext.Get(), L"Data/Textures/Wood/Wood_Albedo.png", 0, &Wood_Albedo);
+//CreateWICTextureFromFile(pDevice.Get(), pDeviceContext.Get(), L"Data/Textures/Wood/Wood_Normal.png", 0, &Wood_Normal);
+//CreateWICTextureFromFile(pDevice.Get(), pDeviceContext.Get(), L"Data/Textures/Wood/Wood_Metallic.png", 0, &Wood_Metalic);
+//CreateWICTextureFromFile(pDevice.Get(), pDeviceContext.Get(), L"Data/Textures/Wood/Wood_Roughness.png", 0, &Wood_Rough);
+
 	}
 	catch (COMException & exception)
 	{
@@ -464,7 +464,7 @@ void Graphics::UpdateImGui()
 	{ 1.f, 0.f, 0.f, 0.f,
 	  0.f, 1.f, 0.f, 0.f,
 	  0.f, 0.f, 1.f, 0.f,
-	  0.f, 0.f, 0.f, 1.f 
+	  0.f, 0.f, 0.f, 1.f
 	};
 
 	float cameraProjection[16];
@@ -473,7 +473,7 @@ void Graphics::UpdateImGui()
 	{ 3.f, 1.f, 7.f, 0.f,
 	  1.f, 1.f, 1.f, 0.f,
 	  10.f, 10.f, 10.f, 0.f,
-	  0.f, 0.f, 0.f, 1.f 
+	  0.f, 0.f, 0.f, 1.f
 	};
 
 	float * camview = camera3D.GetViewMatAsFloatArr();
@@ -494,13 +494,24 @@ void Graphics::UpdateImGui()
 	ImGui::End();
 
 	// Debug Log system
-	ImGui::Text(Editor::Instance()->GetLogStatement().c_str());
-		
+	{
+		if (ImGui::Button("Clear Console", { 100, 20 }))
+		{
+			Editor::Instance()->ClearConsole();
+		}
+
+		ImGui::SameLine();
+		ImGui::Checkbox("Clear on play", &Editor::Instance()->GetClearConsoleOnPlay());
+
+		ImGui::Text(Editor::Instance()->GetLogStatement().c_str());
+	}
+
 	ImGui::Begin("Editor");
 	{
 		if (ImGui::Button("Play", { 150.0f, 20.0f }))
 		{
-			Editor::Instance()->PlayGame();// Editor calles scene OnStart
+			if(!Editor::Instance()->PlayingGame())
+				Editor::Instance()->PlayGame();// Editor calles scene OnStart
 		}
 		/*if (ImGui::Button("Pause", { 150.0f, 20.0f }))
 		{

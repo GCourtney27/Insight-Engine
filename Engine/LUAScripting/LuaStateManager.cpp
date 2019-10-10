@@ -1,6 +1,6 @@
 #include "LuaStateManager.h"
 #include "..\ErrorLogger.h"
-#include "..\Editor\Editor.h"
+#include <vector>
 
 LuaStateManager* LuaStateManager::s_pSingleton = NULL;
 
@@ -15,6 +15,7 @@ bool LuaStateManager::Create(void)
 	s_pSingleton = new LuaStateManager();
 	if (s_pSingleton)
 		return s_pSingleton->VInitialize();
+
 	return false;
 }
 
@@ -47,7 +48,7 @@ bool LuaStateManager::VInitialize(void)
 		return false;
 	}
 
-	// register functions
+	// register functions so they are visiable to lua
 	m_pLuaState->GetGlobals().RegisterDirect("ExecuteFile", (*this), &LuaStateManager::VExecuteFile);
 	m_pLuaState->GetGlobals().RegisterDirect("ExecuteString", (*this), &LuaStateManager::VExecuteString);
 }
@@ -95,7 +96,7 @@ void LuaStateManager::SetError(int errorNum)
 		m_lastError = "Unknown Lua parse error";
 
 	ErrorLogger::Log(m_lastError);
-	Debug::Editor::Instance()->DebugLog(m_lastError);
+	//Debug::Editor::Instance()->DebugLog(m_lastError);
 }
 
 void LuaStateManager::ClearStack(void)
@@ -164,7 +165,7 @@ LuaPlus::LuaObject LuaStateManager::CreatePath(const char * pathString, bool toI
 			if (!curr.IsNil())
 			{
 				std::string warning = "Overwriting element '" + element + "' in table";
-				Debug::Editor::Instance()->DebugLog(warning);
+				//Debug::Editor::Instance()->DebugLog(warning);
 			}
 			// Element is either nil or was clobbered to add the new table
 			context.CreateTable(element.c_str());

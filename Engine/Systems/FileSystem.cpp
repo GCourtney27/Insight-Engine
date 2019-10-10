@@ -5,6 +5,7 @@
 
 #include "..\\Components\MeshRenderComponent.h"
 #include "..\\Components\\EditorSelectionComponent.h"
+#include "..\Components\LuaScriptComponent.h"
 
 #include "json.h"
 #include "document.h"
@@ -195,6 +196,9 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 
 		EditorSelection* esc = entity->AddComponent<EditorSelection>();
 		esc->Initialize(20.0f, entity->GetTransform().GetPosition());
+
+		LuaScript* ls = entity->AddComponent<LuaScript>();
+		ls->Initialize("LuaScripts\\Test.lua");
 
 		scene->AddEntity(entity);
 

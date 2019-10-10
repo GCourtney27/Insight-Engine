@@ -4,8 +4,9 @@
 #include "IScriptManager.h"
 #include <string>
 #include <DirectXMath.h>
+//#include "..\Framework\Singleton.h"
 
-class LuaStateManager : public IScriptManager
+class LuaStateManager : public IScriptManager//, public Singleton<LuaStateManager>
 {
 	static LuaStateManager* s_pSingleton;
 	LuaPlus::LuaState* m_pLuaState;
