@@ -2,6 +2,10 @@
 #include "..\\ErrorLogger.h"
 #include "..\Graphics\ImGui\imgui.h"
 
+void MeshRenderer::JSONLoad()
+{
+}
+
 bool MeshRenderer::Initialize(Entity* owner, const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
 {
 	this->m_owner = owner;
@@ -33,7 +37,7 @@ bool MeshRenderer::Initialize(Entity* owner, const std::string & filepath, ID3D1
 
 void MeshRenderer::Draw(const XMMATRIX & viewProjectionMatrix)
 {
-	if(GetIsEnabled())
+	if(GetIsDrawEnabled())
 		model.Draw(this->worldMatrix, viewProjectionMatrix);
 }
 
@@ -47,7 +51,10 @@ void MeshRenderer::Destroy()
 
 void MeshRenderer::OnImGuiRender()
 {
-	bool isComponentEnabled = GetIsEnabled();
-	ImGui::Checkbox("Is Enabled", &isComponentEnabled);
+	ImGui::Text(GetName());
+	//bool isComponentEnabled = GetIsEnabled();
+	//ImGui::Checkbox("Is Enabled", &isComponentEnabled);
 
 }
+
+

@@ -1,6 +1,7 @@
 #include "FileSystem.h"
 #include "..\\Graphics\\AdapterReader.h"
 #include "..\\Graphics\Shaders.h"
+#include "..\Editor\Editor.h"
 #include <WICTextureLoader.h>
 
 #include "..\\Components\MeshRenderComponent.h"
@@ -9,6 +10,13 @@
 
 #include "json.h"
 #include "document.h"
+#include "filewritestream.h"
+#include "istreamwrapper.h"
+#include "writer.h"
+#include "stringbuffer.h"
+#include "ostreamwrapper.h"
+#include "prettywriter.h"
+
 #include <map>
 
 bool FileSystem::Initialize(Engine * engine)
@@ -124,8 +132,6 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 	ID* id = nullptr;
 	Entity* entity = nullptr;
 
-	
-
 	// Load objects
 	const rapidjson::Value& sceneObjects = masterDocument["Objects"]; // Arr
 	for (rapidjson::SizeType o = 0; o < sceneObjects.Size(); o++)
@@ -155,10 +161,10 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 		std::string objectName;
 		json::get_string(object, "Name", objectName);
 		entity->GetID().SetName(objectName);
-		entity->GetID().SetTag("DEFAULT_TAG");
+		entity->GetID().SetTag("Untagged");
 
 #pragma region Load Transform
-		// Loop through transform array
+		// Loop through Transform array
 		float px, py, pz;
 		float rx, ry, rz;
 		float sx, sy, sz;
@@ -189,16 +195,57 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 		entity->GetTransform().SetScale(sx, sy, sz);
 #pragma endregion Load Entity transform
 
-		std::string modelFilePath = "Data\\Objects\\Dandelion\\Var1\\Textured_Flower.obj";
-		//std::string modelFilePath = "Data\\Objects\\cube.obj";
-		MeshRenderer* me = entity->AddComponent<MeshRenderer>();
-		me->Initialize(entity, modelFilePath, device, deviceContext, cb_vs_vertexshader);
+		// Loop through Components array
+		const rapidjson::Value& allComponents = sceneObjects[o]["Components"]; // Gets json array of all components
 
-		EditorSelection* esc = entity->AddComponent<EditorSelection>();
-		esc->Initialize(entity, 20.0f, entity->GetTransform().GetPosition());
+		// MESH RENDERER
+		const rapidjson::Value& meshRenderer = allComponents[0]["MeshRenderer"];
+		MeshRenderer* finalMesh = nullptr;
+		std::string modelFilePath;
+		for (rapidjson::SizeType m = 0; m < meshRenderer.Size(); m++)
+		{
+			json::get_string(meshRenderer[m], "Model", modelFilePath);
+			if (modelFilePath != "NONE")
+				finalMesh = entity->AddComponent<MeshRenderer>();
+			else
+				break;
+		}
+		if (finalMesh != nullptr)
+			finalMesh->Initialize(entity, modelFilePath, device, deviceContext, cb_vs_vertexshader);
+		
+		// LUA SCRIPT(s)
+		const rapidjson::Value& luaScript = allComponents[1]["LuaScript"];
+		LuaScript* finalScript = nullptr;
+		std::string scriptFilePath;
+		for (rapidjson::SizeType l = 0; l < luaScript.Size(); l++)
+		{
+			json::get_string(luaScript[l], "FilePath", scriptFilePath);
+			if (scriptFilePath != "NONE")
+				finalScript = entity->AddComponent<LuaScript>();
+			else
+				break;
+		}
+		if (finalScript != nullptr)
+			finalScript->Initialize(entity, scriptFilePath);
+		
 
-		LuaScript* ls = entity->AddComponent<LuaScript>();
-		ls->Initialize(entity, "LuaScripts\\Test.lua");
+		// EDITOR SELECTION
+		const rapidjson::Value& editorSelection = allComponents[2]["EditorSelection"];
+		EditorSelection* finalComp = nullptr;
+		for (rapidjson::SizeType e = 0; e < editorSelection.Size(); e++)
+		{
+			json::get_string(editorSelection[e], "Mode", modelFilePath);
+			if (modelFilePath != "OFF")
+				finalComp = entity->AddComponent<EditorSelection>();
+			else
+				break;
+		}
+		if(finalComp != nullptr)
+			finalComp->Initialize(entity, 20.0f, entity->GetTransform().GetPosition());
+
+
+
+
 
 		scene->AddEntity(entity);
 
@@ -212,8 +259,165 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 
 bool FileSystem::WriteSceneToJSON(Scene* scene)
 {
-	std::ofstream os("Data\\Scenes\\scene_json_test.txt");
 
+	using namespace rapidjson;
+	//std::stringstream stream;
+
+	StringBuffer s;
+	PrettyWriter<StringBuffer> writer(s);
+	writer.StartObject(); // Start File
+
+	writer.Key("SceneName");
+	writer.String(scene->GetSceneName().c_str());
+
+	writer.Key("Objects");
+	writer.StartArray();// Start Objects
+
+	std::list<Entity*>::iterator iter;
+	for (iter = scene->GetAllEntities()->begin(); iter != scene->GetAllEntities()->end(); iter++)
+	{
+		writer.StartObject(); // Start Entity
+
+		writer.Key("Type");
+		writer.String("Entity");
+
+		writer.Key("Name");
+		writer.String((*iter)->GetID().GetName().c_str());
+
+#pragma region Write Transform
+		writer.Key("Transform");
+		writer.StartArray(); // Start Transform
+
+		// POSITION
+		writer.StartObject(); // Start Array Object
+		writer.Key("Position");
+		writer.StartArray(); // Start Position
+		// X
+		writer.StartObject(); // Start X
+		writer.Key("x");
+		writer.Double((*iter)->GetTransform().GetPosition().x);
+		writer.EndObject(); // End X
+		// Y
+		writer.StartObject(); // Start Y
+		writer.Key("y");
+		writer.Double((*iter)->GetTransform().GetPosition().y);
+		writer.EndObject(); // End Y
+
+		// Z
+		writer.StartObject(); // Start Z
+		writer.Key("z");
+		writer.Double((*iter)->GetTransform().GetPosition().z);
+		writer.EndObject(); // End Z
+		writer.EndArray(); // End Pisition
+		writer.EndObject(); // End Array Object
+
+		// ROTATION
+		writer.StartObject(); // Start Array Object
+		writer.Key("Rotation");
+		writer.StartArray(); // Start Position
+		// X
+		writer.StartObject(); // Start X
+		writer.Key("x");
+		writer.Double((*iter)->GetTransform().GetRotation().x);
+		writer.EndObject(); // End X
+		// Y
+		writer.StartObject(); // Start Y
+		writer.Key("y");
+		writer.Double((*iter)->GetTransform().GetPosition().y);
+		writer.EndObject(); // End Y
+
+		// Z
+		writer.StartObject(); // Start Z
+		writer.Key("z");
+		writer.Double((*iter)->GetTransform().GetRotation().z);
+		writer.EndObject(); // End Z
+		writer.EndArray(); // End Pisition
+		writer.EndObject(); // End Array Object
+
+		// SCALE
+		writer.StartObject(); // Start Array Object
+		writer.Key("Scale");
+		writer.StartArray(); // Start Position
+		// X
+		writer.StartObject(); // Start X
+		writer.Key("x");
+		writer.Double((*iter)->GetTransform().GetScale().x);
+		writer.EndObject(); // End X
+		// Y
+		writer.StartObject(); // Start Y
+		writer.Key("y");
+		writer.Double((*iter)->GetTransform().GetScale().y);
+		writer.EndObject(); // End Y
+
+		// Z
+		writer.StartObject(); // Start Z
+		writer.Key("z");
+		writer.Double((*iter)->GetTransform().GetScale().z);
+		writer.EndObject(); // End Z
+		writer.EndArray(); // End Pisition
+		writer.EndObject(); // End Array Object
+
+		writer.EndArray(); // End Transform
+#pragma endregion Write Transform to file
+
+		writer.Key("Components");
+		writer.StartArray(); // Start Comonents Array
+
+		// MESH RENDERER
+		writer.StartObject();// Start Mesh Renderer
+		writer.Key("MeshRenderer");
+		writer.StartArray(); // Start Mesh Renderer Array
+
+		writer.StartObject();
+		writer.Key("Model");
+		writer.String((*iter)->GetComponent<MeshRenderer>()->GetModel()->GetModelDirectory().c_str());
+		writer.EndObject();
+
+		writer.EndArray(); // End Mesh Renderer Array
+		writer.EndObject();// End Mesh Renderer
+		
+		// LUA SCRIPT(S)
+		writer.StartObject();// Start Lua Script
+		writer.Key("LuaScript");
+		writer.StartArray(); // Start Lua Script Array
+
+		writer.StartObject();
+		writer.Key("FilePath");
+		writer.String((*iter)->GetComponent<LuaScript>()->GetFilePath().c_str());
+		writer.EndObject();
+
+		writer.EndArray(); // End Lua Script Array
+		writer.EndObject();// End Lua Script
+
+		// EDITOR SELECTION
+		writer.StartObject();// Start Editor Selection
+		writer.Key("EditorSelection");
+		writer.StartArray(); // Start Editor Selection Array
+
+		writer.StartObject();
+		writer.Key("Mode");
+		writer.String("DEFAULT");
+		writer.EndObject();
+
+		writer.EndArray(); // End Editor Selection Array
+		writer.EndObject();// End Editor Selection
+
+		writer.EndArray(); // End Components Array
+
+		writer.EndObject(); // End Entity
+	}
+
+
+	writer.EndArray(); // End Objects
+	writer.EndObject(); // End File
+
+	// Final Export
+	std::string sceneName = "Data\\Scenes\\" + scene->GetSceneName();
+	std::ofstream offstream(/*sceneName.c_str()*/"Data\\Scenes\\scene_json.txt");
+	offstream << s.GetString();
+
+	if (!offstream.good())
+		ErrorLogger::Log("Failed to write to json file");
 
 	return true;
 }

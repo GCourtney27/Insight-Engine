@@ -121,6 +121,7 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 		COM_ERROR_IF_FAILED(hr, "Failed to create device swap chain.");
 		
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
+
 		hr = pSwapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf()));
 		COM_ERROR_IF_FAILED(hr, "GetBuffer Failed.");
 
@@ -151,6 +152,7 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 
 		// Create Rasterizer State
 		CD3D11_RASTERIZER_DESC rasterizerDesc(D3D11_DEFAULT);
+		//rasterizerDesc.CullMode = D3D11_CULL_MODE::D3D11_CULL_NONE; // Draw both sides of the mesh
 		hr = pDevice->CreateRasterizerState(&rasterizerDesc, pRasterizerState.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create rasterizer state.");
 
@@ -212,13 +214,22 @@ void Graphics::RenderFrame()
 
 	pDeviceContext->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
 
+	// Start ImGui frame
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+	ImGui::DockSpaceOverViewport(0, ImGuiDockNodeFlags_PassthruCentralNode);
+
 	// -- Clear Background Color for Scene -- //
 	float bgcolor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
 	pDeviceContext->ClearRenderTargetView(pRenderTargetView.Get(), bgcolor);
 	pDeviceContext->ClearDepthStencilView(pDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
+
+
+	
 	pDeviceContext->IASetInputLayout(default_vertexshader.GetInputLayout());
-	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);//D3D10_PRIMITIVE_TOPOLOGY_LINELIST
 	pDeviceContext->RSSetState(pRasterizerState.Get());
 	pDeviceContext->OMSetDepthStencilState(pDepthStencilState.Get(), 0);
 	pDeviceContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);
@@ -231,12 +242,26 @@ void Graphics::RenderFrame()
 	// Set PBR Shader
 	//pDeviceContext->PSSetShader(PBR_pixelshader.GetShader(), NULL, 0);
 	
-	std::list<Entity*>* entities = m_pEngine->GetScene().GetAllEntities();
-	std::list<Entity*>::iterator iter;
-	for (iter = entities->begin(); iter != entities->end(); iter++)
+	if (Debug::Editor::Instance()->PlayingGame())
 	{
-		(*iter)->Draw(camera3D.GetViewMatrix() * camera3D.GetProjectionMatrix());
+		std::list<Entity*>* entities = m_pEngine->GetScene().GetAllEntities();
+		std::list<Entity*>::iterator iter;
+		for (iter = entities->begin(); iter != entities->end(); iter++)
+		{
+			(*iter)->Draw(gameCamera.GetViewMatrix() * gameCamera.GetProjectionMatrix());
+		}
 	}
+	else
+	{
+		std::list<Entity*>* entities = m_pEngine->GetScene().GetAllEntities();
+		std::list<Entity*>::iterator iter;
+		for (iter = entities->begin(); iter != entities->end(); iter++)
+		{
+			(*iter)->Draw(editorCamera.GetViewMatrix() * editorCamera.GetProjectionMatrix());
+		}
+	}
+	
+
 
 	// -- Update 2D shader Information -- //
 	pDeviceContext->IASetInputLayout(vertexshader_2d.GetInputLayout());
@@ -257,8 +282,10 @@ void Graphics::RenderFrame()
 	pSpriteBatch->Begin();
 	pSpriteFont->DrawString(pSpriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	pSpriteBatch->End();
-		
-	UpdateImGui();
+
+
+
+	UpdateImGuiWidgets();
 
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	if (pIO->ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -266,7 +293,7 @@ void Graphics::RenderFrame()
 		ImGui::UpdatePlatformWindows();
 		ImGui::RenderPlatformWindowsDefault();
 	}
-	
+
 	// -- Flip Buffer and Present-- //
 	pSwapchain->Present(1, NULL); // Enable Vertical sync with 1 or 0
 }
@@ -282,7 +309,6 @@ void Graphics::Shutdown()
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
 }
-
 
 bool Graphics::InitializeShaders()
 {
@@ -398,40 +424,44 @@ bool Graphics::InitializeScene()
 		COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer for pixel shader.");
 
 		// Initialize light shader values
-cb_ps_light.data.ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-cb_ps_light.data.ambientLightStrength = 1.0f;
-//cb_ps_light.data.ambientLightStrength = 0.268f;
-cb_ps_light.data.ambientLightStrength = 1.0f;
+		cb_ps_light.data.ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+		cb_ps_light.data.ambientLightStrength = 1.0f;
+		//cb_ps_light.data.ambientLightStrength = 0.268f;
+		cb_ps_light.data.ambientLightStrength = 1.0f;
 
-light.lightStrength = 6.848f;
-light.attenuation_a = 1.968f;
-light.attenuation_b = 0.2f;
-light.attenuation_c = 0.0f;
+		light.lightStrength = 6.848f;
+		light.attenuation_a = 1.968f;
+		light.attenuation_b = 0.2f;
+		light.attenuation_c = 0.0f;
 
 
-// Light
-if (!light.Initialize(pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader))
-{
-	ErrorLogger::Log("Failed to initilize light");
-	return false;
-}
-// Hello World sprite
-if (!sprite.Initialize(pDevice.Get(), pDeviceContext.Get(), 256, 256, "Data\\Textures\\sprite_256x256.png", cb_vs_vertexshader_2d))
-{
-	ErrorLogger::Log("Failed to initilize sprite");
-	return false;
-}
+		// Light
+		if (!light.Initialize(pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader))
+		{
+			ErrorLogger::Log("Failed to initilize light");
+			return false;
+		}
+		// Hello World sprite
+		if (!sprite.Initialize(pDevice.Get(), pDeviceContext.Get(), 256, 256, "Data\\Textures\\sprite_256x256.png", cb_vs_vertexshader_2d))
+		{
+			ErrorLogger::Log("Failed to initilize sprite");
+			return false;
+		}
 
-camera2D.SetProjectionValues((float)windowWidth, (float)windowHeight, 0.0f, 1.0f);
+		camera2D.SetProjectionValues((float)windowWidth, (float)windowHeight, 0.0f, 1.0f);
 
-camera3D.SetPosition(0.0f, 5.0f, -10.0f);
-camera3D.SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
+		editorCamera.SetPosition(0.0f, 5.0f, -10.0f);
+		editorCamera.SetProjectionValues(80.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
 
-//Texture()
-//CreateWICTextureFromFile(pDevice.Get(), pDeviceContext.Get(), L"Data/Textures/Wood/Wood_Albedo.png", 0, &Wood_Albedo);
-//CreateWICTextureFromFile(pDevice.Get(), pDeviceContext.Get(), L"Data/Textures/Wood/Wood_Normal.png", 0, &Wood_Normal);
-//CreateWICTextureFromFile(pDevice.Get(), pDeviceContext.Get(), L"Data/Textures/Wood/Wood_Metallic.png", 0, &Wood_Metalic);
-//CreateWICTextureFromFile(pDevice.Get(), pDeviceContext.Get(), L"Data/Textures/Wood/Wood_Roughness.png", 0, &Wood_Rough);
+		gameCamera.SetPosition(0.0f, 0.0f, 0.0f);
+		gameCamera.SetProjectionValues(80.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
+
+
+		//Texture()
+		//CreateWICTextureFromFile(pDevice.Get(), pDeviceContext.Get(), L"Data/Textures/Wood/Wood_Albedo.png", 0, &Wood_Albedo);
+		//CreateWICTextureFromFile(pDevice.Get(), pDeviceContext.Get(), L"Data/Textures/Wood/Wood_Normal.png", 0, &Wood_Normal);
+		//CreateWICTextureFromFile(pDevice.Get(), pDeviceContext.Get(), L"Data/Textures/Wood/Wood_Metallic.png", 0, &Wood_Metalic);
+		//CreateWICTextureFromFile(pDevice.Get(), pDeviceContext.Get(), L"Data/Textures/Wood/Wood_Roughness.png", 0, &Wood_Rough);
 
 	}
 	catch (COMException & exception)
@@ -447,42 +477,71 @@ void Graphics::InitializeMaterials()
 	//materialWood = new Material(Wood_Albedo, Wood_Normal, Wood_Metalic, Wood_Rough, samplerState.Get());
 }
 
-void Graphics::UpdateImGui()
+void Graphics::UpdateImGuiWidgets()
 {
 	using namespace Debug;
 	Entity* pSelectedEntity = Editor::Instance()->GetSelectedEntity();
 	std::list<Entity*>* entities = m_pEngine->GetScene().GetAllEntities();
 
-	// Start ImGui frame
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
 
-	ImGuizmo::BeginFrame();
-	ImGuizmo::Enable(true);
-	//ImGuizmo::SetRect(0, 0, (float)windowWidth, (float)windowHeight);
+	
+	// ImGuizmo Experimental tool
+	{
+		//ImGuizmo::BeginFrame();
+	//ImGuizmo::Enable(true);
 
-	float cameraView[16] =
-	{ 1.f, 0.f, 0.f, 0.f,
-	  0.f, 1.f, 0.f, 0.f,
-	  0.f, 0.f, 1.f, 0.f,
-	  0.f, 0.f, 0.f, 1.f
-	};
+	//ImGuiIO& io = ImGui::GetIO();
+	//ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+	//ImGuizmo::SetDrawlist();
+	////ImGuizmo::SetRect(0, 0, pIO->DisplaySize.x, pIO->DisplaySize.x);
 
-	float cameraProjection[16];
+	///*float * camView = editorCamera.GetViewMatAsFloatArr();
+	//float * camProj = editorCamera.GetProjMatAsFloatArr();
+	//float * objMat = pSelectedEntity->GetTransform().GetWorldMatAsFloatArr();*/
 
-	float objectMatrix[16] =
-	{ 3.f, 1.f, 7.f, 0.f,
-	  1.f, 1.f, 1.f, 0.f,
-	  10.f, 10.f, 10.f, 0.f,
-	  0.f, 0.f, 0.f, 1.f
-	};
+	//XMFLOAT4X4 camViewTemp;
+	//XMStoreFloat4x4(&camViewTemp, editorCamera.GetViewMatrix());
+	//float camView[16] =
+	//{
+	//	camViewTemp._11,camViewTemp._21, camViewTemp._31, camViewTemp._41,
+	//	camViewTemp._12,camViewTemp._22, camViewTemp._32, camViewTemp._42,
+	//	camViewTemp._13,camViewTemp._23, camViewTemp._33, camViewTemp._43,
+	//	camViewTemp._14,camViewTemp._24, camViewTemp._34, camViewTemp._44
+	//};
+	//XMFLOAT4X4 camPojTemp;
+	//XMStoreFloat4x4(&camPojTemp, editorCamera.GetProjectionMatrix());
+	//float camProj[16] =
+	//{
+	//	camPojTemp._11, camPojTemp._21, camPojTemp._31, camPojTemp._41,
+	//	camPojTemp._12, camPojTemp._22, camPojTemp._32, camPojTemp._42,
+	//	camPojTemp._13, camPojTemp._23, camPojTemp._33, camPojTemp._43,
+	//	camPojTemp._14, camPojTemp._24, camPojTemp._34, camPojTemp._44
+	//};
+	//XMFLOAT4X4 objMatTemp;
+	//XMStoreFloat4x4(&objMatTemp, pSelectedEntity->GetTransform().GetWorldMatrix());
+	//float objMat[16] =
+	//{
+	//	objMatTemp._11, objMatTemp._21, objMatTemp._31, objMatTemp._41,
+	//	objMatTemp._12, objMatTemp._22, objMatTemp._32, objMatTemp._42,
+	//	objMatTemp._13, objMatTemp._23, objMatTemp._33, objMatTemp._43,
+	//	objMatTemp._14, objMatTemp._24, objMatTemp._34, objMatTemp._44
+	//};
+	//static const float identityMatrix[16] =
+	//{ 1.f, 0.f, 0.f, 0.f,
+	//	0.f, 1.f, 0.f, 0.f,
+	//	0.f, 0.f, 1.f, 0.f,
+	//	0.f, 0.f, 0.f, 1.f };
 
-	float * camview = camera3D.GetViewMatAsFloatArr();
-	ImGuizmo::DrawCube(camview, camera3D.GetProjMatAsFloatArr(), objectMatrix);
-	ImGuizmo::Manipulate(camera3D.GetViewMatAsFloatArr(), camera3D.GetProjMatAsFloatArr(), ImGuizmo::ROTATE, ImGuizmo::LOCAL, pSelectedEntity->GetTransform().GetWorldMatAsFloatArr());
+	//ImGuizmo::Manipulate(camView, camProj, ImGuizmo::TRANSLATE, ImGuizmo::WORLD, objMat);
 
-	ImGui::Begin("Heirarchy");
+	////ImGuizmo::Manipulate(editorCamera.GetViewMatAsFloatArr(), editorCamera.GetProjMatAsFloatArr(), ImGuizmo::ROTATE, ImGuizmo::WORLD, pSelectedEntity->GetTransform().GetWorldMatAsFloatArr());
+	//ImGuizmo::DrawGrid(camView, camProj, identityMatrix, 20.f);
+	}
+	
+
+
+
+	ImGui::Begin("Scene Heirarchy");
 	{
 		std::list<Entity*>::iterator iter;
 		for (iter = entities->begin(); iter != entities->end(); iter++)
@@ -495,7 +554,7 @@ void Graphics::UpdateImGui()
 	}
 	ImGui::End();
 
-	// Debug Log system
+	ImGui::Begin("Debug Log");
 	{
 		if (ImGui::Button("Clear Console", { 100, 20 }))
 		{
@@ -507,28 +566,24 @@ void Graphics::UpdateImGui()
 
 		ImGui::Text(Editor::Instance()->GetLogStatement().c_str());
 	}
+	ImGui::End();
 
 	ImGui::Begin("Editor");
 	{
-		if (ImGui::Button("Play", { 150.0f, 20.0f }))
+		if (ImGui::Button("Play", { 50.0f, 20.0f }))
 		{
 			if(!Editor::Instance()->PlayingGame())
 				Editor::Instance()->PlayGame();// Editor calles scene OnStart
 		}
-		/*if (ImGui::Button("Pause", { 150.0f, 20.0f }))
+		if (ImGui::Button("Stop", { 50.0f, 20.0f }))
 		{
-			Editor::Instance()->PauseGame();
-		}*/
-		if (ImGui::Button("Stop", { 150.0f, 20.0f }))
-		{
-
 			Editor::Instance()->StopGame();
 		}
 	}
 	ImGui::End();
 
 	
-	ImGui::Begin("Light Controls");
+	ImGui::Begin("Lighting");
 	{
 		ImGui::DragFloat3("Ambient Light Color", &cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat("Ambient Light Strength", &cb_ps_light.data.ambientLightStrength, 0.01f, 0.0f, 1.0f);
@@ -558,7 +613,15 @@ void Graphics::UpdateImGui()
 		ImGui::DragFloat3("Rotation", &pSelectedEntity->GetTransform().GetRotation().x, 0.1f, -100.0f, 100.0f);
 		ImGui::DragFloat3("Scale", &pSelectedEntity->GetTransform().GetScale().x, 0.1f, -100.0f, 100.0f);
 
-		//pSelectedEntity->
+		ImGui::NewLine();
+		std::vector<Component*> objectComponents = pSelectedEntity->GetAllComponents();
+		std::vector<Component*>::iterator iter;
+		for (iter = objectComponents.begin(); iter != objectComponents.end(); iter++)
+		{
+			ImGui::NewLine();
+
+			(*iter)->OnImGuiRender();
+		}
 
 	}
 	ImGui::End();

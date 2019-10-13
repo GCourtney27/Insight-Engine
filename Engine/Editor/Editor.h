@@ -19,7 +19,7 @@ namespace Debug
 		Editor() {}
 
 		bool Initialize(Engine* engine, HWND hwnd);
-		void Update();
+		void Update(float deltaTime);
 		void Shutdown();
 
 		std::string GetLogStatement() { return m_debugLog; }

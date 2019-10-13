@@ -1,6 +1,7 @@
 #pragma once
 #include "GameObject3D.h"
-using namespace DirectX;
+//#include "..\Objects\Entity.h"
+
 
 class Camera3D : public GameObject3D
 {
@@ -16,13 +17,16 @@ public:
 	float GetFarZ() const { return m_farZ; }
 
 	float* GetViewMatAsFloatArr();
-
 	float* GetProjMatAsFloatArr();
+
 private:
 	void UpdateMatrix() override;
 
 	XMMATRIX viewMatrix;
 	XMMATRIX projectionMatrix;
+
+	float* viewFloatMat;
+	float* projFloatMat;
 
 	float m_nearZ = 0.0f;
 	float m_farZ = 0.0f;

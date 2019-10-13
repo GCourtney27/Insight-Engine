@@ -31,7 +31,8 @@ public:
 	void Update(const float& deltaTime);
 	void Shutdown();
 
-	Camera3D camera3D;
+	Camera3D editorCamera;
+	Camera3D gameCamera;
 	Camera2D camera2D;
 	Sprite sprite;
 	Light light;
@@ -52,7 +53,7 @@ private:
 	bool InitializeShaders();
 	bool InitializeScene();
 	void InitializeMaterials();
-	void UpdateImGui();
+	void UpdateImGuiWidgets();
 
 	Engine* m_pEngine;
 	Timer fpsTimer;

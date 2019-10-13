@@ -52,6 +52,7 @@ public:
 
 	void AddComponent(Component* component);
 	void RemoveComponent(Component* component);
+	std::vector<Component*> GetAllComponents() const { return m_components; }
 
 	template<typename T>
 	T* GetComponent()

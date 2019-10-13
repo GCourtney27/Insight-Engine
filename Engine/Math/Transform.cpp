@@ -228,14 +228,24 @@ float * Transform::GetWorldMatAsFloatArr()
 	XMFLOAT4X4 temp;
 	XMStoreFloat4x4(&temp, worldMatrix);
 
-	float result[16] =
+	/*float result[16] =
 	{ temp._11, temp._12, temp._13, temp._14,
 	  temp._21, temp._22, temp._23, temp._24,
 	  temp._31, temp._32, temp._33, temp._34,
 	  temp._41, temp._42, temp._43, temp._44
+	};*/
+
+	float result[16] =
+	{
+		temp._11, temp._21, temp._31, temp._41,
+		temp._12, temp._22, temp._32, temp._42,
+		temp._13, temp._23, temp._33, temp._43,
+		temp._14, temp._24, temp._34, temp._44
 	};
 
-	return result;
+	worldFloatMat = result;
+
+	return worldFloatMat;
 }
 
 const XMVECTOR & Transform::GetForwardVector(bool omitY)

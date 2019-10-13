@@ -1,11 +1,13 @@
 #include "EditorSelectionComponent.h"
+#include "..\Graphics\ImGui\imgui.h"
 
 void EditorSelection::Initialize(Entity* owner, float radius, const DirectX::XMFLOAT3 & position)
 {
 	this->m_owner = owner;
 	m_position = position;
 	m_radius = radius;
-	m_pName = "EditorSelection";
+	SetName("Editor Selection (ENGINE DEBUG)");
+
 }
 
 void EditorSelection::Update()
@@ -17,6 +19,13 @@ void EditorSelection::Destroy()
 }
 
 void EditorSelection::OnImGuiRender()
+{
+
+	ImGui::Text(GetName());
+
+}
+
+void EditorSelection::JSONLoad()
 {
 }
 

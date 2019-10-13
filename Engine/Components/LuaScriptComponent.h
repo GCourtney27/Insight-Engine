@@ -24,12 +24,12 @@ public:
 	void Destroy() override;
 	void OnImGuiRender() override;
 
-	static int lua_PrintStringToConsole(lua_State* L);
+	void JSONLoad() override;
 
 	bool lua_KeyIsPressed(int keycode);
 
+	std::string& GetFilePath() { return filePath; }
 
-	void SetCallCounter(int count) { callCounter = count; }
 
 private:
 	//lua_State *L = nullptr;

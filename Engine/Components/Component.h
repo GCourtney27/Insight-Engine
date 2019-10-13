@@ -10,8 +10,8 @@ public:
 
 	virtual void Destroy() = 0;
 	virtual void Update() = 0;
-
 	virtual void OnImGuiRender() = 0;
+	virtual void JSONLoad() = 0;
 
 	bool& GetIsEnabled() { return m_enabled; }
 	void SetEnable(bool enable) { m_enabled = enable; }
@@ -25,4 +25,6 @@ protected:
 	Entity* m_owner = nullptr;
 	const char* m_pName;
 	bool m_enabled = true;
+
+
 };

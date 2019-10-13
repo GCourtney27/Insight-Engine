@@ -1,59 +1,129 @@
 {
-	"SceneName": "Scene_ImportTest",
-	"Objects":[
-		{	
-			"Type": "Entity",
-			"Name": "Flower",
-			"Transform":[
+    "SceneName": "Scene_ImportTest",
+    "Objects": [
+        {
+            "Type": "Entity",
+            "Name": "Flower",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": -25.899999618530275
+                        },
+                        {
+                            "y": 10.800000190734864
+                        },
+                        {
+                            "z": 22.899999618530275
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 10.800000190734864
+                        },
+                        {
+                            "z": 0.20000000298023225
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 1.0
+                        },
+                        {
+                            "y": 1.0
+                        },
+                        {
+                            "z": 1.0
+                        }
+                    ]
+                }
+            ],
+			"Components":[
 				{
-					"Position": [
-						{"x": -25.9},
-						{"y": 10.8},
-						{"z": 22.9}
+					"MeshRenderer":[
+						{"Model": "Data\\Objects\\Dandelion\\Var1\\Var1_LOD0.fbx"}
 					]
 				},
 				{
-					"Rotation": [
-						{"x": 0.0},
-						{"y": 13.4},
-						{"z": 0.2}
+					"LuaScript":[
+						{"FilePath": "Data\\LuaScripts\\Test.lua"}
 					]
 				},
 				{
-					"Scale": [
-						{"x": 1.0},
-						{"y": 1.0},
-						{"z": 1.0}
+					"EditorSelection":[
+						{"Mode": "DEFAULT"}
 					]
 				}
-			]			
-		},
-		{	
-			"Type": "Entity",
-			"Name": "Entity01",
-			"Transform":[
+			]
+        },
+        {
+            "Type": "Entity",
+            "Name": "Entity01",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": -5.900000095367432
+                        },
+                        {
+                            "y": -4.800000190734863
+                        },
+                        {
+                            "z": -32.900001525878909
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": -4.800000190734863
+                        },
+                        {
+                            "z": 0.20000000298023225
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+			"Components":[
 				{
-					"Position": [
-						{"x": -5.9},
-						{"y": -4.8},
-						{"z": -32.9}
+					"MeshRenderer":[
+						{"Model": "Data\\Objects\\Primatives\\Cube.obj"}
 					]
 				},
 				{
-					"Rotation": [
-						{"x": 0.0},
-						{"y": 0.4},
-						{"z": 0.2}
+					"LuaScript":[
+						{"FilePath": "Data\\LuaScripts\\UpWards.lua"}
 					]
 				},
 				{
-					"Scale": [
-						{"x": 1.0},
-						{"y": 1.0},
-						{"z": 1.0}
+					"EditorSelection":[
+						{"Mode": "DEFAULT"}
 					]
 				}
-			]			
-		}
-	]
+			]
+        }
+    ]
 }

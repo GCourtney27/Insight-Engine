@@ -72,13 +72,6 @@ void Entity::OnExit()
 void Entity::OnEditorStop()
 {
 	UpdateTransformWithCopy();
-
-	///// CHANGE THIS!!!////
-	LuaScript* ls = GetComponent<LuaScript>();
-	if (ls != nullptr)
-	{
-		ls->SetCallCounter(1);
-	}
 }
 
 void Entity::OnEvent(const Event & event)

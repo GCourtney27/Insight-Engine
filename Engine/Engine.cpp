@@ -21,7 +21,7 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	if (!Graphics::Instance()->Initialize(this->render_window.GetHWND(), width, height, this))
 		return false;
 
-	if (!FileSystem::Instance()->LoadSceneFromJSON("Data\\Scenes\\scene_json_test.txt", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader()))
+	if (!FileSystem::Instance()->LoadSceneFromJSON("Data\\Scenes\\scene_json.txt", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader()))
 	{
 		ErrorLogger::Log("Failed to initialize scene.");
 		return false;
@@ -55,7 +55,6 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	if (!Debug::Editor::Instance()->Initialize(this, this->render_window.GetHWND()))
 		return false;
 	
-	Debug::Editor::Instance()->DebugLog("Hello from Engine!");
 
 	return true;
 }
@@ -68,15 +67,13 @@ bool Engine::ProccessMessages()
 void Engine::Update()
 {
 	float dt = (float)Timer::Instance()->GetDeltaTime();
+	float gamedt = (float)Timer::Instance()->GetDeltaTime();
 	Timer::Instance()->Restart();
 
 	scene.Update(dt);
 
 	if (Debug::Editor::Instance()->PlayingGame())
-		scene.OnUpdate(dt);
-
-	Debug::Editor::Instance()->Update();
-	Graphics::Instance()->Update(dt);
+		scene.OnUpdate(gamedt);
 
 
 	while (!InputManager::Instance()->keyboard.CharBufferIsEmpty())
@@ -97,71 +94,40 @@ void Engine::Update()
 		{
 			if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
 			{
-				Graphics::Instance()->camera3D.AdjustRotation((float)me.GetPosY() * 0.01f, (float)me.GetPosX() * 0.01f, 0);
+				Graphics::Instance()->editorCamera.AdjustRotation((float)me.GetPosY() * 0.01f, (float)me.GetPosX() * 0.01f, 0);
 			}
 		}
 
 	}
 
-	float camera3DSpeed = 0.01f;
-	if (InputManager::Instance()->keyboard.KeyIsPressed(VK_SHIFT))
-	{
-		camera3DSpeed = 0.1f;
-	}
+	Graphics::Instance()->Update(dt);
+	Debug::Editor::Instance()->Update(dt);
 
-	if (InputManager::Instance()->keyboard.KeyIsPressed('W'))
-	{
-		Graphics::Instance()->camera3D.AdjustPosition(Graphics::Instance()->camera3D.GetForwardVector() * camera3DSpeed * dt);
-	}
-	if (InputManager::Instance()->keyboard.KeyIsPressed('S'))
-	{
-		Graphics::Instance()->camera3D.AdjustPosition(Graphics::Instance()->camera3D.GetBackwardVector() * camera3DSpeed * dt);
-	}
-	if (InputManager::Instance()->keyboard.KeyIsPressed('A'))
-	{
-		Graphics::Instance()->camera3D.AdjustPosition(Graphics::Instance()->camera3D.GetLeftVector() * camera3DSpeed * dt);
-	}
-	if (InputManager::Instance()->keyboard.KeyIsPressed('D'))
-	{
-		Graphics::Instance()->camera3D.AdjustPosition(Graphics::Instance()->camera3D.GetRightVector() * camera3DSpeed * dt);
-	}
-	if (InputManager::Instance()->keyboard.KeyIsPressed('E'))
-	{
-		Graphics::Instance()->camera3D.AdjustPosition(0.0f, camera3DSpeed * dt, 0.0f);
-	}
-	if (InputManager::Instance()->keyboard.KeyIsPressed('Q'))
-	{
-		Graphics::Instance()->camera3D.AdjustPosition(0.0f, -camera3DSpeed * dt, 0.0f);
-	}
+
+	
 	if (InputManager::Instance()->keyboard.KeyIsPressed(27))
 	{
 		exit(0); // Performs no cleanup
-		//PostMessage(this->render_window.GetHWND(), WM_QUIT, 0, 0);
+		PostMessage(this->render_window.GetHWND(), WM_QUIT, 0, 0);
 	}
 
 	if (InputManager::Instance()->keyboard.KeyIsPressed('C'))
 	{
-		//lightPosition += this->Graphics::Instance()->camera3D.GetForwardVector();
-		Graphics::Instance()->light.SetPosition(Graphics::Instance()->camera3D.GetPositionFloat3());
-		Graphics::Instance()->light.SetRotation(Graphics::Instance()->camera3D.GetRotationFloat3());
+		Graphics::Instance()->light.SetPosition(Graphics::Instance()->editorCamera.GetPositionFloat3());
+		Graphics::Instance()->light.SetRotation(Graphics::Instance()->editorCamera.GetRotationFloat3());
+	}
+	
+
+	
+	if (InputManager::Instance()->keyboard.KeyIsPressed(VK_CONTROL) && InputManager::Instance()->keyboard.KeyIsPressed('S'))
+	{
+		if (!FileSystem::Instance()->WriteSceneToJSON(&scene))
+			ErrorLogger::Log("Failed to save scene");
+		else
+			Debug::Editor::Instance()->DebugLog("Scene Saved");
 	}
 
-	/*if (InputManager::Instance()->keyboard.KeyIsPressed(VK_CONTROL) && InputManager::Instance()->keyboard.KeyIsPressed('S'))
-	{
-		if(!SaveScene())
-			ErrorLogger::Log("Failed to save scene");
-	}*/
-
-	/*for (int i = 0; i < Graphics::Instance()->m_gameObjects.size();i++)
-	{
-		Graphics::Instance()->m_gameObjects[i]->Update();
-	}*/
-
 }
-
-
-
-DirectX::XMFLOAT4X4 boxWorld;
 
 void Engine::RenderFrame()
 {

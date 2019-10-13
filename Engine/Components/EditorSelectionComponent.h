@@ -12,16 +12,20 @@ public:
 	
 	void Initialize(Entity* owner, float radius, const DirectX::XMFLOAT3 & position);
 
+	void Update() override;
+	void Destroy() override;
+	//void Update(const DirectX::XMFLOAT3 parentPosition);
+	void OnImGuiRender() override;
+
+	void JSONLoad() override;
+
 	void SetRadius(float value) { m_radius = value; }
 	void SetPosition(const DirectX::XMFLOAT3 & position) { m_position = position; }
 
 	float GetRadius() const { return m_radius; }
 	DirectX::XMFLOAT3 & GetPosition() { return m_position; }
 
-	void Update() override;
-	void Destroy() override;
-	//void Update(const DirectX::XMFLOAT3 parentPosition);
-	void OnImGuiRender() override;
+	
 
 
 private:

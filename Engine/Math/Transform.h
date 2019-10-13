@@ -125,6 +125,7 @@ public:
 	
 protected:
 	XMMATRIX worldMatrix = XMMatrixIdentity();
+	float* worldFloatMat;
 
 	// XMVECTOR
 	XMVECTOR posVector;

@@ -23,8 +23,9 @@ struct CB_PS_light
 	DirectX::XMFLOAT3 dynamicLightColor;//12
 	float dynamicLightStrength;//4
 	//16
+
 	DirectX::XMFLOAT3 dynamicLightPosition;//12
-	float dynamicLightAttenuation_a;
-	float dynamicLightAttenuation_b;
-	float dynamicLightAttenuation_c;
+	float dynamicLightAttenuation_a;//4
+	float dynamicLightAttenuation_b;//4
+	float dynamicLightAttenuation_c;//4
 };

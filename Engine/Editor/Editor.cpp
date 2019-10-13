@@ -23,12 +23,44 @@ namespace Debug
 		return true;
 	}
 
-	void Editor::Update()
+	void Editor::Update(float deltaTime)
 	{
+		
+		float camera3DSpeed = 0.01f;
+		if (InputManager::Instance()->keyboard.KeyIsPressed(VK_SHIFT))
+		{
+			camera3DSpeed = 0.1f;
+		}
+
+		if (InputManager::Instance()->keyboard.KeyIsPressed('W'))
+		{
+			Graphics::Instance()->editorCamera.AdjustPosition(Graphics::Instance()->editorCamera.GetForwardVector() * camera3DSpeed * deltaTime);
+		}
+		if (InputManager::Instance()->keyboard.KeyIsPressed('S'))
+		{
+			Graphics::Instance()->editorCamera.AdjustPosition(Graphics::Instance()->editorCamera.GetBackwardVector() * camera3DSpeed * deltaTime);
+		}
+		if (InputManager::Instance()->keyboard.KeyIsPressed('A'))
+		{
+			Graphics::Instance()->editorCamera.AdjustPosition(Graphics::Instance()->editorCamera.GetLeftVector() * camera3DSpeed * deltaTime);
+		}
+		if (InputManager::Instance()->keyboard.KeyIsPressed('D'))
+		{
+			Graphics::Instance()->editorCamera.AdjustPosition(Graphics::Instance()->editorCamera.GetRightVector() * camera3DSpeed * deltaTime);
+		}
+		if (InputManager::Instance()->keyboard.KeyIsPressed('E'))
+		{
+			Graphics::Instance()->editorCamera.AdjustPosition(0.0f, camera3DSpeed * deltaTime, 0.0f);
+		}
+		if (InputManager::Instance()->keyboard.KeyIsPressed('Q'))
+		{
+			Graphics::Instance()->editorCamera.AdjustPosition(0.0f, -camera3DSpeed * deltaTime, 0.0f);
+		}
+
 		/*Raycasting*/
 		if (InputManager::Instance()->mouse.IsLeftDown())
 		{
-			SimpleMath::Vector3 cameraPosition = Graphics::Instance()->camera3D.GetPosition();
+			SimpleMath::Vector3 cameraPosition = Graphics::Instance()->editorCamera.GetPosition();
 			SimpleMath::Vector3 mouseVector = GetMouseDirectionVector();
 			Ray* raycast = new Ray(cameraPosition, mouseVector);
 			
@@ -70,11 +102,11 @@ namespace Debug
 
 		DirectX::XMVECTOR mouseFar = DirectX::XMVectorSet((float)posX, (float)posY, 1.0f, 0.0f);
 
-		DirectX::XMVECTOR unprojectedNear = DirectX::XMVector3Unproject(mouseNear, 0, 0, (float)m_pEngine->GetWindowWidth(), (float)m_pEngine->GetWindowHeight(), Graphics::Instance()->camera3D.GetNearZ(), Graphics::Instance()->camera3D.GetFarZ(),
-			Graphics::Instance()->camera3D.GetProjectionMatrix(), Graphics::Instance()->camera3D.GetViewMatrix(), DirectX::XMMatrixIdentity());
+		DirectX::XMVECTOR unprojectedNear = DirectX::XMVector3Unproject(mouseNear, 0, 0, (float)m_pEngine->GetWindowWidth(), (float)m_pEngine->GetWindowHeight(), Graphics::Instance()->editorCamera.GetNearZ(), Graphics::Instance()->editorCamera.GetFarZ(),
+			Graphics::Instance()->editorCamera.GetProjectionMatrix(), Graphics::Instance()->editorCamera.GetViewMatrix(), DirectX::XMMatrixIdentity());
 
-		DirectX::XMVECTOR unprojectedFar = DirectX::XMVector3Unproject(mouseFar, 0, 0, (float)m_pEngine->GetWindowWidth(), (float)m_pEngine->GetWindowHeight(), Graphics::Instance()->camera3D.GetNearZ(), Graphics::Instance()->camera3D.GetFarZ(),
-			Graphics::Instance()->camera3D.GetProjectionMatrix(), Graphics::Instance()->camera3D.GetViewMatrix(), DirectX::XMMatrixIdentity());
+		DirectX::XMVECTOR unprojectedFar = DirectX::XMVector3Unproject(mouseFar, 0, 0, (float)m_pEngine->GetWindowWidth(), (float)m_pEngine->GetWindowHeight(), Graphics::Instance()->editorCamera.GetNearZ(), Graphics::Instance()->editorCamera.GetFarZ(),
+			Graphics::Instance()->editorCamera.GetProjectionMatrix(), Graphics::Instance()->editorCamera.GetViewMatrix(), DirectX::XMMatrixIdentity());
 
 		DirectX::XMVECTOR result = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(unprojectedFar, unprojectedNear));
 
