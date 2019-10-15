@@ -3,7 +3,8 @@
 #include "..\\Objects\\Scene.h"
 #include "Scriptor\\Compiler.h"
 #include "Objects\\Entity.h"
-#include "LUAScripting/LuaStateManager.h"
+#include "Objects\\Player.h"
+#include "LUAScripting\\LuaStateManager.h"
 
 class Engine : WindowContainer
 {
@@ -26,11 +27,10 @@ public:
 	int GetWindowWidth() { return windowWidth; }
 	int GetWindowHeight() { return windowHeight; }
 
-
+	Player* GetPlayer() { return player; }
 private:
 
-	// DEBUG
-	Entity* entity = nullptr;
+	Player* player = nullptr;
 
 	Scene scene;
 

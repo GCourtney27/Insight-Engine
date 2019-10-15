@@ -37,6 +37,12 @@
     <FxCompile Include="IntegrateBRDFPixelShader.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
+    <FxCompile Include="pixelshader_sky.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="vertexshader_sky.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -309,6 +315,8 @@
     <ClCompile Include="Includes\json.cpp">
       <Filter>Source Files\Systems\Json</Filter>
     </ClCompile>
+    <ClCompile Include="Objects\Camera.cpp" />
+    <ClCompile Include="Objects\Player.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="COMException.h">
@@ -646,6 +654,12 @@
     </ClInclude>
     <ClInclude Include="LUAScripting\ScriptExports.h">
       <Filter>Header Files\LUAScripting</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Player.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Camera.h">
+      <Filter>Header Files\Objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

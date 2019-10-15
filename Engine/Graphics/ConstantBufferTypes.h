@@ -29,3 +29,9 @@ struct CB_PS_light
 	float dynamicLightAttenuation_b;//4
 	float dynamicLightAttenuation_c;//4
 };
+
+struct CB_VS_Sky
+{
+	DirectX::XMMATRIX wvpMatrix;
+	DirectX::XMMATRIX worldMatrix;
+};

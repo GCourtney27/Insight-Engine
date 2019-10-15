@@ -33,6 +33,20 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 		return false;
 	}
 
+	/*player = new Player(&scene, *(new ID("Player")));
+
+	player->GetTransform().SetPosition(0.0f, 0.0f, 0.0f);
+	player->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
+	player->GetTransform().SetScale(1.0f, 1.0f, 1.0f);
+
+	MeshRenderer* mr = player->AddComponent<MeshRenderer>();
+	mr->Initialize(player, "Data\\Objects\\Dandelion\\Var1\\Textured_Flower.obj", Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader());
+
+	EditorSelection* es = player->AddComponent<EditorSelection>();
+	es->Initialize(player, 20.0f, player->GetTransform().GetPosition());
+
+	scene.AddEntity(player);*/
+
 	// Dandelion\\Var1\\Textured_Flower.obj
 	/*entity = new Entity(&scene, *(new ID("PBR_Entity")));
 	MeshRenderer* me = entity->AddComponent<MeshRenderer>();
@@ -55,6 +69,7 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	if (!Debug::Editor::Instance()->Initialize(this, this->render_window.GetHWND()))
 		return false;
 	
+
 
 	return true;
 }

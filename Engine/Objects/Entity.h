@@ -81,9 +81,15 @@ public:
 	void UpdateTransformCopyWithTransform() { m_origionalTransform = m_transform; }
 	void UpdateTransformWithCopy() { m_transform = m_origionalTransform; }
 	
+	void SetParent(Transform* parent) { m_pParent = parent; }
+
 protected:
 	eState m_state = eState::ACTIVE;
 	ID m_id;
+
+	Transform* m_pParent = nullptr;
+	std::vector<Transform*> m_children;
+
 	Transform m_transform;
 	Transform m_origionalTransform;
 	Scene* m_scene;

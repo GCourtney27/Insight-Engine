@@ -15,12 +15,16 @@ bool Entity::Initialize()
 
 void Entity::Update(float deltaTime)
 {
-	m_transform.AdjustPosition(0.0f, 0.0f, 0.0f);
+	if (m_pParent != nullptr) // Multiply the parent matrix byt this matrix to ge tthe world matrix
+		m_transform.AdjustPosition(m_transform.GetPosition().x + m_pParent->GetPosition().x, m_transform.GetPosition().y + m_pParent->GetPosition().y, m_transform.GetPosition().z + m_pParent->GetPosition().z);
+	else
+		m_transform.AdjustPosition(0.0f, 0.0f, 0.0f);
 
 	// If the editor is not playing keep coppying the transforms
 	if(!Debug::Editor::Instance()->PlayingGame())
 		UpdateTransformCopyWithTransform();
 
+	// If editor is present do this if not just remove this
 	EditorSelection* es = GetComponent<EditorSelection>();
 	if (es != nullptr)
 	{
@@ -58,6 +62,9 @@ void Entity::OnStart()
 void Entity::OnUpdate(float deltaTime)
 {
 	//m_transform.AdjustRotation(0.0f, 0.0f, 0.001f * deltaTime); // This line is not needed, It is a Debug line to test Playing Game feature
+	if (m_pParent != nullptr)
+		m_transform.AdjustPosition(m_transform.GetPosition().x + m_pParent->GetPosition().x, m_transform.GetPosition().y + m_pParent->GetPosition().y, m_transform.GetPosition().z + m_pParent->GetPosition().z);
+	
 
 	for (Component* component : m_components)
 	{

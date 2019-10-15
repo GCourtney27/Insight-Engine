@@ -228,6 +228,8 @@
     <ClCompile Include="Input\Mouse\MouseEvent.cpp" />
     <ClCompile Include="LUAScripting\LuaStateManager.cpp" />
     <ClCompile Include="LUAScripting\ScriptExports.cpp" />
+    <ClCompile Include="Objects\Camera.cpp" />
+    <ClCompile Include="Objects\Player.cpp" />
     <ClCompile Include="Systems\FileSystem.cpp" />
     <ClCompile Include="Graphics\Camera2D.cpp" />
     <ClCompile Include="Graphics\GameObject2D.cpp" />
@@ -333,6 +335,8 @@
     <ClInclude Include="LUAScripting\ScriptExports.h" />
     <ClInclude Include="LUAScripting\IScriptManager.h" />
     <ClInclude Include="LUAScripting\LuaStateManager.h" />
+    <ClInclude Include="Objects\Camera.h" />
+    <ClInclude Include="Objects\Player.h" />
     <ClInclude Include="Physics\Ray.h" />
     <ClInclude Include="Systems\FileSystem.h" />
     <ClInclude Include="Graphics\BaseScriptableGameObject.h" />
@@ -374,6 +378,16 @@
     <ClInclude Include="WindowContainer.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="vertexshader_sky.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
     <None Include="IBLHeader.hlsli" />
     <None Include="Includes\Lua\LuaPlus\Lua.jam" />
     <None Include="Includes\Lua\LuaPlus\LuaC.jam" />
@@ -489,6 +503,16 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="pixelshader_sky.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="PrefilterMapPixelShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>

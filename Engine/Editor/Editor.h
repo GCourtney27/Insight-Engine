@@ -10,6 +10,7 @@
 #include "..\Graphics\ImGui\imgui_impl_dx11.h"
 #include "..\Graphics\ImGui\ImGuizmo.h"
 
+#define DEBUGLOG(x) Debug::Editor::Instance()->DebugLog(x);
 
 namespace Debug
 {

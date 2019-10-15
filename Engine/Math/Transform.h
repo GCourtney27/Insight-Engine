@@ -123,7 +123,13 @@ public:
 	XMMATRIX& GetWorldMatrix() { return worldMatrix; }
 	float* GetWorldMatAsFloatArr();
 	
+	// DO NOT CALL UNLESS YOU KNOW WHAT YOU'RE DOING
+	void UpdateDirectionVectors();
+
 protected:
+
+	void UpdateMatrix();
+	
 	XMMATRIX worldMatrix = XMMatrixIdentity();
 	float* worldFloatMat;
 
@@ -137,8 +143,6 @@ protected:
 	XMFLOAT3 rot;
 	XMFLOAT3 scale;
 
-	void UpdateMatrix();
-	void UpdateDirectionVectors();
 
 	const XMVECTOR DEFAULT_FOREWARD_VECTOR = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 	const XMVECTOR DEFAULT_BACKWARD_VECTOR = XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);

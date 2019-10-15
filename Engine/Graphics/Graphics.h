@@ -19,9 +19,9 @@
 #include <SpriteFont.h>
 #include <WICTextureLoader.h>
 #include <DDSTextureLoader.h>
+#include <d3dx11async.h>
 
 #pragma comment (lib, "d3dx11.lib")
-
 
 class Graphics : public Singleton<Graphics>
 {
@@ -33,6 +33,7 @@ public:
 
 	Camera3D editorCamera;
 	Camera3D gameCamera;
+
 	Camera2D camera2D;
 	Sprite sprite;
 	Light light;
@@ -76,6 +77,12 @@ private:
 	VertexShader default_vertexshader;
 	PixelShader default_pixelshader;
 
+	ConstantBuffer<CB_VS_Sky> cb_vs_sky;
+	VertexShader skyVertexShader;
+	PixelShader skyPixelShader;
+	ID3D11Resource* skyTexture;
+	ID3D11ShaderResourceView* skyboxTextureSRV;
+
 	// PBR (Testing in progress)
 	//	- Idea situation would be to have the material class hold a vector of 
 	//	  Texture objects. Each texture object would have a ID3D11ShaderResourceView*
@@ -107,6 +114,7 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pDeviceContext;
+
 	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapchain;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pRenderTargetView;
 	
@@ -115,6 +123,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> pDepthStencilState;
 
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> pRasterizerState;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> pRasterizerStateCULLNONE;
 	Microsoft::WRL::ComPtr<ID3D11BlendState> pBlendState;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState; // Sampler for pixel shader to read texture data
 
@@ -124,4 +133,5 @@ private:
 
 	int windowWidth = 0;
 	int windowHeight = 0;
+
 };

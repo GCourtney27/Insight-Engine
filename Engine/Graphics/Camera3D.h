@@ -1,6 +1,5 @@
 #pragma once
 #include "GameObject3D.h"
-//#include "..\Objects\Entity.h"
 
 
 class Camera3D : public GameObject3D
