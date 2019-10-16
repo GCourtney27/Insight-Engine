@@ -1,0 +1,155 @@
+{
+    "SceneName": "Scene_ImportTest",
+    "Objects": [
+        {
+            "Type": "Entity",
+            "Name": "Flower",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": -28.100000381469728
+                        },
+                        {
+                            "y": 10.800000190734864
+                        },
+                        {
+                            "z": 22.899999618530275
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 10.800000190734864
+                        },
+                        {
+                            "z": 0.20000000298023225
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 1.0
+                        },
+                        {
+                            "y": 1.0
+                        },
+                        {
+                            "z": 1.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Data\\Objects\\Dandelion\\Var1\\Var1_LOD0.fbx"
+                        },
+						{
+							"MaterialType":"PBR_MAPPED",
+							"Albedo": "Data\\Objects\\Dandelion\\Textures\\Atlas\\qlCc6_4K_Albedo.jpg",
+							"Normal": "Data\\Textures\\RustedMetal\\RustedMetal_Normal.png",
+							"Metallic": "Data\\Textures\\RustedMetal\\RustedMetal_Metallic.png",
+							"Roughness": "Data\\Textures\\RustedMetal\\RustedMetal_Roughness.png"
+						}
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Data\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Type": "Entity",
+            "Name": "Entity01",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": -5.900000095367432
+                        },
+                        {
+                            "y": -4.800000190734863
+                        },
+                        {
+                            "z": -32.900001525878909
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": -4.800000190734863
+                        },
+                        {
+                            "z": 0.20000000298023225
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Data\\Objects\\Primatives\\Sphere.fbx"
+                        },
+						{
+							"MaterialType":"PBR_MAPPED",
+							"Albedo": "Data\\Textures\\Wood\\Wood_Albedo.png",
+							"Normal": "Data\\Textures\\Wood\\Wood_Normal.png",
+							"Metallic": "Data\\Textures\\Wood\\Wood_Metallic.png",
+							"Roughness": "Data\\Textures\\Wood\\Wood_Roughness.png"
+						}
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Data\\LuaScripts\\UpWards.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

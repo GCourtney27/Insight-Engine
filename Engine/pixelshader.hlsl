@@ -22,13 +22,21 @@ struct PS_INPUT
 };
 
 Texture2D objTexture : TEXTURE : register(t0);
+Texture2D objNormal : NORMAL : register(t1);
+Texture2D objMetallic : METALLIC : register(t2);
+Texture2D objRoughness : ROUGHNESS : register(t3);
+
 SamplerState objSamplerState : SAMPLER : register(s0);
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
-    float3 sampleColor = objTexture.Sample(objSamplerState, input.inTexCoord);
-    //float3 sampleColor = input.inNormal; // Show the normal maps on the objects(Kind of cool)
-
+    //float3 sampleColor = objTexture.Sample(objSamplerState, input.inTexCoord);
+    float3 sampleColor = objNormal.Sample(objSamplerState, input.inTexCoord);
+    //float3 sampleColor = objMetallic.Sample(objSamplerState, input.inTexCoord);
+    //float3 sampleColor = objRoughness.Sample(objSamplerState, input.inTexCoord);
+    
+	//float3 sampleColor = input.inNormal; // Show the normal maps on the objects(Kind of cool)
+	
     float3 ambientLight = ambientLightColor * ambientLightStrength;
 
     float3 appliedLight = ambientLight;
@@ -49,5 +57,7 @@ float4 main(PS_INPUT input) : SV_TARGET
 
     float3 finalColor = sampleColor * saturate(appliedLight);
 
-    return float4(finalColor, 1.0f);
+	//float4 test = { 1.0f, 1.0f, 0.0f, 1.0f };
+
+	return float4(finalColor, 1.0f);
 }

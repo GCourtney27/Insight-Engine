@@ -6,12 +6,14 @@ void MeshRenderer::JSONLoad()
 {
 }
 
-bool MeshRenderer::Initialize(Entity* owner, const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
+bool MeshRenderer::Initialize(Entity* owner, const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, Material * material)
 {
 	this->m_owner = owner;
-	if (!model.Initialize(filepath, device, deviceContext, cb_vs_vertexshader))
+
+	if (!model.Initialize(filepath, device, deviceContext, cb_vs_vertexshader, material))
 	{
-		std::string error = "Failed to Initialize model for Entity";
+		std::string error = "Failed to Initialize model for: ";
+		error += this->GetName();
 		ErrorLogger::Log(error);
 		return false;
 	}
@@ -20,23 +22,9 @@ bool MeshRenderer::Initialize(Entity* owner, const std::string & filepath, ID3D1
 	return true;
 }
 
-//bool MeshRenderer::Initialize(const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, Material * material)
-//{
-//	if (!model.Initialize(filepath, device, deviceContext, cb_vs_vertexshader))
-//	{
-//		std::string error = "Failed to Initialize model for Entity";
-//		ErrorLogger::Log(error);
-//		return false;
-//	}
-//	m_pName = "MeshRenderer";
-//	
-//	m_pMaterial = material;
-//
-//	return true;
-//}
-
 void MeshRenderer::Draw(const XMMATRIX & viewProjectionMatrix)
 {
+
 	if(GetIsDrawEnabled())
 		model.Draw(this->worldMatrix, viewProjectionMatrix);
 }

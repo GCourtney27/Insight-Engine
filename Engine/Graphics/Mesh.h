@@ -3,7 +3,8 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "ConstantBuffers.h"
-#include "Texture.h"
+//#include "Texture.h"
+#include "Material.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
@@ -21,6 +22,7 @@ private:
 	VertexBuffer<Vertex3D> vertexBuffer; // A mesh can have a bunch of verticies
 	IndexBuffer indexBuffer; // Mesh can have a bunch of Indicies
 	ID3D11DeviceContext * deviceContext;
-	std::vector<Texture> textures;
 	DirectX::XMMATRIX transformMatrix;
+
+	std::vector<Texture> textures;
 };

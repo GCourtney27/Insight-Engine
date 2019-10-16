@@ -5,6 +5,7 @@
 
 struct CB_VS_vertexshader
 {
+	// Named perObjectBuffer in vertexshader.hlsl
 	DirectX::XMMATRIX wvpMatrix;
 	DirectX::XMMATRIX worldMatrix;
 };

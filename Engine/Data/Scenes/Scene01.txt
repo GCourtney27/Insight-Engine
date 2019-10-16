@@ -4,7 +4,7 @@ p -28.1 10.8 22.9
 r 0 10.8 0.2
 s 1 1 1
 n Entity01
-f Data\Objects\Primatives\Cube.obj
+f Data\Objects\Primatives\Sphere.fbx
 p -5.9 -4.8 -32.9
 r 0 -4.8 0.2
 s 10 10 10

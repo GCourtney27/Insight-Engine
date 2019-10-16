@@ -55,12 +55,10 @@ void Graphics::InitSkybox()
 	skybox = new Entity((&m_pEngine->GetScene()), *(new ID("SkyBox")));
 	
 	skybox->GetTransform().SetPosition(0.0f, 0.0f, 0.0f);
-	skybox->GetTransform().SetScale(10.0f, 10.0f, 10.0f);
+	skybox->GetTransform().SetScale(500.0f, 500.0f, 500.0f);
 	skybox->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
 	MeshRenderer* me = skybox->AddComponent<MeshRenderer>();
-	me->Initialize(skybox, "Data\\Objects\\Primatives\\Sphere.fbx", pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader);
-
-
+	me->Initialize(skybox, "Data\\Objects\\Primatives\\Sphere.fbx", pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader, nullptr);
 
 	//m_pEngine->GetScene().AddEntity(skybox);
 	std::string filePath = "Data\\Textures\\Skyboxes\\skybox2.dds";
@@ -516,7 +514,7 @@ void Graphics::UpdateImGuiWidgets()
 
 	
 	// ImGuizmo Experimental tool
-	{
+	/*{
 		ImGuizmo::BeginFrame();
 		ImGuizmo::Enable(true);
 
@@ -570,7 +568,7 @@ void Graphics::UpdateImGuiWidgets()
 			Debug::Editor::Instance()->DebugLog("Mouse is over");
 
 		ImGuizmo::DrawCube(camView, camProj, defaultMatrix);
-	}
+	}*/
 	
 
 

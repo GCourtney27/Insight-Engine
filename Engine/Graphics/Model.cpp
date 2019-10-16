@@ -1,11 +1,12 @@
 #include "Model.h"
 
-bool Model::Initialize(const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
+bool Model::Initialize(const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, Material * material)
 {
 	this->modelDirectory = filepath;
 	this->device = device;
 	this->deviceContext = deviceContext;
 	this->cb_vs_vertexshader = &cb_vs_vertexshader;
+	this->m_pMaterial = material;
 
 	try
 	{
@@ -22,7 +23,8 @@ bool Model::Initialize(const std::string & filepath, ID3D11Device * device, ID3D
 
 void Model::Draw(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix)
 {
-	
+	// TODO: go through the material set the shader and resources
+
 	this->deviceContext->VSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());
 
 	for (size_t i = 0; i < meshes.size(); i++)
@@ -31,6 +33,21 @@ void Model::Draw(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMa
 		this->cb_vs_vertexshader->data.wvpMatrix = meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix; // Calculate World-ViewProjection Matrix
 		this->cb_vs_vertexshader->data.worldMatrix = meshes[i].GetTransformMatrix() * worldMatrix; // Calculate World Matrix
 		this->cb_vs_vertexshader->ApplyChanges();
+		
+		if (m_pMaterial != nullptr)
+		{
+			//this->deviceContext->PSSetShaderResources(0, 1, m_pMaterial->m_textures[0].GetTextureResourceViewAddress());
+			
+			for (int i = 0; i < 4; i++)
+			{
+				this->deviceContext->PSSetShaderResources(i, 1, m_pMaterial->m_textures[i].GetTextureResourceViewAddress());
+			}
+			
+		}
+		
+			
+		
+
 		meshes[i].Draw();
 	}
 }
@@ -102,6 +119,7 @@ Mesh Model::ProcessMesh(aiMesh * mesh, const aiScene * scene, const XMMATRIX & t
 		for (UINT j = 0; j < face.mNumIndices; j++)
 			indicies.push_back(face.mIndices[j]);
 	}
+
 
 	std::vector<Texture> textures;
 	aiMaterial * material = scene->mMaterials[mesh->mMaterialIndex];

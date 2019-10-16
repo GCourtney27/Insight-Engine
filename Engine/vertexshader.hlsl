@@ -8,7 +8,7 @@ cbuffer perObjectBuffer : register(b0) // Defined in ConstantBufferTypes
 
 struct VS_INPUT // Defined in InitializeShaders() in Graphics.cpp with D3D11_INPUT_ELEMENT_DESC
 {
-    float3 inPos : POSITION;
+    float3 inPosition : POSITION;
     float2 inTexCoord : TEXCOORD;
     float3 inNormal : NORMAL;
 };
@@ -25,10 +25,10 @@ VS_OUTPUT main(VS_INPUT input)
 {
     VS_OUTPUT output;
 
-    output.outPosition = mul(float4(input.inPos, 1.0f), wvpMatrix);
+    output.outPosition = mul(float4(input.inPosition, 1.0f), wvpMatrix);
     output.outTexCoord = input.inTexCoord;
     output.outnormal = normalize(mul(float4(input.inNormal, 0.0f), worldMatrix));
-    output.outWorldPos = mul(float4(input.inPos, 1.0f), worldMatrix);
+    output.outWorldPos = mul(float4(input.inPosition, 1.0f), worldMatrix);
 
     return output;
 }

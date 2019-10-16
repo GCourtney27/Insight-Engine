@@ -50,6 +50,13 @@
                     "MeshRenderer": [
                         {
                             "Model": "Data\\Objects\\Dandelion\\Var1\\Var1_LOD0.fbx"
+                        },
+                        {
+                            "MaterialType": "",
+                            "Albedo": "",
+                            "Normal": "",
+                            "Metallic": "",
+                            "Roughness": ""
                         }
                     ]
                 },
@@ -118,6 +125,13 @@
                     "MeshRenderer": [
                         {
                             "Model": "Data\\Objects\\Primatives\\Cube.obj"
+                        },
+                        {
+                            "MaterialType": "",
+                            "Albedo": "",
+                            "Normal": "",
+                            "Metallic": "",
+                            "Roughness": ""
                         }
                     ]
                 },

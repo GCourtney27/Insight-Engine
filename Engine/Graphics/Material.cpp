@@ -1,51 +1,53 @@
 #include "Material.h"
+#include "..\Editor\Editor.h"
 
-
-Material::Material(ID3D11ShaderResourceView* _albedoSRV, ID3D11ShaderResourceView* _normalSRV, ID3D11ShaderResourceView* _metallicSRV, ID3D11ShaderResourceView* _roughSRV, ID3D11SamplerState* _materialSampler)
+Material::Material(ID3D11Device * device, ID3D11DeviceContext * deviceContext, std::string materialType,  std::vector<std::string> textureLocations)
 {
+	DetermineMaterialType(materialType);
+	this->m_pDevice = device;
+	this->m_pDeviceContext = deviceContext;
+	this->m_textureLocations = textureLocations;
 
-	albedoSRV = _albedoSRV;
-	normalSRV = _normalSRV;
-	metallicSRV = _metallicSRV;
-	roughSRV = _roughSRV;
-	materialSampler = _materialSampler;
+	std::vector<std::string>::iterator iter;
+	for (iter = textureLocations.begin(); iter != textureLocations.end(); iter++)
+	{
+		m_textures.push_back(Texture(device, (*iter)));
+	}
+	
 }
 
-Material::~Material()
+std::string Material::GetMaterialTypeAsString()
 {
+
+	std::map<std::string, eMaterialType> stringToMaterialType;
+	stringToMaterialType["PBR_MAPPED"] = eMaterialType::PBR_MAPPED;
+	stringToMaterialType["PBR_MAPPED_SCALED"] = eMaterialType::PBR_MAPPED_SCALED;
+	stringToMaterialType["PBR_DEFAULT"] = eMaterialType::PBR_MAPPED;
+	stringToMaterialType["PBR_SKY"] = eMaterialType::PBR_SKY;
+
+	std::map<std::string, eMaterialType>::iterator iter;
+	for (iter = stringToMaterialType.begin(); iter != stringToMaterialType.end(); iter++)
+	{
+		if ((*iter).second == this->m_materialType)
+			return (*iter).first;
+	}
+
+	return "";
 }
 
-//SimplePixelShader* Material::GetPixelShader()
-//{
-//	return pixelShader;
-//}
-//
-//SimpleVertexShader* Material::GetVertexShader()
-//{
-//	return vertexShader;
-//}
-
-ID3D11ShaderResourceView * Material::GetAlbedoSRV()
+void Material::DetermineMaterialType(std::string str_material)
 {
-	return albedoSRV;
-}
+	std::map<std::string, eMaterialType> stringToMaterialType;
 
-ID3D11ShaderResourceView * Material::GetNormalSRV()
-{
-	return normalSRV;
-}
+	stringToMaterialType["PBR_MAPPED"] = eMaterialType::PBR_MAPPED;
+	stringToMaterialType["PBR_MAPPED_SCALED"] = eMaterialType::PBR_MAPPED_SCALED;
+	stringToMaterialType["PBR_DEFAULT"] = eMaterialType::PBR_MAPPED;
+	stringToMaterialType["PBR_SKY"] = eMaterialType::PBR_SKY;
 
-ID3D11ShaderResourceView * Material::GetMetallicSRV()
-{
-	return metallicSRV;
-}
-
-ID3D11ShaderResourceView * Material::GetRoughSRV()
-{
-	return roughSRV;
-}
-
-ID3D11SamplerState * Material::GetMaterialSampler()
-{
-	return materialSampler;
+	std::map<std::string, eMaterialType>::iterator iter;
+	for (iter = stringToMaterialType.begin(); iter != stringToMaterialType.end(); iter++)
+	{
+		if ((*iter).first == str_material)
+			m_materialType = (*iter).second;
+	}
 }

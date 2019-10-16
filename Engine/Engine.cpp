@@ -21,7 +21,7 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	if (!Graphics::Instance()->Initialize(this->render_window.GetHWND(), width, height, this))
 		return false;
 
-	if (!FileSystem::Instance()->LoadSceneFromJSON("Data\\Scenes\\scene_json.txt", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader()))
+	if (!FileSystem::Instance()->LoadSceneFromJSON("Data\\Scenes\\Scene_Skybox.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader()))
 	{
 		ErrorLogger::Log("Failed to initialize scene.");
 		return false;

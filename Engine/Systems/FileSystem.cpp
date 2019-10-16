@@ -7,6 +7,7 @@
 #include "..\\Components\MeshRenderComponent.h"
 #include "..\\Components\\EditorSelectionComponent.h"
 #include "..\Components\LuaScriptComponent.h"
+#include "..\Graphics\Material.h"
 
 #include "json.h"
 #include "document.h"
@@ -201,17 +202,40 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 		// MESH RENDERER
 		const rapidjson::Value& meshRenderer = allComponents[0]["MeshRenderer"];
 		MeshRenderer* finalMesh = nullptr;
-		std::string modelFilePath;
+		bool foundModel = false;
+		std::string model_FilePath;
+		std::string materialType;
+		std::string albedo_Filepath;
+		std::string normal_Filepath;
+		std::string metallic_Filepath;
+		std::string roughness_Filepath;
+		std::vector<std::string> textures;
+
 		for (rapidjson::SizeType m = 0; m < meshRenderer.Size(); m++)
 		{
-			json::get_string(meshRenderer[m], "Model", modelFilePath);
-			if (modelFilePath != "NONE")
+			json::get_string(meshRenderer[m], "Model", model_FilePath);
+			if (model_FilePath != "NONE" && !foundModel)
+			{
+				foundModel = true;
 				finalMesh = entity->AddComponent<MeshRenderer>();
-			else
-				break;
+			}
+
+			json::get_string(meshRenderer[m], "MaterialType", materialType);
+			json::get_string(meshRenderer[m], "Albedo", albedo_Filepath);
+			json::get_string(meshRenderer[m], "Normal", normal_Filepath);
+			json::get_string(meshRenderer[m], "Metallic", metallic_Filepath);
+			json::get_string(meshRenderer[m], "Roughness", roughness_Filepath);
 		}
 		if (finalMesh != nullptr)
-			finalMesh->Initialize(entity, modelFilePath, device, deviceContext, cb_vs_vertexshader);
+		{
+			textures.push_back(albedo_Filepath);
+			textures.push_back(normal_Filepath);
+			textures.push_back(metallic_Filepath);
+			textures.push_back(roughness_Filepath);
+			//
+			finalMesh->Initialize(entity, model_FilePath, device, deviceContext, cb_vs_vertexshader, new Material(device, deviceContext, materialType, textures));
+		}
+
 		
 		// LUA SCRIPT(s)
 		const rapidjson::Value& luaScript = allComponents[1]["LuaScript"];
@@ -232,10 +256,11 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 		// EDITOR SELECTION
 		const rapidjson::Value& editorSelection = allComponents[2]["EditorSelection"];
 		EditorSelection* finalComp = nullptr;
+		std::string mode;
 		for (rapidjson::SizeType e = 0; e < editorSelection.Size(); e++)
 		{
-			json::get_string(editorSelection[e], "Mode", modelFilePath);
-			if (modelFilePath != "OFF")
+			json::get_string(editorSelection[e], "Mode", mode);
+			if (mode != "OFF")
 				finalComp = entity->AddComponent<EditorSelection>();
 			else
 				break;
@@ -368,10 +393,26 @@ bool FileSystem::WriteSceneToJSON(Scene* scene)
 		writer.Key("MeshRenderer");
 		writer.StartArray(); // Start Mesh Renderer Array
 
-		writer.StartObject();
+		writer.StartObject(); // Start Model
 		writer.Key("Model");
 		writer.String((*iter)->GetComponent<MeshRenderer>()->GetModel()->GetModelDirectory().c_str());
-		writer.EndObject();
+		writer.EndObject(); // End model
+
+		//writer.StartObject(); // Start Material Informaion
+		//writer.Key("MaterialType");
+		//writer.String((*iter)->GetComponent<MeshRenderer>()->GetMaterial()->GetMaterialTypeAsString().c_str());
+
+		//std::vector<std::string> materialLocations = (*iter)->GetComponent<MeshRenderer>()->GetMaterial()->GetTextureLocations();
+		//writer.Key("Albedo");
+		//writer.String(materialLocations[0].c_str());
+		//writer.Key("Normal");
+		//writer.String(materialLocations[1].c_str());
+		//writer.Key("Metallic");
+		//writer.String(materialLocations[2].c_str());
+		//writer.Key("Roughness");
+		//writer.String(materialLocations[3].c_str());
+
+		//writer.EndObject(); // End Material Information
 
 		writer.EndArray(); // End Mesh Renderer Array
 		writer.EndObject();// End Mesh Renderer
@@ -462,7 +503,7 @@ bool FileSystem::LoadSceneFromFile(const std::string & sceneLocation, Scene * sc
 		{
 			s >> lineInformation >> modelFilepath;
 			MeshRenderer* me = entity->AddComponent<MeshRenderer>();
-			me->Initialize(entity, modelFilepath, device, deviceContext, cb_vs_vertexshader);
+			me->Initialize(entity, modelFilepath, device, deviceContext, cb_vs_vertexshader, nullptr);
 		}
 
 		if (line[0] == 'p')

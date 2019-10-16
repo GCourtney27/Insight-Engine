@@ -1,12 +1,13 @@
 #pragma once
 #include "Mesh.h"
+#include "Material.h"
 
 using namespace DirectX;
 
 class Model
 {
 public:
-	bool Initialize(const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader);
+	bool Initialize(const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader, Material* material);
 	void Draw(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix);
 
 	std::string GetDirectory() { return directory; }
@@ -19,6 +20,9 @@ private:
 	TextureStorageType DetermineTextureStorageType(const aiScene* pScene, aiMaterial * pMat, unsigned int index, aiTextureType textureType);
 	std::vector<Texture> LoadMaterialTextures(aiMaterial* pMaterial, aiTextureType textureType, const aiScene* pScene);
 	int GetTextureIndex(aiString* pStr);
+
+	Material* m_pMaterial;
+
 
 	ID3D11Device * device = nullptr;
 	ID3D11DeviceContext * deviceContext = nullptr;

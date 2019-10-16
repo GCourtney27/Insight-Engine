@@ -1,25 +1,34 @@
 #pragma once
 #include "SimpleShader.h"
+#include "Texture.h"
+#include "Shaders.h"
+#include <map>
 
 class Material
 {
 public:
-	Material(ID3D11ShaderResourceView* albedoSRV, ID3D11ShaderResourceView* normalSRV, ID3D11ShaderResourceView* metallicSRV, ID3D11ShaderResourceView* roughSRV, ID3D11SamplerState* materialSampler);
-	~Material();
-	/*SimplePixelShader* GetPixelShader();
-	SimpleVertexShader* GetVertexShader();*/
-	ID3D11ShaderResourceView* GetAlbedoSRV();
-	ID3D11ShaderResourceView* GetNormalSRV();
-	ID3D11ShaderResourceView* GetMetallicSRV();
-	ID3D11ShaderResourceView* GetRoughSRV();
-	ID3D11SamplerState* GetMaterialSampler();
-
+	enum eMaterialType
+	{
+		PBR_MAPPED, // Material is expecting mapps (albedo, roughness, normal, metallic)
+		PBR_MAPPED_SCALED, // Material can have values scale its textures (more rough less metallic etc.)
+		PBR_DEFAULT, // No Textures all albedo, roughness and metallic are defined through shader inputs fo the material through ImGuiRender
+		PBR_SKY // Material only exepts a .dds defining the sky sphere look
+	};
 private:
-	/*SimplePixelShader* pixelShader;
-	SimpleVertexShader* vertexShader;*/
-	ID3D11ShaderResourceView* albedoSRV;
-	ID3D11ShaderResourceView* normalSRV;
-	ID3D11ShaderResourceView* metallicSRV;
-	ID3D11ShaderResourceView* roughSRV;
-	ID3D11SamplerState* materialSampler;
+	void DetermineMaterialType(std::string str_material);
+public:
+	Material(ID3D11Device * device, ID3D11DeviceContext * deviceContext, std::string materialType, std::vector<std::string> textureLocations);
+
+	std::string GetMaterialTypeAsString();
+	std::vector<std::string> GetTextureLocations() { return m_textureLocations; }
+
+	std::vector<Texture> m_textures;
+private:
+	std::vector<std::string> m_textureLocations;
+
+	std::vector<Shader> m_shaders;
+	eMaterialType m_materialType;
+
+	ID3D11Device* m_pDevice;
+	ID3D11DeviceContext* m_pDeviceContext;
 };
