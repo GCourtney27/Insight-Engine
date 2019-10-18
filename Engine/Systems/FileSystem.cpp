@@ -84,38 +84,6 @@ com_base* com_base::Create(std::string& name)
 	return p;
 }
 
-
-bool FileSystem::LoadSceneFromJSONExample(const std::string & sceneLocation, Scene * scene, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
-{
-	rapidjson::Document document;
-	json::load(sceneLocation.c_str(), document);
-
-	std::string name;
-	json::get_string(document, "name", name);
-
-	int i;
-	json::get_int(document, "int_value", i);
-
-	const rapidjson::Value& block = document["data"];
-	json::get_string(block, "name", name);
-	json::get_int(block, "int_value", i);
-
-	const rapidjson::Value& components = document["components"];
-	for (rapidjson::SizeType i = 0; i < components.Size(); i++)
-	{
-		const rapidjson::Value& component = components[i];
-
-		std::string type;
-		json::get_string(component, "type", type);
-
-		com_base* com = com_base::Create(type);
-		com->Load(component);
-
-	}
-
-	return true;
-}
-
 bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * scene, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
 {
 	// Load document from file and verify it was found
@@ -269,9 +237,6 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 			finalComp->Initialize(entity, 20.0f, entity->GetTransform().GetPosition());
 
 
-
-
-
 		scene->AddEntity(entity);
 
 		id = nullptr;
@@ -284,9 +249,7 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 
 bool FileSystem::WriteSceneToJSON(Scene* scene)
 {
-
 	using namespace rapidjson;
-	//std::stringstream stream;
 
 	StringBuffer s;
 	PrettyWriter<StringBuffer> writer(s);
@@ -398,21 +361,21 @@ bool FileSystem::WriteSceneToJSON(Scene* scene)
 		writer.String((*iter)->GetComponent<MeshRenderer>()->GetModel()->GetModelDirectory().c_str());
 		writer.EndObject(); // End model
 
-		//writer.StartObject(); // Start Material Informaion
-		//writer.Key("MaterialType");
-		//writer.String((*iter)->GetComponent<MeshRenderer>()->GetMaterial()->GetMaterialTypeAsString().c_str());
+		writer.StartObject(); // Start MATERIAL INFORMATION
+		writer.Key("MaterialType");
+		writer.String((*iter)->GetComponent<MeshRenderer>()->GetModel()->GetMaterial()->GetMaterialTypeAsString().c_str());
 
-		//std::vector<std::string> materialLocations = (*iter)->GetComponent<MeshRenderer>()->GetMaterial()->GetTextureLocations();
-		//writer.Key("Albedo");
-		//writer.String(materialLocations[0].c_str());
-		//writer.Key("Normal");
-		//writer.String(materialLocations[1].c_str());
-		//writer.Key("Metallic");
-		//writer.String(materialLocations[2].c_str());
-		//writer.Key("Roughness");
-		//writer.String(materialLocations[3].c_str());
+		std::vector<std::string> materialLocations = (*iter)->GetComponent<MeshRenderer>()->GetModel()->GetMaterial()->GetTextureLocations();
+		writer.Key("Albedo");
+		writer.String(materialLocations[0].c_str());
+		writer.Key("Normal");
+		writer.String(materialLocations[1].c_str());
+		writer.Key("Metallic");
+		writer.String(materialLocations[2].c_str());
+		writer.Key("Roughness");
+		writer.String(materialLocations[3].c_str());
 
-		//writer.EndObject(); // End Material Information
+		writer.EndObject(); // End Material Information
 
 		writer.EndArray(); // End Mesh Renderer Array
 		writer.EndObject();// End Mesh Renderer
@@ -421,12 +384,18 @@ bool FileSystem::WriteSceneToJSON(Scene* scene)
 		writer.StartObject();// Start Lua Script
 		writer.Key("LuaScript");
 		writer.StartArray(); // Start Lua Script Array
-
 		writer.StartObject();
 		writer.Key("FilePath");
-		writer.String((*iter)->GetComponent<LuaScript>()->GetFilePath().c_str());
+		LuaScript* script = (*iter)->GetComponent<LuaScript>();
+		if (script != nullptr) // Test to see if the object has a lua script
+		{
+			writer.String(script->GetFilePath().c_str());
+		}
+		else
+		{
+			writer.String("NONE");
+		}
 		writer.EndObject();
-
 		writer.EndArray(); // End Lua Script Array
 		writer.EndObject();// End Lua Script
 
@@ -454,7 +423,7 @@ bool FileSystem::WriteSceneToJSON(Scene* scene)
 
 	// Final Export
 	std::string sceneName = "Data\\Scenes\\" + scene->GetSceneName();
-	std::ofstream offstream(/*sceneName.c_str()*/"Data\\Scenes\\scene_json.txt");
+	std::ofstream offstream(/*sceneName.c_str()*/"Data\\Scenes\\Scene_Skybox.json");
 	offstream << s.GetString();
 
 	if (!offstream.good())

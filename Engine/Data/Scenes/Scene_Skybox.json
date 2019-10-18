@@ -54,9 +54,9 @@
 						{
 							"MaterialType":"PBR_MAPPED",
 							"Albedo": "Data\\Objects\\Dandelion\\Textures\\Atlas\\qlCc6_4K_Albedo.jpg",
-							"Normal": "Data\\Textures\\RustedMetal\\RustedMetal_Normal.png",
-							"Metallic": "Data\\Textures\\RustedMetal\\RustedMetal_Metallic.png",
-							"Roughness": "Data\\Textures\\RustedMetal\\RustedMetal_Roughness.png"
+							"Normal": "Data\\Objects\\Dandelion\\Textures\\Atlas\\qlCc6_4K_Normal.jpg",
+							"Metallic": "Data\\Objects\\Dandelion\\Textures\\Atlas\\qlCc6_4K_Roughness.jpg",
+							"Roughness": "Data\\Objects\\Dandelion\\Textures\\Atlas\\qlCc6_4K_Roughness.jpg"
 						}
                     ]
                 },
@@ -128,10 +128,10 @@
                         },
 						{
 							"MaterialType":"PBR_MAPPED",
-							"Albedo": "Data\\Textures\\Wood\\Wood_Albedo.png",
-							"Normal": "Data\\Textures\\Wood\\Wood_Normal.png",
-							"Metallic": "Data\\Textures\\Wood\\Wood_Metallic.png",
-							"Roughness": "Data\\Textures\\Wood\\Wood_Roughness.png"
+							"Albedo": "Data\\Textures\\RustedMetal\\RustedMetal_Albedo.png",
+							"Normal": "Data\\Textures\\RustedMetal\\RustedMetal_Normal.png",
+							"Metallic": "Data\\Textures\\RustedMetal\\RustedMetal_Metallic.png",
+							"Roughness": "Data\\Textures\\RustedMetal\\RustedMetal_Roughness.png"
 						}
                     ]
                 },
@@ -139,6 +139,80 @@
                     "LuaScript": [
                         {
                             "FilePath": "Data\\LuaScripts\\UpWards.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },{
+            "Type": "Entity",
+            "Name": "Plane",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 89.4
+                        },
+                        {
+                            "y": -2.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 50.0
+                        },
+                        {
+                            "y": 50.0
+                        },
+                        {
+                            "z": 50.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Data\\Objects\\Primatives\\Quad.obj"
+                        },
+						{
+							"MaterialType":"PBR_MAPPED",
+							"Albedo": "Data\\Textures\\Wood\\Wood_Albedo.png",
+							"Normal": "Data\\Textures\\Wood\\Wood_Normal.png",
+							"Metallic": "Data\\Textures\\Wood\\Wood_Displacement.png",
+							"Roughness": "Data\\Textures\\Wood\\Wood_Roughness.png"
+						}
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Data\\LuaScripts\\Test.lua"
                         }
                     ]
                 },

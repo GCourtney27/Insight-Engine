@@ -20,7 +20,7 @@ public:
 
 	bool Initialize(Entity* owner, std::string scriptFile);
 
-	void Update() override;
+	void Update(float deltaTime) override;
 	void Destroy() override;
 	void OnImGuiRender() override;
 

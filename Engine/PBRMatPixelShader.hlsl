@@ -52,7 +52,7 @@ void CalcRadiance(VertexToPixel input, float3 viewDir, float3 normalVec, float3 
 
 float4 main(VertexToPixel input) : SV_TARGET
 {
-	//static const float PI = 3.14159265359;
+	static const float PI = 3.14159265359;
 
 	float3 viewDir = normalize(camPos - input.worldPos);
 	float3 normalVec = normalize(input.normal);

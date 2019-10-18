@@ -248,6 +248,11 @@ float * Transform::GetWorldMatAsFloatArr()
 	return worldFloatMat;
 }
 
+void Transform::SetWorldMatrix(XMMATRIX & matrix)
+{
+	this->worldMatrix = matrix;
+}
+
 const XMVECTOR & Transform::GetForwardVector(bool omitY)
 {
 	if (omitY)

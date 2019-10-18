@@ -1,9 +1,12 @@
-#pragma pack_matrix(row_major)
+   #pragma pack_matrix(row_major)
+
+// World View Projection(DirectX term) is the same thing as Model View Projection(OpenGL term)
 
 cbuffer perObjectBuffer : register(b0) // Defined in ConstantBufferTypes
 {
-    float4x4 wvpMatrix;
-    float4x4 worldMatrix;
+    matrix world;
+    matrix view;
+    matrix projection;
 };
 
 struct VS_INPUT // Defined in InitializeShaders() in Graphics.cpp with D3D11_INPUT_ELEMENT_DESC
@@ -11,13 +14,17 @@ struct VS_INPUT // Defined in InitializeShaders() in Graphics.cpp with D3D11_INP
     float3 inPosition : POSITION;
     float2 inTexCoord : TEXCOORD;
     float3 inNormal : NORMAL;
+    float3 inTangent : TANGENT;
+    float3 inBiTangent : BITANGENT;
 };
 
 struct VS_OUTPUT // What this shader returns to the pixel shader with VS_OUTPUT
 {
     float4 outPosition : SV_POSITION;
     float2 outTexCoord : TEXCOORD;
-    float3 outnormal : NORMAL;
+    float3 outNormal : NORMAL;
+    float3 outTangent : TANGENT;
+    float3 outBiTangent : BITANGENT;
     float3 outWorldPos : WORLD_POSITION;
 };
 
@@ -25,10 +32,28 @@ VS_OUTPUT main(VS_INPUT input)
 {
     VS_OUTPUT output;
 
-    output.outPosition = mul(float4(input.inPosition, 1.0f), wvpMatrix);
+    matrix worldViewProj = mul(mul(world, view), projection);
+    matrix worldView = mul(world, view);
+
+    output.outPosition = mul(float4(input.inPosition, 1.0f), worldViewProj);
+
+    //output.outNormal = mul(input.inPosition, (float3x3) worldView); // model space
+    output.outNormal = normalize(mul(float4(input.inNormal, 0.0f), world));
+    output.outTangent = mul(input.inTangent, (float3x3)worldView); // model space
+    output.outBiTangent = mul(input.inBiTangent, (float3x3)worldView);
+
+    output.outWorldPos = mul(float4(input.inPosition, 1.0f), world);
+
     output.outTexCoord = input.inTexCoord;
-    output.outnormal = normalize(mul(float4(input.inNormal, 0.0f), worldMatrix));
-    output.outWorldPos = mul(float4(input.inPosition, 1.0f), worldMatrix);
+	
+
+    //output.outTangent = mul(input.inTangent, (float3x3)worldViewMatrix);
+    //output.outBiTangent = mul(input.inBiTangent, (float3x3)worldViewMatrix);
+    //output.outTexCoord = input.inTexCoord;
+	//
+    //output.outPosition = mul(float4(input.inPosition, 1.0f), wvpMatrix);
+    //output.outNormal = normalize(mul(float4(input.inNormal, 0.0f), worldViewMatrix));
+    //output.outWorldPos = mul(float4(input.inPosition, 1.0f), worldMatrix);
 
     return output;
 }

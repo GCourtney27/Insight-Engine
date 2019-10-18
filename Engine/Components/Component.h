@@ -9,7 +9,7 @@ public:
 	Component(Entity* owner, const ID& id = ID()) : m_owner(owner), Object(id) {}
 
 	virtual void Destroy() = 0;
-	virtual void Update() = 0;
+	virtual void Update(float deltaTime) = 0;
 	virtual void OnImGuiRender() = 0;
 	virtual void JSONLoad() = 0;
 

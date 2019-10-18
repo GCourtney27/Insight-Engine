@@ -6,13 +6,22 @@
 struct CB_VS_vertexshader
 {
 	// Named perObjectBuffer in vertexshader.hlsl
-	DirectX::XMMATRIX wvpMatrix;
-	DirectX::XMMATRIX worldMatrix;
+	DirectX::XMMATRIX worldMatrix;//16
+	DirectX::XMMATRIX viewMatrix;//16
+	DirectX::XMMATRIX projectionMatrix;//16
+
 };
 
 struct CB_VS_vertexshader_2d
 {
 	DirectX::XMMATRIX wvpMatrix;
+};
+
+struct CB_PS_perframe
+{
+	DirectX::XMFLOAT3 camPosition;//12
+	float deltaTime;//4
+	//16
 };
 
 struct CB_PS_light
@@ -33,6 +42,6 @@ struct CB_PS_light
 
 struct CB_VS_Sky
 {
-	DirectX::XMMATRIX wvpMatrix;
-	DirectX::XMMATRIX worldMatrix;
+	DirectX::XMMATRIX wvpMatrix;//16
+	DirectX::XMMATRIX worldMatrix;//16
 };

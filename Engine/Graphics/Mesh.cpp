@@ -26,14 +26,14 @@ void Mesh::Draw()
 {
 	UINT offset = 0;
 
-	//for (int i = 0; i < textures.size(); i++)
-	//{
-	//	if (textures[i].GetType() == aiTextureType::aiTextureType_DIFFUSE)
-	//	{
-	//		//this->deviceContext->PSSetShaderResources(0, 1, textures[i].GetTextureResourceViewAddress()); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	//		break;
-	//	}
-	//}
+	for (int i = 0; i < textures.size(); i++)
+	{
+		//if (textures[i].GetType() == aiTextureType::aiTextureType_DIFFUSE)
+		//{
+		//	this->deviceContext->PSSetShaderResources(0, 1, textures[i].GetTextureResourceViewAddress()); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		//	break;
+		//}
+	}
 
 	this->deviceContext->IASetVertexBuffers(0, 1, this->vertexBuffer.GetAddressOf(), this->vertexBuffer.StridePtr(), &offset);
 	this->deviceContext->IASetIndexBuffer(this->indexBuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);

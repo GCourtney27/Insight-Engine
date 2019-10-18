@@ -9,10 +9,10 @@ public:
 		: Component(owner) {}
 
 	bool Initialize(Entity* owner, const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader, Material * material);
-	void Draw(const XMMATRIX & viewProjectionMatrix);
+	void Draw(const XMMATRIX & viewProjectionMatrix, const XMMATRIX & viewMatrix);
 	
 	
-	void Update() override;
+	void Update(float deltaTime) override;
 	void Destroy() override;
 	void OnImGuiRender() override;
 

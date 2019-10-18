@@ -13,6 +13,7 @@ public:
 		PBR_MAPPED_SCALED, // Material can have values scale its textures (more rough less metallic etc.)
 		PBR_DEFAULT, // No Textures all albedo, roughness and metallic are defined through shader inputs fo the material through ImGuiRender
 		PBR_SKY // Material only exepts a .dds defining the sky sphere look
+		//DEFAULT NO PBR
 	};
 private:
 	void DetermineMaterialType(std::string str_material);

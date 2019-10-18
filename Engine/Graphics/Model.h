@@ -8,12 +8,16 @@ class Model
 {
 public:
 	bool Initialize(const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader, Material* material);
-	void Draw(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix);
+	void Draw(const XMMATRIX & worldMatrix, const XMMATRIX & projectionMatrix, const XMMATRIX & viewMatrix);
 
 	std::string GetDirectory() { return directory; }
 	std::string GetModelDirectory() { return modelDirectory; }
+
+	Material* GetMaterial() { return m_pMaterial; }
+
 private:
 	std::vector<Mesh> meshes; // A model can have a bunch of meshes 
+
 	bool LoadModel(const std::string & filepath);
 	void ProcessNode(aiNode * node, const aiScene * scene, const XMMATRIX & parentTransformMatrix);
 	Mesh ProcessMesh(aiMesh * mesh, const aiScene * scene, const XMMATRIX & transformMatrix);
@@ -21,8 +25,7 @@ private:
 	std::vector<Texture> LoadMaterialTextures(aiMaterial* pMaterial, aiTextureType textureType, const aiScene* pScene);
 	int GetTextureIndex(aiString* pStr);
 
-	Material* m_pMaterial;
-
+	Material* m_pMaterial = nullptr;
 
 	ID3D11Device * device = nullptr;
 	ID3D11DeviceContext * deviceContext = nullptr;

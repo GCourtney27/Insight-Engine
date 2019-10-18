@@ -12,7 +12,7 @@ public:
 	
 	void Initialize(Entity* owner, float radius, const DirectX::XMFLOAT3 & position);
 
-	void Update() override;
+	void Update(float deltaTime) override;
 	void Destroy() override;
 	//void Update(const DirectX::XMFLOAT3 parentPosition);
 	void OnImGuiRender() override;

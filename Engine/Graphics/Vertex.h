@@ -1,6 +1,6 @@
 #pragma once
 #include <DirectXMath.h>
-//#include "C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\DirectXMath.h"
+
 struct Vertex2D
 {
 	Vertex2D() {}
@@ -21,4 +21,6 @@ struct Vertex3D
 	DirectX::XMFLOAT3 pos;
 	DirectX::XMFLOAT2 texCoord;
 	DirectX::XMFLOAT3 normal;
+	DirectX::XMFLOAT3 Tangent;
+	DirectX::XMFLOAT3 BiTangent;
 };

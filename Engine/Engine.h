@@ -5,6 +5,7 @@
 #include "Objects\\Entity.h"
 #include "Objects\\Player.h"
 #include "LUAScripting\\LuaStateManager.h"
+#include "Objects/PointLight.h"
 
 class Engine : WindowContainer
 {
@@ -31,6 +32,8 @@ public:
 private:
 
 	Player* player = nullptr;
+	std::vector<std::string> textures;
+	Material* m_pMaterial = nullptr;
 
 	Scene scene;
 

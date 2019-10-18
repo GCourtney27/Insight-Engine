@@ -18,15 +18,33 @@ bool Graphics::Initialize(HWND hwnd, int width, int height, Engine* engine)
 
 	if (!InitializeShaders())
 		return false;
+	
+	textures.push_back("Data\\Textures\\Iron\\IronOld_Albedo.png");
+	textures.push_back("Data\\Textures\\Iron\\IronOld_Normal.png");
+	textures.push_back("Data\\Textures\\Iron\\IronOld_Metallic.png");
+	textures.push_back("Data\\Textures\\Iron\\IronOld_Roughness.png");
+	m_pMaterial = new Material(pDevice.Get(), pDeviceContext.Get(), "PBR_MAPPED", textures);
 
+	pointLight = new PointLight(&(m_pEngine->GetScene()), *(new ID("Point Light")));
+
+	pointLight->GetTransform().SetPosition(-20.0f, 8.0f, -15.0f);
+	pointLight->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
+	pointLight->GetTransform().SetScale(1.0f, 1.0f, 1.0f);
+
+	MeshRenderer* mr = pointLight->AddComponent<MeshRenderer>();
+	mr->Initialize(pointLight, "Data\\Objects\\Primatives\\Sphere.fbx", Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader(), m_pMaterial);
+
+	EditorSelection* es = pointLight->AddComponent<EditorSelection>();
+	es->Initialize(pointLight, 20.0f, pointLight->GetTransform().GetPosition());
 
 	if (!InitializeScene())
 		return false;
 	
 	InitSkybox();
-	//InitializeMaterials();
 
-	pIO = new ImGuiIO();
+	
+
+	pImGuiIO = new ImGuiIO();
 	// Setup ImGui
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -45,14 +63,14 @@ bool Graphics::Initialize(HWND hwnd, int width, int height, Engine* engine)
 	}
 	ImGui_ImplWin32_Init(hwnd);
 	ImGui_ImplDX11_Init(pDevice.Get(), pDeviceContext.Get());
-	*pIO = io;
+	*pImGuiIO = io;
 
 	return true;
 }
 
 void Graphics::InitSkybox()
 {
-	skybox = new Entity((&m_pEngine->GetScene()), *(new ID("SkyBox")));
+	skybox = new Entity((&m_pEngine->GetScene()), *(new ID("Sky Box")));
 	
 	skybox->GetTransform().SetPosition(0.0f, 0.0f, 0.0f);
 	skybox->GetTransform().SetScale(500.0f, 500.0f, 500.0f);
@@ -60,8 +78,7 @@ void Graphics::InitSkybox()
 	MeshRenderer* me = skybox->AddComponent<MeshRenderer>();
 	me->Initialize(skybox, "Data\\Objects\\Primatives\\Sphere.fbx", pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader, nullptr);
 
-	//m_pEngine->GetScene().AddEntity(skybox);
-	std::string filePath = "Data\\Textures\\Skyboxes\\skybox2.dds";
+	std::string filePath = "Data\\Textures\\Skyboxes\\NightLake.dds";
 	HRESULT hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), StringHelper::StringToWide(filePath).c_str(), nullptr, &skyboxTextureSRV);
 	if(FAILED(hr))
 	{
@@ -206,15 +223,22 @@ void Graphics::RenderFrame()
 {
 
 	// -- Update Light Shader Information -- //
-	cb_ps_light.data.dynamicLightColor = light.lightColor;
-	cb_ps_light.data.dynamicLightStrength = light.lightStrength;
-	cb_ps_light.data.dynamicLightPosition = light.GetPositionFloat3();
-	cb_ps_light.data.dynamicLightAttenuation_a = light.attenuation_a;
-	cb_ps_light.data.dynamicLightAttenuation_b = light.attenuation_b;
-	cb_ps_light.data.dynamicLightAttenuation_c = light.attenuation_c;
+	cb_ps_light.data.dynamicLightColor = pointLight->lightColor;
+	cb_ps_light.data.dynamicLightStrength = pointLight->lightStrength;
+	cb_ps_light.data.dynamicLightPosition = pointLight->GetTransform().GetPosition();
+	cb_ps_light.data.dynamicLightAttenuation_a = pointLight->attenuation_a;
+	cb_ps_light.data.dynamicLightAttenuation_b = pointLight->attenuation_b;
+	cb_ps_light.data.dynamicLightAttenuation_c = pointLight->attenuation_c;
 	cb_ps_light.ApplyChanges();
 
+	cb_ps_PerFrame.data.deltaTime = m_deltaTime;
+	cb_ps_PerFrame.data.camPosition = editorCamera.GetPosition();
+	cb_ps_PerFrame.ApplyChanges();
+
 	pDeviceContext->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
+	
+	pDeviceContext->PSSetConstantBuffers(1, 1, cb_ps_PerFrame.GetAddressOf());
+	
 
 	// Start ImGui frame
 	ImGui_ImplDX11_NewFrame();
@@ -233,16 +257,16 @@ void Graphics::RenderFrame()
 	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);//D3D10_PRIMITIVE_TOPOLOGY_LINELIST
 	pDeviceContext->RSSetState(pRasterizerStateCULLNONE.Get());
 
+	// Set Samplers
 	pDeviceContext->PSSetSamplers(0, 1, samplerState.GetAddressOf());
 
 
+	// Draw Skybox
 	pDeviceContext->IASetInputLayout(skyVertexShader.GetInputLayout());
-
 	pDeviceContext->PSSetShaderResources(0, 1, &skyboxTextureSRV);
 	pDeviceContext->PSSetShader(skyPixelShader.GetShader(), NULL, 0);
 	pDeviceContext->VSSetShader(skyVertexShader.GetShader(), NULL, 0);
-	skybox->Draw(editorCamera.GetViewMatrix() * editorCamera.GetProjectionMatrix());
-
+	skybox->Draw(editorCamera.GetProjectionMatrix(), editorCamera.GetViewMatrix());
 	
 	pDeviceContext->RSSetState(pRasterizerState.Get());
 	
@@ -253,10 +277,8 @@ void Graphics::RenderFrame()
 	pDeviceContext->IASetInputLayout(default_vertexshader.GetInputLayout());
 	pDeviceContext->VSSetShader(default_vertexshader.GetShader(), NULL, 0);
 	pDeviceContext->PSSetShader(default_pixelshader.GetShader(), NULL, 0);
-
-	// Set PBR Shader
-	//pDeviceContext->PSSetShader(PBR_pixelshader.GetShader(), NULL, 0);
 	
+
 	if (Debug::Editor::Instance()->PlayingGame())
 	{
 		std::list<Entity*>* entities = m_pEngine->GetScene().GetAllEntities();
@@ -264,7 +286,7 @@ void Graphics::RenderFrame()
 		for (iter = entities->begin(); iter != entities->end(); iter++)
 		{
 			//(*iter)->Draw(gameCamera.GetViewMatrix() * gameCamera.GetProjectionMatrix());
-			(*iter)->Draw(m_pEngine->GetPlayer()->GetPlayerCamera()->GetViewMatrix() * m_pEngine->GetPlayer()->GetPlayerCamera()->GetProjectionMatrix());
+			(*iter)->Draw(m_pEngine->GetPlayer()->GetPlayerCamera()->GetProjectionMatrix(), m_pEngine->GetPlayer()->GetPlayerCamera()->GetViewMatrix());
 		}
 	}
 	else
@@ -273,7 +295,7 @@ void Graphics::RenderFrame()
 		std::list<Entity*>::iterator iter;
 		for (iter = entities->begin(); iter != entities->end(); iter++)
 		{
-			(*iter)->Draw(editorCamera.GetViewMatrix() * editorCamera.GetProjectionMatrix());
+			(*iter)->Draw(editorCamera.GetProjectionMatrix(), editorCamera.GetViewMatrix());
 		}
 	}
 	
@@ -289,7 +311,7 @@ void Graphics::RenderFrame()
 	static int fpsCounter = 0;
 	static std::string fpsString = "FPS: 0";
 	fpsCounter += 1;
-	if (fpsTimer.GetDeltaTime() > 1000.0)
+	if (fpsTimer.GetTicks() > 1000.0)
 	{
 		fpsString = "FPS: " + std::to_string(fpsCounter);
 		fpsCounter = 0;
@@ -304,7 +326,7 @@ void Graphics::RenderFrame()
 	UpdateImGuiWidgets();
 
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-	if (pIO->ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	if (pImGuiIO->ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
 		ImGui::UpdatePlatformWindows();
 		ImGui::RenderPlatformWindowsDefault();
@@ -317,6 +339,7 @@ void Graphics::RenderFrame()
 void Graphics::Update(const float& deltaTime)
 {
 	skybox->GetTransform().SetPosition(editorCamera.GetPosition());
+	m_deltaTime = deltaTime;
 }
 
 void Graphics::Shutdown()
@@ -367,7 +390,9 @@ bool Graphics::InitializeShaders()
 	{
 		{"POSITION", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"TEXCOORD", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
-		{"NORMAL", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  }
+		{"NORMAL", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
+		{"TANGENT", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
+		{"BITANGENT", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  }
 	};
 	UINT defaultNumElements3D = ARRAYSIZE(defaultLayout3D);
 
@@ -390,50 +415,6 @@ bool Graphics::InitializeShaders()
 		return false;
 	}
 
-	// -- Initialize PBR Shaders -- //
-	/*D3D11_INPUT_ELEMENT_DESC PBRLayout3D[] =
-	{
-		{"POSITION", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"BASECOLOR", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
-		{"OPACITY", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
-		{"NORMAL", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  }
-	};
-	UINT PBRNumElements3D = ARRAYSIZE(PBRLayout3D);
-
-	if (!PBR_vertexshader.Initialize(pDevice, shaderfolder + L"PBR_vertexshader.cso", PBRLayout3D, PBRNumElements3D))
-		return false;
-
-	if (!PBR_pixelshader.Initialize(pDevice, shaderfolder + L"PBR_pixelshader.cso"))
-		return false;*/
-
-	/*PBRVertexShader = new SimpleVertexShader(pDevice.Get(), pDeviceContext.Get());
-	if (!PBRVertexShader->LoadShaderFile(L"..\\bin\\x64\\Debug\\PBRVertexShader.cso"))
-		PBRVertexShader->LoadShaderFile(L"..\\bin\\x64\\Debug\\PBRVertexShader.cso");
-
-	PBRPixelShader = new SimplePixelShader(pDevice.Get(), pDeviceContext.Get());
-	if (!PBRPixelShader->LoadShaderFile(L"..\\bin\\x64\\Debug\\PBRPixelShader.cso"))
-		PBRPixelShader->LoadShaderFile(L"..\\bin\\x64\\Debug\\PBRPixelShader.cso");
-
-	PBRMatPixelShader = new SimplePixelShader(pDevice.Get(), pDeviceContext.Get());
-	if (!PBRMatPixelShader->LoadShaderFile(L"..\\bin\\x64\\Debug\\PBRMatPixelShader.cso"))
-		PBRMatPixelShader->LoadShaderFile(L"..\\bin\\x64\\Debug\\PBRMatPixelShader.cso");
-
-	ConvolutionPixelShader = new SimplePixelShader(pDevice.Get(), pDeviceContext.Get());
-	if (!ConvolutionPixelShader->LoadShaderFile(L"..\\bin\\x64\\Debug\\ConvolutionPixelShader.cso"))
-		ConvolutionPixelShader->LoadShaderFile(L"..\\bin\\x64\\Debug\\ConvolutionPixelShader.cso");
-
-	PrefilterMapPixelShader = new SimplePixelShader(pDevice.Get(), pDeviceContext.Get());
-	if (!PrefilterMapPixelShader->LoadShaderFile(L"..\\bin\\x64\\Debug\\PrefilterMapPixelShader.cso"))
-		PrefilterMapPixelShader->LoadShaderFile(L"..\\bin\\x64\\Debug\\PrefilterMapPixelShader.cso");
-
-	IntegrateBRDFPixelShader = new SimplePixelShader(pDevice.Get(), pDeviceContext.Get());
-	if (!IntegrateBRDFPixelShader->LoadShaderFile(L"..\\bin\\x64\\Debug\\IntegrateBRDFPixelShader.cso"))
-		IntegrateBRDFPixelShader->LoadShaderFile(L"..\\bin\\x64\\Debug\\IntegrateBRDFPixelShader.cso");
-
-	QuadVertexShader = new SimpleVertexShader(pDevice.Get(), pDeviceContext.Get());
-	if (!QuadVertexShader->LoadShaderFile(L"..\\bin\\x64\\Debug\\QuadVertexShader.cso"))
-		QuadVertexShader->LoadShaderFile(L"..\\bin\\x64\\Debug\\QuadVertexShader.cso");*/
-
 	return true;
 }
 
@@ -451,24 +432,32 @@ bool Graphics::InitializeScene()
 		hr = cb_ps_light.Initialize(pDevice.Get(), pDeviceContext.Get());
 		COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer for pixel shader.");
 
+		hr = cb_ps_PerFrame.Initialize(pDevice.Get(), pDeviceContext.Get());
+		COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer for pixel shader utilites.");
+
 		// Initialize light shader values
 		cb_ps_light.data.ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-		cb_ps_light.data.ambientLightStrength = 1.0f;
-		//cb_ps_light.data.ambientLightStrength = 0.268f;
-		cb_ps_light.data.ambientLightStrength = 1.0f;
+		//cb_ps_light.data.ambientLightStrength = 0.0f;
+		cb_ps_light.data.ambientLightStrength = 0.268f;
 
-		light.lightStrength = 6.848f;
+		cb_ps_PerFrame.data.camPosition = editorCamera.GetPosition();
+		cb_ps_PerFrame.data.deltaTime = 0.5f;
+
+		/*light.lightStrength = 6.848f;
 		light.attenuation_a = 1.968f;
 		light.attenuation_b = 0.2f;
-		light.attenuation_c = 0.0f;
-
+		light.attenuation_c = 0.0f;*/
+		pointLight->lightStrength = 1.0f;
+		pointLight->attenuation_a = 0.5f;
+		pointLight->attenuation_b = 0.f;
+		pointLight->attenuation_c = 0.0f;
 
 		// Light
-		if (!light.Initialize(pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader))
+		/*if (!m_pEngine->pointLight->Initialize(pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader))
 		{
 			ErrorLogger::Log("Failed to initilize light");
 			return false;
-		}
+		}*/
 		// Hello World sprite
 		if (!sprite.Initialize(pDevice.Get(), pDeviceContext.Get(), 256, 256, "Data\\Textures\\sprite_256x256.png", cb_vs_vertexshader_2d))
 		{
@@ -484,13 +473,6 @@ bool Graphics::InitializeScene()
 		gameCamera.SetPosition(0.0f, 10.0f, -10.0f);
 		gameCamera.SetProjectionValues(80.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
 
-
-		//Texture()
-		//CreateWICTextureFromFile(pDevice.Get(), pDeviceContext.Get(), L"Data/Textures/Wood/Wood_Albedo.png", 0, &Wood_Albedo);
-		//CreateWICTextureFromFile(pDevice.Get(), pDeviceContext.Get(), L"Data/Textures/Wood/Wood_Normal.png", 0, &Wood_Normal);
-		//CreateWICTextureFromFile(pDevice.Get(), pDeviceContext.Get(), L"Data/Textures/Wood/Wood_Metallic.png", 0, &Wood_Metalic);
-		//CreateWICTextureFromFile(pDevice.Get(), pDeviceContext.Get(), L"Data/Textures/Wood/Wood_Roughness.png", 0, &Wood_Rough);
-
 	}
 	catch (COMException & exception)
 	{
@@ -498,11 +480,6 @@ bool Graphics::InitializeScene()
 		return false;
 	}
 	return true;
-}
-
-void Graphics::InitializeMaterials()
-{
-	//materialWood = new Material(Wood_Albedo, Wood_Normal, Wood_Metalic, Wood_Rough, samplerState.Get());
 }
 
 void Graphics::UpdateImGuiWidgets()
@@ -619,11 +596,11 @@ void Graphics::UpdateImGuiWidgets()
 	{
 		ImGui::DragFloat3("Ambient Light Color", &cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat("Ambient Light Strength", &cb_ps_light.data.ambientLightStrength, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat3("Dynamic Light Color", &light.lightColor.x, 0.01f, 0.0f, 10.0f);
-		ImGui::DragFloat("Dynamic Light Strength", &light.lightStrength, 0.01f, 0.0f, 10.0f);
-		ImGui::DragFloat("DynamicLight Attenuation A", &light.attenuation_a, 0.01f, 0.1f, 10.0f);
-		ImGui::DragFloat("DynamicLight Attenuation B", &light.attenuation_b, 0.01f, 0.0f, 10.0f);
-		ImGui::DragFloat("DynamicLight Attenuation C", &light.attenuation_c, 0.01f, 0.0f, 10.0f);
+		ImGui::DragFloat3("Dynamic Light Color", &pointLight->lightColor.x, 0.01f, 0.0f, 10.0f);
+		ImGui::DragFloat("Dynamic Light Strength", &pointLight->lightStrength, 0.01f, 0.0f, 10.0f);
+		ImGui::DragFloat("DynamicLight Attenuation A", &pointLight->attenuation_a, 0.01f, 0.1f, 10.0f);
+		ImGui::DragFloat("DynamicLight Attenuation B", &pointLight->attenuation_b, 0.01f, 0.0f, 10.0f);
+		ImGui::DragFloat("DynamicLight Attenuation C", &pointLight->attenuation_c, 0.01f, 0.0f, 10.0f);
 	}
 	ImGui::End();
 

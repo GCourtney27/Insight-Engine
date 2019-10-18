@@ -230,6 +230,7 @@
     <ClCompile Include="LUAScripting\ScriptExports.cpp" />
     <ClCompile Include="Objects\Camera.cpp" />
     <ClCompile Include="Objects\Player.cpp" />
+    <ClCompile Include="Objects\PointLight.cpp" />
     <ClCompile Include="Systems\FileSystem.cpp" />
     <ClCompile Include="Graphics\Camera2D.cpp" />
     <ClCompile Include="Graphics\GameObject2D.cpp" />
@@ -337,6 +338,7 @@
     <ClInclude Include="LUAScripting\LuaStateManager.h" />
     <ClInclude Include="Objects\Camera.h" />
     <ClInclude Include="Objects\Player.h" />
+    <ClInclude Include="Objects\PointLight.h" />
     <ClInclude Include="Physics\Ray.h" />
     <ClInclude Include="Systems\FileSystem.h" />
     <ClInclude Include="Graphics\BaseScriptableGameObject.h" />

@@ -13,7 +13,7 @@ bool Timer::Initialize(Engine * engine)
 	return true;
 }
 
-double Timer::GetDeltaTime()
+double Timer::GetTicks()
 {
 	if (isrunning)
 	{

@@ -33,14 +33,25 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 		return false;
 	}
 
-	/*player = new Player(&scene, *(new ID("Player")));
+	
+
+	scene.AddEntity(Graphics::Instance()->pointLight);
+
+	// ENABLE THIS FOR PLAY MODE. Its just disabled so we can see the materials better
+	/*textures.push_back("Data\\Textures\\Iron\\IronOld_Albedo.png");
+	textures.push_back("Data\\Textures\\Iron\\IronOld_Normal.png");
+	textures.push_back("Data\\Textures\\Iron\\IronOld_Metallic.png");
+	textures.push_back("Data\\Textures\\Iron\\IronOld_Roughness.png");
+	m_pMaterial = new Material(Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), "PBR_MAPPED", textures);
+
+	player = new Player(&scene, *(new ID("Player")));
 
 	player->GetTransform().SetPosition(0.0f, 0.0f, 0.0f);
 	player->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
 	player->GetTransform().SetScale(1.0f, 1.0f, 1.0f);
 
 	MeshRenderer* mr = player->AddComponent<MeshRenderer>();
-	mr->Initialize(player, "Data\\Objects\\Dandelion\\Var1\\Textured_Flower.obj", Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader());
+	mr->Initialize(player, "Data\\Objects\\GraniteRock\\Rock_LOD0.fbx", Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader(), m_pMaterial);
 
 	EditorSelection* es = player->AddComponent<EditorSelection>();
 	es->Initialize(player, 20.0f, player->GetTransform().GetPosition());
@@ -64,7 +75,6 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 		return false;
 	}
 
-	//Graphics::Instance()->InitSkybox();
 
 	if (!Debug::Editor::Instance()->Initialize(this, this->render_window.GetHWND()))
 		return false;
@@ -81,8 +91,8 @@ bool Engine::ProccessMessages()
 
 void Engine::Update()
 {
-	float dt = (float)Timer::Instance()->GetDeltaTime();
-	float gamedt = (float)Timer::Instance()->GetDeltaTime();
+	float dt = (float)Timer::Instance()->GetTicks();
+	float gamedt = (float)Timer::Instance()->GetTicks();
 	Timer::Instance()->Restart();
 
 	scene.Update(dt);
@@ -128,18 +138,16 @@ void Engine::Update()
 
 	if (InputManager::Instance()->keyboard.KeyIsPressed('C'))
 	{
-		Graphics::Instance()->light.SetPosition(Graphics::Instance()->editorCamera.GetPositionFloat3());
-		Graphics::Instance()->light.SetRotation(Graphics::Instance()->editorCamera.GetRotationFloat3());
+		Graphics::Instance()->pointLight->GetTransform().SetPosition(Graphics::Instance()->editorCamera.GetPositionFloat3());
+		Graphics::Instance()->pointLight->GetTransform().SetRotation(Graphics::Instance()->editorCamera.GetRotationFloat3());
 	}
-	
-
 	
 	if (InputManager::Instance()->keyboard.KeyIsPressed(VK_CONTROL) && InputManager::Instance()->keyboard.KeyIsPressed('S'))
 	{
 		if (!FileSystem::Instance()->WriteSceneToJSON(&scene))
 			ErrorLogger::Log("Failed to save scene");
 		else
-			Debug::Editor::Instance()->DebugLog("Scene Saved");
+			DEBUGLOG("Scene Saved");
 	}
 
 }

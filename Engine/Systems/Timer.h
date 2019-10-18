@@ -10,7 +10,7 @@ public:
 	bool Initialize(Engine* engine);
 
 
-	double GetDeltaTime();
+	double GetTicks();
 	void Restart();
 
 	bool Start();

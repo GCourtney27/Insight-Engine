@@ -2,6 +2,7 @@
 #include "Camera.h"
 //#include "..\Framework\Singleton.h"
 //#include "..\Graphics\Graphics.h"
+#include "..\Components\EditorSelectionComponent.h"
 
 class Player : public Entity
 {
@@ -16,6 +17,9 @@ public:
 		m_pCamera->SetParent(&this->GetTransform());
 		m_pCamera->GetTransform().SetPosition(0.0f, 0.0f, 0.0f);
 		m_pCamera->SetProjectionValues(80.0f, static_cast<float>(1600) / static_cast<float>(900), 0.1f, 1000.0f);
+		EditorSelection* es = m_pCamera->AddComponent<EditorSelection>();
+		es->Initialize(m_pCamera, 20.0f, m_pCamera->GetTransform().GetPosition());
+		scene->AddEntity(m_pCamera);
 		//MeshRenderer* mr = m_pCamera->AddComponent<MeshRenderer>();
 		//mr->Initialize(this, "Data\\Objects\\Primatives\\Sphere.fbx", Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext, Graphics::Instance()->GetDefaultVertexShader());
 		//m_children.push_back(&m_pCamera->GetTransform());

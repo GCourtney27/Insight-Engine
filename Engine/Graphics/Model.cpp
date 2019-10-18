@@ -21,7 +21,7 @@ bool Model::Initialize(const std::string & filepath, ID3D11Device * device, ID3D
 	return true;
 }
 
-void Model::Draw(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix)
+void Model::Draw(const XMMATRIX & worldMatrix, const XMMATRIX & projectionMatrix, const XMMATRIX & viewMatrix)
 {
 	// TODO: go through the material set the shader and resources
 
@@ -29,9 +29,10 @@ void Model::Draw(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMa
 
 	for (size_t i = 0; i < meshes.size(); i++)
 	{
-		// Update Constant Buffer with WVP Matrix
-		this->cb_vs_vertexshader->data.wvpMatrix = meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix; // Calculate World-ViewProjection Matrix
+		// Update Constant Buffer Matricies
 		this->cb_vs_vertexshader->data.worldMatrix = meshes[i].GetTransformMatrix() * worldMatrix; // Calculate World Matrix
+		this->cb_vs_vertexshader->data.viewMatrix = viewMatrix; // Calculate World-ViewProjection Matrix
+		this->cb_vs_vertexshader->data.projectionMatrix = projectionMatrix;
 		this->cb_vs_vertexshader->ApplyChanges();
 		
 		if (m_pMaterial != nullptr)
@@ -58,7 +59,9 @@ bool Model::LoadModel(const std::string & filepath)
 	Assimp::Importer importer; 
 	const aiScene* pScene = importer.ReadFile(filepath,
 												aiProcess_Triangulate | 
-												aiProcess_ConvertToLeftHanded);
+												aiProcess_ConvertToLeftHanded |
+												aiProcess_GenNormals |
+												aiProcess_CalcTangentSpace);
 
 	if (pScene == nullptr)
 		return false;
@@ -101,6 +104,14 @@ Mesh Model::ProcessMesh(aiMesh * mesh, const aiScene * scene, const XMMATRIX & t
 		vertex.normal.x = mesh->mNormals[i].x;
 		vertex.normal.y = mesh->mNormals[i].y;
 		vertex.normal.z = mesh->mNormals[i].z;
+
+		vertex.Tangent.x = mesh->mTangents[i].x;
+		vertex.Tangent.y = mesh->mTangents[i].y;
+		vertex.Tangent.z = mesh->mTangents[i].z;
+
+		vertex.BiTangent.x = mesh->mBitangents[i].x;
+		vertex.BiTangent.y = mesh->mBitangents[i].y;
+		vertex.BiTangent.z = mesh->mBitangents[i].z;
 
 		if (mesh->mTextureCoords[0])
 		{

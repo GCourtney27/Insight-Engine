@@ -25,4 +25,6 @@ private:
 	DirectX::XMMATRIX transformMatrix;
 
 	std::vector<Texture> textures;
+	Material* m_pMaterial;
+
 };

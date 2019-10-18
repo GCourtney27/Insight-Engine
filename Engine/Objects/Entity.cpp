@@ -16,9 +16,16 @@ bool Entity::Initialize()
 void Entity::Update(float deltaTime)
 {
 	if (m_pParent != nullptr) // Multiply the parent matrix byt this matrix to ge tthe world matrix
-		m_transform.AdjustPosition(m_transform.GetPosition().x + m_pParent->GetPosition().x, m_transform.GetPosition().y + m_pParent->GetPosition().y, m_transform.GetPosition().z + m_pParent->GetPosition().z);
+	{
+		XMMATRIX worldMat = m_transform.GetWorldMatrix() * m_pParent->GetWorldMatrix();
+		this->m_transform.SetWorldMatrix(worldMat);
+		//this->m_transform.GetWorldMatrix() = this->m_transform.GetWorldMatrix() * m_pParent->GetWorldMatrix();
+	}
 	else
+	{
+
 		m_transform.AdjustPosition(0.0f, 0.0f, 0.0f);
+	}
 
 	// If the editor is not playing keep coppying the transforms
 	if(!Debug::Editor::Instance()->PlayingGame())
@@ -33,14 +40,14 @@ void Entity::Update(float deltaTime)
 
 }
 
-void Entity::Draw(const XMMATRIX & viewProjectionMatrix)
+void Entity::Draw(const XMMATRIX & viewProjectionMatrix, const XMMATRIX & viewMatrix)
 {
 	MeshRenderer* mr = GetComponent<MeshRenderer>();
 
 	if (mr != nullptr)
 	{
 		mr->SetWorldMat(this->m_transform.GetWorldMatrix());
-		mr->Draw(viewProjectionMatrix);
+		mr->Draw(viewProjectionMatrix, viewMatrix);
 	}
 }
 
@@ -68,7 +75,7 @@ void Entity::OnUpdate(float deltaTime)
 
 	for (Component* component : m_components)
 	{
-		component->Update();
+		component->Update(deltaTime);
 	}
 }
 

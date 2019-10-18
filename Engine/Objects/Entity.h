@@ -22,19 +22,21 @@ public:
 	};
 
 public:
-	Entity(Scene* scene, const ID& id) : m_scene(scene), Object(id) {}
+	Entity(Scene* scene, const ID& id) 
+		: m_scene(scene), Object(id) {}
+
 	virtual ~Entity() {}
 
 	// -- Editor Specific methods (Engine) -- //
-	bool Initialize(); // Called once when Engine starts
-	void Update(float deltaTime); // Update things like editor click sphere
-	void Draw(const XMMATRIX & viewProjectionMatrix); // Draw mesh renderer for componet, needs to be seen in editor and play mode
-	void Destroy(); // Unload resources
+	virtual bool Initialize(); // Called once when Engine starts
+	virtual void Update(float deltaTime); // Update things like editor click sphere
+	virtual void Draw(const XMMATRIX & viewProjectionMatrix, const XMMATRIX & viewMatrix); // Draw mesh renderer for componet, needs to be seen in editor and play mode
+	virtual void Destroy(); // Unload resources
 
 	// -- Runtime Methods (Components / Game Logic) -- //
-	void OnStart(); // Run Start() components
-	void OnUpdate(float deltaTime); // Update() components 
-	void OnExit(); // When entity exits play
+	virtual void OnStart(); // Run Start() components
+	virtual void OnUpdate(float deltaTime); // Update() components 
+	virtual void OnExit(); // When entity exits play
 
 	void OnEditorStop(); //Reset positions and transforms
 

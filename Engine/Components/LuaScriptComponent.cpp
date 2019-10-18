@@ -21,21 +21,17 @@ bool LuaScript::Initialize(Entity* owner, std::string scriptFile)
 	luaState->GetGlobals().RegisterDirect("AdjustPosition", (*m_owner), &Entity::lua_AdjustPosition);
 	luaState->GetGlobals().RegisterDirect("AdjustScale", (*m_owner), &Entity::lua_AdjustScale);
 
-	
-
-	//lua_register(L, "DebugLog", lua_PrintStringToConsole);
-	//lua_register(L, "AdjustRotation", lua_AdjustRotation);
 
 	return true;
 }
 
-void LuaScript::Update()
+void LuaScript::Update(float deltaTime)
 {
 	
 	luaState->DoFile(filePath.c_str());
 
 	LuaPlus::LuaFunctionVoid LUpdate(luaState->GetGlobal("Update"));
-	LUpdate(Timer::Instance()->GetDeltaTime());
+	LUpdate(deltaTime);
 
 
 }

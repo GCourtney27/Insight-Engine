@@ -22,14 +22,14 @@ bool MeshRenderer::Initialize(Entity* owner, const std::string & filepath, ID3D1
 	return true;
 }
 
-void MeshRenderer::Draw(const XMMATRIX & viewProjectionMatrix)
+void MeshRenderer::Draw(const XMMATRIX & projectionMatrix, const XMMATRIX & viewMatrix)
 {
 
 	if(GetIsDrawEnabled())
-		model.Draw(this->worldMatrix, viewProjectionMatrix);
+		model.Draw(this->worldMatrix, projectionMatrix, viewMatrix);
 }
 
-void MeshRenderer::Update()
+void MeshRenderer::Update(float deltaTime)
 {
 }
 

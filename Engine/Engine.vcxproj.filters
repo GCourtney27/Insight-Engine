@@ -315,8 +315,15 @@
     <ClCompile Include="Includes\json.cpp">
       <Filter>Source Files\Systems\Json</Filter>
     </ClCompile>
-    <ClCompile Include="Objects\Camera.cpp" />
-    <ClCompile Include="Objects\Player.cpp" />
+    <ClCompile Include="Objects\PointLight.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Camera.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Player.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="COMException.h">
@@ -659,6 +666,9 @@
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
     <ClInclude Include="Objects\Camera.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\PointLight.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
   </ItemGroup>

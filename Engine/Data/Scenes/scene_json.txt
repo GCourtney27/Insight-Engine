@@ -52,11 +52,11 @@
                             "Model": "Data\\Objects\\Dandelion\\Var1\\Var1_LOD0.fbx"
                         },
                         {
-                            "MaterialType": "",
-                            "Albedo": "",
-                            "Normal": "",
-                            "Metallic": "",
-                            "Roughness": ""
+                            "MaterialType": "PBR_DEFAULT",
+                            "Albedo": "Data\\Objects\\Dandelion\\Textures\\Atlas\\qlCc6_4K_Albedo.jpg",
+                            "Normal": "Data\\Objects\\Dandelion\\Textures\\Atlas\\qlCc6_4K_Normal.jpg",
+                            "Metallic": "Data\\Objects\\Dandelion\\Textures\\Atlas\\qlCc6_4K_Roughness.jpg",
+                            "Roughness": "Data\\Objects\\Dandelion\\Textures\\Atlas\\qlCc6_4K_Roughness.jpg"
                         }
                     ]
                 },
@@ -124,14 +124,14 @@
                 {
                     "MeshRenderer": [
                         {
-                            "Model": "Data\\Objects\\Primatives\\Cube.obj"
+                            "Model": "Data\\Objects\\Primatives\\Sphere.fbx"
                         },
                         {
-                            "MaterialType": "",
-                            "Albedo": "",
-                            "Normal": "",
-                            "Metallic": "",
-                            "Roughness": ""
+                            "MaterialType": "PBR_DEFAULT",
+                            "Albedo": "Data\\Textures\\RustedMetal\\RustedMetal_Albedo.png",
+                            "Normal": "Data\\Textures\\RustedMetal\\RustedMetal_Normal.png",
+                            "Metallic": "Data\\Textures\\RustedMetal\\RustedMetal_Metallic.png",
+                            "Roughness": "Data\\Textures\\RustedMetal\\RustedMetal_Roughness.png"
                         }
                     ]
                 },
@@ -139,6 +139,231 @@
                     "LuaScript": [
                         {
                             "FilePath": "Data\\LuaScripts\\UpWards.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Type": "Entity",
+            "Name": "Plane",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 89.4000015258789
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 50.0
+                        },
+                        {
+                            "y": 50.0
+                        },
+                        {
+                            "z": 50.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Data\\Objects\\Primatives\\Quad.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_DEFAULT",
+                            "Albedo": "Data\\Textures\\Bricks\\Bricks_Abledo.jpg",
+                            "Normal": "Data\\Textures\\Bricks\\Bricks_Normal.jpg",
+                            "Metallic": "Data\\Textures\\Bricks\\Bricks_Displacement.jpg",
+                            "Roughness": "Data\\Textures\\Bricks\\Bricks_Roughness.jpg"
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Data\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Type": "Entity",
+            "Name": "Point Light",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": -20.0
+                        },
+                        {
+                            "y": 8.0
+                        },
+                        {
+                            "z": -15.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 8.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 1.0
+                        },
+                        {
+                            "y": 1.0
+                        },
+                        {
+                            "z": 1.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Data\\Objects\\Primatives\\Sphere.fbx"
+                        },
+                        {
+                            "MaterialType": "PBR_DEFAULT",
+                            "Albedo": "Data\\Textures\\Iron\\IronOld_Albedo.png",
+                            "Normal": "Data\\Textures\\Iron\\IronOld_Normal.png",
+                            "Metallic": "Data\\Textures\\Iron\\IronOld_Metallic.png",
+                            "Roughness": "Data\\Textures\\Iron\\IronOld_Roughness.png"
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "NONE"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Type": "Entity",
+            "Name": "Point Light",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": -36.1187629699707
+                        },
+                        {
+                            "y": 4.8936944007873539
+                        },
+                        {
+                            "z": -22.989713668823243
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.28999999165534975
+                        },
+                        {
+                            "y": 4.8936944007873539
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 1.0
+                        },
+                        {
+                            "y": 1.0
+                        },
+                        {
+                            "z": 1.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Data\\Objects\\Primatives\\Sphere.fbx"
+                        },
+                        {
+                            "MaterialType": "PBR_DEFAULT",
+                            "Albedo": "Data\\Textures\\Iron\\IronOld_Albedo.png",
+                            "Normal": "Data\\Textures\\Iron\\IronOld_Normal.png",
+                            "Metallic": "Data\\Textures\\Iron\\IronOld_Metallic.png",
+                            "Roughness": "Data\\Textures\\Iron\\IronOld_Roughness.png"
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "NONE"
                         }
                     ]
                 },

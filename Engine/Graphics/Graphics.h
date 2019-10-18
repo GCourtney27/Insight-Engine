@@ -10,6 +10,7 @@
 #include "..\\Engine.h"
 #include "..\\Systems\\Timer.h"
 #include "Material.h"
+#include "..\Objects\PointLight.h"
 
 #include "ImGui\\imgui.h"
 #include "ImGui\\imgui_impl_win32.h"
@@ -36,16 +37,19 @@ public:
 
 	Camera2D camera2D;
 	Sprite sprite;
-	Light light;
+	//Light light;
+	PointLight * pointLight = nullptr;
+	std::vector<std::string> textures;
+
+	Material* m_pMaterial = nullptr;
 
 	Entity* skybox = nullptr;
-	ImGuiIO* pIO = nullptr;
+	ImGuiIO* pImGuiIO = nullptr;
 
 	ID3D11Device* GetDevice() { return pDevice.Get(); }
 	ID3D11DeviceContext* GetDeviceContext() { return pDeviceContext.Get(); }
 
 	ConstantBuffer<CB_VS_vertexshader>& GetDefaultVertexShader() { return cb_vs_vertexshader; }
-	//Material* GetWoodMaterial() { return materialWood; }
 
 	void InitSkybox();
 
@@ -53,7 +57,6 @@ private:
 	bool InitializeDirectX(HWND hwnd);
 	bool InitializeShaders();
 	bool InitializeScene();
-	void InitializeMaterials();
 	void UpdateImGuiWidgets();
 
 	Engine* m_pEngine;
@@ -80,6 +83,7 @@ private:
 	ConstantBuffer<CB_VS_Sky> cb_vs_sky;
 	VertexShader skyVertexShader;
 	PixelShader skyPixelShader;
+
 	ID3D11Resource* skyTexture;
 	ID3D11ShaderResourceView* skyboxTextureSRV;
 
@@ -110,7 +114,9 @@ private:
 
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
 	ConstantBuffer<CB_PS_light> cb_ps_light;
+	ConstantBuffer<CB_PS_perframe> cb_ps_PerFrame;
 
+	float m_deltaTime = 0;
 
 	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pDeviceContext;

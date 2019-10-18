@@ -1,12 +1,12 @@
 #pragma once
 #include "../Graphics/Model.h"
-
-extern "C"
-{
-#include "Lua535/lua.h";
-#include "Lua535/lauxlib.h"
-#include "Lua535/lualib.h"
-}
+//
+//extern "C"
+//{
+//#include "Lua535/lua.h"
+//#include "Lua535/lauxlib.h"
+//#include "Lua535/lualib.h"
+//}
 
 class Transform
 {
@@ -122,6 +122,7 @@ public:
 	// Returns objects world matrix
 	XMMATRIX& GetWorldMatrix() { return worldMatrix; }
 	float* GetWorldMatAsFloatArr();
+	void SetWorldMatrix(XMMATRIX& matrix);
 	
 	// DO NOT CALL UNLESS YOU KNOW WHAT YOU'RE DOING
 	void UpdateDirectionVectors();
