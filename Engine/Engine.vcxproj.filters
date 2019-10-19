@@ -1,46 +1,46 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <FxCompile Include="pixelshader.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
     <FxCompile Include="pixelshader_2d.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="vertexshader.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
     <FxCompile Include="vertexshader_2d.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="PBR_pixelshader.hlsl">
+    <FxCompile Include="ConvolutionPixelShader.hlsl">
+      <Filter>Resource Files\Exaples</Filter>
+    </FxCompile>
+    <FxCompile Include="IntegrateBRDFPixelShader.hlsl">
+      <Filter>Resource Files\Exaples</Filter>
+    </FxCompile>
+    <FxCompile Include="PBRMatPixelShader.hlsl">
+      <Filter>Resource Files\Exaples</Filter>
+    </FxCompile>
+    <FxCompile Include="PBRPixelShader.hlsl">
+      <Filter>Resource Files\Exaples</Filter>
+    </FxCompile>
+    <FxCompile Include="PrefilterMapPixelShader.hlsl">
+      <Filter>Resource Files\Exaples</Filter>
+    </FxCompile>
+    <FxCompile Include="Textured_pshlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="PBR_vertexshader.hlsl">
+    <FxCompile Include="Textured_vs.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
     <FxCompile Include="PBRVertexShader.hlsl">
+      <Filter>Resource Files\Exaples</Filter>
+    </FxCompile>
+    <FxCompile Include="PBR_Textured_ps.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="PBRPixelShader.hlsl">
+    <FxCompile Include="PBR_Textured_vs.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="PBRMatPixelShader.hlsl">
+    <FxCompile Include="Sky_ps.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="ConvolutionPixelShader.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="PrefilterMapPixelShader.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="IntegrateBRDFPixelShader.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="pixelshader_sky.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="vertexshader_sky.hlsl">
+    <FxCompile Include="Sky_vs.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
   </ItemGroup>
@@ -775,6 +775,9 @@
     <Filter Include="Source Files\Systems\Json">
       <UniqueIdentifier>{b3b68f22-8c06-469e-b804-47179884c12b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Exaples">
+      <UniqueIdentifier>{cd6b8e7d-6339-491a-bddd-199e28a514d8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Data\Scenes\Scene01.txt">
@@ -782,12 +785,6 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <None Include="IBLHeader.hlsli">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="PBRHeader.hlsli">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="Includes\Lua\LuaPlus\Lua.jam">
       <Filter>LuaUsings</Filter>
     </None>
@@ -817,6 +814,12 @@
     </None>
     <None Include="LuaScripts\Test.lua">
       <Filter>LuaScripts</Filter>
+    </None>
+    <None Include="IBLHeader.hlsli">
+      <Filter>Resource Files\Exaples</Filter>
+    </None>
+    <None Include="PBRHeader.hlsli">
+      <Filter>Resource Files\Exaples</Filter>
     </None>
   </ItemGroup>
 </Project>

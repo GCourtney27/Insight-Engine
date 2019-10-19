@@ -124,7 +124,7 @@
                 {
                     "MeshRenderer": [
                         {
-                            "Model": "Data\\Objects\\Primatives\\Sphere.fbx"
+                            "Model": "Data\\Objects\\Primatives\\sphere.obj"
                         },
 						{
 							"MaterialType":"PBR_MAPPED",

@@ -52,6 +52,7 @@ public:
 	ConstantBuffer<CB_VS_vertexshader>& GetDefaultVertexShader() { return cb_vs_vertexshader; }
 
 	void InitSkybox();
+	void IBLPreCompute();
 
 private:
 	bool InitializeDirectX(HWND hwnd);
@@ -86,30 +87,22 @@ private:
 
 	ID3D11Resource* skyTexture;
 	ID3D11ShaderResourceView* skyboxTextureSRV;
+	ID3D11Resource* irradianceMap;
+	ID3D11ShaderResourceView* irradianceMapSRV;
 
-	// PBR (Testing in progress)
-	//	- Idea situation would be to have the material class hold a vector of 
-	//	  Texture objects. Each texture object would have a ID3D11ShaderResourceView*
-	//VertexShader PBR_vertexshader; // Start with foliage rendering for PBR to get another texture into the shader
-	//PixelShader PBR_pixelshader;
-	//SimpleVertexShader* PBRVertexShader;
-	//SimplePixelShader* PBRPixelShader;
-	//SimplePixelShader* PBRMatPixelShader;
-	//SimplePixelShader* ConvolutionPixelShader;
-	//SimplePixelShader* PrefilterMapPixelShader;
-	//SimplePixelShader* IntegrateBRDFPixelShader;
-	//SimpleVertexShader* QuadVertexShader;
-	//Material* materialWood;
-	//ID3D11ShaderResourceView* Wood_Albedo;
-	//ID3D11ShaderResourceView* Wood_Normal;
-	//ID3D11ShaderResourceView* Wood_Metalic;
-	//ID3D11ShaderResourceView* Wood_Rough;
-	//// Sky Resouces
-	//ID3D11ShaderResourceView* skySRV;
-	//ID3D11RasterizerState* skyRasterierState;
-	//ID3D11DepthStencilState* skyDepthStencilState;
-	//
-	//ID3D11ShaderResourceView* skyIR;
+	//IBL
+	ID3D11Texture2D* skyIBLtex;
+	//ID3D11RenderTargetView* skyIBLRTV[6];
+	ID3D11ShaderResourceView* skyIBLSRV;
+
+	ID3D11Texture2D* envMaptex;
+	//ID3D11RenderTargetView* envMapRTV[6];
+	ID3D11ShaderResourceView* envMapSRV;
+
+	ID3D11Texture2D* brdfLUTtex;
+	//ID3D11RenderTargetView* brdfLUTRTV;
+	ID3D11ShaderResourceView* brdfLUTSRV;
+
 
 
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;

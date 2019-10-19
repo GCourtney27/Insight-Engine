@@ -78,12 +78,24 @@ void Graphics::InitSkybox()
 	MeshRenderer* me = skybox->AddComponent<MeshRenderer>();
 	me->Initialize(skybox, "Data\\Objects\\Primatives\\Sphere.fbx", pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader, nullptr);
 
-	std::string filePath = "Data\\Textures\\Skyboxes\\NightLake.dds";
+	std::string filePath = "Data\\Textures\\Skyboxes\\skybox1.dds";
 	HRESULT hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), StringHelper::StringToWide(filePath).c_str(), nullptr, &skyboxTextureSRV);
 	if(FAILED(hr))
 	{
 		ErrorLogger::Log("Failed to load dds texture for skybox");
 	}
+
+	std::string filePath1 = "Data\\Textures\\Skyboxes\\skybox1IR.dds";
+	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), StringHelper::StringToWide(filePath1).c_str(), nullptr, &irradianceMapSRV);
+	if (FAILED(hr))
+	{
+		ErrorLogger::Log("Failed to load dds texture for irradiance map");
+	}
+}
+
+void Graphics::IBLPreCompute()
+{
+	
 }
 
 bool Graphics::InitializeDirectX(HWND hwnd)
@@ -274,6 +286,8 @@ void Graphics::RenderFrame()
 	pDeviceContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);
 
 	// Set Shaders to be used
+	pDeviceContext->PSSetShaderResources(4, 1, &irradianceMapSRV);
+	pDeviceContext->PSSetShaderResources(5, 1, &skyboxTextureSRV);
 	pDeviceContext->IASetInputLayout(default_vertexshader.GetInputLayout());
 	pDeviceContext->VSSetShader(default_vertexshader.GetShader(), NULL, 0);
 	pDeviceContext->PSSetShader(default_pixelshader.GetShader(), NULL, 0);
@@ -385,7 +399,7 @@ bool Graphics::InitializeShaders()
 		return false;
 
 	// 3D shaders
-	// -- Initialize Default Shaders -- //
+	// -- Initialize PBR Shaders -- //
 	D3D11_INPUT_ELEMENT_DESC defaultLayout3D[] =
 	{
 		{"POSITION", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
@@ -396,22 +410,24 @@ bool Graphics::InitializeShaders()
 	};
 	UINT defaultNumElements3D = ARRAYSIZE(defaultLayout3D);
 
-
-	if (!default_vertexshader.Initialize(pDevice, shaderfolder + L"vertexshader.cso", defaultLayout3D, defaultNumElements3D))
-		return false;
-
-	if (!default_pixelshader.Initialize(pDevice, shaderfolder + L"pixelshader.cso"))
-		return false;
-
-	if (!skyVertexShader.Initialize(pDevice, shaderfolder + L"vertexshader_sky.cso", defaultLayout3D, defaultNumElements3D))
+	if (!default_vertexshader.Initialize(pDevice, shaderfolder + L"PBR_Textured_vs.cso", defaultLayout3D, defaultNumElements3D))
 	{
-		ErrorLogger::Log("Failed to initialize vertex shader for sky");
+		ErrorLogger::Log("Failed to initialize textured vertex PBR shader");
 		return false;
 	}
-
-	if (!skyPixelShader.Initialize(pDevice, shaderfolder + L"pixelshader_sky.cso"))
+	if (!default_pixelshader.Initialize(pDevice, shaderfolder + L"PBR_Textured_ps.cso"))
 	{
-		ErrorLogger::Log("Failed to initialize pixel shader for sky");
+		ErrorLogger::Log("Failed to initialize textured pixel PBR shader");
+		return false;
+	}
+	if (!skyVertexShader.Initialize(pDevice, shaderfolder + L"Sky_vs.cso", defaultLayout3D, defaultNumElements3D))
+	{
+		ErrorLogger::Log("Failed to initialize Sky vertex shader");
+		return false;
+	}
+	if (!skyPixelShader.Initialize(pDevice, shaderfolder + L"Sky_ps.cso"))
+	{
+		ErrorLogger::Log("Failed to initialize Sky pixel shader");
 		return false;
 	}
 
@@ -449,7 +465,7 @@ bool Graphics::InitializeScene()
 		light.attenuation_c = 0.0f;*/
 		pointLight->lightStrength = 1.0f;
 		pointLight->attenuation_a = 0.5f;
-		pointLight->attenuation_b = 0.f;
+		pointLight->attenuation_b = 0.0f;
 		pointLight->attenuation_c = 0.0f;
 
 		// Light
