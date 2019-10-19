@@ -202,10 +202,10 @@
                         },
 						{
 							"MaterialType":"PBR_MAPPED",
-							"Albedo": "Data\\Textures\\Wood\\Wood_Albedo.png",
-							"Normal": "Data\\Textures\\Wood\\Wood_Normal.png",
-							"Metallic": "Data\\Textures\\Wood\\Wood_Displacement.png",
-							"Roughness": "Data\\Textures\\Wood\\Wood_Roughness.png"
+							"Albedo": "Data\\Textures\\Bricks\\Bricks_Albedo.jpg",
+							"Normal": "Data\\Textures\\Bricks\\Bricks_Normal.jpg",
+							"Metallic": "Data\\Textures\\Bricks\\Bricks_Metallic.bmp",
+							"Roughness": "Data\\Textures\\Bricks\\Bricks_Roughness1.bmp"
 						}
                     ]
                 },

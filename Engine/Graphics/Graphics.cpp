@@ -78,7 +78,7 @@ void Graphics::InitSkybox()
 	MeshRenderer* me = skybox->AddComponent<MeshRenderer>();
 	me->Initialize(skybox, "Data\\Objects\\Primatives\\Sphere.fbx", pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader, nullptr);
 
-	std::string filePath = "Data\\Textures\\Skyboxes\\skybox1.dds";
+	std::string filePath = "Data\\Textures\\Skyboxes\\NightLake.dds";
 	HRESULT hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), StringHelper::StringToWide(filePath).c_str(), nullptr, &skyboxTextureSRV);
 	if(FAILED(hr))
 	{
@@ -87,6 +87,13 @@ void Graphics::InitSkybox()
 
 	std::string filePath1 = "Data\\Textures\\Skyboxes\\skybox1IR.dds";
 	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), StringHelper::StringToWide(filePath1).c_str(), nullptr, &irradianceMapSRV);
+	if (FAILED(hr))
+	{
+		ErrorLogger::Log("Failed to load dds texture for irradiance map");
+	}
+
+	std::string filePath2 = "Data\\Textures\\Skyboxes\\ibl_brdf_lut.png";
+	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), StringHelper::StringToWide(filePath1).c_str(), nullptr, &brdfLUTSRV);
 	if (FAILED(hr))
 	{
 		ErrorLogger::Log("Failed to load dds texture for irradiance map");
@@ -288,6 +295,7 @@ void Graphics::RenderFrame()
 	// Set Shaders to be used
 	pDeviceContext->PSSetShaderResources(4, 1, &irradianceMapSRV);
 	pDeviceContext->PSSetShaderResources(5, 1, &skyboxTextureSRV);
+	pDeviceContext->PSSetShaderResources(6, 1, &brdfLUTSRV);
 	pDeviceContext->IASetInputLayout(default_vertexshader.GetInputLayout());
 	pDeviceContext->VSSetShader(default_vertexshader.GetShader(), NULL, 0);
 	pDeviceContext->PSSetShader(default_pixelshader.GetShader(), NULL, 0);
@@ -334,7 +342,6 @@ void Graphics::RenderFrame()
 	pSpriteBatch->Begin();
 	pSpriteFont->DrawString(pSpriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	pSpriteBatch->End();
-
 
 
 	UpdateImGuiWidgets();

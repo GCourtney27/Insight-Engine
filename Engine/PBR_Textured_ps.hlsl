@@ -136,23 +136,19 @@ float4 main(PS_INPUT input) : SV_TARGET
     kD *= 1.0f - metallicSample; // Works
 
     Lo += (kD * albedoSample / PI + specular) * radiance * NdotL;
-
+    
     // IBL
-    //float3 F_IBL = fresnelSchlick(NdotV, baseReflectivity);
-    //float3 kD_IBL = (1.0f - F_IBL) * (1.0f - metallicSample);
-    //float3 irradianceMapSample = irradianceMapSRV.Sample(samplerState, input.inNormal).rgb * albedoSample * kD_IBL;
-    //float3 ambient = irradianceMapSample;
-
+    roughnessSample = pow(roughnessSample, 3);
     float3 F_IBL = fresnelSchlickRoughness(NdotV, baseReflectivity, roughnessSample);
     float3 kD_IBL = (1.0f - F_IBL) * (1.0f - metallicSample);
     float3 diffuse = irradianceMapSRV.Sample(samplerState, N).rgb * albedoSample * kD_IBL;
 
     const float MAX_REFLECTION_LOD = 4.0f;
-    float3 prefilteredColor = prefilterMapSRV.SampleLevel(samplerState, reflect(-V, N), roughnessSample * MAX_REFLECTION_LOD);
+    float3 prefilteredColor = prefilterMapSRV.SampleLevel(samplerState, reflect(-V, N), roughnessSample * MAX_REFLECTION_LOD).rgb;
     float2 brdf = brdfLUT.Sample(samplerState, float2(NdotV, roughnessSample)).rg;
     float3 specular_IBL = prefilteredColor * (F_IBL * brdf.r + brdf.g);
 
-    float3 ambient = (diffuse + specular_IBL);
+    float3 ambient = saturate(diffuse * specular_IBL);
 
     float3 color = ambient + Lo;
     //float3 color = Lo; // Works
