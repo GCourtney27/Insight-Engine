@@ -31,17 +31,26 @@
     <FxCompile Include="PBRVertexShader.hlsl">
       <Filter>Resource Files\Exaples</Filter>
     </FxCompile>
-    <FxCompile Include="PBR_Textured_ps.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="PBR_Textured_vs.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
     <FxCompile Include="Sky_ps.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
     <FxCompile Include="Sky_vs.hlsl">
       <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="PBR_Textured_ps.hlsl">
+      <Filter>Resource Files\PBR</Filter>
+    </FxCompile>
+    <FxCompile Include="PBR_Textured_vs.hlsl">
+      <Filter>Resource Files\PBR</Filter>
+    </FxCompile>
+    <FxCompile Include="PrefilterMap_ps.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="PBR_Default_ps.hlsl">
+      <Filter>Resource Files\PBR</Filter>
+    </FxCompile>
+    <FxCompile Include="PBR_Default_vs.hlsl">
+      <Filter>Resource Files\PBR</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -324,6 +333,7 @@
     <ClCompile Include="Objects\Player.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\MaterialTextured.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="COMException.h">
@@ -671,6 +681,12 @@
     <ClInclude Include="Objects\PointLight.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\MaterialTextured.h">
+      <Filter>Header Files\Graphics\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\MaterialTexturedFoliage.h">
+      <Filter>Header Files\Graphics\Materials</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -777,6 +793,12 @@
     </Filter>
     <Filter Include="Resource Files\Exaples">
       <UniqueIdentifier>{cd6b8e7d-6339-491a-bddd-199e28a514d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\Materials">
+      <UniqueIdentifier>{d9df8a6c-b6f2-4b76-a8a7-676ff48f86ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\PBR">
+      <UniqueIdentifier>{155df82f-d2f8-460a-ad77-c016c55fd130}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

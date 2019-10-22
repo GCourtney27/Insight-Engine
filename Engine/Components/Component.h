@@ -1,6 +1,7 @@
 #pragma once
 #include "..\\Objects\\Object.h"
-
+#include "document.h"
+#include "json.h"
 class Entity;
 
 class Component : public Object
@@ -11,7 +12,7 @@ public:
 	virtual void Destroy() = 0;
 	virtual void Update(float deltaTime) = 0;
 	virtual void OnImGuiRender() = 0;
-	virtual void JSONLoad() = 0;
+	virtual void InitFromJSON(Entity* owner, const rapidjson::Value& componentInformation) = 0;
 
 	bool& GetIsEnabled() { return m_enabled; }
 	void SetEnable(bool enable) { m_enabled = enable; }

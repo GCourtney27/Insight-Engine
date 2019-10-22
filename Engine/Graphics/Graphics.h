@@ -32,6 +32,8 @@ public:
 	void Update(const float& deltaTime);
 	void Shutdown();
 
+	std::wstring GetShaderFolder() { return m_shaderFolder; }
+
 	Camera3D editorCamera;
 	Camera3D gameCamera;
 
@@ -52,8 +54,7 @@ public:
 	ConstantBuffer<CB_VS_vertexshader>& GetDefaultVertexShader() { return cb_vs_vertexshader; }
 
 	void InitSkybox();
-	void IBLPreCompute();
-
+	//void GeneratePrefilterSkyMap();
 private:
 	bool InitializeDirectX(HWND hwnd);
 	bool InitializeShaders();
@@ -62,6 +63,8 @@ private:
 
 	Engine* m_pEngine;
 	Timer fpsTimer;
+
+	std::wstring m_shaderFolder;
 
 	// -- 2D Shaders -- //
 	VertexShader vertexshader_2d;
@@ -84,23 +87,26 @@ private:
 	ConstantBuffer<CB_VS_Sky> cb_vs_sky;
 	VertexShader skyVertexShader;
 	PixelShader skyPixelShader;
+	
+	//PixelShader prefilterMapPixelShader;
 
 	ID3D11Resource* skyTexture;
 	ID3D11ShaderResourceView* skyboxTextureSRV;
+
 	ID3D11Resource* irradianceMap;
 	ID3D11ShaderResourceView* irradianceMapSRV;
 
+	/*ID3D11Texture2D* prefilterMap;
+	ID3D11ShaderResourceView* prefilterMapSRV;*/
+
 	//IBL
 	ID3D11Texture2D* skyIBLtex;
-	//ID3D11RenderTargetView* skyIBLRTV[6];
 	ID3D11ShaderResourceView* skyIBLSRV;
 
 	ID3D11Texture2D* envMaptex;
-	//ID3D11RenderTargetView* envMapRTV[6];
 	ID3D11ShaderResourceView* envMapSRV;
 
 	ID3D11Texture2D* brdfLUTtex;
-	//ID3D11RenderTargetView* brdfLUTRTV;
 	ID3D11ShaderResourceView* brdfLUTSRV;
 
 

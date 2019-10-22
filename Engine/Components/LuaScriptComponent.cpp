@@ -3,6 +3,31 @@
 #include "..\Systems\Timer.h"
 #include "..\Graphics\ImGui\imgui.h"
 
+void LuaScript::InitFromJSON(Entity* owner, const rapidjson::Value& componentInformation)
+{
+	std::string scriptFilePath;
+
+	for (rapidjson::SizeType l = 0; l < componentInformation.Size(); l++)
+	{
+		json::get_string(componentInformation[l], "FilePath", scriptFilePath);
+	}
+
+	this->Initialize(owner, scriptFilePath);
+
+	/*LuaScript* finalScript = nullptr;
+	std::string scriptFilePath;
+	for (rapidjson::SizeType l = 0; l < luaScript.Size(); l++)
+	{
+		json::get_string(luaScript[l], "FilePath", scriptFilePath);
+		if (scriptFilePath != "NONE")
+			finalScript = entity->AddComponent<LuaScript>();
+		else
+			break;
+	}
+	if (finalScript != nullptr)
+		finalScript->Initialize(entity, scriptFilePath);*/
+}
+
 bool LuaScript::Initialize(Entity* owner, std::string scriptFile)
 {
 	this->m_owner = owner;
@@ -53,6 +78,3 @@ void LuaScript::OnImGuiRender()
 
 }
 
-void LuaScript::JSONLoad()
-{
-}

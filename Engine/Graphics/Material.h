@@ -1,13 +1,14 @@
 #pragma once
-#include "SimpleShader.h"
 #include "Texture.h"
 #include "Shaders.h"
+#include <vector>
 #include <map>
+
 
 class Material
 {
 public:
-	enum eMaterialType
+	static enum eMaterialType
 	{
 		PBR_MAPPED, // Material is expecting mapps (albedo, roughness, normal, metallic)
 		PBR_MAPPED_SCALED, // Material can have values scale its textures (more rough less metallic etc.)
@@ -15,20 +16,33 @@ public:
 		PBR_SKY // Material only exepts a .dds defining the sky sphere look
 		//DEFAULT NO PBR
 	};
-private:
-	void DetermineMaterialType(std::string str_material);
+
+	static enum eFlags
+	{
+		NOFLAGS, // Default opaque shader
+		FOLIAGE, // Requires opacity culling in shader
+		TERRAIN // Requires tessilation shader
+	};
+
 public:
-	Material(ID3D11Device * device, ID3D11DeviceContext * deviceContext, std::string materialType, std::vector<std::string> textureLocations);
+	Material(ID3D11Device * device, ID3D11DeviceContext * deviceContext, eMaterialType materialType, eFlags flags, std::vector<std::string> textureLocations);
+
+	static eMaterialType GetMaterialTypeFromString(std::string str_material);
 
 	std::string GetMaterialTypeAsString();
 	std::vector<std::string> GetTextureLocations() { return m_textureLocations; }
 
-	std::vector<Texture> m_textures;
-private:
-	std::vector<std::string> m_textureLocations;
+	//void SetPixelShader();
+	//void SetVertexShader();
 
-	std::vector<Shader> m_shaders;
+	std::vector<Texture> m_textures;
+protected:
+	std::vector<std::string> m_textureLocations;
+	bool Initialize();
+
+
 	eMaterialType m_materialType;
+	eFlags m_flags;
 
 	ID3D11Device* m_pDevice;
 	ID3D11DeviceContext* m_pDeviceContext;

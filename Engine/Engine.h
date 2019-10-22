@@ -40,4 +40,6 @@ private:
 	int windowWidth = 0;
 	int windowHeight = 0;
 
+	float m_saveDelay = 3.0f;
+	bool m_canSave = false;
 };

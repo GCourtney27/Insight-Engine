@@ -23,11 +23,11 @@ bool Graphics::Initialize(HWND hwnd, int width, int height, Engine* engine)
 	textures.push_back("Data\\Textures\\Iron\\IronOld_Normal.png");
 	textures.push_back("Data\\Textures\\Iron\\IronOld_Metallic.png");
 	textures.push_back("Data\\Textures\\Iron\\IronOld_Roughness.png");
-	m_pMaterial = new Material(pDevice.Get(), pDeviceContext.Get(), "PBR_MAPPED", textures);
+	m_pMaterial = new Material(pDevice.Get(), pDeviceContext.Get(), Material::eMaterialType::PBR_MAPPED, Material::eFlags::NOFLAGS, textures);
 
 	pointLight = new PointLight(&(m_pEngine->GetScene()), *(new ID("Point Light")));
 
-	pointLight->GetTransform().SetPosition(-20.0f, 8.0f, -15.0f);
+	pointLight->GetTransform().SetPosition(DirectX::XMFLOAT3(0.0f, 32.0f, -50.0f));
 	pointLight->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
 	pointLight->GetTransform().SetScale(1.0f, 1.0f, 1.0f);
 
@@ -35,13 +35,12 @@ bool Graphics::Initialize(HWND hwnd, int width, int height, Engine* engine)
 	mr->Initialize(pointLight, "Data\\Objects\\Primatives\\Sphere.fbx", Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader(), m_pMaterial);
 
 	EditorSelection* es = pointLight->AddComponent<EditorSelection>();
-	es->Initialize(pointLight, 20.0f, pointLight->GetTransform().GetPosition());
+	es->Initialize(pointLight, 1.0f, pointLight->GetTransform().GetPosition());
 
 	if (!InitializeScene())
 		return false;
 	
 	InitSkybox();
-
 	
 
 	pImGuiIO = new ImGuiIO();
@@ -67,6 +66,104 @@ bool Graphics::Initialize(HWND hwnd, int width, int height, Engine* engine)
 
 	return true;
 }
+//
+//void Graphics::GeneratePrefilterSkyMap()
+//{
+//	D3D11_TEXTURE2D_DESC skyIBLDesc;
+//	//ZeroMemory(&skyIBLDesc, sizeof(skyIBLDesc));
+//	skyIBLDesc.Width = 64;
+//	skyIBLDesc.Height = 64;
+//	skyIBLDesc.MipLevels = 1;
+//	skyIBLDesc.ArraySize = 6;
+//	skyIBLDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+//	skyIBLDesc.Usage = D3D11_USAGE_DEFAULT;
+//	skyIBLDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+//	skyIBLDesc.CPUAccessFlags = 0;
+//	skyIBLDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE | D3D11_RESOURCE_MISC_GENERATE_MIPS;
+//	skyIBLDesc.SampleDesc.Count = 1;
+//	skyIBLDesc.SampleDesc.Quality = 0;
+//
+//
+//#pragma region Prefilter EnvMap
+//	// PREFILTER ENVIRONMENT MAP - Declarations on Line 66 in Game.h
+//	unsigned int maxMipLevels = 5;
+//	D3D11_TEXTURE2D_DESC envMapDesc;
+//	//ZeroMemory(&skyIBLDesc, sizeof(skyIBLDesc));
+//	envMapDesc.Width = 256;
+//	envMapDesc.Height = 256;
+//	envMapDesc.MipLevels = maxMipLevels;
+//	envMapDesc.ArraySize = 6;
+//	envMapDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+//	envMapDesc.Usage = D3D11_USAGE_DEFAULT;
+//	envMapDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+//	envMapDesc.CPUAccessFlags = 0;
+//	envMapDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE | D3D11_RESOURCE_MISC_GENERATE_MIPS;
+//	envMapDesc.SampleDesc.Count = 1;
+//	envMapDesc.SampleDesc.Quality = 0;
+//	//---
+//	D3D11_SHADER_RESOURCE_VIEW_DESC envMapSRVDesc;
+//	ZeroMemory(&envMapSRVDesc, sizeof(envMapSRVDesc));
+//	envMapSRVDesc.Format = skyIBLDesc.Format;
+//	envMapSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+//	envMapSRVDesc.TextureCube.MostDetailedMip = 0;
+//	envMapSRVDesc.TextureCube.MipLevels = maxMipLevels;
+//	//--
+//	ID3D11RenderTargetView* envMapRTV[6];
+//	//---
+//	pDevice->CreateTexture2D(&envMapDesc, 0, &envMaptex);
+//	pDevice->CreateShaderResourceView(envMaptex, &envMapSRVDesc, &envMapSRV);
+//	for (int mip = 0; mip < maxMipLevels; mip++) {
+//
+//		D3D11_RENDER_TARGET_VIEW_DESC envMapRTVDesc;
+//		ZeroMemory(&envMapRTVDesc, sizeof(envMapRTVDesc));
+//		envMapRTVDesc.Format = skyIBLDesc.Format;
+//		envMapRTVDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
+//		envMapRTVDesc.Texture2DArray.ArraySize = 1;
+//		envMapRTVDesc.Texture2DArray.MipSlice = mip;
+//
+//		unsigned mipWidth = 256 * pow(0.5, mip);
+//		unsigned mipHeight = 256 * pow(0.5, mip);
+//
+//		D3D11_VIEWPORT envMapviewport;
+//		envMapviewport.Width = mipWidth;
+//		envMapviewport.Height = mipHeight;
+//		envMapviewport.MinDepth = 0.0f;
+//		envMapviewport.MaxDepth = 1.0f;
+//		envMapviewport.TopLeftX = 0.0f;
+//		envMapviewport.TopLeftY = 0.0f;
+//
+//
+//		float roughness = (float)mip / (float)(maxMipLevels - 1);
+//		//float roughness = 0.0;
+//		for (int i = 0; i < 6; i++) {
+//			envMapRTVDesc.Texture2DArray.FirstArraySlice = i;
+//			pDevice->CreateRenderTargetView(envMaptex, &envMapRTVDesc, &envMapRTV[i]);
+//
+//			//---
+//			float bgcolor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+//			pDeviceContext->OMSetRenderTargets(1, &envMapRTV[i], 0);
+//			pDeviceContext->RSSetViewports(1, &envMapviewport);
+//			pDeviceContext->ClearRenderTargetView(envMapRTV[i], bgcolor);
+//			//---
+//
+//			// Shader declared on line 62 in Game.h
+//			pDeviceContext->PSSetShader(prefilterMapPixelShader.GetShader(), NULL, 0);
+//			pDeviceContext->PSSetShaderResources(0, 1, &skyboxTextureSRV);
+//			//PrefilterMapPixelShader->SetFloat("roughness", roughness);
+//
+//			//context->DrawIndexed(cubeMesh->GetIndexCount(), 0, 0);
+//
+//			// Reset the render states we've changed
+//			//context->RSSetState(0);
+//			//context->OMSetDepthStencilState(0, 0);
+//
+//		}
+//		for (int i = 0; i < 6; i++) {
+//			envMapRTV[i]->Release();
+//		}
+//	}
+//#pragma endregion Specular IBL
+//}
 
 void Graphics::InitSkybox()
 {
@@ -78,7 +175,7 @@ void Graphics::InitSkybox()
 	MeshRenderer* me = skybox->AddComponent<MeshRenderer>();
 	me->Initialize(skybox, "Data\\Objects\\Primatives\\Sphere.fbx", pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader, nullptr);
 
-	std::string filePath = "Data\\Textures\\Skyboxes\\NightLake.dds";
+	std::string filePath = "Data\\Textures\\Skyboxes\\skybox1.dds";
 	HRESULT hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), StringHelper::StringToWide(filePath).c_str(), nullptr, &skyboxTextureSRV);
 	if(FAILED(hr))
 	{
@@ -100,10 +197,6 @@ void Graphics::InitSkybox()
 	}
 }
 
-void Graphics::IBLPreCompute()
-{
-	
-}
 
 bool Graphics::InitializeDirectX(HWND hwnd)
 {
@@ -116,7 +209,6 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 			ErrorLogger::Log("No IDXGI Adapters found.");
 			return false;
 		}
-
 
 		// -- Initialize Swap Chain -- //
 		DXGI_SWAP_CHAIN_DESC scd = { 0 };
@@ -297,6 +389,7 @@ void Graphics::RenderFrame()
 	pDeviceContext->PSSetShaderResources(5, 1, &skyboxTextureSRV);
 	pDeviceContext->PSSetShaderResources(6, 1, &brdfLUTSRV);
 	pDeviceContext->IASetInputLayout(default_vertexshader.GetInputLayout());
+
 	pDeviceContext->VSSetShader(default_vertexshader.GetShader(), NULL, 0);
 	pDeviceContext->PSSetShader(default_pixelshader.GetShader(), NULL, 0);
 	
@@ -345,7 +438,6 @@ void Graphics::RenderFrame()
 
 
 	UpdateImGuiWidgets();
-
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	if (pImGuiIO->ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
@@ -354,7 +446,7 @@ void Graphics::RenderFrame()
 	}
 
 	// -- Flip Buffer and Present-- //
-	pSwapchain->Present(1, NULL); // Enable Vertical sync with 1 or 0
+	pSwapchain->Present(0, NULL); // Enable Vertical sync with 1 or 0
 }
 
 void Graphics::Update(const float& deltaTime)
@@ -372,37 +464,36 @@ void Graphics::Shutdown()
 
 bool Graphics::InitializeShaders()
 {
-	std::wstring shaderfolder = L"";
 #pragma region DetermineShaderPath
 	{
 #ifdef _DEBUG // Debug Mode
 #ifdef _WIN64 //x64
-		shaderfolder = L"..\\bin\\x64\\Debug\\";
+		m_shaderFolder = L"..\\bin\\x64\\Debug\\";
 #else // x86 (Win32)
-		shaderfolder = L"..\\bin\\Win32\\Debug\\";
+		m_shaderFolder = L"..\\bin\\Win32\\Debug\\";
 #endif
 #else // Release Mode
 #ifdef _WIN64 //x64
-		shaderfolder = L"..\\bin\\x64\\Release\\";
+		m_shaderFolder = L"..\\bin\\x64\\Release\\";
 #else //x86 (Win32)
-		shaderfolder = L"..\\bin\\Win32\\Release\\";
+		m_shaderFolder = L"..\\bin\\Win32\\Release\\";
 #endif
 #endif
 	}
-	
+#pragma endregion
+
 	// 2D shaders
 	D3D11_INPUT_ELEMENT_DESC layout2D[] =
 	{
 		{"POSITION", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"TEXCOORD", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  }
-
 	};
 	UINT numElements2D = ARRAYSIZE(layout2D);
 
-	if (!vertexshader_2d.Initialize(pDevice, shaderfolder + L"vertexshader_2d.cso", layout2D, numElements2D))
+	if (!vertexshader_2d.Initialize(pDevice, m_shaderFolder + L"vertexshader_2d.cso", layout2D, numElements2D))
 		return false;
 
-	if (!pixelshader_2d.Initialize(pDevice, shaderfolder + L"pixelshader_2d.cso"))
+	if (!pixelshader_2d.Initialize(pDevice, m_shaderFolder + L"pixelshader_2d.cso"))
 		return false;
 
 	// 3D shaders
@@ -417,26 +508,33 @@ bool Graphics::InitializeShaders()
 	};
 	UINT defaultNumElements3D = ARRAYSIZE(defaultLayout3D);
 
-	if (!default_vertexshader.Initialize(pDevice, shaderfolder + L"PBR_Textured_vs.cso", defaultLayout3D, defaultNumElements3D))
+	if (!default_vertexshader.Initialize(pDevice, m_shaderFolder + L"PBR_Textured_vs.cso", defaultLayout3D, defaultNumElements3D))
 	{
 		ErrorLogger::Log("Failed to initialize textured vertex PBR shader");
 		return false;
 	}
-	if (!default_pixelshader.Initialize(pDevice, shaderfolder + L"PBR_Textured_ps.cso"))
+	if (!default_pixelshader.Initialize(pDevice, m_shaderFolder + L"PBR_Textured_ps.cso"))
 	{
 		ErrorLogger::Log("Failed to initialize textured pixel PBR shader");
 		return false;
 	}
-	if (!skyVertexShader.Initialize(pDevice, shaderfolder + L"Sky_vs.cso", defaultLayout3D, defaultNumElements3D))
+	// Sky
+	if (!skyVertexShader.Initialize(pDevice, m_shaderFolder + L"Sky_vs.cso", defaultLayout3D, defaultNumElements3D))
 	{
 		ErrorLogger::Log("Failed to initialize Sky vertex shader");
 		return false;
 	}
-	if (!skyPixelShader.Initialize(pDevice, shaderfolder + L"Sky_ps.cso"))
+	if (!skyPixelShader.Initialize(pDevice, m_shaderFolder + L"Sky_ps.cso"))
 	{
 		ErrorLogger::Log("Failed to initialize Sky pixel shader");
 		return false;
 	}
+	//if (!prefilterMapPixelShader.Initialize(pDevice, shaderfolder + L"PrefilterMap_ps.cso"))
+	//{
+	//	ErrorLogger::Log("Failed to initialize Prefilter pixel shader");
+	//	return false;
+	//}
+
 
 	return true;
 }
@@ -490,7 +588,7 @@ bool Graphics::InitializeScene()
 
 		camera2D.SetProjectionValues((float)windowWidth, (float)windowHeight, 0.0f, 1.0f);
 
-		editorCamera.SetPosition(0.0f, 5.0f, -10.0f);
+		editorCamera.SetPosition(DirectX::XMFLOAT3(0.0f, 5.0f, -40.0f));
 		editorCamera.SetProjectionValues(80.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
 
 		gameCamera.SetPosition(0.0f, 10.0f, -10.0f);

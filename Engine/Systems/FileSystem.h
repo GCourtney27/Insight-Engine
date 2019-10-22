@@ -15,7 +15,6 @@ public:
 	FileSystem() {}
 	bool Initialize(Engine* engine);
 
-	static bool LoadSceneFromJSONExample(const std::string& sceneLocation, Scene* scene, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader);
 	static bool LoadSceneFromJSON(const std::string& sceneLocation, Scene* scene, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader);
 	static bool WriteSceneToJSON(Scene* scene);
 

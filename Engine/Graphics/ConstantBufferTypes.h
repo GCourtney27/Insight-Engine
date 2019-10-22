@@ -12,18 +12,6 @@ struct CB_VS_vertexshader
 
 };
 
-struct CB_VS_vertexshader_2d
-{
-	DirectX::XMMATRIX wvpMatrix;
-};
-
-struct CB_PS_perframe
-{
-	DirectX::XMFLOAT3 camPosition;//12
-	float deltaTime;//4
-	//16
-};
-
 struct CB_PS_light
 {
 	DirectX::XMFLOAT3 ambientLightColor;//12
@@ -38,6 +26,18 @@ struct CB_PS_light
 	float dynamicLightAttenuation_a;//4
 	float dynamicLightAttenuation_b;//4
 	float dynamicLightAttenuation_c;//4
+};
+
+struct CB_VS_vertexshader_2d
+{
+	DirectX::XMMATRIX wvpMatrix;//16
+};
+
+struct CB_PS_perframe
+{
+	DirectX::XMFLOAT3 camPosition;//12
+	float deltaTime;//4
+	//16
 };
 
 struct CB_VS_Sky

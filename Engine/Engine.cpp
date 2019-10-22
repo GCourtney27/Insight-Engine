@@ -13,15 +13,26 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	windowWidth = width;
 
 	Timer::Instance()->Start();
-	FileSystem::Instance()->Initialize(this);
+
+	if (!FileSystem::Instance()->Initialize(this))
+	{
+		ErrorLogger::Log("Failed to initialize File System.");
+		return false;
+	}
 
 	if (!this->render_window.Initialize(this, hInstance, window_title, window_class, width, height))
+	{
+		ErrorLogger::Log("Filed to initialize WindowContainer.");
 		return false;
+	}
 
 	if (!Graphics::Instance()->Initialize(this->render_window.GetHWND(), width, height, this))
+	{
+		ErrorLogger::Log("Failed to initialize Graphics Instance");
 		return false;
+	}
 
-	if (!FileSystem::Instance()->LoadSceneFromJSON("Data\\Scenes\\Scene_Skybox.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader()))
+	if (!FileSystem::Instance()->LoadSceneFromJSON("Data\\Scenes\\PBR_TexturedShowcase.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader()))
 	{
 		ErrorLogger::Log("Failed to initialize scene.");
 		return false;
@@ -29,13 +40,14 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 
 	if (!LuaStateManager::GetStateManager()->Create())
 	{
-		ErrorLogger::Log("Failed to initialize Lua state manager");
+		ErrorLogger::Log("Failed to initialize Lua State Manager");
 		return false;
 	}
 
 	
+	// Enable this to draw the lights mesh (Commented does not effect the lights emission behavior)
+	//scene.AddEntity(Graphics::Instance()->pointLight);
 
-	scene.AddEntity(Graphics::Instance()->pointLight);
 
 	// ENABLE THIS FOR PLAY MODE. Its just disabled so we can see the materials better
 	/*textures.push_back("Data\\Textures\\Iron\\IronOld_Albedo.png");
@@ -77,7 +89,10 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 
 
 	if (!Debug::Editor::Instance()->Initialize(this, this->render_window.GetHWND()))
+	{
+		ErrorLogger::Log("Failed to initialize Editor Instance.");
 		return false;
+	}
 	
 
 
@@ -95,12 +110,7 @@ void Engine::Update()
 	float gamedt = (float)Timer::Instance()->GetTicks();
 	Timer::Instance()->Restart();
 
-	scene.Update(dt);
-
-	if (Debug::Editor::Instance()->PlayingGame())
-		scene.OnUpdate(gamedt);
-
-
+	
 	while (!InputManager::Instance()->keyboard.CharBufferIsEmpty())
 	{
 		unsigned char ch = InputManager::Instance()->keyboard.ReadChar();
@@ -119,11 +129,16 @@ void Engine::Update()
 		{
 			if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
 			{
-				Graphics::Instance()->editorCamera.AdjustRotation((float)me.GetPosY() * 0.01f, (float)me.GetPosX() * 0.01f, 0);
+				Graphics::Instance()->editorCamera.AdjustRotation((float)me.GetPosY() * 0.005f, (float)me.GetPosX() * 0.005f, 0);
 			}
 		}
 
 	}
+
+	scene.Update(dt);
+
+	if (Debug::Editor::Instance()->PlayingGame())
+		scene.OnUpdate(gamedt);
 
 	Graphics::Instance()->Update(dt);
 	Debug::Editor::Instance()->Update(dt);
@@ -142,12 +157,20 @@ void Engine::Update()
 		Graphics::Instance()->pointLight->GetTransform().SetRotation(Graphics::Instance()->editorCamera.GetRotationFloat3());
 	}
 	
+	/*m_saveDelay -= dt;
+	DEBUGLOG(std::to_string(dt));
+	if (m_saveDelay <= 0.0f)
+	{
+		m_saveDelay = 10.0f;
+		m_canSave = true;
+	}*/
+
 	if (InputManager::Instance()->keyboard.KeyIsPressed(VK_CONTROL) && InputManager::Instance()->keyboard.KeyIsPressed('S'))
 	{
 		if (!FileSystem::Instance()->WriteSceneToJSON(&scene))
 			ErrorLogger::Log("Failed to save scene");
 		else
-			DEBUGLOG("Scene Saved");
+			DEBUGLOG("Scene saved");
 	}
 
 }

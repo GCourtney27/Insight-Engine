@@ -1,0 +1,92 @@
+{
+    "SceneName": "Scene_ImportTest",
+    "Objects": [
+        {
+            "Type": "Entity",
+            "Name": "Default_Test",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Data\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_DEFAULT",
+                            "Albedo": [
+								{
+									"r": 0.3
+								},
+								{
+									"g": 0.3
+								},
+								{
+									"b": 0.3
+								},
+								{
+									"a": 1.0
+								},
+							],
+                            "Metallic": 0.7
+                            "Roughness": 0.3
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Data\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

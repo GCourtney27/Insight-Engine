@@ -24,7 +24,7 @@ public:
 	void Destroy() override;
 	void OnImGuiRender() override;
 
-	void JSONLoad() override;
+	void InitFromJSON(Entity* owner, const rapidjson::Value& componentInformation) override;
 
 	bool lua_KeyIsPressed(int keycode);
 

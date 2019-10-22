@@ -37,8 +37,9 @@ void Model::Draw(const XMMATRIX & worldMatrix, const XMMATRIX & projectionMatrix
 		
 		if (m_pMaterial != nullptr)
 		{
-			//this->deviceContext->PSSetShaderResources(0, 1, m_pMaterial->m_textures[0].GetTextureResourceViewAddress());
-			
+			//this->m_pMaterial->SetVertexShader();
+			//this->m_pMaterial->SetPixelShader();
+
 			for (int i = 0; i < 4; i++)
 			{
 				this->deviceContext->PSSetShaderResources(i, 1, m_pMaterial->m_textures[i].GetTextureResourceViewAddress());

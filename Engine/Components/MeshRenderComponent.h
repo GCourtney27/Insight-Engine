@@ -16,7 +16,7 @@ public:
 	void Destroy() override;
 	void OnImGuiRender() override;
 
-	void JSONLoad() override;
+	void InitFromJSON(Entity* owner, const rapidjson::Value& componentInformation) override;
 
 	void SetIsDrawEnabled(bool visible = true) { m_drawEnabled = visible; }
 	bool GetIsDrawEnabled() { return m_drawEnabled; }

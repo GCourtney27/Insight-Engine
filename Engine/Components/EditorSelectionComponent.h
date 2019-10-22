@@ -17,7 +17,7 @@ public:
 	//void Update(const DirectX::XMFLOAT3 parentPosition);
 	void OnImGuiRender() override;
 
-	void JSONLoad() override;
+	void InitFromJSON(Entity* owner, const rapidjson::Value& componentInformation) override;
 
 	void SetRadius(float value) { m_radius = value; }
 	void SetPosition(const DirectX::XMFLOAT3 & position) { m_position = position; }

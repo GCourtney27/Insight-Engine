@@ -77,13 +77,14 @@ float3 fresnelSchlickRoughness(float HdotV, float3 F0, float roughness)
 float4 main(PS_INPUT input) : SV_TARGET
 {
     // Sample Textures
-    float3 albedoSample = albedoSRV.Sample(samplerState, input.inTexCoord).rgb;
-    float3 normalSample = normalSRV.Sample(samplerState, input.inTexCoord).xyz;
-    float metallicSample = metallicSRV.Sample(samplerState, input.inTexCoord).r;
-    float roughnessSample = roughnessSRV.Sample(samplerState, input.inTexCoord).r;
-    //float3 albedoSample = float3(1.0f, 0.2f, 0.2f);
-    //float metallicSample = 0.2f;
-    //float roughnessSample = 0.4f;
+   float3 albedoSample = albedoSRV.Sample(samplerState, input.inTexCoord).rgb;
+   float3 normalSample = normalSRV.Sample(samplerState, input.inTexCoord).xyz;
+   float metallicSample = metallicSRV.Sample(samplerState, input.inTexCoord).r;
+   float roughnessSample = roughnessSRV.Sample(samplerState, input.inTexCoord).r;
+   //float3 albedoSample = float3(1.0f, 1.0f, 1.0f);
+   //float metallicSample = 0.0f;
+   //float roughnessSample = 0.9f;
+   //float3 N = input.inNormal;
 
     // Transform Normals From Tangent Space to View Space
     const float3x3 tanToView = 
@@ -96,16 +97,17 @@ float4 main(PS_INPUT input) : SV_TARGET
     N.z = normalSample.z;
     N = mul(N, tanToView);
 
-    float3 V = normalize(camPosition - input.inWorldPos);
+    float3 V = normalize(camPosition - input.inWorldPos); // View vector
 
     float3 baseReflectivity = lerp(float3(0.04, 0.04, 0.04), albedoSample, metallicSample);
 
-    float3 Lo = float3(0.0f, 0.0f, 0.0f);
+    float3 Lo = float3(0.0f, 0.0f, 0.0f); // FInal lumanance of light
 
-    float3 L = normalize(dynamicLightPosition - input.inWorldPos); // Light vector
-    float3 H = normalize(V + L); //Halfway vector
+    float3 L = normalize(dynamicLightPosition - input.inWorldPos); // Light direction vector
+    float3 H = normalize(V + L); // Halfway vector
 
-
+    // -- Per light radiance -- //
+    // Color ambient light (Not used)
     float3 ambientLight = ambientLightColor * ambientLightStrength;
     float3 appliedLight = ambientLight;
 
@@ -137,23 +139,33 @@ float4 main(PS_INPUT input) : SV_TARGET
 
     Lo += (kD * albedoSample / PI + specular) * radiance * NdotL;
     
-    // IBL
-    roughnessSample = pow(roughnessSample, 3);
+    // -- IBL -- //
+    // Irradiance map
     float3 F_IBL = fresnelSchlickRoughness(NdotV, baseReflectivity, roughnessSample);
     float3 kD_IBL = (1.0f - F_IBL) * (1.0f - metallicSample);
     float3 diffuse = irradianceMapSRV.Sample(samplerState, N).rgb * albedoSample * kD_IBL;
-
+    // Specular IBL
     const float MAX_REFLECTION_LOD = 4.0f;
     float3 prefilteredColor = prefilterMapSRV.SampleLevel(samplerState, reflect(-V, N), roughnessSample * MAX_REFLECTION_LOD).rgb;
     float2 brdf = brdfLUT.Sample(samplerState, float2(NdotV, roughnessSample)).rg;
     float3 specular_IBL = prefilteredColor * (F_IBL * brdf.r + brdf.g);
 
-    float3 ambient = saturate(diffuse * specular_IBL);
+	// Works, but everything is shiny
+	float3 ambient = saturate(diffuse * specular_IBL);
+    float3 color = (ambient + Lo);
+    
+	// Works (Enable his line and comment above line to disable IBL)
+	//float3 color = Lo; 
 
-    float3 color = ambient + Lo;
-    //float3 color = Lo; // Works
+	// Almost perfect but diffuse IBL is gone, Specular IBL still there
+	/*float3 ambient = saturate(diffuse + specular_IBL);
+	float3 color = (ambient * Lo);*/
+	
+	// -- Test -- //
+	/*float3 ambient = (diffuse + specular_IBL);
+	float3 color = (ambient * Lo);*/
 
-    // HDR tonemapping;
+    // HDR tonemapping
     color = color / (color + float3(1.5f, 1.5f, 1.5f));
     // Gamma correct
     color = pow(color, float3(1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f));

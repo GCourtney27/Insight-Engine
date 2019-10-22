@@ -169,72 +169,36 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 
 		// MESH RENDERER
 		const rapidjson::Value& meshRenderer = allComponents[0]["MeshRenderer"];
-		MeshRenderer* finalMesh = nullptr;
 		bool foundModel = false;
 		std::string model_FilePath;
-		std::string materialType;
-		std::string albedo_Filepath;
-		std::string normal_Filepath;
-		std::string metallic_Filepath;
-		std::string roughness_Filepath;
-		std::vector<std::string> textures;
-
-		for (rapidjson::SizeType m = 0; m < meshRenderer.Size(); m++)
-		{
-			json::get_string(meshRenderer[m], "Model", model_FilePath);
-			if (model_FilePath != "NONE" && !foundModel)
-			{
-				foundModel = true;
-				finalMesh = entity->AddComponent<MeshRenderer>();
-			}
-
-			json::get_string(meshRenderer[m], "MaterialType", materialType);
-			json::get_string(meshRenderer[m], "Albedo", albedo_Filepath);
-			json::get_string(meshRenderer[m], "Normal", normal_Filepath);
-			json::get_string(meshRenderer[m], "Metallic", metallic_Filepath);
-			json::get_string(meshRenderer[m], "Roughness", roughness_Filepath);
-		}
-		if (finalMesh != nullptr)
-		{
-			textures.push_back(albedo_Filepath);
-			textures.push_back(normal_Filepath);
-			textures.push_back(metallic_Filepath);
-			textures.push_back(roughness_Filepath);
-			//
-			finalMesh->Initialize(entity, model_FilePath, device, deviceContext, cb_vs_vertexshader, new Material(device, deviceContext, materialType, textures));
-		}
-
+		json::get_string(meshRenderer[0], "Model", model_FilePath);
+		if (model_FilePath != "NONE" && !foundModel)
+			foundModel = true;
+		if(foundModel)
+			entity->AddComponent<MeshRenderer>()->InitFromJSON(entity, meshRenderer);
+		
 		
 		// LUA SCRIPT(s)
 		const rapidjson::Value& luaScript = allComponents[1]["LuaScript"];
-		LuaScript* finalScript = nullptr;
+		bool foundScript = false;
 		std::string scriptFilePath;
-		for (rapidjson::SizeType l = 0; l < luaScript.Size(); l++)
-		{
-			json::get_string(luaScript[l], "FilePath", scriptFilePath);
-			if (scriptFilePath != "NONE")
-				finalScript = entity->AddComponent<LuaScript>();
-			else
-				break;
-		}
-		if (finalScript != nullptr)
-			finalScript->Initialize(entity, scriptFilePath);
+		json::get_string(luaScript[0], "FilePath", scriptFilePath);
+		if (scriptFilePath != "NONE")
+			foundScript = true;
+		if (foundScript)
+			entity->AddComponent<LuaScript>()->InitFromJSON(entity, luaScript);
 		
 
 		// EDITOR SELECTION
 		const rapidjson::Value& editorSelection = allComponents[2]["EditorSelection"];
-		EditorSelection* finalComp = nullptr;
+		bool canBeSelected = false;
 		std::string mode;
-		for (rapidjson::SizeType e = 0; e < editorSelection.Size(); e++)
-		{
-			json::get_string(editorSelection[e], "Mode", mode);
-			if (mode != "OFF")
-				finalComp = entity->AddComponent<EditorSelection>();
-			else
-				break;
-		}
-		if(finalComp != nullptr)
-			finalComp->Initialize(entity, 20.0f, entity->GetTransform().GetPosition());
+		json::get_string(editorSelection[0], "Mode", mode);
+		if (mode != "OFF")
+			canBeSelected = true;
+		if(canBeSelected)
+			entity->AddComponent<EditorSelection>()->InitFromJSON(entity, editorSelection);
+
 
 
 		scene->AddEntity(entity);
@@ -423,7 +387,7 @@ bool FileSystem::WriteSceneToJSON(Scene* scene)
 
 	// Final Export
 	std::string sceneName = "Data\\Scenes\\" + scene->GetSceneName();
-	std::ofstream offstream(/*sceneName.c_str()*/"Data\\Scenes\\Scene_Skybox.json");
+	std::ofstream offstream(/*sceneName.c_str()*/"Data\\Scenes\\PBR_UnTexturedShowcase.json");
 	offstream << s.GetString();
 
 	if (!offstream.good())

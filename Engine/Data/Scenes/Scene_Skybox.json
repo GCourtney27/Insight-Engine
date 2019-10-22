@@ -51,13 +51,13 @@
                         {
                             "Model": "Data\\Objects\\Dandelion\\Var1\\Var1_LOD0.fbx"
                         },
-						{
-							"MaterialType":"PBR_MAPPED",
-							"Albedo": "Data\\Objects\\Dandelion\\Textures\\Atlas\\qlCc6_4K_Albedo.jpg",
-							"Normal": "Data\\Objects\\Dandelion\\Textures\\Atlas\\qlCc6_4K_Normal.jpg",
-							"Metallic": "Data\\Objects\\Dandelion\\Textures\\Atlas\\qlCc6_4K_Roughness.jpg",
-							"Roughness": "Data\\Objects\\Dandelion\\Textures\\Atlas\\qlCc6_4K_Roughness.jpg"
-						}
+                        {
+                            "MaterialType": "PBR_DEFAULT",
+                            "Albedo": "Data\\Objects\\Dandelion\\Textures\\Atlas\\qlCc6_4K_Albedo.jpg",
+                            "Normal": "Data\\Objects\\Dandelion\\Textures\\Atlas\\qlCc6_4K_Normal.jpg",
+                            "Metallic": "Data\\Objects\\Dandelion\\Textures\\Atlas\\qlCc6_4K_Roughness.jpg",
+                            "Roughness": "Data\\Objects\\Dandelion\\Textures\\Atlas\\qlCc6_4K_Roughness.jpg"
+                        }
                     ]
                 },
                 {
@@ -126,13 +126,13 @@
                         {
                             "Model": "Data\\Objects\\Primatives\\sphere.obj"
                         },
-						{
-							"MaterialType":"PBR_MAPPED",
-							"Albedo": "Data\\Textures\\RustedMetal\\RustedMetal_Albedo.png",
-							"Normal": "Data\\Textures\\RustedMetal\\RustedMetal_Normal.png",
-							"Metallic": "Data\\Textures\\RustedMetal\\RustedMetal_Metallic.png",
-							"Roughness": "Data\\Textures\\RustedMetal\\RustedMetal_Roughness.png"
-						}
+                        {
+                            "MaterialType": "PBR_DEFAULT",
+                            "Albedo": "Data\\Textures\\RustedMetal\\RustedMetal_Albedo.png",
+                            "Normal": "Data\\Textures\\RustedMetal\\RustedMetal_Normal.png",
+                            "Metallic": "Data\\Textures\\RustedMetal\\RustedMetal_Metallic.png",
+                            "Roughness": "Data\\Textures\\RustedMetal\\RustedMetal_Roughness.png"
+                        }
                     ]
                 },
                 {
@@ -150,7 +150,8 @@
                     ]
                 }
             ]
-        },{
+        },
+        {
             "Type": "Entity",
             "Name": "Plane",
             "Transform": [
@@ -170,10 +171,10 @@
                 {
                     "Rotation": [
                         {
-                            "x": 89.4
+                            "x": 89.4000015258789
                         },
                         {
-                            "y": -2.0
+                            "y": -1.9
                         },
                         {
                             "z": 0.0
@@ -200,13 +201,13 @@
                         {
                             "Model": "Data\\Objects\\Primatives\\Quad.obj"
                         },
-						{
-							"MaterialType":"PBR_MAPPED",
-							"Albedo": "Data\\Textures\\Bricks\\Bricks_Albedo.jpg",
-							"Normal": "Data\\Textures\\Bricks\\Bricks_Normal.jpg",
-							"Metallic": "Data\\Textures\\Bricks\\Bricks_Metallic.bmp",
-							"Roughness": "Data\\Textures\\Bricks\\Bricks_Roughness1.bmp"
-						}
+                        {
+                            "MaterialType": "PBR_DEFAULT",
+                            "Albedo": "Data\\Textures\\Bricks\\Bricks_Albedo.jpg",
+                            "Normal": "Data\\Textures\\Bricks\\Bricks_Normal.jpg",
+                            "Metallic": "Data\\Textures\\Bricks\\Bricks_Metallic.bmp",
+                            "Roughness": "Data\\Textures\\Bricks\\Bricks_Roughness1.bmp"
+                        }
                     ]
                 },
                 {

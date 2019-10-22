@@ -137,7 +137,7 @@ bool RenderWindow::ProccessMessages()
 			return false;
 		}
 	}
-	assert(_CrtCheckMemory()); // Makse sure the heap isn's corrupted on exit
+	//assert(_CrtCheckMemory()); // Makse sure the heap isn's corrupted on exit
 	return true;
 }
 
