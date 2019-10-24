@@ -261,6 +261,7 @@
     <ClCompile Include="StringHelper.cpp" />
     <ClCompile Include="Graphics\Texture.cpp" />
     <ClCompile Include="Systems\Timer.cpp" />
+    <ClCompile Include="Systems\TimeSystem.cpp" />
     <ClCompile Include="WindowContainer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -286,6 +287,7 @@
     <ClInclude Include="Graphics\Material.h" />
     <ClInclude Include="Graphics\MaterialTextured.h" />
     <ClInclude Include="Graphics\MaterialTexturedFoliage.h" />
+    <ClInclude Include="Graphics\MaterialUnTextured.h" />
     <ClInclude Include="Graphics\SimpleShader.h" />
     <ClInclude Include="Includes\Lua\LuaPlus\lapi.h" />
     <ClInclude Include="Includes\Lua\LuaPlus\lauxlib.h" />
@@ -380,6 +382,7 @@
     <ClInclude Include="Graphics\VertexBuffer.h" />
     <ClInclude Include="Graphics\Texture.h" />
     <ClInclude Include="Systems\Timer.h" />
+    <ClInclude Include="Systems\TimeSystem.h" />
     <ClInclude Include="WindowContainer.h" />
   </ItemGroup>
   <ItemGroup>

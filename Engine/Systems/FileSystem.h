@@ -8,6 +8,7 @@
 #include "..\\Objects\\Scene.h"
 #include "..\\Objects\\Entity.h"
 #include "..\\Framework\\Singleton.h"
+#include <future>
 
 class FileSystem : public Singleton<FileSystem>
 {
@@ -15,7 +16,7 @@ public:
 	FileSystem() {}
 	bool Initialize(Engine* engine);
 
-	static bool LoadSceneFromJSON(const std::string& sceneLocation, Scene* scene, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader);
+	static bool LoadSceneFromJSON(const std::string& sceneLocation, Scene* scene, ID3D11Device * device, ID3D11DeviceContext * deviceContext);
 	static bool WriteSceneToJSON(Scene* scene);
 
 	static bool LoadSceneFromFile(const std::string& sceneLocation, Scene* scene, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader);
@@ -26,4 +27,5 @@ public:
 
 private:
 	Engine* m_engine;
+
 };

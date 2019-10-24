@@ -5,7 +5,7 @@ bool Model::Initialize(const std::string & filepath, ID3D11Device * device, ID3D
 	this->modelDirectory = filepath;
 	this->device = device;
 	this->deviceContext = deviceContext;
-	this->cb_vs_vertexshader = &cb_vs_vertexshader;
+	this->cb_vs_vertexshader = &cb_vs_vertexshader; // <--Uncommented for skybox
 	this->m_pMaterial = material;
 
 	try
@@ -25,20 +25,35 @@ void Model::Draw(const XMMATRIX & worldMatrix, const XMMATRIX & projectionMatrix
 {
 	// TODO: go through the material set the shader and resources
 
-	this->deviceContext->VSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());
+	// THE REASON EVERYTHING NEEDS NULLPTR CHECKS IS BECASUE THEY SKYBOX IN GRAPHICS.CPP FIX IT!!
+	if (m_pMaterial != nullptr)
+	{
+		this->m_pMaterial->PSSetShader();
+		this->m_pMaterial->VSSetShader();
+
+		m_pMaterial->IASetInputLayout();
+		this->deviceContext->VSSetConstantBuffers(0, 1, this->m_pMaterial->cb_vs_vertexShader.GetAddressOf());
+		this->deviceContext->PSSetConstantBuffers(2, 1, this->m_pMaterial->cb_ps_perObjectColor.GetAddressOf());
+
+	}
+	else
+	{
+		this->deviceContext->VSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());
+	}
+
+	//this->deviceContext->VSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());
 
 	for (size_t i = 0; i < meshes.size(); i++)
 	{
-		// Update Constant Buffer Matricies
-		this->cb_vs_vertexshader->data.worldMatrix = meshes[i].GetTransformMatrix() * worldMatrix; // Calculate World Matrix
-		this->cb_vs_vertexshader->data.viewMatrix = viewMatrix; // Calculate World-ViewProjection Matrix
-		this->cb_vs_vertexshader->data.projectionMatrix = projectionMatrix;
-		this->cb_vs_vertexshader->ApplyChanges();
-		
 		if (m_pMaterial != nullptr)
 		{
-			//this->m_pMaterial->SetVertexShader();
-			//this->m_pMaterial->SetPixelShader();
+			// Update Constant Buffer Matricies
+			this->m_pMaterial->cb_vs_vertexShader.data.worldMatrix = meshes[i].GetTransformMatrix() * worldMatrix; // Calculate World Matrix
+			this->m_pMaterial->cb_vs_vertexShader.data.viewMatrix = viewMatrix; // Calculate World-ViewProjection Matrix
+			this->m_pMaterial->cb_vs_vertexShader.data.projectionMatrix = projectionMatrix;
+			this->m_pMaterial->cb_vs_vertexShader.ApplyChanges();
+		
+			
 
 			for (int i = 0; i < 4; i++)
 			{
@@ -46,10 +61,15 @@ void Model::Draw(const XMMATRIX & worldMatrix, const XMMATRIX & projectionMatrix
 			}
 			
 		}
-		
+		else
+		{
+			this->cb_vs_vertexshader->data.worldMatrix = meshes[i].GetTransformMatrix() * worldMatrix; // Calculate World Matrix
+			this->cb_vs_vertexshader->data.viewMatrix = viewMatrix; // Calculate World-ViewProjection Matrix
+			this->cb_vs_vertexshader->data.projectionMatrix = projectionMatrix;
+			this->cb_vs_vertexshader->ApplyChanges();
 			
+		}
 		
-
 		meshes[i].Draw();
 	}
 }

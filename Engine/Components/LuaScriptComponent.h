@@ -6,9 +6,9 @@
 
 extern "C"
 {
-#include "Lua535/lua.h";
-#include "Lua535/lauxlib.h"
-#include "Lua535/lualib.h"
+	#include "Lua535/lua.h"
+	#include "Lua535/lauxlib.h"
+	#include "Lua535/lualib.h"
 }
 
 class LuaScript : public Component

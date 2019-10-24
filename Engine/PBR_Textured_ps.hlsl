@@ -20,6 +20,13 @@ cbuffer PerFrame : register(b1)
 	float deltaTime;
 }
 
+cbuffer PerObjectColor : register(b2)
+{
+	float3 color;
+	float metallic;
+	float roughness;
+}
+
 struct PS_INPUT
 {
     float4 inPosition : SV_POSITION; // Screen space pixel position
@@ -34,10 +41,11 @@ Texture2D albedoSRV : TEXTURE : register(t0);
 Texture2D normalSRV : NORMAL : register(t1);
 Texture2D metallicSRV : METALLIC : register(t2);
 Texture2D roughnessSRV : ROUGHNESS : register(t3);
+Texture2D aoSRV : ROUGHNESS : register(t4);
 
-TextureCube irradianceMapSRV : IRRADIANCE : register(t4);
-TextureCube prefilterMapSRV : PREFILTERMAP : register(t5);
-Texture2D brdfLUT : BRDF : register(t6);
+TextureCube irradianceMapSRV : IRRADIANCE : register(t5);
+TextureCube prefilterMapSRV : PREFILTERMAP : register(t6);
+Texture2D brdfLUT : BRDF : register(t7);
 
 SamplerState samplerState : SAMPLER: register(s0);
 
@@ -77,10 +85,17 @@ float3 fresnelSchlickRoughness(float HdotV, float3 F0, float roughness)
 float4 main(PS_INPUT input) : SV_TARGET
 {
     // Sample Textures
-   float3 albedoSample = albedoSRV.Sample(samplerState, input.inTexCoord).rgb;
-   float3 normalSample = normalSRV.Sample(samplerState, input.inTexCoord).xyz;
-   float metallicSample = metallicSRV.Sample(samplerState, input.inTexCoord).r;
-   float roughnessSample = roughnessSRV.Sample(samplerState, input.inTexCoord).r;
+   float3 albedoSample = albedoSRV.Sample(samplerState, input.inTexCoord).rgb + color;
+   //float3 albedoSample = color;
+
+	float3 normalSample = normalSRV.Sample(samplerState, input.inTexCoord).xyz;
+
+   float metallicSample = saturate(metallicSRV.Sample(samplerState, input.inTexCoord).r + metallic);
+	//float metallicSample = metallic;
+
+	float roughnessSample = saturate(roughnessSRV.Sample(samplerState, input.inTexCoord).r + roughness);
+	float aoSample = roughnessSRV.Sample(samplerState, input.inTexCoord).r;
+	//float roughnessSample = roughness;
    //float3 albedoSample = float3(1.0f, 1.0f, 1.0f);
    //float metallicSample = 0.0f;
    //float roughnessSample = 0.9f;
@@ -99,7 +114,8 @@ float4 main(PS_INPUT input) : SV_TARGET
 
     float3 V = normalize(camPosition - input.inWorldPos); // View vector
 
-    float3 baseReflectivity = lerp(float3(0.04, 0.04, 0.04), albedoSample, metallicSample);
+	float3 F0 = float3(0.04, 0.04, 0.04);
+    float3 baseReflectivity = lerp(F0, albedoSample, metallicSample);
 
     float3 Lo = float3(0.0f, 0.0f, 0.0f); // FInal lumanance of light
 
@@ -142,8 +158,9 @@ float4 main(PS_INPUT input) : SV_TARGET
     // -- IBL -- //
     // Irradiance map
     float3 F_IBL = fresnelSchlickRoughness(NdotV, baseReflectivity, roughnessSample);
-    float3 kD_IBL = (1.0f - F_IBL) * (1.0f - metallicSample);
-    float3 diffuse = irradianceMapSRV.Sample(samplerState, N).rgb * albedoSample * kD_IBL;
+	float3 kD_IBL = (1.0f - F_IBL) * (1.0f - metallicSample);
+	float3 diffuse = irradianceMapSRV.Sample(samplerState, N).rgb * albedoSample * kD_IBL;
+
     // Specular IBL
     const float MAX_REFLECTION_LOD = 4.0f;
     float3 prefilteredColor = prefilterMapSRV.SampleLevel(samplerState, reflect(-V, N), roughnessSample * MAX_REFLECTION_LOD).rgb;
@@ -151,15 +168,18 @@ float4 main(PS_INPUT input) : SV_TARGET
     float3 specular_IBL = prefilteredColor * (F_IBL * brdf.r + brdf.g);
 
 	// Works, but everything is shiny
-	float3 ambient = saturate(diffuse * specular_IBL);
+	float3 ambient = saturate(diffuse + specular_IBL) *(0.05f);
     float3 color = (ambient + Lo);
     
+	//float3 ambient = (diffuse * specular_IBL);
+	//float3 color = (ambient + Lo);
+
 	// Works (Enable his line and comment above line to disable IBL)
 	//float3 color = Lo; 
 
 	// Almost perfect but diffuse IBL is gone, Specular IBL still there
-	/*float3 ambient = saturate(diffuse + specular_IBL);
-	float3 color = (ambient * Lo);*/
+	//float3 ambient = saturate(diffuse + specular_IBL);
+	//float3 color = (ambient * Lo);
 	
 	// -- Test -- //
 	/*float3 ambient = (diffuse + specular_IBL);

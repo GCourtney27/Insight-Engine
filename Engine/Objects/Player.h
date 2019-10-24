@@ -21,7 +21,7 @@ public:
 		es->Initialize(m_pCamera, 20.0f, m_pCamera->GetTransform().GetPosition());
 		scene->AddEntity(m_pCamera);
 		//MeshRenderer* mr = m_pCamera->AddComponent<MeshRenderer>();
-		//mr->Initialize(this, "Data\\Objects\\Primatives\\Sphere.fbx", Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext, Graphics::Instance()->GetDefaultVertexShader());
+		//mr->Initialize(this, "Assets\\Objects\\Primatives\\Sphere.fbx", Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext, Graphics::Instance()->GetDefaultVertexShader());
 		//m_children.push_back(&m_pCamera->GetTransform());
 	}
 
@@ -81,14 +81,14 @@ private:
 				{
 					"MeshRenderer": [
 						{
-							"Model": "Data\\Objects\\Dandelion\\Var1\\Textured_Flower.obj"
+							"Model": "Assets\\Objects\\Dandelion\\Var1\\Textured_Flower.obj"
 						}
 					]
 				},
 				{
 					"LuaScript": [
 						{
-							"FilePath": "Data\\LuaScripts\\PlayerController.lua"
+							"FilePath": "Assets\\LuaScripts\\PlayerController.lua"
 						}
 					]
 				},

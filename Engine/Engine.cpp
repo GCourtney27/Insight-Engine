@@ -32,7 +32,7 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 		return false;
 	}
 
-	if (!FileSystem::Instance()->LoadSceneFromJSON("Data\\Scenes\\PBR_TexturedShowcase.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader()))
+	if (!FileSystem::Instance()->LoadSceneFromJSON("Assets\\Scenes\\PBR_TexturedShowcase.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext()))
 	{
 		ErrorLogger::Log("Failed to initialize scene.");
 		return false;
@@ -50,10 +50,10 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 
 
 	// ENABLE THIS FOR PLAY MODE. Its just disabled so we can see the materials better
-	/*textures.push_back("Data\\Textures\\Iron\\IronOld_Albedo.png");
-	textures.push_back("Data\\Textures\\Iron\\IronOld_Normal.png");
-	textures.push_back("Data\\Textures\\Iron\\IronOld_Metallic.png");
-	textures.push_back("Data\\Textures\\Iron\\IronOld_Roughness.png");
+	/*textures.push_back("Assets\\Textures\\Iron\\IronOld_Albedo.png");
+	textures.push_back("Assets\\Textures\\Iron\\IronOld_Normal.png");
+	textures.push_back("Assets\\Textures\\Iron\\IronOld_Metallic.png");
+	textures.push_back("Assets\\Textures\\Iron\\IronOld_Roughness.png");
 	m_pMaterial = new Material(Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), "PBR_MAPPED", textures);
 
 	player = new Player(&scene, *(new ID("Player")));
@@ -63,23 +63,14 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	player->GetTransform().SetScale(1.0f, 1.0f, 1.0f);
 
 	MeshRenderer* mr = player->AddComponent<MeshRenderer>();
-	mr->Initialize(player, "Data\\Objects\\GraniteRock\\Rock_LOD0.fbx", Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader(), m_pMaterial);
+	mr->Initialize(player, "Assets\\Objects\\GraniteRock\\Rock_LOD0.fbx", Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader(), m_pMaterial);
 
 	EditorSelection* es = player->AddComponent<EditorSelection>();
 	es->Initialize(player, 20.0f, player->GetTransform().GetPosition());
 
 	scene.AddEntity(player);*/
 
-	// Dandelion\\Var1\\Textured_Flower.obj
-	/*entity = new Entity(&scene, *(new ID("PBR_Entity")));
-	MeshRenderer* me = entity->AddComponent<MeshRenderer>();
-	me->Initialize("Data\\Objects\\Primatives\\Sphere.fbx", Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader(), Graphics::Instance()->GetWoodMaterial());
-	entity->GetTransform().SetPosition(0.0f, 0.0f, 0.0f);
-	entity->GetTransform().SetScale(10.0f, 10.0f, 10.0f);
-	entity->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
-	EditorSelection* es = entity->AddComponent<EditorSelection>();
-	es->Initialize(20.0f, entity->GetTransform().GetPosition());
-	scene.AddEntity(entity);*/
+	
 
 	if (!scene.Initialize())
 	{
@@ -106,9 +97,12 @@ bool Engine::ProccessMessages()
 
 void Engine::Update()
 {
-	float dt = (float)Timer::Instance()->GetTicks();
-	float gamedt = (float)Timer::Instance()->GetTicks();
-	Timer::Instance()->Restart();
+	//float dt = (float)Timer::Instance()->GetTicks();
+	timer.tick();
+	float dt = timer.dt();
+	float gamedt = timer.dt();
+	/*float gamedt = (float)Timer::Instance()->GetTicks();
+	Timer::Instance()->Restart();*/
 
 	
 	while (!InputManager::Instance()->keyboard.CharBufferIsEmpty())
@@ -157,20 +151,23 @@ void Engine::Update()
 		Graphics::Instance()->pointLight->GetTransform().SetRotation(Graphics::Instance()->editorCamera.GetRotationFloat3());
 	}
 	
-	/*m_saveDelay -= dt;
-	DEBUGLOG(std::to_string(dt));
-	if (m_saveDelay <= 0.0f)
+	if (m_canSave == false)
 	{
-		m_saveDelay = 10.0f;
-		m_canSave = true;
-	}*/
-
-	if (InputManager::Instance()->keyboard.KeyIsPressed(VK_CONTROL) && InputManager::Instance()->keyboard.KeyIsPressed('S'))
+		m_saveDelay -= dt;
+		if (m_saveDelay <= 0.0f)
+		{
+			m_saveDelay = 3.0f;
+			m_canSave = true;
+		}
+	}
+	if (InputManager::Instance()->keyboard.KeyIsPressed(VK_CONTROL) && InputManager::Instance()->keyboard.KeyIsPressed('S') && m_canSave)
 	{
+		m_canSave = false;
 		if (!FileSystem::Instance()->WriteSceneToJSON(&scene))
 			ErrorLogger::Log("Failed to save scene");
 		else
-			DEBUGLOG("Scene saved");
+			DEBUGLOG("SCENE SAVED");
+			//DEBUGLOG("SCENE SAVING DISABLED!");
 	}
 
 }

@@ -84,7 +84,123 @@ com_base* com_base::Create(std::string& name)
 	return p;
 }
 
-bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * scene, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
+static Entity* LoadEntity(const rapidjson::Value& object, Scene* scene)
+{
+
+	ID* id = nullptr;
+	Entity* entity = nullptr;
+
+	std::string objectType;
+	json::get_string(object, "Type", objectType);
+	if (objectType == "Entity")
+	{
+		if (entity == nullptr)
+		{
+			id = new ID();
+			entity = new Entity(scene, (*id));
+		}
+	}
+
+	std::string objectName;
+	json::get_string(object, "Name", objectName);
+	entity->GetID().SetName(objectName);
+	entity->GetID().SetTag("Untagged");
+
+#pragma region Load Transform
+	// Loop through Transform array
+	float px, py, pz;
+	float rx, ry, rz;
+	float sx, sy, sz;
+	const rapidjson::Value& transform = object["Transform"]; // At spot o in the sceneObjects array (Number of spots is how ever many objects are in the scene)
+	const rapidjson::Value& position = transform[0]["Position"];
+	for (rapidjson::SizeType p = 0; p < position.Size(); p++)
+	{
+		json::get_float(position[p], "x", px);
+		json::get_float(position[p], "y", py);
+		json::get_float(position[p], "z", pz);
+	}
+	const rapidjson::Value& rotation = transform[1]["Rotation"];
+	for (rapidjson::SizeType r = 0; r < rotation.Size(); r++)
+	{
+		json::get_float(rotation[r], "x", rx);
+		json::get_float(rotation[r], "y", ry);
+		json::get_float(rotation[r], "z", rz);
+	}
+	const rapidjson::Value& scale = transform[2]["Scale"];
+	for (rapidjson::SizeType s = 0; s < scale.Size(); s++)
+	{
+		json::get_float(scale[s], "x", sx);
+		json::get_float(scale[s], "y", sy);
+		json::get_float(scale[s], "z", sz);
+	}
+	entity->GetTransform().SetPosition(DirectX::XMFLOAT3(px, py, pz));
+	entity->GetTransform().SetRotation(rx, ry, rz);
+	entity->GetTransform().SetScale(sx, sy, sz);
+#pragma endregion Load Entity Transform
+
+	// Loop through Components array
+	const rapidjson::Value& allComponents = object["Components"]; // Gets json array of all components
+
+	// MESH RENDERER
+	const rapidjson::Value& meshRenderer = allComponents[0]["MeshRenderer"];
+	bool foundModel = false;
+	std::string model_FilePath;
+	json::get_string(meshRenderer[0], "Model", model_FilePath);
+	if (model_FilePath != "NONE" && !foundModel)
+		foundModel = true;
+	if (foundModel)
+		entity->AddComponent<MeshRenderer>()->InitFromJSON(entity, meshRenderer);
+
+
+	// LUA SCRIPT(s)
+	const rapidjson::Value& luaScript = allComponents[1]["LuaScript"];
+	bool foundScript = false;
+	std::string scriptFilePath;
+	json::get_string(luaScript[0], "FilePath", scriptFilePath);
+	if (scriptFilePath != "NONE")
+		foundScript = true;
+	if (foundScript)
+		entity->AddComponent<LuaScript>()->InitFromJSON(entity, luaScript);
+
+
+	// EDITOR SELECTION
+	const rapidjson::Value& editorSelection = allComponents[2]["EditorSelection"];
+	bool canBeSelected = false;
+	std::string mode;
+	json::get_string(editorSelection[0], "Mode", mode);
+	if (mode != "OFF")
+		canBeSelected = true;
+	if (canBeSelected)
+		entity->AddComponent<EditorSelection>()->InitFromJSON(entity, editorSelection);
+
+	return entity;
+}
+
+
+static std::mutex s_scene;
+
+static void LoadEntityAsync(Scene* scene, const rapidjson::Value& object)
+{
+	Entity* entity = LoadEntity(object, scene);
+
+	std::lock_guard<std::mutex> lock(s_scene);
+	scene->AddEntity(entity);
+}
+
+static int Add(int number)
+{
+	return number + 10;
+}
+
+static void AddAndSave(int num, std::vector<int>* basket)
+{
+	int result = Add(num);
+	std::lock_guard<std::mutex> lock(s_scene);
+
+	basket->push_back(result);
+}
+
+bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * scene, ID3D11Device * device, ID3D11DeviceContext * deviceContext)
 {
 	// Load document from file and verify it was found
 	rapidjson::Document masterDocument;
@@ -103,6 +219,30 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 
 	// Load objects
 	const rapidjson::Value& sceneObjects = masterDocument["Objects"]; // Arr
+	std::vector<std::future<void*>> m_futures;
+
+	std::vector<Entity*> entities;
+	for (rapidjson::SizeType o = 0; o < sceneObjects.Size(); o++)
+	{
+		//auto future = std::async(std::launch::async, LoadEntityAsync, scene, sceneObjects[o]);
+
+		//LoadEntityAsync(scene, sceneObjects[o]);
+		//const rapidjson::Value& object = sceneObjects[o];
+		//m_futures.push_back(std::async(std::launch::async, &LoadEntityAsync, scene, object));
+
+
+	}
+
+	/*std::vector<int> vec;
+	int num = 1;
+	for (int i = 0; i < 3; i++)
+	{
+		auto future = std::async(std::launch::async, AddAndSave, i, &vec);
+
+	}*/
+
+	//return true;
+
 	for (rapidjson::SizeType o = 0; o < sceneObjects.Size(); o++)
 	{
 		const rapidjson::Value& object = sceneObjects[o]; // Current object in Objects array  (unique entity, perform calls on this object)
@@ -162,10 +302,10 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 		entity->GetTransform().SetPosition(DirectX::XMFLOAT3(px, py, pz));
 		entity->GetTransform().SetRotation(rx, ry, rz);
 		entity->GetTransform().SetScale(sx, sy, sz);
-#pragma endregion Load Entity transform
+#pragma endregion Load Entity Transform
 
 		// Loop through Components array
-		const rapidjson::Value& allComponents = sceneObjects[o]["Components"]; // Gets json array of all components
+		const rapidjson::Value& allComponents = object["Components"]; // Gets json array of all components
 
 		// MESH RENDERER
 		const rapidjson::Value& meshRenderer = allComponents[0]["MeshRenderer"];
@@ -329,15 +469,15 @@ bool FileSystem::WriteSceneToJSON(Scene* scene)
 		writer.Key("MaterialType");
 		writer.String((*iter)->GetComponent<MeshRenderer>()->GetModel()->GetMaterial()->GetMaterialTypeAsString().c_str());
 
-		std::vector<std::string> materialLocations = (*iter)->GetComponent<MeshRenderer>()->GetModel()->GetMaterial()->GetTextureLocations();
+		//std::vector<std::string> materialLocations = (*iter)->GetComponent<MeshRenderer>()->GetModel()->GetMaterial()->GetTextureLocations();
 		writer.Key("Albedo");
-		writer.String(materialLocations[0].c_str());
+		//writer.String(materialLocations[0].c_str());
 		writer.Key("Normal");
-		writer.String(materialLocations[1].c_str());
+		//writer.String(materialLocations[1].c_str());
 		writer.Key("Metallic");
-		writer.String(materialLocations[2].c_str());
+		//writer.String(materialLocations[2].c_str());
 		writer.Key("Roughness");
-		writer.String(materialLocations[3].c_str());
+		//writer.String(materialLocations[3].c_str());
 
 		writer.EndObject(); // End Material Information
 
@@ -386,8 +526,8 @@ bool FileSystem::WriteSceneToJSON(Scene* scene)
 	writer.EndObject(); // End File
 
 	// Final Export
-	std::string sceneName = "Data\\Scenes\\" + scene->GetSceneName();
-	std::ofstream offstream(/*sceneName.c_str()*/"Data\\Scenes\\PBR_UnTexturedShowcase.json");
+	std::string sceneName = "Assets\\Scenes\\" + scene->GetSceneName();
+	std::ofstream offstream(/*sceneName.c_str()*/"Assets\\Scenes\\Scratch.json");
 	offstream << s.GetString();
 
 	if (!offstream.good())

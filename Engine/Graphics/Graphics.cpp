@@ -19,11 +19,12 @@ bool Graphics::Initialize(HWND hwnd, int width, int height, Engine* engine)
 	if (!InitializeShaders())
 		return false;
 	
-	textures.push_back("Data\\Textures\\Iron\\IronOld_Albedo.png");
-	textures.push_back("Data\\Textures\\Iron\\IronOld_Normal.png");
-	textures.push_back("Data\\Textures\\Iron\\IronOld_Metallic.png");
-	textures.push_back("Data\\Textures\\Iron\\IronOld_Roughness.png");
+	/*textures.push_back("Assets\\Textures\\Iron\\IronOld_Albedo.png");
+	textures.push_back("Assets\\Textures\\Iron\\IronOld_Normal.png");
+	textures.push_back("Assets\\Textures\\Iron\\IronOld_Metallic.png");
+	textures.push_back("Assets\\Textures\\Iron\\IronOld_Roughness.png");
 	m_pMaterial = new Material(pDevice.Get(), pDeviceContext.Get(), Material::eMaterialType::PBR_MAPPED, Material::eFlags::NOFLAGS, textures);
+	*/
 
 	pointLight = new PointLight(&(m_pEngine->GetScene()), *(new ID("Point Light")));
 
@@ -32,7 +33,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height, Engine* engine)
 	pointLight->GetTransform().SetScale(1.0f, 1.0f, 1.0f);
 
 	MeshRenderer* mr = pointLight->AddComponent<MeshRenderer>();
-	mr->Initialize(pointLight, "Data\\Objects\\Primatives\\Sphere.fbx", Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader(), m_pMaterial);
+	mr->Initialize(pointLight, "Assets\\Objects\\Primatives\\Sphere.fbx", Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader(), m_pMaterial);
 
 	EditorSelection* es = pointLight->AddComponent<EditorSelection>();
 	es->Initialize(pointLight, 1.0f, pointLight->GetTransform().GetPosition());
@@ -66,8 +67,63 @@ bool Graphics::Initialize(HWND hwnd, int width, int height, Engine* engine)
 
 	return true;
 }
+
+void Graphics::InitSkybox()
+{
+	skybox = new Entity((&m_pEngine->GetScene()), *(new ID("Sky Box")));
+	
+	skybox->GetTransform().SetPosition(0.0f, 0.0f, 0.0f);
+	skybox->GetTransform().SetScale(500.0f, 500.0f, 500.0f);
+	skybox->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
+	MeshRenderer* me = skybox->AddComponent<MeshRenderer>();
+	me->Initialize(skybox, "Assets\\Objects\\Primatives\\Sphere.fbx", pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader, nullptr);
+
+	D3D11_TEXTURE2D_DESC desc{};
+	desc.Width = 64;
+	desc.Height = 64;
+	desc.ArraySize = 1;
+	desc.SampleDesc.Count = 1;
+	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	srvDesc.Format = desc.Format;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = -1;
+
+	
+
+
+	std::string filePath = "Assets\\Textures\\Skyboxes\\skybox1.dds";
+	HRESULT hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), StringHelper::StringToWide(filePath).c_str(), nullptr, &skyboxTextureSRV);
+	if(FAILED(hr))
+		ErrorLogger::Log("Failed to load dds texture for skybox");
+
+	std::string filePath1 = "Assets\\Textures\\Skyboxes\\skybox1Prefilter.dds";
+	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), StringHelper::StringToWide(filePath1).c_str(), nullptr, &prefilterMapSRV);
+	if (FAILED(hr))
+		ErrorLogger::Log("Failed to load dds texture for prefilter map");
+
+	//pDevice->CreateTexture2D(&desc, nullptr, &prefilterMap);
+	//pDevice->CreateShaderResourceView(prefilterMap, &srvDesc, &prefilterMapSRV);
+	//pDeviceContext->UpdateSubresource(prefilterMap, 0, 0, pixels, initData.SysMemPitch, 0);
+	//pDeviceContext->GenerateMips(prefilterMapSRV);
+
+	std::string filePath2 = "Assets\\Textures\\Skyboxes\\skybox1IR.dds";
+	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), StringHelper::StringToWide(filePath2).c_str(), nullptr, &irradianceMapSRV);
+	if (FAILED(hr))
+		ErrorLogger::Log("Failed to load dds texture for irradiance map");
+
+	std::string filePath3 = "Assets\\Textures\\Skyboxes\\ibl_brdf_lut.png";
+	hr = DirectX::CreateWICTextureFromFile(pDevice.Get(), StringHelper::StringToWide(filePath3).c_str(), nullptr, &brdfLUTSRV);
+	if (FAILED(hr))
+		ErrorLogger::Log("Failed to load dds texture for brdfLUT map");
+
+
+}
 //
-//void Graphics::GeneratePrefilterSkyMap()
+//void Graphics::IniitalizeIBLAssets()
 //{
 //	D3D11_TEXTURE2D_DESC skyIBLDesc;
 //	//ZeroMemory(&skyIBLDesc, sizeof(skyIBLDesc));
@@ -83,6 +139,15 @@ bool Graphics::Initialize(HWND hwnd, int width, int height, Engine* engine)
 //	skyIBLDesc.SampleDesc.Count = 1;
 //	skyIBLDesc.SampleDesc.Quality = 0;
 //
+//	XMFLOAT3 position = XMFLOAT3(0, 0, 0);
+//	XMFLOAT4X4 camViewMatrix;
+//	XMFLOAT4X4 camProjMatrix;
+//	XMVECTOR tar[] = { XMVectorSet(1, 0, 0, 0), XMVectorSet(-1, 0, 0, 0), XMVectorSet(0, 1, 0, 0), XMVectorSet(0, -1, 0, 0), XMVectorSet(0, 0, 1, 0), XMVectorSet(0, 0, -1, 0) };
+//	XMVECTOR up[] = { XMVectorSet(0, 1, 0, 0), XMVectorSet(0, 1, 0, 0), XMVectorSet(0, 0, -1, 0), XMVectorSet(0, 0, 1, 0), XMVectorSet(0, 1, 0, 0), XMVectorSet(0, 1, 0, 0) };
+//	//---
+//	UINT stride = sizeof(Vertex3D);
+//	UINT offset = 0;
+//	const float color[4] = { 0.6f, 0.6f, 0.6f, 0.0f };
 //
 //#pragma region Prefilter EnvMap
 //	// PREFILTER ENVIRONMENT MAP - Declarations on Line 66 in Game.h
@@ -139,19 +204,43 @@ bool Graphics::Initialize(HWND hwnd, int width, int height, Engine* engine)
 //			envMapRTVDesc.Texture2DArray.FirstArraySlice = i;
 //			pDevice->CreateRenderTargetView(envMaptex, &envMapRTVDesc, &envMapRTV[i]);
 //
+//			//-- Cam directions
+//			XMVECTOR dir = XMVector3Rotate(tar[i], XMQuaternionIdentity());
+//			XMMATRIX view = DirectX::XMMatrixLookToLH(XMLoadFloat3(&position), dir, up[i]);
+//			XMStoreFloat4x4(&camViewMatrix, DirectX::XMMatrixTranspose(view));
+//
+//			XMMATRIX P = DirectX::XMMatrixPerspectiveFovLH(0.5f * XM_PI, 1.0f, 0.1f, 100.0f);
+//			XMStoreFloat4x4(&camProjMatrix, DirectX::XMMatrixTranspose(P));
 //			//---
-//			float bgcolor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
 //			pDeviceContext->OMSetRenderTargets(1, &envMapRTV[i], 0);
 //			pDeviceContext->RSSetViewports(1, &envMapviewport);
-//			pDeviceContext->ClearRenderTargetView(envMapRTV[i], bgcolor);
+//			pDeviceContext->ClearRenderTargetView(envMapRTV[i], color);
 //			//---
 //
-//			// Shader declared on line 62 in Game.h
-//			pDeviceContext->PSSetShader(prefilterMapPixelShader.GetShader(), NULL, 0);
-//			pDeviceContext->PSSetShaderResources(0, 1, &skyboxTextureSRV);
-//			//PrefilterMapPixelShader->SetFloat("roughness", roughness);
+//			vertexBuffer = cubeMesh->GetVertexBuffer();
+//			indexBuffer = cubeMesh->GetIndexBuffer();
 //
-//			//context->DrawIndexed(cubeMesh->GetIndexCount(), 0, 0);
+//			skyVertexShader->SetMatrix4x4("view", camViewMatrix);
+//			skyVertexShader->SetMatrix4x4("projection", camProjMatrix);
+//
+//			skyVertexShader->CopyAllBufferData();
+//			skyVertexShader->SetShader();
+//
+//			// Shader declared on line 62 in Game.h
+//			PrefilterMapPixelShader->SetShaderResourceView("EnvMap", skySRV);
+//			PrefilterMapPixelShader->SetSamplerState("basicSampler", sampler);
+//			PrefilterMapPixelShader->SetFloat("roughness", roughness);
+//
+//			PrefilterMapPixelShader->CopyAllBufferData();
+//			PrefilterMapPixelShader->SetShader();
+//
+//			pDeviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+//			pDeviceContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+//
+//			pDeviceContext->RSSetState(skyRasterizerState);
+//			pDeviceContext->OMSetDepthStencilState(skyDepthState, 0);
+//
+//			pDeviceContext->DrawIndexed(cubeMesh->GetIndexCount(), 0, 0);
 //
 //			// Reset the render states we've changed
 //			//context->RSSetState(0);
@@ -161,42 +250,10 @@ bool Graphics::Initialize(HWND hwnd, int width, int height, Engine* engine)
 //		for (int i = 0; i < 6; i++) {
 //			envMapRTV[i]->Release();
 //		}
+//
 //	}
-//#pragma endregion Specular IBL
+//#pragma endregion
 //}
-
-void Graphics::InitSkybox()
-{
-	skybox = new Entity((&m_pEngine->GetScene()), *(new ID("Sky Box")));
-	
-	skybox->GetTransform().SetPosition(0.0f, 0.0f, 0.0f);
-	skybox->GetTransform().SetScale(500.0f, 500.0f, 500.0f);
-	skybox->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
-	MeshRenderer* me = skybox->AddComponent<MeshRenderer>();
-	me->Initialize(skybox, "Data\\Objects\\Primatives\\Sphere.fbx", pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader, nullptr);
-
-	std::string filePath = "Data\\Textures\\Skyboxes\\skybox1.dds";
-	HRESULT hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), StringHelper::StringToWide(filePath).c_str(), nullptr, &skyboxTextureSRV);
-	if(FAILED(hr))
-	{
-		ErrorLogger::Log("Failed to load dds texture for skybox");
-	}
-
-	std::string filePath1 = "Data\\Textures\\Skyboxes\\skybox1IR.dds";
-	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), StringHelper::StringToWide(filePath1).c_str(), nullptr, &irradianceMapSRV);
-	if (FAILED(hr))
-	{
-		ErrorLogger::Log("Failed to load dds texture for irradiance map");
-	}
-
-	std::string filePath2 = "Data\\Textures\\Skyboxes\\ibl_brdf_lut.png";
-	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), StringHelper::StringToWide(filePath1).c_str(), nullptr, &brdfLUTSRV);
-	if (FAILED(hr))
-	{
-		ErrorLogger::Log("Failed to load dds texture for irradiance map");
-	}
-}
-
 
 bool Graphics::InitializeDirectX(HWND hwnd)
 {
@@ -308,7 +365,7 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 		COM_ERROR_IF_FAILED(hr, "Failed to create blend state.");
 
 		pSpriteBatch = std::make_unique<DirectX::SpriteBatch>(pDeviceContext.Get());
-		pSpriteFont = std::make_unique<DirectX::SpriteFont>(pDevice.Get(), L"Data\\Fonts\\calibri.spritefont");
+		pSpriteFont = std::make_unique<DirectX::SpriteFont>(pDevice.Get(), L"Assets\\Fonts\\calibri.spritefont");
 
 		// Create sampler description for sampler state
 		CD3D11_SAMPLER_DESC sampleDesc(D3D11_DEFAULT);
@@ -332,7 +389,8 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 
 void Graphics::RenderFrame()
 {
-
+	// -- These Constant Buffers dont get included in materials becasue they change on a per-scene basis -- //
+#pragma region
 	// -- Update Light Shader Information -- //
 	cb_ps_light.data.dynamicLightColor = pointLight->lightColor;
 	cb_ps_light.data.dynamicLightStrength = pointLight->lightStrength;
@@ -342,16 +400,21 @@ void Graphics::RenderFrame()
 	cb_ps_light.data.dynamicLightAttenuation_c = pointLight->attenuation_c;
 	cb_ps_light.ApplyChanges();
 
+	// -- Update Per Frame Informaiton -- //
 	cb_ps_PerFrame.data.deltaTime = m_deltaTime;
 	cb_ps_PerFrame.data.camPosition = editorCamera.GetPosition();
 	cb_ps_PerFrame.ApplyChanges();
+	cb_vs_PerFrame.data.deltaTime = m_deltaTime;
+	cb_vs_PerFrame.ApplyChanges();
 
+	// -- Set Pixel Shader Constant Buffers
 	pDeviceContext->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
-	
 	pDeviceContext->PSSetConstantBuffers(1, 1, cb_ps_PerFrame.GetAddressOf());
-	
 
-	// Start ImGui frame
+	pDeviceContext->VSSetConstantBuffers(2, 1, cb_vs_PerFrame.GetAddressOf());
+#pragma endregion Per Scene
+
+	// -- Start ImGui frame -- //
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -362,45 +425,38 @@ void Graphics::RenderFrame()
 	float bgcolor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
 	pDeviceContext->ClearRenderTargetView(pRenderTargetView.Get(), bgcolor);
 	pDeviceContext->ClearDepthStencilView(pDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-
-	
 	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);//D3D10_PRIMITIVE_TOPOLOGY_LINELIST
+	
+	// Set Rasterizer state to CULLNONE to draw skybox
 	pDeviceContext->RSSetState(pRasterizerStateCULLNONE.Get());
 
-	// Set Samplers
+	// -- Set Shader Samplers -- //
 	pDeviceContext->PSSetSamplers(0, 1, samplerState.GetAddressOf());
 
-
-	// Draw Skybox
+	// -- Draw Skybox -- //
 	pDeviceContext->IASetInputLayout(skyVertexShader.GetInputLayout());
 	pDeviceContext->PSSetShaderResources(0, 1, &skyboxTextureSRV);
 	pDeviceContext->PSSetShader(skyPixelShader.GetShader(), NULL, 0);
 	pDeviceContext->VSSetShader(skyVertexShader.GetShader(), NULL, 0);
 	skybox->Draw(editorCamera.GetProjectionMatrix(), editorCamera.GetViewMatrix());
 	
+	// Reset Rasterizer state for rest of geometry
 	pDeviceContext->RSSetState(pRasterizerState.Get());
-	
 	pDeviceContext->OMSetDepthStencilState(pDepthStencilState.Get(), 0);
 	pDeviceContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);
 
-	// Set Shaders to be used
-	pDeviceContext->PSSetShaderResources(4, 1, &irradianceMapSRV);
-	pDeviceContext->PSSetShaderResources(5, 1, &skyboxTextureSRV);
-	pDeviceContext->PSSetShaderResources(6, 1, &brdfLUTSRV);
-	pDeviceContext->IASetInputLayout(default_vertexshader.GetInputLayout());
-
-	pDeviceContext->VSSetShader(default_vertexshader.GetShader(), NULL, 0);
-	pDeviceContext->PSSetShader(default_pixelshader.GetShader(), NULL, 0);
+	// -- Set IBL resources for shader slots -- //
+	pDeviceContext->PSSetShaderResources(5, 1, &irradianceMapSRV);
+	pDeviceContext->PSSetShaderResources(6, 1, &prefilterMapSRV);
+	pDeviceContext->PSSetShaderResources(7, 1, &brdfLUTSRV);
 	
-
+	// -- Draw Game Objects -- //
 	if (Debug::Editor::Instance()->PlayingGame())
 	{
 		std::list<Entity*>* entities = m_pEngine->GetScene().GetAllEntities();
 		std::list<Entity*>::iterator iter;
 		for (iter = entities->begin(); iter != entities->end(); iter++)
 		{
-			//(*iter)->Draw(gameCamera.GetViewMatrix() * gameCamera.GetProjectionMatrix());
 			(*iter)->Draw(m_pEngine->GetPlayer()->GetPlayerCamera()->GetProjectionMatrix(), m_pEngine->GetPlayer()->GetPlayerCamera()->GetViewMatrix());
 		}
 	}
@@ -436,7 +492,7 @@ void Graphics::RenderFrame()
 	pSpriteFont->DrawString(pSpriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	pSpriteBatch->End();
 
-
+	// -- Update ImGui -- //
 	UpdateImGuiWidgets();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	if (pImGuiIO->ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -451,7 +507,7 @@ void Graphics::RenderFrame()
 
 void Graphics::Update(const float& deltaTime)
 {
-	skybox->GetTransform().SetPosition(editorCamera.GetPosition());
+	//skybox->GetTransform().SetPosition(editorCamera.GetPosition());
 	m_deltaTime = deltaTime;
 }
 
@@ -508,7 +564,7 @@ bool Graphics::InitializeShaders()
 	};
 	UINT defaultNumElements3D = ARRAYSIZE(defaultLayout3D);
 
-	if (!default_vertexshader.Initialize(pDevice, m_shaderFolder + L"PBR_Textured_vs.cso", defaultLayout3D, defaultNumElements3D))
+	/*if (!default_vertexshader.Initialize(pDevice, m_shaderFolder + L"PBR_Textured_vs.cso", defaultLayout3D, defaultNumElements3D))
 	{
 		ErrorLogger::Log("Failed to initialize textured vertex PBR shader");
 		return false;
@@ -517,7 +573,7 @@ bool Graphics::InitializeShaders()
 	{
 		ErrorLogger::Log("Failed to initialize textured pixel PBR shader");
 		return false;
-	}
+	}*/
 	// Sky
 	if (!skyVertexShader.Initialize(pDevice, m_shaderFolder + L"Sky_vs.cso", defaultLayout3D, defaultNumElements3D))
 	{
@@ -529,11 +585,11 @@ bool Graphics::InitializeShaders()
 		ErrorLogger::Log("Failed to initialize Sky pixel shader");
 		return false;
 	}
-	//if (!prefilterMapPixelShader.Initialize(pDevice, shaderfolder + L"PrefilterMap_ps.cso"))
-	//{
-	//	ErrorLogger::Log("Failed to initialize Prefilter pixel shader");
-	//	return false;
-	//}
+	/*if (!prefilterMapPixelShader.Initialize(pDevice, shaderfolder + L"PrefilterMap_ps.cso"))
+	{
+		ErrorLogger::Log("Failed to initialize Prefilter pixel shader");
+		return false;
+	}*/
 
 
 	return true;
@@ -556,6 +612,9 @@ bool Graphics::InitializeScene()
 		hr = cb_ps_PerFrame.Initialize(pDevice.Get(), pDeviceContext.Get());
 		COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer for pixel shader utilites.");
 
+		hr = cb_vs_PerFrame.Initialize(pDevice.Get(), pDeviceContext.Get());
+		COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer for vertex shader utilites.");
+
 		// Initialize light shader values
 		cb_ps_light.data.ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 		//cb_ps_light.data.ambientLightStrength = 0.0f;
@@ -564,23 +623,20 @@ bool Graphics::InitializeScene()
 		cb_ps_PerFrame.data.camPosition = editorCamera.GetPosition();
 		cb_ps_PerFrame.data.deltaTime = 0.5f;
 
+		cb_vs_PerFrame.data.deltaTime = 0.5f;
+
 		/*light.lightStrength = 6.848f;
 		light.attenuation_a = 1.968f;
 		light.attenuation_b = 0.2f;
 		light.attenuation_c = 0.0f;*/
+
 		pointLight->lightStrength = 1.0f;
 		pointLight->attenuation_a = 0.5f;
 		pointLight->attenuation_b = 0.0f;
 		pointLight->attenuation_c = 0.0f;
 
-		// Light
-		/*if (!m_pEngine->pointLight->Initialize(pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader))
-		{
-			ErrorLogger::Log("Failed to initilize light");
-			return false;
-		}*/
 		// Hello World sprite
-		if (!sprite.Initialize(pDevice.Get(), pDeviceContext.Get(), 256, 256, "Data\\Textures\\sprite_256x256.png", cb_vs_vertexshader_2d))
+		if (!sprite.Initialize(pDevice.Get(), pDeviceContext.Get(), 256, 256, "Assets\\Textures\\sprite_256x256.png", cb_vs_vertexshader_2d))
 		{
 			ErrorLogger::Log("Failed to initilize sprite");
 			return false;
@@ -609,8 +665,6 @@ void Graphics::UpdateImGuiWidgets()
 	Entity* pSelectedEntity = Editor::Instance()->GetSelectedEntity();
 	std::list<Entity*>* entities = m_pEngine->GetScene().GetAllEntities();
 
-
-	
 	// ImGuizmo Experimental tool
 	/*{
 		ImGuizmo::BeginFrame();
@@ -668,8 +722,6 @@ void Graphics::UpdateImGuiWidgets()
 		ImGuizmo::DrawCube(camView, camProj, defaultMatrix);
 	}*/
 	
-
-
 
 	ImGui::Begin("Scene Heirarchy");
 	{

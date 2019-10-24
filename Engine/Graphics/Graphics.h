@@ -39,10 +39,9 @@ public:
 
 	Camera2D camera2D;
 	Sprite sprite;
-	//Light light;
+
 	PointLight * pointLight = nullptr;
 	std::vector<std::string> textures;
-
 	Material* m_pMaterial = nullptr;
 
 	Entity* skybox = nullptr;
@@ -60,6 +59,7 @@ private:
 	bool InitializeShaders();
 	bool InitializeScene();
 	void UpdateImGuiWidgets();
+	//void IniitalizeIBLAssets();
 
 	Engine* m_pEngine;
 	Timer fpsTimer;
@@ -81,8 +81,8 @@ private:
 	// 6. Set them back if other objects require different shaders to be rendered
 	//		- eg. Skybox might need a different shader compared to a model shader(Doesnt take imputs from lights etc,)
 	//		- This is why floiage is batch drawn becasue they use different shaders compared to say rocks
-	VertexShader default_vertexshader;
-	PixelShader default_pixelshader;
+	/*VertexShader default_vertexshader;
+	PixelShader default_pixelshader;*/
 
 	ConstantBuffer<CB_VS_Sky> cb_vs_sky;
 	VertexShader skyVertexShader;
@@ -90,14 +90,20 @@ private:
 	
 	//PixelShader prefilterMapPixelShader;
 
-	ID3D11Resource* skyTexture;
+	// For skybox, no mip levels becasue we dont want the actual game sky to get blurry
+	// ==========
+	ID3D11Texture2D* skyTexture;
 	ID3D11ShaderResourceView* skyboxTextureSRV;
+	// ==========
 
-	ID3D11Resource* irradianceMap;
+	ID3D11Texture2D* irradianceMap;
 	ID3D11ShaderResourceView* irradianceMapSRV;
 
-	/*ID3D11Texture2D* prefilterMap;
-	ID3D11ShaderResourceView* prefilterMapSRV;*/
+	ID3D11Texture2D* prefilterMap;
+	ID3D11ShaderResourceView* prefilterMapSRV;
+
+	ID3D11Texture2D* brdfLUTtex;
+	ID3D11ShaderResourceView* brdfLUTSRV;
 
 	//IBL
 	ID3D11Texture2D* skyIBLtex;
@@ -106,14 +112,14 @@ private:
 	ID3D11Texture2D* envMaptex;
 	ID3D11ShaderResourceView* envMapSRV;
 
-	ID3D11Texture2D* brdfLUTtex;
-	ID3D11ShaderResourceView* brdfLUTSRV;
+	
 
 
 
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
 	ConstantBuffer<CB_PS_light> cb_ps_light;
 	ConstantBuffer<CB_PS_perframe> cb_ps_PerFrame;
+	ConstantBuffer<CB_VS_perframe> cb_vs_PerFrame;
 
 	float m_deltaTime = 0;
 

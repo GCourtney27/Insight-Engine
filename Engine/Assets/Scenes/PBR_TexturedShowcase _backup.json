@@ -1,0 +1,537 @@
+{
+    "SceneName": "Textured Showcase",
+    "Objects": [
+        {
+            "Type": "Entity",
+            "Name": "Wood",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_MAPPED",
+                            "Albedo": "Assets\\Textures\\Wood\\Wood_Albedo.png",
+                            "Normal": "Assets\\Textures\\Wood\\Wood_Normal.png",
+                            "Metallic": "Assets\\Textures\\Wood\\Wood_Metallic.png",
+                            "Roughness": "Assets\\Textures\\Wood\\Wood_Roughness.png",
+                            "AO": "Assets\\Textures\\Wood\\Wood_AO.png"
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Type": "Entity",
+            "Name": "Rusted Metal",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 25.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_MAPPED",
+                            "Albedo": "Assets\\Textures\\RustedMetal\\RustedMetal_Albedo.png",
+                            "Normal": "Assets\\Textures\\RustedMetal\\RustedMetal_Normal.png",
+                            "Metallic": "Assets\\Textures\\RustedMetal\\RustedMetal_Metallic.png",
+                            "Roughness": "Assets\\Textures\\RustedMetal\\RustedMetal_Roughness.png",
+                            "AO": "Assets\\Textures\\RustedMetal\\RustedMetal_AO.png"
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\UpWards.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Type": "Entity",
+            "Name": "Bricks",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": -25.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_MAPPED",
+                            "Albedo": "Assets\\Textures\\Bricks\\Bricks_Albedo.jpg",
+                            "Normal": "Assets\\Textures\\Bricks\\Bricks_Normal.jpg",
+                            "Metallic": "Assets\\Textures\\Bricks\\Bricks_Metallic.jpg",
+                            "Roughness": "Assets\\Textures\\Bricks\\Bricks_Roughness.jpg",
+                            "AO": "Assets\\Textures\\Bricks\\Bricks_AO.jpg"
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Type": "Entity",
+            "Name": "Orange Plastic",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": -50.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_MAPPED",
+                            "Albedo": "Assets\\Textures\\plastic\\albedo.png",
+                            "Normal": "Assets\\Textures\\plastic\\normal.png",
+                            "Metallic": "Assets\\Textures\\plastic\\metallic.png",
+                            "Roughness": "Assets\\Textures\\plastic\\roughness.png",
+                            "AO": "Assets\\Textures\\plastic\\ao.png"
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Type": "Entity",
+            "Name": "Nordic Moss",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": -75.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_MAPPED",
+                            "Albedo": "Assets\\Textures\\NordicMoss\\NordicMoss_Albedo.jpg",
+                            "Normal": "Assets\\Textures\\NordicMoss\\NordicMoss_Normal.jpg",
+                            "Metallic": "Assets\\Textures\\NordicMoss\\NordicMoss_Metallic.jpg",
+                            "Roughness": "Assets\\Textures\\NordicMoss\\NordicMoss_Roughness.jpg",
+                            "AO": "Assets\\Textures\\NordicMoss\\NordicMoss_AO.jpg"
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Type": "Entity",
+            "Name": "Sand",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 25.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 25.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_MAPPED",
+                            "Albedo": "Assets\\Textures\\Sand\\Sand_Albedo.jpg",
+                            "Normal": "Assets\\Textures\\Sand\\Sand_Normal.jpg",
+                            "Metallic": "Assets\\Textures\\Sand\\NordicMoss_Metallic.jpg",
+                            "Roughness": "Assets\\Textures\\Sand\\Sand_Roughness.jpg",
+                            "AO": "Assets\\Textures\\Sand\\Sand_AO.jpg"
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Type": "Entity",
+            "Name": "Gold",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 25.0
+                        },
+                        {
+                            "y": 25.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 25.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_MAPPED",
+                            "Albedo": "Assets\\Textures\\Gold\\Gold_Albedo.png",
+                            "Normal": "Assets\\Textures\\Gold\\Gold_Normal.png",
+                            "Metallic": "Assets\\Textures\\Gold\\Gold\\Gold_Metallic.png",
+                            "Roughness": "Assets\\Textures\\Gold\\Gold_Roughness1.png"
+                            "AO": "Assets\\Textures\\Gold\\ao.png"
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

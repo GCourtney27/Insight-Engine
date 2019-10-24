@@ -7,6 +7,8 @@
 #include "LUAScripting\\LuaStateManager.h"
 #include "Objects/PointLight.h"
 
+#include "Systems/TimeSystem.h"
+
 class Engine : WindowContainer
 {
 public:
@@ -31,6 +33,8 @@ public:
 	Player* GetPlayer() { return player; }
 private:
 
+	frame_timer timer;
+
 	Player* player = nullptr;
 	std::vector<std::string> textures;
 	Material* m_pMaterial = nullptr;
@@ -41,5 +45,5 @@ private:
 	int windowHeight = 0;
 
 	float m_saveDelay = 3.0f;
-	bool m_canSave = false;
+	bool m_canSave = true;
 };

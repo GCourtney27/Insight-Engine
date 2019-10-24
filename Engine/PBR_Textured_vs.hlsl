@@ -9,6 +9,11 @@ cbuffer perObjectBuffer : register(b0) // Defined in ConstantBufferTypes
     matrix projection;
 };
 
+cbuffer PerFrame : register(b1)
+{
+	float deltaTime;
+}
+
 struct VS_INPUT // Defined in InitializeShaders() in Graphics.cpp with D3D11_INPUT_ELEMENT_DESC
 {
     float3 inPosition : POSITION;

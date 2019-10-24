@@ -26,10 +26,10 @@ namespace Debug
 	void Editor::Update(float deltaTime)
 	{
 		
-		float camera3DSpeed = 0.01f;
+		float camera3DSpeed = 30.0f;
 		if (InputManager::Instance()->keyboard.KeyIsPressed(VK_SHIFT))
 		{
-			camera3DSpeed = 0.1f;
+			camera3DSpeed = 70.0f;
 		}
 
 		if (InputManager::Instance()->keyboard.KeyIsPressed('W'))
