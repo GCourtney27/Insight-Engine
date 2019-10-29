@@ -120,7 +120,7 @@ public:
 	// Have object look at an object
 	void SetLookAtPos(XMFLOAT3 lookAtPos);
 	// Returns objects world matrix
-	XMMATRIX& GetWorldMatrix() { return worldMatrix; }
+	XMMATRIX GetWorldMatrix() const { return worldMatrix; }
 	float* GetWorldMatAsFloatArr();
 	void SetWorldMatrix(XMMATRIX& matrix);
 	

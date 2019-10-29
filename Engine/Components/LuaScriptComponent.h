@@ -20,7 +20,7 @@ public:
 
 	bool Initialize(Entity* owner, std::string scriptFile);
 
-	void Update(float deltaTime) override;
+	void Update(const float& deltaTime) override;
 	void Destroy() override;
 	void OnImGuiRender() override;
 
@@ -32,10 +32,10 @@ public:
 
 
 private:
-	//lua_State *L = nullptr;
+
 	LuaPlus::LuaState* luaState = nullptr;
 	LuaPlus::LuaObject Lua_UpdateFunction;
 	std::string filePath;
-	std::string cmd;
-	int callCounter = 1;
+	float m_callDelay = 0.03f;
+	const float MAX_CALL_DELAY = 0.03f;
 };

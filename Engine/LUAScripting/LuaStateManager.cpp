@@ -51,6 +51,8 @@ bool LuaStateManager::VInitialize(void)
 	// register functions so they are visiable to lua
 	m_pLuaState->GetGlobals().RegisterDirect("ExecuteFile", (*this), &LuaStateManager::VExecuteFile);
 	m_pLuaState->GetGlobals().RegisterDirect("ExecuteString", (*this), &LuaStateManager::VExecuteString);
+
+	return true;
 }
 
 void LuaStateManager::VExecuteFile(const char* path)

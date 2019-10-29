@@ -12,6 +12,8 @@ cbuffer perObjectBuffer : register(b0) // Defined in ConstantBufferTypes
 cbuffer PerFrame : register(b1)
 {
 	float deltaTime;
+	float2 uvOffset;
+	float3 vertOffset;
 }
 
 struct VS_INPUT // Defined in InitializeShaders() in Graphics.cpp with D3D11_INPUT_ELEMENT_DESC
@@ -47,9 +49,14 @@ VS_OUTPUT main(VS_INPUT input)
     output.outTangent = mul(input.inTangent, (float3x3)worldView); // model space
     output.outBiTangent = mul(input.inBiTangent, (float3x3)worldView);
 
+    //output.outWorldPos = mul(float4(input.inPosition, 1.0f), world);
+	// Position offset
+	
     output.outWorldPos = mul(float4(input.inPosition, 1.0f), world);
 
     output.outTexCoord = input.inTexCoord;
+	// Texture Scrolling
+    //output.outTexCoord = float2(input.inTexCoord.x, input.inTexCoord.y + uvOffset.y);
 
     return output;
 }

@@ -22,6 +22,9 @@ public:
 	bool Initialize(Scene* scene, const ID& id);
 	void SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ);
 
+	void Draw(const XMMATRIX & viewProjectionMatrix, const XMMATRIX & viewMatrix) override;
+	void Update(const float& deltaTime) override;
+
 	const XMMATRIX & GetViewMatrix();
 	const XMMATRIX & GetProjectionMatrix();
 
@@ -30,6 +33,8 @@ public:
 
 private:
 	void UpdateViewMatrix();
+
+	XMMATRIX worldMat;
 
 	XMMATRIX m_viewMatrix;
 	XMMATRIX m_projectionMatrix;

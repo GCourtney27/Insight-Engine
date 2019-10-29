@@ -1,0 +1,2155 @@
+{
+    "SceneName": "Textured Showcase",
+    "Objects": [
+        {
+            "Type": "Entity",
+            "Name": "0M 0R FIRST",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+                            "Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 0.0,
+                            "Roughness": 0.09,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "0M 2R",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 25.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+							"Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 0.0,
+                            "Roughness": 0.2,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "0M 4R",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 50.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+							"Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 0.0,
+                            "Roughness": 0.4,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "0M 6R",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 75.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+							"Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 0.0,
+                            "Roughness": 0.6,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "0M 8R LAST",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 100.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+							"Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 0.0,
+                            "Roughness": 0.8,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "2M 0R FIRST",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 25.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+                            "Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 0.2,
+                            "Roughness": 0.09,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "2M 2R",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 25.0
+                        },
+                        {
+                            "y": 25.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+							"Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 0.2,
+                            "Roughness": 0.2,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "2M 4R",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 50.0
+                        },
+                        {
+                            "y": 25.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+							"Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 0.2,
+                            "Roughness": 0.4,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "2M 6R",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 75.0
+                        },
+                        {
+                            "y": 25.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+							"Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 0.2,
+                            "Roughness": 0.6,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "2M 8R LAST",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 100.0
+                        },
+                        {
+                            "y": 25.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+							"Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 0.2,
+                            "Roughness": 0.8,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "4M 0R FIRST",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 50.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+                            "Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 0.4,
+                            "Roughness": 0.09,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "4M 2R",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 25.0
+                        },
+                        {
+                            "y": 50.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+							"Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 0.4,
+                            "Roughness": 0.2,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "4M 4R",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 50.0
+                        },
+                        {
+                            "y": 50.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+							"Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 0.4,
+                            "Roughness": 0.4,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "4M 6R",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 75.0
+                        },
+                        {
+                            "y": 50.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+							"Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 0.4,
+                            "Roughness": 0.6,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "4M 8R LAST",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 100.0
+                        },
+                        {
+                            "y": 50.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+							"Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 0.4,
+                            "Roughness": 0.8,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "6M 0R FIRST",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 75.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+                            "Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 0.6,
+                            "Roughness": 0.09,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "6M 2R",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 25.0
+                        },
+                        {
+                            "y": 75.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+							"Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 0.6,
+                            "Roughness": 0.2,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "6M 4R",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 50.0
+                        },
+                        {
+                            "y": 75.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+							"Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 0.6,
+                            "Roughness": 0.4,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "6M 6R",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 75.0
+                        },
+                        {
+                            "y": 75.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+							"Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 0.6,
+                            "Roughness": 0.6,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "6M 8R LAST",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 100.0
+                        },
+                        {
+                            "y": 75.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+							"Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 0.6,
+                            "Roughness": 0.8,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "8M 0R FIRST",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 100.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+                            "Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 1.0,
+                            "Roughness": 0.09,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "8M 2R",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 25.0
+                        },
+                        {
+                            "y": 100.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+							"Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 1.0,
+                            "Roughness": 0.2,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "8M 4R",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 50.0
+                        },
+                        {
+                            "y": 100.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+							"Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 1.0,
+                            "Roughness": 0.4,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "8M 6R",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 75.0
+                        },
+                        {
+                            "y": 100.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+							"Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 1.0,
+                            "Roughness": 0.6,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        },
+		{
+            "Type": "Entity",
+            "Name": "8M 8R LAST",
+            "Transform": [
+                {
+                    "Position": [
+                        {
+                            "x": 100.0
+                        },
+                        {
+                            "y": 100.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Rotation": [
+                        {
+                            "x": 0.0
+                        },
+                        {
+                            "y": 0.0
+                        },
+                        {
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Scale": [
+                        {
+                            "x": 10.0
+                        },
+                        {
+                            "y": 10.0
+                        },
+                        {
+                            "z": 10.0
+                        }
+                    ]
+                }
+            ],
+            "Components": [
+                {
+                    "MeshRenderer": [
+                        {
+                            "Model": "Assets\\Objects\\Primatives\\sphere.obj"
+                        },
+                        {
+                            "MaterialType": "PBR_UNTEXTURED",
+                            "Albedo": [
+								{
+									"r": 1.0
+								},
+								{
+									"g": 1.0
+								}, 
+								{
+									"b": 1.0
+								}
+							],
+							"Normal": "Assets\\Textures\\UnTexturedNormal.png",
+                            "Metallic": 1.0,
+                            "Roughness": 0.8,
+                            "AO": 0.5
+                        }
+                    ]
+                },
+                {
+                    "LuaScript": [
+                        {
+                            "FilePath": "Assets\\LuaScripts\\Test.lua"
+                        }
+                    ]
+                },
+                {
+                    "EditorSelection": [
+                        {
+                            "Mode": "DEFAULT"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

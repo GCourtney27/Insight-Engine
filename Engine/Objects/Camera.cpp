@@ -1,4 +1,6 @@
 #include "Camera.h"
+#include "..\Components\MeshRenderComponent.h"
+#include "..\Editor\Editor.h"
 
 bool Camera::Initialize(Scene * scene, const ID & id)
 {
@@ -11,6 +13,48 @@ void Camera::SetProjectionValues(float fovDegrees, float aspectRatio, float near
 	m_farZ = farZ;
 	float fovRadians = (fovDegrees / 360.0f) * XM_2PI;
 	m_projectionMatrix = XMMatrixPerspectiveFovLH(fovRadians, aspectRatio, nearZ, farZ);
+}
+
+void Camera::Draw(const XMMATRIX & viewProjectionMatrix, const XMMATRIX & viewMatrix)
+{
+	if (Debug::Editor::Instance()->PlayingGame())
+		return;
+
+	MeshRenderer* mr = GetComponent<MeshRenderer>();
+
+	if (mr != nullptr)
+	{
+		mr->SetWorldMat(this->m_transform.GetWorldMatrix());
+		mr->Draw(viewProjectionMatrix, viewMatrix);
+	}
+}
+
+void Camera::Update(const float& deltaTime)
+{
+	if (m_pParent != nullptr) // Multiply the parent matrix by this matrix to get the world matrix
+	{
+		//worldMat = m_transform.GetWorldMatrix() * m_pParent->GetWorldMatrix();
+		//this->m_transform.SetWorldMatrix(worldMat);
+		//this->m_transform.GetWorldMatrix() = this->m_transform.GetWorldMatrix() * m_pParent->GetWorldMatrix();
+		m_transform.AdjustPosition(m_pParent->GetPosition().x, m_pParent->GetPosition().y, m_pParent->GetPosition().z);
+
+	}
+	else
+	{
+		m_transform.AdjustPosition(0.0f, 0.0f, 0.0f);
+	}
+
+	// If the editor is not playing keep coppying the transforms
+	if (!Debug::Editor::Instance()->PlayingGame())
+		UpdateTransformCopyWithTransform();
+
+	// If editor is present do this if not just remove this
+	EditorSelection* es = GetComponent<EditorSelection>();
+	if (es != nullptr)
+	{
+		es->SetPosition(m_transform.GetPosition());
+	}
+	UpdateViewMatrix();
 }
 
 const XMMATRIX & Camera::GetViewMatrix()

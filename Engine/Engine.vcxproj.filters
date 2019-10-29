@@ -7,29 +7,11 @@
     <FxCompile Include="vertexshader_2d.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="ConvolutionPixelShader.hlsl">
-      <Filter>Resource Files\Exaples</Filter>
-    </FxCompile>
-    <FxCompile Include="IntegrateBRDFPixelShader.hlsl">
-      <Filter>Resource Files\Exaples</Filter>
-    </FxCompile>
-    <FxCompile Include="PBRMatPixelShader.hlsl">
-      <Filter>Resource Files\Exaples</Filter>
-    </FxCompile>
-    <FxCompile Include="PBRPixelShader.hlsl">
-      <Filter>Resource Files\Exaples</Filter>
-    </FxCompile>
-    <FxCompile Include="PrefilterMapPixelShader.hlsl">
-      <Filter>Resource Files\Exaples</Filter>
-    </FxCompile>
     <FxCompile Include="Textured_pshlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
     <FxCompile Include="Textured_vs.hlsl">
       <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="PBRVertexShader.hlsl">
-      <Filter>Resource Files\Exaples</Filter>
     </FxCompile>
     <FxCompile Include="Sky_ps.hlsl">
       <Filter>Resource Files</Filter>
@@ -46,10 +28,10 @@
     <FxCompile Include="PrefilterMap_ps.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="PBR_Default_ps.hlsl">
+    <FxCompile Include="PBR_UnTextured_ps.hlsl">
       <Filter>Resource Files\PBR</Filter>
     </FxCompile>
-    <FxCompile Include="PBR_Default_vs.hlsl">
+    <FxCompile Include="PBR_UnTextured_vs.hlsl">
       <Filter>Resource Files\PBR</Filter>
     </FxCompile>
   </ItemGroup>
@@ -318,9 +300,6 @@
     <ClCompile Include="Graphics\Mesh.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Material.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Includes\json.cpp">
       <Filter>Source Files\Systems\Json</Filter>
     </ClCompile>
@@ -333,9 +312,20 @@
     <ClCompile Include="Objects\Player.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\MaterialTextured.cpp" />
     <ClCompile Include="Systems\TimeSystem.cpp">
       <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\MaterialTextured.cpp">
+      <Filter>Source Files\Graphics\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\MaterialUnTextured.cpp">
+      <Filter>Source Files\Graphics\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Material.cpp">
+      <Filter>Source Files\Graphics\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\MaterialSky.cpp">
+      <Filter>Source Files\Graphics\Materials</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -522,9 +512,6 @@
     <ClInclude Include="Components\CPPScript.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Material.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\SimpleShader.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
@@ -696,6 +683,16 @@
     <ClInclude Include="Systems\TimeSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Material.h">
+      <Filter>Header Files\Graphics\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="Graphics\MaterialSky.h">
+      <Filter>Header Files\Graphics\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="Systems\BenchmarkingTimer.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -800,14 +797,14 @@
     <Filter Include="Source Files\Systems\Json">
       <UniqueIdentifier>{b3b68f22-8c06-469e-b804-47179884c12b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Exaples">
-      <UniqueIdentifier>{cd6b8e7d-6339-491a-bddd-199e28a514d8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Graphics\Materials">
       <UniqueIdentifier>{d9df8a6c-b6f2-4b76-a8a7-676ff48f86ed}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files\PBR">
       <UniqueIdentifier>{155df82f-d2f8-460a-ad77-c016c55fd130}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Materials">
+      <UniqueIdentifier>{d341d340-b458-45ce-9ce6-8f9e59ab3724}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -846,11 +843,11 @@
     <None Include="LuaScripts\Test.lua">
       <Filter>LuaScripts</Filter>
     </None>
-    <None Include="IBLHeader.hlsli">
-      <Filter>Resource Files\Exaples</Filter>
-    </None>
-    <None Include="PBRHeader.hlsli">
-      <Filter>Resource Files\Exaples</Filter>
-    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Engine.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico" />
   </ItemGroup>
 </Project>

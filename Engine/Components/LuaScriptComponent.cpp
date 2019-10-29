@@ -12,7 +12,7 @@ void LuaScript::InitFromJSON(Entity* owner, const rapidjson::Value& componentInf
 		json::get_string(componentInformation[l], "FilePath", scriptFilePath);
 	}
 
-	this->Initialize(owner, scriptFilePath);
+	this->Initialize(owner, scriptFilePath.c_str());
 
 	/*LuaScript* finalScript = nullptr;
 	std::string scriptFilePath;
@@ -50,18 +50,22 @@ bool LuaScript::Initialize(Entity* owner, std::string scriptFile)
 	return true;
 }
 
-void LuaScript::Update(float deltaTime)
+void LuaScript::Update(const float& deltaTime)
 {
 	
-	luaState->DoFile(filePath.c_str());
+	m_callDelay -= deltaTime;
+	if (m_callDelay < 0.0f)
+	{
+		luaState->DoFile(filePath.c_str());
+		LuaPlus::LuaFunctionVoid LUpdate(luaState->GetGlobal("Update"));
+		LUpdate(deltaTime);
 
-	LuaPlus::LuaFunctionVoid LUpdate(luaState->GetGlobal("Update"));
-	LUpdate(deltaTime);
-
+		m_callDelay = MAX_CALL_DELAY;
+	}
 
 }
 
-bool LuaScript::lua_KeyIsPressed(int  keycode)// This was an int before, and it was passed right into the KeyIsPressed func
+bool LuaScript::lua_KeyIsPressed(int keycode)// This was an int before, and it was passed right into the KeyIsPressed func
 {
 	return InputManager::Instance()->keyboard.KeyIsPressed(keycode);
 }

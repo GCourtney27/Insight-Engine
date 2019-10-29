@@ -15,23 +15,12 @@ bool Timer::Initialize(Engine * engine)
 	return true;
 }
 
-void Timer::Update()
-{
-	UINT32 ticks = GetTicks();
-	UINT32 milliseconds = ticks - m_prevticks;
-	m_prevticks = ticks;
-
-	m_dt = (m_isrunning) ? 0.0f : milliseconds / 1000.0f;
-	m_dt = std::min<float>(m_dt, 1.0f);
-
-}
-
 UINT32 Timer::GetAppTime()
 {
 	auto start_time = std::chrono::high_resolution_clock::now();
 	auto current_time = std::chrono::high_resolution_clock::now();
-	float time = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count();
-	return time;
+	float time = (float)std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count();
+	return (UINT)time;
 }
 
 double Timer::GetTicks()

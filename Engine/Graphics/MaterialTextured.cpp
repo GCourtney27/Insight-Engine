@@ -1,5 +1,4 @@
 #include "MaterialTextured.h"
-#include "json.h"
 
 
 bool MaterialTextured::Initiailze(ID3D11Device * device, ID3D11DeviceContext * deviceContext, const rapidjson::Value& assetsInformation, eFlags materialAttributeFlags)

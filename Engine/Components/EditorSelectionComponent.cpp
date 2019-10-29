@@ -30,7 +30,7 @@ void EditorSelection::Initialize(Entity* owner, float radius, const DirectX::XMF
 
 }
 
-void EditorSelection::Update(float deltaTime)
+void EditorSelection::Update(const float& deltaTime)
 {
 }
 

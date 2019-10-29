@@ -48,7 +48,7 @@ void MeshRenderer::Draw(const XMMATRIX & projectionMatrix, const XMMATRIX & view
 		model.Draw(this->worldMatrix, projectionMatrix, viewMatrix);
 }
 
-void MeshRenderer::Update(float deltaTime)
+void MeshRenderer::Update(const float& deltaTime)
 {
 }
 
@@ -65,14 +65,18 @@ void MeshRenderer::OnImGuiRender()
 		this->SetIsDrawEnabled(isComponentEnabled);
 	}
 
-	ImGui::DragFloat3("Color", &model.GetMaterial()->m_color.x, 0.1f, 0.0f, 255.0f);
-	ImGui::DragFloat("Metallic", &model.GetMaterial()->m_metallic, 0.01f, 0.0f, 1.0f);
-	ImGui::DragFloat("Roughness", &model.GetMaterial()->m_roughness, 0.01f, 0.0f, 1.0f);
+	if (model.GetMaterial() != nullptr)
+	{
+		ImGui::DragFloat3("Color", &model.GetMaterial()->m_color.x, 0.1f, 0.0f, 1.0f);
+		ImGui::DragFloat("Metallic", &model.GetMaterial()->m_metallic, 0.01f, -1.0f, 1.0f);
+		ImGui::DragFloat("Roughness", &model.GetMaterial()->m_roughness, 0.01f, -1.0f, 1.0f);
 
-	model.GetMaterial()->cb_ps_perObjectColor.data.color = model.GetMaterial()->m_color;
-	model.GetMaterial()->cb_ps_perObjectColor.data.metallic = model.GetMaterial()->m_metallic;
-	model.GetMaterial()->cb_ps_perObjectColor.data.roughnss = model.GetMaterial()->m_roughness;
-	model.GetMaterial()->cb_ps_perObjectColor.ApplyChanges();
+		model.GetMaterial()->cb_ps_perObjectColor.data.color = model.GetMaterial()->m_color;
+		model.GetMaterial()->cb_ps_perObjectColor.data.metallic = model.GetMaterial()->m_metallic;
+		model.GetMaterial()->cb_ps_perObjectColor.data.roughnss = model.GetMaterial()->m_roughness;
+		model.GetMaterial()->cb_ps_perObjectColor.ApplyChanges();
+	}
+	
 	
 }
 

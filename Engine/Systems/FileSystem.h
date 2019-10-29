@@ -27,5 +27,4 @@ public:
 
 private:
 	Engine* m_engine;
-
 };

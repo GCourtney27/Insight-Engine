@@ -94,7 +94,7 @@ float4 main(PS_INPUT input) : SV_TARGET
 	//float metallicSample = metallic;
 
 	float roughnessSample = saturate(roughnessSRV.Sample(samplerState, input.inTexCoord).r + roughness);
-	float aoSample = roughnessSRV.Sample(samplerState, input.inTexCoord).r;
+	float aoSample = saturate(aoSRV.Sample(samplerState, input.inTexCoord).r);
 	//float roughnessSample = roughness;
    //float3 albedoSample = float3(1.0f, 1.0f, 1.0f);
    //float metallicSample = 0.0f;
@@ -160,6 +160,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     float3 F_IBL = fresnelSchlickRoughness(NdotV, baseReflectivity, roughnessSample);
 	float3 kD_IBL = (1.0f - F_IBL) * (1.0f - metallicSample);
 	float3 diffuse = irradianceMapSRV.Sample(samplerState, N).rgb * albedoSample * kD_IBL;
+	//diffuse *= ambientLightStrength;
 
     // Specular IBL
     const float MAX_REFLECTION_LOD = 4.0f;
@@ -168,7 +169,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     float3 specular_IBL = prefilteredColor * (F_IBL * brdf.r + brdf.g);
 
 	// Works, but everything is shiny
-	float3 ambient = saturate(diffuse + specular_IBL) *(0.05f);
+	float3 ambient = (diffuse + specular_IBL) *(0.5);
     float3 color = (ambient + Lo);
     
 	//float3 ambient = (diffuse * specular_IBL);

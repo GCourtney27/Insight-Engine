@@ -8,7 +8,6 @@ class Timer : public Singleton<Timer>
 public:
 	Timer();
 	bool Initialize(Engine* engine);
-	void Update();
 
 	double GetTicks();
 	void Restart();

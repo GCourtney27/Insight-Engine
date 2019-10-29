@@ -29,7 +29,7 @@ public:
 
 	// -- Editor Specific methods (Engine) -- //
 	virtual bool Initialize(); // Called once when Engine starts
-	virtual void Update(float deltaTime); // Update things like editor click sphere
+	virtual void Update(const float& deltaTime); // Update things like editor click sphere
 	virtual void Draw(const XMMATRIX & viewProjectionMatrix, const XMMATRIX & viewMatrix); // Draw mesh renderer for componet, needs to be seen in editor and play mode
 	virtual void Destroy(); // Unload resources
 

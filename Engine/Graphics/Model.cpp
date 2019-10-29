@@ -30,8 +30,8 @@ void Model::Draw(const XMMATRIX & worldMatrix, const XMMATRIX & projectionMatrix
 	{
 		this->m_pMaterial->PSSetShader();
 		this->m_pMaterial->VSSetShader();
+		this->m_pMaterial->IASetInputLayout();
 
-		m_pMaterial->IASetInputLayout();
 		this->deviceContext->VSSetConstantBuffers(0, 1, this->m_pMaterial->cb_vs_vertexShader.GetAddressOf());
 		this->deviceContext->PSSetConstantBuffers(2, 1, this->m_pMaterial->cb_ps_perObjectColor.GetAddressOf());
 
@@ -53,13 +53,32 @@ void Model::Draw(const XMMATRIX & worldMatrix, const XMMATRIX & projectionMatrix
 			this->m_pMaterial->cb_vs_vertexShader.data.projectionMatrix = projectionMatrix;
 			this->m_pMaterial->cb_vs_vertexShader.ApplyChanges();
 		
-			
-
-			for (int i = 0; i < 4; i++)
+			switch (this->m_pMaterial->GetMaterialType())
 			{
-				this->deviceContext->PSSetShaderResources(i, 1, m_pMaterial->m_textures[i].GetTextureResourceViewAddress());
+			case Material::eMaterialType::PBR_MAPPED:
+			{
+				for (int i = 0; i < 4; i++)
+				{
+					this->deviceContext->PSSetShaderResources(i, 1, m_pMaterial->m_textures[i].GetTextureResourceViewAddress());
+				}
+				break;
+			}
+			case Material::eMaterialType::PBR_UNTEXTURED:
+			{
+				for (int i = 0; i < 1; i++)
+				{
+					this->deviceContext->PSSetShaderResources(i, 1, m_pMaterial->m_textures[i].GetTextureResourceViewAddress());
+				}
+				break;
+			}
+			default: 
+				ErrorLogger::Log("Fatal Error: Failed to get Material type for rendering.");
+				break;
 			}
 			
+
+			
+
 		}
 		else
 		{
@@ -67,7 +86,6 @@ void Model::Draw(const XMMATRIX & worldMatrix, const XMMATRIX & projectionMatrix
 			this->cb_vs_vertexshader->data.viewMatrix = viewMatrix; // Calculate World-ViewProjection Matrix
 			this->cb_vs_vertexshader->data.projectionMatrix = projectionMatrix;
 			this->cb_vs_vertexshader->ApplyChanges();
-			
 		}
 		
 		meshes[i].Draw();

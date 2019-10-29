@@ -16,6 +16,7 @@
 #include "ImGui\\imgui_impl_win32.h"
 #include "ImGui\\imgui_impl_dx11.h"
 #include "ImGui/ImGuizmo.h"
+
 #include <SpriteBatch.h>
 #include <SpriteFont.h>
 #include <WICTextureLoader.h>
@@ -32,6 +33,8 @@ public:
 	void Update(const float& deltaTime);
 	void Shutdown();
 
+	void InitialzeImGui(HWND hwnd);
+
 	std::wstring GetShaderFolder() { return m_shaderFolder; }
 
 	Camera3D editorCamera;
@@ -41,6 +44,7 @@ public:
 	Sprite sprite;
 
 	PointLight * pointLight = nullptr;
+
 	std::vector<std::string> textures;
 	Material* m_pMaterial = nullptr;
 
@@ -114,7 +118,8 @@ private:
 
 	
 
-
+	DirectX::XMFLOAT2 newUVOffset;
+	DirectX::XMFLOAT3 newVertOffset;
 
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
 	ConstantBuffer<CB_PS_light> cb_ps_light;

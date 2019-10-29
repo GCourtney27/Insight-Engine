@@ -1,12 +1,9 @@
 #pragma once
 #include "WindowContainer.h"
 #include "..\\Objects\\Scene.h"
-#include "Scriptor\\Compiler.h"
-#include "Objects\\Entity.h"
 #include "Objects\\Player.h"
 #include "LUAScripting\\LuaStateManager.h"
 #include "Objects/PointLight.h"
-
 #include "Systems/TimeSystem.h"
 
 class Engine : WindowContainer

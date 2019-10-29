@@ -12,7 +12,7 @@ public:
 	void Draw(const XMMATRIX & viewProjectionMatrix, const XMMATRIX & viewMatrix);
 	
 	
-	void Update(float deltaTime) override;
+	void Update(const float& deltaTime) override;
 	void Destroy() override;
 	void OnImGuiRender() override;
 
@@ -21,12 +21,16 @@ public:
 	void SetIsDrawEnabled(bool visible = true) { m_drawEnabled = visible; }
 	bool GetIsDrawEnabled() { return m_drawEnabled; }
 
+	void SetisDebugMesh(bool visible) { m_isDebugMesh = visible; }
+	bool GetIsDebugMesh() { return m_isDebugMesh; }
+
 	void SetWorldMat(const XMMATRIX& matrix) { worldMatrix = matrix; }
 
 	Model* GetModel() { return &model; }
 
 protected:
 	bool m_drawEnabled = true;
+	bool m_isDebugMesh = false;
 	std::string filepath;
 
 	Model model;

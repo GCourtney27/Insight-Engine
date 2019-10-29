@@ -5,6 +5,7 @@
 #include "MaterialTextured.h"
 #include "MaterialTexturedFOliage.h"
 
+#include "Graphics.h"
 
 std::string Material::GetMaterialTypeAsString()
 {
@@ -12,7 +13,7 @@ std::string Material::GetMaterialTypeAsString()
 	std::map<std::string, eMaterialType> stringToMaterialType;
 	stringToMaterialType["PBR_MAPPED"] = eMaterialType::PBR_MAPPED;
 	stringToMaterialType["PBR_MAPPED_WITHSCALERS"] = eMaterialType::PBR_MAPPED_WITHSCALERS;
-	stringToMaterialType["PBR_DEFAULT"] = eMaterialType::PBR_DEFAULT;
+	stringToMaterialType["PBR_DEFAULT"] = eMaterialType::PBR_UNTEXTURED;
 	stringToMaterialType["PBR_SKY"] = eMaterialType::PBR_SKY;
 
 	std::map<std::string, eMaterialType>::iterator iter;
@@ -30,8 +31,8 @@ Material * Material::SetMaterialByType(eMaterialType materialType)
 	Material* pMat = nullptr;
 	switch (materialType)
 	{
-	case eMaterialType::PBR_DEFAULT:
-		//return new MaterialUnTextured(materialType);
+	case eMaterialType::PBR_UNTEXTURED:
+		return new MaterialUnTextured(materialType);
 		break;
 	case eMaterialType::PBR_MAPPED:
 		return new MaterialTextured(materialType);
@@ -70,7 +71,7 @@ Material::eMaterialType Material::GetMaterialTypeFromString(std::string str_mate
 
 	stringToMaterialType["PBR_MAPPED"] = eMaterialType::PBR_MAPPED;
 	stringToMaterialType["PBR_MAPPED_WITHSCALERS"] = eMaterialType::PBR_MAPPED_WITHSCALERS;
-	stringToMaterialType["PBR_DEFAULT"] = eMaterialType::PBR_DEFAULT;
+	stringToMaterialType["PBR_DEFAULT"] = eMaterialType::PBR_UNTEXTURED;
 	stringToMaterialType["PBR_SKY"] = eMaterialType::PBR_SKY;
 
 	std::map<std::string, eMaterialType>::iterator iter;
@@ -79,5 +80,5 @@ Material::eMaterialType Material::GetMaterialTypeFromString(std::string str_mate
 		if ((*iter).first == str_material)
 			return (*iter).second;
 	}
-	return eMaterialType::PBR_DEFAULT;
+	return eMaterialType::PBR_UNTEXTURED;
 }

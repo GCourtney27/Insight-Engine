@@ -9,7 +9,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #ifndef LUAPLUS__LUAOBJECT_INL
 #define LUAPLUS__LUAOBJECT_INL
-
+#pragma warning(disable : 4996)
 #include <ctype.h>
 
 #if defined(_MSC_VER)

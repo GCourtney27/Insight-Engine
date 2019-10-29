@@ -4,9 +4,10 @@
 #include "..\Graphics\ConstantBuffers.h"
 
 #include "document.h"
+#include "json.h"
+
 #include <vector>
 #include <map>
-
 
 class Material
 {
@@ -15,7 +16,7 @@ public:
 	{
 		PBR_MAPPED, // Material is expecting mapps (albedo, roughness, normal, metallic)
 		PBR_MAPPED_WITHSCALERS, // Material can have values scale its textures (more rough less metallic etc.)
-		PBR_DEFAULT, // No Textures all albedo, roughness and metallic are defined through shader inputs fo the material through ImGuiRender
+		PBR_UNTEXTURED, // No Textures all albedo, roughness and metallic are defined through shader inputs fo the material through ImGuiRender
 		PBR_SKY // Material only exepts a .dds defining the sky sphere look
 		//DEFAULT NO PBR
 	};
@@ -32,8 +33,8 @@ public:
 	virtual bool Initiailze(ID3D11Device * device, ID3D11DeviceContext * deviceContext, const rapidjson::Value& assetsInformation, eFlags materialAttributeFlags) = 0;
 
 	static eMaterialType GetMaterialTypeFromString(std::string str_material);
-
 	std::string GetMaterialTypeAsString();
+	eMaterialType GetMaterialType() { return m_materialType; }
 
 	Material* SetMaterialByType(eMaterialType materialType);
 
@@ -50,7 +51,7 @@ public:
 	float m_roughness = 0.0f;
 
 protected:
-	virtual bool InitializePiplineAssets(const rapidjson::Value& componentInformation) = 0; // Weather it is textured or not, a json object needs to be read from to initialize its A, N, R, M values
+	virtual bool InitializePiplineAssets(const rapidjson::Value& assetsInformation) = 0; // Weather it is textured or not, a json object needs to be read from to initialize its A, N, R, M values
 	virtual void InitializeShaders() = 0;
 
 	VertexShader m_vertexShader; // Every Material has shaders, its just how they get initialized that is different. Some could use .cso files that others dont

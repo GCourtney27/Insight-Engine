@@ -47,6 +47,9 @@ struct CB_VS_perframe
 	float deltaTime;//4
 	float padding[3];//12
 	//16
+	DirectX::XMFLOAT2 uvOffset;//8
+	DirectX::XMFLOAT3 vertOffset;//8
+	//16
 };
 
 struct CB_PS_PerObjectColor

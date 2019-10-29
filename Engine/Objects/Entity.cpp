@@ -13,17 +13,17 @@ bool Entity::Initialize()
 	return success;
 }
 
-void Entity::Update(float deltaTime)
+void Entity::Update(const float& deltaTime)
 {
 	if (m_pParent != nullptr) // Multiply the parent matrix byt this matrix to ge tthe world matrix
 	{
-		XMMATRIX worldMat = m_transform.GetWorldMatrix() * m_pParent->GetWorldMatrix();
-		this->m_transform.SetWorldMatrix(worldMat);
+		//XMMATRIX worldMat = m_transform.GetWorldMatrix() * m_pParent->GetWorldMatrix();
+		//this->m_transform.SetWorldMatrix(worldMat);
 		//this->m_transform.GetWorldMatrix() = this->m_transform.GetWorldMatrix() * m_pParent->GetWorldMatrix();
+		m_transform.AdjustPosition(m_pParent->GetPosition().x, m_pParent->GetPosition().y, m_pParent->GetPosition().z);
 	}
 	else
 	{
-
 		m_transform.AdjustPosition(0.0f, 0.0f, 0.0f);
 	}
 
