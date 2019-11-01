@@ -24,9 +24,12 @@ void Scene::Update(const float& deltaTime)
 	}
 }
 
-void Scene::Draw()
+void Scene::Draw(const DirectX::XMMATRIX & viewProjectionMatrix, const DirectX::XMMATRIX & viewMatrix)
 {
-
+	for (Entity* entity : m_entities)
+	{
+		entity->Draw(viewProjectionMatrix, viewMatrix);
+	}
 }
 
 void Scene::Shutdown()

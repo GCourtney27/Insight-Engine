@@ -3,13 +3,13 @@
 
 #include "MaterialUnTextured.h"
 #include "MaterialTextured.h"
-#include "MaterialTexturedFOliage.h"
+#include "MaterialTexturedFoliage.h"
+#include "MaterialSky.h"
 
 #include "Graphics.h"
 
 std::string Material::GetMaterialTypeAsString()
 {
-
 	std::map<std::string, eMaterialType> stringToMaterialType;
 	stringToMaterialType["PBR_MAPPED"] = eMaterialType::PBR_MAPPED;
 	stringToMaterialType["PBR_MAPPED_WITHSCALERS"] = eMaterialType::PBR_MAPPED_WITHSCALERS;
@@ -28,7 +28,6 @@ std::string Material::GetMaterialTypeAsString()
 
 Material * Material::SetMaterialByType(eMaterialType materialType)
 {
-	Material* pMat = nullptr;
 	switch (materialType)
 	{
 	case eMaterialType::PBR_UNTEXTURED:
@@ -38,16 +37,16 @@ Material * Material::SetMaterialByType(eMaterialType materialType)
 		return new MaterialTextured(materialType);
 		break;
 	case eMaterialType::PBR_SKY:
-		//return new MaterialSky();
+		return new MaterialSky(materialType);
 		break;
 	case eMaterialType::PBR_MAPPED_WITHSCALERS:
 		//return new MaterialTexturedScalable(materialType);
 		break;
 	default:
-		ErrorLogger::Log("Could not determin proper material based on eMaterialType");
+		ErrorLogger::Log("Could not determine proper material based on eMaterialType");
 		break;
 	}
-	return pMat;
+	return nullptr;
 }
 
 void Material::PSSetShader()

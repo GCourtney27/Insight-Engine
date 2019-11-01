@@ -17,6 +17,7 @@ public:
 	void OnImGuiRender() override;
 
 	void InitFromJSON(Entity* owner, const rapidjson::Value& componentInformation) override;
+	void WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) override;
 
 	void SetIsDrawEnabled(bool visible = true) { m_drawEnabled = visible; }
 	bool GetIsDrawEnabled() { return m_drawEnabled; }

@@ -16,15 +16,11 @@ public:
 	FileSystem() {}
 	bool Initialize(Engine* engine);
 
-	static bool LoadSceneFromJSON(const std::string& sceneLocation, Scene* scene, ID3D11Device * device, ID3D11DeviceContext * deviceContext);
+	bool LoadSceneFromJSON(const std::string& sceneLocation, Scene* scene, ID3D11Device * device, ID3D11DeviceContext * deviceContext);
 	static bool WriteSceneToJSON(Scene* scene);
-
-	static bool LoadSceneFromFile(const std::string& sceneLocation, Scene* scene, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader);
-	static bool LoadSceneFromFileGO(const std::string& sceneLocation, std::vector<RenderableGameObject*>& gameObjectsToPopulate, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader);
-	static bool WriteSceneToFileGO(std::vector<RenderableGameObject*>& gameObjectsToWrite);
-	static bool WriteSceneToFile(std::list<Entity*>* gameObjectsToWrite);
 
 
 private:
-	Engine* m_engine;
+	Engine* m_pEngine;
+	
 };

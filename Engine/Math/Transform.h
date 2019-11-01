@@ -1,12 +1,5 @@
 #pragma once
 #include "../Graphics/Model.h"
-//
-//extern "C"
-//{
-//#include "Lua535/lua.h"
-//#include "Lua535/lauxlib.h"
-//#include "Lua535/lualib.h"
-//}
 
 class Transform
 {
@@ -14,6 +7,8 @@ public:
 	Transform() {}
 	Transform(const Transform& transform);
 	
+	void Update() { this->UpdateMatrix(); }
+
 	Transform& operator = (const Transform & transform)
 	{
 		posVector = transform.posVector;
@@ -38,28 +33,28 @@ public:
 	}
 
 	// -- Return and grant modification -- //
-	// Returns Position of object in world space
+	// Returns Position of object in local space
 	XMFLOAT3 & GetPosition() { return this->pos; }
-	// Returns Rotation of object in world space
+	// Returns Rotation of object in localspace
 	XMFLOAT3 & GetRotation() { return this->rot; }
-	// Returns Scale of object in world space
+	// Returns Scale of object in local space
 	XMFLOAT3 & GetScale() { return this->scale; }
 
 	// Return but do not grant modification
-	// (Const) Returns Position Vector of object in World Space
+	// (Const) Returns Position Vector of object in local Space
 	const XMVECTOR & GetPositionVector() const;
-	// (Const) Returns Position Float3 of object in World Space
+	// (Const) Returns Position Float3 of object in local Space
 	const XMFLOAT3 & GetPositionFloat3() const;
-	// (Const) Returns Rotation Vector of object in World Space
+	// (Const) Returns Rotation Vector of object in local Space
 	const XMVECTOR & GetRotationVector() const;
-	// (Const) Returns Rotation Float3 of object in World Space
+	// (Const) Returns Rotation Float3 of object in local Space
 	const XMFLOAT3 & GetRotationFloat3() const;
-	// (Const) Returns Scale Vector of object in World Space
+	// (Const) Returns Scale Vector of object in local Space
 	const XMVECTOR & GetScaleVector() const;
-	// (Const) Returns Scale Float3 of object in World Space
+	// (Const) Returns Scale Float3 of object in local Space
 	const XMFLOAT3 & GetScaleFloat3() const;
 
-	// All operations end up storing as a XMFLOAT3 to updata the world matrix
+	// All operations end up storing as a XMFLOAT3 to updata the local matrix
 
 	/* Position */
 	// Immediately set position with Vector, no blending can be done
@@ -119,20 +114,33 @@ public:
 
 	// Have object look at an object
 	void SetLookAtPos(XMFLOAT3 lookAtPos);
-	// Returns objects world matrix
-	XMMATRIX GetWorldMatrix() const { return worldMatrix; }
-	float* GetWorldMatAsFloatArr();
-	void SetWorldMatrix(XMMATRIX& matrix);
+
+	// Returns objects local matrix
+	XMMATRIX GetLocalMatrix() const { return localMatrix; }
+	// Set the objects local matrix
+	void SetLocalMatrix(XMMATRIX matrix);
 	
+	// Returns the objets world matrix
+	XMMATRIX GetWorldMatrix() const 
+	{ 
+		return worldMatrix;
+	}
+	// Set the objects world matrix
+	void SetWorldMatrix(XMMATRIX matrix);
+
 	// DO NOT CALL UNLESS YOU KNOW WHAT YOU'RE DOING
 	void UpdateDirectionVectors();
+
+	void SetParent(Transform* parent) { m_pParent = parent; }
 
 protected:
 
 	void UpdateMatrix();
 	
+	XMMATRIX localMatrix = XMMatrixIdentity();
 	XMMATRIX worldMatrix = XMMatrixIdentity();
-	float* worldFloatMat;
+
+	Transform* m_pParent = nullptr;
 
 	// XMVECTOR
 	XMVECTOR posVector;

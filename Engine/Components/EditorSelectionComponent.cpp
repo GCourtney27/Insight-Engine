@@ -21,6 +21,19 @@ void EditorSelection::InitFromJSON(Entity* owner, const rapidjson::Value& compon
 
 }
 
+void EditorSelection::WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
+{
+	writer.Key("EditorSelection");
+	writer.StartArray(); // Start Editor Selection
+
+	writer.StartObject(); // Start Mode
+	writer.Key("Mode");
+	writer.String("DEFAULT");
+	writer.EndObject(); // End Mode
+
+	writer.EndArray(); // End Editor Selection
+}
+
 void EditorSelection::Initialize(Entity* owner, float radius, const DirectX::XMFLOAT3 & position)
 {
 	this->m_owner = owner;

@@ -77,14 +77,6 @@ namespace Debug
 			}
 		}
 
-		/* Saving Scene */
-		if (InputManager::Instance()->keyboard.KeyIsPressed(VK_CONTROL) && InputManager::Instance()->keyboard.KeyIsPressed('S'))
-		{
-			if (!SaveScene())
-			{
-				ErrorLogger::Log("Failed to Save Scene");
-			}
-		}
 
 
 	}
@@ -144,10 +136,4 @@ namespace Debug
 		}
 	}
 
-	bool Editor::SaveScene()
-	{
-		if (!FileSystem::WriteSceneToFile(m_pEngine->GetScene().GetAllEntities()))
-			return false;
-		return true;
-	}
 }

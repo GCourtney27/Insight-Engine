@@ -222,33 +222,12 @@ void Transform::SetLookAtPos(DirectX::XMFLOAT3 lookAtPos)
 	SetRotation(pitch, yaw, 0.0f);
 }
 
-float * Transform::GetWorldMatAsFloatArr()
+void Transform::SetLocalMatrix(XMMATRIX matrix)
 {
-
-	XMFLOAT4X4 temp;
-	XMStoreFloat4x4(&temp, worldMatrix);
-
-	/*float result[16] =
-	{ temp._11, temp._12, temp._13, temp._14,
-	  temp._21, temp._22, temp._23, temp._24,
-	  temp._31, temp._32, temp._33, temp._34,
-	  temp._41, temp._42, temp._43, temp._44
-	};*/
-
-	float result[16] =
-	{
-		temp._11, temp._21, temp._31, temp._41,
-		temp._12, temp._22, temp._32, temp._42,
-		temp._13, temp._23, temp._33, temp._43,
-		temp._14, temp._24, temp._34, temp._44
-	};
-
-	worldFloatMat = result;
-
-	return worldFloatMat;
+	this->localMatrix = matrix;
 }
 
-void Transform::SetWorldMatrix(XMMATRIX & matrix)
+void Transform::SetWorldMatrix(XMMATRIX matrix)
 {
 	this->worldMatrix = matrix;
 }
@@ -297,7 +276,38 @@ const XMVECTOR & Transform::GetLeftVector(bool omitY)
 
 void Transform::UpdateMatrix()
 {
-	this->worldMatrix = XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z) * XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z) * XMMatrixTranslation(this->pos.x, this->pos.y, this->pos.z);
+	this->localMatrix = XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z) *
+						XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z) *
+						XMMatrixTranslation(this->pos.x, this->pos.y, this->pos.z);
+
+	if (m_pParent != nullptr)
+	{
+		//this->worldMatrix = m_pParent->GetWorldMatrix() * this->localMatrix;
+		
+		//DirectX::XMMATRIX parentMat = m_pParent->GetWorldMatrix();
+		this->worldMatrix = DirectX::XMMatrixMultiply(m_pParent->GetWorldMatrix(), this->localMatrix);
+	}
+	else
+	{
+		this->worldMatrix = this->localMatrix;
+	}
+
+	// ======================================================
+
+	/*this->localMatrix = XMMatrix(scale, rotation, translation);
+	if (parent)
+	{
+		this->worldMatrix = this->localMatrix * parent->worldMatrix;
+	}
+	else
+	{
+		this->worldMatrix = this->localMatrix;
+	}*/
+	//************ Once this is implemented disable the code below ************
+	// ======================================================
+
+	// WORKS
+	//this->localMatrix = XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z) * XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z) * XMMatrixTranslation(this->pos.x, this->pos.y, this->pos.z);
 	this->UpdateDirectionVectors();
 }
 

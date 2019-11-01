@@ -5,6 +5,12 @@
 
 #include "document.h"
 #include "json.h"
+#include "prettywriter.h"
+#include "ostreamwrapper.h"
+#include "stringbuffer.h"
+#include "filewritestream.h"
+#include "istreamwrapper.h"
+#include "writer.h"
 
 #include <vector>
 #include <map>
@@ -31,6 +37,9 @@ public:
 public:
 	//Material(ID3D11Device * device, ID3D11DeviceContext * deviceContext, eMaterialType materialType, eFlags flags, std::vector<std::string> textureLocations);
 	virtual bool Initiailze(ID3D11Device * device, ID3D11DeviceContext * deviceContext, const rapidjson::Value& assetsInformation, eFlags materialAttributeFlags) = 0;
+	virtual bool Initiailze(ID3D11Device * device, ID3D11DeviceContext * deviceContext, eFlags materialAttributeFlags) = 0;
+
+	virtual void WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) = 0;
 
 	static eMaterialType GetMaterialTypeFromString(std::string str_material);
 	std::string GetMaterialTypeAsString();
@@ -51,7 +60,9 @@ public:
 	float m_roughness = 0.0f;
 
 protected:
-	virtual bool InitializePiplineAssets(const rapidjson::Value& assetsInformation) = 0; // Weather it is textured or not, a json object needs to be read from to initialize its A, N, R, M values
+	virtual bool InitializeJOSNPiplineAssets(const rapidjson::Value& assetsInformation) = 0; // Weather it is textured or not, a json object needs to be read from to initialize its A, N, R, M values
+	virtual bool InitializePiplineAssets() = 0;
+
 	virtual void InitializeShaders() = 0;
 
 	VertexShader m_vertexShader; // Every Material has shaders, its just how they get initialized that is different. Some could use .cso files that others dont

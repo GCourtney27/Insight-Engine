@@ -6,12 +6,36 @@ bool MaterialTextured::Initiailze(ID3D11Device * device, ID3D11DeviceContext * d
 	this->m_pDevice = device;
 	this->m_pDeviceContext = deviceContext;
 	this->m_flags = materialAttributeFlags;
-	InitializePiplineAssets(assetsInformation);
+	InitializeJOSNPiplineAssets(assetsInformation);
 
 	return true;
 }
 
-bool MaterialTextured::InitializePiplineAssets(const rapidjson::Value& assetsInformation)
+bool MaterialTextured::Initiailze(ID3D11Device * device, ID3D11DeviceContext * deviceContext, eFlags materialAttributeFlags)
+{
+	this->m_pDevice = device;
+	this->m_pDeviceContext = deviceContext;
+	this->m_flags = materialAttributeFlags;
+	InitializePiplineAssets();
+
+	return true;
+}
+
+void MaterialTextured::WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
+{
+	writer.Key("MaterialType");
+	writer.String(this->GetMaterialTypeAsString().c_str());
+	writer.Key("Albedo");
+	writer.String(m_textureLocations[0].c_str());
+	writer.Key("Normal");
+	writer.String(m_textureLocations[1].c_str());
+	writer.Key("Metallic");
+	writer.String(m_textureLocations[2].c_str());
+	writer.Key("Roughness");
+	writer.String(m_textureLocations[3].c_str());
+}
+
+bool MaterialTextured::InitializeJOSNPiplineAssets(const rapidjson::Value& assetsInformation)
 {
 	std::string albedo_Filepath;
 	std::string normal_Filepath;
@@ -49,6 +73,12 @@ bool MaterialTextured::InitializePiplineAssets(const rapidjson::Value& assetsInf
 	cb_ps_perObjectColor.data.roughnss = m_roughness;
 	cb_ps_perObjectColor.ApplyChanges();
 
+	return true;
+}
+
+bool MaterialTextured::InitializePiplineAssets()
+{
+	// TODO: Add defaultTestures to tell that they have not been overriden
 	return true;
 }
 

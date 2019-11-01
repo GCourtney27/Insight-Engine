@@ -2,15 +2,13 @@
 #include "Editor\\Editor.h"
 #include "Graphics\\Graphics.h"
 #include "..\\Systems\\FileSystem.h"
-#include "Components\\MeshRenderComponent.h"
-#include "Components\\EditorSelectionComponent.h"
 
 bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height)
 {
 	windowHeight = height;
 	windowWidth = width;
 	
-	Timer::Instance()->Start();
+	//Timer::Instance()->Start();
 
 	if (!FileSystem::Instance()->Initialize(this))
 	{
@@ -30,7 +28,7 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 		return false;
 	}
 	//PBR_TexturedShowcase
-	if (!FileSystem::Instance()->LoadSceneFromJSON("..\\Assets\\Scenes\\TEST.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext()))
+	if (!FileSystem::Instance()->LoadSceneFromJSON("..\\Assets\\Scenes\\EntityWriting.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext()))
 	{
 		ErrorLogger::Log("Failed to initialize scene.");
 		return false;
@@ -44,21 +42,9 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 
 	
 	// Enable this to draw the lights mesh (Commented does not effect the lights emission behavior)
-	scene.AddEntity(Graphics::Instance()->pointLight);
+	//scene.AddEntity(Graphics::Instance()->pointLight);
+	//scene.AddEntity(Graphics::Instance()->directionalLight);
 
-
-	// ENABLE THIS FOR PLAY MODE. Its just disabled so we can see the materials better
-	player = new Player(&scene, *(new ID("Player")));
-
-	MeshRenderer* mr = player->AddComponent<MeshRenderer>();
-	mr->Initialize(player, "..\\Assets\\Objects\\GraniteRock\\Rock_LOD0.fbx", Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader(), m_pMaterial);
-
-	EditorSelection* es = player->AddComponent<EditorSelection>();
-	es->Initialize(player, 10.0f, player->GetTransform().GetPosition());
-
-	scene.AddEntity(player);
-
-	
 
 	if (!scene.Initialize())
 	{
@@ -86,7 +72,7 @@ void Engine::Update()
 	timer.tick();
 	float dt = timer.dt();
 	float gamedt = timer.dt();
-	
+
 	while (!InputManager::Instance()->keyboard.CharBufferIsEmpty())
 	{
 		unsigned char ch = InputManager::Instance()->keyboard.ReadChar();
@@ -120,8 +106,8 @@ void Engine::Update()
 	Debug::Editor::Instance()->Update(dt);
 
 
-	
-	if (InputManager::Instance()->keyboard.KeyIsPressed(27))
+	// FORCE ENGINE CLOSE (Space + Esc)
+	if (InputManager::Instance()->keyboard.KeyIsPressed(27) && InputManager::Instance()->keyboard.KeyIsPressed(' '))
 	{
 		exit(0); // Performs no cleanup
 		PostMessage(this->render_window.GetHWND(), WM_QUIT, 0, 0);
@@ -145,11 +131,11 @@ void Engine::Update()
 	if (InputManager::Instance()->keyboard.KeyIsPressed(VK_CONTROL) && InputManager::Instance()->keyboard.KeyIsPressed('S') && m_canSave)
 	{
 		m_canSave = false;
-		//if (!FileSystem::Instance()->WriteSceneToJSON(&scene))
-		//	ErrorLogger::Log("Failed to save scene");
-		//else
-			//DEBUGLOG("SCENE SAVED");
-			DEBUGLOG("SCENE SAVING DISABLED!");
+		if (!FileSystem::Instance()->WriteSceneToJSON(&scene))
+			ErrorLogger::Log("Failed to save scene");
+		else
+			DEBUGLOG("SCENE SAVED");
+			//DEBUGLOG("SCENE SAVING DISABLED!");
 	}
 
 }

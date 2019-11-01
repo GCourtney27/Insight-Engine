@@ -36,3 +36,8 @@ std::string StringHelper::GetFileExtension(const std::string & filename)
 	}
 	return std::string(filename.substr(off + 1));
 }
+
+std::string StringHelper::GetFilenameFromDirectory(const std::string& filename)
+{
+	return {};
+}

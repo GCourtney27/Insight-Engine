@@ -32,6 +32,9 @@ public:
 	std::string& GetName() { return m_name; }
 	void SetName(std::string name) { m_name = name; }
 
+	std::string& GetType() { return m_type; }
+	void SetType(std::string type) { m_type = type; }
+
 	std::string& GetTag() { return m_tag; }
 	void SetTag(std::string tag) { m_tag = tag; }
 
@@ -39,6 +42,7 @@ public:
 	int GetLayer() const { return m_layer; }
 
 protected:
+	std::string m_type;
 	std::string m_name;
 	std::string m_id;
 	std::string m_tag;

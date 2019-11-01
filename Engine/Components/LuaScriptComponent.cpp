@@ -28,6 +28,19 @@ void LuaScript::InitFromJSON(Entity* owner, const rapidjson::Value& componentInf
 		finalScript->Initialize(entity, scriptFilePath);*/
 }
 
+void LuaScript::WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
+{
+	writer.Key("LuaScript");
+	writer.StartArray(); // Start Lua Script
+
+	writer.StartObject(); // Start FilePath
+	writer.Key("FilePath");
+	writer.String(this->filePath.c_str());
+	writer.EndObject(); // End FilePath
+
+	writer.EndArray(); // End Lua Script
+}
+
 bool LuaScript::Initialize(Entity* owner, std::string scriptFile)
 {
 	this->m_owner = owner;
@@ -52,16 +65,16 @@ bool LuaScript::Initialize(Entity* owner, std::string scriptFile)
 
 void LuaScript::Update(const float& deltaTime)
 {
-	
-	m_callDelay -= deltaTime;
+	luaState->DoFile(filePath.c_str());
+	LuaPlus::LuaFunctionVoid LUpdate(luaState->GetGlobal("Update"));
+	LUpdate(deltaTime);
+	/*m_callDelay -= deltaTime;
 	if (m_callDelay < 0.0f)
 	{
-		luaState->DoFile(filePath.c_str());
-		LuaPlus::LuaFunctionVoid LUpdate(luaState->GetGlobal("Update"));
-		LUpdate(deltaTime);
+		
 
 		m_callDelay = MAX_CALL_DELAY;
-	}
+	}*/
 
 }
 
@@ -69,7 +82,6 @@ bool LuaScript::lua_KeyIsPressed(int keycode)// This was an int before, and it w
 {
 	return InputManager::Instance()->keyboard.KeyIsPressed(keycode);
 }
-
 
 void LuaScript::Destroy()
 {

@@ -6,7 +6,7 @@ bool MaterialUnTextured::Initiailze(ID3D11Device * device, ID3D11DeviceContext *
 	this->m_pDevice = device;
 	this->m_pDeviceContext = deviceContext;
 	this->m_flags = materialAttributeFlags;
-	if (!InitializePiplineAssets(assetsInformation))
+	if (!InitializeJOSNPiplineAssets(assetsInformation))
 	{
 		ErrorLogger::Log("Failed to initialize pipeline assets for untextured material.");
 		return false;
@@ -15,7 +15,90 @@ bool MaterialUnTextured::Initiailze(ID3D11Device * device, ID3D11DeviceContext *
 	return true;
 }
 
-bool MaterialUnTextured::InitializePiplineAssets(const rapidjson::Value & assetsInformation)
+bool MaterialUnTextured::Initiailze(ID3D11Device * device, ID3D11DeviceContext * deviceContext, eFlags materialAttributeFlags)
+{
+	this->m_pDevice = device;
+	this->m_pDeviceContext = deviceContext;
+	this->m_flags = materialAttributeFlags;
+
+	InitializePiplineAssets();
+
+	return true;
+}
+
+void MaterialUnTextured::WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
+{
+	writer.Key("MaterialType");
+	writer.String(this->GetMaterialTypeAsString().c_str());
+	writer.Key("Albedo");
+	writer.StartArray(); // Start Albedo Array
+
+	writer.StartObject(); // Start r
+	writer.Key("r");
+	writer.Double(this->m_color.x);
+	writer.EndObject(); // End r
+
+	writer.StartObject(); // Start g
+	writer.Key("g");
+	writer.Double(this->m_color.y);
+	writer.EndObject(); // End g
+	
+	writer.StartObject(); // Start b
+	writer.Key("b");
+	writer.Double(this->m_color.z);
+	writer.EndObject(); // End b
+
+	writer.EndArray(); // End Albedo Array
+
+	writer.Key("Normal");
+	writer.String("..\\Assets\\Textures\\UnTexturedNormal.png");
+
+	writer.Key("Metallic");
+	writer.Double(this->m_metallic);
+
+	writer.Key("Roughness");
+	writer.Double(this->m_roughness);
+
+	writer.Key("AO");
+	writer.Double(0.5);
+}
+
+bool MaterialUnTextured::InitializePiplineAssets()
+{
+	float r = 1.0f;
+	float g = 1.0f;
+	float b = 1.0f;
+	std::string normal_Filepath = "..\\Assets\\Textures\\UnTexturedNormal.png";
+	float metallic_value = 0.5f;
+	float roughness_value = 0.5f;
+	float ao_value = 0.2f;
+	std::vector<std::string> textures;
+
+	textures.push_back(normal_Filepath);
+
+	m_textureLocations = textures;
+
+	std::vector<std::string>::iterator iter;
+	for (iter = m_textureLocations.begin(); iter != m_textureLocations.end(); iter++)
+	{
+		this->m_textures.push_back(Texture(this->m_pDevice.Get(), (*iter)));
+	}
+
+	InitializeShaders();
+	m_color.x = r;
+	m_color.y = g;
+	m_color.z = b;
+	cb_ps_perObjectColor.data.color = m_color;
+	m_metallic = metallic_value;
+	cb_ps_perObjectColor.data.metallic = m_metallic;
+	m_roughness = roughness_value;
+	cb_ps_perObjectColor.data.roughnss = m_roughness;
+	cb_ps_perObjectColor.ApplyChanges();
+
+	return true;
+}
+
+bool MaterialUnTextured::InitializeJOSNPiplineAssets(const rapidjson::Value & assetsInformation)
 {
 	float r, g, b;
 	std::string normal_Filepath;

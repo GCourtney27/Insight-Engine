@@ -1,7 +1,5 @@
 #include "Graphics.h"
-#include "..\\Components\\MeshRenderComponent.h"
 #include "..\\Editor\\Editor.h"
-#include "..\\Input\\InputManager.h"
 
 #include <cstdlib>
 #include <math.h>
@@ -13,7 +11,6 @@ bool Graphics::Initialize(HWND hwnd, int width, int height, Engine* engine)
 	windowWidth = width;
 	windowHeight = height;
 	m_pEngine = engine;
-	fpsTimer.Start();
 
 	if (!InitializeDirectX(hwnd))
 		return false;
@@ -26,11 +23,26 @@ bool Graphics::Initialize(HWND hwnd, int width, int height, Engine* engine)
 	pointLight->GetTransform().SetPosition(DirectX::XMFLOAT3(0.0f, 32.0f, -50.0f));
 	pointLight->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
 	pointLight->GetTransform().SetScale(1.0f, 1.0f, 1.0f);
+
+	directionalLight = new DirectionalLight(&(m_pEngine->GetScene()), *(new ID("Directional Light")));
+	directionalLight->GetTransform().SetPosition(DirectX::XMFLOAT3(0.0f, 20.0f, -10.0f));
+	directionalLight->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
+	directionalLight->GetTransform().SetScale(1.0f, 1.0f, 1.0f);
+
 	MeshRenderer* mr = pointLight->AddComponent<MeshRenderer>();
 	mr->Initialize(pointLight, "..\\Assets\\Objects\\Primatives\\Sphere.fbx", Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader(), m_pMaterial);
 	EditorSelection* es = pointLight->AddComponent<EditorSelection>();
 	es->Initialize(pointLight, 1.0f, pointLight->GetTransform().GetPosition());
 
+	directionalLight = new DirectionalLight(&(m_pEngine->GetScene()), *(new ID("Directional Light")));
+	directionalLight->GetTransform().SetPosition(DirectX::XMFLOAT3(0.0f, 1000.0f, -1000.0f));
+	directionalLight->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
+	directionalLight->GetTransform().SetScale(1.0f, 1.0f, 1.0f);
+
+	MeshRenderer* mrd = directionalLight->AddComponent<MeshRenderer>();
+	mrd->Initialize(directionalLight, "..\\Assets\\Objects\\Primatives\\Sphere.fbx", Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader(), m_pMaterial);
+	EditorSelection* esd = directionalLight->AddComponent<EditorSelection>();
+	esd->Initialize(directionalLight, 1.0f, directionalLight->GetTransform().GetPosition());
 
 	if (!InitializeScene())
 		return false;
@@ -60,6 +72,7 @@ void Graphics::InitialzeImGui(HWND hwnd)
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 	ImGui::StyleColorsDark();
+	
 	//ImGui::StyleColorsClassic();
 	//ImGui::StyleColorsLight();
 	ImGuiStyle& style = ImGui::GetStyle();
@@ -75,31 +88,28 @@ void Graphics::InitialzeImGui(HWND hwnd)
 
 void Graphics::InitSkybox()
 {
+
 	skybox = new Entity((&m_pEngine->GetScene()), *(new ID("Sky Box")));
 	
 	skybox->GetTransform().SetPosition(0.0f, 0.0f, 0.0f);
-	skybox->GetTransform().SetScale(500.0f, 500.0f, 500.0f);
+	skybox->GetTransform().SetScale(5000.0f, 5000.0f, 5000.0f);
 	skybox->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
 	MeshRenderer* me = skybox->AddComponent<MeshRenderer>();
 	me->Initialize(skybox, "..\\Assets\\Objects\\Primatives\\Sphere.fbx", pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader, nullptr);
 
-	std::string filePath = "..\\Assets\\Textures\\Skyboxes\\NewportLoft.dds";
-	HRESULT hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), StringHelper::StringToWide(filePath).c_str(), nullptr, &skyboxTextureSRV);
+	HRESULT hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\skybox1_Diff.dds", nullptr, &skyboxTextureSRV);
 	if(FAILED(hr))
-		ErrorLogger::Log("Failed to load dds texture for skybox");
+		ErrorLogger::Log("Failed to load dds diffuse texture for skybox");
 
-	std::string filePath1 = "..\\Assets\\Textures\\Skyboxes\\NewportLoftPrefilter.dds";
-	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), StringHelper::StringToWide(filePath1).c_str(), nullptr, &prefilterMapSRV);
+	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\skybox1_EnvMap.dds", nullptr, &environmentMapSRV);
 	if (FAILED(hr))
-		ErrorLogger::Log("Failed to load dds texture for prefilter map");
+		ErrorLogger::Log("Failed to load dds texture for environment map");
 
-	std::string filePath2 = "..\\Assets\\Textures\\Skyboxes\\NewportLoftIR.dds";
-	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), StringHelper::StringToWide(filePath2).c_str(), nullptr, &irradianceMapSRV);
+	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\skybox1_IR.dds", nullptr, &irradianceMapSRV);
 	if (FAILED(hr))
 		ErrorLogger::Log("Failed to load dds texture for irradiance map");
 
-	std::string filePath3 = "..\\Assets\\Textures\\Skyboxes\\ibl_brdf_lut.png";
-	hr = DirectX::CreateWICTextureFromFile(pDevice.Get(), StringHelper::StringToWide(filePath3).c_str(), nullptr, &brdfLUTSRV);
+	hr = DirectX::CreateWICTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\ibl_brdf_lut.png", nullptr, &brdfLUTSRV);
 	if (FAILED(hr))
 		ErrorLogger::Log("Failed to load dds texture for brdfLUT map");
 
@@ -240,7 +250,11 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 
 void Graphics::RenderFrame()
 {
-	
+	const DirectX::XMMATRIX & playerProjMat = m_pEngine->GetPlayer()->GetPlayerCamera()->GetProjectionMatrix();
+	const DirectX::XMMATRIX & playerViewMat = m_pEngine->GetPlayer()->GetPlayerCamera()->GetViewMatrix();
+	const DirectX::XMMATRIX & editorProjMat = editorCamera.GetProjectionMatrix();
+	const DirectX::XMMATRIX & editorViewMat = editorCamera.GetViewMatrix();
+
 	// -- These Constant Buffers dont get included in materials becasue they change on a per-scene basis -- //
 #pragma region
 	// -- Update Light Shader Information -- //
@@ -251,6 +265,11 @@ void Graphics::RenderFrame()
 	cb_ps_light.data.dynamicLightAttenuation_b = pointLight->attenuation_b;
 	cb_ps_light.data.dynamicLightAttenuation_c = pointLight->attenuation_c;
 	cb_ps_light.ApplyChanges();
+
+	cb_ps_directionalLight.data.Color = directionalLight->lightColor;
+	cb_ps_directionalLight.data.Strength = directionalLight->lightStrength;
+	cb_ps_directionalLight.data.Direction = directionalLight->GetTransform().GetPosition();
+	cb_ps_directionalLight.ApplyChanges();
 
 	// -- Update Pixel Shader Per Frame Informaiton -- //
 	cb_ps_PerFrame.data.deltaTime = m_deltaTime;
@@ -263,9 +282,9 @@ void Graphics::RenderFrame()
 
 	// -- Update Vertex Shader Per Frame Informaiton -- //
 	
-	newUVOffset.x += 0.05f * m_deltaTime;
-	newUVOffset.y += 0.05f * m_deltaTime;
-	newVertOffset.x += (float)(sin((1.0f * m_deltaTime) * (PI / 180.0f)));;
+	//newUVOffset.x += 0.05f * m_deltaTime;
+	//newUVOffset.y += 0.05f * m_deltaTime;
+	//newVertOffset.x += (float)(sin((1.0f * m_deltaTime) * (PI / 180.0f)));;
 	//newVertOffset.y += (sin((1.0f * m_deltaTime) * PI / 180.0f));
 	//newVertOffset.y = 0.0f;
 	//newVertOffset.z = 0.0f;
@@ -277,6 +296,7 @@ void Graphics::RenderFrame()
 	// -- Set Pixel Shader Constant Buffers -- //
 	pDeviceContext->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
 	pDeviceContext->PSSetConstantBuffers(1, 1, cb_ps_PerFrame.GetAddressOf());
+	pDeviceContext->PSSetConstantBuffers(3, 1, cb_ps_directionalLight.GetAddressOf());
 
 	// -- Set Vertex Shader Constant Buffers -- //
 	pDeviceContext->VSSetConstantBuffers(1, 1, cb_vs_PerFrame.GetAddressOf());
@@ -308,44 +328,32 @@ void Graphics::RenderFrame()
 	pDeviceContext->VSSetShader(skyVertexShader.GetShader(), NULL, 0);
 		//skybox->Draw(gameCamera.GetProjectionMatrix(), gameCamera.GetViewMatrix());
 	if (Debug::Editor::Instance()->PlayingGame())
-		skybox->Draw(m_pEngine->GetPlayer()->GetPlayerCamera()->GetProjectionMatrix(), m_pEngine->GetPlayer()->GetPlayerCamera()->GetViewMatrix());
+		skybox->Draw(playerProjMat, playerViewMat);
 	else
-		skybox->Draw(editorCamera.GetProjectionMatrix(), editorCamera.GetViewMatrix());
+		skybox->Draw(editorProjMat, editorViewMat);
 	
 	// Reset Rasterizer state for rest of geometry
 	pDeviceContext->RSSetState(pRasterizerState.Get());
 	pDeviceContext->OMSetDepthStencilState(pDepthStencilState.Get(), 0);
-	pDeviceContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);
+	pDeviceContext->OMSetBlendState(pBlendState.Get(), NULL, 0xFFFFFFFF);
 
 	// -- Set IBL resources for shader slots -- //
 	pDeviceContext->PSSetShaderResources(5, 1, &irradianceMapSRV);
-	pDeviceContext->PSSetShaderResources(6, 1, &prefilterMapSRV);
+	pDeviceContext->PSSetShaderResources(6, 1, &environmentMapSRV);
 	pDeviceContext->PSSetShaderResources(7, 1, &brdfLUTSRV);
 
 	// -- Draw Game Objects -- //
-	std::list<Entity*>* entities = m_pEngine->GetScene().GetAllEntities();
-	std::list<Entity*>::iterator iter;
 	if (Debug::Editor::Instance()->PlayingGame())
 	{
-		
-		for (iter = entities->begin(); iter != entities->end(); iter++)
-		{
-			//m_pEngine->GetPlayer()->GetPlayerCamera()->GetTransform().AdjustPosition(0.0f, 0.0f, -1.5f * m_deltaTime);
-			(*iter)->Draw(m_pEngine->GetPlayer()->GetPlayerCamera()->GetProjectionMatrix(), m_pEngine->GetPlayer()->GetPlayerCamera()->GetViewMatrix());
-			//gameCamera.AdjustPosition(0.0f, 0.0f, -0.5 * m_deltaTime);
-			//(*iter)->Draw(gameCamera.GetProjectionMatrix(), gameCamera.GetViewMatrix());
-		}
+		m_pEngine->GetScene().Draw(playerProjMat, playerViewMat);
 	}
 	else
 	{
-		for (iter = entities->begin(); iter != entities->end(); iter++)
-		{
-			(*iter)->Draw(editorCamera.GetProjectionMatrix(), editorCamera.GetViewMatrix());
-		}
+		m_pEngine->GetScene().Draw(editorProjMat, editorViewMat);
 	}
 	
 
-	// -- Update 2D shader Information -- //
+	// -- Update 2D shaders -- //
 	pDeviceContext->IASetInputLayout(vertexshader_2d.GetInputLayout());
 	pDeviceContext->PSSetShader(pixelshader_2d.GetShader(), NULL, 0);
 	pDeviceContext->VSSetShader(vertexshader_2d.GetShader(), NULL, 0);
@@ -380,9 +388,7 @@ void Graphics::RenderFrame()
 
 void Graphics::Update(const float& deltaTime)
 {
-	//skybox->GetTransform().SetPosition(editorCamera.GetPosition());
 	m_deltaTime = deltaTime;
-	//DEBUGLOG(std::to_string(m_deltaTime * 20.0f));
 }
 
 void Graphics::Shutdown()
@@ -438,16 +444,6 @@ bool Graphics::InitializeShaders()
 	};
 	UINT defaultNumElements3D = ARRAYSIZE(defaultLayout3D);
 
-	/*if (!default_vertexshader.Initialize(pDevice, m_shaderFolder + L"PBR_Textured_vs.cso", defaultLayout3D, defaultNumElements3D))
-	{
-		ErrorLogger::Log("Failed to initialize textured vertex PBR shader");
-		return false;
-	}
-	if (!default_pixelshader.Initialize(pDevice, m_shaderFolder + L"PBR_Textured_ps.cso"))
-	{
-		ErrorLogger::Log("Failed to initialize textured pixel PBR shader");
-		return false;
-	}*/
 	// Sky
 	if (!skyVertexShader.Initialize(pDevice, m_shaderFolder + L"Sky_vs.cso", defaultLayout3D, defaultNumElements3D))
 	{
@@ -459,12 +455,6 @@ bool Graphics::InitializeShaders()
 		ErrorLogger::Log("Failed to initialize Sky pixel shader");
 		return false;
 	}
-	/*if (!prefilterMapPixelShader.Initialize(pDevice, shaderfolder + L"PrefilterMap_ps.cso"))
-	{
-		ErrorLogger::Log("Failed to initialize Prefilter pixel shader");
-		return false;
-	}*/
-
 
 	return true;
 }
@@ -489,25 +479,27 @@ bool Graphics::InitializeScene()
 		hr = cb_vs_PerFrame.Initialize(pDevice.Get(), pDeviceContext.Get());
 		COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer for vertex shader utilites.");
 
+		hr = cb_ps_directionalLight.Initialize(pDevice.Get(), pDeviceContext.Get());
+		COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer for directional light for use in pixel shader.");
+
 		// Initialize light shader values
 		cb_ps_light.data.ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-		//cb_ps_light.data.ambientLightStrength = 0.0f;
 		cb_ps_light.data.ambientLightStrength = 0.268f;
+
+		cb_ps_directionalLight.data.Color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+		cb_ps_directionalLight.data.Strength = 1.0f;
+		cb_ps_directionalLight.data.Direction = XMFLOAT3(0.25f, 0.5f, -1.0f);
 
 		cb_ps_PerFrame.data.camPosition = editorCamera.GetPosition();
 		cb_ps_PerFrame.data.deltaTime = 0.5f;
 
 		cb_vs_PerFrame.data.deltaTime = 0.5f;
 
-		/*light.lightStrength = 6.848f;
-		light.attenuation_a = 1.968f;
-		light.attenuation_b = 0.2f;
-		light.attenuation_c = 0.0f;*/
-
 		pointLight->lightStrength = 1.0f;
 		pointLight->attenuation_a = 0.5f;
 		pointLight->attenuation_b = 0.0f;
 		pointLight->attenuation_c = 0.0f;
+
 
 		// Hello World sprite
 		if (!sprite.Initialize(pDevice.Get(), pDeviceContext.Get(), 256, 256, "..\\Assets\\Textures\\sprite_256x256.png", cb_vs_vertexshader_2d))
@@ -515,14 +507,10 @@ bool Graphics::InitializeScene()
 			ErrorLogger::Log("Failed to initilize sprite");
 			return false;
 		}
-
 		camera2D.SetProjectionValues((float)windowWidth, (float)windowHeight, 0.0f, 1.0f);
 
 		editorCamera.SetPosition(DirectX::XMFLOAT3(0.0f, 5.0f, -40.0f));
 		editorCamera.SetProjectionValues(80.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
-
-		gameCamera.SetPosition(0.0f, 10.0f, -10.0f);
-		gameCamera.SetProjectionValues(80.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
 
 	}
 	catch (COMException & exception)
@@ -610,9 +598,9 @@ void Graphics::UpdateImGuiWidgets()
 	}
 	ImGui::End();
 
-	ImGui::Begin("Debug Log");
+	ImGui::Begin("Console");
 	{
-		if (ImGui::Button("Clear Console", { 100, 20 }))
+		if (ImGui::Button("Clear", { 100, 20 }))
 		{
 			Editor::Instance()->ClearConsole();
 		}
@@ -626,37 +614,55 @@ void Graphics::UpdateImGuiWidgets()
 
 	ImGui::Begin("Editor");
 	{
+		ImGui::Text("Play Status: ");
+		ImGui::SameLine();
+		std::string playStatus = "";
+		if (Editor::Instance()->PlayingGame())
+			playStatus += "Playing";
+		else
+			playStatus += "Not Playing";
+		ImGui::Text(playStatus.c_str());
+
 		if (ImGui::Button("Play", { 50.0f, 20.0f }))
 		{
 			if(!Editor::Instance()->PlayingGame())
 				Editor::Instance()->PlayGame();// Editor calles scene OnStart
 		}
-		if (ImGui::Button("Stop", { 50.0f, 20.0f }))
+		if (ImGui::Button("Stop", { 50.0f, 20.0f }) || InputManager::Instance()->keyboard.KeyIsPressed(27))
 		{
 			Editor::Instance()->StopGame();
 		}
 	}
 	ImGui::End();
 
+	//static bool show = true;
+
+	//ImGuiWindowFlags window_flags = 0;
+	//window_flags |= ImGuiWindowFlags_MenuBar;
+
 	//ImGui::ShowDemoWindow();
-	ImGui::Begin("Menu Bar");
-	if (ImGui::BeginMenuBar())
+	/*ImGui::Begin("Menu Bar");
 	{
-		if (ImGui::BeginMenu("Menu"))
+		if (ImGui::BeginMenuBar())
 		{
-			ImGui::MenuItem("Test", NULL, true);
-			ImGui::EndMenu();
+			if (ImGui::BeginMenu("Menu"))
+			{
+				ImGui::MenuItem("Test", NULL, show);
+				ImGui::MenuItem("Hello", NULL, false);
+				ImGui::EndMenu();
+			}
+
+			ImGui::EndMainMenuBar();
 		}
-
-		
-
-		ImGui::EndMainMenuBar();
 	}
-	ImGui::End();
+	ImGui::End();*/
 	
-
 	ImGui::Begin("Lighting");
 	{
+		//ImGui::DragFloat3("Ambient Light Color", &cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
+		//ImGui::DragFloat("Ambient Light Strength", &cb_ps_light.data.ambientLightStrength, 0.01f, 0.0f, 10.0f);
+		//ImGui::DragFloat3("Directional Light Color", &directionalLight->lightColor.x, 0.01f, 0.0f, 10.0f);
+		//ImGui::DragFloat("Directional Light Strength", &directionalLight->lightStrength, 0.01f, 0.0f, 10.0f);
 		ImGui::DragFloat3("Ambient Light Color", &cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat("Ambient Light Strength", &cb_ps_light.data.ambientLightStrength, 0.01f, 0.0f, 10.0f);
 		ImGui::DragFloat3("Dynamic Light Color", &pointLight->lightColor.x, 0.01f, 0.0f, 10.0f);
@@ -672,7 +678,7 @@ void Graphics::UpdateImGuiWidgets()
 	{
 		ImGui::Text(entityName.c_str());
 		ImGui::TextColored({100, 100, 100, 100}, "Transform");
-		ImGui::DragFloat3("Position", &pSelectedEntity->GetTransform().GetPosition().x, 0.1f, -100.0f, 100.0f);
+		ImGui::DragFloat3("Position", &pSelectedEntity->GetTransform().GetPosition().x, 0.1f, -1000.0f, 1000.0f);
 		ImGui::DragFloat3("Rotation", &pSelectedEntity->GetTransform().GetRotation().x, 0.1f, -100.0f, 100.0f);
 		ImGui::DragFloat3("Scale", &pSelectedEntity->GetTransform().GetScale().x, 0.1f, -100.0f, 100.0f);
 

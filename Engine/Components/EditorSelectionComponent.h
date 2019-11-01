@@ -7,6 +7,13 @@
 class EditorSelection : public Component
 {
 public:
+	enum eStatus
+	{
+		DEFUALT,
+		OFF
+	};
+
+public:
 	EditorSelection(Entity* owner)
 		: Component(owner) {}
 	
@@ -18,6 +25,7 @@ public:
 	void OnImGuiRender() override;
 
 	void InitFromJSON(Entity* owner, const rapidjson::Value& componentInformation) override;
+	void WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) override;
 
 	void SetRadius(float value) { m_radius = value; }
 	void SetPosition(const DirectX::XMFLOAT3 & position) { m_position = position; }

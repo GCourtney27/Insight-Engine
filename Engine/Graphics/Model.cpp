@@ -72,7 +72,7 @@ void Model::Draw(const XMMATRIX & worldMatrix, const XMMATRIX & projectionMatrix
 				break;
 			}
 			default: 
-				ErrorLogger::Log("Fatal Error: Failed to get Material type for rendering.");
+				ErrorLogger::Log("Fatal Error: Failed to get Material type for rendering. (Model.cpp)");
 				break;
 			}
 			

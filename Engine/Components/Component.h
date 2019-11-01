@@ -1,7 +1,15 @@
 #pragma once
 #include "..\\Objects\\Object.h"
+
 #include "document.h"
 #include "json.h"
+#include "prettywriter.h"
+#include "ostreamwrapper.h"
+#include "stringbuffer.h"
+#include "filewritestream.h"
+#include "istreamwrapper.h"
+#include "writer.h"
+
 class Entity;
 
 class Component : public Object
@@ -13,6 +21,7 @@ public:
 	virtual void Update(const float& deltaTime) = 0;
 	virtual void OnImGuiRender() = 0;
 	virtual void InitFromJSON(Entity* owner, const rapidjson::Value& componentInformation) = 0;
+	virtual void WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) = 0;
 
 	bool& GetIsEnabled() { return m_enabled; }
 	void SetEnable(bool enable) { m_enabled = enable; }

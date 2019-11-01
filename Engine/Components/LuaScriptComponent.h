@@ -25,6 +25,7 @@ public:
 	void OnImGuiRender() override;
 
 	void InitFromJSON(Entity* owner, const rapidjson::Value& componentInformation) override;
+	void WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) override;
 
 	bool lua_KeyIsPressed(int keycode);
 

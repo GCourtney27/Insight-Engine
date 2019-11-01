@@ -24,25 +24,12 @@ void Camera::Draw(const XMMATRIX & viewProjectionMatrix, const XMMATRIX & viewMa
 
 	if (mr != nullptr)
 	{
-		mr->SetWorldMat(this->m_transform.GetWorldMatrix());
 		mr->Draw(viewProjectionMatrix, viewMatrix);
 	}
 }
 
 void Camera::Update(const float& deltaTime)
 {
-	if (m_pParent != nullptr) // Multiply the parent matrix by this matrix to get the world matrix
-	{
-		//worldMat = m_transform.GetWorldMatrix() * m_pParent->GetWorldMatrix();
-		//this->m_transform.SetWorldMatrix(worldMat);
-		//this->m_transform.GetWorldMatrix() = this->m_transform.GetWorldMatrix() * m_pParent->GetWorldMatrix();
-		m_transform.AdjustPosition(m_pParent->GetPosition().x, m_pParent->GetPosition().y, m_pParent->GetPosition().z);
-
-	}
-	else
-	{
-		m_transform.AdjustPosition(0.0f, 0.0f, 0.0f);
-	}
 
 	// If the editor is not playing keep coppying the transforms
 	if (!Debug::Editor::Instance()->PlayingGame())
@@ -54,6 +41,9 @@ void Camera::Update(const float& deltaTime)
 	{
 		es->SetPosition(m_transform.GetPosition());
 	}
+
+	//m_transform.AdjustPosition(0.0f, 0.0f, 0.0f);
+	this->m_transform.Update();
 	UpdateViewMatrix();
 }
 

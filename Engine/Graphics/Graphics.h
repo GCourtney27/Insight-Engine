@@ -5,12 +5,11 @@
 #include "Light.h"
 #include "Camera2D.h"
 #include "Sprite.h"
-#include "..\\Objects\\Entity.h"
 #include "..\\Framework\\Singleton.h"
 #include "..\\Engine.h"
 #include "..\\Systems\\Timer.h"
-#include "Material.h"
 #include "..\Objects\PointLight.h"
+#include "..\Objects\DirectionalLight.h"
 
 #include "ImGui\\imgui.h"
 #include "ImGui\\imgui_impl_win32.h"
@@ -22,7 +21,6 @@
 #include <WICTextureLoader.h>
 #include <DDSTextureLoader.h>
 #include <d3dx11async.h>
-
 #pragma comment (lib, "d3dx11.lib")
 
 class Graphics : public Singleton<Graphics>
@@ -38,14 +36,13 @@ public:
 	std::wstring GetShaderFolder() { return m_shaderFolder; }
 
 	Camera3D editorCamera;
-	Camera3D gameCamera;
 
 	Camera2D camera2D;
 	Sprite sprite;
 
 	PointLight * pointLight = nullptr;
+	DirectionalLight * directionalLight = nullptr;
 
-	std::vector<std::string> textures;
 	Material* m_pMaterial = nullptr;
 
 	Entity* skybox = nullptr;
@@ -57,7 +54,7 @@ public:
 	ConstantBuffer<CB_VS_vertexshader>& GetDefaultVertexShader() { return cb_vs_vertexshader; }
 
 	void InitSkybox();
-	//void GeneratePrefilterSkyMap();
+
 private:
 	bool InitializeDirectX(HWND hwnd);
 	bool InitializeShaders();
@@ -91,30 +88,22 @@ private:
 	ConstantBuffer<CB_VS_Sky> cb_vs_sky;
 	VertexShader skyVertexShader;
 	PixelShader skyPixelShader;
-	
-	//PixelShader prefilterMapPixelShader;
 
 	// For skybox, no mip levels becasue we dont want the actual game sky to get blurry
-	// ==========
 	ID3D11Texture2D* skyTexture;
 	ID3D11ShaderResourceView* skyboxTextureSRV;
-	// ==========
 
 	ID3D11Texture2D* irradianceMap;
 	ID3D11ShaderResourceView* irradianceMapSRV;
 
-	ID3D11Texture2D* prefilterMap;
-	ID3D11ShaderResourceView* prefilterMapSRV;
+	// Sky texture with mip levels
+	ID3D11Texture2D* environmentMap;
+	ID3D11ShaderResourceView* environmentMapSRV;
 
 	ID3D11Texture2D* brdfLUTtex;
 	ID3D11ShaderResourceView* brdfLUTSRV;
 
-	//IBL
-	ID3D11Texture2D* skyIBLtex;
-	ID3D11ShaderResourceView* skyIBLSRV;
 
-	ID3D11Texture2D* envMaptex;
-	ID3D11ShaderResourceView* envMapSRV;
 
 	
 
@@ -123,10 +112,10 @@ private:
 
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
 	ConstantBuffer<CB_PS_light> cb_ps_light;
+	ConstantBuffer<CB_PS_directionalLight> cb_ps_directionalLight;
 	ConstantBuffer<CB_PS_perframe> cb_ps_PerFrame;
 	ConstantBuffer<CB_VS_perframe> cb_vs_PerFrame;
 
-	float m_deltaTime = 0;
 
 	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pDeviceContext;
@@ -146,6 +135,7 @@ private:
 	std::unique_ptr<DirectX::SpriteBatch> pSpriteBatch;
 	std::unique_ptr<DirectX::SpriteFont> pSpriteFont;
 
+	float m_deltaTime = 0;
 
 	int windowWidth = 0;
 	int windowHeight = 0;

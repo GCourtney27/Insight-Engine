@@ -32,7 +32,6 @@ namespace Debug
 		bool hit_sphere(const SimpleMath::Vector3& center, float radius, const Ray& r);
 		float intersection_distance(const SimpleMath::Vector3& center, float radius, const Ray& r);
 
-		bool SaveScene();
 
 		bool PlayingGame() { return m_playingGame; }
 		void PlayGame() 

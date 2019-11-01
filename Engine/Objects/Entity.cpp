@@ -15,17 +15,6 @@ bool Entity::Initialize()
 
 void Entity::Update(const float& deltaTime)
 {
-	if (m_pParent != nullptr) // Multiply the parent matrix byt this matrix to ge tthe world matrix
-	{
-		//XMMATRIX worldMat = m_transform.GetWorldMatrix() * m_pParent->GetWorldMatrix();
-		//this->m_transform.SetWorldMatrix(worldMat);
-		//this->m_transform.GetWorldMatrix() = this->m_transform.GetWorldMatrix() * m_pParent->GetWorldMatrix();
-		m_transform.AdjustPosition(m_pParent->GetPosition().x, m_pParent->GetPosition().y, m_pParent->GetPosition().z);
-	}
-	else
-	{
-		m_transform.AdjustPosition(0.0f, 0.0f, 0.0f);
-	}
 
 	// If the editor is not playing keep coppying the transforms
 	if(!Debug::Editor::Instance()->PlayingGame())
@@ -38,6 +27,8 @@ void Entity::Update(const float& deltaTime)
 		es->SetPosition(m_transform.GetPosition());
 	}
 
+	// Update the objects transform
+	m_transform.Update();
 }
 
 void Entity::Draw(const XMMATRIX & viewProjectionMatrix, const XMMATRIX & viewMatrix)
@@ -46,7 +37,6 @@ void Entity::Draw(const XMMATRIX & viewProjectionMatrix, const XMMATRIX & viewMa
 
 	if (mr != nullptr)
 	{
-		mr->SetWorldMat(this->m_transform.GetWorldMatrix());
 		mr->Draw(viewProjectionMatrix, viewMatrix);
 	}
 }
@@ -66,17 +56,16 @@ void Entity::OnStart()
 
 }
 
-void Entity::OnUpdate(float deltaTime)
+void Entity::OnUpdate(const float& deltaTime)
 {
-	//m_transform.AdjustRotation(0.0f, 0.0f, 0.001f * deltaTime); // This line is not needed, It is a Debug line to test Playing Game feature
-	if (m_pParent != nullptr)
-		m_transform.AdjustPosition(m_transform.GetPosition().x + m_pParent->GetPosition().x, m_transform.GetPosition().y + m_pParent->GetPosition().y, m_transform.GetPosition().z + m_pParent->GetPosition().z);
-	
+	//m_transform.AdjustRotation(0.0f, 0.0f, 0.001f * deltaTime); // This line is not needed for wntity to work, It is a Debug line to test Playing Game feature
 
 	for (Component* component : m_components)
 	{
 		component->Update(deltaTime);
 	}
+
+	this->m_transform.Update();
 }
 
 void Entity::OnExit()
@@ -86,6 +75,106 @@ void Entity::OnExit()
 void Entity::OnEditorStop()
 {
 	UpdateTransformWithCopy();
+}
+
+void Entity::WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer> & writer)
+{
+	writer.StartObject(); // Start Entity
+	writer.Key("Type");
+	writer.String(GetID().GetType().c_str());
+
+	writer.Key("Name");
+	writer.String(GetID().GetName().c_str());
+
+#pragma region Write Transform
+	writer.Key("Transform");
+	writer.StartArray(); // Start Transform
+
+	// POSITION
+	writer.StartObject(); // Start Array Object
+	writer.Key("Position");
+	writer.StartArray(); // Start Position
+	// X
+	writer.StartObject(); // Start X
+	writer.Key("x");
+	writer.Double(GetTransform().GetPosition().x);
+	writer.EndObject(); // End X
+	// Y
+	writer.StartObject(); // Start Y
+	writer.Key("y");
+	writer.Double(GetTransform().GetPosition().y);
+	writer.EndObject(); // End Y
+
+	// Z
+	writer.StartObject(); // Start Z
+	writer.Key("z");
+	writer.Double(GetTransform().GetPosition().z);
+	writer.EndObject(); // End Z
+	writer.EndArray(); // End Pisition
+	writer.EndObject(); // End Array Object
+
+	// ROTATION
+	writer.StartObject(); // Start Array Object
+	writer.Key("Rotation");
+	writer.StartArray(); // Start Position
+	// X
+	writer.StartObject(); // Start X
+	writer.Key("x");
+	writer.Double(GetTransform().GetRotation().x);
+	writer.EndObject(); // End X
+	// Y
+	writer.StartObject(); // Start Y
+	writer.Key("y");
+	writer.Double(GetTransform().GetPosition().y);
+	writer.EndObject(); // End Y
+
+	// Z
+	writer.StartObject(); // Start Z
+	writer.Key("z");
+	writer.Double(GetTransform().GetRotation().z);
+	writer.EndObject(); // End Z
+	writer.EndArray(); // End Pisition
+	writer.EndObject(); // End Array Object
+
+	// SCALE
+	writer.StartObject(); // Start Array Object
+	writer.Key("Scale");
+	writer.StartArray(); // Start Position
+	// X
+	writer.StartObject(); // Start X
+	writer.Key("x");
+	writer.Double(GetTransform().GetScale().x);
+	writer.EndObject(); // End X
+	// Y
+	writer.StartObject(); // Start Y
+	writer.Key("y");
+	writer.Double(GetTransform().GetScale().y);
+	writer.EndObject(); // End Y
+
+	// Z
+	writer.StartObject(); // Start Z
+	writer.Key("z");
+	writer.Double(GetTransform().GetScale().z);
+	writer.EndObject(); // End Z
+	writer.EndArray(); // End Pisition
+	writer.EndObject(); // End Array Object
+
+	writer.EndArray(); // End Transform
+#pragma endregion
+
+	writer.Key("Components");
+	writer.StartArray(); // Start Components
+	for (Component * component : m_components)
+	{
+		writer.StartObject(); // Start Component
+
+		component->WriteToJSON(writer);
+
+		writer.EndObject(); // End Component
+	}
+	writer.EndArray(); // End Components
+
+	writer.EndObject(); // End Entity
 }
 
 void Entity::OnEvent(const Event & event)

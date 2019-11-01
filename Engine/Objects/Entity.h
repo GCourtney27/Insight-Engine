@@ -35,10 +35,12 @@ public:
 
 	// -- Runtime Methods (Components / Game Logic) -- //
 	virtual void OnStart(); // Run Start() components
-	virtual void OnUpdate(float deltaTime); // Update() components 
+	virtual void OnUpdate(const float& deltaTime); // Update() components 
 	virtual void OnExit(); // When entity exits play
 
 	void OnEditorStop(); //Reset positions and transforms
+
+	virtual void WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
 
 	virtual void OnEvent(const Event& event);
 
@@ -73,6 +75,7 @@ public:
 
 	Scene* GetScene() { return m_scene; }
 	Transform& GetTransform() { return m_transform; }
+
 	void lua_AdjustPosition(float x, float y, float z) { GetTransform().AdjustPosition(x, y, z); }
 	void lua_AdjustRotation(float x, float y, float z) { GetTransform().AdjustRotation(x, y, z); }
 	void lua_AdjustScale(float x, float y, float z) { GetTransform().AdjustScale(x, y, z); }
@@ -83,13 +86,11 @@ public:
 	void UpdateTransformCopyWithTransform() { m_origionalTransform = m_transform; }
 	void UpdateTransformWithCopy() { m_transform = m_origionalTransform; }
 	
-	void SetParent(Transform* parent) { m_pParent = parent; }
 
 protected:
 	eState m_state = eState::ACTIVE;
 	ID m_id;
 
-	Transform* m_pParent = nullptr;
 	std::vector<Transform*> m_children;
 
 	Transform m_transform;

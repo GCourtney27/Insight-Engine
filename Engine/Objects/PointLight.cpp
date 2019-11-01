@@ -21,7 +21,7 @@ void PointLight::OnStart()
 {
 }
 
-void PointLight::OnUpdate(float deltaTime)
+void PointLight::OnUpdate(const float& deltaTime)
 {
 }
 

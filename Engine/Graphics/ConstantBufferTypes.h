@@ -12,6 +12,16 @@ struct CB_VS_vertexshader
 
 };
 
+struct CB_PS_directionalLight
+{
+	DirectX::XMFLOAT3 Color;//12
+	float Strength;//4
+	//16
+	DirectX::XMFLOAT3 Direction;//12
+	float padding;
+	//16
+};
+
 struct CB_PS_light
 {
 	DirectX::XMFLOAT3 ambientLightColor;//12

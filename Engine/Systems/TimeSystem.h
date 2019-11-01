@@ -1,4 +1,5 @@
 #pragma once
+#include "..\Framework\Singleton.h"
 #include <chrono>
 
 template<typename TPeriod = std::chrono::high_resolution_clock::period>
@@ -40,7 +41,7 @@ public:
 					m_fps(0.0f),
 					m_prev_frame_time(clock::now()),
 					m_start_frame_time(clock::now())
-	{}
+	{ }
 
 	void tick()
 	{

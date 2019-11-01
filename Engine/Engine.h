@@ -3,7 +3,6 @@
 #include "..\\Objects\\Scene.h"
 #include "Objects\\Player.h"
 #include "LUAScripting\\LuaStateManager.h"
-#include "Objects/PointLight.h"
 #include "Systems/TimeSystem.h"
 
 class Engine : WindowContainer
@@ -26,17 +25,15 @@ public:
 
 	int GetWindowWidth() { return windowWidth; }
 	int GetWindowHeight() { return windowHeight; }
+	
+	Player* GetPlayer() { return m_pPlayer; }
+	void SetPlayer(Player* player) { m_pPlayer = player; }
 
-	Player* GetPlayer() { return player; }
 private:
+	Player* m_pPlayer = nullptr;
+	Scene scene;
 
 	frame_timer timer;
-
-	Player* player = nullptr;
-	std::vector<std::string> textures;
-	Material* m_pMaterial = nullptr;
-
-	Scene scene;
 
 	int windowWidth = 0;
 	int windowHeight = 0;
