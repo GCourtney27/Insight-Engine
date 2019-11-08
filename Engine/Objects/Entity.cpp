@@ -27,6 +27,12 @@ void Entity::Update(const float& deltaTime)
 		es->SetPosition(m_transform.GetPosition());
 	}
 
+	MeshRenderer* mr = GetComponent<MeshRenderer>();
+	if (mr != nullptr)
+	{
+		mr->Update(deltaTime);
+	}
+
 	// Update the objects transform
 	m_transform.Update();
 }
@@ -125,7 +131,7 @@ void Entity::WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer> & writ
 	// Y
 	writer.StartObject(); // Start Y
 	writer.Key("y");
-	writer.Double(GetTransform().GetPosition().y);
+	writer.Double(GetTransform().GetRotation().y);
 	writer.EndObject(); // End Y
 
 	// Z

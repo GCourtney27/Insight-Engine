@@ -8,7 +8,7 @@ public:
 	MeshRenderer(Entity* owner)
 		: Component(owner) {}
 
-	bool Initialize(Entity* owner, const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader, Material * material);
+	bool Initialize(Entity* owner, const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_PerObject> & CB_VS_PerObject, Material * material);
 	void Draw(const XMMATRIX & viewProjectionMatrix, const XMMATRIX & viewMatrix);
 	
 	
@@ -30,6 +30,8 @@ public:
 	Model* GetModel() { return &model; }
 
 protected:
+	float m_deltaTime = 0.0f;
+
 	bool m_drawEnabled = true;
 	bool m_isDebugMesh = false;
 	std::string filepath;

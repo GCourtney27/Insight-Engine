@@ -34,6 +34,12 @@
     <FxCompile Include="PBR_UnTextured_vs.hlsl">
       <Filter>Resource Files\Shaders\PBR</Filter>
     </FxCompile>
+    <FxCompile Include="PBR_Foliage_vs.hlsl">
+      <Filter>Resource Files\Shaders\PBR</Filter>
+    </FxCompile>
+    <FxCompile Include="PBR_Foliage_ps.hlsl">
+      <Filter>Resource Files\Shaders\PBR</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -329,6 +335,12 @@
     </ClCompile>
     <ClCompile Include="Objects\DirectionalLight.cpp">
       <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\MaterialTexturedFoliage.cpp">
+      <Filter>Source Files\Graphics\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="Systems\RenderManager.cpp">
+      <Filter>Source Files\Systems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -700,6 +712,9 @@
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Resource Files\Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Systems\RenderManager.h">
+      <Filter>Header Files\Systems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

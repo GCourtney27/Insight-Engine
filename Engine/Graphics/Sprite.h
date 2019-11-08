@@ -10,7 +10,7 @@
 class Sprite : Gameobject2D
 {
 public:
-	bool Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceContext, float width, float height, std::string spritePath, ConstantBuffer < CB_VS_vertexshader_2d> & cb_vs_vertexshader_2d);
+	bool Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceContext, float width, float height, std::string spritePath, ConstantBuffer <CB_VS_vertexshader_2d> & CB_VS_PerObject_2d);
 	void Draw(XMMATRIX orthoMatrix); // 2d camera orthogonal matrix
 	float GetWidth();
 	float GetHeight();
@@ -18,7 +18,7 @@ public:
 private:
 	void UpdateMatrix() override;
 
-	ConstantBuffer<CB_VS_vertexshader_2d> * cb_vs_vertexshader_2d = nullptr;
+	ConstantBuffer<CB_VS_vertexshader_2d> * CB_VS_PerObject_2d = nullptr;
 	XMMATRIX worldMatrix = XMMatrixIdentity();
 
 	std::unique_ptr<Texture> texture;

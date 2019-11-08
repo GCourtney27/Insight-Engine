@@ -2,7 +2,6 @@
 #include "Entity.h"
 
 #include <assert.h>
-#include <iostream>
 #include <algorithm>
 
 bool Scene::Initialize()
@@ -42,7 +41,6 @@ void Scene::Shutdown()
 }
 
 // -- Runtime -- //
-
 bool Scene::OnStart()
 {
 	for (Entity* entity : m_entities)

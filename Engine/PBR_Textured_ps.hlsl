@@ -135,7 +135,6 @@ float4 main(PS_INPUT input) : SV_TARGET
 
     Lo += (kD * albedoSample / PI + specular) * radiance * NdotL;
     
-
     // -- IBL -- //
     // Irradiance map
     float3 F_IBL = fresnelSchlickRoughness(NdotV, baseReflectivity, roughnessSample);
@@ -149,7 +148,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     float3 specular_IBL = environmentMapColor * (F_IBL * brdf.r + brdf.g);
 
     // Add lighting to IBL velues for final color
-	float3 ambient = (diffuse + specular_IBL) * (0.5f);
+    float3 ambient = (diffuse + specular_IBL) * (0.5f);
     float3 color = (ambient + Lo);
     
     // HDR tonemapping

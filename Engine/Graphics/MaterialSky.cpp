@@ -76,11 +76,17 @@ void MaterialSky::InitializeShaders()
 	if (!m_pixelShader.Initialize(m_pDevice, m_shaderFolder + L"Sky_ps.cso"))
 		ErrorLogger::Log("Failed to initialize Sky pixel shader");
 
-	HRESULT hr = cb_vs_vertexShader.Initialize(m_pDevice.Get(), m_pDeviceContext.Get());
+	HRESULT hr = m_cb_vs_PerObject.Initialize(m_pDevice.Get(), m_pDeviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer for vertex shader inside textured material.");
 
-	hr = cb_ps_perObjectColor.Initialize(m_pDevice.Get(), m_pDeviceContext.Get());
+	hr = m_cb_vs_PerObjectUtil.Initialize(m_pDevice.Get(), m_pDeviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer for PerObjectColor inside textured material.");
+
+	hr = m_cb_ps_PerObjectUtil.Initialize(m_pDevice.Get(), m_pDeviceContext.Get());
+	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer for PerObjectColor inside textured material.");
+}
+void MaterialSky::PSSetShaderResources()
+{
 }
 //{
 //	"Type": "Sky",

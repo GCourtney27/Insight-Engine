@@ -1,8 +1,8 @@
 #include "RenderableGameObject.h"
 
-bool RenderableGameObject::Initialize(const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
+bool RenderableGameObject::Initialize(const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_PerObject>& CB_VS_PerObject)
 {
-	if (!model.Initialize(filepath, device, deviceContext, cb_vs_vertexshader, nullptr))
+	if (!model.Initialize(filepath, device, deviceContext, CB_VS_PerObject, nullptr))
 		return false;
 
 	this->SetPosition(0.0f, 0.0f, 0.0f);

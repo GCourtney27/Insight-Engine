@@ -2,21 +2,26 @@
 
 // World View Projection(DirectX term) is the same thing as Model View Projection(OpenGL term)
 
-cbuffer perObjectBuffer : register(b0) // Defined in ConstantBufferTypes
+cbuffer perObjectBuffer : register(b0) // Uploaded via material
 {
     matrix world;
     matrix view;
     matrix projection;
 };
 
-cbuffer PerFrame : register(b1)
+cbuffer PerFrame : register(b1) // Uploaded via graphics.cpp
 {
 	float deltaTime;
-	float2 uvOffset;
-	float3 vertOffset;
 }
 
-struct VS_INPUT // Defined in InitializeShaders() in Graphics.cpp with D3D11_INPUT_ELEMENT_DESC
+cbuffer PerObjectUtil : register(b2) // Uploaded via material
+{
+    float2 uvOffset;
+    float2 tiling;
+    float3 vertOffset;
+}
+
+struct VS_INPUT // Defined with D3D11_INPUT_ELEMENT_DESC
 {
     float3 inPosition : POSITION;
     float2 inTexCoord : TEXCOORD;
@@ -54,9 +59,11 @@ VS_OUTPUT main(VS_INPUT input)
 	
     output.outWorldPos = mul(float4(input.inPosition, 1.0f), world);
 
-    output.outTexCoord = input.inTexCoord;
+    //output.outTexCoord = input.inTexCoord;
 	// Texture Scrolling
-    //output.outTexCoord = float2(input.inTexCoord.x, input.inTexCoord.y + uvOffset.y);
+    output.outTexCoord = float2((input.inTexCoord.x + uvOffset.x) * tiling.x, (input.inTexCoord.y + uvOffset.y) * tiling.y);
+    //output.outTexCoord = float2((input.inTexCoord.x + tiling.x), (input.inTexCoord.y + tiling.y));
+    //output.outTexCoord = float2((input.inTexCoord.x + uvOffset.x), (input.inTexCoord.y + uvOffset.y));
 
     return output;
 }

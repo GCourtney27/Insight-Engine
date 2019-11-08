@@ -15,6 +15,8 @@ protected:
 	virtual bool InitializePiplineAssets() override;
 
 	virtual void InitializeShaders() override;
+
+	virtual void PSSetShaderResources() override;
 private:
 	std::vector<std::string> m_textureLocations;
 };

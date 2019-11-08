@@ -41,6 +41,8 @@ public:
 	void OnEditorStop(); //Reset positions and transforms
 
 	virtual void WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
+	bool CanBeJSONSaved() { return m_canBeJSONSaved; }
+	void SetCanBeJSONSaved(bool canBeSaved) { m_canBeJSONSaved = canBeSaved; }
 
 	virtual void OnEvent(const Event& event);
 
@@ -90,7 +92,7 @@ public:
 protected:
 	eState m_state = eState::ACTIVE;
 	ID m_id;
-
+	bool m_canBeJSONSaved = true;
 	std::vector<Transform*> m_children;
 
 	Transform m_transform;

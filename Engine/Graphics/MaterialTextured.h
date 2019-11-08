@@ -17,11 +17,9 @@ protected:
 
 	virtual void InitializeShaders() override;
 
+	virtual void PSSetShaderResources() override;
+
 private:
 	std::vector<std::string> m_textureLocations;
-
-
-	// ConstantBuffer<CB_VS_vertexshader> constantbuffer_vs_PBR;
-	// ConstantBuffer<CB_PS_Light> constantbuffer_ps_PBR;
 
 };

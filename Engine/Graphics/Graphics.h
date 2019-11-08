@@ -10,6 +10,7 @@
 #include "..\\Systems\\Timer.h"
 #include "..\Objects\PointLight.h"
 #include "..\Objects\DirectionalLight.h"
+#include "MaterialSky.h"
 
 #include "ImGui\\imgui.h"
 #include "ImGui\\imgui_impl_win32.h"
@@ -46,12 +47,16 @@ public:
 	Material* m_pMaterial = nullptr;
 
 	Entity* skybox = nullptr;
+	MaterialSky* m_pSkyMaterial = nullptr;
+	void SetSkybox(Entity* _skybox) { this->skybox = _skybox; }
+	Entity* GetSkybox() { return skybox; }
+
 	ImGuiIO* pImGuiIO = nullptr;
 
 	ID3D11Device* GetDevice() { return pDevice.Get(); }
 	ID3D11DeviceContext* GetDeviceContext() { return pDeviceContext.Get(); }
 
-	ConstantBuffer<CB_VS_vertexshader>& GetDefaultVertexShader() { return cb_vs_vertexshader; }
+	ConstantBuffer<CB_VS_PerObject>& GetDefaultVertexShader() { return cb_vs_vertexshader; }
 
 	void InitSkybox();
 
@@ -110,7 +115,7 @@ private:
 	DirectX::XMFLOAT2 newUVOffset;
 	DirectX::XMFLOAT3 newVertOffset;
 
-	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
+	ConstantBuffer<CB_VS_PerObject> cb_vs_vertexshader;
 	ConstantBuffer<CB_PS_light> cb_ps_light;
 	ConstantBuffer<CB_PS_directionalLight> cb_ps_directionalLight;
 	ConstantBuffer<CB_PS_perframe> cb_ps_PerFrame;

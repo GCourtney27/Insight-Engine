@@ -13,7 +13,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,	_In_opt_ HINSTANCE hPrevInstance
 	}
 
 	Engine engine;
-	if (engine.Initialize(hInstance, "Insight Engine (Alpha Build)", "EngineWindowClass", 1600, 900))
+	if (engine.Initialize(hInstance, "Insight Engine (Alpha Build - WIP)", "EngineWindowClass", 1600, 900))
 	{
 		while (engine.ProccessMessages() == true)
 		{

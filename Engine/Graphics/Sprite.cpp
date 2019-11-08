@@ -1,13 +1,13 @@
 #include "Sprite.h"
 #include <WICTextureLoader.h>
 
-bool Sprite::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceContext, float width, float height, std::string spritePath, ConstantBuffer<CB_VS_vertexshader_2d> & cb_vs_vertexshader_2d)
+bool Sprite::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceContext, float width, float height, std::string spritePath, ConstantBuffer<CB_VS_vertexshader_2d> & CB_VS_PerObject_2d)
 {
 	this->deviceContext = deviceContext;
 	if (deviceContext == nullptr)
 		return false;
 
-	this->cb_vs_vertexshader_2d = &cb_vs_vertexshader_2d;
+	this->CB_VS_PerObject_2d = &CB_VS_PerObject_2d;
 
 	texture = std::make_unique<Texture>(device, spritePath, aiTextureType::aiTextureType_DIFFUSE);
 
@@ -42,9 +42,9 @@ bool Sprite::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceConte
 void Sprite::Draw(XMMATRIX orthoMatrix)
 {
 	XMMATRIX wvpMatrix = worldMatrix * orthoMatrix;
-	deviceContext->VSSetConstantBuffers(0, 1, cb_vs_vertexshader_2d->GetAddressOf());
-	cb_vs_vertexshader_2d->data.wvpMatrix = wvpMatrix;
-	cb_vs_vertexshader_2d->ApplyChanges();
+	deviceContext->VSSetConstantBuffers(0, 1, CB_VS_PerObject_2d->GetAddressOf());
+	CB_VS_PerObject_2d->data.wvpMatrix = wvpMatrix;
+	CB_VS_PerObject_2d->ApplyChanges();
 
 	deviceContext->PSSetShaderResources(0, 1, texture->GetTextureResourceViewAddress());
 

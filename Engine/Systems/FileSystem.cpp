@@ -2,7 +2,7 @@
 #include "..\\Graphics\\AdapterReader.h"
 #include "..\\Graphics\Shaders.h"
 #include "..\Editor\Editor.h"
-#include <WICTextureLoader.h>
+#include "..\Graphics\Graphics.h"
 
 #include "..\\Components\MeshRenderComponent.h"
 #include "..\\Components\\EditorSelectionComponent.h"
@@ -48,8 +48,6 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 
 	// Load objects
 	const rapidjson::Value& sceneObjects = masterDocument["Objects"]; // Arr
-
-
 	for (rapidjson::SizeType o = 0; o < sceneObjects.Size(); o++)
 	{
 		const rapidjson::Value& object = sceneObjects[o]; // Current object in Objects array  (unique entity, perform calls on this object)
@@ -73,16 +71,6 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 				m_pEngine->SetPlayer(dynamic_cast<Player*>(entity));
 			}
 		}
-		//else if (objectType == "Sky")
-		//{
-		//	if (entity == nullptr)
-		//	{
-		//		id = new ID();
-		//		entity = new Entity(scene, (*id));
-		//		//Graphics::Instance()->InitSkybox(object);
-		//		continue;
-		//	}
-		//}
 		//else if (objectType == "Light") // TODO: Add light class
 		//{
 		//	if (entity != nullptr)
@@ -174,6 +162,38 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 
 	}// End Load Entity
 
+	//const rapidjson::Value& worldObjects = masterDocument["World"]; // Arr
+	//for (rapidjson::SizeType o = 0; o < worldObjects.Size(); o++)
+	//{
+	//	const rapidjson::Value& object = worldObjects[o]; // Current object in Objects array  (unique entity, perform calls on this object)
+
+	//	std::string objectType;
+	//	json::get_string(object, "Type", objectType);
+	//	if (objectType == "Sky")
+	//	{
+	//		if (entity == nullptr)
+	//		{
+	//			id = new ID();
+	//			entity = new Entity(scene, (*id));
+	//		}
+	//		const rapidjson::Value& allComponents = object["Components"]; // Gets json array of all components
+
+	//		// MESH RENDERER
+	//		const rapidjson::Value& meshRenderer = allComponents[0]["MeshRenderer"];
+	//		bool foundModel = false;
+	//		std::string model_FilePath;
+	//		json::get_string(meshRenderer[0], "Model", model_FilePath);
+	//		if (model_FilePath != "NONE" && !foundModel)
+	//			foundModel = true;
+	//		if (foundModel)
+	//			entity->AddComponent<MeshRenderer>()->InitFromJSON(entity, meshRenderer);
+
+	//		Graphics::Instance()->SetSkybox(entity);
+	//		Graphics::Instance()->InitSkybox();
+	//		break;
+	//	}
+	//}
+
 	return true;
 }
 
@@ -194,7 +214,8 @@ bool FileSystem::WriteSceneToJSON(Scene* scene)
 	std::list<Entity*>::iterator iter;
 	for (iter = scene->GetAllEntities()->begin(); iter != scene->GetAllEntities()->end(); iter++)
 	{
-		(*iter)->WriteToJSON(writer);
+		if((*iter)->CanBeJSONSaved())
+			(*iter)->WriteToJSON(writer);
 	}
 
 	writer.EndArray(); // End Objects
@@ -202,7 +223,7 @@ bool FileSystem::WriteSceneToJSON(Scene* scene)
 
 	// Final Export
 	std::string sceneName = "..\\Assets\\Scenes\\" + scene->GetSceneName() + ".json";
-	DEBUGLOG("[FileSystem.cpp] " + sceneName);
+	DEBUGLOG("[FileSystem] " + sceneName);
 	std::ofstream offstream(sceneName.c_str());
 	offstream << sb.GetString();
 

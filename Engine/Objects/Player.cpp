@@ -14,7 +14,7 @@ void Player::InitializeCamera(Scene* scene)
 	m_pCamera->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
 	m_pCamera->GetTransform().SetScale(1.0f, 1.0f, 1.0f);
 
-	m_pMaterial = m_pMaterial->SetMaterialByType(Material::eMaterialType::PBR_UNTEXTURED);
+	m_pMaterial = m_pMaterial->SetMaterialByType(Material::eMaterialType::PBR_UNTEXTURED, Material::eFlags::NOFLAGS);
 	m_pMaterial->Initiailze(Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Material::eFlags::NOFLAGS);
 
 	MeshRenderer* mr = m_pCamera->AddComponent<MeshRenderer>();
@@ -25,7 +25,8 @@ void Player::InitializeCamera(Scene* scene)
 
 	EditorSelection* es = m_pCamera->AddComponent<EditorSelection>();
 	es->Initialize(m_pCamera, 10.0f, m_pCamera->GetTransform().GetPosition());
-		
-	//scene->AddEntity(m_pCamera); !!!!!!!!!!!!!!!!!!!!!
+	m_pCamera->SetCanBeJSONSaved(false);
+
+	scene->AddEntity(m_pCamera);// !!!!!!!!!!!!!!!!!!!!!
 }
 

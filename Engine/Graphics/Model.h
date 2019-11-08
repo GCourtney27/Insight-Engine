@@ -7,7 +7,7 @@ using namespace DirectX;
 class Model
 {
 public:
-	bool Initialize(const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, Material* material);
+	bool Initialize(const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_PerObject>& CB_VS_PerObject, Material* material);
 	void Draw(const XMMATRIX & worldMatrix, const XMMATRIX & projectionMatrix, const XMMATRIX & viewMatrix);
 
 	std::string GetDirectory() { return directory; }
@@ -29,7 +29,7 @@ private:
 
 	ID3D11Device * device = nullptr;
 	ID3D11DeviceContext * deviceContext = nullptr;
-	ConstantBuffer<CB_VS_vertexshader> * cb_vs_vertexshader = nullptr;
+	ConstantBuffer<CB_VS_PerObject> * cb_vs_PerObject = nullptr;
 	std::string directory = "";
 	std::string modelDirectory = "";
 };

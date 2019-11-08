@@ -20,9 +20,8 @@ class Material
 public:
 	enum eMaterialType
 	{
-		PBR_MAPPED, // Material is expecting mapps (albedo, roughness, normal, metallic)
-		PBR_MAPPED_WITHSCALERS, // Material can have values scale its textures (more rough less metallic etc.)
-		PBR_UNTEXTURED, // No Textures all albedo, roughness and metallic are defined through shader inputs fo the material through ImGuiRender
+		PBR_DEFAULT, // Material is expecting mapps (albedo, roughness, normal, metallic)
+		PBR_UNTEXTURED, // No Textures all albedo, roughness and metallic are defined through shader inputs for the material through ImGuiRender
 		PBR_SKY // Material only exepts a .dds defining the sky sphere look
 		//DEFAULT NO PBR
 	};
@@ -41,19 +40,30 @@ public:
 
 	virtual void WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) = 0;
 
+	static eFlags GetMaterialFlagsFromString(std::string str_flags);
+	std::string GetMaterialFlagsAsString();
+	eFlags GetMaterialFlags() { return m_flags; }
+
 	static eMaterialType GetMaterialTypeFromString(std::string str_material);
 	std::string GetMaterialTypeAsString();
 	eMaterialType GetMaterialType() { return m_materialType; }
 
-	Material* SetMaterialByType(eMaterialType materialType);
+	Material* SetMaterialByType(eMaterialType materialType, eFlags flags);
 
 	void PSSetShader();
 	void VSSetShader();
 	void IASetInputLayout();
+	virtual void PSSetShaderResources() = 0;
 
 	std::vector<Texture> m_textures;
-	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexShader; // This objects buffer for world, view and project matricies
-	ConstantBuffer<CB_PS_PerObjectColor> cb_ps_perObjectColor;
+
+	ConstantBuffer<CB_VS_PerObject> m_cb_vs_PerObject; // This objects buffer for world, view and project matricies
+	ConstantBuffer<CB_VS_PerObject_Util> m_cb_vs_PerObjectUtil;
+	ConstantBuffer<CB_PS_PerObject_Util> m_cb_ps_PerObjectUtil;
+
+	DirectX::XMFLOAT2 m_newUVOffset;
+	DirectX::XMFLOAT2 m_tiling;
+	DirectX::XMFLOAT3 m_newVertOffset;
 
 	DirectX::XMFLOAT3 m_color;
 	float m_metallic = 0.0f;
@@ -67,10 +77,9 @@ protected:
 
 	VertexShader m_vertexShader; // Every Material has shaders, its just how they get initialized that is different. Some could use .cso files that others dont
 	PixelShader m_pixelShader;
-	// Internal for shaders
 
-	// External for shaders
 	
+
 	eMaterialType m_materialType;
 	eFlags m_flags;
 

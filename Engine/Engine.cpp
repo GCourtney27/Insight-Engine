@@ -8,8 +8,6 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	windowHeight = height;
 	windowWidth = width;
 	
-	//Timer::Instance()->Start();
-
 	if (!FileSystem::Instance()->Initialize(this))
 	{
 		ErrorLogger::Log("Failed to initialize File System.");
@@ -28,7 +26,9 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 		return false;
 	}
 	//PBR_TexturedShowcase
-	if (!FileSystem::Instance()->LoadSceneFromJSON("..\\Assets\\Scenes\\EntityWriting.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext()))
+	//PBR_UnTexturedShowcase
+	//Norway
+	if (!FileSystem::Instance()->LoadSceneFromJSON("..\\Assets\\Scenes\\Norway.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext()))
 	{
 		ErrorLogger::Log("Failed to initialize scene.");
 		return false;
@@ -73,7 +73,7 @@ void Engine::Update()
 	float dt = timer.dt();
 	float gamedt = timer.dt();
 
-	while (!InputManager::Instance()->keyboard.CharBufferIsEmpty())
+	/*while (!InputManager::Instance()->keyboard.CharBufferIsEmpty())
 	{
 		unsigned char ch = InputManager::Instance()->keyboard.ReadChar();
 	}
@@ -82,7 +82,7 @@ void Engine::Update()
 	{
 		KeyboardEvent kbe = InputManager::Instance()->keyboard.ReadKey();
 		unsigned char keycode = kbe.GetKeyCode();
-	}
+	}*/
 
 	while (!InputManager::Instance()->mouse.EventBufferIsEmpty())
 	{
@@ -96,7 +96,7 @@ void Engine::Update()
 		}
 
 	}
-
+	
 	scene.Update(dt);
 
 	if (Debug::Editor::Instance()->PlayingGame())

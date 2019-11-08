@@ -1,6 +1,6 @@
 #pragma once
 #include "ID.h"
-//#include "engine.h"
+#include "..\Systems\RenderManager.h"
 #include <vector>
 #include <list>
 #include <assert.h>
@@ -43,10 +43,8 @@ public:
 	std::string& GetSceneName() { return m_name; }
 	void SetSceneName(std::string name) { m_name = name; }
 
-
 protected:
-
-
+	RenderManager m_renderManager;
 	std::list<Entity*> m_entities;
 	std::string m_name;
 	std::string m_sceneDiretory;

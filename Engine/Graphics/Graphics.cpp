@@ -1,5 +1,7 @@
 #include "Graphics.h"
 #include "..\\Editor\\Editor.h"
+#include "..\Systems\FileSystem.h"
+#include "..\Input\InputManager.h"
 
 #include <cstdlib>
 #include <math.h>
@@ -88,7 +90,8 @@ void Graphics::InitialzeImGui(HWND hwnd)
 
 void Graphics::InitSkybox()
 {
-
+	/*m_pSkyMaterial = dynamic_cast<MaterialSky*>(skybox->GetComponent<MeshRenderer>()->GetModel()->GetMaterial());
+	return;*/
 	skybox = new Entity((&m_pEngine->GetScene()), *(new ID("Sky Box")));
 	
 	skybox->GetTransform().SetPosition(0.0f, 0.0f, 0.0f);
@@ -97,11 +100,11 @@ void Graphics::InitSkybox()
 	MeshRenderer* me = skybox->AddComponent<MeshRenderer>();
 	me->Initialize(skybox, "..\\Assets\\Objects\\Primatives\\Sphere.fbx", pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader, nullptr);
 
-	HRESULT hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\skybox1_Diff.dds", nullptr, &skyboxTextureSRV);
+	HRESULT hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\skybox2_Diff.dds", nullptr, &skyboxTextureSRV);
 	if(FAILED(hr))
 		ErrorLogger::Log("Failed to load dds diffuse texture for skybox");
 
-	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\skybox1_EnvMap.dds", nullptr, &environmentMapSRV);
+	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\skybox2_EnvMap.dds", nullptr, &environmentMapSRV);
 	if (FAILED(hr))
 		ErrorLogger::Log("Failed to load dds texture for environment map");
 
@@ -229,13 +232,21 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 		pSpriteFont = std::make_unique<DirectX::SpriteFont>(pDevice.Get(), L"..\\Assets\\Fonts\\calibri.spritefont");
 
 		// Create sampler description for sampler state
-		CD3D11_SAMPLER_DESC sampleDesc(D3D11_DEFAULT);
-		sampleDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-		sampleDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-		sampleDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-		//sampleDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR; // New
-		//sampleDesc.MaxAnisotropy = 16; // New
-		hr = pDevice->CreateSamplerState(&sampleDesc, samplerState.GetAddressOf());
+		CD3D11_SAMPLER_DESC samplerDesc(D3D11_DEFAULT);
+		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.MipLODBias = 0.0f;
+		samplerDesc.MaxAnisotropy = 1;
+		samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+		samplerDesc.BorderColor[0] = 0;
+		samplerDesc.BorderColor[1] = 0;
+		samplerDesc.BorderColor[2] = 0;
+		samplerDesc.BorderColor[3] = 0;
+		samplerDesc.MinLOD = 0;
+		samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+		hr = pDevice->CreateSamplerState(&samplerDesc, samplerState.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create sampler state.");
 
 	}
@@ -273,7 +284,6 @@ void Graphics::RenderFrame()
 
 	// -- Update Pixel Shader Per Frame Informaiton -- //
 	cb_ps_PerFrame.data.deltaTime = m_deltaTime;
-	//cb_ps_PerFrame.data.camPosition = gameCamera.GetPosition();
 	if (Debug::Editor::Instance()->PlayingGame())
 		cb_ps_PerFrame.data.camPosition = m_pEngine->GetPlayer()->GetPlayerCamera()->GetTransform().GetPosition();
 	else
@@ -281,15 +291,15 @@ void Graphics::RenderFrame()
 	cb_ps_PerFrame.ApplyChanges();
 
 	// -- Update Vertex Shader Per Frame Informaiton -- //
-	
-	//newUVOffset.x += 0.05f * m_deltaTime;
-	//newUVOffset.y += 0.05f * m_deltaTime;
-	//newVertOffset.x += (float)(sin((1.0f * m_deltaTime) * (PI / 180.0f)));;
-	//newVertOffset.y += (sin((1.0f * m_deltaTime) * PI / 180.0f));
-	//newVertOffset.y = 0.0f;
-	//newVertOffset.z = 0.0f;
-	cb_vs_PerFrame.data.uvOffset = newUVOffset;
-	cb_vs_PerFrame.data.vertOffset = newVertOffset;
+	//
+	////newUVOffset.x += 0.05f * m_deltaTime;
+	////newUVOffset.y += 0.05f * m_deltaTime;
+	////newVertOffset.x += (float)(sin((1.0f * m_deltaTime) * (PI / 180.0f)));;
+	////newVertOffset.y += (sin((1.0f * m_deltaTime) * PI / 180.0f));
+	////newVertOffset.y = 0.0f;
+	////newVertOffset.z = 0.0f;
+	//cb_vs_PerFrame.data.uvOffset = newUVOffset;
+	//cb_vs_PerFrame.data.vertOffset = newVertOffset;
 	cb_vs_PerFrame.data.deltaTime = m_deltaTime;
 	cb_vs_PerFrame.ApplyChanges();
 
@@ -338,6 +348,9 @@ void Graphics::RenderFrame()
 	pDeviceContext->OMSetBlendState(pBlendState.Get(), NULL, 0xFFFFFFFF);
 
 	// -- Set IBL resources for shader slots -- //
+	//pDeviceContext->PSSetShaderResources(5, 1, m_pSkyMaterial->m_textures[1].GetTextureResourceViewAddress());
+	//pDeviceContext->PSSetShaderResources(6, 1, m_pSkyMaterial->m_textures[2].GetTextureResourceViewAddress());
+	//pDeviceContext->PSSetShaderResources(7, 1, m_pSkyMaterial->m_textures[3].GetTextureResourceViewAddress());
 	pDeviceContext->PSSetShaderResources(5, 1, &irradianceMapSRV);
 	pDeviceContext->PSSetShaderResources(6, 1, &environmentMapSRV);
 	pDeviceContext->PSSetShaderResources(7, 1, &brdfLUTSRV);
@@ -370,11 +383,21 @@ void Graphics::RenderFrame()
 		fpsTimer.Restart();
 	}
 	pSpriteBatch->Begin();
-	pSpriteFont->DrawString(pSpriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	pSpriteFont->DrawString(pSpriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 50), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	pSpriteBatch->End();
 
 	// -- Update ImGui -- //
-	UpdateImGuiWidgets();
+	static bool showEditor = true;
+	if (InputManager::Instance()->keyboard.KeyIsPressed('Y'))
+		showEditor = false;
+
+	if (InputManager::Instance()->keyboard.KeyIsPressed('U'))
+		showEditor = true;
+	if(showEditor)
+		UpdateImGuiWidgets();
+	else
+		ImGui::Render();
+
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	if (pImGuiIO->ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
@@ -584,6 +607,59 @@ void Graphics::UpdateImGuiWidgets()
 
 	//}
 	
+	/*if (ImGui::Button("Popup"))
+		ImGui::OpenPopup("testMenu");
+	if (ImGui::BeginPopupModal("testMenu", NULL, ImGuiWindowFlags_MenuBar |
+		ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		if (ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("test1"))
+			{
+				ImGui::MenuItem("test1_1");
+				ImGui::MenuItem("test1_2");
+				ImGui::EndMenu();
+			}
+			ImGui::MenuItem("test2");
+			if (ImGui::MenuItem("test3"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndMenuBar();
+		}
+		ImGui::Button("test");
+		ImGui::EndPopup();
+	}*/
+
+
+	if (ImGui::Begin("Menu Bar", NULL, ImGuiWindowFlags_MenuBar |
+		ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		if (ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("File"))
+			{
+				if (ImGui::MenuItem("Save"))
+					FileSystem::Instance()->WriteSceneToJSON(&m_pEngine->GetScene());
+				ImGui::MenuItem("Open");
+				ImGui::MenuItem("New Scene");
+				
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Engine DEBUG"))
+			{
+				ImGui::MenuItem("Show FPS");
+				ImGui::MenuItem("Show Frame Time");
+				ImGui::MenuItem("Current Scene Assets");
+				ImGui::MenuItem("Log Draw Calls");
+
+				ImGui::EndMenu();
+			}
+			
+			ImGui::EndMenuBar();
+		}
+	}
+	ImGui::End();
 
 	ImGui::Begin("Scene Heirarchy");
 	{
@@ -606,7 +682,17 @@ void Graphics::UpdateImGuiWidgets()
 		}
 
 		ImGui::SameLine();
-		ImGui::Checkbox("Clear on play", &Editor::Instance()->GetClearConsoleOnPlay());
+		static bool clearOnPlay = Editor::Instance()->GetClearConsoleOnPlay();
+		if (ImGui::Checkbox("Clear on play", &clearOnPlay))
+		{
+			clearOnPlay = true;
+			Editor::Instance()->SetCLearConsoleOnPlay(clearOnPlay);
+		}
+		else
+		{
+			clearOnPlay = false;
+			Editor::Instance()->SetCLearConsoleOnPlay(clearOnPlay);
+		}
 
 		ImGui::Text(Editor::Instance()->GetLogStatement().c_str());
 	}

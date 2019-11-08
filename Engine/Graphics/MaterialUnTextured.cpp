@@ -88,12 +88,12 @@ bool MaterialUnTextured::InitializePiplineAssets()
 	m_color.x = r;
 	m_color.y = g;
 	m_color.z = b;
-	cb_ps_perObjectColor.data.color = m_color;
+	m_cb_ps_PerObjectUtil.data.color = m_color;
 	m_metallic = metallic_value;
-	cb_ps_perObjectColor.data.metallic = m_metallic;
+	m_cb_ps_PerObjectUtil.data.metallic = m_metallic;
 	m_roughness = roughness_value;
-	cb_ps_perObjectColor.data.roughnss = m_roughness;
-	cb_ps_perObjectColor.ApplyChanges();
+	m_cb_ps_PerObjectUtil.data.roughness = m_roughness;
+	m_cb_ps_PerObjectUtil.ApplyChanges();
 
 	return true;
 }
@@ -139,12 +139,12 @@ bool MaterialUnTextured::InitializeJOSNPiplineAssets(const rapidjson::Value & as
 	m_color.x = r;
 	m_color.y = g;
 	m_color.z = b;
-	cb_ps_perObjectColor.data.color = m_color;
+	m_cb_ps_PerObjectUtil.data.color = m_color;
 	m_metallic = metallic_value;
-	cb_ps_perObjectColor.data.metallic = m_metallic;
+	m_cb_ps_PerObjectUtil.data.metallic = m_metallic;
 	m_roughness = roughness_value;
-	cb_ps_perObjectColor.data.roughnss = m_roughness;
-	cb_ps_perObjectColor.ApplyChanges();
+	m_cb_ps_PerObjectUtil.data.roughness = m_roughness;
+	m_cb_ps_PerObjectUtil.ApplyChanges();
 
 	return true;
 }
@@ -171,10 +171,21 @@ void MaterialUnTextured::InitializeShaders()
 		ErrorLogger::Log("Failed to initialize pixel shader for textured material");
 	}
 
-	HRESULT hr = cb_vs_vertexShader.Initialize(m_pDevice.Get(), m_pDeviceContext.Get());
+	HRESULT hr = m_cb_vs_PerObject.Initialize(m_pDevice.Get(), m_pDeviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer for vertex shader inside textured material.");
 
-	hr = cb_ps_perObjectColor.Initialize(m_pDevice.Get(), m_pDeviceContext.Get());
+	hr = m_cb_vs_PerObjectUtil.Initialize(m_pDevice.Get(), m_pDeviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer for PerObjectColor inside textured material.");
 
+	hr = m_cb_ps_PerObjectUtil.Initialize(m_pDevice.Get(), m_pDeviceContext.Get());
+	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer for PerObjectColor inside textured material.");
+
+}
+
+void MaterialUnTextured::PSSetShaderResources()
+{
+	for (int i = 0; i < 1; i++)
+	{
+		this->m_pDeviceContext->PSSetShaderResources(i, 1, m_textures[i].GetTextureResourceViewAddress());
+	}
 }
