@@ -28,7 +28,7 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	//PBR_TexturedShowcase
 	//PBR_UnTexturedShowcase
 	//Norway
-	if (!FileSystem::Instance()->LoadSceneFromJSON("..\\Assets\\Scenes\\Norway.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext()))
+	if (!FileSystem::Instance()->LoadSceneFromJSON("..\\Assets\\Scenes\\PBR_TexturedShowcase.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext()))
 	{
 		ErrorLogger::Log("Failed to initialize scene.");
 		return false;
@@ -42,8 +42,8 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 
 	
 	// Enable this to draw the lights mesh (Commented does not effect the lights emission behavior)
-	//scene.AddEntity(Graphics::Instance()->pointLight);
-	//scene.AddEntity(Graphics::Instance()->directionalLight);
+	scene.AddEntity(Graphics::Instance()->pointLight);
+	scene.AddEntity(Graphics::Instance()->directionalLight);
 
 
 	if (!scene.Initialize())

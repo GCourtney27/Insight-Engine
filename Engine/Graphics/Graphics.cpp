@@ -27,7 +27,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height, Engine* engine)
 	pointLight->GetTransform().SetScale(1.0f, 1.0f, 1.0f);
 
 	directionalLight = new DirectionalLight(&(m_pEngine->GetScene()), *(new ID("Directional Light")));
-	directionalLight->GetTransform().SetPosition(DirectX::XMFLOAT3(0.0f, 20.0f, -10.0f));
+	directionalLight->GetTransform().SetPosition(DirectX::XMFLOAT3(0.0f, 200.0f, -100.0f));
 	directionalLight->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
 	directionalLight->GetTransform().SetScale(1.0f, 1.0f, 1.0f);
 
@@ -37,7 +37,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height, Engine* engine)
 	es->Initialize(pointLight, 1.0f, pointLight->GetTransform().GetPosition());
 
 	directionalLight = new DirectionalLight(&(m_pEngine->GetScene()), *(new ID("Directional Light")));
-	directionalLight->GetTransform().SetPosition(DirectX::XMFLOAT3(0.0f, 1000.0f, -1000.0f));
+	directionalLight->GetTransform().SetPosition(DirectX::XMFLOAT3(0.0f, 100.0f, -100.0f));
 	directionalLight->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
 	directionalLight->GetTransform().SetScale(1.0f, 1.0f, 1.0f);
 
@@ -50,13 +50,6 @@ bool Graphics::Initialize(HWND hwnd, int width, int height, Engine* engine)
 		return false;
 	
 	InitSkybox();
-	
-	newUVOffset.x = 0.0f;
-	newUVOffset.y = 0.0f;
-
-	newVertOffset.x = 0.0f;
-	newVertOffset.y = 0.0f;
-	newVertOffset.z = 0.0f;
 
 	// Setup ImGui
 	InitialzeImGui(hwnd);
@@ -100,15 +93,15 @@ void Graphics::InitSkybox()
 	MeshRenderer* me = skybox->AddComponent<MeshRenderer>();
 	me->Initialize(skybox, "..\\Assets\\Objects\\Primatives\\Sphere.fbx", pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader, nullptr);
 
-	HRESULT hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\skybox2_Diff.dds", nullptr, &skyboxTextureSRV);
+	HRESULT hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\NewportLoft_Diff.dds", nullptr, &skyboxTextureSRV);
 	if(FAILED(hr))
 		ErrorLogger::Log("Failed to load dds diffuse texture for skybox");
 
-	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\skybox2_EnvMap.dds", nullptr, &environmentMapSRV);
+	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\NewportLoft_EnvMap.dds", nullptr, &environmentMapSRV);
 	if (FAILED(hr))
 		ErrorLogger::Log("Failed to load dds texture for environment map");
 
-	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\skybox1_IR.dds", nullptr, &irradianceMapSRV);
+	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\NewportLoft_IR.dds", nullptr, &irradianceMapSRV);
 	if (FAILED(hr))
 		ErrorLogger::Log("Failed to load dds texture for irradiance map");
 
@@ -749,13 +742,19 @@ void Graphics::UpdateImGuiWidgets()
 		//ImGui::DragFloat("Ambient Light Strength", &cb_ps_light.data.ambientLightStrength, 0.01f, 0.0f, 10.0f);
 		//ImGui::DragFloat3("Directional Light Color", &directionalLight->lightColor.x, 0.01f, 0.0f, 10.0f);
 		//ImGui::DragFloat("Directional Light Strength", &directionalLight->lightStrength, 0.01f, 0.0f, 10.0f);
-		ImGui::DragFloat3("Ambient Light Color", &cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("Ambient Light Strength", &cb_ps_light.data.ambientLightStrength, 0.01f, 0.0f, 10.0f);
-		ImGui::DragFloat3("Dynamic Light Color", &pointLight->lightColor.x, 0.01f, 0.0f, 10.0f);
-		ImGui::DragFloat("Dynamic Light Strength", &pointLight->lightStrength, 0.01f, 0.0f, 10.0f);
-		ImGui::DragFloat("DynamicLight Attenuation A", &pointLight->attenuation_a, 0.01f, 0.1f, 10.0f);
-		ImGui::DragFloat("DynamicLight Attenuation B", &pointLight->attenuation_b, 0.01f, 0.0f, 10.0f);
-		ImGui::DragFloat("DynamicLight Attenuation C", &pointLight->attenuation_c, 0.01f, 0.0f, 10.0f);
+
+		ImGui::Text("Ambient/IBL Light");
+		ImGui::DragFloat3("Color Override", &cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Strength Override", &cb_ps_light.data.ambientLightStrength, 0.01f, 0.0f, 10.0f);
+		ImGui::Text("Directional Light");
+		ImGui::DragFloat3("Color", &directionalLight->lightColor.x, 0.01f, 0.0f, 10.0f);
+		ImGui::DragFloat("Directional Strength", &directionalLight->lightStrength, 0.01f, 0.0f, 10.0f);
+		ImGui::Text("Point Light");
+		ImGui::DragFloat3("Color", &pointLight->lightColor.x, 0.01f, 0.0f, 10.0f);
+		ImGui::DragFloat("Point Strength", &pointLight->lightStrength, 0.01f, 0.0f, 10.0f);
+		ImGui::DragFloat("Attenuation A", &pointLight->attenuation_a, 0.01f, 0.1f, 10.0f);
+		ImGui::DragFloat("Attenuation B", &pointLight->attenuation_b, 0.01f, 0.0f, 10.0f);
+		ImGui::DragFloat("Attenuation C", &pointLight->attenuation_c, 0.01f, 0.0f, 10.0f);
 	}
 	ImGui::End();
 

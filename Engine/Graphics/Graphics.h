@@ -110,11 +110,6 @@ private:
 
 
 
-	
-
-	DirectX::XMFLOAT2 newUVOffset;
-	DirectX::XMFLOAT3 newVertOffset;
-
 	ConstantBuffer<CB_VS_PerObject> cb_vs_vertexshader;
 	ConstantBuffer<CB_PS_light> cb_ps_light;
 	ConstantBuffer<CB_PS_directionalLight> cb_ps_directionalLight;
