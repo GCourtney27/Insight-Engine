@@ -94,7 +94,7 @@ void MeshRenderer::OnImGuiRender()
 
 		ImGui::Text(pMat->GetMaterialTypeAsString().c_str());
 
-		ImGui::DragFloat3("Color", &pMat->m_color.x, 0.1f, 0.0f, 1.0f);
+		ImGui::DragFloat3("Color", &pMat->m_color.x, 0.1f, 0.0f, 255.0f);
 		ImGui::DragFloat("Metallic", &pMat->m_metallic, 0.01f, -1.0f, 1.0f);
 		ImGui::DragFloat("Roughness", &pMat->m_roughness, 0.01f, -1.0f, 1.0f);
 

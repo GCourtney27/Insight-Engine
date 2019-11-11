@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include "Graphics.h"
 
 Mesh::Mesh(ID3D11Device * device, ID3D11DeviceContext * deviceContext, std::vector<Vertex3D>& verticies, std::vector<DWORD>& indicies, std::vector<Texture> & textures, const DirectX::XMMATRIX & transformMatrix)
 {
@@ -39,6 +40,7 @@ void Mesh::Draw()
 	this->deviceContext->IASetIndexBuffer(this->indexBuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
 	
 	this->deviceContext->DrawIndexed(this->indexBuffer.IndexCount(), 0, 0);
+	Graphics::Instance()->LogDrawCall(1);
 }
 
 const DirectX::XMMATRIX & Mesh::GetTransformMatrix()

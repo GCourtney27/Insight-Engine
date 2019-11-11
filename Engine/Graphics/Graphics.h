@@ -31,10 +31,7 @@ public:
 	void RenderFrame();
 	void Update(const float& deltaTime);
 	void Shutdown();
-
 	void InitialzeImGui(HWND hwnd);
-
-	std::wstring GetShaderFolder() { return m_shaderFolder; }
 
 	Camera3D editorCamera;
 
@@ -60,15 +57,25 @@ public:
 
 	void InitSkybox();
 
+	void LogDrawCall(UINT call) { m_drawCalls += call; }
+
 private:
 	bool InitializeDirectX(HWND hwnd);
 	bool InitializeShaders();
 	bool InitializeScene();
 	void UpdateImGuiWidgets();
-	//void IniitalizeIBLAssets();
 
 	Engine* m_pEngine;
 	Timer fpsTimer;
+
+	frame_timer m_frameTimer;
+	bool m_drawfpsGPU = false;
+	bool m_drawfpsCPU = true;
+	bool m_drawFrameTimeGPU = false;
+	bool m_drawFrameTimeCPU = false;
+	bool m_logDrawCalls = true;
+	UINT m_drawCalls = 0;
+	bool m_drawWireframe = false;
 
 	std::wstring m_shaderFolder;
 
@@ -77,18 +84,6 @@ private:
 	PixelShader pixelshader_2d;
 	ConstantBuffer<CB_VS_vertexshader_2d> cb_vs_vertexshader_2d;
 
-	// -- 3D Shaders -- //
-	// When adding more shaders:
-	// 1. Add them here as a PixelShader or vertex shader
-	// 2. make sure to create new constant buffers for pixel and vertex shaders if you shaders to different things
-	// 3. Initialize them in InitializeShaders()
-	// 4. Create new ps or vs file for them
-	// 5. Set the shaders and new ConstantBuffer/s(if any) in RenderFrame()
-	// 6. Set them back if other objects require different shaders to be rendered
-	//		- eg. Skybox might need a different shader compared to a model shader(Doesnt take imputs from lights etc,)
-	//		- This is why floiage is batch drawn becasue they use different shaders compared to say rocks
-	/*VertexShader default_vertexshader;
-	PixelShader default_pixelshader;*/
 
 	ConstantBuffer<CB_VS_Sky> cb_vs_sky;
 	VertexShader skyVertexShader;
@@ -130,7 +125,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> pRasterizerState;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> pRasterizerStateCULLNONE;
 	Microsoft::WRL::ComPtr<ID3D11BlendState> pBlendState;
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState; // Sampler for pixel shader to read texture data
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
 
 	std::unique_ptr<DirectX::SpriteBatch> pSpriteBatch;
 	std::unique_ptr<DirectX::SpriteFont> pSpriteFont;

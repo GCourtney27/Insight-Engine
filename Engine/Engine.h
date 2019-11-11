@@ -29,6 +29,8 @@ public:
 	Player* GetPlayer() { return m_pPlayer; }
 	void SetPlayer(Player* player) { m_pPlayer = player; }
 
+	frame_timer GetFrameTimer() const { return timer; }
+
 private:
 	Player* m_pPlayer = nullptr;
 	Scene scene;

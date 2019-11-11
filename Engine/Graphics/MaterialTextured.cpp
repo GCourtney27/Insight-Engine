@@ -94,9 +94,9 @@ bool MaterialTextured::InitializeJOSNPiplineAssets(const rapidjson::Value& asset
 	float tilingX = 0.0f;
 	float tilingY = 0.0f;
 
-	float colorR = 0.0f;
-	float colorG = 0.0f;
-	float colorB = 0.0f;
+	float colorR = 1.0f;
+	float colorG = 1.0f;
+	float colorB = 1.0f;
 	float metallic = 0.0f;
 	float roughness = 0.0f;
 
@@ -110,8 +110,8 @@ bool MaterialTextured::InitializeJOSNPiplineAssets(const rapidjson::Value& asset
 	// UVs and Tiling
 	json::get_float(assetsInformation[1]["uvOffset"][0], "x", uvOffsetX);
 	json::get_float(assetsInformation[1]["uvOffset"][0], "y", uvOffsetY);
-	json::get_float(assetsInformation[1]["Tiling"][0], "x", tilingY);
-	json::get_float(assetsInformation[1]["Tiling"][0], "y", tilingX);
+	json::get_float(assetsInformation[1]["Tiling"][0], "x", tilingX);
+	json::get_float(assetsInformation[1]["Tiling"][0], "y", tilingY);
 
 	// Color Overrides
 	json::get_float(assetsInformation[1]["Color_Override"][0], "r", colorR);

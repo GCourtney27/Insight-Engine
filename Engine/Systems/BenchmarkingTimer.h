@@ -26,13 +26,13 @@ namespace Debug
 			auto duration = end - start;
 
 			double ms = duration * 0.001;
-			std::string output = "";
-			output += ms;
-			output += "ms";
-			DEBUGLOG(output);
+			m_timeInMilis = ms;
 		}
+
+		double GetTimeInMilis() { return m_timeInMilis; }
 
 	private:
 		std::chrono::time_point<std::chrono::high_resolution_clock> m_startTimepoint;
+		double m_timeInMilis = 0.0;
 	};
 }

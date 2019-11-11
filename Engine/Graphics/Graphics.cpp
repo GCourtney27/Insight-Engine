@@ -1,7 +1,8 @@
 #include "Graphics.h"
-#include "..\\Editor\\Editor.h"
+//#include "..\\Editor\\Editor.h"
 #include "..\Systems\FileSystem.h"
 #include "..\Input\InputManager.h"
+#include "..\Systems\BenchmarkingTimer.h"
 
 #include <cstdlib>
 #include <math.h>
@@ -93,15 +94,15 @@ void Graphics::InitSkybox()
 	MeshRenderer* me = skybox->AddComponent<MeshRenderer>();
 	me->Initialize(skybox, "..\\Assets\\Objects\\Primatives\\Sphere.fbx", pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader, nullptr);
 
-	HRESULT hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\NewportLoft_Diff.dds", nullptr, &skyboxTextureSRV);
+	HRESULT hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\skybox1_Diff.dds", nullptr, &skyboxTextureSRV);
 	if(FAILED(hr))
 		ErrorLogger::Log("Failed to load dds diffuse texture for skybox");
 
-	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\NewportLoft_EnvMap.dds", nullptr, &environmentMapSRV);
+	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\skybox1_EnvMap.dds", nullptr, &environmentMapSRV);
 	if (FAILED(hr))
 		ErrorLogger::Log("Failed to load dds texture for environment map");
 
-	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\NewportLoft_IR.dds", nullptr, &irradianceMapSRV);
+	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\skybox1_IR.dds", nullptr, &irradianceMapSRV);
 	if (FAILED(hr))
 		ErrorLogger::Log("Failed to load dds texture for irradiance map");
 
@@ -254,6 +255,9 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 
 void Graphics::RenderFrame()
 {
+	Debug::ScopedTimer timer;
+	m_frameTimer.tick();
+
 	const DirectX::XMMATRIX & playerProjMat = m_pEngine->GetPlayer()->GetPlayerCamera()->GetProjectionMatrix();
 	const DirectX::XMMATRIX & playerViewMat = m_pEngine->GetPlayer()->GetPlayerCamera()->GetViewMatrix();
 	const DirectX::XMMATRIX & editorProjMat = editorCamera.GetProjectionMatrix();
@@ -316,7 +320,10 @@ void Graphics::RenderFrame()
 	float bgcolor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
 	pDeviceContext->ClearRenderTargetView(pRenderTargetView.Get(), bgcolor);
 	pDeviceContext->ClearDepthStencilView(pDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);//D3D10_PRIMITIVE_TOPOLOGY_LINELIST
+	if(m_drawWireframe)
+		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_LINELIST);//D3D10_PRIMITIVE_TOPOLOGY_LINELIST
+	else
+		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);//D3D10_PRIMITIVE_TOPOLOGY_LINELIST
 	
 	// Set Rasterizer state to CULLNONE to draw skybox
 	pDeviceContext->RSSetState(pRasterizerStateCULLNONE.Get());
@@ -365,19 +372,55 @@ void Graphics::RenderFrame()
 	pDeviceContext->VSSetShader(vertexshader_2d.GetShader(), NULL, 0);
 	//sprite.Draw(camera2D.GetWorldmatrix() * camera2D.GetOrthoMatrix()); // Draws hello world sprite image
 
+
+
 	// -- Draw Text -- //
 	static int fpsCounter = 0;
 	static std::string fpsString = "FPS: 0";
-	fpsCounter += 1;
+
+	//fpsString = "GPU Time: " + std::to_string(static_cast<int>(m_frameTimer.fps()));
+
+	if (m_drawfpsCPU)
+	{
+		fpsString += "CPU " + std::to_string(static_cast<int>(m_pEngine->GetFrameTimer().fps()));
+		if (m_drawFrameTimeCPU)
+			fpsString += "/ " + std::to_string(static_cast<int>(m_pEngine->GetFrameTimer().milliseconds())) + " ms\n";
+		else
+			fpsString += " fps\n";
+	}
+
+	if (m_drawfpsGPU)
+	{
+		fpsString += "GPU " + std::to_string(static_cast<int>(m_frameTimer.fps()));
+		if (m_drawFrameTimeGPU)
+			fpsString += "/ " + std::to_string(static_cast<int>(m_frameTimer.milliseconds())) + " ms \n";
+		else
+			fpsString += " fps\n";
+	}
+
+	if (m_logDrawCalls)
+	{
+		fpsString += "Draw Calls: " + std::to_string(m_drawCalls) + "\n";
+		m_drawCalls = 0;
+	}
+
+	/*ImGui::MenuItem("Show FPS");
+	ImGui::MenuItem("Show Frame Time");
+	ImGui::MenuItem("Current Scene Assets");
+	ImGui::MenuItem("Log Draw Calls");*/
+
+	/*fpsCounter += 1;
 	if (fpsTimer.GetTicks() > 1000.0)
 	{
 		fpsString = "FPS: " + std::to_string(fpsCounter);
 		fpsCounter = 0;
 		fpsTimer.Restart();
-	}
+	}*/
 	pSpriteBatch->Begin();
 	pSpriteFont->DrawString(pSpriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 50), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	pSpriteBatch->End();
+	fpsString = "";
+
 
 	// -- Update ImGui -- //
 	static bool showEditor = true;
@@ -405,6 +448,7 @@ void Graphics::RenderFrame()
 void Graphics::Update(const float& deltaTime)
 {
 	m_deltaTime = deltaTime;
+
 }
 
 void Graphics::Shutdown()
@@ -544,7 +588,7 @@ void Graphics::UpdateImGuiWidgets()
 	std::list<Entity*>* entities = m_pEngine->GetScene().GetAllEntities();
 
 	// ImGuizmo Experimental tool
-	//{
+	{
 	//	ImGuizmo::BeginFrame();
 	//	ImGuizmo::Enable(true);
 
@@ -598,33 +642,8 @@ void Graphics::UpdateImGuiWidgets()
 	//	/*if (ImGuizmo::IsOver())
 	//		Debug::Editor::Instance()->DebugLog("Mouse is over");*/
 
-	//}
+	}
 	
-	/*if (ImGui::Button("Popup"))
-		ImGui::OpenPopup("testMenu");
-	if (ImGui::BeginPopupModal("testMenu", NULL, ImGuiWindowFlags_MenuBar |
-		ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		if (ImGui::BeginMenuBar())
-		{
-			if (ImGui::BeginMenu("test1"))
-			{
-				ImGui::MenuItem("test1_1");
-				ImGui::MenuItem("test1_2");
-				ImGui::EndMenu();
-			}
-			ImGui::MenuItem("test2");
-			if (ImGui::MenuItem("test3"))
-			{
-				ImGui::CloseCurrentPopup();
-			}
-			ImGui::EndMenuBar();
-		}
-		ImGui::Button("test");
-		ImGui::EndPopup();
-	}*/
-
-
 	if (ImGui::Begin("Menu Bar", NULL, ImGuiWindowFlags_MenuBar |
 		ImGuiWindowFlags_AlwaysAutoResize))
 	{
@@ -641,10 +660,27 @@ void Graphics::UpdateImGuiWidgets()
 			}
 			if (ImGui::BeginMenu("Engine DEBUG"))
 			{
-				ImGui::MenuItem("Show FPS");
-				ImGui::MenuItem("Show Frame Time");
-				ImGui::MenuItem("Current Scene Assets");
-				ImGui::MenuItem("Log Draw Calls");
+				if (ImGui::MenuItem("Draw CPU fps"))
+				{
+					m_drawfpsCPU = !m_drawfpsCPU;
+				}
+				if (ImGui::MenuItem("Draw CPU Frame Time"))
+				{
+					m_drawFrameTimeCPU = !m_drawFrameTimeCPU;
+				}
+				if (ImGui::MenuItem("Draw GPU fps"))
+				{
+					m_drawfpsGPU = !m_drawfpsGPU;
+				}
+				if (ImGui::MenuItem("Draw GPU Frame Time"))
+				{
+					m_drawFrameTimeGPU = !m_drawFrameTimeGPU;
+				}
+				if (ImGui::MenuItem("Enable Wireframe"))
+					m_drawWireframe = !m_drawWireframe;
+
+				if (ImGui::MenuItem("Log Draw Calls"))
+					m_logDrawCalls = !m_logDrawCalls;
 
 				ImGui::EndMenu();
 			}
@@ -746,11 +782,13 @@ void Graphics::UpdateImGuiWidgets()
 		ImGui::Text("Ambient/IBL Light");
 		ImGui::DragFloat3("Color Override", &cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat("Strength Override", &cb_ps_light.data.ambientLightStrength, 0.01f, 0.0f, 10.0f);
+
 		ImGui::Text("Directional Light");
-		ImGui::DragFloat3("Color", &directionalLight->lightColor.x, 0.01f, 0.0f, 10.0f);
+		ImGui::DragFloat3("Directional Color", &directionalLight->lightColor.x, 0.01f, 0.0f, 10.0f);
 		ImGui::DragFloat("Directional Strength", &directionalLight->lightStrength, 0.01f, 0.0f, 10.0f);
+
 		ImGui::Text("Point Light");
-		ImGui::DragFloat3("Color", &pointLight->lightColor.x, 0.01f, 0.0f, 10.0f);
+		ImGui::DragFloat3("Point Color", &pointLight->lightColor.x, 0.01f, 0.0f, 10.0f);
 		ImGui::DragFloat("Point Strength", &pointLight->lightStrength, 0.01f, 0.0f, 10.0f);
 		ImGui::DragFloat("Attenuation A", &pointLight->attenuation_a, 0.01f, 0.1f, 10.0f);
 		ImGui::DragFloat("Attenuation B", &pointLight->attenuation_b, 0.01f, 0.0f, 10.0f);
