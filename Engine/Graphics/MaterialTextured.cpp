@@ -25,6 +25,8 @@ void MaterialTextured::WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuff
 {
 	writer.Key("MaterialType");
 	writer.String(this->GetMaterialTypeAsString().c_str());
+	writer.Key("MaterialFlags");
+	writer.String(this->GetMaterialFlagsAsString().c_str());
 	writer.Key("Albedo");
 	writer.String(m_textureLocations[0].c_str());
 	writer.Key("Normal");

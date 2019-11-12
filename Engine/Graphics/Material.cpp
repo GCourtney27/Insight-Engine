@@ -96,7 +96,7 @@ std::string Material::GetMaterialFlagsAsString()
 	std::map<std::string, eFlags>::iterator iter;
 	for (iter = stringToMaterialFlags.begin(); iter != stringToMaterialFlags.end(); iter++)
 	{
-		if ((*iter).second == this->m_materialType)
+		if ((*iter).second == this->m_flags)
 			return (*iter).first;
 	}
 

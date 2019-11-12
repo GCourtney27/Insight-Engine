@@ -7,6 +7,7 @@
 class Player : public Entity
 {
 public:
+	Player() {}
 	Player(Scene* scene, const ID& id)
 		: Entity(scene, id)
 	{
@@ -15,6 +16,8 @@ public:
 		
 		InitializeCamera(scene);
 	}
+
+	bool Initialize(Scene* scene, const ID& id);
 
 	void InitializeCamera(Scene* scene);
 	

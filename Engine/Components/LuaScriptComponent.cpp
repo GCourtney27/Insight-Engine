@@ -1,6 +1,5 @@
 #include "LuaScriptComponent.h"
 #include "..\Editor\Editor.h"
-#include "..\Systems\Timer.h"
 #include "..\Graphics\ImGui\imgui.h"
 
 void LuaScript::InitFromJSON(Entity* owner, const rapidjson::Value& componentInformation)

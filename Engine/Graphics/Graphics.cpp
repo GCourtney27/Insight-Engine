@@ -89,20 +89,20 @@ void Graphics::InitSkybox()
 	skybox = new Entity((&m_pEngine->GetScene()), *(new ID("Sky Box")));
 	
 	skybox->GetTransform().SetPosition(0.0f, 0.0f, 0.0f);
-	skybox->GetTransform().SetScale(5000.0f, 5000.0f, 5000.0f);
+	skybox->GetTransform().SetScale(50000.0f, 50000.0f, 50000.0f);
 	skybox->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
 	MeshRenderer* me = skybox->AddComponent<MeshRenderer>();
 	me->Initialize(skybox, "..\\Assets\\Objects\\Primatives\\Sphere.fbx", pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader, nullptr);
 
-	HRESULT hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\skybox1_Diff.dds", nullptr, &skyboxTextureSRV);
+	HRESULT hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\NewportLoft_Diff.dds", nullptr, &skyboxTextureSRV);
 	if(FAILED(hr))
 		ErrorLogger::Log("Failed to load dds diffuse texture for skybox");
 
-	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\skybox1_EnvMap.dds", nullptr, &environmentMapSRV);
+	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\NewportLoft_EnvMap.dds", nullptr, &environmentMapSRV);
 	if (FAILED(hr))
 		ErrorLogger::Log("Failed to load dds texture for environment map");
 
-	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\skybox1_IR.dds", nullptr, &irradianceMapSRV);
+	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\NewportLoft_IR.dds", nullptr, &irradianceMapSRV);
 	if (FAILED(hr))
 		ErrorLogger::Log("Failed to load dds texture for irradiance map");
 
@@ -384,7 +384,7 @@ void Graphics::RenderFrame()
 	{
 		fpsString += "CPU " + std::to_string(static_cast<int>(m_pEngine->GetFrameTimer().fps()));
 		if (m_drawFrameTimeCPU)
-			fpsString += "/ " + std::to_string(static_cast<int>(m_pEngine->GetFrameTimer().milliseconds())) + " ms\n";
+			fpsString += " / " + std::to_string(static_cast<int>(m_pEngine->GetFrameTimer().milliseconds())) + " ms\n";
 		else
 			fpsString += " fps\n";
 	}
@@ -393,7 +393,7 @@ void Graphics::RenderFrame()
 	{
 		fpsString += "GPU " + std::to_string(static_cast<int>(m_frameTimer.fps()));
 		if (m_drawFrameTimeGPU)
-			fpsString += "/ " + std::to_string(static_cast<int>(m_frameTimer.milliseconds())) + " ms \n";
+			fpsString += " / " + std::to_string(static_cast<int>(m_frameTimer.milliseconds())) + " ms \n";
 		else
 			fpsString += " fps\n";
 	}
@@ -403,19 +403,6 @@ void Graphics::RenderFrame()
 		fpsString += "Draw Calls: " + std::to_string(m_drawCalls) + "\n";
 		m_drawCalls = 0;
 	}
-
-	/*ImGui::MenuItem("Show FPS");
-	ImGui::MenuItem("Show Frame Time");
-	ImGui::MenuItem("Current Scene Assets");
-	ImGui::MenuItem("Log Draw Calls");*/
-
-	/*fpsCounter += 1;
-	if (fpsTimer.GetTicks() > 1000.0)
-	{
-		fpsString = "FPS: " + std::to_string(fpsCounter);
-		fpsCounter = 0;
-		fpsTimer.Restart();
-	}*/
 	pSpriteBatch->Begin();
 	pSpriteFont->DrawString(pSpriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 50), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	pSpriteBatch->End();
@@ -570,7 +557,7 @@ bool Graphics::InitializeScene()
 		camera2D.SetProjectionValues((float)windowWidth, (float)windowHeight, 0.0f, 1.0f);
 
 		editorCamera.SetPosition(DirectX::XMFLOAT3(0.0f, 5.0f, -40.0f));
-		editorCamera.SetProjectionValues(80.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
+		editorCamera.SetProjectionValues(80.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 4000.0f);
 
 	}
 	catch (COMException & exception)

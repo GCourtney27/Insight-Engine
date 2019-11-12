@@ -2,12 +2,14 @@
 #include "Editor\\Editor.h"
 #include "Graphics\\Graphics.h"
 #include "..\\Systems\\FileSystem.h"
+#include "..\Systems\BenchmarkingTimer.h"
 
 bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height)
 {
 	windowHeight = height;
 	windowWidth = width;
 	
+	Debug::ScopedTimer timerEngineStart;
 	if (!FileSystem::Instance()->Initialize(this))
 	{
 		ErrorLogger::Log("Failed to initialize File System.");
@@ -25,10 +27,12 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 		ErrorLogger::Log("Failed to initialize Graphics Instance");
 		return false;
 	}
+	//============= Choose from these scenes
 	//PBR_TexturedShowcase
 	//PBR_UnTexturedShowcase
 	//Norway
-	if (!FileSystem::Instance()->LoadSceneFromJSON("..\\Assets\\Scenes\\Norway.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext()))
+	//Test
+	if (!FileSystem::Instance()->LoadSceneFromJSON("..\\Assets\\Scenes\\Test.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext()))
 	{
 		ErrorLogger::Log("Failed to initialize scene.");
 		return false;
@@ -57,7 +61,8 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 		ErrorLogger::Log("Failed to initialize Editor Instance.");
 		return false;
 	}
-
+	timerEngineStart.Stop();
+	Debug::Editor::Instance()->DebugLog("Engine initialized in " + std::to_string(timerEngineStart.GetTimeInSeconds()) + " seconds");
 
 	return true;
 }

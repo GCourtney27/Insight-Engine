@@ -30,6 +30,7 @@ namespace Debug
 		}
 
 		double GetTimeInMilis() { return m_timeInMilis; }
+		double GetTimeInSeconds() { return m_timeInMilis / 1000.0; }
 
 	private:
 		std::chrono::time_point<std::chrono::high_resolution_clock> m_startTimepoint;

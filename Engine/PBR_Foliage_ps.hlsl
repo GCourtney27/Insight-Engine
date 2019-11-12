@@ -64,12 +64,12 @@ SamplerState samplerState : SAMPLER : register(s0);
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
-    // Sample Textures
-    float3 albedoSample = saturate(albedoSRV.Sample(samplerState, input.inTexCoord).rgb + color);
-    float3 normalSample = saturate(normalSRV.Sample(samplerState, input.inTexCoord).xyz);
+    // Sample Textures    
+    float3 albedoSample = pow(albedoSRV.Sample(samplerState, input.inTexCoord).rgb, color);
+    float3 normalSample = (normalSRV.Sample(samplerState, input.inTexCoord).xyz);
     float opacitySample = (opacitySRV.Sample(samplerState, input.inTexCoord).r);
-    float roughnessSample = saturate(roughnessSRV.Sample(samplerState, input.inTexCoord).r + roughness);
-    float aoSample = aoSRV.Sample(samplerState, input.inTexCoord).r;
+    float roughnessSample = (roughnessSRV.Sample(samplerState, input.inTexCoord).r + roughness);
+    //float aoSample = aoSRV.Sample(samplerState, input.inTexCoord).r;
     
     // Transform Normals From Tangent Space to View Space
     const float3x3 tanToView = float3x3(normalize(input.inTangent),
@@ -79,7 +79,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     N.x = normalSample.x * 2.0f - 1.0f;
     N.y = -normalSample.y * 2.0f + 1.0f;
     N.z = normalSample.z;
-    N = mul(N, tanToView);
+    N = normalize(mul(N, tanToView));
 
     // View vector
     float3 V = normalize(camPosition - input.inWorldPos);
@@ -88,55 +88,67 @@ float4 main(PS_INPUT input) : SV_TARGET
     float3 baseReflectivity = lerp(F0, albedoSample, metallic);
 
     float3 Lo = float3(0.0f, 0.0f, 0.0f); // Final lumanance of light
+    
 
-    //for (int i = 0; i < 2; i++)
-    //{
-
-    //}
-
-    float3 L = normalize(dynamicLightPosition - input.inWorldPos); // Light direction vector
-    //float3 L = normalize(directionalLightDirection - input.inWorldPos); // Light direction vector
-    float3 H = normalize(V + L); // Halfway vector
+    float3 P_L = normalize(dynamicLightPosition - input.inWorldPos); // Light direction vector
+    float3 Dir_L = normalize(directionalLightDirection - input.inWorldPos); // Light direction vector
+    float3 P_H = normalize(V + P_L); // Halfway vector
+    float3 Dir_H = normalize(V + Dir_L); // Halfway vector
 
     // -- Per light radiance -- //
-    // Color ambient light (Not used)
-    // Disable this for directional light
+    // -- Point Light -- //
     float3 ambientLight = ambientLightColor * ambientLightStrength;
-    float3 appliedLight = ambientLight;
 
-    float3 vectorToLight = normalize(directionalLightDirection - input.inWorldPos);
-    float3 diffuseLightIntensity = max(dot(L, N), 0);
-    float distanceToLight = distance(directionalLightDirection, input.inWorldPos);
-    // Disable this for directional light
+    float3 vectorToLight = normalize(dynamicLightPosition - input.inWorldPos);
+    float distanceToLight = distance(vectorToLight, input.inWorldPos);
+    float3 diffuseLightIntensity = max(dot(P_L, N), 0);
     float attenuationFactor = 1 / (dynamicLightAttenuation_a + dynamicLightAttenuation_b * distanceToLight + dynamicLightAttenuation_c * pow(distanceToLight, 2));
-    // Disable this for directional light
     diffuseLightIntensity *= attenuationFactor;
-    // Disable this for directional light
     float3 diffuseLight = diffuseLightIntensity * dynamicLightStrength * dynamicLightColor;
-    //float3 diffuseLight = diffuseLightIntensity * directionalLightStrength * directionalLightColor;
-    // Disable this for directional light
-    appliedLight += diffuseLight;
-    float3 radiance = albedoSample * diffuseLight; // Works
-  
+
+    float3 pointLightRadiance = (albedoSample * diffuseLight);
+    float3 directionalLight = saturate(dot(directionalLightDirection, input.inWorldPos) * directionalLightColor) * directionalLightStrength;
+    
+    float3 directionalLightRadiance = (albedoSample * directionalLight);
+
     // Cook-Torrance BRDF
     float NdotV = max(dot(N, V), 0.0000001);
-    float NdotL = max(dot(N, L), 0.0000001);
-    float HdotV = max(dot(H, V), 0.0f);
-    float NdotH = max(dot(N, H), 0.0f);
-
-    float D = distributionGGX(NdotH, roughnessSample);
-    float G = geometrySmith(NdotV, NdotL, roughnessSample);
-    float3 F = fresnelSchlick(HdotV, baseReflectivity);
-
-    float3 specular = D * G * F;
-    specular /= 4.0f * NdotV * NdotL;
-
-    float3 kD = float3(1.0f, 1.0f, 1.0f) - F;
     
-    kD *= 1.0f - metallic;
-
-    Lo += (kD * albedoSample / PI + specular) * radiance * NdotL;
+    float P_NdotL = max(dot(N, P_L), 0.0000001);
+    float P_HdotV = max(dot(P_H, V), 0.0f);
+    float P_NdotH = max(dot(N, P_H), 0.0f);
     
+    float P_D = distributionGGX(P_NdotH, roughnessSample);
+    float P_G = geometrySmith(NdotV, P_NdotL, roughnessSample);
+    float3 P_F = fresnelSchlick(P_HdotV, baseReflectivity);
+    
+    float3 P_specular = P_D * P_G * P_F;
+    P_specular /= 4.0f * NdotV * P_NdotL;
+
+    float3 P_kD = float3(1.0f, 1.0f, 1.0f) - P_F;
+    
+    P_kD *= 1.0f - metallic;
+
+    Lo += (P_kD * albedoSample / PI + P_specular) * pointLightRadiance * P_NdotL;
+    
+    // -- Directional Light -- //
+    float Dir_NdotH = max(dot(N, Dir_H), 0.0f);
+    float Dir_HdotV = max(dot(Dir_H, V), 0.0f);
+    float Dir_NdotL = max(dot(N, Dir_L), 0.0000001);
+
+    float Dir_D = distributionGGX(Dir_NdotH, roughnessSample);
+    float Dir_G = geometrySmith(NdotV, Dir_NdotL, roughnessSample);
+    float3 Dir_F = fresnelSchlick(Dir_HdotV, baseReflectivity);
+
+    float3 Dir_specular = Dir_D * Dir_G * Dir_F;
+    Dir_specular /= 4.0f * NdotV * Dir_NdotL;
+
+    float3 Dir_kD = float3(1.0f, 1.0f, 1.0f) - Dir_F;
+    
+    Dir_kD *= 1.0f - metallic;
+
+    Lo += (Dir_kD * albedoSample / PI + Dir_specular) * directionalLightRadiance * Dir_NdotL;
+
     // -- IBL -- //
     // Irradiance map
     float3 F_IBL = fresnelSchlickRoughness(NdotV, baseReflectivity, roughnessSample);
@@ -150,11 +162,11 @@ float4 main(PS_INPUT input) : SV_TARGET
     float3 specular_IBL = environmentMapColor * (F_IBL * brdf.r + brdf.g);
 
     // Add lighting to IBL velues for final color
-    float3 ambient = (diffuse + specular_IBL) * (0.5f);
+    float3 ambient = (diffuse + specular_IBL) * ambientLight;
     float3 color = (ambient + Lo);
     
     // HDR tonemapping
-    color = color / (color + float3(1.5f, 1.5f, 1.5f));
+    color = color / (color + float3(1.0f, 1.0f, 1.0f));
     // Gamma correction
     color = pow(color, float3(1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f));
 

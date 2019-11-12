@@ -25,6 +25,7 @@ void MaterialTexturedFoliage::WriteToJSON(rapidjson::PrettyWriter<rapidjson::Str
 	writer.Key("MaterialType");
 	writer.String(this->GetMaterialTypeAsString().c_str());
 	writer.Key("MaterialFlags");
+	std::string flag = this->GetMaterialFlagsAsString();
 	writer.String(this->GetMaterialFlagsAsString().c_str());
 	writer.Key("Albedo");
 	writer.String(m_textureLocations[0].c_str());
@@ -34,6 +35,50 @@ void MaterialTexturedFoliage::WriteToJSON(rapidjson::PrettyWriter<rapidjson::Str
 	writer.String(m_textureLocations[2].c_str());
 	writer.Key("Roughness");
 	writer.String(m_textureLocations[3].c_str());
+
+	writer.Key("uvOffset");
+	writer.StartArray();// Begin uvOffset
+
+	writer.StartObject();
+	writer.Key("x");
+	writer.Double(m_newUVOffset.x);
+	writer.Key("y");
+	writer.Double(m_newUVOffset.y);
+	writer.EndObject();
+
+	writer.EndArray();// End uvOffset
+
+	writer.Key("Tiling");
+	writer.StartArray();// Start Tiling
+
+	writer.StartObject();
+	writer.Key("x");
+	writer.Double(m_tiling.x);
+	writer.Key("y");
+	writer.Double(m_tiling.y);
+	writer.EndObject();
+
+	writer.EndArray();// End Tiling
+
+	writer.Key("Color_Override");
+	writer.StartArray();// Start Color
+
+	writer.StartObject();
+	writer.Key("r");
+	writer.Double(m_color.x);
+	writer.Key("g");
+	writer.Double(m_color.y);
+	writer.Key("b");
+	writer.Double(m_color.z);
+	writer.EndObject();
+
+	writer.EndArray();// End Array
+
+	writer.Key("Metallic_Override");
+	writer.Double(m_metallic);
+
+	writer.Key("Roughness_Override");
+	writer.Double(m_roughness);
 }
 
 bool MaterialTexturedFoliage::InitializeJOSNPiplineAssets(const rapidjson::Value & assetsInformation)
@@ -45,6 +90,18 @@ bool MaterialTexturedFoliage::InitializeJOSNPiplineAssets(const rapidjson::Value
 	std::string ao_Filepath;
 	std::vector<std::string> textures;
 
+	float uvOffsetX = 0.0f;
+	float uvOffsetY = 0.0f;
+	float tilingX = 0.0f;
+	float tilingY = 0.0f;
+
+	float colorR = 1.0f;
+	float colorG = 1.0f;
+	float colorB = 1.0f;
+	float metallic = 0.0f;
+	float roughness = 0.0f;
+
+	// Textures
 	json::get_string(assetsInformation[1], "Albedo", albedo_Filepath);
 	json::get_string(assetsInformation[1], "Normal", normal_Filepath);
 	json::get_string(assetsInformation[1], "Opacity", opacity_Filepath);
@@ -57,6 +114,19 @@ bool MaterialTexturedFoliage::InitializeJOSNPiplineAssets(const rapidjson::Value
 	textures.push_back(ao_Filepath);
 	m_textureLocations = textures;
 
+	// UVs and Tiling
+	json::get_float(assetsInformation[1]["uvOffset"][0], "x", uvOffsetX);
+	json::get_float(assetsInformation[1]["uvOffset"][0], "y", uvOffsetY);
+	json::get_float(assetsInformation[1]["Tiling"][0], "x", tilingX);
+	json::get_float(assetsInformation[1]["Tiling"][0], "y", tilingY);
+
+	// Color Overrides
+	json::get_float(assetsInformation[1]["Color_Override"][0], "r", colorR);
+	json::get_float(assetsInformation[1]["Color_Override"][0], "g", colorG);
+	json::get_float(assetsInformation[1]["Color_Override"][0], "b", colorB);
+	json::get_float(assetsInformation[1], "Metallic_Override", metallic);
+	json::get_float(assetsInformation[1], "Roughness_Override", roughness);
+
 	std::vector<std::string>::iterator iter;
 	for (iter = m_textureLocations.begin(); iter != m_textureLocations.end(); iter++)
 	{
@@ -64,15 +134,27 @@ bool MaterialTexturedFoliage::InitializeJOSNPiplineAssets(const rapidjson::Value
 	}
 
 	InitializeShaders();
-	m_color.x = 0.0f;
-	m_color.y = 0.0f;
-	m_color.z = 0.0f;
+
+	// Per-Object modifiers for Pixel Shader
+	m_color.x = colorR;
+	m_color.y = colorG;
+	m_color.z = colorB;
 	m_cb_ps_PerObjectUtil.data.color = m_color;
-	m_metallic = 0.0f;
+	m_metallic = metallic;
 	m_cb_ps_PerObjectUtil.data.metallic = m_metallic;
-	m_roughness = 0.0f;
+	m_roughness = roughness;
 	m_cb_ps_PerObjectUtil.data.roughness = m_roughness;
 	m_cb_ps_PerObjectUtil.ApplyChanges();
+
+	// Per-Object modifiers for Vertex Shader
+	m_newUVOffset.x = uvOffsetX;
+	m_newUVOffset.y = uvOffsetY;
+	m_tiling.x = tilingX;
+	m_tiling.y = tilingY;
+	m_cb_vs_PerObjectUtil.data.tiling = m_tiling;
+	m_cb_vs_PerObjectUtil.data.uvOffset = m_newUVOffset;
+	m_cb_vs_PerObjectUtil.data.vertOffset = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	m_cb_vs_PerObjectUtil.ApplyChanges();
 
 	return true;
 }
@@ -114,4 +196,8 @@ void MaterialTexturedFoliage::InitializeShaders()
 
 void MaterialTexturedFoliage::PSSetShaderResources()
 {
+	for (int i = 0; i < 4; i++)
+	{
+		this->m_pDeviceContext->PSSetShaderResources(i, 1, m_textures[i].GetTextureResourceViewAddress());
+	}
 }

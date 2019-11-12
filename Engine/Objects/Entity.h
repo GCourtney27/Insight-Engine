@@ -22,10 +22,15 @@ public:
 	};
 
 public:
+	Entity() {}
 	Entity(Scene* scene, const ID& id) 
 		: m_scene(scene), Object(id) {}
 
-	virtual ~Entity() {}
+	virtual ~Entity() 
+	{
+		/*Destroy();
+		delete m_scene;*/
+	}
 
 	// -- Editor Specific methods (Engine) -- //
 	virtual bool Initialize(); // Called once when Engine starts
@@ -97,6 +102,6 @@ protected:
 
 	Transform m_transform;
 	Transform m_origionalTransform;
-	Scene* m_scene;
+	Scene* m_scene = nullptr;
 	std::vector<Component*> m_components;
 };

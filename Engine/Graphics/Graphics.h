@@ -7,7 +7,6 @@
 #include "Sprite.h"
 #include "..\\Framework\\Singleton.h"
 #include "..\\Engine.h"
-#include "..\\Systems\\Timer.h"
 #include "..\Objects\PointLight.h"
 #include "..\Objects\DirectionalLight.h"
 #include "MaterialSky.h"
@@ -66,7 +65,6 @@ private:
 	void UpdateImGuiWidgets();
 
 	Engine* m_pEngine;
-	Timer fpsTimer;
 
 	frame_timer m_frameTimer;
 	bool m_drawfpsGPU = false;

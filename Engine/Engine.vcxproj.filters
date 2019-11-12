@@ -330,9 +330,6 @@
     <ClCompile Include="Graphics\MaterialSky.cpp">
       <Filter>Source Files\Graphics\Materials</Filter>
     </ClCompile>
-    <ClCompile Include="Systems\Timer.cpp">
-      <Filter>Source Files\Systems</Filter>
-    </ClCompile>
     <ClCompile Include="Objects\DirectionalLight.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
@@ -706,9 +703,6 @@
     </ClInclude>
     <ClInclude Include="Objects\DirectionalLight.h">
       <Filter>Header Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Systems\Timer.h">
-      <Filter>Header Files\Systems</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Resource Files\Application</Filter>

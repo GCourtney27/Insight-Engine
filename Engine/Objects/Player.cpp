@@ -2,6 +2,16 @@
 #include "..\Graphics\Graphics.h"
 #include "..\Editor\Editor.h"
 
+bool Player::Initialize(Scene * scene, const ID & id)
+{
+	this->m_id = id;
+	this->m_scene = scene;
+
+	InitializeCamera(scene);
+
+	return true;
+}
+
 void Player::InitializeCamera(Scene* scene)
 {
 	m_pCamera = new Camera(scene, *(new ID("Player Camera")));

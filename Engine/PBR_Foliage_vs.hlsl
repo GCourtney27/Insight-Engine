@@ -12,7 +12,12 @@ cbuffer perObjectBuffer : register(b0) // Defined in ConstantBufferTypes
 cbuffer PerFrame : register(b1)
 {
     float deltaTime;
+}
+
+cbuffer PerObjectUtil : register(b2) // Uploaded via material
+{
     float2 uvOffset;
+    float2 tiling;
     float3 vertOffset;
 }
 
@@ -54,9 +59,9 @@ VS_OUTPUT main(VS_INPUT input)
 	
     output.outWorldPos = mul(float4(input.inPosition, 1.0f), world);
 
-    output.outTexCoord = input.inTexCoord;
 	// Texture Scrolling
     //output.outTexCoord = float2(input.inTexCoord.x, input.inTexCoord.y + uvOffset.y);
+    output.outTexCoord = float2((input.inTexCoord.x + uvOffset.x) * tiling.x, (input.inTexCoord.y + uvOffset.y) * tiling.y);
 
     return output;
 }

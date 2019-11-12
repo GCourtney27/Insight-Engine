@@ -20,12 +20,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,	_In_opt_ HINSTANCE hPrevInstance
 	while (engine.ProccessMessages() == true)
 	{
 		engine.Update();
-		/*std::thread worker(&Engine::RenderFrame, Engine());
-		worker.join();*/
 		engine.RenderFrame();
 	}
 
 	engine.Shutdown();
+
+	/*std::thread logic(&Engine::Update, Engine());
+	std::thread renderer(&Engine::RenderFrame, Engine());
+	logic.join();
+	renderer.join();*/
 
 	return 0;
 }

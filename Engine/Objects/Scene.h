@@ -22,7 +22,7 @@ public:
 
 	// -- Runtime (Game Logic) -- // 
 	bool OnStart();
-	void OnUpdate(float deltaTime);
+	void OnUpdate(const float & deltaTime);
 	void OnDestroy();
 
 	template<typename T>
