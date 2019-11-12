@@ -169,10 +169,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Components\Component.cpp" />
-    <ClCompile Include="Components\CPPScript.cpp" />
     <ClCompile Include="Components\EditorSelectionComponent.cpp" />
     <ClCompile Include="Components\LuaScriptComponent.cpp" />
     <ClCompile Include="Components\MeshRenderComponent.cpp" />
+    <ClCompile Include="Components\RigidBodyComponent.cpp" />
     <ClCompile Include="Editor\Editor.cpp" />
     <ClCompile Include="Graphics\ImGui\imgui.cpp" />
     <ClCompile Include="Graphics\ImGui\ImGuizmo.cpp" />
@@ -264,13 +264,14 @@
     <ClCompile Include="Graphics\Sprite.cpp" />
     <ClCompile Include="StringHelper.cpp" />
     <ClCompile Include="Graphics\Texture.cpp" />
+    <ClCompile Include="Systems\PhysicsSystem.cpp" />
     <ClCompile Include="Systems\RenderManager.cpp" />
     <ClCompile Include="Systems\TimeSystem.cpp" />
     <ClCompile Include="WindowContainer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Components\RigidBodyComponent.h" />
     <ClInclude Include="Components\Component.h" />
-    <ClInclude Include="Components\CPPScript.h" />
     <ClInclude Include="Components\EditorSelectionComponent.h" />
     <ClInclude Include="Components\LuaScriptComponent.h" />
     <ClInclude Include="Components\MeshRenderComponent.h" />
@@ -385,6 +386,7 @@
     <ClInclude Include="Graphics\Vertex.h" />
     <ClInclude Include="Graphics\VertexBuffer.h" />
     <ClInclude Include="Graphics\Texture.h" />
+    <ClInclude Include="Systems\PhysicsSystem.h" />
     <ClInclude Include="Systems\RenderManager.h" />
     <ClInclude Include="Systems\TimeSystem.h" />
     <ClInclude Include="WindowContainer.h" />

@@ -7,6 +7,7 @@
 #include "..\\Components\MeshRenderComponent.h"
 #include "..\\Components\\EditorSelectionComponent.h"
 #include "..\Components\LuaScriptComponent.h"
+#include "..\Components\RigidBodyComponent.h"
 #include "..\Graphics\Material.h"
 
 #include "..\Objects\Player.h"
@@ -147,8 +148,6 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 		
 		// LUA SCRIPT(s)
 		const rapidjson::Value& luaScript = allComponents[1]["LuaScript"];
-		std::string scriptFilePath;
-		json::get_string(luaScript[0], "FilePath", scriptFilePath);
 		entity->AddComponent<LuaScript>()->InitFromJSON(entity, luaScript);
 
 		// EDITOR SELECTION
@@ -161,6 +160,20 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 		if(canBeSelected)
 			entity->AddComponent<EditorSelection>()->InitFromJSON(entity, editorSelection);
 		entity->SetHasEditorSelection(canBeSelected);
+
+		// RIGID BODY
+		const rapidjson::Value& rigidBody = allComponents[3]["RigidBody"];
+		std::string hasPhysics;
+		RigidBody* ps = nullptr;
+		json::get_string(rigidBody[0], "ColliderType", hasPhysics);
+		if (hasPhysics != "NONE")
+		{
+			ps = entity->AddComponent<RigidBody>();
+			ps->InitFromJSON(entity, rigidBody);
+
+			scene->GetPhysicsSystem().AddEntity(ps);
+		}
+
 
 		scene->AddEntity(entity);
 

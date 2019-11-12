@@ -99,6 +99,8 @@ public:
 	void SetHasMeshRenderer(bool value) { m_hasMeshRenderer = value; }
 	bool HasEditorSelection() { return m_hasEditorSelection; }
 	void SetHasEditorSelection(bool value) { m_hasEditorSelection = value; }
+	bool HasPhysics() { return m_hasPhysics; }
+	void SetHasPhysics(bool value) { m_hasPhysics = value; }
 
 protected:
 	eState m_state = eState::ACTIVE;
@@ -114,4 +116,5 @@ protected:
 	bool m_hasLuaScript = true;
 	bool m_hasMeshRenderer = true;
 	bool m_hasEditorSelection = true;
+	bool m_hasPhysics = true;
 };

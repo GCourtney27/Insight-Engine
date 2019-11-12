@@ -25,37 +25,40 @@ namespace Debug
 
 	void Editor::Update(float deltaTime)
 	{
-		
-		float camera3DSpeed = 30.0f;
-		if (InputManager::Instance()->keyboard.KeyIsPressed(VK_SHIFT))
+		if (!m_playingGame)
 		{
-			camera3DSpeed = 70.0f;
-		}
+			float camera3DSpeed = 30.0f;
+			if (InputManager::Instance()->keyboard.KeyIsPressed(VK_SHIFT))
+			{
+				camera3DSpeed = 70.0f;
+			}
 
-		if (InputManager::Instance()->keyboard.KeyIsPressed('W'))
-		{
-			Graphics::Instance()->editorCamera.GetTransform().AdjustPosition(Graphics::Instance()->editorCamera.GetTransform().GetForwardVector() * camera3DSpeed * deltaTime);
+			if (InputManager::Instance()->keyboard.KeyIsPressed('W'))
+			{
+				Graphics::Instance()->editorCamera.GetTransform().AdjustPosition(Graphics::Instance()->editorCamera.GetTransform().GetForwardVector() * camera3DSpeed * deltaTime);
+			}
+			if (InputManager::Instance()->keyboard.KeyIsPressed('S'))
+			{
+				Graphics::Instance()->editorCamera.GetTransform().AdjustPosition(Graphics::Instance()->editorCamera.GetTransform().GetBackwardVector() * camera3DSpeed * deltaTime);
+			}
+			if (InputManager::Instance()->keyboard.KeyIsPressed('A'))
+			{
+				Graphics::Instance()->editorCamera.GetTransform().AdjustPosition(Graphics::Instance()->editorCamera.GetTransform().GetLeftVector() * camera3DSpeed * deltaTime);
+			}
+			if (InputManager::Instance()->keyboard.KeyIsPressed('D'))
+			{
+				Graphics::Instance()->editorCamera.GetTransform().AdjustPosition(Graphics::Instance()->editorCamera.GetTransform().GetRightVector() * camera3DSpeed * deltaTime);
+			}
+			if (InputManager::Instance()->keyboard.KeyIsPressed('E'))
+			{
+				Graphics::Instance()->editorCamera.GetTransform().AdjustPosition(0.0f, camera3DSpeed * deltaTime, 0.0f);
+			}
+			if (InputManager::Instance()->keyboard.KeyIsPressed('Q'))
+			{
+				Graphics::Instance()->editorCamera.GetTransform().AdjustPosition(0.0f, -camera3DSpeed * deltaTime, 0.0f);
+			}
 		}
-		if (InputManager::Instance()->keyboard.KeyIsPressed('S'))
-		{
-			Graphics::Instance()->editorCamera.GetTransform().AdjustPosition(Graphics::Instance()->editorCamera.GetTransform().GetBackwardVector() * camera3DSpeed * deltaTime);
-		}
-		if (InputManager::Instance()->keyboard.KeyIsPressed('A'))
-		{
-			Graphics::Instance()->editorCamera.GetTransform().AdjustPosition(Graphics::Instance()->editorCamera.GetTransform().GetLeftVector() * camera3DSpeed * deltaTime);
-		}
-		if (InputManager::Instance()->keyboard.KeyIsPressed('D'))
-		{
-			Graphics::Instance()->editorCamera.GetTransform().AdjustPosition(Graphics::Instance()->editorCamera.GetTransform().GetRightVector() * camera3DSpeed * deltaTime);
-		}
-		if (InputManager::Instance()->keyboard.KeyIsPressed('E'))
-		{
-			Graphics::Instance()->editorCamera.GetTransform().AdjustPosition(0.0f, camera3DSpeed * deltaTime, 0.0f);
-		}
-		if (InputManager::Instance()->keyboard.KeyIsPressed('Q'))
-		{
-			Graphics::Instance()->editorCamera.GetTransform().AdjustPosition(0.0f, -camera3DSpeed * deltaTime, 0.0f);
-		}
+		
 
 		/*Raycasting*/
 		if (InputManager::Instance()->mouse.IsLeftDown())

@@ -252,9 +252,6 @@
     <ClCompile Include="Components\LuaScriptComponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
-    <ClCompile Include="Components\CPPScript.cpp">
-      <Filter>Source Files\Components</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\Texture.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
@@ -337,6 +334,12 @@
       <Filter>Source Files\Graphics\Materials</Filter>
     </ClCompile>
     <ClCompile Include="Systems\RenderManager.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\RigidBodyComponent.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Systems\PhysicsSystem.cpp">
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
   </ItemGroup>
@@ -505,9 +508,6 @@
     </ClInclude>
     <ClInclude Include="Graphics\ImGui\imstb_truetype.h">
       <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Components\CPPScript.h">
-      <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\SimpleShader.h">
       <Filter>Header Files\Graphics</Filter>
@@ -696,6 +696,12 @@
       <Filter>Resource Files\Application</Filter>
     </ClInclude>
     <ClInclude Include="Systems\RenderManager.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\RigidBodyComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Systems\PhysicsSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
   </ItemGroup>

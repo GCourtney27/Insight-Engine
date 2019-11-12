@@ -1,6 +1,7 @@
 #pragma once
 #include "ID.h"
 #include "..\Systems\RenderManager.h"
+#include "..\Systems\PhysicsSystem.h"
 #include <list>
 #include <assert.h>
 #include <DirectXMath.h>
@@ -43,9 +44,12 @@ public:
 	void SetSceneName(std::string name) { m_name = name; }
 
 	RenderManager& GetRenderManager() { return m_renderManager; }
+	PhysicsSystem& GetPhysicsSystem() { return m_physicsSystem; }
 
 protected:
 	RenderManager m_renderManager;
+	PhysicsSystem m_physicsSystem;
+
 	std::list<Entity*> m_entities;
 	std::string m_name;
 	std::string m_sceneDiretory;

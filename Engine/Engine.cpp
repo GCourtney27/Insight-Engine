@@ -32,7 +32,8 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	//PBR_UnTexturedShowcase
 	//Norway
 	//Test
-	if (!FileSystem::Instance()->LoadSceneFromJSON("..\\Assets\\Scenes\\Test.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext()))
+	//PhysicsTest
+	if (!FileSystem::Instance()->LoadSceneFromJSON("..\\Assets\\Scenes\\PhysicsTest.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext()))
 	{
 		ErrorLogger::Log("Failed to initialize scene.");
 		return false;
