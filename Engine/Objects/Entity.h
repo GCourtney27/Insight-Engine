@@ -35,7 +35,7 @@ public:
 	// -- Editor Specific methods (Engine) -- //
 	virtual bool Initialize(); // Called once when Engine starts
 	virtual void Update(const float& deltaTime); // Update things like editor click sphere
-	virtual void Draw(const XMMATRIX & viewProjectionMatrix, const XMMATRIX & viewMatrix); // Draw mesh renderer for componet, needs to be seen in editor and play mode
+	virtual void Draw(const XMMATRIX & projectionMatrix, const XMMATRIX & viewMatrix); // Draw mesh renderer for componet, needs to be seen in editor and play mode
 	virtual void Destroy(); // Unload resources
 
 	// -- Runtime Methods (Components / Game Logic) -- //
@@ -93,6 +93,12 @@ public:
 	void UpdateTransformCopyWithTransform() { m_origionalTransform = m_transform; }
 	void UpdateTransformWithCopy() { m_transform = m_origionalTransform; }
 	
+	bool HasLuaScript() { return m_hasLuaScript; }
+	void SetHasLuaScript(bool value) { m_hasLuaScript = value; }
+	bool HasMeshRenderer() { return m_hasMeshRenderer; }
+	void SetHasMeshRenderer(bool value) { m_hasMeshRenderer = value; }
+	bool HasEditorSelection() { return m_hasEditorSelection; }
+	void SetHasEditorSelection(bool value) { m_hasEditorSelection = value; }
 
 protected:
 	eState m_state = eState::ACTIVE;
@@ -103,5 +109,9 @@ protected:
 	Transform m_transform;
 	Transform m_origionalTransform;
 	Scene* m_scene = nullptr;
+
 	std::vector<Component*> m_components;
+	bool m_hasLuaScript = true;
+	bool m_hasMeshRenderer = true;
+	bool m_hasEditorSelection = true;
 };

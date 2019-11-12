@@ -34,33 +34,33 @@ namespace Debug
 
 		if (InputManager::Instance()->keyboard.KeyIsPressed('W'))
 		{
-			Graphics::Instance()->editorCamera.AdjustPosition(Graphics::Instance()->editorCamera.GetForwardVector() * camera3DSpeed * deltaTime);
+			Graphics::Instance()->editorCamera.GetTransform().AdjustPosition(Graphics::Instance()->editorCamera.GetTransform().GetForwardVector() * camera3DSpeed * deltaTime);
 		}
 		if (InputManager::Instance()->keyboard.KeyIsPressed('S'))
 		{
-			Graphics::Instance()->editorCamera.AdjustPosition(Graphics::Instance()->editorCamera.GetBackwardVector() * camera3DSpeed * deltaTime);
+			Graphics::Instance()->editorCamera.GetTransform().AdjustPosition(Graphics::Instance()->editorCamera.GetTransform().GetBackwardVector() * camera3DSpeed * deltaTime);
 		}
 		if (InputManager::Instance()->keyboard.KeyIsPressed('A'))
 		{
-			Graphics::Instance()->editorCamera.AdjustPosition(Graphics::Instance()->editorCamera.GetLeftVector() * camera3DSpeed * deltaTime);
+			Graphics::Instance()->editorCamera.GetTransform().AdjustPosition(Graphics::Instance()->editorCamera.GetTransform().GetLeftVector() * camera3DSpeed * deltaTime);
 		}
 		if (InputManager::Instance()->keyboard.KeyIsPressed('D'))
 		{
-			Graphics::Instance()->editorCamera.AdjustPosition(Graphics::Instance()->editorCamera.GetRightVector() * camera3DSpeed * deltaTime);
+			Graphics::Instance()->editorCamera.GetTransform().AdjustPosition(Graphics::Instance()->editorCamera.GetTransform().GetRightVector() * camera3DSpeed * deltaTime);
 		}
 		if (InputManager::Instance()->keyboard.KeyIsPressed('E'))
 		{
-			Graphics::Instance()->editorCamera.AdjustPosition(0.0f, camera3DSpeed * deltaTime, 0.0f);
+			Graphics::Instance()->editorCamera.GetTransform().AdjustPosition(0.0f, camera3DSpeed * deltaTime, 0.0f);
 		}
 		if (InputManager::Instance()->keyboard.KeyIsPressed('Q'))
 		{
-			Graphics::Instance()->editorCamera.AdjustPosition(0.0f, -camera3DSpeed * deltaTime, 0.0f);
+			Graphics::Instance()->editorCamera.GetTransform().AdjustPosition(0.0f, -camera3DSpeed * deltaTime, 0.0f);
 		}
 
 		/*Raycasting*/
 		if (InputManager::Instance()->mouse.IsLeftDown())
 		{
-			SimpleMath::Vector3 cameraPosition = Graphics::Instance()->editorCamera.GetPosition();
+			SimpleMath::Vector3 cameraPosition = Graphics::Instance()->editorCamera.GetTransform().GetPosition();
 			SimpleMath::Vector3 mouseVector = GetMouseDirectionVector();
 			Ray* raycast = new Ray(cameraPosition, mouseVector);
 			

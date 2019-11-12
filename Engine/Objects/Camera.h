@@ -4,6 +4,7 @@
 class Camera : public Entity
 {
 public:
+	Camera();
 	Camera(Scene* scene, const ID& id)
 		: Entity(scene, id) 
 	{

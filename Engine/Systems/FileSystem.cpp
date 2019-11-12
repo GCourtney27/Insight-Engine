@@ -126,23 +126,30 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 		const rapidjson::Value& meshRenderer = allComponents[0]["MeshRenderer"];
 		bool foundModel = false;
 		std::string model_FilePath;
+		MeshRenderer* mr = nullptr;
 		json::get_string(meshRenderer[0], "Model", model_FilePath);
 		if (model_FilePath != "NONE" && !foundModel)
 			foundModel = true;
-		if(foundModel)
-			entity->AddComponent<MeshRenderer>()->InitFromJSON(entity, meshRenderer);
-		
+		if (foundModel)
+		{
+			mr = entity->AddComponent<MeshRenderer>();
+			mr->InitFromJSON(entity, meshRenderer);
+
+			// Determine what kind of material the object posseses
+			// so they can be drawn in the apropriat order in the render pipeline
+			if (mr->GetModel()->GetMaterial()->GetMaterialFlags() == Material::eFlags::FOLIAGE)
+				scene->GetRenderManager().AddFoliageObject(mr);
+			
+			if (mr->GetModel()->GetMaterial()->GetMaterialFlags() == Material::eFlags::NOFLAGS)
+				scene->GetRenderManager().AddOpaqueObject(mr);
+		}
+		entity->SetHasMeshRenderer(foundModel);
 		
 		// LUA SCRIPT(s)
 		const rapidjson::Value& luaScript = allComponents[1]["LuaScript"];
-		bool foundScript = false;
 		std::string scriptFilePath;
 		json::get_string(luaScript[0], "FilePath", scriptFilePath);
-		if (scriptFilePath != "NONE")
-			foundScript = true;
-		if (foundScript)
-			entity->AddComponent<LuaScript>()->InitFromJSON(entity, luaScript);
-		
+		entity->AddComponent<LuaScript>()->InitFromJSON(entity, luaScript);
 
 		// EDITOR SELECTION
 		const rapidjson::Value& editorSelection = allComponents[2]["EditorSelection"];
@@ -153,7 +160,7 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 			canBeSelected = true;
 		if(canBeSelected)
 			entity->AddComponent<EditorSelection>()->InitFromJSON(entity, editorSelection);
-
+		entity->SetHasEditorSelection(canBeSelected);
 
 		scene->AddEntity(entity);
 

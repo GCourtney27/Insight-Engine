@@ -22,12 +22,14 @@ void Scene::Update(const float& deltaTime)
 	}
 }
 
-void Scene::Draw(const DirectX::XMMATRIX & viewProjectionMatrix, const DirectX::XMMATRIX & viewMatrix)
+void Scene::Draw(const DirectX::XMMATRIX & projectionMatrix, const DirectX::XMMATRIX & viewMatrix)
 {
-	for (Entity* entity : m_entities)
+	m_renderManager.Draw(projectionMatrix, viewMatrix);
+
+	/*for (Entity* entity : m_entities)
 	{
-		entity->Draw(viewProjectionMatrix, viewMatrix);
-	}
+		entity->Draw(projectionMatrix, viewMatrix);
+	}*/
 }
 
 void Scene::Shutdown()

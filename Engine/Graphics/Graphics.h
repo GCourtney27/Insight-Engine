@@ -1,7 +1,6 @@
 #pragma once
 #include "AdapterReader.h"
 #include "Shaders.h"
-#include "Camera3D.h"
 #include "Light.h"
 #include "Camera2D.h"
 #include "Sprite.h"
@@ -32,7 +31,8 @@ public:
 	void Shutdown();
 	void InitialzeImGui(HWND hwnd);
 
-	Camera3D editorCamera;
+	//Camera3D editorCamera;
+	Camera editorCamera;
 
 	Camera2D camera2D;
 	Sprite sprite;

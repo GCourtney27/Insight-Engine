@@ -96,7 +96,7 @@ void Engine::Update()
 		{
 			if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
 			{
-				Graphics::Instance()->editorCamera.AdjustRotation((float)me.GetPosY() * 0.005f, (float)me.GetPosX() * 0.005f, 0);
+				Graphics::Instance()->editorCamera.GetTransform().AdjustRotation((float)me.GetPosY() * 0.005f, (float)me.GetPosX() * 0.005f, 0.0f);
 			}
 		}
 
@@ -120,8 +120,8 @@ void Engine::Update()
 
 	if (InputManager::Instance()->keyboard.KeyIsPressed('C'))
 	{
-		Graphics::Instance()->pointLight->GetTransform().SetPosition(Graphics::Instance()->editorCamera.GetPositionFloat3());
-		Graphics::Instance()->pointLight->GetTransform().SetRotation(Graphics::Instance()->editorCamera.GetRotationFloat3());
+		Graphics::Instance()->pointLight->GetTransform().SetPosition(Graphics::Instance()->editorCamera.GetTransform().GetPositionFloat3());
+		Graphics::Instance()->pointLight->GetTransform().SetRotation(Graphics::Instance()->editorCamera.GetTransform().GetRotationFloat3());
 	}
 	
 	if (m_canSave == false)

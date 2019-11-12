@@ -1,7 +1,6 @@
 #pragma once
 #include "ID.h"
 #include "..\Systems\RenderManager.h"
-#include <vector>
 #include <list>
 #include <assert.h>
 #include <DirectXMath.h>
@@ -11,13 +10,13 @@ class Entity;
 class Scene
 {
 public:
-	Scene() {}
-	~Scene() {}
+	Scene() {  }
+	~Scene() {  }
 
 	// -- Engine -- //
 	bool Initialize();
 	void Update(const float& deltaTime);
-	void Draw(const DirectX::XMMATRIX & viewProjectionMatrix, const DirectX::XMMATRIX & viewMatrix);
+	void Draw(const DirectX::XMMATRIX & projectionMatrix, const DirectX::XMMATRIX & viewMatrix);
 	void Shutdown();
 
 	// -- Runtime (Game Logic) -- // 
@@ -42,6 +41,8 @@ public:
 
 	std::string& GetSceneName() { return m_name; }
 	void SetSceneName(std::string name) { m_name = name; }
+
+	RenderManager& GetRenderManager() { return m_renderManager; }
 
 protected:
 	RenderManager m_renderManager;

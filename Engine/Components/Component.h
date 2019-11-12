@@ -18,6 +18,7 @@ public:
 	Component(Entity* owner, const ID& id = ID()) : m_owner(owner), Object(id) {}
 
 	virtual void Destroy() = 0;
+	virtual void Start() = 0;
 	virtual void Update(const float& deltaTime) = 0;
 	virtual void OnImGuiRender() = 0;
 	virtual void InitFromJSON(Entity* owner, const rapidjson::Value& componentInformation) = 0;

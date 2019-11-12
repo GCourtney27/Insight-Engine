@@ -354,14 +354,11 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Systems\BenchmarkingTimer.h" />
     <ClInclude Include="Systems\FileSystem.h" />
-    <ClInclude Include="Graphics\BaseScriptableGameObject.h" />
     <ClInclude Include="Graphics\Camera2D.h" />
     <ClInclude Include="Graphics\GameObject2D.h" />
-    <ClInclude Include="Graphics\GameObject3D.h" />
     <ClInclude Include="Graphics\Color.h" />
     <ClInclude Include="COMException.h" />
     <ClInclude Include="Graphics\GameObject.h" />
-    <ClInclude Include="Graphics\Camera3D.h" />
     <ClInclude Include="Graphics\ConstantBuffers.h" />
     <ClInclude Include="Graphics\ConstantBufferTypes.h" />
     <ClInclude Include="Graphics\AdapterReader.h" />
@@ -374,7 +371,6 @@
     <ClInclude Include="Graphics\Mesh.h" />
     <ClInclude Include="Graphics\Light.h" />
     <ClInclude Include="Math\Transform.h" />
-    <ClInclude Include="Graphics\RenderableGameObject.h" />
     <ClInclude Include="Objects\Entity.h" />
     <ClInclude Include="Objects\ID.h" />
     <ClInclude Include="Objects\Object.h" />

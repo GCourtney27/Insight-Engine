@@ -11,20 +11,8 @@ void LuaScript::InitFromJSON(Entity* owner, const rapidjson::Value& componentInf
 		json::get_string(componentInformation[l], "FilePath", scriptFilePath);
 	}
 
-	this->Initialize(owner, scriptFilePath.c_str());
+	this->Initialize(owner, scriptFilePath);
 
-	/*LuaScript* finalScript = nullptr;
-	std::string scriptFilePath;
-	for (rapidjson::SizeType l = 0; l < luaScript.Size(); l++)
-	{
-		json::get_string(luaScript[l], "FilePath", scriptFilePath);
-		if (scriptFilePath != "NONE")
-			finalScript = entity->AddComponent<LuaScript>();
-		else
-			break;
-	}
-	if (finalScript != nullptr)
-		finalScript->Initialize(entity, scriptFilePath);*/
 }
 
 void LuaScript::WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
@@ -46,6 +34,9 @@ bool LuaScript::Initialize(Entity* owner, std::string scriptFile)
 	filePath = scriptFile;
 	SetName("Lua Script");
 
+	if (scriptFile == "NONE")
+		owner->SetHasLuaScript(false);
+
 	luaState = LuaPlus::LuaState::Create();
 
 	// Set Lua Function Calls
@@ -62,18 +53,26 @@ bool LuaScript::Initialize(Entity* owner, std::string scriptFile)
 	return true;
 }
 
+void LuaScript::Start()
+{
+	if(this->m_owner->HasLuaScript())
+		luaState->DoFile(filePath.c_str());
+
+}
+
 void LuaScript::Update(const float& deltaTime)
 {
-	luaState->DoFile(filePath.c_str());
-	LuaPlus::LuaFunctionVoid LUpdate(luaState->GetGlobal("Update"));
-	LUpdate(deltaTime);
-	/*m_callDelay -= deltaTime;
+	if (!this->m_owner->HasLuaScript())
+		return;
+
+	m_callDelay -= deltaTime;
 	if (m_callDelay < 0.0f)
 	{
-		
+		LuaPlus::LuaFunctionVoid Lua_Update(luaState->GetGlobal("Update"));
+		Lua_Update(deltaTime);
 
 		m_callDelay = MAX_CALL_DELAY;
-	}*/
+	}
 
 }
 

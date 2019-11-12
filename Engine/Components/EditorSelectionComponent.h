@@ -19,6 +19,7 @@ public:
 	
 	void Initialize(Entity* owner, float radius, const DirectX::XMFLOAT3 & position);
 
+	void Start() override;
 	void Update(const float& deltaTime) override;
 	void Destroy() override;
 	//void Update(const DirectX::XMFLOAT3 parentPosition);

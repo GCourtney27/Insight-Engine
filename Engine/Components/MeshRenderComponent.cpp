@@ -70,6 +70,10 @@ void MeshRenderer::Draw(const XMMATRIX & projectionMatrix, const XMMATRIX & view
 		model.Draw(m_owner->GetTransform().GetWorldMatrix(), projectionMatrix, viewMatrix);
 }
 
+void MeshRenderer::Start()
+{
+}
+
 void MeshRenderer::Update(const float& deltaTime)
 {
 	m_deltaTime = deltaTime;

@@ -37,13 +37,13 @@ void Entity::Update(const float& deltaTime)
 	m_transform.Update();
 }
 
-void Entity::Draw(const XMMATRIX & viewProjectionMatrix, const XMMATRIX & viewMatrix)
+void Entity::Draw(const XMMATRIX & projectionMatrix, const XMMATRIX & viewMatrix)
 {
 	MeshRenderer* mr = GetComponent<MeshRenderer>();
 
 	if (mr != nullptr)
 	{
-		mr->Draw(viewProjectionMatrix, viewMatrix);
+		mr->Draw(projectionMatrix, viewMatrix);
 	}
 }
 
@@ -59,7 +59,10 @@ void Entity::Destroy()
 
 void Entity::OnStart()
 {
-
+	for (Component* component : m_components)
+	{
+		component->Start();
+	}
 }
 
 void Entity::OnUpdate(const float& deltaTime)

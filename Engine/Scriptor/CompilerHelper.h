@@ -1,5 +1,5 @@
 #pragma once
-#include "../Graphics/BaseScriptableGameObject.h"
+//#include "../Graphics/BaseScriptableGameObject.h"
 #include "..\Objects\Entity.h"
 
 typedef void(*VoidMethod_t)();

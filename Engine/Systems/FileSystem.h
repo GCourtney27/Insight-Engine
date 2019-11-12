@@ -4,7 +4,6 @@
 #include <fstream>
 #include <strstream>
 #include "..\\Engine.h"
-#include "..\\Graphics\RenderableGameObject.h"
 #include "..\\Objects\\Scene.h"
 #include "..\\Objects\\Entity.h"
 #include "..\\Framework\\Singleton.h"

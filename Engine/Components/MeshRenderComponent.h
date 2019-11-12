@@ -11,7 +11,7 @@ public:
 	bool Initialize(Entity* owner, const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_PerObject> & CB_VS_PerObject, Material * material);
 	void Draw(const XMMATRIX & viewProjectionMatrix, const XMMATRIX & viewMatrix);
 	
-	
+	void Start() override;
 	void Update(const float& deltaTime) override;
 	void Destroy() override;
 	void OnImGuiRender() override;

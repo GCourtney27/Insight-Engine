@@ -40,6 +40,13 @@ public:
 	// Returns Scale of object in local space
 	XMFLOAT3 & GetScale() { return this->scale; }
 
+	//Returns Position Vector
+	XMVECTOR & GetPositionVectorRef() { return this->posVector; }
+	//Returns Rotation Vector
+	XMVECTOR & GetRotationVectorRef() { return this->rotVector; }
+	//Returns Scale Vector
+	XMVECTOR & GetRotationScaleRef() { return this->scaleVector; }
+
 	// Return but do not grant modification
 	// (Const) Returns Position Vector of object in local Space
 	const XMVECTOR & GetPositionVector() const;
@@ -133,6 +140,13 @@ public:
 
 	void SetParent(Transform* parent) { m_pParent = parent; }
 
+	const XMVECTOR GetDefaultUpVector() const { return DEFAULT_UP_VECTOR; }
+	const XMVECTOR GetDefaultDownVector() const { return DEFAULT_DOWN_VECTOR; }
+	const XMVECTOR GetDefaultLeftVector() const { return DEFAULT_LEFT_VECTOR; }
+	const XMVECTOR GetDefaultRightVector() const { return DEFAULT_RIGHT_VECTOR; }
+	const XMVECTOR GetDefaultForwardVector() const { return DEFAULT_FOREWARD_VECTOR; }
+	const XMVECTOR GetDefaultBackwardVector() const { return DEFAULT_BACKWARD_VECTOR; }
+
 protected:
 
 	void UpdateMatrix();
@@ -151,7 +165,6 @@ protected:
 	XMFLOAT3 pos;
 	XMFLOAT3 rot;
 	XMFLOAT3 scale;
-
 
 	const XMVECTOR DEFAULT_FOREWARD_VECTOR = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 	const XMVECTOR DEFAULT_BACKWARD_VECTOR = XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);

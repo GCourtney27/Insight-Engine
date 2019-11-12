@@ -284,7 +284,7 @@ void Graphics::RenderFrame()
 	if (Debug::Editor::Instance()->PlayingGame())
 		cb_ps_PerFrame.data.camPosition = m_pEngine->GetPlayer()->GetPlayerCamera()->GetTransform().GetPosition();
 	else
-		cb_ps_PerFrame.data.camPosition = editorCamera.GetPosition();
+		cb_ps_PerFrame.data.camPosition = editorCamera.GetTransform().GetPosition();
 	cb_ps_PerFrame.ApplyChanges();
 
 	// -- Update Vertex Shader Per Frame Informaiton -- //
@@ -435,7 +435,7 @@ void Graphics::RenderFrame()
 void Graphics::Update(const float& deltaTime)
 {
 	m_deltaTime = deltaTime;
-
+	editorCamera.Update(deltaTime);
 }
 
 void Graphics::Shutdown()
@@ -529,6 +529,8 @@ bool Graphics::InitializeScene()
 		hr = cb_ps_directionalLight.Initialize(pDevice.Get(), pDeviceContext.Get());
 		COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer for directional light for use in pixel shader.");
 
+		//editorCamera.Initialize(&m_pEngine->GetScene(), (*new ID("EditorCamera")));
+
 		// Initialize light shader values
 		cb_ps_light.data.ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 		cb_ps_light.data.ambientLightStrength = 0.268f;
@@ -537,7 +539,7 @@ bool Graphics::InitializeScene()
 		cb_ps_directionalLight.data.Strength = 1.0f;
 		cb_ps_directionalLight.data.Direction = XMFLOAT3(0.25f, 0.5f, -1.0f);
 
-		cb_ps_PerFrame.data.camPosition = editorCamera.GetPosition();
+		cb_ps_PerFrame.data.camPosition = editorCamera.GetTransform().GetPosition();
 		cb_ps_PerFrame.data.deltaTime = 0.5f;
 
 		cb_vs_PerFrame.data.deltaTime = 0.5f;
@@ -556,7 +558,7 @@ bool Graphics::InitializeScene()
 		}
 		camera2D.SetProjectionValues((float)windowWidth, (float)windowHeight, 0.0f, 1.0f);
 
-		editorCamera.SetPosition(DirectX::XMFLOAT3(0.0f, 5.0f, -40.0f));
+		editorCamera.GetTransform().SetPosition(DirectX::XMFLOAT3(0.0f, 5.0f, -40.0f));
 		editorCamera.SetProjectionValues(80.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 4000.0f);
 
 	}
