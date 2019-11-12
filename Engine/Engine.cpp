@@ -30,9 +30,10 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	//============= Choose from these scenes
 	//PBR_TexturedShowcase
 	//PBR_UnTexturedShowcase
-	//Norway
+	//Norway - Disable physics for this level!
 	//Test
 	//PhysicsTest
+	scene.SetPhysicsEnabled(true);
 	if (!FileSystem::Instance()->LoadSceneFromJSON("..\\Assets\\Scenes\\PhysicsTest.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext()))
 	{
 		ErrorLogger::Log("Failed to initialize scene.");

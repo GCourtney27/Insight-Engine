@@ -37,7 +37,7 @@ namespace Debug
 		void PlayGame() 
 		{
 			m_playingGame = true; 
-			if (m_clearConsoleOnPlay && !m_playingGame) ClearConsole();
+			if (m_clearConsoleOnPlay) ClearConsole();
 			m_pEngine->OnGameStart();
 		}
 		void StopGame() 
@@ -68,7 +68,7 @@ namespace Debug
 		bool m_isEditorEnabled = true;
 		bool m_playingGame = false;
 
-		bool m_clearConsoleOnPlay = false;
+		bool m_clearConsoleOnPlay = true;
 
 		std::string m_debugLog;
 	};

@@ -27,11 +27,6 @@ bool Graphics::Initialize(HWND hwnd, int width, int height, Engine* engine)
 	pointLight->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
 	pointLight->GetTransform().SetScale(1.0f, 1.0f, 1.0f);
 
-	directionalLight = new DirectionalLight(&(m_pEngine->GetScene()), *(new ID("Directional Light")));
-	directionalLight->GetTransform().SetPosition(DirectX::XMFLOAT3(0.0f, 200.0f, -100.0f));
-	directionalLight->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
-	directionalLight->GetTransform().SetScale(1.0f, 1.0f, 1.0f);
-
 	MeshRenderer* mr = pointLight->AddComponent<MeshRenderer>();
 	mr->Initialize(pointLight, "..\\Assets\\Objects\\Primatives\\Sphere.fbx", Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader(), m_pMaterial);
 	EditorSelection* es = pointLight->AddComponent<EditorSelection>();
@@ -679,7 +674,7 @@ void Graphics::UpdateImGuiWidgets()
 	}
 	ImGui::End();
 
-	ImGui::Begin("Scene Heirarchy");
+	ImGui::Begin("World Outliner");
 	{
 		std::list<Entity*>::iterator iter;
 		for (iter = entities->begin(); iter != entities->end(); iter++)
@@ -703,12 +698,6 @@ void Graphics::UpdateImGuiWidgets()
 		static bool clearOnPlay = Editor::Instance()->GetClearConsoleOnPlay();
 		if (ImGui::Checkbox("Clear on play", &clearOnPlay))
 		{
-			clearOnPlay = true;
-			Editor::Instance()->SetCLearConsoleOnPlay(clearOnPlay);
-		}
-		else
-		{
-			clearOnPlay = false;
 			Editor::Instance()->SetCLearConsoleOnPlay(clearOnPlay);
 		}
 

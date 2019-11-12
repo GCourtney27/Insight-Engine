@@ -16,7 +16,8 @@ bool Scene::Initialize()
 
 void Scene::Update(const float& deltaTime)
 {
-	m_physicsSystem.Simulate(deltaTime);
+	if(m_physicsEnabled)
+		m_physicsSystem.Simulate(deltaTime);
 
 	for (Entity* entity : m_entities)
 	{

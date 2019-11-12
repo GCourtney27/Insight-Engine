@@ -53,15 +53,23 @@ void RigidBody::Start()
 
 void RigidBody::Update(const float & deltaTime)
 {
+	
 	m_position = m_owner->GetTransform().GetPosition();
 }
 
 void RigidBody::OnImGuiRender()
 {
 	ImGui::Text(GetName());
-
+	static bool isRBEnabled = this->GetIsComponentEnabled();
+	if (ImGui::Checkbox("Is Physics Enabled", &isRBEnabled))
+	{
+		this->SetComponentEnabled(isRBEnabled);
+	}
+	ImGui::Text("Colider Type: ");
+	ImGui::SameLine();
 	ImGui::Text(GetGetColliderTypeAsString().c_str());
-	ImGui::DragFloat("Collider Radius", &m_sphereRadius, 0.01f, 0.0f, 100.0f);
+
+	ImGui::DragFloat("Radius", &m_sphereRadius, 0.01f, 0.0f, 100.0f);
 
 }
 

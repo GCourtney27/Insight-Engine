@@ -12,10 +12,13 @@ namespace Debug
 
 		std::list<Entity*>* entities = m_pEngine->GetScene().GetAllEntities();
 		std::list<Entity*>::iterator iter;
+		int i = 0;
 		for (iter = entities->begin(); iter != entities->end(); iter++)
 		{
-			m_pSelectedEntity = (*iter);
-			break;
+			m_pSelectedEntity = (*iter); 
+			i++;
+			if(i == 3)
+				break;
 		}
 
 		m_debugLog = "";

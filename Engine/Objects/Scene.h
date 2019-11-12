@@ -46,8 +46,13 @@ public:
 	RenderManager& GetRenderManager() { return m_renderManager; }
 	PhysicsSystem& GetPhysicsSystem() { return m_physicsSystem; }
 
+	bool& IsPhysicsEnabled() { return m_physicsEnabled; }
+	void SetPhysicsEnabled(bool enable) { m_physicsEnabled = enable; }
+
 protected:
 	RenderManager m_renderManager;
+
+	bool m_physicsEnabled = false;
 	PhysicsSystem m_physicsSystem;
 
 	std::list<Entity*> m_entities;

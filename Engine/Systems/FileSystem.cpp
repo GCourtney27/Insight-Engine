@@ -162,16 +162,19 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 		entity->SetHasEditorSelection(canBeSelected);
 
 		// RIGID BODY
-		const rapidjson::Value& rigidBody = allComponents[3]["RigidBody"];
-		std::string hasPhysics;
-		RigidBody* ps = nullptr;
-		json::get_string(rigidBody[0], "ColliderType", hasPhysics);
-		if (hasPhysics != "NONE")
+		if (scene->IsPhysicsEnabled())
 		{
-			ps = entity->AddComponent<RigidBody>();
-			ps->InitFromJSON(entity, rigidBody);
+			const rapidjson::Value& rigidBody = allComponents[3]["RigidBody"];
+			std::string hasPhysics;
+			RigidBody* ps = nullptr;
+			json::get_string(rigidBody[0], "ColliderType", hasPhysics);
+			if (hasPhysics != "NONE")
+			{
+				ps = entity->AddComponent<RigidBody>();
+				ps->InitFromJSON(entity, rigidBody);
 
-			scene->GetPhysicsSystem().AddEntity(ps);
+				scene->GetPhysicsSystem().AddEntity(ps);
+			}
 		}
 
 

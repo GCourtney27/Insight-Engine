@@ -20,7 +20,7 @@ void Player::InitializeCamera(Scene* scene)
 	
 	m_pCamera->SetProjectionValues(80.0f, static_cast<float>(1600) / static_cast<float>(900), 0.1f, 1000.0f);
 
-	m_pCamera->GetTransform().SetPosition(DirectX::XMFLOAT3(0.0f, 10.0f, -10.0f));
+	m_pCamera->GetTransform().SetPosition(DirectX::XMFLOAT3(-25.0f, 10.0f, -28.0f));
 	m_pCamera->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
 	m_pCamera->GetTransform().SetScale(1.0f, 1.0f, 1.0f);
 
@@ -36,7 +36,8 @@ void Player::InitializeCamera(Scene* scene)
 	EditorSelection* es = m_pCamera->AddComponent<EditorSelection>();
 	es->Initialize(m_pCamera, 10.0f, m_pCamera->GetTransform().GetPosition());
 	m_pCamera->SetCanBeJSONSaved(false);
-
+	
+	//scene->GetRenderManager().AddOpaqueObject(mr);
 	scene->AddEntity(m_pCamera);// !!!!!!!!!!!!!!!!!!!!!
 }
 

@@ -65,6 +65,9 @@ void LuaScript::Update(const float& deltaTime)
 	if (!this->m_owner->HasLuaScript())
 		return;
 
+	if (!this->GetIsComponentEnabled())
+		return;
+
 	m_callDelay -= deltaTime;
 	if (m_callDelay < 0.0f)
 	{
@@ -90,5 +93,10 @@ void LuaScript::OnImGuiRender()
 {
 	ImGui::Text(GetName());
 
+	static bool isLSEnabled = this->GetIsComponentEnabled();
+	if (ImGui::Checkbox("Is Script Enabled", &isLSEnabled))
+	{
+		this->SetComponentEnabled(isLSEnabled);
+	}
 }
 

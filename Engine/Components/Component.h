@@ -24,8 +24,8 @@ public:
 	virtual void InitFromJSON(Entity* owner, const rapidjson::Value& componentInformation) = 0;
 	virtual void WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) = 0;
 
-	bool& GetIsEnabled() { return m_enabled; }
-	void SetEnable(bool enable) { m_enabled = enable; }
+	bool& GetIsComponentEnabled() { return m_enabled; }
+	void SetComponentEnabled(bool enable) { m_enabled = enable; }
 
 	Entity* GetOwner() { return m_owner; }
 

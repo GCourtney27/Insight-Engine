@@ -57,7 +57,7 @@ bool MeshRenderer::Initialize(Entity* owner, const std::string & filepath, ID3D1
 		ErrorLogger::Log(error);
 		return false;
 	}
-	SetName("MeshRenderer");
+	SetName("Mesh Renderer");
 
 	return true;
 }
@@ -87,7 +87,7 @@ void MeshRenderer::OnImGuiRender()
 {
 	ImGui::Text(GetName());
 	static bool isComponentEnabled = GetIsDrawEnabled();
-	if (ImGui::Checkbox("Is Enabled", &isComponentEnabled))
+	if (ImGui::Checkbox("Is Draw Enabled", &isComponentEnabled))
 	{
 		this->SetIsDrawEnabled(isComponentEnabled);
 	}
@@ -96,6 +96,8 @@ void MeshRenderer::OnImGuiRender()
 	{
 		Material* pMat = model.GetMaterial();
 
+		ImGui::Text("Material Type: ");
+		ImGui::SameLine();
 		ImGui::Text(pMat->GetMaterialTypeAsString().c_str());
 
 		ImGui::DragFloat3("Color", &pMat->m_color.x, 0.1f, 0.0f, 255.0f);
