@@ -8,11 +8,9 @@ void RigidBody::InitFromJSON(Entity * owner, const rapidjson::Value & componentI
 	float radius = 0.0f;
 	std::string colliderType;
 
-	json::get_string(componentInformation[0], "ColiderType", colliderType);
-	json::get_float(componentInformation[0], "Radius", radius);
+	const rapidjson::Value & aabb = componentInformation[0]["AABB"];
+	m_collider.InitFromJSON(aabb);
 
-	m_sphereRadius = radius;
-	m_colliderType = GetColliderTypeFromString(colliderType);
 
 	this->Initialize(owner);
 }
@@ -20,6 +18,17 @@ void RigidBody::InitFromJSON(Entity * owner, const rapidjson::Value & componentI
 bool RigidBody::Initialize(Entity* owner)
 {
 	SetName("Rigid Body");
+
+	m_collider.Initialize(owner);
+
+	return true;
+}
+
+bool RigidBody::Initialize(Entity * owner, float radius, AABB::eColliderType colliderType)
+{
+	SetName("Rigid Body");
+
+	m_collider.Initialize(owner, 10.0f, AABB::eColliderType::SPHERE);
 
 	return true;
 }
@@ -29,15 +38,9 @@ void RigidBody::WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wr
 	writer.Key("RigidBody");
 	writer.StartArray();// Start Component
 
-	writer.StartObject();
-
-	writer.Key("ColliderType");
-	writer.String(this->GetGetColliderTypeAsString().c_str());
-
-	writer.Key("Radius");
-	writer.Double(m_sphereRadius);
-
-	writer.EndObject();
+		writer.StartObject();
+			m_collider.WriteToJSON(writer);
+		writer.EndObject();
 
 	writer.EndArray();//End Component
 }
@@ -53,8 +56,12 @@ void RigidBody::Start()
 
 void RigidBody::Update(const float & deltaTime)
 {
-	
-	m_position = m_owner->GetTransform().GetPosition();
+	m_collider.Update(deltaTime);
+
+	//DirectX::XMFLOAT3 newPos = m_owner->GetTransform().GetPosition();
+	//newPos += m_velocity;
+	//m_owner->GetTransform().GetPosition() = m_owner->GetTransform().GetPosition() + m_velocity;
+
 }
 
 void RigidBody::OnImGuiRender()
@@ -62,43 +69,14 @@ void RigidBody::OnImGuiRender()
 	ImGui::Text(GetName());
 	static bool isRBEnabled = this->GetIsComponentEnabled();
 	if (ImGui::Checkbox("Is Physics Enabled", &isRBEnabled))
-	{
 		this->SetComponentEnabled(isRBEnabled);
-	}
-	ImGui::Text("Colider Type: ");
-	ImGui::SameLine();
-	ImGui::Text(GetGetColliderTypeAsString().c_str());
 
-	ImGui::DragFloat("Radius", &m_sphereRadius, 0.01f, 0.0f, 100.0f);
+	m_collider.OnImGuiRender();
 
 }
 
-RigidBody::eColliderType RigidBody::GetColliderTypeFromString(std::string str_collider)
+void RigidBody::Translate(float x, float y, float z)
 {
-	std::map<std::string, eColliderType> stringToColliderType;
-
-	stringToColliderType["SPHERE"] = eColliderType::SPHERE;
-
-	std::map<std::string, eColliderType>::iterator iter;
-	for (iter = stringToColliderType.begin(); iter != stringToColliderType.end(); iter++)
-	{
-		if ((*iter).first == str_collider)
-			return (*iter).second;
-	}
-	return eColliderType::SPHERE;
 }
 
-std::string RigidBody::GetGetColliderTypeAsString()
-{
-	std::map<std::string, eColliderType> stringToColliderType;
-	stringToColliderType["SPHERE"] = eColliderType::SPHERE;
 
-	std::map<std::string, eColliderType>::iterator iter;
-	for (iter = stringToColliderType.begin(); iter != stringToColliderType.end(); iter++)
-	{
-		if ((*iter).second == this->m_colliderType)
-			return (*iter).first;
-	}
-
-	return "ERROR: Could not determine collider type";
-}

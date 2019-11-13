@@ -12,6 +12,8 @@ cbuffer perObjectBuffer : register(b0) // Uploaded via material
 cbuffer PerFrame : register(b1) // Uploaded via graphics.cpp
 {
 	float deltaTime;
+    float time;
+
 }
 
 cbuffer PerObjectUtil : register(b2) // Uploaded via material
@@ -40,6 +42,11 @@ struct VS_OUTPUT // What this shader returns to the pixel shader with VS_OUTPUT
     float3 outWorldPos : WORLD_POSITION;
 };
 
+float wave(float value, float frequency, float speed, float amplitude)
+{
+    return sin(value * frequency + speed) * amplitude;
+}
+
 VS_OUTPUT main(VS_INPUT input)
 {
     VS_OUTPUT output;
@@ -48,6 +55,11 @@ VS_OUTPUT main(VS_INPUT input)
     matrix worldView = mul(world, view);
 
     output.outPosition = mul(float4(input.inPosition, 1.0f), worldViewProj);
+    
+    //float4 objectSpacePos = float4(input.inPosition, 1.0f);
+    ////objectSpacePos.x += wave(objectSpacePos.x, vertOffset.x, deltaTime * vertOffset.y, vertOffset.z); // Works but only when object is selected
+    //objectSpacePos.x += wave(objectSpacePos.x, time, deltaTime * 1.0f, 1.0f);
+    //output.outPosition = mul(objectSpacePos, worldViewProj);
 
     //output.outNormal = mul(input.inPosition, (float3x3) worldView); // model space
     output.outNormal = normalize(mul(float4(input.inNormal, 0.0f), world));
@@ -58,6 +70,7 @@ VS_OUTPUT main(VS_INPUT input)
 	// Position offset
 	
     output.outWorldPos = mul(float4(input.inPosition, 1.0f), world);
+   
 
     //output.outTexCoord = input.inTexCoord;
 	// Texture Scrolling

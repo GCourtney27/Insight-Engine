@@ -63,6 +63,8 @@ public:
 
 	// All operations end up storing as a XMFLOAT3 to updata the local matrix
 
+
+
 	/* Position */
 	// Immediately set position with Vector, no blending can be done
 	void SetPosition(const XMVECTOR & pos);

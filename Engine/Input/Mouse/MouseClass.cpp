@@ -3,6 +3,7 @@
 void MouseClass::OnLeftPressed(int x, int y)
 {
 	this->leftIsDown = true;
+	this->leftIsHeld = true;
 	MouseEvent me(MouseEvent::EventType::LPress, x, y);
 	this->eventBuffer.push(me);
 }
@@ -10,6 +11,7 @@ void MouseClass::OnLeftPressed(int x, int y)
 void MouseClass::OnLeftReleased(int x, int y)
 {
 	this->leftIsDown = false;
+	this->leftIsHeld = false;
 	this->eventBuffer.push(MouseEvent(MouseEvent::EventType::LRelease, x, y));
 }
 
@@ -62,6 +64,11 @@ void MouseClass::OnMouseMoveRaw(int x, int y)
 bool MouseClass::IsLeftDown()
 {
 	return this->leftIsDown;
+}
+
+bool MouseClass::IsLeftHeld()
+{
+	return this->leftIsHeld;
 }
 
 bool MouseClass::IsMiddleDown()

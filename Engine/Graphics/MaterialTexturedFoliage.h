@@ -4,6 +4,7 @@
 class MaterialTexturedFoliage : public Material
 {
 public:
+	MaterialTexturedFoliage() {}
 	MaterialTexturedFoliage(eMaterialType materialType) { m_materialType = materialType; }
 	virtual bool Initiailze(ID3D11Device * device, ID3D11DeviceContext * deviceContext, const rapidjson::Value& assetsInformation, eFlags materialAttributeFlags) override;
 	bool Initiailze(ID3D11Device * device, ID3D11DeviceContext * deviceContext, eFlags materialAttributeFlags) override;

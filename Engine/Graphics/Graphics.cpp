@@ -1,8 +1,10 @@
 #include "Graphics.h"
-//#include "..\\Editor\\Editor.h"
 #include "..\Systems\FileSystem.h"
 #include "..\Input\InputManager.h"
 #include "..\Systems\BenchmarkingTimer.h"
+
+#include "MaterialTexturedFoliage.h"
+#include "..\Components\RigidBodyComponent.h"
 
 #include <cstdlib>
 #include <math.h>
@@ -33,7 +35,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height, Engine* engine)
 	es->Initialize(pointLight, 1.0f, pointLight->GetTransform().GetPosition());
 
 	directionalLight = new DirectionalLight(&(m_pEngine->GetScene()), *(new ID("Directional Light")));
-	directionalLight->GetTransform().SetPosition(DirectX::XMFLOAT3(0.0f, 100.0f, -100.0f));
+	directionalLight->GetTransform().SetPosition(DirectX::XMFLOAT3(0.0f, 1000.0f, -100.0f));
 	directionalLight->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
 	directionalLight->GetTransform().SetScale(1.0f, 1.0f, 1.0f);
 
@@ -89,15 +91,15 @@ void Graphics::InitSkybox()
 	MeshRenderer* me = skybox->AddComponent<MeshRenderer>();
 	me->Initialize(skybox, "..\\Assets\\Objects\\Primatives\\Sphere.fbx", pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader, nullptr);
 
-	HRESULT hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\NewportLoft_Diff.dds", nullptr, &skyboxTextureSRV);
+	HRESULT hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\skybox1_Diff.dds", nullptr, &skyboxTextureSRV);
 	if(FAILED(hr))
 		ErrorLogger::Log("Failed to load dds diffuse texture for skybox");
 
-	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\NewportLoft_EnvMap.dds", nullptr, &environmentMapSRV);
+	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\skybox1_EnvMap.dds", nullptr, &environmentMapSRV);
 	if (FAILED(hr))
 		ErrorLogger::Log("Failed to load dds texture for environment map");
 
-	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\NewportLoft_IR.dds", nullptr, &irradianceMapSRV);
+	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\skybox1_IR.dds", nullptr, &irradianceMapSRV);
 	if (FAILED(hr))
 		ErrorLogger::Log("Failed to load dds texture for irradiance map");
 
@@ -116,9 +118,10 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 
 		if (adapters.size() < 1)
 		{
-			ErrorLogger::Log("No IDXGI Adapters found.");
+			ErrorLogger::Log("No DirectX compatable adapters where found when initializing Direct3D 11.");
 			return false;
 		}
+
 
 		// -- Initialize Swap Chain -- //
 		DXGI_SWAP_CHAIN_DESC scd = { 0 };
@@ -139,12 +142,12 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 		scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 		HRESULT hr;
-		hr = D3D11CreateDeviceAndSwapChain(adapters[0].pAdapter, //IDXGI Adapter
+		hr = D3D11CreateDeviceAndSwapChain(adapters[1].pAdapter, //IDXGI Adapter: 0 for Intel gpu; 1 for NVIDIA
 			D3D_DRIVER_TYPE_UNKNOWN,
 			NULL, // NULL for software driver type
 			NULL, // Flags for runtime layers
 			NULL, // Feature levels array
-			0, //NUmber of Feature levels in array
+			0, //Number of Feature levels in array
 			D3D11_SDK_VERSION,
 			&scd, // Swapchain desciption
 			pSwapchain.GetAddressOf(), // Swapchain address
@@ -153,13 +156,13 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 			pDeviceContext.GetAddressOf()); // Device context address
 		COM_ERROR_IF_FAILED(hr, "Failed to create device swap chain.");
 		
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> pBackBuffer;
+		hr = pSwapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(pBackBuffer.GetAddressOf()));
+		COM_ERROR_IF_FAILED(hr, "Failed to set buffer for swap chain.");
 
-		hr = pSwapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf()));
-		COM_ERROR_IF_FAILED(hr, "GetBuffer Failed.");
+		hr = pDevice->CreateRenderTargetView(pBackBuffer.Get(), NULL, pRenderTargetView.GetAddressOf());
+		COM_ERROR_IF_FAILED(hr, "Failed to create render target view for back buffer.");
 
-		hr = pDevice->CreateRenderTargetView(backBuffer.Get(), NULL, pRenderTargetView.GetAddressOf());
-		COM_ERROR_IF_FAILED(hr, "Failed to create render target view.");
 
 		// Describe out Depth/Stencil Buffer
 		CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, windowWidth, windowHeight);
@@ -173,19 +176,21 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 
 		pDeviceContext->OMSetRenderTargets(1, pRenderTargetView.GetAddressOf(), pDepthStencilView.Get());
 		
+
 		// Create depth stencil state
 		CD3D11_DEPTH_STENCIL_DESC depthstancildesc(D3D11_DEFAULT); // Z Buffer
 		depthstancildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
 		hr = pDevice->CreateDepthStencilState(&depthstancildesc, pDepthStencilState.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Filaed to create depth stencil state.");
 
+
 		// Create and set the ViewPort
 		CD3D11_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(windowWidth), static_cast<float>(windowHeight));
 		pDeviceContext->RSSetViewports(1, &viewport);
 
+
 		// Create Rasterizer State/s
 		CD3D11_RASTERIZER_DESC rasterizerDesc(D3D11_DEFAULT);
-		//rasterizerDesc.CullMode = D3D11_CULL_MODE::D3D11_CULL_NONE; // Uncomment to draw both sides of the mesh
 		hr = pDevice->CreateRasterizerState(&rasterizerDesc, pRasterizerState.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create rasterizer state.");
 
@@ -193,7 +198,6 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 		rasterizerDescCULLNONE.CullMode = D3D11_CULL_MODE::D3D11_CULL_NONE; // Uncomment to draw both sides of the mesh
 		hr = pDevice->CreateRasterizerState(&rasterizerDescCULLNONE, pRasterizerStateCULLNONE.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create rasterizer state.");
-
 
 		D3D11_DEPTH_STENCIL_DESC dssDesc;
 		ZeroMemory(&dssDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
@@ -283,16 +287,9 @@ void Graphics::RenderFrame()
 	cb_ps_PerFrame.ApplyChanges();
 
 	// -- Update Vertex Shader Per Frame Informaiton -- //
-	//
-	////newUVOffset.x += 0.05f * m_deltaTime;
-	////newUVOffset.y += 0.05f * m_deltaTime;
-	////newVertOffset.x += (float)(sin((1.0f * m_deltaTime) * (PI / 180.0f)));;
-	////newVertOffset.y += (sin((1.0f * m_deltaTime) * PI / 180.0f));
-	////newVertOffset.y = 0.0f;
-	////newVertOffset.z = 0.0f;
-	//cb_vs_PerFrame.data.uvOffset = newUVOffset;
-	//cb_vs_PerFrame.data.vertOffset = newVertOffset;
 	cb_vs_PerFrame.data.deltaTime = m_deltaTime;
+	time = m_pEngine->GetFrameTimer().seconds();
+	cb_vs_PerFrame.data.time = time;
 	cb_vs_PerFrame.ApplyChanges();
 
 	// -- Set Pixel Shader Constant Buffers -- //
@@ -310,16 +307,17 @@ void Graphics::RenderFrame()
 	ImGui::NewFrame();
 	ImGui::DockSpaceOverViewport(0, ImGuiDockNodeFlags_PassthruCentralNode);
 	
-
 	// -- Clear Background Color for Scene -- //
 	float bgcolor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
 	pDeviceContext->ClearRenderTargetView(pRenderTargetView.Get(), bgcolor);
 	pDeviceContext->ClearDepthStencilView(pDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	if(m_drawWireframe)
-		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_LINELIST);//D3D10_PRIMITIVE_TOPOLOGY_LINELIST
+		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_LINELIST);
 	else
-		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);//D3D10_PRIMITIVE_TOPOLOGY_LINELIST
+		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	
+	//pDeviceContext->OMSetRenderTargets(1, )
+
 	// Set Rasterizer state to CULLNONE to draw skybox
 	pDeviceContext->RSSetState(pRasterizerStateCULLNONE.Get());
 
@@ -350,16 +348,30 @@ void Graphics::RenderFrame()
 	pDeviceContext->PSSetShaderResources(6, 1, &environmentMapSRV);
 	pDeviceContext->PSSetShaderResources(7, 1, &brdfLUTSRV);
 
-	// -- Draw Game Objects -- //
+	// -- Draw Scene Objects -- //
 	if (Debug::Editor::Instance()->PlayingGame())
 	{
-		m_pEngine->GetScene().Draw(playerProjMat, playerViewMat);
+
+		m_pEngine->GetScene().GetRenderManager().DrawOpaque(playerProjMat, playerViewMat);
+
+		pDeviceContext->RSSetState(pRasterizerStateCULLNONE.Get());
+		m_pEngine->GetScene().GetRenderManager().DrawFoliage(playerProjMat, playerViewMat);
+		pDeviceContext->RSSetState(pRasterizerState.Get());
+
+
+		//m_pEngine->GetScene().Draw(playerProjMat, playerViewMat);
 	}
 	else
 	{
-		m_pEngine->GetScene().Draw(editorProjMat, editorViewMat);
+		m_pEngine->GetScene().GetRenderManager().DrawOpaque(editorProjMat, editorViewMat);
+
+		pDeviceContext->RSSetState(pRasterizerStateCULLNONE.Get());
+		m_pEngine->GetScene().GetRenderManager().DrawFoliage(editorProjMat, editorViewMat);
+		pDeviceContext->RSSetState(pRasterizerState.Get());
+
+
+		//m_pEngine->GetScene().Draw(editorProjMat, editorViewMat);
 	}
-	
 
 	// -- Update 2D shaders -- //
 	pDeviceContext->IASetInputLayout(vertexshader_2d.GetInputLayout());
@@ -367,14 +379,10 @@ void Graphics::RenderFrame()
 	pDeviceContext->VSSetShader(vertexshader_2d.GetShader(), NULL, 0);
 	//sprite.Draw(camera2D.GetWorldmatrix() * camera2D.GetOrthoMatrix()); // Draws hello world sprite image
 
-
-
 	// -- Draw Text -- //
 	static int fpsCounter = 0;
 	static std::string fpsString = "FPS: 0";
-
-	//fpsString = "GPU Time: " + std::to_string(static_cast<int>(m_frameTimer.fps()));
-
+	
 	if (m_drawfpsCPU)
 	{
 		fpsString += "CPU " + std::to_string(static_cast<int>(m_pEngine->GetFrameTimer().fps()));
@@ -528,16 +536,17 @@ bool Graphics::InitializeScene()
 
 		// Initialize light shader values
 		cb_ps_light.data.ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-		cb_ps_light.data.ambientLightStrength = 0.268f;
+		cb_ps_light.data.ambientLightStrength = 2.498f;
 
 		cb_ps_directionalLight.data.Color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-		cb_ps_directionalLight.data.Strength = 1.0f;
+		cb_ps_directionalLight.data.Strength = 9.5f;
 		cb_ps_directionalLight.data.Direction = XMFLOAT3(0.25f, 0.5f, -1.0f);
-
+		cb_ps_directionalLight.ApplyChanges();
 		cb_ps_PerFrame.data.camPosition = editorCamera.GetTransform().GetPosition();
 		cb_ps_PerFrame.data.deltaTime = 0.5f;
 
 		cb_vs_PerFrame.data.deltaTime = 0.5f;
+		cb_vs_PerFrame.data.time = 0.5f;
 
 		pointLight->lightStrength = 1.0f;
 		pointLight->attenuation_a = 0.5f;
@@ -795,6 +804,50 @@ void Graphics::UpdateImGuiWidgets()
 
 	}
 	ImGui::End();
+
+	static int creationCounter = 2;
+
+	ImGui::Begin("Entity Creator");
+	{
+		if (ImGui::Button("Create Long Grass"))
+		{
+			creationCounter++;
+			std::string creationCount = "Long Grass" + std::to_string(creationCounter);
+			Entity* entity = new Entity(&m_pEngine->GetScene(), (*new ID()));
+			entity->GetID().SetName(creationCount);
+			entity->GetID().SetTag("Untagged");
+			entity->GetID().SetType("Entity");
+			entity->GetTransform().SetPosition(editorCamera.GetTransform().GetPosition());
+			entity->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
+			entity->GetTransform().SetScale(0.3f, 0.3f, 0.3f);
+			// mr
+			Material* mat = new MaterialTexturedFoliage(Material::eMaterialType::PBR_DEFAULT);
+			//mat = mat->SetMaterialByType(Material::eMaterialType::PBR_DEFAULT, Material::eFlags::FOLIAGE);
+
+			mat->Initiailze(pDevice.Get(), pDeviceContext.Get(), Material::eFlags::FOLIAGE);
+			//std::string file = "..\\Assets\\Objects\\Primatives\\Cube.fbx";
+			std::string file = "..\\Assets\\Objects\\Norway\\Foliage\\Var1\\LongGrass_Var1_LOD1.fbx";
+			MeshRenderer* mr = entity->AddComponent<MeshRenderer>();
+			mr->Initialize(entity, file, pDevice.Get(), pDeviceContext.Get(), this->GetDefaultVertexShader(), mat);
+			entity->SetHasMeshRenderer(true);
+			//LuaScript
+			entity->AddComponent<LuaScript>()->Initialize(entity, "NONE");
+			//Es
+			entity->AddComponent<EditorSelection>()->Initialize(entity, 10.0f, entity->GetTransform().GetPosition());
+			//Rb
+			/*RigidBody* rb = entity->AddComponent<RigidBody>();
+			rb->Initialize(entity, 10.0f, AABB::eColliderType::SPHERE);
+			m_pEngine->GetScene().GetPhysicsSystem().AddEntity(rb);
+			entity->SetHasEditorSelection(true);*/
+
+
+			m_pEngine->GetScene().GetRenderManager().AddFoliageObject(mr);
+			m_pEngine->GetScene().AddEntity(entity);
+		}
+	}
+	ImGui::End();
+	if (ImGui::IsAnyItemHovered())
+		Editor::Instance()->rayCastEnabled = false;
 
 	// Assemble Draw Data
 	ImGui::Render();

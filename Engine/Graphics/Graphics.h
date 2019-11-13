@@ -58,6 +58,9 @@ public:
 
 	void LogDrawCall(UINT call) { m_drawCalls += call; }
 
+	Engine* GetEngineInstance() { return m_pEngine; }
+	float time;
+
 private:
 	bool InitializeDirectX(HWND hwnd);
 	bool InitializeShaders();

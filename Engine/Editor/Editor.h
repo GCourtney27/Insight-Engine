@@ -60,6 +60,9 @@ namespace Debug
 		bool& GetClearConsoleOnPlay() { return m_clearConsoleOnPlay; }
 		void SetCLearConsoleOnPlay(bool cop) { m_clearConsoleOnPlay = cop; }
 
+		bool rayCastEnabled = true;
+
+
 	private:
 		Engine* m_pEngine;
 		Entity* m_pSelectedEntity = nullptr;
@@ -71,5 +74,7 @@ namespace Debug
 		bool m_clearConsoleOnPlay = true;
 
 		std::string m_debugLog;
+
+
 	};
 }

@@ -12,6 +12,7 @@ cbuffer perObjectBuffer : register(b0) // Defined in ConstantBufferTypes
 cbuffer PerFrame : register(b1)
 {
     float deltaTime;
+    float time;
 }
 
 cbuffer PerObjectUtil : register(b2) // Uploaded via material
@@ -40,6 +41,11 @@ struct VS_OUTPUT // What this shader returns to the pixel shader with VS_OUTPUT
     float3 outWorldPos : WORLD_POSITION;
 };
 
+float wave(float value, float frequency, float speed, float amplitude)
+{
+    return sin(value * frequency + speed) * amplitude;
+}
+
 VS_OUTPUT main(VS_INPUT input)
 {
     VS_OUTPUT output;
@@ -47,7 +53,14 @@ VS_OUTPUT main(VS_INPUT input)
     matrix worldViewProj = mul(mul(world, view), projection);
     matrix worldView = mul(world, view);
 
-    output.outPosition = mul(float4(input.inPosition, 1.0f), worldViewProj);
+
+    //output.outPosition = mul(float4(input.inPosition, 1.0f), worldViewProj); // WORKS - No Wind
+
+    // Animation
+    float4 objectSpacePos = float4(input.inPosition, 1.0f);
+    //objectSpacePos.x += wave(objectSpacePos.x, vertOffset.x, deltaTime * vertOffset.y, vertOffset.z); // Works but only when object is selected
+    objectSpacePos.x += wave(objectSpacePos.x, time * 0.3f, deltaTime * 1.0f, 1.0f);
+    output.outPosition = mul(objectSpacePos, worldViewProj);
 
     //output.outNormal = mul(input.inPosition, (float3x3) worldView); // model space
     output.outNormal = normalize(mul(float4(input.inNormal, 0.0f), world));

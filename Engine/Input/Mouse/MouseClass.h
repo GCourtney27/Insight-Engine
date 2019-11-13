@@ -17,8 +17,10 @@ public:
 	void OnMouseMoveRaw(int x, int y);
 
 	bool IsLeftDown();
+	bool IsLeftHeld();
 	bool IsMiddleDown();
 	bool IsRightDown();
+
 
 	int GetPosX();
 	int GetPosY();
@@ -27,9 +29,11 @@ public:
 	bool EventBufferIsEmpty();
 	MouseEvent ReadEvent();
 
+
 private:
 	std::queue<MouseEvent> eventBuffer;
 	bool leftIsDown = false;
+	bool leftIsHeld = false;
 	bool rightIsDown = false;
 	bool mbuttonDown = false;
 	int x = 0;

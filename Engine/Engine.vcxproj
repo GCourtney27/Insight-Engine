@@ -236,6 +236,7 @@
     <ClCompile Include="Objects\DirectionalLight.cpp" />
     <ClCompile Include="Objects\Player.cpp" />
     <ClCompile Include="Objects\PointLight.cpp" />
+    <ClCompile Include="Physics\AABB.cpp" />
     <ClCompile Include="Systems\FileSystem.cpp" />
     <ClCompile Include="Graphics\Camera2D.cpp" />
     <ClCompile Include="Graphics\GameObject2D.cpp" />
@@ -270,6 +271,7 @@
     <ClCompile Include="WindowContainer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Physics\AABB.h" />
     <ClInclude Include="Components\RigidBodyComponent.h" />
     <ClInclude Include="Components\Component.h" />
     <ClInclude Include="Components\EditorSelectionComponent.h" />

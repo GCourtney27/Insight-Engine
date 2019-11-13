@@ -64,12 +64,13 @@ namespace Debug
 		
 
 		/*Raycasting*/
-		if (InputManager::Instance()->mouse.IsLeftDown())
+		if (InputManager::Instance()->mouse.IsLeftDown() && rayCastEnabled)
 		{
+
 			SimpleMath::Vector3 cameraPosition = Graphics::Instance()->editorCamera.GetTransform().GetPosition();
 			SimpleMath::Vector3 mouseVector = GetMouseDirectionVector();
 			Ray* raycast = new Ray(cameraPosition, mouseVector);
-			
+
 			// -- Using bounding sphere -- //
 			std::list<Entity*>* entities = m_pEngine->GetScene().GetAllEntities();
 			std::list<Entity*>::iterator iter;
@@ -81,8 +82,9 @@ namespace Debug
 					break;
 				}
 			}
-		}
+			rayCastEnabled = false;
 
+		}
 
 
 	}

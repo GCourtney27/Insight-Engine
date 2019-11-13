@@ -4,6 +4,7 @@
 #include "..\Graphics\Graphics.h"
 #include "..\Editor\Editor.h"
 #include "..\Graphics\MaterialTextured.h"
+#include <math.h>
 
 void MeshRenderer::InitFromJSON(Entity* owner, const rapidjson::Value& componentInformation)
 {
@@ -62,7 +63,6 @@ bool MeshRenderer::Initialize(Entity* owner, const std::string & filepath, ID3D1
 	return true;
 }
 
-
 void MeshRenderer::Draw(const XMMATRIX & projectionMatrix, const XMMATRIX & viewMatrix)
 {
 
@@ -116,8 +116,15 @@ void MeshRenderer::OnImGuiRender()
 		ImGui::DragFloat("Tiling X", &pMat->m_tiling.x, 0.01f, -100.0f, 100.0f);
 		ImGui::DragFloat("Tiling Y", &pMat->m_tiling.y, 0.01f, -100.0f, 100.0f);
 
+		//ImGui::DragFloat3("Vertex Offset", &pMat->m_newVertOffset.x, 0.01f, -100.0f, 100.0f);
+
+
 		//pMat->m_newUVOffset.x += 0.05f * m_deltaTime;
 		//pMat->m_newUVOffset.y += 0.05f * m_deltaTime;
+		
+		//pMat->m_newVertOffset.x = Graphics::Instance()->GetEngineInstance()->GetFrameTimer().seconds();
+
+		//pMat->m_cb_vs_PerObjectUtil.data.vertOffset = pMat->m_newVertOffset;
 		pMat->m_cb_vs_PerObjectUtil.data.tiling = pMat->m_tiling;
 		pMat->m_cb_vs_PerObjectUtil.data.uvOffset = pMat->m_newUVOffset;
 

@@ -33,8 +33,8 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	//Norway - Disable physics for this level!
 	//Test
 	//PhysicsTest
-	scene.SetPhysicsEnabled(true);
-	if (!FileSystem::Instance()->LoadSceneFromJSON("..\\Assets\\Scenes\\PhysicsTest.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext()))
+	scene.SetPhysicsEnabled(false);
+	if (!FileSystem::Instance()->LoadSceneFromJSON("..\\Assets\\Scenes\\Norway.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext()))
 	{
 		ErrorLogger::Log("Failed to initialize scene.");
 		return false;
@@ -100,10 +100,14 @@ void Engine::Update()
 			{
 				Graphics::Instance()->editorCamera.GetTransform().AdjustRotation((float)me.GetPosY() * 0.005f, (float)me.GetPosX() * 0.005f, 0.0f);
 			}
+
 		}
+		if (me.GetType() == MouseEvent::EventType::LRelease)
+			Debug::Editor::Instance()->rayCastEnabled = true;
 
 	}
 	
+
 	scene.Update(dt);
 
 	if (Debug::Editor::Instance()->PlayingGame())

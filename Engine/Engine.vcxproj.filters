@@ -342,6 +342,9 @@
     <ClCompile Include="Systems\PhysicsSystem.cpp">
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
+    <ClCompile Include="Physics\AABB.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="COMException.h">
@@ -704,6 +707,9 @@
     <ClInclude Include="Systems\PhysicsSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="Physics\AABB.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -822,6 +828,9 @@
     </Filter>
     <Filter Include="Resource Files\Application">
       <UniqueIdentifier>{07316940-9e73-4073-920d-23403fcc051d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Physics">
+      <UniqueIdentifier>{49274617-51d8-4a11-9f0b-d27a16e9a631}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

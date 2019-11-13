@@ -16,9 +16,9 @@ public:
 	void AddOpaqueObject(MeshRenderer* mr);
 		
 
-private:
 	void DrawFoliage(const DirectX::XMMATRIX & projectionMatrix, const DirectX::XMMATRIX & viewMatrix);
 	void DrawOpaque(const DirectX::XMMATRIX & projectionMatrix, const DirectX::XMMATRIX & viewMatrix);
+private:
 
 	std::vector<MeshRenderer*> m_opaqueObjects;
 	std::vector<MeshRenderer*> m_foliageObjects;

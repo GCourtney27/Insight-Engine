@@ -54,7 +54,8 @@ struct CB_PS_perframe
 struct CB_VS_perframe
 {
 	float deltaTime;//4
-	float padding[3];//12
+	float time;//4
+	float padding[2];//8
 	//16
 };
 

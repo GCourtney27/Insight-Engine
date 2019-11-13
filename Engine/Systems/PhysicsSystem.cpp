@@ -30,25 +30,14 @@ void PhysicsSystem::Simulate(const float& deltaTime)
 			if (!testAgainst->GetIsComponentEnabled())
 				continue;
 
-			double deltaXSquared = currentEntity->GetTransform().GetPosition().x - testAgainst->GetOwner()->GetTransform().GetPosition().x;
-			deltaXSquared *= deltaXSquared;
-			
-			double deltaYSquared = currentEntity->GetTransform().GetPosition().y - testAgainst->GetOwner()->GetTransform().GetPosition().y;
-			deltaYSquared *= deltaYSquared;
-
-			double deltaZSquared = currentEntity->GetTransform().GetPosition().z - testAgainst->GetOwner()->GetTransform().GetPosition().z;
-			deltaZSquared *= deltaZSquared;
-
-			double sumRadiiSquared = cur->GetRadius() + testAgainst->GetRadius();
-			sumRadiiSquared *= sumRadiiSquared;
-
-			if (deltaXSquared + deltaYSquared + deltaZSquared <= sumRadiiSquared)
+			if (cur->GetCollider().Intersects(&testAgainst->GetCollider()))
 			{
 				DEBUGLOG("Collision");
 			}
 
 		}
 	}
+
 }
 
 void PhysicsSystem::AddEntity(RigidBody * rb)

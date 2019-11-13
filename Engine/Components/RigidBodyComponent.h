@@ -1,22 +1,19 @@
 #pragma once
 #include "Component.h"
+#include "..\Physics\AABB.h"
 #include <map>
 #include <DirectXMath.h>
 
 class RigidBody : public Component
 {
-public:
-	enum eColliderType
-	{
-		NONE,
-		SPHERE
-	};
+
 
 public:
 	RigidBody(Entity* owner)
 		: Component(owner) {}
 
 	bool Initialize(Entity* owner);
+	bool Initialize(Entity* owner, float radius, AABB::eColliderType colliderType);
 
 	virtual void InitFromJSON(Entity* owner, const rapidjson::Value& componentInformation) override;
 	virtual void WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) override;
@@ -26,15 +23,15 @@ public:
 	virtual void Destroy() override;
 	virtual void OnImGuiRender() override;
 	
-	float& GetRadius() { return m_sphereRadius; }
-	void SetRadius(float radius) { m_sphereRadius = radius; }
+	// Translates the object and updates velocity
+	void Translate(float x, float y, float z);
 
-	static eColliderType GetColliderTypeFromString(std::string str_collider);
-	std::string GetGetColliderTypeAsString();
-	eColliderType GetColliderType() { return m_colliderType; }
+	AABB& GetCollider() { return m_collider; }
 
 private:
-	float m_sphereRadius = 0.0f;
-	eColliderType m_colliderType = eColliderType::SPHERE;
-	DirectX::XMFLOAT3 m_position;
+	AABB m_collider;
+
+	float m_velocity = 0.0f;
+	float m_drag = 0.0f;
+
 };

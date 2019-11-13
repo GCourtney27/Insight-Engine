@@ -104,9 +104,9 @@ float4 main(PS_INPUT input) : SV_TARGET
     float3 diffuseLight = diffuseLightIntensity * dynamicLightStrength * dynamicLightColor;
 
     float3 pointLightRadiance = (albedoSample * diffuseLight);
-    float3 directionalLight = saturate(dot(directionalLightDirection, input.inWorldPos) * directionalLightColor) * directionalLightStrength;
+    float3 directionalLight = saturate(dot(directionalLightDirection, N) * directionalLightColor);
     
-    float3 directionalLightRadiance = (albedoSample * directionalLight);
+    float3 directionalLightRadiance = (albedoSample * directionalLight) * directionalLightStrength;
 
     // Cook-Torrance BRDF
     float NdotV = max(dot(N, V), 0.0000001);
@@ -158,13 +158,15 @@ float4 main(PS_INPUT input) : SV_TARGET
     float3 specular_IBL = environmentMapColor * (F_IBL * brdf.r + brdf.g);
 
     // Add lighting to IBL velues for final color
-    float3 ambient = (diffuse + specular_IBL) * ambientLight;
+    //float3 ambient = (diffuse + specular_IBL) * ambientLight;
+    float3 ambient = (diffuse) * ambientLight;
     float3 color = (ambient + Lo);
     
     // HDR tonemapping
     color = color / (color + float3(1.0f, 1.0f, 1.0f));
     // Gamma correction
     color = pow(color, float3(1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f));
+
 
     return float4(color, 1.0f);
 }
