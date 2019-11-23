@@ -3,6 +3,7 @@
 #include <DirectXMath.h>
 
 class MeshRenderer;
+class Camera;
 
 class RenderManager
 {
@@ -18,7 +19,11 @@ public:
 
 	void DrawFoliage(const DirectX::XMMATRIX & projectionMatrix, const DirectX::XMMATRIX & viewMatrix);
 	void DrawOpaque(const DirectX::XMMATRIX & projectionMatrix, const DirectX::XMMATRIX & viewMatrix);
+
+	void SetGameCamera(Camera* cam) { m_pGameCamera = cam; }
 private:
+
+	Camera* m_pGameCamera = nullptr;
 
 	std::vector<MeshRenderer*> m_opaqueObjects;
 	std::vector<MeshRenderer*> m_foliageObjects;

@@ -21,6 +21,8 @@ public:
 	virtual void Start() = 0;
 	virtual void Update(const float& deltaTime) = 0;
 	virtual void OnImGuiRender() = 0;
+	virtual void OnEditorStop() = 0;
+
 	virtual void InitFromJSON(Entity* owner, const rapidjson::Value& componentInformation) = 0;
 	virtual void WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) = 0;
 

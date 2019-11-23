@@ -68,7 +68,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     float3 normalSample = (normalSRV.Sample(samplerState, input.inTexCoord).xyz);
     float metallicSample = (metallicSRV.Sample(samplerState, input.inTexCoord).r + metallic);
     float roughnessSample = (roughnessSRV.Sample(samplerState, input.inTexCoord).r + roughness);
-	//float aoSample = aoSRV.Sample(samplerState, input.inTexCoord).r;
+	float aoSample = aoSRV.Sample(samplerState, input.inTexCoord).r;
     
     // Transform Normals From Tangent Space to View Space
     const float3x3 tanToView = float3x3(normalize(input.inTangent),
@@ -94,7 +94,6 @@ float4 main(PS_INPUT input) : SV_TARGET
     float3 Dir_H = normalize(V + Dir_L); // Halfway vector
 
     // -- Per light radiance -- //
-    float3 ambientLight = ambientLightColor * ambientLightStrength;
 
     float3 vectorToLight = normalize(dynamicLightPosition - input.inWorldPos);
     float distanceToLight = distance(vectorToLight, input.inWorldPos);
@@ -144,7 +143,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     Dir_kD *= 1.0f - metallicSample;
 
     Lo += (Dir_kD * albedoSample / PI + Dir_specular) * directionalLightRadiance * Dir_NdotL;
-
+    
     // -- IBL -- //
     // Irradiance map
     float3 F_IBL = fresnelSchlickRoughness(NdotV, baseReflectivity, roughnessSample);
@@ -155,11 +154,14 @@ float4 main(PS_INPUT input) : SV_TARGET
     const float MAX_REFLECTION_LOD = 4.0f;
     float3 environmentMapColor = environmentMapSRV.SampleLevel(samplerState, reflect(-V, N), roughnessSample * MAX_REFLECTION_LOD).rgb;
     float2 brdf = brdfLUT.Sample(samplerState, float2(NdotV, roughnessSample)).rg;
-    float3 specular_IBL = environmentMapColor * (F_IBL * brdf.r + brdf.g);
+    float3 specular_IBL = environmentMapColor * (F_IBL * brdf.r + brdf.g) ;
+    
+    float3 ambientLight = ambientLightColor * ambientLightStrength;
+    float3 diffuse_IBL = (diffuse + specular_IBL) * ambientLight;
 
     // Add lighting to IBL velues for final color
-    //float3 ambient = (diffuse + specular_IBL) * ambientLight;
-    float3 ambient = (diffuse) * ambientLight;
+    float3 ambient = diffuse_IBL * aoSample;
+    //float3 ambient = (diffuse) * ambientLight;
     float3 color = (ambient + Lo);
     
     // HDR tonemapping

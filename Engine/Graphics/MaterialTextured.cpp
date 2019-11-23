@@ -164,7 +164,57 @@ bool MaterialTextured::InitializeJOSNPiplineAssets(const rapidjson::Value& asset
 
 bool MaterialTextured::InitializePiplineAssets()
 {
-	// TODO: Add defaultTestures to tell that they have not been overriden
+	std::string tex_albedo = "..\\Assets\\Objects\\Norway\\Opaque\\Rock02\\Rock02_Albedo.jpg";
+	std::string tex_normal = "..\\Assets\\Objects\\Norway\\Opaque\\Rock02\\Rock02_Normal.jpg";
+	std::string tex_opacity = "..\\Assets\\Objects\\Norway\\Opaque\\Rock02\\Rock02_Specular.jpg";
+	std::string tex_roughness = "..\\Assets\\Objects\\Norway\\Opaque\\Rock02\\Rock02_Roughness.jpg";
+	std::vector<std::string> textures;
+
+	textures.push_back(tex_albedo);
+	textures.push_back(tex_normal);
+	textures.push_back(tex_opacity);
+	textures.push_back(tex_roughness);
+	m_textureLocations = textures;
+
+	float uvOffsetX = 0.0f;
+	float uvOffsetY = 0.0f;
+	float tilingX = 1.0f;
+	float tilingY = 1.0f;
+
+	float colorR = 1.0f;
+	float colorG = 1.0f;
+	float colorB = 1.0f;
+	float metallic = 0.0f;
+	float roughness = 0.0f;
+
+	this->m_textures.push_back(Texture(this->m_pDevice.Get(), tex_albedo));
+	this->m_textures.push_back(Texture(this->m_pDevice.Get(), tex_normal));
+	this->m_textures.push_back(Texture(this->m_pDevice.Get(), tex_opacity));
+	this->m_textures.push_back(Texture(this->m_pDevice.Get(), tex_roughness));
+
+	InitializeShaders();
+
+	// Per-Object modifiers for Pixel Shader
+	m_color.x = colorR;
+	m_color.y = colorG;
+	m_color.z = colorB;
+	m_cb_ps_PerObjectUtil.data.color = m_color;
+	m_metallic = metallic;
+	m_cb_ps_PerObjectUtil.data.metallic = m_metallic;
+	m_roughness = roughness;
+	m_cb_ps_PerObjectUtil.data.roughness = m_roughness;
+	m_cb_ps_PerObjectUtil.ApplyChanges();
+
+	// Per-Object modifiers for Vertex Shader
+	m_newUVOffset.x = uvOffsetX;
+	m_newUVOffset.y = uvOffsetY;
+	m_tiling.x = tilingX;
+	m_tiling.y = tilingY;
+	m_cb_vs_PerObjectUtil.data.tiling = m_tiling;
+	m_cb_vs_PerObjectUtil.data.uvOffset = m_newUVOffset;
+	m_cb_vs_PerObjectUtil.data.vertOffset = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	m_cb_vs_PerObjectUtil.ApplyChanges();
+
 	return true;
 }
 
@@ -198,7 +248,7 @@ void MaterialTextured::InitializeShaders()
 
 void MaterialTextured::PSSetShaderResources()
 {
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 5; i++)
 	{
 		this->m_pDeviceContext->PSSetShaderResources(i, 1, m_textures[i].GetTextureResourceViewAddress());
 	}

@@ -24,7 +24,7 @@ public:
 	void Destroy() override;
 	//void Update(const DirectX::XMFLOAT3 parentPosition);
 	void OnImGuiRender() override;
-
+	void OnEditorStop() override;
 	void InitFromJSON(Entity* owner, const rapidjson::Value& componentInformation) override;
 	void WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) override;
 

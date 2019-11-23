@@ -28,7 +28,7 @@ namespace Debug
 
 	void Editor::Update(float deltaTime)
 	{
-		if (!m_playingGame)
+		//if (!m_playingGame)
 		{
 			float camera3DSpeed = 30.0f;
 			if (InputManager::Instance()->keyboard.KeyIsPressed(VK_SHIFT))
@@ -62,8 +62,7 @@ namespace Debug
 			}
 		}
 		
-
-		/*Raycasting*/
+		/* Raycasting */
 		if (InputManager::Instance()->mouse.IsLeftDown() && rayCastEnabled)
 		{
 
@@ -85,7 +84,6 @@ namespace Debug
 			rayCastEnabled = false;
 
 		}
-
 
 	}
 

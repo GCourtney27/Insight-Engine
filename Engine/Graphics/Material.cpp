@@ -5,6 +5,7 @@
 #include "MaterialTextured.h"
 #include "MaterialTexturedFoliage.h"
 #include "MaterialSky.h"
+#include "MaterialWater.h"
 
 #include "Graphics.h"
 
@@ -38,6 +39,8 @@ Material * Material::SetMaterialByType(eMaterialType materialType, eFlags flags)
 	{
 		if (flags == eFlags::FOLIAGE)
 			return new MaterialTexturedFoliage(materialType);
+		else if (flags == eFlags::WATER)
+			return new MaterialWater(materialType);
 		else
 			return new MaterialTextured(materialType);
 	}
@@ -48,7 +51,7 @@ Material * Material::SetMaterialByType(eMaterialType materialType, eFlags flags)
 	}
 		break;
 	default:
-		ErrorLogger::Log("Could not determine proper material based on eMaterialType");
+		ErrorLogger::Log("Could not determine proper material based on eMaterialType or Flag");
 		break;
 	}
 	return nullptr;
@@ -76,6 +79,7 @@ Material::eFlags Material::GetMaterialFlagsFromString(std::string str_flags)
 	stringToMaterialFlags["NOFLAGS"] = eFlags::NOFLAGS;
 	stringToMaterialFlags["FOLIAGE"] = eFlags::FOLIAGE;
 	stringToMaterialFlags["TERRAIN"] = eFlags::TERRAIN;
+	stringToMaterialFlags["WATER"] = eFlags::WATER;
 
 	std::map<std::string, eFlags>::iterator iter;
 	for (iter = stringToMaterialFlags.begin(); iter != stringToMaterialFlags.end(); iter++)
@@ -92,6 +96,7 @@ std::string Material::GetMaterialFlagsAsString()
 	stringToMaterialFlags["NOFLAGS"] = eFlags::NOFLAGS;
 	stringToMaterialFlags["FOLIAGE"] = eFlags::FOLIAGE;
 	stringToMaterialFlags["TERRAIN"] = eFlags::TERRAIN;
+	stringToMaterialFlags["WATER"] = eFlags::WATER;
 
 	std::map<std::string, eFlags>::iterator iter;
 	for (iter = stringToMaterialFlags.begin(); iter != stringToMaterialFlags.end(); iter++)

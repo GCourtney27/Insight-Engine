@@ -20,7 +20,6 @@ public:
 	
 	// -- Game -- //
 	void OnGameStart();
-
 	Scene& GetScene() { return scene; }
 
 	int GetWindowWidth() { return windowWidth; }

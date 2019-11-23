@@ -40,6 +40,7 @@ public:
 	// Returns Scale of object in local space
 	XMFLOAT3 & GetScale() { return this->scale; }
 
+
 	//Returns Position Vector
 	XMVECTOR & GetPositionVectorRef() { return this->posVector; }
 	//Returns Rotation Vector
@@ -167,6 +168,8 @@ protected:
 	XMFLOAT3 pos;
 	XMFLOAT3 rot;
 	XMFLOAT3 scale;
+
+
 
 	const XMVECTOR DEFAULT_FOREWARD_VECTOR = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 	const XMVECTOR DEFAULT_BACKWARD_VECTOR = XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);

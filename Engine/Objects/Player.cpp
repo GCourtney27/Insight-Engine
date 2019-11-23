@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "..\Graphics\Graphics.h"
 #include "..\Editor\Editor.h"
+#include "..\Components\RigidBodyComponent.h"
 
 bool Player::Initialize(Scene * scene, const ID & id)
 {
@@ -20,7 +21,8 @@ void Player::InitializeCamera(Scene* scene)
 	
 	m_pCamera->SetProjectionValues(80.0f, static_cast<float>(1600) / static_cast<float>(900), 0.1f, 1000.0f);
 
-	m_pCamera->GetTransform().SetPosition(DirectX::XMFLOAT3(-25.0f, 10.0f, -28.0f));
+	//m_pCamera->GetTransform().SetPosition(DirectX::XMFLOAT3(60.0f, 18.0f, -13.0f));
+	m_pCamera->GetTransform().SetPosition(DirectX::XMFLOAT3(-26.0f, 11.6f, -44.3f));
 	m_pCamera->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
 	m_pCamera->GetTransform().SetScale(1.0f, 1.0f, 1.0f);
 
@@ -36,8 +38,12 @@ void Player::InitializeCamera(Scene* scene)
 	EditorSelection* es = m_pCamera->AddComponent<EditorSelection>();
 	es->Initialize(m_pCamera, 10.0f, m_pCamera->GetTransform().GetPosition());
 	m_pCamera->SetCanBeJSONSaved(false);
+
+	/*RigidBody* rb = m_pCamera->AddComponent<RigidBody>();
+	rb->GetCollider().Initialize(m_pCamera);
+	scene->GetPhysicsSystem().AddEntity(rb);*/
 	
-	//scene->GetRenderManager().AddOpaqueObject(mr);
-	scene->AddEntity(m_pCamera);// !!!!!!!!!!!!!!!!!!!!!
+	scene->GetRenderManager().SetGameCamera(m_pCamera);
+	scene->AddEntity(m_pCamera);
 }
 

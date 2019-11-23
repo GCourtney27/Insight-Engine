@@ -30,7 +30,8 @@ public:
 	{
 		NOFLAGS, // Default opaque shader
 		FOLIAGE, // Requires opacity culling in shader
-		TERRAIN // Requires tessilation shader
+		TERRAIN, // Requires tessilation shader
+		WATER
 	};
 
 public:

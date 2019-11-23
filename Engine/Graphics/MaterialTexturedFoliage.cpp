@@ -17,7 +17,7 @@ bool MaterialTexturedFoliage::Initiailze(ID3D11Device * device, ID3D11DeviceCont
 	this->m_flags = materialAttributeFlags;
 	InitializePiplineAssets();
 
-	return false;
+	return true;
 }
 
 void MaterialTexturedFoliage::WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
@@ -164,10 +164,10 @@ bool MaterialTexturedFoliage::InitializeJOSNPiplineAssets(const rapidjson::Value
 
 bool MaterialTexturedFoliage::InitializePiplineAssets()
 {
-	std::string tex_albedo = "..\\Assets\\Objects\\LongGrass\\Textures\\Atlas\\LongGrass_Albedo.jpg";
-	std::string tex_normal = "..\\Assets\\Objects\\LongGrass\\Textures\\Atlas\\LongGrass_Normal.jpg";
-	std::string tex_opacity = "..\\Assets\\Objects\\LongGrass\\Textures\\Atlas\\LongGrass_Opacity.jpg";
-	std::string tex_roughness = "..\\Assets\\Objects\\LongGrass\\Textures\\Atlas\\LongGrass_Roughness.jpg";
+	std::string tex_albedo = "..\\Assets\\Objects\\Norway\\Foliage\\ScatterGrass\\ScatterGrass_Albedo.jpg";
+	std::string tex_normal = "..\\Assets\\Objects\\Norway\\Foliage\\ScatterGrass\\ScatterGrass_Normal.jpg";
+	std::string tex_opacity = "..\\Assets\\Objects\\Norway\\Foliage\\ScatterGrass\\ScatterGrass_Opacity.jpg";
+	std::string tex_roughness = "..\\Assets\\Objects\\Norway\\Foliage\\ScatterGrass\\ScatterGrass_Roughness.jpg";
 	std::vector<std::string> textures;
 
 	textures.push_back(tex_albedo);

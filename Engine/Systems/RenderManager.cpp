@@ -1,5 +1,6 @@
 #include "RenderManager.h"
 #include "..\Components\MeshRenderComponent.h"
+#include "..\Objects\Camera.h"
 
 RenderManager::~RenderManager()
 {
@@ -12,6 +13,7 @@ RenderManager::~RenderManager()
 
 void RenderManager::Draw(const DirectX::XMMATRIX & projectionMatrix, const DirectX::XMMATRIX & viewMatrix)
 {
+
 	//TODO: DrawSky();
 	DrawOpaque(projectionMatrix, viewMatrix);
 	DrawFoliage(projectionMatrix, viewMatrix);
@@ -29,6 +31,8 @@ void RenderManager::AddOpaqueObject(MeshRenderer * mr)
 
 void RenderManager::DrawOpaque(const DirectX::XMMATRIX & projectionMatrix, const DirectX::XMMATRIX & viewMatrix)
 {
+	m_pGameCamera->Draw(projectionMatrix, viewMatrix);
+
 	for (MeshRenderer* mr : m_opaqueObjects)
 	{
 		mr->Draw(projectionMatrix, viewMatrix);

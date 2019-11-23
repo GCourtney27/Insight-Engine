@@ -9,6 +9,7 @@ extern "C"
 	#include "Lua535/lua.h"
 	#include "Lua535/lauxlib.h"
 	#include "Lua535/lualib.h"
+	#include "Lua535/luaconf.h"
 }
 
 class LuaScript : public Component
@@ -24,11 +25,18 @@ public:
 	void Update(const float& deltaTime) override;
 	void Destroy() override;
 	void OnImGuiRender() override;
+	void OnEditorStop() override;
 
 	void InitFromJSON(Entity* owner, const rapidjson::Value& componentInformation) override;
 	void WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) override;
 
+	bool MouseMoved();
+	float GetAxisHorizontal();
+	float GetAxisVertical();
+
 	bool lua_KeyIsPressed(int keycode);
+	bool lua_CollisionEnter();
+	void lua_Translate(float x, float y, float z);
 
 	std::string& GetFilePath() { return filePath; }
 

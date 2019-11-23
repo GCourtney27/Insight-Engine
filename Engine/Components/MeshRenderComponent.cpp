@@ -135,4 +135,8 @@ void MeshRenderer::OnImGuiRender()
 	
 }
 
+void MeshRenderer::OnEditorStop()
+{
+}
+
 

@@ -35,17 +35,14 @@ void Camera::SetProjectionValues(float fovDegrees, float aspectRatio, float near
 	m_projectionMatrix = XMMatrixPerspectiveFovLH(fovRadians, aspectRatio, nearZ, farZ);
 }
 
-void Camera::Draw(const XMMATRIX & viewProjectionMatrix, const XMMATRIX & viewMatrix)
+void Camera::Draw(const XMMATRIX & projectionMatrix, const XMMATRIX & viewMatrix)
 {
 	if (Debug::Editor::Instance()->PlayingGame())
 		return;
 
 	MeshRenderer* mr = GetComponent<MeshRenderer>();
-
-	if (mr != nullptr)
-	{
-		mr->Draw(viewProjectionMatrix, viewMatrix);
-	}
+	mr->Draw(projectionMatrix, viewMatrix);
+	
 }
 
 void Camera::Update(const float& deltaTime)

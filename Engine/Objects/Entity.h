@@ -50,6 +50,8 @@ public:
 	void SetCanBeJSONSaved(bool canBeSaved) { m_canBeJSONSaved = canBeSaved; }
 
 	virtual void OnEvent(const Event& event);
+	bool OnCollisionEnter();
+	void Translate(float x, float y, float z);
 
 	template<typename T>
 	T* AddComponent()

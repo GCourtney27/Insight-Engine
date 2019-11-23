@@ -4,6 +4,7 @@
 #include "..\Systems\BenchmarkingTimer.h"
 
 #include "MaterialTexturedFoliage.h"
+#include "MaterialTextured.h"
 #include "..\Components\RigidBodyComponent.h"
 
 #include <cstdlib>
@@ -91,15 +92,15 @@ void Graphics::InitSkybox()
 	MeshRenderer* me = skybox->AddComponent<MeshRenderer>();
 	me->Initialize(skybox, "..\\Assets\\Objects\\Primatives\\Sphere.fbx", pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader, nullptr);
 
-	HRESULT hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\skybox1_Diff.dds", nullptr, &skyboxTextureSRV);
+	HRESULT hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\MountainTop_Diff.dds", nullptr, &skyboxTextureSRV);
 	if(FAILED(hr))
 		ErrorLogger::Log("Failed to load dds diffuse texture for skybox");
 
-	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\skybox1_EnvMap.dds", nullptr, &environmentMapSRV);
+	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\MountainTop_EnvMap.dds", nullptr, &environmentMapSRV);
 	if (FAILED(hr))
 		ErrorLogger::Log("Failed to load dds texture for environment map");
 
-	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\skybox1_IR.dds", nullptr, &irradianceMapSRV);
+	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\MountainTop_IR.dds", nullptr, &irradianceMapSRV);
 	if (FAILED(hr))
 		ErrorLogger::Log("Failed to load dds texture for irradiance map");
 
@@ -132,7 +133,8 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 		scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		scd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 		scd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-		scd.SampleDesc.Count = 1;
+		//scd.SampleDesc.Count = 1;
+		scd.SampleDesc.Count = 4;// New
 		scd.SampleDesc.Quality = 0;
 		scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		scd.BufferCount = 1;
@@ -164,9 +166,11 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 		COM_ERROR_IF_FAILED(hr, "Failed to create render target view for back buffer.");
 
 
-		// Describe out Depth/Stencil Buffer
+		// -- Create Depth/Stencil Buffer -- //
 		CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, windowWidth, windowHeight);
 		depthStencilDesc.MipLevels = 1;
+		depthStencilDesc.SampleDesc.Count = 4;// New
+		depthStencilDesc.SampleDesc.Quality = 0;// New
 		depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 		hr = pDevice->CreateTexture2D(&depthStencilDesc, NULL, pDepthStencilBuffer.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create depth stencil buffer Texture2D.");
@@ -190,11 +194,17 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 
 
 		// Create Rasterizer State/s
+		// Default
 		CD3D11_RASTERIZER_DESC rasterizerDesc(D3D11_DEFAULT);
+		rasterizerDesc.AntialiasedLineEnable = true;// New
+		rasterizerDesc.MultisampleEnable = true;
 		hr = pDevice->CreateRasterizerState(&rasterizerDesc, pRasterizerState.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create rasterizer state.");
 
+		// Skybox and foliage
 		CD3D11_RASTERIZER_DESC rasterizerDescCULLNONE(D3D11_DEFAULT);
+		rasterizerDesc.AntialiasedLineEnable = true;// New
+		rasterizerDesc.MultisampleEnable = true;
 		rasterizerDescCULLNONE.CullMode = D3D11_CULL_MODE::D3D11_CULL_NONE; // Uncomment to draw both sides of the mesh
 		hr = pDevice->CreateRasterizerState(&rasterizerDescCULLNONE, pRasterizerStateCULLNONE.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create rasterizer state.");
@@ -251,7 +261,6 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 	return true;
 }
 
-
 void Graphics::RenderFrame()
 {
 	Debug::ScopedTimer timer;
@@ -280,15 +289,15 @@ void Graphics::RenderFrame()
 
 	// -- Update Pixel Shader Per Frame Informaiton -- //
 	cb_ps_PerFrame.data.deltaTime = m_deltaTime;
-	if (Debug::Editor::Instance()->PlayingGame())
+	/*if (Debug::Editor::Instance()->PlayingGame())
 		cb_ps_PerFrame.data.camPosition = m_pEngine->GetPlayer()->GetPlayerCamera()->GetTransform().GetPosition();
-	else
+	else*/
 		cb_ps_PerFrame.data.camPosition = editorCamera.GetTransform().GetPosition();
 	cb_ps_PerFrame.ApplyChanges();
 
 	// -- Update Vertex Shader Per Frame Informaiton -- //
 	cb_vs_PerFrame.data.deltaTime = m_deltaTime;
-	time = m_pEngine->GetFrameTimer().seconds();
+	time = (float)m_pEngine->GetFrameTimer().seconds();
 	cb_vs_PerFrame.data.time = time;
 	cb_vs_PerFrame.ApplyChanges();
 
@@ -305,10 +314,11 @@ void Graphics::RenderFrame()
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
+	ImGuizmo::BeginFrame();
 	ImGui::DockSpaceOverViewport(0, ImGuiDockNodeFlags_PassthruCentralNode);
 	
 	// -- Clear Background Color for Scene -- //
-	float bgcolor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	float bgcolor[] = { 0.01f, 0.01f, 0.01f, 1.0f };
 	pDeviceContext->ClearRenderTargetView(pRenderTargetView.Get(), bgcolor);
 	pDeviceContext->ClearDepthStencilView(pDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	if(m_drawWireframe)
@@ -329,10 +339,9 @@ void Graphics::RenderFrame()
 	pDeviceContext->PSSetShaderResources(0, 1, &skyboxTextureSRV);
 	pDeviceContext->PSSetShader(skyPixelShader.GetShader(), NULL, 0);
 	pDeviceContext->VSSetShader(skyVertexShader.GetShader(), NULL, 0);
-		//skybox->Draw(gameCamera.GetProjectionMatrix(), gameCamera.GetViewMatrix());
-	if (Debug::Editor::Instance()->PlayingGame())
-		skybox->Draw(playerProjMat, playerViewMat);
-	else
+	//if (Debug::Editor::Instance()->PlayingGame())
+	//	skybox->Draw(playerProjMat, playerViewMat);
+	//else
 		skybox->Draw(editorProjMat, editorViewMat);
 	
 	// Reset Rasterizer state for rest of geometry
@@ -349,19 +358,19 @@ void Graphics::RenderFrame()
 	pDeviceContext->PSSetShaderResources(7, 1, &brdfLUTSRV);
 
 	// -- Draw Scene Objects -- //
-	if (Debug::Editor::Instance()->PlayingGame())
-	{
+	//if (Debug::Editor::Instance()->PlayingGame())
+	//{
 
-		m_pEngine->GetScene().GetRenderManager().DrawOpaque(playerProjMat, playerViewMat);
+	//	m_pEngine->GetScene().GetRenderManager().DrawOpaque(playerProjMat, playerViewMat);
 
-		pDeviceContext->RSSetState(pRasterizerStateCULLNONE.Get());
-		m_pEngine->GetScene().GetRenderManager().DrawFoliage(playerProjMat, playerViewMat);
-		pDeviceContext->RSSetState(pRasterizerState.Get());
+	//	pDeviceContext->RSSetState(pRasterizerStateCULLNONE.Get());
+	//	m_pEngine->GetScene().GetRenderManager().DrawFoliage(playerProjMat, playerViewMat);
+	//	pDeviceContext->RSSetState(pRasterizerState.Get());
 
 
-		//m_pEngine->GetScene().Draw(playerProjMat, playerViewMat);
-	}
-	else
+	//	//m_pEngine->GetScene().Draw(playerProjMat, playerViewMat);
+	//}
+	//else
 	{
 		m_pEngine->GetScene().GetRenderManager().DrawOpaque(editorProjMat, editorViewMat);
 
@@ -443,6 +452,40 @@ void Graphics::Update(const float& deltaTime)
 
 void Graphics::Shutdown()
 {
+	// Raw pointers
+	delete pointLight;
+	delete directionalLight;
+	delete m_pMaterial;
+	delete skybox;
+	delete m_pSkyMaterial;
+	delete pImGuiIO;
+	delete m_pEngine;
+	delete skyTexture;
+	delete skyboxTextureSRV;
+	delete irradianceMap;
+	delete irradianceMapSRV;
+	delete environmentMap;
+	delete environmentMapSRV;
+	delete brdfLUTtex;
+	delete brdfLUTSRV;
+
+	// WRL pointers
+	pDevice->Release();
+	pDeviceContext->Release();
+	pSwapchain->Release();
+	pRenderTargetView->Release();
+	pDepthStencilView->Release();
+	pDepthStencilBuffer->Release();
+	pDepthStencilState->Release();
+	pRasterizerState->Release();
+	pRasterizerState->Release();
+	pRasterizerState->Release();
+	samplerState->Release();
+
+	// Smart pointers
+	pSpriteBatch.release();
+	pSpriteFont.release();
+
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
@@ -536,10 +579,11 @@ bool Graphics::InitializeScene()
 
 		// Initialize light shader values
 		cb_ps_light.data.ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-		cb_ps_light.data.ambientLightStrength = 2.498f;
+		//cb_ps_light.data.ambientLightStrength = 2.498f;
+		cb_ps_light.data.ambientLightStrength = 1.0f;
 
 		cb_ps_directionalLight.data.Color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-		cb_ps_directionalLight.data.Strength = 9.5f;
+		cb_ps_directionalLight.data.Strength = 20.0f;
 		cb_ps_directionalLight.data.Direction = XMFLOAT3(0.25f, 0.5f, -1.0f);
 		cb_ps_directionalLight.ApplyChanges();
 		cb_ps_PerFrame.data.camPosition = editorCamera.GetTransform().GetPosition();
@@ -563,7 +607,7 @@ bool Graphics::InitializeScene()
 		camera2D.SetProjectionValues((float)windowWidth, (float)windowHeight, 0.0f, 1.0f);
 
 		editorCamera.GetTransform().SetPosition(DirectX::XMFLOAT3(0.0f, 5.0f, -40.0f));
-		editorCamera.SetProjectionValues(80.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 4000.0f);
+		editorCamera.SetProjectionValues(75.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 4000.0f);
 
 	}
 	catch (COMException & exception)
@@ -581,62 +625,62 @@ void Graphics::UpdateImGuiWidgets()
 	std::list<Entity*>* entities = m_pEngine->GetScene().GetAllEntities();
 
 	// ImGuizmo Experimental tool
-	{
-	//	ImGuizmo::BeginFrame();
-	//	ImGuizmo::Enable(true);
+	//ImGuizmo::BeginFrame();
+	//ImGuizmo::Enable(true);
 
-	//	//ImGuiIO& io = ImGui::GetIO();
-	//	ImGuizmo::SetRect(0, 0, pImGuiIO->DisplaySize.x, pImGuiIO->DisplaySize.y);
+	////ImGuiIO& io = ImGui::GetIO();
+	//XMFLOAT4X4 camViewTemp;
+	//XMStoreFloat4x4(&camViewTemp, editorCamera.GetViewMatrix());
+	//float camView[16] =
+	//{
+	//	camViewTemp._11,camViewTemp._21, camViewTemp._31, camViewTemp._41,
+	//	camViewTemp._12,camViewTemp._22, camViewTemp._32, camViewTemp._42,
+	//	camViewTemp._13,camViewTemp._23, camViewTemp._33, camViewTemp._43,
+	//	camViewTemp._14,camViewTemp._24, camViewTemp._34, camViewTemp._44
+	//};
+	//XMFLOAT4X4 camPojTemp;
+	//XMStoreFloat4x4(&camPojTemp, editorCamera.GetProjectionMatrix());
+	//float camProj[16] =
+	//{
+	//	camPojTemp._11, camPojTemp._21, camPojTemp._31, camPojTemp._41,
+	//	camPojTemp._12, camPojTemp._22, camPojTemp._32, camPojTemp._42,
+	//	camPojTemp._13, camPojTemp._23, camPojTemp._33, camPojTemp._43,
+	//	camPojTemp._14, camPojTemp._24, camPojTemp._34, camPojTemp._44
+	//};
+	//XMFLOAT4X4 objMatTemp;
+	//XMStoreFloat4x4(&objMatTemp, pSelectedEntity->GetTransform().GetWorldMatrix());
+	//float objMat[16] =
+	//{
+	//	objMatTemp._11, objMatTemp._21, objMatTemp._31, objMatTemp._41,
+	//	objMatTemp._12, objMatTemp._22, objMatTemp._32, objMatTemp._42,
+	//	objMatTemp._13, objMatTemp._23, objMatTemp._33, objMatTemp._43,
+	//	objMatTemp._14, objMatTemp._24, objMatTemp._34, objMatTemp._44
+	//};
+	//static float identityMatrix[16] =
+	//{ 
+	//	1.f, 0.f, 0.f, 0.f,
+	//	0.f, 1.f, 0.f, 0.f,
+	//	0.f, 0.f, 1.f, 0.f,
+	//	0.f, 0.f, 0.f, 1.f 
+	//};
+	//static float defaultMatrix[16] =
+	//{
+	//	1.f, 0.f, 0.f, 0.f,
+	//	0.f, 1.f, 0.f, 0.f,
+	//	0.f, 0.f, 1.f, 0.f,
+	//	0.f, 0.f, 0.f, 1.f 
+	//};
+	//ImGuizmo::DrawCube(camView, camProj, defaultMatrix);
 
-	//	XMFLOAT4X4 camViewTemp;
-	//	XMStoreFloat4x4(&camViewTemp, editorCamera.GetViewMatrix());
-	//	float camView[16] =
-	//	{
-	//		camViewTemp._11,camViewTemp._21, camViewTemp._31, camViewTemp._41,
-	//		camViewTemp._12,camViewTemp._22, camViewTemp._32, camViewTemp._42,
-	//		camViewTemp._13,camViewTemp._23, camViewTemp._33, camViewTemp._43,
-	//		camViewTemp._14,camViewTemp._24, camViewTemp._34, camViewTemp._44
-	//	};
-	//	XMFLOAT4X4 camPojTemp;
-	//	XMStoreFloat4x4(&camPojTemp, editorCamera.GetProjectionMatrix());
-	//	float camProj[16] =
-	//	{
-	//		camPojTemp._11, camPojTemp._21, camPojTemp._31, camPojTemp._41,
-	//		camPojTemp._12, camPojTemp._22, camPojTemp._32, camPojTemp._42,
-	//		camPojTemp._13, camPojTemp._23, camPojTemp._33, camPojTemp._43,
-	//		camPojTemp._14, camPojTemp._24, camPojTemp._34, camPojTemp._44
-	//	};
-	//	XMFLOAT4X4 objMatTemp;
-	//	XMStoreFloat4x4(&objMatTemp, pSelectedEntity->GetTransform().GetWorldMatrix());
-	//	float objMat[16] =
-	//	{
-	//		objMatTemp._11, objMatTemp._21, objMatTemp._31, objMatTemp._41,
-	//		objMatTemp._12, objMatTemp._22, objMatTemp._32, objMatTemp._42,
-	//		objMatTemp._13, objMatTemp._23, objMatTemp._33, objMatTemp._43,
-	//		objMatTemp._14, objMatTemp._24, objMatTemp._34, objMatTemp._44
-	//	};
-	//	static float identityMatrix[16] =
-	//	{ 
-	//		1.f, 0.f, 0.f, 0.f,
-	//		0.f, 1.f, 0.f, 0.f,
-	//		0.f, 0.f, 1.f, 0.f,
-	//		0.f, 0.f, 0.f, 1.f };
-	//	static float defaultMatrix[16] =
-	//	{
-	//	  1.f, 0.f, 0.f, 0.f,
-	//	  0.f, 1.f, 0.f, 0.f,
-	//	  0.f, 0.f, 1.f, 0.f,
-	//	  0.f, 0.f, 0.f, 1.f };
-	//	//ImGuizmo::DrawCube(camView, camProj, defaultMatrix);
+	//ImGuizmo::SetDrawlist();
 
-	//	ImGuizmo::SetDrawlist();
-	//	ImGuizmo::Manipulate(camView, camProj, ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, objMat);
+	//ImGuizmo::SetRect(0, 0, pImGuiIO->DisplaySize.x, pImGuiIO->DisplaySize.y);
+	//ImGuizmo::Manipulate(camView, camProj, ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, objMat);
 
-	//	/*if (ImGuizmo::IsOver())
-	//		Debug::Editor::Instance()->DebugLog("Mouse is over");*/
+	//if (ImGuizmo::IsOver())
+	//	Debug::Editor::Instance()->DebugLog("Mouse is over");
 
-	}
-	
+	// Menu Bar
 	if (ImGui::Begin("Menu Bar", NULL, ImGuiWindowFlags_MenuBar |
 		ImGuiWindowFlags_AlwaysAutoResize))
 	{
@@ -734,45 +778,22 @@ void Graphics::UpdateImGuiWidgets()
 		{
 			Editor::Instance()->StopGame();
 		}
+		/*if (ImGui::Button("Simulate", { 50.0f, 20.0f }))
+		{
+
+		}*/
 	}
 	ImGui::End();
-
-	//static bool show = true;
-
-	//ImGuiWindowFlags window_flags = 0;
-	//window_flags |= ImGuiWindowFlags_MenuBar;
-
-	//ImGui::ShowDemoWindow();
-	/*ImGui::Begin("Menu Bar");
-	{
-		if (ImGui::BeginMenuBar())
-		{
-			if (ImGui::BeginMenu("Menu"))
-			{
-				ImGui::MenuItem("Test", NULL, show);
-				ImGui::MenuItem("Hello", NULL, false);
-				ImGui::EndMenu();
-			}
-
-			ImGui::EndMainMenuBar();
-		}
-	}
-	ImGui::End();*/
 	
 	ImGui::Begin("Lighting");
 	{
-		//ImGui::DragFloat3("Ambient Light Color", &cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
-		//ImGui::DragFloat("Ambient Light Strength", &cb_ps_light.data.ambientLightStrength, 0.01f, 0.0f, 10.0f);
-		//ImGui::DragFloat3("Directional Light Color", &directionalLight->lightColor.x, 0.01f, 0.0f, 10.0f);
-		//ImGui::DragFloat("Directional Light Strength", &directionalLight->lightStrength, 0.01f, 0.0f, 10.0f);
-
 		ImGui::Text("Ambient/IBL Light");
 		ImGui::DragFloat3("Color Override", &cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat("Strength Override", &cb_ps_light.data.ambientLightStrength, 0.01f, 0.0f, 10.0f);
 
 		ImGui::Text("Directional Light");
 		ImGui::DragFloat3("Directional Color", &directionalLight->lightColor.x, 0.01f, 0.0f, 10.0f);
-		ImGui::DragFloat("Directional Strength", &directionalLight->lightStrength, 0.01f, 0.0f, 10.0f);
+		ImGui::DragFloat("Directional Strength", &directionalLight->lightStrength, 0.01f, 0.0f, 50.0f);
 
 		ImGui::Text("Point Light");
 		ImGui::DragFloat3("Point Color", &pointLight->lightColor.x, 0.01f, 0.0f, 10.0f);
@@ -788,9 +809,9 @@ void Graphics::UpdateImGuiWidgets()
 	{
 		ImGui::Text(entityName.c_str());
 		ImGui::TextColored({100, 100, 100, 100}, "Transform");
-		ImGui::DragFloat3("Position", &pSelectedEntity->GetTransform().GetPosition().x, 0.1f, -1000.0f, 1000.0f);
+		ImGui::DragFloat3("Position", &pSelectedEntity->GetTransform().GetPosition().x, 0.1f, -2000.0f, 2000.0f);
 		ImGui::DragFloat3("Rotation", &pSelectedEntity->GetTransform().GetRotation().x, 0.1f, -100.0f, 100.0f);
-		ImGui::DragFloat3("Scale", &pSelectedEntity->GetTransform().GetScale().x, 0.1f, -100.0f, 100.0f);
+		ImGui::DragFloat3("Scale", &pSelectedEntity->GetTransform().GetScale().x, 0.1f, -500.0f, 500.0f);
 
 		ImGui::NewLine();
 		std::vector<Component*> objectComponents = pSelectedEntity->GetAllComponents();
@@ -809,10 +830,10 @@ void Graphics::UpdateImGuiWidgets()
 
 	ImGui::Begin("Entity Creator");
 	{
-		if (ImGui::Button("Create Long Grass"))
+		if (ImGui::Button("Create Thick Grass"))
 		{
 			creationCounter++;
-			std::string creationCount = "Long Grass" + std::to_string(creationCounter);
+			std::string creationCount = "ThickGrass0-" + std::to_string(creationCounter);
 			Entity* entity = new Entity(&m_pEngine->GetScene(), (*new ID()));
 			entity->GetID().SetName(creationCount);
 			entity->GetID().SetTag("Untagged");
@@ -821,12 +842,15 @@ void Graphics::UpdateImGuiWidgets()
 			entity->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
 			entity->GetTransform().SetScale(0.3f, 0.3f, 0.3f);
 			// mr
-			Material* mat = new MaterialTexturedFoliage(Material::eMaterialType::PBR_DEFAULT);
-			//mat = mat->SetMaterialByType(Material::eMaterialType::PBR_DEFAULT, Material::eFlags::FOLIAGE);
+			//Material* mat = new MaterialTextured(Material::eMaterialType::PBR_DEFAULT);
+			Material* mat = nullptr;
+			mat = mat->SetMaterialByType(Material::eMaterialType::PBR_DEFAULT, Material::eFlags::FOLIAGE);
 
-			mat->Initiailze(pDevice.Get(), pDeviceContext.Get(), Material::eFlags::FOLIAGE);
+			//mat->Initiailze(pDevice.Get(), pDeviceContext.Get(), Material::eFlags::FOLIAGE);
+			mat->Initiailze(pDevice.Get(), pDeviceContext.Get(), Material::eFlags::NOFLAGS);
 			//std::string file = "..\\Assets\\Objects\\Primatives\\Cube.fbx";
-			std::string file = "..\\Assets\\Objects\\Norway\\Foliage\\Var1\\LongGrass_Var1_LOD1.fbx";
+			std::string file = "..\\Assets\\Objects\\Norway\\Foliage\\ScatterGrass\\ScatterGrass_LOD1.fbx";
+			//std::string file = "..\\Assets\\Objects\\Norway\\Opaque\\Rock02\\Rock02_LOD1.fbx";
 			MeshRenderer* mr = entity->AddComponent<MeshRenderer>();
 			mr->Initialize(entity, file, pDevice.Get(), pDeviceContext.Get(), this->GetDefaultVertexShader(), mat);
 			entity->SetHasMeshRenderer(true);

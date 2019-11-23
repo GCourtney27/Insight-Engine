@@ -40,6 +40,12 @@
     <FxCompile Include="PBR_Foliage_ps.hlsl">
       <Filter>Resource Files\Shaders\PBR</Filter>
     </FxCompile>
+    <FxCompile Include="PBR_Water_vs.hlsl">
+      <Filter>Resource Files\Shaders\PBR</Filter>
+    </FxCompile>
+    <FxCompile Include="PBR_Water_ps.hlsl">
+      <Filter>Resource Files\Shaders\PBR</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -344,6 +350,9 @@
     </ClCompile>
     <ClCompile Include="Physics\AABB.cpp">
       <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\MaterialWater.cpp">
+      <Filter>Source Files\Graphics\Materials</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -709,6 +718,15 @@
     </ClInclude>
     <ClInclude Include="Physics\AABB.h">
       <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Event\PhysicsEvent.h">
+      <Filter>Header Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\MaterialWater.h">
+      <Filter>Header Files\Graphics\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\Contact.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

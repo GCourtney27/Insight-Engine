@@ -3,6 +3,7 @@
 #include "..\\Components\\EditorSelectionComponent.h"
 #include "..\\Components\\LuaScriptComponent.h"
 #include "..\Editor\Editor.h"
+#include "..\Components\RigidBodyComponent.h"
 
 bool Entity::Initialize()
 {
@@ -84,6 +85,10 @@ void Entity::OnExit()
 void Entity::OnEditorStop()
 {
 	UpdateTransformWithCopy();
+	for (Component* com : m_components)
+	{
+		com->OnEditorStop();
+	}
 }
 
 void Entity::WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer> & writer)
@@ -188,6 +193,26 @@ void Entity::WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer> & writ
 
 void Entity::OnEvent(const Event & event)
 {
+}
+
+bool Entity::OnCollisionEnter()
+{
+	RigidBody* rb = this->GetComponent<RigidBody>();
+	if (rb != nullptr)
+	{
+		return rb->IsColliding();
+	}
+	
+	return false;
+}
+
+void Entity::Translate(float x, float y, float z)
+{
+	RigidBody* rb = this->GetComponent<RigidBody>();
+	if (rb != nullptr)
+	{
+		rb->Translate(x, y, z);
+	}
 }
 
 void Entity::AddComponent(Component * component)

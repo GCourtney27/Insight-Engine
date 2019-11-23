@@ -62,6 +62,10 @@ void EditorSelection::OnImGuiRender()
 
 }
 
+void EditorSelection::OnEditorStop()
+{
+}
+
 
 
 

@@ -27,14 +27,15 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 		ErrorLogger::Log("Failed to initialize Graphics Instance");
 		return false;
 	}
-	//============= Choose from these scenes
-	//PBR_TexturedShowcase
-	//PBR_UnTexturedShowcase
-	//Norway - Disable physics for this level!
-	//Test
-	//PhysicsTest
-	scene.SetPhysicsEnabled(false);
-	if (!FileSystem::Instance()->LoadSceneFromJSON("..\\Assets\\Scenes\\Norway.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext()))
+	// ============= Choose from these scenes
+	// PBR_TexturedShowcase
+	// PBR_UnTexturedShowcase
+	// Norway - Disable physics for this level!
+	// Test
+	// PhysicsTest
+	// Physics_Showcase
+	scene.SetPhysicsEnabled(true);
+	if (!FileSystem::Instance()->LoadSceneFromJSON("..\\Assets\\Scenes\\PhysicsTest.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext()))
 	{
 		ErrorLogger::Log("Failed to initialize scene.");
 		return false;
@@ -50,7 +51,6 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	// Enable this to draw the lights mesh (Commented does not effect the lights emission behavior)
 	//scene.AddEntity(Graphics::Instance()->pointLight);
 	//scene.AddEntity(Graphics::Instance()->directionalLight);
-
 
 	if (!scene.Initialize())
 	{
@@ -96,17 +96,38 @@ void Engine::Update()
 		MouseEvent me = InputManager::Instance()->mouse.ReadEvent();
 		if (InputManager::Instance()->mouse.IsRightDown())
 		{
-			if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
+			if (me.GetType() == MouseEvent::EventType::RAW_MOVE)// && !Debug::Editor::Instance()->PlayingGame())
 			{
 				Graphics::Instance()->editorCamera.GetTransform().AdjustRotation((float)me.GetPosY() * 0.005f, (float)me.GetPosX() * 0.005f, 0.0f);
 			}
 
 		}
+
 		if (me.GetType() == MouseEvent::EventType::LRelease)
 			Debug::Editor::Instance()->rayCastEnabled = true;
 
+		/*if (Debug::Editor::Instance()->PlayingGame())
+		{
+			if (InputManager::Instance()->mouse.IsRightDown())
+			{
+				if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
+				{
+					InputManager::Instance()->MouseMoved(true);
+					InputManager::Instance()->SetMouseX((float)me.GetPosX());
+					InputManager::Instance()->SetMouseY((float)me.GetPosY());
+				}
+				else
+				{
+					InputManager::Instance()->MouseMoved(false);
+				}
+			}
+			
+		}*/
+
 	}
 	
+	if (InputManager::Instance()->keyboard.KeyIsPressed(VK_F5))
+		Debug::Editor::Instance()->PlayGame();
 
 	scene.Update(dt);
 
@@ -159,7 +180,7 @@ void Engine::RenderFrame()
 void Engine::Shutdown()
 {
 	scene.Shutdown();
-	Graphics::Instance()->Shutdown();
+	//Graphics::Instance()->Shutdown();
 }
 
 void Engine::OnGameStart()

@@ -47,6 +47,9 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 	ID* id = nullptr;
 	Entity* entity = nullptr;
 
+	// Physics system
+	static int colliderTag = 1;
+
 	// Load objects
 	const rapidjson::Value& sceneObjects = masterDocument["Objects"]; // Arr
 	for (rapidjson::SizeType o = 0; o < sceneObjects.Size(); o++)
@@ -143,6 +146,9 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 			
 			if (mr->GetModel()->GetMaterial()->GetMaterialFlags() == Material::eFlags::NOFLAGS)
 				scene->GetRenderManager().AddOpaqueObject(mr);
+
+			if (mr->GetModel()->GetMaterial()->GetMaterialFlags() == Material::eFlags::WATER)
+				scene->GetRenderManager().AddFoliageObject(mr);
 		}
 		entity->SetHasMeshRenderer(foundModel);
 		
@@ -172,6 +178,8 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 			{
 				ps = entity->AddComponent<RigidBody>();
 				ps->InitFromJSON(entity, rigidBody);
+				ps->SetColliderTag(colliderTag);
+				colliderTag++;
 
 				scene->GetPhysicsSystem().AddEntity(ps);
 			}

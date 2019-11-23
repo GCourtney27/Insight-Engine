@@ -57,12 +57,9 @@ float4 main(PS_INPUT input) : SV_TARGET
 {
 	// Sample Textures
 	float3 albedoSample = color;
-
 	float3 normalSample = normalSRV.Sample(samplerState, input.inTexCoord).xyz;
-
-	float metallicSample = saturate(metallic);
-
-   float roughnessSample = saturate(roughness);
+	float metallicSample = (metallic);
+   float roughnessSample = (roughness);
 
    float aoSample = 0.3f;
 
@@ -89,7 +86,6 @@ float4 main(PS_INPUT input) : SV_TARGET
     float3 Dir_H = normalize(V + Dir_L); // Halfway vector
 
     // -- Per light radiance -- //
-    float3 ambientLight = ambientLightColor * ambientLightStrength;
 
     float3 vectorToLight = normalize(dynamicLightPosition - input.inWorldPos);
     float distanceToLight = distance(vectorToLight, input.inWorldPos);
@@ -153,10 +149,11 @@ float4 main(PS_INPUT input) : SV_TARGET
    float2 brdf = brdfLUT.Sample(samplerState, float2(NdotV, roughnessSample)).rg;
    float3 specular_IBL = prefilteredColor * (F_IBL * brdf.r + brdf.g);
 
-   //specular_IBL *= ambientLightStrength;
+    float3 ambientLight = ambientLightColor * ambientLightStrength;
+    float3 diffuse_IBL = (diffuse + specular_IBL) * ambientLight;
 
    // Works, but everything is shiny
-   float3 ambient = (diffuse + specular_IBL) * (ambientLightStrength);
+   float3 ambient = diffuse_IBL * aoSample;
    float3 color = (ambient + Lo);
 
    // HDR tonemapping

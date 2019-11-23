@@ -15,6 +15,7 @@ public:
 	void Update(const float& deltaTime) override;
 	void Destroy() override;
 	void OnImGuiRender() override;
+	void OnEditorStop() override;
 
 	void InitFromJSON(Entity* owner, const rapidjson::Value& componentInformation) override;
 	void WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) override;
