@@ -33,7 +33,7 @@ public:
 
 	//Camera3D editorCamera;
 	Camera editorCamera;
-
+	Camera* m_pSelectedCamera = &editorCamera;
 	Camera2D camera2D;
 	Sprite sprite;
 
@@ -78,6 +78,9 @@ private:
 	UINT m_drawCalls = 0;
 	bool m_drawWireframe = false;
 
+	ID3D11Texture2D* backBufferTexture;
+	ID3D11ShaderResourceView* backBufferSRV;
+
 	std::wstring m_shaderFolder;
 
 	// -- 2D Shaders -- //
@@ -115,6 +118,8 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pDeviceContext;
+
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> pBackBuffer;
 
 	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapchain;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pRenderTargetView;

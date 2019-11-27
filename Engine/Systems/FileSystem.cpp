@@ -154,7 +154,9 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 		
 		// LUA SCRIPT(s)
 		const rapidjson::Value& luaScript = allComponents[1]["LuaScript"];
-		entity->AddComponent<LuaScript>()->InitFromJSON(entity, luaScript);
+		LuaScript* ls = entity->AddComponent<LuaScript>();
+		ls->InitFromJSON(entity, luaScript);
+		scene->GetLuaManager().AddScript(ls);
 
 		// EDITOR SELECTION
 		const rapidjson::Value& editorSelection = allComponents[2]["EditorSelection"];

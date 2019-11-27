@@ -3,6 +3,7 @@
 #include "Component.h"
 #include "..\Framework\Singleton.h"
 #include "Lua/LuaPlus/LuaPlus.h"
+#include <DirectXMath.h>
 
 extern "C"
 {
@@ -35,15 +36,21 @@ public:
 	float GetAxisVertical();
 
 	bool lua_KeyIsPressed(int keycode);
-	bool lua_CollisionEnter();
+	bool lua_KeyIsReleased(int keycode);
+	bool lua_IsColliding();
 	void lua_Translate(float x, float y, float z);
+	void lua_DebugLog(const char* message);
+	void lua_Instantiate(const char* instanceType);
+
+	void ConvertFloat3ToTable(const DirectX::XMFLOAT3 & vector, LuaPlus::LuaObject & outLuaTable) const;
+	void ConvertTableToFloat3(const LuaPlus::LuaObject & luaTable, DirectX::XMFLOAT3 & outVector) const;
 
 	std::string& GetFilePath() { return filePath; }
 
 
 private:
 
-	LuaPlus::LuaState* luaState = nullptr;
+	LuaPlus::LuaState* m_pLuaState = nullptr;
 	LuaPlus::LuaObject Lua_UpdateFunction;
 	std::string filePath;
 

@@ -39,5 +39,29 @@ std::string StringHelper::GetFileExtension(const std::string & filename)
 
 std::string StringHelper::GetFilenameFromDirectory(const std::string& filename)
 {
-	return {};
+	std::string result = filename;
+
+	// Erase everything up to the beginning of the filename
+	const size_t last_slash_idx = result.find_last_of("\\/");
+	if (std::string::npos != last_slash_idx)
+		result.erase(0, last_slash_idx + 1);
+
+	return result;
+}
+
+std::string StringHelper::GetFilenameFromDirectoryNoExtension(const std::string& filename)
+{
+	std::string result = filename;
+
+	// Erase everything up to the beginning of the filename
+	const size_t last_slash_idx = result.find_last_of("\\/");
+	if (std::string::npos != last_slash_idx)
+		result.erase(0, last_slash_idx + 1);
+
+	// Erase the file extension
+	const size_t period_idx = result.rfind('.');
+	if (std::string::npos != period_idx)
+		result.erase(period_idx);
+
+	return result;
 }

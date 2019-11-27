@@ -58,7 +58,7 @@ void Camera::Update(const float& deltaTime)
 		es->SetPosition(m_transform.GetPosition());
 	
 
-	//m_transform.AdjustPosition(0.0f, 0.0f, 0.0f);
+	m_transform.AdjustPosition(0.0f, 0.0f, 0.0f);
 	this->m_transform.Update();
 	UpdateViewMatrix();
 }

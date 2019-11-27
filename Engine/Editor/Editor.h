@@ -49,6 +49,7 @@ namespace Debug
 			{
 				(*iter)->OnEditorStop();
 			}
+			m_pEngine->GetScene().ClearInstantiatedEntities();
 		}
 
 		void SetIsEditorEnabled(bool enabled) { m_isEditorEnabled = enabled; }

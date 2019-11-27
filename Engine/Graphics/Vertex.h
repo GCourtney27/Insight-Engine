@@ -20,6 +20,7 @@ struct Vertex3D
 
 	DirectX::XMFLOAT3 pos;
 	DirectX::XMFLOAT2 texCoord;
+	DirectX::XMFLOAT2 texCoord2;
 	DirectX::XMFLOAT3 normal;
 	DirectX::XMFLOAT3 Tangent;
 	DirectX::XMFLOAT3 BiTangent;

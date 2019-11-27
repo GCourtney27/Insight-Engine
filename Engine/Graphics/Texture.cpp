@@ -1,5 +1,6 @@
 #include "Texture.h"
 #include "../ErrorLogger.h"
+#include "..\Editor\Editor.h"
 #include <WICTextureLoader.h>
 #include <DDSTextureLoader.h>
 
@@ -21,6 +22,7 @@ Texture::Texture(ID3D11Device * device, const std::string & filePath, aiTextureT
 		HRESULT hr = DirectX::CreateDDSTextureFromFile(device, StringHelper::StringToWide(filePath).c_str(), texture.GetAddressOf(), this->textureView.GetAddressOf());
 		if (FAILED(hr))
 		{
+			ErrorLogger::Log("Failed to create DDS texture for " + filePath + ". Initializeing 1x1 texture as fallback...");
 			this->Initialize1x1ColorTexture(device, Colors::UnloadedTextureColor, type);
 		}
 		return;
@@ -30,6 +32,7 @@ Texture::Texture(ID3D11Device * device, const std::string & filePath, aiTextureT
 		HRESULT hr = DirectX::CreateWICTextureFromFile(device, StringHelper::StringToWide(filePath).c_str(), texture.GetAddressOf(), this->textureView.GetAddressOf());
 		if (FAILED(hr))
 		{
+			ErrorLogger::Log("Failed to create WIC texture for " + filePath + ". Initializeing 1x1 texture as fallback...");
 			this->Initialize1x1ColorTexture(device, Colors::UnloadedTextureColor, type);
 		}
 		return;
@@ -43,6 +46,7 @@ Texture::Texture(ID3D11Device * device, const std::string & filePath)
 		HRESULT hr = DirectX::CreateDDSTextureFromFile(device, StringHelper::StringToWide(filePath).c_str(), texture.GetAddressOf(), this->textureView.GetAddressOf());
 		if (FAILED(hr))
 		{
+			ErrorLogger::Log("Failed to create DDS texture for " + filePath + ". Initializeing 1x1 texture as fallback...");
 			this->Initialize1x1ColorTexture(device, Colors::UnloadedTextureColor, type);
 		}
 		return;
@@ -52,6 +56,7 @@ Texture::Texture(ID3D11Device * device, const std::string & filePath)
 		HRESULT hr = DirectX::CreateWICTextureFromFile(device, StringHelper::StringToWide(filePath).c_str(), texture.GetAddressOf(), this->textureView.GetAddressOf());
 		if (FAILED(hr))
 		{
+			//ErrorLogger::Log("Failed to create WIC texture for " + filePath + ". Initializeing 1x1 texture as fallback...");
 			this->Initialize1x1ColorTexture(device, Colors::UnloadedTextureColor, type);
 		}
 		return;
@@ -63,6 +68,30 @@ Texture::Texture(ID3D11Device * device, const uint8_t * pData, size_t size, aiTe
 	this->type = type;
 	HRESULT hr = DirectX::CreateWICTextureFromMemory(device, pData, size, this->texture.GetAddressOf(), this->textureView.GetAddressOf());
 	COM_ERROR_IF_FAILED(hr, "Failed to create Texture from memory.");
+}
+
+void Texture::Initialize(ID3D11Device * device, const std::string & filePath)
+{
+	if (StringHelper::GetFileExtension(filePath) == ".dds")
+	{
+		HRESULT hr = DirectX::CreateDDSTextureFromFile(device, StringHelper::StringToWide(filePath).c_str(), texture.GetAddressOf(), this->textureView.GetAddressOf());
+		if (FAILED(hr))
+		{
+			ErrorLogger::Log("Failed to create DDS texture for " + filePath + ". Initializeing 1x1 texture as fallback...");
+			this->Initialize1x1ColorTexture(device, Colors::UnloadedTextureColor, type);
+		}
+		return;
+	}
+	else
+	{
+		HRESULT hr = DirectX::CreateWICTextureFromFile(device, StringHelper::StringToWide(filePath).c_str(), texture.GetAddressOf(), this->textureView.GetAddressOf());
+		if (FAILED(hr))
+		{
+			ErrorLogger::Log("Failed to create WIC texture for " + filePath + ". Initializeing 1x1 texture as fallback...");
+			this->Initialize1x1ColorTexture(device, Colors::UnloadedTextureColor, type);
+		}
+		return;
+	}
 }
 
 aiTextureType Texture::GetType()
@@ -78,6 +107,11 @@ ID3D11ShaderResourceView * Texture::GetTextureResourceView()
 ID3D11ShaderResourceView ** Texture::GetTextureResourceViewAddress()
 {
 	return this->textureView.GetAddressOf();
+}
+
+ID3D11Resource * Texture::GetTexture()
+{
+	return texture.Get();
 }
 
 void Texture::Initialize1x1ColorTexture(ID3D11Device * device, const Color & colorData, aiTextureType type)

@@ -35,10 +35,13 @@ public:
 	// -- Return and grant modification -- //
 	// Returns Position of object in local space
 	XMFLOAT3 & GetPosition() { return this->pos; }
+	XMFLOAT3 GetPositionConst() const { return this->pos; }
 	// Returns Rotation of object in localspace
 	XMFLOAT3 & GetRotation() { return this->rot; }
+	XMFLOAT3 GetRotationConst() const { return this->rot; }
 	// Returns Scale of object in local space
 	XMFLOAT3 & GetScale() { return this->scale; }
+	XMFLOAT3 GetScaleConst() const { return this->scale; }
 
 
 	//Returns Position Vector

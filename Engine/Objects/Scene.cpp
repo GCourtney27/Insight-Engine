@@ -4,13 +4,16 @@
 #include <assert.h>
 #include <algorithm>
 
-bool Scene::Initialize()
+bool Scene::Initialize(Engine* engine)
 {
 	std::list<Entity*>::iterator iter;
 	for (iter = m_entities.begin(); iter != m_entities.end(); iter++)
 	{
 		(*iter)->Initialize();
 	}
+
+	m_pEngine = engine;
+
 	return true;
 }
 
@@ -62,6 +65,11 @@ void Scene::OnUpdate(const float & deltaTime)
 	{
 		entity->OnUpdate(deltaTime);
 	}
+
+	for (Entity* entity : m_instantiatedEntities)
+	{
+		entity->OnUpdate(deltaTime);
+	}
 }
 
 void Scene::OnDestroy()
@@ -94,6 +102,17 @@ std::list<Entity*>::iterator Scene::RemoveEntity(Entity * entity, bool destroy)
 	}
 
 	return iter;
+}
+
+void Scene::AddInstantiatedEntity(Entity * entity)
+{
+	m_instantiatedEntities.push_back(entity);
+}
+
+void Scene::ClearInstantiatedEntities()
+{
+	m_instantiatedEntities.clear();
+	m_renderManager.ClearInstanciatedOpaqueObjects();
 }
 
 Entity * Scene::GetEntityWithID(const ID & id)

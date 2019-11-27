@@ -29,10 +29,11 @@ cbuffer Wave : register(b3) // Uploaded via material
     float speed;
 }
 
-struct VS_INPUT // Defined in InitializeShaders() in TextuteredFoliageMaterial.cpp with D3D11_INPUT_ELEMENT_DESC
+struct VS_INPUT // Defined in InitializeShaders() with D3D11_INPUT_ELEMENT_DESC
 {
     float3 inPosition : POSITION;
-    float2 inTexCoord : TEXCOORD;
+    float2 inTexCoord0 : TEXCOORD;
+    float2 inTexCoord1 : TEXCOORDNEW;
     float3 inNormal : NORMAL;
     float3 inTangent : TANGENT;
     float3 inBiTangent : BITANGENT;
@@ -41,16 +42,17 @@ struct VS_INPUT // Defined in InitializeShaders() in TextuteredFoliageMaterial.c
 struct VS_OUTPUT // What this shader returns to the pixel shader with PS_INPUT
 {
     float4 outPosition : SV_POSITION;
-    float2 outTexCoord : TEXCOORD;
+    float2 outTexCoord0 : TEXCOORD;
+    float2 outTexCoord1 : TEXCOORDNEW;
     float3 outNormal : NORMAL;
     float3 outTangent : TANGENT;
     float3 outBiTangent : BITANGENT;
     float3 outWorldPos : WORLD_POSITION;
 };
 
-float wave(float value, float frequency, float speed, float amplitude)
+float wave(float value, float frequency, float horizontalOffset, float amplitude)
 {
-    return sin(value * frequency + speed) * amplitude;
+    return sin(frequency * (value + horizontalOffset)) * amplitude;
 }
 
 VS_OUTPUT main(VS_INPUT input)
@@ -64,9 +66,12 @@ VS_OUTPUT main(VS_INPUT input)
     // Animation
     float4 objectSpacePos = float4(input.inPosition, 1.0f);
 
-    objectSpacePos.y += wave(objectSpacePos.x, time * 0.3f, 1.0f, 0.01f);
-    objectSpacePos.y += wave(objectSpacePos.z, time * 0.3f, 1.0f, 0.01f);
+    objectSpacePos.y += wave(objectSpacePos.x, 0.50f, time, 0.01f);
+                                                     
+    objectSpacePos.y += wave(objectSpacePos.z, 0.50f, time, 0.01f);
     
+
+
     output.outPosition = mul(objectSpacePos, worldViewProj);
 
     output.outNormal = normalize(mul(float4(input.inNormal, 0.0f), world));
@@ -76,7 +81,8 @@ VS_OUTPUT main(VS_INPUT input)
     output.outWorldPos = mul(float4(input.inPosition, 1.0f), world);
 
 	// Texture Scrolling
-    output.outTexCoord = float2((input.inTexCoord.x + (uvOffset.x + (time * 0.0f))) * tiling.x, (input.inTexCoord.y + (uvOffset.y + (time * -0.01f))) * tiling.y);
+    output.outTexCoord0 = float2((input.inTexCoord0.x + (uvOffset.x + (time * 0.01f))) * tiling.x, (input.inTexCoord0.y + (uvOffset.y + (time * -0.01f))) * tiling.y);
+    output.outTexCoord1 = float2(-(input.inTexCoord1.x + (uvOffset.x + (time * 0.01f))) * tiling.x, (input.inTexCoord1.y + (uvOffset.y + (time * 0.01f))) * tiling.y);
 
     return output;
 }

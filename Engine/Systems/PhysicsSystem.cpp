@@ -18,8 +18,9 @@ void PhysicsSystem::Simulate(const float& deltaTime)
 	for (RigidBody* rb : m_physicsEntities)
 	{
 		rb->ResetForce();
-		//rb->SetIsColliding(false);
+		rb->SetIsColliding(false);
 		rb->ClearColliders();
+		rb->ClearCollidingObjects();
 	}
 
 	for (RigidBody* rb : m_physicsEntities)
@@ -43,7 +44,16 @@ void PhysicsSystem::Simulate(const float& deltaTime)
 
 			if (rb->GetCollider().Intersects(&testAgainst->GetCollider()))
 			{
-				//rb->GetRestitution() -= 0.005f;
+				rb->SetIsColliding(true);
+				testAgainst->SetIsColliding(true);
+
+				rb->RecordCollidingObject(testAgainst);
+				testAgainst->RecordCollidingObject(rb);
+
+				// If it is a trigger continue, we dont want to calculate 
+				// physics just record a hit
+				if (rb->GetIsTrigger())
+					break;
 
 				// Have we tested against this object while going through the list before?
 				// If so then just continue we dont want to test for it agian.
@@ -55,23 +65,19 @@ void PhysicsSystem::Simulate(const float& deltaTime)
 
 
 				XMVECTOR direction = currentEntity->GetTransform().GetPositionVector() - testAgainst->GetOwner()->GetTransform().GetPositionVector();
-
 				XMVECTOR directionNormalized = XMVector3Normalize(direction);
 				XMFLOAT3 f_normal;
 				XMStoreFloat3(&f_normal, directionNormalized);
 
 				XMVECTOR directionLength = XMVector3Length(direction);
-				XMFLOAT3 length;
-				XMStoreFloat3(&length, directionLength);
+				XMFLOAT3 f_length;
+				XMStoreFloat3(&f_length, directionLength);
 
 				XMVECTOR hitPoint = XMVector3Normalize(directionLength) * (testAgainst->GetCollider().GetRadius());
 				XMVECTOR normal = XMVector3Normalize(directionLength);
 				XMFLOAT3 fn; XMStoreFloat3(&fn, normal);
-				float distance = (testAgainst->GetCollider().GetRadius() + rb->GetCollider().GetRadius()) - length.x;
+				float distance = (testAgainst->GetCollider().GetRadius() + rb->GetCollider().GetRadius()) - f_length.x;
 			
-				/*rb->SetIsColliding(true);
-				testAgainst->SetIsColliding(true);*/
-		
 				m_contacts.push_back(Contact(hitPoint, directionNormalized, -distance, rb, testAgainst));
 			}
 		}

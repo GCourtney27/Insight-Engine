@@ -36,6 +36,6 @@ private:
 
 namespace Colors
 {
-	const Color UnloadedTextureColor(100, 100, 100);
+	const Color UnloadedTextureColor(200, 100, 100);
 	const Color UnhandledTextureColor(250, 0, 0);
 }

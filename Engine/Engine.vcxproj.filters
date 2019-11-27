@@ -354,6 +354,9 @@
     <ClCompile Include="Graphics\MaterialWater.cpp">
       <Filter>Source Files\Graphics\Materials</Filter>
     </ClCompile>
+    <ClCompile Include="Systems\LuaManager.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="COMException.h">
@@ -728,6 +731,9 @@
     <ClInclude Include="Physics\Contact.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Systems\LuaManager.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -826,9 +832,6 @@
     <Filter Include="LuaUsings">
       <UniqueIdentifier>{6da2f7fc-100a-4437-8848-b567e9bf93b7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="LuaScripts">
-      <UniqueIdentifier>{ec3e7a93-bb23-4959-9a8b-675cf4c48d4e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Systems\Json">
       <UniqueIdentifier>{b3b68f22-8c06-469e-b804-47179884c12b}</UniqueIdentifier>
     </Filter>
@@ -883,9 +886,6 @@
     </None>
     <None Include="Includes\Lua\LuaPlus\LuaState.inl">
       <Filter>LuaUsings</Filter>
-    </None>
-    <None Include="LuaScripts\Test.lua">
-      <Filter>LuaScripts</Filter>
     </None>
     <None Include="PBR_Header.hlsli">
       <Filter>Resource Files\Shaders\PBR</Filter>

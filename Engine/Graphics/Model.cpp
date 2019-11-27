@@ -131,8 +131,10 @@ Mesh Model::ProcessMesh(aiMesh * mesh, const aiScene * scene, const XMMATRIX & t
 		{
 			vertex.texCoord.x = (float)mesh->mTextureCoords[0][i].x;
 			vertex.texCoord.y = (float)mesh->mTextureCoords[0][i].y;
-		}
 
+			vertex.texCoord2 = vertex.texCoord;
+			vertex.texCoord2 = vertex.texCoord;
+		}
 		verticies.push_back(vertex);
 	}
 
@@ -147,9 +149,9 @@ Mesh Model::ProcessMesh(aiMesh * mesh, const aiScene * scene, const XMMATRIX & t
 
 
 	std::vector<Texture> textures;
-	aiMaterial * material = scene->mMaterials[mesh->mMaterialIndex];
-	std::vector<Texture> diffuseTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_DIFFUSE, scene);
-	textures.insert(textures.end(), diffuseTextures.begin(), diffuseTextures.end());
+	//aiMaterial * material = scene->mMaterials[mesh->mMaterialIndex];
+	//std::vector<Texture> diffuseTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_DIFFUSE, scene);
+	//textures.insert(textures.end(), diffuseTextures.begin(), diffuseTextures.end());
 
 	return Mesh(this->device, this->deviceContext, verticies, indicies, textures, transformMatrix);
 }

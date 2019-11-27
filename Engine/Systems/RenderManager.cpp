@@ -29,6 +29,16 @@ void RenderManager::AddOpaqueObject(MeshRenderer * mr)
 	m_opaqueObjects.push_back(mr);
 }
 
+void RenderManager::AddOpaqueInstantiatedObject(MeshRenderer * mr)
+{
+	m_opaqueInstanciatedObjects.push_back(mr);
+}
+
+void RenderManager::ClearInstanciatedOpaqueObjects()
+{
+	m_opaqueInstanciatedObjects.clear();
+}
+
 void RenderManager::DrawOpaque(const DirectX::XMMATRIX & projectionMatrix, const DirectX::XMMATRIX & viewMatrix)
 {
 	m_pGameCamera->Draw(projectionMatrix, viewMatrix);

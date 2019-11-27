@@ -59,10 +59,13 @@ public:
 	bool IsCollidingWith(int colliderTag);
 	void RecordCollisionByTag(int colliderTag) { m_colliders.emplace(colliderTag, true); }
 
-	void ClearColliders()
-	{
-		m_colliders.clear();
-	}
+	void ClearColliders() { m_colliders.clear(); }
+
+	bool GetIsTrigger() const { return m_isTrigger; }
+	void SetIsTrigger(bool value) { m_isTrigger = value; }
+
+	void RecordCollidingObject(RigidBody* collider) { m_collidingObjects.push_back(collider); }
+	void ClearCollidingObjects() { m_collidingObjects.clear(); }
 
 private:
 	AABB m_collider;
@@ -81,5 +84,9 @@ private:
 	bool m_gravityEnable = true;
 	bool m_colliding = false;
 
+	bool m_isTrigger = false;
+
 	std::map<int, bool> m_colliders;
+
+	std::vector<RigidBody*> m_collidingObjects;
 };

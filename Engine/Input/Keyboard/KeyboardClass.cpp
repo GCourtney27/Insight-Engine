@@ -13,6 +13,11 @@ bool KeyboardClass::KeyIsPressed(const unsigned char keycode)
 	return this->keyStates[keycode];
 }
 
+bool KeyboardClass::KeyIsReleased(const unsigned char keycode)
+{
+	return this->keyStates[keycode];
+}
+
 bool KeyboardClass::KeyBufferIsEmpty()
 {
 	return this->keyBuffer.empty();;

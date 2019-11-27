@@ -26,7 +26,8 @@ cbuffer PerObjectUtil : register(b2) // Uploaded via material
 struct VS_INPUT // Defined with D3D11_INPUT_ELEMENT_DESC
 {
     float3 inPosition : POSITION;
-    float2 inTexCoord : TEXCOORD;
+    float2 inTexCoord0 : TEXCOORD;
+    float2 inTexCoord1 : TEXCOORDNEW;
     float3 inNormal : NORMAL;
     float3 inTangent : TANGENT;
     float3 inBiTangent : BITANGENT;
@@ -35,7 +36,8 @@ struct VS_INPUT // Defined with D3D11_INPUT_ELEMENT_DESC
 struct VS_OUTPUT // What this shader returns to the pixel shader with VS_OUTPUT
 {
     float4 outPosition : SV_POSITION;
-    float2 outTexCoord : TEXCOORD;
+    float2 outTexCoord0 : TEXCOORD;
+    float2 outTexCoord1 : TEXCOORDNEW;
     float3 outNormal : NORMAL;
     float3 outTangent : TANGENT;
     float3 outBiTangent : BITANGENT;
@@ -74,7 +76,7 @@ VS_OUTPUT main(VS_INPUT input)
 
     //output.outTexCoord = input.inTexCoord;
 	// Texture Scrolling
-    output.outTexCoord = float2((input.inTexCoord.x + uvOffset.x) * tiling.x, (input.inTexCoord.y + uvOffset.y) * tiling.y);
+    output.outTexCoord0 = float2((input.inTexCoord0.x + uvOffset.x) * tiling.x, (input.inTexCoord0.y + uvOffset.y) * tiling.y);
     //output.outTexCoord = float2((input.inTexCoord.x + tiling.x), (input.inTexCoord.y + tiling.y));
     //output.outTexCoord = float2((input.inTexCoord.x + uvOffset.x), (input.inTexCoord.y + uvOffset.y));
 

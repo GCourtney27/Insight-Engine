@@ -35,6 +35,8 @@ void MaterialTextured::WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuff
 	writer.String(m_textureLocations[2].c_str());
 	writer.Key("Roughness");
 	writer.String(m_textureLocations[3].c_str());
+	writer.Key("AO");
+	writer.String(m_textureLocations[4].c_str());
 
 	writer.Key("uvOffset");
 	writer.StartArray();// Begin uvOffset
@@ -168,13 +170,7 @@ bool MaterialTextured::InitializePiplineAssets()
 	std::string tex_normal = "..\\Assets\\Objects\\Norway\\Opaque\\Rock02\\Rock02_Normal.jpg";
 	std::string tex_opacity = "..\\Assets\\Objects\\Norway\\Opaque\\Rock02\\Rock02_Specular.jpg";
 	std::string tex_roughness = "..\\Assets\\Objects\\Norway\\Opaque\\Rock02\\Rock02_Roughness.jpg";
-	std::vector<std::string> textures;
-
-	textures.push_back(tex_albedo);
-	textures.push_back(tex_normal);
-	textures.push_back(tex_opacity);
-	textures.push_back(tex_roughness);
-	m_textureLocations = textures;
+	std::string tex_ao = "..\\Assets\\Objects\\Norway\\Opaque\\Rock02\\Rock02_Roughness.jpg";
 
 	float uvOffsetX = 0.0f;
 	float uvOffsetY = 0.0f;
@@ -191,6 +187,7 @@ bool MaterialTextured::InitializePiplineAssets()
 	this->m_textures.push_back(Texture(this->m_pDevice.Get(), tex_normal));
 	this->m_textures.push_back(Texture(this->m_pDevice.Get(), tex_opacity));
 	this->m_textures.push_back(Texture(this->m_pDevice.Get(), tex_roughness));
+	this->m_textures.push_back(Texture(this->m_pDevice.Get(), tex_ao));
 
 	InitializeShaders();
 
@@ -224,6 +221,7 @@ void MaterialTextured::InitializeShaders()
 	{
 		{ "POSITION", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
+		{ "TEXCOORDNEW", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
 		{ "NORMAL", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
 		{ "TANGENT", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
 		{ "BITANGENT", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  }

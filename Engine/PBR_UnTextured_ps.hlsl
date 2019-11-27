@@ -38,7 +38,8 @@ cbuffer DirectionalLight : register(b3)
 struct PS_INPUT
 {
 	float4 inPosition : SV_POSITION; // Screen space pixel position
-	float2 inTexCoord : TEXCOORD;
+	float2 inTexCoord0 : TEXCOORD;
+    float2 inTexCoord1 : TEXCOORDNEW;
 	float3 inNormal : NORMAL;
 	float3 inTangent : TANGENT;
 	float3 inBiTangent : BITANGENT;
@@ -57,7 +58,7 @@ float4 main(PS_INPUT input) : SV_TARGET
 {
 	// Sample Textures
 	float3 albedoSample = color;
-	float3 normalSample = normalSRV.Sample(samplerState, input.inTexCoord).xyz;
+	float3 normalSample = normalSRV.Sample(samplerState, input.inTexCoord0).xyz;
 	float metallicSample = (metallic);
    float roughnessSample = (roughness);
 

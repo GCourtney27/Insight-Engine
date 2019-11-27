@@ -116,15 +116,14 @@ void MeshRenderer::OnImGuiRender()
 		ImGui::DragFloat("Tiling X", &pMat->m_tiling.x, 0.01f, -100.0f, 100.0f);
 		ImGui::DragFloat("Tiling Y", &pMat->m_tiling.y, 0.01f, -100.0f, 100.0f);
 
-		//ImGui::DragFloat3("Vertex Offset", &pMat->m_newVertOffset.x, 0.01f, -100.0f, 100.0f);
+		ImGui::DragFloat("Wave Reset Time", &pMat->m_newVertOffset.x, 0.01f, -100.0f, 100.0f);
+		ImGui::DragFloat("Max Wave Time Step", &pMat->m_newVertOffset.y, 0.01f, -100.0f, 100.0f);
+		ImGui::DragFloat("Max Speed", &pMat->m_newVertOffset.z, 0.1f, -100.0f, 100.0f);
 
-
-		//pMat->m_newUVOffset.x += 0.05f * m_deltaTime;
-		//pMat->m_newUVOffset.y += 0.05f * m_deltaTime;
 		
 		//pMat->m_newVertOffset.x = Graphics::Instance()->GetEngineInstance()->GetFrameTimer().seconds();
 
-		//pMat->m_cb_vs_PerObjectUtil.data.vertOffset = pMat->m_newVertOffset;
+		pMat->m_cb_vs_PerObjectUtil.data.vertOffset = pMat->m_newVertOffset;
 		pMat->m_cb_vs_PerObjectUtil.data.tiling = pMat->m_tiling;
 		pMat->m_cb_vs_PerObjectUtil.data.uvOffset = pMat->m_newUVOffset;
 

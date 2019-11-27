@@ -19,7 +19,8 @@ cbuffer PerFrame : register(b1)
 struct VS_INPUT // Defined in InitializeShaders() in Graphics.cpp with D3D11_INPUT_ELEMENT_DESC
 {
 	float3 inPosition : POSITION;
-	float2 inTexCoord : TEXCOORD;
+	float2 inTexCoord0 : TEXCOORD;
+    float2 inTexCoord1 : TEXCOORDNEW;
 	float3 inNormal : NORMAL;
 	float3 inTangent : TANGENT;
 	float3 inBiTangent : BITANGENT;
@@ -28,7 +29,8 @@ struct VS_INPUT // Defined in InitializeShaders() in Graphics.cpp with D3D11_INP
 struct VS_OUTPUT // What this shader returns to the pixel shader with VS_OUTPUT
 {
 	float4 outPosition : SV_POSITION;
-	float2 outTexCoord : TEXCOORD;
+	float2 outTexCoord0 : TEXCOORD;
+    float2 outTexCoord1 : TEXCOORDNEW;
 	float3 outNormal : NORMAL;
 	float3 outTangent : TANGENT;
 	float3 outBiTangent : BITANGENT;
@@ -54,7 +56,7 @@ VS_OUTPUT main(VS_INPUT input)
 
 	output.outWorldPos = mul(float4(input.inPosition, 1.0f), world);
 
-	output.outTexCoord = input.inTexCoord;
+	output.outTexCoord0 = input.inTexCoord0;
 	// Texture Scrolling
 	//output.outTexCoord = float2(input.inTexCoord.x, input.inTexCoord.y + uvOffset.y);
 

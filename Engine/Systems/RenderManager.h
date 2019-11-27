@@ -16,6 +16,8 @@ public:
 	void AddFoliageObject(MeshRenderer* mr);
 	void AddOpaqueObject(MeshRenderer* mr);
 		
+	void AddOpaqueInstantiatedObject(MeshRenderer* mr);
+	void ClearInstanciatedOpaqueObjects();
 
 	void DrawFoliage(const DirectX::XMMATRIX & projectionMatrix, const DirectX::XMMATRIX & viewMatrix);
 	void DrawOpaque(const DirectX::XMMATRIX & projectionMatrix, const DirectX::XMMATRIX & viewMatrix);
@@ -26,6 +28,7 @@ private:
 	Camera* m_pGameCamera = nullptr;
 
 	std::vector<MeshRenderer*> m_opaqueObjects;
+	std::vector<MeshRenderer*> m_opaqueInstanciatedObjects;
 	std::vector<MeshRenderer*> m_foliageObjects;
 	//Entity* m_sky;
 };

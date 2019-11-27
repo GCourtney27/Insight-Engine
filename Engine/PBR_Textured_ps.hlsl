@@ -38,7 +38,8 @@ cbuffer DirectionalLight : register(b3)
 struct PS_INPUT
 {
     float4 inPosition : SV_POSITION; // Screen space pixel position
-    float2 inTexCoord : TEXCOORD;
+    float2 inTexCoord0 : TEXCOORD;
+    float2 inTexCoord1 : TEXCOORDNEW;
     float3 inNormal : NORMAL;
     float3 inTangent : TANGENT;
     float3 inBiTangent : BITANGENT;
@@ -64,11 +65,11 @@ float4 main(PS_INPUT input) : SV_TARGET
 {
     // Sample Textures
     //float3 albedoSample = saturate(albedoSRV.Sample(samplerState, input.inTexCoord).rgb + color);
-    float3 albedoSample = pow(albedoSRV.Sample(samplerState, input.inTexCoord).rgb, color);
-    float3 normalSample = (normalSRV.Sample(samplerState, input.inTexCoord).xyz);
-    float metallicSample = (metallicSRV.Sample(samplerState, input.inTexCoord).r + metallic);
-    float roughnessSample = (roughnessSRV.Sample(samplerState, input.inTexCoord).r + roughness);
-	float aoSample = aoSRV.Sample(samplerState, input.inTexCoord).r;
+    float3 albedoSample = pow(albedoSRV.Sample(samplerState, input.inTexCoord0).rgb, color);
+    float3 normalSample = (normalSRV.Sample(samplerState, input.inTexCoord0).xyz);
+    float metallicSample = (metallicSRV.Sample(samplerState, input.inTexCoord0).r + metallic);
+    float roughnessSample = (roughnessSRV.Sample(samplerState, input.inTexCoord0).r + roughness);
+    float aoSample = aoSRV.Sample(samplerState, input.inTexCoord0).r;
     
     // Transform Normals From Tangent Space to View Space
     const float3x3 tanToView = float3x3(normalize(input.inTangent),

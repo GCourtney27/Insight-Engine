@@ -27,6 +27,13 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 		ErrorLogger::Log("Failed to initialize Graphics Instance");
 		return false;
 	}
+
+	if (!LuaStateManager::GetStateManager()->Create())
+	{
+		ErrorLogger::Log("Failed to initialize Lua State Manager");
+		return false;
+	}
+
 	// ============= Choose from these scenes
 	// PBR_TexturedShowcase
 	// PBR_UnTexturedShowcase
@@ -34,16 +41,13 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	// Test
 	// PhysicsTest
 	// Physics_Showcase
-	scene.SetPhysicsEnabled(true);
-	if (!FileSystem::Instance()->LoadSceneFromJSON("..\\Assets\\Scenes\\PhysicsTest.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext()))
+	// Water
+	// AdvancedModels
+	// Game
+	scene.SetPhysicsEnabled(false);
+	if (!FileSystem::Instance()->LoadSceneFromJSON("..\\Assets\\Scenes\\Game.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext()))
 	{
 		ErrorLogger::Log("Failed to initialize scene.");
-		return false;
-	}
-
-	if (!LuaStateManager::GetStateManager()->Create())
-	{
-		ErrorLogger::Log("Failed to initialize Lua State Manager");
 		return false;
 	}
 
@@ -52,7 +56,7 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	//scene.AddEntity(Graphics::Instance()->pointLight);
 	//scene.AddEntity(Graphics::Instance()->directionalLight);
 
-	if (!scene.Initialize())
+	if (!scene.Initialize(this))
 	{
 		ErrorLogger::Log("Failed to initialize scene");
 		return false;
@@ -83,20 +87,26 @@ void Engine::Update()
 	/*while (!InputManager::Instance()->keyboard.CharBufferIsEmpty())
 	{
 		unsigned char ch = InputManager::Instance()->keyboard.ReadChar();
-	}
+	}*/
 
 	while (!InputManager::Instance()->keyboard.KeyBufferIsEmpty())
 	{
 		KeyboardEvent kbe = InputManager::Instance()->keyboard.ReadKey();
 		unsigned char keycode = kbe.GetKeyCode();
-	}*/
+
+		if (kbe.IsRealesed())
+		{
+			// Let lua know that the button with this keycode has been released
+		}
+	}
 
 	while (!InputManager::Instance()->mouse.EventBufferIsEmpty())
 	{
 		MouseEvent me = InputManager::Instance()->mouse.ReadEvent();
+
 		if (InputManager::Instance()->mouse.IsRightDown())
 		{
-			if (me.GetType() == MouseEvent::EventType::RAW_MOVE)// && !Debug::Editor::Instance()->PlayingGame())
+			if (me.GetType() == MouseEvent::EventType::RAW_MOVE && !Debug::Editor::Instance()->PlayingGame())
 			{
 				Graphics::Instance()->editorCamera.GetTransform().AdjustRotation((float)me.GetPosY() * 0.005f, (float)me.GetPosX() * 0.005f, 0.0f);
 			}
@@ -106,7 +116,7 @@ void Engine::Update()
 		if (me.GetType() == MouseEvent::EventType::LRelease)
 			Debug::Editor::Instance()->rayCastEnabled = true;
 
-		/*if (Debug::Editor::Instance()->PlayingGame())
+		if (Debug::Editor::Instance()->PlayingGame())
 		{
 			if (InputManager::Instance()->mouse.IsRightDown())
 			{
@@ -122,7 +132,7 @@ void Engine::Update()
 				}
 			}
 			
-		}*/
+		}
 
 	}
 	

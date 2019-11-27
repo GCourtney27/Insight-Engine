@@ -53,6 +53,11 @@ bool Graphics::Initialize(HWND hwnd, int width, int height, Engine* engine)
 	// Setup ImGui
 	InitialzeImGui(hwnd);
 
+	//backBufferTex.Initialize(pDevice.Get(), "..\\Assets\\Objects\\Norway\\Opaque\\Rock02\\Rock02_Albedo.jpg");
+	HRESULT hr = DirectX::CreateWICTextureFromFile(pDevice.Get(), L"..\\Assets\\Objects\\Norway\\Opaque\\Rock02\\Rock02_Albedo.jpg", nullptr, &backBufferSRV);
+	if (FAILED(hr))
+		ErrorLogger::Log("Failed ot create SRV for back buffer.");
+
 	return true;
 }
 
@@ -92,15 +97,25 @@ void Graphics::InitSkybox()
 	MeshRenderer* me = skybox->AddComponent<MeshRenderer>();
 	me->Initialize(skybox, "..\\Assets\\Objects\\Primatives\\Sphere.fbx", pDevice.Get(), pDeviceContext.Get(), cb_vs_vertexshader, nullptr);
 
-	HRESULT hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\MountainTop_Diff.dds", nullptr, &skyboxTextureSRV);
+	// MountainTop
+	// NewportLoft
+	// skybox1
+	// skybox2
+	// skybox3
+	std::wstring skyboxType = L"skybox1";
+	std::wstring diffuse = L"..\\Assets\\Textures\\Skyboxes\\" + skyboxType + L"_Diff.dds";
+	std::wstring envMap = L"..\\Assets\\Textures\\Skyboxes\\" + skyboxType + L"_EnvMap.dds";
+	std::wstring IR = L"..\\Assets\\Textures\\Skyboxes\\" + skyboxType + L"_IR.dds";
+
+	HRESULT hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), diffuse.c_str(), nullptr, &skyboxTextureSRV);
 	if(FAILED(hr))
 		ErrorLogger::Log("Failed to load dds diffuse texture for skybox");
 
-	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\MountainTop_EnvMap.dds", nullptr, &environmentMapSRV);
+	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), envMap.c_str(), nullptr, &environmentMapSRV);
 	if (FAILED(hr))
 		ErrorLogger::Log("Failed to load dds texture for environment map");
 
-	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\MountainTop_IR.dds", nullptr, &irradianceMapSRV);
+	hr = DirectX::CreateDDSTextureFromFile(pDevice.Get(), IR.c_str(), nullptr, &irradianceMapSRV);
 	if (FAILED(hr))
 		ErrorLogger::Log("Failed to load dds texture for irradiance map");
 
@@ -122,7 +137,6 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 			ErrorLogger::Log("No DirectX compatable adapters where found when initializing Direct3D 11.");
 			return false;
 		}
-
 
 		// -- Initialize Swap Chain -- //
 		DXGI_SWAP_CHAIN_DESC scd = { 0 };
@@ -158,7 +172,6 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 			pDeviceContext.GetAddressOf()); // Device context address
 		COM_ERROR_IF_FAILED(hr, "Failed to create device swap chain.");
 		
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> pBackBuffer;
 		hr = pSwapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(pBackBuffer.GetAddressOf()));
 		COM_ERROR_IF_FAILED(hr, "Failed to set buffer for swap chain.");
 
@@ -289,9 +302,9 @@ void Graphics::RenderFrame()
 
 	// -- Update Pixel Shader Per Frame Informaiton -- //
 	cb_ps_PerFrame.data.deltaTime = m_deltaTime;
-	/*if (Debug::Editor::Instance()->PlayingGame())
+	if (Debug::Editor::Instance()->PlayingGame())
 		cb_ps_PerFrame.data.camPosition = m_pEngine->GetPlayer()->GetPlayerCamera()->GetTransform().GetPosition();
-	else*/
+	else
 		cb_ps_PerFrame.data.camPosition = editorCamera.GetTransform().GetPosition();
 	cb_ps_PerFrame.ApplyChanges();
 
@@ -339,9 +352,9 @@ void Graphics::RenderFrame()
 	pDeviceContext->PSSetShaderResources(0, 1, &skyboxTextureSRV);
 	pDeviceContext->PSSetShader(skyPixelShader.GetShader(), NULL, 0);
 	pDeviceContext->VSSetShader(skyVertexShader.GetShader(), NULL, 0);
-	//if (Debug::Editor::Instance()->PlayingGame())
-	//	skybox->Draw(playerProjMat, playerViewMat);
-	//else
+	if (Debug::Editor::Instance()->PlayingGame())
+		skybox->Draw(playerProjMat, playerViewMat);
+	else
 		skybox->Draw(editorProjMat, editorViewMat);
 	
 	// Reset Rasterizer state for rest of geometry
@@ -358,19 +371,19 @@ void Graphics::RenderFrame()
 	pDeviceContext->PSSetShaderResources(7, 1, &brdfLUTSRV);
 
 	// -- Draw Scene Objects -- //
-	//if (Debug::Editor::Instance()->PlayingGame())
-	//{
+	if (Debug::Editor::Instance()->PlayingGame())
+	{
 
-	//	m_pEngine->GetScene().GetRenderManager().DrawOpaque(playerProjMat, playerViewMat);
+		m_pEngine->GetScene().GetRenderManager().DrawOpaque(playerProjMat, playerViewMat);
 
-	//	pDeviceContext->RSSetState(pRasterizerStateCULLNONE.Get());
-	//	m_pEngine->GetScene().GetRenderManager().DrawFoliage(playerProjMat, playerViewMat);
-	//	pDeviceContext->RSSetState(pRasterizerState.Get());
+		pDeviceContext->RSSetState(pRasterizerStateCULLNONE.Get());
+		m_pEngine->GetScene().GetRenderManager().DrawFoliage(playerProjMat, playerViewMat);
+		pDeviceContext->RSSetState(pRasterizerState.Get());
 
 
-	//	//m_pEngine->GetScene().Draw(playerProjMat, playerViewMat);
-	//}
-	//else
+		//m_pEngine->GetScene().Draw(playerProjMat, playerViewMat);
+	}
+	else
 	{
 		m_pEngine->GetScene().GetRenderManager().DrawOpaque(editorProjMat, editorViewMat);
 
@@ -580,7 +593,7 @@ bool Graphics::InitializeScene()
 		// Initialize light shader values
 		cb_ps_light.data.ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 		//cb_ps_light.data.ambientLightStrength = 2.498f;
-		cb_ps_light.data.ambientLightStrength = 1.0f;
+		cb_ps_light.data.ambientLightStrength = 4.4f;
 
 		cb_ps_directionalLight.data.Color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 		cb_ps_directionalLight.data.Strength = 20.0f;
@@ -599,7 +612,7 @@ bool Graphics::InitializeScene()
 
 
 		// Hello World sprite
-		if (!sprite.Initialize(pDevice.Get(), pDeviceContext.Get(), 256, 256, "..\\Assets\\Textures\\sprite_256x256.png", cb_vs_vertexshader_2d))
+		if (!sprite.Initialize(pDevice.Get(), pDeviceContext.Get(), 256, 256, "..\\Assets\\Textures\\cat.jpg", cb_vs_vertexshader_2d))
 		{
 			ErrorLogger::Log("Failed to initilize sprite");
 			return false;
@@ -680,6 +693,45 @@ void Graphics::UpdateImGuiWidgets()
 	//if (ImGuizmo::IsOver())
 	//	Debug::Editor::Instance()->DebugLog("Mouse is over");
 
+	//ImGui::Begin("Game");
+	//{
+	//	/*ID3D11ShaderResourceView* my_texture_view;
+	//	D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
+	//	pDevice->CreateShaderResourceView(backBufferTex.GetTexture(), 0, backBufferTex.GetTextureResourceViewAddress());
+	//	ImGui::Image((void*)backBufferTex.GetTextureResourceViewAddress(), ImVec2(1024, 1024));*/
+
+	//	/*ID3D11ShaderResourceView* my_texture_view;
+	//	D3D11_SHADER_RESOURCE_VIEW_DESC my_shader_resource_view_desc = {};
+	//	DirectX::CreateWICTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\ibl_brdf_lut.png", nullptr, &brdfLUTSRV);
+
+	//	pDevice->CreateShaderResourceView(pBackBuffer.Get(), &my_shader_resource_view_desc, &my_texture_view);*/
+	//	//HRESULT hr = DirectX::CreateWICTextureFromFile(pDevice.Get(), L"..\\Assets\\Textures\\Skyboxes\\ibl_brdf_lut.png", nullptr, &backBufferSRV);
+	//	
+	//	D3D11_TEXTURE2D_DESC textureDesc;
+	//	ZeroMemory(&textureDesc, sizeof(textureDesc));
+	//	// Setup the render target texture description.
+	//	textureDesc.Width = 1920;
+	//	textureDesc.Height = 1080;
+	//	textureDesc.MipLevels = 1;
+	//	textureDesc.ArraySize = 1;
+	//	textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	//	textureDesc.SampleDesc.Count = 1;
+	//	textureDesc.Usage = D3D11_USAGE_DEFAULT;
+	//	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	//	textureDesc.CPUAccessFlags = 0;
+	//	textureDesc.MiscFlags = 0;
+
+	//	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
+	//	shaderResourceViewDesc.Format = textureDesc.Format;
+	//	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	//	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+	//	shaderResourceViewDesc.Texture2D.MipLevels = 1;
+	//	pDevice->CreateShaderResourceView(pBackBuffer.Get(), &shaderResourceViewDesc, &backBufferSRV);
+	//	ImGui::Image((void*)backBufferSRV, ImVec2(512, 512));
+	//	DirectX::CreateWicTextureFromMemory()
+
+	//}
+	//ImGui::End();
 	// Menu Bar
 	if (ImGui::Begin("Menu Bar", NULL, ImGuiWindowFlags_MenuBar |
 		ImGuiWindowFlags_AlwaysAutoResize))
@@ -830,10 +882,10 @@ void Graphics::UpdateImGuiWidgets()
 
 	ImGui::Begin("Entity Creator");
 	{
-		if (ImGui::Button("Create Thick Grass"))
+		if (ImGui::Button("Create Scarret Grass Asset"))
 		{
 			creationCounter++;
-			std::string creationCount = "ThickGrass0-" + std::to_string(creationCounter);
+			std::string creationCount = "ScatterGrass-" + std::to_string(creationCounter);
 			Entity* entity = new Entity(&m_pEngine->GetScene(), (*new ID()));
 			entity->GetID().SetName(creationCount);
 			entity->GetID().SetTag("Untagged");

@@ -4,6 +4,7 @@
 #include "..\\Components\\LuaScriptComponent.h"
 #include "..\Editor\Editor.h"
 #include "..\Components\RigidBodyComponent.h"
+#include "..\Graphics\Graphics.h"
 
 bool Entity::Initialize()
 {
@@ -195,7 +196,7 @@ void Entity::OnEvent(const Event & event)
 {
 }
 
-bool Entity::OnCollisionEnter()
+bool Entity::PhysicsIsColliding()
 {
 	RigidBody* rb = this->GetComponent<RigidBody>();
 	if (rb != nullptr)
@@ -231,4 +232,45 @@ void Entity::RemoveComponent(Component * component)
 	(*iter)->Destroy();
 	delete *iter;
 	m_components.erase(iter);
+}
+
+Entity * Entity::CreateEntityWithDefaultParams()
+{
+	Entity* toReturn = new Entity(&Graphics::Instance()->GetEngineInstance()->GetScene(), (*new ID()));
+
+	toReturn->GetID().SetName("Default Entity");
+	toReturn->GetID().SetTag("Untagged");
+	toReturn->GetID().SetType("Entity");
+	toReturn->GetTransform().SetPosition(Graphics::Instance()->GetEngineInstance()->GetPlayer()->GetTransform().GetPositionConst());
+	toReturn->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
+	toReturn->GetTransform().SetScale(6.0f, 6.0f, 6.0f);
+
+	// MESH RENDERER
+	Material* mat = nullptr;
+	mat = mat->SetMaterialByType(Material::eMaterialType::PBR_DEFAULT, Material::eFlags::NOFLAGS);
+	mat->Initiailze(Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Material::eFlags::NOFLAGS);
+
+	std::string file = "..\\Assets\\Objects\\Primatives\\Cube.fbx";
+	MeshRenderer* mr = toReturn->AddComponent<MeshRenderer>();
+	mr->Initialize(toReturn, file, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader(), mat);
+	toReturn->SetHasMeshRenderer(true);
+	Graphics::Instance()->GetEngineInstance()->GetScene().GetRenderManager().AddOpaqueInstantiatedObject(mr);
+
+	// LUA SCRIPT
+	LuaScript* ls = toReturn->AddComponent<LuaScript>();
+	ls->Initialize(toReturn, "..\\Assets\\LuaScripts\\Projectile.lua");
+	ls->Start();
+
+	// EDITOR SELECTION
+	toReturn->AddComponent<EditorSelection>()->Initialize(toReturn, 10.0f, toReturn->GetTransform().GetPosition());
+
+	//RIGID BODY
+	RigidBody* rb = toReturn->AddComponent<RigidBody>();
+	rb->Initialize(toReturn, toReturn->GetTransform().GetScaleConst().x, AABB::eColliderType::SPHERE);
+	Graphics::Instance()->GetEngineInstance()->GetScene().GetPhysicsSystem().AddEntity(rb);
+
+	Graphics::Instance()->GetEngineInstance()->GetScene().AddInstantiatedEntity(toReturn);
+
+
+	return toReturn;
 }

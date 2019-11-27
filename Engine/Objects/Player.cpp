@@ -19,12 +19,13 @@ void Player::InitializeCamera(Scene* scene)
 	
 	//m_pCamera->GetTransform().SetParent(&this->GetTransform());
 	
-	m_pCamera->SetProjectionValues(80.0f, static_cast<float>(1600) / static_cast<float>(900), 0.1f, 1000.0f);
+	m_pCamera->SetProjectionValues(80.0f, static_cast<float>(1600) / static_cast<float>(900), 0.1f, 10000.0f);
 
 	//m_pCamera->GetTransform().SetPosition(DirectX::XMFLOAT3(60.0f, 18.0f, -13.0f));
-	m_pCamera->GetTransform().SetPosition(DirectX::XMFLOAT3(-26.0f, 11.6f, -44.3f));
-	m_pCamera->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
-	m_pCamera->GetTransform().SetScale(1.0f, 1.0f, 1.0f);
+	//m_pCamera->GetTransform().SetPosition(DirectX::XMFLOAT3(-26.0f, 11.6f, -44.3f));
+	m_pCamera->GetTransform().SetPosition(DirectX::XMFLOAT3(-1.5f, 49.9f, -73.9f));// Physics Test Scene
+	m_pCamera->GetTransform().SetRotation(0.5f, 0.0f, 0.0f);
+	m_pCamera->GetTransform().SetScale(5.0f, 5.0f, 5.0f);
 
 	m_pMaterial = m_pMaterial->SetMaterialByType(Material::eMaterialType::PBR_UNTEXTURED, Material::eFlags::NOFLAGS);
 	m_pMaterial->Initiailze(Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Material::eFlags::NOFLAGS);
@@ -32,8 +33,8 @@ void Player::InitializeCamera(Scene* scene)
 	MeshRenderer* mr = m_pCamera->AddComponent<MeshRenderer>();
 	mr->Initialize(m_pCamera, "..\\Assets\\Objects\\Camera.obj", Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader(), m_pMaterial);
 
-	LuaScript* ls = m_pCamera->AddComponent<LuaScript>();
-	ls->Initialize(m_pCamera, "..\\Assets\\LuaScripts\\PlayerController.lua");
+	//LuaScript* ls = m_pCamera->AddComponent<LuaScript>();
+	//ls->Initialize(m_pCamera, "..\\Assets\\LuaScripts\\PlayerController.lua");
 
 	EditorSelection* es = m_pCamera->AddComponent<EditorSelection>();
 	es->Initialize(m_pCamera, 10.0f, m_pCamera->GetTransform().GetPosition());

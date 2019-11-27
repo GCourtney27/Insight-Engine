@@ -38,7 +38,8 @@ cbuffer DirectionalLight : register(b3)
 struct PS_INPUT
 {
     float4 inPosition : SV_POSITION; // Screen space pixel position
-    float2 inTexCoord : TEXCOORD;
+    float2 inTexCoord0 : TEXCOORD;
+    float2 inTexCoord1 : TEXCOORDNEW;
     float3 inNormal : NORMAL;
     float3 inTangent : TANGENT;
     float3 inBiTangent : BITANGENT;
@@ -50,7 +51,8 @@ Texture2D albedoSRV : TEXTURE : register(t0);
 Texture2D normalSRV : NORMAL : register(t1);
 Texture2D metallicSRV : METALLIC : register(t2);
 Texture2D roughnessSRV : ROUGHNESS : register(t3);
-Texture2D aoSRV : ROUGHNESS : register(t4);
+Texture2D aoSRV : AO : register(t4);
+Texture2D normal2SRV : NORMALNEW : register(t8);
 
 // Textures needed for Image Based Lighting
 TextureCube irradianceMapSRV : IRRADIANCE : register(t5);
@@ -64,21 +66,37 @@ float4 main(PS_INPUT input) : SV_TARGET
 {
     // Sample Textures
     //float3 albedoSample = saturate(albedoSRV.Sample(samplerState, input.inTexCoord).rgb + color);
-    float3 albedoSample = pow(albedoSRV.Sample(samplerState, input.inTexCoord).rgb, color);
-    float3 normalSample = (normalSRV.Sample(samplerState, input.inTexCoord).xyz);
-    float metallicSample = (metallicSRV.Sample(samplerState, input.inTexCoord).r + metallic);
-    float roughnessSample = (roughnessSRV.Sample(samplerState, input.inTexCoord).r + roughness);
-	//float aoSample = aoSRV.Sample(samplerState, input.inTexCoord).r;
-    
+    float3 albedoSample = pow(albedoSRV.Sample(samplerState, input.inTexCoord0).rgb, color);
+    float3 normalSample = (normal2SRV.Sample(samplerState, input.inTexCoord0).xyz);
+    float3 normalSample2 = (normalSRV.Sample(samplerState, input.inTexCoord1).xyz);
+
+    float metallicSample = (metallicSRV.Sample(samplerState, input.inTexCoord0).r + metallic);
+    float roughnessSample = (roughnessSRV.Sample(samplerState, input.inTexCoord0).r + roughness);
+    float aoSample = aoSRV.Sample(samplerState, input.inTexCoord1).r + 1.0f;
+
     // Transform Normals From Tangent Space to View Space
     const float3x3 tanToView = float3x3(normalize(input.inTangent),
                                          normalize(input.inBiTangent),
                                          normalize(input.inNormal));
-    float3 N;
-    N.x = normalSample.x * 2.0f - 1.0f;
-    N.y = -normalSample.y * 2.0f + 1.0f;
-    N.z = normalSample.z;
-    N = normalize(mul(N, tanToView));
+    float3 N1;
+    N1.x = normalSample.x * 2.0f - 1.0f;
+    N1.y = -normalSample.y * 2.0f + 1.0f;
+    N1.z = normalSample.z;
+    //N1 = mul(N1, tanToView);
+
+    float3 N2;
+    N2.x = normalSample2.x * 2.0f - 1.0f;
+    N2.y = -normalSample2.y * 2.0f + 1.0f;
+    N2.z = normalSample2.z;
+    //N2 = mul(N2, tanToView);
+
+    // Blend normal maps
+    float3 N = N1 * dot(N1, N2) / N1.z - N2;
+    N = N * 0.5f + 0.5f;
+    N = normalize(N);
+    //N = normalize(mul(N, tanToView));
+
+    //return float4(N, 1.f);
 
     // View vector
     float3 V = normalize(camPosition - input.inWorldPos);
@@ -94,7 +112,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     float3 Dir_H = normalize(V + Dir_L); // Halfway vector
 
     // -- Per light radiance -- //
-    float3 ambientLight = ambientLightColor * ambientLightStrength;
+    //float3 ambientLight = ambientLightColor * ambientLightStrength;
 
     float3 vectorToLight = normalize(dynamicLightPosition - input.inWorldPos);
     float distanceToLight = distance(vectorToLight, input.inWorldPos);
@@ -157,8 +175,14 @@ float4 main(PS_INPUT input) : SV_TARGET
     float2 brdf = brdfLUT.Sample(samplerState, float2(NdotV, roughnessSample)).rg;
     float3 specular_IBL = environmentMapColor * (F_IBL * brdf.r + brdf.g);
 
+    float3 ambientLight = ambientLightColor * ambientLightStrength;
+    float3 diffuse_IBL = (diffuse + specular_IBL) * ambientLight;
+
     // Add lighting to IBL velues for final color
-    float3 ambient = (diffuse + specular_IBL) * ambientLight;
+    float3 ambient = diffuse_IBL * aoSample;
+
+    // Add lighting to IBL velues for final color
+    //float3 ambient = (diffuse + specular_IBL) * ambientLight;
     //float3 ambient = (diffuse) * ambientLight;
     float3 color = (ambient + Lo);
     

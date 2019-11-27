@@ -35,6 +35,8 @@ void MaterialWater::WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>
 	writer.String(m_textureLocations[2].c_str());
 	writer.Key("Roughness");
 	writer.String(m_textureLocations[3].c_str());
+	writer.Key("AO");
+	writer.String(m_textureLocations[4].c_str());
 
 	writer.Key("uvOffset");
 	writer.StartArray();// Begin uvOffset
@@ -89,6 +91,7 @@ bool MaterialWater::InitializeJOSNPiplineAssets(const rapidjson::Value& assetsIn
 	std::string metallic_Filepath;
 	std::string roughness_Filepath;
 	std::string ao_Filepath;
+	std::string normal2_Filepath;
 	std::vector<std::string> textures;
 
 	float uvOffsetX = 0.0f;
@@ -105,6 +108,7 @@ bool MaterialWater::InitializeJOSNPiplineAssets(const rapidjson::Value& assetsIn
 	// Textures
 	json::get_string(assetsInformation[1], "Albedo", albedo_Filepath);
 	json::get_string(assetsInformation[1], "Normal", normal_Filepath);
+	json::get_string(assetsInformation[1], "Normal2", normal2_Filepath);
 	json::get_string(assetsInformation[1], "Metallic", metallic_Filepath);
 	json::get_string(assetsInformation[1], "Roughness", roughness_Filepath);
 	json::get_string(assetsInformation[1], "AO", ao_Filepath);
@@ -128,6 +132,7 @@ bool MaterialWater::InitializeJOSNPiplineAssets(const rapidjson::Value& assetsIn
 	textures.push_back(metallic_Filepath);
 	textures.push_back(roughness_Filepath);
 	textures.push_back(ao_Filepath);
+	textures.push_back(normal2_Filepath);
 	m_textureLocations = textures;
 
 	std::vector<std::string>::iterator iter;
@@ -154,6 +159,9 @@ bool MaterialWater::InitializeJOSNPiplineAssets(const rapidjson::Value& assetsIn
 	m_newUVOffset.y = uvOffsetY;
 	m_tiling.x = tilingX;
 	m_tiling.y = tilingY;
+	m_newVertOffset.x = 60.0f;
+	m_newVertOffset.y = 10.0f;
+	m_newVertOffset.z = 1.0f;
 	m_cb_vs_PerObjectUtil.data.tiling = m_tiling;
 	m_cb_vs_PerObjectUtil.data.uvOffset = m_newUVOffset;
 	m_cb_vs_PerObjectUtil.data.vertOffset = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -224,6 +232,7 @@ void MaterialWater::InitializeShaders()
 	{
 		{ "POSITION", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
+		{ "TEXCOORDNEW", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
 		{ "NORMAL", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
 		{ "TANGENT", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
 		{ "BITANGENT", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  }
@@ -250,8 +259,9 @@ void MaterialWater::PSSetShaderResources()
 {
 	//this->m_pDeviceContext->VSSetConstantBuffers(3, 1, this->m_cb_vs_PerObject.GetAddressOf());
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 5; i++)
 	{
 		this->m_pDeviceContext->PSSetShaderResources(i, 1, m_textures[i].GetTextureResourceViewAddress());
 	}
+		this->m_pDeviceContext->PSSetShaderResources(8, 1, m_textures[5].GetTextureResourceViewAddress());
 }

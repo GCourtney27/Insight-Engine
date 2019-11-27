@@ -50,7 +50,7 @@ public:
 	void SetCanBeJSONSaved(bool canBeSaved) { m_canBeJSONSaved = canBeSaved; }
 
 	virtual void OnEvent(const Event& event);
-	bool OnCollisionEnter();
+	bool PhysicsIsColliding();
 	void Translate(float x, float y, float z);
 
 	template<typename T>
@@ -103,6 +103,8 @@ public:
 	void SetHasEditorSelection(bool value) { m_hasEditorSelection = value; }
 	bool HasPhysics() { return m_hasPhysics; }
 	void SetHasPhysics(bool value) { m_hasPhysics = value; }
+
+	static Entity* CreateEntityWithDefaultParams();
 
 protected:
 	eState m_state = eState::ACTIVE;

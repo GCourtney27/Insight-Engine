@@ -15,6 +15,7 @@ void RigidBody::InitFromJSON(Entity * owner, const rapidjson::Value & componentI
 	m_collider.InitFromJSON(aabb);
 
 	json::get_bool(componentInformation[0], "IsStatic", m_static);
+	json::get_bool(componentInformation[0], "IsTrigger", m_isTrigger);
 
 
 	this->Initialize(owner);
@@ -47,6 +48,8 @@ void RigidBody::WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wr
 			m_collider.WriteToJSON(writer);
 			writer.Key("IsStatic");
 			writer.Bool(m_static);
+			writer.Key("IsTrigger");
+			writer.Bool(m_isTrigger);
 		writer.EndObject();
 
 	writer.EndArray();//End Component
@@ -68,55 +71,57 @@ void RigidBody::Update(const float & deltaTime)
 
 	m_collider.Update(deltaTime);
 	
+	
 	if (m_restitution <= 0.0f)
 		return;
 
-	// set gravity
-	if (m_gravityEnable)
+	if (!m_isTrigger)
 	{
-		XMFLOAT3 gravity = {0.0f, -79.8f, 0.0f};
+		// set gravity
+		if (m_gravityEnable)
+		{
+			XMFLOAT3 gravity = {0.0f, -79.8f, 0.0f};
 
-		m_force.x += gravity.x;
-		m_force.y += gravity.y;
-		m_force.z += gravity.z;
-	}
+			m_force.x += gravity.x;
+			m_force.y += gravity.y;
+			m_force.z += gravity.z;
+		}
 
-	// set velocity
-	m_velocity.x += m_force.x * deltaTime;
-	m_velocity.y += m_force.y * deltaTime;
-	m_velocity.z += m_force.z * deltaTime;
+		// set velocity
+		m_velocity.x += m_force.x * deltaTime;
+		m_velocity.y += m_force.y * deltaTime;
+		m_velocity.z += m_force.z * deltaTime;
 	
-	// velocity clamp
-	float max_velocity = 60.0f;
+		// velocity clamp
+		float max_velocity = 60.0f;
 
-	m_velocity.x = min(max_velocity, max(m_velocity.x, -max_velocity));
-	m_velocity.y = min(max_velocity, max(m_velocity.y, -max_velocity));
-	m_velocity.z = min(max_velocity, max(m_velocity.z, -max_velocity));
+		m_velocity.x = min(max_velocity, max(m_velocity.x, -max_velocity));
+		m_velocity.y = min(max_velocity, max(m_velocity.y, -max_velocity));
+		m_velocity.z = min(max_velocity, max(m_velocity.z, -max_velocity));
 
-	// velocity drag
-	m_velocity.x = m_velocity.x * pow(0.99f, deltaTime);
-	m_velocity.y = m_velocity.y * pow(0.99f, deltaTime);
-	m_velocity.z = m_velocity.z * pow(0.99f, deltaTime);
+		// velocity drag
+		m_velocity.x = m_velocity.x * pow(0.99f, deltaTime);
+		m_velocity.y = m_velocity.y * pow(0.99f, deltaTime);
+		m_velocity.z = m_velocity.z * pow(0.99f, deltaTime);
 
-	XMVECTOR velocity = XMLoadFloat3(&m_velocity);
-	XMVECTOR length_vec = XMVector3Length(velocity);
-	XMFLOAT3 rate = {};
-	XMStoreFloat3(&rate, length_vec);
+		XMVECTOR velocity = XMLoadFloat3(&m_velocity);
+		XMVECTOR length_vec = XMVector3Length(velocity);
+		XMFLOAT3 rate = {};
+		XMStoreFloat3(&rate, length_vec);
 
-	if (m_static)
-	{
-		m_velocity.x = 0.0f;
-		m_velocity.y = 0.0f;
-		m_velocity.z = 0.0f;
+		if (m_static)
+		{
+			m_velocity.x = 0.0f;
+			m_velocity.y = 0.0f;
+			m_velocity.z = 0.0f;
+		}
+		// set position
+		m_deltaPos = m_owner->GetTransform().GetPosition();
+		m_deltaPos.x = m_velocity.x * deltaTime;
+		m_deltaPos.y = m_velocity.y * deltaTime;
+		m_deltaPos.z = m_velocity.z * deltaTime;
 	}
-
-	// set position
-	m_deltaPos = m_owner->GetTransform().GetPosition();
-	m_deltaPos.x = m_velocity.x * deltaTime;
-	m_deltaPos.y = m_velocity.y * deltaTime;
-	m_deltaPos.z = m_velocity.z * deltaTime;
-
-
+	
 	m_owner->GetTransform().AdjustRotation(m_velocity.z / 10000.0f, 0.0f, -m_velocity.x / 10000.0f);
 	m_owner->GetTransform().AdjustPosition(m_deltaPos);
 
@@ -151,11 +156,18 @@ void RigidBody::OnEditorStop()
 
 void RigidBody::Translate(float x, float y, float z)
 {
-	m_velocity.x += x;
-	m_velocity.y += y;
-	m_velocity.z += z;
-
-	m_owner->GetTransform().AdjustPosition(m_deltaPos);
+	if (!m_isTrigger)
+	{
+		m_velocity.x += x;
+		m_velocity.y += y;
+		m_velocity.z += z;
+		m_owner->GetTransform().AdjustPosition(m_deltaPos);
+	}
+	else
+	{
+		m_owner->GetTransform().AdjustPosition(x, y, z);
+	}
+	
 }
 
 bool RigidBody::IsCollidingWith(int colliderTag)

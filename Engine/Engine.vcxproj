@@ -231,6 +231,7 @@
     <ClCompile Include="Input\Keyboard\KeyboardEvent.cpp" />
     <ClCompile Include="Input\Mouse\MouseClass.cpp" />
     <ClCompile Include="Input\Mouse\MouseEvent.cpp" />
+    <ClCompile Include="Systems\LuaManager.cpp" />
     <ClCompile Include="LUAScripting\LuaStateManager.cpp" />
     <ClCompile Include="LUAScripting\ScriptExports.cpp" />
     <ClCompile Include="Objects\Camera.cpp" />
@@ -392,6 +393,7 @@
     <ClInclude Include="Graphics\Vertex.h" />
     <ClInclude Include="Graphics\VertexBuffer.h" />
     <ClInclude Include="Graphics\Texture.h" />
+    <ClInclude Include="Systems\LuaManager.h" />
     <ClInclude Include="Systems\PhysicsSystem.h" />
     <ClInclude Include="Systems\RenderManager.h" />
     <ClInclude Include="Systems\TimeSystem.h" />
@@ -487,7 +489,6 @@
     <None Include="Includes\Lua\LuaPlus\LuaStackObject.inl" />
     <None Include="Includes\Lua\LuaPlus\LuaStackTableIterator.inl" />
     <None Include="Includes\Lua\LuaPlus\LuaState.inl" />
-    <None Include="LuaScripts\Test.lua" />
     <FxCompile Include="Textured_pshlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>

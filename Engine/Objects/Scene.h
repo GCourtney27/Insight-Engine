@@ -2,11 +2,13 @@
 #include "ID.h"
 #include "..\Systems\RenderManager.h"
 #include "..\Systems\PhysicsSystem.h"
+#include "..\Systems\LuaManager.h"
 #include <list>
 #include <assert.h>
 #include <DirectXMath.h>
 
 class Entity;
+class Engine;
 
 class Scene
 {
@@ -15,7 +17,7 @@ public:
 	~Scene() {  }
 
 	// -- Engine -- //
-	bool Initialize();
+	bool Initialize(Engine* engine);
 	void Update(const float& deltaTime);
 	void Draw(const DirectX::XMMATRIX & projectionMatrix, const DirectX::XMMATRIX & viewMatrix);
 	void Shutdown();
@@ -36,6 +38,9 @@ public:
 	void AddEntity(Entity* entity);
 	std::list<Entity*>::iterator RemoveEntity(Entity* entity, bool destroy = true);
 
+	void AddInstantiatedEntity(Entity* entity);
+	void ClearInstantiatedEntities();
+
 	Entity* GetEntityWithID(const ID& id);
 	std::vector<Entity*> GetEntitiesWithTag(const ID& tag);
 	std::list<Entity*>* GetAllEntities() { return &m_entities; }
@@ -45,9 +50,12 @@ public:
 
 	RenderManager& GetRenderManager() { return m_renderManager; }
 	PhysicsSystem& GetPhysicsSystem() { return m_physicsSystem; }
+	LuaManager& GetLuaManager() { return m_luaManager; }
 
 	bool& IsPhysicsEnabled() { return m_physicsEnabled; }
 	void SetPhysicsEnabled(bool enable) { m_physicsEnabled = enable; }
+
+	Engine& GetEngineInstance() { return *m_pEngine; }
 
 protected:
 	RenderManager m_renderManager;
@@ -55,7 +63,12 @@ protected:
 	bool m_physicsEnabled = false;
 	PhysicsSystem m_physicsSystem;
 
+	LuaManager m_luaManager;
+
 	std::list<Entity*> m_entities;
+	std::list<Entity*> m_instantiatedEntities;
 	std::string m_name;
 	std::string m_sceneDiretory;
+
+	Engine* m_pEngine = nullptr;
 };
