@@ -1,5 +1,0 @@
-LIBRARY rings.dll
-DESCRIPTION "Rings"
-VERSION 1.2.2
-EXPORTS
-luaopen_rings

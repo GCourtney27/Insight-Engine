@@ -1,3 +1,0 @@
-if $(LUA_VERSION) in lua51 lua51-luaplus lua52 lua52-luaplus {
-	Lua.CModule bitop : bit : bit.c ;
-}

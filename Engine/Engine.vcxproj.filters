@@ -1,730 +1,734 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <FxCompile Include="pixelshader_2d.hlsl">
+    <FxCompile Include="src\PBR_Foliage_ps.hlsl">
+      <Filter>Resource Files\Shaders\PBR</Filter>
+    </FxCompile>
+    <FxCompile Include="src\PBR_Foliage_vs.hlsl">
+      <Filter>Resource Files\Shaders\PBR</Filter>
+    </FxCompile>
+    <FxCompile Include="src\PBR_Textured_ps.hlsl">
+      <Filter>Resource Files\Shaders\PBR</Filter>
+    </FxCompile>
+    <FxCompile Include="src\PBR_Textured_vs.hlsl">
+      <Filter>Resource Files\Shaders\PBR</Filter>
+    </FxCompile>
+    <FxCompile Include="src\PBR_UnTextured_ps.hlsl">
+      <Filter>Resource Files\Shaders\PBR</Filter>
+    </FxCompile>
+    <FxCompile Include="src\PBR_UnTextured_vs.hlsl">
+      <Filter>Resource Files\Shaders\PBR</Filter>
+    </FxCompile>
+    <FxCompile Include="src\PBR_Water_ps.hlsl">
+      <Filter>Resource Files\Shaders\PBR</Filter>
+    </FxCompile>
+    <FxCompile Include="src\PBR_Water_vs.hlsl">
+      <Filter>Resource Files\Shaders\PBR</Filter>
+    </FxCompile>
+    <FxCompile Include="src\pixelshader_2d.hlsl">
       <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PrefilterMap_ps.hlsl">
+    <FxCompile Include="src\PrefilterMap_ps.hlsl">
       <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Sky_ps.hlsl">
+    <FxCompile Include="src\Sky_ps.hlsl">
       <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Sky_vs.hlsl">
+    <FxCompile Include="src\Sky_vs.hlsl">
       <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Textured_pshlsl">
+    <FxCompile Include="src\Textured_pshlsl">
       <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Textured_vs.hlsl">
+    <FxCompile Include="src\Textured_vs.hlsl">
       <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="vertexshader_2d.hlsl">
+    <FxCompile Include="src\vertexshader_2d.hlsl">
       <Filter>Resource Files\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="PBR_Textured_ps.hlsl">
-      <Filter>Resource Files\Shaders\PBR</Filter>
-    </FxCompile>
-    <FxCompile Include="PBR_Textured_vs.hlsl">
-      <Filter>Resource Files\Shaders\PBR</Filter>
-    </FxCompile>
-    <FxCompile Include="PBR_UnTextured_ps.hlsl">
-      <Filter>Resource Files\Shaders\PBR</Filter>
-    </FxCompile>
-    <FxCompile Include="PBR_UnTextured_vs.hlsl">
-      <Filter>Resource Files\Shaders\PBR</Filter>
-    </FxCompile>
-    <FxCompile Include="PBR_Foliage_vs.hlsl">
-      <Filter>Resource Files\Shaders\PBR</Filter>
-    </FxCompile>
-    <FxCompile Include="PBR_Foliage_ps.hlsl">
-      <Filter>Resource Files\Shaders\PBR</Filter>
-    </FxCompile>
-    <FxCompile Include="PBR_Water_vs.hlsl">
-      <Filter>Resource Files\Shaders\PBR</Filter>
-    </FxCompile>
-    <FxCompile Include="PBR_Water_ps.hlsl">
-      <Filter>Resource Files\Shaders\PBR</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Engine.cpp">
+    <ClCompile Include="src\Engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ErrorLogger.cpp">
+    <ClCompile Include="src\ErrorLogger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RenderWindow.cpp">
+    <ClCompile Include="src\RenderWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source.cpp">
+    <ClCompile Include="src\Source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StringHelper.cpp">
+    <ClCompile Include="src\StringHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WindowContainer.cpp">
+    <ClCompile Include="src\WindowContainer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Components\Component.cpp">
-      <Filter>Source Files\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Math\Transform.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Objects\ID.cpp">
-      <Filter>Source Files\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Objects\Entity.cpp">
-      <Filter>Source Files\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Objects\Scene.cpp">
-      <Filter>Source Files\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Objects\Object.cpp">
-      <Filter>Source Files\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\dlfcn.c">
+    <ClCompile Include="src\Scriptor\Compiler.cpp">
       <Filter>Source Files\Scriptor</Filter>
     </ClCompile>
-    <ClCompile Include="Scriptor\Compiler.cpp">
-      <Filter>Source Files\Scriptor</Filter>
-    </ClCompile>
-    <ClCompile Include="Components\MeshRenderComponent.cpp">
+    <ClCompile Include="src\Components\Component.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\Editor.cpp">
+    <ClCompile Include="src\Components\EditorSelectionComponent.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Components\LuaScriptComponent.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Components\MeshRenderComponent.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Components\RigidBodyComponent.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Editor\Editor.cpp">
       <Filter>Source Files\Editor</Filter>
     </ClCompile>
-    <ClCompile Include="Input\Mouse\MouseClass.cpp">
-      <Filter>Source Files\Input\Mouse</Filter>
-    </ClCompile>
-    <ClCompile Include="Input\Mouse\MouseEvent.cpp">
-      <Filter>Source Files\Input\Mouse</Filter>
-    </ClCompile>
-    <ClCompile Include="Input\Keyboard\KeyboardClass.cpp">
-      <Filter>Source Files\Input\Keyboard</Filter>
-    </ClCompile>
-    <ClCompile Include="Input\Keyboard\KeyboardEvent.cpp">
-      <Filter>Source Files\Input\Keyboard</Filter>
-    </ClCompile>
-    <ClCompile Include="Components\EditorSelectionComponent.cpp">
-      <Filter>Source Files\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Systems\FileSystem.cpp">
-      <Filter>Source Files\Systems</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\ImGui\imgui.cpp">
+    <ClCompile Include="src\Graphics\ImGui\imgui.cpp">
       <Filter>Source Files\Graphics\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\ImGui\imgui_demo.cpp">
+    <ClCompile Include="src\Graphics\ImGui\imgui_demo.cpp">
       <Filter>Source Files\Graphics\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\ImGui\imgui_draw.cpp">
+    <ClCompile Include="src\Graphics\ImGui\imgui_draw.cpp">
       <Filter>Source Files\Graphics\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\ImGui\imgui_impl_dx11.cpp">
+    <ClCompile Include="src\Graphics\ImGui\imgui_impl_dx11.cpp">
       <Filter>Source Files\Graphics\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\ImGui\imgui_impl_win32.cpp">
+    <ClCompile Include="src\Graphics\ImGui\imgui_impl_win32.cpp">
       <Filter>Source Files\Graphics\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\ImGui\imgui_widgets.cpp">
+    <ClCompile Include="src\Graphics\ImGui\imgui_widgets.cpp">
       <Filter>Source Files\Graphics\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\ImGui\ImGuizmo.cpp">
+    <ClCompile Include="src\Graphics\ImGui\ImGuizmo.cpp">
       <Filter>Header Files\Graphics\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="LUAScripting\LuaStateManager.cpp">
-      <Filter>Source Files\LUAScripting</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\lapi.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\lauxlib.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\lbaselib.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\lbitlib.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\lcode.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\lcorolib.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\lctype.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\ldblib.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\ldebug.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\ldo.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\ldump.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\lfunc.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\lgc.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\linit.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\liolib.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\llex.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\lmathlib.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\lmem.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\loadlib.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\lobject.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\lopcodes.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\loslib.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\lparser.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\lstate.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\lstring.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\lstrlib.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\ltable.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\ltablib.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\ltm.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\lua.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\luac.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\LuaPlus.cpp">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\LuaPlusAddons.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\LuaState_DumpObject.cpp">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\lundump.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\lutf8lib.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\lvm.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="Includes\Lua\LuaPlus\lzio.c">
-      <Filter>LuaUsings</Filter>
-    </ClCompile>
-    <ClCompile Include="LUAScripting\ScriptExports.cpp">
-      <Filter>Source Files\LUAScripting</Filter>
-    </ClCompile>
-    <ClCompile Include="Components\LuaScriptComponent.cpp">
-      <Filter>Source Files\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Texture.cpp">
+    <ClCompile Include="src\Graphics\AdapterReader.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Sprite.cpp">
+    <ClCompile Include="src\Graphics\Camera2D.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\SimpleShader.cpp">
+    <ClCompile Include="src\Graphics\Color.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Shaders.cpp">
+    <ClCompile Include="src\Graphics\GameObject.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Light.cpp">
+    <ClCompile Include="src\Graphics\GameObject2D.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Graphics.cpp">
+    <ClCompile Include="src\Graphics\Graphics.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\GameObject2D.cpp">
+    <ClCompile Include="src\Graphics\Light.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\GameObject.cpp">
+    <ClCompile Include="src\Graphics\Material.cpp">
+      <Filter>Source Files\Graphics\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\MaterialSky.cpp">
+      <Filter>Source Files\Graphics\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\MaterialTextured.cpp">
+      <Filter>Source Files\Graphics\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\MaterialTexturedFoliage.cpp">
+      <Filter>Source Files\Graphics\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\MaterialUnTextured.cpp">
+      <Filter>Source Files\Graphics\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\MaterialWater.cpp">
+      <Filter>Source Files\Graphics\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\Mesh.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Color.cpp">
+    <ClCompile Include="src\Graphics\Model.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Camera2D.cpp">
+    <ClCompile Include="src\Graphics\Shaders.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\AdapterReader.cpp">
+    <ClCompile Include="src\Graphics\SimpleShader.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Model.cpp">
+    <ClCompile Include="src\Graphics\Sprite.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Mesh.cpp">
+    <ClCompile Include="src\Graphics\Texture.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Includes\json.cpp">
+    <ClCompile Include="src\Includes\Lua\LuaPlus\lapi.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\lauxlib.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\lbaselib.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\lbitlib.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\lcode.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\lcorolib.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\lctype.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\ldblib.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\ldebug.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\ldo.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\ldump.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\lfunc.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\lgc.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\linit.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\liolib.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\llex.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\lmathlib.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\lmem.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\loadlib.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\lobject.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\lopcodes.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\loslib.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\lparser.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\lstate.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\lstring.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\lstrlib.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\ltable.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\ltablib.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\ltm.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\lua.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\luac.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\LuaPlus.cpp">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\LuaPlusAddons.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\LuaState_DumpObject.cpp">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\lundump.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\lutf8lib.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\lvm.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\Lua\LuaPlus\lzio.c">
+      <Filter>LuaUsings</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\dlfcn.c">
+      <Filter>Source Files\Scriptor</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Includes\json.cpp">
       <Filter>Source Files\Systems\Json</Filter>
     </ClCompile>
-    <ClCompile Include="Objects\PointLight.cpp">
+    <ClCompile Include="src\Input\Keyboard\KeyboardClass.cpp">
+      <Filter>Source Files\Input\Keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Input\Keyboard\KeyboardEvent.cpp">
+      <Filter>Source Files\Input\Keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Input\Mouse\MouseClass.cpp">
+      <Filter>Source Files\Input\Mouse</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Input\Mouse\MouseEvent.cpp">
+      <Filter>Source Files\Input\Mouse</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LUAScripting\LuaStateManager.cpp">
+      <Filter>Source Files\LUAScripting</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LUAScripting\ScriptExports.cpp">
+      <Filter>Source Files\LUAScripting</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Math\Transform.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Objects\Camera.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Objects\Camera.cpp">
-      <Filter>Source Files\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Objects\Player.cpp">
-      <Filter>Source Files\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Systems\TimeSystem.cpp">
-      <Filter>Source Files\Systems</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\MaterialTextured.cpp">
-      <Filter>Source Files\Graphics\Materials</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\MaterialUnTextured.cpp">
-      <Filter>Source Files\Graphics\Materials</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Material.cpp">
-      <Filter>Source Files\Graphics\Materials</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\MaterialSky.cpp">
-      <Filter>Source Files\Graphics\Materials</Filter>
-    </ClCompile>
-    <ClCompile Include="Objects\DirectionalLight.cpp">
+    <ClCompile Include="src\Objects\DirectionalLight.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\MaterialTexturedFoliage.cpp">
-      <Filter>Source Files\Graphics\Materials</Filter>
+    <ClCompile Include="src\Objects\Entity.cpp">
+      <Filter>Source Files\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Systems\RenderManager.cpp">
-      <Filter>Source Files\Systems</Filter>
+    <ClCompile Include="src\Objects\ID.cpp">
+      <Filter>Source Files\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Components\RigidBodyComponent.cpp">
-      <Filter>Source Files\Components</Filter>
+    <ClCompile Include="src\Objects\Object.cpp">
+      <Filter>Source Files\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Systems\PhysicsSystem.cpp">
-      <Filter>Source Files\Systems</Filter>
+    <ClCompile Include="src\Objects\Player.cpp">
+      <Filter>Source Files\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Physics\AABB.cpp">
+    <ClCompile Include="src\Objects\PointLight.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Objects\Scene.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Physics\AABB.cpp">
       <Filter>Source Files\Physics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\MaterialWater.cpp">
-      <Filter>Source Files\Graphics\Materials</Filter>
-    </ClCompile>
-    <ClCompile Include="Systems\LuaManager.cpp">
+    <ClCompile Include="src\Systems\LuaManager.cpp">
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
+    <ClCompile Include="src\Systems\PhysicsSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Systems\RenderManager.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Systems\TimeSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Systems\FileSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Insight\Application.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="COMException.h">
+    <ClInclude Include="src\COMException.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine.h">
+    <ClInclude Include="src\Engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ErrorLogger.h">
+    <ClInclude Include="src\ErrorLogger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RenderWindow.h">
+    <ClInclude Include="src\RenderWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Sprite.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StringHelper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WindowContainer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Components\Component.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Event\Event.h">
-      <Filter>Header Files\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="Event\EventReciever.h">
-      <Filter>Header Files\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\AdapterReader.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Camera2D.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Color.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ConstantBuffers.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ConstantBufferTypes.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\GameObject.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\GameObject2D.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Graphics.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\IndexBuffer.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Mesh.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Light.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Model.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Shaders.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Texture.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Vertex.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\VertexBuffer.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Math\Transform.h">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Objects\Entity.h">
-      <Filter>Header Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Objects\ID.h">
-      <Filter>Header Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Objects\Object.h">
-      <Filter>Header Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Objects\Scene.h">
-      <Filter>Header Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Scriptor\Compiler.h">
-      <Filter>Header Files\Scriptor</Filter>
-    </ClInclude>
-    <ClInclude Include="Scriptor\CompilerHelper.h">
-      <Filter>Header Files\Scriptor</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\dlfcn.h">
-      <Filter>Header Files\Scriptor</Filter>
-    </ClInclude>
-    <ClInclude Include="Scriptor\Script.h">
-      <Filter>Header Files\Scriptor</Filter>
-    </ClInclude>
-    <ClInclude Include="Components\MeshRenderComponent.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Editor\EditorClickable.h">
-      <Filter>Header Files\Editor</Filter>
-    </ClInclude>
-    <ClInclude Include="Editor\Editor.h">
-      <Filter>Header Files\Editor</Filter>
-    </ClInclude>
-    <ClInclude Include="Physics\Ray.h">
-      <Filter>Header Files\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="Input\InputManager.h">
-      <Filter>Header Files\Input</Filter>
-    </ClInclude>
-    <ClInclude Include="Input\Mouse\MouseClass.h">
-      <Filter>Header Files\Input\Mouse</Filter>
-    </ClInclude>
-    <ClInclude Include="Input\Mouse\MouseEvent.h">
-      <Filter>Header Files\Input\Mouse</Filter>
-    </ClInclude>
-    <ClInclude Include="Input\Keyboard\KeyboardClass.h">
-      <Filter>Header Files\Input\Keyboard</Filter>
-    </ClInclude>
-    <ClInclude Include="Input\Keyboard\KeyboardEvent.h">
-      <Filter>Header Files\Input\Keyboard</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Singleton.h">
-      <Filter>Header Files\Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="Components\EditorSelectionComponent.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Systems\FileSystem.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ImGui\imconfig.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ImGui\imgui.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ImGui\imgui_impl_dx11.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ImGui\imgui_impl_win32.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ImGui\imgui_internal.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ImGui\imstb_rectpack.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ImGui\imstb_textedit.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ImGui\imstb_truetype.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\SimpleShader.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ImGui\ImGuizmo.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="LUAScripting\IScriptManager.h">
-      <Filter>Header Files\LUAScripting</Filter>
-    </ClInclude>
-    <ClInclude Include="LUAScripting\LuaStateManager.h">
-      <Filter>Header Files\LUAScripting</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\lapi.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\lauxlib.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\lcode.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\lctype.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\ldebug.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\ldo.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\lfunc.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\lgc.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\llex.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\llimits.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\lmem.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\lobject.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\lopcodes.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\lparser.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\lprefix.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\lstate.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\lstring.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\ltable.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\ltm.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\lua.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\lua.hpp">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\LuaAutoBlock.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\LuaCall.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\luaconf.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\LuaFunction.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\LuaHelper.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\LuaHelper_Object.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\LuaHelper_StackObject.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\lualib.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\LuaObject.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\LuaPlus.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\LuaPlusCD.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\LuaPlusConfig.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\LuaPlusInternal.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\LuaStackObject.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\LuaStackTableIterator.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\LuaState.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\LuaStateCD.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\LuaStateOutFile.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\LuaStateOutString.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\LuaTableIterator.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\lundump.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\lvm.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Includes\Lua\LuaPlus\lzio.h">
-      <Filter>LuaUsings</Filter>
-    </ClInclude>
-    <ClInclude Include="Components\LuaScriptComponent.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="LUAScripting\ScriptExports.h">
-      <Filter>Header Files\LUAScripting</Filter>
-    </ClInclude>
-    <ClInclude Include="Objects\Player.h">
-      <Filter>Header Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Objects\Camera.h">
-      <Filter>Header Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Objects\PointLight.h">
-      <Filter>Header Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\MaterialTextured.h">
-      <Filter>Header Files\Graphics\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\MaterialTexturedFoliage.h">
-      <Filter>Header Files\Graphics\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\MaterialUnTextured.h">
-      <Filter>Header Files\Graphics\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="Systems\TimeSystem.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Material.h">
-      <Filter>Header Files\Graphics\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\MaterialSky.h">
-      <Filter>Header Files\Graphics\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="Systems\BenchmarkingTimer.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="Objects\DirectionalLight.h">
-      <Filter>Header Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="src\resource.h">
       <Filter>Resource Files\Application</Filter>
     </ClInclude>
-    <ClInclude Include="Systems\RenderManager.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="Components\RigidBodyComponent.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Systems\PhysicsSystem.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="Physics\AABB.h">
-      <Filter>Header Files\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="Event\PhysicsEvent.h">
-      <Filter>Header Files\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\MaterialWater.h">
-      <Filter>Header Files\Graphics\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="Physics\Contact.h">
+    <ClInclude Include="src\StringHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Systems\LuaManager.h">
+    <ClInclude Include="src\WindowContainer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scriptor\Compiler.h">
+      <Filter>Header Files\Scriptor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scriptor\CompilerHelper.h">
+      <Filter>Header Files\Scriptor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scriptor\Script.h">
+      <Filter>Header Files\Scriptor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Components\Component.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Components\EditorSelectionComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Components\LuaScriptComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Components\MeshRenderComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Components\RigidBodyComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Editor\Editor.h">
+      <Filter>Header Files\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Editor\EditorClickable.h">
+      <Filter>Header Files\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\Event.h">
+      <Filter>Header Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\EventReciever.h">
+      <Filter>Header Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Event\PhysicsEvent.h">
+      <Filter>Header Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Framework\Singleton.h">
+      <Filter>Header Files\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\ImGui\imconfig.h">
+      <Filter>Header Files\Graphics\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\ImGui\imgui.h">
+      <Filter>Header Files\Graphics\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\ImGui\imgui_impl_dx11.h">
+      <Filter>Header Files\Graphics\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\ImGui\imgui_impl_win32.h">
+      <Filter>Header Files\Graphics\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\ImGui\imgui_internal.h">
+      <Filter>Header Files\Graphics\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\ImGui\ImGuizmo.h">
+      <Filter>Header Files\Graphics\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\ImGui\imstb_rectpack.h">
+      <Filter>Header Files\Graphics\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\ImGui\imstb_textedit.h">
+      <Filter>Header Files\Graphics\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\ImGui\imstb_truetype.h">
+      <Filter>Header Files\Graphics\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\AdapterReader.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Camera2D.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Color.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\ConstantBuffers.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\ConstantBufferTypes.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\GameObject.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\GameObject2D.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Graphics.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\IndexBuffer.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Light.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Material.h">
+      <Filter>Header Files\Graphics\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\MaterialSky.h">
+      <Filter>Header Files\Graphics\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\MaterialTextured.h">
+      <Filter>Header Files\Graphics\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\MaterialTexturedFoliage.h">
+      <Filter>Header Files\Graphics\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\MaterialUnTextured.h">
+      <Filter>Header Files\Graphics\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\MaterialWater.h">
+      <Filter>Header Files\Graphics\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Mesh.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Model.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Shaders.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\SimpleShader.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Sprite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Texture.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Vertex.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\VertexBuffer.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\lapi.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\lauxlib.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\lcode.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\lctype.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\ldebug.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\ldo.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\lfunc.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\lgc.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\llex.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\llimits.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\lmem.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\lobject.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\lopcodes.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\lparser.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\lprefix.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\lstate.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\lstring.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\ltable.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\ltm.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\lua.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\lua.hpp">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaAutoBlock.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaCall.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\luaconf.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaFunction.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaHelper.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaHelper_Object.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaHelper_StackObject.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\lualib.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaObject.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaPlus.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaPlusCD.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaPlusConfig.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaPlusInternal.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaStackObject.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaStackTableIterator.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaState.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaStateCD.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaStateOutFile.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaStateOutString.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaTableIterator.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\lundump.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\lvm.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\Lua\LuaPlus\lzio.h">
+      <Filter>LuaUsings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Includes\dlfcn.h">
+      <Filter>Header Files\Scriptor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Input\Keyboard\KeyboardClass.h">
+      <Filter>Header Files\Input\Keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Input\Keyboard\KeyboardEvent.h">
+      <Filter>Header Files\Input\Keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Input\Mouse\MouseClass.h">
+      <Filter>Header Files\Input\Mouse</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Input\Mouse\MouseEvent.h">
+      <Filter>Header Files\Input\Mouse</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Input\InputManager.h">
+      <Filter>Header Files\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LUAScripting\IScriptManager.h">
+      <Filter>Header Files\LUAScripting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LUAScripting\LuaStateManager.h">
+      <Filter>Header Files\LUAScripting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LUAScripting\ScriptExports.h">
+      <Filter>Header Files\LUAScripting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Math\Transform.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Objects\Camera.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Objects\DirectionalLight.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Objects\Entity.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Objects\ID.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Objects\Object.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Objects\Player.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Objects\PointLight.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Objects\Scene.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Physics\AABB.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\LuaManager.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="src\Systems\PhysicsSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\RenderManager.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Physics\Ray.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\TimeSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\FileSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\BenchmarkingTimer.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Physics\Contact.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Core.h" />
+    <ClInclude Include="src\Insight\Application.h" />
+    <ClInclude Include="src\Insight.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -851,44 +855,44 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Includes\Lua\LuaPlus\Lua.jam">
-      <Filter>LuaUsings</Filter>
-    </None>
-    <None Include="Includes\Lua\LuaPlus\LuaC.jam">
-      <Filter>LuaUsings</Filter>
-    </None>
-    <None Include="Includes\Lua\LuaPlus\LuaCall.inl">
-      <Filter>LuaUsings</Filter>
-    </None>
-    <None Include="Includes\Lua\LuaPlus\LuaObject.inl">
-      <Filter>LuaUsings</Filter>
-    </None>
-    <None Include="Includes\Lua\LuaPlus\LuaPlusSharedLib.jam">
-      <Filter>LuaUsings</Filter>
-    </None>
-    <None Include="Includes\Lua\LuaPlus\LuaPlusStaticLib.jam">
-      <Filter>LuaUsings</Filter>
-    </None>
-    <None Include="Includes\Lua\LuaPlus\LuaStackObject.inl">
-      <Filter>LuaUsings</Filter>
-    </None>
-    <None Include="Includes\Lua\LuaPlus\LuaStackTableIterator.inl">
-      <Filter>LuaUsings</Filter>
-    </None>
-    <None Include="Includes\Lua\LuaPlus\LuaState.inl">
-      <Filter>LuaUsings</Filter>
-    </None>
-    <None Include="PBR_Header.hlsli">
+    <None Include="src\PBR_Header.hlsli">
       <Filter>Resource Files\Shaders\PBR</Filter>
+    </None>
+    <None Include="src\Includes\Lua\LuaPlus\Lua.jam">
+      <Filter>LuaUsings</Filter>
+    </None>
+    <None Include="src\Includes\Lua\LuaPlus\LuaC.jam">
+      <Filter>LuaUsings</Filter>
+    </None>
+    <None Include="src\Includes\Lua\LuaPlus\LuaCall.inl">
+      <Filter>LuaUsings</Filter>
+    </None>
+    <None Include="src\Includes\Lua\LuaPlus\LuaObject.inl">
+      <Filter>LuaUsings</Filter>
+    </None>
+    <None Include="src\Includes\Lua\LuaPlus\LuaPlusSharedLib.jam">
+      <Filter>LuaUsings</Filter>
+    </None>
+    <None Include="src\Includes\Lua\LuaPlus\LuaPlusStaticLib.jam">
+      <Filter>LuaUsings</Filter>
+    </None>
+    <None Include="src\Includes\Lua\LuaPlus\LuaStackObject.inl">
+      <Filter>LuaUsings</Filter>
+    </None>
+    <None Include="src\Includes\Lua\LuaPlus\LuaStackTableIterator.inl">
+      <Filter>LuaUsings</Filter>
+    </None>
+    <None Include="src\Includes\Lua\LuaPlus\LuaState.inl">
+      <Filter>LuaUsings</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Engine.rc">
+    <ResourceCompile Include="src\Engine.rc">
       <Filter>Resource Files\Application</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="icon1.ico">
+    <Image Include="src\icon1.ico">
       <Filter>Resource Files\Application</Filter>
     </Image>
   </ItemGroup>

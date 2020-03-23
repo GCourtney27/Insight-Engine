@@ -1,0 +1,118 @@
+{
+
+local CURL_ROOT = $(SUBDIR)/src/curl-7.58.0 ;
+
+local foundCurl ;
+if $(NT) {
+	foundCurl = [ Glob $(CURL_ROOT)/include/curl : curl.h ] ;
+} else {
+	foundCurl = [ Glob /usr/include/curl : curl.h ] ;
+	if ! $(foundCurl) {
+		local results = [ Split [ Shell "echo | gcc -E -Wp,-v -" ] : $(NEWLINE) ] ;
+		results = [ Match "^ (.*)" : $(results) ] ;
+		foundCurl = [ Glob $(results)/curl : curl.h ] ;
+	}
+}
+
+if ! $(foundCurl) {
+	Echo * Not building cURL, because libcurl is not installed. ;
+	return ;
+}
+
+if ! [ C.OpenSSL : test ] {
+	Echo * Not building cURL, because OpenSSL is not found. ;
+	return ;
+}
+
+local CURL_LIB_SRCS ;
+local ZLIB_SRCS ;
+
+if $(NT) {
+	CURL_LIB_SRCS =
+			*.c
+			*.h
+			vtls/*.c
+			vtls/*.h
+	;
+
+	CURL_LIB_SRCS = $(CURL_ROOT)/lib/$(CURL_LIB_SRCS) ;
+
+	ZLIB_SRCS =
+			../zlib/adler32.c
+			../zlib/compress.c
+			../zlib/crc32.c
+			../zlib/crc32.h
+			../zlib/deflate.c
+			../zlib/deflate.h
+			../zlib/infback.c
+			../zlib/inffast.c
+			../zlib/inffast.h
+			../zlib/inffixed.h
+			../zlib/inflate.c
+			../zlib/inflate.h
+			../zlib/inftrees.c
+			../zlib/inftrees.h
+			../zlib/trees.c
+			../zlib/trees.h
+			../zlib/uncompr.c
+			../zlib/zconf.h
+			../zlib/zlib.h
+			../zlib/zutil.c
+			../zlib/zutil.h
+	;
+}
+
+local SRCS =
+		src/l52util.c
+		src/l52util.h
+		src/lceasy.c
+		src/lceasy.h
+		src/lcerror.c
+		src/lcerror.h
+		src/lcerr_easy.h
+		src/lcerr_form.h
+		src/lcerr_multi.h
+		src/lcerr_share.h
+		src/lcflags.h
+		src/lchttppost.c
+		src/lchttppost.h
+		src/lcinfoeasy.h
+		src/lcmulti.c
+		src/lcmulti.h
+		src/lcopteasy.h
+		src/lcoptmulti.h
+		src/lcoptshare.h
+		src/lcshare.c
+		src/lcshare.h
+		src/lcurl.c
+		src/lcurl.h
+		src/lcutils.c
+		src/lcutils.h
+		$(ZLIB_SRCS)
+;
+
+C.ActiveTarget cURL ;
+
+SourceGroup : libcurl : $(CURL_LIB_SRCS) ;
+SourceGroup : zlib : $(ZLIB_SRCS) ;
+
+C.OpenSSL : link ;
+C.Defines : BUILDING_LIBCURL CURL_STATICLIB ;
+#C.Defines : HAVE_ZLIB_H HAVE_ZLIB HAVE_LIBZ ;
+
+if $(NT) {
+	C.Defines : __WIN32__ ;
+	C.IncludeDirectories : ../zlib ;
+
+	C.IncludeDirectories : $(CURL_ROOT)/lib $(CURL_ROOT)/include ;
+	C.LinkPrebuiltLibraries : Wldap32 ;
+} else {
+	C.LinkPrebuiltLibraries : curl ;
+}
+
+Lua.CModule : lcurl : $(CURL_LIB_SRCS) $(SRCS) ;
+CopyDirectory cURL : $(LUA_LDIR) : $(SUBDIR)/src/lua : * : 1 ;
+Depends lua-curl : cURL ;
+Depends clean:lua-curl : clean:cURL ;
+
+}

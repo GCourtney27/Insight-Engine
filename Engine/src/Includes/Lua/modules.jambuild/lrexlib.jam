@@ -1,0 +1,49 @@
+if $(NT)  &&  [ Glob $(SUBDIR)/pcre-8.38 : pcre.h ]
+{
+
+local PCRE_SRCS = ;
+if $(OS) = NT {
+	PCRE_SRCS +=
+			pcre-8.38/pcre.h
+			pcre-8.38/pcre_chartables.c
+			pcre-8.38/pcre_compile.c
+			pcre-8.38/pcre_config.c
+			pcre-8.38/pcre_dfa_exec.c
+			pcre-8.38/pcre_exec.c
+			pcre-8.38/pcre_fullinfo.c
+			pcre-8.38/pcre_get.c
+			pcre-8.38/pcre_globals.c
+			pcre-8.38/pcre_maketables.c
+			pcre-8.38/pcre_newline.c
+			pcre-8.38/pcre_ord2utf8.c
+			pcre-8.38/pcre_refcount.c
+			pcre-8.38/pcre_study.c
+			pcre-8.38/pcre_tables.c
+			pcre-8.38/pcre_ucd.c
+			pcre-8.38/pcre_valid_utf8.c
+			pcre-8.38/pcre_version.c
+			pcre-8.38/pcre_xclass.c
+	;
+}
+
+local SRCS =
+		$(PCRE_SRCS)
+		src/algo.h
+		src/common.c
+		src/common.h
+		src/pcre/lpcre.c
+		src/pcre/lpcre_f.c
+;
+
+SourceGroup lrexlib : pcre : $(PCRE_SRCS) ;
+
+#if $(MSVCNT) {
+	C.Defines lrexlib : HAVE_CONFIG_H PCRE_STATIC REX_API= ;
+	C.Defines lrexlib : HAVE_STDINT_H=0 HAVE_INTTYPES_H=0 ;
+	C.Defines lrexlib : "VERSION=\\\"2.7.2\\\"" ;
+	C.IncludeDirectories lrexlib : pcre-8.38 ;
+#}
+
+Lua.CModule lrexlib : rex_pcre : $(SRCS) ;
+
+}

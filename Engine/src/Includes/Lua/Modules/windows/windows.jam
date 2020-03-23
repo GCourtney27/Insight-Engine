@@ -1,0 +1,7 @@
+if $(OS) = NT
+{
+
+C.LinkPrebuiltLibraries windows : kernel32 user32 ;
+Lua.CModule windows : : KeystrokeEngine.cpp KeystrokeEngine.h WindowEngine.cpp WindowEngine.h windows.cpp ;
+
+}

@@ -1,3 +1,0 @@
-if $(LUA_VERSION) in lua51 lua51-luaplus {
-    Lua.CModule pack : : lpack.c ;
-}

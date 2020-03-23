@@ -1,0 +1,43 @@
+{
+
+local SRCS =
+		src/lxplib.c
+		src/lxplib.h
+		../libexpat/expat/lib/ascii.h
+		../libexpat/expat/lib/asciitab.h
+		../libexpat/expat/lib/expat.h
+		../libexpat/expat/lib/expat_external.h
+		../libexpat/expat/lib/iasciitab.h
+		../libexpat/expat/lib/internal.h
+		../libexpat/expat/lib/latin1tab.h
+		../libexpat/expat/lib/loadlibrary.c
+		../libexpat/expat/lib/nametab.h
+		../libexpat/expat/lib/siphash.h
+		../libexpat/expat/lib/utf8tab.h
+		../libexpat/expat/lib/winconfig.h
+		../libexpat/expat/lib/xmlparse.c
+		../libexpat/expat/lib/xmlrole.c
+		../libexpat/expat/lib/xmlrole.h
+		../libexpat/expat/lib/xmltok.c
+		../libexpat/expat/lib/xmltok.h
+		../libexpat/expat/lib/xmltok_impl.c
+		../libexpat/expat/lib/xmltok_impl.h
+		../libexpat/expat/lib/xmltok_ns.c
+;
+
+CopyFile luaexpat : $(LUA_LDIR)/lxp/lom.lua : $(SUBDIR)/src/lxp/lom.lua ;
+
+C.IncludeDirectories luaexpat : ../libexpat/expat/lib ;
+C.Defines luaexpat : XML_STATIC HAVE_MEMMOVE ;
+if $(MSVCNT)
+{
+	C.Defines luaexpat : COMPILED_FROM_DSP ;
+}
+else
+{
+	C.Defines luaexpat : HAVE_GETRANDOM ;
+}
+
+Lua.CModule luaexpat : lxp : $(SRCS) ;
+
+}

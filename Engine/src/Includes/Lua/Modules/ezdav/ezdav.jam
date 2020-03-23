@@ -1,0 +1,72 @@
+{
+
+local EXPAT_SRCS =
+		../libexpat/expat/lib/ascii.h
+		../libexpat/expat/lib/asciitab.h
+		../libexpat/expat/lib/expat.h
+		../libexpat/expat/lib/expat_external.h
+		../libexpat/expat/lib/iasciitab.h
+		../libexpat/expat/lib/internal.h
+		../libexpat/expat/lib/latin1tab.h
+		../libexpat/expat/lib/loadlibrary.c
+		../libexpat/expat/lib/nametab.h
+		../libexpat/expat/lib/siphash.h
+		../libexpat/expat/lib/utf8tab.h
+		../libexpat/expat/lib/winconfig.h
+		../libexpat/expat/lib/xmlparse.c
+		../libexpat/expat/lib/xmlrole.c
+		../libexpat/expat/lib/xmlrole.h
+		../libexpat/expat/lib/xmltok.c
+		../libexpat/expat/lib/xmltok.h
+		../libexpat/expat/lib/xmltok_impl.c
+		../libexpat/expat/lib/xmltok_impl.h
+		../libexpat/expat/lib/xmltok_ns.c
+;
+
+local EZDAVLIB_SRCS =
+		src/ezdavlib/date_decode.c
+		src/ezdavlib/date_decode.h
+		src/ezdavlib/digcalc.c
+		src/ezdavlib/digcalc.h
+		src/ezdavlib/global.h
+		src/ezdavlib/high_level_webdav_functions.c
+		src/ezdavlib/high_level_webdav_functions.h
+		src/ezdavlib/http.c
+		src/ezdavlib/http.h
+		src/ezdavlib/http_storage.c
+		src/ezdavlib/http_storage.h
+		src/ezdavlib/md5.c
+		src/ezdavlib/md5.h
+		src/ezdavlib/strutl.c
+		src/ezdavlib/strutl.h
+		src/ezdavlib/webdav.c
+		src/ezdavlib/webdav.h
+		src/ezdavlib/xml_tree.c
+		src/ezdavlib/xml_tree.h
+;
+
+local SRCS =
+		src/buffer.c
+		src/buffer.h
+		src/davglob.c
+		src/davglob.h
+		src/ezdav.c
+;
+
+SourceGroup ezdav : expat : $(EXPAT_SRCS) ;
+SourceGroup ezdav : ezdavlib : $(EXPAT_SRCS) ;
+
+C.Defines ezdav : XML_STATIC HAVE_MEMMOVE ;
+C.IncludeDirectories ezdav : ../libexpat/expat/lib ;
+C.IncludeDirectories ezdav : src/ezdavlib ;
+
+if $(NT) {
+	C.Defines ezdav : _WIN32 ;
+	C.LinkPrebuiltLibraries ezdav : wsock32 ;
+} else {
+	C.Defines ezdav : HAVE_GETRANDOM ;
+}
+
+Lua.CModule ezdav : : $(EXPAT_SRCS) $(EZDAVLIB_SRCS) $(SRCS) ;
+
+}

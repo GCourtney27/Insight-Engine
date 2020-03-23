@@ -1,0 +1,20 @@
+/////////////////////////////////////////////////////////////////////////////
+// Purpose:     Resources for wxLuaStandalone
+// Author:      J Winwood
+// Created:     04/11/2001
+// Copyright:   (c) 2001-2002 Lomtick Software. All rights reserved.
+// Licence:     wxWidgets licence
+/////////////////////////////////////////////////////////////////////////////
+
+lua   ICON   "../../art/wxlua.ico"
+
+#include "wx/msw/wx.rc"
+
+// --------------------------------------------------------------------------
+// Setup the file properties dialog fields
+#define WINRC_VER_FileDescription_STR  "wxLuaCan wxLua example app.\0"
+#define WINRC_VER_InternalName_STR     "wxLuaCan\0"
+#define WINRC_VER_OriginalFilename_STR "wxLuaCan.exe\0"
+#define WINRC_VER_Productname_STR      "wxLuaCan\0"
+
+#include "../../build/wxlua_version.rc"

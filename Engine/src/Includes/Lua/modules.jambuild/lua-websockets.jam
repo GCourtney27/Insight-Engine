@@ -1,0 +1,28 @@
+{
+
+local WEBSOCKET_SRCS =
+		src/websocket/bit.lua
+		src/websocket/client.lua
+		src/websocket/client_copas.lua
+		src/websocket/client_ev.lua
+		src/websocket/ev_common.lua
+		src/websocket/frame.lua
+		src/websocket/handshake.lua
+		src/websocket/server.lua
+		src/websocket/server_copas.lua
+		src/websocket/server_ev.lua
+		src/websocket/sync.lua
+		src/websocket/tools.lua
+;
+
+local SRCS =
+		src/websocket.lua
+;
+
+CopyFiles lua-websockets : $(LUA_LDIR)/websocket : $(SUBDIR)/$(WEBSOCKET_SRCS) ;
+CopyFiles lua-websockets : $(LUA_LDIR) : $(SUBDIR)/$(SRCS) ;
+
+Lua.Module lua-websockets : : $(SRCS) $(WEBSOCKET_SRCS) ;
+
+}
+
