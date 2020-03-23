@@ -5,6 +5,7 @@
 #include "..\Editor\Editor.h"
 #include "..\Components\RigidBodyComponent.h"
 #include "..\Graphics\Graphics.h"
+#include "..\Systems\BenchmarkingTimer.h"
 
 bool Entity::Initialize()
 {
@@ -92,6 +93,10 @@ void Entity::OnEditorStop()
 	}
 }
 
+void Entity::LoadFromJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
+{
+}
+
 void Entity::WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer> & writer)
 {
 	writer.StartObject(); // Start Entity
@@ -103,78 +108,78 @@ void Entity::WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer> & writ
 
 #pragma region Write Transform
 	writer.Key("Transform");
-	writer.StartArray(); // Start Transform
+	writer.StartArray(); // Start Transform Array
 
 	// POSITION
-	writer.StartObject(); // Start Array Object
+	writer.StartObject(); // Start Position Object
 	writer.Key("Position");
-	writer.StartArray(); // Start Position
-	// X
-	writer.StartObject(); // Start X
-	writer.Key("x");
-	writer.Double(GetTransform().GetPosition().x);
-	writer.EndObject(); // End X
-	// Y
-	writer.StartObject(); // Start Y
-	writer.Key("y");
-	writer.Double(GetTransform().GetPosition().y);
-	writer.EndObject(); // End Y
+	{
+		writer.StartArray();
+		{
+			writer.StartObject();
 
-	// Z
-	writer.StartObject(); // Start Z
-	writer.Key("z");
-	writer.Double(GetTransform().GetPosition().z);
-	writer.EndObject(); // End Z
-	writer.EndArray(); // End Pisition
-	writer.EndObject(); // End Array Object
+			writer.Key("x");
+			writer.Double(GetTransform().GetPosition().x);
+
+			writer.Key("y");
+			writer.Double(GetTransform().GetPosition().y);
+			
+			writer.Key("z");
+			writer.Double(GetTransform().GetPosition().z);
+			
+			writer.EndObject();
+		}
+		writer.EndArray();
+	}
+	writer.EndObject(); // End Position Object
 
 	// ROTATION
-	writer.StartObject(); // Start Array Object
+	writer.StartObject(); // Start Rotation Object
 	writer.Key("Rotation");
-	writer.StartArray(); // Start Position
-	// X
-	writer.StartObject(); // Start X
-	writer.Key("x");
-	writer.Double(GetTransform().GetRotation().x);
-	writer.EndObject(); // End X
-	// Y
-	writer.StartObject(); // Start Y
-	writer.Key("y");
-	writer.Double(GetTransform().GetRotation().y);
-	writer.EndObject(); // End Y
+	{
+		writer.StartArray();
+		{
+			writer.StartObject();
 
-	// Z
-	writer.StartObject(); // Start Z
-	writer.Key("z");
-	writer.Double(GetTransform().GetRotation().z);
-	writer.EndObject(); // End Z
-	writer.EndArray(); // End Pisition
-	writer.EndObject(); // End Array Object
+			writer.Key("x");
+			writer.Double(GetTransform().GetRotation().x);
+
+			writer.Key("y");
+			writer.Double(GetTransform().GetRotation().y);
+
+			writer.Key("z");
+			writer.Double(GetTransform().GetRotation().z);
+
+			writer.EndObject();
+		}
+		writer.EndArray();
+	}
+	writer.EndObject(); // End Rotation Object
 
 	// SCALE
-	writer.StartObject(); // Start Array Object
+	writer.StartObject(); // Start Scale Object
 	writer.Key("Scale");
-	writer.StartArray(); // Start Position
-	// X
-	writer.StartObject(); // Start X
-	writer.Key("x");
-	writer.Double(GetTransform().GetScale().x);
-	writer.EndObject(); // End X
-	// Y
-	writer.StartObject(); // Start Y
-	writer.Key("y");
-	writer.Double(GetTransform().GetScale().y);
-	writer.EndObject(); // End Y
+	{
+		writer.StartArray();
+		{
+			writer.StartObject();
 
-	// Z
-	writer.StartObject(); // Start Z
-	writer.Key("z");
-	writer.Double(GetTransform().GetScale().z);
-	writer.EndObject(); // End Z
-	writer.EndArray(); // End Pisition
-	writer.EndObject(); // End Array Object
+			writer.Key("x");
+			writer.Double(GetTransform().GetScale().x);
 
-	writer.EndArray(); // End Transform
+			writer.Key("y");
+			writer.Double(GetTransform().GetScale().y);
+
+			writer.Key("z");
+			writer.Double(GetTransform().GetScale().z);
+
+			writer.EndObject();
+		}
+		writer.EndArray();
+	}
+	writer.EndObject(); // End Scale Object
+
+	writer.EndArray(); // End Transform Array
 #pragma endregion
 
 	writer.Key("Components");
@@ -236,24 +241,30 @@ void Entity::RemoveComponent(Component * component)
 
 Entity * Entity::CreateEntityWithDefaultParams()
 {
+	//Debug::ScopedTimer objCreationTimer;
 	Entity* toReturn = new Entity(&Graphics::Instance()->GetEngineInstance()->GetScene(), (*new ID()));
 
-	toReturn->GetID().SetName("Default Entity");
+	toReturn->GetID().SetName("Projectile");
 	toReturn->GetID().SetTag("Untagged");
 	toReturn->GetID().SetType("Entity");
-	toReturn->GetTransform().SetPosition(Graphics::Instance()->GetEngineInstance()->GetPlayer()->GetTransform().GetPositionConst());
+	toReturn->GetTransform().SetPosition(Graphics::Instance()->GetEngineInstance()->GetPlayer()->GetTransform().GetPositionCopy());
 	toReturn->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
-	toReturn->GetTransform().SetScale(6.0f, 6.0f, 6.0f);
+	toReturn->GetTransform().SetScale(0.5f, 0.5f, 2.3f);
 
 	// MESH RENDERER
 	Material* mat = nullptr;
-	mat = mat->SetMaterialByType(Material::eMaterialType::PBR_DEFAULT, Material::eFlags::NOFLAGS);
+	mat = mat->SetMaterialByType(Material::eMaterialType::PBR_UNTEXTURED, Material::eFlags::NOFLAGS);
 	mat->Initiailze(Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Material::eFlags::NOFLAGS);
-
-	std::string file = "..\\Assets\\Objects\\Primatives\\Cube.fbx";
+	std::string file = "..\\Assets\\Objects\\Primatives\\Capsule.obj";
 	MeshRenderer* mr = toReturn->AddComponent<MeshRenderer>();
 	mr->Initialize(toReturn, file, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext(), Graphics::Instance()->GetDefaultVertexShader(), mat);
 	toReturn->SetHasMeshRenderer(true);
+	mat->m_color.x = 1.0f;
+	mat->m_color.y = 0.0f;
+	mat->m_color.z = 0.0f;
+	mat->m_cb_ps_PerObjectUtil.data.color = mat->m_color;
+	mat->m_cb_ps_PerObjectUtil.ApplyChanges();
+
 	Graphics::Instance()->GetEngineInstance()->GetScene().GetRenderManager().AddOpaqueInstantiatedObject(mr);
 
 	// LUA SCRIPT
@@ -261,16 +272,16 @@ Entity * Entity::CreateEntityWithDefaultParams()
 	ls->Initialize(toReturn, "..\\Assets\\LuaScripts\\Projectile.lua");
 	ls->Start();
 
-	// EDITOR SELECTION
-	toReturn->AddComponent<EditorSelection>()->Initialize(toReturn, 10.0f, toReturn->GetTransform().GetPosition());
-
-	//RIGID BODY
+	// RIGID BODY
 	RigidBody* rb = toReturn->AddComponent<RigidBody>();
 	rb->Initialize(toReturn, toReturn->GetTransform().GetScaleConst().x, AABB::eColliderType::SPHERE);
+	rb->SetIsTrigger(true);
 	Graphics::Instance()->GetEngineInstance()->GetScene().GetPhysicsSystem().AddEntity(rb);
 
 	Graphics::Instance()->GetEngineInstance()->GetScene().AddInstantiatedEntity(toReturn);
 
+	//objCreationTimer.Stop();
+	//Debug::Editor::Instance()->DebugLog("Projectile instanciated in " + std::to_string(objCreationTimer.GetTimeInSeconds()) + " seconds");
 
 	return toReturn;
 }

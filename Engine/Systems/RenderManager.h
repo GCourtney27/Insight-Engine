@@ -11,6 +11,8 @@ public:
 	RenderManager() {}
 	~RenderManager();
 
+	void Flush();
+
 	void Draw(const DirectX::XMMATRIX & projectionMatrix, const DirectX::XMMATRIX & viewMatrix);
 
 	void AddFoliageObject(MeshRenderer* mr);
@@ -23,6 +25,9 @@ public:
 	void DrawOpaque(const DirectX::XMMATRIX & projectionMatrix, const DirectX::XMMATRIX & viewMatrix);
 
 	void SetGameCamera(Camera* cam) { m_pGameCamera = cam; }
+
+	void RemoveOpaqueInstance(MeshRenderer* mr);
+
 private:
 
 	Camera* m_pGameCamera = nullptr;

@@ -67,6 +67,12 @@ void Model::Draw(const XMMATRIX & worldMatrix, const XMMATRIX & projectionMatrix
 	}
 }
 
+void Model::Destroy()
+{
+	m_pMaterial->Destroy();
+	delete m_pMaterial;
+}
+
 bool Model::LoadModel(const std::string & filepath)
 {
 	this->directory = StringHelper::GetDirectoryFromPath(filepath);

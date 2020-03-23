@@ -10,6 +10,8 @@ public:
 	bool Initialize(const std::string & filepath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_PerObject>& CB_VS_PerObject, Material* material);
 	void Draw(const XMMATRIX & worldMatrix, const XMMATRIX & projectionMatrix, const XMMATRIX & viewMatrix);
 
+	void Destroy();
+
 	std::string GetDirectory() { return directory; }
 	std::string GetModelDirectory() { return modelDirectory; }
 

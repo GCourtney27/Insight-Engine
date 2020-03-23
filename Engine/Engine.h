@@ -41,4 +41,7 @@ private:
 
 	float m_saveDelay = 3.0f;
 	bool m_canSave = true;
+
+	bool m_canChangeScene = true;
+	float m_delay = 3.0f;
 };

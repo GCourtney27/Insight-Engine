@@ -99,10 +99,11 @@ void Graphics::InitSkybox()
 
 	// MountainTop
 	// NewportLoft
+	// LowOrbit
 	// skybox1
 	// skybox2
 	// skybox3
-	std::wstring skyboxType = L"skybox1";
+	std::wstring skyboxType = L"MountainTop";
 	std::wstring diffuse = L"..\\Assets\\Textures\\Skyboxes\\" + skyboxType + L"_Diff.dds";
 	std::wstring envMap = L"..\\Assets\\Textures\\Skyboxes\\" + skyboxType + L"_EnvMap.dds";
 	std::wstring IR = L"..\\Assets\\Textures\\Skyboxes\\" + skyboxType + L"_IR.dds";
@@ -279,10 +280,14 @@ void Graphics::RenderFrame()
 	Debug::ScopedTimer timer;
 	m_frameTimer.tick();
 
-	const DirectX::XMMATRIX & playerProjMat = m_pEngine->GetPlayer()->GetPlayerCamera()->GetProjectionMatrix();
-	const DirectX::XMMATRIX & playerViewMat = m_pEngine->GetPlayer()->GetPlayerCamera()->GetViewMatrix();
-	const DirectX::XMMATRIX & editorProjMat = editorCamera.GetProjectionMatrix();
-	const DirectX::XMMATRIX & editorViewMat = editorCamera.GetViewMatrix();
+	if (Debug::Editor::Instance()->PlayingGame())
+		m_pSelectedCamera = m_pEngine->GetPlayer()->GetPlayerCamera();
+	else
+		m_pSelectedCamera = &editorCamera;
+
+
+	const DirectX::XMMATRIX & ProjMat = m_pSelectedCamera->GetProjectionMatrix();
+	const DirectX::XMMATRIX & ViewMat = m_pSelectedCamera->GetViewMatrix();
 
 	// -- These Constant Buffers dont get included in materials becasue they change on a per-scene basis -- //
 #pragma region
@@ -339,7 +344,6 @@ void Graphics::RenderFrame()
 	else
 		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	
-	//pDeviceContext->OMSetRenderTargets(1, )
 
 	// Set Rasterizer state to CULLNONE to draw skybox
 	pDeviceContext->RSSetState(pRasterizerStateCULLNONE.Get());
@@ -352,10 +356,7 @@ void Graphics::RenderFrame()
 	pDeviceContext->PSSetShaderResources(0, 1, &skyboxTextureSRV);
 	pDeviceContext->PSSetShader(skyPixelShader.GetShader(), NULL, 0);
 	pDeviceContext->VSSetShader(skyVertexShader.GetShader(), NULL, 0);
-	if (Debug::Editor::Instance()->PlayingGame())
-		skybox->Draw(playerProjMat, playerViewMat);
-	else
-		skybox->Draw(editorProjMat, editorViewMat);
+	skybox->Draw(ProjMat, ViewMat);
 	
 	// Reset Rasterizer state for rest of geometry
 	pDeviceContext->RSSetState(pRasterizerState.Get());
@@ -363,37 +364,15 @@ void Graphics::RenderFrame()
 	pDeviceContext->OMSetBlendState(pBlendState.Get(), NULL, 0xFFFFFFFF);
 
 	// -- Set IBL resources for shader slots -- //
-	//pDeviceContext->PSSetShaderResources(5, 1, m_pSkyMaterial->m_textures[1].GetTextureResourceViewAddress());
-	//pDeviceContext->PSSetShaderResources(6, 1, m_pSkyMaterial->m_textures[2].GetTextureResourceViewAddress());
-	//pDeviceContext->PSSetShaderResources(7, 1, m_pSkyMaterial->m_textures[3].GetTextureResourceViewAddress());
 	pDeviceContext->PSSetShaderResources(5, 1, &irradianceMapSRV);
 	pDeviceContext->PSSetShaderResources(6, 1, &environmentMapSRV);
 	pDeviceContext->PSSetShaderResources(7, 1, &brdfLUTSRV);
 
 	// -- Draw Scene Objects -- //
-	if (Debug::Editor::Instance()->PlayingGame())
-	{
-
-		m_pEngine->GetScene().GetRenderManager().DrawOpaque(playerProjMat, playerViewMat);
-
+	m_pEngine->GetScene().GetRenderManager().DrawOpaque(ProjMat, ViewMat);
 		pDeviceContext->RSSetState(pRasterizerStateCULLNONE.Get());
-		m_pEngine->GetScene().GetRenderManager().DrawFoliage(playerProjMat, playerViewMat);
+	m_pEngine->GetScene().GetRenderManager().DrawFoliage(ProjMat, ViewMat);
 		pDeviceContext->RSSetState(pRasterizerState.Get());
-
-
-		//m_pEngine->GetScene().Draw(playerProjMat, playerViewMat);
-	}
-	else
-	{
-		m_pEngine->GetScene().GetRenderManager().DrawOpaque(editorProjMat, editorViewMat);
-
-		pDeviceContext->RSSetState(pRasterizerStateCULLNONE.Get());
-		m_pEngine->GetScene().GetRenderManager().DrawFoliage(editorProjMat, editorViewMat);
-		pDeviceContext->RSSetState(pRasterizerState.Get());
-
-
-		//m_pEngine->GetScene().Draw(editorProjMat, editorViewMat);
-	}
 
 	// -- Update 2D shaders -- //
 	pDeviceContext->IASetInputLayout(vertexshader_2d.GetInputLayout());
@@ -593,7 +572,8 @@ bool Graphics::InitializeScene()
 		// Initialize light shader values
 		cb_ps_light.data.ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 		//cb_ps_light.data.ambientLightStrength = 2.498f;
-		cb_ps_light.data.ambientLightStrength = 4.4f;
+		//cb_ps_light.data.ambientLightStrength = 4.4f;
+		cb_ps_light.data.ambientLightStrength = 1.0f;
 
 		cb_ps_directionalLight.data.Color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 		cb_ps_directionalLight.data.Strength = 20.0f;
@@ -812,7 +792,7 @@ void Graphics::UpdateImGuiWidgets()
 
 	ImGui::Begin("Editor");
 	{
-		ImGui::Text("Play Status: ");
+		ImGui::Text("Status: ");
 		ImGui::SameLine();
 		std::string playStatus = "";
 		if (Editor::Instance()->PlayingGame())
@@ -830,10 +810,8 @@ void Graphics::UpdateImGuiWidgets()
 		{
 			Editor::Instance()->StopGame();
 		}
-		/*if (ImGui::Button("Simulate", { 50.0f, 20.0f }))
-		{
-
-		}*/
+		//ImGui::Checkbox("Editor Camera Enabled", &m_editorCamEnabled);
+		
 	}
 	ImGui::End();
 	
@@ -878,31 +856,31 @@ void Graphics::UpdateImGuiWidgets()
 	}
 	ImGui::End();
 
-	static int creationCounter = 2;
+	//static int creationCounter = 33;
+	static int creationCounter = 0;
 
 	ImGui::Begin("Entity Creator");
 	{
-		if (ImGui::Button("Create Scarret Grass Asset"))
+		if (ImGui::Button("Create Rock Asset"))
 		{
 			creationCounter++;
-			std::string creationCount = "ScatterGrass-" + std::to_string(creationCounter);
+			std::string creationCount = "Rock-" + std::to_string(creationCounter);
 			Entity* entity = new Entity(&m_pEngine->GetScene(), (*new ID()));
 			entity->GetID().SetName(creationCount);
 			entity->GetID().SetTag("Untagged");
 			entity->GetID().SetType("Entity");
 			entity->GetTransform().SetPosition(editorCamera.GetTransform().GetPosition());
 			entity->GetTransform().SetRotation(0.0f, 0.0f, 0.0f);
-			entity->GetTransform().SetScale(0.3f, 0.3f, 0.3f);
+			entity->GetTransform().SetScale(1.0f, 1.0f, 1.0f);
 			// mr
 			//Material* mat = new MaterialTextured(Material::eMaterialType::PBR_DEFAULT);
 			Material* mat = nullptr;
-			mat = mat->SetMaterialByType(Material::eMaterialType::PBR_DEFAULT, Material::eFlags::FOLIAGE);
+			mat = mat->SetMaterialByType(Material::eMaterialType::PBR_DEFAULT, Material::eFlags::NOFLAGS);
+			//mat = mat->SetMaterialByType(Material::eMaterialType::PBR_DEFAULT, Material::eFlags::FOLIAGE);
 
 			//mat->Initiailze(pDevice.Get(), pDeviceContext.Get(), Material::eFlags::FOLIAGE);
 			mat->Initiailze(pDevice.Get(), pDeviceContext.Get(), Material::eFlags::NOFLAGS);
-			//std::string file = "..\\Assets\\Objects\\Primatives\\Cube.fbx";
-			std::string file = "..\\Assets\\Objects\\Norway\\Foliage\\ScatterGrass\\ScatterGrass_LOD1.fbx";
-			//std::string file = "..\\Assets\\Objects\\Norway\\Opaque\\Rock02\\Rock02_LOD1.fbx";
+			std::string file = "..\\Assets\\Objects\\\MossyRock\\\MossyRock_LOD2.fbx";
 			MeshRenderer* mr = entity->AddComponent<MeshRenderer>();
 			mr->Initialize(entity, file, pDevice.Get(), pDeviceContext.Get(), this->GetDefaultVertexShader(), mat);
 			entity->SetHasMeshRenderer(true);
@@ -910,14 +888,9 @@ void Graphics::UpdateImGuiWidgets()
 			entity->AddComponent<LuaScript>()->Initialize(entity, "NONE");
 			//Es
 			entity->AddComponent<EditorSelection>()->Initialize(entity, 10.0f, entity->GetTransform().GetPosition());
-			//Rb
-			/*RigidBody* rb = entity->AddComponent<RigidBody>();
-			rb->Initialize(entity, 10.0f, AABB::eColliderType::SPHERE);
-			m_pEngine->GetScene().GetPhysicsSystem().AddEntity(rb);
-			entity->SetHasEditorSelection(true);*/
 
-
-			m_pEngine->GetScene().GetRenderManager().AddFoliageObject(mr);
+			//m_pEngine->GetScene().GetRenderManager().AddFoliageObject(mr);
+			m_pEngine->GetScene().GetRenderManager().AddOpaqueObject(mr);
 			m_pEngine->GetScene().AddEntity(entity);
 		}
 	}

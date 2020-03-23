@@ -10,6 +10,8 @@ public:
 	LuaManager() {}
 	~LuaManager() {}
 
+	void Flush();
+
 	void AddScript(LuaScript* script) { m_scripts.push_back(script); }
 
 private:

@@ -24,10 +24,10 @@ bool RenderWindow::Initialize(WindowContainer * pWindowContainer, HINSTANCE hIns
 	AdjustWindowRect(&wr, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE);
 
 	// Create window instance
-	this->handle = CreateWindowEx(0, // Extended Windows style - we are using the default
+	this->handle = CreateWindowEx(WS_EX_ACCEPTFILES, // Extended Windows style - we are using the default
 		this->window_class_wide.c_str(), // Window class name
 		this->window_title_wide.c_str(), // Window title
-		WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, // Windows style
+		WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_SIZEBOX, // Windows style
 		wr.left, // Window X position
 		wr.top, // Window Y position
 		wr.right - wr.left, // Window width
@@ -60,7 +60,6 @@ LRESULT CALLBACK HandleMsgRedirect(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 	case WM_CLOSE:
 		DestroyWindow(hwnd);
 		return 0;
-
 	default:
 		{
 			// Retrieve ptr to window class

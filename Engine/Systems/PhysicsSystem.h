@@ -11,8 +11,12 @@ public:
 	PhysicsSystem();
 	~PhysicsSystem();
 
+	void Flush();
+
 	void Simulate(const float& deltaTime);
 	void AddEntity(RigidBody* rb);
+
+	void RemoveEntity(RigidBody* rb);
 
 private:
 	void ProcessContacts();

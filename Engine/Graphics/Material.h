@@ -41,6 +41,8 @@ public:
 
 	virtual void WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) = 0;
 
+	void Destroy();
+
 	static eFlags GetMaterialFlagsFromString(std::string str_flags);
 	std::string GetMaterialFlagsAsString();
 	eFlags GetMaterialFlags() { return m_flags; }

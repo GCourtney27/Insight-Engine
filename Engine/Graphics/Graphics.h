@@ -31,9 +31,10 @@ public:
 	void Shutdown();
 	void InitialzeImGui(HWND hwnd);
 
-	//Camera3D editorCamera;
 	Camera editorCamera;
 	Camera* m_pSelectedCamera = &editorCamera;
+	bool m_editorCamEnabled = true;
+
 	Camera2D camera2D;
 	Sprite sprite;
 
@@ -71,10 +72,10 @@ private:
 
 	frame_timer m_frameTimer;
 	bool m_drawfpsGPU = false;
-	bool m_drawfpsCPU = true;
+	bool m_drawfpsCPU = false;
 	bool m_drawFrameTimeGPU = false;
 	bool m_drawFrameTimeCPU = false;
-	bool m_logDrawCalls = true;
+	bool m_logDrawCalls = false;
 	UINT m_drawCalls = 0;
 	bool m_drawWireframe = false;
 

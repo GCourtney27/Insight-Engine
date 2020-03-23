@@ -58,6 +58,10 @@ bool LuaScript::Initialize(Entity* owner, std::string scriptFile)
 	m_pLuaState->GetGlobals().RegisterDirect("AdjustRotation", (*m_owner), &Entity::lua_AdjustRotation);
 	m_pLuaState->GetGlobals().RegisterDirect("AdjustPosition", (*m_owner), &Entity::lua_AdjustPosition);
 	m_pLuaState->GetGlobals().RegisterDirect("AdjustScale", (*m_owner), &Entity::lua_AdjustScale);
+	m_pLuaState->GetGlobals().RegisterDirect("GetPositionX", (*m_owner), &Entity::lua_GetPosX);
+	m_pLuaState->GetGlobals().RegisterDirect("GetPositionY", (*m_owner), &Entity::lua_GetPosY);
+	m_pLuaState->GetGlobals().RegisterDirect("GetPositionZ", (*m_owner), &Entity::lua_GetPosZ);
+
 	// Physics
 	m_pLuaState->GetGlobals().RegisterDirect("Translate", (*this), &LuaScript::lua_Translate);
 	// Engine
@@ -151,7 +155,9 @@ void LuaScript::Update(const float& deltaTime)
 		if (global_ColEnter.IsFunction())
 		{
 			LuaPlus::LuaFunctionVoid Lua_OnCollisionEnter(global_ColEnter);
-			Lua_OnCollisionEnter("Hello!");
+			// Pass in the colliding objects name
+			std::string collidingObj = m_owner->GetComponent<RigidBody>()->GetCollidingObjectName();
+			Lua_OnCollisionEnter(collidingObj.c_str());
 		}
 		else
 		{
@@ -185,6 +191,7 @@ bool LuaScript::lua_KeyIsReleased(int keycode)
 
 void LuaScript::Destroy()
 {
+	m_pLuaState->Destroy(m_pLuaState);
 }
 
 void LuaScript::OnImGuiRender()

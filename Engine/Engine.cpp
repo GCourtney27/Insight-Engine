@@ -45,7 +45,7 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	// AdvancedModels
 	// Game
 	scene.SetPhysicsEnabled(false);
-	if (!FileSystem::Instance()->LoadSceneFromJSON("..\\Assets\\Scenes\\Game.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext()))
+	if (!FileSystem::Instance()->LoadSceneFromJSON("..\\Assets\\Scenes\\MySceneName\\World_Backup.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext()))
 	{
 		ErrorLogger::Log("Failed to initialize scene.");
 		return false;
@@ -57,7 +57,7 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	//scene.AddEntity(Graphics::Instance()->directionalLight);
 
 	if (!scene.Initialize(this))
-	{
+	{ 
 		ErrorLogger::Log("Failed to initialize scene");
 		return false;
 	}
@@ -104,9 +104,9 @@ void Engine::Update()
 	{
 		MouseEvent me = InputManager::Instance()->mouse.ReadEvent();
 
-		if (InputManager::Instance()->mouse.IsRightDown())
+		if (InputManager::Instance()->mouse.IsRightDown() && !Debug::Editor::Instance()->PlayingGame())
 		{
-			if (me.GetType() == MouseEvent::EventType::RAW_MOVE && !Debug::Editor::Instance()->PlayingGame())
+			if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
 			{
 				Graphics::Instance()->editorCamera.GetTransform().AdjustRotation((float)me.GetPosY() * 0.005f, (float)me.GetPosX() * 0.005f, 0.0f);
 			}
@@ -131,11 +131,31 @@ void Engine::Update()
 					InputManager::Instance()->MouseMoved(false);
 				}
 			}
+			else
+			{
+				InputManager::Instance()->SetMouseX(0.0f);
+				InputManager::Instance()->SetMouseY(0.0f);
+			}
 			
 		}
 
 	}
 	
+	if (InputManager::Instance()->keyboard.KeyIsPressed('V'))
+	{
+		float px = Graphics::Instance()->editorCamera.GetTransform().GetPosition().x;
+		float py = Graphics::Instance()->editorCamera.GetTransform().GetPosition().y;
+		float pz = Graphics::Instance()->editorCamera.GetTransform().GetPosition().z;
+
+		float rx = Graphics::Instance()->editorCamera.GetTransform().GetRotation().x;
+		float ry = Graphics::Instance()->editorCamera.GetTransform().GetRotation().y;
+		float rz = Graphics::Instance()->editorCamera.GetTransform().GetRotation().z;
+
+		m_pPlayer->GetPlayerCamera()->GetTransform().SetPosition(px, py, pz);
+		m_pPlayer->GetPlayerCamera()->GetTransform().SetRotation(rx, ry, rz);
+	}
+
+
 	if (InputManager::Instance()->keyboard.KeyIsPressed(VK_F5))
 		Debug::Editor::Instance()->PlayGame();
 
@@ -180,6 +200,35 @@ void Engine::Update()
 			//DEBUGLOG("SCENE SAVING DISABLED!");
 	}
 
+	if (m_canChangeScene == false)
+	{
+		m_delay -= dt;
+		if (m_delay <= 0.0f)
+		{
+			m_delay = 3.0f;
+			m_canChangeScene = true;
+		}
+	}
+	if (InputManager::Instance()->keyboard.KeyIsPressed('O') && m_canChangeScene)
+	{
+		m_canChangeScene = false;
+		scene.Flush();
+
+		scene.SetPhysicsEnabled(false);
+		if (!FileSystem::Instance()->LoadSceneFromJSON("..\\Assets\\Scenes\\NewScene\\World.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext()))
+			ErrorLogger::Log("Failed to initialize scene.");
+
+		std::list<Entity*>* entities = scene.GetAllEntities();
+		std::list<Entity*>::iterator iter;
+		int i = 0;
+		for (iter = entities->begin(); iter != entities->end(); iter++)
+		{
+			Debug::Editor::Instance()->SetSelectedEntity(*iter);
+			i++;
+			if (i == 3)
+				break;
+		}
+	}
 }
 
 void Engine::RenderFrame()

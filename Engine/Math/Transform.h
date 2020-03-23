@@ -36,6 +36,7 @@ public:
 	// Returns Position of object in local space
 	XMFLOAT3 & GetPosition() { return this->pos; }
 	XMFLOAT3 GetPositionConst() const { return this->pos; }
+	XMFLOAT3 GetPositionCopy() { return this->pos; }
 	// Returns Rotation of object in localspace
 	XMFLOAT3 & GetRotation() { return this->rot; }
 	XMFLOAT3 GetRotationConst() const { return this->rot; }

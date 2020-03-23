@@ -97,27 +97,22 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 		float rx, ry, rz;
 		float sx, sy, sz;
 		const rapidjson::Value& transform = sceneObjects[o]["Transform"]; // At spot o in the sceneObjects array (Number of spots is how ever many objects are in the scene)
+		
 		const rapidjson::Value& position = transform[0]["Position"];
-		for (rapidjson::SizeType p = 0; p < position.Size(); p++)
-		{
-			json::get_float(position[p], "x", px);
-			json::get_float(position[p], "y", py);
-			json::get_float(position[p], "z", pz);
-		}
+		json::get_float(position[0], "x", px);
+		json::get_float(position[0], "y", py);
+		json::get_float(position[0], "z", pz);
+		
 		const rapidjson::Value& rotation = transform[1]["Rotation"];
-		for (rapidjson::SizeType r = 0; r < rotation.Size(); r++)
-		{
-			json::get_float(rotation[r], "x", rx);
-			json::get_float(rotation[r], "y", ry);
-			json::get_float(rotation[r], "z", rz);
-		}
+		json::get_float(rotation[0], "x", rx);
+		json::get_float(rotation[0], "y", ry);
+		json::get_float(rotation[0], "z", rz);
+		
 		const rapidjson::Value& scale = transform[2]["Scale"];
-		for (rapidjson::SizeType s = 0; s < scale.Size(); s++)
-		{
-			json::get_float(scale[s], "x", sx);
-			json::get_float(scale[s], "y", sy);
-			json::get_float(scale[s], "z", sz);
-		}
+		json::get_float(scale[0], "x", sx);
+		json::get_float(scale[0], "y", sy);
+		json::get_float(scale[0], "z", sz);
+
 		entity->GetTransform().SetPosition(DirectX::XMFLOAT3(px, py, pz));
 		entity->GetTransform().SetRotation(rx, ry, rz);
 		entity->GetTransform().SetScale(sx, sy, sz);
@@ -255,7 +250,7 @@ bool FileSystem::WriteSceneToJSON(Scene* scene)
 	writer.EndObject(); // End File
 
 	// Final Export
-	std::string sceneName = "..\\Assets\\Scenes\\" + scene->GetSceneName() + ".json";
+	std::string sceneName = "..\\Assets\\Scenes\\NewScene\\" + scene->GetSceneName() + ".json";
 	DEBUGLOG("[FileSystem] " + sceneName);
 	std::ofstream offstream(sceneName.c_str());
 	offstream << sb.GetString();

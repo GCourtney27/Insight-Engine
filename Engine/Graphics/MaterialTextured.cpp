@@ -166,11 +166,11 @@ bool MaterialTextured::InitializeJOSNPiplineAssets(const rapidjson::Value& asset
 
 bool MaterialTextured::InitializePiplineAssets()
 {
-	std::string tex_albedo = "..\\Assets\\Objects\\Norway\\Opaque\\Rock02\\Rock02_Albedo.jpg";
-	std::string tex_normal = "..\\Assets\\Objects\\Norway\\Opaque\\Rock02\\Rock02_Normal.jpg";
-	std::string tex_opacity = "..\\Assets\\Objects\\Norway\\Opaque\\Rock02\\Rock02_Specular.jpg";
-	std::string tex_roughness = "..\\Assets\\Objects\\Norway\\Opaque\\Rock02\\Rock02_Roughness.jpg";
-	std::string tex_ao = "..\\Assets\\Objects\\Norway\\Opaque\\Rock02\\Rock02_Roughness.jpg";
+	std::string tex_albedo = "..\\Assets\\Objects\\MossyRock\\MossyRock_Albedo.jpg";
+	std::string tex_normal = "..\\Assets\\Objects\\MossyRock\\MossyRock_Normal.jpg";
+	std::string tex_metallic = "..\\Assets\\Objects\\MossyRock\\MossyRock_Specular.jpg";
+	std::string tex_roughness = "..\\Assets\\Objects\\MossyRock\\MossyRock_Roughness.jpg";
+	std::string tex_ao = "..\\Assets\\Objects\\MossyRock\\MossyRock_Cavity.jpg";
 
 	float uvOffsetX = 0.0f;
 	float uvOffsetY = 0.0f;
@@ -185,7 +185,7 @@ bool MaterialTextured::InitializePiplineAssets()
 
 	this->m_textures.push_back(Texture(this->m_pDevice.Get(), tex_albedo));
 	this->m_textures.push_back(Texture(this->m_pDevice.Get(), tex_normal));
-	this->m_textures.push_back(Texture(this->m_pDevice.Get(), tex_opacity));
+	this->m_textures.push_back(Texture(this->m_pDevice.Get(), tex_metallic));
 	this->m_textures.push_back(Texture(this->m_pDevice.Get(), tex_roughness));
 	this->m_textures.push_back(Texture(this->m_pDevice.Get(), tex_ao));
 

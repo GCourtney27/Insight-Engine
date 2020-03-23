@@ -4,6 +4,7 @@
 #include "..\Systems\PhysicsSystem.h"
 #include "..\Systems\LuaManager.h"
 #include <list>
+#include <map>
 #include <assert.h>
 #include <DirectXMath.h>
 
@@ -20,6 +21,7 @@ public:
 	bool Initialize(Engine* engine);
 	void Update(const float& deltaTime);
 	void Draw(const DirectX::XMMATRIX & projectionMatrix, const DirectX::XMMATRIX & viewMatrix);
+	void Flush();
 	void Shutdown();
 
 	// -- Runtime (Game Logic) -- // 
@@ -66,7 +68,7 @@ protected:
 	LuaManager m_luaManager;
 
 	std::list<Entity*> m_entities;
-	std::list<Entity*> m_instantiatedEntities;
+	std::map<Entity*, float> m_instantiatedEntities;
 	std::string m_name;
 	std::string m_sceneDiretory;
 

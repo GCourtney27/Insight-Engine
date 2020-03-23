@@ -81,6 +81,7 @@ void MeshRenderer::Update(const float& deltaTime)
 
 void MeshRenderer::Destroy()
 {
+	model.Destroy();
 }
 
 void MeshRenderer::OnImGuiRender()

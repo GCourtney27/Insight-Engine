@@ -72,6 +72,12 @@ void Material::IASetInputLayout()
 	m_pDeviceContext->IASetInputLayout(m_vertexShader.GetInputLayout());
 }
 
+void Material::Destroy()
+{
+	m_pDevice->Release();
+	m_pDeviceContext->Release();
+}
+
 Material::eFlags Material::GetMaterialFlagsFromString(std::string str_flags)
 {
 	std::map<std::string, eFlags> stringToMaterialFlags;

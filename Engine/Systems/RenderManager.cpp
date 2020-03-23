@@ -1,6 +1,7 @@
 #include "RenderManager.h"
 #include "..\Components\MeshRenderComponent.h"
 #include "..\Objects\Camera.h"
+#include <algorithm>
 
 RenderManager::~RenderManager()
 {
@@ -9,6 +10,14 @@ RenderManager::~RenderManager()
 	{
 		(*iter)->
 	}*/
+}
+
+void RenderManager::Flush()
+{
+	m_opaqueObjects.clear();
+	m_opaqueInstanciatedObjects.clear();
+	m_foliageObjects.clear();
+	m_pGameCamera = nullptr;
 }
 
 void RenderManager::Draw(const DirectX::XMMATRIX & projectionMatrix, const DirectX::XMMATRIX & viewMatrix)
@@ -47,6 +56,24 @@ void RenderManager::DrawOpaque(const DirectX::XMMATRIX & projectionMatrix, const
 	{
 		mr->Draw(projectionMatrix, viewMatrix);
 	}
+
+	for (MeshRenderer* mr : m_opaqueInstanciatedObjects)
+	{
+		mr->Draw(projectionMatrix, viewMatrix);
+	}
+}
+
+void RenderManager::RemoveOpaqueInstance(MeshRenderer * mr)
+{
+	auto iter = std::find(m_opaqueInstanciatedObjects.begin(), m_opaqueInstanciatedObjects.end(), mr);
+	if (iter != m_opaqueInstanciatedObjects.end())
+	{
+		//(*iter)->Destroy();
+		//delete *iter;
+	}
+	iter = m_opaqueInstanciatedObjects.erase(iter);
+
+
 }
 
 void RenderManager::DrawFoliage(const DirectX::XMMATRIX & projectionMatrix, const DirectX::XMMATRIX & viewMatrix)

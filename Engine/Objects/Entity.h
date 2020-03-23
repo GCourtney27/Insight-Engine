@@ -45,6 +45,7 @@ public:
 
 	void OnEditorStop(); //Reset positions and transforms
 
+	virtual void LoadFromJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
 	virtual void WriteToJSON(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
 	bool CanBeJSONSaved() { return m_canBeJSONSaved; }
 	void SetCanBeJSONSaved(bool canBeSaved) { m_canBeJSONSaved = canBeSaved; }
@@ -88,6 +89,9 @@ public:
 	void lua_AdjustPosition(float x, float y, float z) { GetTransform().AdjustPosition(x, y, z); }
 	void lua_AdjustRotation(float x, float y, float z) { GetTransform().AdjustRotation(x, y, z); }
 	void lua_AdjustScale(float x, float y, float z) { GetTransform().AdjustScale(x, y, z); }
+	float lua_GetPosX() { return GetTransform().GetPosition().x; }
+	float lua_GetPosY() { return GetTransform().GetPosition().y; }
+	float lua_GetPosZ() { return GetTransform().GetPosition().z; }
 
 	ID& GetID() { return m_id; }
 	void SetTagUID(std::string id) { m_id.SetUniqueID(id); }

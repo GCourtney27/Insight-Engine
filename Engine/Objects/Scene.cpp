@@ -1,5 +1,7 @@
 #include "Scene.h"
 #include "Entity.h"
+#include "..\Components\MeshRenderComponent.h"
+#include "..\Components\RigidBodyComponent.h"
 
 #include <assert.h>
 #include <algorithm>
@@ -38,10 +40,26 @@ void Scene::Draw(const DirectX::XMMATRIX & projectionMatrix, const DirectX::XMMA
 	}*/
 }
 
+void Scene::Flush()
+{
+	for (Entity* entity : m_entities)
+	{
+		entity->Destroy();
+		delete entity;
+	}
+	m_entities.clear();
+
+	m_renderManager.Flush();
+	m_physicsSystem.Flush();
+	m_luaManager.Flush();
+
+}
+
 void Scene::Shutdown()
 {
 	for (Entity* entity : m_entities)
 	{
+		entity->Destroy();
 		delete entity;
 	}
 	m_entities.clear();
@@ -59,6 +77,7 @@ bool Scene::OnStart()
 
 void Scene::OnUpdate(const float & deltaTime)
 {
+
 	m_physicsSystem.Simulate(deltaTime);
 
 	for (Entity* entity : m_entities)
@@ -66,10 +85,23 @@ void Scene::OnUpdate(const float & deltaTime)
 		entity->OnUpdate(deltaTime);
 	}
 
-	for (Entity* entity : m_instantiatedEntities)
+	std::map<Entity*, float>::iterator iter;
+	for (iter = m_instantiatedEntities.begin(); iter != m_instantiatedEntities.end(); )
 	{
-		entity->OnUpdate(deltaTime);
+		(*iter).first->OnUpdate(deltaTime);
+
+		(*iter).second -= deltaTime;
+		if ((*iter).second <= 0.0f)
+		{
+			m_renderManager.RemoveOpaqueInstance( (*iter).first->GetComponent<MeshRenderer>() );
+			m_physicsSystem.RemoveEntity( (*iter).first->GetComponent<RigidBody>() );
+
+			m_instantiatedEntities.erase(iter++);
+		}
+		else
+			++iter;
 	}
+
 }
 
 void Scene::OnDestroy()
@@ -106,7 +138,7 @@ std::list<Entity*>::iterator Scene::RemoveEntity(Entity * entity, bool destroy)
 
 void Scene::AddInstantiatedEntity(Entity * entity)
 {
-	m_instantiatedEntities.push_back(entity);
+	m_instantiatedEntities.emplace(entity, 1.0f);
 }
 
 void Scene::ClearInstantiatedEntities()

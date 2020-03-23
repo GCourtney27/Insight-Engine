@@ -64,6 +64,11 @@ public:
 	bool GetIsTrigger() const { return m_isTrigger; }
 	void SetIsTrigger(bool value) { m_isTrigger = value; }
 
+	std::string GetCollidingObjectName()
+	{
+		return m_collidingObjects[0]->GetOwner()->GetID().GetName();
+	}
+
 	void RecordCollidingObject(RigidBody* collider) { m_collidingObjects.push_back(collider); }
 	void ClearCollidingObjects() { m_collidingObjects.clear(); }
 

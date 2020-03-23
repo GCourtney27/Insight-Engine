@@ -13,6 +13,12 @@ PhysicsSystem::~PhysicsSystem()
 {
 }
 
+void PhysicsSystem::Flush()
+{
+	m_physicsEntities.clear();
+	m_contacts.clear();
+}
+
 void PhysicsSystem::Simulate(const float& deltaTime)
 {
 	for (RigidBody* rb : m_physicsEntities)
@@ -89,6 +95,17 @@ void PhysicsSystem::Simulate(const float& deltaTime)
 void PhysicsSystem::AddEntity(RigidBody * rb)
 {
 	m_physicsEntities.push_back(rb);
+}
+
+void PhysicsSystem::RemoveEntity(RigidBody * rb)
+{
+	auto iter = std::find(m_physicsEntities.begin(), m_physicsEntities.end(), rb);
+	if (iter != m_physicsEntities.end())
+	{
+		//(*iter)->Destroy();
+		//delete *iter;
+	}
+	iter = m_physicsEntities.erase(iter);
 }
 
 void PhysicsSystem::ProcessContacts()

@@ -242,10 +242,8 @@
     <ClCompile Include="Systems\FileSystem.cpp" />
     <ClCompile Include="Graphics\Camera2D.cpp" />
     <ClCompile Include="Graphics\GameObject2D.cpp" />
-    <ClCompile Include="Graphics\GameObject3D.cpp" />
     <ClCompile Include="Graphics\Color.cpp" />
     <ClCompile Include="Graphics\GameObject.cpp" />
-    <ClCompile Include="Graphics\Camera3D.cpp" />
     <ClCompile Include="Graphics\AdapterReader.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="ErrorLogger.cpp" />
@@ -255,7 +253,6 @@
     <ClCompile Include="Graphics\Mesh.cpp" />
     <ClCompile Include="Graphics\Light.cpp" />
     <ClCompile Include="Math\Transform.cpp" />
-    <ClCompile Include="Graphics\RenderableGameObject.cpp" />
     <ClCompile Include="Objects\Entity.cpp" />
     <ClCompile Include="Objects\ID.cpp" />
     <ClCompile Include="Objects\Object.cpp" />
