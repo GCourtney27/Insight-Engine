@@ -1,6 +1,4 @@
 #pragma once
 
-
-// For use by client applications
+// For use with client applications
 #include "Insight/Application.h"
-

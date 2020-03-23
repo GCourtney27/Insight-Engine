@@ -1,5 +1,5 @@
 
-#include "Insight.h"
+#include <Insight.h>
 
 class Sandbox : public Insight::Application
 {
@@ -15,9 +15,7 @@ public:
 	}
 };
 
-int main()
+Insight::Application * Insight::CreateApplication()
 {
-	Sandbox * pSandbox = new Sandbox();
-	pSandbox->Run();
-	delete pSandbox;
+	return new Sandbox();
 }

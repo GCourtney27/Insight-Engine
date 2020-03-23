@@ -349,6 +349,7 @@
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
     <ClCompile Include="src\Insight\Application.cpp" />
+    <ClCompile Include="src\Application.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\COMException.h">
@@ -726,9 +727,11 @@
     <ClInclude Include="src\Physics\Contact.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Insight\Core.h" />
-    <ClInclude Include="src\Insight\Application.h" />
     <ClInclude Include="src\Insight.h" />
+    <ClInclude Include="src\Insight\Application.h" />
+    <ClInclude Include="src\Insight\Core.h" />
+    <ClInclude Include="src\Application.h" />
+    <ClInclude Include="src\Core.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

@@ -4,6 +4,7 @@
 
 namespace Insight {
 
+
 	class INSIGHT_API Application
 	{
 	public:

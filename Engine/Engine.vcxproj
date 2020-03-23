@@ -60,7 +60,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>INSI_BUILD_DLL;INSI_PLATFORM_WINDOW;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>INSI_BUILD_DLL;INSI_PLATFORM_WINDOWS;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Engine\src\Includes;$(SolutionDir)..\Middleware\rapidjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -78,7 +78,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>INSI_BUILD_DLL;INSI_PLATFORM_WINDOW;NDEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>INSI_BUILD_DLL;INSI_PLATFORM_WINDOWS;NDEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Engine\src\Includes;$(SolutionDir)..\Middleware\rapidjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -93,7 +93,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Insight\Application.cpp" />
+    <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\Components\Component.cpp" />
     <ClCompile Include="src\Components\EditorSelectionComponent.cpp" />
     <ClCompile Include="src\Components\LuaScriptComponent.cpp" />
@@ -157,6 +157,7 @@
     <ClCompile Include="src\Input\Keyboard\KeyboardEvent.cpp" />
     <ClCompile Include="src\Input\Mouse\MouseClass.cpp" />
     <ClCompile Include="src\Input\Mouse\MouseEvent.cpp" />
+    <ClCompile Include="src\Insight\Application.cpp" />
     <ClCompile Include="src\Systems\LuaManager.cpp" />
     <ClCompile Include="src\LUAScripting\LuaStateManager.cpp" />
     <ClCompile Include="src\LUAScripting\ScriptExports.cpp" />
@@ -196,10 +197,12 @@
     <ClCompile Include="src\WindowContainer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Insight.h" />
-    <ClInclude Include="src\Insight\Application.h" />
+    <ClInclude Include="src\Application.h" />
+    <ClInclude Include="src\Core.h" />
     <ClInclude Include="src\Event\PhysicsEvent.h" />
     <ClInclude Include="src\Graphics\MaterialWater.h" />
+    <ClInclude Include="src\Insight.h" />
+    <ClInclude Include="src\Insight\Application.h" />
     <ClInclude Include="src\Insight\Core.h" />
     <ClInclude Include="src\Physics\AABB.h" />
     <ClInclude Include="src\Components\RigidBodyComponent.h" />
