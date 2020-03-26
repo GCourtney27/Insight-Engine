@@ -9,7 +9,7 @@ public:
 
 	}
 
-	~Sandbox()
+	virtual ~Sandbox()
 	{
 
 	}

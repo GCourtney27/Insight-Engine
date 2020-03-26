@@ -1,36 +1,36 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.28307.168
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Application", "Application\Application.vcxproj", "{2BCF43CA-8606-4CF2-AEDB-C39F9E4C8B95}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Application", "Application\Application.vcxproj", "{D9DE78AF-4594-F1A4-CE88-EB7B3A3DE8A8}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "Engine\Engine.vcxproj", "{761BF0FC-46E6-4DE9-A787-660FD251CFB2}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Insight", "Insight\Insight.vcxproj", "{B7CFAC8C-66B0-486E-B833-AC1EE3415747}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "Engine\Engine.vcxproj", "{DBC7D3B0-C769-FE86-B024-12DB9C6585D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
+		Engine-Dist|x64 = Engine-Dist|x64
+		Game-Dist|x64 = Game-Dist|x64
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2BCF43CA-8606-4CF2-AEDB-C39F9E4C8B95}.Debug|x64.ActiveCfg = Debug|x64
-		{2BCF43CA-8606-4CF2-AEDB-C39F9E4C8B95}.Debug|x64.Build.0 = Debug|x64
-		{2BCF43CA-8606-4CF2-AEDB-C39F9E4C8B95}.Release|x64.ActiveCfg = Release|x64
-		{2BCF43CA-8606-4CF2-AEDB-C39F9E4C8B95}.Release|x64.Build.0 = Release|x64
-		{761BF0FC-46E6-4DE9-A787-660FD251CFB2}.Debug|x64.ActiveCfg = Debug|x64
-		{761BF0FC-46E6-4DE9-A787-660FD251CFB2}.Release|x64.ActiveCfg = Release|x64
-		{761BF0FC-46E6-4DE9-A787-660FD251CFB2}.Release|x64.Build.0 = Release|x64
-		{B7CFAC8C-66B0-486E-B833-AC1EE3415747}.Debug|x64.ActiveCfg = Debug|x64
-		{B7CFAC8C-66B0-486E-B833-AC1EE3415747}.Debug|x64.Build.0 = Debug|x64
-		{B7CFAC8C-66B0-486E-B833-AC1EE3415747}.Release|x64.ActiveCfg = Release|x64
-		{B7CFAC8C-66B0-486E-B833-AC1EE3415747}.Release|x64.Build.0 = Release|x64
+		{D9DE78AF-4594-F1A4-CE88-EB7B3A3DE8A8}.Debug|x64.ActiveCfg = Debug|x64
+		{D9DE78AF-4594-F1A4-CE88-EB7B3A3DE8A8}.Debug|x64.Build.0 = Debug|x64
+		{D9DE78AF-4594-F1A4-CE88-EB7B3A3DE8A8}.Engine-Dist|x64.ActiveCfg = Engine-Dist|x64
+		{D9DE78AF-4594-F1A4-CE88-EB7B3A3DE8A8}.Engine-Dist|x64.Build.0 = Engine-Dist|x64
+		{D9DE78AF-4594-F1A4-CE88-EB7B3A3DE8A8}.Game-Dist|x64.ActiveCfg = Game-Dist|x64
+		{D9DE78AF-4594-F1A4-CE88-EB7B3A3DE8A8}.Game-Dist|x64.Build.0 = Game-Dist|x64
+		{D9DE78AF-4594-F1A4-CE88-EB7B3A3DE8A8}.Release|x64.ActiveCfg = Release|x64
+		{D9DE78AF-4594-F1A4-CE88-EB7B3A3DE8A8}.Release|x64.Build.0 = Release|x64
+		{DBC7D3B0-C769-FE86-B024-12DB9C6585D7}.Debug|x64.ActiveCfg = Debug|x64
+		{DBC7D3B0-C769-FE86-B024-12DB9C6585D7}.Debug|x64.Build.0 = Debug|x64
+		{DBC7D3B0-C769-FE86-B024-12DB9C6585D7}.Engine-Dist|x64.ActiveCfg = Engine-Dist|x64
+		{DBC7D3B0-C769-FE86-B024-12DB9C6585D7}.Engine-Dist|x64.Build.0 = Engine-Dist|x64
+		{DBC7D3B0-C769-FE86-B024-12DB9C6585D7}.Game-Dist|x64.ActiveCfg = Game-Dist|x64
+		{DBC7D3B0-C769-FE86-B024-12DB9C6585D7}.Game-Dist|x64.Build.0 = Game-Dist|x64
+		{DBC7D3B0-C769-FE86-B024-12DB9C6585D7}.Release|x64.ActiveCfg = Release|x64
+		{DBC7D3B0-C769-FE86-B024-12DB9C6585D7}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {93BB03AE-A805-429B-83F9-D3CBA2DEADD5}
 	EndGlobalSection
 EndGlobal

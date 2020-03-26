@@ -1,3 +1,0 @@
-Lua.Module date : : date.lua ;
-
-CopyFiles date : $(LUA_LDIR) : $(SUBDIR)/date.lua ;

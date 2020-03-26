@@ -1,9 +1,26 @@
 #pragma once
 
-#ifdef INSI_PLATFORM_WINDOWS
-	#ifdef INSI_BUILD_DLL
-		#define INSIGHT_API __declspec(dllexport)
+#ifdef IE_PLATFORM_WINDOWS
+	#ifdef IE_DYNAMIC_LINK
+		#ifdef IE_BUILD_DLL
+			#define INSIGHT_API __declspec(dllexport)
+		#else
+			#define INSIGHT_API __declspec(dllimport)
+		#endif
 	#else
-		#define INSIGHT_API __declspec(dllimport)
+		#define INSIGHT_API 
 	#endif
-#endif
+#endif // IE_PLATFORM_WINDOWS
+
+#ifdef IE_DEBUG
+	#define IE_ENABLE_ASSERTS
+#endif // IE_DEBUG
+
+#ifdef IE_ENABLE_ASSERTS
+	#define IE_ASSERT(x, ...) {if( !(x) ) { IE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+	#define IE_CORE_ASSERT(x, ...) { if(!(x)) { IE_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+#endif // IE_ENABLE_ASSERTS
+
+#define BIT(x) ( 1 << x )
+
+#define IE_BIND_EVENT_FN(fn) std::bind( &fn, this, std::placeholders::_1 )

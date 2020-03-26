@@ -1,2 +1,0 @@
-Lua.Module xmlize : : xmlize.lua ;
-CopyFile xmlize : $(LUA_LDIR)/xmlize.lua : $(SUBDIR)/xmlize.lua ;

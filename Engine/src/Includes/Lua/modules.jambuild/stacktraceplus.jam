@@ -1,3 +1,0 @@
-CopyFile stacktraceplus : $(LUA_LDIR)/StackTracePlus.lua : $(SUBDIR)/src/StackTracePlus.lua ;
-
-Lua.Module stacktraceplus : src/StackTracePlus.lua ;

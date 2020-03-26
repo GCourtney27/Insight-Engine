@@ -1,3 +1,0 @@
-require "blog"
-
-return blog

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -9,33 +9,49 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Engine-Dist|x64">
+      <Configuration>Engine-Dist</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Game-Dist|x64">
+      <Configuration>Game-Dist</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{761BF0FC-46E6-4DE9-A787-660FD251CFB2}</ProjectGuid>
+    <ProjectGuid>{DBC7D3B0-C769-FE86-B024-12DB9C6585D7}</ProjectGuid>
+    <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Engine</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
-    <ProjectName>Engine</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Engine-Dist|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Game-Dist|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-  </ImportGroup>
-  <ImportGroup Label="Shared">
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -43,405 +59,126 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Engine-Dist|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Game-Dist|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>$(SolutionDir)DirectX11RenderingEngine\Libs\x64\Debug;$(SolutionDir)DirectX11RenderingEngine\Libs\Any;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)\bin\$(Configuration)-$(Platform)\$(ProjectName)\</OutDir>
-    <IntDir>$(SolutionDir)\bin-int\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
+    <OutDir>..\bin\Debug-windows-x86_64%\{prj.name}\</OutDir>
+    <IntDir>..\bin-int\Debug-windows-x86_64%\{prj.name}\Debug\Engine\</IntDir>
+    <TargetName>Engine</TargetName>
+    <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>$(SolutionDir)DirectX11RenderingEngine\Libs\x64\Release;$(SolutionDir)DirectX11RenderingEngine\Libs\Any;$(LibraryPath);$(SolutionDir)\$(ProjectDir)\Libs/Any</LibraryPath>
-    <OutDir>$(SolutionDir)\bin\$(Configuration)-$(Platform)\$(ProjectName)\</OutDir>
-    <IntDir>$(SolutionDir)\bin-int\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
+    <OutDir>..\bin\Release-windows-x86_64%\{prj.name}\</OutDir>
+    <IntDir>..\bin-int\Release-windows-x86_64%\{prj.name}\Release\Engine\</IntDir>
+    <TargetName>Engine</TargetName>
+    <TargetExt>.lib</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Engine-Dist|x64'">
+    <OutDir>..\bin\Engine-Dist-windows-x86_64%\{prj.name}\</OutDir>
+    <IntDir>..\bin-int\Engine-Dist-windows-x86_64%\{prj.name}\Engine-Dist\Engine\</IntDir>
+    <TargetName>Engine</TargetName>
+    <TargetExt>.lib</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Game-Dist|x64'">
+    <OutDir>..\bin\Game-Dist-windows-x86_64%\{prj.name}\</OutDir>
+    <IntDir>..\bin-int\Game-Dist-windows-x86_64%\{prj.name}\Game-Dist\Engine\</IntDir>
+    <TargetName>Engine</TargetName>
+    <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>ie_pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;IE_PLATFORM_WINDOWS;IE_BUILD_DLL;IE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>INSI_BUILD_DLL;INSI_PLATFORM_WINDOWS;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine\src\Includes;$(SolutionDir)..\Middleware\rapidjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>assimp-vc140-mt.lib;d3d11.lib;DirectXTK.lib;DXGI.lib;D3DCompiler.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)src\Libs\Any;$(ProjectDir)src\Libs\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>ie_pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;IE_PLATFORM_WINDOWS;IE_BUILD_DLL;IE_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>INSI_BUILD_DLL;INSI_PLATFORM_WINDOWS;NDEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine\src\Includes;$(SolutionDir)..\Middleware\rapidjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Engine-Dist|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>ie_pch.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;IE_PLATFORM_WINDOWS;IE_BUILD_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>assimp-vc140-mt.lib;assimp.lib;d3d11.lib;DirectXTK.lib;DXGI.lib;D3DCompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)src\Libs\Any;$(ProjectDir)src\Libs\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Game-Dist|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>ie_pch.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;IE_PLATFORM_WINDOWS;IE_BUILD_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Application.cpp" />
-    <ClCompile Include="src\Components\Component.cpp" />
-    <ClCompile Include="src\Components\EditorSelectionComponent.cpp" />
-    <ClCompile Include="src\Components\LuaScriptComponent.cpp" />
-    <ClCompile Include="src\Components\MeshRenderComponent.cpp" />
-    <ClCompile Include="src\Components\RigidBodyComponent.cpp" />
-    <ClCompile Include="src\Editor\Editor.cpp" />
-    <ClCompile Include="src\Graphics\ImGui\imgui.cpp" />
-    <ClCompile Include="src\Graphics\ImGui\ImGuizmo.cpp" />
-    <ClCompile Include="src\Graphics\ImGui\imgui_demo.cpp" />
-    <ClCompile Include="src\Graphics\ImGui\imgui_draw.cpp" />
-    <ClCompile Include="src\Graphics\ImGui\imgui_impl_dx11.cpp" />
-    <ClCompile Include="src\Graphics\ImGui\imgui_impl_win32.cpp" />
-    <ClCompile Include="src\Graphics\ImGui\imgui_widgets.cpp" />
-    <ClCompile Include="src\Graphics\Material.cpp" />
-    <ClCompile Include="src\Graphics\MaterialSky.cpp" />
-    <ClCompile Include="src\Graphics\MaterialTextured.cpp" />
-    <ClCompile Include="src\Graphics\MaterialTexturedFoliage.cpp" />
-    <ClCompile Include="src\Graphics\MaterialUnTextured.cpp" />
-    <ClCompile Include="src\Graphics\MaterialWater.cpp" />
-    <ClCompile Include="src\Graphics\SimpleShader.cpp" />
-    <ClCompile Include="src\Includes\json.cpp" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\lapi.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\lauxlib.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\lbaselib.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\lbitlib.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\lcode.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\lcorolib.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\lctype.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\ldblib.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\ldebug.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\ldo.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\ldump.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\lfunc.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\lgc.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\linit.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\liolib.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\llex.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\lmathlib.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\lmem.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\loadlib.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\lobject.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\lopcodes.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\loslib.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\lparser.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\lstate.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\lstring.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\lstrlib.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\ltable.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\ltablib.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\ltm.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\lua.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\luac.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\LuaPlus.cpp" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\LuaPlusAddons.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\LuaState_DumpObject.cpp" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\lundump.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\lutf8lib.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\lvm.c" />
-    <ClCompile Include="src\Includes\Lua\LuaPlus\lzio.c" />
-    <ClCompile Include="src\Input\Keyboard\KeyboardClass.cpp" />
-    <ClCompile Include="src\Input\Keyboard\KeyboardEvent.cpp" />
-    <ClCompile Include="src\Input\Mouse\MouseClass.cpp" />
-    <ClCompile Include="src\Input\Mouse\MouseEvent.cpp" />
-    <ClCompile Include="src\Insight\Application.cpp" />
-    <ClCompile Include="src\Systems\LuaManager.cpp" />
-    <ClCompile Include="src\LUAScripting\LuaStateManager.cpp" />
-    <ClCompile Include="src\LUAScripting\ScriptExports.cpp" />
-    <ClCompile Include="src\Objects\Camera.cpp" />
-    <ClCompile Include="src\Objects\DirectionalLight.cpp" />
-    <ClCompile Include="src\Objects\Player.cpp" />
-    <ClCompile Include="src\Objects\PointLight.cpp" />
-    <ClCompile Include="src\Physics\AABB.cpp" />
-    <ClCompile Include="src\Systems\FileSystem.cpp" />
-    <ClCompile Include="src\Graphics\Camera2D.cpp" />
-    <ClCompile Include="src\Graphics\GameObject2D.cpp" />
-    <ClCompile Include="src\Graphics\Color.cpp" />
-    <ClCompile Include="src\Graphics\GameObject.cpp" />
-    <ClCompile Include="src\Graphics\AdapterReader.cpp" />
-    <ClCompile Include="src\Engine.cpp" />
-    <ClCompile Include="src\ErrorLogger.cpp" />
-    <ClCompile Include="src\Graphics\Graphics.cpp" />
-    <ClCompile Include="src\Includes\dlfcn.c" />
-    <ClCompile Include="src\Graphics\Model.cpp" />
-    <ClCompile Include="src\Graphics\Mesh.cpp" />
-    <ClCompile Include="src\Graphics\Light.cpp" />
-    <ClCompile Include="src\Math\Transform.cpp" />
-    <ClCompile Include="src\Objects\Entity.cpp" />
-    <ClCompile Include="src\Objects\ID.cpp" />
-    <ClCompile Include="src\Objects\Object.cpp" />
-    <ClCompile Include="src\Objects\Scene.cpp" />
-    <ClCompile Include="src\RenderWindow.cpp" />
-    <ClCompile Include="src\Graphics\Shaders.cpp" />
-    <ClCompile Include="src\Scriptor\Compiler.cpp" />
-    <ClCompile Include="src\Source.cpp" />
-    <ClCompile Include="src\Graphics\Sprite.cpp" />
-    <ClCompile Include="src\StringHelper.cpp" />
-    <ClCompile Include="src\Graphics\Texture.cpp" />
-    <ClCompile Include="src\Systems\PhysicsSystem.cpp" />
-    <ClCompile Include="src\Systems\RenderManager.cpp" />
-    <ClCompile Include="src\Systems\TimeSystem.cpp" />
-    <ClCompile Include="src\WindowContainer.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="src\Application.h" />
-    <ClInclude Include="src\Core.h" />
-    <ClInclude Include="src\Event\PhysicsEvent.h" />
-    <ClInclude Include="src\Graphics\MaterialWater.h" />
     <ClInclude Include="src\Insight.h" />
     <ClInclude Include="src\Insight\Application.h" />
     <ClInclude Include="src\Insight\Core.h" />
-    <ClInclude Include="src\Physics\AABB.h" />
-    <ClInclude Include="src\Components\RigidBodyComponent.h" />
-    <ClInclude Include="src\Components\Component.h" />
-    <ClInclude Include="src\Components\EditorSelectionComponent.h" />
-    <ClInclude Include="src\Components\LuaScriptComponent.h" />
-    <ClInclude Include="src\Components\MeshRenderComponent.h" />
-    <ClInclude Include="src\Editor\Editor.h" />
-    <ClInclude Include="src\Editor\EditorClickable.h" />
-    <ClInclude Include="src\Event\Event.h" />
-    <ClInclude Include="src\Event\EventReciever.h" />
-    <ClInclude Include="src\Framework\Singleton.h" />
-    <ClInclude Include="src\Graphics\ImGui\imconfig.h" />
-    <ClInclude Include="src\Graphics\ImGui\imgui.h" />
-    <ClInclude Include="src\Graphics\ImGui\ImGuizmo.h" />
-    <ClInclude Include="src\Graphics\ImGui\imgui_impl_dx11.h" />
-    <ClInclude Include="src\Graphics\ImGui\imgui_impl_win32.h" />
-    <ClInclude Include="src\Graphics\ImGui\imgui_internal.h" />
-    <ClInclude Include="src\Graphics\ImGui\imstb_rectpack.h" />
-    <ClInclude Include="src\Graphics\ImGui\imstb_textedit.h" />
-    <ClInclude Include="src\Graphics\ImGui\imstb_truetype.h" />
-    <ClInclude Include="src\Graphics\Material.h" />
-    <ClInclude Include="src\Graphics\MaterialSky.h" />
-    <ClInclude Include="src\Graphics\MaterialTextured.h" />
-    <ClInclude Include="src\Graphics\MaterialTexturedFoliage.h" />
-    <ClInclude Include="src\Graphics\MaterialUnTextured.h" />
-    <ClInclude Include="src\Graphics\SimpleShader.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\lapi.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\lauxlib.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\lcode.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\lctype.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\ldebug.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\ldo.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\lfunc.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\lgc.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\llex.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\llimits.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\lmem.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\lobject.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\lopcodes.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\lparser.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\lprefix.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\lstate.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\lstring.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\ltable.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\ltm.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\lua.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\lua.hpp" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaAutoBlock.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaCall.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\luaconf.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaFunction.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaHelper.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaHelper_Object.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaHelper_StackObject.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\lualib.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaObject.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaPlus.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaPlusCD.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaPlusConfig.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaPlusInternal.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaStackObject.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaStackTableIterator.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaState.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaStateCD.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaStateOutFile.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaStateOutString.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\LuaTableIterator.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\lundump.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\lvm.h" />
-    <ClInclude Include="src\Includes\Lua\LuaPlus\lzio.h" />
-    <ClInclude Include="src\Input\InputManager.h" />
-    <ClInclude Include="src\Input\Keyboard\KeyboardClass.h" />
-    <ClInclude Include="src\Input\Keyboard\KeyboardEvent.h" />
-    <ClInclude Include="src\Input\Mouse\MouseClass.h" />
-    <ClInclude Include="src\Input\Mouse\MouseEvent.h" />
-    <ClInclude Include="src\LUAScripting\ScriptExports.h" />
-    <ClInclude Include="src\LUAScripting\IScriptManager.h" />
-    <ClInclude Include="src\LUAScripting\LuaStateManager.h" />
-    <ClInclude Include="src\Objects\Camera.h" />
-    <ClInclude Include="src\Objects\DirectionalLight.h" />
-    <ClInclude Include="src\Objects\Player.h" />
-    <ClInclude Include="src\Objects\PointLight.h" />
-    <ClInclude Include="src\Physics\Contact.h" />
-    <ClInclude Include="src\Physics\Ray.h" />
-    <ClInclude Include="src\resource.h" />
-    <ClInclude Include="src\Systems\BenchmarkingTimer.h" />
-    <ClInclude Include="src\Systems\FileSystem.h" />
-    <ClInclude Include="src\Graphics\Camera2D.h" />
-    <ClInclude Include="src\Graphics\GameObject2D.h" />
-    <ClInclude Include="src\Graphics\Color.h" />
-    <ClInclude Include="src\COMException.h" />
-    <ClInclude Include="src\Graphics\GameObject.h" />
-    <ClInclude Include="src\Graphics\ConstantBuffers.h" />
-    <ClInclude Include="src\Graphics\ConstantBufferTypes.h" />
-    <ClInclude Include="src\Graphics\AdapterReader.h" />
-    <ClInclude Include="src\Engine.h" />
-    <ClInclude Include="src\ErrorLogger.h" />
-    <ClInclude Include="src\Graphics\Graphics.h" />
-    <ClInclude Include="src\Graphics\IndexBuffer.h" />
-    <ClInclude Include="src\Includes\dlfcn.h" />
-    <ClInclude Include="src\Graphics\Model.h" />
-    <ClInclude Include="src\Graphics\Mesh.h" />
-    <ClInclude Include="src\Graphics\Light.h" />
-    <ClInclude Include="src\Math\Transform.h" />
-    <ClInclude Include="src\Objects\Entity.h" />
-    <ClInclude Include="src\Objects\ID.h" />
-    <ClInclude Include="src\Objects\Object.h" />
-    <ClInclude Include="src\Objects\Scene.h" />
-    <ClInclude Include="src\RenderWindow.h" />
-    <ClInclude Include="src\Graphics\Shaders.h" />
-    <ClInclude Include="src\Graphics\Sprite.h" />
-    <ClInclude Include="src\Scriptor\Compiler.h" />
-    <ClInclude Include="src\Scriptor\CompilerHelper.h" />
-    <ClInclude Include="src\Scriptor\Script.h" />
-    <ClInclude Include="src\StringHelper.h" />
-    <ClInclude Include="src\Graphics\Vertex.h" />
-    <ClInclude Include="src\Graphics\VertexBuffer.h" />
-    <ClInclude Include="src\Graphics\Texture.h" />
-    <ClInclude Include="src\Systems\LuaManager.h" />
-    <ClInclude Include="src\Systems\PhysicsSystem.h" />
-    <ClInclude Include="src\Systems\RenderManager.h" />
-    <ClInclude Include="src\Systems\TimeSystem.h" />
-    <ClInclude Include="src\WindowContainer.h" />
+    <ClInclude Include="src\Insight\Entry_Point.h" />
+    <ClInclude Include="src\Insight\Events\ApplicationEvent.h" />
+    <ClInclude Include="src\Insight\Events\Event.h" />
+    <ClInclude Include="src\Insight\Events\KeyEvent.h" />
+    <ClInclude Include="src\Insight\Events\MouseEvent.h" />
+    <ClInclude Include="src\Insight\Window.h" />
+    <ClInclude Include="src\Platform\Windows\Windows_Window.h" />
+    <ClInclude Include="src\ie_pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="src\PBR_Water_ps.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="src\PBR_Foliage_ps.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="src\PBR_Foliage_vs.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="src\PBR_UnTextured_ps.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="src\PBR_UnTextured_vs.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="src\PBR_Water_vs.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="src\PrefilterMap_ps.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="src\Sky_vs.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <None Include="src\Includes\Lua\LuaPlus\Lua.jam" />
-    <None Include="src\Includes\Lua\LuaPlus\LuaC.jam" />
-    <None Include="src\Includes\Lua\LuaPlus\LuaCall.inl" />
-    <None Include="src\Includes\Lua\LuaPlus\LuaObject.inl" />
-    <None Include="src\Includes\Lua\LuaPlus\LuaPlusSharedLib.jam" />
-    <None Include="src\Includes\Lua\LuaPlus\LuaPlusStaticLib.jam" />
-    <None Include="src\Includes\Lua\LuaPlus\LuaStackObject.inl" />
-    <None Include="src\Includes\Lua\LuaPlus\LuaStackTableIterator.inl" />
-    <None Include="src\Includes\Lua\LuaPlus\LuaState.inl" />
-    <FxCompile Include="src\Textured_pshlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="src\Textured_vs.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="src\PBR_Textured_ps.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DisableOptimizations>
-      <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</EnableDebuggingInformation>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="src\pixelshader_2d.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="src\Sky_ps.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="src\PBR_Textured_vs.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DisableOptimizations>
-      <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</EnableDebuggingInformation>
-    </FxCompile>
-    <FxCompile Include="src\vertexshader_2d.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <None Include="src\PBR_Header.hlsli" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Data\Scenes\Scene01.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="src\Engine.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="src\icon1.ico" />
+    <ClCompile Include="src\Insight\Application.cpp" />
+    <ClCompile Include="src\ie_pch.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\Platform\Windows\Windows_Window.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
