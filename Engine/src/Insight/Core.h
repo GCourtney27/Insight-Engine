@@ -19,6 +19,9 @@
 #ifdef IE_ENABLE_ASSERTS
 	#define IE_ASSERT(x, ...) {if( !(x) ) { IE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
 	#define IE_CORE_ASSERT(x, ...) { if(!(x)) { IE_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+#else
+	#define IE_ASSERT(x, ...)
+	#define IE_CORE_ASSERT(x, ...)
 #endif // IE_ENABLE_ASSERTS
 
 #define BIT(x) ( 1 << x )

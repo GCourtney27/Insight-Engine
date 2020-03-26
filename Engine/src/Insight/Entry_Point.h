@@ -15,9 +15,12 @@ extern Insight::Application* Insight::CreateApplication();
 #ifdef IE_PLATFORM_WINDOWS
 	int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 	{
+
 		auto app = Insight::CreateApplication();
 
 		app->InitializeWindow(hInstance, nCmdShow);
+		Insight::Log::Init();
+
 
 		app->Run();
 		delete app;

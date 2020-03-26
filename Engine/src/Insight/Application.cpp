@@ -2,6 +2,7 @@
 
 #include "Application.h"
 #include "Platform/Windows/Windows_Window.h"
+#include "Insight/Log.h"
 
 namespace Insight {
 
@@ -9,7 +10,7 @@ namespace Insight {
 
 	Application::Application()
 	{
-		
+		IE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
 	}
 

@@ -3,6 +3,7 @@
 #include "Windows_Window.h"
 #include "Insight/Application.h"
 #include "Insight/Events/ApplicationEvent.h"
+#include "Insight/Log.h"
 
 namespace Insight {
 
@@ -21,7 +22,6 @@ namespace Insight {
 
 #ifdef IE_DEBUG
 		CreateConsoleWindow(500, 120, 32, 120);
-		printf("Hello From Application!");
 #endif
 
 		//Init(props);

@@ -18,8 +18,8 @@ project "Engine"
 	cppdialect "C++17"
 	staticruntime "on"
 
-	targetdir ("bin/" .. outputdir .. "%/{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "%/{prj.name}")
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
 	pchheader "ie_pch.h"
 	pchsource "Engine/src/ie_pch.cpp" 
@@ -37,7 +37,7 @@ project "Engine"
 
 	includedirs
 	{
-		--"%{prj.name}/vendor/spdlog/include"
+		"%{prj.name}/vendor/spdlog/include",
 		"%{prj.name}/src/"
 	}
 
@@ -78,12 +78,12 @@ project "Application"
 				or change kind to WindowedApp when using DX12
 	--]]
 	kind "WindowedApp"
-	language "C++"
 	cppdialect "C++17"
+	language "C++"
 	staticruntime "on"
 
-	targetdir ("bin/" .. outputdir .. "%/{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "%/{prj.name}")
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
 	files
 	{
@@ -93,7 +93,7 @@ project "Application"
 
 	includedirs
 	{
-		--"%{prj.name}/vendor/spdlog/include",
+		"Engine/vendor/spdlog/include",
 		"Engine/src",
 		"Engine/vendor"
 	}

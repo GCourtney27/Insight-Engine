@@ -4,6 +4,9 @@
     <Filter Include="Insight">
       <UniqueIdentifier>{5BBF0E00-C79E-8D9B-D0B6-18723C15F4FC}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Insight\Events">
+      <UniqueIdentifier>{DF36FE88-CB04-F28E-B498-62B5A005CEF3}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Platform">
       <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
     </Filter>
@@ -22,6 +25,21 @@
     <ClInclude Include="src\Insight\Entry_Point.h">
       <Filter>Insight</Filter>
     </ClInclude>
+    <ClInclude Include="src\Insight\Events\ApplicationEvent.h">
+      <Filter>Insight\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Events\Event.h">
+      <Filter>Insight\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Events\KeyEvent.h">
+      <Filter>Insight\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Events\MouseEvent.h">
+      <Filter>Insight\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Log.h">
+      <Filter>Insight</Filter>
+    </ClInclude>
     <ClInclude Include="src\Insight\Window.h">
       <Filter>Insight</Filter>
     </ClInclude>
@@ -29,16 +47,17 @@
       <Filter>Platform\Windows</Filter>
     </ClInclude>
     <ClInclude Include="src\ie_pch.h" />
-    <ClInclude Include="src\Insight\Events\Event.h" />
-    <ClInclude Include="src\Insight\Events\KeyEvent.h" />
-    <ClInclude Include="src\Insight\Events\ApplicationEvent.h" />
-    <ClInclude Include="src\Insight\Events\MouseEvent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Insight\Application.cpp">
       <Filter>Insight</Filter>
     </ClCompile>
+    <ClCompile Include="src\Insight\Log.cpp">
+      <Filter>Insight</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\Windows\Windows_Window.cpp">
+      <Filter>Platform\Windows</Filter>
+    </ClCompile>
     <ClCompile Include="src\ie_pch.cpp" />
-    <ClCompile Include="src\Platform\Windows\Windows_Window.cpp" />
   </ItemGroup>
 </Project>
