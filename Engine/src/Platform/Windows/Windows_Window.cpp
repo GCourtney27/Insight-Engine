@@ -29,6 +29,7 @@ namespace Insight {
 		m_Data.WindowClassName_wide = StringHelper::StringToWide(m_Data.WindowClassName);
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
+
 	}
 
 	LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -222,6 +223,10 @@ namespace Insight {
 		ShowWindow(m_WindowHandle, m_nCmdShowArgs);
 		SetForegroundWindow(m_WindowHandle);
 		SetFocus(m_WindowHandle);
+
+		m_Context = new Direct3D12Context(&m_WindowHandle, m_Data.Width, m_Data.Height);
+		m_Context->Init();
+
 	}
 
 	void WindowsWindow::RegisterWindowClass()
@@ -291,11 +296,15 @@ namespace Insight {
 	void WindowsWindow::OnUpdate()
 	{
 		ProccessWindowMessages();
+
+		m_Context->RenderFrame();
+
+		m_Context->SwapBuffers();
 	}
 
 	void * WindowsWindow::GetNativeWindow() const
 	{
-		return nullptr;
+		return m_WindowHandle;
 	}
 
 	void WindowsWindow::SetVSync(bool enabled)

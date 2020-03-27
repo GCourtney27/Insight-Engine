@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Insight/Window.h"
+#include "Platform/DirectX12/Direct3D12_Context.h"
 
-#include <Windows.h>
 
 namespace Insight {
 
@@ -17,7 +17,6 @@ namespace Insight {
 			std::wstring WindowTitle_wide;
 			uint32_t Width, Height;
 			bool VSyncEnabled;
-			
 
 			EventCallbackFn EventCallback;
 		};
@@ -32,7 +31,6 @@ namespace Insight {
 		inline uint32_t GetHeight() const override { return m_Data.Height; }
 
 		virtual void* GetNativeWindow() const override;
-
 		void SetWindowsSessionProps(HINSTANCE& hInstance, int nCmdShow) { SetWindowsApplicationInstance(hInstance); SetCmdArgs(nCmdShow); }
 		inline HINSTANCE& GetWindowsApplicationReference() const { return *m_WindowsAppInstance; }
 		inline const HWND& GetWindowHandleReference() const { return m_WindowHandle; }
@@ -50,7 +48,8 @@ namespace Insight {
 		void RegisterWindowClass();
 		virtual void Shutdown();
 	private:
-		
+		RenderingContext* m_Context;
+
 		HWND m_WindowHandle;
 		HINSTANCE* m_WindowsAppInstance;
 		int m_nCmdShowArgs;

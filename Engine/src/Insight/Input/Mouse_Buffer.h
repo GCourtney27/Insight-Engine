@@ -16,7 +16,7 @@ namespace Insight {
 		KeyPressState GetButtonState(const BYTE button);
 		void OnButtonPressed(const BYTE button);
 		void OnButtonReleased(const BYTE button);
-		inline void OnMousePositionMoved(double newXPos, double newYPos) { xPos = newXPos; yPos = newYPos; }
+		inline void OnMousePositionMoved(double newXPos, double newYPos) {	xPos = newXPos; yPos = newYPos;	}
 
 		inline static MouseBuffer& Get() { return *s_Instance; }
 	private:

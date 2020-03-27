@@ -7,8 +7,20 @@
     <Filter Include="Insight\Events">
       <UniqueIdentifier>{DF36FE88-CB04-F28E-B498-62B5A005CEF3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Insight\Input">
+      <UniqueIdentifier>{9A47DFD5-0608-5B0C-CF42-A4893BC29FE8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Insight\Renderer">
+      <UniqueIdentifier>{617962B8-4D72-810A-76A4-668F62FC6016}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Insight\Utilities">
+      <UniqueIdentifier>{8611128C-F227-1022-3B9F-9B43A7F4E0A9}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Platform">
       <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform\DirectX12">
+      <UniqueIdentifier>{6FE5EAC0-5BC9-AB16-C429-A669B02C9698}</UniqueIdentifier>
     </Filter>
     <Filter Include="Platform\Windows">
       <UniqueIdentifier>{64FBD71A-50F4-F66C-7926-DCF1657ED678}</UniqueIdentifier>
@@ -25,24 +37,10 @@
     <ClInclude Include="src\Insight\Entry_Point.h">
       <Filter>Insight</Filter>
     </ClInclude>
-    <ClInclude Include="src\Insight\Events\Event.h">
+    <ClInclude Include="src\Insight\Events\Application_Event.h">
       <Filter>Insight\Events</Filter>
     </ClInclude>
-    <ClInclude Include="src\Insight\Log.h">
-      <Filter>Insight</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Insight\Window.h">
-      <Filter>Insight</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Platform\Windows\Windows_Window.h">
-      <Filter>Platform\Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ie_pch.h" />
-    <ClInclude Include="src\Platform\Windows\Console_Window.h" />
-    <ClInclude Include="src\Insight\Utilities\String_Helper.h" />
-    <ClInclude Include="src\Insight\Layer.h" />
-    <ClInclude Include="src\Insight\Layer_Stack.h" />
-    <ClInclude Include="src\Insight\Events\Application_Event.h">
+    <ClInclude Include="src\Insight\Events\Event.h">
       <Filter>Insight\Events</Filter>
     </ClInclude>
     <ClInclude Include="src\Insight\Events\Key_Event.h">
@@ -51,29 +49,88 @@
     <ClInclude Include="src\Insight\Events\Mouse_Event.h">
       <Filter>Insight\Events</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsInput.h" />
-    <ClInclude Include="src\Insight\Input\Input.h" />
-    <ClInclude Include="src\Insight\Input\Mouse_Buffer.h" />
-    <ClInclude Include="src\Insight\Input\Keyboard_Buffer.h" />
-    <ClInclude Include="src\Insight\Input\InputBuffer.h" />
+    <ClInclude Include="src\Insight\Input\Input.h">
+      <Filter>Insight\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Input\InputBuffer.h">
+      <Filter>Insight\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Input\Keyboard_Buffer.h">
+      <Filter>Insight\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Input\Mouse_Buffer.h">
+      <Filter>Insight\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Layer.h">
+      <Filter>Insight</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Layer_Stack.h">
+      <Filter>Insight</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Log.h">
+      <Filter>Insight</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Renderer\RenderingContext.h">
+      <Filter>Insight\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Utilities\String_Helper.h">
+      <Filter>Insight\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Window.h">
+      <Filter>Insight</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\DirectX12\DX12_App.h">
+      <Filter>Platform\DirectX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\DirectX12\Direct3D12_Context.h">
+      <Filter>Platform\DirectX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\Windows\Console_Window.h">
+      <Filter>Platform\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\Windows\Windows_Window.h">
+      <Filter>Platform\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ie_pch.h" />
+    <ClInclude Include="src\Insight\Input\Windows_Input.h" />
+    <ClInclude Include="src\Platform\DirectX12\ConstantBuffers_TEMP.h" />
+    <ClInclude Include="src\Platform\DirectX12\ConstantBuffersPerObject_TEMP.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Insight\Application.cpp">
       <Filter>Insight</Filter>
     </ClCompile>
+    <ClCompile Include="src\Insight\Input\Keyboard_Buffer.cpp">
+      <Filter>Insight\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Insight\Input\Mouse_Buffer.cpp">
+      <Filter>Insight\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Insight\Layer.cpp">
+      <Filter>Insight</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Insight\Layer_Stack.cpp">
+      <Filter>Insight</Filter>
+    </ClCompile>
     <ClCompile Include="src\Insight\Log.cpp">
       <Filter>Insight</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Insight\Utilities\String_Helper.cpp">
+      <Filter>Insight\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\DirectX12\DX12_App.cpp">
+      <Filter>Platform\DirectX12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\DirectX12\Direct3D12_Context.cpp">
+      <Filter>Platform\DirectX12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\Windows\Console_Window.cpp">
+      <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\Windows\Windows_Window.cpp">
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\ie_pch.cpp" />
-    <ClCompile Include="src\Platform\Windows\Console_Window.cpp" />
-    <ClCompile Include="src\Insight\Utilities\String_Helper.cpp" />
-    <ClCompile Include="src\Insight\Layer.cpp" />
-    <ClCompile Include="src\Insight\Layer_Stack.cpp" />
-    <ClCompile Include="WindowsInput.cpp" />
-    <ClCompile Include="src\Insight\Input\Mouse_Buffer.cpp" />
-    <ClCompile Include="src\Insight\Input\Keyboard_Buffer.cpp" />
+    <ClCompile Include="src\Insight\Input\Windows_Input.cpp" />
   </ItemGroup>
 </Project>

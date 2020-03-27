@@ -25,7 +25,7 @@ namespace Insight {
 		void CreateConsoleWindow(int bufferLines, int bufferColumns, int windowLines, int windowColumns);
 
 		inline Window& GetWindow() { return *m_pWindow; }
-		void InitializeWindow(HINSTANCE& hInstance, int nCmdShow);
+		void InitializeAppForWindows(HINSTANCE& hInstance, int nCmdShow);
 		inline static Application& Get() { return *s_Instance; }
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);

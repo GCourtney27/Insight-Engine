@@ -19,7 +19,7 @@ extern Insight::Application* Insight::CreateApplication();
 
 		auto app = Insight::CreateApplication();
 
-		app->InitializeWindow(hInstance, nCmdShow);
+		app->InitializeAppForWindows(hInstance, nCmdShow);
 
 
 		app->Run();

@@ -38,7 +38,16 @@ project "Engine"
 	includedirs
 	{
 		"%{prj.name}/vendor/spdlog/include",
+		"%{prj.name}/vendor/Nvidia/DirectX12/DXR",
+		"%{prj.name}/vendor/Microsoft/DirectX12",
 		"%{prj.name}/src/"
+	}
+
+	links
+	{
+		"d3d12.lib",
+		"dxgi.lib",
+		"d3dcompiler.lib"
 	}
 
 	filter "system:windows"

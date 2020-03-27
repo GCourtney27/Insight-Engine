@@ -14,15 +14,17 @@ namespace Insight {
 		IE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
 
+		Input::IsKeyPressed('A');
 	}
 
-	void Application::InitializeWindow(HINSTANCE & hInstance, int nCmdShow)
+	void Application::InitializeAppForWindows(HINSTANCE & hInstance, int nCmdShow)
 	{
 		m_pWindow = std::unique_ptr<Window>(Window::Create());
 		m_pWindow->SetEventCallback(IE_BIND_EVENT_FN(Application::OnEvent));
 
 		static_cast<WindowsWindow*>(m_pWindow.get())->SetWindowsSessionProps(hInstance, nCmdShow);
 		static_cast<WindowsWindow*>(m_pWindow.get())->Init(WindowProps());
+
 	}
 
 	Application::~Application()
@@ -37,7 +39,6 @@ namespace Insight {
 
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
-
 
 		}
 	}
