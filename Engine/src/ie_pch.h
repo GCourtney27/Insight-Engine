@@ -14,8 +14,8 @@
 #include <unordered_set>
 
 // TODO: implement log class
-//#include "Insight/Log.h"
+#include "Insight/Log.h"
 
 #ifdef IE_PLATFORM_WINDOWS
-#include <Windows.h>
+	#include <Windows.h>
 #endif // IE_PLATFORM_WINDOWS

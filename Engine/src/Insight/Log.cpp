@@ -8,6 +8,7 @@ namespace Insight {
 
 	std::shared_ptr<spdlog::logger> Log::s_CoreLogger;
 	std::shared_ptr<spdlog::logger> Log::s_ClientLogger;
+	ConsoleWindow Log::m_ConsoleWindow;
 
 	void Log::Init()
 	{
@@ -18,5 +19,6 @@ namespace Insight {
 		s_ClientLogger = spdlog::stdout_color_mt("App");
 		s_ClientLogger->set_level(spdlog::level::trace);
 	}
+
 }
 

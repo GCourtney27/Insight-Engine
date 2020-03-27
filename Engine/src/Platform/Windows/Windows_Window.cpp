@@ -2,10 +2,18 @@
 
 #include "Windows_Window.h"
 #include "Insight/Application.h"
-#include "Insight/Events/ApplicationEvent.h"
+#include "Insight/Events/Application_Event.h"
+#include "Insight/Events/Mouse_Event.h"
+#include "Insight/Events/Key_Event.h"
+#include "Insight/Utilities/String_Helper.h"
+#include "Insight/Input/Keyboard_Buffer.h"
+#include "Insight/Input/Mouse_Buffer.h"
 #include "Insight/Log.h"
 
+#include <windowsx.h>
+
 namespace Insight {
+
 
 
 	Window* Window::Create(const WindowProps& props)
@@ -15,100 +23,248 @@ namespace Insight {
 
 	Insight::WindowsWindow::WindowsWindow(const WindowProps & props)
 	{
-		m_Data.WindowTitle = props.Title.c_str();
-		m_Data.WindowClassName = "Insight Engine Class";
+		m_Data.WindowTitle = props.Title;
+		m_Data.WindowTitle_wide = StringHelper::StringToWide(m_Data.WindowTitle);
+		m_Data.WindowClassName = props.Title + " Class";
+		m_Data.WindowClassName_wide = StringHelper::StringToWide(m_Data.WindowClassName);
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
-
-#ifdef IE_DEBUG
-		CreateConsoleWindow(500, 120, 32, 120);
-#endif
-
-		//Init(props);
 	}
 
 	LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		switch (msg) {
-		case WM_PAINT:
+		case WM_NCCREATE:
 		{
-			PAINTSTRUCT ps;
-			HDC hDc = BeginPaint(hWnd, &ps);
+			const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
+			WindowsWindow::WindowData* data = reinterpret_cast<WindowsWindow::WindowData*>(pCreate->lpCreateParams);
+			SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(data));
 
-			FillRect(hDc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
-
-			EndPaint(hWnd, &ps);
-
-			return 0;
+			return 1;
 		}
 		case WM_DESTROY:
 		{
+			WindowsWindow::WindowData* data = (WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			PostQuitMessage(0);
 			WindowCloseEvent event;
+			data->EventCallback(event);
 
 			return 0;
 		}
+		// Mouse Input
+		case WM_MOUSEMOVE:
+		{
+			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			MouseBuffer::Get().OnMousePositionMoved(LOWORD(lParam), HIWORD(lParam));
+			MouseMovedEvent event(LOWORD(lParam), HIWORD(lParam));
+			data.EventCallback(event);
+			return 0;
+		}
+		case WM_MOUSEWHEEL:
+		{
+			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			MouseScrolledEvent event(0, GET_WHEEL_DELTA_WPARAM(wParam));
+			data.EventCallback(event);
+			return 0;
+		}
+		case WM_MOUSEHWHEEL:
+		{
+			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			MouseScrolledEvent event(GET_WHEEL_DELTA_WPARAM(wParam), 0);
+			data.EventCallback(event);
+			return 0;
+		}
+		case WM_LBUTTONDOWN:
+		{
+			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			MouseBuffer::Get().OnButtonPressed(0);
+			MouseButtonPressedEvent event(0);
+			data.EventCallback(event);
+			return 0;
+		}
+		case WM_LBUTTONUP:
+		{
+			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			MouseBuffer::Get().OnButtonReleased(0);
+			MouseButtonReleasedEvent event(0);
+			data.EventCallback(event);
+			return 0;
+		}
+		case WM_RBUTTONDOWN:
+		{
+			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			MouseBuffer::Get().OnButtonPressed(1);
+			MouseButtonPressedEvent event(1);
+			data.EventCallback(event);
+			return 0;
+		}
+		case WM_RBUTTONUP:
+		{
+			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			MouseBuffer::Get().OnButtonReleased(1);
+			MouseButtonReleasedEvent event(1);
+			data.EventCallback(event);
+			return 0;
+		}
+		case WM_MBUTTONDOWN:
+		{
+			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			MouseBuffer::Get().OnButtonPressed(2);
+			MouseButtonPressedEvent event(2);
+			data.EventCallback(event);
+			return 0;
+		}
+		case WM_MBUTTONUP:
+		{
+			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			MouseBuffer::Get().OnButtonReleased(2);
+			MouseButtonReleasedEvent event(2);
+			data.EventCallback(event);
+			return 0;
+		}
+		// Keyboard Input
+		case WM_CHAR:
+		{
+			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			KeyTypedEvent event((char)wParam);
+			data.EventCallback(event);
+			return 0;
+		}
+		case WM_KEYDOWN:
+		{
+			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			KeyboardBuffer::Get().OnKeyPressed((char)wParam);
+			KeyPressedEvent event((char)wParam, 0);
+			data.EventCallback(event);
+			return 0;
+		}
+		case WM_KEYUP:
+		{
+			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			KeyboardBuffer::Get().OnKeyReleased((char)wParam);
+			KeyReleasedEvent event((char)wParam);
+			data.EventCallback(event);
+			return 0;
+		}
+		// Aplication Eents
+		case WM_COMPACTING:
+		{
+			IE_CORE_WARN("System memory is low");
+			return 0;
+		}
+		case WM_MOVE:
+		{
+			IE_CORE_INFO("Window is moving");
+			return 0;
+		}
+		case WM_SIZE:
+		{
+			IE_CORE_INFO("Window resize has begun");
+			if(wParam & SIZE_MINIMIZED)
+				// Window has beein minimized stop rendering momentarily becasue we cannot see the result
+
+			// lParam contains new with and height
+			
+			return 0;
+		}
+		case WM_SIZING:
+		{
+			IE_CORE_INFO("Window is currently being resized");
+			return 0;
+		}
+		default:
+		{
+			return DefWindowProc(hWnd, msg, wParam, lParam);
+		}
 		}
 
-		return DefWindowProc(hWnd, msg, wParam, lParam);
 	}
 
 	void WindowsWindow::Init(const WindowProps & props)
 	{
-		WNDCLASSEXA wc = {};
+
+		RegisterWindowClass();
+
+		int centerScreenX = GetSystemMetrics(SM_CXSCREEN) / 2 - m_Data.Width / 2;
+		int centerScreenY = GetSystemMetrics(SM_CYSCREEN) / 2 - m_Data.Height / 2;
+
+		RECT wr; // Window Rectangle
+		wr.left = centerScreenX;
+		wr.top = centerScreenY;
+		wr.right = wr.left + m_Data.Width;
+		wr.bottom = wr.top + m_Data.Height;
+
+
+		m_WindowHandle = CreateWindowEx(
+			0,															// Window Styles
+			m_Data.WindowClassName_wide.c_str(),						// Window Class
+			m_Data.WindowTitle_wide.c_str(),							// Window Title
+			WS_OVERLAPPEDWINDOW,										// Window Style
+
+			wr.left,	    // Start X
+			wr.top,	// Start Y
+			wr.right - wr.left,												// Width
+			wr.bottom - wr.top,												// Height
+
+			NULL,														// Parent window
+			NULL,														// Menu
+			*m_WindowsAppInstance,										// Current Windows program application instance passed from WinMain
+			&m_Data														// Additional application data
+		);
+
+		if (m_WindowHandle == NULL)
+		{
+			IE_ERROR("Unable to create windows window.");
+			IE_ERROR("    Error: {0}", GetLastError());
+			exit(-1);
+		}
+
+		ShowWindow(m_WindowHandle, m_nCmdShowArgs);
+		SetForegroundWindow(m_WindowHandle);
+		SetFocus(m_WindowHandle);
+	}
+
+	void WindowsWindow::RegisterWindowClass()
+	{
+		WNDCLASSEX wc = {};
 		wc.cbSize = sizeof(WNDCLASSEX);
 		wc.style = 0;
 		wc.lpfnWndProc = WndProc;
 		wc.cbClsExtra = 0;
 		wc.cbWndExtra = 0;
-		wc.hInstance = *m_WindowsApplicationInstance;
+		wc.hInstance = *m_WindowsAppInstance;
 		wc.hIcon = LoadIcon(0, IDI_WINLOGO);
 		wc.hCursor = LoadCursor(0, IDC_ARROW);
 		wc.lpszMenuName = 0;
 		wc.hbrBackground = 0;
-		wc.lpszClassName = m_Data.WindowClassName;
-		
-		RegisterClassExA(&wc);
+		wc.lpszClassName = m_Data.WindowClassName_wide.c_str();
+
+		RegisterClassEx(&wc);
 		int error = GetLastError();
-
-		m_WindowHandle = CreateWindowExA(
-			0,							   // Window Styles
-			m_Data.WindowClassName,		   // Window Class
-			m_Data.WindowTitle,			   // Window Title
-			WS_OVERLAPPEDWINDOW,		   // Window Style
-
-			0,							   // Start X
-			0,							   // Start Y
-			m_Data.Width,				   // Width
-			m_Data.Height,				   // Height
-
-			NULL,						   // Parent window
-			NULL,						   // Menu
-			*m_WindowsApplicationInstance, // Current Windows program application instance passed from WinMain
-			NULL						   // Additional application data
-		);
-
-		//IE_CORE_ASSERT(m_WindowHandle != NULL);
-
-		ShowWindow(m_WindowHandle, m_nCmdShowArgs);
+		if (error > 0)
+		{
+			IE_CORE_ERROR("An error occured while registering window class: {0} ", m_Data.WindowClassName);
+			IE_CORE_ERROR("    Error: {1}", error);
+			Shutdown();
+			exit(-1);
+		}
 	}
 
 	bool WindowsWindow::ProccessWindowMessages()
 	{
-
 		MSG msg;
 		ZeroMemory(&msg, sizeof(MSG));
 
-		while (PeekMessage(&msg,  // Where to store message (ifone exists)
-			m_WindowHandle, //Handle to window we are checking messages for
-			0, // Minimum Filter Msg Value - We are not filterinf for specific messages but min and max could be used to do so
-			0, // Maximum Filter Msg Value
-			PM_REMOVE)) // Remove mesage after captureing it via PeekMessage
+		while (PeekMessage(&msg,			// Where to store message (if one exists)
+			m_WindowHandle, // Handle to window we are checking messages for
+			0,				// Minimum Filter Msg Value - We are not filterinf for specific messages but min and max could be used to do so
+			0,				// Maximum Filter Msg Value
+			PM_REMOVE))		// Remove mesage after captureing it via PeekMessage
 		{
 			if (msg.message == WM_QUIT)
 				return false;
 			TranslateMessage(&msg);  // Translate message from virtual key message into character messages
-			DispatchMessage(&msg); // Dispatch message to our Window Proc for this window
+			DispatchMessage(&msg); // Dispatch message to our WindowProc for this window
 		}
 
 		// Check if the window was closed with the top right X button
@@ -117,57 +273,24 @@ namespace Insight {
 			if (!IsWindow(m_WindowHandle))
 			{
 				m_WindowHandle = NULL; // Message proccessing loop takes care of destroying this window
-				UnregisterClassA(m_Data.WindowClassName, *m_WindowsApplicationInstance);
+				UnregisterClass(m_Data.WindowClassName_wide.c_str(), *m_WindowsAppInstance);
 				return false;
 			}
 		}
-#ifdef _DEBUG
-		//assert(_CrtCheckMemory()); // Make sure the heap isn's corrupted on exit
-#endif
 
+		IE_ASSERT("Heap is currupted!", _CrtCheckMemory());
 		return true;
-	}
-
-	void WindowsWindow::CreateConsoleWindow(int bufferLines, int bufferColumns, int windowLines, int windowColumns)
-	{
-		// Our temp console info struct
-		CONSOLE_SCREEN_BUFFER_INFO coninfo;
-
-		// Get the console info and set the number of lines
-		AllocConsole();
-		GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &coninfo);
-		coninfo.dwSize.Y = bufferLines;
-		coninfo.dwSize.X = bufferColumns;
-		SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coninfo.dwSize);
-
-		SMALL_RECT rect;
-		rect.Left = 0;
-		rect.Top = 0;
-		rect.Right = windowColumns;
-		rect.Bottom = windowLines;
-		SetConsoleWindowInfo(GetStdHandle(STD_OUTPUT_HANDLE), TRUE, &rect);
-
-		FILE *stream;
-		freopen_s(&stream, "CONIN$", "r", stdin);
-		freopen_s(&stream, "CONOUT$", "w", stdout);
-		freopen_s(&stream, "CONOUT$", "w", stderr);
-
-		// Prevent accidental console window close
-		m_ConsoleWindowHandle = GetConsoleWindow();
-		m_ConsoleWindowHMenu = GetSystemMenu(m_ConsoleWindowHandle, FALSE);
-		EnableMenuItem(m_ConsoleWindowHMenu, SC_CLOSE, MF_GRAYED);
 	}
 
 	WindowsWindow::~WindowsWindow()
 	{
+		IE_CORE_WARN("Destroying window: {0}", m_Data.WindowTitle);
+		Shutdown();
 	}
 
 	void WindowsWindow::OnUpdate()
 	{
-	}
-
-	void WindowsWindow::SetEventCallback(const EventCallbackFn & callback)
-	{
+		ProccessWindowMessages();
 	}
 
 	void * WindowsWindow::GetNativeWindow() const
@@ -183,9 +306,15 @@ namespace Insight {
 	{
 		return false;
 	}
-	
+
 	void WindowsWindow::Shutdown()
 	{
+		if (m_WindowHandle != NULL)
+		{
+			PostQuitMessage(0);
+			UnregisterClass(this->m_Data.WindowClassName_wide.c_str(), *m_WindowsAppInstance);
+			DestroyWindow(m_WindowHandle);
+		}
 	}
 
 }

@@ -1,6 +1,10 @@
 #pragma once
 
 #include "Core.h"
+#ifdef IE_PLATFORM_WINDOWS
+	#include "Platform/Windows/Console_Window.h"
+#endif 
+
 #include "spdlog/spdlog.h"
 #include "spdlog/fmt/ostr.h"
 
@@ -13,11 +17,10 @@ namespace Insight {
 
 		inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
 		inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
-
 	private:
 		static std::shared_ptr<spdlog::logger> s_CoreLogger;
 		static std::shared_ptr<spdlog::logger> s_ClientLogger;
-
+		static ConsoleWindow m_ConsoleWindow;
 	};
 
 }

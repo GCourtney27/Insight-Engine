@@ -3,6 +3,7 @@
 #include "Application.h"
 #include "Platform/Windows/Windows_Window.h"
 #include "Insight/Log.h"
+#include "Insight/Input/Input.h"
 
 namespace Insight {
 
@@ -12,16 +13,17 @@ namespace Insight {
 	{
 		IE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
+
 	}
 
 	void Application::InitializeWindow(HINSTANCE & hInstance, int nCmdShow)
 	{
 		m_pWindow = std::unique_ptr<Window>(Window::Create());
-		static_cast<WindowsWindow*>(m_pWindow.get())->SetWindowsApplicationInstance(hInstance);
-		static_cast<WindowsWindow*>(m_pWindow.get())->SetCmdArgs(nCmdShow);
+		m_pWindow->SetEventCallback(IE_BIND_EVENT_FN(Application::OnEvent));
+
+		static_cast<WindowsWindow*>(m_pWindow.get())->SetWindowsSessionProps(hInstance, nCmdShow);
 		static_cast<WindowsWindow*>(m_pWindow.get())->Init(WindowProps());
 	}
-
 
 	Application::~Application()
 	{
@@ -29,10 +31,42 @@ namespace Insight {
 
 	void Application::Run()
 	{
-		while (m_pWindow->ProccessWindowMessages())
+		while(m_Running)
 		{
+			m_pWindow->OnUpdate();
+
+			for (Layer* layer : m_LayerStack)
+				layer->OnUpdate();
+
 
 		}
+	}
+
+	void Application::OnEvent(Event & e)
+	{
+		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<WindowCloseEvent>(IE_BIND_EVENT_FN(Application::OnWindowClose));
+
+		//IE_CORE_TRACE("{0}", e);
+
+		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
+		{
+			(*--it)->OnEvent(e);
+			if (e.Handled())
+				break;
+		}
+	}
+
+	void Application::PushLayer(Layer * layer)
+	{
+		m_LayerStack.PushLayer(layer);
+		layer->OnAttach();
+	}
+
+	void Application::PushOverlay(Layer * layer)
+	{
+		m_LayerStack.PushOverLay(layer);
+		layer->OnAttach();
 	}
 
 	bool Application::OnWindowClose(WindowCloseEvent & e)

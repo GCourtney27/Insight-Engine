@@ -25,16 +25,7 @@
     <ClInclude Include="src\Insight\Entry_Point.h">
       <Filter>Insight</Filter>
     </ClInclude>
-    <ClInclude Include="src\Insight\Events\ApplicationEvent.h">
-      <Filter>Insight\Events</Filter>
-    </ClInclude>
     <ClInclude Include="src\Insight\Events\Event.h">
-      <Filter>Insight\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Insight\Events\KeyEvent.h">
-      <Filter>Insight\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Insight\Events\MouseEvent.h">
       <Filter>Insight\Events</Filter>
     </ClInclude>
     <ClInclude Include="src\Insight\Log.h">
@@ -47,6 +38,24 @@
       <Filter>Platform\Windows</Filter>
     </ClInclude>
     <ClInclude Include="src\ie_pch.h" />
+    <ClInclude Include="src\Platform\Windows\Console_Window.h" />
+    <ClInclude Include="src\Insight\Utilities\String_Helper.h" />
+    <ClInclude Include="src\Insight\Layer.h" />
+    <ClInclude Include="src\Insight\Layer_Stack.h" />
+    <ClInclude Include="src\Insight\Events\Application_Event.h">
+      <Filter>Insight\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Events\Key_Event.h">
+      <Filter>Insight\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Events\Mouse_Event.h">
+      <Filter>Insight\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsInput.h" />
+    <ClInclude Include="src\Insight\Input\Input.h" />
+    <ClInclude Include="src\Insight\Input\Mouse_Buffer.h" />
+    <ClInclude Include="src\Insight\Input\Keyboard_Buffer.h" />
+    <ClInclude Include="src\Insight\Input\InputBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Insight\Application.cpp">
@@ -59,5 +68,12 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\ie_pch.cpp" />
+    <ClCompile Include="src\Platform\Windows\Console_Window.cpp" />
+    <ClCompile Include="src\Insight\Utilities\String_Helper.cpp" />
+    <ClCompile Include="src\Insight\Layer.cpp" />
+    <ClCompile Include="src\Insight\Layer_Stack.cpp" />
+    <ClCompile Include="WindowsInput.cpp" />
+    <ClCompile Include="src\Insight\Input\Mouse_Buffer.cpp" />
+    <ClCompile Include="src\Insight\Input\Keyboard_Buffer.cpp" />
   </ItemGroup>
 </Project>

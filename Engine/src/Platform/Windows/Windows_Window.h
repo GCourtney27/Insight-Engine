@@ -9,6 +9,20 @@ namespace Insight {
 	class WindowsWindow : public Window
 	{
 	public:
+		struct WindowData
+		{
+			std::string WindowClassName = "Insight Engine Class";
+			std::wstring WindowClassName_wide;
+			std::string WindowTitle = "Insight Engine";
+			std::wstring WindowTitle_wide;
+			uint32_t Width, Height;
+			bool VSyncEnabled;
+			
+
+			EventCallbackFn EventCallback;
+		};
+
+	public:
 		WindowsWindow(const WindowProps& props);
 		virtual ~WindowsWindow();
 
@@ -19,39 +33,30 @@ namespace Insight {
 
 		virtual void* GetNativeWindow() const override;
 
+		void SetWindowsSessionProps(HINSTANCE& hInstance, int nCmdShow) { SetWindowsApplicationInstance(hInstance); SetCmdArgs(nCmdShow); }
+		inline HINSTANCE& GetWindowsApplicationReference() const { return *m_WindowsAppInstance; }
+		inline const HWND& GetWindowHandleReference() const { return m_WindowHandle; }
 
-#ifdef IE_PLATFORM_WINDOWS
-		inline HINSTANCE& GetWindowsApplicationReference() const { return *m_WindowsApplicationInstance; }
-		void SetWindowsApplicationInstance(HINSTANCE& hInstance) { m_WindowsApplicationInstance = &hInstance; }
-		void SetCmdArgs(int nCmdShow) { m_nCmdShowArgs = nCmdShow; }
-#endif
 		virtual bool ProccessWindowMessages() override;
-		void CreateConsoleWindow(int bufferLines, int bufferColumns, int windowLines, int windowColumns);
 
-		virtual void SetEventCallback(const EventCallbackFn& callback) override;
+		// Window Attributes
+		virtual inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
 		virtual void SetVSync(bool enabled) override;
 		virtual bool IsVsyncActive() const override;
 		virtual void Init(const WindowProps& props);
 	private:
+		inline void SetWindowsApplicationInstance(HINSTANCE& hInstance) { m_WindowsAppInstance = &hInstance; }
+		inline void SetCmdArgs(int nCmdShow) { m_nCmdShowArgs = nCmdShow; }
+		void RegisterWindowClass();
 		virtual void Shutdown();
 	private:
-		struct WindowData
-		{
-			LPCSTR WindowClassName = "Insight Engine Class";
-			LPCSTR WindowTitle = "Insight Engine";
-			uint32_t Width, Height;
-			bool VSyncEnabled;
-
-			EventCallbackFn EventCallback;
-		};
+		
 		HWND m_WindowHandle;
-		HINSTANCE* m_WindowsApplicationInstance;
+		HINSTANCE* m_WindowsAppInstance;
 		int m_nCmdShowArgs;
 		WindowData m_Data;
-
-		// Console
-		HWND m_ConsoleWindowHandle;
-		HMENU m_ConsoleWindowHMenu;
+		bool m_WindowResizeBegun = false;
+		bool m_WindowResizeInProgress = false;
 
 	};
 
