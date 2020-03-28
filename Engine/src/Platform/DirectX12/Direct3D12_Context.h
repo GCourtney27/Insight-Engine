@@ -7,6 +7,7 @@
 
 // TODO: implement shader system that uses this
 #include "ConstantBuffersPerObject_TEMP.h"
+#include <DirectXMath.h>
 
 namespace Insight {
 
@@ -25,7 +26,7 @@ namespace Insight {
 	private:
 		// Per-Frame
 		void WaitForPreviousFrame();
-		void UpdatePipeline();
+		void PopulateCommandLists();
 
 		// D3D12 Initialize
 		void CreateDXGIFactory();
@@ -36,6 +37,7 @@ namespace Insight {
 		void CreateRTVDescriptorHeap();
 		void CreateCommandAllocators();
 		void CreateFenceEvent();
+		void CreatePipelineStateObjects();
 		void CreateRootSignature();
 
 		void InitShaders();// TEMP! Move this!
@@ -63,9 +65,22 @@ namespace Insight {
 		WRL::ComPtr<ID3D12Resource> m_pRenderTargets[m_FrameBufferCount];
 		WRL::ComPtr<ID3D12CommandAllocator> m_pCommandAllocators[m_FrameBufferCount];
 
-		Microsoft::WRL::ComPtr<ID3D12Fence> m_pFence[m_FrameBufferCount];
-		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_pRootSignature;
-		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_pCommandList;
+		WRL::ComPtr<ID3D12Fence> m_pFence[m_FrameBufferCount];
+		WRL::ComPtr<ID3D12RootSignature> m_pRootSignature;
+		WRL::ComPtr<ID3D12GraphicsCommandList> m_pCommandList;
+
+		WRL::ComPtr<ID3D12PipelineState> m_pPipelineStateObject_Default;
+		WRL::ComPtr<ID3D12RootSignature> m_pRootSignature_Default;
+		D3D12_VIEWPORT m_ViewPort;
+		D3D12_RECT m_ScissorRect;
+
+		//=== TEMPORARY! ===//
+		//TODO: Move this to a model/vertex class
+		WRL::ComPtr<ID3D12Resource> m_pVertexBuffer;
+		D3D12_VERTEX_BUFFER_VIEW m_VertexBufferView;
+		struct Vertex {
+			DirectX::XMFLOAT3 pos;
+		};
 
 	};
 

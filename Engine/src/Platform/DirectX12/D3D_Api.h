@@ -8,6 +8,12 @@
 // D3D12
 #include <dxgi1_2.h>
 #include "d3dx12.h"
+#include <d3dcompiler.h>
+
+// Common
+// Libs
+#pragma comment(lib, "D3DCompiler.lib")
+#pragma comment(lib, "d3d11.lib")
 
 /* ============================================
 	

@@ -31,6 +31,7 @@ namespace Insight {
 			CreateRTVDescriptorHeap();
 			CreateCommandAllocators();
 			CreateFenceEvent();
+			CreatePipelineStateObjects();
 			//CreateRootSignature();
 
 			//TODO: Move shader creation to shader class
@@ -38,8 +39,9 @@ namespace Insight {
 		}
 		catch (COMException& ex) {
 			COM_SAFE_RELEASE(m_pDxgiFactory);
-			Cleanup();
 			MessageBox(*m_WindowHandle, ex.what(), L"Error", MB_OK);
+			//Cleanup();
+			exit(-1);
 		}
 
 	}
@@ -73,7 +75,7 @@ namespace Insight {
 		m_FenceValue[m_FrameIndex]++;
 	}
 
-	void Direct3D12Context::UpdatePipeline()
+	void Direct3D12Context::PopulateCommandLists()
 	{
 		HRESULT hr;
 
@@ -113,7 +115,7 @@ namespace Insight {
 	{
 		HRESULT hr;
 
-		UpdatePipeline();
+		PopulateCommandLists();
 
 		ID3D12CommandList* ppCommandLists[] = { m_pCommandList.Get() };
 
@@ -219,6 +221,67 @@ namespace Insight {
 		m_FenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 		if (m_FenceEvent == nullptr)
 			THROW_COM_ERROR("Fence Event was nullptr");
+	}
+
+	void Direct3D12Context::CreatePipelineStateObjects()
+	{
+		HRESULT hr;
+		CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
+		rootSignatureDesc.Init(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+		ID3DBlob* RootSignatureByteCode;
+		hr = D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &RootSignatureByteCode, nullptr);
+		COM_ERROR_IF_FAILED(hr, "Failed to serialize Root Signature");
+
+		hr = m_pDevice->CreateRootSignature(0, RootSignatureByteCode->GetBufferPointer(), RootSignatureByteCode->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature_Default));
+		COM_ERROR_IF_FAILED(hr, "Failed to create Default Root Signature");
+
+		// TODO: Make Shader class
+		// TODO: Move this to the shader class
+		// Compile vertex shader // TEMP//
+
+		// Note: Searches for shaders relative to Application.vcxproj
+		ID3DBlob* pVertexShader = 0;
+		ID3DBlob* pErrorBuffer = 0;
+		//TODO: make a file system search for this relative sahder path in client
+		// The client should be able to create their own shaders
+		hr = D3DCompileFromFile(L"src/Shaders/ForwardRendering/Shader_Vertex.hlsl",
+			nullptr,
+			nullptr,
+			"main",
+			"vs_5_0",
+			D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+			0,
+			&pVertexShader,
+			&pErrorBuffer);
+		if (FAILED(hr))
+		{
+			COM_ERROR_IF_FAILED(hr, "Failed to compile Vertex Shader check log for more details.");
+			IE_CORE_ERROR("Vertex Shader compilation error: {0}", (char*)pErrorBuffer->GetBufferPointer());
+		}
+		D3D12_SHADER_BYTECODE vertexShaderByteCode = {};
+		vertexShaderByteCode.BytecodeLength = pVertexShader->GetBufferSize();
+		vertexShaderByteCode.pShaderBytecode = pVertexShader->GetBufferPointer();
+		// Compile pixel shader // TEMP//
+		// create vertex and pixel shaders
+		ID3DBlob* pixelShader;
+		hr = D3DCompileFromFile(L"src/Shaders/ForwardRendering/Shader_Pixel.hlsl",
+			nullptr,
+			nullptr,
+			"main",
+			"ps_5_0",
+			D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+			0,
+			&pixelShader,
+			&pErrorBuffer);
+		if (FAILED(hr))
+		{
+			IE_CORE_ERROR("Pixel Shader compilation error: {0}", (char*)pErrorBuffer->GetBufferPointer());
+			COM_ERROR_IF_FAILED(hr, "Failed to compile Pixel Shader check log for more details.");
+		}
+		D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
+		pixelShaderBytecode.BytecodeLength = pixelShader->GetBufferSize();
+		pixelShaderBytecode.pShaderBytecode = pixelShader->GetBufferPointer();
 	}
 
 	void Direct3D12Context::CreateRootSignature()
