@@ -45,11 +45,10 @@ namespace Insight {
 		}
 		case WM_DESTROY:
 		{
-			WindowsWindow::WindowData* data = (WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			PostQuitMessage(0);
+			WindowsWindow::WindowData* data = (WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			WindowCloseEvent event;
 			data->EventCallback(event);
-
 			return 0;
 		}
 		// Mouse Input
@@ -161,7 +160,7 @@ namespace Insight {
 		}
 		case WM_SIZE:
 		{
-			IE_CORE_INFO("Window resize has begun");
+			//IE_CORE_INFO("Window resize has begun");
 			
 			if(wParam & SIZE_MINIMIZED)
 				// Window has beein minimized stop rendering momentarily becasue we cannot see the result
@@ -172,7 +171,7 @@ namespace Insight {
 		}
 		case WM_SIZING:
 		{
-			IE_CORE_INFO("Window is currently being resized");
+			//IE_CORE_INFO("Window is currently being resized");
 			return 0;
 		}
 		default:
@@ -224,6 +223,7 @@ namespace Insight {
 		ShowWindow(m_WindowHandle, m_nCmdShowArgs);
 		SetForegroundWindow(m_WindowHandle);
 		SetFocus(m_WindowHandle);
+		SetWindowText(m_WindowHandle, m_Data.WindowTitle_wide.c_str());
 
 		m_RendererContext = new Direct3D12Context(this);
 		if (!m_RendererContext->Init())
@@ -231,6 +231,8 @@ namespace Insight {
 			IE_CORE_ERROR("Failed to initialize graphics context");
 			return false;
 		}
+
+		return true;
 	}
 
 	void WindowsWindow::RegisterWindowClass()
@@ -274,17 +276,6 @@ namespace Insight {
 			DispatchMessage(&msg); // Dispatch message to our WindowProc for this window
 		}
 
-		// Check if the window was closed with the top right X button
-		if (msg.message == WM_NULL)
-		{
-			if (!IsWindow(m_WindowHandle))
-			{
-				m_WindowHandle = NULL; // Message proccessing loop takes care of destroying this window
-				UnregisterClass(m_Data.WindowClassName_wide.c_str(), *m_WindowsAppInstance);
-				return false;
-			}
-		}
-
 		IE_ASSERT("Heap is currupted!", _CrtCheckMemory());
 		return true;
 	}
@@ -323,15 +314,14 @@ namespace Insight {
 
 	void WindowsWindow::Shutdown()
 	{
+
 		if (m_WindowHandle != NULL)
 		{
-			PostQuitMessage(0);
 			UnregisterClass(this->m_Data.WindowClassName_wide.c_str(), *m_WindowsAppInstance);
 			DestroyWindow(m_WindowHandle);
 		}
 
-		//delete m_RendererContext;
-		
+		delete m_RendererContext;
 	}
 
 }

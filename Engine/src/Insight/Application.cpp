@@ -28,7 +28,6 @@ namespace Insight {
 			IE_CORE_ERROR("Fatal Error: Failed to initialize window. Exiting.");
 			exit(-1);
 		}
-
 	}
 
 	Application::~Application()
@@ -45,6 +44,10 @@ namespace Insight {
 				layer->OnUpdate();
 
 		}
+	}
+
+	void Application::Shutdown()
+	{
 	}
 
 	void Application::OnEvent(Event & e)
@@ -79,6 +82,5 @@ namespace Insight {
 		m_Running = false;
 		return true;
 	}
-
 
 }

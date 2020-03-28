@@ -21,8 +21,10 @@ extern Insight::Application* Insight::CreateApplication();
 
 		app->InitializeAppForWindows(hInstance, nCmdShow);
 
-
 		app->Run();
+
+		app->Shutdown();
+
 		delete app;
 	}
 #elif IE_PLATFORM_MAC

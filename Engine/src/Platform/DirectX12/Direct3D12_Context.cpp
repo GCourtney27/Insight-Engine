@@ -64,8 +64,8 @@ namespace Insight {
 		{
 			// we have the fence create an event which is signaled once the fence's current value is "fenceValue"
 			hr = m_pFence[m_FrameIndex]->SetEventOnCompletion(m_FenceValue[m_FrameIndex], m_FenceEvent);
-			if (FAILED(hr))
-				throw std::exception();
+			//COM_ERROR_IF_FAILED(hr, "Failed to set event completion value while wiating for frame:");
+			
 
 			// We will wait until the fence has triggered the event that it's current value has reached "fenceValue". once it's value
 			// has reached "fenceValue", we know the command queue has finished executing
@@ -584,6 +584,8 @@ namespace Insight {
 
 	void Direct3D12Context::Cleanup()
 	{
+		WaitForPreviousFrame();
+		CloseHandle(m_FenceEvent);
 		for (int i = 0; i < m_FrameBufferCount; i++)
 		{
 			m_FrameIndex = i;
@@ -594,7 +596,7 @@ namespace Insight {
 		if (m_pSwapChain->GetFullscreenState(&fs, NULL))
 			m_pSwapChain->SetFullscreenState(false, NULL);
 
-		COM_SAFE_RELEASE(m_pDevice);
+		/*COM_SAFE_RELEASE(m_pDevice);
 		COM_SAFE_RELEASE(m_pSwapChain);
 		COM_SAFE_RELEASE(m_pCommandQueue);
 		COM_SAFE_RELEASE(m_pRtvDescriptorHeap);
@@ -602,12 +604,12 @@ namespace Insight {
 		COM_SAFE_RELEASE(m_pPipelineStateObject_Default);
 		COM_SAFE_RELEASE(m_pRootSignature_Default);
 		COM_SAFE_RELEASE(m_pVertexBuffer);
-
+*/
 		for (int i = 0; i < m_FrameBufferCount; i++)
 		{
-			COM_SAFE_RELEASE(m_pRenderTargets[i]);
+			/*COM_SAFE_RELEASE(m_pRenderTargets[i]);
 			COM_SAFE_RELEASE(m_pCommandAllocators[i]);
-			COM_SAFE_RELEASE(m_pFence[i]);
+			COM_SAFE_RELEASE(m_pFence[i]);*/
 		}
 
 	}

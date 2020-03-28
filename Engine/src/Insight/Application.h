@@ -16,6 +16,7 @@ namespace Insight {
 		virtual ~Application();
 
 		void Run();
+		void Shutdown();
 
 		void OnEvent(Event& e);
 
@@ -29,10 +30,10 @@ namespace Insight {
 		inline static Application& Get() { return *s_Instance; }
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
+	private:
 		std::unique_ptr<Window> m_pWindow;
 		bool m_Running = true;
 		LayerStack m_LayerStack;
-
 	private:
 		static Application* s_Instance;
 	};

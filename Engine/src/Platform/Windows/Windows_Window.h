@@ -26,6 +26,7 @@ namespace Insight {
 		virtual ~WindowsWindow();
 
 		virtual void OnUpdate() override;
+		virtual void Shutdown() override;
 
 		inline uint32_t GetWidth() const override { return m_Data.Width; }
 		inline uint32_t GetHeight() const override { return m_Data.Height; }
@@ -46,7 +47,6 @@ namespace Insight {
 		inline void SetWindowsApplicationInstance(HINSTANCE& hInstance) { m_WindowsAppInstance = &hInstance; }
 		inline void SetCmdArgs(int nCmdShow) { m_nCmdShowArgs = nCmdShow; }
 		void RegisterWindowClass();
-		virtual void Shutdown();
 	private:
 		RenderingContext* m_RendererContext;
 

@@ -25,10 +25,11 @@ namespace Insight {
 		virtual bool Init() override;
 		virtual void RenderFrame() override;
 		virtual void SwapBuffers() override;
+
 	private:
 		// Per-Frame
-		void WaitForPreviousFrame();
 		void PopulateCommandLists();
+		void WaitForPreviousFrame();
 
 		// D3D12 Initialize
 		void CreateDXGIFactory();
