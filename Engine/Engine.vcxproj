@@ -185,6 +185,7 @@
     <ClInclude Include="src\Insight\Input\InputBuffer.h" />
     <ClInclude Include="src\Insight\Input\Keyboard_Buffer.h" />
     <ClInclude Include="src\Insight\Input\Mouse_Buffer.h" />
+    <ClInclude Include="src\Insight\Input\Windows_Input.h" />
     <ClInclude Include="src\Insight\Layer.h" />
     <ClInclude Include="src\Insight\Layer_Stack.h" />
     <ClInclude Include="src\Insight\Log.h" />
@@ -193,29 +194,29 @@
     <ClInclude Include="src\Insight\Window.h" />
     <ClInclude Include="src\Platform\DirectX12\ConstantBuffersPerObject_TEMP.h" />
     <ClInclude Include="src\Platform\DirectX12\ConstantBuffers_TEMP.h" />
-    <ClInclude Include="src\Platform\DirectX12\DX12_App.h" />
+    <ClInclude Include="src\Platform\DirectX12\D3D_Api.h" />
     <ClInclude Include="src\Platform\DirectX12\Direct3D12_Context.h" />
     <ClInclude Include="src\Platform\Windows\Console_Window.h" />
+    <ClInclude Include="src\Platform\Windows\Error\COM_Exception.h" />
     <ClInclude Include="src\Platform\Windows\Windows_Window.h" />
     <ClInclude Include="src\ie_pch.h" />
-    <ClInclude Include="src\Insight\Input\Windows_Input.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Insight\Application.cpp" />
     <ClCompile Include="src\Insight\Input\Keyboard_Buffer.cpp" />
     <ClCompile Include="src\Insight\Input\Mouse_Buffer.cpp" />
+    <ClCompile Include="src\Insight\Input\Windows_Input.cpp" />
     <ClCompile Include="src\Insight\Layer.cpp" />
     <ClCompile Include="src\Insight\Layer_Stack.cpp" />
     <ClCompile Include="src\Insight\Log.cpp" />
     <ClCompile Include="src\Insight\Utilities\String_Helper.cpp" />
-    <ClCompile Include="src\Platform\DirectX12\DX12_App.cpp" />
+    <ClCompile Include="src\Platform\DirectX12\D3D_Api.cpp" />
     <ClCompile Include="src\Platform\DirectX12\Direct3D12_Context.cpp" />
     <ClCompile Include="src\Platform\Windows\Console_Window.cpp" />
     <ClCompile Include="src\Platform\Windows\Windows_Window.cpp" />
     <ClCompile Include="src\ie_pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\Insight\Input\Windows_Input.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

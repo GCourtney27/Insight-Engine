@@ -155,12 +155,14 @@ namespace Insight {
 		}
 		case WM_MOVE:
 		{
-			IE_CORE_INFO("Window is moving");
+			// Stop rendering
+			//IE_CORE_INFO("Window is moving");
 			return 0;
 		}
 		case WM_SIZE:
 		{
 			IE_CORE_INFO("Window resize has begun");
+			
 			if(wParam & SIZE_MINIMIZED)
 				// Window has beein minimized stop rendering momentarily becasue we cannot see the result
 
@@ -183,7 +185,6 @@ namespace Insight {
 
 	void WindowsWindow::Init(const WindowProps & props)
 	{
-
 		RegisterWindowClass();
 
 		int centerScreenX = GetSystemMetrics(SM_CXSCREEN) / 2 - m_Data.Width / 2;
@@ -197,25 +198,25 @@ namespace Insight {
 
 
 		m_WindowHandle = CreateWindowEx(
-			0,															// Window Styles
-			m_Data.WindowClassName_wide.c_str(),						// Window Class
-			m_Data.WindowTitle_wide.c_str(),							// Window Title
-			WS_OVERLAPPEDWINDOW,										// Window Style
+			0,									// Window Styles
+			m_Data.WindowClassName_wide.c_str(),// Window Class
+			m_Data.WindowTitle_wide.c_str(),	// Window Title
+			WS_OVERLAPPEDWINDOW,				// Window Style
 
 			wr.left,	    // Start X
 			wr.top,	// Start Y
-			wr.right - wr.left,												// Width
-			wr.bottom - wr.top,												// Height
+			wr.right - wr.left,					// Width
+			wr.bottom - wr.top,					// Height
 
-			NULL,														// Parent window
-			NULL,														// Menu
-			*m_WindowsAppInstance,										// Current Windows program application instance passed from WinMain
-			&m_Data														// Additional application data
+			NULL,								// Parent window
+			NULL,								// Menu
+			*m_WindowsAppInstance,				// Current Windows program application instance passed from WinMain
+			&m_Data								// Additional application data
 		);
 
 		if (m_WindowHandle == NULL)
 		{
-			IE_ERROR("Unable to create windows window.");
+			IE_ERROR("Unable to create Windows window.");
 			IE_ERROR("    Error: {0}", GetLastError());
 			exit(-1);
 		}
@@ -224,8 +225,7 @@ namespace Insight {
 		SetForegroundWindow(m_WindowHandle);
 		SetFocus(m_WindowHandle);
 
-		m_Context = new Direct3D12Context(&m_WindowHandle, m_Data.Width, m_Data.Height);
-		m_Context->Init();
+		m_RendererContext = new Direct3D12Context(&m_WindowHandle, m_Data.Width, m_Data.Height);
 
 	}
 
@@ -250,8 +250,6 @@ namespace Insight {
 		{
 			IE_CORE_ERROR("An error occured while registering window class: {0} ", m_Data.WindowClassName);
 			IE_CORE_ERROR("    Error: {1}", error);
-			Shutdown();
-			exit(-1);
 		}
 	}
 
@@ -297,9 +295,9 @@ namespace Insight {
 	{
 		ProccessWindowMessages();
 
-		m_Context->RenderFrame();
+		m_RendererContext->RenderFrame();
 
-		m_Context->SwapBuffers();
+		m_RendererContext->SwapBuffers();
 	}
 
 	void * WindowsWindow::GetNativeWindow() const
@@ -309,11 +307,14 @@ namespace Insight {
 
 	void WindowsWindow::SetVSync(bool enabled)
 	{
+		IE_CORE_INFO("V-sync: " + enabled ? "enabled" : "disabled");
+		m_Data.VSyncEnabled = enabled;
+		m_RendererContext->SetVSyncEnabled(m_Data.VSyncEnabled);
 	}
 
 	bool WindowsWindow::IsVsyncActive() const
 	{
-		return false;
+		return m_Data.VSyncEnabled;
 	}
 
 	void WindowsWindow::Shutdown()
@@ -324,6 +325,9 @@ namespace Insight {
 			UnregisterClass(this->m_Data.WindowClassName_wide.c_str(), *m_WindowsAppInstance);
 			DestroyWindow(m_WindowHandle);
 		}
+
+		//delete m_RendererContext;
+		
 	}
 
 }

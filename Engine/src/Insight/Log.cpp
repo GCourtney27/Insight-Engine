@@ -8,7 +8,9 @@ namespace Insight {
 
 	std::shared_ptr<spdlog::logger> Log::s_CoreLogger;
 	std::shared_ptr<spdlog::logger> Log::s_ClientLogger;
+#ifdef IE_DEBUG
 	ConsoleWindow Log::m_ConsoleWindow;
+#endif
 
 	void Log::Init()
 	{

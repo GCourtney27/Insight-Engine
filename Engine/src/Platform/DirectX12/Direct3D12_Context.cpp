@@ -5,63 +5,47 @@
 using namespace Microsoft::WRL;
 
 namespace Insight {
-	
+
 
 
 	Direct3D12Context::Direct3D12Context(HWND * windowHandle, uint32_t windowWidth, uint32_t windowHeight)
-		: m_WindowHandle(windowHandle), RenderingContext(windowWidth, windowHeight)
+		: m_WindowHandle(windowHandle), RenderingContext(windowWidth, windowHeight, false)
 	{
 		IE_CORE_ASSERT(windowHandle, "Window handle is NULL!");
+		Init();
 	}
 
 	Direct3D12Context::~Direct3D12Context()
 	{
-	}
-
-	void Direct3D12Context::OnUpdate()
-	{
+		Cleanup();
 	}
 
 	void Direct3D12Context::Init()
 	{
-		UINT dxgiFactoryFlags = 0;
 
-#ifdef _DEBUG
-		ComPtr<ID3D12Debug> debugController;
-		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
-		{
-			debugController->EnableDebugLayer();
-			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+		try {
+			CreateDXGIFactory();
+			CreateDevice();
+			CreateCommandQueue();
+			CreateSwapChain();
+			CreateRTVDescriptorHeap();
+			CreateCommandAllocators();
+			CreateFenceEvent();
+			//CreateRootSignature();
+
+			//TODO: Move shader creation to shader class
+			//InitShaders();
 		}
-#endif // _DEBUG
-
-		ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&m_DxgiFactory)));
-
-		if (m_UseWarpDevice)
-		{
-			ComPtr<IDXGIAdapter> warpAdapter;
-			ThrowIfFailed(m_DxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter)));
-
-			ThrowIfFailed(D3D12CreateDevice(warpAdapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&m_Device)));
+		catch (COMException& ex) {
+			COM_SAFE_RELEASE(m_pDxgiFactory);
+			Cleanup();
+			MessageBox(*m_WindowHandle, ex.what(), L"Error", MB_OK);
 		}
-		else
-		{
-			ComPtr<IDXGIAdapter1> hardwareAdapter;
-			GetHardwareAdapter(m_DxgiFactory.Get(), &hardwareAdapter);
 
-			ThrowIfFailed(D3D12CreateDevice(hardwareAdapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&m_Device)));
-		}
-		
-		CreateCommandQueue();
-		CreateSwapChain();
-		CreateRTVDescriptorHeap();
-		CreateCommandAllocators();
-		CreateFenceEvent();
-		//CreateRootSignature();
+	}
 
-		//TODO: Move shader creation to shader class
-		//InitShaders();
-
+	void Direct3D12Context::OnUpdate()
+	{
 	}
 
 	void Direct3D12Context::WaitForPreviousFrame()
@@ -69,25 +53,23 @@ namespace Insight {
 		HRESULT hr;
 
 		// swap the current rtv buffer index so we draw on the correct buffer
-		m_FrameIndex = m_SwapChain->GetCurrentBackBufferIndex();
+		m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 
 		// if the current fence value is still less than "fenceValue", then we know the GPU has not finished executing
 		// the command queue since it has not reached the "commandQueue->Signal(fence, fenceValue)" command
-		if (m_Fence[m_FrameIndex]->GetCompletedValue() < m_FenceValue[m_FrameIndex])
+		if (m_pFence[m_FrameIndex]->GetCompletedValue() < m_FenceValue[m_FrameIndex])
 		{
 			// we have the fence create an event which is signaled once the fence's current value is "fenceValue"
-			hr = m_Fence[m_FrameIndex]->SetEventOnCompletion(m_FenceValue[m_FrameIndex], m_FenceEvent);
+			hr = m_pFence[m_FrameIndex]->SetEventOnCompletion(m_FenceValue[m_FrameIndex], m_FenceEvent);
 			if (FAILED(hr))
-			{
 				throw std::exception();
-			}
 
 			// We will wait until the fence has triggered the event that it's current value has reached "fenceValue". once it's value
 			// has reached "fenceValue", we know the command queue has finished executing
 			WaitForSingleObject(m_FenceEvent, INFINITE);
+			//RenderFrame();
 		}
 
-		// increment fenceValue for next frame
 		m_FenceValue[m_FrameIndex]++;
 	}
 
@@ -96,56 +78,56 @@ namespace Insight {
 		HRESULT hr;
 
 		WaitForPreviousFrame();
-		hr = m_CommandAllocators[m_FrameIndex]->Reset();
+		hr = m_pCommandAllocators[m_FrameIndex]->Reset();
 		if (FAILED(hr))
 		{
 			throw std::exception();
 		}
 
-		hr = m_CommandList->Reset(m_CommandAllocators[m_FrameIndex].Get(), NULL);
+		hr = m_pCommandList->Reset(m_pCommandAllocators[m_FrameIndex].Get(), NULL);
 		if (FAILED(hr))
 		{
 			throw std::exception();
 		}
 
-		m_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_RenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
-		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_RtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), m_FrameIndex, m_RtvDescriptorSize);
+		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_pRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), m_FrameIndex, m_RtvDescriptorSize);
 
-		m_CommandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+		m_pCommandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 
 		const float clearColor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
-		m_CommandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+		m_pCommandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 
-		m_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_RenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
-		hr = m_CommandList->Close();
+		hr = m_pCommandList->Close();
 		if (FAILED(hr))
 		{
 			throw std::exception();
 		}
 
 	}
-	
+
 	void Direct3D12Context::RenderFrame()
 	{
 		HRESULT hr;
 
 		UpdatePipeline();
 
-		ID3D12CommandList* ppCommandLists[] = { m_CommandList.Get() };
+		ID3D12CommandList* ppCommandLists[] = { m_pCommandList.Get() };
 
-		m_CommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
-		hr = m_CommandQueue->Signal(m_Fence[m_FrameIndex].Get(), m_FenceValue[m_FrameIndex]);
+		hr = m_pCommandQueue->Signal(m_pFence[m_FrameIndex].Get(), m_FenceValue[m_FrameIndex]);
 
 	}
 
 	void Direct3D12Context::SwapBuffers()
 	{
-		HRESULT hr = m_SwapChain->Present(0, 0);
+		m_pSwapChain->Present(m_VSyncEnabled, 0);
 	}
-	
+
 	void Direct3D12Context::CreateSwapChain()
 	{
 		HRESULT hr;
@@ -166,19 +148,19 @@ namespace Insight {
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		swapChainDesc.SampleDesc = sampleDesc;
 		Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain{};
-		hr = m_DxgiFactory->CreateSwapChainForHwnd(m_CommandQueue.Get(), *m_WindowHandle, &swapChainDesc, nullptr, nullptr, &swapChain);
+		hr = m_pDxgiFactory->CreateSwapChainForHwnd(m_pCommandQueue.Get(), *m_WindowHandle, &swapChainDesc, nullptr, nullptr, &swapChain);
 		if (FAILED(hr)) {
 			MessageBox(0, L"Failed to Create Swap Chain", L"Error", MB_OK);
 		}
-		hr = m_DxgiFactory->MakeWindowAssociation(*m_WindowHandle, DXGI_MWA_NO_ALT_ENTER);
+		hr = m_pDxgiFactory->MakeWindowAssociation(*m_WindowHandle, DXGI_MWA_NO_ALT_ENTER);
 		if (FAILED(hr)) {
 			MessageBox(0, L"Failed to Make Window Association", L"Error", MB_OK);
 		}
-		hr = swapChain.As(&m_SwapChain);
+		hr = swapChain.As(&m_pSwapChain);
 		if (FAILED(hr)) {
 			MessageBox(0, L"Failed to Cast ComPtr", L"Error", MB_OK);
 		}
-		m_FrameIndex = m_SwapChain->GetCurrentBackBufferIndex();
+		m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 
 	}
 
@@ -189,23 +171,19 @@ namespace Insight {
 		rtvHeapDesc.NumDescriptors = m_FrameBufferCount;
 		rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 		rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		hr = m_Device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_RtvDescriptorHeap));
-		if (FAILED(hr))
-		{
-			MessageBox(0, L"Failed to Create Descriptor Heap", L"Error", MB_OK);
-		}
-		m_RtvDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-		
-		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_RtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+		hr = m_pDevice->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_pRtvDescriptorHeap));
+		COM_ERROR_IF_FAILED(hr, "Failed to Create Descriptor Heap");
+
+		m_RtvDescriptorSize = m_pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_pRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
 		for (int i = 0; i < m_FrameBufferCount; i++)
 		{
-			hr = m_SwapChain->GetBuffer(i, IID_PPV_ARGS(&m_RenderTargets[i]));
-			if (FAILED(hr))
-			{
-				MessageBox(0, L"Failed to Initialize Render Targets", L"Error", MB_OK);
-			}
-			m_Device->CreateRenderTargetView(m_RenderTargets[i].Get(), nullptr, rtvHandle);
+			hr = m_pSwapChain->GetBuffer(i, IID_PPV_ARGS(&m_pRenderTargets[i]));
+			COM_ERROR_IF_FAILED(hr, "Failed to initialize Render Targets");
+
+			m_pDevice->CreateRenderTargetView(m_pRenderTargets[i].Get(), nullptr, rtvHandle);
 
 			rtvHandle.Offset(1, m_RtvDescriptorSize);
 		}
@@ -217,21 +195,14 @@ namespace Insight {
 		HRESULT hr;
 		for (int i = 0; i < m_FrameBufferCount; i++)
 		{
-			hr = m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_CommandAllocators[i]));
-			if (FAILED(hr))
-			{
-				MessageBox(0, L"Failed to Create Command Allocator", L"Error", MB_OK);
-			}
+			hr = m_pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pCommandAllocators[i]));
+			COM_ERROR_IF_FAILED(hr, "Failed to Create Command Allocator");
 		}
 
-		hr = m_Device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_CommandList));
-		if (FAILED(hr))
-		{
-			MessageBox(0, L"Failed to Create Command List", L"Error", MB_OK);
-		}
+		hr = m_pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pCommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pCommandList));
+		COM_ERROR_IF_FAILED(hr, "Failed to Create Command List");
 
-		m_CommandList->Close();
-
+		m_pCommandList->Close();
 	}
 
 	void Direct3D12Context::CreateFenceEvent()
@@ -239,19 +210,15 @@ namespace Insight {
 		HRESULT hr;
 		for (int i = 0; i < m_FrameBufferCount; i++)
 		{
-			hr = m_Device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence[i]));
-			if (FAILED(hr))
-			{
-				MessageBox(0, L"Failed to Create Fence", L"Error", MB_OK);
-			}
+			hr = m_pDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pFence[i]));
+			COM_ERROR_IF_FAILED(hr, "Failed to create Fence on index" + std::to_string(i));
+
 			m_FenceValue[i] = 0;
 		}
 
 		m_FenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 		if (m_FenceEvent == nullptr)
-		{
-			MessageBox(0, L"Fence Event was nullptr", L"Error", MB_OK);
-		}
+			THROW_COM_ERROR("Fence Event was nullptr");
 	}
 
 	void Direct3D12Context::CreateRootSignature()
@@ -263,23 +230,23 @@ namespace Insight {
 		rootCBVDescriptor.ShaderRegister = 0;
 
 		D3D12_DESCRIPTOR_RANGE descriptorTableRanges[1];
-		descriptorTableRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV; 
-		descriptorTableRanges[0].NumDescriptors = 1; 
-		descriptorTableRanges[0].BaseShaderRegister = 0; 
-		descriptorTableRanges[0].RegisterSpace = 0; 
-		descriptorTableRanges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND; 
+		descriptorTableRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+		descriptorTableRanges[0].NumDescriptors = 1;
+		descriptorTableRanges[0].BaseShaderRegister = 0;
+		descriptorTableRanges[0].RegisterSpace = 0;
+		descriptorTableRanges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 		D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable;
-		descriptorTable.NumDescriptorRanges = _countof(descriptorTableRanges); 
+		descriptorTable.NumDescriptorRanges = _countof(descriptorTableRanges);
 		descriptorTable.pDescriptorRanges = &descriptorTableRanges[0];
 
-		D3D12_ROOT_PARAMETER rootPerameters[2]; 
-		rootPerameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; 
+		D3D12_ROOT_PARAMETER rootPerameters[2];
+		rootPerameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 		rootPerameters[0].Descriptor = rootCBVDescriptor;
 		rootPerameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-																			 
+
 		rootPerameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-		rootPerameters[1].DescriptorTable = descriptorTable; 
+		rootPerameters[1].DescriptorTable = descriptorTable;
 		rootPerameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 		D3D12_STATIC_SAMPLER_DESC sampler = {};
@@ -314,7 +281,7 @@ namespace Insight {
 		{
 			MessageBox(0, L"Failed to Serialize Root Signature", L"Error", MB_OK);
 		}
-		hr = m_Device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_RootSignature));
+		hr = m_pDevice->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature));
 		if (FAILED(hr))
 		{
 			MessageBox(0, L"Failed to create root signature", L"Error", MB_OK);
@@ -396,15 +363,39 @@ namespace Insight {
 
 	void Direct3D12Context::CreateCommandQueue()
 	{
-		HRESULT hr;
 		D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 		queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 		queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-		hr = m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_CommandQueue));
-		if (FAILED(hr)) {
-			MessageBox(0, L"Failed to Create Command Queue", L"Error", MB_OK);
 
+		HRESULT hr = m_pDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_pCommandQueue));
+		COM_ERROR_IF_FAILED(hr, "Failed to Create Command Queue");
+	}
+
+	void Direct3D12Context::CreateDevice()
+	{
+		HRESULT hr;
+		ComPtr<IDXGIAdapter1> hardwareAdapter;
+		GetHardwareAdapter(m_pDxgiFactory.Get(), &hardwareAdapter);
+		hr = D3D12CreateDevice(hardwareAdapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&m_pDevice));
+		COM_ERROR_IF_FAILED(hr, "Failed to create hardware adapter.");
+	}
+
+	void Direct3D12Context::CreateDXGIFactory()
+	{
+		UINT dxgiFactoryFlags = 0;
+		// Enable debug layers
+#ifdef _DEBUG
+		ComPtr<ID3D12Debug> debugController;
+		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
+		{
+			debugController->EnableDebugLayer();
+			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 		}
+#endif
+
+		HRESULT hr = CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&m_pDxgiFactory));
+		COM_ERROR_IF_FAILED(hr, "Failed to create DXGI Factory");
+
 	}
 
 	void Direct3D12Context::GetHardwareAdapter(IDXGIFactory2 * pFactory, IDXGIAdapter1 ** ppAdapter)
@@ -418,15 +409,39 @@ namespace Insight {
 			adapter->GetDesc1(&desc);
 
 			if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
-			{
-				// We dont want software adapters
-				continue;
-			}
+				continue; // We dont use software adapters
 
 			if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), m_RayTraceEnabled ? D3D_FEATURE_LEVEL_12_1 : D3D_FEATURE_LEVEL_12_0, _uuidof(ID3D12Device), nullptr)))
 				break;
 		}
 		*ppAdapter = adapter.Detach();
+	}
+
+	void Direct3D12Context::Cleanup()
+	{
+		for (int i = 0; i < m_FrameBufferCount; i++)
+		{
+			m_FrameIndex = i;
+			WaitForPreviousFrame();
+		}
+
+		BOOL fs = false;
+		if (m_pSwapChain->GetFullscreenState(&fs, NULL))
+			m_pSwapChain->SetFullscreenState(false, NULL);
+
+		m_pDevice.Reset();
+		m_pSwapChain.Reset();
+		m_pCommandQueue.Reset();
+		m_pRtvDescriptorHeap.Reset();
+		m_pCommandList.Reset();
+
+		for (int i = 0; i < m_FrameBufferCount; i++)
+		{
+			m_pRenderTargets[i].Reset();
+			m_pCommandAllocators[i].Reset();
+			m_pFence->Reset();
+		}
+
 	}
 
 }

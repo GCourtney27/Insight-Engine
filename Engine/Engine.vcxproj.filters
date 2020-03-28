@@ -25,6 +25,9 @@
     <Filter Include="Platform\Windows">
       <UniqueIdentifier>{64FBD71A-50F4-F66C-7926-DCF1657ED678}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Platform\Windows\Error">
+      <UniqueIdentifier>{9D7D2B7E-8977-54D0-72E4-EAE05E7DBA3C}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Insight.h" />
@@ -61,6 +64,9 @@
     <ClInclude Include="src\Insight\Input\Mouse_Buffer.h">
       <Filter>Insight\Input</Filter>
     </ClInclude>
+    <ClInclude Include="src\Insight\Input\Windows_Input.h">
+      <Filter>Insight\Input</Filter>
+    </ClInclude>
     <ClInclude Include="src\Insight\Layer.h">
       <Filter>Insight</Filter>
     </ClInclude>
@@ -79,7 +85,13 @@
     <ClInclude Include="src\Insight\Window.h">
       <Filter>Insight</Filter>
     </ClInclude>
-    <ClInclude Include="src\Platform\DirectX12\DX12_App.h">
+    <ClInclude Include="src\Platform\DirectX12\ConstantBuffersPerObject_TEMP.h">
+      <Filter>Platform\DirectX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\DirectX12\ConstantBuffers_TEMP.h">
+      <Filter>Platform\DirectX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\DirectX12\D3D_Api.h">
       <Filter>Platform\DirectX12</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\DirectX12\Direct3D12_Context.h">
@@ -88,13 +100,13 @@
     <ClInclude Include="src\Platform\Windows\Console_Window.h">
       <Filter>Platform\Windows</Filter>
     </ClInclude>
+    <ClInclude Include="src\Platform\Windows\Error\COM_Exception.h">
+      <Filter>Platform\Windows\Error</Filter>
+    </ClInclude>
     <ClInclude Include="src\Platform\Windows\Windows_Window.h">
       <Filter>Platform\Windows</Filter>
     </ClInclude>
     <ClInclude Include="src\ie_pch.h" />
-    <ClInclude Include="src\Insight\Input\Windows_Input.h" />
-    <ClInclude Include="src\Platform\DirectX12\ConstantBuffers_TEMP.h" />
-    <ClInclude Include="src\Platform\DirectX12\ConstantBuffersPerObject_TEMP.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Insight\Application.cpp">
@@ -104,6 +116,9 @@
       <Filter>Insight\Input</Filter>
     </ClCompile>
     <ClCompile Include="src\Insight\Input\Mouse_Buffer.cpp">
+      <Filter>Insight\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Insight\Input\Windows_Input.cpp">
       <Filter>Insight\Input</Filter>
     </ClCompile>
     <ClCompile Include="src\Insight\Layer.cpp">
@@ -118,7 +133,7 @@
     <ClCompile Include="src\Insight\Utilities\String_Helper.cpp">
       <Filter>Insight\Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="src\Platform\DirectX12\DX12_App.cpp">
+    <ClCompile Include="src\Platform\DirectX12\D3D_Api.cpp">
       <Filter>Platform\DirectX12</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\DirectX12\Direct3D12_Context.cpp">
@@ -131,6 +146,5 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\ie_pch.cpp" />
-    <ClCompile Include="src\Insight\Input\Windows_Input.cpp" />
   </ItemGroup>
 </Project>

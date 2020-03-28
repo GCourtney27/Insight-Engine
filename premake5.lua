@@ -58,23 +58,27 @@ project "Engine"
 			"IE_PLATFORM_WINDOWS",
 			"IE_BUILD_DLL"
 		}
-
+	
+	-- Engine Development
 	filter "configurations:Debug"
 		defines "IE_DEBUG"
 		runtime "Debug"
 		symbols "on"
 	
+	-- Engine Release
 	filter "configurations:Release"
 		defines "IE_RELEASE"
 		runtime "Release"
 		optimize "on"
 		symbols "on"
-
+	
+	-- Full Engine Distribution, all performance logs and debugging windows stripped
 	filter "configurations:EngineDist"
 		defines "IE_ENGINE_DIST"
 		runtime "Release"
 		optimize "on"
-		
+	
+	-- Full Game Distribution, all engine debug tools(leel editors, editor user interfaces) stripped
 	filter "configurations:GameDist"
 		defines "IE_GAME_DIST"
 		runtime "Release"

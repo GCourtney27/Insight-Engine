@@ -17,7 +17,7 @@ public:
 
 	void OnEvent(Insight::Event& event) override
 	{
-		IE_INFO("{0}", event);
+		//IE_INFO("{0}", event);
 	}
 };
 

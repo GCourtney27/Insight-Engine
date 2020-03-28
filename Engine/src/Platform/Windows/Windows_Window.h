@@ -16,7 +16,7 @@ namespace Insight {
 			std::string WindowTitle = "Insight Engine";
 			std::wstring WindowTitle_wide;
 			uint32_t Width, Height;
-			bool VSyncEnabled;
+			bool VSyncEnabled = true;
 
 			EventCallbackFn EventCallback;
 		};
@@ -48,7 +48,7 @@ namespace Insight {
 		void RegisterWindowClass();
 		virtual void Shutdown();
 	private:
-		RenderingContext* m_Context;
+		RenderingContext* m_RendererContext;
 
 		HWND m_WindowHandle;
 		HINSTANCE* m_WindowsAppInstance;
