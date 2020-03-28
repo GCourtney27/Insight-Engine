@@ -183,7 +183,7 @@ namespace Insight {
 
 	}
 
-	void WindowsWindow::Init(const WindowProps & props)
+	bool WindowsWindow::Init(const WindowProps & props)
 	{
 		RegisterWindowClass();
 
@@ -203,8 +203,8 @@ namespace Insight {
 			m_Data.WindowTitle_wide.c_str(),	// Window Title
 			WS_OVERLAPPEDWINDOW,				// Window Style
 
-			wr.left,	    // Start X
-			wr.top,	// Start Y
+			wr.left,							// Start X
+			wr.top,								// Start Y
 			wr.right - wr.left,					// Width
 			wr.bottom - wr.top,					// Height
 
@@ -225,8 +225,12 @@ namespace Insight {
 		SetForegroundWindow(m_WindowHandle);
 		SetFocus(m_WindowHandle);
 
-		m_RendererContext = new Direct3D12Context(&m_WindowHandle, m_Data.Width, m_Data.Height);
-
+		m_RendererContext = new Direct3D12Context(this);
+		if (!m_RendererContext->Init())
+		{
+			IE_CORE_ERROR("Failed to initialize graphics context");
+			return false;
+		}
 	}
 
 	void WindowsWindow::RegisterWindowClass()

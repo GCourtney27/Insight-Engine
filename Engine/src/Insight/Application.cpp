@@ -23,7 +23,11 @@ namespace Insight {
 		m_pWindow->SetEventCallback(IE_BIND_EVENT_FN(Application::OnEvent));
 
 		static_cast<WindowsWindow*>(m_pWindow.get())->SetWindowsSessionProps(hInstance, nCmdShow);
-		static_cast<WindowsWindow*>(m_pWindow.get())->Init(WindowProps());
+		if (!static_cast<WindowsWindow*>(m_pWindow.get())->Init(WindowProps()))
+		{
+			IE_CORE_ERROR("Fatal Error: Failed to initialize window. Exiting.");
+			exit(-1);
+		}
 
 	}
 

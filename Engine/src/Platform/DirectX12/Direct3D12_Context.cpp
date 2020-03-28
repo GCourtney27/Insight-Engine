@@ -1,6 +1,7 @@
 #include "ie_pch.h"
 
 #include "Direct3D12_Context.h"
+#include "Platform/Windows/Windows_Window.h"
 
 using namespace Microsoft::WRL;
 
@@ -8,11 +9,10 @@ namespace Insight {
 
 
 
-	Direct3D12Context::Direct3D12Context(HWND * windowHandle, uint32_t windowWidth, uint32_t windowHeight)
-		: m_WindowHandle(windowHandle), RenderingContext(windowWidth, windowHeight, false)
+	Direct3D12Context::Direct3D12Context(WindowsWindow* windowHandle)
+		: m_pWindowHandle(&windowHandle->GetWindowHandleReference()), m_pWindow(windowHandle), RenderingContext(windowHandle->GetWidth(), windowHandle->GetHeight(), false)
 	{
 		IE_CORE_ASSERT(windowHandle, "Window handle is NULL!");
-		Init();
 	}
 
 	Direct3D12Context::~Direct3D12Context()
@@ -20,9 +20,8 @@ namespace Insight {
 		Cleanup();
 	}
 
-	void Direct3D12Context::Init()
+	bool Direct3D12Context::Init()
 	{
-
 		try {
 			CreateDXGIFactory();
 			CreateDevice();
@@ -33,17 +32,19 @@ namespace Insight {
 			CreateFenceEvent();
 			CreatePipelineStateObjects();
 			//CreateRootSignature();
+			CreateViewport();
+			CreateScissorRect();
 
 			//TODO: Move shader creation to shader class
 			//InitShaders();
 		}
 		catch (COMException& ex) {
 			COM_SAFE_RELEASE(m_pDxgiFactory);
-			MessageBox(*m_WindowHandle, ex.what(), L"Error", MB_OK);
+			MessageBox(*m_pWindowHandle, ex.what(), L"Error", MB_OK);
 			//Cleanup();
-			exit(-1);
+			return false;
 		}
-
+		return true;
 	}
 
 	void Direct3D12Context::OnUpdate()
@@ -86,7 +87,7 @@ namespace Insight {
 			throw std::exception();
 		}
 
-		hr = m_pCommandList->Reset(m_pCommandAllocators[m_FrameIndex].Get(), NULL);
+		hr = m_pCommandList->Reset(m_pCommandAllocators[m_FrameIndex].Get(), m_pPipelineStateObject_Default.Get());
 		if (FAILED(hr))
 		{
 			throw std::exception();
@@ -100,6 +101,13 @@ namespace Insight {
 
 		const float clearColor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
 		m_pCommandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+
+		m_pCommandList->SetGraphicsRootSignature(m_pRootSignature_Default.Get());
+		m_pCommandList->RSSetViewports(1, &m_ViewPort);
+		m_pCommandList->RSSetScissorRects(1, &m_ScissorRect);
+		m_pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);
+		m_pCommandList->DrawInstanced(3, 1, 0, 0);
 
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
@@ -135,26 +143,26 @@ namespace Insight {
 		HRESULT hr;
 
 		DXGI_MODE_DESC backBufferDesc = {};
-		backBufferDesc.Width = m_WindowWidth;
-		backBufferDesc.Height = m_WindowHeight;
+		backBufferDesc.Width = m_pWindow->GetWidth();
+		backBufferDesc.Height = m_pWindow->GetHeight();
 
-		DXGI_SAMPLE_DESC sampleDesc = {};
-		sampleDesc.Count = 1;
+		m_SampleDesc = {};
+		m_SampleDesc.Count = 1;
 
 		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
 		swapChainDesc.BufferCount = m_FrameBufferCount;
-		swapChainDesc.Width = m_WindowWidth;
-		swapChainDesc.Height = m_WindowHeight;
+		swapChainDesc.Width = m_pWindow->GetWidth();
+		swapChainDesc.Height = m_pWindow->GetHeight();
 		swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		swapChainDesc.SampleDesc = sampleDesc;
+		swapChainDesc.SampleDesc = m_SampleDesc;
 		Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain{};
-		hr = m_pDxgiFactory->CreateSwapChainForHwnd(m_pCommandQueue.Get(), *m_WindowHandle, &swapChainDesc, nullptr, nullptr, &swapChain);
+		hr = m_pDxgiFactory->CreateSwapChainForHwnd(m_pCommandQueue.Get(), *m_pWindowHandle, &swapChainDesc, nullptr, nullptr, &swapChain);
 		if (FAILED(hr)) {
 			MessageBox(0, L"Failed to Create Swap Chain", L"Error", MB_OK);
 		}
-		hr = m_pDxgiFactory->MakeWindowAssociation(*m_WindowHandle, DXGI_MWA_NO_ALT_ENTER);
+		hr = m_pDxgiFactory->MakeWindowAssociation(*m_pWindowHandle, DXGI_MWA_NO_ALT_ENTER);
 		if (FAILED(hr)) {
 			MessageBox(0, L"Failed to Make Window Association", L"Error", MB_OK);
 		}
@@ -204,7 +212,6 @@ namespace Insight {
 		hr = m_pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pCommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pCommandList));
 		COM_ERROR_IF_FAILED(hr, "Failed to Create Command List");
 
-		m_pCommandList->Close();
 	}
 
 	void Direct3D12Context::CreateFenceEvent()
@@ -239,12 +246,12 @@ namespace Insight {
 		// TODO: Make Shader class
 		// TODO: Move this to the shader class
 		// Compile vertex shader // TEMP//
-
+#pragma region Make this a Vertex class
 		// Note: Searches for shaders relative to Application.vcxproj
 		ID3DBlob* pVertexShader = 0;
 		ID3DBlob* pErrorBuffer = 0;
 		//TODO: make a file system search for this relative sahder path in client
-		// The client should be able to create their own shaders
+		// The client should be able to edit and create their own shaders
 		hr = D3DCompileFromFile(L"src/Shaders/ForwardRendering/Shader_Vertex.hlsl",
 			nullptr,
 			nullptr,
@@ -259,9 +266,9 @@ namespace Insight {
 			COM_ERROR_IF_FAILED(hr, "Failed to compile Vertex Shader check log for more details.");
 			IE_CORE_ERROR("Vertex Shader compilation error: {0}", (char*)pErrorBuffer->GetBufferPointer());
 		}
-		D3D12_SHADER_BYTECODE vertexShaderByteCode = {};
-		vertexShaderByteCode.BytecodeLength = pVertexShader->GetBufferSize();
-		vertexShaderByteCode.pShaderBytecode = pVertexShader->GetBufferPointer();
+		D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
+		vertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
+		vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
 		// Compile pixel shader // TEMP//
 		// create vertex and pixel shaders
 		ID3DBlob* pixelShader;
@@ -282,6 +289,83 @@ namespace Insight {
 		D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
 		pixelShaderBytecode.BytecodeLength = pixelShader->GetBufferSize();
 		pixelShaderBytecode.pShaderBytecode = pixelShader->GetBufferPointer();
+
+		// Create Input layout 
+		D3D12_INPUT_ELEMENT_DESC inputLayout[] =
+		{
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		};
+
+		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
+		inputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
+		inputLayoutDesc.pInputElementDescs = inputLayout;
+#pragma endregion
+
+		// Create Pipeline State Object
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {}; 
+		psoDesc.InputLayout = inputLayoutDesc; 
+		psoDesc.pRootSignature = m_pRootSignature_Default.Get();
+		psoDesc.VS = vertexShaderBytecode; 
+		psoDesc.PS = pixelShaderBytecode; 
+		psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE; 
+		psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; 
+		psoDesc.SampleDesc = m_SampleDesc; 
+		psoDesc.SampleMask = 0xffffffff; 
+		psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT); 
+		psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		psoDesc.NumRenderTargets = 1;
+
+		hr = m_pDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(m_pPipelineStateObject_Default.GetAddressOf()));
+		COM_ERROR_IF_FAILED(hr, "Failed to create default Pipeline State Object");
+
+		// TODO Make model class
+		// TODO: move thi to the model class
+		Vertex vList[] = {
+			{ { 0.0f, 0.5f, 0.5f } },
+			{ { 0.5f, -0.5f, 0.5f } },
+			{ { -0.5f, -0.5f, 0.5f } }
+		};
+		int vBufferSize = sizeof(vList);
+
+		hr = m_pDevice->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+			D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Buffer(vBufferSize),
+			D3D12_RESOURCE_STATE_COPY_DEST,
+			nullptr,
+			IID_PPV_ARGS(&m_pVertexBuffer));
+		m_pVertexBuffer->SetName(L"Vertex Buffer Resource Heap");
+		COM_ERROR_IF_FAILED(hr, "Failed to upload vertex buffer resource heap");
+
+		hr = m_pDevice->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+			D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Buffer(vBufferSize),
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(&m_pVBufferUploadHeap));
+		m_pVBufferUploadHeap->SetName(L"Vertex Buffer Upload Resource Heap");
+		COM_ERROR_IF_FAILED(hr, "Failed to upload vertex buffer heap");
+
+		D3D12_SUBRESOURCE_DATA vertexData = {};
+		vertexData.pData = reinterpret_cast<BYTE*>(vList);
+		vertexData.RowPitch = vBufferSize;
+		vertexData.SlicePitch = vBufferSize;
+
+		UpdateSubresources(m_pCommandList.Get(), m_pVertexBuffer.Get(), m_pVBufferUploadHeap.Get(), 0, 0, 1, &vertexData);
+
+		m_pCommandList->Close();
+		ID3D12CommandList* ppCommandLists[] = { m_pCommandList.Get() };
+		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+
+		m_FenceValue[m_FrameIndex]++;
+		hr = m_pCommandQueue->Signal(m_pFence->GetAddressOf()[m_FrameIndex], m_FenceValue[m_FrameIndex]);
+		COM_ERROR_IF_FAILED(hr, "Failed to signal command queue when uploading vertex buffer");
+
+		m_VertexBufferView.BufferLocation = m_pVertexBuffer->GetGPUVirtualAddress();
+		m_VertexBufferView.StrideInBytes= sizeof(Vertex);
+		m_VertexBufferView.SizeInBytes = vBufferSize;
+
 	}
 
 	void Direct3D12Context::CreateRootSignature()
@@ -344,11 +428,29 @@ namespace Insight {
 		{
 			MessageBox(0, L"Failed to Serialize Root Signature", L"Error", MB_OK);
 		}
-		hr = m_pDevice->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature));
+		hr = m_pDevice->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature_Default));
 		if (FAILED(hr))
 		{
 			MessageBox(0, L"Failed to create root signature", L"Error", MB_OK);
 		}
+	}
+
+	void Direct3D12Context::CreateViewport()
+	{
+		m_ViewPort.TopLeftX = 0;
+		m_ViewPort.TopLeftY = 0;
+		m_ViewPort.Width = m_pWindow->GetWidth();
+		m_ViewPort.Height = m_pWindow->GetHeight();
+		m_ViewPort.MinDepth = 0.0f;
+		m_ViewPort.MaxDepth = 1.0f;
+	}
+
+	void Direct3D12Context::CreateScissorRect()
+	{
+		m_ScissorRect.left = 0;
+		m_ScissorRect.top = 0;
+		m_ScissorRect.right = m_pWindow->GetWidth();
+		m_ScissorRect.bottom = m_pWindow->GetHeight();
 	}
 
 	void Direct3D12Context::InitShaders()
@@ -439,7 +541,7 @@ namespace Insight {
 		HRESULT hr;
 		ComPtr<IDXGIAdapter1> hardwareAdapter;
 		GetHardwareAdapter(m_pDxgiFactory.Get(), &hardwareAdapter);
-		hr = D3D12CreateDevice(hardwareAdapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&m_pDevice));
+		hr = D3D12CreateDevice(hardwareAdapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&m_pDevice));
 		COM_ERROR_IF_FAILED(hr, "Failed to create hardware adapter.");
 	}
 
@@ -492,17 +594,20 @@ namespace Insight {
 		if (m_pSwapChain->GetFullscreenState(&fs, NULL))
 			m_pSwapChain->SetFullscreenState(false, NULL);
 
-		m_pDevice.Reset();
-		m_pSwapChain.Reset();
-		m_pCommandQueue.Reset();
-		m_pRtvDescriptorHeap.Reset();
-		m_pCommandList.Reset();
+		COM_SAFE_RELEASE(m_pDevice);
+		COM_SAFE_RELEASE(m_pSwapChain);
+		COM_SAFE_RELEASE(m_pCommandQueue);
+		COM_SAFE_RELEASE(m_pRtvDescriptorHeap);
+		COM_SAFE_RELEASE(m_pCommandList);
+		COM_SAFE_RELEASE(m_pPipelineStateObject_Default);
+		COM_SAFE_RELEASE(m_pRootSignature_Default);
+		COM_SAFE_RELEASE(m_pVertexBuffer);
 
 		for (int i = 0; i < m_FrameBufferCount; i++)
 		{
-			m_pRenderTargets[i].Reset();
-			m_pCommandAllocators[i].Reset();
-			m_pFence->Reset();
+			COM_SAFE_RELEASE(m_pRenderTargets[i]);
+			COM_SAFE_RELEASE(m_pCommandAllocators[i]);
+			COM_SAFE_RELEASE(m_pFence[i]);
 		}
 
 	}

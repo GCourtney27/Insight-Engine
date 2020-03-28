@@ -5,10 +5,11 @@ namespace Insight {
 
 	class RenderingContext
 	{
+	
 	public:
 		virtual ~RenderingContext() {}
 
-		virtual void Init() = 0;
+		virtual bool Init() = 0;
 		virtual void RenderFrame() = 0;
 		virtual void SwapBuffers() = 0;
 		inline void SetVSyncEnabled(bool enabled) { m_VSyncEnabled = enabled; }
@@ -21,6 +22,11 @@ namespace Insight {
 		uint32_t m_WindowWidth;
 		uint32_t m_WindowHeight;
 		bool m_VSyncEnabled = false;
+		enum RenderingAPI
+		{
+			D3D_11,
+			D3D_12
+		};
 	};
 
 }

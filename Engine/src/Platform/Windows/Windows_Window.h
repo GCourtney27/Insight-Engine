@@ -33,7 +33,7 @@ namespace Insight {
 		virtual void* GetNativeWindow() const override;
 		void SetWindowsSessionProps(HINSTANCE& hInstance, int nCmdShow) { SetWindowsApplicationInstance(hInstance); SetCmdArgs(nCmdShow); }
 		inline HINSTANCE& GetWindowsApplicationReference() const { return *m_WindowsAppInstance; }
-		inline const HWND& GetWindowHandleReference() const { return m_WindowHandle; }
+		inline HWND& GetWindowHandleReference() { return m_WindowHandle; }
 
 		virtual bool ProccessWindowMessages() override;
 
@@ -41,7 +41,7 @@ namespace Insight {
 		virtual inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
 		virtual void SetVSync(bool enabled) override;
 		virtual bool IsVsyncActive() const override;
-		virtual void Init(const WindowProps& props);
+		virtual bool Init(const WindowProps& props);
 	private:
 		inline void SetWindowsApplicationInstance(HINSTANCE& hInstance) { m_WindowsAppInstance = &hInstance; }
 		inline void SetCmdArgs(int nCmdShow) { m_nCmdShowArgs = nCmdShow; }
