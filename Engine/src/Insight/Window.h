@@ -4,6 +4,9 @@
 
 #include "Insight/Core.h"
 #include "Insight/Events/Event.h"
+#include "Platform/DirectX12/Direct3D12_Context.h"
+
+class RenderingContext;
 
 namespace Insight {
 
@@ -31,6 +34,9 @@ namespace Insight {
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
 
+		inline RenderingContext& GetRenderContext() { return *m_pRendererContext; }
+
+
 		// Window Attributes
 		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
 		virtual bool ProccessWindowMessages() = 0;
@@ -40,6 +46,10 @@ namespace Insight {
 		virtual void* GetNativeWindow() const = 0;
 
 		static Window* Create(const WindowProps& props = WindowProps());
+
+		RenderingContext* m_pRendererContext;
+	protected:
+
 	};
 
 }

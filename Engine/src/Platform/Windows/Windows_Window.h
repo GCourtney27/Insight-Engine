@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Insight/Window.h"
-#include "Platform/DirectX12/Direct3D12_Context.h"
 
 
 namespace Insight {
@@ -36,6 +35,7 @@ namespace Insight {
 		inline HINSTANCE& GetWindowsApplicationReference() const { return *m_WindowsAppInstance; }
 		inline HWND& GetWindowHandleReference() { return m_WindowHandle; }
 
+
 		virtual bool ProccessWindowMessages() override;
 
 		// Window Attributes
@@ -48,7 +48,6 @@ namespace Insight {
 		inline void SetCmdArgs(int nCmdShow) { m_nCmdShowArgs = nCmdShow; }
 		void RegisterWindowClass();
 	private:
-		RenderingContext* m_RendererContext;
 
 		HWND m_WindowHandle;
 		HINSTANCE* m_WindowsAppInstance;

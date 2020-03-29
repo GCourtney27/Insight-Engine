@@ -26,6 +26,10 @@ namespace Insight {
 		virtual void RenderFrame() override;
 		virtual void SwapBuffers() override;
 
+		inline ID3D12Device& GetDevice() const { return *m_pDevice.Get(); }
+		inline ID3D12DescriptorHeap& GetImGuiDescriptorHeap() const { return *m_pImGuiDescriptorHeap.Get(); }
+		inline ID3D12GraphicsCommandList& GetCommandList() const { return *m_pCommandList.Get(); }
+
 	private:
 		// Per-Frame
 		void PopulateCommandLists();
@@ -44,6 +48,7 @@ namespace Insight {
 		void CreateRootSignature();
 		void CreateViewport();
 		void CreateScissorRect();
+		void CreateImGuiDescriptorHeap();
 
 		void InitShaders();// TEMP! Move this!
 		//ConstantBuffer<ConstantBufferPerObject> cb_vertexShader;// TEMP! Move this!
@@ -80,14 +85,25 @@ namespace Insight {
 		D3D12_RECT m_ScissorRect;
 		DXGI_SAMPLE_DESC m_SampleDesc;
 
+		// IMGUI this should move
+		WRL::ComPtr <ID3D12DescriptorHeap> m_pImGuiDescriptorHeap;
+
+
 		//=== TEMPORARY! ===//
 		//TODO: Move this to a model/vertex class
 		WRL::ComPtr<ID3D12Resource> m_pVertexBuffer;
 		WRL::ComPtr<ID3D12Resource> m_pVBufferUploadHeap;
 
+		WRL::ComPtr<ID3D12Resource> m_pIndexBuffer;
+		WRL::ComPtr<ID3D12Resource> m_pIndexBufferUploadHeap;
+		D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;
+
 		D3D12_VERTEX_BUFFER_VIEW m_VertexBufferView;
 		struct Vertex {
+			Vertex(float x, float y, float z, float r, float g, float b, float a)
+				: pos(x, y, z), color(r, g, b, a) {}
 			DirectX::XMFLOAT3 pos;
+			DirectX::XMFLOAT4 color;
 		};
 
 	};

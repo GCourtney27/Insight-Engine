@@ -225,8 +225,8 @@ namespace Insight {
 		SetFocus(m_WindowHandle);
 		SetWindowText(m_WindowHandle, m_Data.WindowTitle_wide.c_str());
 
-		m_RendererContext = new Direct3D12Context(this);
-		if (!m_RendererContext->Init())
+		m_pRendererContext = new Direct3D12Context(this);
+		if (!m_pRendererContext->Init())
 		{
 			IE_CORE_ERROR("Failed to initialize graphics context");
 			return false;
@@ -290,9 +290,9 @@ namespace Insight {
 	{
 		ProccessWindowMessages();
 
-		m_RendererContext->RenderFrame();
+		//m_pRendererContext->RenderFrame();
 
-		m_RendererContext->SwapBuffers();
+		//m_pRendererContext->SwapBuffers();
 	}
 
 	void * WindowsWindow::GetNativeWindow() const
@@ -304,7 +304,7 @@ namespace Insight {
 	{
 		IE_CORE_INFO("V-sync: " + enabled ? "enabled" : "disabled");
 		m_Data.VSyncEnabled = enabled;
-		m_RendererContext->SetVSyncEnabled(m_Data.VSyncEnabled);
+		m_pRendererContext->SetVSyncEnabled(m_Data.VSyncEnabled);
 	}
 
 	bool WindowsWindow::IsVsyncActive() const
@@ -314,14 +314,13 @@ namespace Insight {
 
 	void WindowsWindow::Shutdown()
 	{
-
 		if (m_WindowHandle != NULL)
 		{
 			UnregisterClass(this->m_Data.WindowClassName_wide.c_str(), *m_WindowsAppInstance);
 			DestroyWindow(m_WindowHandle);
 		}
 
-		delete m_RendererContext;
+		delete m_pRendererContext;
 	}
 
 }

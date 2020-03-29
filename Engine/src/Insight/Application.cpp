@@ -5,6 +5,8 @@
 #include "Insight/Log.h"
 #include "Insight/Input/Input.h"
 
+#include "Insight/Editor/ImGui_Layer.h"
+
 namespace Insight {
 
 	Application* Application::s_Instance = nullptr;
@@ -28,6 +30,9 @@ namespace Insight {
 			IE_CORE_ERROR("Fatal Error: Failed to initialize window. Exiting.");
 			exit(-1);
 		}
+		// TODO: Move this into client
+		//PushOverlay(new Insight::ImGuiLayer());
+
 	}
 
 	Application::~Application()
@@ -42,6 +47,9 @@ namespace Insight {
 
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
+
+			m_pWindow->m_pRendererContext->RenderFrame();
+			m_pWindow->m_pRendererContext->SwapBuffers();
 
 		}
 	}

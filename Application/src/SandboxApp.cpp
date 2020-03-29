@@ -1,6 +1,7 @@
 
 #include <Insight.h>
 
+
 class ExampleLayer : public Insight::Layer
 {
 public:

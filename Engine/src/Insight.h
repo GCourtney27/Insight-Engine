@@ -4,6 +4,7 @@
 #include "Insight/Application.h"
 #include "Insight/Layer.h"
 #include "Insight/Log.h"
+#include "Insight/Editor/ImGui_Layer.h"
 
 // Entry point
 //------------------------

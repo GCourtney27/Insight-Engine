@@ -11,6 +11,11 @@ workspace "InsightEngine"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+IncludeDir = {}
+IncludeDir["ImGui"] = "Engine/vendor/imgui"
+
+include "Engine/vendor/ImGui"
+
 project "Engine"
 	location "Engine"
 	kind "StaticLib"
@@ -37,9 +42,10 @@ project "Engine"
 
 	includedirs
 	{
-		"%{prj.name}/vendor/spdlog/include",
-		"%{prj.name}/vendor/Nvidia/DirectX12/DXR",
 		"%{prj.name}/vendor/Microsoft/DirectX12",
+		"%{prj.name}/vendor/Nvidia/DirectX12",
+		"%{prj.name}/vendor/spdlog/include",
+		"%{IncludeDir.ImGui}/",
 		"%{prj.name}/src/"
 	}
 
@@ -47,7 +53,8 @@ project "Engine"
 	{
 		"d3d12.lib",
 		"dxgi.lib",
-		"d3dcompiler.lib"
+		"d3dcompiler.lib",
+		"ImGui"
 	}
 
 	filter "system:windows"
@@ -106,6 +113,8 @@ project "Application"
 
 	includedirs
 	{
+		"Engine/vendor/Microsoft/DirectX12",
+		"Engine/vendor/Nvidia/DirectX12",
 		"Engine/vendor/spdlog/include",
 		"Engine/src",
 		"Engine/vendor"

@@ -96,7 +96,7 @@
       <PrecompiledHeaderFile>ie_pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;IE_PLATFORM_WINDOWS;IE_BUILD_DLL;IE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>vendor\spdlog\include;vendor\Nvidia\DirectX12\DXR;vendor\Microsoft\DirectX12;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>vendor\Microsoft\DirectX12;vendor\Nvidia\DirectX12;vendor\spdlog\include;vendor\imgui;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -116,7 +116,7 @@
       <PrecompiledHeaderFile>ie_pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;IE_PLATFORM_WINDOWS;IE_BUILD_DLL;IE_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>vendor\spdlog\include;vendor\Nvidia\DirectX12\DXR;vendor\Microsoft\DirectX12;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>vendor\Microsoft\DirectX12;vendor\Nvidia\DirectX12;vendor\spdlog\include;vendor\imgui;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -142,7 +142,7 @@
       <PrecompiledHeaderFile>ie_pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;IE_PLATFORM_WINDOWS;IE_BUILD_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>vendor\spdlog\include;vendor\Nvidia\DirectX12\DXR;vendor\Microsoft\DirectX12;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>vendor\Microsoft\DirectX12;vendor\Nvidia\DirectX12;vendor\spdlog\include;vendor\imgui;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -160,7 +160,7 @@
       <PrecompiledHeaderFile>ie_pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;IE_PLATFORM_WINDOWS;IE_BUILD_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>vendor\spdlog\include;vendor\Nvidia\DirectX12\DXR;vendor\Microsoft\DirectX12;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>vendor\Microsoft\DirectX12;vendor\Nvidia\DirectX12;vendor\spdlog\include;vendor\imgui;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -176,6 +176,7 @@
     <ClInclude Include="src\Insight.h" />
     <ClInclude Include="src\Insight\Application.h" />
     <ClInclude Include="src\Insight\Core.h" />
+    <ClInclude Include="src\Insight\Editor\ImGui_Layer.h" />
     <ClInclude Include="src\Insight\Entry_Point.h" />
     <ClInclude Include="src\Insight\Events\Application_Event.h" />
     <ClInclude Include="src\Insight\Events\Event.h" />
@@ -196,6 +197,8 @@
     <ClInclude Include="src\Platform\DirectX12\ConstantBuffers_TEMP.h" />
     <ClInclude Include="src\Platform\DirectX12\D3D_Api.h" />
     <ClInclude Include="src\Platform\DirectX12\Direct3D12_Context.h" />
+    <ClInclude Include="src\Platform\ImGui\ImGui_DX12_Renderer.h" />
+    <ClInclude Include="src\Platform\ImGui\imgui_impl_win32.h" />
     <ClInclude Include="src\Platform\Windows\Console_Window.h" />
     <ClInclude Include="src\Platform\Windows\Error\COM_Exception.h" />
     <ClInclude Include="src\Platform\Windows\Windows_Window.h" />
@@ -203,6 +206,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Insight\Application.cpp" />
+    <ClCompile Include="src\Insight\Editor\ImGui_Layer.cpp" />
     <ClCompile Include="src\Insight\Input\Keyboard_Buffer.cpp" />
     <ClCompile Include="src\Insight\Input\Mouse_Buffer.cpp" />
     <ClCompile Include="src\Insight\Input\Windows_Input.cpp" />
@@ -212,11 +216,18 @@
     <ClCompile Include="src\Insight\Utilities\String_Helper.cpp" />
     <ClCompile Include="src\Platform\DirectX12\D3D_Api.cpp" />
     <ClCompile Include="src\Platform\DirectX12\Direct3D12_Context.cpp" />
+    <ClCompile Include="src\Platform\ImGui\ImGui_DX12_Renderer.cpp" />
+    <ClCompile Include="src\Platform\ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="src\Platform\Windows\Console_Window.cpp" />
     <ClCompile Include="src\Platform\Windows\Windows_Window.cpp" />
     <ClCompile Include="src\ie_pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="vendor\ImGui\ImGui.vcxproj">
+      <Project>{C0FF640D-2C14-8DBE-F595-301E616989EF}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

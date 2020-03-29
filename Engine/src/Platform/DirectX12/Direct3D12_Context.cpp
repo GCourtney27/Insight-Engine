@@ -3,6 +3,10 @@
 #include "Direct3D12_Context.h"
 #include "Platform/Windows/Windows_Window.h"
 
+#include "imgui.h"
+#include "Platform/ImGui/ImGui_DX12_Renderer.h"
+#include "Platform/ImGui/imgui_impl_win32.h"
+
 using namespace Microsoft::WRL;
 
 namespace Insight {
@@ -35,8 +39,56 @@ namespace Insight {
 			CreateViewport();
 			CreateScissorRect();
 
+
+			CreateImGuiDescriptorHeap();
+			//// TODO MOVE THIS THIS IS JUST A TEST!
+			//IMGUI_CHECKVERSION();
+			//ImGui::CreateContext();
+			//ImGui::StyleColorsDark();
+
+			//ImGuiIO& io = ImGui::GetIO(); (void)io;
+			//io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
+			//io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
+
+			//// Temporary should eventually use Insight keu codes
+			//io.KeyMap[ImGuiKey_Tab] = VK_TAB;
+			//io.KeyMap[ImGuiKey_LeftArrow] = VK_LEFT;
+			//io.KeyMap[ImGuiKey_RightArrow] = VK_RIGHT;
+			//io.KeyMap[ImGuiKey_UpArrow] = VK_UP;
+			//io.KeyMap[ImGuiKey_DownArrow] = VK_DOWN;
+			//io.KeyMap[ImGuiKey_PageUp] = VK_PRIOR;
+			//io.KeyMap[ImGuiKey_PageDown] = VK_NEXT;
+			//io.KeyMap[ImGuiKey_Home] = VK_HOME;
+			//io.KeyMap[ImGuiKey_End] = VK_END;
+			//io.KeyMap[ImGuiKey_Insert] = VK_INSERT;
+			//io.KeyMap[ImGuiKey_Delete] = VK_DELETE;
+			//io.KeyMap[ImGuiKey_Backspace] = VK_BACK;
+			//io.KeyMap[ImGuiKey_Space] = VK_SPACE;
+			//io.KeyMap[ImGuiKey_Enter] = VK_RETURN;
+			//io.KeyMap[ImGuiKey_Escape] = VK_ESCAPE;
+			//io.KeyMap[ImGuiKey_KeyPadEnter] = VK_RETURN;
+			//io.KeyMap[ImGuiKey_A] = 'A';
+			//io.KeyMap[ImGuiKey_C] = 'C';
+			//io.KeyMap[ImGuiKey_V] = 'V';
+			//io.KeyMap[ImGuiKey_X] = 'X';
+			//io.KeyMap[ImGuiKey_Y] = 'Y';
+			//io.KeyMap[ImGuiKey_Z] = 'Z';
+
+
+			//bool succeeded1 = ImGui_ImplWin32_Init(*m_pWindowHandle);
+
+			//bool succeeded = ImGui_ImplDX12_Init(m_pDevice.Get(),
+			//									m_FrameBufferCount,
+			//									DXGI_FORMAT_R8G8B8A8_UNORM,
+			//									m_pImGuiDescriptorHeap.Get(),
+			//									m_pImGuiDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+			//									m_pImGuiDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+
+
 			//TODO: Move shader creation to shader class
 			//InitShaders();
+
+			
 		}
 		catch (COMException& ex) {
 			COM_SAFE_RELEASE(m_pDxgiFactory);
@@ -65,7 +117,7 @@ namespace Insight {
 			// we have the fence create an event which is signaled once the fence's current value is "fenceValue"
 			hr = m_pFence[m_FrameIndex]->SetEventOnCompletion(m_FenceValue[m_FrameIndex], m_FenceEvent);
 			//COM_ERROR_IF_FAILED(hr, "Failed to set event completion value while wiating for frame:");
-			
+
 
 			// We will wait until the fence has triggered the event that it's current value has reached "fenceValue". once it's value
 			// has reached "fenceValue", we know the command queue has finished executing
@@ -79,6 +131,22 @@ namespace Insight {
 	void Direct3D12Context::PopulateCommandLists()
 	{
 		HRESULT hr;
+
+		// TEMP
+		//{
+
+		//	ImGui_ImplDX12_NewFrame();
+		//	ImGui_ImplWin32_NewFrame();
+		//	ImGui::NewFrame();
+
+		//	ImGui::Begin("Hello");
+		//	ImGui::Text("Hello text");
+		//	ImGui::End();
+
+		//	//ImGuiIO& io = ImGui::GetIO();
+		//	static bool show = true;
+		//	ImGui::ShowDemoWindow(&show);
+		//}
 
 		WaitForPreviousFrame();
 		hr = m_pCommandAllocators[m_FrameIndex]->Reset();
@@ -105,9 +173,24 @@ namespace Insight {
 		m_pCommandList->SetGraphicsRootSignature(m_pRootSignature_Default.Get());
 		m_pCommandList->RSSetViewports(1, &m_ViewPort);
 		m_pCommandList->RSSetScissorRects(1, &m_ScissorRect);
+
 		m_pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		m_pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);
-		m_pCommandList->DrawInstanced(3, 1, 0, 0);
+
+		// Should be on a per object basis
+		{
+			m_pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);
+			m_pCommandList->IASetIndexBuffer(&m_IndexBufferView);
+			m_pCommandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
+		}
+		
+
+		//m_pCommandList->SetDescriptorHeaps(1, m_pImGuiDescriptorHeap.GetAddressOf());
+
+		{
+			//ImGui::Render();
+			//ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList.Get());
+		}
+
 
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
@@ -293,7 +376,8 @@ namespace Insight {
 		// Create Input layout 
 		D3D12_INPUT_ELEMENT_DESC inputLayout[] =
 		{
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 		};
 
 		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
@@ -302,16 +386,16 @@ namespace Insight {
 #pragma endregion
 
 		// Create Pipeline State Object
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {}; 
-		psoDesc.InputLayout = inputLayoutDesc; 
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
+		psoDesc.InputLayout = inputLayoutDesc;
 		psoDesc.pRootSignature = m_pRootSignature_Default.Get();
-		psoDesc.VS = vertexShaderBytecode; 
-		psoDesc.PS = pixelShaderBytecode; 
-		psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE; 
-		psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; 
-		psoDesc.SampleDesc = m_SampleDesc; 
-		psoDesc.SampleMask = 0xffffffff; 
-		psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT); 
+		psoDesc.VS = vertexShaderBytecode;
+		psoDesc.PS = pixelShaderBytecode;
+		psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		psoDesc.SampleDesc = m_SampleDesc;
+		psoDesc.SampleMask = 0xffffffff;
+		psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 		psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		psoDesc.NumRenderTargets = 1;
 
@@ -321,9 +405,10 @@ namespace Insight {
 		// TODO Make model class
 		// TODO: move thi to the model class
 		Vertex vList[] = {
-			{ { 0.0f, 0.5f, 0.5f } },
-			{ { 0.5f, -0.5f, 0.5f } },
-			{ { -0.5f, -0.5f, 0.5f } }
+			{ -0.5f,  0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f },
+			{  0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f },
+			{ -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f },
+			{  0.5f,  0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f }
 		};
 		int vBufferSize = sizeof(vList);
 
@@ -354,6 +439,52 @@ namespace Insight {
 
 		UpdateSubresources(m_pCommandList.Get(), m_pVertexBuffer.Get(), m_pVBufferUploadHeap.Get(), 0, 0, 1, &vertexData);
 
+		m_VertexBufferView.BufferLocation = m_pVertexBuffer->GetGPUVirtualAddress();
+		m_VertexBufferView.StrideInBytes = sizeof(Vertex);
+		m_VertexBufferView.SizeInBytes = vBufferSize;
+
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pVertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
+
+
+		// Create Index Buffer
+		DWORD iList[] = {
+			0, 1, 2,
+			0, 3, 1
+		};
+		int iBufferSize = sizeof(iList);
+		hr = m_pDevice->CreateCommittedResource(
+												&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+												D3D12_HEAP_FLAG_NONE,
+												&CD3DX12_RESOURCE_DESC::Buffer(iBufferSize),
+												D3D12_RESOURCE_STATE_COPY_DEST,
+												nullptr,
+												IID_PPV_ARGS(m_pIndexBuffer.GetAddressOf()));
+		COM_ERROR_IF_FAILED(hr, "Failed to create Committed Resource for Index Buffer to the Deafault Heap");
+		m_pIndexBuffer->SetName(L"Index Buffer Resource Heap");
+
+		hr = m_pDevice->CreateCommittedResource(
+												&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+												D3D12_HEAP_FLAG_NONE,
+												&CD3DX12_RESOURCE_DESC::Buffer(iBufferSize),
+												D3D12_RESOURCE_STATE_GENERIC_READ,
+												nullptr,
+												IID_PPV_ARGS(m_pIndexBufferUploadHeap.GetAddressOf()));
+		COM_ERROR_IF_FAILED(hr, "Failed to create Committed Resource for Index Buffer to the Upload Heap");
+		
+		m_pIndexBufferUploadHeap->SetName(L"Index Buffer Upload Resource Heap");
+		D3D12_SUBRESOURCE_DATA indexData = {};
+		indexData.pData = reinterpret_cast<BYTE*>(iList);
+		indexData.RowPitch = iBufferSize;
+		indexData.SlicePitch = iBufferSize;
+
+		UpdateSubresources(m_pCommandList.Get(), m_pIndexBuffer.Get(), m_pIndexBufferUploadHeap.Get(), 0, 0, 1, &indexData);
+		
+		m_IndexBufferView.BufferLocation = m_pIndexBuffer->GetGPUVirtualAddress();
+		m_IndexBufferView.Format = DXGI_FORMAT_R32_UINT;
+		m_IndexBufferView.SizeInBytes = iBufferSize;
+
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pVertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER));
+
 		m_pCommandList->Close();
 		ID3D12CommandList* ppCommandLists[] = { m_pCommandList.Get() };
 		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
@@ -361,11 +492,6 @@ namespace Insight {
 		m_FenceValue[m_FrameIndex]++;
 		hr = m_pCommandQueue->Signal(m_pFence->GetAddressOf()[m_FrameIndex], m_FenceValue[m_FrameIndex]);
 		COM_ERROR_IF_FAILED(hr, "Failed to signal command queue when uploading vertex buffer");
-
-		m_VertexBufferView.BufferLocation = m_pVertexBuffer->GetGPUVirtualAddress();
-		m_VertexBufferView.StrideInBytes= sizeof(Vertex);
-		m_VertexBufferView.SizeInBytes = vBufferSize;
-
 	}
 
 	void Direct3D12Context::CreateRootSignature()
@@ -536,6 +662,15 @@ namespace Insight {
 		COM_ERROR_IF_FAILED(hr, "Failed to Create Command Queue");
 	}
 
+	void Direct3D12Context::CreateImGuiDescriptorHeap()
+	{
+		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		desc.NumDescriptors = 1;
+		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+		m_pDevice->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_pImGuiDescriptorHeap));
+	}
+
 	void Direct3D12Context::CreateDevice()
 	{
 		HRESULT hr;
@@ -586,6 +721,7 @@ namespace Insight {
 	{
 		WaitForPreviousFrame();
 		CloseHandle(m_FenceEvent);
+
 		for (int i = 0; i < m_FrameBufferCount; i++)
 		{
 			m_FrameIndex = i;
@@ -596,21 +732,6 @@ namespace Insight {
 		if (m_pSwapChain->GetFullscreenState(&fs, NULL))
 			m_pSwapChain->SetFullscreenState(false, NULL);
 
-		/*COM_SAFE_RELEASE(m_pDevice);
-		COM_SAFE_RELEASE(m_pSwapChain);
-		COM_SAFE_RELEASE(m_pCommandQueue);
-		COM_SAFE_RELEASE(m_pRtvDescriptorHeap);
-		COM_SAFE_RELEASE(m_pCommandList);
-		COM_SAFE_RELEASE(m_pPipelineStateObject_Default);
-		COM_SAFE_RELEASE(m_pRootSignature_Default);
-		COM_SAFE_RELEASE(m_pVertexBuffer);
-*/
-		for (int i = 0; i < m_FrameBufferCount; i++)
-		{
-			/*COM_SAFE_RELEASE(m_pRenderTargets[i]);
-			COM_SAFE_RELEASE(m_pCommandAllocators[i]);
-			COM_SAFE_RELEASE(m_pFence[i]);*/
-		}
 
 	}
 

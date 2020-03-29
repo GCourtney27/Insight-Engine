@@ -4,6 +4,9 @@
     <Filter Include="Insight">
       <UniqueIdentifier>{5BBF0E00-C79E-8D9B-D0B6-18723C15F4FC}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Insight\Editor">
+      <UniqueIdentifier>{31C8BA87-1D96-AE8D-062A-1FB4F2968AF2}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Insight\Events">
       <UniqueIdentifier>{DF36FE88-CB04-F28E-B498-62B5A005CEF3}</UniqueIdentifier>
     </Filter>
@@ -22,6 +25,9 @@
     <Filter Include="Platform\DirectX12">
       <UniqueIdentifier>{6FE5EAC0-5BC9-AB16-C429-A669B02C9698}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Platform\ImGui">
+      <UniqueIdentifier>{D473D893-C041-CC99-A9D5-3CC09542A8FE}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Platform\Windows">
       <UniqueIdentifier>{64FBD71A-50F4-F66C-7926-DCF1657ED678}</UniqueIdentifier>
     </Filter>
@@ -36,6 +42,9 @@
     </ClInclude>
     <ClInclude Include="src\Insight\Core.h">
       <Filter>Insight</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Editor\ImGui_Layer.h">
+      <Filter>Insight\Editor</Filter>
     </ClInclude>
     <ClInclude Include="src\Insight\Entry_Point.h">
       <Filter>Insight</Filter>
@@ -97,6 +106,12 @@
     <ClInclude Include="src\Platform\DirectX12\Direct3D12_Context.h">
       <Filter>Platform\DirectX12</Filter>
     </ClInclude>
+    <ClInclude Include="src\Platform\ImGui\ImGui_DX12_Renderer.h">
+      <Filter>Platform\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\ImGui\imgui_impl_win32.h">
+      <Filter>Platform\ImGui</Filter>
+    </ClInclude>
     <ClInclude Include="src\Platform\Windows\Console_Window.h">
       <Filter>Platform\Windows</Filter>
     </ClInclude>
@@ -111,6 +126,9 @@
   <ItemGroup>
     <ClCompile Include="src\Insight\Application.cpp">
       <Filter>Insight</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Insight\Editor\ImGui_Layer.cpp">
+      <Filter>Insight\Editor</Filter>
     </ClCompile>
     <ClCompile Include="src\Insight\Input\Keyboard_Buffer.cpp">
       <Filter>Insight\Input</Filter>
@@ -138,6 +156,12 @@
     </ClCompile>
     <ClCompile Include="src\Platform\DirectX12\Direct3D12_Context.cpp">
       <Filter>Platform\DirectX12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\ImGui\ImGui_DX12_Renderer.cpp">
+      <Filter>Platform\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\ImGui\imgui_impl_win32.cpp">
+      <Filter>Platform\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\Windows\Console_Window.cpp">
       <Filter>Platform\Windows</Filter>
