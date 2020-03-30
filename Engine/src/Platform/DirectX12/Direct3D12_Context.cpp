@@ -29,18 +29,26 @@ namespace Insight {
 		try {
 			CreateDXGIFactory();
 			CreateDevice();
+
 			CreateCommandQueue();
 			CreateSwapChain();
-			CreateRTVDescriptorHeap();
-			CreateCommandAllocators();
-			CreateFenceEvent();
-			CreatePipelineStateObjects();
-			//CreateRootSignature();
 			CreateViewport();
 			CreateScissorRect();
 
+			CreateRTVDescriptorHeap();
+			CreateDSVDescriptorHeap();
+			
+			CreateDepthStencilBuffer();
+			
+			CreateFenceEvent();
+			CreateCommandAllocators();
+			CreatePipelineStateObjects();
 
-			CreateImGuiDescriptorHeap();
+			//CreateRootSignature();
+			
+
+			//CreateImGuiDescriptorHeap();
+
 			//// TODO MOVE THIS THIS IS JUST A TEST!
 			//IMGUI_CHECKVERSION();
 			//ImGui::CreateContext();
@@ -163,12 +171,14 @@ namespace Insight {
 
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
+		CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_pDepthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_pRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), m_FrameIndex, m_RtvDescriptorSize);
 
-		m_pCommandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+		m_pCommandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
 		const float clearColor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
 		m_pCommandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+		m_pCommandList->ClearDepthStencilView(m_pDepthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
 		m_pCommandList->SetGraphicsRootSignature(m_pRootSignature_Default.Get());
 		m_pCommandList->RSSetViewports(1, &m_ViewPort);
@@ -181,6 +191,7 @@ namespace Insight {
 			m_pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);
 			m_pCommandList->IASetIndexBuffer(&m_IndexBufferView);
 			m_pCommandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
+			m_pCommandList->DrawIndexedInstanced(6, 1, 0, 4, 0);
 		}
 		
 
@@ -221,6 +232,11 @@ namespace Insight {
 		m_pSwapChain->Present(m_VSyncEnabled, 0);
 	}
 
+	void Direct3D12Context::OnWindowResize()
+	{
+		//TODO: Recreate swapchain
+	}
+
 	void Direct3D12Context::CreateSwapChain()
 	{
 		HRESULT hr;
@@ -241,20 +257,24 @@ namespace Insight {
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		swapChainDesc.SampleDesc = m_SampleDesc;
 		Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain{};
+		
 		hr = m_pDxgiFactory->CreateSwapChainForHwnd(m_pCommandQueue.Get(), *m_pWindowHandle, &swapChainDesc, nullptr, nullptr, &swapChain);
-		if (FAILED(hr)) {
-			MessageBox(0, L"Failed to Create Swap Chain", L"Error", MB_OK);
-		}
+		COM_ERROR_IF_FAILED(hr, "Failed to Create Swap Chain");
+		
 		hr = m_pDxgiFactory->MakeWindowAssociation(*m_pWindowHandle, DXGI_MWA_NO_ALT_ENTER);
-		if (FAILED(hr)) {
-			MessageBox(0, L"Failed to Make Window Association", L"Error", MB_OK);
-		}
+		COM_ERROR_IF_FAILED(hr, "Failed to Make Window Association");
+		
 		hr = swapChain.As(&m_pSwapChain);
-		if (FAILED(hr)) {
-			MessageBox(0, L"Failed to Cast ComPtr", L"Error", MB_OK);
-		}
+		COM_ERROR_IF_FAILED(hr, "Failed to cast SwapChain ComPtr");
+		
 		m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 
+	}
+
+	void Direct3D12Context::CreateDescriptorHeaps()
+	{
+		CreateRTVDescriptorHeap();
+		CreateDSVDescriptorHeap();
 	}
 
 	void Direct3D12Context::CreateRTVDescriptorHeap()
@@ -281,6 +301,42 @@ namespace Insight {
 			rtvHandle.Offset(1, m_RtvDescriptorSize);
 		}
 
+	}
+
+	void Direct3D12Context::CreateDSVDescriptorHeap()
+	{
+		HRESULT hr;
+		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
+		dsvHeapDesc.NumDescriptors = 1;
+		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		hr = m_pDevice->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(m_pDepthStencilDescriptorHeap.GetAddressOf()));
+		COM_ERROR_IF_FAILED(hr, "Failed to create descriptor heap for Depth Stencil View.");
+	}
+
+	void Direct3D12Context::CreateDepthStencilBuffer()
+	{
+		D3D12_DEPTH_STENCIL_VIEW_DESC dsDesc = {};
+		dsDesc.Format = DXGI_FORMAT_D32_FLOAT;
+		dsDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+		dsDesc.Flags = D3D12_DSV_FLAG_NONE;
+
+		D3D12_CLEAR_VALUE depthOptomizedClearValue = {};
+		depthOptomizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
+		depthOptomizedClearValue.DepthStencil.Depth = 1.0f;
+		depthOptomizedClearValue.DepthStencil.Stencil = 0;
+
+		m_pDevice->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+			D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, m_pWindow->GetWidth(), m_pWindow->GetHeight(), 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
+			D3D12_RESOURCE_STATE_DEPTH_WRITE,
+			&depthOptomizedClearValue,
+			IID_PPV_ARGS(m_pDepthStencilBuffer.GetAddressOf()));
+
+		m_pDepthStencilDescriptorHeap->SetName(L"Depth/Stencil Resource Heap");
+
+		m_pDevice->CreateDepthStencilView(m_pDepthStencilBuffer.Get(), &dsDesc, m_pDepthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+		
 	}
 
 	void Direct3D12Context::CreateCommandAllocators()
@@ -397,6 +453,7 @@ namespace Insight {
 		psoDesc.SampleMask = 0xffffffff;
 		psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 		psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 		psoDesc.NumRenderTargets = 1;
 
 		hr = m_pDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(m_pPipelineStateObject_Default.GetAddressOf()));
@@ -405,10 +462,17 @@ namespace Insight {
 		// TODO Make model class
 		// TODO: move thi to the model class
 		Vertex vList[] = {
-			{ -0.5f,  0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f },
-			{  0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f },
+			// first quad (closer to camera, blue)
+			{ -0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f },
+			{  0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f },
 			{ -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f },
-			{  0.5f,  0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f }
+			{  0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f },
+
+			// second quad (further from camera, green)
+			{ -0.75f,  0.75f,  0.7f, 0.0f, 1.0f, 0.0f, 1.0f },
+			{   0.0f,  0.0f, 0.7f, 0.0f, 1.0f, 0.0f, 1.0f },
+			{ -0.75f,  0.0f, 0.7f, 0.0f, 1.0f, 0.0f, 1.0f },
+			{   0.0f,  0.75f,  0.7f, 0.0f, 1.0f, 0.0f, 1.0f }
 		};
 		int vBufferSize = sizeof(vList);
 

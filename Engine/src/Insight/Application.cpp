@@ -43,13 +43,12 @@ namespace Insight {
 	{
 		while(m_Running)
 		{
-			m_pWindow->OnUpdate();
 
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
 
-			m_pWindow->m_pRendererContext->RenderFrame();
-			m_pWindow->m_pRendererContext->SwapBuffers();
+			
+			m_pWindow->OnUpdate();
 
 		}
 	}

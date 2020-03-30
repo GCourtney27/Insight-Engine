@@ -12,6 +12,7 @@ namespace Insight {
 		virtual bool Init() = 0;
 		virtual void RenderFrame() = 0;
 		virtual void SwapBuffers() = 0;
+		virtual void OnWindowResize() = 0;
 
 		inline uint8_t GetFrameBufferCount() const { return m_FrameBufferCount; }
 		inline void SetVSyncEnabled(bool enabled) { m_VSyncEnabled = enabled; }

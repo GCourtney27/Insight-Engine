@@ -290,9 +290,9 @@ namespace Insight {
 	{
 		ProccessWindowMessages();
 
-		//m_pRendererContext->RenderFrame();
+		m_pRendererContext->RenderFrame();
 
-		//m_pRendererContext->SwapBuffers();
+		m_pRendererContext->SwapBuffers();
 	}
 
 	void * WindowsWindow::GetNativeWindow() const

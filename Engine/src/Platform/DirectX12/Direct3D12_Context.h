@@ -25,6 +25,7 @@ namespace Insight {
 		virtual bool Init() override;
 		virtual void RenderFrame() override;
 		virtual void SwapBuffers() override;
+		virtual void OnWindowResize() override;
 
 		inline ID3D12Device& GetDevice() const { return *m_pDevice.Get(); }
 		inline ID3D12DescriptorHeap& GetImGuiDescriptorHeap() const { return *m_pImGuiDescriptorHeap.Get(); }
@@ -41,7 +42,10 @@ namespace Insight {
 		void CreateDevice();
 		void CreateCommandQueue();
 		void CreateSwapChain();
+		void CreateDescriptorHeaps();
 		void CreateRTVDescriptorHeap();
+		void CreateDSVDescriptorHeap();
+		void CreateDepthStencilBuffer();
 		void CreateCommandAllocators();
 		void CreateFenceEvent();
 		void CreatePipelineStateObjects();
@@ -78,6 +82,9 @@ namespace Insight {
 
 		WRL::ComPtr<ID3D12Fence> m_pFence[m_FrameBufferCount];
 		WRL::ComPtr<ID3D12GraphicsCommandList> m_pCommandList;
+
+		WRL::ComPtr<ID3D12Resource> m_pDepthStencilBuffer;
+		WRL::ComPtr<ID3D12DescriptorHeap> m_pDepthStencilDescriptorHeap;
 
 		WRL::ComPtr<ID3D12PipelineState> m_pPipelineStateObject_Default;
 		WRL::ComPtr<ID3D12RootSignature> m_pRootSignature_Default;
