@@ -15,6 +15,8 @@ namespace Insight {
 		Application();
 		virtual ~Application();
 
+		bool Init();
+
 		void Run();
 		void Shutdown();
 
@@ -23,12 +25,11 @@ namespace Insight {
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* layer);
 
-		void CreateConsoleWindow(int bufferLines, int bufferColumns, int windowLines, int windowColumns);
-
 		inline Window& GetWindow() { return *m_pWindow; }
 		void InitializeAppForWindows(HINSTANCE& hInstance, int nCmdShow);
 		inline static Application& Get() { return *s_Instance; }
 	private:
+		void PushEngineLayers();
 		bool OnWindowClose(WindowCloseEvent& e);
 	private:
 		std::unique_ptr<Window> m_pWindow;

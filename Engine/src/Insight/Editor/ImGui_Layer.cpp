@@ -30,7 +30,7 @@ namespace Insight {
 		io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
 		io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
 
-		// Temporary should eventually use Insight keu codes
+		// Temporary should eventually use Insight key codes
 		io.KeyMap[ImGuiKey_Tab] = VK_TAB;
 		io.KeyMap[ImGuiKey_LeftArrow] = VK_LEFT;
 		io.KeyMap[ImGuiKey_RightArrow] = VK_RIGHT;
@@ -56,15 +56,19 @@ namespace Insight {
 
 		RenderingContext* renderContext = &Application::Get().GetWindow().GetRenderContext();
 		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(renderContext);
-		void* pWindow = Application::Get().GetWindow().GetNativeWindow();
-		bool succeeded1 = ImGui_ImplWin32_Init( ((HWND*)pWindow) );
+		HWND* pWindow = static_cast<HWND*>(Application::Get().GetWindow().GetNativeWindow());
+		bool impleWin32Succeeded = ImGui_ImplWin32_Init( (pWindow) );
+		if(!impleWin32Succeeded)
+			IE_CORE_WARN("Failed to initialize ImGui for Win32. Some controls may not be functional or editor may not be rendered.");
 
-		bool succeeded = ImGui_ImplDX12_Init(&graphicsContext->GetDevice(), 
-			graphicsContext->GetFrameBufferCount(),
-			DXGI_FORMAT_R8G8B8A8_UNORM,
-			&graphicsContext->GetImGuiDescriptorHeap(),
-			graphicsContext->GetImGuiDescriptorHeap().GetCPUDescriptorHandleForHeapStart(),
-			graphicsContext->GetImGuiDescriptorHeap().GetGPUDescriptorHandleForHeapStart());
+		bool impleDX12Succeeded = ImGui_ImplDX12_Init(&graphicsContext->GetDevice(), 
+														graphicsContext->GetFrameBufferCount(),
+														DXGI_FORMAT_R8G8B8A8_UNORM,
+														&graphicsContext->GetImGuiDescriptorHeap(),
+														graphicsContext->GetImGuiDescriptorHeap().GetCPUDescriptorHandleForHeapStart(),
+														graphicsContext->GetImGuiDescriptorHeap().GetGPUDescriptorHandleForHeapStart());
+		if(!impleDX12Succeeded)
+			IE_CORE_WARN("Failed to initialize ImGui for DX12. Editor will not be rendered");
 
 	}
 
@@ -81,7 +85,6 @@ namespace Insight {
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
-		//ImGuiIO& io = ImGui::GetIO();
 		static bool show = true;
 		ImGui::ShowDemoWindow(&show);
 

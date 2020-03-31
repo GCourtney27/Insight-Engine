@@ -34,9 +34,9 @@ namespace Insight {
 			CreateSwapChain();
 			CreateViewport();
 			CreateScissorRect();
-
-			CreateRTVDescriptorHeap();
-			CreateDSVDescriptorHeap();
+			CreateDescriptorHeaps();
+			/*CreateRTVDescriptorHeap();
+			CreateDSVDescriptorHeap();*/
 			
 			CreateDepthStencilBuffer();
 			
@@ -47,51 +47,7 @@ namespace Insight {
 			//CreateRootSignature();
 			
 
-			//CreateImGuiDescriptorHeap();
-
-			//// TODO MOVE THIS THIS IS JUST A TEST!
-			//IMGUI_CHECKVERSION();
-			//ImGui::CreateContext();
-			//ImGui::StyleColorsDark();
-
-			//ImGuiIO& io = ImGui::GetIO(); (void)io;
-			//io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
-			//io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
-
-			//// Temporary should eventually use Insight keu codes
-			//io.KeyMap[ImGuiKey_Tab] = VK_TAB;
-			//io.KeyMap[ImGuiKey_LeftArrow] = VK_LEFT;
-			//io.KeyMap[ImGuiKey_RightArrow] = VK_RIGHT;
-			//io.KeyMap[ImGuiKey_UpArrow] = VK_UP;
-			//io.KeyMap[ImGuiKey_DownArrow] = VK_DOWN;
-			//io.KeyMap[ImGuiKey_PageUp] = VK_PRIOR;
-			//io.KeyMap[ImGuiKey_PageDown] = VK_NEXT;
-			//io.KeyMap[ImGuiKey_Home] = VK_HOME;
-			//io.KeyMap[ImGuiKey_End] = VK_END;
-			//io.KeyMap[ImGuiKey_Insert] = VK_INSERT;
-			//io.KeyMap[ImGuiKey_Delete] = VK_DELETE;
-			//io.KeyMap[ImGuiKey_Backspace] = VK_BACK;
-			//io.KeyMap[ImGuiKey_Space] = VK_SPACE;
-			//io.KeyMap[ImGuiKey_Enter] = VK_RETURN;
-			//io.KeyMap[ImGuiKey_Escape] = VK_ESCAPE;
-			//io.KeyMap[ImGuiKey_KeyPadEnter] = VK_RETURN;
-			//io.KeyMap[ImGuiKey_A] = 'A';
-			//io.KeyMap[ImGuiKey_C] = 'C';
-			//io.KeyMap[ImGuiKey_V] = 'V';
-			//io.KeyMap[ImGuiKey_X] = 'X';
-			//io.KeyMap[ImGuiKey_Y] = 'Y';
-			//io.KeyMap[ImGuiKey_Z] = 'Z';
-
-
-			//bool succeeded1 = ImGui_ImplWin32_Init(*m_pWindowHandle);
-
-			//bool succeeded = ImGui_ImplDX12_Init(m_pDevice.Get(),
-			//									m_FrameBufferCount,
-			//									DXGI_FORMAT_R8G8B8A8_UNORM,
-			//									m_pImGuiDescriptorHeap.Get(),
-			//									m_pImGuiDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
-			//									m_pImGuiDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-
+			CreateImGuiDescriptorHeap();
 
 			//TODO: Move shader creation to shader class
 			//InitShaders();
@@ -140,22 +96,6 @@ namespace Insight {
 	{
 		HRESULT hr;
 
-		// TEMP
-		//{
-
-		//	ImGui_ImplDX12_NewFrame();
-		//	ImGui_ImplWin32_NewFrame();
-		//	ImGui::NewFrame();
-
-		//	ImGui::Begin("Hello");
-		//	ImGui::Text("Hello text");
-		//	ImGui::End();
-
-		//	//ImGuiIO& io = ImGui::GetIO();
-		//	static bool show = true;
-		//	ImGui::ShowDemoWindow(&show);
-		//}
-
 		WaitForPreviousFrame();
 		hr = m_pCommandAllocators[m_FrameIndex]->Reset();
 		if (FAILED(hr))
@@ -194,13 +134,10 @@ namespace Insight {
 			m_pCommandList->DrawIndexedInstanced(6, 1, 0, 4, 0);
 		}
 		
-
-		//m_pCommandList->SetDescriptorHeaps(1, m_pImGuiDescriptorHeap.GetAddressOf());
-
-		{
-			//ImGui::Render();
-			//ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList.Get());
-		}
+		// Render ImGui UI
+		m_pCommandList->SetDescriptorHeaps(1, m_pImGuiDescriptorHeap.GetAddressOf());
+		ImGui::Render();
+		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList.Get());
 
 
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
@@ -629,8 +566,8 @@ namespace Insight {
 	{
 		m_ViewPort.TopLeftX = 0;
 		m_ViewPort.TopLeftY = 0;
-		m_ViewPort.Width = m_pWindow->GetWidth();
-		m_ViewPort.Height = m_pWindow->GetHeight();
+		m_ViewPort.Width = static_cast<FLOAT>(m_pWindow->GetWidth());
+		m_ViewPort.Height = static_cast<FLOAT>(m_pWindow->GetHeight());
 		m_ViewPort.MinDepth = 0.0f;
 		m_ViewPort.MaxDepth = 1.0f;
 	}
@@ -748,7 +685,7 @@ namespace Insight {
 	{
 		UINT dxgiFactoryFlags = 0;
 		// Enable debug layers
-#ifdef _DEBUG
+#ifdef IE_DEBUG
 		ComPtr<ID3D12Debug> debugController;
 		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
 		{

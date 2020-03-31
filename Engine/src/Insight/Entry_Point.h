@@ -31,6 +31,7 @@ extern Insight::Application* Insight::CreateApplication();
 	int main(int argc, char** argv)
 	{
 		auto app = Insight::CreateApplication();
+		app->Init();
 		app->Run();
 		delete app;
 	}

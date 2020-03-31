@@ -26,12 +26,10 @@ namespace Insight {
 
 		static_cast<WindowsWindow*>(m_pWindow.get())->SetWindowsSessionProps(hInstance, nCmdShow);
 		if (!static_cast<WindowsWindow*>(m_pWindow.get())->Init(WindowProps()))
-		{
-			IE_CORE_ERROR("Fatal Error: Failed to initialize window. Exiting.");
-			exit(-1);
-		}
-		// TODO: Move this into client
-		//PushOverlay(new Insight::ImGuiLayer());
+			IE_CORE_FATAL(L"Fatal Error: Failed to initialize window. Exiting.");
+
+		if (!Init())
+			IE_CORE_FATAL(L"Failed to initizlize application");
 
 	}
 
@@ -39,17 +37,21 @@ namespace Insight {
 	{
 	}
 
+	bool Application::Init()
+	{
+		PushEngineLayers();
+		return true;
+	}
+
 	void Application::Run()
 	{
 		while(m_Running)
 		{
-
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
 
 			
 			m_pWindow->OnUpdate();
-
 		}
 	}
 
@@ -70,6 +72,11 @@ namespace Insight {
 			if (e.Handled())
 				break;
 		}
+	}
+
+	void Application::PushEngineLayers()
+	{
+		PushOverlay(new ImGuiLayer());
 	}
 
 	void Application::PushLayer(Layer * layer)

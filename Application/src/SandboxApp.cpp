@@ -27,7 +27,7 @@ class Sandbox : public Insight::Application
 public:
 	Sandbox()
 	{
-		PushLayer(new ExampleLayer());
+		//PushLayer(new ExampleLayer());
 		//PushLayer(new Insight::ImGuiLayer());
 	}
 
@@ -35,6 +35,7 @@ public:
 	{
 
 	}
+
 };
 
 Insight::Application * Insight::CreateApplication()
