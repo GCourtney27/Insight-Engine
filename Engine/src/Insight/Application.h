@@ -31,6 +31,7 @@ namespace Insight {
 	private:
 		void PushEngineLayers();
 		bool OnWindowClose(WindowCloseEvent& e);
+		bool OnWindowResize(WindowResizeEvent& e);
 	private:
 		std::unique_ptr<Window> m_pWindow;
 		bool m_Running = true;

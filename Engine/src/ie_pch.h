@@ -13,7 +13,6 @@
 #include <unordered_map>
 #include <unordered_set>
 
-// TODO: implement log class
 #include "Insight/Log.h"
 
 #ifdef IE_PLATFORM_WINDOWS

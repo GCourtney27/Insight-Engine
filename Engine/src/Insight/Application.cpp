@@ -63,6 +63,7 @@ namespace Insight {
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(IE_BIND_EVENT_FN(Application::OnWindowClose));
+		dispatcher.Dispatch<WindowResizeEvent>(IE_BIND_EVENT_FN(Application::OnWindowResize));
 
 		//IE_CORE_TRACE("{0}", e);
 
@@ -94,6 +95,12 @@ namespace Insight {
 	bool Application::OnWindowClose(WindowCloseEvent & e)
 	{
 		m_Running = false;
+		return true;
+	}
+
+	bool Application::OnWindowResize(WindowResizeEvent& e)
+	{
+		m_pWindow->Resize(e.GetWidth(), e.GetHeight());
 		return true;
 	}
 

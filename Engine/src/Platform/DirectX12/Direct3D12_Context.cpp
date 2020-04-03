@@ -34,30 +34,33 @@ namespace Insight {
 			CreateSwapChain();
 			CreateViewport();
 			CreateScissorRect();
+
 			CreateDescriptorHeaps();
-			/*CreateRTVDescriptorHeap();
-			CreateDSVDescriptorHeap();*/
 			
 			CreateDepthStencilBuffer();
 			
 			CreateFenceEvent();
 			CreateCommandAllocators();
+
+
 			CreatePipelineStateObjects();
-
-			//CreateRootSignature();
 			
+			CreateShaderDescriptorHeaps();
 
-			CreateImGuiDescriptorHeap();
 
-			//TODO: Move shader creation to shader class
-			//InitShaders();
+			m_pCommandList->Close();
+			ID3D12CommandList* ppCommandLists[] = { m_pCommandList.Get() };
+			m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
-			
+			m_FenceValue[m_FrameIndex]++;
+			HRESULT hr = m_pCommandQueue->Signal(m_pFence->GetAddressOf()[m_FrameIndex], m_FenceValue[m_FrameIndex]);
+			COM_ERROR_IF_FAILED(hr, "Failed to signal command queue when uploading vertex buffer");
+
 		}
 		catch (COMException& ex) {
 			COM_SAFE_RELEASE(m_pDxgiFactory);
 			MessageBox(*m_pWindowHandle, ex.what(), L"Error", MB_OK);
-			//Cleanup();
+			__debugbreak();
 			return false;
 		}
 		return true;
@@ -65,6 +68,32 @@ namespace Insight {
 
 	void Direct3D12Context::OnUpdate()
 	{
+		static float rIncrement = 0.00002f;
+		static float gIncrement = 0.00006f;
+		static float bIncrement = 0.00009f;
+
+		m_cbColorMultiplierData.colorMultiplier.x += rIncrement;
+		m_cbColorMultiplierData.colorMultiplier.y += gIncrement;
+		m_cbColorMultiplierData.colorMultiplier.z += bIncrement;
+
+		if (m_cbColorMultiplierData.colorMultiplier.x >= 1.0 || m_cbColorMultiplierData.colorMultiplier.x <= 0.0)
+		{
+			m_cbColorMultiplierData.colorMultiplier.x = m_cbColorMultiplierData.colorMultiplier.x >= 1.0 ? 1.0 : 0.0;
+			rIncrement = -rIncrement;
+		}
+		if (m_cbColorMultiplierData.colorMultiplier.y >= 1.0 || m_cbColorMultiplierData.colorMultiplier.y <= 0.0)
+		{
+			m_cbColorMultiplierData.colorMultiplier.y = m_cbColorMultiplierData.colorMultiplier.y >= 1.0 ? 1.0 : 0.0;
+			gIncrement = -gIncrement;
+		}
+		if (m_cbColorMultiplierData.colorMultiplier.z >= 1.0 || m_cbColorMultiplierData.colorMultiplier.z <= 0.0)
+		{
+			m_cbColorMultiplierData.colorMultiplier.z = m_cbColorMultiplierData.colorMultiplier.z >= 1.0 ? 1.0 : 0.0;
+			bIncrement = -bIncrement;
+		}
+
+		// copy our ConstantBuffer instance to the mapped constant buffer resource
+		memcpy(m_cbColorMultiplierGPUAddress[m_FrameIndex], &m_cbColorMultiplierData, sizeof(m_cbColorMultiplierData));
 	}
 
 	void Direct3D12Context::WaitForPreviousFrame()
@@ -126,6 +155,12 @@ namespace Insight {
 
 		m_pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+		ID3D12DescriptorHeap* descriptorHeaps[] = { m_pMainDescriptorHeap[m_FrameIndex].Get() };
+		m_pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+
+		m_pCommandList->SetGraphicsRootDescriptorTable(0, m_pMainDescriptorHeap[m_FrameIndex]->GetGPUDescriptorHandleForHeapStart());
+
+
 		// Should be on a per object basis
 		{
 			m_pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);
@@ -169,9 +204,37 @@ namespace Insight {
 		m_pSwapChain->Present(m_VSyncEnabled, 0);
 	}
 
-	void Direct3D12Context::OnWindowResize()
+	void Direct3D12Context::OnWindowResize(UINT width, UINT height)
 	{
-		//TODO: Recreate swapchain
+		WaitForGPU();
+
+		for (UINT i = 0; i < m_FrameBufferCount; i++)
+		{
+			m_pRenderTargets[i].Reset();
+			m_FenceValue[i] = m_FenceValue[m_FrameIndex];
+		}
+
+		DXGI_SWAP_CHAIN_DESC desc = {};
+		m_pSwapChain->GetDesc(&desc);
+	
+		HRESULT hr = m_pSwapChain->ResizeBuffers(m_FrameBufferCount, width, height, desc.BufferDesc.Format, desc.Flags);
+		if (FAILED(hr))
+			__debugbreak();
+
+		m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
+
+		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_pRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+
+		for (UINT i = 0; i < m_FrameBufferCount; i++)
+		{
+			m_pSwapChain->GetBuffer(i, IID_PPV_ARGS(&m_pRenderTargets[i]));
+			m_pDevice->CreateRenderTargetView(m_pRenderTargets[i].Get(), nullptr, rtvHandle);
+		}
+
+		/*CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_pDepthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+
+		hr = m_pSwapChain->GetBuffer(0, IID_PPV_ARGS(&m_pDepthStencilBuffer));*/
+
 	}
 
 	void Direct3D12Context::CreateSwapChain()
@@ -212,6 +275,7 @@ namespace Insight {
 	{
 		CreateRTVDescriptorHeap();
 		CreateDSVDescriptorHeap();
+		CreateImGuiDescriptorHeap();
 	}
 
 	void Direct3D12Context::CreateRTVDescriptorHeap()
@@ -237,7 +301,6 @@ namespace Insight {
 
 			rtvHandle.Offset(1, m_RtvDescriptorSize);
 		}
-
 	}
 
 	void Direct3D12Context::CreateDSVDescriptorHeap()
@@ -309,10 +372,33 @@ namespace Insight {
 	void Direct3D12Context::CreatePipelineStateObjects()
 	{
 		HRESULT hr;
-		CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
-		rootSignatureDesc.Init(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
-		ID3DBlob* RootSignatureByteCode;
+
+		D3D12_DESCRIPTOR_RANGE descriptorTableRanges[1];
+		descriptorTableRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+		descriptorTableRanges[0].NumDescriptors = 1;
+		descriptorTableRanges[0].BaseShaderRegister = 0;
+		descriptorTableRanges[0].RegisterSpace = 0;
+		descriptorTableRanges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+		D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
+		descriptorTable.NumDescriptorRanges = _countof(descriptorTableRanges);
+		descriptorTable.pDescriptorRanges = &descriptorTableRanges[0];
+
+		D3D12_ROOT_PARAMETER rootParameters[1];
+		rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+		rootParameters[0].DescriptorTable = descriptorTable;
+		rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+
+		CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
+		rootSignatureDesc.Init(_countof(rootParameters), rootParameters, 0, nullptr,
+			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS);
+
+		ID3DBlob* RootSignatureByteCode = nullptr;
 		hr = D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &RootSignatureByteCode, nullptr);
 		COM_ERROR_IF_FAILED(hr, "Failed to serialize Root Signature");
 
@@ -324,8 +410,8 @@ namespace Insight {
 		// Compile vertex shader // TEMP//
 #pragma region Make this a Vertex class
 		// Note: Searches for shaders relative to Application.vcxproj
-		ID3DBlob* pVertexShader = 0;
-		ID3DBlob* pErrorBuffer = 0;
+		ID3DBlob* pVertexShader = nullptr;
+		ID3DBlob* pErrorBuffer = nullptr;
 		//TODO: make a file system search for this relative sahder path in client
 		// The client should be able to edit and create their own shaders
 		hr = D3DCompileFromFile(L"src/Shaders/ForwardRendering/Shader_Vertex.hlsl",
@@ -347,7 +433,7 @@ namespace Insight {
 		vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
 		// Compile pixel shader // TEMP//
 		// create vertex and pixel shaders
-		ID3DBlob* pixelShader;
+		ID3DBlob* pixelShader = nullptr;
 		hr = D3DCompileFromFile(L"src/Shaders/ForwardRendering/Shader_Pixel.hlsl",
 			nullptr,
 			nullptr,
@@ -393,7 +479,7 @@ namespace Insight {
 		psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 		psoDesc.NumRenderTargets = 1;
 
-		hr = m_pDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(m_pPipelineStateObject_Default.GetAddressOf()));
+		hr = m_pDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pPipelineStateObject_Default));
 		COM_ERROR_IF_FAILED(hr, "Failed to create default Pipeline State Object");
 
 		// TODO Make model class
@@ -486,80 +572,54 @@ namespace Insight {
 
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pVertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER));
 
-		m_pCommandList->Close();
-		ID3D12CommandList* ppCommandLists[] = { m_pCommandList.Get() };
-		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-
-		m_FenceValue[m_FrameIndex]++;
-		hr = m_pCommandQueue->Signal(m_pFence->GetAddressOf()[m_FrameIndex], m_FenceValue[m_FrameIndex]);
-		COM_ERROR_IF_FAILED(hr, "Failed to signal command queue when uploading vertex buffer");
+		
 	}
 
-	void Direct3D12Context::CreateRootSignature()
+	void Direct3D12Context::CreateShaderDescriptorHeaps()
 	{
 		HRESULT hr;
 
-		D3D12_ROOT_DESCRIPTOR rootCBVDescriptor;
-		rootCBVDescriptor.RegisterSpace = 0;
-		rootCBVDescriptor.ShaderRegister = 0;
 
-		D3D12_DESCRIPTOR_RANGE descriptorTableRanges[1];
-		descriptorTableRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-		descriptorTableRanges[0].NumDescriptors = 1;
-		descriptorTableRanges[0].BaseShaderRegister = 0;
-		descriptorTableRanges[0].RegisterSpace = 0;
-		descriptorTableRanges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-		D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable;
-		descriptorTable.NumDescriptorRanges = _countof(descriptorTableRanges);
-		descriptorTable.pDescriptorRanges = &descriptorTableRanges[0];
-
-		D3D12_ROOT_PARAMETER rootPerameters[2];
-		rootPerameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-		rootPerameters[0].Descriptor = rootCBVDescriptor;
-		rootPerameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-
-		rootPerameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-		rootPerameters[1].DescriptorTable = descriptorTable;
-		rootPerameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-		D3D12_STATIC_SAMPLER_DESC sampler = {};
-		sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-		sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-		sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-		sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-		sampler.MipLODBias = 0;
-		sampler.MaxAnisotropy = 0;
-		sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
-		sampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
-		sampler.MinLOD = 0.0f;
-		sampler.MaxLOD = D3D12_FLOAT32_MAX;
-		sampler.ShaderRegister = 0;
-		sampler.RegisterSpace = 0;
-		sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-		CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc;
-		rootSignatureDesc.Init(_countof(rootPerameters),// We have one root parameter
-			rootPerameters, // A pointer to the beginning of our root parameters array
-			1,
-			&sampler,
-			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | // We can deny shader stages here for better performance
-			D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-			D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS
-		);
-
-		ID3DBlob* signature;
-		hr = D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, nullptr);
-		if (FAILED(hr))
+		for (int i = 0; i < m_FrameBufferCount; ++i)
 		{
-			MessageBox(0, L"Failed to Serialize Root Signature", L"Error", MB_OK);
+			D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
+			heapDesc.NumDescriptors = 1;
+			heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+			heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+			hr = m_pDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_pMainDescriptorHeap[i]));
+			if (FAILED(hr))
+				IE_CORE_ERROR("Renderer::Failed to create descriptor heap for constant buffers.");
 		}
-		hr = m_pDevice->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature_Default));
-		if (FAILED(hr))
+
+		for (int i = 0; i < m_FrameBufferCount; ++i)
 		{
-			MessageBox(0, L"Failed to create root signature", L"Error", MB_OK);
+			hr = m_pDevice->CreateCommittedResource(
+				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+				D3D12_HEAP_FLAG_NONE,
+				&CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
+				D3D12_RESOURCE_STATE_GENERIC_READ,
+				nullptr,
+				IID_PPV_ARGS(&m_pConstantBufferUploadHeap[i])
+			);
+			if (FAILED(hr))
+				IE_CORE_ERROR("Renderer::Failed to create commited resource for constant buffers.");
+			m_pConstantBufferUploadHeap[i]->SetName(L"Constant Buffer Upload Heap");
+
+			D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+			cbvDesc.BufferLocation = m_pConstantBufferUploadHeap[i]->GetGPUVirtualAddress();
+			cbvDesc.SizeInBytes = (sizeof(ConstantBuffer) + 255) & ~255;
+			m_pDevice->CreateConstantBufferView(&cbvDesc, m_pMainDescriptorHeap[i]->GetCPUDescriptorHandleForHeapStart());
+
+			ZeroMemory(&m_cbColorMultiplierData, sizeof(m_cbColorMultiplierData));
+			
+			CD3DX12_RANGE readRange(0, 0);
+			hr = m_pConstantBufferUploadHeap[i]->Map(0, &readRange, reinterpret_cast<void**>(&m_cbColorMultiplierGPUAddress[i]));
+			if (FAILED(hr))
+				IE_CORE_ERROR("Renderer::Failed to map memory for constant buffers.");
+			memcpy(m_cbColorMultiplierGPUAddress[i], &m_cbColorMultiplierData, sizeof(m_cbColorMultiplierData));
+				
 		}
+
 	}
 
 	void Direct3D12Context::CreateViewport()
@@ -734,6 +794,27 @@ namespace Insight {
 			m_pSwapChain->SetFullscreenState(false, NULL);
 
 
+	}
+
+	void Direct3D12Context::WaitForGPU()
+	{
+		m_pCommandQueue->Signal(m_pFence[m_FrameIndex].Get(), m_FenceValue[m_FrameIndex]);
+
+		// Wait until the fence has been processed.
+		m_pFence[m_FrameIndex].Get()->SetEventOnCompletion(m_FenceValue[m_FrameIndex], m_FenceEvent);
+		WaitForSingleObjectEx(m_FenceEvent, INFINITE, FALSE);
+
+		// Increment the fence value for the current frame.
+		m_FenceValue[m_FrameIndex]++;
+	}
+
+	void Direct3D12Context::ToggleFullscreen(IDXGISwapChain* pSwapChain)
+	{
+		if (m_pWindow->GetIsWindowFullScreen())
+		{
+			//SetWindowLong(*m_pWindowHandle, GWL_STYLE);
+
+		}
 	}
 
 }

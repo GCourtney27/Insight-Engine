@@ -11,11 +11,17 @@ struct VS_OUTPUT
     float4 color : COLOR;
 };
 
+cbuffer ConstantBuffer : register(b0)
+{
+    float4 colorMultiplier;
+};
+
 VS_OUTPUT main(VS_INPUT vs_in)
 {
     VS_OUTPUT vs_out;
+
     vs_out.position = float4(vs_in.position, 1.0f);
-    vs_out.color = vs_in.color;
+    vs_out.color = vs_in.color * colorMultiplier;
     
     return vs_out;
 }

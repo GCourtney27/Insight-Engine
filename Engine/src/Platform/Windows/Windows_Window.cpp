@@ -21,7 +21,7 @@ namespace Insight {
 		return new WindowsWindow(props);
 	}
 
-	Insight::WindowsWindow::WindowsWindow(const WindowProps & props)
+	WindowsWindow::WindowsWindow(const WindowProps & props)
 	{
 		m_Data.WindowTitle = props.Title;
 		m_Data.WindowTitle_wide = StringHelper::StringToWide(m_Data.WindowTitle);
@@ -29,7 +29,6 @@ namespace Insight {
 		m_Data.WindowClassName_wide = StringHelper::StringToWide(m_Data.WindowClassName);
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
-
 	}
 
 	LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -160,19 +159,25 @@ namespace Insight {
 		}
 		case WM_SIZE:
 		{
-			//IE_CORE_INFO("Window resize has begun");
+			//IE_CORE_INFO("Window size has changed");
 			
-			if(wParam & SIZE_MINIMIZED)
+			//if(wParam & SIZE_MINIMIZED)
 				// Window has beein minimized stop rendering momentarily becasue we cannot see the result
 
 			// lParam contains new with and height
+			
 			
 			return 0;
 		}
 		case WM_SIZING:
 		{
 			//IE_CORE_INFO("Window is currently being resized");
-			return 0;
+			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			RECT clientRect = {};
+			GetClientRect(hWnd, &clientRect);
+			WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
+			data.EventCallback(event);
+			return 1;
 		}
 		default:
 		{
@@ -259,6 +264,13 @@ namespace Insight {
 		}
 	}
 
+	void WindowsWindow::Resize(uint32_t newWidth, uint32_t newHeight)
+	{
+		m_Data.Width = newWidth;
+		m_Data.Height = newHeight;
+		m_pRendererContext->OnWindowResize(newWidth, newHeight);
+	}
+
 	bool WindowsWindow::ProccessWindowMessages()
 	{
 		MSG msg;
@@ -289,6 +301,8 @@ namespace Insight {
 	void WindowsWindow::OnUpdate()
 	{
 		ProccessWindowMessages();
+
+		m_pRendererContext->OnUpdate();
 
 		m_pRendererContext->RenderFrame();
 

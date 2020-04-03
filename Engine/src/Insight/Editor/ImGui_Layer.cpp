@@ -56,8 +56,8 @@ namespace Insight {
 
 		RenderingContext* renderContext = &Application::Get().GetWindow().GetRenderContext();
 		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(renderContext);
-		HWND* pWindow = static_cast<HWND*>(Application::Get().GetWindow().GetNativeWindow());
-		bool impleWin32Succeeded = ImGui_ImplWin32_Init( (pWindow) );
+		HWND* pWindowHandle = static_cast<HWND*>(Application::Get().GetWindow().GetNativeWindow());
+		bool impleWin32Succeeded = ImGui_ImplWin32_Init( (pWindowHandle) );
 		if(!impleWin32Succeeded)
 			IE_CORE_WARN("Failed to initialize ImGui for Win32. Some controls may not be functional or editor may not be rendered.");
 
@@ -97,6 +97,94 @@ namespace Insight {
 
 	void ImGuiLayer::OnEvent(Event & event)
 	{
+		EventDispatcher dispatcher(event);
+		dispatcher.Dispatch<MouseButtonPressedEvent>(IE_BIND_EVENT_FN(ImGuiLayer::OnMouseButtonPressedEvent));
+		dispatcher.Dispatch<MouseButtonReleasedEvent>(IE_BIND_EVENT_FN(ImGuiLayer::OnMouseButtonReleasedEvent));
+
+		dispatcher.Dispatch<MouseMovedEvent>(IE_BIND_EVENT_FN(ImGuiLayer::OnMouseMovedEvent));
+		dispatcher.Dispatch<MouseScrolledEvent>(IE_BIND_EVENT_FN(ImGuiLayer::OnMouseScrollEvent));
+		
+		dispatcher.Dispatch<KeyPressedEvent>(IE_BIND_EVENT_FN(ImGuiLayer::OnKeyPressedEvent));
+		dispatcher.Dispatch<KeyReleasedEvent>(IE_BIND_EVENT_FN(ImGuiLayer::OnKeyReleasedEvent));
+		
+		dispatcher.Dispatch<KeyTypedEvent>(IE_BIND_EVENT_FN(ImGuiLayer::OnKeyTypedEvent));
+		
+		dispatcher.Dispatch<WindowResizeEvent>(IE_BIND_EVENT_FN(ImGuiLayer::OnWindowResizedEvent));
+
+	}
+
+	bool ImGuiLayer::OnMouseButtonPressedEvent(MouseButtonPressedEvent& e)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.MouseDown[e.GetMouseButton()] = true;
+
+		return false;
+	}
+
+	bool ImGuiLayer::OnMouseButtonReleasedEvent(MouseButtonReleasedEvent& e)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.MouseDown[e.GetMouseButton()] = false;
+
+		return false;
+	}
+
+	bool ImGuiLayer::OnMouseMovedEvent(MouseMovedEvent& e)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.MousePos = ImVec2(e.GetX(), e.GetY());
+
+		return false;
+	}
+
+	bool ImGuiLayer::OnMouseScrollEvent(MouseScrolledEvent& e)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.MouseWheel += e.GetYOffset();
+		io.MouseWheelH += e.GetXOffset();
+
+		return false;
+	}
+
+	bool ImGuiLayer::OnKeyPressedEvent(KeyPressedEvent& e)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.KeysDown[e.GetKeyCode()] = true;
+
+		io.KeyCtrl = io.KeysDown[VK_LCONTROL] || io.KeysDown[VK_RCONTROL];
+		io.KeyShift = io.KeysDown[VK_LSHIFT] || io.KeysDown[VK_RCONTROL];
+		io.KeySuper = io.KeysDown[VK_LWIN] || io.KeysDown[VK_RWIN];
+		io.KeyAlt = io.KeysDown[VK_LMENU] || io.KeysDown[VK_RMENU];
+
+		return false;
+	}
+
+	bool ImGuiLayer::OnKeyReleasedEvent(KeyReleasedEvent& e)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.KeysDown[e.GetKeyCode()] = false; 
+		
+		return false;
+	}
+
+	bool ImGuiLayer::OnKeyTypedEvent(KeyTypedEvent& e)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		int keycode = e.GetKeyCode();
+		if (keycode > 0 && keycode < 0x10000)
+			io.AddInputCharacter((unsigned short)keycode);
+
+		return false;
+	}
+
+	bool ImGuiLayer::OnWindowResizedEvent(WindowResizeEvent& e)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.DisplaySize = ImVec2(e.GetWidth(), e.GetHeight());
+		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+
+		//window->Resize(e.GetWidth(), e.GetHeight());
+		return false;
 	}
 
 }

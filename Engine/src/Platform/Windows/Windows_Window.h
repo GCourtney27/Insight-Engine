@@ -21,12 +21,14 @@ namespace Insight {
 		};
 
 	public:
+
 		WindowsWindow(const WindowProps& props);
 		virtual ~WindowsWindow();
 
 		virtual void OnUpdate() override;
 		virtual void Shutdown() override;
 
+		inline bool GetIsWindowFullScreen() const { return m_FullScreenMode; }
 		inline uint32_t GetWidth() const override { return m_Data.Width; }
 		inline uint32_t GetHeight() const override { return m_Data.Height; }
 
@@ -35,6 +37,7 @@ namespace Insight {
 		inline HINSTANCE& GetWindowsApplicationReference() const { return *m_WindowsAppInstance; }
 		inline HWND& GetWindowHandleReference() { return m_WindowHandle; }
 
+		virtual void Resize(uint32_t newWidth, uint32_t newHeight) override;
 
 		virtual bool ProccessWindowMessages() override;
 
@@ -53,9 +56,7 @@ namespace Insight {
 		HINSTANCE* m_WindowsAppInstance;
 		int m_nCmdShowArgs;
 		WindowData m_Data;
-		bool m_WindowResizeBegun = false;
-		bool m_WindowResizeInProgress = false;
-
+		bool m_FullScreenMode = false;
 	};
 
 }

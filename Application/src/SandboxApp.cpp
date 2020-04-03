@@ -28,7 +28,6 @@ public:
 	Sandbox()
 	{
 		//PushLayer(new ExampleLayer());
-		//PushLayer(new Insight::ImGuiLayer());
 	}
 
 	virtual ~Sandbox()

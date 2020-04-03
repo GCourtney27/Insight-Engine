@@ -20,12 +20,12 @@ namespace Insight {
 		Direct3D12Context(Insight::WindowsWindow* windowHandle);
 		virtual ~Direct3D12Context();
 		
-		void OnUpdate();
+		virtual void OnUpdate() override;
 
 		virtual bool Init() override;
 		virtual void RenderFrame() override;
 		virtual void SwapBuffers() override;
-		virtual void OnWindowResize() override;
+		virtual void OnWindowResize(UINT width, UINT height) override;
 
 		inline ID3D12Device& GetDevice() const { return *m_pDevice.Get(); }
 		inline ID3D12DescriptorHeap& GetImGuiDescriptorHeap() const { return *m_pImGuiDescriptorHeap.Get(); }
@@ -49,7 +49,7 @@ namespace Insight {
 		void CreateCommandAllocators();
 		void CreateFenceEvent();
 		void CreatePipelineStateObjects();
-		void CreateRootSignature();
+		void CreateShaderDescriptorHeaps();
 		void CreateViewport();
 		void CreateScissorRect();
 		void CreateImGuiDescriptorHeap();
@@ -58,15 +58,17 @@ namespace Insight {
 		//ConstantBuffer<ConstantBufferPerObject> cb_vertexShader;// TEMP! Move this!
 
 		void Cleanup();
+		void WaitForGPU();
+		void ToggleFullscreen(IDXGISwapChain* pSwapChain);
 	private:
-		HWND* m_pWindowHandle;
-		WindowsWindow* m_pWindow;
+		HWND* m_pWindowHandle = nullptr;
+		WindowsWindow* m_pWindow = nullptr;
 
 		// Sync Values
 		int m_FrameIndex = 0;
 		int m_RtvDescriptorSize = 0;
-		UINT64 m_FenceValue[m_FrameBufferCount];
-		HANDLE m_FenceEvent;
+		UINT64 m_FenceValue[m_FrameBufferCount] = {};
+		HANDLE m_FenceEvent = {};
 
 		bool m_RayTraceEnabled = false;
 		bool m_UseWarpDevice = false;
@@ -88,9 +90,10 @@ namespace Insight {
 
 		WRL::ComPtr<ID3D12PipelineState> m_pPipelineStateObject_Default;
 		WRL::ComPtr<ID3D12RootSignature> m_pRootSignature_Default;
-		D3D12_VIEWPORT m_ViewPort;
-		D3D12_RECT m_ScissorRect;
-		DXGI_SAMPLE_DESC m_SampleDesc;
+
+		D3D12_VIEWPORT m_ViewPort = {};
+		D3D12_RECT m_ScissorRect = {};
+		DXGI_SAMPLE_DESC m_SampleDesc = {};
 
 		// IMGUI this should move
 		WRL::ComPtr <ID3D12DescriptorHeap> m_pImGuiDescriptorHeap;
@@ -103,15 +106,26 @@ namespace Insight {
 
 		WRL::ComPtr<ID3D12Resource> m_pIndexBuffer;
 		WRL::ComPtr<ID3D12Resource> m_pIndexBufferUploadHeap;
-		D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;
+		D3D12_INDEX_BUFFER_VIEW m_IndexBufferView = {};
 
-		D3D12_VERTEX_BUFFER_VIEW m_VertexBufferView;
+		D3D12_VERTEX_BUFFER_VIEW m_VertexBufferView = {};
 		struct Vertex {
 			Vertex(float x, float y, float z, float r, float g, float b, float a)
 				: pos(x, y, z), color(r, g, b, a) {}
-			DirectX::XMFLOAT3 pos;
-			DirectX::XMFLOAT4 color;
+			DirectX::XMFLOAT3 pos = {};
+			DirectX::XMFLOAT4 color = {};
 		};
+
+		// TODO: Move this to constant buffers class
+		struct ConstantBuffer {
+			DirectX::XMFLOAT4 colorMultiplier;
+		};
+		WRL::ComPtr<ID3D12DescriptorHeap> m_pMainDescriptorHeap[m_FrameBufferCount];
+		WRL::ComPtr<ID3D12Resource> m_pConstantBufferUploadHeap[m_FrameBufferCount];
+		ConstantBuffer m_cbColorMultiplierData;
+		UINT8* m_cbColorMultiplierGPUAddress[m_FrameBufferCount];
+
+		//=== TEMPORARY! ===// END
 
 	};
 
