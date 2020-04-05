@@ -49,12 +49,13 @@ namespace Insight {
 		void CreateCommandAllocators();
 		void CreateFenceEvent();
 		void CreatePipelineStateObjects();
-		void CreateShaderDescriptorHeaps();
+		void CrateConstantBufferResourceHeaps();
 		void CreateViewport();
 		void CreateScissorRect();
 		void CreateImGuiDescriptorHeap();
 
 		void InitShaders();// TEMP! Move this!
+		void CreateCamera();
 		//ConstantBuffer<ConstantBufferPerObject> cb_vertexShader;// TEMP! Move this!
 
 		void Cleanup();
@@ -116,16 +117,32 @@ namespace Insight {
 			DirectX::XMFLOAT4 color = {};
 		};
 
-		// TODO: Move this to constant buffers class
-		struct ConstantBuffer {
-			DirectX::XMFLOAT4 colorMultiplier;
+		struct ConstantBufferPerObject {
+			DirectX::XMFLOAT4X4 wvpMatrix;
 		};
-		WRL::ComPtr<ID3D12DescriptorHeap> m_pMainDescriptorHeap[m_FrameBufferCount];
-		WRL::ComPtr<ID3D12Resource> m_pConstantBufferUploadHeap[m_FrameBufferCount];
-		ConstantBuffer m_cbColorMultiplierData;
-		UINT8* m_cbColorMultiplierGPUAddress[m_FrameBufferCount];
+		int ConstantBufferPerObjectAlignedSize = (sizeof(ConstantBufferPerObject) + 255) & ~255;
+		ConstantBufferPerObject cbPerObject;
+		ID3D12Resource* constantBufferUploadHeaps[m_FrameBufferCount]; 
 
-		//=== TEMPORARY! ===// END
+		UINT8* cbvGPUAddress[m_FrameBufferCount]; 
+
+		DirectX::XMFLOAT4X4 cameraProjMat;
+		DirectX::XMFLOAT4X4 cameraViewMat;
+
+		DirectX::XMFLOAT4 cameraPosition; 
+		DirectX::XMFLOAT4 cameraTarget;
+		DirectX::XMFLOAT4 cameraUp; 
+
+		DirectX::XMFLOAT4X4 cube1WorldMat;
+		DirectX::XMFLOAT4X4 cube1RotMat;
+		DirectX::XMFLOAT4 cube1Position;
+
+		DirectX::XMFLOAT4X4 cube2WorldMat;
+		DirectX::XMFLOAT4X4 cube2RotMat;
+		DirectX::XMFLOAT4 cube2PositionOffset;
+
+		int numCubeIndices; 
+
 
 	};
 

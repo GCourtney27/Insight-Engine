@@ -1,7 +1,7 @@
 
 struct VS_INPUT
 {
-    float3 position : POSITION;
+    float4 position : POSITION;
     float4 color : COLOR;
 };
 
@@ -13,15 +13,15 @@ struct VS_OUTPUT
 
 cbuffer ConstantBuffer : register(b0)
 {
-    float4 colorMultiplier;
+    float4x4 wvpMat;
 };
 
 VS_OUTPUT main(VS_INPUT vs_in)
 {
     VS_OUTPUT vs_out;
 
-    vs_out.position = float4(vs_in.position, 1.0f);
-    vs_out.color = vs_in.color * colorMultiplier;
+    vs_out.position = mul(vs_in.position, wvpMat);
+    vs_out.color = vs_in.color;
     
     return vs_out;
 }
