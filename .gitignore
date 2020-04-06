@@ -10,6 +10,9 @@ Assets/
 bin/
 bin-int/
 
+# Raw Submodule files
+Engine/vendor/imgui
+
 # User-specific files
 *.rsuser
 *.suo
