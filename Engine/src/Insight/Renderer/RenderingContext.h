@@ -13,10 +13,11 @@ namespace Insight {
 		virtual void OnUpdate() = 0;
 		virtual void RenderFrame() = 0;
 		virtual void SwapBuffers() = 0;
-		virtual void OnWindowResize(UINT width, UINT height) = 0;
+		virtual void OnWindowResize() = 0;
 
 		inline uint8_t GetFrameBufferCount() const { return m_FrameBufferCount; }
 		inline void SetVSyncEnabled(bool enabled) { m_VSyncEnabled = enabled; }
+		inline void SetWindowWidthAndHeight(FLOAT width, FLOAT height) { m_WindowWidth = width; m_WindowHeight = height; OnWindowResize(); }
 
 	protected:
 		RenderingContext(uint32_t windowWidth, uint32_t windowHeight, bool vSyncEabled)
@@ -25,11 +26,16 @@ namespace Insight {
 		static const uint8_t m_FrameBufferCount = 3;
 		uint32_t m_WindowWidth;
 		uint32_t m_WindowHeight;
+
 		bool m_VSyncEnabled = false;
 		enum RenderingAPI
 		{
+			// Dynamic Pipeline
 			D3D_11,
-			D3D_12
+			OPENGL,
+			// Fixed Pipeline
+			D3D_12,
+			VULKAN
 		};
 	};
 

@@ -268,7 +268,7 @@ namespace Insight {
 	{
 		m_Data.Width = newWidth;
 		m_Data.Height = newHeight;
-		m_pRendererContext->OnWindowResize(newWidth, newHeight);
+		m_pRendererContext->SetWindowWidthAndHeight(newWidth, newHeight);
 	}
 
 	bool WindowsWindow::ProccessWindowMessages()
