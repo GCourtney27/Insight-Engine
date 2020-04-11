@@ -16,7 +16,7 @@ namespace Insight {
 		IE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
 
-		Input::IsKeyPressed('A');
+		Input::IsKeyPressed('A'); // Removing this will gause mouse buffer to throw error. Why?
 	}
 
 	void Application::InitializeAppForWindows(HINSTANCE & hInstance, int nCmdShow)
@@ -25,11 +25,14 @@ namespace Insight {
 		m_pWindow->SetEventCallback(IE_BIND_EVENT_FN(Application::OnEvent));
 
 		static_cast<WindowsWindow*>(m_pWindow.get())->SetWindowsSessionProps(hInstance, nCmdShow);
-		if (!static_cast<WindowsWindow*>(m_pWindow.get())->Init(WindowProps()))
+		if (!static_cast<WindowsWindow*>(m_pWindow.get())->Init(WindowProps()))	{
 			IE_CORE_FATAL(L"Fatal Error: Failed to initialize window. Exiting.");
+		}
 
 		if (!Init())
-			IE_CORE_FATAL(L"Failed to initizlize application");
+		{
+			IE_CORE_FATAL(L"Failed to initiazlize application");
+		}
 
 	}
 
@@ -77,7 +80,7 @@ namespace Insight {
 
 	void Application::PushEngineLayers()
 	{
-		PushOverlay(new ImGuiLayer());
+		//PushOverlay(new ImGuiLayer());
 	}
 
 	void Application::PushLayer(Layer * layer)

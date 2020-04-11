@@ -172,11 +172,11 @@ namespace Insight {
 		case WM_SIZING:
 		{
 			//IE_CORE_INFO("Window is currently being resized");
-			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			/*WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			RECT clientRect = {};
 			GetClientRect(hWnd, &clientRect);
 			WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
-			data.EventCallback(event);
+			data.EventCallback(event);*/
 			return 1;
 		}
 		default:

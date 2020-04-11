@@ -199,9 +199,9 @@ namespace Insight {
 
 		
 		// Render ImGui UI
-		m_pCommandList->SetDescriptorHeaps(1, m_pImGuiDescriptorHeap.GetAddressOf());
-		ImGui::Render();
-		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList.Get());
+		//m_pCommandList->SetDescriptorHeaps(1, m_pImGuiDescriptorHeap.GetAddressOf());
+		//ImGui::Render();
+		//ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList.Get());
 
 
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
@@ -224,7 +224,10 @@ namespace Insight {
 		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
 		hr = m_pCommandQueue->Signal(m_pFence[m_FrameIndex].Get(), m_FenceValue[m_FrameIndex]);
-
+		if (FAILED(hr))
+		{
+			IE_CORE_WARN("Command queue failed to signal.");
+		}
 	}
 
 	void Direct3D12Context::SwapBuffers()
@@ -276,16 +279,16 @@ namespace Insight {
 		HRESULT hr;
 
 		DXGI_MODE_DESC backBufferDesc = {};
-		backBufferDesc.Width = m_pWindow->GetWidth();
-		backBufferDesc.Height = m_pWindow->GetHeight();
+		backBufferDesc.Width = m_WindowWidth;
+		backBufferDesc.Height = m_WindowHeight;
 
 		m_SampleDesc = {};
 		m_SampleDesc.Count = 1;
 
 		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
 		swapChainDesc.BufferCount = m_FrameBufferCount;
-		swapChainDesc.Width = m_pWindow->GetWidth();
-		swapChainDesc.Height = m_pWindow->GetHeight();
+		swapChainDesc.Width = m_WindowWidth;
+		swapChainDesc.Height = m_WindowHeight;
 		swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
@@ -346,10 +349,14 @@ namespace Insight {
 		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 		hr = m_pLogicalDevice->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(m_pDepthStencilDescriptorHeap.GetAddressOf()));
 		COM_ERROR_IF_FAILED(hr, "Failed to create descriptor heap for Depth Stencil View.");
+		m_pDepthStencilDescriptorHeap->SetName(L"Depth/Stencil Resource Heap");
+
 	}
 
 	void Direct3D12Context::CreateDepthStencilBuffer()
 	{
+		HRESULT hr;
+
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsDesc = {};
 		dsDesc.Format = DXGI_FORMAT_D32_FLOAT;
 		dsDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
@@ -360,14 +367,15 @@ namespace Insight {
 		depthOptomizedClearValue.DepthStencil.Depth = 1.0f;
 		depthOptomizedClearValue.DepthStencil.Stencil = 0;
 
-		m_pLogicalDevice->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		hr = m_pLogicalDevice->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, m_pWindow->GetWidth(), m_pWindow->GetHeight(), 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
+			&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, m_WindowWidth, m_WindowHeight, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
 			D3D12_RESOURCE_STATE_DEPTH_WRITE,
 			&depthOptomizedClearValue,
 			IID_PPV_ARGS(m_pDepthStencilBuffer.GetAddressOf()));
-
-		m_pDepthStencilDescriptorHeap->SetName(L"Depth/Stencil Resource Heap");
+		if (FAILED(hr))
+			IE_CORE_ERROR("Failed to create comitted resource for depth stencil view");
 
 		m_pLogicalDevice->CreateDepthStencilView(m_pDepthStencilBuffer.Get(), &dsDesc, m_pDepthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 		
@@ -534,6 +542,7 @@ namespace Insight {
 		psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 		psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+		psoDesc.DSVFormat = m_pDepthStencilBuffer->GetDesc().Format;
 		psoDesc.NumRenderTargets = 1;
 
 		hr = m_pLogicalDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pPipelineStateObject_Default));
@@ -571,8 +580,8 @@ namespace Insight {
 	{
 		m_ViewPort.TopLeftX = 0;
 		m_ViewPort.TopLeftY = 0;
-		m_ViewPort.Width = static_cast<FLOAT>(m_pWindow->GetWidth());
-		m_ViewPort.Height = static_cast<FLOAT>(m_pWindow->GetHeight());
+		m_ViewPort.Width = static_cast<FLOAT>(m_WindowWidth);
+		m_ViewPort.Height = static_cast<FLOAT>(m_WindowHeight);
 		m_ViewPort.MinDepth = 0.0f;
 		m_ViewPort.MaxDepth = 1.0f;
 	}
@@ -581,8 +590,8 @@ namespace Insight {
 	{
 		m_ScissorRect.left = 0;
 		m_ScissorRect.top = 0;
-		m_ScissorRect.right = m_pWindow->GetWidth();
-		m_ScissorRect.bottom = m_pWindow->GetHeight();
+		m_ScissorRect.right = m_WindowWidth;
+		m_ScissorRect.bottom = m_WindowHeight;
 	}
 
 	void Direct3D12Context::InitShaders()
@@ -803,6 +812,9 @@ namespace Insight {
 		   20, 23, 21, // second triangle
 		};
 		int iBufferSize = sizeof(iList);
+
+		numCubeIndices = sizeof(iList) / sizeof(DWORD);
+
 		hr = m_pLogicalDevice->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			D3D12_HEAP_FLAG_NONE,
