@@ -2,7 +2,7 @@
 
 #include "Insight/Core.h"
 
-#include "Insight/Layer.h"
+#include "Insight/Core/Layer/Layer.h"
 #include "Insight/Events/Application_Event.h"
 #include "Insight/Events/Key_Event.h"
 #include "Insight/Events/Mouse_Event.h"
@@ -31,7 +31,8 @@ namespace Insight {
 		bool OnKeyTypedEvent(KeyTypedEvent& e);
 		bool OnWindowResizedEvent(WindowResizeEvent& e);
 	private:
-		HWND* m_pWindowHandle;
+		HWND* m_pWindowHandle = nullptr;
+
 	};
 
 }

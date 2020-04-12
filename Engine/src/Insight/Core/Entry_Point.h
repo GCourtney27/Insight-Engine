@@ -26,6 +26,8 @@ extern Insight::Application* Insight::CreateApplication();
 		app->Shutdown();
 
 		delete app;
+
+		return 0;
 	}
 #elif IE_PLATFORM_MAC
 	int main(int argc, char** argv)
@@ -34,6 +36,7 @@ extern Insight::Application* Insight::CreateApplication();
 		app->Init();
 		app->Run();
 		delete app;
+		return 0;
 	}
 #else
 	#error No valid entry point found for engine to begin execution.

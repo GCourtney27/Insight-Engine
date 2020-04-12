@@ -1,7 +1,7 @@
 #include "ie_pch.h"
 
 #include "ImGui_Layer.h"
-#include "Insight/Application.h"
+#include "Insight/Core/Application.h"
 #include "Platform/DirectX12/Direct3D12_Context.h"
 #include "Platform/Windows/Windows_Window.h"
 
@@ -54,9 +54,11 @@ namespace Insight {
 		io.KeyMap[ImGuiKey_Y] = 'Y';
 		io.KeyMap[ImGuiKey_Z] = 'Z';
 
+
 		RenderingContext* renderContext = &Application::Get().GetWindow().GetRenderContext();
 		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(renderContext);
 		HWND* pWindowHandle = static_cast<HWND*>(Application::Get().GetWindow().GetNativeWindow());
+
 		bool impleWin32Succeeded = ImGui_ImplWin32_Init( (pWindowHandle) );
 		if(!impleWin32Succeeded)
 			IE_CORE_WARN("Failed to initialize ImGui for Win32. Some controls may not be functional or editor may not be rendered.");
@@ -88,11 +90,10 @@ namespace Insight {
 		static bool show = true;
 		ImGui::ShowDemoWindow(&show);
 
-		RenderingContext* renderContext = &Application::Get().GetWindow().GetRenderContext();
-		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(renderContext);
-
-		ImGui::Render();
-		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), &graphicsContext->GetCommandList());
+		// ------------------------------------------------
+		// Graphics context will render ImGui draw data
+		// and ensure it is the last thing drawn on screen
+		// ------------------------------------------------
 	}
 
 	void ImGuiLayer::OnEvent(Event & event)

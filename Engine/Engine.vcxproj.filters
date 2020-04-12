@@ -37,17 +37,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Insight.h" />
-    <ClInclude Include="src\Insight\Application.h">
-      <Filter>Insight</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Insight\Core.h">
-      <Filter>Insight</Filter>
-    </ClInclude>
     <ClInclude Include="src\Insight\Editor\ImGui_Layer.h">
       <Filter>Insight\Editor</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Insight\Entry_Point.h">
-      <Filter>Insight</Filter>
     </ClInclude>
     <ClInclude Include="src\Insight\Events\Application_Event.h">
       <Filter>Insight\Events</Filter>
@@ -76,23 +67,11 @@
     <ClInclude Include="src\Insight\Input\Windows_Input.h">
       <Filter>Insight\Input</Filter>
     </ClInclude>
-    <ClInclude Include="src\Insight\Layer.h">
-      <Filter>Insight</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Insight\Layer_Stack.h">
-      <Filter>Insight</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Insight\Log.h">
-      <Filter>Insight</Filter>
-    </ClInclude>
     <ClInclude Include="src\Insight\Renderer\RenderingContext.h">
       <Filter>Insight\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Insight\Utilities\String_Helper.h">
       <Filter>Insight\Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Insight\Window.h">
-      <Filter>Insight</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\DirectX12\ConstantBuffersPerObject_TEMP.h">
       <Filter>Platform\DirectX12</Filter>
@@ -122,11 +101,33 @@
       <Filter>Platform\Windows</Filter>
     </ClInclude>
     <ClInclude Include="src\ie_pch.h" />
+    <ClInclude Include="src\Insight\Core\Application.h">
+      <Filter>Insight</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Core\Entry_Point.h">
+      <Filter>Insight</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Core\Window.h">
+      <Filter>Insight</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Core.h">
+      <Filter>Insight</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Core\Layer\Layer.h">
+      <Filter>Insight</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Core\Layer\Layer_Stack.h">
+      <Filter>Insight</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Core\Log.h">
+      <Filter>Insight</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Game\Player.h" />
+    <ClInclude Include="src\Insight\Game\Camera.h" />
+    <ClInclude Include="src\Insight\Math\Vector.h" />
+    <ClInclude Include="src\Insight\Math\Transform.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Insight\Application.cpp">
-      <Filter>Insight</Filter>
-    </ClCompile>
     <ClCompile Include="src\Insight\Editor\ImGui_Layer.cpp">
       <Filter>Insight\Editor</Filter>
     </ClCompile>
@@ -138,15 +139,6 @@
     </ClCompile>
     <ClCompile Include="src\Insight\Input\Windows_Input.cpp">
       <Filter>Insight\Input</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Insight\Layer.cpp">
-      <Filter>Insight</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Insight\Layer_Stack.cpp">
-      <Filter>Insight</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Insight\Log.cpp">
-      <Filter>Insight</Filter>
     </ClCompile>
     <ClCompile Include="src\Insight\Utilities\String_Helper.cpp">
       <Filter>Insight\Utilities</Filter>
@@ -170,5 +162,19 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\ie_pch.cpp" />
+    <ClCompile Include="src\Insight\Core\Application.cpp">
+      <Filter>Insight</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Insight\Core\Layer\Layer.cpp">
+      <Filter>Insight</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Insight\Core\Layer\Layer_Stack.cpp">
+      <Filter>Insight</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Insight\Core\Log.cpp">
+      <Filter>Insight</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Insight\Game\Player.cpp" />
+    <ClCompile Include="src\Insight\Game\Camera.cpp" />
   </ItemGroup>
 </Project>

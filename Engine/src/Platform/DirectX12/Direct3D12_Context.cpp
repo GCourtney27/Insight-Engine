@@ -18,6 +18,7 @@ namespace Insight {
 		: m_pWindowHandle(&windowHandle->GetWindowHandleReference()), m_pWindow(windowHandle), RenderingContext(windowHandle->GetWidth(), windowHandle->GetHeight(), false)
 	{
 		IE_CORE_ASSERT(windowHandle, "Window handle is NULL!");
+		camera.SetProjectionValues(90.0f, m_WindowWidth / m_WindowHeight, 1.0f, 100.0f);
 	}
 
 	Direct3D12Context::~Direct3D12Context()
@@ -50,13 +51,7 @@ namespace Insight {
 			LoadAssets();
 			CreateCamera();
 
-			m_pCommandList->Close();
-			ID3D12CommandList* ppCommandLists[] = { m_pCommandList.Get() };
-			m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-
-			m_FenceValue[m_FrameIndex]++;
-			HRESULT hr = m_pCommandQueue->Signal(m_pFence->GetAddressOf()[m_FrameIndex], m_FenceValue[m_FrameIndex]);
-			COM_ERROR_IF_FAILED(hr, "Failed to signal command queue when uploading vertex buffer");
+			CloseCommandListAndSignalCommandQueue();
 
 		}
 		catch (COMException& ex) {
@@ -72,6 +67,9 @@ namespace Insight {
 	{
 		using namespace DirectX;
 		
+		camera.ProcessKeyboardInput(CameraMovement::BACKWARD, 0.001);
+
+		// Cube 1
 		XMMATRIX rotXMat = XMMatrixRotationX(0.001f);
 		XMMATRIX rotYMat = XMMatrixRotationY(0.002f);
 		XMMATRIX rotZMat = XMMatrixRotationZ(0.003f);
@@ -85,14 +83,20 @@ namespace Insight {
 
 		XMStoreFloat4x4(&cube1WorldMat, worldMat);
 
-		XMMATRIX viewMat = XMLoadFloat4x4(&cameraViewMat); // load view matrix
-		XMMATRIX projMat = XMLoadFloat4x4(&cameraProjMat); // load projection matrix
+		//XMMATRIX viewMat = XMLoadFloat4x4(&cameraViewMat); // load view matrix
+		//XMMATRIX projMat = XMLoadFloat4x4(&cameraProjMat); // load projection matrix
+
+		XMMATRIX viewMat = camera.GetViewMatrix(); // load view matrix
+		XMMATRIX projMat = camera.GetProjectionMatrix(); // load projection matrix
+
+
 		XMMATRIX wvpMat = XMLoadFloat4x4(&cube1WorldMat) * viewMat * projMat; // create wvp matrix
 		XMMATRIX transposed = XMMatrixTranspose(wvpMat); // must transpose wvp matrix for the gpu
 		XMStoreFloat4x4(&cbPerObject.wvpMatrix, transposed); // store transposed wvp matrix in constant buffer
 
 		memcpy(cbvGPUAddress[m_FrameIndex], &cbPerObject, sizeof(cbPerObject));
 
+		// Cube 2
 		rotXMat = XMMatrixRotationX(0.0003f);
 		rotYMat = XMMatrixRotationY(0.0002f);
 		rotZMat = XMMatrixRotationZ(0.0001f);
@@ -114,6 +118,29 @@ namespace Insight {
 
 		// store cube2's world matrix
 		XMStoreFloat4x4(&cube2WorldMat, worldMat);
+
+		// Cube 3
+		rotXMat = XMMatrixRotationX(0.003f);
+		rotYMat = XMMatrixRotationY(0.002f);
+		rotZMat = XMMatrixRotationZ(0.001f);
+
+		rotMat = rotZMat * (XMLoadFloat4x4(&cube3RotMat) * (rotXMat * rotYMat));
+		XMStoreFloat4x4(&cube3RotMat, rotMat);
+
+		translationOffsetMat = XMMatrixTranslationFromVector(XMLoadFloat4(&cube3PositionOffset));
+
+		scaleMat = XMMatrixScaling(0.5f, 0.5f, 0.5f);
+
+		worldMat = scaleMat * translationOffsetMat * rotMat * translationMat;
+
+		wvpMat = XMLoadFloat4x4(&cube3WorldMat) * viewMat * projMat; // create wvp matrix
+		transposed = XMMatrixTranspose(wvpMat); // must transpose wvp matrix for the gpu
+		XMStoreFloat4x4(&cbPerObject.wvpMatrix, transposed); // store transposed wvp matrix in constant buffer
+
+		memcpy(cbvGPUAddress[m_FrameIndex] + (ConstantBufferPerObjectAlignedSize * 2), &cbPerObject, sizeof(cbPerObject));
+
+		// store cube2's world matrix
+		XMStoreFloat4x4(&cube3WorldMat, worldMat);
 	}
 
 	void Direct3D12Context::WaitForPreviousFrame()
@@ -183,25 +210,26 @@ namespace Insight {
 		m_pCommandList->IASetIndexBuffer(&m_IndexBufferView);
 
 		// first cube
-
 		// set cube1's constant buffer
 		m_pCommandList->SetGraphicsRootConstantBufferView(0, constantBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
-
 		// draw first cube
 		m_pCommandList->DrawIndexedInstanced(numCubeIndices, 1, 0, 0, 0);
 
 		// second cube
-
 		m_pCommandList->SetGraphicsRootConstantBufferView(0, constantBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress() + ConstantBufferPerObjectAlignedSize);
-
 		// draw second cube
 		m_pCommandList->DrawIndexedInstanced(numCubeIndices, 1, 0, 0, 0);
 
+		// third cube
+		// !!!! ConstantBufferPerObjectAlignedSize needs to be offset times its (index in the scene - 1)
+		m_pCommandList->SetGraphicsRootConstantBufferView(0, constantBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress() + (ConstantBufferPerObjectAlignedSize * 2));
+		// draw second cube
+		m_pCommandList->DrawIndexedInstanced(numCubeIndices, 1, 0, 0, 0);
 		
 		// Render ImGui UI
-		//m_pCommandList->SetDescriptorHeaps(1, m_pImGuiDescriptorHeap.GetAddressOf());
-		//ImGui::Render();
-		//ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList.Get());
+		m_pCommandList->SetDescriptorHeaps(1, m_pImGuiDescriptorHeap.GetAddressOf());
+		ImGui::Render();
+		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList.Get());
 
 
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
@@ -594,6 +622,17 @@ namespace Insight {
 		m_ScissorRect.bottom = m_WindowHeight;
 	}
 
+	void Direct3D12Context::CloseCommandListAndSignalCommandQueue()
+	{
+		m_pCommandList->Close();
+		ID3D12CommandList* ppCommandLists[] = { m_pCommandList.Get() };
+		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+
+		m_FenceValue[m_FrameIndex]++;
+		HRESULT hr = m_pCommandQueue->Signal(m_pFence->GetAddressOf()[m_FrameIndex], m_FenceValue[m_FrameIndex]);
+		COM_ERROR_IF_FAILED(hr, "Failed to signal command queue");
+	}
+
 	void Direct3D12Context::InitShaders()
 	{
 		HRESULT hr;
@@ -698,6 +737,13 @@ namespace Insight {
 		tmpMat = XMMatrixTranslationFromVector(posVec); 
 		XMStoreFloat4x4(&cube2RotMat, XMMatrixIdentity());
 		XMStoreFloat4x4(&cube2WorldMat, tmpMat);
+
+		// Cube 3
+		cube3PositionOffset = XMFLOAT4(2.0f, 0.0f, 0.0f, 0.0f);
+		posVec = XMLoadFloat4(&cube3PositionOffset) + XMLoadFloat4(&cube1Position);
+		tmpMat = XMMatrixTranslationFromVector(posVec);
+		XMStoreFloat4x4(&cube3RotMat, XMMatrixIdentity());
+		XMStoreFloat4x4(&cube3WorldMat, tmpMat);
 	}
 
 	void Direct3D12Context::LoadAssets()
@@ -877,11 +923,11 @@ namespace Insight {
 		UINT64 textureUploadBufferSize;
 		m_pLogicalDevice->GetCopyableFootprints(&textureDesc, 0, 1, 0, nullptr, nullptr, nullptr, &textureUploadBufferSize);
 		hr = m_pLogicalDevice->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(textureUploadBufferSize),
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(m_pTextureBufferUploadHeap.GetAddressOf()));
+								D3D12_HEAP_FLAG_NONE,
+								&CD3DX12_RESOURCE_DESC::Buffer(textureUploadBufferSize),
+								D3D12_RESOURCE_STATE_GENERIC_READ,
+								nullptr,
+								IID_PPV_ARGS(m_pTextureBufferUploadHeap.GetAddressOf()));
 		if (FAILED(hr))
 			IE_CORE_ERROR("Failed to create commited resource for texture buffer");
 

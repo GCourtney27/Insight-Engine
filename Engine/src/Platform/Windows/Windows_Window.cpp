@@ -1,14 +1,14 @@
 #include "ie_pch.h"
 
 #include "Windows_Window.h"
-#include "Insight/Application.h"
+#include "Insight/Core/Application.h"
 #include "Insight/Events/Application_Event.h"
 #include "Insight/Events/Mouse_Event.h"
 #include "Insight/Events/Key_Event.h"
 #include "Insight/Utilities/String_Helper.h"
 #include "Insight/Input/Keyboard_Buffer.h"
 #include "Insight/Input/Mouse_Buffer.h"
-#include "Insight/Log.h"
+#include "Insight/Core/Log.h"
 
 #include <windowsx.h>
 

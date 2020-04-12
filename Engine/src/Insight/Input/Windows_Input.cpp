@@ -1,7 +1,7 @@
 #include "ie_pch.h"
 #include "Windows_Input.h"
 
-#include "Insight/Application.h"
+#include "Insight/Core/Application.h"
 #include "Platform/Windows/Windows_Window.h"
 
 

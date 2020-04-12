@@ -2,7 +2,7 @@
 
 #include "Application.h"
 #include "Platform/Windows/Windows_Window.h"
-#include "Insight/Log.h"
+#include "Insight/Core/Log.h"
 #include "Insight/Input/Input.h"
 
 #include "Insight/Editor/ImGui_Layer.h"
@@ -25,7 +25,8 @@ namespace Insight {
 		m_pWindow->SetEventCallback(IE_BIND_EVENT_FN(Application::OnEvent));
 
 		static_cast<WindowsWindow*>(m_pWindow.get())->SetWindowsSessionProps(hInstance, nCmdShow);
-		if (!static_cast<WindowsWindow*>(m_pWindow.get())->Init(WindowProps()))	{
+		if (!static_cast<WindowsWindow*>(m_pWindow.get())->Init(WindowProps()))	
+		{
 			IE_CORE_FATAL(L"Fatal Error: Failed to initialize window. Exiting.");
 		}
 
@@ -80,7 +81,7 @@ namespace Insight {
 
 	void Application::PushEngineLayers()
 	{
-		//PushOverlay(new ImGuiLayer());
+		PushOverlay(new ImGuiLayer());
 	}
 
 	void Application::PushLayer(Layer * layer)

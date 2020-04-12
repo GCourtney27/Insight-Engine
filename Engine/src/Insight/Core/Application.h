@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Core.h"
+#include "Insight/Core.h"
 
 #include "Window.h"
-#include "Layer_Stack.h"
-#include "Events/Application_Event.h"
+#include "Insight/Core/Layer/Layer_Stack.h"
+#include "Insight/Events/Application_Event.h"
 
 namespace Insight {
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Insight/Window.h"
+#include "Insight/Core/Window.h"
 
 
 namespace Insight {

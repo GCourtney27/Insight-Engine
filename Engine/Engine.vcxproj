@@ -174,25 +174,29 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Insight.h" />
-    <ClInclude Include="src\Insight\Application.h" />
+    <ClInclude Include="src\Insight\Core\Application.h" />
     <ClInclude Include="src\Insight\Core.h" />
     <ClInclude Include="src\Insight\Editor\ImGui_Layer.h" />
-    <ClInclude Include="src\Insight\Entry_Point.h" />
+    <ClInclude Include="src\Insight\Core\Entry_Point.h" />
     <ClInclude Include="src\Insight\Events\Application_Event.h" />
     <ClInclude Include="src\Insight\Events\Event.h" />
     <ClInclude Include="src\Insight\Events\Key_Event.h" />
     <ClInclude Include="src\Insight\Events\Mouse_Event.h" />
+    <ClInclude Include="src\Insight\Game\Camera.h" />
+    <ClInclude Include="src\Insight\Game\Player.h" />
     <ClInclude Include="src\Insight\Input\Input.h" />
     <ClInclude Include="src\Insight\Input\InputBuffer.h" />
     <ClInclude Include="src\Insight\Input\Keyboard_Buffer.h" />
     <ClInclude Include="src\Insight\Input\Mouse_Buffer.h" />
     <ClInclude Include="src\Insight\Input\Windows_Input.h" />
-    <ClInclude Include="src\Insight\Layer.h" />
-    <ClInclude Include="src\Insight\Layer_Stack.h" />
-    <ClInclude Include="src\Insight\Log.h" />
+    <ClInclude Include="src\Insight\Core\Layer\Layer.h" />
+    <ClInclude Include="src\Insight\Core\Layer\Layer_Stack.h" />
+    <ClInclude Include="src\Insight\Core\Log.h" />
+    <ClInclude Include="src\Insight\Math\Transform.h" />
+    <ClInclude Include="src\Insight\Math\Vector.h" />
     <ClInclude Include="src\Insight\Renderer\RenderingContext.h" />
     <ClInclude Include="src\Insight\Utilities\String_Helper.h" />
-    <ClInclude Include="src\Insight\Window.h" />
+    <ClInclude Include="src\Insight\Core\Window.h" />
     <ClInclude Include="src\Platform\DirectX12\ConstantBuffersPerObject_TEMP.h" />
     <ClInclude Include="src\Platform\DirectX12\ConstantBuffers_TEMP.h" />
     <ClInclude Include="src\Platform\DirectX12\D3D_Api.h" />
@@ -205,14 +209,16 @@
     <ClInclude Include="src\ie_pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Insight\Application.cpp" />
+    <ClCompile Include="src\Insight\Core\Application.cpp" />
     <ClCompile Include="src\Insight\Editor\ImGui_Layer.cpp" />
+    <ClCompile Include="src\Insight\Game\Camera.cpp" />
+    <ClCompile Include="src\Insight\Game\Player.cpp" />
     <ClCompile Include="src\Insight\Input\Keyboard_Buffer.cpp" />
     <ClCompile Include="src\Insight\Input\Mouse_Buffer.cpp" />
     <ClCompile Include="src\Insight\Input\Windows_Input.cpp" />
-    <ClCompile Include="src\Insight\Layer.cpp" />
-    <ClCompile Include="src\Insight\Layer_Stack.cpp" />
-    <ClCompile Include="src\Insight\Log.cpp" />
+    <ClCompile Include="src\Insight\Core\Layer\Layer.cpp" />
+    <ClCompile Include="src\Insight\Core\Layer\Layer_Stack.cpp" />
+    <ClCompile Include="src\Insight\Core\Log.cpp" />
     <ClCompile Include="src\Insight\Utilities\String_Helper.cpp" />
     <ClCompile Include="src\Platform\DirectX12\D3D_Api.cpp" />
     <ClCompile Include="src\Platform\DirectX12\Direct3D12_Context.cpp" />

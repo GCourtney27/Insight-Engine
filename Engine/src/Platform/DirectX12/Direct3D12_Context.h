@@ -5,6 +5,8 @@
 #include "Insight/Renderer/RenderingContext.h"
 #include "Platform/DirectX12/D3D_Api.h"
 
+#include "Insight/Game/Camera.h"
+
 // TODO: implement shader system that uses this
 #include "ConstantBuffersPerObject_TEMP.h"
 #include <DirectXMath.h>
@@ -54,6 +56,7 @@ namespace Insight {
 		void CrateConstantBufferResourceHeaps();
 		void CreateViewport();
 		void CreateScissorRect();
+		void CloseCommandListAndSignalCommandQueue();
 		void CreateImGuiDescriptorHeap();
 
 		// TEMP! Move this!
@@ -137,7 +140,7 @@ namespace Insight {
 		WRL::ComPtr<ID3D12Resource> constantBufferUploadHeaps[m_FrameBufferCount];
 
 		UINT8* cbvGPUAddress[m_FrameBufferCount]; 
-
+		Camera camera;
 		DirectX::XMFLOAT4X4 cameraProjMat;
 		DirectX::XMFLOAT4X4 cameraViewMat;
 
@@ -152,6 +155,10 @@ namespace Insight {
 		DirectX::XMFLOAT4X4 cube2WorldMat;
 		DirectX::XMFLOAT4X4 cube2RotMat;
 		DirectX::XMFLOAT4 cube2PositionOffset;
+
+		DirectX::XMFLOAT4X4 cube3WorldMat;
+		DirectX::XMFLOAT4X4 cube3RotMat;
+		DirectX::XMFLOAT4 cube3PositionOffset;
 
 		int numCubeIndices; 
 

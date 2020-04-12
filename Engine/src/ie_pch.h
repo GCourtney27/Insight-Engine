@@ -13,7 +13,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "Insight/Log.h"
+#include "Insight/Core/Log.h"
 
 #ifdef IE_PLATFORM_WINDOWS
 	
