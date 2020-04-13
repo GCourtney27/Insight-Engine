@@ -21,7 +21,7 @@ namespace Insight {
 	class Direct3D12Context : public RenderingContext, public D3DApi
 	{
 	public:
-		Direct3D12Context(Insight::WindowsWindow* windowHandle);
+		Direct3D12Context(WindowsWindow* windowHandle);
 		virtual ~Direct3D12Context();
 		
 		virtual void OnUpdate() override;
@@ -31,7 +31,7 @@ namespace Insight {
 		virtual void SwapBuffers() override;
 		virtual void OnWindowResize() override;
 
-		inline ID3D12Device& GetDevice() const { return *m_pLogicalDevice.Get(); }
+		inline ID3D12Device& GetDeviceContext() const { return *m_pLogicalDevice.Get(); }
 		inline ID3D12DescriptorHeap& GetImGuiDescriptorHeap() const { return *m_pImGuiDescriptorHeap.Get(); }
 		inline ID3D12GraphicsCommandList& GetCommandList() const { return *m_pCommandList.Get(); }
 

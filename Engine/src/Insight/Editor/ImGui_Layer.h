@@ -7,7 +7,6 @@
 #include "Insight/Events/Key_Event.h"
 #include "Insight/Events/Mouse_Event.h"
 
-
 namespace Insight {
 
 	class ImGuiLayer : public Layer
@@ -24,15 +23,14 @@ namespace Insight {
 	private:
 		bool OnMouseButtonPressedEvent(MouseButtonPressedEvent& e);
 		bool OnMouseButtonReleasedEvent(MouseButtonReleasedEvent& e);
-		bool OnMouseMovedEvent(MouseMovedEvent& e);
 		bool OnMouseScrollEvent(MouseScrolledEvent& e);
+		bool OnMouseMovedEvent(MouseMovedEvent& e);
 		bool OnKeyReleasedEvent(KeyReleasedEvent& e);
 		bool OnKeyPressedEvent(KeyPressedEvent& e);
 		bool OnKeyTypedEvent(KeyTypedEvent& e);
 		bool OnWindowResizedEvent(WindowResizeEvent& e);
 	private:
 		HWND* m_pWindowHandle = nullptr;
-
 	};
 
 }

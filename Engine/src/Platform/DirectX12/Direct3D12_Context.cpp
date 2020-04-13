@@ -284,6 +284,7 @@ namespace Insight {
 	void Direct3D12Context::OnWindowResize()
 	{
 		WaitForGPU();
+		HRESULT hr;
 
 		for (UINT i = 0; i < m_FrameBufferCount; i++)
 		{
@@ -291,33 +292,26 @@ namespace Insight {
 			m_FenceValue[i] = m_FenceValue[m_FrameIndex];
 		}
 
-		DXGI_SWAP_CHAIN_DESC desc = {};
-		m_pSwapChain->GetDesc(&desc);
-
-	
-		HRESULT hr = m_pSwapChain->ResizeBuffers(m_FrameBufferCount, m_WindowWidth, m_WindowHeight, desc.BufferDesc.Format, desc.Flags);
-		if (FAILED(hr))
-			__debugbreak();
-
-		m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
-
-		// TODO: App crashed on windwo resize becasue of depth buffer, fix this.
-		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_pRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-		for (UINT i = 0; i < m_FrameBufferCount; i++)
-		{
-			m_pSwapChain->GetBuffer(i, IID_PPV_ARGS(&m_pRenderTargets[i]));
-			m_pRenderTargets[i]->Release();
-			m_pLogicalDevice->CreateRenderTargetView(m_pRenderTargets[i].Get(), nullptr, rtvHandle);
-		}
-
 		CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_pDepthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 		hr = m_pSwapChain->GetBuffer(0, IID_PPV_ARGS(&m_pDepthStencilBuffer));
-		m_pDepthStencilBuffer->Release();
+		if (FAILED(hr))
+			__debugbreak();
+		m_pDepthStencilBuffer.Reset();
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
 		dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
 		dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 		dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 		m_pLogicalDevice->CreateDepthStencilView(m_pDepthStencilBuffer.Get(), &dsvDesc, dsvHandle);
+
+		DXGI_SWAP_CHAIN_DESC desc = {};
+		m_pSwapChain->GetDesc(&desc);
+		hr = m_pSwapChain->ResizeBuffers(m_FrameBufferCount, m_WindowWidth, m_WindowHeight, desc.BufferDesc.Format, desc.Flags);
+		if (FAILED(hr))
+			__debugbreak();
+
+		m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
+
+		
 	}
 
 	void Direct3D12Context::CreateSwapChain()
