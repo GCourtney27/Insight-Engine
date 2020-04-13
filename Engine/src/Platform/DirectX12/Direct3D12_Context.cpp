@@ -2,6 +2,7 @@
 
 #include "Direct3D12_Context.h"
 #include "Platform/Windows/Windows_Window.h"
+#include "Insight/Input/Input.h"
 
 #include "imgui.h"
 #include "Platform/ImGui/ImGui_DX12_Renderer.h"
@@ -18,7 +19,7 @@ namespace Insight {
 		: m_pWindowHandle(&windowHandle->GetWindowHandleReference()), m_pWindow(windowHandle), RenderingContext(windowHandle->GetWidth(), windowHandle->GetHeight(), false)
 	{
 		IE_CORE_ASSERT(windowHandle, "Window handle is NULL!");
-		camera.SetProjectionValues(90.0f, m_WindowWidth / m_WindowHeight, 1.0f, 100.0f);
+		camera.SetProjectionValues(45.0f, m_WindowWidth / m_WindowHeight, 1.0f, 100.0f);
 	}
 
 	Direct3D12Context::~Direct3D12Context()
@@ -49,7 +50,7 @@ namespace Insight {
 			CrateConstantBufferResourceHeaps();
 			
 			LoadAssets();
-			CreateCamera();
+			InitDemoScene();
 
 			CloseCommandListAndSignalCommandQueue();
 
@@ -67,7 +68,24 @@ namespace Insight {
 	{
 		using namespace DirectX;
 		
-		camera.ProcessKeyboardInput(CameraMovement::BACKWARD, 0.001);
+		// TODO: move this to layer controller
+		if (Input::IsMouseButtonPressed(1))
+		{
+			auto [x, y] = Input::GetMousePosition();
+			camera.ProcessMouseMovement(x, y);
+		}
+		if(Input::IsKeyPressed('W'))
+			camera.ProcessKeyboardInput(CameraMovement::FORWARD, 0.001);
+		if(Input::IsKeyPressed('S'))
+			camera.ProcessKeyboardInput(CameraMovement::BACKWARD, 0.001);
+		if (Input::IsKeyPressed('A'))
+			camera.ProcessKeyboardInput(CameraMovement::LEFT, 0.001);
+		if (Input::IsKeyPressed('D'))
+			camera.ProcessKeyboardInput(CameraMovement::RIGHT, 0.001);
+		if (Input::IsKeyPressed('E'))
+			camera.ProcessKeyboardInput(CameraMovement::UP, 0.001);
+		if (Input::IsKeyPressed('Q'))
+			camera.ProcessKeyboardInput(CameraMovement::DOWN, 0.001);
 
 		// Cube 1
 		XMMATRIX rotXMat = XMMatrixRotationX(0.001f);
@@ -706,22 +724,11 @@ namespace Insight {
 		//cb_vertexShader.Initialize(pDevice.Get(), pCommandList.Get());
 	}
 
-	void Direct3D12Context::CreateCamera()
+	void Direct3D12Context::InitDemoScene()
 	{
 		using namespace DirectX;
 
-		XMMATRIX tmpMat = XMMatrixPerspectiveFovLH(45.0f * (3.14f / 180.0f), (float)m_WindowWidth / (float)m_WindowHeight, 0.1f, 1000.0f);
-		XMStoreFloat4x4(&cameraProjMat, tmpMat);
-
-		cameraPosition = XMFLOAT4(0.0f, 2.0f, -4.0f, 0.0f);
-		cameraTarget = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
-		cameraUp = XMFLOAT4(0.0f, 1.0f, 0.0f, 0.0f);
-
-		XMVECTOR cPos = XMLoadFloat4(&cameraPosition);
-		XMVECTOR cTarg = XMLoadFloat4(&cameraTarget);
-		XMVECTOR cUp = XMLoadFloat4(&cameraUp);
-		tmpMat = XMMatrixLookAtLH(cPos, cTarg, cUp);
-		XMStoreFloat4x4(&cameraViewMat, tmpMat);
+		XMMATRIX tmpMat = camera.GetProjectionMatrix();
 
 		cube1Position = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 		XMVECTOR posVec = XMLoadFloat4(&cube1Position);

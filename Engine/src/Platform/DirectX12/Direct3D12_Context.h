@@ -65,7 +65,7 @@ namespace Insight {
 		WICPixelFormatGUID GetConvertToWICFormat(WICPixelFormatGUID& wicFormatGUID);
 		int GetDXGIFormatBitsPerPixel(DXGI_FORMAT& dxgiFormat);
 		int LoadImageDataFromFile(BYTE** imageData, D3D12_RESOURCE_DESC& resourceDescription, LPCWSTR filename, int& bytesPerRow);
-		void CreateCamera();
+		void InitDemoScene();
 		//ConstantBuffer<ConstantBufferPerObject> cb_vertexShader;// TEMP! Move this!
 		void LoadAssets();
 		void LoadModels();
@@ -141,12 +141,6 @@ namespace Insight {
 
 		UINT8* cbvGPUAddress[m_FrameBufferCount]; 
 		Camera camera;
-		DirectX::XMFLOAT4X4 cameraProjMat;
-		DirectX::XMFLOAT4X4 cameraViewMat;
-
-		DirectX::XMFLOAT4 cameraPosition; 
-		DirectX::XMFLOAT4 cameraTarget;
-		DirectX::XMFLOAT4 cameraUp; 
 
 		DirectX::XMFLOAT4X4 cube1WorldMat;
 		DirectX::XMFLOAT4X4 cube1RotMat;

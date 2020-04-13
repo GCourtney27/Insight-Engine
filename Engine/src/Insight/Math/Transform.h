@@ -2,6 +2,7 @@
 #define TRANSFORM_H
 
 #include "Insight/Core.h"
+#include "Insight/Math/Vector.h"
 
 #include <DirectXMath.h>
 
@@ -9,41 +10,23 @@ namespace Insight {
 
 	using namespace DirectX;
 
-	static XMVECTOR WorldForward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
-	static XMVECTOR WorldBackward = XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
-	static XMVECTOR WorldLeft = XMVectorSet(-1.0f, 0.0f, 0.0f, 0.0f);
-	static XMVECTOR WorldRight = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
-	static XMVECTOR WorldUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	static XMVECTOR WorldDown = XMVectorSet(0.0f, -1.0f, 0.0f, 0.0f);
-
 	class INSIGHT_API Transform
 	{
 	public:
-		Transform(XMFLOAT3 position, XMFLOAT3 rotation, XMFLOAT3 scale) {}
-
-		static const XMVECTOR WorldForward;
-		static const XMVECTOR WorldBackward;
-		static const XMVECTOR WorldLeft;
-		static const XMVECTOR WorldRight;
-		static const XMVECTOR WorldUp;
-		static const XMVECTOR WorldDown;
+		Transform(Vector3 position, Vector3 rotation, Vector3 scale)
+			: m_Position(position), m_Rotation(rotation), m_Scale(scale) {}
 
 	private:
-		XMFLOAT3 m_Position = {};
-		XMVECTOR m_PositionVector;
+		Vector3 m_Position;
+		Vector3 m_Rotation;
+		Vector3 m_Scale;
 
-		XMFLOAT3 m_Rotation = {};
-		XMVECTOR m_RotationVector;
-
-		XMFLOAT3 m_Scale = {};
-		XMVECTOR m_ScaleVector;
-
-		XMVECTOR m_LocalForwardVector;
-		XMVECTOR m_LocalBackwardVector;
-		XMVECTOR m_LocalLeftVector;
-		XMVECTOR m_LocalRightVector;
-		XMVECTOR m_LocalUpVector;
-		XMVECTOR m_LocalDownVector;
+		Vector3 m_LocalForwardVector;
+		Vector3 m_LocalBackwardVector;
+		Vector3 m_LocalLeftVector;
+		Vector3 m_LocalRightVector;
+		Vector3 m_LocalUpVector;
+		Vector3 m_LocalDownVector;
 
 	};
 
