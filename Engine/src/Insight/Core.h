@@ -24,7 +24,7 @@
 	#define IE_CORE_ASSERT(x, ...)
 #endif // IE_ENABLE_ASSERTS
 
-#define BIT(x) ( 1 << x )
-
+// Utilities
+#define BIT_SHIFT(x) ( 1 << x )
 #define IE_BIND_EVENT_FN(fn) std::bind( &fn, this, std::placeholders::_1 )
 

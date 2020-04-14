@@ -11,14 +11,16 @@ workspace "InsightEngine"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+gameName = "Application"
+
 IncludeDir = {}
 IncludeDir["ImGui"] = "Engine/vendor/imgui"
 
 include "Engine/vendor/ImGui"
 
-project "Engine"
-	location "Engine"
-	kind "StaticLib"
+project ("Engine")
+	location ("Engine")
+	kind "WindowedApp"
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "on"
@@ -46,7 +48,8 @@ project "Engine"
 		"%{prj.name}/vendor/Nvidia/DirectX12",
 		"%{prj.name}/vendor/spdlog/include",
 		"%{IncludeDir.ImGui}/",
-		"%{prj.name}/src/"
+		"%{prj.name}/src/",
+		gameName .. "/src/"
 	}
 
 	links
@@ -54,7 +57,7 @@ project "Engine"
 		"d3d12.lib",
 		"dxgi.lib",
 		"d3dcompiler.lib",
-		"ImGui"
+		"ImGui",
 	}
 
 	filter "system:windows"
@@ -62,8 +65,7 @@ project "Engine"
 
 		defines
 		{
-			"IE_PLATFORM_WINDOWS",
-			"IE_BUILD_DLL"
+			"IE_PLATFORM_WINDOWS"
 		}
 	
 	-- Engine Development
@@ -91,13 +93,13 @@ project "Engine"
 		runtime "Release"
 		optimize "on"
 
-project "Application"
-	location "Application"
+project (gameName)
+	location (gameName)
 	--[[
 		TODO:   Change kind to ConsoleApp when using Vulkan
 				or change kind to WindowedApp when using DX12
 	--]]
-	kind "WindowedApp"
+	kind "StaticLib"
 	cppdialect "C++17"
 	language "C++"
 	staticruntime "on"
@@ -130,7 +132,8 @@ project "Application"
 
 		defines
 		{
-			"IE_PLATFORM_WINDOWS"
+			"IE_PLATFORM_WINDOWS",
+			"IE_BUILD_DLL"
 		}
 
 	filter "configurations:Debug"

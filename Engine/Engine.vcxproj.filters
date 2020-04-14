@@ -4,14 +4,26 @@
     <Filter Include="Insight">
       <UniqueIdentifier>{5BBF0E00-C79E-8D9B-D0B6-18723C15F4FC}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Insight\Core">
+      <UniqueIdentifier>{93B4DC99-7F17-6C3E-289D-A4F414DF37C1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Insight\Core\Layer">
+      <UniqueIdentifier>{9F937D28-8B77-3E7E-F4D7-38D1E0DA2800}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Insight\Editor">
       <UniqueIdentifier>{31C8BA87-1D96-AE8D-062A-1FB4F2968AF2}</UniqueIdentifier>
     </Filter>
     <Filter Include="Insight\Events">
       <UniqueIdentifier>{DF36FE88-CB04-F28E-B498-62B5A005CEF3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Insight\Game">
+      <UniqueIdentifier>{E4A9DE99-D00C-6E3E-7992-A6F465D439C1}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Insight\Input">
       <UniqueIdentifier>{9A47DFD5-0608-5B0C-CF42-A4893BC29FE8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Insight\Math">
+      <UniqueIdentifier>{14F5E199-0058-713E-A9DD-A9F4951F3DC1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Insight\Renderer">
       <UniqueIdentifier>{617962B8-4D72-810A-76A4-668F62FC6016}</UniqueIdentifier>
@@ -37,6 +49,27 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Insight.h" />
+    <ClInclude Include="src\Insight\Core.h">
+      <Filter>Insight</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Core\Application.h">
+      <Filter>Insight\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Core\Entry_Point.h">
+      <Filter>Insight\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Core\Layer\Layer.h">
+      <Filter>Insight\Core\Layer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Core\Layer\Layer_Stack.h">
+      <Filter>Insight\Core\Layer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Core\Log.h">
+      <Filter>Insight\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Core\Window.h">
+      <Filter>Insight\Core</Filter>
+    </ClInclude>
     <ClInclude Include="src\Insight\Editor\ImGui_Layer.h">
       <Filter>Insight\Editor</Filter>
     </ClInclude>
@@ -52,6 +85,12 @@
     <ClInclude Include="src\Insight\Events\Mouse_Event.h">
       <Filter>Insight\Events</Filter>
     </ClInclude>
+    <ClInclude Include="src\Insight\Game\Camera.h">
+      <Filter>Insight\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Game\Player.h">
+      <Filter>Insight\Game</Filter>
+    </ClInclude>
     <ClInclude Include="src\Insight\Input\Input.h">
       <Filter>Insight\Input</Filter>
     </ClInclude>
@@ -66,6 +105,12 @@
     </ClInclude>
     <ClInclude Include="src\Insight\Input\Windows_Input.h">
       <Filter>Insight\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Math\Transform.h">
+      <Filter>Insight\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Math\Vector.h">
+      <Filter>Insight\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\Insight\Renderer\RenderingContext.h">
       <Filter>Insight\Renderer</Filter>
@@ -101,35 +146,31 @@
       <Filter>Platform\Windows</Filter>
     </ClInclude>
     <ClInclude Include="src\ie_pch.h" />
-    <ClInclude Include="src\Insight\Core\Application.h">
-      <Filter>Insight</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Insight\Core\Entry_Point.h">
-      <Filter>Insight</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Insight\Core\Window.h">
-      <Filter>Insight</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Insight\Core.h">
-      <Filter>Insight</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Insight\Core\Layer\Layer.h">
-      <Filter>Insight</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Insight\Core\Layer\Layer_Stack.h">
-      <Filter>Insight</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Insight\Core\Log.h">
-      <Filter>Insight</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Insight\Game\Player.h" />
-    <ClInclude Include="src\Insight\Game\Camera.h" />
-    <ClInclude Include="src\Insight\Math\Vector.h" />
-    <ClInclude Include="src\Insight\Math\Transform.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Insight\Core\Application.cpp">
+      <Filter>Insight\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Insight\Core\EntryPoint.cpp">
+      <Filter>Insight\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Insight\Core\Layer\Layer.cpp">
+      <Filter>Insight\Core\Layer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Insight\Core\Layer\Layer_Stack.cpp">
+      <Filter>Insight\Core\Layer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Insight\Core\Log.cpp">
+      <Filter>Insight\Core</Filter>
+    </ClCompile>
     <ClCompile Include="src\Insight\Editor\ImGui_Layer.cpp">
       <Filter>Insight\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Insight\Game\Camera.cpp">
+      <Filter>Insight\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Insight\Game\Player.cpp">
+      <Filter>Insight\Game</Filter>
     </ClCompile>
     <ClCompile Include="src\Insight\Input\Keyboard_Buffer.cpp">
       <Filter>Insight\Input</Filter>
@@ -162,19 +203,5 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\ie_pch.cpp" />
-    <ClCompile Include="src\Insight\Core\Application.cpp">
-      <Filter>Insight</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Insight\Core\Layer\Layer.cpp">
-      <Filter>Insight</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Insight\Core\Layer\Layer_Stack.cpp">
-      <Filter>Insight</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Insight\Core\Log.cpp">
-      <Filter>Insight</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Insight\Game\Player.cpp" />
-    <ClCompile Include="src\Insight\Game\Camera.cpp" />
   </ItemGroup>
 </Project>

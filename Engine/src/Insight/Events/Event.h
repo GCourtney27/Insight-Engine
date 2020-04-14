@@ -20,11 +20,11 @@ namespace Insight {
 	enum EventCategory
 	{
 		None = 0,
-		EventCategoryApplication = BIT(0),
-		EventCategoryInput = BIT(1),
-		EventCategoryKeyboard = BIT(2),
-		EventCategoryMouse = BIT(3),
-		EventCategoryMouseButton = BIT(4),
+		EventCategoryApplication = BIT_SHIFT(0),
+		EventCategoryInput = BIT_SHIFT(1),
+		EventCategoryKeyboard = BIT_SHIFT(2),
+		EventCategoryMouse = BIT_SHIFT(3),
+		EventCategoryMouseButton = BIT_SHIFT(4),
 	};
 
 #define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::##type; }\

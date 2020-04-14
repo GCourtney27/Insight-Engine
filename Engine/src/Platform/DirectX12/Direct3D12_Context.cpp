@@ -917,7 +917,7 @@ namespace Insight {
 								nullptr,
 								IID_PPV_ARGS(m_pTextureBuffer.GetAddressOf()));
 		if (FAILED(hr))	{
-			IE_CORE_ERROR("Filaed to create resource heap for texture asset");
+			IE_CORE_ERROR("Failed to create resource heap for texture asset");
 		}
 		m_pTextureBuffer->SetName(L"Texture Buffer Resource Heap");
 
