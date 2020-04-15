@@ -15,6 +15,7 @@ gameName = "Application"
 
 IncludeDir = {}
 IncludeDir["ImGui"] = "Engine/vendor/imgui"
+IncludeDir["assimp"] = "Engine/vendor/assimp-3.3.1"
 
 include "Engine/vendor/ImGui"
 
@@ -48,6 +49,7 @@ project ("Engine")
 		"%{prj.name}/vendor/Nvidia/DirectX12",
 		"%{prj.name}/vendor/spdlog/include",
 		"%{IncludeDir.ImGui}/",
+		"%{IncludeDir.assimp}/",
 		"%{prj.name}/src/",
 		gameName .. "/src/"
 	}
@@ -58,6 +60,11 @@ project ("Engine")
 		"dxgi.lib",
 		"d3dcompiler.lib",
 		"ImGui",
+	}
+
+	postbuildcommands
+	{
+		("{COPY} %{wks.location}Engine/vendor/assimp-3.3.1/build/code/%{cfg.buildcfg} ../bin/"..outputdir.."/Engine")
 	}
 
 	filter "system:windows"

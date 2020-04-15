@@ -2,7 +2,7 @@
 
 #include "Insight/Core.h"
 
-#include "Insight/Renderer/RenderingContext.h"
+#include "Insight/Rendering/RenderingContext.h"
 #include "Platform/DirectX12/D3D_Api.h"
 
 #include "Insight/Game/Camera.h"
