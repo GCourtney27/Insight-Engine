@@ -28,6 +28,9 @@
     <Filter Include="Insight\Rendering">
       <UniqueIdentifier>{68B6B1C4-D4CC-AF5A-1D44-3B7C899980E2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Insight\Rendering\Geometry">
+      <UniqueIdentifier>{C398F815-AFA8-A4E6-1862-09050491937F}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Insight\Utilities">
       <UniqueIdentifier>{8611128C-F227-1022-3B9F-9B43A7F4E0A9}</UniqueIdentifier>
     </Filter>
@@ -112,8 +115,11 @@
     <ClInclude Include="src\Insight\Math\Vector.h">
       <Filter>Insight\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\Insight\Rendering\Mesh.h">
-      <Filter>Insight\Rendering</Filter>
+    <ClInclude Include="src\Insight\Rendering\Geometry\Mesh.h">
+      <Filter>Insight\Rendering\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Rendering\Geometry\Model.h">
+      <Filter>Insight\Rendering\Geometry</Filter>
     </ClInclude>
     <ClInclude Include="src\Insight\Rendering\RenderingContext.h">
       <Filter>Insight\Rendering</Filter>
@@ -187,8 +193,11 @@
     <ClCompile Include="src\Insight\Input\Windows_Input.cpp">
       <Filter>Insight\Input</Filter>
     </ClCompile>
-    <ClCompile Include="src\Insight\Rendering\Mesh.cpp">
-      <Filter>Insight\Rendering</Filter>
+    <ClCompile Include="src\Insight\Rendering\Geometry\Mesh.cpp">
+      <Filter>Insight\Rendering\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Insight\Rendering\Geometry\Model.cpp">
+      <Filter>Insight\Rendering\Geometry</Filter>
     </ClCompile>
     <ClCompile Include="src\Insight\Utilities\String_Helper.cpp">
       <Filter>Insight\Utilities</Filter>

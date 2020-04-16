@@ -1,3 +1,6 @@
+-- Helpful premake documentation
+-- Tokens https://github.com/premake/premake-core/wiki/Tokens
+
 workspace "InsightEngine"
 	architecture "x64"
 
@@ -15,7 +18,7 @@ gameName = "Application"
 
 IncludeDir = {}
 IncludeDir["ImGui"] = "Engine/vendor/imgui"
-IncludeDir["assimp"] = "Engine/vendor/assimp-3.3.1"
+IncludeDir["assimp"] = "Engine/vendor/assimp-3.3.1/include"
 
 include "Engine/vendor/ImGui"
 
@@ -59,12 +62,18 @@ project ("Engine")
 		"d3d12.lib",
 		"dxgi.lib",
 		"d3dcompiler.lib",
+		"assimp-vc140-mt.lib",
 		"ImGui",
+	}
+
+	libdirs
+	{
+		"Engine/vendor/assimp-3.3.1/build/code/%{cfg.buildcfg}"
 	}
 
 	postbuildcommands
 	{
-		("{COPY} %{wks.location}Engine/vendor/assimp-3.3.1/build/code/%{cfg.buildcfg} ../bin/"..outputdir.."/Engine")
+		("{COPY} %{wks.location}Engine/vendor/assimp-3.3.1/build/code/%{cfg.buildcfg}/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine")
 	}
 
 	filter "system:windows"

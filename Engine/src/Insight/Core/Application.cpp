@@ -81,7 +81,7 @@ namespace Insight {
 
 	void Application::PushEngineLayers()
 	{
-		PushOverlay(new ImGuiLayer());
+		//PushOverlay(new ImGuiLayer());
 	}
 
 	void Application::PushLayer(Layer * layer)

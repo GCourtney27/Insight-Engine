@@ -12,8 +12,8 @@
 #include <DirectXMath.h>
 // TODO: implement texture system that uses this
 #include <wincodec.h>
-
-
+//TEMP
+#include "Insight/Rendering/Geometry/Model.h"
 namespace Insight {
 
 	class WindowsWindow;
@@ -31,7 +31,7 @@ namespace Insight {
 		virtual void SwapBuffers() override;
 		virtual void OnWindowResize() override;
 
-		inline ID3D12Device& GetDeviceContext() const { return *m_pLogicalDevice.Get(); }
+		inline ID3D12Device5& GetDeviceContext() const { return *m_pLogicalDevice.Get(); }
 		inline ID3D12DescriptorHeap& GetImGuiDescriptorHeap() const { return *m_pImGuiDescriptorHeap.Get(); }
 		inline ID3D12GraphicsCommandList& GetCommandList() const { return *m_pCommandList.Get(); }
 
@@ -116,6 +116,7 @@ namespace Insight {
 
 
 		//=== TEMPORARY! ===//
+		Model model;
 		//TODO: Move this to a model/vertex class
 		WRL::ComPtr<ID3D12Resource> m_pVertexBuffer;
 		WRL::ComPtr<ID3D12Resource> m_pVBufferUploadHeap;

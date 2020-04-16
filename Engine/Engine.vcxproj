@@ -100,7 +100,7 @@
       <PrecompiledHeaderFile>ie_pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;IE_PLATFORM_WINDOWS;IE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>vendor\Microsoft\DirectX12;vendor\Nvidia\DirectX12;vendor\spdlog\include;vendor\imgui;vendor\assimp-3.3.1;src;..\Application\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>vendor\Microsoft\DirectX12;vendor\Nvidia\DirectX12;vendor\spdlog\include;vendor\imgui;vendor\assimp-3.3.1\include;src;..\Application\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -109,10 +109,11 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d12.lib;dxgi.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d12.lib;dxgi.lib;d3dcompiler.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>vendor\assimp-3.3.1\build\code\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Debug\ (xcopy /Q /E /Y /I $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Debug ..\bin\Debug-windows-x86_64\Engine &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Debug ..\bin\Debug-windows-x86_64\Engine &gt; nul)</Command>
+      <Command>IF EXIST $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Debug\assimp-vc140-mt.dll\ (xcopy /Q /E /Y /I $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Debug\assimp-vc140-mt.dll ..\bin\Debug-windows-x86_64\Engine &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Debug\assimp-vc140-mt.dll ..\bin\Debug-windows-x86_64\Engine &gt; nul)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -121,7 +122,7 @@
       <PrecompiledHeaderFile>ie_pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;IE_PLATFORM_WINDOWS;IE_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>vendor\Microsoft\DirectX12;vendor\Nvidia\DirectX12;vendor\spdlog\include;vendor\imgui;vendor\assimp-3.3.1;src;..\Application\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>vendor\Microsoft\DirectX12;vendor\Nvidia\DirectX12;vendor\spdlog\include;vendor\imgui;vendor\assimp-3.3.1\include;src;..\Application\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -136,10 +137,11 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>d3d12.lib;dxgi.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d12.lib;dxgi.lib;d3dcompiler.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>vendor\assimp-3.3.1\build\code\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Release\ (xcopy /Q /E /Y /I $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Release ..\bin\Release-windows-x86_64\Engine &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Release ..\bin\Release-windows-x86_64\Engine &gt; nul)</Command>
+      <Command>IF EXIST $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Release\assimp-vc140-mt.dll\ (xcopy /Q /E /Y /I $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Release\assimp-vc140-mt.dll ..\bin\Release-windows-x86_64\Engine &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Release\assimp-vc140-mt.dll ..\bin\Release-windows-x86_64\Engine &gt; nul)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Engine-Dist|x64'">
@@ -148,17 +150,18 @@
       <PrecompiledHeaderFile>ie_pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;IE_PLATFORM_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>vendor\Microsoft\DirectX12;vendor\Nvidia\DirectX12;vendor\spdlog\include;vendor\imgui;vendor\assimp-3.3.1;src;..\Application\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>vendor\Microsoft\DirectX12;vendor\Nvidia\DirectX12;vendor\spdlog\include;vendor\imgui;vendor\assimp-3.3.1\include;src;..\Application\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>d3d12.lib;dxgi.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d12.lib;dxgi.lib;d3dcompiler.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>vendor\assimp-3.3.1\build\code\Engine-Dist;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Engine-Dist\ (xcopy /Q /E /Y /I $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Engine-Dist ..\bin\Engine-Dist-windows-x86_64\Engine &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Engine-Dist ..\bin\Engine-Dist-windows-x86_64\Engine &gt; nul)</Command>
+      <Command>IF EXIST $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Engine-Dist\assimp-vc140-mt.dll\ (xcopy /Q /E /Y /I $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Engine-Dist\assimp-vc140-mt.dll ..\bin\Engine-Dist-windows-x86_64\Engine &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Engine-Dist\assimp-vc140-mt.dll ..\bin\Engine-Dist-windows-x86_64\Engine &gt; nul)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Game-Dist|x64'">
@@ -167,17 +170,18 @@
       <PrecompiledHeaderFile>ie_pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;IE_PLATFORM_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>vendor\Microsoft\DirectX12;vendor\Nvidia\DirectX12;vendor\spdlog\include;vendor\imgui;vendor\assimp-3.3.1;src;..\Application\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>vendor\Microsoft\DirectX12;vendor\Nvidia\DirectX12;vendor\spdlog\include;vendor\imgui;vendor\assimp-3.3.1\include;src;..\Application\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>d3d12.lib;dxgi.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d12.lib;dxgi.lib;d3dcompiler.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>vendor\assimp-3.3.1\build\code\Game-Dist;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Game-Dist\ (xcopy /Q /E /Y /I $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Game-Dist ..\bin\Game-Dist-windows-x86_64\Engine &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Game-Dist ..\bin\Game-Dist-windows-x86_64\Engine &gt; nul)</Command>
+      <Command>IF EXIST $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Game-Dist\assimp-vc140-mt.dll\ (xcopy /Q /E /Y /I $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Game-Dist\assimp-vc140-mt.dll ..\bin\Game-Dist-windows-x86_64\Engine &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)Engine\vendor\assimp-3.3.1\build\code\Game-Dist\assimp-vc140-mt.dll ..\bin\Game-Dist-windows-x86_64\Engine &gt; nul)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -203,7 +207,8 @@
     <ClInclude Include="src\Insight\Input\Windows_Input.h" />
     <ClInclude Include="src\Insight\Math\Transform.h" />
     <ClInclude Include="src\Insight\Math\Vector.h" />
-    <ClInclude Include="src\Insight\Rendering\Mesh.h" />
+    <ClInclude Include="src\Insight\Rendering\Geometry\Mesh.h" />
+    <ClInclude Include="src\Insight\Rendering\Geometry\Model.h" />
     <ClInclude Include="src\Insight\Rendering\RenderingContext.h" />
     <ClInclude Include="src\Insight\Rendering\Vertex.h" />
     <ClInclude Include="src\Insight\Utilities\String_Helper.h" />
@@ -230,7 +235,8 @@
     <ClCompile Include="src\Insight\Input\Keyboard_Buffer.cpp" />
     <ClCompile Include="src\Insight\Input\Mouse_Buffer.cpp" />
     <ClCompile Include="src\Insight\Input\Windows_Input.cpp" />
-    <ClCompile Include="src\Insight\Rendering\Mesh.cpp" />
+    <ClCompile Include="src\Insight\Rendering\Geometry\Mesh.cpp" />
+    <ClCompile Include="src\Insight\Rendering\Geometry\Model.cpp" />
     <ClCompile Include="src\Insight\Utilities\String_Helper.cpp" />
     <ClCompile Include="src\Platform\DirectX12\D3D_Api.cpp" />
     <ClCompile Include="src\Platform\DirectX12\Direct3D12_Context.cpp" />

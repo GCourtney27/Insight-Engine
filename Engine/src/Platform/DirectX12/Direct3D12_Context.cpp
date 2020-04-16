@@ -115,50 +115,50 @@ namespace Insight {
 		memcpy(cbvGPUAddress[m_FrameIndex], &cbPerObject, sizeof(cbPerObject));
 
 		// Cube 2
-		rotXMat = XMMatrixRotationX(0.0003f);
-		rotYMat = XMMatrixRotationY(0.0002f);
-		rotZMat = XMMatrixRotationZ(0.0001f);
+		//rotXMat = XMMatrixRotationX(0.0003f);
+		//rotYMat = XMMatrixRotationY(0.0002f);
+		//rotZMat = XMMatrixRotationZ(0.0001f);
 
-		rotMat = rotZMat * (XMLoadFloat4x4(&cube2RotMat) * (rotXMat * rotYMat));
-		XMStoreFloat4x4(&cube2RotMat, rotMat);
+		//rotMat = rotZMat * (XMLoadFloat4x4(&cube2RotMat) * (rotXMat * rotYMat));
+		//XMStoreFloat4x4(&cube2RotMat, rotMat);
 
-		XMMATRIX translationOffsetMat = XMMatrixTranslationFromVector(XMLoadFloat4(&cube2PositionOffset));
+		//XMMATRIX translationOffsetMat = XMMatrixTranslationFromVector(XMLoadFloat4(&cube2PositionOffset));
 
-		XMMATRIX scaleMat = XMMatrixScaling(0.5f, 0.5f, 0.5f);
+		//XMMATRIX scaleMat = XMMatrixScaling(0.5f, 0.5f, 0.5f);
 
-		worldMat = scaleMat * translationOffsetMat * rotMat * translationMat;
+		//worldMat = scaleMat * translationOffsetMat * rotMat * translationMat;
 
-		wvpMat = XMLoadFloat4x4(&cube2WorldMat) * viewMat * projMat; // create wvp matrix
-		transposed = XMMatrixTranspose(wvpMat); // must transpose wvp matrix for the gpu
-		XMStoreFloat4x4(&cbPerObject.wvpMatrix, transposed); // store transposed wvp matrix in constant buffer
+		//wvpMat = XMLoadFloat4x4(&cube2WorldMat) * viewMat * projMat; // create wvp matrix
+		//transposed = XMMatrixTranspose(wvpMat); // must transpose wvp matrix for the gpu
+		//XMStoreFloat4x4(&cbPerObject.wvpMatrix, transposed); // store transposed wvp matrix in constant buffer
 
-		memcpy(cbvGPUAddress[m_FrameIndex] + ConstantBufferPerObjectAlignedSize, &cbPerObject, sizeof(cbPerObject));
+		//memcpy(cbvGPUAddress[m_FrameIndex] + ConstantBufferPerObjectAlignedSize, &cbPerObject, sizeof(cbPerObject));
 
-		// store cube2's world matrix
-		XMStoreFloat4x4(&cube2WorldMat, worldMat);
+		//// store cube2's world matrix
+		//XMStoreFloat4x4(&cube2WorldMat, worldMat);
 
 		// Cube 3
-		rotXMat = XMMatrixRotationX(0.003f);
-		rotYMat = XMMatrixRotationY(0.002f);
-		rotZMat = XMMatrixRotationZ(0.001f);
+		//rotXMat = XMMatrixRotationX(0.003f);
+		//rotYMat = XMMatrixRotationY(0.002f);
+		//rotZMat = XMMatrixRotationZ(0.001f);
 
-		rotMat = rotZMat * (XMLoadFloat4x4(&cube3RotMat) * (rotXMat * rotYMat));
-		XMStoreFloat4x4(&cube3RotMat, rotMat);
+		//rotMat = rotZMat * (XMLoadFloat4x4(&cube3RotMat) * (rotXMat * rotYMat));
+		//XMStoreFloat4x4(&cube3RotMat, rotMat);
 
-		translationOffsetMat = XMMatrixTranslationFromVector(XMLoadFloat4(&cube3PositionOffset));
+		//translationOffsetMat = XMMatrixTranslationFromVector(XMLoadFloat4(&cube3PositionOffset));
 
-		scaleMat = XMMatrixScaling(0.5f, 0.5f, 0.5f);
+		//scaleMat = XMMatrixScaling(0.5f, 0.5f, 0.5f);
 
-		worldMat = scaleMat * translationOffsetMat * rotMat * translationMat;
+		//worldMat = scaleMat * translationOffsetMat * rotMat * translationMat;
 
-		wvpMat = XMLoadFloat4x4(&cube3WorldMat) * viewMat * projMat; // create wvp matrix
-		transposed = XMMatrixTranspose(wvpMat); // must transpose wvp matrix for the gpu
-		XMStoreFloat4x4(&cbPerObject.wvpMatrix, transposed); // store transposed wvp matrix in constant buffer
+		//wvpMat = XMLoadFloat4x4(&cube3WorldMat) * viewMat * projMat; // create wvp matrix
+		//transposed = XMMatrixTranspose(wvpMat); // must transpose wvp matrix for the gpu
+		//XMStoreFloat4x4(&cbPerObject.wvpMatrix, transposed); // store transposed wvp matrix in constant buffer
 
-		memcpy(cbvGPUAddress[m_FrameIndex] + (ConstantBufferPerObjectAlignedSize * 2), &cbPerObject, sizeof(cbPerObject));
+		//memcpy(cbvGPUAddress[m_FrameIndex] + (ConstantBufferPerObjectAlignedSize * 2), &cbPerObject, sizeof(cbPerObject));
 
-		// store cube2's world matrix
-		XMStoreFloat4x4(&cube3WorldMat, worldMat);
+		//// store cube2's world matrix
+		//XMStoreFloat4x4(&cube3WorldMat, worldMat);
 	}
 
 	void Direct3D12Context::WaitForPreviousFrame()
@@ -224,30 +224,31 @@ namespace Insight {
 		m_pCommandList->RSSetViewports(1, &m_ViewPort);
 		m_pCommandList->RSSetScissorRects(1, &m_ScissorRect);
 		m_pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		m_pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView); // set the vertex buffer (using the vertex buffer view)
-		m_pCommandList->IASetIndexBuffer(&m_IndexBufferView);
+		//m_pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView); // set the vertex buffer (using the vertex buffer view)
+		//m_pCommandList->IASetIndexBuffer(&m_IndexBufferView);
 
 		// first cube
 		// set cube1's constant buffer
 		m_pCommandList->SetGraphicsRootConstantBufferView(0, constantBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
-		// draw first cube
-		m_pCommandList->DrawIndexedInstanced(numCubeIndices, 1, 0, 0, 0);
+		model.Draw();
+		//// draw first cube
+		//m_pCommandList->DrawIndexedInstanced(numCubeIndices, 1, 0, 0, 0);
 
-		// second cube
-		m_pCommandList->SetGraphicsRootConstantBufferView(0, constantBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress() + ConstantBufferPerObjectAlignedSize);
-		// draw second cube
-		m_pCommandList->DrawIndexedInstanced(numCubeIndices, 1, 0, 0, 0);
+		//// second cube
+		//m_pCommandList->SetGraphicsRootConstantBufferView(0, constantBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress() + ConstantBufferPerObjectAlignedSize);
+		//// draw second cube
+		//m_pCommandList->DrawIndexedInstanced(numCubeIndices, 1, 0, 0, 0);
 
-		// third cube
-		// !!!! ConstantBufferPerObjectAlignedSize needs to be offset times its (index in the scene - 1)
-		m_pCommandList->SetGraphicsRootConstantBufferView(0, constantBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress() + (ConstantBufferPerObjectAlignedSize * 2));
-		// draw second cube
-		m_pCommandList->DrawIndexedInstanced(numCubeIndices, 1, 0, 0, 0);
+		//// third cube
+		//// !!!! ConstantBufferPerObjectAlignedSize needs to be offset times its (index in the scene - 1)
+		//m_pCommandList->SetGraphicsRootConstantBufferView(0, constantBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress() + (ConstantBufferPerObjectAlignedSize * 2));
+		//// draw second cube
+		//m_pCommandList->DrawIndexedInstanced(numCubeIndices, 1, 0, 0, 0);
 		
 		// Render ImGui UI
-		m_pCommandList->SetDescriptorHeaps(1, m_pImGuiDescriptorHeap.GetAddressOf());
+		/*m_pCommandList->SetDescriptorHeaps(1, m_pImGuiDescriptorHeap.GetAddressOf());
 		ImGui::Render();
-		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList.Get());
+		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList.Get());*/
 
 
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
@@ -755,8 +756,12 @@ namespace Insight {
 
 	void Direct3D12Context::LoadModels()
 	{
-		HRESULT hr;
 
+		model.Init("src/Models/nanosuit/nanosuit.obj");
+
+		return;
+
+		HRESULT hr;
 		// TODO Make model class
 		// TODO: move thi to the model class
 		Vertex vList[] = {
