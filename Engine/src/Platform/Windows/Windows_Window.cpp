@@ -15,7 +15,6 @@
 namespace Insight {
 
 
-
 	Window* Window::Create(const WindowProps& props)
 	{
 		return new WindowsWindow(props);
@@ -305,8 +304,8 @@ namespace Insight {
 		m_pRendererContext->OnUpdate();
 
 		m_pRendererContext->RenderFrame();
-
 		m_pRendererContext->SwapBuffers();
+
 	}
 
 	void * WindowsWindow::GetNativeWindow() const

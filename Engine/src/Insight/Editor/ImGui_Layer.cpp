@@ -6,8 +6,8 @@
 #include "Platform/Windows/Windows_Window.h"
 
 #include "imgui.h"
-#include "Platform/ImGui/ImGui_DX12_Renderer.h"
-#include "Platform/ImGui/imgui_impl_win32.h"
+#include "examples/imgui_impl_dx12.h"
+#include "examples/imgui_impl_win32.h"
 
 namespace Insight {
 
@@ -23,14 +23,20 @@ namespace Insight {
 
 	void ImGuiLayer::OnAttach()
 	{
+		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
+		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+		//io.ConfigViewportsNoAutoMerge = true;
+		//io.ConfigViewportsNoTaskBarIcon = true;
+
+		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
+		//ImGui::StyleColorsClassic();
 
-		ImGuiIO& io = ImGui::GetIO();
-		io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
-		io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
-
-		// Temporary should eventually use Insight key codes
 		io.KeyMap[ImGuiKey_Tab] = VK_TAB;
 		io.KeyMap[ImGuiKey_LeftArrow] = VK_LEFT;
 		io.KeyMap[ImGuiKey_RightArrow] = VK_RIGHT;
@@ -54,23 +60,33 @@ namespace Insight {
 		io.KeyMap[ImGuiKey_Y] = 'Y';
 		io.KeyMap[ImGuiKey_Z] = 'Z';
 
+		// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
+		ImGuiStyle& style = ImGui::GetStyle();
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			style.WindowRounding = 0.0f;
+			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+		}
+
 		RenderingContext* renderContext = &Application::Get().GetWindow().GetRenderContext();
 		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(renderContext);
 		HWND* pWindowHandle = static_cast<HWND*>(Application::Get().GetWindow().GetNativeWindow());
 
-		bool impleWin32Succeeded = ImGui_ImplWin32_Init( (pWindowHandle) );
-		if(!impleWin32Succeeded)
+		// Setup Platform/Renderer bindings
+		bool impleWin32Succeeded = ImGui_ImplWin32_Init((pWindowHandle));
+		if (!impleWin32Succeeded)
 			IE_CORE_WARN("Failed to initialize ImGui for Win32. Some controls may not be functional or editor may not be rendered.");
 
-		bool impleDX12Succeeded = ImGui_ImplDX12_Init(&graphicsContext->GetDeviceContext(), 
-														graphicsContext->GetFrameBufferCount(),
-														DXGI_FORMAT_R8G8B8A8_UNORM,
-														&graphicsContext->GetImGuiDescriptorHeap(),
-														graphicsContext->GetImGuiDescriptorHeap().GetCPUDescriptorHandleForHeapStart(),
-														graphicsContext->GetImGuiDescriptorHeap().GetGPUDescriptorHandleForHeapStart());
-		if(!impleDX12Succeeded)
+		bool impleDX12Succeeded = ImGui_ImplDX12_Init(&graphicsContext->GetDeviceContext(),
+			graphicsContext->GetFrameBufferCount(),
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+			&graphicsContext->GetImGuiDescriptorHeap(),
+			graphicsContext->GetImGuiDescriptorHeap().GetCPUDescriptorHandleForHeapStart(),
+			graphicsContext->GetImGuiDescriptorHeap().GetGPUDescriptorHandleForHeapStart());
+		if (!impleDX12Succeeded)
 			IE_CORE_WARN("Failed to initialize ImGui for DX12. Editor will not be rendered");
 
+		m_pCommandList = &graphicsContext->GetCommandList();
 	}
 
 	void ImGuiLayer::OnDetach()
@@ -80,22 +96,37 @@ namespace Insight {
 		ImGui::DestroyContext();
 	}
 
-	void ImGuiLayer::OnUpdate()
+	void ImGuiLayer::OnImGuiRender()
+	{
+		static bool show = true;
+		ImGui::ShowDemoWindow(&show);
+
+		ImGui::Begin("Test");
+		ImGui::End();
+	}
+
+	void ImGuiLayer::Begin()
 	{
 		ImGui_ImplDX12_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
-
-		static bool show = true;
-		ImGui::ShowDemoWindow(&show);
-
-		// ------------------------------------------------
-		// Graphics context will render ImGui draw data
-		// and ensure it is the last thing drawn on screen
-		// ------------------------------------------------
 	}
 
-	void ImGuiLayer::OnEvent(Event & event)
+	void ImGuiLayer::End()
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		Application& app = Application::Get();
+		ImGui::Render();
+		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList);
+
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault(NULL, (void*)m_pCommandList);
+		}
+	}
+
+	void ImGuiLayer::OnEvent(Event& event)
 	{
 		EventDispatcher dispatcher(event);
 		// Mouse Buttons
@@ -157,7 +188,7 @@ namespace Insight {
 	bool ImGuiLayer::OnKeyReleasedEvent(KeyReleasedEvent& e)
 	{
 		ImGuiIO& io = ImGui::GetIO();
-		io.KeysDown[e.GetKeyCode()] = false; 
+		io.KeysDown[e.GetKeyCode()] = false;
 		return false;
 	}
 
@@ -175,11 +206,10 @@ namespace Insight {
 		ImGuiIO& io = ImGui::GetIO();
 		io.DisplaySize = ImVec2(e.GetWidth(), e.GetHeight());
 		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
-
-		// TODO fix this
-		//m_pWindow->Resize(e.GetWidth(), e.GetHeight());
 		return false;
 	}
+
+
 
 }
 

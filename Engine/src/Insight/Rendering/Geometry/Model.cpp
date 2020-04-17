@@ -13,7 +13,7 @@ namespace Insight {
 
 	Model::~Model()
 	{
-		Destroy();
+		//Destroy();
 	}
 
 	void Model::Init(const std::string path)

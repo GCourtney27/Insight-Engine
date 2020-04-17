@@ -3,10 +3,10 @@
 #include "Direct3D12_Context.h"
 #include "Platform/Windows/Windows_Window.h"
 #include "Insight/Input/Input.h"
+#include "Insight/Core/Application.h"
 
 #include "imgui.h"
-#include "Platform/ImGui/ImGui_DX12_Renderer.h"
-#include "Platform/ImGui/imgui_impl_win32.h"
+#include "examples/imgui_impl_dx12.h"
 
 
 using namespace Microsoft::WRL;
@@ -18,7 +18,7 @@ namespace Insight {
 		: m_pWindowHandle(&windowHandle->GetWindowHandleReference()), m_pWindow(windowHandle), RenderingContext(windowHandle->GetWidth(), windowHandle->GetHeight(), false)
 	{
 		IE_CORE_ASSERT(windowHandle, "Window handle is NULL!");
-		camera.SetProjectionValues(45.0f, m_WindowWidth / m_WindowHeight, 1.0f, 100.0f);
+		camera.SetProjectionValues(75.0f, m_WindowWidth / m_WindowHeight, 1.0f, 100.0f);
 	}
 
 	Direct3D12Context::~Direct3D12Context()
@@ -66,6 +66,7 @@ namespace Insight {
 	void Direct3D12Context::OnUpdate()
 	{
 		using namespace DirectX;
+
 
 		// TODO: move this to player controller
 		if (Input::IsMouseButtonPressed(1))
@@ -245,10 +246,7 @@ namespace Insight {
 		//m_pCommandList->DrawIndexedInstanced(numCubeIndices, 1, 0, 0, 0);
 
 		// Render ImGui UI
-		/*m_pCommandList->SetDescriptorHeaps(1, m_pImGuiDescriptorHeap.GetAddressOf());
-		ImGui::Render();
-		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList.Get());*/
-
+		RenderUI();
 
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
@@ -257,6 +255,21 @@ namespace Insight {
 			throw std::exception();
 		}
 
+	}
+
+	void Direct3D12Context::RenderUI()
+	{
+		m_pCommandList->SetDescriptorHeaps(1, m_pImGuiDescriptorHeap.GetAddressOf());
+		ImGui::Render();
+		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList.Get());
+		ImGuiIO& io = ImGui::GetIO();
+		io.DisplaySize = ImVec2(m_WindowWidth, m_WindowHeight);
+		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault(NULL, (void*)m_pCommandList.Get());
+		}
 	}
 
 	void Direct3D12Context::RenderFrame()
@@ -268,7 +281,7 @@ namespace Insight {
 		ID3D12CommandList* ppCommandLists[] = { m_pCommandList.Get() };
 
 		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-
+		
 		hr = m_pCommandQueue->Signal(m_pFence[m_FrameIndex].Get(), m_FenceValue[m_FrameIndex]);
 		if (FAILED(hr))
 		{
@@ -432,7 +445,6 @@ namespace Insight {
 
 		hr = m_pLogicalDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pCommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pCommandList));
 		COM_ERROR_IF_FAILED(hr, "Failed to Create Command List");
-
 	}
 
 	void Direct3D12Context::CreateFenceEvent()

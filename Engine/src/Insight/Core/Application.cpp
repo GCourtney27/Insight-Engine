@@ -16,7 +16,8 @@ namespace Insight {
 		IE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
 
-		Input::IsKeyPressed('A'); // Removing this will gause mouse buffer to throw error. Why?
+		m_ImGuiLayer = new ImGuiLayer();
+		
 	}
 
 	void Application::InitializeAppForWindows(HINSTANCE & hInstance, int nCmdShow)
@@ -54,8 +55,15 @@ namespace Insight {
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
 
-			
+
+			m_ImGuiLayer->Begin();
+			for (Layer* layer : m_LayerStack)
+				layer->OnImGuiRender();
+			//m_ImGuiLayer->End();
+
 			m_pWindow->OnUpdate();
+
+
 		}
 	}
 
@@ -81,7 +89,7 @@ namespace Insight {
 
 	void Application::PushEngineLayers()
 	{
-		//PushOverlay(new ImGuiLayer());
+		PushOverlay(m_ImGuiLayer);
 	}
 
 	void Application::PushLayer(Layer * layer)

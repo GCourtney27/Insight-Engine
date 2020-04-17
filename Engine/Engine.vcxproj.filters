@@ -133,12 +133,6 @@
     <ClInclude Include="src\Platform\DirectX12\Direct3D12_Context.h">
       <Filter>Platform\DirectX12</Filter>
     </ClInclude>
-    <ClInclude Include="src\Platform\ImGui\ImGui_DX12_Renderer.h">
-      <Filter>Platform\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Platform\ImGui\imgui_impl_win32.h">
-      <Filter>Platform\ImGui</Filter>
-    </ClInclude>
     <ClInclude Include="src\Platform\Windows\Console_Window.h">
       <Filter>Platform\Windows</Filter>
     </ClInclude>
@@ -205,12 +199,6 @@
     <ClCompile Include="src\Platform\DirectX12\Direct3D12_Context.cpp">
       <Filter>Platform\DirectX12</Filter>
     </ClCompile>
-    <ClCompile Include="src\Platform\ImGui\ImGui_DX12_Renderer.cpp">
-      <Filter>Platform\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Platform\ImGui\imgui_impl_win32.cpp">
-      <Filter>Platform\ImGui</Filter>
-    </ClCompile>
     <ClCompile Include="src\Platform\Windows\Console_Window.cpp">
       <Filter>Platform\Windows</Filter>
     </ClCompile>
@@ -221,5 +209,6 @@
     <ClCompile Include="src\Platform\DirectX_Shared\D3D_Api.cpp">
       <Filter>Platform\DirectX12</Filter>
     </ClCompile>
+    <ClCompile Include="src\Insight\Editor\ImGui_Build.cpp" />
   </ItemGroup>
 </Project>

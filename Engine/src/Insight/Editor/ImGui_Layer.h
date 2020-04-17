@@ -15,11 +15,14 @@ namespace Insight {
 		ImGuiLayer();
 		~ImGuiLayer();
 
-		void OnAttach();
-		void OnDetach();
+		virtual void OnAttach() override;
+		virtual void OnDetach() override;
+		virtual void OnImGuiRender() override;
 
-		void OnUpdate();
+		void Begin();
+		void End();
 		void OnEvent(Event& event);
+
 	private:
 		bool OnMouseButtonPressedEvent(MouseButtonPressedEvent& e);
 		bool OnMouseButtonReleasedEvent(MouseButtonReleasedEvent& e);
@@ -31,6 +34,7 @@ namespace Insight {
 		bool OnWindowResizedEvent(WindowResizeEvent& e);
 	private:
 		HWND* m_pWindowHandle = nullptr;
+		ID3D12GraphicsCommandList* m_pCommandList = nullptr;
 	};
 
 }

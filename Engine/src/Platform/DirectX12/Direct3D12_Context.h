@@ -39,6 +39,7 @@ namespace Insight {
 	private:
 		// Per-Frame
 		void PopulateCommandLists();
+		void RenderUI();
 		void WaitForPreviousFrame();
 
 		// D3D12 Initialize

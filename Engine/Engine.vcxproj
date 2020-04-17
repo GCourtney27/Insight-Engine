@@ -216,8 +216,6 @@
     <ClInclude Include="src\Platform\DirectX_Shared\ConstantBuffers_TEMP.h" />
     <ClInclude Include="src\Platform\DirectX_Shared\D3D_Api.h" />
     <ClInclude Include="src\Platform\DirectX12\Direct3D12_Context.h" />
-    <ClInclude Include="src\Platform\ImGui\ImGui_DX12_Renderer.h" />
-    <ClInclude Include="src\Platform\ImGui\imgui_impl_win32.h" />
     <ClInclude Include="src\Platform\Windows\Console_Window.h" />
     <ClInclude Include="src\Platform\Windows\Error\COM_Exception.h" />
     <ClInclude Include="src\Platform\Windows\Windows_Window.h" />
@@ -240,8 +238,7 @@
     <ClCompile Include="src\Insight\Utilities\String_Helper.cpp" />
     <ClCompile Include="src\Platform\DirectX_Shared\D3D_Api.cpp" />
     <ClCompile Include="src\Platform\DirectX12\Direct3D12_Context.cpp" />
-    <ClCompile Include="src\Platform\ImGui\ImGui_DX12_Renderer.cpp" />
-    <ClCompile Include="src\Platform\ImGui\imgui_impl_win32.cpp" />
+    <ClCompile Include="src\Insight\Editor\ImGui_Build.cpp" />
     <ClCompile Include="src\Platform\Windows\Console_Window.cpp" />
     <ClCompile Include="src\Platform\Windows\Windows_Window.cpp" />
     <ClCompile Include="src\ie_pch.cpp">

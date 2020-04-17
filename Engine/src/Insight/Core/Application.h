@@ -5,6 +5,7 @@
 #include "Window.h"
 #include "Insight/Core/Layer/Layer_Stack.h"
 #include "Insight/Events/Application_Event.h"
+#include "Insight/Editor/ImGui_Layer.h"
 
 namespace Insight {
 
@@ -34,6 +35,7 @@ namespace Insight {
 		bool OnWindowResize(WindowResizeEvent& e);
 	private:
 		std::unique_ptr<Window> m_pWindow;
+		ImGuiLayer* m_ImGuiLayer = nullptr;
 		bool m_Running = true;
 		LayerStack m_LayerStack;
 	private:
