@@ -14,7 +14,6 @@ using namespace Microsoft::WRL;
 namespace Insight {
 
 
-
 	Direct3D12Context::Direct3D12Context(WindowsWindow* windowHandle)
 		: m_pWindowHandle(&windowHandle->GetWindowHandleReference()), m_pWindow(windowHandle), RenderingContext(windowHandle->GetWidth(), windowHandle->GetHeight(), false)
 	{
@@ -39,16 +38,16 @@ namespace Insight {
 			CreateScissorRect();
 
 			CreateDescriptorHeaps();
-			
+
 			CreateDepthStencilBuffer();
-			
+
 			CreateFenceEvent();
 			CreateCommandAllocators();
 
 			CreatePipelineStateObjects();
-			
+
 			CrateConstantBufferResourceHeaps();
-			
+
 			LoadAssets();
 			InitDemoScene();
 
@@ -67,16 +66,16 @@ namespace Insight {
 	void Direct3D12Context::OnUpdate()
 	{
 		using namespace DirectX;
-		
-		// TODO: move this to layer controller
+
+		// TODO: move this to player controller
 		if (Input::IsMouseButtonPressed(1))
 		{
 			auto [x, y] = Input::GetMousePosition();
 			camera.ProcessMouseMovement(x, y);
 		}
-		if(Input::IsKeyPressed('W'))
+		if (Input::IsKeyPressed('W'))
 			camera.ProcessKeyboardInput(CameraMovement::FORWARD, 0.001);
-		if(Input::IsKeyPressed('S'))
+		if (Input::IsKeyPressed('S'))
 			camera.ProcessKeyboardInput(CameraMovement::BACKWARD, 0.001);
 		if (Input::IsKeyPressed('A'))
 			camera.ProcessKeyboardInput(CameraMovement::LEFT, 0.001);
@@ -196,7 +195,7 @@ namespace Insight {
 			throw std::exception();
 		}
 
-		hr = m_pCommandList->Reset(m_pCommandAllocators[m_FrameIndex].Get(), m_pPipelineStateObject_Default.Get());
+		hr = m_pCommandList->Reset(m_pCommandAllocators[m_FrameIndex].Get(), m_pPipelineStateObject_ForwardPass.Get());
 		if (FAILED(hr))
 		{
 			throw std::exception();
@@ -214,7 +213,7 @@ namespace Insight {
 
 		m_pCommandList->ClearDepthStencilView(m_pDepthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-		m_pCommandList->SetGraphicsRootSignature(m_pRootSignature_Default.Get());
+		m_pCommandList->SetGraphicsRootSignature(m_pRootSignature_ForwardPass.Get());
 
 		ID3D12DescriptorHeap* descriptorHeaps[] = { m_pMainDescriptorHeap.Get() };
 		m_pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
@@ -244,7 +243,7 @@ namespace Insight {
 		//m_pCommandList->SetGraphicsRootConstantBufferView(0, constantBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress() + (ConstantBufferPerObjectAlignedSize * 2));
 		//// draw second cube
 		//m_pCommandList->DrawIndexedInstanced(numCubeIndices, 1, 0, 0, 0);
-		
+
 		// Render ImGui UI
 		/*m_pCommandList->SetDescriptorHeaps(1, m_pImGuiDescriptorHeap.GetAddressOf());
 		ImGui::Render();
@@ -254,7 +253,7 @@ namespace Insight {
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
 		hr = m_pCommandList->Close();
-		if (FAILED(hr))	{
+		if (FAILED(hr)) {
 			throw std::exception();
 		}
 
@@ -312,7 +311,7 @@ namespace Insight {
 
 		m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 
-		
+
 	}
 
 	void Direct3D12Context::CreateSwapChain()
@@ -335,16 +334,16 @@ namespace Insight {
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		swapChainDesc.SampleDesc = m_SampleDesc;
 		Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain{};
-		
+
 		hr = m_pDxgiFactory->CreateSwapChainForHwnd(m_pCommandQueue.Get(), *m_pWindowHandle, &swapChainDesc, nullptr, nullptr, &swapChain);
 		COM_ERROR_IF_FAILED(hr, "Failed to Create Swap Chain");
-		
+
 		hr = m_pDxgiFactory->MakeWindowAssociation(*m_pWindowHandle, DXGI_MWA_NO_ALT_ENTER);
 		COM_ERROR_IF_FAILED(hr, "Failed to Make Window Association");
-		
+
 		hr = swapChain.As(&m_pSwapChain);
 		COM_ERROR_IF_FAILED(hr, "Failed to cast SwapChain ComPtr");
-		
+
 		m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 
 	}
@@ -419,7 +418,7 @@ namespace Insight {
 			IE_CORE_ERROR("Failed to create comitted resource for depth stencil view");
 
 		m_pLogicalDevice->CreateDepthStencilView(m_pDepthStencilBuffer.Get(), &dsDesc, m_pDepthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-		
+
 	}
 
 	void Direct3D12Context::CreateCommandAllocators()
@@ -496,26 +495,25 @@ namespace Insight {
 
 		CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
 		rootSignatureDesc.Init(_countof(rootParameters),
-								rootParameters, 
-								1, 
-								&sampler,
-								D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
-								D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-								D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-								D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS);
+			rootParameters,
+			1,
+			&sampler,
+			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS);
 
 		ID3DBlob* RootSignatureByteCode = nullptr;
 		hr = D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &RootSignatureByteCode, nullptr);
 		COM_ERROR_IF_FAILED(hr, "Failed to serialize Root Signature");
 
-		hr = m_pLogicalDevice->CreateRootSignature(0, RootSignatureByteCode->GetBufferPointer(), RootSignatureByteCode->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature_Default));
+		hr = m_pLogicalDevice->CreateRootSignature(0, RootSignatureByteCode->GetBufferPointer(), RootSignatureByteCode->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature_ForwardPass));
 		COM_ERROR_IF_FAILED(hr, "Failed to create Default Root Signature");
 
 		// TODO: Make Shader class
 		// TODO: Move this to the shader class
 		// Compile vertex shader // TEMP//
 #pragma region Make this a Vertex class
-		// Note: Searches for shaders relative to Application.vcxproj
 		ID3DBlob* pVertexShader = nullptr;
 		ID3DBlob* pErrorBuffer = nullptr;
 		//TODO: make a file system search for this relative sahder path in client
@@ -562,9 +560,10 @@ namespace Insight {
 		D3D12_INPUT_ELEMENT_DESC inputLayout[] =
 		{
 			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 		};
-
+		
 		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
 		inputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
 		inputLayoutDesc.pInputElementDescs = inputLayout;
@@ -573,7 +572,7 @@ namespace Insight {
 		// Create Pipeline State Object
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
 		psoDesc.InputLayout = inputLayoutDesc;
-		psoDesc.pRootSignature = m_pRootSignature_Default.Get();
+		psoDesc.pRootSignature = m_pRootSignature_ForwardPass.Get();
 		psoDesc.VS = vertexShaderBytecode;
 		psoDesc.PS = pixelShaderBytecode;
 		psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
@@ -586,9 +585,9 @@ namespace Insight {
 		psoDesc.DSVFormat = m_pDepthStencilBuffer->GetDesc().Format;
 		psoDesc.NumRenderTargets = 1;
 
-		hr = m_pLogicalDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pPipelineStateObject_Default));
+		hr = m_pLogicalDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pPipelineStateObject_ForwardPass));
 		COM_ERROR_IF_FAILED(hr, "Failed to create default Pipeline State Object");
-		
+
 	}
 
 	void Direct3D12Context::CrateConstantBufferResourceHeaps()
@@ -599,21 +598,21 @@ namespace Insight {
 		{
 			hr = m_pLogicalDevice->CreateCommittedResource(
 				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-				D3D12_HEAP_FLAG_NONE, 
+				D3D12_HEAP_FLAG_NONE,
 				&CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
-				D3D12_RESOURCE_STATE_GENERIC_READ, 
-				nullptr, 
+				D3D12_RESOURCE_STATE_GENERIC_READ,
+				nullptr,
 				IID_PPV_ARGS(&constantBufferUploadHeaps[i]));
 			constantBufferUploadHeaps[i]->SetName(L"Constant Buffer Upload Resource Heap");
 
 			ZeroMemory(&cbPerObject, sizeof(cbPerObject));
 
-			CD3DX12_RANGE readRange(0, 0);    
+			CD3DX12_RANGE readRange(0, 0);
 
 			hr = constantBufferUploadHeaps[i]->Map(0, &readRange, reinterpret_cast<void**>(&cbvGPUAddress[i]));
 
-			memcpy(cbvGPUAddress[i], &cbPerObject, sizeof(cbPerObject)); 
-			memcpy(cbvGPUAddress[i] + ConstantBufferPerObjectAlignedSize, &cbPerObject, sizeof(cbPerObject)); 
+			memcpy(cbvGPUAddress[i], &cbPerObject, sizeof(cbPerObject));
+			memcpy(cbvGPUAddress[i] + ConstantBufferPerObjectAlignedSize, &cbPerObject, sizeof(cbPerObject));
 		}
 	}
 
@@ -728,24 +727,10 @@ namespace Insight {
 		cube1Position = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 		XMVECTOR posVec = XMLoadFloat4(&cube1Position);
 
-		tmpMat = XMMatrixTranslationFromVector(posVec); 
-		XMStoreFloat4x4(&cube1RotMat, XMMatrixIdentity()); 
-		XMStoreFloat4x4(&cube1WorldMat, tmpMat); 
-
-		cube2PositionOffset = XMFLOAT4(1.5f, 0.0f, 0.0f, 0.0f);
-		posVec = XMLoadFloat4(&cube2PositionOffset) + XMLoadFloat4(&cube1Position); 
-																					
-
-		tmpMat = XMMatrixTranslationFromVector(posVec); 
-		XMStoreFloat4x4(&cube2RotMat, XMMatrixIdentity());
-		XMStoreFloat4x4(&cube2WorldMat, tmpMat);
-
-		// Cube 3
-		cube3PositionOffset = XMFLOAT4(2.0f, 0.0f, 0.0f, 0.0f);
-		posVec = XMLoadFloat4(&cube3PositionOffset) + XMLoadFloat4(&cube1Position);
 		tmpMat = XMMatrixTranslationFromVector(posVec);
-		XMStoreFloat4x4(&cube3RotMat, XMMatrixIdentity());
-		XMStoreFloat4x4(&cube3WorldMat, tmpMat);
+		XMStoreFloat4x4(&cube1RotMat, XMMatrixIdentity());
+		XMStoreFloat4x4(&cube1WorldMat, tmpMat);
+
 	}
 
 	void Direct3D12Context::LoadAssets()
@@ -756,149 +741,7 @@ namespace Insight {
 
 	void Direct3D12Context::LoadModels()
 	{
-
 		model.Init("src/Models/nanosuit/nanosuit.obj");
-
-		return;
-
-		HRESULT hr;
-		// TODO Make model class
-		// TODO: move thi to the model class
-		Vertex vList[] = {
-			// front face
-			{ -0.5f,  0.5f, -0.5f, 0.0f, 0.0f },
-			{  0.5f, -0.5f, -0.5f, 1.0f, 1.0f },
-			{ -0.5f, -0.5f, -0.5f, 0.0f, 1.0f },
-			{  0.5f,  0.5f, -0.5f, 1.0f, 0.0f },
-
-			// right side face
-			{  0.5f, -0.5f, -0.5f, 0.0f, 1.0f },
-			{  0.5f,  0.5f,  0.5f, 1.0f, 0.0f },
-			{  0.5f, -0.5f,  0.5f, 1.0f, 1.0f },
-			{  0.5f,  0.5f, -0.5f, 0.0f, 0.0f },
-
-			// left side face
-			{ -0.5f,  0.5f,  0.5f, 0.0f, 0.0f },
-			{ -0.5f, -0.5f, -0.5f, 1.0f, 1.0f },
-			{ -0.5f, -0.5f,  0.5f, 0.0f, 1.0f },
-			{ -0.5f,  0.5f, -0.5f, 1.0f, 0.0f },
-
-			// back face
-			{  0.5f,  0.5f,  0.5f, 0.0f, 0.0f },
-			{ -0.5f, -0.5f,  0.5f, 1.0f, 1.0f },
-			{  0.5f, -0.5f,  0.5f, 0.0f, 1.0f },
-			{ -0.5f,  0.5f,  0.5f, 1.0f, 0.0f },
-
-			// top face
-			{ -0.5f,  0.5f, -0.5f, 0.0f, 1.0f },
-			{  0.5f,  0.5f,  0.5f, 1.0f, 0.0f },
-			{  0.5f,  0.5f, -0.5f, 1.0f, 1.0f },
-			{ -0.5f,  0.5f,  0.5f, 0.0f, 0.0f },
-
-			// bottom face
-			{  0.5f, -0.5f,  0.5f, 0.0f, 0.0f },
-			{ -0.5f, -0.5f, -0.5f, 1.0f, 1.0f },
-			{  0.5f, -0.5f, -0.5f, 0.0f, 1.0f },
-			{ -0.5f, -0.5f,  0.5f, 1.0f, 0.0f },
-		};
-		int vBufferSize = sizeof(vList);
-
-		hr = m_pLogicalDevice->CreateCommittedResource(
-								&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-								D3D12_HEAP_FLAG_NONE,
-								&CD3DX12_RESOURCE_DESC::Buffer(vBufferSize),
-								D3D12_RESOURCE_STATE_COPY_DEST,
-								nullptr,
-								IID_PPV_ARGS(&m_pVertexBuffer));
-		m_pVertexBuffer->SetName(L"Vertex Buffer Resource Heap");
-		COM_ERROR_IF_FAILED(hr, "Failed to upload vertex buffer resource heap");
-
-		hr = m_pLogicalDevice->CreateCommittedResource(
-								&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-								D3D12_HEAP_FLAG_NONE,
-								&CD3DX12_RESOURCE_DESC::Buffer(vBufferSize),
-								D3D12_RESOURCE_STATE_GENERIC_READ,
-								nullptr,
-								IID_PPV_ARGS(&m_pVBufferUploadHeap));
-		m_pVBufferUploadHeap->SetName(L"Vertex Buffer Upload Resource Heap");
-		COM_ERROR_IF_FAILED(hr, "Failed to upload vertex buffer heap");
-
-		D3D12_SUBRESOURCE_DATA vertexData = {};
-		vertexData.pData = reinterpret_cast<BYTE*>(vList);
-		vertexData.RowPitch = vBufferSize;
-		vertexData.SlicePitch = vBufferSize;
-
-		UpdateSubresources(m_pCommandList.Get(), m_pVertexBuffer.Get(), m_pVBufferUploadHeap.Get(), 0, 0, 1, &vertexData);
-
-		m_VertexBufferView.BufferLocation = m_pVertexBuffer->GetGPUVirtualAddress();
-		m_VertexBufferView.StrideInBytes = sizeof(Vertex);
-		m_VertexBufferView.SizeInBytes = vBufferSize;
-
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pVertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
-
-
-		// Create Index Buffer
-		DWORD iList[] = {
-			// front face
-		   0, 1, 2, // first triangle
-		   0, 3, 1, // second triangle
-
-		   // left face
-		   4, 5, 6, // first triangle
-		   4, 7, 5, // second triangle
-
-		   // right face
-		   8, 9, 10, // first triangle
-		   8, 11, 9, // second triangle
-
-		   // back face
-		   12, 13, 14, // first triangle
-		   12, 15, 13, // second triangle
-
-		   // top face
-		   16, 17, 18, // first triangle
-		   16, 19, 17, // second triangle
-
-		   // bottom face
-		   20, 21, 22, // first triangle
-		   20, 23, 21, // second triangle
-		};
-		int iBufferSize = sizeof(iList);
-
-		numCubeIndices = sizeof(iList) / sizeof(DWORD);
-
-		hr = m_pLogicalDevice->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(iBufferSize),
-			D3D12_RESOURCE_STATE_COPY_DEST,
-			nullptr,
-			IID_PPV_ARGS(m_pIndexBuffer.GetAddressOf()));
-		COM_ERROR_IF_FAILED(hr, "Failed to create Committed Resource for Index Buffer to the Deafault Heap");
-		m_pIndexBuffer->SetName(L"Index Buffer Resource Heap");
-
-		hr = m_pLogicalDevice->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(iBufferSize),
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(m_pIndexBufferUploadHeap.GetAddressOf()));
-		COM_ERROR_IF_FAILED(hr, "Failed to create Committed Resource for Index Buffer to the Upload Heap");
-
-		m_pIndexBufferUploadHeap->SetName(L"Index Buffer Upload Resource Heap");
-		D3D12_SUBRESOURCE_DATA indexData = {};
-		indexData.pData = reinterpret_cast<BYTE*>(iList);
-		indexData.RowPitch = iBufferSize;
-		indexData.SlicePitch = iBufferSize;
-
-		UpdateSubresources(m_pCommandList.Get(), m_pIndexBuffer.Get(), m_pIndexBufferUploadHeap.Get(), 0, 0, 1, &indexData);
-
-		m_IndexBufferView.BufferLocation = m_pIndexBuffer->GetGPUVirtualAddress();
-		m_IndexBufferView.Format = DXGI_FORMAT_R32_UINT;
-		m_IndexBufferView.SizeInBytes = iBufferSize;
-
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pVertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER));
 	}
 
 	void Direct3D12Context::LoadTextures()
@@ -915,13 +758,13 @@ namespace Insight {
 		}
 
 		hr = m_pLogicalDevice->CreateCommittedResource(
-								&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-								D3D12_HEAP_FLAG_NONE,
-								&textureDesc, 
-								D3D12_RESOURCE_STATE_COPY_DEST,
-								nullptr,
-								IID_PPV_ARGS(m_pTextureBuffer.GetAddressOf()));
-		if (FAILED(hr))	{
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+			D3D12_HEAP_FLAG_NONE,
+			&textureDesc,
+			D3D12_RESOURCE_STATE_COPY_DEST,
+			nullptr,
+			IID_PPV_ARGS(m_pTextureBuffer.GetAddressOf()));
+		if (FAILED(hr)) {
 			IE_CORE_ERROR("Failed to create resource heap for texture asset");
 		}
 		m_pTextureBuffer->SetName(L"Texture Buffer Resource Heap");
@@ -929,11 +772,11 @@ namespace Insight {
 		UINT64 textureUploadBufferSize;
 		m_pLogicalDevice->GetCopyableFootprints(&textureDesc, 0, 1, 0, nullptr, nullptr, nullptr, &textureUploadBufferSize);
 		hr = m_pLogicalDevice->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-								D3D12_HEAP_FLAG_NONE,
-								&CD3DX12_RESOURCE_DESC::Buffer(textureUploadBufferSize),
-								D3D12_RESOURCE_STATE_GENERIC_READ,
-								nullptr,
-								IID_PPV_ARGS(m_pTextureBufferUploadHeap.GetAddressOf()));
+			D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Buffer(textureUploadBufferSize),
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(m_pTextureBufferUploadHeap.GetAddressOf()));
 		if (FAILED(hr))
 			IE_CORE_ERROR("Failed to create commited resource for texture buffer");
 
@@ -951,7 +794,7 @@ namespace Insight {
 		heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 		heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 		hr = m_pLogicalDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(m_pMainDescriptorHeap.GetAddressOf()));
-		if (FAILED(hr))	{
+		if (FAILED(hr)) {
 			IE_CORE_ERROR("Failed to create descriptor heap");
 		}
 

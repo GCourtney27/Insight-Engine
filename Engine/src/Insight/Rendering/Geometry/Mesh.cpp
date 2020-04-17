@@ -15,8 +15,8 @@ namespace Insight {
 		m_NumIndices = m_Verticies.size();
 		m_NumVerticies = m_Indices.size();
 
-		iBufferSize = m_NumIndices * sizeof(UINT);
-		vBufferSize = m_NumVerticies * sizeof(Vertex);
+		m_IBufferSize = m_NumIndices * sizeof(UINT);
+		m_VBufferSize = m_NumVerticies * sizeof(Vertex);
 
 		RenderingContext* renderContext = &Application::Get().GetWindow().GetRenderContext();
 		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(renderContext);
@@ -29,6 +29,7 @@ namespace Insight {
 
 	Mesh::~Mesh()
 	{
+		Destroy();
 	}
 
 	void Mesh::Draw()
@@ -62,7 +63,7 @@ namespace Insight {
 		hr = m_pLogicalDevice->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(vBufferSize),
+			&CD3DX12_RESOURCE_DESC::Buffer(m_VBufferSize),
 			D3D12_RESOURCE_STATE_COPY_DEST,
 			nullptr,
 			IID_PPV_ARGS(&m_pVertexBuffer));
@@ -75,7 +76,7 @@ namespace Insight {
 		hr = m_pLogicalDevice->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(vBufferSize),
+			&CD3DX12_RESOURCE_DESC::Buffer(m_VBufferSize),
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
 			IID_PPV_ARGS(&m_pVertexBufferUploadHeap));
@@ -87,14 +88,14 @@ namespace Insight {
 
 		D3D12_SUBRESOURCE_DATA vertexData = {};
 		vertexData.pData = reinterpret_cast<BYTE*>(m_Verticies.data());
-		vertexData.RowPitch = vBufferSize;
-		vertexData.SlicePitch = vBufferSize;
+		vertexData.RowPitch = m_VBufferSize;
+		vertexData.SlicePitch = m_VBufferSize;
 
 		UpdateSubresources(m_pCommandList, m_pVertexBuffer, m_pVertexBufferUploadHeap, 0, 0, 1, &vertexData);
 
 		m_VertexBufferView.BufferLocation = m_pVertexBuffer->GetGPUVirtualAddress();
 		m_VertexBufferView.StrideInBytes = sizeof(Vertex);
-		m_VertexBufferView.SizeInBytes = vBufferSize;
+		m_VertexBufferView.SizeInBytes = m_VBufferSize;
 
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pVertexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
 
@@ -108,7 +109,7 @@ namespace Insight {
 		hr = m_pLogicalDevice->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(iBufferSize),
+			&CD3DX12_RESOURCE_DESC::Buffer(m_IBufferSize),
 			D3D12_RESOURCE_STATE_COPY_DEST,
 			nullptr,
 			IID_PPV_ARGS(&m_pIndexBuffer));
@@ -121,7 +122,7 @@ namespace Insight {
 		hr = m_pLogicalDevice->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(iBufferSize),
+			&CD3DX12_RESOURCE_DESC::Buffer(m_IBufferSize),
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
 			IID_PPV_ARGS(&m_pIndexBufferUploadHeap));
@@ -133,14 +134,14 @@ namespace Insight {
 
 		D3D12_SUBRESOURCE_DATA indexData = {};
 		indexData.pData = reinterpret_cast<BYTE*>(m_Indices.data());
-		indexData.RowPitch = iBufferSize;
-		indexData.SlicePitch = iBufferSize;
+		indexData.RowPitch = m_IBufferSize;
+		indexData.SlicePitch = m_IBufferSize;
 
 		UpdateSubresources(m_pCommandList, m_pIndexBuffer, m_pIndexBufferUploadHeap, 0, 0, 1, &indexData);
 
 		m_IndexBufferView.BufferLocation = m_pIndexBuffer->GetGPUVirtualAddress();
 		m_IndexBufferView.Format = DXGI_FORMAT_R32_UINT;
-		m_IndexBufferView.SizeInBytes = iBufferSize;
+		m_IndexBufferView.SizeInBytes = m_IBufferSize;
 
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pIndexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER));
 

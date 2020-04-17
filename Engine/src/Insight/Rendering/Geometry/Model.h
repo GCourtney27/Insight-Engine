@@ -14,7 +14,7 @@ namespace Insight {
 	{
 	public:
 		Model(const std::string& path);
-		Model();
+		~Model();
 		void Init(const std::string path);
 
 		void Draw();

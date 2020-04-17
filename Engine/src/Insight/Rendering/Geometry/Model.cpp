@@ -11,8 +11,9 @@ namespace Insight {
 		LoadModel(path);
 	}
 
-	Model::Model()
+	Model::~Model()
 	{
+		Destroy();
 	}
 
 	void Model::Init(const std::string path)
@@ -35,7 +36,7 @@ namespace Insight {
 	void Model::LoadModel(const std::string& path)
 	{
 		Assimp::Importer importer;
-		const aiScene* pScene = importer.ReadFile(path, aiProcess_Triangulate);
+		const aiScene* pScene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenNormals);
 
 		if (!pScene || pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !pScene->mRootNode)
 			IE_CORE_TRACE("Assimp import error: {0}", importer.GetErrorString());
@@ -73,10 +74,10 @@ namespace Insight {
 			varContainer.z = pMesh->mVertices[i].z;
 			vertex.Position = varContainer;
 			// Normals
-			/*varContainer.x = pMesh->mNormals[i].x;
+			varContainer.x = pMesh->mNormals[i].x;
 			varContainer.y = pMesh->mNormals[i].y;
 			varContainer.z = pMesh->mNormals[i].z;
-			vertex.Normal = varContainer;*/
+			vertex.Normal = varContainer;
 			// Texture Coords/Tangents
 			if (pMesh->mTextureCoords[0])
 			{

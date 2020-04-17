@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Insight/Core.h>
+
 #include "Insight/Rendering/Vertex.h"
 
 
@@ -11,8 +13,10 @@ namespace Insight {
 		Mesh(std::vector<Vertex> verticies, std::vector<UINT> indices);
 		~Mesh();
 
-		UINT GetVertexBufferSize() const { return m_NumVerticies; }
-		UINT GetIndexBufferSize()  const { return m_NumIndices; }
+		const UINT& GetNumVertices() const { return m_NumVerticies; }
+		const UINT& GetNumIndices()  const { return m_NumIndices; }
+		const int& GetVertexBufferSize() const { return m_VBufferSize; }
+		const int& GetIndexBufferSize() const { return m_IBufferSize; }
 
 		void Draw();
 		void Destroy();
@@ -32,15 +36,16 @@ namespace Insight {
 		ID3D12Resource*				m_pIndexBufferUploadHeap;
 		D3D12_INDEX_BUFFER_VIEW		m_IndexBufferView = {};
 		
-		ID3D12Device5* m_pLogicalDevice;
+		ID3D12Device5*				m_pLogicalDevice;
 		ID3D12GraphicsCommandList*	m_pCommandList;
 
-		UINT m_NumVerticies = 0;
-		UINT m_NumIndices = 0;
-		int vBufferSize = 0;
-		int iBufferSize = 0;
-		std::vector<Vertex> m_Verticies;
-		std::vector<UINT> m_Indices;
+		UINT					m_NumVerticies = 0;
+		UINT					m_NumIndices = 0;
+		int						m_VBufferSize = 0;
+		int						m_IBufferSize = 0;
+		std::vector<Vertex>		m_Verticies;
+		std::vector<UINT>		m_Indices;
+		bool m_IncludeInGBufferPass = true;
 		//std::vector<Texture> m_Textures;
 	};
 }

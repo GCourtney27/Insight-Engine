@@ -3,17 +3,18 @@
 #include "Insight/Core.h"
 
 #include "Insight/Rendering/RenderingContext.h"
-#include "Platform/DirectX12/D3D_Api.h"
+#include "Platform/DirectX_Shared/D3D_Api.h"
 
 #include "Insight/Game/Camera.h"
 
 // TODO: implement shader system that uses this
-#include "ConstantBuffersPerObject_TEMP.h"
+#include "Platform/DirectX_Shared/ConstantBuffersPerObject_TEMP.h"
 #include <DirectXMath.h>
 // TODO: implement texture system that uses this
 #include <wincodec.h>
 //TEMP
 #include "Insight/Rendering/Geometry/Model.h"
+
 namespace Insight {
 
 	class WindowsWindow;
@@ -104,8 +105,8 @@ namespace Insight {
 		WRL::ComPtr<ID3D12Resource>				m_pDepthStencilBuffer;
 		WRL::ComPtr<ID3D12DescriptorHeap>		m_pDepthStencilDescriptorHeap;
 
-		WRL::ComPtr<ID3D12PipelineState>		m_pPipelineStateObject_Default;
-		WRL::ComPtr<ID3D12RootSignature>		m_pRootSignature_Default;
+		WRL::ComPtr<ID3D12PipelineState>		m_pPipelineStateObject_ForwardPass;
+		WRL::ComPtr<ID3D12RootSignature>		m_pRootSignature_ForwardPass;
 
 		D3D12_VIEWPORT							m_ViewPort = {};
 		D3D12_RECT								m_ScissorRect = {};
@@ -117,21 +118,6 @@ namespace Insight {
 
 		//=== TEMPORARY! ===//
 		Model model;
-		//TODO: Move this to a model/vertex class
-		WRL::ComPtr<ID3D12Resource> m_pVertexBuffer;
-		WRL::ComPtr<ID3D12Resource> m_pVBufferUploadHeap;
-
-		WRL::ComPtr<ID3D12Resource> m_pIndexBuffer;
-		WRL::ComPtr<ID3D12Resource> m_pIndexBufferUploadHeap;
-		D3D12_INDEX_BUFFER_VIEW		m_IndexBufferView = {};
-
-		D3D12_VERTEX_BUFFER_VIEW m_VertexBufferView = {};
-		struct Vertex {
-			Vertex(float x, float y, float z, float u, float v)
-				: pos(x, y, z), texCoord(u, v) {}
-			DirectX::XMFLOAT3 pos = {};
-			DirectX::XMFLOAT2 texCoord = {};
-		};
 
 		struct ConstantBufferPerObject {
 			DirectX::XMFLOAT4X4 wvpMatrix;
@@ -147,21 +133,12 @@ namespace Insight {
 		DirectX::XMFLOAT4X4 cube1RotMat;
 		DirectX::XMFLOAT4 cube1Position;
 
-		DirectX::XMFLOAT4X4 cube2WorldMat;
-		DirectX::XMFLOAT4X4 cube2RotMat;
-		DirectX::XMFLOAT4 cube2PositionOffset;
-
-		DirectX::XMFLOAT4X4 cube3WorldMat;
-		DirectX::XMFLOAT4X4 cube3RotMat;
-		DirectX::XMFLOAT4 cube3PositionOffset;
-
-		int numCubeIndices; 
 
 		// TEMP Textures
+		// TODO: create texture manager class
 		WRL::ComPtr<ID3D12Resource>		  m_pTextureBuffer;
 		WRL::ComPtr<ID3D12DescriptorHeap> m_pMainDescriptorHeap;
 		WRL::ComPtr<ID3D12Resource>		  m_pTextureBufferUploadHeap;
-
 
 	};
 

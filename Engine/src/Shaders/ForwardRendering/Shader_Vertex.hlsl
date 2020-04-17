@@ -3,12 +3,14 @@ struct VS_INPUT
 {
     float4 position : POSITION;
     float2 texCoords : TEXCOORD;
+    float3 normal : NORMAL;
 };
 
 struct VS_OUTPUT
 {
     float4 position : SV_POSITION;
     float2 texCoords : TEXCOORD;
+    float3 normal : NORMAL;
 };
 
 cbuffer ConstantBuffer : register(b0)
@@ -22,6 +24,7 @@ VS_OUTPUT main(VS_INPUT vs_in)
 
     vs_out.position = mul(vs_in.position, wvpMat);
     vs_out.texCoords = vs_in.texCoords;
-    
+    vs_out.normal = vs_in.normal;
+
     return vs_out;
 }

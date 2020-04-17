@@ -130,15 +130,6 @@
     <ClInclude Include="src\Insight\Utilities\String_Helper.h">
       <Filter>Insight\Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="src\Platform\DirectX12\ConstantBuffersPerObject_TEMP.h">
-      <Filter>Platform\DirectX12</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Platform\DirectX12\ConstantBuffers_TEMP.h">
-      <Filter>Platform\DirectX12</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Platform\DirectX12\D3D_Api.h">
-      <Filter>Platform\DirectX12</Filter>
-    </ClInclude>
     <ClInclude Include="src\Platform\DirectX12\Direct3D12_Context.h">
       <Filter>Platform\DirectX12</Filter>
     </ClInclude>
@@ -158,6 +149,15 @@
       <Filter>Platform\Windows</Filter>
     </ClInclude>
     <ClInclude Include="src\ie_pch.h" />
+    <ClInclude Include="src\Platform\DirectX_Shared\ConstantBuffers_TEMP.h">
+      <Filter>Platform\DirectX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\DirectX_Shared\ConstantBuffersPerObject_TEMP.h">
+      <Filter>Platform\DirectX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\DirectX_Shared\D3D_Api.h">
+      <Filter>Platform\DirectX12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Insight\Core\Application.cpp">
@@ -202,9 +202,6 @@
     <ClCompile Include="src\Insight\Utilities\String_Helper.cpp">
       <Filter>Insight\Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="src\Platform\DirectX12\D3D_Api.cpp">
-      <Filter>Platform\DirectX12</Filter>
-    </ClCompile>
     <ClCompile Include="src\Platform\DirectX12\Direct3D12_Context.cpp">
       <Filter>Platform\DirectX12</Filter>
     </ClCompile>
@@ -221,5 +218,8 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\ie_pch.cpp" />
+    <ClCompile Include="src\Platform\DirectX_Shared\D3D_Api.cpp">
+      <Filter>Platform\DirectX12</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

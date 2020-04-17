@@ -212,9 +212,9 @@
     <ClInclude Include="src\Insight\Rendering\RenderingContext.h" />
     <ClInclude Include="src\Insight\Rendering\Vertex.h" />
     <ClInclude Include="src\Insight\Utilities\String_Helper.h" />
-    <ClInclude Include="src\Platform\DirectX12\ConstantBuffersPerObject_TEMP.h" />
-    <ClInclude Include="src\Platform\DirectX12\ConstantBuffers_TEMP.h" />
-    <ClInclude Include="src\Platform\DirectX12\D3D_Api.h" />
+    <ClInclude Include="src\Platform\DirectX_Shared\ConstantBuffersPerObject_TEMP.h" />
+    <ClInclude Include="src\Platform\DirectX_Shared\ConstantBuffers_TEMP.h" />
+    <ClInclude Include="src\Platform\DirectX_Shared\D3D_Api.h" />
     <ClInclude Include="src\Platform\DirectX12\Direct3D12_Context.h" />
     <ClInclude Include="src\Platform\ImGui\ImGui_DX12_Renderer.h" />
     <ClInclude Include="src\Platform\ImGui\imgui_impl_win32.h" />
@@ -238,7 +238,7 @@
     <ClCompile Include="src\Insight\Rendering\Geometry\Mesh.cpp" />
     <ClCompile Include="src\Insight\Rendering\Geometry\Model.cpp" />
     <ClCompile Include="src\Insight\Utilities\String_Helper.cpp" />
-    <ClCompile Include="src\Platform\DirectX12\D3D_Api.cpp" />
+    <ClCompile Include="src\Platform\DirectX_Shared\D3D_Api.cpp" />
     <ClCompile Include="src\Platform\DirectX12\Direct3D12_Context.cpp" />
     <ClCompile Include="src\Platform\ImGui\ImGui_DX12_Renderer.cpp" />
     <ClCompile Include="src\Platform\ImGui\imgui_impl_win32.cpp" />
