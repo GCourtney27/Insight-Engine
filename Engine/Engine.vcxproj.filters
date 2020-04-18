@@ -157,9 +157,6 @@
     <ClCompile Include="src\Insight\Core\Application.cpp">
       <Filter>Insight\Core</Filter>
     </ClCompile>
-    <ClCompile Include="src\Insight\Core\EntryPoint.cpp">
-      <Filter>Insight\Core</Filter>
-    </ClCompile>
     <ClCompile Include="src\Insight\Core\Layer\Layer.cpp">
       <Filter>Insight\Core\Layer</Filter>
     </ClCompile>
@@ -210,5 +207,8 @@
       <Filter>Platform\DirectX12</Filter>
     </ClCompile>
     <ClCompile Include="src\Insight\Editor\ImGui_Build.cpp" />
+    <ClCompile Include="src\Insight\Core\Entry_Point.cpp">
+      <Filter>Insight\Core</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

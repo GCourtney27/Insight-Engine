@@ -14,10 +14,18 @@ namespace Insight {
 		virtual void RenderFrame() = 0;
 		virtual void SwapBuffers() = 0;
 		virtual void OnWindowResize() = 0;
+		virtual void OnWindowFullScreen() = 0;
 
 		inline uint8_t GetFrameBufferCount() const { return m_FrameBufferCount; }
 		inline void SetVSyncEnabled(bool enabled) { m_VSyncEnabled = enabled; }
-		inline void SetWindowWidthAndHeight(FLOAT width, FLOAT height) { m_WindowWidth = width; m_WindowHeight = height; OnWindowResize(); }
+		inline void SetWindowWidthAndHeight(FLOAT width, FLOAT height, bool isMinimized) 
+		{ 
+			m_WindowWidth = width;
+			m_WindowHeight = height;
+			m_IsMinimized = isMinimized;
+			m_AspectRatio = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
+			OnWindowResize();
+		}
 
 	protected:
 		RenderingContext(uint32_t windowWidth, uint32_t windowHeight, bool vSyncEabled)
@@ -27,7 +35,15 @@ namespace Insight {
 		uint32_t m_WindowWidth;
 		uint32_t m_WindowHeight;
 
+		float m_AspectRatio = 0.0f;
+
 		bool m_VSyncEnabled = false;
+		bool m_IsMinimized = false;
+		bool m_FullScreenMode = false;
+		bool m_WindowedMode = true;
+		bool m_WindowVisible = true;
+		bool m_AllowTearing = true;
+
 		enum RenderingAPI
 		{
 			// Dynamic Pipeline

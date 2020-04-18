@@ -223,7 +223,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Insight\Core\Application.cpp" />
-    <ClCompile Include="src\Insight\Core\EntryPoint.cpp" />
+    <ClCompile Include="src\Insight\Core\Entry_Point.cpp" />
     <ClCompile Include="src\Insight\Core\Layer\Layer.cpp" />
     <ClCompile Include="src\Insight\Core\Layer\Layer_Stack.cpp" />
     <ClCompile Include="src\Insight\Core\Log.cpp" />

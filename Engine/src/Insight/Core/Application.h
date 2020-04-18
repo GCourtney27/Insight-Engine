@@ -27,12 +27,13 @@ namespace Insight {
 		void PushOverlay(Layer* layer);
 
 		inline Window& GetWindow() { return *m_pWindow; }
-		void InitializeAppForWindows(HINSTANCE& hInstance, int nCmdShow);
+		bool InitializeAppForWindows(HINSTANCE& hInstance, int nCmdShow);
 		inline static Application& Get() { return *s_Instance; }
 	private:
 		void PushEngineLayers();
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
+		bool OnWindowFullScreen(WindowToggleFullScreenEvent& e);
 	private:
 		std::unique_ptr<Window> m_pWindow;
 		ImGuiLayer* m_ImGuiLayer = nullptr;

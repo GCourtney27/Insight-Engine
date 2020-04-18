@@ -20,7 +20,11 @@ extern Insight::Application* Insight::CreateApplication();
 
 		auto app = Insight::CreateApplication();
 
-		app->InitializeAppForWindows(hInstance, nCmdShow);
+		if (!app->InitializeAppForWindows(hInstance, nCmdShow))
+		{
+			IE_CORE_FATAL(L"Failed to initialize engine. Exiting.");
+			return 0;
+		}
 
 		app->Run();
 

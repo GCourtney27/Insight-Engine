@@ -20,7 +20,7 @@ namespace Insight {
 		return new WindowsWindow(props);
 	}
 
-	WindowsWindow::WindowsWindow(const WindowProps & props)
+	WindowsWindow::WindowsWindow(const WindowProps& props)
 	{
 		m_Data.WindowTitle = props.Title;
 		m_Data.WindowTitle_wide = StringHelper::StringToWide(m_Data.WindowTitle);
@@ -30,7 +30,7 @@ namespace Insight {
 		m_Data.Height = props.Height;
 	}
 
-	LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+	LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		switch (msg) {
 		case WM_NCCREATE:
@@ -131,6 +131,25 @@ namespace Insight {
 		case WM_KEYDOWN:
 		{
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+
+			// CRASHES DO NOT PRESS F11
+			if (wParam == VK_F11)
+			{
+				if (data.FullScreenEnabled)
+				{
+					data.FullScreenEnabled = false;
+					WindowToggleFullScreenEvent event(false);
+					data.EventCallback(event);
+				}
+				else
+				{
+					data.FullScreenEnabled = true;
+					WindowToggleFullScreenEvent event(true);
+					data.EventCallback(event);
+				}
+
+			}
+
 			KeyboardBuffer::Get().OnKeyPressed((char)wParam);
 			KeyPressedEvent event((char)wParam, 0);
 			data.EventCallback(event);
@@ -159,24 +178,19 @@ namespace Insight {
 		case WM_SIZE:
 		{
 			//IE_CORE_INFO("Window size has changed");
-			
-			//if(wParam & SIZE_MINIMIZED)
-				// Window has beein minimized stop rendering momentarily becasue we cannot see the result
 
-			// lParam contains new with and height
-			
-			
-			return 0;
-		}
-		case WM_SIZING:
-		{
-			//IE_CORE_INFO("Window is currently being resized");
+			// CRASHES NO NOT RESIZE WINDOW
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			if (data.isFirstLaunch)
+			{
+				data.isFirstLaunch = false;
+				return 0;
+			}
 			RECT clientRect = {};
 			GetClientRect(hWnd, &clientRect);
-			WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
+			WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, wParam == SIZE_MINIMIZED);
 			data.EventCallback(event);
-			return 1;
+			return 0;
 		}
 		default:
 		{
@@ -186,35 +200,34 @@ namespace Insight {
 
 	}
 
-	bool WindowsWindow::Init(const WindowProps & props)
+	bool WindowsWindow::Init(const WindowProps& props)
 	{
 		RegisterWindowClass();
 
 		int centerScreenX = GetSystemMetrics(SM_CXSCREEN) / 2 - m_Data.Width / 2;
 		int centerScreenY = GetSystemMetrics(SM_CYSCREEN) / 2 - m_Data.Height / 2;
 
-		RECT wr; // Window Rectangle
-		wr.left = centerScreenX;
-		wr.top = centerScreenY;
-		wr.right = wr.left + m_Data.Width;
-		wr.bottom = wr.top + m_Data.Height;
+		m_WindowRect.left = centerScreenX;
+		m_WindowRect.top = centerScreenY;
+		m_WindowRect.right = m_WindowRect.left + m_Data.Width;
+		m_WindowRect.bottom = m_WindowRect.top + m_Data.Height;
 
 
 		m_WindowHandle = CreateWindowEx(
-			0,									// Window Styles
-			m_Data.WindowClassName_wide.c_str(),// Window Class
-			m_Data.WindowTitle_wide.c_str(),	// Window Title
-			WS_OVERLAPPEDWINDOW,				// Window Style
+			0,										// Window Styles
+			m_Data.WindowClassName_wide.c_str(),	// Window Class
+			m_Data.WindowTitle_wide.c_str(),		// Window Title
+			WS_OVERLAPPEDWINDOW,					// Window Style
 
-			wr.left,							// Start X
-			wr.top,								// Start Y
-			wr.right - wr.left,					// Width
-			wr.bottom - wr.top,					// Height
+			m_WindowRect.left,							// Start X
+			m_WindowRect.top,							// Start Y
+			m_WindowRect.right - m_WindowRect.left,		// Width
+			m_WindowRect.bottom - m_WindowRect.top,		// Height
 
-			NULL,								// Parent window
-			NULL,								// Menu
-			*m_WindowsAppInstance,				// Current Windows program application instance passed from WinMain
-			&m_Data								// Additional application data
+			NULL,					// Parent window
+			NULL,					// Menu
+			*m_WindowsAppInstance,	// Current Windows program application instance passed from WinMain
+			&m_Data					// Additional application data
 		);
 
 		if (m_WindowHandle == NULL)
@@ -224,17 +237,17 @@ namespace Insight {
 			exit(-1);
 		}
 
+		m_pRendererContext = new Direct3D12Context(this);
+		if (!m_pRendererContext->Init())
+		{
+			IE_CORE_FATAL(L"Failed to initialize graphics context");
+			return false;
+		}
+
 		ShowWindow(m_WindowHandle, m_nCmdShowArgs);
 		SetForegroundWindow(m_WindowHandle);
 		SetFocus(m_WindowHandle);
 		SetWindowText(m_WindowHandle, m_Data.WindowTitle_wide.c_str());
-
-		m_pRendererContext = new Direct3D12Context(this);
-		if (!m_pRendererContext->Init())
-		{
-			IE_CORE_ERROR("Failed to initialize graphics context");
-			return false;
-		}
 
 		return true;
 	}
@@ -244,7 +257,7 @@ namespace Insight {
 		WNDCLASSEX wc = {};
 		wc.cbSize = sizeof(WNDCLASSEX);
 		wc.style = 0;
-		wc.lpfnWndProc = WndProc;
+		wc.lpfnWndProc = WindowProcedure;
 		wc.cbClsExtra = 0;
 		wc.cbWndExtra = 0;
 		wc.hInstance = *m_WindowsAppInstance;
@@ -263,11 +276,17 @@ namespace Insight {
 		}
 	}
 
-	void WindowsWindow::Resize(uint32_t newWidth, uint32_t newHeight)
+	void WindowsWindow::Resize(uint32_t newWidth, uint32_t newHeight, bool isMinimized)
 	{
 		m_Data.Width = newWidth;
 		m_Data.Height = newHeight;
-		m_pRendererContext->SetWindowWidthAndHeight(newWidth, newHeight);
+		m_pRendererContext->SetWindowWidthAndHeight(newWidth, newHeight, isMinimized);
+	}
+
+	void WindowsWindow::ToggleFullScreen(bool& enabled)
+	{
+		m_Data.FullScreenEnabled = enabled;
+		m_pRendererContext->OnWindowFullScreen();
 	}
 
 	bool WindowsWindow::ProccessWindowMessages()
@@ -308,7 +327,7 @@ namespace Insight {
 
 	}
 
-	void * WindowsWindow::GetNativeWindow() const
+	void* WindowsWindow::GetNativeWindow() const
 	{
 		return m_WindowHandle;
 	}
@@ -320,9 +339,14 @@ namespace Insight {
 		m_pRendererContext->SetVSyncEnabled(m_Data.VSyncEnabled);
 	}
 
-	bool WindowsWindow::IsVsyncActive() const
+	const bool& WindowsWindow::IsVsyncActive() const
 	{
 		return m_Data.VSyncEnabled;
+	}
+
+	const bool& WindowsWindow::IsFullScreenActive() const
+	{
+		return m_Data.FullScreenEnabled;
 	}
 
 	void WindowsWindow::Shutdown()

@@ -20,7 +20,7 @@ namespace Insight {
 		
 	}
 
-	void Application::InitializeAppForWindows(HINSTANCE & hInstance, int nCmdShow)
+	bool Application::InitializeAppForWindows(HINSTANCE & hInstance, int nCmdShow)
 	{
 		m_pWindow = std::unique_ptr<Window>(Window::Create());
 		m_pWindow->SetEventCallback(IE_BIND_EVENT_FN(Application::OnEvent));
@@ -29,13 +29,16 @@ namespace Insight {
 		if (!static_cast<WindowsWindow*>(m_pWindow.get())->Init(WindowProps()))	
 		{
 			IE_CORE_FATAL(L"Fatal Error: Failed to initialize window. Exiting.");
+			return false;
 		}
 
 		if (!Init())
 		{
 			IE_CORE_FATAL(L"Failed to initiazlize application");
+			return false;
 		}
 
+		return true;
 	}
 
 	Application::~Application()
@@ -76,6 +79,7 @@ namespace Insight {
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(IE_BIND_EVENT_FN(Application::OnWindowClose));
 		dispatcher.Dispatch<WindowResizeEvent>(IE_BIND_EVENT_FN(Application::OnWindowResize));
+		dispatcher.Dispatch<WindowToggleFullScreenEvent>(IE_BIND_EVENT_FN(Application::OnWindowFullScreen));
 
 		//IE_CORE_TRACE("{0}", e);
 
@@ -112,7 +116,13 @@ namespace Insight {
 
 	bool Application::OnWindowResize(WindowResizeEvent& e)
 	{
-		m_pWindow->Resize(e.GetWidth(), e.GetHeight());
+		m_pWindow->Resize(e.GetWidth(), e.GetHeight(), e.GetIsMinimized());
+		return true;
+	}
+
+	bool Application::OnWindowFullScreen(WindowToggleFullScreenEvent& e)
+	{
+		m_pWindow->ToggleFullScreen(e.GetFullScreenEnabled());
 		return true;
 	}
 

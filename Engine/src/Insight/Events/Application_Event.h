@@ -7,16 +7,17 @@ namespace Insight {
 	class INSIGHT_API WindowResizeEvent : public Event
 	{
 	public:
-		WindowResizeEvent(unsigned int width, unsigned int height)
-			: m_Width(width), m_Height(height) {}
+		WindowResizeEvent(unsigned int width, unsigned int height, bool minimized)
+			: m_Width(width), m_Height(height), m_Minimized(minimized) {}
 
 		inline unsigned int GetWidth() const { return m_Width; }
 		inline unsigned int GetHeight() const { return m_Height; }
+		inline bool GetIsMinimized() const { return m_Minimized; }
 
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "WindowResisedEvent: " << m_Width << ", " << m_Height;
+			ss << "WindowResisedEvent: " << m_Width << ", " << m_Height << " | Minimized: " << m_Minimized;
 			return ss.str();
 		}
 
@@ -24,6 +25,21 @@ namespace Insight {
 			EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	private:
 		unsigned int m_Width, m_Height;
+		bool m_Minimized;
+	};
+
+	class INSIGHT_API WindowToggleFullScreenEvent : public Event
+	{
+	public:
+		WindowToggleFullScreenEvent(bool enabled) 
+			: m_Enabled(enabled) {}
+
+		inline bool GetFullScreenEnabled() const { return m_Enabled; }
+
+		EVENT_CLASS_TYPE(ToggleWindowFullScreen)
+			EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	private:
+		bool m_Enabled;
 	};
 
 	class INSIGHT_API WindowCloseEvent : public Event

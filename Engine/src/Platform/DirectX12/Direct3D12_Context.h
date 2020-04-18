@@ -31,6 +31,7 @@ namespace Insight {
 		virtual void RenderFrame() override;
 		virtual void SwapBuffers() override;
 		virtual void OnWindowResize() override;
+		virtual void OnWindowFullScreen() override;
 
 		inline ID3D12Device5& GetDeviceContext() const { return *m_pLogicalDevice.Get(); }
 		inline ID3D12DescriptorHeap& GetImGuiDescriptorHeap() const { return *m_pImGuiDescriptorHeap.Get(); }
@@ -76,7 +77,8 @@ namespace Insight {
 
 		void Cleanup();
 		void WaitForGPU();
-		void ToggleFullscreen(IDXGISwapChain* pSwapChain);
+		void UpdateSizeDependentResources();
+		void UpdateViewAndScissor();
 	private:
 		HWND* m_pWindowHandle = nullptr;
 		WindowsWindow* m_pWindow = nullptr;
@@ -84,7 +86,7 @@ namespace Insight {
 		// Sync Values
 		int m_FrameIndex = 0;
 		int m_RtvDescriptorSize = 0;
-		UINT64 m_FenceValue[m_FrameBufferCount] = {};
+		UINT64 m_FenceValues[m_FrameBufferCount] = {};
 		HANDLE m_FenceEvent = {};
 
 		bool m_RayTraceEnabled = false;
@@ -100,7 +102,7 @@ namespace Insight {
 		WRL::ComPtr<ID3D12Resource>				m_pRenderTargets[m_FrameBufferCount];
 		WRL::ComPtr<ID3D12CommandAllocator>		m_pCommandAllocators[m_FrameBufferCount];
 
-		WRL::ComPtr<ID3D12Fence>				m_pFence[m_FrameBufferCount];
+		WRL::ComPtr<ID3D12Fence>				m_pFences[m_FrameBufferCount];
 		WRL::ComPtr<ID3D12GraphicsCommandList>	m_pCommandList;
 
 		WRL::ComPtr<ID3D12Resource>				m_pDepthStencilBuffer;
@@ -112,6 +114,7 @@ namespace Insight {
 		D3D12_VIEWPORT							m_ViewPort = {};
 		D3D12_RECT								m_ScissorRect = {};
 		DXGI_SAMPLE_DESC						m_SampleDesc = {};
+		D3D12_DEPTH_STENCIL_VIEW_DESC			m_dsvDesc = {};
 
 		// IMGUI this should move
 		WRL::ComPtr <ID3D12DescriptorHeap>		m_pImGuiDescriptorHeap;
@@ -140,6 +143,16 @@ namespace Insight {
 		WRL::ComPtr<ID3D12Resource>		  m_pTextureBuffer;
 		WRL::ComPtr<ID3D12DescriptorHeap> m_pMainDescriptorHeap;
 		WRL::ComPtr<ID3D12Resource>		  m_pTextureBufferUploadHeap;
+
+		// Utils
+		struct Resolution
+		{
+			UINT Width;
+			UINT Height;
+		};
+		static const Resolution m_resolutionOptions[];
+		static const UINT m_resolutionOptionsCount;
+		static UINT m_resolutionIndex; // Index of the current scene rendering resolution from m_resolutionOptions.
 
 	};
 

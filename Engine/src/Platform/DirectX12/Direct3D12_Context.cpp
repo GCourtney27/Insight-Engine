@@ -13,12 +13,26 @@ using namespace Microsoft::WRL;
 
 namespace Insight {
 
+	const Direct3D12Context::Resolution Direct3D12Context::m_resolutionOptions[] =
+	{
+		{ 800u, 600u },
+		{ 1200u, 900u },
+		{ 1280u, 720u },
+		{ 1920u, 1080u },
+		{ 1920u, 1200u },
+		{ 2560u, 1440u },
+		{ 3440u, 1440u },
+		{ 3840u, 2160u }
+	};
+	const UINT Direct3D12Context::m_resolutionOptionsCount = _countof(m_resolutionOptions);
+	UINT Direct3D12Context::m_resolutionIndex = 2;
 
 	Direct3D12Context::Direct3D12Context(WindowsWindow* windowHandle)
 		: m_pWindowHandle(&windowHandle->GetWindowHandleReference()), m_pWindow(windowHandle), RenderingContext(windowHandle->GetWidth(), windowHandle->GetHeight(), false)
 	{
 		IE_CORE_ASSERT(windowHandle, "Window handle is NULL!");
-		camera.SetProjectionValues(75.0f, m_WindowWidth / m_WindowHeight, 1.0f, 100.0f);
+		m_AspectRatio = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
+		camera.SetProjectionValues(75.0f, m_AspectRatio, 1.0f, 100.0f);
 	}
 
 	Direct3D12Context::~Direct3D12Context()
@@ -170,10 +184,10 @@ namespace Insight {
 
 		// if the current fence value is still less than "fenceValue", then we know the GPU has not finished executing
 		// the command queue since it has not reached the "commandQueue->Signal(fence, fenceValue)" command
-		if (m_pFence[m_FrameIndex]->GetCompletedValue() < m_FenceValue[m_FrameIndex])
+		if (m_pFences[m_FrameIndex]->GetCompletedValue() < m_FenceValues[m_FrameIndex])
 		{
 			// we have the fence create an event which is signaled once the fence's current value is "fenceValue"
-			hr = m_pFence[m_FrameIndex]->SetEventOnCompletion(m_FenceValue[m_FrameIndex], m_FenceEvent);
+			hr = m_pFences[m_FrameIndex]->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_FenceEvent);
 			//COM_ERROR_IF_FAILED(hr, "Failed to set event completion value while waiting for frame");
 
 
@@ -182,7 +196,7 @@ namespace Insight {
 			WaitForSingleObject(m_FenceEvent, INFINITE);
 		}
 
-		m_FenceValue[m_FrameIndex]++;
+		m_FenceValues[m_FrameIndex]++;
 	}
 
 	void Direct3D12Context::PopulateCommandLists()
@@ -275,56 +289,131 @@ namespace Insight {
 	void Direct3D12Context::RenderFrame()
 	{
 		HRESULT hr;
-
-		PopulateCommandLists();
-
-		ID3D12CommandList* ppCommandLists[] = { m_pCommandList.Get() };
-
-		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-		
-		hr = m_pCommandQueue->Signal(m_pFence[m_FrameIndex].Get(), m_FenceValue[m_FrameIndex]);
-		if (FAILED(hr))
+		if (m_WindowVisible)
 		{
-			IE_CORE_WARN("Command queue failed to signal.");
+			PopulateCommandLists();
+
+			ID3D12CommandList* ppCommandLists[] = { m_pCommandList.Get() };
+
+			m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+
+			hr = m_pCommandQueue->Signal(m_pFences[m_FrameIndex].Get(), m_FenceValues[m_FrameIndex]);
+			if (FAILED(hr))
+			{
+				IE_CORE_WARN("Command queue failed to signal.");
+			}
 		}
 	}
 
 	void Direct3D12Context::SwapBuffers()
 	{
-		m_pSwapChain->Present(m_VSyncEnabled, 0);
+		UINT presentFlags = (m_AllowTearing && m_WindowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
+		m_pSwapChain->Present(m_VSyncEnabled, presentFlags);
 	}
 
 	void Direct3D12Context::OnWindowResize()
 	{
-		WaitForGPU();
-		HRESULT hr;
-
-		for (UINT i = 0; i < m_FrameBufferCount; i++)
+		if (!m_IsMinimized)
 		{
-			m_pRenderTargets[i].Reset();
-			m_FenceValue[i] = m_FenceValue[m_FrameIndex];
+			//WaitForGPU();
+			HRESULT hr;
+
+			for (UINT i = 0; i < m_FrameBufferCount; i++)
+			{
+				WaitForPreviousFrame();
+				m_pRenderTargets[i].Reset();
+				m_FenceValues[i] = m_FenceValues[m_FrameIndex];
+			}
+			m_pDepthStencilBuffer.Reset();
+
+			DXGI_SWAP_CHAIN_DESC desc = {};
+			m_pSwapChain->GetDesc(&desc);
+			hr = m_pSwapChain->ResizeBuffers(m_FrameBufferCount, m_WindowWidth, m_WindowHeight, desc.BufferDesc.Format, desc.Flags);
+			if (FAILED(hr))
+				__debugbreak();
+
+			BOOL fullScreenState;
+			m_pSwapChain->GetFullscreenState(&fullScreenState, nullptr);
+			m_WindowedMode = !fullScreenState;
+
+			m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
+
+			UpdateSizeDependentResources();
 		}
+		m_WindowVisible = !m_IsMinimized;
+	}
 
-		CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_pDepthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-		hr = m_pSwapChain->GetBuffer(0, IID_PPV_ARGS(&m_pDepthStencilBuffer));
-		if (FAILED(hr))
-			__debugbreak();
-		m_pDepthStencilBuffer.Reset();
-		D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
-		dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
-		dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-		dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
-		m_pLogicalDevice->CreateDepthStencilView(m_pDepthStencilBuffer.Get(), &dsvDesc, dsvHandle);
+	void Direct3D12Context::OnWindowFullScreen()
+	{
+		if (m_FullScreenMode)
+		{
+			SetWindowLong(*m_pWindowHandle, GWL_STYLE, WS_OVERLAPPEDWINDOW);
 
-		DXGI_SWAP_CHAIN_DESC desc = {};
-		m_pSwapChain->GetDesc(&desc);
-		hr = m_pSwapChain->ResizeBuffers(m_FrameBufferCount, m_WindowWidth, m_WindowHeight, desc.BufferDesc.Format, desc.Flags);
-		if (FAILED(hr))
-			__debugbreak();
+			SetWindowPos(
+				*m_pWindowHandle,
+				HWND_NOTOPMOST,
+				m_pWindow->GetWindowRect().left,
+				m_pWindow->GetWindowRect().top,
+				m_pWindow->GetWindowRect().right - m_pWindow->GetWindowRect().left,
+				m_pWindow->GetWindowRect().bottom - m_pWindow->GetWindowRect().top,
+				SWP_FRAMECHANGED | SWP_NOACTIVATE
+			);
+			ShowWindow(*m_pWindowHandle, SW_NORMAL);
+		}
+		else
+		{
+			GetWindowRect(*m_pWindowHandle, &m_pWindow->GetWindowRect());
 
-		m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
+			SetWindowLong(*m_pWindowHandle, GWL_STYLE, WS_OVERLAPPEDWINDOW & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
+
+			RECT fullscreenWindowRect;
+			try
+			{
+				if (m_pSwapChain)
+				{
+					// Get the settings of the display on which the app's window is currently displayed
+					ComPtr<IDXGIOutput> pOutput;
+					COM_ERROR_IF_FAILED(m_pSwapChain->GetContainingOutput(&pOutput), "Failed to get containing output");
+					DXGI_OUTPUT_DESC Desc;
+					COM_ERROR_IF_FAILED(pOutput->GetDesc(&Desc), "Failed to get description from output");
+					fullscreenWindowRect = Desc.DesktopCoordinates;
+				}
+				else
+				{
+					// Fallback to EnumDisplaySettings implementation
+					throw COMException(NULL, "No Swap chain available", __FILE__, __FUNCTION__, __LINE__);
+				}
+			}
+			catch (COMException& e)
+			{
+				UNREFERENCED_PARAMETER(e);
+
+				// Get the settings of the primary display
+				DEVMODE devMode = {};
+				devMode.dmSize = sizeof(DEVMODE);
+				EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &devMode);
+
+				fullscreenWindowRect = {
+					devMode.dmPosition.x,
+					devMode.dmPosition.y,
+					devMode.dmPosition.x + static_cast<LONG>(devMode.dmPelsWidth),
+					devMode.dmPosition.y + static_cast<LONG>(devMode.dmPelsHeight)
+				};
+			}
+
+			SetWindowPos(
+				*m_pWindowHandle,
+				HWND_TOPMOST,
+				fullscreenWindowRect.left,
+				fullscreenWindowRect.top,
+				fullscreenWindowRect.right,
+				fullscreenWindowRect.bottom,
+				SWP_FRAMECHANGED | SWP_NOACTIVATE);
 
 
+			ShowWindow(*m_pWindowHandle, SW_MAXIMIZE);
+		}
+		m_FullScreenMode = !m_FullScreenMode;
 	}
 
 	void Direct3D12Context::CreateSwapChain()
@@ -346,19 +435,22 @@ namespace Insight {
 		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		swapChainDesc.SampleDesc = m_SampleDesc;
+		swapChainDesc.Flags = m_AllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 		Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain{};
 
 		hr = m_pDxgiFactory->CreateSwapChainForHwnd(m_pCommandQueue.Get(), *m_pWindowHandle, &swapChainDesc, nullptr, nullptr, &swapChain);
 		COM_ERROR_IF_FAILED(hr, "Failed to Create Swap Chain");
 
-		hr = m_pDxgiFactory->MakeWindowAssociation(*m_pWindowHandle, DXGI_MWA_NO_ALT_ENTER);
-		COM_ERROR_IF_FAILED(hr, "Failed to Make Window Association");
+		if (m_AllowTearing)
+		{
+			hr = m_pDxgiFactory->MakeWindowAssociation(*m_pWindowHandle, DXGI_MWA_NO_ALT_ENTER);
+			COM_ERROR_IF_FAILED(hr, "Failed to Make Window Association");
+		}
 
 		hr = swapChain.As(&m_pSwapChain);
 		COM_ERROR_IF_FAILED(hr, "Failed to cast SwapChain ComPtr");
 
 		m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
-
 	}
 
 	void Direct3D12Context::CreateDescriptorHeaps()
@@ -410,10 +502,9 @@ namespace Insight {
 	{
 		HRESULT hr;
 
-		D3D12_DEPTH_STENCIL_VIEW_DESC dsDesc = {};
-		dsDesc.Format = DXGI_FORMAT_D32_FLOAT;
-		dsDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-		dsDesc.Flags = D3D12_DSV_FLAG_NONE;
+		m_dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+		m_dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+		m_dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 
 		D3D12_CLEAR_VALUE depthOptomizedClearValue = {};
 		depthOptomizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
@@ -430,7 +521,7 @@ namespace Insight {
 		if (FAILED(hr))
 			IE_CORE_ERROR("Failed to create comitted resource for depth stencil view");
 
-		m_pLogicalDevice->CreateDepthStencilView(m_pDepthStencilBuffer.Get(), &dsDesc, m_pDepthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+		m_pLogicalDevice->CreateDepthStencilView(m_pDepthStencilBuffer.Get(), &m_dsvDesc, m_pDepthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
 	}
 
@@ -452,10 +543,10 @@ namespace Insight {
 		HRESULT hr;
 		for (int i = 0; i < m_FrameBufferCount; i++)
 		{
-			hr = m_pLogicalDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pFence[i]));
+			hr = m_pLogicalDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pFences[i]));
 			COM_ERROR_IF_FAILED(hr, "Failed to create Fence on index" + std::to_string(i));
 
-			m_FenceValue[i] = 0;
+			m_FenceValues[i] = 0;
 		}
 
 		m_FenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
@@ -575,7 +666,7 @@ namespace Insight {
 			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 		};
-		
+
 		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
 		inputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
 		inputLayoutDesc.pInputElementDescs = inputLayout;
@@ -652,8 +743,8 @@ namespace Insight {
 		ID3D12CommandList* ppCommandLists[] = { m_pCommandList.Get() };
 		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
-		m_FenceValue[m_FrameIndex]++;
-		HRESULT hr = m_pCommandQueue->Signal(m_pFence->GetAddressOf()[m_FrameIndex], m_FenceValue[m_FrameIndex]);
+		m_FenceValues[m_FrameIndex]++;
+		HRESULT hr = m_pCommandQueue->Signal(m_pFences->GetAddressOf()[m_FrameIndex], m_FenceValues[m_FrameIndex]);
 		COM_ERROR_IF_FAILED(hr, "Failed to signal command queue");
 	}
 
@@ -1125,7 +1216,6 @@ namespace Insight {
 	void Direct3D12Context::Cleanup()
 	{
 		WaitForPreviousFrame();
-		CloseHandle(m_FenceEvent);
 
 		for (int i = 0; i < m_FrameBufferCount; i++)
 		{
@@ -1133,32 +1223,66 @@ namespace Insight {
 			WaitForPreviousFrame();
 		}
 
-		BOOL fs = false;
-		if (m_pSwapChain->GetFullscreenState(&fs, NULL))
+		if (!m_AllowTearing)
 			m_pSwapChain->SetFullscreenState(false, NULL);
 
-
+		CloseHandle(m_FenceEvent);
 	}
 
 	void Direct3D12Context::WaitForGPU()
 	{
-		m_pCommandQueue->Signal(m_pFence[m_FrameIndex].Get(), m_FenceValue[m_FrameIndex]);
+		m_pCommandQueue->Signal(m_pFences[m_FrameIndex].Get(), m_FenceValues[m_FrameIndex]);
 
 		// Wait until the fence has been processed.
-		m_pFence[m_FrameIndex].Get()->SetEventOnCompletion(m_FenceValue[m_FrameIndex], m_FenceEvent);
+		m_pFences[m_FrameIndex].Get()->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_FenceEvent);
 		WaitForSingleObjectEx(m_FenceEvent, INFINITE, FALSE);
 
 		// Increment the fence value for the current frame.
-		m_FenceValue[m_FrameIndex]++;
+		m_FenceValues[m_FrameIndex]++;
 	}
 
-	void Direct3D12Context::ToggleFullscreen(IDXGISwapChain* pSwapChain)
+	void Direct3D12Context::UpdateSizeDependentResources()
 	{
-		if (m_pWindow->GetIsWindowFullScreen())
-		{
-			//SetWindowLong(*m_pWindowHandle, GWL_STYLE);
+		UpdateViewAndScissor();
 
+		// Re-Create Render Target View
+		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_pRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+		for (UINT i = 0; i < m_FrameBufferCount; i++)
+		{
+			m_pSwapChain->GetBuffer(i, IID_PPV_ARGS(&m_pRenderTargets[i]));
+			m_pLogicalDevice->CreateRenderTargetView(m_pRenderTargets[i].Get(), nullptr, rtvHandle);
+			rtvHandle.Offset(1, m_RtvDescriptorSize);
 		}
+
+		// Re-Create Depth Stencil View
+		CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_pDepthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+		HRESULT hr = m_pSwapChain->GetBuffer(0, IID_PPV_ARGS(&m_pDepthStencilBuffer));
+		CreateDepthStencilBuffer();
+		//m_pLogicalDevice->CreateDepthStencilView(m_pDepthStencilBuffer.Get(), &m_dsvDesc, dsvHandle);
+	}
+
+	void Direct3D12Context::UpdateViewAndScissor()
+	{
+		float viewWidthRatio = static_cast<float>(m_resolutionOptions[m_resolutionIndex].Width) / m_WindowWidth;
+		float viewHeighthRatio = static_cast<float>(m_resolutionOptions[m_resolutionIndex].Height) / m_WindowHeight;
+
+		float x = 1.0f;
+		float y = 1.0f;
+
+		if (viewWidthRatio < viewHeighthRatio)
+			x = viewWidthRatio / viewHeighthRatio;
+		else
+			y = viewHeighthRatio / viewWidthRatio;
+
+		m_ViewPort.TopLeftX = m_WindowWidth * (1.0f - x) / 2.0f;
+		m_ViewPort.TopLeftY = m_WindowHeight * (1.0f - y) / 2.0f;
+		m_ViewPort.Width = x * m_WindowWidth;
+		m_ViewPort.Height = y * m_WindowHeight;
+
+		m_ScissorRect.left = static_cast<LONG>(m_ViewPort.TopLeftX);
+		m_ScissorRect.right = static_cast<LONG>(m_ViewPort.TopLeftX + m_ViewPort.Width);
+		m_ScissorRect.top = static_cast<LONG>(m_ViewPort.TopLeftY);
+		m_ScissorRect.bottom = static_cast<LONG>(m_ViewPort.TopLeftX + m_ViewPort.Height);
 	}
 
 }

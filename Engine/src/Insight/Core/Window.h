@@ -36,13 +36,15 @@ namespace Insight {
 
 		inline RenderingContext& GetRenderContext() { return *m_pRendererContext; }
 
-		virtual void Resize(uint32_t newWidth, uint32_t newHeight) = 0;
+		virtual void Resize(uint32_t newWidth, uint32_t newHeight, bool isMinimized) = 0;
+		virtual void ToggleFullScreen(bool& enabled) = 0;
 
 		// Window Attributes
 		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
 		virtual bool ProccessWindowMessages() = 0;
 		virtual void SetVSync(bool enabled) = 0;
-		virtual bool IsVsyncActive() const = 0;
+		virtual const bool& IsFullScreenActive() const = 0;
+		virtual const bool& IsVsyncActive() const = 0;
 
 		virtual void* GetNativeWindow() const = 0;
 
