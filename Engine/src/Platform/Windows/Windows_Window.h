@@ -41,7 +41,7 @@ namespace Insight {
 		inline RECT& GetWindowRect() { return m_WindowRect; }
 
 		virtual void Resize(uint32_t newWidth, uint32_t newHeight, bool isMinimized) override;
-		virtual void ToggleFullScreen(bool& enabled) override;
+		virtual void ToggleFullScreen(bool enabled) override;
 
 		virtual bool ProccessWindowMessages() override;
 

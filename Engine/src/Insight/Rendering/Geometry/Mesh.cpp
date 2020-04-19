@@ -41,10 +41,10 @@ namespace Insight {
 
 	void Mesh::Destroy()
 	{
-		m_pVertexBuffer->Release();
-		m_pVertexBufferUploadHeap->Release();
-		m_pIndexBuffer->Release();
-		m_pIndexBufferUploadHeap->Release();
+		COM_SAFE_RELEASE(m_pVertexBuffer);
+		COM_SAFE_RELEASE(m_pIndexBuffer);
+		COM_SAFE_RELEASE(m_pVertexBufferUploadHeap);
+		COM_SAFE_RELEASE(m_pIndexBufferUploadHeap);
 	}
 
 	void Mesh::SetupMesh()

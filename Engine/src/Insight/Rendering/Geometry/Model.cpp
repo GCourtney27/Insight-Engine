@@ -5,7 +5,6 @@
 namespace Insight {
 
 
-
 	Model::Model(const std::string& path)
 	{
 		LoadModel(path);

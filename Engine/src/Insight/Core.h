@@ -27,4 +27,4 @@
 // Utilities
 #define BIT_SHIFT(x) ( 1 << x )
 #define IE_BIND_EVENT_FN(fn) std::bind( &fn, this, std::placeholders::_1 )
-
+#define COM_SAFE_RELEASE(ptr) if(ptr) ptr->Release();

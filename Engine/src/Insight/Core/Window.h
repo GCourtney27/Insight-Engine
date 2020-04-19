@@ -37,7 +37,7 @@ namespace Insight {
 		inline RenderingContext& GetRenderContext() { return *m_pRendererContext; }
 
 		virtual void Resize(uint32_t newWidth, uint32_t newHeight, bool isMinimized) = 0;
-		virtual void ToggleFullScreen(bool& enabled) = 0;
+		virtual void ToggleFullScreen(bool enabled) = 0;
 
 		// Window Attributes
 		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;

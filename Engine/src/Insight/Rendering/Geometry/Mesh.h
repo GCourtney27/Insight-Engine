@@ -2,7 +2,7 @@
 
 #include <Insight/Core.h>
 
-#include "Insight/Rendering/Vertex.h"
+#include "Insight/Rendering/Geometry/Vertex.h"
 
 
 namespace Insight {
@@ -21,8 +21,8 @@ namespace Insight {
 		void Draw();
 		void Destroy();
 
-	private:
 		void SetupMesh();
+	private:
 		bool InitializeVertexDataForD3D12();
 		bool InitializeIndexDataForD3D12();
 	private:
@@ -45,6 +45,7 @@ namespace Insight {
 		int						m_IBufferSize = 0;
 		std::vector<Vertex>		m_Verticies;
 		std::vector<UINT>		m_Indices;
+
 		bool m_IncludeInGBufferPass = true;
 		//std::vector<Texture> m_Textures;
 	};

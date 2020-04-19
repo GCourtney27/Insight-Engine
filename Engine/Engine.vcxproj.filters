@@ -124,9 +124,6 @@
     <ClInclude Include="src\Insight\Rendering\RenderingContext.h">
       <Filter>Insight\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="src\Insight\Rendering\Vertex.h">
-      <Filter>Insight\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="src\Insight\Utilities\String_Helper.h">
       <Filter>Insight\Utilities</Filter>
     </ClInclude>
@@ -151,6 +148,9 @@
     </ClInclude>
     <ClInclude Include="src\Platform\DirectX_Shared\D3D_Api.h">
       <Filter>Platform\DirectX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Insight\Rendering\Geometry\Vertex.h">
+      <Filter>Insight\Rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

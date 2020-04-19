@@ -210,7 +210,7 @@
     <ClInclude Include="src\Insight\Rendering\Geometry\Mesh.h" />
     <ClInclude Include="src\Insight\Rendering\Geometry\Model.h" />
     <ClInclude Include="src\Insight\Rendering\RenderingContext.h" />
-    <ClInclude Include="src\Insight\Rendering\Vertex.h" />
+    <ClInclude Include="src\Insight\Rendering\Geometry\Vertex.h" />
     <ClInclude Include="src\Insight\Utilities\String_Helper.h" />
     <ClInclude Include="src\Platform\DirectX_Shared\ConstantBuffersPerObject_TEMP.h" />
     <ClInclude Include="src\Platform\DirectX_Shared\ConstantBuffers_TEMP.h" />

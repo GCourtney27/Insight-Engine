@@ -133,7 +133,7 @@ namespace Insight {
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
 			// CRASHES DO NOT PRESS F11
-			if (wParam == VK_F11)
+			/*if (wParam == VK_F11)
 			{
 				if (data.FullScreenEnabled)
 				{
@@ -148,7 +148,7 @@ namespace Insight {
 					data.EventCallback(event);
 				}
 
-			}
+			}*/
 
 			KeyboardBuffer::Get().OnKeyPressed((char)wParam);
 			KeyPressedEvent event((char)wParam, 0);
@@ -163,7 +163,7 @@ namespace Insight {
 			data.EventCallback(event);
 			return 0;
 		}
-		// Aplication Eents
+		// Aplication Events
 		case WM_COMPACTING:
 		{
 			IE_CORE_WARN("System memory is low");
@@ -180,7 +180,7 @@ namespace Insight {
 			//IE_CORE_INFO("Window size has changed");
 
 			// CRASHES NO NOT RESIZE WINDOW
-			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			/*WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			if (data.isFirstLaunch)
 			{
 				data.isFirstLaunch = false;
@@ -189,7 +189,7 @@ namespace Insight {
 			RECT clientRect = {};
 			GetClientRect(hWnd, &clientRect);
 			WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, wParam == SIZE_MINIMIZED);
-			data.EventCallback(event);
+			data.EventCallback(event);*/
 			return 0;
 		}
 		default:
@@ -283,7 +283,7 @@ namespace Insight {
 		m_pRendererContext->SetWindowWidthAndHeight(newWidth, newHeight, isMinimized);
 	}
 
-	void WindowsWindow::ToggleFullScreen(bool& enabled)
+	void WindowsWindow::ToggleFullScreen(bool enabled)
 	{
 		m_Data.FullScreenEnabled = enabled;
 		m_pRendererContext->OnWindowFullScreen();

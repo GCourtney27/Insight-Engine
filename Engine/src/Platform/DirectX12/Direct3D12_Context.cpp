@@ -111,12 +111,9 @@ namespace Insight {
 
 		XMMATRIX translationMat = XMMatrixTranslationFromVector(XMLoadFloat4(&cube1Position));
 
-		XMMATRIX worldMat = rotMat * translationMat;
+		XMMATRIX worldMat = translationMat;
 
 		XMStoreFloat4x4(&cube1WorldMat, worldMat);
-
-		//XMMATRIX viewMat = XMLoadFloat4x4(&cameraViewMat); // load view matrix
-		//XMMATRIX projMat = XMLoadFloat4x4(&cameraProjMat); // load projection matrix
 
 		XMMATRIX viewMat = camera.GetViewMatrix(); // load view matrix
 		XMMATRIX projMat = camera.GetProjectionMatrix(); // load projection matrix
@@ -126,7 +123,7 @@ namespace Insight {
 		XMMATRIX transposed = XMMatrixTranspose(wvpMat); // must transpose wvp matrix for the gpu
 		XMStoreFloat4x4(&cbPerObject.wvpMatrix, transposed); // store transposed wvp matrix in constant buffer
 
-		memcpy(cbvGPUAddress[m_FrameIndex], &cbPerObject, sizeof(cbPerObject));
+		memcpy(cbvGPUAddress[m_FrameIndex], &cbPerObject, sizeof(cbPerObject)); // Copy data from CPU to GPU
 
 		// Cube 2
 		//rotXMat = XMMatrixRotationX(0.0003f);
@@ -616,10 +613,10 @@ namespace Insight {
 		// TODO: Make Shader class
 		// TODO: Move this to the shader class
 		// Compile vertex shader // TEMP//
-#pragma region Make this a Vertex class
+#pragma region Make this a Vertex shader class
 		ID3DBlob* pVertexShader = nullptr;
 		ID3DBlob* pErrorBuffer = nullptr;
-		//TODO: make a file system search for this relative sahder path in client
+		//TODO: make a file system search for this relative shader path in client
 		// The client should be able to edit and create their own shaders
 		hr = D3DCompileFromFile(L"src/Shaders/ForwardRendering/Shader_Vertex.hlsl",
 			nullptr,
@@ -857,7 +854,7 @@ namespace Insight {
 		int imageSize = LoadImageDataFromFile(&imageData, textureDesc, L"src/Textures/container2.png", imageBytesPerRow);
 
 		if (imageSize <= 0) {
-			IE_CORE_ERROR("Filaed to create image from file");
+			IE_CORE_ERROR("Failed to create image from file");
 		}
 
 		hr = m_pLogicalDevice->CreateCommittedResource(
@@ -892,6 +889,7 @@ namespace Insight {
 		UpdateSubresources(m_pCommandList.Get(), m_pTextureBuffer.Get(), m_pTextureBufferUploadHeap.Get(), 0, 0, 1, &textureData);
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pTextureBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 
+		// Create desctiptor heap (Does not get created for all textures)
 		D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
 		heapDesc.NumDescriptors = 1;
 		heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
@@ -1215,13 +1213,10 @@ namespace Insight {
 
 	void Direct3D12Context::Cleanup()
 	{
-		WaitForPreviousFrame();
+		// Wait until GPU is done consuming all data
+		// before closing all handles and releasing resources
+		WaitForGPU();
 
-		for (int i = 0; i < m_FrameBufferCount; i++)
-		{
-			m_FrameIndex = i;
-			WaitForPreviousFrame();
-		}
 
 		if (!m_AllowTearing)
 			m_pSwapChain->SetFullscreenState(false, NULL);
