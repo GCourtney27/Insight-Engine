@@ -194,22 +194,23 @@ namespace Insight {
 		m_FenceValues[m_FrameIndex]++;
 	}
 
-	void Direct3D12Context::PopulateCommandLists()
+	void Direct3D12Context::OnPreFrameRender()
 	{
 		HRESULT hr;
-
 		WaitForPreviousFrame();
+
 		hr = m_pCommandAllocators[m_FrameIndex]->Reset();
 		if (FAILED(hr))
-		{
 			throw std::exception();
-		}
 
 		hr = m_pCommandList->Reset(m_pCommandAllocators[m_FrameIndex].Get(), m_pPipelineStateObject_ForwardPass.Get());
 		if (FAILED(hr))
-		{
 			throw std::exception();
-		}
+	}
+
+	void Direct3D12Context::PopulateCommandLists()
+	{
+		HRESULT hr;
 
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
@@ -254,31 +255,6 @@ namespace Insight {
 		//// draw second cube
 		//m_pCommandList->DrawIndexedInstanced(numCubeIndices, 1, 0, 0, 0);
 
-		// Render ImGui UI
-		RenderUI();
-
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-
-		hr = m_pCommandList->Close();
-		if (FAILED(hr)) {
-			throw std::exception();
-		}
-
-	}
-
-	void Direct3D12Context::RenderUI()
-	{
-		m_pCommandList->SetDescriptorHeaps(1, m_pImGuiDescriptorHeap.GetAddressOf());
-		ImGui::Render();
-		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList.Get());
-		ImGuiIO& io = ImGui::GetIO();
-		io.DisplaySize = ImVec2(static_cast<float>(m_WindowWidth), static_cast<float>(m_WindowHeight));
-		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
-		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault(NULL, (void*)m_pCommandList.Get());
-		}
 	}
 
 	void Direct3D12Context::OnRender()
@@ -287,16 +263,25 @@ namespace Insight {
 		if (m_WindowVisible)
 		{
 			PopulateCommandLists();
-
-			ID3D12CommandList* ppCommandLists[] = { m_pCommandList.Get() };
-
-			m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-
-			hr = m_pCommandQueue->Signal(m_pFences[m_FrameIndex].Get(), m_FenceValues[m_FrameIndex]);
-			if (FAILED(hr))
-				IE_CORE_WARN("Command queue failed to signal.");
-
 		}
+	}
+
+	void Direct3D12Context::ExecuteDraw()
+	{
+		HRESULT hr;
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+
+		hr = m_pCommandList->Close();
+		if (FAILED(hr)) {
+			throw std::exception();
+		}
+
+		ID3D12CommandList* ppCommandLists[] = { m_pCommandList.Get() };
+		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+		
+		hr = m_pCommandQueue->Signal(m_pFences[m_FrameIndex].Get(), m_FenceValues[m_FrameIndex]);
+		if (FAILED(hr))
+			IE_CORE_WARN("Command queue failed to signal.");
 	}
 
 	void Direct3D12Context::SwapBuffers()
@@ -457,7 +442,6 @@ namespace Insight {
 	{
 		CreateRTVDescriptorHeap();
 		CreateDSVDescriptorHeap();
-		CreateImGuiDescriptorHeap();
 	}
 
 	void Direct3D12Context::CreateRTVDescriptorHeap()
@@ -1148,15 +1132,6 @@ namespace Insight {
 
 		HRESULT hr = m_pLogicalDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_pCommandQueue));
 		COM_ERROR_IF_FAILED(hr, "Failed to Create Command Queue");
-	}
-
-	void Direct3D12Context::CreateImGuiDescriptorHeap()
-	{
-		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
-		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		desc.NumDescriptors = 1;
-		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-		m_pLogicalDevice->CreateDescriptorHeap(&desc, IID_PPV_ARGS(m_pImGuiDescriptorHeap.GetAddressOf()));
 	}
 
 	void Direct3D12Context::CreateDXGIFactory()

@@ -29,6 +29,9 @@ namespace Insight {
 		virtual ~WindowsWindow();
 
 		virtual void OnUpdate() override;
+		virtual void OnFramePreRender() override;
+		virtual void OnRender() override;
+		virtual void ExecuteDraw() override;
 		virtual void Shutdown() override;
 
 		inline uint32_t GetWidth() const override { return m_Data.Width; }

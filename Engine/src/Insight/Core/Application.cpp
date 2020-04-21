@@ -58,12 +58,16 @@ namespace Insight {
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
 
+			m_pWindow->OnFramePreRender();
+			m_pWindow->OnUpdate();
+			m_pWindow->OnRender();
+
 			m_ImGuiLayer->Begin();
 			for (Layer* layer : m_LayerStack)
 				layer->OnImGuiRender();
-			//m_ImGuiLayer->End();
-
-			m_pWindow->OnUpdate();
+			m_ImGuiLayer->End();
+			
+			m_pWindow->ExecuteDraw();
 		}
 	}
 

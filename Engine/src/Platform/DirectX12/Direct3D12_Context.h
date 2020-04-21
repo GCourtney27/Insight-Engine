@@ -27,20 +27,20 @@ namespace Insight {
 		
 		virtual bool Init() override;
 		virtual void OnUpdate() override;
+		virtual void OnPreFrameRender() override;
 		virtual void OnRender() override;
+		virtual void ExecuteDraw() override;
 		virtual void SwapBuffers() override;
 		virtual void OnWindowResize() override;
 		virtual void OnWindowFullScreen() override;
 
 		inline ID3D12Device5& GetDeviceContext() const { return *m_pLogicalDevice.Get(); }
 		inline ID3D12GraphicsCommandList& GetCommandList() const { return *m_pCommandList.Get(); }
-		inline ID3D12DescriptorHeap& GetImGuiDescriptorHeap() const { return *m_pImGuiDescriptorHeap.Get(); }
 
 	private:
 		// Per-Frame
 		void PopulateCommandLists();
 		void WaitForPreviousFrame();
-		void RenderUI();
 
 		// D3D12 Initialize
 		void CreateDXGIFactory();
@@ -58,7 +58,6 @@ namespace Insight {
 		void CreateConstantBufferResourceHeaps();
 		void CreateViewport();
 		void CreateScissorRect();
-		void CreateImGuiDescriptorHeap();
 		void CloseCommandListAndSignalCommandQueue();
 
 		// TEMP! Move this!
@@ -116,9 +115,6 @@ namespace Insight {
 		DXGI_SAMPLE_DESC					m_SampleDesc = {};
 		D3D12_DEPTH_STENCIL_VIEW_DESC		m_dsvDesc = {};
 
-		// IMGUI this should move
-		ComPtr<ID3D12DescriptorHeap>		m_pImGuiDescriptorHeap;
-
 		//=== TEMPORARY! ===//
 		Model model;
 
@@ -139,9 +135,9 @@ namespace Insight {
 
 		// TEMP Textures
 		// TODO: create texture manager class
-		ComPtr<ID3D12Resource>		  m_pTextureBuffer;
-		ComPtr<ID3D12DescriptorHeap> m_pMainDescriptorHeap;
-		ComPtr<ID3D12Resource>		  m_pTextureBufferUploadHeap;
+		ComPtr<ID3D12Resource>			m_pTextureBuffer;
+		ComPtr<ID3D12DescriptorHeap>	m_pMainDescriptorHeap;
+		ComPtr<ID3D12Resource>			m_pTextureBufferUploadHeap;
 
 		// Utils
 		struct Resolution

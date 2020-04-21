@@ -14,10 +14,10 @@ namespace Insight {
 	{
 		std::string Title;
 		std::string Class;
-		uint32_t Width;
-		uint32_t Height;
+		UINT Width;
+		UINT Height;
 
-		WindowProps(const std::string& title = "Insight Engine", const std::string winClass = "IE Class", uint32_t width = 1600, uint32_t height = 900)
+		WindowProps(const std::string& title = "Insight Engine", const std::string winClass = "IE Class", UINT width = 1600, UINT height = 900)
 			: Title(title), Width(width), Height(height) {}
 	};
 
@@ -28,7 +28,10 @@ namespace Insight {
 		
 		virtual ~Window() {}
 
-		virtual void OnUpdate() = 0; 
+		virtual void OnUpdate() = 0;
+		virtual void OnFramePreRender() = 0;
+		virtual void OnRender() = 0;
+		virtual void ExecuteDraw() = 0;
 		virtual void Shutdown() = 0;
 
 		virtual uint32_t GetWidth() const = 0;

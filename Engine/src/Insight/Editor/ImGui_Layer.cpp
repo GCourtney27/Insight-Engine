@@ -23,13 +23,14 @@ namespace Insight {
 
 	void ImGuiLayer::OnAttach()
 	{
+		// TODO: Fix docking freezing the program
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+		//io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
 		//io.ConfigViewportsNoAutoMerge = true;
 		//io.ConfigViewportsNoTaskBarIcon = true;
 
@@ -71,18 +72,25 @@ namespace Insight {
 		RenderingContext* renderContext = &Application::Get().GetWindow().GetRenderContext();
 		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(renderContext);
 		HWND* pWindowHandle = static_cast<HWND*>(Application::Get().GetWindow().GetNativeWindow());
-
+		
 		// Setup Platform/Renderer bindings
 		bool impleWin32Succeeded = ImGui_ImplWin32_Init((pWindowHandle));
 		if (!impleWin32Succeeded)
 			IE_CORE_WARN("Failed to initialize ImGui for Win32. Some controls may not be functional or editor may not be rendered.");
 
+		HRESULT hr;
+		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		desc.NumDescriptors = 1;
+		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+		hr = graphicsContext->GetDeviceContext().CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_pDescriptorHeap));
+
 		bool impleDX12Succeeded = ImGui_ImplDX12_Init(&graphicsContext->GetDeviceContext(),
 			graphicsContext->GetFrameBufferCount(),
 			DXGI_FORMAT_R8G8B8A8_UNORM,
-			&graphicsContext->GetImGuiDescriptorHeap(),
-			graphicsContext->GetImGuiDescriptorHeap().GetCPUDescriptorHandleForHeapStart(),
-			graphicsContext->GetImGuiDescriptorHeap().GetGPUDescriptorHandleForHeapStart());
+			m_pDescriptorHeap,
+			m_pDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+			m_pDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 		if (!impleDX12Succeeded)
 			IE_CORE_WARN("Failed to initialize ImGui for DX12. Editor will not be rendered");
 
@@ -98,11 +106,11 @@ namespace Insight {
 
 	void ImGuiLayer::OnImGuiRender()
 	{
-		/*static bool show = true;
-		ImGui::ShowDemoWindow(&show);
+		ImGui::Begin("ImGui Layer");
+		{
 
-		ImGui::Begin("Test");
-		ImGui::End();*/
+		}
+		ImGui::End();
 	}
 
 	void ImGuiLayer::Begin()
@@ -116,14 +124,18 @@ namespace Insight {
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		Application& app = Application::Get();
+		io.DisplaySize = ImVec2((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
+		//io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+
+		m_pCommandList->SetDescriptorHeaps(1, &m_pDescriptorHeap);
 		ImGui::Render();
 		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList);
 
-		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		/*if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
 			ImGui::UpdatePlatformWindows();
 			ImGui::RenderPlatformWindowsDefault(NULL, (void*)m_pCommandList);
-		}
+		}*/
 	}
 
 	void ImGuiLayer::OnEvent(Event& event)

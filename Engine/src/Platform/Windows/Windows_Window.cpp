@@ -227,7 +227,7 @@ namespace Insight {
 		{
 			IE_ERROR("Unable to create Windows window.");
 			IE_ERROR("    Error: {0}", GetLastError());
-			exit(-1);
+			return false;
 		}
 
 		m_pRendererContext = new Direct3D12Context(this);
@@ -312,12 +312,23 @@ namespace Insight {
 	void WindowsWindow::OnUpdate()
 	{
 		ProccessWindowMessages();
-
 		m_pRendererContext->OnUpdate();
+	}
 
+	void WindowsWindow::OnFramePreRender()
+	{
+		m_pRendererContext->OnPreFrameRender();
+	}
+
+	void WindowsWindow::OnRender()
+	{
 		m_pRendererContext->OnRender();
-		m_pRendererContext->SwapBuffers();
+	}
 
+	void WindowsWindow::ExecuteDraw()
+	{
+		m_pRendererContext->ExecuteDraw();
+		m_pRendererContext->SwapBuffers();
 	}
 
 	void* WindowsWindow::GetNativeWindow() const

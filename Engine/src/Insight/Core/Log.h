@@ -17,6 +17,8 @@ namespace Insight {
 		static bool Init();
 		~Log() { }
 
+		inline static void HoldForUserInput() { system("PAUSE"); }
+
 		inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
 		inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
 	private:

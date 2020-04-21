@@ -11,9 +11,9 @@ namespace Insight {
 
 		virtual bool Init() = 0;
 		virtual void OnUpdate() = 0;
-		//virtual void OnPreFrameRender() = 0;
+		virtual void OnPreFrameRender() = 0;
 		virtual void OnRender() = 0;
-		//virtual void OnPostFrameRender() = 0;
+		virtual void ExecuteDraw() = 0;
 		virtual void SwapBuffers() = 0;
 		virtual void OnWindowResize() = 0;
 		virtual void OnWindowFullScreen() = 0;

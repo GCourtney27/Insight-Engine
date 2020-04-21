@@ -33,6 +33,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	app->Shutdown();
 
 	delete app;
+	Insight::Log::HoldForUserInput();
+
 	return 0;
 }
 #elif IE_PLATFORM_MAC
