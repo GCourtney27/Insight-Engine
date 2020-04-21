@@ -209,13 +209,13 @@
     <ClInclude Include="src\Insight\Math\Vector.h" />
     <ClInclude Include="src\Insight\Rendering\Geometry\Mesh.h" />
     <ClInclude Include="src\Insight\Rendering\Geometry\Model.h" />
-    <ClInclude Include="src\Insight\Rendering\RenderingContext.h" />
     <ClInclude Include="src\Insight\Rendering\Geometry\Vertex.h" />
+    <ClInclude Include="src\Insight\Rendering\RenderingContext.h" />
     <ClInclude Include="src\Insight\Utilities\String_Helper.h" />
+    <ClInclude Include="src\Platform\DirectX12\Direct3D12_Context.h" />
     <ClInclude Include="src\Platform\DirectX_Shared\ConstantBuffersPerObject_TEMP.h" />
     <ClInclude Include="src\Platform\DirectX_Shared\ConstantBuffers_TEMP.h" />
     <ClInclude Include="src\Platform\DirectX_Shared\D3D_Api.h" />
-    <ClInclude Include="src\Platform\DirectX12\Direct3D12_Context.h" />
     <ClInclude Include="src\Platform\Windows\Console_Window.h" />
     <ClInclude Include="src\Platform\Windows\Error\COM_Exception.h" />
     <ClInclude Include="src\Platform\Windows\Windows_Window.h" />
@@ -227,6 +227,7 @@
     <ClCompile Include="src\Insight\Core\Layer\Layer.cpp" />
     <ClCompile Include="src\Insight\Core\Layer\Layer_Stack.cpp" />
     <ClCompile Include="src\Insight\Core\Log.cpp" />
+    <ClCompile Include="src\Insight\Editor\ImGui_Build.cpp" />
     <ClCompile Include="src\Insight\Editor\ImGui_Layer.cpp" />
     <ClCompile Include="src\Insight\Game\Camera.cpp" />
     <ClCompile Include="src\Insight\Game\Player.cpp" />
@@ -236,9 +237,8 @@
     <ClCompile Include="src\Insight\Rendering\Geometry\Mesh.cpp" />
     <ClCompile Include="src\Insight\Rendering\Geometry\Model.cpp" />
     <ClCompile Include="src\Insight\Utilities\String_Helper.cpp" />
-    <ClCompile Include="src\Platform\DirectX_Shared\D3D_Api.cpp" />
     <ClCompile Include="src\Platform\DirectX12\Direct3D12_Context.cpp" />
-    <ClCompile Include="src\Insight\Editor\ImGui_Build.cpp" />
+    <ClCompile Include="src\Platform\DirectX_Shared\D3D_Api.cpp" />
     <ClCompile Include="src\Platform\Windows\Console_Window.cpp" />
     <ClCompile Include="src\Platform\Windows\Windows_Window.cpp" />
     <ClCompile Include="src\ie_pch.cpp">

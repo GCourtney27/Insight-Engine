@@ -40,8 +40,8 @@
     <Filter Include="Platform\DirectX12">
       <UniqueIdentifier>{6FE5EAC0-5BC9-AB16-C429-A669B02C9698}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Platform\ImGui">
-      <UniqueIdentifier>{D473D893-C041-CC99-A9D5-3CC09542A8FE}</UniqueIdentifier>
+    <Filter Include="Platform\DirectX_Shared">
+      <UniqueIdentifier>{C2E1F03C-2E19-39D4-3723-9DF7A3D95FCD}</UniqueIdentifier>
     </Filter>
     <Filter Include="Platform\Windows">
       <UniqueIdentifier>{64FBD71A-50F4-F66C-7926-DCF1657ED678}</UniqueIdentifier>
@@ -121,6 +121,9 @@
     <ClInclude Include="src\Insight\Rendering\Geometry\Model.h">
       <Filter>Insight\Rendering\Geometry</Filter>
     </ClInclude>
+    <ClInclude Include="src\Insight\Rendering\Geometry\Vertex.h">
+      <Filter>Insight\Rendering\Geometry</Filter>
+    </ClInclude>
     <ClInclude Include="src\Insight\Rendering\RenderingContext.h">
       <Filter>Insight\Rendering</Filter>
     </ClInclude>
@@ -129,6 +132,15 @@
     </ClInclude>
     <ClInclude Include="src\Platform\DirectX12\Direct3D12_Context.h">
       <Filter>Platform\DirectX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\DirectX_Shared\ConstantBuffersPerObject_TEMP.h">
+      <Filter>Platform\DirectX_Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\DirectX_Shared\ConstantBuffers_TEMP.h">
+      <Filter>Platform\DirectX_Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\DirectX_Shared\D3D_Api.h">
+      <Filter>Platform\DirectX_Shared</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\Windows\Console_Window.h">
       <Filter>Platform\Windows</Filter>
@@ -140,21 +152,12 @@
       <Filter>Platform\Windows</Filter>
     </ClInclude>
     <ClInclude Include="src\ie_pch.h" />
-    <ClInclude Include="src\Platform\DirectX_Shared\ConstantBuffers_TEMP.h">
-      <Filter>Platform\DirectX12</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Platform\DirectX_Shared\ConstantBuffersPerObject_TEMP.h">
-      <Filter>Platform\DirectX12</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Platform\DirectX_Shared\D3D_Api.h">
-      <Filter>Platform\DirectX12</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Insight\Rendering\Geometry\Vertex.h">
-      <Filter>Insight\Rendering</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Insight\Core\Application.cpp">
+      <Filter>Insight\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Insight\Core\Entry_Point.cpp">
       <Filter>Insight\Core</Filter>
     </ClCompile>
     <ClCompile Include="src\Insight\Core\Layer\Layer.cpp">
@@ -165,6 +168,9 @@
     </ClCompile>
     <ClCompile Include="src\Insight\Core\Log.cpp">
       <Filter>Insight\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Insight\Editor\ImGui_Build.cpp">
+      <Filter>Insight\Editor</Filter>
     </ClCompile>
     <ClCompile Include="src\Insight\Editor\ImGui_Layer.cpp">
       <Filter>Insight\Editor</Filter>
@@ -196,6 +202,9 @@
     <ClCompile Include="src\Platform\DirectX12\Direct3D12_Context.cpp">
       <Filter>Platform\DirectX12</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\DirectX_Shared\D3D_Api.cpp">
+      <Filter>Platform\DirectX_Shared</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\Windows\Console_Window.cpp">
       <Filter>Platform\Windows</Filter>
     </ClCompile>
@@ -203,12 +212,5 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\ie_pch.cpp" />
-    <ClCompile Include="src\Platform\DirectX_Shared\D3D_Api.cpp">
-      <Filter>Platform\DirectX12</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Insight\Editor\ImGui_Build.cpp" />
-    <ClCompile Include="src\Insight\Core\Entry_Point.cpp">
-      <Filter>Insight\Core</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

@@ -134,6 +134,7 @@ project (gameName)
 		"Engine/vendor/Microsoft/DirectX12",
 		"Engine/vendor/Nvidia/DirectX12",
 		"Engine/vendor/spdlog/include",
+		"Engine/vendor/assimp-3.3.1/include",
 		"Engine/src",
 		"Engine/vendor"
 	}

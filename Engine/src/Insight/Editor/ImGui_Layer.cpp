@@ -98,11 +98,11 @@ namespace Insight {
 
 	void ImGuiLayer::OnImGuiRender()
 	{
-		static bool show = true;
+		/*static bool show = true;
 		ImGui::ShowDemoWindow(&show);
 
 		ImGui::Begin("Test");
-		ImGui::End();
+		ImGui::End();*/
 	}
 
 	void ImGuiLayer::Begin()
@@ -204,7 +204,7 @@ namespace Insight {
 	bool ImGuiLayer::OnWindowResizedEvent(WindowResizeEvent& e)
 	{
 		ImGuiIO& io = ImGui::GetIO();
-		io.DisplaySize = ImVec2(e.GetWidth(), e.GetHeight());
+		io.DisplaySize = ImVec2(static_cast<float>(e.GetWidth()), static_cast<float>(e.GetHeight()));
 		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
 		return false;
 	}

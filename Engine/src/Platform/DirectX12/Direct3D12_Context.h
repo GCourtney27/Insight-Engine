@@ -56,7 +56,7 @@ namespace Insight {
 		void CreateCommandAllocators();
 		void CreateFenceEvent();
 		void CreatePipelineStateObjects();
-		void CrateConstantBufferResourceHeaps();
+		void CreateConstantBufferResourceHeaps();
 		void CreateViewport();
 		void CreateScissorRect();
 		void CloseCommandListAndSignalCommandQueue();
@@ -91,7 +91,8 @@ namespace Insight {
 
 		bool m_RayTraceEnabled = false;
 		bool m_UseWarpDevice = false;
-
+		bool m_WindowResizeComplete = true;
+		
 		WRL::ComPtr<IDXGIAdapter1>				m_pPhysicalDevice;
 		WRL::ComPtr<ID3D12Device5>				m_pLogicalDevice;
 		WRL::ComPtr<IDXGIFactory4>				m_pDxgiFactory;

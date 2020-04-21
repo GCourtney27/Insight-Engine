@@ -132,8 +132,7 @@ namespace Insight {
 		{
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
-			// CRASHES DO NOT PRESS F11
-			/*if (wParam == VK_F11)
+			if (wParam == VK_F11)
 			{
 				if (data.FullScreenEnabled)
 				{
@@ -148,7 +147,7 @@ namespace Insight {
 					data.EventCallback(event);
 				}
 
-			}*/
+			}
 
 			KeyboardBuffer::Get().OnKeyPressed((char)wParam);
 			KeyPressedEvent event((char)wParam, 0);
@@ -169,27 +168,21 @@ namespace Insight {
 			IE_CORE_WARN("System memory is low");
 			return 0;
 		}
-		case WM_MOVE:
-		{
-			// Stop rendering
-			//IE_CORE_INFO("Window is moving");
-			return 0;
-		}
 		case WM_SIZE:
 		{
 			//IE_CORE_INFO("Window size has changed");
 
-			// CRASHES NO NOT RESIZE WINDOW
-			/*WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			if (data.isFirstLaunch)
-			{
-				data.isFirstLaunch = false;
-				return 0;
-			}
-			RECT clientRect = {};
-			GetClientRect(hWnd, &clientRect);
-			WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, wParam == SIZE_MINIMIZED);
-			data.EventCallback(event);*/
+			//// CRASHES NO NOT RESIZE WINDOW
+			//WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			//if (data.isFirstLaunch)
+			//{
+			//	data.isFirstLaunch = false;
+			//	return 0;
+			//}
+			//RECT clientRect = {};
+			//GetClientRect(hWnd, &clientRect);
+			//WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, wParam == SIZE_MINIMIZED);
+			//data.EventCallback(event);
 			return 0;
 		}
 		default:
@@ -276,7 +269,7 @@ namespace Insight {
 		}
 	}
 
-	void WindowsWindow::Resize(uint32_t newWidth, uint32_t newHeight, bool isMinimized)
+	void WindowsWindow::Resize(UINT newWidth, UINT newHeight, bool isMinimized)
 	{
 		m_Data.Width = newWidth;
 		m_Data.Height = newHeight;

@@ -28,15 +28,11 @@ namespace Insight {
 
 	using namespace Microsoft;
 
-	#define COM_SAFE_RELEASE(p) { if( (p) ) { (p)->Release(); } }
-
 	class D3DApi
 	{
 	public:
 		D3DApi();
 		~D3DApi();
-
-
 	};
 
 }

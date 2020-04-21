@@ -14,7 +14,7 @@ namespace Insight {
 			std::wstring WindowClassName_wide;
 			std::string WindowTitle = "Insight Engine";
 			std::wstring WindowTitle_wide;
-			uint32_t Width, Height;
+			UINT Width, Height;
 			bool VSyncEnabled = true;
 			bool FullScreenEnabled = false;
 

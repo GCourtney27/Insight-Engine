@@ -28,3 +28,5 @@
 #define BIT_SHIFT(x) ( 1 << x )
 #define IE_BIND_EVENT_FN(fn) std::bind( &fn, this, std::placeholders::_1 )
 #define COM_SAFE_RELEASE(ptr) if(ptr) ptr->Release();
+#define CAST_TO_FLOAT(...) static_cast<float>(__VA_ARGS__)
+#define CAST_TO_UINT(...) static_cast<UINT>(__VA_ARGS__)

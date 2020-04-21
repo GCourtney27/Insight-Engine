@@ -60,7 +60,7 @@ namespace Insight {
 
 			CreatePipelineStateObjects();
 
-			CrateConstantBufferResourceHeaps();
+			CreateConstantBufferResourceHeaps();
 
 			LoadAssets();
 			InitDemoScene();
@@ -89,17 +89,17 @@ namespace Insight {
 			camera.ProcessMouseMovement(x, y);
 		}
 		if (Input::IsKeyPressed('W'))
-			camera.ProcessKeyboardInput(CameraMovement::FORWARD, 0.001);
+			camera.ProcessKeyboardInput(CameraMovement::FORWARD, 0.001f);
 		if (Input::IsKeyPressed('S'))
-			camera.ProcessKeyboardInput(CameraMovement::BACKWARD, 0.001);
+			camera.ProcessKeyboardInput(CameraMovement::BACKWARD, 0.001f);
 		if (Input::IsKeyPressed('A'))
-			camera.ProcessKeyboardInput(CameraMovement::LEFT, 0.001);
+			camera.ProcessKeyboardInput(CameraMovement::LEFT, 0.001f);
 		if (Input::IsKeyPressed('D'))
-			camera.ProcessKeyboardInput(CameraMovement::RIGHT, 0.001);
+			camera.ProcessKeyboardInput(CameraMovement::RIGHT, 0.001f);
 		if (Input::IsKeyPressed('E'))
-			camera.ProcessKeyboardInput(CameraMovement::UP, 0.001);
+			camera.ProcessKeyboardInput(CameraMovement::UP, 0.001f);
 		if (Input::IsKeyPressed('Q'))
-			camera.ProcessKeyboardInput(CameraMovement::DOWN, 0.001);
+			camera.ProcessKeyboardInput(CameraMovement::DOWN, 0.001f);
 
 		// Cube 1
 		XMMATRIX rotXMat = XMMatrixRotationX(0.001f);
@@ -185,7 +185,7 @@ namespace Insight {
 		{
 			// we have the fence create an event which is signaled once the fence's current value is "fenceValue"
 			hr = m_pFences[m_FrameIndex]->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_FenceEvent);
-			//COM_ERROR_IF_FAILED(hr, "Failed to set event completion value while waiting for frame");
+			COM_ERROR_IF_FAILED(hr, "Failed to set event completion value while waiting for frame");
 
 
 			// We will wait until the fence has triggered the event that it's current value has reached "fenceValue". once it's value
@@ -274,7 +274,7 @@ namespace Insight {
 		ImGui::Render();
 		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList.Get());
 		ImGuiIO& io = ImGui::GetIO();
-		io.DisplaySize = ImVec2(m_WindowWidth, m_WindowHeight);
+		io.DisplaySize = ImVec2(static_cast<float>(m_WindowWidth), static_cast<float>(m_WindowHeight));
 		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
@@ -296,9 +296,8 @@ namespace Insight {
 
 			hr = m_pCommandQueue->Signal(m_pFences[m_FrameIndex].Get(), m_FenceValues[m_FrameIndex]);
 			if (FAILED(hr))
-			{
 				IE_CORE_WARN("Command queue failed to signal.");
-			}
+
 		}
 	}
 
@@ -312,32 +311,38 @@ namespace Insight {
 	{
 		if (!m_IsMinimized)
 		{
-			//WaitForGPU();
-			HRESULT hr;
-
-			for (UINT i = 0; i < m_FrameBufferCount; i++)
+			if (m_WindowResizeComplete)
 			{
-				WaitForPreviousFrame();
-				m_pRenderTargets[i].Reset();
-				m_FenceValues[i] = m_FenceValues[m_FrameIndex];
+				m_WindowResizeComplete = false;
+
+				WaitForGPU();
+				HRESULT hr;
+
+				for (UINT i = 0; i < m_FrameBufferCount; i++)
+				{
+					m_pRenderTargets[i].Reset();
+					m_FenceValues[i] = m_FenceValues[m_FrameIndex];
+				}
+				m_pDepthStencilBuffer.Reset();
+
+				DXGI_SWAP_CHAIN_DESC desc = {};
+				m_pSwapChain->GetDesc(&desc);
+				hr = m_pSwapChain->ResizeBuffers(m_FrameBufferCount, m_WindowWidth, m_WindowHeight, desc.BufferDesc.Format, desc.Flags);
+				if (FAILED(hr))
+					__debugbreak();
+
+				BOOL fullScreenState;
+				m_pSwapChain->GetFullscreenState(&fullScreenState, nullptr);
+				m_WindowedMode = !fullScreenState;
+
+				m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
+
+				UpdateSizeDependentResources();
 			}
-			m_pDepthStencilBuffer.Reset();
 
-			DXGI_SWAP_CHAIN_DESC desc = {};
-			m_pSwapChain->GetDesc(&desc);
-			hr = m_pSwapChain->ResizeBuffers(m_FrameBufferCount, m_WindowWidth, m_WindowHeight, desc.BufferDesc.Format, desc.Flags);
-			if (FAILED(hr))
-				__debugbreak();
-
-			BOOL fullScreenState;
-			m_pSwapChain->GetFullscreenState(&fullScreenState, nullptr);
-			m_WindowedMode = !fullScreenState;
-
-			m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
-
-			UpdateSizeDependentResources();
 		}
 		m_WindowVisible = !m_IsMinimized;
+		m_WindowResizeComplete = true;
 	}
 
 	void Direct3D12Context::OnWindowFullScreen()
@@ -501,6 +506,7 @@ namespace Insight {
 
 		m_dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
 		m_dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+		m_dsvDesc.Texture2D.MipSlice = 0;
 		m_dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 
 		D3D12_CLEAR_VALUE depthOptomizedClearValue = {};
@@ -514,7 +520,7 @@ namespace Insight {
 			&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, m_WindowWidth, m_WindowHeight, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
 			D3D12_RESOURCE_STATE_DEPTH_WRITE,
 			&depthOptomizedClearValue,
-			IID_PPV_ARGS(m_pDepthStencilBuffer.GetAddressOf()));
+			IID_PPV_ARGS(&m_pDepthStencilBuffer));
 		if (FAILED(hr))
 			IE_CORE_ERROR("Failed to create comitted resource for depth stencil view");
 
@@ -690,7 +696,7 @@ namespace Insight {
 
 	}
 
-	void Direct3D12Context::CrateConstantBufferResourceHeaps()
+	void Direct3D12Context::CreateConstantBufferResourceHeaps()
 	{
 		HRESULT hr;
 
@@ -885,7 +891,7 @@ namespace Insight {
 		D3D12_SUBRESOURCE_DATA textureData = {};
 		textureData.pData = &imageData[0];
 		textureData.RowPitch = imageBytesPerRow;
-		textureData.SlicePitch = (UINT)imageBytesPerRow * textureDesc.Height;
+		textureData.SlicePitch = static_cast<UINT>(imageBytesPerRow) * textureDesc.Height;
 		UpdateSubresources(m_pCommandList.Get(), m_pTextureBuffer.Get(), m_pTextureBufferUploadHeap.Get(), 0, 0, 1, &textureData);
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pTextureBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 
@@ -1003,6 +1009,7 @@ namespace Insight {
 		else if (dxgiFormat == DXGI_FORMAT_R16_UNORM) return 16;
 		else if (dxgiFormat == DXGI_FORMAT_R8_UNORM) return 8;
 		else if (dxgiFormat == DXGI_FORMAT_A8_UNORM) return 8;
+		return -1;
 	}
 
 	// load and decode image from file
@@ -1203,7 +1210,7 @@ namespace Insight {
 
 			if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, _uuidof(ID3D12Device), nullptr)))
 			{
-				currentVideoCardMemory = desc.DedicatedVideoMemory;
+				currentVideoCardMemory = static_cast<UINT>(desc.DedicatedVideoMemory);
 				if (*ppAdapter != nullptr)
 					(*ppAdapter)->Release();
 				*ppAdapter = adapter.Detach();
@@ -1217,7 +1224,6 @@ namespace Insight {
 		// before closing all handles and releasing resources
 		WaitForGPU();
 
-
 		if (!m_AllowTearing)
 			m_pSwapChain->SetFullscreenState(false, NULL);
 
@@ -1226,6 +1232,7 @@ namespace Insight {
 
 	void Direct3D12Context::WaitForGPU()
 	{
+		// Schedule a Signal command in the queue.
 		m_pCommandQueue->Signal(m_pFences[m_FrameIndex].Get(), m_FenceValues[m_FrameIndex]);
 
 		// Wait until the fence has been processed.
@@ -1241,19 +1248,26 @@ namespace Insight {
 		UpdateViewAndScissor();
 
 		// Re-Create Render Target View
-		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_pRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-		for (UINT i = 0; i < m_FrameBufferCount; i++)
 		{
-			m_pSwapChain->GetBuffer(i, IID_PPV_ARGS(&m_pRenderTargets[i]));
-			m_pLogicalDevice->CreateRenderTargetView(m_pRenderTargets[i].Get(), nullptr, rtvHandle);
-			rtvHandle.Offset(1, m_RtvDescriptorSize);
+			CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_pRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+			for (UINT i = 0; i < m_FrameBufferCount; i++)
+			{
+				m_pSwapChain->GetBuffer(i, IID_PPV_ARGS(&m_pRenderTargets[i]));
+				m_pLogicalDevice->CreateRenderTargetView(m_pRenderTargets[i].Get(), nullptr, rtvHandle);
+				rtvHandle.Offset(1, m_RtvDescriptorSize);
+			}
 		}
 
 		// Re-Create Depth Stencil View
-		CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_pDepthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-		HRESULT hr = m_pSwapChain->GetBuffer(0, IID_PPV_ARGS(&m_pDepthStencilBuffer));
-		CreateDepthStencilBuffer();
-		//m_pLogicalDevice->CreateDepthStencilView(m_pDepthStencilBuffer.Get(), &m_dsvDesc, dsvHandle);
+		{
+			CreateDepthStencilBuffer();
+		}
+
+		// Recreate Camera Projection Matrix
+		{
+			camera.SetProjectionValues(camera.GetFOV(), static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight), camera.GetNearZ(), camera.GetFarZ());
+		}
+
 	}
 
 	void Direct3D12Context::UpdateViewAndScissor()

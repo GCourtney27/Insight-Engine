@@ -12,8 +12,8 @@ namespace Insight {
 		m_Verticies = verticies;
 		m_Indices = indices;
 		// m_Textures = textures
-		m_NumIndices = m_Verticies.size();
-		m_NumVerticies = m_Indices.size();
+		m_NumIndices = static_cast<UINT>(m_Verticies.size());
+		m_NumVerticies = static_cast<UINT>(m_Indices.size());
 
 		m_IBufferSize = m_NumIndices * sizeof(UINT);
 		m_VBufferSize = m_NumVerticies * sizeof(Vertex);

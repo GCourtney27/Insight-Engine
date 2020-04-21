@@ -5,6 +5,7 @@
 	#include "Platform/Windows/Console_Window.h"
 #endif 
 
+#pragma warning (disable : 26451)
 #include "spdlog/spdlog.h"
 #include "spdlog/fmt/ostr.h"
 

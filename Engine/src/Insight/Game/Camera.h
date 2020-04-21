@@ -50,6 +50,12 @@ namespace Insight {
 
 		const inline XMMATRIX& GetViewMatrix() const { return m_ViewMatrix; }
 		const inline XMMATRIX& GetProjectionMatrix() const { return m_ProjectionMatrix; };
+		const inline float& GetFOV() const { return m_Fov; }
+		const inline float& GetNearZ() const { return m_NearZ; }
+		const inline float& GetFarZ() const { return m_FarZ; }
+		inline void SetFOV(float& fovDegrees) { SetProjectionValues(fovDegrees, m_AspectRatio, m_NearZ, m_FarZ); }
+		inline void SetNearZ(float& nearZ) { SetProjectionValues(m_Fov, m_AspectRatio, nearZ, m_FarZ); }
+		inline void SetFarZ(float& farZ) { SetProjectionValues(m_Fov, m_AspectRatio, m_NearZ, farZ); }
 
 		void SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ);
 
@@ -86,14 +92,17 @@ namespace Insight {
 		float m_MovementSpeed = 0.0f;
 		float m_MouseSensitivity = 0.0f;
 		bool m_ConstrainPitch = true;
+
 		float m_Fov = 0.0f;
+		float m_NearZ = 0.0f;
+		float m_FarZ = 0.0f;
+		float m_AspectRatio = 0.0f;
 
 		float m_Exposure = 1.0f;
 
 		bool m_FirstMove = true;
 		float m_LastLookX = 0.0f;
 		float m_LastLookY = 0.0f;
-
 	};
 
 }

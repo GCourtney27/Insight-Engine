@@ -83,8 +83,11 @@ namespace Insight {
 	void Camera::SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ)
 	{
 		m_Fov = fovDegrees;
+		m_NearZ = nearZ;
+		m_FarZ = farZ;
+		m_AspectRatio = aspectRatio;
 		float fovRadians = fovDegrees * (3.14f / 180.0f);
-		m_ProjectionMatrix = XMMatrixPerspectiveFovLH(fovRadians, aspectRatio, nearZ, farZ);
+		m_ProjectionMatrix = XMMatrixPerspectiveFovLH(fovRadians, m_AspectRatio, m_NearZ, m_FarZ);
 	}
 
 	void Camera::UpdateLocalVectors()
