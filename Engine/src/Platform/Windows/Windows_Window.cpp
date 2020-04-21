@@ -287,16 +287,16 @@ namespace Insight {
 		MSG msg;
 		ZeroMemory(&msg, sizeof(MSG));
 
-		while (PeekMessage(&msg,			// Where to store message (if one exists)
-			m_WindowHandle, // Handle to window we are checking messages for
-			0,				// Minimum Filter Msg Value - We are not filterinf for specific messages but min and max could be used to do so
-			0,				// Maximum Filter Msg Value
-			PM_REMOVE))		// Remove mesage after captureing it via PeekMessage
+		while (PeekMessage(&msg,	// Where to store message (if one exists)
+			m_WindowHandle,			// Handle to window we are checking messages for
+			0,						// Minimum Filter Msg Value - We are not filterinf for specific messages but min and max could be used to do so
+			0,						// Maximum Filter Msg Value
+			PM_REMOVE))				// Remove mesage after captureing it via PeekMessage
 		{
 			if (msg.message == WM_QUIT)
 				return false;
-			TranslateMessage(&msg);  // Translate message from virtual key message into character messages
-			DispatchMessage(&msg); // Dispatch message to our WindowProc for this window
+			TranslateMessage(&msg);		// Translate message from virtual key message into character messages
+			DispatchMessage(&msg);		// Dispatch message to our WindowProc for this window
 		}
 
 		IE_ASSERT("Heap is currupted!", _CrtCheckMemory());
@@ -315,7 +315,7 @@ namespace Insight {
 
 		m_pRendererContext->OnUpdate();
 
-		m_pRendererContext->RenderFrame();
+		m_pRendererContext->OnRender();
 		m_pRendererContext->SwapBuffers();
 
 	}

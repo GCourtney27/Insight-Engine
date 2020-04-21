@@ -83,6 +83,11 @@ project ("Engine")
 		{
 			"IE_PLATFORM_WINDOWS"
 		}
+
+		flags
+		{
+			"MultiProcessorCompile"
+		}
 	
 	-- Engine Development
 	filter "configurations:Debug"

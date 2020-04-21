@@ -1,8 +1,8 @@
 #include "ie_pch.h"
 
 #include "Application.h"
+
 #include "Platform/Windows/Windows_Window.h"
-#include "Insight/Core/Log.h"
 #include "Insight/Input/Input.h"
 
 #include "Insight/Editor/ImGui_Layer.h"
@@ -17,7 +17,6 @@ namespace Insight {
 		s_Instance = this;
 
 		m_ImGuiLayer = new ImGuiLayer();
-		
 	}
 
 	bool Application::InitializeAppForWindows(HINSTANCE & hInstance, int nCmdShow)
@@ -28,13 +27,13 @@ namespace Insight {
 		static_cast<WindowsWindow*>(m_pWindow.get())->SetWindowsSessionProps(hInstance, nCmdShow);
 		if (!static_cast<WindowsWindow*>(m_pWindow.get())->Init(WindowProps()))	
 		{
-			IE_CORE_FATAL(L"Fatal Error: Failed to initialize window. Exiting.");
+			IE_CORE_FATAL(L"Fatal Error: Failed to initialize window.");
 			return false;
 		}
 
 		if (!Init())
 		{
-			IE_CORE_FATAL(L"Failed to initiazlize application");
+			IE_CORE_FATAL(L"Failed to initiazlize application.");
 			return false;
 		}
 
@@ -43,6 +42,7 @@ namespace Insight {
 
 	Application::~Application()
 	{
+		Shutdown();
 	}
 
 	bool Application::Init()
@@ -58,15 +58,12 @@ namespace Insight {
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
 
-
 			m_ImGuiLayer->Begin();
 			for (Layer* layer : m_LayerStack)
 				layer->OnImGuiRender();
 			//m_ImGuiLayer->End();
 
 			m_pWindow->OnUpdate();
-
-
 		}
 	}
 
@@ -80,8 +77,6 @@ namespace Insight {
 		dispatcher.Dispatch<WindowCloseEvent>(IE_BIND_EVENT_FN(Application::OnWindowClose));
 		dispatcher.Dispatch<WindowResizeEvent>(IE_BIND_EVENT_FN(Application::OnWindowResize));
 		dispatcher.Dispatch<WindowToggleFullScreenEvent>(IE_BIND_EVENT_FN(Application::OnWindowFullScreen));
-
-		//IE_CORE_TRACE("{0}", e);
 
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
 		{

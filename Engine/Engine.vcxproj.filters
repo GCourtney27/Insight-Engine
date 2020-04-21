@@ -58,9 +58,6 @@
     <ClInclude Include="src\Insight\Core\Application.h">
       <Filter>Insight\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\Insight\Core\Entry_Point.h">
-      <Filter>Insight\Core</Filter>
-    </ClInclude>
     <ClInclude Include="src\Insight\Core\Layer\Layer.h">
       <Filter>Insight\Core\Layer</Filter>
     </ClInclude>

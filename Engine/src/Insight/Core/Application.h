@@ -35,12 +35,12 @@ namespace Insight {
 		bool OnWindowResize(WindowResizeEvent& e);
 		bool OnWindowFullScreen(WindowToggleFullScreenEvent& e);
 	private:
-		std::unique_ptr<Window> m_pWindow;
-		ImGuiLayer* m_ImGuiLayer = nullptr;
-		bool m_Running = true;
-		LayerStack m_LayerStack;
+		std::unique_ptr<Window>	m_pWindow;
+		ImGuiLayer*				m_ImGuiLayer = nullptr;
+		bool					m_Running = true;
+		LayerStack				m_LayerStack;
 	private:
-		static Application* s_Instance;
+		static Application*		s_Instance;
 	};
 
 	// To be defined in client

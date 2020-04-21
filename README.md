@@ -18,6 +18,7 @@ A full game engine made for my 2019 Capstone project. It is written in C/C++ wit
 * Visual Studio 2019/*2017
 
 **Getting Started**
-1) After cloning the repo into a directory, run the "Build_Dependencies.bat" file to build all dependencies.
+1) Clone the repo into a directory with "git clone --recursive".
+2) Run the "Build_Dependencies.bat" file to build all dependencies.
 2) Run "Generate_Projects_VS2019.bat" to generate the Visual studio project files. Note: Visual Studio 2017 is supported, however, you must change the Visual Studio location to Visual Studio 2017 in "Generate_Projects_VS2019.bat" and  "Project_Build_Scripts/Build_Assimp.bat" as this script searches for your local Visual Studio command line executable to build the respective assimp binaries.
 3) Open the generated Visual Studio solution and enjoy. You dont need to worry about copying dependency binaries to the output directory, post build steps will achieve this for you. 

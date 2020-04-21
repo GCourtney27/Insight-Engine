@@ -14,7 +14,7 @@ namespace Insight {
 	class INSIGHT_API Log
 	{
 	public:
-		static void Init();
+		static bool Init();
 		~Log() { }
 
 		inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
@@ -30,7 +30,7 @@ namespace Insight {
 }
 
 #ifdef IE_DEBUG
-	// Core log macros
+	// Engine log macros
 	#define IE_CORE_TRACE(...) ::Insight::Log::GetCoreLogger()->trace(__VA_ARGS__);
 	#define IE_CORE_INFO(...)  ::Insight::Log::GetCoreLogger()->info(__VA_ARGS__);
 	#define IE_CORE_WARN(...)  ::Insight::Log::GetCoreLogger()->warn(__VA_ARGS__);
@@ -44,13 +44,14 @@ namespace Insight {
 	#define IE_ERROR(...)	   ::Insight::Log::GetClientLogger()->error(__VA_ARGS__);
 	#define IE_FATAL(...)	   __debugbreak(); OutputDebugString(__VA_ARGS__)
 #else
+	// Engine logging
 	#define IE_CORE_TRACE
 	#define IE_CORE_INFO
 	#define IE_CORE_WARN
 	#define IE_CORE_ERROR
 	#define IE_CORE_FATAL
 
-	// Client log macros
+	// Client logging
 	#define IE_INFO
 	#define IE_TRACE
 	#define IE_WARN

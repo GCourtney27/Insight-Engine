@@ -12,7 +12,7 @@ namespace Insight {
 	ConsoleWindow Log::m_ConsoleWindow;
 #endif
 
-	void Log::Init()
+	bool Log::Init()
 	{
 		spdlog::set_pattern("%^[%T] %n: %v%$");
 		s_CoreLogger = spdlog::stdout_color_mt("Insight");
@@ -20,6 +20,8 @@ namespace Insight {
 
 		s_ClientLogger = spdlog::stdout_color_mt("App");
 		s_ClientLogger->set_level(spdlog::level::trace);
+
+		return true;
 	}
 
 }

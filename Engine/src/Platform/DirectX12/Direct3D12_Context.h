@@ -3,45 +3,44 @@
 #include "Insight/Core.h"
 
 #include "Insight/Rendering/RenderingContext.h"
-#include "Platform/DirectX_Shared/D3D_Api.h"
 
+#include "Platform/Windows/Error/COM_Exception.h"
 #include "Insight/Game/Camera.h"
 
 // TODO: implement shader system that uses this
 #include "Platform/DirectX_Shared/ConstantBuffersPerObject_TEMP.h"
-#include <DirectXMath.h>
-// TODO: implement texture system that uses this
-#include <wincodec.h>
+
 //TEMP
 #include "Insight/Rendering/Geometry/Model.h"
+
+using Microsoft::WRL::ComPtr;
 
 namespace Insight {
 
 	class WindowsWindow;
 
-	class Direct3D12Context : public RenderingContext, public D3DApi
+	class Direct3D12Context : public RenderingContext
 	{
 	public:
 		Direct3D12Context(WindowsWindow* windowHandle);
 		virtual ~Direct3D12Context();
 		
-		virtual void OnUpdate() override;
-
 		virtual bool Init() override;
-		virtual void RenderFrame() override;
+		virtual void OnUpdate() override;
+		virtual void OnRender() override;
 		virtual void SwapBuffers() override;
 		virtual void OnWindowResize() override;
 		virtual void OnWindowFullScreen() override;
 
 		inline ID3D12Device5& GetDeviceContext() const { return *m_pLogicalDevice.Get(); }
-		inline ID3D12DescriptorHeap& GetImGuiDescriptorHeap() const { return *m_pImGuiDescriptorHeap.Get(); }
 		inline ID3D12GraphicsCommandList& GetCommandList() const { return *m_pCommandList.Get(); }
+		inline ID3D12DescriptorHeap& GetImGuiDescriptorHeap() const { return *m_pImGuiDescriptorHeap.Get(); }
 
 	private:
 		// Per-Frame
 		void PopulateCommandLists();
-		void RenderUI();
 		void WaitForPreviousFrame();
+		void RenderUI();
 
 		// D3D12 Initialize
 		void CreateDXGIFactory();
@@ -59,8 +58,8 @@ namespace Insight {
 		void CreateConstantBufferResourceHeaps();
 		void CreateViewport();
 		void CreateScissorRect();
-		void CloseCommandListAndSignalCommandQueue();
 		void CreateImGuiDescriptorHeap();
+		void CloseCommandListAndSignalCommandQueue();
 
 		// TEMP! Move this!
 		void InitShaders();
@@ -80,46 +79,45 @@ namespace Insight {
 		void UpdateSizeDependentResources();
 		void UpdateViewAndScissor();
 	private:
-		HWND* m_pWindowHandle = nullptr;
-		WindowsWindow* m_pWindow = nullptr;
+		HWND* m_pWindowHandle			= nullptr;
+		WindowsWindow* m_pWindow		= nullptr;
 
 		// Sync Values
-		int m_FrameIndex = 0;
-		int m_RtvDescriptorSize = 0;
-		UINT64 m_FenceValues[m_FrameBufferCount] = {};
-		HANDLE m_FenceEvent = {};
+		int			m_FrameIndex				= 0;
+		int			m_RtvDescriptorSize			= 0;
+		UINT64		m_FenceValues[m_FrameBufferCount] = {};
+		HANDLE		m_FenceEvent = {};
 
-		bool m_RayTraceEnabled = false;
-		bool m_UseWarpDevice = false;
-		bool m_WindowResizeComplete = true;
+		bool		m_WindowResizeComplete = true;
+		bool		m_RayTraceEnabled = false;
+		bool		m_UseWarpDevice = false;
 		
-		WRL::ComPtr<IDXGIAdapter1>				m_pPhysicalDevice;
-		WRL::ComPtr<ID3D12Device5>				m_pLogicalDevice;
-		WRL::ComPtr<IDXGIFactory4>				m_pDxgiFactory;
-		WRL::ComPtr<IDXGISwapChain3>			m_pSwapChain;
+		ComPtr<IDXGIAdapter1>				m_pPhysicalDevice;
+		ComPtr<ID3D12Device5>				m_pLogicalDevice;
+		ComPtr<IDXGIFactory4>				m_pDxgiFactory;
+		ComPtr<IDXGISwapChain3>				m_pSwapChain;
 
-		WRL::ComPtr<ID3D12CommandQueue>			m_pCommandQueue;
-		WRL::ComPtr<ID3D12DescriptorHeap>		m_pRtvDescriptorHeap;
-		WRL::ComPtr<ID3D12Resource>				m_pRenderTargets[m_FrameBufferCount];
-		WRL::ComPtr<ID3D12CommandAllocator>		m_pCommandAllocators[m_FrameBufferCount];
+		ComPtr<ID3D12CommandQueue>			m_pCommandQueue;
+		ComPtr<ID3D12DescriptorHeap>		m_pRtvDescriptorHeap;
+		ComPtr<ID3D12Resource>				m_pRenderTargets[m_FrameBufferCount];
+		ComPtr<ID3D12CommandAllocator>		m_pCommandAllocators[m_FrameBufferCount];
 
-		WRL::ComPtr<ID3D12Fence>				m_pFences[m_FrameBufferCount];
-		WRL::ComPtr<ID3D12GraphicsCommandList>	m_pCommandList;
+		ComPtr<ID3D12Fence>					m_pFences[m_FrameBufferCount];
+		ComPtr<ID3D12GraphicsCommandList>	m_pCommandList;
 
-		WRL::ComPtr<ID3D12Resource>				m_pDepthStencilBuffer;
-		WRL::ComPtr<ID3D12DescriptorHeap>		m_pDepthStencilDescriptorHeap;
+		ComPtr<ID3D12Resource>				m_pDepthStencilBuffer;
+		ComPtr<ID3D12DescriptorHeap>		m_pDepthStencilDescriptorHeap;
 
-		WRL::ComPtr<ID3D12PipelineState>		m_pPipelineStateObject_ForwardPass;
-		WRL::ComPtr<ID3D12RootSignature>		m_pRootSignature_ForwardPass;
+		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_ForwardPass;
+		ComPtr<ID3D12RootSignature>			m_pRootSignature_ForwardPass;
 
-		D3D12_VIEWPORT							m_ViewPort = {};
-		D3D12_RECT								m_ScissorRect = {};
-		DXGI_SAMPLE_DESC						m_SampleDesc = {};
-		D3D12_DEPTH_STENCIL_VIEW_DESC			m_dsvDesc = {};
+		D3D12_VIEWPORT						m_ViewPort = {};
+		D3D12_RECT							m_ScissorRect = {};
+		DXGI_SAMPLE_DESC					m_SampleDesc = {};
+		D3D12_DEPTH_STENCIL_VIEW_DESC		m_dsvDesc = {};
 
 		// IMGUI this should move
-		WRL::ComPtr <ID3D12DescriptorHeap>		m_pImGuiDescriptorHeap;
-
+		ComPtr<ID3D12DescriptorHeap>		m_pImGuiDescriptorHeap;
 
 		//=== TEMPORARY! ===//
 		Model model;
@@ -129,7 +127,7 @@ namespace Insight {
 		};
 		int ConstantBufferPerObjectAlignedSize = (sizeof(ConstantBufferPerObject) + 255) & ~255;
 		ConstantBufferPerObject cbPerObject;
-		WRL::ComPtr<ID3D12Resource> constantBufferUploadHeaps[m_FrameBufferCount];
+		ComPtr<ID3D12Resource> constantBufferUploadHeaps[m_FrameBufferCount];
 
 		UINT8* cbvGPUAddress[m_FrameBufferCount]; 
 		Camera camera;
@@ -141,9 +139,9 @@ namespace Insight {
 
 		// TEMP Textures
 		// TODO: create texture manager class
-		WRL::ComPtr<ID3D12Resource>		  m_pTextureBuffer;
-		WRL::ComPtr<ID3D12DescriptorHeap> m_pMainDescriptorHeap;
-		WRL::ComPtr<ID3D12Resource>		  m_pTextureBufferUploadHeap;
+		ComPtr<ID3D12Resource>		  m_pTextureBuffer;
+		ComPtr<ID3D12DescriptorHeap> m_pMainDescriptorHeap;
+		ComPtr<ID3D12Resource>		  m_pTextureBufferUploadHeap;
 
 		// Utils
 		struct Resolution
@@ -151,9 +149,9 @@ namespace Insight {
 			UINT Width;
 			UINT Height;
 		};
-		static const Resolution m_resolutionOptions[];
-		static const UINT m_resolutionOptionsCount;
-		static UINT m_resolutionIndex; // Index of the current scene rendering resolution from m_resolutionOptions.
+		static const Resolution m_ResolutionOptions[];
+		static const UINT m_ResolutionOptionsCount;
+		static UINT m_ResolutionIndex; // Index of the current scene rendering resolution from m_resolutionOptions.
 
 	};
 

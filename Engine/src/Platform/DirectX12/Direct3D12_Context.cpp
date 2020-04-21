@@ -1,6 +1,7 @@
 #include "ie_pch.h"
 
 #include "Direct3D12_Context.h"
+
 #include "Platform/Windows/Windows_Window.h"
 #include "Insight/Input/Input.h"
 #include "Insight/Core/Application.h"
@@ -8,12 +9,9 @@
 #include "imgui.h"
 #include "examples/imgui_impl_dx12.h"
 
-
-using namespace Microsoft::WRL;
-
 namespace Insight {
 
-	const Direct3D12Context::Resolution Direct3D12Context::m_resolutionOptions[] =
+	const Direct3D12Context::Resolution Direct3D12Context::m_ResolutionOptions[] =
 	{
 		{ 800u, 600u },
 		{ 1200u, 900u },
@@ -24,8 +22,8 @@ namespace Insight {
 		{ 3440u, 1440u },
 		{ 3840u, 2160u }
 	};
-	const UINT Direct3D12Context::m_resolutionOptionsCount = _countof(m_resolutionOptions);
-	UINT Direct3D12Context::m_resolutionIndex = 2;
+	const UINT Direct3D12Context::m_ResolutionOptionsCount = _countof(m_ResolutionOptions);
+	UINT Direct3D12Context::m_ResolutionIndex = 2;
 
 	Direct3D12Context::Direct3D12Context(WindowsWindow* windowHandle)
 		: m_pWindowHandle(&windowHandle->GetWindowHandleReference()), m_pWindow(windowHandle), RenderingContext(windowHandle->GetWidth(), windowHandle->GetHeight(), false)
@@ -283,7 +281,7 @@ namespace Insight {
 		}
 	}
 
-	void Direct3D12Context::RenderFrame()
+	void Direct3D12Context::OnRender()
 	{
 		HRESULT hr;
 		if (m_WindowVisible)
@@ -1272,8 +1270,8 @@ namespace Insight {
 
 	void Direct3D12Context::UpdateViewAndScissor()
 	{
-		float viewWidthRatio = static_cast<float>(m_resolutionOptions[m_resolutionIndex].Width) / m_WindowWidth;
-		float viewHeighthRatio = static_cast<float>(m_resolutionOptions[m_resolutionIndex].Height) / m_WindowHeight;
+		float viewWidthRatio = static_cast<float>(m_ResolutionOptions[m_ResolutionIndex].Width) / m_WindowWidth;
+		float viewHeighthRatio = static_cast<float>(m_ResolutionOptions[m_ResolutionIndex].Height) / m_WindowHeight;
 
 		float x = 1.0f;
 		float y = 1.0f;

@@ -1,8 +1,9 @@
 #pragma once
 
-#include <iostream>
+// === Standard Library ===
 #include <memory>
 #include <utility>
+#include <iostream>
 #include <algorithm>
 #include <functional>
 
@@ -13,19 +14,25 @@
 #include <unordered_map>
 #include <unordered_set>
 
+// === Insight Specific ===
 #include "Insight/Core/Log.h"
 
+// === Windows Library ===
 #ifdef IE_PLATFORM_WINDOWS
-	
-	#ifndef WIN32_LEAN_AND_MEAN
-		#define WIN32_LEAN_AND_MEAN
-	#endif
+	// Windows API	
 	#include <Windows.h>
+	#include <wrl/client.h>
 
-	// Direct3D 12 dependencies
+	// Direct3D 12 Includes
+	#include <DirectXMath.h>
 	#include <d3d12.h>
 	#include <dxgi1_4.h>
 	#include <D3Dcompiler.h>
-	#include <DirectXMath.h>
+	#include <dxgi1_2.h>
+	#include <d3dx12.h>
+	#include <wincodec.h>
 
+	// Libraries
+	#pragma comment(lib, "D3DCompiler.lib")
+	#pragma comment(lib, "d3d11.lib")
 #endif // IE_PLATFORM_WINDOWS
