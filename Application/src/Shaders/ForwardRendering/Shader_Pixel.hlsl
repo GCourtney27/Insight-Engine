@@ -1,5 +1,6 @@
 
 Texture2D tAlbedo : register(t0);
+Texture2D tNormal : register(t1);
 
 SamplerState sampler1 : register(s0);
 

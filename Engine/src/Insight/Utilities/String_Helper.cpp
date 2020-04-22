@@ -1,13 +1,21 @@
 #include "ie_pch.h"
 
 #include "String_Helper.h"
+#include <locale>
 
 namespace Insight {
 
 	std::wstring StringHelper::StringToWide(std::string str)
 	{
-		std::wstring wide_string(str.begin(), str.end());
-		return wide_string;
+		std::wstring widestr(str.begin(), str.end());
+		return widestr;
+	}
+
+	std::string StringHelper::WideToString(std::wstring str)
+	{
+		setlocale(LC_CTYPE, "");
+		std::string string(str.begin(), str.end());
+		return string;
 	}
 
 	std::string StringHelper::GetDirectoryFromPath(const std::string & filepath)
@@ -51,6 +59,24 @@ namespace Insight {
 			result.erase(0, last_slash_idx + 1);
 
 		return result;
+	}
+
+	std::string StringHelper::GetFilenameFromDirectoryW(const std::wstring& filename)
+	{
+		std::string result = WideToString(filename);
+
+		// Erase everything up to the beginning of the filename
+		const size_t last_slash_idx = result.find_last_of("\\/");
+		if (std::string::npos != last_slash_idx)
+			result.erase(0, last_slash_idx + 1);
+
+		return result;
+	}
+
+	std::wstring StringHelper::GetFilenameFromDirectoryAsWideW(const std::wstring& filename)
+	{
+		std::wstring wstr = StringToWide(GetFilenameFromDirectoryW(filename));
+		return wstr;
 	}
 
 	std::string StringHelper::GetFilenameFromDirectoryNoExtension(const std::string& filename)

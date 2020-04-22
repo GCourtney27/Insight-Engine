@@ -12,6 +12,7 @@
 
 //TEMP
 #include "Insight/Rendering/Geometry/Model.h"
+#include "Insight/Rendering/Texture.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -36,6 +37,7 @@ namespace Insight {
 
 		inline ID3D12Device5& GetDeviceContext() const { return *m_pLogicalDevice.Get(); }
 		inline ID3D12GraphicsCommandList& GetCommandList() const { return *m_pCommandList.Get(); }
+		inline ID3D12DescriptorHeap& GetShaderVisibleDescriptorHeap() const { return *m_pMainDescriptorHeap.Get(); }
 
 	private:
 		// Per-Frame
@@ -51,6 +53,7 @@ namespace Insight {
 		void CreateDescriptorHeaps();
 		void CreateRTVDescriptorHeap();
 		void CreateDSVDescriptorHeap();
+		void CreateShaderVisibleResourceDescriptorHeap();
 		void CreateDepthStencilBuffer();
 		void CreateCommandAllocators();
 		void CreateFenceEvent();
@@ -110,6 +113,9 @@ namespace Insight {
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_ForwardPass;
 		ComPtr<ID3D12RootSignature>			m_pRootSignature_ForwardPass;
 
+		ComPtr<ID3D12DescriptorHeap>		m_pMainDescriptorHeap;
+
+
 		D3D12_VIEWPORT						m_ViewPort = {};
 		D3D12_RECT							m_ScissorRect = {};
 		DXGI_SAMPLE_DESC					m_SampleDesc = {};
@@ -132,12 +138,10 @@ namespace Insight {
 		DirectX::XMFLOAT4X4 cube1RotMat;
 		DirectX::XMFLOAT4 cube1Position;
 
-
 		// TEMP Textures
 		// TODO: create texture manager class
-		ComPtr<ID3D12Resource>			m_pTextureBuffer;
-		ComPtr<ID3D12DescriptorHeap>	m_pMainDescriptorHeap;
-		ComPtr<ID3D12Resource>			m_pTextureBufferUploadHeap;
+		Texture texture;
+		//Texture texture2;
 
 		// Utils
 		struct Resolution
