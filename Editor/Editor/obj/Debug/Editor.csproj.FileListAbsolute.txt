@@ -1,0 +1,7 @@
+C:\VSDev\ComputerGraphics\Insight\Editor\Editor\bin\Debug\Editor.dll
+C:\VSDev\ComputerGraphics\Insight\Editor\Editor\bin\Debug\Editor.pdb
+C:\VSDev\ComputerGraphics\Insight\Editor\Editor\obj\Debug\Editor.csprojAssemblyReference.cache
+C:\VSDev\ComputerGraphics\Insight\Editor\Editor\obj\Debug\Editor.csproj.CoreCompileInputs.cache
+C:\VSDev\ComputerGraphics\Insight\Editor\Editor\obj\Debug\Editor.dll
+C:\VSDev\ComputerGraphics\Insight\Editor\Editor\obj\Debug\Editor.pdb
+C:\VSDev\ComputerGraphics\Insight\Editor\Editor\bin\Debug\Editor.tlb
