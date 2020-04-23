@@ -1,6 +1,6 @@
-[submodule "CoreEngine/Engine/vendor/spdlog"]
-	path = CoreEngine/Engine/vendor/spdlog
+[submodule "Engine/vendor/spdlog"]
+	path = Engine/vendor/spdlog
 	url = https://github.com/gabime/spdlog.git
-[submodule "CoreEngine/Engine/vendor/imgui"]
-	path = CoreEngine/Engine/vendor/imgui
+[submodule "Engine/vendor/imgui"]
+	path = Engine/vendor/imgui
 	url = https://github.com/GCourtney27/imgui.git
