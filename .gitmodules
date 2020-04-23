@@ -1,6 +1,6 @@
 [submodule "Engine/vendor/spdlog"]
-	path = Engine/vendor/spdlog
+	path = Engine/Vendor/spdlog
 	url = https://github.com/gabime/spdlog.git
 [submodule "Engine/vendor/imgui"]
-	path = Engine/vendor/imgui
+	path = Engine/Vendor/imgui
 	url = https://github.com/GCourtney27/imgui.git

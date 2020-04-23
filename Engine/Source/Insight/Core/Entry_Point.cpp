@@ -1,7 +1,7 @@
 #include "ie_pch.h"
 
 #include "ClientApp.h"
-#import "C:/VSDev/ComputerGraphics/Insight/Editor/Editor/bin/Debug/Editor.tlb" no_namespace
+//#import "C:\VSDev\ComputerGraphics\InsightEngine\Engine\Editor\Editor\bin\Debug\Editor.tlb" no_namespace
 #include <thread>
 // Copyright 2020 Garrett Courtney
 
@@ -18,14 +18,14 @@ extern Insight::Application* Insight::CreateApplication();
 
 #if defined IE_PLATFORM_WINDOWS
 
-void OpenDialog()
-{
-	CoInitialize(NULL);
-	IWindowPtr obj;
-	obj.CreateInstance(__uuidof(Window));
-	obj->Tite("Hello World!");
-	obj->Show();
-}
+//void OpenDialog()
+//{
+//	CoInitialize(NULL);
+//	IWindowPtr obj;
+//	obj.CreateInstance(__uuidof(Window));
+//	obj->Tite("Hello World!");
+//	obj->Show();
+//}
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
@@ -35,7 +35,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	auto app = Insight::CreateApplication();
 
-	std::thread uiThread(OpenDialog);
+	//std::thread uiThread(OpenDialog);
 
 	if (!app->InitializeAppForWindows(hInstance, nCmdShow))
 	{
@@ -46,7 +46,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	app->Run();
 	app->Shutdown();
 
-	uiThread.join();
+	//uiThread.join();
 	delete app;
 
 	CoUninitialize();

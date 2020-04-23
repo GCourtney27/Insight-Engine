@@ -5,7 +5,7 @@
 #include "Platform/Windows/Windows_Window.h"
 #include "Insight/Input/Input.h"
 
-#include "Insight/Editor/ImGui_Layer.h"
+#include "Insight/ImGui/ImGui_Layer.h"
 
 namespace Insight {
 

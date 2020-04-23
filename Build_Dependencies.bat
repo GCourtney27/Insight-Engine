@@ -1,10 +1,14 @@
 REM Build assimp
-cd Engine\vendor\assimp-3.3.1
+cd Engine\Vendor\assimp-3.3.1
 mkdir build
 cd build
+echo *****************************************
 echo Creating Visual Studio 2019 project files
-%~dp0vendor\bin\CMake\bin\cmake.exe %~dp0Engine\vendor\assimp-3.3.1
+echo *****************************************
+%~dp0Vendor\bin\CMake\bin\cmake.exe %~dp0Engine\vendor\assimp-3.3.1
+echo *****************************************
 echo Compiling assimp source code
-%~dp0Project_Build_Scripts\CompileAssimp.bat
+echo *****************************************
+%~dp0Project_Build_Scripts\Compile_Assimp.bat
 
 PAUSE

@@ -5,7 +5,7 @@
 #include "Window.h"
 #include "Insight/Core/Layer/Layer_Stack.h"
 #include "Insight/Events/Application_Event.h"
-#include "Insight/Editor/ImGui_Layer.h"
+#include "Insight/ImGui/ImGui_Layer.h"
 
 namespace Insight {
 

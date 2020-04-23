@@ -619,7 +619,7 @@ namespace Insight {
 		ID3DBlob* pErrorBuffer = nullptr;
 		//TODO: make a file system search for this relative shader path in client
 		// The client should be able to edit and create their own shaders
-		hr = D3DCompileFromFile(L"src/Shaders/ForwardRendering/Shader_Vertex.hlsl",
+		hr = D3DCompileFromFile(L"Source/Shaders/ForwardRendering/Shader_Vertex.hlsl",
 			nullptr,
 			nullptr,
 			"main",
@@ -639,7 +639,7 @@ namespace Insight {
 		// Compile pixel shader // TEMP//
 		// create vertex and pixel shaders
 		ID3DBlob* pixelShader = nullptr;
-		hr = D3DCompileFromFile(L"src/Shaders/ForwardRendering/Shader_Pixel.hlsl",
+		hr = D3DCompileFromFile(L"Source/Shaders/ForwardRendering/Shader_Pixel.hlsl",
 			nullptr,
 			nullptr,
 			"main",
@@ -841,15 +841,15 @@ namespace Insight {
 
 	void Direct3D12Context::LoadModels()
 	{
-		model.Init("src/Models/nanosuit/nanosuit.obj");
+		model.Init("Source/Models/nanosuit/nanosuit.obj");
 	}
 
 	void Direct3D12Context::LoadTextures()
 	{
-		if (!texture.Init(L"src/Textures/Bricks/Bricks_Albedo.jpg", 0))
+		if (!texture.Init(L"Source/Textures/Bricks/Bricks_Albedo.jpg", 0))
 			IE_CORE_ERROR("Failed to load texture in graphics context.");
 
-		if (!texture2.Init(L"src/Textures/Bricks/Bricks_Normal.jpg", 1))
+		if (!texture2.Init(L"Source/Textures/Bricks/Bricks_Normal.jpg", 1))
 			IE_CORE_ERROR("Failed to load texture in graphics context.");
 	}
 

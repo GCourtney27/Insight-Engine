@@ -17,10 +17,10 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 gameName = "Application"
 
 IncludeDir = {}
-IncludeDir["ImGui"] = "Engine/vendor/imgui"
-IncludeDir["assimp"] = "Engine/vendor/assimp-3.3.1/include"
+IncludeDir["ImGui"] = "Engine/Vendor/imgui"
+IncludeDir["assimp"] = "Engine/Vendor/assimp-3.3.1/include"
 
-include "Engine/vendor/ImGui"
+include "Engine/Vendor/ImGui"
 
 project ("Engine")
 	location ("Engine")
@@ -34,16 +34,16 @@ project ("Engine")
 	cppdialect "C++17"
 	staticruntime "on"
 
-	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+	targetdir ("Bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("Bin-Int/" .. outputdir .. "/%{prj.name}")
 
 	pchheader "ie_pch.h"
-	pchsource "Engine/src/ie_pch.cpp" 
+	pchsource "Engine/Source/ie_pch.cpp" 
 
 	files
 	{
-		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp",
+		"%{prj.name}/Source/**.cpp",
+		"%{prj.name}/Source/**.h",
 	}
 
 	defines
@@ -53,13 +53,13 @@ project ("Engine")
 
 	includedirs
 	{
-		"%{prj.name}/vendor/Microsoft/DirectX12",
-		"%{prj.name}/vendor/Nvidia/DirectX12",
-		"%{prj.name}/vendor/spdlog/include",
+		"%{prj.name}/Vendor/Microsoft/DirectX12",
+		"%{prj.name}/Vendor/Nvidia/DirectX12",
+		"%{prj.name}/Vendor/spdlog/include",
 		"%{IncludeDir.ImGui}/",
 		"%{IncludeDir.assimp}/",
-		"%{prj.name}/src/",
-		gameName .. "/src/"
+		"%{prj.name}/Source/",
+		gameName .. "/Source/"
 	}
 
 	links
@@ -73,12 +73,12 @@ project ("Engine")
 
 	libdirs
 	{
-		"Engine/vendor/assimp-3.3.1/build/code/%{cfg.buildcfg}"
+		"Engine/Vendor/assimp-3.3.1/build/code/%{cfg.buildcfg}"
 	}
 
 	postbuildcommands
 	{
-		("{COPY} %{wks.location}Engine/vendor/assimp-3.3.1/build/code/%{cfg.buildcfg}/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine")
+		("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/%{cfg.buildcfg}/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine")
 	}
 
 	filter "system:windows"
@@ -126,23 +126,23 @@ project (gameName)
 	language "C++"
 	staticruntime "on"
 
-	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+	targetdir ("Bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("Bin-Int/" .. outputdir .. "/%{prj.name}")
 
 	files
 	{
-		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp",
+		"%{prj.name}/Source/**.h",
+		"%{prj.name}/Source/**.cpp",
 	}
 
 	includedirs
 	{
-		"Engine/vendor/Microsoft/DirectX12",
-		"Engine/vendor/Nvidia/DirectX12",
-		"Engine/vendor/spdlog/include",
-		"Engine/vendor/assimp-3.3.1/include",
-		"Engine/src",
-		"Engine/vendor"
+		"Engine/Vendor/assimp-3.3.1/include",
+		"Engine/Vendor/Microsoft/DirectX12",
+		"Engine/Vendor/Nvidia/DirectX12",
+		"Engine/Vendor/spdlog/include",
+		"Engine/Source",
+		"Engine/Vendor"
 	}
 
 	links
