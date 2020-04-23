@@ -1,7 +1,8 @@
 #include "ie_pch.h"
 
 #include "ClientApp.h"
-
+#import "C:/VSDev/ComputerGraphics/Insight/Editor/Editor/bin/Debug/Editor.tlb" no_namespace
+#include <thread>
 // Copyright 2020 Garrett Courtney
 
 /*=====================================================================
@@ -15,13 +16,26 @@
 
 extern Insight::Application* Insight::CreateApplication();
 
-#ifdef IE_PLATFORM_WINDOWS
+#if defined IE_PLATFORM_WINDOWS
+
+void OpenDialog()
+{
+	CoInitialize(NULL);
+	IWindowPtr obj;
+	obj.CreateInstance(__uuidof(Window));
+	obj->Tite("Hello World!");
+	obj->Show();
+}
+
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
 	if(!Insight::Log::Init())
 		IE_CORE_FATAL(L"Failed to Core logger.");
+	IE_CORE_TRACE("Logger Initialized");
 
 	auto app = Insight::CreateApplication();
+
+	std::thread uiThread(OpenDialog);
 
 	if (!app->InitializeAppForWindows(hInstance, nCmdShow))
 	{
@@ -32,9 +46,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	app->Run();
 	app->Shutdown();
 
+	uiThread.join();
 	delete app;
-	Insight::Log::HoldForUserInput();
 
+	CoUninitialize();
+	Insight::Log::HoldForUserInput();
 	return 0;
 }
 #elif IE_PLATFORM_MAC

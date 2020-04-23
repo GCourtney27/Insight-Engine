@@ -69,7 +69,6 @@ namespace Insight {
 		catch (COMException& ex) {
 			COM_SAFE_RELEASE(m_pDxgiFactory);
 			MessageBox(*m_pWindowHandle, ex.what(), L"Error", MB_OK);
-			__debugbreak();
 			return false;
 		}
 		return true;
@@ -228,8 +227,8 @@ namespace Insight {
 
 		ID3D12DescriptorHeap* descriptorHeaps[] = { m_pMainDescriptorHeap.Get() };
 		m_pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+		
 		m_pCommandList->SetGraphicsRootDescriptorTable(1, m_pMainDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-
 
 		m_pCommandList->RSSetViewports(1, &m_ViewPort);
 		m_pCommandList->RSSetScissorRects(1, &m_ScissorRect);
@@ -278,7 +277,7 @@ namespace Insight {
 
 		ID3D12CommandList* ppCommandLists[] = { m_pCommandList.Get() };
 		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-		
+
 		hr = m_pCommandQueue->Signal(m_pFences[m_FrameIndex].Get(), m_FenceValues[m_FrameIndex]);
 		if (FAILED(hr))
 			IE_CORE_WARN("Command queue failed to signal.");
@@ -487,9 +486,9 @@ namespace Insight {
 	{
 		HRESULT hr;
 		D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-		heapDesc.NumDescriptors = 1; //TODO: Get this from the number of textures held in texture manager
-		heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 		heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		heapDesc.NumDescriptors = 2; //TODO: Get this from the number of textures held in texture manager
+		heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 		hr = m_pLogicalDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(m_pMainDescriptorHeap.GetAddressOf()));
 		if (FAILED(hr)) {
 			IE_CORE_ERROR("Failed to create descriptor heap");
@@ -559,11 +558,11 @@ namespace Insight {
 
 		D3D12_DESCRIPTOR_RANGE descriptorTableRanges[1] = {};
 		descriptorTableRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-		descriptorTableRanges[0].NumDescriptors = 1;
+		descriptorTableRanges[0].NumDescriptors = 2;
 		descriptorTableRanges[0].BaseShaderRegister = 0;
 		descriptorTableRanges[0].RegisterSpace = 0;
 		descriptorTableRanges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
+		
 		D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
 		descriptorTable.NumDescriptorRanges = _countof(descriptorTableRanges);
 		descriptorTable.pDescriptorRanges = &descriptorTableRanges[0];
@@ -582,9 +581,9 @@ namespace Insight {
 
 		D3D12_STATIC_SAMPLER_DESC sampler = {};
 		sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-		sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-		sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-		sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 		sampler.MipLODBias = 0;
 		sampler.MaxAnisotropy = 0;
 		sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
@@ -689,7 +688,6 @@ namespace Insight {
 
 		hr = m_pLogicalDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pPipelineStateObject_ForwardPass));
 		COM_ERROR_IF_FAILED(hr, "Failed to create default Pipeline State Object");
-
 	}
 
 	void Direct3D12Context::CreateConstantBufferResourceHeaps()
@@ -848,11 +846,11 @@ namespace Insight {
 
 	void Direct3D12Context::LoadTextures()
 	{
-		if (!texture.Init(L"src/Textures/Bricks/Bricks_Albedo.jpg", 1))
+		if (!texture.Init(L"src/Textures/Bricks/Bricks_Albedo.jpg", 0))
 			IE_CORE_ERROR("Failed to load texture in graphics context.");
 
-		/*if (!texture2.Init(L"src/Textures/Bricks/Bricks_Normal.jpg", 1))
-			IE_CORE_ERROR("Failed to load texture in graphics context.");*/
+		if (!texture2.Init(L"src/Textures/Bricks/Bricks_Normal.jpg", 1))
+			IE_CORE_ERROR("Failed to load texture in graphics context.");
 	}
 
 	void Direct3D12Context::CreateCommandQueue()
@@ -870,12 +868,14 @@ namespace Insight {
 		UINT dxgiFactoryFlags = 0;
 
 		// Enable debug layers if in debug builds
-#ifdef IE_DEBUG
-		ComPtr<ID3D12Debug> debugController;
-		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
+#if defined IE_DEBUG
 		{
-			debugController->EnableDebugLayer();
-			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+			ComPtr<ID3D12Debug> debugController;
+			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
+			{
+				debugController->EnableDebugLayer();
+				dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+			}
 		}
 #endif
 
@@ -891,7 +891,7 @@ namespace Insight {
 		DXGI_ADAPTER_DESC1 desc;
 		m_pPhysicalDevice->GetDesc1(&desc);
 
-		hr = D3D12CreateDevice(m_pPhysicalDevice.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(m_pLogicalDevice.GetAddressOf()));
+		hr = D3D12CreateDevice(m_pPhysicalDevice.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_pLogicalDevice));
 		COM_ERROR_IF_FAILED(hr, "Failed to create logical device.");
 	}
 
@@ -912,7 +912,7 @@ namespace Insight {
 			if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE || desc.DedicatedVideoMemory < currentVideoCardMemory)
 				continue;
 
-			if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, _uuidof(ID3D12Device), nullptr)))
+			if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
 			{
 				currentVideoCardMemory = static_cast<UINT>(desc.DedicatedVideoMemory);
 				if (*ppAdapter != nullptr)
@@ -920,6 +920,7 @@ namespace Insight {
 				*ppAdapter = adapter.Detach();
 			}
 		}
+		
 	}
 
 	void Direct3D12Context::Cleanup()

@@ -36,7 +36,7 @@ namespace Insight {
 		ID3D12Resource*				m_pIndexBufferUploadHeap;
 		D3D12_INDEX_BUFFER_VIEW		m_IndexBufferView = {};
 		
-		ID3D12Device5*				m_pLogicalDevice;
+		ID3D12Device*				m_pLogicalDevice;
 		ID3D12GraphicsCommandList*	m_pCommandList;
 
 		UINT					m_NumVerticies = 0;

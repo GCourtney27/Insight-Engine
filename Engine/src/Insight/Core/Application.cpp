@@ -48,6 +48,8 @@ namespace Insight {
 	bool Application::Init()
 	{
 		PushEngineLayers();
+
+		IE_CORE_TRACE("Application Initialized");
 		return true;
 	}
 

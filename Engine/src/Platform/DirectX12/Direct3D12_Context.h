@@ -35,7 +35,7 @@ namespace Insight {
 		virtual void OnWindowResize() override;
 		virtual void OnWindowFullScreen() override;
 
-		inline ID3D12Device5& GetDeviceContext() const { return *m_pLogicalDevice.Get(); }
+		inline ID3D12Device& GetDeviceContext() const { return *m_pLogicalDevice.Get(); }
 		inline ID3D12GraphicsCommandList& GetCommandList() const { return *m_pCommandList.Get(); }
 		inline ID3D12DescriptorHeap& GetShaderVisibleDescriptorHeap() const { return *m_pMainDescriptorHeap.Get(); }
 
@@ -95,7 +95,7 @@ namespace Insight {
 		bool		m_UseWarpDevice = false;
 		
 		ComPtr<IDXGIAdapter1>				m_pPhysicalDevice;
-		ComPtr<ID3D12Device5>				m_pLogicalDevice;
+		ComPtr<ID3D12Device>				m_pLogicalDevice;
 		ComPtr<IDXGIFactory4>				m_pDxgiFactory;
 		ComPtr<IDXGISwapChain3>				m_pSwapChain;
 
@@ -141,7 +141,7 @@ namespace Insight {
 		// TEMP Textures
 		// TODO: create texture manager class
 		Texture texture;
-		//Texture texture2;
+		Texture texture2;
 
 		// Utils
 		struct Resolution

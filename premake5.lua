@@ -1,7 +1,7 @@
 -- Helpful premake documentation
 -- Tokens https://github.com/premake/premake-core/wiki/Tokens
 
-workspace "InsightEngine"
+workspace ("Insight")
 	architecture "x64"
 
 	configurations
@@ -25,6 +25,11 @@ include "Engine/vendor/ImGui"
 project ("Engine")
 	location ("Engine")
 	kind "WindowedApp"
+	-- kind "ConsoleApp"
+	--[[
+	TODO:   Change kind to ConsoleApp when using Vulkan
+			or change kind to WindowedApp when using DX12
+	--]]
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "on"
@@ -116,10 +121,6 @@ project ("Engine")
 
 project (gameName)
 	location (gameName)
-	--[[
-		TODO:   Change kind to ConsoleApp when using Vulkan
-				or change kind to WindowedApp when using DX12
-	--]]
 	kind "StaticLib"
 	cppdialect "C++17"
 	language "C++"

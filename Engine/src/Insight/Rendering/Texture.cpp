@@ -26,7 +26,7 @@ namespace Insight {
 
 		RenderingContext* renderContext = &Application::Get().GetWindow().GetRenderContext();
 		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(renderContext);
-		ID3D12GraphicsCommandList* commandList = &graphicsContext->GetCommandList();
+		m_pCommandList = &graphicsContext->GetCommandList();
 
 		BYTE* imageData = 0;
 		int imageBytesPerRow = 0;
@@ -70,16 +70,22 @@ namespace Insight {
 		textureData.RowPitch = imageBytesPerRow;
 		textureData.SlicePitch = static_cast<UINT>(imageBytesPerRow) * m_TextureDesc.Height;
 
-		UpdateSubresources(commandList, m_pTextureBuffer, m_pTextureBufferUploadHeap, 0, 0, 1, &textureData);
+		UpdateSubresources(m_pCommandList, m_pTextureBuffer, m_pTextureBufferUploadHeap, 0, 0, 1, &textureData);
 
-		commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pTextureBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pTextureBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+
+		//const UINT cbvSrvDescriptorSize = graphicsContext->GetDeviceContext().GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		CD3DX12_CPU_DESCRIPTOR_HANDLE srvHandle(graphicsContext->GetShaderVisibleDescriptorHeap().GetCPUDescriptorHandleForHeapStart());
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		srvDesc.Format = m_TextureDesc.Format;
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = 1;
-		graphicsContext->GetDeviceContext().CreateShaderResourceView(m_pTextureBuffer, &srvDesc, graphicsContext->GetShaderVisibleDescriptorHeap().GetCPUDescriptorHandleForHeapStart());
+		graphicsContext->GetDeviceContext().CreateShaderResourceView(m_pTextureBuffer, &srvDesc, srvHandle);
+
+		//srvHandle.Offset(cbvSrvDescriptorSize);
+
 
 		delete imageData;
 		return true;

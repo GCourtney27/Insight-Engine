@@ -236,12 +236,15 @@ namespace Insight {
 			IE_CORE_FATAL(L"Failed to initialize graphics context");
 			return false;
 		}
+		IE_CORE_TRACE("Renderer Initialized");
 
 		ShowWindow(m_WindowHandle, m_nCmdShowArgs);
 		SetForegroundWindow(m_WindowHandle);
 		SetFocus(m_WindowHandle);
 		SetWindowText(m_WindowHandle, m_Data.WindowTitle_wide.c_str());
 
+
+		IE_CORE_TRACE("Window Initialized");
 		return true;
 	}
 

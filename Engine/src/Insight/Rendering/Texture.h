@@ -21,15 +21,17 @@ namespace Insight {
 		void Destroy();
 
 	private:
-
 		DXGI_FORMAT GetDXGIFormatFromWICFormat(WICPixelFormatGUID& wicFormatGUID);
 		WICPixelFormatGUID GetConvertToWICFormat(WICPixelFormatGUID& wicFormatGUID);
 		int GetDXGIFormatBitsPerPixel(DXGI_FORMAT& dxgiFormat);
 		int LoadImageDataFromFile(BYTE** imageData, LPCWSTR filename, int& bytesPerRow);
+		
 	private:
 		D3D12_RESOURCE_DESC m_TextureDesc = {};
 		ID3D12Resource* m_pTextureBuffer = nullptr;
 		ID3D12Resource* m_pTextureBufferUploadHeap = nullptr;
+
+		ID3D12GraphicsCommandList* m_pCommandList = nullptr;
 	};
 
 }
