@@ -8,11 +8,19 @@ namespace Insight {
 	class Texture
 	{
 	public:
+		enum eTextureType
+		{
+			ALBEDO,
+			NORMAL,
+			SPECULAR,
+			AO
+		};
+	public:
 		Texture(const std::wstring& filepath, int mipLevels);
 		Texture() {}
 		~Texture();
 	
-		bool Init(const std::wstring& filepath, int mipLevels);
+		bool Init(const std::wstring& filepath, int offset, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle);
 
 		inline const UINT64& GetWidth() const { return m_TextureDesc.Width; }
 		inline const UINT64& GetHeight() const { return m_TextureDesc.Height; }

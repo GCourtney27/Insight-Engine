@@ -30,7 +30,7 @@ namespace Insight {
 	{
 		IE_CORE_ASSERT(windowHandle, "Window handle is NULL!");
 		m_AspectRatio = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
-		camera.SetProjectionValues(75.0f, m_AspectRatio, 1.0f, 100.0f);
+		camera.SetProjectionValues(75.0f, m_AspectRatio, 0.0001f, 100.0f);
 	}
 
 	Direct3D12Context::~Direct3D12Context()
@@ -225,21 +225,27 @@ namespace Insight {
 
 		m_pCommandList->SetGraphicsRootSignature(m_pRootSignature_ForwardPass.Get());
 
-		ID3D12DescriptorHeap* descriptorHeaps[] = { m_pMainDescriptorHeap.Get() };
-		m_pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-		
-		m_pCommandList->SetGraphicsRootDescriptorTable(1, m_pMainDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-
 		m_pCommandList->RSSetViewports(1, &m_ViewPort);
 		m_pCommandList->RSSetScissorRects(1, &m_ScissorRect);
 		m_pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		//m_pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView); // set the vertex buffer (using the vertex buffer view)
-		//m_pCommandList->IASetIndexBuffer(&m_IndexBufferView);
 
-		// first cube
-		// set cube1's constant buffer
+		ID3D12DescriptorHeap* descriptorHeaps[] = { m_pMainDescriptorHeap.Get() };
+		m_pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+
+		const UINT cbvSrvDescriptorSize = m_pLogicalDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		D3D12_GPU_DESCRIPTOR_HANDLE cbvSrvHeapStart = m_pMainDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+
+		CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, 0, cbvSrvDescriptorSize);
+		m_pCommandList->SetGraphicsRootDescriptorTable(1, handle);
+		CD3DX12_GPU_DESCRIPTOR_HANDLE handle1(cbvSrvHeapStart, 1, cbvSrvDescriptorSize);
+		m_pCommandList->SetGraphicsRootDescriptorTable(2, handle1);
+		
+
+		//// first cube
+		//// set cube1's constant buffer
 		m_pCommandList->SetGraphicsRootConstantBufferView(0, constantBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
 		model.Draw();
+
 		//// draw first cube
 		//m_pCommandList->DrawIndexedInstanced(numCubeIndices, 1, 0, 0, 0);
 
@@ -272,7 +278,7 @@ namespace Insight {
 
 		hr = m_pCommandList->Close();
 		if (FAILED(hr)) {
-			throw std::exception();
+			IE_CORE_FATAL(L"Failed to close command list. Cannot execute draw commands");
 		}
 
 		ID3D12CommandList* ppCommandLists[] = { m_pCommandList.Get() };
@@ -489,7 +495,7 @@ namespace Insight {
 		heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 		heapDesc.NumDescriptors = 2; //TODO: Get this from the number of textures held in texture manager
 		heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-		hr = m_pLogicalDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(m_pMainDescriptorHeap.GetAddressOf()));
+		hr = m_pLogicalDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_pMainDescriptorHeap));
 		if (FAILED(hr)) {
 			IE_CORE_ERROR("Failed to create descriptor heap");
 		}
@@ -556,28 +562,20 @@ namespace Insight {
 	{
 		HRESULT hr;
 
-		D3D12_DESCRIPTOR_RANGE descriptorTableRanges[1] = {};
-		descriptorTableRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-		descriptorTableRanges[0].NumDescriptors = 2;
-		descriptorTableRanges[0].BaseShaderRegister = 0;
-		descriptorTableRanges[0].RegisterSpace = 0;
-		descriptorTableRanges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+		D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
+			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS;
+
+		CD3DX12_DESCRIPTOR_RANGE descTableRanges[2] = {};
+		descTableRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND);
+		descTableRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND);
 		
-		D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
-		descriptorTable.NumDescriptorRanges = _countof(descriptorTableRanges);
-		descriptorTable.pDescriptorRanges = &descriptorTableRanges[0];
-
-		D3D12_ROOT_DESCRIPTOR rootCBVDescriptor = {};
-		rootCBVDescriptor.RegisterSpace = 0;
-		rootCBVDescriptor.ShaderRegister = 0;
-
-		D3D12_ROOT_PARAMETER rootParameters[2];
-		rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;;
-		rootParameters[0].Descriptor = rootCBVDescriptor;
-		rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-		rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-		rootParameters[1].DescriptorTable = descriptorTable;
-		rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+		CD3DX12_ROOT_PARAMETER rootParams[3] = {};
+		rootParams[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL);
+		rootParams[1].InitAsDescriptorTable(1, &descTableRanges[0], D3D12_SHADER_VISIBILITY_PIXEL);
+		rootParams[2].InitAsDescriptorTable(1, &descTableRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
 
 		D3D12_STATIC_SAMPLER_DESC sampler = {};
 		sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
@@ -594,23 +592,24 @@ namespace Insight {
 		sampler.RegisterSpace = 0;
 		sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
+		// Create the root signature
 		CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
-		rootSignatureDesc.Init(_countof(rootParameters),
-			rootParameters,
-			1,
-			&sampler,
-			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
-			D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-			D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS);
+		rootSignatureDesc.Init(
+					_countof(rootParams),
+					rootParams,
+					1,
+					&sampler, 
+					rootSignatureFlags
+				);
 
 		ID3DBlob* RootSignatureByteCode = nullptr;
-		hr = D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &RootSignatureByteCode, nullptr);
+		ID3D10Blob* errorMsg = nullptr;
+		hr = D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &RootSignatureByteCode, &errorMsg);
 		COM_ERROR_IF_FAILED(hr, "Failed to serialize Root Signature");
 
 		hr = m_pLogicalDevice->CreateRootSignature(0, RootSignatureByteCode->GetBufferPointer(), RootSignatureByteCode->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature_ForwardPass));
 		COM_ERROR_IF_FAILED(hr, "Failed to create Default Root Signature");
-
+		
 		// TODO: Make Shader class
 		// TODO: Move this to the shader class
 		// Compile vertex shader // TEMP//
@@ -846,10 +845,14 @@ namespace Insight {
 
 	void Direct3D12Context::LoadTextures()
 	{
-		if (!texture.Init(L"Source/Textures/Bricks/Bricks_Albedo.jpg", 0))
-			IE_CORE_ERROR("Failed to load texture in graphics context.");
+		CD3DX12_CPU_DESCRIPTOR_HANDLE heapHandle(m_pMainDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+		const UINT cbvSrvDescriptorSize = m_pLogicalDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
-		if (!texture2.Init(L"Source/Textures/Bricks/Bricks_Normal.jpg", 1))
+		if (!texture.Init(L"Source/Textures/Bricks/Bricks_Albedo.jpg", 1, heapHandle))
+			IE_CORE_ERROR("Failed to load texture in graphics context.");
+		heapHandle.Offset(cbvSrvDescriptorSize);
+
+		if (!texture2.Init(L"Source/Textures/Bricks/Bricks_Normal.jpg", 2, heapHandle))
 			IE_CORE_ERROR("Failed to load texture in graphics context.");
 	}
 
@@ -897,30 +900,53 @@ namespace Insight {
 
 	void Direct3D12Context::GetHardwareAdapter(IDXGIFactory2* pFactory, IDXGIAdapter1** ppAdapter)
 	{
+		//ComPtr<IDXGIAdapter1> adapter;
+		//*ppAdapter = nullptr;
+		//UINT currentVideoCardMemory = 0;
+		//DXGI_ADAPTER_DESC1 desc;
+
+		//for (UINT adapterIndex = 0; DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapters1(adapterIndex, &adapter); ++adapterIndex)
+		//{
+		//	desc = {};
+		//	adapter->GetDesc1(&desc);
+
+		//	// Make sure we get the video card that is not a software adapter
+		//	// and it has the most video memory
+		//	if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE || desc.DedicatedVideoMemory < currentVideoCardMemory)
+		//		continue;
+
+		//	if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
+		//	{
+		//		currentVideoCardMemory = static_cast<UINT>(desc.DedicatedVideoMemory);
+		//		if (*ppAdapter != nullptr)
+		//			(*ppAdapter)->Release();
+		//		*ppAdapter = adapter.Detach();
+		//	}
+		//}
 		ComPtr<IDXGIAdapter1> adapter;
 		*ppAdapter = nullptr;
-		UINT currentVideoCardMemory = 0;
-		DXGI_ADAPTER_DESC1 desc;
 
 		for (UINT adapterIndex = 0; DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapters1(adapterIndex, &adapter); ++adapterIndex)
 		{
-			desc = {};
+			DXGI_ADAPTER_DESC1 desc;
 			adapter->GetDesc1(&desc);
 
-			// Make sure we get the video card that is not a software adapter
-			// and it has the most video memory
-			if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE || desc.DedicatedVideoMemory < currentVideoCardMemory)
+			if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
+			{
+				// Don't select the Basic Render Driver adapter.
+				// If you want a software adapter, pass in "/warp" on the command line.
 				continue;
+			}
 
+			// Check to see if the adapter supports Direct3D 12, but don't create the
+			// actual device yet.
 			if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
 			{
-				currentVideoCardMemory = static_cast<UINT>(desc.DedicatedVideoMemory);
-				if (*ppAdapter != nullptr)
-					(*ppAdapter)->Release();
-				*ppAdapter = adapter.Detach();
+				break;
 			}
 		}
-		
+
+		*ppAdapter = adapter.Detach();
 	}
 
 	void Direct3D12Context::Cleanup()

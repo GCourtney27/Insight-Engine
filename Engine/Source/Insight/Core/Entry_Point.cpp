@@ -49,8 +49,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	//uiThread.join();
 	delete app;
 
-	CoUninitialize();
-	Insight::Log::HoldForUserInput();
+	//CoUninitialize();
+	//Insight::Log::HoldForUserInput();
 	return 0;
 }
 #elif IE_PLATFORM_MAC

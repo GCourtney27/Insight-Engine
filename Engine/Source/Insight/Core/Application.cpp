@@ -64,11 +64,11 @@ namespace Insight {
 			m_pWindow->OnUpdate();
 			m_pWindow->OnRender();
 
-			m_ImGuiLayer->Begin();
+			/*m_ImGuiLayer->Begin();
 			for (Layer* layer : m_LayerStack)
 				layer->OnImGuiRender();
 			m_ImGuiLayer->End();
-			
+			*/
 			m_pWindow->ExecuteDraw();
 		}
 	}
@@ -94,7 +94,7 @@ namespace Insight {
 
 	void Application::PushEngineLayers()
 	{
-		PushOverlay(m_ImGuiLayer);
+		//PushOverlay(m_ImGuiLayer);
 	}
 
 	void Application::PushLayer(Layer * layer)

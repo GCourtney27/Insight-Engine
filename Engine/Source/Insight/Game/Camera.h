@@ -94,7 +94,7 @@ namespace Insight {
 		bool m_ConstrainPitch = true;
 
 		float m_Fov = 0.0f;
-		float m_NearZ = 0.0f;
+		float m_NearZ = 0.0001f;
 		float m_FarZ = 0.0f;
 		float m_AspectRatio = 0.0f;
 

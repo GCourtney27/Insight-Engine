@@ -65,10 +65,6 @@ namespace Insight {
 
 		// TEMP! Move this!
 		void InitShaders();
-		DXGI_FORMAT GetDXGIFormatFromWICFormat(WICPixelFormatGUID& wicFormatGUID);
-		WICPixelFormatGUID GetConvertToWICFormat(WICPixelFormatGUID& wicFormatGUID);
-		int GetDXGIFormatBitsPerPixel(DXGI_FORMAT& dxgiFormat);
-		int LoadImageDataFromFile(BYTE** imageData, D3D12_RESOURCE_DESC& resourceDescription, LPCWSTR filename, int& bytesPerRow);
 		void InitDemoScene();
 		//ConstantBuffer<ConstantBufferPerObject> cb_vertexShader;// TEMP! Move this!
 		void LoadAssets();
