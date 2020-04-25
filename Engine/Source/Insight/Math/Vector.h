@@ -28,8 +28,8 @@ namespace Insight {
 	static const XMVECTOR WorldForward	= XMVectorSet( 0.0f,  0.0f,  1.0f, 0.0f);
 	static const XMVECTOR WorldBackward	= XMVectorSet( 0.0f,  0.0f, -1.0f, 0.0f);
 	static const XMVECTOR WorldLeft		= XMVectorSet(-1.0f,  0.0f,  0.0f, 0.0f);
-	static const XMVECTOR WorldRight		= XMVectorSet( 1.0f,  0.0f,  0.0f, 0.0f);
-	static const XMVECTOR WorldUp			= XMVectorSet( 0.0f,  1.0f,  0.0f, 0.0f);
+	static const XMVECTOR WorldRight	= XMVectorSet( 1.0f,  0.0f,  0.0f, 0.0f);
+	static const XMVECTOR WorldUp		= XMVectorSet( 0.0f,  1.0f,  0.0f, 0.0f);
 	static const XMVECTOR WorldDown		= XMVectorSet( 0.0f, -1.0f,  0.0f, 0.0f);
 
 	class INSIGHT_API Vector3 : public Vector

@@ -17,7 +17,6 @@ float4 main(VS_OUTPUT ps_in) : SV_TARGET
     return float4(depth, depth, depth, 1.0);*/
     float4 albedo = tAlbedo.Sample(sampler1, ps_in.texCoords);
     float4 normal = tNormal.Sample(sampler1, ps_in.texCoords);
-
     float3 color = lerp(albedo, normal, 0.5);
 
     return float4(color.x, color.y, color.z, 1.0f);

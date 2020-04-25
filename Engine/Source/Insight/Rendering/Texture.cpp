@@ -3,16 +3,22 @@
 #include "Texture.h"
 
 #include "Insight/Core/Application.h"
-#include "Platform/DirectX12/Direct3D12_Context.h"
 #include "Insight/Utilities/String_Helper.h"
+#include "Platform/DirectX12/Direct3D12_Context.h"
 
 namespace Insight {
 
 
 
-	Texture::Texture(const std::wstring& filepath, int mipLevels)
+	Texture::Texture(const std::wstring& filepath, eTextureType& textureType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle)
 	{
-		//Init(filepath, mipLevels);
+		Init(filepath, textureType, srvHeapHandle);
+	}
+
+
+	Texture::Texture()
+	{
+
 	}
 
 	Texture::~Texture()
@@ -24,16 +30,18 @@ namespace Insight {
 	{
 		m_pTextureBuffer->Release();
 		m_pTextureBufferUploadHeap->Release();
+		m_pCommandList = nullptr;
 	}
 
-	bool Texture::Init(const std::wstring& filepath, int offset, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle)
+	bool Texture::Init(const std::wstring& filepath, eTextureType& textureType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle)
 	{
 		HRESULT hr;
+		
+		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
 
-		RenderingContext* renderContext = &Application::Get().GetWindow().GetRenderContext();
-		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(renderContext);
+		m_pCommandList = &graphicsContext.GetCommandList();
+		m_TextureType = textureType;
 
-		m_pCommandList = &graphicsContext->GetCommandList();
 
 		BYTE* imageData = 0;
 		int imageBytesPerRow = 0;
@@ -42,7 +50,7 @@ namespace Insight {
 			IE_CORE_ERROR("Failed to create image from file: {0}", StringHelper::WideToString(filepath));
 			return false;
 		}
-		hr = graphicsContext->GetDeviceContext().CreateCommittedResource(
+		hr = graphicsContext.GetDeviceContext().CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			D3D12_HEAP_FLAG_NONE,
 			&m_TextureDesc,
@@ -54,13 +62,15 @@ namespace Insight {
 			IE_CORE_ERROR("Failed to create resource heap for texture asset");
 			return false;
 		}
-		std::wstring debugName = L"Texture Buffer Resource Heap" + StringHelper::GetFilenameFromDirectoryAsWideW(filepath);
+
+		m_Name = StringHelper::GetFilenameFromDirectoryW(filepath);
+		std::wstring debugName = L"Texture Buffer Resource Heap" + StringHelper::StringToWide(m_Name);
 		m_pTextureBuffer->SetName(debugName.c_str());
 
 		UINT64 textureUploadBufferSize;
-		graphicsContext->GetDeviceContext().GetCopyableFootprints(&m_TextureDesc, 0, 1, 0, nullptr, nullptr, nullptr, &textureUploadBufferSize);
+		graphicsContext.GetDeviceContext().GetCopyableFootprints(&m_TextureDesc, 0, 1, 0, nullptr, nullptr, nullptr, &textureUploadBufferSize);
 
-		hr = graphicsContext->GetDeviceContext().CreateCommittedResource(
+		hr = graphicsContext.GetDeviceContext().CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(textureUploadBufferSize),
@@ -84,19 +94,69 @@ namespace Insight {
 
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pTextureBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 
-		//const UINT cbvSrvDescriptorSize = graphicsContext->GetDeviceContext().GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
+		const UINT cbvSrvDescriptorSize = graphicsContext.GetDeviceContext().GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Texture2D.MipLevels = 1;
 		srvDesc.Format = m_TextureDesc.Format;
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		graphicsContext->GetDeviceContext().CreateShaderResourceView(m_pTextureBuffer, &srvDesc, srvHeapHandle);
+		graphicsContext.GetDeviceContext().CreateShaderResourceView(m_pTextureBuffer, &srvDesc, srvHeapHandle);
 
-		//srvHeapHandle.Offset(cbvSrvDescriptorSize);
+		// Move to the next descriptor slot in the descriptor heap so we can upload another texture
+		srvHeapHandle.Offset(cbvSrvDescriptorSize);
 
 		delete imageData;
 		return true;
+	}
+
+	void Texture::Bind()
+	{
+		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
+
+		const UINT cbvSrvDescriptorSize = graphicsContext.GetDeviceContext().GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		D3D12_GPU_DESCRIPTOR_HANDLE cbvSrvHeapStart = graphicsContext.GetShaderVisibleDescriptorHeap().GetGPUDescriptorHandleForHeapStart();
+
+		switch (m_TextureType)
+		{
+		case eTextureType::ALBEDO:
+		{
+			CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, 0, cbvSrvDescriptorSize);
+			m_pCommandList->SetGraphicsRootDescriptorTable(1, handle);
+			break;
+		}
+		case eTextureType::NORMAL:
+		{
+			CD3DX12_GPU_DESCRIPTOR_HANDLE handle1(cbvSrvHeapStart, 1, cbvSrvDescriptorSize);
+			m_pCommandList->SetGraphicsRootDescriptorTable(2, handle1);
+			break;
+		}
+		case eTextureType::ROUGHNESS:
+		{
+
+			break;
+		}
+		case eTextureType::METALLIC:
+		{
+
+			break;
+		}
+		case eTextureType::SPECULAR:
+		{
+
+			break;
+		}
+		case eTextureType::AO:
+		{
+
+			break;
+		}
+		default:
+		{
+			IE_CORE_WARN("Failed to bind {0} texture map to shader register!", m_Name);
+			break;
+		}
+		}
 	}
 
 	int Texture::LoadImageDataFromFile(BYTE** imageData, LPCWSTR filename, int& bytesPerRow)

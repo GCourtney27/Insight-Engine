@@ -11,6 +11,8 @@
 
 namespace Insight {
 
+	Direct3D12Context* Direct3D12Context::s_Instance = nullptr;
+
 	const Direct3D12Context::Resolution Direct3D12Context::m_ResolutionOptions[] =
 	{
 		{ 800u, 600u },
@@ -29,13 +31,28 @@ namespace Insight {
 		: m_pWindowHandle(&windowHandle->GetWindowHandleReference()), m_pWindow(windowHandle), RenderingContext(windowHandle->GetWidth(), windowHandle->GetHeight(), false)
 	{
 		IE_CORE_ASSERT(windowHandle, "Window handle is NULL!");
-		m_AspectRatio = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
+		IE_ASSERT(!s_Instance, "Rendering instance already exists!");
+		s_Instance = this;
+
+		m_AspectRatio = (float)m_WindowWidth / (float)m_WindowHeight;
 		camera.SetProjectionValues(75.0f, m_AspectRatio, 0.0001f, 100.0f);
 	}
 
 	Direct3D12Context::~Direct3D12Context()
 	{
 		Cleanup();
+	}
+
+	void Direct3D12Context::Cleanup()
+	{
+		// Wait until GPU is done consuming all data
+		// before closing all handles and releasing resources
+		WaitForGPU();
+
+		if (!m_AllowTearing)
+			m_pSwapChain->SetFullscreenState(false, NULL);
+
+		CloseHandle(m_FenceEvent);
 	}
 
 	bool Direct3D12Context::Init()
@@ -232,14 +249,8 @@ namespace Insight {
 		ID3D12DescriptorHeap* descriptorHeaps[] = { m_pMainDescriptorHeap.Get() };
 		m_pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
-		const UINT cbvSrvDescriptorSize = m_pLogicalDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		D3D12_GPU_DESCRIPTOR_HANDLE cbvSrvHeapStart = m_pMainDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-
-		CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, 0, cbvSrvDescriptorSize);
-		m_pCommandList->SetGraphicsRootDescriptorTable(1, handle);
-		CD3DX12_GPU_DESCRIPTOR_HANDLE handle1(cbvSrvHeapStart, 1, cbvSrvDescriptorSize);
-		m_pCommandList->SetGraphicsRootDescriptorTable(2, handle1);
-		
+		texture.Bind();
+		texture2.Bind();
 
 		//// first cube
 		//// set cube1's constant buffer
@@ -264,7 +275,6 @@ namespace Insight {
 
 	void Direct3D12Context::OnRender()
 	{
-		HRESULT hr;
 		if (m_WindowVisible)
 		{
 			PopulateCommandLists();
@@ -445,12 +455,12 @@ namespace Insight {
 
 	void Direct3D12Context::CreateDescriptorHeaps()
 	{
-		CreateRTVDescriptorHeap();
-		CreateDSVDescriptorHeap();
+		CreateRenderTargetViewDescriptorHeap();
+		CreateDepthStencilViewDescriptorHeap();
 		CreateShaderVisibleResourceDescriptorHeap();
 	}
 
-	void Direct3D12Context::CreateRTVDescriptorHeap()
+	void Direct3D12Context::CreateRenderTargetViewDescriptorHeap()
 	{
 		HRESULT hr;
 		D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
@@ -475,7 +485,7 @@ namespace Insight {
 		}
 	}
 
-	void Direct3D12Context::CreateDSVDescriptorHeap()
+	void Direct3D12Context::CreateDepthStencilViewDescriptorHeap()
 	{
 		HRESULT hr;
 		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
@@ -490,12 +500,11 @@ namespace Insight {
 
 	void Direct3D12Context::CreateShaderVisibleResourceDescriptorHeap()
 	{
-		HRESULT hr;
 		D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
 		heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		heapDesc.NumDescriptors = 2; //TODO: Get this from the number of textures held in texture manager
+		heapDesc.NumDescriptors = 2; //TODO: Get this from the number of textures held in texture manager (TextureManager::GetNumTextures() or something)
 		heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-		hr = m_pLogicalDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_pMainDescriptorHeap));
+		HRESULT hr = m_pLogicalDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_pMainDescriptorHeap));
 		if (FAILED(hr)) {
 			IE_CORE_ERROR("Failed to create descriptor heap");
 		}
@@ -569,13 +578,13 @@ namespace Insight {
 			D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS;
 
 		CD3DX12_DESCRIPTOR_RANGE descTableRanges[2] = {};
-		descTableRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND);
-		descTableRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND);
-		
+		descTableRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, ALBEDO_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Albedo Texture
+		descTableRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, NORMAL_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Normal Texture
+
 		CD3DX12_ROOT_PARAMETER rootParams[3] = {};
-		rootParams[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL);
-		rootParams[1].InitAsDescriptorTable(1, &descTableRanges[0], D3D12_SHADER_VISIBILITY_PIXEL);
-		rootParams[2].InitAsDescriptorTable(1, &descTableRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
+		rootParams[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL); // ConstantBufferPerObject
+		rootParams[1].InitAsDescriptorTable(1, &descTableRanges[0], D3D12_SHADER_VISIBILITY_PIXEL); // Albedo Texture
+		rootParams[2].InitAsDescriptorTable(1, &descTableRanges[1], D3D12_SHADER_VISIBILITY_PIXEL); // Normal Texture
 
 		D3D12_STATIC_SAMPLER_DESC sampler = {};
 		sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
@@ -595,12 +604,12 @@ namespace Insight {
 		// Create the root signature
 		CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
 		rootSignatureDesc.Init(
-					_countof(rootParams),
-					rootParams,
-					1,
-					&sampler, 
-					rootSignatureFlags
-				);
+			_countof(rootParams),
+			rootParams,
+			1,
+			&sampler,
+			rootSignatureFlags
+		);
 
 		ID3DBlob* RootSignatureByteCode = nullptr;
 		ID3D10Blob* errorMsg = nullptr;
@@ -609,7 +618,7 @@ namespace Insight {
 
 		hr = m_pLogicalDevice->CreateRootSignature(0, RootSignatureByteCode->GetBufferPointer(), RootSignatureByteCode->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature_ForwardPass));
 		COM_ERROR_IF_FAILED(hr, "Failed to create Default Root Signature");
-		
+
 		// TODO: Make Shader class
 		// TODO: Move this to the shader class
 		// Compile vertex shader // TEMP//
@@ -846,13 +855,14 @@ namespace Insight {
 	void Direct3D12Context::LoadTextures()
 	{
 		CD3DX12_CPU_DESCRIPTOR_HANDLE heapHandle(m_pMainDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-		const UINT cbvSrvDescriptorSize = m_pLogicalDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
-		if (!texture.Init(L"Source/Textures/Bricks/Bricks_Albedo.jpg", 1, heapHandle))
+		Texture::eTextureType albedo = Texture::eTextureType::ALBEDO;
+		Texture::eTextureType normal = Texture::eTextureType::NORMAL;
+
+		if (!texture.Init(L"Source/Textures/Bricks/Bricks_Albedo.jpg", albedo, heapHandle))
 			IE_CORE_ERROR("Failed to load texture in graphics context.");
-		heapHandle.Offset(cbvSrvDescriptorSize);
 
-		if (!texture2.Init(L"Source/Textures/Bricks/Bricks_Normal.jpg", 2, heapHandle))
+		if (!texture2.Init(L"Source/Textures/Bricks/Bricks_Normal.jpg", normal, heapHandle))
 			IE_CORE_ERROR("Failed to load texture in graphics context.");
 	}
 
@@ -889,12 +899,9 @@ namespace Insight {
 
 	void Direct3D12Context::CreateDevice()
 	{
-		HRESULT hr;
 		GetHardwareAdapter(m_pDxgiFactory.Get(), &m_pPhysicalDevice);
-		DXGI_ADAPTER_DESC1 desc;
-		m_pPhysicalDevice->GetDesc1(&desc);
-
-		hr = D3D12CreateDevice(m_pPhysicalDevice.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_pLogicalDevice));
+		
+		HRESULT hr = D3D12CreateDevice(m_pPhysicalDevice.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_pLogicalDevice));
 		COM_ERROR_IF_FAILED(hr, "Failed to create logical device.");
 	}
 
@@ -926,7 +933,7 @@ namespace Insight {
 		ComPtr<IDXGIAdapter1> adapter;
 		*ppAdapter = nullptr;
 
-		for (UINT adapterIndex = 0; DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapters1(adapterIndex, &adapter); ++adapterIndex)
+		for (UINT adapterIndex = 1; DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapters1(adapterIndex, &adapter); ++adapterIndex)
 		{
 			DXGI_ADAPTER_DESC1 desc;
 			adapter->GetDesc1(&desc);
@@ -947,18 +954,6 @@ namespace Insight {
 		}
 
 		*ppAdapter = adapter.Detach();
-	}
-
-	void Direct3D12Context::Cleanup()
-	{
-		// Wait until GPU is done consuming all data
-		// before closing all handles and releasing resources
-		WaitForGPU();
-
-		if (!m_AllowTearing)
-			m_pSwapChain->SetFullscreenState(false, NULL);
-
-		CloseHandle(m_FenceEvent);
 	}
 
 	void Direct3D12Context::WaitForGPU()

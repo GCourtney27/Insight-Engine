@@ -19,7 +19,7 @@ using Microsoft::WRL::ComPtr;
 namespace Insight {
 
 	class WindowsWindow;
-
+	
 	class Direct3D12Context : public RenderingContext
 	{
 	public:
@@ -34,6 +34,8 @@ namespace Insight {
 		virtual void SwapBuffers() override;
 		virtual void OnWindowResize() override;
 		virtual void OnWindowFullScreen() override;
+
+		inline static Direct3D12Context& Get() { return *s_Instance; }
 
 		inline ID3D12Device& GetDeviceContext() const { return *m_pLogicalDevice.Get(); }
 		inline ID3D12GraphicsCommandList& GetCommandList() const { return *m_pCommandList.Get(); }
@@ -51,8 +53,8 @@ namespace Insight {
 		void CreateCommandQueue();
 		void CreateSwapChain();
 		void CreateDescriptorHeaps();
-		void CreateRTVDescriptorHeap();
-		void CreateDSVDescriptorHeap();
+		void CreateRenderTargetViewDescriptorHeap();
+		void CreateDepthStencilViewDescriptorHeap();
 		void CreateShaderVisibleResourceDescriptorHeap();
 		void CreateDepthStencilBuffer();
 		void CreateCommandAllocators();
@@ -76,6 +78,8 @@ namespace Insight {
 		void WaitForGPU();
 		void UpdateSizeDependentResources();
 		void UpdateViewAndScissor();
+	private:
+		static Direct3D12Context* s_Instance;
 	private:
 		HWND* m_pWindowHandle			= nullptr;
 		WindowsWindow* m_pWindow		= nullptr;
@@ -111,6 +115,12 @@ namespace Insight {
 
 		ComPtr<ID3D12DescriptorHeap>		m_pMainDescriptorHeap;
 
+		const UINT AO_MAP_SHADER_REGISTER = Texture::eTextureType::AO;
+		const UINT ALBEDO_MAP_SHADER_REGISTER = Texture::eTextureType::ALBEDO;
+		const UINT NORMAL_MAP_SHADER_REGISTER = Texture::eTextureType::NORMAL;
+		const UINT METALLIC_MAP_SHADER_REGISTER = Texture::eTextureType::METALLIC;
+		const UINT SPECULAR_MAP_SHADER_REGISTER = Texture::eTextureType::SPECULAR;
+		const UINT ROUGHNESS_MAP_SHADER_REGISTER = Texture::eTextureType::ROUGHNESS;
 
 		D3D12_VIEWPORT						m_ViewPort = {};
 		D3D12_RECT							m_ScissorRect = {};
