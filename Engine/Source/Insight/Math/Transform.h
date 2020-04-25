@@ -8,7 +8,7 @@ namespace Insight {
 
 	using namespace DirectX;
 
-	class Transform
+	class INSIGHT_API Transform
 	{
 	public:
 		Transform() {}
@@ -169,6 +169,9 @@ namespace Insight {
 		XMMATRIX m_WorldMatrix = XMMatrixIdentity();
 
 		Transform* m_pParent = nullptr;
+
+		Vector3 pos;
+		Vector3 rot;
 
 		// XMVECTOR
 		XMVECTOR m_PositionVector;

@@ -5,6 +5,9 @@
 
 
 namespace Insight {
+
+
+
 	Camera::~Camera()
 	{
 	}

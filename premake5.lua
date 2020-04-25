@@ -19,6 +19,7 @@ gameName = "Application"
 IncludeDir = {}
 IncludeDir["ImGui"] = "Engine/Vendor/imgui"
 IncludeDir["assimp"] = "Engine/Vendor/assimp-3.3.1/include"
+IncludeDir["DX12TK"] = "Engine/Vendor/Microsoft/DirectX12/TK/Inc"
 
 include "Engine/Vendor/ImGui"
 
@@ -56,6 +57,7 @@ project ("Engine")
 		"%{prj.name}/Vendor/Microsoft/DirectX12",
 		"%{prj.name}/Vendor/Nvidia/DirectX12",
 		"%{prj.name}/Vendor/spdlog/include",
+		"%{IncludeDir.DX12TK}/",
 		"%{IncludeDir.ImGui}/",
 		"%{IncludeDir.assimp}/",
 		"%{prj.name}/Source/",
@@ -67,13 +69,15 @@ project ("Engine")
 		"d3d12.lib",
 		"dxgi.lib",
 		"d3dcompiler.lib",
+		"DirectXTK12.lib",
 		"assimp-vc140-mt.lib",
 		"ImGui",
 	}
 
 	libdirs
 	{
-		"Engine/Vendor/assimp-3.3.1/build/code/%{cfg.buildcfg}"
+		"Engine/Vendor/assimp-3.3.1/build/code/%{cfg.buildcfg}",
+		"Engine/Vendor/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/%{cfg.buildcfg}",
 	}
 
 	postbuildcommands

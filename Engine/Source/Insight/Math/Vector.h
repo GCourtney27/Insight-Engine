@@ -63,10 +63,15 @@ namespace Insight {
 
 		Vector3 operator+(Vector3 const& vec)
 		{
-			Vector3 newVec(this->m_Data.x + vec.m_Data.x,
-							this->m_Data.y + vec.m_Data.y, 
-							this->m_Data.z + vec.m_Data.z);
-			return newVec;
+			XMVECTOR tempVector = m_DataVector + vec.m_DataVector;
+			XMFLOAT3 tempFloat3;
+			XMStoreFloat3(&tempFloat3, tempVector);
+
+			Vector3 newVector;
+			newVector.m_Data = tempFloat3;
+			newVector.m_DataVector = tempVector;
+
+			return newVector;
 		}
 
 	private:

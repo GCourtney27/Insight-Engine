@@ -32,7 +32,4 @@
 	#include <d3dx12.h>
 	#include <wincodec.h>
 
-	// Libraries
-	#pragma comment(lib, "D3DCompiler.lib")
-	#pragma comment(lib, "d3d11.lib")
 #endif // IE_PLATFORM_WINDOWS

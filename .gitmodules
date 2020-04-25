@@ -4,3 +4,6 @@
 [submodule "Engine/vendor/imgui"]
 	path = Engine/Vendor/imgui
 	url = https://github.com/GCourtney27/imgui.git
+[submodule "Engine/Vendor/Microsoft/DirectX12/TK"]
+	path = Engine/Vendor/Microsoft/DirectX12/TK
+	url = https://github.com/microsoft/DirectXTK12.git
