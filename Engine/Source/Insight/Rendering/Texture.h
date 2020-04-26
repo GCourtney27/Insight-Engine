@@ -10,7 +10,7 @@ namespace Insight {
 	class Texture
 	{
 	public:
-		static enum eTextureType
+		enum eTextureType
 		{
 			// These values aligned with D3D12 shader registers,
 			// use causion when editing their numerical values
@@ -47,6 +47,8 @@ namespace Insight {
 		ID3D12Resource* m_pTextureBufferUploadHeap = nullptr;
 		ID3D12GraphicsCommandList* m_pCommandList = nullptr;
 		eTextureType m_TextureType;
+
+		UINT m_HeapOffset = 0u;
 
 #if defined IE_DEBUG
 		std::string m_Name = "";

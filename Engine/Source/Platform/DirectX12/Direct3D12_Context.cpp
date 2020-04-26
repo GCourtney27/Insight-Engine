@@ -226,7 +226,6 @@ namespace Insight {
 
 	void Direct3D12Context::PopulateCommandLists()
 	{
-		HRESULT hr;
 
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
@@ -878,7 +877,7 @@ namespace Insight {
 
 	void Direct3D12Context::CreateDXGIFactory()
 	{
-		UINT dxgiFactoryFlags = 0;
+		UINT dxgiFactoryFlags = 0u;
 
 		// Enable debug layers if in debug builds
 #if defined IE_DEBUG

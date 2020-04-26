@@ -37,7 +37,7 @@ namespace Insight {
 		yOffset *= m_MouseSensitivity;
 		
 		m_Yaw += xOffset;
-		m_Pitch -= yOffset;
+		m_Pitch += yOffset;
 
 		if (m_ConstrainPitch)
 		{
@@ -65,19 +65,19 @@ namespace Insight {
 		}
 		if (direction == LEFT)
 		{
-			m_Transform.GetPositionRef() += m_Transform.GetLocalRight() * velocity;
+			m_Transform.GetPositionRef() -= m_Transform.GetLocalRight() * velocity;
 		}
 		if (direction == RIGHT)
 		{
-			m_Transform.GetPositionRef() -= m_Transform.GetLocalRight() * velocity;
+			m_Transform.GetPositionRef() += m_Transform.GetLocalRight() * velocity;
 		}
 		if (direction == UP)
 		{
-			m_Transform.GetPositionRef() += m_Transform.GetLocalUp() * velocity;
+			m_Transform.GetPositionRef() += WORLD_DIRECTION.Up * velocity;
 		}
 		if (direction == DOWN)
 		{
-			m_Transform.GetPositionRef() -= m_Transform.GetLocalUp() * velocity;
+			m_Transform.GetPositionRef() -= WORLD_DIRECTION.Up * velocity;
 		}
 		UpdateViewMatrix();
 	}

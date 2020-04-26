@@ -71,6 +71,10 @@ namespace Insight {
 
 		void UpdateMatrix();
 
+		void TranslateLocalMatrix();
+		void ScaleLocalMatrix();
+		void RotateLocalMatrix();
+
 		XMMATRIX m_LocalMatrix = XMMatrixIdentity();
 		XMMATRIX m_WorldMatrix = XMMatrixIdentity();
 

@@ -5,8 +5,8 @@ namespace Insight {
 	class StringHelper
 	{
 	public:
-		static std::wstring StringToWide(std::string str);
-		static std::string WideToString(std::wstring str);
+		static std::wstring StringToWide(const std::string& str);
+		static std::string WideToString(const std::wstring& wStr);
 		static std::string GetDirectoryFromPath(const std::string & filepath);
 		static std::string GetFileExtension(const std::string & filename);
 		static std::string GetFilenameFromDirectory(const std::string & filename);

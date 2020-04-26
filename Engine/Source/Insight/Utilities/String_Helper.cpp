@@ -5,16 +5,16 @@
 
 namespace Insight {
 
-	std::wstring StringHelper::StringToWide(std::string str)
+	std::wstring StringHelper::StringToWide(const std::string& str)
 	{
 		std::wstring widestr(str.begin(), str.end());
 		return widestr;
 	}
 
-	std::string StringHelper::WideToString(std::wstring str)
+	std::string StringHelper::WideToString(const std::wstring& wStr)
 	{
 		setlocale(LC_CTYPE, "");
-		std::string string(str.begin(), str.end());
+		std::string string(wStr.begin(), wStr.end());
 		return string;
 	}
 

@@ -8,7 +8,7 @@ namespace Insight {
 
 	Transform::Transform()
 	{
-		
+
 	}
 
 	Transform::Transform(const Transform& t)
@@ -59,8 +59,8 @@ namespace Insight {
 	void Transform::UpdateMatrix()
 	{
 		m_LocalMatrix = XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z) *
-						XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z) *
-						XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
+			XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z) *
+			XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
 
 		UpdateLocalDirectionVectors();
 	}
@@ -74,7 +74,6 @@ namespace Insight {
 		m_LocalRight = XMVector3TransformCoord(WORLD_DIRECTION.Right, vecRotationMatrix);
 		m_LocalUp = XMVector3TransformCoord(WORLD_DIRECTION.Up, vecRotationMatrix);
 		m_LocalDown = XMVector3TransformCoord(WORLD_DIRECTION.Down, vecRotationMatrix);
-		
-}
+	}
 
 }

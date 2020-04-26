@@ -62,7 +62,6 @@ namespace Insight {
 		void SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ);
 
 	private:
-		void UpdateLocalVectors();
 		void UpdateViewMatrix();
 	private:
 		const Vector3 WORLD_DIRECTION = WORLD_DIRECTION.Zero;
