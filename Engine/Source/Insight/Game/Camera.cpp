@@ -1,7 +1,9 @@
 #include "ie_pch.h"
 
+
 #include "Camera.h"
-#include "Insight/Math/Transform.h"
+
+#include "imgui.h"
 
 
 namespace Insight {
@@ -11,6 +13,7 @@ namespace Insight {
 	Camera::~Camera()
 	{
 	}
+
 	void Camera::ProcessMouseScroll(float yOffset)
 	{
 	}
@@ -34,7 +37,7 @@ namespace Insight {
 		yOffset *= m_MouseSensitivity;
 		
 		m_Yaw += xOffset;
-		m_Pitch += yOffset;
+		m_Pitch -= yOffset;
 
 		if (m_ConstrainPitch)
 		{
@@ -44,6 +47,8 @@ namespace Insight {
 				m_Pitch = -89.0f;
 		}
 
+		m_Transform.SetRotation(Vector3(m_Pitch, m_Yaw, 0.0f));
+
 		UpdateViewMatrix();
 	}
 	
@@ -52,33 +57,27 @@ namespace Insight {
 		float velocity = m_MovementSpeed * deltaTime;
 		if (direction == FORWARD)
 		{
-			m_PositionVector += m_FrontVector * velocity;
-			XMStoreFloat3(&m_Position, m_PositionVector);
+			m_Transform.GetPositionRef() += m_Transform.GetLocalForward() * velocity;
 		}
 		if (direction == BACKWARD)
 		{
-			m_PositionVector -= m_FrontVector * velocity;
-			XMStoreFloat3(&m_Position, m_PositionVector);
+			m_Transform.GetPositionRef() -= m_Transform.GetLocalForward() * velocity;
 		}
 		if (direction == LEFT)
 		{
-			m_PositionVector -= m_RightVector * velocity;
-			XMStoreFloat3(&m_Position, m_PositionVector);
+			m_Transform.GetPositionRef() += m_Transform.GetLocalRight() * velocity;
 		}
 		if (direction == RIGHT)
 		{
-			m_PositionVector += m_RightVector * velocity;
-			XMStoreFloat3(&m_Position, m_PositionVector);
+			m_Transform.GetPositionRef() -= m_Transform.GetLocalRight() * velocity;
 		}
 		if (direction == UP)
 		{
-			m_PositionVector += m_UpVector * velocity;
-			XMStoreFloat3(&m_Position, m_PositionVector);
+			m_Transform.GetPositionRef() += m_Transform.GetLocalUp() * velocity;
 		}
 		if (direction == DOWN)
 		{
-			m_PositionVector -= m_UpVector * velocity;
-			XMStoreFloat3(&m_Position, m_PositionVector);
+			m_Transform.GetPositionRef() -= m_Transform.GetLocalUp() * velocity;
 		}
 		UpdateViewMatrix();
 	}
@@ -93,25 +92,14 @@ namespace Insight {
 		m_ProjectionMatrix = XMMatrixPerspectiveFovLH(fovRadians, m_AspectRatio, m_NearZ, m_FarZ);
 	}
 
-	void Camera::UpdateLocalVectors()
-	{
-		XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(m_Pitch, m_Yaw, m_Roll);
-		m_FrontVector = XMVector3TransformCoord(Vector3_WorldForward,  vecRotationMatrix);
-		m_BackVector  = XMVector3TransformCoord(Vector3_WorldBackward, vecRotationMatrix);
-		m_LeftVector  = XMVector3TransformCoord(Vector3_WorldLeft,	   vecRotationMatrix);
-		m_RightVector = XMVector3TransformCoord(Vector3_WorldRight,	   vecRotationMatrix);
-		m_UpVector	  = XMVector3TransformCoord(Vector3_WorldUp,	   vecRotationMatrix);
-		m_DownVector  = XMVector3TransformCoord(Vector3_WorldDown,	   vecRotationMatrix);
-	}
-
 	void Camera::UpdateViewMatrix()
 	{
-		XMMATRIX camRotationMatrix = XMMatrixRotationRollPitchYaw(m_Pitch, m_Yaw, m_Roll);
-		XMVECTOR camTarget = XMVector3TransformCoord(Vector3_WorldForward, camRotationMatrix);
-		camTarget += m_PositionVector;
-		XMVECTOR upDir = XMVector3TransformCoord(Vector3_WorldUp, camRotationMatrix);
-		m_ViewMatrix = XMMatrixLookAtLH(m_PositionVector, camTarget, upDir);
+		XMMATRIX camRotationMatrix = XMMatrixRotationRollPitchYaw(m_Transform.GetRotation().x, m_Transform.GetRotation().y, 0.0f);
+		XMVECTOR camTarget = XMVector3TransformCoord(WORLD_DIRECTION.Forward, camRotationMatrix);
+		camTarget += m_Transform.GetPosition();
+		XMVECTOR upDir = XMVector3TransformCoord(WORLD_DIRECTION.Up, camRotationMatrix);
+		m_ViewMatrix = XMMatrixLookAtLH(m_Transform.GetPosition(), camTarget, upDir);
 
-		UpdateLocalVectors();
+		m_Transform.UpdateLocalDirectionVectors();
 	}
 }

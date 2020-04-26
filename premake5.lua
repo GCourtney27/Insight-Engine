@@ -33,7 +33,7 @@ project ("Engine")
 	--]]
 	language "C++"
 	cppdialect "C++17"
-	staticruntime "on"
+	staticruntime "off"
 
 	targetdir ("Bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("Bin-Int/" .. outputdir .. "/%{prj.name}")
@@ -128,7 +128,7 @@ project (gameName)
 	kind "StaticLib"
 	cppdialect "C++17"
 	language "C++"
-	staticruntime "on"
+	staticruntime "off"
 
 	targetdir ("Bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("Bin-Int/" .. outputdir .. "/%{prj.name}")
@@ -142,6 +142,7 @@ project (gameName)
 	includedirs
 	{
 		"Engine/Vendor/assimp-3.3.1/include",
+		"Engine/Vendor/Microsoft/DirectX12/TK/Inc",
 		"Engine/Vendor/Microsoft/DirectX12",
 		"Engine/Vendor/Nvidia/DirectX12",
 		"Engine/Vendor/spdlog/include",

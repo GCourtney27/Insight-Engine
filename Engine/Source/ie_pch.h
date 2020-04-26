@@ -24,6 +24,7 @@
 	#include <wrl/client.h>
 
 	// Direct3D 12 Includes
+	#include <SimpleMath.h>
 	#include <DirectXMath.h>
 	#include <d3d12.h>
 	#include <dxgi1_4.h>

@@ -134,7 +134,7 @@ namespace Insight {
 
 
 		XMMATRIX wvpMat = XMLoadFloat4x4(&cube1WorldMat) * viewMat * projMat; // create wvp matrix
-		XMMATRIX transposed = XMMatrixTranspose(wvpMat); // must transpose wvp matrix for the gpu
+		XMMATRIX transposed = XMMatrixTranspose(wvpMat); // must transpose wvp matrix for the shaders
 		XMStoreFloat4x4(&cbPerObject.wvpMatrix, transposed); // store transposed wvp matrix in constant buffer
 
 		memcpy(cbvGPUAddress[m_FrameIndex], &cbPerObject, sizeof(cbPerObject)); // Copy data from CPU to GPU

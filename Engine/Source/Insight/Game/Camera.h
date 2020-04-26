@@ -2,9 +2,11 @@
 
 #include "Insight/Core.h"
 
-#include <DirectXMath.h>
+#include "Insight/Math/Transform.h"
 
 namespace Insight {
+
+	using namespace DirectX::SimpleMath;
 
 	enum CameraMovement
 	{
@@ -29,17 +31,17 @@ namespace Insight {
 	class INSIGHT_API Camera
 	{
 	public:
-		Camera(XMFLOAT3 position = XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f), float pitch = PITCH, float yaw = YAW, float roll = ROLL, float exposure = EXPOSURE)
-			: m_Front(XMFLOAT3(0.0f, 0.0f, 1.0f)), m_MovementSpeed(SPEED), m_MouseSensitivity(SENSITIVITY), m_Fov(FOV), m_Exposure(EXPOSURE)
+		Camera(Vector3 position = Vector3(0.0f, 0.0f, 0.0f), 
+				float pitch = PITCH, 
+				float yaw = YAW, 
+				float roll = ROLL, 
+				float exposure = EXPOSURE)
+			: m_MovementSpeed(SPEED), m_MouseSensitivity(SENSITIVITY), m_Fov(FOV), m_Exposure(EXPOSURE)
 		{
-			m_Position = position;
-			m_PositionVector = XMLoadFloat3(&m_Position);
-			m_WorldUp = up;
-			m_WorldUpVector = XMLoadFloat3(&m_WorldUp);
+			m_Transform.SetPosition(position);
 			m_Pitch = pitch;
 			m_Yaw = yaw;
 			m_Roll = roll;
-			m_Exposure = exposure;
 			UpdateViewMatrix();
 		}
 		~Camera();
@@ -63,27 +65,15 @@ namespace Insight {
 		void UpdateLocalVectors();
 		void UpdateViewMatrix();
 	private:
+		const Vector3 WORLD_DIRECTION = WORLD_DIRECTION.Zero;
+
+
 		XMFLOAT4X4 m_ViewMat4x4;
 		XMMATRIX m_ViewMatrix;
 		XMFLOAT4X4 m_ProjectionMat4x4;
 		XMMATRIX m_ProjectionMatrix;
 
-		XMFLOAT3 m_Position;
-		XMVECTOR m_PositionVector;
-		XMFLOAT3 m_Front;
-		XMVECTOR m_FrontVector;
-		XMFLOAT3 m_Back;
-		XMVECTOR m_BackVector;
-		XMFLOAT3 m_Up;
-		XMVECTOR m_UpVector;
-		XMFLOAT3 m_Down;
-		XMVECTOR m_DownVector;
-		XMFLOAT3 m_Right;
-		XMVECTOR m_RightVector;
-		XMFLOAT3 m_Left;
-		XMVECTOR m_LeftVector;
-		XMFLOAT3 m_WorldUp;
-		XMVECTOR m_WorldUpVector;
+		Transform m_Transform;
 
 		float m_Yaw = 0.0f;
 		float m_Pitch = 0.0f;
