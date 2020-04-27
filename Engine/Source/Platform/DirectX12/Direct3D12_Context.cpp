@@ -95,7 +95,6 @@ namespace Insight {
 	{
 		using namespace DirectX;
 
-
 		// TODO: move this to player controller
 		if (Input::IsMouseButtonPressed(1))
 		{
@@ -115,13 +114,6 @@ namespace Insight {
 		if (Input::IsKeyPressed('Q'))
 			camera.ProcessKeyboardInput(CameraMovement::DOWN, 0.001f);
 
-		// Cube 1
-		XMMATRIX rotXMat = XMMatrixRotationX(0.001f);
-		XMMATRIX rotYMat = XMMatrixRotationY(0.002f);
-		XMMATRIX rotZMat = XMMatrixRotationZ(0.003f);
-
-		XMMATRIX rotMat = XMLoadFloat4x4(&cube1RotMat) * rotXMat * rotYMat * rotZMat;
-		XMStoreFloat4x4(&cube1RotMat, rotMat);
 
 		XMMATRIX translationMat = XMMatrixTranslationFromVector(XMLoadFloat4(&cube1Position));
 
@@ -132,58 +124,12 @@ namespace Insight {
 		XMMATRIX viewMat = camera.GetViewMatrix(); // load view matrix
 		XMMATRIX projMat = camera.GetProjectionMatrix(); // load projection matrix
 
-
 		XMMATRIX wvpMat = XMLoadFloat4x4(&cube1WorldMat) * viewMat * projMat; // create wvp matrix
 		XMMATRIX transposed = XMMatrixTranspose(wvpMat); // must transpose wvp matrix for the shaders
 		XMStoreFloat4x4(&cbPerObject.wvpMatrix, transposed); // store transposed wvp matrix in constant buffer
 
 		memcpy(cbvGPUAddress[m_FrameIndex], &cbPerObject, sizeof(cbPerObject)); // Copy data from CPU to GPU
 
-		// Cube 2
-		//rotXMat = XMMatrixRotationX(0.0003f);
-		//rotYMat = XMMatrixRotationY(0.0002f);
-		//rotZMat = XMMatrixRotationZ(0.0001f);
-
-		//rotMat = rotZMat * (XMLoadFloat4x4(&cube2RotMat) * (rotXMat * rotYMat));
-		//XMStoreFloat4x4(&cube2RotMat, rotMat);
-
-		//XMMATRIX translationOffsetMat = XMMatrixTranslationFromVector(XMLoadFloat4(&cube2PositionOffset));
-
-		//XMMATRIX scaleMat = XMMatrixScaling(0.5f, 0.5f, 0.5f);
-
-		//worldMat = scaleMat * translationOffsetMat * rotMat * translationMat;
-
-		//wvpMat = XMLoadFloat4x4(&cube2WorldMat) * viewMat * projMat; // create wvp matrix
-		//transposed = XMMatrixTranspose(wvpMat); // must transpose wvp matrix for the gpu
-		//XMStoreFloat4x4(&cbPerObject.wvpMatrix, transposed); // store transposed wvp matrix in constant buffer
-
-		//memcpy(cbvGPUAddress[m_FrameIndex] + ConstantBufferPerObjectAlignedSize, &cbPerObject, sizeof(cbPerObject));
-
-		//// store cube2's world matrix
-		//XMStoreFloat4x4(&cube2WorldMat, worldMat);
-
-		// Cube 3
-		//rotXMat = XMMatrixRotationX(0.003f);
-		//rotYMat = XMMatrixRotationY(0.002f);
-		//rotZMat = XMMatrixRotationZ(0.001f);
-
-		//rotMat = rotZMat * (XMLoadFloat4x4(&cube3RotMat) * (rotXMat * rotYMat));
-		//XMStoreFloat4x4(&cube3RotMat, rotMat);
-
-		//translationOffsetMat = XMMatrixTranslationFromVector(XMLoadFloat4(&cube3PositionOffset));
-
-		//scaleMat = XMMatrixScaling(0.5f, 0.5f, 0.5f);
-
-		//worldMat = scaleMat * translationOffsetMat * rotMat * translationMat;
-
-		//wvpMat = XMLoadFloat4x4(&cube3WorldMat) * viewMat * projMat; // create wvp matrix
-		//transposed = XMMatrixTranspose(wvpMat); // must transpose wvp matrix for the gpu
-		//XMStoreFloat4x4(&cbPerObject.wvpMatrix, transposed); // store transposed wvp matrix in constant buffer
-
-		//memcpy(cbvGPUAddress[m_FrameIndex] + (ConstantBufferPerObjectAlignedSize * 2), &cbPerObject, sizeof(cbPerObject));
-
-		//// store cube2's world matrix
-		//XMStoreFloat4x4(&cube3WorldMat, worldMat);
 	}
 
 	void Direct3D12Context::WaitForPreviousFrame()
@@ -251,24 +197,8 @@ namespace Insight {
 		texture.Bind();
 		texture2.Bind();
 
-		//// first cube
-		//// set cube1's constant buffer
 		m_pCommandList->SetGraphicsRootConstantBufferView(0, constantBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
 		model.Draw();
-
-		//// draw first cube
-		//m_pCommandList->DrawIndexedInstanced(numCubeIndices, 1, 0, 0, 0);
-
-		//// second cube
-		//m_pCommandList->SetGraphicsRootConstantBufferView(0, constantBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress() + ConstantBufferPerObjectAlignedSize);
-		//// draw second cube
-		//m_pCommandList->DrawIndexedInstanced(numCubeIndices, 1, 0, 0, 0);
-
-		//// third cube
-		//// !!!! ConstantBufferPerObjectAlignedSize needs to be offset times its (index in the scene - 1)
-		//m_pCommandList->SetGraphicsRootConstantBufferView(0, constantBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress() + (ConstantBufferPerObjectAlignedSize * 2));
-		//// draw second cube
-		//m_pCommandList->DrawIndexedInstanced(numCubeIndices, 1, 0, 0, 0);
 
 	}
 
@@ -668,8 +598,7 @@ namespace Insight {
 		D3D12_INPUT_ELEMENT_DESC inputLayout[] =
 		{
 			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 		};
 
 		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
@@ -831,12 +760,11 @@ namespace Insight {
 
 		XMMATRIX tmpMat = camera.GetProjectionMatrix();
 
-		cube1Position = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+		cube1Position = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 		XMVECTOR posVec = XMLoadFloat4(&cube1Position);
 
 		tmpMat = XMMatrixTranslationFromVector(posVec);
-		XMStoreFloat4x4(&cube1RotMat, XMMatrixIdentity());
-		XMStoreFloat4x4(&cube1WorldMat, tmpMat);
+		XMStoreFloat4x4(&cube1WorldMat, XMMatrixIdentity());
 
 	}
 
@@ -858,10 +786,10 @@ namespace Insight {
 		Texture::eTextureType albedo = Texture::eTextureType::ALBEDO;
 		Texture::eTextureType normal = Texture::eTextureType::NORMAL;
 
-		if (!texture.Init(L"Source/Textures/Bricks/Bricks_Albedo.jpg", albedo, heapHandle))
+		if (!texture.Init(L"Source/Models/nanosuit/body_dif.png", albedo, heapHandle))
 			IE_CORE_ERROR("Failed to load texture in graphics context.");
 
-		if (!texture2.Init(L"Source/Textures/Bricks/Bricks_Normal.jpg", normal, heapHandle))
+		if (!texture2.Init(L"Source/Models/nanosuit/body_showroom_ddn.png", normal, heapHandle))
 			IE_CORE_ERROR("Failed to load texture in graphics context.");
 	}
 

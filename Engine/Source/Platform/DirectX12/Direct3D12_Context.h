@@ -5,7 +5,7 @@
 #include "Insight/Rendering/RenderingContext.h"
 
 #include "Platform/Windows/Error/COM_Exception.h"
-#include "Insight/Game/Camera.h"
+#include "Insight/Runtime/Camera.h"
 
 // TODO: implement shader system that uses this
 #include "Platform/DirectX_Shared/ConstantBuffersPerObject_TEMP.h"

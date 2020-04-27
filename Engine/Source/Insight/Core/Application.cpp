@@ -57,6 +57,11 @@ namespace Insight {
 	{
 		while(m_Running)
 		{
+			m_FrameTimer.tick();
+			float time = m_FrameTimer.seconds();
+			float deltaTime = m_FrameTimer.dt();
+
+
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
 

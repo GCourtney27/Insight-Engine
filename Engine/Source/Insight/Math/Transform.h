@@ -78,6 +78,9 @@ namespace Insight {
 		XMMATRIX m_LocalMatrix = XMMatrixIdentity();
 		XMMATRIX m_WorldMatrix = XMMatrixIdentity();
 
+		XMMATRIX m_TranslationMat;
+		XMMATRIX m_RotationMat;
+		XMMATRIX m_ScaleMat;
 
 		Vector3 m_Position = m_Position.Zero;
 		Vector3 m_Rotation = m_Rotation.Zero;

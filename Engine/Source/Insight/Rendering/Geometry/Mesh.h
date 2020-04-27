@@ -10,7 +10,7 @@ namespace Insight {
 	class Mesh
 	{
 	public:
-		Mesh(std::vector<Vertex> verticies, std::vector<UINT> indices);
+		Mesh(std::vector<Vertex> verticies, std::vector<DWORD> indices);
 		~Mesh();
 
 		const UINT& GetNumVertices() const { return m_NumVerticies; }
@@ -44,7 +44,7 @@ namespace Insight {
 		int						m_VBufferSize = 0;
 		int						m_IBufferSize = 0;
 		std::vector<Vertex>		m_Verticies;
-		std::vector<UINT>		m_Indices;
+		std::vector<DWORD>		m_Indices;
 
 		bool m_IncludeInGBufferPass = true;
 		//std::vector<Texture> m_Textures;

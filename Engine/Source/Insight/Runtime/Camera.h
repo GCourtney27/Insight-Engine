@@ -2,7 +2,7 @@
 
 #include "Insight/Core.h"
 
-#include "Insight/Math/Transform.h"
+#include "Insight/Runtime/Actor.h"
 
 namespace Insight {
 
@@ -21,14 +21,14 @@ namespace Insight {
 	const float YAW = -90.0f;
 	const float PITCH = 0.0f;
 	const float ROLL = 0.0f;
-	const float SPEED = 4.05f;
+	const float SPEED = 50.05f;
 	const float SENSITIVITY = 0.01f;
 	const float FOV = 45.0f;
 	const float EXPOSURE = 0.5f;
 
 	using namespace DirectX;
 
-	class INSIGHT_API Camera
+	class INSIGHT_API Camera : public Actor
 	{
 	public:
 		Camera(Vector3 position = Vector3(0.0f, 0.0f, 0.0f), 
@@ -64,15 +64,11 @@ namespace Insight {
 	private:
 		void UpdateViewMatrix();
 	private:
-		const Vector3 WORLD_DIRECTION = WORLD_DIRECTION.Zero;
-
 
 		XMFLOAT4X4 m_ViewMat4x4;
 		XMMATRIX m_ViewMatrix;
 		XMFLOAT4X4 m_ProjectionMat4x4;
 		XMMATRIX m_ProjectionMatrix;
-
-		Transform m_Transform;
 
 		float m_Yaw = 0.0f;
 		float m_Pitch = 0.0f;

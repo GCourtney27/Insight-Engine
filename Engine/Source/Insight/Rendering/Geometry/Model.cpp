@@ -59,31 +59,23 @@ namespace Insight {
 	{
 		using namespace DirectX;
 		std::vector<Vertex> verticies;
-		std::vector<UINT> indices;
+		std::vector<DWORD> indices;
 		//std::vector<Texture> textures;
 
 		// Load Verticies
 		for (UINT i = 0; i < pMesh->mNumVertices; i++)
 		{
 			Vertex vertex;
-			XMFLOAT3 varContainer;
 			// Position
-			varContainer.x = pMesh->mVertices[i].x;
-			varContainer.y = pMesh->mVertices[i].y;
-			varContainer.z = pMesh->mVertices[i].z;
-			vertex.Position = varContainer;
-			// Normals
-			varContainer.x = pMesh->mNormals[i].x;
-			varContainer.y = pMesh->mNormals[i].y;
-			varContainer.z = pMesh->mNormals[i].z;
-			vertex.Normal = varContainer;
+			vertex.Position.x = pMesh->mVertices[i].x;
+			vertex.Position.y = pMesh->mVertices[i].y;
+			vertex.Position.z = pMesh->mVertices[i].z;
+
 			// Texture Coords/Tangents
 			if (pMesh->mTextureCoords[0])
 			{
-				XMFLOAT2 uvs;
-				uvs.x = pMesh->mTextureCoords[0][i].x;
-				uvs.y = pMesh->mTextureCoords[0][i].y;
-				vertex.TexCoords = uvs;
+				vertex.TexCoords.x = (float)pMesh->mTextureCoords[0][i].x;
+				vertex.TexCoords.y = (float)pMesh->mTextureCoords[0][i].y;
 				/*varContainer.x = pMesh->mTangents[i].x;
 				varContainer.y = pMesh->mTangents[i].y;
 				varContainer.z = pMesh->mTangents[i].z;

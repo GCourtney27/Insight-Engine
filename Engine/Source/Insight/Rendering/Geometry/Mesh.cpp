@@ -7,7 +7,7 @@
 namespace Insight {
 
 
-	Mesh::Mesh(std::vector<Vertex> verticies, std::vector<UINT> indices)
+	Mesh::Mesh(std::vector<Vertex> verticies, std::vector<DWORD> indices)
 	{
 		m_Verticies = verticies;
 		m_Indices = indices;

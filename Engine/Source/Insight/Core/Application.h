@@ -6,6 +6,7 @@
 #include "Insight/Core/Layer/Layer_Stack.h"
 #include "Insight/Events/Application_Event.h"
 #include "Insight/ImGui/ImGui_Layer.h"
+#include "Insight/Core/Systems/Time.h"
 
 namespace Insight {
 
@@ -27,6 +28,7 @@ namespace Insight {
 		void PushOverlay(Layer* layer);
 
 		inline Window& GetWindow() { return *m_pWindow; }
+		inline FrameTimer& GetFrameTimer() { return m_FrameTimer; }
 		bool InitializeAppForWindows(HINSTANCE& hInstance, int nCmdShow);
 		inline static Application& Get() { return *s_Instance; }
 	private:
@@ -39,6 +41,7 @@ namespace Insight {
 		ImGuiLayer*				m_ImGuiLayer = nullptr;
 		bool					m_Running = true;
 		LayerStack				m_LayerStack;
+		FrameTimer				m_FrameTimer;
 	private:
 		static Application*		s_Instance;
 	};

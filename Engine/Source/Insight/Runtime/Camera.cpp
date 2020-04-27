@@ -3,8 +3,6 @@
 
 #include "Camera.h"
 
-#include "imgui.h"
-
 
 namespace Insight {
 
