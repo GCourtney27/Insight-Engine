@@ -1,3 +1,0 @@
-[submodule "Engine/Vendor/Microsoft/DirectX12/TK"]
-	path = Engine/Vendor/Microsoft/DirectX12/TK
-	url = https://github.com/GCourtney27/DirectXTK12.git
