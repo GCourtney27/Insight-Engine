@@ -99,8 +99,7 @@ namespace Insight {
 		if (Input::IsMouseButtonPressed(1))
 		{
 			auto [x, y] = Input::GetRawMousePosition();
-			//IE_CORE_INFO("Mouse raw pos: {0}, {1}", x, y)
-			camera.ProcessMouseMovement(x, y);
+			camera.ProcessMouseMovement((float)x, (float)y);
 		}
 		if (Input::IsKeyPressed('W'))
 			camera.ProcessKeyboardInput(CameraMovement::FORWARD, 0.001f);

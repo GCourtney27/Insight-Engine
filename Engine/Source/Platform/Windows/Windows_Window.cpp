@@ -197,7 +197,6 @@ namespace Insight {
 					{
 						MouseRawMoveEvent event(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
 						data.EventCallback(event);
-						//IE_CORE_INFO("Mouse raw pos: {0}, {1}", event.GetX(), event.GetY());
 					}
 				}
 

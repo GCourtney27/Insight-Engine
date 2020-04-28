@@ -32,6 +32,7 @@ namespace Insight {
 	{
 		int xPos, yPos;
 		m_InputManager.GetMouseBuffer().GetRawMousePosition(xPos, yPos);
+		m_InputManager.GetMouseBuffer().OnRawMousePositionMoved(0, 0);
 		return { (int)xPos, (int)yPos };
 	}
 
