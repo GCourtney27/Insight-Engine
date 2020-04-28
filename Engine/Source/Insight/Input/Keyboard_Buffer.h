@@ -15,13 +15,8 @@ namespace Insight {
 		KeyPressState GetKeyState(const unsigned char key);
 		void OnKeyPressed(const unsigned char key);
 		void OnKeyReleased(const unsigned char key);
-		
-		inline static KeyboardBuffer& Get() { return *s_Instance; }
 	private:
 		bool keyStates[256] = { false };
-	private:
-		static KeyboardBuffer* s_Instance;
-
 	};
 	
 }

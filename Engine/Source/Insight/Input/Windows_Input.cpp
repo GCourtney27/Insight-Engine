@@ -11,20 +11,27 @@ namespace Insight {
 
 	bool WindowsInput::IsKeyPressedImpl(int keycode)
 	{
-		auto state = KeyboardBuffer::Get().GetKeyState(keycode);
+		auto state = m_InputManager.GetKeyboardBuffer().GetKeyState(keycode);
 		return state == InputBuffer::PRESSED;
 	}
 
 	bool WindowsInput::IsMouseButtonPressedImpl(int button)
 	{
-		auto state = MouseBuffer::Get().GetButtonState(button);
+		auto state = m_InputManager.GetMouseBuffer().GetButtonState(button);
 		return state == InputBuffer::PRESSED;
 	}
 
 	std::pair<float, float> WindowsInput::GetMousePositionImpl()
 	{
 		double xPos, yPos;
-		MouseBuffer::Get().GetMousePosition(xPos, yPos);
+		m_InputManager.GetMouseBuffer().GetMousePosition(xPos, yPos);
+		return { (float)xPos, (float)yPos };
+	}
+
+	std::pair<float, float> WindowsInput::GetMouseRawPositionImpl()
+	{
+		double xPos, yPos;
+		m_InputManager.GetMouseBuffer().GetRawMousePosition(xPos, yPos);
 		return { (float)xPos, (float)yPos };
 	}
 

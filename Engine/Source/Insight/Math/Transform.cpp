@@ -68,7 +68,6 @@ namespace Insight {
 	void Transform::TranslateLocalMatrix()
 	{
 		m_TranslationMat = XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
-
 	}
 
 	void Transform::ScaleLocalMatrix()

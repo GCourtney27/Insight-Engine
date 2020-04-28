@@ -98,7 +98,7 @@ namespace Insight {
 		// TODO: move this to player controller
 		if (Input::IsMouseButtonPressed(1))
 		{
-			auto [x, y] = Input::GetMousePosition();
+			auto [x, y] = Input::GetMouseRawPosition();
 			camera.ProcessMouseMovement(x, y);
 		}
 		if (Input::IsKeyPressed('W'))
@@ -113,6 +113,7 @@ namespace Insight {
 			camera.ProcessKeyboardInput(CameraMovement::UP, 0.001f);
 		if (Input::IsKeyPressed('Q'))
 			camera.ProcessKeyboardInput(CameraMovement::DOWN, 0.001f);
+		
 
 
 		XMMATRIX translationMat = XMMatrixTranslationFromVector(XMLoadFloat4(&cube1Position));

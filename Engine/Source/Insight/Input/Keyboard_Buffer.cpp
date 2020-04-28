@@ -4,11 +4,10 @@
 
 namespace Insight {
 
-	KeyboardBuffer* KeyboardBuffer::s_Instance = nullptr;
-
+	
+	
 	KeyboardBuffer::KeyboardBuffer()
 	{
-		s_Instance = this;
 	}
 
 	KeyboardBuffer::~KeyboardBuffer()

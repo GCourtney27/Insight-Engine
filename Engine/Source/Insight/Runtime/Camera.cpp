@@ -45,7 +45,8 @@ namespace Insight {
 				m_Pitch = -89.0f;
 		}
 
-		m_Transform.SetRotation(Vector3(m_Pitch, m_Yaw, 0.0f));
+		//m_Transform.SetRotation(Vector3(m_Pitch, m_Yaw, 0.0f));
+		m_Transform.Rotate(yPos * m_MouseSensitivity, xPos * m_MouseSensitivity, 0.0f);
 
 		UpdateViewMatrix();
 	}

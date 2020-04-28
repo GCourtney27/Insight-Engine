@@ -44,16 +44,37 @@ namespace Insight {
 		case WM_DESTROY:
 		{
 			PostQuitMessage(0);
-			WindowsWindow::WindowData* data = (WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			WindowsWindow::WindowData data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			WindowCloseEvent event;
-			data->EventCallback(event);
+			data.EventCallback(event);
 			return 0;
 		}
 		// Mouse Input
+		case WM_INPUT:
+		{
+			UINT dataSize;
+			GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, NULL, &dataSize, sizeof(RAWINPUTHEADER));
+
+			if (dataSize > 0)
+			{
+				std::unique_ptr<BYTE[]> rawdata = std::make_unique<BYTE[]>(dataSize);
+				if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, rawdata.get(), &dataSize, sizeof(RAWINPUTHEADER)) == dataSize)
+				{
+					RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(rawdata.get());
+					if (raw->header.dwType == RIM_TYPEMOUSE)
+					{
+						WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+						MouseRawMoveEvent event(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
+						data.EventCallback(event);
+					}
+				}
+
+			}
+			return DefWindowProc(hWnd, msg, wParam, lParam);
+		}
 		case WM_MOUSEMOVE:
 		{
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			MouseBuffer::Get().OnMousePositionMoved(LOWORD(lParam), HIWORD(lParam));
 			MouseMovedEvent event(LOWORD(lParam), HIWORD(lParam));
 			data.EventCallback(event);
 			return 0;
@@ -75,7 +96,6 @@ namespace Insight {
 		case WM_LBUTTONDOWN:
 		{
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			MouseBuffer::Get().OnButtonPressed(0);
 			MouseButtonPressedEvent event(0);
 			data.EventCallback(event);
 			return 0;
@@ -83,7 +103,6 @@ namespace Insight {
 		case WM_LBUTTONUP:
 		{
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			MouseBuffer::Get().OnButtonReleased(0);
 			MouseButtonReleasedEvent event(0);
 			data.EventCallback(event);
 			return 0;
@@ -91,7 +110,6 @@ namespace Insight {
 		case WM_RBUTTONDOWN:
 		{
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			MouseBuffer::Get().OnButtonPressed(1);
 			MouseButtonPressedEvent event(1);
 			data.EventCallback(event);
 			return 0;
@@ -99,7 +117,6 @@ namespace Insight {
 		case WM_RBUTTONUP:
 		{
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			MouseBuffer::Get().OnButtonReleased(1);
 			MouseButtonReleasedEvent event(1);
 			data.EventCallback(event);
 			return 0;
@@ -107,7 +124,6 @@ namespace Insight {
 		case WM_MBUTTONDOWN:
 		{
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			MouseBuffer::Get().OnButtonPressed(2);
 			MouseButtonPressedEvent event(2);
 			data.EventCallback(event);
 			return 0;
@@ -115,7 +131,6 @@ namespace Insight {
 		case WM_MBUTTONUP:
 		{
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			MouseBuffer::Get().OnButtonReleased(2);
 			MouseButtonReleasedEvent event(2);
 			data.EventCallback(event);
 			return 0;
@@ -131,6 +146,14 @@ namespace Insight {
 		case WM_KEYDOWN:
 		{
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			if (wParam == VK_ESCAPE)
+			{
+				PostQuitMessage(0);
+				WindowCloseEvent event;
+				data.EventCallback(event);
+				return 0;
+			}
+
 
 			if (wParam == VK_F11)
 			{
@@ -148,8 +171,6 @@ namespace Insight {
 				}
 
 			}
-
-			KeyboardBuffer::Get().OnKeyPressed((char)wParam);
 			KeyPressedEvent event((char)wParam, 0);
 			data.EventCallback(event);
 			return 0;
@@ -157,7 +178,6 @@ namespace Insight {
 		case WM_KEYUP:
 		{
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			KeyboardBuffer::Get().OnKeyReleased((char)wParam);
 			KeyReleasedEvent event((char)wParam);
 			data.EventCallback(event);
 			return 0;
@@ -165,7 +185,7 @@ namespace Insight {
 		// Aplication Events
 		case WM_COMPACTING:
 		{
-			IE_CORE_WARN("System memory is low");
+			IE_CORE_WARN("System memory is low!");
 			return 0;
 		}
 		case WM_SIZE:
@@ -195,6 +215,26 @@ namespace Insight {
 
 	bool WindowsWindow::Init(const WindowProps& props)
 	{
+
+		static bool raw_input_initialized = false;
+		if (raw_input_initialized == false)
+		{
+			RAWINPUTDEVICE rid;
+
+			rid.usUsagePage = 0x01; // Mouse
+			rid.usUsage = 0x02;
+			rid.dwFlags = 0;
+			rid.hwndTarget = NULL;
+
+			if (RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE)
+			{
+				IE_CORE_ERROR("Failed to register raw input devices. Error: {0}", GetLastError());
+				exit(-1);
+				// registration failed. Call GetLastError for the cause of the error
+				raw_input_initialized = true;
+			}
+		}
+
 		RegisterWindowClass();
 
 		int centerScreenX = GetSystemMetrics(SM_CXSCREEN) / 2 - m_Data.Width / 2;

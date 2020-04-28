@@ -2,42 +2,38 @@
 
 #include "Insight/Core.h"
 
-#include "Insight/Core/Layer/Layer.h"
-#include "Insight/Events/Application_Event.h"
 #include "Insight/Events/Key_Event.h"
 #include "Insight/Events/Mouse_Event.h"
 
+#include "Insight/Input/Keyboard_Buffer.h"
+#include "Insight/Input/Mouse_Buffer.h"
+
 namespace Insight {
 
-	class ImGuiLayer : public Layer
+
+	class INSIGHT_API InputManager
 	{
 	public:
-		ImGuiLayer();
-		~ImGuiLayer();
+		InputManager() {}
+		~InputManager() {}
 
-		virtual void OnAttach() override;
-		virtual void OnDetach() override;
-		virtual void OnImGuiRender() override;
-
-		void Begin();
-		void End();
 		void OnEvent(Event& event);
+
+		KeyboardBuffer& GetKeyboardBuffer() { return m_KeyboardBuffer; }
+		MouseBuffer& GetMouseBuffer() { return m_MouseBuffer; }
 
 	private:
 		bool OnMouseButtonPressedEvent(MouseButtonPressedEvent& e);
 		bool OnMouseButtonReleasedEvent(MouseButtonReleasedEvent& e);
 		bool OnMouseScrollEvent(MouseScrolledEvent& e);
 		bool OnMouseMovedEvent(MouseMovedEvent& e);
-		bool OnMouseRawMoveEvent(MouseRawMoveEvent& e);
+		bool OnRawMouseMoveEvent(MouseRawMoveEvent& e);
 		bool OnKeyReleasedEvent(KeyReleasedEvent& e);
 		bool OnKeyPressedEvent(KeyPressedEvent& e);
 		bool OnKeyTypedEvent(KeyTypedEvent& e);
-		bool OnWindowResizedEvent(WindowResizeEvent& e);
 	private:
-		HWND* m_pWindowHandle = nullptr;
-		ID3D12DescriptorHeap* m_pDescriptorHeap = nullptr;
-		ID3D12GraphicsCommandList* m_pCommandList = nullptr;
-
+		MouseBuffer m_MouseBuffer;
+		KeyboardBuffer m_KeyboardBuffer;
 	};
 
 }

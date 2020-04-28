@@ -4,11 +4,9 @@
 
 namespace Insight {
 
-	MouseBuffer* MouseBuffer::s_Instance = nullptr;
 
 	MouseBuffer::MouseBuffer()
 	{
-		s_Instance = this;
 	}
 
 	MouseBuffer::~MouseBuffer()
