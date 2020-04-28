@@ -16,7 +16,7 @@ namespace Insight {
 
 		virtual bool IsMouseButtonPressedImpl(int button) override;
 		virtual std::pair<float, float> GetMousePositionImpl() override;
-		virtual std::pair<float, float> GetMouseRawPositionImpl() override;
+		virtual std::pair<int, int> GetRawMousePositionImpl() override;
 		virtual float GetMouseXImpl() override;
 		virtual float GetMouseYImpl() override;
 	};

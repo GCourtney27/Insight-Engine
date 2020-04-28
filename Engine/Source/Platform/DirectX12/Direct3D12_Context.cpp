@@ -98,7 +98,8 @@ namespace Insight {
 		// TODO: move this to player controller
 		if (Input::IsMouseButtonPressed(1))
 		{
-			auto [x, y] = Input::GetMouseRawPosition();
+			auto [x, y] = Input::GetRawMousePosition();
+			//IE_CORE_INFO("Mouse raw pos: {0}, {1}", x, y)
 			camera.ProcessMouseMovement(x, y);
 		}
 		if (Input::IsKeyPressed('W'))
@@ -113,7 +114,7 @@ namespace Insight {
 			camera.ProcessKeyboardInput(CameraMovement::UP, 0.001f);
 		if (Input::IsKeyPressed('Q'))
 			camera.ProcessKeyboardInput(CameraMovement::DOWN, 0.001f);
-		
+
 
 
 		XMMATRIX translationMat = XMMatrixTranslationFromVector(XMLoadFloat4(&cube1Position));
@@ -828,7 +829,7 @@ namespace Insight {
 	void Direct3D12Context::CreateDevice()
 	{
 		GetHardwareAdapter(m_pDxgiFactory.Get(), &m_pPhysicalDevice);
-		
+
 		HRESULT hr = D3D12CreateDevice(m_pPhysicalDevice.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_pLogicalDevice));
 		COM_ERROR_IF_FAILED(hr, "Failed to create logical device.");
 	}

@@ -29,11 +29,11 @@ namespace Insight {
 	class INSIGHT_API MouseRawMoveEvent : public Event
 	{
 	public:
-		MouseRawMoveEvent(float x, float y)
+		MouseRawMoveEvent(int x, int y)
 			: m_MouseX(x), m_MouseY(y) {}
 
-		inline float GetX() const { return m_MouseX; }
-		inline float GetY() const { return m_MouseY; }
+		inline int GetX() const { return m_MouseX; }
+		inline int GetY() const { return m_MouseY; }
 
 		std::string ToString() const override
 		{
@@ -42,10 +42,10 @@ namespace Insight {
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(MouseMoved)
+		EVENT_CLASS_TYPE(RawMouseMoved)
 			EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 	private:
-		float m_MouseX, m_MouseY;
+		int m_MouseX, m_MouseY;
 	};
 
 	class INSIGHT_API MouseScrolledEvent : public Event

@@ -28,11 +28,11 @@ namespace Insight {
 		return { (float)xPos, (float)yPos };
 	}
 
-	std::pair<float, float> WindowsInput::GetMouseRawPositionImpl()
+	std::pair<int, int> WindowsInput::GetRawMousePositionImpl()
 	{
-		double xPos, yPos;
+		int xPos, yPos;
 		m_InputManager.GetMouseBuffer().GetRawMousePosition(xPos, yPos);
-		return { (float)xPos, (float)yPos };
+		return { (int)xPos, (int)yPos };
 	}
 
 	float WindowsInput::GetMouseXImpl()

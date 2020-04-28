@@ -7,6 +7,8 @@
 
 namespace Insight {
 
+
+
 	void InputManager::OnEvent(Event& event)
 	{
 		EventDispatcher dispatcher(event);
@@ -49,6 +51,8 @@ namespace Insight {
 
 	bool InputManager::OnRawMouseMoveEvent(MouseRawMoveEvent& e)
 	{
+		IE_CORE_INFO("Mouse raw pos: {0}", e);
+
 		m_MouseBuffer.OnRawMousePositionMoved(e.GetX(), e.GetY());
 		return false;
 	}

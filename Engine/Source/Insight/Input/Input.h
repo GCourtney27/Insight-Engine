@@ -17,7 +17,7 @@ namespace Insight {
 
 		inline static bool IsMouseButtonPressed(int button) { return s_Instance->IsMouseButtonPressedImpl(button); }
 		inline static std::pair<float, float> GetMousePosition() { return s_Instance->GetMousePositionImpl(); }
-		inline static std::pair<float, float> GetMouseRawPosition() { return s_Instance->GetMouseRawPositionImpl(); }
+		inline static std::pair<int, int> GetRawMousePosition() { return s_Instance->GetRawMousePositionImpl(); }
 		inline static float GetMouseX() { return s_Instance->GetMouseXImpl(); }
 		inline static float GetMouseY() { return s_Instance->GetMouseYImpl(); }
 	protected:
@@ -25,7 +25,7 @@ namespace Insight {
 
 		virtual bool IsMouseButtonPressedImpl(int keycode) = 0;
 		virtual std::pair<float, float> GetMousePositionImpl() = 0;
-		virtual std::pair<float, float> GetMouseRawPositionImpl() = 0;
+		virtual std::pair<int, int> GetRawMousePositionImpl() = 0;
 		virtual float GetMouseXImpl() = 0;
 		virtual float GetMouseYImpl() = 0;
 	protected:

@@ -6,8 +6,6 @@
 #include "Insight/Events/Mouse_Event.h"
 #include "Insight/Events/Key_Event.h"
 #include "Insight/Utilities/String_Helper.h"
-#include "Insight/Input/Keyboard_Buffer.h"
-#include "Insight/Input/Mouse_Buffer.h"
 #include "Insight/Core/Log.h"
 
 #include <windowsx.h>
@@ -50,28 +48,6 @@ namespace Insight {
 			return 0;
 		}
 		// Mouse Input
-		case WM_INPUT:
-		{
-			UINT dataSize;
-			GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, NULL, &dataSize, sizeof(RAWINPUTHEADER));
-
-			if (dataSize > 0)
-			{
-				std::unique_ptr<BYTE[]> rawdata = std::make_unique<BYTE[]>(dataSize);
-				if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, rawdata.get(), &dataSize, sizeof(RAWINPUTHEADER)) == dataSize)
-				{
-					RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(rawdata.get());
-					if (raw->header.dwType == RIM_TYPEMOUSE)
-					{
-						WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-						MouseRawMoveEvent event(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
-						data.EventCallback(event);
-					}
-				}
-
-			}
-			return DefWindowProc(hWnd, msg, wParam, lParam);
-		}
 		case WM_MOUSEMOVE:
 		{
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
@@ -205,6 +181,29 @@ namespace Insight {
 			//data.EventCallback(event);
 			return 0;
 		}
+		case WM_INPUT:
+		{
+			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			UINT dataSize;
+			GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, NULL, &dataSize, sizeof(RAWINPUTHEADER));
+
+			if (dataSize > 0)
+			{
+				std::unique_ptr<BYTE[]> rawdata = std::make_unique<BYTE[]>(dataSize);
+				if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, rawdata.get(), &dataSize, sizeof(RAWINPUTHEADER)) == dataSize)
+				{
+					RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(rawdata.get());
+					if (raw->header.dwType == RIM_TYPEMOUSE)
+					{
+						MouseRawMoveEvent event(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
+						data.EventCallback(event);
+						//IE_CORE_INFO("Mouse raw pos: {0}, {1}", event.GetX(), event.GetY());
+					}
+				}
+
+			}
+			return DefWindowProc(hWnd, msg, wParam, lParam);
+		}
 		default:
 		{
 			return DefWindowProc(hWnd, msg, wParam, lParam);
@@ -231,8 +230,8 @@ namespace Insight {
 				IE_CORE_ERROR("Failed to register raw input devices. Error: {0}", GetLastError());
 				exit(-1);
 				// registration failed. Call GetLastError for the cause of the error
-				raw_input_initialized = true;
 			}
+			raw_input_initialized = true;
 		}
 
 		RegisterWindowClass();
@@ -245,6 +244,7 @@ namespace Insight {
 		m_WindowRect.right = m_WindowRect.left + m_Data.Width;
 		m_WindowRect.bottom = m_WindowRect.top + m_Data.Height;
 
+		AdjustWindowRect(&m_WindowRect, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE);
 
 		m_WindowHandle = CreateWindowEx(
 			0,										// Window Styles

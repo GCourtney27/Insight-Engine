@@ -18,7 +18,7 @@ namespace Insight {
 
 	void Camera::ProcessMouseMovement(float xPos, float yPos)
 	{
-		if (m_FirstMove)
+		/*if (m_FirstMove)
 		{
 			m_LastLookX = xPos;
 			m_LastLookY = yPos;
@@ -43,12 +43,14 @@ namespace Insight {
 				m_Pitch = 89.0f;
 			if (m_Pitch < -89.9f)
 				m_Pitch = -89.0f;
-		}
+		}*/
 
 		//m_Transform.SetRotation(Vector3(m_Pitch, m_Yaw, 0.0f));
+		//IE_CORE_INFO("Mouse raw pos: {0}, {1}", xPos, yPos)
 		m_Transform.Rotate(yPos * m_MouseSensitivity, xPos * m_MouseSensitivity, 0.0f);
 
 		UpdateViewMatrix();
+		m_Transform.UpdateLocalDirectionVectors();
 	}
 	
 	void Camera::ProcessKeyboardInput(CameraMovement direction, float deltaTime)
@@ -99,6 +101,5 @@ namespace Insight {
 		XMVECTOR upDir = XMVector3TransformCoord(WORLD_DIRECTION.Up, camRotationMatrix);
 		m_ViewMatrix = XMMatrixLookAtLH(m_Transform.GetPosition(), camTarget, upDir);
 
-		m_Transform.UpdateLocalDirectionVectors();
 	}
 }

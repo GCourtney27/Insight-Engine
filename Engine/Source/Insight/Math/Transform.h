@@ -43,9 +43,9 @@ namespace Insight {
 		inline const Vector3& GetLocalUp() const { return m_LocalUp; }
 		inline const Vector3& GetLocalDown() const { return m_LocalDown; }
 
-		inline void Translate(const float& x, const float& y, const float& z) { m_Position.x += x; m_Position.y += y; m_Position.z += z; UpdateMatrix(); }
-		inline void Rotate(const float& x, const float& y, const float& z) { m_Rotation.x += x; m_Rotation.y += y; m_Rotation.z += z; UpdateMatrix(); }
-		inline void Scale(const float& x, const float& y, const float& z) { m_Scale.x += x; m_Scale.y += y; m_Scale.z += z; UpdateMatrix(); }
+		void Translate(float x, float y, float z); 
+		void Rotate(float x, float y, float z);
+		void Scale(float x, float y, float z); 
 
 		// Have object look at an object
 		inline void LookAt(const Vector3& lookAtPos);

@@ -18,6 +18,30 @@ namespace Insight {
 		m_Scale = t.m_Scale;
 	}
 
+	void Transform::Translate(float x, float y, float z)
+	{
+		m_Position.x += x; 
+		m_Position.y += y; 
+		m_Position.z += z; 
+		UpdateMatrix();
+	}
+
+	void Transform::Rotate(float x, float y, float z)
+	{
+		m_Rotation.x += x;
+		m_Rotation.y += y;
+		m_Rotation.z += z;
+		UpdateMatrix();
+	}
+
+	void Transform::Scale(float x, float y, float z)
+	{
+		m_Scale.x += x; 
+		m_Scale.y += y; 
+		m_Scale.z += z;
+		UpdateMatrix();
+	}
+
 	void Transform::LookAt(const Vector3& target)
 	{
 		// Verify that look at pos is not the same as Model pos. They cannot be the same as that wouldn't make sense and would result in undefined behavior
