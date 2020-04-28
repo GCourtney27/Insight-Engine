@@ -3,6 +3,7 @@
 #include "Insight/Core.h"
 
 #include "Insight/Input/Input_Manager.h"
+#include "Insight/Input/Key_Codes.h"
 
 namespace Insight {
 

@@ -10,7 +10,7 @@ namespace Insight {
 		virtual ~RenderingContext() {}
 
 		virtual bool Init() = 0;
-		virtual void OnUpdate() = 0;
+		virtual void OnUpdate(const float& deltaTime) = 0;
 		virtual void OnPreFrameRender() = 0;
 		virtual void OnRender() = 0;
 		virtual void ExecuteDraw() = 0;

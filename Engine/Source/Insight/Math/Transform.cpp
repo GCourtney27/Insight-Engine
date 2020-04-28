@@ -23,7 +23,7 @@ namespace Insight {
 		m_Position.x += x; 
 		m_Position.y += y; 
 		m_Position.z += z; 
-		//TranslateLocalMatrix();
+		TranslateLocalMatrix();
 		UpdateMatrix();
 	}
 
@@ -32,7 +32,7 @@ namespace Insight {
 		m_Rotation.x += x;
 		m_Rotation.y += y;
 		m_Rotation.z += z;
-		//RotateLocalMatrix();
+		RotateLocalMatrix();
 		UpdateMatrix();
 	}
 
@@ -41,7 +41,7 @@ namespace Insight {
 		m_Scale.x += x; 
 		m_Scale.y += y; 
 		m_Scale.z += z;
-		//ScaleLocalMatrix();
+		ScaleLocalMatrix();
 		UpdateMatrix();
 	}
 
@@ -100,20 +100,18 @@ namespace Insight {
 	void Transform::ScaleLocalMatrix()
 	{
 		XMMATRIX position = m_TranslationMat;
-
 		// send to origin
-		// scale
-		// send back to position
-
 		m_TranslationMat = XMMatrixTranslation(0.0f, 0.0f, 0.0f);
-		XMMATRIX scale = XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
-		
-		
+		// scale
+		m_ScaleMat = XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
+		// send back to position
+		m_TranslationMat = position;
 
 	}
 
 	void Transform::RotateLocalMatrix()
 	{
+		m_LocalMatrix = XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z);
 	}
 
 	void Transform::UpdateLocalDirectionVectors()

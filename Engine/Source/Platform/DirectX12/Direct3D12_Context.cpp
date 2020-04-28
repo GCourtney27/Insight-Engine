@@ -5,6 +5,7 @@
 #include "Platform/Windows/Windows_Window.h"
 #include "Insight/Input/Input.h"
 #include "Insight/Core/Application.h"
+#include "Insight/Runtime/APlayer_Character.h"
 
 #include "imgui.h"
 #include "examples/imgui_impl_dx12.h"
@@ -91,12 +92,14 @@ namespace Insight {
 		return true;
 	}
 
-	void Direct3D12Context::OnUpdate()
+	void Direct3D12Context::OnUpdate(const float& deltaTime)
 	{
 		using namespace DirectX;
 
+		//Vector3 cameraEye = PlayerCharacter::Get().GetTransform().GetPosition();
+		
 		// TODO: move this to player controller
-		if (Input::IsMouseButtonPressed(1))
+		if (Input::IsMouseButtonPressed(IE_RIGHTMOUSE_BUTTON))
 		{
 			auto [x, y] = Input::GetRawMousePosition();
 			camera.ProcessMouseMovement((float)x, (float)y);

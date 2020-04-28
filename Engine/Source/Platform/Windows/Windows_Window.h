@@ -28,7 +28,7 @@ namespace Insight {
 		WindowsWindow(const WindowProps& props);
 		virtual ~WindowsWindow();
 
-		virtual void OnUpdate() override;
+		virtual void OnUpdate(const float& deltaTime) override;
 		virtual void OnFramePreRender() override;
 		virtual void OnRender() override;
 		virtual void ExecuteDraw() override;

@@ -2,7 +2,7 @@
 
 #include "Insight/Core.h"
 
-#include "InputBuffer.h"
+#include "Insight/Input/Input_Buffer.h"
 
 namespace Insight {
 

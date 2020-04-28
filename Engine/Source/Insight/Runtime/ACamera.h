@@ -2,7 +2,7 @@
 
 #include "Insight/Core.h"
 
-#include "Insight/Runtime/Actor.h"
+#include "Insight/Runtime/AActor.h"
 
 namespace Insight {
 
@@ -28,7 +28,7 @@ namespace Insight {
 
 	using namespace DirectX;
 
-	class INSIGHT_API Camera : public Actor
+	class INSIGHT_API Camera : public AActor
 	{
 	public:
 		Camera(Vector3 position = Vector3(0.0f, 0.0f, 0.0f), 

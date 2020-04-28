@@ -1,7 +1,7 @@
 #include "ie_pch.h"
 
 
-#include "Camera.h"
+#include "ACamera.h"
 
 
 namespace Insight {

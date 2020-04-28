@@ -5,7 +5,7 @@
 #include "Insight/Rendering/RenderingContext.h"
 
 #include "Platform/Windows/Error/COM_Exception.h"
-#include "Insight/Runtime/Camera.h"
+#include "Insight/Runtime/ACamera.h"
 
 // TODO: implement shader system that uses this
 #include "Platform/DirectX_Shared/ConstantBuffersPerObject_TEMP.h"
@@ -27,7 +27,7 @@ namespace Insight {
 		virtual ~Direct3D12Context();
 		
 		virtual bool Init() override;
-		virtual void OnUpdate() override;
+		virtual void OnUpdate(const float& deltaTime) override;
 		virtual void OnPreFrameRender() override;
 		virtual void OnRender() override;
 		virtual void ExecuteDraw() override;

@@ -1,63 +1,63 @@
 #include "ie_pch.h"
 
-#include "Pawn.h"
+#include "APawn.h"
 
 namespace Insight {
 
 
 
-	Pawn::Pawn()
+	APawn::APawn()
 	{
 	}
 
-	Pawn::~Pawn()
+	APawn::~APawn()
 	{
 	}
 
-	void Pawn::OnInit()
+	void APawn::OnInit()
 	{
 	}
 
-	void Pawn::OnUpdate()
+	void APawn::OnUpdate()
 	{
 	}
 
-	void Pawn::OnRender()
+	void APawn::OnRender()
 	{
 	}
 
-	void Pawn::Move(eMovement direction, const float& deltaTime)
+	void APawn::Move(eMovement direction, const float& deltaTime)
 	{
 		float velocity = m_MovementSpeed * deltaTime;
 
 		switch (direction)
 		{
-		case Insight::Pawn::FORWARD:
+		case Insight::APawn::FORWARD:
 		{
 			m_Transform.GetPositionRef() += m_Transform.GetLocalForward() * velocity;
 			break;
 		}
-		case Insight::Pawn::BACKWARD:
+		case Insight::APawn::BACKWARD:
 		{
 			m_Transform.GetPositionRef() -= m_Transform.GetLocalForward() * velocity;
 			break;
 		}
-		case Insight::Pawn::LEFT:
+		case Insight::APawn::LEFT:
 		{
 			m_Transform.GetPositionRef() -= m_Transform.GetLocalRight() * velocity;
 			break;
 		}
-		case Insight::Pawn::RIGHT:
+		case Insight::APawn::RIGHT:
 		{
 			m_Transform.GetPositionRef() += m_Transform.GetLocalRight() * velocity;
 			break;
 		}
-		case Insight::Pawn::UP:
+		case Insight::APawn::UP:
 		{
 			m_Transform.GetPositionRef() += m_Transform.GetLocalUp() * velocity;
 			break;
 		}
-		case Insight::Pawn::DOWN:
+		case Insight::APawn::DOWN:
 		{
 			m_Transform.GetPositionRef() -= m_Transform.GetLocalUp() * velocity;
 			break;

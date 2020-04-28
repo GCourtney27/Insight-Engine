@@ -1,6 +1,6 @@
 #include "ie_pch.h"
 
-#include "Player_Character.h"
+#include "APlayer_Character.h"
 
 #include "Insight/Core/Application.h"
 #include "Insight/Input/Input.h"
@@ -8,9 +8,9 @@
 
 namespace Insight {
 
-	PlayerCharacter* PlayerCharacter::s_Instance = nullptr;
+	APlayerCharacter* APlayerCharacter::s_Instance = nullptr;
 
-	PlayerCharacter::PlayerCharacter()
+	APlayerCharacter::APlayerCharacter()
 	{
 		IE_CORE_ASSERT(!s_Instance, "Trying to create another instnace of a player character!");
 		s_Instance = this;
@@ -21,29 +21,29 @@ namespace Insight {
 		m_Camera.SetProjectionValues(75.0f, windowWidth / windowHeight, 0.0001f, 100.0f);
 	}
 
-	PlayerCharacter::~PlayerCharacter()
+	APlayerCharacter::~APlayerCharacter()
 	{
 	}
 
-	void PlayerCharacter::OnInit()
+	void APlayerCharacter::OnInit()
 	{
 	}
 
-	void PlayerCharacter::OnUpdate()
+	void APlayerCharacter::OnUpdate()
 	{
 
 	}
 
-	void PlayerCharacter::OnRender()
+	void APlayerCharacter::OnRender()
 	{
 	}
 
-	void PlayerCharacter::ProcessInput()
+	void APlayerCharacter::ProcessInput()
 	{
 		// this should move the player and the camera moves along with it
 		if (Input::IsKeyPressed('W'))
 		{
-			Pawn::Move(eMovement::DOWN, 0.001f);
+			APawn::Move(eMovement::DOWN, 0.001f);
 			//Set Camera transform relative to player
 			m_Camera.ProcessKeyboardInput(CameraMovement::FORWARD, 0.001f);
 		}

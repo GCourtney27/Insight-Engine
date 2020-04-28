@@ -7,13 +7,16 @@
 
 #include "Insight/ImGui/ImGui_Layer.h"
 
+//TEMP
+#include "Insight/Runtime/AActor.h"
+
 namespace Insight {
 
 	Application* Application::s_Instance = nullptr;
 
 	Application::Application()
 	{
-		IE_ASSERT(!s_Instance, "Application already exists!");
+		IE_ASSERT(!s_Instance, "Trying to create Application instance when one already exists!");
 		s_Instance = this;
 
 		m_ImGuiLayer = new ImGuiLayer();
@@ -33,7 +36,7 @@ namespace Insight {
 
 		if (!Init())
 		{
-			IE_CORE_FATAL(L"Failed to initiazlize application.");
+			IE_CORE_FATAL(L"Fatal Error: Failed to initiazlize application for Windows.");
 			return false;
 		}
 
@@ -55,18 +58,20 @@ namespace Insight {
 
 	void Application::Run()
 	{
+		AActor* actor = new AActor();
 		while(m_Running)
 		{
 			m_FrameTimer.tick();
-			float time = m_FrameTimer.seconds();
-			float deltaTime = m_FrameTimer.dt();
+			const float& time = m_FrameTimer.seconds();
+			const float& deltaTime = m_FrameTimer.dt();
 
+			// m_Scene->OnUpdate(deltaTime);
 
 			for (Layer* layer : m_LayerStack)
-				layer->OnUpdate();
+				layer->OnUpdate(deltaTime);
 
 			m_pWindow->OnFramePreRender();
-			m_pWindow->OnUpdate();
+			m_pWindow->OnUpdate(deltaTime);
 			m_pWindow->OnRender();
 
 			m_ImGuiLayer->Begin();
@@ -76,6 +81,7 @@ namespace Insight {
 			
 			m_pWindow->ExecuteDraw();
 		}
+		delete actor;
 	}
 
 	void Application::Shutdown()
@@ -90,7 +96,6 @@ namespace Insight {
 		dispatcher.Dispatch<WindowToggleFullScreenEvent>(IE_BIND_EVENT_FN(Application::OnWindowFullScreen));
 
 		Input::GetInputManager().OnEvent(e);
-		//m_InputManager.OnEvent(e);
 
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
 		{

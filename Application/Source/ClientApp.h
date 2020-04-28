@@ -21,11 +21,6 @@ public:
 
 	}
 
-	void OnUpdate() override
-	{
-
-	}
-
 	void OnEvent(Insight::Event& event) override
 	{
 		//IE_INFO("{0}", event);

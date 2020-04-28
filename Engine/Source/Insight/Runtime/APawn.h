@@ -2,12 +2,12 @@
 
 #include "Insight/Core.h"
 
-#include "Insight/Runtime/Actor.h"
+#include "Insight/Runtime/AActor.h"
 
 
 namespace Insight {
 
-	class INSIGHT_API Pawn : public Actor
+	class INSIGHT_API APawn : public AActor
 	{
 	public:
 		enum eMovement
@@ -20,8 +20,8 @@ namespace Insight {
 			DOWN
 		};
 	public:
-		Pawn();
-		~Pawn();
+		APawn();
+		~APawn();
 
 		virtual void OnInit();
 		virtual void OnUpdate();
