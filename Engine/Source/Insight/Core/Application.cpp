@@ -62,8 +62,8 @@ namespace Insight {
 		while(m_Running)
 		{
 			m_FrameTimer.tick();
-			const float& time = m_FrameTimer.seconds();
-			const float& deltaTime = m_FrameTimer.dt();
+			const float& time = (float)m_FrameTimer.seconds();
+			const float& deltaTime = (float)m_FrameTimer.dt();
 
 			// m_Scene->OnUpdate(deltaTime);
 

@@ -1,18 +1,22 @@
 #pragma once
 
-#include <Insight/Core.h>
+#include "Insight/Core.h"
 
 #include "Insight/Rendering/Geometry/Vertex.h"
-
+#include "Insight/Math/Transform.h"
+#include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
 
 namespace Insight {
 
-	class Mesh
+	class Mesh 
 	{
 	public:
 		Mesh(std::vector<Vertex> verticies, std::vector<DWORD> indices);
 		~Mesh();
 
+		inline const Transform& GetTransform() const { return m_Transform; }
+		CB_VS_PerObject GetConstantBuffer();
+		
 		const UINT& GetNumVertices() const { return m_NumVerticies; }
 		const UINT& GetNumIndices()  const { return m_NumIndices; }
 		const int& GetVertexBufferSize() const { return m_VBufferSize; }
@@ -47,7 +51,9 @@ namespace Insight {
 		std::vector<DWORD>		m_Indices;
 
 		bool m_IncludeInGBufferPass = true;
-		//Transform m_Transform;
+		Transform m_Transform;
+		CB_VS_PerObject m_ConstantBufferPerObject;
+
 		//std::vector<Texture> m_Textures;
 	};
 }

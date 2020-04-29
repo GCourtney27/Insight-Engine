@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Insight/Core.h"
 
 namespace Insight {
@@ -43,15 +45,16 @@ namespace Insight {
 		inline const Vector3& GetLocalUp() const { return m_LocalUp; }
 		inline const Vector3& GetLocalDown() const { return m_LocalDown; }
 
-		void Translate(float x, float y, float z); 
+		void Translate(float x, float y, float z);
 		void Rotate(float x, float y, float z);
-		void Scale(float x, float y, float z); 
+		void Scale(float x, float y, float z);
 
 		// Have object look at an object
 		inline void LookAt(const Vector3& lookAtPos);
 
 		// Returns objects local matrix
 		XMMATRIX GetLocalMatrix() const { return m_LocalMatrix; }
+		XMMATRIX GetLocalMatrixTransposed() const { return XMMatrixTranspose(m_LocalMatrix); }
 		// Set the objects local matrix
 		void SetLocalMatrix(XMMATRIX matrix);
 

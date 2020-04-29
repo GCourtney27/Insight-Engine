@@ -15,9 +15,9 @@ namespace Insight {
 		//Destroy();
 	}
 
-	void Model::Init(const std::string path)
+	bool Model::Init(const std::string& path)
 	{
-		LoadModel(path);
+		return LoadModel(path);
 	}
 
 	void Model::Draw()
@@ -32,16 +32,20 @@ namespace Insight {
 			m_Meshes[i].Destroy();
 	}
 
-	void Model::LoadModel(const std::string& path)
+	bool Model::LoadModel(const std::string& path)
 	{
 		Assimp::Importer importer;
 		const aiScene* pScene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenNormals);
 
 		if (!pScene || pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !pScene->mRootNode)
+		{
 			IE_CORE_TRACE("Assimp import error: {0}", importer.GetErrorString());
+			return false;
+		}
 
 		m_Directory = path.substr(0, path.find_last_of('/'));
 		ProcessNode(pScene->mRootNode, pScene);
+		return true;
 	}
 
 	void Model::ProcessNode(aiNode* pNode, const aiScene* pScene)

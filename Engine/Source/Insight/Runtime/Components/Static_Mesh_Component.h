@@ -3,7 +3,6 @@
 #include "Insight/Core.h"
 
 #include "Insight/Runtime/Components/Component.h"
-#include "Insight/Rendering/Geometry/Model.h"
 
 
 namespace Insight {
@@ -11,13 +10,12 @@ namespace Insight {
 	class INSIGHT_API StaticMeshComponent : public Component
 	{
 	public:
-		StaticMeshComponent(Actor* owner, ID& id);
+		StaticMeshComponent(AActor* owner, ID& id);
 		~StaticMeshComponent();
 
-
+		// TODO: Should just hold a index inside mesh manager to the desired mesh to render
 
 	private:
-		Model m_Model;
 
 	};
 

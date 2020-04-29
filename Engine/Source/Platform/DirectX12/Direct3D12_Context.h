@@ -41,7 +41,11 @@ namespace Insight {
 		inline ID3D12Device& GetDeviceContext() const { return *m_pLogicalDevice.Get(); }
 		inline ID3D12GraphicsCommandList& GetCommandList() const { return *m_pCommandList.Get(); }
 		inline ID3D12DescriptorHeap& GetShaderVisibleDescriptorHeap() const { return *m_pMainDescriptorHeap.Get(); }
+		inline ID3D12Resource& GetConstantBufferUploadHeap() const { return *m_ConstantBufferUploadHeaps[m_FrameIndex].Get(); }
+		inline UINT8& GetConstantBufferViewGPUHeapAddress() {return *m_cbvGPUAddress[m_FrameIndex];}
 
+		inline const Camera& GetCamera() const { return camera; }
+		
 	private:
 		// Per-Frame
 		void PopulateCommandLists();
@@ -139,16 +143,16 @@ namespace Insight {
 		static UINT m_ResolutionIndex;
 
 		//=== TEMPORARY! ===//
-		MeshManager m_MeshManager;
+		ModelManager m_ModelManager;
 
 		Model model;
+		Camera camera;
 
 		int ConstantBufferPerObjectAlignedSize = (sizeof(CB_VS_PerObject) + 255) & ~255;
 		CB_VS_PerObject cbPerObject;
-		ComPtr<ID3D12Resource> constantBufferUploadHeaps[m_FrameBufferCount];
+		ComPtr<ID3D12Resource> m_ConstantBufferUploadHeaps[m_FrameBufferCount];
 
-		UINT8* cbvGPUAddress[m_FrameBufferCount]; 
-		Camera camera;
+		UINT8* m_cbvGPUAddress[m_FrameBufferCount]; 
 
 		DirectX::XMFLOAT4X4 cube1WorldMat;
 		DirectX::XMFLOAT4X4 cube1RotMat;

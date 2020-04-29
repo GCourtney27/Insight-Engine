@@ -1,6 +1,7 @@
 #include "ie_pch.h"
 
 #include "Mesh.h"
+
 #include "Insight/Core/Application.h"
 #include "Platform/DirectX12/Direct3D12_Context.h"
 
@@ -17,12 +18,9 @@ namespace Insight {
 
 		m_IBufferSize = m_NumIndices * sizeof(UINT);
 		m_VBufferSize = m_NumVerticies * sizeof(Vertex);
-
-		RenderingContext* renderContext = &Application::Get().GetWindow().GetRenderContext();
-		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(renderContext);
-
-		m_pLogicalDevice = &graphicsContext->GetDeviceContext();
-		m_pCommandList = &graphicsContext->GetCommandList();
+		
+		m_pLogicalDevice = &Direct3D12Context::Get().GetDeviceContext();
+		m_pCommandList = &Direct3D12Context::Get().GetCommandList();
 
 		SetupMesh();
 	}
@@ -32,8 +30,36 @@ namespace Insight {
 		//Destroy();
 	}
 
+	CB_VS_PerObject Mesh::GetConstantBuffer()
+	{
+		XMMATRIX viewMat = Direct3D12Context::Get().GetCamera().GetViewMatrix();
+		XMMATRIX projectionMat = Direct3D12Context::Get().GetCamera().GetProjectionMatrix();
+		XMMATRIX localMat = m_Transform.GetLocalMatrix();
+		XMMATRIX wvp = localMat * viewMat * projectionMat;
+		XMMATRIX transposed = XMMatrixTranspose(wvp);
+		XMFLOAT4X4 wvpFloat;
+		XMStoreFloat4x4(&wvpFloat, transposed);
+
+		m_ConstantBufferPerObject.wvpMatrix = wvpFloat;
+		return m_ConstantBufferPerObject;
+
+	}
+
 	void Mesh::Draw()
 	{
+		//XMMATRIX translationMat = XMMatrixTranslationFromVector(XMLoadFloat4(&cube1Position));
+
+		//XMMATRIX worldMat = translationMat;
+
+		//XMMATRIX viewMat = camera.GetViewMatrix(); // load view matrix
+		//XMMATRIX projMat = camera.GetProjectionMatrix(); // load projection matrix
+
+		//XMMATRIX wvpMat = worldMat * viewMat * projMat; // create wvp matrix
+		//XMMATRIX transposed = XMMatrixTranspose(wvpMat); // must transpose wvp matrix for the shaders
+		//XMStoreFloat4x4(&cbPerObject.wvpMatrix, transposed); // store transposed wvp matrix in constant buffer
+
+		//memcpy(Direct3D12Context::Get().GetConstantBufferViewGPUAddress(), &cbPerObject, sizeof(cbPerObject)); // Copy data from CPU to GPU
+
 		m_pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);
 		m_pCommandList->IASetIndexBuffer(&m_IndexBufferView);
 		m_pCommandList->DrawIndexedInstanced(m_NumIndices, 1, 0, 0, 0);

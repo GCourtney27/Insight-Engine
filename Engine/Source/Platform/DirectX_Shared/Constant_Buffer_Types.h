@@ -6,3 +6,8 @@ struct CB_VS_PerObject
 {
 	DirectX::XMFLOAT4X4 wvpMatrix;
 };
+
+struct CB_PS_PointLight
+{
+
+};

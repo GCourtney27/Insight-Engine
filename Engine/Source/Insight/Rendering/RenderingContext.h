@@ -48,10 +48,9 @@ namespace Insight {
 
 		enum RenderingAPI
 		{
-			// Dynamic Pipeline
 			D3D_11,
 			OPENGL,
-			// Fixed Pipeline
+
 			D3D_12,
 			VULKAN
 		};

@@ -77,7 +77,7 @@ namespace Insight {
 			CreatePipelineStateObjects();
 
 			CreateConstantBufferResourceHeaps();
-
+			m_ModelManager.Init();
 			LoadAssets();
 			InitDemoScene();
 
@@ -117,20 +117,20 @@ namespace Insight {
 		if (Input::IsKeyPressed('Q'))
 			camera.ProcessKeyboardInput(CameraMovement::DOWN, 0.001f);
 
+		m_ModelManager.Update();
 
+		//XMMATRIX translationMat = XMMatrixTranslationFromVector(XMLoadFloat4(&cube1Position));
 
-		XMMATRIX translationMat = XMMatrixTranslationFromVector(XMLoadFloat4(&cube1Position));
+		//XMMATRIX worldMat = translationMat;
 
-		XMMATRIX worldMat = translationMat;
+		//XMMATRIX viewMat = camera.GetViewMatrix(); // load view matrix
+		//XMMATRIX projMat = camera.GetProjectionMatrix(); // load projection matrix
 
-		XMMATRIX viewMat = camera.GetViewMatrix(); // load view matrix
-		XMMATRIX projMat = camera.GetProjectionMatrix(); // load projection matrix
+		//XMMATRIX wvpMat = worldMat * viewMat * projMat; // create wvp matrix
+		//XMMATRIX transposed = XMMatrixTranspose(wvpMat); // must transpose wvp matrix for the shaders
+		//XMStoreFloat4x4(&cbPerObject.wvpMatrix, transposed); // store transposed wvp matrix in constant buffer
 
-		XMMATRIX wvpMat = worldMat * viewMat * projMat; // create wvp matrix
-		XMMATRIX transposed = XMMatrixTranspose(wvpMat); // must transpose wvp matrix for the shaders
-		XMStoreFloat4x4(&cbPerObject.wvpMatrix, transposed); // store transposed wvp matrix in constant buffer
-
-		memcpy(cbvGPUAddress[m_FrameIndex], &cbPerObject, sizeof(cbPerObject)); // Copy data from CPU to GPU
+		//memcpy(m_cbvGPUAddress[m_FrameIndex], &cbPerObject, sizeof(cbPerObject)); // Copy data from CPU to GPU
 
 	}
 
@@ -199,9 +199,11 @@ namespace Insight {
 		texture.Bind();
 		texture2.Bind();
 
-		m_pCommandList->SetGraphicsRootConstantBufferView(0, constantBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
-		model.Draw();
+		//m_pCommandList->SetGraphicsRootConstantBufferView(0, m_ConstantBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
+		//model.Draw();
+		m_ModelManager.Draw();
 
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 	}
 
 	void Direct3D12Context::OnRender()
@@ -215,7 +217,6 @@ namespace Insight {
 	void Direct3D12Context::ExecuteDraw()
 	{
 		HRESULT hr;
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
 		hr = m_pCommandList->Close();
 		if (FAILED(hr)) {
@@ -640,17 +641,17 @@ namespace Insight {
 				&CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
 				D3D12_RESOURCE_STATE_GENERIC_READ,
 				nullptr,
-				IID_PPV_ARGS(&constantBufferUploadHeaps[i]));
-			constantBufferUploadHeaps[i]->SetName(L"Constant Buffer Upload Resource Heap");
+				IID_PPV_ARGS(&m_ConstantBufferUploadHeaps[i]));
+			m_ConstantBufferUploadHeaps[i]->SetName(L"Constant Buffer Upload Resource Heap");
 
-			ZeroMemory(&cbPerObject, sizeof(cbPerObject));
+			//ZeroMemory(&cbPerObject, sizeof(cbPerObject));
 
 			CD3DX12_RANGE readRange(0, 0);
 
-			hr = constantBufferUploadHeaps[i]->Map(0, &readRange, reinterpret_cast<void**>(&cbvGPUAddress[i]));
+			hr = m_ConstantBufferUploadHeaps[i]->Map(0, &readRange, reinterpret_cast<void**>(&m_cbvGPUAddress[i]));
 
-			memcpy(cbvGPUAddress[i], &cbPerObject, sizeof(cbPerObject));
-			memcpy(cbvGPUAddress[i] + ConstantBufferPerObjectAlignedSize, &cbPerObject, sizeof(cbPerObject));
+			//memcpy(m_cbvGPUAddress[i], &cbPerObject, sizeof(cbPerObject));
+			//memcpy(m_cbvGPUAddress[i] + ConstantBufferPerObjectAlignedSize, &cbPerObject, sizeof(cbPerObject));
 		}
 	}
 
@@ -778,7 +779,8 @@ namespace Insight {
 
 	void Direct3D12Context::LoadModels()
 	{
-		model.Init("../Assets/Objects/nanosuit/nanosuit.obj");
+		//model.Init("../Assets/Objects/nanosuit/nanosuit.obj");
+		m_ModelManager.LoadMeshFromFile("../Assets/Objects/nanosuit/nanosuit.obj");
 	}
 
 	void Direct3D12Context::LoadTextures()

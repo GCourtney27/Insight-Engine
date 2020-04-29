@@ -16,12 +16,15 @@ namespace Insight {
 		Model(const std::string& path);
 		Model() {}
 		~Model();
-		void Init(const std::string path);
+		bool Init(const std::string& path);
+
+		Mesh& GetMeshAtIndex(const int& index) { return m_Meshes[index]; }
+		const size_t& GetNumChildMeshes() const { return m_Meshes.size(); }
 
 		void Draw();
 		void Destroy();
 	private:
-		void LoadModel(const std::string& path);
+		bool LoadModel(const std::string& path);
 		void ProcessNode(aiNode* pNode, const aiScene* pScene);
 		Mesh ProcessMesh(aiMesh* pMesh, const aiScene* pScene);
 		//std::vector<Texture> LoadMaterialTextures

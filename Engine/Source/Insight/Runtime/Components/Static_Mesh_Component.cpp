@@ -6,14 +6,13 @@ namespace Insight {
 
 
 
-	StaticMeshComponent::StaticMeshComponent(Actor* owner, ID& id)
+	StaticMeshComponent::StaticMeshComponent(AActor* owner, ID& id)
 		: Component(owner, id)
 	{
 	}
 
 	StaticMeshComponent::~StaticMeshComponent()
 	{
-		m_Model.Destroy();
 	}
 
 }
