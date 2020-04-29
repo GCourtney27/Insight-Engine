@@ -6,7 +6,7 @@
 #include "Insight/Core/Layer/Layer_Stack.h"
 #include "Insight/Events/Application_Event.h"
 #include "Insight/ImGui/ImGui_Layer.h"
-#include "Insight/Core/Systems/Time.h"
+#include "Insight/Systems/Time.h"
 
 namespace Insight {
 

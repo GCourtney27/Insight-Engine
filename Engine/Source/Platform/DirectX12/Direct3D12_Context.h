@@ -3,14 +3,15 @@
 #include "Insight/Core.h"
 
 #include "Insight/Rendering/RenderingContext.h"
-
 #include "Platform/Windows/Error/COM_Exception.h"
+
 #include "Insight/Runtime/ACamera.h"
 
 // TODO: implement shader system that uses this
-#include "Platform/DirectX_Shared/ConstantBuffersPerObject_TEMP.h"
+#include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
 
 //TEMP
+#include "Insight/Systems/Mesh_Manager.h"
 #include "Insight/Rendering/Geometry/Model.h"
 #include "Insight/Rendering/Texture.h"
 
@@ -127,14 +128,23 @@ namespace Insight {
 		DXGI_SAMPLE_DESC					m_SampleDesc = {};
 		D3D12_DEPTH_STENCIL_VIEW_DESC		m_dsvDesc = {};
 
+		// Utils
+		struct Resolution
+		{
+			UINT Width;
+			UINT Height;
+		};
+		static const Resolution m_ResolutionOptions[];
+		static const UINT m_ResolutionOptionsCount;
+		static UINT m_ResolutionIndex;
+
 		//=== TEMPORARY! ===//
+		MeshManager m_MeshManager;
+
 		Model model;
 
-		struct ConstantBufferPerObject {
-			DirectX::XMFLOAT4X4 wvpMatrix;
-		};
-		int ConstantBufferPerObjectAlignedSize = (sizeof(ConstantBufferPerObject) + 255) & ~255;
-		ConstantBufferPerObject cbPerObject;
+		int ConstantBufferPerObjectAlignedSize = (sizeof(CB_VS_PerObject) + 255) & ~255;
+		CB_VS_PerObject cbPerObject;
 		ComPtr<ID3D12Resource> constantBufferUploadHeaps[m_FrameBufferCount];
 
 		UINT8* cbvGPUAddress[m_FrameBufferCount]; 
@@ -149,16 +159,7 @@ namespace Insight {
 		Texture texture;
 		Texture texture2;
 
-		// Utils
-		struct Resolution
-		{
-			UINT Width;
-			UINT Height;
-		};
-		static const Resolution m_ResolutionOptions[];
-		static const UINT m_ResolutionOptionsCount;
-		static UINT m_ResolutionIndex; // Index of the current scene rendering resolution from m_resolutionOptions.
-
+		
 	};
 
 }

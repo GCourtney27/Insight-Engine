@@ -123,12 +123,10 @@ namespace Insight {
 
 		XMMATRIX worldMat = translationMat;
 
-		XMStoreFloat4x4(&cube1WorldMat, worldMat);
-
 		XMMATRIX viewMat = camera.GetViewMatrix(); // load view matrix
 		XMMATRIX projMat = camera.GetProjectionMatrix(); // load projection matrix
 
-		XMMATRIX wvpMat = XMLoadFloat4x4(&cube1WorldMat) * viewMat * projMat; // create wvp matrix
+		XMMATRIX wvpMat = worldMat * viewMat * projMat; // create wvp matrix
 		XMMATRIX transposed = XMMatrixTranspose(wvpMat); // must transpose wvp matrix for the shaders
 		XMStoreFloat4x4(&cbPerObject.wvpMatrix, transposed); // store transposed wvp matrix in constant buffer
 
@@ -780,7 +778,7 @@ namespace Insight {
 
 	void Direct3D12Context::LoadModels()
 	{
-		model.Init("Source/Models/nanosuit/nanosuit.obj");
+		model.Init("../Assets/Objects/nanosuit/nanosuit.obj");
 	}
 
 	void Direct3D12Context::LoadTextures()
@@ -790,10 +788,10 @@ namespace Insight {
 		Texture::eTextureType albedo = Texture::eTextureType::ALBEDO;
 		Texture::eTextureType normal = Texture::eTextureType::NORMAL;
 
-		if (!texture.Init(L"Source/Models/nanosuit/body_dif.png", albedo, heapHandle))
+		if (!texture.Init(L"../Assets/Objects/nanosuit/body_dif.png", albedo, heapHandle))
 			IE_CORE_ERROR("Failed to load texture in graphics context.");
 
-		if (!texture2.Init(L"Source/Models/nanosuit/body_showroom_ddn.png", normal, heapHandle))
+		if (!texture2.Init(L"../Assets/Objects/nanosuit/body_showroom_ddn.png", normal, heapHandle))
 			IE_CORE_ERROR("Failed to load texture in graphics context.");
 	}
 

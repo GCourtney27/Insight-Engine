@@ -85,16 +85,18 @@ namespace Insight {
 
 	void Transform::UpdateMatrix()
 	{
-		m_LocalMatrix = XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z) *
-			XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z) *
-			XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
+		m_LocalMatrix = m_ScaleMat * m_TranslationMat * m_RotationMat;
+
+		/*XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z) *
+		XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);*/	
 
 		UpdateLocalDirectionVectors();
 	}
 
 	void Transform::TranslateLocalMatrix()
 	{
-		m_TranslationMat = XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
+		m_TranslationMat = XMMatrixTranslationFromVector(m_Position);
+		//m_TranslationMat = XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
 	}
 
 	void Transform::ScaleLocalMatrix()

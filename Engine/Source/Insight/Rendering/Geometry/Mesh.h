@@ -27,7 +27,7 @@ namespace Insight {
 		bool InitializeIndexDataForD3D12();
 	private:
 
-		//D3D 12 Resources
+		// D3D12 Resources
 		ID3D12Resource*				m_pVertexBuffer;
 		ID3D12Resource*				m_pVertexBufferUploadHeap;
 		D3D12_VERTEX_BUFFER_VIEW	m_VertexBufferView = {};
@@ -47,6 +47,7 @@ namespace Insight {
 		std::vector<DWORD>		m_Indices;
 
 		bool m_IncludeInGBufferPass = true;
+		//Transform m_Transform;
 		//std::vector<Texture> m_Textures;
 	};
 }
