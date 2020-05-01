@@ -79,7 +79,6 @@ namespace Insight {
 			CreateConstantBufferResourceHeaps();
 			m_ModelManager.Init();
 			LoadAssets();
-			InitDemoScene();
 
 			CloseCommandListAndSignalCommandQueue();
 
@@ -117,7 +116,10 @@ namespace Insight {
 		if (Input::IsKeyPressed('Q'))
 			camera.ProcessKeyboardInput(CameraMovement::DOWN, 0.001f);
 
-		m_ModelManager.Update();
+		m_ModelManager.UploadVertexDataToGPU();
+
+		m_PerFrameData.cameraPosition = camera.GetTransform().GetPosition();
+		memcpy(m_cbvPerFrameGPUAddress[m_FrameIndex], &m_PerFrameData, sizeof(m_PerFrameData));
 
 		//XMMATRIX translationMat = XMMatrixTranslationFromVector(XMLoadFloat4(&cube1Position));
 
@@ -200,6 +202,7 @@ namespace Insight {
 		texture2.Bind();
 
 		//m_pCommandList->SetGraphicsRootConstantBufferView(0, m_ConstantBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
+		m_pCommandList->SetGraphicsRootConstantBufferView(1, m_ConstantBufferPerFrameUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
 		//model.Draw();
 		m_ModelManager.Draw();
 
@@ -513,10 +516,11 @@ namespace Insight {
 		descTableRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, ALBEDO_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Albedo Texture
 		descTableRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, NORMAL_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Normal Texture
 
-		CD3DX12_ROOT_PARAMETER rootParams[3] = {};
+		CD3DX12_ROOT_PARAMETER rootParams[4] = {};
 		rootParams[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL); // ConstantBufferPerObject
-		rootParams[1].InitAsDescriptorTable(1, &descTableRanges[0], D3D12_SHADER_VISIBILITY_PIXEL); // Albedo Texture
-		rootParams[2].InitAsDescriptorTable(1, &descTableRanges[1], D3D12_SHADER_VISIBILITY_PIXEL); // Normal Texture
+		rootParams[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL); // Utilities
+		rootParams[2].InitAsDescriptorTable(1, &descTableRanges[0], D3D12_SHADER_VISIBILITY_PIXEL); // Albedo Texture
+		rootParams[3].InitAsDescriptorTable(1, &descTableRanges[1], D3D12_SHADER_VISIBILITY_PIXEL); // Normal Texture
 
 		D3D12_STATIC_SAMPLER_DESC sampler = {};
 		sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
@@ -633,6 +637,7 @@ namespace Insight {
 	{
 		HRESULT hr;
 
+		// PerObject Constant buffer
 		for (int i = 0; i < m_FrameBufferCount; ++i)
 		{
 			hr = m_pLogicalDevice->CreateCommittedResource(
@@ -644,15 +649,28 @@ namespace Insight {
 				IID_PPV_ARGS(&m_ConstantBufferUploadHeaps[i]));
 			m_ConstantBufferUploadHeaps[i]->SetName(L"Constant Buffer Upload Resource Heap");
 
-			//ZeroMemory(&cbPerObject, sizeof(cbPerObject));
-
 			CD3DX12_RANGE readRange(0, 0);
-
 			hr = m_ConstantBufferUploadHeaps[i]->Map(0, &readRange, reinterpret_cast<void**>(&m_cbvGPUAddress[i]));
-
-			//memcpy(m_cbvGPUAddress[i], &cbPerObject, sizeof(cbPerObject));
-			//memcpy(m_cbvGPUAddress[i] + ConstantBufferPerObjectAlignedSize, &cbPerObject, sizeof(cbPerObject));
 		}
+
+		// Per Frame
+		for (int i = 0; i < m_FrameBufferCount; ++i)
+		{
+			hr = m_pLogicalDevice->CreateCommittedResource(
+				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+				D3D12_HEAP_FLAG_NONE,
+				&CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
+				D3D12_RESOURCE_STATE_GENERIC_READ,
+				nullptr,
+				IID_PPV_ARGS(&m_ConstantBufferPerFrameUploadHeaps[i]));
+			if (FAILED(hr))	{
+				IE_CORE_ERROR("Failed to create committed resource for Constant Buffer Per Frame data.")
+			}
+			m_ConstantBufferPerFrameUploadHeaps[i]->SetName(L"Constant Buffer PerFrame Upload Heap");
+			CD3DX12_RANGE readRange(0, 0);
+			hr = m_ConstantBufferPerFrameUploadHeaps[i]->Map(0, &readRange, reinterpret_cast<void**>(&m_cbvPerFrameGPUAddress[i]));
+		}
+
 	}
 
 	void Direct3D12Context::CreateViewport()
@@ -757,20 +775,6 @@ namespace Insight {
 		//cb_vertexShader.Initialize(pDevice.Get(), pCommandList.Get());
 	}
 
-	void Direct3D12Context::InitDemoScene()
-	{
-		using namespace DirectX;
-
-		XMMATRIX tmpMat = camera.GetProjectionMatrix();
-
-		cube1Position = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-		XMVECTOR posVec = XMLoadFloat4(&cube1Position);
-
-		tmpMat = XMMatrixTranslationFromVector(posVec);
-		XMStoreFloat4x4(&cube1WorldMat, XMMatrixIdentity());
-
-	}
-
 	void Direct3D12Context::LoadAssets()
 	{
 		LoadModels();
@@ -781,6 +785,7 @@ namespace Insight {
 	{
 		//model.Init("../Assets/Objects/nanosuit/nanosuit.obj");
 		m_ModelManager.LoadMeshFromFile("../Assets/Objects/nanosuit/nanosuit.obj");
+		m_ModelManager.LoadMeshFromFile("../Assets/Objects/Dandelion/Var1/Textured_Flower.obj");
 	}
 
 	void Direct3D12Context::LoadTextures()

@@ -47,19 +47,7 @@ namespace Insight {
 
 	void Mesh::Draw()
 	{
-		//XMMATRIX translationMat = XMMatrixTranslationFromVector(XMLoadFloat4(&cube1Position));
-
-		//XMMATRIX worldMat = translationMat;
-
-		//XMMATRIX viewMat = camera.GetViewMatrix(); // load view matrix
-		//XMMATRIX projMat = camera.GetProjectionMatrix(); // load projection matrix
-
-		//XMMATRIX wvpMat = worldMat * viewMat * projMat; // create wvp matrix
-		//XMMATRIX transposed = XMMatrixTranspose(wvpMat); // must transpose wvp matrix for the shaders
-		//XMStoreFloat4x4(&cbPerObject.wvpMatrix, transposed); // store transposed wvp matrix in constant buffer
-
-		//memcpy(Direct3D12Context::Get().GetConstantBufferViewGPUAddress(), &cbPerObject, sizeof(cbPerObject)); // Copy data from CPU to GPU
-
+		
 		m_pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);
 		m_pCommandList->IASetIndexBuffer(&m_IndexBufferView);
 		m_pCommandList->DrawIndexedInstanced(m_NumIndices, 1, 0, 0, 0);

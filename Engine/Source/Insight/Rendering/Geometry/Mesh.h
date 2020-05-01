@@ -23,6 +23,7 @@ namespace Insight {
 		const int& GetIndexBufferSize() const { return m_IBufferSize; }
 
 		void Draw();
+
 		void Destroy();
 
 		void SetupMesh();
@@ -32,16 +33,16 @@ namespace Insight {
 	private:
 
 		// D3D12 Resources
-		ID3D12Resource*				m_pVertexBuffer;
-		ID3D12Resource*				m_pVertexBufferUploadHeap;
+		ID3D12Resource*				m_pVertexBufferUploadHeap = 0;
+		ID3D12Resource*				m_pVertexBuffer = 0;
 		D3D12_VERTEX_BUFFER_VIEW	m_VertexBufferView = {};
 
-		ID3D12Resource*				m_pIndexBuffer;
-		ID3D12Resource*				m_pIndexBufferUploadHeap;
+		ID3D12Resource*				m_pIndexBufferUploadHeap = 0;
+		ID3D12Resource*				m_pIndexBuffer = 0;
 		D3D12_INDEX_BUFFER_VIEW		m_IndexBufferView = {};
 		
-		ID3D12Device*				m_pLogicalDevice;
-		ID3D12GraphicsCommandList*	m_pCommandList;
+		ID3D12Device*				m_pLogicalDevice = 0;
+		ID3D12GraphicsCommandList*	m_pCommandList = 0;
 
 		UINT					m_NumVerticies = 0;
 		UINT					m_NumIndices = 0;
@@ -50,9 +51,8 @@ namespace Insight {
 		std::vector<Vertex>		m_Verticies;
 		std::vector<DWORD>		m_Indices;
 
-		bool m_IncludeInGBufferPass = true;
 		Transform m_Transform;
-		CB_VS_PerObject m_ConstantBufferPerObject;
+		CB_VS_PerObject m_ConstantBufferPerObject = {};
 
 		//std::vector<Texture> m_Textures;
 	};

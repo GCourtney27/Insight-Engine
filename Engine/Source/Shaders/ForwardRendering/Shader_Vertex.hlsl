@@ -16,6 +16,11 @@ cbuffer cbPerObject : register(b0)
     float4x4 wvpMat;
 };
 
+cbuffer cbPerFrame :register(b1)
+{
+    float3 cameraPosition;
+};
+
 VS_OUTPUT main(VS_INPUT vs_in)
 {
     VS_OUTPUT vs_out;

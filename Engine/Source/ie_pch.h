@@ -11,6 +11,7 @@
 #include <vector>
 #include <string>
 #include <thread>
+#include <queue>
 #include <sstream>
 #include <unordered_map>
 #include <unordered_set>

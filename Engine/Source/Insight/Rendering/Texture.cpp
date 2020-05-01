@@ -122,13 +122,13 @@ namespace Insight {
 		case eTextureType::ALBEDO:
 		{
 			CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, 0, cbvSrvDescriptorSize);
-			m_pCommandList->SetGraphicsRootDescriptorTable(1, handle);
+			m_pCommandList->SetGraphicsRootDescriptorTable(2, handle);
 			break;
 		}
 		case eTextureType::NORMAL:
 		{
 			CD3DX12_GPU_DESCRIPTOR_HANDLE handle1(cbvSrvHeapStart, 1, cbvSrvDescriptorSize);
-			m_pCommandList->SetGraphicsRootDescriptorTable(2, handle1);
+			m_pCommandList->SetGraphicsRootDescriptorTable(3, handle1);
 			break;
 		}
 		case eTextureType::ROUGHNESS:

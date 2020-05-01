@@ -72,8 +72,6 @@ namespace Insight {
 
 		// TEMP! Move this!
 		void InitShaders();
-		void InitDemoScene();
-		//ConstantBuffer<ConstantBufferPerObject> cb_vertexShader;// TEMP! Move this!
 		void LoadAssets();
 		void LoadModels();
 		void LoadTextures();
@@ -148,15 +146,12 @@ namespace Insight {
 		Model model;
 		Camera camera;
 
-		int ConstantBufferPerObjectAlignedSize = (sizeof(CB_VS_PerObject) + 255) & ~255;
-		CB_VS_PerObject cbPerObject;
 		ComPtr<ID3D12Resource> m_ConstantBufferUploadHeaps[m_FrameBufferCount];
-
 		UINT8* m_cbvGPUAddress[m_FrameBufferCount]; 
 
-		DirectX::XMFLOAT4X4 cube1WorldMat;
-		DirectX::XMFLOAT4X4 cube1RotMat;
-		DirectX::XMFLOAT4 cube1Position;
+		ComPtr<ID3D12Resource> m_ConstantBufferPerFrameUploadHeaps[m_FrameBufferCount];
+		UINT8* m_cbvPerFrameGPUAddress[m_FrameBufferCount];
+		CB_PS_VS_PerFrame m_PerFrameData;
 
 		// TEMP Textures
 		// TODO: create texture manager class

@@ -7,6 +7,8 @@
 namespace Insight {
 
 	using namespace Microsoft::WRL;
+	using TransformInstanceQueue = std::queue<Transform>;
+
 
 	class ModelManager
 	{
@@ -14,23 +16,30 @@ namespace Insight {
 		ModelManager();
 		~ModelManager();
 
+		static ModelManager& Get() { return *s_Instance; }
+
 		bool Init();
 		void Draw();
 
-		void Update();
+		//void RequestDrawCall(Transform& instanceTransform);
+
+		void UploadVertexDataToGPU();
 
 		bool LoadMeshFromFile(const std::string& filePath, bool async = true);
+		void FlushModelCache();
 		
 	private:
-		
+
 	private:
 		std::vector< std::shared_ptr<Model> > m_Models;
-		static const uint8_t m_FrameBufferCount = 3u;
-		uint8_t m_FrameIndex = 0u;
+		//std::unordered_map< std::shared_ptr<Model>, TransformInstanceQueue > m_Models;
 
 		ID3D12Resource* m_ConstantBufferUploadHeaps = nullptr;
+		ID3D12GraphicsCommandList* m_pCommandList = nullptr;
 		int ConstantBufferPerObjectAlignedSize = (sizeof(CB_VS_PerObject) + 255) & ~255;
 
+	private:
+		static ModelManager* s_Instance;
 	};
 
 }

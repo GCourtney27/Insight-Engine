@@ -32,6 +32,7 @@ namespace Insight {
 		std::vector<Mesh> m_Meshes;
 		//std::vector<Texture> m_Textures
 		std::string m_Directory;
+		//Transform m_Transform;
 	};
 
 }
