@@ -22,8 +22,8 @@ float4 main(PS_INPUT ps_in) : SV_TARGET
     float4 albedo = tAlbedo.Sample(sampler1, ps_in.texCoords);
     float4 normal = tNormal.Sample(sampler1, ps_in.texCoords);
     float3 color = lerp(albedo, normal, 0.5);
-    
-    return float4(cameraPosition.x, cameraPosition.y, cameraPosition.z, 1.0f);
+    return albedo;
+    //return float4(cameraPosition.x, cameraPosition.y, cameraPosition.z, 1.0f);
     //float4 color = {1.0f, 0.0f, 0.0f, 1.0f};
     /*float4 color = {ps_in.normal, 1.0f};
     return color;*/

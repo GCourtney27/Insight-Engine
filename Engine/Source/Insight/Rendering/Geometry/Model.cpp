@@ -35,7 +35,10 @@ namespace Insight {
 	bool Model::LoadModel(const std::string& path)
 	{
 		Assimp::Importer importer;
-		const aiScene* pScene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenNormals);
+		const aiScene* pScene = importer.ReadFile(
+			path, 
+			aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_GenNormals
+		);
 
 		if (!pScene || pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !pScene->mRootNode)
 		{
@@ -53,10 +56,12 @@ namespace Insight {
 		for (UINT i = 0; i < pNode->mNumMeshes; i++)
 		{
 			aiMesh* pMesh = pScene->mMeshes[pNode->mMeshes[i]];
-			m_Meshes.push_back(ProcessMesh(pMesh, pScene));
+			m_Meshes.push_back(ProcessMesh(pMesh, pScene)); // BUG: Copies mesh into vector
 		}
 		for (UINT i = 0; i < pNode->mNumChildren; i++)
+		{
 			ProcessNode(pNode->mChildren[i], pScene);
+		}
 	}
 
 	Mesh Model::ProcessMesh(aiMesh* pMesh, const aiScene* pScene)

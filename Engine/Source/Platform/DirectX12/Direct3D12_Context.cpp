@@ -785,7 +785,7 @@ namespace Insight {
 	{
 		//model.Init("../Assets/Objects/nanosuit/nanosuit.obj");
 		m_ModelManager.LoadMeshFromFile("../Assets/Objects/nanosuit/nanosuit.obj");
-		m_ModelManager.LoadMeshFromFile("../Assets/Objects/Dandelion/Var1/Textured_Flower.obj");
+		//m_ModelManager.LoadMeshFromFile("../Assets/Objects/Dandelion/Var1/Textured_Flower.obj");
 	}
 
 	void Direct3D12Context::LoadTextures()
@@ -795,9 +795,11 @@ namespace Insight {
 		Texture::eTextureType albedo = Texture::eTextureType::ALBEDO;
 		Texture::eTextureType normal = Texture::eTextureType::NORMAL;
 
+		//if (!texture.Init(L"../Assets/Objects/Dandelion/Textures/Atlas/Flower_Albedo.jpg", albedo, heapHandle))
 		if (!texture.Init(L"../Assets/Objects/nanosuit/body_dif.png", albedo, heapHandle))
 			IE_CORE_ERROR("Failed to load texture in graphics context.");
 
+		//if (!texture2.Init(L"../Assets/Objects/Dandelion/Textures/Atlas/Flower_Normal.jpg", normal, heapHandle))
 		if (!texture2.Init(L"../Assets/Objects/nanosuit/body_showroom_ddn.png", normal, heapHandle))
 			IE_CORE_ERROR("Failed to load texture in graphics context.");
 	}
