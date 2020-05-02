@@ -37,7 +37,7 @@ namespace Insight {
 		Assimp::Importer importer;
 		const aiScene* pScene = importer.ReadFile(
 			path, 
-			aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_GenNormals
+			aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_GenNormals | aiProcess_CalcTangentSpace
 		);
 
 		if (!pScene || pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !pScene->mRootNode)
@@ -85,15 +85,25 @@ namespace Insight {
 			{
 				vertex.TexCoords.x = (float)pMesh->mTextureCoords[0][i].x;
 				vertex.TexCoords.y = (float)pMesh->mTextureCoords[0][i].y;
-				/*varContainer.x = pMesh->mTangents[i].x;
-				varContainer.y = pMesh->mTangents[i].y;
-				varContainer.z = pMesh->mTangents[i].z;
-				vertex.Tangent = varContainer;*/
+
+				vertex.Tangent.x = pMesh->mTangents[i].x;
+				vertex.Tangent.y = pMesh->mTangents[i].y;
+				vertex.Tangent.z = pMesh->mTangents[i].z;
+				
+				vertex.BiTangent.x = pMesh->mBitangents[i].x;
+				vertex.BiTangent.y = pMesh->mBitangents[i].y;
+				vertex.BiTangent.z = pMesh->mBitangents[i].z;
 			}
 			else
 			{
 				vertex.TexCoords = XMFLOAT2(0.0f, 0.0f);
+				vertex.Tangent = XMFLOAT3(0.0f, 0.0f, 0.0f);
+				vertex.BiTangent = XMFLOAT3(0.0f, 0.0f, 0.0f);
 			}
+			// Normals
+			vertex.Normal.x = (float)pMesh->mNormals[i].x;
+			vertex.Normal.y = (float)pMesh->mNormals[i].y;
+			vertex.Normal.z = (float)pMesh->mNormals[i].z;
 
 			verticies.push_back(vertex);
 		}

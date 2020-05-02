@@ -96,7 +96,7 @@ namespace Insight {
 		using namespace DirectX;
 
 		//Vector3 cameraEye = PlayerCharacter::Get().GetTransform().GetPosition();
-		
+
 		// TODO: move this to player controller
 		if (Input::IsMouseButtonPressed(IE_RIGHTMOUSE_BUTTON))
 		{
@@ -559,11 +559,12 @@ namespace Insight {
 		// TODO: Move this to the shader class
 		// Compile vertex shader // TEMP//
 #pragma region Make this a Vertex shader class
-		ID3DBlob* pVertexShader = nullptr;
+		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Shader_Vertex.cso";
+		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Shader_Pixel.cso";
 		ID3DBlob* pErrorBuffer = nullptr;
-		//TODO: make a file system search for this relative shader path in client
-		// The client should be able to edit and create their own shaders
-		hr = D3DCompileFromFile(L"Source/Shaders/ForwardRendering/Shader_Vertex.hlsl",
+		ID3DBlob* pVertexShader = nullptr;
+		// Activate this for engine first launch to install shaders for client gpu
+		/*hr = D3DCompileFromFile(L"Source/Shaders/ForwardRendering/Shader_Vertex.hlsl",
 			nullptr,
 			nullptr,
 			"main",
@@ -571,41 +572,47 @@ namespace Insight {
 			D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
 			0,
 			&pVertexShader,
-			&pErrorBuffer);
+			&pErrorBuffer);*/
+		hr = D3DReadFileToBlob(vertexShaderFolder, &pVertexShader);
 		if (FAILED(hr))
 		{
-			COM_ERROR_IF_FAILED(hr, "Failed to compile Vertex Shader check log for more details.");
 			IE_CORE_ERROR("Vertex Shader compilation error: {0}", (char*)pErrorBuffer->GetBufferPointer());
+			COM_ERROR_IF_FAILED(hr, "Failed to compile Vertex Shader check log for more details.");
 		}
 		D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
 		vertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
 		vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
 		// Compile pixel shader // TEMP//
 		// create vertex and pixel shaders
-		ID3DBlob* pixelShader = nullptr;
-		hr = D3DCompileFromFile(L"Source/Shaders/ForwardRendering/Shader_Pixel.hlsl",
+		ID3DBlob* pPixelShader = nullptr;
+		// Activate this for engine first launch to install shaders for client gpu
+		/*hr = D3DCompileFromFile(L"Source/Shaders/ForwardRendering/Shader_Pixel.hlsl",
 			nullptr,
 			nullptr,
 			"main",
 			"ps_5_0",
 			D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
 			0,
-			&pixelShader,
-			&pErrorBuffer);
+			&pPixelShader,
+			&pErrorBuffer);*/
+		hr = D3DReadFileToBlob(pixelShaderFolder, &pPixelShader);
 		if (FAILED(hr))
 		{
 			IE_CORE_ERROR("Pixel Shader compilation error: {0}", (char*)pErrorBuffer->GetBufferPointer());
 			COM_ERROR_IF_FAILED(hr, "Failed to compile Pixel Shader check log for more details.");
 		}
 		D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
-		pixelShaderBytecode.BytecodeLength = pixelShader->GetBufferSize();
-		pixelShaderBytecode.pShaderBytecode = pixelShader->GetBufferPointer();
+		pixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
+		pixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
 
 		// Create Input layout 
 		D3D12_INPUT_ELEMENT_DESC inputLayout[] =
 		{
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
+			{ "TANGENT",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
+			{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  }
 		};
 
 		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
@@ -663,7 +670,7 @@ namespace Insight {
 				D3D12_RESOURCE_STATE_GENERIC_READ,
 				nullptr,
 				IID_PPV_ARGS(&m_ConstantBufferPerFrameUploadHeaps[i]));
-			if (FAILED(hr))	{
+			if (FAILED(hr)) {
 				IE_CORE_ERROR("Failed to create committed resource for Constant Buffer Per Frame data.")
 			}
 			m_ConstantBufferPerFrameUploadHeaps[i]->SetName(L"Constant Buffer PerFrame Upload Heap");

@@ -23,6 +23,9 @@ IncludeDir["DX12TK"] = "Engine/Vendor/Microsoft/DirectX12/TK/Inc"
 
 include "Engine/Vendor/ImGui"
 
+CustomDefines = {}
+CustomDefines["IE_BUILD_DIR"] = "../" .. outputdir
+
 project ("Engine")
 	location ("Engine")
 	kind "WindowedApp"
@@ -45,6 +48,7 @@ project ("Engine")
 	{
 		"%{prj.name}/Source/**.cpp",
 		"%{prj.name}/Source/**.h",
+		"%{prj.name}/Source/**.hlsl",
 	}
 
 	defines
