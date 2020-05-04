@@ -22,9 +22,9 @@ float4 main(PS_INPUT ps_in) : SV_TARGET
 {
     float4 albedo = tAlbedo.Sample(sampler1, ps_in.texCoords);
     float4 normal = tNormal.Sample(sampler1, ps_in.texCoords);
-    //return albedo;
+    return albedo;
     
-    float4 color = {ps_in.normal, 1.0f};
-    return color;
+    //float4 color = {ps_in.normal, 1.0f};
+    //return color;
 
 }

@@ -559,8 +559,11 @@ namespace Insight {
 		// TODO: Move this to the shader class
 		// Compile vertex shader // TEMP//
 #pragma region Make this a Vertex shader class
+		/*LPCWSTR buildFolder = (LPCWSTR)_CRT_STRINGIZE(IE_BUILD_DIR);
+		LPCWSTR vertexShaderFolder = buildFolder + L"Shader_Vertex.cso";*/
 		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Shader_Vertex.cso";
 		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Shader_Pixel.cso";
+		
 		ID3DBlob* pErrorBuffer = nullptr;
 		ID3DBlob* pVertexShader = nullptr;
 		// Activate this for engine first launch to install shaders for client gpu
@@ -608,11 +611,14 @@ namespace Insight {
 		// Create Input layout 
 		D3D12_INPUT_ELEMENT_DESC inputLayout[] =
 		{
+			// Per-vertex
 			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 			{ "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
 			{ "TANGENT",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
-			{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  }
+			{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
+			// Per-instance
+			{ "INSTANCE_POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1 },
 		};
 
 		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};

@@ -38,7 +38,7 @@ namespace Insight {
 				model->GetMeshAtIndex(j).Draw();
 			}
 		}
-		
+
 	}
 
 	// Update the Constant buffers in the gpu with the new data for each model. Does not draw models
@@ -46,14 +46,24 @@ namespace Insight {
 	{
 		UINT8* cbvGPUAddress = &Direct3D12Context::Get().GetConstantBufferViewGPUHeapAddress();
 		UINT32 gpuAdressOffset = 0;
+		XMMATRIX viewMat = Direct3D12Context::Get().GetCamera().GetViewMatrix();
+		XMFLOAT4X4 viewFloat;
+		XMStoreFloat4x4(&viewFloat, XMMatrixTranspose(viewMat));
+		XMMATRIX projectionMat = Direct3D12Context::Get().GetCamera().GetProjectionMatrix();
+		XMFLOAT4X4 projFloat;
+		XMStoreFloat4x4(&projFloat, XMMatrixTranspose(projectionMat));
+
 		for (unsigned int i = 0; i < m_Models.size(); i++)
 		{
-			
+
 			for (unsigned int j = 0; j < m_Models[i]->GetNumChildMeshes(); j++)
 			{
 				// TODO: draw instanced if ref count is greater than one on shared pointer
-				CB_VS_PerObject cbPerObject = m_Models[i]->GetMeshAtIndex(j).GetConstantBuffer();
 				
+				CB_VS_PerObject cbPerObject = m_Models[i]->GetMeshAtIndex(j).GetConstantBuffer();
+				cbPerObject.view = viewFloat;
+				cbPerObject.projection = projFloat;
+
 				memcpy(cbvGPUAddress + (ConstantBufferPerObjectAlignedSize * gpuAdressOffset++), &cbPerObject, sizeof(cbPerObject));
 			}
 

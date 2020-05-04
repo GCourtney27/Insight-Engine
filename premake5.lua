@@ -50,10 +50,20 @@ project ("Engine")
 		"%{prj.name}/Source/**.h",
 		"%{prj.name}/Source/**.hlsl",
 	}
+	
+	propertydefinition {
+		name = "DebuggingSymbols",
+		kind = "boolean",
+		display = "Debugging Symbols",
+		description = "Add debugging information to the generated output",
+		value = false,
+		switch = "-g"
+	  }
 
 	defines
 	{
-		"_CRT_SECURE_NO_WARNINGS"
+		"_CRT_SECURE_NO_WARNINGS",
+		"IE_BUILD_DIR=%{CustomDefines.IE_BUILD_DIR}"
 	}
 
 	includedirs
