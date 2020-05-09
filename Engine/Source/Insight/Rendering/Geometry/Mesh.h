@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Insight/Core.h"
+#include <Insight/Core.h>
 
 #include "Insight/Rendering/Geometry/Vertex.h"
 #include "Insight/Math/Transform.h"

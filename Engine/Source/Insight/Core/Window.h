@@ -2,7 +2,7 @@
 
 #include "ie_pch.h"
 
-#include "Insight/Core.h"
+#include <Insight/Core.h>
 #include "Insight/Events/Event.h"
 #include "Platform/DirectX12/Direct3D12_Context.h"
 

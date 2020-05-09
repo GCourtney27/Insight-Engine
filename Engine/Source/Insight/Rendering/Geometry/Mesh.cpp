@@ -32,10 +32,8 @@ namespace Insight {
 
 	CB_VS_PerObject Mesh::GetConstantBuffer()
 	{
-		//XMMATRIX viewMat = Direct3D12Context::Get().GetCamera().GetViewMatrix();
-		//XMMATRIX projectionMat = Direct3D12Context::Get().GetCamera().GetProjectionMatrix();
 		XMMATRIX localMat = m_Transform.GetLocalMatrix();
-		XMMATRIX wvp = localMat;// *viewMat* projectionMat;
+		XMMATRIX wvp = localMat;
 		XMMATRIX transposed = XMMatrixTranspose(wvp);
 		XMFLOAT4X4 wvpFloat;
 		XMStoreFloat4x4(&wvpFloat, transposed);
@@ -51,7 +49,7 @@ namespace Insight {
 		m_pCommandList->IASetVertexBuffers(1, 1, &m_InstanceBufferView);
 		m_pCommandList->IASetIndexBuffer(&m_IndexBufferView);
 
-		m_pCommandList->DrawIndexedInstanced(m_NumIndices, 4, 0, 0, 0);
+		m_pCommandList->DrawIndexedInstanced(m_NumIndices, 1, 0, 0, 0);
 	}
 
 	void Mesh::Destroy()
@@ -125,10 +123,10 @@ namespace Insight {
 		// Instance Data
 		XMFLOAT3 instancePositions[] =
 		{
-			XMFLOAT3(0.0f, 7.0f, 0.0f),
+			XMFLOAT3(0.0f, 0.0f, 7.0f),
+			XMFLOAT3(0.0f, 0.0f, -7.0f),
 			XMFLOAT3(7.0f, 0.0f, 0.0f),
 			XMFLOAT3(-7.0f, 0.0f, 0.0f),
-			XMFLOAT3(0.0f, -7.0f, 0.0f),
 		};
 
 		const UINT instanceBufferSize = sizeof(instancePositions);

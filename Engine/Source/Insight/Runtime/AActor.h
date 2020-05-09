@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Insight/Core.h"
+#include <Insight/Core.h>
 
 #include "Insight/Math/Transform.h"
-#include "Insight/Runtime/Components/Component.h"
+#include "Insight/Runtime/Components/Actor_Component.h"
 
 namespace Insight {
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Insight/Core.h"
+#include <Insight/Core.h>
 
 #include "Insight/Rendering/RenderingContext.h"
 #include "Platform/Windows/Error/COM_Exception.h"

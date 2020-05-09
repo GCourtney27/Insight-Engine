@@ -203,8 +203,9 @@ namespace Insight {
 
 		//m_pCommandList->SetGraphicsRootConstantBufferView(0, m_ConstantBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
 		m_pCommandList->SetGraphicsRootConstantBufferView(1, m_ConstantBufferPerFrameUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
-		//model.Draw();
 		m_ModelManager.Draw();
+
+		//model.Draw();
 
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 	}
@@ -561,8 +562,8 @@ namespace Insight {
 #pragma region Make this a Vertex shader class
 		/*LPCWSTR buildFolder = (LPCWSTR)_CRT_STRINGIZE(IE_BUILD_DIR);
 		LPCWSTR vertexShaderFolder = buildFolder + L"Shader_Vertex.cso";*/
-		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Shader_Vertex.cso";
-		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Shader_Pixel.cso";
+		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Shader.vertex.cso";
+		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Shader.pixel.cso";
 		
 		ID3DBlob* pErrorBuffer = nullptr;
 		ID3DBlob* pVertexShader = nullptr;

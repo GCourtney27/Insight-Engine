@@ -29,12 +29,12 @@ namespace Insight {
 	void ModelManager::Draw()
 	{
 		D3D12_GPU_VIRTUAL_ADDRESS cbvHandle(m_ConstantBufferUploadHeaps->GetGPUVirtualAddress());
+		m_pCommandList->SetGraphicsRootConstantBufferView(0, cbvHandle);
+
 		for (std::shared_ptr<Model>& model : m_Models)
 		{
 			for (unsigned int j = 0; j < model->GetNumChildMeshes(); j++)
 			{
-				m_pCommandList->SetGraphicsRootConstantBufferView(0, cbvHandle + (ConstantBufferPerObjectAlignedSize * j));
-
 				model->GetMeshAtIndex(j).Draw();
 			}
 		}

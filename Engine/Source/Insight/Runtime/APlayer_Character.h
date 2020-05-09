@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Insight/Core.h"
+#include <Insight/Core.h>
 
 #include "Insight/Runtime/APawn.h"
 #include "Insight/Runtime/ACamera.h"

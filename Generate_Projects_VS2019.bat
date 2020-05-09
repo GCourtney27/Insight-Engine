@@ -1,2 +1,2 @@
-call Vendor\Bin\premake\premake5.exe vs2019
+call Vendor\premake\premake5.exe vs2019
 PAUSE

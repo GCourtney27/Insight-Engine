@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Insight/Core.h"
+#include <Insight/Core.h>
 #ifdef IE_PLATFORM_WINDOWS
 	#include "Platform/Windows/Console_Window.h"
 #endif 

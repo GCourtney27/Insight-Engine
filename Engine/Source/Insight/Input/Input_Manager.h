@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Insight/Core.h"
+#include <Insight/Core.h>
 
 #include "Insight/Events/Key_Event.h"
 #include "Insight/Events/Mouse_Event.h"

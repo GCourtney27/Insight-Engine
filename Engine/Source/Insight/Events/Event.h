@@ -1,7 +1,7 @@
 #pragma once
 #include "ie_pch.h"
 
-#include "Insight/Core.h"
+#include <Insight/Core.h>
 
 namespace Insight {
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Insight/Core.h"
+#include <Insight/Core.h>
 
 #include "Window.h"
 #include "Insight/Core/Layer/Layer_Stack.h"

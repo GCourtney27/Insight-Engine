@@ -8,6 +8,7 @@
 #include <functional>
 
 #include <array>
+#include <map>
 #include <vector>
 #include <string>
 #include <thread>
@@ -16,16 +17,29 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#if _MSC_VER >= 1700
+	using std::shared_ptr;
+	using std::weak_ptr;
+	using std::static_pointer_cast;
+	using std::dynamic_pointer_cast;
+#elif _MSC_VER == 1600
+	using std::tr1::shared_ptr;
+	using std::tr1::weak_ptr;
+	using std::tr1::static_pointer_cast;
+	using std::tr1::dynamic_pointer_cast;
+#endif
+
 // === Insight Specific ===
 #include "Insight/Core/Log.h"
 
 // === Windows Library ===
 #ifdef IE_PLATFORM_WINDOWS
+
 	// Windows API	
 	#include <Windows.h>
 	#include <wrl/client.h>
 
-	// Direct3D 12 Includes
+	// Direct3D 12
 	#include <SimpleMath.h>
 	#include <DirectXMath.h>
 	#include <d3d12.h>

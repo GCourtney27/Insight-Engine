@@ -50,15 +50,6 @@ project ("Engine")
 		"%{prj.name}/Source/**.h",
 		"%{prj.name}/Source/**.hlsl",
 	}
-	
-	propertydefinition {
-		name = "DebuggingSymbols",
-		kind = "boolean",
-		display = "Debugging Symbols",
-		description = "Add debugging information to the generated output",
-		value = false,
-		switch = "-g"
-	  }
 
 	defines
 	{
@@ -99,6 +90,8 @@ project ("Engine")
 		("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/%{cfg.buildcfg}/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine")
 	}
 
+
+
 	filter "system:windows"
 		systemversion "latest"
 
@@ -111,6 +104,15 @@ project ("Engine")
 		{
 			"MultiProcessorCompile"
 		}
+
+		filter { "files:**.hlsl" }
+			shadermodel "5.0"
+
+		filter { "files:**.pixel.hlsl" }
+			shadertype "Pixel"
+		
+		filter { "files:**.vertex.hlsl" }
+			shadertype "Vertex"
 	
 	-- Engine Development
 	filter "configurations:Debug"

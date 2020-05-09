@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Insight/Core.h"
+#include <Insight/Core.h>
 #include "Insight/Events/Event.h"
 
 namespace Insight {
