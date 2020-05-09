@@ -1,4 +1,5 @@
 #include "WindowContainer.h"
+#include <memory>
 
 WindowContainer::WindowContainer()
 {

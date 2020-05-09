@@ -13,13 +13,13 @@
 #include "..\Objects\Player.h"
 
 #include "json.h"
-#include "document.h"
-#include "filewritestream.h"
-#include "istreamwrapper.h"
-#include "writer.h"
-#include "stringbuffer.h"
-#include "ostreamwrapper.h"
-#include "prettywriter.h"
+#include "rapidjson/document.h"
+#include "rapidjson/filewritestream.h"
+#include "rapidjson/istreamwrapper.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/ostreamwrapper.h"
+#include "rapidjson/prettywriter.h"
 
 #include <map>
 
