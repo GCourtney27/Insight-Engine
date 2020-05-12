@@ -1,5 +1,5 @@
 #pragma once
-#include "ie_pch.h"
+#include <ie_pch.h>
 
 #include <Insight/Core.h>
 

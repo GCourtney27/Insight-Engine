@@ -1,4 +1,4 @@
-#include "ie_pch.h"
+#include <ie_pch.h>
 
 #include "APawn.h"
 
@@ -38,32 +38,32 @@ namespace Insight {
 		{
 		case Insight::APawn::FORWARD:
 		{
-			m_Transform.GetPositionRef() += m_Transform.GetLocalForward() * velocity;
+			GetTransformRef().GetPositionRef() += GetTransformRef().GetLocalForward() * velocity;
 			break;
 		}
 		case Insight::APawn::BACKWARD:
 		{
-			m_Transform.GetPositionRef() -= m_Transform.GetLocalForward() * velocity;
+			GetTransformRef().GetPositionRef() -= GetTransformRef().GetLocalForward() * velocity;
 			break;
 		}
 		case Insight::APawn::LEFT:
 		{
-			m_Transform.GetPositionRef() -= m_Transform.GetLocalRight() * velocity;
+			GetTransformRef().GetPositionRef() -= GetTransformRef().GetLocalRight() * velocity;
 			break;
 		}
 		case Insight::APawn::RIGHT:
 		{
-			m_Transform.GetPositionRef() += m_Transform.GetLocalRight() * velocity;
+			GetTransformRef().GetPositionRef() += GetTransformRef().GetLocalRight() * velocity;
 			break;
 		}
 		case Insight::APawn::UP:
 		{
-			m_Transform.GetPositionRef() += m_Transform.GetLocalUp() * velocity;
+			GetTransformRef().GetPositionRef() += GetTransformRef().GetLocalUp() * velocity;
 			break;
 		}
 		case Insight::APawn::DOWN:
 		{
-			m_Transform.GetPositionRef() -= m_Transform.GetLocalUp() * velocity;
+			GetTransformRef().GetPositionRef() -= GetTransformRef().GetLocalUp() * velocity;
 			break;
 		}
 		default:

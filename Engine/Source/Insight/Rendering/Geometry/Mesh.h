@@ -4,15 +4,18 @@
 
 #include "Insight/Rendering/Geometry/Vertex.h"
 #include "Insight/Math/Transform.h"
+#include "Insight/Core/Scene/Scene_Node.h"
 #include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
 
 namespace Insight {
 
-	class Mesh 
+	class INSIGHT_API Mesh : public SceneNode
 	{
 	public:
 		Mesh(std::vector<Vertex> verticies, std::vector<DWORD> indices);
 		~Mesh();
+
+		void RenderSceneHeirarchy();
 
 		inline const Transform& GetTransform() const { return m_Transform; }
 		CB_VS_PerObject GetConstantBuffer();

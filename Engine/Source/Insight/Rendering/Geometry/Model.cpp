@@ -1,4 +1,4 @@
-#include "ie_pch.h"
+#include <ie_pch.h>
 
 #include "Model.h"
 #include "Insight/Utilities/String_Helper.h"
@@ -9,6 +9,7 @@ namespace Insight {
 	Model::Model(const std::string& path)
 	{
 		LoadModelFromFile(path);
+		SceneNode(m_FileName);
 	}
 
 	Model::~Model()
@@ -24,16 +25,23 @@ namespace Insight {
 		return LoadModelFromFile(path);
 	}
 
+	void Model::RenderSceneHeirarchy()
+	{
+	}
+
 	void Model::Draw()
 	{
 		for (UINT i = 0; i < m_Meshes.size(); i++)
-			m_Meshes[i].Draw();
+		{
+
+			m_Meshes[i]->Draw();
+		}
 	}
 
 	void Model::Destroy()
 	{
 		for (UINT i = 0; i < m_Meshes.size(); i++)
-			m_Meshes[i].Destroy();
+			m_Meshes[i]->Destroy();
 	}
 
 	bool Model::LoadModelFromFile(const std::string& path)
@@ -50,30 +58,37 @@ namespace Insight {
 			return false;
 		}
 
-		ProcessNode_r(pScene->mRootNode, pScene);
+		for (size_t i = 0; i < pScene->mNumMeshes; ++i)
+		{
+			m_Meshes.push_back(ProcessMesh(pScene->mMeshes[i]));
+		}
+
+		ParseNode_r(pScene->mRootNode, pScene);
 		return true;
 	}
 
-	void Model::ProcessNode_r(aiNode* pNode, const aiScene* pScene)
+	void Model::ParseNode_r(aiNode* pNode, const aiScene* pScene)
 	{
+		auto transform = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&pNode->mTransformation)));
 		for (UINT i = 0; i < pNode->mNumMeshes; i++)
 		{
 			aiMesh* pMesh = pScene->mMeshes[pNode->mMeshes[i]];
-			m_Meshes.push_back(ProcessMesh(pMesh, pScene)); // BUG: Copies mesh into vector, ownership mismath crashes program when destructor is called
+			//m_Children.push_back(ProcessMesh(pMesh, pScene));
+			m_Meshes.push_back(ProcessMesh(pMesh)); // BUG: Copies mesh into vector, ownership mismath crashes program when destructor is called
 		}
 		for (UINT i = 0; i < pNode->mNumChildren; i++)
 		{
-			ProcessNode_r(pNode->mChildren[i], pScene);
+			ParseNode_r(pNode->mChildren[i], pScene);
 		}
 	}
 
-	Mesh Model::ProcessMesh(aiMesh* pMesh, const aiScene* pScene)
+	unique_ptr<Mesh> Model::ProcessMesh(aiMesh* pMesh)
 	{
 		using namespace DirectX;
 		std::vector<Vertex> verticies;
 		std::vector<DWORD> indices;
 		//std::vector<Texture> textures;
-
+		
 		// Load Verticies
 		for (UINT i = 0; i < pMesh->mNumVertices; i++)
 		{
@@ -132,7 +147,7 @@ namespace Insight {
 			std::vector<Texture> normalMaps = LoadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
 			textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 		}*/
-		return Mesh(verticies, indices);
+		return std::make_unique<Mesh>(verticies, indices);
 
 	}
 

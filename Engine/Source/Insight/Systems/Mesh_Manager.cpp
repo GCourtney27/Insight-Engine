@@ -1,4 +1,4 @@
-#include "ie_pch.h"
+#include <ie_pch.h>
 
 #include "Mesh_Manager.h"
 
@@ -35,7 +35,7 @@ namespace Insight {
 		{
 			for (unsigned int j = 0; j < model->GetNumChildMeshes(); j++)
 			{
-				model->GetMeshAtIndex(j).Draw();
+				model->GetMeshAtIndex(j)->Draw();
 			}
 		}
 
@@ -60,7 +60,7 @@ namespace Insight {
 			{
 				// TODO: draw instanced if ref count is greater than one on shared pointer
 				
-				CB_VS_PerObject cbPerObject = m_Models[i]->GetMeshAtIndex(j).GetConstantBuffer();
+				CB_VS_PerObject cbPerObject = m_Models[i]->GetMeshAtIndex(j)->GetConstantBuffer();
 				cbPerObject.view = viewFloat;
 				cbPerObject.projection = projFloat;
 

@@ -1,4 +1,4 @@
-#include "ie_pch.h"
+#include <ie_pch.h>
 #include "Windows_Input.h"
 
 #include "Insight/Core/Application.h"

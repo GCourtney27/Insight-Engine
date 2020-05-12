@@ -1,4 +1,4 @@
-#include "ie_pch.h"
+#include <ie_pch.h>
 
 #include "ImGui_Layer.h"
 #include "Insight/Core/Application.h"
@@ -105,11 +105,11 @@ namespace Insight {
 
 	void ImGuiLayer::OnImGuiRender()
 	{
-		ImGui::Begin("ImGui Layer");
+		/*ImGui::Begin("ImGui Layer");
 		{
 
 		}
-		ImGui::End();
+		ImGui::End();*/
 	}
 
 	void ImGuiLayer::Begin()

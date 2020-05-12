@@ -1,4 +1,4 @@
-#include "ie_pch.h"
+#include <ie_pch.h>
 
 #include "Application.h"
 
@@ -84,6 +84,7 @@ namespace Insight {
 				m_ImGuiLayer->Begin();
 				for (Layer* layer : m_LayerStack) 
 					layer->OnImGuiRender();
+				m_Scene.OnImGuiRender();
 				m_ImGuiLayer->End();
 			}
 

@@ -2,31 +2,39 @@
 #include <Insight/Core.h>
 
 #include "Insight/Math/Transform.h"
+#include "Insight/Core/Scene/Scene_Node.h"
+#include "Insight/Runtime/Components/Scene_Component.h"
 
 namespace Insight {
 
 	typedef std::string ActorType;
+	typedef std::string ActorName;
 
-	
-	class INSIGHT_API AActor
+	using Super = Insight::SceneNode;
+
+	class INSIGHT_API AActor : public SceneNode
 	{
 	public:
 		typedef std::vector<StrongActorComponentPtr> ActorComponents;
 
 	public:
-		AActor(ActorId id);
+		AActor(ActorId id, ActorName actorName = "Default Actor");
 		~AActor();
 
+		void RenderSceneHeirarchy();
+
 		virtual bool OnInit();
-		virtual void OnPostInit();
+		virtual bool OnPostInit();
 		virtual void OnUpdate(const float& deltaMs);
 		virtual void OnRender();
-
-		virtual void BeginPlay();
-		virtual void Tick();
 		virtual void Destroy();
 
-		const inline Transform& GetTransform() const { return m_Transform; }
+		virtual void BeginPlay();
+		virtual void Tick(const float& deltaMs);
+		virtual void Exit();
+
+		const inline Transform& GetTransform() const { return m_SceneComponent.GetTransform(); }
+		inline Transform& GetTransformRef() { return m_SceneComponent.GetTransformRef(); }
 	public:
 		template<typename T>
 		T* AddComponent()
@@ -55,8 +63,8 @@ namespace Insight {
 		
 	protected:
 		const Vector3 WORLD_DIRECTION = WORLD_DIRECTION.Zero;
+		SceneComponent m_SceneComponent;
 		ActorComponents m_Components;
-		Transform m_Transform;
 		ActorId m_id;
 	private:
 		

@@ -20,11 +20,13 @@
 #if _MSC_VER >= 1700
 	using std::shared_ptr;
 	using std::weak_ptr;
+	using std::unique_ptr;
 	using std::static_pointer_cast;
 	using std::dynamic_pointer_cast;
 #elif _MSC_VER == 1600
 	using std::tr1::shared_ptr;
 	using std::tr1::weak_ptr;
+	using std::tr1::unique_ptr;
 	using std::tr1::static_pointer_cast;
 	using std::tr1::dynamic_pointer_cast;
 #endif

@@ -1,4 +1,4 @@
-#include "ie_pch.h"
+#include <ie_pch.h>
 
 
 #include "ACamera.h"
@@ -47,10 +47,10 @@ namespace Insight {
 
 		//m_Transform.SetRotation(Vector3(m_Pitch, m_Yaw, 0.0f));
 		//IE_CORE_INFO("Mouse raw pos: {0}, {1}", xPos, yPos)
-		m_Transform.Rotate(yPos * m_MouseSensitivity, xPos * m_MouseSensitivity, 0.0f);
+		GetTransformRef().Rotate(yPos * m_MouseSensitivity, xPos * m_MouseSensitivity, 0.0f);
 
 		UpdateViewMatrix();
-		m_Transform.UpdateLocalDirectionVectors();
+		GetTransformRef().UpdateLocalDirectionVectors();
 	}
 	
 	void Camera::ProcessKeyboardInput(CameraMovement direction, float deltaTime)
@@ -58,27 +58,27 @@ namespace Insight {
 		float velocity = m_MovementSpeed * deltaTime;
 		if (direction == FORWARD)
 		{
-			m_Transform.GetPositionRef() += m_Transform.GetLocalForward() * velocity;
+			GetTransformRef().GetPositionRef() += GetTransformRef().GetLocalForward() * velocity;
 		}
 		if (direction == BACKWARD)
 		{
-			m_Transform.GetPositionRef() -= m_Transform.GetLocalForward() * velocity;
+			GetTransformRef().GetPositionRef() -= GetTransformRef().GetLocalForward() * velocity;
 		}
 		if (direction == LEFT)
 		{
-			m_Transform.GetPositionRef() -= m_Transform.GetLocalRight() * velocity;
+			GetTransformRef().GetPositionRef() -= GetTransformRef().GetLocalRight() * velocity;
 		}
 		if (direction == RIGHT)
 		{
-			m_Transform.GetPositionRef() += m_Transform.GetLocalRight() * velocity;
+			GetTransformRef().GetPositionRef() += GetTransformRef().GetLocalRight() * velocity;
 		}
 		if (direction == UP)
 		{
-			m_Transform.GetPositionRef() += WORLD_DIRECTION.Up * velocity;
+			GetTransformRef().GetPositionRef() += WORLD_DIRECTION.Up * velocity;
 		}
 		if (direction == DOWN)
 		{
-			m_Transform.GetPositionRef() -= WORLD_DIRECTION.Up * velocity;
+			GetTransformRef().GetPositionRef() -= WORLD_DIRECTION.Up * velocity;
 		}
 		UpdateViewMatrix();
 	}
@@ -95,11 +95,11 @@ namespace Insight {
 
 	void Camera::UpdateViewMatrix()
 	{
-		XMMATRIX camRotationMatrix = XMMatrixRotationRollPitchYaw(m_Transform.GetRotation().x, m_Transform.GetRotation().y, 0.0f);
+		XMMATRIX camRotationMatrix = XMMatrixRotationRollPitchYaw(GetTransformRef().GetRotation().x, GetTransformRef().GetRotation().y, 0.0f);
 		XMVECTOR camTarget = XMVector3TransformCoord(WORLD_DIRECTION.Forward, camRotationMatrix);
-		camTarget += m_Transform.GetPosition();
+		camTarget += GetTransformRef().GetPosition();
 		XMVECTOR upDir = XMVector3TransformCoord(WORLD_DIRECTION.Up, camRotationMatrix);
-		m_ViewMatrix = XMMatrixLookAtLH(m_Transform.GetPosition(), camTarget, upDir);
+		m_ViewMatrix = XMMatrixLookAtLH(GetTransformRef().GetPosition(), camTarget, upDir);
 
 	}
 }

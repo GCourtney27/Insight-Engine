@@ -1,4 +1,4 @@
-#include "ie_pch.h"
+#include <ie_pch.h>
 #include "Layer_Stack.h"
 
 namespace Insight {

@@ -1,4 +1,4 @@
-#include "ie_pch.h"
+#include <ie_pch.h>
 
 #include "Mesh.h"
 
@@ -30,6 +30,10 @@ namespace Insight {
 		//Destroy();
 	}
 
+	void Mesh::RenderSceneHeirarchy()
+	{
+	}
+
 	CB_VS_PerObject Mesh::GetConstantBuffer()
 	{
 		XMMATRIX localMat = m_Transform.GetLocalMatrix();
@@ -45,6 +49,8 @@ namespace Insight {
 
 	void Mesh::Draw()
 	{
+		//m_Transform.GetLocalMatrixRef() *= accumulatedMatrix;
+		//XMStoreFloat4x4(&m_ConstantBufferPerObject.world, m_Transform.GetLocalMatrix());
 		m_pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);
 		//m_pCommandList->IASetVertexBuffers(1, 1, &m_InstanceBufferView);
 		m_pCommandList->IASetIndexBuffer(&m_IndexBufferView);
