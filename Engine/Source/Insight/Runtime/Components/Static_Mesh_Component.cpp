@@ -6,13 +6,4 @@ namespace Insight {
 
 
 
-	StaticMeshComponent::StaticMeshComponent(AActor* owner, ID& id)
-		: Component(owner, id)
-	{
-	}
-
-	StaticMeshComponent::~StaticMeshComponent()
-	{
-	}
-
 }

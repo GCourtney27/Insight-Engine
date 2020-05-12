@@ -54,17 +54,17 @@ namespace Insight {
 
 		// Returns objects local matrix
 		XMMATRIX GetLocalMatrix() const { return m_LocalMatrix; }
-		XMMATRIX GetLocalMatrixTransposed() const { return XMMatrixTranspose(m_LocalMatrix); }
+		XMMATRIX& GetLocalMatrixRef() { return m_LocalMatrix; }
 		// Set the objects local matrix
 		void SetLocalMatrix(XMMATRIX matrix);
+		XMMATRIX GetLocalMatrixTransposed() const { return XMMatrixTranspose(m_LocalMatrix); }
 
 		// Returns the objets world matrix
-		XMMATRIX GetWorldMatrix() const
-		{
-			return m_WorldMatrix;
-		}
+		XMMATRIX GetWorldMatrix() const	{ return m_WorldMatrix; }
+		XMMATRIX& GetWorldMatrixRef(){ return m_WorldMatrix; }
 		// Set the objects world matrix
 		void SetWorldMatrix(XMMATRIX matrix);
+		XMMATRIX GetWorldMatrixTransposed() const { return XMMatrixTranspose(m_WorldMatrix); }
 
 		// DO NOT CALL UNLESS YOU KNOW WHAT YOU'RE DOING
 		void UpdateLocalDirectionVectors();

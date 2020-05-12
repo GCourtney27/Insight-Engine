@@ -143,7 +143,8 @@ namespace Insight {
 		}
 		case eTextureType::SPECULAR:
 		{
-
+			CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, 2, cbvSrvDescriptorSize);
+			m_pCommandList->SetGraphicsRootDescriptorTable(4, handle);
 			break;
 		}
 		case eTextureType::AO:

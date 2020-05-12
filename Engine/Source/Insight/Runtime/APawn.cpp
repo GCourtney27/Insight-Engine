@@ -6,19 +6,23 @@ namespace Insight {
 
 
 
-	APawn::APawn()
+	APawn::APawn(ActorId id)
+		: AActor(id)
 	{
 	}
 
 	APawn::~APawn()
 	{
+
 	}
 
-	void APawn::OnInit()
+	bool APawn::OnInit()
 	{
+
+		return true;
 	}
 
-	void APawn::OnUpdate()
+	void APawn::OnUpdate(const float& deltaMs)
 	{
 	}
 

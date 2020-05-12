@@ -3,6 +3,7 @@
 
 namespace Insight {
 
+
 	class RenderingContext
 	{
 	

@@ -36,7 +36,7 @@ namespace Insight {
 				float yaw = YAW, 
 				float roll = ROLL, 
 				float exposure = EXPOSURE)
-			: m_MovementSpeed(SPEED), m_MouseSensitivity(SENSITIVITY), m_Fov(FOV), m_Exposure(EXPOSURE)
+			: m_MovementSpeed(SPEED), m_MouseSensitivity(SENSITIVITY), m_Fov(FOV), m_Exposure(EXPOSURE), AActor(0)
 		{
 			m_Transform.SetPosition(position);
 			m_Pitch = pitch;

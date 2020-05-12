@@ -37,7 +37,7 @@ namespace Insight {
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
 
-		inline RenderingContext& GetRenderContext() { return *m_pRendererContext; }
+		inline shared_ptr<RenderingContext> GetRenderContext() { return m_pRendererContext; }
 
 		virtual void Resize(uint32_t newWidth, uint32_t newHeight, bool isMinimized) = 0;
 		virtual void ToggleFullScreen(bool enabled) = 0;
@@ -53,7 +53,7 @@ namespace Insight {
 
 		static Window* Create(const WindowProps& props = WindowProps());
 
-		RenderingContext* m_pRendererContext;
+		shared_ptr<RenderingContext> m_pRendererContext;
 	protected:
 
 	};

@@ -2,7 +2,7 @@
 
 #include <Insight/Core.h>
 
-#include "Insight/Rendering/RenderingContext.h"
+#include "Insight/Rendering/Rendering_Context.h"
 #include "Platform/Windows/Error/COM_Exception.h"
 
 #include "Insight/Runtime/ACamera.h"
@@ -118,12 +118,12 @@ namespace Insight {
 
 		ComPtr<ID3D12DescriptorHeap>		m_pMainDescriptorHeap;
 
-		const UINT AO_MAP_SHADER_REGISTER = Texture::eTextureType::AO;
 		const UINT ALBEDO_MAP_SHADER_REGISTER = Texture::eTextureType::ALBEDO;
 		const UINT NORMAL_MAP_SHADER_REGISTER = Texture::eTextureType::NORMAL;
 		const UINT METALLIC_MAP_SHADER_REGISTER = Texture::eTextureType::METALLIC;
 		const UINT SPECULAR_MAP_SHADER_REGISTER = Texture::eTextureType::SPECULAR;
 		const UINT ROUGHNESS_MAP_SHADER_REGISTER = Texture::eTextureType::ROUGHNESS;
+		const UINT AO_MAP_SHADER_REGISTER = Texture::eTextureType::AO;
 
 		D3D12_VIEWPORT						m_ViewPort = {};
 		D3D12_RECT							m_ScissorRect = {};
@@ -155,8 +155,9 @@ namespace Insight {
 
 		// TEMP Textures
 		// TODO: create texture manager class
-		Texture texture;
-		Texture texture2;
+		Texture albedoTexture;
+		Texture normalTexture;
+		Texture specularTexture;
 
 		
 	};

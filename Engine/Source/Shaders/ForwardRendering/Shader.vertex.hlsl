@@ -7,7 +7,7 @@ struct VS_INPUT
 	float3 tangent   : TANGENT;
 	float3 biTangent : BITANGENT;
 
-	float3 instPosition  : INSTANCE_POSITION;
+	//float3 instPosition  : INSTANCE_POSITION;
 };
 
 struct VS_OUTPUT

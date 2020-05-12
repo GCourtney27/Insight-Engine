@@ -11,6 +11,7 @@ namespace Insight {
 	APlayerCharacter* APlayerCharacter::s_Instance = nullptr;
 
 	APlayerCharacter::APlayerCharacter()
+		: APawn(0)
 	{
 		IE_CORE_ASSERT(!s_Instance, "Trying to create another instnace of a player character!");
 		s_Instance = this;
@@ -25,8 +26,10 @@ namespace Insight {
 	{
 	}
 
-	void APlayerCharacter::OnInit()
+	bool APlayerCharacter::OnInit()
 	{
+
+		return true;
 	}
 
 	void APlayerCharacter::OnUpdate()

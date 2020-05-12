@@ -46,7 +46,7 @@ namespace Insight {
 	void Mesh::Draw()
 	{
 		m_pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);
-		m_pCommandList->IASetVertexBuffers(1, 1, &m_InstanceBufferView);
+		//m_pCommandList->IASetVertexBuffers(1, 1, &m_InstanceBufferView);
 		m_pCommandList->IASetIndexBuffer(&m_IndexBufferView);
 
 		m_pCommandList->DrawIndexedInstanced(m_NumIndices, 1, 0, 0, 0);
@@ -65,8 +65,8 @@ namespace Insight {
 		if (!InitializeVertexDataForD3D12())
 			IE_CORE_TRACE("Failed to setup vertex data for D3D12");
 
-		if (!InitializeInstanceBufferD3D12())
-			IE_CORE_TRACE("Failed to setup instance data for D3D12");
+		//if (!InitializeInstanceBufferD3D12())
+		//	IE_CORE_TRACE("Failed to setup instance data for D3D12");
 
 		if (!InitializeIndexDataForD3D12())
 			IE_CORE_TRACE("Failed to setup index data for D3D12");

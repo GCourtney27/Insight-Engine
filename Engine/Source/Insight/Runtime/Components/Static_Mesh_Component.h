@@ -2,21 +2,21 @@
 
 #include <Insight/Core.h>
 
-#include "Insight/Runtime/Components/Actor_Component.h"
-
+#include "Actor_Component.h"
+#include "Insight/Rendering/Geometry/Model.h"
 
 namespace Insight {
 
-	class INSIGHT_API StaticMeshComponent : public Component
+	class INSIGHT_API StaticMeshComponent : public ActorComponent
 	{
 	public:
-		StaticMeshComponent(AActor* owner, ID& id);
+		StaticMeshComponent();
 		~StaticMeshComponent();
-
-		// TODO: Should just hold a index inside mesh manager to the desired mesh to render
-
+		
 	private:
 
+	private:
+		Model* m_pModel = nullptr;
 	};
 
 }

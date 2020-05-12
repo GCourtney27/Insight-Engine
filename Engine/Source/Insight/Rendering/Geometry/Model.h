@@ -24,14 +24,15 @@ namespace Insight {
 		void Draw();
 		void Destroy();
 	private:
-		bool LoadModel(const std::string& path);
-		void ProcessNode(aiNode* pNode, const aiScene* pScene);
+		bool LoadModelFromFile(const std::string& path);
+		void ProcessNode_r(aiNode* pNode, const aiScene* pScene);
 		Mesh ProcessMesh(aiMesh* pMesh, const aiScene* pScene);
 		//std::vector<Texture> LoadMaterialTextures
 	private:
 		std::vector<Mesh> m_Meshes;
 		//std::vector<Texture> m_Textures
 		std::string m_Directory;
+		std::string m_FileName;
 		//Transform m_Transform;
 	};
 

@@ -17,7 +17,7 @@ namespace Insight {
 
 		inline static APlayerCharacter& Get() { return *s_Instance; }
 
-		virtual void OnInit();
+		virtual bool OnInit();
 		virtual void OnUpdate();
 		virtual void OnRender();
 

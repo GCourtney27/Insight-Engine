@@ -1,13 +1,14 @@
 #include "ie_pch.h"
 
 #include "Model.h"
+#include "Insight/Utilities/String_Helper.h"
 
 namespace Insight {
 
 
 	Model::Model(const std::string& path)
 	{
-		LoadModel(path);
+		LoadModelFromFile(path);
 	}
 
 	Model::~Model()
@@ -17,7 +18,10 @@ namespace Insight {
 
 	bool Model::Init(const std::string& path)
 	{
-		return LoadModel(path);
+		m_Directory = StringHelper::GetDirectoryFromPath(path);
+		m_FileName = StringHelper::GetFileExtension(path);
+
+		return LoadModelFromFile(path);
 	}
 
 	void Model::Draw()
@@ -32,12 +36,12 @@ namespace Insight {
 			m_Meshes[i].Destroy();
 	}
 
-	bool Model::LoadModel(const std::string& path)
+	bool Model::LoadModelFromFile(const std::string& path)
 	{
 		Assimp::Importer importer;
 		const aiScene* pScene = importer.ReadFile(
 			path, 
-			aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_GenNormals | aiProcess_CalcTangentSpace
+			aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded
 		);
 
 		if (!pScene || pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !pScene->mRootNode)
@@ -46,21 +50,20 @@ namespace Insight {
 			return false;
 		}
 
-		m_Directory = path.substr(0, path.find_last_of('/'));
-		ProcessNode(pScene->mRootNode, pScene);
+		ProcessNode_r(pScene->mRootNode, pScene);
 		return true;
 	}
 
-	void Model::ProcessNode(aiNode* pNode, const aiScene* pScene)
+	void Model::ProcessNode_r(aiNode* pNode, const aiScene* pScene)
 	{
 		for (UINT i = 0; i < pNode->mNumMeshes; i++)
 		{
 			aiMesh* pMesh = pScene->mMeshes[pNode->mMeshes[i]];
-			m_Meshes.push_back(ProcessMesh(pMesh, pScene)); // BUG: Copies mesh into vector
+			m_Meshes.push_back(ProcessMesh(pMesh, pScene)); // BUG: Copies mesh into vector, ownership mismath crashes program when destructor is called
 		}
 		for (UINT i = 0; i < pNode->mNumChildren; i++)
 		{
-			ProcessNode(pNode->mChildren[i], pScene);
+			ProcessNode_r(pNode->mChildren[i], pScene);
 		}
 	}
 

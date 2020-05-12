@@ -198,8 +198,9 @@ namespace Insight {
 		ID3D12DescriptorHeap* descriptorHeaps[] = { m_pMainDescriptorHeap.Get() };
 		m_pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
-		texture.Bind();
-		texture2.Bind();
+		albedoTexture.Bind();
+		normalTexture.Bind();
+		specularTexture.Bind();
 
 		//m_pCommandList->SetGraphicsRootConstantBufferView(0, m_ConstantBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
 		m_pCommandList->SetGraphicsRootConstantBufferView(1, m_ConstantBufferPerFrameUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
@@ -438,7 +439,7 @@ namespace Insight {
 	{
 		D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
 		heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		heapDesc.NumDescriptors = 2; //TODO: Get this from the number of textures held in texture manager (TextureManager::GetNumTextures() or something)
+		heapDesc.NumDescriptors = 3; //TODO: Get this from the number of textures held in texture manager (TextureManager::GetNumTextures() or something)
 		heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 		HRESULT hr = m_pLogicalDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_pMainDescriptorHeap));
 		if (FAILED(hr)) {
@@ -513,15 +514,17 @@ namespace Insight {
 			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
 			D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS;
 
-		CD3DX12_DESCRIPTOR_RANGE descTableRanges[2] = {};
+		CD3DX12_DESCRIPTOR_RANGE descTableRanges[3] = {};
 		descTableRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, ALBEDO_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Albedo Texture
 		descTableRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, NORMAL_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Normal Texture
+		descTableRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Specular Texture
 
-		CD3DX12_ROOT_PARAMETER rootParams[4] = {};
+		CD3DX12_ROOT_PARAMETER rootParams[5] = {};
 		rootParams[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL); // ConstantBufferPerObject
 		rootParams[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL); // Utilities
 		rootParams[2].InitAsDescriptorTable(1, &descTableRanges[0], D3D12_SHADER_VISIBILITY_PIXEL); // Albedo Texture
 		rootParams[3].InitAsDescriptorTable(1, &descTableRanges[1], D3D12_SHADER_VISIBILITY_PIXEL); // Normal Texture
+		rootParams[4].InitAsDescriptorTable(1, &descTableRanges[2], D3D12_SHADER_VISIBILITY_PIXEL); // Specular Texture
 
 		D3D12_STATIC_SAMPLER_DESC sampler = {};
 		sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
@@ -559,14 +562,13 @@ namespace Insight {
 		// TODO: Make Shader class
 		// TODO: Move this to the shader class
 		// Compile vertex shader // TEMP//
-#pragma region Make this a Vertex shader class
-		/*LPCWSTR buildFolder = (LPCWSTR)_CRT_STRINGIZE(IE_BUILD_DIR);
-		LPCWSTR vertexShaderFolder = buildFolder + L"Shader_Vertex.cso";*/
+		//LPCWSTR buildFolder = (LPCWSTR)_CRT_STRINGIZE(IE_BUILD_DIR);
+		//LPCWSTR vertexShaderFolder = buildFolder + L"Shader_Vertex.cso";
 		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Shader.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Shader.pixel.cso";
 		
-		ID3DBlob* pErrorBuffer = nullptr;
-		ID3DBlob* pVertexShader = nullptr;
+		ComPtr<ID3DBlob> pErrorBuffer;
+		ComPtr<ID3DBlob> pVertexShader;
 		// Activate this for engine first launch to install shaders for client gpu
 		/*hr = D3DCompileFromFile(L"Source/Shaders/ForwardRendering/Shader_Vertex.hlsl",
 			nullptr,
@@ -588,7 +590,7 @@ namespace Insight {
 		vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
 		// Compile pixel shader // TEMP//
 		// create vertex and pixel shaders
-		ID3DBlob* pPixelShader = nullptr;
+		ComPtr<ID3DBlob> pPixelShader = nullptr;
 		// Activate this for engine first launch to install shaders for client gpu
 		/*hr = D3DCompileFromFile(L"Source/Shaders/ForwardRendering/Shader_Pixel.hlsl",
 			nullptr,
@@ -619,13 +621,12 @@ namespace Insight {
 			{ "TANGENT",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
 			{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
 			// Per-instance
-			{ "INSTANCE_POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1 },
+			//{ "INSTANCE_POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1 },
 		};
 
 		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
 		inputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
 		inputLayoutDesc.pInputElementDescs = inputLayout;
-#pragma endregion
 
 		// Create Pipeline State Object
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
@@ -808,14 +809,19 @@ namespace Insight {
 
 		Texture::eTextureType albedo = Texture::eTextureType::ALBEDO;
 		Texture::eTextureType normal = Texture::eTextureType::NORMAL;
+		Texture::eTextureType secular = Texture::eTextureType::SPECULAR;
 
 		//if (!texture.Init(L"../Assets/Objects/Dandelion/Textures/Atlas/Flower_Albedo.jpg", albedo, heapHandle))
-		if (!texture.Init(L"../Assets/Objects/nanosuit/body_dif.png", albedo, heapHandle))
+		if (!albedoTexture.Init(L"../Assets/Objects/nanosuit/body_dif.png", albedo, heapHandle))
 			IE_CORE_ERROR("Failed to load texture in graphics context.");
 
 		//if (!texture2.Init(L"../Assets/Objects/Dandelion/Textures/Atlas/Flower_Normal.jpg", normal, heapHandle))
-		if (!texture2.Init(L"../Assets/Objects/nanosuit/body_showroom_ddn.png", normal, heapHandle))
+		if (!normalTexture.Init(L"../Assets/Objects/nanosuit/body_showroom_ddn.png", normal, heapHandle))
 			IE_CORE_ERROR("Failed to load texture in graphics context.");
+		
+		if (!specularTexture.Init(L"../Assets/Objects/nanosuit/body_showroom_spec.png", secular, heapHandle))
+			IE_CORE_ERROR("Failed to load texture in graphics context.");
+
 	}
 
 	void Direct3D12Context::CreateCommandQueue()

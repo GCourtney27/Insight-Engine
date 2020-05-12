@@ -52,36 +52,44 @@ namespace Insight {
 	{
 		PushEngineLayers();
 
+		if (!m_Scene.Init()) 
+		{
+			IE_CORE_ERROR("Failed to initialize scene");
+			return false;
+		}
+
 		IE_CORE_TRACE("Application Initialized");
 		return true;
 	}
 
 	void Application::Run()
 	{
-		AActor* actor = new AActor();
 		while(m_Running)
 		{
 			m_FrameTimer.tick();
 			const float& time = (float)m_FrameTimer.seconds();
 			const float& deltaTime = (float)m_FrameTimer.dt();
+			
+			m_pWindow->OnUpdate(deltaTime);
 
-			// m_Scene->OnUpdate(deltaTime);
-
-			for (Layer* layer : m_LayerStack)
+			for (Layer* layer : m_LayerStack) 
 				layer->OnUpdate(deltaTime);
 
-			m_pWindow->OnFramePreRender();
-			m_pWindow->OnUpdate(deltaTime);
-			m_pWindow->OnRender();
+			m_Scene.OnPreRender();
+			m_Scene.OnUpdate(deltaTime);
+			m_Scene.OnRender();
 
-			m_ImGuiLayer->Begin();
-			for (Layer* layer : m_LayerStack)
-				layer->OnImGuiRender();
-			m_ImGuiLayer->End();
-			
-			m_pWindow->ExecuteDraw();
+			// Render UI
+			{
+				m_ImGuiLayer->Begin();
+				for (Layer* layer : m_LayerStack) 
+					layer->OnImGuiRender();
+				m_ImGuiLayer->End();
+			}
+
+			m_Scene.OnPostRender();
+
 		}
-		delete actor;
 	}
 
 	void Application::Shutdown()

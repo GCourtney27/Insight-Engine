@@ -20,12 +20,12 @@ namespace Insight {
 			DOWN
 		};
 	public:
-		APawn();
+		APawn(ActorId id);
 		~APawn();
 
-		virtual void OnInit();
-		virtual void OnUpdate();
-		virtual void OnRender();
+		virtual bool OnInit() override;
+		virtual void OnUpdate(const float& deltaMs) override;
+		virtual void OnRender() override;
 
 		inline void SetMovementSpeed(const float& movementSpeed) { m_MovementSpeed = movementSpeed; }
 

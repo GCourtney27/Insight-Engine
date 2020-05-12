@@ -269,7 +269,7 @@ namespace Insight {
 			return false;
 		}
 
-		m_pRendererContext = new Direct3D12Context(this);
+		m_pRendererContext = std::make_shared<Direct3D12Context>(this);
 		if (!m_pRendererContext->Init())
 		{
 			IE_CORE_FATAL(L"Failed to initialize graphics context");
@@ -354,7 +354,7 @@ namespace Insight {
 	void WindowsWindow::OnUpdate(const float& deltaTime)
 	{
 		ProccessWindowMessages();
-		m_pRendererContext->OnUpdate(deltaTime);
+		//m_pRendererContext->OnUpdate(deltaTime);
 	}
 
 	void WindowsWindow::OnFramePreRender()
@@ -403,7 +403,7 @@ namespace Insight {
 			DestroyWindow(m_WindowHandle);
 		}
 
-		delete m_pRendererContext;
+		m_pRendererContext.reset();
 	}
 
 }

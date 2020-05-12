@@ -1,6 +1,6 @@
 #pragma once
 
-// === Standard Library ===
+// === Standard Library === //
 #include <memory>
 #include <utility>
 #include <iostream>
@@ -29,10 +29,11 @@
 	using std::tr1::dynamic_pointer_cast;
 #endif
 
-// === Insight Specific ===
+// === Insight Specific === //
 #include "Insight/Core/Log.h"
+#include "Insight/Core/Interfaces.h"
 
-// === Windows Library ===
+// === Windows Library === //
 #ifdef IE_PLATFORM_WINDOWS
 
 	// Windows API	

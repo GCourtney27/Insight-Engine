@@ -7,6 +7,7 @@
 #include "Insight/Events/Application_Event.h"
 #include "Insight/ImGui/ImGui_Layer.h"
 #include "Insight/Systems/Time.h"
+#include "Insight/Core/Scene/Scene.h"
 
 namespace Insight {
 
@@ -42,6 +43,7 @@ namespace Insight {
 		bool					m_Running = true;
 		LayerStack				m_LayerStack;
 		FrameTimer				m_FrameTimer;
+		Scene					m_Scene;
 	private:
 		static Application*		s_Instance;
 	};
