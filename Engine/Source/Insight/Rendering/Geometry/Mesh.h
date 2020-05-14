@@ -9,13 +9,11 @@
 
 namespace Insight {
 
-	class INSIGHT_API Mesh : public SceneNode
+	class INSIGHT_API Mesh
 	{
 	public:
 		Mesh(std::vector<Vertex> verticies, std::vector<DWORD> indices);
 		~Mesh();
-
-		void RenderSceneHeirarchy();
 
 		inline const Transform& GetTransform() const { return m_Transform; }
 		CB_VS_PerObject GetConstantBuffer();

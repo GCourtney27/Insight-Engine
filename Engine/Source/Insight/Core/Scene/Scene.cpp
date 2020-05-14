@@ -5,7 +5,6 @@
 #include "Insight/Runtime/Components/Static_Mesh_Component.h"
 #include "imgui.h"
 
-
 namespace Insight {
 
 
@@ -25,10 +24,18 @@ namespace Insight {
 		// TODO: Init from file
 		m_Renderer = Application::Get().GetWindow().GetRenderContext();
 
-		m_pTestActor = new AActor(0);// TODO: make the id be its index in the scene
+		m_pTestActor = new AActor(0, "Test actor 1");// TODO: make the id be its index in the scene
 		//m_pTestActor->AddComponent<StaticMeshComponent>();
+		m_pTestActor2 = new AActor(0, "Test actor 2");// TODO: make the id be its index in the scene
+		//m_pTestActor2->AddComponent<StaticMeshComponent>();
 
-		m_pRoot->AddChild(m_pTestActor);
+		m_pModel = new Model();
+		m_pModel->Init("../Assets/Objects/nanosuit/nanosuit.obj");
+		//m_pTestActor->AddChild(m_pTestActor2);
+
+		m_pRoot->AddChild(m_pModel);
+		//m_pRoot->AddChild(m_pTestActor);
+		//m_pRoot->AddChild(m_pTestActor2);
 
 		return true;
 	}
@@ -45,14 +52,16 @@ namespace Insight {
 	void Scene::OnImGuiRender()
 	{
 		RenderSceneHeirarchy();
+		RenderInspector();
 	}
 
 	void Scene::RenderSceneHeirarchy()
 	{
 		ImGui::Begin("Scene Heirarchy");
 		{
-			if (ImGui::CollapsingHeader(m_pRoot->GetDisplayName()))
+			if (ImGui::CollapsingHeader(m_pRoot->GetDisplayName(), ImGuiTreeNodeFlags_DefaultOpen))
 			{
+				
 				m_pRoot->RenderSceneHeirarchy();
 				/*if (ImGui::TreeNode("Hello"))
 				{
@@ -69,6 +78,15 @@ namespace Insight {
 		}
 		ImGui::End();
 		
+	}
+
+	void Scene::RenderInspector()
+	{
+		ImGui::Begin("Inspector");
+		{
+
+		}
+		ImGui::End();
 	}
 
 	void Scene::OnPreRender()

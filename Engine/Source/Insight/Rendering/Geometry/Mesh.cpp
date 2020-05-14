@@ -4,6 +4,7 @@
 
 #include "Insight/Core/Application.h"
 #include "Platform/DirectX12/Direct3D12_Context.h"
+#include "imgui.h"
 
 namespace Insight {
 
@@ -28,10 +29,6 @@ namespace Insight {
 	Mesh::~Mesh()
 	{
 		//Destroy();
-	}
-
-	void Mesh::RenderSceneHeirarchy()
-	{
 	}
 
 	CB_VS_PerObject Mesh::GetConstantBuffer()

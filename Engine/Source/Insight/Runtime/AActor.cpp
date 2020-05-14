@@ -18,15 +18,16 @@ namespace Insight {
 	{
 	}
 
+	// Draw the heirarchy of the actor and its children to ImGui
 	void AActor::RenderSceneHeirarchy()
 	{
 		if (ImGui::TreeNode(Super::GetDisplayName()))
 		{
+			Super::RenderSceneHeirarchy();
 
 			ImGui::TreePop();
 			ImGui::Spacing();
 		}
-		Super::RenderSceneHeirarchy();
 	}
 
 	bool AActor::OnInit()

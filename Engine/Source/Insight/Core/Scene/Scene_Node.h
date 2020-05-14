@@ -10,6 +10,8 @@ namespace Insight {
 	class INSIGHT_API SceneNode
 	{
 	public:
+		using Super = Insight::SceneNode;
+	public:
 		SceneNode(std::string displayName = "Default Scene Node");
 		~SceneNode();
 

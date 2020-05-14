@@ -7,6 +7,7 @@
 #include <assimp/scene.h>
 
 #include "Insight/Core/Scene/Scene_Node.h"
+#include "Insight/Rendering/Geometry/Mesh_Node.h"
 
 namespace Insight {
 
@@ -27,13 +28,15 @@ namespace Insight {
 
 		void Draw();
 		void Destroy();
+		bool LoadModelFromFile(const std::string& path);// TEMP
 	private:
-		bool LoadModelFromFile(const std::string& path);
-		void ParseNode_r(aiNode* pNode, const aiScene* pScene);
+		unique_ptr<MeshNode> ParseNode_r(aiNode* pNode, const aiScene* pScene);
 		unique_ptr<Mesh> ProcessMesh(aiMesh* pMesh);
 		//std::vector<Texture> LoadMaterialTextures
 	private:
 		std::vector<unique_ptr<Mesh>> m_Meshes;
+		unique_ptr<MeshNode> m_pRoot;
+
 		//std::vector<Texture> m_Textures
 		std::string m_Directory;
 		std::string m_FileName;

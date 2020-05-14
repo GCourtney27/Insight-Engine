@@ -77,7 +77,7 @@ namespace Insight {
 			CreatePipelineStateObjects();
 
 			CreateConstantBufferResourceHeaps();
-			m_ModelManager.Init();
+			//m_ModelManager.Init();
 			LoadAssets();
 
 			CloseCommandListAndSignalCommandQueue();
@@ -116,7 +116,7 @@ namespace Insight {
 		if (Input::IsKeyPressed('Q'))
 			camera.ProcessKeyboardInput(CameraMovement::DOWN, 0.001f);
 
-		m_ModelManager.UploadVertexDataToGPU();
+		//m_ModelManager.UploadVertexDataToGPU();
 
 		m_PerFrameData.cameraPosition = camera.GetTransform().GetPosition();
 		memcpy(m_cbvPerFrameGPUAddress[m_FrameIndex], &m_PerFrameData, sizeof(m_PerFrameData));
@@ -204,7 +204,7 @@ namespace Insight {
 
 		//m_pCommandList->SetGraphicsRootConstantBufferView(0, m_ConstantBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
 		m_pCommandList->SetGraphicsRootConstantBufferView(1, m_ConstantBufferPerFrameUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
-		m_ModelManager.Draw();
+		//m_ModelManager.Draw();
 
 		//model.Draw();
 
@@ -799,7 +799,7 @@ namespace Insight {
 	void Direct3D12Context::LoadModels()
 	{
 		//model.Init("../Assets/Objects/nanosuit/nanosuit.obj");
-		m_ModelManager.LoadMeshFromFile("../Assets/Objects/nanosuit/nanosuit.obj");
+		//m_ModelManager.LoadMeshFromFile("../Assets/Objects/nanosuit/nanosuit.obj");
 		//m_ModelManager.LoadMeshFromFile("../Assets/Objects/Dandelion/Var1/Textured_Flower.obj");
 	}
 

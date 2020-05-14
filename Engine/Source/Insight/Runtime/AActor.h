@@ -10,8 +10,6 @@ namespace Insight {
 	typedef std::string ActorType;
 	typedef std::string ActorName;
 
-	using Super = Insight::SceneNode;
-
 	class INSIGHT_API AActor : public SceneNode
 	{
 	public:
@@ -21,6 +19,7 @@ namespace Insight {
 		AActor(ActorId id, ActorName actorName = "Default Actor");
 		~AActor();
 
+		// Editor
 		void RenderSceneHeirarchy();
 
 		virtual bool OnInit();

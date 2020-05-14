@@ -2,14 +2,15 @@
 
 #include "Model.h"
 #include "Insight/Utilities/String_Helper.h"
+#include "imgui.h"
 
 namespace Insight {
 
 
 	Model::Model(const std::string& path)
 	{
-		LoadModelFromFile(path);
-		SceneNode(m_FileName);
+		SceneNode("MyModel");
+		Init(path);
 	}
 
 	Model::~Model()
@@ -27,6 +28,14 @@ namespace Insight {
 
 	void Model::RenderSceneHeirarchy()
 	{
+		if (ImGui::TreeNode(Super::GetDisplayName()))
+		{
+			Super::RenderSceneHeirarchy();
+			m_pRoot->RenderSceneHeirarchy();
+
+			ImGui::TreePop();
+			ImGui::Spacing();
+		}
 	}
 
 	void Model::Draw()
@@ -49,7 +58,7 @@ namespace Insight {
 		Assimp::Importer importer;
 		const aiScene* pScene = importer.ReadFile(
 			path, 
-			aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded
+			aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded 
 		);
 
 		if (!pScene || pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !pScene->mRootNode)
@@ -60,32 +69,50 @@ namespace Insight {
 
 		for (size_t i = 0; i < pScene->mNumMeshes; ++i)
 		{
-			m_Meshes.push_back(ProcessMesh(pScene->mMeshes[i]));
+			m_Meshes.push_back(std::move(ProcessMesh(pScene->mMeshes[i])));
 		}
 
-		ParseNode_r(pScene->mRootNode, pScene);
+		m_pRoot = ParseNode_r(pScene->mRootNode, pScene);
 		return true;
 	}
 
-	void Model::ParseNode_r(aiNode* pNode, const aiScene* pScene)
+	unique_ptr<MeshNode> Model::ParseNode_r(aiNode* pNode, const aiScene* pScene)
 	{
-		auto transform = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&pNode->mTransformation)));
+		Transform transform;
+		transform.SetLocalMatrix(DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&pNode->mTransformation))));
+
+		// Create a pointer to all the meshes this node owns
+		std::vector<Mesh*> curMeshPtrs;
+		curMeshPtrs.reserve(pNode->mNumMeshes);
 		for (UINT i = 0; i < pNode->mNumMeshes; i++)
 		{
-			aiMesh* pMesh = pScene->mMeshes[pNode->mMeshes[i]];
-			//m_Children.push_back(ProcessMesh(pMesh, pScene));
-			m_Meshes.push_back(ProcessMesh(pMesh)); // BUG: Copies mesh into vector, ownership mismath crashes program when destructor is called
+			const auto meshIndex = pNode->mMeshes[i];
+			curMeshPtrs.push_back(m_Meshes.at(meshIndex).get());
 		}
-		for (UINT i = 0; i < pNode->mNumChildren; i++)
+		
+		auto pMeshNode = std::make_unique<MeshNode>(curMeshPtrs, transform, pNode->mName.C_Str());
+		for (UINT i = 0; i < pNode->mNumChildren; ++i)
+		{
+			pMeshNode->AddChild(ParseNode_r(pNode->mChildren[i], pScene));
+		}
+
+		return pMeshNode;
+		//for (UINT i = 0; i < pNode->mNumMeshes; i++)
+		//{
+		//	aiMesh* pMesh = pScene->mMeshes[pNode->mMeshes[i]];
+		//	m_Children.push_back(curMeshes[i]);
+		//	//m_Meshes.push_back(ProcessMesh(pMesh)); // BUG: Copies mesh into vector, ownership mismath crashes program when destructor is called
+		//}
+		/*for (UINT i = 0; i < pNode->mNumChildren; i++)
 		{
 			ParseNode_r(pNode->mChildren[i], pScene);
-		}
+		}*/
 	}
 
 	unique_ptr<Mesh> Model::ProcessMesh(aiMesh* pMesh)
 	{
 		using namespace DirectX;
-		std::vector<Vertex> verticies;
+		std::vector<Vertex> verticies; verticies.reserve(pMesh->mNumVertices);
 		std::vector<DWORD> indices;
 		//std::vector<Texture> textures;
 		
