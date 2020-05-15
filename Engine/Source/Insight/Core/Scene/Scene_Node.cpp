@@ -54,11 +54,18 @@ namespace Insight {
 
 	void SceneNode::OnRender()
 	{
-		
+		for (auto i = m_Children.begin(); i != m_Children.end(); ++i)
+		{
+			(*i)->OnRender();
+		}
 	}
 
 	void SceneNode::BeginPlay()
 	{
+		for (auto i = m_Children.begin(); i != m_Children.end(); ++i)
+		{
+			(*i)->BeginPlay();
+		}
 	}
 
 	void SceneNode::Tick(const float& deltaMs)

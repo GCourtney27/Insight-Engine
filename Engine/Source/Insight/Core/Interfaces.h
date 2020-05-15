@@ -27,7 +27,8 @@ namespace Insight {
 		RenderPass_Actor,
 		RenderPass_Sky,
 		RenderPass_NotRendered,
-		RenderPass_Last
+		RenderPass_Last,
+		RenderPass_UI
 	};
 
 	class Scene;

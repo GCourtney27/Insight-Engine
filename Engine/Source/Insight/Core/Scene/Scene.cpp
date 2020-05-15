@@ -25,16 +25,16 @@ namespace Insight {
 		m_Renderer = Application::Get().GetWindow().GetRenderContext();
 
 		m_pTestActor = new AActor(0, "Test actor 1");// TODO: make the id be its index in the scene
-		//m_pTestActor->AddComponent<StaticMeshComponent>();
-		m_pTestActor2 = new AActor(0, "Test actor 2");// TODO: make the id be its index in the scene
+		m_pTestActor->CreateDefaultSubobject<StaticMeshComponent>();
+		//m_pTestActor2 = new AActor(0, "Test actor 2");// TODO: make the id be its index in the scene
 		//m_pTestActor2->AddComponent<StaticMeshComponent>();
 
-		m_pModel = new Model();
-		m_pModel->Init("../Assets/Objects/nanosuit/nanosuit.obj");
+		//m_pModel = new Model();
+		//m_pModel->Init("../Assets/Objects/nanosuit/nanosuit.obj");
 		//m_pTestActor->AddChild(m_pTestActor2);
 
-		m_pRoot->AddChild(m_pModel);
-		//m_pRoot->AddChild(m_pTestActor);
+		//m_pRoot->AddChild(m_pModel);
+		m_pRoot->AddChild(m_pTestActor);
 		//m_pRoot->AddChild(m_pTestActor2);
 
 		return true;
@@ -61,19 +61,7 @@ namespace Insight {
 		{
 			if (ImGui::CollapsingHeader(m_pRoot->GetDisplayName(), ImGuiTreeNodeFlags_DefaultOpen))
 			{
-				
 				m_pRoot->RenderSceneHeirarchy();
-				/*if (ImGui::TreeNode("Hello"))
-				{
-					ImGui::TreePop();
-					ImGui::Spacing();
-				}
-
-				if (ImGui::TreeNode("There"))
-				{
-					ImGui::TreePop();
-					ImGui::Spacing();
-				}*/
 			}
 		}
 		ImGui::End();

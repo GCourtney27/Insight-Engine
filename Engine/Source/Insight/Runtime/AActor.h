@@ -16,7 +16,7 @@ namespace Insight {
 		typedef std::vector<StrongActorComponentPtr> ActorComponents;
 
 	public:
-		AActor(ActorId id, ActorName actorName = "Default Actor");
+		AActor(ActorId id, ActorName actorName = "MyActor");
 		~AActor();
 
 		// Editor
@@ -25,7 +25,7 @@ namespace Insight {
 		virtual bool OnInit();
 		virtual bool OnPostInit();
 		virtual void OnUpdate(const float& deltaMs);
-		virtual void OnRender();
+		virtual void OnRender(XMMATRIX& matrix);
 		virtual void Destroy();
 
 		virtual void BeginPlay();
@@ -36,21 +36,21 @@ namespace Insight {
 		inline Transform& GetTransformRef() { return m_SceneComponent.GetTransformRef(); }
 	public:
 		template<typename T>
-		T* AddComponent()
+		StrongActorComponentPtr CreateDefaultSubobject()
 		{
-			T* component = new T(this);
-			assert(dynamic_cast<StrongActorComponentPtr>(component));
+			StrongActorComponentPtr component = std::make_shared<T>(std::make_shared<AActor>(*this));
+			//assert(dynamic_cast<StrongActorComponentPtr>(component));
 
 			m_Components.push_back(component);
 			return component;
 		}
 		template<typename T>
-		T* GetComponent()
+		WeakActorComponentPtr GetSubobject()
 		{
-			T* component = nullptr;
+			WeakActorComponentPtr component = nullptr;
 			for (StrongActorComponentPtr _component : m_components)
 			{
-				component = dynamic_cast<T*>(_component);
+				component = dynamic_cast<T>(_component);
 				if (component != nullptr) break;
 			}
 			return component;

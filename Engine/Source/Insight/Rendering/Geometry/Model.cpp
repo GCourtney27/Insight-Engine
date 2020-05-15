@@ -9,7 +9,6 @@ namespace Insight {
 
 	Model::Model(const std::string& path)
 	{
-		SceneNode("MyModel");
 		Init(path);
 	}
 
@@ -22,6 +21,7 @@ namespace Insight {
 	{
 		m_Directory = StringHelper::GetDirectoryFromPath(path);
 		m_FileName = StringHelper::GetFileExtension(path);
+		SceneNode(m_Filename);
 
 		return LoadModelFromFile(path);
 	}

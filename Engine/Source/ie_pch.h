@@ -23,6 +23,8 @@
 	using std::unique_ptr;
 	using std::static_pointer_cast;
 	using std::dynamic_pointer_cast;
+	using std::make_shared;
+	using std::make_unique;
 #elif _MSC_VER == 1600
 	using std::tr1::shared_ptr;
 	using std::tr1::weak_ptr;

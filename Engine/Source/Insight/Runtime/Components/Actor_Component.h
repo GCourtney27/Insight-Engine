@@ -1,11 +1,11 @@
 #pragma once
 #include <Insight/Core.h>
 
-#include "Insight/Utilities/Hashed_String.h"
 
 namespace Insight {
 
 
+	using Super = Insight::ActorComponent;
 	
 	class ActorComponent
 	{
@@ -25,18 +25,17 @@ namespace Insight {
 		const bool& GetIsComponentEnabled() const { return m_Enabled; }
 		void SetComponentEnabled(bool enable) { m_Enabled = enable; }
 
-		virtual ComponentId GetId() const { GetIdFromName(GetName()); }
-		virtual const char* GetName() const = 0;
-		static ComponentId GetIdFromName(const char* componentString)
-		{
-			void* rawId = HashedString::HashName(componentString);
-			return reinterpret_cast<ComponentId>(rawId);
-		}
-	private:
+		virtual const char* GetName() const { return m_ComponentName; };
+		
 		void SetOwner(StrongActorPtr owner) { m_pOwner = owner; }
 	protected:
+		ActorComponent(const char* componentName, StrongActorPtr owner)
+			: m_ComponentName(componentName), m_pOwner(owner) {}
+	protected:
 		StrongActorPtr m_pOwner;
+		const char* m_ComponentName;
 		bool m_Enabled = true;
+
 
 	};
 }

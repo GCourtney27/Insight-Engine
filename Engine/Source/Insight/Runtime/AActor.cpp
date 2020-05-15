@@ -59,9 +59,10 @@ namespace Insight {
 		}
 	}
 
-	void AActor::OnRender()
+	void AActor::OnRender(XMMATRIX& matrix)
 	{
-		Super::OnRender();
+		//Super::OnRender(GetTransform().GetLocalMatrixRef());
+
 	}
 
 	void AActor::BeginPlay()
