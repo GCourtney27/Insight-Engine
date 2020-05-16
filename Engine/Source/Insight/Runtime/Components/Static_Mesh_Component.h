@@ -3,7 +3,7 @@
 #include <Insight/Core.h>
 
 #include "Actor_Component.h"
-#include "Insight/Rendering/Geometry/Model.h"
+#include "Insight/Rendering/Geometry/Static_Mesh.h"
 
 namespace Insight {
 
@@ -16,10 +16,11 @@ namespace Insight {
 		virtual void OnInit() override;
 		virtual void OnPostInit() {}
 		virtual void OnDestroy() override;
-		virtual void OnUpdate(const float& deltaTime) {}
+		virtual void OnRender() override;
+		virtual void OnUpdate(const float& deltaTime);
 		virtual void OnChanged() {}
 		virtual void OnImGuiRender() override;
-
+		void RenderSceneHeirarchy() override;
 
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
@@ -27,7 +28,7 @@ namespace Insight {
 	private:
 
 	private:
-		unique_ptr<Model> m_pModel = nullptr;
+		unique_ptr<StaticMesh> m_pModel = nullptr;
 	};
 
 }

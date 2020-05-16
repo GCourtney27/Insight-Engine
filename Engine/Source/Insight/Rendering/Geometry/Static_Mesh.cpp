@@ -1,32 +1,32 @@
 #include <ie_pch.h>
 
-#include "Model.h"
+#include "Static_Mesh.h"
 #include "Insight/Utilities/String_Helper.h"
 #include "imgui.h"
 
 namespace Insight {
 
 
-	Model::Model(const std::string& path)
+	StaticMesh::StaticMesh(const std::string& path)
 	{
 		Init(path);
 	}
 
-	Model::~Model()
+	StaticMesh::~StaticMesh()
 	{
 		//Destroy();
 	}
 
-	bool Model::Init(const std::string& path)
+	bool StaticMesh::Init(const std::string& path)
 	{
 		m_Directory = StringHelper::GetDirectoryFromPath(path);
-		m_FileName = StringHelper::GetFileExtension(path);
-		SceneNode(m_Filename);
+		m_FileName = StringHelper::GetFilenameFromDirectory(path);
+		SceneNode::SetDisplayName("Static Mesh");
 
 		return LoadModelFromFile(path);
 	}
 
-	void Model::RenderSceneHeirarchy()
+	void StaticMesh::RenderSceneHeirarchy()
 	{
 		if (ImGui::TreeNode(Super::GetDisplayName()))
 		{
@@ -38,22 +38,21 @@ namespace Insight {
 		}
 	}
 
-	void Model::Draw()
+	void StaticMesh::Draw()
 	{
 		for (UINT i = 0; i < m_Meshes.size(); i++)
 		{
-
 			m_Meshes[i]->Draw();
 		}
 	}
 
-	void Model::Destroy()
+	void StaticMesh::Destroy()
 	{
 		for (UINT i = 0; i < m_Meshes.size(); i++)
 			m_Meshes[i]->Destroy();
 	}
 
-	bool Model::LoadModelFromFile(const std::string& path)
+	bool StaticMesh::LoadModelFromFile(const std::string& path)
 	{
 		Assimp::Importer importer;
 		const aiScene* pScene = importer.ReadFile(
@@ -76,7 +75,7 @@ namespace Insight {
 		return true;
 	}
 
-	unique_ptr<MeshNode> Model::ParseNode_r(aiNode* pNode, const aiScene* pScene)
+	unique_ptr<MeshNode> StaticMesh::ParseNode_r(aiNode* pNode, const aiScene* pScene)
 	{
 		Transform transform;
 		transform.SetLocalMatrix(DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&pNode->mTransformation))));
@@ -109,7 +108,7 @@ namespace Insight {
 		}*/
 	}
 
-	unique_ptr<Mesh> Model::ProcessMesh(aiMesh* pMesh)
+	unique_ptr<Mesh> StaticMesh::ProcessMesh(aiMesh* pMesh)
 	{
 		using namespace DirectX;
 		std::vector<Vertex> verticies; verticies.reserve(pMesh->mNumVertices);

@@ -11,14 +11,13 @@
 
 namespace Insight {
 
-	class INSIGHT_API Model : public SceneNode
+	class INSIGHT_API StaticMesh : public SceneNode
 	{
 	public:
-		Model(const std::string& path);
-		Model() 
-			: SceneNode("Model")
-		{}
-		~Model();
+		StaticMesh(const std::string& path);
+		StaticMesh() 
+			: SceneNode("Model") {}
+		~StaticMesh();
 		
 		bool Init(const std::string& path);
 		void RenderSceneHeirarchy();

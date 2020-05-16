@@ -31,7 +31,7 @@ namespace Insight {
 		D3D12_GPU_VIRTUAL_ADDRESS cbvHandle(m_ConstantBufferUploadHeaps->GetGPUVirtualAddress());
 		m_pCommandList->SetGraphicsRootConstantBufferView(0, cbvHandle);
 		
-		for (std::shared_ptr<Model>& model : m_Models)
+		for (std::shared_ptr<StaticMesh>& model : m_Models)
 		{
 			for (unsigned int j = 0; j < model->GetNumChildMeshes(); j++)
 			{
@@ -76,7 +76,7 @@ namespace Insight {
 
 	bool ModelManager::LoadMeshFromFile(const std::string& filePath, bool async)
 	{
-		std::shared_ptr<Model> mesh = std::make_shared<Model>();
+		std::shared_ptr<StaticMesh> mesh = std::make_shared<StaticMesh>();
 		if (!mesh->Init(filePath))
 		{
 			IE_CORE_ERROR("MeshManager::LoadMeshFromFile Failed to load mesh from file: {0}", filePath);
@@ -89,7 +89,7 @@ namespace Insight {
 
 	void ModelManager::FlushModelCache()
 	{
-		for (std::shared_ptr<Model>& model : m_Models)
+		for (std::shared_ptr<StaticMesh>& model : m_Models)
 		{
 			model->Destroy();
 			model.reset();

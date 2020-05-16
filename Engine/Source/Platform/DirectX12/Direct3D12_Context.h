@@ -12,7 +12,7 @@
 
 //TEMP
 #include "Insight/Systems/Mesh_Manager.h"
-#include "Insight/Rendering/Geometry/Model.h"
+#include "Insight/Rendering/Geometry/Static_Mesh.h"
 #include "Insight/Rendering/Texture.h"
 
 using Microsoft::WRL::ComPtr;
@@ -143,7 +143,7 @@ namespace Insight {
 		//=== TEMPORARY! ===//
 		ModelManager m_ModelManager;
 
-		Model model;
+		StaticMesh model;
 		Camera camera;
 
 		ComPtr<ID3D12Resource> m_ConstantBufferUploadHeaps[m_FrameBufferCount];

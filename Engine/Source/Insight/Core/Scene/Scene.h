@@ -5,7 +5,7 @@
 #include "Scene_Node.h"
 #include "Insight/Rendering/Rendering_Context.h"
 #include "Insight/Runtime/APlayer_Character.h"
-#include "Insight/Rendering/Geometry/Model.h"
+#include "Insight/Rendering/Geometry/Static_Mesh.h"
 
 namespace Insight {
 
@@ -36,7 +36,7 @@ namespace Insight {
 	private:
 		AActor* m_pTestActor = nullptr; // Temp: this should come from a file
 		AActor* m_pTestActor2 = nullptr; // Temp: this should come from a file
-		Model* m_pModel = nullptr; // TEMP!!
+		StaticMesh* m_pModel = nullptr; // TEMP!!
 
 		SceneNode* m_pRoot = nullptr;
 		std::shared_ptr<RenderingContext> m_Renderer = nullptr;

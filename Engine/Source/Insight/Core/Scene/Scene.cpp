@@ -72,7 +72,8 @@ namespace Insight {
 	{
 		ImGui::Begin("Inspector");
 		{
-
+			// TODO: If an object is selected in the scene heirarchy graph
+			//		or through object ray cast picking, display its info in this panel
 		}
 		ImGui::End();
 	}

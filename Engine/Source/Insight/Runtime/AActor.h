@@ -14,7 +14,7 @@ namespace Insight {
 	{
 	public:
 		typedef std::vector<StrongActorComponentPtr> ActorComponents;
-
+		
 	public:
 		AActor(ActorId id, ActorName actorName = "MyActor");
 		~AActor();
@@ -39,8 +39,9 @@ namespace Insight {
 		StrongActorComponentPtr CreateDefaultSubobject()
 		{
 			StrongActorComponentPtr component = std::make_shared<T>(std::make_shared<AActor>(*this));
-			//assert(dynamic_cast<StrongActorComponentPtr>(component));
+			IE_CORE_ASSERT(component, "Trying to add null component to actor");
 
+			component->OnAttach();
 			m_Components.push_back(component);
 			return component;
 		}

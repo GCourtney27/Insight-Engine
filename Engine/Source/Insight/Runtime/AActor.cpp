@@ -24,7 +24,11 @@ namespace Insight {
 		if (ImGui::TreeNode(Super::GetDisplayName()))
 		{
 			Super::RenderSceneHeirarchy();
-
+			size_t numComponents = m_Components.size();
+			for (size_t i = 0; i < numComponents; ++i)
+			{
+				m_Components[i]->RenderSceneHeirarchy();
+			}
 			ImGui::TreePop();
 			ImGui::Spacing();
 		}
@@ -62,7 +66,11 @@ namespace Insight {
 	void AActor::OnRender(XMMATRIX& matrix)
 	{
 		//Super::OnRender(GetTransform().GetLocalMatrixRef());
-
+		size_t numComponents = m_Components.size();
+		for (size_t i = 0; i < numComponents; ++i)
+		{
+			m_Components[i]->OnRender();
+		}
 	}
 
 	void AActor::BeginPlay()

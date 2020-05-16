@@ -2,7 +2,7 @@
 
 #include <Insight/Core.h>
 
-#include "Insight/Rendering/Geometry/Model.h"
+#include "Insight/Rendering/Geometry/Static_Mesh.h"
 
 namespace Insight {
 
@@ -31,7 +31,7 @@ namespace Insight {
 	private:
 
 	private:
-		std::vector< std::shared_ptr<Model> > m_Models;
+		std::vector< std::shared_ptr<StaticMesh> > m_Models;
 		//std::unordered_map< std::shared_ptr<Model>, TransformInstanceQueue > m_Models;
 
 		ID3D12Resource* m_ConstantBufferUploadHeaps = nullptr;
