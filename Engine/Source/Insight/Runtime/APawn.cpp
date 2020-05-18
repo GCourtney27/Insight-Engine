@@ -26,6 +26,10 @@ namespace Insight {
 	{
 	}
 
+	void APawn::OnPreRender(XMMATRIX& matrix)
+	{
+	}
+
 	void APawn::OnRender()
 	{
 	}

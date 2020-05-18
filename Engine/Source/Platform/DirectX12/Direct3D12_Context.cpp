@@ -198,9 +198,9 @@ namespace Insight {
 		ID3D12DescriptorHeap* descriptorHeaps[] = { m_pMainDescriptorHeap.Get() };
 		m_pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
-		albedoTexture.Bind();
-		normalTexture.Bind();
-		specularTexture.Bind();
+		//albedoTexture.Bind();
+		//normalTexture.Bind();
+		//specularTexture.Bind();
 
 		//m_pCommandList->SetGraphicsRootConstantBufferView(0, m_ConstantBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
 		m_pCommandList->SetGraphicsRootConstantBufferView(1, m_ConstantBufferPerFrameUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
@@ -208,7 +208,6 @@ namespace Insight {
 
 		//model.Draw();
 
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 	}
 
 	void Direct3D12Context::OnRender()
@@ -222,6 +221,8 @@ namespace Insight {
 	void Direct3D12Context::ExecuteDraw()
 	{
 		HRESULT hr;
+
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
 		hr = m_pCommandList->Close();
 		if (FAILED(hr)) {
@@ -614,14 +615,11 @@ namespace Insight {
 		// Create Input layout 
 		D3D12_INPUT_ELEMENT_DESC inputLayout[] =
 		{
-			// Per-vertex
 			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 			{ "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
 			{ "TANGENT",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
 			{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
-			// Per-instance
-			//{ "INSTANCE_POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1 },
 		};
 
 		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
@@ -812,14 +810,14 @@ namespace Insight {
 		Texture::eTextureType secular = Texture::eTextureType::SPECULAR;
 
 		//if (!texture.Init(L"../Assets/Objects/Dandelion/Textures/Atlas/Flower_Albedo.jpg", albedo, heapHandle))
-		if (!albedoTexture.Init(L"../Assets/Objects/nanosuit/body_dif.png", albedo, heapHandle))
+		if (!albedoTexture.Init(L"../Assets/Models/nanosuit/body_dif.png", albedo, heapHandle))
 			IE_CORE_ERROR("Failed to load texture in graphics context.");
 
 		//if (!texture2.Init(L"../Assets/Objects/Dandelion/Textures/Atlas/Flower_Normal.jpg", normal, heapHandle))
-		if (!normalTexture.Init(L"../Assets/Objects/nanosuit/body_showroom_ddn.png", normal, heapHandle))
+		if (!normalTexture.Init(L"../Assets/Models/nanosuit/body_showroom_ddn.png", normal, heapHandle))
 			IE_CORE_ERROR("Failed to load texture in graphics context.");
 		
-		if (!specularTexture.Init(L"../Assets/Objects/nanosuit/body_showroom_spec.png", secular, heapHandle))
+		if (!specularTexture.Init(L"../Assets/Models/nanosuit/body_showroom_spec.png", secular, heapHandle))
 			IE_CORE_ERROR("Failed to load texture in graphics context.");
 
 	}
@@ -865,53 +863,29 @@ namespace Insight {
 
 	void Direct3D12Context::GetHardwareAdapter(IDXGIFactory2* pFactory, IDXGIAdapter1** ppAdapter)
 	{
-		//ComPtr<IDXGIAdapter1> adapter;
-		//*ppAdapter = nullptr;
-		//UINT currentVideoCardMemory = 0;
-		//DXGI_ADAPTER_DESC1 desc;
-
-		//for (UINT adapterIndex = 0; DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapters1(adapterIndex, &adapter); ++adapterIndex)
-		//{
-		//	desc = {};
-		//	adapter->GetDesc1(&desc);
-
-		//	// Make sure we get the video card that is not a software adapter
-		//	// and it has the most video memory
-		//	if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE || desc.DedicatedVideoMemory < currentVideoCardMemory)
-		//		continue;
-
-		//	if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
-		//	{
-		//		currentVideoCardMemory = static_cast<UINT>(desc.DedicatedVideoMemory);
-		//		if (*ppAdapter != nullptr)
-		//			(*ppAdapter)->Release();
-		//		*ppAdapter = adapter.Detach();
-		//	}
-		//}
 		ComPtr<IDXGIAdapter1> adapter;
 		*ppAdapter = nullptr;
+		UINT currentVideoCardMemory = 0;
+		DXGI_ADAPTER_DESC1 desc;
 
-		for (UINT adapterIndex = 1; DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapters1(adapterIndex, &adapter); ++adapterIndex)
+		for (UINT adapterIndex = 0; DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapters1(adapterIndex, &adapter); ++adapterIndex)
 		{
-			DXGI_ADAPTER_DESC1 desc;
+			desc = {};
 			adapter->GetDesc1(&desc);
 
-			if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
-			{
-				// Don't select the Basic Render Driver adapter.
-				// If you want a software adapter, pass in "/warp" on the command line.
+			// Make sure we get the video card that is not a software adapter
+			// and it has the most video memory
+			if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE || desc.DedicatedVideoMemory < currentVideoCardMemory)
 				continue;
-			}
 
-			// Check to see if the adapter supports Direct3D 12, but don't create the
-			// actual device yet.
-			if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
+			if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device), nullptr)))
 			{
-				break;
+				currentVideoCardMemory = static_cast<UINT>(desc.DedicatedVideoMemory);
+				if (*ppAdapter != nullptr)
+					(*ppAdapter)->Release();
+				*ppAdapter = adapter.Detach();
 			}
 		}
-
-		*ppAdapter = adapter.Detach();
 	}
 
 	void Direct3D12Context::WaitForGPU()

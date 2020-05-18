@@ -9,8 +9,8 @@ namespace Insight {
 
 
 	Scene::Scene()
+		: m_pRoot(new SceneNode("Scene Root"))
 	{
-		m_pRoot = new SceneNode("Scene Root");
 
 	}
 
@@ -81,6 +81,7 @@ namespace Insight {
 	void Scene::OnPreRender()
 	{
 		m_Renderer->OnPreFrameRender();
+		m_pRoot->OnPreRender(XMMatrixIdentity());
 	}
 
 	void Scene::OnRender()

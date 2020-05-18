@@ -11,8 +11,12 @@ namespace Insight {
 			: m_MeshChildren(meshChildren), m_Transform(transform), m_DisplayName(displayName) {}
 		~MeshNode() {}
 
+		void PreRender(XMMATRIX& parentMat, UINT32& gpuAddressOffset);
+		void Render();
 		void RenderSceneHeirarchy();
 
+		Transform& GetTransformRef() { return m_Transform; }
+		const Transform& GetTransform() const { return m_Transform; }
 		void AddChild(unique_ptr<MeshNode> child);
 
 	private:
@@ -20,6 +24,10 @@ namespace Insight {
 		std::vector<Mesh*> m_MeshChildren;
 		Transform m_Transform;
 		std::string m_DisplayName;
+		
+		int ConstantBufferPerObjectAlignedSize = (sizeof(CB_VS_PerObject) + 255) & ~255;
+		//ID3D12Resource* m_ConstantBufferUploadHeaps = nullptr;
+		//ID3D12GraphicsCommandList* m_pCommandList = nullptr;
 	};
 
 }

@@ -13,7 +13,7 @@ namespace Insight {
 	{
 		m_Verticies = verticies;
 		m_Indices = indices;
-		// m_Textures = textures
+
 		m_NumIndices = static_cast<UINT>(m_Verticies.size());
 		m_NumVerticies = static_cast<UINT>(m_Indices.size());
 
@@ -31,25 +31,24 @@ namespace Insight {
 		//Destroy();
 	}
 
-	CB_VS_PerObject Mesh::GetConstantBuffer()
+	void Mesh::PreRender(XMMATRIX& parentMat)
 	{
-		XMMATRIX localMat = m_Transform.GetLocalMatrix();
-		XMMATRIX wvp = localMat;
-		XMMATRIX transposed = XMMatrixTranspose(wvp);
-		XMFLOAT4X4 wvpFloat;
-		XMStoreFloat4x4(&wvpFloat, transposed);
-
-		m_ConstantBufferPerObject.world = wvpFloat;
-		return m_ConstantBufferPerObject;
-
 	}
 
-	void Mesh::Draw()
+	CB_VS_PerObject Mesh::GetConstantBuffer()
 	{
-		//m_Transform.GetLocalMatrixRef() *= accumulatedMatrix;
-		//XMStoreFloat4x4(&m_ConstantBufferPerObject.world, m_Transform.GetLocalMatrix());
+		//XMMATRIX localMat = m_Transform.GetLocalMatrix();
+		//XMMATRIX transposed = XMMatrixTranspose(localMat);
+		//XMFLOAT4X4 worldFloat;
+		//XMStoreFloat4x4(&worldFloat, transposed);
+		//m_ConstantBufferPerObject.world = worldFloat;
+
+		return m_ConstantBufferPerObject;
+	}
+
+	void Mesh::Render()
+	{
 		m_pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);
-		//m_pCommandList->IASetVertexBuffers(1, 1, &m_InstanceBufferView);
 		m_pCommandList->IASetIndexBuffer(&m_IndexBufferView);
 
 		m_pCommandList->DrawIndexedInstanced(m_NumIndices, 1, 0, 0, 0);

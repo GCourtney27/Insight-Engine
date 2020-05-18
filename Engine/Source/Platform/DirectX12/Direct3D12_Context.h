@@ -11,8 +11,8 @@
 #include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
 
 //TEMP
-#include "Insight/Systems/Mesh_Manager.h"
-#include "Insight/Rendering/Geometry/Static_Mesh.h"
+#include "Insight/Systems/Model_Manager.h"
+#include "Insight/Rendering/Geometry/Model.h"
 #include "Insight/Rendering/Texture.h"
 
 using Microsoft::WRL::ComPtr;
@@ -141,9 +141,8 @@ namespace Insight {
 		static UINT m_ResolutionIndex;
 
 		//=== TEMPORARY! ===//
-		ModelManager m_ModelManager;
-
-		StaticMesh model;
+		//Model model;
+		//ModelManager m_ModelManager;
 		Camera camera;
 
 		ComPtr<ID3D12Resource> m_ConstantBufferUploadHeaps[m_FrameBufferCount];

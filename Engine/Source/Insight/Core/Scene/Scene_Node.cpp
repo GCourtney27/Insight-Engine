@@ -28,8 +28,7 @@ namespace Insight {
 	void SceneNode::RenderSceneHeirarchy()
 	{
 		size_t numChildrenObjects = m_Children.size();
-		for (size_t i = 0; i < numChildrenObjects; ++i)
-		{
+		for (size_t i = 0; i < numChildrenObjects; ++i) {
 			m_Children[i]->RenderSceneHeirarchy();
 		}
 	}
@@ -46,24 +45,29 @@ namespace Insight {
 
 	void SceneNode::OnUpdate(const float& deltaMs)
 	{
-		for (auto i = m_Children.begin(); i != m_Children.end(); ++i)
-		{
+		for (auto i = m_Children.begin(); i != m_Children.end(); ++i) {
 			(*i)->OnUpdate(deltaMs);
+		}
+	}
+
+	void SceneNode::OnPreRender(XMMATRIX& matrix)
+	{
+		for (auto i = m_Children.begin(); i != m_Children.end(); ++i) {
+			auto worldMat = (*i)->GetTransform().GetLocalMatrix() * matrix;
+			(*i)->OnPreRender(worldMat);
 		}
 	}
 
 	void SceneNode::OnRender()
 	{
-		for (auto i = m_Children.begin(); i != m_Children.end(); ++i)
-		{
+		for (auto i = m_Children.begin(); i != m_Children.end(); ++i) {
 			(*i)->OnRender();
 		}
 	}
 
 	void SceneNode::BeginPlay()
 	{
-		for (auto i = m_Children.begin(); i != m_Children.end(); ++i)
-		{
+		for (auto i = m_Children.begin(); i != m_Children.end(); ++i) {
 			(*i)->BeginPlay();
 		}
 	}
@@ -79,8 +83,7 @@ namespace Insight {
 	void SceneNode::Destroy()
 	{
 		size_t numChildrenObjects = m_Children.size();
-		for (size_t i = 0; i < numChildrenObjects; ++i)
-		{
+		for (size_t i = 0; i < numChildrenObjects; ++i) {
 			delete m_Children[i];
 		}
 	}

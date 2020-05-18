@@ -3,7 +3,7 @@
 #include <Insight/Core.h>
 
 #include "Actor_Component.h"
-#include "Insight/Rendering/Geometry/Static_Mesh.h"
+#include "Insight/Rendering/Geometry/Model.h"
 
 namespace Insight {
 
@@ -16,6 +16,7 @@ namespace Insight {
 		virtual void OnInit() override;
 		virtual void OnPostInit() {}
 		virtual void OnDestroy() override;
+		virtual void OnPreRender(XMMATRIX& parentMatrix) override;
 		virtual void OnRender() override;
 		virtual void OnUpdate(const float& deltaTime);
 		virtual void OnChanged() {}
@@ -28,7 +29,11 @@ namespace Insight {
 	private:
 
 	private:
-		unique_ptr<StaticMesh> m_pModel = nullptr;
+		StrongModelPtr m_pModel;
+
+		ID3D12Resource* m_ConstantBufferUploadHeaps = nullptr;
+		ID3D12GraphicsCommandList* m_pCommandList = nullptr;
+		int ConstantBufferPerObjectAlignedSize = (sizeof(CB_VS_PerObject) + 255) & ~255;
 	};
 
 }

@@ -6,8 +6,6 @@ struct VS_INPUT
 	float3 normal    : NORMAL;
 	float3 tangent   : TANGENT;
 	float3 biTangent : BITANGENT;
-
-	//float3 instPosition  : INSTANCE_POSITION;
 };
 
 struct VS_OUTPUT
@@ -36,10 +34,6 @@ VS_OUTPUT main(VS_INPUT vs_in)
 	VS_OUTPUT vs_out;
 
 	float4 pos = float4(vs_in.position, 1.0f);
-
-	//pos.x += vs_in.instPosition.x;
-	//pos.y += vs_in.instPosition.y;
-	//pos.z += vs_in.instPosition.z;
 
 	pos = mul(pos, world);
 	pos = mul(pos, view);

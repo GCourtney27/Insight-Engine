@@ -63,12 +63,24 @@ namespace Insight {
 		}
 	}
 
-	void AActor::OnRender(XMMATRIX& matrix)
+	void AActor::OnPreRender(XMMATRIX& matrix)
 	{
-		//Super::OnRender(GetTransform().GetLocalMatrixRef());
+		// Render Children
+		Super::OnPreRender(GetTransform().GetLocalMatrix());
+		// Render Components
 		size_t numComponents = m_Components.size();
-		for (size_t i = 0; i < numComponents; ++i)
-		{
+		for (size_t i = 0; i < numComponents; ++i) {
+			m_Components[i]->OnPreRender(GetTransform().GetLocalMatrix());
+		}
+	}
+
+	void AActor::OnRender()
+	{
+		// Render Children
+		Super::OnRender();
+		// Render Components
+		size_t numComponents = m_Components.size();
+		for (size_t i = 0; i < numComponents; ++i) {
 			m_Components[i]->OnRender();
 		}
 	}
@@ -76,21 +88,25 @@ namespace Insight {
 	void AActor::BeginPlay()
 	{
 		Super::BeginPlay();
+
 	}
 
 	void AActor::Tick(const float& deltaMs)
 	{
 		Super::Tick(deltaMs);
+
 	}
 
 	void AActor::Exit()
 	{
 		Super::Exit();
+
 	}
 
 	void AActor::Destroy()
 	{
 		Super::Destroy();
+
 	}
 
 	void AActor::AddComponent(StrongActorComponentPtr pComponent)
@@ -107,8 +123,8 @@ namespace Insight {
 		IE_CORE_ASSERT(std::find(m_Components.begin(), m_Components.end(), component) != m_Components.end(), "Could not find Component in Actor list while attempting to delete");
 
 		auto iter = std::find(m_Components.begin(), m_Components.end(), component);
-		(*iter)->OnDestroy();
 		(*iter)->OnDetach();
+		(*iter)->OnDestroy();
 		(*iter).reset();
 		m_Components.erase(iter);
 	}

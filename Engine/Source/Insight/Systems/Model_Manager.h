@@ -2,16 +2,16 @@
 
 #include <Insight/Core.h>
 
-#include "Insight/Rendering/Geometry/Static_Mesh.h"
+#include "Insight/Rendering/Geometry/Model.h"
 
 namespace Insight {
 
 	using namespace Microsoft::WRL;
-	using TransformInstanceQueue = std::queue<Transform>;
-
 
 	class ModelManager
 	{
+	public:
+		typedef std::vector<StrongModelPtr> SceneModels;
 	public:
 		ModelManager();
 		~ModelManager();
@@ -21,18 +21,17 @@ namespace Insight {
 		bool Init();
 		void Draw();
 
-		//void RequestDrawCall(Transform& instanceTransform);
+		SceneModels* GetSceneModels() { return &m_Models; }
 
 		void UploadVertexDataToGPU();
-
-		bool LoadMeshFromFile(const std::string& filePath, bool async = true);
 		void FlushModelCache();
 		
 	private:
+		bool LoadAssetsFromFile(const std::string& modelsPath);
+		bool LoadMeshFromFile(const std::string& filePath, bool async = true);
 
 	private:
-		std::vector< std::shared_ptr<StaticMesh> > m_Models;
-		//std::unordered_map< std::shared_ptr<Model>, TransformInstanceQueue > m_Models;
+		SceneModels m_Models;  
 
 		ID3D12Resource* m_ConstantBufferUploadHeaps = nullptr;
 		ID3D12GraphicsCommandList* m_pCommandList = nullptr;
@@ -40,6 +39,7 @@ namespace Insight {
 
 	private:
 		static ModelManager* s_Instance;
+		bool m_AutoInstanceEnabled = true;
 	};
 
 }
