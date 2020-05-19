@@ -79,12 +79,15 @@ bool Model::LoadModel(const std::string & filepath)
 	Assimp::Importer importer; 
 	const aiScene* pScene = importer.ReadFile(filepath,
 												aiProcess_Triangulate | 
-												aiProcess_ConvertToLeftHanded |
 												aiProcess_GenNormals |
-												aiProcess_CalcTangentSpace);
+												aiProcess_CalcTangentSpace | 
+												aiProcess_ConvertToLeftHanded);
 
-	if (pScene == nullptr)
+	if (!pScene || pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !pScene->mRootNode)
+	{
+		std::string error = importer.GetErrorString();
 		return false;
+	}
 
 	this->ProcessNode(pScene->mRootNode, pScene, DirectX::XMMatrixIdentity());
 	return true;

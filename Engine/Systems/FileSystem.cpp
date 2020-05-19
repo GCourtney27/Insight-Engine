@@ -23,18 +23,18 @@
 
 #include <map>
 
-bool FileSystem::Initialize(Engine * engine)
+bool FileSystem::Initialize(Engine* engine)
 {
 	m_pEngine = engine;
 
 	return true;
 }
 
-bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * scene, ID3D11Device * device, ID3D11DeviceContext * deviceContext)
+bool FileSystem::LoadSceneFromJSON(const std::string& sceneLocation, Scene* scene, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
 	// Load document from file and verify it was found
 	rapidjson::Document masterDocument;
-	if(!json::load(sceneLocation.c_str(), masterDocument))
+	if (!json::load(sceneLocation.c_str(), masterDocument))
 	{
 		ErrorLogger::Log("Failed to load scene from JSON file.");
 		return false;
@@ -97,21 +97,43 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 		float rx, ry, rz;
 		float sx, sy, sz;
 		const rapidjson::Value& transform = sceneObjects[o]["Transform"]; // At spot o in the sceneObjects array (Number of spots is how ever many objects are in the scene)
-		
+
 		const rapidjson::Value& position = transform[0]["Position"];
+		for (rapidjson::SizeType p = 0; p < position.Size(); p++)
+		{
+			json::get_float(position[p], "x", px);
+			json::get_float(position[p], "y", py);
+			json::get_float(position[p], "z", pz);
+		}
+		const rapidjson::Value& rotation = transform[1]["Rotation"];
+		for (rapidjson::SizeType r = 0; r < rotation.Size(); r++)
+		{
+			json::get_float(rotation[r], "x", rx);
+			json::get_float(rotation[r], "y", ry);
+			json::get_float(rotation[r], "z", rz);
+		}
+		const rapidjson::Value& scale = transform[2]["Scale"];
+		for (rapidjson::SizeType s = 0; s < scale.Size(); s++)
+		{
+			json::get_float(scale[s], "x", sx);
+			json::get_float(scale[s], "y", sy);
+			json::get_float(scale[s], "z", sz);
+		}
+
+		/*const rapidjson::Value& position = transform[0]["Position"];
 		json::get_float(position[0], "x", px);
 		json::get_float(position[0], "y", py);
 		json::get_float(position[0], "z", pz);
-		
+
 		const rapidjson::Value& rotation = transform[1]["Rotation"];
 		json::get_float(rotation[0], "x", rx);
 		json::get_float(rotation[0], "y", ry);
 		json::get_float(rotation[0], "z", rz);
-		
+
 		const rapidjson::Value& scale = transform[2]["Scale"];
 		json::get_float(scale[0], "x", sx);
 		json::get_float(scale[0], "y", sy);
-		json::get_float(scale[0], "z", sz);
+		json::get_float(scale[0], "z", sz);*/
 
 		entity->GetTransform().SetPosition(DirectX::XMFLOAT3(px, py, pz));
 		entity->GetTransform().SetRotation(rx, ry, rz);
@@ -138,7 +160,7 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 			// so they can be drawn in the apropriat order in the render pipeline
 			if (mr->GetModel()->GetMaterial()->GetMaterialFlags() == Material::eFlags::FOLIAGE)
 				scene->GetRenderManager().AddFoliageObject(mr);
-			
+
 			if (mr->GetModel()->GetMaterial()->GetMaterialFlags() == Material::eFlags::NOFLAGS)
 				scene->GetRenderManager().AddOpaqueObject(mr);
 
@@ -146,7 +168,7 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 				scene->GetRenderManager().AddFoliageObject(mr);
 		}
 		entity->SetHasMeshRenderer(foundModel);
-		
+
 		// LUA SCRIPT(s)
 		const rapidjson::Value& luaScript = allComponents[1]["LuaScript"];
 		LuaScript* ls = entity->AddComponent<LuaScript>();
@@ -160,7 +182,7 @@ bool FileSystem::LoadSceneFromJSON(const std::string & sceneLocation, Scene * sc
 		json::get_string(editorSelection[0], "Mode", mode);
 		if (mode != "OFF")
 			canBeSelected = true;
-		if(canBeSelected)
+		if (canBeSelected)
 			entity->AddComponent<EditorSelection>()->InitFromJSON(entity, editorSelection);
 		entity->SetHasEditorSelection(canBeSelected);
 
@@ -242,7 +264,7 @@ bool FileSystem::WriteSceneToJSON(Scene* scene)
 	std::list<Entity*>::iterator iter;
 	for (iter = scene->GetAllEntities()->begin(); iter != scene->GetAllEntities()->end(); iter++)
 	{
-		if((*iter)->CanBeJSONSaved())
+		if ((*iter)->CanBeJSONSaved())
 			(*iter)->WriteToJSON(writer);
 	}
 

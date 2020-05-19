@@ -45,7 +45,7 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	// AdvancedModels
 	// Game
 	scene.SetPhysicsEnabled(false);
-	if (!FileSystem::Instance()->LoadSceneFromJSON("..\\Assets\\Scenes\\MySceneName\\World_Backup.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext()))
+	if (!FileSystem::Instance()->LoadSceneFromJSON("..\\Assets\\Scenes\\Norway.json", &scene, Graphics::Instance()->GetDevice(), Graphics::Instance()->GetDeviceContext()))
 	{
 		ErrorLogger::Log("Failed to initialize scene.");
 		return false;

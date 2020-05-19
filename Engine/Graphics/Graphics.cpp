@@ -132,7 +132,7 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 	try
 	{
 		std::vector<AdapterData> adapters = AdapterReader::GetAdapters();
-
+		
 		if (adapters.size() < 1)
 		{
 			ErrorLogger::Log("No DirectX compatable adapters where found when initializing Direct3D 11.");
@@ -157,7 +157,7 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 		scd.Windowed = TRUE;
 		scd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 		scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-
+		
 		HRESULT hr;
 		hr = D3D11CreateDeviceAndSwapChain(adapters[1].pAdapter, //IDXGI Adapter: 0 for Intel gpu; 1 for NVIDIA
 			D3D_DRIVER_TYPE_UNKNOWN,
