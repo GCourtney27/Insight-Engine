@@ -75,11 +75,12 @@ namespace Insight {
 	{
 		ImGui::Begin("Inspector");
 		{
-			
+			float xOffset = 0.0;
 			ImGui::Text("TestActor1");
-			ImGui::DragFloat3("position", &m_pTestActor->GetTransformRef().GetPositionRef().x, 0.01f, -100.0f, 100.0f);
-			ImGui::Text("TestActor2");
-			ImGui::DragFloat3("position", &m_pTestActor2->GetTransformRef().GetPositionRef().x, 0.01f, -100.0f, 100.0f);
+			ImGui::DragFloat("position", &xOffset, 0.01f, -100.0f, 100.0f);
+			m_pTestActor->GetTransformRef().Translate(xOffset, 0.0f, 0.0f);
+			//ImGui::Text("TestActor2");
+			//ImGui::DragFloat3("position", &m_pTestActor2->GetTransformRef().GetPositionRef().x, 0.01f, -100.0f, 100.0f);
 			// TODO: If an object is selected in the scene heirarchy graph
 			//		or through object ray cast picking, display its info in this panel
 		}

@@ -66,6 +66,7 @@ namespace Insight {
 		const Vector3 WORLD_DIRECTION = WORLD_DIRECTION.Zero;
 		SceneComponent m_SceneComponent;
 		ActorComponents m_Components;
+		UINT m_NumComponents;
 		ActorId m_id;
 	private:
 		

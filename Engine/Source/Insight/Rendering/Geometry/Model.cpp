@@ -28,8 +28,8 @@ namespace Insight {
 
 	void Model::RenderSceneHeirarchy()
 	{
-		if (ImGui::TreeNode(Super::GetDisplayName())) {
-			Super::RenderSceneHeirarchy();
+		if (ImGui::TreeNode(SceneNode::GetDisplayName())) {
+			SceneNode::RenderSceneHeirarchy();
 			m_pRoot->RenderSceneHeirarchy();
 
 			ImGui::TreePop();
@@ -40,7 +40,7 @@ namespace Insight {
 	void Model::PreRender(XMMATRIX& parentMat)
 	{
 		// TODO Set the world view and projection matrix of each mesh in the constant buffer
-		auto worldMat = m_pRoot->GetTransform().GetLocalMatrix() * parentMat;
+		auto worldMat = XMMatrixMultiply(parentMat, m_pRoot->GetTransform().GetLocalMatrix());
 		for (unique_ptr<Mesh>& mesh : m_Meshes)
 		{
 			mesh->PreRender(worldMat);

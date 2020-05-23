@@ -11,9 +11,9 @@ namespace Insight {
 	AActor::AActor(ActorId id, ActorName actorName)
 		: m_id(id)
 	{
-		Super::SetDisplayName(actorName);
+		SceneNode::SetDisplayName(actorName);
 	}
-	
+
 	AActor::~AActor()
 	{
 	}
@@ -21,9 +21,9 @@ namespace Insight {
 	// Draw the heirarchy of the actor and its children to ImGui
 	void AActor::RenderSceneHeirarchy()
 	{
-		if (ImGui::TreeNode(Super::GetDisplayName()))
+		if (ImGui::TreeNode(SceneNode::GetDisplayName()))
 		{
-			Super::RenderSceneHeirarchy();
+			SceneNode::RenderSceneHeirarchy();
 			size_t numComponents = m_Components.size();
 			for (size_t i = 0; i < numComponents; ++i)
 			{
@@ -36,25 +36,21 @@ namespace Insight {
 
 	bool AActor::OnInit()
 	{
-		Super::OnInit();
+		SceneNode::OnInit();
 		return true;
 	}
 
 	bool AActor::OnPostInit()
 	{
-		Super::OnPostInit();
+		SceneNode::OnPostInit();
 
 		return true;
 	}
 
 	void AActor::OnUpdate(const float& deltaMs)
 	{
-		Super::OnUpdate(deltaMs);
+		SceneNode::OnUpdate(deltaMs);
 
-		if (m_Parent)
-			GetTransformRef().GetWorldMatrixRef() = m_Parent->GetTransform().GetWorldMatrix() * GetTransformRef().GetLocalMatrix();
-		else
-			GetTransformRef().SetWorldMatrix(GetTransformRef().GetLocalMatrix());
 
 		size_t numComponents = m_Components.size();
 		for (size_t i = 0; i < numComponents; ++i)
@@ -65,48 +61,54 @@ namespace Insight {
 
 	void AActor::OnPreRender(XMMATRIX& parentMatrix)
 	{
-		auto worldMat = GetTransform().GetLocalMatrix() * parentMatrix;
+		if (m_Parent) {
+			GetTransformRef().SetWorldMatrix(XMMatrixMultiply(m_Parent->GetTransform().GetWorldMatrix(), GetTransformRef().GetLocalMatrix()));
+		}
+		else {
+			GetTransformRef().SetWorldMatrix(GetTransformRef().GetLocalMatrix());
+		}
+
 		// Render Children
-		Super::OnPreRender(worldMat);
+		SceneNode::OnPreRender(GetTransformRef().GetWorldMatrixRef());
 		// Render Components
 		size_t numComponents = m_Components.size();
 		for (size_t i = 0; i < numComponents; ++i) {
-			m_Components[i]->OnPreRender(worldMat);
+			m_Components[i]->OnPreRender(GetTransformRef().GetWorldMatrixRef());
 		}
 	}
 
 	void AActor::OnRender()
 	{
 		// Render Children
-		Super::OnRender();
+		SceneNode::OnRender();
+
 		// Render Components
-		size_t numComponents = m_Components.size();
-		for (size_t i = 0; i < numComponents; ++i) {
+		for (size_t i = 0; i < m_NumComponents; ++i) {
 			m_Components[i]->OnRender();
 		}
 	}
 
 	void AActor::BeginPlay()
 	{
-		Super::BeginPlay();
+		SceneNode::BeginPlay();
 
 	}
 
 	void AActor::Tick(const float& deltaMs)
 	{
-		Super::Tick(deltaMs);
+		SceneNode::Tick(deltaMs);
 
 	}
 
 	void AActor::Exit()
 	{
-		Super::Exit();
+		SceneNode::Exit();
 
 	}
 
 	void AActor::Destroy()
 	{
-		Super::Destroy();
+		SceneNode::Destroy();
 
 	}
 
@@ -114,9 +116,10 @@ namespace Insight {
 	{
 		IE_CORE_ASSERT(pComponent, "Attempting to add component to actor that is NULL");
 		IE_CORE_ASSERT(std::find(m_Components.begin(), m_Components.end(), pComponent) == m_Components.end(), "Failed to add component to Actor");
-		
+
 		pComponent->OnAttach();
 		m_Components.push_back(pComponent);
+		m_NumComponents++;
 	}
 
 	void AActor::RemoveComponent(StrongActorComponentPtr component)
@@ -128,6 +131,7 @@ namespace Insight {
 		(*iter)->OnDestroy();
 		(*iter).reset();
 		m_Components.erase(iter);
+		m_NumComponents--;
 	}
 
 }

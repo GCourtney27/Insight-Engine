@@ -30,10 +30,6 @@ namespace Insight {
 
 	private:
 		StrongModelPtr m_pModel;
-
-		ID3D12Resource* m_ConstantBufferUploadHeaps = nullptr;
-		ID3D12GraphicsCommandList* m_pCommandList = nullptr;
-		int ConstantBufferPerObjectAlignedSize = (sizeof(CB_VS_PerObject) + 255) & ~255;
 	};
 
 }

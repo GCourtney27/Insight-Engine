@@ -24,7 +24,7 @@ namespace Insight {
 		m_Position.y += y; 
 		m_Position.z += z; 
 		TranslateLocalMatrix();
-		UpdateMatrix();
+		UpdateLocalMatrix();
 	}
 
 	void Transform::Rotate(float x, float y, float z)
@@ -33,7 +33,7 @@ namespace Insight {
 		m_Rotation.y += y;
 		m_Rotation.z += z;
 		RotateLocalMatrix();
-		UpdateMatrix();
+		UpdateLocalMatrix();
 	}
 
 	void Transform::Scale(float x, float y, float z)
@@ -42,7 +42,7 @@ namespace Insight {
 		m_Scale.y += y; 
 		m_Scale.z += z;
 		ScaleLocalMatrix();
-		UpdateMatrix();
+		UpdateLocalMatrix();
 	}
 
 	void Transform::LookAt(const Vector3& target)
@@ -83,7 +83,7 @@ namespace Insight {
 		m_WorldMatrix = matrix;
 	}
 
-	void Transform::UpdateMatrix()
+	void Transform::UpdateLocalMatrix()
 	{
 		m_LocalMatrix = m_ScaleMat * m_TranslationMat * m_RotationMat;
 
@@ -96,7 +96,6 @@ namespace Insight {
 	void Transform::TranslateLocalMatrix()
 	{
 		m_TranslationMat = XMMatrixTranslationFromVector(m_Position);
-		//m_TranslationMat = XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
 	}
 
 	void Transform::ScaleLocalMatrix()
