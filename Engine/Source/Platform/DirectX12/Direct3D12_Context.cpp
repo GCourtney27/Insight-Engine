@@ -78,10 +78,10 @@ namespace Insight {
 
 			CreateConstantBufferResourceHeaps();
 			
-			m_ModelManager.Init();
+			//m_ModelManager.Init();
 			LoadAssets();
 
-			CloseCommandListAndSignalCommandQueue();
+			//CloseCommandListAndSignalCommandQueue();
 
 		}
 		catch (COMException& ex) {
@@ -116,7 +116,7 @@ namespace Insight {
 		if (Input::IsKeyPressed('Q'))
 			camera.ProcessKeyboardInput(CameraMovement::DOWN, 0.001f);
 
-		m_ModelManager.UploadVertexDataToGPU();
+		//m_ModelManager.UploadVertexDataToGPU();
 
 		m_PerFrameData.cameraPosition = camera.GetTransform().GetPosition();
 		memcpy(m_cbvPerFrameGPUAddress[m_FrameIndex], &m_PerFrameData, sizeof(m_PerFrameData));
@@ -204,10 +204,9 @@ namespace Insight {
 
 		//m_pCommandList->SetGraphicsRootConstantBufferView(0, m_ConstantBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
 		m_pCommandList->SetGraphicsRootConstantBufferView(1, m_ConstantBufferPerFrameUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
-		m_ModelManager.Draw();
+		//m_ModelManager.Draw();
 
 		//model.Draw();
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
 	}
 
@@ -223,6 +222,7 @@ namespace Insight {
 	{
 		HRESULT hr;
 
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
 		hr = m_pCommandList->Close();
 		if (FAILED(hr)) {
@@ -797,7 +797,7 @@ namespace Insight {
 	void Direct3D12Context::LoadModels()
 	{
 		//model.Init("../Assets/Objects/nanosuit/nanosuit.obj");
-		m_ModelManager.LoadMeshFromFile("../Assets/Models/nanosuit/nanosuit.obj");
+		//m_ModelManager.LoadMeshFromFile("../Assets/Models/nanosuit/nanosuit.obj");
 		//m_ModelManager.LoadMeshFromFile("../Assets/Objects/Dandelion/Var1/Textured_Flower.obj");
 	}
 

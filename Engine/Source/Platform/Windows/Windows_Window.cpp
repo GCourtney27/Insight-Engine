@@ -354,7 +354,7 @@ namespace Insight {
 	void WindowsWindow::OnUpdate(const float& deltaTime)
 	{
 		ProccessWindowMessages();
-		m_pRendererContext->OnUpdate(deltaTime);
+		//m_pRendererContext->OnUpdate(deltaTime);
 	}
 
 	void WindowsWindow::OnFramePreRender()

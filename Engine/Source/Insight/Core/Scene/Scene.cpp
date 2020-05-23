@@ -22,12 +22,14 @@ namespace Insight {
 	bool Scene::Init()
 	{
 		// TODO: Init from file
-		//m_Renderer = Application::Get().GetWindow().GetRenderContext();
+		m_Renderer = Application::Get().GetWindow().GetRenderContext();
+		m_ModelManager.Init();
+		//m_ModelManager.LoadMeshFromFile("../Assets/Models/nanosuit/nanosuit.obj");
 
 		m_pTestActor = new AActor(0, "Test actor 1");// TODO: make the id be its index in the scene
-		//m_pTestActor->CreateDefaultSubobject<StaticMeshComponent>();
-		//m_pTestActor2 = new AActor(0, "Test actor 2");// TODO: make the id be its index in the scene
-		//m_pTestActor2->AddComponent<StaticMeshComponent>();
+		m_pTestActor->CreateDefaultSubobject<StaticMeshComponent>();
+		m_pTestActor2 = new AActor(1, "Test actor 2");// TODO: make the id be its index in the scene
+		m_pTestActor2->CreateDefaultSubobject<StaticMeshComponent>();
 
 		//m_pModel = new Model();
 		//m_pModel->Init("../Assets/Objects/nanosuit/nanosuit.obj");
@@ -35,8 +37,9 @@ namespace Insight {
 
 		//m_pRoot->AddChild(m_pModel);
 		m_pRoot->AddChild(m_pTestActor);
-		//m_pRoot->AddChild(m_pTestActor2);
-
+		m_pRoot->AddChild(m_pTestActor2);
+		
+		reinterpret_cast<Direct3D12Context*>(m_Renderer.get())->CloseCommandListAndSignalCommandQueue();// Very uber doober temp
 		return true;
 	}
 
@@ -45,7 +48,7 @@ namespace Insight {
 		m_Renderer->OnUpdate(deltaMs);
 		if (m_pRoot)
 		{
-			//m_pRoot->OnUpdate(deltaMs);
+			m_pRoot->OnUpdate(deltaMs);
 		}
 	}
 
@@ -72,6 +75,11 @@ namespace Insight {
 	{
 		ImGui::Begin("Inspector");
 		{
+			
+			ImGui::Text("TestActor1");
+			ImGui::DragFloat3("position", &m_pTestActor->GetTransformRef().GetPositionRef().x, 0.01f, -100.0f, 100.0f);
+			ImGui::Text("TestActor2");
+			ImGui::DragFloat3("position", &m_pTestActor2->GetTransformRef().GetPositionRef().x, 0.01f, -100.0f, 100.0f);
 			// TODO: If an object is selected in the scene heirarchy graph
 			//		or through object ray cast picking, display its info in this panel
 		}
@@ -81,12 +89,14 @@ namespace Insight {
 	void Scene::OnPreRender()
 	{
 		m_Renderer->OnPreFrameRender();
-		//m_pRoot->OnPreRender(XMMatrixIdentity());
+		m_pRoot->OnPreRender(XMMatrixIdentity());
+		m_ModelManager.UploadVertexDataToGPU();
 	}
 
 	void Scene::OnRender()
 	{
 		m_Renderer->OnRender();
+		m_ModelManager.Draw();
 		//m_pRoot->OnRender();
 	}
 

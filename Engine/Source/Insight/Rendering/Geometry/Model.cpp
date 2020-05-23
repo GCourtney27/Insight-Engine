@@ -2,7 +2,6 @@
 
 #include "Model.h"
 #include "Insight/Utilities/String_Helper.h"
-#include "Platform/DirectX12/Direct3D12_Context.h"
 #include "imgui.h"
 
 namespace Insight {
@@ -24,9 +23,6 @@ namespace Insight {
 		m_FileName = StringHelper::GetFilenameFromDirectory(path);
 		SceneNode::SetDisplayName("Static Mesh");
 
-		m_ConstantBufferUploadHeaps = &Direct3D12Context::Get().GetConstantBufferUploadHeap();
-		m_pCommandList = &Direct3D12Context::Get().GetCommandList();
-
 		return LoadModelFromFile(path);
 	}
 
@@ -43,52 +39,18 @@ namespace Insight {
 
 	void Model::PreRender(XMMATRIX& parentMat)
 	{
-		UINT8* cbvGPUAddress = &Direct3D12Context::Get().GetConstantBufferViewGPUHeapAddress();
-		UINT32 gpuAddressOffset = 0;
+		// TODO Set the world view and projection matrix of each mesh in the constant buffer
 		auto worldMat = m_pRoot->GetTransform().GetLocalMatrix() * parentMat;
-		m_pRoot->PreRender(worldMat, gpuAddressOffset);
-
-		XMMATRIX viewMat = Direct3D12Context::Get().GetCamera().GetViewMatrix();
-		XMFLOAT4X4 viewFloatMat;
-		XMStoreFloat4x4(&viewFloatMat, XMMatrixTranspose(viewMat));
-		XMMATRIX projectionMat = Direct3D12Context::Get().GetCamera().GetProjectionMatrix();
-		XMFLOAT4X4 projectionFloatMat;
-		XMStoreFloat4x4(&projectionFloatMat, XMMatrixTranspose(projectionMat));
-
-		for (int i = 0; i < m_Meshes.size(); i++)
+		for (unique_ptr<Mesh>& mesh : m_Meshes)
 		{
-			XMMATRIX worldMat = m_Meshes[i]->GetTransformRef().GetWorldMatrix();
-			XMMATRIX transposed = XMMatrixTranspose(worldMat);
-			XMFLOAT4X4 worldFloatMat;
-			XMStoreFloat4x4(&worldFloatMat, transposed);
-			CB_VS_PerObject cbPerObject = m_Meshes[i]->GetConstantBuffer();
-			cbPerObject.world = worldFloatMat;
-			//cbPerObject.view = viewFloatMat;
-			//cbPerObject.projection = projectionFloatMat;
-			memcpy(cbvGPUAddress + (ConstantBufferPerObjectAlignedSize * gpuAddressOffset++), &cbPerObject, sizeof(cbPerObject));
+			mesh->PreRender(worldMat);
 		}
-
-		//for (unsigned int i = 0; i < m_Models.size(); i++)
-		//{
-
-		//	for (unsigned int j = 0; j < m_Models[i]->GetNumChildMeshes(); j++)
-		//	{
-		//		// TODO: draw instanced if ref count is greater than one on shared pointer
-		//		CB_VS_PerObject cbPerObject = m_Models[i]->GetMeshAtIndex(j).GetConstantBuffer();
-
-		//		memcpy(cbvGPUAddress + (ConstantBufferPerObjectAlignedSize * gpuAdressOffset++), &cbPerObject, sizeof(cbPerObject));
-		//	}
-
-		//}
 	}
 
 	void Model::Render()
 	{
-		D3D12_GPU_VIRTUAL_ADDRESS cbvHandle(Direct3D12Context::Get().GetConstantBufferUploadHeap().GetGPUVirtualAddress());
-
 		int numMeshChildren = m_Meshes.size();
 		for (int i = 0; i < numMeshChildren; ++i) {
-			//Direct3D12Context::Get().GetCommandList().SetGraphicsRootConstantBufferView(0, cbvHandle + (ConstantBufferPerObjectAlignedSize * i));
 			m_Meshes[i]->Render();
 		}
 	}
@@ -116,41 +78,29 @@ namespace Insight {
 		for (size_t i = 0; i < pScene->mNumMeshes; ++i) {
 			m_Meshes.push_back(std::move(ProcessMesh(pScene->mMeshes[i])));
 		}
-		ParseNode_r(pScene->mRootNode, pScene);
-		//m_pRoot = ParseNode_r(pScene->mRootNode, pScene);
+		m_pRoot = ParseNode_r(pScene->mRootNode, pScene);
 		return true;
 	}
 
-	void Model::ParseNode_r(aiNode* pNode, const aiScene* pScene)
+	unique_ptr<MeshNode> Model::ParseNode_r(aiNode* pNode, const aiScene* pScene)
 	{
+		Transform transform;
+		transform.SetLocalMatrix((DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&pNode->mTransformation))));
 
-		for (UINT i = 0; i < pNode->mNumMeshes; i++)
-		{
-			aiMesh* pMesh = pScene->mMeshes[pNode->mMeshes[i]];
-			m_Meshes.push_back(ProcessMesh(pMesh)); // BUG: Copies mesh into vector
+		// Create a pointer to all the meshes this node owns
+		std::vector<Mesh*> curMeshPtrs;
+		curMeshPtrs.reserve(pNode->mNumMeshes);
+		for (UINT i = 0; i < pNode->mNumMeshes; i++) {
+			const auto meshIndex = pNode->mMeshes[i];
+			curMeshPtrs.push_back(m_Meshes.at(meshIndex).get());
 		}
-		for (UINT i = 0; i < pNode->mNumChildren; i++)
-		{
-			ParseNode_r(pNode->mChildren[i], pScene);
+		
+		auto pMeshNode = std::make_unique<MeshNode>(curMeshPtrs, transform, pNode->mName.C_Str());
+		for (UINT i = 0; i < pNode->mNumChildren; ++i) {
+			pMeshNode->AddChild(ParseNode_r(pNode->mChildren[i], pScene));
 		}
-		return;
-		//Transform transform;
-		//transform.SetLocalMatrix((DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&pNode->mTransformation))));
 
-		//// Create a pointer to all the meshes this node owns
-		//std::vector<Mesh*> curMeshPtrs;
-		//curMeshPtrs.reserve(pNode->mNumMeshes);
-		//for (UINT i = 0; i < pNode->mNumMeshes; i++) {
-		//	const auto meshIndex = pNode->mMeshes[i];
-		//	curMeshPtrs.push_back(m_Meshes.at(meshIndex).get());
-		//}
-		//
-		//auto pMeshNode = std::make_unique<MeshNode>(curMeshPtrs, transform, pNode->mName.C_Str());
-		//for (UINT i = 0; i < pNode->mNumChildren; ++i) {
-		//	pMeshNode->AddChild(ParseNode_r(pNode->mChildren[i], pScene));
-		//}
-
-		//return pMeshNode;
+		return pMeshNode;
 	}
 
 	unique_ptr<Mesh> Model::ProcessMesh(aiMesh* pMesh)

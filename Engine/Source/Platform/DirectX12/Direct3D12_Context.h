@@ -45,7 +45,7 @@ namespace Insight {
 		inline UINT8& GetConstantBufferViewGPUHeapAddress() {return *m_cbvGPUAddress[m_FrameIndex];}
 
 		inline const Camera& GetCamera() const { return camera; }
-		
+		void CloseCommandListAndSignalCommandQueue();// TODO TEMP
 	private:
 		// Per-Frame
 		void PopulateCommandLists();
@@ -68,7 +68,7 @@ namespace Insight {
 		void CreateConstantBufferResourceHeaps();
 		void CreateViewport();
 		void CreateScissorRect();
-		void CloseCommandListAndSignalCommandQueue();
+
 
 		// TEMP! Move this!
 		void InitShaders();
@@ -142,7 +142,7 @@ namespace Insight {
 
 		//=== TEMPORARY! ===//
 		//Model model;
-		ModelManager m_ModelManager;
+		//ModelManager m_ModelManager;
 		Camera camera;
 
 		ComPtr<ID3D12Resource> m_ConstantBufferUploadHeaps[m_FrameBufferCount];

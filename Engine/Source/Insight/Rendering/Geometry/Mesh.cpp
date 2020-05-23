@@ -33,13 +33,12 @@ namespace Insight {
 
 	void Mesh::PreRender(XMMATRIX& parentMat)
 	{
-	}
+		//m_Transform.SetWorldMatrix(m_Transform.GetLocalMatrix() * parentMat);
+		auto worldMat = m_Transform.GetLocalMatrix() * parentMat;
 
-	CB_VS_PerObject Mesh::GetConstantBuffer()
-	{
 		XMMATRIX viewMatTransposed = XMMatrixTranspose(Direct3D12Context::Get().GetCamera().GetViewMatrix());
 		XMMATRIX projectionMatTransposed = XMMatrixTranspose(Direct3D12Context::Get().GetCamera().GetProjectionMatrix());
-		XMMATRIX localMatTransposed = XMMatrixTranspose(m_Transform.GetLocalMatrix());
+		XMMATRIX localMatTransposed = XMMatrixTranspose(worldMat);
 
 		XMFLOAT4X4 worldFloat;
 		XMStoreFloat4x4(&worldFloat, localMatTransposed);
@@ -51,7 +50,10 @@ namespace Insight {
 		m_ConstantBufferPerObject.world = worldFloat;
 		m_ConstantBufferPerObject.view = viewFloat;
 		m_ConstantBufferPerObject.projection = projectionFloat;
+	}
 
+	CB_VS_PerObject Mesh::GetConstantBuffer()
+	{
 		return m_ConstantBufferPerObject;
 	}
 

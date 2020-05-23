@@ -63,14 +63,15 @@ namespace Insight {
 		}
 	}
 
-	void AActor::OnPreRender(XMMATRIX& matrix)
+	void AActor::OnPreRender(XMMATRIX& parentMatrix)
 	{
+		auto worldMat = GetTransform().GetLocalMatrix() * parentMatrix;
 		// Render Children
-		Super::OnPreRender(GetTransform().GetLocalMatrix());
+		Super::OnPreRender(worldMat);
 		// Render Components
 		size_t numComponents = m_Components.size();
 		for (size_t i = 0; i < numComponents; ++i) {
-			m_Components[i]->OnPreRender(GetTransform().GetLocalMatrix());
+			m_Components[i]->OnPreRender(worldMat);
 		}
 	}
 

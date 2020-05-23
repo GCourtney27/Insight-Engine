@@ -25,7 +25,7 @@ namespace Insight {
 		virtual bool OnInit();
 		virtual bool OnPostInit();
 		virtual void OnUpdate(const float& deltaMs);
-		virtual void OnPreRender(XMMATRIX& matrix);
+		virtual void OnPreRender(XMMATRIX& parentMatrix);
 		virtual void OnRender();
 		virtual void Destroy();
 

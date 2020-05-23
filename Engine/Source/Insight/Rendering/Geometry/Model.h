@@ -34,7 +34,7 @@ namespace Insight {
 		void Destroy();
 		bool LoadModelFromFile(const std::string& path);// TEMP
 	private:
-		void ParseNode_r(aiNode* pNode, const aiScene* pScene);
+		unique_ptr<MeshNode> ParseNode_r(aiNode* pNode, const aiScene* pScene);
 		unique_ptr<Mesh> ProcessMesh(aiMesh* pMesh);
 		//std::vector<Texture> LoadMaterialTextures
 	private:
@@ -42,9 +42,6 @@ namespace Insight {
 		unique_ptr<MeshNode> m_pRoot;
 		InstanceMatrixStack m_InstanceMatrixStack;
 
-		ID3D12Resource* m_ConstantBufferUploadHeaps = nullptr;
-		ID3D12GraphicsCommandList* m_pCommandList = nullptr;
-		int ConstantBufferPerObjectAlignedSize = (sizeof(CB_VS_PerObject) + 255) & ~255;
 
 		int m_ManagerIndex;
 		//std::vector<Texture> m_Textures

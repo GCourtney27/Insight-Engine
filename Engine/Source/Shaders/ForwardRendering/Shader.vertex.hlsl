@@ -27,6 +27,7 @@ cbuffer cbPerObject : register(b0)
 cbuffer cbPerFrame : register(b1)
 {
 	float3 cameraPosition;
+	// TODO: put view and projection matricies in here
 };
 
 VS_OUTPUT main(VS_INPUT vs_in)

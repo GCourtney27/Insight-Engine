@@ -26,6 +26,8 @@ namespace Insight {
 		void UploadVertexDataToGPU();
 		void FlushModelCache();
 		
+		void PushModel(StrongModelPtr model) { m_Models.push_back(model); }
+
 		bool LoadMeshFromFile(const std::string& filePath, bool async = true);
 	private:
 		bool LoadAssetsFromFile(const std::string& modelsPath);
@@ -38,8 +40,9 @@ namespace Insight {
 		int ConstantBufferPerObjectAlignedSize = (sizeof(CB_VS_PerObject) + 255) & ~255;
 
 	private:
-		static ModelManager* s_Instance;
 		bool m_AutoInstanceEnabled = true;
+	private:
+		static ModelManager* s_Instance;
 	};
 
 }

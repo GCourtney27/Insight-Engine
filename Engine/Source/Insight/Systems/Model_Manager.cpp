@@ -17,15 +17,15 @@ namespace Insight {
 
 	ModelManager::~ModelManager()
 	{
-		FlushModelCache();
+		//FlushModelCache();
 	}
 
 	bool ModelManager::Init()
 	{
 		m_ConstantBufferUploadHeaps = &Direct3D12Context::Get().GetConstantBufferUploadHeap();
 		m_pCommandList = &Direct3D12Context::Get().GetCommandList();
-		//LoadAssetsFromFile("../Assets/EngineDEBUG/ModelCache.txt");
-		return true;
+
+		return (m_pCommandList && m_ConstantBufferUploadHeaps);
 	}
 
 	bool ModelManager::LoadAssetsFromFile(const std::string& modelsPath)
@@ -74,7 +74,6 @@ namespace Insight {
 
 			for (unsigned int j = 0; j < m_Models[i]->GetNumChildMeshes(); j++)
 			{
-				// TODO: draw instanced if ref count is greater than one on shared pointer
 				CB_VS_PerObject cbPerObject = m_Models[i]->GetMeshAtIndex(j)->GetConstantBuffer();
 
 				memcpy(cbvGPUAddress + (ConstantBufferPerObjectAlignedSize * gpuAdressOffset++), &cbPerObject, sizeof(cbPerObject));
