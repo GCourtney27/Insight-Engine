@@ -74,7 +74,9 @@ namespace Insight {
 				TranslateLocalMatrix();
 				ScaleLocalMatrix();
 				RotateLocalMatrix();
+
 				UpdateLocalMatrix();
+				UpdateLocalDirectionVectors();
 				m_Transformed = false;
 			}
 		}

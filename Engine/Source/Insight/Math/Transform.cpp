@@ -135,7 +135,7 @@ namespace Insight {
 
 	void Transform::RotateLocalMatrix()
 	{
-		m_LocalMatrix = XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z);
+		m_RotationMat = XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z);
 	}
 
 	void Transform::UpdateLocalDirectionVectors()
