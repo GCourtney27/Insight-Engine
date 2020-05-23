@@ -11,32 +11,22 @@ namespace Insight {
 	{
 	public:
 		Transform();
+		~Transform();
 		Transform(const Transform& transform);
 
-		Transform& operator = (const Transform& transform)
-		{
-			m_Position = transform.m_Position;
-			m_Rotation = transform.m_Rotation;
-			m_Scale = transform.m_Scale;
-
-			m_Position = transform.m_Position;
-			m_Rotation = transform.m_Rotation;
-			m_Scale = transform.m_Scale;
-
-			return *this;
-		}
-
+		Transform& operator = (const Transform& transform);
+		
 		inline const Vector3& GetPosition() const { return m_Position; }
 		inline const Vector3& GetRotation() const { return m_Rotation; }
 		inline const Vector3& GetScale() const { return m_Scale; }
 
-		inline Vector3& GetPositionRef() { return m_Position; }
-		inline Vector3& GetRotationRef() { return m_Rotation; }
-		inline Vector3& GetScaleRef() { return m_Scale; }
+		inline Vector3& GetPositionRef() { m_Transformed = true; return m_Position; }
+		inline Vector3& GetRotationRef() { m_Transformed = true; return m_Rotation; }
+		inline Vector3& GetScaleRef() { m_Transformed = true; return m_Scale; }
 
-		inline void SetPosition(const Vector3& vector) { m_Position = vector; UpdateLocalMatrix(); }
-		inline void SetRotation(const Vector3& vector) { m_Rotation = vector; UpdateLocalMatrix(); }
-		inline void SetScale(const Vector3& vector) { m_Scale = vector; UpdateLocalMatrix(); }
+		inline void SetPosition(const Vector3& vector) { m_Position = vector; TranslateLocalMatrix(); UpdateLocalMatrix(); }
+		inline void SetRotation(const Vector3& vector) { m_Rotation = vector; RotateLocalMatrix(); UpdateLocalMatrix(); }
+		inline void SetScale(const Vector3& vector) { m_Scale = vector; ScaleLocalMatrix(); UpdateLocalMatrix(); }
 
 		inline const Vector3& GetLocalForward() const { return m_LocalForward; }
 		inline const Vector3& GetLocalBackward() const { return m_LocalBackward; }
@@ -50,29 +40,44 @@ namespace Insight {
 		void Scale(float x, float y, float z);
 
 		// Have object look at apoint in space
-		inline void LookAt(const Vector3& lookAtPos);
+		void LookAt(const Vector3& lookAtPos);
 
 		// Returns objects local matrix
-		XMMATRIX GetLocalMatrix() const { return m_LocalMatrix; }
+		XMMATRIX GetLocalMatrix() { UpdateIfTransformed(); return m_LocalMatrix; }
 		// Returns a reference to the objects local matrix
-		XMMATRIX& GetLocalMatrixRef() { return m_LocalMatrix; }
+		XMMATRIX& GetLocalMatrixRef() { UpdateIfTransformed(); return m_LocalMatrix; }
 		// Set the objects local matrix
 		void SetLocalMatrix(XMMATRIX matrix);
 		XMMATRIX GetLocalMatrixTransposed() const { return XMMatrixTranspose(m_LocalMatrix); }
 
 		// Returns the objects world space matrix
-		XMMATRIX GetWorldMatrix() const	{ return m_WorldMatrix; }
+		XMMATRIX GetWorldMatrix() { UpdateIfTransformed(); return m_WorldMatrix; }
 		// Returns a reference to the objects world space matrix
 		XMMATRIX& GetWorldMatrixRef(){ return m_WorldMatrix; }
 		// Set the objects world matrix
 		void SetWorldMatrix(XMMATRIX matrix);
 		XMMATRIX GetWorldMatrixTransposed() const { return XMMatrixTranspose(m_WorldMatrix); }
 
+		// Update the objects local directional vectors.
 		// DO NOT CALL UNLESS YOU KNOW WHAT YOU'RE DOING
 		void UpdateLocalDirectionVectors();
 
 
 	protected:
+
+		bool m_Transformed = false;
+
+		void UpdateIfTransformed()
+		{
+			if (m_Transformed)
+			{
+				TranslateLocalMatrix();
+				ScaleLocalMatrix();
+				RotateLocalMatrix();
+				UpdateLocalMatrix();
+				m_Transformed = false;
+			}
+		}
 
 		void UpdateLocalMatrix();
 

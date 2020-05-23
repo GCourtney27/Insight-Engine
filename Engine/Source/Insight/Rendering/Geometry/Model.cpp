@@ -40,7 +40,7 @@ namespace Insight {
 	void Model::PreRender(XMMATRIX& parentMat)
 	{
 		// TODO Set the world view and projection matrix of each mesh in the constant buffer
-		auto worldMat = XMMatrixMultiply(parentMat, m_pRoot->GetTransform().GetLocalMatrix());
+		auto worldMat = XMMatrixMultiply(parentMat, m_pRoot->GetTransformRef().GetLocalMatrix());
 		for (unique_ptr<Mesh>& mesh : m_Meshes)
 		{
 			mesh->PreRender(worldMat);

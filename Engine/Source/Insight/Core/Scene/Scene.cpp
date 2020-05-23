@@ -24,21 +24,18 @@ namespace Insight {
 		// TODO: Init from file
 		m_Renderer = Application::Get().GetWindow().GetRenderContext();
 		m_ModelManager.Init();
-		//m_ModelManager.LoadMeshFromFile("../Assets/Models/nanosuit/nanosuit.obj");
 
-		m_pTestActor = new AActor(0, "Test actor 1");// TODO: make the id be its index in the scene
-		m_pTestActor->CreateDefaultSubobject<StaticMeshComponent>();
-		m_pTestActor2 = new AActor(1, "Test actor 2");// TODO: make the id be its index in the scene
-		m_pTestActor2->CreateDefaultSubobject<StaticMeshComponent>();
+		{
+			m_pTestActor = new AActor(0, "Test actor 1");// TODO: make the id be its index in the scene
+			m_pTestActor->CreateDefaultSubobject<StaticMeshComponent>();
 
-		//m_pModel = new Model();
-		//m_pModel->Init("../Assets/Objects/nanosuit/nanosuit.obj");
-		//m_pTestActor->AddChild(m_pTestActor2);
+			m_pTestActor2 = new AActor(1, "Test actor 2");// TODO: make the id be its index in the scene
+			m_pTestActor2->CreateDefaultSubobject<StaticMeshComponent>();
+		}
 
-		//m_pRoot->AddChild(m_pModel);
 		m_pRoot->AddChild(m_pTestActor);
 		m_pRoot->AddChild(m_pTestActor2);
-		
+
 		reinterpret_cast<Direct3D12Context*>(m_Renderer.get())->CloseCommandListAndSignalCommandQueue();// Very uber doober temp
 		return true;
 	}
@@ -68,7 +65,7 @@ namespace Insight {
 			}
 		}
 		ImGui::End();
-		
+
 	}
 
 	void Scene::RenderInspector()
@@ -77,8 +74,9 @@ namespace Insight {
 		{
 			float xOffset = 0.0;
 			ImGui::Text("TestActor1");
-			ImGui::DragFloat("position", &xOffset, 0.01f, -100.0f, 100.0f);
-			m_pTestActor->GetTransformRef().Translate(xOffset, 0.0f, 0.0f);
+			ImGui::DragFloat("Position", &m_pTestActor->GetTransformRef().GetPositionRef().x, 0.05f, FLT_MIN, FLT_MAX);
+			//m_pTestActor->GetTransformRef().Translate(xOffset, 0.0f, 0.0f);
+
 			//ImGui::Text("TestActor2");
 			//ImGui::DragFloat3("position", &m_pTestActor2->GetTransformRef().GetPositionRef().x, 0.01f, -100.0f, 100.0f);
 			// TODO: If an object is selected in the scene heirarchy graph
