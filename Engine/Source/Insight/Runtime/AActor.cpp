@@ -24,8 +24,8 @@ namespace Insight {
 		if (ImGui::TreeNode(SceneNode::GetDisplayName()))
 		{
 			SceneNode::RenderSceneHeirarchy();
-			size_t numComponents = m_Components.size();
-			for (size_t i = 0; i < numComponents; ++i)
+
+			for (size_t i = 0; i < m_NumComponents; ++i)
 			{
 				m_Components[i]->RenderSceneHeirarchy();
 			}
@@ -52,28 +52,25 @@ namespace Insight {
 		SceneNode::OnUpdate(deltaMs);
 
 
-		size_t numComponents = m_Components.size();
-		for (size_t i = 0; i < numComponents; ++i)
+		for (size_t i = 0; i < m_NumComponents; ++i)
 		{
 			m_Components[i]->OnUpdate(deltaMs);
 		}
 	}
 
-	void AActor::OnPreRender(XMMATRIX& parentMatrix)
+	void AActor::OnPreRender(XMMATRIX parentMat)
 	{
 		if (m_Parent) {
-			GetTransformRef().SetWorldMatrix(XMMatrixMultiply(m_Parent->GetTransform().GetWorldMatrix(), GetTransformRef().GetLocalMatrix()));
-		}
-		else {
+			GetTransformRef().SetWorldMatrix(XMMatrixMultiply(parentMat, GetTransformRef().GetLocalMatrixRef()));
+		} else {
 			GetTransformRef().SetWorldMatrix(GetTransformRef().GetLocalMatrix());
 		}
 
 		// Render Children
 		SceneNode::OnPreRender(GetTransformRef().GetWorldMatrixRef());
 		// Render Components
-		size_t numComponents = m_Components.size();
-		for (size_t i = 0; i < numComponents; ++i) {
-			m_Components[i]->OnPreRender(GetTransformRef().GetWorldMatrixRef());
+		for (size_t i = 0; i < m_NumComponents; ++i) {
+			m_Components[i]->OnPreRender(GetTransformRef().GetLocalMatrixRef());
 		}
 	}
 

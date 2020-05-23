@@ -21,6 +21,7 @@ cbuffer cbPerFrame : register(b1)
 
 float4 main(PS_INPUT ps_in) : SV_TARGET
 {
+	//return ps_in.position;
 	return float4(1.0, 0.0, 0.0, 1.0);
 	
 	float3 albedoSample = tAlbedo.Sample(sampler1, ps_in.texCoords).rgb;

@@ -29,7 +29,7 @@ namespace Insight {
 		unique_ptr<Mesh>& GetMeshAtIndex(const int& index) { return m_Meshes[index]; }
 		const size_t& GetNumChildMeshes() const { return m_Meshes.size(); }
 
-		void PreRender(XMMATRIX& parentMat);
+		void PreRender(const XMMATRIX& parentMat);
 		void Render();
 		void Destroy();
 		bool LoadModelFromFile(const std::string& path);// TEMP

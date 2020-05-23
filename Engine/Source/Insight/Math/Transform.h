@@ -51,7 +51,7 @@ namespace Insight {
 		XMMATRIX GetLocalMatrixTransposed() const { return XMMatrixTranspose(m_LocalMatrix); }
 
 		// Returns the objects world space matrix
-		XMMATRIX GetWorldMatrix() { UpdateIfTransformed(); return m_WorldMatrix; }
+		const XMMATRIX& GetWorldMatrix() { UpdateIfTransformed(); return m_WorldMatrix; }
 		// Returns a reference to the objects world space matrix
 		XMMATRIX& GetWorldMatrixRef(){ return m_WorldMatrix; }
 		// Set the objects world matrix

@@ -31,17 +31,16 @@ namespace Insight {
 		Destroy();
 	}
 
-	void Mesh::PreRender(XMMATRIX& parentMat)
+	void Mesh::PreRender(const XMMATRIX& parentMat)
 	{
-		//m_Transform.SetWorldMatrix(m_Transform.GetLocalMatrix() * parentMat);
-		auto worldMat = XMMatrixMultiply(parentMat, m_Transform.GetLocalMatrix());
+		m_Transform.SetWorldMatrix(XMMatrixMultiply(parentMat, m_Transform.GetLocalMatrix()));
 
 		XMMATRIX viewMatTransposed = XMMatrixTranspose(Direct3D12Context::Get().GetCamera().GetViewMatrix());
 		XMMATRIX projectionMatTransposed = XMMatrixTranspose(Direct3D12Context::Get().GetCamera().GetProjectionMatrix());
-		XMMATRIX localMatTransposed = XMMatrixTranspose(worldMat);
+		XMMATRIX worldMatTransposed = XMMatrixTranspose(m_Transform.GetWorldMatrixRef());
 		
 		XMFLOAT4X4 worldFloat;
-		XMStoreFloat4x4(&worldFloat, localMatTransposed);
+		XMStoreFloat4x4(&worldFloat, worldMatTransposed);
 		XMFLOAT4X4 viewFloat;
 		XMStoreFloat4x4(&viewFloat, viewMatTransposed);
 		XMFLOAT4X4 projectionFloat;

@@ -26,7 +26,7 @@ namespace Insight {
 	{
 	}
 
-	void APawn::OnPreRender(XMMATRIX& matrix)
+	void APawn::OnPreRender(XMMATRIX parentMat)
 	{
 	}
 

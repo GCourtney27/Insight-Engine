@@ -50,11 +50,11 @@ namespace Insight {
 		}
 	}
 
-	void SceneNode::OnPreRender(XMMATRIX& matrix)
+	void SceneNode::OnPreRender(XMMATRIX parentMat)
 	{
+		GetTransformRef().SetWorldMatrix(XMMatrixMultiply(parentMat, GetTransformRef().GetLocalMatrixRef()));
 		for (auto i = m_Children.begin(); i != m_Children.end(); ++i) {
-			auto worldMat = (*i)->GetTransform().GetLocalMatrix() * matrix;
-			(*i)->OnPreRender(worldMat);
+			(*i)->OnPreRender(GetTransformRef().GetWorldMatrixRef());
 		}
 	}
 

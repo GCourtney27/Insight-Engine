@@ -15,7 +15,7 @@ namespace Insight {
 		Mesh(std::vector<Vertex> verticies, std::vector<DWORD> indices);
 		~Mesh();
 
-		void PreRender(XMMATRIX& parentMat);
+		void PreRender(const XMMATRIX& parentMat);
 		void Render();
 		void Destroy();
 

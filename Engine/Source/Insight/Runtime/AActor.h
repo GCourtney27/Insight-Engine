@@ -25,7 +25,7 @@ namespace Insight {
 		virtual bool OnInit();
 		virtual bool OnPostInit();
 		virtual void OnUpdate(const float& deltaMs);
-		virtual void OnPreRender(XMMATRIX& parentMatrix);
+		virtual void OnPreRender(XMMATRIX parentMat);
 		virtual void OnRender();
 		virtual void Destroy();
 
@@ -33,8 +33,8 @@ namespace Insight {
 		virtual void Tick(const float& deltaMs);
 		virtual void Exit();
 
-		const inline Transform& GetTransform() const { return m_SceneComponent.GetTransform(); }
-		inline Transform& GetTransformRef() { return m_SceneComponent.GetTransformRef(); }
+		//const inline Transform& GetTransform() const { return SceneNode::GetTransform(); }
+		//inline Transform& GetTransformRef() { return SceneNode::GetTransformRef(); }
 	public:
 		template<typename T>
 		StrongActorComponentPtr CreateDefaultSubobject()
@@ -44,13 +44,14 @@ namespace Insight {
 
 			component->OnAttach();
 			m_Components.push_back(component);
+			m_NumComponents++;
 			return component;
 		}
 		template<typename T>
 		WeakActorComponentPtr GetSubobject()
 		{
 			WeakActorComponentPtr component = nullptr;
-			for (StrongActorComponentPtr _component : m_components)
+			for (UniqueActorComponentPtr _component : m_components)
 			{
 				component = dynamic_cast<T>(_component);
 				if (component != nullptr) break;
@@ -64,9 +65,9 @@ namespace Insight {
 		
 	protected:
 		const Vector3 WORLD_DIRECTION = WORLD_DIRECTION.Zero;
-		SceneComponent m_SceneComponent;
+		//SceneComponent m_SceneComponent;
 		ActorComponents m_Components;
-		UINT m_NumComponents;
+		UINT m_NumComponents = 0;
 		ActorId m_id;
 	private:
 		

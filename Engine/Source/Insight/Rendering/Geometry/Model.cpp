@@ -37,13 +37,12 @@ namespace Insight {
 		}
 	}
 
-	void Model::PreRender(XMMATRIX& parentMat)
+	void Model::PreRender(const XMMATRIX& parentMat)
 	{
-		// TODO Set the world view and projection matrix of each mesh in the constant buffer
-		auto worldMat = XMMatrixMultiply(parentMat, m_pRoot->GetTransformRef().GetLocalMatrix());
+		//auto worldMat = XMMatrixMultiply(parentMat, m_pRoot->GetTransformRef().GetLocalMatrixRef());
 		for (unique_ptr<Mesh>& mesh : m_Meshes)
 		{
-			mesh->PreRender(worldMat);
+			mesh->PreRender(parentMat);
 		}
 	}
 
@@ -86,7 +85,7 @@ namespace Insight {
 	{
 		Transform transform;
 		transform.SetLocalMatrix((DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&pNode->mTransformation))));
-
+		
 		// Create a pointer to all the meshes this node owns
 		std::vector<Mesh*> curMeshPtrs;
 		curMeshPtrs.reserve(pNode->mNumMeshes);

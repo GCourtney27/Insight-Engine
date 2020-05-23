@@ -28,7 +28,7 @@ namespace Insight {
 		
 		void PushModel(StrongModelPtr model) { m_Models.push_back(model); }
 
-		bool LoadMeshFromFile(const std::string& filePath, bool async = true);
+		//bool LoadMeshFromFile(const std::string& filePath, bool async = true);
 	private:
 		bool LoadAssetsFromFile(const std::string& modelsPath);
 

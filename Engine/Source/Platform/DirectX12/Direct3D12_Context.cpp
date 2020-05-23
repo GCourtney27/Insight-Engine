@@ -94,9 +94,7 @@ namespace Insight {
 
 	void Direct3D12Context::OnUpdate(const float& deltaTime)
 	{
-		using namespace DirectX;
 
-		//Vector3 cameraEye = PlayerCharacter::Get().GetTransform().GetPosition();
 		// TODO: move this to player controller
 		if (Input::IsMouseButtonPressed(IE_RIGHTMOUSE_BUTTON))
 		{
@@ -104,36 +102,20 @@ namespace Insight {
 			camera.ProcessMouseMovement((float)x, (float)y);
 		}
 		if (Input::IsKeyPressed('W'))
-			camera.ProcessKeyboardInput(CameraMovement::FORWARD, 0.001f);
+			camera.ProcessKeyboardInput(CameraMovement::FORWARD, deltaTime);
 		if (Input::IsKeyPressed('S'))
-			camera.ProcessKeyboardInput(CameraMovement::BACKWARD, 0.001f);
+			camera.ProcessKeyboardInput(CameraMovement::BACKWARD, deltaTime);
 		if (Input::IsKeyPressed('A'))
-			camera.ProcessKeyboardInput(CameraMovement::LEFT, 0.001f);
+			camera.ProcessKeyboardInput(CameraMovement::LEFT, deltaTime);
 		if (Input::IsKeyPressed('D'))
-			camera.ProcessKeyboardInput(CameraMovement::RIGHT, 0.001f);
+			camera.ProcessKeyboardInput(CameraMovement::RIGHT, deltaTime);
 		if (Input::IsKeyPressed('E'))
-			camera.ProcessKeyboardInput(CameraMovement::UP, 0.001f);
+			camera.ProcessKeyboardInput(CameraMovement::UP, deltaTime);
 		if (Input::IsKeyPressed('Q'))
-			camera.ProcessKeyboardInput(CameraMovement::DOWN, 0.001f);
+			camera.ProcessKeyboardInput(CameraMovement::DOWN, deltaTime);
 
-		//m_ModelManager.UploadVertexDataToGPU();
-
-		m_PerFrameData.cameraPosition = camera.GetTransform().GetPosition();
+		m_PerFrameData.cameraPosition = camera.GetTransformRef().GetPosition();
 		memcpy(m_cbvPerFrameGPUAddress[m_FrameIndex], &m_PerFrameData, sizeof(m_PerFrameData));
-
-		//XMMATRIX translationMat = XMMatrixTranslationFromVector(XMLoadFloat4(&cube1Position));
-
-		//XMMATRIX worldMat = translationMat;
-
-		//XMMATRIX viewMat = camera.GetViewMatrix(); // load view matrix
-		//XMMATRIX projMat = camera.GetProjectionMatrix(); // load projection matrix
-
-		//XMMATRIX wvpMat = worldMat * viewMat * projMat; // create wvp matrix
-		//XMMATRIX transposed = XMMatrixTranspose(wvpMat); // must transpose wvp matrix for the shaders
-		//XMStoreFloat4x4(&cbPerObject.wvpMatrix, transposed); // store transposed wvp matrix in constant buffer
-
-		//memcpy(m_cbvGPUAddress[m_FrameIndex], &cbPerObject, sizeof(cbPerObject)); // Copy data from CPU to GPU
-
 	}
 
 	void Direct3D12Context::WaitForPreviousFrame()

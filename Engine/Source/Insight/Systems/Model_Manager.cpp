@@ -51,14 +51,14 @@ namespace Insight {
 	void ModelManager::Draw()
 	{
 		D3D12_GPU_VIRTUAL_ADDRESS cbvHandle(m_ConstantBufferUploadHeaps->GetGPUVirtualAddress());
-
-		for (std::shared_ptr<Model>& model : m_Models)
+		UINT32 constantBufferOffset = 0;
+		for (unsigned int i = 0; i < m_Models.size(); ++i)
 		{
-			for (unsigned int j = 0; j < model->GetNumChildMeshes(); j++)
+			for (unsigned int j = 0; j < m_Models[i]->GetNumChildMeshes(); j++)
 			{
-				m_pCommandList->SetGraphicsRootConstantBufferView(0, cbvHandle + (ConstantBufferPerObjectAlignedSize * j));
+				m_pCommandList->SetGraphicsRootConstantBufferView(0, cbvHandle + (ConstantBufferPerObjectAlignedSize * constantBufferOffset++));
 
-				model->GetMeshAtIndex(j)->Render();
+				m_Models[i]->GetMeshAtIndex(j)->Render();
 			}
 		}
 
@@ -83,26 +83,26 @@ namespace Insight {
 
 	}
 
-	bool ModelManager::LoadMeshFromFile(const std::string& filePath, bool async)
-	{
-		std::shared_ptr<Model> mesh = std::make_shared<Model>();
-		if (!mesh->Init(filePath))
-		{
-			IE_CORE_ERROR("MeshManager::LoadMeshFromFile Failed to load mesh from file: {0}", filePath);
-			return false;
-		}
-		m_Models.push_back(mesh);
-		return true;
-	}
+	//bool ModelManager::LoadMeshFromFile(const std::string& filePath, bool async)
+	//{
+	//	std::shared_ptr<Model> mesh = std::make_shared<Model>();
+	//	if (!mesh->Init(filePath))
+	//	{
+	//		IE_CORE_ERROR("MeshManager::LoadMeshFromFile Failed to load mesh from file: {0}", filePath);
+	//		return false;
+	//	}
+	//	m_Models.push_back(mesh);
+	//	return true;
+	//}
 
 	void ModelManager::FlushModelCache()
 	{
-		for (std::shared_ptr<Model>& model : m_Models)
+		/*for (std::shared_ptr<Model>& model : m_Models)
 		{
 			model->Destroy();
 			model.reset();
 		}
-		m_Models.clear();
+		m_Models.clear();*/
 	}
 
 

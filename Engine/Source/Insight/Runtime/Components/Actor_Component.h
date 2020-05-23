@@ -14,7 +14,7 @@ namespace Insight {
 		virtual void OnInit() = 0;
 		virtual void OnPostInit() {}
 		virtual void OnDestroy() = 0;
-		virtual void OnPreRender(DirectX::XMMATRIX& matrix) = 0;
+		virtual void OnPreRender(const DirectX::XMMATRIX& matrix) = 0;
 		virtual void OnRender() = 0;
 		virtual void OnUpdate(const float& deltaTime) {}
 		virtual void OnChanged() {}

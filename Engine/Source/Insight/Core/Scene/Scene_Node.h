@@ -14,7 +14,8 @@ namespace Insight {
 		~SceneNode();
 
 		void SetParent(SceneNode* parent) { m_Parent = parent; }
-		Transform& GetTransform() { return m_RootTransform; }
+		const Transform& GetTransform() { return m_RootTransform; }
+		Transform& GetTransformRef() { return m_RootTransform; }
 		const char* GetDisplayName() { return m_DisplayName.c_str(); }
 		void SetDisplayName(std::string name) { m_DisplayName = name; }
 
@@ -26,7 +27,7 @@ namespace Insight {
 		virtual bool OnInit();
 		virtual bool OnPostInit();
 		virtual void OnUpdate(const float& deltaMs);
-		virtual void OnPreRender(XMMATRIX& matrix);
+		virtual void OnPreRender(XMMATRIX parentMat);
 		virtual void OnRender();
 		virtual void Destroy();
 
@@ -34,9 +35,9 @@ namespace Insight {
 		virtual void Tick(const float& deltaMs);
 		virtual void Exit();
 
+		std::vector<SceneNode*> m_Children;
 	protected:
 		SceneNode* m_Parent = nullptr;
-		std::vector<SceneNode*> m_Children;
 		Transform m_RootTransform;
 		std::string m_DisplayName;
 	};

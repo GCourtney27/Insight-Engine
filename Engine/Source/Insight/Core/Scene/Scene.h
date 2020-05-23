@@ -17,7 +17,7 @@ namespace Insight {
 		Scene();
 		~Scene();
 
-		SceneNode* GetRootNode() const { return m_pRoot; }
+		SceneNode* GetRootNode() const { return m_pSceneRoot; }
 
 		bool Init();
 		bool PostInit();
@@ -37,10 +37,10 @@ namespace Insight {
 	private:
 		AActor* m_pTestActor = nullptr; // Temp: this should come from a file
 		AActor* m_pTestActor2 = nullptr; // Temp: this should come from a file
-		Model* m_pModel = nullptr; // TEMP!!
+		AActor* m_pTestActor3 = nullptr; // Temp: this should come from a file
 
 		ModelManager m_ModelManager;
-		SceneNode* m_pRoot = nullptr;
+		SceneNode* m_pSceneRoot = nullptr;
 		std::shared_ptr<RenderingContext> m_Renderer = nullptr;
 	};
 

@@ -20,6 +20,7 @@ namespace Insight {
 	typedef shared_ptr<AActor> StrongActorPtr;
 	typedef weak_ptr<AActor> WeakActorPtr;
 	typedef shared_ptr<ActorComponent> StrongActorComponentPtr;
+	typedef unique_ptr<ActorComponent> UniqueActorComponentPtr;
 	typedef weak_ptr<ActorComponent> WeakActorComponentPtr;
 	typedef shared_ptr<Model> StrongModelPtr;
 	typedef weak_ptr<Model> WeakModelPtr;

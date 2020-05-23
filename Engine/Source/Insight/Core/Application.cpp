@@ -70,15 +70,13 @@ namespace Insight {
 			const float& time = (float)m_FrameTimer.seconds();
 			const float& deltaTime = (float)m_FrameTimer.dt();
 			
-			//m_pWindow->OnFramePreRender();
 			m_pWindow->OnUpdate(deltaTime);
-			/*m_pWindow->OnRender();
-			m_pWindow->ExecuteDraw();*/
-
-			for (Layer* layer : m_LayerStack) 
-				layer->OnUpdate(deltaTime);
 
 			m_Scene.OnPreRender();
+
+			for (Layer* layer : m_LayerStack)
+				layer->OnUpdate(deltaTime);
+			
 			m_Scene.OnUpdate(deltaTime);
 			m_Scene.OnRender();
 
