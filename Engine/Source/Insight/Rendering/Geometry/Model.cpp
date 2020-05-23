@@ -63,8 +63,8 @@ namespace Insight {
 			XMStoreFloat4x4(&worldFloatMat, transposed);
 			CB_VS_PerObject cbPerObject = m_Meshes[i]->GetConstantBuffer();
 			cbPerObject.world = worldFloatMat;
-			cbPerObject.view = viewFloatMat;
-			cbPerObject.projection = projectionFloatMat;
+			//cbPerObject.view = viewFloatMat;
+			//cbPerObject.projection = projectionFloatMat;
 			memcpy(cbvGPUAddress + (ConstantBufferPerObjectAlignedSize * gpuAddressOffset++), &cbPerObject, sizeof(cbPerObject));
 		}
 
