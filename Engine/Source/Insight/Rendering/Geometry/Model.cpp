@@ -88,7 +88,7 @@ namespace Insight {
 
 		int numMeshChildren = m_Meshes.size();
 		for (int i = 0; i < numMeshChildren; ++i) {
-			Direct3D12Context::Get().GetCommandList().SetGraphicsRootConstantBufferView(0, cbvHandle + (ConstantBufferPerObjectAlignedSize * i));
+			//Direct3D12Context::Get().GetCommandList().SetGraphicsRootConstantBufferView(0, cbvHandle + (ConstantBufferPerObjectAlignedSize * i));
 			m_Meshes[i]->Render();
 		}
 	}
@@ -116,36 +116,47 @@ namespace Insight {
 		for (size_t i = 0; i < pScene->mNumMeshes; ++i) {
 			m_Meshes.push_back(std::move(ProcessMesh(pScene->mMeshes[i])));
 		}
-
-		m_pRoot = ParseNode_r(pScene->mRootNode, pScene);
+		ParseNode_r(pScene->mRootNode, pScene);
+		//m_pRoot = ParseNode_r(pScene->mRootNode, pScene);
 		return true;
 	}
 
-	unique_ptr<MeshNode> Model::ParseNode_r(aiNode* pNode, const aiScene* pScene)
+	void Model::ParseNode_r(aiNode* pNode, const aiScene* pScene)
 	{
-		Transform transform;
-		transform.SetLocalMatrix((DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&pNode->mTransformation))));
 
-		// Create a pointer to all the meshes this node owns
-		std::vector<Mesh*> curMeshPtrs;
-		curMeshPtrs.reserve(pNode->mNumMeshes);
-		for (UINT i = 0; i < pNode->mNumMeshes; i++) {
-			const auto meshIndex = pNode->mMeshes[i];
-			curMeshPtrs.push_back(m_Meshes.at(meshIndex).get());
+		for (UINT i = 0; i < pNode->mNumMeshes; i++)
+		{
+			aiMesh* pMesh = pScene->mMeshes[pNode->mMeshes[i]];
+			m_Meshes.push_back(ProcessMesh(pMesh)); // BUG: Copies mesh into vector
 		}
-		
-		auto pMeshNode = std::make_unique<MeshNode>(curMeshPtrs, transform, pNode->mName.C_Str());
-		for (UINT i = 0; i < pNode->mNumChildren; ++i) {
-			pMeshNode->AddChild(ParseNode_r(pNode->mChildren[i], pScene));
+		for (UINT i = 0; i < pNode->mNumChildren; i++)
+		{
+			ParseNode_r(pNode->mChildren[i], pScene);
 		}
+		return;
+		//Transform transform;
+		//transform.SetLocalMatrix((DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&pNode->mTransformation))));
 
-		return pMeshNode;
+		//// Create a pointer to all the meshes this node owns
+		//std::vector<Mesh*> curMeshPtrs;
+		//curMeshPtrs.reserve(pNode->mNumMeshes);
+		//for (UINT i = 0; i < pNode->mNumMeshes; i++) {
+		//	const auto meshIndex = pNode->mMeshes[i];
+		//	curMeshPtrs.push_back(m_Meshes.at(meshIndex).get());
+		//}
+		//
+		//auto pMeshNode = std::make_unique<MeshNode>(curMeshPtrs, transform, pNode->mName.C_Str());
+		//for (UINT i = 0; i < pNode->mNumChildren; ++i) {
+		//	pMeshNode->AddChild(ParseNode_r(pNode->mChildren[i], pScene));
+		//}
+
+		//return pMeshNode;
 	}
 
 	unique_ptr<Mesh> Model::ProcessMesh(aiMesh* pMesh)
 	{
 		using namespace DirectX;
-		std::vector<Vertex> verticies; verticies.reserve(pMesh->mNumVertices);
+		std::vector<Vertex> verticies; //verticies.reserve(pMesh->mNumVertices);
 		std::vector<DWORD> indices;
 		
 		// Load Verticies

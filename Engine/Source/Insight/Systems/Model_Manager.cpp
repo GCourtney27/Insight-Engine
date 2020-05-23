@@ -51,13 +51,14 @@ namespace Insight {
 	void ModelManager::Draw()
 	{
 		D3D12_GPU_VIRTUAL_ADDRESS cbvHandle(m_ConstantBufferUploadHeaps->GetGPUVirtualAddress());
-		m_pCommandList->SetGraphicsRootConstantBufferView(0, cbvHandle);
 
 		for (std::shared_ptr<Model>& model : m_Models)
 		{
 			for (unsigned int j = 0; j < model->GetNumChildMeshes(); j++)
 			{
-				//model->GetMeshAtIndex(j)->Draw();
+				m_pCommandList->SetGraphicsRootConstantBufferView(0, cbvHandle + (ConstantBufferPerObjectAlignedSize * j));
+
+				model->GetMeshAtIndex(j)->Render();
 			}
 		}
 
@@ -67,42 +68,19 @@ namespace Insight {
 	void ModelManager::UploadVertexDataToGPU()
 	{
 		UINT8* cbvGPUAddress = &Direct3D12Context::Get().GetConstantBufferViewGPUHeapAddress();
-		UINT32 gpuAdressOffset = 0u;
+		UINT32 gpuAdressOffset = 0;
+		for (unsigned int i = 0; i < m_Models.size(); i++)
+		{
 
-		XMMATRIX viewMat = Direct3D12Context::Get().GetCamera().GetViewMatrix();
-		XMFLOAT4X4 viewFloatMat;
-		XMStoreFloat4x4(&viewFloatMat, XMMatrixTranspose(viewMat));
-		XMMATRIX projectionMat = Direct3D12Context::Get().GetCamera().GetProjectionMatrix();
-		XMFLOAT4X4 projectionFloatMat;
-		XMStoreFloat4x4(&projectionFloatMat, XMMatrixTranspose(projectionMat));
-
-		// For each model
-		for (unsigned int i = 0; i < m_Models.size(); i++) {
-			
-			Model::InstanceMatrixStack* pMatrixStack = m_Models[i]->GetInstanceMatrixStack();
-			
-			// For each mesh that the model owns
-			for (unsigned int j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
-
+			for (unsigned int j = 0; j < m_Models[i]->GetNumChildMeshes(); j++)
+			{
+				// TODO: draw instanced if ref count is greater than one on shared pointer
 				CB_VS_PerObject cbPerObject = m_Models[i]->GetMeshAtIndex(j)->GetConstantBuffer();
-				cbPerObject.view = viewFloatMat;
-				cbPerObject.projection = projectionFloatMat;
-				for (int k = 0; k < pMatrixStack->size(); k++)
-				{
-					XMMATRIX worldMat = XMLoadFloat4x4(&cbPerObject.world);
-					worldMat *= pMatrixStack[k].top();
 
-					XMFLOAT4X4 worldFloat;
-					XMStoreFloat4x4(&worldFloat, worldMat);
-					cbPerObject.world = worldFloat;
-
-					memcpy(cbvGPUAddress + (ConstantBufferPerObjectAlignedSize * gpuAdressOffset++), &cbPerObject, sizeof(cbPerObject));
-					pMatrixStack->pop();
-				}
-
+				memcpy(cbvGPUAddress + (ConstantBufferPerObjectAlignedSize * gpuAdressOffset++), &cbPerObject, sizeof(cbPerObject));
 			}
 
-		}	
+		}
 
 	}
 

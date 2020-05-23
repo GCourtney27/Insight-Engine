@@ -142,7 +142,7 @@ namespace Insight {
 
 		//=== TEMPORARY! ===//
 		//Model model;
-		//ModelManager m_ModelManager;
+		ModelManager m_ModelManager;
 		Camera camera;
 
 		ComPtr<ID3D12Resource> m_ConstantBufferUploadHeaps[m_FrameBufferCount];

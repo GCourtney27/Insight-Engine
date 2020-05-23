@@ -22,10 +22,10 @@ namespace Insight {
 	bool Scene::Init()
 	{
 		// TODO: Init from file
-		m_Renderer = Application::Get().GetWindow().GetRenderContext();
+		//m_Renderer = Application::Get().GetWindow().GetRenderContext();
 
 		m_pTestActor = new AActor(0, "Test actor 1");// TODO: make the id be its index in the scene
-		m_pTestActor->CreateDefaultSubobject<StaticMeshComponent>();
+		//m_pTestActor->CreateDefaultSubobject<StaticMeshComponent>();
 		//m_pTestActor2 = new AActor(0, "Test actor 2");// TODO: make the id be its index in the scene
 		//m_pTestActor2->AddComponent<StaticMeshComponent>();
 
@@ -45,7 +45,7 @@ namespace Insight {
 		m_Renderer->OnUpdate(deltaMs);
 		if (m_pRoot)
 		{
-			m_pRoot->OnUpdate(deltaMs);
+			//m_pRoot->OnUpdate(deltaMs);
 		}
 	}
 
@@ -81,13 +81,13 @@ namespace Insight {
 	void Scene::OnPreRender()
 	{
 		m_Renderer->OnPreFrameRender();
-		m_pRoot->OnPreRender(XMMatrixIdentity());
+		//m_pRoot->OnPreRender(XMMatrixIdentity());
 	}
 
 	void Scene::OnRender()
 	{
 		m_Renderer->OnRender();
-		m_pRoot->OnRender();
+		//m_pRoot->OnRender();
 	}
 
 	void Scene::OnPostRender()

@@ -17,8 +17,7 @@ namespace Insight {
 		typedef std::stack<XMMATRIX> InstanceMatrixStack;
 	public:
 		Model(const std::string& path);
-		Model()
-			: Model("Model") {}
+		Model() {}
 		~Model();
 		
 		bool Init(const std::string& path);
@@ -35,7 +34,7 @@ namespace Insight {
 		void Destroy();
 		bool LoadModelFromFile(const std::string& path);// TEMP
 	private:
-		unique_ptr<MeshNode> ParseNode_r(aiNode* pNode, const aiScene* pScene);
+		void ParseNode_r(aiNode* pNode, const aiScene* pScene);
 		unique_ptr<Mesh> ProcessMesh(aiMesh* pMesh);
 		//std::vector<Texture> LoadMaterialTextures
 	private:

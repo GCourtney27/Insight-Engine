@@ -33,12 +33,15 @@ VS_OUTPUT main(VS_INPUT vs_in)
 {
 	VS_OUTPUT vs_out;
 
-	float4 pos = float4(vs_in.position, 1.0f);
+	//float4 pos = float4(vs_in.position, 1.0f);
 
-	pos = mul(pos, world);
-	pos = mul(pos, view);
-	pos = mul(pos, projection);
-	vs_out.position = pos;
+	float4x4 wvpMat = projection * view * world;
+	vs_out.position = mul(float4(vs_in.position, 1.0f), wvpMat);
+	
+	//pos = mul(pos, world);
+	//pos = mul(pos, view);
+	//pos = mul(pos, projection);
+	//vs_out.position = pos;
 	
 	vs_out.texCoords = vs_in.texCoords;
 	vs_out.normal = vs_in.normal;

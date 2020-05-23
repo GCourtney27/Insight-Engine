@@ -7,11 +7,11 @@ SamplerState sampler1 : register(s0);
 
 struct PS_INPUT
 {
-	float4 position : SV_POSITION;
-	float2 texCoords : TEXCOORD;
-	float3 normal : NORMAL;
-	float3 tangent : TANGENT;
-	float3 biTangent : BITANGENT;
+	float4 position		: SV_POSITION;
+	float2 texCoords	: TEXCOORD;
+	float3 normal		: NORMAL;
+	float3 tangent		: TANGENT;
+	float3 biTangent	: BITANGENT;
 };
 
 cbuffer cbPerFrame : register(b1)

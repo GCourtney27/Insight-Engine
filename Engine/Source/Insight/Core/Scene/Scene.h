@@ -39,7 +39,7 @@ namespace Insight {
 		AActor* m_pTestActor2 = nullptr; // Temp: this should come from a file
 		Model* m_pModel = nullptr; // TEMP!!
 
-		ModelManager m_ModelManager;
+		//ModelManager m_ModelManager;
 		SceneNode* m_pRoot = nullptr;
 		std::shared_ptr<RenderingContext> m_Renderer = nullptr;
 	};

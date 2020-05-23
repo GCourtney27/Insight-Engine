@@ -26,9 +26,9 @@ namespace Insight {
 		void UploadVertexDataToGPU();
 		void FlushModelCache();
 		
+		bool LoadMeshFromFile(const std::string& filePath, bool async = true);
 	private:
 		bool LoadAssetsFromFile(const std::string& modelsPath);
-		bool LoadMeshFromFile(const std::string& filePath, bool async = true);
 
 	private:
 		SceneModels m_Models;  

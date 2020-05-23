@@ -70,25 +70,28 @@ namespace Insight {
 			const float& time = (float)m_FrameTimer.seconds();
 			const float& deltaTime = (float)m_FrameTimer.dt();
 			
+			m_pWindow->OnFramePreRender();
 			m_pWindow->OnUpdate(deltaTime);
+			m_pWindow->OnRender();
+			m_pWindow->ExecuteDraw();
 
 			for (Layer* layer : m_LayerStack) 
 				layer->OnUpdate(deltaTime);
 
-			m_Scene.OnPreRender();
-			m_Scene.OnUpdate(deltaTime);
-			m_Scene.OnRender();
+			//m_Scene.OnPreRender();
+			//m_Scene.OnUpdate(deltaTime);
+			//m_Scene.OnRender();
 
 			// Render UI
-			{
+			/*{
 				m_ImGuiLayer->Begin();
 				for (Layer* layer : m_LayerStack) 
 					layer->OnImGuiRender();
 				m_Scene.OnImGuiRender();
 				m_ImGuiLayer->End();
-			}
+			}*/
 
-			m_Scene.OnPostRender();
+			//m_Scene.OnPostRender();
 
 		}
 	}
