@@ -8,6 +8,7 @@ SamplerState sampler1 : register(s0);
 struct PS_INPUT
 {
 	float4 position		: SV_POSITION;
+	float3 FragPos		: FRAG_POS;
 	float2 texCoords	: TEXCOORD;
 	float3 normal		: NORMAL;
 	float3 tangent		: TANGENT;
@@ -21,23 +22,35 @@ cbuffer cbPerFrame : register(b1)
 
 float4 main(PS_INPUT ps_in) : SV_TARGET
 {
-	//return ps_in.position;
-	return float4(1.0, 0.0, 0.0, 1.0);
+	//return float4(ps_in.FragPos, 1.0);
+	//return float4(1.0, 0.0, 0.0, 1.0);
+	
 	
 	float3 albedoSample = tAlbedo.Sample(sampler1, ps_in.texCoords).rgb;
 	float3 normalSample = tNormal.Sample(sampler1, ps_in.texCoords).rgb;
 	float3 specularSample = tSpecular.Sample(sampler1, ps_in.texCoords).rgb;
-	ps_in.normal = normalize(ps_in.normal * 2.0 - 1.0);
+	//float3 normal = normalize(ps_in.normal);// * 2.0 - 1.0);
     
-	float3 viewDir = normalize(cameraPosition - ps_in.position.xyz);
+	// Transform Normals From Tangent Space to View Space
+	const float3x3 tanToView = float3x3(normalize(ps_in.tangent),
+                                         normalize(ps_in.biTangent),
+                                         normalize(ps_in.normal));
+	float3 normal;
+	normal.x = normalSample.x * 2.0f - 1.0f;
+	normal.y = -normalSample.y * 2.0f + 1.0f;
+	normal.z = normalSample.z;
+	normal = normalize(mul(normal, tanToView));
+	
+	
+	float3 viewDir = normalize(cameraPosition - ps_in.FragPos);
     
 	float3 lightDir = normalize(-float3(0.0, 10.0, -10.0));
 	float3 halfwayDir = normalize(lightDir + viewDir);
     
-	float3 diffuseIntensity = max(dot(ps_in.normal, lightDir), 0.0);
-	float specularIntensity = pow(max(dot(ps_in.normal, halfwayDir), 0.0), 16.0);
+	float3 diffuseIntensity = max(dot(normal, lightDir), 0.0);
+	float specularIntensity = pow(max(dot(normal, halfwayDir), 0.0), 16.0);
     
-	float3 ambient = float3(0.3, 0.3, 0.3) * albedoSample.rgb;
+	float3 ambient = float3(1.0, 1.0, 1.0) * albedoSample.rgb;
 	float3 diffuse = float3(1.0, 1.0, 1.0) * diffuseIntensity * albedoSample.rgb;
 	float3 specular = float3(1.0, 1.0, 1.0) * specularIntensity * specularSample.rgb;
     

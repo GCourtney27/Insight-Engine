@@ -34,15 +34,15 @@ namespace Insight {
 			StrongActorComponentPtr ptr2 = m_pTestActor2->CreateDefaultSubobject<StaticMeshComponent>();
 			reinterpret_cast<StaticMeshComponent*>(ptr2.get())->AttachMesh("../Assets/Objects/Primatives/sphere.obj");
 
-			m_pTestActor3 = new AActor(2, "Test actor 3"); // TODO: make the id be its index in the scene
-			StrongActorComponentPtr ptr3 = m_pTestActor3->CreateDefaultSubobject<StaticMeshComponent>();
-			reinterpret_cast<StaticMeshComponent*>(ptr3.get())->AttachMesh("../Assets/Models/Dandelion/Var1/Textured_Flower.obj");
+			//m_pTestActor3 = new AActor(2, "Test actor 3"); // TODO: make the id be its index in the scene
+			//StrongActorComponentPtr ptr3 = m_pTestActor3->CreateDefaultSubobject<StaticMeshComponent>();
+			//reinterpret_cast<StaticMeshComponent*>(ptr3.get())->AttachMesh("../Assets/Models/Dandelion/Var1/Textured_Flower.obj");
 		}
 
 
 		m_pSceneRoot->AddChild(m_pTestActor);
 		m_pSceneRoot->AddChild(m_pTestActor2);
-		m_pSceneRoot->AddChild(m_pTestActor3);
+		//m_pSceneRoot->AddChild(m_pTestActor3);
 
 
 		reinterpret_cast<Direct3D12Context*>(m_Renderer.get())->CloseCommandListAndSignalCommandQueue();// Very uber doober temp
@@ -97,14 +97,14 @@ namespace Insight {
 		}
 		ImGui::End();
 
-		ImGui::Begin("Inspector 3");
+		/*ImGui::Begin("Inspector 3");
 		{
 			ImGui::Text(m_pTestActor3->GetDisplayName());
 			ImGui::DragFloat3("Position", &m_pTestActor3->GetTransformRef().GetPositionRef().x, 0.05f, -100.0f, 100.0f);
 			ImGui::DragFloat3("Scale", &m_pTestActor3->GetTransformRef().GetScaleRef().x, 0.05f, -100.0f, 100.0f);
 			ImGui::DragFloat3("Rotation", &m_pTestActor3->GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);
 		}
-		ImGui::End();
+		ImGui::End();*/
 	}
 
 	void Scene::OnPreRender()

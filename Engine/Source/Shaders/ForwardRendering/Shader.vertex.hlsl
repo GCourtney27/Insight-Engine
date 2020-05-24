@@ -11,9 +11,10 @@ struct VS_INPUT
 struct VS_OUTPUT
 {
 	float4 position  : SV_POSITION;
+	float3 FragPos	 : FRAG_POS;
 	float2 texCoords : TEXCOORD;
-	float3 normal    : NORMAL;
-	float3 tangent   : TANGENT;
+	float3 normal	 : NORMAL;
+	float3 tangent	 : TANGENT;
 	float3 biTangent : BITANGENT;
 };
 
@@ -34,13 +35,17 @@ VS_OUTPUT main(VS_INPUT vs_in)
 {
 	VS_OUTPUT vs_out;
 
-	float4x4 worldSpace = mul(mul(world, view), projection);
-	vs_out.position = mul(float4(vs_in.position, 1.0f), worldSpace);
+	matrix worldView = mul(world, view);
 	
+	float4x4 cameraSpace = mul(mul(world, view), projection);
+	vs_out.position = mul(float4(vs_in.position, 1.0f), cameraSpace);
+	
+	vs_out.FragPos = float3(mul(world, float4(vs_in.position, 1.0)).xyz);
 	vs_out.texCoords = vs_in.texCoords;
-	vs_out.normal = vs_in.normal;
-	vs_out.tangent = vs_in.tangent;
-	vs_out.biTangent = vs_in.biTangent;
+	
+	vs_out.normal = normalize(mul(float4(vs_in.normal, 0.0f), world));
+	vs_out.tangent = mul(vs_in.tangent, (float3x3) worldView);
+	vs_out.biTangent = mul(vs_in.biTangent, (float3x3) worldView);
 
 	return vs_out;
 }

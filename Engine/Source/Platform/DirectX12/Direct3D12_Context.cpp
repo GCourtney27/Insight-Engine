@@ -94,26 +94,26 @@ namespace Insight {
 
 	void Direct3D12Context::OnUpdate(const float& deltaTime)
 	{
-
+		
 		// TODO: move this to player controller
-		if (Input::IsMouseButtonPressed(IE_RIGHTMOUSE_BUTTON))
+		if (Input::IsMouseButtonPressed(IE_MOUSEBUTTON_RIGHT))
 		{
 			auto [x, y] = Input::GetRawMousePosition();
 			camera.ProcessMouseMovement((float)x, (float)y);
 		}
 		if (Input::IsKeyPressed('W'))
 			camera.ProcessKeyboardInput(CameraMovement::FORWARD, deltaTime);
-		if (Input::IsKeyPressed('S'))
-			camera.ProcessKeyboardInput(CameraMovement::BACKWARD, deltaTime);
 		if (Input::IsKeyPressed('A'))
 			camera.ProcessKeyboardInput(CameraMovement::LEFT, deltaTime);
+		if (Input::IsKeyPressed('S'))
+			camera.ProcessKeyboardInput(CameraMovement::BACKWARD, deltaTime);
 		if (Input::IsKeyPressed('D'))
 			camera.ProcessKeyboardInput(CameraMovement::RIGHT, deltaTime);
 		if (Input::IsKeyPressed('E'))
 			camera.ProcessKeyboardInput(CameraMovement::UP, deltaTime);
 		if (Input::IsKeyPressed('Q'))
 			camera.ProcessKeyboardInput(CameraMovement::DOWN, deltaTime);
-
+		
 		m_PerFrameData.cameraPosition = camera.GetTransformRef().GetPosition();
 		memcpy(m_cbvPerFrameGPUAddress[m_FrameIndex], &m_PerFrameData, sizeof(m_PerFrameData));
 	}

@@ -18,35 +18,6 @@ namespace Insight {
 
 	void Camera::ProcessMouseMovement(float xPos, float yPos)
 	{
-		/*if (m_FirstMove)
-		{
-			m_LastLookX = xPos;
-			m_LastLookY = yPos;
-			m_FirstMove = false;
-		}
-
-		float xOffset = xPos - m_LastLookX;
-		float yOffset = yPos - m_LastLookY;
-
-		m_LastLookX = xPos;
-		m_LastLookY = yPos;
-
-		xOffset *= m_MouseSensitivity;
-		yOffset *= m_MouseSensitivity;
-		
-		m_Yaw += xOffset;
-		m_Pitch += yOffset;
-
-		if (m_ConstrainPitch)
-		{
-			if (m_Pitch > 89.0f)
-				m_Pitch = 89.0f;
-			if (m_Pitch < -89.9f)
-				m_Pitch = -89.0f;
-		}*/
-
-		//m_Transform.SetRotation(Vector3(m_Pitch, m_Yaw, 0.0f));
-		//IE_CORE_INFO("Mouse raw pos: {0}, {1}", xPos, yPos)
 		GetTransformRef().Rotate(yPos * m_MouseSensitivity, xPos * m_MouseSensitivity, 0.0f);
 
 		UpdateViewMatrix();
