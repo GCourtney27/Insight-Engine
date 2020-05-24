@@ -10,6 +10,11 @@ namespace Insight {
 			PRESSED,
 			RELEASED
 		};
+		enum MouseScrollState
+		{
+			SCROLL_UP,
+			SCROLL_DOWN
+		};
 
 	protected:
 		InputBuffer() {}

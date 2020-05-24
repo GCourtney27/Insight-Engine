@@ -8,15 +8,15 @@ namespace Insight {
 
 
 
-	Camera::~Camera()
+	ACamera::~ACamera()
 	{
 	}
 
-	void Camera::ProcessMouseScroll(float yOffset)
+	void ACamera::ProcessMouseScroll(float yOffset)
 	{
 	}
 
-	void Camera::ProcessMouseMovement(float xPos, float yPos)
+	void ACamera::ProcessMouseMovement(float xPos, float yPos)
 	{
 		GetTransformRef().Rotate(yPos * m_MouseSensitivity, xPos * m_MouseSensitivity, 0.0f);
 
@@ -24,7 +24,7 @@ namespace Insight {
 		GetTransformRef().UpdateLocalDirectionVectors();
 	}
 	
-	void Camera::ProcessKeyboardInput(CameraMovement direction, float deltaTime)
+	void ACamera::ProcessKeyboardInput(CameraMovement direction, float deltaTime)
 	{
 		float velocity = m_MovementSpeed * deltaTime;
 		if (direction == FORWARD)
@@ -54,7 +54,7 @@ namespace Insight {
 		UpdateViewMatrix();
 	}
 	
-	void Camera::SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ)
+	void ACamera::SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ)
 	{
 		m_Fov = fovDegrees;
 		m_NearZ = nearZ;
@@ -64,7 +64,7 @@ namespace Insight {
 		m_ProjectionMatrix = XMMatrixPerspectiveFovLH(fovRadians, m_AspectRatio, m_NearZ, m_FarZ);
 	}
 
-	void Camera::UpdateViewMatrix()
+	void ACamera::UpdateViewMatrix()
 	{
 		XMMATRIX camRotationMatrix = XMMatrixRotationRollPitchYaw(GetTransformRef().GetRotation().x, GetTransformRef().GetRotation().y, 0.0f);
 		XMVECTOR camTarget = XMVector3TransformCoord(WORLD_DIRECTION.Forward, camRotationMatrix);

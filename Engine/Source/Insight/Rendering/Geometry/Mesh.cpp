@@ -4,6 +4,7 @@
 
 #include "Insight/Core/Application.h"
 #include "Platform/DirectX12/Direct3D12_Context.h"
+#include "Insight/Runtime/APlayer_Character.h"
 #include "imgui.h"
 
 namespace Insight {
@@ -36,9 +37,9 @@ namespace Insight {
 	void Mesh::PreRender(const XMMATRIX& parentMat)
 	{
 		m_Transform.SetWorldMatrix(XMMatrixMultiply(parentMat, m_Transform.GetLocalMatrix()));
-
-		XMMATRIX viewMatTransposed = XMMatrixTranspose(Direct3D12Context::Get().GetCamera().GetViewMatrix());
-		XMMATRIX projectionMatTransposed = XMMatrixTranspose(Direct3D12Context::Get().GetCamera().GetProjectionMatrix());
+		
+		XMMATRIX viewMatTransposed = XMMatrixTranspose(APlayerCharacter::Get().GetCameraRef().GetViewMatrix());
+		XMMATRIX projectionMatTransposed = XMMatrixTranspose(APlayerCharacter::Get().GetCameraRef().GetProjectionMatrix());
 		XMMATRIX worldMatTransposed = XMMatrixTranspose(m_Transform.GetWorldMatrixRef());
 		
 		XMFLOAT4X4 worldFloat;

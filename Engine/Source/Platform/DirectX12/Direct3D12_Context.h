@@ -45,7 +45,6 @@ namespace Insight {
 		inline UINT8& GetConstantBufferViewGPUHeapAddress() {return *m_cbvGPUAddress[m_FrameIndex];}
 		CD3DX12_CPU_DESCRIPTOR_HANDLE& GetShaderVisibleDescriptorHeapHandleWithOffset() { return m_MainDescriptorHeapHandleWithOffset; }
 
-		inline const Camera& GetCamera() const { return camera; }
 		void CloseCommandListAndSignalCommandQueue();// TODO TEMP
 	private:
 		// Per-Frame
@@ -143,7 +142,6 @@ namespace Insight {
 		//=== TEMPORARY! ===//
 		//Model model;
 		//ModelManager m_ModelManager;
-		Camera camera;
 
 		ComPtr<ID3D12Resource> m_ConstantBufferUploadHeaps[m_FrameBufferCount];
 		UINT8* m_cbvGPUAddress[m_FrameBufferCount]; 

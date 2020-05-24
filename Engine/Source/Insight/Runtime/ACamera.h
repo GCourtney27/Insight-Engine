@@ -28,10 +28,12 @@ namespace Insight {
 
 	using namespace DirectX;
 
-	class INSIGHT_API Camera : public AActor
+	class INSIGHT_API ACamera : public AActor
 	{
 	public:
-		Camera(Vector3 position = Vector3(0.0f, 0.0f, 0.0f), 
+		friend class APlayerCharacter;
+	public:
+		ACamera(Vector3 position = Vector3(0.0f, 0.0f, 0.0f), 
 				float pitch = PITCH, 
 				float yaw = YAW, 
 				float roll = ROLL, 
@@ -44,7 +46,7 @@ namespace Insight {
 			m_Roll = roll;
 			UpdateViewMatrix();
 		}
-		~Camera();
+		~ACamera();
 
 		void ProcessMouseScroll(float yOffset);
 		void ProcessMouseMovement(float xOffset, float yOffset);

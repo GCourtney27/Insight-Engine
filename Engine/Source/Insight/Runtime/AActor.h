@@ -16,7 +16,7 @@ namespace Insight {
 		typedef std::vector<StrongActorComponentPtr> ActorComponents;
 		
 	public:
-		AActor(ActorId id, ActorName actorName = "MyActor");
+		AActor(ActorId id, ActorName actorName = "Actor");
 		~AActor();
 
 		// Editor

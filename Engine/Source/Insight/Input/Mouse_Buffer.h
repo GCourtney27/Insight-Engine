@@ -17,6 +17,9 @@ namespace Insight {
 		KeyPressState GetButtonState(const BYTE button);
 		void OnButtonPressed(const BYTE button);
 		void OnButtonReleased(const BYTE button);
+		void OnMouseScroll(float xOffset, float yOffset);
+		MouseScrollState GetScrollWheelState();
+		inline void GetMouseScrollOffset(float& xOffset, float& yOffset) { xOffset = m_MouseScrollXOffset; yOffset = m_MouseScrollYOffset; }
 		inline void OnMousePositionMoved(double newXPos, double newYPos) { m_xPos = newXPos; m_yPos = newYPos;	}
 		inline void OnRawMousePositionMoved(int newXPos, int newYPos) { m_xPosRaw = newXPos; m_yPosRaw = newYPos;	}
 	private:
@@ -25,6 +28,9 @@ namespace Insight {
 		double m_xPos = 0.0;
 		double m_yPos = 0.0;
 		bool m_Buttons[3] = { false };
+		bool m_ScrollState[4] = { false };
+		float m_MouseScrollXOffset = 0.0f;
+		float m_MouseScrollYOffset = 0.0f;
 	};
 
 }

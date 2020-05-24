@@ -20,7 +20,7 @@ namespace Insight {
 			DOWN
 		};
 	public:
-		APawn(ActorId id);
+		APawn(ActorId id, ActorName name = "Pawn");
 		~APawn();
 
 		virtual bool OnInit() override;

@@ -6,8 +6,8 @@ namespace Insight {
 
 
 
-	APawn::APawn(ActorId id)
-		: AActor(id)
+	APawn::APawn(ActorId id, ActorName name)
+		: AActor(id, name)
 	{
 	}
 
@@ -18,20 +18,25 @@ namespace Insight {
 
 	bool APawn::OnInit()
 	{
+		AActor::OnInit();
 
 		return true;
 	}
 
 	void APawn::OnUpdate(const float& deltaMs)
 	{
+		AActor::OnUpdate(deltaMs);
+
 	}
 
 	void APawn::OnPreRender(XMMATRIX parentMat)
 	{
+		AActor::OnPreRender(parentMat);
 	}
 
 	void APawn::OnRender()
 	{
+		AActor::OnRender();
 	}
 
 	void APawn::Move(eMovement direction, const float& deltaTime)
@@ -71,6 +76,7 @@ namespace Insight {
 			break;
 		}
 		default:
+			IE_CORE_INFO("Failed to determine direction to move pawn: {0}", SceneNode::GetDisplayName());
 			break;
 		}
 	}

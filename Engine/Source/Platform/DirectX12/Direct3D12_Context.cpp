@@ -36,7 +36,6 @@ namespace Insight {
 		s_Instance = this;
 
 		m_AspectRatio = (float)m_WindowWidth / (float)m_WindowHeight;
-		camera.SetProjectionValues(75.0f, m_AspectRatio, 0.0001f, 1000.0f);
 	}
 
 	Direct3D12Context::~Direct3D12Context()
@@ -93,27 +92,9 @@ namespace Insight {
 
 	void Direct3D12Context::OnUpdate(const float& deltaTime)
 	{
+		ACamera& playerCamera = APlayerCharacter::Get().GetCameraRef();
 		
-		// TODO: move this to player controller
-		if (Input::IsMouseButtonPressed(IE_MOUSEBUTTON_RIGHT))
-		{
-			auto [x, y] = Input::GetRawMousePosition();
-			camera.ProcessMouseMovement((float)x, (float)y);
-		}
-		if (Input::IsKeyPressed('W'))
-			camera.ProcessKeyboardInput(CameraMovement::FORWARD, deltaTime);
-		if (Input::IsKeyPressed('A'))
-			camera.ProcessKeyboardInput(CameraMovement::LEFT, deltaTime);
-		if (Input::IsKeyPressed('S'))
-			camera.ProcessKeyboardInput(CameraMovement::BACKWARD, deltaTime);
-		if (Input::IsKeyPressed('D'))
-			camera.ProcessKeyboardInput(CameraMovement::RIGHT, deltaTime);
-		if (Input::IsKeyPressed('E'))
-			camera.ProcessKeyboardInput(CameraMovement::UP, deltaTime);
-		if (Input::IsKeyPressed('Q'))
-			camera.ProcessKeyboardInput(CameraMovement::DOWN, deltaTime);
-		
-		m_PerFrameData.cameraPosition = camera.GetTransformRef().GetPosition();
+		m_PerFrameData.cameraPosition = playerCamera.GetTransformRef().GetPosition();
 		memcpy(m_cbvPerFrameGPUAddress[m_FrameIndex], &m_PerFrameData, sizeof(m_PerFrameData));
 	}
 
@@ -900,6 +881,7 @@ namespace Insight {
 
 		// Recreate Camera Projection Matrix
 		{
+			ACamera& camera = APlayerCharacter::Get().GetCameraRef();
 			camera.SetProjectionValues(camera.GetFOV(), static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight), camera.GetNearZ(), camera.GetFarZ());
 		}
 
