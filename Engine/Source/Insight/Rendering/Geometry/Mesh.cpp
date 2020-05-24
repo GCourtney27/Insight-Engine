@@ -9,7 +9,7 @@
 namespace Insight {
 
 
-	Mesh::Mesh(std::vector<Vertex> verticies, std::vector<DWORD> indices)
+	Mesh::Mesh(std::vector<Vertex> verticies, std::vector<DWORD> indices, Material material)
 	{
 		m_Verticies = verticies;
 		m_Indices = indices;
@@ -22,6 +22,8 @@ namespace Insight {
 
 		m_pLogicalDevice = &Direct3D12Context::Get().GetDeviceContext();
 		m_pCommandList = &Direct3D12Context::Get().GetCommandList();
+
+		m_Material = material;
 
 		SetupMesh();
 	}
@@ -58,6 +60,7 @@ namespace Insight {
 
 	void Mesh::Render()
 	{
+		m_Material.BindResources();
 		m_pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);
 		m_pCommandList->IASetIndexBuffer(&m_IndexBufferView);
 

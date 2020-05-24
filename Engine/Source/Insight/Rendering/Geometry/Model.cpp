@@ -2,6 +2,7 @@
 
 #include "Model.h"
 #include "Insight/Utilities/String_Helper.h"
+#include "Platform/DirectX12/Direct3D12_Context.h"
 #include "imgui.h"
 
 namespace Insight {
@@ -75,13 +76,13 @@ namespace Insight {
 		}
 
 		for (size_t i = 0; i < pScene->mNumMeshes; ++i) {
-			m_Meshes.push_back(std::move(ProcessMesh(pScene->mMeshes[i])));
+			m_Meshes.push_back(std::move(ProcessMesh(pScene->mMeshes[i], pScene)));
 		}
-		m_pRoot = ParseNode_r(pScene->mRootNode, pScene);
+		m_pRoot = ParseNode_r(pScene->mRootNode);
 		return true;
 	}
 
-	unique_ptr<MeshNode> Model::ParseNode_r(aiNode* pNode, const aiScene* pScene)
+	unique_ptr<MeshNode> Model::ParseNode_r(aiNode* pNode)
 	{
 		Transform transform;
 		transform.SetLocalMatrix((DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&pNode->mTransformation))));
@@ -96,13 +97,13 @@ namespace Insight {
 		
 		auto pMeshNode = std::make_unique<MeshNode>(curMeshPtrs, transform, pNode->mName.C_Str());
 		for (UINT i = 0; i < pNode->mNumChildren; ++i) {
-			pMeshNode->AddChild(ParseNode_r(pNode->mChildren[i], pScene));
+			pMeshNode->AddChild(ParseNode_r(pNode->mChildren[i]));
 		}
 
 		return pMeshNode;
 	}
 
-	unique_ptr<Mesh> Model::ProcessMesh(aiMesh* pMesh)
+	unique_ptr<Mesh> Model::ProcessMesh(aiMesh* pMesh, const aiScene* pScene)
 	{
 		using namespace DirectX;
 		std::vector<Vertex> verticies; //verticies.reserve(pMesh->mNumVertices);
@@ -154,7 +155,38 @@ namespace Insight {
 			}
 		}
 
-		return std::make_unique<Mesh>(verticies, indices);
+		Material material;
+		if (pMesh->mMaterialIndex >= 0)
+		{
+			CD3DX12_CPU_DESCRIPTOR_HANDLE* srvHeapHandle(&Direct3D12Context::Get().GetShaderVisibleDescriptorHeapHandleWithOffset());
+			Direct3D12Context::Get().GetShaderVisibleDescriptorHeapHandleWithOffset();
+
+			aiMaterial* pMat = pScene->mMaterials[pMesh->mMaterialIndex];
+
+			Texture diffuseMap = ParseTexture(pMat, aiTextureType_DIFFUSE, Texture::eTextureType::ALBEDO, *srvHeapHandle);
+			Texture normalMap = ParseTexture(pMat, aiTextureType_HEIGHT, Texture::eTextureType::NORMAL, *srvHeapHandle);
+			Texture specularMap = ParseTexture(pMat, aiTextureType_SPECULAR, Texture::eTextureType::SPECULAR, *srvHeapHandle);
+			
+
+			material.AddTexture(diffuseMap);
+			material.AddTexture(normalMap);
+			//material.AddTexture(specularMap);
+		}
+
+		return std::make_unique<Mesh>(verticies, indices, material);
 	}
+
+	Texture Model::ParseTexture(aiMaterial* pMaterial, aiTextureType textureType, Texture::eTextureType targetType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle)
+	{
+		aiString texturePath;
+		for (UINT i = 0; i < pMaterial->GetTextureCount(textureType); i++)
+		{
+			pMaterial->GetTexture(textureType, i, &texturePath);
+		}
+
+		return Texture(StringHelper::StringToWide(m_Directory + "/" + texturePath.C_Str()), targetType, srvHeapHandle);
+	}
+
+
 
 }

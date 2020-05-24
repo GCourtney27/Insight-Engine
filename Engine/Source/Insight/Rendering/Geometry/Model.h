@@ -32,11 +32,11 @@ namespace Insight {
 		void PreRender(const XMMATRIX& parentMat);
 		void Render();
 		void Destroy();
-		bool LoadModelFromFile(const std::string& path);// TEMP
+		bool LoadModelFromFile(const std::string& path);
 	private:
-		unique_ptr<MeshNode> ParseNode_r(aiNode* pNode, const aiScene* pScene);
-		unique_ptr<Mesh> ProcessMesh(aiMesh* pMesh);
-		//std::vector<Texture> LoadMaterialTextures
+		unique_ptr<MeshNode> ParseNode_r(aiNode* pNode);
+		unique_ptr<Mesh> ProcessMesh(aiMesh* pMesh, const aiScene* pScene);
+		Texture ParseTexture(aiMaterial* pMaterial, aiTextureType textureType, Texture::eTextureType targetType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle);
 	private:
 		std::vector<unique_ptr<Mesh>> m_Meshes;
 		unique_ptr<MeshNode> m_pRoot;
@@ -44,7 +44,9 @@ namespace Insight {
 
 
 		int m_ManagerIndex;
-		//std::vector<Texture> m_Textures
+		std::vector<Texture> m_Textures;
+		std::vector<Texture> textures_loaded;
+		
 		std::string m_Directory;
 		std::string m_FileName;
 	};

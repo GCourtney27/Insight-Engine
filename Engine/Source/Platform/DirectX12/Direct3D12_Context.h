@@ -43,6 +43,7 @@ namespace Insight {
 		inline ID3D12DescriptorHeap& GetShaderVisibleDescriptorHeap() const { return *m_pMainDescriptorHeap.Get(); }
 		inline ID3D12Resource& GetConstantBufferUploadHeap() const { return *m_ConstantBufferUploadHeaps[m_FrameIndex].Get(); }
 		inline UINT8& GetConstantBufferViewGPUHeapAddress() {return *m_cbvGPUAddress[m_FrameIndex];}
+		CD3DX12_CPU_DESCRIPTOR_HANDLE& GetShaderVisibleDescriptorHeapHandleWithOffset() { return m_MainDescriptorHeapHandleWithOffset; }
 
 		inline const Camera& GetCamera() const { return camera; }
 		void CloseCommandListAndSignalCommandQueue();// TODO TEMP
@@ -69,11 +70,9 @@ namespace Insight {
 		void CreateViewport();
 		void CreateScissorRect();
 
-
 		// TEMP! Move this!
 		void InitShaders();
 		void LoadAssets();
-		void LoadModels();
 		void LoadTextures();
 		//----------------
 
@@ -117,12 +116,13 @@ namespace Insight {
 		ComPtr<ID3D12RootSignature>			m_pRootSignature_ForwardPass;
 
 		ComPtr<ID3D12DescriptorHeap>		m_pMainDescriptorHeap;
+		CD3DX12_CPU_DESCRIPTOR_HANDLE		m_MainDescriptorHeapHandleWithOffset;
 
 		const UINT ALBEDO_MAP_SHADER_REGISTER = Texture::eTextureType::ALBEDO;
 		const UINT NORMAL_MAP_SHADER_REGISTER = Texture::eTextureType::NORMAL;
+		const UINT ROUGHNESS_MAP_SHADER_REGISTER = Texture::eTextureType::ROUGHNESS;
 		const UINT METALLIC_MAP_SHADER_REGISTER = Texture::eTextureType::METALLIC;
 		const UINT SPECULAR_MAP_SHADER_REGISTER = Texture::eTextureType::SPECULAR;
-		const UINT ROUGHNESS_MAP_SHADER_REGISTER = Texture::eTextureType::ROUGHNESS;
 		const UINT AO_MAP_SHADER_REGISTER = Texture::eTextureType::AO;
 
 		D3D12_VIEWPORT						m_ViewPort = {};

@@ -9,7 +9,6 @@
 namespace Insight {
 
 
-
 	Texture::Texture(const std::wstring& filepath, eTextureType& textureType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle)
 	{
 		Init(filepath, textureType, srvHeapHandle);
@@ -28,9 +27,9 @@ namespace Insight {
 
 	void Texture::Destroy()
 	{
-		m_pTextureBuffer->Release();
+		/*m_pTextureBuffer->Release();
 		m_pTextureBufferUploadHeap->Release();
-		m_pCommandList = nullptr;
+		m_pCommandList = nullptr;*/
 	}
 
 	bool Texture::Init(const std::wstring& filepath, eTextureType& textureType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle)
@@ -41,7 +40,6 @@ namespace Insight {
 
 		m_pCommandList = &graphicsContext.GetCommandList();
 		m_TextureType = textureType;
-
 
 		BYTE* imageData = 0;
 		int imageBytesPerRow = 0;
@@ -103,6 +101,8 @@ namespace Insight {
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		graphicsContext.GetDeviceContext().CreateShaderResourceView(m_pTextureBuffer, &srvDesc, srvHeapHandle);
 
+		m_GPUHeapIndex = srvHeapHandle.ptr / cbvSrvDescriptorSize;
+
 		// Move to the next descriptor slot in the descriptor heap so we can upload another texture
 		srvHeapHandle.Offset(cbvSrvDescriptorSize);
 
@@ -116,40 +116,50 @@ namespace Insight {
 
 		const UINT cbvSrvDescriptorSize = graphicsContext.GetDeviceContext().GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		D3D12_GPU_DESCRIPTOR_HANDLE cbvSrvHeapStart = graphicsContext.GetShaderVisibleDescriptorHeap().GetGPUDescriptorHandleForHeapStart();
-
+		int rootParamIndex = 0;
+		
 		switch (m_TextureType)
 		{
 		case eTextureType::ALBEDO:
 		{
-			CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, 0, cbvSrvDescriptorSize);
-			m_pCommandList->SetGraphicsRootDescriptorTable(2, handle);
+			rootParamIndex = 2;
+			CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, m_GPUHeapIndex, cbvSrvDescriptorSize);
+			m_pCommandList->SetGraphicsRootDescriptorTable(rootParamIndex, handle);
 			break;
 		}
 		case eTextureType::NORMAL:
 		{
-			CD3DX12_GPU_DESCRIPTOR_HANDLE handle1(cbvSrvHeapStart, 1, cbvSrvDescriptorSize);
-			m_pCommandList->SetGraphicsRootDescriptorTable(3, handle1);
+			rootParamIndex = 3;
+			CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, m_GPUHeapIndex, cbvSrvDescriptorSize);
+			m_pCommandList->SetGraphicsRootDescriptorTable(rootParamIndex, handle);
 			break;
 		}
 		case eTextureType::ROUGHNESS:
 		{
-
+			rootParamIndex = 4;
+			CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, m_GPUHeapIndex, cbvSrvDescriptorSize);
+			m_pCommandList->SetGraphicsRootDescriptorTable(rootParamIndex, handle);
 			break;
 		}
 		case eTextureType::METALLIC:
 		{
-
+			rootParamIndex = 5;
+			CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, m_GPUHeapIndex, cbvSrvDescriptorSize);
+			m_pCommandList->SetGraphicsRootDescriptorTable(rootParamIndex, handle);
 			break;
 		}
 		case eTextureType::SPECULAR:
 		{
-			CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, 2, cbvSrvDescriptorSize);
-			m_pCommandList->SetGraphicsRootDescriptorTable(4, handle);
+			rootParamIndex = 6;
+			CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, m_GPUHeapIndex, cbvSrvDescriptorSize);
+			m_pCommandList->SetGraphicsRootDescriptorTable(rootParamIndex, handle);
 			break;
 		}
 		case eTextureType::AO:
 		{
-
+			rootParamIndex = 7;
+			CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, m_GPUHeapIndex, cbvSrvDescriptorSize);
+			m_pCommandList->SetGraphicsRootDescriptorTable(rootParamIndex, handle);
 			break;
 		}
 		default:

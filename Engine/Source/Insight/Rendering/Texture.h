@@ -13,7 +13,7 @@ namespace Insight {
 		enum eTextureType
 		{
 			// These values aligned with D3D12 shader registers,
-			// use causion when editing their numerical values
+			// use caution when editing their numerical values
 			ALBEDO = 0,
 			NORMAL = 1,
 			ROUGHNESS = 2,
@@ -21,6 +21,14 @@ namespace Insight {
 			SPECULAR = 4,
 			AO = 5,
 		};
+
+#define ALBEDO_DESCRIPTOR_OFFSET eTextureType::ALBEDO
+#define NORMAL_DESCRIPTOR_OFFSET eTextureType::NORMAL
+#define ROUGHNESS_DESCRIPTOR_OFFSET eTextureType::ROUGHNESS
+#define METALLIC_DESCRIPTOR_OFFSET eTextureType::METALLIC
+#define SPECULAR_DESCRIPTOR_OFFSET eTextureType::SPECULAR
+#define AO_DESCRIPTOR_OFFSET eTextureType::AO
+
 	public:
 		Texture(const std::wstring& filepath, eTextureType& textureType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle);
 		Texture();
@@ -29,6 +37,7 @@ namespace Insight {
 		bool Init(const std::wstring& filepath, eTextureType& testureType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle);
 		void Bind();
 
+		inline const std::wstring& GetFilepath() { return m_Filepath; }
 		inline const UINT64& GetWidth() const { return m_TextureDesc.Width; }
 		inline const UINT64& GetHeight() const { return m_TextureDesc.Height; }
 		inline const UINT16& GetMipLevels() const { return m_TextureDesc.MipLevels; }
@@ -42,18 +51,19 @@ namespace Insight {
 		int LoadImageDataFromFile(BYTE** imageData, LPCWSTR filename, int& bytesPerRow);
 		
 	private:
-		D3D12_RESOURCE_DESC m_TextureDesc = {};
-		ID3D12Resource* m_pTextureBuffer = nullptr;
-		ID3D12Resource* m_pTextureBufferUploadHeap = nullptr;
-		ID3D12GraphicsCommandList* m_pCommandList = nullptr;
-		eTextureType m_TextureType;
-
-		UINT m_HeapOffset = 0u;
+		ID3D12GraphicsCommandList*	m_pCommandList = nullptr;
+		
+		ID3D12Resource*				m_pTextureBuffer = nullptr;
+		ID3D12Resource*				m_pTextureBufferUploadHeap = nullptr;
+		D3D12_RESOURCE_DESC			m_TextureDesc = {};
+		eTextureType				m_TextureType;
+		UINT						m_GPUHeapIndex = 0u;
 
 #if defined IE_DEBUG
 		std::string m_Name = "";
 		std::wstring m_Filepath = L"";
 #endif
+
 	};
 
 }

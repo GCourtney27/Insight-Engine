@@ -78,8 +78,7 @@ namespace Insight {
 
 			CreateConstantBufferResourceHeaps();
 			
-			//m_ModelManager.Init();
-			LoadAssets();
+			//LoadAssets();
 
 			//CloseCommandListAndSignalCommandQueue();
 
@@ -180,15 +179,12 @@ namespace Insight {
 		ID3D12DescriptorHeap* descriptorHeaps[] = { m_pMainDescriptorHeap.Get() };
 		m_pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
-		albedoTexture.Bind();
-		normalTexture.Bind();
-		specularTexture.Bind();
+		//albedoTexture.Bind();
+		//normalTexture.Bind();
+		//specularTexture.Bind();
 
-		//m_pCommandList->SetGraphicsRootConstantBufferView(0, m_ConstantBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
 		m_pCommandList->SetGraphicsRootConstantBufferView(1, m_ConstantBufferPerFrameUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
-		//m_ModelManager.Draw();
 
-		//model.Draw();
 
 	}
 
@@ -422,12 +418,13 @@ namespace Insight {
 	{
 		D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
 		heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		heapDesc.NumDescriptors = 3; //TODO: Get this from the number of textures held in texture manager (TextureManager::GetNumTextures() or something)
+		heapDesc.NumDescriptors = 25; //TODO: Get this from the number of textures held in texture manager (TextureManager::GetNumTextures() or something)
 		heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 		HRESULT hr = m_pLogicalDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_pMainDescriptorHeap));
 		if (FAILED(hr)) {
 			IE_CORE_ERROR("Failed to create descriptor heap");
 		}
+		m_MainDescriptorHeapHandleWithOffset = m_pMainDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	}
 
 	void Direct3D12Context::CreateDepthStencilBuffer()
@@ -497,17 +494,23 @@ namespace Insight {
 			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
 			D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS;
 
-		CD3DX12_DESCRIPTOR_RANGE descTableRanges[3] = {};
+		CD3DX12_DESCRIPTOR_RANGE descTableRanges[6] = {};
 		descTableRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, ALBEDO_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Albedo Texture
 		descTableRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, NORMAL_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Normal Texture
-		descTableRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Specular Texture
+		descTableRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, ROUGHNESS_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Roughness Texture
+		descTableRanges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, METALLIC_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Metallic Texture
+		descTableRanges[4].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SPECULAR_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Specular Texture
+		descTableRanges[5].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, AO_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // AO Texture
 
-		CD3DX12_ROOT_PARAMETER rootParams[5] = {};
+		CD3DX12_ROOT_PARAMETER rootParams[8] = {};
 		rootParams[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL); // ConstantBufferPerObject
 		rootParams[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL); // Utilities
 		rootParams[2].InitAsDescriptorTable(1, &descTableRanges[0], D3D12_SHADER_VISIBILITY_PIXEL); // Albedo Texture
 		rootParams[3].InitAsDescriptorTable(1, &descTableRanges[1], D3D12_SHADER_VISIBILITY_PIXEL); // Normal Texture
-		rootParams[4].InitAsDescriptorTable(1, &descTableRanges[2], D3D12_SHADER_VISIBILITY_PIXEL); // Specular Texture
+		rootParams[4].InitAsDescriptorTable(1, &descTableRanges[2], D3D12_SHADER_VISIBILITY_PIXEL); // Roughness Texture
+		rootParams[5].InitAsDescriptorTable(1, &descTableRanges[3], D3D12_SHADER_VISIBILITY_PIXEL); // Metallic Texture
+		rootParams[6].InitAsDescriptorTable(1, &descTableRanges[4], D3D12_SHADER_VISIBILITY_PIXEL); // Specular Texture
+		rootParams[7].InitAsDescriptorTable(1, &descTableRanges[5], D3D12_SHADER_VISIBILITY_PIXEL); // AO Texture
 
 		D3D12_STATIC_SAMPLER_DESC sampler = {};
 		sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
@@ -772,15 +775,7 @@ namespace Insight {
 
 	void Direct3D12Context::LoadAssets()
 	{
-		LoadModels();
 		LoadTextures();
-	}
-
-	void Direct3D12Context::LoadModels()
-	{
-		//model.Init("../Assets/Objects/nanosuit/nanosuit.obj");
-		//m_ModelManager.LoadMeshFromFile("../Assets/Models/nanosuit/nanosuit.obj");
-		//m_ModelManager.LoadMeshFromFile("../Assets/Objects/Dandelion/Var1/Textured_Flower.obj");
 	}
 
 	void Direct3D12Context::LoadTextures()

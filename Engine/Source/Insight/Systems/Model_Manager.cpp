@@ -28,26 +28,6 @@ namespace Insight {
 		return (m_pCommandList && m_ConstantBufferUploadHeaps);
 	}
 
-	bool ModelManager::LoadAssetsFromFile(const std::string& modelsPath)
-	{
-		std::ifstream inStream(modelsPath.c_str());
-		std::string line = "";
-
-		auto it = m_Models.begin();
-		if (inStream.is_open()) {
-			while (std::getline(inStream, line)) {
-				StrongModelPtr mesh = make_shared<Model>(line);
-				Transform t;
-
-				//it->second = t;
-				//m_Models.insert(mesh, push(t));
-				//m_Models.insert(mesh, push(t));
-			}
-		}
-
-		return true;
-	}
-
 	void ModelManager::Draw()
 	{
 		D3D12_GPU_VIRTUAL_ADDRESS cbvHandle(m_ConstantBufferUploadHeaps->GetGPUVirtualAddress());

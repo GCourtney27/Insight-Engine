@@ -1,7 +1,10 @@
 
-Texture2D tAlbedo : register(t0);
-Texture2D tNormal : register(t1);
-Texture2D tSpecular : register(t2);
+Texture2D t_Albedo	  : register(t0);
+Texture2D t_Normal	  : register(t1);
+Texture2D t_Roughness  : register(t2);
+Texture2D t_MMetallic  : register(t3);
+Texture2D t_Specular	  : register(t4);
+Texture2D t_AO		  : register(t5);
 
 SamplerState sampler1 : register(s0);
 
@@ -26,9 +29,9 @@ float4 main(PS_INPUT ps_in) : SV_TARGET
 	//return float4(1.0, 0.0, 0.0, 1.0);
 	
 	
-	float3 albedoSample = tAlbedo.Sample(sampler1, ps_in.texCoords).rgb;
-	float3 normalSample = tNormal.Sample(sampler1, ps_in.texCoords).rgb;
-	float3 specularSample = tSpecular.Sample(sampler1, ps_in.texCoords).rgb;
+	float3 albedoSample = t_Albedo.Sample(sampler1, ps_in.texCoords).rgb;
+	float3 normalSample = t_Normal.Sample(sampler1, ps_in.texCoords).rgb;
+	float3 specularSample = t_Specular.Sample(sampler1, ps_in.texCoords).rgb;
 	//float3 normal = normalize(ps_in.normal);// * 2.0 - 1.0);
     
 	// Transform Normals From Tangent Space to View Space

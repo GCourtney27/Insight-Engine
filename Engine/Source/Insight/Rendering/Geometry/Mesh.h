@@ -6,13 +6,14 @@
 #include "Insight/Math/Transform.h"
 #include "Insight/Core/Scene/Scene_Node.h"
 #include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
+#include "Insight/Rendering/Material.h"
 
 namespace Insight {
 
 	class INSIGHT_API Mesh
 	{
 	public:
-		Mesh(std::vector<Vertex> verticies, std::vector<DWORD> indices);
+		Mesh(std::vector<Vertex> verticies, std::vector<DWORD> indices, Material material);
 		~Mesh();
 
 		void PreRender(const XMMATRIX& parentMat);
@@ -60,6 +61,7 @@ namespace Insight {
 		std::vector<DWORD>			m_Indices;
 
 		Transform					m_Transform;
+		Material					m_Material;
 		CB_VS_PerObject				m_ConstantBufferPerObject = {};
 
 	};

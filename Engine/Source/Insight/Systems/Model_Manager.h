@@ -30,7 +30,7 @@ namespace Insight {
 
 		//bool LoadMeshFromFile(const std::string& filePath, bool async = true);
 	private:
-		bool LoadAssetsFromFile(const std::string& modelsPath);
+
 
 	private:
 		SceneModels m_Models;  
