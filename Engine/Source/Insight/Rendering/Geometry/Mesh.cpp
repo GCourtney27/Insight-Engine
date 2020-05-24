@@ -38,20 +38,11 @@ namespace Insight {
 	{
 		m_Transform.SetWorldMatrix(XMMatrixMultiply(parentMat, m_Transform.GetLocalMatrix()));
 		
-		XMMATRIX viewMatTransposed = XMMatrixTranspose(APlayerCharacter::Get().GetCameraRef().GetViewMatrix());
-		XMMATRIX projectionMatTransposed = XMMatrixTranspose(APlayerCharacter::Get().GetCameraRef().GetProjectionMatrix());
 		XMMATRIX worldMatTransposed = XMMatrixTranspose(m_Transform.GetWorldMatrixRef());
-		
 		XMFLOAT4X4 worldFloat;
 		XMStoreFloat4x4(&worldFloat, worldMatTransposed);
-		XMFLOAT4X4 viewFloat;
-		XMStoreFloat4x4(&viewFloat, viewMatTransposed);
-		XMFLOAT4X4 projectionFloat;
-		XMStoreFloat4x4(&projectionFloat, projectionMatTransposed);
 
 		m_ConstantBufferPerObject.world = worldFloat;
-		m_ConstantBufferPerObject.view = viewFloat;
-		m_ConstantBufferPerObject.projection = projectionFloat;
 	}
 
 	CB_VS_PerObject Mesh::GetConstantBuffer()

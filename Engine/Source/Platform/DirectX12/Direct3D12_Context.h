@@ -69,12 +69,6 @@ namespace Insight {
 		void CreateViewport();
 		void CreateScissorRect();
 
-		// TEMP! Move this!
-		void InitShaders();
-		void LoadAssets();
-		void LoadTextures();
-		//----------------
-
 		void Cleanup();
 		void WaitForGPU();
 		void UpdateSizeDependentResources();
@@ -95,6 +89,7 @@ namespace Insight {
 		bool		m_RayTraceEnabled = false;
 		bool		m_UseWarpDevice = false;
 		
+		// D3D 12 Usings
 		ComPtr<IDXGIAdapter1>				m_pPhysicalDevice;
 		ComPtr<ID3D12Device>				m_pLogicalDevice;
 		ComPtr<IDXGIFactory4>				m_pDxgiFactory;
@@ -139,10 +134,6 @@ namespace Insight {
 		static const UINT m_ResolutionOptionsCount;
 		static UINT m_ResolutionIndex;
 
-		//=== TEMPORARY! ===//
-		//Model model;
-		//ModelManager m_ModelManager;
-
 		ComPtr<ID3D12Resource> m_ConstantBufferUploadHeaps[m_FrameBufferCount];
 		UINT8* m_cbvGPUAddress[m_FrameBufferCount]; 
 
@@ -150,11 +141,6 @@ namespace Insight {
 		UINT8* m_cbvPerFrameGPUAddress[m_FrameBufferCount];
 		CB_PS_VS_PerFrame m_PerFrameData;
 
-		// TEMP Textures
-		// TODO: create texture manager class
-		Texture albedoTexture;
-		Texture normalTexture;
-		Texture specularTexture;
 
 		
 	};

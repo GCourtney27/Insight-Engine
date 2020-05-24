@@ -10,7 +10,7 @@ namespace Insight {
 	class INSIGHT_API StaticMeshComponent : public ActorComponent
 	{
 	public:
-		StaticMeshComponent(StrongActorPtr owner);
+		StaticMeshComponent(StrongActorPtr pOwner);
 		virtual ~StaticMeshComponent();
 		
 		virtual void OnInit() override;
@@ -28,7 +28,7 @@ namespace Insight {
 		virtual void OnDetach() override;
 
 	private:
-
+		
 	private:
 		StrongModelPtr m_pModel;
 	};

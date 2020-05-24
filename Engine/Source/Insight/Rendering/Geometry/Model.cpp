@@ -158,14 +158,13 @@ namespace Insight {
 		Material material;
 		if (pMesh->mMaterialIndex >= 0)
 		{
-			CD3DX12_CPU_DESCRIPTOR_HANDLE* srvHeapHandle(&Direct3D12Context::Get().GetShaderVisibleDescriptorHeapHandleWithOffset());
-			Direct3D12Context::Get().GetShaderVisibleDescriptorHeapHandleWithOffset();
+			CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle(Direct3D12Context::Get().GetShaderVisibleDescriptorHeapHandleWithOffset());
 
 			aiMaterial* pMat = pScene->mMaterials[pMesh->mMaterialIndex];
 
-			Texture diffuseMap = ParseTexture(pMat, aiTextureType_DIFFUSE, Texture::eTextureType::ALBEDO, *srvHeapHandle);
-			Texture normalMap = ParseTexture(pMat, aiTextureType_HEIGHT, Texture::eTextureType::NORMAL, *srvHeapHandle);
-			Texture specularMap = ParseTexture(pMat, aiTextureType_SPECULAR, Texture::eTextureType::SPECULAR, *srvHeapHandle);
+			Texture diffuseMap = ParseTexture(pMat, aiTextureType_DIFFUSE, Texture::eTextureType::ALBEDO, srvHeapHandle);
+			Texture normalMap = ParseTexture(pMat, aiTextureType_HEIGHT, Texture::eTextureType::NORMAL, srvHeapHandle);
+			Texture specularMap = ParseTexture(pMat, aiTextureType_SPECULAR, Texture::eTextureType::SPECULAR, srvHeapHandle);
 			
 
 			material.AddTexture(diffuseMap);

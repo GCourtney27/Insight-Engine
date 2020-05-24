@@ -109,6 +109,12 @@ namespace Insight {
 
 	}
 
+	void AActor::OnEvent(Event& e)
+	{
+		EventDispatcher dispatcher(e);
+
+	}
+
 	void AActor::AddComponent(StrongActorComponentPtr pComponent)
 	{
 		IE_CORE_ASSERT(pComponent, "Attempting to add component to actor that is NULL");

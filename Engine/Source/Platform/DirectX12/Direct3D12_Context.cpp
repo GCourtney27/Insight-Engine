@@ -95,6 +95,9 @@ namespace Insight {
 		ACamera& playerCamera = APlayerCharacter::Get().GetCameraRef();
 		
 		m_PerFrameData.cameraPosition = playerCamera.GetTransformRef().GetPosition();
+		m_PerFrameData.deltaMs = deltaTime;
+		m_PerFrameData.time = Application::Get().GetFrameTimer().seconds();
+		
 		memcpy(m_cbvPerFrameGPUAddress[m_FrameIndex], &m_PerFrameData, sizeof(m_PerFrameData));
 	}
 

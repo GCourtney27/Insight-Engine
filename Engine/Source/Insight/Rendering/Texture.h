@@ -20,6 +20,11 @@ namespace Insight {
 			METALLIC = 3,
 			SPECULAR = 4,
 			AO = 5,
+			// SKysphere
+			DIFFUSE = 6,
+			IRRADIENCE = 7,
+			ENVIRONMENT_MAP = 8
+
 		};
 
 #define ALBEDO_DESCRIPTOR_OFFSET eTextureType::ALBEDO

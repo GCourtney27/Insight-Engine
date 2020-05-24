@@ -24,6 +24,7 @@ namespace Insight {
 		virtual void OnAttach() = 0;
 		virtual void OnDetach() = 0;
 
+		//void SetEventCallbackFunction()
 		const bool& GetIsComponentEnabled() const { return m_Enabled; }
 		void SetComponentEnabled(bool enable) { m_Enabled = enable; }
 

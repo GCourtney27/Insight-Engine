@@ -4,6 +4,7 @@
 #include "Insight/Math/Transform.h"
 #include "Insight/Core/Scene/Scene_Node.h"
 #include "Insight/Runtime/Components/Scene_Component.h"
+#include "Insight/Events/Event.h"
 
 namespace Insight {
 
@@ -29,12 +30,13 @@ namespace Insight {
 		virtual void OnRender();
 		virtual void Destroy();
 
+		void OnEvent(Event& e);
+
 		virtual void BeginPlay();
 		virtual void Tick(const float& deltaMs);
 		virtual void Exit();
 
-		//const inline Transform& GetTransform() const { return SceneNode::GetTransform(); }
-		//inline Transform& GetTransformRef() { return SceneNode::GetTransformRef(); }
+		void SetRenderPass(RenderPass renderPass) { m_RenderPass = renderPass; }
 	public:
 		template<typename T>
 		StrongActorComponentPtr CreateDefaultSubobject()
@@ -65,7 +67,7 @@ namespace Insight {
 		
 	protected:
 		const Vector3 WORLD_DIRECTION = WORLD_DIRECTION.Zero;
-		//SceneComponent m_SceneComponent;
+		RenderPass m_RenderPass = RenderPass::RenderPass_Static;
 		ActorComponents m_Components;
 		UINT m_NumComponents = 0;
 		ActorId m_id;

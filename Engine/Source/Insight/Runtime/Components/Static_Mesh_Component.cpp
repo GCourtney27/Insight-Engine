@@ -9,8 +9,8 @@ namespace Insight {
 
 
 
-	StaticMeshComponent::StaticMeshComponent(StrongActorPtr owner)
-		: ActorComponent("Static Mesh Component", owner)
+	StaticMeshComponent::StaticMeshComponent(StrongActorPtr pOwner)
+		: ActorComponent("Static Mesh Component", pOwner)
 	{
 		
 	}

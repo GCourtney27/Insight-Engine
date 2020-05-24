@@ -28,17 +28,18 @@ cbuffer cbPerObject : register(b0)
 cbuffer cbPerFrame : register(b1)
 {
 	float3 cameraPosition;
-	// TODO: put view and projection matricies in here
+	float deltaMs;
+	float time;
 };
 
 VS_OUTPUT main(VS_INPUT vs_in)
 {
 	VS_OUTPUT vs_out;
-
-	matrix worldView = mul(world, view);
 	
-	float4x4 cameraSpace = mul(mul(world, view), projection);
-	vs_out.position = mul(float4(vs_in.position, 1.0f), cameraSpace);
+	matrix worldView = mul(world, view);
+	float4x4 worldViewProjection = mul(mul(world, view), projection);
+	
+	vs_out.position = mul(float4(vs_in.position, 1.0f), worldViewProjection);
 	
 	vs_out.FragPos = float3(mul(world, float4(vs_in.position, 1.0)).xyz);
 	vs_out.texCoords = vs_in.texCoords;

@@ -12,6 +12,8 @@ struct CB_VS_PerObject
 struct CB_PS_VS_PerFrame
 {
 	DirectX::XMFLOAT3 cameraPosition;
+	float deltaMs;
+	float time;
 };
 
 struct CB_PS_PointLight
