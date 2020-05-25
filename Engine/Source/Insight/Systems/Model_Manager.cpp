@@ -3,6 +3,7 @@
 #include "Model_Manager.h"
 
 #include "Platform/DirectX12/Direct3D12_Context.h"
+#include "Insight/Runtime/APlayer_Character.h"
 #include <fstream>
 
 namespace Insight {
@@ -49,13 +50,23 @@ namespace Insight {
 	{
 		UINT8* cbvGPUAddress = &Direct3D12Context::Get().GetConstantBufferViewGPUHeapAddress();
 		UINT32 gpuAdressOffset = 0;
+		
+		ACamera& camera = APlayerCharacter::Get().GetCameraRef();
+		XMMATRIX viewMatTransposed = XMMatrixTranspose(camera.GetViewMatrix());
+		XMMATRIX projectionMatTransposed = XMMatrixTranspose(camera.GetProjectionMatrix());
+		XMFLOAT4X4 viewFloat;
+		XMStoreFloat4x4(&viewFloat, viewMatTransposed);
+		XMFLOAT4X4 projectionFloat;
+		XMStoreFloat4x4(&projectionFloat, projectionMatTransposed);
+
 		for (unsigned int i = 0; i < m_Models.size(); i++)
 		{
 
 			for (unsigned int j = 0; j < m_Models[i]->GetNumChildMeshes(); j++)
 			{
 				CB_VS_PerObject cbPerObject = m_Models[i]->GetMeshAtIndex(j)->GetConstantBuffer();
-
+				cbPerObject.view = viewFloat;
+				cbPerObject.projection = projectionFloat;
 				memcpy(cbvGPUAddress + (ConstantBufferPerObjectAlignedSize * gpuAdressOffset++), &cbPerObject, sizeof(cbPerObject));
 			}
 
