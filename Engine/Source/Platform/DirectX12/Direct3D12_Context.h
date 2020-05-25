@@ -73,15 +73,18 @@ namespace Insight {
 		void WaitForGPU();
 		void UpdateSizeDependentResources();
 		void UpdateViewAndScissor();
+
+		void LoadAssets();
+		
 	private:
 		static Direct3D12Context* s_Instance;
 	private:
-		HWND* m_pWindowHandle			= nullptr;
-		WindowsWindow* m_pWindow		= nullptr;
+		HWND*			m_pWindowHandle = nullptr;
+		WindowsWindow*	m_pWindow		= nullptr;
 
 		// Sync Values
-		int			m_FrameIndex				= 0;
-		int			m_RtvDescriptorSize			= 0;
+		int			m_FrameIndex = 0;
+		int			m_RtvDescriptorSize	= 0;
 		UINT64		m_FenceValues[m_FrameBufferCount] = {};
 		HANDLE		m_FenceEvent = {};
 
@@ -141,7 +144,11 @@ namespace Insight {
 		UINT8* m_cbvPerFrameGPUAddress[m_FrameBufferCount];
 		CB_PS_VS_PerFrame m_PerFrameData;
 
-
+		ComPtr<ID3D12Resource> m_ConstantBufferLightBufferUploadHeaps[m_FrameBufferCount];
+		UINT8* m_cbvLightBufferGPUAddress[m_FrameBufferCount];
+		const static UINT MAX_POINT_LIGHTS = 4;
+		//CB_PS_PointLight m_PointLights[MAX_POINT_LIGHTS];
+		CB_PS_PointLight m_PointLights;
 		
 	};
 

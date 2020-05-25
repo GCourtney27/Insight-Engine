@@ -14,9 +14,20 @@ struct CB_PS_VS_PerFrame
 	DirectX::XMFLOAT3 cameraPosition;
 	float deltaMs;
 	float time;
+	float padding[3];
 };
 
 struct CB_PS_PointLight
 {
+	DirectX::XMFLOAT3 position;
 
+	float linear;
+	float constant;
+	float quadratic;
+
+	DirectX::XMFLOAT3 ambient;
+	DirectX::XMFLOAT3 diffuse;
+	DirectX::XMFLOAT3 specular;
+
+	float padding;
 };

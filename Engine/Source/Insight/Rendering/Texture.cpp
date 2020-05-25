@@ -122,42 +122,42 @@ namespace Insight {
 		{
 		case eTextureType::ALBEDO:
 		{
-			rootParamIndex = 2;
+			rootParamIndex = 3;
 			CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, m_GPUHeapIndex, cbvSrvDescriptorSize);
 			m_pCommandList->SetGraphicsRootDescriptorTable(rootParamIndex, handle);
 			break;
 		}
 		case eTextureType::NORMAL:
 		{
-			rootParamIndex = 3;
+			rootParamIndex = 4;
 			CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, m_GPUHeapIndex, cbvSrvDescriptorSize);
 			m_pCommandList->SetGraphicsRootDescriptorTable(rootParamIndex, handle);
 			break;
 		}
 		case eTextureType::ROUGHNESS:
 		{
-			rootParamIndex = 4;
+			rootParamIndex = 5;
 			CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, m_GPUHeapIndex, cbvSrvDescriptorSize);
 			m_pCommandList->SetGraphicsRootDescriptorTable(rootParamIndex, handle);
 			break;
 		}
 		case eTextureType::METALLIC:
 		{
-			rootParamIndex = 5;
+			rootParamIndex = 6;
 			CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, m_GPUHeapIndex, cbvSrvDescriptorSize);
 			m_pCommandList->SetGraphicsRootDescriptorTable(rootParamIndex, handle);
 			break;
 		}
 		case eTextureType::SPECULAR:
 		{
-			rootParamIndex = 6;
+			rootParamIndex = 7;
 			CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, m_GPUHeapIndex, cbvSrvDescriptorSize);
 			m_pCommandList->SetGraphicsRootDescriptorTable(rootParamIndex, handle);
 			break;
 		}
 		case eTextureType::AO:
 		{
-			rootParamIndex = 7;
+			rootParamIndex = 8;
 			CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, m_GPUHeapIndex, cbvSrvDescriptorSize);
 			m_pCommandList->SetGraphicsRootDescriptorTable(rootParamIndex, handle);
 			break;

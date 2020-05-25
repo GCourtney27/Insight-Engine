@@ -77,7 +77,7 @@ namespace Insight {
 
 			CreateConstantBufferResourceHeaps();
 			
-			//LoadAssets();
+			LoadAssets();
 
 			//CloseCommandListAndSignalCommandQueue();
 
@@ -97,8 +97,13 @@ namespace Insight {
 		m_PerFrameData.cameraPosition = playerCamera.GetTransformRef().GetPosition();
 		m_PerFrameData.deltaMs = deltaTime;
 		m_PerFrameData.time = Application::Get().GetFrameTimer().seconds();
-		
 		memcpy(m_cbvPerFrameGPUAddress[m_FrameIndex], &m_PerFrameData, sizeof(m_PerFrameData));
+		
+		if (Input::IsKeyPressed('C')) {
+			m_PointLights.position = playerCamera.GetTransform().GetPosition();
+		}
+
+		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex], &m_PointLights, sizeof(m_PointLights));
 	}
 
 	void Direct3D12Context::WaitForPreviousFrame()
@@ -163,11 +168,10 @@ namespace Insight {
 		ID3D12DescriptorHeap* descriptorHeaps[] = { m_pMainDescriptorHeap.Get() };
 		m_pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
-		//albedoTexture.Bind();
-		//normalTexture.Bind();
-		//specularTexture.Bind();
-
+		// Set Per-Frame utils
 		m_pCommandList->SetGraphicsRootConstantBufferView(1, m_ConstantBufferPerFrameUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
+		// Set light buffer
+		m_pCommandList->SetGraphicsRootConstantBufferView(2, m_ConstantBufferLightBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
 
 
 	}
@@ -478,23 +482,38 @@ namespace Insight {
 			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
 			D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS;
 
-		CD3DX12_DESCRIPTOR_RANGE descTableRanges[6] = {};
-		descTableRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, ALBEDO_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Albedo Texture
-		descTableRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, NORMAL_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Normal Texture
-		descTableRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, ROUGHNESS_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Roughness Texture
+		CD3DX12_DESCRIPTOR_RANGE descTableRanges[10] = {};
+		descTableRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, ALBEDO_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND);	// Albedo Texture
+		descTableRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, NORMAL_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND);	// Normal Texture
+		descTableRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, ROUGHNESS_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND);// Roughness Texture
 		descTableRanges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, METALLIC_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Metallic Texture
 		descTableRanges[4].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SPECULAR_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Specular Texture
-		descTableRanges[5].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, AO_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // AO Texture
+		descTableRanges[5].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, AO_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND);		// AO Texture
 
-		CD3DX12_ROOT_PARAMETER rootParams[8] = {};
-		rootParams[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL); // ConstantBufferPerObject
-		rootParams[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL); // Utilities
-		rootParams[2].InitAsDescriptorTable(1, &descTableRanges[0], D3D12_SHADER_VISIBILITY_PIXEL); // Albedo Texture
-		rootParams[3].InitAsDescriptorTable(1, &descTableRanges[1], D3D12_SHADER_VISIBILITY_PIXEL); // Normal Texture
-		rootParams[4].InitAsDescriptorTable(1, &descTableRanges[2], D3D12_SHADER_VISIBILITY_PIXEL); // Roughness Texture
-		rootParams[5].InitAsDescriptorTable(1, &descTableRanges[3], D3D12_SHADER_VISIBILITY_PIXEL); // Metallic Texture
-		rootParams[6].InitAsDescriptorTable(1, &descTableRanges[4], D3D12_SHADER_VISIBILITY_PIXEL); // Specular Texture
-		rootParams[7].InitAsDescriptorTable(1, &descTableRanges[5], D3D12_SHADER_VISIBILITY_PIXEL); // AO Texture
+		descTableRanges[6].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 6, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Sky Diffuse
+		descTableRanges[7].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 7, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Sky Irradiance
+		descTableRanges[8].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 8, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Sky Environment Map
+		descTableRanges[9].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Sky BRDF LUT
+
+		// Note: If you change anything before the Albedo Texture slot, you must
+		//		 update the rootParamIndex variable in Texture.cpp to reflect their new 
+		//		 indicies in the array
+		CD3DX12_ROOT_PARAMETER rootParams[13] = {};
+		rootParams[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX); // ConstantBufferPerObject
+		rootParams[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL);	  // Utilities
+		rootParams[2].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_PIXEL);  // Utilities
+		rootParams[3].InitAsDescriptorTable(1, &descTableRanges[0], D3D12_SHADER_VISIBILITY_PIXEL); // Albedo Texture
+		rootParams[4].InitAsDescriptorTable(1, &descTableRanges[1], D3D12_SHADER_VISIBILITY_PIXEL); // Normal Texture
+		rootParams[5].InitAsDescriptorTable(1, &descTableRanges[2], D3D12_SHADER_VISIBILITY_PIXEL); // Roughness Texture
+		rootParams[6].InitAsDescriptorTable(1, &descTableRanges[3], D3D12_SHADER_VISIBILITY_PIXEL); // Metallic Texture
+		rootParams[7].InitAsDescriptorTable(1, &descTableRanges[4], D3D12_SHADER_VISIBILITY_PIXEL); // Specular Texture
+		rootParams[8].InitAsDescriptorTable(1, &descTableRanges[5], D3D12_SHADER_VISIBILITY_PIXEL); // AO Texture
+
+		rootParams[9].InitAsDescriptorTable(1, &descTableRanges[6], D3D12_SHADER_VISIBILITY_PIXEL);  // Sky Diffuse
+		rootParams[10].InitAsDescriptorTable(1, &descTableRanges[7], D3D12_SHADER_VISIBILITY_PIXEL); // Sky Irradiance
+		rootParams[11].InitAsDescriptorTable(1, &descTableRanges[8], D3D12_SHADER_VISIBILITY_PIXEL); // Sky Environment Map
+		rootParams[12].InitAsDescriptorTable(1, &descTableRanges[9], D3D12_SHADER_VISIBILITY_PIXEL); // Sky BRDF LUT
+		
 
 		D3D12_STATIC_SAMPLER_DESC sampler = {};
 		sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
@@ -615,6 +634,25 @@ namespace Insight {
 		COM_ERROR_IF_FAILED(hr, "Failed to create default Pipeline State Object");
 	}
 
+	void Direct3D12Context::LoadAssets()
+	{
+		using namespace DirectX;
+		srand(13);
+		//for (UINT i = 0; i < MAX_POINT_LIGHTS; i++)
+		{
+			m_PointLights.position = XMFLOAT3(1 - 5.0f, 5.0f, 0.0f);
+			m_PointLights.ambient = XMFLOAT3(0.3f, 0.3f, 0.1f);
+			float rColor = ((rand() % 100) / 200.0f) + 0.5; // between 0.5 and 1.0
+			float gColor = ((rand() % 100) / 200.0f) + 0.5; // between 0.5 and 1.0
+			float bColor = ((rand() % 100) / 200.0f) + 0.5; // between 0.5 and 1.0
+			m_PointLights.diffuse = XMFLOAT3(rColor, gColor, bColor);
+			m_PointLights.specular = XMFLOAT3(rColor, gColor, bColor);
+			m_PointLights.constant = 1.0f;
+			m_PointLights.linear = 0.09f;
+			m_PointLights.quadratic = 0.032f;
+		}
+	}
+
 	void Direct3D12Context::CreateConstantBufferResourceHeaps()
 	{
 		HRESULT hr;
@@ -651,6 +689,23 @@ namespace Insight {
 			m_ConstantBufferPerFrameUploadHeaps[i]->SetName(L"Constant Buffer PerFrame Upload Heap");
 			CD3DX12_RANGE readRange(0, 0);
 			hr = m_ConstantBufferPerFrameUploadHeaps[i]->Map(0, &readRange, reinterpret_cast<void**>(&m_cbvPerFrameGPUAddress[i]));
+		}
+
+		for (int i = 0; i < m_FrameBufferCount; ++i)
+		{
+			hr = m_pLogicalDevice->CreateCommittedResource(
+				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+				D3D12_HEAP_FLAG_NONE,
+				&CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
+				D3D12_RESOURCE_STATE_GENERIC_READ,
+				nullptr,
+				IID_PPV_ARGS(&m_ConstantBufferLightBufferUploadHeaps[i]));
+			if (FAILED(hr)) {
+				IE_CORE_ERROR("Failed to create committed resource for Constant Buffer Per Frame data.")
+			}
+			m_ConstantBufferLightBufferUploadHeaps[i]->SetName(L"Constant Buffer PerFrame Upload Heap");
+			CD3DX12_RANGE readRange(0, 0);
+			hr = m_ConstantBufferLightBufferUploadHeaps[i]->Map(0, &readRange, reinterpret_cast<void**>(&m_cbvLightBufferGPUAddress[i]));
 		}
 
 	}

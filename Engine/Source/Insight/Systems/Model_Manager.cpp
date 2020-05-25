@@ -74,24 +74,13 @@ namespace Insight {
 
 	}
 
-	//bool ModelManager::LoadMeshFromFile(const std::string& filePath, bool async)
-	//{
-	//	std::shared_ptr<Model> mesh = std::make_shared<Model>();
-	//	if (!mesh->Init(filePath))
-	//	{
-	//		IE_CORE_ERROR("MeshManager::LoadMeshFromFile Failed to load mesh from file: {0}", filePath);
-	//		return false;
-	//	}
-	//	m_Models.push_back(mesh);
-	//	return true;
-	//}
-
 	void ModelManager::FlushModelCache()
 	{
 		/*for (std::shared_ptr<Model>& model : m_Models)
 		{
 			model->Destroy();
 			model.reset();
+			
 		}
 		m_Models.clear();*/
 	}
