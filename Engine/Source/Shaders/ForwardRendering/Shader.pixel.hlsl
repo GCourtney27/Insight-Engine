@@ -33,7 +33,7 @@ cbuffer cbPerFrame : register(b1)
 
 cbuffer cbLights : register(b2)
 {
-	PointLight pointLights;
+	PointLight pointLights;//[MAX_POINT_LIGHTS];
 };
 
 // Function Signatures

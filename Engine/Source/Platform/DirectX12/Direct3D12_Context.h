@@ -3,16 +3,11 @@
 #include <Insight/Core.h>
 
 #include "Insight/Rendering/Rendering_Context.h"
-#include "Platform/Windows/Error/COM_Exception.h"
 
-#include "Insight/Runtime/ACamera.h"
+#include "Platform/Windows/Error/COM_Exception.h"
 
 // TODO: implement shader system that uses this
 #include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
-
-//TEMP
-#include "Insight/Systems/Model_Manager.h"
-#include "Insight/Rendering/Geometry/Model.h"
 #include "Insight/Rendering/Texture.h"
 
 using Microsoft::WRL::ComPtr;
@@ -30,6 +25,7 @@ namespace Insight {
 		virtual bool Init() override;
 		virtual void OnUpdate(const float& deltaTime) override;
 		virtual void OnPreFrameRender() override;
+		virtual void OnMidFrameRender() override;
 		virtual void OnRender() override;
 		virtual void ExecuteDraw() override;
 		virtual void SwapBuffers() override;
@@ -68,7 +64,18 @@ namespace Insight {
 		void CreateConstantBufferResourceHeaps();
 		void CreateViewport();
 		void CreateScissorRect();
+		
+#pragma region Deferred Rendering
+		// Deffered Rendering
+		void CreateGraphicsBuffer();
+		void CreateDeferredRenderingPipeline();
+		
+		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_GeometryPass;
+		ComPtr<ID3D12RootSignature>			m_pRootSignature_GeometryPass;
 
+		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_LightingPass;
+		ComPtr<ID3D12RootSignature>			m_pRootSignature_LightingPass;
+#pragma endregion 
 		void Cleanup();
 		void WaitForGPU();
 		void UpdateSizeDependentResources();
@@ -80,7 +87,7 @@ namespace Insight {
 		static Direct3D12Context* s_Instance;
 	private:
 		HWND*			m_pWindowHandle = nullptr;
-		WindowsWindow*	m_pWindow		= nullptr;
+		WindowsWindow*	m_pWindow = nullptr;
 
 		// Sync Values
 		int			m_FrameIndex = 0;
@@ -146,7 +153,7 @@ namespace Insight {
 
 		ComPtr<ID3D12Resource> m_ConstantBufferLightBufferUploadHeaps[m_FrameBufferCount];
 		UINT8* m_cbvLightBufferGPUAddress[m_FrameBufferCount];
-		const static UINT MAX_POINT_LIGHTS = 4;
+		#define MAX_POINT_LIGHTS 4
 		//CB_PS_PointLight m_PointLights[MAX_POINT_LIGHTS];
 		CB_PS_PointLight m_PointLights;
 		

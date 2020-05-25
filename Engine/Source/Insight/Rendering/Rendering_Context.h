@@ -14,6 +14,7 @@ namespace Insight {
 		virtual void OnUpdate(const float& deltaTime) = 0;
 		virtual void OnPreFrameRender() = 0;
 		virtual void OnRender() = 0;
+		virtual void OnMidFrameRender() = 0;
 		virtual void ExecuteDraw() = 0;
 		virtual void SwapBuffers() = 0;
 		virtual void OnWindowResize() = 0;
