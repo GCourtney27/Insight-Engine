@@ -9,6 +9,7 @@
 // TODO: implement shader system that uses this
 #include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
 #include "Insight/Rendering/Texture.h"
+#include "Insight/Rendering/Geometry/Mesh.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -65,6 +66,9 @@ namespace Insight {
 		void CreateViewport();
 		void CreateScissorRect();
 		
+		Mesh m_ScreenQuad;
+		void CreateScreenQuad();
+
 #pragma region Deferred Rendering
 		// Deffered Rendering
 		void CreateGraphicsBuffer();
@@ -91,7 +95,7 @@ namespace Insight {
 
 		// Sync Values
 		int			m_FrameIndex = 0;
-		int			m_RtvDescriptorSize	= 0;
+		int			m_RtvDescriptorIncrementSize	= 0;
 		UINT64		m_FenceValues[m_FrameBufferCount] = {};
 		HANDLE		m_FenceEvent = {};
 
@@ -133,6 +137,7 @@ namespace Insight {
 		D3D12_RECT							m_ScissorRect = {};
 		DXGI_SAMPLE_DESC					m_SampleDesc = {};
 		D3D12_DEPTH_STENCIL_VIEW_DESC		m_dsvDesc = {};
+		float m_ClearColor[4];
 
 		// Utils
 		struct Resolution

@@ -27,6 +27,7 @@ namespace Insight {
 		void OnImGuiRender();
 		void OnPreRender();
 		void OnRender();
+		void OnMidFrameRender();
 		void OnPostRender();
 		void Destroy();
 		void Flush();

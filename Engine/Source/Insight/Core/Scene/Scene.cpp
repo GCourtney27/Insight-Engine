@@ -123,6 +123,11 @@ namespace Insight {
 		m_ModelManager.Draw();
 	}
 
+	void Scene::OnMidFrameRender()
+	{
+		m_Renderer->OnMidFrameRender();
+	}
+
 	void Scene::OnPostRender()
 	{
 		m_Renderer->ExecuteDraw();

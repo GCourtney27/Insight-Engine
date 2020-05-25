@@ -89,6 +89,9 @@ namespace Insight {
 				m_ImGuiLayer->End();
 			}
 
+			// Perform Light Pass
+			m_Scene.OnMidFrameRender();
+
 			m_Scene.OnPostRender();
 
 		}

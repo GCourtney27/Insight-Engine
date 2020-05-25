@@ -17,7 +17,7 @@ SamplerState s_Sampler : register(s0);
 
 struct PS_INPUT
 {
-	float4 position		: SV_POSITION;
+	float4 sv_position	: SV_POSITION;
 	float3 FragPos		: FRAG_POS;
 	float2 texCoords	: TEXCOORD;
 	float3 normal		: NORMAL;

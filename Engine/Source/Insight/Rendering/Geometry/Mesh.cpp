@@ -10,28 +10,35 @@
 namespace Insight {
 
 
-	Mesh::Mesh(std::vector<Vertex> verticies, std::vector<DWORD> indices, Material material)
+	Mesh::Mesh(Verticies verticies, Indices indices, Material material)
+		: m_Verticies(verticies), m_Indices(indices), m_Material(material)
 	{
-		m_Verticies = verticies;
-		m_Indices = indices;
-
-		m_NumIndices = static_cast<UINT>(m_Verticies.size());
-		m_NumVerticies = static_cast<UINT>(m_Indices.size());
-
-		m_IBufferSize = m_NumIndices * sizeof(UINT);
-		m_VBufferSize = m_NumVerticies * sizeof(Vertex);
-
-		m_pLogicalDevice = &Direct3D12Context::Get().GetDeviceContext();
-		m_pCommandList = &Direct3D12Context::Get().GetCommandList();
-
-		m_Material = material;
-
-		SetupMesh();
+		Init();
 	}
 
 	Mesh::~Mesh()
 	{
 		Destroy();
+	}
+
+	void Mesh::Init(Verticies verticies, Indices indices)
+	{
+		m_Verticies = verticies;
+		m_Indices = indices;
+	}
+
+	void Mesh::Init()
+	{
+		m_NumIndices   = static_cast<UINT>(m_Verticies.size());
+		m_NumVerticies = static_cast<UINT>(m_Indices.size());
+
+		m_IBufferSize = m_NumIndices * sizeof(UINT);
+		m_VBufferSize = m_NumVerticies * sizeof(Vertex3D);
+
+		m_pLogicalDevice = &Direct3D12Context::Get().GetDeviceContext();
+		m_pCommandList	 = &Direct3D12Context::Get().GetCommandList();
+
+		SetupMesh();
 	}
 
 	void Mesh::PreRender(const XMMATRIX& parentMat)
@@ -117,7 +124,7 @@ namespace Insight {
 		UpdateSubresources(m_pCommandList, m_pVertexBuffer, m_pVertexBufferUploadHeap, 0, 0, 1, &vertexData);
 
 		m_VertexBufferView.BufferLocation = m_pVertexBuffer->GetGPUVirtualAddress();
-		m_VertexBufferView.StrideInBytes = sizeof(Vertex);
+		m_VertexBufferView.StrideInBytes = sizeof(Vertex3D);
 		m_VertexBufferView.SizeInBytes = m_VBufferSize;
 
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pVertexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
