@@ -106,13 +106,13 @@ namespace Insight {
 	unique_ptr<Mesh> Model::ProcessMesh(aiMesh* pMesh, const aiScene* pScene)
 	{
 		using namespace DirectX;
-		std::vector<Vertex> verticies; //verticies.reserve(pMesh->mNumVertices);
+		std::vector<Vertex3D> verticies; //verticies.reserve(pMesh->mNumVertices);
 		std::vector<DWORD> indices;
 		
 		// Load Verticies
 		for (UINT i = 0; i < pMesh->mNumVertices; i++) {
 
-			Vertex vertex;
+			Vertex3D vertex;
 			// Position
 			vertex.Position.x = pMesh->mVertices[i].x;
 			vertex.Position.y = pMesh->mVertices[i].y;

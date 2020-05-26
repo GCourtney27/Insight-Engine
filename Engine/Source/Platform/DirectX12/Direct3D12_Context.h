@@ -110,8 +110,10 @@ namespace Insight {
 		ComPtr<IDXGISwapChain3>				m_pSwapChain;
 
 		ComPtr<ID3D12CommandQueue>			m_pCommandQueue;
-		ComPtr<ID3D12DescriptorHeap>		m_pRtvDescriptorHeap;
-		ComPtr<ID3D12Resource>				m_pRenderTargets[m_FrameBufferCount];
+		ComPtr<ID3D12DescriptorHeap>		m_pRtvGeometryBufferDescriptorHeap;
+		ComPtr<ID3D12Resource>				m_pRenderTargets_GeometryPass[m_FrameBufferCount];
+		ComPtr<ID3D12DescriptorHeap>		m_pRtvLightingBufferDescriptorHeap;
+		ComPtr<ID3D12Resource>				m_pRenderTargets_LightingPass[m_FrameBufferCount];
 		ComPtr<ID3D12CommandAllocator>		m_pCommandAllocators[m_FrameBufferCount];
 
 		ComPtr<ID3D12Fence>					m_pFences[m_FrameBufferCount];

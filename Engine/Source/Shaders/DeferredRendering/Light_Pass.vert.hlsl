@@ -7,15 +7,15 @@ struct VS_INPUT
 
 struct VS_OUTPUT
 {
-	float3 sv_position	 : SV_POSITION;
-	float2 texCoords : TEXCOORD;
+	float4 sv_position	 : SV_POSITION;
+	float2 texCoords	 : TEXCOORD;
 };
 
 VS_OUTPUT main(VS_INPUT vs_in)
 {
 	VS_OUTPUT vs_out;
 	
-	vs_out.sv_position = vs_in.position;
+	vs_out.sv_position = float4(vs_in.position, 1.0);
 	vs_out.texCoords = vs_in.texCoords;
 	
 	return vs_out;
