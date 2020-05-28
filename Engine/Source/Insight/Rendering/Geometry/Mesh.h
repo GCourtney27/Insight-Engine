@@ -21,7 +21,7 @@ namespace Insight {
 		~Mesh();
 
 		void Init(Verticies verticies, Indices indices);
-		void Init();
+		void InitializeLocalVariables();
 		void PreRender(const XMMATRIX& parentMat);
 		void Render();
 		void Destroy();

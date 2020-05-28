@@ -84,7 +84,8 @@ namespace Insight {
 				CreateRenderTargetViewDescriptorHeap();
 			}
 
-			CreateRootSignature();
+			CreateRootSignatureGeometryPass();
+			CreateRootSignatureLightPass();
 			CreateGeometryPassPSO();
 			CreateLightPassPSO();
 
@@ -148,7 +149,7 @@ namespace Insight {
 		hr = m_pCommandList->Reset(m_pCommandAllocators[m_FrameIndex].Get(), m_pPipelineStateObject_GeometryPass.Get());
 		ThrowIfFailed(hr, "Failed to reset command list in Direct3D12Context::OnPreFrameRender");
 
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET));
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
 		float clearColor[4] = { 0.0f,0.0f,0.0f,0.0f };
 		m_pCommandList->ClearRenderTargetView(GetRenderTargetView(), m_ClearColor, 0, nullptr);
@@ -175,9 +176,18 @@ namespace Insight {
 		m_pCommandList->OMSetRenderTargets(m_NumRTV, &m_rtvHeap.hCPUHeapStart, true, &m_dsvHeap.hCPUHeapStart);
 		m_pCommandList->SetDescriptorHeaps(1, ppHeaps);
 		m_pCommandList->SetGraphicsRootSignature(m_pRootSignature.Get());
-		m_pCommandList->SetGraphicsRootDescriptorTable(0, m_cbvsrvHeap.hGPU(0));
-		m_pCommandList->SetGraphicsRootDescriptorTable(1, m_cbvsrvHeap.hGPU(1));
-		m_pCommandList->SetGraphicsRootDescriptorTable(2, m_cbvsrvHeap.hGPU(2));
+
+		m_pCommandList->SetGraphicsRootDescriptorTable(1, m_cbvsrvHeap.hGPU(0));
+		m_pCommandList->SetGraphicsRootDescriptorTable(2, m_cbvsrvHeap.hGPU(1));
+	}
+
+	void Direct3D12Context::OnMidFrameRender()
+	{
+		HRESULT hr;
+
+		m_pCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, nullptr);
+		BindLightingPass();
+
 	}
 
 	void Direct3D12Context::BindLightingPass()
@@ -192,61 +202,14 @@ namespace Insight {
 		m_ScreenQuad.Render();
 
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-
-		HRESULT hr = m_pCommandList->Close();
-		ThrowIfFailed(hr, "Failed to close command list");
-		ID3D12CommandList* ppCommandLists[1] = { m_pCommandList.Get() };
-
-		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-
 	}
 
 	void Direct3D12Context::PopulateCommandLists()
 	{
-
-
-		/*	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_pDepthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-
-			CD3DX12_CPU_DESCRIPTOR_HANDLE diffuseHandle(m_pRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), m_FrameIndex, m_RtvDescriptorIncrementSize);
-			CD3DX12_CPU_DESCRIPTOR_HANDLE normalHandle(m_pRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), m_FrameIndex * 2, m_RtvDescriptorIncrementSize);
-			CD3DX12_CPU_DESCRIPTOR_HANDLE positionHandle(m_pRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), m_FrameIndex * 3, m_RtvDescriptorIncrementSize);
-			CD3DX12_CPU_DESCRIPTOR_HANDLE renderTargetViews[3] = {
-				diffuseHandle,
-				normalHandle,
-				positionHandle
-			};
-			m_pCommandList->OMSetRenderTargets(_countof(renderTargetViews), renderTargetViews, FALSE, &dsvHandle);*/
-
-			//// Clear handles
-			//{
-			//	m_pCommandList->ClearRenderTargetView(diffuseHandle, m_ClearColor, 0, nullptr);
-			//	m_pCommandList->ClearRenderTargetView(normalHandle, m_ClearColor, 0, nullptr);
-			//	m_pCommandList->ClearRenderTargetView(positionHandle, m_ClearColor, 0, nullptr);
-			//	m_pCommandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-			//}
-
-		//m_pCommandList->RSSetViewports(1, &m_ViewPort);
-		//m_pCommandList->RSSetScissorRects(1, &m_ScissorRect);
-		//m_pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-		//ID3D12DescriptorHeap* descriptorHeaps[] = { m_pCbvSrvDescriptorHeap.Get() };
-		//m_pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-
-		// Set Per-Frame utils
-		//m_pCommandList->SetGraphicsRootConstantBufferView(1, m_ConstantBufferPerFrameUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
+		// Set Per-Object Constant Buffers
+		m_pCommandList->SetGraphicsRootConstantBufferView(0, m_PerObjectConstantBuffer[m_FrameIndex]->GetGPUVirtualAddress());
 		// Set light buffer
 		//m_pCommandList->SetGraphicsRootConstantBufferView(2, m_ConstantBufferLightBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
-
-
-	}
-
-	void Direct3D12Context::OnMidFrameRender()
-	{
-		HRESULT hr;
-		
-		m_pCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, nullptr);
-		BindLightingPass();
-
 	}
 
 	void Direct3D12Context::OnRender()
@@ -587,35 +550,49 @@ namespace Insight {
 	{
 		m_cbvsrvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 10, true);
 
-		//PerObject CBV
 		D3D12_CONSTANT_BUFFER_VIEW_DESC	descBuffer;
-		descBuffer.BufferLocation = m_PerObjectConstantBuffer->GetGPUVirtualAddress();
-		descBuffer.SizeInBytes = (sizeof(CB_VS_PerObject) + 255) & ~255;
-		m_pLogicalDevice->CreateConstantBufferView(&descBuffer, m_cbvsrvHeap.hCPU(0));
 		
-		//PerFrame CBV
+		HRESULT hr;
+		// PerObject Constant buffer
+		for (int i = 0; i < m_FrameBufferCount; ++i)
+		{
+			hr = m_pLogicalDevice->CreateCommittedResource(
+				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+				D3D12_HEAP_FLAG_NONE,
+				&CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
+				D3D12_RESOURCE_STATE_GENERIC_READ,
+				nullptr,
+				IID_PPV_ARGS(&m_PerObjectConstantBuffer[i]));
+			m_PerObjectConstantBuffer[i]->SetName(L"Constant Buffer Upload Resource Heap");
+
+			CD3DX12_RANGE readRange(0, 0);
+			hr = m_PerObjectConstantBuffer[i]->Map(0, &readRange, reinterpret_cast<void**>(&m_cbvGPUAddress[i]));
+		}
+
+		// PerFrame CBV
 		descBuffer.BufferLocation = m_PerFrameConstantBuffer->GetGPUVirtualAddress();
 		descBuffer.SizeInBytes = (sizeof(CB_PS_VS_PerFrame) + 255) & ~255;
-		m_pLogicalDevice->CreateConstantBufferView(&descBuffer, m_cbvsrvHeap.hCPU(1));
+		m_pLogicalDevice->CreateConstantBufferView(&descBuffer, m_cbvsrvHeap.hCPU(0));
 
-		//Light CBV
+		// Light CBV
 		descBuffer.BufferLocation = m_PerFrameConstantBuffer->GetGPUVirtualAddress();
 		descBuffer.SizeInBytes = (sizeof(CB_PS_PointLight) + 255) & ~255;
 		m_pLogicalDevice->CreateConstantBufferView(&descBuffer, m_cbvsrvHeap.hCPU(1));
 	}
 
-	void Direct3D12Context::CreateRootSignature()
+	void Direct3D12Context::CreateRootSignatureGeometryPass()
 	{
-		CD3DX12_DESCRIPTOR_RANGE range[3];
-		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0); // Per Object
-		range[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1); // Per Frame
+		CD3DX12_DESCRIPTOR_RANGE range[2];
+		//range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0); // Per Object
+		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1); // Per Frame
 		//range[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 2); // Lights
-		range[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 0); // G-Buffer inputs
+		range[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 0); // G-Buffer inputs
 
 		CD3DX12_ROOT_PARAMETER rootParameters[3];
-		rootParameters[0].InitAsDescriptorTable(1, &range[0], D3D12_SHADER_VISIBILITY_ALL);
-		rootParameters[1].InitAsDescriptorTable(1, &range[1], D3D12_SHADER_VISIBILITY_ALL);
-		rootParameters[2].InitAsDescriptorTable(1, &range[2], D3D12_SHADER_VISIBILITY_ALL);
+		rootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+		rootParameters[1].InitAsDescriptorTable(1, &range[0], D3D12_SHADER_VISIBILITY_ALL);
+		//rootParameters[2].InitAsDescriptorTable(1, &range[1], D3D12_SHADER_VISIBILITY_ALL);
+		rootParameters[2].InitAsDescriptorTable(1, &range[1], D3D12_SHADER_VISIBILITY_ALL);
 
 		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
 		descRootSignature.Init(3, rootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
@@ -630,6 +607,11 @@ namespace Insight {
 		
 		HRESULT hr = D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, rootSigBlob.GetAddressOf(), errorBlob.GetAddressOf());
 		hr = m_pLogicalDevice->CreateRootSignature(0, rootSigBlob->GetBufferPointer(), rootSigBlob->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature));
+	}
+
+	void Direct3D12Context::CreateRootSignatureLightPass()
+	{
+
 	}
 
 	void Direct3D12Context::CreateGeometryPassPSO()
@@ -779,7 +761,6 @@ namespace Insight {
 			THROW_COM_ERROR("Fence Event was nullptr");
 	}
 
-
 	void Direct3D12Context::LoadAssets()
 	{
 		using namespace DirectX;
@@ -815,9 +796,6 @@ namespace Insight {
 		resourceDesc.DepthOrArraySize = 1;
 		resourceDesc.Height = 1;
 		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-
-		resourceDesc.Width = sizeof(CB_VS_PerObject);
-		m_pLogicalDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&m_PerObjectConstantBuffer));
 
 		resourceDesc.Width = sizeof(CB_PS_VS_PerFrame);
 		m_pLogicalDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&m_PerFrameConstantBuffer));

@@ -13,7 +13,7 @@ namespace Insight {
 	Mesh::Mesh(Verticies verticies, Indices indices, Material material)
 		: m_Verticies(verticies), m_Indices(indices), m_Material(material)
 	{
-		Init();
+		InitializeLocalVariables();
 	}
 
 	Mesh::~Mesh()
@@ -25,9 +25,10 @@ namespace Insight {
 	{
 		m_Verticies = verticies;
 		m_Indices = indices;
+		InitializeLocalVariables();
 	}
 
-	void Mesh::Init()
+	void Mesh::InitializeLocalVariables()
 	{
 		m_NumIndices   = static_cast<UINT>(m_Verticies.size());
 		m_NumVerticies = static_cast<UINT>(m_Indices.size());

@@ -38,8 +38,8 @@ namespace Insight {
 
 		inline ID3D12Device& GetDeviceContext() const { return *m_pLogicalDevice.Get(); }
 		inline ID3D12GraphicsCommandList& GetCommandList() const { return *m_pCommandList.Get(); }
-		//inline ID3D12DescriptorHeap& GetShaderVisibleDescriptorHeap() const { return *m_pCbvSrvDescriptorHeap.Get(); }
-		//inline D3D12_GPU_DESCRIPTOR_HANDLE GetConstantBufferUploadHeap() const { return m_cbvsrvHeap.pDH; }
+		//inline ID3D12DescriptorHeap& GetShaderVisibleDescriptorHeap() const { return *m_pMainDescriptorHeap.Get(); }
+		inline ID3D12Resource& GetConstantBufferPerObjectUploadHeap() const { return *m_PerObjectConstantBuffer[m_FrameIndex].Get(); }
 		inline UINT8& GetConstantBufferViewGPUHeapAddress() {return *m_cbvGPUAddress[m_FrameIndex];}
 		CD3DX12_CPU_DESCRIPTOR_HANDLE& GetShaderVisibleDescriptorHeapHandleWithOffset() { return m_CbvSrvDescriptorHeapHandleWithOffset; }
 
@@ -69,7 +69,8 @@ namespace Insight {
 		void CreateDepthStencilView();
 		void CreateRenderTargetView();
 		void CreateConstantBufferViews();
-		void CreateRootSignature();
+		void CreateRootSignatureGeometryPass();
+		void CreateRootSignatureLightPass();
 		void CreateGeometryPassPSO();
 		void CreateLightPassPSO();
 
@@ -175,7 +176,7 @@ namespace Insight {
 		static const UINT m_ResolutionOptionsCount;
 		static UINT m_ResolutionIndex;
 
-		ComPtr<ID3D12Resource> m_PerObjectConstantBuffer;
+		ComPtr<ID3D12Resource> m_PerObjectConstantBuffer[m_FrameBufferCount];
 		UINT8* m_cbvGPUAddress[m_FrameBufferCount]; 
 
 		ComPtr<ID3D12Resource> m_PerFrameConstantBuffer;
