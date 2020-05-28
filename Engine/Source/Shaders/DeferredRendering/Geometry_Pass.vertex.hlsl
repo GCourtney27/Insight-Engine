@@ -1,29 +1,29 @@
 
 struct VS_INPUT
 {
-	float3 position : POSITION;
-	float2 texCoords : TEXCOORD;
-	float3 normal : NORMAL;
-	float3 tangent : TANGENT;
-	float3 biTangent : BITANGENT;
+	float3 position		: POSITION;
+	float2 texCoords	: TEXCOORD;
+	float3 normal		: NORMAL;
+	float3 tangent		: TANGENT;
+	float3 biTangent	: BITANGENT;
 };
 
 struct VS_OUTPUT
 {
-	float4 position : SV_POSITION;
-	float3 FragPos : FRAG_POS;
-	float2 texCoords : TEXCOORD;
-	float3 normal : NORMAL;
+	float4 position		: SV_POSITION;
+	float3 FragPos		: FRAG_POS;
+	float2 texCoords	: TEXCOORD;
+	float3 normal		: NORMAL;
 };
 
-cbuffer cbPerObject : register(b0)
+cbuffer cb_PerObject : register(b0)
 {
 	float4x4 world;
 	float4x4 view;
 	float4x4 projection;
 };
 
-cbuffer cbPerFrame : register(b1)
+cbuffer cb_PerFrame : register(b1)
 {
 	float3 cameraPosition;
 	float deltaMs;

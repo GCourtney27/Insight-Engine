@@ -35,7 +35,7 @@ namespace Insight {
 		s_Instance = this;
 
 		m_AspectRatio = (float)m_WindowWidth / (float)m_WindowHeight;
-		m_ClearColor[0] = 0.1f;	m_ClearColor[1] = 0.1f; m_ClearColor[2] = 0.1f; m_ClearColor[3] = 1.1f;
+
 
 	}
 
@@ -63,22 +63,31 @@ namespace Insight {
 			CreateDevice();
 
 			CreateCommandQueue();
-			CreateSwapChain();
-			CreateViewport();
-			CreateScissorRect();
-			CreateScreenQuad();
-
-			CreateDescriptorHeaps();
-
-			CreateDepthStencilBuffer();
-
 			CreateFenceEvent();
 			CreateCommandAllocators();
 
-			//CreatePipelineStateObjects();
-			CreateDeferredRenderingPipeline();
+			CreateConstantBuffers();
+			CreateConstantBufferViews();
 
-			CreateConstantBufferResourceHeaps();
+			// Window
+			{
+				CreateSwapChain();
+				CreateViewport();
+				CreateScissorRect();
+				CreateScreenQuad();
+			}
+
+			// Render Targets and Constant Buffers
+			{
+				CreateDepthStencilView();
+				CreateRenderTargetView();
+				CreateRenderTargetViewDescriptorHeap();
+			}
+
+			CreateRootSignature();
+			CreateGeometryPassPSO();
+			CreateLightPassPSO();
+
 
 			LoadAssets();
 
@@ -100,43 +109,38 @@ namespace Insight {
 		m_PerFrameData.cameraPosition = playerCamera.GetTransformRef().GetPosition();
 		m_PerFrameData.deltaMs = deltaTime;
 		m_PerFrameData.time = Application::Get().GetFrameTimer().seconds();
-		memcpy(m_cbvPerFrameGPUAddress[m_FrameIndex], &m_PerFrameData, sizeof(m_PerFrameData));
+		//memcpy(m_cbvPerFrameGPUAddress[m_FrameIndex], &m_PerFrameData, sizeof(m_PerFrameData));
 
 		/*if (Input::IsKeyPressed('C')) {
 			m_PointLights.position = playerCamera.GetTransform().GetPosition();
 		}*/
 
-		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex], &m_PointLights, sizeof(m_PointLights));
+		//memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex], &m_PointLights, sizeof(m_PointLights));
 	}
 
-	void Direct3D12Context::WaitForPreviousFrame()
+	void Direct3D12Context::MoveToNextFrame()
 	{
-		HRESULT hr;
+		// Schedule a Signal command in the queue.
+		const UINT64 currentFenceValue = m_FenceValues[m_FrameIndex];
+		(m_pCommandQueue->Signal(m_pFence.Get(), currentFenceValue));
 
-		// swap the current rtv buffer index so we draw on the correct buffer
-		m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
+		// Advance the frame index.
+		m_FrameIndex = (m_FrameIndex + 1) % m_FrameBufferCount;
 
-		// if the current fence value is still less than "fenceValue", then we know the GPU has not finished executing
-		// the command queue since it has not reached the "commandQueue->Signal(fence, fenceValue)" command
-		if (m_pFences[m_FrameIndex]->GetCompletedValue() < m_FenceValues[m_FrameIndex])
+		// Check to see if the next frame is ready to start.
+		if (m_pFence->GetCompletedValue() < m_FenceValues[m_FrameIndex])
 		{
-			// we have the fence create an event which is signaled once the fence's current value is "fenceValue"
-			hr = m_pFences[m_FrameIndex]->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_FenceEvent);
-			ThrowIfFailed(hr, "Failed to set event completion value while waiting for frame");
-
-
-			// We will wait until the fence has triggered the event that it's current value has reached "fenceValue". once it's value
-			// has reached "fenceValue", we know the command queue has finished executing
-			WaitForSingleObject(m_FenceEvent, INFINITE);
+			(m_pFence->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_FenceEvent));
+			WaitForSingleObjectEx(m_FenceEvent, INFINITE, FALSE);
 		}
 
-		m_FenceValues[m_FrameIndex]++;
+		// Set the fence value for the next frame.
+		m_FenceValues[m_FrameIndex] = currentFenceValue + 1;
 	}
 
 	void Direct3D12Context::OnPreFrameRender()
 	{
 		HRESULT hr;
-		WaitForPreviousFrame();
 
 		hr = m_pCommandAllocators[m_FrameIndex]->Reset();
 		ThrowIfFailed(hr, "Failed to reset command allocator in Direct3D12Context::OnPreFrameRender");
@@ -144,41 +148,89 @@ namespace Insight {
 		hr = m_pCommandList->Reset(m_pCommandAllocators[m_FrameIndex].Get(), m_pPipelineStateObject_GeometryPass.Get());
 		ThrowIfFailed(hr, "Failed to reset command list in Direct3D12Context::OnPreFrameRender");
 
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+		float clearColor[4] = { 0.0f,0.0f,0.0f,0.0f };
+		m_pCommandList->ClearRenderTargetView(GetRenderTargetView(), m_ClearColor, 0, nullptr);
+
+		m_pCommandList->RSSetViewports(1, &m_ViewPort);
+		m_pCommandList->RSSetScissorRects(1, &m_ScissorRect);
+
+		BindGeometryPass();
+
+	}
+	
+	void Direct3D12Context::BindGeometryPass()
+	{
+		ID3D12DescriptorHeap* ppHeaps[1] = { m_cbvsrvHeap.pDH.Get() };
+
+		m_pCommandList->SetPipelineState(m_pPipelineStateObject_GeometryPass.Get());
+
+		for (unsigned int i = 0; i < m_NumRTV; ++i) {
+			m_pCommandList->ClearRenderTargetView(m_rtvHeap.hCPU(i), m_ClearColor, 0, nullptr);
+		}
+
+		m_pCommandList->ClearDepthStencilView(m_dsvHeap.hCPUHeapStart, D3D12_CLEAR_FLAG_DEPTH, m_ClearDepth, 0xff, 0, nullptr);
+
+		m_pCommandList->OMSetRenderTargets(m_NumRTV, &m_rtvHeap.hCPUHeapStart, true, &m_dsvHeap.hCPUHeapStart);
+		m_pCommandList->SetDescriptorHeaps(1, ppHeaps);
+		m_pCommandList->SetGraphicsRootSignature(m_pRootSignature.Get());
+		m_pCommandList->SetGraphicsRootDescriptorTable(0, m_cbvsrvHeap.hGPU(0));
+		m_pCommandList->SetGraphicsRootDescriptorTable(1, m_cbvsrvHeap.hGPU(1));
+		m_pCommandList->SetGraphicsRootDescriptorTable(2, m_cbvsrvHeap.hGPU(2));
+	}
+
+	void Direct3D12Context::BindLightingPass()
+	{
+		for (unsigned int i = 0; i < m_NumRTV; ++i) {
+			m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
+		}
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilBuffer.Get(), D3D12_RESOURCE_STATE_DEPTH_READ, D3D12_RESOURCE_STATE_GENERIC_READ));
+
+		m_pCommandList->SetPipelineState(m_pPipelineStateObject_LightingPass.Get());
+
+		m_ScreenQuad.Render();
+
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+
+		HRESULT hr = m_pCommandList->Close();
+		ThrowIfFailed(hr, "Failed to close command list");
+		ID3D12CommandList* ppCommandLists[1] = { m_pCommandList.Get() };
+
+		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+
 	}
 
 	void Direct3D12Context::PopulateCommandLists()
 	{
 
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets_GeometryPass[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
-		CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_pDepthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+		/*	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_pDepthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
-		CD3DX12_CPU_DESCRIPTOR_HANDLE diffuseHandle(m_pRtvGeometryBufferDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), m_FrameIndex, m_RtvDescriptorIncrementSize);
-		CD3DX12_CPU_DESCRIPTOR_HANDLE normalHandle(m_pRtvGeometryBufferDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), m_FrameIndex * 2, m_RtvDescriptorIncrementSize);
-		CD3DX12_CPU_DESCRIPTOR_HANDLE positionHandle(m_pRtvGeometryBufferDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), m_FrameIndex * 3, m_RtvDescriptorIncrementSize);
-		CD3DX12_CPU_DESCRIPTOR_HANDLE renderTargetViews[3] = {
-			diffuseHandle,
-			normalHandle,
-			positionHandle
-		};
-		m_pCommandList->OMSetRenderTargets(_countof(renderTargetViews), renderTargetViews, FALSE, &dsvHandle);
+			CD3DX12_CPU_DESCRIPTOR_HANDLE diffuseHandle(m_pRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), m_FrameIndex, m_RtvDescriptorIncrementSize);
+			CD3DX12_CPU_DESCRIPTOR_HANDLE normalHandle(m_pRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), m_FrameIndex * 2, m_RtvDescriptorIncrementSize);
+			CD3DX12_CPU_DESCRIPTOR_HANDLE positionHandle(m_pRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), m_FrameIndex * 3, m_RtvDescriptorIncrementSize);
+			CD3DX12_CPU_DESCRIPTOR_HANDLE renderTargetViews[3] = {
+				diffuseHandle,
+				normalHandle,
+				positionHandle
+			};
+			m_pCommandList->OMSetRenderTargets(_countof(renderTargetViews), renderTargetViews, FALSE, &dsvHandle);*/
 
-		// Clear handles
-		{
-			m_pCommandList->ClearRenderTargetView(diffuseHandle, m_ClearColor, 0, nullptr);
-			m_pCommandList->ClearRenderTargetView(normalHandle, m_ClearColor, 0, nullptr);
-			m_pCommandList->ClearRenderTargetView(positionHandle, m_ClearColor, 0, nullptr);
-			m_pCommandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-		}
+			//// Clear handles
+			//{
+			//	m_pCommandList->ClearRenderTargetView(diffuseHandle, m_ClearColor, 0, nullptr);
+			//	m_pCommandList->ClearRenderTargetView(normalHandle, m_ClearColor, 0, nullptr);
+			//	m_pCommandList->ClearRenderTargetView(positionHandle, m_ClearColor, 0, nullptr);
+			//	m_pCommandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+			//}
 
-		m_pCommandList->SetGraphicsRootSignature(m_pRootSignature_GeometryPass.Get());
+		//m_pCommandList->RSSetViewports(1, &m_ViewPort);
+		//m_pCommandList->RSSetScissorRects(1, &m_ScissorRect);
+		//m_pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		m_pCommandList->RSSetViewports(1, &m_ViewPort);
-		m_pCommandList->RSSetScissorRects(1, &m_ScissorRect);
-		m_pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-		ID3D12DescriptorHeap* descriptorHeaps[] = { m_pMainDescriptorHeap.Get() };
-		m_pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+		//ID3D12DescriptorHeap* descriptorHeaps[] = { m_pCbvSrvDescriptorHeap.Get() };
+		//m_pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
 		// Set Per-Frame utils
 		//m_pCommandList->SetGraphicsRootConstantBufferView(1, m_ConstantBufferPerFrameUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
@@ -190,31 +242,10 @@ namespace Insight {
 
 	void Direct3D12Context::OnMidFrameRender()
 	{
-		// TODO Perform lighting pass
 		HRESULT hr;
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets_GeometryPass[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
-		//D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
-		hr = m_pCommandList->Close();
-		if (FAILED(hr)) {
-			IE_CORE_FATAL(L"Failed to close command list. Cannot execute draw commands");
-		}
-
-		ID3D12CommandList* ppCommandLists[] = { m_pCommandList.Get() };
-		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-
-		WaitForGPU();
-
-		hr = m_pCommandQueue->Signal(m_pFences[m_FrameIndex].Get(), m_FenceValues[m_FrameIndex]);
-		if (FAILED(hr))
-			IE_CORE_WARN("Command queue failed to signal.");
-
-		hr = m_pCommandAllocators[m_FrameIndex]->Reset();
-		ThrowIfFailed(hr, "Failed to reset command allocator in Direct3D12Context::OnPreFrameRender");
-
-		hr = m_pCommandList->Reset(m_pCommandAllocators[m_FrameIndex].Get(), m_pPipelineStateObject_LightingPass.Get());
-		ThrowIfFailed(hr, "Failed to reset command list in Direct3D12Context::OnPreFrameRender");
-
-		m_pCommandList->SetGraphicsRootSignature(m_pRootSignature_LightingPass.Get());
+		
+		m_pCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, nullptr);
+		BindLightingPass();
 
 	}
 
@@ -230,8 +261,6 @@ namespace Insight {
 	{
 		HRESULT hr;
 
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargets_LightingPass[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-
 		hr = m_pCommandList->Close();
 		if (FAILED(hr)) {
 			IE_CORE_FATAL(L"Failed to close command list. Cannot execute draw commands");
@@ -240,15 +269,20 @@ namespace Insight {
 		ID3D12CommandList* ppCommandLists[] = { m_pCommandList.Get() };
 		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
-		hr = m_pCommandQueue->Signal(m_pFences[m_FrameIndex].Get(), m_FenceValues[m_FrameIndex]);
+		hr = m_pCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]);
 		if (FAILED(hr))
 			IE_CORE_WARN("Command queue failed to signal.");
+
 	}
 
 	void Direct3D12Context::SwapBuffers()
 	{
+		WaitForGPU();
+
 		UINT presentFlags = (m_AllowTearing && m_WindowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
 		m_pSwapChain->Present(m_VSyncEnabled, presentFlags);
+
+		MoveToNextFrame();
 	}
 
 	void Direct3D12Context::OnWindowResize()
@@ -264,7 +298,7 @@ namespace Insight {
 
 				for (UINT i = 0; i < m_FrameBufferCount; i++)
 				{
-					m_pRenderTargets_GeometryPass[i].Reset();
+					m_pRenderTargetTextures[i].Reset();
 					m_FenceValues[i] = m_FenceValues[m_FrameIndex];
 				}
 				m_pDepthStencilBuffer.Reset();
@@ -399,124 +433,324 @@ namespace Insight {
 		m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 	}
 
-	void Direct3D12Context::CreateDescriptorHeaps()
-	{
-		CreateRenderTargetViewDescriptorHeap();
-		CreateDepthStencilViewDescriptorHeap();
-		CreateShaderVisibleResourceDescriptorHeap();
-	}
-
 	void Direct3D12Context::CreateRenderTargetViewDescriptorHeap()
 	{
 		HRESULT hr;
-		m_RtvDescriptorIncrementSize = m_pLogicalDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+		desc.NumDescriptors = m_FrameBufferCount;
+		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		hr = m_pLogicalDevice->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_rtvDescriptorHeap));
+		m_rtvDescriptorHeap->SetName(L"Render Target View Descriptor Heap");
 
-		// Geometry Pass
-		D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDescGPass = {};
-		rtvHeapDescGPass.NumDescriptors = m_FrameBufferCount;
-		rtvHeapDescGPass.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-		rtvHeapDescGPass.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-
-		hr = m_pLogicalDevice->CreateDescriptorHeap(&rtvHeapDescGPass, IID_PPV_ARGS(&m_pRtvGeometryBufferDescriptorHeap));
-		ThrowIfFailed(hr, "Failed to Create Descriptor Heap");
-
-
-		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandleGBuffer(m_pRtvGeometryBufferDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-
-		for (int i = 0; i < m_FrameBufferCount; i++)
+		// All pending GPU work was already finished. Update the tracked fence values
+		// to the last value signaled.
+		for (UINT n = 0; n < m_FrameBufferCount; n++)
 		{
-			// Diffuse buffer
-			hr = m_pSwapChain->GetBuffer(i, IID_PPV_ARGS(&m_pRenderTargets_GeometryPass[i]));
-			ThrowIfFailed(hr, "Failed to initialize Render Target");
-			m_pLogicalDevice->CreateRenderTargetView(m_pRenderTargets_GeometryPass[i].Get(), nullptr, rtvHandleGBuffer);
-			rtvHandleGBuffer.Offset(1, m_RtvDescriptorIncrementSize);
-
-			// Normal buffer
-			rtvHandleGBuffer.Offset(1, m_RtvDescriptorIncrementSize);
-			hr = m_pSwapChain->GetBuffer(i, IID_PPV_ARGS(&m_pRenderTargets_GeometryPass[i]));
-			ThrowIfFailed(hr, "Failed to initialize Render Target");
-			m_pLogicalDevice->CreateRenderTargetView(m_pRenderTargets_GeometryPass[i].Get(), nullptr, rtvHandleGBuffer);
-
-			// Position buffer
-			rtvHandleGBuffer.Offset(1, m_RtvDescriptorIncrementSize);
-			hr = m_pSwapChain->GetBuffer(i, IID_PPV_ARGS(&m_pRenderTargets_GeometryPass[i]));
-			ThrowIfFailed(hr, "Failed to initialize Render Target");
-			m_pLogicalDevice->CreateRenderTargetView(m_pRenderTargets_GeometryPass[i].Get(), nullptr, rtvHandleGBuffer);
+			m_FenceValues[n] = m_FenceValues[m_FrameIndex];
 		}
 
-		// Lighting Pass
-		D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDescLightPass = {};
-		rtvHeapDescLightPass.NumDescriptors = m_FrameBufferCount;
-		rtvHeapDescLightPass.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-		rtvHeapDescLightPass.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		m_FrameIndex = 0;
+		D3D12_CPU_DESCRIPTOR_HANDLE  hCPUHeapHandle = m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+		m_rtvDescriptorSize = m_pLogicalDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
-		hr = m_pLogicalDevice->CreateDescriptorHeap(&rtvHeapDescLightPass, IID_PPV_ARGS(&m_pRtvLightingBufferDescriptorHeap));
-		ThrowIfFailed(hr, "Failed to Create Descriptor Heap");
-
-		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandleLighingBuffer(m_pRtvLightingBufferDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-
-		for (int i = 0; i < m_FrameBufferCount; i++)
+		for (UINT n = 0; n < m_FrameBufferCount; n++)
 		{
-			// Target output buffer
-			hr = m_pSwapChain->GetBuffer(i, IID_PPV_ARGS(&m_pRenderTargets_LightingPass[i]));
-			ThrowIfFailed(hr, "Failed to initialize Render Target");
-			m_pLogicalDevice->CreateRenderTargetView(m_pRenderTargets_LightingPass[i].Get(), nullptr, rtvHandleLighingBuffer);
-			rtvHandleLighingBuffer.Offset(1, m_RtvDescriptorIncrementSize);
+			D3D12_CPU_DESCRIPTOR_HANDLE handle;
+			handle.ptr = hCPUHeapHandle.ptr + m_rtvDescriptorSize * n;
+			hr = (m_pSwapChain->GetBuffer(n, IID_PPV_ARGS(&m_pRenderTargets[n])));
+			m_pLogicalDevice->CreateRenderTargetView(m_pRenderTargets[n].Get(), nullptr, handle);
+
+
+			WCHAR name[25];
+			swprintf_s(name, L"Render Target %d", n);
+			m_pRenderTargets[n]->SetName(name);
 		}
 	}
 
-	void Direct3D12Context::CreateDepthStencilViewDescriptorHeap()
-	{
-		HRESULT hr;
-		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
-		dsvHeapDesc.NumDescriptors = 1;
-		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		hr = m_pLogicalDevice->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(m_pDepthStencilDescriptorHeap.GetAddressOf()));
-		ThrowIfFailed(hr, "Failed to create descriptor heap for Depth Stencil View.");
-		m_pDepthStencilDescriptorHeap->SetName(L"Depth/Stencil Resource Heap");
-
-	}
-
-	void Direct3D12Context::CreateShaderVisibleResourceDescriptorHeap()
-	{
-		D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-		heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		heapDesc.NumDescriptors = 25; //TODO: Get this from the number of textures held in texture manager (TextureManager::GetNumTextures() or something)
-		heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-		HRESULT hr = m_pLogicalDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_pMainDescriptorHeap));
-		if (FAILED(hr)) {
-			IE_CORE_ERROR("Failed to create descriptor heap");
-		}
-		m_MainDescriptorHeapHandleWithOffset = m_pMainDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	}
-
-	void Direct3D12Context::CreateDepthStencilBuffer()
+	void Direct3D12Context::CreateDepthStencilView()
 	{
 		HRESULT hr;
 
-		m_dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
-		m_dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-		m_dsvDesc.Texture2D.MipSlice = 0;
-		m_dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
+		m_dsvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1);
+		CD3DX12_HEAP_PROPERTIES heapProperty(D3D12_HEAP_TYPE_DEFAULT);
+
+		D3D12_RESOURCE_DESC resourceDesc;
+		ZeroMemory(&resourceDesc, sizeof(resourceDesc));
+		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		resourceDesc.Alignment = 0;
+		resourceDesc.SampleDesc.Count = 1;
+		resourceDesc.SampleDesc.Quality = 0;
+		resourceDesc.MipLevels = 1;
+		resourceDesc.Format = m_DsvFormat;
+		resourceDesc.DepthOrArraySize = 1;
+		resourceDesc.Width = (UINT)m_WindowWidth;
+		resourceDesc.Height = (UINT)m_WindowHeight;
+		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+		resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
 		D3D12_CLEAR_VALUE depthOptomizedClearValue = {};
-		depthOptomizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
-		depthOptomizedClearValue.DepthStencil.Depth = 1.0f;
-		depthOptomizedClearValue.DepthStencil.Stencil = 0;
+		depthOptomizedClearValue = { m_DsvFormat , m_ClearDepth };
 
 		hr = m_pLogicalDevice->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+			&heapProperty,
 			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, m_WindowWidth, m_WindowHeight, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
+			&resourceDesc,
 			D3D12_RESOURCE_STATE_DEPTH_WRITE,
 			&depthOptomizedClearValue,
 			IID_PPV_ARGS(&m_pDepthStencilBuffer));
 		if (FAILED(hr))
 			IE_CORE_ERROR("Failed to create comitted resource for depth stencil view");
 
-		m_pLogicalDevice->CreateDepthStencilView(m_pDepthStencilBuffer.Get(), &m_dsvDesc, m_pDepthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+		D3D12_DEPTH_STENCIL_VIEW_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+		desc.Texture2D.MipSlice = 0;
+		desc.Format = resourceDesc.Format;
+		desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+		desc.Flags = D3D12_DSV_FLAG_NONE;
 
+		m_pLogicalDevice->CreateDepthStencilView(m_pDepthStencilBuffer.Get(), &desc, m_dsvHeap.hCPU(0));
+
+		D3D12_SHADER_RESOURCE_VIEW_DESC dsvDesc = {};
+		dsvDesc.Texture2D.MipLevels = resourceDesc.MipLevels;
+		dsvDesc.Texture2D.MostDetailedMip = 0;
+		dsvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		dsvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		dsvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+		m_pLogicalDevice->CreateShaderResourceView(m_pDepthStencilBuffer.Get(), &dsvDesc, m_cbvsrvHeap.hCPU(5));
+	}
+
+	void Direct3D12Context::CreateRenderTargetView()
+	{
+		HRESULT hr;
+		
+		m_rtvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 3);
+		CD3DX12_HEAP_PROPERTIES heapProperty(D3D12_HEAP_TYPE_DEFAULT);
+
+		D3D12_RESOURCE_DESC resourceDesc = {};
+		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		resourceDesc.Alignment = 0;
+		resourceDesc.SampleDesc.Count = 1;
+		resourceDesc.SampleDesc.Quality = 0;
+		resourceDesc.MipLevels = 1;
+
+		resourceDesc.DepthOrArraySize = 1;
+		resourceDesc.Width = (UINT)m_WindowWidth;
+		resourceDesc.Height = (UINT)m_WindowHeight;
+		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+		resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+
+
+		D3D12_CLEAR_VALUE clearVal;
+		clearVal.Color[0] = m_ClearColor[0];
+		clearVal.Color[1] = m_ClearColor[1];
+		clearVal.Color[2] = m_ClearColor[2];
+		clearVal.Color[3] = m_ClearColor[3];
+
+		for (int i = 0; i < m_NumRTV; i++) {
+			resourceDesc.Format = m_RtvFormat[i];
+			clearVal.Format = m_RtvFormat[i];
+			hr = m_pLogicalDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET, &clearVal, IID_PPV_ARGS(m_pRenderTargetTextures[i].GetAddressOf()));
+			ThrowIfFailed(hr, "Failed to create committed resource for RTV at index: {0}", std::to_string(i));
+		}
+
+		D3D12_RENDER_TARGET_VIEW_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+		desc.Texture2D.MipSlice = 0;
+		desc.Texture2D.PlaneSlice = 0;
+
+		desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+
+		for (int i = 0; i < m_NumRTV; i++) {
+			desc.Format = m_RtvFormat[i];
+			m_pLogicalDevice->CreateRenderTargetView(m_pRenderTargetTextures[i].Get(), &desc, m_rtvHeap.hCPU(i));
+		}
+
+		//Create SRVs for Render Targets
+		D3D12_SHADER_RESOURCE_VIEW_DESC descSRV = {};
+		descSRV.Texture2D.MipLevels = resourceDesc.MipLevels;
+		descSRV.Texture2D.MostDetailedMip = 0;
+		descSRV.Format = resourceDesc.Format;
+		descSRV.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		descSRV.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+		m_srvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 3, true);
+
+		for (int i = 0; i < m_NumRTV; i++) {
+			descSRV.Format = m_RtvFormat[i];
+			m_pLogicalDevice->CreateShaderResourceView(m_pRenderTargetTextures[i].Get(), &descSRV, m_cbvsrvHeap.hCPU(i + 2));
+		}
+	}
+
+	void Direct3D12Context::CreateConstantBufferViews()
+	{
+		m_cbvsrvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 10, true);
+
+		//PerObject CBV
+		D3D12_CONSTANT_BUFFER_VIEW_DESC	descBuffer;
+		descBuffer.BufferLocation = m_PerObjectConstantBuffer->GetGPUVirtualAddress();
+		descBuffer.SizeInBytes = (sizeof(CB_VS_PerObject) + 255) & ~255;
+		m_pLogicalDevice->CreateConstantBufferView(&descBuffer, m_cbvsrvHeap.hCPU(0));
+		
+		//PerFrame CBV
+		descBuffer.BufferLocation = m_PerFrameConstantBuffer->GetGPUVirtualAddress();
+		descBuffer.SizeInBytes = (sizeof(CB_PS_VS_PerFrame) + 255) & ~255;
+		m_pLogicalDevice->CreateConstantBufferView(&descBuffer, m_cbvsrvHeap.hCPU(1));
+
+		//Light CBV
+		descBuffer.BufferLocation = m_PerFrameConstantBuffer->GetGPUVirtualAddress();
+		descBuffer.SizeInBytes = (sizeof(CB_PS_PointLight) + 255) & ~255;
+		m_pLogicalDevice->CreateConstantBufferView(&descBuffer, m_cbvsrvHeap.hCPU(1));
+	}
+
+	void Direct3D12Context::CreateRootSignature()
+	{
+		CD3DX12_DESCRIPTOR_RANGE range[3];
+		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0); // Per Object
+		range[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1); // Per Frame
+		//range[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 2); // Lights
+		range[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 0); // G-Buffer inputs
+
+		CD3DX12_ROOT_PARAMETER rootParameters[3];
+		rootParameters[0].InitAsDescriptorTable(1, &range[0], D3D12_SHADER_VISIBILITY_ALL);
+		rootParameters[1].InitAsDescriptorTable(1, &range[1], D3D12_SHADER_VISIBILITY_ALL);
+		rootParameters[2].InitAsDescriptorTable(1, &range[2], D3D12_SHADER_VISIBILITY_ALL);
+
+		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
+		descRootSignature.Init(3, rootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+		CD3DX12_STATIC_SAMPLER_DESC StaticSamplers[1];
+		StaticSamplers[0].Init(0, D3D12_FILTER_MIN_MAG_MIP_LINEAR);
+		descRootSignature.NumStaticSamplers = 1;
+		descRootSignature.pStaticSamplers = StaticSamplers;
+
+		ComPtr<ID3DBlob> rootSigBlob;
+		ComPtr<ID3DBlob> errorBlob;
+		
+		HRESULT hr = D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, rootSigBlob.GetAddressOf(), errorBlob.GetAddressOf());
+		hr = m_pLogicalDevice->CreateRootSignature(0, rootSigBlob->GetBufferPointer(), rootSigBlob->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature));
+	}
+
+	void Direct3D12Context::CreateGeometryPassPSO()
+	{
+		HRESULT hr;
+		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Geometry_Pass.vertex.cso";
+		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Geometry_Pass.pixel.cso";
+
+		ComPtr<ID3DBlob> pVertexShader;
+
+		hr = D3DReadFileToBlob(vertexShaderFolder, &pVertexShader);
+		if (FAILED(hr))
+		{
+			ThrowIfFailed(hr, "Failed to compile Vertex Shader check log for more details.");
+		}
+		D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
+		vertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
+		vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
+		ComPtr<ID3DBlob> pPixelShader = nullptr;
+		hr = D3DReadFileToBlob(pixelShaderFolder, &pPixelShader);
+		if (FAILED(hr))
+		{
+			ThrowIfFailed(hr, "Failed to compile Pixel Shader check log for more details.");
+		}
+		D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
+		pixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
+		pixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
+
+		D3D12_INPUT_ELEMENT_DESC inputLayout[] =
+		{
+			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
+			{ "TANGENT",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
+			{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
+		};
+
+		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
+		inputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
+		inputLayoutDesc.pInputElementDescs = inputLayout;
+
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC descPipelineState;
+		ZeroMemory(&descPipelineState, sizeof(descPipelineState));
+		descPipelineState.VS = vertexShaderBytecode;
+		descPipelineState.PS = pixelShaderBytecode;
+		descPipelineState.InputLayout.pInputElementDescs = inputLayout;
+		descPipelineState.InputLayout.NumElements = _countof(inputLayout);
+		descPipelineState.pRootSignature = m_pRootSignature.Get();
+		descPipelineState.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+		descPipelineState.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		descPipelineState.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+		descPipelineState.SampleMask = UINT_MAX;
+		descPipelineState.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		descPipelineState.NumRenderTargets = m_NumRTV;
+		descPipelineState.RTVFormats[0] = m_RtvFormat[0];
+		descPipelineState.RTVFormats[1] = m_RtvFormat[1];
+		descPipelineState.RTVFormats[2] = m_RtvFormat[2];
+		descPipelineState.DSVFormat = m_DsvFormat;
+		descPipelineState.SampleDesc.Count = 1;
+
+		hr = m_pLogicalDevice->CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pPipelineStateObject_GeometryPass));
+		ThrowIfFailed(hr, "Failed to create graphics pipeline state for geometry pass.");
+	}
+
+	void Direct3D12Context::CreateLightPassPSO()
+	{
+		HRESULT hr;
+		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Light_Pass.vertex.cso";
+		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Light_Pass.pixel.cso";
+
+		ComPtr<ID3DBlob> pVertexShader;
+
+		hr = D3DReadFileToBlob(vertexShaderFolder, &pVertexShader);
+		if (FAILED(hr))
+		{
+			ThrowIfFailed(hr, "Failed to compile Vertex Shader check log for more details.");
+		}
+		D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
+		vertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
+		vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
+		ComPtr<ID3DBlob> pPixelShader = nullptr;
+		hr = D3DReadFileToBlob(pixelShaderFolder, &pPixelShader);
+		if (FAILED(hr))
+		{
+			ThrowIfFailed(hr, "Failed to compile Pixel Shader check log for more details.");
+		}
+		D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
+		pixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
+		pixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
+
+		D3D12_INPUT_ELEMENT_DESC inputLayout[] =
+		{
+			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		};
+
+		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
+		inputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
+		inputLayoutDesc.pInputElementDescs = inputLayout;
+
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC descPipelineState;
+		ZeroMemory(&descPipelineState, sizeof(descPipelineState));
+		descPipelineState.VS = vertexShaderBytecode;
+		descPipelineState.PS = pixelShaderBytecode;
+		descPipelineState.InputLayout.pInputElementDescs = inputLayout;
+		descPipelineState.InputLayout.NumElements = _countof(inputLayout);
+		descPipelineState.pRootSignature = m_pRootSignature.Get();
+		descPipelineState.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+		descPipelineState.DepthStencilState.DepthEnable = false;
+		descPipelineState.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		descPipelineState.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+		descPipelineState.RasterizerState.DepthClipEnable = false;
+		descPipelineState.SampleMask = UINT_MAX;
+		descPipelineState.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		descPipelineState.NumRenderTargets = 1;
+		//descPipelineState.RTVFormats[0] = mRtvFormat[0];
+		descPipelineState.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		descPipelineState.SampleDesc.Count = 1;
+
+		hr = m_pLogicalDevice->CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pPipelineStateObject_LightingPass));
+		ThrowIfFailed(hr, "Failed to create graphics pipeline state for lighting pass.");
 	}
 
 	void Direct3D12Context::CreateCommandAllocators()
@@ -535,180 +769,16 @@ namespace Insight {
 	void Direct3D12Context::CreateFenceEvent()
 	{
 		HRESULT hr;
-		for (int i = 0; i < m_FrameBufferCount; i++)
-		{
-			hr = m_pLogicalDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pFences[i]));
-			ThrowIfFailed(hr, "Failed to create Fence on index" + std::to_string(i));
+		hr = m_pLogicalDevice->CreateFence(m_FenceValues[m_FrameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pFence));
+		ThrowIfFailed(hr, "Failed to create Fence Event");
+		m_FenceValues[m_FrameIndex]++;
 
-			m_FenceValues[i] = 0;
-		}
-
-		m_FenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+		
+		m_FenceEvent = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
 		if (m_FenceEvent == nullptr)
 			THROW_COM_ERROR("Fence Event was nullptr");
 	}
 
-	void Direct3D12Context::CreatePipelineStateObjects()
-	{
-		HRESULT hr;
-
-		D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
-			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
-			D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
-			D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS;
-
-		CD3DX12_DESCRIPTOR_RANGE descTableRanges[10] = {};
-		descTableRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, ALBEDO_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND);	// Albedo Texture
-		descTableRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, NORMAL_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND);	// Normal Texture
-		descTableRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, ROUGHNESS_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND);// Roughness Texture
-		descTableRanges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, METALLIC_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Metallic Texture
-		descTableRanges[4].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SPECULAR_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Specular Texture
-		descTableRanges[5].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, AO_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND);		// AO Texture
-
-		descTableRanges[6].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 6, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Sky Diffuse
-		descTableRanges[7].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 7, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Sky Irradiance
-		descTableRanges[8].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 8, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Sky Environment Map
-		descTableRanges[9].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND); // Sky BRDF LUT
-
-		// Note: If you change anything before the Albedo Texture slot, you must
-		//		 update the rootParamIndex variable in Texture.cpp to reflect their new 
-		//		 indicies in the array
-		CD3DX12_ROOT_PARAMETER rootParams[13] = {};
-		rootParams[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX); // ConstantBufferPerObject
-		rootParams[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL);	  // Utilities
-		rootParams[2].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_PIXEL);  // Utilities
-		rootParams[3].InitAsDescriptorTable(1, &descTableRanges[0], D3D12_SHADER_VISIBILITY_PIXEL); // Albedo Texture
-		rootParams[4].InitAsDescriptorTable(1, &descTableRanges[1], D3D12_SHADER_VISIBILITY_PIXEL); // Normal Texture
-		rootParams[5].InitAsDescriptorTable(1, &descTableRanges[2], D3D12_SHADER_VISIBILITY_PIXEL); // Roughness Texture
-		rootParams[6].InitAsDescriptorTable(1, &descTableRanges[3], D3D12_SHADER_VISIBILITY_PIXEL); // Metallic Texture
-		rootParams[7].InitAsDescriptorTable(1, &descTableRanges[4], D3D12_SHADER_VISIBILITY_PIXEL); // Specular Texture
-		rootParams[8].InitAsDescriptorTable(1, &descTableRanges[5], D3D12_SHADER_VISIBILITY_PIXEL); // AO Texture
-
-		rootParams[9].InitAsDescriptorTable(1, &descTableRanges[6], D3D12_SHADER_VISIBILITY_PIXEL);  // Sky Diffuse
-		rootParams[10].InitAsDescriptorTable(1, &descTableRanges[7], D3D12_SHADER_VISIBILITY_PIXEL); // Sky Irradiance
-		rootParams[11].InitAsDescriptorTable(1, &descTableRanges[8], D3D12_SHADER_VISIBILITY_PIXEL); // Sky Environment Map
-		rootParams[12].InitAsDescriptorTable(1, &descTableRanges[9], D3D12_SHADER_VISIBILITY_PIXEL); // Sky BRDF LUT
-
-
-		D3D12_STATIC_SAMPLER_DESC sampler = {};
-		sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-		sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-		sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-		sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-		sampler.MipLODBias = 0;
-		sampler.MaxAnisotropy = 0;
-		sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
-		sampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
-		sampler.MinLOD = 0.0f;
-		sampler.MaxLOD = D3D12_FLOAT32_MAX;
-		sampler.ShaderRegister = 0;
-		sampler.RegisterSpace = 0;
-		sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-		// Create the root signature
-		CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
-		rootSignatureDesc.Init(
-			_countof(rootParams),
-			rootParams,
-			1,
-			&sampler,
-			rootSignatureFlags
-		);
-
-		ID3DBlob* RootSignatureByteCode = nullptr;
-		ID3D10Blob* errorMsg = nullptr;
-		hr = D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &RootSignatureByteCode, &errorMsg);
-		ThrowIfFailed(hr, "Failed to serialize Root Signature");
-
-		hr = m_pLogicalDevice->CreateRootSignature(0, RootSignatureByteCode->GetBufferPointer(), RootSignatureByteCode->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature_ForwardPass));
-		ThrowIfFailed(hr, "Failed to create Default Root Signature");
-
-		// TODO: Make Shader class
-		// TODO: Move this to the shader class
-		// Compile vertex shader // TEMP//
-		//LPCWSTR buildFolder = (LPCWSTR)_CRT_STRINGIZE(IE_BUILD_DIR);
-		//LPCWSTR vertexShaderFolder = buildFolder + L"Shader_Vertex.cso";
-		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Shader.vertex.cso";
-		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Shader.pixel.cso";
-
-		ComPtr<ID3DBlob> pErrorBuffer;
-		ComPtr<ID3DBlob> pVertexShader;
-		// Activate this for engine first launch to install shaders for client gpu
-		/*hr = D3DCompileFromFile(L"Source/Shaders/ForwardRendering/Shader_Vertex.hlsl",
-			nullptr,
-			nullptr,
-			"main",
-			"vs_5_0",
-			D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
-			0,
-			&pVertexShader,
-			&pErrorBuffer);*/
-		hr = D3DReadFileToBlob(vertexShaderFolder, &pVertexShader);
-		if (FAILED(hr))
-		{
-			IE_CORE_ERROR("Vertex Shader compilation error: {0}", (char*)pErrorBuffer->GetBufferPointer());
-			ThrowIfFailed(hr, "Failed to compile Vertex Shader check log for more details.");
-		}
-		D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
-		vertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
-		vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
-		// Compile pixel shader // TEMP//
-		// create vertex and pixel shaders
-		ComPtr<ID3DBlob> pPixelShader = nullptr;
-		// Activate this for engine first launch to install shaders for client gpu
-		/*hr = D3DCompileFromFile(L"Source/Shaders/ForwardRendering/Shader_Pixel.hlsl",
-			nullptr,
-			nullptr,
-			"main",
-			"ps_5_0",
-			D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
-			0,
-			&pPixelShader,
-			&pErrorBuffer);*/
-		hr = D3DReadFileToBlob(pixelShaderFolder, &pPixelShader);
-		if (FAILED(hr))
-		{
-			IE_CORE_ERROR("Pixel Shader compilation error: {0}", (char*)pErrorBuffer->GetBufferPointer());
-			ThrowIfFailed(hr, "Failed to compile Pixel Shader check log for more details.");
-		}
-		D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
-		pixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
-		pixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
-
-		// Create Input layout 
-		D3D12_INPUT_ELEMENT_DESC inputLayout[] =
-		{
-			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
-			{ "TANGENT",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
-			{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
-		};
-
-		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
-		inputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
-		inputLayoutDesc.pInputElementDescs = inputLayout;
-
-		// Create Pipeline State Object
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
-		psoDesc.InputLayout = inputLayoutDesc;
-		psoDesc.pRootSignature = m_pRootSignature_ForwardPass.Get();
-		psoDesc.VS = vertexShaderBytecode;
-		psoDesc.PS = pixelShaderBytecode;
-		psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-		psoDesc.SampleDesc = m_SampleDesc;
-		psoDesc.SampleMask = 0xffffffff;
-		psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-		psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-		psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-		psoDesc.DSVFormat = m_pDepthStencilBuffer->GetDesc().Format;
-		psoDesc.NumRenderTargets = 1;
-
-		hr = m_pLogicalDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pPipelineStateObject_ForwardPass));
-		ThrowIfFailed(hr, "Failed to create default Pipeline State Object");
-	}
 
 	void Direct3D12Context::LoadAssets()
 	{
@@ -729,60 +799,31 @@ namespace Insight {
 		}
 	}
 
-	void Direct3D12Context::CreateConstantBufferResourceHeaps()
+	void Direct3D12Context::CreateConstantBuffers()
 	{
 		HRESULT hr;
 
-		// PerObject Constant buffer
-		for (int i = 0; i < m_FrameBufferCount; ++i)
-		{
-			hr = m_pLogicalDevice->CreateCommittedResource(
-				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-				D3D12_HEAP_FLAG_NONE,
-				&CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
-				D3D12_RESOURCE_STATE_GENERIC_READ,
-				nullptr,
-				IID_PPV_ARGS(&m_ConstantBufferUploadHeaps[i]));
-			m_ConstantBufferUploadHeaps[i]->SetName(L"Constant Buffer Upload Resource Heap");
+		CD3DX12_HEAP_PROPERTIES heapProperty(D3D12_HEAP_TYPE_UPLOAD);
+		D3D12_RESOURCE_DESC resourceDesc;
+		ZeroMemory(&resourceDesc, sizeof(resourceDesc));
+		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		resourceDesc.Alignment = 0;
+		resourceDesc.SampleDesc.Count = 1;
+		resourceDesc.SampleDesc.Quality = 0;
+		resourceDesc.MipLevels = 1;
+		resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
+		resourceDesc.DepthOrArraySize = 1;
+		resourceDesc.Height = 1;
+		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
-			CD3DX12_RANGE readRange(0, 0);
-			hr = m_ConstantBufferUploadHeaps[i]->Map(0, &readRange, reinterpret_cast<void**>(&m_cbvGPUAddress[i]));
-		}
+		resourceDesc.Width = sizeof(CB_VS_PerObject);
+		m_pLogicalDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&m_PerObjectConstantBuffer));
 
-		// Per Frame
-		for (int i = 0; i < m_FrameBufferCount; ++i)
-		{
-			hr = m_pLogicalDevice->CreateCommittedResource(
-				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-				D3D12_HEAP_FLAG_NONE,
-				&CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
-				D3D12_RESOURCE_STATE_GENERIC_READ,
-				nullptr,
-				IID_PPV_ARGS(&m_ConstantBufferPerFrameUploadHeaps[i]));
-			if (FAILED(hr)) {
-				IE_CORE_ERROR("Failed to create committed resource for Constant Buffer Per Frame data.")
-			}
-			m_ConstantBufferPerFrameUploadHeaps[i]->SetName(L"Constant Buffer PerFrame Upload Heap");
-			CD3DX12_RANGE readRange(0, 0);
-			hr = m_ConstantBufferPerFrameUploadHeaps[i]->Map(0, &readRange, reinterpret_cast<void**>(&m_cbvPerFrameGPUAddress[i]));
-		}
-
-		for (int i = 0; i < m_FrameBufferCount; ++i)
-		{
-			hr = m_pLogicalDevice->CreateCommittedResource(
-				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-				D3D12_HEAP_FLAG_NONE,
-				&CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
-				D3D12_RESOURCE_STATE_GENERIC_READ,
-				nullptr,
-				IID_PPV_ARGS(&m_ConstantBufferLightBufferUploadHeaps[i]));
-			if (FAILED(hr)) {
-				IE_CORE_ERROR("Failed to create committed resource for Constant Buffer Per Frame data.")
-			}
-			m_ConstantBufferLightBufferUploadHeaps[i]->SetName(L"Constant Buffer PerFrame Upload Heap");
-			CD3DX12_RANGE readRange(0, 0);
-			hr = m_ConstantBufferLightBufferUploadHeaps[i]->Map(0, &readRange, reinterpret_cast<void**>(&m_cbvLightBufferGPUAddress[i]));
-		}
+		resourceDesc.Width = sizeof(CB_PS_VS_PerFrame);
+		m_pLogicalDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&m_PerFrameConstantBuffer));
+		
+		resourceDesc.Width = sizeof(CB_PS_PointLight);
+		m_pLogicalDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&m_LightConstantBuffer));
 
 	}
 
@@ -807,7 +848,7 @@ namespace Insight {
 	void Direct3D12Context::CreateScreenQuad()
 	{
 		std::vector<Vertex3D> vertices(4);
-		std::vector<DWORD> indices(4);
+		std::vector<DWORD> indices(6);
 
 		// Position coordinates specified in NDC space.
 		vertices[0] = { { -1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 1.0f } };
@@ -826,242 +867,13 @@ namespace Insight {
 		m_ScreenQuad.Init(vertices, indices);
 	}
 
-	void Direct3D12Context::CreateGraphicsBuffer()
-	{
-		D3D12_RENDER_TARGET_VIEW_DESC textureDesc = {};
-
-
-	}
-
-	void Direct3D12Context::CreateDeferredRenderingPipeline()
-	{
-		HRESULT hr;
-
-		D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
-			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
-			D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
-			D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS;
-
-		// Create Pipeline for Geometry Pass
-		{
-			CD3DX12_DESCRIPTOR_RANGE descTableRangesGPass[2] = {};
-			descTableRangesGPass[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, ALBEDO_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND);	// Albedo Texture
-			descTableRangesGPass[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, NORMAL_MAP_SHADER_REGISTER, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND);	// Normal Texture
-
-			CD3DX12_ROOT_PARAMETER rootParamsGPass[3] = {};
-			rootParamsGPass[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX); // ConstantBufferPerObject
-
-			rootParamsGPass[1].InitAsDescriptorTable(1, &descTableRangesGPass[0], D3D12_SHADER_VISIBILITY_PIXEL); // Albedo Texture
-			rootParamsGPass[2].InitAsDescriptorTable(1, &descTableRangesGPass[1], D3D12_SHADER_VISIBILITY_PIXEL); // Normal Texture
-
-			D3D12_STATIC_SAMPLER_DESC samplerGPass = {};
-			samplerGPass.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-			samplerGPass.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-			samplerGPass.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-			samplerGPass.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-			samplerGPass.MipLODBias = 0;
-			samplerGPass.MaxAnisotropy = 0;
-			samplerGPass.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
-			samplerGPass.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
-			samplerGPass.MinLOD = 0.0f;
-			samplerGPass.MaxLOD = D3D12_FLOAT32_MAX;
-			samplerGPass.ShaderRegister = 0;
-			samplerGPass.RegisterSpace = 0;
-			samplerGPass.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-			// Create the root signature
-			CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDescGPass = {};
-			rootSignatureDescGPass.Init(
-				_countof(rootParamsGPass),
-				rootParamsGPass,
-				1,
-				&samplerGPass,
-				rootSignatureFlags
-			);
-
-			ID3DBlob* RootSignatureByteCodeGPass = nullptr;
-			ID3D10Blob* errorMsgGPass = nullptr;
-			hr = D3D12SerializeRootSignature(&rootSignatureDescGPass, D3D_ROOT_SIGNATURE_VERSION_1, &RootSignatureByteCodeGPass, &errorMsgGPass);
-			ThrowIfFailed(hr, "Failed to serialize Root Signature");
-
-			hr = m_pLogicalDevice->CreateRootSignature(0, RootSignatureByteCodeGPass->GetBufferPointer(), RootSignatureByteCodeGPass->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature_GeometryPass));
-			ThrowIfFailed(hr, "Failed to create Default Root Signature");
-
-			LPCWSTR vertexShaderFolderGPass = L"../Bin/Debug-windows-x86_64/Engine/Geometry_Pass.vertex.cso";
-			LPCWSTR pixelShaderFolderGPass = L"../Bin/Debug-windows-x86_64/Engine/Geometry_Pass.pixel.cso";
-
-			ComPtr<ID3DBlob> pErrorBuffer;
-			ComPtr<ID3DBlob> pVertexShaderGPass;
-			hr = D3DReadFileToBlob(vertexShaderFolderGPass, &pVertexShaderGPass);
-			if (FAILED(hr))
-			{
-				IE_CORE_ERROR("Vertex Shader compilation error: {0}", (char*)pErrorBuffer->GetBufferPointer());
-				ThrowIfFailed(hr, "Failed to compile Vertex Shader check log for more details.");
-			}
-			D3D12_SHADER_BYTECODE vertexShaderBytecodeGPass = {};
-			vertexShaderBytecodeGPass.BytecodeLength = pVertexShaderGPass->GetBufferSize();
-			vertexShaderBytecodeGPass.pShaderBytecode = pVertexShaderGPass->GetBufferPointer();
-			ComPtr<ID3DBlob> pPixelShaderGPass = nullptr;
-			hr = D3DReadFileToBlob(pixelShaderFolderGPass, &pPixelShaderGPass);
-			if (FAILED(hr))
-			{
-				IE_CORE_ERROR("Pixel Shader compilation error: {0}", (char*)pErrorBuffer->GetBufferPointer());
-				ThrowIfFailed(hr, "Failed to compile Pixel Shader check log for more details.");
-			}
-			D3D12_SHADER_BYTECODE pixelShaderBytecodeGPass = {};
-			pixelShaderBytecodeGPass.BytecodeLength = pPixelShaderGPass->GetBufferSize();
-			pixelShaderBytecodeGPass.pShaderBytecode = pPixelShaderGPass->GetBufferPointer();
-
-			// Create Input layout 
-			D3D12_INPUT_ELEMENT_DESC inputLayoutGPass[] =
-			{
-				{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-				{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-				{ "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
-				{ "TANGENT",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
-				{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
-			};
-
-			D3D12_INPUT_LAYOUT_DESC inputLayoutDescGPass = {};
-			inputLayoutDescGPass.NumElements = sizeof(inputLayoutGPass) / sizeof(D3D12_INPUT_ELEMENT_DESC);
-			inputLayoutDescGPass.pInputElementDescs = inputLayoutGPass;
-
-			// Create Pipeline State Object
-			D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDescGPass = {};
-			psoDescGPass.InputLayout = inputLayoutDescGPass;
-			psoDescGPass.pRootSignature = m_pRootSignature_GeometryPass.Get();
-			psoDescGPass.VS = vertexShaderBytecodeGPass;
-			psoDescGPass.PS = pixelShaderBytecodeGPass;
-			psoDescGPass.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-			psoDescGPass.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-			psoDescGPass.SampleDesc = m_SampleDesc;
-			psoDescGPass.SampleMask = 0xffffffff;
-			psoDescGPass.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-			psoDescGPass.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-			psoDescGPass.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-			psoDescGPass.DSVFormat = m_pDepthStencilBuffer->GetDesc().Format;
-			psoDescGPass.NumRenderTargets = 3; // diffuse normal position
-
-			hr = m_pLogicalDevice->CreateGraphicsPipelineState(&psoDescGPass, IID_PPV_ARGS(&m_pPipelineStateObject_GeometryPass));
-			ThrowIfFailed(hr, "Failed to create Geometry Pipeline State Object");
-		}
-
-		// Create Pipeline for Lighting Pass
-		{
-			CD3DX12_DESCRIPTOR_RANGE descTableRangesLightPass[3] = {};
-			descTableRangesLightPass[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND);	// Albedo Texture
-			descTableRangesLightPass[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND);	// Normal Texture
-			descTableRangesLightPass[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND);	// Position Texture
-
-			CD3DX12_ROOT_PARAMETER rootParamsLightPass[3] = {};
-			rootParamsLightPass[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX); // ConstantBufferPerObject
-			rootParamsLightPass[1].InitAsDescriptorTable(1, &descTableRangesLightPass[0], D3D12_SHADER_VISIBILITY_PIXEL); // Albedo Texture
-			rootParamsLightPass[2].InitAsDescriptorTable(1, &descTableRangesLightPass[1], D3D12_SHADER_VISIBILITY_PIXEL); // Normal Texture
-			rootParamsLightPass[3].InitAsDescriptorTable(1, &descTableRangesLightPass[2], D3D12_SHADER_VISIBILITY_PIXEL); // Position Texture
-
-			D3D12_STATIC_SAMPLER_DESC samplerLightPass = {};
-			samplerLightPass.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-			samplerLightPass.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-			samplerLightPass.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-			samplerLightPass.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-			samplerLightPass.MipLODBias = 0;
-			samplerLightPass.MaxAnisotropy = 0;
-			samplerLightPass.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
-			samplerLightPass.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
-			samplerLightPass.MinLOD = 0.0f;
-			samplerLightPass.MaxLOD = D3D12_FLOAT32_MAX;
-			samplerLightPass.ShaderRegister = 0;
-			samplerLightPass.RegisterSpace = 0;
-			samplerLightPass.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-			// Create the root signature
-			CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDescLightPass = {};
-			rootSignatureDescLightPass.Init(
-				_countof(rootParamsLightPass),
-				rootParamsLightPass,
-				1,
-				&samplerLightPass,
-				rootSignatureFlags
-			);
-
-			ID3DBlob* RootSignatureByteCodeLightPass = nullptr;
-			ID3D10Blob* errorMsg = nullptr;
-			hr = D3D12SerializeRootSignature(&rootSignatureDescLightPass, D3D_ROOT_SIGNATURE_VERSION_1, &RootSignatureByteCodeLightPass, &errorMsg);
-			ThrowIfFailed(hr, "Failed to serialize Root Signature");
-
-			hr = m_pLogicalDevice->CreateRootSignature(0, RootSignatureByteCodeLightPass->GetBufferPointer(), RootSignatureByteCodeLightPass->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature_LightingPass));
-			ThrowIfFailed(hr, "Failed to create Default Root Signature");
-
-			LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Lighting_Pass.vertex.cso";
-			LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Lighting_Pass.pixel.cso";
-
-			ComPtr<ID3DBlob> pErrorBuffer;
-			ComPtr<ID3DBlob> pVertexShader;
-			hr = D3DReadFileToBlob(vertexShaderFolder, &pVertexShader);
-			if (FAILED(hr))
-			{
-				IE_CORE_ERROR("Vertex Shader compilation error: {0}", (char*)pErrorBuffer->GetBufferPointer());
-				ThrowIfFailed(hr, "Failed to compile Vertex Shader check log for more details.");
-			}
-			D3D12_SHADER_BYTECODE vertexShaderBytecodeLightPass = {};
-			vertexShaderBytecodeLightPass.BytecodeLength = pVertexShader->GetBufferSize();
-			vertexShaderBytecodeLightPass.pShaderBytecode = pVertexShader->GetBufferPointer();
-
-			ComPtr<ID3DBlob> pPixelShader = nullptr;
-			hr = D3DReadFileToBlob(pixelShaderFolder, &pPixelShader);
-			if (FAILED(hr))
-			{
-				IE_CORE_ERROR("Pixel Shader compilation error: {0}", (char*)pErrorBuffer->GetBufferPointer());
-				ThrowIfFailed(hr, "Failed to compile Pixel Shader check log for more details.");
-			}
-			D3D12_SHADER_BYTECODE pixelShaderBytecodeLightPass = {};
-			pixelShaderBytecodeLightPass.BytecodeLength = pPixelShader->GetBufferSize();
-			pixelShaderBytecodeLightPass.pShaderBytecode = pPixelShader->GetBufferPointer();
-
-			// Create Input layout 
-			D3D12_INPUT_ELEMENT_DESC inputLayoutLightPass[] =
-			{
-				{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-				{ "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
-				{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			};
-
-			D3D12_INPUT_LAYOUT_DESC inputLayoutDescLightPass = {};
-			inputLayoutDescLightPass.NumElements = sizeof(inputLayoutLightPass) / sizeof(D3D12_INPUT_ELEMENT_DESC);
-			inputLayoutDescLightPass.pInputElementDescs = inputLayoutLightPass;
-
-			// Create Pipeline State Object
-			D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDescLightPass = {};
-			psoDescLightPass.InputLayout = inputLayoutDescLightPass;
-			psoDescLightPass.pRootSignature = m_pRootSignature_GeometryPass.Get();
-			psoDescLightPass.VS = vertexShaderBytecodeLightPass;
-			psoDescLightPass.PS = pixelShaderBytecodeLightPass;
-			psoDescLightPass.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-			psoDescLightPass.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-			psoDescLightPass.SampleDesc = m_SampleDesc;
-			psoDescLightPass.SampleMask = 0xffffffff;
-			psoDescLightPass.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-			psoDescLightPass.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-			psoDescLightPass.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-			psoDescLightPass.DSVFormat = m_pDepthStencilBuffer->GetDesc().Format;
-			psoDescLightPass.NumRenderTargets = 3; // diffuse normal position
-
-			hr = m_pLogicalDevice->CreateGraphicsPipelineState(&psoDescLightPass, IID_PPV_ARGS(&m_pPipelineStateObject_LightingPass));
-			ThrowIfFailed(hr, "Failed to create lighting Pipeline State Object");
-		}
-
-	}
-
 	void Direct3D12Context::CloseCommandListAndSignalCommandQueue()
 	{
 		m_pCommandList->Close();
 		ID3D12CommandList* ppCommandLists[] = { m_pCommandList.Get() };
 		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
-		m_FenceValues[m_FrameIndex]++;
-		HRESULT hr = m_pCommandQueue->Signal(m_pFences->GetAddressOf()[m_FrameIndex], m_FenceValues[m_FrameIndex]);
-		ThrowIfFailed(hr, "Failed to signal command queue");
+		WaitForGPU();
 	}
 
 	void Direct3D12Context::CreateCommandQueue()
@@ -1134,10 +946,10 @@ namespace Insight {
 	void Direct3D12Context::WaitForGPU()
 	{
 		// Schedule a Signal command in the queue.
-		m_pCommandQueue->Signal(m_pFences[m_FrameIndex].Get(), m_FenceValues[m_FrameIndex]);
+		m_pCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]);
 
 		// Wait until the fence has been processed.
-		m_pFences[m_FrameIndex].Get()->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_FenceEvent);
+		m_pFence.Get()->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_FenceEvent);
 		WaitForSingleObjectEx(m_FenceEvent, INFINITE, FALSE);
 
 		// Increment the fence value for the current frame.
@@ -1150,18 +962,18 @@ namespace Insight {
 
 		// Re-Create Render Target View
 		{
-			CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_pRtvGeometryBufferDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-			for (UINT i = 0; i < m_FrameBufferCount; i++)
-			{
-				m_pSwapChain->GetBuffer(i, IID_PPV_ARGS(&m_pRenderTargets_GeometryPass[i]));
-				m_pLogicalDevice->CreateRenderTargetView(m_pRenderTargets_GeometryPass[i].Get(), nullptr, rtvHandle);
-				rtvHandle.Offset(1, m_RtvDescriptorIncrementSize);
-			}
+			//CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_pRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+			//for (UINT i = 0; i < m_FrameBufferCount; i++)
+			//{
+			//	m_pSwapChain->GetBuffer(i, IID_PPV_ARGS(&m_pRenderTargets[i]));
+			//	m_pLogicalDevice->CreateRenderTargetView(m_pRenderTargets[i].Get(), nullptr, rtvHandle);
+			//	rtvHandle.Offset(1, m_RtvDescriptorIncrementSize);
+			//}
 		}
 
 		// Re-Create Depth Stencil View
 		{
-			CreateDepthStencilBuffer();
+			CreateDepthStencilView();
 		}
 
 		// Recreate Camera Projection Matrix

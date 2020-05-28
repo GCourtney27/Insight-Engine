@@ -1,8 +1,8 @@
 
-Texture2D t_Albedo : register(t0);
-Texture2D t_Normal : register(t1);
-
-SamplerState s_Sampler : register(s0);
+//Texture2D t_Albedo : register(t0);
+//Texture2D t_Normal : register(t1);
+//
+//SamplerState s_Sampler : register(s0);
 
 struct PS_OUT_DEFERRED
 {
@@ -23,7 +23,7 @@ PS_OUT_DEFERRED main(PS_INPUT ps_in)
 {
 	PS_OUT_DEFERRED ps_out;
 	
-	ps_out.diffuse = t_Albedo.Sample(s_Sampler, ps_in.texCoords);
+	ps_out.diffuse = float4(1.0, 0.0, 0.0, 1.0);//t_Albedo.Sample(s_Sampler, ps_in.texCoords);
 	ps_out.normal.rgb = ps_in.normal;
 	ps_out.position = ps_in.position;
 	

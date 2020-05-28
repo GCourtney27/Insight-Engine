@@ -2,8 +2,9 @@
 Texture2D t_Diffuse		: register(t0);
 Texture2D t_Normal		: register(t1);
 Texture2D t_Position	: register(t2);
+Texture2D t_Depth		: register(t3);
 
-SamplerState s_Sampler : register(s0);
+sampler s_Sampler : register(s0);
 
 struct PS_INPUT
 {

@@ -114,7 +114,7 @@ namespace Insight {
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
 
-		const UINT cbvSrvDescriptorSize = graphicsContext.GetDeviceContext().GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		/*const UINT cbvSrvDescriptorSize = graphicsContext.GetDeviceContext().GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		D3D12_GPU_DESCRIPTOR_HANDLE cbvSrvHeapStart = graphicsContext.GetShaderVisibleDescriptorHeap().GetGPUDescriptorHandleForHeapStart();
 		int rootParamIndex = 0;
 		
@@ -167,7 +167,7 @@ namespace Insight {
 			IE_CORE_WARN("Failed to bind {0} texture map to shader register!", m_Name);
 			break;
 		}
-		}
+		}*/
 	}
 
 	int Texture::LoadImageDataFromFile(BYTE** imageData, LPCWSTR filename, int& bytesPerRow)
