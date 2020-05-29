@@ -28,7 +28,34 @@ namespace Insight {
 		ComPtr<ID3D12Resource> mVB;
 		D3D12_VERTEX_BUFFER_VIEW mVbView;
 		UINT m_NumVerticies = 0u;
-		UINT m_NumIndicies = 0u;
+	};
+
+	class SphereRenderer
+	{
+	public:
+		void Init(float radius, int slices, int segments);
+		void resourceSetup();
+		void Render(ComPtr<ID3D12GraphicsCommandList> commandList);
+		XMFLOAT3 GMathVF(XMVECTOR& vec);
+		XMVECTOR GMathFV(XMFLOAT3& val);
+		
+	private:
+		ComPtr<ID3D12Resource> mVertexBuffer;
+		ComPtr<ID3D12Resource> mDefaultBuffer;
+		ComPtr<ID3D12Resource> mIndexBuffer;
+		D3D12_VERTEX_BUFFER_VIEW mVertexView;
+		D3D12_INDEX_BUFFER_VIEW mIndexView;
+		int mSlices;
+		int mSegments;
+		int mTriangleSize;
+		int mIndexSize;
+		float mRadius;
+		struct SimpleVertex
+		{
+			DirectX::XMFLOAT4 position;
+			DirectX::XMFLOAT4 color;
+			DirectX::XMFLOAT2 texcoord;
+		};
 	};
 
 	class INSIGHT_API Direct3D12Context : public RenderingContext
@@ -62,6 +89,7 @@ namespace Insight {
 		D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE handle;
+			//handle.ptr = m_rtvHeap.hCPUHeapStart.ptr + m_rtvDescriptorSize * m_FrameIndex;
 			handle.ptr = m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + m_rtvDescriptorSize * m_FrameIndex;
 			return handle;
 		}
@@ -170,7 +198,7 @@ namespace Insight {
 		D3D12_RECT							m_ScissorRect = {};
 		DXGI_SAMPLE_DESC					m_SampleDesc = {};
 		D3D12_DEPTH_STENCIL_VIEW_DESC		m_dsvDesc = {};
-		float m_ClearColor[4] = { 1.0f, 0.1f, 0.1f, 1.0f };
+		float m_ClearColor[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
 		static const unsigned int m_NumRTV = 3;
 		DXGI_FORMAT m_DsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		DXGI_FORMAT m_RtvFormat[3] = { DXGI_FORMAT_R11G11B10_FLOAT,DXGI_FORMAT_R8G8B8A8_SNORM,DXGI_FORMAT_R32G32B32A32_FLOAT };
@@ -199,6 +227,9 @@ namespace Insight {
 #define MAX_POINT_LIGHTS 4
 		//CB_PS_PointLight m_PointLights[MAX_POINT_LIGHTS];
 		CB_PS_PointLight m_PointLights;
+
+		SphereRenderer m_SphereRenderer; // TEMP
+
 
 		const UINT PIX_EVENT_UNICODE_VERSION = 0;
 

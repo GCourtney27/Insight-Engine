@@ -16,8 +16,8 @@ PS_OUTPUT_GEOMPASS main(PS_INPUT_GEOMPASS ps_in) : SV_TARGET
 {
 	PS_OUTPUT_GEOMPASS ps_out;
 	
-	ps_out.diffuse = float3(1.0, 0.0, 0.0);//t_Albedo.Sample(s_Sampler, ps_in.texCoords);
-    ps_out.normal = float4(ps_in.normal, 1.0);
+	ps_out.diffuse = float3(0.0, 1.0, 0.0);//t_Albedo.Sample(s_Sampler, ps_in.texCoords);
+    ps_out.normal = float4(normalize(ps_in.normal), 1.0);
     ps_out.position = float4(ps_in.fragPos, 1.0);
 	
 	return ps_out;

@@ -6,6 +6,7 @@
 #include "Insight/Input/Input.h"
 #include "Insight/Core/Application.h"
 #include "Insight/Runtime/APlayer_Character.h"
+#include <math.h>
 
 
 
@@ -89,6 +90,7 @@ namespace Insight {
 				}
 
 				LoadAssets();
+				//m_SphereRenderer.Init(10, 20, 20);
 			}
 			PIXEndEvent(m_pCommandQueue.Get());
 
@@ -172,26 +174,27 @@ namespace Insight {
 
 	void Direct3D12Context::BindGeometryPass(bool setPSO)
 	{
-		ID3D12DescriptorHeap* ppHeaps[1] = { m_cbvsrvHeap.pDH.Get() };
-
-		if (setPSO) {
+		ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
+		if (setPSO)
+		{
 			m_pCommandList->SetPipelineState(m_pPipelineStateObject_GeometryPass.Get());
 		}
 
-		for (unsigned int i = 0; i < m_NumRTV; ++i) {
+
+		for (int i = 0; i < m_NumRTV; i++)
 			m_pCommandList->ClearRenderTargetView(m_rtvHeap.hCPU(i), m_ClearColor, 0, nullptr);
-		}
 
 		m_pCommandList->ClearDepthStencilView(m_dsvHeap.hCPUHeapStart, D3D12_CLEAR_FLAG_DEPTH, m_ClearDepth, 0xff, 0, nullptr);
 
 		m_pCommandList->OMSetRenderTargets(m_NumRTV, &m_rtvHeap.hCPUHeapStart, true, &m_dsvHeap.hCPUHeapStart);
-		m_pCommandList->SetDescriptorHeaps(1, ppHeaps);
+		m_pCommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 		m_pCommandList->SetGraphicsRootSignature(m_pRootSignature.Get());
-
 		m_pCommandList->SetGraphicsRootDescriptorTable(2, m_cbvsrvHeap.hGPU(0));
-		//m_pCommandList->SetGraphicsRootDescriptorTable(2, m_cbvsrvHeap.hGPU(1));
 
-		
+		{
+			//m_SphereRenderer.Render(m_pCommandList);
+		}
+
 	}
 
 	void Direct3D12Context::OnMidFrameRender()
@@ -210,12 +213,14 @@ namespace Insight {
 		m_pCommandList->SetPipelineState(m_pPipelineStateObject_LightingPass.Get());
 
 		m_ScreenQuad.Draw(m_pCommandList);
+		
+		{
+			for (unsigned int i = 0; i < m_NumRTV; ++i) {
+				m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
+			}
+			m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 
-		for (unsigned int i = 0; i < m_NumRTV; ++i) {
-			m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
 		}
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
-
 	}
 
 	void Direct3D12Context::PopulateCommandLists()
@@ -241,16 +246,10 @@ namespace Insight {
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetRenderTarget(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
 		hr = m_pCommandList->Close();
-		if (FAILED(hr)) {
-			IE_CORE_FATAL(L"Failed to close command list. Cannot execute draw commands");
-		}
+		ThrowIfFailed(hr, "Failed to close command list. Cannot execute draw commands");
 
 		ID3D12CommandList* ppCommandLists[] = { m_pCommandList.Get() };
 		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-
-		hr = m_pCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]);
-		if (FAILED(hr))
-			IE_CORE_WARN("Command queue failed to signal.");
 
 		WaitForGPU();
 	}
@@ -394,8 +393,8 @@ namespace Insight {
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 		swapChainDesc.SampleDesc = m_SampleDesc;
 		swapChainDesc.Flags = m_AllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
-		Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain{};
 
+		Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain{};
 		hr = m_pDxgiFactory->CreateSwapChainForHwnd(m_pCommandQueue.Get(), *m_pWindowHandle, &swapChainDesc, nullptr, nullptr, &swapChain);
 		ThrowIfFailed(hr, "Failed to Create Swap Chain");
 
@@ -414,6 +413,7 @@ namespace Insight {
 	void Direct3D12Context::CreateRenderTargetViewDescriptorHeap()
 	{
 		HRESULT hr;
+		WaitForGPU();
 
 		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
 		desc.NumDescriptors = m_FrameBufferCount;
@@ -479,7 +479,7 @@ namespace Insight {
 			D3D12_RESOURCE_STATE_DEPTH_WRITE,
 			&depthOptomizedClearValue,
 			IID_PPV_ARGS(&m_pDepthStencilTexture));
-		m_pDepthStencilTexture->SetName(L"Depth Stencil Resource Default Heap");
+		m_pDepthStencilTexture->SetName(L"Depth Stencil Buffer");
 		if (FAILED(hr))
 			IE_CORE_ERROR("Failed to create comitted resource for depth stencil view");
 
@@ -533,9 +533,12 @@ namespace Insight {
 			resourceDesc.Format = m_RtvFormat[i];
 			clearVal.Format = m_RtvFormat[i];
 			hr = m_pLogicalDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET, &clearVal, IID_PPV_ARGS(&m_pRenderTargetTextures[i]));
-			m_pRenderTargetTextures[i]->SetName(L"Render Target Texture Default Heap index: " + i);
 			ThrowIfFailed(hr, "Failed to create committed resource for RTV at index: " + std::to_string(i));
 		}
+		m_pRenderTargetTextures[0]->SetName(L"Render Target Texture Diffuse");
+		m_pRenderTargetTextures[1]->SetName(L"Render Target Texture Normal");
+		m_pRenderTargetTextures[2]->SetName(L"Render Target Texture Position");
+
 
 		D3D12_RENDER_TARGET_VIEW_DESC desc;
 		ZeroMemory(&desc, sizeof(desc));
@@ -563,6 +566,9 @@ namespace Insight {
 			descSRV.Format = m_RtvFormat[i];
 			m_pLogicalDevice->CreateShaderResourceView(m_pRenderTargetTextures[i].Get(), &descSRV, m_cbvsrvHeap.hCPU(i));
 		}
+		m_pRenderTargetTextures[0]->SetName(L"Render Target SRV Diffuse");
+		m_pRenderTargetTextures[1]->SetName(L"Render Target SRV Normal");
+		m_pRenderTargetTextures[2]->SetName(L"Render Target SRV Position");
 	}
 
 	void Direct3D12Context::CreateConstantBufferViews()
@@ -586,16 +592,11 @@ namespace Insight {
 	{
 		CD3DX12_DESCRIPTOR_RANGE range[1];
 		// TODO: Eventualy textures should be put in the range array
-		//range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0); // Per Object
-		//range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1); // Per Frame
-		//range[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 2); // Lights
 		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 0); // G-Buffer inputs
 
 		CD3DX12_ROOT_PARAMETER rootParameters[3];
 		rootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL); // Per-Object constant buffer
 		rootParameters[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL); // Per-Frame constant buffer
-		//rootParameters[2].InitAsDescriptorTable(1, &range[0], D3D12_SHADER_VISIBILITY_ALL); // Per Frame buffer
-		//rootParameters[2].InitAsDescriptorTable(1, &range[1], D3D12_SHADER_VISIBILITY_ALL);
 		rootParameters[2].InitAsDescriptorTable(1, &range[0], D3D12_SHADER_VISIBILITY_ALL); // G-Buffer inputs
 
 		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
@@ -955,18 +956,26 @@ namespace Insight {
 				if (*ppAdapter != nullptr)
 					(*ppAdapter)->Release();
 				*ppAdapter = adapter.Detach();
-				return;
+
+				OutputDebugStringW(desc.Description);
+				//IE_CORE_INFO("Found suitable graphics hardware: {0}", reinterpret_cast<char*>(desc.Description));
+				
+				//return;
 			}
 		}
 	}
 
 	void Direct3D12Context::WaitForGPU()
 	{
+		HRESULT hr;
 		// Schedule a Signal command in the queue.
-		m_pCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]);
+		hr = m_pCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]);
+		ThrowIfFailed(hr, "Fialed to signal command queue while waiting for GPU");
 
 		// Wait until the fence has been processed.
-		m_pFence.Get()->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_FenceEvent);
+		hr = m_pFence.Get()->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_FenceEvent);
+		ThrowIfFailed(hr, "Fialed to set fence on completion event while waiting for GPU");
+
 		WaitForSingleObjectEx(m_FenceEvent, INFINITE, FALSE);
 
 		// Increment the fence value for the current frame.
@@ -1031,10 +1040,10 @@ namespace Insight {
 
 		ScreenSpaceVertex quadVerts[] =
 		{
-			{ { -1.0f, 1.0f, 0.0f }, { 0.0f,0.0f } },
-			{ { 1.0f, 1.0f, 0.0f }, {1.0f,0.0f } },
-			{ { -1.0f, -1.0f, 0.0f }, { 0.0f,1.0f } },
-			{ { 1.0f, -1.0f, 0.0f }, { 1.0f,1.0f } }
+			{ { -1.0f, 1.0f, 0.0f }, { 0.0f,0.0f } }, // Top Left
+			{ {  1.0f, 1.0f, 0.0f }, { 1.0f,0.0f } }, // Top Right
+			{ { -1.0f,-1.0f, 0.0f }, { 0.0f,1.0f } }, // Bottom Left
+			{ {  1.0f,-1.0f, 0.0f }, { 1.0f,1.0f } }, // Bottom Right
 		};
 		int vBufferSize = sizeof(quadVerts);
 		m_NumVerticies = vBufferSize / sizeof(ScreenSpaceVertex);
@@ -1089,9 +1098,160 @@ namespace Insight {
 
 	void ScreenQuad::Draw(ComPtr<ID3D12GraphicsCommandList> commandList)
 	{
-		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 		commandList->IASetVertexBuffers(0, 1, &mVbView);
 		commandList->DrawInstanced(m_NumVerticies, 1, 0, 0);
 	}
+
+	void SphereRenderer::Init(float radius, int slices, int segments)
+	{
+		mRadius = radius;
+		mSlices = slices;
+		mSegments = segments;
+
+		resourceSetup();
+	}
+
+	XMFLOAT3 SphereRenderer::GMathVF(XMVECTOR& vec)
+	{
+		XMFLOAT3 val;
+		XMStoreFloat3(&val, vec);
+		return val;
+	}
+	
+	XMVECTOR SphereRenderer::GMathFV(XMFLOAT3& val)
+	{
+		return XMLoadFloat3(&val);
+	}
+
+	void SphereRenderer::resourceSetup()
+	{
+
+
+		std::vector< Vertex3D > verts;
+		verts.resize((mSegments + 1) * mSlices + 2);
+
+		const float _pi = XM_PI;
+		const float _2pi = XM_2PI;
+
+		verts[0].Position = XMFLOAT3(0, mRadius, 0);
+		for (int lat = 0; lat < mSlices; lat++)
+		{
+			float a1 = _pi * (float)(lat + 1) / (mSlices + 1);
+			float sin1 = sinf(a1);
+			float cos1 = cosf(a1);
+
+			for (int lon = 0; lon <= mSegments; lon++)
+			{
+				float a2 = _2pi * (float)(lon == mSegments ? 0 : lon) / mSegments;
+				float sin2 = sinf(a2);
+				float cos2 = cosf(a2);
+
+				verts[lon + lat * (mSegments + 1) + 1].Position = XMFLOAT3(sin1 * cos2 * mRadius, cos1 * mRadius, sin1 * sin2 * mRadius);
+			}
+		}
+		verts[verts.size() - 1].Position = XMFLOAT3(0, -mRadius, 0);
+
+		for (int n = 0; n < verts.size(); n++)
+			verts[n].Normal = GMathVF(XMVector3Normalize(GMathFV(XMFLOAT3(verts[n].Position.x, verts[n].Position.y, verts[n].Position.z))));
+
+		int nbFaces = verts.size();
+		int nbTriangles = nbFaces * 2;
+		int nbIndexes = nbTriangles * 3;
+		std::vector< int >  triangles(nbIndexes);
+		//int* triangles = new int[nbIndexes];
+
+
+		int i = 0;
+		for (int lon = 0; lon < mSegments; lon++)
+		{
+			triangles[i++] = lon + 2;
+			triangles[i++] = lon + 1;
+			triangles[i++] = 0;
+		}
+
+		//Middle
+		for (int lat = 0; lat < mSlices - 1; lat++)
+		{
+			for (int lon = 0; lon < mSegments; lon++)
+			{
+				int current = lon + lat * (mSegments + 1) + 1;
+				int next = current + mSegments + 1;
+
+				triangles[i++] = current;
+				triangles[i++] = current + 1;
+				triangles[i++] = next + 1;
+
+				triangles[i++] = current;
+				triangles[i++] = next + 1;
+				triangles[i++] = next;
+			}
+		}
+
+		//Bottom Cap
+		for (int lon = 0; lon < mSegments; lon++)
+		{
+			triangles[i++] = verts.size() - 1;
+			triangles[i++] = verts.size() - (lon + 2) - 1;
+			triangles[i++] = verts.size() - (lon + 1) - 1;
+		}
+		mTriangleSize = verts.size();
+		mIndexSize = triangles.size();
+		//Create D3D resources
+		D3D12_HEAP_PROPERTIES heapProperty;
+		ZeroMemory(&heapProperty, sizeof(heapProperty));
+		heapProperty.Type = D3D12_HEAP_TYPE_UPLOAD;
+
+		D3D12_RESOURCE_DESC resourceDesc;
+		ZeroMemory(&resourceDesc, sizeof(resourceDesc));
+		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		resourceDesc.Alignment = 0;
+		resourceDesc.SampleDesc.Count = 1;
+		resourceDesc.SampleDesc.Quality = 0;
+		resourceDesc.MipLevels = 1;
+		resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
+		resourceDesc.DepthOrArraySize = 1;
+		resourceDesc.Width = sizeof(Vertex3D) * verts.size();
+		resourceDesc.Height = 1;
+		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+		HRESULT hr = (Direct3D12Context::Get().GetDeviceContext().CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(mVertexBuffer.GetAddressOf())));
+
+		UINT8* dataBegin;
+		hr = (mVertexBuffer->Map(0, nullptr, reinterpret_cast<void**>(&dataBegin)));
+		memcpy(dataBegin, &verts[0], sizeof(Vertex3D) * verts.size());
+		mVertexBuffer->Unmap(0, nullptr);
+
+		mVertexView.BufferLocation = mVertexBuffer->GetGPUVirtualAddress();
+		mVertexView.StrideInBytes = sizeof(Vertex3D);
+		mVertexView.SizeInBytes = sizeof(Vertex3D) * verts.size();
+
+		resourceDesc.Width = sizeof(int) * triangles.size();
+		hr = (Direct3D12Context::Get().GetDeviceContext().CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(mIndexBuffer.GetAddressOf())));
+		hr = (mIndexBuffer->Map(0, nullptr, reinterpret_cast<void**>(&dataBegin)));
+		memcpy(dataBegin, &triangles[0], sizeof(int) * triangles.size());
+		mIndexBuffer->Unmap(0, nullptr);
+
+
+		mIndexView.BufferLocation = mIndexBuffer->GetGPUVirtualAddress();
+		mIndexView.Format = DXGI_FORMAT_R32_UINT;
+		mIndexView.SizeInBytes = sizeof(int) * triangles.size();
+		return;
+	}
+
+	void SphereRenderer::Render(ComPtr<ID3D12GraphicsCommandList> commandList)
+	{
+
+
+		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		commandList->IASetIndexBuffer(&mIndexView);
+		commandList->IASetVertexBuffers(0, 1, &mVertexView);
+		//commandList->DrawInstanced();
+		commandList->DrawIndexedInstanced(mIndexSize, 1, 0, 0, 0);
+
+		return;
+
+	}
+
+	
 
 }

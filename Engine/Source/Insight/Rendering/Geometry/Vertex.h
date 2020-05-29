@@ -8,14 +8,14 @@ namespace Insight {
 
 	struct Vertex3D
 	{
-		Vertex3D() {}
+		/*Vertex3D() {}
 		virtual ~Vertex3D() {}
 
 		Vertex3D(XMFLOAT3 position, XMFLOAT3 normal, XMFLOAT2 texCoords)
 			: Position(position), Normal(normal), TexCoords(texCoords) { }
 
 		Vertex3D(float x, float y, float z, float u, float v, float nx = 0.0f, float ny = 0.0f, float nz = 0.0f)
-			: Position(x, y, z), TexCoords(u, v), Normal(nx, ny, nz) { }
+			: Position(x, y, z), TexCoords(u, v), Normal(nx, ny, nz) { }*/
 
 		XMFLOAT3 Position = {};
 		XMFLOAT2 TexCoords = {};

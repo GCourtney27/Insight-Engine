@@ -46,7 +46,7 @@ namespace Insight {
 	{
 		m_Transform.SetWorldMatrix(XMMatrixMultiply(parentMat, m_Transform.GetLocalMatrix()));
 		
-		XMMATRIX worldMatTransposed = XMMatrixTranspose(m_Transform.GetWorldMatrixRef());
+		XMMATRIX worldMatTransposed = XMMatrixTranspose(m_Transform.GetLocalMatrixRef());
 		XMFLOAT4X4 worldFloat;
 		XMStoreFloat4x4(&worldFloat, worldMatTransposed);
 
@@ -61,8 +61,6 @@ namespace Insight {
 	void Mesh::Render()
 	{
 		//m_Material.BindResources();
-		//D3D_PRIMITIVE_TOPOLOGY_LINELIST
-		//D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST
 		m_pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);
 		m_pCommandList->IASetIndexBuffer(&m_IndexBufferView);
 
