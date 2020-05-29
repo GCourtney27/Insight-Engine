@@ -81,13 +81,13 @@ namespace Insight {
 			m_Scene.OnRender();
 
 			// Render UI
-			{
+			/*{
 				m_ImGuiLayer->Begin();
 				for (Layer* layer : m_LayerStack) 
 					layer->OnImGuiRender();
 				m_Scene.OnImGuiRender();
 				m_ImGuiLayer->End();
-			}
+			}*/
 
 			// Perform Light Pass
 			m_Scene.OnMidFrameRender();

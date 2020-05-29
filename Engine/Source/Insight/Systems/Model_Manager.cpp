@@ -25,8 +25,8 @@ namespace Insight {
 	{
 		m_ConstantBufferUploadHeaps = &Direct3D12Context::Get().GetConstantBufferPerObjectUploadHeap();
 		m_pCommandList = &Direct3D12Context::Get().GetCommandList();
-		return true;
-		//return (m_pCommandList && m_ConstantBufferUploadHeaps);
+
+		return (m_pCommandList && m_ConstantBufferUploadHeaps);
 	}
 
 	void ModelManager::Draw()

@@ -1,38 +1,8 @@
+#include <Deferred_Rendering.hlsli>	
 
-struct VS_INPUT
+VS_OUTPUT_GEOMPASS main(VS_INPUT_GEOMPASS vs_in)
 {
-	float3 position		: POSITION;
-	float2 texCoords	: TEXCOORD;
-	float3 normal		: NORMAL;
-	float3 tangent		: TANGENT;
-	float3 biTangent	: BITANGENT;
-};
-
-struct VS_OUTPUT
-{
-	float4 position		: SV_POSITION;
-	float3 FragPos		: FRAG_POS;
-	float2 texCoords	: TEXCOORD;
-	float3 normal		: NORMAL;
-};
-
-cbuffer cb_PerObject : register(b0)
-{
-	float4x4 world;
-	float4x4 view;
-	float4x4 projection;
-};
-
-cbuffer cb_PerFrame : register(b1)
-{
-	float3 cameraPosition;
-	float deltaMs;
-	float time;
-};
-
-VS_OUTPUT main(VS_INPUT vs_in)
-{
-	VS_OUTPUT vs_out;
+	VS_OUTPUT_GEOMPASS vs_out;
 	
 	matrix worldView = mul(world, view);
 	float4x4 worldViewProjection = mul(mul(world, view), projection);

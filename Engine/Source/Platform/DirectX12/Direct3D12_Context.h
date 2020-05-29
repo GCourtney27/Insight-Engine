@@ -18,12 +18,25 @@ namespace Insight {
 
 	class WindowsWindow;
 
+	class ScreenQuad
+	{
+	public:
+		void Init();
+		void Draw(ComPtr<ID3D12GraphicsCommandList> commandList);
+
+	private:
+		ComPtr<ID3D12Resource> mVB;
+
+		D3D12_VERTEX_BUFFER_VIEW mVbView;
+
+	};
+
 	class INSIGHT_API Direct3D12Context : public RenderingContext
 	{
 	public:
 		Direct3D12Context(WindowsWindow* windowHandle);
 		virtual ~Direct3D12Context();
-		
+
 		virtual bool Init() override;
 		virtual void OnUpdate(const float& deltaTime) override;
 		virtual void OnPreFrameRender() override;
@@ -40,7 +53,7 @@ namespace Insight {
 		inline ID3D12GraphicsCommandList& GetCommandList() const { return *m_pCommandList.Get(); }
 		//inline ID3D12DescriptorHeap& GetShaderVisibleDescriptorHeap() const { return *m_pMainDescriptorHeap.Get(); }
 		inline ID3D12Resource& GetConstantBufferPerObjectUploadHeap() const { return *m_PerObjectConstantBuffer[m_FrameIndex].Get(); }
-		inline UINT8& GetConstantBufferViewGPUHeapAddress() {return *m_cbvGPUAddress[m_FrameIndex];}
+		inline UINT8& GetConstantBufferViewGPUHeapAddress() { return *m_cbvGPUAddress[m_FrameIndex]; }
 		CD3DX12_CPU_DESCRIPTOR_HANDLE& GetShaderVisibleDescriptorHeapHandleWithOffset() { return m_CbvSrvDescriptorHeapHandleWithOffset; }
 
 		D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const
@@ -69,8 +82,7 @@ namespace Insight {
 		void CreateDepthStencilView();
 		void CreateRenderTargetView();
 		void CreateConstantBufferViews();
-		void CreateRootSignatureGeometryPass();
-		void CreateRootSignatureLightPass();
+		void CreateRootSignature();
 		void CreateGeometryPassPSO();
 		void CreateLightPassPSO();
 
@@ -79,16 +91,14 @@ namespace Insight {
 		void CreateConstantBuffers();
 		void CreateViewport();
 		void CreateScissorRect();
-		
-		Mesh m_ScreenQuad;
+
+		ScreenQuad m_ScreenQuad;
 		void CreateScreenQuad();
 
 #pragma region Deferred Rendering
-		// Deferred Rendering
-		
-		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_GeometryPass;
 		ComPtr<ID3D12RootSignature>			m_pRootSignature;
 
+		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_GeometryPass;
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_LightingPass;
 #pragma endregion 
 		void Cleanup();
@@ -97,12 +107,12 @@ namespace Insight {
 		void UpdateViewAndScissor();
 
 		void LoadAssets();
-		
+
 	private:
 		static Direct3D12Context* s_Instance;
 	private:
-		HWND*			m_pWindowHandle = nullptr;
-		WindowsWindow*	m_pWindow = nullptr;
+		HWND* m_pWindowHandle = nullptr;
+		WindowsWindow* m_pWindow = nullptr;
 
 		// CPU/GPU Syncronization
 		int						m_FrameIndex = 0;
@@ -159,12 +169,11 @@ namespace Insight {
 		D3D12_RECT							m_ScissorRect = {};
 		DXGI_SAMPLE_DESC					m_SampleDesc = {};
 		D3D12_DEPTH_STENCIL_VIEW_DESC		m_dsvDesc = {};
-		float m_ClearColor[4] = { 0.0,0.0f,0.0f,1.0f };
+		float m_ClearColor[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
 		static const unsigned int m_NumRTV = 3;
 		DXGI_FORMAT m_DsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		DXGI_FORMAT m_RtvFormat[3] = { DXGI_FORMAT_R11G11B10_FLOAT,DXGI_FORMAT_R8G8B8A8_SNORM,DXGI_FORMAT_R8G8B8A8_UNORM };
 		float m_ClearDepth = 1.0f;
-
 
 		// Utils
 		struct Resolution
@@ -177,19 +186,19 @@ namespace Insight {
 		static UINT m_ResolutionIndex;
 
 		ComPtr<ID3D12Resource> m_PerObjectConstantBuffer[m_FrameBufferCount];
-		UINT8* m_cbvGPUAddress[m_FrameBufferCount]; 
+		UINT8* m_cbvGPUAddress[m_FrameBufferCount];
 
-		ComPtr<ID3D12Resource> m_PerFrameConstantBuffer;
+		ComPtr<ID3D12Resource> m_PerFrameCBV;
 		UINT8* m_cbvPerFrameGPUAddress[m_FrameBufferCount];
 		CB_PS_VS_PerFrame m_PerFrameData;
 
 		ComPtr<ID3D12Resource> m_LightConstantBuffer;
 		UINT8* m_cbvLightBufferGPUAddress[m_FrameBufferCount];
 
-		#define MAX_POINT_LIGHTS 4
+#define MAX_POINT_LIGHTS 4
 		//CB_PS_PointLight m_PointLights[MAX_POINT_LIGHTS];
 		CB_PS_PointLight m_PointLights;
-		
+
 	};
 
 }

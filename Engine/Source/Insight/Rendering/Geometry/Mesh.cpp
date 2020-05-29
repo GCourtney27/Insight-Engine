@@ -61,8 +61,8 @@ namespace Insight {
 	void Mesh::Render()
 	{
 		//m_Material.BindResources();
-		m_pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
+		//D3D_PRIMITIVE_TOPOLOGY_LINELIST
+		//D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST
 		m_pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);
 		m_pCommandList->IASetIndexBuffer(&m_IndexBufferView);
 
