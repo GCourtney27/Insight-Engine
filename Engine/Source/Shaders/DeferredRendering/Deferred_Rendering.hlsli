@@ -26,15 +26,15 @@ struct VS_INPUT_GEOMPASS
 struct VS_OUTPUT_GEOMPASS
 {
     float4 position : SV_POSITION;
-    float3 FragPos : FRAG_POS;
+    float3 fragPos : FRAG_POS;
     float2 texCoords : TEXCOORD;
     float3 normal : NORMAL;
 };
 
 struct PS_INPUT_GEOMPASS
 {
-    float4 position : SV_POSITION;
-    float3 FragPos : FRAG_POS;
+    float4 sv_position : SV_POSITION;
+    float3 fragPos : FRAG_POS;
     float2 texCoords : TEXCOORD;
     float3 normal : NORMAL;
 };

@@ -31,9 +31,9 @@ namespace Insight {
 
 	void ModelManager::Draw()
 	{
-		D3D12_GPU_VIRTUAL_ADDRESS cbvHandle(m_ConstantBufferUploadHeaps->GetGPUVirtualAddress());
+		D3D12_GPU_VIRTUAL_ADDRESS cbvHandle(Direct3D12Context::Get().GetConstantBufferPerObjectUploadHeap().GetGPUVirtualAddress());
 		UINT32 constantBufferOffset = 0;
-		for (unsigned int i = 0; i < m_Models.size(); ++i)
+		for (unsigned int i = 0; i < m_Models.size(); i++)
 		{
 			for (unsigned int j = 0; j < m_Models[i]->GetNumChildMeshes(); j++)
 			{

@@ -26,9 +26,9 @@ namespace Insight {
 
 	private:
 		ComPtr<ID3D12Resource> mVB;
-
 		D3D12_VERTEX_BUFFER_VIEW mVbView;
-
+		UINT m_NumVerticies = 0u;
+		UINT m_NumIndicies = 0u;
 	};
 
 	class INSIGHT_API Direct3D12Context : public RenderingContext
@@ -52,8 +52,9 @@ namespace Insight {
 		inline ID3D12GraphicsCommandList& GetCommandList() const { return *m_pCommandList.Get(); }
 
 		//inline ID3D12DescriptorHeap& GetShaderVisibleDescriptorHeap() const { return *m_pMainDescriptorHeap.Get(); }
+
 		inline ID3D12Resource& GetConstantBufferPerObjectUploadHeap() const { return *m_PerObjectCBV[m_FrameIndex].Get(); }
-		inline UINT8& GetConstantBufferViewGPUHeapAddress()	{ return *m_cbvGPUAddress[m_FrameIndex]; }
+		inline UINT8& GetConstantBufferViewGPUHeapAddress() { return *m_cbvGPUAddress[m_FrameIndex]; }
 
 		CD3DX12_CPU_DESCRIPTOR_HANDLE& GetShaderVisibleDescriptorHeapHandleWithOffset() { return m_CbvSrvDescriptorHeapHandleWithOffset; }
 		ID3D12Resource* GetRenderTarget() const { return m_pRenderTargets[m_FrameIndex].Get(); }
@@ -152,7 +153,7 @@ namespace Insight {
 
 		//0: SRV-Albedo(RTV->SRV)
 		//1: SRV-Normal(RTV->SRV)
-		//2: SRV-Specular&gloss(RTV->SRV)
+		//2: SRV-Position(RTV->SRV)
 		//3: SRV-Depth(DSV->SRV)
 		CDescriptorHeapWrapper				m_cbvsrvHeap;
 
@@ -172,7 +173,7 @@ namespace Insight {
 		float m_ClearColor[4] = { 1.0f, 0.1f, 0.1f, 1.0f };
 		static const unsigned int m_NumRTV = 3;
 		DXGI_FORMAT m_DsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		DXGI_FORMAT m_RtvFormat[3] = { DXGI_FORMAT_R11G11B10_FLOAT,DXGI_FORMAT_R8G8B8A8_SNORM,DXGI_FORMAT_R8G8B8A8_UNORM };
+		DXGI_FORMAT m_RtvFormat[3] = { DXGI_FORMAT_R11G11B10_FLOAT,DXGI_FORMAT_R8G8B8A8_SNORM,DXGI_FORMAT_R32G32B32A32_FLOAT };
 		float m_ClearDepth = 1.0f;
 
 		// Utils
@@ -199,6 +200,26 @@ namespace Insight {
 		//CB_PS_PointLight m_PointLights[MAX_POINT_LIGHTS];
 		CB_PS_PointLight m_PointLights;
 
+		const UINT PIX_EVENT_UNICODE_VERSION = 0;
+
+		inline void PIXBeginEvent(ID3D12CommandQueue* pCommandQueue, UINT64 /*metadata*/, PCWSTR pFormat)
+		{
+			pCommandQueue->BeginEvent(PIX_EVENT_UNICODE_VERSION, pFormat, (wcslen(pFormat) + 1) * sizeof(pFormat[0]));
+		}
+
+		inline void PIXBeginEvent(ID3D12GraphicsCommandList* pCommandList, UINT64 /*metadata*/, PCWSTR pFormat)
+		{
+
+			pCommandList->BeginEvent(PIX_EVENT_UNICODE_VERSION, pFormat, (wcslen(pFormat) + 1) * sizeof(pFormat[0]));
+		}
+		inline void PIXEndEvent(ID3D12CommandQueue* pCommandQueue)
+		{
+			pCommandQueue->EndEvent();
+		}
+		inline void PIXEndEvent(ID3D12GraphicsCommandList* pCommandList)
+		{
+			pCommandList->EndEvent();
+		}
 	};
 
 }

@@ -40,31 +40,31 @@ namespace Insight {
 		}
 		operator ID3D12DescriptorHeap* () { return pDH.Get(); }
 
-		SIZE_T MakeOffsetted(SIZE_T ptr, UINT index)
+		SIZE_T MakeOffsetted_SizeT(SIZE_T ptr, UINT index)
 		{
 			SIZE_T offsetted;
 			offsetted = ptr + static_cast<SIZE_T>(index * HandleIncrementSize);
 			return offsetted;
 		}
 
-		/*UINT64 MakeOffsetted(UINT64 ptr, UINT index)
+		UINT64 MakeOffsetted_Uint64(UINT64 ptr, UINT index)
 		{
 			UINT64 offsetted;
 			offsetted = ptr + static_cast<UINT64>(index * HandleIncrementSize);
 			return offsetted;
-		}*/
+		}
 
 		D3D12_CPU_DESCRIPTOR_HANDLE hCPU(UINT index)
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE handle;
-			handle.ptr = MakeOffsetted(hCPUHeapStart.ptr, index);
+			handle.ptr = MakeOffsetted_SizeT(hCPUHeapStart.ptr, index);
 			return handle;
 		}
 		D3D12_GPU_DESCRIPTOR_HANDLE hGPU(UINT index)
 		{
 			assert(Desc.Flags & D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
 			D3D12_GPU_DESCRIPTOR_HANDLE handle;
-			handle.ptr = MakeOffsetted(hGPUHeapStart.ptr, index);
+			handle.ptr = MakeOffsetted_Uint64(hGPUHeapStart.ptr, index);
 			return handle;
 		}
 		D3D12_DESCRIPTOR_HEAP_DESC Desc;

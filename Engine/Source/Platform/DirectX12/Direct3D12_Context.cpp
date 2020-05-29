@@ -67,26 +67,30 @@ namespace Insight {
 			CreateConstantBuffers();
 			CreateConstantBufferViews();
 
-			// Window
+			PIXBeginEvent(m_pCommandQueue.Get(), 0, L"D3D12 Setup");
 			{
-				CreateSwapChain();
-				CreateViewport();
-				CreateScissorRect();
-				CreateScreenQuad();
+				// Window
+				{
+					CreateSwapChain();
+					CreateViewport();
+					CreateScissorRect();
+					CreateScreenQuad();
+				}
+
+				CreateRootSignature();
+				CreateGeometryPassPSO();
+				CreateLightPassPSO();
+
+				// Render Targets and Constant Buffers
+				{
+					CreateDepthStencilView();
+					CreateRenderTargetView();
+					CreateRenderTargetViewDescriptorHeap();
+				}
+
+				LoadAssets();
 			}
-
-			CreateRootSignature();
-			CreateGeometryPassPSO();
-			CreateLightPassPSO();
-
-			// Render Targets and Constant Buffers
-			{
-				CreateDepthStencilView();
-				CreateRenderTargetView();
-				CreateRenderTargetViewDescriptorHeap();
-			}
-
-			LoadAssets();
+			PIXEndEvent(m_pCommandQueue.Get());
 
 			//CloseCommandListAndSignalCommandQueue();
 
@@ -187,9 +191,7 @@ namespace Insight {
 		m_pCommandList->SetGraphicsRootDescriptorTable(2, m_cbvsrvHeap.hGPU(0));
 		//m_pCommandList->SetGraphicsRootDescriptorTable(2, m_cbvsrvHeap.hGPU(1));
 
-		m_pCommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV[m_FrameIndex]->GetGPUVirtualAddress());
-
-		m_pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		
 	}
 
 	void Direct3D12Context::OnMidFrameRender()
@@ -203,19 +205,24 @@ namespace Insight {
 		for (unsigned int i = 0; i < m_NumRTV; ++i) {
 			m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
 		}
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_READ, D3D12_RESOURCE_STATE_GENERIC_READ));
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
 
 		m_pCommandList->SetPipelineState(m_pPipelineStateObject_LightingPass.Get());
 
 		m_ScreenQuad.Draw(m_pCommandList);
 
+		for (unsigned int i = 0; i < m_NumRTV; ++i) {
+			m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
+		}
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+
 	}
 
 	void Direct3D12Context::PopulateCommandLists()
 	{
-		//m_ModelManager.Draw();
-		// Set Per-Object Constant Buffers
-		//m_pCommandList->SetGraphicsRootConstantBufferView(0, m_PerObjectConstantBuffer[m_FrameIndex]->GetGPUVirtualAddress());
+		m_pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		// Set Per-Frame Constant Buffers
+		m_pCommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV[m_FrameIndex]->GetGPUVirtualAddress());
 		// Set light buffer
 		//m_pCommandList->SetGraphicsRootConstantBufferView(2, m_ConstantBufferLightBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
 	}
@@ -472,6 +479,7 @@ namespace Insight {
 			D3D12_RESOURCE_STATE_DEPTH_WRITE,
 			&depthOptomizedClearValue,
 			IID_PPV_ARGS(&m_pDepthStencilTexture));
+		m_pDepthStencilTexture->SetName(L"Depth Stencil Resource Default Heap");
 		if (FAILED(hr))
 			IE_CORE_ERROR("Failed to create comitted resource for depth stencil view");
 
@@ -524,7 +532,8 @@ namespace Insight {
 		for (int i = 0; i < m_NumRTV; i++) {
 			resourceDesc.Format = m_RtvFormat[i];
 			clearVal.Format = m_RtvFormat[i];
-			hr = m_pLogicalDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET, &clearVal, IID_PPV_ARGS(m_pRenderTargetTextures[i].GetAddressOf()));
+			hr = m_pLogicalDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET, &clearVal, IID_PPV_ARGS(&m_pRenderTargetTextures[i]));
+			m_pRenderTargetTextures[i]->SetName(L"Render Target Texture Default Heap index: " + i);
 			ThrowIfFailed(hr, "Failed to create committed resource for RTV at index: " + std::to_string(i));
 		}
 
@@ -743,13 +752,16 @@ namespace Insight {
 	void Direct3D12Context::CreateCommandAllocators()
 	{
 		HRESULT hr;
+
 		for (int i = 0; i < m_FrameBufferCount; i++)
 		{
 			hr = m_pLogicalDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pCommandAllocators[i]));
+			m_pCommandAllocators[i]->SetName(L"Graphics Command Allocator");
 			ThrowIfFailed(hr, "Failed to Create Command Allocator");
 		}
 
 		hr = m_pLogicalDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pCommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pCommandList));
+		m_pCommandList->SetName(L"Graphics Command List");
 		ThrowIfFailed(hr, "Failed to Create Command List");
 	}
 
@@ -819,10 +831,11 @@ namespace Insight {
 				D3D12_RESOURCE_STATE_GENERIC_READ,
 				nullptr,
 				IID_PPV_ARGS(&m_PerObjectCBV[i]));
-			m_PerObjectCBV[i]->SetName(L"Constant Buffer Upload Resource Heap");
-
+			m_PerObjectCBV[i]->SetName(L"Constant Buffer Per-Object Upload Resource Heap");
+			ThrowIfFailed(hr, "Failed to create upload heap for per-object upload resource heaps");
 			CD3DX12_RANGE readRange(0, 0);
 			hr = m_PerObjectCBV[i]->Map(0, &readRange, reinterpret_cast<void**>(&m_cbvGPUAddress[i]));
+			ThrowIfFailed(hr, "Failed to map upload heap for per-object upload resource heaps");
 		}
 
 		// Per Frame
@@ -834,12 +847,11 @@ namespace Insight {
 				D3D12_RESOURCE_STATE_GENERIC_READ,
 				nullptr,
 				IID_PPV_ARGS(&m_PerFrameCBV[i]));
-			if (FAILED(hr)) {
-				IE_CORE_ERROR("Failed to create committed resource for Constant Buffer Per Frame data.");
-			}
-			m_PerFrameCBV[i]->SetName(L"Constant Buffer PerFrame Upload Heap");
+			m_PerFrameCBV[i]->SetName(L"Constant Buffer Per-Frame Upload Heap");
+			ThrowIfFailed(hr, "Failed to create upload heap for per-frame upload resource heaps");
 			CD3DX12_RANGE readRange(0, 0);
 			hr = m_PerFrameCBV[i]->Map(0, &readRange, reinterpret_cast<void**>(&m_cbvPerFrameGPUAddress[i]));
+			ThrowIfFailed(hr, "Failed to create map heap for per-frame upload resource heaps");
 		}
 	}
 
@@ -871,6 +883,12 @@ namespace Insight {
 		m_pCommandList->Close();
 		ID3D12CommandList* ppCommandLists[] = { m_pCommandList.Get() };
 		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+
+		m_FenceValues[m_FrameIndex]++;
+		HRESULT hr = m_pCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]);
+		if (FAILED(hr)) {
+			IE_CORE_WARN("Command queue failed to signal.");
+		}
 
 		WaitForGPU();
 	}
@@ -1013,12 +1031,13 @@ namespace Insight {
 
 		ScreenSpaceVertex quadVerts[] =
 		{
-			{ { -1.0f,1.0f, 0.0f },{ 0.0f,0.0f } },
+			{ { -1.0f, 1.0f, 0.0f }, { 0.0f,0.0f } },
 			{ { 1.0f, 1.0f, 0.0f }, {1.0f,0.0f } },
-			{ { -1.0f, -1.0f, 0.0f },{ 0.0f,1.0f } },
-			{ { 1.0f, -1.0f, 0.0f },{ 1.0f,1.0f } }
+			{ { -1.0f, -1.0f, 0.0f }, { 0.0f,1.0f } },
+			{ { 1.0f, -1.0f, 0.0f }, { 1.0f,1.0f } }
 		};
 		int vBufferSize = sizeof(quadVerts);
+		m_NumVerticies = vBufferSize / sizeof(ScreenSpaceVertex);
 
 		D3D12_RESOURCE_DESC resourceDesc = {};
 		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
@@ -1039,24 +1058,24 @@ namespace Insight {
 			nullptr,
 			IID_PPV_ARGS(&mVB)
 		);
+		mVB->SetName(L"Screen Quad Default Resource Heap");
 		ThrowIfFailed(hr, "Failed to create default heap resource for screen qauad");
 
 		ID3D12Resource* vBufferUploadHeap;
 		hr = Direct3D12Context::Get().GetDeviceContext().CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), // upload heap
-			D3D12_HEAP_FLAG_NONE, // no flags
-			&CD3DX12_RESOURCE_DESC::Buffer(vBufferSize), // resource description for a buffer
-			D3D12_RESOURCE_STATE_GENERIC_READ, // GPU will read from this buffer and copy its contents to the default heap
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+			D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Buffer(vBufferSize),
+			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
 			IID_PPV_ARGS(&vBufferUploadHeap));
-		vBufferUploadHeap->SetName(L"Vertex Buffer Upload Resource Heap");
+		vBufferUploadHeap->SetName(L"Screen Quad Upload Resource Heap");
 		ThrowIfFailed(hr, "Failed to create upload heap resource for screen qauad");
 
-		// store vertex buffer in upload heap
 		D3D12_SUBRESOURCE_DATA vertexData = {};
-		vertexData.pData = reinterpret_cast<BYTE*>(quadVerts); // pointer to our vertex array
-		vertexData.RowPitch = vBufferSize; // size of all our triangle vertex data
-		vertexData.SlicePitch = vBufferSize; // also the size of our triangle vertex data
+		vertexData.pData = reinterpret_cast<BYTE*>(quadVerts);
+		vertexData.RowPitch = vBufferSize; 
+		vertexData.SlicePitch = vBufferSize; 
 
 		UpdateSubresources(&Direct3D12Context::Get().GetCommandList(), mVB.Get(), vBufferUploadHeap, 0, 0, 1, &vertexData);
 
@@ -1070,9 +1089,9 @@ namespace Insight {
 
 	void ScreenQuad::Draw(ComPtr<ID3D12GraphicsCommandList> commandList)
 	{
-		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		commandList->IASetVertexBuffers(0, 1, &mVbView);
-		commandList->DrawInstanced(4, 1, 0, 0);
+		commandList->DrawInstanced(m_NumVerticies, 1, 0, 0);
 	}
 
 }

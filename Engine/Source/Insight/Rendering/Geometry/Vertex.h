@@ -26,14 +26,14 @@ namespace Insight {
 
 	struct ScreenSpaceVertex
 	{
-		ScreenSpaceVertex() {}
+		/*ScreenSpaceVertex() {}
 		virtual ~ScreenSpaceVertex() {}
 
 		ScreenSpaceVertex(XMFLOAT3 position, XMFLOAT2 texCoords)
 			: Position(position), TexCoords(texCoords) { }
 
 		ScreenSpaceVertex(float x, float y, float z, float u, float v)
-			: Position(x, y, z), TexCoords(u, v) { }
+			: Position(x, y, z), TexCoords(u, v) { }*/
 
 		XMFLOAT3 Position = {};
 		XMFLOAT2 TexCoords = {};
