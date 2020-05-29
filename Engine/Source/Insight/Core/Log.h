@@ -24,14 +24,14 @@ namespace Insight {
 	private:
 		static std::shared_ptr<spdlog::logger> s_CoreLogger;
 		static std::shared_ptr<spdlog::logger> s_ClientLogger;
-#ifdef IE_DEBUG
+#if defined IE_DEBUG || defined IE_RELEASE
 		static ConsoleWindow m_ConsoleWindow;
 #endif
 	};
 
 }
 
-#ifdef IE_DEBUG
+#if defined IE_DEBUG || defined IE_RELEASE
 	// Engine log macros
 	#define IE_CORE_TRACE(...) ::Insight::Log::GetCoreLogger()->trace(__VA_ARGS__);
 	#define IE_CORE_INFO(...)  ::Insight::Log::GetCoreLogger()->info(__VA_ARGS__);

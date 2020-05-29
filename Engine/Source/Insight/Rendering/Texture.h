@@ -42,7 +42,6 @@ namespace Insight {
 		bool Init(const std::wstring& filepath, eTextureType& testureType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle);
 		void Bind();
 
-		inline const std::wstring& GetFilepath() { return m_Filepath; }
 		inline const UINT64& GetWidth() const { return m_TextureDesc.Width; }
 		inline const UINT64& GetHeight() const { return m_TextureDesc.Height; }
 		inline const UINT16& GetMipLevels() const { return m_TextureDesc.MipLevels; }
@@ -67,6 +66,7 @@ namespace Insight {
 #if defined IE_DEBUG
 		std::string m_Name = "";
 		std::wstring m_Filepath = L"";
+		inline const std::wstring& GetFilepath() { return m_Filepath; }
 #endif
 
 	};

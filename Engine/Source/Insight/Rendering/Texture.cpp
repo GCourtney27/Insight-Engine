@@ -60,10 +60,11 @@ namespace Insight {
 			IE_CORE_ERROR("Failed to create resource heap for texture asset");
 			return false;
 		}
-
+#if defined IE_DEBUG
 		m_Name = StringHelper::GetFilenameFromDirectoryW(filepath);
 		std::wstring debugName = L"Texture Buffer Resource Heap" + StringHelper::StringToWide(m_Name);
 		m_pTextureBuffer->SetName(debugName.c_str());
+#endif
 
 		UINT64 textureUploadBufferSize;
 		graphicsContext.GetDeviceContext().GetCopyableFootprints(&m_TextureDesc, 0, 1, 0, nullptr, nullptr, nullptr, &textureUploadBufferSize);

@@ -12,7 +12,7 @@ VS_OUTPUT_GEOMPASS main(VS_INPUT_GEOMPASS vs_in)
 	vs_out.FragPos = float3(mul(world, float4(vs_in.position, 1.0)).xyz);
 	vs_out.texCoords = vs_in.texCoords;
 	
-	vs_out.normal = normalize(mul(float4(vs_in.normal, 0.0f), world));
+    vs_out.normal = vs_in.normal;//normalize(mul(float4(vs_in.normal, 0.0f), world));
 
 	return vs_out;
 }

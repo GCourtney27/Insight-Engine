@@ -29,8 +29,6 @@ namespace Insight {
 		void PushModel(StrongModelPtr model) { m_Models.push_back(model); }
 
 		//bool LoadMeshFromFile(const std::string& filePath, bool async = true);
-	private:
-
 
 	private:
 		SceneModels m_Models;  
@@ -39,8 +37,6 @@ namespace Insight {
 		ID3D12GraphicsCommandList* m_pCommandList = nullptr;
 		int ConstantBufferPerObjectAlignedSize = (sizeof(CB_VS_PerObject) + 255) & ~255;
 
-	private:
-		bool m_AutoInstanceEnabled = true;
 	private:
 		static ModelManager* s_Instance;
 	};

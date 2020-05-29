@@ -74,8 +74,8 @@ namespace Insight {
 
 			m_Scene.OnPreRender();
 
-			for (Layer* layer : m_LayerStack)
-				layer->OnUpdate(deltaTime);
+			//for (Layer* layer : m_LayerStack)
+			//	layer->OnUpdate(deltaTime);
 			
 			m_Scene.OnUpdate(deltaTime);
 			m_Scene.OnRender();
