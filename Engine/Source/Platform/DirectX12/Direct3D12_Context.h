@@ -156,10 +156,10 @@ namespace Insight {
 		//1: SRV-Normal(RTV->SRV)
 		//2: SRV-Position(RTV->SRV)
 		//3: SRV-Depth(DSV->SRV)
+		CDescriptorHeapWrapper				m_cbvsrvHeap;
 		//4: SRV-Albedo(SRV)
 		//5: SRV-Normal(SRV)
 		//6: SRV-Specular(SRV)
-		CDescriptorHeapWrapper				m_cbvsrvHeap;
 
 		CD3DX12_CPU_DESCRIPTOR_HANDLE		m_CbvSrvDescriptorHeapHandleWithOffset;
 

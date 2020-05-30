@@ -71,6 +71,7 @@ namespace Insight {
 			const float& deltaTime = (float)m_FrameTimer.dt();
 			
 			m_pWindow->OnUpdate(deltaTime);
+			m_Scene.OnUpdate(deltaTime);
 
 			// Geometry Pass
 			m_Scene.OnPreRender();
@@ -79,7 +80,6 @@ namespace Insight {
 				layer->OnUpdate(deltaTime);
 			}
 			
-			m_Scene.OnUpdate(deltaTime);
 
 			m_Scene.OnRender();
 

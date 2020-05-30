@@ -22,7 +22,7 @@ namespace Insight {
 
 		m_Camera = new ACamera();
 		m_Camera->SetDisplayName("Player Camera");
-		m_Camera->SetProjectionValues(75.0f, windowWidth / windowHeight, 0.0001f, 100.0f);
+		m_Camera->SetProjectionValues(75.0f, windowWidth / windowHeight, 0.0001f, 200.0f);
 		SceneNode::AddChild(m_Camera);
 	}
 

@@ -1,13 +1,13 @@
 #include <Deferred_Rendering.hlsli>	
 
-//Texture2D t_Albedo : register(t4);
-//Texture2D t_Normal : register(t5);
-//Texture2D t_Specular : register(t6);
+Texture2D t_Albedo : register(t4);
+Texture2D t_Normal : register(t5);
+Texture2D t_Specular : register(t6);
 //Texture2D t_Metallic : register(t7);
 //Texture2D t_Roughness : register(t8);
 //Texture2D t_AO : register(t9);
 
-//SamplerState s_Sampler : register(s1);
+SamplerState s_Sampler : register(s1);
 
 struct PS_OUTPUT_GEOMPASS
 {

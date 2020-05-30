@@ -23,7 +23,8 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
     float depthBufferSample       = t_Depth.Sample(s_Sampler, ps_in.texCoords).r;
     
     //float z = LinearizeDepth(depthBufferSample) / cameraFarZ;
-    //return float4(positionBufferSample, 1.0);
+    //return float4(z, z, z, 1.0);
+    
     float3 normal = (normalBufferSample);
     float3 viewDirection = normalize(cameraPosition - positionBufferSample);
     

@@ -40,6 +40,7 @@ namespace Insight {
 		AActor* m_pTestActor = nullptr; // Temp: this should come from a file
 		AActor* m_pTestActor2 = nullptr; // Temp: this should come from a file
 		AActor* m_pTestActor3 = nullptr; // Temp: this should come from a file
+		AActor* m_pTestActor4 = nullptr; // Temp: this should come from a file
 		APlayerCharacter* m_pPlayerCharacter;
 
 		FileSystem m_FileSystem;

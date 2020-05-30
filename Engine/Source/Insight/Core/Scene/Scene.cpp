@@ -34,17 +34,25 @@ namespace Insight {
 			
 			m_pTestActor2 = new AActor(2, "Plane"); // TODO: make the id be its index in the scene
 			StrongActorComponentPtr ptr2 = m_pTestActor2->CreateDefaultSubobject<StaticMeshComponent>();
-			reinterpret_cast<StaticMeshComponent*>(ptr2.get())->AttachMesh("../Assets/Objects/Primatives/Plane45x45_1.obj");
+			reinterpret_cast<StaticMeshComponent*>(ptr2.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Models/Quad.obj"));
 			m_pTestActor2->GetTransformRef().Scale(100.0f, 100.0f, 100.0f);
 
 			m_pTestActor3 = new AActor(3, "Dandelion"); // TODO: make the id be its index in the scene
 			StrongActorComponentPtr ptr3 = m_pTestActor3->CreateDefaultSubobject<StaticMeshComponent>();
-			reinterpret_cast<StaticMeshComponent*>(ptr3.get())->AttachMesh("../Assets/Models/Dandelion/Var1/Textured_Flower.obj");
+			reinterpret_cast<StaticMeshComponent*>(ptr3.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Models/Dandelion/Var1/Textured_Flower.obj"));
+
+			//m_pTestActor4 = new AActor(4, "Tiger Tank"); // TODO: make the id be its index in the scene
+			//StrongActorComponentPtr ptr4 = m_pTestActor4->CreateDefaultSubobject<StaticMeshComponent>();
+			//reinterpret_cast<StaticMeshComponent*>(ptr4.get())->AttachMesh("../Assets/Objects/Tiger/Tiger.obj");
+			//m_pTestActor4->GetTransformRef().SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			//m_pTestActor4->GetTransformRef().Translate(0.04f, 0.04f, 0.04f);
+
 		}
 
 		m_pSceneRoot->AddChild(m_pTestActor);
 		m_pSceneRoot->AddChild(m_pTestActor2);
 		m_pSceneRoot->AddChild(m_pTestActor3);
+		//m_pSceneRoot->AddChild(m_pTestActor4);
 		m_pSceneRoot->AddChild(m_pPlayerCharacter);
 
 
@@ -108,6 +116,15 @@ namespace Insight {
 			ImGui::DragFloat3("Rotation", &m_pTestActor3->GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);
 		}
 		ImGui::End();
+
+		/*ImGui::Begin("Inspector 4");
+		{
+			ImGui::Text(m_pTestActor4->GetDisplayName());
+			ImGui::DragFloat3("Position", &m_pTestActor4->GetTransformRef().GetPositionRef().x, 0.05f, -100.0f, 100.0f);
+			ImGui::DragFloat3("Scale", &m_pTestActor4->GetTransformRef().GetScaleRef().x, 0.05f, -100.0f, 100.0f);
+			ImGui::DragFloat3("Rotation", &m_pTestActor4->GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);
+		}
+		ImGui::End();*/
 	}
 
 	void Scene::OnPreRender()
