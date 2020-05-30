@@ -10,10 +10,11 @@
 
 namespace Insight {
 
+	UINT32 Texture::s_NumSceneTextures = 0u;
 
 	Texture::Texture(const std::wstring& filepath, eTextureType& textureType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle)
 	{
-		Init(filepath, textureType, srvHeapHandle);
+		//Init(filepath, textureType, srvHeapHandle);
 	}
 
 
@@ -37,6 +38,9 @@ namespace Insight {
 	bool Texture::Init(const std::wstring& filepath, eTextureType& testureType)
 	{
 		HRESULT hr;
+		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
+		m_pCommandList = &graphicsContext.GetCommandList();
+
 		std::string strFilePath = StringHelper::WideToString(filepath);
 		std::string extension = StringHelper::GetFileExtension(strFilePath);
 
@@ -52,7 +56,7 @@ namespace Insight {
 		return true;
 	}
 
-	bool Texture::Init(const std::wstring& filepath, eTextureType& textureType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle)
+	bool Texture::Init(const std::wstring& filepath, eTextureType& textureType, CDescriptorHeapWrapper& srvHeapHandle)
 	{
 		HRESULT hr;
 		
@@ -87,6 +91,7 @@ namespace Insight {
 
 		UINT64 textureUploadBufferSize;
 		graphicsContext.GetDeviceContext().GetCopyableFootprints(&m_TextureDesc, 0, 1, 0, nullptr, nullptr, nullptr, &textureUploadBufferSize);
+		ComPtr<ID3D12Resource> textureBufferUploadHeap;
 
 		hr = graphicsContext.GetDeviceContext().CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
@@ -94,37 +99,38 @@ namespace Insight {
 			&CD3DX12_RESOURCE_DESC::Buffer(textureUploadBufferSize),
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
-			IID_PPV_ARGS(&m_pTextureBufferUploadHeap)
+			IID_PPV_ARGS(&textureBufferUploadHeap)
 		);
 		if (FAILED(hr)) {
 			IE_CORE_ERROR("Failed to create commited resource for texture buffer");
 			return false;
 		}
 
-		m_pTextureBufferUploadHeap->SetName(L"Texture Buffer Upload Resource Heap");
+		textureBufferUploadHeap->SetName(L"Texture Buffer Upload Resource Heap");
 
 		D3D12_SUBRESOURCE_DATA textureData = {};
 		textureData.pData = &imageData[0];
 		textureData.RowPitch = imageBytesPerRow;
 		textureData.SlicePitch = static_cast<UINT>(imageBytesPerRow) * m_TextureDesc.Height;
 
-		UpdateSubresources(m_pCommandList, m_pTextureBuffer.Get(), m_pTextureBufferUploadHeap.Get(), 0, 0, 1, &textureData);
+		UpdateSubresources(m_pCommandList, m_pTextureBuffer.Get(), textureBufferUploadHeap.Get(), 0, 0, 1, &textureData);
 
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pTextureBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 
 		const UINT cbvSrvDescriptorSize = graphicsContext.GetDeviceContext().GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		
+
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Texture2D.MipLevels = 1;
 		srvDesc.Format = m_TextureDesc.Format;
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		graphicsContext.GetDeviceContext().CreateShaderResourceView(m_pTextureBuffer.Get(), &srvDesc, srvHeapHandle);
+		graphicsContext.GetDeviceContext().CreateShaderResourceView(m_pTextureBuffer.Get(), &srvDesc, srvHeapHandle.hCPU(5));
+		s_NumSceneTextures++;
 
-		m_GPUHeapIndex = srvHeapHandle.ptr / cbvSrvDescriptorSize;
+		//m_GPUHeapIndex = srvHeapHandle.ptr / cbvSrvDescriptorSize;
 
 		// Move to the next descriptor slot in the descriptor heap so we can upload another texture
-		srvHeapHandle.Offset(cbvSrvDescriptorSize);
+		//srvHeapHandle.Offset(cbvSrvDescriptorSize);
 
 		delete imageData;
 		return true;
@@ -166,61 +172,28 @@ namespace Insight {
 	void Texture::Bind()
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-
-		/*const UINT cbvSrvDescriptorSize = graphicsContext.GetDeviceContext().GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		D3D12_GPU_DESCRIPTOR_HANDLE cbvSrvHeapStart = graphicsContext.GetShaderVisibleDescriptorHeap().GetGPUDescriptorHandleForHeapStart();
-		int rootParamIndex = 0;
-		
-		switch (m_TextureType)
-		{
+		D3D12_GPU_DESCRIPTOR_HANDLE cbvSrvHeapStart = graphicsContext.GetCBVSRVDescriptorHeap().GetGPUDescriptorHandleForHeapStart();
+		const UINT cbvSrvDescriptorSize = graphicsContext.GetDeviceContext().GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		const unsigned int numRTVs = graphicsContext.GetNumRTVs();
+		switch (m_TextureType) {
 		case eTextureType::ALBEDO:
 		{
-			rootParamIndex = 3;
-			CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, m_GPUHeapIndex, cbvSrvDescriptorSize);
-			m_pCommandList->SetGraphicsRootDescriptorTable(rootParamIndex, handle);
+			CD3DX12_GPU_DESCRIPTOR_HANDLE cbvSrvHandle(cbvSrvHeapStart, numRTVs + m_GPUHeapIndex, cbvSrvDescriptorSize);
+			m_pCommandList->SetGraphicsRootDescriptorTable(4, cbvSrvHandle);
 			break;
 		}
 		case eTextureType::NORMAL:
 		{
-			rootParamIndex = 4;
-			CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, m_GPUHeapIndex, cbvSrvDescriptorSize);
-			m_pCommandList->SetGraphicsRootDescriptorTable(rootParamIndex, handle);
-			break;
-		}
-		case eTextureType::ROUGHNESS:
-		{
-			rootParamIndex = 5;
-			CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, m_GPUHeapIndex, cbvSrvDescriptorSize);
-			m_pCommandList->SetGraphicsRootDescriptorTable(rootParamIndex, handle);
-			break;
-		}
-		case eTextureType::METALLIC:
-		{
-			rootParamIndex = 6;
-			CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, m_GPUHeapIndex, cbvSrvDescriptorSize);
-			m_pCommandList->SetGraphicsRootDescriptorTable(rootParamIndex, handle);
-			break;
-		}
-		case eTextureType::SPECULAR:
-		{
-			rootParamIndex = 7;
-			CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, m_GPUHeapIndex, cbvSrvDescriptorSize);
-			m_pCommandList->SetGraphicsRootDescriptorTable(rootParamIndex, handle);
-			break;
-		}
-		case eTextureType::AO:
-		{
-			rootParamIndex = 8;
-			CD3DX12_GPU_DESCRIPTOR_HANDLE handle(cbvSrvHeapStart, m_GPUHeapIndex, cbvSrvDescriptorSize);
-			m_pCommandList->SetGraphicsRootDescriptorTable(rootParamIndex, handle);
-			break;
+
+			CD3DX12_GPU_DESCRIPTOR_HANDLE cbvSrvHandle(cbvSrvHeapStart, numRTVs + m_GPUHeapIndex, cbvSrvDescriptorSize);
+			m_pCommandList->SetGraphicsRootDescriptorTable(5, cbvSrvHandle);
 		}
 		default:
 		{
-			IE_CORE_WARN("Failed to bind {0} texture map to shader register!", m_Name);
+			IE_CORE_WARN("Failed to bind texture {0}", m_Name);
 			break;
 		}
-		}*/
+		}
 	}
 
 	int Texture::LoadImageDataFromFile(BYTE** imageData, LPCWSTR filename, int& bytesPerRow)

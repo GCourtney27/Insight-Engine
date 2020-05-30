@@ -1,17 +1,5 @@
 // TODO Make a light common include file that is accessable for standalone and debug builds
-struct PointLight
-{
-    float3 position;
-    float3 color;
-	
-    float linearFactor;
-    float constantFactor;
-    float quadraticFactor;
-	
-    float3 ambient;
-    float3 diffuse;
-    float3 specular;
-};
+#include <../Common/Lights_Common.hlsli>
 
 cbuffer cbPerObject : register(b0)
 {
@@ -31,7 +19,7 @@ cbuffer cbPerFrame : register(b1)
 
 cbuffer cbLights : register(b2)
 {
-    PointLight pointLights;
+    PointLight pointLights[MAX_POINT_LIGHTS_SUPPORTED];
 };
 
 /* Geometry Pass */

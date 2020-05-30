@@ -61,8 +61,8 @@ namespace Insight {
 
 		UINT						m_NumVerticies = 0;
 		UINT						m_NumIndices = 0;
-		int							m_VBufferSize = 0;
-		int							m_IBufferSize = 0;
+		UINT						m_VBufferSize = 0;
+		UINT						m_IBufferSize = 0;
 		std::vector<Vertex3D>		m_Verticies;
 		std::vector<DWORD>			m_Indices;
 

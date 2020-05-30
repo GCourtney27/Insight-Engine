@@ -120,18 +120,20 @@ namespace Insight {
 		m_PerFrameData.time = (float)Application::Get().GetFrameTimer().seconds();
 		m_PerFrameData.cameraNearZ = playerCamera.GetNearZ();
 		m_PerFrameData.cameraFarZ = playerCamera.GetFarZ();
-		/*void* mapped = nullptr;
-		m_PerFrameCBV->Map(0, nullptr, &mapped);
-		memcpy(mapped, &m_PerFrameData, sizeof(CB_PS_VS_PerFrame));
-		m_PerFrameCBV->Unmap(0, nullptr);*/
-
 		memcpy(m_cbvPerFrameGPUAddress[m_FrameIndex], &m_PerFrameData, sizeof(m_PerFrameData));
 
 		if (Input::IsKeyPressed('C')) {
-			m_PointLights.position = playerCamera.GetTransform().GetPosition();
+			m_PointLights[0].position = playerCamera.GetTransform().GetPosition();
 		}
 
-		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex], &m_PointLights, sizeof(m_PointLights));
+		UINT offset = 0u;
+		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (ConstantBufferLightAlignedSize * offset++), &m_PointLights[0], ConstantBufferLightAlignedSize);
+		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (ConstantBufferLightAlignedSize * offset++), &m_PointLights[1], ConstantBufferLightAlignedSize);
+		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (ConstantBufferLightAlignedSize * offset++), &m_PointLights[3], ConstantBufferLightAlignedSize);
+		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (ConstantBufferLightAlignedSize * offset++), &m_PointLights[4], ConstantBufferLightAlignedSize);
+
+		//memcpy(cbvGPUAddress + (ConstantBufferPerObjectAlignedSize * gpuAdressOffset++), &cbPerObject, sizeof(cbPerObject));
+
 	}
 
 	void Direct3D12Context::MoveToNextFrame()
@@ -199,7 +201,7 @@ namespace Insight {
 		m_pCommandList->SetGraphicsRootDescriptorTable(3, m_cbvsrvHeap.hGPU(0));
 
 		{
-			//m_SphereRenderer.Render(m_pCommandList);
+			//texture.Bind();
 		}
 
 	}
@@ -581,7 +583,7 @@ namespace Insight {
 	{
 		m_cbvsrvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 10, true);
 
-		D3D12_CONSTANT_BUFFER_VIEW_DESC	descBuffer;
+		//D3D12_CONSTANT_BUFFER_VIEW_DESC	descBuffer;
 
 		// PerFrame CBV
 		/*descBuffer.BufferLocation = m_PerFrameCBV->GetGPUVirtualAddress();
@@ -596,17 +598,17 @@ namespace Insight {
 
 	void Direct3D12Context::CreateRootSignature()
 	{
-		CD3DX12_DESCRIPTOR_RANGE range[2];
+		CD3DX12_DESCRIPTOR_RANGE range[1];
 		// TODO: Eventualy textures should be put in the range array
 		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 0); // G-Buffer inputs t0-t3
-		range[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 4); // PerObject texture inputs - at register 4(t5) becasue gbuffer inputs already take the first 4(t0-t3) inputs
+		//range[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 4); // PerObject texture inputs - at register 4(t5) becasue gbuffer inputs already take the first 4(t0-t3) inputs
 
-		CD3DX12_ROOT_PARAMETER rootParameters[5];
+		CD3DX12_ROOT_PARAMETER rootParameters[4];
 		rootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX); // Per-Object constant buffer
 		rootParameters[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL); // Per-Frame constant buffer
 		rootParameters[2].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_PIXEL); // Light constant buffer
 		rootParameters[3].InitAsDescriptorTable(1, &range[0], D3D12_SHADER_VISIBILITY_PIXEL); // G-Buffer inputs
-		rootParameters[4].InitAsDescriptorTable(1, &range[1], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs
+		//rootParameters[4].InitAsDescriptorTable(1, &range[1], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs
 
 		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
 		descRootSignature.Init(_countof(rootParameters), rootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
@@ -794,24 +796,27 @@ namespace Insight {
 
 		using namespace DirectX;
 		srand(13);
-		//for (UINT i = 0; i < MAX_POINT_LIGHTS; i++)
+		for (UINT i = 0; i < MAX_POINT_LIGHTS_SUPPORTED; i++)
 		{
-			m_PointLights.position = XMFLOAT3(1 - 5.0f, 5.0f, 0.0f);
-			m_PointLights.ambient = XMFLOAT3(0.3f, 0.3f, 0.1f);
+			m_PointLights[i].ambient = XMFLOAT3(0.3f, 0.3f, 0.1f);
 			float rColor = ((rand() % 100) / 200.0f) + 0.5f; // between 0.5 and 1.0
 			float gColor = ((rand() % 100) / 200.0f) + 0.5f; // between 0.5 and 1.0
 			float bColor = ((rand() % 100) / 200.0f) + 0.5f; // between 0.5 and 1.0
-			m_PointLights.diffuse = XMFLOAT3(rColor, gColor, bColor);
-			m_PointLights.specular = XMFLOAT3(rColor, gColor, bColor);
-			m_PointLights.constant = 1.0f;
-			m_PointLights.linear = 0.09f;
-			m_PointLights.quadratic = 0.032f;
+			m_PointLights[i].position = XMFLOAT3(rColor * 10.0f, gColor * 10.0f, bColor * 10.0f);
+			m_PointLights[i].diffuse = XMFLOAT3(rColor, gColor, bColor);
+			m_PointLights[i].specular = XMFLOAT3(rColor, gColor, bColor);
+			m_PointLights[i].constant = 1.0f;
+			m_PointLights[i].linear = 0.09f;
+			m_PointLights[i].quadratic = 0.032f;
 		}
 
-		std::string texRelPath = FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Objects/Assault/ger_torso_Albedo.dds");
+		std::string texRelPath = FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Textures/Bricks/Bricks_Albedo.jpg");
 		std::wstring texRelPatW = StringHelper::StringToWide(texRelPath);
 		Texture::eTextureType texType = Texture::eTextureType::ALBEDO;
-		//tex.Init(texRelPatW, texType);
+		//m_CbvSrvDescriptorHeapHandleWithOffset = m_cbvsrvHeap.hCPUHeapStart;
+		//m_CbvSrvDescriptorHeapHandleWithOffset = m_cbvsrvHeap.hCPU(4);
+
+		//texture.Init(texRelPatW, texType, m_cbvsrvHeap);
 		
 	}
 
@@ -990,10 +995,9 @@ namespace Insight {
 					(*ppAdapter)->Release();
 				*ppAdapter = adapter.Detach();
 
-				OutputDebugStringW(desc.Description);
-				//IE_CORE_INFO("Found suitable graphics hardware: {0}", reinterpret_cast<char*>(desc.Description));
+				//OutputDebugStringW(desc.Description);
+				//IE_CORE_INFO("Found suitable graphics hardware: {0}", std::string((char*)desc.Description));
 				
-				//return;
 			}
 		}
 	}

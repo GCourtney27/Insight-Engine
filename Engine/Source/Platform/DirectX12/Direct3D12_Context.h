@@ -51,13 +51,14 @@ namespace Insight {
 		inline ID3D12Device& GetDeviceContext() const { return *m_pLogicalDevice.Get(); }
 		inline ID3D12GraphicsCommandList& GetCommandList() const { return *m_pCommandList.Get(); }
 
-		//inline ID3D12DescriptorHeap& GetShaderVisibleDescriptorHeap() const { return *m_pMainDescriptorHeap.Get(); }
+		inline ID3D12DescriptorHeap& GetCBVSRVDescriptorHeap() const { return *m_cbvsrvHeap.pDH.Get(); }
 
 		inline ID3D12Resource& GetConstantBufferPerObjectUploadHeap() const { return *m_PerObjectCBV[m_FrameIndex].Get(); }
 		inline UINT8& GetConstantBufferViewGPUHeapAddress() { return *m_cbvPerObjectGPUAddress[m_FrameIndex]; }
 
-		CD3DX12_CPU_DESCRIPTOR_HANDLE& GetShaderVisibleDescriptorHeapHandleWithOffset() { return m_CbvSrvDescriptorHeapHandleWithOffset; }
 		ID3D12Resource* GetRenderTarget() const { return m_pRenderTargets[m_FrameIndex].Get(); }
+
+		const unsigned int GetNumRTVs() const { return m_NumRTV; }
 
 		D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const
 		{
@@ -67,7 +68,8 @@ namespace Insight {
 		}
 
 	private:
-		void CloseCommandListAndSignalCommandQueue();// TODO TEMP
+		CD3DX12_CPU_DESCRIPTOR_HANDLE& GetCBVSRVDescriptorHeapHandleWithOffset() { return m_CbvSrvDescriptorHeapHandleWithOffset; }
+		void CloseCommandListAndSignalCommandQueue();
 		// Per-Frame
 		void PopulateCommandLists();
 		void MoveToNextFrame();
@@ -199,11 +201,13 @@ namespace Insight {
 		CB_PS_VS_PerFrame m_PerFrameData;
 
 
-#define MAX_POINT_LIGHTS 4
-		//CB_PS_PointLight m_PointLights[MAX_POINT_LIGHTS];
-		CB_PS_PointLight m_PointLights;
+#define MAX_POINT_LIGHTS_SUPPORTED 4
+		CB_PS_PointLight m_PointLights[MAX_POINT_LIGHTS_SUPPORTED];
+		int ConstantBufferLightAlignedSize = (sizeof(CB_PS_PointLight) + 255) & ~255;
 
-		Texture tex;
+		//CB_PS_PointLight m_PointLights;
+
+		Texture texture;
 
 
 		const UINT PIX_EVENT_UNICODE_VERSION = 0;

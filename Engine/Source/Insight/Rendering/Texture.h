@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Insight/Core.h>
+#include "Platform/DirectX12/Descriptor_Heap_Wrapper.h"
 
 
 namespace Insight {
@@ -39,7 +40,7 @@ namespace Insight {
 		Texture();
 		~Texture();
 	
-		bool Init(const std::wstring& filepath, eTextureType& testureType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle);
+		bool Init(const std::wstring& filepath, eTextureType& testureType, CDescriptorHeapWrapper& srvHeapHandle);
 		bool Init(const std::wstring& filepath, eTextureType& testureType);
 		void Bind();
 
@@ -61,10 +62,11 @@ namespace Insight {
 		ID3D12GraphicsCommandList*	m_pCommandList = nullptr;
 		
 		ComPtr<ID3D12Resource>		m_pTextureBuffer;
-		ComPtr<ID3D12Resource>		m_pTextureBufferUploadHeap;
 		D3D12_RESOURCE_DESC			m_TextureDesc = {};
 		eTextureType				m_TextureType;
-		UINT						m_GPUHeapIndex = 0u;
+		UINT32						m_GPUHeapIndex = 0u;
+
+		static UINT32 s_NumSceneTextures;
 
 #if defined IE_DEBUG
 		std::string m_Name = "";

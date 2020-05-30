@@ -17,18 +17,19 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
 	float3 result = float3(0.0, 0.0, 0.0);
 	
     float3 albedoBufferSample     = t_Albedo.Sample(s_Sampler, ps_in.texCoords).rgb;
-    float3 normalBufferSample = t_Normal.Sample(s_Sampler, ps_in.texCoords).rgb;
-    float3 positionBufferSample = t_Position.Sample(s_Sampler, ps_in.texCoords).xyz;
-    float depthBufferSample = t_Depth.Sample(s_Sampler, ps_in.texCoords).r;
+    float3 normalBufferSample     = t_Normal.Sample(s_Sampler, ps_in.texCoords).rgb;
+    float3 positionBufferSample   = t_Position.Sample(s_Sampler, ps_in.texCoords).xyz;
+    float depthBufferSample       = t_Depth.Sample(s_Sampler, ps_in.texCoords).r;
     
-    float z = LinearizeDepth(depthBufferSample) / cameraFarZ;
+    //float z = LinearizeDepth(depthBufferSample) / cameraFarZ;
     
     float3 normal = (normalBufferSample);
-    return float4(z, z, z, 1.0);
+    
     float3 viewDirection = normalize(cameraPosition - positionBufferSample);
     
+    for (int i = 0; i < MAX_POINT_LIGHTS_SUPPORTED; i++)
     {
-        result += CalculatePointLight(pointLights, normal, positionBufferSample, viewDirection, ps_in.texCoords);
+        result += CalculatePointLight(pointLights[i], normal, positionBufferSample, viewDirection, ps_in.texCoords);
     }
     
     return float4(result, 1.0);
