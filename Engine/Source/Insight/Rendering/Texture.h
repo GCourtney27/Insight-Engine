@@ -1,11 +1,11 @@
 #pragma once
 
-
 #include <Insight/Core.h>
+
 
 namespace Insight {
 
-
+	using Microsoft::WRL::ComPtr;
 
 	class Texture
 	{
@@ -21,9 +21,9 @@ namespace Insight {
 			SPECULAR = 4,
 			AO = 5,
 			// SKysphere
-			DIFFUSE = 6,
-			IRRADIENCE = 7,
-			ENVIRONMENT_MAP = 8
+			SKY_DIFFUSE = 6,
+			SKY_IRRADIENCE = 7,
+			SKY_ENVIRONMENT_MAP = 8
 
 		};
 
@@ -40,6 +40,7 @@ namespace Insight {
 		~Texture();
 	
 		bool Init(const std::wstring& filepath, eTextureType& testureType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle);
+		bool Init(const std::wstring& filepath, eTextureType& testureType);
 		void Bind();
 
 		inline const UINT64& GetWidth() const { return m_TextureDesc.Width; }
@@ -49,6 +50,8 @@ namespace Insight {
 		void Destroy();
 
 	private:
+		void InitFromDDSTexture(const std::wstring& filepath);
+
 		DXGI_FORMAT GetDXGIFormatFromWICFormat(WICPixelFormatGUID& wicFormatGUID);
 		WICPixelFormatGUID GetConvertToWICFormat(WICPixelFormatGUID& wicFormatGUID);
 		int GetDXGIFormatBitsPerPixel(DXGI_FORMAT& dxgiFormat);
@@ -57,8 +60,8 @@ namespace Insight {
 	private:
 		ID3D12GraphicsCommandList*	m_pCommandList = nullptr;
 		
-		ID3D12Resource*				m_pTextureBuffer = nullptr;
-		ID3D12Resource*				m_pTextureBufferUploadHeap = nullptr;
+		ComPtr<ID3D12Resource>		m_pTextureBuffer;
+		ComPtr<ID3D12Resource>		m_pTextureBufferUploadHeap;
 		D3D12_RESOURCE_DESC			m_TextureDesc = {};
 		eTextureType				m_TextureType;
 		UINT						m_GPUHeapIndex = 0u;

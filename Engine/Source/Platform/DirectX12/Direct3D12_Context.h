@@ -30,34 +30,6 @@ namespace Insight {
 		UINT m_NumVerticies = 0u;
 	};
 
-	class SphereRenderer
-	{
-	public:
-		void Init(float radius, int slices, int segments);
-		void resourceSetup();
-		void Render(ComPtr<ID3D12GraphicsCommandList> commandList);
-		XMFLOAT3 GMathVF(XMVECTOR& vec);
-		XMVECTOR GMathFV(XMFLOAT3& val);
-		
-	private:
-		ComPtr<ID3D12Resource> mVertexBuffer;
-		ComPtr<ID3D12Resource> mDefaultBuffer;
-		ComPtr<ID3D12Resource> mIndexBuffer;
-		D3D12_VERTEX_BUFFER_VIEW mVertexView;
-		D3D12_INDEX_BUFFER_VIEW mIndexView;
-		int mSlices;
-		int mSegments;
-		int mTriangleSize;
-		int mIndexSize;
-		float mRadius;
-		struct SimpleVertex
-		{
-			DirectX::XMFLOAT4 position;
-			DirectX::XMFLOAT4 color;
-			DirectX::XMFLOAT2 texcoord;
-		};
-	};
-
 	class INSIGHT_API Direct3D12Context : public RenderingContext
 	{
 	public:
@@ -177,13 +149,14 @@ namespace Insight {
 		ComPtr<ID3D12Resource>				m_pDepthStencilTexture;
 		CDescriptorHeapWrapper				m_dsvHeap;
 
-		CDescriptorHeapWrapper				m_srvHeap;
 
 		//0: SRV-Albedo(RTV->SRV)
 		//1: SRV-Normal(RTV->SRV)
 		//2: SRV-Position(RTV->SRV)
 		//3: SRV-Depth(DSV->SRV)
-		//4: CBV-Light data
+		//4: SRV-Albedo(SRV)
+		//5: SRV-Normal(SRV)
+		//6: SRV-Specular(SRV)
 		CDescriptorHeapWrapper				m_cbvsrvHeap;
 
 		CD3DX12_CPU_DESCRIPTOR_HANDLE		m_CbvSrvDescriptorHeapHandleWithOffset;
@@ -230,7 +203,7 @@ namespace Insight {
 		//CB_PS_PointLight m_PointLights[MAX_POINT_LIGHTS];
 		CB_PS_PointLight m_PointLights;
 
-		SphereRenderer m_SphereRenderer; // TEMP
+		Texture tex;
 
 
 		const UINT PIX_EVENT_UNICODE_VERSION = 0;

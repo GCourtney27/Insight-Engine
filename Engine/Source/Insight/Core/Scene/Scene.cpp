@@ -27,16 +27,18 @@ namespace Insight {
 
 		m_pPlayerCharacter = new APlayerCharacter(0, "Player Character");
 
+		
+
 		{
-			m_pTestActor = new AActor(1, "Test actor 1"); // TODO: make the id be its index in the scene
+			m_pTestActor = new AActor(1, "Nanosuit"); // TODO: make the id be its index in the scene
 			StrongActorComponentPtr ptr = m_pTestActor->CreateDefaultSubobject<StaticMeshComponent>();
 			reinterpret_cast<StaticMeshComponent*>(ptr.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Models/nanosuit/nanosuit.obj"));
 			
-			m_pTestActor2 = new AActor(2, "Test actor 2"); // TODO: make the id be its index in the scene
+			m_pTestActor2 = new AActor(2, "Sphere"); // TODO: make the id be its index in the scene
 			StrongActorComponentPtr ptr2 = m_pTestActor2->CreateDefaultSubobject<StaticMeshComponent>();
 			reinterpret_cast<StaticMeshComponent*>(ptr2.get())->AttachMesh("../Assets/Objects/Primatives/sphere.obj");
 
-			m_pTestActor3 = new AActor(3, "Test actor 3"); // TODO: make the id be its index in the scene
+			m_pTestActor3 = new AActor(3, "Dandelion"); // TODO: make the id be its index in the scene
 			StrongActorComponentPtr ptr3 = m_pTestActor3->CreateDefaultSubobject<StaticMeshComponent>();
 			reinterpret_cast<StaticMeshComponent*>(ptr3.get())->AttachMesh("../Assets/Models/Dandelion/Var1/Textured_Flower.obj");
 		}

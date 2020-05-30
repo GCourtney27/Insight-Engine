@@ -23,6 +23,8 @@ cbuffer cbPerObject : register(b0)
 cbuffer cbPerFrame : register(b1)
 {
     float3 cameraPosition;
+    float cameraNearZ;
+    float cameraFarZ;
     float deltaMs;
     float time;
 };

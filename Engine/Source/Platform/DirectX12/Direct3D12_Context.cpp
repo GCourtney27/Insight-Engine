@@ -118,7 +118,8 @@ namespace Insight {
 		m_PerFrameData.cameraPosition = playerCamera.GetTransformRef().GetPosition();
 		m_PerFrameData.deltaMs = deltaTime;
 		m_PerFrameData.time = (float)Application::Get().GetFrameTimer().seconds();
-
+		m_PerFrameData.cameraNearZ = playerCamera.GetNearZ();
+		m_PerFrameData.cameraFarZ = playerCamera.GetFarZ();
 		/*void* mapped = nullptr;
 		m_PerFrameCBV->Map(0, nullptr, &mapped);
 		memcpy(mapped, &m_PerFrameData, sizeof(CB_PS_VS_PerFrame));
@@ -566,7 +567,6 @@ namespace Insight {
 		descSRV.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		descSRV.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
-		m_srvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 3, true);
 
 		for (int i = 0; i < m_NumRTV; i++) {
 			descSRV.Format = m_RtvFormat[i];
@@ -596,22 +596,25 @@ namespace Insight {
 
 	void Direct3D12Context::CreateRootSignature()
 	{
-		CD3DX12_DESCRIPTOR_RANGE range[1];
+		CD3DX12_DESCRIPTOR_RANGE range[2];
 		// TODO: Eventualy textures should be put in the range array
-		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 0); // G-Buffer inputs
+		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 0); // G-Buffer inputs t0-t3
+		range[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 4); // PerObject texture inputs - at register 4(t5) becasue gbuffer inputs already take the first 4(t0-t3) inputs
 
-		CD3DX12_ROOT_PARAMETER rootParameters[4];
-		rootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL); // Per-Object constant buffer
+		CD3DX12_ROOT_PARAMETER rootParameters[5];
+		rootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX); // Per-Object constant buffer
 		rootParameters[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL); // Per-Frame constant buffer
-		rootParameters[2].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_ALL); // Light constant buffer
-		rootParameters[3].InitAsDescriptorTable(1, &range[0], D3D12_SHADER_VISIBILITY_ALL); // G-Buffer inputs
+		rootParameters[2].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_PIXEL); // Light constant buffer
+		rootParameters[3].InitAsDescriptorTable(1, &range[0], D3D12_SHADER_VISIBILITY_PIXEL); // G-Buffer inputs
+		rootParameters[4].InitAsDescriptorTable(1, &range[1], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs
 
 		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
 		descRootSignature.Init(_countof(rootParameters), rootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
-		CD3DX12_STATIC_SAMPLER_DESC StaticSamplers[1];
+		CD3DX12_STATIC_SAMPLER_DESC StaticSamplers[2];
 		StaticSamplers[0].Init(0, D3D12_FILTER_MIN_MAG_MIP_LINEAR);
-		descRootSignature.NumStaticSamplers = 1;
+		StaticSamplers[1].Init(1, D3D12_FILTER_MIN_MAG_MIP_LINEAR);
+		descRootSignature.NumStaticSamplers = _countof(StaticSamplers);
 		descRootSignature.pStaticSamplers = StaticSamplers;
 
 		ComPtr<ID3DBlob> rootSigBlob;
@@ -804,6 +807,12 @@ namespace Insight {
 			m_PointLights.linear = 0.09f;
 			m_PointLights.quadratic = 0.032f;
 		}
+
+		std::string texRelPath = FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Objects/Assault/ger_torso_Albedo.dds");
+		std::wstring texRelPatW = StringHelper::StringToWide(texRelPath);
+		Texture::eTextureType texType = Texture::eTextureType::ALBEDO;
+		//tex.Init(texRelPatW, texType);
+		
 	}
 
 	void Direct3D12Context::CreateConstantBuffers()
@@ -1127,155 +1136,5 @@ namespace Insight {
 		commandList->DrawInstanced(m_NumVerticies, 1, 0, 0);
 	}
 
-	void SphereRenderer::Init(float radius, int slices, int segments)
-	{
-		mRadius = radius;
-		mSlices = slices;
-		mSegments = segments;
-
-		resourceSetup();
-	}
-
-	XMFLOAT3 SphereRenderer::GMathVF(XMVECTOR& vec)
-	{
-		XMFLOAT3 val;
-		XMStoreFloat3(&val, vec);
-		return val;
-	}
-	
-	XMVECTOR SphereRenderer::GMathFV(XMFLOAT3& val)
-	{
-		return XMLoadFloat3(&val);
-	}
-
-	void SphereRenderer::resourceSetup()
-	{
-
-
-		std::vector< Vertex3D > verts;
-		verts.resize((mSegments + 1) * mSlices + 2);
-
-		const float _pi = XM_PI;
-		const float _2pi = XM_2PI;
-
-		verts[0].Position = XMFLOAT3(0, mRadius, 0);
-		for (int lat = 0; lat < mSlices; lat++)
-		{
-			float a1 = _pi * (float)(lat + 1) / (mSlices + 1);
-			float sin1 = sinf(a1);
-			float cos1 = cosf(a1);
-
-			for (int lon = 0; lon <= mSegments; lon++)
-			{
-				float a2 = _2pi * (float)(lon == mSegments ? 0 : lon) / mSegments;
-				float sin2 = sinf(a2);
-				float cos2 = cosf(a2);
-
-				verts[lon + lat * (mSegments + 1) + 1].Position = XMFLOAT3(sin1 * cos2 * mRadius, cos1 * mRadius, sin1 * sin2 * mRadius);
-			}
-		}
-		verts[verts.size() - 1].Position = XMFLOAT3(0, -mRadius, 0);
-
-		for (int n = 0; n < verts.size(); n++)
-			verts[n].Normal = GMathVF(XMVector3Normalize(GMathFV(XMFLOAT3(verts[n].Position.x, verts[n].Position.y, verts[n].Position.z))));
-
-		int nbFaces = verts.size();
-		int nbTriangles = nbFaces * 2;
-		int nbIndexes = nbTriangles * 3;
-		std::vector< int >  triangles(nbIndexes);
-		//int* triangles = new int[nbIndexes];
-
-
-		int i = 0;
-		for (int lon = 0; lon < mSegments; lon++)
-		{
-			triangles[i++] = lon + 2;
-			triangles[i++] = lon + 1;
-			triangles[i++] = 0;
-		}
-
-		//Middle
-		for (int lat = 0; lat < mSlices - 1; lat++)
-		{
-			for (int lon = 0; lon < mSegments; lon++)
-			{
-				int current = lon + lat * (mSegments + 1) + 1;
-				int next = current + mSegments + 1;
-
-				triangles[i++] = current;
-				triangles[i++] = current + 1;
-				triangles[i++] = next + 1;
-
-				triangles[i++] = current;
-				triangles[i++] = next + 1;
-				triangles[i++] = next;
-			}
-		}
-
-		//Bottom Cap
-		for (int lon = 0; lon < mSegments; lon++)
-		{
-			triangles[i++] = verts.size() - 1;
-			triangles[i++] = verts.size() - (lon + 2) - 1;
-			triangles[i++] = verts.size() - (lon + 1) - 1;
-		}
-		mTriangleSize = verts.size();
-		mIndexSize = triangles.size();
-		//Create D3D resources
-		D3D12_HEAP_PROPERTIES heapProperty;
-		ZeroMemory(&heapProperty, sizeof(heapProperty));
-		heapProperty.Type = D3D12_HEAP_TYPE_UPLOAD;
-
-		D3D12_RESOURCE_DESC resourceDesc;
-		ZeroMemory(&resourceDesc, sizeof(resourceDesc));
-		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-		resourceDesc.Alignment = 0;
-		resourceDesc.SampleDesc.Count = 1;
-		resourceDesc.SampleDesc.Quality = 0;
-		resourceDesc.MipLevels = 1;
-		resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
-		resourceDesc.DepthOrArraySize = 1;
-		resourceDesc.Width = sizeof(Vertex3D) * verts.size();
-		resourceDesc.Height = 1;
-		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-		HRESULT hr = (Direct3D12Context::Get().GetDeviceContext().CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(mVertexBuffer.GetAddressOf())));
-
-		UINT8* dataBegin;
-		hr = (mVertexBuffer->Map(0, nullptr, reinterpret_cast<void**>(&dataBegin)));
-		memcpy(dataBegin, &verts[0], sizeof(Vertex3D) * verts.size());
-		mVertexBuffer->Unmap(0, nullptr);
-
-		mVertexView.BufferLocation = mVertexBuffer->GetGPUVirtualAddress();
-		mVertexView.StrideInBytes = sizeof(Vertex3D);
-		mVertexView.SizeInBytes = sizeof(Vertex3D) * verts.size();
-
-		resourceDesc.Width = sizeof(int) * triangles.size();
-		hr = (Direct3D12Context::Get().GetDeviceContext().CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(mIndexBuffer.GetAddressOf())));
-		hr = (mIndexBuffer->Map(0, nullptr, reinterpret_cast<void**>(&dataBegin)));
-		memcpy(dataBegin, &triangles[0], sizeof(int) * triangles.size());
-		mIndexBuffer->Unmap(0, nullptr);
-
-
-		mIndexView.BufferLocation = mIndexBuffer->GetGPUVirtualAddress();
-		mIndexView.Format = DXGI_FORMAT_R32_UINT;
-		mIndexView.SizeInBytes = sizeof(int) * triangles.size();
-		return;
-	}
-
-	void SphereRenderer::Render(ComPtr<ID3D12GraphicsCommandList> commandList)
-	{
-
-
-		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		commandList->IASetIndexBuffer(&mIndexView);
-		commandList->IASetVertexBuffers(0, 1, &mVertexView);
-		//commandList->DrawInstanced();
-		commandList->DrawIndexedInstanced(mIndexSize, 1, 0, 0, 0);
-
-		return;
-
-	}
-
-	
 
 }

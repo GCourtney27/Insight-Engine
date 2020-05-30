@@ -5,6 +5,8 @@
 #include "Insight/Core/Application.h"
 #include "Insight/Utilities/String_Helper.h"
 #include "Platform/DirectX12/Direct3D12_Context.h"
+#include <DDSTextureLoader.h>
+#include "ResourceUploadBatch.h"
 
 namespace Insight {
 
@@ -17,7 +19,7 @@ namespace Insight {
 
 	Texture::Texture()
 	{
-
+		
 	}
 
 	Texture::~Texture()
@@ -32,12 +34,29 @@ namespace Insight {
 		m_pCommandList = nullptr;*/
 	}
 
+	bool Texture::Init(const std::wstring& filepath, eTextureType& testureType)
+	{
+		HRESULT hr;
+		std::string strFilePath = StringHelper::WideToString(filepath);
+		std::string extension = StringHelper::GetFileExtension(strFilePath);
+
+		if (extension == "dds") {
+			InitFromDDSTexture(filepath);
+		}
+		else {
+
+		}
+
+		
+
+		return true;
+	}
+
 	bool Texture::Init(const std::wstring& filepath, eTextureType& textureType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle)
 	{
 		HRESULT hr;
 		
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-
 		m_pCommandList = &graphicsContext.GetCommandList();
 		m_TextureType = textureType;
 
@@ -89,9 +108,9 @@ namespace Insight {
 		textureData.RowPitch = imageBytesPerRow;
 		textureData.SlicePitch = static_cast<UINT>(imageBytesPerRow) * m_TextureDesc.Height;
 
-		UpdateSubresources(m_pCommandList, m_pTextureBuffer, m_pTextureBufferUploadHeap, 0, 0, 1, &textureData);
+		UpdateSubresources(m_pCommandList, m_pTextureBuffer.Get(), m_pTextureBufferUploadHeap.Get(), 0, 0, 1, &textureData);
 
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pTextureBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pTextureBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 
 		const UINT cbvSrvDescriptorSize = graphicsContext.GetDeviceContext().GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		
@@ -100,7 +119,7 @@ namespace Insight {
 		srvDesc.Format = m_TextureDesc.Format;
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		graphicsContext.GetDeviceContext().CreateShaderResourceView(m_pTextureBuffer, &srvDesc, srvHeapHandle);
+		graphicsContext.GetDeviceContext().CreateShaderResourceView(m_pTextureBuffer.Get(), &srvDesc, srvHeapHandle);
 
 		m_GPUHeapIndex = srvHeapHandle.ptr / cbvSrvDescriptorSize;
 
@@ -109,6 +128,39 @@ namespace Insight {
 
 		delete imageData;
 		return true;
+	}
+
+	void Texture::InitFromDDSTexture(const std::wstring& filepath)
+	{
+		HRESULT hr;
+		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
+		ID3D12Device* pDevice = &graphicsContext.GetDeviceContext();
+
+		std::unique_ptr<uint8_t[]> ddsData;
+		std::vector<D3D12_SUBRESOURCE_DATA> subresources;
+		hr = LoadDDSTextureFromFile(pDevice, filepath.c_str(), m_pTextureBuffer.ReleaseAndGetAddressOf(), ddsData, subresources);
+		ThrowIfFailed(hr, "Failed to load DDS texture from file");
+		const UINT64 uploadBufferSize = GetRequiredIntermediateSize(m_pTextureBuffer.Get(), 0, static_cast<UINT>(subresources.size()));
+
+		CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_UPLOAD);
+		auto desc = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
+
+		ComPtr<ID3D12Resource> uploadResource;
+		hr = pDevice->CreateCommittedResource(
+			&heapProperties,
+			D3D12_HEAP_FLAG_NONE,
+			&desc,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(&uploadResource)
+		);
+		ThrowIfFailed(hr, "Failed to create committed resource for texture buffer upload heap");
+		UpdateSubresources(m_pCommandList, m_pTextureBuffer.Get(), uploadResource.Get(), 0, 0, static_cast<UINT>(subresources.size()), subresources.data());
+
+		auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_pTextureBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		m_pCommandList->ResourceBarrier(1, &barrier);
+
+		//CreateShaderResourceView(pDevice, m_pTextureBuffer.Get(), resourceDescriptors->GetCpuHandle(Descriptors::MyTexture));
 	}
 
 	void Texture::Bind()

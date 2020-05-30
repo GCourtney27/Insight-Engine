@@ -272,7 +272,7 @@ namespace Insight {
 		m_pRendererContext = std::make_shared<Direct3D12Context>(this);
 		if (!m_pRendererContext->Init())
 		{
-			IE_CORE_FATAL(L"Failed to initialize graphics context");
+			//IE_CORE_FATAL(L"Failed to initialize graphics context");
 			return false;
 		}
 		IE_CORE_TRACE("Renderer Initialized");
