@@ -174,11 +174,12 @@ namespace Insight {
 		D3D12_RECT							m_ScissorRect = {};
 		DXGI_SAMPLE_DESC					m_SampleDesc = {};
 		D3D12_DEPTH_STENCIL_VIEW_DESC		m_dsvDesc = {};
-		float m_ClearColor[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
-		static const unsigned int m_NumRTV = 3;
-		DXGI_FORMAT m_DsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		DXGI_FORMAT m_RtvFormat[3] = { DXGI_FORMAT_R11G11B10_FLOAT,DXGI_FORMAT_R8G8B8A8_SNORM,DXGI_FORMAT_R32G32B32A32_FLOAT };
-		float m_ClearDepth = 1.0f;
+
+		float								m_ClearColor[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
+		static const unsigned int			m_NumRTV = 3;
+		DXGI_FORMAT							m_DsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		DXGI_FORMAT							m_RtvFormat[3] = { DXGI_FORMAT_R11G11B10_FLOAT,DXGI_FORMAT_R8G8B8A8_SNORM,DXGI_FORMAT_R32G32B32A32_FLOAT };
+		float								m_ClearDepth = 1.0f;
 
 		// Utils
 		struct Resolution
@@ -205,9 +206,7 @@ namespace Insight {
 		CB_PS_PointLight m_PointLights[MAX_POINT_LIGHTS_SUPPORTED];
 		int ConstantBufferLightAlignedSize = (sizeof(CB_PS_PointLight) + 255) & ~255;
 
-		//CB_PS_PointLight m_PointLights;
-
-		Texture texture;
+		Texture m_Texture;
 
 
 		const UINT PIX_EVENT_UNICODE_VERSION = 0;

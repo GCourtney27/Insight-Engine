@@ -11,6 +11,7 @@ sampler s_Sampler : register(s0);
 // -------------------
 float3 CalculatePointLight(PointLight light, float3 normal, float3 fragPosition, float3 viewDirection, float2 texCoords);
 float LinearizeDepth(float depth);
+float3 GammaCorrect(float3 target);
 
 float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
 {
@@ -26,12 +27,24 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
     float3 normal = (normalBufferSample);
     float3 viewDirection = normalize(cameraPosition - positionBufferSample);
     
+    // Calculate PointLight Radiance
     for (int i = 0; i < MAX_POINT_LIGHTS_SUPPORTED; i++)
     {
         result += CalculatePointLight(pointLights[i], normal, positionBufferSample, viewDirection, ps_in.texCoords);
     }
     
+	
+    //float3 mapped = float3(1.0) - pow(-result.rgb * cameraExposure);
+    //mapped = pow(mapped, float3(1.0 / gamma));
+    
+    result = GammaCorrect(result);
     return float4(result, 1.0);
+}
+
+float3 GammaCorrect(float3 target)
+{
+    const float gamma = 2.2;
+    return pow(target.rgb, float3(1.0 / gamma, 1.0 / gamma, 1.0 / gamma));
 }
 
 float LinearizeDepth(float depth)
@@ -46,7 +59,7 @@ float3 CalculatePointLight(PointLight light, float3 normal, float3 fragPosition,
     float3 halfwayDir = normalize(lightDir + viewDirection);
 	
     float diffuseFactor = max(dot(lightDir, normal), 0.0);
-    float specularFactor = pow(max(dot(normal, halfwayDir), 0.0), 16.0);
+    float specularFactor = pow(max(dot(normal, halfwayDir), 0.0), 16.0); // TODO load in shininess from texture
 	
     float distance = length(light.position - fragPosition);
     float attenuation = 1.0 / (light.constantFactor + light.linearFactor * distance + light.quadraticFactor * (distance * distance));

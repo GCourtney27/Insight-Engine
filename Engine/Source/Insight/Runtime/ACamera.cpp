@@ -2,7 +2,8 @@
 
 
 #include "ACamera.h"
-
+#include "imgui.h"
+#include "Insight/Runtime/Components/Actor_Component.h"
 
 namespace Insight {
 
@@ -62,6 +63,21 @@ namespace Insight {
 		m_AspectRatio = aspectRatio;
 		float fovRadians = fovDegrees * (3.14f / 180.0f);
 		m_ProjectionMatrix = XMMatrixPerspectiveFovLH(fovRadians, m_AspectRatio, m_NearZ, m_FarZ);
+	}
+
+	void ACamera::RenderSceneHeirarchy()
+	{
+		if (ImGui::TreeNode(SceneNode::GetDisplayName()))
+		{
+			SceneNode::RenderSceneHeirarchy();
+
+			for (size_t i = 0; i < m_NumComponents; ++i)
+			{
+				m_Components[i]->RenderSceneHeirarchy();
+			}
+			ImGui::TreePop();
+			ImGui::Spacing();
+		}
 	}
 
 	void ACamera::UpdateViewMatrix()

@@ -120,6 +120,7 @@ namespace Insight {
 		m_PerFrameData.time = (float)Application::Get().GetFrameTimer().seconds();
 		m_PerFrameData.cameraNearZ = playerCamera.GetNearZ();
 		m_PerFrameData.cameraFarZ = playerCamera.GetFarZ();
+		m_PerFrameData.cameraExposure = playerCamera.GetExposure();
 		memcpy(m_cbvPerFrameGPUAddress[m_FrameIndex], &m_PerFrameData, sizeof(m_PerFrameData));
 
 		if (Input::IsKeyPressed('C')) {
@@ -808,9 +809,9 @@ namespace Insight {
 			m_PointLights[i].quadratic = 0.032f;
 		}
 
-		std::string texRelPath = FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Textures/Bricks/Bricks_Albedo.jpg");
+		/*std::string texRelPath = FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Textures/Bricks/Bricks_Albedo.jpg");
 		std::wstring texRelPatW = StringHelper::StringToWide(texRelPath);
-		Texture::eTextureType texType = Texture::eTextureType::ALBEDO;
+		Texture::eTextureType texType = Texture::eTextureType::ALBEDO;*/
 		//m_CbvSrvDescriptorHeapHandleWithOffset = m_cbvsrvHeap.hCPUHeapStart;
 		//m_CbvSrvDescriptorHeapHandleWithOffset = m_cbvsrvHeap.hCPU(4);
 
