@@ -132,8 +132,6 @@ namespace Insight {
 		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (ConstantBufferLightAlignedSize * offset++), &m_PointLights[3], ConstantBufferLightAlignedSize);
 		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (ConstantBufferLightAlignedSize * offset++), &m_PointLights[4], ConstantBufferLightAlignedSize);
 
-		//memcpy(cbvGPUAddress + (ConstantBufferPerObjectAlignedSize * gpuAdressOffset++), &cbPerObject, sizeof(cbPerObject));
-
 	}
 
 	void Direct3D12Context::MoveToNextFrame()
@@ -798,7 +796,7 @@ namespace Insight {
 		srand(13);
 		for (UINT i = 0; i < MAX_POINT_LIGHTS_SUPPORTED; i++)
 		{
-			m_PointLights[i].ambient = XMFLOAT3(0.3f, 0.3f, 0.1f);
+			m_PointLights[i].ambient = XMFLOAT3(0.3f, 0.3f, 0.3f);
 			float rColor = ((rand() % 100) / 200.0f) + 0.5f; // between 0.5 and 1.0
 			float gColor = ((rand() % 100) / 200.0f) + 0.5f; // between 0.5 and 1.0
 			float bColor = ((rand() % 100) / 200.0f) + 0.5f; // between 0.5 and 1.0

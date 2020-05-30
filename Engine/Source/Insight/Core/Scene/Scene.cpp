@@ -34,7 +34,7 @@ namespace Insight {
 			
 			m_pTestActor2 = new AActor(2, "Plane"); // TODO: make the id be its index in the scene
 			StrongActorComponentPtr ptr2 = m_pTestActor2->CreateDefaultSubobject<StaticMeshComponent>();
-			reinterpret_cast<StaticMeshComponent*>(ptr2.get())->AttachMesh("../Assets/Objects/Primatives/Quad.obj");
+			reinterpret_cast<StaticMeshComponent*>(ptr2.get())->AttachMesh("../Assets/Objects/Primatives/Plane45x45_1.obj");
 			m_pTestActor2->GetTransformRef().Scale(100.0f, 100.0f, 100.0f);
 
 			m_pTestActor3 = new AActor(3, "Dandelion"); // TODO: make the id be its index in the scene
