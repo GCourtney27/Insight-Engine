@@ -72,28 +72,31 @@ namespace Insight {
 			
 			m_pWindow->OnUpdate(deltaTime);
 
+			// Geometry Pass
 			m_Scene.OnPreRender();
 
-			//for (Layer* layer : m_LayerStack)
-			//	layer->OnUpdate(deltaTime);
+			for (Layer* layer : m_LayerStack) {
+				layer->OnUpdate(deltaTime);
+			}
 			
 			m_Scene.OnUpdate(deltaTime);
+
 			m_Scene.OnRender();
 
-			// Render UI
-			/*{
-				m_ImGuiLayer->Begin();
-				for (Layer* layer : m_LayerStack) 
-					layer->OnImGuiRender();
-				m_Scene.OnImGuiRender();
-				m_ImGuiLayer->End();
-			}*/
-
-			// Perform Light Pass
+			// Light Pass
 			m_Scene.OnMidFrameRender();
 
-			m_Scene.OnPostRender();
+			// Render UI
+			{
+				m_ImGuiLayer->Begin();
+				for (Layer* layer : m_LayerStack) {
+					layer->OnImGuiRender();
+				}
+				m_Scene.OnImGuiRender();
+				m_ImGuiLayer->End();
+			}
 
+			m_Scene.OnPostRender();
 		}
 	}
 

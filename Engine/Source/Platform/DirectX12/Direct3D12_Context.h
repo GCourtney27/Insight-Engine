@@ -65,6 +65,7 @@ namespace Insight {
 		virtual ~Direct3D12Context();
 
 		virtual bool Init() override;
+		virtual bool PostInit() override;
 		virtual void OnUpdate(const float& deltaTime) override;
 		virtual void OnPreFrameRender() override;
 		virtual void OnMidFrameRender() override;
@@ -81,7 +82,7 @@ namespace Insight {
 		//inline ID3D12DescriptorHeap& GetShaderVisibleDescriptorHeap() const { return *m_pMainDescriptorHeap.Get(); }
 
 		inline ID3D12Resource& GetConstantBufferPerObjectUploadHeap() const { return *m_PerObjectCBV[m_FrameIndex].Get(); }
-		inline UINT8& GetConstantBufferViewGPUHeapAddress() { return *m_cbvGPUAddress[m_FrameIndex]; }
+		inline UINT8& GetConstantBufferViewGPUHeapAddress() { return *m_cbvPerObjectGPUAddress[m_FrameIndex]; }
 
 		CD3DX12_CPU_DESCRIPTOR_HANDLE& GetShaderVisibleDescriptorHeapHandleWithOffset() { return m_CbvSrvDescriptorHeapHandleWithOffset; }
 		ID3D12Resource* GetRenderTarget() const { return m_pRenderTargets[m_FrameIndex].Get(); }
@@ -89,13 +90,12 @@ namespace Insight {
 		D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE handle;
-			//handle.ptr = m_rtvHeap.hCPUHeapStart.ptr + m_rtvDescriptorSize * m_FrameIndex;
 			handle.ptr = m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + m_rtvDescriptorSize * m_FrameIndex;
 			return handle;
 		}
 
-		void CloseCommandListAndSignalCommandQueue();// TODO TEMP
 	private:
+		void CloseCommandListAndSignalCommandQueue();// TODO TEMP
 		// Per-Frame
 		void PopulateCommandLists();
 		void MoveToNextFrame();
@@ -183,6 +183,7 @@ namespace Insight {
 		//1: SRV-Normal(RTV->SRV)
 		//2: SRV-Position(RTV->SRV)
 		//3: SRV-Depth(DSV->SRV)
+		//4: CBV-Light data
 		CDescriptorHeapWrapper				m_cbvsrvHeap;
 
 		CD3DX12_CPU_DESCRIPTOR_HANDLE		m_CbvSrvDescriptorHeapHandleWithOffset;
@@ -214,15 +215,16 @@ namespace Insight {
 		static const UINT m_ResolutionOptionsCount;
 		static UINT m_ResolutionIndex;
 
+		ComPtr<ID3D12Resource> m_LightCBV[m_FrameBufferCount];
+		UINT8* m_cbvLightBufferGPUAddress[m_FrameBufferCount];
+
 		ComPtr<ID3D12Resource> m_PerObjectCBV[m_FrameBufferCount];
-		UINT8* m_cbvGPUAddress[m_FrameBufferCount];
+		UINT8* m_cbvPerObjectGPUAddress[m_FrameBufferCount];
 
 		ComPtr<ID3D12Resource> m_PerFrameCBV[m_FrameBufferCount];
 		UINT8* m_cbvPerFrameGPUAddress[m_FrameBufferCount];
 		CB_PS_VS_PerFrame m_PerFrameData;
 
-		ComPtr<ID3D12Resource> m_LightConstantBuffer;
-		UINT8* m_cbvLightBufferGPUAddress[m_FrameBufferCount];
 
 #define MAX_POINT_LIGHTS 4
 		//CB_PS_PointLight m_PointLights[MAX_POINT_LIGHTS];

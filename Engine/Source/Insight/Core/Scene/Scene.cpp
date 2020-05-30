@@ -32,22 +32,22 @@ namespace Insight {
 			StrongActorComponentPtr ptr = m_pTestActor->CreateDefaultSubobject<StaticMeshComponent>();
 			reinterpret_cast<StaticMeshComponent*>(ptr.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Models/nanosuit/nanosuit.obj"));
 			
-			//m_pTestActor2 = new AActor(2, "Test actor 2"); // TODO: make the id be its index in the scene
-			//StrongActorComponentPtr ptr2 = m_pTestActor2->CreateDefaultSubobject<StaticMeshComponent>();
-			//reinterpret_cast<StaticMeshComponent*>(ptr2.get())->AttachMesh("../Assets/Objects/Primatives/sphere.obj");
+			m_pTestActor2 = new AActor(2, "Test actor 2"); // TODO: make the id be its index in the scene
+			StrongActorComponentPtr ptr2 = m_pTestActor2->CreateDefaultSubobject<StaticMeshComponent>();
+			reinterpret_cast<StaticMeshComponent*>(ptr2.get())->AttachMesh("../Assets/Objects/Primatives/sphere.obj");
 
-			//m_pTestActor3 = new AActor(3, "Test actor 3"); // TODO: make the id be its index in the scene
-			//StrongActorComponentPtr ptr3 = m_pTestActor3->CreateDefaultSubobject<StaticMeshComponent>();
-			//reinterpret_cast<StaticMeshComponent*>(ptr3.get())->AttachMesh("../Assets/Models/Dandelion/Var1/Textured_Flower.obj");
+			m_pTestActor3 = new AActor(3, "Test actor 3"); // TODO: make the id be its index in the scene
+			StrongActorComponentPtr ptr3 = m_pTestActor3->CreateDefaultSubobject<StaticMeshComponent>();
+			reinterpret_cast<StaticMeshComponent*>(ptr3.get())->AttachMesh("../Assets/Models/Dandelion/Var1/Textured_Flower.obj");
 		}
 
 
 		m_pSceneRoot->AddChild(m_pTestActor);
-		//m_pSceneRoot->AddChild(m_pTestActor2);
-		//m_pSceneRoot->AddChild(m_pTestActor3);
+		m_pSceneRoot->AddChild(m_pTestActor2);
+		m_pSceneRoot->AddChild(m_pTestActor3);
 		m_pSceneRoot->AddChild(m_pPlayerCharacter);
 
-		reinterpret_cast<Direct3D12Context*>(m_Renderer.get())->CloseCommandListAndSignalCommandQueue();// Very uber doober temp
+		reinterpret_cast<Direct3D12Context*>(m_Renderer.get())->PostInit();
 		return true;
 	}
 

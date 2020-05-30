@@ -1,3 +1,17 @@
+// TODO Make a light common include file that is accessable for standalone and debug builds
+struct PointLight
+{
+    float3 position;
+    float3 color;
+	
+    float linearFactor;
+    float constantFactor;
+    float quadraticFactor;
+	
+    float3 ambient;
+    float3 diffuse;
+    float3 specular;
+};
 
 cbuffer cbPerObject : register(b0)
 {
@@ -11,6 +25,11 @@ cbuffer cbPerFrame : register(b1)
     float3 cameraPosition;
     float deltaMs;
     float time;
+};
+
+cbuffer cbLights : register(b2)
+{
+    PointLight pointLights;
 };
 
 /* Geometry Pass */
@@ -42,7 +61,6 @@ struct PS_INPUT_GEOMPASS
     float3 tangent : TANGENT;
     float3 biTangent : BITANGENT;
 };
-
 
 /* Lighting Pass */
 struct VS_INPUT_LIGHTPASS

@@ -105,6 +105,12 @@ namespace Insight {
 		return true;
 	}
 
+	bool Direct3D12Context::PostInit()
+	{
+		CloseCommandListAndSignalCommandQueue();
+		return true;
+	}
+
 	void Direct3D12Context::OnUpdate(const float& deltaTime)
 	{
 		ACamera& playerCamera = APlayerCharacter::Get().GetCameraRef();
@@ -120,11 +126,11 @@ namespace Insight {
 
 		memcpy(m_cbvPerFrameGPUAddress[m_FrameIndex], &m_PerFrameData, sizeof(m_PerFrameData));
 
-		/*if (Input::IsKeyPressed('C')) {
+		if (Input::IsKeyPressed('C')) {
 			m_PointLights.position = playerCamera.GetTransform().GetPosition();
-		}*/
+		}
 
-		//memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex], &m_PointLights, sizeof(m_PointLights));
+		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex], &m_PointLights, sizeof(m_PointLights));
 	}
 
 	void Direct3D12Context::MoveToNextFrame()
@@ -189,7 +195,7 @@ namespace Insight {
 		m_pCommandList->OMSetRenderTargets(m_NumRTV, &m_rtvHeap.hCPUHeapStart, true, &m_dsvHeap.hCPUHeapStart);
 		m_pCommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 		m_pCommandList->SetGraphicsRootSignature(m_pRootSignature.Get());
-		m_pCommandList->SetGraphicsRootDescriptorTable(2, m_cbvsrvHeap.hGPU(0));
+		m_pCommandList->SetGraphicsRootDescriptorTable(3, m_cbvsrvHeap.hGPU(0));
 
 		{
 			//m_SphereRenderer.Render(m_pCommandList);
@@ -229,7 +235,7 @@ namespace Insight {
 		// Set Per-Frame Constant Buffers
 		m_pCommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV[m_FrameIndex]->GetGPUVirtualAddress());
 		// Set light buffer
-		//m_pCommandList->SetGraphicsRootConstantBufferView(2, m_ConstantBufferLightBufferUploadHeaps[m_FrameIndex]->GetGPUVirtualAddress());
+		m_pCommandList->SetGraphicsRootConstantBufferView(2, m_LightCBV[m_FrameIndex]->GetGPUVirtualAddress());
 	}
 
 	void Direct3D12Context::OnRender()
@@ -575,7 +581,7 @@ namespace Insight {
 	{
 		m_cbvsrvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 10, true);
 
-		//D3D12_CONSTANT_BUFFER_VIEW_DESC	descBuffer;
+		D3D12_CONSTANT_BUFFER_VIEW_DESC	descBuffer;
 
 		// PerFrame CBV
 		/*descBuffer.BufferLocation = m_PerFrameCBV->GetGPUVirtualAddress();
@@ -583,9 +589,9 @@ namespace Insight {
 		m_pLogicalDevice->CreateConstantBufferView(&descBuffer, m_cbvsrvHeap.hCPU(0));*/
 
 		// Light CBV
-		/*descBuffer.BufferLocation = m_PerFrameCBV->GetGPUVirtualAddress();
+		/*descBuffer.BufferLocation = m_LightCB->GetGPUVirtualAddress();
 		descBuffer.SizeInBytes = (sizeof(CB_PS_PointLight) + 255) & ~255;
-		m_pLogicalDevice->CreateConstantBufferView(&descBuffer, m_cbvsrvHeap.hCPU(1));*/
+		m_pLogicalDevice->CreateConstantBufferView(&descBuffer, m_cbvsrvHeap.hCPU(4));*/
 	}
 
 	void Direct3D12Context::CreateRootSignature()
@@ -594,10 +600,11 @@ namespace Insight {
 		// TODO: Eventualy textures should be put in the range array
 		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 0); // G-Buffer inputs
 
-		CD3DX12_ROOT_PARAMETER rootParameters[3];
+		CD3DX12_ROOT_PARAMETER rootParameters[4];
 		rootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL); // Per-Object constant buffer
 		rootParameters[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL); // Per-Frame constant buffer
-		rootParameters[2].InitAsDescriptorTable(1, &range[0], D3D12_SHADER_VISIBILITY_ALL); // G-Buffer inputs
+		rootParameters[2].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_ALL); // Light constant buffer
+		rootParameters[3].InitAsDescriptorTable(1, &range[0], D3D12_SHADER_VISIBILITY_ALL); // G-Buffer inputs
 
 		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
 		descRootSignature.Init(_countof(rootParameters), rootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
@@ -803,7 +810,7 @@ namespace Insight {
 	{
 		HRESULT hr;
 
-		CD3DX12_HEAP_PROPERTIES heapProperty(D3D12_HEAP_TYPE_UPLOAD);
+		/*CD3DX12_HEAP_PROPERTIES heapProperty(D3D12_HEAP_TYPE_UPLOAD);
 		D3D12_RESOURCE_DESC resourceDesc;
 		ZeroMemory(&resourceDesc, sizeof(resourceDesc));
 		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
@@ -814,13 +821,30 @@ namespace Insight {
 		resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
 		resourceDesc.DepthOrArraySize = 1;
 		resourceDesc.Height = 1;
-		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;*/
 
 		//resourceDesc.Width = sizeof(CB_PS_VS_PerFrame);
 		//m_pLogicalDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&m_PerFrameCBV));
 
 		//resourceDesc.Width = sizeof(CB_PS_PointLight);
 		//m_pLogicalDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&m_LightConstantBuffer));
+
+		// Light Constant buffer
+		for (int i = 0; i < m_FrameBufferCount; ++i)
+		{
+			hr = m_pLogicalDevice->CreateCommittedResource(
+				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+				D3D12_HEAP_FLAG_NONE,
+				&CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
+				D3D12_RESOURCE_STATE_GENERIC_READ,
+				nullptr,
+				IID_PPV_ARGS(&m_LightCBV[i]));
+			m_LightCBV[i]->SetName(L"Constant Buffer Light Buffer Upload Resource Heap");
+			ThrowIfFailed(hr, "Failed to create upload heap for light buffer upload resource heaps");
+			CD3DX12_RANGE readRange(0, 0);
+			hr = m_LightCBV[i]->Map(0, &readRange, reinterpret_cast<void**>(&m_cbvLightBufferGPUAddress[i]));
+			ThrowIfFailed(hr, "Failed to map upload heap for light buffer upload resource heaps");
+		}
 
 		// PerObject Constant buffer
 		for (int i = 0; i < m_FrameBufferCount; ++i)
@@ -835,7 +859,7 @@ namespace Insight {
 			m_PerObjectCBV[i]->SetName(L"Constant Buffer Per-Object Upload Resource Heap");
 			ThrowIfFailed(hr, "Failed to create upload heap for per-object upload resource heaps");
 			CD3DX12_RANGE readRange(0, 0);
-			hr = m_PerObjectCBV[i]->Map(0, &readRange, reinterpret_cast<void**>(&m_cbvGPUAddress[i]));
+			hr = m_PerObjectCBV[i]->Map(0, &readRange, reinterpret_cast<void**>(&m_cbvPerObjectGPUAddress[i]));
 			ThrowIfFailed(hr, "Failed to map upload heap for per-object upload resource heaps");
 		}
 
