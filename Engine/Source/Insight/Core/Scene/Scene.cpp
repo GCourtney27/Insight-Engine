@@ -90,23 +90,23 @@ namespace Insight {
 		}
 		ImGui::End();
 
-		/*ImGui::Begin("Inspector 2");
+		ImGui::Begin("Inspector 2");
 		{
 			ImGui::Text(m_pTestActor2->GetDisplayName());
 			ImGui::DragFloat3("Position", &m_pTestActor2->GetTransformRef().GetPositionRef().x, 0.05f, -100.0f, 100.0f);
 			ImGui::DragFloat3("Scale", &m_pTestActor2->GetTransformRef().GetScaleRef().x, 0.05f, -100.0f, 100.0f);
 			ImGui::DragFloat3("Rotation", &m_pTestActor2->GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);
 		}
-		ImGui::End();*/
+		ImGui::End();
 
-		/*ImGui::Begin("Inspector 3");
+		ImGui::Begin("Inspector 3");
 		{
 			ImGui::Text(m_pTestActor3->GetDisplayName());
 			ImGui::DragFloat3("Position", &m_pTestActor3->GetTransformRef().GetPositionRef().x, 0.05f, -100.0f, 100.0f);
 			ImGui::DragFloat3("Scale", &m_pTestActor3->GetTransformRef().GetScaleRef().x, 0.05f, -100.0f, 100.0f);
 			ImGui::DragFloat3("Rotation", &m_pTestActor3->GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);
 		}
-		ImGui::End();*/
+		ImGui::End();
 	}
 
 	void Scene::OnPreRender()

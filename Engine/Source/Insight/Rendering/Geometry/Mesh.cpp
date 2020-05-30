@@ -46,7 +46,7 @@ namespace Insight {
 	{
 		m_Transform.SetWorldMatrix(XMMatrixMultiply(parentMat, m_Transform.GetLocalMatrix()));
 		
-		XMMATRIX worldMatTransposed = XMMatrixTranspose(m_Transform.GetLocalMatrixRef());
+		XMMATRIX worldMatTransposed = XMMatrixTranspose(m_Transform.GetWorldMatrixRef());
 		XMFLOAT4X4 worldFloat;
 		XMStoreFloat4x4(&worldFloat, worldMatTransposed);
 
