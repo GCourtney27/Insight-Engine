@@ -26,6 +26,8 @@ namespace Insight {
 		virtual void Tick(const float& deltaMs);
 		virtual void Exit();
 
+		virtual void OnImGuiRender() override;
+
 		 CB_PS_PointLight GetConstantBuffer() { return m_ShaderCB; }
 
 	private:

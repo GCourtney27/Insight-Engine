@@ -29,13 +29,8 @@ namespace Insight {
 	void SceneNode::RenderSceneHeirarchy()
 	{
 		size_t numChildrenObjects = m_Children.size();
-		if (numChildrenObjects == 0) {
-
-		}
-		else {
-			for (size_t i = 0; i < numChildrenObjects; ++i) {
-				m_Children[i]->RenderSceneHeirarchy();
-			}
+		for (size_t i = 0; i < numChildrenObjects; ++i) {
+			m_Children[i]->RenderSceneHeirarchy();
 		}
 	}
 

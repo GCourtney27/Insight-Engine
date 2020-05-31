@@ -2,6 +2,7 @@
 
 #include "APoint_Light.h"
 #include "Platform/DirectX12/Direct3D12_Context.h"
+#include "imgui.h"
 
 namespace Insight {
 
@@ -72,6 +73,20 @@ namespace Insight {
 
 	void APointLight::Exit()
 	{
+	}
+
+	void APointLight::OnImGuiRender()
+	{
+		AActor::OnImGuiRender();
+
+		ImGui::Text("Fall-off");
+		ImGui::DragFloat("Linear", &m_ShaderCB.linear, 0.01f, -1.0f, 1.0f);
+		ImGui::DragFloat("Quadratic", &m_ShaderCB.quadratic, 0.01f, -1.0f, 1.0f);
+		ImGui::DragFloat("Constant", &m_ShaderCB.constant, 0.01f, -1.0f, 1.0f);
+		
+		ImGui::Text("Rendering");
+		ImGui::ColorEdit3("Diffuse", &m_ShaderCB.diffuse.x, ImGuiColorEditFlags_PickerHueWheel);
+		ImGui::ColorEdit3("Specular", &m_ShaderCB.specular.x, ImGuiColorEditFlags_PickerHueWheel);
 	}
 
 }

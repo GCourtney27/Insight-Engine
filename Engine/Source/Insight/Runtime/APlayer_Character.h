@@ -22,6 +22,7 @@ namespace Insight {
 		virtual void OnPreRender(XMMATRIX parentMat) override;
 		virtual void OnRender() override;
 		void RenderSceneHeirarchy() override;
+		void OnImGuiRender() override;
 
 		ACamera& GetCameraRef() { return *m_Camera; }
 
