@@ -20,17 +20,15 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
 	
     float3 albedoBufferSample     = t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
     float3 normalBufferSample     = t_NormalGBuffer.Sample(s_LinearWrapSampler , ps_in.texCoords).rgb;
-    float3 t_RoughnessMetallicAOGBufferSample = t_RoughnessMetallicAOGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
+    float3 t_RoughMetAOBufferSample = t_RoughnessMetallicAOGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
     float3 positionBufferSample   = t_PositionGBuffer.Sample(s_LinearWrapSampler , ps_in.texCoords).rgb;
     float depthBufferSample       = t_DepthGBuffer.Sample(s_LinearWrapSampler , ps_in.texCoords).r;
     
-    float roughnessSample = t_RoughnessMetallicAOGBufferSample.r;
-    float metallicSample = t_RoughnessMetallicAOGBufferSample.g;
-    float aoSample = t_RoughnessMetallicAOGBufferSample.b;
+    float roughnessSample = t_RoughMetAOBufferSample.r;
+    float metallicSample = t_RoughMetAOBufferSample.g;
+    float aoSample = t_RoughMetAOBufferSample.b;
     
     float z = LinearizeDepth(depthBufferSample) / cameraFarZ;
-    return float4(albedoBufferSample, 1.0);
-    return float4(z, z, z, 1.0);
     
     float3 normal = (normalBufferSample);
     float3 viewDirection = normalize(cameraPosition - positionBufferSample);
@@ -40,10 +38,6 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
     {
         result += CalculatePointLight(pointLights[i], normal, positionBufferSample, viewDirection, ps_in.texCoords);
     }
-    
-	
-    //float3 mapped = float3(1.0) - pow(-result.rgb * cameraExposure);
-    //mapped = pow(mapped, float3(1.0 / gamma));
     
     result = GammaCorrect(result);
     return float4(result, 1.0);
@@ -67,7 +61,7 @@ float3 CalculatePointLight(PointLight light, float3 normal, float3 fragPosition,
     float3 halfwayDir = normalize(lightDir + viewDirection);
 	
     float diffuseFactor = max(dot(lightDir, normal), 0.0);
-    float specularFactor = pow(max(dot(normal, halfwayDir), 0.0), 16.0); // TODO load in shininess from texture
+    float specularFactor = pow(max(dot(normal, halfwayDir), 0.0), 16.0);
 	
     float distance = length(light.position - fragPosition);
     float attenuation = 1.0 / (light.constantFactor + light.linearFactor * distance + light.quadraticFactor * (distance * distance));

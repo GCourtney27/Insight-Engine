@@ -26,14 +26,14 @@ PS_OUTPUT_GEOMPASS main(PS_INPUT_GEOMPASS ps_in) : SV_TARGET
                                         normalize(ps_in.biTangent),
                                         normalize(ps_in.normal));
     
-    //float3 normal; // TODO Replace ps_in.normal with t_Normal.Sample(s_LinearWrapSampler , ps_in.texCoords);
-    //normal.x = normalSample.x * 2.0f - 1.0f;
-    //normal.y = normalSample.y * 2.0f + 1.0f;
-    //normal.z = normalSample.z;
-    //normal = normalize(mul(normal, tanToView));
+    float3 normal;
+    normal.x = ps_in.normal.x * 2.0f - 1.0f;
+    normal.y = -ps_in.normal.y * 2.0f + 1.0f;
+    normal.z = ps_in.normal.z;
+    normal = normalize(mul(normal, tanToView));
     
     ps_out.albedo = t_AlbedoObject.Sample(s_LinearWrapSampler, ps_in.texCoords);
-    ps_out.normal = float4(normalSample, 1.0);
+    ps_out.normal = float4(ps_in.normal, 1.0);
     ps_out.roughnessMetallicAO.r = t_RougnessObject.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
     ps_out.roughnessMetallicAO.g = t_MetallicObject.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
     ps_out.roughnessMetallicAO.b = t_AOObject.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
