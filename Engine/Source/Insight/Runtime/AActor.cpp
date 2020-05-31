@@ -12,40 +12,41 @@ namespace Insight {
 		: m_id(id)
 	{
 		SceneNode::SetDisplayName(actorName);
+
 	}
 
 	AActor::~AActor()
 	{
 	}
 
-	// Draw the heirarchy of the actor and its children to ImGui
 	void AActor::RenderSceneHeirarchy()
 	{
-		const auto openFlags = ImGuiTreeNodeFlags_OpenOnArrow | m_Children.empty() ? ImGuiTreeNodeFlags_Leaf : 0;
+		//const auto openFlags =  m_Children.empty() ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+		ImGuiTreeNodeFlags treeFlags = ImGuiTreeNodeFlags_OpenOnArrow | m_Children.empty() ? ImGuiTreeNodeFlags_Leaf : 0 | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
-		if (ImGui::TreeNodeEx(SceneNode::GetDisplayName(), openFlags))
-		{
-			if (ImGui::IsItemClicked()) {
-				Application::Get().GetScene().SetSelectedActor(this);
+		const bool isExpanded = ImGui::TreeNodeEx(SceneNode::GetDisplayName(), treeFlags);
 
-				SceneNode::RenderSceneHeirarchy();
+		if (ImGui::IsItemClicked()) {
+			Application::Get().GetScene().SetSelectedActor(this);
+		}
 
-				for (size_t i = 0; i < m_NumComponents; ++i)
-				{
-					m_Components[i]->RenderSceneHeirarchy();
-				}
-			}
-			
+		if (isExpanded) {
+
+			SceneNode::RenderSceneHeirarchy();
+			/*for (size_t i = 0; i < m_NumComponents; ++i) {
+				m_Components[i]->RenderSceneHeirarchy();
+			}*/
+
 			ImGui::TreePop();
 			ImGui::Spacing();
 		}
-
 	}
 
 	void AActor::OnImGuiRender()
 	{
 		ImGui::Text(SceneNode::GetDisplayName());
 
+		ImGui::Text("Transform");
 		ImGui::DragFloat3("Position", &SceneNode::GetTransformRef().GetPositionRef().x, 0.05f, -100.0f, 100.0f);
 		ImGui::DragFloat3("Scale", &SceneNode::GetTransformRef().GetScaleRef().x, 0.05f, -100.0f, 100.0f);
 		ImGui::DragFloat3("Rotation", &SceneNode::GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);

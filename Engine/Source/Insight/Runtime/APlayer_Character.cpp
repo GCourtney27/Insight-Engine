@@ -55,17 +55,13 @@ namespace Insight {
 
 	void APlayerCharacter::RenderSceneHeirarchy()
 	{
-		if (ImGui::TreeNode(SceneNode::GetDisplayName()))
-		{
-			SceneNode::RenderSceneHeirarchy();
+		AActor::RenderSceneHeirarchy();
+	}
 
-			for (size_t i = 0; i < m_NumComponents; ++i)
-			{
-				m_Components[i]->RenderSceneHeirarchy();
-			}
-			ImGui::TreePop();
-			ImGui::Spacing();
-		}
+	void APlayerCharacter::OnImGuiRender()
+	{
+		AActor::OnImGuiRender();
+		ImGui::Text("Hello from player character");
 	}
 
 	void APlayerCharacter::ProcessInput(const float& deltaMs)

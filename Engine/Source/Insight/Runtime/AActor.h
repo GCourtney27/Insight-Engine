@@ -73,7 +73,7 @@ namespace Insight {
 		UINT m_NumComponents = 0;
 		ActorId m_id;
 	private:
-		
+
 	};
 }
 
