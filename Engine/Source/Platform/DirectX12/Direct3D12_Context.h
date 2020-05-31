@@ -40,8 +40,8 @@ namespace Insight {
 		virtual bool PostInit() override;
 		virtual void OnUpdate(const float& deltaTime) override;
 		virtual void OnPreFrameRender() override;
-		virtual void OnMidFrameRender() override;
 		virtual void OnRender() override;
+		virtual void OnMidFrameRender() override;
 		virtual void ExecuteDraw() override;
 		virtual void SwapBuffers() override;
 		virtual void OnWindowResize() override;
@@ -51,7 +51,7 @@ namespace Insight {
 		inline ID3D12Device& GetDeviceContext() const { return *m_pLogicalDevice.Get(); }
 		inline ID3D12GraphicsCommandList& GetCommandList() const { return *m_pCommandList.Get(); }
 
-		inline ID3D12DescriptorHeap& GetCBVSRVDescriptorHeap() const { return *m_cbvsrvHeap.pDH.Get(); }
+		inline CDescriptorHeapWrapper& GetCBVSRVDescriptorHeap() { return m_cbvsrvHeap; }
 
 		inline ID3D12Resource& GetConstantBufferPerObjectUploadHeap() const { return *m_PerObjectCBV[m_FrameIndex].Get(); }
 		inline UINT8& GetConstantBufferViewGPUHeapAddress() { return *m_cbvPerObjectGPUAddress[m_FrameIndex]; }
@@ -156,10 +156,11 @@ namespace Insight {
 		//1: SRV-Normal(RTV->SRV)
 		//2: SRV-Position(RTV->SRV)
 		//3: SRV-Depth(DSV->SRV)
-		CDescriptorHeapWrapper				m_cbvsrvHeap;
 		//4: SRV-Albedo(SRV)
 		//5: SRV-Normal(SRV)
 		//6: SRV-Specular(SRV)
+		CDescriptorHeapWrapper				m_cbvsrvHeap;
+		
 
 		CD3DX12_CPU_DESCRIPTOR_HANDLE		m_CbvSrvDescriptorHeapHandleWithOffset;
 

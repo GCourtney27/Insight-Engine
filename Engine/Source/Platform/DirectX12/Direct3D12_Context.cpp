@@ -200,7 +200,7 @@ namespace Insight {
 		m_pCommandList->SetGraphicsRootDescriptorTable(3, m_cbvsrvHeap.hGPU(0));
 
 		{
-			//texture.Bind();
+			m_Texture.Bind();
 		}
 
 	}
@@ -580,15 +580,15 @@ namespace Insight {
 
 	void Direct3D12Context::CreateConstantBufferViews()
 	{
-		m_cbvsrvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 10, true);
-
+		HRESULT hr = m_cbvsrvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 20, true);
+		ThrowIfFailed(hr, "Fialed to create CBV SRV descriptor heap");
 		//D3D12_CONSTANT_BUFFER_VIEW_DESC	descBuffer;
 
 		// PerFrame CBV
 		/*descBuffer.BufferLocation = m_PerFrameCBV->GetGPUVirtualAddress();
 		descBuffer.SizeInBytes = (sizeof(CB_PS_VS_PerFrame) + 255) & ~255;
 		m_pLogicalDevice->CreateConstantBufferView(&descBuffer, m_cbvsrvHeap.hCPU(0));*/
-
+		
 		// Light CBV
 		/*descBuffer.BufferLocation = m_LightCB->GetGPUVirtualAddress();
 		descBuffer.SizeInBytes = (sizeof(CB_PS_PointLight) + 255) & ~255;
@@ -597,26 +597,26 @@ namespace Insight {
 
 	void Direct3D12Context::CreateRootSignature()
 	{
-		CD3DX12_DESCRIPTOR_RANGE range[1];
+		CD3DX12_DESCRIPTOR_RANGE range[2];
 		// TODO: Eventualy textures should be put in the range array
 		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 0); // G-Buffer inputs t0-t3
-		//range[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 4); // PerObject texture inputs - at register 4(t5) becasue gbuffer inputs already take the first 4(t0-t3) inputs
+		range[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 4); // PerObject texture inputs - at register 4(t5) becasue gbuffer inputs already take the first 4(t0-t3) inputs
 
-		CD3DX12_ROOT_PARAMETER rootParameters[4];
+		CD3DX12_ROOT_PARAMETER rootParameters[5];
 		rootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX); // Per-Object constant buffer
 		rootParameters[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL); // Per-Frame constant buffer
 		rootParameters[2].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_PIXEL); // Light constant buffer
 		rootParameters[3].InitAsDescriptorTable(1, &range[0], D3D12_SHADER_VISIBILITY_PIXEL); // G-Buffer inputs
-		//rootParameters[4].InitAsDescriptorTable(1, &range[1], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs
+		rootParameters[4].InitAsDescriptorTable(1, &range[1], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs
 
 		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
 		descRootSignature.Init(_countof(rootParameters), rootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
-		CD3DX12_STATIC_SAMPLER_DESC StaticSamplers[2];
-		StaticSamplers[0].Init(0, D3D12_FILTER_MIN_MAG_MIP_LINEAR);
-		StaticSamplers[1].Init(1, D3D12_FILTER_MIN_MAG_MIP_LINEAR);
-		descRootSignature.NumStaticSamplers = _countof(StaticSamplers);
-		descRootSignature.pStaticSamplers = StaticSamplers;
+		CD3DX12_STATIC_SAMPLER_DESC staticSamplers[2];
+		staticSamplers[0].Init(0, D3D12_FILTER_MIN_MAG_MIP_LINEAR);
+		staticSamplers[1].Init(1, D3D12_FILTER_MIN_MAG_MIP_LINEAR);
+		descRootSignature.NumStaticSamplers = _countof(staticSamplers);
+		descRootSignature.pStaticSamplers = staticSamplers;
 
 		ComPtr<ID3DBlob> rootSigBlob;
 		ComPtr<ID3DBlob> errorBlob;
@@ -809,13 +809,13 @@ namespace Insight {
 			m_PointLights[i].quadratic = 0.032f;
 		}
 
-		/*std::string texRelPath = FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Textures/Bricks/Bricks_Albedo.jpg");
+		std::string texRelPath = FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Textures/Bricks/Bricks_Albedo.jpg");
 		std::wstring texRelPatW = StringHelper::StringToWide(texRelPath);
-		Texture::eTextureType texType = Texture::eTextureType::ALBEDO;*/
-		//m_CbvSrvDescriptorHeapHandleWithOffset = m_cbvsrvHeap.hCPUHeapStart;
-		//m_CbvSrvDescriptorHeapHandleWithOffset = m_cbvsrvHeap.hCPU(4);
+		Texture::eTextureType texType = Texture::eTextureType::ALBEDO;
+		/*m_CbvSrvDescriptorHeapHandleWithOffset = m_cbvsrvHeap.hCPUHeapStart;
+		m_CbvSrvDescriptorHeapHandleWithOffset = m_cbvsrvHeap.hCPU(4);*/
 
-		//texture.Init(texRelPatW, texType, m_cbvsrvHeap);
+		m_Texture.Init(texRelPatW, texType, m_cbvsrvHeap);
 		
 	}
 

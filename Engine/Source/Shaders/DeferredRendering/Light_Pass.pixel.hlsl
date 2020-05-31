@@ -1,11 +1,11 @@
 #include <Deferred_Rendering.hlsli>	
 
-Texture2D t_Albedo		: register(t0);
-Texture2D t_Normal		: register(t1);
-Texture2D t_Position	: register(t2);
-Texture2D t_Depth		: register(t3);
+Texture2D t_AlbedoGBuffer		: register(t0);
+Texture2D t_NormalGBuffer		: register(t1);
+Texture2D t_PositionGBuffer	: register(t2);
+Texture2D t_DepthGBuffer		: register(t3);
 
-sampler s_Sampler : register(s0);
+sampler s_LinearWrapSampler : register(s0);
 
 // Function signatures
 // -------------------
@@ -17,13 +17,13 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
 {
 	float3 result = float3(0.0, 0.0, 0.0);
 	
-    float3 albedoBufferSample     = t_Albedo.Sample(s_Sampler, ps_in.texCoords).rgb;
-    float3 normalBufferSample     = t_Normal.Sample(s_Sampler, ps_in.texCoords).rgb;
-    float3 positionBufferSample   = t_Position.Sample(s_Sampler, ps_in.texCoords).xyz;
-    float depthBufferSample       = t_Depth.Sample(s_Sampler, ps_in.texCoords).r;
+    float3 albedoBufferSample     = t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
+    float3 normalBufferSample     = t_NormalGBuffer.Sample(s_LinearWrapSampler , ps_in.texCoords).rgb;
+    float3 positionBufferSample   = t_PositionGBuffer.Sample(s_LinearWrapSampler , ps_in.texCoords).xyz;
+    float depthBufferSample       = t_DepthGBuffer.Sample(s_LinearWrapSampler , ps_in.texCoords).r;
     
     //float z = LinearizeDepth(depthBufferSample) / cameraFarZ;
-    //return float4(z, z, z, 1.0);
+    return float4(albedoBufferSample, 1.0);
     
     float3 normal = (normalBufferSample);
     float3 viewDirection = normalize(cameraPosition - positionBufferSample);
@@ -65,7 +65,7 @@ float3 CalculatePointLight(PointLight light, float3 normal, float3 fragPosition,
     float distance = length(light.position - fragPosition);
     float attenuation = 1.0 / (light.constantFactor + light.linearFactor * distance + light.quadraticFactor * (distance * distance));
 	
-    float3 textureColor = t_Albedo.Sample(s_Sampler, texCoords).rgb;
+    float3 textureColor = t_AlbedoGBuffer.Sample(s_LinearWrapSampler, texCoords).rgb;
     float3 ambient = light.ambient * textureColor;
     float3 diffuse = light.diffuse * diffuseFactor * textureColor;
     float3 specular = specularFactor * 16.0;

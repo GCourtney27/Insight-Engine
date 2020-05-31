@@ -61,7 +61,8 @@ namespace Insight {
 	private:
 		ID3D12GraphicsCommandList*	m_pCommandList = nullptr;
 		
-		ComPtr<ID3D12Resource>		m_pTextureBuffer;
+		ComPtr<ID3D12Resource>		m_pTexture;
+		ComPtr<ID3D12Resource>		m_pTextureUploadHeap;
 		D3D12_RESOURCE_DESC			m_TextureDesc = {};
 		eTextureType				m_TextureType;
 		UINT32						m_GPUHeapIndex = 0u;
