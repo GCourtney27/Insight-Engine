@@ -4,6 +4,7 @@
 #include "Insight/Runtime/AActor.h"
 #include "imgui.h"
 #include "Scene_Node.h"
+#include "Insight/Core/Scene/Scene.h"
 
 namespace Insight {
 
@@ -28,8 +29,13 @@ namespace Insight {
 	void SceneNode::RenderSceneHeirarchy()
 	{
 		size_t numChildrenObjects = m_Children.size();
-		for (size_t i = 0; i < numChildrenObjects; ++i) {
-			m_Children[i]->RenderSceneHeirarchy();
+		if (numChildrenObjects == 0) {
+
+		}
+		else {
+			for (size_t i = 0; i < numChildrenObjects; ++i) {
+				m_Children[i]->RenderSceneHeirarchy();
+			}
 		}
 	}
 

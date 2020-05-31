@@ -29,20 +29,21 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
     float aoSample = t_RoughMetAOBufferSample.b;
     
     float3 normal = (normalBufferSample);
+    return float4(normal, 1.0);
     float3 viewDirection = normalize(cameraPosition - positionBufferSample);
     float3 F0 = float3(0.04, 0.04, 0.04);
     float3 baseReflectivity = lerp(F0, albedoBufferSample, metallicSample);
     
     float LO = float3(0.0, 0.0, 0.0);
-    // Calculate Radiance
+    // Calculate Light Radiance
     //result += CalculateDirectionalLight(dirLight, normal, viewDirection, ps_in.texCoords);
-    for (int i = 0; i < MAX_POINT_LIGHTS_SUPPORTED; i++)
+    for (int i = 0; i < numPointLights; i++)
     {
-        float3 lightDir = normalize(pointLights[i].position - positionBufferSample);
+        float3 lightDir = normalize(pointLights.position - positionBufferSample);
         float3 halfwayDir = normalize(viewDirection + lightDir);
-        float distance = length(lightDir);
-        float attenuation = 1.0 / (distance * distance);
-        float3 radiance = pointLights[i].diffuse * attenuation;
+        float distance = length(pointLights.position - positionBufferSample);
+        float attenuation = 1.0 / pointLights.constantFactor + pointLights.linearFactor * distance + pointLights.quadraticFactor * (distance * distance);
+        float3 radiance = pointLights.diffuse * attenuation;
         
         // Cook-Torrance BRDF
         float NdotV = max(dot(normal, viewDirection), 0.0000001);
@@ -63,13 +64,13 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
         LO += (kD * albedoBufferSample / PI + specular) * radiance * NdotL;
     }
     
-    float3 ambient = float3(0.3, 0.3, 0.3) * albedoBufferSample * aoSample;
+    float3 ambient = float3(0.03, 0.03, 0.03) * albedoBufferSample * aoSample;
     float3 result = ambient * LO;
     
     // HDR Tonemapping
-    result = result / (result + float3(1.0, 1.0, 1.0));
-    result = GammaCorrect(result);
-    return float4(result, 1.0);
+    float3 mapped = float3(1.0, 1.0, 1.0) - exp(-result * cameraExposure);
+    mapped = GammaCorrect(mapped);
+    return float4(mapped, 1.0);
 }
 
 float3 GammaCorrect(float3 target)
@@ -101,26 +102,3 @@ float3 CalculateDirectionalLight(DirectionalLight light, float3 normal, float3 v
     return (ambient + diffuse + specular);
 }
 
-float3 CalculatePointLight(PointLight light, float3 normal, float3 fragPosition, float3 viewDirection, float2 texCoords)
-{
-    float3 lightDir = normalize(light.position - fragPosition);
-    float3 halfwayDir = normalize(lightDir + viewDirection);
-	
-    float diffuseFactor = max(dot(lightDir, normal), 0.0);
-    float specularFactor = pow(max(dot(normal, halfwayDir), 0.0), 16.0);
-	
-    float distance = length(light.position - fragPosition);
-    float attenuation = 1.0 / (light.constantFactor + light.linearFactor * distance + light.quadraticFactor * (distance * distance));
-	
-    float3 textureColor = t_AlbedoGBuffer.Sample(s_LinearWrapSampler, texCoords).rgb;
-    float3 ambient = light.ambient * textureColor;
-    float3 diffuse = light.diffuse * diffuseFactor * textureColor;
-    float3 specular = specularFactor * 16.0;
-	
-    ambient *= attenuation;
-    diffuse *= attenuation;
-    specular *= attenuation;
-	
-    return (ambient + diffuse + specular);
-
-}

@@ -1,11 +1,11 @@
 #include <ie_pch.h>
 
 #include "Insight/Runtime/Components/Actor_Component.h"
+#include "Insight/Core/Application.h"
 #include "AActor.h"
 #include "imgui.h"
 
 namespace Insight {
-
 
 
 	AActor::AActor(ActorId id, ActorName actorName)
@@ -21,8 +21,13 @@ namespace Insight {
 	// Draw the heirarchy of the actor and its children to ImGui
 	void AActor::RenderSceneHeirarchy()
 	{
-		if (ImGui::TreeNode(SceneNode::GetDisplayName()))
+		const auto openFlags = ImGuiTreeNodeFlags_OpenOnArrow | m_Children.empty() ? ImGuiTreeNodeFlags_Leaf : 0;
+
+		if (ImGui::TreeNodeEx(SceneNode::GetDisplayName(), openFlags))
 		{
+			if(ImGui::IsItemClicked())
+				Application::Get().GetScene().SetSelectedActor(this);
+			
 			SceneNode::RenderSceneHeirarchy();
 
 			for (size_t i = 0; i < m_NumComponents; ++i)
@@ -32,6 +37,7 @@ namespace Insight {
 			ImGui::TreePop();
 			ImGui::Spacing();
 		}
+
 	}
 
 	bool AActor::OnInit()
@@ -62,7 +68,8 @@ namespace Insight {
 	{
 		if (m_Parent) {
 			GetTransformRef().SetWorldMatrix(XMMatrixMultiply(parentMat, GetTransformRef().GetLocalMatrixRef()));
-		} else {
+		}
+		else {
 			GetTransformRef().SetWorldMatrix(GetTransformRef().GetLocalMatrix());
 		}
 

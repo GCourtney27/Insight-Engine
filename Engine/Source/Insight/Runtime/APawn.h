@@ -21,7 +21,7 @@ namespace Insight {
 		};
 	public:
 		APawn(ActorId id, ActorName name = "Pawn");
-		~APawn();
+		virtual ~APawn();
 
 		virtual bool OnInit() override;
 		virtual void OnUpdate(const float& deltaMs) override;

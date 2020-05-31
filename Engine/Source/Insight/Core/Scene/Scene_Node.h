@@ -6,12 +6,13 @@
 
 namespace Insight {
 	
+	class Scene;
 
 	class INSIGHT_API SceneNode
 	{
 	public:
 		SceneNode(std::string displayName = "Default Scene Node");
-		~SceneNode();
+		virtual ~SceneNode();
 
 		void SetParent(SceneNode* parent) { m_Parent = parent; }
 		const Transform& GetTransform() { return m_RootTransform; }
