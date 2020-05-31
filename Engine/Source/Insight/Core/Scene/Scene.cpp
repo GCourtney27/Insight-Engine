@@ -30,20 +30,20 @@ namespace Insight {
 		{
 			m_pTestActor = new AActor(1, "Nanosuit"); // TODO: make the id be its index in the scene
 			StrongActorComponentPtr ptr = m_pTestActor->CreateDefaultSubobject<StaticMeshComponent>();
-			reinterpret_cast<StaticMeshComponent*>(ptr.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Models/nanosuit/nanosuit.obj"));
+			reinterpret_cast<StaticMeshComponent*>(ptr.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Models/nanosuit/nanosuit.obj"));
 			
 			m_pTestActor2 = new AActor(2, "Plane"); // TODO: make the id be its index in the scene
 			StrongActorComponentPtr ptr2 = m_pTestActor2->CreateDefaultSubobject<StaticMeshComponent>();
-			reinterpret_cast<StaticMeshComponent*>(ptr2.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Models/Quad.obj"));
+			reinterpret_cast<StaticMeshComponent*>(ptr2.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Models/Quad.obj"));
 			m_pTestActor2->GetTransformRef().Scale(100.0f, 100.0f, 100.0f);
 
 			m_pTestActor3 = new AActor(3, "Dandelion"); // TODO: make the id be its index in the scene
 			StrongActorComponentPtr ptr3 = m_pTestActor3->CreateDefaultSubobject<StaticMeshComponent>();
-			reinterpret_cast<StaticMeshComponent*>(ptr3.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Models/Dandelion/Var1/Textured_Flower.obj"));
+			reinterpret_cast<StaticMeshComponent*>(ptr3.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Models/Dandelion/Var1/Textured_Flower.obj"));
 
 			//m_pTestActor4 = new AActor(4, "Tiger Tank"); // TODO: make the id be its index in the scene
 			//StrongActorComponentPtr ptr4 = m_pTestActor4->CreateDefaultSubobject<StaticMeshComponent>();
-			//reinterpret_cast<StaticMeshComponent*>(ptr4.get())->AttachMesh("../Assets/Objects/Tiger/Tiger.obj");
+			//reinterpret_cast<StaticMeshComponent*>(ptr4.get())->AttachMesh("Objects/Tiger/Tiger.obj");
 			//m_pTestActor4->GetTransformRef().SetScale(Vector3(0.01f, 0.01f, 0.01f));
 			//m_pTestActor4->GetTransformRef().Translate(0.04f, 0.04f, 0.04f);
 

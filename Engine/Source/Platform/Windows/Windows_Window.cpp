@@ -239,7 +239,7 @@ namespace Insight {
 		int centerScreenY = GetSystemMetrics(SM_CYSCREEN) / 2 - m_Data.Height / 2;
 
 		m_WindowRect.left = centerScreenX;
-		m_WindowRect.top = centerScreenY;
+		m_WindowRect.top = centerScreenY + 35;
 		m_WindowRect.right = m_WindowRect.left + m_Data.Width;
 		m_WindowRect.bottom = m_WindowRect.top + m_Data.Height;
 
