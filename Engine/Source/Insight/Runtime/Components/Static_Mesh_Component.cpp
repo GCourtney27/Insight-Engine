@@ -47,6 +47,8 @@ namespace Insight {
 
 	void StaticMeshComponent::OnImGuiRender()
 	{
+
+		ImGui::Text("Hello from Static mesh component");
 	}
 
 	void StaticMeshComponent::RenderSceneHeirarchy()
