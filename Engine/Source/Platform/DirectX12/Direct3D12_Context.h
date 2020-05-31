@@ -214,7 +214,10 @@ namespace Insight {
 
 #define MAX_POINT_LIGHTS_SUPPORTED 4
 		CB_PS_PointLight m_PointLights[MAX_POINT_LIGHTS_SUPPORTED];
-		int ConstantBufferLightAlignedSize = (sizeof(CB_PS_PointLight) + 255) & ~255;
+		int ConstantBufferPointLightAlignedSize = (sizeof(CB_PS_PointLight) + 255) & ~255;
+		CB_PS_DirectionalLight m_DirectionalLight;
+		int ConstantBufferDirectionalLightAlignedSize = (sizeof(CB_PS_DirectionalLight) + 255) & ~255;
+
 
 		Texture m_AlbedoTexture;
 		Texture m_NormalTexture;

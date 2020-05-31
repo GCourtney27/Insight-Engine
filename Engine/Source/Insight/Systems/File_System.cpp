@@ -20,9 +20,9 @@ namespace Insight {
 	{
 		std::string relativePath;
 #if defined IE_DEBUG
-		relativePath += "../" + path;
+		relativePath += "../Assets/" + path;
 #elif defined IE_RELEASE
-		relativePath += "../../../" + path;
+		relativePath += "../../../Assets/" + path;
 #endif
 		return relativePath;
 	}

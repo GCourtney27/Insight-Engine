@@ -59,7 +59,7 @@ namespace Insight {
 	void SkySphereComponent::OnAttach()
 	{
 		StrongActorComponentPtr comp = m_pOwner->CreateDefaultSubobject<StaticMeshComponent>();
-		reinterpret_cast<StaticMeshComponent*>(comp.get())->AttachMesh("Assets/Models/Geometry/Sphere.obj");
+		reinterpret_cast<StaticMeshComponent*>(comp.get())->AttachMesh("Models/Geometry/Sphere.obj");
 
 	}
 

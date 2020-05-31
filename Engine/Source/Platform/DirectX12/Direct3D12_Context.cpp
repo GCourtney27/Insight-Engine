@@ -128,10 +128,11 @@ namespace Insight {
 		}
 
 		UINT offset = 0u;
-		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (ConstantBufferLightAlignedSize * offset++), &m_PointLights[0], ConstantBufferLightAlignedSize);
-		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (ConstantBufferLightAlignedSize * offset++), &m_PointLights[1], ConstantBufferLightAlignedSize);
-		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (ConstantBufferLightAlignedSize * offset++), &m_PointLights[3], ConstantBufferLightAlignedSize);
-		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (ConstantBufferLightAlignedSize * offset++), &m_PointLights[4], ConstantBufferLightAlignedSize);
+		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (ConstantBufferPointLightAlignedSize * offset++), &m_PointLights[0], ConstantBufferPointLightAlignedSize);
+		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (ConstantBufferPointLightAlignedSize * offset++), &m_PointLights[1], ConstantBufferPointLightAlignedSize);
+		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (ConstantBufferPointLightAlignedSize * offset++), &m_PointLights[3], ConstantBufferPointLightAlignedSize);
+		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (ConstantBufferPointLightAlignedSize * offset++), &m_PointLights[4], ConstantBufferPointLightAlignedSize);
+		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (ConstantBufferDirectionalLightAlignedSize * offset++), &m_DirectionalLight, ConstantBufferDirectionalLightAlignedSize);
 
 	}
 
@@ -826,28 +827,28 @@ namespace Insight {
 			m_PointLights[i].quadratic = 0.032f;
 		}
 
-		std::string texRelPathAlbedo = FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Textures/RustedMetal/RustedMetal_Albedo.png");
-		std::wstring texRelPathAlbedoW = StringHelper::StringToWide(texRelPathAlbedo);
+		m_DirectionalLight.ambient = XMFLOAT3(0.3f, 0.3f, 0.3f);
+		m_DirectionalLight.diffuse = XMFLOAT3(1.0f, 1.0f, 1.0f);
+		m_DirectionalLight.direction = XMFLOAT3(-0.2f, -1.0f, -0.3f);
+		m_DirectionalLight.specular = XMFLOAT3(1.0f, 1.0f, 1.0f);
+
+		std::wstring texRelPathAlbedoW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedMetal/RustedMetal_Albedo.png"));
 		Texture::eTextureType texTypeAlbedo = Texture::eTextureType::ALBEDO;
 		m_AlbedoTexture.Init(texRelPathAlbedoW, texTypeAlbedo, m_cbvsrvHeap);
 
-		std::string texRelPathNormal = FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Textures/RustedMetal/RustedMetal_Normal.png");
-		std::wstring texRelPathNormalW = StringHelper::StringToWide(texRelPathNormal);
+		std::wstring texRelPathNormalW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedMetal/RustedMetal_Normal.png"));
 		Texture::eTextureType texTypeNormal = Texture::eTextureType::NORMAL;
 		m_NormalTexture.Init(texRelPathNormalW, texTypeNormal, m_cbvsrvHeap);
 
-		std::string texRelPathRoughness = FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Textures/RustedMetal/RustedMetal_Roughness.png");
-		std::wstring texRelPathRoughnessW = StringHelper::StringToWide(texRelPathRoughness);
+		std::wstring texRelPathRoughnessW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedMetal/RustedMetal_Roughness.png"));
 		Texture::eTextureType texTypeSpecular = Texture::eTextureType::ROUGHNESS;
 		m_RoughnessTexture.Init(texRelPathRoughnessW, texTypeSpecular, m_cbvsrvHeap);
 
-		std::string texRelPathMetallic = FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Textures/RustedMetal/RustedMetal_Metallic.png");
-		std::wstring texRelPathMetallicW = StringHelper::StringToWide(texRelPathMetallic);
+		std::wstring texRelPathMetallicW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedMetal/RustedMetal_Metallic.png"));
 		Texture::eTextureType texTypeMetallic = Texture::eTextureType::METALLIC;
 		m_MetallicTexture.Init(texRelPathMetallicW, texTypeMetallic, m_cbvsrvHeap);
 		
-		std::string texRelPathAO = FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Textures/RustedMetal/RustedMetal_AO.png");
-		std::wstring texRelPathAOW = StringHelper::StringToWide(texRelPathAO);
+		std::wstring texRelPathAOW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedMetal/RustedMetal_AO.png"));
 		Texture::eTextureType texTypeAO = Texture::eTextureType::AO;
 		m_AOTexture.Init(texRelPathAOW, texTypeAO, m_cbvsrvHeap);
 	}
