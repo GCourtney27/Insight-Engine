@@ -12,7 +12,7 @@ namespace Insight {
 	StaticMeshComponent::StaticMeshComponent(StrongActorPtr pOwner)
 		: ActorComponent("Static Mesh Component", pOwner)
 	{
-		
+
 	}
 
 	StaticMeshComponent::~StaticMeshComponent()
@@ -34,32 +34,26 @@ namespace Insight {
 	}
 
 	void StaticMeshComponent::OnRender()
-	{		
+	{
 		//m_pModel->Render();
 		//m_pModel->Draw();
 	}
 
 	void StaticMeshComponent::OnUpdate(const float& deltaTime)
 	{
-		
+
 
 	}
 
 	void StaticMeshComponent::OnImGuiRender()
 	{
+		m_pModel->OnImGuiRender();
 
-		ImGui::Text("Hello from Static mesh component");
 	}
 
 	void StaticMeshComponent::RenderSceneHeirarchy()
 	{
-		//if (ImGui::TreeNode(m_ComponentName))
-		{
-			m_pModel->RenderSceneHeirarchy();
-
-			//ImGui::TreePop();
-			//ImGui::Spacing();
-		}
+		m_pModel->RenderSceneHeirarchy();
 	}
 
 	void StaticMeshComponent::AttachMesh(const std::string& path)

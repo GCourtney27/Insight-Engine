@@ -61,7 +61,6 @@ namespace Insight {
 	void APlayerCharacter::OnImGuiRender()
 	{
 		AActor::OnImGuiRender();
-		ImGui::Text("Hello from player character");
 	}
 
 	void APlayerCharacter::ProcessInput(const float& deltaMs)

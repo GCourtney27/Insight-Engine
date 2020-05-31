@@ -72,6 +72,8 @@ namespace Insight {
 
 	void ACamera::OnImGuiRender()
 	{
+		AActor::OnImGuiRender();
+
 		ImGui::Text("View");
 		ImGui::DragFloat("Field of View", &m_Fov, 0.5f, 0.0f, 180.0f);
 		ImGui::DragFloat("Near Z", &m_NearZ, 0.01f, 0.00001f, 5.0f);
