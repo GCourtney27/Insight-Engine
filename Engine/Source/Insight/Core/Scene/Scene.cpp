@@ -91,10 +91,8 @@ namespace Insight {
 		ImGui::Begin("Inspector");
 		{
 			if (m_pSelectedActor != nullptr) {
-				ImGui::Text(m_pSelectedActor->GetDisplayName());
-				ImGui::DragFloat3("Position", &m_pSelectedActor->GetTransformRef().GetPositionRef().x, 0.05f, -100.0f, 100.0f);
-				ImGui::DragFloat3("Scale", &m_pSelectedActor->GetTransformRef().GetScaleRef().x, 0.05f, -100.0f, 100.0f);
-				ImGui::DragFloat3("Rotation", &m_pSelectedActor->GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);
+				
+				m_pSelectedActor->OnImGuiRender();
 			}
 		}
 		ImGui::End();

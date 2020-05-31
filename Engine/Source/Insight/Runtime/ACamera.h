@@ -66,6 +66,7 @@ namespace Insight {
 
 		void SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ);
 		void RenderSceneHeirarchy() override;
+		void OnImGuiRender() override;
 
 	private:
 		void UpdateViewMatrix();

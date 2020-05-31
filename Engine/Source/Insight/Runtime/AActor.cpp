@@ -25,19 +25,36 @@ namespace Insight {
 
 		if (ImGui::TreeNodeEx(SceneNode::GetDisplayName(), openFlags))
 		{
-			if(ImGui::IsItemClicked())
+			if (ImGui::IsItemClicked()) {
 				Application::Get().GetScene().SetSelectedActor(this);
-			
-			SceneNode::RenderSceneHeirarchy();
 
-			for (size_t i = 0; i < m_NumComponents; ++i)
-			{
-				m_Components[i]->RenderSceneHeirarchy();
+				SceneNode::RenderSceneHeirarchy();
+
+				for (size_t i = 0; i < m_NumComponents; ++i)
+				{
+					m_Components[i]->RenderSceneHeirarchy();
+				}
 			}
+			
 			ImGui::TreePop();
 			ImGui::Spacing();
 		}
 
+	}
+
+	void AActor::OnImGuiRender()
+	{
+		ImGui::Text(SceneNode::GetDisplayName());
+
+		ImGui::DragFloat3("Position", &SceneNode::GetTransformRef().GetPositionRef().x, 0.05f, -100.0f, 100.0f);
+		ImGui::DragFloat3("Scale", &SceneNode::GetTransformRef().GetScaleRef().x, 0.05f, -100.0f, 100.0f);
+		ImGui::DragFloat3("Rotation", &SceneNode::GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);
+
+		for (size_t i = 0; i < m_NumComponents; ++i)
+		{
+			ImGui::Spacing();
+			m_Components[i]->OnImGuiRender();
+		}
 	}
 
 	bool AActor::OnInit()

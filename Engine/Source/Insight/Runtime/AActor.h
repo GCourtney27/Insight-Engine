@@ -21,7 +21,8 @@ namespace Insight {
 		virtual ~AActor();
 
 		// Editor
-		void RenderSceneHeirarchy();
+		virtual void RenderSceneHeirarchy();
+		virtual void OnImGuiRender();
 
 		virtual bool OnInit();
 		virtual bool OnPostInit();
