@@ -1,9 +1,10 @@
 #include <Deferred_Rendering.hlsli>	
 
-Texture2D t_AlbedoGBuffer		: register(t0);
-Texture2D t_NormalGBuffer		: register(t1);
-Texture2D t_PositionGBuffer	    : register(t2);
-Texture2D t_DepthGBuffer		: register(t3);
+Texture2D t_AlbedoGBuffer		        : register(t0);
+Texture2D t_NormalGBuffer		        : register(t1);
+Texture2D t_RoughnessMetallicAOGBuffer  : register(t2);
+Texture2D t_PositionGBuffer	            : register(t3);
+Texture2D t_DepthGBuffer                : register(t4);
 
 sampler s_LinearWrapSampler : register(s0);
 
@@ -19,11 +20,17 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
 	
     float3 albedoBufferSample     = t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
     float3 normalBufferSample     = t_NormalGBuffer.Sample(s_LinearWrapSampler , ps_in.texCoords).rgb;
+    float3 t_RoughnessMetallicAOGBufferSample = t_RoughnessMetallicAOGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
     float3 positionBufferSample   = t_PositionGBuffer.Sample(s_LinearWrapSampler , ps_in.texCoords).rgb;
     float depthBufferSample       = t_DepthGBuffer.Sample(s_LinearWrapSampler , ps_in.texCoords).r;
     
-    //float z = LinearizeDepth(depthBufferSample) / cameraFarZ;
-    //return float4(albedoBufferSample, 1.0);
+    float roughnessSample = t_RoughnessMetallicAOGBufferSample.r;
+    float metallicSample = t_RoughnessMetallicAOGBufferSample.g;
+    float aoSample = t_RoughnessMetallicAOGBufferSample.b;
+    
+    float z = LinearizeDepth(depthBufferSample) / cameraFarZ;
+    return float4(albedoBufferSample, 1.0);
+    return float4(z, z, z, 1.0);
     
     float3 normal = (normalBufferSample);
     float3 viewDirection = normalize(cameraPosition - positionBufferSample);

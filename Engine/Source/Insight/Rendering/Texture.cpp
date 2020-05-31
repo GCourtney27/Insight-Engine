@@ -118,18 +118,15 @@ namespace Insight {
 
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pTexture.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 
-		//const UINT cbvSrvDescriptorSize = graphicsContext.GetDeviceContext().GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Texture2D.MipLevels = 1;
 		srvDesc.Format = m_TextureDesc.Format;
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		pDevice->CreateShaderResourceView(m_pTexture.Get(), &srvDesc, srvHeapHandle.hCPU(4 + s_NumSceneTextures));
+		pDevice->CreateShaderResourceView(m_pTexture.Get(), &srvDesc, srvHeapHandle.hCPU(5 + s_NumSceneTextures));
 		
 		m_GPUHeapIndex = s_NumSceneTextures;
 		s_NumSceneTextures++;
-
 
 		delete imageData;
 		return true;
@@ -173,23 +170,31 @@ namespace Insight {
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
 		CDescriptorHeapWrapper& cbvSrvHeapStart = graphicsContext.GetCBVSRVDescriptorHeap();
 		const unsigned int numRTVs = graphicsContext.GetNumRTVs();
-		
-		/*m_pCommandList->SetGraphicsRootDescriptorTable(4, cbvSrvHeapStart.hGPU(4 + m_GPUHeapIndex));
-		return;*/
 
 		switch (m_TextureType) {
 		case eTextureType::ALBEDO:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(4, cbvSrvHeapStart.hGPU(4 + m_GPUHeapIndex));
-			//CD3DX12_GPU_DESCRIPTOR_HANDLE cbvSrvHandle(cbvSrvHeapStart, numRTVs + m_GPUHeapIndex, cbvSrvDescriptorSize);
-			//m_pCommandList->SetGraphicsRootDescriptorTable(4, cbvSrvHeapStart.hGPU(4));
+			m_pCommandList->SetGraphicsRootDescriptorTable(4, cbvSrvHeapStart.hGPU(5 + m_GPUHeapIndex));
 			break;
 		}
 		case eTextureType::NORMAL:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(5, cbvSrvHeapStart.hGPU(4 + m_GPUHeapIndex));
-			//CD3DX12_GPU_DESCRIPTOR_HANDLE cbvSrvHandle(cbvSrvHeapStart, numRTVs + m_GPUHeapIndex, cbvSrvDescriptorSize);
-			//m_pCommandList->SetGraphicsRootDescriptorTable(4, cbvSrvHeapStart.hGPU(4));
+			m_pCommandList->SetGraphicsRootDescriptorTable(5, cbvSrvHeapStart.hGPU(5 + m_GPUHeapIndex));
+			break;
+		}
+		case eTextureType::ROUGHNESS:
+		{
+			m_pCommandList->SetGraphicsRootDescriptorTable(6, cbvSrvHeapStart.hGPU(5 + m_GPUHeapIndex));
+			break;
+		}
+		case eTextureType::METALLIC:
+		{
+			m_pCommandList->SetGraphicsRootDescriptorTable(7, cbvSrvHeapStart.hGPU(5 + m_GPUHeapIndex));
+			break;
+		}
+		case eTextureType::AO:
+		{
+			m_pCommandList->SetGraphicsRootDescriptorTable(8, cbvSrvHeapStart.hGPU(5 + m_GPUHeapIndex));
 			break;
 		}
 		default:

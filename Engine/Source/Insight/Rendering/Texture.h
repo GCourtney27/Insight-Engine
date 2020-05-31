@@ -19,12 +19,11 @@ namespace Insight {
 			NORMAL = 1,
 			ROUGHNESS = 2,
 			METALLIC = 3,
-			SPECULAR = 4,
-			AO = 5,
+			AO = 4,
 			// SKysphere
-			SKY_DIFFUSE = 6,
-			SKY_IRRADIENCE = 7,
-			SKY_ENVIRONMENT_MAP = 8
+			SKY_DIFFUSE = 5,
+			SKY_IRRADIENCE = 6,
+			SKY_ENVIRONMENT_MAP = 7
 
 		};
 

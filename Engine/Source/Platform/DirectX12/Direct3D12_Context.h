@@ -154,11 +154,15 @@ namespace Insight {
 
 		//0: SRV-Albedo(RTV->SRV)
 		//1: SRV-Normal(RTV->SRV)
-		//2: SRV-Position(RTV->SRV)
-		//3: SRV-Depth(DSV->SRV)
-		//4: SRV-Albedo(SRV)
-		//5: SRV-Normal(SRV)
-		//6: SRV-Specular(SRV)
+		//2: SRV-(R)Roughness/(G)Metallic/(B)AO(RTV->SRV)
+		//3: SRV-Position(RTV->SRV)
+		//4: SRV-Depth(DSV->SRV)
+		//-----PerObject-----
+		//5: SRV-Albedo(SRV)
+		//6: SRV-Normal(SRV)
+		//7: SRV-Roughness(SRV)
+		//8: SRV-Metallic(SRV)
+		//9: SRV-AO(SRV)
 		CDescriptorHeapWrapper				m_cbvsrvHeap;
 		
 
@@ -168,7 +172,7 @@ namespace Insight {
 		const UINT NORMAL_MAP_SHADER_REGISTER = Texture::eTextureType::NORMAL;
 		const UINT ROUGHNESS_MAP_SHADER_REGISTER = Texture::eTextureType::ROUGHNESS;
 		const UINT METALLIC_MAP_SHADER_REGISTER = Texture::eTextureType::METALLIC;
-		const UINT SPECULAR_MAP_SHADER_REGISTER = Texture::eTextureType::SPECULAR;
+		const UINT SPECULAR_MAP_ROUGHNESS_REGISTER = Texture::eTextureType::ROUGHNESS;
 		const UINT AO_MAP_SHADER_REGISTER = Texture::eTextureType::AO;
 
 		D3D12_VIEWPORT						m_ViewPort = {};
@@ -177,9 +181,14 @@ namespace Insight {
 		D3D12_DEPTH_STENCIL_VIEW_DESC		m_dsvDesc = {};
 
 		float								m_ClearColor[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
-		static const unsigned int			m_NumRTV = 3;
+		static const unsigned int			m_NumRTV = 4;
 		DXGI_FORMAT							m_DsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		DXGI_FORMAT							m_RtvFormat[3] = { DXGI_FORMAT_R11G11B10_FLOAT,DXGI_FORMAT_R8G8B8A8_SNORM,DXGI_FORMAT_R32G32B32A32_FLOAT };
+		DXGI_FORMAT							m_RtvFormat[4] = { 
+			DXGI_FORMAT_R11G11B10_FLOAT, // Albedo buffer
+			DXGI_FORMAT_R8G8B8A8_SNORM, // Normal
+			DXGI_FORMAT_R11G11B10_FLOAT, // (R)Roughness/(G)Metallic/(B)AO
+			DXGI_FORMAT_R32G32B32A32_FLOAT, // Position
+		};
 		float								m_ClearDepth = 1.0f;
 
 		// Utils
@@ -209,6 +218,9 @@ namespace Insight {
 
 		Texture m_AlbedoTexture;
 		Texture m_NormalTexture;
+		Texture m_RoughnessTexture;
+		Texture m_MetallicTexture;
+		Texture m_AOTexture;
 
 
 		const UINT PIX_EVENT_UNICODE_VERSION = 0;

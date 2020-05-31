@@ -202,6 +202,9 @@ namespace Insight {
 		{
 			m_AlbedoTexture.Bind();
 			m_NormalTexture.Bind();
+			m_RoughnessTexture.Bind();
+			m_MetallicTexture.Bind();
+			m_AOTexture.Bind();
 		}
 
 	}
@@ -508,14 +511,14 @@ namespace Insight {
 		dsvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		dsvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
-		m_pLogicalDevice->CreateShaderResourceView(m_pDepthStencilTexture.Get(), &dsvDesc, m_cbvsrvHeap.hCPU(3));
+		m_pLogicalDevice->CreateShaderResourceView(m_pDepthStencilTexture.Get(), &dsvDesc, m_cbvsrvHeap.hCPU(4));
 	}
 
 	void Direct3D12Context::CreateRenderTargetView()
 	{
 		HRESULT hr;
 
-		m_rtvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 3);
+		m_rtvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 4);
 		CD3DX12_HEAP_PROPERTIES heapProperty(D3D12_HEAP_TYPE_DEFAULT);
 
 		D3D12_RESOURCE_DESC resourceDesc = {};
@@ -546,7 +549,8 @@ namespace Insight {
 		}
 		m_pRenderTargetTextures[0]->SetName(L"Render Target Texture Diffuse");
 		m_pRenderTargetTextures[1]->SetName(L"Render Target Texture Normal");
-		m_pRenderTargetTextures[2]->SetName(L"Render Target Texture Position");
+		m_pRenderTargetTextures[2]->SetName(L"Render Target Texture (R)Roughness/(G)Metallic/(B)AO");
+		m_pRenderTargetTextures[3]->SetName(L"Render Target Texture Position");
 
 
 		D3D12_RENDER_TARGET_VIEW_DESC desc;
@@ -576,12 +580,13 @@ namespace Insight {
 		}
 		m_pRenderTargetTextures[0]->SetName(L"Render Target SRV Diffuse");
 		m_pRenderTargetTextures[1]->SetName(L"Render Target SRV Normal");
-		m_pRenderTargetTextures[2]->SetName(L"Render Target SRV Position");
+		m_pRenderTargetTextures[2]->SetName(L"Render Target SRV (R)Roughness/(G)Metallic/(B)AO");
+		m_pRenderTargetTextures[3]->SetName(L"Render Target SRV Position");
 	}
 
 	void Direct3D12Context::CreateConstantBufferViews()
 	{
-		HRESULT hr = m_cbvsrvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 20, true);
+		HRESULT hr = m_cbvsrvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 25, true);
 		ThrowIfFailed(hr, "Failed to create CBV SRV descriptor heap");
 		//D3D12_CONSTANT_BUFFER_VIEW_DESC	descBuffer;
 
@@ -598,19 +603,26 @@ namespace Insight {
 
 	void Direct3D12Context::CreateRootSignature()
 	{
-		CD3DX12_DESCRIPTOR_RANGE range[3];
+		CD3DX12_DESCRIPTOR_RANGE range[6];
 		// TODO: Eventualy textures should be put in the range array
-		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 0); // G-Buffer inputs t0-t3
-		range[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 4); // PerObject texture inputs - albedo //at register 4(t5) becasue gbuffer inputs already take the first 4(t0-t3) inputs
-		range[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 5); // PerObject texture inputs - normal //at register 4(t5) becasue gbuffer inputs already take the first 4(t0-t3) inputs
+		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 0); // G-Buffer inputs t0-t4
+		range[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 5); // PerObject texture inputs - Albedo
+		range[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 6); // PerObject texture inputs - Normal
+		range[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 7); // PerObject texture inputs - Roughness
+		range[4].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 8); // PerObject texture inputs - Metallic
+		range[5].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9); // PerObject texture inputs - AO
 
-		CD3DX12_ROOT_PARAMETER rootParameters[6];
+		CD3DX12_ROOT_PARAMETER rootParameters[9];
 		rootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX); // Per-Object constant buffer
 		rootParameters[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL); // Per-Frame constant buffer
 		rootParameters[2].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_PIXEL); // Light constant buffer
 		rootParameters[3].InitAsDescriptorTable(1, &range[0], D3D12_SHADER_VISIBILITY_PIXEL); // G-Buffer inputs
-		rootParameters[4].InitAsDescriptorTable(1, &range[1], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - albedo
-		rootParameters[5].InitAsDescriptorTable(1, &range[2], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - normal
+
+		rootParameters[4].InitAsDescriptorTable(1, &range[1], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Albedo
+		rootParameters[5].InitAsDescriptorTable(1, &range[2], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Normal
+		rootParameters[6].InitAsDescriptorTable(1, &range[3], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Roughness
+		rootParameters[7].InitAsDescriptorTable(1, &range[4], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Metallic
+		rootParameters[8].InitAsDescriptorTable(1, &range[5], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - AO
 
 		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
 		descRootSignature.Init(_countof(rootParameters), rootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
@@ -626,6 +638,7 @@ namespace Insight {
 
 		HRESULT hr = D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, rootSigBlob.GetAddressOf(), errorBlob.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to serialize root signature");
+		
 		hr = m_pLogicalDevice->CreateRootSignature(0, rootSigBlob->GetBufferPointer(), rootSigBlob->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature));
 		ThrowIfFailed(hr, "Failed to create root signature");
 	}
@@ -692,6 +705,7 @@ namespace Insight {
 		descPipelineState.RTVFormats[0] = m_RtvFormat[0];
 		descPipelineState.RTVFormats[1] = m_RtvFormat[1];
 		descPipelineState.RTVFormats[2] = m_RtvFormat[2];
+		descPipelineState.RTVFormats[3] = m_RtvFormat[3];
 		descPipelineState.DSVFormat = m_DsvFormat;
 		descPipelineState.SampleDesc.Count = 1;
 
@@ -812,16 +826,30 @@ namespace Insight {
 			m_PointLights[i].quadratic = 0.032f;
 		}
 
-		std::string texRelPathAlbedo = FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Textures/Bricks/Bricks_Albedo.jpg");
+		std::string texRelPathAlbedo = FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Textures/RustedMetal/RustedMetal_Albedo.png");
 		std::wstring texRelPathAlbedoW = StringHelper::StringToWide(texRelPathAlbedo);
 		Texture::eTextureType texTypeAlbedo = Texture::eTextureType::ALBEDO;
 		m_AlbedoTexture.Init(texRelPathAlbedoW, texTypeAlbedo, m_cbvsrvHeap);
 
-		std::string texRelPathNormal = FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Textures/Bricks/Bricks_Normal.jpg");
+		std::string texRelPathNormal = FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Textures/RustedMetal/RustedMetal_Normal.png");
 		std::wstring texRelPathNormalW = StringHelper::StringToWide(texRelPathNormal);
 		Texture::eTextureType texTypeNormal = Texture::eTextureType::NORMAL;
 		m_NormalTexture.Init(texRelPathNormalW, texTypeNormal, m_cbvsrvHeap);
 
+		std::string texRelPathRoughness = FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Textures/RustedMetal/RustedMetal_Roughness.png");
+		std::wstring texRelPathRoughnessW = StringHelper::StringToWide(texRelPathRoughness);
+		Texture::eTextureType texTypeSpecular = Texture::eTextureType::ROUGHNESS;
+		m_RoughnessTexture.Init(texRelPathRoughnessW, texTypeSpecular, m_cbvsrvHeap);
+
+		std::string texRelPathMetallic = FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Textures/RustedMetal/RustedMetal_Metallic.png");
+		std::wstring texRelPathMetallicW = StringHelper::StringToWide(texRelPathMetallic);
+		Texture::eTextureType texTypeMetallic = Texture::eTextureType::METALLIC;
+		m_MetallicTexture.Init(texRelPathMetallicW, texTypeMetallic, m_cbvsrvHeap);
+		
+		std::string texRelPathAO = FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Textures/RustedMetal/RustedMetal_AO.png");
+		std::wstring texRelPathAOW = StringHelper::StringToWide(texRelPathAO);
+		Texture::eTextureType texTypeAO = Texture::eTextureType::AO;
+		m_AOTexture.Init(texRelPathAOW, texTypeAO, m_cbvsrvHeap);
 	}
 
 	void Direct3D12Context::CreateConstantBuffers()
