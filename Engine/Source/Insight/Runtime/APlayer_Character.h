@@ -13,7 +13,7 @@ namespace Insight {
 	{
 	public:
 		APlayerCharacter(ActorId id, ActorName name = "Player Character");
-		~APlayerCharacter();
+		virtual ~APlayerCharacter();
 
 		inline static APlayerCharacter& Get() { return *s_Instance; }
 

@@ -16,13 +16,16 @@ cbuffer cbPerFrame : register(b1)
     float cameraFarZ;
     float deltaMs;
     float time;
+    int numPointLights;
+    int numDirectionalLights;
+    int numSpotLights;
 };
 
 cbuffer cbLights : register(b2)
 {
-    PointLight pointLights[MAX_POINT_LIGHTS_SUPPORTED];
-    DirectionalLight dirLight;
-    SpotLight spotLight;
+    PointLight pointLights;
+    //DirectionalLight dirLight[MAX_DIRECTIONAL_LIGHTS_SUPPORTED];
+    //SpotLight spotLight[MAX_SPOT_LIGHTS_SUPPORTED];
 };
 
 /* Geometry Pass */

@@ -84,17 +84,14 @@ namespace Insight {
 
 				// Render Targets and Constant Buffers
 				{
-					CreateDepthStencilView();
-					CreateRenderTargetView();
+					CreateDSV();
+					CreateRTVs();
 					CreateRenderTargetViewDescriptorHeap();
 				}
 
 				LoadAssets();
-				//m_SphereRenderer.Init(10, 20, 20);
 			}
 			PIXEndEvent(m_pCommandQueue.Get());
-
-			//CloseCommandListAndSignalCommandQueue();
 
 		}
 		catch (COMException& ex) {
@@ -118,22 +115,21 @@ namespace Insight {
 		m_PerFrameData.cameraPosition = playerCamera.GetTransformRef().GetPosition();
 		m_PerFrameData.deltaMs = deltaTime;
 		m_PerFrameData.time = (float)Application::Get().GetFrameTimer().seconds();
-		m_PerFrameData.cameraNearZ = playerCamera.GetNearZ();
-		m_PerFrameData.cameraFarZ = playerCamera.GetFarZ();
-		m_PerFrameData.cameraExposure = playerCamera.GetExposure();
+		m_PerFrameData.cameraNearZ = (float)playerCamera.GetNearZ();
+		m_PerFrameData.cameraFarZ = (float)playerCamera.GetFarZ();
+		m_PerFrameData.cameraExposure = (float)playerCamera.GetExposure();
+		m_PerFrameData.numPointLights = (int)m_PointLights.size();
+		m_PerFrameData.numDirectionalLights = 0;
+		m_PerFrameData.numSpotLights = 0;
 		memcpy(m_cbvPerFrameGPUAddress[m_FrameIndex], &m_PerFrameData, sizeof(m_PerFrameData));
 
-		if (Input::IsKeyPressed('C')) {
-			m_PointLights[0].position = playerCamera.GetTransform().GetPosition();
-		}
 
 		UINT offset = 0u;
-		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (ConstantBufferPointLightAlignedSize * offset++), &m_PointLights[0], ConstantBufferPointLightAlignedSize);
-		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (ConstantBufferPointLightAlignedSize * offset++), &m_PointLights[1], ConstantBufferPointLightAlignedSize);
-		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (ConstantBufferPointLightAlignedSize * offset++), &m_PointLights[3], ConstantBufferPointLightAlignedSize);
-		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (ConstantBufferPointLightAlignedSize * offset++), &m_PointLights[4], ConstantBufferPointLightAlignedSize);
-		memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (ConstantBufferDirectionalLightAlignedSize * offset++), &m_DirectionalLight, ConstantBufferDirectionalLightAlignedSize);
-
+		for (size_t i = 0; i < m_PointLights.size(); i++)
+		{
+			//CB_PS_PointLight& cb = m_PointLights[i]->GetConstantBuffer();
+			memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (ConstantBufferPointLightAlignedSize * offset++), &m_PointLights[i]->GetConstantBuffer() , ConstantBufferPointLightAlignedSize);
+		}
 	}
 
 	void Direct3D12Context::MoveToNextFrame()
@@ -225,8 +221,8 @@ namespace Insight {
 
 		m_pCommandList->SetPipelineState(m_pPipelineStateObject_LightingPass.Get());
 
-		m_ScreenQuad.Draw(m_pCommandList);
-		
+		m_ScreenQuad.Render(m_pCommandList);
+
 		{
 			for (unsigned int i = 0; i < m_NumRTV; ++i) {
 				m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
@@ -234,6 +230,10 @@ namespace Insight {
 			m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 
 		}
+	}
+
+	void Direct3D12Context::BindSkyPass()
+	{
 	}
 
 	void Direct3D12Context::PopulateCommandLists()
@@ -461,7 +461,7 @@ namespace Insight {
 		}
 	}
 
-	void Direct3D12Context::CreateDepthStencilView()
+	void Direct3D12Context::CreateDSV()
 	{
 		HRESULT hr;
 
@@ -515,7 +515,7 @@ namespace Insight {
 		m_pLogicalDevice->CreateShaderResourceView(m_pDepthStencilTexture.Get(), &dsvDesc, m_cbvsrvHeap.hCPU(4));
 	}
 
-	void Direct3D12Context::CreateRenderTargetView()
+	void Direct3D12Context::CreateRTVs()
 	{
 		HRESULT hr;
 
@@ -595,7 +595,7 @@ namespace Insight {
 		/*descBuffer.BufferLocation = m_PerFrameCBV->GetGPUVirtualAddress();
 		descBuffer.SizeInBytes = (sizeof(CB_PS_VS_PerFrame) + 255) & ~255;
 		m_pLogicalDevice->CreateConstantBufferView(&descBuffer, m_cbvsrvHeap.hCPU(0));*/
-		
+
 		// Light CBV
 		/*descBuffer.BufferLocation = m_LightCB->GetGPUVirtualAddress();
 		descBuffer.SizeInBytes = (sizeof(CB_PS_PointLight) + 255) & ~255;
@@ -639,7 +639,7 @@ namespace Insight {
 
 		HRESULT hr = D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, rootSigBlob.GetAddressOf(), errorBlob.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to serialize root signature");
-		
+
 		hr = m_pLogicalDevice->CreateRootSignature(0, rootSigBlob->GetBufferPointer(), rootSigBlob->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature));
 		ThrowIfFailed(hr, "Failed to create root signature");
 	}
@@ -712,6 +712,10 @@ namespace Insight {
 
 		hr = m_pLogicalDevice->CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pPipelineStateObject_GeometryPass));
 		ThrowIfFailed(hr, "Failed to create graphics pipeline state for geometry pass.");
+	}
+
+	void Direct3D12Context::CreateSkyPassPSO()
+	{
 	}
 
 	void Direct3D12Context::CreateLightPassPSO()
@@ -812,20 +816,20 @@ namespace Insight {
 	{
 
 		using namespace DirectX;
-		srand(13);
-		for (UINT i = 0; i < MAX_POINT_LIGHTS_SUPPORTED; i++)
-		{
-			m_PointLights[i].ambient = XMFLOAT3(0.3f, 0.3f, 0.3f);
-			float rColor = ((rand() % 100) / 200.0f) + 0.5f; // between 0.5 and 1.0
-			float gColor = ((rand() % 100) / 200.0f) + 0.5f; // between 0.5 and 1.0
-			float bColor = ((rand() % 100) / 200.0f) + 0.5f; // between 0.5 and 1.0
-			m_PointLights[i].position = XMFLOAT3(rColor * 10.0f, gColor * 10.0f, bColor * 10.0f);
-			m_PointLights[i].diffuse = XMFLOAT3(rColor, gColor, bColor);
-			m_PointLights[i].specular = XMFLOAT3(rColor, gColor, bColor);
-			m_PointLights[i].constant = 1.0f;
-			m_PointLights[i].linear = 0.09f;
-			m_PointLights[i].quadratic = 0.032f;
-		}
+		//srand(13);
+		//for (UINT i = 0; i < m_PointLights.size(); i++)
+		//{
+		//	m_PointLights[i].GetConstantBufferRef().ambient = XMFLOAT3(0.3f, 0.3f, 0.3f);
+		//	float rColor = ((rand() % 100) / 200.0f) + 0.5f; // between 0.5 and 1.0
+		//	float gColor = ((rand() % 100) / 200.0f) + 0.5f; // between 0.5 and 1.0
+		//	float bColor = ((rand() % 100) / 200.0f) + 0.5f; // between 0.5 and 1.0
+		//	m_PointLights[i].GetConstantBufferRef().position = XMFLOAT3(rColor * 10.0f, gColor * 10.0f, bColor * 10.0f);
+		//	m_PointLights[i].GetConstantBufferRef().diffuse = XMFLOAT3(rColor, gColor, bColor);
+		//	m_PointLights[i].GetConstantBufferRef().specular = XMFLOAT3(rColor, gColor, bColor);
+		//	//m_PointLights[i].GetConstantBufferRef().constant = 1.0f;
+		//	//m_PointLights[i].GetConstantBufferRef().linear = 0.09f;
+		//	//m_PointLights[i].GetConstantBufferRef().quadratic = 0.032f;
+		//}
 
 		m_DirectionalLight.ambient = XMFLOAT3(0.3f, 0.3f, 0.3f);
 		m_DirectionalLight.diffuse = XMFLOAT3(1.0f, 1.0f, 1.0f);
@@ -847,7 +851,7 @@ namespace Insight {
 		std::wstring texRelPathMetallicW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedMetal/RustedMetal_Metallic.png"));
 		Texture::eTextureType texTypeMetallic = Texture::eTextureType::METALLIC;
 		m_MetallicTexture.Init(texRelPathMetallicW, texTypeMetallic, m_cbvsrvHeap);
-		
+
 		std::wstring texRelPathAOW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedMetal/RustedMetal_AO.png"));
 		Texture::eTextureType texTypeAO = Texture::eTextureType::AO;
 		m_AOTexture.Init(texRelPathAOW, texTypeAO, m_cbvsrvHeap);
@@ -1030,7 +1034,7 @@ namespace Insight {
 
 				//OutputDebugStringW(desc.Description);
 				//IE_CORE_INFO("Found suitable graphics hardware: {0}", std::string((char*)desc.Description));
-				
+
 			}
 		}
 	}
@@ -1069,7 +1073,7 @@ namespace Insight {
 
 		// Re-Create Depth Stencil View
 		{
-			CreateDepthStencilView();
+			CreateDSV();
 		}
 
 		// Recreate Camera Projection Matrix
@@ -1135,9 +1139,9 @@ namespace Insight {
 			&resourceDesc,
 			D3D12_RESOURCE_STATE_COPY_DEST,
 			nullptr,
-			IID_PPV_ARGS(&mVB)
+			IID_PPV_ARGS(&m_VertexBuffer)
 		);
-		mVB->SetName(L"Screen Quad Default Resource Heap");
+		m_VertexBuffer->SetName(L"Screen Quad Default Resource Heap");
 		ThrowIfFailed(hr, "Failed to create default heap resource for screen qauad");
 
 		ID3D12Resource* vBufferUploadHeap;
@@ -1153,23 +1157,23 @@ namespace Insight {
 
 		D3D12_SUBRESOURCE_DATA vertexData = {};
 		vertexData.pData = reinterpret_cast<BYTE*>(quadVerts);
-		vertexData.RowPitch = vBufferSize; 
-		vertexData.SlicePitch = vBufferSize; 
+		vertexData.RowPitch = vBufferSize;
+		vertexData.SlicePitch = vBufferSize;
 
-		UpdateSubresources(&Direct3D12Context::Get().GetCommandList(), mVB.Get(), vBufferUploadHeap, 0, 0, 1, &vertexData);
+		UpdateSubresources(&Direct3D12Context::Get().GetCommandList(), m_VertexBuffer.Get(), vBufferUploadHeap, 0, 0, 1, &vertexData);
 
-		Direct3D12Context::Get().GetCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mVB.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
+		Direct3D12Context::Get().GetCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_VertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
 
-		mVbView.BufferLocation = mVB->GetGPUVirtualAddress();
-		mVbView.StrideInBytes = sizeof(ScreenSpaceVertex);
-		mVbView.SizeInBytes = vBufferSize;
+		m_VertexBufferView.BufferLocation = m_VertexBuffer->GetGPUVirtualAddress();
+		m_VertexBufferView.StrideInBytes = sizeof(ScreenSpaceVertex);
+		m_VertexBufferView.SizeInBytes = vBufferSize;
 
 	}
 
-	void ScreenQuad::Draw(ComPtr<ID3D12GraphicsCommandList> commandList)
+	void ScreenQuad::Render(ComPtr<ID3D12GraphicsCommandList> commandList)
 	{
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-		commandList->IASetVertexBuffers(0, 1, &mVbView);
+		commandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);
 		commandList->DrawInstanced(m_NumVerticies, 1, 0, 0);
 	}
 

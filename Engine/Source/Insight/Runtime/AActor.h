@@ -18,7 +18,7 @@ namespace Insight {
 		
 	public:
 		AActor(ActorId id, ActorName actorName = "Actor");
-		~AActor();
+		virtual ~AActor();
 
 		// Editor
 		void RenderSceneHeirarchy();

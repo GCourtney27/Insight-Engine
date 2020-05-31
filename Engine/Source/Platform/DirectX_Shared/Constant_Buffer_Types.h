@@ -17,6 +17,10 @@ struct CB_PS_VS_PerFrame
 	float cameraFarZ;
 	float deltaMs;
 	float time;
+	int numPointLights;
+	int numDirectionalLights;
+	int numSpotLights;
+	float padding;
 };
 
 struct CB_PS_PointLight

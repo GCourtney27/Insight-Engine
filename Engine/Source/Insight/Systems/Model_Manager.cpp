@@ -34,7 +34,7 @@ namespace Insight {
 		return true;
 	}
 
-	void ModelManager::Draw()
+	void ModelManager::Render()
 	{
 		D3D12_GPU_VIRTUAL_ADDRESS cbvHandle(m_ConstantBufferUploadHeaps->GetGPUVirtualAddress());
 		UINT32 constantBufferOffset = 0;

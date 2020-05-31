@@ -19,7 +19,7 @@ namespace Insight {
 		static ModelManager& Get() { return *s_Instance; }
 
 		bool Init();
-		void Draw();
+		void Render();
 
 		SceneModels* GetSceneModels() { return &m_Models; }
 
