@@ -84,11 +84,11 @@ namespace Insight {
 			IE_CORE_ERROR("Failed to create resource heap for texture asset");
 			return false;
 		}
-#if defined IE_DEBUG
+//#if defined IE_DEBUG
 		m_Name = StringHelper::GetFilenameFromDirectoryW(filepath);
 		std::wstring debugName = L"Texture Buffer Resource Heap" + StringHelper::StringToWide(m_Name);
 		m_pTexture->SetName(debugName.c_str());
-#endif
+//#endif
 
 		UINT64 textureUploadBufferSize;
 		pDevice->GetCopyableFootprints(&m_TextureDesc, 0, 1, 0, nullptr, nullptr, nullptr, &textureUploadBufferSize);
@@ -130,10 +130,6 @@ namespace Insight {
 		m_GPUHeapIndex = s_NumSceneTextures;
 		s_NumSceneTextures++;
 
-		//m_GPUHeapIndex = srvHeapHandle.ptr / cbvSrvDescriptorSize;
-
-		// Move to the next descriptor slot in the descriptor heap so we can upload another texture
-		//srvHeapHandle.Offset(cbvSrvDescriptorSize);
 
 		delete imageData;
 		return true;
@@ -178,21 +174,23 @@ namespace Insight {
 		CDescriptorHeapWrapper& cbvSrvHeapStart = graphicsContext.GetCBVSRVDescriptorHeap();
 		const unsigned int numRTVs = graphicsContext.GetNumRTVs();
 		
-		m_pCommandList->SetGraphicsRootDescriptorTable(4, cbvSrvHeapStart.hGPU(4 + m_GPUHeapIndex));
-		return;
+		/*m_pCommandList->SetGraphicsRootDescriptorTable(4, cbvSrvHeapStart.hGPU(4 + m_GPUHeapIndex));
+		return;*/
 
 		switch (m_TextureType) {
 		case eTextureType::ALBEDO:
 		{
+			m_pCommandList->SetGraphicsRootDescriptorTable(4, cbvSrvHeapStart.hGPU(4 + m_GPUHeapIndex));
 			//CD3DX12_GPU_DESCRIPTOR_HANDLE cbvSrvHandle(cbvSrvHeapStart, numRTVs + m_GPUHeapIndex, cbvSrvDescriptorSize);
 			//m_pCommandList->SetGraphicsRootDescriptorTable(4, cbvSrvHeapStart.hGPU(4));
 			break;
 		}
 		case eTextureType::NORMAL:
 		{
-
+			m_pCommandList->SetGraphicsRootDescriptorTable(5, cbvSrvHeapStart.hGPU(4 + m_GPUHeapIndex));
 			//CD3DX12_GPU_DESCRIPTOR_HANDLE cbvSrvHandle(cbvSrvHeapStart, numRTVs + m_GPUHeapIndex, cbvSrvDescriptorSize);
 			//m_pCommandList->SetGraphicsRootDescriptorTable(4, cbvSrvHeapStart.hGPU(4));
+			break;
 		}
 		default:
 		{

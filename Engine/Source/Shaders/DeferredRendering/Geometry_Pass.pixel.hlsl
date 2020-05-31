@@ -20,17 +20,20 @@ PS_OUTPUT_GEOMPASS main(PS_INPUT_GEOMPASS ps_in) : SV_TARGET
 {
     PS_OUTPUT_GEOMPASS ps_out;
     
+    float3 normalSample = t_NormalObject.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
+    
     const float3x3 tanToView = float3x3(normalize(ps_in.tangent),
                                         normalize(ps_in.biTangent),
                                         normalize(ps_in.normal));
-    float3 normal; // TODO Replace ps_in.normal with t_Normal.Sample(s_LinearWrapSampler , ps_in.texCoords);
-    normal.x =  ps_in.normal.x * 2.0f - 1.0f;
-    normal.y = -ps_in.normal.y * 2.0f + 1.0f;
-    normal.z =  ps_in.normal.z;
-    normal = normalize(mul(normal, tanToView));
+    
+    //float3 normal; // TODO Replace ps_in.normal with t_Normal.Sample(s_LinearWrapSampler , ps_in.texCoords);
+    //normal.x = normalSample.x * 2.0f - 1.0f;
+    //normal.y = normalSample.y * 2.0f + 1.0f;
+    //normal.z = normalSample.z;
+    //normal = normalize(mul(normal, tanToView));
     
     ps_out.albedo = t_AlbedoObject.Sample(s_LinearWrapSampler, ps_in.texCoords);
-    ps_out.normal = float4(ps_in.normal, 1.0);
+    ps_out.normal = float4(normalSample, 1.0);
     ps_out.position = float4(ps_in.fragPos, 1.0);
 	
     return ps_out;

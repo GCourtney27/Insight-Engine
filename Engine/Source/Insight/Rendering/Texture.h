@@ -69,11 +69,11 @@ namespace Insight {
 
 		static UINT32 s_NumSceneTextures;
 
-#if defined IE_DEBUG
+//#if defined IE_DEBUG
 		std::string m_Name = "";
 		std::wstring m_Filepath = L"";
 		inline const std::wstring& GetFilepath() { return m_Filepath; }
-#endif
+//#endif
 
 	};
 

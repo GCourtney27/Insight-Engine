@@ -207,7 +207,8 @@ namespace Insight {
 		CB_PS_PointLight m_PointLights[MAX_POINT_LIGHTS_SUPPORTED];
 		int ConstantBufferLightAlignedSize = (sizeof(CB_PS_PointLight) + 255) & ~255;
 
-		Texture m_Texture;
+		Texture m_AlbedoTexture;
+		Texture m_NormalTexture;
 
 
 		const UINT PIX_EVENT_UNICODE_VERSION = 0;

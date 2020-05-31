@@ -200,7 +200,8 @@ namespace Insight {
 		m_pCommandList->SetGraphicsRootDescriptorTable(3, m_cbvsrvHeap.hGPU(0));
 
 		{
-			m_Texture.Bind();
+			m_AlbedoTexture.Bind();
+			m_NormalTexture.Bind();
 		}
 
 	}
@@ -581,7 +582,7 @@ namespace Insight {
 	void Direct3D12Context::CreateConstantBufferViews()
 	{
 		HRESULT hr = m_cbvsrvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 20, true);
-		ThrowIfFailed(hr, "Fialed to create CBV SRV descriptor heap");
+		ThrowIfFailed(hr, "Failed to create CBV SRV descriptor heap");
 		//D3D12_CONSTANT_BUFFER_VIEW_DESC	descBuffer;
 
 		// PerFrame CBV
@@ -597,17 +598,19 @@ namespace Insight {
 
 	void Direct3D12Context::CreateRootSignature()
 	{
-		CD3DX12_DESCRIPTOR_RANGE range[2];
+		CD3DX12_DESCRIPTOR_RANGE range[3];
 		// TODO: Eventualy textures should be put in the range array
 		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 0); // G-Buffer inputs t0-t3
-		range[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 4); // PerObject texture inputs - at register 4(t5) becasue gbuffer inputs already take the first 4(t0-t3) inputs
+		range[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 4); // PerObject texture inputs - albedo //at register 4(t5) becasue gbuffer inputs already take the first 4(t0-t3) inputs
+		range[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 5); // PerObject texture inputs - normal //at register 4(t5) becasue gbuffer inputs already take the first 4(t0-t3) inputs
 
-		CD3DX12_ROOT_PARAMETER rootParameters[5];
+		CD3DX12_ROOT_PARAMETER rootParameters[6];
 		rootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX); // Per-Object constant buffer
 		rootParameters[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL); // Per-Frame constant buffer
 		rootParameters[2].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_PIXEL); // Light constant buffer
 		rootParameters[3].InitAsDescriptorTable(1, &range[0], D3D12_SHADER_VISIBILITY_PIXEL); // G-Buffer inputs
-		rootParameters[4].InitAsDescriptorTable(1, &range[1], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs
+		rootParameters[4].InitAsDescriptorTable(1, &range[1], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - albedo
+		rootParameters[5].InitAsDescriptorTable(1, &range[2], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - normal
 
 		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
 		descRootSignature.Init(_countof(rootParameters), rootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
@@ -809,14 +812,16 @@ namespace Insight {
 			m_PointLights[i].quadratic = 0.032f;
 		}
 
-		std::string texRelPath = FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Textures/Bricks/Bricks_Albedo.jpg");
-		std::wstring texRelPatW = StringHelper::StringToWide(texRelPath);
-		Texture::eTextureType texType = Texture::eTextureType::ALBEDO;
-		/*m_CbvSrvDescriptorHeapHandleWithOffset = m_cbvsrvHeap.hCPUHeapStart;
-		m_CbvSrvDescriptorHeapHandleWithOffset = m_cbvsrvHeap.hCPU(4);*/
+		std::string texRelPathAlbedo = FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Textures/Bricks/Bricks_Albedo.jpg");
+		std::wstring texRelPathAlbedoW = StringHelper::StringToWide(texRelPathAlbedo);
+		Texture::eTextureType texTypeAlbedo = Texture::eTextureType::ALBEDO;
+		m_AlbedoTexture.Init(texRelPathAlbedoW, texTypeAlbedo, m_cbvsrvHeap);
 
-		m_Texture.Init(texRelPatW, texType, m_cbvsrvHeap);
-		
+		std::string texRelPathNormal = FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Textures/Bricks/Bricks_Normal.jpg");
+		std::wstring texRelPathNormalW = StringHelper::StringToWide(texRelPathNormal);
+		Texture::eTextureType texTypeNormal = Texture::eTextureType::NORMAL;
+		m_NormalTexture.Init(texRelPathNormalW, texTypeNormal, m_cbvsrvHeap);
+
 	}
 
 	void Direct3D12Context::CreateConstantBuffers()
