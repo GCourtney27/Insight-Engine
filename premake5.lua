@@ -54,7 +54,7 @@ project ("Engine")
 	defines
 	{
 		"_CRT_SECURE_NO_WARNINGS",
-		"IE_BUILD_DIR=%{CustomDefines.IE_BUILD_DIR}"
+		"IE_BUILD_DIR=%{CustomDefines.IE_BUILD_DIR}/Engine/"
 	}
 
 	includedirs
@@ -128,16 +128,18 @@ project ("Engine")
 		symbols "on"
 	
 	-- Full Engine Distribution, all performance logs and debugging windows stripped
-	filter "configurations:EngineDist"
+	filter "configurations:Engine-Dist"
 		defines "IE_ENGINE_DIST"
 		runtime "Release"
 		optimize "on"
-	
+		symbols "on"
+
 	-- Full Game Distribution, all engine debug tools(leel editors, editor user interfaces) stripped
-	filter "configurations:GameDist"
+	filter "configurations:Game-Dist"
 		defines "IE_GAME_DIST"
 		runtime "Release"
 		optimize "on"
+		symbols "on"
 
 project (gameName)
 	location (gameName)
@@ -192,7 +194,9 @@ project (gameName)
 	filter "configurations:EngineDist"
 		defines "IE_ENGINE_DIST"
 		optimize "on"
+		symbols "on"
 		
 	filter "configurations:GameDist"
 		defines "IE_GAME_DIST"
 		optimize "on"
+		symbols "on"

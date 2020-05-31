@@ -19,7 +19,7 @@ namespace Insight {
 		IE_ASSERT(!s_Instance, "Trying to create Application instance when one already exists!");
 		s_Instance = this;
 
-		m_ImGuiLayer = new ImGuiLayer();
+		//m_ImGuiLayer = new ImGuiLayer();
 	}
 
 	bool Application::InitializeAppForWindows(HINSTANCE & hInstance, int nCmdShow)
@@ -50,7 +50,7 @@ namespace Insight {
 
 	bool Application::Init()
 	{
-		PushEngineLayers();
+		//PushEngineLayers();
 
 		if (!m_Scene.Init()) 
 		{
@@ -71,26 +71,32 @@ namespace Insight {
 			const float& deltaTime = (float)m_FrameTimer.dt();
 			
 			m_pWindow->OnUpdate(deltaTime);
+			m_Scene.OnUpdate(deltaTime);
 
+			// Geometry Pass
 			m_Scene.OnPreRender();
 
-			for (Layer* layer : m_LayerStack)
-				layer->OnUpdate(deltaTime);
+			//for (Layer* layer : m_LayerStack) {
+			//	layer->OnUpdate(deltaTime);
+			//}
 			
-			m_Scene.OnUpdate(deltaTime);
+
 			m_Scene.OnRender();
 
+			// Light Pass
+			m_Scene.OnMidFrameRender();
+
 			// Render UI
-			{
+			/*{
 				m_ImGuiLayer->Begin();
-				for (Layer* layer : m_LayerStack) 
+				for (Layer* layer : m_LayerStack) {
 					layer->OnImGuiRender();
+				}
 				m_Scene.OnImGuiRender();
 				m_ImGuiLayer->End();
-			}
+			}*/
 
 			m_Scene.OnPostRender();
-
 		}
 	}
 

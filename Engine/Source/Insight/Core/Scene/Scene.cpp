@@ -28,26 +28,35 @@ namespace Insight {
 		m_pPlayerCharacter = new APlayerCharacter(0, "Player Character");
 
 		{
-			m_pTestActor = new AActor(1, "Test actor 1"); // TODO: make the id be its index in the scene
+			m_pTestActor = new AActor(1, "Nanosuit"); // TODO: make the id be its index in the scene
 			StrongActorComponentPtr ptr = m_pTestActor->CreateDefaultSubobject<StaticMeshComponent>();
-			reinterpret_cast<StaticMeshComponent*>(ptr.get())->AttachMesh("../Assets/Models/nanosuit/nanosuit.obj");
+			reinterpret_cast<StaticMeshComponent*>(ptr.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Models/nanosuit/nanosuit.obj"));
 			
-			//m_pTestActor2 = new AActor(2, "Test actor 2"); // TODO: make the id be its index in the scene
-			//StrongActorComponentPtr ptr2 = m_pTestActor2->CreateDefaultSubobject<StaticMeshComponent>();
-			//reinterpret_cast<StaticMeshComponent*>(ptr2.get())->AttachMesh("../Assets/Objects/Primatives/sphere.obj");
+			m_pTestActor2 = new AActor(2, "Plane"); // TODO: make the id be its index in the scene
+			StrongActorComponentPtr ptr2 = m_pTestActor2->CreateDefaultSubobject<StaticMeshComponent>();
+			reinterpret_cast<StaticMeshComponent*>(ptr2.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Models/Quad.obj"));
+			m_pTestActor2->GetTransformRef().Scale(100.0f, 100.0f, 100.0f);
 
-			m_pTestActor3 = new AActor(3, "Test actor 3"); // TODO: make the id be its index in the scene
+			m_pTestActor3 = new AActor(3, "Dandelion"); // TODO: make the id be its index in the scene
 			StrongActorComponentPtr ptr3 = m_pTestActor3->CreateDefaultSubobject<StaticMeshComponent>();
-			reinterpret_cast<StaticMeshComponent*>(ptr3.get())->AttachMesh("../Assets/Models/Dandelion/Var1/Textured_Flower.obj");
+			reinterpret_cast<StaticMeshComponent*>(ptr3.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Assets/Models/Dandelion/Var1/Textured_Flower.obj"));
+
+			//m_pTestActor4 = new AActor(4, "Tiger Tank"); // TODO: make the id be its index in the scene
+			//StrongActorComponentPtr ptr4 = m_pTestActor4->CreateDefaultSubobject<StaticMeshComponent>();
+			//reinterpret_cast<StaticMeshComponent*>(ptr4.get())->AttachMesh("../Assets/Objects/Tiger/Tiger.obj");
+			//m_pTestActor4->GetTransformRef().SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			//m_pTestActor4->GetTransformRef().Translate(0.04f, 0.04f, 0.04f);
+
 		}
 
-
 		m_pSceneRoot->AddChild(m_pTestActor);
-		//m_pSceneRoot->AddChild(m_pTestActor2);
+		m_pSceneRoot->AddChild(m_pTestActor2);
 		m_pSceneRoot->AddChild(m_pTestActor3);
+		//m_pSceneRoot->AddChild(m_pTestActor4);
 		m_pSceneRoot->AddChild(m_pPlayerCharacter);
 
-		reinterpret_cast<Direct3D12Context*>(m_Renderer.get())->CloseCommandListAndSignalCommandQueue();// Very uber doober temp
+
+		m_Renderer->PostInit();
 		return true;
 	}
 
@@ -90,14 +99,14 @@ namespace Insight {
 		}
 		ImGui::End();
 
-		/*ImGui::Begin("Inspector 2");
+		ImGui::Begin("Inspector 2");
 		{
 			ImGui::Text(m_pTestActor2->GetDisplayName());
 			ImGui::DragFloat3("Position", &m_pTestActor2->GetTransformRef().GetPositionRef().x, 0.05f, -100.0f, 100.0f);
 			ImGui::DragFloat3("Scale", &m_pTestActor2->GetTransformRef().GetScaleRef().x, 0.05f, -100.0f, 100.0f);
 			ImGui::DragFloat3("Rotation", &m_pTestActor2->GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);
 		}
-		ImGui::End();*/
+		ImGui::End();
 
 		ImGui::Begin("Inspector 3");
 		{
@@ -107,6 +116,15 @@ namespace Insight {
 			ImGui::DragFloat3("Rotation", &m_pTestActor3->GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);
 		}
 		ImGui::End();
+
+		/*ImGui::Begin("Inspector 4");
+		{
+			ImGui::Text(m_pTestActor4->GetDisplayName());
+			ImGui::DragFloat3("Position", &m_pTestActor4->GetTransformRef().GetPositionRef().x, 0.05f, -100.0f, 100.0f);
+			ImGui::DragFloat3("Scale", &m_pTestActor4->GetTransformRef().GetScaleRef().x, 0.05f, -100.0f, 100.0f);
+			ImGui::DragFloat3("Rotation", &m_pTestActor4->GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);
+		}
+		ImGui::End();*/
 	}
 
 	void Scene::OnPreRender()
@@ -121,6 +139,11 @@ namespace Insight {
 		m_Renderer->OnRender();
 		m_pSceneRoot->OnRender();
 		m_ModelManager.Draw();
+	}
+
+	void Scene::OnMidFrameRender()
+	{
+		m_Renderer->OnMidFrameRender();
 	}
 
 	void Scene::OnPostRender()

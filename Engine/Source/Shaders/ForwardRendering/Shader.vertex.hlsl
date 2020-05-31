@@ -10,12 +10,12 @@ struct VS_INPUT
 
 struct VS_OUTPUT
 {
-	float4 position  : SV_POSITION;
-	float3 FragPos	 : FRAG_POS;
-	float2 texCoords : TEXCOORD;
-	float3 normal	 : NORMAL;
-	float3 tangent	 : TANGENT;
-	float3 biTangent : BITANGENT;
+	float4 sv_position : SV_POSITION;
+	float3 FragPos	   : FRAG_POS;
+	float2 texCoords   : TEXCOORD;
+	float3 normal	   : NORMAL;
+	float3 tangent	   : TANGENT;
+	float3 biTangent   : BITANGENT;
 };
 
 cbuffer cbPerObject : register(b0)
@@ -39,7 +39,7 @@ VS_OUTPUT main(VS_INPUT vs_in)
 	matrix worldView = mul(world, view);
 	float4x4 worldViewProjection = mul(mul(world, view), projection);
 	
-	vs_out.position = mul(float4(vs_in.position, 1.0f), worldViewProjection);
+	vs_out.sv_position = mul(float4(vs_in.position, 1.0f), worldViewProjection);
 	
 	vs_out.FragPos = float3(mul(world, float4(vs_in.position, 1.0)).xyz);
 	vs_out.texCoords = vs_in.texCoords;

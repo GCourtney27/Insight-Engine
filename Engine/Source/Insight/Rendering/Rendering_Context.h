@@ -11,9 +11,11 @@ namespace Insight {
 		virtual ~RenderingContext() {}
 
 		virtual bool Init() = 0;
+		virtual bool PostInit() = 0;
 		virtual void OnUpdate(const float& deltaTime) = 0;
 		virtual void OnPreFrameRender() = 0;
 		virtual void OnRender() = 0;
+		virtual void OnMidFrameRender() = 0;
 		virtual void ExecuteDraw() = 0;
 		virtual void SwapBuffers() = 0;
 		virtual void OnWindowResize() = 0;
@@ -34,7 +36,7 @@ namespace Insight {
 		RenderingContext(UINT windowWidth, UINT windowHeight, bool vSyncEabled)
 			: m_WindowWidth(windowWidth), m_WindowHeight(windowHeight), m_VSyncEnabled(vSyncEabled) {}
 	protected:
-		static const uint8_t m_FrameBufferCount = 3;
+		static const uint8_t m_FrameBufferCount = 4u;
 		UINT m_WindowWidth;
 		UINT m_WindowHeight;
 

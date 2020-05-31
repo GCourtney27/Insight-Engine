@@ -23,10 +23,15 @@ namespace Insight {
 
 	bool ModelManager::Init()
 	{
-		m_ConstantBufferUploadHeaps = &Direct3D12Context::Get().GetConstantBufferUploadHeap();
+		m_ConstantBufferUploadHeaps = &Direct3D12Context::Get().GetConstantBufferPerObjectUploadHeap();
 		m_pCommandList = &Direct3D12Context::Get().GetCommandList();
+		if (!(m_pCommandList && m_ConstantBufferUploadHeaps))
+		{
+			IE_CORE_ERROR("Failed to initialize resources for model manager.");
+			return false;
+		}
 
-		return (m_pCommandList && m_ConstantBufferUploadHeaps);
+		return true;
 	}
 
 	void ModelManager::Draw()
@@ -50,7 +55,7 @@ namespace Insight {
 	{
 		UINT8* cbvGPUAddress = &Direct3D12Context::Get().GetConstantBufferViewGPUHeapAddress();
 		UINT32 gpuAdressOffset = 0;
-		
+
 		ACamera& camera = APlayerCharacter::Get().GetCameraRef();
 		XMMATRIX viewMatTransposed = XMMatrixTranspose(camera.GetViewMatrix());
 		XMMATRIX projectionMatTransposed = XMMatrixTranspose(camera.GetProjectionMatrix());
@@ -71,7 +76,6 @@ namespace Insight {
 			}
 
 		}
-
 	}
 
 	void ModelManager::FlushModelCache()

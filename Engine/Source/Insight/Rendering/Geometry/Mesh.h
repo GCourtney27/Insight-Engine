@@ -13,9 +13,15 @@ namespace Insight {
 	class INSIGHT_API Mesh
 	{
 	public:
-		Mesh(std::vector<Vertex> verticies, std::vector<DWORD> indices, Material material);
+		typedef std::vector<Vertex3D> Verticies;
+		typedef std::vector<DWORD> Indices;
+	public:
+		Mesh(Verticies verticies, Indices indices, Material material);
+		Mesh() {}
 		~Mesh();
 
+		void Init(Verticies verticies, Indices indices);
+		void InitializeLocalVariables();
 		void PreRender(const XMMATRIX& parentMat);
 		void Render();
 		void Destroy();
@@ -55,9 +61,9 @@ namespace Insight {
 
 		UINT						m_NumVerticies = 0;
 		UINT						m_NumIndices = 0;
-		int							m_VBufferSize = 0;
-		int							m_IBufferSize = 0;
-		std::vector<Vertex>			m_Verticies;
+		UINT						m_VBufferSize = 0;
+		UINT						m_IBufferSize = 0;
+		std::vector<Vertex3D>		m_Verticies;
 		std::vector<DWORD>			m_Indices;
 
 		Transform					m_Transform;

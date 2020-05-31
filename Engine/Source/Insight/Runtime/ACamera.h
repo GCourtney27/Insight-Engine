@@ -40,6 +40,7 @@ namespace Insight {
 				float exposure = EXPOSURE)
 			: m_MovementSpeed(SPEED), m_MouseSensitivity(SENSITIVITY), m_Fov(FOV), m_Exposure(EXPOSURE), AActor(0)
 		{
+			AActor(0, "Camera");
 			GetTransformRef().SetPosition(position);
 			m_Pitch = pitch;
 			m_Yaw = yaw;
@@ -60,8 +61,10 @@ namespace Insight {
 		inline void SetFOV(float& fovDegrees) { SetProjectionValues(fovDegrees, m_AspectRatio, m_NearZ, m_FarZ); }
 		inline void SetNearZ(float& nearZ) { SetProjectionValues(m_Fov, m_AspectRatio, nearZ, m_FarZ); }
 		inline void SetFarZ(float& farZ) { SetProjectionValues(m_Fov, m_AspectRatio, m_NearZ, farZ); }
+		inline float GetExposure() { return m_Exposure; }
 
 		void SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ);
+		void RenderSceneHeirarchy() override;
 
 	private:
 		void UpdateViewMatrix();

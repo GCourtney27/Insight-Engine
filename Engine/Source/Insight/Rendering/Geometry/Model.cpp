@@ -106,13 +106,13 @@ namespace Insight {
 	unique_ptr<Mesh> Model::ProcessMesh(aiMesh* pMesh, const aiScene* pScene)
 	{
 		using namespace DirectX;
-		std::vector<Vertex> verticies; //verticies.reserve(pMesh->mNumVertices);
+		std::vector<Vertex3D> verticies; //verticies.reserve(pMesh->mNumVertices);
 		std::vector<DWORD> indices;
 		
 		// Load Verticies
 		for (UINT i = 0; i < pMesh->mNumVertices; i++) {
 
-			Vertex vertex;
+			Vertex3D vertex;
 			// Position
 			vertex.Position.x = pMesh->mVertices[i].x;
 			vertex.Position.y = pMesh->mVertices[i].y;
@@ -156,21 +156,21 @@ namespace Insight {
 		}
 
 		Material material;
-		if (pMesh->mMaterialIndex >= 0)
-		{
-			CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle(Direct3D12Context::Get().GetShaderVisibleDescriptorHeapHandleWithOffset());
+		//if (pMesh->mMaterialIndex >= 0)
+		//{
+		//	CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle(Direct3D12Context::Get().GetShaderVisibleDescriptorHeapHandleWithOffset());
 
-			aiMaterial* pMat = pScene->mMaterials[pMesh->mMaterialIndex];
+		//	aiMaterial* pMat = pScene->mMaterials[pMesh->mMaterialIndex];
 
-			Texture diffuseMap = ParseTexture(pMat, aiTextureType_DIFFUSE, Texture::eTextureType::ALBEDO, srvHeapHandle);
-			Texture normalMap = ParseTexture(pMat, aiTextureType_HEIGHT, Texture::eTextureType::NORMAL, srvHeapHandle);
-			Texture specularMap = ParseTexture(pMat, aiTextureType_SPECULAR, Texture::eTextureType::SPECULAR, srvHeapHandle);
-			
+		//	Texture diffuseMap = ParseTexture(pMat, aiTextureType_DIFFUSE, Texture::eTextureType::ALBEDO, srvHeapHandle);
+		//	Texture normalMap = ParseTexture(pMat, aiTextureType_HEIGHT, Texture::eTextureType::NORMAL, srvHeapHandle);
+		//	Texture specularMap = ParseTexture(pMat, aiTextureType_SPECULAR, Texture::eTextureType::SPECULAR, srvHeapHandle);
+		//	
 
-			material.AddTexture(diffuseMap);
-			material.AddTexture(normalMap);
-			//material.AddTexture(specularMap);
-		}
+		//	material.AddTexture(diffuseMap);
+		//	material.AddTexture(normalMap);
+		//	//material.AddTexture(specularMap);
+		//}
 
 		return std::make_unique<Mesh>(verticies, indices, material);
 	}

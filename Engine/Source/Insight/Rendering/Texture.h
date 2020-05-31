@@ -1,11 +1,12 @@
 #pragma once
 
-
 #include <Insight/Core.h>
+#include "Platform/DirectX12/Descriptor_Heap_Wrapper.h"
+
 
 namespace Insight {
 
-
+	using Microsoft::WRL::ComPtr;
 
 	class Texture
 	{
@@ -18,12 +19,11 @@ namespace Insight {
 			NORMAL = 1,
 			ROUGHNESS = 2,
 			METALLIC = 3,
-			SPECULAR = 4,
-			AO = 5,
+			AO = 4,
 			// SKysphere
-			DIFFUSE = 6,
-			IRRADIENCE = 7,
-			ENVIRONMENT_MAP = 8
+			SKY_DIFFUSE = 5,
+			SKY_IRRADIENCE = 6,
+			SKY_ENVIRONMENT_MAP = 7
 
 		};
 
@@ -39,10 +39,10 @@ namespace Insight {
 		Texture();
 		~Texture();
 	
-		bool Init(const std::wstring& filepath, eTextureType& testureType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle);
+		bool Init(const std::wstring& filepath, eTextureType& testureType, CDescriptorHeapWrapper& srvHeapHandle);
+		bool Init(const std::wstring& filepath, eTextureType& testureType);
 		void Bind();
 
-		inline const std::wstring& GetFilepath() { return m_Filepath; }
 		inline const UINT64& GetWidth() const { return m_TextureDesc.Width; }
 		inline const UINT64& GetHeight() const { return m_TextureDesc.Height; }
 		inline const UINT16& GetMipLevels() const { return m_TextureDesc.MipLevels; }
@@ -50,6 +50,8 @@ namespace Insight {
 		void Destroy();
 
 	private:
+		void InitFromDDSTexture(const std::wstring& filepath);
+
 		DXGI_FORMAT GetDXGIFormatFromWICFormat(WICPixelFormatGUID& wicFormatGUID);
 		WICPixelFormatGUID GetConvertToWICFormat(WICPixelFormatGUID& wicFormatGUID);
 		int GetDXGIFormatBitsPerPixel(DXGI_FORMAT& dxgiFormat);
@@ -58,16 +60,19 @@ namespace Insight {
 	private:
 		ID3D12GraphicsCommandList*	m_pCommandList = nullptr;
 		
-		ID3D12Resource*				m_pTextureBuffer = nullptr;
-		ID3D12Resource*				m_pTextureBufferUploadHeap = nullptr;
+		ComPtr<ID3D12Resource>		m_pTexture;
+		ComPtr<ID3D12Resource>		m_pTextureUploadHeap;
 		D3D12_RESOURCE_DESC			m_TextureDesc = {};
 		eTextureType				m_TextureType;
-		UINT						m_GPUHeapIndex = 0u;
+		UINT32						m_GPUHeapIndex = 0u;
 
-#if defined IE_DEBUG
+		static UINT32 s_NumSceneTextures;
+
+//#if defined IE_DEBUG
 		std::string m_Name = "";
 		std::wstring m_Filepath = L"";
-#endif
+		inline const std::wstring& GetFilepath() { return m_Filepath; }
+//#endif
 
 	};
 

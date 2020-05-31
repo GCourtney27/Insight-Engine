@@ -1,8 +1,8 @@
 #pragma once
 
-#ifdef IE_PLATFORM_WINDOWS
-	#ifdef IE_DYNAMIC_LINK
-		#ifdef IE_BUILD_DLL
+#if defined IE_PLATFORM_WINDOWS
+	#if defined IE_DYNAMIC_LINK
+		#if defined IE_BUILD_DLL
 			#define INSIGHT_API __declspec(dllexport)
 		#else
 			#define INSIGHT_API __declspec(dllimport)
@@ -12,17 +12,23 @@
 	#endif
 #endif // IE_PLATFORM_WINDOWS
 
-#ifdef IE_DEBUG
+#if defined IE_ENGINE_DIST || defined IE_GAME_DIST
+	#define IE_PRODUCTION
+#endif
+
+#if defined IE_DEBUG
 	#define IE_ENABLE_ASSERTS
 #endif // IE_DEBUG
 
-#ifdef IE_ENABLE_ASSERTS
+#if defined IE_ENABLE_ASSERTS
 	#define IE_ASSERT(x, ...) {if( !(x) ) { IE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
 	#define IE_CORE_ASSERT(x, ...) { if(!(x)) { IE_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
 #else
 	#define IE_ASSERT(x, ...)
 	#define IE_CORE_ASSERT(x, ...)
 #endif // IE_ENABLE_ASSERTS
+
+
 
 // Utilities
 #define BIT_SHIFT(x) ( 1 << x )

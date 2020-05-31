@@ -21,11 +21,12 @@ namespace Insight {
 		virtual void OnUpdate(const float& deltaMs) override;
 		virtual void OnPreRender(XMMATRIX parentMat) override;
 		virtual void OnRender() override;
+		void RenderSceneHeirarchy() override;
 
-		ACamera& GetCameraRef() { return m_Camera; }
+		ACamera& GetCameraRef() { return *m_Camera; }
 
 	private:
-		ACamera m_Camera;
+		ACamera* m_Camera;
 		virtual void ProcessInput(const float& deltaMs);
 	private:
 		static APlayerCharacter* s_Instance;

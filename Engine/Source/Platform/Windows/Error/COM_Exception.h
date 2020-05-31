@@ -4,7 +4,7 @@
 
 namespace Insight {
 
-	#define COM_ERROR_IF_FAILED( hr, msg ) if( FAILED( hr ) ) throw COMException (hr, msg, __FILE__, __FUNCTION__, __LINE__ )
+	#define ThrowIfFailed( hr, msg ) if( FAILED( hr ) ) throw COMException (hr, msg, __FILE__, __FUNCTION__, __LINE__ )
 	#define THROW_COM_ERROR(msg) throw COMException(NULL, msg, __FILE__, __FUNCTION__, __LINE__)
 
 	class COMException
