@@ -29,6 +29,7 @@ namespace Insight {
 
 	void Model::OnImGuiRender()
 	{
+
 	}
 
 	void Model::RenderSceneHeirarchy()

@@ -18,6 +18,7 @@ namespace Insight {
 		Transform& GetTransformRef() { return m_Transform; }
 		const Transform& GetTransform() const { return m_Transform; }
 		void AddChild(unique_ptr<MeshNode> child);
+		int GetNumChildren() { return m_MeshChildren.size(); }
 
 	private:
 		std::vector<unique_ptr<MeshNode>> m_Children;

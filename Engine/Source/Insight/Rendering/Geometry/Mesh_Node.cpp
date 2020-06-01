@@ -61,8 +61,16 @@ namespace Insight {
 
 	void MeshNode::RenderSceneHeirarchy()
 	{
-		if (ImGui::TreeNode(m_DisplayName.c_str()))
-		{
+
+		ImGuiTreeNodeFlags treeFlags = m_Children.empty() ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+		const bool isExpanded = ImGui::TreeNodeEx(m_DisplayName.c_str(), treeFlags);
+
+		if (ImGui::IsItemClicked()) {
+			// TODO: Open material editor window
+			IE_CORE_TRACE("Model node clicked");
+		}
+
+		if (isExpanded) {
 			int numChildren = m_Children.size();
 			for (int i = 0; i < numChildren; ++i) {
 				m_Children[i]->RenderSceneHeirarchy();

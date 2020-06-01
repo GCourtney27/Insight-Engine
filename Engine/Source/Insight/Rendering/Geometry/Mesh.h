@@ -25,6 +25,7 @@ namespace Insight {
 		void PreRender(const XMMATRIX& parentMat);
 		void Render();
 		void Destroy();
+		void OnImGuiRender();
 
 		inline Transform& GetTransformRef() { return m_Transform; }
 		inline const Transform& GetTransform() const { return m_Transform; }
