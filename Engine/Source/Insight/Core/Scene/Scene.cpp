@@ -70,6 +70,7 @@ namespace Insight {
 	{
 		RenderSceneHeirarchy();
 		RenderInspector();
+		RenderCreatorWindow();
 	}
 
 	void Scene::RenderSceneHeirarchy()
@@ -82,7 +83,8 @@ namespace Insight {
 			}
 		}
 		ImGui::End();
-
+		
+		
 	}
 
 	void Scene::RenderInspector()
@@ -92,6 +94,18 @@ namespace Insight {
 			if (m_pSelectedActor != nullptr) {
 				
 				m_pSelectedActor->OnImGuiRender();
+			}
+		}
+		ImGui::End();
+	}
+
+	void Scene::RenderCreatorWindow()
+	{
+		// TODO make this a colapsing header with different options
+		ImGui::Begin("Creator");
+		{
+			if (ImGui::Button("Press to create point light", { 100, 100 })) {
+				m_pSceneRoot->AddChild(new APointLight(5, "New cool point light"));
 			}
 		}
 		ImGui::End();
