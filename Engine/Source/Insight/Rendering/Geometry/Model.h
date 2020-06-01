@@ -21,6 +21,7 @@ namespace Insight {
 		~Model();
 		
 		bool Init(const std::string& path);
+		void OnImGuiRender();
 		void RenderSceneHeirarchy();
 
 		void PushInstanceWorldMatrix(XMMATRIX& instanceMat) { m_InstanceMatrixStack.push(instanceMat); }

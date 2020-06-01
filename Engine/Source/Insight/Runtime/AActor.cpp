@@ -21,9 +21,7 @@ namespace Insight {
 
 	void AActor::RenderSceneHeirarchy()
 	{
-		//const auto openFlags =  m_Children.empty() ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
-		ImGuiTreeNodeFlags treeFlags = ImGuiTreeNodeFlags_OpenOnArrow | m_Children.empty() ? ImGuiTreeNodeFlags_Leaf : 0 | ImGuiTreeNodeFlags_OpenOnDoubleClick;
-
+		ImGuiTreeNodeFlags treeFlags = m_Children.empty() ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 		const bool isExpanded = ImGui::TreeNodeEx(SceneNode::GetDisplayName(), treeFlags);
 
 		if (ImGui::IsItemClicked()) {
@@ -33,9 +31,10 @@ namespace Insight {
 		if (isExpanded) {
 
 			SceneNode::RenderSceneHeirarchy();
-			/*for (size_t i = 0; i < m_NumComponents; ++i) {
+
+			for (size_t i = 0; i < m_NumComponents; ++i) {
 				m_Components[i]->RenderSceneHeirarchy();
-			}*/
+			}
 
 			ImGui::TreePop();
 			ImGui::Spacing();

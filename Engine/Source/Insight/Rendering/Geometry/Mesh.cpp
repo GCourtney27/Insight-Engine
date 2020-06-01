@@ -75,13 +75,15 @@ namespace Insight {
 		COM_SAFE_RELEASE(m_pIndexBufferUploadHeap);
 	}
 
+	void Mesh::OnImGuiRender()
+	{
+		m_Material.OnImGuiRender();
+	}
+
 	void Mesh::SetupMesh()
 	{
 		if (!InitializeVertexDataForD3D12())
 			IE_CORE_TRACE("Failed to setup vertex data for D3D12");
-
-		//if (!InitializeInstanceBufferD3D12())
-		//	IE_CORE_TRACE("Failed to setup instance data for D3D12");
 
 		if (!InitializeIndexDataForD3D12())
 			IE_CORE_TRACE("Failed to setup index data for D3D12");
@@ -129,69 +131,6 @@ namespace Insight {
 		m_VertexBufferView.SizeInBytes = m_VBufferSize;
 
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pVertexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
-
-		return true;
-	}
-
-	bool Mesh::InitializeInstanceBufferD3D12()
-	{
-		// Instance Data
-		XMFLOAT3 instancePositions[] =
-		{
-			XMFLOAT3(0.0f, 0.0f, 7.0f),
-			XMFLOAT3(0.0f, 0.0f, -7.0f),
-			XMFLOAT3(7.0f, 0.0f, 0.0f),
-			XMFLOAT3(-7.0f, 0.0f, 0.0f),
-		};
-
-		const UINT instanceBufferSize = sizeof(instancePositions);
-
-		// Create the instance buffer resource in the GPU's default heap and copy instance data into it using the upload heap.
-		// The upload resource must not be released until after the GPU has finished using it.
-
-		HRESULT hr = m_pLogicalDevice->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(instanceBufferSize),
-			D3D12_RESOURCE_STATE_COPY_DEST,
-			nullptr,
-			IID_PPV_ARGS(&m_pInstanceBuffer));
-		if (FAILED(hr)) {
-			IE_CORE_ERROR("Failed to create commited resource for instance buffer.");
-		}
-		hr = m_pInstanceBuffer->SetName(L"Instance Buffer");
-		if (FAILED(hr)) {
-			IE_CORE_ERROR("Failed to set GPU name for instance buffer.");
-		}
-		hr = m_pLogicalDevice->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(instanceBufferSize),
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(&m_pInstanceBufferUploadHeap));
-		if (FAILED(hr)) {
-			IE_CORE_ERROR("Failed to create upload commited resource for instance buffer.");
-		}
-		hr = m_pInstanceBufferUploadHeap->SetName(L"Instance Buffer");
-		if (FAILED(hr)) {
-			IE_CORE_ERROR("Failed to set GPU name for instance buffer.");
-		}
-		// Upload the instance buffer to the GPU.
-		D3D12_SUBRESOURCE_DATA instanceData = {};
-		instanceData.pData = reinterpret_cast<BYTE*>(instancePositions);
-		instanceData.RowPitch = instanceBufferSize;
-		instanceData.SlicePitch = instanceBufferSize;
-
-		UpdateSubresources(m_pCommandList, m_pInstanceBuffer, m_pInstanceBufferUploadHeap, 0, 0, 1, &instanceData);
-
-		// Create vertex/index buffer views.
-		m_InstanceBufferView.BufferLocation = m_pInstanceBuffer->GetGPUVirtualAddress();
-		m_InstanceBufferView.StrideInBytes = sizeof(XMFLOAT3);
-		m_InstanceBufferView.SizeInBytes = instanceBufferSize;
-
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pInstanceBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
-
 
 		return true;
 	}
