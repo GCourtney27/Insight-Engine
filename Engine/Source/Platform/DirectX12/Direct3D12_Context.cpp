@@ -121,14 +121,13 @@ namespace Insight {
 		m_PerFrameData.numPointLights = (int)m_PointLights.size();
 		m_PerFrameData.numDirectionalLights = 0;
 		m_PerFrameData.numSpotLights = 0;
-		memcpy(m_cbvPerFrameGPUAddress[m_FrameIndex], &m_PerFrameData, sizeof(m_PerFrameData));
+		memcpy(m_cbvPerFrameGPUAddress[m_FrameIndex], &m_PerFrameData, sizeof(CB_PS_VS_PerFrame));
 
 
 		UINT offset = 0u;
-		for (size_t i = 0; i < m_PointLights.size(); i++)
+		for (int i = 0; i < m_PointLights.size(); i++)
 		{
-			//CB_PS_PointLight& cb = m_PointLights[i]->GetConstantBuffer();
-			memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (ConstantBufferPointLightAlignedSize * offset++), &m_PointLights[i]->GetConstantBuffer() , ConstantBufferPointLightAlignedSize);
+			memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (sizeof(CB_PS_PointLight) * i), &m_PointLights[i]->GetConstantBuffer(), sizeof(CB_PS_PointLight));
 		}
 	}
 
@@ -223,13 +222,10 @@ namespace Insight {
 
 		m_ScreenQuad.Render(m_pCommandList);
 
-		{
-			for (unsigned int i = 0; i < m_NumRTV; ++i) {
-				m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
-			}
-			m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
-
+		for (unsigned int i = 0; i < m_NumRTV; ++i) {
+			m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
 		}
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 	}
 
 	void Direct3D12Context::BindSkyPass()

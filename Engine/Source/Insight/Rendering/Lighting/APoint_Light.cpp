@@ -13,17 +13,8 @@ namespace Insight {
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
 
-		srand(13);
-		float rColor = ((rand() % 100) / 200.0f) + 0.2f; // between 0.2 and 1.0
-		float gColor = ((rand() % 100) / 200.0f) + 0.2f; // between 0.2 and 1.0
-		float bColor = ((rand() % 100) / 200.0f) + 0.2f; // between 0.2 and 1.0
 		m_ShaderCB.position = SceneNode::GetTransformRef().GetPositionRef();
-		m_ShaderCB.ambient = XMFLOAT3(0.3f, 0.3f, 0.3f);
-		m_ShaderCB.diffuse = XMFLOAT3(rColor, gColor, bColor);
-		m_ShaderCB.specular = XMFLOAT3(rColor, gColor, bColor);
-		m_ShaderCB.constant = 1.0f;
-		m_ShaderCB.linear = 0.09f;
-		m_ShaderCB.quadratic = 1.032f;
+		m_ShaderCB.diffuse = XMFLOAT3(255.0f, 255.0f, 255.0f);
 
 		graphicsContext.AddPointLight(this);
 	}
@@ -34,12 +25,12 @@ namespace Insight {
 
 	bool APointLight::OnInit()
 	{
-		return false;
+		return true;
 	}
 
 	bool APointLight::OnPostInit()
 	{
-		return false;
+		return true;
 	}
 
 	void APointLight::OnUpdate(const float& deltaMs)
@@ -78,15 +69,15 @@ namespace Insight {
 	void APointLight::OnImGuiRender()
 	{
 		AActor::OnImGuiRender();
-
-		ImGui::Text("Fall-off");
-		ImGui::DragFloat("Linear", &m_ShaderCB.linear, 0.01f, -1.0f, 1.0f);
-		ImGui::DragFloat("Quadratic", &m_ShaderCB.quadratic, 0.01f, -1.0f, 1.0f);
-		ImGui::DragFloat("Constant", &m_ShaderCB.constant, 0.01f, -1.0f, 1.0f);
 		
 		ImGui::Text("Rendering");
-		ImGui::ColorEdit3("Diffuse", &m_ShaderCB.diffuse.x, ImGuiColorEditFlags_PickerHueWheel);
-		ImGui::ColorEdit3("Specular", &m_ShaderCB.specular.x, ImGuiColorEditFlags_PickerHueWheel);
+		ImGuiColorEditFlags flags = ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_PickerHueWheel;
+		//static float r = 0.0f;
+		//static float g = 0.0f;
+		//static float b = 0.0f;
+		ImGui::DragFloat3("Diffuse", &m_ShaderCB.diffuse.x, 1.0f, 0.0f, 255.0f);
+		//ImGui::ColorEdit3("Diffuse", &m_ShaderCB.diffuse.x, flags);
+		
 	}
 
 }

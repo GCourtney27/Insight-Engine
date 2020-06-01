@@ -26,16 +26,10 @@ struct CB_PS_VS_PerFrame
 struct CB_PS_PointLight
 {
 	DirectX::XMFLOAT3 position;
-
-	float linear;
-	float constant;
-	float quadratic;
-
-	DirectX::XMFLOAT3 ambient;
-	DirectX::XMFLOAT3 diffuse;
-	DirectX::XMFLOAT3 specular;
-
 	float padding;
+
+	DirectX::XMFLOAT3 diffuse;
+	float padding1;
 };
 
 struct CB_PS_DirectionalLight

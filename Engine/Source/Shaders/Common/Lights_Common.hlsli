@@ -5,16 +5,10 @@
 struct PointLight
 {
     float3 position;
+        float padding;
 	
-    float linearFactor;
-    float constantFactor;
-    float quadraticFactor;
-	
-    float3 ambient;
     float3 diffuse;
-    float3 specular;
-    
-    float padding;
+        float padding1;
 };
 
 struct DirectionalLight
