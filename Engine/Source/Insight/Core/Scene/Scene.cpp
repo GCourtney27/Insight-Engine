@@ -31,7 +31,7 @@ namespace Insight {
 			m_pTestActor = new AActor(1, "Nanosuit"); // TODO: make the id be its index in the scene
 			StrongActorComponentPtr ptr = m_pTestActor->CreateDefaultSubobject<StaticMeshComponent>();
 			reinterpret_cast<StaticMeshComponent*>(ptr.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Models/nanosuit/nanosuit.obj"));
-			
+
 			m_pTestActor2 = new AActor(2, "Plane"); // TODO: make the id be its index in the scene
 			StrongActorComponentPtr ptr2 = m_pTestActor2->CreateDefaultSubobject<StaticMeshComponent>();
 			reinterpret_cast<StaticMeshComponent*>(ptr2.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Models/Quad.obj"));
@@ -41,18 +41,18 @@ namespace Insight {
 			StrongActorComponentPtr ptr3 = m_pTestActor3->CreateDefaultSubobject<StaticMeshComponent>();
 			reinterpret_cast<StaticMeshComponent*>(ptr3.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Models/Dandelion/Var1/Textured_Flower.obj"));
 
-			//m_pTestActor4 = new AActor(4, "Tiger Tank"); // TODO: make the id be its index in the scene
-			//StrongActorComponentPtr ptr4 = m_pTestActor4->CreateDefaultSubobject<StaticMeshComponent>();
-			//reinterpret_cast<StaticMeshComponent*>(ptr4.get())->AttachMesh("Objects/Tiger/Tiger.obj");
-			//m_pTestActor4->GetTransformRef().SetScale(Vector3(0.01f, 0.01f, 0.01f));
-			//m_pTestActor4->GetTransformRef().Translate(0.04f, 0.04f, 0.04f);
+			m_pTestPointLight = new APointLight(4, "Point Light Actor");
+			m_pTestPointLight->GetTransformRef().SetPosition(Vector3(0.0f, 13.75f, -6.3));
+
+			m_pTestPointLight1 = new APointLight(5, "Point Light Actor1");
 
 		}
 
 		m_pSceneRoot->AddChild(m_pTestActor);
 		m_pSceneRoot->AddChild(m_pTestActor2);
 		m_pSceneRoot->AddChild(m_pTestActor3);
-		//m_pSceneRoot->AddChild(m_pTestActor4);
+		m_pSceneRoot->AddChild(m_pTestPointLight);
+		m_pSceneRoot->AddChild(m_pTestPointLight1);
 		m_pSceneRoot->AddChild(m_pPlayerCharacter);
 
 
@@ -70,11 +70,12 @@ namespace Insight {
 	{
 		RenderSceneHeirarchy();
 		RenderInspector();
+		RenderCreatorWindow();
 	}
 
 	void Scene::RenderSceneHeirarchy()
 	{
-		ImGui::Begin("Scene Heirarchy");
+		ImGui::Begin("Heirarchy");
 		{
 			if (ImGui::CollapsingHeader(m_pSceneRoot->GetDisplayName(), ImGuiTreeNodeFlags_DefaultOpen))
 			{
@@ -82,49 +83,31 @@ namespace Insight {
 			}
 		}
 		ImGui::End();
-
 	}
 
 	void Scene::RenderInspector()
 	{
-		// TODO: If an object is selected in the scene heirarchy graph
-		//		or through object ray cast picking, display its info in this panel
-		
-		ImGui::Begin("Inspector");
+		ImGui::Begin("Details");
 		{
-			ImGui::Text(m_pTestActor->GetDisplayName());
-			ImGui::DragFloat3("Position", &m_pTestActor->GetTransformRef().GetPositionRef().x, 0.05f, -100.0f, 100.0f);
-			ImGui::DragFloat3("Scale", &m_pTestActor->GetTransformRef().GetScaleRef().x, 0.05f, -100.0f, 100.0f);
-			ImGui::DragFloat3("Rotation", &m_pTestActor->GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);
+			if (m_pSelectedActor != nullptr) {
+				
+				m_pSelectedActor->OnImGuiRender();
+				// TODO add imguizmo to get transform guismo!
+			}
 		}
 		ImGui::End();
+	}
 
-		ImGui::Begin("Inspector 2");
+	void Scene::RenderCreatorWindow()
+	{
+		// TODO make this a colapsing header with different options
+		ImGui::Begin("Creator");
 		{
-			ImGui::Text(m_pTestActor2->GetDisplayName());
-			ImGui::DragFloat3("Position", &m_pTestActor2->GetTransformRef().GetPositionRef().x, 0.05f, -100.0f, 100.0f);
-			ImGui::DragFloat3("Scale", &m_pTestActor2->GetTransformRef().GetScaleRef().x, 0.05f, -100.0f, 100.0f);
-			ImGui::DragFloat3("Rotation", &m_pTestActor2->GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);
+			if (ImGui::Button("New Point Light", { 125, 25 })) {
+				m_pSceneRoot->AddChild(new APointLight(5, "New cool point light"));
+			}
 		}
 		ImGui::End();
-
-		ImGui::Begin("Inspector 3");
-		{
-			ImGui::Text(m_pTestActor3->GetDisplayName());
-			ImGui::DragFloat3("Position", &m_pTestActor3->GetTransformRef().GetPositionRef().x, 0.05f, -100.0f, 100.0f);
-			ImGui::DragFloat3("Scale", &m_pTestActor3->GetTransformRef().GetScaleRef().x, 0.05f, -100.0f, 100.0f);
-			ImGui::DragFloat3("Rotation", &m_pTestActor3->GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);
-		}
-		ImGui::End();
-
-		/*ImGui::Begin("Inspector 4");
-		{
-			ImGui::Text(m_pTestActor4->GetDisplayName());
-			ImGui::DragFloat3("Position", &m_pTestActor4->GetTransformRef().GetPositionRef().x, 0.05f, -100.0f, 100.0f);
-			ImGui::DragFloat3("Scale", &m_pTestActor4->GetTransformRef().GetScaleRef().x, 0.05f, -100.0f, 100.0f);
-			ImGui::DragFloat3("Rotation", &m_pTestActor4->GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);
-		}
-		ImGui::End();*/
 	}
 
 	void Scene::OnPreRender()
@@ -138,7 +121,7 @@ namespace Insight {
 	{
 		m_Renderer->OnRender();
 		m_pSceneRoot->OnRender();
-		m_ModelManager.Draw();
+		m_ModelManager.Render();
 	}
 
 	void Scene::OnMidFrameRender()

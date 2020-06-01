@@ -13,7 +13,7 @@ namespace Insight {
 	{
 	public:
 		APlayerCharacter(ActorId id, ActorName name = "Player Character");
-		~APlayerCharacter();
+		virtual ~APlayerCharacter();
 
 		inline static APlayerCharacter& Get() { return *s_Instance; }
 
@@ -22,6 +22,7 @@ namespace Insight {
 		virtual void OnPreRender(XMMATRIX parentMat) override;
 		virtual void OnRender() override;
 		void RenderSceneHeirarchy() override;
+		void OnImGuiRender() override;
 
 		ACamera& GetCameraRef() { return *m_Camera; }
 

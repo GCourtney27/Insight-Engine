@@ -11,6 +11,7 @@
 #include "Insight/Rendering/Texture.h"
 #include "Insight/Rendering/Geometry/Mesh.h"
 #include "Platform/DirectX12/Descriptor_Heap_Wrapper.h"
+#include "Insight/Rendering/Lighting/APoint_Light.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -22,11 +23,11 @@ namespace Insight {
 	{
 	public:
 		void Init();
-		void Draw(ComPtr<ID3D12GraphicsCommandList> commandList);
+		void Render(ComPtr<ID3D12GraphicsCommandList> commandList);
 
 	private:
-		ComPtr<ID3D12Resource> mVB;
-		D3D12_VERTEX_BUFFER_VIEW mVbView;
+		ComPtr<ID3D12Resource> m_VertexBuffer;
+		D3D12_VERTEX_BUFFER_VIEW m_VertexBufferView;
 		UINT m_NumVerticies = 0u;
 	};
 
@@ -60,21 +61,23 @@ namespace Insight {
 
 		const unsigned int GetNumRTVs() const { return m_NumRTV; }
 
-		D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const
+		inline D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE handle;
 			handle.ptr = m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + m_rtvDescriptorSize * m_FrameIndex;
 			return handle;
 		}
 
+		void AddPointLight(APointLight* pointLight) { m_PointLights.push_back(pointLight); }
+
 	private:
-		CD3DX12_CPU_DESCRIPTOR_HANDLE& GetCBVSRVDescriptorHeapHandleWithOffset() { return m_CbvSrvDescriptorHeapHandleWithOffset; }
 		void CloseCommandListAndSignalCommandQueue();
 		// Per-Frame
 		void PopulateCommandLists();
 		void MoveToNextFrame();
 		void BindGeometryPass(bool setPSO = false);
 		void BindLightingPass();
+		void BindSkyPass();
 
 		// D3D12 Initialize
 		void CreateDXGIFactory();
@@ -84,11 +87,12 @@ namespace Insight {
 		void CreateSwapChain();
 		void CreateRenderTargetViewDescriptorHeap();
 
-		void CreateDepthStencilView();
-		void CreateRenderTargetView();
+		void CreateDSV();
+		void CreateRTVs();
 		void CreateConstantBufferViews();
 		void CreateRootSignature();
 		void CreateGeometryPassPSO();
+		void CreateSkyPassPSO();
 		void CreateLightPassPSO();
 
 		void CreateCommandAllocators();
@@ -96,16 +100,8 @@ namespace Insight {
 		void CreateConstantBuffers();
 		void CreateViewport();
 		void CreateScissorRect();
-
-		ScreenQuad m_ScreenQuad;
 		void CreateScreenQuad();
-
-#pragma region Deferred Rendering
-		ComPtr<ID3D12RootSignature>			m_pRootSignature;
-
-		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_GeometryPass;
-		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_LightingPass;
-#pragma endregion 
+		
 		void Cleanup();
 		void WaitForGPU();
 		void UpdateSizeDependentResources();
@@ -139,8 +135,6 @@ namespace Insight {
 		ComPtr<ID3D12CommandQueue>			m_pCommandQueue;
 		ComPtr<ID3D12GraphicsCommandList>	m_pCommandList;
 		ComPtr<ID3D12CommandAllocator>		m_pCommandAllocators[m_FrameBufferCount];
-		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_ForwardPass;
-		ComPtr<ID3D12RootSignature>			m_pRootSignature_ForwardPass;
 
 		ComPtr<ID3D12Resource>				m_pRenderTargetTextures[m_FrameBufferCount];
 		ComPtr<ID3D12Resource>				m_pRenderTargets[m_FrameBufferCount];
@@ -151,6 +145,11 @@ namespace Insight {
 		ComPtr<ID3D12Resource>				m_pDepthStencilTexture;
 		CDescriptorHeapWrapper				m_dsvHeap;
 
+		ComPtr<ID3D12RootSignature>			m_pRootSignature;
+
+		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_GeometryPass;
+		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_LightingPass;
+		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_Sky;
 
 		//0: SRV-Albedo(RTV->SRV)
 		//1: SRV-Normal(RTV->SRV)
@@ -166,15 +165,7 @@ namespace Insight {
 		CDescriptorHeapWrapper				m_cbvsrvHeap;
 		
 
-		CD3DX12_CPU_DESCRIPTOR_HANDLE		m_CbvSrvDescriptorHeapHandleWithOffset;
-
-		const UINT ALBEDO_MAP_SHADER_REGISTER = Texture::eTextureType::ALBEDO;
-		const UINT NORMAL_MAP_SHADER_REGISTER = Texture::eTextureType::NORMAL;
-		const UINT ROUGHNESS_MAP_SHADER_REGISTER = Texture::eTextureType::ROUGHNESS;
-		const UINT METALLIC_MAP_SHADER_REGISTER = Texture::eTextureType::METALLIC;
-		const UINT SPECULAR_MAP_ROUGHNESS_REGISTER = Texture::eTextureType::ROUGHNESS;
-		const UINT AO_MAP_SHADER_REGISTER = Texture::eTextureType::AO;
-
+		ScreenQuad							m_ScreenQuad;
 		D3D12_VIEWPORT						m_ViewPort = {};
 		D3D12_RECT							m_ScissorRect = {};
 		DXGI_SAMPLE_DESC					m_SampleDesc = {};
@@ -184,9 +175,9 @@ namespace Insight {
 		static const unsigned int			m_NumRTV = 4;
 		DXGI_FORMAT							m_DsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		DXGI_FORMAT							m_RtvFormat[4] = { 
-			DXGI_FORMAT_R11G11B10_FLOAT, // Albedo buffer
-			DXGI_FORMAT_R8G8B8A8_SNORM, // Normal
-			DXGI_FORMAT_R11G11B10_FLOAT, // (R)Roughness/(G)Metallic/(B)AO
+			DXGI_FORMAT_R11G11B10_FLOAT,	// Albedo buffer
+			DXGI_FORMAT_R8G8B8A8_SNORM,		// Normal
+			DXGI_FORMAT_R11G11B10_FLOAT,	// (R)Roughness/(G)Metallic/(B)AO
 			DXGI_FORMAT_R32G32B32A32_FLOAT, // Position
 		};
 		float								m_ClearDepth = 1.0f;
@@ -212,9 +203,9 @@ namespace Insight {
 		CB_PS_VS_PerFrame m_PerFrameData;
 
 
-#define MAX_POINT_LIGHTS_SUPPORTED 4
-		CB_PS_PointLight m_PointLights[MAX_POINT_LIGHTS_SUPPORTED];
+		std::vector<APointLight*> m_PointLights;
 		int ConstantBufferPointLightAlignedSize = (sizeof(CB_PS_PointLight) + 255) & ~255;
+
 		CB_PS_DirectionalLight m_DirectionalLight;
 		int ConstantBufferDirectionalLightAlignedSize = (sizeof(CB_PS_DirectionalLight) + 255) & ~255;
 
@@ -235,7 +226,6 @@ namespace Insight {
 
 		inline void PIXBeginEvent(ID3D12GraphicsCommandList* pCommandList, UINT64 /*metadata*/, PCWSTR pFormat)
 		{
-
 			pCommandList->BeginEvent(PIX_EVENT_UNICODE_VERSION, pFormat, (wcslen(pFormat) + 1) * sizeof(pFormat[0]));
 		}
 		inline void PIXEndEvent(ID3D12CommandQueue* pCommandQueue)

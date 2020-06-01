@@ -27,6 +27,11 @@ namespace Insight {
 		return LoadModelFromFile(path);
 	}
 
+	void Model::OnImGuiRender()
+	{
+
+	}
+
 	void Model::RenderSceneHeirarchy()
 	{
 		if (ImGui::TreeNode(SceneNode::GetDisplayName())) {

@@ -24,7 +24,7 @@ namespace Insight {
 		UpdateViewMatrix();
 		GetTransformRef().UpdateLocalDirectionVectors();
 	}
-	
+
 	void ACamera::ProcessKeyboardInput(CameraMovement direction, float deltaTime)
 	{
 		float velocity = m_MovementSpeed * deltaTime;
@@ -54,7 +54,7 @@ namespace Insight {
 		}
 		UpdateViewMatrix();
 	}
-	
+
 	void ACamera::SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ)
 	{
 		m_Fov = fovDegrees;
@@ -67,17 +67,22 @@ namespace Insight {
 
 	void ACamera::RenderSceneHeirarchy()
 	{
-		if (ImGui::TreeNode(SceneNode::GetDisplayName()))
-		{
-			SceneNode::RenderSceneHeirarchy();
+		AActor::RenderSceneHeirarchy();
+	}
 
-			for (size_t i = 0; i < m_NumComponents; ++i)
-			{
-				m_Components[i]->RenderSceneHeirarchy();
-			}
-			ImGui::TreePop();
-			ImGui::Spacing();
-		}
+	void ACamera::OnImGuiRender()
+	{
+		AActor::OnImGuiRender();
+
+		ImGui::Text("View");
+		ImGui::DragFloat("Field of View", &m_Fov, 0.5f, 0.0f, 180.0f);
+		ImGui::DragFloat("Near Z", &m_NearZ, 0.01f, 0.00001f, 5.0f);
+		ImGui::DragFloat("Far Z", &m_FarZ, 1.0f, 1.0f, 10000.0f);
+
+		ImGui::Text("Post-Processing");
+		ImGui::DragFloat("Exposure", &m_Exposure, 0.01f, 0.0f, 1.0f);
+
+		SetProjectionValues(m_Fov, m_AspectRatio, m_NearZ, m_FarZ);
 	}
 
 	void ACamera::UpdateViewMatrix()

@@ -18,10 +18,11 @@ namespace Insight {
 		
 	public:
 		AActor(ActorId id, ActorName actorName = "Actor");
-		~AActor();
+		virtual ~AActor();
 
 		// Editor
-		void RenderSceneHeirarchy();
+		virtual void RenderSceneHeirarchy();
+		virtual void OnImGuiRender();
 
 		virtual bool OnInit();
 		virtual bool OnPostInit();
@@ -72,7 +73,7 @@ namespace Insight {
 		UINT m_NumComponents = 0;
 		ActorId m_id;
 	private:
-		
+
 	};
 }
 

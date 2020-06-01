@@ -33,11 +33,11 @@ namespace Insight {
 	public:
 		friend class APlayerCharacter;
 	public:
-		ACamera(Vector3 position = Vector3(0.0f, 10.0f, -10.0f), 
-				float pitch = PITCH, 
-				float yaw = YAW, 
-				float roll = ROLL, 
-				float exposure = EXPOSURE)
+		ACamera(Vector3 position = Vector3(0.0f, 10.0f, -10.0f),
+			float pitch = PITCH,
+			float yaw = YAW,
+			float roll = ROLL,
+			float exposure = EXPOSURE)
 			: m_MovementSpeed(SPEED), m_MouseSensitivity(SENSITIVITY), m_Fov(FOV), m_Exposure(EXPOSURE), AActor(0)
 		{
 			AActor(0, "Camera");
@@ -47,7 +47,7 @@ namespace Insight {
 			m_Roll = roll;
 			UpdateViewMatrix();
 		}
-		~ACamera();
+		virtual ~ACamera();
 
 		void ProcessMouseScroll(float yOffset);
 		void ProcessMouseMovement(float xOffset, float yOffset);
@@ -62,9 +62,11 @@ namespace Insight {
 		inline void SetNearZ(float& nearZ) { SetProjectionValues(m_Fov, m_AspectRatio, nearZ, m_FarZ); }
 		inline void SetFarZ(float& farZ) { SetProjectionValues(m_Fov, m_AspectRatio, m_NearZ, farZ); }
 		inline float GetExposure() { return m_Exposure; }
+		inline void SetExposure(float exposure) { m_Exposure = exposure; }
 
 		void SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ);
 		void RenderSceneHeirarchy() override;
+		void OnImGuiRender() override;
 
 	private:
 		void UpdateViewMatrix();
