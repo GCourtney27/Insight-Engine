@@ -29,7 +29,7 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
     float aoSample = t_RoughMetAOBufferSample.b;
     
     float3 normal = (normalBufferSample);
-    return float4(normal, 1.0);
+    
     float3 viewDirection = normalize(cameraPosition - positionBufferSample);
     float3 F0 = float3(0.04, 0.04, 0.04);
     float3 baseReflectivity = lerp(F0, albedoBufferSample, metallicSample);

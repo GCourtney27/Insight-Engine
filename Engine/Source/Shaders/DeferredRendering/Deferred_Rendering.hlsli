@@ -19,6 +19,8 @@ cbuffer cbPerFrame : register(b1)
     int numPointLights;
     int numDirectionalLights;
     int numSpotLights;
+    
+	float padding;
 };
 
 cbuffer cbLights : register(b2)
