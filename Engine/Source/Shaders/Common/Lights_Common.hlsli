@@ -1,3 +1,4 @@
+// If max supported lights is changed here it must also be changed inside the rendering context
 #define MAX_POINT_LIGHTS_SUPPORTED 16
 #define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 4
 #define MAX_SPOT_LIGHTS_SUPPORTED 16
@@ -17,7 +18,9 @@ struct DirectionalLight
     
     float3 ambient;
     float3 diffuse;
-    float3 specular;
+    
+    float strength;
+        float2 padding;
 };
 
 struct SpotLight

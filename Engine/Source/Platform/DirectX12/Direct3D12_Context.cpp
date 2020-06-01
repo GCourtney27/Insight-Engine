@@ -119,16 +119,22 @@ namespace Insight {
 		m_PerFrameData.cameraFarZ = (float)playerCamera.GetFarZ();
 		m_PerFrameData.cameraExposure = (float)playerCamera.GetExposure();
 		m_PerFrameData.numPointLights = (int)m_PointLights.size();
-		m_PerFrameData.numDirectionalLights = 0;
+		m_PerFrameData.numDirectionalLights = (int)m_DirectionalLights.size();
 		m_PerFrameData.numSpotLights = 0;
 		memcpy(m_cbvPerFrameGPUAddress[m_FrameIndex], &m_PerFrameData, sizeof(CB_PS_VS_PerFrame));
 
 
-		UINT offset = 0u;
+		// Send Point Lights to GPU
 		for (int i = 0; i < m_PointLights.size(); i++)
 		{
 			memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (sizeof(CB_PS_PointLight) * i), &m_PointLights[i]->GetConstantBuffer(), sizeof(CB_PS_PointLight));
 		}
+		// Send Directionl Lights to GPU
+		for (int i = 0; i < m_DirectionalLights.size(); i++)
+		{
+			memcpy( (m_cbvLightBufferGPUAddress[m_FrameIndex] + ( MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight) ) ) + ( sizeof(CB_PS_DirectionalLight) * i ), &m_DirectionalLights[i]->GetConstantBuffer(), sizeof(CB_PS_DirectionalLight) );
+		}
+
 	}
 
 	void Direct3D12Context::MoveToNextFrame()
@@ -811,27 +817,7 @@ namespace Insight {
 	void Direct3D12Context::LoadAssets()
 	{
 
-		using namespace DirectX;
-		//srand(13);
-		//for (UINT i = 0; i < m_PointLights.size(); i++)
-		//{
-		//	m_PointLights[i].GetConstantBufferRef().ambient = XMFLOAT3(0.3f, 0.3f, 0.3f);
-		//	float rColor = ((rand() % 100) / 200.0f) + 0.5f; // between 0.5 and 1.0
-		//	float gColor = ((rand() % 100) / 200.0f) + 0.5f; // between 0.5 and 1.0
-		//	float bColor = ((rand() % 100) / 200.0f) + 0.5f; // between 0.5 and 1.0
-		//	m_PointLights[i].GetConstantBufferRef().position = XMFLOAT3(rColor * 10.0f, gColor * 10.0f, bColor * 10.0f);
-		//	m_PointLights[i].GetConstantBufferRef().diffuse = XMFLOAT3(rColor, gColor, bColor);
-		//	m_PointLights[i].GetConstantBufferRef().specular = XMFLOAT3(rColor, gColor, bColor);
-		//	//m_PointLights[i].GetConstantBufferRef().constant = 1.0f;
-		//	//m_PointLights[i].GetConstantBufferRef().linear = 0.09f;
-		//	//m_PointLights[i].GetConstantBufferRef().quadratic = 0.032f;
-		//}
-
-		m_DirectionalLight.ambient = XMFLOAT3(0.3f, 0.3f, 0.3f);
-		m_DirectionalLight.diffuse = XMFLOAT3(1.0f, 1.0f, 1.0f);
-		m_DirectionalLight.direction = XMFLOAT3(-0.2f, -1.0f, -0.3f);
-		m_DirectionalLight.specular = XMFLOAT3(1.0f, 1.0f, 1.0f);
-
+		// Textures
 		std::wstring texRelPathAlbedoW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedMetal/RustedMetal_Albedo.png"));
 		Texture::eTextureType texTypeAlbedo = Texture::eTextureType::ALBEDO;
 		m_AlbedoTexture.Init(texRelPathAlbedoW, texTypeAlbedo, m_cbvsrvHeap);

@@ -14,6 +14,7 @@ sampler s_LinearWrapSampler : register(s0);
 float3 CalculatePointLight(PointLight light, float3 normal, float3 fragPosition, float3 viewDirection, float2 texCoords);
 float LinearizeDepth(float depth);
 float3 GammaCorrect(float3 target);
+float3 CalculateDirectionalLight(DirectionalLight light, float3 normal, float3 viewDirection, float2 texCoords);
 
 float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
 {
@@ -33,10 +34,11 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
     float3 F0 = float3(0.04, 0.04, 0.04);
     float3 baseReflectivity = lerp(F0, albedoBufferSample, metallicSample);
     
-    float3 LO = float3(0.0, 0.0, 0.0);
+    float3 outputLuminance = float3(0.0, 0.0, 0.0);
     
     // Calculate Light Radiance
-    //result += CalculateDirectionalLight(dirLight, normal, viewDirection, ps_in.texCoords);
+    float3 result = CalculateDirectionalLight(dirLights[0], normal, viewDirection, ps_in.texCoords);
+    
     for (int i = 0; i < numPointLights; i++)
     {
         float3 lightDir = normalize(pointLights[i].position - positionBufferSample);
@@ -61,11 +63,11 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
         float3 kD = float3(1.0, 1.0, 1.0) - F;
         kD *= 1.0 - metallicSample;
         
-        LO += (kD * albedoBufferSample / PI + specular) * radiance * NdotL;
+        outputLuminance += (kD * albedoBufferSample / PI + specular) * radiance * NdotL;
     }
     
-    float3 ambient = float3(0.3, 0.3, 0.3) * albedoBufferSample * aoSample;
-    float3 result = ambient * LO;
+    //float3 ambient = float3(0.3, 0.3, 0.3) * albedoBufferSample * aoSample;
+    //float3 result = ambient * outputLuminance;
     
     // HDR Tonemapping
     float3 mapped = float3(1.0, 1.0, 1.0) - exp(-result * cameraExposure);
@@ -83,6 +85,21 @@ float LinearizeDepth(float depth)
 {
     float z = depth * 2.0 - 1.0; // back to NDC 
     return (2.0 * cameraNearZ * cameraFarZ) / (cameraFarZ + cameraNearZ - z * (cameraFarZ - cameraNearZ)) / cameraFarZ;
+}
+
+float3 CalculateDirectionalLight(DirectionalLight light, float3 normal, float3 viewDirection, float2 texCoords)
+{
+    float3 lightDir = normalize(-light.direction);
+    float3 halfwayDir = normalize(lightDir + viewDirection);
+    // diffuse shading
+    float diff = max(dot(normal, lightDir), 0.0);
+    // specular shading
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), 16.0);
+    // combine results
+    float3 ambient = (light.ambient * 255.0) * pow(t_AlbedoGBuffer.Sample(s_LinearWrapSampler, texCoords).rgb, float3(2.2, 2.2, 2.2));
+    float3 diffuse = (light.diffuse * 255.0) * diff * pow(t_AlbedoGBuffer.Sample(s_LinearWrapSampler, texCoords).rgb, float3(2.2, 2.2, 2.2));
+    float3 specular = float3(1.0, 1.0, 1.0) * spec * t_RoughnessMetallicAOGBuffer.Sample(s_LinearWrapSampler, texCoords).r;
+    return (ambient + diffuse + specular);
 }
 
 

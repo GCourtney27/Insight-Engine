@@ -38,7 +38,9 @@ struct CB_PS_DirectionalLight
 
 	DirectX::XMFLOAT3 ambient;
 	DirectX::XMFLOAT3 diffuse;
-	DirectX::XMFLOAT3 specular;
+	float strength;
+
+	float padding[2];
 };
 
 struct CB_PS_SpotLight
