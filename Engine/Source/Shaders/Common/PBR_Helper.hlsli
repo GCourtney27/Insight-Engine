@@ -2,7 +2,6 @@
 // for Physically Based Rendering in the Pixel Shader 
 
 static const float PI = 3.14159265359;
-
 float DistributionGGX(float NdotH, float roughness)
 {
     float a = roughness * roughness;

@@ -12,14 +12,13 @@ sampler s_LinearWrapSampler : register(s0);
 // Function signatures
 // -------------------
 float3 CalculatePointLight(PointLight light, float3 normal, float3 fragPosition, float3 viewDirection, float2 texCoords);
-float3 CalculateDirectionalLight(DirectionalLight light, float3 normal, float3 viewDirection, float2 texCoords);
 float LinearizeDepth(float depth);
 float3 GammaCorrect(float3 target);
 
 float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
 {
 	
-    float3 albedoBufferSample = t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
+    float3 albedoBufferSample = pow(t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb, float3(2.2, 2.2, 2.2));
     float3 normalBufferSample = t_NormalGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
     float3 t_RoughMetAOBufferSample = t_RoughnessMetallicAOGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
     float3 positionBufferSample = t_PositionGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
@@ -35,15 +34,16 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
     float3 baseReflectivity = lerp(F0, albedoBufferSample, metallicSample);
     
     float LO = float3(0.0, 0.0, 0.0);
+    
     // Calculate Light Radiance
     //result += CalculateDirectionalLight(dirLight, normal, viewDirection, ps_in.texCoords);
     for (int i = 0; i < numPointLights; i++)
     {
-        float3 lightDir = normalize(pointLights.position - positionBufferSample);
+        float3 lightDir = normalize(pointLights[i].position - positionBufferSample);
         float3 halfwayDir = normalize(viewDirection + lightDir);
-        float distance = length(pointLights.position - positionBufferSample);
-        float attenuation = 1.0 / pointLights.constantFactor + pointLights.linearFactor * distance + pointLights.quadraticFactor * (distance * distance);
-        float3 radiance = pointLights.diffuse * attenuation;
+        float distance = length(pointLights[i].position - positionBufferSample);
+        float attenuation = 1.0 / (distance * distance);
+        float3 radiance = pointLights[i].diffuse * attenuation;
         
         // Cook-Torrance BRDF
         float NdotV = max(dot(normal, viewDirection), 0.0000001);
@@ -64,7 +64,7 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
         LO += (kD * albedoBufferSample / PI + specular) * radiance * NdotL;
     }
     
-    float3 ambient = float3(0.03, 0.03, 0.03) * albedoBufferSample * aoSample;
+    float3 ambient = float3(0.3, 0.3, 0.3) * albedoBufferSample * aoSample;
     float3 result = ambient * LO;
     
     // HDR Tonemapping
@@ -85,20 +85,5 @@ float LinearizeDepth(float depth)
     return (2.0 * cameraNearZ * cameraFarZ) / (cameraFarZ + cameraNearZ - z * (cameraFarZ - cameraNearZ)) / cameraFarZ;
 }
 
-// TODO: Fix this its amplifyingred values
-float3 CalculateDirectionalLight(DirectionalLight light, float3 normal, float3 viewDirection, float2 texCoords)
-{
-    float3 lightDir = normalize(-light.direction);
-    float3 halfwayDir = normalize(lightDir + viewDirection);
-    
-    float diffuseFactor = max(dot(normal, lightDir), 0.0);
-    float specularFactor = pow(max(dot(normal, halfwayDir), 0.0), 16.0);
-    
-    float3 textureColor = t_AlbedoGBuffer.Sample(s_LinearWrapSampler, texCoords).rgb;
-    float3 ambient = light.ambient * textureColor;
-    float3 diffuse = light.diffuse * diffuseFactor * textureColor;
-    float3 specular = specularFactor * t_RoughnessMetallicAOGBuffer.Sample(s_LinearWrapSampler, texCoords).r;
 
-    return (ambient + diffuse + specular);
-}
 

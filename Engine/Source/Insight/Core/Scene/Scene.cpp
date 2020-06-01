@@ -42,6 +42,8 @@ namespace Insight {
 			reinterpret_cast<StaticMeshComponent*>(ptr3.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Models/Dandelion/Var1/Textured_Flower.obj"));
 
 			m_pTestPointLight = new APointLight(4, "Point Light Actor");
+			m_pTestPointLight->GetTransformRef().SetPosition(Vector3(0.0f, 13.75f, -6.3));
+
 			m_pTestPointLight1 = new APointLight(5, "Point Light Actor1");
 
 		}
@@ -85,9 +87,6 @@ namespace Insight {
 
 	void Scene::RenderInspector()
 	{
-		// TODO: If an object is selected in the scene heirarchy graph
-		//		or through object ray cast picking, display its info in this panel
-
 		ImGui::Begin("Inspector");
 		{
 			if (m_pSelectedActor != nullptr) {
@@ -96,14 +95,6 @@ namespace Insight {
 			}
 		}
 		ImGui::End();
-
-		/*float e = m_pPlayerCharacter->GetCameraRef().GetExposure();
-		ImGui::Begin("Camera exposure");
-		{
-			ImGui::DragFloat("Val", &e, 0.01f, 0.0f, 1.0f);
-		}
-		ImGui::End();
-		m_pPlayerCharacter->GetCameraRef().SetExposure(e);*/
 	}
 
 	void Scene::OnPreRender()
