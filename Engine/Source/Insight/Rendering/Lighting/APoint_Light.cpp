@@ -15,6 +15,7 @@ namespace Insight {
 
 		m_ShaderCB.position = SceneNode::GetTransformRef().GetPositionRef();
 		m_ShaderCB.diffuse = XMFLOAT3(255.0f, 255.0f, 255.0f);
+		m_ShaderCB.strength = 1.0f;
 
 		graphicsContext.AddPointLight(this);
 	}
@@ -72,12 +73,10 @@ namespace Insight {
 		
 		ImGui::Text("Rendering");
 		ImGuiColorEditFlags flags = ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_PickerHueWheel;
-		//static float r = 0.0f;
-		//static float g = 0.0f;
-		//static float b = 0.0f;
 		ImGui::DragFloat3("Diffuse", &m_ShaderCB.diffuse.x, 1.0f, 0.0f, 255.0f);
 		//ImGui::ColorEdit3("Diffuse", &m_ShaderCB.diffuse.x, flags);
-		
+		ImGui::DragFloat("Strength", &m_ShaderCB.strength, 0.1f, 0.0f, 100.0f);
+
 	}
 
 }

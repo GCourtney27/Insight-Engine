@@ -40,6 +40,7 @@ namespace Insight {
 	private:
 		void RenderSceneHeirarchy();
 		void RenderInspector();
+		void RenderCreatorWindow();
 	private:
 		AActor* m_pTestActor = nullptr; // Temp: this should come from a file
 		AActor* m_pTestActor2 = nullptr; // Temp: this should come from a file

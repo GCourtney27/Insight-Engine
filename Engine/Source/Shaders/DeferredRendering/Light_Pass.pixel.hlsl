@@ -28,7 +28,7 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
     float aoSample = t_RoughMetAOBufferSample.b;
     
     float3 normal = (normalBufferSample);
-    
+    //return float4(pointLights[0].diffuse, 1.0);
     float3 viewDirection = normalize(cameraPosition - positionBufferSample);
     float3 F0 = float3(0.04, 0.04, 0.04);
     float3 baseReflectivity = lerp(F0, albedoBufferSample, metallicSample);
@@ -43,7 +43,7 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
         float3 halfwayDir = normalize(viewDirection + lightDir);
         float distance = length(pointLights[i].position - positionBufferSample);
         float attenuation = 1.0 / (distance * distance);
-        float3 radiance = pointLights[i].diffuse * attenuation;
+        float3 radiance = (pointLights[i].diffuse * pointLights[i].strength) * attenuation;
         
         // Cook-Torrance BRDF
         float NdotV = max(dot(normal, viewDirection), 0.0000001);
