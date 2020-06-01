@@ -5,7 +5,7 @@
 struct PointLight
 {
     float3 position;
-        float padding;
+    float strength;
 	
     float3 diffuse;
         float padding1;

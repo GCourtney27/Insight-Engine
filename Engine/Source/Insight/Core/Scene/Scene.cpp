@@ -75,7 +75,7 @@ namespace Insight {
 
 	void Scene::RenderSceneHeirarchy()
 	{
-		ImGui::Begin("Scene Heirarchy");
+		ImGui::Begin("Heirarchy");
 		{
 			if (ImGui::CollapsingHeader(m_pSceneRoot->GetDisplayName(), ImGuiTreeNodeFlags_DefaultOpen))
 			{
@@ -83,17 +83,16 @@ namespace Insight {
 			}
 		}
 		ImGui::End();
-		
-		
 	}
 
 	void Scene::RenderInspector()
 	{
-		ImGui::Begin("Inspector");
+		ImGui::Begin("Details");
 		{
 			if (m_pSelectedActor != nullptr) {
 				
 				m_pSelectedActor->OnImGuiRender();
+				// TODO add imguizmo to get transform guismo!
 			}
 		}
 		ImGui::End();
@@ -104,7 +103,7 @@ namespace Insight {
 		// TODO make this a colapsing header with different options
 		ImGui::Begin("Creator");
 		{
-			if (ImGui::Button("Press to create point light", { 100, 100 })) {
+			if (ImGui::Button("New Point Light", { 125, 25 })) {
 				m_pSceneRoot->AddChild(new APointLight(5, "New cool point light"));
 			}
 		}

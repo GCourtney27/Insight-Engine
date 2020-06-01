@@ -26,7 +26,7 @@ struct CB_PS_VS_PerFrame
 struct CB_PS_PointLight
 {
 	DirectX::XMFLOAT3 position;
-	float padding;
+	float strength;
 
 	DirectX::XMFLOAT3 diffuse;
 	float padding1;
