@@ -175,9 +175,9 @@ namespace Insight {
 		static const unsigned int			m_NumRTV = 4;
 		DXGI_FORMAT							m_DsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		DXGI_FORMAT							m_RtvFormat[4] = { 
-			DXGI_FORMAT_R11G11B10_FLOAT, // Albedo buffer
-			DXGI_FORMAT_R8G8B8A8_SNORM, // Normal
-			DXGI_FORMAT_R11G11B10_FLOAT, // (R)Roughness/(G)Metallic/(B)AO
+			DXGI_FORMAT_R11G11B10_FLOAT,	// Albedo buffer
+			DXGI_FORMAT_R8G8B8A8_SNORM,		// Normal
+			DXGI_FORMAT_R11G11B10_FLOAT,	// (R)Roughness/(G)Metallic/(B)AO
 			DXGI_FORMAT_R32G32B32A32_FLOAT, // Position
 		};
 		float								m_ClearDepth = 1.0f;

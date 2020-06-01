@@ -42,7 +42,7 @@ namespace Insight {
 			reinterpret_cast<StaticMeshComponent*>(ptr3.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Models/Dandelion/Var1/Textured_Flower.obj"));
 
 			m_pTestPointLight = new APointLight(4, "Point Light Actor");
-			//m_pTestPointLight1 = new APointLight(4, "Point Light Actor");
+			m_pTestPointLight1 = new APointLight(5, "Point Light Actor1");
 
 		}
 
@@ -50,7 +50,7 @@ namespace Insight {
 		m_pSceneRoot->AddChild(m_pTestActor2);
 		m_pSceneRoot->AddChild(m_pTestActor3);
 		m_pSceneRoot->AddChild(m_pTestPointLight);
-		//m_pSceneRoot->AddChild(m_pTestPointLight1);
+		m_pSceneRoot->AddChild(m_pTestPointLight1);
 		m_pSceneRoot->AddChild(m_pPlayerCharacter);
 
 
