@@ -1,7 +1,5 @@
 #include <Deferred_Rendering.hlsli>	
 
-
-
 VS_OUTPUT_LIGHTPASS main(VS_INPUT_LIGHTPASS vs_in)
 {
     VS_OUTPUT_LIGHTPASS vs_out;

@@ -1,41 +1,48 @@
 #include <Deferred_Rendering.hlsli>	
 #include <../Common/PBR_Helper.hlsli>
 
+// Texture Inputs
+// --------------
 Texture2D t_AlbedoGBuffer : register(t0);
 Texture2D t_NormalGBuffer : register(t1);
 Texture2D t_RoughnessMetallicAOGBuffer : register(t2);
 Texture2D t_PositionGBuffer : register(t3);
 Texture2D t_DepthGBuffer : register(t4);
 
+// Samplers
+// --------
 sampler s_LinearWrapSampler : register(s0);
 
 // Function signatures
 // -------------------
 float3 CalculatePointLight(PointLight light, float3 normal, float3 fragPosition, float3 viewDirection, float2 texCoords);
+void GammaCorrect(inout float3 target);
+void HDRToneMap(inout float3 target);
 float LinearizeDepth(float depth);
-float3 GammaCorrect(float3 target);
 
+// Entry Point
+// -----------
 float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
 {
-	
+	// Sample Textures
     float3 albedoBufferSample = pow(t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb, float3(2.2, 2.2, 2.2));
-    float3 normalBufferSample = t_NormalGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
-    float3 t_RoughMetAOBufferSample = t_RoughnessMetallicAOGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
+    float3 roughMetAOBufferSample = t_RoughnessMetallicAOGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
     float3 positionBufferSample = t_PositionGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
+    float3 normalBufferSample = t_NormalGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
     float depthBufferSample = t_DepthGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
-    float roughnessSample = t_RoughMetAOBufferSample.r;
-    float metallicSample = t_RoughMetAOBufferSample.g;
-    float aoSample = t_RoughMetAOBufferSample.b;
+    float roughnessSample = roughMetAOBufferSample.r;
+    float metallicSample = roughMetAOBufferSample.g;
+    float aoSample = roughMetAOBufferSample.b;
     
     float3 normal = (normalBufferSample);
-    //return float4(pointLights[0].diffuse, 1.0);
     float3 viewDirection = normalize(cameraPosition - positionBufferSample);
+    
     float3 F0 = float3(0.04, 0.04, 0.04);
     float3 baseReflectivity = lerp(F0, albedoBufferSample, metallicSample);
     
-    float3 directionalLightLuminance = float3(0.0, 0.0, 0.0);
-    float3 pointLightLuminance = float3(0.0, 0.0, 0.0);
     float3 spotLightLuminance = float3(0.0, 0.0, 0.0);
+    float3 pointLightLuminance = float3(0.0, 0.0, 0.0);
+    float3 directionalLightLuminance = float3(0.0, 0.0, 0.0);
     
     // Calculate Light Radiance
     // Directional Lights
@@ -125,20 +132,25 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
         pointLightLuminance += (kD * albedoBufferSample / PI + specular) * radiance * NdotL;
     }
     
+    // Combine Light luminance
     float3 ambient = float3(0.03, 0.03, 0.03) * albedoBufferSample * aoSample; // TODO replace floa3 with IR map sample
     float3 outputLuminance = directionalLightLuminance + pointLightLuminance + spotLightLuminance;
-    float3 result = ambient * outputLuminance;
+    float3 pixelColor = ambient * outputLuminance;
     
-    // HDR Tonemapping
-    float3 mapped = float3(1.0, 1.0, 1.0) - exp(-result * cameraExposure);
-    mapped = GammaCorrect(mapped);
-    return float4(mapped, 1.0);
+    HDRToneMap(pixelColor);
+    GammaCorrect(pixelColor);
+    return float4(pixelColor, 1.0);
 }
 
-float3 GammaCorrect(float3 target)
+void HDRToneMap(inout float3 target)
+{
+    target = float3(1.0, 1.0, 1.0) - exp(-target * cameraExposure);
+}
+
+void GammaCorrect(inout float3 target)
 {
     const float gamma = 2.2;
-    return pow(target.rgb, float3(1.0 / gamma, 1.0 / gamma, 1.0 / gamma));
+    target = pow(target.rgb, float3(1.0 / gamma, 1.0 / gamma, 1.0 / gamma));
 }
 
 float LinearizeDepth(float depth)
@@ -146,6 +158,4 @@ float LinearizeDepth(float depth)
     float z = depth * 2.0 - 1.0; // back to NDC 
     return (2.0 * cameraNearZ * cameraFarZ) / (cameraFarZ + cameraNearZ - z * (cameraFarZ - cameraNearZ)) / cameraFarZ;
 }
-
-
 

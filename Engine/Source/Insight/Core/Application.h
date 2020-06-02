@@ -3,11 +3,11 @@
 #include <Insight/Core.h>
 
 #include "Window.h"
-#include "Insight/Core/Layer/Layer_Stack.h"
-#include "Insight/Events/Application_Event.h"
-#include "Insight/ImGui/ImGui_Layer.h"
 #include "Insight/Systems/Time.h"
 #include "Insight/Core/Scene/Scene.h"
+#include "Insight/ImGui/ImGui_Layer.h"
+#include "Insight/Core/Layer/Layer_Stack.h"
+#include "Insight/Events/Application_Event.h"
 
 namespace Insight {
 

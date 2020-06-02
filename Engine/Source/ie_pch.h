@@ -1,20 +1,20 @@
 #pragma once
 
 // === Standard Library === //
-#include <memory>
-#include <utility>
-#include <iostream>
-#include <algorithm>
-#include <functional>
-
 #include <map>
 #include <array>
 #include <stack>
 #include <queue>
 #include <vector>
 #include <string>
+#include <math.h>
 #include <thread>
+#include <memory>
 #include <sstream>
+#include <utility>
+#include <iostream>
+#include <algorithm>
+#include <functional>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -46,13 +46,15 @@
 	#include <wrl/client.h>
 
 	// Direct3D 12
+	#include <d3d12.h>
+	#include <d3dx12.h>
+	#include <dxgi1_2.h>
+	#include <dxgi1_4.h>
+	#include <wincodec.h>
 	#include <SimpleMath.h>
 	#include <DirectXMath.h>
-	#include <d3d12.h>
-	#include <dxgi1_4.h>
 	#include <D3Dcompiler.h>
-	#include <dxgi1_2.h>
-	#include <d3dx12.h>
-	#include <wincodec.h>
+	#include <DDSTextureLoader.h>
+	#include "ResourceUploadBatch.h"
 
 #endif // IE_PLATFORM_WINDOWS

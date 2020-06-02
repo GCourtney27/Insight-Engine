@@ -1,3 +1,9 @@
+
+/*
+    This file includes all lights that are able to be rendered inside a pixel shader
+    *Note: Constant Buffers must be 4 byte aligned, edit with caution
+*/
+
 // If max supported lights is changed here it must also be changed inside the rendering context
 #define MAX_POINT_LIGHTS_SUPPORTED 16
 #define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 4

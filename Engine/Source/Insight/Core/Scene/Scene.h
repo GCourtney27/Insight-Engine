@@ -3,14 +3,14 @@
 #include <Insight/Core.h>
 
 #include "Scene_Node.h"
-#include "Insight/Rendering/Rendering_Context.h"
-#include "Insight/Runtime/APlayer_Character.h"
-#include "Insight/Rendering/Lighting/APoint_Light.h"
-#include "Insight/Rendering/Lighting/ASpot_Light.h"
-#include "Insight/Rendering/Lighting/ADirectional_Light.h"
-#include "Insight/Rendering/Geometry/Model.h"
-#include "Insight/Systems/Model_Manager.h"
 #include "Insight/Systems/File_System.h"
+#include "Insight/Systems/Model_Manager.h"
+#include "Insight/Rendering/Geometry/Model.h"
+#include "Insight/Runtime/APlayer_Character.h"
+#include "Insight/Rendering/Rendering_Context.h"
+#include "Insight/Rendering/Lighting/ASpot_Light.h"
+#include "Insight/Rendering/Lighting/APoint_Light.h"
+#include "Insight/Rendering/Lighting/ADirectional_Light.h"
 
 namespace Insight {
 
@@ -52,7 +52,7 @@ namespace Insight {
 		ADirectionalLight* m_pDirectionalLight = nullptr;
 		ASpotLight* m_pSpotLight = nullptr;
 		APlayerCharacter* m_pPlayerCharacter;
-
+		Vector3 newPos;
 		AActor* m_pSelectedActor = nullptr;
 
 		FileSystem m_FileSystem;

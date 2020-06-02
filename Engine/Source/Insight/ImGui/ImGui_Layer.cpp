@@ -8,6 +8,7 @@
 #include "imgui.h"
 #include "examples/imgui_impl_dx12.h"
 #include "examples/imgui_impl_win32.h"
+#include "ImGuizmo.h"
 
 namespace Insight {
 
@@ -117,6 +118,7 @@ namespace Insight {
 		ImGui_ImplDX12_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
+		ImGuizmo::BeginFrame();
 	}
 
 	void ImGuiLayer::End()

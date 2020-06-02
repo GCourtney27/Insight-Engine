@@ -2,11 +2,10 @@
 
 #include "Direct3D12_Context.h"
 
-#include "Platform/Windows/Windows_Window.h"
 #include "Insight/Input/Input.h"
 #include "Insight/Core/Application.h"
+#include "Platform/Windows/Windows_Window.h"
 #include "Insight/Runtime/APlayer_Character.h"
-#include <math.h>
 
 
 
@@ -127,17 +126,17 @@ namespace Insight {
 		// Send Point Lights to GPU
 		for (int i = 0; i < m_PointLights.size(); i++)
 		{
-			memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + (sizeof(CB_PS_PointLight) * i), &m_PointLights[i]->GetConstantBuffer(), sizeof(CB_PS_PointLight));
+			memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + POINT_LIGHTS_CB_ALIGNED_POSITION + (sizeof(CB_PS_PointLight) * i), &m_PointLights[i]->GetConstantBuffer(), sizeof(CB_PS_PointLight));
 		}
 		// Send Directionl Lights to GPU
 		for (int i = 0; i < m_DirectionalLights.size(); i++)
 		{
-			memcpy(( m_cbvLightBufferGPUAddress[m_FrameIndex] + (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight)) ) + ( sizeof(CB_PS_DirectionalLight) * i ), &m_DirectionalLights[i]->GetConstantBuffer(), sizeof(CB_PS_DirectionalLight) );
+			memcpy( m_cbvLightBufferGPUAddress[m_FrameIndex] + DIRECTIONAL_LIGHTS_CB_ALIGNED_POSITION + ( sizeof(CB_PS_DirectionalLight) * i ), &m_DirectionalLights[i]->GetConstantBuffer(), sizeof(CB_PS_DirectionalLight) );
 		}
 		// Send Spot Lights to GPU
 		for (int i = 0; i < m_SpotLights.size(); i++)
 		{
-			memcpy((m_cbvLightBufferGPUAddress[m_FrameIndex] + ((MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight)) + MAX_DIRECTIONAL_LIGHTS_SUPPORTED * sizeof(CB_PS_DirectionalLight))) + (sizeof(CB_PS_SpotLight) * i), &m_SpotLights[i]->GetConstantBuffer(), sizeof(CB_PS_SpotLight));
+			memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + SPOT_LIGHTS_CB_ALIGNED_POSITION + (sizeof(CB_PS_SpotLight) * i), &m_SpotLights[i]->GetConstantBuffer(), sizeof(CB_PS_SpotLight));
 		}
 
 	}

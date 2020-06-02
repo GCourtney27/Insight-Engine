@@ -1,5 +1,7 @@
 #include <Deferred_Rendering.hlsli>	
 
+// Entry Point
+// -----------
 VS_OUTPUT_GEOMPASS main(VS_INPUT_GEOMPASS vs_in)
 {
 	VS_OUTPUT_GEOMPASS vs_out;

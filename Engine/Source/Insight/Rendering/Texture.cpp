@@ -5,8 +5,6 @@
 #include "Insight/Core/Application.h"
 #include "Insight/Utilities/String_Helper.h"
 #include "Platform/DirectX12/Direct3D12_Context.h"
-#include <DDSTextureLoader.h>
-#include "ResourceUploadBatch.h"
 
 namespace Insight {
 

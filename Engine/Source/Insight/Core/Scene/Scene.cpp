@@ -1,9 +1,11 @@
 #include <ie_pch.h>
 
 #include "Scene.h"
+
+#include "imgui.h"
+#include "ImGuizmo.h"
 #include "Insight/Core/Application.h"
 #include "Insight/Runtime/Components/Static_Mesh_Component.h"
-#include "imgui.h"
 
 namespace Insight {
 
@@ -95,7 +97,31 @@ namespace Insight {
 			if (m_pSelectedActor != nullptr) {
 				
 				m_pSelectedActor->OnImGuiRender();
-				// TODO add imguizmo to get transform guismo!
+
+				Vector3& pos = m_pSelectedActor->GetTransformRef().GetPositionRef();
+				Vector3& rot = m_pSelectedActor->GetTransformRef().GetRotationRef();
+				Vector3& sca = m_pSelectedActor->GetTransformRef().GetScaleRef();
+				XMFLOAT4X4 localMat; 
+				XMFLOAT4X4 viewMat;
+				XMFLOAT4X4 projMat;
+				XMStoreFloat4x4(&localMat, m_pSelectedActor->GetTransformRef().GetLocalMatrixRef());
+				XMStoreFloat4x4(&viewMat, m_pPlayerCharacter->GetCameraRef().GetViewMatrix());
+				XMStoreFloat4x4(&projMat, m_pPlayerCharacter->GetCameraRef().GetProjectionMatrix());
+				static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
+				static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
+
+				float translate[3] = { pos.x, pos.y, pos.z };
+				float rotation[3] = { rot.x, rot.y, rot.z };
+				float scale[3] = { sca.x, sca.y, sca.z };
+
+				ImGuiIO& io = ImGui::GetIO();
+				ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+				ImGuizmo::Manipulate(*viewMat.m, *projMat.m, mCurrentGizmoOperation, mCurrentGizmoMode, *localMat.m, NULL, NULL);
+				
+				//newPos.x = localMat._11; newPos.y = localMat._21; newPos.z =  localMat._31;
+				//m_pSelectedActor->GetTransformRef().SetPosition(newPos);
+				XMMATRIX offsettedMat = XMLoadFloat4x4(&localMat) * m_pSelectedActor->GetTransformRef().GetLocalMatrix();
+				m_pSelectedActor->GetTransformRef().SetLocalMatrix(offsettedMat);
 			}
 		}
 		ImGui::End();

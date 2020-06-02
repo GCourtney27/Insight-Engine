@@ -1,8 +1,9 @@
 #include <ie_pch.h>
 
 #include "ASpot_Light.h"
-#include "Platform/DirectX12/Direct3D12_Context.h"
+
 #include "imgui.h"
+#include "Platform/DirectX12/Direct3D12_Context.h"
 
 namespace Insight {
 
@@ -15,8 +16,10 @@ namespace Insight {
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
 
 		SceneNode::GetTransformRef().SetPosition(Vector3(0.0f, 60.0f, 0.0f));
+		SceneNode::GetTransformRef().SetRotation(Vector3(0.0f, -1.0f, 0.0f));
+
 		m_ShaderCB.position = SceneNode::GetTransformRef().GetPositionRef();
-		m_ShaderCB.direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
+		m_ShaderCB.direction = SceneNode::GetTransformRef().GetRotationRef();
 		m_ShaderCB.diffuse = XMFLOAT3(1.0f, 1.0f, 1.0f);
 		m_ShaderCB.innerCutOff = cos(XMConvertToRadians(12.5f));
 		m_ShaderCB.outerCutOff = cos(XMConvertToRadians(15.0f));
@@ -42,7 +45,7 @@ namespace Insight {
 	void ASpotLight::OnUpdate(const float& deltaMs)
 	{
 		m_ShaderCB.position = SceneNode::GetTransformRef().GetPositionRef();
-		//m_ShaderCB.direction = SceneNode::GetTransformRef().GetRotationRef();
+		m_ShaderCB.direction = SceneNode::GetTransformRef().GetRotationRef();
 	}
 
 	void ASpotLight::OnPreRender(XMMATRIX parentMat)

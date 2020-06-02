@@ -2,13 +2,12 @@
 
 #include "Application.h"
 
-#include "Platform/Windows/Windows_Window.h"
 #include "Insight/Input/Input.h"
-
-#include "Insight/ImGui/ImGui_Layer.h"
-
-//TEMP
 #include "Insight/Runtime/AActor.h"
+#include "Insight/ImGui/ImGui_Layer.h"
+#include "Platform/Windows/Windows_Window.h"
+
+
 
 namespace Insight {
 

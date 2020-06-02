@@ -2,19 +2,18 @@
 
 #include <Insight/Core.h>
 
-#include "Insight/Rendering/Rendering_Context.h"
 #include "Platform/DirectX12/D3D12_Helper.h"
+#include "Insight/Rendering/Rendering_Context.h"
 #include "Platform/Windows/Error/COM_Exception.h"
 
-// TODO: implement shader system that uses this
+#include "Platform/DirectX12/Descriptor_Heap_Wrapper.h"
 #include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
+
 #include "Insight/Rendering/Texture.h"
 #include "Insight/Rendering/Geometry/Mesh.h"
-#include "Platform/DirectX12/Descriptor_Heap_Wrapper.h"
-
+#include "Insight/Rendering/Lighting/ASpot_Light.h"
 #include "Insight/Rendering/Lighting/APoint_Light.h"
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
-#include "Insight/Rendering/Lighting/ASpot_Light.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -208,18 +207,17 @@ namespace Insight {
 		UINT8* m_cbvPerFrameGPUAddress[m_FrameBufferCount];
 		CB_PS_VS_PerFrame m_PerFrameData;
 
+#define POINT_LIGHTS_CB_ALIGNED_POSITION (0)
 #define MAX_POINT_LIGHTS_SUPPORTED 16u
 		std::vector<APointLight*> m_PointLights;
-		int ConstantBufferPointLightAlignedSize = (sizeof(CB_PS_PointLight) + 255) & ~255;
 
+#define DIRECTIONAL_LIGHTS_CB_ALIGNED_POSITION (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight))
 #define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 4u
 		std::vector<ADirectionalLight*> m_DirectionalLights;
-		int ConstantBufferDirectionalLightAlignedSize = (sizeof(CB_PS_DirectionalLight) + 255) & ~255;
 
+#define SPOT_LIGHTS_CB_ALIGNED_POSITION (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight) + MAX_DIRECTIONAL_LIGHTS_SUPPORTED * sizeof(CB_PS_DirectionalLight))
 #define MAX_SPOT_LIGHTS_SUPPORTED 16u
 		std::vector<ASpotLight*> m_SpotLights;
-		int ConstantBufferSpotLightAlignedSize = (sizeof(CB_PS_SpotLight) + 255) & ~255;
-
 
 		Texture m_AlbedoTexture;
 		Texture m_NormalTexture;
