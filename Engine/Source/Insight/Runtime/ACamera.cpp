@@ -4,6 +4,7 @@
 #include "ACamera.h"
 #include "imgui.h"
 #include "Insight/Runtime/Components/Actor_Component.h"
+#include "Insight/Core/Application.h"
 
 namespace Insight {
 
@@ -55,7 +56,7 @@ namespace Insight {
 		UpdateViewMatrix();
 	}
 
-	void ACamera::SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ)
+	void ACamera::SetPerspectiveProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ)
 	{
 		m_Fov = fovDegrees;
 		m_NearZ = nearZ;
@@ -63,6 +64,11 @@ namespace Insight {
 		m_AspectRatio = aspectRatio;
 		float fovRadians = fovDegrees * (3.14f / 180.0f);
 		m_ProjectionMatrix = XMMatrixPerspectiveFovLH(fovRadians, m_AspectRatio, m_NearZ, m_FarZ);
+	}
+
+	void ACamera::SetOrthographicsProjectionValues(float viewWidth, float viewHeight, float nearZ, float farZ)
+	{
+		m_ProjectionMatrix = XMMatrixOrthographicLH(viewWidth, viewHeight, nearZ, farZ);
 	}
 
 	void ACamera::RenderSceneHeirarchy()
@@ -75,14 +81,24 @@ namespace Insight {
 		AActor::OnImGuiRender();
 
 		ImGui::Text("View");
-		ImGui::DragFloat("Field of View", &m_Fov, 0.5f, 0.0f, 180.0f);
+		if (!m_IsOrthographic) {
+			ImGui::DragFloat("Field of View", &m_Fov, 0.5f, 0.0f, 180.0f);
+		}
 		ImGui::DragFloat("Near Z", &m_NearZ, 0.01f, 0.00001f, 5.0f);
 		ImGui::DragFloat("Far Z", &m_FarZ, 1.0f, 1.0f, 10000.0f);
 
 		ImGui::Text("Post-Processing");
 		ImGui::DragFloat("Exposure", &m_Exposure, 0.01f, 0.0f, 1.0f);
 
-		SetProjectionValues(m_Fov, m_AspectRatio, m_NearZ, m_FarZ);
+		ImGui::Text("Projection");
+		static const char* projectionMethods[] = { "Perspective", "Orthographic" };
+		ImGui::Combo("Method", &m_IsOrthographic, projectionMethods, IM_ARRAYSIZE(projectionMethods));
+		if (!m_IsOrthographic) {
+			SetPerspectiveProjectionValues(m_Fov, m_AspectRatio, m_NearZ, m_FarZ);
+		}
+		else {
+			SetOrthographicsProjectionValues(Application::Get().GetWindow().GetWidth(), Application::Get().GetWindow().GetHeight(), m_NearZ, m_FarZ);
+		}
 	}
 
 	void ACamera::UpdateViewMatrix()
@@ -92,6 +108,5 @@ namespace Insight {
 		camTarget += GetTransformRef().GetPosition();
 		XMVECTOR upDir = XMVector3TransformCoord(WORLD_DIRECTION.Up, camRotationMatrix);
 		m_ViewMatrix = XMMatrixLookAtLH(GetTransformRef().GetPosition(), camTarget, upDir);
-
 	}
 }

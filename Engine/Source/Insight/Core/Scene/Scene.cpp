@@ -6,6 +6,7 @@
 #include "ImGuizmo.h"
 #include "Insight/Core/Application.h"
 #include "Insight/Runtime/Components/Static_Mesh_Component.h"
+#include "Insight/Input/Input.h"
 
 namespace Insight {
 
@@ -102,25 +103,45 @@ namespace Insight {
 				Vector3& rot = m_pSelectedActor->GetTransformRef().GetRotationRef();
 				Vector3& sca = m_pSelectedActor->GetTransformRef().GetScaleRef();
 				XMFLOAT4X4 localMat; 
+				XMFLOAT4X4 deltaMat; 
 				XMFLOAT4X4 viewMat;
 				XMFLOAT4X4 projMat;
 				XMStoreFloat4x4(&localMat, m_pSelectedActor->GetTransformRef().GetLocalMatrixRef());
 				XMStoreFloat4x4(&viewMat, m_pPlayerCharacter->GetCameraRef().GetViewMatrix());
 				XMStoreFloat4x4(&projMat, m_pPlayerCharacter->GetCameraRef().GetProjectionMatrix());
+
 				static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
+				if (Input::IsKeyPressed('W')) {
+					mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+				}else if(Input::IsKeyPressed('E')) {
+					mCurrentGizmoOperation = ImGuizmo::ROTATE;
+
+				}else if (Input::IsKeyPressed('R')) {
+					mCurrentGizmoOperation = ImGuizmo::SCALE;
+
+				}
+
 				static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
 
 				float translate[3] = { pos.x, pos.y, pos.z };
 				float rotation[3] = { rot.x, rot.y, rot.z };
 				float scale[3] = { sca.x, sca.y, sca.z };
 
+				/*ImGuizmo::DecomposeMatrixToComponents(*localMat.m, translate, rotation, scale);
+				ImGui::InputFloat3("Tr", translate, 3);
+				ImGui::InputFloat3("Rt", rotation, 3);
+				ImGui::InputFloat3("Sc", scale, 3);
+				ImGuizmo::RecomposeMatrixFromComponents(translate, rotation, scale, *localMat.m);*/
+
+				
 				ImGuiIO& io = ImGui::GetIO();
 				ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-				ImGuizmo::Manipulate(*viewMat.m, *projMat.m, mCurrentGizmoOperation, mCurrentGizmoMode, *localMat.m, NULL, NULL);
-				
-				//newPos.x = localMat._11; newPos.y = localMat._21; newPos.z =  localMat._31;
+				//TODO if(Raycast::LastRayCast::Succeeded) than run this line if false than skip it (disbles the guizmo)
+				ImGuizmo::Manipulate(*viewMat.m, *projMat.m, mCurrentGizmoOperation, mCurrentGizmoMode, *localMat.m, *deltaMat.m, NULL, NULL, NULL);
+
+				//newPos.x = localMat._11; newPos.y = localMat._22; newPos.z =  localMat._33;
 				//m_pSelectedActor->GetTransformRef().SetPosition(newPos);
-				XMMATRIX offsettedMat = XMLoadFloat4x4(&localMat) * m_pSelectedActor->GetTransformRef().GetLocalMatrix();
+				XMMATRIX offsettedMat = XMLoadFloat4x4(&deltaMat);
 				m_pSelectedActor->GetTransformRef().SetLocalMatrix(offsettedMat);
 			}
 		}

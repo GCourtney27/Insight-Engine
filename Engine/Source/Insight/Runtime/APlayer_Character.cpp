@@ -22,7 +22,7 @@ namespace Insight {
 
 		m_Camera = new ACamera();
 		m_Camera->SetDisplayName("Player Camera");
-		m_Camera->SetProjectionValues(75.0f, windowWidth / windowHeight, 0.0001f, 200.0f);
+		m_Camera->SetPerspectiveProjectionValues(75.0f, windowWidth / windowHeight, 0.0001f, 200.0f);
 		SceneNode::AddChild(m_Camera);
 	}
 
@@ -69,37 +69,38 @@ namespace Insight {
 		{
 			auto [x, y] = Input::GetRawMousePosition();
 			m_Camera->ProcessMouseMovement((float)x, (float)y);
+			if (Input::IsKeyPressed('W'))
+			{
+				APawn::Move(eMovement::FORWARD, deltaMs);
+				m_Camera->ProcessKeyboardInput(CameraMovement::FORWARD, deltaMs);
+			}
+			if (Input::IsKeyPressed('S'))
+			{
+				APawn::Move(eMovement::BACKWARD, deltaMs);
+				m_Camera->ProcessKeyboardInput(CameraMovement::BACKWARD, deltaMs);
+			}
+			if (Input::IsKeyPressed('A'))
+			{
+				APawn::Move(eMovement::LEFT, deltaMs);
+				m_Camera->ProcessKeyboardInput(CameraMovement::LEFT, deltaMs);
+			}
+			if (Input::IsKeyPressed('D'))
+			{
+				APawn::Move(eMovement::RIGHT, deltaMs);
+				m_Camera->ProcessKeyboardInput(CameraMovement::RIGHT, deltaMs);
+			}
+			if (Input::IsKeyPressed('E'))
+			{
+				APawn::Move(eMovement::UP, deltaMs);
+				m_Camera->ProcessKeyboardInput(CameraMovement::UP, deltaMs);
+			}
+			if (Input::IsKeyPressed('Q'))
+			{
+				APawn::Move(eMovement::DOWN, deltaMs);
+				m_Camera->ProcessKeyboardInput(CameraMovement::DOWN, deltaMs);
+			}
 		}
-		if (Input::IsKeyPressed('W'))
-		{
-			APawn::Move(eMovement::FORWARD, deltaMs);
-			m_Camera->ProcessKeyboardInput(CameraMovement::FORWARD, deltaMs);
-		}
-		if (Input::IsKeyPressed('S'))
-		{
-			APawn::Move(eMovement::BACKWARD, deltaMs);
-			m_Camera->ProcessKeyboardInput(CameraMovement::BACKWARD, deltaMs);
-		}
-		if (Input::IsKeyPressed('A'))
-		{
-			APawn::Move(eMovement::LEFT, deltaMs);
-			m_Camera->ProcessKeyboardInput(CameraMovement::LEFT, deltaMs);
-		}
-		if (Input::IsKeyPressed('D'))
-		{
-			APawn::Move(eMovement::RIGHT, deltaMs);
-			m_Camera->ProcessKeyboardInput(CameraMovement::RIGHT, deltaMs);
-		}
-		if (Input::IsKeyPressed('E'))
-		{
-			APawn::Move(eMovement::UP, deltaMs);
-			m_Camera->ProcessKeyboardInput(CameraMovement::UP, deltaMs);
-		}
-		if (Input::IsKeyPressed('Q'))
-		{
-			APawn::Move(eMovement::DOWN, deltaMs);
-			m_Camera->ProcessKeyboardInput(CameraMovement::DOWN, deltaMs);
-		}
+
 	}
 
 }

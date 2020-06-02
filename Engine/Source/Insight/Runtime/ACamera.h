@@ -58,13 +58,14 @@ namespace Insight {
 		const inline float& GetFOV() const { return m_Fov; }
 		const inline float& GetNearZ() const { return m_NearZ; }
 		const inline float& GetFarZ() const { return m_FarZ; }
-		inline void SetFOV(float& fovDegrees) { SetProjectionValues(fovDegrees, m_AspectRatio, m_NearZ, m_FarZ); }
-		inline void SetNearZ(float& nearZ) { SetProjectionValues(m_Fov, m_AspectRatio, nearZ, m_FarZ); }
-		inline void SetFarZ(float& farZ) { SetProjectionValues(m_Fov, m_AspectRatio, m_NearZ, farZ); }
+		inline void SetFOV(float& fovDegrees) { SetPerspectiveProjectionValues(fovDegrees, m_AspectRatio, m_NearZ, m_FarZ); }
+		inline void SetNearZ(float& nearZ) { SetPerspectiveProjectionValues(m_Fov, m_AspectRatio, nearZ, m_FarZ); }
+		inline void SetFarZ(float& farZ) { SetPerspectiveProjectionValues(m_Fov, m_AspectRatio, m_NearZ, farZ); }
 		inline float GetExposure() { return m_Exposure; }
 		inline void SetExposure(float exposure) { m_Exposure = exposure; }
 
-		void SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ);
+		void SetPerspectiveProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ);
+		void SetOrthographicsProjectionValues(float viewWidth, float viewHeight, float nearZ, float farZ);
 		void RenderSceneHeirarchy() override;
 		void OnImGuiRender() override;
 
@@ -76,6 +77,7 @@ namespace Insight {
 		XMMATRIX m_ViewMatrix;
 		XMFLOAT4X4 m_ProjectionMat4x4;
 		XMMATRIX m_ProjectionMatrix;
+		BOOL m_IsOrthographic = false;
 
 		float m_Yaw = 0.0f;
 		float m_Pitch = 0.0f;
@@ -95,6 +97,8 @@ namespace Insight {
 		bool m_FirstMove = true;
 		float m_LastLookX = 0.0f;
 		float m_LastLookY = 0.0f;
+
+		static const char* projectionMethods[] = { "Perspective", "Orthographic" };
 	};
 
 }

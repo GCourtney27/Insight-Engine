@@ -1065,7 +1065,7 @@ namespace Insight {
 		// Recreate Camera Projection Matrix
 		{
 			ACamera& camera = APlayerCharacter::Get().GetCameraRef();
-			camera.SetProjectionValues(camera.GetFOV(), static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight), camera.GetNearZ(), camera.GetFarZ());
+			camera.SetPerspectiveProjectionValues(camera.GetFOV(), static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight), camera.GetNearZ(), camera.GetFarZ());
 		}
 
 	}

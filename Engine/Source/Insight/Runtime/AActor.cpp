@@ -44,6 +44,7 @@ namespace Insight {
 	void AActor::OnImGuiRender()
 	{
 		ImGui::Text(SceneNode::GetDisplayName());
+		ImGui::Spacing();
 
 		ImGui::Text("Transform");
 		ImGui::DragFloat3("Position", &SceneNode::GetTransformRef().GetPositionRef().x, 0.05f, -100.0f, 100.0f);

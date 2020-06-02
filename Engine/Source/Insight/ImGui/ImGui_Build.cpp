@@ -8,4 +8,3 @@
 #include "ImGuizmo.cpp"
 #include "ImGradient.cpp"
 #include "ImCurveEdit.cpp"
-#include "ImSequencer.cpp"
