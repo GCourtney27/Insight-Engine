@@ -9,6 +9,10 @@ Texture2D t_RoughnessMetallicAOGBuffer : register(t2);
 Texture2D t_PositionGBuffer : register(t3);
 Texture2D t_DepthGBuffer : register(t4);
 
+TextureCube tc_IrradianceMap : register(t10);
+TextureCube tc_EnvironmentMap : register(t11);
+Texture2D t_BrdfLUT : register(t12);
+
 // Samplers
 // --------
 sampler s_LinearWrapSampler : register(s0);

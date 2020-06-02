@@ -10,7 +10,7 @@
 #include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
 
 #include "Insight/Rendering/Texture.h"
-#include "Insight/Rendering/Geometry/Mesh.h"
+#include "Insight/Rendering/Geometry/Model.h"
 #include "Insight/Rendering/Lighting/ASpot_Light.h"
 #include "Insight/Rendering/Lighting/APoint_Light.h"
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
@@ -154,8 +154,9 @@ namespace Insight {
 
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_GeometryPass;
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_LightingPass;
-		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_Sky;
+		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_SkyPass;
 
+		//Root Param Index - Resource
 		//0: SRV-Albedo(RTV->SRV)
 		//1: SRV-Normal(RTV->SRV)
 		//2: SRV-(R)Roughness/(G)Metallic/(B)AO(RTV->SRV)
@@ -167,6 +168,10 @@ namespace Insight {
 		//7: SRV-Roughness(SRV)
 		//8: SRV-Metallic(SRV)
 		//9: SRV-AO(SRV)
+		//10:SRV-Sky Irradiance(SRV)
+		//11:SRV-Sky Environment(SRV)
+		//12:SRV-Sky BRDF LUT(SRV)
+		//13:SRV-Sky Diffuse(SRV)
 		CDescriptorHeapWrapper				m_cbvsrvHeap;
 		
 
@@ -207,17 +212,19 @@ namespace Insight {
 		UINT8* m_cbvPerFrameGPUAddress[m_FrameBufferCount];
 		CB_PS_VS_PerFrame m_PerFrameData;
 
-#define POINT_LIGHTS_CB_ALIGNED_POSITION (0)
+#define POINT_LIGHTS_CB_ALIGNED_OFFSET (0)
 #define MAX_POINT_LIGHTS_SUPPORTED 16u
 		std::vector<APointLight*> m_PointLights;
 
-#define DIRECTIONAL_LIGHTS_CB_ALIGNED_POSITION (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight))
+#define DIRECTIONAL_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight))
 #define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 4u
 		std::vector<ADirectionalLight*> m_DirectionalLights;
 
-#define SPOT_LIGHTS_CB_ALIGNED_POSITION (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight) + MAX_DIRECTIONAL_LIGHTS_SUPPORTED * sizeof(CB_PS_DirectionalLight))
+#define SPOT_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight) + MAX_DIRECTIONAL_LIGHTS_SUPPORTED * sizeof(CB_PS_DirectionalLight))
 #define MAX_SPOT_LIGHTS_SUPPORTED 16u
 		std::vector<ASpotLight*> m_SpotLights;
+
+		Model m_Skysphere;
 
 		Texture m_AlbedoTexture;
 		Texture m_NormalTexture;

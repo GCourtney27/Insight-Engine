@@ -80,6 +80,7 @@ namespace Insight {
 				CreateRootSignature();
 				CreateGeometryPassPSO();
 				CreateLightPassPSO();
+				CreateSkyPassPSO();
 
 				// Render Targets and Constant Buffers
 				{
@@ -111,6 +112,7 @@ namespace Insight {
 	{
 		ACamera& playerCamera = APlayerCharacter::Get().GetCameraRef();
 
+		// Send Per-Frame Variables to GPU
 		m_PerFrameData.cameraPosition = playerCamera.GetTransformRef().GetPosition();
 		m_PerFrameData.deltaMs = deltaTime;
 		m_PerFrameData.time = (float)Application::Get().GetFrameTimer().seconds();
@@ -122,21 +124,17 @@ namespace Insight {
 		m_PerFrameData.numSpotLights = (int)m_SpotLights.size();
 		memcpy(m_cbvPerFrameGPUAddress[m_FrameIndex], &m_PerFrameData, sizeof(CB_PS_VS_PerFrame));
 
-
 		// Send Point Lights to GPU
-		for (int i = 0; i < m_PointLights.size(); i++)
-		{
-			memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + POINT_LIGHTS_CB_ALIGNED_POSITION + (sizeof(CB_PS_PointLight) * i), &m_PointLights[i]->GetConstantBuffer(), sizeof(CB_PS_PointLight));
+		for (int i = 0; i < m_PointLights.size(); i++) {
+			memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + POINT_LIGHTS_CB_ALIGNED_OFFSET + (sizeof(CB_PS_PointLight) * i), &m_PointLights[i]->GetConstantBuffer(), sizeof(CB_PS_PointLight));
 		}
 		// Send Directionl Lights to GPU
-		for (int i = 0; i < m_DirectionalLights.size(); i++)
-		{
-			memcpy( m_cbvLightBufferGPUAddress[m_FrameIndex] + DIRECTIONAL_LIGHTS_CB_ALIGNED_POSITION + ( sizeof(CB_PS_DirectionalLight) * i ), &m_DirectionalLights[i]->GetConstantBuffer(), sizeof(CB_PS_DirectionalLight) );
+		for (int i = 0; i < m_DirectionalLights.size(); i++) {
+			memcpy( m_cbvLightBufferGPUAddress[m_FrameIndex] + DIRECTIONAL_LIGHTS_CB_ALIGNED_OFFSET + ( sizeof(CB_PS_DirectionalLight) * i ), &m_DirectionalLights[i]->GetConstantBuffer(), sizeof(CB_PS_DirectionalLight) );
 		}
 		// Send Spot Lights to GPU
-		for (int i = 0; i < m_SpotLights.size(); i++)
-		{
-			memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + SPOT_LIGHTS_CB_ALIGNED_POSITION + (sizeof(CB_PS_SpotLight) * i), &m_SpotLights[i]->GetConstantBuffer(), sizeof(CB_PS_SpotLight));
+		for (int i = 0; i < m_SpotLights.size(); i++) {
+			memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + SPOT_LIGHTS_CB_ALIGNED_OFFSET + (sizeof(CB_PS_SpotLight) * i), &m_SpotLights[i]->GetConstantBuffer(), sizeof(CB_PS_SpotLight));
 		}
 
 	}
@@ -219,6 +217,7 @@ namespace Insight {
 	{
 		m_pCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, nullptr);
 		BindLightingPass();
+		BindSkyPass();
 	}
 
 	void Direct3D12Context::BindLightingPass()
@@ -240,6 +239,10 @@ namespace Insight {
 
 	void Direct3D12Context::BindSkyPass()
 	{
+		m_pCommandList->SetPipelineState(m_pPipelineStateObject_SkyPass.Get());
+
+		m_Skysphere.PreRender(XMMatrixIdentity());
+		m_Skysphere.Render();
 	}
 
 	void Direct3D12Context::PopulateCommandLists()
@@ -610,16 +613,22 @@ namespace Insight {
 
 	void Direct3D12Context::CreateRootSignature()
 	{
-		CD3DX12_DESCRIPTOR_RANGE range[6];
+		CD3DX12_DESCRIPTOR_RANGE range[10];
 		// TODO: Eventualy textures should be put in the range array
 		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 0); // G-Buffer inputs t0-t4
+		
 		range[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 5); // PerObject texture inputs - Albedo
 		range[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 6); // PerObject texture inputs - Normal
 		range[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 7); // PerObject texture inputs - Roughness
 		range[4].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 8); // PerObject texture inputs - Metallic
 		range[5].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9); // PerObject texture inputs - AO
 
-		CD3DX12_ROOT_PARAMETER rootParameters[9];
+		range[6].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 10); // Sky - Irradiance
+		range[7].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 11); // Sky - Environment Map
+		range[8].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 12); // Sky - BRDF LUT
+		range[9].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 13); // Sky - Diffuse
+
+		CD3DX12_ROOT_PARAMETER rootParameters[13];
 		rootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX); // Per-Object constant buffer
 		rootParameters[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL); // Per-Frame constant buffer
 		rootParameters[2].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_PIXEL); // Light constant buffer
@@ -630,6 +639,12 @@ namespace Insight {
 		rootParameters[6].InitAsDescriptorTable(1, &range[3], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Roughness
 		rootParameters[7].InitAsDescriptorTable(1, &range[4], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Metallic
 		rootParameters[8].InitAsDescriptorTable(1, &range[5], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - AO
+
+		rootParameters[9].InitAsDescriptorTable(1, &range[6], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Irradiance
+		rootParameters[10].InitAsDescriptorTable(1, &range[7], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Environment Map
+		rootParameters[11].InitAsDescriptorTable(1, &range[8], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - BRDF LUT
+		rootParameters[12].InitAsDescriptorTable(1, &range[9], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Diffuse
+
 
 		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
 		descRootSignature.Init(_countof(rootParameters), rootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
@@ -722,6 +737,50 @@ namespace Insight {
 
 	void Direct3D12Context::CreateSkyPassPSO()
 	{
+		HRESULT hr; 
+
+		ComPtr<ID3DBlob> pVertexShader;
+		ComPtr<ID3DBlob> pPixelShader;
+		//IE_BUILD_DIR
+#if defined IE_DEBUG
+		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Skybox.vertex.cso";
+		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Skybox.pixel.cso";
+#elif defined IE_RELEASE
+		LPCWSTR vertexShaderFolder = L"Skybox.vertex.cso";
+		LPCWSTR pixelShaderFolder = L"Skybox.pixel.cso";
+#endif 
+
+		hr = D3DReadFileToBlob(vertexShaderFolder, &pVertexShader);
+		if (FAILED(hr)) {
+			ThrowIfFailed(hr, "Failed to compile Vertex Shader check log for more details.");
+		}
+		hr = D3DReadFileToBlob(pixelShaderFolder, &pPixelShader);
+		if (FAILED(hr)) {
+			ThrowIfFailed(hr, "Failed to compile Pixel Shader check log for more details.");
+		}
+
+
+		D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
+		vertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
+		vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
+
+		D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
+		pixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
+		pixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
+
+		D3D12_INPUT_ELEMENT_DESC inputLayout[5] =
+		{
+			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
+			{ "TANGENT",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
+			{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
+		};
+
+		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
+		inputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
+		inputLayoutDesc.pInputElementDescs = inputLayout;
+
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineDesc = {};
 		auto depthStencilStateDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 		depthStencilStateDesc.DepthEnable = true;
@@ -733,10 +792,10 @@ namespace Insight {
 		rasterizerStateDesc.CullMode = D3D12_CULL_MODE_FRONT;
 		rasterizerStateDesc.FillMode = D3D12_FILL_MODE_SOLID;
 		
-		pipelineDesc.VS = ShaderManager::LoadShader(L"SkyboxVS.cso");
-		pipelineDesc.PS = ShaderManager::LoadShader(L"SkyboxPS.cso");
-		pipelineDesc.InputLayout.pInputElementDescs = InputLayout::DefaultLayout;
-		pipelineDesc.InputLayout.NumElements = _countof(InputLayout::DefaultLayout);
+		pipelineDesc.VS = vertexShaderBytecode;
+		pipelineDesc.PS = pixelShaderBytecode;
+		pipelineDesc.InputLayout.pInputElementDescs = inputLayout;
+		pipelineDesc.InputLayout.NumElements = _countof(inputLayout);
 		pipelineDesc.pRootSignature = m_pRootSignature.Get();
 		pipelineDesc.DepthStencilState = depthStencilStateDesc;
 		pipelineDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
@@ -748,8 +807,8 @@ namespace Insight {
 		pipelineDesc.SampleDesc.Count = 1;
 		pipelineDesc.DSVFormat = m_DsvFormat;
 
-		m_pLogicalDevice->CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&m_pPipelineStateObject_Sky));
-
+		hr = m_pLogicalDevice->CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&m_pPipelineStateObject_SkyPass));
+		ThrowIfFailed(hr, "Failed to create skybox pipeline state object.");
 	}
 
 	void Direct3D12Context::CreateLightPassPSO()
@@ -848,25 +907,26 @@ namespace Insight {
 
 	void Direct3D12Context::LoadAssets()
 	{
-
+		m_Skysphere.Init(FileSystem::Get().GetRelativeAssetDirectoryPath("Models/Sphere.obj"));
+		
 		// Textures
-		std::wstring texRelPathAlbedoW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedMetal/RustedMetal_Albedo.png"));
+		std::wstring texRelPathAlbedoW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedIron/RustedIron_Albedo.png"));
 		Texture::eTextureType texTypeAlbedo = Texture::eTextureType::ALBEDO;
 		m_AlbedoTexture.Init(texRelPathAlbedoW, texTypeAlbedo, m_cbvsrvHeap);
 
-		std::wstring texRelPathNormalW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedMetal/RustedMetal_Normal.png"));
+		std::wstring texRelPathNormalW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedIron/RustedIron_Normal.png"));
 		Texture::eTextureType texTypeNormal = Texture::eTextureType::NORMAL;
 		m_NormalTexture.Init(texRelPathNormalW, texTypeNormal, m_cbvsrvHeap);
 
-		std::wstring texRelPathRoughnessW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedMetal/RustedMetal_Roughness.png"));
+		std::wstring texRelPathRoughnessW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedIron/RustedIron_Roughness.png"));
 		Texture::eTextureType texTypeSpecular = Texture::eTextureType::ROUGHNESS;
 		m_RoughnessTexture.Init(texRelPathRoughnessW, texTypeSpecular, m_cbvsrvHeap);
 
-		std::wstring texRelPathMetallicW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedMetal/RustedMetal_Metallic.png"));
+		std::wstring texRelPathMetallicW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedIron/RustedIron_Metallic.png"));
 		Texture::eTextureType texTypeMetallic = Texture::eTextureType::METALLIC;
 		m_MetallicTexture.Init(texRelPathMetallicW, texTypeMetallic, m_cbvsrvHeap);
 
-		std::wstring texRelPathAOW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedMetal/RustedMetal_AO.png"));
+		std::wstring texRelPathAOW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedIron/RustedIron_AO.png"));
 		Texture::eTextureType texTypeAO = Texture::eTextureType::AO;
 		m_AOTexture.Init(texRelPathAOW, texTypeAO, m_cbvsrvHeap);
 	}
