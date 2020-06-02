@@ -46,7 +46,7 @@ namespace Insight {
 
 			m_pTestPointLight1 = new APointLight(5, "Point Light Actor1");
 			m_pDirectionalLight = new ADirectionalLight(5, "Directional Light Actor");
-
+			m_pSpotLight = new ASpotLight(7, "Spot Light Actor");
 		}
 
 		m_pSceneRoot->AddChild(m_pTestActor);
@@ -54,6 +54,7 @@ namespace Insight {
 		m_pSceneRoot->AddChild(m_pTestActor3);
 		m_pSceneRoot->AddChild(m_pTestPointLight);
 		m_pSceneRoot->AddChild(m_pTestPointLight1);
+		m_pSceneRoot->AddChild(m_pSpotLight);
 		m_pSceneRoot->AddChild(m_pDirectionalLight);
 		m_pSceneRoot->AddChild(m_pPlayerCharacter);
 

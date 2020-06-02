@@ -120,7 +120,7 @@ namespace Insight {
 		m_PerFrameData.cameraExposure = (float)playerCamera.GetExposure();
 		m_PerFrameData.numPointLights = (int)m_PointLights.size();
 		m_PerFrameData.numDirectionalLights = (int)m_DirectionalLights.size();
-		m_PerFrameData.numSpotLights = 0;
+		m_PerFrameData.numSpotLights = (int)m_SpotLights.size();
 		memcpy(m_cbvPerFrameGPUAddress[m_FrameIndex], &m_PerFrameData, sizeof(CB_PS_VS_PerFrame));
 
 
@@ -133,6 +133,11 @@ namespace Insight {
 		for (int i = 0; i < m_DirectionalLights.size(); i++)
 		{
 			memcpy(( m_cbvLightBufferGPUAddress[m_FrameIndex] + (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight)) ) + ( sizeof(CB_PS_DirectionalLight) * i ), &m_DirectionalLights[i]->GetConstantBuffer(), sizeof(CB_PS_DirectionalLight) );
+		}
+		// Send Spot Lights to GPU
+		for (int i = 0; i < m_SpotLights.size(); i++)
+		{
+			memcpy((m_cbvLightBufferGPUAddress[m_FrameIndex] + ((MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight)) + MAX_DIRECTIONAL_LIGHTS_SUPPORTED * sizeof(CB_PS_DirectionalLight))) + (sizeof(CB_PS_SpotLight) * i), &m_SpotLights[i]->GetConstantBuffer(), sizeof(CB_PS_SpotLight));
 		}
 
 	}

@@ -27,7 +27,7 @@ cbuffer cbLights : register(b2)
 {
     PointLight pointLights[MAX_POINT_LIGHTS_SUPPORTED];
     DirectionalLight dirLights[MAX_DIRECTIONAL_LIGHTS_SUPPORTED];
-    //SpotLight spotLight[MAX_SPOT_LIGHTS_SUPPORTED];
+    SpotLight spotLights[MAX_SPOT_LIGHTS_SUPPORTED];
 };
 
 /* Geometry Pass */

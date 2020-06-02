@@ -24,15 +24,10 @@ struct DirectionalLight
 struct SpotLight
 {
     float3 position;
-    float3 direction;
     float innerCutOff;
+    float3 direction;
     float outerCutOff;
 
-    float3 ambient;
     float3 diffuse;
-    float3 specular;
-
-    float constantFactor;
-    float linearFactor;
-    float quadraticFactor;
+    float strength;
 };

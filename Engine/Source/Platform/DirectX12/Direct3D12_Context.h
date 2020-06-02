@@ -11,8 +11,10 @@
 #include "Insight/Rendering/Texture.h"
 #include "Insight/Rendering/Geometry/Mesh.h"
 #include "Platform/DirectX12/Descriptor_Heap_Wrapper.h"
+
 #include "Insight/Rendering/Lighting/APoint_Light.h"
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
+#include "Insight/Rendering/Lighting/ASpot_Light.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -69,8 +71,10 @@ namespace Insight {
 			return handle;
 		}
 
+		// Lights
 		void AddPointLight(APointLight* pointLight) { m_PointLights.push_back(pointLight); }
 		void AddDirectionalLight(ADirectionalLight* pointLight) { m_DirectionalLights.push_back(pointLight); }
+		void AddSpotLight(ASpotLight* spotLight) { m_SpotLights.push_back(spotLight); }
 
 	private:
 		void CloseCommandListAndSignalCommandQueue();
@@ -213,6 +217,8 @@ namespace Insight {
 		int ConstantBufferDirectionalLightAlignedSize = (sizeof(CB_PS_DirectionalLight) + 255) & ~255;
 
 #define MAX_SPOT_LIGHTS_SUPPORTED 16u
+		std::vector<ASpotLight*> m_SpotLights;
+		int ConstantBufferSpotLightAlignedSize = (sizeof(CB_PS_SpotLight) + 255) & ~255;
 
 
 		Texture m_AlbedoTexture;

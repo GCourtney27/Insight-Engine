@@ -44,17 +44,11 @@ struct CB_PS_DirectionalLight
 struct CB_PS_SpotLight
 {
 	DirectX::XMFLOAT3 position;
-	DirectX::XMFLOAT3 direction;
 	float innerCutOff;
+	DirectX::XMFLOAT3 direction;
 	float outerCutOff;
 
-	DirectX::XMFLOAT3 ambient;
 	DirectX::XMFLOAT3 diffuse;
-	DirectX::XMFLOAT3 specular;
+	float strength;
 
-	float constantFactor;
-	float linearFactor;
-	float quadraticFactor;
-
-	float padding;
 };

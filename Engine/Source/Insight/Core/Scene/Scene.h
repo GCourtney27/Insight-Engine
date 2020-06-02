@@ -6,6 +6,7 @@
 #include "Insight/Rendering/Rendering_Context.h"
 #include "Insight/Runtime/APlayer_Character.h"
 #include "Insight/Rendering/Lighting/APoint_Light.h"
+#include "Insight/Rendering/Lighting/ASpot_Light.h"
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
 #include "Insight/Rendering/Geometry/Model.h"
 #include "Insight/Systems/Model_Manager.h"
@@ -49,6 +50,7 @@ namespace Insight {
 		APointLight* m_pTestPointLight = nullptr;
 		APointLight* m_pTestPointLight1 = nullptr;
 		ADirectionalLight* m_pDirectionalLight = nullptr;
+		ASpotLight* m_pSpotLight = nullptr;
 		APlayerCharacter* m_pPlayerCharacter;
 
 		AActor* m_pSelectedActor = nullptr;
