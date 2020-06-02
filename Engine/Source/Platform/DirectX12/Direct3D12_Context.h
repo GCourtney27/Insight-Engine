@@ -204,15 +204,15 @@ namespace Insight {
 		UINT8* m_cbvPerFrameGPUAddress[m_FrameBufferCount];
 		CB_PS_VS_PerFrame m_PerFrameData;
 
-#define MAX_POINT_LIGHTS_SUPPORTED 16
+#define MAX_POINT_LIGHTS_SUPPORTED 16u
 		std::vector<APointLight*> m_PointLights;
 		int ConstantBufferPointLightAlignedSize = (sizeof(CB_PS_PointLight) + 255) & ~255;
 
-#define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 4
+#define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 4u
 		std::vector<ADirectionalLight*> m_DirectionalLights;
 		int ConstantBufferDirectionalLightAlignedSize = (sizeof(CB_PS_DirectionalLight) + 255) & ~255;
 
-#define MAX_SPOT_LIGHTS_SUPPORTED 16
+#define MAX_SPOT_LIGHTS_SUPPORTED 16u
 
 
 		Texture m_AlbedoTexture;

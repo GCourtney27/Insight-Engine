@@ -9,18 +9,16 @@ struct PointLight
     float strength;
 	
     float3 diffuse;
-        float padding1;
+    float padding1;
 };
 
 struct DirectionalLight
 {
     float3 direction;
+    float padding;
     
-    float3 ambient;
     float3 diffuse;
-    
     float strength;
-        float2 padding;
 };
 
 struct SpotLight

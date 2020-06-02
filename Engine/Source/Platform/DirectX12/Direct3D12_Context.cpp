@@ -132,7 +132,7 @@ namespace Insight {
 		// Send Directionl Lights to GPU
 		for (int i = 0; i < m_DirectionalLights.size(); i++)
 		{
-			memcpy( (m_cbvLightBufferGPUAddress[m_FrameIndex] + ( MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight) ) ) + ( sizeof(CB_PS_DirectionalLight) * i ), &m_DirectionalLights[i]->GetConstantBuffer(), sizeof(CB_PS_DirectionalLight) );
+			memcpy(( m_cbvLightBufferGPUAddress[m_FrameIndex] + (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight)) ) + ( sizeof(CB_PS_DirectionalLight) * i ), &m_DirectionalLights[i]->GetConstantBuffer(), sizeof(CB_PS_DirectionalLight) );
 		}
 
 	}

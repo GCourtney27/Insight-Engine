@@ -44,7 +44,7 @@ namespace Insight {
 			m_pTestPointLight = new APointLight(4, "Point Light Actor");
 			m_pTestPointLight->GetTransformRef().SetPosition(Vector3(0.0f, 13.75f, -6.3));
 
-			//m_pTestPointLight1 = new APointLight(5, "Point Light Actor1");
+			m_pTestPointLight1 = new APointLight(5, "Point Light Actor1");
 			m_pDirectionalLight = new ADirectionalLight(5, "Directional Light Actor");
 
 		}
@@ -52,8 +52,8 @@ namespace Insight {
 		m_pSceneRoot->AddChild(m_pTestActor);
 		m_pSceneRoot->AddChild(m_pTestActor2);
 		m_pSceneRoot->AddChild(m_pTestActor3);
-		/*m_pSceneRoot->AddChild(m_pTestPointLight);
-		m_pSceneRoot->AddChild(m_pTestPointLight1);*/
+		m_pSceneRoot->AddChild(m_pTestPointLight);
+		m_pSceneRoot->AddChild(m_pTestPointLight1);
 		m_pSceneRoot->AddChild(m_pDirectionalLight);
 		m_pSceneRoot->AddChild(m_pPlayerCharacter);
 

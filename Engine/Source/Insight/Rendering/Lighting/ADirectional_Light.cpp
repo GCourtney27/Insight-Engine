@@ -15,7 +15,6 @@ namespace Insight {
 		SceneNode::GetTransformRef().SetPosition(Vector3(-0.2f, -1.0f, -0.3f));
 		m_ShaderCB.direction = SceneNode::GetTransformRef().GetPositionRef();
 		m_ShaderCB.diffuse = XMFLOAT3(1.0f, 1.0f, 1.0f);
-		m_ShaderCB.ambient = XMFLOAT3(1.0f, 1.0f, 1.0f);
 		m_ShaderCB.strength = 1.0f;
 
 		graphicsContext.AddDirectionalLight(this);
@@ -77,7 +76,6 @@ namespace Insight {
 		// Imgui will edit the color values in a normalized 0 to 1 space. 
 		// In the shaders we transform the color values back into 0 to 255 space.
 		ImGui::ColorEdit3("Diffuse", &m_ShaderCB.diffuse.x, colorWheelFlags);
-		ImGui::ColorEdit3("Ambient", &m_ShaderCB.ambient.x, colorWheelFlags);
 		ImGui::DragFloat("Strength", &m_ShaderCB.strength, 0.1f, 0.0f, 100.0f);
 	}
 
