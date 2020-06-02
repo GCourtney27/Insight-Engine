@@ -722,6 +722,34 @@ namespace Insight {
 
 	void Direct3D12Context::CreateSkyPassPSO()
 	{
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineDesc = {};
+		auto depthStencilStateDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+		depthStencilStateDesc.DepthEnable = true;
+		depthStencilStateDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+		depthStencilStateDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+		
+		auto rasterizerStateDesc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+		rasterizerStateDesc.DepthClipEnable = true;
+		rasterizerStateDesc.CullMode = D3D12_CULL_MODE_FRONT;
+		rasterizerStateDesc.FillMode = D3D12_FILL_MODE_SOLID;
+		
+		pipelineDesc.VS = ShaderManager::LoadShader(L"SkyboxVS.cso");
+		pipelineDesc.PS = ShaderManager::LoadShader(L"SkyboxPS.cso");
+		pipelineDesc.InputLayout.pInputElementDescs = InputLayout::DefaultLayout;
+		pipelineDesc.InputLayout.NumElements = _countof(InputLayout::DefaultLayout);
+		pipelineDesc.pRootSignature = m_pRootSignature.Get();
+		pipelineDesc.DepthStencilState = depthStencilStateDesc;
+		pipelineDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		pipelineDesc.RasterizerState = rasterizerStateDesc;
+		pipelineDesc.SampleMask = UINT_MAX;
+		pipelineDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		pipelineDesc.NumRenderTargets = 1;
+		pipelineDesc.RTVFormats[0] = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		pipelineDesc.SampleDesc.Count = 1;
+		pipelineDesc.DSVFormat = m_DsvFormat;
+
+		m_pLogicalDevice->CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&m_pPipelineStateObject_Sky));
+
 	}
 
 	void Direct3D12Context::CreateLightPassPSO()
