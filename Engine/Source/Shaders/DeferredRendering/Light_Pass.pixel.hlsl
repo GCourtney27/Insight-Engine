@@ -55,7 +55,7 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
     {
         float3 lightDir = normalize(-dirLights[d].direction);
         float3 halfwayDir = normalize(viewDirection + lightDir);
-        float3 radiance = (dirLights[d].diffuse * 255.0) * dirLights[d].strength;
+        float3 radiance = (dirLights[d].diffuse) * dirLights[d].strength;
         
           // Cook-Torrance BRDF
         //float NdotV = max(dot(normal, viewDirection), 0.0000001);
