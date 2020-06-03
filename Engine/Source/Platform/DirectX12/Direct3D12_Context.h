@@ -155,7 +155,7 @@ namespace Insight {
 		ComPtr<ID3D12Resource>				m_pRenderTargetTextures_PostFxPass[m_FrameBufferCount];
 		ComPtr<ID3D12Resource>				m_pRenderTargets[m_FrameBufferCount];
 		CDescriptorHeapWrapper				m_rtvHeap;
-		ComPtr<ID3D12DescriptorHeap>		m_RTVDescriptorHeap; ///!!!!!!!!!!!!!maybe make another for post fx
+		ComPtr<ID3D12DescriptorHeap>		m_RTVDescriptorHeap;
 		UINT								m_RTVDescriptorSize;
 
 		ComPtr<ID3D12Resource>				m_pDepthStencilTexture;
@@ -220,21 +220,26 @@ namespace Insight {
 		ComPtr<ID3D12Resource> m_PostFxCBV[m_FrameBufferCount];
 		UINT8*				   m_cbvPostFxGPUAddress[m_FrameBufferCount];
 		CB_PS_VS_PerFrame	   m_PostFxData;
+		int CBPerFrameAlignedSize = (sizeof(CB_PS_VS_PerFrame) + 255) & ~255;
 
 		ASkySphere*			   m_pSkySphere = nullptr;
 		APostFx*			   m_pPostFx = nullptr;
+		int CBPostFxAlignedSize = (sizeof(CB_PS_PostFx) + 255) & ~255;
 
 #define POINT_LIGHTS_CB_ALIGNED_OFFSET (0)
 #define MAX_POINT_LIGHTS_SUPPORTED 16u
 		std::vector<APointLight*> m_PointLights;
+		int CBPointLightsAlignedSize = (sizeof(CB_PS_PointLight) + 255) & ~255;
 
 #define DIRECTIONAL_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight))
 #define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 4u
 		std::vector<ADirectionalLight*> m_DirectionalLights;
+		int CBDirectionalLightsAlignedSize = (sizeof(CB_PS_DirectionalLight) + 255) & ~255;
 
 #define SPOT_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight) + MAX_DIRECTIONAL_LIGHTS_SUPPORTED * sizeof(CB_PS_DirectionalLight))
 #define MAX_SPOT_LIGHTS_SUPPORTED 16u
 		std::vector<ASpotLight*> m_SpotLights;
+		int CBSpotLightsAlignedSize = (sizeof(CB_PS_SpotLight) + 255) & ~255;
 
 		Texture m_AlbedoTexture;
 		Texture m_NormalTexture;

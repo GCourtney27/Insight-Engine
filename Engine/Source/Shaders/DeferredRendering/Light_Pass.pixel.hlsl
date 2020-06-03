@@ -17,13 +17,6 @@ Texture2D t_BrdfLUT : register(t12);
 // --------
 sampler s_LinearWrapSampler : register(s0);
 
-// Function signatures
-// -------------------
-float3 CalculatePointLight(PointLight light, float3 normal, float3 fragPosition, float3 viewDirection, float2 texCoords);
-void GammaCorrect(inout float3 target);
-void HDRToneMap(inout float3 target);
-float LinearizeDepth(float depth);
-
 struct PS_OUTPUT_LIGHTPASS
 {
     float4 litImage : SV_Target0;
@@ -160,27 +153,8 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
      // Combine Light luminance
     float3 pixelColor = ambient + outputLightLuminance;
     
-    ps_out.litImage.rgb = ambient + outputLightLuminance;
+    ps_out.litImage.rgb = pixelColor;
+    
     return ps_out;
-    //HDRToneMap(pixelColor);
-    //GammaCorrect(pixelColor);
-    //return float4(pixelColor, 1.0);
-}
-
-void HDRToneMap(inout float3 target)
-{
-    target = float3(1.0, 1.0, 1.0) - exp(-target * cameraExposure);
-}
-
-void GammaCorrect(inout float3 target)
-{
-    const float gamma = 2.2;
-    target = pow(target.rgb, float3(1.0 / gamma, 1.0 / gamma, 1.0 / gamma));
-}
-
-float LinearizeDepth(float depth)
-{
-    float z = depth * 2.0 - 1.0; // back to NDC 
-    return (2.0 * cameraNearZ * cameraFarZ) / (cameraFarZ + cameraNearZ - z * (cameraFarZ - cameraNearZ)) / cameraFarZ;
 }
 

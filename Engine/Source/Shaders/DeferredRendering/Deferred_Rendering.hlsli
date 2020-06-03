@@ -36,7 +36,7 @@ cbuffer cbPostFx : register(b3)
     float vnInnerRadius;
     float vnOuterRadius;
     float vnOpacity;
-    float vnEnabled;
+    int vnEnabled;
 }
 
 /* Geometry Pass */

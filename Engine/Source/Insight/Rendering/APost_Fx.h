@@ -32,8 +32,8 @@ namespace Insight {
 
 	private:
 		CB_PS_PostFx m_ShaderCB;
-		float m_TempInnerCutoff = 12.5f;
-		float m_TempOuterCutoff = 15.0f;
+		float m_TempInnerRadius = 12.5f;
+		float m_TempOuterRadius = 15.0f;
 	};
 
 }

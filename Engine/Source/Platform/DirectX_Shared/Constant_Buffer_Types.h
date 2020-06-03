@@ -58,5 +58,5 @@ struct CB_PS_PostFx
 	float innerRadius;
 	float outerRadius;
 	float opacity;
-	float vnEnabled;
+	int vnEnabled;
 };
