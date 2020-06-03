@@ -10,6 +10,7 @@
 #include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
 
 #include "Insight/Rendering/Texture.h"
+#include "Insight/Rendering/APost_Fx.h"
 #include "Insight/Rendering/ASky_Sphere.h"
 #include "Insight/Rendering/Geometry/Model.h"
 #include "Insight/Rendering/Lighting/ASpot_Light.h"
@@ -69,9 +70,10 @@ namespace Insight {
 		inline D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE handle;
-			handle.ptr = m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + m_rtvDescriptorSize * m_FrameIndex;
+			handle.ptr = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + m_RTVDescriptorSize * m_FrameIndex;
 			return handle;
 		}
+
 
 		// Lights
 		void AddPointLight(APointLight* pointLight) { m_PointLights.push_back(pointLight); }
@@ -79,6 +81,7 @@ namespace Insight {
 		void AddSpotLight(ASpotLight* spotLight) { m_SpotLights.push_back(spotLight); }
 
 		void AddSkySphere(ASkySphere* skySphere) { m_pSkySphere = skySphere; }
+		void AddPostFxActor(APostFx* postFxActor) { m_pPostFx = postFxActor; }
 	private:
 		void CloseCommandListAndSignalCommandQueue();
 		// Per-Frame
@@ -87,6 +90,7 @@ namespace Insight {
 		void BindGeometryPass(bool setPSO = false);
 		void BindLightingPass();
 		void BindSkyPass();
+		void BindPostFxPass();
 
 		// D3D12 Initialize
 		void CreateDXGIFactory();
@@ -103,6 +107,7 @@ namespace Insight {
 		void CreateGeometryPassPSO();
 		void CreateSkyPassPSO();
 		void CreateLightPassPSO();
+		void CreatePostFxPassPSO();
 
 		void CreateCommandAllocators();
 		void CreateFenceEvent();
@@ -147,10 +152,11 @@ namespace Insight {
 		ComPtr<ID3D12CommandAllocator>		m_pCommandAllocators[m_FrameBufferCount];
 
 		ComPtr<ID3D12Resource>				m_pRenderTargetTextures[m_FrameBufferCount];
+		ComPtr<ID3D12Resource>				m_pRenderTargetTextures_PostFxPass[m_FrameBufferCount];
 		ComPtr<ID3D12Resource>				m_pRenderTargets[m_FrameBufferCount];
 		CDescriptorHeapWrapper				m_rtvHeap;
-		ComPtr<ID3D12DescriptorHeap>		m_rtvDescriptorHeap;
-		UINT								m_rtvDescriptorSize;
+		ComPtr<ID3D12DescriptorHeap>		m_RTVDescriptorHeap;
+		UINT								m_RTVDescriptorSize;
 
 		ComPtr<ID3D12Resource>				m_pDepthStencilTexture;
 		CDescriptorHeapWrapper				m_dsvHeap;
@@ -160,6 +166,7 @@ namespace Insight {
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_GeometryPass;
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_LightingPass;
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_SkyPass;
+		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_PostFxPass;
 
 		//Root Param Index - Resource
 		//0: SRV-Albedo(RTV->SRV)
@@ -167,16 +174,17 @@ namespace Insight {
 		//2: SRV-(R)Roughness/(G)Metallic/(B)AO(RTV->SRV)
 		//3: SRV-Position(RTV->SRV)
 		//4: SRV-Depth(DSV->SRV)
+		//5: SRV-Light Pass Result(RTV->SRV)
 		//-----PerObject-----
-		//5: SRV-Albedo(SRV)
-		//6: SRV-Normal(SRV)
-		//7: SRV-Roughness(SRV)
-		//8: SRV-Metallic(SRV)
-		//9: SRV-AO(SRV)
-		//10:SRV-Sky Irradiance(SRV)
-		//11:SRV-Sky Environment(SRV)
-		//12:SRV-Sky BRDF LUT(SRV)
-		//13:SRV-Sky Diffuse(SRV)
+		//6: SRV-Albedo(SRV)
+		//7: SRV-Normal(SRV)
+		//8: SRV-Roughness(SRV)
+		//9: SRV-Metallic(SRV)
+		//10: SRV-AO(SRV)
+		//11:SRV-Sky Irradiance(SRV)
+		//12:SRV-Sky Environment(SRV)
+		//13:SRV-Sky BRDF LUT(SRV)
+		//14:SRV-Sky Diffuse(SRV)
 		CDescriptorHeapWrapper				m_cbvsrvHeap;
 		
 
@@ -186,14 +194,15 @@ namespace Insight {
 		DXGI_SAMPLE_DESC					m_SampleDesc = {};
 		D3D12_DEPTH_STENCIL_VIEW_DESC		m_dsvDesc = {};
 
-		float								m_ClearColor[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
-		static const unsigned int			m_NumRTV = 4;
+		float								m_ClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		static const unsigned int			m_NumRTV = 5;
 		DXGI_FORMAT							m_DsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		DXGI_FORMAT							m_RtvFormat[4] = { 
+		DXGI_FORMAT							m_RtvFormat[5] = { 
 			DXGI_FORMAT_R11G11B10_FLOAT,	// Albedo buffer
 			DXGI_FORMAT_R8G8B8A8_SNORM,		// Normal
 			DXGI_FORMAT_R11G11B10_FLOAT,	// (R)Roughness/(G)Metallic/(B)AO
 			DXGI_FORMAT_R32G32B32A32_FLOAT, // Position
+			DXGI_FORMAT_R11G11B10_FLOAT,	// Light Pass result
 		};
 		float								m_ClearDepth = 1.0f;
 
@@ -208,19 +217,29 @@ namespace Insight {
 		UINT8*				   m_cbvPerFrameGPUAddress[m_FrameBufferCount];
 		CB_PS_VS_PerFrame	   m_PerFrameData;
 
+		ComPtr<ID3D12Resource> m_PostFxCBV[m_FrameBufferCount];
+		UINT8*				   m_cbvPostFxGPUAddress[m_FrameBufferCount];
+		CB_PS_VS_PerFrame	   m_PostFxData;
+		int CBPerFrameAlignedSize = (sizeof(CB_PS_VS_PerFrame) + 255) & ~255;
+
 		ASkySphere*			   m_pSkySphere = nullptr;
+		APostFx*			   m_pPostFx = nullptr;
+		int CBPostFxAlignedSize = (sizeof(CB_PS_PostFx) + 255) & ~255;
 
 #define POINT_LIGHTS_CB_ALIGNED_OFFSET (0)
 #define MAX_POINT_LIGHTS_SUPPORTED 16u
 		std::vector<APointLight*> m_PointLights;
+		int CBPointLightsAlignedSize = (sizeof(CB_PS_PointLight) + 255) & ~255;
 
 #define DIRECTIONAL_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight))
 #define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 4u
 		std::vector<ADirectionalLight*> m_DirectionalLights;
+		int CBDirectionalLightsAlignedSize = (sizeof(CB_PS_DirectionalLight) + 255) & ~255;
 
 #define SPOT_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight) + MAX_DIRECTIONAL_LIGHTS_SUPPORTED * sizeof(CB_PS_DirectionalLight))
 #define MAX_SPOT_LIGHTS_SUPPORTED 16u
 		std::vector<ASpotLight*> m_SpotLights;
+		int CBSpotLightsAlignedSize = (sizeof(CB_PS_SpotLight) + 255) & ~255;
 
 		Texture m_AlbedoTexture;
 		Texture m_NormalTexture;

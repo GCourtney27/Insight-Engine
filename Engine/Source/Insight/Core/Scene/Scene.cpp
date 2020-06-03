@@ -53,6 +53,8 @@ namespace Insight {
 			m_pSpotLight = new ASpotLight(7, "Spot Light Actor");
 
 			m_pSkyboxActor = new ASkySphere(8, "Sky Sphere Actor");
+
+			m_PostFxActor = new APostFx(9, "Post-Fx Actor");
 		}
 
 		m_pSceneRoot->AddChild(m_pTestActor);
@@ -63,6 +65,7 @@ namespace Insight {
 		m_pSceneRoot->AddChild(m_pSpotLight);
 		m_pSceneRoot->AddChild(m_pDirectionalLight);
 		m_pSceneRoot->AddChild(m_pSkyboxActor);
+		m_pSceneRoot->AddChild(m_PostFxActor);
 		m_pSceneRoot->AddChild(m_pPlayerCharacter);
 
 

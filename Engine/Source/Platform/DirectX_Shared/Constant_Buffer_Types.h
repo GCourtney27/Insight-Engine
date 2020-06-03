@@ -51,3 +51,16 @@ struct CB_PS_SpotLight
 	float strength;
 
 };
+
+struct CB_PS_PostFx
+{
+	// Vignette
+	float innerRadius;
+	float outerRadius;
+	float opacity;
+	int vnEnabled;
+
+	// Film Grain
+	float fgStrength;
+	int fgEnabled;
+};

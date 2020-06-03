@@ -118,7 +118,7 @@ namespace Insight {
 		srvDesc.Format = m_TextureDesc.Format;
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		pDevice->CreateShaderResourceView(m_pTexture.Get(), &srvDesc, srvHeapHandle.hCPU(5 + s_NumSceneTextures));
+		pDevice->CreateShaderResourceView(m_pTexture.Get(), &srvDesc, srvHeapHandle.hCPU(6 + s_NumSceneTextures));
 		
 		m_GPUHeapIndex = s_NumSceneTextures;
 		s_NumSceneTextures++;
@@ -163,7 +163,7 @@ namespace Insight {
 		srvDesc.ViewDimension = (m_TextureType >= eTextureType::SKY_IRRADIENCE) ? D3D12_SRV_DIMENSION_TEXTURECUBE : D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
-		pDevice->CreateShaderResourceView(m_pTexture.Get(), &srvDesc, srvHeapHandle.hCPU(5 + s_NumSceneTextures));
+		pDevice->CreateShaderResourceView(m_pTexture.Get(), &srvDesc, srvHeapHandle.hCPU(6 + s_NumSceneTextures));
 		m_GPUHeapIndex = s_NumSceneTextures;
 		s_NumSceneTextures++;
 
@@ -182,47 +182,47 @@ namespace Insight {
 		switch (m_TextureType) {
 		case eTextureType::ALBEDO:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(4, cbvSrvHeapStart.hGPU(5 + m_GPUHeapIndex));
+			m_pCommandList->SetGraphicsRootDescriptorTable(5, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
 			break;
 		}
 		case eTextureType::NORMAL:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(5, cbvSrvHeapStart.hGPU(5 + m_GPUHeapIndex));
+			m_pCommandList->SetGraphicsRootDescriptorTable(6, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
 			break;
 		}
 		case eTextureType::ROUGHNESS:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(6, cbvSrvHeapStart.hGPU(5 + m_GPUHeapIndex));
+			m_pCommandList->SetGraphicsRootDescriptorTable(7, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
 			break;
 		}
 		case eTextureType::METALLIC:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(7, cbvSrvHeapStart.hGPU(5 + m_GPUHeapIndex));
+			m_pCommandList->SetGraphicsRootDescriptorTable(8, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
 			break;
 		}
 		case eTextureType::AO:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(8, cbvSrvHeapStart.hGPU(5 + m_GPUHeapIndex));
+			m_pCommandList->SetGraphicsRootDescriptorTable(9, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
 			break;
 		}
 		case eTextureType::SKY_IRRADIENCE:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(9, cbvSrvHeapStart.hGPU(5 + m_GPUHeapIndex));
+			m_pCommandList->SetGraphicsRootDescriptorTable(10, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
 			break;
 		}
 		case eTextureType::SKY_ENVIRONMENT_MAP:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(10, cbvSrvHeapStart.hGPU(5 + m_GPUHeapIndex));
+			m_pCommandList->SetGraphicsRootDescriptorTable(11, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
 			break;
 		}
 		case eTextureType::SKY_BRDF_LUT:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(11, cbvSrvHeapStart.hGPU(5 + m_GPUHeapIndex));
+			m_pCommandList->SetGraphicsRootDescriptorTable(12, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
 			break;
 		}
 		case eTextureType::SKY_DIFFUSE:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(12, cbvSrvHeapStart.hGPU(5 + m_GPUHeapIndex));
+			m_pCommandList->SetGraphicsRootDescriptorTable(13, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
 			break;
 		}
 		default:

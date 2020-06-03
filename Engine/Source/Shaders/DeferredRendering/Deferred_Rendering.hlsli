@@ -30,6 +30,19 @@ cbuffer cbLights : register(b2)
     SpotLight spotLights[MAX_SPOT_LIGHTS_SUPPORTED];
 };
 
+cbuffer cbPostFx : register(b3)
+{
+    // Vignette
+    float vnInnerRadius;
+    float vnOuterRadius;
+    float vnOpacity;
+    int vnEnabled;
+	// Film Grain
+    float fgStrength;
+    int fgEnabled;
+
+}
+
 /* Geometry Pass */
 struct VS_INPUT_GEOMPASS
 {
