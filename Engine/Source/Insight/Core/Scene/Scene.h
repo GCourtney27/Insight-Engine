@@ -12,6 +12,7 @@
 #include "Insight/Rendering/Lighting/ASpot_Light.h"
 #include "Insight/Rendering/Lighting/APoint_Light.h"
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
+#include "Insight/Rendering/APost_Fx.h"
 
 namespace Insight {
 
@@ -56,6 +57,7 @@ namespace Insight {
 		APlayerCharacter* m_pPlayerCharacter;
 		Vector3 newPos;
 		AActor* m_pSelectedActor = nullptr;
+		APostFx* m_PostFxActor = nullptr;
 
 		FileSystem m_FileSystem;
 		ModelManager m_ModelManager;

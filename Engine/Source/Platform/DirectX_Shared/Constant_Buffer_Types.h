@@ -51,3 +51,12 @@ struct CB_PS_SpotLight
 	float strength;
 
 };
+
+struct CB_PS_PostFx
+{
+	// Vignette
+	float innerRadius;
+	float outerRadius;
+	float opacity;
+	float vnEnabled;
+};

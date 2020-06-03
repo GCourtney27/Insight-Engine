@@ -20,7 +20,7 @@ namespace Insight {
 
 		CDescriptorHeapWrapper& cbvSrvheap = graphicsContext.GetCBVSRVDescriptorHeap();
 		Texture::eTextureType textureType = Texture::eTextureType::SKY_DIFFUSE;
-		std::wstring pathDirW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/MountainTop_Diff.dds"));
+		std::wstring pathDirW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/skybox1_Diff.dds"));
 		m_Diffuse.Init(pathDirW, textureType, cbvSrvheap);
 	}
 

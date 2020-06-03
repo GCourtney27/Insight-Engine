@@ -24,10 +24,17 @@ void GammaCorrect(inout float3 target);
 void HDRToneMap(inout float3 target);
 float LinearizeDepth(float depth);
 
+struct PS_OUTPUT_LIGHTPASS
+{
+    float4 litImage : SV_Target0;
+};
+
 // Entry Point
 // -----------
-float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
+PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
 {
+    PS_OUTPUT_LIGHTPASS ps_out;
+    
 	// Sample Textures
     float3 albedoBufferSample = pow(t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb, float3(2.2, 2.2, 2.2));
     float3 roughMetAOBufferSample = t_RoughnessMetallicAOGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
@@ -153,9 +160,11 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
      // Combine Light luminance
     float3 pixelColor = ambient + outputLightLuminance;
     
-    HDRToneMap(pixelColor);
-    GammaCorrect(pixelColor);
-    return float4(pixelColor, 1.0);
+    ps_out.litImage.rgb = ambient + outputLightLuminance;
+    return ps_out;
+    //HDRToneMap(pixelColor);
+    //GammaCorrect(pixelColor);
+    //return float4(pixelColor, 1.0);
 }
 
 void HDRToneMap(inout float3 target)

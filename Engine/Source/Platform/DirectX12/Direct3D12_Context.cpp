@@ -81,6 +81,7 @@ namespace Insight {
 				CreateGeometryPassPSO();
 				CreateLightPassPSO();
 				CreateSkyPassPSO();
+				CreatePostFxPassPSO();
 
 				// Render Targets and Constant Buffers
 				{
@@ -123,6 +124,9 @@ namespace Insight {
 		m_PerFrameData.numDirectionalLights = (int)m_DirectionalLights.size();
 		m_PerFrameData.numSpotLights = (int)m_SpotLights.size();
 		memcpy(m_cbvPerFrameGPUAddress[m_FrameIndex], &m_PerFrameData, sizeof(CB_PS_VS_PerFrame));
+
+		// Send Post-Fx data to GPU
+		memcpy(m_cbvPostFxGPUAddress[m_FrameIndex], &m_pPostFx->GetConstantBuffer(), sizeof(CB_PS_PostFx));
 
 		// Send Point Lights to GPU
 		for (int i = 0; i < m_PointLights.size(); i++) {
@@ -187,11 +191,10 @@ namespace Insight {
 	void Direct3D12Context::BindGeometryPass(bool setPSO)
 	{
 		ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
-		if (setPSO)
-		{
+
+		if (setPSO) {
 			m_pCommandList->SetPipelineState(m_pPipelineStateObject_GeometryPass.Get());
 		}
-
 
 		for (int i = 0; i < m_NumRTV; i++)
 			m_pCommandList->ClearRenderTargetView(m_rtvHeap.hCPU(i), m_ClearColor, 0, nullptr);
@@ -201,7 +204,7 @@ namespace Insight {
 		m_pCommandList->OMSetRenderTargets(m_NumRTV, &m_rtvHeap.hCPUHeapStart, true, &m_dsvHeap.hCPUHeapStart);
 		m_pCommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 		m_pCommandList->SetGraphicsRootSignature(m_pRootSignature.Get());
-		m_pCommandList->SetGraphicsRootDescriptorTable(3, m_cbvsrvHeap.hGPU(0));
+		m_pCommandList->SetGraphicsRootDescriptorTable(4, m_cbvsrvHeap.hGPU(0));
 
 		{
 			m_AlbedoTexture.Bind();
@@ -209,6 +212,7 @@ namespace Insight {
 			m_RoughnessTexture.Bind();
 			m_MetallicTexture.Bind();
 			m_AOTexture.Bind();
+
 			m_Irradiance.Bind();
 			m_Environment.Bind();
 			m_BRDFLUT.Bind();
@@ -218,11 +222,16 @@ namespace Insight {
 
 	void Direct3D12Context::OnMidFrameRender()
 	{
-		m_pCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, nullptr);
+		//m_pCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, nullptr);
+		m_pCommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), true, nullptr);
 		BindLightingPass();
 
-		m_pCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, &m_dsvHeap.hCPUHeapStart);
+		//m_pCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, &m_dsvHeap.hCPUHeapStart);
+		m_pCommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), true, &m_dsvHeap.hCPUHeapStart);
 		BindSkyPass();
+
+		m_pCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, nullptr);
+		BindPostFxPass();
 	}
 
 	void Direct3D12Context::BindLightingPass()
@@ -235,18 +244,27 @@ namespace Insight {
 		m_pCommandList->SetPipelineState(m_pPipelineStateObject_LightingPass.Get());
 
 		m_ScreenQuad.Render(m_pCommandList);
-
-		
 	}
 
 	void Direct3D12Context::BindSkyPass()
 	{
-		if (m_pSkySphere != nullptr) {
-
+		if (m_pSkySphere) {
 			m_pCommandList->SetPipelineState(m_pPipelineStateObject_SkyPass.Get());
-			
+
 			m_pSkySphere->RenderSky(m_pCommandList);
 		}
+	}
+
+	void Direct3D12Context::BindPostFxPass()
+	{
+		if (m_pPostFx) {
+
+			m_pCommandList->SetPipelineState(m_pPipelineStateObject_PostFxPass.Get());
+			m_pCommandList->SetGraphicsRootDescriptorTable(14, m_cbvsrvHeap.hGPU(5));
+
+			m_ScreenQuad.Render(m_pCommandList);
+		}
+
 	}
 
 	void Direct3D12Context::PopulateCommandLists()
@@ -256,6 +274,8 @@ namespace Insight {
 		m_pCommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV[m_FrameIndex]->GetGPUVirtualAddress());
 		// Set light buffer
 		m_pCommandList->SetGraphicsRootConstantBufferView(2, m_LightCBV[m_FrameIndex]->GetGPUVirtualAddress());
+		// Set Post-Fx buffer
+		m_pCommandList->SetGraphicsRootConstantBufferView(3, m_PostFxCBV[m_FrameIndex]->GetGPUVirtualAddress());
 	}
 
 	void Direct3D12Context::OnRender()
@@ -270,10 +290,13 @@ namespace Insight {
 	{
 		HRESULT hr;
 
-		for (unsigned int i = 0; i < m_NumRTV; ++i) {
-			m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
+		// Prepare the buffers for text frame
+		{
+			for (unsigned int i = 0; i < m_NumRTV; ++i) {
+				m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
+			}
+			m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 		}
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetRenderTarget(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
@@ -451,8 +474,8 @@ namespace Insight {
 		desc.NumDescriptors = m_FrameBufferCount;
 		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		hr = m_pLogicalDevice->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_rtvDescriptorHeap));
-		m_rtvDescriptorHeap->SetName(L"Render Target View Descriptor Heap");
+		hr = m_pLogicalDevice->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_RTVDescriptorHeap));
+		m_RTVDescriptorHeap->SetName(L"Render Target View Descriptor Heap");
 
 		// All pending GPU work was already finished. Update the tracked fence values
 		// to the last value signaled.
@@ -462,13 +485,13 @@ namespace Insight {
 		}
 
 		m_FrameIndex = 0;
-		D3D12_CPU_DESCRIPTOR_HANDLE  hCPUHeapHandle = m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-		m_rtvDescriptorSize = m_pLogicalDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+		D3D12_CPU_DESCRIPTOR_HANDLE  hCPUHeapHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+		m_RTVDescriptorSize = m_pLogicalDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
 		for (UINT n = 0; n < m_FrameBufferCount; n++)
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE handle;
-			handle.ptr = hCPUHeapHandle.ptr + m_rtvDescriptorSize * n;
+			handle.ptr = hCPUHeapHandle.ptr + m_RTVDescriptorSize * n;
 			hr = m_pSwapChain->GetBuffer(n, IID_PPV_ARGS(&m_pRenderTargets[n]));
 			ThrowIfFailed(hr, "Failed to get buffer in swap chain during descriptor heap initialization.");
 			m_pLogicalDevice->CreateRenderTargetView(m_pRenderTargets[n].Get(), nullptr, handle);
@@ -538,7 +561,7 @@ namespace Insight {
 	{
 		HRESULT hr;
 
-		m_rtvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 4);
+		m_rtvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 5);
 		CD3DX12_HEAP_PROPERTIES heapProperty(D3D12_HEAP_TYPE_DEFAULT);
 
 		D3D12_RESOURCE_DESC resourceDesc = {};
@@ -561,7 +584,7 @@ namespace Insight {
 		clearVal.Color[2] = m_ClearColor[2];
 		clearVal.Color[3] = m_ClearColor[3];
 
-		for (int i = 0; i < m_NumRTV; i++) {
+		for (int i = 0; i < m_NumRTV-1; i++) {
 			resourceDesc.Format = m_RtvFormat[i];
 			clearVal.Format = m_RtvFormat[i];
 			hr = m_pLogicalDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET, &clearVal, IID_PPV_ARGS(&m_pRenderTargetTextures[i]));
@@ -572,6 +595,12 @@ namespace Insight {
 		m_pRenderTargetTextures[2]->SetName(L"Render Target Texture (R)Roughness/(G)Metallic/(B)AO");
 		m_pRenderTargetTextures[3]->SetName(L"Render Target Texture Position");
 
+		resourceDesc.Format = m_RtvFormat[4];
+		clearVal.Format = m_RtvFormat[4];
+		hr = m_pLogicalDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET, &clearVal, IID_PPV_ARGS(&m_pRenderTargetTextures[4]));
+		ThrowIfFailed(hr, "Failed to create committed resource for RTV at index: " + std::to_string(4));
+		m_pRenderTargetTextures[4]->SetName(L"Render Target Texture Light Pass Result");
+
 
 		D3D12_RENDER_TARGET_VIEW_DESC desc;
 		ZeroMemory(&desc, sizeof(desc));
@@ -580,10 +609,12 @@ namespace Insight {
 
 		desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
-		for (int i = 0; i < m_NumRTV; i++) {
+		for (int i = 0; i < m_NumRTV-1; i++) {
 			desc.Format = m_RtvFormat[i];
 			m_pLogicalDevice->CreateRenderTargetView(m_pRenderTargetTextures[i].Get(), &desc, m_rtvHeap.hCPU(i));
 		}
+		desc.Format = m_RtvFormat[4];
+		m_pLogicalDevice->CreateRenderTargetView(m_pRenderTargetTextures[4].Get(), &desc, m_rtvHeap.hCPU(4));
 
 		//Create SRVs for Render Targets
 		D3D12_SHADER_RESOURCE_VIEW_DESC descSRV = {};
@@ -594,7 +625,7 @@ namespace Insight {
 		descSRV.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
 
-		for (int i = 0; i < m_NumRTV; i++) {
+		for (int i = 0; i < m_NumRTV-1; i++) {
 			descSRV.Format = m_RtvFormat[i];
 			m_pLogicalDevice->CreateShaderResourceView(m_pRenderTargetTextures[i].Get(), &descSRV, m_cbvsrvHeap.hCPU(i));
 		}
@@ -602,29 +633,25 @@ namespace Insight {
 		m_pRenderTargetTextures[1]->SetName(L"Render Target SRV Normal");
 		m_pRenderTargetTextures[2]->SetName(L"Render Target SRV (R)Roughness/(G)Metallic/(B)AO");
 		m_pRenderTargetTextures[3]->SetName(L"Render Target SRV Position");
+
+		descSRV.Format = m_RtvFormat[4];
+		m_pLogicalDevice->CreateShaderResourceView(m_pRenderTargetTextures[4].Get(), &descSRV, m_cbvsrvHeap.hCPU(5));
+		m_pRenderTargetTextures[4]->SetName(L"Render Target SRV Light Pass Result");
+
+
+
 	}
 
 	void Direct3D12Context::CreateConstantBufferViews()
 	{
 		HRESULT hr = m_cbvsrvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 25, true);
 		ThrowIfFailed(hr, "Failed to create CBV SRV descriptor heap");
-		//D3D12_CONSTANT_BUFFER_VIEW_DESC	descBuffer;
-
-		// PerFrame CBV
-		/*descBuffer.BufferLocation = m_PerFrameCBV->GetGPUVirtualAddress();
-		descBuffer.SizeInBytes = (sizeof(CB_PS_VS_PerFrame) + 255) & ~255;
-		m_pLogicalDevice->CreateConstantBufferView(&descBuffer, m_cbvsrvHeap.hCPU(0));*/
-
-		// Light CBV
-		/*descBuffer.BufferLocation = m_LightCB->GetGPUVirtualAddress();
-		descBuffer.SizeInBytes = (sizeof(CB_PS_PointLight) + 255) & ~255;
-		m_pLogicalDevice->CreateConstantBufferView(&descBuffer, m_cbvsrvHeap.hCPU(4));*/
+		
 	}
 
 	void Direct3D12Context::CreateRootSignature()
 	{
-		CD3DX12_DESCRIPTOR_RANGE range[10];
-		// TODO: Eventualy textures should be put in the range array
+		CD3DX12_DESCRIPTOR_RANGE range[11];
 		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 0); // G-Buffer inputs t0-t4
 
 		range[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 5); // PerObject texture inputs - Albedo
@@ -638,22 +665,29 @@ namespace Insight {
 		range[8].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 12); // Sky - BRDF LUT
 		range[9].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 13); // Sky - Diffuse
 
-		CD3DX12_ROOT_PARAMETER rootParameters[13];
+		range[10].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 14); // Post-FX Input
+
+		CD3DX12_ROOT_PARAMETER rootParameters[15];
 		rootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX); // Per-Object constant buffer
 		rootParameters[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL); // Per-Frame constant buffer
 		rootParameters[2].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_PIXEL); // Light constant buffer
-		rootParameters[3].InitAsDescriptorTable(1, &range[0], D3D12_SHADER_VISIBILITY_PIXEL); // G-Buffer inputs
+		rootParameters[3].InitAsConstantBufferView(3, 0, D3D12_SHADER_VISIBILITY_PIXEL); // PostFx constant buffer
+		rootParameters[4].InitAsDescriptorTable(1, &range[0], D3D12_SHADER_VISIBILITY_PIXEL); // G-Buffer inputs
 
-		rootParameters[4].InitAsDescriptorTable(1, &range[1], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Albedo
-		rootParameters[5].InitAsDescriptorTable(1, &range[2], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Normal
-		rootParameters[6].InitAsDescriptorTable(1, &range[3], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Roughness
-		rootParameters[7].InitAsDescriptorTable(1, &range[4], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Metallic
-		rootParameters[8].InitAsDescriptorTable(1, &range[5], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - AO
+		rootParameters[5].InitAsDescriptorTable(1, &range[1], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Albedo
+		rootParameters[6].InitAsDescriptorTable(1, &range[2], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Normal
+		rootParameters[7].InitAsDescriptorTable(1, &range[3], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Roughness
+		rootParameters[8].InitAsDescriptorTable(1, &range[4], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Metallic
+		rootParameters[9].InitAsDescriptorTable(1, &range[5], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - AO
 
-		rootParameters[9].InitAsDescriptorTable(1, &range[6], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Irradiance
-		rootParameters[10].InitAsDescriptorTable(1, &range[7], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Environment Map
-		rootParameters[11].InitAsDescriptorTable(1, &range[8], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - BRDF LUT
-		rootParameters[12].InitAsDescriptorTable(1, &range[9], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Diffuse
+		rootParameters[10].InitAsDescriptorTable(1, &range[6], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Irradiance
+		rootParameters[11].InitAsDescriptorTable(1, &range[7], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Environment Map
+		rootParameters[12].InitAsDescriptorTable(1, &range[8], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - BRDF LUT
+		rootParameters[13].InitAsDescriptorTable(1, &range[9], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Diffuse
+
+		rootParameters[14].InitAsDescriptorTable(1, &range[10], D3D12_SHADER_VISIBILITY_PIXEL); // Final Image
+
+
 
 
 		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
@@ -883,6 +917,71 @@ namespace Insight {
 		ThrowIfFailed(hr, "Failed to create graphics pipeline state for lighting pass.");
 	}
 
+	void Direct3D12Context::CreatePostFxPassPSO()
+	{
+		HRESULT hr;
+
+		ComPtr<ID3DBlob> pVertexShader;
+		ComPtr<ID3DBlob> pPixelShader;
+		//IE_BUILD_DIR
+#if defined IE_DEBUG
+		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/PostFx.vertex.cso";
+		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/PostFx.pixel.cso";
+#elif defined IE_RELEASE
+		LPCWSTR vertexShaderFolder = L"PostFx.vertex.cso";
+		LPCWSTR pixelShaderFolder = L"PostFx.pixel.cso";
+#endif 
+
+		hr = D3DReadFileToBlob(vertexShaderFolder, &pVertexShader);
+		if (FAILED(hr)) {
+			ThrowIfFailed(hr, "Failed to compile Vertex Shader check log for more details.");
+		}
+		hr = D3DReadFileToBlob(pixelShaderFolder, &pPixelShader);
+		if (FAILED(hr)) {
+			ThrowIfFailed(hr, "Failed to compile Pixel Shader check log for more details.");
+		}
+
+
+		D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
+		vertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
+		vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
+
+		D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
+		pixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
+		pixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
+
+		D3D12_INPUT_ELEMENT_DESC inputLayout[2] =
+		{
+			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		};
+
+		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
+		inputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
+		inputLayoutDesc.pInputElementDescs = inputLayout;
+
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC descPipelineState = {};
+		descPipelineState.VS = vertexShaderBytecode;
+		descPipelineState.PS = pixelShaderBytecode;
+		descPipelineState.InputLayout.pInputElementDescs = inputLayout;
+		descPipelineState.InputLayout.NumElements = _countof(inputLayout);
+		descPipelineState.pRootSignature = m_pRootSignature.Get();
+		descPipelineState.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+		descPipelineState.DepthStencilState.DepthEnable = false;
+		descPipelineState.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		descPipelineState.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+		descPipelineState.RasterizerState.DepthClipEnable = false;
+		descPipelineState.SampleMask = UINT_MAX;
+		descPipelineState.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		descPipelineState.NumRenderTargets = 1;
+		descPipelineState.RTVFormats[0] = m_RtvFormat[0];
+		descPipelineState.DSVFormat = m_DsvFormat;
+		descPipelineState.SampleDesc.Count = 1;
+
+		hr = m_pLogicalDevice->CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pPipelineStateObject_PostFxPass));
+		ThrowIfFailed(hr, "Failed to create graphics pipeline state for lighting pass.");
+	}
+
 	void Direct3D12Context::CreateCommandAllocators()
 	{
 		HRESULT hr;
@@ -936,11 +1035,16 @@ namespace Insight {
 		Texture::eTextureType texTypeAO = Texture::eTextureType::AO;
 		m_AOTexture.Init(texRelPathAOW, texTypeAO, m_cbvsrvHeap);
 
-		std::wstring texRelPathIRW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/MountainTop_IR.dds"));
+		// skybox1
+		// skybox2
+		// skybox3
+		// MountainTop
+		// NewportLoft
+		std::wstring texRelPathIRW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/skybox1_IR.dds"));
 		Texture::eTextureType texTypeIR = Texture::eTextureType::SKY_IRRADIENCE;
 		m_Irradiance.Init(texRelPathIRW, texTypeIR, m_cbvsrvHeap);
 
-		std::wstring texRelPathEnvW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/MountainTop_EnvMap1.dds"));
+		std::wstring texRelPathEnvW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/skybox1_EnvMap.dds"));
 		Texture::eTextureType texTypeEnv = Texture::eTextureType::SKY_ENVIRONMENT_MAP;
 		m_Environment.Init(texRelPathEnvW, texTypeEnv, m_cbvsrvHeap);
 
@@ -953,25 +1057,6 @@ namespace Insight {
 	void Direct3D12Context::CreateConstantBuffers()
 	{
 		HRESULT hr;
-
-		/*CD3DX12_HEAP_PROPERTIES heapProperty(D3D12_HEAP_TYPE_UPLOAD);
-		D3D12_RESOURCE_DESC resourceDesc;
-		ZeroMemory(&resourceDesc, sizeof(resourceDesc));
-		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-		resourceDesc.Alignment = 0;
-		resourceDesc.SampleDesc.Count = 1;
-		resourceDesc.SampleDesc.Quality = 0;
-		resourceDesc.MipLevels = 1;
-		resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
-		resourceDesc.DepthOrArraySize = 1;
-		resourceDesc.Height = 1;
-		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;*/
-
-		//resourceDesc.Width = sizeof(CB_PS_VS_PerFrame);
-		//m_pLogicalDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&m_PerFrameCBV));
-
-		//resourceDesc.Width = sizeof(CB_PS_PointLight);
-		//m_pLogicalDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&m_LightConstantBuffer));
 
 		// Light Constant buffer
 		for (int i = 0; i < m_FrameBufferCount; ++i)
@@ -1020,6 +1105,22 @@ namespace Insight {
 			ThrowIfFailed(hr, "Failed to create upload heap for per-frame upload resource heaps");
 			CD3DX12_RANGE readRange(0, 0);
 			hr = m_PerFrameCBV[i]->Map(0, &readRange, reinterpret_cast<void**>(&m_cbvPerFrameGPUAddress[i]));
+			ThrowIfFailed(hr, "Failed to create map heap for per-frame upload resource heaps");
+		}
+
+		// Post-Fx
+		for (int i = 0; i < m_FrameBufferCount; ++i) {
+			hr = m_pLogicalDevice->CreateCommittedResource(
+				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+				D3D12_HEAP_FLAG_NONE,
+				&CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
+				D3D12_RESOURCE_STATE_GENERIC_READ,
+				nullptr,
+				IID_PPV_ARGS(&m_PostFxCBV[i]));
+			m_PostFxCBV[i]->SetName(L"Constant Buffer Per-Frame Upload Heap");
+			ThrowIfFailed(hr, "Failed to create upload heap for per-frame upload resource heaps");
+			CD3DX12_RANGE readRange(0, 0);
+			hr = m_PostFxCBV[i]->Map(0, &readRange, reinterpret_cast<void**>(&m_cbvPostFxGPUAddress[i]));
 			ThrowIfFailed(hr, "Failed to create map heap for per-frame upload resource heaps");
 		}
 	}
