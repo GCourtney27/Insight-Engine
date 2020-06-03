@@ -61,10 +61,8 @@ namespace Insight {
 			}
 			return component;
 		}
-		void AddComponent(StrongActorComponentPtr component);
-		void RemoveComponent(StrongActorComponentPtr component);
-		std::vector<StrongActorComponentPtr> GetAllComponents() const { return m_Components; }
-
+		void RemoveSubobject(StrongActorComponentPtr component);
+		std::vector<StrongActorComponentPtr> GetAllSubobjects() const { return m_Components; }
 		
 	protected:
 		const Vector3 WORLD_DIRECTION = WORLD_DIRECTION.Zero;

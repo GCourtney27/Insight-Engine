@@ -1,18 +1,9 @@
-
-cbuffer cbPerObject : register(b0)
-{
-    float4x4 world;
-    float4x4 view;
-    float4x4 projection;
-};
+#include <../DeferredRendering/Deferred_Rendering.hlsli>	
 
 struct VS_INPUT
 {
     float3 inPosition : POSITION;
     float2 inTexCoord : TEXCOORD;
-    float3 inNormal : NORMAL;
-    float3 inTangent : TANGENT;
-    float3 inBiTangent : BITANGENT;
 };
 
 struct PS_OUTPUT

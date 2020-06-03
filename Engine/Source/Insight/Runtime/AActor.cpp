@@ -140,17 +140,7 @@ namespace Insight {
 
 	}
 
-	void AActor::AddComponent(StrongActorComponentPtr pComponent)
-	{
-		IE_CORE_ASSERT(pComponent, "Attempting to add component to actor that is NULL");
-		IE_CORE_ASSERT(std::find(m_Components.begin(), m_Components.end(), pComponent) == m_Components.end(), "Failed to add component to Actor");
-
-		pComponent->OnAttach();
-		m_Components.push_back(pComponent);
-		m_NumComponents++;
-	}
-
-	void AActor::RemoveComponent(StrongActorComponentPtr component)
+	void AActor::RemoveSubobject(StrongActorComponentPtr component)
 	{
 		IE_CORE_ASSERT(std::find(m_Components.begin(), m_Components.end(), component) != m_Components.end(), "Could not find Component in Actor list while attempting to delete");
 

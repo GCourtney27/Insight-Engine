@@ -10,10 +10,12 @@
 #include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
 
 #include "Insight/Rendering/Texture.h"
+#include "Insight/Rendering/ASky_Sphere.h"
 #include "Insight/Rendering/Geometry/Model.h"
 #include "Insight/Rendering/Lighting/ASpot_Light.h"
 #include "Insight/Rendering/Lighting/APoint_Light.h"
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
+
 
 using Microsoft::WRL::ComPtr;
 
@@ -53,6 +55,7 @@ namespace Insight {
 		inline static Direct3D12Context& Get() { return *s_Instance; }
 		inline ID3D12Device& GetDeviceContext() const { return *m_pLogicalDevice.Get(); }
 		inline ID3D12GraphicsCommandList& GetCommandList() const { return *m_pCommandList.Get(); }
+		inline ID3D12CommandQueue& GetCommandQueue() const { return *m_pCommandQueue.Get(); }
 
 		inline CDescriptorHeapWrapper& GetCBVSRVDescriptorHeap() { return m_cbvsrvHeap; }
 
@@ -75,6 +78,7 @@ namespace Insight {
 		void AddDirectionalLight(ADirectionalLight* pointLight) { m_DirectionalLights.push_back(pointLight); }
 		void AddSpotLight(ASpotLight* spotLight) { m_SpotLights.push_back(spotLight); }
 
+		void AddSkySphere(ASkySphere* skySphere) { m_pSkySphere = skySphere; }
 	private:
 		void CloseCommandListAndSignalCommandQueue();
 		// Per-Frame
@@ -116,6 +120,7 @@ namespace Insight {
 
 	private:
 		static Direct3D12Context* s_Instance;
+
 	private:
 		HWND* m_pWindowHandle = nullptr;
 		WindowsWindow* m_pWindow = nullptr;
@@ -192,25 +197,18 @@ namespace Insight {
 		};
 		float								m_ClearDepth = 1.0f;
 
-		// Utils
-		struct Resolution
-		{
-			UINT Width;
-			UINT Height;
-		};
-		static const Resolution m_ResolutionOptions[];
-		static const UINT m_ResolutionOptionsCount;
-		static UINT m_ResolutionIndex;
 
-		ComPtr<ID3D12Resource> m_LightCBV[m_FrameBufferCount];
-		UINT8* m_cbvLightBufferGPUAddress[m_FrameBufferCount];
+		ComPtr<ID3D12Resource>	m_LightCBV[m_FrameBufferCount];
+		UINT8*					m_cbvLightBufferGPUAddress[m_FrameBufferCount];
 
-		ComPtr<ID3D12Resource> m_PerObjectCBV[m_FrameBufferCount];
-		UINT8* m_cbvPerObjectGPUAddress[m_FrameBufferCount];
+		ComPtr<ID3D12Resource>	m_PerObjectCBV[m_FrameBufferCount];
+		UINT8*					m_cbvPerObjectGPUAddress[m_FrameBufferCount];
 
 		ComPtr<ID3D12Resource> m_PerFrameCBV[m_FrameBufferCount];
-		UINT8* m_cbvPerFrameGPUAddress[m_FrameBufferCount];
-		CB_PS_VS_PerFrame m_PerFrameData;
+		UINT8*				   m_cbvPerFrameGPUAddress[m_FrameBufferCount];
+		CB_PS_VS_PerFrame	   m_PerFrameData;
+
+		ASkySphere*			   m_pSkySphere = nullptr;
 
 #define POINT_LIGHTS_CB_ALIGNED_OFFSET (0)
 #define MAX_POINT_LIGHTS_SUPPORTED 16u
@@ -224,14 +222,22 @@ namespace Insight {
 #define MAX_SPOT_LIGHTS_SUPPORTED 16u
 		std::vector<ASpotLight*> m_SpotLights;
 
-		Model m_Skysphere;
-
 		Texture m_AlbedoTexture;
 		Texture m_NormalTexture;
 		Texture m_RoughnessTexture;
 		Texture m_MetallicTexture;
 		Texture m_AOTexture;
 
+
+		// Utils
+		struct Resolution
+		{
+			UINT Width;
+			UINT Height;
+		};
+		static const Resolution m_ResolutionOptions[];
+		static const UINT m_ResolutionOptionsCount;
+		static UINT m_ResolutionIndex;
 
 		const UINT PIX_EVENT_UNICODE_VERSION = 0;
 

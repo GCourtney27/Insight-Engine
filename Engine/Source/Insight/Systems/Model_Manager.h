@@ -24,6 +24,7 @@ namespace Insight {
 		SceneModels* GetSceneModels() { return &m_Models; }
 
 		void UploadVertexDataToGPU();
+		void PostRender();
 		void FlushModelCache();
 		
 		void PushModel(StrongModelPtr model) { m_Models.push_back(model); }
@@ -36,6 +37,7 @@ namespace Insight {
 		ID3D12Resource* m_ConstantBufferUploadHeaps = nullptr;
 		ID3D12GraphicsCommandList* m_pCommandList = nullptr;
 		int ConstantBufferPerObjectAlignedSize = (sizeof(CB_VS_PerObject) + 255) & ~255;
+		UINT32 m_ConstantBufferOffset = 0;
 
 	private:
 		static ModelManager* s_Instance;

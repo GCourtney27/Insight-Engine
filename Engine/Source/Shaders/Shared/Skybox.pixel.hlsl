@@ -6,7 +6,7 @@ struct PS_INPUT
 
 TextureCube t_SkyMap : register(t13);
 
-SamplerState s_LinearWrapSampler : SAMPLER : register(s0);
+SamplerState s_LinearWrapSampler : register(s0);
 
 float4 main(PS_INPUT input) : SV_TARGET
 {

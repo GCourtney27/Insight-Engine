@@ -32,36 +32,33 @@ namespace Insight {
 		m_pCommandList = nullptr;*/
 	}
 
-	bool Texture::Init(const std::wstring& filepath, eTextureType& testureType)
+	bool Texture::Init(const std::wstring& filepath, eTextureType& textureType, CDescriptorHeapWrapper& srvHeapHandle)
 	{
 		HRESULT hr;
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
 		m_pCommandList = &graphicsContext.GetCommandList();
+		m_TextureType = textureType;
 
 		std::string strFilePath = StringHelper::WideToString(filepath);
 		std::string extension = StringHelper::GetFileExtension(strFilePath);
 
 		if (extension == "dds") {
-			InitFromDDSTexture(filepath);
+			InitDDSTexture(filepath, srvHeapHandle);
 		}
 		else {
-
+			InitTextureFromFile(filepath, textureType, srvHeapHandle);
 		}
-
-		
 
 		return true;
 	}
 
-	bool Texture::Init(const std::wstring& filepath, eTextureType& textureType, CDescriptorHeapWrapper& srvHeapHandle)
+	bool Texture::InitTextureFromFile(const std::wstring& filepath, eTextureType& textureType, CDescriptorHeapWrapper& srvHeapHandle)
 	{
 		HRESULT hr;
 		
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
 		ID3D12Device* pDevice = &graphicsContext.GetDeviceContext();
 		
-		m_pCommandList = &graphicsContext.GetCommandList();
-		m_TextureType = textureType;
 
 		BYTE* imageData = 0;
 		int imageBytesPerRow = 0;
@@ -130,7 +127,7 @@ namespace Insight {
 		return true;
 	}
 
-	void Texture::InitFromDDSTexture(const std::wstring& filepath)
+	void Texture::InitDDSTexture(const std::wstring& filepath, CDescriptorHeapWrapper& srvHeapHandle)
 	{
 		HRESULT hr;
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
@@ -145,22 +142,32 @@ namespace Insight {
 		CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_UPLOAD);
 		auto desc = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
 
-		ComPtr<ID3D12Resource> uploadResource;
 		hr = pDevice->CreateCommittedResource(
 			&heapProperties,
 			D3D12_HEAP_FLAG_NONE,
 			&desc,
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
-			IID_PPV_ARGS(&uploadResource)
+			IID_PPV_ARGS(&m_pTextureUploadHeap)
 		);
 		ThrowIfFailed(hr, "Failed to create committed resource for texture buffer upload heap");
-		UpdateSubresources(m_pCommandList, m_pTexture.Get(), uploadResource.Get(), 0, 0, static_cast<UINT>(subresources.size()), subresources.data());
+		UpdateSubresources(m_pCommandList, m_pTexture.Get(), m_pTextureUploadHeap.Get(), 0, 0, static_cast<UINT>(subresources.size()), subresources.data());
 
 		auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_pTexture.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 		m_pCommandList->ResourceBarrier(1, &barrier);
 
-		//CreateShaderResourceView(pDevice, m_pTextureBuffer.Get(), resourceDescriptors->GetCpuHandle(Descriptors::MyTexture));
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.Texture2D.MipLevels = 1;
+		srvDesc.Format = m_TextureDesc.Format;
+		
+		srvDesc.ViewDimension = (m_TextureType >= eTextureType::SKY_IRRADIENCE) ? D3D12_SRV_DIMENSION_TEXTURECUBE : D3D12_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+		pDevice->CreateShaderResourceView(m_pTexture.Get(), &srvDesc, srvHeapHandle.hCPU(5 + s_NumSceneTextures));
+		//hr = m_pCommandList->Close();
+		//ThrowIfFailed(hr, "Failed to close command list while loading dds texture.");
+		//ID3D12CommandList* ppCommandLists[] = { m_pCommandList };
+		//graphicsContext.GetCommandQueue().ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 	}
 
 	void Texture::Bind()
@@ -193,6 +200,26 @@ namespace Insight {
 		case eTextureType::AO:
 		{
 			m_pCommandList->SetGraphicsRootDescriptorTable(8, cbvSrvHeapStart.hGPU(5 + m_GPUHeapIndex));
+			break;
+		}
+		case eTextureType::SKY_IRRADIENCE:
+		{
+			m_pCommandList->SetGraphicsRootDescriptorTable(9, cbvSrvHeapStart.hGPU(5 + m_GPUHeapIndex));
+			break;
+		}
+		case eTextureType::SKY_ENVIRONMENT_MAP:
+		{
+			m_pCommandList->SetGraphicsRootDescriptorTable(10, cbvSrvHeapStart.hGPU(5 + m_GPUHeapIndex));
+			break;
+		}
+		case eTextureType::SKY_BRDF_LUT:
+		{
+			m_pCommandList->SetGraphicsRootDescriptorTable(11, cbvSrvHeapStart.hGPU(5 + m_GPUHeapIndex));
+			break;
+		}
+		case eTextureType::SKY_DIFFUSE:
+		{
+			m_pCommandList->SetGraphicsRootDescriptorTable(12, cbvSrvHeapStart.hGPU(5 + m_GPUHeapIndex));
 			break;
 		}
 		default:
