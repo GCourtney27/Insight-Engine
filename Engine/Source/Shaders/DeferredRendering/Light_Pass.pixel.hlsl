@@ -43,6 +43,7 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
     
     float3 F0 = float3(0.04, 0.04, 0.04);
     float3 baseReflectivity = lerp(F0, albedoBufferSample, metallicSample);
+    float NdotV = max(dot(normal, viewDirection), 0.0000001);
     
     float3 spotLightLuminance = float3(0.0, 0.0, 0.0);
     float3 pointLightLuminance = float3(0.0, 0.0, 0.0);
@@ -57,7 +58,7 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
         float3 radiance = (dirLights[d].diffuse * 255.0) * dirLights[d].strength;
         
           // Cook-Torrance BRDF
-        float NdotV = max(dot(normal, viewDirection), 0.0000001);
+        //float NdotV = max(dot(normal, viewDirection), 0.0000001);
         float NdotL = max(dot(normal, lightDir), 0.0000001);
         float HdotV = max(dot(halfwayDir, viewDirection), 0.0);
         float NdotH = max(dot(normal, halfwayDir), 0.0);
@@ -90,7 +91,7 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
         float3 radiance = ((spotLights[s].diffuse * (spotLights[s].strength * 10000.0)) * intensity) * attenuation;
         
          // Cook-Torrance BRDF
-        float NdotV = max(dot(normal, viewDirection), 0.0000001);
+        //float NdotV = max(dot(normal, viewDirection), 0.0000001);
         float NdotL = max(dot(normal, lightDir), 0.0000001);
         float HdotV = max(dot(halfwayDir, viewDirection), 0.0);
         float NdotH = max(dot(normal, halfwayDir), 0.0);
@@ -118,7 +119,6 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
         float3 radiance = ((pointLights[p].diffuse * 255.0) * pointLights[p].strength) * attenuation;
         
         // Cook-Torrance BRDF
-        float NdotV = max(dot(normal, viewDirection), 0.0000001);
         float NdotL = max(dot(normal, lightDir), 0.0000001);
         float HdotV = max(dot(halfwayDir, viewDirection), 0.0);
         float NdotH = max(dot(normal, halfwayDir), 0.0);
@@ -136,10 +136,22 @@ float4 main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
         pointLightLuminance += (kD * albedoBufferSample / PI + specular) * radiance * NdotL;
     }
     
-    // Combine Light luminance
-    float3 ambient = float3(0.03, 0.03, 0.03) * albedoBufferSample * aoSample; // TODO replace floa3 with IR map sample
-    float3 outputLuminance = directionalLightLuminance + pointLightLuminance + spotLightLuminance;
-    float3 pixelColor = ambient * outputLuminance;
+    // IBL
+    // Irradiance
+    float3 F_IBL = FresnelSchlickRoughness(NdotV, baseReflectivity, roughnessSample);
+    float3 kD_IBL = (1.0f - F_IBL) * (1.0f - metallicSample);
+    float3 diffuse_IBL = tc_IrradianceMap.Sample(s_LinearWrapSampler, normal).rgb * albedoBufferSample * kD_IBL;
+    // Specular IBL
+    const float MAX_REFLECTION_LOD = 4.0f;
+    float3 environmentMapColor = tc_EnvironmentMap.SampleLevel(s_LinearWrapSampler, reflect(-viewDirection, normal), roughnessSample * MAX_REFLECTION_LOD).rgb;
+    float2 brdf = t_BrdfLUT.Sample(s_LinearWrapSampler, float2(NdotV, roughnessSample)).rg;
+    float3 specular_IBL = environmentMapColor * (F_IBL * brdf.r + brdf.g);
+    
+    float3 ambient = (diffuse_IBL + specular_IBL) * aoSample;
+    float3 outputLightLuminance = directionalLightLuminance + pointLightLuminance + spotLightLuminance;
+    
+     // Combine Light luminance
+    float3 pixelColor = ambient + outputLightLuminance;
     
     HDRToneMap(pixelColor);
     GammaCorrect(pixelColor);

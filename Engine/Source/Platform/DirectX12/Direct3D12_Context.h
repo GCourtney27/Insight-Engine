@@ -227,7 +227,10 @@ namespace Insight {
 		Texture m_RoughnessTexture;
 		Texture m_MetallicTexture;
 		Texture m_AOTexture;
-
+		// Sky TODO: Move this!
+		Texture m_Irradiance;
+		Texture m_Environment;
+		Texture m_BRDFLUT;
 
 		// Utils
 		struct Resolution

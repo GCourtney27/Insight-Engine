@@ -209,6 +209,9 @@ namespace Insight {
 			m_RoughnessTexture.Bind();
 			m_MetallicTexture.Bind();
 			m_AOTexture.Bind();
+			m_Irradiance.Bind();
+			m_Environment.Bind();
+			m_BRDFLUT.Bind();
 		}
 
 	}
@@ -932,6 +935,19 @@ namespace Insight {
 		std::wstring texRelPathAOW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedIron/RustedIron_AO.png"));
 		Texture::eTextureType texTypeAO = Texture::eTextureType::AO;
 		m_AOTexture.Init(texRelPathAOW, texTypeAO, m_cbvsrvHeap);
+
+		std::wstring texRelPathIRW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/MountainTop_IR.dds"));
+		Texture::eTextureType texTypeIR = Texture::eTextureType::SKY_IRRADIENCE;
+		m_Irradiance.Init(texRelPathIRW, texTypeIR, m_cbvsrvHeap);
+
+		std::wstring texRelPathEnvW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/MountainTop_EnvMap1.dds"));
+		Texture::eTextureType texTypeEnv = Texture::eTextureType::SKY_ENVIRONMENT_MAP;
+		m_Environment.Init(texRelPathEnvW, texTypeEnv, m_cbvsrvHeap);
+
+		std::wstring texRelPathBRDFLUTW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/ibl_brdf_lut.png"));
+		Texture::eTextureType texTypeBRDFLUT = Texture::eTextureType::SKY_BRDF_LUT;
+		m_BRDFLUT.Init(texRelPathBRDFLUTW, texTypeBRDFLUT, m_cbvsrvHeap);
+
 	}
 
 	void Direct3D12Context::CreateConstantBuffers()
