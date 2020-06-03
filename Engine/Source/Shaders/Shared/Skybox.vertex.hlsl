@@ -17,10 +17,15 @@ struct PS_OUTPUT
 PS_OUTPUT main(VS_INPUT input)
 {
     PS_OUTPUT output;
-    matrix worldViewProj = mul(mul(world, view), projection);
-
-    output.outPosition = mul(input.inPosition, worldViewProj).xyww;
-	//output.outPosition = mul(float4(input.inPos, 1.0f), wvpMatrix).xyww;
+    matrix viewNoMovement = view;
+    viewNoMovement._41 = 0;
+    viewNoMovement._42 = 0;
+    viewNoMovement._43 = 0;
+    
+    matrix viewProjection = mul(viewNoMovement, projection);
+    output.outPosition = mul(float4(input.inPosition, 1.0), viewProjection);
+    output.outPosition.z = output.outPosition.w;
+    
     output.outTexCoord = input.inPosition;
 
     return output;

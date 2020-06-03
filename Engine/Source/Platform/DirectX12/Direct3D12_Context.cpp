@@ -217,6 +217,8 @@ namespace Insight {
 	{
 		m_pCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, nullptr);
 		BindLightingPass();
+
+		m_pCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, &m_dsvHeap.hCPUHeapStart);
 		BindSkyPass();
 	}
 

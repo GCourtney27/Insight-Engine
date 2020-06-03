@@ -164,6 +164,9 @@ namespace Insight {
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
 		pDevice->CreateShaderResourceView(m_pTexture.Get(), &srvDesc, srvHeapHandle.hCPU(5 + s_NumSceneTextures));
+		m_GPUHeapIndex = s_NumSceneTextures;
+		s_NumSceneTextures++;
+
 		//hr = m_pCommandList->Close();
 		//ThrowIfFailed(hr, "Failed to close command list while loading dds texture.");
 		//ID3D12CommandList* ppCommandLists[] = { m_pCommandList };
