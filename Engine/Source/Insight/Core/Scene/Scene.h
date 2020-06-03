@@ -4,6 +4,7 @@
 
 #include "Scene_Node.h"
 #include "Insight/Systems/File_System.h"
+#include "Insight/Rendering/ASky_Sphere.h"
 #include "Insight/Systems/Model_Manager.h"
 #include "Insight/Rendering/Geometry/Model.h"
 #include "Insight/Runtime/APlayer_Character.h"
@@ -47,6 +48,7 @@ namespace Insight {
 		AActor* m_pTestActor = nullptr; // Temp: this should come from a file
 		AActor* m_pTestActor2 = nullptr; // Temp: this should come from a file
 		AActor* m_pTestActor3 = nullptr; // Temp: this should come from a file
+		ASkySphere* m_pSkyboxActor = nullptr; // Temp: this should come from a file
 		APointLight* m_pTestPointLight = nullptr;
 		APointLight* m_pTestPointLight1 = nullptr;
 		ADirectionalLight* m_pDirectionalLight = nullptr;

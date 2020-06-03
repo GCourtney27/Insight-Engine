@@ -97,8 +97,6 @@ namespace Insight {
 		bool m_FirstMove = true;
 		float m_LastLookX = 0.0f;
 		float m_LastLookY = 0.0f;
-
-		static const char* projectionMethods[] = { "Perspective", "Orthographic" };
 	};
 
 }

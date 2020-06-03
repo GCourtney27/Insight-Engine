@@ -10,10 +10,12 @@
 #include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
 
 #include "Insight/Rendering/Texture.h"
-#include "Insight/Rendering/Geometry/Mesh.h"
+#include "Insight/Rendering/ASky_Sphere.h"
+#include "Insight/Rendering/Geometry/Model.h"
 #include "Insight/Rendering/Lighting/ASpot_Light.h"
 #include "Insight/Rendering/Lighting/APoint_Light.h"
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
+
 
 using Microsoft::WRL::ComPtr;
 
@@ -53,6 +55,7 @@ namespace Insight {
 		inline static Direct3D12Context& Get() { return *s_Instance; }
 		inline ID3D12Device& GetDeviceContext() const { return *m_pLogicalDevice.Get(); }
 		inline ID3D12GraphicsCommandList& GetCommandList() const { return *m_pCommandList.Get(); }
+		inline ID3D12CommandQueue& GetCommandQueue() const { return *m_pCommandQueue.Get(); }
 
 		inline CDescriptorHeapWrapper& GetCBVSRVDescriptorHeap() { return m_cbvsrvHeap; }
 
@@ -75,6 +78,7 @@ namespace Insight {
 		void AddDirectionalLight(ADirectionalLight* pointLight) { m_DirectionalLights.push_back(pointLight); }
 		void AddSpotLight(ASpotLight* spotLight) { m_SpotLights.push_back(spotLight); }
 
+		void AddSkySphere(ASkySphere* skySphere) { m_pSkySphere = skySphere; }
 	private:
 		void CloseCommandListAndSignalCommandQueue();
 		// Per-Frame
@@ -116,6 +120,7 @@ namespace Insight {
 
 	private:
 		static Direct3D12Context* s_Instance;
+
 	private:
 		HWND* m_pWindowHandle = nullptr;
 		WindowsWindow* m_pWindow = nullptr;
@@ -154,8 +159,9 @@ namespace Insight {
 
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_GeometryPass;
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_LightingPass;
-		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_Sky;
+		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_SkyPass;
 
+		//Root Param Index - Resource
 		//0: SRV-Albedo(RTV->SRV)
 		//1: SRV-Normal(RTV->SRV)
 		//2: SRV-(R)Roughness/(G)Metallic/(B)AO(RTV->SRV)
@@ -167,6 +173,10 @@ namespace Insight {
 		//7: SRV-Roughness(SRV)
 		//8: SRV-Metallic(SRV)
 		//9: SRV-AO(SRV)
+		//10:SRV-Sky Irradiance(SRV)
+		//11:SRV-Sky Environment(SRV)
+		//12:SRV-Sky BRDF LUT(SRV)
+		//13:SRV-Sky Diffuse(SRV)
 		CDescriptorHeapWrapper				m_cbvsrvHeap;
 		
 
@@ -187,6 +197,41 @@ namespace Insight {
 		};
 		float								m_ClearDepth = 1.0f;
 
+
+		ComPtr<ID3D12Resource>	m_LightCBV[m_FrameBufferCount];
+		UINT8*					m_cbvLightBufferGPUAddress[m_FrameBufferCount];
+
+		ComPtr<ID3D12Resource>	m_PerObjectCBV[m_FrameBufferCount];
+		UINT8*					m_cbvPerObjectGPUAddress[m_FrameBufferCount];
+
+		ComPtr<ID3D12Resource> m_PerFrameCBV[m_FrameBufferCount];
+		UINT8*				   m_cbvPerFrameGPUAddress[m_FrameBufferCount];
+		CB_PS_VS_PerFrame	   m_PerFrameData;
+
+		ASkySphere*			   m_pSkySphere = nullptr;
+
+#define POINT_LIGHTS_CB_ALIGNED_OFFSET (0)
+#define MAX_POINT_LIGHTS_SUPPORTED 16u
+		std::vector<APointLight*> m_PointLights;
+
+#define DIRECTIONAL_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight))
+#define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 4u
+		std::vector<ADirectionalLight*> m_DirectionalLights;
+
+#define SPOT_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight) + MAX_DIRECTIONAL_LIGHTS_SUPPORTED * sizeof(CB_PS_DirectionalLight))
+#define MAX_SPOT_LIGHTS_SUPPORTED 16u
+		std::vector<ASpotLight*> m_SpotLights;
+
+		Texture m_AlbedoTexture;
+		Texture m_NormalTexture;
+		Texture m_RoughnessTexture;
+		Texture m_MetallicTexture;
+		Texture m_AOTexture;
+		// Sky TODO: Move this!
+		Texture m_Irradiance;
+		Texture m_Environment;
+		Texture m_BRDFLUT;
+
 		// Utils
 		struct Resolution
 		{
@@ -196,35 +241,6 @@ namespace Insight {
 		static const Resolution m_ResolutionOptions[];
 		static const UINT m_ResolutionOptionsCount;
 		static UINT m_ResolutionIndex;
-
-		ComPtr<ID3D12Resource> m_LightCBV[m_FrameBufferCount];
-		UINT8* m_cbvLightBufferGPUAddress[m_FrameBufferCount];
-
-		ComPtr<ID3D12Resource> m_PerObjectCBV[m_FrameBufferCount];
-		UINT8* m_cbvPerObjectGPUAddress[m_FrameBufferCount];
-
-		ComPtr<ID3D12Resource> m_PerFrameCBV[m_FrameBufferCount];
-		UINT8* m_cbvPerFrameGPUAddress[m_FrameBufferCount];
-		CB_PS_VS_PerFrame m_PerFrameData;
-
-#define POINT_LIGHTS_CB_ALIGNED_POSITION (0)
-#define MAX_POINT_LIGHTS_SUPPORTED 16u
-		std::vector<APointLight*> m_PointLights;
-
-#define DIRECTIONAL_LIGHTS_CB_ALIGNED_POSITION (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight))
-#define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 4u
-		std::vector<ADirectionalLight*> m_DirectionalLights;
-
-#define SPOT_LIGHTS_CB_ALIGNED_POSITION (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight) + MAX_DIRECTIONAL_LIGHTS_SUPPORTED * sizeof(CB_PS_DirectionalLight))
-#define MAX_SPOT_LIGHTS_SUPPORTED 16u
-		std::vector<ASpotLight*> m_SpotLights;
-
-		Texture m_AlbedoTexture;
-		Texture m_NormalTexture;
-		Texture m_RoughnessTexture;
-		Texture m_MetallicTexture;
-		Texture m_AOTexture;
-
 
 		const UINT PIX_EVENT_UNICODE_VERSION = 0;
 

@@ -23,7 +23,7 @@ namespace Insight {
 		m_ShaderCB.diffuse = XMFLOAT3(1.0f, 1.0f, 1.0f);
 		m_ShaderCB.innerCutOff = cos(XMConvertToRadians(12.5f));
 		m_ShaderCB.outerCutOff = cos(XMConvertToRadians(15.0f));
-		m_ShaderCB.strength = 13.0f;
+		m_ShaderCB.strength = 1.0f;
 
 		graphicsContext.AddSpotLight(this);
 	}
@@ -87,7 +87,7 @@ namespace Insight {
 		ImGui::ColorEdit3("Diffuse", &m_ShaderCB.diffuse.x, colorWheelFlags);
 		ImGui::DragFloat("Inner Cut-off", &m_TempInnerCutoff, 0.1f, 0.0f, 50.0f);
 		ImGui::DragFloat("Outer Cut-off", &m_TempOuterCutoff, 0.1f, 0.0f, 50.0f);
-		ImGui::DragFloat("Strength", &m_ShaderCB.strength, 0.15f, 0.0f, 100.0f);
+		ImGui::DragFloat("Strength", &m_ShaderCB.strength, 0.15f, 0.0f, 10.0f);
 		if (m_TempInnerCutoff > m_TempOuterCutoff) {
 			m_TempInnerCutoff = m_TempOuterCutoff;
 		}

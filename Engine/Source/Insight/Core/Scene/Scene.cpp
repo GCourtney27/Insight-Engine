@@ -6,6 +6,7 @@
 #include "ImGuizmo.h"
 #include "Insight/Core/Application.h"
 #include "Insight/Runtime/Components/Static_Mesh_Component.h"
+#include "Insight/Runtime/Components/Sky_Sphere_Component.h"
 #include "Insight/Input/Input.h"
 
 namespace Insight {
@@ -50,6 +51,8 @@ namespace Insight {
 			m_pTestPointLight1 = new APointLight(5, "Point Light Actor1");
 			m_pDirectionalLight = new ADirectionalLight(5, "Directional Light Actor");
 			m_pSpotLight = new ASpotLight(7, "Spot Light Actor");
+
+			m_pSkyboxActor = new ASkySphere(8, "Sky Sphere Actor");
 		}
 
 		m_pSceneRoot->AddChild(m_pTestActor);
@@ -59,6 +62,7 @@ namespace Insight {
 		m_pSceneRoot->AddChild(m_pTestPointLight1);
 		m_pSceneRoot->AddChild(m_pSpotLight);
 		m_pSceneRoot->AddChild(m_pDirectionalLight);
+		m_pSceneRoot->AddChild(m_pSkyboxActor);
 		m_pSceneRoot->AddChild(m_pPlayerCharacter);
 
 
@@ -181,6 +185,7 @@ namespace Insight {
 
 	void Scene::OnPostRender()
 	{
+		m_ModelManager.PostRender();
 		m_Renderer->ExecuteDraw();
 		m_Renderer->SwapBuffers();
 	}

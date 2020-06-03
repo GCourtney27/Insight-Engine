@@ -22,10 +22,10 @@ namespace Insight {
 			METALLIC = 3,
 			AO = 4,
 			// SKysphere
-			SKY_DIFFUSE = 5,
-			SKY_IRRADIENCE = 6,
-			SKY_ENVIRONMENT_MAP = 7
-
+			SKY_IRRADIENCE = 5,
+			SKY_ENVIRONMENT_MAP = 6,
+			SKY_BRDF_LUT = 7,
+			SKY_DIFFUSE = 8,
 		};
 
 #define ALBEDO_DESCRIPTOR_OFFSET eTextureType::ALBEDO
@@ -41,7 +41,7 @@ namespace Insight {
 		~Texture();
 	
 		bool Init(const std::wstring& filepath, eTextureType& testureType, CDescriptorHeapWrapper& srvHeapHandle);
-		bool Init(const std::wstring& filepath, eTextureType& testureType);
+		bool InitTextureFromFile(const std::wstring& filepath, eTextureType& testureType, CDescriptorHeapWrapper& srvHeapHandle);
 		void Bind();
 
 		inline const UINT64& GetWidth() const { return m_TextureDesc.Width; }
@@ -51,7 +51,7 @@ namespace Insight {
 		void Destroy();
 
 	private:
-		void InitFromDDSTexture(const std::wstring& filepath);
+		void InitDDSTexture(const std::wstring& filepath, CDescriptorHeapWrapper& srvHeapHandle);
 
 		DXGI_FORMAT GetDXGIFormatFromWICFormat(WICPixelFormatGUID& wicFormatGUID);
 		WICPixelFormatGUID GetConvertToWICFormat(WICPixelFormatGUID& wicFormatGUID);
@@ -60,7 +60,7 @@ namespace Insight {
 		
 	private:
 		ID3D12GraphicsCommandList*	m_pCommandList = nullptr;
-		
+
 		ComPtr<ID3D12Resource>		m_pTexture;
 		ComPtr<ID3D12Resource>		m_pTextureUploadHeap;
 		D3D12_RESOURCE_DESC			m_TextureDesc = {};

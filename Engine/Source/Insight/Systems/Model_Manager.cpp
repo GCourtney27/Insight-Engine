@@ -37,12 +37,11 @@ namespace Insight {
 	void ModelManager::Render()
 	{
 		D3D12_GPU_VIRTUAL_ADDRESS cbvHandle(m_ConstantBufferUploadHeaps->GetGPUVirtualAddress());
-		UINT32 constantBufferOffset = 0;
 		for (unsigned int i = 0; i < m_Models.size(); ++i)
 		{
 			for (unsigned int j = 0; j < m_Models[i]->GetNumChildMeshes(); j++)
 			{
-				m_pCommandList->SetGraphicsRootConstantBufferView(0, cbvHandle + (ConstantBufferPerObjectAlignedSize * constantBufferOffset++));
+				m_pCommandList->SetGraphicsRootConstantBufferView(0, cbvHandle + (ConstantBufferPerObjectAlignedSize * m_ConstantBufferOffset++));
 
 				m_Models[i]->GetMeshAtIndex(j)->Render();
 			}
@@ -76,6 +75,11 @@ namespace Insight {
 			}
 
 		}
+	}
+
+	void ModelManager::PostRender()
+	{
+		m_ConstantBufferOffset = 0u;
 	}
 
 	void ModelManager::FlushModelCache()

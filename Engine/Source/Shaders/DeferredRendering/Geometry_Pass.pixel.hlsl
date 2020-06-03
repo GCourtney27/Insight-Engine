@@ -8,6 +8,7 @@ Texture2D t_RougnessObject  : register(t7);
 Texture2D t_MetallicObject  : register(t8);
 Texture2D t_AOObject        : register(t9);
 
+
 // Samplers
 // --------
 SamplerState s_LinearWrapSampler : register(s1);
