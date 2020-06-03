@@ -37,6 +37,10 @@ cbuffer cbPostFx : register(b3)
     float vnOuterRadius;
     float vnOpacity;
     int vnEnabled;
+	// Film Grain
+    float fgStrength;
+    int fgEnabled;
+
 }
 
 /* Geometry Pass */

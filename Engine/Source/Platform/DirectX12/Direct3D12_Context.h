@@ -194,7 +194,7 @@ namespace Insight {
 		DXGI_SAMPLE_DESC					m_SampleDesc = {};
 		D3D12_DEPTH_STENCIL_VIEW_DESC		m_dsvDesc = {};
 
-		float								m_ClearColor[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
+		float								m_ClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		static const unsigned int			m_NumRTV = 5;
 		DXGI_FORMAT							m_DsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		DXGI_FORMAT							m_RtvFormat[5] = { 

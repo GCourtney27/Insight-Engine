@@ -36,7 +36,7 @@ namespace Insight {
 		RenderingContext(UINT windowWidth, UINT windowHeight, bool vSyncEabled)
 			: m_WindowWidth(windowWidth), m_WindowHeight(windowHeight), m_VSyncEnabled(vSyncEabled) {}
 	protected:
-		static const uint8_t m_FrameBufferCount = 5u;
+		static const uint8_t m_FrameBufferCount = 3u;
 		UINT m_WindowWidth;
 		UINT m_WindowHeight;
 

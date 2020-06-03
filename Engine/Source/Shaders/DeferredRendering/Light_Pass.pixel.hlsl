@@ -19,7 +19,7 @@ sampler s_LinearWrapSampler : register(s0);
 
 struct PS_OUTPUT_LIGHTPASS
 {
-    float4 litImage : SV_Target0;
+    float3 litImage : SV_Target0;
 };
 
 // Entry Point

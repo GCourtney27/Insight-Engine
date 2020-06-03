@@ -123,25 +123,24 @@ namespace Insight {
 		m_PerFrameData.numPointLights = (int)m_PointLights.size();
 		m_PerFrameData.numDirectionalLights = (int)m_DirectionalLights.size();
 		m_PerFrameData.numSpotLights = (int)m_SpotLights.size();
-		memcpy(m_cbvPerFrameGPUAddress[m_FrameIndex], &m_PerFrameData, CBPerFrameAlignedSize);
+		memcpy(m_cbvPerFrameGPUAddress[m_FrameIndex], &m_PerFrameData, sizeof(CB_PS_VS_PerFrame));
 
 		// Send Point Lights to GPU
 		for (int i = 0; i < m_PointLights.size(); i++) {
-			memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + POINT_LIGHTS_CB_ALIGNED_OFFSET + (sizeof(CB_PS_PointLight) * i), &m_PointLights[i]->GetConstantBuffer(), CBPointLightsAlignedSize);
+			memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + POINT_LIGHTS_CB_ALIGNED_OFFSET + (sizeof(CB_PS_PointLight) * i), &m_PointLights[i]->GetConstantBuffer(), sizeof(CB_PS_PointLight));
 		}
 		// Send Directionl Lights to GPU
 		for (int i = 0; i < m_DirectionalLights.size(); i++) {
-			memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + DIRECTIONAL_LIGHTS_CB_ALIGNED_OFFSET + (sizeof(CB_PS_DirectionalLight) * i), &m_DirectionalLights[i]->GetConstantBuffer(), CBDirectionalLightsAlignedSize);
+			memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + DIRECTIONAL_LIGHTS_CB_ALIGNED_OFFSET + (sizeof(CB_PS_DirectionalLight) * i), &m_DirectionalLights[i]->GetConstantBuffer(), sizeof(CB_PS_DirectionalLight));
 		}
 		// Send Spot Lights to GPU
 		for (int i = 0; i < m_SpotLights.size(); i++) {
-			memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + SPOT_LIGHTS_CB_ALIGNED_OFFSET + (sizeof(CB_PS_SpotLight) * i), &m_SpotLights[i]->GetConstantBuffer(), CBSpotLightsAlignedSize);
+			memcpy(m_cbvLightBufferGPUAddress[m_FrameIndex] + SPOT_LIGHTS_CB_ALIGNED_OFFSET + (sizeof(CB_PS_SpotLight) * i), &m_SpotLights[i]->GetConstantBuffer(), sizeof(CB_PS_SpotLight));
 		}
 
 		// Send Post-Fx data to GPU
 		if (m_pPostFx) {
-			CB_PS_PostFx cb = m_pPostFx->GetConstantBuffer();
-			memcpy(m_cbvPostFxGPUAddress[m_FrameIndex], &cb, CBPostFxAlignedSize);
+			memcpy(m_cbvPostFxGPUAddress[m_FrameIndex], &m_pPostFx->GetConstantBuffer(), sizeof(CB_PS_PostFx));
 		}
 
 	}
@@ -239,19 +238,23 @@ namespace Insight {
 
 	void Direct3D12Context::BindLightingPass()
 	{
-		for (unsigned int i = 0; i < m_NumRTV; ++i) {
+		for (unsigned int i = 0; i < m_NumRTV-1; ++i) {
 			m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
 		}
+
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
 
 		m_pCommandList->SetPipelineState(m_pPipelineStateObject_LightingPass.Get());
 
 		m_ScreenQuad.Render(m_pCommandList);
+
 	}
 
 	void Direct3D12Context::BindSkyPass()
 	{
 		if (m_pSkySphere) {
+			m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+
 			m_pCommandList->SetPipelineState(m_pPipelineStateObject_SkyPass.Get());
 
 			m_pSkySphere->RenderSky(m_pCommandList);
@@ -261,6 +264,7 @@ namespace Insight {
 	void Direct3D12Context::BindPostFxPass()
 	{
 		if (m_pPostFx) {
+			m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
 
 			m_pCommandList->SetPipelineState(m_pPipelineStateObject_PostFxPass.Get());
 			m_pCommandList->SetGraphicsRootDescriptorTable(14, m_cbvsrvHeap.hGPU(5));
@@ -295,7 +299,7 @@ namespace Insight {
 
 		// Prepare the buffers for text frame
 		{
-			for (unsigned int i = 0; i < m_NumRTV; ++i) {
+			for (unsigned int i = 0; i < m_NumRTV-1; ++i) {
 				m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
 			}
 			m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
@@ -587,7 +591,7 @@ namespace Insight {
 		clearVal.Color[2] = m_ClearColor[2];
 		clearVal.Color[3] = m_ClearColor[3];
 
-		for (int i = 0; i < m_NumRTV-1; i++) {
+		for (int i = 0; i < m_NumRTV; i++) {
 			resourceDesc.Format = m_RtvFormat[i];
 			clearVal.Format = m_RtvFormat[i];
 			hr = m_pLogicalDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET, &clearVal, IID_PPV_ARGS(&m_pRenderTargetTextures[i]));
@@ -597,12 +601,12 @@ namespace Insight {
 		m_pRenderTargetTextures[1]->SetName(L"Render Target Texture Normal");
 		m_pRenderTargetTextures[2]->SetName(L"Render Target Texture (R)Roughness/(G)Metallic/(B)AO");
 		m_pRenderTargetTextures[3]->SetName(L"Render Target Texture Position");
-
-		resourceDesc.Format = m_RtvFormat[4];
+		m_pRenderTargetTextures[4]->SetName(L"Render Target Texture Light Pass Result");
+		/*resourceDesc.Format = m_RtvFormat[4];
 		clearVal.Format = m_RtvFormat[4];
 		hr = m_pLogicalDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET, &clearVal, IID_PPV_ARGS(&m_pRenderTargetTextures[4]));
 		ThrowIfFailed(hr, "Failed to create committed resource for RTV at index: " + std::to_string(4));
-		m_pRenderTargetTextures[4]->SetName(L"Render Target Texture Light Pass Result");
+		m_pRenderTargetTextures[4]->SetName(L"Render Target Texture Light Pass Result");*/
 
 
 		D3D12_RENDER_TARGET_VIEW_DESC desc;
@@ -612,12 +616,12 @@ namespace Insight {
 
 		desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
-		for (int i = 0; i < m_NumRTV-1; i++) {
+		for (int i = 0; i < m_NumRTV; i++) {
 			desc.Format = m_RtvFormat[i];
 			m_pLogicalDevice->CreateRenderTargetView(m_pRenderTargetTextures[i].Get(), &desc, m_rtvHeap.hCPU(i));
 		}
-		desc.Format = m_RtvFormat[4];
-		m_pLogicalDevice->CreateRenderTargetView(m_pRenderTargetTextures[4].Get(), &desc, m_rtvHeap.hCPU(4));
+		/*desc.Format = m_RtvFormat[4];
+		m_pLogicalDevice->CreateRenderTargetView(m_pRenderTargetTextures[4].Get(), &desc, m_rtvHeap.hCPU(4));*/
 
 		//Create SRVs for Render Targets
 		D3D12_SHADER_RESOURCE_VIEW_DESC descSRV = {};
@@ -628,11 +632,11 @@ namespace Insight {
 		descSRV.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
 
-		for (int i = 0; i < m_NumRTV-1; i++) {
+		for (int i = 0; i < m_NumRTV - 1; i++) {
 			descSRV.Format = m_RtvFormat[i];
 			m_pLogicalDevice->CreateShaderResourceView(m_pRenderTargetTextures[i].Get(), &descSRV, m_cbvsrvHeap.hCPU(i));
 		}
-		m_pRenderTargetTextures[0]->SetName(L"Render Target SRV Diffuse");
+		m_pRenderTargetTextures[0]->SetName(L"Render Target SRV Albedo");
 		m_pRenderTargetTextures[1]->SetName(L"Render Target SRV Normal");
 		m_pRenderTargetTextures[2]->SetName(L"Render Target SRV (R)Roughness/(G)Metallic/(B)AO");
 		m_pRenderTargetTextures[3]->SetName(L"Render Target SRV Position");
@@ -640,8 +644,6 @@ namespace Insight {
 		descSRV.Format = m_RtvFormat[4];
 		m_pLogicalDevice->CreateShaderResourceView(m_pRenderTargetTextures[4].Get(), &descSRV, m_cbvsrvHeap.hCPU(5));
 		m_pRenderTargetTextures[4]->SetName(L"Render Target SRV Light Pass Result");
-
-
 
 	}
 
@@ -780,6 +782,7 @@ namespace Insight {
 
 		hr = m_pLogicalDevice->CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pPipelineStateObject_GeometryPass));
 		ThrowIfFailed(hr, "Failed to create graphics pipeline state for geometry pass.");
+		m_pPipelineStateObject_GeometryPass->SetName(L"PSO Geometry Pass");
 	}
 
 	void Direct3D12Context::CreateSkyPassPSO()
@@ -854,6 +857,7 @@ namespace Insight {
 
 		hr = m_pLogicalDevice->CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&m_pPipelineStateObject_SkyPass));
 		ThrowIfFailed(hr, "Failed to create skybox pipeline state object.");
+		m_pPipelineStateObject_SkyPass->SetName(L"PSO Sky Pass");
 	}
 
 	void Direct3D12Context::CreateLightPassPSO()
@@ -918,6 +922,7 @@ namespace Insight {
 
 		hr = m_pLogicalDevice->CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pPipelineStateObject_LightingPass));
 		ThrowIfFailed(hr, "Failed to create graphics pipeline state for lighting pass.");
+		m_pPipelineStateObject_LightingPass->SetName(L"PSO Light Pass");
 	}
 
 	void Direct3D12Context::CreatePostFxPassPSO()
@@ -983,6 +988,7 @@ namespace Insight {
 
 		hr = m_pLogicalDevice->CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pPipelineStateObject_PostFxPass));
 		ThrowIfFailed(hr, "Failed to create graphics pipeline state for lighting pass.");
+		m_pPipelineStateObject_PostFxPass->SetName(L"PSO PostFx Pass");
 	}
 
 	void Direct3D12Context::CreateCommandAllocators()

@@ -59,4 +59,8 @@ struct CB_PS_PostFx
 	float outerRadius;
 	float opacity;
 	int vnEnabled;
+
+	// Film Grain
+	float fgStrength;
+	int fgEnabled;
 };

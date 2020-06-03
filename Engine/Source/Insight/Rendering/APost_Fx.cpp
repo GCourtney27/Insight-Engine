@@ -20,6 +20,9 @@ namespace Insight {
 		m_ShaderCB.outerRadius = 1.0f;
 		m_ShaderCB.opacity = 1.0f;
 		m_ShaderCB.vnEnabled = TRUE;
+		// Film Grain
+		m_ShaderCB.fgStrength = 16.0f;
+		m_ShaderCB.fgEnabled = TRUE;
 
 		graphicsContext.AddPostFxActor(this);
 	}
@@ -76,12 +79,22 @@ namespace Insight {
 		AActor::OnImGuiRender();
 
 		ImGui::Text("Vignette");
-		ImGui::Checkbox("Enabled", (bool*)&m_ShaderCB.vnEnabled);
-		ImGui::DragFloat("Inner Cut-off", &m_TempInnerRadius, 0.1f, 0.0f, 50.0f);
-		ImGui::DragFloat("Outer Cut-off", &m_TempOuterRadius, 0.1f, 0.0f, 50.0f);
-		ImGui::DragFloat("Strength", &m_ShaderCB.opacity, 0.15f, 0.0f, 10.0f);
+		ImGui::Spacing();
+		ImGui::Checkbox("vnEnabled", (bool*)&m_ShaderCB.vnEnabled);
+		ImGui::DragFloat("Inner Radius", &m_TempInnerRadius, 0.1f, 0.0f, 50.0f);
+		ImGui::DragFloat("Outer Radius", &m_TempOuterRadius, 0.1f, 0.0f, 50.0f);
+		ImGui::DragFloat("Opacity", &m_ShaderCB.opacity, 0.15f, 0.0f, 10.0f);
+		if (m_TempInnerRadius > m_TempOuterRadius) {
+			m_TempInnerRadius = m_TempOuterRadius;
+		}
 		m_ShaderCB.innerRadius = m_TempInnerRadius;
 		m_ShaderCB.outerRadius = m_TempOuterRadius;
+		ImGui::Spacing();
+
+		ImGui::Text("Film Grain");
+		ImGui::Checkbox("fgEnabled", (bool*)&m_ShaderCB.fgEnabled);
+		ImGui::DragFloat("Strength", &m_ShaderCB.fgStrength, 0.1f, 0.0f, 80.0f);
+
 	}
 
 }
