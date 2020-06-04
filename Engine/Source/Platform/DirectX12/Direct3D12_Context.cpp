@@ -115,6 +115,8 @@ namespace Insight {
 
 		// Send Per-Frame Variables to GPU
 		m_PerFrameData.cameraPosition = playerCamera.GetTransformRef().GetPosition();
+		m_PerFrameData.invView = XMMatrixInverse(nullptr, playerCamera.GetViewMatrix());
+		m_PerFrameData.invProj = XMMatrixInverse(nullptr, playerCamera.GetProjectionMatrix());
 		m_PerFrameData.deltaMs = deltaTime;
 		m_PerFrameData.time = (float)Application::Get().GetFrameTimer().seconds();
 		m_PerFrameData.cameraNearZ = (float)playerCamera.GetNearZ();

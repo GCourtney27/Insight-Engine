@@ -11,6 +11,8 @@ struct CB_VS_PerObject
 struct CB_PS_VS_PerFrame
 {
 	DirectX::XMFLOAT3 cameraPosition;
+	DirectX::XMMATRIX invView;
+	DirectX::XMMATRIX invProj;
 	float cameraExposure;
 	float cameraNearZ;
 	float cameraFarZ;
