@@ -11,8 +11,8 @@ struct CB_VS_PerObject
 struct CB_PS_VS_PerFrame
 {
 	DirectX::XMFLOAT3 cameraPosition;
-	DirectX::XMMATRIX invView;
-	DirectX::XMMATRIX invProj;
+	DirectX::XMFLOAT4X4 invView;
+	DirectX::XMFLOAT4X4 invProj;
 	float cameraExposure;
 	float cameraNearZ;
 	float cameraFarZ;
@@ -65,4 +65,17 @@ struct CB_PS_PostFx
 	// Film Grain
 	float fgStrength;
 	int fgEnabled;
+
+	// SSR
+	DirectX::XMFLOAT2 depthBufferSize;
+	float zThickness;
+	float stride;
+	float maxSteps;
+	float maxDistance;
+	float strideZCutoff;
+	float fadeStart;
+	float fadeEnd;
+	DirectX::XMFLOAT3 viewRay;
+	float texelWidth;
+	float texelHeight;
 };

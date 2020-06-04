@@ -115,8 +115,13 @@ namespace Insight {
 
 		// Send Per-Frame Variables to GPU
 		m_PerFrameData.cameraPosition = playerCamera.GetTransformRef().GetPosition();
-		m_PerFrameData.invView = XMMatrixInverse(nullptr, playerCamera.GetViewMatrix());
-		m_PerFrameData.invProj = XMMatrixInverse(nullptr, playerCamera.GetProjectionMatrix());
+		XMFLOAT4X4 inViewFloat;
+		XMStoreFloat4x4(&inViewFloat, XMMatrixInverse(nullptr, playerCamera.GetViewMatrix()));
+		XMFLOAT4X4 inProjFloat;
+		XMStoreFloat4x4(&inProjFloat, XMMatrixInverse(nullptr, playerCamera.GetProjectionMatrix()));
+
+		m_PerFrameData.invView = inViewFloat;
+		m_PerFrameData.invProj = inProjFloat;
 		m_PerFrameData.deltaMs = deltaTime;
 		m_PerFrameData.time = (float)Application::Get().GetFrameTimer().seconds();
 		m_PerFrameData.cameraNearZ = (float)playerCamera.GetNearZ();
@@ -989,7 +994,8 @@ namespace Insight {
 		descPipelineState.SampleDesc.Count = 1;
 
 		hr = m_pLogicalDevice->CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pPipelineStateObject_PostFxPass));
-		ThrowIfFailed(hr, "Failed to create graphics pipeline state for lighting pass.");
+		DWORD er = GetLastError();
+		ThrowIfFailed(hr, "Failed to create graphics pipeline state for Post-Fx pass.");
 		m_pPipelineStateObject_PostFxPass->SetName(L"PSO PostFx Pass");
 	}
 
