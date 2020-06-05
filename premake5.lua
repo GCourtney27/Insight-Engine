@@ -20,6 +20,7 @@ IncludeDir = {}
 IncludeDir["ImGui"] = "Engine/Vendor/imgui"
 IncludeDir["assimp"] = "Engine/Vendor/assimp-3.3.1/include"
 IncludeDir["DX12TK"] = "Engine/Vendor/Microsoft/DirectX12/TK/Inc"
+IncludeDir["ImGuizmo"] = "Engine/Vendor/ImGuizmo"
 
 include "Engine/Vendor/ImGui"
 
@@ -50,20 +51,11 @@ project ("Engine")
 		"%{prj.name}/Source/**.h",
 		"%{prj.name}/Source/**.hlsl",
 	}
-	
-	propertydefinition {
-		name = "DebuggingSymbols",
-		kind = "boolean",
-		display = "Debugging Symbols",
-		description = "Add debugging information to the generated output",
-		value = false,
-		switch = "-g"
-	  }
 
 	defines
 	{
 		"_CRT_SECURE_NO_WARNINGS",
-		"IE_BUILD_DIR=%{CustomDefines.IE_BUILD_DIR}"
+		"IE_BUILD_DIR=%{CustomDefines.IE_BUILD_DIR}/Engine/"
 	}
 
 	includedirs
@@ -71,6 +63,7 @@ project ("Engine")
 		"%{prj.name}/Vendor/Microsoft/DirectX12",
 		"%{prj.name}/Vendor/Nvidia/DirectX12",
 		"%{prj.name}/Vendor/spdlog/include",
+		"%{IncludeDir.ImGuizmo}/",
 		"%{IncludeDir.DX12TK}/",
 		"%{IncludeDir.ImGui}/",
 		"%{IncludeDir.assimp}/",
@@ -99,6 +92,8 @@ project ("Engine")
 		("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/%{cfg.buildcfg}/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine")
 	}
 
+
+
 	filter "system:windows"
 		systemversion "latest"
 
@@ -111,6 +106,15 @@ project ("Engine")
 		{
 			"MultiProcessorCompile"
 		}
+
+		filter { "files:**.hlsl" }
+			shadermodel "5.0"
+
+		filter { "files:**.pixel.hlsl" }
+			shadertype "Pixel"
+		
+		filter { "files:**.vertex.hlsl" }
+			shadertype "Vertex"
 	
 	-- Engine Development
 	filter "configurations:Debug"
@@ -126,16 +130,18 @@ project ("Engine")
 		symbols "on"
 	
 	-- Full Engine Distribution, all performance logs and debugging windows stripped
-	filter "configurations:EngineDist"
+	filter "configurations:Engine-Dist"
 		defines "IE_ENGINE_DIST"
 		runtime "Release"
 		optimize "on"
-	
+		symbols "on"
+
 	-- Full Game Distribution, all engine debug tools(leel editors, editor user interfaces) stripped
-	filter "configurations:GameDist"
+	filter "configurations:Game-Dist"
 		defines "IE_GAME_DIST"
 		runtime "Release"
 		optimize "on"
+		symbols "on"
 
 project (gameName)
 	location (gameName)
@@ -190,7 +196,9 @@ project (gameName)
 	filter "configurations:EngineDist"
 		defines "IE_ENGINE_DIST"
 		optimize "on"
+		symbols "on"
 		
 	filter "configurations:GameDist"
 		defines "IE_GAME_DIST"
 		optimize "on"
+		symbols "on"

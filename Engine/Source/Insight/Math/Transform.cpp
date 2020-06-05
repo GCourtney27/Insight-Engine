@@ -1,4 +1,4 @@
-#include "ie_pch.h"
+#include <ie_pch.h>
 
 #include "Transform.h"
 
@@ -11,11 +11,38 @@ namespace Insight {
 
 	}
 
+	Transform::~Transform()
+	{
+	}
+
 	Transform::Transform(const Transform& t)
 	{
 		m_Position = t.m_Position;
 		m_Rotation = t.m_Rotation;
 		m_Scale = t.m_Scale;
+	}
+
+	Transform& Transform::operator=(const Transform& transform)
+	{
+		// Vectors
+		m_Position = transform.m_Position;
+		m_Rotation = transform.m_Rotation;
+		m_Scale = transform.m_Scale;
+		m_LocalForward = transform.m_LocalForward;
+		m_LocalBackward = transform.m_LocalBackward;
+		m_LocalLeft = transform.m_LocalLeft;
+		m_LocalRight = transform.m_LocalRight;
+		m_LocalUp = transform.m_LocalUp;
+		m_LocalDown = transform.m_LocalDown;
+
+		// Matricies
+		m_LocalMatrix = transform.m_LocalMatrix;
+		m_WorldMatrix = transform.m_WorldMatrix;
+		m_TranslationMat = transform.m_TranslationMat;
+		m_ScaleMat = transform.m_ScaleMat;
+		m_RotationMat = transform.m_RotationMat;
+
+		return *this;
 	}
 
 	void Transform::Translate(float x, float y, float z)
@@ -24,7 +51,7 @@ namespace Insight {
 		m_Position.y += y; 
 		m_Position.z += z; 
 		TranslateLocalMatrix();
-		UpdateMatrix();
+		UpdateLocalMatrix();
 	}
 
 	void Transform::Rotate(float x, float y, float z)
@@ -33,7 +60,7 @@ namespace Insight {
 		m_Rotation.y += y;
 		m_Rotation.z += z;
 		RotateLocalMatrix();
-		UpdateMatrix();
+		UpdateLocalMatrix();
 	}
 
 	void Transform::Scale(float x, float y, float z)
@@ -42,7 +69,7 @@ namespace Insight {
 		m_Scale.y += y; 
 		m_Scale.z += z;
 		ScaleLocalMatrix();
-		UpdateMatrix();
+		UpdateLocalMatrix();
 	}
 
 	void Transform::LookAt(const Vector3& target)
@@ -83,20 +110,15 @@ namespace Insight {
 		m_WorldMatrix = matrix;
 	}
 
-	void Transform::UpdateMatrix()
+	void Transform::UpdateLocalMatrix()
 	{
 		m_LocalMatrix = m_ScaleMat * m_TranslationMat * m_RotationMat;
-
-		/*XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z) *
-		XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);*/	
-
 		UpdateLocalDirectionVectors();
 	}
 
 	void Transform::TranslateLocalMatrix()
 	{
 		m_TranslationMat = XMMatrixTranslationFromVector(m_Position);
-		//m_TranslationMat = XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
 	}
 
 	void Transform::ScaleLocalMatrix()
@@ -113,7 +135,7 @@ namespace Insight {
 
 	void Transform::RotateLocalMatrix()
 	{
-		m_LocalMatrix = XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z);
+		m_RotationMat = XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z);
 	}
 
 	void Transform::UpdateLocalDirectionVectors()

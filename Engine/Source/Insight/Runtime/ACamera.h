@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Insight/Core.h"
+#include <Insight/Core.h>
 
 #include "Insight/Runtime/AActor.h"
 
@@ -21,30 +21,32 @@ namespace Insight {
 	const float YAW = -90.0f;
 	const float PITCH = 0.0f;
 	const float ROLL = 0.0f;
-	const float SPEED = 50.05f;
+	const float SPEED = 30.05f;
 	const float SENSITIVITY = 0.005f;
 	const float FOV = 45.0f;
 	const float EXPOSURE = 0.5f;
 
 	using namespace DirectX;
 
-	class INSIGHT_API Camera : public AActor
+	class INSIGHT_API ACamera : public AActor
 	{
 	public:
-		Camera(Vector3 position = Vector3(0.0f, 0.0f, 0.0f), 
-				float pitch = PITCH, 
-				float yaw = YAW, 
-				float roll = ROLL, 
-				float exposure = EXPOSURE)
-			: m_MovementSpeed(SPEED), m_MouseSensitivity(SENSITIVITY), m_Fov(FOV), m_Exposure(EXPOSURE)
+		friend class APlayerCharacter;
+	public:
+		ACamera(Vector3 position = Vector3(0.0f, 10.0f, -10.0f),
+			float pitch = PITCH,
+			float yaw = YAW,
+			float roll = ROLL,
+			float exposure = EXPOSURE)
+			: m_MovementSpeed(SPEED), m_MouseSensitivity(SENSITIVITY), m_Fov(FOV), m_Exposure(EXPOSURE), AActor(0, "Camera")
 		{
-			m_Transform.SetPosition(position);
+			GetTransformRef().SetPosition(position);
 			m_Pitch = pitch;
 			m_Yaw = yaw;
 			m_Roll = roll;
 			UpdateViewMatrix();
 		}
-		~Camera();
+		virtual ~ACamera();
 
 		void ProcessMouseScroll(float yOffset);
 		void ProcessMouseMovement(float xOffset, float yOffset);
@@ -55,11 +57,18 @@ namespace Insight {
 		const inline float& GetFOV() const { return m_Fov; }
 		const inline float& GetNearZ() const { return m_NearZ; }
 		const inline float& GetFarZ() const { return m_FarZ; }
-		inline void SetFOV(float& fovDegrees) { SetProjectionValues(fovDegrees, m_AspectRatio, m_NearZ, m_FarZ); }
-		inline void SetNearZ(float& nearZ) { SetProjectionValues(m_Fov, m_AspectRatio, nearZ, m_FarZ); }
-		inline void SetFarZ(float& farZ) { SetProjectionValues(m_Fov, m_AspectRatio, m_NearZ, farZ); }
+		inline void SetFOV(float& fovDegrees) { SetPerspectiveProjectionValues(fovDegrees, m_AspectRatio, m_NearZ, m_FarZ); }
+		inline void SetNearZ(float& nearZ) { SetPerspectiveProjectionValues(m_Fov, m_AspectRatio, nearZ, m_FarZ); }
+		inline void SetFarZ(float& farZ) { SetPerspectiveProjectionValues(m_Fov, m_AspectRatio, m_NearZ, farZ); }
+		inline float GetExposure() { return m_Exposure; }
+		inline void SetExposure(float exposure) { m_Exposure = exposure; }
 
-		void SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ);
+		void SetPerspectiveProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ);
+		void SetOrthographicsProjectionValues(float viewWidth, float viewHeight, float nearZ, float farZ);
+		void RenderSceneHeirarchy() override;
+		void OnImGuiRender() override;
+
+		BOOL GetIsOrthographic() { return m_IsOrthographic; }
 
 	private:
 		void UpdateViewMatrix();
@@ -69,6 +78,7 @@ namespace Insight {
 		XMMATRIX m_ViewMatrix;
 		XMFLOAT4X4 m_ProjectionMat4x4;
 		XMMATRIX m_ProjectionMatrix;
+		BOOL m_IsOrthographic = false;
 
 		float m_Yaw = 0.0f;
 		float m_Pitch = 0.0f;

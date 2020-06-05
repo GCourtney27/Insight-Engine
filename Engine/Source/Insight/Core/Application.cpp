@@ -1,14 +1,13 @@
-#include "ie_pch.h"
+#include <ie_pch.h>
 
 #include "Application.h"
 
-#include "Platform/Windows/Windows_Window.h"
 #include "Insight/Input/Input.h"
-
-#include "Insight/ImGui/ImGui_Layer.h"
-
-//TEMP
 #include "Insight/Runtime/AActor.h"
+#include "Insight/ImGui/ImGui_Layer.h"
+#include "Platform/Windows/Windows_Window.h"
+
+
 
 namespace Insight {
 
@@ -52,36 +51,52 @@ namespace Insight {
 	{
 		PushEngineLayers();
 
+		if (!m_Scene.Init()) 
+		{
+			IE_CORE_ERROR("Failed to initialize scene");
+			return false;
+		}
+
 		IE_CORE_TRACE("Application Initialized");
 		return true;
 	}
 
 	void Application::Run()
 	{
-		AActor* actor = new AActor();
 		while(m_Running)
 		{
 			m_FrameTimer.tick();
 			const float& time = (float)m_FrameTimer.seconds();
 			const float& deltaTime = (float)m_FrameTimer.dt();
-
-			// m_Scene->OnUpdate(deltaTime);
-
-			for (Layer* layer : m_LayerStack)
-				layer->OnUpdate(deltaTime);
-
-			m_pWindow->OnFramePreRender();
-			m_pWindow->OnUpdate(deltaTime);
-			m_pWindow->OnRender();
-
-			m_ImGuiLayer->Begin();
-			for (Layer* layer : m_LayerStack)
-				layer->OnImGuiRender();
-			m_ImGuiLayer->End();
 			
-			m_pWindow->ExecuteDraw();
+			m_pWindow->OnUpdate(deltaTime);
+			m_Scene.OnUpdate(deltaTime);
+
+			// Geometry Pass
+			m_Scene.OnPreRender();
+
+			for (Layer* layer : m_LayerStack) {
+				layer->OnUpdate(deltaTime);
+			}
+			
+
+			m_Scene.OnRender();
+
+			// Light Pass
+			m_Scene.OnMidFrameRender();
+
+			// Render UI
+			{
+				m_ImGuiLayer->Begin();
+				for (Layer* layer : m_LayerStack) {
+					layer->OnImGuiRender();
+				}
+				m_Scene.OnImGuiRender();
+				m_ImGuiLayer->End();
+			}
+
+			m_Scene.OnPostRender();
 		}
-		delete actor;
 	}
 
 	void Application::Shutdown()

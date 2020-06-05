@@ -1,11 +1,13 @@
 #pragma once
 
+#include <Insight/Core.h>
 
-#include "Insight/Core.h"
+#include "Platform/DirectX12/Descriptor_Heap_Wrapper.h"
+
 
 namespace Insight {
 
-
+	using Microsoft::WRL::ComPtr;
 
 	class Texture
 	{
@@ -13,20 +15,33 @@ namespace Insight {
 		enum eTextureType
 		{
 			// These values aligned with D3D12 shader registers,
-			// use causion when editing their numerical values
+			// use caution when editing their numerical values
 			ALBEDO = 0,
 			NORMAL = 1,
 			ROUGHNESS = 2,
 			METALLIC = 3,
-			SPECULAR = 4,
-			AO = 5,
+			AO = 4,
+			// SKysphere
+			SKY_IRRADIENCE = 5,
+			SKY_ENVIRONMENT_MAP = 6,
+			SKY_BRDF_LUT = 7,
+			SKY_DIFFUSE = 8,
 		};
+
+#define ALBEDO_DESCRIPTOR_OFFSET eTextureType::ALBEDO
+#define NORMAL_DESCRIPTOR_OFFSET eTextureType::NORMAL
+#define ROUGHNESS_DESCRIPTOR_OFFSET eTextureType::ROUGHNESS
+#define METALLIC_DESCRIPTOR_OFFSET eTextureType::METALLIC
+#define SPECULAR_DESCRIPTOR_OFFSET eTextureType::SPECULAR
+#define AO_DESCRIPTOR_OFFSET eTextureType::AO
+
 	public:
 		Texture(const std::wstring& filepath, eTextureType& textureType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle);
 		Texture();
 		~Texture();
 	
-		bool Init(const std::wstring& filepath, eTextureType& testureType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle);
+		bool Init(const std::wstring& filepath, eTextureType& testureType, CDescriptorHeapWrapper& srvHeapHandle);
+		bool InitTextureFromFile(const std::wstring& filepath, eTextureType& testureType, CDescriptorHeapWrapper& srvHeapHandle);
 		void Bind();
 
 		inline const UINT64& GetWidth() const { return m_TextureDesc.Width; }
@@ -36,24 +51,30 @@ namespace Insight {
 		void Destroy();
 
 	private:
+		void InitDDSTexture(const std::wstring& filepath, CDescriptorHeapWrapper& srvHeapHandle);
+
 		DXGI_FORMAT GetDXGIFormatFromWICFormat(WICPixelFormatGUID& wicFormatGUID);
 		WICPixelFormatGUID GetConvertToWICFormat(WICPixelFormatGUID& wicFormatGUID);
 		int GetDXGIFormatBitsPerPixel(DXGI_FORMAT& dxgiFormat);
 		int LoadImageDataFromFile(BYTE** imageData, LPCWSTR filename, int& bytesPerRow);
 		
 	private:
-		D3D12_RESOURCE_DESC m_TextureDesc = {};
-		ID3D12Resource* m_pTextureBuffer = nullptr;
-		ID3D12Resource* m_pTextureBufferUploadHeap = nullptr;
-		ID3D12GraphicsCommandList* m_pCommandList = nullptr;
-		eTextureType m_TextureType;
+		ID3D12GraphicsCommandList*	m_pCommandList = nullptr;
 
-		UINT m_HeapOffset = 0u;
+		ComPtr<ID3D12Resource>		m_pTexture;
+		ComPtr<ID3D12Resource>		m_pTextureUploadHeap;
+		D3D12_RESOURCE_DESC			m_TextureDesc = {};
+		eTextureType				m_TextureType;
+		UINT32						m_GPUHeapIndex = 0u;
 
-#if defined IE_DEBUG
+		static UINT32 s_NumSceneTextures;
+
+//#if defined IE_DEBUG
 		std::string m_Name = "";
 		std::wstring m_Filepath = L"";
-#endif
+		inline const std::wstring& GetFilepath() { return m_Filepath; }
+//#endif
+
 	};
 
 }

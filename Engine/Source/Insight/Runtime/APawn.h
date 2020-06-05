@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Insight/Core.h"
+#include <Insight/Core.h>
 
 #include "Insight/Runtime/AActor.h"
 
@@ -20,12 +20,13 @@ namespace Insight {
 			DOWN
 		};
 	public:
-		APawn();
-		~APawn();
+		APawn(ActorId id, ActorName name = "Pawn");
+		virtual ~APawn();
 
-		virtual void OnInit();
-		virtual void OnUpdate();
-		virtual void OnRender();
+		virtual bool OnInit() override;
+		virtual void OnUpdate(const float& deltaMs) override;
+		virtual void OnPreRender(XMMATRIX parentMat) override;
+		virtual void OnRender() override;
 
 		inline void SetMovementSpeed(const float& movementSpeed) { m_MovementSpeed = movementSpeed; }
 

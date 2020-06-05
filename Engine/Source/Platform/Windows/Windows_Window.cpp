@@ -1,4 +1,4 @@
-#include "ie_pch.h"
+#include <ie_pch.h>
 
 #include "Windows_Window.h"
 #include "Insight/Core/Application.h"
@@ -168,17 +168,17 @@ namespace Insight {
 		{
 			//IE_CORE_INFO("Window size has changed");
 
-			//// CRASHES NO NOT RESIZE WINDOW
-			//WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			//if (data.isFirstLaunch)
-			//{
-			//	data.isFirstLaunch = false;
-			//	return 0;
-			//}
-			//RECT clientRect = {};
-			//GetClientRect(hWnd, &clientRect);
-			//WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, wParam == SIZE_MINIMIZED);
-			//data.EventCallback(event);
+			// CRASHES NO NOT RESIZE WINDOW
+			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			if (data.isFirstLaunch)
+			{
+				data.isFirstLaunch = false;
+				return 0;
+			}
+			RECT clientRect = {};
+			GetClientRect(hWnd, &clientRect);
+			WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, wParam == SIZE_MINIMIZED);
+			data.EventCallback(event);
 			return 0;
 		}
 		case WM_INPUT:
@@ -186,7 +186,7 @@ namespace Insight {
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			UINT dataSize;
 			GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, NULL, &dataSize, sizeof(RAWINPUTHEADER));
-
+			
 			if (dataSize > 0)
 			{
 				std::unique_ptr<BYTE[]> rawdata = std::make_unique<BYTE[]>(dataSize);
@@ -239,7 +239,7 @@ namespace Insight {
 		int centerScreenY = GetSystemMetrics(SM_CYSCREEN) / 2 - m_Data.Height / 2;
 
 		m_WindowRect.left = centerScreenX;
-		m_WindowRect.top = centerScreenY;
+		m_WindowRect.top = centerScreenY + 35;
 		m_WindowRect.right = m_WindowRect.left + m_Data.Width;
 		m_WindowRect.bottom = m_WindowRect.top + m_Data.Height;
 
@@ -269,10 +269,10 @@ namespace Insight {
 			return false;
 		}
 
-		m_pRendererContext = new Direct3D12Context(this);
+		m_pRendererContext = std::make_shared<Direct3D12Context>(this);
 		if (!m_pRendererContext->Init())
 		{
-			IE_CORE_FATAL(L"Failed to initialize graphics context");
+			//IE_CORE_FATAL(L"Failed to initialize graphics context");
 			return false;
 		}
 		IE_CORE_TRACE("Renderer Initialized");
@@ -354,7 +354,7 @@ namespace Insight {
 	void WindowsWindow::OnUpdate(const float& deltaTime)
 	{
 		ProccessWindowMessages();
-		m_pRendererContext->OnUpdate(deltaTime);
+		//m_pRendererContext->OnUpdate(deltaTime);
 	}
 
 	void WindowsWindow::OnFramePreRender()
@@ -403,7 +403,7 @@ namespace Insight {
 			DestroyWindow(m_WindowHandle);
 		}
 
-		delete m_pRendererContext;
+		m_pRendererContext.reset();
 	}
 
 }

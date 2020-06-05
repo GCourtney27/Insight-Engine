@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Insight/Core.h"
+#include <Insight/Core.h>
 
 #include "Insight/Input/Input_Manager.h"
 #include "Insight/Input/Key_Codes.h"
@@ -21,6 +21,8 @@ namespace Insight {
 		inline static std::pair<int, int> GetRawMousePosition() { return s_Instance->GetRawMousePositionImpl(); }
 		inline static float GetMouseX() { return s_Instance->GetMouseXImpl(); }
 		inline static float GetMouseY() { return s_Instance->GetMouseYImpl(); }
+		inline static bool IsMouseScolled() { return s_Instance->IsMouseScrolledImpl(); }
+		inline static std::pair<float, float> GetMouseScrollOffset() { return s_Instance->GetMouseScrollOffsetImpl(); }
 	protected:
 		virtual bool IsKeyPressedImpl(int keycode) = 0;
 
@@ -29,6 +31,8 @@ namespace Insight {
 		virtual std::pair<int, int> GetRawMousePositionImpl() = 0;
 		virtual float GetMouseXImpl() = 0;
 		virtual float GetMouseYImpl() = 0;
+		virtual bool IsMouseScrolledImpl() = 0;
+		virtual std::pair<float, float> GetMouseScrollOffsetImpl() = 0;
 	protected:
 		InputManager m_InputManager;
 	private:

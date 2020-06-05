@@ -1,4 +1,4 @@
-#include "ie_pch.h"
+#include <ie_pch.h>
 
 #include "Input_Manager.h"
 
@@ -40,6 +40,9 @@ namespace Insight {
 
 	bool InputManager::OnMouseScrollEvent(MouseScrolledEvent& e)
 	{
+		m_MouseBuffer.OnMouseScroll(e.GetXOffset(), e.GetYOffset());
+		//IE_CORE_INFO("{0}", e.GetYOffset());
+
 		return false;
 	}
 

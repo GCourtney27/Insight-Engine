@@ -1,16 +1,18 @@
-#include "ie_pch.h"
+#include <ie_pch.h>
 
 #include "APlayer_Character.h"
 
 #include "Insight/Core/Application.h"
 #include "Insight/Input/Input.h"
-
+#include "imgui.h"
+#include "Insight/Runtime/Components/Actor_Component.h"
 
 namespace Insight {
 
 	APlayerCharacter* APlayerCharacter::s_Instance = nullptr;
 
-	APlayerCharacter::APlayerCharacter()
+	APlayerCharacter::APlayerCharacter(ActorId id, ActorName name)
+		: APawn(id, name)
 	{
 		IE_CORE_ASSERT(!s_Instance, "Trying to create another instnace of a player character!");
 		s_Instance = this;
@@ -18,59 +20,85 @@ namespace Insight {
 		float windowWidth = (float)Application::Get().GetWindow().GetWidth();
 		float windowHeight = (float)Application::Get().GetWindow().GetHeight();
 
-		m_Camera.SetProjectionValues(75.0f, windowWidth / windowHeight, 0.0001f, 100.0f);
+		m_Camera = new ACamera();
+		m_Camera->SetDisplayName("Player Camera");
+		m_Camera->SetPerspectiveProjectionValues(75.0f, windowWidth / windowHeight, 0.0001f, 200.0f);
+		SceneNode::AddChild(m_Camera);
 	}
 
 	APlayerCharacter::~APlayerCharacter()
 	{
 	}
 
-	void APlayerCharacter::OnInit()
+	bool APlayerCharacter::OnInit()
 	{
+		APawn::OnInit();
+
+		return true;
 	}
 
-	void APlayerCharacter::OnUpdate()
+	void APlayerCharacter::OnUpdate(const float& deltaMs)
 	{
+		APawn::OnUpdate(deltaMs);
+		ProcessInput(deltaMs);
+	}
 
+	void APlayerCharacter::OnPreRender(XMMATRIX parentMat)
+	{
+		APawn::OnPreRender(parentMat);
 	}
 
 	void APlayerCharacter::OnRender()
 	{
+		APawn::OnRender();
 	}
 
-	void APlayerCharacter::ProcessInput()
+	void APlayerCharacter::RenderSceneHeirarchy()
 	{
-		// this should move the player and the camera moves along with it
-		if (Input::IsKeyPressed('W'))
-		{
-			APawn::Move(eMovement::DOWN, 0.001f);
-			//Set Camera transform relative to player
-			m_Camera.ProcessKeyboardInput(CameraMovement::FORWARD, 0.001f);
-		}
-		if (Input::IsKeyPressed('S'))
-		{
+		AActor::RenderSceneHeirarchy();
+	}
 
-			m_Camera.ProcessKeyboardInput(CameraMovement::BACKWARD, 0.001f);
-		}
-		if (Input::IsKeyPressed('A'))
-		{
+	void APlayerCharacter::OnImGuiRender()
+	{
+		AActor::OnImGuiRender();
+	}
 
-			m_Camera.ProcessKeyboardInput(CameraMovement::LEFT, 0.001f);
-		}
-		if (Input::IsKeyPressed('D'))
+	void APlayerCharacter::ProcessInput(const float& deltaMs)
+	{
+		if (Input::IsMouseButtonPressed(IE_MOUSEBUTTON_RIGHT))
 		{
-
-			m_Camera.ProcessKeyboardInput(CameraMovement::RIGHT, 0.001f);
-		}
-		if (Input::IsKeyPressed('E'))
-		{
-
-			m_Camera.ProcessKeyboardInput(CameraMovement::UP, 0.001f);
-		}
-		if (Input::IsKeyPressed('Q'))
-		{
-
-			m_Camera.ProcessKeyboardInput(CameraMovement::DOWN, 0.001f);
+			auto [x, y] = Input::GetRawMousePosition();
+			m_Camera->ProcessMouseMovement((float)x, (float)y);
+			if (Input::IsKeyPressed('W'))
+			{
+				APawn::Move(eMovement::FORWARD, deltaMs);
+				m_Camera->ProcessKeyboardInput(CameraMovement::FORWARD, deltaMs);
+			}
+			if (Input::IsKeyPressed('S'))
+			{
+				APawn::Move(eMovement::BACKWARD, deltaMs);
+				m_Camera->ProcessKeyboardInput(CameraMovement::BACKWARD, deltaMs);
+			}
+			if (Input::IsKeyPressed('A'))
+			{
+				APawn::Move(eMovement::LEFT, deltaMs);
+				m_Camera->ProcessKeyboardInput(CameraMovement::LEFT, deltaMs);
+			}
+			if (Input::IsKeyPressed('D'))
+			{
+				APawn::Move(eMovement::RIGHT, deltaMs);
+				m_Camera->ProcessKeyboardInput(CameraMovement::RIGHT, deltaMs);
+			}
+			if (Input::IsKeyPressed('E'))
+			{
+				APawn::Move(eMovement::UP, deltaMs);
+				m_Camera->ProcessKeyboardInput(CameraMovement::UP, deltaMs);
+			}
+			if (Input::IsKeyPressed('Q'))
+			{
+				APawn::Move(eMovement::DOWN, deltaMs);
+				m_Camera->ProcessKeyboardInput(CameraMovement::DOWN, deltaMs);
+			}
 		}
 
 	}

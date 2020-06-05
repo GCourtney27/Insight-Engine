@@ -1,4 +1,4 @@
-#include "ie_pch.h"
+#include <ie_pch.h>
 
 #include "Log.h"
 
@@ -8,7 +8,7 @@ namespace Insight {
 
 	std::shared_ptr<spdlog::logger> Log::s_CoreLogger;
 	std::shared_ptr<spdlog::logger> Log::s_ClientLogger;
-#ifdef IE_DEBUG
+#if defined IE_DEBUG || defined IE_RELEASE
 	ConsoleWindow Log::m_ConsoleWindow;
 #endif
 

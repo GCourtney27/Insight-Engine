@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Insight/Core.h"
+#include <Insight/Core.h>
 
 #include "Insight/Core/Layer/Layer.h"
 #include "Insight/Events/Application_Event.h"

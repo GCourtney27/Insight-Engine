@@ -1,89 +1,62 @@
-#include "ie_pch.h"
+#include <ie_pch.h>
 
 
 #include "ACamera.h"
-
+#include "imgui.h"
+#include "Insight/Runtime/Components/Actor_Component.h"
+#include "Insight/Core/Application.h"
 
 namespace Insight {
 
 
 
-	Camera::~Camera()
+	ACamera::~ACamera()
 	{
 	}
 
-	void Camera::ProcessMouseScroll(float yOffset)
+	void ACamera::ProcessMouseScroll(float yOffset)
 	{
 	}
 
-	void Camera::ProcessMouseMovement(float xPos, float yPos)
+	void ACamera::ProcessMouseMovement(float xPos, float yPos)
 	{
-		/*if (m_FirstMove)
-		{
-			m_LastLookX = xPos;
-			m_LastLookY = yPos;
-			m_FirstMove = false;
-		}
-
-		float xOffset = xPos - m_LastLookX;
-		float yOffset = yPos - m_LastLookY;
-
-		m_LastLookX = xPos;
-		m_LastLookY = yPos;
-
-		xOffset *= m_MouseSensitivity;
-		yOffset *= m_MouseSensitivity;
-		
-		m_Yaw += xOffset;
-		m_Pitch += yOffset;
-
-		if (m_ConstrainPitch)
-		{
-			if (m_Pitch > 89.0f)
-				m_Pitch = 89.0f;
-			if (m_Pitch < -89.9f)
-				m_Pitch = -89.0f;
-		}*/
-
-		//m_Transform.SetRotation(Vector3(m_Pitch, m_Yaw, 0.0f));
-		//IE_CORE_INFO("Mouse raw pos: {0}, {1}", xPos, yPos)
-		m_Transform.Rotate(yPos * m_MouseSensitivity, xPos * m_MouseSensitivity, 0.0f);
+		GetTransformRef().Rotate(yPos * m_MouseSensitivity, xPos * m_MouseSensitivity, 0.0f);
 
 		UpdateViewMatrix();
-		m_Transform.UpdateLocalDirectionVectors();
+		GetTransformRef().UpdateLocalDirectionVectors();
 	}
-	
-	void Camera::ProcessKeyboardInput(CameraMovement direction, float deltaTime)
+
+	void ACamera::ProcessKeyboardInput(CameraMovement direction, float deltaTime)
 	{
 		float velocity = m_MovementSpeed * deltaTime;
 		if (direction == FORWARD)
 		{
-			m_Transform.GetPositionRef() += m_Transform.GetLocalForward() * velocity;
+			GetTransformRef().GetPositionRef() += GetTransformRef().GetLocalForward() * velocity;
 		}
 		if (direction == BACKWARD)
 		{
-			m_Transform.GetPositionRef() -= m_Transform.GetLocalForward() * velocity;
+			GetTransformRef().GetPositionRef() -= GetTransformRef().GetLocalForward() * velocity;
 		}
 		if (direction == LEFT)
 		{
-			m_Transform.GetPositionRef() -= m_Transform.GetLocalRight() * velocity;
+			GetTransformRef().GetPositionRef() -= GetTransformRef().GetLocalRight() * velocity;
 		}
 		if (direction == RIGHT)
 		{
-			m_Transform.GetPositionRef() += m_Transform.GetLocalRight() * velocity;
+			GetTransformRef().GetPositionRef() += GetTransformRef().GetLocalRight() * velocity;
 		}
 		if (direction == UP)
 		{
-			m_Transform.GetPositionRef() += WORLD_DIRECTION.Up * velocity;
+			GetTransformRef().GetPositionRef() += WORLD_DIRECTION.Up * velocity;
 		}
 		if (direction == DOWN)
 		{
-			m_Transform.GetPositionRef() -= WORLD_DIRECTION.Up * velocity;
+			GetTransformRef().GetPositionRef() -= WORLD_DIRECTION.Up * velocity;
 		}
 		UpdateViewMatrix();
 	}
-	
-	void Camera::SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ)
+
+	void ACamera::SetPerspectiveProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ)
 	{
 		m_Fov = fovDegrees;
 		m_NearZ = nearZ;
@@ -93,13 +66,47 @@ namespace Insight {
 		m_ProjectionMatrix = XMMatrixPerspectiveFovLH(fovRadians, m_AspectRatio, m_NearZ, m_FarZ);
 	}
 
-	void Camera::UpdateViewMatrix()
+	void ACamera::SetOrthographicsProjectionValues(float viewWidth, float viewHeight, float nearZ, float farZ)
 	{
-		XMMATRIX camRotationMatrix = XMMatrixRotationRollPitchYaw(m_Transform.GetRotation().x, m_Transform.GetRotation().y, 0.0f);
-		XMVECTOR camTarget = XMVector3TransformCoord(WORLD_DIRECTION.Forward, camRotationMatrix);
-		camTarget += m_Transform.GetPosition();
-		XMVECTOR upDir = XMVector3TransformCoord(WORLD_DIRECTION.Up, camRotationMatrix);
-		m_ViewMatrix = XMMatrixLookAtLH(m_Transform.GetPosition(), camTarget, upDir);
+		m_ProjectionMatrix = XMMatrixOrthographicLH(viewWidth, viewHeight, nearZ, farZ);
+	}
 
+	void ACamera::RenderSceneHeirarchy()
+	{
+		AActor::RenderSceneHeirarchy();
+	}
+
+	void ACamera::OnImGuiRender()
+	{
+		AActor::OnImGuiRender();
+
+		ImGui::Text("View");
+		if (!m_IsOrthographic) {
+			ImGui::DragFloat("Field of View", &m_Fov, 0.5f, 0.0f, 180.0f);
+		}
+		ImGui::DragFloat("Near Z", &m_NearZ, 0.01f, 0.00001f, 5.0f);
+		ImGui::DragFloat("Far Z", &m_FarZ, 1.0f, 1.0f, 10000.0f);
+
+		ImGui::Text("Post-Processing");
+		ImGui::DragFloat("Exposure", &m_Exposure, 0.01f, 0.0f, 1.0f);
+
+		ImGui::Text("Projection");
+		static const char* projectionMethods[] = { "Perspective", "Orthographic" };
+		ImGui::Combo("Method", &m_IsOrthographic, projectionMethods, IM_ARRAYSIZE(projectionMethods));
+		if (!m_IsOrthographic) {
+			SetPerspectiveProjectionValues(m_Fov, m_AspectRatio, m_NearZ, m_FarZ);
+		}
+		else {
+			SetOrthographicsProjectionValues((float)Application::Get().GetWindow().GetWidth(), (float)Application::Get().GetWindow().GetHeight(), m_NearZ, m_FarZ);
+		}
+	}
+
+	void ACamera::UpdateViewMatrix()
+	{
+		XMMATRIX camRotationMatrix = XMMatrixRotationRollPitchYaw(GetTransformRef().GetRotation().x, GetTransformRef().GetRotation().y, 0.0f);
+		XMVECTOR camTarget = XMVector3TransformCoord(WORLD_DIRECTION.Forward, camRotationMatrix);
+		camTarget += GetTransformRef().GetPosition();
+		XMVECTOR upDir = XMVector3TransformCoord(WORLD_DIRECTION.Up, camRotationMatrix);
+		m_ViewMatrix = XMMatrixLookAtLH(GetTransformRef().GetPosition(), camTarget, upDir);
 	}
 }

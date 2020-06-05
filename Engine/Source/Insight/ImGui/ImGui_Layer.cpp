@@ -1,4 +1,4 @@
-#include "ie_pch.h"
+#include <ie_pch.h>
 
 #include "ImGui_Layer.h"
 #include "Insight/Core/Application.h"
@@ -8,6 +8,7 @@
 #include "imgui.h"
 #include "examples/imgui_impl_dx12.h"
 #include "examples/imgui_impl_win32.h"
+#include "ImGuizmo.h"
 
 namespace Insight {
 
@@ -28,8 +29,8 @@ namespace Insight {
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
-		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-		//io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
 		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
 		//io.ConfigViewportsNoAutoMerge = true;
 		//io.ConfigViewportsNoTaskBarIcon = true;
@@ -105,11 +106,11 @@ namespace Insight {
 
 	void ImGuiLayer::OnImGuiRender()
 	{
-		ImGui::Begin("ImGui Layer");
+		/*ImGui::Begin("ImGui Layer");
 		{
 
 		}
-		ImGui::End();
+		ImGui::End();*/
 	}
 
 	void ImGuiLayer::Begin()
@@ -117,6 +118,7 @@ namespace Insight {
 		ImGui_ImplDX12_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
+		ImGuizmo::BeginFrame();
 	}
 
 	void ImGuiLayer::End()
@@ -124,7 +126,7 @@ namespace Insight {
 		ImGuiIO& io = ImGui::GetIO();
 		Application& app = Application::Get();
 		io.DisplaySize = ImVec2((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
-		//io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
 
 		m_pCommandList->SetDescriptorHeaps(1, &m_pDescriptorHeap);
 		ImGui::Render();
@@ -173,7 +175,7 @@ namespace Insight {
 	bool ImGuiLayer::OnMouseRawMoveEvent(MouseRawMoveEvent& e)
 	{
 		ImGuiIO& io = ImGui::GetIO();
-		io.MousePos = ImVec2(e.GetX(), e.GetY());
+		io.MousePos = ImVec2((float)e.GetX(), (float)e.GetY());
 		return false;
 	}
 

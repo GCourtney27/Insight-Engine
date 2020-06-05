@@ -1,4 +1,4 @@
-#include "ie_pch.h"
+#include <ie_pch.h>
 
 #include "APawn.h"
 
@@ -6,24 +6,37 @@ namespace Insight {
 
 
 
-	APawn::APawn()
+	APawn::APawn(ActorId id, ActorName name)
+		: AActor(id, name)
 	{
 	}
 
 	APawn::~APawn()
 	{
+
 	}
 
-	void APawn::OnInit()
+	bool APawn::OnInit()
 	{
+		AActor::OnInit();
+
+		return true;
 	}
 
-	void APawn::OnUpdate()
+	void APawn::OnUpdate(const float& deltaMs)
 	{
+		AActor::OnUpdate(deltaMs);
+
+	}
+
+	void APawn::OnPreRender(XMMATRIX parentMat)
+	{
+		AActor::OnPreRender(parentMat);
 	}
 
 	void APawn::OnRender()
 	{
+		AActor::OnRender();
 	}
 
 	void APawn::Move(eMovement direction, const float& deltaTime)
@@ -34,35 +47,36 @@ namespace Insight {
 		{
 		case Insight::APawn::FORWARD:
 		{
-			m_Transform.GetPositionRef() += m_Transform.GetLocalForward() * velocity;
+			GetTransformRef().GetPositionRef() += GetTransformRef().GetLocalForward() * velocity;
 			break;
 		}
 		case Insight::APawn::BACKWARD:
 		{
-			m_Transform.GetPositionRef() -= m_Transform.GetLocalForward() * velocity;
+			GetTransformRef().GetPositionRef() -= GetTransformRef().GetLocalForward() * velocity;
 			break;
 		}
 		case Insight::APawn::LEFT:
 		{
-			m_Transform.GetPositionRef() -= m_Transform.GetLocalRight() * velocity;
+			GetTransformRef().GetPositionRef() -= GetTransformRef().GetLocalRight() * velocity;
 			break;
 		}
 		case Insight::APawn::RIGHT:
 		{
-			m_Transform.GetPositionRef() += m_Transform.GetLocalRight() * velocity;
+			GetTransformRef().GetPositionRef() += GetTransformRef().GetLocalRight() * velocity;
 			break;
 		}
 		case Insight::APawn::UP:
 		{
-			m_Transform.GetPositionRef() += m_Transform.GetLocalUp() * velocity;
+			GetTransformRef().GetPositionRef() += GetTransformRef().GetLocalUp() * velocity;
 			break;
 		}
 		case Insight::APawn::DOWN:
 		{
-			m_Transform.GetPositionRef() -= m_Transform.GetLocalUp() * velocity;
+			GetTransformRef().GetPositionRef() -= GetTransformRef().GetLocalUp() * velocity;
 			break;
 		}
 		default:
+			IE_CORE_INFO("Failed to determine direction to move pawn: {0}", SceneNode::GetDisplayName());
 			break;
 		}
 	}

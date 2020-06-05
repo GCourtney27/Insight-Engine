@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ie_pch.h"
+#include <ie_pch.h>
 
-#include "Insight/Core.h"
+#include <Insight/Core.h>
 #include "Insight/Events/Event.h"
 #include "Platform/DirectX12/Direct3D12_Context.h"
 
@@ -17,7 +17,7 @@ namespace Insight {
 		UINT Width;
 		UINT Height;
 
-		WindowProps(const std::string& title = "Insight Engine", const std::string winClass = "IE Class", UINT width = 1600, UINT height = 900)
+		WindowProps(const std::string& title = "Insight Engine", const std::string winClass = "IE Class", UINT width = 1700, UINT height = 1000)
 			: Title(title), Width(width), Height(height) {}
 	};
 
@@ -37,7 +37,7 @@ namespace Insight {
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
 
-		inline RenderingContext& GetRenderContext() { return *m_pRendererContext; }
+		inline shared_ptr<RenderingContext> GetRenderContext() { return m_pRendererContext; }
 
 		virtual void Resize(uint32_t newWidth, uint32_t newHeight, bool isMinimized) = 0;
 		virtual void ToggleFullScreen(bool enabled) = 0;
@@ -53,7 +53,7 @@ namespace Insight {
 
 		static Window* Create(const WindowProps& props = WindowProps());
 
-		RenderingContext* m_pRendererContext;
+		shared_ptr<RenderingContext> m_pRendererContext;
 	protected:
 
 	};

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Insight/Core.h"
+#include <Insight/Core.h>
 
 #include "Insight/Runtime/APawn.h"
 #include "Insight/Runtime/ACamera.h"
@@ -12,20 +12,23 @@ namespace Insight {
 	class INSIGHT_API APlayerCharacter : public APawn
 	{
 	public:
-		APlayerCharacter();
-		~APlayerCharacter();
+		APlayerCharacter(ActorId id, ActorName name = "Player Character");
+		virtual ~APlayerCharacter();
 
 		inline static APlayerCharacter& Get() { return *s_Instance; }
 
-		virtual void OnInit();
-		virtual void OnUpdate();
-		virtual void OnRender();
+		virtual bool OnInit() override;
+		virtual void OnUpdate(const float& deltaMs) override;
+		virtual void OnPreRender(XMMATRIX parentMat) override;
+		virtual void OnRender() override;
+		void RenderSceneHeirarchy() override;
+		void OnImGuiRender() override;
 
-		const Camera& GetCamera() const { return m_Camera; }
+		ACamera& GetCameraRef() { return *m_Camera; }
 
 	private:
-		Camera m_Camera;
-		virtual void ProcessInput();
+		ACamera* m_Camera;
+		virtual void ProcessInput(const float& deltaMs);
 	private:
 		static APlayerCharacter* s_Instance;
 	};

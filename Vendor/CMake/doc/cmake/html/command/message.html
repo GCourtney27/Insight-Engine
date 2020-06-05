@@ -1,0 +1,178 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>message &mdash; CMake 3.15.4 Documentation</title>
+
+    <link rel="stylesheet" href="../_static/cmake.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/cmake-favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="option" href="option.html" />
+    <link rel="prev" title="math" href="math.html" />
+  
+ 
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="option.html" title="option"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="math.html" title="math"
+             accesskey="P">previous</a> |</li>
+  <li>
+    <img src="../_static/cmake-logo-16.png" alt=""
+         style="vertical-align: middle; margin-top: -2px" />
+  </li>
+  <li>
+    <a href="https://cmake.org/">CMake</a> &#187;
+  </li>
+  <li>
+    <a href="../index.html">3.15.4 Documentation</a> &#187;
+  </li>
+
+          <li class="nav-item nav-item-1"><a href="../manual/cmake-commands.7.html" accesskey="U">cmake-commands(7)</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="message">
+<span id="command:message"></span><h1>message<a class="headerlink" href="#message" title="Permalink to this headline">¶</a></h1>
+<p>Display a message to the user.</p>
+<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="nf">message(</span><span class="p">[</span><span class="nv">&lt;mode&gt;</span><span class="p">]</span><span class="w"> </span><span class="s">&quot;message to display&quot;</span><span class="w"> </span><span class="p">...</span><span class="nf">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The optional <code class="docutils literal notranslate"><span class="pre">&lt;mode&gt;</span></code> keyword determines the type of message:</p>
+<dl class="docutils">
+<dt><code class="docutils literal notranslate"><span class="pre">FATAL_ERROR</span></code></dt>
+<dd>CMake Error, stop processing and generation.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">SEND_ERROR</span></code></dt>
+<dd>CMake Error, continue processing, but skip generation.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">WARNING</span></code></dt>
+<dd>CMake Warning, continue processing.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">AUTHOR_WARNING</span></code></dt>
+<dd>CMake Warning (dev), continue processing.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">DEPRECATION</span></code></dt>
+<dd>CMake Deprecation Error or Warning if variable
+<span class="target" id="index-0-variable:CMAKE_ERROR_DEPRECATED"></span><a class="reference internal" href="../variable/CMAKE_ERROR_DEPRECATED.html#variable:CMAKE_ERROR_DEPRECATED" title="CMAKE_ERROR_DEPRECATED"><code class="xref cmake cmake-variable docutils literal notranslate"><span class="pre">CMAKE_ERROR_DEPRECATED</span></code></a> or <span class="target" id="index-0-variable:CMAKE_WARN_DEPRECATED"></span><a class="reference internal" href="../variable/CMAKE_WARN_DEPRECATED.html#variable:CMAKE_WARN_DEPRECATED" title="CMAKE_WARN_DEPRECATED"><code class="xref cmake cmake-variable docutils literal notranslate"><span class="pre">CMAKE_WARN_DEPRECATED</span></code></a>
+is enabled, respectively, else no message.</dd>
+<dt>(none) or <code class="docutils literal notranslate"><span class="pre">NOTICE</span></code></dt>
+<dd>Important message printed to stderr to attract user’s attention.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">STATUS</span></code></dt>
+<dd>The main interesting messages that project users might be interested in.
+Ideally these should be concise, no more than a single line, but still
+informative.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">VERBOSE</span></code></dt>
+<dd>Detailed informational messages intended for project users.  These messages
+should provide additional details that won’t be of interest in most cases,
+but which may be useful to those building the project when they want deeper
+insight into what’s happening.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">DEBUG</span></code></dt>
+<dd>Detailed informational messages intended for developers working on the
+project itself as opposed to users who just want to build it.  These messages
+will not typically be of interest to other users building the project and
+will often be closely related to internal implementation details.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">TRACE</span></code></dt>
+<dd>Fine-grained messages with very low-level implementation details.  Messages
+using this log level would normally only be temporary and would expect to be
+removed before releasing the project, packaging up the files, etc.</dd>
+</dl>
+<p>The CMake command-line tool displays <code class="docutils literal notranslate"><span class="pre">STATUS</span></code> to <code class="docutils literal notranslate"><span class="pre">TRACE</span></code> messages on stdout
+with the message preceded by two hyphens and a space.  All other message types
+are sent to stderr and are not prefixed with hyphens.  The
+<span class="target" id="index-0-manual:cmake-gui(1)"></span><a class="reference internal" href="../manual/cmake-gui.1.html#manual:cmake-gui(1)" title="cmake-gui(1)"><code class="xref cmake cmake-manual docutils literal notranslate"><span class="pre">CMake</span> <span class="pre">GUI</span></code></a> displays all messages in its log area.
+The <span class="target" id="index-0-manual:ccmake(1)"></span><a class="reference internal" href="../manual/ccmake.1.html#manual:ccmake(1)" title="ccmake(1)"><code class="xref cmake cmake-manual docutils literal notranslate"><span class="pre">curses</span> <span class="pre">interface</span></code></a> shows <code class="docutils literal notranslate"><span class="pre">STATUS</span></code> to <code class="docutils literal notranslate"><span class="pre">TRACE</span></code>
+messages one at a time on a status line and other messages in an
+interactive pop-up box.  The <code class="docutils literal notranslate"><span class="pre">--loglevel</span></code> command-line option to each of
+these tools can be used to control which messages will be shown.</p>
+<p>CMake Warning and Error message text displays using a simple markup
+language.  Non-indented text is formatted in line-wrapped paragraphs
+delimited by newlines.  Indented text is considered pre-formatted.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="math.html"
+                        title="previous chapter">math</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="option.html"
+                        title="next chapter">option</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/command/message.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="option.html" title="option"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="math.html" title="math"
+             >previous</a> |</li>
+  <li>
+    <img src="../_static/cmake-logo-16.png" alt=""
+         style="vertical-align: middle; margin-top: -2px" />
+  </li>
+  <li>
+    <a href="https://cmake.org/">CMake</a> &#187;
+  </li>
+  <li>
+    <a href="../index.html">3.15.4 Documentation</a> &#187;
+  </li>
+
+          <li class="nav-item nav-item-1"><a href="../manual/cmake-commands.7.html" >cmake-commands(7)</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2000-2019 Kitware, Inc. and Contributors.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
+    </div>
+  </body>
+</html>

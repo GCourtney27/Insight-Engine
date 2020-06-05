@@ -1,4 +1,4 @@
-#include "ie_pch.h"
+#include <ie_pch.h>
 #include "Windows_Input.h"
 
 #include "Insight/Core/Application.h"
@@ -38,14 +38,27 @@ namespace Insight {
 
 	float WindowsInput::GetMouseXImpl()
 	{
-		auto[x, y] = GetMousePositionImpl();
+		auto [x, y] = GetMousePositionImpl();
 		return (float)x;
 	}
 
 	float WindowsInput::GetMouseYImpl()
 	{
-		auto[x, y] = GetMousePositionImpl();
+		auto [x, y] = GetMousePositionImpl();
 		return (float)y;
+	}
+
+	bool WindowsInput::IsMouseScrolledImpl()
+	{
+		auto state = m_InputManager.GetMouseBuffer().GetScrollWheelState();
+		return state == InputBuffer::SCROLL_UP || state == InputBuffer::SCROLL_DOWN;
+	}
+
+	std::pair<float, float> WindowsInput::GetMouseScrollOffsetImpl()
+	{
+		float xOffset, yOffset;
+		m_InputManager.GetMouseBuffer().GetMouseScrollOffset(xOffset, yOffset);
+		return { xOffset, yOffset };
 	}
 
 }
