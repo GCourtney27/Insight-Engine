@@ -15,12 +15,12 @@ namespace Insight {
 		//UINT8* cbvGPUAddress = &Direct3D12Context::Get().GetConstantBufferViewGPUHeapAddress();
 		auto worldMat = m_Transform.GetLocalMatrix() * parentMat;
 
-		int numChildren = m_Children.size();
+		int numChildren = (int)m_Children.size();
 		for (int i = 0; i < numChildren; ++i) {
 			m_Children[i]->PreRender(worldMat, gpuAddressOffset);
 		}
 
-		int numMeshChildren = m_MeshChildren.size();
+		int numMeshChildren = (int)m_MeshChildren.size();
 		for (int i = 0; i < numMeshChildren; i++) {
 			m_MeshChildren[i]->GetTransformRef().SetWorldMatrix(m_MeshChildren[i]->GetTransformRef().GetLocalMatrix() * worldMat);
 		}
@@ -45,7 +45,7 @@ namespace Insight {
 
 	void MeshNode::Render()
 	{
-		int numChildren = m_MeshChildren.size();
+		int numChildren = (int)m_MeshChildren.size();
 		for (int i = 0; i < numChildren; ++i) {
 			m_Children[i]->Render();
 		}
@@ -71,7 +71,7 @@ namespace Insight {
 		}
 
 		if (isExpanded) {
-			int numChildren = m_Children.size();
+			int numChildren = (int)m_Children.size();
 			for (int i = 0; i < numChildren; ++i) {
 				m_Children[i]->RenderSceneHeirarchy();
 			}

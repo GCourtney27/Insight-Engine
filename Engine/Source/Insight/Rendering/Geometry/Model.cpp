@@ -54,7 +54,7 @@ namespace Insight {
 
 	void Model::Render()
 	{
-		int numMeshChildren = m_Meshes.size();
+		int numMeshChildren = (int)m_Meshes.size();
 		for (int i = 0; i < numMeshChildren; ++i) {
 			m_Meshes[i]->Render();
 		}

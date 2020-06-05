@@ -97,7 +97,7 @@ namespace Insight {
 			SetPerspectiveProjectionValues(m_Fov, m_AspectRatio, m_NearZ, m_FarZ);
 		}
 		else {
-			SetOrthographicsProjectionValues(Application::Get().GetWindow().GetWidth(), Application::Get().GetWindow().GetHeight(), m_NearZ, m_FarZ);
+			SetOrthographicsProjectionValues((float)Application::Get().GetWindow().GetWidth(), (float)Application::Get().GetWindow().GetHeight(), m_NearZ, m_FarZ);
 		}
 	}
 

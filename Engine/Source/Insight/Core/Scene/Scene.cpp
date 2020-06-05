@@ -46,7 +46,7 @@ namespace Insight {
 			reinterpret_cast<StaticMeshComponent*>(ptr3.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Models/Dandelion/Var1/Textured_Flower.obj"));
 
 			m_pTestPointLight = new APointLight(4, "Point Light Actor");
-			m_pTestPointLight->GetTransformRef().SetPosition(Vector3(0.0f, 13.75f, -6.3));
+			m_pTestPointLight->GetTransformRef().SetPosition(Vector3(0.0f, 13.75f, -6.3f));
 
 			m_pTestPointLight1 = new APointLight(5, "Point Light Actor1");
 			m_pDirectionalLight = new ADirectionalLight(5, "Directional Light Actor");

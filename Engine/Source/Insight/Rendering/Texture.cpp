@@ -34,7 +34,6 @@ namespace Insight {
 
 	bool Texture::Init(const std::wstring& filepath, eTextureType& textureType, CDescriptorHeapWrapper& srvHeapHandle)
 	{
-		HRESULT hr;
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
 		m_pCommandList = &graphicsContext.GetCommandList();
 		m_TextureType = textureType;

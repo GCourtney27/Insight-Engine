@@ -265,12 +265,12 @@ namespace Insight {
 
 		inline void PIXBeginEvent(ID3D12CommandQueue* pCommandQueue, UINT64 /*metadata*/, PCWSTR pFormat)
 		{
-			pCommandQueue->BeginEvent(PIX_EVENT_UNICODE_VERSION, pFormat, (wcslen(pFormat) + 1) * sizeof(pFormat[0]));
+			pCommandQueue->BeginEvent(PIX_EVENT_UNICODE_VERSION, pFormat, (UINT)((wcslen(pFormat) + 1) * sizeof(pFormat[0])));
 		}
 
 		inline void PIXBeginEvent(ID3D12GraphicsCommandList* pCommandList, UINT64 /*metadata*/, PCWSTR pFormat)
 		{
-			pCommandList->BeginEvent(PIX_EVENT_UNICODE_VERSION, pFormat, (wcslen(pFormat) + 1) * sizeof(pFormat[0]));
+			pCommandList->BeginEvent(PIX_EVENT_UNICODE_VERSION, pFormat, (UINT)((wcslen(pFormat) + 1) * sizeof(pFormat[0])));
 		}
 		inline void PIXEndEvent(ID3D12CommandQueue* pCommandQueue)
 		{

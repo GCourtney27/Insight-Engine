@@ -67,6 +67,8 @@ namespace Insight {
 			return InputBuffer::SCROLL_UP;
 		else if (m_ScrollState[0] == false)
 			return InputBuffer::SCROLL_DOWN;
+
+		return InputBuffer::NONE;
 	}
 
 }

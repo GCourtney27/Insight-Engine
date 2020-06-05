@@ -24,7 +24,7 @@ struct PS_OUTPUT_LIGHTPASS
 
 // Entry Point
 // -----------
-PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
+PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
 {
     PS_OUTPUT_LIGHTPASS ps_out;
     
