@@ -78,7 +78,7 @@ void HDRToneMap(inout float3 target)
 void GammaCorrect(inout float3 target)
 {
     const float gamma = 2.2;
-    target = pow(target.rgb, float3(1.0 / gamma, 1.0 / gamma, 1.0 / gamma));
+    target = pow(abs(target.rgb), float3(1.0 / gamma, 1.0 / gamma, 1.0 / gamma));
 }
 
 float LinearizeDepth(float depth)
