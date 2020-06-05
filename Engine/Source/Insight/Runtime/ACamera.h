@@ -68,6 +68,8 @@ namespace Insight {
 		void RenderSceneHeirarchy() override;
 		void OnImGuiRender() override;
 
+		BOOL GetIsOrthographic() { return m_IsOrthographic; }
+
 	private:
 		void UpdateViewMatrix();
 	private:

@@ -168,17 +168,17 @@ namespace Insight {
 		{
 			//IE_CORE_INFO("Window size has changed");
 
-			//// CRASHES NO NOT RESIZE WINDOW
-			//WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			//if (data.isFirstLaunch)
-			//{
-			//	data.isFirstLaunch = false;
-			//	return 0;
-			//}
-			//RECT clientRect = {};
-			//GetClientRect(hWnd, &clientRect);
-			//WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, wParam == SIZE_MINIMIZED);
-			//data.EventCallback(event);
+			// CRASHES NO NOT RESIZE WINDOW
+			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			if (data.isFirstLaunch)
+			{
+				data.isFirstLaunch = false;
+				return 0;
+			}
+			RECT clientRect = {};
+			GetClientRect(hWnd, &clientRect);
+			WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, wParam == SIZE_MINIMIZED);
+			data.EventCallback(event);
 			return 0;
 		}
 		case WM_INPUT:
@@ -186,7 +186,7 @@ namespace Insight {
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			UINT dataSize;
 			GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, NULL, &dataSize, sizeof(RAWINPUTHEADER));
-
+			
 			if (dataSize > 0)
 			{
 				std::unique_ptr<BYTE[]> rawdata = std::make_unique<BYTE[]>(dataSize);

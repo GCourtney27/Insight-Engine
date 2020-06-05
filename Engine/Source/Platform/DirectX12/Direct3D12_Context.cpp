@@ -338,6 +338,8 @@ namespace Insight {
 				for (UINT i = 0; i < m_FrameBufferCount; i++)
 				{
 					m_pRenderTargetTextures[i].Reset();
+					m_pRenderTargets[i].Reset();
+					m_pRenderTargetTextures_PostFxPass[i].Reset();
 					m_FenceValues[i] = m_FenceValues[m_FrameIndex];
 				}
 				m_pDepthStencilTexture.Reset();
@@ -345,8 +347,7 @@ namespace Insight {
 				DXGI_SWAP_CHAIN_DESC desc = {};
 				m_pSwapChain->GetDesc(&desc);
 				hr = m_pSwapChain->ResizeBuffers(m_FrameBufferCount, m_WindowWidth, m_WindowHeight, desc.BufferDesc.Format, desc.Flags);
-				if (FAILED(hr))
-					__debugbreak();
+				ThrowIfFailed(hr, "Failed to resize swap chain buffers");
 
 				BOOL fullScreenState;
 				m_pSwapChain->GetFullscreenState(&fullScreenState, nullptr);
@@ -1265,24 +1266,27 @@ namespace Insight {
 
 		// Re-Create Render Target View
 		{
-			//CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_pRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-			//for (UINT i = 0; i < m_FrameBufferCount; i++)
-			//{
-			//	m_pSwapChain->GetBuffer(i, IID_PPV_ARGS(&m_pRenderTargets[i]));
-			//	m_pLogicalDevice->CreateRenderTargetView(m_pRenderTargets[i].Get(), nullptr, rtvHandle);
-			//	rtvHandle.Offset(1, m_RtvDescriptorIncrementSize);
-			//}
+			for (UINT i = 0; i < m_FrameBufferCount; i++)
+			{
+				m_pSwapChain->GetBuffer(i, IID_PPV_ARGS(&m_pRenderTargets[i]));
+				m_pLogicalDevice->CreateRenderTargetView(m_pRenderTargets[i].Get(), nullptr, m_rtvHeap.hCPU(i));
+			}
 		}
 
 		// Re-Create Depth Stencil View
 		{
 			CreateDSV();
+			CreateRTVs();
+			m_RTVDescriptorHeap.Reset();
+			CreateRenderTargetViewDescriptorHeap();
 		}
 
 		// Recreate Camera Projection Matrix
 		{
 			ACamera& camera = APlayerCharacter::Get().GetCameraRef();
-			camera.SetPerspectiveProjectionValues(camera.GetFOV(), static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight), camera.GetNearZ(), camera.GetFarZ());
+			if (!camera.GetIsOrthographic()) {
+				camera.SetPerspectiveProjectionValues(camera.GetFOV(), static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight), camera.GetNearZ(), camera.GetFarZ());
+			}
 		}
 
 	}

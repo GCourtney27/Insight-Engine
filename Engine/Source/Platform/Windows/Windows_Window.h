@@ -43,7 +43,7 @@ namespace Insight {
 		inline HWND& GetWindowHandleReference() { return m_WindowHandle; }
 		inline RECT& GetWindowRect() { return m_WindowRect; }
 
-		virtual void Resize(uint32_t newWidth, uint32_t newHeight, bool isMinimized) override;
+		virtual void Resize(UINT newWidth, UINT newHeight, bool isMinimized) override;
 		virtual void ToggleFullScreen(bool enabled) override;
 
 		virtual bool ProccessWindowMessages() override;
@@ -58,7 +58,6 @@ namespace Insight {
 		inline void SetWindowsApplicationInstance(HINSTANCE& hInstance) { m_WindowsAppInstance = &hInstance; }
 		inline void SetCmdArgs(int nCmdShow) { m_nCmdShowArgs = nCmdShow; }
 		void RegisterWindowClass();
-		void SetWindowBounds();
 	private:
 
 		HWND m_WindowHandle;
