@@ -175,7 +175,7 @@ namespace Insight {
 	bool ImGuiLayer::OnMouseRawMoveEvent(MouseRawMoveEvent& e)
 	{
 		ImGuiIO& io = ImGui::GetIO();
-		io.MousePos = ImVec2(e.GetX(), e.GetY());
+		io.MousePos = ImVec2((float)e.GetX(), (float)e.GetY());
 		return false;
 	}
 

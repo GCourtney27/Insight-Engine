@@ -24,12 +24,12 @@ struct PS_OUTPUT_LIGHTPASS
 
 // Entry Point
 // -----------
-PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in) : SV_TARGET
+PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
 {
     PS_OUTPUT_LIGHTPASS ps_out;
     
 	// Sample Textures
-    float3 albedoBufferSample = pow(t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb, float3(2.2, 2.2, 2.2));
+    float3 albedoBufferSample = pow(abs(t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb), float3(2.2, 2.2, 2.2));
     float3 roughMetAOBufferSample = t_RoughnessMetallicAOGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
     float3 positionBufferSample = t_PositionGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
     float3 normalBufferSample = t_NormalGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;

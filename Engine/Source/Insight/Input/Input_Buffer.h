@@ -13,7 +13,8 @@ namespace Insight {
 		enum MouseScrollState
 		{
 			SCROLL_UP,
-			SCROLL_DOWN
+			SCROLL_DOWN,
+			NONE
 		};
 
 	protected:

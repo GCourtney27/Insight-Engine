@@ -120,7 +120,7 @@ namespace Insight {
 		}
 		verts[verts.size() - 1].position = XMFLOAT4(0, -m_Radius, 0, 1);
 
-		int nbFaces = verts.size();
+		int nbFaces = (int)verts.size();
 		int nbTriangles = nbFaces * 2;
 		int nbIndexes = nbTriangles * 3;
 		std::vector< int >  triangles(nbIndexes);
@@ -156,12 +156,12 @@ namespace Insight {
 		//Bottom Cap
 		for (int lon = 0; lon < m_Segments; lon++)
 		{
-			triangles[i++] = verts.size() - 1;
-			triangles[i++] = verts.size() - (lon + 2) - 1;
-			triangles[i++] = verts.size() - (lon + 1) - 1;
+			triangles[i++] = (int)verts.size() - 1;
+			triangles[i++] = (int)verts.size() - (lon + 2) - 1;
+			triangles[i++] = (int)verts.size() - (lon + 1) - 1;
 		}
-		m_TriangleSize = verts.size();
-		m_IndexSize = triangles.size();
+		m_TriangleSize = (int)verts.size();
+		m_IndexSize = (int)triangles.size();
 		//Create D3D resources
 		D3D12_HEAP_PROPERTIES heapProperty;
 		ZeroMemory(&heapProperty, sizeof(heapProperty));
@@ -190,7 +190,7 @@ namespace Insight {
 
 		m_VertexView.BufferLocation = m_VertexBuffer->GetGPUVirtualAddress();
 		m_VertexView.StrideInBytes = sizeof(SimpleVertex);
-		m_VertexView.SizeInBytes = sizeof(SimpleVertex) * verts.size();
+		m_VertexView.SizeInBytes = sizeof(SimpleVertex) * (UINT)verts.size();
 
 		resourceDesc.Width = sizeof(int) * triangles.size();
 		hr = pDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(m_IndexBuffer.GetAddressOf()));
@@ -203,7 +203,7 @@ namespace Insight {
 
 		m_IndexView.BufferLocation = m_IndexBuffer->GetGPUVirtualAddress();
 		m_IndexView.Format = DXGI_FORMAT_R32_UINT;
-		m_IndexView.SizeInBytes = sizeof(int) * triangles.size();
+		m_IndexView.SizeInBytes = sizeof(int) * (UINT)triangles.size();
 	}
 
 	void Sphere::Render(ComPtr<ID3D12GraphicsCommandList> commandList)

@@ -44,7 +44,7 @@ VS_OUTPUT main(VS_INPUT vs_in)
 	vs_out.FragPos = float3(mul(world, float4(vs_in.position, 1.0)).xyz);
 	vs_out.texCoords = vs_in.texCoords;
 	
-	vs_out.normal = normalize(mul(float4(vs_in.normal, 0.0f), world));
+	vs_out.normal = normalize(mul(float4(vs_in.normal, 0.0f), world)).xyz;
 	vs_out.tangent = mul(vs_in.tangent, (float3x3) worldView);
 	vs_out.biTangent = mul(vs_in.biTangent, (float3x3) worldView);
 

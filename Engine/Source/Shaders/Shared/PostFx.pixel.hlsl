@@ -122,7 +122,7 @@ float3 AddFilmGrain(float3 sourceColor, float2 texCoords)
 float3 AddVignette(float3 sourceColor, float2 texCoords)
 {
     float2 centerUV = texCoords - float2(0.5, 0.5);
-    float3 color = float4(1.0, 1.0, 1.0, 1.0);
+    float3 color = float3(1.0, 1.0, 1.0);
 
     color.rgb *= 1.0 - smoothstep(vnInnerRadius, vnOuterRadius, length(centerUV));
     color *= sourceColor;
@@ -139,7 +139,7 @@ void HDRToneMap(inout float3 target)
 void GammaCorrect(inout float3 target)
 {
     const float gamma = 2.2;
-    target = pow(target.rgb, float3(1.0 / gamma, 1.0 / gamma, 1.0 / gamma));
+    target = pow(abs(target.rgb), float3(1.0 / gamma, 1.0 / gamma, 1.0 / gamma));
 }
 
 float LinearizeDepth(float depth)

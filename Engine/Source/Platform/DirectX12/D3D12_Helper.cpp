@@ -116,7 +116,7 @@ namespace Insight {
 		Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain{};
 
 		//hr = m_pDxgiFactory->CreateSwapChainForHwnd(m_pCommandQueue.Get(), *m_pWindowHandle, &swapChainDesc, nullptr, nullptr, &swapChain);
-		ThrowIfFailed(hr, "Failed to Create Swap Chain");
+		//ThrowIfFailed(hr, "Failed to Create Swap Chain");
 
 		/*if (m_AllowTearing)
 		{

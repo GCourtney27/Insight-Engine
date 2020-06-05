@@ -23,8 +23,8 @@ namespace Insight {
 		inline void OnMousePositionMoved(double newXPos, double newYPos) { m_xPos = newXPos; m_yPos = newYPos;	}
 		inline void OnRawMousePositionMoved(int newXPos, int newYPos) { m_xPosRaw = newXPos; m_yPosRaw = newYPos;	}
 	private:
-		int m_xPosRaw = 0.0;
-		int m_yPosRaw = 0.0;
+		int m_xPosRaw = 0;
+		int m_yPosRaw = 0;
 		double m_xPos = 0.0;
 		double m_yPos = 0.0;
 		bool m_Buttons[3] = { false };

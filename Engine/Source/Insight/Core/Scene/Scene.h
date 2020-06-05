@@ -54,7 +54,7 @@ namespace Insight {
 		APointLight* m_pTestPointLight1 = nullptr;
 		ADirectionalLight* m_pDirectionalLight = nullptr;
 		ASpotLight* m_pSpotLight = nullptr;
-		APlayerCharacter* m_pPlayerCharacter;
+		APlayerCharacter* m_pPlayerCharacter = nullptr;
 		Vector3 newPos;
 		AActor* m_pSelectedActor = nullptr;
 		APostFx* m_PostFxActor = nullptr;

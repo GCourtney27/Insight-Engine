@@ -28,7 +28,7 @@ namespace Insight {
 		InstanceMatrixStack* GetInstanceMatrixStack() { return &m_InstanceMatrixStack; }
 
 		unique_ptr<Mesh>& GetMeshAtIndex(const int& index) { return m_Meshes[index]; }
-		const size_t& GetNumChildMeshes() const { return m_Meshes.size(); }
+		const size_t GetNumChildMeshes() const { return m_Meshes.size(); }
 
 		void PreRender(const XMMATRIX& parentMat);
 		void Render();
@@ -43,8 +43,6 @@ namespace Insight {
 		unique_ptr<MeshNode> m_pRoot;
 		InstanceMatrixStack m_InstanceMatrixStack;
 
-
-		int m_ManagerIndex;
 		std::vector<Texture> m_Textures;
 		std::vector<Texture> textures_loaded;
 		

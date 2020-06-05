@@ -15,7 +15,7 @@ VS_OUTPUT_GEOMPASS main(VS_INPUT_GEOMPASS vs_in)
     vs_out.fragPos = worldPos.xyz;
     vs_out.texCoords = vs_in.texCoords;
 	
-    vs_out.normal = normalize(mul(float4(vs_in.normal, 0.0f), world));
+    vs_out.normal = normalize(mul(float4(vs_in.normal, 0.0f), world)).xyz;
     vs_out.tangent = mul(vs_in.tangent, (float3x3) worldView);
     vs_out.biTangent = mul(vs_in.biTangent, (float3x3) worldView);
 

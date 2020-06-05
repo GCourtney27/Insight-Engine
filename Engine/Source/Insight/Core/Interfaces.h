@@ -25,7 +25,7 @@ namespace Insight {
 	typedef shared_ptr<Model> StrongModelPtr;
 	typedef weak_ptr<Model> WeakModelPtr;
 
-	enum RenderPass
+	enum class RenderPass
 	{
 		RenderPass_0,
 		RenderPass_Static = RenderPass_0,
