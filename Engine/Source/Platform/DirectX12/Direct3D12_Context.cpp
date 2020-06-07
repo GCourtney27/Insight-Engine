@@ -35,6 +35,7 @@ namespace Insight {
 		s_Instance = this;
 
 		m_AspectRatio = (float)m_WindowWidth / (float)m_WindowHeight;
+
 	}
 
 	Direct3D12Context::~Direct3D12Context()
@@ -1058,11 +1059,11 @@ namespace Insight {
 		// skybox3
 		// MountainTop
 		// NewportLoft
-		std::wstring texRelPathIRW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/skybox1_IR.dds"));
+		std::wstring texRelPathIRW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/MountainTop_IR.dds"));
 		Texture::eTextureType texTypeIR = Texture::eTextureType::SKY_IRRADIENCE;
 		m_Irradiance.Init(texRelPathIRW, texTypeIR, m_cbvsrvHeap);
 
-		std::wstring texRelPathEnvW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/skybox1_EnvMap.dds"));
+		std::wstring texRelPathEnvW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/MountainTop_EnvMap.dds"));
 		Texture::eTextureType texTypeEnv = Texture::eTextureType::SKY_ENVIRONMENT_MAP;
 		m_Environment.Init(texRelPathEnvW, texTypeEnv, m_cbvsrvHeap);
 
