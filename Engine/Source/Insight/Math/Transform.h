@@ -58,6 +58,19 @@ namespace Insight {
 		void SetWorldMatrix(XMMATRIX matrix);
 		XMMATRIX GetWorldMatrixTransposed() const { return XMMatrixTranspose(m_WorldMatrix); }
 
+		XMMATRIX& GetTranslationMatrixRef() { return m_TranslationMat; }
+		XMMATRIX GetTranslationMatrix() { return m_TranslationMat; }
+		void SetTranslationMatrix(XMMATRIX matrix) { m_TranslationMat = matrix; }
+
+		XMMATRIX& GetRotationMatrixRef() { return m_RotationMat; }
+		XMMATRIX GetRotationMatrix() { return m_RotationMat; }
+		void SetRotationMatrix(XMMATRIX matrix) { m_RotationMat = matrix; }
+
+		XMMATRIX& GetScaleMatrixRef() { return m_ScaleMat; }
+		XMMATRIX GetScaleMatrix() { return m_ScaleMat; }
+		void SetScaleMatrix(XMMATRIX matrix) { m_ScaleMat = matrix; }
+
+
 		// Update the objects local directional vectors.
 		// DO NOT CALL UNLESS YOU KNOW WHAT YOU'RE DOING
 		void UpdateLocalDirectionVectors();

@@ -106,11 +106,8 @@ namespace Insight {
 				
 				m_pSelectedActor->OnImGuiRender();
 
-				Vector3& pos = m_pSelectedActor->GetTransformRef().GetPositionRef();
-				Vector3& rot = m_pSelectedActor->GetTransformRef().GetRotationRef();
-				Vector3& sca = m_pSelectedActor->GetTransformRef().GetScaleRef();
 				XMFLOAT4X4 localMat; 
-				XMFLOAT4X4 deltaMat; 
+				XMFLOAT4X4 deltaMat;
 				XMFLOAT4X4 viewMat;
 				XMFLOAT4X4 projMat;
 				XMStoreFloat4x4(&localMat, m_pSelectedActor->GetTransformRef().GetLocalMatrixRef());
@@ -130,15 +127,6 @@ namespace Insight {
 
 				static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
 
-				float translate[3] = { pos.x, pos.y, pos.z };
-				float rotation[3] = { rot.x, rot.y, rot.z };
-				float scale[3] = { sca.x, sca.y, sca.z };
-
-				/*ImGuizmo::DecomposeMatrixToComponents(*localMat.m, translate, rotation, scale);
-				ImGui::InputFloat3("Tr", translate, 3);
-				ImGui::InputFloat3("Rt", rotation, 3);
-				ImGui::InputFloat3("Sc", scale, 3);
-				ImGuizmo::RecomposeMatrixFromComponents(translate, rotation, scale, *localMat.m);*/
 
 				
 				ImGuiIO& io = ImGui::GetIO();
@@ -146,10 +134,34 @@ namespace Insight {
 				//TODO if(Raycast::LastRayCast::Succeeded) than run this line if false than skip it (disbles the guizmo)
 				ImGuizmo::Manipulate(*viewMat.m, *projMat.m, mCurrentGizmoOperation, mCurrentGizmoMode, *localMat.m, *deltaMat.m, NULL, NULL, NULL);
 
-				//newPos.x = localMat._11; newPos.y = localMat._22; newPos.z =  localMat._33;
-				//m_pSelectedActor->GetTransformRef().SetPosition(newPos);
-				XMMATRIX offsettedMat = XMLoadFloat4x4(&deltaMat);
-				m_pSelectedActor->GetTransformRef().SetLocalMatrix(offsettedMat);
+				switch (mCurrentGizmoOperation) {
+				case ImGuizmo::TRANSLATE:
+				{
+					m_pSelectedActor->GetTransformRef().SetPosition(Vector3(localMat._41, localMat._42, localMat._43));
+				}
+				case ImGuizmo::SCALE:
+				{
+					m_pSelectedActor->GetTransformRef().SetScale(Vector3(localMat._11, localMat._22, localMat._33));
+				}
+				case ImGuizmo::ROTATE:
+				{
+					//XMMATRIX rotMat = XMLoadFloat4x4(&localMat);
+					//m_pSelectedActor->GetTransformRef().SetRotationMatrix(rotMat);
+					
+					//XMVECTOR rotVector = XMVector3Transform(m_pSelectedActor->GetTransformRef().GetRotation(), rotMat);
+					//XMFLOAT3 rotFloat;
+					//XMStoreFloat3(&rotFloat, rotVector);
+					//m_pSelectedActor->GetTransformRef().SetRotation(Vector3(rotFloat.x, rotFloat.y, rotFloat.z));
+
+					//X: localMat._33; localMat._22; localMat._23; localMat._33;
+					//Y: localMat._31; localMat._11; localMat._13; localMat._33;
+					//Z localMat._21; localMat._11; localMat._12; localMat._22;
+
+					//m_pSelectedActor->GetTransformRef().SetRotation(Vector3(localMat._13, localMat._23, localMat._33));
+
+				}
+				default: break;
+				}
 			}
 		}
 		ImGui::End();
