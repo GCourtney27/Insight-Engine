@@ -12,16 +12,29 @@ namespace Insight {
 		: AActor(id, type)
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		SceneNode::GetTransformRef().SetPosition(Vector3(-0.2f, -1.0f, -0.3f));
-		m_ShaderCB.direction = SceneNode::GetTransformRef().GetPositionRef();
-		m_ShaderCB.diffuse = XMFLOAT3(1.0f, 1.0f, 1.0f);
-		m_ShaderCB.strength = 1.0f;
-
 		graphicsContext.AddDirectionalLight(this);
 	}
 
 	ADirectionalLight::~ADirectionalLight()
 	{
+	}
+
+	bool ADirectionalLight::LoadFromJson(const rapidjson::Value& jsonDirectionalLight)
+	{
+		AActor::LoadFromJson(jsonDirectionalLight);
+
+		float diffuseR, diffuseG, diffuseB, strength;
+		const rapidjson::Value& emission = jsonDirectionalLight["Emission"];
+		json::get_float(emission[0], "diffuseR", diffuseR);
+		json::get_float(emission[0], "diffuseG", diffuseG);
+		json::get_float(emission[0], "diffuseB", diffuseB);
+		json::get_float(emission[0], "strength", strength);
+
+		m_ShaderCB.diffuse = XMFLOAT3(diffuseR, diffuseG, diffuseB);
+		m_ShaderCB.direction = AActor::GetTransformRef().GetRotationRef();
+		m_ShaderCB.strength = strength;
+
+		return true;
 	}
 
 	bool ADirectionalLight::OnInit()

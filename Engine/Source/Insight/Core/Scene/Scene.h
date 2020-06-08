@@ -49,8 +49,6 @@ namespace Insight {
 	private:
 		APostFx* m_PostFxActor = nullptr;
 		ASkySphere* m_pSkyboxActor = nullptr; // Temp: this should come from a file
-		ADirectionalLight* m_pDirectionalLight = nullptr;
-		//ASpotLight* m_pSpotLight = nullptr;
 		APlayerCharacter* m_pPlayerCharacter = nullptr;
 		Vector3 newPos;
 		AActor* m_pSelectedActor = nullptr;

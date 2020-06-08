@@ -61,13 +61,17 @@ namespace Insight {
 			if (actorType == "Actor") {
 				newActor = new AActor(actorSceneIndex, actorDisplayName);
 				newActor->LoadFromJson(jsonActor);
-
-			} else if (actorType == "PointLight") {
+			}
+			else if (actorType == "PointLight") {
 				newActor = new APointLight(actorSceneIndex, actorDisplayName);
 				newActor->LoadFromJson(jsonActor);
-				
-			} else if (actorType == "SpotLight") {
+			} 
+			else if (actorType == "SpotLight") {
 				newActor = new ASpotLight(actorSceneIndex, actorDisplayName);
+				newActor->LoadFromJson(jsonActor);
+			}
+			else if (actorType == "DirectionalLight") {
+				newActor = new ADirectionalLight(actorSceneIndex, actorDisplayName);
 				newActor->LoadFromJson(jsonActor);
 			}
 

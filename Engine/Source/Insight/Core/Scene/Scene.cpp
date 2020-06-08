@@ -40,20 +40,15 @@ namespace Insight {
 		m_pPlayerCharacter = new APlayerCharacter(0, "Player Character");
 		LoadFromJson(FileSystem::Get().GetRelativeAssetDirectoryPath("Scenes/MyScene.json"));
 		{
-			
-			m_pDirectionalLight = new ADirectionalLight(5, "Directional Light Actor");
-			//m_pSpotLight = new ASpotLight(7, "Spot Light Actor");
-
 			m_pSkyboxActor = new ASkySphere(8, "Sky Sphere Actor");
 
 			m_PostFxActor = new APostFx(9, "Post-Fx Actor");
 		}
-		//m_pSceneRoot->AddChild(m_pSpotLight);
-		m_pSceneRoot->AddChild(m_pDirectionalLight);
+
 		m_pSceneRoot->AddChild(m_pSkyboxActor);
 		m_pSceneRoot->AddChild(m_PostFxActor);
-		m_pSceneRoot->AddChild(m_pPlayerCharacter);
 
+		m_pSceneRoot->AddChild(m_pPlayerCharacter);
 
 		m_Renderer->PostInit();
 		return true;
