@@ -166,9 +166,6 @@ namespace Insight {
 		}
 		case WM_SIZE:
 		{
-			//IE_CORE_INFO("Window size has changed");
-
-			// CRASHES NO NOT RESIZE WINDOW
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			if (data.isFirstLaunch)
 			{
@@ -179,6 +176,9 @@ namespace Insight {
 			GetClientRect(hWnd, &clientRect);
 			WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, wParam == SIZE_MINIMIZED);
 			data.EventCallback(event);
+			
+			IE_CORE_INFO("Window size has changed");
+
 			return 0;
 		}
 		case WM_INPUT:
@@ -272,7 +272,7 @@ namespace Insight {
 		m_pRendererContext = std::make_shared<Direct3D12Context>(this);
 		if (!m_pRendererContext->Init())
 		{
-			//IE_CORE_FATAL(L"Failed to initialize graphics context");
+			IE_CORE_FATAL(L"Failed to initialize graphics context");
 			return false;
 		}
 		IE_CORE_TRACE("Renderer Initialized");
