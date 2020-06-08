@@ -23,6 +23,14 @@ namespace Insight {
 		Destroy();
 	}
 
+	bool Scene::LoadFromJson(const std::string& fileName)
+	{
+		FileSystem::Get().LoadSceneFromJson(fileName, *this);
+
+
+		return true;
+	}
+
 	bool Scene::Init()
 	{
 		// TODO: Init from file
@@ -31,7 +39,7 @@ namespace Insight {
 
 		m_pPlayerCharacter = new APlayerCharacter(0, "Player Character");
 
-		{
+		/*{
 			m_pTestActor = new AActor(1, "Nanosuit"); // TODO: make the id be its index in the scene
 			StrongActorComponentPtr ptr = m_pTestActor->CreateDefaultSubobject<StaticMeshComponent>();
 			reinterpret_cast<StaticMeshComponent*>(ptr.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Models/nanosuit/nanosuit.obj"));
@@ -55,17 +63,17 @@ namespace Insight {
 			m_pSkyboxActor = new ASkySphere(8, "Sky Sphere Actor");
 
 			m_PostFxActor = new APostFx(9, "Post-Fx Actor");
-		}
+		}*/
 
-		m_pSceneRoot->AddChild(m_pTestActor);
+		/*m_pSceneRoot->AddChild(m_pTestActor);
 		m_pSceneRoot->AddChild(m_pTestActor2);
-		m_pSceneRoot->AddChild(m_pTestActor3);
-		m_pSceneRoot->AddChild(m_pTestPointLight);
+		m_pSceneRoot->AddChild(m_pTestActor3);*/
+		/*m_pSceneRoot->AddChild(m_pTestPointLight);
 		m_pSceneRoot->AddChild(m_pTestPointLight1);
 		m_pSceneRoot->AddChild(m_pSpotLight);
 		m_pSceneRoot->AddChild(m_pDirectionalLight);
 		m_pSceneRoot->AddChild(m_pSkyboxActor);
-		m_pSceneRoot->AddChild(m_PostFxActor);
+		m_pSceneRoot->AddChild(m_PostFxActor);*/
 		m_pSceneRoot->AddChild(m_pPlayerCharacter);
 
 

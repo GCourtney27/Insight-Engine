@@ -1,10 +1,13 @@
 #pragma once
 #include <Insight/Core.h>
 
+#include "Insight/Events/Event.h"
 #include "Insight/Math/Transform.h"
 #include "Insight/Core/Scene/Scene_Node.h"
 #include "Insight/Runtime/Components/Scene_Component.h"
-#include "Insight/Events/Event.h"
+
+#include <rapidjson/prettywriter.h>
+#include <rapidjson/stringbuffer.h>
 
 namespace Insight {
 
@@ -19,6 +22,8 @@ namespace Insight {
 	public:
 		AActor(ActorId id, ActorName actorName = "Actor");
 		virtual ~AActor();
+
+		virtual bool LoadFromJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
 
 		// Editor
 		virtual void RenderSceneHeirarchy();

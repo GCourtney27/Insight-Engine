@@ -47,15 +47,27 @@ namespace Insight {
 		Shutdown();
 	}
 
+	bool Application::LoadSceneFromJson(const std::string& fileName)
+	{
+		if (!m_Scene.Init()) {
+			IE_CORE_ERROR("Failed to initialize scene");
+			return false;
+		}
+
+		if (!m_Scene.LoadFromJson(fileName)) {
+			IE_CORE_ERROR("Failed to initialize scene frmo json");
+			return false;
+		}
+		
+		return true;
+	}
+
 	bool Application::Init()
 	{
 		PushEngineLayers();
 
-		if (!m_Scene.Init()) 
-		{
-			IE_CORE_ERROR("Failed to initialize scene");
-			return false;
-		}
+		LoadSceneFromJson(FileSystem::Get().GetRelativeAssetDirectoryPath("Scenes/MyScene.json"));
+		
 
 		IE_CORE_TRACE("Application Initialized");
 		return true;

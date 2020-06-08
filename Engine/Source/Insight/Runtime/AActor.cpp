@@ -1,8 +1,10 @@
 #include <ie_pch.h>
 
-#include "Insight/Runtime/Components/Actor_Component.h"
 #include "Insight/Core/Application.h"
+#include "Insight/Runtime/Components/Actor_Component.h"
+
 #include "AActor.h"
+
 #include "imgui.h"
 
 namespace Insight {
@@ -17,6 +19,11 @@ namespace Insight {
 
 	AActor::~AActor()
 	{
+	}
+
+	bool AActor::LoadFromJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
+	{
+		return true;
 	}
 
 	void AActor::RenderSceneHeirarchy()

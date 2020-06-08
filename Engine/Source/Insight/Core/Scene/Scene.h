@@ -24,6 +24,7 @@ namespace Insight {
 		~Scene();
 
 		SceneNode* GetRootNode() const { return m_pSceneRoot; }
+		bool LoadFromJson(const std::string& fileName);
 
 		bool Init();
 		bool PostInit();
@@ -40,6 +41,7 @@ namespace Insight {
 
 		// Editor
 		void SetSelectedActor(AActor* actor) { m_pSelectedActor = actor; }
+		void SetDisplayName(const std::string& name) { m_DisplayName = name; }
 
 	private:
 		void RenderSceneHeirarchy();
@@ -63,6 +65,8 @@ namespace Insight {
 		ModelManager m_ModelManager;
 		SceneNode* m_pSceneRoot = nullptr;
 		std::shared_ptr<RenderingContext> m_Renderer = nullptr;
+
+		std::string m_DisplayName;
 	};
 
 }
