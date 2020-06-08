@@ -43,6 +43,7 @@ namespace Insight {
 			{
 				m_pCommandList->SetGraphicsRootConstantBufferView(0, cbvHandle + (ConstantBufferPerObjectAlignedSize * m_ConstantBufferOffset++));
 
+				m_Models[i]->BindResources();
 				m_Models[i]->GetMeshAtIndex(j)->Render();
 			}
 		}

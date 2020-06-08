@@ -18,6 +18,13 @@ namespace Insight {
 		//Destroy();
 	}
 
+	bool Model::LoadFromJson(const rapidjson::Value& materialInfo)
+	{
+		m_Material.LoadFromJson(materialInfo);
+
+		return true;
+	}
+
 	bool Model::Init(const std::string& path)
 	{
 		m_Directory = StringHelper::GetDirectoryFromPath(path);
@@ -41,6 +48,11 @@ namespace Insight {
 			ImGui::TreePop();
 			ImGui::Spacing();
 		}
+	}
+
+	void Model::BindResources()
+	{
+		m_Material.BindResources();
 	}
 
 	void Model::PreRender(const XMMATRIX& parentMat)

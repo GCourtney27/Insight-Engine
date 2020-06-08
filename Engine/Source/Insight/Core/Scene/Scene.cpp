@@ -114,62 +114,62 @@ namespace Insight {
 				
 				m_pSelectedActor->OnImGuiRender();
 
-				XMFLOAT4X4 localMat; 
-				XMFLOAT4X4 deltaMat;
-				XMFLOAT4X4 viewMat;
-				XMFLOAT4X4 projMat;
-				XMStoreFloat4x4(&localMat, m_pSelectedActor->GetTransformRef().GetLocalMatrixRef());
-				XMStoreFloat4x4(&viewMat, m_pPlayerCharacter->GetCameraRef().GetViewMatrix());
-				XMStoreFloat4x4(&projMat, m_pPlayerCharacter->GetCameraRef().GetProjectionMatrix());
+				//XMFLOAT4X4 localMat; 
+				//XMFLOAT4X4 deltaMat;
+				//XMFLOAT4X4 viewMat;
+				//XMFLOAT4X4 projMat;
+				//XMStoreFloat4x4(&localMat, m_pSelectedActor->GetTransformRef().GetLocalMatrixRef());
+				//XMStoreFloat4x4(&viewMat, m_pPlayerCharacter->GetCameraRef().GetViewMatrix());
+				//XMStoreFloat4x4(&projMat, m_pPlayerCharacter->GetCameraRef().GetProjectionMatrix());
 
-				static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
-				if (Input::IsKeyPressed('W')) {
-					mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-				}else if(Input::IsKeyPressed('E')) {
-					mCurrentGizmoOperation = ImGuizmo::ROTATE;
+				//static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
+				//if (Input::IsKeyPressed('W')) {
+				//	mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+				//}else if(Input::IsKeyPressed('E')) {
+				//	mCurrentGizmoOperation = ImGuizmo::ROTATE;
 
-				}else if (Input::IsKeyPressed('R')) {
-					mCurrentGizmoOperation = ImGuizmo::SCALE;
+				//}else if (Input::IsKeyPressed('R')) {
+				//	mCurrentGizmoOperation = ImGuizmo::SCALE;
 
-				}
+				//}
 
-				static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
+				//static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
 
 
-				
-				ImGuiIO& io = ImGui::GetIO();
-				ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-				//TODO if(Raycast::LastRayCast::Succeeded) than run this line if false than skip it (disbles the guizmo)
-				ImGuizmo::Manipulate(*viewMat.m, *projMat.m, mCurrentGizmoOperation, mCurrentGizmoMode, *localMat.m, *deltaMat.m, NULL, NULL, NULL);
+				//
+				//ImGuiIO& io = ImGui::GetIO();
+				//ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+				////TODO if(Raycast::LastRayCast::Succeeded) than run this line if false than skip it (disbles the guizmo)
+				//ImGuizmo::Manipulate(*viewMat.m, *projMat.m, mCurrentGizmoOperation, mCurrentGizmoMode, *localMat.m, *deltaMat.m, NULL, NULL, NULL);
 
-				switch (mCurrentGizmoOperation) {
-				case ImGuizmo::TRANSLATE:
-				{
-					m_pSelectedActor->GetTransformRef().SetPosition(Vector3(localMat._41, localMat._42, localMat._43));
-				}
-				case ImGuizmo::SCALE:
-				{
-					m_pSelectedActor->GetTransformRef().SetScale(Vector3(localMat._11, localMat._22, localMat._33));
-				}
-				case ImGuizmo::ROTATE:
-				{
-					//XMMATRIX rotMat = XMLoadFloat4x4(&localMat);
-					//m_pSelectedActor->GetTransformRef().SetRotationMatrix(rotMat);
-					
-					//XMVECTOR rotVector = XMVector3Transform(m_pSelectedActor->GetTransformRef().GetRotation(), rotMat);
-					//XMFLOAT3 rotFloat;
-					//XMStoreFloat3(&rotFloat, rotVector);
-					//m_pSelectedActor->GetTransformRef().SetRotation(Vector3(rotFloat.x, rotFloat.y, rotFloat.z));
+				//switch (mCurrentGizmoOperation) {
+				//case ImGuizmo::TRANSLATE:
+				//{
+				//	m_pSelectedActor->GetTransformRef().SetPosition(Vector3(localMat._41, localMat._42, localMat._43));
+				//}
+				//case ImGuizmo::SCALE:
+				//{
+				//	m_pSelectedActor->GetTransformRef().SetScale(Vector3(localMat._11, localMat._22, localMat._33));
+				//}
+				//case ImGuizmo::ROTATE:
+				//{
+				//	//XMMATRIX rotMat = XMLoadFloat4x4(&localMat);
+				//	//m_pSelectedActor->GetTransformRef().SetRotationMatrix(rotMat);
+				//	
+				//	//XMVECTOR rotVector = XMVector3Transform(m_pSelectedActor->GetTransformRef().GetRotation(), rotMat);
+				//	//XMFLOAT3 rotFloat;
+				//	//XMStoreFloat3(&rotFloat, rotVector);
+				//	//m_pSelectedActor->GetTransformRef().SetRotation(Vector3(rotFloat.x, rotFloat.y, rotFloat.z));
 
-					//X: localMat._33; localMat._22; localMat._23; localMat._33;
-					//Y: localMat._31; localMat._11; localMat._13; localMat._33;
-					//Z localMat._21; localMat._11; localMat._12; localMat._22;
+				//	//X: localMat._33; localMat._22; localMat._23; localMat._33;
+				//	//Y: localMat._31; localMat._11; localMat._13; localMat._33;
+				//	//Z localMat._21; localMat._11; localMat._12; localMat._22;
 
-					//m_pSelectedActor->GetTransformRef().SetRotation(Vector3(localMat._13, localMat._23, localMat._33));
+				//	//m_pSelectedActor->GetTransformRef().SetRotation(Vector3(localMat._13, localMat._23, localMat._33));
 
-				}
-				default: break;
-				}
+				//}
+				//default: break;
+				//}
 			}
 		}
 		ImGui::End();

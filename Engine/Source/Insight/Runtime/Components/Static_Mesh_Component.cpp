@@ -27,9 +27,9 @@ namespace Insight {
 		std::string modelPath;
 		json::get_string(jsonStaticMeshComponent[0], "Mesh", modelPath);
 		AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath(modelPath));
-
+		m_pModel->LoadFromJson(jsonStaticMeshComponent[1]);
 		// Load Material
-		m_Material.LoadFromJson(jsonStaticMeshComponent[1]);
+		//m_Material.LoadFromJson(jsonStaticMeshComponent[1]);
 
 		return true;
 	}
@@ -50,15 +50,12 @@ namespace Insight {
 
 	void StaticMeshComponent::OnRender()
 	{
-		m_Material.BindResources();
 		//m_pModel->Render();
 		//m_pModel->Draw();
 	}
 
 	void StaticMeshComponent::OnUpdate(const float& deltaTime)
 	{
-
-
 	}
 
 	void StaticMeshComponent::OnImGuiRender()

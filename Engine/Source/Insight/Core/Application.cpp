@@ -83,15 +83,14 @@ namespace Insight {
 			
 			m_pWindow->OnUpdate(deltaTime);
 			m_Scene.OnUpdate(deltaTime);
-
-			// Geometry Pass
-			m_Scene.OnPreRender();
-
+			
 			for (Layer* layer : m_LayerStack) {
 				layer->OnUpdate(deltaTime);
 			}
-			
 
+			// Geometry Pass
+			m_Scene.OnPreRender();
+			
 			m_Scene.OnRender();
 
 			// Light Pass
