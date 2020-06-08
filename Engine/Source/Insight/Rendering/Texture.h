@@ -40,7 +40,7 @@ namespace Insight {
 		Texture();
 		~Texture();
 	
-		bool Init(const std::wstring& filepath, eTextureType& testureType, CDescriptorHeapWrapper& srvHeapHandle);
+		bool Init(const std::wstring& filepath, eTextureType testureType, CDescriptorHeapWrapper& srvHeapHandle);
 		bool InitTextureFromFile(const std::wstring& filepath, eTextureType& testureType, CDescriptorHeapWrapper& srvHeapHandle);
 		void Bind();
 

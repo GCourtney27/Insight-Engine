@@ -3,6 +3,8 @@
 #include "Insight/Runtime/AActor.h"
 #include "Static_Mesh_Component.h"
 #include "Insight/Systems/Model_Manager.h"
+#include "Insight/Systems/File_System.h"
+
 #include "imgui.h"
 
 namespace Insight {
@@ -17,6 +19,19 @@ namespace Insight {
 
 	StaticMeshComponent::~StaticMeshComponent()
 	{
+	}
+
+	bool StaticMeshComponent::LoadFromJson(const rapidjson::Value& jsonStaticMeshComponent)
+	{
+		// Load Mesh
+		std::string modelPath;
+		json::get_string(jsonStaticMeshComponent[0], "Mesh", modelPath);
+		AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath(modelPath));
+		m_pModel->LoadFromJson(jsonStaticMeshComponent[1]);
+		// Load Material
+		//m_Material.LoadFromJson(jsonStaticMeshComponent[1]);
+
+		return true;
 	}
 
 	void StaticMeshComponent::OnInit()
@@ -41,8 +56,6 @@ namespace Insight {
 
 	void StaticMeshComponent::OnUpdate(const float& deltaTime)
 	{
-
-
 	}
 
 	void StaticMeshComponent::OnImGuiRender()

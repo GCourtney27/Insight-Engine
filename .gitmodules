@@ -10,3 +10,6 @@
 [submodule "Engine/Vendor/ImGuizmo"]
 	path = Engine/Vendor/ImGuizmo
 	url = https://github.com/GCourtney27/ImGuizmo.git
+[submodule "Engine/Vendor/rapidjson"]
+	path = Engine/Vendor/rapidjson
+	url = https://github.com/GCourtney27/rapidjson.git

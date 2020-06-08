@@ -15,21 +15,41 @@ namespace Insight {
 		: AActor(id, type)
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-
-		// Vignette
-		m_ShaderCB.innerRadius = 0.1f;
-		m_ShaderCB.outerRadius = 1.0f;
-		m_ShaderCB.opacity = 1.0f;
-		m_ShaderCB.vnEnabled = TRUE;
-		// Film Grain
-		m_ShaderCB.fgStrength = 16.0f;
-		m_ShaderCB.fgEnabled = TRUE;
-
 		graphicsContext.AddPostFxActor(this);
 	}
 
 	APostFx::~APostFx()
 	{
+	}
+
+	bool APostFx::LoadFromJson(const rapidjson::Value& jsonPostFx)
+	{
+		AActor::LoadFromJson(jsonPostFx);
+
+		float vnInnerRadius, vnOuterRadius, vnOpacity; bool vnEnabled;
+		float fgStrength; bool fgEnabled;
+
+		const rapidjson::Value& postFx = jsonPostFx["PostFx"];
+		const rapidjson::Value& vignette = postFx[0];
+		json::get_float(vignette, "vnInnerRadius", vnInnerRadius);
+		json::get_float(vignette, "vnOuterRadius", vnOuterRadius);
+		json::get_float(vignette, "vnOpacity", vnOpacity);
+		json::get_bool(vignette, "vnEnabled", vnEnabled);
+
+		const rapidjson::Value& filmGrain = postFx[1];
+		json::get_float(filmGrain, "fgStrength", fgStrength);
+		json::get_bool(filmGrain, "fgEnabled", fgEnabled);
+
+		// Vignette
+		m_ShaderCB.innerRadius = vnInnerRadius;
+		m_ShaderCB.outerRadius = vnOuterRadius;
+		m_ShaderCB.opacity = vnOpacity;
+		m_ShaderCB.vnEnabled = (int)vnEnabled;
+		// Film Grain
+		m_ShaderCB.fgStrength = fgStrength;
+		m_ShaderCB.fgEnabled = (int)fgEnabled;
+
+		return true;
 	}
 
 	bool APostFx::OnInit()

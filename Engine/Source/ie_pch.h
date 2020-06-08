@@ -38,6 +38,17 @@
 #include "Insight/Core/Log.h"
 #include "Insight/Core/Interfaces.h"
 
+// === Third Party === //
+// Rapid Json
+#include <rapidjson/json.h>
+#include <rapidjson/document.h>
+#include <rapidjson/filewritestream.h>
+#include <rapidjson/istreamwrapper.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/ostreamwrapper.h>
+#include <rapidjson/prettywriter.h>
+
 // === Windows Library === //
 #ifdef IE_PLATFORM_WINDOWS
 

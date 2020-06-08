@@ -18,6 +18,7 @@ namespace Insight {
 		Application();
 		virtual ~Application();
 
+		bool LoadSceneFromJson(const std::string& fileName);
 		bool Init();
 
 		void Run();

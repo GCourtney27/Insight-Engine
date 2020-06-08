@@ -12,16 +12,28 @@ namespace Insight {
 		: AActor(id, type)
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-
-		m_ShaderCB.position = SceneNode::GetTransformRef().GetPositionRef();
-		m_ShaderCB.diffuse = XMFLOAT3(1.0f, 1.0f, 1.0f);
-		m_ShaderCB.strength = 1.0f;
-
 		graphicsContext.AddPointLight(this);
 	}
 
 	APointLight::~APointLight()
 	{
+	}
+
+	bool APointLight::LoadFromJson(const rapidjson::Value& jsonPointLight)
+	{
+		AActor::LoadFromJson(jsonPointLight);
+
+		float diffuseR, diffuseG, diffuseB, strength;
+		const rapidjson::Value& emission = jsonPointLight["Emission"];
+		json::get_float(emission[0], "diffuseR", diffuseR);
+		json::get_float(emission[0], "diffuseG", diffuseG);
+		json::get_float(emission[0], "diffuseB", diffuseB);
+		json::get_float(emission[0], "strength", strength);
+
+		m_ShaderCB.diffuse = XMFLOAT3(diffuseR, diffuseG, diffuseB);
+		m_ShaderCB.strength = strength;
+
+		return true;
 	}
 
 	bool APointLight::OnInit()

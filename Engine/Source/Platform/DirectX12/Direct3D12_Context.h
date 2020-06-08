@@ -251,11 +251,6 @@ namespace Insight {
 		std::vector<ASpotLight*> m_SpotLights;
 		int CBSpotLightsAlignedSize = (sizeof(CB_PS_SpotLight) + 255) & ~255;
 
-		Texture m_AlbedoTexture;
-		Texture m_NormalTexture;
-		Texture m_RoughnessTexture;
-		Texture m_MetallicTexture;
-		Texture m_AOTexture;
 		// Sky TODO: Move this!
 		Texture m_Irradiance;
 		Texture m_Environment;

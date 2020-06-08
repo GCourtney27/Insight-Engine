@@ -39,7 +39,6 @@ namespace Insight {
 	private:
 		void SetupMesh();
 		bool InitializeVertexDataForD3D12();
-		bool InitializeInstanceBufferD3D12();
 		bool InitializeIndexDataForD3D12();
 	private:
 
@@ -51,11 +50,6 @@ namespace Insight {
 		ID3D12Resource*				m_pIndexBufferUploadHeap = 0;
 		ID3D12Resource*				m_pIndexBuffer = 0;
 		D3D12_INDEX_BUFFER_VIEW		m_IndexBufferView = {};
-		
-		ID3D12Resource*				m_pInstanceBufferUploadHeap = 0;
-		ID3D12Resource*				m_pInstanceBuffer = 0;
-		D3D12_VERTEX_BUFFER_VIEW	m_InstanceBufferView = {};
-
 
 		ID3D12Device*				m_pLogicalDevice = 0;
 		ID3D12GraphicsCommandList*	m_pCommandList = 0;

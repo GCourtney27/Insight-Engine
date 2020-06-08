@@ -47,15 +47,22 @@ namespace Insight {
 		Shutdown();
 	}
 
+	bool Application::LoadSceneFromJson(const std::string& fileName)
+	{
+		if (!m_Scene.Init(fileName)) {
+			IE_CORE_ERROR("Failed to initialize scene");
+			return false;
+		}
+		
+		return true;
+	}
+
 	bool Application::Init()
 	{
 		PushEngineLayers();
 
-		if (!m_Scene.Init()) 
-		{
-			IE_CORE_ERROR("Failed to initialize scene");
-			return false;
-		}
+		LoadSceneFromJson(FileSystem::Get().GetRelativeAssetDirectoryPath("Scenes/MyScene.json"));
+		
 
 		IE_CORE_TRACE("Application Initialized");
 		return true;
@@ -68,18 +75,17 @@ namespace Insight {
 			m_FrameTimer.tick();
 			const float& time = (float)m_FrameTimer.seconds();
 			const float& deltaTime = (float)m_FrameTimer.dt();
-			
+
 			m_pWindow->OnUpdate(deltaTime);
 			m_Scene.OnUpdate(deltaTime);
-
-			// Geometry Pass
-			m_Scene.OnPreRender();
-
+			
 			for (Layer* layer : m_LayerStack) {
 				layer->OnUpdate(deltaTime);
 			}
-			
 
+			// Geometry Pass
+			m_Scene.OnPreRender();
+			
 			m_Scene.OnRender();
 
 			// Light Pass

@@ -18,6 +18,13 @@ namespace Insight {
 		//Destroy();
 	}
 
+	bool Model::LoadFromJson(const rapidjson::Value& materialInfo)
+	{
+		m_Material.LoadFromJson(materialInfo);
+
+		return true;
+	}
+
 	bool Model::Init(const std::string& path)
 	{
 		m_Directory = StringHelper::GetDirectoryFromPath(path);
@@ -43,12 +50,17 @@ namespace Insight {
 		}
 	}
 
+	void Model::BindResources()
+	{
+		m_Material.BindResources();
+	}
+
 	void Model::PreRender(const XMMATRIX& parentMat)
 	{
-		//auto worldMat = XMMatrixMultiply(parentMat, m_pRoot->GetTransformRef().GetLocalMatrixRef());
+		auto worldMat = XMMatrixMultiply(parentMat, m_pRoot->GetTransformRef().GetLocalMatrixRef());
 		for (unique_ptr<Mesh>& mesh : m_Meshes)
 		{
-			mesh->PreRender(parentMat);
+			mesh->PreRender(worldMat);
 		}
 	}
 

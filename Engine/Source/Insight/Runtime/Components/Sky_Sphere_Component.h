@@ -12,6 +12,8 @@ namespace Insight {
 	public:
 		SkySphereComponent(StrongActorPtr pOwner);
 		virtual ~SkySphereComponent();
+		
+		virtual bool LoadFromJson(const rapidjson::Value& jsonActor) override;
 
 		virtual void OnInit() override;
 		virtual void OnPostInit() override;

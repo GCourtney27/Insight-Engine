@@ -21,6 +21,14 @@ namespace Insight {
 		Destroy();
 	}
 
+	void Mesh::Destroy()
+	{
+		COM_SAFE_RELEASE(m_pVertexBuffer);
+		COM_SAFE_RELEASE(m_pIndexBuffer);
+		COM_SAFE_RELEASE(m_pVertexBufferUploadHeap);
+		COM_SAFE_RELEASE(m_pIndexBufferUploadHeap);
+	}
+
 	void Mesh::Init(Verticies verticies, Indices indices)
 	{
 		m_Verticies = verticies;
@@ -60,19 +68,9 @@ namespace Insight {
 
 	void Mesh::Render()
 	{
-		//m_Material.BindResources();
 		m_pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);
 		m_pCommandList->IASetIndexBuffer(&m_IndexBufferView);
-
 		m_pCommandList->DrawIndexedInstanced(m_NumIndices, 1, 0, 0, 0);
-	}
-
-	void Mesh::Destroy()
-	{
-		COM_SAFE_RELEASE(m_pVertexBuffer);
-		COM_SAFE_RELEASE(m_pIndexBuffer);
-		COM_SAFE_RELEASE(m_pVertexBufferUploadHeap);
-		COM_SAFE_RELEASE(m_pIndexBufferUploadHeap);
 	}
 
 	void Mesh::OnImGuiRender()
@@ -82,12 +80,12 @@ namespace Insight {
 
 	void Mesh::SetupMesh()
 	{
-		if (!InitializeVertexDataForD3D12())
+		if (!InitializeVertexDataForD3D12()) {
 			IE_CORE_TRACE("Failed to setup vertex data for D3D12");
-
-		if (!InitializeIndexDataForD3D12())
+		}
+		if (!InitializeIndexDataForD3D12()) {
 			IE_CORE_TRACE("Failed to setup index data for D3D12");
-
+		}
 	}
 	bool Mesh::InitializeVertexDataForD3D12()
 	{

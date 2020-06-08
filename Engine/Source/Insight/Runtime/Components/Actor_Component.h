@@ -11,6 +11,8 @@ namespace Insight {
 	public:
 		virtual ~ActorComponent(void) { m_pOwner.reset(); }
 
+		virtual bool LoadFromJson(const rapidjson::Value& jsonComponent) = 0;
+
 		virtual void OnInit() = 0;
 		virtual void OnPostInit() {}
 		virtual void OnDestroy() = 0;

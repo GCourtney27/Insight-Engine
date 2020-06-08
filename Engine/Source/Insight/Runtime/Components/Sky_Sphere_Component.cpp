@@ -23,6 +23,11 @@ namespace Insight {
 	{
 	}
 
+	bool SkySphereComponent::LoadFromJson(const rapidjson::Value& jsonActor)
+	{
+		return false;
+	}
+
 	void SkySphereComponent::OnInit()
 	{
 	}
