@@ -40,38 +40,16 @@ namespace Insight {
 		m_pPlayerCharacter = new APlayerCharacter(0, "Player Character");
 		LoadFromJson(FileSystem::Get().GetRelativeAssetDirectoryPath("Scenes/MyScene.json"));
 		{
-			/*m_pTestActor = new AActor(1, "Nanosuit"); // TODO: make the id be its index in the scene
-			StrongActorComponentPtr ptr = m_pTestActor->CreateDefaultSubobject<StaticMeshComponent>();
-			reinterpret_cast<StaticMeshComponent*>(ptr.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Models/nanosuit/nanosuit.obj"));
-
-			m_pTestActor2 = new AActor(2, "Plane"); // TODO: make the id be its index in the scene
-			StrongActorComponentPtr ptr2 = m_pTestActor2->CreateDefaultSubobject<StaticMeshComponent>();
-			reinterpret_cast<StaticMeshComponent*>(ptr2.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Models/Quad.obj"));
-			m_pTestActor2->GetTransformRef().Scale(100.0f, 100.0f, 100.0f);
-
-			m_pTestActor3 = new AActor(3, "Dandelion"); // TODO: make the id be its index in the scene
-			StrongActorComponentPtr ptr3 = m_pTestActor3->CreateDefaultSubobject<StaticMeshComponent>();
-			reinterpret_cast<StaticMeshComponent*>(ptr3.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Models/Dandelion/Var1/Textured_Flower.obj"));
-
-			m_pTestPointLight = new APointLight(4, "Point Light Actor");
-			m_pTestPointLight->GetTransformRef().SetPosition(Vector3(0.0f, 13.75f, -6.3f));
-
-			m_pTestPointLight1 = new APointLight(5, "Point Light Actor1");
+			
 			m_pDirectionalLight = new ADirectionalLight(5, "Directional Light Actor");
-			m_pSpotLight = new ASpotLight(7, "Spot Light Actor");*/
+			//m_pSpotLight = new ASpotLight(7, "Spot Light Actor");
 
 			m_pSkyboxActor = new ASkySphere(8, "Sky Sphere Actor");
 
 			m_PostFxActor = new APostFx(9, "Post-Fx Actor");
 		}
-
-		/*m_pSceneRoot->AddChild(m_pTestActor);
-		m_pSceneRoot->AddChild(m_pTestActor2);
-		m_pSceneRoot->AddChild(m_pTestActor3);*/
-		/*m_pSceneRoot->AddChild(m_pTestPointLight);
-		m_pSceneRoot->AddChild(m_pTestPointLight1);
-		m_pSceneRoot->AddChild(m_pSpotLight);
-		m_pSceneRoot->AddChild(m_pDirectionalLight);*/
+		//m_pSceneRoot->AddChild(m_pSpotLight);
+		m_pSceneRoot->AddChild(m_pDirectionalLight);
 		m_pSceneRoot->AddChild(m_pSkyboxActor);
 		m_pSceneRoot->AddChild(m_PostFxActor);
 		m_pSceneRoot->AddChild(m_pPlayerCharacter);
@@ -111,7 +89,7 @@ namespace Insight {
 		ImGui::Begin("Details");
 		{
 			if (m_pSelectedActor != nullptr) {
-				
+
 				m_pSelectedActor->OnImGuiRender();
 
 				//XMFLOAT4X4 localMat; 
@@ -168,7 +146,7 @@ namespace Insight {
 				//	//m_pSelectedActor->GetTransformRef().SetRotation(Vector3(localMat._13, localMat._23, localMat._33));
 
 				//}
-				//default: break;
+				//default: {break;}
 				//}
 			}
 		}

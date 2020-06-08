@@ -47,18 +47,13 @@ namespace Insight {
 		void RenderInspector();
 		void RenderCreatorWindow();
 	private:
-		AActor* m_pTestActor = nullptr; // Temp: this should come from a file
-		AActor* m_pTestActor2 = nullptr; // Temp: this should come from a file
-		AActor* m_pTestActor3 = nullptr; // Temp: this should come from a file
+		APostFx* m_PostFxActor = nullptr;
 		ASkySphere* m_pSkyboxActor = nullptr; // Temp: this should come from a file
-		APointLight* m_pTestPointLight = nullptr;
-		APointLight* m_pTestPointLight1 = nullptr;
 		ADirectionalLight* m_pDirectionalLight = nullptr;
-		ASpotLight* m_pSpotLight = nullptr;
+		//ASpotLight* m_pSpotLight = nullptr;
 		APlayerCharacter* m_pPlayerCharacter = nullptr;
 		Vector3 newPos;
 		AActor* m_pSelectedActor = nullptr;
-		APostFx* m_PostFxActor = nullptr;
 
 		FileSystem m_FileSystem;
 		ModelManager m_ModelManager;

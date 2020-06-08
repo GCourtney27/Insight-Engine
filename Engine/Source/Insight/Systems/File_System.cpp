@@ -53,13 +53,26 @@ namespace Insight {
 			const rapidjson::Value& jsonActor = sceneObjects[a];
 
 			std::string actorDisplayName;
+			std::string actorType;
 			json::get_string(jsonActor, "DisplayName", actorDisplayName);
+			json::get_string(jsonActor, "Type", actorType);
 
 			// TODO: Get type and create new actor based on that type. eg point light, player character, postfx actor etc
+			if (actorType == "Actor") {
+				newActor = new AActor(actorSceneIndex, actorDisplayName);
+				newActor->LoadFromJson(jsonActor);
 
-			newActor = new AActor(actorSceneIndex, actorDisplayName);
-			newActor->LoadFromJson(jsonActor);
+			} else if (actorType == "PointLight") {
+				newActor = new APointLight(actorSceneIndex, actorDisplayName);
+				newActor->LoadFromJson(jsonActor);
+				
+			} else if (actorType == "SpotLight") {
+				newActor = new ASpotLight(actorSceneIndex, actorDisplayName);
+				newActor->LoadFromJson(jsonActor);
+			}
 
+
+			
 
 
 			scene.GetRootNode()->AddChild(newActor);

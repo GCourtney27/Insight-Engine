@@ -13,6 +13,8 @@ namespace Insight {
 		ASpotLight(ActorId id, ActorType type = "Spot Light Actor");
 		virtual ~ASpotLight();
 
+		virtual bool LoadFromJson(const rapidjson::Value& jsonSpotLight) override;
+
 		virtual bool OnInit();
 		virtual bool OnPostInit();
 		virtual void OnUpdate(const float& deltaMs);

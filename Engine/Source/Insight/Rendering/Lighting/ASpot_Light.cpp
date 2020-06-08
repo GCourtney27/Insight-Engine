@@ -14,22 +14,36 @@ namespace Insight {
 		: AActor(id, type)
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-
-		SceneNode::GetTransformRef().SetPosition(Vector3(0.0f, 60.0f, 0.0f));
-		SceneNode::GetTransformRef().SetRotation(Vector3(0.0f, -1.0f, 0.0f));
-
-		m_ShaderCB.position = SceneNode::GetTransformRef().GetPositionRef();
-		m_ShaderCB.direction = SceneNode::GetTransformRef().GetRotationRef();
-		m_ShaderCB.diffuse = XMFLOAT3(1.0f, 1.0f, 1.0f);
-		m_ShaderCB.innerCutOff = cos(XMConvertToRadians(12.5f));
-		m_ShaderCB.outerCutOff = cos(XMConvertToRadians(15.0f));
-		m_ShaderCB.strength = 1.0f;
-
 		graphicsContext.AddSpotLight(this);
 	}
 
 	ASpotLight::~ASpotLight()
 	{
+	}
+
+	bool ASpotLight::LoadFromJson(const rapidjson::Value& jsonSpotLight)
+	{
+		AActor::LoadFromJson(jsonSpotLight);
+
+		float innerCutoff, outerCutoff;
+		float diffuseR, diffuseG, diffuseB, strength;
+		float directionX, directionY, directionZ;
+		const rapidjson::Value& emission = jsonSpotLight["Emission"];
+		json::get_float(emission[0], "diffuseR", diffuseR);
+		json::get_float(emission[0], "diffuseG", diffuseG);
+		json::get_float(emission[0], "diffuseB", diffuseB);
+		json::get_float(emission[0], "strength", strength);
+		json::get_float(emission[0], "innerCutoff", innerCutoff);
+		json::get_float(emission[0], "outerCutoff", outerCutoff);
+
+		m_ShaderCB.position = SceneNode::GetTransformRef().GetPositionRef();
+		m_ShaderCB.direction = SceneNode::GetTransformRef().GetRotationRef();
+		m_ShaderCB.diffuse = XMFLOAT3(diffuseR, diffuseG, diffuseB);
+		m_ShaderCB.innerCutoff = cos(XMConvertToRadians(innerCutoff));
+		m_ShaderCB.outerCutoff = cos(XMConvertToRadians(outerCutoff));
+		m_ShaderCB.strength = strength;
+
+		return true;
 	}
 
 	bool ASpotLight::OnInit()
@@ -91,8 +105,8 @@ namespace Insight {
 		if (m_TempInnerCutoff > m_TempOuterCutoff) {
 			m_TempInnerCutoff = m_TempOuterCutoff;
 		}
-		m_ShaderCB.innerCutOff = cos(XMConvertToRadians(m_TempInnerCutoff));
-		m_ShaderCB.outerCutOff = cos(XMConvertToRadians(m_TempOuterCutoff));
+		m_ShaderCB.innerCutoff = cos(XMConvertToRadians(m_TempInnerCutoff));
+		m_ShaderCB.outerCutoff = cos(XMConvertToRadians(m_TempOuterCutoff));
 	}
 
 }
