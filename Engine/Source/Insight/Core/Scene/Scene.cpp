@@ -40,13 +40,9 @@ namespace Insight {
 		m_pPlayerCharacter = new APlayerCharacter(0, "Player Character");
 		LoadFromJson(FileSystem::Get().GetRelativeAssetDirectoryPath("Scenes/MyScene.json"));
 		{
-			m_pSkyboxActor = new ASkySphere(8, "Sky Sphere Actor");
 
-			m_PostFxActor = new APostFx(9, "Post-Fx Actor");
 		}
 
-		m_pSceneRoot->AddChild(m_pSkyboxActor);
-		m_pSceneRoot->AddChild(m_PostFxActor);
 
 		m_pSceneRoot->AddChild(m_pPlayerCharacter);
 

@@ -17,15 +17,24 @@ namespace Insight {
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
 		m_pCommandList = &graphicsContext.GetCommandList();
 		graphicsContext.AddSkySphere(this);
-
-		CDescriptorHeapWrapper& cbvSrvheap = graphicsContext.GetCBVSRVDescriptorHeap();
-		Texture::eTextureType textureType = Texture::eTextureType::SKY_DIFFUSE;
-		std::wstring pathDirW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/MountainTop_Diff.dds"));
-		m_Diffuse.Init(pathDirW, textureType, cbvSrvheap);
 	}
 
 	ASkySphere::~ASkySphere()
 	{
+	}
+
+	bool ASkySphere::LoadFromJson(const rapidjson::Value& jsonSkySphere)
+	{
+		std::string diffuseMap;
+		const rapidjson::Value& sky = jsonSkySphere["Sky"];
+		json::get_string(sky[0], "Diffuse", diffuseMap);
+
+		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
+		CDescriptorHeapWrapper& cbvSrvheap = graphicsContext.GetCBVSRVDescriptorHeap();
+		std::wstring pathDirW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(diffuseMap));
+		m_Diffuse.Init(pathDirW, Texture::eTextureType::SKY_DIFFUSE, cbvSrvheap);
+
+		return true;
 	}
 
 	bool ASkySphere::OnInit()

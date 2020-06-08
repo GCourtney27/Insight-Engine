@@ -74,12 +74,23 @@ namespace Insight {
 				newActor = new ADirectionalLight(actorSceneIndex, actorDisplayName);
 				newActor->LoadFromJson(jsonActor);
 			}
+			else if (actorType == "SkySphere") {
+				newActor = new ASkySphere(actorSceneIndex, actorDisplayName);
+				newActor->LoadFromJson(jsonActor);
+			}
+			else if (actorType == "PostFxVolume") {
+				newActor = new APostFx(actorSceneIndex, actorDisplayName);
+				newActor->LoadFromJson(jsonActor);
+			}
 
-
-			
+			if (newActor == nullptr) {
+				IE_CORE_ERROR("Failed to parse actor {0} into scene", actorDisplayName);
+				continue;
+			}
 
 
 			scene.GetRootNode()->AddChild(newActor);
+			actorSceneIndex++;
 		}
 
 		return true;
