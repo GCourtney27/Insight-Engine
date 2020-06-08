@@ -27,9 +27,6 @@ namespace Insight {
 		void RenderSceneHeirarchy();
 		void BindResources();
 
-		void PushInstanceWorldMatrix(XMMATRIX& instanceMat) { m_InstanceMatrixStack.push(instanceMat); }
-		InstanceMatrixStack* GetInstanceMatrixStack() { return &m_InstanceMatrixStack; }
-
 		unique_ptr<Mesh>& GetMeshAtIndex(const int& index) { return m_Meshes[index]; }
 		const size_t GetNumChildMeshes() const { return m_Meshes.size(); }
 
@@ -44,10 +41,6 @@ namespace Insight {
 	private:
 		std::vector<unique_ptr<Mesh>> m_Meshes;
 		unique_ptr<MeshNode> m_pRoot;
-		InstanceMatrixStack m_InstanceMatrixStack;
-
-		std::vector<Texture> m_Textures;
-		std::vector<Texture> textures_loaded;
 		
 		Material m_Material;
 

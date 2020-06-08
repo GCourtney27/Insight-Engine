@@ -57,10 +57,10 @@ namespace Insight {
 
 	void Model::PreRender(const XMMATRIX& parentMat)
 	{
-		//auto worldMat = XMMatrixMultiply(parentMat, m_pRoot->GetTransformRef().GetLocalMatrixRef());
+		auto worldMat = XMMatrixMultiply(parentMat, m_pRoot->GetTransformRef().GetLocalMatrixRef());
 		for (unique_ptr<Mesh>& mesh : m_Meshes)
 		{
-			mesh->PreRender(parentMat);
+			mesh->PreRender(worldMat);
 		}
 	}
 

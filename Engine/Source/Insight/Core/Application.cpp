@@ -49,15 +49,10 @@ namespace Insight {
 
 	bool Application::LoadSceneFromJson(const std::string& fileName)
 	{
-		if (!m_Scene.Init()) {
+		if (!m_Scene.Init(fileName)) {
 			IE_CORE_ERROR("Failed to initialize scene");
 			return false;
 		}
-
-		/*if (!m_Scene.LoadFromJson(fileName)) {
-			IE_CORE_ERROR("Failed to initialize scene frmo json");
-			return false;
-		}*/
 		
 		return true;
 	}

@@ -31,20 +31,15 @@ namespace Insight {
 		return true;
 	}
 
-	bool Scene::Init()
+	bool Scene::Init(const std::string fileName)
 	{
-		// TODO: Init from file
 		m_Renderer = Application::Get().GetWindow().GetRenderContext();
 		m_ModelManager.Init();
 
 		m_pPlayerCharacter = new APlayerCharacter(0, "Player Character");
-		LoadFromJson(FileSystem::Get().GetRelativeAssetDirectoryPath("Scenes/MyScene.json"));
-		{
-
-		}
-
-
 		m_pSceneRoot->AddChild(m_pPlayerCharacter);
+
+		LoadFromJson(FileSystem::Get().GetRelativeAssetDirectoryPath(fileName));
 
 		m_Renderer->PostInit();
 		return true;

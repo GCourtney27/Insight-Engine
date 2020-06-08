@@ -25,7 +25,7 @@ namespace Insight {
 		SceneNode* GetRootNode() const { return m_pSceneRoot; }
 		bool LoadFromJson(const std::string& fileName);
 
-		bool Init();
+		bool Init(const std::string fileName);
 		bool PostInit();
 		void BeginPlay();
 		void Tick(const float& deltaMs);

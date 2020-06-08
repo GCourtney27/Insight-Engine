@@ -57,7 +57,6 @@ namespace Insight {
 			json::get_string(jsonActor, "DisplayName", actorDisplayName);
 			json::get_string(jsonActor, "Type", actorType);
 
-			// TODO: Get type and create new actor based on that type. eg point light, player character, postfx actor etc
 			if (actorType == "Actor") {
 				newActor = new AActor(actorSceneIndex, actorDisplayName);
 				newActor->LoadFromJson(jsonActor);
