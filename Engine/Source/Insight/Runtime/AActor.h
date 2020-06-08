@@ -6,8 +6,6 @@
 #include "Insight/Core/Scene/Scene_Node.h"
 #include "Insight/Runtime/Components/Scene_Component.h"
 
-#include <rapidjson/prettywriter.h>
-#include <rapidjson/stringbuffer.h>
 
 namespace Insight {
 
@@ -23,7 +21,7 @@ namespace Insight {
 		AActor(ActorId id, ActorName actorName = "Actor");
 		virtual ~AActor();
 
-		virtual bool LoadFromJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
+		virtual bool LoadFromJson(const rapidjson::Value& jsonActor);
 
 		// Editor
 		virtual void RenderSceneHeirarchy();

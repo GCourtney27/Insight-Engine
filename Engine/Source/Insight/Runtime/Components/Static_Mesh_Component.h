@@ -12,7 +12,9 @@ namespace Insight {
 	public:
 		StaticMeshComponent(StrongActorPtr pOwner);
 		virtual ~StaticMeshComponent();
-		
+
+		virtual bool LoadFromJson(const rapidjson::Value& jsonStaticMeshComponent) override;
+
 		virtual void OnInit() override;
 		virtual void OnPostInit() {}
 		virtual void OnDestroy() override;
@@ -28,7 +30,7 @@ namespace Insight {
 		virtual void OnDetach() override;
 
 	private:
-		
+		Material m_Material;
 	private:
 		StrongModelPtr m_pModel;
 	};

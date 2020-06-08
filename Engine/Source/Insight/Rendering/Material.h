@@ -23,15 +23,21 @@ namespace Insight {
 		Material();
 		~Material();
 		
+		virtual bool LoadFromJson(const rapidjson::Value& jsonMaterial);
+
+
 		void OnImGuiRender();
 		
 		void BindResources();
-		void AddTexture(Texture& texture) { m_Textures.push_back(texture); }
 
 	private:
-		std::vector<Texture> m_Textures;
-		float m_Roughness = 0.5f;
-		float m_Metalness = 0.5f;
+		Texture m_AlbedoMap;
+		Texture m_NormalMap;
+		Texture m_MetallicMap;
+		Texture m_RoughnessMap;
+		Texture m_AOMap;
+		float m_RoughnessOverride = 0.5f;
+		float m_MetalnessOverride = 0.5f;
 		Vector2 uvOffset;
 		Vector2 tiling;
 	};

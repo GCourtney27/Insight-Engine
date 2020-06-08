@@ -2,6 +2,7 @@
 
 #include "Insight/Core/Application.h"
 #include "Insight/Runtime/Components/Actor_Component.h"
+#include "Insight/Runtime/Components/Static_Mesh_Component.h"
 
 #include "AActor.h"
 
@@ -21,8 +22,43 @@ namespace Insight {
 	{
 	}
 
-	bool AActor::LoadFromJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
+	bool AActor::LoadFromJson(const rapidjson::Value& jsonActor)
 	{
+		// Load Transform
+		float posX, posY, posZ;
+		float rotX, rotY, rotZ;
+		float scaX, scaY, scaZ;
+		const rapidjson::Value& transform = jsonActor["Transform"];
+		// Position
+		json::get_float(transform[0], "posX", posX);
+		json::get_float(transform[0], "posY", posY);
+		json::get_float(transform[0], "posZ", posZ);
+		SceneNode::GetTransformRef().SetPosition(Vector3(posX, posY, posZ));
+		// Rotation
+		json::get_float(transform[0], "rotX", rotX);
+		json::get_float(transform[0], "rotY", rotY);
+		json::get_float(transform[0], "rotZ", rotZ);
+		SceneNode::GetTransformRef().SetRotation(Vector3(rotX, rotY, rotZ));
+		// Scale
+		json::get_float(transform[0], "scaX", scaX);
+		json::get_float(transform[0], "scaY", scaY);
+		json::get_float(transform[0], "scaZ", scaZ);
+		SceneNode::GetTransformRef().SetScale(Vector3(scaX, scaY, scaZ));
+
+		// Load Subobjects
+		const rapidjson::Value& jsonSubobjects = jsonActor["Subobjects"];
+
+		for (UINT i = 0; i < jsonSubobjects.Size(); ++i) {
+
+			if (jsonSubobjects[i].HasMember("StaticMesh")) {
+				StrongActorComponentPtr ptr = CreateDefaultSubobject<StaticMeshComponent>();
+				ptr->LoadFromJson(jsonSubobjects[i]["StaticMesh"]);
+				continue;
+			}
+
+
+		}
+
 		return true;
 	}
 

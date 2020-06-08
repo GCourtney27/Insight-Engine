@@ -95,8 +95,6 @@ namespace Insight {
 
 	void D3D12Helper::CreateSwapChain()
 	{
-		HRESULT hr;
-
 		DXGI_MODE_DESC backBufferDesc = {};
 		backBufferDesc.Width = m_WindowWidth;
 		backBufferDesc.Height = m_WindowHeight;

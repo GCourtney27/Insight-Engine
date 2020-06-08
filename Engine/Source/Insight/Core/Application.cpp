@@ -54,10 +54,10 @@ namespace Insight {
 			return false;
 		}
 
-		if (!m_Scene.LoadFromJson(fileName)) {
+		/*if (!m_Scene.LoadFromJson(fileName)) {
 			IE_CORE_ERROR("Failed to initialize scene frmo json");
 			return false;
-		}
+		}*/
 		
 		return true;
 	}

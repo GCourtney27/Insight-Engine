@@ -38,9 +38,9 @@ namespace Insight {
 		m_ModelManager.Init();
 
 		m_pPlayerCharacter = new APlayerCharacter(0, "Player Character");
-
-		/*{
-			m_pTestActor = new AActor(1, "Nanosuit"); // TODO: make the id be its index in the scene
+		LoadFromJson(FileSystem::Get().GetRelativeAssetDirectoryPath("Scenes/MyScene.json"));
+		{
+			/*m_pTestActor = new AActor(1, "Nanosuit"); // TODO: make the id be its index in the scene
 			StrongActorComponentPtr ptr = m_pTestActor->CreateDefaultSubobject<StaticMeshComponent>();
 			reinterpret_cast<StaticMeshComponent*>(ptr.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Models/nanosuit/nanosuit.obj"));
 
@@ -58,12 +58,12 @@ namespace Insight {
 
 			m_pTestPointLight1 = new APointLight(5, "Point Light Actor1");
 			m_pDirectionalLight = new ADirectionalLight(5, "Directional Light Actor");
-			m_pSpotLight = new ASpotLight(7, "Spot Light Actor");
+			m_pSpotLight = new ASpotLight(7, "Spot Light Actor");*/
 
 			m_pSkyboxActor = new ASkySphere(8, "Sky Sphere Actor");
 
 			m_PostFxActor = new APostFx(9, "Post-Fx Actor");
-		}*/
+		}
 
 		/*m_pSceneRoot->AddChild(m_pTestActor);
 		m_pSceneRoot->AddChild(m_pTestActor2);
@@ -71,9 +71,9 @@ namespace Insight {
 		/*m_pSceneRoot->AddChild(m_pTestPointLight);
 		m_pSceneRoot->AddChild(m_pTestPointLight1);
 		m_pSceneRoot->AddChild(m_pSpotLight);
-		m_pSceneRoot->AddChild(m_pDirectionalLight);
+		m_pSceneRoot->AddChild(m_pDirectionalLight);*/
 		m_pSceneRoot->AddChild(m_pSkyboxActor);
-		m_pSceneRoot->AddChild(m_PostFxActor);*/
+		m_pSceneRoot->AddChild(m_PostFxActor);
 		m_pSceneRoot->AddChild(m_pPlayerCharacter);
 
 

@@ -4,14 +4,8 @@
 
 #include "File_System.h"
 
+// TODO make a third part build file with imgui and rapidjson for all cpp files
 #include <rapidjson/json.cpp>
-#include <rapidjson/document.h>
-#include <rapidjson/filewritestream.h>
-#include <rapidjson/istreamwrapper.h>
-#include <rapidjson/writer.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/ostreamwrapper.h>
-#include <rapidjson/prettywriter.h>
 
 namespace Insight {
 
@@ -61,7 +55,12 @@ namespace Insight {
 			std::string actorDisplayName;
 			json::get_string(jsonActor, "DisplayName", actorDisplayName);
 
+			// TODO: Get type and create new actor based on that type. eg point light, player character, postfx actor etc
+
 			newActor = new AActor(actorSceneIndex, actorDisplayName);
+			newActor->LoadFromJson(jsonActor);
+
+
 
 			scene.GetRootNode()->AddChild(newActor);
 		}

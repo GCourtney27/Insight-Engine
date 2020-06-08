@@ -214,12 +214,6 @@ namespace Insight {
 		m_pCommandList->SetGraphicsRootDescriptorTable(4, m_cbvsrvHeap.hGPU(0));
 
 		{
-			m_AlbedoTexture.Bind();
-			m_NormalTexture.Bind();
-			m_RoughnessTexture.Bind();
-			m_MetallicTexture.Bind();
-			m_AOTexture.Bind();
-
 			m_Irradiance.Bind();
 			m_Environment.Bind();
 			m_BRDFLUT.Bind();
@@ -1046,27 +1040,6 @@ namespace Insight {
 
 	void Direct3D12Context::LoadAssets()
 	{
-		// TODO Load these per object
-		// Textures
-		std::wstring texRelPathAlbedoW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedIron/RustedIron_Albedo.png"));
-		Texture::eTextureType texTypeAlbedo = Texture::eTextureType::ALBEDO;
-		m_AlbedoTexture.Init(texRelPathAlbedoW, texTypeAlbedo, m_cbvsrvHeap);
-
-		std::wstring texRelPathNormalW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedIron/RustedIron_Normal.png"));
-		Texture::eTextureType texTypeNormal = Texture::eTextureType::NORMAL;
-		m_NormalTexture.Init(texRelPathNormalW, texTypeNormal, m_cbvsrvHeap);
-
-		std::wstring texRelPathRoughnessW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedIron/RustedIron_Roughness.png"));
-		Texture::eTextureType texTypeSpecular = Texture::eTextureType::ROUGHNESS;
-		m_RoughnessTexture.Init(texRelPathRoughnessW, texTypeSpecular, m_cbvsrvHeap);
-
-		std::wstring texRelPathMetallicW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedIron/RustedIron_Metallic.png"));
-		Texture::eTextureType texTypeMetallic = Texture::eTextureType::METALLIC;
-		m_MetallicTexture.Init(texRelPathMetallicW, texTypeMetallic, m_cbvsrvHeap);
-
-		std::wstring texRelPathAOW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/RustedIron/RustedIron_AO.png"));
-		Texture::eTextureType texTypeAO = Texture::eTextureType::AO;
-		m_AOTexture.Init(texRelPathAOW, texTypeAO, m_cbvsrvHeap);
 
 		// skybox1
 		// skybox2

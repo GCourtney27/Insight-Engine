@@ -3,7 +3,6 @@
 #include <Insight/Core.h>
 
 #include "Scene_Node.h"
-#include "Insight/Systems/File_System.h"
 #include "Insight/Rendering/ASky_Sphere.h"
 #include "Insight/Systems/Model_Manager.h"
 #include "Insight/Rendering/Geometry/Model.h"
@@ -13,9 +12,9 @@
 #include "Insight/Rendering/Lighting/APoint_Light.h"
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
 #include "Insight/Rendering/APost_Fx.h"
+#include "Insight/Systems/File_System.h"
 
 namespace Insight {
-
 
 	class INSIGHT_API Scene
 	{

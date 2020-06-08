@@ -32,7 +32,7 @@ namespace Insight {
 		m_pCommandList = nullptr;*/
 	}
 
-	bool Texture::Init(const std::wstring& filepath, eTextureType& textureType, CDescriptorHeapWrapper& srvHeapHandle)
+	bool Texture::Init(const std::wstring& filepath, eTextureType textureType, CDescriptorHeapWrapper& srvHeapHandle)
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
 		m_pCommandList = &graphicsContext.GetCommandList();
