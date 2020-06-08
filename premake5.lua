@@ -50,6 +50,7 @@ project ("Engine")
 		"%{prj.name}/Source/**.cpp",
 		"%{prj.name}/Source/**.h",
 		"%{prj.name}/Source/**.hlsl",
+		"%{prj.name}/Source/**.hlsli",
 	}
 
 	defines

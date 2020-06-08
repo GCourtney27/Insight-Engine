@@ -121,8 +121,6 @@ namespace Insight {
 		XMFLOAT4X4 inProjFloat;
 		XMStoreFloat4x4(&inProjFloat, XMMatrixInverse(nullptr, playerCamera.GetProjectionMatrix()));
 
-		m_PerFrameData.invView = inViewFloat;
-		m_PerFrameData.invProj = inProjFloat;
 		m_PerFrameData.deltaMs = deltaTime;
 		m_PerFrameData.time = (float)Application::Get().GetFrameTimer().seconds();
 		m_PerFrameData.cameraNearZ = (float)playerCamera.GetNearZ();

@@ -11,8 +11,6 @@ cbuffer cbPerObject : register(b0)
 cbuffer cbPerFrame : register(b1)
 {
     float3 cameraPosition;
-    float4x4 invView;
-    float4x4 invProj;
     float cameraExposure;
     float cameraNearZ;
     float cameraFarZ;
@@ -42,18 +40,6 @@ cbuffer cbPostFx : register(b3)
 	// Film Grain
     float fgStrength;
     int fgEnabled;
-    // SSR
-    float2 depthBufferSize;
-    float zThickness;
-    float stride;
-    float maxSteps;
-    float maxDistance;
-    float strideZCutoff;
-    float fadeStart;
-    float fadeEnd;
-    float3 viewRay;
-    float texelWidth;
-    float texelHeight;
 }
 
 /* Geometry Pass */
