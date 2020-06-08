@@ -85,7 +85,7 @@ namespace Insight {
 	private:
 		void CloseCommandListAndSignalCommandQueue();
 		// Per-Frame
-		void PopulateCommandLists();
+		void SetConstantBuffers();
 		void MoveToNextFrame();
 		void BindGeometryPass(bool setPSO = false);
 		void BindLightingPass();
@@ -136,6 +136,7 @@ namespace Insight {
 		UINT64					m_FenceValues[m_FrameBufferCount] = {};
 		HANDLE					m_FenceEvent = {};
 		ComPtr<ID3D12Fence>		m_pFence;
+		static const unsigned int			m_NumRTV = 5;
 
 		bool		m_WindowResizeComplete = true;
 		bool		m_RayTraceEnabled = false;
@@ -152,9 +153,19 @@ namespace Insight {
 		ComPtr<ID3D12GraphicsCommandList>	m_pCommandList;
 		ComPtr<ID3D12CommandAllocator>		m_pCommandAllocators[m_FrameBufferCount];
 
-		ComPtr<ID3D12Resource>				m_pRenderTargetTextures[m_FrameBufferCount];
+		ComPtr<ID3D12Resource>				m_pRenderTargetTextures[m_NumRTV];
 		ComPtr<ID3D12Resource>				m_pRenderTargetTextures_PostFxPass[m_FrameBufferCount];
 		ComPtr<ID3D12Resource>				m_pRenderTargets[m_FrameBufferCount];
+		
+		// Light Pass
+		// ---------
+		// 0: Albedo
+		// 1: Normal
+		// 2: Roughness/Metallic/AO
+		// 3: Position
+		// Post-Fx Pass
+		// ------------
+		// 4: Light Pass result
 		CDescriptorHeapWrapper				m_rtvHeap;
 		ComPtr<ID3D12DescriptorHeap>		m_RTVDescriptorHeap;
 		UINT								m_RTVDescriptorSize;
@@ -169,23 +180,22 @@ namespace Insight {
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_SkyPass;
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_PostFxPass;
 
-		//Root Param Index - Resource
-		//0: SRV-Albedo(RTV->SRV)
-		//1: SRV-Normal(RTV->SRV)
-		//2: SRV-(R)Roughness/(G)Metallic/(B)AO(RTV->SRV)
-		//3: SRV-Position(RTV->SRV)
-		//4: SRV-Depth(DSV->SRV)
-		//5: SRV-Light Pass Result(RTV->SRV)
+		//0:  SRV-Albedo(RTV->SRV)
+		//1:  SRV-Normal(RTV->SRV)
+		//2:  SRV-(R)Roughness/(G)Metallic/(B)AO(RTV->SRV)
+		//3:  SRV-Position(RTV->SRV)
+		//4:  SRV-Depth(DSV->SRV)
+		//5:  SRV-Light Pass Result(RTV->SRV)
 		//-----PerObject-----
-		//6: SRV-Albedo(SRV)
-		//7: SRV-Normal(SRV)
-		//8: SRV-Roughness(SRV)
-		//9: SRV-Metallic(SRV)
+		//6:  SRV-Albedo(SRV)
+		//7:  SRV-Normal(SRV)
+		//8:  SRV-Roughness(SRV)
+		//9:  SRV-Metallic(SRV)
 		//10: SRV-AO(SRV)
-		//11:SRV-Sky Irradiance(SRV)
-		//12:SRV-Sky Environment(SRV)
-		//13:SRV-Sky BRDF LUT(SRV)
-		//14:SRV-Sky Diffuse(SRV)
+		//11: SRV-Sky Irradiance(SRV)
+		//12: SRV-Sky Environment(SRV)
+		//13: SRV-Sky BRDF LUT(SRV)
+		//14: SRV-Sky Diffuse(SRV)
 		CDescriptorHeapWrapper				m_cbvsrvHeap;
 		
 
@@ -196,7 +206,6 @@ namespace Insight {
 		D3D12_DEPTH_STENCIL_VIEW_DESC		m_dsvDesc = {};
 
 		float								m_ClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-		static const unsigned int			m_NumRTV = 5;
 		DXGI_FORMAT							m_DsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		DXGI_FORMAT							m_RtvFormat[5] = { 
 			DXGI_FORMAT_R11G11B10_FLOAT,	// Albedo buffer
@@ -208,18 +217,18 @@ namespace Insight {
 		float								m_ClearDepth = 1.0f;
 
 
-		ComPtr<ID3D12Resource>	m_LightCBV[m_FrameBufferCount];
-		UINT8*					m_cbvLightBufferGPUAddress[m_FrameBufferCount];
+		ComPtr<ID3D12Resource>	m_LightCBV;
+		UINT8*					m_cbvLightBufferGPUAddress;
 
 		ComPtr<ID3D12Resource>	m_PerObjectCBV[m_FrameBufferCount];
 		UINT8*					m_cbvPerObjectGPUAddress[m_FrameBufferCount];
 
-		ComPtr<ID3D12Resource> m_PerFrameCBV[m_FrameBufferCount];
-		UINT8*				   m_cbvPerFrameGPUAddress[m_FrameBufferCount];
+		ComPtr<ID3D12Resource> m_PerFrameCBV;
+		UINT8*				   m_cbvPerFrameGPUAddress;
 		CB_PS_VS_PerFrame	   m_PerFrameData;
 
-		ComPtr<ID3D12Resource> m_PostFxCBV[m_FrameBufferCount];
-		UINT8*				   m_cbvPostFxGPUAddress[m_FrameBufferCount];
+		ComPtr<ID3D12Resource> m_PostFxCBV;
+		UINT8*				   m_cbvPostFxGPUAddress;
 		CB_PS_VS_PerFrame	   m_PostFxData;
 		int CBPerFrameAlignedSize = (sizeof(CB_PS_VS_PerFrame) + 255) & ~255;
 
