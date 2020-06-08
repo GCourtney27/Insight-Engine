@@ -1001,7 +1001,6 @@ namespace Insight {
 		descPipelineState.SampleMask = UINT_MAX;
 		descPipelineState.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		descPipelineState.NumRenderTargets = 1;
-		//descPipelineState.RTVFormats[0] = m_RtvFormat[4];
 		descPipelineState.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 		descPipelineState.SampleDesc.Count = 1;
 

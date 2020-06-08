@@ -29,7 +29,7 @@ namespace Insight {
 		static_cast<WindowsWindow*>(m_pWindow.get())->SetWindowsSessionProps(hInstance, nCmdShow);
 		if (!static_cast<WindowsWindow*>(m_pWindow.get())->Init(WindowProps()))	
 		{
-			//IE_CORE_FATAL(L"Fatal Error: Failed to initialize window.");
+			IE_CORE_FATAL(L"Fatal Error: Failed to initialize window.");
 			return false;
 		}
 
@@ -75,9 +75,9 @@ namespace Insight {
 			// Geometry Pass
 			m_Scene.OnPreRender();
 
-			/*for (Layer* layer : m_LayerStack) {
+			for (Layer* layer : m_LayerStack) {
 				layer->OnUpdate(deltaTime);
-			}*/
+			}
 			
 
 			m_Scene.OnRender();
@@ -86,14 +86,14 @@ namespace Insight {
 			m_Scene.OnMidFrameRender();
 
 			// Render UI
-			/*{
+			{
 				m_ImGuiLayer->Begin();
 				for (Layer* layer : m_LayerStack) {
 					layer->OnImGuiRender();
 				}
 				m_Scene.OnImGuiRender();
 				m_ImGuiLayer->End();
-			}*/
+			}
 
 			m_Scene.OnPostRender();
 		}
