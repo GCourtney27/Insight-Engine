@@ -27,7 +27,6 @@ namespace Insight {
 
 		float innerCutoff, outerCutoff;
 		float diffuseR, diffuseG, diffuseB, strength;
-		float directionX, directionY, directionZ;
 		const rapidjson::Value& emission = jsonSpotLight["Emission"];
 		json::get_float(emission[0], "diffuseR", diffuseR);
 		json::get_float(emission[0], "diffuseG", diffuseG);

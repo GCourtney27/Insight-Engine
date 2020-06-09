@@ -6,6 +6,8 @@
 #include "Platform/DirectX12/Direct3D12_Context.h"
 #include "Insight/Systems/File_System.h"
 
+#include "imgui.h"
+
 namespace Insight {
 
 
@@ -57,6 +59,21 @@ namespace Insight {
 
 	void Material::OnImGuiRender()
 	{
+		ImGui::Text("Albedo:"); ImGui::SameLine();
+		ImGui::Text(m_AlbedoMap.GetName().c_str());
+
+		ImGui::Text("Normal:"); ImGui::SameLine();
+		ImGui::Text(m_NormalMap.GetName().c_str());
+		
+		ImGui::Text("Roughness:"); ImGui::SameLine();
+		ImGui::Text(m_RoughnessMap.GetName().c_str());
+		
+		ImGui::Text("Metallic:"); ImGui::SameLine();
+		ImGui::Text(m_MetallicMap.GetName().c_str());
+		
+		ImGui::Text("AO:"); ImGui::SameLine();
+		ImGui::Text(m_AOMap.GetName().c_str());
+
 	}
 
 	void Material::BindResources()

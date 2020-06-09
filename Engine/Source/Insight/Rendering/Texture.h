@@ -14,26 +14,18 @@ namespace Insight {
 	public:
 		enum eTextureType
 		{
-			// These values aligned with D3D12 shader registers,
-			// use caution when editing their numerical values
+			// Per Object
 			ALBEDO = 0,
 			NORMAL = 1,
 			ROUGHNESS = 2,
 			METALLIC = 3,
 			AO = 4,
-			// SKysphere
+			// Sky Sphere
 			SKY_IRRADIENCE = 5,
 			SKY_ENVIRONMENT_MAP = 6,
 			SKY_BRDF_LUT = 7,
 			SKY_DIFFUSE = 8,
 		};
-
-#define ALBEDO_DESCRIPTOR_OFFSET eTextureType::ALBEDO
-#define NORMAL_DESCRIPTOR_OFFSET eTextureType::NORMAL
-#define ROUGHNESS_DESCRIPTOR_OFFSET eTextureType::ROUGHNESS
-#define METALLIC_DESCRIPTOR_OFFSET eTextureType::METALLIC
-#define SPECULAR_DESCRIPTOR_OFFSET eTextureType::SPECULAR
-#define AO_DESCRIPTOR_OFFSET eTextureType::AO
 
 	public:
 		Texture(const std::wstring& filepath, eTextureType& textureType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle);
@@ -44,6 +36,9 @@ namespace Insight {
 		bool InitTextureFromFile(const std::wstring& filepath, eTextureType& testureType, CDescriptorHeapWrapper& srvHeapHandle);
 		void Bind();
 
+		inline const UINT32 GetSrvHeapIndex() { return m_GPUHeapIndex; }
+		inline const std::string& GetName() const { return m_Name; }
+		inline const std::wstring& GetFilepath() const { return m_Filepath; }
 		inline const UINT64& GetWidth() const { return m_TextureDesc.Width; }
 		inline const UINT64& GetHeight() const { return m_TextureDesc.Height; }
 		inline const UINT16& GetMipLevels() const { return m_TextureDesc.MipLevels; }

@@ -3,14 +3,9 @@
 #include <Insight/Core.h>
 
 #include "Scene_Node.h"
-#include "Insight/Rendering/ASky_Sphere.h"
 #include "Insight/Systems/Model_Manager.h"
-#include "Insight/Rendering/Geometry/Model.h"
 #include "Insight/Runtime/APlayer_Character.h"
 #include "Insight/Rendering/Rendering_Context.h"
-#include "Insight/Rendering/Lighting/ASpot_Light.h"
-#include "Insight/Rendering/Lighting/APoint_Light.h"
-#include "Insight/Rendering/Lighting/ADirectional_Light.h"
 #include "Insight/Rendering/APost_Fx.h"
 #include "Insight/Systems/File_System.h"
 

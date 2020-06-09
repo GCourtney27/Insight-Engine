@@ -4,8 +4,7 @@
 #include "Static_Mesh_Component.h"
 #include "Insight/Systems/Model_Manager.h"
 #include "Insight/Systems/File_System.h"
-
-#include "imgui.h"
+#include <imgui.h>
 
 namespace Insight {
 
@@ -60,8 +59,9 @@ namespace Insight {
 
 	void StaticMeshComponent::OnImGuiRender()
 	{
+		ImGui::Spacing();
+		ImGui::Text(m_ComponentName);
 		m_pModel->OnImGuiRender();
-
 	}
 
 	void StaticMeshComponent::RenderSceneHeirarchy()

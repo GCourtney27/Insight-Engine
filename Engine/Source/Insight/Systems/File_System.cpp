@@ -3,6 +3,11 @@
 #include "Insight/Core/Scene/Scene.h"
 
 #include "File_System.h"
+#include "Insight/Rendering/ASky_Sphere.h"
+#include "Insight/Rendering/Lighting/ASpot_Light.h"
+#include "Insight/Rendering/Lighting/APoint_Light.h"
+#include "Insight/Rendering/Lighting/ADirectional_Light.h"
+
 
 // TODO make a third part build file with imgui and rapidjson for all cpp files
 #include <rapidjson/json.cpp>

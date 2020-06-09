@@ -36,7 +36,11 @@ namespace Insight {
 
 	void Model::OnImGuiRender()
 	{
+		ImGui::Text("Asset: ");
+		ImGui::SameLine();
+		ImGui::Text(m_FileName.c_str());
 
+		m_Material.OnImGuiRender();
 	}
 
 	void Model::RenderSceneHeirarchy()

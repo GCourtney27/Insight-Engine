@@ -24,6 +24,10 @@ namespace Insight {
 		inline Vector3& GetRotationRef() { m_Transformed = true; return m_Rotation; }
 		inline Vector3& GetScaleRef() { m_Transformed = true; return m_Scale; }
 
+		inline void SetPosition(float x, float y, float z) { m_Position.x = x; m_Position.y = y; m_Position.z = z; TranslateLocalMatrix(); UpdateLocalMatrix(); }
+		inline void SetRotation(float x, float y, float z) { m_Rotation.x = x; m_Rotation.y = y; m_Rotation.z = z; RotateLocalMatrix(); UpdateLocalMatrix(); }
+		inline void SetScale(float x, float y, float z) { m_Scale.x = x; m_Scale.y = y; m_Scale.z = z; ScaleLocalMatrix(); UpdateLocalMatrix(); }
+
 		inline void SetPosition(const Vector3& vector) { m_Position = vector; TranslateLocalMatrix(); UpdateLocalMatrix(); }
 		inline void SetRotation(const Vector3& vector) { m_Rotation = vector; RotateLocalMatrix(); UpdateLocalMatrix(); }
 		inline void SetScale(const Vector3& vector) { m_Scale = vector; ScaleLocalMatrix(); UpdateLocalMatrix(); }
