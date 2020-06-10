@@ -129,6 +129,8 @@ namespace Insight {
 		m_PerFrameData.numPointLights = (int)m_PointLights.size();
 		m_PerFrameData.numDirectionalLights = (int)m_DirectionalLights.size();
 		m_PerFrameData.numSpotLights = (int)m_SpotLights.size();
+		m_PerFrameData.screenSize.x = m_WindowWidth;
+		m_PerFrameData.screenSize.y = m_WindowHeight;
 		memcpy(m_cbvPerFrameGPUAddress, &m_PerFrameData, sizeof(CB_PS_VS_PerFrame));
 
 		// Send Point Lights to GPU
@@ -1004,7 +1006,6 @@ namespace Insight {
 		descPipelineState.SampleDesc.Count = 1;
 
 		hr = m_pLogicalDevice->CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pPipelineStateObject_PostFxPass));
-		DWORD er = GetLastError();
 		ThrowIfFailed(hr, "Failed to create graphics pipeline state for Post-Fx pass.");
 		m_pPipelineStateObject_PostFxPass->SetName(L"PSO PostFx Pass");
 	}

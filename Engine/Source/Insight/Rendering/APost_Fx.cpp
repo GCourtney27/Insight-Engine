@@ -28,8 +28,10 @@ namespace Insight {
 
 		float vnInnerRadius, vnOuterRadius, vnOpacity; bool vnEnabled;
 		float fgStrength; bool fgEnabled;
+		float caIntensity; bool caEnabled;
 
 		const rapidjson::Value& postFx = jsonPostFx["PostFx"];
+
 		const rapidjson::Value& vignette = postFx[0];
 		json::get_float(vignette, "vnInnerRadius", vnInnerRadius);
 		json::get_float(vignette, "vnOuterRadius", vnOuterRadius);
@@ -40,6 +42,10 @@ namespace Insight {
 		json::get_float(filmGrain, "fgStrength", fgStrength);
 		json::get_bool(filmGrain, "fgEnabled", fgEnabled);
 
+		const rapidjson::Value& chromAb = postFx[2];
+		json::get_float(chromAb, "caIntensity", caIntensity);
+		json::get_bool(chromAb, "caEnabled", caEnabled);
+
 		// Vignette
 		m_ShaderCB.innerRadius = vnInnerRadius;
 		m_ShaderCB.outerRadius = vnOuterRadius;
@@ -48,7 +54,9 @@ namespace Insight {
 		// Film Grain
 		m_ShaderCB.fgStrength = fgStrength;
 		m_ShaderCB.fgEnabled = (int)fgEnabled;
-
+		// Chromatic Aberration
+		m_ShaderCB.caEnabled = (int)caEnabled;
+		m_ShaderCB.caIntensity = caIntensity;
 		return true;
 	}
 
@@ -117,6 +125,9 @@ namespace Insight {
 		ImGui::DragFloat("Strength", &m_ShaderCB.fgStrength, 0.1f, 0.0f, 80.0f);
 		ImGui::Spacing();
 
+		ImGui::Text("Chromatic Aberration");
+		ImGui::Checkbox("caEnabled", (bool*)&m_ShaderCB.caEnabled);
+		ImGui::DragFloat("Intensity", &m_ShaderCB.caIntensity, 0.1f, 0.0f, 80.0f);
 	}
 
 }

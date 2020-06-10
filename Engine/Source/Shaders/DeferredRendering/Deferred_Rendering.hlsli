@@ -19,8 +19,11 @@ cbuffer cbPerFrame : register(b1)
     int numPointLights;
     int numDirectionalLights;
     int numSpotLights;
+    float2 screenSize;
     
 	float padding;
+	float padding1;
+	float padding2;
 };
 
 cbuffer cbLights : register(b2)
@@ -40,6 +43,9 @@ cbuffer cbPostFx : register(b3)
 	// Film Grain
     float fgStrength;
     int fgEnabled;
+    // Chromatic Aberration
+    int caEnabled;
+    float caIntensity;
 }
 
 /* Geometry Pass */

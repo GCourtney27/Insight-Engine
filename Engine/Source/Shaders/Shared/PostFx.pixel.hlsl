@@ -18,9 +18,17 @@ SamplerState s_LinearWrapSampler : register(s1);
 // -------------------
 float3 AddFilmGrain(float3 sourceColor, float2 texCoords);
 float3 AddVignette(float3 sourceColor, float2 texCoords);
+float3 AddChromaticAberration(float3 sourceColor, float2 texCoords);
 void GammaCorrect(inout float3 target);
 void HDRToneMap(inout float3 target);
 float LinearizeDepth(float depth);
+
+struct VertexOut
+{
+    float4 posH : SV_POSITION;
+    float3 viewRay : VIEWRAY;
+    float2 tex : TEXCOORD;
+};
 
 struct PS_INPUT_POSTFX
 {
@@ -40,6 +48,10 @@ float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
     {
         result = AddFilmGrain(result, ps_in.texCoords);
     }
+    if (caEnabled)
+    {
+        result = AddChromaticAberration(result, ps_in.texCoords);
+    }
     
     HDRToneMap(result);
     GammaCorrect(result);
@@ -49,6 +61,24 @@ float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
 float mod(float x, float y)
 {
     return (x - y * floor(x / y));
+}
+
+float3 AddChromaticAberration(float3 sourceColor, float2 texCoords)
+{
+    float2 texel = 1.0 / screenSize;
+    float2 coords = (texCoords - 0.5) * 2.0;
+    float coordsDot = dot(coords, coords);
+    
+    float2 precompute = caIntensity * coordsDot * coords;
+    float2 uvR = texCoords - texel.xy * precompute;
+    float2 uvB = texCoords + texel.xy * precompute;
+    
+    // TODO: this effect oferwrites othe effects because it adds the color texture directly. Fix it
+    sourceColor.r = t_LightPassResult.Sample(s_LinearWrapSampler, uvR).r;
+    sourceColor.g = t_LightPassResult.Sample(s_LinearWrapSampler, texCoords).g;
+    sourceColor.b = t_LightPassResult.Sample(s_LinearWrapSampler, uvB).b;
+    
+    return sourceColor;
 }
 
 float3 AddFilmGrain(float3 sourceColor, float2 texCoords)

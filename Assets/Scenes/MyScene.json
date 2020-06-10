@@ -1,0 +1,265 @@
+{
+    "SceneName": "MyScene",
+    "Set": [
+        {
+            "Type": "SkySphere",
+            "DisplayName": "SkySphere",
+            "Transform": [
+                {
+                    "posX": 0.0,
+                    "posY": 0.0,
+                    "posZ": 0.0,
+                    "rotX": 0.0,
+                    "rotY": 0.0,
+                    "rotZ": 0.0,
+                    "scaX": 1.0,
+                    "scaY": 1.0,
+                    "scaZ": 1.0
+                }
+            ],
+            "Sky": [
+                {
+                    "Diffuse": "Textures\\Skyboxes\\MountainTop_Diff.dds"
+                }
+            ],
+            "Subobjects": [
+                {
+                }
+            ]
+        },
+        {
+            "Type": "PostFxVolume",
+            "DisplayName": "PostProcess Actor",
+            "Transform": [
+                {
+                    "posX": 0.0,
+                    "posY": 0.0,
+                    "posZ": 0.0,
+                    "rotX": 0.0,
+                    "rotY": 0.0,
+                    "rotZ": 0.0,
+                    "scaX": 1.0,
+                    "scaY": 1.0,
+                    "scaZ": 1.0
+                }
+            ],
+            "PostFx": [
+                {
+                    "vnInnerRadius": 0.1,
+                    "vnOuterRadius": 1.0,
+                    "vnOpacity": 1.0,
+                    "vnEnabled": true
+                },
+                {
+                    "fgStrength": 16.0,
+                    "fgEnabled": true
+                },
+                {
+                    "caIntensity": 16.0,
+                    "caEnabled": true
+                }
+            ],
+            "Subobjects": [
+                {
+                }
+            ]
+        },
+        {
+            "Type": "Actor",
+            "DisplayName": "Nano Suit",
+            "Transform": [
+                {
+                    "posX": 0.0,
+                    "posY": 0.0,
+                    "posZ": 0.0,
+                    "rotX": 0.0,
+                    "rotY": 0.0,
+                    "rotZ": 0.0,
+                    "scaX": 1.0,
+                    "scaY": 1.0,
+                    "scaZ": 1.0
+                }
+            ],
+            "Subobjects": [
+                {
+                    "StaticMesh": [
+                        {
+                            "Mesh": "Models\\nanosuit\\nanosuit.obj"
+                        },
+                        {
+                            "AlbedoMap": "Textures\\RustedIron\\RustedIron_Albedo.png",
+                            "NormalMap": "Textures\\RustedIron\\RustedIron_Normal.png",
+                            "MetallicMap": "Textures\\RustedIron\\RustedIron_Metallic.png",
+                            "RoughnessMap": "Textures\\RustedIron\\RustedIron_Roughness.png",
+                            "AOMap": "Textures\\RustedIron\\RustedIron_AO.png",
+                            "uvOffset": [
+                                {
+                                    "x": 0.0,
+                                    "y": 0.0
+                                }
+                            ],
+                            "Tiling": [
+                                {
+                                    "x": 1.0,
+                                    "y": 1.0
+                                }
+                            ],
+                            "Color_Override": [
+                                {
+                                    "r": 1.0,
+                                    "g": 1.0,
+                                    "b": 1.0
+                                }
+                            ],
+                            "Metallic_Override": 0.0,
+                            "Roughness_Override": 0.0
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Type": "Actor",
+            "DisplayName": "Floor",
+            "Transform": [
+                {
+                    "posX": 0.0,
+                    "posY": 0.0,
+                    "posZ": 0.0,
+                    "rotX": 0.0,
+                    "rotY": 0.0,
+                    "rotZ": 0.0,
+                    "scaX": 23.0,
+                    "scaY": 23.0,
+                    "scaZ": 23.0
+                }
+            ],
+            "Subobjects": [
+                {
+                    "StaticMesh": [
+                        {
+                            "Mesh": "Models\\Quad.obj"
+                        },
+                        {
+                            "AlbedoMap": "Textures\\HardwoodBrownPlanks\\HardwoodBrownPlanks_Albedo.png",
+                            "NormalMap": "Textures\\HardwoodBrownPlanks\\HardwoodBrownPlanks_Normal.png",
+                            "MetallicMap": "Textures\\HardwoodBrownPlanks\\HardwoodBrownPlanks_Metallic.png",
+                            "RoughnessMap": "Textures\\HardwoodBrownPlanks\\HardwoodBrownPlanks_Roughness.png",
+                            "AOMap": "Textures\\HardwoodBrownPlanks\\HardwoodBrownPlanks_AO.png",
+                            "uvOffset": [
+                                {
+                                    "x": 0.0,
+                                    "y": 0.0
+                                }
+                            ],
+                            "Tiling": [
+                                {
+                                    "x": 1.0,
+                                    "y": 1.0
+                                }
+                            ],
+                            "Color_Override": [
+                                {
+                                    "r": 1.0,
+                                    "g": 1.0,
+                                    "b": 1.0
+                                }
+                            ],
+                            "Metallic_Override": 0.0,
+                            "Roughness_Override": 0.0
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Type": "PointLight",
+            "DisplayName": "PointLight",
+            "Transform": [
+                {
+                    "posX": 0.0,
+                    "posY": 0.0,
+                    "posZ": 0.0,
+                    "rotX": 0.0,
+                    "rotY": 0.0,
+                    "rotZ": 0.0,
+                    "scaX": 1.0,
+                    "scaY": 1.0,
+                    "scaZ": 1.0
+                }
+            ],
+            "Emission":[
+                {
+                    "diffuseR": 1.0,
+                    "diffuseG": 1.0,
+                    "diffuseB": 1.0,
+                    "strength": 1.0
+                }
+            ],
+            "Subobjects": [
+                {
+                }
+            ]
+        },
+        {
+            "Type": "SpotLight",
+            "DisplayName": "SpotLight",
+            "Transform": [
+                {
+                    "posX": 0.0,
+                    "posY": 48.0,
+                    "posZ": 0.0,
+                    "rotX": 0.0,
+                    "rotY": -1.0,
+                    "rotZ": 0.0,
+                    "scaX": 1.0,
+                    "scaY": 1.0,
+                    "scaZ": 1.0
+                }
+            ],
+            "Emission":[
+                {
+                    "diffuseR": 1.0,
+                    "diffuseG": 1.0,
+                    "diffuseB": 1.0,
+                    "strength": 1.0,
+                    "innerCutoff": 12.0,
+                    "outerCutoff": 15.0
+                }
+            ],
+            "Subobjects": [
+                {
+                }
+            ]
+        },
+        {
+            "Type": "DirectionalLight",
+            "DisplayName": "DirectionalLight",
+            "Transform": [
+                {
+                    "posX": -0.2,
+                    "posY": -1.0,
+                    "posZ": -0.3,
+                    "rotX": 0.0,
+                    "rotY": 0.0,
+                    "rotZ": 0.0,
+                    "scaX": 1.0,
+                    "scaY": 1.0,
+                    "scaZ": 1.0
+                }
+            ],
+            "Emission":[
+                {
+                    "diffuseR": 1.0,
+                    "diffuseG": 1.0,
+                    "diffuseB": 1.0,
+                    "strength": 1.0
+                }
+            ],
+            "Subobjects": [
+                {
+                }
+            ]
+        }
+    ]
+}

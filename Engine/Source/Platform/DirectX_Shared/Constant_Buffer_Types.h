@@ -11,15 +11,19 @@ struct CB_VS_PerObject
 struct CB_PS_VS_PerFrame
 {
 	DirectX::XMFLOAT3 cameraPosition;
-	float cameraExposure;
+	float cameraExposure;//4
 	float cameraNearZ;
 	float cameraFarZ;
 	float deltaMs;
-	float time;
+	float time;//4
 	int numPointLights;
 	int numDirectionalLights;
 	int numSpotLights;
+	DirectX::XMFLOAT2 screenSize;//4
+
 	float padding;
+	float padding1;
+	float padding2;
 };
 
 struct CB_PS_PointLight
@@ -62,4 +66,8 @@ struct CB_PS_PostFx
 	// Film Grain
 	float fgStrength;
 	int fgEnabled;
+
+	// Chromatic Aberration
+	int caEnabled;
+	float caIntensity;
 };
