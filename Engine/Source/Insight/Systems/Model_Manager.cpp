@@ -24,8 +24,10 @@ namespace Insight {
 	bool ModelManager::Init()
 	{
 		m_ConstantBufferUploadHeaps = &Direct3D12Context::Get().GetConstantBufferPerObjectUploadHeap();
+		m_ConstantBufferMaterialUploadHeaps = &Direct3D12Context::Get().GetConstantBufferPerObjectMaterialUploadHeap();
 		m_pCommandList = &Direct3D12Context::Get().GetCommandList();
-		if (!(m_pCommandList && m_ConstantBufferUploadHeaps))
+
+		if (!(m_pCommandList && m_ConstantBufferUploadHeaps && m_ConstantBufferMaterialUploadHeaps))
 		{
 			IE_CORE_ERROR("Failed to initialize resources for model manager.");
 			return false;
@@ -37,14 +39,19 @@ namespace Insight {
 	void ModelManager::Render()
 	{
 		D3D12_GPU_VIRTUAL_ADDRESS cbvHandle(m_ConstantBufferUploadHeaps->GetGPUVirtualAddress());
-		for (unsigned int i = 0; i < m_Models.size(); ++i)
-		{
-			for (unsigned int j = 0; j < m_Models[i]->GetNumChildMeshes(); j++)
-			{
-				m_pCommandList->SetGraphicsRootConstantBufferView(0, cbvHandle + (ConstantBufferPerObjectAlignedSize * m_ConstantBufferOffset++));
+		D3D12_GPU_VIRTUAL_ADDRESS cbvMaterialHandle(m_ConstantBufferMaterialUploadHeaps->GetGPUVirtualAddress());
+
+		for (unsigned int i = 0; i < m_Models.size(); ++i) {
+
+			for (unsigned int j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
+
+				m_pCommandList->SetGraphicsRootConstantBufferView(0, cbvHandle + (ConstantBufferPerObjectAlignedSize * m_ConstantBufferOffset));
+				m_pCommandList->SetGraphicsRootConstantBufferView(4, cbvMaterialHandle + (ConstantBufferPerObjectMaterialAlignedSize * m_ConstantBufferOffset));
 
 				m_Models[i]->BindResources();
 				m_Models[i]->GetMeshAtIndex(j)->Render();
+
+				m_ConstantBufferOffset++;
 			}
 		}
 
@@ -53,8 +60,9 @@ namespace Insight {
 	// Update the Constant buffers in the gpu with the new data for each model. Does not draw models
 	void ModelManager::UploadVertexDataToGPU()
 	{
-		UINT8* cbvGPUAddress = &Direct3D12Context::Get().GetConstantBufferViewGPUHeapAddress();
-		UINT32 gpuAdressOffset = 0;
+		UINT8* cbvGPUAddress = &Direct3D12Context::Get().GetPerObjectCBVGPUHeapAddress();
+		UINT8* cbvMaterialGPUAddress = &Direct3D12Context::Get().GetPerObjectMaterialAdditiveCBVGPUHeapAddress();
+		UINT32 gpuAddressOffset = 0;
 
 		ACamera& camera = APlayerCharacter::Get().GetCameraRef();
 		XMMATRIX viewMatTransposed = XMMatrixTranspose(camera.GetViewMatrix());
@@ -64,15 +72,19 @@ namespace Insight {
 		XMFLOAT4X4 projectionFloat;
 		XMStoreFloat4x4(&projectionFloat, projectionMatTransposed);
 
-		for (unsigned int i = 0; i < m_Models.size(); i++)
-		{
+		for (unsigned int i = 0; i < m_Models.size(); i++) {
 
-			for (unsigned int j = 0; j < m_Models[i]->GetNumChildMeshes(); j++)
-			{
+			for (unsigned int j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
+
+				CB_PS_VS_PerObjectAdditives cbMatOverrides = m_Models[i]->GetMaterialRef().GetMaterialOverrideConstantBuffer();
+				memcpy(cbvMaterialGPUAddress + (ConstantBufferPerObjectMaterialAlignedSize * gpuAddressOffset), &cbMatOverrides, sizeof(cbMatOverrides));
+
 				CB_VS_PerObject cbPerObject = m_Models[i]->GetMeshAtIndex(j)->GetConstantBuffer();
 				cbPerObject.view = viewFloat;
 				cbPerObject.projection = projectionFloat;
-				memcpy(cbvGPUAddress + (ConstantBufferPerObjectAlignedSize * gpuAdressOffset++), &cbPerObject, sizeof(cbPerObject));
+				memcpy(cbvGPUAddress + (ConstantBufferPerObjectAlignedSize * gpuAddressOffset), &cbPerObject, sizeof(cbPerObject));
+
+				gpuAddressOffset++;
 			}
 
 		}
@@ -89,7 +101,7 @@ namespace Insight {
 		{
 			model->Destroy();
 			model.reset();
-			
+
 		}
 		m_Models.clear();*/
 	}

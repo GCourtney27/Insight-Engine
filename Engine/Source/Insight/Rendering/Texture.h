@@ -26,10 +26,11 @@ namespace Insight {
 			SKY_BRDF_LUT = 7,
 			SKY_DIFFUSE = 8,
 		};
-
+		typedef UINT TextureHandle;
 	public:
 		Texture(const std::wstring& filepath, eTextureType& textureType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle);
 		Texture();
+		//Texture(Texture&& texture) noexcept;
 		~Texture();
 	
 		bool Init(const std::wstring& filepath, eTextureType testureType, CDescriptorHeapWrapper& srvHeapHandle);
@@ -56,11 +57,11 @@ namespace Insight {
 	private:
 		ID3D12GraphicsCommandList*	m_pCommandList = nullptr;
 
-		ComPtr<ID3D12Resource>		m_pTexture;
-		ComPtr<ID3D12Resource>		m_pTextureUploadHeap;
+		ID3D12Resource*				m_pTexture;
+		ID3D12Resource*				m_pTextureUploadHeap;
 		D3D12_RESOURCE_DESC			m_TextureDesc = {};
 		eTextureType				m_TextureType;
-		UINT32						m_GPUHeapIndex = 0u;
+		TextureHandle				m_GPUHeapIndex = 0u;
 
 		static UINT32 s_NumSceneTextures;
 

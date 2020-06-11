@@ -35,8 +35,11 @@ namespace Insight {
 		SceneModels m_Models;  
 
 		ID3D12Resource* m_ConstantBufferUploadHeaps = nullptr;
+		ID3D12Resource* m_ConstantBufferMaterialUploadHeaps = nullptr;
 		ID3D12GraphicsCommandList* m_pCommandList = nullptr;
+
 		int ConstantBufferPerObjectAlignedSize = (sizeof(CB_VS_PerObject) + 255) & ~255;
+		int ConstantBufferPerObjectMaterialAlignedSize = (sizeof(CB_PS_VS_PerObjectAdditives) + 255) & ~255;
 		UINT32 m_ConstantBufferOffset = 0;
 
 	private:

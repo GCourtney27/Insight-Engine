@@ -22,6 +22,27 @@ namespace Insight {
 		m_Scale = t.m_Scale;
 	}
 
+	Transform::Transform(Transform&& transform) noexcept
+	{
+		m_LocalMatrix = transform.m_LocalMatrix;
+		m_WorldMatrix = transform.m_WorldMatrix;
+
+		m_TranslationMat = transform.m_TranslationMat;
+		m_RotationMat = transform.m_RotationMat;
+		m_ScaleMat = transform.m_ScaleMat;
+
+		m_Position = transform.m_Position;
+		m_Rotation = transform.m_Rotation;
+		m_Scale = transform.m_Scale;
+
+		m_LocalForward = transform.m_LocalForward;
+		m_LocalBackward = transform.m_LocalBackward;
+		m_LocalLeft = transform.m_LocalLeft;
+		m_LocalRight = transform.m_LocalRight;
+		m_LocalUp = transform.m_LocalUp;
+		m_LocalDown = transform.m_LocalDown;
+	}
+
 	Transform& Transform::operator=(const Transform& transform)
 	{
 		// Vectors

@@ -41,7 +41,7 @@ namespace Insight {
 	{
 		rapidjson::Document rawFile;
 		if (!json::load(fileName.c_str(), rawFile)) {
-			IE_CORE_ERROR("Failed to load scene: \"{0}\" from file.");
+			IE_CORE_ERROR("Failed to load scene: \"{0}\" from file.", fileName);
 			return false;
 		}
 

@@ -8,6 +8,20 @@ struct CB_VS_PerObject
 	DirectX::XMFLOAT4X4 projection;
 };
 
+struct CB_PS_VS_PerObjectAdditives
+{
+	float roughnessAdditive;
+	float metallicAdditive;
+	DirectX::XMFLOAT2 uvOffset;
+
+	DirectX::XMFLOAT2 tiling;
+	float padding1;
+	float padding2;
+	
+	DirectX::XMFLOAT3 diffuseAdditive;
+	float padding3;
+};
+
 struct CB_PS_VS_PerFrame
 {
 	DirectX::XMFLOAT3 cameraPosition;

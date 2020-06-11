@@ -61,12 +61,13 @@ namespace Insight {
 		inline CDescriptorHeapWrapper& GetCBVSRVDescriptorHeap() { return m_cbvsrvHeap; }
 
 		inline ID3D12Resource& GetConstantBufferPerObjectUploadHeap() const { return *m_PerObjectCBV[m_FrameIndex].Get(); }
-		inline UINT8& GetConstantBufferViewGPUHeapAddress() { return *m_cbvPerObjectGPUAddress[m_FrameIndex]; }
+		inline UINT8& GetPerObjectCBVGPUHeapAddress() { return *m_cbvPerObjectGPUAddress[m_FrameIndex]; }
+
+		inline ID3D12Resource& GetConstantBufferPerObjectMaterialUploadHeap() const { return *m_PerObjectMaterialAdditivesCBV[m_FrameIndex].Get(); }
+		inline UINT8& GetPerObjectMaterialAdditiveCBVGPUHeapAddress() { return *m_cbvPerObjectMaterialOverridesGPUAddress[m_FrameIndex]; }
 
 		ID3D12Resource* GetRenderTarget() const { return m_pRenderTargets[m_FrameIndex].Get(); }
-
 		const unsigned int GetNumRTVs() const { return m_NumRTV; }
-
 		inline D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE handle;
@@ -222,6 +223,9 @@ namespace Insight {
 
 		ComPtr<ID3D12Resource>	m_PerObjectCBV[m_FrameBufferCount];
 		UINT8*					m_cbvPerObjectGPUAddress[m_FrameBufferCount];
+
+		ComPtr<ID3D12Resource>	m_PerObjectMaterialAdditivesCBV[m_FrameBufferCount];
+		UINT8* m_cbvPerObjectMaterialOverridesGPUAddress[m_FrameBufferCount];
 
 		ComPtr<ID3D12Resource> m_PerFrameCBV;
 		UINT8*				   m_cbvPerFrameGPUAddress;

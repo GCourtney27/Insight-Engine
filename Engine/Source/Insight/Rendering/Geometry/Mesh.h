@@ -18,6 +18,7 @@ namespace Insight {
 	public:
 		Mesh(Verticies verticies, Indices indices, Material material);
 		Mesh() {}
+		Mesh(Mesh&& mesh) noexcept;
 		~Mesh();
 
 		void Init(Verticies verticies, Indices indices);

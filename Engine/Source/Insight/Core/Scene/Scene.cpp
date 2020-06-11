@@ -38,7 +38,7 @@ namespace Insight {
 		m_pPlayerCharacter = new APlayerCharacter(0, "Player Character");
 		m_pSceneRoot->AddChild(m_pPlayerCharacter);
 
-		LoadFromJson(FileSystem::Get().GetRelativeAssetDirectoryPath(fileName));
+		LoadFromJson(fileName);
 
 		m_Renderer->PostInit();
 		return true;

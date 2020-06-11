@@ -13,6 +13,7 @@ namespace Insight {
 		Transform();
 		~Transform();
 		Transform(const Transform& transform);
+		Transform(Transform&& transform) noexcept;
 
 		Transform& operator = (const Transform& transform);
 		

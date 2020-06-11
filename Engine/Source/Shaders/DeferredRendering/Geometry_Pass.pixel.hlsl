@@ -41,9 +41,9 @@ PS_OUTPUT_GEOMPASS main(PS_INPUT_GEOMPASS ps_in)
     
     ps_out.normal = float4(normal, 1.0);
     ps_out.position = float4(ps_in.fragPos, 1.0);
-    ps_out.albedo = t_AlbedoObject.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
-    ps_out.roughnessMetallicAO.b = t_AOObject.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
-    ps_out.roughnessMetallicAO.r = t_RougnessObject.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
+    ps_out.albedo = t_AlbedoObject.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb + diffuseAdditive;
+    ps_out.roughnessMetallicAO.b = t_AOObject.Sample(s_LinearWrapSampler, ps_in.texCoords).r + roughnessAdditive;
+    ps_out.roughnessMetallicAO.r = t_RougnessObject.Sample(s_LinearWrapSampler, ps_in.texCoords).r + metallicAdditive;
     ps_out.roughnessMetallicAO.g = t_MetallicObject.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
 	
     return ps_out;

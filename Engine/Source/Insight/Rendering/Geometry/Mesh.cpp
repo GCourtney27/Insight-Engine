@@ -16,6 +16,46 @@ namespace Insight {
 		InitializeLocalVariables();
 	}
 
+	Mesh::Mesh(Mesh&& mesh) noexcept
+	{
+		IE_CORE_INFO("Mesh moved in memory");
+
+		m_pVertexBufferUploadHeap = mesh.m_pVertexBufferUploadHeap;
+		m_pVertexBuffer = mesh.m_pVertexBuffer;
+		m_VertexBufferView = mesh.m_VertexBufferView;
+
+		m_pIndexBufferUploadHeap = mesh.m_pIndexBufferUploadHeap;
+		m_pIndexBuffer = mesh.m_pIndexBuffer;
+		m_IndexBufferView = mesh.m_IndexBufferView;
+
+		m_NumIndices = mesh.m_NumVerticies;
+		m_NumIndices = mesh.m_NumIndices;
+		m_VBufferSize = mesh.m_VBufferSize;
+		m_IBufferSize = mesh.m_IBufferSize;
+
+		m_Verticies = std::move(mesh.m_Verticies);
+		m_Indices = std::move(mesh.m_Indices);
+		
+		m_Transform = mesh.m_Transform;
+		//m_Material = mesh.m_Material;
+		m_ConstantBufferPerObject = mesh.m_ConstantBufferPerObject;
+
+		mesh.m_pVertexBufferUploadHeap = nullptr;
+		mesh.m_pVertexBuffer = nullptr;
+		mesh.m_VertexBufferView = {};
+
+		mesh.m_pIndexBufferUploadHeap = nullptr;
+		mesh.m_pIndexBuffer = nullptr;
+		mesh.m_IndexBufferView = {};
+
+		mesh.m_NumIndices = 0;
+		mesh.m_NumIndices = 0;
+		mesh.m_VBufferSize = 0;
+		mesh.m_IBufferSize = 0;
+
+		mesh.m_ConstantBufferPerObject = {};
+	}
+
 	Mesh::~Mesh()
 	{
 		Destroy();
@@ -23,10 +63,13 @@ namespace Insight {
 
 	void Mesh::Destroy()
 	{
-		COM_SAFE_RELEASE(m_pVertexBuffer);
 		COM_SAFE_RELEASE(m_pIndexBuffer);
+		COM_SAFE_RELEASE(m_pVertexBuffer);
 		COM_SAFE_RELEASE(m_pVertexBufferUploadHeap);
 		COM_SAFE_RELEASE(m_pIndexBufferUploadHeap);
+
+		m_pCommandList = nullptr;
+		m_pLogicalDevice = nullptr;
 	}
 
 	void Mesh::Init(Verticies verticies, Indices indices)

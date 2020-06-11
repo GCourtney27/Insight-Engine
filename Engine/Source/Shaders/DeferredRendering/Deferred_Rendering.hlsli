@@ -48,6 +48,20 @@ cbuffer cbPostFx : register(b3)
     float caIntensity;
 }
 
+cbuffer PerObjectAdditive : register(b4)
+{
+    float roughnessAdditive;
+    float metallicAdditive;
+    float2 uvOffset;
+    
+    float2 tiling;
+    float padding3;
+    float padding4;
+    
+    float3 diffuseAdditive;
+    float padding5;
+};
+
 /* Geometry Pass */
 struct VS_INPUT_GEOMPASS
 {

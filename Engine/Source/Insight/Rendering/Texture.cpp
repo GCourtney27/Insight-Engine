@@ -20,6 +20,25 @@ namespace Insight {
 		
 	}
 
+	/*Texture::Texture(Texture&& texture) noexcept
+	{
+		m_pTexture = texture.m_pTexture;
+		m_pTextureUploadHeap = texture.m_pTextureUploadHeap;
+		m_TextureDesc = texture.m_TextureDesc;
+		m_TextureType = texture.m_TextureType;
+		m_GPUHeapIndex = texture.m_GPUHeapIndex;
+		m_Name = std::move(m_Name);
+		m_Filepath = std::move(m_Filepath);
+
+		texture.m_pTexture = nullptr;
+		texture.m_pTextureUploadHeap = nullptr;
+
+		texture.m_TextureDesc = {};
+		texture.m_GPUHeapIndex = 0u;
+
+		m_pCommandList = nullptr;
+	}*/
+
 	Texture::~Texture()
 	{
 		Destroy();
@@ -27,8 +46,8 @@ namespace Insight {
 
 	void Texture::Destroy()
 	{
-		/*m_pTextureBuffer->Release();
-		m_pTextureBufferUploadHeap->Release();
+		/*COM_SAFE_RELEASE(m_pTexture);
+		COM_SAFE_RELEASE(m_pTextureUploadHeap);
 		m_pCommandList = nullptr;*/
 	}
 
@@ -108,16 +127,16 @@ namespace Insight {
 		textureData.RowPitch = imageBytesPerRow;
 		textureData.SlicePitch = static_cast<UINT>(imageBytesPerRow) * m_TextureDesc.Height;
 
-		UpdateSubresources(m_pCommandList, m_pTexture.Get(), m_pTextureUploadHeap.Get(), 0, 0, 1, &textureData);
+		UpdateSubresources(m_pCommandList, m_pTexture, m_pTextureUploadHeap, 0, 0, 1, &textureData);
 
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pTexture.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pTexture, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Texture2D.MipLevels = 1;
 		srvDesc.Format = m_TextureDesc.Format;
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		pDevice->CreateShaderResourceView(m_pTexture.Get(), &srvDesc, srvHeapHandle.hCPU(6 + s_NumSceneTextures));
+		pDevice->CreateShaderResourceView(m_pTexture, &srvDesc, srvHeapHandle.hCPU(6 + s_NumSceneTextures));
 		
 		m_GPUHeapIndex = s_NumSceneTextures;
 		s_NumSceneTextures++;
@@ -134,9 +153,9 @@ namespace Insight {
 
 		std::unique_ptr<uint8_t[]> ddsData;
 		std::vector<D3D12_SUBRESOURCE_DATA> subresources;
-		hr = LoadDDSTextureFromFile(pDevice, filepath.c_str(), m_pTexture.ReleaseAndGetAddressOf(), ddsData, subresources);
+		hr = LoadDDSTextureFromFile(pDevice, filepath.c_str(), &m_pTexture, ddsData, subresources);
 		ThrowIfFailed(hr, "Failed to load DDS texture from file");
-		const UINT64 uploadBufferSize = GetRequiredIntermediateSize(m_pTexture.Get(), 0, static_cast<UINT>(subresources.size()));
+		const UINT64 uploadBufferSize = GetRequiredIntermediateSize(m_pTexture, 0, static_cast<UINT>(subresources.size()));
 
 		CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_UPLOAD);
 		auto desc = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
@@ -150,9 +169,9 @@ namespace Insight {
 			IID_PPV_ARGS(&m_pTextureUploadHeap)
 		);
 		ThrowIfFailed(hr, "Failed to create committed resource for texture buffer upload heap");
-		UpdateSubresources(m_pCommandList, m_pTexture.Get(), m_pTextureUploadHeap.Get(), 0, 0, static_cast<UINT>(subresources.size()), subresources.data());
+		UpdateSubresources(m_pCommandList, m_pTexture, m_pTextureUploadHeap, 0, 0, static_cast<UINT>(subresources.size()), subresources.data());
 
-		auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_pTexture.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_pTexture, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 		m_pCommandList->ResourceBarrier(1, &barrier);
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -162,14 +181,9 @@ namespace Insight {
 		srvDesc.ViewDimension = (m_TextureType >= eTextureType::SKY_IRRADIENCE) ? D3D12_SRV_DIMENSION_TEXTURECUBE : D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
-		pDevice->CreateShaderResourceView(m_pTexture.Get(), &srvDesc, srvHeapHandle.hCPU(6 + s_NumSceneTextures));
+		pDevice->CreateShaderResourceView(m_pTexture, &srvDesc, srvHeapHandle.hCPU(6 + s_NumSceneTextures));
 		m_GPUHeapIndex = s_NumSceneTextures;
 		s_NumSceneTextures++;
-
-		//hr = m_pCommandList->Close();
-		//ThrowIfFailed(hr, "Failed to close command list while loading dds texture.");
-		//ID3D12CommandList* ppCommandLists[] = { m_pCommandList };
-		//graphicsContext.GetCommandQueue().ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 	}
 
 	void Texture::Bind()
@@ -181,47 +195,47 @@ namespace Insight {
 		switch (m_TextureType) {
 		case eTextureType::ALBEDO:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(5, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
+			m_pCommandList->SetGraphicsRootDescriptorTable(6, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
 			break;
 		}
 		case eTextureType::NORMAL:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(6, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
+			m_pCommandList->SetGraphicsRootDescriptorTable(7, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
 			break;
 		}
 		case eTextureType::ROUGHNESS:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(7, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
+			m_pCommandList->SetGraphicsRootDescriptorTable(8, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
 			break;
 		}
 		case eTextureType::METALLIC:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(8, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
+			m_pCommandList->SetGraphicsRootDescriptorTable(9, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
 			break;
 		}
 		case eTextureType::AO:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(9, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
+			m_pCommandList->SetGraphicsRootDescriptorTable(10, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
 			break;
 		}
 		case eTextureType::SKY_IRRADIENCE:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(10, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
+			m_pCommandList->SetGraphicsRootDescriptorTable(11, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
 			break;
 		}
 		case eTextureType::SKY_ENVIRONMENT_MAP:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(11, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
+			m_pCommandList->SetGraphicsRootDescriptorTable(12, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
 			break;
 		}
 		case eTextureType::SKY_BRDF_LUT:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(12, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
+			m_pCommandList->SetGraphicsRootDescriptorTable(13, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
 			break;
 		}
 		case eTextureType::SKY_DIFFUSE:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(13, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
+			m_pCommandList->SetGraphicsRootDescriptorTable(14, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
 			break;
 		}
 		default:

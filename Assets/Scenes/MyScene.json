@@ -56,7 +56,7 @@
                 },
                 {
                     "caIntensity": 16.0,
-                    "caEnabled": true
+                    "caEnabled": false
                 }
             ],
             "Subobjects": [
@@ -106,9 +106,9 @@
                             ],
                             "Color_Override": [
                                 {
-                                    "r": 1.0,
-                                    "g": 1.0,
-                                    "b": 1.0
+                                    "r": 0.0,
+                                    "g": 0.0,
+                                    "b": 0.0
                                 }
                             ],
                             "Metallic_Override": 0.0,
@@ -124,14 +124,14 @@
             "Transform": [
                 {
                     "posX": 0.0,
-                    "posY": 0.0,
+                    "posY": -0.5,
                     "posZ": 0.0,
                     "rotX": 0.0,
                     "rotY": 0.0,
                     "rotZ": 0.0,
-                    "scaX": 23.0,
-                    "scaY": 23.0,
-                    "scaZ": 23.0
+                    "scaX": 83.0,
+                    "scaY": 83.0,
+                    "scaZ": 83.0
                 }
             ],
             "Subobjects": [
@@ -154,15 +154,177 @@
                             ],
                             "Tiling": [
                                 {
+                                    "x": 4.0,
+                                    "y": 4.0
+                                }
+                            ],
+                            "Color_Override": [
+                                {
+                                    "r": 0.0,
+                                    "g": 0.0,
+                                    "b": 0.0
+                                }
+                            ],
+                            "Metallic_Override": 0.0,
+                            "Roughness_Override": 0.0
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Type": "Actor",
+            "DisplayName": "Tiger",
+            "Transform": [
+                {
+                    "posX": -30.0,
+                    "posY": 0.0,
+                    "posZ": 0.0,
+                    "rotX": 0.0,
+                    "rotY": 0.0,
+                    "rotZ": 0.0,
+                    "scaX": 0.01,
+                    "scaY": 0.01,
+                    "scaZ": 0.01
+                }
+            ],
+            "Subobjects": [
+                {
+                    "StaticMesh": [
+                        {
+                            "Mesh": "Objects\\Tiger\\Tiger_NoTracks.obj"
+                        },
+                        {
+                            "AlbedoMap": "Objects\\Tiger\\Tank_Body_Forest.BMP",
+                            "NormalMap": "Objects\\Tiger\\Tank_Normal.bmp",
+                            "MetallicMap": "Objects\\Tiger\\Tank_Metallic.bmp",
+                            "RoughnessMap": "Objects\\Tiger\\Tank_Metallic.bmp",
+                            "AOMap": "Objects\\Tiger\\Tank_AO.bmp",
+                            "uvOffset": [
+                                {
+                                    "x": 0.0,
+                                    "y": 0.0
+                                }
+                            ],
+                            "Tiling": [
+                                {
                                     "x": 1.0,
                                     "y": 1.0
                                 }
                             ],
                             "Color_Override": [
                                 {
-                                    "r": 1.0,
-                                    "g": 1.0,
-                                    "b": 1.0
+                                    "r": 0.0,
+                                    "g": 0.0,
+                                    "b": 0.0
+                                }
+                            ],
+                            "Metallic_Override": 0.0,
+                            "Roughness_Override": 0.0
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Type": "Actor",
+            "DisplayName": "Tiger Track Left",
+            "Transform": [
+                {
+                    "posX": -30.0,
+                    "posY": 0.0,
+                    "posZ": -8.695,
+                    "rotX": 0.0,
+                    "rotY": 0.0,
+                    "rotZ": 0.0,
+                    "scaX": 0.01,
+                    "scaY": 0.01,
+                    "scaZ": 0.01
+                }
+            ],
+            "Subobjects": [
+                {
+                    "StaticMesh": [
+                        {
+                            "Mesh": "Objects\\Tiger\\Tracks_Left.obj"
+                        },
+                        {
+                            "AlbedoMap": "Objects\\Tiger\\Track.BMP",
+                            "NormalMap": "Objects\\Tiger\\Track_Normal.bmp",
+                            "MetallicMap": "Objects\\Tiger\\Track_Metallic.bmp",
+                            "RoughnessMap": "Objects\\Tiger\\Track_Roughness.bmp",
+                            "AOMap": "Objects\\Tiger\\Track_AO.bmp",
+                            "uvOffset": [
+                                {
+                                    "x": 0.0,
+                                    "y": 0.0
+                                }
+                            ],
+                            "Tiling": [
+                                {
+                                    "x": 1.0,
+                                    "y": 1.0
+                                }
+                            ],
+                            "Color_Override": [
+                                {
+                                    "r": 0.0,
+                                    "g": 0.0,
+                                    "b": 0.0
+                                }
+                            ],
+                            "Metallic_Override": 0.0,
+                            "Roughness_Override": 0.0
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Type": "Actor",
+            "DisplayName": "Tiger Track Right",
+            "Transform": [
+                {
+                    "posX": -30.0,
+                    "posY": 0.0,
+                    "posZ": 13.626,
+                    "rotX": 0.0,
+                    "rotY": 0.0,
+                    "rotZ": 0.0,
+                    "scaX": 0.01,
+                    "scaY": 0.01,
+                    "scaZ": 0.01
+                }
+            ],
+            "Subobjects": [
+                {
+                    "StaticMesh": [
+                        {
+                            "Mesh": "Objects\\Tiger\\Tracks_Right.obj"
+                        },
+                        {
+                            "AlbedoMap": "Objects\\Tiger\\Track.BMP",
+                            "NormalMap": "Objects\\Tiger\\Track_Normal.bmp",
+                            "MetallicMap": "Objects\\Tiger\\Track_Metallic.bmp",
+                            "RoughnessMap": "Objects\\Tiger\\Track_Roughness.bmp",
+                            "AOMap": "Objects\\Tiger\\Track_AO.bmp",
+                            "uvOffset": [
+                                {
+                                    "x": 0.0,
+                                    "y": 0.0
+                                }
+                            ],
+                            "Tiling": [
+                                {
+                                    "x": 1.0,
+                                    "y": 1.0
+                                }
+                            ],
+                            "Color_Override": [
+                                {
+                                    "r": 0.0,
+                                    "g": 0.0,
+                                    "b": 0.0
                                 }
                             ],
                             "Metallic_Override": 0.0,

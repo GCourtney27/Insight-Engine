@@ -213,7 +213,7 @@ namespace Insight {
 
 		m_pCommandList->OMSetRenderTargets(m_NumRTV, &m_rtvHeap.hCPUHeapStart, true, &m_dsvHeap.hCPUHeapStart);
 		m_pCommandList->SetGraphicsRootSignature(m_pRootSignature.Get());
-		m_pCommandList->SetGraphicsRootDescriptorTable(4, m_cbvsrvHeap.hGPU(0));
+		m_pCommandList->SetGraphicsRootDescriptorTable(5, m_cbvsrvHeap.hGPU(0));
 
 		{
 			m_Irradiance.Bind();
@@ -276,10 +276,8 @@ namespace Insight {
 			m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
 			
 			m_pCommandList->SetPipelineState(m_pPipelineStateObject_PostFxPass.Get());
-			m_pCommandList->SetGraphicsRootDescriptorTable(14, m_cbvsrvHeap.hGPU(5));
+			m_pCommandList->SetGraphicsRootDescriptorTable(15, m_cbvsrvHeap.hGPU(5));
 
-			// The problem something is wrong with the format of the postfx pipeline that makes 
-			// an error when writing to the render target frame buffers in the render target heap
 			m_ScreenQuad.Render(m_pCommandList);
 		}
 
@@ -669,7 +667,7 @@ namespace Insight {
 
 	void Direct3D12Context::CreateConstantBufferViews()
 	{
-		HRESULT hr = m_cbvsrvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 25, true);
+		HRESULT hr = m_cbvsrvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 35, true);
 		ThrowIfFailed(hr, "Failed to create CBV SRV descriptor heap");
 
 	}
@@ -692,25 +690,26 @@ namespace Insight {
 
 		range[10].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 14); // Post-FX Input
 
-		CD3DX12_ROOT_PARAMETER rootParameters[15];
+		CD3DX12_ROOT_PARAMETER rootParameters[16];
 		rootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);	  // Per-Object constant buffer
 		rootParameters[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL);		  // Per-Frame constant buffer
 		rootParameters[2].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_PIXEL);	  // Light constant buffer
 		rootParameters[3].InitAsConstantBufferView(3, 0, D3D12_SHADER_VISIBILITY_PIXEL);	  // PostFx constant buffer
-		rootParameters[4].InitAsDescriptorTable(1, &range[0], D3D12_SHADER_VISIBILITY_PIXEL); // G-Buffer inputs
+		rootParameters[4].InitAsConstantBufferView(4, 0, D3D12_SHADER_VISIBILITY_ALL);		  // Material Additives constant buffer
+		rootParameters[5].InitAsDescriptorTable(1, &range[0], D3D12_SHADER_VISIBILITY_PIXEL); // G-Buffer inputs
 
-		rootParameters[5].InitAsDescriptorTable(1, &range[1], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Albedo
-		rootParameters[6].InitAsDescriptorTable(1, &range[2], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Normal
-		rootParameters[7].InitAsDescriptorTable(1, &range[3], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Roughness
-		rootParameters[8].InitAsDescriptorTable(1, &range[4], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Metallic
-		rootParameters[9].InitAsDescriptorTable(1, &range[5], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - AO
+		rootParameters[6].InitAsDescriptorTable(1, &range[1], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Albedo
+		rootParameters[7].InitAsDescriptorTable(1, &range[2], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Normal
+		rootParameters[8].InitAsDescriptorTable(1, &range[3], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Roughness
+		rootParameters[9].InitAsDescriptorTable(1, &range[4], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Metallic
+		rootParameters[10].InitAsDescriptorTable(1, &range[5], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - AO
 
-		rootParameters[10].InitAsDescriptorTable(1, &range[6], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Irradiance
-		rootParameters[11].InitAsDescriptorTable(1, &range[7], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Environment Map
-		rootParameters[12].InitAsDescriptorTable(1, &range[8], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - BRDF LUT
-		rootParameters[13].InitAsDescriptorTable(1, &range[9], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Diffuse
+		rootParameters[11].InitAsDescriptorTable(1, &range[6], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Irradiance
+		rootParameters[12].InitAsDescriptorTable(1, &range[7], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Environment Map
+		rootParameters[13].InitAsDescriptorTable(1, &range[8], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - BRDF LUT
+		rootParameters[14].InitAsDescriptorTable(1, &range[9], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Diffuse
 
-		rootParameters[14].InitAsDescriptorTable(1, &range[10], D3D12_SHADER_VISIBILITY_PIXEL); // Final Image
+		rootParameters[15].InitAsDescriptorTable(1, &range[10], D3D12_SHADER_VISIBILITY_PIXEL); // Final Image
 
 
 
@@ -1096,6 +1095,23 @@ namespace Insight {
 			CD3DX12_RANGE readRange(0, 0);
 			hr = m_PerObjectCBV[i]->Map(0, &readRange, reinterpret_cast<void**>(&m_cbvPerObjectGPUAddress[i]));
 			ThrowIfFailed(hr, "Failed to map upload heap for per-object upload resource heaps");
+		}
+
+		// PerObject Material Constant buffer
+		for (int i = 0; i < m_FrameBufferCount; ++i)
+		{
+			hr = m_pLogicalDevice->CreateCommittedResource(
+				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+				D3D12_HEAP_FLAG_NONE,
+				&CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
+				D3D12_RESOURCE_STATE_GENERIC_READ,
+				nullptr,
+				IID_PPV_ARGS(&m_PerObjectMaterialAdditivesCBV[i]));
+			m_PerObjectMaterialAdditivesCBV[i]->SetName(L"Constant Buffer Per-Object Material Upload Resource Heap");
+			ThrowIfFailed(hr, "Failed to create upload heap for per-object upload resource heaps");
+			CD3DX12_RANGE readRange(0, 0);
+			hr = m_PerObjectMaterialAdditivesCBV[i]->Map(0, &readRange, reinterpret_cast<void**>(&m_cbvPerObjectMaterialOverridesGPUAddress[i]));
+			ThrowIfFailed(hr, "Failed to map upload heap for per-object material upload resource heaps");
 		}
 
 		// Per Frame
