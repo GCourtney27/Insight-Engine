@@ -6,6 +6,7 @@
 #include <stack>
 #include <queue>
 #include <vector>
+#include <future>
 #include <string>
 #include <math.h>
 #include <thread>
@@ -37,6 +38,7 @@
 // === Insight Specific === //
 #include "Insight/Core/Log.h"
 #include "Insight/Core/Interfaces.h"
+#include "Insight/Utilities/Profiling.h"
 
 // === Third Party === //
 // Rapid Json

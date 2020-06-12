@@ -71,9 +71,11 @@ namespace Insight {
 
 	void StaticMeshComponent::AttachMesh(const std::string& path)
 	{
-		if (m_pModel)
+		std::string profileData = "StaticMeshComponent::AttachMesh \"" + path + "\"";
+		ScopedTimer timer(profileData.c_str());
+		if (m_pModel) {
 			m_pModel.reset();
-
+		}
 		m_pModel = make_shared<Model>(path);
 		ModelManager::Get().PushModel(m_pModel);
 	}

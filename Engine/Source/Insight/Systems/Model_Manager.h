@@ -29,8 +29,6 @@ namespace Insight {
 		
 		void PushModel(StrongModelPtr model) { m_Models.push_back(model); }
 
-		//bool LoadMeshFromFile(const std::string& filePath, bool async = true);
-
 	private:
 		SceneModels m_Models;  
 		D3D12_GPU_VIRTUAL_ADDRESS m_CbvUploadHeapHandle;

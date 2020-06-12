@@ -14,6 +14,7 @@ namespace Insight {
 
 		std::string GetRelativeAssetDirectoryPath(std::string path);
 		bool LoadSceneFromJson(const std::string& fileName, Scene& scene);
+		
 	private:
 		static FileSystem* s_Instance;
 	};

@@ -7,6 +7,7 @@
 
 namespace Insight {
 
+	static std::mutex s_MeshMutex;
 
 	Model::Model(const std::string& path)
 	{

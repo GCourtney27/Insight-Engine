@@ -36,6 +36,7 @@ namespace Insight {
 
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
+		virtual bool SetWindowTitle(const std::string& newText, bool completlyOverride = false) = 0;
 
 		inline shared_ptr<RenderingContext> GetRenderContext() { return m_pRendererContext; }
 

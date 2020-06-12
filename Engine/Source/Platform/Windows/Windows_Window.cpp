@@ -179,7 +179,7 @@ namespace Insight {
 			GetClientRect(hWnd, &clientRect);
 			WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, wParam == SIZE_MINIMIZED);
 			data.EventCallback(event);
-			
+
 			IE_CORE_INFO("Window size has changed");
 
 			return 0;
@@ -189,7 +189,7 @@ namespace Insight {
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			UINT dataSize;
 			GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, NULL, &dataSize, sizeof(RAWINPUTHEADER));
-			
+
 			if (dataSize > 0)
 			{
 				std::unique_ptr<BYTE[]> rawdata = std::make_unique<BYTE[]>(dataSize);
@@ -273,13 +273,19 @@ namespace Insight {
 			return false;
 		}
 
-		m_pRendererContext = std::make_shared<Direct3D12Context>(this);
-		if (!m_pRendererContext->Init())
 		{
-			IE_CORE_FATAL(L"Failed to initialize graphics context");
-			return false;
+			ScopedTimer timer("WindowsWindow::Init::RendererInit");
+
+			m_pRendererContext = std::make_shared<Direct3D12Context>(this);
+			if (!m_pRendererContext->Init())
+			{
+				IE_CORE_FATAL(L"Failed to initialize graphics context");
+				return false;
+			}
+			else {
+				IE_CORE_TRACE("Renderer Initialized");
+			}
 		}
-		IE_CORE_TRACE("Renderer Initialized");
 
 		ShowWindow(m_WindowHandle, m_nCmdShowArgs);
 		SetForegroundWindow(m_WindowHandle);
@@ -375,6 +381,19 @@ namespace Insight {
 	{
 		m_pRendererContext->ExecuteDraw();
 		m_pRendererContext->SwapBuffers();
+	}
+
+	bool WindowsWindow::SetWindowTitle(const std::string& newText, bool completlyOverride)
+	{
+		BOOL succeeded = true;
+		if (completlyOverride) {
+			succeeded = SetWindowText(m_WindowHandle, StringHelper::StringToWide(newText).c_str());
+		}
+		else {
+			std::wstring wideTitleText = m_Data.WindowTitle_wide + L" - " + StringHelper::StringToWide(newText);
+			succeeded = SetWindowText(m_WindowHandle, wideTitleText.c_str());
+		}
+		return succeeded;
 	}
 
 	void* WindowsWindow::GetNativeWindow() const

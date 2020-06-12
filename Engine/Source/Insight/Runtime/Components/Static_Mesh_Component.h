@@ -31,6 +31,7 @@ namespace Insight {
 
 	private:
 		Material m_Material;
+		std::future<void> m_Future;
 	private:
 		StrongModelPtr m_pModel;
 	};

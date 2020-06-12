@@ -98,6 +98,5 @@ namespace Insight {
 		m_Models.clear();*/
 	}
 
-
 }
 
