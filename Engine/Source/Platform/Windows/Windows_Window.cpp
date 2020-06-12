@@ -122,6 +122,7 @@ namespace Insight {
 		case WM_KEYDOWN:
 		{
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			// Debug force engine close Escape key
 			if (wParam == VK_ESCAPE)
 			{
 				PostQuitMessage(0);
@@ -129,7 +130,6 @@ namespace Insight {
 				data.EventCallback(event);
 				return 0;
 			}
-
 
 			if (wParam == VK_F11)
 			{
@@ -167,6 +167,9 @@ namespace Insight {
 		case WM_SIZE:
 		{
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+
+			// Window will attempt to resize on creation. However, buffer 
+			//resize can fail if the rest of the application is not initialized first.
 			if (data.isFirstLaunch)
 			{
 				data.isFirstLaunch = false;
@@ -208,7 +211,7 @@ namespace Insight {
 			return DefWindowProc(hWnd, msg, wParam, lParam);
 		}
 		}
-
+		return DefWindowProc(hWnd, msg, wParam, lParam);
 	}
 
 	bool WindowsWindow::Init(const WindowProps& props)
@@ -227,7 +230,8 @@ namespace Insight {
 			if (RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE)
 			{
 				IE_CORE_ERROR("Failed to register raw input devices. Error: {0}", GetLastError());
-				exit(-1);
+				WindowCloseEvent event;
+				m_Data.EventCallback(event);
 				// registration failed. Call GetLastError for the cause of the error
 			}
 			raw_input_initialized = true;

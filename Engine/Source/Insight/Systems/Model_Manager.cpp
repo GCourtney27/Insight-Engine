@@ -44,19 +44,20 @@ namespace Insight {
 		return true;
 	}
 
+	// Issue draw commands to all models attached to the model manager
 	void ModelManager::Render()
 	{
 		for (UINT32 i = 0; i < m_Models.size(); ++i) {
 
 			for (UINT32 j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
 
-				m_pCommandList->SetGraphicsRootConstantBufferView(0, m_CbvUploadHeapHandle + (ConstantBufferPerObjectAlignedSize * m_CBPerObjectDrawOffset));
-				m_pCommandList->SetGraphicsRootConstantBufferView(4, m_CbvMaterialHeapHandle + (ConstantBufferPerObjectMaterialAlignedSize * m_CBPerObjectDrawOffset));
+				m_pCommandList->SetGraphicsRootConstantBufferView(0, m_CbvUploadHeapHandle + (ConstantBufferPerObjectAlignedSize * m_PerObjectCBDrawOffset));
+				m_pCommandList->SetGraphicsRootConstantBufferView(4, m_CbvMaterialHeapHandle + (ConstantBufferPerObjectMaterialAlignedSize * m_PerObjectCBDrawOffset));
 
 				m_Models[i]->BindResources();
 				m_Models[i]->GetMeshAtIndex(j)->Render();
 
-				m_CBPerObjectDrawOffset++;
+				m_PerObjectCBDrawOffset++;
 			}
 		}
 	}
@@ -82,7 +83,7 @@ namespace Insight {
 
 	void ModelManager::PostRender()
 	{
-		m_CBPerObjectDrawOffset = 0u;
+		m_PerObjectCBDrawOffset = 0u;
 		m_GPUAddressUploadOffset = 0u;
 	}
 
