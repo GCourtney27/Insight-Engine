@@ -77,7 +77,7 @@ namespace Insight {
 
 				m_pSelectedActor->OnImGuiRender();
 
-				XMFLOAT4X4 localMat; 
+				XMFLOAT4X4 localMat;
 				XMFLOAT4X4 deltaMat;
 				XMFLOAT4X4 viewMat;
 				XMFLOAT4X4 projMat;
@@ -88,10 +88,12 @@ namespace Insight {
 				static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
 				if (Input::IsKeyPressed('W')) {
 					mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-				}else if(Input::IsKeyPressed('E')) {
+				}
+				else if (Input::IsKeyPressed('E')) {
 					mCurrentGizmoOperation = ImGuizmo::ROTATE;
 
-				}else if (Input::IsKeyPressed('R')) {
+				}
+				else if (Input::IsKeyPressed('R')) {
 					mCurrentGizmoOperation = ImGuizmo::SCALE;
 
 				}
@@ -101,27 +103,31 @@ namespace Insight {
 				ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 				//TODO if(Raycast::LastRayCast::Succeeded) than run this line if false than skip it (disbles the guizmo)
 				ImGuizmo::Manipulate(*viewMat.m, *projMat.m, mCurrentGizmoOperation, mCurrentGizmoMode, *localMat.m, *deltaMat.m, NULL, NULL, NULL);
-				
 
-				switch (mCurrentGizmoOperation) {
-				case ImGuizmo::TRANSLATE:
-				{
-					m_pSelectedActor->GetTransformRef().SetPosition(localMat._41, localMat._42, localMat._43);
+
+				if (ImGuizmo::IsOver()) {
+
+					switch (mCurrentGizmoOperation) {
+					case ImGuizmo::TRANSLATE:
+					{
+						m_pSelectedActor->GetTransformRef().SetPosition(localMat._41, localMat._42, localMat._43);
+					}
+					case ImGuizmo::SCALE:
+					{
+						m_pSelectedActor->GetTransformRef().SetScale(localMat._11, localMat._22, localMat._33);
+					}
+					case ImGuizmo::ROTATE:
+					{
+						float pos[3], rot[3], sca[3];
+						ImGuizmo::DecomposeMatrixToComponents(*localMat.m, pos, rot, sca);
+						//ImGuizmo::RecomposeMatrixFromComponents(pos, rot, sca, *deltaMat.m);
+						m_pSelectedActor->GetTransformRef().SetRotation(rot[0] * 0.1f, rot[1] * 0.1f, rot[2] * 0.1f);
+						//m_pSelectedActor->GetTransformRef().Rotate(rot[0] * 0.1f, rot[1] * 0.1f, rot[2] * 0.1f);
+					}
+					default: { break; }
+					}
 				}
-				case ImGuizmo::SCALE:
-				{
-					m_pSelectedActor->GetTransformRef().SetScale(localMat._11, localMat._22, localMat._33);
-				}
-				case ImGuizmo::ROTATE:
-				{
-					float pos[3], rot[3], sca[3];
-					ImGuizmo::DecomposeMatrixToComponents(*deltaMat.m, pos, rot, sca);
-					ImGuizmo::RecomposeMatrixFromComponents(pos, rot, sca, *deltaMat.m);
-					//m_pSelectedActor->GetTransformRef().SetRotation(rot[0] * 0.1f, rot[1] * 0.1f, rot[2] * 0.1f);
-					m_pSelectedActor->GetTransformRef().Rotate(rot[0] * 0.1f, rot[1] * 0.1f, rot[2] * 0.1f);
-				}
-				default: { break; }
-				}
+
 			}
 		}
 		ImGui::End();

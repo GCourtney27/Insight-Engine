@@ -198,7 +198,6 @@ namespace Insight {
 		//13: SRV-Sky BRDF LUT(SRV)
 		//14: SRV-Sky Diffuse(SRV)
 		CDescriptorHeapWrapper				m_cbvsrvHeap;
-		
 
 		ScreenQuad							m_ScreenQuad;
 		D3D12_VIEWPORT						m_ViewPort = {};

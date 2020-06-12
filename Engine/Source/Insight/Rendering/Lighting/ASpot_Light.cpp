@@ -25,22 +25,18 @@ namespace Insight {
 	{
 		AActor::LoadFromJson(jsonSpotLight);
 
-		float innerCutoff, outerCutoff;
-		float diffuseR, diffuseG, diffuseB, strength;
 		const rapidjson::Value& emission = jsonSpotLight["Emission"];
-		json::get_float(emission[0], "diffuseR", diffuseR);
-		json::get_float(emission[0], "diffuseG", diffuseG);
-		json::get_float(emission[0], "diffuseB", diffuseB);
-		json::get_float(emission[0], "strength", strength);
-		json::get_float(emission[0], "innerCutoff", innerCutoff);
-		json::get_float(emission[0], "outerCutoff", outerCutoff);
+		json::get_float(emission[0], "diffuseR", m_ShaderCB.diffuse.x);
+		json::get_float(emission[0], "diffuseG", m_ShaderCB.diffuse.y);
+		json::get_float(emission[0], "diffuseB", m_ShaderCB.diffuse.z);
+		json::get_float(emission[0], "strength", m_ShaderCB.strength);
+		json::get_float(emission[0], "innerCutoff", m_TempInnerCutoff);
+		json::get_float(emission[0], "outerCutoff", m_TempOuterCutoff);
 
 		m_ShaderCB.position = SceneNode::GetTransformRef().GetPositionRef();
 		m_ShaderCB.direction = SceneNode::GetTransformRef().GetRotationRef();
-		m_ShaderCB.diffuse = XMFLOAT3(diffuseR, diffuseG, diffuseB);
-		m_ShaderCB.innerCutoff = cos(XMConvertToRadians(innerCutoff));
-		m_ShaderCB.outerCutoff = cos(XMConvertToRadians(outerCutoff));
-		m_ShaderCB.strength = strength;
+		m_ShaderCB.innerCutoff = cos(XMConvertToRadians(m_TempInnerCutoff));
+		m_ShaderCB.outerCutoff = cos(XMConvertToRadians(m_TempOuterCutoff));
 
 		return true;
 	}
@@ -93,19 +89,21 @@ namespace Insight {
 	{
 		AActor::OnImGuiRender();
 
-		ImGui::Text("Rendering");
-		ImGuiColorEditFlags colorWheelFlags = ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_PickerHueWheel;
-		// Imgui will edit the color values in a normalized 0 to 1 space. 
-		// In the shaders we transform the color values back into 0 to 255 space.
-		ImGui::ColorEdit3("Diffuse", &m_ShaderCB.diffuse.x, colorWheelFlags);
-		ImGui::DragFloat("Inner Cut-off", &m_TempInnerCutoff, 0.1f, 0.0f, 50.0f);
-		ImGui::DragFloat("Outer Cut-off", &m_TempOuterCutoff, 0.1f, 0.0f, 50.0f);
-		ImGui::DragFloat("Strength", &m_ShaderCB.strength, 0.15f, 0.0f, 10.0f);
-		if (m_TempInnerCutoff > m_TempOuterCutoff) {
-			m_TempInnerCutoff = m_TempOuterCutoff;
+		if (ImGui::CollapsingHeader("Rendering", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			ImGuiColorEditFlags colorWheelFlags = ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_PickerHueWheel;
+			// Imgui will edit the color values in a normalized 0 to 1 space. 
+			// In the shaders we transform the color values back into 0 to 255 space.
+			ImGui::ColorEdit3("Diffuse", &m_ShaderCB.diffuse.x, colorWheelFlags);
+			ImGui::DragFloat("Inner Cut-off", &m_TempInnerCutoff, 0.1f, 0.0f, 50.0f);
+			ImGui::DragFloat("Outer Cut-off", &m_TempOuterCutoff, 0.1f, 0.0f, 50.0f);
+			ImGui::DragFloat("Strength", &m_ShaderCB.strength, 0.15f, 0.0f, 10.0f);
+			if (m_TempInnerCutoff > m_TempOuterCutoff) {
+				m_TempInnerCutoff = m_TempOuterCutoff;
+			}
+			m_ShaderCB.innerCutoff = cos(XMConvertToRadians(m_TempInnerCutoff));
+			m_ShaderCB.outerCutoff = cos(XMConvertToRadians(m_TempOuterCutoff));
 		}
-		m_ShaderCB.innerCutoff = cos(XMConvertToRadians(m_TempInnerCutoff));
-		m_ShaderCB.outerCutoff = cos(XMConvertToRadians(m_TempOuterCutoff));
 	}
 
 }

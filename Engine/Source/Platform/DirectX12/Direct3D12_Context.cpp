@@ -28,7 +28,9 @@ namespace Insight {
 	UINT Direct3D12Context::m_ResolutionIndex = 2;
 
 	Direct3D12Context::Direct3D12Context(WindowsWindow* windowHandle)
-		: m_pWindowHandle(&windowHandle->GetWindowHandleReference()), m_pWindow(windowHandle), RenderingContext(windowHandle->GetWidth(), windowHandle->GetHeight(), false)
+		: m_pWindowHandle(&windowHandle->GetWindowHandleReference()), 
+		m_pWindow(windowHandle),
+		RenderingContext(windowHandle->GetWidth(), windowHandle->GetHeight(), false)
 	{
 		IE_CORE_ASSERT(windowHandle, "Window handle is NULL!");
 		IE_ASSERT(!s_Instance, "Rendering instance already exists!");
