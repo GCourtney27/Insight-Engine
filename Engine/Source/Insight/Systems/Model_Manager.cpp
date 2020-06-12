@@ -23,19 +23,21 @@ namespace Insight {
 
 	bool ModelManager::Init()
 	{
-		m_ConstantBufferUploadHeaps = &Direct3D12Context::Get().GetConstantBufferPerObjectUploadHeap();
-		m_ConstantBufferMaterialUploadHeaps = &Direct3D12Context::Get().GetConstantBufferPerObjectMaterialUploadHeap();
-		m_pCommandList = &Direct3D12Context::Get().GetCommandList();
+		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
+
+		m_ConstantBufferUploadHeaps = &graphicsContext.GetConstantBufferPerObjectUploadHeap();
+		m_ConstantBufferMaterialUploadHeaps = &graphicsContext.GetConstantBufferPerObjectMaterialUploadHeap();
+		m_pCommandList = &graphicsContext.GetCommandList();
 
 		m_CbvUploadHeapHandle = m_ConstantBufferUploadHeaps->GetGPUVirtualAddress();
 		m_CbvMaterialHeapHandle = m_ConstantBufferMaterialUploadHeaps->GetGPUVirtualAddress();
 
-		m_CbvPerObjectGPUAddress = &Direct3D12Context::Get().GetPerObjectCBVGPUHeapAddress();
-		m_CbvMaterialGPUAddress = &Direct3D12Context::Get().GetPerObjectMaterialAdditiveCBVGPUHeapAddress();
+		m_CbvPerObjectGPUAddress = &graphicsContext.GetPerObjectCBVGPUHeapAddress();
+		m_CbvMaterialGPUAddress = &graphicsContext.GetPerObjectMaterialAdditiveCBVGPUHeapAddress();
 
 		if (!(m_pCommandList && m_ConstantBufferUploadHeaps && m_ConstantBufferMaterialUploadHeaps))
 		{
-			IE_CORE_ERROR("Failed to initialize resources for model manager.");
+			IE_CORE_ERROR("Failed to initialize one or more resources for model manager.");
 			return false;
 		}
 
@@ -44,9 +46,9 @@ namespace Insight {
 
 	void ModelManager::Render()
 	{
-		for (unsigned int i = 0; i < m_Models.size(); ++i) {
+		for (UINT32 i = 0; i < m_Models.size(); ++i) {
 
-			for (unsigned int j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
+			for (UINT32 j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
 
 				m_pCommandList->SetGraphicsRootConstantBufferView(0, m_CbvUploadHeapHandle + (ConstantBufferPerObjectAlignedSize * m_CBPerObjectDrawOffset));
 				m_pCommandList->SetGraphicsRootConstantBufferView(4, m_CbvMaterialHeapHandle + (ConstantBufferPerObjectMaterialAlignedSize * m_CBPerObjectDrawOffset));
@@ -62,9 +64,9 @@ namespace Insight {
 	// Update the Constant buffers in the gpu with the new data for each model. Does not draw models
 	void ModelManager::UploadVertexDataToGPU()
 	{
-		for (unsigned int i = 0; i < m_Models.size(); i++) {
+		for (UINT32 i = 0; i < m_Models.size(); i++) {
 
-			for (unsigned int j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
+			for (UINT32 j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
 
 				CB_PS_VS_PerObjectAdditives cbMatOverrides = m_Models[i]->GetMaterialRef().GetMaterialOverrideConstantBuffer();
 				memcpy(m_CbvMaterialGPUAddress + (ConstantBufferPerObjectMaterialAlignedSize * m_GPUAddressUploadOffset), &cbMatOverrides, sizeof(cbMatOverrides));
