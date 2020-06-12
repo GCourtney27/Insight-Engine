@@ -61,7 +61,7 @@ namespace Insight {
 	{
 		PushEngineLayers();
 
-		LoadSceneFromJson(FileSystem::Get().GetRelativeAssetDirectoryPath("Scenes/MyScene.json"));
+		LoadSceneFromJson(FileSystem::Get().GetRelativeAssetDirectoryPath("Scenes/MyScene.iescene"));
 		
 
 		IE_CORE_TRACE("Application Initialized");

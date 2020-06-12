@@ -7,7 +7,7 @@
 #include "Insight/Rendering/Lighting/ASpot_Light.h"
 #include "Insight/Rendering/Lighting/APoint_Light.h"
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
-
+#include "Insight/Utilities/String_Helper.h"
 
 // TODO make a third part build file with imgui and rapidjson for all cpp files
 #include <rapidjson/json.cpp>
@@ -39,20 +39,27 @@ namespace Insight {
 
 	bool FileSystem::LoadSceneFromJson(const std::string& fileName, Scene& scene)
 	{
-		rapidjson::Document rawFile;
-		if (!json::load(fileName.c_str(), rawFile)) {
+		// TODO Load in Scene_Meta.json first
+
+		// TODO Load in Resources.json second
+
+		// Load in Actors.json last once resources have been intialized
+		rapidjson::Document rawActorsFile;
+		const std::string actorsDir = fileName + "/Actors.json";
+		if (!json::load(actorsDir.c_str(), rawActorsFile)) {
 			IE_CORE_ERROR("Failed to load scene: \"{0}\" from file.", fileName);
 			return false;
 		}
 
+		// TODO Get the scene name from Scene_Meta.json
 		std::string sceneName;
-		json::get_string(rawFile, "SceneName", sceneName); // Find something that says 'SceneName' and load sceneName variable
+		json::get_string(rawActorsFile, "SceneName", sceneName); // Find something that says 'SceneName' and load sceneName variable
 		scene.SetDisplayName(sceneName);
 
 		AActor* newActor = nullptr;
 		UINT actorSceneIndex = 0;
 
-		const rapidjson::Value& sceneObjects = rawFile["Set"];
+		const rapidjson::Value& sceneObjects = rawActorsFile["Set"];
 		for (rapidjson::SizeType a = 0; a < sceneObjects.Size(); a++)
 		{
 			const rapidjson::Value& jsonActor = sceneObjects[a];

@@ -26,6 +26,16 @@ namespace Insight {
 			SKY_BRDF_LUT = 7,
 			SKY_DIFFUSE = 8,
 		};
+
+		struct IE_Texture_Create_Info
+		{
+			UINT width;
+			UINT height;
+			UINT mipLevels;
+			eTextureType type;
+			std::wstring filepath;
+		};
+
 		typedef UINT TextureHandle;
 	public:
 		Texture(const std::wstring& filepath, eTextureType& textureType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle);
@@ -37,7 +47,7 @@ namespace Insight {
 		bool InitTextureFromFile(const std::wstring& filepath, eTextureType& testureType, CDescriptorHeapWrapper& srvHeapHandle);
 		void Bind();
 
-		inline const UINT32 GetSrvHeapIndex() { return m_GPUHeapIndex; }
+		inline const UINT32 GetSrvHeapHandle() { return m_GPUHeapIndex; }
 		inline const std::string& GetName() const { return m_Name; }
 		inline const std::wstring& GetFilepath() const { return m_Filepath; }
 		inline const UINT64& GetWidth() const { return m_TextureDesc.Width; }
