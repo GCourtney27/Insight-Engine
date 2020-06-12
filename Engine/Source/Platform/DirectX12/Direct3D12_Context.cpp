@@ -115,20 +115,21 @@ namespace Insight {
 		ACamera& playerCamera = APlayerCharacter::Get().GetCameraRef();
 
 		// Send Per-Frame Variables to GPU
+		XMFLOAT4X4 viewFloat;
+		XMStoreFloat4x4(&viewFloat, XMMatrixTranspose(playerCamera.GetViewMatrix()));
+		XMFLOAT4X4 projectionFloat;
+		XMStoreFloat4x4(&projectionFloat, XMMatrixTranspose(playerCamera.GetProjectionMatrix()));
+		m_PerFrameData.view = viewFloat;
+		m_PerFrameData.projection = projectionFloat;
 		m_PerFrameData.cameraPosition = playerCamera.GetTransformRef().GetPosition();
-		XMFLOAT4X4 inViewFloat;
-		XMStoreFloat4x4(&inViewFloat, XMMatrixInverse(nullptr, playerCamera.GetViewMatrix()));
-		XMFLOAT4X4 inProjFloat;
-		XMStoreFloat4x4(&inProjFloat, XMMatrixInverse(nullptr, playerCamera.GetProjectionMatrix()));
-
 		m_PerFrameData.deltaMs = deltaTime;
 		m_PerFrameData.time = (float)Application::Get().GetFrameTimer().seconds();
 		m_PerFrameData.cameraNearZ = (float)playerCamera.GetNearZ();
 		m_PerFrameData.cameraFarZ = (float)playerCamera.GetFarZ();
 		m_PerFrameData.cameraExposure = (float)playerCamera.GetExposure();
-		m_PerFrameData.numPointLights = (int)m_PointLights.size();
-		m_PerFrameData.numDirectionalLights = (int)m_DirectionalLights.size();
-		m_PerFrameData.numSpotLights = (int)m_SpotLights.size();
+		m_PerFrameData.numPointLights = (float)m_PointLights.size();
+		m_PerFrameData.numDirectionalLights = (float)m_DirectionalLights.size();
+		m_PerFrameData.numSpotLights = (float)m_SpotLights.size();
 		m_PerFrameData.screenSize.x = m_WindowWidth;
 		m_PerFrameData.screenSize.y = m_WindowHeight;
 		memcpy(m_cbvPerFrameGPUAddress, &m_PerFrameData, sizeof(CB_PS_VS_PerFrame));

@@ -4,21 +4,21 @@
 cbuffer cbPerObject : register(b0)
 {
     float4x4 world;
-    float4x4 view;
-    float4x4 projection;
 };
 
 cbuffer cbPerFrame : register(b1)
 {
     float3 cameraPosition;
     float cameraExposure;
+    float4x4 view;
+    float4x4 projection;
     float cameraNearZ;
     float cameraFarZ;
     float deltaMs;
     float time;
-    int numPointLights;
-    int numDirectionalLights;
-    int numSpotLights;
+    float numPointLights;
+    float numDirectionalLights;
+    float numSpotLights;
     float2 screenSize;
     
 	float padding;
@@ -40,9 +40,11 @@ cbuffer cbPostFx : register(b3)
     float vnOuterRadius;
     float vnOpacity;
     int vnEnabled;
+    
 	// Film Grain
     float fgStrength;
     int fgEnabled;
+    
     // Chromatic Aberration
     int caEnabled;
     float caIntensity;

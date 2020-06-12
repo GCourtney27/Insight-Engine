@@ -4,8 +4,6 @@
 struct CB_VS_PerObject
 {
 	DirectX::XMFLOAT4X4 world;
-	DirectX::XMFLOAT4X4 view;
-	DirectX::XMFLOAT4X4 projection;
 };
 
 struct CB_PS_VS_PerObjectAdditives
@@ -26,13 +24,15 @@ struct CB_PS_VS_PerFrame
 {
 	DirectX::XMFLOAT3 cameraPosition;
 	float cameraExposure;//4
+	DirectX::XMFLOAT4X4 view;
+	DirectX::XMFLOAT4X4 projection;
 	float cameraNearZ;
 	float cameraFarZ;
 	float deltaMs;
 	float time;//4
-	int numPointLights;
-	int numDirectionalLights;
-	int numSpotLights;
+	float numPointLights;
+	float numDirectionalLights;
+	float numSpotLights;
 	DirectX::XMFLOAT2 screenSize;//4
 
 	float padding;
