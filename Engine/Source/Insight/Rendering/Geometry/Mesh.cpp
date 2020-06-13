@@ -10,8 +10,8 @@
 namespace Insight {
 
 
-	Mesh::Mesh(Verticies verticies, Indices indices, Material material)
-		: m_Verticies(verticies), m_Indices(indices), m_Material(material)
+	Mesh::Mesh(Verticies verticies, Indices indices)
+		: m_Verticies(verticies), m_Indices(indices)
 	{
 		InitializeLocalVariables();
 	}
@@ -37,7 +37,6 @@ namespace Insight {
 		m_Indices = std::move(mesh.m_Indices);
 		
 		m_Transform = mesh.m_Transform;
-		//m_Material = mesh.m_Material;
 		m_ConstantBufferPerObject = mesh.m_ConstantBufferPerObject;
 
 		mesh.m_pVertexBufferUploadHeap = nullptr;

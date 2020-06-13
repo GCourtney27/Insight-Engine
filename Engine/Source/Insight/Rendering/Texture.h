@@ -12,8 +12,9 @@ namespace Insight {
 	class Texture
 	{
 	public:
-		enum eTextureType
+		enum class eTextureType
 		{
+			INVALID = -1,
 			// Per Object
 			ALBEDO = 0,
 			NORMAL = 1,
@@ -27,60 +28,52 @@ namespace Insight {
 			SKY_DIFFUSE = 8,
 		};
 
-		struct IE_Texture_Create_Info
+		struct IE_TEXTURE_INFO
 		{
-			UINT width;
-			UINT height;
-			UINT mipLevels;
-			eTextureType type;
+			eTextureType type = eTextureType::INVALID;
+			bool generateMipMaps = true;
+			bool isCubeMap = false;
 			std::wstring filepath;
 		};
 
-		typedef UINT TextureHandle;
+		typedef UINT32 TextureHandle;
+
 	public:
-		Texture(const std::wstring& filepath, eTextureType& textureType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle);
-		Texture();
+		Texture(IE_TEXTURE_INFO createInfo, CDescriptorHeapWrapper& srvHeapHandle);
 		//Texture(Texture&& texture) noexcept;
+		Texture() {}
 		~Texture();
 	
-		bool Init(const std::wstring& filepath, eTextureType testureType, CDescriptorHeapWrapper& srvHeapHandle);
-		bool InitTextureFromFile(const std::wstring& filepath, eTextureType& testureType, CDescriptorHeapWrapper& srvHeapHandle);
+		bool Init(IE_TEXTURE_INFO createInfo, CDescriptorHeapWrapper& srvHeapHandle);
+		void Destroy();
+
 		void Bind();
 
-		inline const UINT32 GetSrvHeapHandle() { return m_GPUHeapIndex; }
-		inline const std::string& GetName() const { return m_Name; }
-		inline const std::wstring& GetFilepath() const { return m_Filepath; }
+		inline const TextureHandle GetSrvHeapHandle() { return m_GPUHeapIndex; }
+		inline const std::string& GetDisplayName() const { return m_DisplayName; }
+		inline const std::wstring& GetFilepath() { return m_TextureInfo.filepath; }
+
+		inline const D3D12_RESOURCE_DESC& GetD3D12ResourceDescription() { return m_TextureDesc; }
 		inline const UINT64& GetWidth() const { return m_TextureDesc.Width; }
 		inline const UINT64& GetHeight() const { return m_TextureDesc.Height; }
 		inline const UINT16& GetMipLevels() const { return m_TextureDesc.MipLevels; }
 		inline const DXGI_FORMAT& GetFormat() const { return m_TextureDesc.Format; }
-		void Destroy();
-
-	private:
-		void InitDDSTexture(const std::wstring& filepath, CDescriptorHeapWrapper& srvHeapHandle);
-
-		DXGI_FORMAT GetDXGIFormatFromWICFormat(WICPixelFormatGUID& wicFormatGUID);
-		WICPixelFormatGUID GetConvertToWICFormat(WICPixelFormatGUID& wicFormatGUID);
-		int GetDXGIFormatBitsPerPixel(DXGI_FORMAT& dxgiFormat);
-		int LoadImageDataFromFile(BYTE** imageData, LPCWSTR filename, int& bytesPerRow);
 		
+	private:
+		void InitDDSTexture(CDescriptorHeapWrapper& srvHeapHandle);
+		bool InitTextureFromFile(CDescriptorHeapWrapper& srvHeapHandle);
+
 	private:
 		ID3D12GraphicsCommandList*	m_pCommandList = nullptr;
 
-		ID3D12Resource*				m_pTexture;
-		ID3D12Resource*				m_pTextureUploadHeap;
+		ComPtr<ID3D12Resource>		m_pTexture;
 		D3D12_RESOURCE_DESC			m_TextureDesc = {};
-		eTextureType				m_TextureType;
 		TextureHandle				m_GPUHeapIndex = 0u;
 
+		IE_TEXTURE_INFO				m_TextureInfo;
+		std::string					m_DisplayName = "";
+	private:
 		static UINT32 s_NumSceneTextures;
-
-//#if defined IE_DEBUG
-		std::string m_Name = "";
-		std::wstring m_Filepath = L"";
-		inline const std::wstring& GetFilepath() { return m_Filepath; }
-//#endif
-
 	};
 
 }

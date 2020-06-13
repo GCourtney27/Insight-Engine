@@ -16,7 +16,7 @@ namespace Insight {
 		typedef std::vector<Vertex3D> Verticies;
 		typedef std::vector<DWORD> Indices;
 	public:
-		Mesh(Verticies verticies, Indices indices, Material material);
+		Mesh(Verticies verticies, Indices indices);
 		Mesh() {}
 		Mesh(Mesh&& mesh) noexcept;
 		~Mesh();

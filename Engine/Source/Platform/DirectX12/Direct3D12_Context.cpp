@@ -724,7 +724,12 @@ namespace Insight {
 
 		CD3DX12_STATIC_SAMPLER_DESC staticSamplers[2];
 		staticSamplers[0].Init(0, D3D12_FILTER_MIN_MAG_MIP_LINEAR);
-		staticSamplers[1].Init(1, D3D12_FILTER_MIN_MAG_MIP_LINEAR);
+		//staticSamplers[1].Init(1, D3D12_FILTER_MIN_MAG_MIP_LINEAR);
+		UINT maxAnisotropy = 16u;
+		FLOAT minLOD = 0.0f;
+		FLOAT maxLOD = 9.0f;
+		FLOAT lodBias = 0.0f;
+		staticSamplers[1].Init(1, D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_TEXTURE_ADDRESS_MODE_WRAP, lodBias, maxAnisotropy, D3D12_COMPARISON_FUNC_LESS_EQUAL, D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE, minLOD, maxLOD, D3D12_SHADER_VISIBILITY_PIXEL, 0u);
 		descRootSignature.NumStaticSamplers = _countof(staticSamplers);
 		descRootSignature.pStaticSamplers = staticSamplers;
 
@@ -1051,17 +1056,24 @@ namespace Insight {
 		// skybox3
 		// MountainTop
 		// NewportLoft
-		std::wstring texRelPathIRW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/MountainTop_IR.dds"));
-		Texture::eTextureType texTypeIR = Texture::eTextureType::SKY_IRRADIENCE;
-		m_Irradiance.Init(texRelPathIRW, texTypeIR, m_cbvsrvHeap);
+		Texture::IE_TEXTURE_INFO irMapInfo;
+		irMapInfo.filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/MountainTop_IR.dds"));
+		irMapInfo.generateMipMaps = false;
+		irMapInfo.isCubeMap = true;
+		irMapInfo.type = Texture::eTextureType::SKY_IRRADIENCE;
+		m_Irradiance.Init(irMapInfo, m_cbvsrvHeap);
 
-		std::wstring texRelPathEnvW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/MountainTop_EnvMap.dds"));
-		Texture::eTextureType texTypeEnv = Texture::eTextureType::SKY_ENVIRONMENT_MAP;
-		m_Environment.Init(texRelPathEnvW, texTypeEnv, m_cbvsrvHeap);
+		Texture::IE_TEXTURE_INFO envMapInfo;
+		envMapInfo.filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/MountainTop_EnvMap.dds"));
+		envMapInfo.generateMipMaps = false;
+		envMapInfo.isCubeMap = true;
+		envMapInfo.type = Texture::eTextureType::SKY_ENVIRONMENT_MAP;
+		m_Environment.Init(envMapInfo, m_cbvsrvHeap);
 
-		std::wstring texRelPathBRDFLUTW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/ibl_brdf_lut.png"));
-		Texture::eTextureType texTypeBRDFLUT = Texture::eTextureType::SKY_BRDF_LUT;
-		m_BRDFLUT.Init(texRelPathBRDFLUTW, texTypeBRDFLUT, m_cbvsrvHeap);
+		Texture::IE_TEXTURE_INFO brdfInfo;
+		brdfInfo.filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/ibl_brdf_lut.png"));
+		brdfInfo.type = Texture::eTextureType::SKY_BRDF_LUT;
+		m_BRDFLUT.Init(brdfInfo, m_cbvsrvHeap);
 
 	}
 

@@ -177,37 +177,7 @@ namespace Insight {
 			}
 		}
 
-		Material material;
-		//if (pMesh->mMaterialIndex >= 0)
-		//{
-		//	CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle(Direct3D12Context::Get().GetShaderVisibleDescriptorHeapHandleWithOffset());
-
-		//	aiMaterial* pMat = pScene->mMaterials[pMesh->mMaterialIndex];
-
-		//	Texture diffuseMap = ParseTexture(pMat, aiTextureType_DIFFUSE, Texture::eTextureType::ALBEDO, srvHeapHandle);
-		//	Texture normalMap = ParseTexture(pMat, aiTextureType_HEIGHT, Texture::eTextureType::NORMAL, srvHeapHandle);
-		//	Texture specularMap = ParseTexture(pMat, aiTextureType_SPECULAR, Texture::eTextureType::SPECULAR, srvHeapHandle);
-		//	
-
-		//	material.AddTexture(diffuseMap);
-		//	material.AddTexture(normalMap);
-		//	//material.AddTexture(specularMap);
-		//}
-
-		return std::make_unique<Mesh>(verticies, indices, material);
+		return std::make_unique<Mesh>(verticies, indices);
 	}
-
-	Texture Model::ParseTexture(aiMaterial* pMaterial, aiTextureType textureType, Texture::eTextureType targetType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle)
-	{
-		aiString texturePath;
-		for (UINT i = 0; i < pMaterial->GetTextureCount(textureType); i++)
-		{
-			pMaterial->GetTexture(textureType, i, &texturePath);
-		}
-
-		return Texture(StringHelper::StringToWide(m_Directory + "/" + texturePath.C_Str()), targetType, srvHeapHandle);
-	}
-
-
 
 }

@@ -58,20 +58,30 @@ namespace Insight {
 
 		CDescriptorHeapWrapper& cbvsrvHeap = Direct3D12Context::Get().GetCBVSRVDescriptorHeap();
 
-		std::wstring texRelPathAlbedoW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(albedoTexPath));
-		m_AlbedoMap.Init(texRelPathAlbedoW, Texture::eTextureType::ALBEDO, cbvsrvHeap);
+		Texture::IE_TEXTURE_INFO albedoMap;
+		albedoMap.type = Texture::eTextureType::ALBEDO;
+		albedoMap.filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(albedoTexPath));
+		m_AlbedoMap.Init(albedoMap, cbvsrvHeap);
 
-		std::wstring texRelPathNormalW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(normalTexPath));
-		m_NormalMap.Init(texRelPathNormalW, Texture::eTextureType::NORMAL, cbvsrvHeap);
+		Texture::IE_TEXTURE_INFO normalMap;
+		normalMap.filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(normalTexPath));
+		normalMap.type = Texture::eTextureType::NORMAL;
+		m_NormalMap.Init(normalMap, cbvsrvHeap);
 
-		std::wstring texRelPathRoughnessW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(roughnessTexPath));
-		m_RoughnessMap.Init(texRelPathRoughnessW, Texture::eTextureType::ROUGHNESS, cbvsrvHeap);
+		Texture::IE_TEXTURE_INFO roughnessMapInfo;
+		roughnessMapInfo.filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(roughnessTexPath));
+		roughnessMapInfo.type = Texture::eTextureType::ROUGHNESS;
+		m_RoughnessMap.Init(roughnessMapInfo, cbvsrvHeap);
 
-		std::wstring texRelPathMetallicW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(metallicTexPath));
-		m_MetallicMap.Init(texRelPathMetallicW, Texture::eTextureType::METALLIC, cbvsrvHeap);
+		Texture::IE_TEXTURE_INFO metallicMapInfo;
+		metallicMapInfo.filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(metallicTexPath));
+		metallicMapInfo.type = Texture::eTextureType::METALLIC;
+		m_MetallicMap.Init(metallicMapInfo, cbvsrvHeap);
 
-		std::wstring texRelPathAOW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(aoTexPath));
-		m_AOMap.Init(texRelPathAOW, Texture::eTextureType::AO, cbvsrvHeap);
+		Texture::IE_TEXTURE_INFO aoMapInfo;
+		aoMapInfo.filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(aoTexPath));
+		aoMapInfo.type = Texture::eTextureType::AO;
+		m_AOMap.Init(aoMapInfo, cbvsrvHeap);
 
 		return true;
 	}
@@ -83,19 +93,19 @@ namespace Insight {
 			ImGui::Text("Textures"); 
 
 			ImGui::Text("Albedo:"); ImGui::SameLine();
-			ImGui::Text(m_AlbedoMap.GetName().c_str());
+			ImGui::Text(m_AlbedoMap.GetDisplayName().c_str());
 
 			ImGui::Text("Normal:"); ImGui::SameLine();
-			ImGui::Text(m_NormalMap.GetName().c_str());
+			ImGui::Text(m_NormalMap.GetDisplayName().c_str());
 
 			ImGui::Text("Roughness:"); ImGui::SameLine();
-			ImGui::Text(m_RoughnessMap.GetName().c_str());
+			ImGui::Text(m_RoughnessMap.GetDisplayName().c_str());
 
 			ImGui::Text("Metallic:"); ImGui::SameLine();
-			ImGui::Text(m_MetallicMap.GetName().c_str());
+			ImGui::Text(m_MetallicMap.GetDisplayName().c_str());
 
 			ImGui::Text("AO:"); ImGui::SameLine();
-			ImGui::Text(m_AOMap.GetName().c_str());
+			ImGui::Text(m_AOMap.GetDisplayName().c_str());
 
 			ImGui::Spacing();
 

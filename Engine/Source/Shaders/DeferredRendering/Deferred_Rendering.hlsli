@@ -1,4 +1,4 @@
-// TODO Make a light common include file that is accessable for standalone and debug builds
+#define MAX_PER_OBJECT_LOD 9
 #include <../Common/Lights_Common.hlsli>
 
 cbuffer cbPerObject : register(b0)
