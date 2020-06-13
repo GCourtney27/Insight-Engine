@@ -31,8 +31,13 @@ namespace Insight {
 
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
 		CDescriptorHeapWrapper& cbvSrvheap = graphicsContext.GetCBVSRVDescriptorHeap();
-		std::wstring pathDirW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(diffuseMap));
-		m_Diffuse.Init(pathDirW, Texture::eTextureType::SKY_DIFFUSE, cbvSrvheap);
+
+		Texture::IE_TEXTURE_INFO diffuseInfo;
+		diffuseInfo.filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(diffuseMap));
+		diffuseInfo.type = Texture::eTextureType::SKY_DIFFUSE;
+		diffuseInfo.generateMipMaps = true;
+		diffuseInfo.isCubeMap = true;
+		m_Diffuse.Init(diffuseInfo, cbvSrvheap);
 
 		return true;
 	}

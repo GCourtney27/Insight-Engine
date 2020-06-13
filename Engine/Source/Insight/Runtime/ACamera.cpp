@@ -82,7 +82,7 @@ namespace Insight {
 
 		ImGui::Text("View");
 		if (!m_IsOrthographic) {
-			ImGui::DragFloat("Field of View", &m_Fov, 0.5f, 0.0f, 180.0f);
+			ImGui::DragFloat("Field of View", &m_Fov, 0.5f, 1.0f, 180.0f);
 		}
 		ImGui::DragFloat("Near Z", &m_NearZ, 0.01f, 0.00001f, 5.0f);
 		ImGui::DragFloat("Far Z", &m_FarZ, 1.0f, 1.0f, 10000.0f);

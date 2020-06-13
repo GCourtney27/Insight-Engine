@@ -18,38 +18,25 @@ extern Insight::Application* Insight::CreateApplication();
 
 #if defined IE_PLATFORM_WINDOWS
 
-//void OpenDialog()
-//{
-//	CoInitialize(NULL);
-//	IWindowPtr obj;
-//	obj.CreateInstance(__uuidof(Window));
-//	obj->Tite("Hello World!");
-//	obj->Show();
-//}
-
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
-	if(!Insight::Log::Init())
+	if (!Insight::Log::Init()) {
 		IE_CORE_FATAL(L"Failed to Core logger.");
+	}
 	IE_CORE_TRACE("Logger Initialized");
 
 	auto app = Insight::CreateApplication();
 
-	//std::thread uiThread(OpenDialog);
-
-	if (!app->InitializeAppForWindows(hInstance, nCmdShow))
-	{
+	if (!app->InitializeAppForWindows(hInstance, nCmdShow)) {
 		IE_CORE_FATAL(L"Failed to initialize core engine. Exiting.");
-		return 0;
+		return -1;
 	}
 
 	app->Run();
 	app->Shutdown();
 
-	//uiThread.join();
 	delete app;
 
-	//CoUninitialize();
 	//Insight::Log::HoldForUserInput();
 	return 0;
 }

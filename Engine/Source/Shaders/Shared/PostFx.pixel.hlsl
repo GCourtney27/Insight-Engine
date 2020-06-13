@@ -37,9 +37,9 @@ struct PS_INPUT_POSTFX
 };
 
 float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
-{
+{    
     float3 result = t_LightPassResult.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
-    
+   
     if (vnEnabled)
     {
         result = AddVignette(result, ps_in.texCoords);

@@ -23,68 +23,59 @@ namespace Insight {
 
 	bool ModelManager::Init()
 	{
-		m_ConstantBufferUploadHeaps = &Direct3D12Context::Get().GetConstantBufferPerObjectUploadHeap();
-		m_ConstantBufferMaterialUploadHeaps = &Direct3D12Context::Get().GetConstantBufferPerObjectMaterialUploadHeap();
-		m_pCommandList = &Direct3D12Context::Get().GetCommandList();
+		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
+
+		m_ConstantBufferUploadHeaps = &graphicsContext.GetConstantBufferPerObjectUploadHeap();
+		m_ConstantBufferMaterialUploadHeaps = &graphicsContext.GetConstantBufferPerObjectMaterialUploadHeap();
+		m_pCommandList = &graphicsContext.GetCommandList();
+
+		m_CbvUploadHeapHandle = m_ConstantBufferUploadHeaps->GetGPUVirtualAddress();
+		m_CbvMaterialHeapHandle = m_ConstantBufferMaterialUploadHeaps->GetGPUVirtualAddress();
+
+		m_CbvPerObjectGPUAddress = &graphicsContext.GetPerObjectCBVGPUHeapAddress();
+		m_CbvMaterialGPUAddress = &graphicsContext.GetPerObjectMaterialAdditiveCBVGPUHeapAddress();
 
 		if (!(m_pCommandList && m_ConstantBufferUploadHeaps && m_ConstantBufferMaterialUploadHeaps))
 		{
-			IE_CORE_ERROR("Failed to initialize resources for model manager.");
+			IE_CORE_ERROR("Failed to initialize one or more resources for model manager.");
 			return false;
 		}
 
 		return true;
 	}
 
+	// Issue draw commands to all models attached to the model manager
 	void ModelManager::Render()
 	{
-		D3D12_GPU_VIRTUAL_ADDRESS cbvHandle(m_ConstantBufferUploadHeaps->GetGPUVirtualAddress());
-		D3D12_GPU_VIRTUAL_ADDRESS cbvMaterialHandle(m_ConstantBufferMaterialUploadHeaps->GetGPUVirtualAddress());
+		for (UINT32 i = 0; i < m_Models.size(); ++i) {
 
-		for (unsigned int i = 0; i < m_Models.size(); ++i) {
+			for (UINT32 j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
 
-			for (unsigned int j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
-
-				m_pCommandList->SetGraphicsRootConstantBufferView(0, cbvHandle + (ConstantBufferPerObjectAlignedSize * m_ConstantBufferOffset));
-				m_pCommandList->SetGraphicsRootConstantBufferView(4, cbvMaterialHandle + (ConstantBufferPerObjectMaterialAlignedSize * m_ConstantBufferOffset));
+				m_pCommandList->SetGraphicsRootConstantBufferView(0, m_CbvUploadHeapHandle + (ConstantBufferPerObjectAlignedSize * m_PerObjectCBDrawOffset));
+				m_pCommandList->SetGraphicsRootConstantBufferView(4, m_CbvMaterialHeapHandle + (ConstantBufferPerObjectMaterialAlignedSize * m_PerObjectCBDrawOffset));
 
 				m_Models[i]->BindResources();
 				m_Models[i]->GetMeshAtIndex(j)->Render();
 
-				m_ConstantBufferOffset++;
+				m_PerObjectCBDrawOffset++;
 			}
 		}
-
 	}
 
 	// Update the Constant buffers in the gpu with the new data for each model. Does not draw models
 	void ModelManager::UploadVertexDataToGPU()
 	{
-		UINT8* cbvGPUAddress = &Direct3D12Context::Get().GetPerObjectCBVGPUHeapAddress();
-		UINT8* cbvMaterialGPUAddress = &Direct3D12Context::Get().GetPerObjectMaterialAdditiveCBVGPUHeapAddress();
-		UINT32 gpuAddressOffset = 0;
+		for (UINT32 i = 0; i < m_Models.size(); i++) {
 
-		ACamera& camera = APlayerCharacter::Get().GetCameraRef();
-		XMMATRIX viewMatTransposed = XMMatrixTranspose(camera.GetViewMatrix());
-		XMMATRIX projectionMatTransposed = XMMatrixTranspose(camera.GetProjectionMatrix());
-		XMFLOAT4X4 viewFloat;
-		XMStoreFloat4x4(&viewFloat, viewMatTransposed);
-		XMFLOAT4X4 projectionFloat;
-		XMStoreFloat4x4(&projectionFloat, projectionMatTransposed);
-
-		for (unsigned int i = 0; i < m_Models.size(); i++) {
-
-			for (unsigned int j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
+			for (UINT32 j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
 
 				CB_PS_VS_PerObjectAdditives cbMatOverrides = m_Models[i]->GetMaterialRef().GetMaterialOverrideConstantBuffer();
-				memcpy(cbvMaterialGPUAddress + (ConstantBufferPerObjectMaterialAlignedSize * gpuAddressOffset), &cbMatOverrides, sizeof(cbMatOverrides));
+				memcpy(m_CbvMaterialGPUAddress + (ConstantBufferPerObjectMaterialAlignedSize * m_GPUAddressUploadOffset), &cbMatOverrides, sizeof(cbMatOverrides));
 
 				CB_VS_PerObject cbPerObject = m_Models[i]->GetMeshAtIndex(j)->GetConstantBuffer();
-				cbPerObject.view = viewFloat;
-				cbPerObject.projection = projectionFloat;
-				memcpy(cbvGPUAddress + (ConstantBufferPerObjectAlignedSize * gpuAddressOffset), &cbPerObject, sizeof(cbPerObject));
+				memcpy(m_CbvPerObjectGPUAddress + (ConstantBufferPerObjectAlignedSize * m_GPUAddressUploadOffset), &cbPerObject, sizeof(cbPerObject));
 
-				gpuAddressOffset++;
+				m_GPUAddressUploadOffset++;
 			}
 
 		}
@@ -92,7 +83,8 @@ namespace Insight {
 
 	void ModelManager::PostRender()
 	{
-		m_ConstantBufferOffset = 0u;
+		m_PerObjectCBDrawOffset = 0u;
+		m_GPUAddressUploadOffset = 0u;
 	}
 
 	void ModelManager::FlushModelCache()
@@ -105,7 +97,6 @@ namespace Insight {
 		}
 		m_Models.clear();*/
 	}
-
 
 }
 

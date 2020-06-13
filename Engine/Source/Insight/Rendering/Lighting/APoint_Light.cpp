@@ -82,13 +82,16 @@ namespace Insight {
 	void APointLight::OnImGuiRender()
 	{
 		AActor::OnImGuiRender();
-		
-		ImGui::Text("Rendering");
-		ImGuiColorEditFlags colorWheelFlags = ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_PickerHueWheel;
-		// Imgui will edit the color values in a normalized 0 to 1 space. 
-		// In the shaders we transform the color values back into 0 to 255 space.
-		ImGui::ColorEdit3("Diffuse", &m_ShaderCB.diffuse.x, colorWheelFlags);
-		ImGui::DragFloat("Strength", &m_ShaderCB.strength, 0.1f, 0.0f, 100.0f);
+
+		if (ImGui::CollapsingHeader("Rendering", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			ImGuiColorEditFlags colorWheelFlags = ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_PickerHueWheel;
+			// Imgui will edit the color values in a normalized 0 to 1 space. 
+			// In the shaders we transform the color values back into 0 to 255 space.
+			ImGui::ColorEdit3("Diffuse", &m_ShaderCB.diffuse.x, colorWheelFlags);
+			ImGui::DragFloat("Strength", &m_ShaderCB.strength, 0.1f, 0.0f, 100.0f);
+		}
+
 	}
 
 }

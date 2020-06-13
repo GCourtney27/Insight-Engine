@@ -37,6 +37,9 @@ namespace Insight {
 		inline uint32_t GetWidth() const override { return m_Data.Width; }
 		inline uint32_t GetHeight() const override { return m_Data.Height; }
 
+		bool SetWindowTitle(const std::string& newText, bool completlyOverride = false) override;
+		bool SetWindowTitleFPS(float fps) override;
+
 		virtual void* GetNativeWindow() const override;
 		void SetWindowsSessionProps(HINSTANCE& hInstance, int nCmdShow) { SetWindowsApplicationInstance(hInstance); SetCmdArgs(nCmdShow); }
 		inline HINSTANCE& GetWindowsApplicationReference() const { return *m_WindowsAppInstance; }

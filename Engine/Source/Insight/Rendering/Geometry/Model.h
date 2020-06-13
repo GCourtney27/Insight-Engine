@@ -39,7 +39,6 @@ namespace Insight {
 	private:
 		unique_ptr<MeshNode> ParseNode_r(aiNode* pNode);
 		unique_ptr<Mesh> ProcessMesh(aiMesh* pMesh, const aiScene* pScene);
-		Texture ParseTexture(aiMaterial* pMaterial, aiTextureType textureType, Texture::eTextureType targetType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle);
 	private:
 		std::vector<unique_ptr<Mesh>> m_Meshes;
 		unique_ptr<MeshNode> m_pRoot;
