@@ -21,6 +21,8 @@ IncludeDir["ImGui"] = "Engine/Vendor/imgui"
 IncludeDir["assimp"] = "Engine/Vendor/assimp-3.3.1/include"
 IncludeDir["DX12TK"] = "Engine/Vendor/Microsoft/DirectX12/TK/Inc"
 IncludeDir["ImGuizmo"] = "Engine/Vendor/ImGuizmo"
+IncludeDir["rapidjson"] = "Engine/Vendor/rapidjson"
+IncludeDir["spdlog"] = "Engine/Vendor/spdlog"
 
 include "Engine/Vendor/ImGui"
 
@@ -47,9 +49,11 @@ project ("Engine")
 
 	files
 	{
+		"%{prj.name}/Vendor/Vendor_Build.cpp",
 		"%{prj.name}/Source/**.cpp",
 		"%{prj.name}/Source/**.h",
 		"%{prj.name}/Source/**.hlsl",
+		"%{prj.name}/Source/**.hlsli",
 	}
 
 	defines
@@ -62,7 +66,8 @@ project ("Engine")
 	{
 		"%{prj.name}/Vendor/Microsoft/DirectX12",
 		"%{prj.name}/Vendor/Nvidia/DirectX12",
-		"%{prj.name}/Vendor/spdlog/include",
+		"%{IncludeDir.rapidjson}/include/",
+		"%{IncludeDir.spdlog}/include/",
 		"%{IncludeDir.ImGuizmo}/",
 		"%{IncludeDir.DX12TK}/",
 		"%{IncludeDir.ImGui}/",
@@ -166,6 +171,7 @@ project (gameName)
 		"Engine/Vendor/Microsoft/DirectX12",
 		"Engine/Vendor/Nvidia/DirectX12",
 		"Engine/Vendor/spdlog/include",
+		"Engine/Vendor/rapidjson/include",
 		"Engine/Source",
 		"Engine/Vendor"
 	}

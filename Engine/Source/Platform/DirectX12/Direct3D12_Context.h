@@ -9,20 +9,19 @@
 #include "Platform/DirectX12/Descriptor_Heap_Wrapper.h"
 #include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
 
-#include "Insight/Rendering/Texture.h"
-#include "Insight/Rendering/APost_Fx.h"
-#include "Insight/Rendering/ASky_Sphere.h"
-#include "Insight/Rendering/Geometry/Model.h"
-#include "Insight/Rendering/Lighting/ASpot_Light.h"
-#include "Insight/Rendering/Lighting/APoint_Light.h"
-#include "Insight/Rendering/Lighting/ADirectional_Light.h"
-
 
 using Microsoft::WRL::ComPtr;
 
 namespace Insight {
 
 	class WindowsWindow;
+	class ASkySphere;
+	class ASkyLight;
+	class APostFx;
+
+	class ADirectionalLight;
+	class APointLight;
+	class ASpotLight;
 
 	class ScreenQuad
 	{
@@ -61,12 +60,13 @@ namespace Insight {
 		inline CDescriptorHeapWrapper& GetCBVSRVDescriptorHeap() { return m_cbvsrvHeap; }
 
 		inline ID3D12Resource& GetConstantBufferPerObjectUploadHeap() const { return *m_PerObjectCBV[m_FrameIndex].Get(); }
-		inline UINT8& GetConstantBufferViewGPUHeapAddress() { return *m_cbvPerObjectGPUAddress[m_FrameIndex]; }
+		inline UINT8& GetPerObjectCBVGPUHeapAddress() { return *m_cbvPerObjectGPUAddress[m_FrameIndex]; }
+
+		inline ID3D12Resource& GetConstantBufferPerObjectMaterialUploadHeap() const { return *m_PerObjectMaterialAdditivesCBV[m_FrameIndex].Get(); }
+		inline UINT8& GetPerObjectMaterialAdditiveCBVGPUHeapAddress() { return *m_cbvPerObjectMaterialOverridesGPUAddress[m_FrameIndex]; }
 
 		ID3D12Resource* GetRenderTarget() const { return m_pRenderTargets[m_FrameIndex].Get(); }
-
 		const unsigned int GetNumRTVs() const { return m_NumRTV; }
-
 		inline D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE handle;
@@ -76,16 +76,18 @@ namespace Insight {
 
 
 		// Lights
-		void AddPointLight(APointLight* pointLight) { m_PointLights.push_back(pointLight); }
 		void AddDirectionalLight(ADirectionalLight* pointLight) { m_DirectionalLights.push_back(pointLight); }
+		void AddPointLight(APointLight* pointLight) { m_PointLights.push_back(pointLight); }
 		void AddSpotLight(ASpotLight* spotLight) { m_SpotLights.push_back(spotLight); }
 
 		void AddSkySphere(ASkySphere* skySphere) { m_pSkySphere = skySphere; }
 		void AddPostFxActor(APostFx* postFxActor) { m_pPostFx = postFxActor; }
+		void AddSkyLight(ASkyLight* skyLight) { m_SkyLight = skyLight; }
+
 	private:
 		void CloseCommandListAndSignalCommandQueue();
 		// Per-Frame
-		void PopulateCommandLists();
+		void SetConstantBuffers();
 		void MoveToNextFrame();
 		void BindGeometryPass(bool setPSO = false);
 		void BindLightingPass();
@@ -129,12 +131,14 @@ namespace Insight {
 	private:
 		HWND* m_pWindowHandle = nullptr;
 		WindowsWindow* m_pWindow = nullptr;
+		D3D12Helper m_d3dDeviceResources;
 
 		// CPU/GPU Syncronization
 		int						m_FrameIndex = 0;
 		UINT64					m_FenceValues[m_FrameBufferCount] = {};
 		HANDLE					m_FenceEvent = {};
 		ComPtr<ID3D12Fence>		m_pFence;
+		static const unsigned int			m_NumRTV = 5;
 
 		bool		m_WindowResizeComplete = true;
 		bool		m_RayTraceEnabled = false;
@@ -151,9 +155,19 @@ namespace Insight {
 		ComPtr<ID3D12GraphicsCommandList>	m_pCommandList;
 		ComPtr<ID3D12CommandAllocator>		m_pCommandAllocators[m_FrameBufferCount];
 
-		ComPtr<ID3D12Resource>				m_pRenderTargetTextures[m_FrameBufferCount];
+		ComPtr<ID3D12Resource>				m_pRenderTargetTextures[m_NumRTV];
 		ComPtr<ID3D12Resource>				m_pRenderTargetTextures_PostFxPass[m_FrameBufferCount];
 		ComPtr<ID3D12Resource>				m_pRenderTargets[m_FrameBufferCount];
+		
+		// Light Pass
+		// ---------
+		// 0: Albedo
+		// 1: Normal
+		// 2: Roughness/Metallic/AO
+		// 3: Position
+		// Post-Fx Pass
+		// ------------
+		// 4: Light Pass result
 		CDescriptorHeapWrapper				m_rtvHeap;
 		ComPtr<ID3D12DescriptorHeap>		m_RTVDescriptorHeap;
 		UINT								m_RTVDescriptorSize;
@@ -168,25 +182,23 @@ namespace Insight {
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_SkyPass;
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_PostFxPass;
 
-		//Root Param Index - Resource
-		//0: SRV-Albedo(RTV->SRV)
-		//1: SRV-Normal(RTV->SRV)
-		//2: SRV-(R)Roughness/(G)Metallic/(B)AO(RTV->SRV)
-		//3: SRV-Position(RTV->SRV)
-		//4: SRV-Depth(DSV->SRV)
-		//5: SRV-Light Pass Result(RTV->SRV)
+		//0:  SRV-Albedo(RTV->SRV)
+		//1:  SRV-Normal(RTV->SRV)
+		//2:  SRV-(R)Roughness/(G)Metallic/(B)AO(RTV->SRV)
+		//3:  SRV-Position(RTV->SRV)
+		//4:  SRV-Depth(DSV->SRV)
+		//5:  SRV-Light Pass Result(RTV->SRV)
 		//-----PerObject-----
-		//6: SRV-Albedo(SRV)
-		//7: SRV-Normal(SRV)
-		//8: SRV-Roughness(SRV)
-		//9: SRV-Metallic(SRV)
+		//6:  SRV-Albedo(SRV)
+		//7:  SRV-Normal(SRV)
+		//8:  SRV-Roughness(SRV)
+		//9:  SRV-Metallic(SRV)
 		//10: SRV-AO(SRV)
-		//11:SRV-Sky Irradiance(SRV)
-		//12:SRV-Sky Environment(SRV)
-		//13:SRV-Sky BRDF LUT(SRV)
-		//14:SRV-Sky Diffuse(SRV)
+		//11: SRV-Sky Irradiance(SRV)
+		//12: SRV-Sky Environment(SRV)
+		//13: SRV-Sky BRDF LUT(SRV)
+		//14: SRV-Sky Diffuse(SRV)
 		CDescriptorHeapWrapper				m_cbvsrvHeap;
-		
 
 		ScreenQuad							m_ScreenQuad;
 		D3D12_VIEWPORT						m_ViewPort = {};
@@ -195,7 +207,6 @@ namespace Insight {
 		D3D12_DEPTH_STENCIL_VIEW_DESC		m_dsvDesc = {};
 
 		float								m_ClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-		static const unsigned int			m_NumRTV = 5;
 		DXGI_FORMAT							m_DsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		DXGI_FORMAT							m_RtvFormat[5] = { 
 			DXGI_FORMAT_R11G11B10_FLOAT,	// Albedo buffer
@@ -207,49 +218,44 @@ namespace Insight {
 		float								m_ClearDepth = 1.0f;
 
 
-		ComPtr<ID3D12Resource>	m_LightCBV[m_FrameBufferCount];
-		UINT8*					m_cbvLightBufferGPUAddress[m_FrameBufferCount];
+		ComPtr<ID3D12Resource>	m_LightCBV;
+		UINT8*					m_cbvLightBufferGPUAddress;
 
 		ComPtr<ID3D12Resource>	m_PerObjectCBV[m_FrameBufferCount];
 		UINT8*					m_cbvPerObjectGPUAddress[m_FrameBufferCount];
 
-		ComPtr<ID3D12Resource> m_PerFrameCBV[m_FrameBufferCount];
-		UINT8*				   m_cbvPerFrameGPUAddress[m_FrameBufferCount];
+		ComPtr<ID3D12Resource>	m_PerObjectMaterialAdditivesCBV[m_FrameBufferCount];
+		UINT8*					m_cbvPerObjectMaterialOverridesGPUAddress[m_FrameBufferCount];
+
+		ComPtr<ID3D12Resource> m_PerFrameCBV;
+		UINT8*				   m_cbvPerFrameGPUAddress;
 		CB_PS_VS_PerFrame	   m_PerFrameData;
 
-		ComPtr<ID3D12Resource> m_PostFxCBV[m_FrameBufferCount];
-		UINT8*				   m_cbvPostFxGPUAddress[m_FrameBufferCount];
+		ComPtr<ID3D12Resource> m_PostFxCBV;
+		UINT8*				   m_cbvPostFxGPUAddress;
 		CB_PS_VS_PerFrame	   m_PostFxData;
 		int CBPerFrameAlignedSize = (sizeof(CB_PS_VS_PerFrame) + 255) & ~255;
 
 		ASkySphere*			   m_pSkySphere = nullptr;
+		ASkyLight*			   m_SkyLight = nullptr;
 		APostFx*			   m_pPostFx = nullptr;
-		int CBPostFxAlignedSize = (sizeof(CB_PS_PostFx) + 255) & ~255;
+		int					   CBPostFxAlignedSize = (sizeof(CB_PS_PostFx) + 255) & ~255;
 
 #define POINT_LIGHTS_CB_ALIGNED_OFFSET (0)
 #define MAX_POINT_LIGHTS_SUPPORTED 16u
 		std::vector<APointLight*> m_PointLights;
-		int CBPointLightsAlignedSize = (sizeof(CB_PS_PointLight) + 255) & ~255;
+		int						  CBPointLightsAlignedSize = (sizeof(CB_PS_PointLight) + 255) & ~255;
 
 #define DIRECTIONAL_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight))
 #define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 4u
 		std::vector<ADirectionalLight*> m_DirectionalLights;
-		int CBDirectionalLightsAlignedSize = (sizeof(CB_PS_DirectionalLight) + 255) & ~255;
+		int							    CBDirectionalLightsAlignedSize = (sizeof(CB_PS_DirectionalLight) + 255) & ~255;
 
 #define SPOT_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight) + MAX_DIRECTIONAL_LIGHTS_SUPPORTED * sizeof(CB_PS_DirectionalLight))
 #define MAX_SPOT_LIGHTS_SUPPORTED 16u
 		std::vector<ASpotLight*> m_SpotLights;
-		int CBSpotLightsAlignedSize = (sizeof(CB_PS_SpotLight) + 255) & ~255;
+		int						 CBSpotLightsAlignedSize = (sizeof(CB_PS_SpotLight) + 255) & ~255;
 
-		Texture m_AlbedoTexture;
-		Texture m_NormalTexture;
-		Texture m_RoughnessTexture;
-		Texture m_MetallicTexture;
-		Texture m_AOTexture;
-		// Sky TODO: Move this!
-		Texture m_Irradiance;
-		Texture m_Environment;
-		Texture m_BRDFLUT;
 
 		// Utils
 		struct Resolution

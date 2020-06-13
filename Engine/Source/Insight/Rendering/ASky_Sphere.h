@@ -39,6 +39,8 @@ namespace Insight {
 		ASkySphere(ActorId id, ActorType type = "Sky Sphere Actor");
 		virtual ~ASkySphere();
 
+		virtual bool LoadFromJson(const rapidjson::Value& jsonSkySphere) override;
+
 		virtual bool OnInit();
 		virtual bool OnPostInit();
 		virtual void OnUpdate(const float& deltaMs);

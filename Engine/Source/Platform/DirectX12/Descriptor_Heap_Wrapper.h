@@ -3,6 +3,9 @@
 #include <Insight/Core.h>
 #include <comdef.h>
 
+/*
+	Based on implementation by shuhuai's implementation in https://github.com/shuhuai/DeferredShadingD3D12
+*/
 
 namespace Insight {
 

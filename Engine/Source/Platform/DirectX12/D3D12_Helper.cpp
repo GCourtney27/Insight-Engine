@@ -15,7 +15,7 @@ namespace Insight {
 	{
 	}
 
-	bool D3D12Helper::Init(UINT windowWidth, UINT windowHeight)
+	bool D3D12Helper::Init(HWND windowHandle, UINT windowWidth, UINT windowHeight)
 	{
 		m_WindowWidth = windowWidth;
 		m_WindowHeight = windowHeight;
@@ -95,8 +95,6 @@ namespace Insight {
 
 	void D3D12Helper::CreateSwapChain()
 	{
-		HRESULT hr;
-
 		DXGI_MODE_DESC backBufferDesc = {};
 		backBufferDesc.Width = m_WindowWidth;
 		backBufferDesc.Height = m_WindowHeight;
@@ -111,21 +109,21 @@ namespace Insight {
 		swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		//swapChainDesc.SampleDesc = m_SampleDesc;
-		//swapChainDesc.Flags = m_AllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
+		/*swapChainDesc.SampleDesc = m_SampleDesc;
+		swapChainDesc.Flags = m_AllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 		Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain{};
 
-		//hr = m_pDxgiFactory->CreateSwapChainForHwnd(m_pCommandQueue.Get(), *m_pWindowHandle, &swapChainDesc, nullptr, nullptr, &swapChain);
-		//ThrowIfFailed(hr, "Failed to Create Swap Chain");
+		hr = m_pDxgiFactory->CreateSwapChainForHwnd(m_pCommandQueue.Get(), *m_pWindowHandle, &swapChainDesc, nullptr, nullptr, &swapChain);
+		ThrowIfFailed(hr, "Failed to Create Swap Chain");
 
-		/*if (m_AllowTearing)
+		if (m_AllowTearing)
 		{
 			hr = m_pDxgiFactory->MakeWindowAssociation(*m_pWindowHandle, DXGI_MWA_NO_ALT_ENTER);
 			ThrowIfFailed(hr, "Failed to Make Window Association");
-		}*/
+		}
 
 		hr = swapChain.As(&m_pSwapChain);
-		ThrowIfFailed(hr, "Failed to cast SwapChain ComPtr");
+		ThrowIfFailed(hr, "Failed to cast SwapChain ComPtr");*/
 
 		m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 	}

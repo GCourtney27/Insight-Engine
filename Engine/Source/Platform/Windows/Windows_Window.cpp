@@ -122,6 +122,7 @@ namespace Insight {
 		case WM_KEYDOWN:
 		{
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			// Debug force engine close Escape key
 			if (wParam == VK_ESCAPE)
 			{
 				PostQuitMessage(0);
@@ -129,7 +130,6 @@ namespace Insight {
 				data.EventCallback(event);
 				return 0;
 			}
-
 
 			if (wParam == VK_F11)
 			{
@@ -166,10 +166,10 @@ namespace Insight {
 		}
 		case WM_SIZE:
 		{
-			//IE_CORE_INFO("Window size has changed");
-
-			// CRASHES NO NOT RESIZE WINDOW
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+
+			// Window will attempt to resize on creation. However, buffer 
+			//resize can fail if the rest of the application is not initialized first.
 			if (data.isFirstLaunch)
 			{
 				data.isFirstLaunch = false;
@@ -179,6 +179,9 @@ namespace Insight {
 			GetClientRect(hWnd, &clientRect);
 			WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, wParam == SIZE_MINIMIZED);
 			data.EventCallback(event);
+
+			IE_CORE_INFO("Window size has changed");
+
 			return 0;
 		}
 		case WM_INPUT:
@@ -186,7 +189,7 @@ namespace Insight {
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			UINT dataSize;
 			GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, NULL, &dataSize, sizeof(RAWINPUTHEADER));
-			
+
 			if (dataSize > 0)
 			{
 				std::unique_ptr<BYTE[]> rawdata = std::make_unique<BYTE[]>(dataSize);
@@ -208,11 +211,13 @@ namespace Insight {
 			return DefWindowProc(hWnd, msg, wParam, lParam);
 		}
 		}
-
+		return DefWindowProc(hWnd, msg, wParam, lParam);
 	}
 
 	bool WindowsWindow::Init(const WindowProps& props)
 	{
+		HRESULT hr = CoInitialize(NULL);
+		ThrowIfFailed(hr, "Failed to initialize COM library.");
 
 		static bool raw_input_initialized = false;
 		if (raw_input_initialized == false)
@@ -227,7 +232,8 @@ namespace Insight {
 			if (RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE)
 			{
 				IE_CORE_ERROR("Failed to register raw input devices. Error: {0}", GetLastError());
-				exit(-1);
+				WindowCloseEvent event;
+				m_Data.EventCallback(event);
 				// registration failed. Call GetLastError for the cause of the error
 			}
 			raw_input_initialized = true;
@@ -269,13 +275,19 @@ namespace Insight {
 			return false;
 		}
 
-		m_pRendererContext = std::make_shared<Direct3D12Context>(this);
-		if (!m_pRendererContext->Init())
 		{
-			//IE_CORE_FATAL(L"Failed to initialize graphics context");
-			return false;
+			ScopedTimer timer("WindowsWindow::Init::RendererInit");
+
+			m_pRendererContext = std::make_shared<Direct3D12Context>(this);
+			if (!m_pRendererContext->Init())
+			{
+				IE_CORE_FATAL(L"Failed to initialize graphics context");
+				return false;
+			}
+			else {
+				IE_CORE_TRACE("Renderer Initialized");
+			}
 		}
-		IE_CORE_TRACE("Renderer Initialized");
 
 		ShowWindow(m_WindowHandle, m_nCmdShowArgs);
 		SetForegroundWindow(m_WindowHandle);
@@ -373,6 +385,27 @@ namespace Insight {
 		m_pRendererContext->SwapBuffers();
 	}
 
+	bool WindowsWindow::SetWindowTitle(const std::string& newText, bool completlyOverride)
+	{
+		BOOL succeeded = true;
+		if (completlyOverride) {
+			succeeded = SetWindowText(m_WindowHandle, StringHelper::StringToWide(newText).c_str());
+		}
+		else {
+			m_Data.WindowTitle_wide = m_Data.WindowTitle_wide + L" - " + StringHelper::StringToWide(newText);
+			succeeded = SetWindowText(m_WindowHandle, m_Data.WindowTitle_wide.c_str());
+		}
+		return succeeded;
+	}
+
+	bool WindowsWindow::SetWindowTitleFPS(float fps)
+	{
+		BOOL succeeded = true;
+		std::wstring windowTitle = m_Data.WindowTitle_wide + L" FPS: " + std::to_wstring((UINT)fps);
+		succeeded = SetWindowText(m_WindowHandle, windowTitle.c_str());
+		return succeeded;
+	}
+
 	void* WindowsWindow::GetNativeWindow() const
 	{
 		return m_WindowHandle;
@@ -397,6 +430,8 @@ namespace Insight {
 
 	void WindowsWindow::Shutdown()
 	{
+		CoUninitialize();
+
 		if (m_WindowHandle != NULL)
 		{
 			UnregisterClass(this->m_Data.WindowClassName_wide.c_str(), *m_WindowsAppInstance);

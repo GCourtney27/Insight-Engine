@@ -12,7 +12,7 @@ namespace Insight {
 		~ConsoleWindow();
 
 	private:
-		bool Init(int bufferLines = 500, int bufferColumns = 120, int windowLines = 32, int windowColumns = 120);
+		bool Init(int bufferLines = 700, int bufferColumns = 320, int windowLines = 42, int windowColumns = 170);
 		void Shutdown();
 	private:
 		HWND m_WindowHandle;

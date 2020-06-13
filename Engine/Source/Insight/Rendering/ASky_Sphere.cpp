@@ -1,7 +1,7 @@
 #include <ie_pch.h>
 
-#include "Insight/Systems/File_System.h"
 #include "Platform/DirectX12/Direct3D12_Context.h"
+#include "Insight/Systems/File_System.h"
 
 #include "ASky_Sphere.h"
 
@@ -17,15 +17,29 @@ namespace Insight {
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
 		m_pCommandList = &graphicsContext.GetCommandList();
 		graphicsContext.AddSkySphere(this);
-
-		CDescriptorHeapWrapper& cbvSrvheap = graphicsContext.GetCBVSRVDescriptorHeap();
-		Texture::eTextureType textureType = Texture::eTextureType::SKY_DIFFUSE;
-		std::wstring pathDirW = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/skybox1_Diff.dds"));
-		m_Diffuse.Init(pathDirW, textureType, cbvSrvheap);
 	}
 
 	ASkySphere::~ASkySphere()
 	{
+	}
+
+	bool ASkySphere::LoadFromJson(const rapidjson::Value& jsonSkySphere)
+	{
+		std::string diffuseMap;
+		const rapidjson::Value& sky = jsonSkySphere["Sky"];
+		json::get_string(sky[0], "Diffuse", diffuseMap);
+
+		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
+		CDescriptorHeapWrapper& cbvSrvheap = graphicsContext.GetCBVSRVDescriptorHeap();
+
+		Texture::IE_TEXTURE_INFO diffuseInfo;
+		diffuseInfo.filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(diffuseMap));
+		diffuseInfo.type = Texture::eTextureType::SKY_DIFFUSE;
+		diffuseInfo.generateMipMaps = true;
+		diffuseInfo.isCubeMap = true;
+		m_Diffuse.Init(diffuseInfo, cbvSrvheap);
+
+		return true;
 	}
 
 	bool ASkySphere::OnInit()

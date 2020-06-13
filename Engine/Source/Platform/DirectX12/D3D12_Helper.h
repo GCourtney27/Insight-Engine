@@ -15,13 +15,14 @@ namespace Insight {
 		D3D12Helper();
 		~D3D12Helper();
 
+		bool Init(HWND windowHandle, UINT windowWidth, UINT windowHeight);
+
 		inline ID3D12Device& GetDeviceContext() const { return *m_pLogicalDevice.Get(); }
 		inline IDXGIAdapter1& GetDevice() const { return *m_pPhysicalDevice.Get(); }
 		inline ID3D12GraphicsCommandList& GetCommandList() const { return *m_pCommandList.Get(); }
 		inline ID3D12CommandQueue& GetCommandQueue() const { return *m_pCommandQueue.Get(); }
 
 	private:
-		bool Init(UINT windowWidth, UINT windowHeight);
 
 		void CreateDXGIFactory();
 		void GetHardwareAdapter(IDXGIFactory2* pFactory, IDXGIAdapter1** ppAdapter);

@@ -13,6 +13,8 @@ namespace Insight {
 		APointLight(ActorId id, ActorType type = "Point Light Actor");
 		virtual ~APointLight();
 
+		virtual bool LoadFromJson(const rapidjson::Value& jsonPointLight) override;
+
 		virtual bool OnInit();
 		virtual bool OnPostInit();
 		virtual void OnUpdate(const float& deltaMs);

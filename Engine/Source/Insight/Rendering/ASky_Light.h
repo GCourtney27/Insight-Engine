@@ -1,19 +1,20 @@
 #pragma once
+#pragma once
 
 #include <Insight/Core.h>
 
 #include "Insight/Runtime/AActor.h"
-#include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
+#include "Insight/Rendering/Texture.h"
 
 namespace Insight {
 
-	class INSIGHT_API APostFx : public AActor
+	class INSIGHT_API ASkyLight : public AActor
 	{
 	public:
-		APostFx(ActorId id, ActorType type = "Spot Light Actor");
-		virtual ~APostFx();
+		ASkyLight(ActorId id, ActorType type = "Sky Light Actor");
+		virtual ~ASkyLight();
 
-		virtual bool LoadFromJson(const rapidjson::Value& jsonPostFx) override;
+		virtual bool LoadFromJson(const rapidjson::Value& jsonSkyLight) override;
 
 		virtual bool OnInit();
 		virtual bool OnPostInit();
@@ -30,12 +31,16 @@ namespace Insight {
 
 		virtual void OnImGuiRender() override;
 
-		CB_PS_PostFx GetConstantBuffer() { return m_ShaderCB; }
+		/*CB_PS_SpotLight GetConstantBuffer() { return m_ShaderCB; }*/
 
 	private:
-		CB_PS_PostFx m_ShaderCB;
-		float m_TempInnerRadius = 0.1f;
-		float m_TempOuterRadius = 1.0f;
+		Texture m_Irradiance;
+		Texture m_Environment;
+		Texture m_BrdfLUT;
+
+		ID3D12GraphicsCommandList* m_pCommandList;
+
 	};
+
 
 }

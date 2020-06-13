@@ -7,6 +7,7 @@
 
 namespace Insight {
 
+	static std::mutex s_MeshMutex;
 
 	Model::Model(const std::string& path)
 	{
@@ -16,6 +17,13 @@ namespace Insight {
 	Model::~Model()
 	{
 		//Destroy();
+	}
+
+	bool Model::LoadFromJson(const rapidjson::Value& materialInfo)
+	{
+		m_Material.LoadFromJson(materialInfo);
+
+		return true;
 	}
 
 	bool Model::Init(const std::string& path)
@@ -29,7 +37,11 @@ namespace Insight {
 
 	void Model::OnImGuiRender()
 	{
+		ImGui::Text("Asset: ");
+		ImGui::SameLine();
+		ImGui::Text(m_FileName.c_str());
 
+		m_Material.OnImGuiRender();
 	}
 
 	void Model::RenderSceneHeirarchy()
@@ -43,12 +55,17 @@ namespace Insight {
 		}
 	}
 
+	void Model::BindResources()
+	{
+		m_Material.BindResources();
+	}
+
 	void Model::PreRender(const XMMATRIX& parentMat)
 	{
-		//auto worldMat = XMMatrixMultiply(parentMat, m_pRoot->GetTransformRef().GetLocalMatrixRef());
+		auto worldMat = XMMatrixMultiply(parentMat, m_pRoot->GetTransformRef().GetLocalMatrixRef());
 		for (unique_ptr<Mesh>& mesh : m_Meshes)
 		{
-			mesh->PreRender(parentMat);
+			mesh->PreRender(worldMat);
 		}
 	}
 
@@ -160,37 +177,7 @@ namespace Insight {
 			}
 		}
 
-		Material material;
-		//if (pMesh->mMaterialIndex >= 0)
-		//{
-		//	CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle(Direct3D12Context::Get().GetShaderVisibleDescriptorHeapHandleWithOffset());
-
-		//	aiMaterial* pMat = pScene->mMaterials[pMesh->mMaterialIndex];
-
-		//	Texture diffuseMap = ParseTexture(pMat, aiTextureType_DIFFUSE, Texture::eTextureType::ALBEDO, srvHeapHandle);
-		//	Texture normalMap = ParseTexture(pMat, aiTextureType_HEIGHT, Texture::eTextureType::NORMAL, srvHeapHandle);
-		//	Texture specularMap = ParseTexture(pMat, aiTextureType_SPECULAR, Texture::eTextureType::SPECULAR, srvHeapHandle);
-		//	
-
-		//	material.AddTexture(diffuseMap);
-		//	material.AddTexture(normalMap);
-		//	//material.AddTexture(specularMap);
-		//}
-
-		return std::make_unique<Mesh>(verticies, indices, material);
+		return std::make_unique<Mesh>(verticies, indices);
 	}
-
-	Texture Model::ParseTexture(aiMaterial* pMaterial, aiTextureType textureType, Texture::eTextureType targetType, CD3DX12_CPU_DESCRIPTOR_HANDLE& srvHeapHandle)
-	{
-		aiString texturePath;
-		for (UINT i = 0; i < pMaterial->GetTextureCount(textureType); i++)
-		{
-			pMaterial->GetTexture(textureType, i, &texturePath);
-		}
-
-		return Texture(StringHelper::StringToWide(m_Directory + "/" + texturePath.C_Str()), targetType, srvHeapHandle);
-	}
-
-
 
 }

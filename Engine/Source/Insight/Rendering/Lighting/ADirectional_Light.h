@@ -13,6 +13,8 @@ namespace Insight {
 		ADirectionalLight(ActorId id, ActorType type = "Directional Light Actor");
 		virtual ~ADirectionalLight();
 
+		virtual bool LoadFromJson(const rapidjson::Value& jsonDirectionalLight) override;
+
 		virtual bool OnInit();
 		virtual bool OnPostInit();
 		virtual void OnUpdate(const float& deltaMs);

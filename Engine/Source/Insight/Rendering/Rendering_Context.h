@@ -47,6 +47,8 @@ namespace Insight {
 		bool m_FullScreenMode = false;
 		bool m_WindowedMode = true;
 		bool m_WindowVisible = true;
+#define RETURN_IF_WINDOW_NOT_VISIBLE if (!m_WindowVisible){ return;}
+		
 		bool m_AllowTearing = true;
 
 		enum RenderingAPI

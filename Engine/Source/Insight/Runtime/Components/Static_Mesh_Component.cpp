@@ -3,7 +3,8 @@
 #include "Insight/Runtime/AActor.h"
 #include "Static_Mesh_Component.h"
 #include "Insight/Systems/Model_Manager.h"
-#include "imgui.h"
+#include "Insight/Systems/File_System.h"
+#include <imgui.h>
 
 namespace Insight {
 
@@ -17,6 +18,19 @@ namespace Insight {
 
 	StaticMeshComponent::~StaticMeshComponent()
 	{
+	}
+
+	bool StaticMeshComponent::LoadFromJson(const rapidjson::Value& jsonStaticMeshComponent)
+	{
+		// Load Mesh
+		std::string modelPath;
+		json::get_string(jsonStaticMeshComponent[0], "Mesh", modelPath);
+		AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath(modelPath));
+		m_pModel->LoadFromJson(jsonStaticMeshComponent[1]);
+		// Load Material
+		//m_Material.LoadFromJson(jsonStaticMeshComponent[1]);
+
+		return true;
 	}
 
 	void StaticMeshComponent::OnInit()
@@ -41,14 +55,13 @@ namespace Insight {
 
 	void StaticMeshComponent::OnUpdate(const float& deltaTime)
 	{
-
-
 	}
 
 	void StaticMeshComponent::OnImGuiRender()
 	{
+		ImGui::Spacing();
+		ImGui::Text(m_ComponentName);
 		m_pModel->OnImGuiRender();
-
 	}
 
 	void StaticMeshComponent::RenderSceneHeirarchy()
@@ -58,9 +71,12 @@ namespace Insight {
 
 	void StaticMeshComponent::AttachMesh(const std::string& path)
 	{
-		if (m_pModel)
-			m_pModel.reset();
+		std::string profileData = "StaticMeshComponent::AttachMesh \"" + path + "\"";
+		ScopedTimer timer(profileData.c_str());
 
+		if (m_pModel) {
+			m_pModel.reset();
+		}
 		m_pModel = make_shared<Model>(path);
 		ModelManager::Get().PushModel(m_pModel);
 	}

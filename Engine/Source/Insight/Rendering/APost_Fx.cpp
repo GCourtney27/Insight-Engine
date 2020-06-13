@@ -15,34 +15,49 @@ namespace Insight {
 		: AActor(id, type)
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-
-		// Vignette
-		m_ShaderCB.innerRadius = 0.1f;
-		m_ShaderCB.outerRadius = 1.0f;
-		m_ShaderCB.opacity = 1.0f;
-		m_ShaderCB.vnEnabled = TRUE;
-		// Film Grain
-		m_ShaderCB.fgStrength = 16.0f;
-		m_ShaderCB.fgEnabled = TRUE;
-		// SSR
-		m_ShaderCB.depthBufferSize.x = (float)Application::Get().GetWindow().GetWidth();
-		m_ShaderCB.depthBufferSize.y = (float)Application::Get().GetWindow().GetHeight();
-		m_ShaderCB.viewRay = APlayerCharacter::Get().GetCameraRef().GetTransformRef().GetLocalForward();
-		m_ShaderCB.texelWidth = 1.0f / (float)Application::Get().GetWindow().GetWidth();
-		m_ShaderCB.texelHeight = 1.0f / (float)Application::Get().GetWindow().GetHeight();
-		m_ShaderCB.zThickness = 0.0006f;
-		m_ShaderCB.stride = 1.0f;
-		m_ShaderCB.maxSteps = 30.0f;
-		m_ShaderCB.maxDistance = 15.0f;
-		m_ShaderCB.strideZCutoff = 1.0f;
-		m_ShaderCB.fadeStart = 0.0f;
-		m_ShaderCB.fadeEnd = 1.0f;
-
 		graphicsContext.AddPostFxActor(this);
 	}
 
 	APostFx::~APostFx()
 	{
+	}
+
+	bool APostFx::LoadFromJson(const rapidjson::Value& jsonPostFx)
+	{
+		AActor::LoadFromJson(jsonPostFx);
+
+		float vnInnerRadius, vnOuterRadius, vnOpacity; bool vnEnabled;
+		float fgStrength; bool fgEnabled;
+		float caIntensity; bool caEnabled;
+
+		const rapidjson::Value& postFx = jsonPostFx["PostFx"];
+
+		const rapidjson::Value& vignette = postFx[0];
+		json::get_float(vignette, "vnInnerRadius", vnInnerRadius);
+		json::get_float(vignette, "vnOuterRadius", vnOuterRadius);
+		json::get_float(vignette, "vnOpacity", vnOpacity);
+		json::get_bool(vignette, "vnEnabled", vnEnabled);
+
+		const rapidjson::Value& filmGrain = postFx[1];
+		json::get_float(filmGrain, "fgStrength", fgStrength);
+		json::get_bool(filmGrain, "fgEnabled", fgEnabled);
+
+		const rapidjson::Value& chromAb = postFx[2];
+		json::get_float(chromAb, "caIntensity", caIntensity);
+		json::get_bool(chromAb, "caEnabled", caEnabled);
+
+		// Vignette
+		m_ShaderCB.innerRadius = vnInnerRadius;
+		m_ShaderCB.outerRadius = vnOuterRadius;
+		m_ShaderCB.opacity = vnOpacity;
+		m_ShaderCB.vnEnabled = (int)vnEnabled;
+		// Film Grain
+		m_ShaderCB.fgStrength = fgStrength;
+		m_ShaderCB.fgEnabled = (int)fgEnabled;
+		// Chromatic Aberration
+		m_ShaderCB.caEnabled = (int)caEnabled;
+		m_ShaderCB.caIntensity = caIntensity;
+		return true;
 	}
 
 	bool APostFx::OnInit()
@@ -110,18 +125,9 @@ namespace Insight {
 		ImGui::DragFloat("Strength", &m_ShaderCB.fgStrength, 0.1f, 0.0f, 80.0f);
 		ImGui::Spacing();
 
-		ImGui::Text("Screen-Space Ray-Trace");
-		ImGui::DragFloat("Z Thickness", &m_ShaderCB.zThickness, 0.1f, -80.0f, 80.0f);
-		ImGui::DragFloat("Stride", &m_ShaderCB.stride, 0.1f, -80.0f, 80.0f);
-		ImGui::DragFloat("Max Steps", &m_ShaderCB.maxSteps, 0.1f, -80.0f, 80.0f);
-		ImGui::DragFloat("Max Distance", &m_ShaderCB.maxDistance, 0.1f, -80.0f, 80.0f);
-		ImGui::DragFloat("Stride Z Cutoff", &m_ShaderCB.strideZCutoff, 0.1f, -80.0f, 80.0f);
-		ImGui::DragFloat("Fade Start", &m_ShaderCB.fadeStart, 0.1f, -80.0f, 80.0f);
-		ImGui::DragFloat("Fade End", &m_ShaderCB.fadeEnd, 0.1f, -80.0f, 80.0f);
-		ImGui::DragFloat("Texel Width", &m_ShaderCB.texelWidth, 0.1f, -80.0f, 80.0f);
-		ImGui::DragFloat("Texel sHeight", &m_ShaderCB.texelHeight, 0.1f, -80.0f, 80.0f);
-
-		m_ShaderCB.viewRay = APlayerCharacter::Get().GetCameraRef().GetTransformRef().GetLocalForward();
+		ImGui::Text("Chromatic Aberration");
+		ImGui::Checkbox("caEnabled", (bool*)&m_ShaderCB.caEnabled);
+		ImGui::DragFloat("Intensity", &m_ShaderCB.caIntensity, 0.1f, 0.0f, 80.0f);
 	}
 
 }

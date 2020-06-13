@@ -6,6 +6,7 @@
 #include <stack>
 #include <queue>
 #include <vector>
+#include <future>
 #include <string>
 #include <math.h>
 #include <thread>
@@ -37,6 +38,18 @@
 // === Insight Specific === //
 #include "Insight/Core/Log.h"
 #include "Insight/Core/Interfaces.h"
+#include "Insight/Utilities/Profiling.h"
+
+// === Third Party === //
+// Rapid Json
+#include <rapidjson/json.h>
+#include <rapidjson/document.h>
+#include <rapidjson/filewritestream.h>
+#include <rapidjson/istreamwrapper.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/ostreamwrapper.h>
+#include <rapidjson/prettywriter.h>
 
 // === Windows Library === //
 #ifdef IE_PLATFORM_WINDOWS
@@ -55,6 +68,7 @@
 	#include <DirectXMath.h>
 	#include <D3Dcompiler.h>
 	#include <DDSTextureLoader.h>
+	#include <WICTextureLoader.h>
 	#include "ResourceUploadBatch.h"
 
 #endif // IE_PLATFORM_WINDOWS

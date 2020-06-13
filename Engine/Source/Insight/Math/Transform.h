@@ -13,6 +13,7 @@ namespace Insight {
 		Transform();
 		~Transform();
 		Transform(const Transform& transform);
+		Transform(Transform&& transform) noexcept;
 
 		Transform& operator = (const Transform& transform);
 		
@@ -23,6 +24,10 @@ namespace Insight {
 		inline Vector3& GetPositionRef() { m_Transformed = true; return m_Position; }
 		inline Vector3& GetRotationRef() { m_Transformed = true; return m_Rotation; }
 		inline Vector3& GetScaleRef() { m_Transformed = true; return m_Scale; }
+
+		inline void SetPosition(float x, float y, float z) { m_Position.x = x; m_Position.y = y; m_Position.z = z; TranslateLocalMatrix(); UpdateLocalMatrix(); }
+		inline void SetRotation(float x, float y, float z) { m_Rotation.x = x; m_Rotation.y = y; m_Rotation.z = z; RotateLocalMatrix(); UpdateLocalMatrix(); }
+		inline void SetScale(float x, float y, float z) { m_Scale.x = x; m_Scale.y = y; m_Scale.z = z; ScaleLocalMatrix(); UpdateLocalMatrix(); }
 
 		inline void SetPosition(const Vector3& vector) { m_Position = vector; TranslateLocalMatrix(); UpdateLocalMatrix(); }
 		inline void SetRotation(const Vector3& vector) { m_Rotation = vector; RotateLocalMatrix(); UpdateLocalMatrix(); }
@@ -57,6 +62,19 @@ namespace Insight {
 		// Set the objects world matrix
 		void SetWorldMatrix(XMMATRIX matrix);
 		XMMATRIX GetWorldMatrixTransposed() const { return XMMatrixTranspose(m_WorldMatrix); }
+
+		XMMATRIX& GetTranslationMatrixRef() { return m_TranslationMat; }
+		XMMATRIX GetTranslationMatrix() { return m_TranslationMat; }
+		void SetTranslationMatrix(XMMATRIX matrix) { m_TranslationMat = matrix; }
+
+		XMMATRIX& GetRotationMatrixRef() { return m_RotationMat; }
+		XMMATRIX GetRotationMatrix() { return m_RotationMat; }
+		void SetRotationMatrix(XMMATRIX matrix) { m_RotationMat = matrix; }
+
+		XMMATRIX& GetScaleMatrixRef() { return m_ScaleMat; }
+		XMMATRIX GetScaleMatrix() { return m_ScaleMat; }
+		void SetScaleMatrix(XMMATRIX matrix) { m_ScaleMat = matrix; }
+
 
 		// Update the objects local directional vectors.
 		// DO NOT CALL UNLESS YOU KNOW WHAT YOU'RE DOING

@@ -33,7 +33,7 @@ namespace Insight {
 	public:
 		friend class APlayerCharacter;
 	public:
-		ACamera(Vector3 position = Vector3(0.0f, 10.0f, -10.0f),
+		ACamera(Vector3 position = Vector3(0.0f, 10.0f, -20.0f),
 			float pitch = PITCH,
 			float yaw = YAW,
 			float roll = ROLL,
