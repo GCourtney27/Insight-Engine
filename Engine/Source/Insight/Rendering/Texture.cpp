@@ -64,7 +64,32 @@ namespace Insight {
 			InitDDSTexture(filepath, srvHeapHandle);
 		}
 		else {
-			InitTextureFromFile(filepath, textureType, srvHeapHandle);
+			//InitTextureFromFile(filepath, textureType, srvHeapHandle);
+			ID3D12Device* pDevice = &graphicsContext.GetDeviceContext();
+			ID3D12CommandQueue* pCommandQueue = &graphicsContext.GetCommandQueue();
+
+			ResourceUploadBatch resourceUpload(pDevice);
+			resourceUpload.Begin();
+			resourceUpload.IsSupportedForGenerateMips(DXGI_FORMAT_R8G8B8A8_SINT);
+
+			ThrowIfFailed(CreateWICTextureFromFile(pDevice, resourceUpload, filepath.c_str(), &m_pTexture, true), "Failed to Create WIC texture from file.");
+			m_TextureDesc = m_pTexture->GetDesc();
+
+			// Upload the resources to the GPU.
+			auto uploadResourcesFinished = resourceUpload.End(pCommandQueue);
+
+			// Wait for the upload thread to terminate
+			uploadResourcesFinished.wait();
+
+			D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+			srvDesc.Texture2D.MipLevels = m_TextureDesc.MipLevels;
+			srvDesc.Format = m_TextureDesc.Format;
+			srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+			srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+			pDevice->CreateShaderResourceView(m_pTexture, &srvDesc, srvHeapHandle.hCPU(6 + s_NumSceneTextures));
+
+			m_GPUHeapIndex = s_NumSceneTextures;
+			s_NumSceneTextures++;
 		}
 
 		return true;

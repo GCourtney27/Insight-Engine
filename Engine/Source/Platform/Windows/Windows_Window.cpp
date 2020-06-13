@@ -216,6 +216,8 @@ namespace Insight {
 
 	bool WindowsWindow::Init(const WindowProps& props)
 	{
+		HRESULT hr = CoInitialize(NULL);
+		ThrowIfFailed(hr, "Failed to initialize COM library.");
 
 		static bool raw_input_initialized = false;
 		if (raw_input_initialized == false)
@@ -420,6 +422,8 @@ namespace Insight {
 
 	void WindowsWindow::Shutdown()
 	{
+		CoUninitialize();
+
 		if (m_WindowHandle != NULL)
 		{
 			UnregisterClass(this->m_Data.WindowClassName_wide.c_str(), *m_WindowsAppInstance);

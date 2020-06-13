@@ -73,6 +73,7 @@ namespace Insight {
 	{
 		std::string profileData = "StaticMeshComponent::AttachMesh \"" + path + "\"";
 		ScopedTimer timer(profileData.c_str());
+
 		if (m_pModel) {
 			m_pModel.reset();
 		}

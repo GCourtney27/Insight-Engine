@@ -37,6 +37,8 @@ namespace Insight {
 		s_Instance = this;
 
 		m_AspectRatio = (float)m_WindowWidth / (float)m_WindowHeight;
+		
+		
 
 	}
 

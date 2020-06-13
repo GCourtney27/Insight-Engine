@@ -68,6 +68,7 @@
 	#include <DirectXMath.h>
 	#include <D3Dcompiler.h>
 	#include <DDSTextureLoader.h>
+	#include <WICTextureLoader.h>
 	#include "ResourceUploadBatch.h"
 
 #endif // IE_PLATFORM_WINDOWS
