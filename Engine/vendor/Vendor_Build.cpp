@@ -8,3 +8,7 @@
 #include "ImGuizmo.cpp"
 #include "ImGradient.cpp"
 #include "ImCurveEdit.cpp"
+
+// RapidJson
+#include <rapidjson/json.cpp>
+

@@ -13,9 +13,6 @@
 #include "Insight/Rendering/Lighting/APoint_Light.h"
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
 
-// TODO make a third part build file with imgui and rapidjson for all cpp files that need to be compiled
-#include <rapidjson/json.cpp>
-
 namespace Insight {
 
 	FileSystem* FileSystem::s_Instance = nullptr;
