@@ -118,8 +118,8 @@ namespace Insight {
 			ImGui::DragFloat("Roughness Addative:", &m_ShaderCB.roughnessAdditive, 0.01f, 0.0f, 1.0f);
 
 			ImGui::Text("UVs");
-			ImGui::DragFloat2("Tiling:", &m_ShaderCB.tiling.x, 0.01f, 0.0f, 10.0f);
-			ImGui::DragFloat2("Offset:", &m_ShaderCB.uvOffset.x, 0.01f, 0.0f, 10.0f);
+			ImGui::DragFloat2("Tiling:", &m_ShaderCB.tiling.x, 0.01f, -50.0f, 50.0f);
+			ImGui::DragFloat2("Offset:", &m_ShaderCB.uvOffset.x, 0.01f, -50.0f, 50.0f);
 		}
 
 	}

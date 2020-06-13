@@ -2,11 +2,16 @@
 
 #include "Direct3D12_Context.h"
 
-#include "Insight/Input/Input.h"
 #include "Insight/Core/Application.h"
 #include "Platform/Windows/Windows_Window.h"
 #include "Insight/Runtime/APlayer_Character.h"
 
+#include "Insight/Rendering/APost_Fx.h"
+#include "Insight/Rendering/ASky_Light.h"
+#include "Insight/Rendering/ASky_Sphere.h"
+#include "Insight/Rendering/Lighting/ASpot_Light.h"
+#include "Insight/Rendering/Lighting/APoint_Light.h"
+#include "Insight/Rendering/Lighting/ADirectional_Light.h"
 
 
 namespace Insight {
@@ -28,7 +33,7 @@ namespace Insight {
 	UINT Direct3D12Context::m_ResolutionIndex = 2;
 
 	Direct3D12Context::Direct3D12Context(WindowsWindow* windowHandle)
-		: m_pWindowHandle(&windowHandle->GetWindowHandleReference()), 
+		: m_pWindowHandle(&windowHandle->GetWindowHandleReference()),
 		m_pWindow(windowHandle),
 		RenderingContext(windowHandle->GetWidth(), windowHandle->GetHeight(), false)
 	{
@@ -37,9 +42,6 @@ namespace Insight {
 		s_Instance = this;
 
 		m_AspectRatio = (float)m_WindowWidth / (float)m_WindowHeight;
-		
-		
-
 	}
 
 	Direct3D12Context::~Direct3D12Context()
@@ -134,8 +136,8 @@ namespace Insight {
 		m_PerFrameData.numPointLights = (float)m_PointLights.size();
 		m_PerFrameData.numDirectionalLights = (float)m_DirectionalLights.size();
 		m_PerFrameData.numSpotLights = (float)m_SpotLights.size();
-		m_PerFrameData.screenSize.x = m_WindowWidth;
-		m_PerFrameData.screenSize.y = m_WindowHeight;
+		m_PerFrameData.screenSize.x = (float)m_WindowWidth;
+		m_PerFrameData.screenSize.y = (float)m_WindowHeight;
 		memcpy(m_cbvPerFrameGPUAddress, &m_PerFrameData, sizeof(CB_PS_VS_PerFrame));
 
 		// Send Point Lights to GPU
@@ -172,16 +174,16 @@ namespace Insight {
 	void Direct3D12Context::OnRender()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
-		
+
 		SetConstantBuffers();
 	}
 
 	void Direct3D12Context::OnPreFrameRender()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
-		
+
 		HRESULT hr;
-		
+
 		hr = m_pCommandAllocators[m_FrameIndex]->Reset();
 		ThrowIfFailed(hr, "Failed to reset command allocator in Direct3D12Context::OnPreFrameRender");
 
@@ -202,7 +204,7 @@ namespace Insight {
 	void Direct3D12Context::BindGeometryPass(bool setPSO)
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
-		
+
 		ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
 		m_pCommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
@@ -219,19 +221,12 @@ namespace Insight {
 		m_pCommandList->OMSetRenderTargets(m_NumRTV, &m_rtvHeap.hCPUHeapStart, true, &m_dsvHeap.hCPUHeapStart);
 		m_pCommandList->SetGraphicsRootSignature(m_pRootSignature.Get());
 		m_pCommandList->SetGraphicsRootDescriptorTable(5, m_cbvsrvHeap.hGPU(0));
-
-		{
-			m_Irradiance.Bind();
-			m_Environment.Bind();
-			m_BRDFLUT.Bind();
-		}
-
 	}
 
 	void Direct3D12Context::OnMidFrameRender()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE
-		
+
 		//m_pCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, nullptr);
 		m_pCommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), true, nullptr);
 		BindLightingPass();
@@ -247,24 +242,30 @@ namespace Insight {
 	void Direct3D12Context::BindLightingPass()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
-		
-		for (unsigned int i = 0; i < m_NumRTV - 1; ++i) {
-			m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
+
+		if (m_SkyLight) {
+
+			m_SkyLight->OnRender();
+
+			for (unsigned int i = 0; i < m_NumRTV - 1; ++i) {
+				m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
+			}
+
+			m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
+
+			m_pCommandList->SetPipelineState(m_pPipelineStateObject_LightingPass.Get());
+
+			m_ScreenQuad.Render(m_pCommandList);
 		}
-
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
-
-		m_pCommandList->SetPipelineState(m_pPipelineStateObject_LightingPass.Get());
-
-		m_ScreenQuad.Render(m_pCommandList);
 
 	}
 
 	void Direct3D12Context::BindSkyPass()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
-		
+
 		if (m_pSkySphere) {
+
 			m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 
 			m_pCommandList->SetPipelineState(m_pPipelineStateObject_SkyPass.Get());
@@ -276,10 +277,11 @@ namespace Insight {
 	void Direct3D12Context::BindPostFxPass()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
-	
+
 		if (m_pPostFx) {
+
 			m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
-			
+
 			m_pCommandList->SetPipelineState(m_pPipelineStateObject_PostFxPass.Get());
 			m_pCommandList->SetGraphicsRootDescriptorTable(15, m_cbvsrvHeap.hGPU(5));
 
@@ -291,7 +293,7 @@ namespace Insight {
 	void Direct3D12Context::ExecuteDraw()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
-		
+
 		HRESULT hr;
 
 		// Prepare the buffers for next frame
@@ -315,7 +317,7 @@ namespace Insight {
 
 	void Direct3D12Context::SwapBuffers()
 	{
-		
+
 		UINT presentFlags = (m_AllowTearing && m_WindowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
 		HRESULT hr = m_pSwapChain->Present(m_VSyncEnabled, presentFlags);
 		ThrowIfFailed(hr, "Failed to present frame");
@@ -591,7 +593,7 @@ namespace Insight {
 	void Direct3D12Context::CreateRTVs()
 	{
 		HRESULT hr;
-		
+
 		m_rtvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 5);
 		CD3DX12_HEAP_PROPERTIES heapProperty(D3D12_HEAP_TYPE_DEFAULT);
 
@@ -1050,30 +1052,6 @@ namespace Insight {
 
 	void Direct3D12Context::LoadAssets()
 	{
-
-		// skybox1
-		// skybox2
-		// skybox3
-		// MountainTop
-		// NewportLoft
-		Texture::IE_TEXTURE_INFO irMapInfo;
-		irMapInfo.filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/MountainTop_IR.dds"));
-		irMapInfo.generateMipMaps = false;
-		irMapInfo.isCubeMap = true;
-		irMapInfo.type = Texture::eTextureType::SKY_IRRADIENCE;
-		m_Irradiance.Init(irMapInfo, m_cbvsrvHeap);
-
-		Texture::IE_TEXTURE_INFO envMapInfo;
-		envMapInfo.filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/MountainTop_EnvMap.dds"));
-		envMapInfo.generateMipMaps = false;
-		envMapInfo.isCubeMap = true;
-		envMapInfo.type = Texture::eTextureType::SKY_ENVIRONMENT_MAP;
-		m_Environment.Init(envMapInfo, m_cbvsrvHeap);
-
-		Texture::IE_TEXTURE_INFO brdfInfo;
-		brdfInfo.filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath("Textures/Skyboxes/ibl_brdf_lut.png"));
-		brdfInfo.type = Texture::eTextureType::SKY_BRDF_LUT;
-		m_BRDFLUT.Init(brdfInfo, m_cbvsrvHeap);
 
 	}
 

@@ -15,22 +15,20 @@ namespace Insight {
 		Init(createInfo, srvHeapHandle);
 	}
 
-	/*Texture::Texture(Texture&& texture) noexcept
+	Texture::Texture(Texture&& texture) noexcept
 	{
 		m_pTexture = texture.m_pTexture;
 		m_TextureDesc = texture.m_TextureDesc;
-		m_TextureType = texture.m_TextureType;
+		m_TextureInfo = texture.m_TextureInfo;
 		m_GPUHeapIndex = texture.m_GPUHeapIndex;
-		m_Name = std::move(m_Name);
-		m_Filepath = std::move(m_Filepath);
-
+	
 		texture.m_pTexture = nullptr;
 
 		texture.m_TextureDesc = {};
 		texture.m_GPUHeapIndex = 0u;
 
 		m_pCommandList = nullptr;
-	}*/
+	}
 
 	Texture::~Texture()
 	{
@@ -50,8 +48,7 @@ namespace Insight {
 		m_TextureInfo = createInfo;
 		m_DisplayName = StringHelper::GetFilenameFromDirectory(StringHelper::WideToString(createInfo.filepath));
 
-		std::string strFilePath = StringHelper::WideToString(createInfo.filepath);
-		std::string extension = StringHelper::GetFileExtension(strFilePath);
+		std::string extension = StringHelper::GetFileExtension(StringHelper::WideToString(createInfo.filepath));
 
 		if (extension == "dds") {
 			InitDDSTexture(srvHeapHandle);
@@ -79,7 +76,8 @@ namespace Insight {
 		if (!resourceUpload.IsSupportedForGenerateMips(m_TextureDesc.Format)) {
 			//IE_CORE_WARN("Mip map generation not supported for texture: {0}", m_DisplayName);
 		}
-		// Upload the resources to the GPU.
+
+		// Upload the resources to the GPU
 		auto uploadResourcesFinished = resourceUpload.End(pCommandQueue);
 
 		// Wait for the upload thread to terminate
@@ -105,14 +103,14 @@ namespace Insight {
 		
 		ResourceUploadBatch resourceUpload(pDevice);
 		resourceUpload.Begin();
-		bool isCube = true;
+
 		ThrowIfFailed(CreateDDSTextureFromFile(pDevice, resourceUpload, m_TextureInfo.filepath.c_str(), &m_pTexture, m_TextureInfo.generateMipMaps, 0, nullptr, &m_TextureInfo.isCubeMap), "Failed to load DDS texture from file");
 		m_TextureDesc = m_pTexture->GetDesc();
 		if (!resourceUpload.IsSupportedForGenerateMips(m_TextureDesc.Format)) {
 			//IE_CORE_WARN("Mip map generation not supported for texture: {0}", m_DisplayName);
 		}
 
-		// Upload the resources to the GPU.
+		// Upload the resources to the GPU
 		auto uploadResourcesFinished = resourceUpload.End(pCommandQueue);
 
 		// Wait for the upload thread to terminate
@@ -121,6 +119,7 @@ namespace Insight {
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Texture2D.MipLevels = m_TextureDesc.MipLevels;
 		srvDesc.Format = m_TextureDesc.Format;
+		// Regular dds texture or a cubemap?
 		srvDesc.ViewDimension = (m_TextureInfo.type >= eTextureType::SKY_IRRADIENCE) ? D3D12_SRV_DIMENSION_TEXTURECUBE : D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		pDevice->CreateShaderResourceView(m_pTexture.Get(), &srvDesc, srvHeapHandle.hCPU(6 + s_NumSceneTextures));

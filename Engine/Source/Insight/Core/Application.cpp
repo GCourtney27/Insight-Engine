@@ -75,6 +75,7 @@ namespace Insight {
 			m_FrameTimer.tick();
 			const float& time = (float)m_FrameTimer.seconds();
 			const float& deltaTime = (float)m_FrameTimer.dt();
+			m_pWindow->SetWindowTitleFPS(m_FrameTimer.fps());
 
 			m_pWindow->OnUpdate(deltaTime);
 			m_Scene.OnUpdate(deltaTime);

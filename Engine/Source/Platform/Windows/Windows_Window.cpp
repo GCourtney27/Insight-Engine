@@ -392,9 +392,17 @@ namespace Insight {
 			succeeded = SetWindowText(m_WindowHandle, StringHelper::StringToWide(newText).c_str());
 		}
 		else {
-			std::wstring wideTitleText = m_Data.WindowTitle_wide + L" - " + StringHelper::StringToWide(newText);
-			succeeded = SetWindowText(m_WindowHandle, wideTitleText.c_str());
+			m_Data.WindowTitle_wide = m_Data.WindowTitle_wide + L" - " + StringHelper::StringToWide(newText);
+			succeeded = SetWindowText(m_WindowHandle, m_Data.WindowTitle_wide.c_str());
 		}
+		return succeeded;
+	}
+
+	bool WindowsWindow::SetWindowTitleFPS(float fps)
+	{
+		BOOL succeeded = true;
+		std::wstring windowTitle = m_Data.WindowTitle_wide + L" FPS: " + std::to_wstring((UINT)fps);
+		succeeded = SetWindowText(m_WindowHandle, windowTitle.c_str());
 		return succeeded;
 	}
 

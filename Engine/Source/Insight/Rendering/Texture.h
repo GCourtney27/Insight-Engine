@@ -12,7 +12,7 @@ namespace Insight {
 	class Texture
 	{
 	public:
-		enum class eTextureType
+		enum eTextureType
 		{
 			INVALID = -1,
 			// Per Object
@@ -40,7 +40,7 @@ namespace Insight {
 
 	public:
 		Texture(IE_TEXTURE_INFO createInfo, CDescriptorHeapWrapper& srvHeapHandle);
-		//Texture(Texture&& texture) noexcept;
+		Texture(Texture&& texture) noexcept;
 		Texture() {}
 		~Texture();
 	
@@ -50,8 +50,9 @@ namespace Insight {
 		void Bind();
 
 		inline const TextureHandle GetSrvHeapHandle() { return m_GPUHeapIndex; }
+		inline const IE_TEXTURE_INFO& GetTextureInfo() const { return m_TextureInfo; }
 		inline const std::string& GetDisplayName() const { return m_DisplayName; }
-		inline const std::wstring& GetFilepath() { return m_TextureInfo.filepath; }
+		inline const std::wstring& GetFilepath() const { return m_TextureInfo.filepath; }
 
 		inline const D3D12_RESOURCE_DESC& GetD3D12ResourceDescription() { return m_TextureDesc; }
 		inline const UINT64& GetWidth() const { return m_TextureDesc.Width; }
@@ -70,8 +71,9 @@ namespace Insight {
 		D3D12_RESOURCE_DESC			m_TextureDesc = {};
 		TextureHandle				m_GPUHeapIndex = 0u;
 
-		IE_TEXTURE_INFO				m_TextureInfo;
+		IE_TEXTURE_INFO				m_TextureInfo = {};
 		std::string					m_DisplayName = "";
+
 	private:
 		static UINT32 s_NumSceneTextures;
 	};

@@ -24,7 +24,7 @@ namespace Insight {
 
 	bool Scene::LoadFromJson(const std::string& fileName)
 	{
-		FileSystem::Get().LoadSceneFromJson(fileName, *this);
+		FileSystem::Get().LoadSceneFromJson(fileName, this);
 
 
 		return true;
@@ -138,9 +138,9 @@ namespace Insight {
 		// TODO make this a colapsing header with different options
 		ImGui::Begin("Creator");
 		{
-			if (ImGui::Button("New Point Light", { 125, 25 })) {
+			/*if (ImGui::Button("New Point Light", { 125, 25 })) {
 				m_pSceneRoot->AddChild(new APointLight(5, "New cool point light"));
-			}
+			}*/
 		}
 		ImGui::End();
 	}

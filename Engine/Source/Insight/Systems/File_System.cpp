@@ -1,20 +1,19 @@
 #include <ie_pch.h>
 
 #include "Insight/Core/Application.h"
-#include "Insight/Core/Scene/Scene.h"
+#include "Insight/Core/Scene/scene.h"
 #include "Insight/Systems/Model_Manager.h"
 #include "Insight/Utilities/String_Helper.h"
 
 #include "File_System.h"
 
+#include "Insight/Rendering/ASky_Light.h"
 #include "Insight/Rendering/ASky_Sphere.h"
 #include "Insight/Rendering/Lighting/ASpot_Light.h"
 #include "Insight/Rendering/Lighting/APoint_Light.h"
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
 
-
-
-// TODO make a third part build file with imgui and rapidjson for all cpp files
+// TODO make a third part build file with imgui and rapidjson for all cpp files that need to be compiled
 #include <rapidjson/json.cpp>
 
 namespace Insight {
@@ -42,7 +41,7 @@ namespace Insight {
 		return relativePath;
 	}
 
-	bool FileSystem::LoadSceneFromJson(const std::string& fileName, Scene& scene)
+	bool FileSystem::LoadSceneFromJson(const std::string& fileName, Scene* scene)
 	{
 		// Load in Meta.json
 		{
@@ -56,7 +55,7 @@ namespace Insight {
 			}
 			std::string sceneName;
 			json::get_string(rawMetaFile, "SceneName", sceneName); // Find something that says 'SceneName' and load sceneName variable
-			scene.SetDisplayName(sceneName);
+			scene->SetDisplayName(sceneName);
 			Application::Get().GetWindow().SetWindowTitle(sceneName);
 
 			IE_CORE_TRACE("Scene meta data loaded.");
@@ -120,6 +119,10 @@ namespace Insight {
 					newActor = new ASkySphere(actorSceneIndex, actorDisplayName);
 					newActor->LoadFromJson(jsonActor);
 				}
+				else if (actorType == "SkyLight") {
+					newActor = new ASkyLight(actorSceneIndex, actorDisplayName);
+					newActor->LoadFromJson(jsonActor);
+				}
 				else if (actorType == "PostFxVolume") {
 					newActor = new APostFx(actorSceneIndex, actorDisplayName);
 					newActor->LoadFromJson(jsonActor);
@@ -130,7 +133,7 @@ namespace Insight {
 					continue;
 				}
 
-				scene.GetRootNode()->AddChild(newActor);
+				scene->GetRootNode()->AddChild(newActor);
 				actorSceneIndex++;
 			}
 

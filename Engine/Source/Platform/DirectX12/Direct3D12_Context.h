@@ -9,20 +9,19 @@
 #include "Platform/DirectX12/Descriptor_Heap_Wrapper.h"
 #include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
 
-#include "Insight/Rendering/Texture.h"
-#include "Insight/Rendering/APost_Fx.h"
-#include "Insight/Rendering/ASky_Sphere.h"
-#include "Insight/Rendering/Geometry/Model.h"
-#include "Insight/Rendering/Lighting/ASpot_Light.h"
-#include "Insight/Rendering/Lighting/APoint_Light.h"
-#include "Insight/Rendering/Lighting/ADirectional_Light.h"
-
 
 using Microsoft::WRL::ComPtr;
 
 namespace Insight {
 
 	class WindowsWindow;
+	class ASkySphere;
+	class ASkyLight;
+	class APostFx;
+
+	class ADirectionalLight;
+	class APointLight;
+	class ASpotLight;
 
 	class ScreenQuad
 	{
@@ -77,12 +76,14 @@ namespace Insight {
 
 
 		// Lights
-		void AddPointLight(APointLight* pointLight) { m_PointLights.push_back(pointLight); }
 		void AddDirectionalLight(ADirectionalLight* pointLight) { m_DirectionalLights.push_back(pointLight); }
+		void AddPointLight(APointLight* pointLight) { m_PointLights.push_back(pointLight); }
 		void AddSpotLight(ASpotLight* spotLight) { m_SpotLights.push_back(spotLight); }
 
 		void AddSkySphere(ASkySphere* skySphere) { m_pSkySphere = skySphere; }
 		void AddPostFxActor(APostFx* postFxActor) { m_pPostFx = postFxActor; }
+		void AddSkyLight(ASkyLight* skyLight) { m_SkyLight = skyLight; }
+
 	private:
 		void CloseCommandListAndSignalCommandQueue();
 		// Per-Frame
@@ -224,7 +225,7 @@ namespace Insight {
 		UINT8*					m_cbvPerObjectGPUAddress[m_FrameBufferCount];
 
 		ComPtr<ID3D12Resource>	m_PerObjectMaterialAdditivesCBV[m_FrameBufferCount];
-		UINT8* m_cbvPerObjectMaterialOverridesGPUAddress[m_FrameBufferCount];
+		UINT8*					m_cbvPerObjectMaterialOverridesGPUAddress[m_FrameBufferCount];
 
 		ComPtr<ID3D12Resource> m_PerFrameCBV;
 		UINT8*				   m_cbvPerFrameGPUAddress;
@@ -236,28 +237,25 @@ namespace Insight {
 		int CBPerFrameAlignedSize = (sizeof(CB_PS_VS_PerFrame) + 255) & ~255;
 
 		ASkySphere*			   m_pSkySphere = nullptr;
+		ASkyLight*			   m_SkyLight = nullptr;
 		APostFx*			   m_pPostFx = nullptr;
-		int CBPostFxAlignedSize = (sizeof(CB_PS_PostFx) + 255) & ~255;
+		int					   CBPostFxAlignedSize = (sizeof(CB_PS_PostFx) + 255) & ~255;
 
 #define POINT_LIGHTS_CB_ALIGNED_OFFSET (0)
 #define MAX_POINT_LIGHTS_SUPPORTED 16u
 		std::vector<APointLight*> m_PointLights;
-		int CBPointLightsAlignedSize = (sizeof(CB_PS_PointLight) + 255) & ~255;
+		int						  CBPointLightsAlignedSize = (sizeof(CB_PS_PointLight) + 255) & ~255;
 
 #define DIRECTIONAL_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight))
 #define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 4u
 		std::vector<ADirectionalLight*> m_DirectionalLights;
-		int CBDirectionalLightsAlignedSize = (sizeof(CB_PS_DirectionalLight) + 255) & ~255;
+		int							    CBDirectionalLightsAlignedSize = (sizeof(CB_PS_DirectionalLight) + 255) & ~255;
 
 #define SPOT_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight) + MAX_DIRECTIONAL_LIGHTS_SUPPORTED * sizeof(CB_PS_DirectionalLight))
 #define MAX_SPOT_LIGHTS_SUPPORTED 16u
 		std::vector<ASpotLight*> m_SpotLights;
-		int CBSpotLightsAlignedSize = (sizeof(CB_PS_SpotLight) + 255) & ~255;
+		int						 CBSpotLightsAlignedSize = (sizeof(CB_PS_SpotLight) + 255) & ~255;
 
-		// Sky TODO: Move this!
-		Texture m_Irradiance;
-		Texture m_Environment;
-		Texture m_BRDFLUT;
 
 		// Utils
 		struct Resolution
