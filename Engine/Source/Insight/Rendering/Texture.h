@@ -34,6 +34,8 @@ namespace Insight {
 			bool generateMipMaps = true;
 			bool isCubeMap = false;
 			std::wstring filepath;
+			std::string displayName;
+
 		};
 
 		typedef UINT32 TextureHandle;
@@ -51,7 +53,7 @@ namespace Insight {
 
 		inline const TextureHandle GetSrvHeapHandle() { return m_GPUHeapIndex; }
 		inline const IE_TEXTURE_INFO& GetTextureInfo() const { return m_TextureInfo; }
-		inline const std::string& GetDisplayName() const { return m_DisplayName; }
+		inline const std::string& GetDisplayName() const { return m_TextureInfo.displayName; }
 		inline const std::wstring& GetFilepath() const { return m_TextureInfo.filepath; }
 
 		inline const D3D12_RESOURCE_DESC& GetD3D12ResourceDescription() { return m_TextureDesc; }
@@ -72,7 +74,6 @@ namespace Insight {
 		TextureHandle				m_GPUHeapIndex = 0u;
 
 		IE_TEXTURE_INFO				m_TextureInfo = {};
-		std::string					m_DisplayName = "";
 
 	private:
 		static UINT32 s_NumSceneTextures;

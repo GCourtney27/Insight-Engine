@@ -2,8 +2,8 @@
 
 #include "Insight/Runtime/AActor.h"
 #include "Static_Mesh_Component.h"
-#include "Insight/Systems/Model_Manager.h"
 #include "Insight/Systems/File_System.h"
+#include "Insight/Systems/Managers/Resource_Manager.h"
 #include <imgui.h>
 
 namespace Insight {
@@ -78,7 +78,7 @@ namespace Insight {
 			m_pModel.reset();
 		}
 		m_pModel = make_shared<Model>(path);
-		ModelManager::Get().PushModel(m_pModel);
+		ResourceManager::Get().GetModelManager().RegisterModel(m_pModel);
 	}
 
 	void StaticMeshComponent::OnAttach()

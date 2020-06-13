@@ -46,7 +46,7 @@ namespace Insight {
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
 		m_pCommandList = &graphicsContext.GetCommandList();
 		m_TextureInfo = createInfo;
-		m_DisplayName = StringHelper::GetFilenameFromDirectory(StringHelper::WideToString(createInfo.filepath));
+		m_TextureInfo.displayName = StringHelper::GetFilenameFromDirectory(StringHelper::WideToString(createInfo.filepath));
 
 		std::string extension = StringHelper::GetFileExtension(StringHelper::WideToString(createInfo.filepath));
 
@@ -182,7 +182,7 @@ namespace Insight {
 		}
 		default:
 		{
-			IE_CORE_WARN("Failed to bind texture {0}", m_DisplayName);
+			IE_CORE_WARN("Failed to bind texture {0}", m_TextureInfo.displayName);
 			break;
 		}
 		}
