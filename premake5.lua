@@ -49,6 +49,7 @@ project ("Engine")
 
 	files
 	{
+		"%{prj.name}/Vendor/Vendor_Build.cpp",
 		"%{prj.name}/Source/**.cpp",
 		"%{prj.name}/Source/**.h",
 		"%{prj.name}/Source/**.hlsl",
