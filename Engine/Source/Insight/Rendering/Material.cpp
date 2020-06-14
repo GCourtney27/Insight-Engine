@@ -69,7 +69,7 @@ namespace Insight {
 
 	void Material::OnImGuiRender()
 	{
-		if (ImGui::CollapsingHeader("Material", ImGuiTreeNodeFlags_DefaultOpen))
+		if (ImGui::TreeNodeEx("Material", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGui::Text("Textures"); 
 
@@ -95,12 +95,13 @@ namespace Insight {
 			// Imgui will edit the color values in a normalized 0 to 1 space. 
 			// In the shaders we transform the color values back into 0 to 255 space.
 			ImGui::ColorEdit3("Diffuse Additive: ", &m_ShaderCB.diffuseAdditive.x, colorWheelFlags);
-			ImGui::DragFloat("Metallic Addative:", &m_ShaderCB.metallicAdditive, 0.01f, 0.0f, 1.0f);
-			ImGui::DragFloat("Roughness Addative:", &m_ShaderCB.roughnessAdditive, 0.01f, 0.0f, 1.0f);
+			ImGui::SliderFloat("Metallic Addative", &m_ShaderCB.metallicAdditive, 0.0f, 1.0f);
+			ImGui::SliderFloat("Roughness Addative", &m_ShaderCB.roughnessAdditive, 0.0f, 1.0f);
 
 			ImGui::Text("UVs");
 			ImGui::DragFloat2("Tiling:", &m_ShaderCB.tiling.x, 0.01f, -50.0f, 50.0f);
 			ImGui::DragFloat2("Offset:", &m_ShaderCB.uvOffset.x, 0.01f, -50.0f, 50.0f);
+			ImGui::TreePop();
 		}
 
 	}

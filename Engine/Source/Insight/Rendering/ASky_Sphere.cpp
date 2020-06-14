@@ -33,10 +33,10 @@ namespace Insight {
 		CDescriptorHeapWrapper& cbvSrvheap = graphicsContext.GetCBVSRVDescriptorHeap();
 
 		Texture::IE_TEXTURE_INFO diffuseInfo;
-		diffuseInfo.filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(diffuseMap));
-		diffuseInfo.type = Texture::eTextureType::SKY_DIFFUSE;
-		diffuseInfo.generateMipMaps = true;
-		diffuseInfo.isCubeMap = true;
+		diffuseInfo.Filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(diffuseMap));
+		diffuseInfo.Type = Texture::eTextureType::SKY_DIFFUSE;
+		diffuseInfo.GenerateMipMaps = true;
+		diffuseInfo.IsCubeMap = true;
 		m_Diffuse.Init(diffuseInfo, cbvSrvheap);
 
 		return true;

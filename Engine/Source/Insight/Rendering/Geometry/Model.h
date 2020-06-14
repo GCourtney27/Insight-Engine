@@ -16,18 +16,16 @@ namespace Insight {
 	public:
 		typedef std::stack<XMMATRIX> InstanceMatrixStack;
 	public:
-		Model(const std::string& path);
+		Model(const std::string& path, Material* material);
 		Model() {}
 		~Model();
-
-		virtual bool LoadFromJson(const rapidjson::Value& materialInfo);
 
 		bool Init(const std::string& path);
 		void OnImGuiRender();
 		void RenderSceneHeirarchy();
 		void BindResources();
 
-		Material& GetMaterialRef() { return m_Material; }
+		Material& GetMaterialRef() { return *m_Material; }
 
 		unique_ptr<Mesh>& GetMeshAtIndex(const int& index) { return m_Meshes[index]; }
 		const size_t GetNumChildMeshes() const { return m_Meshes.size(); }
@@ -43,7 +41,7 @@ namespace Insight {
 		std::vector<unique_ptr<Mesh>> m_Meshes;
 		unique_ptr<MeshNode> m_pRoot;
 		
-		Material m_Material;
+		Material* m_Material;
 
 		std::string m_Directory;
 		std::string m_FileName;

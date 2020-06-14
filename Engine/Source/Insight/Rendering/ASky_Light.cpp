@@ -32,21 +32,21 @@ namespace Insight {
 		CDescriptorHeapWrapper& cbvSrvheap = Direct3D12Context::Get().GetCBVSRVDescriptorHeap();
 
 		Texture::IE_TEXTURE_INFO brdfInfo;
-		brdfInfo.filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(brdfLUT));
-		brdfInfo.type = Texture::eTextureType::SKY_BRDF_LUT;
-		brdfInfo.isCubeMap = true;
+		brdfInfo.Filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(brdfLUT));
+		brdfInfo.Type = Texture::eTextureType::SKY_BRDF_LUT;
+		brdfInfo.IsCubeMap = true;
 		m_BrdfLUT.Init(brdfInfo, cbvSrvheap);
 
 		Texture::IE_TEXTURE_INFO irMapInfo;
-		irMapInfo.filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(irMap));
-		irMapInfo.type = Texture::eTextureType::SKY_IRRADIENCE;
-		irMapInfo.isCubeMap = true;
+		irMapInfo.Filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(irMap));
+		irMapInfo.Type = Texture::eTextureType::SKY_IRRADIENCE;
+		irMapInfo.IsCubeMap = true;
 		m_Irradiance.Init(irMapInfo, cbvSrvheap);
 		
 		Texture::IE_TEXTURE_INFO envMapInfo;
-		envMapInfo.filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(envMap));
-		envMapInfo.type = Texture::eTextureType::SKY_ENVIRONMENT_MAP;
-		envMapInfo.isCubeMap = true;
+		envMapInfo.Filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(envMap));
+		envMapInfo.Type = Texture::eTextureType::SKY_ENVIRONMENT_MAP;
+		envMapInfo.IsCubeMap = true;
 		m_Environment.Init(envMapInfo, cbvSrvheap);
 
 		return true;

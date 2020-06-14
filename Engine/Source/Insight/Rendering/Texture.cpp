@@ -44,10 +44,10 @@ namespace Insight {
 	bool Texture::Init(IE_TEXTURE_INFO createInfo, CDescriptorHeapWrapper& srvHeapHandle)
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		std::string filepath = StringHelper::WideToString(createInfo.filepath);
+		std::string filepath = StringHelper::WideToString(createInfo.Filepath);
 		m_pCommandList = &graphicsContext.GetCommandList();
 		m_TextureInfo = createInfo;
-		m_TextureInfo.displayName = StringHelper::GetFilenameFromDirectory(filepath);
+		m_TextureInfo.DisplayName = StringHelper::GetFilenameFromDirectory(filepath);
 
 		std::string fileExtension = StringHelper::GetFileExtension(filepath);
 		if (fileExtension == "dds") {
@@ -61,9 +61,7 @@ namespace Insight {
 	}
 
 	bool Texture::InitTextureFromFile(CDescriptorHeapWrapper& srvHeapHandle)
-	{
-		HRESULT hr;
-		
+	{		
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
 		ID3D12Device* pDevice = &graphicsContext.GetDeviceContext();
 		ID3D12CommandQueue* pCommandQueue = &graphicsContext.GetCommandQueue();
@@ -71,7 +69,7 @@ namespace Insight {
 		ResourceUploadBatch resourceUpload(pDevice);
 		resourceUpload.Begin();
 
-		ThrowIfFailed(CreateWICTextureFromFile(pDevice, resourceUpload, m_TextureInfo.filepath.c_str(), &m_pTexture, m_TextureInfo.generateMipMaps), "Failed to Create WIC texture from file.");
+		ThrowIfFailed(CreateWICTextureFromFile(pDevice, resourceUpload, m_TextureInfo.Filepath.c_str(), &m_pTexture, m_TextureInfo.GenerateMipMaps), "Failed to Create WIC texture from file.");
 		m_TextureDesc = m_pTexture->GetDesc();
 		if (!resourceUpload.IsSupportedForGenerateMips(m_TextureDesc.Format)) {
 			//IE_CORE_WARN("Mip map generation not supported for texture: {0}", m_DisplayName);
@@ -104,7 +102,7 @@ namespace Insight {
 		ResourceUploadBatch resourceUpload(pDevice);
 		resourceUpload.Begin();
 
-		ThrowIfFailed(CreateDDSTextureFromFile(pDevice, resourceUpload, m_TextureInfo.filepath.c_str(), &m_pTexture, m_TextureInfo.generateMipMaps, 0, nullptr, &m_TextureInfo.isCubeMap), "Failed to load DDS texture from file");
+		ThrowIfFailed(CreateDDSTextureFromFile(pDevice, resourceUpload, m_TextureInfo.Filepath.c_str(), &m_pTexture, m_TextureInfo.GenerateMipMaps, 0, nullptr, &m_TextureInfo.IsCubeMap), "Failed to load DDS texture from file");
 		m_TextureDesc = m_pTexture->GetDesc();
 		if (!resourceUpload.IsSupportedForGenerateMips(m_TextureDesc.Format)) {
 			//IE_CORE_WARN("Mip map generation not supported for texture: {0}", m_DisplayName);
@@ -120,7 +118,7 @@ namespace Insight {
 		srvDesc.Texture2D.MipLevels = m_TextureDesc.MipLevels;
 		srvDesc.Format = m_TextureDesc.Format;
 		// Regular dds texture or a cubemap?
-		srvDesc.ViewDimension = (m_TextureInfo.type >= eTextureType::SKY_IRRADIENCE) ? D3D12_SRV_DIMENSION_TEXTURECUBE : D3D12_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.ViewDimension = (m_TextureInfo.Type >= eTextureType::SKY_IRRADIENCE) ? D3D12_SRV_DIMENSION_TEXTURECUBE : D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		pDevice->CreateShaderResourceView(m_pTexture.Get(), &srvDesc, srvHeapHandle.hCPU(6 + s_NumSceneTextures));
 
@@ -134,7 +132,7 @@ namespace Insight {
 		CDescriptorHeapWrapper& cbvSrvHeapStart = graphicsContext.GetCBVSRVDescriptorHeap();
 		const unsigned int numRTVs = graphicsContext.GetNumRTVs();
 
-		switch (m_TextureInfo.type) {
+		switch (m_TextureInfo.Type) {
 		case eTextureType::ALBEDO:
 		{
 			m_pCommandList->SetGraphicsRootDescriptorTable(6, cbvSrvHeapStart.hGPU(6 + m_GPUHeapIndex));
@@ -182,7 +180,7 @@ namespace Insight {
 		}
 		default:
 		{
-			IE_CORE_WARN("Failed to bind texture {0}", m_TextureInfo.displayName);
+			IE_CORE_WARN("Failed to bind texture {0}", m_TextureInfo.DisplayName);
 			break;
 		}
 		}

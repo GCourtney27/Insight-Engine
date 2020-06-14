@@ -27,7 +27,6 @@ namespace Insight {
 
 	bool TextureManager::LoadResourcesFromJson(const rapidjson::Value& jsonTextures)
 	{
-	
 		for (rapidjson::SizeType i = 0; i < jsonTextures.Size(); i++) {
 			std::string name, filepath;
 			int type, id;
@@ -39,13 +38,15 @@ namespace Insight {
 			json::get_bool(jsonTextures[i], "GenerateMipMaps", genMipMaps);
 
 			Texture::IE_TEXTURE_INFO texInfo = {};
-			texInfo.displayName = name;
-			texInfo.id = id;
-			texInfo.filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(filepath));
-			texInfo.generateMipMaps = genMipMaps;
-			texInfo.type = (Texture::eTextureType)type;
+			texInfo.DisplayName = name;
+			texInfo.Id = id;
+			texInfo.Filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(filepath));
+			texInfo.GenerateMipMaps = genMipMaps;
+			texInfo.Type = (Texture::eTextureType)type;
 			
-			LoadTextureByType(texInfo);
+			RegisterTextureByType(texInfo);
+
+			m_HighestTextureId = (m_HighestTextureId < id) ? id : m_HighestTextureId;
 		}
 
 		return true;
@@ -57,8 +58,7 @@ namespace Insight {
 		case Texture::eTextureType::ALBEDO:
 		{
 			for (UINT i = 0; i < m_AlbedoTextures.size(); i++) {
-
-				if (textureID == m_AlbedoTextures[i]->GetTextureInfo().id) {
+				if (textureID == m_AlbedoTextures[i]->GetTextureInfo().Id) {
 					return m_AlbedoTextures[i];
 				}
 			}
@@ -68,7 +68,7 @@ namespace Insight {
 		{
 			for (UINT i = 0; i < m_NormalTextures.size(); i++) {
 
-				if (textureID == m_NormalTextures[i]->GetTextureInfo().id) {
+				if (textureID == m_NormalTextures[i]->GetTextureInfo().Id) {
 					return m_NormalTextures[i];
 				}
 			}
@@ -78,7 +78,7 @@ namespace Insight {
 		{
 			for (UINT i = 0; i < m_RoughnessTextures.size(); i++) {
 
-				if (textureID == m_RoughnessTextures[i]->GetTextureInfo().id) {
+				if (textureID == m_RoughnessTextures[i]->GetTextureInfo().Id) {
 					return m_RoughnessTextures[i];
 				}
 			}
@@ -88,7 +88,7 @@ namespace Insight {
 		{
 			for (UINT i = 0; i < m_MetallicTextures.size(); i++) {
 
-				if (textureID == m_MetallicTextures[i]->GetTextureInfo().id) {
+				if (textureID == m_MetallicTextures[i]->GetTextureInfo().Id) {
 					return m_MetallicTextures[i];
 				}
 			}
@@ -98,7 +98,7 @@ namespace Insight {
 		{
 			for (UINT i = 0; i < m_AOTextures.size(); i++) {
 
-				if (textureID == m_AOTextures[i]->GetTextureInfo().id) {
+				if (textureID == m_AOTextures[i]->GetTextureInfo().Id) {
 					return m_AOTextures[i];
 				}
 			}
@@ -114,12 +114,12 @@ namespace Insight {
 		return nullptr;
 	}
 	
-	void TextureManager::LoadTextureByType(const Texture::IE_TEXTURE_INFO& texInfo)
+	void TextureManager::RegisterTextureByType(const Texture::IE_TEXTURE_INFO& texInfo)
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
 		CDescriptorHeapWrapper& cbvSrvHeapStart = graphicsContext.GetCBVSRVDescriptorHeap();
 
-		switch (texInfo.type) {
+		switch (texInfo.Type) {
 		case Texture::eTextureType::ALBEDO:
 		{
 			m_AlbedoTextures.push_back(make_shared<Texture>(texInfo, cbvSrvHeapStart));
@@ -147,7 +147,7 @@ namespace Insight {
 		}
 		default:
 		{
-			IE_CORE_WARN("Failed to create texture {0}", texInfo.displayName);
+			IE_CORE_WARN("Failed to identify texture to create with name of {0} - ID({1})", texInfo.DisplayName, texInfo.Id);
 			break;
 		}
 		}

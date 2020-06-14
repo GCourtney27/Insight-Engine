@@ -19,8 +19,9 @@ namespace Insight {
 		bool LoadResourcesFromJson(const rapidjson::Value& jsonTextures);
 		StrongTexturePtr GetTextureByID(Texture::ID textureID, Texture::eTextureType textreType);
 	private:
-		void LoadTextureByType(const Texture::IE_TEXTURE_INFO& texInfo);
+		void RegisterTextureByType(const Texture::IE_TEXTURE_INFO& texInfo);
 	private:
+		Texture::ID m_HighestTextureId = 0;
 		std::vector<StrongTexturePtr> m_AlbedoTextures;
 		std::vector<StrongTexturePtr> m_NormalTextures;
 		std::vector<StrongTexturePtr> m_MetallicTextures;

@@ -34,12 +34,12 @@ namespace Insight {
 
 		struct IE_TEXTURE_INFO
 		{
-			eTextureType type = eTextureType::INVALID;
-			bool generateMipMaps = true;
-			bool isCubeMap = false;
-			std::wstring filepath;
-			std::string displayName;
-			ID id;
+			eTextureType Type = eTextureType::INVALID;
+			bool GenerateMipMaps = true;
+			bool IsCubeMap = false;
+			std::wstring Filepath;
+			std::string DisplayName;
+			ID Id;
 		};
 
 	public:
@@ -55,8 +55,8 @@ namespace Insight {
 
 		inline const TextureHandle GetSrvHeapHandle() { return m_GPUHeapIndex; }
 		inline const IE_TEXTURE_INFO& GetTextureInfo() const { return m_TextureInfo; }
-		inline const std::string& GetDisplayName() const { return m_TextureInfo.displayName; }
-		inline const std::wstring& GetFilepath() const { return m_TextureInfo.filepath; }
+		inline const std::string& GetDisplayName() const { return m_TextureInfo.DisplayName; }
+		inline const std::wstring& GetFilepath() const { return m_TextureInfo.Filepath; }
 
 		inline const D3D12_RESOURCE_DESC& GetD3D12ResourceDescription() { return m_TextureDesc; }
 		inline const UINT64& GetWidth() const { return m_TextureDesc.Width; }
