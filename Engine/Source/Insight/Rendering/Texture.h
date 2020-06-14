@@ -12,6 +12,10 @@ namespace Insight {
 	class Texture
 	{
 	public:
+
+		typedef UINT32 ID;
+		typedef UINT32 TextureHandle;
+
 		enum eTextureType
 		{
 			INVALID = -1,
@@ -35,10 +39,8 @@ namespace Insight {
 			bool isCubeMap = false;
 			std::wstring filepath;
 			std::string displayName;
-
+			ID id;
 		};
-
-		typedef UINT32 TextureHandle;
 
 	public:
 		Texture(IE_TEXTURE_INFO createInfo, CDescriptorHeapWrapper& srvHeapHandle);

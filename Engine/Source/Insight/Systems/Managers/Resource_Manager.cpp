@@ -15,6 +15,7 @@ namespace Insight {
 		s_Instance = this;
 
 		m_pModelManager = new ModelManager();
+		m_pTextureManager = new TextureManager();
 	}
 
 	ResourceManager::~ResourceManager()
@@ -25,6 +26,7 @@ namespace Insight {
 	bool ResourceManager::Init()
 	{
 		m_pModelManager->Init();
+		m_pTextureManager->Init();
 		return true;
 	}
 
@@ -32,6 +34,7 @@ namespace Insight {
 	{
 		const rapidjson::Value& jsonTextureResources = jsonResources["Textures"];
 		const rapidjson::Value& jsonMeshResources = jsonResources["Meshes"];
+		m_pTextureManager->LoadResourcesFromJson(jsonTextureResources);
 
 		return true;
 	}

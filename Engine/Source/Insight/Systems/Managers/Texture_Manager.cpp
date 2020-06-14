@@ -1,6 +1,7 @@
 #include <ie_pch.h>
 
 #include "Texture_Manager.h"
+#include "Insight/Systems/File_System.h"
 #include "Insight/Utilities/String_Helper.h"
 #include "Platform/DirectX12/Direct3D12_Context.h"
 
@@ -48,23 +49,88 @@ namespace Insight {
 	
 		for (rapidjson::SizeType i = 0; i < jsonTextures.Size(); i++) {
 			std::string name, filepath;
-			int type;
+			int type, id;
 			bool genMipMaps;
+			json::get_int(jsonTextures[i], "ID", id);
+			json::get_int(jsonTextures[i], "Type", type);
 			json::get_string(jsonTextures[i], "Name", name);
 			json::get_string(jsonTextures[i], "Filepath", filepath);
-			json::get_int(jsonTextures[i], "Type", type);
 			json::get_bool(jsonTextures[i], "GenerateMipMaps", genMipMaps);
 
 			Texture::IE_TEXTURE_INFO texInfo = {};
 			texInfo.displayName = name;
-			texInfo.filepath = StringHelper::StringToWide(filepath);
+			texInfo.id = id;
+			texInfo.filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(filepath));
 			texInfo.generateMipMaps = genMipMaps;
 			texInfo.type = (Texture::eTextureType)type;
-
+			
 			LoadTextureByType(texInfo);
 		}
 
 		return true;
+	}
+
+	Texture* TextureManager::GetTextureByID(Texture::ID textureID, Texture::eTextureType textreType)
+	{
+		switch (textreType) {
+		case Texture::eTextureType::ALBEDO:
+		{
+			for (UINT i = 0; i < m_AlbedoTextures.size(); i++) {
+
+				if (textureID = m_AlbedoTextures[i]->GetTextureInfo().id) {
+					return m_AlbedoTextures[i];
+				}
+			}
+			break;
+		}
+		case Texture::eTextureType::NORMAL:
+		{
+			for (UINT i = 0; i < m_NormalTextures.size(); i++) {
+
+				if (textureID = m_NormalTextures[i]->GetTextureInfo().id) {
+					return m_NormalTextures[i];
+				}
+			}
+			break;
+		}
+		case Texture::eTextureType::ROUGHNESS:
+		{
+			for (UINT i = 0; i < m_RoughnessTextures.size(); i++) {
+
+				if (textureID = m_RoughnessTextures[i]->GetTextureInfo().id) {
+					return m_RoughnessTextures[i];
+				}
+			}
+			break;
+		}
+		case Texture::eTextureType::METALLIC:
+		{
+			for (UINT i = 0; i < m_MetallicTextures.size(); i++) {
+
+				if (textureID = m_MetallicTextures[i]->GetTextureInfo().id) {
+					return m_MetallicTextures[i];
+				}
+			}
+			break;
+		}
+		case Texture::eTextureType::AO:
+		{
+			for (UINT i = 0; i < m_AOTextures.size(); i++) {
+
+				if (textureID = m_AOTextures[i]->GetTextureInfo().id) {
+					return m_AOTextures[i];
+				}
+			}
+			break;
+		}
+		default:
+		{
+			IE_CORE_WARN("Failed to get texture handle for texture with ID: {0}", textureID);
+			break;
+		}
+		}
+
+		return nullptr;
 	}
 	
 	void TextureManager::LoadTextureByType(const Texture::IE_TEXTURE_INFO& texInfo)

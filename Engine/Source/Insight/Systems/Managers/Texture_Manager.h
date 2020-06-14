@@ -16,7 +16,8 @@ namespace Insight {
 		bool Init();
 		void Destroy();
 
-		virtual bool LoadResourcesFromJson(const rapidjson::Value& jsonTextures);
+		bool LoadResourcesFromJson(const rapidjson::Value& jsonTextures);
+		Texture* GetTextureByID(Texture::ID textureID, Texture::eTextureType textreType);
 	private:
 		void LoadTextureByType(const Texture::IE_TEXTURE_INFO& texInfo);
 	private:

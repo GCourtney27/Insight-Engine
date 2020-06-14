@@ -44,13 +44,13 @@ namespace Insight {
 	bool Texture::Init(IE_TEXTURE_INFO createInfo, CDescriptorHeapWrapper& srvHeapHandle)
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
+		std::string filepath = StringHelper::WideToString(createInfo.filepath);
 		m_pCommandList = &graphicsContext.GetCommandList();
 		m_TextureInfo = createInfo;
-		m_TextureInfo.displayName = StringHelper::GetFilenameFromDirectory(StringHelper::WideToString(createInfo.filepath));
+		m_TextureInfo.displayName = StringHelper::GetFilenameFromDirectory(filepath);
 
-		std::string extension = StringHelper::GetFileExtension(StringHelper::WideToString(createInfo.filepath));
-
-		if (extension == "dds") {
+		std::string fileExtension = StringHelper::GetFileExtension(filepath);
+		if (fileExtension == "dds") {
 			InitDDSTexture(srvHeapHandle);
 		}
 		else {
