@@ -17,15 +17,15 @@ namespace Insight {
 		void Destroy();
 
 		bool LoadResourcesFromJson(const rapidjson::Value& jsonTextures);
-		Texture* GetTextureByID(Texture::ID textureID, Texture::eTextureType textreType);
+		StrongTexturePtr GetTextureByID(Texture::ID textureID, Texture::eTextureType textreType);
 	private:
 		void LoadTextureByType(const Texture::IE_TEXTURE_INFO& texInfo);
 	private:
-		std::vector<Texture*> m_AlbedoTextures;
-		std::vector<Texture*> m_NormalTextures;
-		std::vector<Texture*> m_MetallicTextures;
-		std::vector<Texture*> m_RoughnessTextures;
-		std::vector<Texture*> m_AOTextures;
+		std::vector<StrongTexturePtr> m_AlbedoTextures;
+		std::vector<StrongTexturePtr> m_NormalTextures;
+		std::vector<StrongTexturePtr> m_MetallicTextures;
+		std::vector<StrongTexturePtr> m_RoughnessTextures;
+		std::vector<StrongTexturePtr> m_AOTextures;
 	};
 
 }

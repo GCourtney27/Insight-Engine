@@ -18,25 +18,6 @@ namespace Insight {
 
 	void TextureManager::Destroy()
 	{
-		for (UINT i = 0; i < m_AlbedoTextures.size(); i++) {
-			delete m_AlbedoTextures[i];
-		}
-
-		for (UINT i = 0; i < m_NormalTextures.size(); i++) {
-			delete m_NormalTextures[i];
-		}
-
-		for (UINT i = 0; i < m_MetallicTextures.size(); i++) {
-			delete m_MetallicTextures[i];
-		}
-
-		for (UINT i = 0; i < m_RoughnessTextures.size(); i++) {
-			delete m_RoughnessTextures[i];
-		}
-
-		for (UINT i = 0; i < m_AOTextures.size(); i++) {
-			delete m_AOTextures[i];
-		}
 	}
 
 	bool TextureManager::Init()
@@ -70,14 +51,14 @@ namespace Insight {
 		return true;
 	}
 
-	Texture* TextureManager::GetTextureByID(Texture::ID textureID, Texture::eTextureType textreType)
+	StrongTexturePtr TextureManager::GetTextureByID(Texture::ID textureID, Texture::eTextureType textreType)
 	{
 		switch (textreType) {
 		case Texture::eTextureType::ALBEDO:
 		{
 			for (UINT i = 0; i < m_AlbedoTextures.size(); i++) {
 
-				if (textureID = m_AlbedoTextures[i]->GetTextureInfo().id) {
+				if (textureID == m_AlbedoTextures[i]->GetTextureInfo().id) {
 					return m_AlbedoTextures[i];
 				}
 			}
@@ -87,7 +68,7 @@ namespace Insight {
 		{
 			for (UINT i = 0; i < m_NormalTextures.size(); i++) {
 
-				if (textureID = m_NormalTextures[i]->GetTextureInfo().id) {
+				if (textureID == m_NormalTextures[i]->GetTextureInfo().id) {
 					return m_NormalTextures[i];
 				}
 			}
@@ -97,7 +78,7 @@ namespace Insight {
 		{
 			for (UINT i = 0; i < m_RoughnessTextures.size(); i++) {
 
-				if (textureID = m_RoughnessTextures[i]->GetTextureInfo().id) {
+				if (textureID == m_RoughnessTextures[i]->GetTextureInfo().id) {
 					return m_RoughnessTextures[i];
 				}
 			}
@@ -107,7 +88,7 @@ namespace Insight {
 		{
 			for (UINT i = 0; i < m_MetallicTextures.size(); i++) {
 
-				if (textureID = m_MetallicTextures[i]->GetTextureInfo().id) {
+				if (textureID == m_MetallicTextures[i]->GetTextureInfo().id) {
 					return m_MetallicTextures[i];
 				}
 			}
@@ -117,7 +98,7 @@ namespace Insight {
 		{
 			for (UINT i = 0; i < m_AOTextures.size(); i++) {
 
-				if (textureID = m_AOTextures[i]->GetTextureInfo().id) {
+				if (textureID == m_AOTextures[i]->GetTextureInfo().id) {
 					return m_AOTextures[i];
 				}
 			}
@@ -141,27 +122,27 @@ namespace Insight {
 		switch (texInfo.type) {
 		case Texture::eTextureType::ALBEDO:
 		{
-			m_AlbedoTextures.push_back(new Texture(texInfo, cbvSrvHeapStart));
+			m_AlbedoTextures.push_back(make_shared<Texture>(texInfo, cbvSrvHeapStart));
 			break;
 		}
 		case Texture::eTextureType::NORMAL:
 		{
-			m_NormalTextures.push_back(new Texture(texInfo, cbvSrvHeapStart));
+			m_NormalTextures.push_back(make_shared<Texture>(texInfo, cbvSrvHeapStart));
 			break;
 		}
 		case Texture::eTextureType::ROUGHNESS:
 		{
-			m_RoughnessTextures.push_back(new Texture(texInfo, cbvSrvHeapStart));
+			m_RoughnessTextures.push_back(make_shared<Texture>(texInfo, cbvSrvHeapStart));
 			break;
 		}
 		case Texture::eTextureType::METALLIC:
 		{
-			m_MetallicTextures.push_back(new Texture(texInfo, cbvSrvHeapStart));
+			m_MetallicTextures.push_back(make_shared<Texture>(texInfo, cbvSrvHeapStart));
 			break;
 		}
 		case Texture::eTextureType::AO:
 		{
-			m_AOTextures.push_back(new Texture(texInfo, cbvSrvHeapStart));
+			m_AOTextures.push_back(make_shared<Texture>(texInfo, cbvSrvHeapStart));
 			break;
 		}
 		default:
