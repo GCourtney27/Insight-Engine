@@ -9,7 +9,8 @@ namespace Insight {
 
 	static std::mutex s_MeshMutex;
 
-	Model::Model(const std::string& path)
+	Model::Model(const std::string& path, Material* material)
+		: m_Material(material)
 	{
 		Init(path);
 	}
@@ -17,13 +18,6 @@ namespace Insight {
 	Model::~Model()
 	{
 		//Destroy();
-	}
-
-	bool Model::LoadFromJson(const rapidjson::Value& materialInfo)
-	{
-		m_Material.LoadFromJson(materialInfo);
-
-		return true;
 	}
 
 	bool Model::Init(const std::string& path)
@@ -41,7 +35,11 @@ namespace Insight {
 		ImGui::SameLine();
 		ImGui::Text(m_FileName.c_str());
 
-		m_Material.OnImGuiRender();
+		ImGui::Text("Transform");
+		ImGui::DragFloat3("Position", &m_pRoot->GetTransformRef().GetPositionRef().x, 0.05f, -100.0f, 100.0f);
+		ImGui::DragFloat3("Scale", &m_pRoot->GetTransformRef().GetScaleRef().x, 0.05f, -100.0f, 100.0f);
+		ImGui::DragFloat3("Rotation", &m_pRoot->GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);
+
 	}
 
 	void Model::RenderSceneHeirarchy()
@@ -57,14 +55,13 @@ namespace Insight {
 
 	void Model::BindResources()
 	{
-		m_Material.BindResources();
+		m_Material->BindResources();
 	}
 
 	void Model::PreRender(const XMMATRIX& parentMat)
 	{
 		auto worldMat = XMMatrixMultiply(parentMat, m_pRoot->GetTransformRef().GetLocalMatrixRef());
-		for (unique_ptr<Mesh>& mesh : m_Meshes)
-		{
+		for (unique_ptr<Mesh>& mesh : m_Meshes) {
 			mesh->PreRender(worldMat);
 		}
 	}

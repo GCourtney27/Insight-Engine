@@ -3,7 +3,7 @@
 #include <Insight/Core.h>
 
 #include "Scene_Node.h"
-#include "Insight/Systems/Model_Manager.h"
+#include "Insight/Systems/Managers/Resource_Manager.h"
 #include "Insight/Runtime/APlayer_Character.h"
 #include "Insight/Rendering/Rendering_Context.h"
 #include "Insight/Rendering/APost_Fx.h"
@@ -46,12 +46,15 @@ namespace Insight {
 		Vector3 newPos;
 		AActor* m_pSelectedActor = nullptr;
 
-		FileSystem m_FileSystem;
-		ModelManager m_ModelManager;
 		SceneNode* m_pSceneRoot = nullptr;
 		std::shared_ptr<RenderingContext> m_Renderer = nullptr;
-
 		std::string m_DisplayName;
+
+	private:
+		// TODO move this to engine class
+		FileSystem m_FileSystem;
+		ResourceManager m_ResourceManager;
+
 	};
 
 }

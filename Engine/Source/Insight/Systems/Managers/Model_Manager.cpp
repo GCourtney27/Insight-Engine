@@ -8,12 +8,9 @@
 
 namespace Insight {
 
-	ModelManager* ModelManager::s_Instance = nullptr;
-
 	ModelManager::ModelManager()
 	{
-		IE_CORE_ASSERT(!s_Instance, "An instance of Model Manager already exists!");
-		s_Instance = this;
+
 	}
 
 	ModelManager::~ModelManager()
@@ -42,6 +39,11 @@ namespace Insight {
 		}
 
 		return true;
+	}
+
+	bool ModelManager::LoadResourcesFromJson(const rapidjson::Value& jsonMeshes)
+	{
+		return false;
 	}
 
 	// Issue draw commands to all models attached to the model manager

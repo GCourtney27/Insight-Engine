@@ -30,10 +30,8 @@ namespace Insight {
 		virtual void OnDetach() override;
 
 	private:
-		Material m_Material;
-		std::future<void> m_Future;
-	private:
 		StrongModelPtr m_pModel;
+		Material m_Material;
 	};
 
 }

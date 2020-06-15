@@ -2,7 +2,6 @@
 
 #include "Insight/Core/Application.h"
 #include "Insight/Core/Scene/scene.h"
-#include "Insight/Systems/Model_Manager.h"
 #include "Insight/Utilities/String_Helper.h"
 
 #include "File_System.h"
@@ -68,6 +67,8 @@ namespace Insight {
 				IE_CORE_ERROR("Failed to load resource file from scene: \"{0}\" from file.", fileName);
 				return false;
 			}
+
+			ResourceManager::Get().LoadResourcesFromJson(rawResourceFile);
 
 			IE_CORE_TRACE("Scene resouces loaded.");
 		}

@@ -33,7 +33,7 @@ namespace Insight {
 	bool Scene::Init(const std::string fileName)
 	{
 		m_Renderer = Application::Get().GetWindow().GetRenderContext();
-		m_ModelManager.Init();
+		m_ResourceManager.Init();
 
 		m_pPlayerCharacter = new APlayerCharacter(0, "Player Character");
 		m_pSceneRoot->AddChild(m_pPlayerCharacter);
@@ -149,14 +149,14 @@ namespace Insight {
 	{
 		m_Renderer->OnPreFrameRender();
 		m_pSceneRoot->OnPreRender(XMMatrixIdentity());
-		m_ModelManager.UploadVertexDataToGPU();
+		m_ResourceManager.GetModelManager().UploadVertexDataToGPU();
 	}
 
 	void Scene::OnRender()
 	{
 		m_Renderer->OnRender();
 		m_pSceneRoot->OnRender();
-		m_ModelManager.Render();
+		m_ResourceManager.GetModelManager().Render();
 	}
 
 	void Scene::OnMidFrameRender()
@@ -166,7 +166,7 @@ namespace Insight {
 
 	void Scene::OnPostRender()
 	{
-		m_ModelManager.PostRender();
+		m_ResourceManager.GetModelManager().PostRender();
 		m_Renderer->ExecuteDraw();
 		m_Renderer->SwapBuffers();
 	}
