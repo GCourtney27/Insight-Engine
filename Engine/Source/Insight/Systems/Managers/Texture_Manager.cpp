@@ -46,7 +46,7 @@ namespace Insight {
 			
 			RegisterTextureByType(texInfo);
 
-			m_HighestTextureId = (m_HighestTextureId < id) ? id : m_HighestTextureId;
+			m_HighestTextureId = ((int)m_HighestTextureId < id) ? id : m_HighestTextureId;
 		}
 
 		return true;

@@ -23,7 +23,7 @@ IncludeDir["DX12TK"] = "Engine/Vendor/Microsoft/DirectX12/TK/Inc"
 IncludeDir["ImGuizmo"] = "Engine/Vendor/ImGuizmo"
 IncludeDir["rapidjson"] = "Engine/Vendor/rapidjson"
 IncludeDir["spdlog"] = "Engine/Vendor/spdlog"
-IncludeDir["Mono"] = "Engine/Vendor/Mono"
+IncludeDir["Mono"] = "Engine/Vendor/Mono/include/mono-2.0"
 
 include "Engine/Vendor/ImGui"
 
@@ -85,6 +85,9 @@ project ("Engine")
 		"d3dcompiler.lib",
 		"DirectXTK12.lib",
 		"assimp-vc140-mt.lib",
+		"MonoPosixHelper.lib",
+		"mono-2.0-sgen.lib",
+		"libmono-static-sgen.lib",
 		"ImGui",
 	}
 
@@ -92,11 +95,14 @@ project ("Engine")
 	{
 		"Engine/Vendor/assimp-3.3.1/build/code/%{cfg.buildcfg}",
 		"Engine/Vendor/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/%{cfg.buildcfg}",
+		"Engine/Vendor/Mono/lib",
 	}
 
 	postbuildcommands
 	{
-		("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/%{cfg.buildcfg}/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine")
+		("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/%{cfg.buildcfg}/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
+		("{COPY} ../bin/"..outputdir.."CSharp-Assembly/Assembly-CSharp.dll ../bin/"..outputdir.."/Engine"),
+		("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine")
 	}
 
 
@@ -174,7 +180,7 @@ project (gameName)
 		"Engine/Vendor/Nvidia/DirectX12",
 		"Engine/Vendor/spdlog/include",
 		"Engine/Vendor/rapidjson/include",
-		"Engine/Vendor/Mono/include",
+		"Engine/Vendor/Mono/include/mono-2.0",
 		"Engine/Source",
 		"Engine/Vendor"
 	}
