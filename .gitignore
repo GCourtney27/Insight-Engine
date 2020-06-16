@@ -9,6 +9,7 @@ Assets/
 # Binaries
 bin/
 bin-int/
+Engine/Vendor/Mono
 
 # User-specific files
 *.rsuser
@@ -18,6 +19,7 @@ bin-int/
 *.sln.docstates
 *.sln
 *.vcxproj
+*.csproj
 *.vcxproj.user
 *.vcxproj.filters
 

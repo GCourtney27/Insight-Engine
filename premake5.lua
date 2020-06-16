@@ -23,6 +23,7 @@ IncludeDir["DX12TK"] = "Engine/Vendor/Microsoft/DirectX12/TK/Inc"
 IncludeDir["ImGuizmo"] = "Engine/Vendor/ImGuizmo"
 IncludeDir["rapidjson"] = "Engine/Vendor/rapidjson"
 IncludeDir["spdlog"] = "Engine/Vendor/spdlog"
+IncludeDir["Mono"] = "Engine/Vendor/Mono"
 
 include "Engine/Vendor/ImGui"
 
@@ -69,6 +70,7 @@ project ("Engine")
 		"%{IncludeDir.rapidjson}/include/",
 		"%{IncludeDir.spdlog}/include/",
 		"%{IncludeDir.ImGuizmo}/",
+		"%{IncludeDir.Mono}/",
 		"%{IncludeDir.DX12TK}/",
 		"%{IncludeDir.ImGui}/",
 		"%{IncludeDir.assimp}/",
@@ -172,6 +174,7 @@ project (gameName)
 		"Engine/Vendor/Nvidia/DirectX12",
 		"Engine/Vendor/spdlog/include",
 		"Engine/Vendor/rapidjson/include",
+		"Engine/Vendor/Mono/include",
 		"Engine/Source",
 		"Engine/Vendor"
 	}

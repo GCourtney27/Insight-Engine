@@ -9,6 +9,10 @@ namespace Insight {
 		MonoScriptManager();
 		~MonoScriptManager();
 		
+		bool Init();
+		void Destroy();
+
+	private:
 
 	};
 

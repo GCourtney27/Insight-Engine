@@ -20,7 +20,8 @@
     <OutputPath>..\Bin\Debug-windows-x86_64\CSharp-Assembly\</OutputPath>
     <BaseIntermediateOutputPath>..\Bin-Int\Debug-windows-x86_64\CSharp-Assembly\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -31,7 +32,8 @@
     <OutputPath>..\Bin\Release-windows-x86_64\CSharp-Assembly\</OutputPath>
     <BaseIntermediateOutputPath>..\Bin-Int\Release-windows-x86_64\CSharp-Assembly\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -42,7 +44,8 @@
     <OutputPath>..\Bin\Engine-Dist-windows-x86_64\CSharp-Assembly\</OutputPath>
     <BaseIntermediateOutputPath>..\Bin-Int\Engine-Dist-windows-x86_64\CSharp-Assembly\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -53,7 +56,8 @@
     <OutputPath>..\Bin\Game-Dist-windows-x86_64\CSharp-Assembly\</OutputPath>
     <BaseIntermediateOutputPath>..\Bin-Int\Game-Dist-windows-x86_64\CSharp-Assembly\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -72,6 +76,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Source\Test.cs" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>
