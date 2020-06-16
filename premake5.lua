@@ -251,5 +251,5 @@ project ("Assembly-CSharp")
 
 	postbuildcommands
 	{
-		("{COPY} %{wks.location}bin/"..outputdir.."/Assembly-CSharp/Assembly-CSharp.dll ../bin/"..outputdir.."/Engine")
+		("{COPY} %{wks.location}Bin/"..outputdir.."/%{prj.name}/%{prj.name}.dll %{wks.location}Bin/"..outputdir.."/Engine")
 	}
