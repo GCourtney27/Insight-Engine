@@ -8,10 +8,15 @@ namespace Source
 {
     class Test
     {
-        int GetNumber()
+        static int GetNumber()
         {
-            int num = 07271999;
+            int num = 07271998;
             return num;
+        }
+
+        void Method()
+        {
+
         }
     }
 }

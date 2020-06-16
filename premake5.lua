@@ -28,7 +28,7 @@ IncludeDir["Mono"] = "Engine/Vendor/Mono/include/mono-2.0"
 include "Engine/Vendor/ImGui"
 
 CustomDefines = {}
-CustomDefines["IE_BUILD_DIR"] = "../" .. outputdir
+CustomDefines["IE_BUILD_DIR"] = "../Bin" .. outputdir
 
 project ("Engine")
 	location ("Engine")
@@ -101,7 +101,6 @@ project ("Engine")
 	postbuildcommands
 	{
 		("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/%{cfg.buildcfg}/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
-		("{COPY} ../bin/"..outputdir.."CSharp-Assembly/Assembly-CSharp.dll ../bin/"..outputdir.."/Engine"),
 		("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine")
 	}
 
@@ -219,8 +218,8 @@ project (gameName)
 		symbols "on"
 
 
-project ("CSharp-Assembly")
-	location("CSharp-Assembly")
+project ("Assembly-CSharp")
+	location("Assembly-CSharp")
 	kind("SharedLib")
 	language("C#")
 	targetdir ("Bin/" .. outputdir .. "/%{prj.name}")
@@ -248,4 +247,9 @@ project ("CSharp-Assembly")
 		"System.Xml",
 		"System.Xml.Linq",
 		"WindowsBase",
+	}
+
+	postbuildcommands
+	{
+		("{COPY} %{wks.location}bin/"..outputdir.."/Assembly-CSharp/Assembly-CSharp.dll ../bin/"..outputdir.."/Engine")
 	}
