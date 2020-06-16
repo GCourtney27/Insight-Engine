@@ -208,3 +208,35 @@ project (gameName)
 		defines "IE_GAME_DIST"
 		optimize "on"
 		symbols "on"
+
+
+project ("CSharp-Assembly")
+	location("CSharp-Assembly")
+	kind("SharedLib")
+	language("C#")
+	targetdir ("Bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("Bin-Int/" .. outputdir .. "/%{prj.name}")
+
+	files
+	{
+		"%{prj.name}/Source/**.cs",
+		"%{prj.name}/Source/**.xaml",
+		"%{prj.name}/Source/**.xaml.cs",
+		"%{prj.name}/Source/**.config"
+	}
+
+	links
+	{
+		"Microsoft.CSharp",
+		"PresentationCore",
+		"PresentationFramework",
+		"System",
+		"System.Core",
+		"System.Data",
+		"System.Data.DataSetExtensions",
+		"System.Net.Http",
+		"System.Xaml",
+		"System.Xml",
+		"System.Xml.Linq",
+		"WindowsBase",
+	}
