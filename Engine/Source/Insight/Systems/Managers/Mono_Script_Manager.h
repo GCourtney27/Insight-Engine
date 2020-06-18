@@ -14,7 +14,10 @@ namespace Insight {
 		~MonoScriptManager();
 		
 		bool Init();
-		void Destroy();
+		void Cleanup();
+
+		MonoDomain& GetDomain() { return *m_pDomain; }
+
 
 	private:
 		MonoDomain* m_pDomain = nullptr;

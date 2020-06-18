@@ -763,11 +763,11 @@ namespace Insight {
 
 		hr = D3DReadFileToBlob(vertexShaderFolder, &pVertexShader);
 		if (FAILED(hr)) {
-			ThrowIfFailed(hr, "Failed to compile Vertex Shader check log for more details.");
+			ThrowIfFailed(hr, "Failed to read Vertex Shader check log for more details.");
 		}
 		hr = D3DReadFileToBlob(pixelShaderFolder, &pPixelShader);
 		if (FAILED(hr)) {
-			ThrowIfFailed(hr, "Failed to compile Pixel Shader check log for more details.");
+			ThrowIfFailed(hr, "Failed to read Pixel Shader check log for more details.");
 		}
 
 

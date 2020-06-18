@@ -21,6 +21,7 @@ namespace Insight {
 
 		ModelManager& GetModelManager() { return *m_pModelManager; }
 		TextureManager& GetTextureManager() { return *m_pTextureManager; }
+		MonoScriptManager& GetMonoScriptManager() { return *m_pMonoScriptManager; }
 
 	private:
 		ModelManager*	m_pModelManager = nullptr;

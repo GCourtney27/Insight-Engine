@@ -28,7 +28,7 @@ IncludeDir["Mono"] = "Engine/Vendor/Mono/include/mono-2.0"
 include "Engine/Vendor/ImGui"
 
 CustomDefines = {}
-CustomDefines["IE_BUILD_DIR"] = "../Bin" .. outputdir
+CustomDefines["IE_BUILD_DIR"] = "../Bin/" .. outputdir
 
 project ("Engine")
 	location ("Engine")
