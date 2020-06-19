@@ -102,7 +102,9 @@ namespace Insight {
 		ResourceUploadBatch resourceUpload(pDevice);
 		resourceUpload.Begin();
 
-		ThrowIfFailed(CreateDDSTextureFromFile(pDevice, resourceUpload, m_TextureInfo.Filepath.c_str(), &m_pTexture, m_TextureInfo.GenerateMipMaps, 0, nullptr, &m_TextureInfo.IsCubeMap), "Failed to load DDS texture from file");
+		HRESULT hr;
+		hr = CreateDDSTextureFromFile(pDevice, resourceUpload, m_TextureInfo.Filepath.c_str(), &m_pTexture, m_TextureInfo.GenerateMipMaps, 0, nullptr, &m_TextureInfo.IsCubeMap);
+		ThrowIfFailed(hr, "Failed to load DDS texture from file");
 		m_TextureDesc = m_pTexture->GetDesc();
 		if (!resourceUpload.IsSupportedForGenerateMips(m_TextureDesc.Format)) {
 			//IE_CORE_WARN("Mip map generation not supported for texture: {0}", m_DisplayName);

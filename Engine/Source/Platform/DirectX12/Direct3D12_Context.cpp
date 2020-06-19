@@ -726,7 +726,6 @@ namespace Insight {
 
 		CD3DX12_STATIC_SAMPLER_DESC staticSamplers[2];
 		staticSamplers[0].Init(0, D3D12_FILTER_MIN_MAG_MIP_LINEAR);
-		//staticSamplers[1].Init(1, D3D12_FILTER_MIN_MAG_MIP_LINEAR);
 		UINT maxAnisotropy = 16u;
 		FLOAT minLOD = 0.0f;
 		FLOAT maxLOD = 9.0f;

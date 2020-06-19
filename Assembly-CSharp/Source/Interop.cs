@@ -11,7 +11,9 @@ namespace Source
     class Interop
     {
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        //[DllImport("__Internal", EntryPoint = "PrintCPPMsg")]
-        public extern static string PrintCPPMsg();
+        public extern static void PrintCPPMsg(string msg);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        public extern static void SetPosition(float x, float y, float z);
     }
 }

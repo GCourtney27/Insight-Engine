@@ -14,14 +14,23 @@ namespace Insight {
 		~MonoScriptManager();
 		
 		bool Init();
+		void ReCompile();
 		void Cleanup();
 
 		MonoDomain& GetDomain() { return *m_pDomain; }
+		MonoAssembly& GetAssembly() { return *m_pAssembly; }
+		MonoImage& GetImage() { return *m_pImage; }
 
+		bool CreateClass(MonoClass* monoClass, MonoObject* monoObject, const char* className);
+		bool CreateMethod(MonoClass* classToInitFrom, MonoMethod* monoMethod, const char* targetClassName, const char* methodName);
+		void InvokeMethod(MonoMethod* monoMethod, MonoObject* monoObject, void* methodArgs[]);
+		void ImGuiRender();
 
 	private:
 		MonoDomain* m_pDomain = nullptr;
 		MonoAssembly* m_pAssembly = nullptr;
+		MonoImage* m_pImage = nullptr;
+		
 	};
 
 }

@@ -99,6 +99,7 @@ namespace Insight {
 					layer->OnImGuiRender();
 				}
 				m_Scene.OnImGuiRender();
+				ResourceManager::Get().GetMonoScriptManager().ImGuiRender();
 				m_ImGuiLayer->End();
 			}
 

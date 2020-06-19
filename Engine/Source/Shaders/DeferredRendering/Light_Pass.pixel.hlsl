@@ -139,8 +139,8 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     float3 kD_IBL = (1.0f - F_IBL) * (1.0f - metallic);
     float3 diffuse_IBL = tc_IrradianceMap.Sample(s_LinearWrapSampler, normal).rgb * albedo * kD_IBL;
     // Specular IBL
-    const float MAX_REFLECTION_LOD = 4.0f;
-    float3 environmentMapColor = tc_EnvironmentMap.SampleLevel(s_LinearWrapSampler, reflect(-viewDirection, normal), roughness * MAX_REFLECTION_LOD).rgb;
+    const float MAX_REFLECTION_MIP_LOD = 10.0f;
+    float3 environmentMapColor = tc_EnvironmentMap.SampleLevel(s_LinearWrapSampler, reflect(-viewDirection, normal), roughness * MAX_REFLECTION_MIP_LOD).rgb;
     float2 brdf = t_BrdfLUT.Sample(s_LinearWrapSampler, float2(NdotV, roughness)).rg;
     float3 specular_IBL = environmentMapColor * (F_IBL * brdf.r + brdf.g);
     

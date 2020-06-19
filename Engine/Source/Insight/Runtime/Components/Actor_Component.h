@@ -4,8 +4,8 @@
 namespace Insight {
 
 
-	using Super = Insight::ActorComponent;
-	
+#define RETURN_IF_DISABLED if(!m_Enabled){return;}
+
 	class ActorComponent
 	{
 	public:
@@ -31,7 +31,7 @@ namespace Insight {
 		void SetComponentEnabled(bool enable) { m_Enabled = enable; }
 
 		virtual const char* GetName() const { return m_ComponentName; };
-		
+
 		void SetOwner(StrongActorPtr owner) { m_pOwner = owner; }
 	protected:
 		ActorComponent(const char* componentName, StrongActorPtr owner)
