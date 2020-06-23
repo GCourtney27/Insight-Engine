@@ -32,19 +32,12 @@ namespace Insight {
 		void BeginPlay();
 		void Tick(const float& deltaMs);
 
-		// Mono Interop Calls (C# --> C++)
-		void Interop_Translate(float x, float y, float z);
-		void Interop_Rotate(float x, float y, float z);
-		void Interop_Scale(float x, float y, float z);
-		void Interop_SetPosition(float x, float y, float z);
-		void Interop_SetRotation(float x, float y, float z);
-		void Interop_SetScale(float x, float y, float z);
-
-
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
 	private:
 		void PrepScriptedValues();
+		void ProcessScriptTransformChanges();
+		void GetTransformFields();
 		void RegisterScript();
 		void Cleanup();
 	private:
@@ -57,6 +50,24 @@ namespace Insight {
 		std::string m_ModuleName;
 		bool m_CanBeTicked = true;
 		bool m_CanBeCalledOnBeginPlay = true;
+
+		// Transform Script Fields
+		MonoObject* m_TransformObject;
+
+		MonoClassField* m_XPositionField;
+		MonoClassField* m_YPositionField;
+		MonoClassField* m_ZPositionField;
+		MonoObject* m_PositionObj;
+
+		MonoClassField* m_XRotationField;
+		MonoClassField* m_YRotationField;
+		MonoClassField* m_ZRotationField;
+		MonoObject* m_RotationObj;
+		
+		MonoClassField* m_XScaleField;
+		MonoClassField* m_YScaleField;
+		MonoClassField* m_ZScaleField;
+		MonoObject* m_ScaleObj;
 
 	};
 

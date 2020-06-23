@@ -40,9 +40,9 @@ namespace Insight {
 		return (monoMethod);
 	}
 
-	void MonoScriptManager::InvokeMethod(MonoMethod*& methodToCall, MonoObject*& belongingObject, void* methodArgs[])
+	MonoObject* MonoScriptManager::InvokeMethod(MonoMethod*& methodToCall, MonoObject*& belongingObject, void* methodArgs[])
 	{
-		mono_runtime_invoke(methodToCall, belongingObject, methodArgs, nullptr);
+		return mono_runtime_invoke(methodToCall, belongingObject, methodArgs, nullptr);
 	}
 
 	void MonoScriptManager::ImGuiRender()
@@ -102,24 +102,6 @@ namespace Insight {
 		{
 			mono_add_internal_call("InsightEngine.Interop::PrintCPPMsg", reinterpret_cast<const void*>(Interop_PrintCPPMsg));
 		}
-
-		// DEMO
-		/*{
-			monoClass = mono_class_from_name(m_pImage, "InsightEngine", "Test");
-			monoObject = mono_object_new(m_pDomain, monoClass);
-			mono_runtime_object_init(monoObject);
-			
-			const char* TypeMethodDescStr = "InsightEngine.Test::Method()";
-			MonoMethodDesc* TypeMethodDesc = mono_method_desc_new(TypeMethodDescStr, false);
-			if (!TypeMethodDesc) {
-				IE_CORE_ERROR("Failed to find method signature in mono image.");
-				return false;
-			}
-
-			method = mono_method_desc_search_in_class(TypeMethodDesc, monoClass);
-
-			mono_runtime_invoke(method, monoObject, nullptr, nullptr);
-		}*/
 
 		return true;
 	}

@@ -7,25 +7,27 @@ using System.Threading.Tasks;
 
 namespace InsightEngine
 {
-    class Rotator
+    class Rotator : ScriptableBehavior
     {
-        float m_YRotationOffset;
-        public float RotationOffset { get { return m_YRotationOffset; } }
+        public float Frequency = 1.0f;
+        public float Amplitude = 0.5f;
 
+        Vector3 posOffset = new Vector3();
+        Vector3 tempPos = new Vector3();
         // Called when game started or when spawned
         void BeginPlay()
         {
-
+            posOffset = this.Transform.Position;
         }
 
         // Called once per frame
         void Tick(double deltaMs)
         {
-            //Transform.Rotate(0.0f, Math.Sin(1.0f * deltaMs), 0.0f); 
-            //Interop.TestRotate(0.0f, (float)Math.Sin(1.0f * deltaMs), 0.0f);
-            m_YRotationOffset = (float)Math.Sin(1.0f * deltaMs);
-            
-            //Console.WriteLine(m_YRotationOffset);
+            tempPos = posOffset;
+            tempPos.Y += (float)(Math.Sin(deltaMs * Math.PI * Frequency) * Amplitude);
+
+            this.Transform.RotateActorPitchYawRoll(0.0f, (float)Math.Sin(1.0f * deltaMs), 0.0f);
+            this.Transform.Position = tempPos;
         }
     }
 }

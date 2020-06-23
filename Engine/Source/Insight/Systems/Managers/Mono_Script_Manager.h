@@ -24,7 +24,7 @@ namespace Insight {
 
 		bool CreateClass(MonoClass*& monoClass, MonoObject*& monoObject, const char* className);
 		bool CreateMethod(MonoClass*& classToInitFrom, MonoMethod*& monoMethod, const char* targetClassName, const char* methodName);
-		void InvokeMethod(MonoMethod*& monoMethod, MonoObject*& monoObject, void* methodArgs[]);
+		MonoObject* InvokeMethod(MonoMethod*& monoMethod, MonoObject*& monoObject, void* methodArgs[]);
 		void ImGuiRender();
 
 	private:

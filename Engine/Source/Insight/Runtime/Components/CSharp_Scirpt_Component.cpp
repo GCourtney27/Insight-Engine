@@ -57,8 +57,8 @@ namespace Insight {
 			IE_CORE_ERROR("Failed to find method \"Tick\" in \"{0}\"", m_ModuleName);
 		}
 
-		// TEMP
-		mono_add_internal_call("InsightEngine.Interop::TestRotate", reinterpret_cast<const void*>(TestRotate));
+		GetTransformFields();
+
 	}
 
 	void CSharpScriptComponent::Cleanup()
@@ -93,26 +93,98 @@ namespace Insight {
 
 	void CSharpScriptComponent::PrepScriptedValues()
 	{
-		MonoClassField* rotOffset;
-		float currentRotY = m_pOwner->GetTransformRef().GetRotation().y;
-		rotOffset = mono_class_get_field_from_name(m_pClass, "m_YRotationOffset");
-		//IE_CORE_INFO("Rotation: {0}", currentRotY);
-		mono_field_set_value(m_pObject, rotOffset, &currentRotY);
+		Vector3 currentPos = m_pOwner->GetTransformRef().GetPosition();
+		mono_field_set_value(m_PositionObj, m_XPositionField, &currentPos.x);
+		mono_field_set_value(m_PositionObj, m_YPositionField, &currentPos.y);
+		mono_field_set_value(m_PositionObj, m_ZPositionField, &currentPos.z);
+
+		Vector3 currentRot = m_pOwner->GetTransformRef().GetRotation();
+		mono_field_set_value(m_RotationObj, m_XRotationField, &currentRot.x);
+		mono_field_set_value(m_RotationObj, m_YRotationField, &currentRot.y);
+		mono_field_set_value(m_RotationObj, m_ZRotationField, &currentRot.z);
+
+		Vector3 currentSca = m_pOwner->GetTransformRef().GetScale();
+		mono_field_set_value(m_ScaleObj, m_XScaleField, &currentSca.x);
+		mono_field_set_value(m_ScaleObj, m_YScaleField, &currentSca.y);
+		mono_field_set_value(m_ScaleObj, m_ZScaleField, &currentSca.z);
 	}
 
+	void CSharpScriptComponent::ProcessScriptTransformChanges()
+	{
+		float pos[3];
+		float rot[3];
+		float sca[3];
+
+		mono_field_get_value(m_PositionObj, m_XPositionField, &pos[0]);
+		mono_field_get_value(m_PositionObj, m_YPositionField, &pos[1]);
+		mono_field_get_value(m_PositionObj, m_ZPositionField, &pos[2]);
+		ActorComponent::m_pOwner->GetTransformRef().SetPosition(pos[0], pos[1], pos[2]);
+
+		mono_field_get_value(m_RotationObj, m_XRotationField, &rot[0]);
+		mono_field_get_value(m_RotationObj, m_YRotationField, &rot[1]);
+		mono_field_get_value(m_RotationObj, m_ZRotationField, &rot[2]);
+		ActorComponent::m_pOwner->GetTransformRef().SetRotation(rot[0], rot[1], rot[2]);
+		
+		mono_field_get_value(m_ScaleObj, m_XScaleField, &sca[0]);
+		mono_field_get_value(m_ScaleObj, m_YScaleField, &sca[1]);
+		mono_field_get_value(m_ScaleObj, m_ZScaleField, &sca[2]);
+		ActorComponent::m_pOwner->GetTransformRef().SetScale(sca[0], sca[1], sca[2]);
+	}
+
+	void CSharpScriptComponent::GetTransformFields()
+	{
+		// Get Transform Object
+		MonoProperty* transformProp = mono_class_get_property_from_name(m_pClass, "Transform");
+		MonoMethod* transformGetMethod = mono_property_get_get_method(transformProp);
+		m_TransformObject = mono_runtime_invoke(transformGetMethod, m_pObject, nullptr, nullptr);
+		MonoClass* transformClass = mono_object_get_class(m_TransformObject);
+
+		// Get Postion Object inside Transform
+		MonoProperty* posProp = mono_class_get_property_from_name(transformClass, "Position");
+		MonoMethod* posGetMethod = mono_property_get_get_method(posProp);
+		m_PositionObj = mono_runtime_invoke(posGetMethod, m_TransformObject, nullptr, nullptr);
+		MonoClass* posClass = mono_object_get_class(m_PositionObj);
+		m_XPositionField = mono_class_get_field_from_name(posClass, "m_X");
+		m_YPositionField = mono_class_get_field_from_name(posClass, "m_Y");
+		m_ZPositionField = mono_class_get_field_from_name(posClass, "m_Z");
+		
+		// Get Scale Object inside Transform
+		MonoProperty* scaProp = mono_class_get_property_from_name(transformClass, "Scale");
+		MonoMethod* scaGetMethod = mono_property_get_get_method(scaProp);
+		m_ScaleObj = mono_runtime_invoke(scaGetMethod, m_TransformObject, nullptr, nullptr);
+		MonoClass* scaClass = mono_object_get_class(m_ScaleObj);
+		m_XScaleField = mono_class_get_field_from_name(scaClass, "m_X");
+		m_YScaleField = mono_class_get_field_from_name(scaClass, "m_Y");
+		m_ZScaleField = mono_class_get_field_from_name(scaClass, "m_Z");
+
+		// Get Rotation Object inside Transform
+		MonoProperty* rotProp = mono_class_get_property_from_name(transformClass, "Rotation");
+		MonoMethod* rotGetMethod = mono_property_get_get_method(rotProp);
+		m_RotationObj = mono_runtime_invoke(rotGetMethod, m_TransformObject, nullptr, nullptr);
+		MonoClass* rotClass = mono_object_get_class(m_RotationObj);
+		m_XRotationField = mono_class_get_field_from_name(rotClass, "m_X");
+		m_YRotationField = mono_class_get_field_from_name(rotClass, "m_Y");
+		m_ZRotationField = mono_class_get_field_from_name(rotClass, "m_Z");
+
+	}
+
+	bool s_begunPlay = false;
 	void CSharpScriptComponent::OnUpdate(const float& deltaMs)
 	{
 		PrepScriptedValues();
+
+		//TEMP TODO implement play system
+		if (!s_begunPlay) {
+			BeginPlay();
+			s_begunPlay = true;
+		}
+
 		void* args[1];
 		double doubleDt = (double)deltaMs;
 		args[0] = &doubleDt;
 		m_pMonoScriptManager->InvokeMethod(m_pUpdateMethod, m_pObject, args);
-		MonoProperty* rot = mono_class_get_property_from_name(m_pClass, "RotationOffset");
-		MonoMethod* method = mono_property_get_get_method(rot);
-		MonoObject* result = mono_runtime_invoke(method, m_pObject, nullptr, nullptr);
-		float y = *(float*)mono_object_unbox(result);
+		ProcessScriptTransformChanges();
 		
-		ActorComponent::m_pOwner->GetTransformRef().Rotate(0.0f, y, 0.0f);
 	}
 
 	void CSharpScriptComponent::OnRender()
@@ -139,7 +211,7 @@ namespace Insight {
 	void CSharpScriptComponent::BeginPlay()
 	{
 		if (!m_CanBeCalledOnBeginPlay) { return; }
-
+		m_pMonoScriptManager->InvokeMethod(m_pBeginPlayMethod, m_pObject, nullptr);
 	}
 
 	void CSharpScriptComponent::Tick(const float& deltaMs)
@@ -149,41 +221,4 @@ namespace Insight {
 		args[0] = &const_cast<float&>(deltaMs);
 		m_pMonoScriptManager->InvokeMethod(m_pUpdateMethod, m_pObject, args);
 	}
-
-	void CSharpScriptComponent::Interop_Translate(float x, float y, float z)
-	{
-		Transform& transform = m_pOwner->GetTransformRef();
-		transform.Translate(x, y, z);
-	}
-
-	void CSharpScriptComponent::Interop_Rotate(float x, float y, float z)
-	{
-		Transform& transform = m_pOwner->GetTransformRef();
-		transform.Rotate(x, y, z);
-	}
-
-	void CSharpScriptComponent::Interop_Scale(float x, float y, float z)
-	{
-		Transform& transform = m_pOwner->GetTransformRef();
-		transform.Scale(x, y, z);
-	}
-
-	void CSharpScriptComponent::Interop_SetPosition(float x, float y, float z)
-	{
-		Transform& transform = m_pOwner->GetTransformRef();
-		transform.SetPosition(Vector3(x, y, z));
-	}
-
-	void CSharpScriptComponent::Interop_SetRotation(float x, float y, float z)
-	{
-		Transform& transform = m_pOwner->GetTransformRef();
-		transform.SetRotation(Vector3(x, y, z));
-	}
-
-	void CSharpScriptComponent::Interop_SetScale(float x, float y, float z)
-	{
-		Transform& transform = m_pOwner->GetTransformRef();
-		transform.SetScale(Vector3(x, y, z));
-	}
-
 }

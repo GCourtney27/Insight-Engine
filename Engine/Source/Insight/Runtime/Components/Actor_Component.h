@@ -9,7 +9,7 @@ namespace Insight {
 	class ActorComponent
 	{
 	public:
-		virtual ~ActorComponent(void) {  }
+		virtual ~ActorComponent(void) { m_pOwner = nullptr; }
 
 		virtual bool LoadFromJson(const rapidjson::Value& jsonComponent) = 0;
 
