@@ -12,17 +12,22 @@ namespace Insight {
 	class INSIGHT_API CSharpScriptComponent : public ActorComponent
 	{
 	public:
-		CSharpScriptComponent(StrongActorPtr pOwner);
+		
+	public:
+		CSharpScriptComponent(AActor* pOwner);
 		~CSharpScriptComponent();
 
-		virtual bool LoadFromJson(const rapidjson::Value& jsonStaticMeshComponent) override;
+		virtual bool LoadFromJson(const rapidjson::Value& jsonCSScriptComponent) override;
 
 		virtual void OnInit() override;
-		virtual void OnPostInit();
+		virtual void OnPostInit() override;
 		virtual void OnDestroy() override;
+		virtual void OnPreRender(const DirectX::XMMATRIX& matrix) override;
 		virtual void OnUpdate(const float& deltaTime);
-		virtual void OnChanged();
+		virtual void OnRender() override;
+		virtual void OnChanged() override;
 		virtual void OnImGuiRender() override;
+		virtual void RenderSceneHeirarchy() override;
 
 		void BeginPlay();
 		void Tick(const float& deltaMs);
@@ -38,7 +43,10 @@ namespace Insight {
 
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
-
+	private:
+		void PrepScriptedValues();
+		void RegisterScript();
+		void Cleanup();
 	private:
 		MonoScriptManager* m_pMonoScriptManager = nullptr;
 		MonoClass* m_pClass = nullptr;
@@ -49,6 +57,7 @@ namespace Insight {
 		std::string m_ModuleName;
 		bool m_CanBeTicked = true;
 		bool m_CanBeCalledOnBeginPlay = true;
+
 	};
 
 }

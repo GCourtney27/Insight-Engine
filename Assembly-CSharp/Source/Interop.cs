@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 //using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 
-namespace Source
+namespace InsightEngine
 {
     class Interop
     {
@@ -15,5 +15,8 @@ namespace Source
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         public extern static void SetPosition(float x, float y, float z);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        public extern static void TestRotate(float x, float y, float z);
     }
 }

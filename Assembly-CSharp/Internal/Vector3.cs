@@ -9,9 +9,9 @@ namespace Internal
 {
     class Vector3
     {
-        float m_x;
-        float m_y;
-        float m_z;
+        float m_x = 0.0f;
+        float m_y = 0.0f;
+        float m_z = 0.0f;
         public float X { get { return m_x; } set { m_x = value; } }
         public float Y { get { return m_y; } set { m_y = value; } }
         public float Z { get { return m_z; } set { m_z = value; } }

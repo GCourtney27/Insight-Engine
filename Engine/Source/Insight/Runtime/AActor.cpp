@@ -3,6 +3,7 @@
 #include "Insight/Core/Application.h"
 #include "Insight/Runtime/Components/Actor_Component.h"
 #include "Insight/Runtime/Components/Static_Mesh_Component.h"
+#include "Insight/Runtime/Components/CSharp_Scirpt_Component.h"
 
 #include "AActor.h"
 
@@ -12,7 +13,7 @@ namespace Insight {
 
 
 	AActor::AActor(ActorId id, ActorName actorName)
-		: m_id(id)
+		: m_Id(id)
 	{
 		SceneNode::SetDisplayName(actorName);
 
@@ -53,6 +54,10 @@ namespace Insight {
 			if (jsonSubobjects[i].HasMember("StaticMesh")) {
 				StrongActorComponentPtr ptr = CreateDefaultSubobject<StaticMeshComponent>();
 				ptr->LoadFromJson(jsonSubobjects[i]["StaticMesh"]);
+				continue;
+			} else if (jsonSubobjects[i].HasMember("CSharpScript")) {
+				StrongActorComponentPtr ptr = CreateDefaultSubobject<CSharpScriptComponent>();
+				ptr->LoadFromJson(jsonSubobjects[i]["CSharpScript"]);
 				continue;
 			}
 

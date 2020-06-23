@@ -21,5 +21,6 @@ A full game engine made for my 2019 Capstone project. It is written in C/C++ wit
 1) Clone the repo into a directory with "git clone --recursive".
 2) Navigate to CoreEngine
 3) Run the "Build_Dependencies.bat" file to build all dependencies.
-4) Run "Generate_Projects_VS2019.bat" to generate the Visual studio project files. Note: Visual Studio 2017 is supported, however, you must change the Visual Studio location to Visual Studio 2017 in "Generate_Projects_VS2019.bat" and  "Project_Build_Scripts/Build_Assimp.bat" as this script searches for your local Visual Studio command line executable to build the respective assimp binaries.
-5) Open the generated Visual Studio solution and enjoy. You dont need to worry about copying dependency binaries to the output directory, post build steps will achieve this for you. 
+4) Run all intallers under Vendor/Redist. Once "mono-6.8.0.123-x64-0.msi" is intalled, navigate to the install diretory, usually in "C:Program Files/Mono" and copy the Mono folder and past it into "InsightEngine/Engine/Vendor". This step is to keep file sizes low for GitHub
+5) Run "Generate_Projects_VS2019.bat" to generate the Visual studio project files. Note: Visual Studio 2017 is supported, however, you must change the Visual Studio location to Visual Studio 2017 in "Generate_Projects_VS2019.bat" and  "Project_Build_Scripts/Build_Assimp.bat" as this script searches for your local Visual Studio command line executable to build the respective assimp binaries.
+6) Open the generated Visual Studio solution and enjoy. You dont need to worry about copying dependency binaries to the output directory, post build steps will achieve this for you. 

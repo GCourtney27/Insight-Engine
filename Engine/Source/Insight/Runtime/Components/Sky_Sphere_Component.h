@@ -10,7 +10,7 @@ namespace Insight {
 	class INSIGHT_API SkySphereComponent : public ActorComponent
 	{
 	public:
-		SkySphereComponent(StrongActorPtr pOwner);
+		SkySphereComponent(AActor* pOwner);
 		virtual ~SkySphereComponent();
 		
 		virtual bool LoadFromJson(const rapidjson::Value& jsonActor) override;

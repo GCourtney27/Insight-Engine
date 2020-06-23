@@ -13,7 +13,7 @@ namespace Insight {
 
 
 
-	SkySphereComponent::SkySphereComponent(StrongActorPtr pOwner)
+	SkySphereComponent::SkySphereComponent(AActor* pOwner)
 		: ActorComponent("Static Mesh Component", pOwner)
 	{
 		pOwner->SetRenderPass(RenderPass::RenderPass_Sky);

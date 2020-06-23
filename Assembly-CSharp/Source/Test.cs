@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Source
+namespace InsightEngine
 {
 
     class Test
@@ -12,7 +12,6 @@ namespace Source
 
         Test() 
         {
-            Console.WriteLine("Test class created");
         }
 
         int GetNumber()
@@ -28,8 +27,8 @@ namespace Source
 
         void Method()
         {
-            //Interop.PrintCPPMsg("Hello From C#");
-            Interop.SetPosition(1.0f, 2.0f, 3.0f);
+            Interop.PrintCPPMsg("Hello From C#");
+            //Interop.SetPosition(1.0f, 2.0f, 3.0f);
         }
     }
 }

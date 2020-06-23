@@ -35,10 +35,10 @@ namespace Insight {
 		ImGui::SameLine();
 		ImGui::Text(m_FileName.c_str());
 
-		ImGui::Text("Transform");
-		ImGui::DragFloat3("Position", &m_pRoot->GetTransformRef().GetPositionRef().x, 0.05f, -100.0f, 100.0f);
-		ImGui::DragFloat3("Scale", &m_pRoot->GetTransformRef().GetScaleRef().x, 0.05f, -100.0f, 100.0f);
-		ImGui::DragFloat3("Rotation", &m_pRoot->GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);
+		//ImGui::Text("Transform");
+		//ImGui::DragFloat3("Position", &m_pRoot->GetTransformRef().GetPositionRef().x, 0.05f, -100.0f, 100.0f);
+		//ImGui::DragFloat3("Scale", &m_pRoot->GetTransformRef().GetScaleRef().x, 0.05f, -100.0f, 100.0f);
+		//ImGui::DragFloat3("Rotation", &m_pRoot->GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);
 
 	}
 

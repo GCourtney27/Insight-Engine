@@ -6,10 +6,7 @@ using System.Threading.Tasks;
 
 namespace Internal
 {
-    class Transform
+    class ScriptableBehavior
     {
-        Vector3 m_Position;
-        Vector3 m_Rotation;
-        Vector3 m_Scale;
     }
 }

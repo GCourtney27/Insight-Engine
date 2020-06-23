@@ -35,6 +35,7 @@ namespace Insight {
 
 		// Editor
 		void SetSelectedActor(AActor* actor) { m_pSelectedActor = actor; }
+		AActor* GetSelectedActor() { return m_pSelectedActor; }
 		void SetDisplayName(const std::string& name) { m_DisplayName = name; }
 
 	private:
