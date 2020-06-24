@@ -25,8 +25,6 @@ namespace Insight {
 	bool Scene::LoadFromJson(const std::string& fileName)
 	{
 		FileSystem::Get().LoadSceneFromJson(fileName, this);
-
-
 		return true;
 	}
 
@@ -44,6 +42,18 @@ namespace Insight {
 		return true;
 	}
 
+	void Scene::BeginPlay()
+	{
+		m_pSceneRoot->BeginPlay();
+	}
+
+	void Scene::Tick(const float& deltaMs)
+	{
+		if (m_TickScene) {
+			m_pSceneRoot->Tick(deltaMs);
+		}
+	}
+
 	void Scene::OnUpdate(const float& deltaMs)
 	{
 		m_Renderer->OnUpdate(deltaMs);
@@ -55,6 +65,7 @@ namespace Insight {
 		RenderSceneHeirarchy();
 		RenderInspector();
 		RenderCreatorWindow();
+		RenderPlayPanel();
 	}
 
 	void Scene::RenderSceneHeirarchy()
@@ -139,11 +150,26 @@ namespace Insight {
 	void Scene::RenderCreatorWindow()
 	{
 		// TODO make this a colapsing header with different options
-		ImGui::Begin("Creator");
+		//ImGui::Begin("Creator");
 		{
 			/*if (ImGui::Button("New Point Light", { 125, 25 })) {
 				m_pSceneRoot->AddChild(new APointLight(5, "New cool point light"));
 			}*/
+		}
+		//ImGui::End();
+	}
+
+	void Scene::RenderPlayPanel()
+	{
+		ImGui::Begin("Game");
+		{
+			if (ImGui::Button("Play", ImVec2{ 75.0f, 50.0f })) {
+				m_TickScene = true;
+				BeginPlay();
+			}
+			if (ImGui::Button("Stop", ImVec2{ 75.0f, 50.0f })) {
+				m_TickScene = false;
+			}
 		}
 		ImGui::End();
 	}

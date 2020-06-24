@@ -161,13 +161,19 @@ namespace Insight {
 	void AActor::BeginPlay()
 	{
 		SceneNode::BeginPlay();
-
+		for (auto& comp : m_Components)
+		{
+			comp->BeginPlay();
+		}
 	}
 
 	void AActor::Tick(const float& deltaMs)
 	{
 		SceneNode::Tick(deltaMs);
-
+		for (auto& comp : m_Components)
+		{
+			comp->Tick(deltaMs);
+		}
 	}
 
 	void AActor::Exit()

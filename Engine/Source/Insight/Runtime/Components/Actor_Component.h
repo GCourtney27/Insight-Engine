@@ -23,6 +23,9 @@ namespace Insight {
 		virtual void OnImGuiRender() = 0;
 		virtual void RenderSceneHeirarchy() = 0;
 
+		virtual void BeginPlay() = 0;
+		virtual void Tick(const float& deltaMs) = 0;
+
 		virtual void OnAttach() = 0;
 		virtual void OnDetach() = 0;
 

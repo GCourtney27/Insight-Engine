@@ -70,6 +70,8 @@ namespace Insight {
 
 	void Application::Run()
 	{
+		// if game is in distributable, m_Scene.BeginPlay(); then loop
+
 		while(m_Running)
 		{
 			m_FrameTimer.tick();
@@ -80,6 +82,7 @@ namespace Insight {
 
 			m_pWindow->OnUpdate(deltaTime);
 			m_Scene.OnUpdate(deltaTime);
+			m_Scene.Tick(deltaTime);
 			
 			for (Layer* layer : m_LayerStack) {
 				layer->OnUpdate(deltaTime);
@@ -100,7 +103,6 @@ namespace Insight {
 					layer->OnImGuiRender();
 				}
 				m_Scene.OnImGuiRender();
-				ResourceManager::Get().GetMonoScriptManager().ImGuiRender();
 				m_ImGuiLayer->End();
 			}
 

@@ -42,6 +42,7 @@ namespace Insight {
 		void RenderSceneHeirarchy();
 		void RenderInspector();
 		void RenderCreatorWindow();
+		void RenderPlayPanel();
 	private:
 		APlayerCharacter* m_pPlayerCharacter = nullptr;
 		Vector3 newPos;
@@ -50,6 +51,8 @@ namespace Insight {
 		SceneNode* m_pSceneRoot = nullptr;
 		std::shared_ptr<RenderingContext> m_Renderer = nullptr;
 		std::string m_DisplayName;
+		
+		bool m_TickScene = false;
 
 	private:
 		// TODO move this to engine class

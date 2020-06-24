@@ -81,6 +81,14 @@ namespace Insight {
 		ResourceManager::Get().GetModelManager().RegisterModel(m_pModel);
 	}
 
+	void StaticMeshComponent::BeginPlay()
+	{
+	}
+
+	void StaticMeshComponent::Tick(const float& deltaMs)
+	{
+	}
+
 	void StaticMeshComponent::OnAttach()
 	{
 	}

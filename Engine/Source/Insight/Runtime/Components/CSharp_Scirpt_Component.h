@@ -15,7 +15,7 @@ namespace Insight {
 		
 	public:
 		CSharpScriptComponent(AActor* pOwner);
-		~CSharpScriptComponent();
+		virtual ~CSharpScriptComponent();
 
 		virtual bool LoadFromJson(const rapidjson::Value& jsonCSScriptComponent) override;
 
@@ -29,8 +29,8 @@ namespace Insight {
 		virtual void OnImGuiRender() override;
 		virtual void RenderSceneHeirarchy() override;
 
-		void BeginPlay();
-		void Tick(const float& deltaMs);
+		virtual void BeginPlay() override;
+		virtual void Tick(const float& deltaMs) override;
 
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
