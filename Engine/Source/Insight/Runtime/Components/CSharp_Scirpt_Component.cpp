@@ -63,6 +63,7 @@ namespace Insight {
 
 	void CSharpScriptComponent::Cleanup()
 	{
+		m_pMonoScriptManager = nullptr;
 	}
 
 	bool CSharpScriptComponent::LoadFromJson(const rapidjson::Value& jsonCSScriptComponent)
@@ -91,7 +92,7 @@ namespace Insight {
 	{
 	}
 
-	void CSharpScriptComponent::PrepScriptedValues()
+	void CSharpScriptComponent::UpdateScriptFields()
 	{
 		Vector3 currentPos = m_pOwner->GetTransformRef().GetPosition();
 		mono_field_set_value(m_PositionObj, m_XPositionField, &currentPos.x);
@@ -171,7 +172,7 @@ namespace Insight {
 	bool s_begunPlay = false;
 	void CSharpScriptComponent::OnUpdate(const float& deltaMs)
 	{
-		PrepScriptedValues();
+		UpdateScriptFields();
 
 		//TEMP 
 		//TODO implement play system

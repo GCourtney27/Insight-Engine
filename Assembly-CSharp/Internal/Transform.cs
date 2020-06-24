@@ -22,55 +22,55 @@ namespace Internal
         public Vector3 Rotation { get { return m_Rotation; } set { m_Rotation = value; } }
         public Vector3 Scale { get { return m_Scale; } set { m_Scale = value; } }
 
-        public void SetActorPosition(float x, float y, float z)
+        public void SetActorPosition(float X, float Y, float Z)
         {
-            m_Position.X = x;
-            m_Position.Y = y;
-            m_Position.Z = z;
+            m_Position.X = X;
+            m_Position.Y = Y;
+            m_Position.Z = Z;
         }
 
-        public void TranslateActor(Vector3 offset)
+        public void TranslateActor(Vector3 Offset)
         {
-            m_Position.Plus(offset);
+            m_Position.Plus(Offset);
         }
 
-        public void TranslateActor(float x, float y, float z)
+        public void TranslateActor(float X, float Y, float Z)
         {
-            m_Position.Plus(new Vector3(x, y, z));
+            m_Position.Plus(new Vector3(X, Y, Z));
         }
 
-        public void RotateActorPitchYawRoll(Vector3 offset)
+        public void RotateActorPitchYawRoll(Vector3 Offset)
         {
-            m_Rotation.Plus(offset);
+            m_Rotation.Plus(Offset);
         }
 
-        public void RotateActorPitchYawRoll(float x, float y, float z)
+        public void RotateActorPitchYawRoll(float Pitch, float Yaw, float Roll)
         {
-            m_Rotation.Plus(new Vector3(x, y, z));
+            m_Rotation.Plus(new Vector3(Pitch, Yaw, Roll));
         }
 
-        public void ScaleActor(Vector3 offset)
+        public void ScaleActor(Vector3 Offset)
         {
-            m_Scale.Plus(offset);
+            m_Scale.Plus(Offset);
         }
 
-        public void ScaleActor(float x, float y, float z)
+        public void ScaleActor(float X, float Y, float Z)
         {
-            m_Scale.Plus(new Vector3(x, y, z));
+            m_Scale.Plus(new Vector3(X, Y, Z));
         }
 
-        public void SetActorScale(float x, float y, float z)
+        public void SetActorScale(float X, float Y, float Z)
         {
-            m_Scale.X = x;
-            m_Scale.Y = y;
-            m_Scale.Z = z;
+            m_Scale.X = X;
+            m_Scale.Y = Y;
+            m_Scale.Z = Z;
         }
 
-        public void SetActorRotation(float x, float y, float z)
+        public void SetActorRotation(float X, float Y, float Z)
         {
-            m_Rotation.X = x;
-            m_Rotation.Y = y;
-            m_Rotation.Z = z;
+            m_Rotation.X = X;
+            m_Rotation.Y = Y;
+            m_Rotation.Z = Z;
         }
     }
 }

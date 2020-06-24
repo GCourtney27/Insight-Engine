@@ -35,7 +35,7 @@ namespace Insight {
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
 	private:
-		void PrepScriptedValues();
+		void UpdateScriptFields();
 		void ProcessScriptTransformChanges();
 		void GetTransformFields();
 		void RegisterScript();

@@ -50,20 +50,24 @@ namespace Insight {
 	{
 		ImGui::Begin("DEBUG: Mono Script Manager");
 		{
+			/*if (ImGui::Button("Close Assemblies", ImVec2{ 100.0f, 50.0f }))
+			{
+				mono_images_cleanup();
+				mono_image_close(m_pImage);
+				mono_assemblies_cleanup();
+				mono_assembly_close(m_pAssembly);
+
+			}
 			if (ImGui::Button("Re-Compile", ImVec2{ 100.0f, 50.0f }))
 			{
-				//Init();
 				ReCompile();
-			}
+			}*/
 		}
 		ImGui::End();
 	}
 
 	mono_bool Interop_IsKeyPressed(char keyCode)
 	{
-		//char* msgctrs = mono_string_to_utf8(msg);
-		//IE_CORE_INFO("C++ Called from C#: {0}", msgctrs);
-		//return mono_string_new(mono_domain_get(), "String From C++");
 		mono_bool pressed = Input::IsKeyPressed(keyCode);
 		return pressed;
 	}
@@ -118,21 +122,36 @@ namespace Insight {
 		}
 
 		// Register C# -> C++ calls
-		{
-			// Input
-			mono_add_internal_call("Internal.Input::IsKeyPressed", reinterpret_cast<const void*>(Interop_IsKeyPressed));
-			mono_add_internal_call("Internal.Input::IsMouseButtonPressed", reinterpret_cast<const void*>(Interop_IsMouseButtonPressed));
-			mono_add_internal_call("Internal.Input::GetMouseX", reinterpret_cast<const void*>(Interop_GetMouseX));
-			mono_add_internal_call("Internal.Input::GetMouseY", reinterpret_cast<const void*>(Interop_GetMouseY));
-		}
+		// Input
+		mono_add_internal_call("Internal.Input::IsKeyPressed", reinterpret_cast<const void*>(Interop_IsKeyPressed));
+		mono_add_internal_call("Internal.Input::IsMouseButtonPressed", reinterpret_cast<const void*>(Interop_IsMouseButtonPressed));
+		mono_add_internal_call("Internal.Input::GetMouseX", reinterpret_cast<const void*>(Interop_GetMouseX));
+		mono_add_internal_call("Internal.Input::GetMouseY", reinterpret_cast<const void*>(Interop_GetMouseY));
 
 		return true;
 	}
 
 	void MonoScriptManager::ReCompile()
 	{
-		Cleanup();
-		Init();
+		std::string assemblyDir;
+#if defined IE_DEBUG
+		char* relativeDir = MACRO_TO_STRING(IE_BUILD_DIR);
+		assemblyDir = relativeDir;
+		assemblyDir += "Assembly-CSharp.dll";
+#elif defined IE_RELEASE
+		assemblyPath = "Assembly-CSharp.dll";
+#endif
+
+		m_pAssembly = mono_domain_assembly_open(m_pDomain, assemblyDir.c_str());
+		if (!m_pAssembly) {
+			IE_CORE_ERROR("Failed to open mono assembly with path: \"{0}\" durint recompile", assemblyDir);
+		}
+
+		m_pImage = mono_assembly_get_image(m_pAssembly);
+		if (!m_pImage) {
+			IE_CORE_ERROR("Failed to get image from mono assembly during recompile.");
+		}
+
 	}
 
 	void MonoScriptManager::Cleanup()

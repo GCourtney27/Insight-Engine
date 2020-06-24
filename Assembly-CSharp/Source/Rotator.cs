@@ -12,6 +12,7 @@ namespace InsightEngine
         // Called when game started or when spawned
         void BeginPlay()
         {
+
         }
 
         // Called once per frame

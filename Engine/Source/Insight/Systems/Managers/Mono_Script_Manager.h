@@ -33,11 +33,6 @@ namespace Insight {
 		MonoImage* m_pImage = nullptr;
 		
 		const char* m_CSCGlobalNamespace = "InsightEngine";
-
-		// TEMP
-		MonoClass* monoClass;
-		MonoObject* monoObject;
-		MonoMethod* method;
 	};
 
 }
