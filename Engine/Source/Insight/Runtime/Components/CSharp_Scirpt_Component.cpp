@@ -173,7 +173,8 @@ namespace Insight {
 	{
 		PrepScriptedValues();
 
-		//TEMP TODO implement play system
+		//TEMP 
+		//TODO implement play system
 		if (!s_begunPlay) {
 			BeginPlay();
 			s_begunPlay = true;
@@ -183,8 +184,8 @@ namespace Insight {
 		double doubleDt = (double)deltaMs;
 		args[0] = &doubleDt;
 		m_pMonoScriptManager->InvokeMethod(m_pUpdateMethod, m_pObject, args);
-		ProcessScriptTransformChanges();
 		
+		ProcessScriptTransformChanges();
 	}
 
 	void CSharpScriptComponent::OnRender()

@@ -2,6 +2,7 @@
 
 #include "Mono_Script_Manager.h"
 #include "Insight/Systems/Managers/Resource_Manager.h"
+#include "Insight/Input/Windows_Input.h"
 #include "imgui.h"
 
 namespace Insight {
@@ -58,11 +59,29 @@ namespace Insight {
 		ImGui::End();
 	}
 
-	void Interop_PrintCPPMsg(MonoString* msg)
+	mono_bool Interop_IsKeyPressed(char keyCode)
 	{
-		char* msgctrs = mono_string_to_utf8(msg);
-		IE_CORE_INFO("C++ Called from C#: {0}", msgctrs);
+		//char* msgctrs = mono_string_to_utf8(msg);
+		//IE_CORE_INFO("C++ Called from C#: {0}", msgctrs);
 		//return mono_string_new(mono_domain_get(), "String From C++");
+		mono_bool pressed = Input::IsKeyPressed(keyCode);
+		return pressed;
+	}
+
+	mono_bool Interop_IsMouseButtonPressed(int mouseButton)
+	{
+		mono_bool pressed = Input::IsMouseButtonPressed(mouseButton);
+		return pressed;
+	}
+
+	int Interop_GetMouseX()
+	{
+		return (int)Input::GetMouseX();
+	}
+
+	int Interop_GetMouseY()
+	{
+		return (int)Input::GetMouseY();
 	}
 
 	bool MonoScriptManager::Init()
@@ -100,7 +119,11 @@ namespace Insight {
 
 		// Register C# -> C++ calls
 		{
-			mono_add_internal_call("InsightEngine.Interop::PrintCPPMsg", reinterpret_cast<const void*>(Interop_PrintCPPMsg));
+			// Input
+			mono_add_internal_call("Internal.Input::IsKeyPressed", reinterpret_cast<const void*>(Interop_IsKeyPressed));
+			mono_add_internal_call("Internal.Input::IsMouseButtonPressed", reinterpret_cast<const void*>(Interop_IsMouseButtonPressed));
+			mono_add_internal_call("Internal.Input::GetMouseX", reinterpret_cast<const void*>(Interop_GetMouseX));
+			mono_add_internal_call("Internal.Input::GetMouseY", reinterpret_cast<const void*>(Interop_GetMouseY));
 		}
 
 		return true;
