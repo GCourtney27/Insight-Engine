@@ -3,6 +3,7 @@
 #include <Insight/Core.h>
 #include "Insight/Systems/Managers/Model_Manager.h"
 #include "Insight/Systems/Managers/Texture_Manager.h"
+#include "Insight/Systems/Managers/Mono_Script_Manager.h"
 
 namespace Insight {
 
@@ -20,10 +21,12 @@ namespace Insight {
 
 		ModelManager& GetModelManager() { return *m_pModelManager; }
 		TextureManager& GetTextureManager() { return *m_pTextureManager; }
+		MonoScriptManager& GetMonoScriptManager() { return *m_pMonoScriptManager; }
 
 	private:
 		ModelManager*	m_pModelManager = nullptr;
 		TextureManager* m_pTextureManager = nullptr;
+		MonoScriptManager* m_pMonoScriptManager = nullptr;
 	private:
 		static ResourceManager* s_Instance;
 	};

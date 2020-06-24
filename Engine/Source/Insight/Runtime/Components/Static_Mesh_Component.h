@@ -10,7 +10,7 @@ namespace Insight {
 	class INSIGHT_API StaticMeshComponent : public ActorComponent
 	{
 	public:
-		StaticMeshComponent(StrongActorPtr pOwner);
+		StaticMeshComponent(AActor* pOwner);
 		virtual ~StaticMeshComponent();
 
 		virtual bool LoadFromJson(const rapidjson::Value& jsonStaticMeshComponent) override;

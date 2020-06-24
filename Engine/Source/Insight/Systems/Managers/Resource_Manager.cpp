@@ -16,17 +16,21 @@ namespace Insight {
 
 		m_pModelManager = new ModelManager();
 		m_pTextureManager = new TextureManager();
+		m_pMonoScriptManager = new MonoScriptManager();
 	}
 
 	ResourceManager::~ResourceManager()
 	{
 		delete m_pModelManager;
+		delete m_pTextureManager;
+		delete m_pMonoScriptManager;
 	}
 
 	bool ResourceManager::Init()
 	{
 		m_pModelManager->Init();
 		m_pTextureManager->Init();
+		m_pMonoScriptManager->Init();
 		return true;
 	}
 

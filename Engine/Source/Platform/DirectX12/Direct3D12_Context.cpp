@@ -540,11 +540,19 @@ namespace Insight {
 	{
 		HRESULT hr;
 
+		/*m_dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+		m_dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+		m_dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
+
+		D3D12_CLEAR_VALUE depthOptomizedClearValue = {};
+		depthOptomizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
+		depthOptomizedClearValue.DepthStencil.Depth = 1.0f;
+		depthOptomizedClearValue.DepthStencil.Stencil = 0;*/
+
 		m_dsvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1);
 		CD3DX12_HEAP_PROPERTIES heapProperty(D3D12_HEAP_TYPE_DEFAULT);
 
-		D3D12_RESOURCE_DESC resourceDesc;
-		ZeroMemory(&resourceDesc, sizeof(resourceDesc));
+		D3D12_RESOURCE_DESC resourceDesc = {};
 		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 		resourceDesc.Alignment = 0;
 		resourceDesc.SampleDesc.Count = 1;
@@ -558,7 +566,10 @@ namespace Insight {
 		resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
 		D3D12_CLEAR_VALUE depthOptomizedClearValue = {};
-		depthOptomizedClearValue = { m_DsvFormat , m_ClearDepth };
+		//depthOptomizedClearValue = { m_DsvFormat , m_ClearDepth };
+		depthOptomizedClearValue.Format = m_DsvFormat;
+		depthOptomizedClearValue.DepthStencil.Depth = m_ClearDepth;
+		depthOptomizedClearValue.DepthStencil.Stencil = 0;
 
 		hr = m_pLogicalDevice->CreateCommittedResource(
 			&heapProperty,
@@ -571,8 +582,7 @@ namespace Insight {
 		if (FAILED(hr))
 			IE_CORE_ERROR("Failed to create comitted resource for depth stencil view");
 
-		D3D12_DEPTH_STENCIL_VIEW_DESC desc;
-		ZeroMemory(&desc, sizeof(desc));
+		D3D12_DEPTH_STENCIL_VIEW_DESC desc = {};
 		desc.Texture2D.MipSlice = 0;
 		desc.Format = resourceDesc.Format;
 		desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
@@ -726,7 +736,6 @@ namespace Insight {
 
 		CD3DX12_STATIC_SAMPLER_DESC staticSamplers[2];
 		staticSamplers[0].Init(0, D3D12_FILTER_MIN_MAG_MIP_LINEAR);
-		//staticSamplers[1].Init(1, D3D12_FILTER_MIN_MAG_MIP_LINEAR);
 		UINT maxAnisotropy = 16u;
 		FLOAT minLOD = 0.0f;
 		FLOAT maxLOD = 9.0f;
@@ -763,11 +772,11 @@ namespace Insight {
 
 		hr = D3DReadFileToBlob(vertexShaderFolder, &pVertexShader);
 		if (FAILED(hr)) {
-			ThrowIfFailed(hr, "Failed to compile Vertex Shader check log for more details.");
+			ThrowIfFailed(hr, "Failed to read Vertex Shader check log for more details.");
 		}
 		hr = D3DReadFileToBlob(pixelShaderFolder, &pPixelShader);
 		if (FAILED(hr)) {
-			ThrowIfFailed(hr, "Failed to compile Pixel Shader check log for more details.");
+			ThrowIfFailed(hr, "Failed to read Pixel Shader check log for more details.");
 		}
 
 

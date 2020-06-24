@@ -206,6 +206,15 @@ namespace Insight {
 			}
 			return DefWindowProc(hWnd, msg, wParam, lParam);
 		}
+		case WM_DROPFILES:
+		{
+			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			UINT iFile;
+			LPSTR lpszFile;
+			UINT cch;
+			DragQueryFileA((HDROP)wParam, iFile, lpszFile, cch);
+			IE_CORE_INFO("BREAK");
+		}
 		default:
 		{
 			return DefWindowProc(hWnd, msg, wParam, lParam);
@@ -249,8 +258,7 @@ namespace Insight {
 		m_WindowRect.right = m_WindowRect.left + m_Data.Width;
 		m_WindowRect.bottom = m_WindowRect.top + m_Data.Height;
 
-		AdjustWindowRect(&m_WindowRect, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE);
-
+		AdjustWindowRect(&m_WindowRect, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_EX_ACCEPTFILES, FALSE);
 		m_WindowHandle = CreateWindowEx(
 			0,										// Window Styles
 			m_Data.WindowClassName_wide.c_str(),	// Window Class
@@ -274,6 +282,7 @@ namespace Insight {
 			IE_ERROR("    Error: {0}", GetLastError());
 			return false;
 		}
+		DragAcceptFiles(m_WindowHandle, TRUE);
 
 		{
 			ScopedTimer timer("WindowsWindow::Init::RendererInit");

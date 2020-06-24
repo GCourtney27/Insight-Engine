@@ -36,3 +36,5 @@
 #define COM_SAFE_RELEASE(ptr) if(ptr) ptr->Release();
 #define CAST_TO_FLOAT(...) static_cast<float>(__VA_ARGS__)
 #define CAST_TO_UINT(...) static_cast<UINT>(__VA_ARGS__)
+#define QUOTE(value) #value
+#define MACRO_TO_STRING(macro) QUOTE(macro);

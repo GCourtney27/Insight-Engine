@@ -110,7 +110,9 @@ namespace Insight {
 					switch (mCurrentGizmoOperation) {
 					case ImGuizmo::TRANSLATE:
 					{
-						m_pSelectedActor->GetTransformRef().SetPosition(localMat._41, localMat._42, localMat._43);
+						float pos[3], rot[3], sca[3];
+						ImGuizmo::DecomposeMatrixToComponents(*localMat.m, pos, rot, sca);
+						m_pSelectedActor->GetTransformRef().SetPosition(pos[0], pos[1], pos[2]);
 					}
 					case ImGuizmo::SCALE:
 					{
@@ -118,6 +120,7 @@ namespace Insight {
 					}
 					case ImGuizmo::ROTATE:
 					{
+						break;
 						float pos[3], rot[3], sca[3];
 						ImGuizmo::DecomposeMatrixToComponents(*localMat.m, pos, rot, sca);
 						//ImGuizmo::RecomposeMatrixFromComponents(pos, rot, sca, *deltaMat.m);

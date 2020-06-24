@@ -10,7 +10,7 @@ namespace Insight {
 
 
 
-	StaticMeshComponent::StaticMeshComponent(StrongActorPtr pOwner)
+	StaticMeshComponent::StaticMeshComponent(AActor* pOwner)
 		: ActorComponent("Static Mesh Component", pOwner)
 	{
 
@@ -25,6 +25,7 @@ namespace Insight {
 		// Load Mesh
 		std::string modelPath;
 		json::get_string(jsonStaticMeshComponent[0], "Mesh", modelPath);
+		json::get_bool(jsonStaticMeshComponent[0], "Enabled", ActorComponent::m_Enabled);
 		AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath(modelPath));
 
 		// Load Material
