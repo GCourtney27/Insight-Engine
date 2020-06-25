@@ -121,7 +121,8 @@ namespace Insight {
 				ImGuizmo::Manipulate(*viewMat.m, *projMat.m, mCurrentGizmoOperation, mCurrentGizmoMode, *localMat.m, *deltaMat.m, NULL, NULL, NULL);
 
 
-				if (ImGuizmo::IsOver()) {
+				if (ImGuizmo::IsOver()) 
+				{
 
 					switch (mCurrentGizmoOperation) {
 					case ImGuizmo::TRANSLATE:
@@ -129,10 +130,12 @@ namespace Insight {
 						float pos[3], rot[3], sca[3];
 						ImGuizmo::DecomposeMatrixToComponents(*localMat.m, pos, rot, sca);
 						m_pSelectedActor->GetTransformRef().SetPosition(pos[0], pos[1], pos[2]);
+						break;
 					}
 					case ImGuizmo::SCALE:
 					{
 						m_pSelectedActor->GetTransformRef().SetScale(localMat._11, localMat._22, localMat._33);
+						break;
 					}
 					case ImGuizmo::ROTATE:
 					{

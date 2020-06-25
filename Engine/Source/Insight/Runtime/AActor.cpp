@@ -161,7 +161,7 @@ namespace Insight {
 	void AActor::OnPreRender(XMMATRIX parentMat)
 	{
 		if (m_Parent) {
-			GetTransformRef().SetWorldMatrix(XMMatrixMultiply(parentMat, GetTransformRef().GetLocalMatrixRef()));
+			GetTransformRef().SetWorldMatrix(XMMatrixMultiply(GetTransformRef().GetLocalMatrixRef(), parentMat));
 		}
 		else {
 			GetTransformRef().SetWorldMatrix(GetTransformRef().GetLocalMatrix());
