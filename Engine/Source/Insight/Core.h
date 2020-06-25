@@ -28,7 +28,11 @@
 	#define IE_CORE_ASSERT(x, ...)
 #endif // IE_ENABLE_ASSERTS
 
-
+#if defined IE_GAME_DIST
+#define IE_STRIP_FOR_GAME_DIST(x)
+#else
+#define IE_STRIP_FOR_GAME_DIST(x) x
+#endif
 
 // Utilities
 #define BIT_SHIFT(x) ( 1 << x )

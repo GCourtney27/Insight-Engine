@@ -90,8 +90,13 @@ namespace Insight {
 
 	bool MonoScriptManager::Init()
 	{
+#if defined IE_DEBUG
 		const char* libDir = "Vendor/Mono/lib";
 		const char* etcDir = "Vendor/Mono/etc";
+#elif defined IE_RELEASE || defined IE_GAME_DIST
+		const char* libDir = "../../../Engine/Vendor/Mono/lib";
+		const char* etcDir = "../../../Engine/Vendor/Mono/etc";
+#endif
 		mono_set_dirs(libDir, etcDir);
 
 		m_pDomain = mono_jit_init("IE-Mono-Script-Engine");
@@ -105,8 +110,8 @@ namespace Insight {
 		char* relativeDir = MACRO_TO_STRING(IE_BUILD_DIR);
 		assemblyDir = relativeDir;
 		assemblyDir += "Assembly-CSharp.dll";
-#elif defined IE_RELEASE
-		assemblyPath = "Assembly-CSharp.dll";
+#elif defined IE_RELEASE || defined IE_GAME_DIST
+		assemblyDir = "Assembly-CSharp.dll";
 #endif
 		
 		m_pAssembly = mono_domain_assembly_open(m_pDomain, assemblyDir.c_str());
@@ -138,8 +143,8 @@ namespace Insight {
 		char* relativeDir = MACRO_TO_STRING(IE_BUILD_DIR);
 		assemblyDir = relativeDir;
 		assemblyDir += "Assembly-CSharp.dll";
-#elif defined IE_RELEASE
-		assemblyPath = "Assembly-CSharp.dll";
+#elif defined IE_RELEASE || defined IE_GAME_DIST
+		assemblyDir = "Assembly-CSharp.dll";
 #endif
 
 		m_pAssembly = mono_domain_assembly_open(m_pDomain, assemblyDir.c_str());

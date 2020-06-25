@@ -79,6 +79,7 @@ namespace Insight {
 			const float& deltaTime = (float)m_FrameTimer.dt();
 			m_pWindow->SetWindowTitleFPS(m_FrameTimer.fps());
 
+			//IE_STRIP_FOR_GAME_DIST(IE_CORE_INFO("HELLO TEST!"));
 
 			m_pWindow->OnUpdate(deltaTime);
 			m_Scene.OnUpdate(deltaTime);
