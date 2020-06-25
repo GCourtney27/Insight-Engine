@@ -92,12 +92,13 @@ namespace Insight {
 
 		ImGui::Text("Projection");
 		static const char* projectionMethods[] = { "Perspective", "Orthographic" };
-		ImGui::Combo("Method", &m_IsOrthographic, projectionMethods, IM_ARRAYSIZE(projectionMethods));
-		if (!m_IsOrthographic) {
-			SetPerspectiveProjectionValues(m_Fov, m_AspectRatio, m_NearZ, m_FarZ);
-		}
-		else {
-			SetOrthographicsProjectionValues((float)Application::Get().GetWindow().GetWidth(), (float)Application::Get().GetWindow().GetHeight(), m_NearZ, m_FarZ);
+		if (ImGui::Combo("Method", &m_IsOrthographic, projectionMethods, IM_ARRAYSIZE(projectionMethods))) {
+			if (!m_IsOrthographic) {
+				SetPerspectiveProjectionValues(m_Fov, m_AspectRatio, m_NearZ, m_FarZ);
+			}
+			else {
+				SetOrthographicsProjectionValues((float)Application::Get().GetWindow().GetWidth(), (float)Application::Get().GetWindow().GetHeight(), m_NearZ, m_FarZ);
+			}
 		}
 	}
 
