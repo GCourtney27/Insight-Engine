@@ -46,6 +46,8 @@ namespace Insight {
 		json::get_float(transform[0], "scaZ", scaZ);
 		SceneNode::GetTransformRef().SetScale(Vector3(scaX, scaY, scaZ));
 
+		SceneNode::GetTransformRef().EditorInit();
+
 		// Load Subobjects
 		const rapidjson::Value& jsonSubobjects = jsonActor["Subobjects"];
 

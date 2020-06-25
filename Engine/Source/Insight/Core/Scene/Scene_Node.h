@@ -36,6 +36,8 @@ namespace Insight {
 		virtual void Tick(const float& deltaMs);
 		virtual void Exit();
 
+		virtual void EditorEndPlay();
+
 		std::vector<SceneNode*> m_Children;
 	protected:
 		SceneNode* m_Parent = nullptr;

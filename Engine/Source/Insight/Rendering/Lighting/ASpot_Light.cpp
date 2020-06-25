@@ -33,8 +33,8 @@ namespace Insight {
 		json::get_float(emission[0], "innerCutoff", m_TempInnerCutoff);
 		json::get_float(emission[0], "outerCutoff", m_TempOuterCutoff);
 
-		m_ShaderCB.position = SceneNode::GetTransformRef().GetPositionRef();
-		m_ShaderCB.direction = SceneNode::GetTransformRef().GetRotationRef();
+		m_ShaderCB.position = SceneNode::GetTransformRef().GetPosition();
+		m_ShaderCB.direction = SceneNode::GetTransformRef().GetRotation();
 		m_ShaderCB.innerCutoff = cos(XMConvertToRadians(m_TempInnerCutoff));
 		m_ShaderCB.outerCutoff = cos(XMConvertToRadians(m_TempOuterCutoff));
 
@@ -53,8 +53,8 @@ namespace Insight {
 
 	void ASpotLight::OnUpdate(const float& deltaMs)
 	{
-		m_ShaderCB.position = SceneNode::GetTransformRef().GetPositionRef();
-		m_ShaderCB.direction = SceneNode::GetTransformRef().GetRotationRef();
+		m_ShaderCB.position = SceneNode::GetTransformRef().GetPosition();
+		m_ShaderCB.direction = SceneNode::GetTransformRef().GetRotation();
 	}
 
 	void ASpotLight::OnPreRender(XMMATRIX parentMat)

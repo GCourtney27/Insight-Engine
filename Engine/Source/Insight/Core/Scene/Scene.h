@@ -37,7 +37,8 @@ namespace Insight {
 		void SetSelectedActor(AActor* actor) { m_pSelectedActor = actor; }
 		AActor* GetSelectedActor() { return m_pSelectedActor; }
 		void SetDisplayName(const std::string& name) { m_DisplayName = name; }
-
+		void EndPlaySession();
+		bool IsPlaySesionUnderWay() { return m_TickScene; }
 	private:
 		void RenderSceneHeirarchy();
 		void RenderInspector();

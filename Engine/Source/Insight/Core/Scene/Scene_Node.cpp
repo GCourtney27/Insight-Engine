@@ -84,6 +84,14 @@ namespace Insight {
 	{
 	}
 
+	void SceneNode::EditorEndPlay()
+	{
+		m_RootTransform.EditorEndPlay();
+		for (auto i = m_Children.begin(); i != m_Children.end(); ++i) {
+			(*i)->EditorEndPlay();
+		}
+	}
+
 	void SceneNode::Destroy()
 	{
 		size_t numChildrenObjects = m_Children.size();

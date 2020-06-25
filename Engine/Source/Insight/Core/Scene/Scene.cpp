@@ -68,6 +68,11 @@ namespace Insight {
 		RenderPlayPanel();
 	}
 
+	void Scene::EndPlaySession()
+	{
+		m_pSceneRoot->EditorEndPlay();
+	}
+
 	void Scene::RenderSceneHeirarchy()
 	{
 		ImGui::Begin("Heirarchy");
@@ -141,7 +146,7 @@ namespace Insight {
 					default: { break; }
 					}
 				}
-
+				
 			}
 		}
 		ImGui::End();
@@ -169,6 +174,7 @@ namespace Insight {
 			}
 			if (ImGui::Button("Stop", ImVec2{ 75.0f, 50.0f })) {
 				m_TickScene = false;
+				EndPlaySession();
 			}
 		}
 		ImGui::End();

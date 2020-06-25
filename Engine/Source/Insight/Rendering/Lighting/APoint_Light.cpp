@@ -48,7 +48,7 @@ namespace Insight {
 
 	void APointLight::OnUpdate(const float& deltaMs)
 	{
-		m_ShaderCB.position = SceneNode::GetTransformRef().GetPositionRef();
+		m_ShaderCB.position = SceneNode::GetTransformRef().GetPosition();
 	}
 
 	void APointLight::OnPreRender(XMMATRIX parentMat)
