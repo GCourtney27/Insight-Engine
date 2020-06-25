@@ -8,7 +8,6 @@ namespace Insight {
 	ResourceManager* ResourceManager::s_Instance = nullptr;
 
 
-
 	ResourceManager::ResourceManager()
 	{
 		IE_ASSERT(!s_Instance, "An instance of resource manager already exists!");

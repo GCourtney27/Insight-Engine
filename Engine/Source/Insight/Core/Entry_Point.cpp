@@ -20,7 +20,7 @@ extern Insight::Application* Insight::CreateApplication();
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
-	if (!Insight::Log::Init()) {
+	IE_STRIP_FOR_GAME_DIST(if (!Insight::Log::Init())) {
 		IE_CORE_FATAL(L"Failed to Core logger.");
 	}
 	IE_CORE_TRACE("Logger Initialized");

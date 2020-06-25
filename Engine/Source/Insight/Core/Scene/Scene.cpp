@@ -49,7 +49,7 @@ namespace Insight {
 
 	void Scene::Tick(const float& deltaMs)
 	{
-		if (m_TickScene) {
+		IE_STRIP_FOR_GAME_DIST(if (m_TickScene)) {
 			m_pSceneRoot->Tick(deltaMs);
 		}
 	}

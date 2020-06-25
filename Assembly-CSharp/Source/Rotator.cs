@@ -20,8 +20,8 @@ namespace InsightEngine
         {
             //if (Input.IsMouseButtonPressed(Input.eMouseButton.IE_MOUSEBUTTON_LEFT))
             {
-                //this.Transform.RotateActorPitchYawRoll(0.0f, (float)Math.Sin(1.0f * deltaMs), 0.0f);
-                this.Transform.TranslateActor(0.0f, (float)Math.Sin(1.0f * deltaMs) * 30.0f, 0.0f);
+                this.Transform.RotateActorPitchYawRoll(0.0f, (float)Math.Sin(1.0f * deltaMs), 0.0f);
+                //this.Transform.TranslateActor(0.0f, (float)Math.Sin(1.0f * deltaMs) * 30.0f, 0.0f);
             }
         }
     }
