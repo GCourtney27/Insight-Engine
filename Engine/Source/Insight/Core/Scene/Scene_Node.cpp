@@ -75,10 +75,21 @@ namespace Insight {
 
 	void SceneNode::Tick(const float& deltaMs)
 	{
+		for (auto i = m_Children.begin(); i != m_Children.end(); ++i) {
+			(*i)->Tick(deltaMs);
+		}
 	}
 
 	void SceneNode::Exit()
 	{
+	}
+
+	void SceneNode::EditorEndPlay()
+	{
+		m_RootTransform.EditorEndPlay();
+		for (auto i = m_Children.begin(); i != m_Children.end(); ++i) {
+			(*i)->EditorEndPlay();
+		}
 	}
 
 	void SceneNode::Destroy()

@@ -16,29 +16,32 @@ namespace Insight {
 		Transform(Transform&& transform) noexcept;
 
 		Transform& operator = (const Transform& transform);
-		
-		inline const Vector3& GetPosition() const { return m_Position; }
-		inline const Vector3& GetRotation() const { return m_Rotation; }
-		inline const Vector3& GetScale() const { return m_Scale; }
 
-		inline Vector3& GetPositionRef() { m_Transformed = true; return m_Position; }
-		inline Vector3& GetRotationRef() { m_Transformed = true; return m_Rotation; }
-		inline Vector3& GetScaleRef() { m_Transformed = true; return m_Scale; }
+		void EditorEndPlay();
+		void EditorInit() { UpdateEditorOriginPositionRotationScale(); }
 
-		inline void SetPosition(float x, float y, float z) { m_Position.x = x; m_Position.y = y; m_Position.z = z; TranslateLocalMatrix(); UpdateLocalMatrix(); }
-		inline void SetRotation(float x, float y, float z) { m_Rotation.x = x; m_Rotation.y = y; m_Rotation.z = z; RotateLocalMatrix(); UpdateLocalMatrix(); }
-		inline void SetScale(float x, float y, float z) { m_Scale.x = x; m_Scale.y = y; m_Scale.z = z; ScaleLocalMatrix(); UpdateLocalMatrix(); }
+		inline const Vector3& GetPosition()		const { return m_Position; }
+		inline const Vector3& GetRotation()		const { return m_Rotation; }
+		inline const Vector3& GetScale()		const { return m_Scale; }
 
-		inline void SetPosition(const Vector3& vector) { m_Position = vector; TranslateLocalMatrix(); UpdateLocalMatrix(); }
-		inline void SetRotation(const Vector3& vector) { m_Rotation = vector; RotateLocalMatrix(); UpdateLocalMatrix(); }
-		inline void SetScale(const Vector3& vector) { m_Scale = vector; ScaleLocalMatrix(); UpdateLocalMatrix(); }
+		inline Vector3& GetPositionRef()	{ m_Transformed = true; return m_Position; }
+		inline Vector3& GetRotationRef()	{ m_Transformed = true; return m_Rotation; }
+		inline Vector3& GetScaleRef()		{ m_Transformed = true; return m_Scale; }
 
-		inline const Vector3& GetLocalForward() const { return m_LocalForward; }
-		inline const Vector3& GetLocalBackward() const { return m_LocalBackward; }
-		inline const Vector3& GetLocalLeft() const { return m_LocalLeft; }
-		inline const Vector3& GetLocalRight() const { return m_LocalRight; }
-		inline const Vector3& GetLocalUp() const { return m_LocalUp; }
-		inline const Vector3& GetLocalDown() const { return m_LocalDown; }
+		inline void SetPosition(float x, float y, float z)	{ m_Position.x = x; m_Position.y = y; m_Position.z = z; TranslateLocalMatrix(); UpdateLocalMatrix(); }
+		inline void SetRotation(float x, float y, float z)	{ m_Rotation.x = x; m_Rotation.y = y; m_Rotation.z = z; RotateLocalMatrix(); UpdateLocalMatrix(); }
+		inline void SetScale(float x, float y, float z)		{ m_Scale.x = x; m_Scale.y = y; m_Scale.z = z; ScaleLocalMatrix(); UpdateLocalMatrix(); }
+
+		inline void SetPosition(const Vector3& vector)	{ m_Position = vector; TranslateLocalMatrix(); UpdateLocalMatrix(); }
+		inline void SetRotation(const Vector3& vector)	{ m_Rotation = vector; RotateLocalMatrix(); UpdateLocalMatrix(); }
+		inline void SetScale(const Vector3& vector)		{ m_Scale = vector; ScaleLocalMatrix(); UpdateLocalMatrix(); }
+
+		inline const Vector3& GetLocalForward()		const { return m_LocalForward; }
+		inline const Vector3& GetLocalBackward()	const { return m_LocalBackward; }
+		inline const Vector3& GetLocalLeft()		const { return m_LocalLeft; }
+		inline const Vector3& GetLocalRight()		const { return m_LocalRight; }
+		inline const Vector3& GetLocalUp()			const { return m_LocalUp; }
+		inline const Vector3& GetLocalDown()		const { return m_LocalDown; }
 
 		void Translate(float x, float y, float z);
 		void Rotate(float x, float y, float z);
@@ -58,7 +61,7 @@ namespace Insight {
 		// Returns the objects world space matrix
 		const XMMATRIX& GetWorldMatrix() { UpdateIfTransformed(); return m_WorldMatrix; }
 		// Returns a reference to the objects world space matrix
-		XMMATRIX& GetWorldMatrixRef(){ return m_WorldMatrix; }
+		XMMATRIX& GetWorldMatrixRef() { return m_WorldMatrix; }
 		// Set the objects world matrix
 		void SetWorldMatrix(XMMATRIX matrix);
 		XMMATRIX GetWorldMatrixTransposed() const { return XMMatrixTranspose(m_WorldMatrix); }
@@ -80,24 +83,13 @@ namespace Insight {
 		// DO NOT CALL UNLESS YOU KNOW WHAT YOU'RE DOING
 		void UpdateLocalDirectionVectors();
 
-
+		void UpdateEditorOriginPositionRotationScale();
 	protected:
 
 		bool m_Transformed = false;
 
-		void UpdateIfTransformed()
-		{
-			if (m_Transformed)
-			{
-				TranslateLocalMatrix();
-				ScaleLocalMatrix();
-				RotateLocalMatrix();
-
-				UpdateLocalMatrix();
-				UpdateLocalDirectionVectors();
-				m_Transformed = false;
-			}
-		}
+		void UpdateIfTransformed(bool ForceUpdate = false);
+		
 
 		void UpdateLocalMatrix();
 
@@ -115,6 +107,10 @@ namespace Insight {
 		Vector3 m_Position = m_Position.Zero;
 		Vector3 m_Rotation = m_Rotation.Zero;
 		Vector3 m_Scale = m_Scale.One;
+
+		Vector3 m_EditorPlayOriginPosition = m_Position;
+		Vector3 m_EditorPlayOriginRotation = m_Rotation;
+		Vector3 m_EditorPlayOriginScale = m_Scale;
 
 		Vector3 m_LocalForward = m_LocalForward.Forward;
 		Vector3 m_LocalBackward = m_LocalBackward.Backward;

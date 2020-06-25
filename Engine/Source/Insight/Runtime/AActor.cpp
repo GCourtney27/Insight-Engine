@@ -46,24 +46,23 @@ namespace Insight {
 		json::get_float(transform[0], "scaZ", scaZ);
 		SceneNode::GetTransformRef().SetScale(Vector3(scaX, scaY, scaZ));
 
+		SceneNode::GetTransformRef().EditorInit();
+
 		// Load Subobjects
 		const rapidjson::Value& jsonSubobjects = jsonActor["Subobjects"];
 
 		for (UINT i = 0; i < jsonSubobjects.Size(); ++i) {
 
 			if (jsonSubobjects[i].HasMember("StaticMesh")) {
-				StrongActorComponentPtr ptr = CreateDefaultSubobject<StaticMeshComponent>();
+				StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<StaticMeshComponent>();
 				ptr->LoadFromJson(jsonSubobjects[i]["StaticMesh"]);
 				continue;
 			} else if (jsonSubobjects[i].HasMember("CSharpScript")) {
-				StrongActorComponentPtr ptr = CreateDefaultSubobject<CSharpScriptComponent>();
+				StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<CSharpScriptComponent>();
 				ptr->LoadFromJson(jsonSubobjects[i]["CSharpScript"]);
 				continue;
 			}
-
-
 		}
-
 		return true;
 	}
 
@@ -89,6 +88,7 @@ namespace Insight {
 		}
 	}
 
+	static int currentIndex = 0;
 	void AActor::OnImGuiRender()
 	{
 		ImGui::Text(SceneNode::GetDisplayName());
@@ -104,6 +104,34 @@ namespace Insight {
 			ImGui::Spacing();
 			m_Components[i]->OnImGuiRender();
 		}
+		//ImGui::NewLine();
+		//ImGui::NewLine();
+		//ImGui::NewLine();
+		//static const char* availableComponents[] = { "Static Mesh", "C-Sharp Script" };
+		//if (ImGui::Combo("Add Component", &currentIndex, availableComponents, IM_ARRAYSIZE(availableComponents))) {
+		//	switch (currentIndex) {
+		//	case 0:
+		//	{
+		//		IE_CORE_INFO("Adding Static Mesh component to \"{0}\"", AActor::GetDisplayName());
+		//		StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<StaticMeshComponent>();
+		//		static_cast<StaticMeshComponent*>(ptr.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Models/Sphere.obj"));
+		//		//TODO:Make something like this for the material: static_cast<StaticMeshComponent*>(ptr.get())->AttachMaterial(Material::GetDefaultUntexturedMaterial());
+		//		break;
+		//	}
+		//	case 1:
+		//	{
+		//		IE_CORE_INFO("Adding C-Sharp script component to \"{0}\"", AActor::GetDisplayName());
+		//		StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<CSharpScriptComponent>();
+		//		break;
+		//	}
+		//	default:
+		//	{
+		//		IE_CORE_INFO("Failed to determine component to add to actor \"{0}\" with index of \"{1}\"", AActor::GetDisplayName(), currentIndex);
+		//		break;
+		//	}
+		//	}
+		//}
+
 	}
 
 	bool AActor::OnInit()
@@ -161,13 +189,19 @@ namespace Insight {
 	void AActor::BeginPlay()
 	{
 		SceneNode::BeginPlay();
-
+		for (auto& comp : m_Components)
+		{
+			comp->BeginPlay();
+		}
 	}
 
 	void AActor::Tick(const float& deltaMs)
 	{
 		SceneNode::Tick(deltaMs);
-
+		for (auto& comp : m_Components)
+		{
+			comp->Tick(deltaMs);
+		}
 	}
 
 	void AActor::Exit()

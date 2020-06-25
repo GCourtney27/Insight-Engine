@@ -169,24 +169,9 @@ namespace Insight {
 
 	}
 
-	bool s_begunPlay = false;
 	void CSharpScriptComponent::OnUpdate(const float& deltaMs)
 	{
-		UpdateScriptFields();
-
-		//TEMP 
-		//TODO implement play system
-		if (!s_begunPlay) {
-			BeginPlay();
-			s_begunPlay = true;
-		}
-
-		void* args[1];
-		double doubleDt = (double)deltaMs;
-		args[0] = &doubleDt;
-		m_pMonoScriptManager->InvokeMethod(m_pUpdateMethod, m_pObject, args);
 		
-		ProcessScriptTransformChanges();
 	}
 
 	void CSharpScriptComponent::OnRender()
@@ -219,8 +204,13 @@ namespace Insight {
 	void CSharpScriptComponent::Tick(const float& deltaMs)
 	{
 		if (!m_CanBeTicked) { return; }
+		UpdateScriptFields();
+
 		void* args[1];
-		args[0] = &const_cast<float&>(deltaMs);
+		double doubleDt = (double)deltaMs;
+		args[0] = &doubleDt;
 		m_pMonoScriptManager->InvokeMethod(m_pUpdateMethod, m_pObject, args);
+
+		ProcessScriptTransformChanges();
 	}
 }

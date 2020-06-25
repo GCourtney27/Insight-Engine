@@ -31,7 +31,7 @@ namespace Insight {
 		std::string relativePath;
 #if defined IE_DEBUG
 		relativePath += "../Assets/" + path;
-#elif defined IE_RELEASE
+#elif defined IE_RELEASE || defined IE_GAME_DIST
 		relativePath += "../../../Assets/" + path;
 #endif
 		return relativePath;

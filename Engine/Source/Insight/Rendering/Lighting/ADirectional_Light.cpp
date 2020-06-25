@@ -49,7 +49,7 @@ namespace Insight {
 
 	void ADirectionalLight::OnUpdate(const float& deltaMs)
 	{
-		m_ShaderCB.direction = SceneNode::GetTransformRef().GetPositionRef();
+		m_ShaderCB.direction = SceneNode::GetTransformRef().GetPosition();
 	}
 
 	void ADirectionalLight::OnPreRender(XMMATRIX parentMat)

@@ -1,6 +1,7 @@
 #include <ie_pch.h>
 
 #include "Transform.h"
+#include "Insight/Core/Application.h"
 
 namespace Insight {
 
@@ -8,7 +9,6 @@ namespace Insight {
 
 	Transform::Transform()
 	{
-
 	}
 
 	Transform::~Transform()
@@ -64,6 +64,15 @@ namespace Insight {
 		m_RotationMat = transform.m_RotationMat;
 
 		return *this;
+	}
+
+	void Transform::EditorEndPlay()
+	{
+		m_Position = m_EditorPlayOriginPosition;
+		m_Rotation = m_EditorPlayOriginRotation;
+		m_Scale = m_EditorPlayOriginScale;
+
+		UpdateIfTransformed(true);
 	}
 
 	void Transform::Translate(float x, float y, float z)
@@ -131,6 +140,21 @@ namespace Insight {
 		m_WorldMatrix = matrix;
 	}
 
+	void Transform::UpdateIfTransformed(bool ForceUpdate)
+	{
+		if ((m_Transformed && !Application::Get().GetScene().IsPlaySesionUnderWay()) || ForceUpdate)
+		{
+			TranslateLocalMatrix();
+			ScaleLocalMatrix();
+			RotateLocalMatrix();
+
+			UpdateLocalMatrix();
+			UpdateEditorOriginPositionRotationScale();
+
+			m_Transformed = false;
+		}
+	}
+
 	void Transform::UpdateLocalMatrix()
 	{
 		m_LocalMatrix = m_ScaleMat * m_TranslationMat * m_RotationMat;
@@ -168,6 +192,13 @@ namespace Insight {
 		m_LocalRight = XMVector3TransformCoord(WORLD_DIRECTION.Right, vecRotationMatrix);
 		m_LocalUp = XMVector3TransformCoord(WORLD_DIRECTION.Up, vecRotationMatrix);
 		m_LocalDown = XMVector3TransformCoord(WORLD_DIRECTION.Down, vecRotationMatrix);
+	}
+
+	void Transform::UpdateEditorOriginPositionRotationScale()
+	{
+		m_EditorPlayOriginPosition = m_Position;
+		m_EditorPlayOriginRotation = m_Rotation;
+		m_EditorPlayOriginScale = m_Scale;
 	}
 
 }
