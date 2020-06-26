@@ -68,15 +68,15 @@ namespace Insight {
 
 		XMMATRIX& GetTranslationMatrixRef() { return m_TranslationMat; }
 		XMMATRIX GetTranslationMatrix() { return m_TranslationMat; }
-		void SetTranslationMatrix(XMMATRIX matrix) { m_TranslationMat = matrix; }
+		void SetTranslationMatrix(XMMATRIX matrix) { m_TranslationMat = matrix; UpdateLocalMatrix(); }
 
 		XMMATRIX& GetRotationMatrixRef() { return m_RotationMat; }
 		XMMATRIX GetRotationMatrix() { return m_RotationMat; }
-		void SetRotationMatrix(XMMATRIX matrix) { m_RotationMat = matrix; }
+		void SetRotationMatrix(XMMATRIX matrix) { m_RotationMat = matrix; UpdateLocalMatrix(); }
 
 		XMMATRIX& GetScaleMatrixRef() { return m_ScaleMat; }
 		XMMATRIX GetScaleMatrix() { return m_ScaleMat; }
-		void SetScaleMatrix(XMMATRIX matrix) { m_ScaleMat = matrix; }
+		void SetScaleMatrix(XMMATRIX matrix) { m_ScaleMat = matrix; UpdateLocalMatrix(); }
 
 
 		// Update the objects local directional vectors.

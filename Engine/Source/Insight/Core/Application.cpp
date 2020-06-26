@@ -70,7 +70,6 @@ namespace Insight {
 
 	void Application::Run()
 	{
-		// if game is in distributable, m_Scene.BeginPlay(); then loop
 		IE_ADD_FOR_GAME_DIST(m_Scene.BeginPlay());
 
 		while(m_Running)
@@ -97,7 +96,7 @@ namespace Insight {
 			// Light Pass
 			m_Scene.OnMidFrameRender();
 
-			// Render UI
+			// Render Editor UI
 			IE_STRIP_FOR_GAME_DIST(
 				m_ImGuiLayer->Begin();
 				for (Layer* layer : m_LayerStack) {
