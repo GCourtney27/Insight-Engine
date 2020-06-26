@@ -58,6 +58,8 @@ namespace Insight {
 
 		inline static ACamera& Get() { return *s_Instance; }
 
+		virtual void OnUpdate(const float& DeltaMs) override;
+
 		void ProcessMouseScroll(float yOffset);
 		void ProcessMouseMovement(float xOffset, float yOffset);
 		void ProcessKeyboardInput(CameraMovement direction, float deltaTime);
@@ -77,7 +79,7 @@ namespace Insight {
 
 		inline void SetViewTarget(ViewTarget& ViewTarget) 
 		{ 
-			GetTransformRef().SetPosition(ViewTarget.Position); 
+			GetTransformRef().SetPosition(ViewTarget.Position);
 			GetTransformRef().SetRotation(ViewTarget.Rotation); 
 
 			m_Fov = ViewTarget.FieldOfView; 

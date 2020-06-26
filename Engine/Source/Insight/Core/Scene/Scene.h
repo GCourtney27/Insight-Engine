@@ -9,9 +9,11 @@
 #include "Insight/Runtime/ACamera.h"
 
 
-class APlayerCharacter;
-
 namespace Insight {
+
+
+	class APlayerCharacter;
+	class APlayerStart;
 
 	class INSIGHT_API Scene
 	{
@@ -50,6 +52,7 @@ namespace Insight {
 		void RenderPlayPanel();
 	private:
 		APlayerCharacter* m_pPlayerCharacter = nullptr;
+		APlayerStart* m_pPlayerStart = nullptr;
 		ACamera* m_pCamera = nullptr;
 		ViewTarget m_EditorViewTarget;
 

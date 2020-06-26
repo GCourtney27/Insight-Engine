@@ -36,7 +36,6 @@ namespace Insight {
 	void APlayerCharacter::OnUpdate(const float& deltaMs)
 	{
 		APawn::OnUpdate(deltaMs);
-		ProcessInput(deltaMs);
 	}
 
 	void APlayerCharacter::OnPreRender(XMMATRIX parentMat)
@@ -47,6 +46,11 @@ namespace Insight {
 	void APlayerCharacter::OnRender()
 	{
 		APawn::OnRender();
+	}
+
+	void APlayerCharacter::Tick(const float& DeltaMs)
+	{
+		ProcessInput(DeltaMs);
 	}
 
 	void APlayerCharacter::RenderSceneHeirarchy()

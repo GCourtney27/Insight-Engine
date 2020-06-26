@@ -7,6 +7,7 @@
 #include "Insight/Input/Input.h"
 #include "Insight/Core/Application.h"
 #include "Insight/Runtime/APlayer_Character.h"
+#include "Insight/Runtime/APlayer_Start.h"
 
 namespace Insight {
 
@@ -47,8 +48,12 @@ namespace Insight {
 		m_pSceneRoot->AddChild(m_pCamera);
 
 		// Create the player controller
-		m_pPlayerCharacter = new APlayerCharacter(0, "Player Character");
+		m_pPlayerCharacter = new APlayerCharacter(0);
 		m_pSceneRoot->AddChild(m_pPlayerCharacter);
+
+		// Create the player start point
+		m_pPlayerStart = new APlayerStart(0);
+		m_pSceneRoot->AddChild(m_pPlayerStart);
 
 		LoadFromJson(fileName);
 
@@ -59,8 +64,20 @@ namespace Insight {
 	void Scene::BeginPlay()
 	{
 		m_pCamera->SetParent(m_pPlayerCharacter);
+		m_pPlayerStart->SpawnPlayer(m_pPlayerCharacter);
 		m_pCamera->SetViewTarget(m_pPlayerCharacter->GetViewTarget());
+
 		m_pSceneRoot->BeginPlay();
+	}
+
+	void Scene::EndPlaySession()
+	{
+		m_pCamera->SetParent(m_pSceneRoot);
+
+		m_pCamera->SetViewTarget(m_EditorViewTarget);
+		m_pCamera->SetParent(m_pSceneRoot);
+		m_pPlayerCharacter->GetTransformRef().SetPosition(0.0f, 0.0f, 0.0f);
+		m_pSceneRoot->EditorEndPlay();
 	}
 
 	void Scene::Tick(const float& deltaMs)
@@ -82,14 +99,6 @@ namespace Insight {
 		RenderInspector();
 		RenderCreatorWindow();
 		RenderPlayPanel();
-	}
-
-	void Scene::EndPlaySession()
-	{
-		m_pCamera->SetParent(m_pSceneRoot);
-		
-		m_pCamera->SetViewTarget(m_EditorViewTarget);
-		m_pSceneRoot->EditorEndPlay();
 	}
 
 	void Scene::RenderSceneHeirarchy()

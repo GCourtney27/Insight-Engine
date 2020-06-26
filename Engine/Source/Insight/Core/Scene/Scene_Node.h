@@ -14,7 +14,12 @@ namespace Insight {
 		SceneNode(std::string displayName = "Default Scene Node");
 		virtual ~SceneNode();
 
-		void SetParent(SceneNode* parent) { m_Parent = parent; }
+		void SetParent(SceneNode* parent) 
+		{
+			if (m_Parent) { m_Parent = nullptr; } 
+			m_Parent = parent;
+		}
+
 		const Transform& GetTransform() { return m_RootTransform; }
 		Transform& GetTransformRef() { return m_RootTransform; }
 		const char* GetDisplayName() { return m_DisplayName.c_str(); }

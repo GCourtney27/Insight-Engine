@@ -5,6 +5,8 @@
 #include "imgui.h"
 #include "Insight/Runtime/Components/Actor_Component.h"
 #include "Insight/Core/Application.h"
+#include "Insight/Input/Input.h"
+
 
 namespace Insight {
 
@@ -40,6 +42,43 @@ namespace Insight {
 
 	ACamera::~ACamera()
 	{
+	}
+
+	void ACamera::OnUpdate(const float& DeltaMs)
+	{
+		if (Application::Get().GetScene().IsPlaySesionUnderWay()) {
+			return;
+		}
+
+		if (Input::IsMouseButtonPressed(IE_MOUSEBUTTON_RIGHT))
+		{
+			auto [x, y] = Input::GetRawMousePosition();
+			ProcessMouseMovement((float)x, (float)y);
+			if (Input::IsKeyPressed('W'))
+			{
+				ProcessKeyboardInput(CameraMovement::FORWARD, DeltaMs);
+			}
+			if (Input::IsKeyPressed('S'))
+			{
+				ProcessKeyboardInput(CameraMovement::BACKWARD, DeltaMs);
+			}
+			if (Input::IsKeyPressed('A'))
+			{
+				ProcessKeyboardInput(CameraMovement::LEFT, DeltaMs);
+			}
+			if (Input::IsKeyPressed('D'))
+			{
+				ProcessKeyboardInput(CameraMovement::RIGHT, DeltaMs);
+			}
+			if (Input::IsKeyPressed('E'))
+			{
+				ProcessKeyboardInput(CameraMovement::UP, DeltaMs);
+			}
+			if (Input::IsKeyPressed('Q'))
+			{
+				ProcessKeyboardInput(CameraMovement::DOWN, DeltaMs);
+			}
+		}
 	}
 
 	void ACamera::ProcessMouseScroll(float yOffset)

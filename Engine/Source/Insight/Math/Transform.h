@@ -47,8 +47,9 @@ namespace Insight {
 		void Rotate(float XInDegrees, float YInDegrees, float ZInDegrees);
 		void Scale(float x, float y, float z);
 
-		// Have object look at apoint in space
-		void LookAt(const Vector3& lookAtPos);
+		// Have object look at a point in space
+		void LookAt(const Vector3& LookAtPos);
+		void SetDirection(const Vector3& NewDirection);
 
 		// Returns objects local matrix
 		XMMATRIX GetLocalMatrix() { UpdateIfTransformed(); return m_LocalMatrix; }

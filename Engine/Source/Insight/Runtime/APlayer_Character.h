@@ -16,12 +16,18 @@ namespace Insight {
 		virtual ~APlayerCharacter();
 
 		inline static APlayerCharacter& Get() { return *s_Instance; }
-		inline ViewTarget GetViewTarget() { return m_ViewTarget; }
+		inline ViewTarget GetViewTarget() 
+		{
+			ViewTarget ViewTarget = m_ViewTarget;
+			ViewTarget.Position += GetTransform().GetPosition();
+			return ViewTarget;
+		}
 
 		virtual bool OnInit() override;
 		virtual void OnUpdate(const float& deltaMs) override;
 		virtual void OnPreRender(XMMATRIX parentMat) override;
 		virtual void OnRender() override;
+		virtual void Tick(const float& DeltaMs) override;
 		void RenderSceneHeirarchy() override;
 		void OnImGuiRender() override;
 

@@ -130,6 +130,17 @@ namespace Insight {
 		SetRotation(Vector3(pitch, yaw, 0.0f));
 	}
 
+	void Transform::SetDirection(const Vector3& NewDirection)
+	{
+		XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(NewDirection.x, NewDirection.y, NewDirection.z);
+		m_LocalForward = XMVector3TransformCoord(WORLD_DIRECTION.Forward, vecRotationMatrix);
+		m_LocalBackward = XMVector3TransformCoord(WORLD_DIRECTION.Backward, vecRotationMatrix);
+		m_LocalLeft = XMVector3TransformCoord(WORLD_DIRECTION.Left, vecRotationMatrix);
+		m_LocalRight = XMVector3TransformCoord(WORLD_DIRECTION.Right, vecRotationMatrix);
+		m_LocalUp = XMVector3TransformCoord(WORLD_DIRECTION.Up, vecRotationMatrix);
+		m_LocalDown = XMVector3TransformCoord(WORLD_DIRECTION.Down, vecRotationMatrix);
+	}
+
 	void Transform::SetLocalMatrix(XMMATRIX matrix)
 	{
 		m_LocalMatrix = matrix;
