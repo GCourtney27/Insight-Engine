@@ -8,7 +8,35 @@
 
 namespace Insight {
 
+	ACamera* ACamera::s_Instance = nullptr;
 
+	ACamera::ACamera(Vector3 position, float pitch, float yaw, float roll, float exposure)
+		: m_MovementSpeed(SPEED), m_MouseSensitivity(SENSITIVITY), m_Fov(FOV), m_Exposure(EXPOSURE), AActor(0, "Camera")
+	{
+		IE_CORE_ASSERT(!s_Instance, "Cannot have more than one camera in the world at once!");
+		s_Instance = this;
+		GetTransformRef().SetPosition(position);
+		m_Pitch = pitch;
+		m_Yaw = yaw;
+		m_Roll = roll;
+		UpdateViewMatrix();
+	}
+
+	ACamera::ACamera(ViewTarget ViewTarget)
+		: AActor(0, "Camera")
+	{
+		IE_CORE_ASSERT(!s_Instance, "Cannot have more than one camera in the world at once!");
+		s_Instance = this;
+		GetTransformRef().SetPosition(ViewTarget.Position);
+		m_Fov = ViewTarget.FieldOfView;
+		m_MouseSensitivity = ViewTarget.Sensitivity;
+		m_MovementSpeed = ViewTarget.Speed;
+		m_Exposure = ViewTarget.Exposure;
+		m_NearZ = ViewTarget.NearZ;
+		m_FarZ = ViewTarget.FarZ;
+		
+		UpdateViewMatrix();
+	}
 
 	ACamera::~ACamera()
 	{

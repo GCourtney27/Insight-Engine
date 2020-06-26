@@ -118,7 +118,7 @@ namespace Insight {
 
 	void Direct3D12Context::OnUpdate(const float& deltaTime)
 	{
-		ACamera& playerCamera = APlayerCharacter::Get().GetCameraRef();
+		ACamera& playerCamera = ACamera::Get();
 
 		// Send Per-Frame Variables to GPU
 		XMFLOAT4X4 viewFloat;
@@ -1299,7 +1299,7 @@ namespace Insight {
 
 		// Recreate Camera Projection Matrix
 		{
-			ACamera& camera = APlayerCharacter::Get().GetCameraRef();
+			ACamera& camera = ACamera::Get();
 			if (!camera.GetIsOrthographic()) {
 				camera.SetPerspectiveProjectionValues(camera.GetFOV(), static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight), camera.GetNearZ(), camera.GetFarZ());
 			}

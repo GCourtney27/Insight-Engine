@@ -4,7 +4,7 @@
 namespace Insight {
 
 
-#define RETURN_IF_DISABLED if(!m_Enabled){return;}
+#define RETURN_IF_COMPONENT_DISABLED if(!m_Enabled){return;}
 
 	class ActorComponent
 	{

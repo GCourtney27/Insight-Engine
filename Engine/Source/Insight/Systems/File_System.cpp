@@ -1,11 +1,12 @@
 #include <ie_pch.h>
 
+#include "File_System.h"
+
 #include "Insight/Core/Application.h"
 #include "Insight/Core/Scene/scene.h"
 #include "Insight/Utilities/String_Helper.h"
 
-#include "File_System.h"
-
+#include "Insight/Rendering/APost_Fx.h"
 #include "Insight/Rendering/ASky_Light.h"
 #include "Insight/Rendering/ASky_Sphere.h"
 #include "Insight/Rendering/Lighting/ASpot_Light.h"
@@ -13,6 +14,7 @@
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
 
 namespace Insight {
+
 
 	FileSystem* FileSystem::s_Instance = nullptr;
 

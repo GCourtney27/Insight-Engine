@@ -25,8 +25,22 @@ namespace Insight {
 	const float SENSITIVITY = 0.2f;
 	const float FOV = 45.0f;
 	const float EXPOSURE = 0.5f;
+	const float NEAR_Z = 0.0001f;
+	const float FAR_Z = 1000.0f;
 
 	using namespace DirectX;
+
+	struct ViewTarget
+	{
+		Vector3 Position;
+		Vector3 Rotation;
+		float FieldOfView;
+		float Sensitivity;
+		float Speed;
+		float Exposure;
+		float NearZ;
+		float FarZ;
+	};
 
 	class INSIGHT_API ACamera : public AActor
 	{
@@ -37,16 +51,12 @@ namespace Insight {
 			float pitch = PITCH,
 			float yaw = YAW,
 			float roll = ROLL,
-			float exposure = EXPOSURE)
-			: m_MovementSpeed(SPEED), m_MouseSensitivity(SENSITIVITY), m_Fov(FOV), m_Exposure(EXPOSURE), AActor(0, "Camera")
-		{
-			GetTransformRef().SetPosition(position);
-			m_Pitch = pitch;
-			m_Yaw = yaw;
-			m_Roll = roll;
-			UpdateViewMatrix();
-		}
+			float exposure = EXPOSURE);
+			
+		ACamera(ViewTarget ViewTarget);
 		virtual ~ACamera();
+
+		inline static ACamera& Get() { return *s_Instance; }
 
 		void ProcessMouseScroll(float yOffset);
 		void ProcessMouseMovement(float xOffset, float yOffset);
@@ -62,6 +72,31 @@ namespace Insight {
 		inline void SetFarZ(float& farZ) { SetPerspectiveProjectionValues(m_Fov, m_AspectRatio, m_NearZ, farZ); }
 		inline float GetExposure() { return m_Exposure; }
 		inline void SetExposure(float exposure) { m_Exposure = exposure; }
+
+		static ViewTarget GetDefaultViewTarget() { return ViewTarget{ Vector3{0.0f, 10.0f, -20.0f}, Vector3{0.0f, 0.0f, 0.0f}, FOV, SENSITIVITY, SPEED, EXPOSURE, NEAR_Z, FAR_Z }; }
+
+		inline void SetViewTarget(ViewTarget& ViewTarget) 
+		{ 
+			GetTransformRef().SetPosition(ViewTarget.Position); 
+			GetTransformRef().SetRotation(ViewTarget.Rotation); 
+
+			m_Fov = ViewTarget.FieldOfView; 
+			m_MouseSensitivity = ViewTarget.Sensitivity;
+			m_MovementSpeed = ViewTarget.Speed;
+			m_Exposure = ViewTarget.Exposure; 
+			m_NearZ = ViewTarget.NearZ; 
+			m_FarZ = ViewTarget.FarZ; 
+
+			SetPerspectiveProjectionValues(
+				m_Fov,
+				m_AspectRatio,
+				m_NearZ,
+				m_FarZ
+			);
+
+			UpdateViewMatrix();
+			GetTransformRef().UpdateLocalDirectionVectors();
+		}
 
 		void SetPerspectiveProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ);
 		void SetOrthographicsProjectionValues(float viewWidth, float viewHeight, float nearZ, float farZ);
@@ -86,7 +121,6 @@ namespace Insight {
 
 		float m_MovementSpeed = 0.0f;
 		float m_MouseSensitivity = 0.0f;
-		bool m_ConstrainPitch = true;
 
 		float m_Fov = 0.0f;
 		float m_NearZ = 0.0001f;
@@ -94,10 +128,8 @@ namespace Insight {
 		float m_AspectRatio = 0.0f;
 
 		float m_Exposure = 1.0f;
-
-		bool m_FirstMove = true;
-		float m_LastLookX = 0.0f;
-		float m_LastLookY = 0.0f;
+	private:
+		static ACamera* s_Instance;
 	};
 
 }

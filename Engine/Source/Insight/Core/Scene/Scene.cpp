@@ -6,7 +6,7 @@
 #include "ImGuizmo.h"
 #include "Insight/Input/Input.h"
 #include "Insight/Core/Application.h"
-#include "Insight/Runtime/Components/Sky_Sphere_Component.h"
+#include "Insight/Runtime/APlayer_Character.h"
 
 namespace Insight {
 
@@ -14,7 +14,7 @@ namespace Insight {
 	Scene::Scene()
 		: m_pSceneRoot(new SceneNode("Scene Root"))
 	{
-
+		
 	}
 
 	Scene::~Scene()
@@ -33,6 +33,20 @@ namespace Insight {
 		m_Renderer = Application::Get().GetWindow().GetRenderContext();
 		m_ResourceManager.Init();
 
+		// Create camera
+		m_EditorViewTarget = ACamera::GetDefaultViewTarget();
+		m_EditorViewTarget.FieldOfView = 75.0f;
+		m_pCamera = new ACamera(m_EditorViewTarget);
+
+		m_pCamera->SetPerspectiveProjectionValues(
+			m_EditorViewTarget.FieldOfView, 
+			(float)Application::Get().GetWindow().GetWidth() / (float)Application::Get().GetWindow().GetHeight(), 
+			m_EditorViewTarget.NearZ,
+			m_EditorViewTarget.FarZ
+		);
+		m_pSceneRoot->AddChild(m_pCamera);
+
+		// Create the player controller
 		m_pPlayerCharacter = new APlayerCharacter(0, "Player Character");
 		m_pSceneRoot->AddChild(m_pPlayerCharacter);
 
@@ -44,6 +58,8 @@ namespace Insight {
 
 	void Scene::BeginPlay()
 	{
+		m_pCamera->SetParent(m_pPlayerCharacter);
+		m_pCamera->SetViewTarget(m_pPlayerCharacter->GetViewTarget());
 		m_pSceneRoot->BeginPlay();
 	}
 
@@ -70,6 +86,9 @@ namespace Insight {
 
 	void Scene::EndPlaySession()
 	{
+		m_pCamera->SetParent(m_pSceneRoot);
+		
+		m_pCamera->SetViewTarget(m_EditorViewTarget);
 		m_pSceneRoot->EditorEndPlay();
 	}
 
@@ -100,8 +119,8 @@ namespace Insight {
 				XMFLOAT4X4 viewMat;
 				XMFLOAT4X4 projMat;
 				XMStoreFloat4x4(&objectMat, m_pSelectedActor->GetTransformRef().GetLocalMatrix());
-				XMStoreFloat4x4(&viewMat, m_pPlayerCharacter->GetCameraRef().GetViewMatrix());
-				XMStoreFloat4x4(&projMat, m_pPlayerCharacter->GetCameraRef().GetProjectionMatrix());
+				XMStoreFloat4x4(&viewMat, m_pCamera->GetViewMatrix());
+				XMStoreFloat4x4(&projMat, m_pCamera->GetProjectionMatrix());
 
 				if (Input::IsKeyPressed('W')) {
 					mCurrentGizmoOperation = ImGuizmo::TRANSLATE;

@@ -16,6 +16,7 @@ namespace Insight {
 		virtual ~APlayerCharacter();
 
 		inline static APlayerCharacter& Get() { return *s_Instance; }
+		inline ViewTarget GetViewTarget() { return m_ViewTarget; }
 
 		virtual bool OnInit() override;
 		virtual void OnUpdate(const float& deltaMs) override;
@@ -24,10 +25,9 @@ namespace Insight {
 		void RenderSceneHeirarchy() override;
 		void OnImGuiRender() override;
 
-		ACamera& GetCameraRef() { return *m_Camera; }
-
 	private:
-		ACamera* m_Camera;
+		ViewTarget m_ViewTarget;
+		ACamera* m_pCamera;
 		virtual void ProcessInput(const float& deltaMs);
 	private:
 		static APlayerCharacter* s_Instance;

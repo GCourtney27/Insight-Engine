@@ -3,11 +3,13 @@
 #include <Insight/Core.h>
 
 #include "Scene_Node.h"
-#include "Insight/Systems/Managers/Resource_Manager.h"
-#include "Insight/Runtime/APlayer_Character.h"
 #include "Insight/Rendering/Rendering_Context.h"
-#include "Insight/Rendering/APost_Fx.h"
+#include "Insight/Systems/Managers/Resource_Manager.h"
 #include "Insight/Systems/File_System.h"
+#include "Insight/Runtime/ACamera.h"
+
+
+class APlayerCharacter;
 
 namespace Insight {
 
@@ -33,12 +35,14 @@ namespace Insight {
 		void Destroy();
 		void Flush();
 
+
 		// Editor
 		void SetSelectedActor(AActor* actor) { m_pSelectedActor = actor; }
 		AActor* GetSelectedActor() { return m_pSelectedActor; }
 		void SetDisplayName(const std::string& name) { m_DisplayName = name; }
 		void EndPlaySession();
 		bool IsPlaySesionUnderWay() { return m_TickScene; }
+
 	private:
 		void RenderSceneHeirarchy();
 		void RenderInspector();
@@ -46,6 +50,9 @@ namespace Insight {
 		void RenderPlayPanel();
 	private:
 		APlayerCharacter* m_pPlayerCharacter = nullptr;
+		ACamera* m_pCamera = nullptr;
+		ViewTarget m_EditorViewTarget;
+
 		Vector3 newPos;
 		AActor* m_pSelectedActor = nullptr;
 
