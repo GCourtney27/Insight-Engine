@@ -41,7 +41,7 @@ namespace Insight {
 		bool OnWindowFullScreen(WindowToggleFullScreenEvent& e);
 	private:
 		std::unique_ptr<Window>	m_pWindow;
-		ImGuiLayer*				m_ImGuiLayer = nullptr;
+		IE_STRIP_FOR_GAME_DIST(ImGuiLayer* m_ImGuiLayer = nullptr;)
 		bool					m_Running = true;
 		LayerStack				m_LayerStack;
 		FrameTimer				m_FrameTimer;

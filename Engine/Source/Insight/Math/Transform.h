@@ -29,7 +29,7 @@ namespace Insight {
 		inline Vector3& GetScaleRef()		{ m_Transformed = true; return m_Scale; }
 
 		inline void SetPosition(float x, float y, float z)	{ m_Position.x = x; m_Position.y = y; m_Position.z = z; TranslateLocalMatrix(); UpdateLocalMatrix(); }
-		inline void SetRotation(float XInDegrees, float YInDegrees, float ZInDegrees)	{ m_Rotation.x = DEGREES_TO_RADIANS(XInDegrees); m_Rotation.y = DEGREES_TO_RADIANS(YInDegrees); m_Rotation.z = DEGREES_TO_RADIANS(ZInDegrees); RotateLocalMatrix(); UpdateLocalMatrix(); }
+		inline void SetRotation(float XInDegrees, float YInDegrees, float ZInDegrees)	{ m_Rotation.x = (XInDegrees); m_Rotation.y = (YInDegrees); m_Rotation.z = (ZInDegrees); RotateLocalMatrix(); UpdateLocalMatrix(); }
 		inline void SetScale(float x, float y, float z)		{ m_Scale.x = x; m_Scale.y = y; m_Scale.z = z; ScaleLocalMatrix(); UpdateLocalMatrix(); }
 
 		inline void SetPosition(const Vector3& vector)	{ m_Position = vector; TranslateLocalMatrix(); UpdateLocalMatrix(); }

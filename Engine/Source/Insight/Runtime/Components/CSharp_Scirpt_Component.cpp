@@ -58,7 +58,7 @@ namespace Insight {
 		}
 
 		GetTransformFields();
-
+		UpdateScriptFields();
 	}
 
 	void CSharpScriptComponent::Cleanup()

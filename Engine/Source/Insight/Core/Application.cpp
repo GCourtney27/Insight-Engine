@@ -18,7 +18,7 @@ namespace Insight {
 		IE_ASSERT(!s_Instance, "Trying to create Application instance when one already exists!");
 		s_Instance = this;
 
-		m_ImGuiLayer = new ImGuiLayer();
+		IE_STRIP_FOR_GAME_DIST(m_ImGuiLayer = new ImGuiLayer());
 	}
 
 	bool Application::InitializeAppForWindows(HINSTANCE & hInstance, int nCmdShow)
@@ -133,7 +133,7 @@ namespace Insight {
 
 	void Application::PushEngineLayers()
 	{
-		PushOverlay(m_ImGuiLayer);
+		IE_STRIP_FOR_GAME_DIST(PushOverlay(m_ImGuiLayer);)
 	}
 
 	void Application::PushLayer(Layer * layer)

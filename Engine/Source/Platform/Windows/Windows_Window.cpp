@@ -208,12 +208,12 @@ namespace Insight {
 		}
 		case WM_DROPFILES:
 		{
-			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			/*WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			UINT iFile;
 			LPSTR lpszFile;
 			UINT cch;
 			DragQueryFileA((HDROP)wParam, iFile, lpszFile, cch);
-			IE_CORE_INFO("BREAK");
+			IE_CORE_INFO("BREAK");*/
 		}
 		default:
 		{
