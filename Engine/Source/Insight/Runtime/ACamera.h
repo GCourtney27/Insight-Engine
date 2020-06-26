@@ -22,7 +22,7 @@ namespace Insight {
 	const float PITCH = 0.0f;
 	const float ROLL = 0.0f;
 	const float SPEED = 30.05f;
-	const float SENSITIVITY = 0.005f;
+	const float SENSITIVITY = 0.2f;
 	const float FOV = 45.0f;
 	const float EXPOSURE = 0.5f;
 

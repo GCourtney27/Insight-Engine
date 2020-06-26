@@ -139,8 +139,8 @@ namespace Insight {
 					}
 					case ImGuizmo::ROTATE:
 					{
-						ImGuizmo::DecomposeMatrixToComponents(*deltaMat.m, pos, rot, sca);
-						m_pSelectedActor->GetTransformRef().Rotate(rot[0] * (3.14159265f / 180.0f), rot[1] * (3.14159265f / 180.0f), rot[2] * (3.14159265f / 180.0f));
+						ImGuizmo::DecomposeMatrixToComponents(*deltaMat.m, pos, rot, sca); 
+						m_pSelectedActor->GetTransformRef().Rotate(rot[0], rot[1], rot[2]);
 						break;
 					}
 					default: { break; }

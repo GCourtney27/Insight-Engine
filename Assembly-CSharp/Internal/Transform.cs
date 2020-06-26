@@ -22,6 +22,12 @@ namespace Internal
         public Vector3 Rotation { get { return m_Rotation; } set { m_Rotation = value; } }
         public Vector3 Scale { get { return m_Scale; } set { m_Scale = value; } }
 
+        /// <summary>
+        /// Set Actor position based on roll pitch yaw
+        /// </summary>
+        /// <param name="X">X offset in degrees</param>
+        /// <param name="Y">Y offset in degrees</param>
+        /// <param name="Z">Z offset in degrees</param>
         public void SetActorPosition(float X, float Y, float Z)
         {
             m_Position.X = X;
@@ -29,11 +35,21 @@ namespace Internal
             m_Position.Z = Z;
         }
 
+        /// <summary>
+        /// Smooth translate an actor based on a vector offset
+        /// </summary>
+        /// <param name="Offset">Position offset</param>
         public void TranslateActor(Vector3 Offset)
         {
             m_Position.Plus(Offset);
         }
-
+        
+        /// <summary>
+        /// Smooth translate an actor based on an x y z offset
+        /// </summary>
+        /// <param name="X">Offset</param>
+        /// <param name="Y">Offset</param>
+        /// <param name="Z">Offset</param>
         public void TranslateActor(float X, float Y, float Z)
         {
             m_Position.Plus(new Vector3(X, Y, Z));
