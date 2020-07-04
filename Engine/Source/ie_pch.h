@@ -58,6 +58,7 @@
 	// Windows API	
 	#include <Windows.h>
 	#include <wrl/client.h>
+	#include <windowsx.h>
 
 	// Direct3D 12
 	#include <d3d12.h>

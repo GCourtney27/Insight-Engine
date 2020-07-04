@@ -120,6 +120,7 @@ namespace Insight {
 		dispatcher.Dispatch<WindowCloseEvent>(IE_BIND_EVENT_FN(Application::OnWindowClose));
 		dispatcher.Dispatch<WindowResizeEvent>(IE_BIND_EVENT_FN(Application::OnWindowResize));
 		dispatcher.Dispatch<WindowToggleFullScreenEvent>(IE_BIND_EVENT_FN(Application::OnWindowFullScreen));
+		dispatcher.Dispatch<SceneSaveEvent>(IE_BIND_EVENT_FN(Application::SaveScene));
 
 		Input::GetInputManager().OnEvent(e);
 
@@ -164,6 +165,11 @@ namespace Insight {
 	{
 		m_pWindow->ToggleFullScreen(e.GetFullScreenEnabled());
 		return true;
+	}
+
+	bool Application::SaveScene(SceneSaveEvent& e)
+	{
+		return FileSystem::Get().WriteSceneToJson(&m_Scene);
 	}
 
 }

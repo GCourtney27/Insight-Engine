@@ -39,6 +39,8 @@ namespace Insight {
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
 		bool OnWindowFullScreen(WindowToggleFullScreenEvent& e);
+		//TEMP
+		bool SaveScene(SceneSaveEvent& e);
 	private:
 		std::unique_ptr<Window>	m_pWindow;
 		IE_STRIP_FOR_GAME_DIST(ImGuiLayer* m_ImGuiLayer = nullptr;)

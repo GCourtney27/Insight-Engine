@@ -1,14 +1,15 @@
 #include <ie_pch.h>
 
 #include "Windows_Window.h"
+
+#include "Platform/Windows/Window_Resources/Resource.h"
 #include "Insight/Core/Application.h"
 #include "Insight/Events/Application_Event.h"
 #include "Insight/Events/Mouse_Event.h"
 #include "Insight/Events/Key_Event.h"
 #include "Insight/Utilities/String_Helper.h"
 #include "Insight/Core/Log.h"
-
-#include <windowsx.h>
+#include <strsafe.h>
 
 namespace Insight {
 
@@ -219,6 +220,32 @@ namespace Insight {
 			DragQueryFileA((HDROP)wParam, iFile, lpszFile, cch);
 			IE_CORE_INFO("BREAK");*/
 		}
+		case WM_COMMAND:
+		{
+			int wmId = LOWORD(wParam);
+			// Parse the menu selections:
+			switch (wmId)
+			{
+			case IDM_SAVE: 
+			{
+				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+				SceneSaveEvent event;
+				data.EventCallback(event);
+				IE_CORE_INFO("Save Scene");
+				break;
+			}
+			case IDM_EXIT:
+			{
+				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+				PostQuitMessage(0);
+				WindowCloseEvent event;
+				data.EventCallback(event);
+				return 0;
+			}
+			default:
+				return DefWindowProcW(hWnd, msg, wParam, lParam);
+			}
+		}
 		default:
 		{
 			return DefWindowProc(hWnd, msg, wParam, lParam);
@@ -261,8 +288,14 @@ namespace Insight {
 		m_WindowRect.top = centerScreenY + 35;
 		m_WindowRect.right = m_WindowRect.left + m_Data.Width;
 		m_WindowRect.bottom = m_WindowRect.top + m_Data.Height;
+		AdjustWindowRect(&m_WindowRect, WS_OVERLAPPEDWINDOW | WS_EX_ACCEPTFILES, FALSE);
 
-		AdjustWindowRect(&m_WindowRect, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_EX_ACCEPTFILES, FALSE);
+		m_MenuHandle = CreateMenu();
+		m_FileSubMenuHandle = CreateMenu();
+		AppendMenuW(m_MenuHandle, MF_POPUP, (UINT_PTR)m_FileSubMenuHandle, L"&File");
+		AppendMenuW(m_FileSubMenuHandle, MF_STRING, IDM_SAVE, L"&Save Scene");
+		AppendMenuW(m_FileSubMenuHandle, MF_STRING, IDM_EXIT, L"&Exit");
+
 		m_WindowHandle = CreateWindowEx(
 			0,										// Window Styles
 			m_Data.WindowClassName_wide.c_str(),	// Window Class
@@ -275,7 +308,7 @@ namespace Insight {
 			m_WindowRect.bottom - m_WindowRect.top,		// Height
 
 			NULL,					// Parent window
-			NULL,					// Menu
+			m_MenuHandle,			// Menu
 			*m_WindowsAppInstance,	// Current Windows program application instance passed from WinMain
 			&m_Data					// Additional application data
 		);
@@ -287,6 +320,8 @@ namespace Insight {
 			return false;
 		}
 		DragAcceptFiles(m_WindowHandle, TRUE);
+
+		m_AccelerationTableHandle = LoadAccelerators(*m_WindowsAppInstance, MAKEINTRESOURCE(IDC_ENGINE));
 
 		{
 			ScopedTimer timer("WindowsWindow::Init::RendererInit");
@@ -322,18 +357,43 @@ namespace Insight {
 		wc.cbClsExtra = 0;
 		wc.cbWndExtra = 0;
 		wc.hInstance = *m_WindowsAppInstance;
-		wc.hIcon = LoadIcon(0, IDI_WINLOGO);
+		wc.hIcon =  LoadIcon(0, IDI_WINLOGO);
 		wc.hCursor = LoadCursor(0, IDC_ARROW);
 		wc.lpszMenuName = 0;
 		wc.hbrBackground = 0;
 		wc.lpszClassName = m_Data.WindowClassName_wide.c_str();
 
 		RegisterClassEx(&wc);
-		int error = GetLastError();
+		DWORD error = GetLastError();
 		if (error > 0)
 		{
 			IE_CORE_ERROR("An error occured while registering window class: {0} ", m_Data.WindowClassName);
-			IE_CORE_ERROR("    Error: {1}", error);
+			//IE_CORE_ERROR("    Error: {1}", error);
+			{
+				LPVOID lpMsgBuf;
+				LPVOID lpDisplayBuf;
+				DWORD dw = GetLastError();
+
+				FormatMessage(
+					FORMAT_MESSAGE_ALLOCATE_BUFFER |
+					FORMAT_MESSAGE_FROM_SYSTEM |
+					FORMAT_MESSAGE_IGNORE_INSERTS,
+					NULL,
+					dw,
+					MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+					(LPTSTR)&lpMsgBuf,
+					0, NULL);
+
+				// Display the error message
+
+				lpDisplayBuf = (LPVOID)LocalAlloc(LMEM_ZEROINIT,
+					(lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)"") + 40) * sizeof(TCHAR));
+				StringCchPrintf((LPTSTR)lpDisplayBuf,
+					LocalSize(lpDisplayBuf) / sizeof(TCHAR),
+					TEXT("%s failed with error %d: %s"),
+					"", dw, lpMsgBuf);
+				MessageBox(NULL, (LPCTSTR)lpDisplayBuf, TEXT("Error"), MB_OK);
+			}
 		}
 	}
 

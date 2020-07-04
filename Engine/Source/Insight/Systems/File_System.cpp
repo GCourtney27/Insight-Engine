@@ -156,7 +156,7 @@ namespace Insight {
 			Writer.EndObject();
 
 			// Final Export
-			std::string sceneName = "../Assets/Scenes/" + pScene->GetDisplayName() + ".iescene/Meta.json";
+			std::string sceneName = "../Assets/Scenes/" + pScene->GetDisplayName() + ".iescene/Meta_TEST.json";
 			std::ofstream offstream(sceneName.c_str());
 			offstream << StrBuffer.GetString();
 
@@ -174,7 +174,7 @@ namespace Insight {
 			pScene->WriteToJson(Writer);
 
 			// Final Export
-			std::string sceneName = "../Assets/Scenes/" + pScene->GetDisplayName() + ".iescene/Actors.json";
+			std::string sceneName = "../Assets/Scenes/" + pScene->GetDisplayName() + ".iescene/Actors_TEST.json";
 			std::ofstream offstream(sceneName.c_str());
 			offstream << StrBuffer.GetString();
 

@@ -78,4 +78,13 @@ namespace Insight {
 			EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
+	class INSIGHT_API SceneSaveEvent : public Event
+	{
+	public:
+		SceneSaveEvent() {}
+
+		EVENT_CLASS_TYPE(SceneSave)
+			EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	};
+
 }
