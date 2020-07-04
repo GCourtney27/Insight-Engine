@@ -18,7 +18,7 @@ namespace Insight {
 		typedef std::vector<StrongActorComponentPtr> ActorComponents;
 		
 	public:
-		AActor(ActorId id, ActorName actorName = "Actor");
+		AActor(ActorId Id, ActorName ActorName = "MyActor");
 		virtual ~AActor();
 
 		virtual bool LoadFromJson(const rapidjson::Value& jsonActor) override;

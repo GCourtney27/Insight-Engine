@@ -12,10 +12,10 @@
 namespace Insight {
 
 
-	AActor::AActor(ActorId id, ActorName actorName)
-		: m_Id(id)
+	AActor::AActor(ActorId Id, ActorName ActorName)
+		: m_Id(Id)
 	{
-		SceneNode::SetDisplayName(actorName);
+		SceneNode::SetDisplayName(ActorName);
 
 	}
 
@@ -57,7 +57,8 @@ namespace Insight {
 				StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<StaticMeshComponent>();
 				ptr->LoadFromJson(jsonSubobjects[i]["StaticMesh"]);
 				continue;
-			} else if (jsonSubobjects[i].HasMember("CSharpScript")) {
+			}
+			else if (jsonSubobjects[i].HasMember("CSharpScript")) {
 				StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<CSharpScriptComponent>();
 				ptr->LoadFromJson(jsonSubobjects[i]["CSharpScript"]);
 				continue;

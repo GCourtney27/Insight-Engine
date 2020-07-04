@@ -1309,8 +1309,8 @@ namespace Insight {
 	{
 		m_ViewPort.TopLeftX = 0.0f;
 		m_ViewPort.TopLeftY = 0.0f;
-		m_ViewPort.Width = m_WindowWidth;
-		m_ViewPort.Height = m_WindowHeight;
+		m_ViewPort.Width = static_cast<FLOAT>(m_WindowWidth);
+		m_ViewPort.Height = static_cast<FLOAT>(m_WindowHeight);
 
 		m_ScissorRect.left = static_cast<LONG>(m_ViewPort.TopLeftX);
 		m_ScissorRect.right = static_cast<LONG>(m_ViewPort.TopLeftX + m_ViewPort.Width);

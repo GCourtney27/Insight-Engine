@@ -15,6 +15,7 @@ namespace Insight {
 		virtual ~ASkyLight();
 
 		virtual bool LoadFromJson(const rapidjson::Value& jsonSkyLight) override;
+		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer) override;
 
 		virtual bool OnInit();
 		virtual bool OnPostInit();
