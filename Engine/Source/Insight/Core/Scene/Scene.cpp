@@ -68,7 +68,7 @@ namespace Insight {
 		m_pPlayerStart = new APlayerStart(0);
 		m_pSceneRoot->AddChild(m_pPlayerStart);
 
-		LoadFromJson(fileName);
+		//LoadFromJson(fileName);// TURNED OFF TO DEBUG THE MENU BAR TURN THIS ON TO LOAD THE SCENE
 
 		m_Renderer->PostInit();
 		return true;
