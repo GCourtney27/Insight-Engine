@@ -4,6 +4,7 @@
 #include "ACamera.h"
 #include "imgui.h"
 #include "Insight/Runtime/Components/Actor_Component.h"
+#include "Insight/Runtime/APlayer_Character.h"
 #include "Insight/Core/Application.h"
 #include "Insight/Input/Input.h"
 
@@ -17,6 +18,7 @@ namespace Insight {
 	{
 		IE_CORE_ASSERT(!s_Instance, "Cannot have more than one camera in the world at once!");
 		s_Instance = this;
+
 		GetTransformRef().SetPosition(position);
 		m_Pitch = pitch;
 		m_Yaw = yaw;
@@ -29,6 +31,7 @@ namespace Insight {
 	{
 		IE_CORE_ASSERT(!s_Instance, "Cannot have more than one camera in the world at once!");
 		s_Instance = this;
+
 		GetTransformRef().SetPosition(ViewTarget.Position);
 		m_Fov = ViewTarget.FieldOfView;
 		m_MouseSensitivity = ViewTarget.Sensitivity;
@@ -36,7 +39,7 @@ namespace Insight {
 		m_Exposure = ViewTarget.Exposure;
 		m_NearZ = ViewTarget.NearZ;
 		m_FarZ = ViewTarget.FarZ;
-		
+
 		UpdateViewMatrix();
 	}
 
@@ -44,6 +47,13 @@ namespace Insight {
 	{
 	}
 
+	void ACamera::BeginPlay()
+	{
+		
+	}
+
+	// TODO Strip this out for game distribution we dont need it 
+	// during runtime character controller will do this for us
 	void ACamera::OnUpdate(const float& DeltaMs)
 	{
 		if (Application::Get().GetScene().IsPlaySesionUnderWay()) {
@@ -79,6 +89,11 @@ namespace Insight {
 				ProcessKeyboardInput(CameraMovement::DOWN, DeltaMs);
 			}
 		}
+	}
+
+	void ACamera::EditorEndPlay()
+	{
+
 	}
 
 	void ACamera::ProcessMouseScroll(float yOffset)
@@ -166,7 +181,7 @@ namespace Insight {
 		else {
 			SetOrthographicsProjectionValues((float)Application::Get().GetWindow().GetWidth(), (float)Application::Get().GetWindow().GetHeight(), m_NearZ, m_FarZ);
 		}
-		
+
 	}
 
 	void ACamera::UpdateViewMatrix()

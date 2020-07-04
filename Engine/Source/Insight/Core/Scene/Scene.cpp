@@ -66,17 +66,17 @@ namespace Insight {
 		m_pCamera->SetParent(m_pPlayerCharacter);
 		m_pPlayerStart->SpawnPlayer(m_pPlayerCharacter);
 		m_pCamera->SetViewTarget(m_pPlayerCharacter->GetViewTarget());
-
+		
 		m_pSceneRoot->BeginPlay();
 	}
 
 	void Scene::EndPlaySession()
 	{
 		m_pCamera->SetParent(m_pSceneRoot);
-
 		m_pCamera->SetViewTarget(m_EditorViewTarget);
-		m_pCamera->SetParent(m_pSceneRoot);
+
 		m_pPlayerCharacter->GetTransformRef().SetPosition(0.0f, 0.0f, 0.0f);
+
 		m_pSceneRoot->EditorEndPlay();
 	}
 
