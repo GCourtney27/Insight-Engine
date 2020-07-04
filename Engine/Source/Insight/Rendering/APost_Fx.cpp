@@ -27,37 +27,28 @@ namespace Insight {
 	{
 		AActor::LoadFromJson(jsonPostFx);
 
-		float vnInnerRadius, vnOuterRadius, vnOpacity; bool vnEnabled;
-		float fgStrength; bool fgEnabled;
-		float caIntensity; bool caEnabled;
+		bool vnEnabled, caEnabled, fgEnabled;
 
 		const rapidjson::Value& postFx = jsonPostFx["PostFx"];
 
 		const rapidjson::Value& vignette = postFx[0];
-		json::get_float(vignette, "vnInnerRadius", vnInnerRadius);
-		json::get_float(vignette, "vnOuterRadius", vnOuterRadius);
-		json::get_float(vignette, "vnOpacity", vnOpacity);
+		json::get_float(vignette, "vnInnerRadius", m_ShaderCB.vnInnerRadius);
+		json::get_float(vignette, "vnOuterRadius", m_ShaderCB.vnOuterRadius);
+		json::get_float(vignette, "vnOpacity", m_ShaderCB.vnOpacity);
 		json::get_bool(vignette, "vnEnabled", vnEnabled);
 
 		const rapidjson::Value& filmGrain = postFx[1];
-		json::get_float(filmGrain, "fgStrength", fgStrength);
+		json::get_float(filmGrain, "fgStrength", m_ShaderCB.fgStrength);
 		json::get_bool(filmGrain, "fgEnabled", fgEnabled);
 
 		const rapidjson::Value& chromAb = postFx[2];
-		json::get_float(chromAb, "caIntensity", caIntensity);
+		json::get_float(chromAb, "caIntensity", m_ShaderCB.caIntensity);
 		json::get_bool(chromAb, "caEnabled", caEnabled);
 
-		// Vignette
-		m_ShaderCB.vnInnerRadius = vnInnerRadius;
-		m_ShaderCB.vnOuterRadius = vnOuterRadius;
-		m_ShaderCB.vnOpacity = vnOpacity;
-		m_ShaderCB.vnEnabled = (int)vnEnabled;
-		// Film Grain
-		m_ShaderCB.fgStrength = fgStrength;
-		m_ShaderCB.fgEnabled = (int)fgEnabled;
-		// Chromatic Aberration
-		m_ShaderCB.caEnabled = (int)caEnabled;
-		m_ShaderCB.caIntensity = caIntensity;
+		m_ShaderCB.vnEnabled = static_cast<int>(vnEnabled);
+		m_ShaderCB.fgEnabled = static_cast<int>(fgEnabled);
+		m_ShaderCB.caEnabled = static_cast<int>(caEnabled);
+		
 		return true;
 	}
 

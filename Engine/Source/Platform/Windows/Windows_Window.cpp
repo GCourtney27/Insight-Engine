@@ -168,14 +168,6 @@ namespace Insight {
 		case WM_EXITSIZEMOVE:
 		{
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-
-			// Window will attempt to resize on creation. However, buffer 
-			//resize can fail if the rest of the application is not initialized first.
-			if (data.isFirstLaunch)
-			{
-				data.isFirstLaunch = false;
-				return 0;
-			}
 			RECT clientRect = {};
 			GetClientRect(hWnd, &clientRect);
 			WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, wParam == SIZE_MINIMIZED);
@@ -186,7 +178,6 @@ namespace Insight {
 		}
 		case WM_SIZE:
 		{
-
 			return 0;
 		}
 		case WM_INPUT:
@@ -231,7 +222,7 @@ namespace Insight {
 				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 				SceneSaveEvent event;
 				data.EventCallback(event);
-				IE_CORE_INFO("Save Scene");
+				IE_CORE_INFO("Scene Saved");
 				break;
 			}
 			case IDM_EXIT:
@@ -292,9 +283,12 @@ namespace Insight {
 
 		m_MenuHandle = CreateMenu();
 		m_FileSubMenuHandle = CreateMenu();
+		m_GraphicsSubMenuHandle = CreateMenu();
 		AppendMenuW(m_MenuHandle, MF_POPUP, (UINT_PTR)m_FileSubMenuHandle, L"&File");
 		AppendMenuW(m_FileSubMenuHandle, MF_STRING, IDM_SAVE, L"&Save Scene");
 		AppendMenuW(m_FileSubMenuHandle, MF_STRING, IDM_EXIT, L"&Exit");
+		AppendMenuW(m_MenuHandle, MF_POPUP, (UINT_PTR)m_GraphicsSubMenuHandle, L"&Graphics");
+		AppendMenuW(m_GraphicsSubMenuHandle, MF_STRING, IDM_VISUALIZE_ALBEDO, L"&Visualize Albedo Buffer");
 
 		m_WindowHandle = CreateWindowEx(
 			0,										// Window Styles
@@ -321,8 +315,6 @@ namespace Insight {
 		}
 		DragAcceptFiles(m_WindowHandle, TRUE);
 
-		m_AccelerationTableHandle = LoadAccelerators(*m_WindowsAppInstance, MAKEINTRESOURCE(IDC_ENGINE));
-
 		{
 			ScopedTimer timer("WindowsWindow::Init::RendererInit");
 
@@ -341,8 +333,8 @@ namespace Insight {
 		SetForegroundWindow(m_WindowHandle);
 		SetFocus(m_WindowHandle);
 		SetWindowText(m_WindowHandle, m_Data.WindowTitle_wide.c_str());
-		UpdateWindow(m_WindowHandle);
 
+		UpdateWindow(m_WindowHandle);
 
 		IE_CORE_TRACE("Window Initialized");
 		return true;

@@ -7,10 +7,12 @@
 #define IDR_MAINFRAME			128
 #define IDD_ENGINE_DIALOG	102
 #define IDD_ABOUTBOX			103
+// ENGINE MENU
 #define IDM_ABOUT				104
 #define IDM_EXIT				105
-#define IDM_FILE				106
-#define IDM_SAVE				107
+#define IDM_SAVE				106
+// GRAPHICS MENU
+#define IDM_VISUALIZE_ALBEDO				106
 #define IDI_ENGINE			107
 #define IDI_SMALL				108
 #define IDC_ENGINE			109

@@ -64,9 +64,9 @@ namespace Insight {
 	private:
 
 		HWND m_WindowHandle;
-		HACCEL m_AccelerationTableHandle = NULL;
 		HMENU m_MenuHandle;
 		HMENU m_FileSubMenuHandle;
+		HMENU m_GraphicsSubMenuHandle;
 
 		HINSTANCE* m_WindowsAppInstance;
 		int m_nCmdShowArgs;

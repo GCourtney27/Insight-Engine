@@ -39,6 +39,13 @@ namespace Insight {
 			return false;
 		}
 
+		// TODO: This isnt very clean. It's a way to resize the scissor 
+		// after the menu bar is added to the window to avoid blurry and misaligned UI text
+		// Refactor it.
+		RECT clientRect = {};
+		GetClientRect((HWND)m_pWindow->GetNativeWindow(), &clientRect);
+		OnWindowResize(WindowResizeEvent{ clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, false });
+
 		return true;
 	}
 

@@ -350,17 +350,16 @@ namespace Insight {
 
 	void Direct3D12Context::OnWindowResize()
 	{
-		if (!m_IsMinimized)
-		{
-			if (m_WindowResizeComplete)
-			{
+		if (!m_IsMinimized) {
+
+			if (m_WindowResizeComplete) {
+			
 				m_WindowResizeComplete = false;
 
 				WaitForGPU();
 				HRESULT hr;
 
-				for (UINT i = 0; i < m_FrameBufferCount; i++)
-				{
+				for (UINT i = 0; i < m_FrameBufferCount; i++) {
 					m_pRenderTargetTextures[i].Reset();
 					m_pRenderTargets[i].Reset();
 					m_pRenderTargetTextures_PostFxPass[i].Reset();
