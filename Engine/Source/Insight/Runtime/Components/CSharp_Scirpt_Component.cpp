@@ -75,6 +75,22 @@ namespace Insight {
 		return true;
 	}
 
+	bool CSharpScriptComponent::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
+	{
+		Writer.Key("CSharpScript");
+		Writer.StartArray(); // Start CSScript Write
+		{
+			Writer.Key("ModeuleName");
+			Writer.String(m_ModuleName.c_str());
+
+			Writer.Key("Enabled");
+			Writer.Bool(ActorComponent::m_Enabled);
+		}
+		Writer.EndArray(); // End CSScript Write
+
+		return true;
+	}
+
 	void CSharpScriptComponent::OnInit()
 	{
 	}

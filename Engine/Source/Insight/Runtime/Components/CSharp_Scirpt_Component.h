@@ -18,6 +18,7 @@ namespace Insight {
 		virtual ~CSharpScriptComponent();
 
 		virtual bool LoadFromJson(const rapidjson::Value& jsonCSScriptComponent) override;
+		virtual bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer) override;
 
 		virtual void OnInit() override;
 		virtual void OnPostInit() override;

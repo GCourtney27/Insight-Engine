@@ -26,6 +26,7 @@ namespace Insight {
 		void BindResources();
 
 		Material& GetMaterialRef() { return *m_Material; }
+		std::string GetDirectory() { return m_Directory; }
 
 		unique_ptr<Mesh>& GetMeshAtIndex(const int& index) { return m_Meshes[index]; }
 		const size_t GetNumChildMeshes() const { return m_Meshes.size(); }

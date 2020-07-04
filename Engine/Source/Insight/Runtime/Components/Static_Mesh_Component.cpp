@@ -34,6 +34,34 @@ namespace Insight {
 		return true;
 	}
 
+	bool StaticMeshComponent::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
+	{
+		Writer.Key("StaticMesh");
+		Writer.StartArray(); // Start SM Write
+		{
+			// Core Attributes
+			Writer.StartObject(); // Start Mesh Directory
+			{
+				Writer.Key("Mesh");
+				Writer.String(m_pModel->GetDirectory().c_str());
+				Writer.Key("Enabled");
+				Writer.Bool(ActorComponent::m_Enabled);
+			}
+			Writer.EndObject(); // End Mesh Directory
+
+			// Material
+			Writer.StartObject(); // Start Material Attributes
+			{
+				m_Material.WriteToJson(Writer);
+			}
+			Writer.EndObject(); // End Material Attributes
+
+		}
+		Writer.EndArray(); // End SM Write
+
+		return true;
+	}
+
 	void StaticMeshComponent::OnInit()
 	{
 

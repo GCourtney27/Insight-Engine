@@ -306,6 +306,7 @@ namespace Insight {
 		SetForegroundWindow(m_WindowHandle);
 		SetFocus(m_WindowHandle);
 		SetWindowText(m_WindowHandle, m_Data.WindowTitle_wide.c_str());
+		UpdateWindow(m_WindowHandle);
 
 
 		IE_CORE_TRACE("Window Initialized");

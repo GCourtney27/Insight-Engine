@@ -66,6 +66,65 @@ namespace Insight {
 		return true;
 	}
 
+	bool AActor::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
+	{
+		Writer.StartObject(); // Start Write Actor
+		{
+			Writer.Key("Type");
+			Writer.String("Actor");
+
+			Writer.Key("DisplayName");
+			Writer.String(SceneNode::GetDisplayName());
+
+			Writer.Key("Transform");
+			Writer.StartArray(); // Start Write Transform
+			{
+				Transform& Transform = SceneNode::GetTransformRef();
+				Vector3 Pos = Transform.GetPosition();
+				Vector3 Rot = Transform.GetRotation();
+				Vector3 Sca = Transform.GetScale();
+
+				Writer.StartObject();
+				// Position
+				Writer.Key("posX");
+				Writer.Double(Pos.x);
+				Writer.Key("posY");
+				Writer.Double(Pos.y);
+				Writer.Key("posZ");
+				Writer.Double(Pos.z);
+				// Rotation
+				Writer.Key("rotX");
+				Writer.Double(Rot.x);
+				Writer.Key("rotY");
+				Writer.Double(Rot.y);
+				Writer.Key("rotZ");
+				Writer.Double(Rot.z);
+				// Scale
+				Writer.Key("scaX");
+				Writer.Double(Sca.x);
+				Writer.Key("scaY");
+				Writer.Double(Sca.y);
+				Writer.Key("scaZ");
+				Writer.Double(Sca.z);
+
+				Writer.EndObject();
+			}
+			Writer.EndArray(); // End Write Transform
+
+			Writer.Key("SubObjects");
+			Writer.StartArray(); // Start Write SubObjects
+			{
+				for (size_t i = 0; i < m_NumComponents; ++i)
+				{
+					m_Components[i]->WriteToJson(Writer);
+				}
+			}
+			Writer.EndArray(); // End Write SubObjects
+		}
+		Writer.EndObject(); // End Write Actor
+		return true;
+	}
+
 	void AActor::RenderSceneHeirarchy()
 	{
 		ImGuiTreeNodeFlags treeFlags = m_Children.empty() ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;

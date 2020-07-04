@@ -23,6 +23,7 @@ namespace Insight {
 
 		SceneNode* GetRootNode() const { return m_pSceneRoot; }
 		bool LoadFromJson(const std::string& fileName);
+		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
 
 		bool Init(const std::string fileName);
 		bool PostInit();
@@ -42,6 +43,7 @@ namespace Insight {
 		void SetSelectedActor(AActor* actor) { m_pSelectedActor = actor; }
 		AActor* GetSelectedActor() { return m_pSelectedActor; }
 		void SetDisplayName(const std::string& name) { m_DisplayName = name; }
+		std::string GetDisplayName() { return m_DisplayName; }
 		void EndPlaySession();
 		bool IsPlaySesionUnderWay() { return m_TickScene; }
 

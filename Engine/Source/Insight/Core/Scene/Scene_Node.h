@@ -23,22 +23,25 @@ namespace Insight {
 		const Transform& GetTransform() { return m_RootTransform; }
 		Transform& GetTransformRef() { return m_RootTransform; }
 		const char* GetDisplayName() { return m_DisplayName.c_str(); }
-		void SetDisplayName(std::string name) { m_DisplayName = name; }
+		void SetDisplayName(std::string Name) { m_DisplayName = Name; }
 
 		void AddChild(SceneNode* childNode);
 		std::vector<SceneNode*>::const_iterator GetChildIteratorStart() { return m_Children.begin(); }
 		std::vector<SceneNode*>::const_iterator GetChildIteratorEnd() { return m_Children.end(); }
 
+		virtual bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer);
+		virtual bool LoadFromJson(const rapidjson::Value& JsonActor);
+
 		virtual void RenderSceneHeirarchy();
 		virtual bool OnInit();
 		virtual bool OnPostInit();
-		virtual void OnUpdate(const float& deltaMs);
-		virtual void OnPreRender(XMMATRIX parentMat);
+		virtual void OnUpdate(const float& DeltaMs);
+		virtual void OnPreRender(XMMATRIX ParentMat);
 		virtual void OnRender();
 		virtual void Destroy();
 
 		virtual void BeginPlay();
-		virtual void Tick(const float& deltaMs);
+		virtual void Tick(const float& DeltaMs);
 		virtual void Exit();
 
 		virtual void EditorEndPlay();

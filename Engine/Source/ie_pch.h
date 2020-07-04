@@ -13,6 +13,7 @@
 #include <memory>
 #include <sstream>
 #include <utility>
+#include <fstream>
 #include <iostream>
 #include <algorithm>
 #include <functional>

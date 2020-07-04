@@ -14,6 +14,7 @@ namespace Insight {
 		virtual ~StaticMeshComponent();
 
 		virtual bool LoadFromJson(const rapidjson::Value& jsonStaticMeshComponent) override;
+		virtual bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer) override;
 
 		virtual void OnInit() override;
 		virtual void OnPostInit() {}

@@ -29,6 +29,19 @@ namespace Insight {
 		return true;
 	}
 
+	bool Scene::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
+	{
+		Writer.StartObject();
+		Writer.Key("Set");
+		Writer.StartArray();
+		{
+			m_pSceneRoot->WriteToJson(Writer);
+		}
+		Writer.EndArray();
+		Writer.EndObject();
+		return true;
+	}
+
 	bool Scene::Init(const std::string fileName)
 	{
 		m_Renderer = Application::Get().GetWindow().GetRenderContext();
