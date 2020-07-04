@@ -85,9 +85,9 @@ namespace Insight {
 			Writer.StartObject();
 			{
 				Writer.Key("x");
-				Writer.Double(m_UVOffset.x);
+				Writer.Double(m_ShaderCB.uvOffset.x);
 				Writer.Key("y");
-				Writer.Double(m_UVOffset.y);
+				Writer.Double(m_ShaderCB.uvOffset.y);
 			}
 			Writer.EndObject();
 			Writer.EndArray(); // End Offsets
@@ -97,9 +97,9 @@ namespace Insight {
 			Writer.StartObject();
 			{
 				Writer.Key("u");
-				Writer.Double(m_Tiling.x);
+				Writer.Double(m_ShaderCB.tiling.x);
 				Writer.Key("v");
-				Writer.Double(m_Tiling.y);
+				Writer.Double(m_ShaderCB.tiling.y);
 			}
 			Writer.EndObject();
 			Writer.EndArray(); // End Tiling
@@ -112,11 +112,11 @@ namespace Insight {
 			Writer.StartObject();
 			{
 				Writer.Key("r");
-				Writer.Double(m_ColorAdditive.x);
+				Writer.Double(m_ShaderCB.diffuseAdditive.x);
 				Writer.Key("g");
-				Writer.Double(m_ColorAdditive.y);
+				Writer.Double(m_ShaderCB.diffuseAdditive.y);
 				Writer.Key("b");
-				Writer.Double(m_ColorAdditive.z);
+				Writer.Double(m_ShaderCB.diffuseAdditive.z);
 			}
 			Writer.EndObject();
 			Writer.EndArray(); // End Tiling
@@ -125,9 +125,9 @@ namespace Insight {
 		// PBR Overrides
 		{
 			Writer.Key("Metallic_Override");
-			Writer.Double(m_MetallicAdditive);
+			Writer.Double(m_ShaderCB.metallicAdditive);
 			Writer.Key("Roughness_Override");
-			Writer.Double(m_RoughnessAdditive);
+			Writer.Double(m_ShaderCB.roughnessAdditive);
 		}
 
 		return true;

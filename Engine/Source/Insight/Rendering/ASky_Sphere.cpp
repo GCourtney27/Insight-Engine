@@ -87,7 +87,18 @@ namespace Insight {
 			}
 			Writer.EndArray(); // End Write Transform
 
-			Writer.Key("SubObjects");
+			// Sky Attributes
+			Writer.Key("Sky");
+			Writer.StartArray();
+			{
+				Writer.StartObject();
+				Writer.Key("Diffuse");
+				Writer.String(StringHelper::WideToString(m_Diffuse.GetFilepath()).c_str());
+				Writer.EndObject();
+			}
+			Writer.EndArray();
+
+			Writer.Key("Subobjects");
 			Writer.StartArray(); // Start Write SubObjects
 			{
 				for (size_t i = 0; i < m_NumComponents; ++i)

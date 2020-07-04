@@ -101,7 +101,22 @@ namespace Insight {
 			}
 			Writer.EndArray(); // End Write Transform
 
-			Writer.Key("SubObjects");
+			// Sky Attributes
+			Writer.Key("Sky");
+			Writer.StartArray();
+			{
+				Writer.StartObject();
+				Writer.Key("BRDFLUT");
+				Writer.String(StringHelper::WideToString(m_BrdfLUT.GetFilepath()).c_str());
+				Writer.Key("Irradiance");
+				Writer.String(StringHelper::WideToString(m_Irradiance.GetFilepath()).c_str());
+				Writer.Key("Environment");
+				Writer.String(StringHelper::WideToString(m_Environment.GetFilepath()).c_str());
+				Writer.EndObject();
+			}
+			Writer.EndArray();
+
+			Writer.Key("Subobjects");
 			Writer.StartArray(); // Start Write SubObjects
 			{
 				for (size_t i = 0; i < m_NumComponents; ++i)

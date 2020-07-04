@@ -156,7 +156,7 @@ namespace Insight {
 			Writer.EndObject();
 
 			// Final Export
-			std::string sceneName = "../Assets/Scenes/" + pScene->GetDisplayName() + ".iescene/Meta_TEST.json";
+			std::string sceneName = "../Assets/Scenes/" + pScene->GetDisplayName() + ".iescene/Meta.json";
 			std::ofstream offstream(sceneName.c_str());
 			offstream << StrBuffer.GetString();
 
@@ -174,12 +174,12 @@ namespace Insight {
 			pScene->WriteToJson(Writer);
 
 			// Final Export
-			std::string sceneName = "../Assets/Scenes/" + pScene->GetDisplayName() + ".iescene/Actors_TEST.json";
+			std::string sceneName = "../Assets/Scenes/" + pScene->GetDisplayName() + ".iescene/Actors.json";
 			std::ofstream offstream(sceneName.c_str());
 			offstream << StrBuffer.GetString();
 
 			if (!offstream.good()) {
-				IE_CORE_ERROR("Failed to save meta data for scene: {0}", pScene->GetDisplayName());
+				IE_CORE_ERROR("Failed to save actors for scene: {0}", pScene->GetDisplayName());
 				return false;
 			}
 		}

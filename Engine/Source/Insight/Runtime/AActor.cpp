@@ -112,12 +112,14 @@ namespace Insight {
 			}
 			Writer.EndArray(); // End Write Transform
 
-			Writer.Key("SubObjects");
+			Writer.Key("Subobjects");
 			Writer.StartArray(); // Start Write SubObjects
 			{
 				for (size_t i = 0; i < m_NumComponents; ++i)
 				{
+					Writer.StartObject();
 					m_Components[i]->WriteToJson(Writer);
+					Writer.EndObject();
 				}
 			}
 			Writer.EndArray(); // End Write SubObjects

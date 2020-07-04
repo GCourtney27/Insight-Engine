@@ -48,9 +48,9 @@ namespace Insight {
 		json::get_bool(chromAb, "caEnabled", caEnabled);
 
 		// Vignette
-		m_ShaderCB.innerRadius = vnInnerRadius;
-		m_ShaderCB.outerRadius = vnOuterRadius;
-		m_ShaderCB.opacity = vnOpacity;
+		m_ShaderCB.vnInnerRadius = vnInnerRadius;
+		m_ShaderCB.vnOuterRadius = vnOuterRadius;
+		m_ShaderCB.vnOpacity = vnOpacity;
 		m_ShaderCB.vnEnabled = (int)vnEnabled;
 		// Film Grain
 		m_ShaderCB.fgStrength = fgStrength;
@@ -63,6 +63,8 @@ namespace Insight {
 
 	bool APostFx::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
 	{
+		// TODO this work should be done in the base Actor class
+
 		Writer.StartObject(); // Start Write Actor
 		{
 			Writer.Key("Type");
@@ -106,7 +108,42 @@ namespace Insight {
 			}
 			Writer.EndArray(); // End Write Transform
 
-			Writer.Key("SubObjects");
+			// Post-Fx Volume Attributes
+			Writer.Key("PostFx");
+			Writer.StartArray();
+			{
+				Writer.StartObject(); // Start Vignette
+				{
+					Writer.Key("vnInnerRadius");
+					Writer.Double(m_ShaderCB.vnInnerRadius);
+					Writer.Key("vnOuterRadius");
+					Writer.Double(m_ShaderCB.vnOuterRadius);
+					Writer.Key("vnOpacity");
+					Writer.Double(m_ShaderCB.vnOpacity);
+					Writer.Key("vnEnabled");
+					Writer.Bool(m_ShaderCB.vnEnabled);
+				}
+				Writer.EndObject(); // End Vignette
+				Writer.StartObject(); // Start Film Grain
+				{
+					Writer.Key("fgStrength");
+					Writer.Double(m_ShaderCB.fgStrength);
+					Writer.Key("fgEnabled");
+					Writer.Bool(m_ShaderCB.fgEnabled);
+				}
+				Writer.EndObject(); // End Film Grain
+				Writer.StartObject(); // Start Chromatic Abberation
+				{
+					Writer.Key("caIntensity");
+					Writer.Double(m_ShaderCB.caIntensity);
+					Writer.Key("caEnabled");
+					Writer.Bool(m_ShaderCB.caEnabled);
+				}
+				Writer.EndObject(); // End Chromatic Abberation
+			}
+			Writer.EndArray();
+
+			Writer.Key("Subobjects");
 			Writer.StartArray(); // Start Write SubObjects
 			{
 				for (size_t i = 0; i < m_NumComponents; ++i)
@@ -172,12 +209,12 @@ namespace Insight {
 		ImGui::Checkbox("vnEnabled", (bool*)&m_ShaderCB.vnEnabled);
 		ImGui::DragFloat("Inner Radius", &m_TempInnerRadius, 0.1f, 0.0f, 50.0f);
 		ImGui::DragFloat("Outer Radius", &m_TempOuterRadius, 0.1f, 0.0f, 50.0f);
-		ImGui::DragFloat("Opacity", &m_ShaderCB.opacity, 0.15f, 0.0f, 10.0f);
+		ImGui::DragFloat("Opacity", &m_ShaderCB.vnOpacity, 0.15f, 0.0f, 10.0f);
 		if (m_TempInnerRadius > m_TempOuterRadius) {
 			m_TempInnerRadius = m_TempOuterRadius;
 		}
-		m_ShaderCB.innerRadius = m_TempInnerRadius;
-		m_ShaderCB.outerRadius = m_TempOuterRadius;
+		m_ShaderCB.vnInnerRadius = m_TempInnerRadius;
+		m_ShaderCB.vnOuterRadius = m_TempOuterRadius;
 		ImGui::Spacing();
 
 		ImGui::Text("Film Grain");

@@ -80,11 +80,13 @@ namespace Insight {
 		Writer.Key("CSharpScript");
 		Writer.StartArray(); // Start CSScript Write
 		{
-			Writer.Key("ModeuleName");
+			Writer.StartObject();
+			Writer.Key("ModuleName");
 			Writer.String(m_ModuleName.c_str());
 
 			Writer.Key("Enabled");
 			Writer.Bool(ActorComponent::m_Enabled);
+			Writer.EndObject();
 		}
 		Writer.EndArray(); // End CSScript Write
 

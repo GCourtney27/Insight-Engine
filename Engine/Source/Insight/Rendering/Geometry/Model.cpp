@@ -22,6 +22,7 @@ namespace Insight {
 
 	bool Model::Init(const std::string& path)
 	{
+		m_AssetDirectoryRelativePath = path;
 		m_Directory = StringHelper::GetDirectoryFromPath(path);
 		m_FileName = StringHelper::GetFilenameFromDirectory(path);
 		SceneNode::SetDisplayName("Static Mesh");

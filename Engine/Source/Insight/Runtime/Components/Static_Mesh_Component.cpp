@@ -43,7 +43,7 @@ namespace Insight {
 			Writer.StartObject(); // Start Mesh Directory
 			{
 				Writer.Key("Mesh");
-				Writer.String(m_pModel->GetDirectory().c_str());
+				Writer.String(m_pModel->GetAssetDirectoryRelativePath().c_str());
 				Writer.Key("Enabled");
 				Writer.Bool(ActorComponent::m_Enabled);
 			}

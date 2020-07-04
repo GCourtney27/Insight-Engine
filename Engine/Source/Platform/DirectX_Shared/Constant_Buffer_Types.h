@@ -72,9 +72,9 @@ struct CB_PS_SpotLight
 struct CB_PS_PostFx
 {
 	// Vignette
-	float innerRadius;
-	float outerRadius;
-	float opacity;
+	float vnInnerRadius;
+	float vnOuterRadius;
+	float vnOpacity;
 	int vnEnabled;
 
 	// Film Grain

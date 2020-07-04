@@ -83,7 +83,24 @@ namespace Insight {
 			}
 			Writer.EndArray(); // End Write Transform
 
-			Writer.Key("SubObjects");
+			// Point Light Attributes
+			Writer.Key("Emission");
+			Writer.StartArray();
+			{
+				Writer.StartObject();
+				Writer.Key("diffuseR");
+				Writer.Double(m_ShaderCB.diffuse.x);
+				Writer.Key("diffuseG");
+				Writer.Double(m_ShaderCB.diffuse.y);
+				Writer.Key("diffuseB");
+				Writer.Double(m_ShaderCB.diffuse.z);
+				Writer.Key("strength");
+				Writer.Double(m_ShaderCB.strength);
+				Writer.EndObject();
+			}
+			Writer.EndArray();
+
+			Writer.Key("Subobjects");
 			Writer.StartArray(); // Start Write SubObjects
 			{
 				for (size_t i = 0; i < m_NumComponents; ++i)
