@@ -164,7 +164,7 @@ namespace Insight {
 			IE_CORE_WARN("System memory is low!");
 			return 0;
 		}
-		case WM_SIZE:
+		case WM_EXITSIZEMOVE:
 		{
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
@@ -181,6 +181,10 @@ namespace Insight {
 			data.EventCallback(event);
 
 			IE_CORE_INFO("Window size has changed");
+			return 0;
+		}
+		case WM_SIZE:
+		{
 
 			return 0;
 		}

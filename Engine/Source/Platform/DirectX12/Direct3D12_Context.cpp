@@ -1252,9 +1252,7 @@ namespace Insight {
 					(*ppAdapter)->Release();
 				*ppAdapter = adapter.Detach();
 
-				//OutputDebugStringW(desc.Description);
-				//IE_CORE_INFO("Found suitable graphics hardware: {0}", std::string((char*)desc.Description));
-
+				IE_CORE_WARN("Found suitable D3D12 graphics hardware: {0}", StringHelper::WideToString(std::wstring{ desc.Description }));
 			}
 		}
 	}
@@ -1309,21 +1307,10 @@ namespace Insight {
 
 	void Direct3D12Context::UpdateViewAndScissor()
 	{
-		float viewWidthRatio = static_cast<float>(m_ResolutionOptions[m_ResolutionIndex].Width) / m_WindowWidth;
-		float viewHeighthRatio = static_cast<float>(m_ResolutionOptions[m_ResolutionIndex].Height) / m_WindowHeight;
-
-		float x = 1.0f;
-		float y = 1.0f;
-
-		if (viewWidthRatio < viewHeighthRatio)
-			x = viewWidthRatio / viewHeighthRatio;
-		else
-			y = viewHeighthRatio / viewWidthRatio;
-
-		m_ViewPort.TopLeftX = m_WindowWidth * (1.0f - x) / 2.0f;
-		m_ViewPort.TopLeftY = m_WindowHeight * (1.0f - y) / 2.0f;
-		m_ViewPort.Width = x * m_WindowWidth;
-		m_ViewPort.Height = y * m_WindowHeight;
+		m_ViewPort.TopLeftX = 0.0f;
+		m_ViewPort.TopLeftY = 0.0f;
+		m_ViewPort.Width = m_WindowWidth;
+		m_ViewPort.Height = m_WindowHeight;
 
 		m_ScissorRect.left = static_cast<LONG>(m_ViewPort.TopLeftX);
 		m_ScissorRect.right = static_cast<LONG>(m_ViewPort.TopLeftX + m_ViewPort.Width);
