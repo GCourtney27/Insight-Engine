@@ -41,11 +41,4 @@ namespace Insight {
 			m_Layers.erase(it);
 	}
 
-	void LayerStack::RemoveLayer(Layer* layer)
-	{
-		auto iter = std::find(m_Layers.begin(), m_Layers.end(), layer);
-		(*iter)->OnDetach();
-		m_Layers.erase(iter);
-	}
-
 }

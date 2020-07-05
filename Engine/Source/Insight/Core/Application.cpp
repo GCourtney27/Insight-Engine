@@ -4,7 +4,7 @@
 
 #include "Insight/Input/Input.h"
 #include "Insight/Runtime/AActor.h"
-#include "Insight/ImGui/ImGui_Layer.h"
+#include "Insight/Layer_Types/ImGui_Layer.h"
 #include "Platform/Windows/Windows_Window.h"
 
 
@@ -60,15 +60,13 @@ namespace Insight {
 		m_pGameLayer = new GameLayer();
 		m_pGameLayer->LoadScene(FileSystem::Get().GetRelativeAssetDirectoryPath("Scenes/MyScene.iescene"));
 		
-		//LoadSceneFromJson(FileSystem::Get().GetRelativeAssetDirectoryPath("Scenes/MyScene.iescene"));
-
 		IE_CORE_TRACE("Application Initialized");
 		return true;
 	}
 
 	void Application::Run()
 	{
-		IE_ADD_FOR_GAME_DIST(m_Scene.BeginPlay());
+		IE_ADD_FOR_GAME_DIST(BeginPlay(AppBeginPlayEvent{}));
 
 		while(m_Running) {
 
@@ -80,22 +78,13 @@ namespace Insight {
 
 			m_pWindow->OnUpdate(deltaTime);
 			m_pGameLayer->Update(deltaTime);
-
-			//m_Scene.OnUpdate(deltaTime);
-			//m_Scene.Tick(deltaTime);
 			
 			for (Layer* layer : m_LayerStack) {
 				layer->OnUpdate(deltaTime);
 			}
 
-			// Geometry Pass
 			m_pGameLayer->PreRender();
-			//m_Scene.OnPreRender();
 			m_pGameLayer->Render();
-			//m_Scene.OnRender();
-
-			// Light Pass
-			//m_Scene.OnMidFrameRender();
 
 			// Render Editor UI
 			IE_STRIP_FOR_GAME_DIST(
@@ -103,13 +92,11 @@ namespace Insight {
 				for (Layer* layer : m_LayerStack) {
 					layer->OnImGuiRender();
 				}
-				//m_Scene.OnImGuiRender();
 				m_pGameLayer->OnImGuiRender();
 				m_pImGuiLayer->End();
 				)
 
 			m_pGameLayer->PostRender();
-			//m_Scene.OnPostRender();
 			m_pWindow->EndFrame();
 		}
 	}
@@ -188,7 +175,8 @@ namespace Insight {
 	bool Application::EndPlay(AppEndPlayEvent& e)
 	{
 		m_pGameLayer->EndPlay();
-		m_LayerStack.RemoveLayer(m_pGameLayer);
+		m_LayerStack.PopLayer(m_pGameLayer);
+		m_pGameLayer->OnDetach();
 		return true;
 	}
 

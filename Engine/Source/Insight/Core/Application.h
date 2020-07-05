@@ -5,7 +5,7 @@
 #include "Window.h"
 #include "Insight/Systems/Time.h"
 #include "Insight/Core/Scene/Scene.h"
-#include "Insight/ImGui/ImGui_Layer.h"
+#include "Insight/Layer_Types/ImGui_Layer.h"
 #include "Insight/Layer_Types/Game_Layer.h"
 #include "Insight/Core/Layer/Layer_Stack.h"
 #include "Insight/Events/Application_Event.h"
@@ -29,7 +29,6 @@ namespace Insight {
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* layer);
 
-		//inline Scene& GetScene() { return m_Scene; }
 		inline Window& GetWindow() { return *m_pWindow; }
 		inline FrameTimer& GetFrameTimer() { return m_FrameTimer; }
 		bool InitializeAppForWindows(HINSTANCE& hInstance, int nCmdShow);
@@ -51,7 +50,6 @@ namespace Insight {
 		bool					m_Running = true;
 		LayerStack				m_LayerStack;
 		FrameTimer				m_FrameTimer;
-		//Scene					m_Scene;
 	private:
 		static Application*		s_Instance;
 	};
