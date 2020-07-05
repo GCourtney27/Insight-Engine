@@ -25,6 +25,9 @@ namespace Insight {
 
 	bool AActor::LoadFromJson(const rapidjson::Value& jsonActor)
 	{
+		if (!m_CanBeFileParsed)
+			return true;
+
 		// Load Transform
 		float posX, posY, posZ;
 		float rotX, rotY, rotZ;
@@ -69,6 +72,9 @@ namespace Insight {
 
 	bool AActor::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
 	{
+		if (!m_CanBeFileParsed)
+			return true;
+
 		Writer.StartObject(); // Start Write Actor
 		{
 			Writer.Key("Type");
@@ -134,7 +140,8 @@ namespace Insight {
 		const bool isExpanded = ImGui::TreeNodeEx(SceneNode::GetDisplayName(), treeFlags);
 
 		if (ImGui::IsItemClicked()) {
-			//Application::Get().GetScene().SetSelectedActor(this);
+			//TODO: Get editor layer
+			Application::Get().GetGameLayer().GetScene()->SetSelectedActor(this);
 		}
 
 		if (isExpanded) {

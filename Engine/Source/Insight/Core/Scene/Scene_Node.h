@@ -24,6 +24,7 @@ namespace Insight {
 		Transform& GetTransformRef() { return m_RootTransform; }
 		const char* GetDisplayName() { return m_DisplayName.c_str(); }
 		void SetDisplayName(std::string Name) { m_DisplayName = Name; }
+		void SetCanBeFileParsed(bool CanBeParsed) { m_CanBeFileParsed = CanBeParsed; }
 
 		void AddChild(SceneNode* childNode);
 		std::vector<SceneNode*>::const_iterator GetChildIteratorStart() { return m_Children.begin(); }
@@ -51,6 +52,7 @@ namespace Insight {
 		SceneNode* m_Parent = nullptr;
 		Transform m_RootTransform;
 		std::string m_DisplayName;
+		bool m_CanBeFileParsed = true;
 	};
 
 }

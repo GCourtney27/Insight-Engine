@@ -51,6 +51,7 @@ namespace Insight {
 		m_EditorViewTarget = ACamera::GetDefaultViewTarget();
 		m_EditorViewTarget.FieldOfView = 75.0f;
 		m_pCamera = new ACamera(m_EditorViewTarget);
+		m_pCamera->SetCanBeFileParsed(false);
 		m_pCamera->SetPerspectiveProjectionValues(
 			m_EditorViewTarget.FieldOfView, 
 			(float)Application::Get().GetWindow().GetWidth() / (float)Application::Get().GetWindow().GetHeight(), 
@@ -61,12 +62,13 @@ namespace Insight {
 
 		// Create the player character
 		m_pPlayerCharacter = new APlayerCharacter(0);
-		//m_pSceneRoot->AddChild(m_pPlayerCharacter);
+		m_pPlayerCharacter->SetCanBeFileParsed(false);
+		m_pSceneRoot->AddChild(m_pPlayerCharacter);
 
 		// Create the player start point
 		m_pPlayerStart = new APlayerStart(0);
+		m_pPlayerStart->SetCanBeFileParsed(false);
 		m_pSceneRoot->AddChild(m_pPlayerStart);
-
 		// Load the scene from .iescene folder containing all .json resource files
 		FileSystem::Get().LoadSceneFromJson(fileName, this);
 

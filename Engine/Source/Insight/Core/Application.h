@@ -29,6 +29,7 @@ namespace Insight {
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* layer);
 
+		inline GameLayer& GetGameLayer() { return *m_pGameLayer; }
 		inline Window& GetWindow() { return *m_pWindow; }
 		inline FrameTimer& GetFrameTimer() { return m_FrameTimer; }
 		bool InitializeAppForWindows(HINSTANCE& hInstance, int nCmdShow);
