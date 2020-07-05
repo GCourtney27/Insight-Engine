@@ -60,7 +60,6 @@ namespace Insight {
 		std::string m_DisplayName;
 		
 	private:
-		FileSystem m_FileSystem;// TODO move this to engine class
 		ResourceManager m_ResourceManager;
 
 	};

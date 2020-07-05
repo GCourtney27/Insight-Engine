@@ -72,16 +72,14 @@ namespace Insight {
 		while(m_Running) {
 
 			m_FrameTimer.tick();
-			const float& time = (float)m_FrameTimer.seconds();
-			const float& deltaTime = (float)m_FrameTimer.dt();
+			const float& DeltaTime = (float)m_FrameTimer.dt();
 			m_pWindow->SetWindowTitleFPS(m_FrameTimer.fps());
 
-
-			m_pWindow->OnUpdate(deltaTime);
-			m_pGameLayer->Update(deltaTime);
+			m_pWindow->OnUpdate(DeltaTime);
+			m_pGameLayer->Update(DeltaTime);
 			
 			for (Layer* layer : m_LayerStack) {
-				layer->OnUpdate(deltaTime);
+				layer->OnUpdate(DeltaTime);
 			}
 
 			m_pGameLayer->PreRender();

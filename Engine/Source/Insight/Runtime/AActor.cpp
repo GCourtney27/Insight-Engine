@@ -141,7 +141,7 @@ namespace Insight {
 
 		if (ImGui::IsItemClicked()) {
 			//TODO: Get editor layer
-			Application::Get().GetEditorLayer().SetSelectedActor(this);
+			IE_STRIP_FOR_GAME_DIST(Application::Get().GetEditorLayer().SetSelectedActor(this);)
 		}
 
 		if (isExpanded) {

@@ -32,7 +32,7 @@ namespace Insight {
 		void PushOverlay(Layer* layer);
 
 		inline GameLayer& GetGameLayer() { return *m_pGameLayer; }
-		inline EditorLayer& GetEditorLayer() { return *m_pEditorLayer; }
+		IE_STRIP_FOR_GAME_DIST(inline EditorLayer& GetEditorLayer() { return *m_pEditorLayer; })
 		inline Window& GetWindow() { return *m_pWindow; }
 		inline FrameTimer& GetFrameTimer() { return m_FrameTimer; }
 
@@ -49,12 +49,13 @@ namespace Insight {
 		bool EndPlay(AppEndPlayEvent& e);
 	private:
 		std::unique_ptr<Window>	m_pWindow;
-		IE_STRIP_FOR_GAME_DIST(ImGuiLayer* m_pImGuiLayer = nullptr;)
-		IE_STRIP_FOR_GAME_DIST(EditorLayer* m_pEditorLayer = nullptr;)
+		IE_STRIP_FOR_GAME_DIST( ImGuiLayer* m_pImGuiLayer = nullptr; )
+		IE_STRIP_FOR_GAME_DIST( EditorLayer* m_pEditorLayer = nullptr; )
 		GameLayer*				m_pGameLayer;
 		bool					m_Running = true;
 		LayerStack				m_LayerStack;
 		FrameTimer				m_FrameTimer;
+		FileSystem				m_FileSystem;
 	private:
 		static Application*		s_Instance;
 	};
