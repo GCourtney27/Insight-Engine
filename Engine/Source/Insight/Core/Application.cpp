@@ -18,7 +18,7 @@ namespace Insight {
 		IE_ASSERT(!s_Instance, "Trying to create Application instance when one already exists!");
 		s_Instance = this;
 
-		IE_STRIP_FOR_GAME_DIST(m_ImGuiLayer = new ImGuiLayer());
+		IE_STRIP_FOR_GAME_DIST(m_pImGuiLayer = new ImGuiLayer());
 	}
 
 	bool Application::InitializeAppForWindows(HINSTANCE & hInstance, int nCmdShow)
@@ -26,15 +26,13 @@ namespace Insight {
 		m_pWindow = std::unique_ptr<Window>(Window::Create());
 		m_pWindow->SetEventCallback(IE_BIND_EVENT_FN(Application::OnEvent));
 
-		static_cast<WindowsWindow*>(m_pWindow.get())->SetWindowsSessionProps(hInstance, nCmdShow);
-		if (!static_cast<WindowsWindow*>(m_pWindow.get())->Init(WindowProps()))	
-		{
+		((WindowsWindow*)m_pWindow.get())->SetWindowsSessionProps(hInstance, nCmdShow);
+		if (!((WindowsWindow*)m_pWindow.get())->Init(WindowProps())) {
 			IE_CORE_FATAL(L"Fatal Error: Failed to initialize window.");
 			return false;
 		}
 
-		if (!Init())
-		{
+		if (!Init()) {
 			IE_CORE_FATAL(L"Fatal Error: Failed to initiazlize application for Windows.");
 			return false;
 		}
@@ -55,22 +53,14 @@ namespace Insight {
 		Shutdown();
 	}
 
-	bool Application::LoadSceneFromJson(const std::string& fileName)
-	{
-		if (!m_Scene.Init(fileName)) {
-			IE_CORE_ERROR("Failed to initialize scene");
-			return false;
-		}
-		
-		return true;
-	}
-
 	bool Application::Init()
 	{
 		PushEngineLayers();
 
-		LoadSceneFromJson(FileSystem::Get().GetRelativeAssetDirectoryPath("Scenes/MyScene.iescene"));
+		m_pGameLayer = new GameLayer();
+		m_pGameLayer->LoadScene(FileSystem::Get().GetRelativeAssetDirectoryPath("Scenes/MyScene.iescene"));
 		
+		//LoadSceneFromJson(FileSystem::Get().GetRelativeAssetDirectoryPath("Scenes/MyScene.iescene"));
 
 		IE_CORE_TRACE("Application Initialized");
 		return true;
@@ -80,8 +70,8 @@ namespace Insight {
 	{
 		IE_ADD_FOR_GAME_DIST(m_Scene.BeginPlay());
 
-		while(m_Running)
-		{
+		while(m_Running) {
+
 			m_FrameTimer.tick();
 			const float& time = (float)m_FrameTimer.seconds();
 			const float& deltaTime = (float)m_FrameTimer.dt();
@@ -89,32 +79,38 @@ namespace Insight {
 
 
 			m_pWindow->OnUpdate(deltaTime);
-			m_Scene.OnUpdate(deltaTime);
-			m_Scene.Tick(deltaTime);
+			m_pGameLayer->Update(deltaTime);
+
+			//m_Scene.OnUpdate(deltaTime);
+			//m_Scene.Tick(deltaTime);
 			
 			for (Layer* layer : m_LayerStack) {
 				layer->OnUpdate(deltaTime);
 			}
 
 			// Geometry Pass
-			m_Scene.OnPreRender();
-			
-			m_Scene.OnRender();
+			m_pGameLayer->PreRender();
+			//m_Scene.OnPreRender();
+			m_pGameLayer->Render();
+			//m_Scene.OnRender();
 
 			// Light Pass
-			m_Scene.OnMidFrameRender();
+			//m_Scene.OnMidFrameRender();
 
 			// Render Editor UI
 			IE_STRIP_FOR_GAME_DIST(
-				m_ImGuiLayer->Begin();
+				m_pImGuiLayer->Begin();
 				for (Layer* layer : m_LayerStack) {
 					layer->OnImGuiRender();
 				}
-				m_Scene.OnImGuiRender();
-				m_ImGuiLayer->End();
+				//m_Scene.OnImGuiRender();
+				m_pGameLayer->OnImGuiRender();
+				m_pImGuiLayer->End();
 				)
 
-			m_Scene.OnPostRender();
+			m_pGameLayer->PostRender();
+			//m_Scene.OnPostRender();
+			m_pWindow->EndFrame();
 		}
 	}
 
@@ -129,6 +125,8 @@ namespace Insight {
 		dispatcher.Dispatch<WindowResizeEvent>(IE_BIND_EVENT_FN(Application::OnWindowResize));
 		dispatcher.Dispatch<WindowToggleFullScreenEvent>(IE_BIND_EVENT_FN(Application::OnWindowFullScreen));
 		dispatcher.Dispatch<SceneSaveEvent>(IE_BIND_EVENT_FN(Application::SaveScene));
+		dispatcher.Dispatch<AppBeginPlayEvent>(IE_BIND_EVENT_FN(Application::BeginPlay));
+		dispatcher.Dispatch<AppEndPlayEvent>(IE_BIND_EVENT_FN(Application::EndPlay));
 
 		Input::GetInputManager().OnEvent(e);
 
@@ -142,7 +140,7 @@ namespace Insight {
 
 	void Application::PushEngineLayers()
 	{
-		IE_STRIP_FOR_GAME_DIST(PushOverlay(m_ImGuiLayer);)
+		IE_STRIP_FOR_GAME_DIST(PushOverlay(m_pImGuiLayer);)
 	}
 
 	void Application::PushLayer(Layer * layer)
@@ -177,7 +175,21 @@ namespace Insight {
 
 	bool Application::SaveScene(SceneSaveEvent& e)
 	{
-		return FileSystem::Get().WriteSceneToJson(&m_Scene);
+		return FileSystem::Get().WriteSceneToJson(m_pGameLayer->GetScene());
+	}
+
+	bool Application::BeginPlay(AppBeginPlayEvent& e)
+	{
+		m_pGameLayer->BeginPlay();
+		PushLayer(m_pGameLayer);
+		return true;
+	}
+
+	bool Application::EndPlay(AppEndPlayEvent& e)
+	{
+		m_pGameLayer->EndPlay();
+		m_LayerStack.RemoveLayer(m_pGameLayer);
+		return true;
 	}
 
 }

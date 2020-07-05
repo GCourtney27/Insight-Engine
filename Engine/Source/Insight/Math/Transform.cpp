@@ -153,7 +153,7 @@ namespace Insight {
 
 	void Transform::UpdateIfTransformed(bool ForceUpdate)
 	{
-		if ((m_Transformed && !Application::Get().GetScene().IsPlaySesionUnderWay()) || ForceUpdate)
+		if ((m_Transformed && !Application::Get().IsPlaySessionUnderWay()) || ForceUpdate)
 		{
 			TranslateLocalMatrix();
 			ScaleLocalMatrix();

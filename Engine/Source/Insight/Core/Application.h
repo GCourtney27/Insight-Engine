@@ -6,6 +6,7 @@
 #include "Insight/Systems/Time.h"
 #include "Insight/Core/Scene/Scene.h"
 #include "Insight/ImGui/ImGui_Layer.h"
+#include "Insight/Layer_Types/Game_Layer.h"
 #include "Insight/Core/Layer/Layer_Stack.h"
 #include "Insight/Events/Application_Event.h"
 
@@ -18,7 +19,6 @@ namespace Insight {
 		Application();
 		virtual ~Application();
 
-		bool LoadSceneFromJson(const std::string& fileName);
 		bool Init();
 
 		void Run();
@@ -29,11 +29,12 @@ namespace Insight {
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* layer);
 
-		inline Scene& GetScene() { return m_Scene; }
+		//inline Scene& GetScene() { return m_Scene; }
 		inline Window& GetWindow() { return *m_pWindow; }
 		inline FrameTimer& GetFrameTimer() { return m_FrameTimer; }
 		bool InitializeAppForWindows(HINSTANCE& hInstance, int nCmdShow);
 		inline static Application& Get() { return *s_Instance; }
+		inline static bool IsPlaySessionUnderWay() { return s_Instance->m_pGameLayer->IsPlaySesionUnderWay(); }
 	private:
 		void PushEngineLayers();
 		bool OnWindowClose(WindowCloseEvent& e);
@@ -41,13 +42,16 @@ namespace Insight {
 		bool OnWindowFullScreen(WindowToggleFullScreenEvent& e);
 		//TEMP
 		bool SaveScene(SceneSaveEvent& e);
+		bool BeginPlay(AppBeginPlayEvent& e);
+		bool EndPlay(AppEndPlayEvent& e);
 	private:
 		std::unique_ptr<Window>	m_pWindow;
-		IE_STRIP_FOR_GAME_DIST(ImGuiLayer* m_ImGuiLayer = nullptr;)
+		IE_STRIP_FOR_GAME_DIST(ImGuiLayer* m_pImGuiLayer = nullptr;)
+		GameLayer*				m_pGameLayer;
 		bool					m_Running = true;
 		LayerStack				m_LayerStack;
 		FrameTimer				m_FrameTimer;
-		Scene					m_Scene;
+		//Scene					m_Scene;
 	private:
 		static Application*		s_Instance;
 	};

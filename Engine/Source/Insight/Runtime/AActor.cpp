@@ -134,7 +134,7 @@ namespace Insight {
 		const bool isExpanded = ImGui::TreeNodeEx(SceneNode::GetDisplayName(), treeFlags);
 
 		if (ImGui::IsItemClicked()) {
-			Application::Get().GetScene().SetSelectedActor(this);
+			//Application::Get().GetScene().SetSelectedActor(this);
 		}
 
 		if (isExpanded) {

@@ -22,15 +22,6 @@ namespace Insight {
 		Cleanup();
 	}
 
-	void TestRotate(float x, float y, float z)
-	{
-		AActor* actor = Application::Get().GetScene().GetSelectedActor();
-		if (actor) {
-			Transform& transform = actor->GetTransformRef();
-			transform.Rotate(x, y, z);
-		}
-	}
-
 	void CSharpScriptComponent::OnAttach()
 	{
 		

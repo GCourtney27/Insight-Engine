@@ -56,7 +56,7 @@ namespace Insight {
 	// during runtime character controller will do this for us
 	void ACamera::OnUpdate(const float& DeltaMs)
 	{
-		if (Application::Get().GetScene().IsPlaySesionUnderWay()) {
+		if (Application::Get().IsPlaySessionUnderWay()) {
 			return;
 		}
 

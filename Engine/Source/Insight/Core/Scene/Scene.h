@@ -22,7 +22,6 @@ namespace Insight {
 		~Scene();
 
 		SceneNode* GetRootNode() const { return m_pSceneRoot; }
-		bool LoadFromJson(const std::string& fileName);
 		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
 
 		bool Init(const std::string fileName);
@@ -45,13 +44,11 @@ namespace Insight {
 		void SetDisplayName(const std::string& name) { m_DisplayName = name; }
 		std::string GetDisplayName() { return m_DisplayName; }
 		void EndPlaySession();
-		bool IsPlaySesionUnderWay() { return m_TickScene; }
 
 	private:
 		void RenderSceneHeirarchy();
 		void RenderInspector();
 		void RenderCreatorWindow();
-		void RenderPlayPanel();
 	private:
 		APlayerCharacter* m_pPlayerCharacter = nullptr;
 		APlayerStart* m_pPlayerStart = nullptr;
@@ -65,8 +62,6 @@ namespace Insight {
 		std::shared_ptr<RenderingContext> m_Renderer = nullptr;
 		std::string m_DisplayName;
 		
-		bool m_TickScene = false;
-
 	private:
 		// TODO move this to engine class
 		FileSystem m_FileSystem;

@@ -2,12 +2,13 @@
 
 #include "Scene.h"
 
-#include "imgui.h"
-#include "ImGuizmo.h"
 #include "Insight/Input/Input.h"
 #include "Insight/Core/Application.h"
 #include "Insight/Runtime/APlayer_Character.h"
 #include "Insight/Runtime/APlayer_Start.h"
+
+#include "imgui.h"
+#include "ImGuizmo.h"
 
 namespace Insight {
 
@@ -21,12 +22,6 @@ namespace Insight {
 	Scene::~Scene()
 	{
 		Destroy();
-	}
-
-	bool Scene::LoadFromJson(const std::string& fileName)
-	{
-		FileSystem::Get().LoadSceneFromJson(fileName, this);
-		return true;
 	}
 
 	bool Scene::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
@@ -44,14 +39,18 @@ namespace Insight {
 
 	bool Scene::Init(const std::string fileName)
 	{
+		// Get the render context from the main window
 		m_Renderer = Application::Get().GetWindow().GetRenderContext();
+
+		// Initialize resource managers this scene will need.
 		m_ResourceManager.Init();
 
-		// Create camera
+		// Create the Scene camera and default view target. 
+		//There should only be one camera in the world at 
+		// any given time.
 		m_EditorViewTarget = ACamera::GetDefaultViewTarget();
 		m_EditorViewTarget.FieldOfView = 75.0f;
 		m_pCamera = new ACamera(m_EditorViewTarget);
-
 		m_pCamera->SetPerspectiveProjectionValues(
 			m_EditorViewTarget.FieldOfView, 
 			(float)Application::Get().GetWindow().GetWidth() / (float)Application::Get().GetWindow().GetHeight(), 
@@ -60,16 +59,18 @@ namespace Insight {
 		);
 		m_pSceneRoot->AddChild(m_pCamera);
 
-		// Create the player controller
+		// Create the player character
 		m_pPlayerCharacter = new APlayerCharacter(0);
-		m_pSceneRoot->AddChild(m_pPlayerCharacter);
+		//m_pSceneRoot->AddChild(m_pPlayerCharacter);
 
 		// Create the player start point
 		m_pPlayerStart = new APlayerStart(0);
 		m_pSceneRoot->AddChild(m_pPlayerStart);
 
-		//LoadFromJson(fileName);// TURNED OFF TO DEBUG THE MENU BAR TURN THIS ON TO LOAD THE SCENE
+		// Load the scene from .iescene folder containing all .json resource files
+		FileSystem::Get().LoadSceneFromJson(fileName, this);
 
+		// Tell the renderer to set init commands to the gpu
 		m_Renderer->PostInit();
 		return true;
 	}
@@ -80,6 +81,8 @@ namespace Insight {
 		m_pPlayerStart->SpawnPlayer(m_pPlayerCharacter);
 		m_pCamera->SetViewTarget(m_pPlayerCharacter->GetViewTarget());
 		
+		m_pPlayerCharacter->BeginPlay();
+
 		m_pSceneRoot->BeginPlay();
 	}
 
@@ -93,25 +96,24 @@ namespace Insight {
 		m_pSceneRoot->EditorEndPlay();
 	}
 
-	void Scene::Tick(const float& deltaMs)
+	void Scene::Tick(const float& DeltaMs)
 	{
-		IE_STRIP_FOR_GAME_DIST(if (m_TickScene)) {
-			m_pSceneRoot->Tick(deltaMs);
-		}
+		m_pPlayerCharacter->Tick(DeltaMs);
+		m_pSceneRoot->Tick(DeltaMs);
 	}
 
-	void Scene::OnUpdate(const float& deltaMs)
+	void Scene::OnUpdate(const float& DeltaMs)
 	{
-		m_Renderer->OnUpdate(deltaMs);
-		m_pSceneRoot->OnUpdate(deltaMs);
+		m_Renderer->OnUpdate(DeltaMs);
+		m_pSceneRoot->OnUpdate(DeltaMs);
 	}
 
 	void Scene::OnImGuiRender()
 	{
+		// TODO Mode this to a editor layer
 		RenderSceneHeirarchy();
 		RenderInspector();
 		RenderCreatorWindow();
-		RenderPlayPanel();
 	}
 
 	void Scene::RenderSceneHeirarchy()
@@ -205,27 +207,11 @@ namespace Insight {
 		//ImGui::End();
 	}
 
-	void Scene::RenderPlayPanel()
-	{
-		ImGui::Begin("Game");
-		{
-			if (ImGui::Button("Play", ImVec2{ 75.0f, 50.0f })) {
-				m_TickScene = true;
-				BeginPlay();
-			}
-			if (ImGui::Button("Stop", ImVec2{ 75.0f, 50.0f })) {
-				m_TickScene = false;
-				EndPlaySession();
-			}
-		}
-		ImGui::End();
-	}
-
 	void Scene::OnPreRender()
 	{
 		m_Renderer->OnPreFrameRender();
 		m_pSceneRoot->OnPreRender(XMMatrixIdentity());
-		m_ResourceManager.GetModelManager().UploadVertexDataToGPU();
+		m_ResourceManager.GetModelManager().UploadConstantBufferDataToGPU();
 	}
 
 	void Scene::OnRender()
@@ -243,8 +229,6 @@ namespace Insight {
 	void Scene::OnPostRender()
 	{
 		m_ResourceManager.GetModelManager().PostRender();
-		m_Renderer->ExecuteDraw();
-		m_Renderer->SwapBuffers();
 	}
 
 	void Scene::Destroy()

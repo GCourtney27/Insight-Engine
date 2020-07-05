@@ -69,6 +69,24 @@ namespace Insight {
 			EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
+	class INSIGHT_API AppBeginPlayEvent : public Event
+	{
+	public:
+		AppBeginPlayEvent() {}
+
+		EVENT_CLASS_TYPE(AppBeginPlay)
+			EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	};
+
+	class INSIGHT_API AppEndPlayEvent : public Event
+	{
+	public:
+		AppEndPlayEvent() {}
+
+		EVENT_CLASS_TYPE(AppEndPlay)
+			EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	};
+
 	class INSIGHT_API AppRenderEvent : public Event
 	{
 	public:

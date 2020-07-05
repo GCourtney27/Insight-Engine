@@ -218,6 +218,20 @@ namespace Insight {
 			// Parse the menu selections:
 			switch (wmId)
 			{
+			case IDM_BEGIN_PLAY:
+			{
+				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+				AppBeginPlayEvent event;
+				data.EventCallback(event);
+				break;
+			}
+			case IDM_END_PLAY:
+			{
+				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+				AppEndPlayEvent event;
+				data.EventCallback(event);
+				break;
+			}
 			case IDM_SCENE_SAVE:
 			{
 				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
@@ -447,6 +461,15 @@ namespace Insight {
 
 		}
 
+		// Editor SubMenu
+		{
+			m_hEditorSubMenu = CreateMenu();
+			AppendMenuW(m_hMenu, MF_POPUP, (UINT_PTR)m_hEditorSubMenu, L"&Editor");
+			AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_BEGIN_PLAY, L"&Play");
+			AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_END_PLAY, L"&Stop");
+
+		}
+
 		return;
 		// Graphics SubMenu
 		{
@@ -591,6 +614,12 @@ namespace Insight {
 		}
 
 		m_pRendererContext.reset();
+	}
+
+	void WindowsWindow::EndFrame()
+	{
+		m_pRendererContext->ExecuteDraw();
+		m_pRendererContext->SwapBuffers();
 	}
 
 }

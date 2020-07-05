@@ -34,6 +34,7 @@ namespace Insight {
 		virtual void OnRender() override;
 		virtual void ExecuteDraw() override;
 		virtual void Shutdown() override;
+		virtual void EndFrame() override;
 
 		inline uint32_t GetWidth() const override { return m_Data.Width; }
 		inline uint32_t GetHeight() const override { return m_Data.Height; }
@@ -69,6 +70,7 @@ namespace Insight {
 		HMENU	m_hMenu;
 		HMENU	m_hFileSubMenu;
 		HMENU	m_hEditSubMenu;
+		HMENU	m_hEditorSubMenu;
 		HMENU	m_hGraphicsSubMenu;
 		HMENU	m_hGraphicsVisualizeSubMenu;
 
