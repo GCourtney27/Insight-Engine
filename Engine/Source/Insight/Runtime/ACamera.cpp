@@ -4,14 +4,96 @@
 #include "ACamera.h"
 #include "imgui.h"
 #include "Insight/Runtime/Components/Actor_Component.h"
+#include "Insight/Runtime/APlayer_Character.h"
 #include "Insight/Core/Application.h"
+#include "Insight/Input/Input.h"
+
 
 namespace Insight {
 
+	ACamera* ACamera::s_Instance = nullptr;
 
+	ACamera::ACamera(Vector3 position, float pitch, float yaw, float roll, float exposure)
+		: m_MovementSpeed(SPEED), m_MouseSensitivity(SENSITIVITY), m_Fov(FOV), m_Exposure(EXPOSURE), AActor(0, "Camera")
+	{
+		IE_CORE_ASSERT(!s_Instance, "Cannot have more than one camera in the world at once!");
+		s_Instance = this;
+
+		GetTransformRef().SetPosition(position);
+		m_Pitch = pitch;
+		m_Yaw = yaw;
+		m_Roll = roll;
+		UpdateViewMatrix();
+	}
+
+	ACamera::ACamera(ViewTarget ViewTarget)
+		: AActor(0, "Camera")
+	{
+		IE_CORE_ASSERT(!s_Instance, "Cannot have more than one camera in the world at once!");
+		s_Instance = this;
+
+		GetTransformRef().SetPosition(ViewTarget.Position);
+		m_Fov = ViewTarget.FieldOfView;
+		m_MouseSensitivity = ViewTarget.Sensitivity;
+		m_MovementSpeed = ViewTarget.Speed;
+		m_Exposure = ViewTarget.Exposure;
+		m_NearZ = ViewTarget.NearZ;
+		m_FarZ = ViewTarget.FarZ;
+
+		UpdateViewMatrix();
+	}
 
 	ACamera::~ACamera()
 	{
+	}
+
+	void ACamera::BeginPlay()
+	{
+		
+	}
+
+	// TODO Strip this out for game distribution we dont need it 
+	// during runtime character controller will do this for us
+	void ACamera::OnUpdate(const float& DeltaMs)
+	{
+		if (Application::Get().IsPlaySessionUnderWay()) {
+			return;
+		}
+
+		if (Input::IsMouseButtonPressed(IE_MOUSEBUTTON_RIGHT))
+		{
+			auto [x, y] = Input::GetRawMousePosition();
+			ProcessMouseMovement((float)x, (float)y);
+			if (Input::IsKeyPressed('W'))
+			{
+				ProcessKeyboardInput(CameraMovement::FORWARD, DeltaMs);
+			}
+			if (Input::IsKeyPressed('S'))
+			{
+				ProcessKeyboardInput(CameraMovement::BACKWARD, DeltaMs);
+			}
+			if (Input::IsKeyPressed('A'))
+			{
+				ProcessKeyboardInput(CameraMovement::LEFT, DeltaMs);
+			}
+			if (Input::IsKeyPressed('D'))
+			{
+				ProcessKeyboardInput(CameraMovement::RIGHT, DeltaMs);
+			}
+			if (Input::IsKeyPressed('E'))
+			{
+				ProcessKeyboardInput(CameraMovement::UP, DeltaMs);
+			}
+			if (Input::IsKeyPressed('Q'))
+			{
+				ProcessKeyboardInput(CameraMovement::DOWN, DeltaMs);
+			}
+		}
+	}
+
+	void ACamera::EditorEndPlay()
+	{
+
 	}
 
 	void ACamera::ProcessMouseScroll(float yOffset)
@@ -92,14 +174,14 @@ namespace Insight {
 
 		ImGui::Text("Projection");
 		static const char* projectionMethods[] = { "Perspective", "Orthographic" };
-		if (ImGui::Combo("Method", &m_IsOrthographic, projectionMethods, IM_ARRAYSIZE(projectionMethods))) {
-			if (!m_IsOrthographic) {
-				SetPerspectiveProjectionValues(m_Fov, m_AspectRatio, m_NearZ, m_FarZ);
-			}
-			else {
-				SetOrthographicsProjectionValues((float)Application::Get().GetWindow().GetWidth(), (float)Application::Get().GetWindow().GetHeight(), m_NearZ, m_FarZ);
-			}
+		ImGui::Combo("Method", &m_IsOrthographic, projectionMethods, IM_ARRAYSIZE(projectionMethods));
+		if (!m_IsOrthographic) {
+			SetPerspectiveProjectionValues(m_Fov, m_AspectRatio, m_NearZ, m_FarZ);
 		}
+		else {
+			SetOrthographicsProjectionValues((float)Application::Get().GetWindow().GetWidth(), (float)Application::Get().GetWindow().GetHeight(), m_NearZ, m_FarZ);
+		}
+
 	}
 
 	void ACamera::UpdateViewMatrix()

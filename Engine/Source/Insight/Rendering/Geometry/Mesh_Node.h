@@ -27,8 +27,6 @@ namespace Insight {
 		std::string m_DisplayName;
 		
 		int ConstantBufferPerObjectAlignedSize = (sizeof(CB_VS_PerObject) + 255) & ~255;
-		//ID3D12Resource* m_ConstantBufferUploadHeaps = nullptr;
-		//ID3D12GraphicsCommandList* m_pCommandList = nullptr;
 	};
 
 }

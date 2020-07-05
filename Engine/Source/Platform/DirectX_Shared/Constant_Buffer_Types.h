@@ -35,9 +35,15 @@ struct CB_PS_VS_PerFrame
 	float numSpotLights;
 	DirectX::XMFLOAT2 screenSize;//4
 
-	float padding;
-	float padding1;
-	float padding2;
+	// Graphics DEBUG
+	float visualizeFinalPass;
+	float visualizeLightPassResult;
+	float visualizeAlbedoBuffer;
+	float visualizeNormalBuffer;//4
+	float visualizeRoughnessBuffer;
+	float visualizeMetallicBuffer;
+	float visualizeAOPBRTextureBuffer;
+	float padding;//4
 };
 
 struct CB_PS_PointLight
@@ -72,9 +78,9 @@ struct CB_PS_SpotLight
 struct CB_PS_PostFx
 {
 	// Vignette
-	float innerRadius;
-	float outerRadius;
-	float opacity;
+	float vnInnerRadius;
+	float vnOuterRadius;
+	float vnOpacity;
 	int vnEnabled;
 
 	// Film Grain

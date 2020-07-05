@@ -3,13 +3,17 @@
 #include <Insight/Core.h>
 
 #include "Scene_Node.h"
-#include "Insight/Systems/Managers/Resource_Manager.h"
-#include "Insight/Runtime/APlayer_Character.h"
 #include "Insight/Rendering/Rendering_Context.h"
-#include "Insight/Rendering/APost_Fx.h"
+#include "Insight/Systems/Managers/Resource_Manager.h"
 #include "Insight/Systems/File_System.h"
+#include "Insight/Runtime/ACamera.h"
+
 
 namespace Insight {
+
+
+	class APlayerCharacter;
+	class APlayerStart;
 
 	class INSIGHT_API Scene
 	{
@@ -18,7 +22,7 @@ namespace Insight {
 		~Scene();
 
 		SceneNode* GetRootNode() const { return m_pSceneRoot; }
-		bool LoadFromJson(const std::string& fileName);
+		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
 
 		bool Init(const std::string fileName);
 		bool PostInit();
@@ -31,21 +35,23 @@ namespace Insight {
 		void OnMidFrameRender();
 		void OnPostRender();
 		void Destroy();
-		void Flush();
+		bool FlushAndOpenNewScene(const std::string& NewScene);
 
-		// Editor
-		void SetSelectedActor(AActor* actor) { m_pSelectedActor = actor; }
-		AActor* GetSelectedActor() { return m_pSelectedActor; }
+		SceneNode& GetSceneRoot() { return *m_pSceneRoot; }
+		ACamera& GetSceneCamera() { return *m_pCamera; }
+
 		void SetDisplayName(const std::string& name) { m_DisplayName = name; }
+		std::string GetDisplayName() { return m_DisplayName; }
 		void EndPlaySession();
-		bool IsPlaySesionUnderWay() { return m_TickScene; }
+
 	private:
-		void RenderSceneHeirarchy();
-		void RenderInspector();
-		void RenderCreatorWindow();
-		void RenderPlayPanel();
+
 	private:
 		APlayerCharacter* m_pPlayerCharacter = nullptr;
+		APlayerStart* m_pPlayerStart = nullptr;
+		ACamera* m_pCamera = nullptr;
+		ViewTarget m_EditorViewTarget;
+
 		Vector3 newPos;
 		AActor* m_pSelectedActor = nullptr;
 
@@ -53,11 +59,7 @@ namespace Insight {
 		std::shared_ptr<RenderingContext> m_Renderer = nullptr;
 		std::string m_DisplayName;
 		
-		bool m_TickScene = false;
-
 	private:
-		// TODO move this to engine class
-		FileSystem m_FileSystem;
 		ResourceManager m_ResourceManager;
 
 	};

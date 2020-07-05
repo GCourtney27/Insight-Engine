@@ -19,6 +19,7 @@ namespace Insight {
 			bool FullScreenEnabled = false;
 
 			bool isFirstLaunch = true;
+			HMENU hGraphicsVisualizeSubMenu;
 
 			EventCallbackFn EventCallback;
 		};
@@ -33,6 +34,7 @@ namespace Insight {
 		virtual void OnRender() override;
 		virtual void ExecuteDraw() override;
 		virtual void Shutdown() override;
+		virtual void EndFrame() override;
 
 		inline uint32_t GetWidth() const override { return m_Data.Width; }
 		inline uint32_t GetHeight() const override { return m_Data.Height; }
@@ -43,7 +45,7 @@ namespace Insight {
 		virtual void* GetNativeWindow() const override;
 		void SetWindowsSessionProps(HINSTANCE& hInstance, int nCmdShow) { SetWindowsApplicationInstance(hInstance); SetCmdArgs(nCmdShow); }
 		inline HINSTANCE& GetWindowsApplicationReference() const { return *m_WindowsAppInstance; }
-		inline HWND& GetWindowHandleReference() { return m_WindowHandle; }
+		inline HWND& GetWindowHandleReference() { return m_hWindow; }
 		inline RECT& GetWindowRect() { return m_WindowRect; }
 
 		virtual void Resize(UINT newWidth, UINT newHeight, bool isMinimized) override;
@@ -61,9 +63,17 @@ namespace Insight {
 		inline void SetWindowsApplicationInstance(HINSTANCE& hInstance) { m_WindowsAppInstance = &hInstance; }
 		inline void SetCmdArgs(int nCmdShow) { m_nCmdShowArgs = nCmdShow; }
 		void RegisterWindowClass();
+		void InitializeMenuBar();
 	private:
 
-		HWND m_WindowHandle;
+		HWND	m_hWindow;
+		HMENU	m_hMenu;
+		HMENU	m_hFileSubMenu;
+		HMENU	m_hEditSubMenu;
+		HMENU	m_hEditorSubMenu;
+		HMENU	m_hGraphicsSubMenu;
+		HMENU	m_hGraphicsVisualizeSubMenu;
+
 		HINSTANCE* m_WindowsAppInstance;
 		int m_nCmdShowArgs;
 		RECT m_WindowRect;

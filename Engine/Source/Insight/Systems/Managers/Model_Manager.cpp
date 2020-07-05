@@ -65,7 +65,7 @@ namespace Insight {
 	}
 
 	// Update the Constant buffers in the gpu with the new data for each model. Does not draw models
-	void ModelManager::UploadVertexDataToGPU()
+	void ModelManager::UploadConstantBufferDataToGPU()
 	{
 		for (UINT32 i = 0; i < m_Models.size(); i++) {
 

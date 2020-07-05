@@ -22,15 +22,6 @@ namespace Insight {
 		Cleanup();
 	}
 
-	void TestRotate(float x, float y, float z)
-	{
-		AActor* actor = Application::Get().GetScene().GetSelectedActor();
-		if (actor) {
-			Transform& transform = actor->GetTransformRef();
-			transform.Rotate(x, y, z);
-		}
-	}
-
 	void CSharpScriptComponent::OnAttach()
 	{
 		
@@ -58,7 +49,7 @@ namespace Insight {
 		}
 
 		GetTransformFields();
-
+		UpdateScriptFields();
 	}
 
 	void CSharpScriptComponent::Cleanup()
@@ -72,6 +63,24 @@ namespace Insight {
 		json::get_bool(jsonCSScriptComponent[0], "Enabled", ActorComponent::m_Enabled);
 
 		RegisterScript();
+		return true;
+	}
+
+	bool CSharpScriptComponent::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
+	{
+		Writer.Key("CSharpScript");
+		Writer.StartArray(); // Start CSScript Write
+		{
+			Writer.StartObject();
+			Writer.Key("ModuleName");
+			Writer.String(m_ModuleName.c_str());
+
+			Writer.Key("Enabled");
+			Writer.Bool(ActorComponent::m_Enabled);
+			Writer.EndObject();
+		}
+		Writer.EndArray(); // End CSScript Write
+
 		return true;
 	}
 

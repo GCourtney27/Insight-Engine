@@ -29,20 +29,15 @@ namespace Insight {
 
 	bool Material::LoadFromJson(const rapidjson::Value& jsonMaterial)
 	{
-		int albedoTexID;
-		int normalTexID;
-		int metallicTexID;
-		int roughnessTexID;
-		int aoTexID;
 		// TODO get texture handle by id from textre manager
 		const rapidjson::Value& jsonUVOffset = jsonMaterial["uvOffset"];
 		const rapidjson::Value& jsonTilingOffset = jsonMaterial["Tiling"];
 		const rapidjson::Value& jsonColorOverride = jsonMaterial["Color_Override"];
-		json::get_int(jsonMaterial, "AlbedoMapID", albedoTexID);
-		json::get_int(jsonMaterial, "NormalMapID", normalTexID);
-		json::get_int(jsonMaterial, "MetallicMapID", metallicTexID);
-		json::get_int(jsonMaterial, "RoughnessMapID", roughnessTexID);
-		json::get_int(jsonMaterial, "AOMapID", aoTexID);
+		json::get_int(jsonMaterial, "AlbedoMapID", m_AlbedoTextureManagerID);
+		json::get_int(jsonMaterial, "NormalMapID", m_NormalTextureManagerID);
+		json::get_int(jsonMaterial, "MetallicMapID", m_MetallicTextureManagerID);
+		json::get_int(jsonMaterial, "RoughnessMapID", m_RoughnessTextureManagerID);
+		json::get_int(jsonMaterial, "AOMapID", m_AoTextureManagerID);
 
 		json::get_float(jsonUVOffset[0], "x", m_ShaderCB.uvOffset.x);
 		json::get_float(jsonUVOffset[0], "y", m_ShaderCB.uvOffset.y);
@@ -58,11 +53,82 @@ namespace Insight {
 		json::get_float(jsonMaterial, "Roughness_Override", m_ShaderCB.roughnessAdditive);
 
 		TextureManager& textureManager = ResourceManager::Get().GetTextureManager();
-		m_AlbedoMap = textureManager.GetTextureByID(albedoTexID, Texture::eTextureType::ALBEDO);
-		m_NormalMap = textureManager.GetTextureByID(normalTexID, Texture::eTextureType::NORMAL);
-		m_MetallicMap = textureManager.GetTextureByID(metallicTexID, Texture::eTextureType::METALLIC);
-		m_RoughnessMap = textureManager.GetTextureByID(roughnessTexID, Texture::eTextureType::ROUGHNESS);
-		m_AOMap = textureManager.GetTextureByID(aoTexID, Texture::eTextureType::AO);
+		m_AlbedoMap = textureManager.GetTextureByID(m_AlbedoTextureManagerID, Texture::eTextureType::ALBEDO);
+		m_NormalMap = textureManager.GetTextureByID(m_NormalTextureManagerID, Texture::eTextureType::NORMAL);
+		m_MetallicMap = textureManager.GetTextureByID(m_MetallicTextureManagerID, Texture::eTextureType::METALLIC);
+		m_RoughnessMap = textureManager.GetTextureByID(m_RoughnessTextureManagerID, Texture::eTextureType::ROUGHNESS);
+		m_AOMap = textureManager.GetTextureByID(m_AoTextureManagerID, Texture::eTextureType::AO);
+
+		return true;
+	}
+
+	bool Material::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
+	{
+		// Textures
+		{
+			Writer.Key("AlbedoMapID");
+			Writer.Int(m_AlbedoTextureManagerID);
+			Writer.Key("NormalMapID");
+			Writer.Int(m_NormalTextureManagerID);
+			Writer.Key("MetallicMapID");
+			Writer.Int(m_MetallicTextureManagerID);
+			Writer.Key("RoughnessMapID");
+			Writer.Int(m_RoughnessTextureManagerID);
+			Writer.Key("AOMapID");
+			Writer.Int(m_AoTextureManagerID);
+		}
+
+		// UV's
+		{
+			Writer.Key("uvOffset");
+			Writer.StartArray(); // Start Offsets
+			Writer.StartObject();
+			{
+				Writer.Key("x");
+				Writer.Double(m_ShaderCB.uvOffset.x);
+				Writer.Key("y");
+				Writer.Double(m_ShaderCB.uvOffset.y);
+			}
+			Writer.EndObject();
+			Writer.EndArray(); // End Offsets
+
+			Writer.Key("Tiling");
+			Writer.StartArray(); // Start Tiling
+			Writer.StartObject();
+			{
+				Writer.Key("u");
+				Writer.Double(m_ShaderCB.tiling.x);
+				Writer.Key("v");
+				Writer.Double(m_ShaderCB.tiling.y);
+			}
+			Writer.EndObject();
+			Writer.EndArray(); // End Tiling
+		}
+
+		// Color Overrides
+		{
+			Writer.Key("Color_Override");
+			Writer.StartArray(); // Start Tiling
+			Writer.StartObject();
+			{
+				Writer.Key("r");
+				Writer.Double(m_ShaderCB.diffuseAdditive.x);
+				Writer.Key("g");
+				Writer.Double(m_ShaderCB.diffuseAdditive.y);
+				Writer.Key("b");
+				Writer.Double(m_ShaderCB.diffuseAdditive.z);
+			}
+			Writer.EndObject();
+			Writer.EndArray(); // End Tiling
+		}
+
+		// PBR Overrides
+		{
+			Writer.Key("Metallic_Override");
+			Writer.Double(m_ShaderCB.metallicAdditive);
+			Writer.Key("Roughness_Override");
+			Writer.Double(m_ShaderCB.roughnessAdditive);
+		}
 
 		return true;
 	}
@@ -71,7 +137,7 @@ namespace Insight {
 	{
 		if (ImGui::TreeNodeEx("Material", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			ImGui::Text("Textures"); 
+			ImGui::Text("Textures");
 
 			ImGui::Text("Albedo:"); ImGui::SameLine();
 			ImGui::Text(m_AlbedoMap->GetDisplayName().c_str());

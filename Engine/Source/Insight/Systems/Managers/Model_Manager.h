@@ -23,7 +23,7 @@ namespace Insight {
 
 		SceneModels* GetSceneModels() { return &m_Models; }
 
-		void UploadVertexDataToGPU();
+		void UploadConstantBufferDataToGPU();
 		void PostRender();
 		void FlushModelCache();
 		

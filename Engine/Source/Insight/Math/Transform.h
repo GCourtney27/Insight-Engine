@@ -29,7 +29,7 @@ namespace Insight {
 		inline Vector3& GetScaleRef()		{ m_Transformed = true; return m_Scale; }
 
 		inline void SetPosition(float x, float y, float z)	{ m_Position.x = x; m_Position.y = y; m_Position.z = z; TranslateLocalMatrix(); UpdateLocalMatrix(); }
-		inline void SetRotation(float x, float y, float z)	{ m_Rotation.x = x; m_Rotation.y = y; m_Rotation.z = z; RotateLocalMatrix(); UpdateLocalMatrix(); }
+		inline void SetRotation(float XInDegrees, float YInDegrees, float ZInDegrees)	{ m_Rotation.x = (XInDegrees); m_Rotation.y = (YInDegrees); m_Rotation.z = (ZInDegrees); RotateLocalMatrix(); UpdateLocalMatrix(); }
 		inline void SetScale(float x, float y, float z)		{ m_Scale.x = x; m_Scale.y = y; m_Scale.z = z; ScaleLocalMatrix(); UpdateLocalMatrix(); }
 
 		inline void SetPosition(const Vector3& vector)	{ m_Position = vector; TranslateLocalMatrix(); UpdateLocalMatrix(); }
@@ -44,11 +44,12 @@ namespace Insight {
 		inline const Vector3& GetLocalDown()		const { return m_LocalDown; }
 
 		void Translate(float x, float y, float z);
-		void Rotate(float x, float y, float z);
+		void Rotate(float XInDegrees, float YInDegrees, float ZInDegrees);
 		void Scale(float x, float y, float z);
 
-		// Have object look at apoint in space
-		void LookAt(const Vector3& lookAtPos);
+		// Have object look at a point in space
+		void LookAt(const Vector3& LookAtPos);
+		void SetDirection(const Vector3& NewDirection);
 
 		// Returns objects local matrix
 		XMMATRIX GetLocalMatrix() { UpdateIfTransformed(); return m_LocalMatrix; }
@@ -68,15 +69,15 @@ namespace Insight {
 
 		XMMATRIX& GetTranslationMatrixRef() { return m_TranslationMat; }
 		XMMATRIX GetTranslationMatrix() { return m_TranslationMat; }
-		void SetTranslationMatrix(XMMATRIX matrix) { m_TranslationMat = matrix; }
+		void SetTranslationMatrix(XMMATRIX matrix) { m_TranslationMat = matrix; UpdateLocalMatrix(); }
 
 		XMMATRIX& GetRotationMatrixRef() { return m_RotationMat; }
 		XMMATRIX GetRotationMatrix() { return m_RotationMat; }
-		void SetRotationMatrix(XMMATRIX matrix) { m_RotationMat = matrix; }
+		void SetRotationMatrix(XMMATRIX matrix) { m_RotationMat = matrix; UpdateLocalMatrix(); }
 
 		XMMATRIX& GetScaleMatrixRef() { return m_ScaleMat; }
 		XMMATRIX GetScaleMatrix() { return m_ScaleMat; }
-		void SetScaleMatrix(XMMATRIX matrix) { m_ScaleMat = matrix; }
+		void SetScaleMatrix(XMMATRIX matrix) { m_ScaleMat = matrix; UpdateLocalMatrix(); }
 
 
 		// Update the objects local directional vectors.

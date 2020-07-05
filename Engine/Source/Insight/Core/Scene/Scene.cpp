@@ -2,19 +2,18 @@
 
 #include "Scene.h"
 
-#include "imgui.h"
-#include "ImGuizmo.h"
-#include "Insight/Input/Input.h"
 #include "Insight/Core/Application.h"
-#include "Insight/Runtime/Components/Sky_Sphere_Component.h"
+#include "Insight/Runtime/APlayer_Character.h"
+#include "Insight/Runtime/APlayer_Start.h"
+
+#include "imgui.h"
 
 namespace Insight {
 
 
 	Scene::Scene()
-		: m_pSceneRoot(new SceneNode("Scene Root"))
 	{
-
+		
 	}
 
 	Scene::~Scene()
@@ -22,169 +21,108 @@ namespace Insight {
 		Destroy();
 	}
 
-	bool Scene::LoadFromJson(const std::string& fileName)
+	bool Scene::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
 	{
-		FileSystem::Get().LoadSceneFromJson(fileName, this);
+		Writer.StartObject();
+		Writer.Key("Set");
+		Writer.StartArray();
+		{
+			m_pSceneRoot->WriteToJson(Writer);
+		}
+		Writer.EndArray();
+		Writer.EndObject();
 		return true;
 	}
 
 	bool Scene::Init(const std::string fileName)
 	{
+		m_pSceneRoot = new SceneNode("Scene Root");
+
+		// Get the render context from the main window
 		m_Renderer = Application::Get().GetWindow().GetRenderContext();
+
+		// Initialize resource managers this scene will need.
 		m_ResourceManager.Init();
 
-		m_pPlayerCharacter = new APlayerCharacter(0, "Player Character");
+		// Create the Scene camera and default view target. 
+		//There should only be one camera in the world at 
+		// any given time.
+		m_EditorViewTarget = ACamera::GetDefaultViewTarget();
+		m_EditorViewTarget.FieldOfView = 75.0f;
+		m_pCamera = new ACamera(m_EditorViewTarget);
+		m_pCamera->SetCanBeFileParsed(false);
+		m_pCamera->SetPerspectiveProjectionValues(
+			m_EditorViewTarget.FieldOfView, 
+			(float)Application::Get().GetWindow().GetWidth() / (float)Application::Get().GetWindow().GetHeight(), 
+			m_EditorViewTarget.NearZ,
+			m_EditorViewTarget.FarZ
+		);
+		m_pSceneRoot->AddChild(m_pCamera);
+
+		// Create the player character
+		m_pPlayerCharacter = new APlayerCharacter(0);
+		m_pPlayerCharacter->SetCanBeFileParsed(false);
 		m_pSceneRoot->AddChild(m_pPlayerCharacter);
 
-		LoadFromJson(fileName);
+		// Create the player start point
+		m_pPlayerStart = new APlayerStart(0);
+		m_pPlayerStart->SetCanBeFileParsed(false);
+		m_pSceneRoot->AddChild(m_pPlayerStart);
+		// Load the scene from .iescene folder containing all .json resource files
+		FileSystem::Get().LoadSceneFromJson(fileName, this);
 
+		// Tell the renderer to set init commands to the gpu
 		m_Renderer->PostInit();
 		return true;
 	}
 
+	bool Scene::PostInit()
+	{
+		return false;
+	}
+
 	void Scene::BeginPlay()
 	{
+		m_pCamera->SetParent(m_pPlayerCharacter);
+		m_pPlayerStart->SpawnPlayer(m_pPlayerCharacter);
+		m_pCamera->SetViewTarget(m_pPlayerCharacter->GetViewTarget());
+		
+		m_pPlayerCharacter->BeginPlay();
+
 		m_pSceneRoot->BeginPlay();
-	}
-
-	void Scene::Tick(const float& deltaMs)
-	{
-		IE_STRIP_FOR_GAME_DIST(if (m_TickScene)) {
-			m_pSceneRoot->Tick(deltaMs);
-		}
-	}
-
-	void Scene::OnUpdate(const float& deltaMs)
-	{
-		m_Renderer->OnUpdate(deltaMs);
-		m_pSceneRoot->OnUpdate(deltaMs);
-	}
-
-	void Scene::OnImGuiRender()
-	{
-		RenderSceneHeirarchy();
-		RenderInspector();
-		RenderCreatorWindow();
-		RenderPlayPanel();
 	}
 
 	void Scene::EndPlaySession()
 	{
+		m_pCamera->SetParent(m_pSceneRoot);
+		m_pCamera->SetViewTarget(m_EditorViewTarget);
+
+		m_pPlayerCharacter->GetTransformRef().SetPosition(0.0f, 0.0f, 0.0f);
+
 		m_pSceneRoot->EditorEndPlay();
 	}
 
-	void Scene::RenderSceneHeirarchy()
+	void Scene::Tick(const float& DeltaMs)
 	{
-		ImGui::Begin("Heirarchy");
-		{
-			if (ImGui::CollapsingHeader(m_pSceneRoot->GetDisplayName(), ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				m_pSceneRoot->RenderSceneHeirarchy();
-			}
-		}
-		ImGui::End();
+		m_pPlayerCharacter->Tick(DeltaMs);
+		m_pSceneRoot->Tick(DeltaMs);
 	}
 
-	void Scene::RenderInspector()
+	void Scene::OnUpdate(const float& DeltaMs)
 	{
-		ImGui::Begin("Details");
-		{
-			if (m_pSelectedActor != nullptr) {
-
-				m_pSelectedActor->OnImGuiRender();
-
-				XMFLOAT4X4 localMat;
-				XMFLOAT4X4 deltaMat;
-				XMFLOAT4X4 viewMat;
-				XMFLOAT4X4 projMat;
-				XMStoreFloat4x4(&localMat, m_pSelectedActor->GetTransformRef().GetLocalMatrixRef());
-				XMStoreFloat4x4(&viewMat, m_pPlayerCharacter->GetCameraRef().GetViewMatrix());
-				XMStoreFloat4x4(&projMat, m_pPlayerCharacter->GetCameraRef().GetProjectionMatrix());
-
-				static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
-				if (Input::IsKeyPressed('W')) {
-					mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-				}
-				else if (Input::IsKeyPressed('E')) {
-					mCurrentGizmoOperation = ImGuizmo::ROTATE;
-
-				}
-				else if (Input::IsKeyPressed('R')) {
-					mCurrentGizmoOperation = ImGuizmo::SCALE;
-
-				}
-				static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
-
-				ImGuiIO& io = ImGui::GetIO();
-				ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-				//TODO if(Raycast::LastRayCast::Succeeded) than run this line if false than skip it (disbles the guizmo)
-				ImGuizmo::Manipulate(*viewMat.m, *projMat.m, mCurrentGizmoOperation, mCurrentGizmoMode, *localMat.m, *deltaMat.m, NULL, NULL, NULL);
-
-
-				if (ImGuizmo::IsOver()) {
-
-					switch (mCurrentGizmoOperation) {
-					case ImGuizmo::TRANSLATE:
-					{
-						float pos[3], rot[3], sca[3];
-						ImGuizmo::DecomposeMatrixToComponents(*localMat.m, pos, rot, sca);
-						m_pSelectedActor->GetTransformRef().SetPosition(pos[0], pos[1], pos[2]);
-					}
-					case ImGuizmo::SCALE:
-					{
-						m_pSelectedActor->GetTransformRef().SetScale(localMat._11, localMat._22, localMat._33);
-					}
-					case ImGuizmo::ROTATE:
-					{
-						break;
-						float pos[3], rot[3], sca[3];
-						ImGuizmo::DecomposeMatrixToComponents(*localMat.m, pos, rot, sca);
-						//ImGuizmo::RecomposeMatrixFromComponents(pos, rot, sca, *deltaMat.m);
-						m_pSelectedActor->GetTransformRef().SetRotation(rot[0] * 0.1f, rot[1] * 0.1f, rot[2] * 0.1f);
-						//m_pSelectedActor->GetTransformRef().Rotate(rot[0] * 0.1f, rot[1] * 0.1f, rot[2] * 0.1f);
-					}
-					default: { break; }
-					}
-				}
-				
-			}
-		}
-		ImGui::End();
+		m_Renderer->OnUpdate(DeltaMs);
+		m_pSceneRoot->OnUpdate(DeltaMs);
 	}
 
-	void Scene::RenderCreatorWindow()
+	void Scene::OnImGuiRender()
 	{
-		// TODO make this a colapsing header with different options
-		//ImGui::Begin("Creator");
-		{
-			/*if (ImGui::Button("New Point Light", { 125, 25 })) {
-				m_pSceneRoot->AddChild(new APointLight(5, "New cool point light"));
-			}*/
-		}
-		//ImGui::End();
-	}
-
-	void Scene::RenderPlayPanel()
-	{
-		ImGui::Begin("Game");
-		{
-			if (ImGui::Button("Play", ImVec2{ 75.0f, 50.0f })) {
-				m_TickScene = true;
-				BeginPlay();
-			}
-			if (ImGui::Button("Stop", ImVec2{ 75.0f, 50.0f })) {
-				m_TickScene = false;
-				EndPlaySession();
-			}
-		}
-		ImGui::End();
 	}
 
 	void Scene::OnPreRender()
 	{
 		m_Renderer->OnPreFrameRender();
 		m_pSceneRoot->OnPreRender(XMMatrixIdentity());
-		m_ResourceManager.GetModelManager().UploadVertexDataToGPU();
+		m_ResourceManager.GetModelManager().UploadConstantBufferDataToGPU();
 	}
 
 	void Scene::OnRender()
@@ -202,13 +140,23 @@ namespace Insight {
 	void Scene::OnPostRender()
 	{
 		m_ResourceManager.GetModelManager().PostRender();
-		m_Renderer->ExecuteDraw();
-		m_Renderer->SwapBuffers();
 	}
 
 	void Scene::Destroy()
 	{
 		delete m_pSceneRoot;
+	}
+
+	bool Scene::FlushAndOpenNewScene(const std::string& NewScene)
+	{
+		Destroy();
+		m_ResourceManager.FlushAllResources();
+		if (!Init(NewScene)) {
+			IE_CORE_ERROR("Failed to flush current scene \"{0}\" and load new scene with filepath: \"{1}\"", m_DisplayName, NewScene);
+			return false;
+		}
+
+		return true;
 	}
 
 

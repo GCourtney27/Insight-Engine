@@ -12,10 +12,10 @@
 namespace Insight {
 
 
-	AActor::AActor(ActorId id, ActorName actorName)
-		: m_Id(id)
+	AActor::AActor(ActorId Id, ActorName ActorName)
+		: m_Id(Id)
 	{
-		SceneNode::SetDisplayName(actorName);
+		SceneNode::SetDisplayName(ActorName);
 
 	}
 
@@ -25,6 +25,9 @@ namespace Insight {
 
 	bool AActor::LoadFromJson(const rapidjson::Value& jsonActor)
 	{
+		if (!m_CanBeFileParsed)
+			return true;
+
 		// Load Transform
 		float posX, posY, posZ;
 		float rotX, rotY, rotZ;
@@ -57,12 +60,77 @@ namespace Insight {
 				StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<StaticMeshComponent>();
 				ptr->LoadFromJson(jsonSubobjects[i]["StaticMesh"]);
 				continue;
-			} else if (jsonSubobjects[i].HasMember("CSharpScript")) {
+			}
+			else if (jsonSubobjects[i].HasMember("CSharpScript")) {
 				StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<CSharpScriptComponent>();
 				ptr->LoadFromJson(jsonSubobjects[i]["CSharpScript"]);
 				continue;
 			}
 		}
+		return true;
+	}
+
+	bool AActor::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
+	{
+		if (!m_CanBeFileParsed)
+			return true;
+
+		Writer.StartObject(); // Start Write Actor
+		{
+			Writer.Key("Type");
+			Writer.String("Actor");
+
+			Writer.Key("DisplayName");
+			Writer.String(SceneNode::GetDisplayName());
+
+			Writer.Key("Transform");
+			Writer.StartArray(); // Start Write Transform
+			{
+				Transform& Transform = SceneNode::GetTransformRef();
+				Vector3 Pos = Transform.GetPosition();
+				Vector3 Rot = Transform.GetRotation();
+				Vector3 Sca = Transform.GetScale();
+
+				Writer.StartObject();
+				// Position
+				Writer.Key("posX");
+				Writer.Double(Pos.x);
+				Writer.Key("posY");
+				Writer.Double(Pos.y);
+				Writer.Key("posZ");
+				Writer.Double(Pos.z);
+				// Rotation
+				Writer.Key("rotX");
+				Writer.Double(Rot.x);
+				Writer.Key("rotY");
+				Writer.Double(Rot.y);
+				Writer.Key("rotZ");
+				Writer.Double(Rot.z);
+				// Scale
+				Writer.Key("scaX");
+				Writer.Double(Sca.x);
+				Writer.Key("scaY");
+				Writer.Double(Sca.y);
+				Writer.Key("scaZ");
+				Writer.Double(Sca.z);
+
+				Writer.EndObject();
+			}
+			Writer.EndArray(); // End Write Transform
+
+			Writer.Key("Subobjects");
+			Writer.StartArray(); // Start Write SubObjects
+			{
+				for (size_t i = 0; i < m_NumComponents; ++i)
+				{
+					Writer.StartObject();
+					m_Components[i]->WriteToJson(Writer);
+					Writer.EndObject();
+				}
+			}
+			Writer.EndArray(); // End Write SubObjects
+		}
+		Writer.EndObject(); // End Write Actor
 		return true;
 	}
 
@@ -72,7 +140,8 @@ namespace Insight {
 		const bool isExpanded = ImGui::TreeNodeEx(SceneNode::GetDisplayName(), treeFlags);
 
 		if (ImGui::IsItemClicked()) {
-			Application::Get().GetScene().SetSelectedActor(this);
+			//TODO: Get editor layer
+			IE_STRIP_FOR_GAME_DIST(Application::Get().GetEditorLayer().SetSelectedActor(this);)
 		}
 
 		if (isExpanded) {
@@ -161,7 +230,7 @@ namespace Insight {
 	void AActor::OnPreRender(XMMATRIX parentMat)
 	{
 		if (m_Parent) {
-			GetTransformRef().SetWorldMatrix(XMMatrixMultiply(parentMat, GetTransformRef().GetLocalMatrixRef()));
+			GetTransformRef().SetWorldMatrix(XMMatrixMultiply(GetTransformRef().GetLocalMatrixRef(), parentMat));
 		}
 		else {
 			GetTransformRef().SetWorldMatrix(GetTransformRef().GetLocalMatrix());

@@ -30,7 +30,7 @@ namespace Insight {
 				{
 					time = duration.count();
 					if (time > 1.0f) {
-						IE_CORE_WARN("{0} took {1}s. Possible performance degradation.", m_ScopeName, time);
+						IE_CORE_WARN("{0} took {1}s. Performance degradation.", m_ScopeName, time);
 					}
 					else {
 						IE_CORE_INFO("{0} took {1}s", m_ScopeName, time);
@@ -40,7 +40,7 @@ namespace Insight {
 				{
 					time = duration.count() * 1000.0f;
 					if (time > 1000.0f) {
-						IE_CORE_WARN("{0} took {1}s. Possible performance degradation.", m_ScopeName, time);
+						IE_CORE_WARN("{0} took {1}s. Performance degradation.", m_ScopeName, time);
 					}
 					else {
 						IE_CORE_INFO("{0} took {1}ms", m_ScopeName, time);

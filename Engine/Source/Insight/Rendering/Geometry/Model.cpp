@@ -22,6 +22,7 @@ namespace Insight {
 
 	bool Model::Init(const std::string& path)
 	{
+		m_AssetDirectoryRelativePath = path;
 		m_Directory = StringHelper::GetDirectoryFromPath(path);
 		m_FileName = StringHelper::GetFilenameFromDirectory(path);
 		SceneNode::SetDisplayName("Static Mesh");
@@ -35,10 +36,10 @@ namespace Insight {
 		ImGui::SameLine();
 		ImGui::Text(m_FileName.c_str());
 
-		//ImGui::Text("Transform");
-		//ImGui::DragFloat3("Position", &m_pRoot->GetTransformRef().GetPositionRef().x, 0.05f, -100.0f, 100.0f);
-		//ImGui::DragFloat3("Scale", &m_pRoot->GetTransformRef().GetScaleRef().x, 0.05f, -100.0f, 100.0f);
-		//ImGui::DragFloat3("Rotation", &m_pRoot->GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);
+		ImGui::Text("Transform");
+		ImGui::DragFloat3("Mesh-Position", &m_pRoot->GetTransformRef().GetPositionRef().x, 0.05f, -1000.0f, 1000.0f);
+		ImGui::DragFloat3("Mesh-Scale", &m_pRoot->GetTransformRef().GetScaleRef().x, 0.05f, -1000.0f, 1000.0f);
+		ImGui::DragFloat3("Mesh-Rotation", &m_pRoot->GetTransformRef().GetRotationRef().x, 0.05f, -1000.0f, 1000.0f);
 
 	}
 
@@ -60,7 +61,7 @@ namespace Insight {
 
 	void Model::PreRender(const XMMATRIX& parentMat)
 	{
-		auto worldMat = XMMatrixMultiply(parentMat, m_pRoot->GetTransformRef().GetLocalMatrixRef());
+		auto worldMat = XMMatrixMultiply(m_pRoot->GetTransformRef().GetLocalMatrixRef(), parentMat);
 		for (unique_ptr<Mesh>& mesh : m_Meshes) {
 			mesh->PreRender(worldMat);
 		}
@@ -104,8 +105,8 @@ namespace Insight {
 	unique_ptr<MeshNode> Model::ParseNode_r(aiNode* pNode)
 	{
 		Transform transform;
-		transform.SetLocalMatrix((DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&pNode->mTransformation))));
-		
+		transform.SetLocalMatrix(XMMatrixTranspose(XMMATRIX(&pNode->mTransformation.a1)));
+
 		// Create a pointer to all the meshes this node owns
 		std::vector<Mesh*> curMeshPtrs;
 		curMeshPtrs.reserve(pNode->mNumMeshes);

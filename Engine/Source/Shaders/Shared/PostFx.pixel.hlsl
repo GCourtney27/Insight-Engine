@@ -37,9 +37,61 @@ struct PS_INPUT_POSTFX
 };
 
 float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
-{    
+{
+    //float3 result = t_LightPassResult.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
+    //if (visualizeAlbedoBuffer)
+    //{
+    //    float3 result = t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
+    //    return float4(result, 1.0);
+    //}
+    //if (visualizeNormalBuffer)
+    //{
+    //    float3 result = t_NormalGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
+    //    return float4(result, 1.0);
+    //}
+    //if (visualizeRoughnessBuffer)
+    //{
+    //    float result = t_RoughnessMetallicAOGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
+    //    return float4(result, result, result, 1.0);
+    //}
+    //if (visualizeMetallicBuffer)
+    //{
+    //    float result = t_RoughnessMetallicAOGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).g;
+    //    return float4(result, result, result, 1.0);
+    //}
+    //if (visualizeAOPBRTextureBuffer)
+    //{
+    //    float result = t_RoughnessMetallicAOGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).b;
+    //    return float4(result, result, result, 1.0);
+    //}
+    //if (visualizeLightPassResult)
+    //{
+    //    float3 result = t_LightPassResult.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
+        
+    //}
+    //if (visualizeFinalPass)
+    //{
+    //    float3 result = t_LightPassResult.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
+        
+    //    if (vnEnabled)
+    //    {
+    //        result = AddVignette(result, ps_in.texCoords);
+    //    }
+    //    if (fgEnabled)
+    //    {
+    //        result = AddFilmGrain(result, ps_in.texCoords);
+    //    }
+    //    if (caEnabled)
+    //    {
+    //        result = AddChromaticAberration(result, ps_in.texCoords);
+    //    }
+    
+    //    HDRToneMap(result);
+    //    GammaCorrect(result);
+    //    return float4(result, 1.0);
+    //}
     float3 result = t_LightPassResult.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
-   
+        
     if (vnEnabled)
     {
         result = AddVignette(result, ps_in.texCoords);
@@ -56,6 +108,7 @@ float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
     HDRToneMap(result);
     GammaCorrect(result);
     return float4(result, 1.0);
+    //return float4(0.0, 1.0, 0.0, 1.0);
 }
 
 float mod(float x, float y)
