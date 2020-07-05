@@ -118,7 +118,7 @@ namespace Insight {
 
 	void Direct3D12Context::OnUpdate(const float& deltaTime)
 	{
-		ACamera& playerCamera = APlayerCharacter::Get().GetCameraRef();
+		ACamera& playerCamera = ACamera::Get();
 
 		// Send Per-Frame Variables to GPU
 		XMFLOAT4X4 viewFloat;
@@ -350,17 +350,16 @@ namespace Insight {
 
 	void Direct3D12Context::OnWindowResize()
 	{
-		if (!m_IsMinimized)
-		{
-			if (m_WindowResizeComplete)
-			{
+		if (!m_IsMinimized) {
+
+			if (m_WindowResizeComplete) {
+			
 				m_WindowResizeComplete = false;
 
 				WaitForGPU();
 				HRESULT hr;
 
-				for (UINT i = 0; i < m_FrameBufferCount; i++)
-				{
+				for (UINT i = 0; i < m_FrameBufferCount; i++) {
 					m_pRenderTargetTextures[i].Reset();
 					m_pRenderTargets[i].Reset();
 					m_pRenderTargetTextures_PostFxPass[i].Reset();
@@ -540,11 +539,19 @@ namespace Insight {
 	{
 		HRESULT hr;
 
+		/*m_dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+		m_dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+		m_dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
+
+		D3D12_CLEAR_VALUE depthOptomizedClearValue = {};
+		depthOptomizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
+		depthOptomizedClearValue.DepthStencil.Depth = 1.0f;
+		depthOptomizedClearValue.DepthStencil.Stencil = 0;*/
+
 		m_dsvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1);
 		CD3DX12_HEAP_PROPERTIES heapProperty(D3D12_HEAP_TYPE_DEFAULT);
 
-		D3D12_RESOURCE_DESC resourceDesc;
-		ZeroMemory(&resourceDesc, sizeof(resourceDesc));
+		D3D12_RESOURCE_DESC resourceDesc = {};
 		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 		resourceDesc.Alignment = 0;
 		resourceDesc.SampleDesc.Count = 1;
@@ -558,7 +565,10 @@ namespace Insight {
 		resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
 		D3D12_CLEAR_VALUE depthOptomizedClearValue = {};
-		depthOptomizedClearValue = { m_DsvFormat , m_ClearDepth };
+		//depthOptomizedClearValue = { m_DsvFormat , m_ClearDepth };
+		depthOptomizedClearValue.Format = m_DsvFormat;
+		depthOptomizedClearValue.DepthStencil.Depth = m_ClearDepth;
+		depthOptomizedClearValue.DepthStencil.Stencil = 0;
 
 		hr = m_pLogicalDevice->CreateCommittedResource(
 			&heapProperty,
@@ -571,8 +581,7 @@ namespace Insight {
 		if (FAILED(hr))
 			IE_CORE_ERROR("Failed to create comitted resource for depth stencil view");
 
-		D3D12_DEPTH_STENCIL_VIEW_DESC desc;
-		ZeroMemory(&desc, sizeof(desc));
+		D3D12_DEPTH_STENCIL_VIEW_DESC desc = {};
 		desc.Texture2D.MipSlice = 0;
 		desc.Format = resourceDesc.Format;
 		desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
@@ -726,7 +735,6 @@ namespace Insight {
 
 		CD3DX12_STATIC_SAMPLER_DESC staticSamplers[2];
 		staticSamplers[0].Init(0, D3D12_FILTER_MIN_MAG_MIP_LINEAR);
-		//staticSamplers[1].Init(1, D3D12_FILTER_MIN_MAG_MIP_LINEAR);
 		UINT maxAnisotropy = 16u;
 		FLOAT minLOD = 0.0f;
 		FLOAT maxLOD = 9.0f;
@@ -756,18 +764,18 @@ namespace Insight {
 		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Geometry_Pass.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Geometry_Pass.pixel.cso";
 
-#elif defined IE_RELEASE
+#elif defined IE_RELEASE || defined IE_GAME_DIST
 		LPCWSTR vertexShaderFolder = L"Geometry_Pass.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"Geometry_Pass.pixel.cso";
 #endif 
 
 		hr = D3DReadFileToBlob(vertexShaderFolder, &pVertexShader);
 		if (FAILED(hr)) {
-			ThrowIfFailed(hr, "Failed to compile Vertex Shader check log for more details.");
+			ThrowIfFailed(hr, "Failed to read Vertex Shader check log for more details.");
 		}
 		hr = D3DReadFileToBlob(pixelShaderFolder, &pPixelShader);
 		if (FAILED(hr)) {
-			ThrowIfFailed(hr, "Failed to compile Pixel Shader check log for more details.");
+			ThrowIfFailed(hr, "Failed to read Pixel Shader check log for more details.");
 		}
 
 
@@ -826,7 +834,7 @@ namespace Insight {
 #if defined IE_DEBUG
 		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Skybox.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Skybox.pixel.cso";
-#elif defined IE_RELEASE
+#elif defined IE_RELEASE || defined IE_GAME_DIST
 		LPCWSTR vertexShaderFolder = L"Skybox.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"Skybox.pixel.cso";
 #endif 
@@ -901,7 +909,7 @@ namespace Insight {
 #if defined IE_DEBUG
 		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Light_Pass.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Light_Pass.pixel.cso";
-#elif defined IE_RELEASE
+#elif defined IE_RELEASE || defined IE_GAME_DIST
 		LPCWSTR vertexShaderFolder = L"Light_Pass.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"Light_Pass.pixel.cso";
 #endif 
@@ -966,7 +974,7 @@ namespace Insight {
 #if defined IE_DEBUG
 		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/PostFx.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/PostFx.pixel.cso";
-#elif defined IE_RELEASE
+#elif defined IE_RELEASE || defined IE_GAME_DIST
 		LPCWSTR vertexShaderFolder = L"PostFx.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"PostFx.pixel.cso";
 #endif 
@@ -1243,9 +1251,7 @@ namespace Insight {
 					(*ppAdapter)->Release();
 				*ppAdapter = adapter.Detach();
 
-				//OutputDebugStringW(desc.Description);
-				//IE_CORE_INFO("Found suitable graphics hardware: {0}", std::string((char*)desc.Description));
-
+				IE_CORE_WARN("Found suitable D3D12 graphics hardware: {0}", StringHelper::WideToString(std::wstring{ desc.Description }));
 			}
 		}
 	}
@@ -1290,7 +1296,7 @@ namespace Insight {
 
 		// Recreate Camera Projection Matrix
 		{
-			ACamera& camera = APlayerCharacter::Get().GetCameraRef();
+			ACamera& camera = ACamera::Get();
 			if (!camera.GetIsOrthographic()) {
 				camera.SetPerspectiveProjectionValues(camera.GetFOV(), static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight), camera.GetNearZ(), camera.GetFarZ());
 			}
@@ -1300,21 +1306,10 @@ namespace Insight {
 
 	void Direct3D12Context::UpdateViewAndScissor()
 	{
-		float viewWidthRatio = static_cast<float>(m_ResolutionOptions[m_ResolutionIndex].Width) / m_WindowWidth;
-		float viewHeighthRatio = static_cast<float>(m_ResolutionOptions[m_ResolutionIndex].Height) / m_WindowHeight;
-
-		float x = 1.0f;
-		float y = 1.0f;
-
-		if (viewWidthRatio < viewHeighthRatio)
-			x = viewWidthRatio / viewHeighthRatio;
-		else
-			y = viewHeighthRatio / viewWidthRatio;
-
-		m_ViewPort.TopLeftX = m_WindowWidth * (1.0f - x) / 2.0f;
-		m_ViewPort.TopLeftY = m_WindowHeight * (1.0f - y) / 2.0f;
-		m_ViewPort.Width = x * m_WindowWidth;
-		m_ViewPort.Height = y * m_WindowHeight;
+		m_ViewPort.TopLeftX = 0.0f;
+		m_ViewPort.TopLeftY = 0.0f;
+		m_ViewPort.Width = static_cast<FLOAT>(m_WindowWidth);
+		m_ViewPort.Height = static_cast<FLOAT>(m_WindowHeight);
 
 		m_ScissorRect.left = static_cast<LONG>(m_ViewPort.TopLeftX);
 		m_ScissorRect.right = static_cast<LONG>(m_ViewPort.TopLeftX + m_ViewPort.Width);

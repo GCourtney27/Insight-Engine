@@ -15,6 +15,7 @@ workspace ("Insight")
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 gameName = "Application"
+csharpAssemblyProjectName = "Assembly-CSharp"
 
 IncludeDir = {}
 IncludeDir["ImGui"] = "Engine/Vendor/imgui"
@@ -23,12 +24,14 @@ IncludeDir["DX12TK"] = "Engine/Vendor/Microsoft/DirectX12/TK/Inc"
 IncludeDir["ImGuizmo"] = "Engine/Vendor/ImGuizmo"
 IncludeDir["rapidjson"] = "Engine/Vendor/rapidjson"
 IncludeDir["spdlog"] = "Engine/Vendor/spdlog"
+IncludeDir["Mono"] = "Engine/Vendor/Mono/include/mono-2.0"
 
 include "Engine/Vendor/ImGui"
 
 CustomDefines = {}
-CustomDefines["IE_BUILD_DIR"] = "../" .. outputdir
+CustomDefines["IE_BUILD_DIR"] = "../Bin/" .. outputdir
 
+-- Engine
 project ("Engine")
 	location ("Engine")
 	kind "WindowedApp"
@@ -69,6 +72,7 @@ project ("Engine")
 		"%{IncludeDir.rapidjson}/include/",
 		"%{IncludeDir.spdlog}/include/",
 		"%{IncludeDir.ImGuizmo}/",
+		"%{IncludeDir.Mono}/",
 		"%{IncludeDir.DX12TK}/",
 		"%{IncludeDir.ImGui}/",
 		"%{IncludeDir.assimp}/",
@@ -83,21 +87,11 @@ project ("Engine")
 		"d3dcompiler.lib",
 		"DirectXTK12.lib",
 		"assimp-vc140-mt.lib",
+		"MonoPosixHelper.lib",
+		"mono-2.0-sgen.lib",
+		"libmono-static-sgen.lib",
 		"ImGui",
 	}
-
-	libdirs
-	{
-		"Engine/Vendor/assimp-3.3.1/build/code/%{cfg.buildcfg}",
-		"Engine/Vendor/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/%{cfg.buildcfg}",
-	}
-
-	postbuildcommands
-	{
-		("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/%{cfg.buildcfg}/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine")
-	}
-
-
 
 	filter "system:windows"
 		systemversion "latest"
@@ -126,28 +120,74 @@ project ("Engine")
 		defines "IE_DEBUG"
 		runtime "Debug"
 		symbols "on"
-	
+		libdirs
+		{
+			"Engine/Vendor/assimp-3.3.1/build/code/Debug",
+			"Engine/Vendor/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Debug",
+			"Engine/Vendor/Mono/lib",
+		}
+		postbuildcommands
+		{
+			("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/Debug/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
+			--("{COPY} %{wks.location}Bin/"..outputdir.."/"..csharpAssemblyProjectName.."/"..csharpAssemblyProjectName..".dll %{wks.location}Bin/"..outputdir.."/Engine")
+		}
 	-- Engine Release
 	filter "configurations:Release"
 		defines "IE_RELEASE"
 		runtime "Release"
 		optimize "on"
 		symbols "on"
-	
+		libdirs
+		{
+			"Engine/Vendor/assimp-3.3.1/build/code/Release",
+			"Engine/Vendor/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
+			"Engine/Vendor/Mono/lib",
+		}
+		postbuildcommands
+		{
+			("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
+			--("{COPY} %{wks.location}Bin/"..outputdir.."/"..csharpAssemblyProjectName.."/"..csharpAssemblyProjectName..".dll %{wks.location}Bin/"..outputdir.."/Engine")
+		}
 	-- Full Engine Distribution, all performance logs and debugging windows stripped
 	filter "configurations:Engine-Dist"
 		defines "IE_ENGINE_DIST"
 		runtime "Release"
 		optimize "on"
 		symbols "on"
-
+		libdirs
+		{
+			"Engine/Vendor/assimp-3.3.1/build/code/Release",
+			"Engine/Vendor/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
+			"Engine/Vendor/Mono/lib",
+		}
+		postbuildcommands
+		{
+			("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
+			--("{COPY} %{wks.location}Bin/"..outputdir.."/"..csharpAssemblyProjectName.."/"..csharpAssemblyProjectName..".dll %{wks.location}Bin/"..outputdir.."/Engine")
+		}
 	-- Full Game Distribution, all engine debug tools(leel editors, editor user interfaces) stripped
 	filter "configurations:Game-Dist"
 		defines "IE_GAME_DIST"
 		runtime "Release"
 		optimize "on"
 		symbols "on"
+		libdirs
+		{
+			"Engine/Vendor/assimp-3.3.1/build/code/Release",
+			"Engine/Vendor/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
+			"Engine/Vendor/Mono/lib",
+		}
+		postbuildcommands
+		{
+			("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
+			--("{COPY} %{wks.location}Bin/"..outputdir.."/"..csharpAssemblyProjectName.."/"..csharpAssemblyProjectName..".dll %{wks.location}Bin/"..outputdir.."/Engine")
+		}
 
+-- Application
 project (gameName)
 	location (gameName)
 	kind "StaticLib"
@@ -172,6 +212,7 @@ project (gameName)
 		"Engine/Vendor/Nvidia/DirectX12",
 		"Engine/Vendor/spdlog/include",
 		"Engine/Vendor/rapidjson/include",
+		"Engine/Vendor/Mono/include/mono-2.0",
 		"Engine/Source",
 		"Engine/Vendor"
 	}
@@ -208,3 +249,49 @@ project (gameName)
 		defines "IE_GAME_DIST"
 		optimize "on"
 		symbols "on"
+
+
+-- CSharp Scripting
+project (csharpAssemblyProjectName)
+	location(csharpAssemblyProjectName)
+	kind("SharedLib")
+	language("C#")
+	targetdir ("Bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("Bin-Int/" .. outputdir .. "/%{prj.name}")
+
+	files
+	{
+		-- Source code
+		"%{prj.name}/Source/**.cs",
+		"%{prj.name}/Source/**.xaml",
+		"%{prj.name}/Source/**.xaml.cs",
+		"%{prj.name}/Source/**.config",
+		-- Internal
+		"%{prj.name}/Internal/**.cs",
+		"%{prj.name}/Internal/**.xaml",
+		"%{prj.name}/Internal/**.xaml.cs",
+		"%{prj.name}/Internal/**.config"
+	}
+
+	links
+	{
+		"Microsoft.CSharp",
+		"PresentationCore",
+		"PresentationFramework",
+		"System",
+		"System.Core",
+		"System.Data",
+		"System.Data.DataSetExtensions",
+		"System.Net.Http",
+		"System.Xaml",
+		"System.Xml",
+		"System.Xml.Linq",
+		"WindowsBase",
+	}
+
+	postbuildcommands
+	{
+		-- ("{COPY} %{wks.location}Bin/$(TargetDir)/%{prj.name}.dll %{wks.location}Bin/"..outputdir.."/Engine")
+		("{COPY} $(TargetDir)%{prj.name}.dll $(TargetDir)../Engine/")
+	}
+	

@@ -2,9 +2,10 @@
 
 #include "APost_Fx.h"
 
-#include "imgui.h"
-#include "Insight/Core/Application.h"
+#include "Insight/Runtime/Components/Actor_Component.h"
 #include "Platform/DirectX12/Direct3D12_Context.h"
+#include "Insight/Core/Application.h"
+#include "imgui.h"
 
 namespace Insight {
 
@@ -26,37 +27,124 @@ namespace Insight {
 	{
 		AActor::LoadFromJson(jsonPostFx);
 
-		float vnInnerRadius, vnOuterRadius, vnOpacity; bool vnEnabled;
-		float fgStrength; bool fgEnabled;
-		float caIntensity; bool caEnabled;
+		bool vnEnabled, caEnabled, fgEnabled;
 
 		const rapidjson::Value& postFx = jsonPostFx["PostFx"];
 
 		const rapidjson::Value& vignette = postFx[0];
-		json::get_float(vignette, "vnInnerRadius", vnInnerRadius);
-		json::get_float(vignette, "vnOuterRadius", vnOuterRadius);
-		json::get_float(vignette, "vnOpacity", vnOpacity);
+		json::get_float(vignette, "vnInnerRadius", m_ShaderCB.vnInnerRadius);
+		json::get_float(vignette, "vnOuterRadius", m_ShaderCB.vnOuterRadius);
+		json::get_float(vignette, "vnOpacity", m_ShaderCB.vnOpacity);
 		json::get_bool(vignette, "vnEnabled", vnEnabled);
 
 		const rapidjson::Value& filmGrain = postFx[1];
-		json::get_float(filmGrain, "fgStrength", fgStrength);
+		json::get_float(filmGrain, "fgStrength", m_ShaderCB.fgStrength);
 		json::get_bool(filmGrain, "fgEnabled", fgEnabled);
 
 		const rapidjson::Value& chromAb = postFx[2];
-		json::get_float(chromAb, "caIntensity", caIntensity);
+		json::get_float(chromAb, "caIntensity", m_ShaderCB.caIntensity);
 		json::get_bool(chromAb, "caEnabled", caEnabled);
 
-		// Vignette
-		m_ShaderCB.innerRadius = vnInnerRadius;
-		m_ShaderCB.outerRadius = vnOuterRadius;
-		m_ShaderCB.opacity = vnOpacity;
-		m_ShaderCB.vnEnabled = (int)vnEnabled;
-		// Film Grain
-		m_ShaderCB.fgStrength = fgStrength;
-		m_ShaderCB.fgEnabled = (int)fgEnabled;
-		// Chromatic Aberration
-		m_ShaderCB.caEnabled = (int)caEnabled;
-		m_ShaderCB.caIntensity = caIntensity;
+		m_ShaderCB.vnEnabled = static_cast<int>(vnEnabled);
+		m_ShaderCB.fgEnabled = static_cast<int>(fgEnabled);
+		m_ShaderCB.caEnabled = static_cast<int>(caEnabled);
+		
+		return true;
+	}
+
+	bool APostFx::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
+	{
+		// TODO this work should be done in the base Actor class
+
+		Writer.StartObject(); // Start Write Actor
+		{
+			Writer.Key("Type");
+			Writer.String("PostFxVolume");
+
+			Writer.Key("DisplayName");
+			Writer.String(SceneNode::GetDisplayName());
+
+			Writer.Key("Transform");
+			Writer.StartArray(); // Start Write Transform
+			{
+				Transform& Transform = SceneNode::GetTransformRef();
+				Vector3 Pos = Transform.GetPosition();
+				Vector3 Rot = Transform.GetRotation();
+				Vector3 Sca = Transform.GetScale();
+
+				Writer.StartObject();
+				// Position
+				Writer.Key("posX");
+				Writer.Double(Pos.x);
+				Writer.Key("posY");
+				Writer.Double(Pos.y);
+				Writer.Key("posZ");
+				Writer.Double(Pos.z);
+				// Rotation
+				Writer.Key("rotX");
+				Writer.Double(Rot.x);
+				Writer.Key("rotY");
+				Writer.Double(Rot.y);
+				Writer.Key("rotZ");
+				Writer.Double(Rot.z);
+				// Scale
+				Writer.Key("scaX");
+				Writer.Double(Sca.x);
+				Writer.Key("scaY");
+				Writer.Double(Sca.y);
+				Writer.Key("scaZ");
+				Writer.Double(Sca.z);
+
+				Writer.EndObject();
+			}
+			Writer.EndArray(); // End Write Transform
+
+			// Post-Fx Volume Attributes
+			Writer.Key("PostFx");
+			Writer.StartArray();
+			{
+				Writer.StartObject(); // Start Vignette
+				{
+					Writer.Key("vnInnerRadius");
+					Writer.Double(m_ShaderCB.vnInnerRadius);
+					Writer.Key("vnOuterRadius");
+					Writer.Double(m_ShaderCB.vnOuterRadius);
+					Writer.Key("vnOpacity");
+					Writer.Double(m_ShaderCB.vnOpacity);
+					Writer.Key("vnEnabled");
+					Writer.Bool(m_ShaderCB.vnEnabled);
+				}
+				Writer.EndObject(); // End Vignette
+				Writer.StartObject(); // Start Film Grain
+				{
+					Writer.Key("fgStrength");
+					Writer.Double(m_ShaderCB.fgStrength);
+					Writer.Key("fgEnabled");
+					Writer.Bool(m_ShaderCB.fgEnabled);
+				}
+				Writer.EndObject(); // End Film Grain
+				Writer.StartObject(); // Start Chromatic Abberation
+				{
+					Writer.Key("caIntensity");
+					Writer.Double(m_ShaderCB.caIntensity);
+					Writer.Key("caEnabled");
+					Writer.Bool(m_ShaderCB.caEnabled);
+				}
+				Writer.EndObject(); // End Chromatic Abberation
+			}
+			Writer.EndArray();
+
+			Writer.Key("Subobjects");
+			Writer.StartArray(); // Start Write SubObjects
+			{
+				for (size_t i = 0; i < m_NumComponents; ++i)
+				{
+					AActor::m_Components[i]->WriteToJson(Writer);
+				}
+			}
+			Writer.EndArray(); // End Write SubObjects
+		}
+		Writer.EndObject(); // End Write Actor
 		return true;
 	}
 
@@ -112,12 +200,12 @@ namespace Insight {
 		ImGui::Checkbox("vnEnabled", (bool*)&m_ShaderCB.vnEnabled);
 		ImGui::DragFloat("Inner Radius", &m_TempInnerRadius, 0.1f, 0.0f, 50.0f);
 		ImGui::DragFloat("Outer Radius", &m_TempOuterRadius, 0.1f, 0.0f, 50.0f);
-		ImGui::DragFloat("Opacity", &m_ShaderCB.opacity, 0.15f, 0.0f, 10.0f);
+		ImGui::DragFloat("Opacity", &m_ShaderCB.vnOpacity, 0.15f, 0.0f, 10.0f);
 		if (m_TempInnerRadius > m_TempOuterRadius) {
 			m_TempInnerRadius = m_TempOuterRadius;
 		}
-		m_ShaderCB.innerRadius = m_TempInnerRadius;
-		m_ShaderCB.outerRadius = m_TempOuterRadius;
+		m_ShaderCB.vnInnerRadius = m_TempInnerRadius;
+		m_ShaderCB.vnOuterRadius = m_TempOuterRadius;
 		ImGui::Spacing();
 
 		ImGui::Text("Film Grain");

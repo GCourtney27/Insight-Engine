@@ -26,6 +26,20 @@ namespace Insight {
 		childNode->SetParent(this);
 	}
 
+	bool SceneNode::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
+	{
+		size_t numChildrenObjects = m_Children.size();
+		for (size_t i = 0; i < numChildrenObjects; ++i) {
+			m_Children[i]->WriteToJson(Writer);
+		}
+		return false;
+	}
+
+	bool SceneNode::LoadFromJson(const rapidjson::Value& jsonActor)
+	{
+		return false;
+	}
+
 	void SceneNode::RenderSceneHeirarchy()
 	{
 		size_t numChildrenObjects = m_Children.size();
@@ -75,10 +89,21 @@ namespace Insight {
 
 	void SceneNode::Tick(const float& deltaMs)
 	{
+		for (auto i = m_Children.begin(); i != m_Children.end(); ++i) {
+			(*i)->Tick(deltaMs);
+		}
 	}
 
 	void SceneNode::Exit()
 	{
+	}
+
+	void SceneNode::EditorEndPlay()
+	{
+		m_RootTransform.EditorEndPlay();
+		for (auto i = m_Children.begin(); i != m_Children.end(); ++i) {
+			(*i)->EditorEndPlay();
+		}
 	}
 
 	void SceneNode::Destroy()

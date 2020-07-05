@@ -18,10 +18,11 @@ namespace Insight {
 		typedef std::vector<StrongActorComponentPtr> ActorComponents;
 		
 	public:
-		AActor(ActorId id, ActorName actorName = "Actor");
+		AActor(ActorId Id, ActorName ActorName = "MyActor");
 		virtual ~AActor();
 
-		virtual bool LoadFromJson(const rapidjson::Value& jsonActor);
+		virtual bool LoadFromJson(const rapidjson::Value& jsonActor) override;
+		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer) override;
 
 		// Editor
 		virtual void RenderSceneHeirarchy();
@@ -41,11 +42,12 @@ namespace Insight {
 		virtual void Exit();
 
 		void SetRenderPass(RenderPass renderPass) { m_RenderPass = renderPass; }
+		ActorId GetId() { return m_Id; }
 	public:
 		template<typename T>
 		StrongActorComponentPtr CreateDefaultSubobject()
 		{
-			StrongActorComponentPtr component = std::make_shared<T>(std::make_shared<AActor>(*this));
+			StrongActorComponentPtr component = std::make_shared<T>(this);
 			IE_CORE_ASSERT(component, "Trying to add null component to actor");
 
 			component->OnAttach();
@@ -72,7 +74,7 @@ namespace Insight {
 		RenderPass m_RenderPass = RenderPass::RenderPass_Static;
 		ActorComponents m_Components;
 		UINT m_NumComponents = 0;
-		ActorId m_id;
+		ActorId m_Id;
 	private:
 
 	};

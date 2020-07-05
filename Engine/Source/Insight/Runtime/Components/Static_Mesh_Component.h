@@ -10,10 +10,11 @@ namespace Insight {
 	class INSIGHT_API StaticMeshComponent : public ActorComponent
 	{
 	public:
-		StaticMeshComponent(StrongActorPtr pOwner);
+		StaticMeshComponent(AActor* pOwner);
 		virtual ~StaticMeshComponent();
 
 		virtual bool LoadFromJson(const rapidjson::Value& jsonStaticMeshComponent) override;
+		virtual bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer) override;
 
 		virtual void OnInit() override;
 		virtual void OnPostInit() {}
@@ -26,14 +27,15 @@ namespace Insight {
 		void RenderSceneHeirarchy() override;
 		void AttachMesh(const std::string& path);
 
+		virtual void BeginPlay() override;
+		virtual void Tick(const float& deltaMs) override;
+
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
 
 	private:
-		Material m_Material;
-		std::future<void> m_Future;
-	private:
 		StrongModelPtr m_pModel;
+		Material m_Material;
 	};
 
 }

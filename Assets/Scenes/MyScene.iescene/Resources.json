@@ -1,0 +1,131 @@
+{
+    "Textures":[
+        {
+            "Name": "RustedIron_Albedo",
+            "ID": 1,
+            "Filepath": "Textures/RustedIron/RustedIron_Albedo.png",
+            "Type": 0,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "RustedIron_Normal",
+            "ID": 2,
+            "Filepath": "Textures/RustedIron/RustedIron_Normal.png",
+            "Type": 1,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "RustedIron_Roughness",
+            "ID": 3,
+            "Filepath": "Textures/RustedIron/RustedIron_Roughness.png",
+            "Type": 2,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "RustedIron_Metallic",
+            "ID": 4,
+            "Filepath": "Textures/RustedIron/RustedIron_Metallic.png",
+            "Type": 3,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "RustedIron_AO",
+            "ID": 5,
+            "Filepath": "Textures/RustedIron/RustedIron_AO.png",
+            "Type": 4,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "HardwoodBrownPlanks_Albedo",
+            "ID": 6,
+            "Filepath": "Textures/HardwoodBrownPlanks/HardwoodBrownPlanks_Albedo.png",
+            "Type": 0,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "HardwoodBrownPlanks_Normal",
+            "ID": 7,
+            "Filepath": "Textures/HardwoodBrownPlanks/HardwoodBrownPlanks_Normal.png",
+            "Type": 1,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "HardwoodBrownPlanks_Metallic",
+            "ID": 8,
+            "Filepath": "Textures/HardwoodBrownPlanks/HardwoodBrownPlanks_Metallic.png",
+            "Type": 3,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "HardwoodBrownPlanks_Roughness",
+            "ID": 9,
+            "Filepath": "Textures/HardwoodBrownPlanks/HardwoodBrownPlanks_Roughness.png",
+            "Type": 2,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "HardwoodBrownPlanks_AO",
+            "ID": 10,
+            "Filepath": "Textures/HardwoodBrownPlanks/HardwoodBrownPlanks_AO.png",
+            "Type": 4,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "StoneWall_Albedo",
+            "ID": 11,
+            "Filepath": "Textures/StoneWall/StoneWall_Albedo.jpg",
+            "Type": 0,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "StoneWall_Normal",
+            "ID": 12,
+            "Filepath": "Textures/StoneWall/StoneWall_Normal.jpg",
+            "Type": 1,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "StoneWall_Roughness",
+            "ID": 13,
+            "Filepath": "Textures/StoneWall/StoneWall_Roughness.jpg",
+            "Type": 2,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "StoneWall_Gloss",
+            "ID": 14,
+            "Filepath": "Textures/StoneWall/StoneWall_Gloss.jpg",
+            "Type": 3,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "StoneWall_AO",
+            "ID": 15,
+            "Filepath": "Textures/StoneWall/StoneWall_AO.jpg",
+            "Type": 4,
+            "GenerateMipMaps": true
+        }
+    ],
+    "Meshes":[
+        {
+            "Name": "Nano_Suit",
+            "Filepath": "Models/nanosuit/nanosuit.obj"
+        },
+        {
+            "Name": "Quad",
+            "Filepath": "Models/Quad.obj"
+        },
+        {
+            "Name": "Tiger_Main_Body",
+            "Filepath": "Objects/Tiger/Tiger_NoTracks.obj"
+        },
+        {
+            "Name": "Tiger_Track_Left",
+            "Filepath": "Objects/Tiger/Tracks_Left.obj"
+        },
+        {
+            "Name": "Tiger_Track_Right",
+            "Filepath": "Objects/Tiger/Tracks_Right.obj"
+        }
+    ]
+}

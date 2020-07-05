@@ -1,6 +1,7 @@
 #include <ie_pch.h>
 
 #include "Transform.h"
+#include "Insight/Core/Application.h"
 
 namespace Insight {
 
@@ -8,7 +9,6 @@ namespace Insight {
 
 	Transform::Transform()
 	{
-
 	}
 
 	Transform::~Transform()
@@ -66,6 +66,15 @@ namespace Insight {
 		return *this;
 	}
 
+	void Transform::EditorEndPlay()
+	{
+		m_Position = m_EditorPlayOriginPosition;
+		m_Rotation = m_EditorPlayOriginRotation;
+		m_Scale = m_EditorPlayOriginScale;
+
+		UpdateIfTransformed(true);
+	}
+
 	void Transform::Translate(float x, float y, float z)
 	{
 		m_Position.x += x; 
@@ -75,11 +84,11 @@ namespace Insight {
 		UpdateLocalMatrix();
 	}
 
-	void Transform::Rotate(float x, float y, float z)
+	void Transform::Rotate(float XInDegrees, float YInDegrees, float ZInDegrees)
 	{
-		m_Rotation.x += x;
-		m_Rotation.y += y;
-		m_Rotation.z += z;
+		m_Rotation.x += DEGREES_TO_RADIANS(XInDegrees);
+		m_Rotation.y += DEGREES_TO_RADIANS(YInDegrees);
+		m_Rotation.z += DEGREES_TO_RADIANS(ZInDegrees);
 		RotateLocalMatrix();
 		UpdateLocalMatrix();
 	}
@@ -121,6 +130,17 @@ namespace Insight {
 		SetRotation(Vector3(pitch, yaw, 0.0f));
 	}
 
+	void Transform::SetDirection(const Vector3& NewDirection)
+	{
+		XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(NewDirection.x, NewDirection.y, NewDirection.z);
+		m_LocalForward = XMVector3TransformCoord(WORLD_DIRECTION.Forward, vecRotationMatrix);
+		m_LocalBackward = XMVector3TransformCoord(WORLD_DIRECTION.Backward, vecRotationMatrix);
+		m_LocalLeft = XMVector3TransformCoord(WORLD_DIRECTION.Left, vecRotationMatrix);
+		m_LocalRight = XMVector3TransformCoord(WORLD_DIRECTION.Right, vecRotationMatrix);
+		m_LocalUp = XMVector3TransformCoord(WORLD_DIRECTION.Up, vecRotationMatrix);
+		m_LocalDown = XMVector3TransformCoord(WORLD_DIRECTION.Down, vecRotationMatrix);
+	}
+
 	void Transform::SetLocalMatrix(XMMATRIX matrix)
 	{
 		m_LocalMatrix = matrix;
@@ -129,6 +149,21 @@ namespace Insight {
 	void Transform::SetWorldMatrix(XMMATRIX matrix)
 	{
 		m_WorldMatrix = matrix;
+	}
+
+	void Transform::UpdateIfTransformed(bool ForceUpdate)
+	{
+		if ((m_Transformed && !Application::Get().IsPlaySessionUnderWay()) || ForceUpdate)
+		{
+			TranslateLocalMatrix();
+			ScaleLocalMatrix();
+			RotateLocalMatrix();
+
+			UpdateLocalMatrix();
+			UpdateEditorOriginPositionRotationScale();
+
+			m_Transformed = false;
+		}
 	}
 
 	void Transform::UpdateLocalMatrix()
@@ -161,13 +196,20 @@ namespace Insight {
 
 	void Transform::UpdateLocalDirectionVectors()
 	{
-		XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z);
-		m_LocalForward = XMVector3TransformCoord(WORLD_DIRECTION.Forward, vecRotationMatrix);
-		m_LocalBackward = XMVector3TransformCoord(WORLD_DIRECTION.Backward, vecRotationMatrix);
-		m_LocalLeft = XMVector3TransformCoord(WORLD_DIRECTION.Left, vecRotationMatrix);
-		m_LocalRight = XMVector3TransformCoord(WORLD_DIRECTION.Right, vecRotationMatrix);
-		m_LocalUp = XMVector3TransformCoord(WORLD_DIRECTION.Up, vecRotationMatrix);
-		m_LocalDown = XMVector3TransformCoord(WORLD_DIRECTION.Down, vecRotationMatrix);
+		//XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z);
+		m_LocalForward = XMVector3TransformCoord(WORLD_DIRECTION.Forward, m_RotationMat);
+		m_LocalBackward = XMVector3TransformCoord(WORLD_DIRECTION.Backward, m_RotationMat);
+		m_LocalLeft = XMVector3TransformCoord(WORLD_DIRECTION.Left, m_RotationMat);
+		m_LocalRight = XMVector3TransformCoord(WORLD_DIRECTION.Right, m_RotationMat);
+		m_LocalUp = XMVector3TransformCoord(WORLD_DIRECTION.Up, m_RotationMat);
+		m_LocalDown = XMVector3TransformCoord(WORLD_DIRECTION.Down, m_RotationMat);
+	}
+
+	void Transform::UpdateEditorOriginPositionRotationScale()
+	{
+		m_EditorPlayOriginPosition = m_Position;
+		m_EditorPlayOriginRotation = m_Rotation;
+		m_EditorPlayOriginScale = m_Scale;
 	}
 
 }

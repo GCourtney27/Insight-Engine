@@ -1,14 +1,15 @@
 #include <ie_pch.h>
 
 #include "Windows_Window.h"
+
+#include "Platform/Windows/Window_Resources/Resource.h"
 #include "Insight/Core/Application.h"
 #include "Insight/Events/Application_Event.h"
 #include "Insight/Events/Mouse_Event.h"
 #include "Insight/Events/Key_Event.h"
 #include "Insight/Utilities/String_Helper.h"
 #include "Insight/Core/Log.h"
-
-#include <windowsx.h>
+#include <strsafe.h>
 
 namespace Insight {
 
@@ -164,24 +165,19 @@ namespace Insight {
 			IE_CORE_WARN("System memory is low!");
 			return 0;
 		}
-		case WM_SIZE:
+		case WM_EXITSIZEMOVE:
 		{
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-
-			// Window will attempt to resize on creation. However, buffer 
-			//resize can fail if the rest of the application is not initialized first.
-			if (data.isFirstLaunch)
-			{
-				data.isFirstLaunch = false;
-				return 0;
-			}
 			RECT clientRect = {};
 			GetClientRect(hWnd, &clientRect);
 			WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, wParam == SIZE_MINIMIZED);
 			data.EventCallback(event);
 
 			IE_CORE_INFO("Window size has changed");
-
+			return 0;
+		}
+		case WM_SIZE:
+		{
 			return 0;
 		}
 		case WM_INPUT:
@@ -205,6 +201,100 @@ namespace Insight {
 
 			}
 			return DefWindowProc(hWnd, msg, wParam, lParam);
+		}
+		case WM_DROPFILES:
+		{
+			/*WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			UINT iFile;
+			LPSTR lpszFile;
+			UINT cch;
+			DragQueryFileA((HDROP)wParam, iFile, lpszFile, cch);
+			IE_CORE_INFO("BREAK");*/
+		}
+		// Menu Bar Events
+		case WM_COMMAND:
+		{
+			int wmId = LOWORD(wParam);
+			// Parse the menu selections:
+			switch (wmId)
+			{
+			case IDM_BEGIN_PLAY:
+			{
+				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+				AppBeginPlayEvent event;
+				data.EventCallback(event);
+				break;
+			}
+			case IDM_END_PLAY:
+			{
+				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+				AppEndPlayEvent event;
+				data.EventCallback(event);
+				break;
+			}
+			case IDM_SCENE_SAVE:
+			{
+				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+				SceneSaveEvent event;
+				data.EventCallback(event);
+				IE_CORE_INFO("Scene Saved");
+				break;
+			}
+			case IDM_ABOUT:
+			{
+				MessageBoxW(NULL, L"Version - (Pre-Release)1.5 \nRenderer - Direct3D 12 (Path Tracing - Disabled) \n\nVendor Runtime: \nMono - v6.8.0.123 \nAssimp - v3.3.1 \nRapidJson - v1.0.0 \nImGui - v1.75", L"About Insight Editor", MB_OK);
+				break;
+			}
+			case IDM_EXIT:
+			{
+				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+				PostQuitMessage(0);
+				WindowCloseEvent event;
+				data.EventCallback(event);
+				break;
+			}
+			case IDM_VISUALIZE_FINAL_RESULT:
+			{
+				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+
+				IE_CORE_INFO("Visualize final result");
+				//ModifyMenuW(data.hGraphicsVisualizeSubMenu, IDM_VISUALIZE_FINAL_RESULT, MF_CHECKED, IDM_VISUALIZE_FINAL_RESULT, L"&Final Result");
+
+				break;
+			}
+			case IDM_VISUALIZE_LIGHT_PASS_RESULT:
+			{
+				IE_CORE_INFO("Visualize light pass result");
+				break;
+			}
+			case IDM_VISUALIZE_ALBEDO_BUFFER:
+			{
+				IE_CORE_INFO("Visualize albedo buffer");
+				break;
+			}
+			case IDM_VISUALIZE_NORMAL_BUFFER:
+			{
+				IE_CORE_INFO("Visualize normal buffer");
+				break;
+			}
+			case IDM_VISUALIZE_ROUGHNESS_BUFFER:
+			{
+				IE_CORE_INFO("Visualize roughness buffer");
+				break;
+			}
+			case IDM_VISUALIZE_METALLIC_BUFFER:
+			{
+				IE_CORE_INFO("Visualize metallic buffer");
+				break;
+			}
+			case IDM_VISUALIZE_AO_BUFFER:
+			{
+				IE_CORE_INFO("Visualize ambient occlusion buffer");
+				break;
+			}
+			default:
+				return DefWindowProcW(hWnd, msg, wParam, lParam);
+			}
 		}
 		default:
 		{
@@ -248,10 +338,11 @@ namespace Insight {
 		m_WindowRect.top = centerScreenY + 35;
 		m_WindowRect.right = m_WindowRect.left + m_Data.Width;
 		m_WindowRect.bottom = m_WindowRect.top + m_Data.Height;
+		AdjustWindowRect(&m_WindowRect, WS_OVERLAPPEDWINDOW | WS_EX_ACCEPTFILES, FALSE);
 
-		AdjustWindowRect(&m_WindowRect, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE);
+		InitializeMenuBar();
 
-		m_WindowHandle = CreateWindowEx(
+		m_hWindow = CreateWindowEx(
 			0,										// Window Styles
 			m_Data.WindowClassName_wide.c_str(),	// Window Class
 			m_Data.WindowTitle_wide.c_str(),		// Window Title
@@ -263,17 +354,18 @@ namespace Insight {
 			m_WindowRect.bottom - m_WindowRect.top,		// Height
 
 			NULL,					// Parent window
-			NULL,					// Menu
+			m_hMenu,			// Menu
 			*m_WindowsAppInstance,	// Current Windows program application instance passed from WinMain
 			&m_Data					// Additional application data
 		);
 
-		if (m_WindowHandle == NULL)
+		if (m_hWindow == NULL)
 		{
 			IE_ERROR("Unable to create Windows window.");
 			IE_ERROR("    Error: {0}", GetLastError());
 			return false;
 		}
+		DragAcceptFiles(m_hWindow, TRUE);
 
 		{
 			ScopedTimer timer("WindowsWindow::Init::RendererInit");
@@ -288,12 +380,13 @@ namespace Insight {
 				IE_CORE_TRACE("Renderer Initialized");
 			}
 		}
+		m_Data.hGraphicsVisualizeSubMenu = m_hGraphicsVisualizeSubMenu;
+		ShowWindow(m_hWindow, m_nCmdShowArgs);
+		SetForegroundWindow(m_hWindow);
+		SetFocus(m_hWindow);
+		SetWindowText(m_hWindow, m_Data.WindowTitle_wide.c_str());
 
-		ShowWindow(m_WindowHandle, m_nCmdShowArgs);
-		SetForegroundWindow(m_WindowHandle);
-		SetFocus(m_WindowHandle);
-		SetWindowText(m_WindowHandle, m_Data.WindowTitle_wide.c_str());
-
+		UpdateWindow(m_hWindow);
 
 		IE_CORE_TRACE("Window Initialized");
 		return true;
@@ -315,11 +408,93 @@ namespace Insight {
 		wc.lpszClassName = m_Data.WindowClassName_wide.c_str();
 
 		RegisterClassEx(&wc);
-		int error = GetLastError();
+		DWORD error = GetLastError();
 		if (error > 0)
 		{
 			IE_CORE_ERROR("An error occured while registering window class: {0} ", m_Data.WindowClassName);
-			IE_CORE_ERROR("    Error: {1}", error);
+			//IE_CORE_ERROR("    Error: {1}", error);
+			{
+				LPVOID lpMsgBuf;
+				LPVOID lpDisplayBuf;
+				DWORD dw = GetLastError();
+
+				FormatMessage(
+					FORMAT_MESSAGE_ALLOCATE_BUFFER |
+					FORMAT_MESSAGE_FROM_SYSTEM |
+					FORMAT_MESSAGE_IGNORE_INSERTS,
+					NULL,
+					dw,
+					MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+					(LPTSTR)&lpMsgBuf,
+					0, NULL);
+
+				// Display the error message
+
+				lpDisplayBuf = (LPVOID)LocalAlloc(LMEM_ZEROINIT,
+					(lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)"") + 40) * sizeof(TCHAR));
+				StringCchPrintf((LPTSTR)lpDisplayBuf,
+					LocalSize(lpDisplayBuf) / sizeof(TCHAR),
+					TEXT("%s failed with error %d: %s"),
+					"", dw, lpMsgBuf);
+				MessageBox(NULL, (LPCTSTR)lpDisplayBuf, TEXT("Error"), MB_OK);
+			}
+		}
+	}
+
+	void WindowsWindow::InitializeMenuBar()
+	{
+		m_hMenu = CreateMenu();
+
+		// File SubMenu
+		{
+			m_hFileSubMenu = CreateMenu();
+			AppendMenuW(m_hMenu, MF_POPUP, (UINT_PTR)m_hFileSubMenu, L"&File");
+			AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_SCENE_SAVE, L"&Save Scene");
+			AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_ABOUT, L"&About");
+			AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_EXIT, L"&Exit");
+		}
+
+		// Edit SubMenu
+		{
+			m_hEditSubMenu = CreateMenu();
+			AppendMenuW(m_hMenu, MF_POPUP, (UINT_PTR)m_hEditSubMenu, L"&Edit");
+
+		}
+
+		// Editor SubMenu
+		{
+			m_hEditorSubMenu = CreateMenu();
+			AppendMenuW(m_hMenu, MF_POPUP, (UINT_PTR)m_hEditorSubMenu, L"&Editor");
+			AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_BEGIN_PLAY, L"&Play");
+			AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_END_PLAY, L"&Stop");
+
+		}
+
+		return;
+		// Graphics SubMenu
+		{
+			m_hGraphicsSubMenu = CreateMenu();
+			m_hGraphicsVisualizeSubMenu = CreateMenu();
+
+			AppendMenuW(m_hMenu, MF_POPUP, (UINT_PTR)m_hGraphicsSubMenu, L"&Graphics");
+			//AppendMenuW(m_GraphicsSubMenuHandle, MF_STRING, (UINT_PTR)m_GraphicsSubMenuHandle, L"&Reload Post-Fx Pass Shader");
+			//AppendMenuW(m_GraphicsSubMenuHandle, MF_STRING, (UINT_PTR)m_GraphicsSubMenuHandle, L"&Reload Geometry Pass Shader");
+			//AppendMenuW(m_GraphicsSubMenuHandle, MF_STRING, (UINT_PTR)m_GraphicsSubMenuHandle, L"&Reload Light Pass Shader");
+			AppendMenuW(m_hGraphicsSubMenu, MF_POPUP, (UINT_PTR)m_hGraphicsVisualizeSubMenu, L"&Visualize G-Buffer");
+			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_FINAL_RESULT, L"&Final Result");
+			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
+			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_LIGHT_PASS_RESULT, L"&Light Pass Result");
+			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
+			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_ALBEDO_BUFFER, L"&Albedo");
+			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
+			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_NORMAL_BUFFER, L"&Normal");
+			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
+			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_ROUGHNESS_BUFFER, L"&Roughness");
+			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
+			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_METALLIC_BUFFER, L"&Metallic");
+			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
+			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_AO_BUFFER, L"&Ambient Occlusion (PBR Texture)");
+			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
 		}
 	}
 
@@ -342,7 +517,7 @@ namespace Insight {
 		ZeroMemory(&msg, sizeof(MSG));
 
 		while (PeekMessage(&msg,	// Where to store message (if one exists)
-			m_WindowHandle,			// Handle to window we are checking messages for
+			m_hWindow,			// Handle to window we are checking messages for
 			0,						// Minimum Filter Msg Value - We are not filterinf for specific messages but min and max could be used to do so
 			0,						// Maximum Filter Msg Value
 			PM_REMOVE))				// Remove mesage after captureing it via PeekMessage
@@ -389,11 +564,11 @@ namespace Insight {
 	{
 		BOOL succeeded = true;
 		if (completlyOverride) {
-			succeeded = SetWindowText(m_WindowHandle, StringHelper::StringToWide(newText).c_str());
+			succeeded = SetWindowText(m_hWindow, StringHelper::StringToWide(newText).c_str());
 		}
 		else {
 			m_Data.WindowTitle_wide = m_Data.WindowTitle_wide + L" - " + StringHelper::StringToWide(newText);
-			succeeded = SetWindowText(m_WindowHandle, m_Data.WindowTitle_wide.c_str());
+			succeeded = SetWindowText(m_hWindow, m_Data.WindowTitle_wide.c_str());
 		}
 		return succeeded;
 	}
@@ -402,13 +577,13 @@ namespace Insight {
 	{
 		BOOL succeeded = true;
 		std::wstring windowTitle = m_Data.WindowTitle_wide + L" FPS: " + std::to_wstring((UINT)fps);
-		succeeded = SetWindowText(m_WindowHandle, windowTitle.c_str());
+		succeeded = SetWindowText(m_hWindow, windowTitle.c_str());
 		return succeeded;
 	}
 
 	void* WindowsWindow::GetNativeWindow() const
 	{
-		return m_WindowHandle;
+		return m_hWindow;
 	}
 
 	void WindowsWindow::SetVSync(bool enabled)
@@ -432,13 +607,19 @@ namespace Insight {
 	{
 		CoUninitialize();
 
-		if (m_WindowHandle != NULL)
+		if (m_hWindow != NULL)
 		{
 			UnregisterClass(this->m_Data.WindowClassName_wide.c_str(), *m_WindowsAppInstance);
-			DestroyWindow(m_WindowHandle);
+			DestroyWindow(m_hWindow);
 		}
 
 		m_pRendererContext.reset();
+	}
+
+	void WindowsWindow::EndFrame()
+	{
+		m_pRendererContext->ExecuteDraw();
+		m_pRendererContext->SwapBuffers();
 	}
 
 }

@@ -16,18 +16,18 @@ namespace Insight {
 		ModelManager();
 		~ModelManager();
 
-		static ModelManager& Get() { return *s_Instance; }
-
 		bool Init();
+		virtual bool LoadResourcesFromJson(const rapidjson::Value& jsonMeshes);
+
 		void Render();
 
 		SceneModels* GetSceneModels() { return &m_Models; }
 
-		void UploadVertexDataToGPU();
+		void UploadConstantBufferDataToGPU();
 		void PostRender();
 		void FlushModelCache();
 		
-		void PushModel(StrongModelPtr model) { m_Models.push_back(model); }
+		void RegisterModel(StrongModelPtr model) { m_Models.push_back(model); }
 
 	private:
 		SceneModels m_Models;  
@@ -45,8 +45,6 @@ namespace Insight {
 		int ConstantBufferPerObjectMaterialAlignedSize = (sizeof(CB_PS_VS_PerObjectAdditives) + 255) & ~255;
 		UINT32 m_PerObjectCBDrawOffset = 0u;
 		UINT32 m_GPUAddressUploadOffset = 0u;
-	private:
-		static ModelManager* s_Instance;
 	};
 
 }

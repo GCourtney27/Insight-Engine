@@ -40,7 +40,8 @@ namespace Insight {
 		virtual ~ASkySphere();
 
 		virtual bool LoadFromJson(const rapidjson::Value& jsonSkySphere) override;
-
+		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer) override;
+		
 		virtual bool OnInit();
 		virtual bool OnPostInit();
 		virtual void OnUpdate(const float& deltaMs);

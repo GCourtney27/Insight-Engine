@@ -106,11 +106,6 @@ namespace Insight {
 
 	void ImGuiLayer::OnImGuiRender()
 	{
-		/*ImGui::Begin("ImGui Layer");
-		{
-
-		}
-		ImGui::End();*/
 	}
 
 	void ImGuiLayer::Begin()

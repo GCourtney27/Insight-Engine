@@ -8,12 +8,9 @@
 
 namespace Insight {
 
-	ModelManager* ModelManager::s_Instance = nullptr;
-
 	ModelManager::ModelManager()
 	{
-		IE_CORE_ASSERT(!s_Instance, "An instance of Model Manager already exists!");
-		s_Instance = this;
+
 	}
 
 	ModelManager::~ModelManager()
@@ -44,6 +41,11 @@ namespace Insight {
 		return true;
 	}
 
+	bool ModelManager::LoadResourcesFromJson(const rapidjson::Value& jsonMeshes)
+	{
+		return false;
+	}
+
 	// Issue draw commands to all models attached to the model manager
 	void ModelManager::Render()
 	{
@@ -63,7 +65,7 @@ namespace Insight {
 	}
 
 	// Update the Constant buffers in the gpu with the new data for each model. Does not draw models
-	void ModelManager::UploadVertexDataToGPU()
+	void ModelManager::UploadConstantBufferDataToGPU()
 	{
 		for (UINT32 i = 0; i < m_Models.size(); i++) {
 

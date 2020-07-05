@@ -14,6 +14,8 @@ namespace Insight {
 		~Material();
 		
 		virtual bool LoadFromJson(const rapidjson::Value& jsonMaterial);
+		virtual bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer);
+
 		CB_PS_VS_PerObjectAdditives GetMaterialOverrideConstantBuffer() { return m_ShaderCB; }
 
 		void OnImGuiRender();
@@ -21,11 +23,18 @@ namespace Insight {
 		void BindResources();
 
 	private:
-		Texture m_AlbedoMap;
-		Texture m_NormalMap;
-		Texture m_MetallicMap;
-		Texture m_RoughnessMap;
-		Texture m_AOMap;
+
+		StrongTexturePtr m_AlbedoMap;
+		StrongTexturePtr m_NormalMap;
+		StrongTexturePtr m_MetallicMap;
+		StrongTexturePtr m_RoughnessMap;
+		StrongTexturePtr m_AOMap;
+
+		int m_AlbedoTextureManagerID;
+		int m_NormalTextureManagerID;
+		int m_MetallicTextureManagerID;
+		int m_RoughnessTextureManagerID;
+		int m_AoTextureManagerID;
 
 		float m_RoughnessAdditive = 0.5f;
 		float m_MetallicAdditive = 0.5f;

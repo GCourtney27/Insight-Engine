@@ -13,6 +13,7 @@
 #include <memory>
 #include <sstream>
 #include <utility>
+#include <fstream>
 #include <iostream>
 #include <algorithm>
 #include <functional>
@@ -57,10 +58,13 @@
 	// Windows API	
 	#include <Windows.h>
 	#include <wrl/client.h>
+	#include <windowsx.h>
 
 	// Direct3D 12
 	#include <d3d12.h>
 	#include <d3dx12.h>
+
+	// DirectX
 	#include <dxgi1_2.h>
 	#include <dxgi1_4.h>
 	#include <wincodec.h>

@@ -9,6 +9,7 @@ namespace Insight {
 	class AActor;
 	class ActorComponent;
 	class Model;
+	class Texture;
 
 	typedef unsigned int ActorId;
 	typedef unsigned int ComponentId;
@@ -24,6 +25,8 @@ namespace Insight {
 	typedef weak_ptr<ActorComponent> WeakActorComponentPtr;
 	typedef shared_ptr<Model> StrongModelPtr;
 	typedef weak_ptr<Model> WeakModelPtr;
+	typedef shared_ptr<Texture> StrongTexturePtr;
+	typedef weak_ptr<Texture> WeakTexturePtr;
 
 	enum class RenderPass
 	{

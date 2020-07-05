@@ -159,14 +159,12 @@ namespace Insight {
 		ComPtr<ID3D12Resource>				m_pRenderTargetTextures_PostFxPass[m_FrameBufferCount];
 		ComPtr<ID3D12Resource>				m_pRenderTargets[m_FrameBufferCount];
 		
-		// Light Pass
-		// ---------
+		//-----Light Pass-----
 		// 0: Albedo
 		// 1: Normal
 		// 2: Roughness/Metallic/AO
 		// 3: Position
-		// Post-Fx Pass
-		// ------------
+		// -----Post-Fx Pass-----
 		// 4: Light Pass result
 		CDescriptorHeapWrapper				m_rtvHeap;
 		ComPtr<ID3D12DescriptorHeap>		m_RTVDescriptorHeap;
@@ -182,6 +180,7 @@ namespace Insight {
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_SkyPass;
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_PostFxPass;
 
+		//-----Pipeline-----
 		//0:  SRV-Albedo(RTV->SRV)
 		//1:  SRV-Normal(RTV->SRV)
 		//2:  SRV-(R)Roughness/(G)Metallic/(B)AO(RTV->SRV)
@@ -208,6 +207,7 @@ namespace Insight {
 
 		float								m_ClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		DXGI_FORMAT							m_DsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		//DXGI_FORMAT							m_DsvFormat = DXGI_FORMAT_D32_FLOAT;
 		DXGI_FORMAT							m_RtvFormat[5] = { 
 			DXGI_FORMAT_R11G11B10_FLOAT,	// Albedo buffer
 			DXGI_FORMAT_R8G8B8A8_SNORM,		// Normal

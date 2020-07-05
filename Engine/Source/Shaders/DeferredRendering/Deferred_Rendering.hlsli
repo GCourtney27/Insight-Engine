@@ -21,9 +21,15 @@ cbuffer cbPerFrame : register(b1)
     float numSpotLights;
     float2 screenSize;
     
+    // Graphics Debug
+    float visualizeFinalPass;
+    float visualizeLightPassResult;
+    float visualizeAlbedoBuffer;
+    float visualizeNormalBuffer;
+    float visualizeRoughnessBuffer;
+    float visualizeMetallicBuffer;
+    float visualizeAOPBRTextureBuffer;
 	float padding;
-	float padding1;
-	float padding2;
 };
 
 cbuffer cbLights : register(b2)
