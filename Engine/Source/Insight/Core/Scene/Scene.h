@@ -35,20 +35,17 @@ namespace Insight {
 		void OnMidFrameRender();
 		void OnPostRender();
 		void Destroy();
-		void Flush();
+		bool FlushAndOpenNewScene(const std::string& NewScene);
 
+		SceneNode& GetSceneRoot() { return *m_pSceneRoot; }
+		ACamera& GetSceneCamera() { return *m_pCamera; }
 
-		// Editor
-		void SetSelectedActor(AActor* actor) { m_pSelectedActor = actor; }
-		AActor* GetSelectedActor() { return m_pSelectedActor; }
 		void SetDisplayName(const std::string& name) { m_DisplayName = name; }
 		std::string GetDisplayName() { return m_DisplayName; }
 		void EndPlaySession();
 
 	private:
-		void RenderSceneHeirarchy();
-		void RenderInspector();
-		void RenderCreatorWindow();
+
 	private:
 		APlayerCharacter* m_pPlayerCharacter = nullptr;
 		APlayerStart* m_pPlayerStart = nullptr;
@@ -63,8 +60,7 @@ namespace Insight {
 		std::string m_DisplayName;
 		
 	private:
-		// TODO move this to engine class
-		FileSystem m_FileSystem;
+		FileSystem m_FileSystem;// TODO move this to engine class
 		ResourceManager m_ResourceManager;
 
 	};

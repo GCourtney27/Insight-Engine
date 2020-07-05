@@ -19,7 +19,7 @@ namespace Insight {
 		virtual void OnImGuiRender() override;
 
 		virtual void OnUpdate(const float& DeltaMs) override;
-		void OnEvent(Event& event);
+		void OnEvent(Event& event) override;
 
 		bool LoadScene(const std::string& FileName);
 

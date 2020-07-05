@@ -19,6 +19,7 @@ namespace Insight {
 		s_Instance = this;
 
 		IE_STRIP_FOR_GAME_DIST(m_pImGuiLayer = new ImGuiLayer());
+		IE_STRIP_FOR_GAME_DIST(m_pEditorLayer = new EditorLayer());
 	}
 
 	bool Application::InitializeAppForWindows(HINSTANCE & hInstance, int nCmdShow)
@@ -55,11 +56,11 @@ namespace Insight {
 
 	bool Application::Init()
 	{
-		PushEngineLayers();
-
 		m_pGameLayer = new GameLayer();
 		m_pGameLayer->LoadScene(FileSystem::Get().GetRelativeAssetDirectoryPath("Scenes/MyScene.iescene"));
-		
+
+		PushEngineLayers();
+
 		IE_CORE_TRACE("Application Initialized");
 		return true;
 	}
@@ -94,7 +95,7 @@ namespace Insight {
 				}
 				m_pGameLayer->OnImGuiRender();
 				m_pImGuiLayer->End();
-				)
+			)
 
 			m_pGameLayer->PostRender();
 			m_pWindow->EndFrame();
@@ -128,6 +129,7 @@ namespace Insight {
 	void Application::PushEngineLayers()
 	{
 		IE_STRIP_FOR_GAME_DIST(PushOverlay(m_pImGuiLayer);)
+		IE_STRIP_FOR_GAME_DIST(PushOverlay(m_pEditorLayer);)
 	}
 
 	void Application::PushLayer(Layer * layer)

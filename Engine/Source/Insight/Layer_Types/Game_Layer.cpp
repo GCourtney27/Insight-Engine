@@ -65,7 +65,7 @@ namespace Insight {
 
 	void GameLayer::OnImGuiRender()
 	{
-		m_pScene->OnImGuiRender();
+
 	}
 
 	void GameLayer::OnUpdate(const float& DeltaMs)

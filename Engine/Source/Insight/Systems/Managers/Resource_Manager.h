@@ -17,7 +17,7 @@ namespace Insight {
 		virtual bool LoadResourcesFromJson(const rapidjson::Value& jsonResources);
 
 		inline static ResourceManager& Get() { return *s_Instance; }
-
+		void FlushAllResources();
 
 		ModelManager& GetModelManager() { return *m_pModelManager; }
 		TextureManager& GetTextureManager() { return *m_pTextureManager; }

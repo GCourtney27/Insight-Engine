@@ -141,7 +141,7 @@ namespace Insight {
 
 		if (ImGui::IsItemClicked()) {
 			//TODO: Get editor layer
-			Application::Get().GetGameLayer().GetScene()->SetSelectedActor(this);
+			Application::Get().GetEditorLayer().SetSelectedActor(this);
 		}
 
 		if (isExpanded) {

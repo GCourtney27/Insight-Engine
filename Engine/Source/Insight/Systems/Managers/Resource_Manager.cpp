@@ -42,4 +42,14 @@ namespace Insight {
 		return true;
 	}
 
+	// Clears all resource caches for the currenly active scene.
+	// If used, make sure you are loading a new scene or immediatly 
+	// adding new resources AFTER this call
+	void ResourceManager::FlushAllResources()
+	{
+		m_pModelManager->FlushModelCache();
+		m_pTextureManager->FlushTextureCache();
+		//m_pMonoScriptManager->Cleanup();
+	}
+
 }

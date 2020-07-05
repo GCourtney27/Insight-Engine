@@ -2,19 +2,16 @@
 
 #include "Scene.h"
 
-#include "Insight/Input/Input.h"
 #include "Insight/Core/Application.h"
 #include "Insight/Runtime/APlayer_Character.h"
 #include "Insight/Runtime/APlayer_Start.h"
 
 #include "imgui.h"
-#include "ImGuizmo.h"
 
 namespace Insight {
 
 
 	Scene::Scene()
-		: m_pSceneRoot(new SceneNode("Scene Root"))
 	{
 		
 	}
@@ -39,6 +36,8 @@ namespace Insight {
 
 	bool Scene::Init(const std::string fileName)
 	{
+		m_pSceneRoot = new SceneNode("Scene Root");
+
 		// Get the render context from the main window
 		m_Renderer = Application::Get().GetWindow().GetRenderContext();
 
@@ -77,6 +76,11 @@ namespace Insight {
 		return true;
 	}
 
+	bool Scene::PostInit()
+	{
+		return false;
+	}
+
 	void Scene::BeginPlay()
 	{
 		m_pCamera->SetParent(m_pPlayerCharacter);
@@ -112,101 +116,6 @@ namespace Insight {
 
 	void Scene::OnImGuiRender()
 	{
-		// TODO Mode this to a editor layer
-		RenderSceneHeirarchy();
-		RenderInspector();
-		RenderCreatorWindow();
-	}
-
-	void Scene::RenderSceneHeirarchy()
-	{
-		ImGui::Begin("Heirarchy");
-		{
-			if (ImGui::CollapsingHeader(m_pSceneRoot->GetDisplayName(), ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				m_pSceneRoot->RenderSceneHeirarchy();
-			}
-		}
-		ImGui::End();
-	}
-
-	static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
-	static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
-	void Scene::RenderInspector()
-	{
-		ImGui::Begin("Details");
-		{
-			if (m_pSelectedActor != nullptr) {
-
-				m_pSelectedActor->OnImGuiRender();
-				
-				XMFLOAT4X4 objectMat;
-				XMFLOAT4X4 deltaMat;
-				XMFLOAT4X4 viewMat;
-				XMFLOAT4X4 projMat;
-				XMStoreFloat4x4(&objectMat, m_pSelectedActor->GetTransformRef().GetLocalMatrix());
-				XMStoreFloat4x4(&viewMat, m_pCamera->GetViewMatrix());
-				XMStoreFloat4x4(&projMat, m_pCamera->GetProjectionMatrix());
-
-				if (Input::IsKeyPressed('W')) {
-					mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-				}
-				else if (Input::IsKeyPressed('E')) {
-					mCurrentGizmoOperation = ImGuizmo::ROTATE;
-				}
-				else if (Input::IsKeyPressed('R')) {
-					mCurrentGizmoOperation = ImGuizmo::SCALE;
-				}
-
-				ImGuiIO& io = ImGui::GetIO();
-				ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-				//TODO if(Raycast::LastRayCast::Succeeded) than run this line if false than skip it (disbles the guizmo)
-				ImGuizmo::Manipulate(*viewMat.m, *projMat.m, mCurrentGizmoOperation, mCurrentGizmoMode, *objectMat.m, *deltaMat.m, NULL, NULL, NULL);
-				
-				if (ImGuizmo::IsOver()) 
-				{
-					float pos[3] = { 0.0f, 0.0f, 0.0f };
-					float sca[3] = { 0.0f, 0.0f, 0.0f };
-					float rot[3] = { 0.0f, 0.0f, 0.0f };
-
-					switch (mCurrentGizmoOperation) {
-					case ImGuizmo::TRANSLATE:
-					{
-						ImGuizmo::DecomposeMatrixToComponents(*deltaMat.m, pos, rot, sca);
-						m_pSelectedActor->GetTransformRef().Translate(pos[0], pos[1], pos[2]);
-						break;
-					}
-					case ImGuizmo::SCALE:
-					{
-						ImGuizmo::DecomposeMatrixToComponents(*objectMat.m, pos, rot, sca);
-						m_pSelectedActor->GetTransformRef().SetScale(sca[0], sca[1], sca[2]);
-						break;
-					}
-					case ImGuizmo::ROTATE:
-					{
-						ImGuizmo::DecomposeMatrixToComponents(*deltaMat.m, pos, rot, sca); 
-						m_pSelectedActor->GetTransformRef().Rotate(rot[0], rot[1], rot[2]);
-						break;
-					}
-					default: { break; }
-					}
-				}
-				
-			}
-		}
-		ImGui::End();
-	}
-
-	void Scene::RenderCreatorWindow()
-	{
-		// TODO make this a colapsing header with different options
-		//ImGui::Begin("Creator");
-		{
-			/*if (ImGui::Button("New Point Light", { 125, 25 })) {
-				m_pSceneRoot->AddChild(new APointLight(5, "New cool point light"));
-			}*/
-		}
-		//ImGui::End();
 	}
 
 	void Scene::OnPreRender()
@@ -236,6 +145,18 @@ namespace Insight {
 	void Scene::Destroy()
 	{
 		delete m_pSceneRoot;
+	}
+
+	bool Scene::FlushAndOpenNewScene(const std::string& NewScene)
+	{
+		Destroy();
+		m_ResourceManager.FlushAllResources();
+		if (!Init(NewScene)) {
+			IE_CORE_ERROR("Failed to flush current scene \"{0}\" and load new scene with filepath: \"{1}\"", m_DisplayName, NewScene);
+			return false;
+		}
+
+		return true;
 	}
 
 

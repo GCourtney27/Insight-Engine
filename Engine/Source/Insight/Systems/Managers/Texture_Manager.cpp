@@ -20,6 +20,26 @@ namespace Insight {
 	{
 	}
 
+	void TextureManager::FlushTextureCache()
+	{
+		for (StrongTexturePtr& tex : m_AlbedoTextures) {
+			tex.reset();
+		}
+		for (StrongTexturePtr& tex : m_NormalTextures) {
+			tex.reset();
+		}
+		for (StrongTexturePtr& tex : m_MetallicTextures) {
+			tex.reset();
+		}
+		for (StrongTexturePtr& tex : m_RoughnessTextures) {
+			tex.reset();
+		}
+		for (StrongTexturePtr& tex : m_AOTextures) {
+			tex.reset();
+		}
+
+	}
+
 	bool TextureManager::Init()
 	{
 		return true;
