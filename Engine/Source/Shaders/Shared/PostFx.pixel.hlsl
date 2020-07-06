@@ -19,17 +19,10 @@ SamplerState s_LinearWrapSampler : register(s1);
 float3 AddFilmGrain(float3 sourceColor, float2 texCoords);
 float3 AddVignette(float3 sourceColor, float2 texCoords);
 float3 AddChromaticAberration(float3 sourceColor, float2 texCoords);
-void GammaCorrect(inout float3 target);
-void HDRToneMap(inout float3 target);
 float LinearizeDepth(float depth);
 
-struct VertexOut
-{
-    float4 posH : SV_POSITION;
-    float3 viewRay : VIEWRAY;
-    float2 tex : TEXCOORD;
-};
-
+// Pixel Shader Return Value
+// -------------------------
 struct PS_INPUT_POSTFX
 {
     float4 sv_position : SV_POSITION;
@@ -105,8 +98,6 @@ float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
         result = AddChromaticAberration(result, ps_in.texCoords);
     }
     
-    HDRToneMap(result);
-    GammaCorrect(result);
     return float4(result, 1.0);
     //return float4(0.0, 1.0, 0.0, 1.0);
 }
@@ -154,17 +145,6 @@ float3 AddVignette(float3 sourceColor, float2 texCoords)
     color = lerp(sourceColor, color, vnOpacity);
     
     return color;
-}
-
-void HDRToneMap(inout float3 target)
-{
-    target = float3(1.0, 1.0, 1.0) - exp(-target * cameraExposure);
-}
-
-void GammaCorrect(inout float3 target)
-{
-    const float gamma = 2.2;
-    target = pow(abs(target.rgb), float3(1.0 / gamma, 1.0 / gamma, 1.0 / gamma));
 }
 
 float LinearizeDepth(float depth)

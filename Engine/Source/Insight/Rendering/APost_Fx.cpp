@@ -23,17 +23,17 @@ namespace Insight {
 	{
 	}
 
-	bool APostFx::LoadFromJson(const rapidjson::Value& jsonPostFx)
+	bool APostFx::LoadFromJson(const rapidjson::Value& JsonPostFx)
 	{
-		AActor::LoadFromJson(jsonPostFx);
+		AActor::LoadFromJson(JsonPostFx);
 
 		bool vnEnabled, caEnabled, fgEnabled;
 
-		const rapidjson::Value& postFx = jsonPostFx["PostFx"];
+		const rapidjson::Value& postFx = JsonPostFx["PostFx"];
 
 		const rapidjson::Value& vignette = postFx[0];
-		json::get_float(vignette, "vnInnerRadius", m_ShaderCB.vnInnerRadius);
-		json::get_float(vignette, "vnOuterRadius", m_ShaderCB.vnOuterRadius);
+		json::get_float(vignette, "vnInnerRadius", m_TempInnerRadius);
+		json::get_float(vignette, "vnOuterRadius", m_TempOuterRadius);
 		json::get_float(vignette, "vnOpacity", m_ShaderCB.vnOpacity);
 		json::get_bool(vignette, "vnEnabled", vnEnabled);
 
@@ -48,6 +48,8 @@ namespace Insight {
 		m_ShaderCB.vnEnabled = static_cast<int>(vnEnabled);
 		m_ShaderCB.fgEnabled = static_cast<int>(fgEnabled);
 		m_ShaderCB.caEnabled = static_cast<int>(caEnabled);
+		m_ShaderCB.vnInnerRadius = m_TempInnerRadius;
+		m_ShaderCB.vnOuterRadius = m_TempOuterRadius;
 		
 		return true;
 	}

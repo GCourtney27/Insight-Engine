@@ -140,7 +140,6 @@ namespace Insight {
 		const bool isExpanded = ImGui::TreeNodeEx(SceneNode::GetDisplayName(), treeFlags);
 
 		if (ImGui::IsItemClicked()) {
-			//TODO: Get editor layer
 			IE_STRIP_FOR_GAME_DIST(Application::Get().GetEditorLayer().SetSelectedActor(this);)
 		}
 
