@@ -21,6 +21,7 @@ namespace Insight {
 		virtual void OnUpdate(const float& DeltaMs) override;
 		void OnEvent(Event& event) override;
 
+		inline void SetUIEnabled(bool Enabled) { m_UIEnabled = Enabled; }
 		void SetSelectedActor(AActor* actor) { m_pSelectedActor = actor; }
 		AActor* GetSelectedActor() { return m_pSelectedActor; }
 
@@ -34,6 +35,8 @@ namespace Insight {
 		SceneNode*	m_pSceneRoot = nullptr;
 		ACamera*	m_pSceneCamera = nullptr;
 		Scene*		m_pCurrentScene = nullptr;
+
+		bool		m_UIEnabled = true;
 	};
 
 }

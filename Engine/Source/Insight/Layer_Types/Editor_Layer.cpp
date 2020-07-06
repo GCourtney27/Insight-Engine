@@ -41,6 +41,9 @@ namespace Insight {
 
 	void EditorLayer::OnImGuiRender()
 	{
+		if (!m_UIEnabled) {
+			return;
+		}
 		RenderSceneHeirarchy();
 		RenderInspector();
 		RenderCreatorWindow();
