@@ -97,7 +97,7 @@ namespace Insight {
 		Cleanup();
 	}
 
-	void CSharpScriptComponent::OnPreRender(const DirectX::XMMATRIX& matrix)
+	void CSharpScriptComponent::CalculateParent(const DirectX::XMMATRIX& matrix)
 	{
 	}
 

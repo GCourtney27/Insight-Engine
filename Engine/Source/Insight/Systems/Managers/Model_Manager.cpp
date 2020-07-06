@@ -20,19 +20,20 @@ namespace Insight {
 
 	bool ModelManager::Init()
 	{
-		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
+		Direct3D12Context& GraphicsContext = Direct3D12Context::Get();
 
-		m_ConstantBufferUploadHeaps = &graphicsContext.GetConstantBufferPerObjectUploadHeap();
-		m_ConstantBufferMaterialUploadHeaps = &graphicsContext.GetConstantBufferPerObjectMaterialUploadHeap();
-		m_pCommandList = &graphicsContext.GetCommandList();
+		m_ConstantBufferUploadHeaps = &GraphicsContext.GetConstantBufferPerObjectUploadHeap();
+		m_ConstantBufferMaterialUploadHeaps = &GraphicsContext.GetConstantBufferPerObjectMaterialUploadHeap();
+		m_pScenePassCommandList = &GraphicsContext.GetScenePassCommandList();
+		m_pShadowPassCommandList = &GraphicsContext.GetShadowPassCommandList();
 
 		m_CbvUploadHeapHandle = m_ConstantBufferUploadHeaps->GetGPUVirtualAddress();
 		m_CbvMaterialHeapHandle = m_ConstantBufferMaterialUploadHeaps->GetGPUVirtualAddress();
 
-		m_CbvPerObjectGPUAddress = &graphicsContext.GetPerObjectCBVGPUHeapAddress();
-		m_CbvMaterialGPUAddress = &graphicsContext.GetPerObjectMaterialAdditiveCBVGPUHeapAddress();
+		m_CbvPerObjectGPUAddress = &GraphicsContext.GetPerObjectCBVGPUHeapAddress();
+		m_CbvMaterialGPUAddress = &GraphicsContext.GetPerObjectMaterialAdditiveCBVGPUHeapAddress();
 
-		if (!(m_pCommandList && m_ConstantBufferUploadHeaps && m_ConstantBufferMaterialUploadHeaps))
+		if (!(m_pScenePassCommandList && m_pShadowPassCommandList && m_ConstantBufferUploadHeaps && m_ConstantBufferMaterialUploadHeaps))
 		{
 			IE_CORE_ERROR("Failed to initialize one or more resources for model manager.");
 			return false;
@@ -47,25 +48,43 @@ namespace Insight {
 	}
 
 	// Issue draw commands to all models attached to the model manager
-	void ModelManager::Render()
+	void ModelManager::Render(RenderPass RenderPass)
 	{
-		for (UINT32 i = 0; i < m_Models.size(); ++i) {
+		if (RenderPass == RenderPass::RenderPass_Shadow) {
 
-			for (UINT32 j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
+			for (UINT32 i = 0; i < m_Models.size(); ++i) {
 
-				m_pCommandList->SetGraphicsRootConstantBufferView(0, m_CbvUploadHeapHandle + (ConstantBufferPerObjectAlignedSize * m_PerObjectCBDrawOffset));
-				m_pCommandList->SetGraphicsRootConstantBufferView(4, m_CbvMaterialHeapHandle + (ConstantBufferPerObjectMaterialAlignedSize * m_PerObjectCBDrawOffset));
+				for (UINT32 j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
 
-				m_Models[i]->BindResources();
-				m_Models[i]->GetMeshAtIndex(j)->Render();
+					m_pShadowPassCommandList->SetGraphicsRootConstantBufferView(0, m_CbvUploadHeapHandle + (ConstantBufferPerObjectAlignedSize * m_PerObjectCBDrawOffset));
+					m_Models[i]->GetMeshAtIndex(j)->Render(m_pShadowPassCommandList);
 
-				m_PerObjectCBDrawOffset++;
+					m_PerObjectCBDrawOffset++;
+				}
 			}
+			m_PerObjectCBDrawOffset = 0U;
+		}
+		else if (RenderPass == RenderPass::RenderPass_Scene) {
+
+			for (UINT32 i = 0; i < m_Models.size(); ++i) {
+
+				for (UINT32 j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
+
+					m_pScenePassCommandList->SetGraphicsRootConstantBufferView(0, m_CbvUploadHeapHandle + (ConstantBufferPerObjectAlignedSize * m_PerObjectCBDrawOffset));
+					m_pScenePassCommandList->SetGraphicsRootConstantBufferView(4, m_CbvMaterialHeapHandle + (ConstantBufferPerObjectMaterialAlignedSize * m_PerObjectCBDrawOffset));
+
+					m_Models[i]->BindResources();
+					m_Models[i]->GetMeshAtIndex(j)->Render(m_pScenePassCommandList);
+
+					m_PerObjectCBDrawOffset++;
+				}
+			}
+			m_PerObjectCBDrawOffset = 0U;
 		}
 	}
 
 	// Update the Constant buffers in the gpu with the new data for each model. Does not draw models
-	void ModelManager::UploadConstantBufferDataToGPU()
+	void ModelManager::GatherGeometry()
 	{
 		for (UINT32 i = 0; i < m_Models.size(); i++) {
 

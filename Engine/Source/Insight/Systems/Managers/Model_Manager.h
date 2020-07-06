@@ -19,11 +19,11 @@ namespace Insight {
 		bool Init();
 		virtual bool LoadResourcesFromJson(const rapidjson::Value& jsonMeshes);
 
-		void Render();
+		void Render(RenderPass RenderPass);
 
 		SceneModels* GetSceneModels() { return &m_Models; }
 
-		void UploadConstantBufferDataToGPU();
+		void GatherGeometry();
 		void PostRender();
 		void FlushModelCache();
 		
@@ -39,7 +39,8 @@ namespace Insight {
 
 		ID3D12Resource* m_ConstantBufferUploadHeaps = nullptr;
 		ID3D12Resource* m_ConstantBufferMaterialUploadHeaps = nullptr;
-		ID3D12GraphicsCommandList* m_pCommandList = nullptr;
+		ID3D12GraphicsCommandList* m_pScenePassCommandList = nullptr;
+		ID3D12GraphicsCommandList* m_pShadowPassCommandList = nullptr;
 
 		int ConstantBufferPerObjectAlignedSize = (sizeof(CB_VS_PerObject) + 255) & ~255;
 		int ConstantBufferPerObjectMaterialAlignedSize = (sizeof(CB_PS_VS_PerObjectAdditives) + 255) & ~255;

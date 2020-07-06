@@ -33,7 +33,7 @@ namespace Insight {
 		const size_t GetNumChildMeshes() const { return m_Meshes.size(); }
 
 		void PreRender(const XMMATRIX& parentMat);
-		void Render();
+		void Render(ID3D12GraphicsCommandList* pCommandList);
 		void Destroy();
 		bool LoadModelFromFile(const std::string& path);
 	private:

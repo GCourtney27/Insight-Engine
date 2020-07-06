@@ -121,15 +121,14 @@ namespace Insight {
 	void Scene::OnPreRender()
 	{
 		m_Renderer->OnPreFrameRender();
-		m_pSceneRoot->OnPreRender(XMMatrixIdentity());
-		m_ResourceManager.GetModelManager().UploadConstantBufferDataToGPU();
+		m_pSceneRoot->CalculateParent(XMMatrixIdentity());
+		m_ResourceManager.GetModelManager().GatherGeometry();
 	}
 
 	void Scene::OnRender()
 	{
 		m_Renderer->OnRender();
 		m_pSceneRoot->OnRender();
-		m_ResourceManager.GetModelManager().Render();
 	}
 
 	void Scene::OnMidFrameRender()

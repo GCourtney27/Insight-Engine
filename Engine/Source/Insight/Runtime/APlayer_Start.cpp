@@ -38,9 +38,9 @@ namespace Insight {
 
 	}
 
-	void APlayerStart::OnPreRender(XMMATRIX parentMat)
+	void APlayerStart::CalculateParent(XMMATRIX parentMat)
 	{
-		AActor::OnPreRender(parentMat);
+		AActor::CalculateParent(parentMat);
 
 	}
 

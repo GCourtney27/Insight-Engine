@@ -8,10 +8,11 @@ Texture2D t_NormalGBuffer               : register(t1);
 Texture2D t_RoughnessMetallicAOGBuffer  : register(t2);
 Texture2D t_PositionGBuffer             : register(t3);
 Texture2D t_DepthGBuffer                : register(t4);
+Texture2D t_ShadowDepth                 : register(t5);
 
-TextureCube tc_IrradianceMap    : register(t10);
-TextureCube tc_EnvironmentMap   : register(t11);
-Texture2D t_BrdfLUT             : register(t12);
+TextureCube tc_IrradianceMap    : register(t11);
+TextureCube tc_EnvironmentMap   : register(t12);
+Texture2D t_BrdfLUT             : register(t13);
 
 // Samplers
 // --------
@@ -34,6 +35,8 @@ struct PS_OUTPUT_LIGHTPASS
 PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
 {
     PS_OUTPUT_LIGHTPASS ps_out;
+    //ps_out.litImage = t_ShadowDepth.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
+    //return ps_out;
     
 	// Sample Textures
     float3 albedo = pow(abs(t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb), float3(2.2, 2.2, 2.2));

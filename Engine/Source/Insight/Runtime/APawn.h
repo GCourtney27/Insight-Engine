@@ -25,7 +25,7 @@ namespace Insight {
 
 		virtual bool OnInit() override;
 		virtual void OnUpdate(const float& deltaMs) override;
-		virtual void OnPreRender(XMMATRIX parentMat) override;
+		virtual void CalculateParent(XMMATRIX parentMat) override;
 		virtual void OnRender() override;
 
 		inline void SetMovementSpeed(const float& movementSpeed) { m_MovementSpeed = movementSpeed; }

@@ -14,7 +14,7 @@ namespace Insight {
 		: AActor(id, type)
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		m_pCommandList = &graphicsContext.GetCommandList();
+		m_pCommandList = &graphicsContext.GetScenePassCommandList();
 		graphicsContext.AddSkyLight(this);
 	}
 

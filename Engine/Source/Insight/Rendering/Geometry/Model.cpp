@@ -67,11 +67,11 @@ namespace Insight {
 		}
 	}
 
-	void Model::Render()
+	void Model::Render(ID3D12GraphicsCommandList* pCommandList)
 	{
 		int numMeshChildren = (int)m_Meshes.size();
 		for (int i = 0; i < numMeshChildren; ++i) {
-			m_Meshes[i]->Render();
+			m_Meshes[i]->Render(pCommandList);
 		}
 	}
 

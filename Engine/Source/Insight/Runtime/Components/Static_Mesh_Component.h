@@ -19,7 +19,7 @@ namespace Insight {
 		virtual void OnInit() override;
 		virtual void OnPostInit() {}
 		virtual void OnDestroy() override;
-		virtual void OnPreRender(const XMMATRIX& parentMatrix) override;
+		virtual void CalculateParent(const XMMATRIX& parentMatrix) override;
 		virtual void OnRender() override;
 		virtual void OnUpdate(const float& deltaTime);
 		virtual void OnChanged() {}

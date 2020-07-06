@@ -67,7 +67,6 @@ namespace Insight {
 		COM_SAFE_RELEASE(m_pVertexBufferUploadHeap);
 		COM_SAFE_RELEASE(m_pIndexBufferUploadHeap);
 
-		m_pCommandList = nullptr;
 		m_pLogicalDevice = nullptr;
 	}
 
@@ -87,7 +86,6 @@ namespace Insight {
 		m_VBufferSize = m_NumVerticies * sizeof(Vertex3D);
 
 		m_pLogicalDevice = &Direct3D12Context::Get().GetDeviceContext();
-		m_pCommandList	 = &Direct3D12Context::Get().GetCommandList();
 
 		SetupMesh();
 	}
@@ -108,11 +106,11 @@ namespace Insight {
 		return m_ConstantBufferPerObject;
 	}
 
-	void Mesh::Render()
+	void Mesh::Render(ID3D12GraphicsCommandList*& pCommandList)
 	{
-		m_pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);
-		m_pCommandList->IASetIndexBuffer(&m_IndexBufferView);
-		m_pCommandList->DrawIndexedInstanced(m_NumIndices, 1, 0, 0, 0);
+		pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);
+		pCommandList->IASetIndexBuffer(&m_IndexBufferView);
+		pCommandList->DrawIndexedInstanced(m_NumIndices, 1, 0, 0, 0);
 	}
 
 	void Mesh::OnImGuiRender()
@@ -164,13 +162,13 @@ namespace Insight {
 		vertexData.RowPitch = m_VBufferSize;
 		vertexData.SlicePitch = m_VBufferSize;
 
-		UpdateSubresources(m_pCommandList, m_pVertexBuffer, m_pVertexBufferUploadHeap, 0, 0, 1, &vertexData);
+		UpdateSubresources(&Direct3D12Context::Get().GetScenePassCommandList(), m_pVertexBuffer, m_pVertexBufferUploadHeap, 0, 0, 1, &vertexData);
 
 		m_VertexBufferView.BufferLocation = m_pVertexBuffer->GetGPUVirtualAddress();
 		m_VertexBufferView.StrideInBytes = sizeof(Vertex3D);
 		m_VertexBufferView.SizeInBytes = m_VBufferSize;
 
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pVertexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
+		Direct3D12Context::Get().GetScenePassCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pVertexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
 
 		return true;
 	}
@@ -210,13 +208,13 @@ namespace Insight {
 		indexData.RowPitch = m_IBufferSize;
 		indexData.SlicePitch = m_IBufferSize;
 
-		UpdateSubresources(m_pCommandList, m_pIndexBuffer, m_pIndexBufferUploadHeap, 0, 0, 1, &indexData);
+		UpdateSubresources(&Direct3D12Context::Get().GetScenePassCommandList(), m_pIndexBuffer, m_pIndexBufferUploadHeap, 0, 0, 1, &indexData);
 
 		m_IndexBufferView.BufferLocation = m_pIndexBuffer->GetGPUVirtualAddress();
 		m_IndexBufferView.Format = DXGI_FORMAT_R32_UINT;
 		m_IndexBufferView.SizeInBytes = m_IBufferSize;
 
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pIndexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER));
+		Direct3D12Context::Get().GetScenePassCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pIndexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER));
 
 		return true;
 	}

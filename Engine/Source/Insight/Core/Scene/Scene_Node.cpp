@@ -65,11 +65,11 @@ namespace Insight {
 		}
 	}
 
-	void SceneNode::OnPreRender(XMMATRIX parentMat)
+	void SceneNode::CalculateParent(XMMATRIX parentMat)
 	{
 		GetTransformRef().SetWorldMatrix(XMMatrixMultiply(parentMat, GetTransformRef().GetLocalMatrixRef()));
 		for (auto i = m_Children.begin(); i != m_Children.end(); ++i) {
-			(*i)->OnPreRender(GetTransformRef().GetWorldMatrixRef());
+			(*i)->CalculateParent(GetTransformRef().GetWorldMatrixRef());
 		}
 	}
 

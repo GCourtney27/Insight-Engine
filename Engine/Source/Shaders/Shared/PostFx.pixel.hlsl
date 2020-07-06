@@ -8,7 +8,7 @@ Texture2D t_RoughnessMetallicAOGBuffer : register(t2);
 Texture2D t_PositionGBuffer : register(t3);
 Texture2D t_DepthGBuffer : register(t4);
 
-Texture2D t_LightPassResult : register(t14);
+Texture2D t_LightPassResult : register(t15);
 
 // Samplers
 // --------

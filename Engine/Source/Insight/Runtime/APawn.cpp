@@ -29,9 +29,9 @@ namespace Insight {
 
 	}
 
-	void APawn::OnPreRender(XMMATRIX parentMat)
+	void APawn::CalculateParent(XMMATRIX parentMat)
 	{
-		AActor::OnPreRender(parentMat);
+		AActor::CalculateParent(parentMat);
 	}
 
 	void APawn::OnRender()

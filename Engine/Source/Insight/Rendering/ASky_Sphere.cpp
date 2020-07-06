@@ -15,7 +15,7 @@ namespace Insight {
 	{
 		m_Sphere.Init(10, 20, 20);
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		m_pCommandList = &graphicsContext.GetCommandList();
+		m_pCommandList = &graphicsContext.GetScenePassCommandList();
 		graphicsContext.AddSkySphere(this);
 	}
 

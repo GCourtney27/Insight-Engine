@@ -226,7 +226,7 @@ namespace Insight {
 		}
 	}
 
-	void AActor::OnPreRender(XMMATRIX parentMat)
+	void AActor::CalculateParent(XMMATRIX parentMat)
 	{
 		if (m_Parent) {
 			GetTransformRef().SetWorldMatrix(XMMatrixMultiply(GetTransformRef().GetLocalMatrixRef(), parentMat));
@@ -236,10 +236,10 @@ namespace Insight {
 		}
 
 		// Render Children
-		SceneNode::OnPreRender(GetTransformRef().GetWorldMatrixRef());
+		SceneNode::CalculateParent(GetTransformRef().GetWorldMatrixRef());
 		// Render Components
 		for (size_t i = 0; i < m_NumComponents; ++i) {
-			m_Components[i]->OnPreRender(GetTransformRef().GetLocalMatrixRef());
+			m_Components[i]->CalculateParent(GetTransformRef().GetLocalMatrixRef());
 		}
 	}
 
