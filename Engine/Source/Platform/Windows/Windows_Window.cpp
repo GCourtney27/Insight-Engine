@@ -178,6 +178,16 @@ namespace Insight {
 		}
 		case WM_SIZE:
 		{
+			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+
+			if (data.IsFirstLaunch) {
+				data.IsFirstLaunch = false;
+				return 0;
+			}
+			RECT clientRect = {};
+			GetClientRect(hWnd, &clientRect);
+			WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, wParam == SIZE_MINIMIZED);
+			data.EventCallback(event);
 			return 0;
 		}
 		case WM_INPUT:
@@ -218,6 +228,13 @@ namespace Insight {
 			// Parse the menu selections:
 			switch (wmId)
 			{
+			case IDM_EDITOR_TOGGLE:
+			{
+				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+				data.EditorUIEnabled = !data.EditorUIEnabled;
+				Application::Get().GetEditorLayer().SetUIEnabled(data.EditorUIEnabled);
+				break;
+			}
 			case IDM_BEGIN_PLAY:
 			{
 				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
@@ -308,7 +325,7 @@ namespace Insight {
 	{
 		HRESULT hr = CoInitialize(NULL);
 		ThrowIfFailed(hr, "Failed to initialize COM library.");
-
+		
 		static bool raw_input_initialized = false;
 		if (raw_input_initialized == false)
 		{
@@ -321,10 +338,8 @@ namespace Insight {
 
 			if (RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE)
 			{
-				IE_CORE_ERROR("Failed to register raw input devices. Error: {0}", GetLastError());
-				WindowCloseEvent event;
-				m_Data.EventCallback(event);
-				// registration failed. Call GetLastError for the cause of the error
+				IE_CORE_ERROR("Failed to register raw input devices. Error: {0}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
+				return false;
 			}
 			raw_input_initialized = true;
 		}
@@ -334,16 +349,19 @@ namespace Insight {
 		int centerScreenX = GetSystemMetrics(SM_CXSCREEN) / 2 - m_Data.Width / 2;
 		int centerScreenY = GetSystemMetrics(SM_CYSCREEN) / 2 - m_Data.Height / 2;
 
+		// Center the window on the users monitor
 		m_WindowRect.left = centerScreenX;
 		m_WindowRect.top = centerScreenY + 35;
 		m_WindowRect.right = m_WindowRect.left + m_Data.Width;
 		m_WindowRect.bottom = m_WindowRect.top + m_Data.Height;
 		AdjustWindowRect(&m_WindowRect, WS_OVERLAPPEDWINDOW | WS_EX_ACCEPTFILES, FALSE);
 
+		// Create the menu bar
 		InitializeMenuBar();
 
-		m_hWindow = CreateWindowEx(
-			0,										// Window Styles
+		// Create the main window for the engine/game
+		m_hWindow = CreateWindowExW(
+			WS_EX_ACCEPTFILES,						// Window Styles
 			m_Data.WindowClassName_wide.c_str(),	// Window Class
 			m_Data.WindowTitle_wide.c_str(),		// Window Title
 			WS_OVERLAPPEDWINDOW,					// Window Style
@@ -354,19 +372,18 @@ namespace Insight {
 			m_WindowRect.bottom - m_WindowRect.top,		// Height
 
 			NULL,					// Parent window
-			m_hMenu,			// Menu
+			m_hMenuBar,				// Menu
 			*m_WindowsAppInstance,	// Current Windows program application instance passed from WinMain
 			&m_Data					// Additional application data
 		);
 
-		if (m_hWindow == NULL)
-		{
+		if (m_hWindow == NULL) {
 			IE_ERROR("Unable to create Windows window.");
-			IE_ERROR("    Error: {0}", GetLastError());
+			IE_ERROR("    Error: {0}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
 			return false;
 		}
-		DragAcceptFiles(m_hWindow, TRUE);
 
+		// Create and Initialize the renderer. We are using Direct3D 12
 		{
 			ScopedTimer timer("WindowsWindow::Init::RendererInit");
 
@@ -384,9 +401,7 @@ namespace Insight {
 		ShowWindow(m_hWindow, m_nCmdShowArgs);
 		SetForegroundWindow(m_hWindow);
 		SetFocus(m_hWindow);
-		SetWindowText(m_hWindow, m_Data.WindowTitle_wide.c_str());
-
-		UpdateWindow(m_hWindow);
+		SetWindowTitle(m_Data.WindowTitle);
 
 		IE_CORE_TRACE("Window Initialized");
 		return true;
@@ -412,43 +427,22 @@ namespace Insight {
 		if (error > 0)
 		{
 			IE_CORE_ERROR("An error occured while registering window class: {0} ", m_Data.WindowClassName);
-			//IE_CORE_ERROR("    Error: {1}", error);
-			{
-				LPVOID lpMsgBuf;
-				LPVOID lpDisplayBuf;
-				DWORD dw = GetLastError();
-
-				FormatMessage(
-					FORMAT_MESSAGE_ALLOCATE_BUFFER |
-					FORMAT_MESSAGE_FROM_SYSTEM |
-					FORMAT_MESSAGE_IGNORE_INSERTS,
-					NULL,
-					dw,
-					MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-					(LPTSTR)&lpMsgBuf,
-					0, NULL);
-
-				// Display the error message
-
-				lpDisplayBuf = (LPVOID)LocalAlloc(LMEM_ZEROINIT,
-					(lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)"") + 40) * sizeof(TCHAR));
-				StringCchPrintf((LPTSTR)lpDisplayBuf,
-					LocalSize(lpDisplayBuf) / sizeof(TCHAR),
-					TEXT("%s failed with error %d: %s"),
-					"", dw, lpMsgBuf);
-				MessageBox(NULL, (LPCTSTR)lpDisplayBuf, TEXT("Error"), MB_OK);
-			}
+			IE_CORE_ERROR("    Error: {1}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
 		}
 	}
 
 	void WindowsWindow::InitializeMenuBar()
 	{
-		m_hMenu = CreateMenu();
+		m_hMenuBar = CreateMenu();
+		if (m_hMenuBar == NULL) {
+			IE_CORE_ERROR("Failed to create menu bar for window \"{0}\"", m_Data.WindowTitle);
+			return;
+		}
 
 		// File SubMenu
 		{
 			m_hFileSubMenu = CreateMenu();
-			AppendMenuW(m_hMenu, MF_POPUP, (UINT_PTR)m_hFileSubMenu, L"&File");
+			AppendMenuW(m_hMenuBar, MF_POPUP, (UINT_PTR)m_hFileSubMenu, L"&File");
 			AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_SCENE_SAVE, L"&Save Scene");
 			AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_ABOUT, L"&About");
 			AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_EXIT, L"&Exit");
@@ -457,17 +451,19 @@ namespace Insight {
 		// Edit SubMenu
 		{
 			m_hEditSubMenu = CreateMenu();
-			AppendMenuW(m_hMenu, MF_POPUP, (UINT_PTR)m_hEditSubMenu, L"&Edit");
+			AppendMenuW(m_hMenuBar, MF_POPUP, (UINT_PTR)m_hEditSubMenu, L"&Edit");
 
 		}
 
 		// Editor SubMenu
 		{
 			m_hEditorSubMenu = CreateMenu();
-			AppendMenuW(m_hMenu, MF_POPUP, (UINT_PTR)m_hEditorSubMenu, L"&Editor");
+			AppendMenuW(m_hMenuBar, MF_POPUP, (UINT_PTR)m_hEditorSubMenu, L"&Editor");
 			AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_BEGIN_PLAY, L"&Play");
 			AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_END_PLAY, L"&Stop");
+			AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_EDITOR_TOGGLE, L"&Toggle Editor UI");
 
+			m_Data.hEditorSubMenu = m_hEditorSubMenu;
 		}
 
 		return;
@@ -476,7 +472,7 @@ namespace Insight {
 			m_hGraphicsSubMenu = CreateMenu();
 			m_hGraphicsVisualizeSubMenu = CreateMenu();
 
-			AppendMenuW(m_hMenu, MF_POPUP, (UINT_PTR)m_hGraphicsSubMenu, L"&Graphics");
+			AppendMenuW(m_hMenuBar, MF_POPUP, (UINT_PTR)m_hGraphicsSubMenu, L"&Graphics");
 			//AppendMenuW(m_GraphicsSubMenuHandle, MF_STRING, (UINT_PTR)m_GraphicsSubMenuHandle, L"&Reload Post-Fx Pass Shader");
 			//AppendMenuW(m_GraphicsSubMenuHandle, MF_STRING, (UINT_PTR)m_GraphicsSubMenuHandle, L"&Reload Geometry Pass Shader");
 			//AppendMenuW(m_GraphicsSubMenuHandle, MF_STRING, (UINT_PTR)m_GraphicsSubMenuHandle, L"&Reload Light Pass Shader");
@@ -495,7 +491,35 @@ namespace Insight {
 			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
 			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_AO_BUFFER, L"&Ambient Occlusion (PBR Texture)");
 			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
+
+			m_Data.hGraphicsVisualizeSubMenu = m_hGraphicsVisualizeSubMenu;
 		}
+	}
+
+	LPCTSTR WindowsWindow::GetLastWindowsError()
+	{
+		LPVOID lpMsgBuf;
+		LPVOID lpDisplayBuf;
+		DWORD dw = GetLastError();
+
+		FormatMessage(
+			FORMAT_MESSAGE_ALLOCATE_BUFFER |
+			FORMAT_MESSAGE_FROM_SYSTEM |
+			FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL,
+			dw,
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			(LPTSTR)&lpMsgBuf,
+			0, NULL);
+
+		lpDisplayBuf = (LPVOID)LocalAlloc(LMEM_ZEROINIT, (lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)"") + 40) * sizeof(TCHAR));
+		StringCchPrintf(
+			(LPTSTR)lpDisplayBuf,
+			LocalSize(lpDisplayBuf) / sizeof(TCHAR),
+			TEXT("%s failed with error %d: %s"),
+			"", dw, lpMsgBuf
+		);
+		return (LPCTSTR)lpDisplayBuf;
 	}
 
 	void WindowsWindow::Resize(UINT newWidth, UINT newHeight, bool isMinimized)

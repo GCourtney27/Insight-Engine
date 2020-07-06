@@ -17,6 +17,13 @@ Texture2D t_BrdfLUT             : register(t12);
 // --------
 sampler s_LinearWrapSampler : register(s0);
 
+// Function Signatures
+// -------------------
+void GammaCorrect(inout float3 target);
+void HDRToneMap(inout float3 target);
+
+// Pixel Shader Return Value
+// -------------------------
 struct PS_OUTPUT_LIGHTPASS
 {
     float3 litImage : SV_Target;
@@ -37,7 +44,7 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     float roughness = roughMetAOBufferSample.r;
     float metallic = roughMetAOBufferSample.g;
     float ambientOcclusion = roughMetAOBufferSample.b;
-    
+
     float3 viewDirection = normalize(cameraPosition - worldPosition);
     
     float3 F0 = float3(0.04, 0.04, 0.04);
@@ -138,20 +145,35 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     float3 F_IBL = FresnelSchlickRoughness(NdotV, baseReflectivity, roughness);
     float3 kD_IBL = (1.0f - F_IBL) * (1.0f - metallic);
     float3 diffuse_IBL = tc_IrradianceMap.Sample(s_LinearWrapSampler, normal).rgb * albedo * kD_IBL;
+
     // Specular IBL
     const float MAX_REFLECTION_MIP_LOD = 10.0f;
     float3 environmentMapColor = tc_EnvironmentMap.SampleLevel(s_LinearWrapSampler, reflect(-viewDirection, normal), roughness * MAX_REFLECTION_MIP_LOD).rgb;
     float2 brdf = t_BrdfLUT.Sample(s_LinearWrapSampler, float2(NdotV, roughness)).rg;
     float3 specular_IBL = environmentMapColor * (F_IBL * brdf.r + brdf.g);
-    
+
     float3 ambient = (diffuse_IBL + specular_IBL) * ambientOcclusion;
     float3 outputLightLuminance = directionalLightLuminance + pointLightLuminance + spotLightLuminance;
     
-     // Combine Light luminance
+     // Combine Light Luminance
     float3 pixelColor = ambient + outputLightLuminance;
+    
+    HDRToneMap(pixelColor);
+    GammaCorrect(pixelColor);
     
     ps_out.litImage.rgb = pixelColor;
     
     return ps_out;
+}
+
+void HDRToneMap(inout float3 target)
+{
+    target = float3(1.0, 1.0, 1.0) - exp(-target * cameraExposure);
+}
+
+void GammaCorrect(inout float3 target)
+{
+    const float gamma = 2.2;
+    target = pow(abs(target.rgb), float3(1.0 / gamma, 1.0 / gamma, 1.0 / gamma));
 }
 

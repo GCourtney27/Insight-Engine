@@ -17,9 +17,11 @@ namespace Insight {
 			UINT Width, Height;
 			bool VSyncEnabled = true;
 			bool FullScreenEnabled = false;
+			bool EditorUIEnabled = true;
+			bool IsFirstLaunch = true;
 
-			bool isFirstLaunch = true;
 			HMENU hGraphicsVisualizeSubMenu;
+			HMENU hEditorSubMenu;
 
 			EventCallbackFn EventCallback;
 		};
@@ -64,10 +66,11 @@ namespace Insight {
 		inline void SetCmdArgs(int nCmdShow) { m_nCmdShowArgs = nCmdShow; }
 		void RegisterWindowClass();
 		void InitializeMenuBar();
+		LPCTSTR GetLastWindowsError();
 	private:
 
 		HWND	m_hWindow;
-		HMENU	m_hMenu;
+		HMENU	m_hMenuBar;
 		HMENU	m_hFileSubMenu;
 		HMENU	m_hEditSubMenu;
 		HMENU	m_hEditorSubMenu;

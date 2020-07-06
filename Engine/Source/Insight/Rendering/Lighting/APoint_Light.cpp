@@ -161,7 +161,10 @@ namespace Insight {
 	{
 		AActor::OnImGuiRender();
 
-		if (ImGui::CollapsingHeader("Rendering", ImGuiTreeNodeFlags_DefaultOpen))
+		ImGui::Spacing();
+		ImGui::Spacing();
+
+		if (ImGui::CollapsingHeader("Emission", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGuiColorEditFlags colorWheelFlags = ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_PickerHueWheel;
 			// Imgui will edit the color values in a normalized 0 to 1 space. 
