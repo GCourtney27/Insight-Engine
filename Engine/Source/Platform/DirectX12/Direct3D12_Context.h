@@ -90,7 +90,6 @@ namespace Insight {
 	private:
 		void CloseCommandListAndSignalCommandQueue();
 		// Per-Frame
-		void SetConstantBuffers();
 		void MoveToNextFrame();
 		void BindShadowPass();
 		void BindGeometryPass(bool setPSO = false);
@@ -110,6 +109,7 @@ namespace Insight {
 		void CreateRTVs();
 		void CreateConstantBufferViews();
 		void CreateRootSignature();
+		void CreateShadowPassPSO();
 		void CreateGeometryPassPSO();
 		void CreateSkyPassPSO();
 		void CreateLightPassPSO();
@@ -185,6 +185,7 @@ namespace Insight {
 
 		ComPtr<ID3D12RootSignature>			m_pRootSignature;
 
+		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_ShadowPass;
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_GeometryPass;
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_LightingPass;
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_SkyPass;
@@ -227,6 +228,7 @@ namespace Insight {
 			DXGI_FORMAT_R11G11B10_FLOAT,	// Light Pass result
 		};
 		float								m_ClearDepth = 1.0f;
+		DXGI_FORMAT							m_ShadowMapFormat = DXGI_FORMAT_D32_FLOAT;
 
 
 		ComPtr<ID3D12Resource>	m_LightCBV;
@@ -267,16 +269,6 @@ namespace Insight {
 		std::vector<ASpotLight*> m_SpotLights;
 		int						 CBSpotLightsAlignedSize = (sizeof(CB_PS_SpotLight) + 255) & ~255;
 
-
-		// Utils
-		struct Resolution
-		{
-			UINT Width;
-			UINT Height;
-		};
-		static const Resolution m_ResolutionOptions[];
-		static const UINT m_ResolutionOptionsCount;
-		static UINT m_ResolutionIndex;
 
 		const UINT PIX_EVENT_UNICODE_VERSION = 0;
 

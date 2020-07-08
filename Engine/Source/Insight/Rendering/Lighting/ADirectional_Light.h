@@ -33,6 +33,8 @@ namespace Insight {
 
 		CB_PS_DirectionalLight GetConstantBuffer() { return m_ShaderCB; }
 
+		XMFLOAT4X4 LightMat() { return m_ShaderCB.lightSpace; }
+
 	private:
 		CB_PS_DirectionalLight m_ShaderCB;
 	};

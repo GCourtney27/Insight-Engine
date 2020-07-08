@@ -21,6 +21,9 @@ cbuffer cbPerFrame : register(b1)
     float numSpotLights;
     float2 screenSize;
     
+        // TEMP
+    float4x4 lightSpace;
+    
     // Graphics Debug
     float visualizeFinalPass;
     float visualizeLightPassResult;
@@ -30,6 +33,7 @@ cbuffer cbPerFrame : register(b1)
     float visualizeMetallicBuffer;
     float visualizeAOPBRTextureBuffer;
 	float padding;
+
 };
 
 cbuffer cbLights : register(b2)
@@ -68,6 +72,36 @@ cbuffer PerObjectAdditive : register(b4)
     
     float3 diffuseAdditive;
     float padding5;
+};
+
+/* Shadow Pass */
+struct VS_INPUT_SHADOWPASS
+{
+    float3 position : POSITION;
+    float2 texCoords : TEXCOORD;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 biTangent : BITANGENT;
+};
+
+struct VS_OUTPUT_SHADOWPASS
+{
+    float4 sv_position : SV_POSITION;
+    float3 fragPos : FRAG_POS;
+    float2 texCoords : TEXCOORD;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 biTangent : BITANGENT;
+};
+
+struct PS_INPUT_SHADOWPASS
+{
+    float4 sv_position : SV_POSITION;
+    float3 fragPos : FRAG_POS;
+    float2 texCoords : TEXCOORD;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 biTangent : BITANGENT;
 };
 
 /* Geometry Pass */

@@ -18,7 +18,7 @@
             ],
             "Sky": [
                 {
-                    "Diffuse": "../Assets/../Assets/../Assets/../Assets/Textures/Skyboxes/MountainTop/MountainTop_Diff.dds"
+                    "Diffuse": "../Assets/../Assets/../Assets/../Assets/../Assets/Textures/Skyboxes/MountainTop/MountainTop_Diff.dds"
                 }
             ],
             "Subobjects": []
@@ -41,9 +41,9 @@
             ],
             "Sky": [
                 {
-                    "BRDFLUT": "../Assets/../Assets/../Assets/../Assets/Textures/Skyboxes/ibl_brdf_lut.png",
-                    "Irradiance": "../Assets/../Assets/../Assets/../Assets/Textures/Skyboxes/MountainTop/MountainTop_IR.dds",
-                    "Environment": "../Assets/../Assets/../Assets/../Assets/Textures/Skyboxes/MountainTop/MountainTop_EnvMap.dds"
+                    "BRDFLUT": "../Assets/../Assets/../Assets/../Assets/../Assets/Textures/Skyboxes/ibl_brdf_lut.png",
+                    "Irradiance": "../Assets/../Assets/../Assets/../Assets/../Assets/Textures/Skyboxes/MountainTop/MountainTop_IR.dds",
+                    "Environment": "../Assets/../Assets/../Assets/../Assets/../Assets/Textures/Skyboxes/MountainTop/MountainTop_EnvMap.dds"
                 }
             ],
             "Subobjects": []
@@ -69,7 +69,7 @@
                     "vnInnerRadius": 0.10000000149011612,
                     "vnOuterRadius": 1.0,
                     "vnOpacity": 1.0,
-                    "vnEnabled": true
+                    "vnEnabled": false
                 },
                 {
                     "fgStrength": 16.0,
@@ -102,7 +102,7 @@
                 {
                     "StaticMesh": [
                         {
-                            "Mesh": "../Assets/../Assets/../Assets/../Assets/Models/Sphere.obj",
+                            "Mesh": "../Assets/../Assets/../Assets/../Assets/../Assets/Models/Sphere.obj",
                             "Enabled": true
                         },
                         {
@@ -165,7 +165,7 @@
                 {
                     "StaticMesh": [
                         {
-                            "Mesh": "../Assets/../Assets/../Assets/../Assets/Models/Quad.obj",
+                            "Mesh": "../Assets/../Assets/../Assets/../Assets/../Assets/Models/Quad.obj",
                             "Enabled": true
                         },
                         {
@@ -220,7 +220,7 @@
                 {
                     "StaticMesh": [
                         {
-                            "Mesh": "../Assets/../Assets/../Assets/../Assets/Models/Quad.obj",
+                            "Mesh": "../Assets/../Assets/../Assets/../Assets/../Assets/Models/Quad.obj",
                             "Enabled": true
                         },
                         {

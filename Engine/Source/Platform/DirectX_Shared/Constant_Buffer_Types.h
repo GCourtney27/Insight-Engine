@@ -35,6 +35,8 @@ struct CB_PS_VS_PerFrame
 	float numSpotLights;
 	DirectX::XMFLOAT2 screenSize;//4
 
+	DirectX::XMFLOAT4X4 lightSpace;
+
 	// Graphics DEBUG
 	float visualizeFinalPass;
 	float visualizeLightPassResult;
@@ -62,6 +64,10 @@ struct CB_PS_DirectionalLight
 
 	DirectX::XMFLOAT3 diffuse;
 	float strength;//4
+
+	DirectX::XMFLOAT4X4 lightSpace;
+	float nearPlane;
+	float farPlane;
 };
 
 struct CB_PS_SpotLight

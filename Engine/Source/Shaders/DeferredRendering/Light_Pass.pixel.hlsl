@@ -8,7 +8,8 @@ Texture2D t_NormalGBuffer               : register(t1);
 Texture2D t_RoughnessMetallicAOGBuffer  : register(t2);
 Texture2D t_PositionGBuffer             : register(t3);
 Texture2D t_DepthGBuffer                : register(t4);
-Texture2D t_ShadowDepth                 : register(t5);
+
+Texture2D t_ShadowDepth                 : register(t10);
 
 TextureCube tc_IrradianceMap    : register(t11);
 TextureCube tc_EnvironmentMap   : register(t12);
@@ -29,14 +30,19 @@ struct PS_OUTPUT_LIGHTPASS
 {
     float3 litImage : SV_Target;
 };
-
+float LinearizeDepth(float depth)
+{
+    float z = depth * 2.0 - 1.0; // back to NDC 
+    return (2.0 * cameraNearZ * cameraFarZ) / (cameraFarZ + cameraNearZ - z * (cameraFarZ - cameraNearZ)) / cameraFarZ;
+}
 // Entry Point
 // -----------
 PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
 {
     PS_OUTPUT_LIGHTPASS ps_out;
-    //ps_out.litImage = t_ShadowDepth.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
-    //return ps_out;
+    float depth = LinearizeDepth(t_ShadowDepth.Sample(s_LinearWrapSampler, ps_in.texCoords).r);
+    ps_out.litImage = t_ShadowDepth.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
+    return ps_out;
     
 	// Sample Textures
     float3 albedo = pow(abs(t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb), float3(2.2, 2.2, 2.2));

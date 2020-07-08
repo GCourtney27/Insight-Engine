@@ -4,6 +4,7 @@
 
 #include "Insight/Runtime/Components/Actor_Component.h"
 #include "Platform/DirectX12/Direct3D12_Context.h"
+#include "Insight/Runtime/ACamera.h"
 #include "imgui.h"
 
 namespace Insight {
@@ -35,6 +36,17 @@ namespace Insight {
 		m_ShaderCB.diffuse = XMFLOAT3(diffuseR, diffuseG, diffuseB);
 		m_ShaderCB.direction = AActor::GetTransformRef().GetRotationRef();
 		m_ShaderCB.strength = strength;
+
+		m_ShaderCB.nearPlane = 1.0f;
+		m_ShaderCB.farPlane = 7.5f;
+		
+		XMMATRIX projection, view, lightSpace;
+		ACamera camera = ACamera::Get();
+		return true;
+		projection = XMMatrixOrthographicLH(1024.0f, 1024.0f, m_ShaderCB.nearPlane, m_ShaderCB.farPlane);
+		view = XMMatrixLookAtLH(Vector3(0.0f, 10.0f, 0.0f), Vector3::Zero, WORLD_DIRECTION.Up);
+		lightSpace = projection * view;
+		XMStoreFloat4x4(&m_ShaderCB.lightSpace, XMMatrixMultiply(camera.GetViewMatrix(), camera.GetProjectionMatrix()));
 
 		return true;
 	}
@@ -127,6 +139,10 @@ namespace Insight {
 
 	void ADirectionalLight::OnUpdate(const float& deltaMs)
 	{
+		ACamera camera = ACamera::Get();
+		
+		XMStoreFloat4x4(&m_ShaderCB.lightSpace, XMMatrixTranspose(XMMatrixMultiply(camera.GetViewMatrix(), camera.GetProjectionMatrix())));
+
 		m_ShaderCB.direction = SceneNode::GetTransformRef().GetPosition();
 	}
 
