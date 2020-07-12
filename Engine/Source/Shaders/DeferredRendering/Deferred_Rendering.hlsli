@@ -27,7 +27,6 @@ cbuffer cbPerFrame : register(b1)
     // TEMP
     float4x4 lightSpaceView;
     float4x4 lightSpaceProj;
-    float4 lightCamPos;
 
 };
 

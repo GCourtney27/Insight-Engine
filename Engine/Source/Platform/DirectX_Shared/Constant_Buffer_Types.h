@@ -40,7 +40,6 @@ struct CB_PS_VS_PerFrame
 
 	DirectX::XMFLOAT4X4 lightSpaceView;
 	DirectX::XMFLOAT4X4 lightSpaceProj;
-	DirectX::XMFLOAT4 lightCamPos;
 
 };
 

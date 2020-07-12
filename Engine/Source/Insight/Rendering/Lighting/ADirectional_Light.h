@@ -35,15 +35,14 @@ namespace Insight {
 
 		XMFLOAT4X4 LightViewFloat;
 		XMFLOAT4X4 LightProjFloat;
-		XMFLOAT4 LightCamPos;
 	private:
 		CB_PS_DirectionalLight m_ShaderCB;
 		XMVECTOR LightCamPositionVec;
-		XMFLOAT4 LightCamPosition;
-		float ViewWidth = 40.0f;
-		float ViewLeft = -40.0f;
-		float ViewHeight = 40.0f;
-		float ViewBottom = -40.0f;
+		XMFLOAT3 LightCamPositionOffset;
+		float ViewWidth = 87.0f;
+		float ViewLeft = -33.0f;
+		float ViewHeight = 36.0f;
+		float ViewBottom = -39.0f;
 		XMMATRIX LightView;
 		XMMATRIX LightProj;
 	};

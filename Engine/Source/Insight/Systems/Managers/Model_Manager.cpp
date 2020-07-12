@@ -54,12 +54,16 @@ namespace Insight {
 
 			for (UINT32 i = 0; i < m_Models.size(); ++i) {
 
-				for (UINT32 j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
+				if (m_Models[i]->GetCanCastShadows()) {
 
-					m_pShadowPassCommandList->SetGraphicsRootConstantBufferView(0, m_CbvUploadHeapHandle + (ConstantBufferPerObjectAlignedSize * m_PerObjectCBDrawOffset));
-					m_Models[i]->GetMeshAtIndex(j)->Render(m_pShadowPassCommandList);
+					for (UINT32 j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
 
-					m_PerObjectCBDrawOffset++;
+						// Set Per-Object CBV
+						m_pShadowPassCommandList->SetGraphicsRootConstantBufferView(0, m_CbvUploadHeapHandle + (ConstantBufferPerObjectAlignedSize * m_PerObjectCBDrawOffset));
+						m_Models[i]->GetMeshAtIndex(j)->Render(m_pShadowPassCommandList);
+
+						m_PerObjectCBDrawOffset++;
+					}
 				}
 			}
 			m_PerObjectCBDrawOffset = 0U;
@@ -68,15 +72,20 @@ namespace Insight {
 
 			for (UINT32 i = 0; i < m_Models.size(); ++i) {
 
-				for (UINT32 j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
+				if (m_Models[i]->GetCanBeRendered()) {
 
-					m_pScenePassCommandList->SetGraphicsRootConstantBufferView(0, m_CbvUploadHeapHandle + (ConstantBufferPerObjectAlignedSize * m_PerObjectCBDrawOffset));
-					m_pScenePassCommandList->SetGraphicsRootConstantBufferView(4, m_CbvMaterialHeapHandle + (ConstantBufferPerObjectMaterialAlignedSize * m_PerObjectCBDrawOffset));
+					for (UINT32 j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
 
-					m_Models[i]->BindResources();
-					m_Models[i]->GetMeshAtIndex(j)->Render(m_pScenePassCommandList);
+						// Set Per-Object CBV
+						m_pScenePassCommandList->SetGraphicsRootConstantBufferView(0, m_CbvUploadHeapHandle + (ConstantBufferPerObjectAlignedSize * m_PerObjectCBDrawOffset));
+						// Set Per-Object Material Override CBV
+						m_pScenePassCommandList->SetGraphicsRootConstantBufferView(4, m_CbvMaterialHeapHandle + (ConstantBufferPerObjectMaterialAlignedSize * m_PerObjectCBDrawOffset));
 
-					m_PerObjectCBDrawOffset++;
+						m_Models[i]->BindResources();
+						m_Models[i]->GetMeshAtIndex(j)->Render(m_pScenePassCommandList);
+
+						m_PerObjectCBDrawOffset++;
+					}
 				}
 			}
 			m_PerObjectCBDrawOffset = 0U;
@@ -88,17 +97,19 @@ namespace Insight {
 	{
 		for (UINT32 i = 0; i < m_Models.size(); i++) {
 
-			for (UINT32 j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
+			if (m_Models[i]->GetCanBeRendered()) {
 
-				CB_PS_VS_PerObjectAdditives cbMatOverrides = m_Models[i]->GetMaterialRef().GetMaterialOverrideConstantBuffer();
-				memcpy(m_CbvMaterialGPUAddress + (ConstantBufferPerObjectMaterialAlignedSize * m_GPUAddressUploadOffset), &cbMatOverrides, sizeof(cbMatOverrides));
+				for (UINT32 j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
 
-				CB_VS_PerObject cbPerObject = m_Models[i]->GetMeshAtIndex(j)->GetConstantBuffer();
-				memcpy(m_CbvPerObjectGPUAddress + (ConstantBufferPerObjectAlignedSize * m_GPUAddressUploadOffset), &cbPerObject, sizeof(cbPerObject));
+					CB_PS_VS_PerObjectAdditives cbMatOverrides = m_Models[i]->GetMaterialRef().GetMaterialOverrideConstantBuffer();
+					memcpy(m_CbvMaterialGPUAddress + (ConstantBufferPerObjectMaterialAlignedSize * m_GPUAddressUploadOffset), &cbMatOverrides, sizeof(cbMatOverrides));
 
-				m_GPUAddressUploadOffset++;
+					CB_VS_PerObject cbPerObject = m_Models[i]->GetMeshAtIndex(j)->GetConstantBuffer();
+					memcpy(m_CbvPerObjectGPUAddress + (ConstantBufferPerObjectAlignedSize * m_GPUAddressUploadOffset), &cbPerObject, sizeof(cbPerObject));
+
+					m_GPUAddressUploadOffset++;
+				}
 			}
-
 		}
 	}
 

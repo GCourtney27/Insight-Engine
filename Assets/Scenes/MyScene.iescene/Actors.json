@@ -18,7 +18,7 @@
             ],
             "Sky": [
                 {
-                    "Diffuse": "../Assets/Textures/Skyboxes/MountainTop/MountainTop_Diff.dds"
+                    "Diffuse": "../Assets/../Assets/../Assets/../Assets/../Assets/../Assets/Textures/Skyboxes/MountainTop/MountainTop_Diff.dds"
                 }
             ],
             "Subobjects": []
@@ -41,9 +41,9 @@
             ],
             "Sky": [
                 {
-                    "BRDFLUT": "../Assets/Textures/Skyboxes/ibl_brdf_lut.png",
-                    "Irradiance": "../Assets/Textures/Skyboxes/MountainTop/MountainTop_IR.dds",
-                    "Environment": "../Assets/Textures/Skyboxes/MountainTop/MountainTop_EnvMap.dds"
+                    "BRDFLUT": "../Assets/../Assets/../Assets/../Assets/../Assets/../Assets/Textures/Skyboxes/ibl_brdf_lut.png",
+                    "Irradiance": "../Assets/../Assets/../Assets/../Assets/../Assets/../Assets/Textures/Skyboxes/MountainTop/MountainTop_IR.dds",
+                    "Environment": "../Assets/../Assets/../Assets/../Assets/../Assets/../Assets/Textures/Skyboxes/MountainTop/MountainTop_EnvMap.dds"
                 }
             ],
             "Subobjects": []
@@ -69,7 +69,7 @@
                     "vnInnerRadius": 0.10000000149011612,
                     "vnOuterRadius": 1.0,
                     "vnOpacity": 1.0,
-                    "vnEnabled": false
+                    "vnEnabled": true
                 },
                 {
                     "fgStrength": 16.0,
@@ -87,22 +87,22 @@
             "DisplayName": "Rusted Orb",
             "Transform": [
                 {
-                    "posX": 0.0,
+                    "posX": 12.078058242797852,
                     "posY": 11.0,
-                    "posZ": 0.0,
+                    "posZ": 0.1806640625,
                     "rotX": 0.0,
                     "rotY": 0.0,
                     "rotZ": 0.0,
-                    "scaX": 5.0,
-                    "scaY": 5.0,
-                    "scaZ": 5.0
+                    "scaX": 6.399999618530273,
+                    "scaY": 6.399999618530273,
+                    "scaZ": 6.399999618530273
                 }
             ],
             "Subobjects": [
                 {
                     "StaticMesh": [
                         {
-                            "Mesh": "../Assets/Models/Sphere.obj",
+                            "Mesh": "../Assets/../Assets/../Assets/../Assets/../Assets/../Assets/Models/Sphere.obj",
                             "Enabled": true
                         },
                         {
@@ -150,22 +150,22 @@
             "DisplayName": "Wooden Floor",
             "Transform": [
                 {
-                    "posX": 0.0,
-                    "posY": -0.5,
+                    "posX": 0.013513565063476563,
+                    "posY": -5.508386611938477,
                     "posZ": 0.0,
                     "rotX": 0.0,
                     "rotY": 0.0,
                     "rotZ": 0.0,
-                    "scaX": 83.0,
-                    "scaY": 83.0,
-                    "scaZ": 83.0
+                    "scaX": 324.23944091796877,
+                    "scaY": 324.23944091796877,
+                    "scaZ": 324.23944091796877
                 }
             ],
             "Subobjects": [
                 {
                     "StaticMesh": [
                         {
-                            "Mesh": "../Assets/Models/Quad.obj",
+                            "Mesh": "../Assets/../Assets/../Assets/../Assets/../Assets/../Assets/Models/Quad.obj",
                             "Enabled": true
                         },
                         {
@@ -182,8 +182,8 @@
                             ],
                             "Tiling": [
                                 {
-                                    "u": 4.0,
-                                    "v": 4.0
+                                    "u": 15.0,
+                                    "v": 15.0
                                 }
                             ],
                             "Color_Override": [
@@ -202,25 +202,25 @@
         },
         {
             "Type": "Actor",
-            "DisplayName": "Flower",
+            "DisplayName": "Stone Wall",
             "Transform": [
                 {
-                    "posX": -25.0,
-                    "posY": 0.0,
-                    "posZ": 12.0,
-                    "rotX": -1.600000023841858,
+                    "posX": -28.875391006469728,
+                    "posY": 8.525547981262207,
+                    "posZ": 11.83508586883545,
+                    "rotX": -0.01934184692800045,
                     "rotY": 0.0,
                     "rotZ": 0.0,
-                    "scaX": 10.0,
-                    "scaY": 10.0,
-                    "scaZ": 10.0
+                    "scaX": 16.450559616088868,
+                    "scaY": 16.450557708740236,
+                    "scaZ": 16.450557708740236
                 }
             ],
             "Subobjects": [
                 {
                     "StaticMesh": [
                         {
-                            "Mesh": "../Assets/Models/Quad.obj",
+                            "Mesh": "../Assets/../Assets/../Assets/../Assets/../Assets/../Assets/Models/Quad.obj",
                             "Enabled": true
                         },
                         {
@@ -294,8 +294,8 @@
             "DisplayName": "DirectionalLight",
             "Transform": [
                 {
-                    "posX": -0.20000000298023225,
-                    "posY": -1.9529999494552613,
+                    "posX": 0.1997213363647461,
+                    "posY": -2.099811553955078,
                     "posZ": -6.517000198364258,
                     "rotX": 0.0,
                     "rotY": 0.0,
@@ -310,7 +310,7 @@
                     "diffuseR": 0.6209999918937683,
                     "diffuseG": 0.6890000104904175,
                     "diffuseB": 0.6990000009536743,
-                    "strength": 1.0
+                    "strength": 2.109999895095825
                 }
             ],
             "Subobjects": []

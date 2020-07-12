@@ -231,6 +231,8 @@ namespace Insight {
 		float								m_DepthClearValue = 1.0f;
 		DXGI_FORMAT							m_ShadowMapFormat = DXGI_FORMAT_D32_FLOAT;
 
+		const UINT m_ShadowMapWidth = 1024U;
+		const UINT m_ShadowMapHeight = 1024U;
 
 		ComPtr<ID3D12Resource>	m_LightCBV;
 		UINT8*					m_cbvLightBufferGPUAddress;

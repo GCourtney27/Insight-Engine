@@ -25,6 +25,7 @@ sampler s_LinearWrapSampler : register(s1);
 // -------------------
 void GammaCorrect(inout float3 target);
 void HDRToneMap(inout float3 target);
+float ShadowCalculation(float4 fragPosLightSpace, float3 normal, float3 lightDir);
 
 // Pixel Shader Return Value
 // -------------------------
@@ -32,27 +33,6 @@ struct PS_OUTPUT_LIGHTPASS
 {
     float3 litImage : SV_Target;
 };
-
-float ShadowCalculation(float4 fragPosLightSpace, float3 normal, float3 lightDir)
-{
-    float3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-    // transform to [0,1] range
-    projCoords = projCoords * 0.5 + 0.5;
-    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-    float closestDepth = t_ShadowDepth.Sample(s_PointClampSampler, projCoords.rg).r;
-    // get depth of current fragment from light's perspective
-    float currentDepth = projCoords.z;
-    // check whether current frag pos is in shadow
-    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
-    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
-	
-    if (projCoords.z > 1.0)
-    {
-        shadow = 0.0;
-    }
-    
-    return shadow;
-}
 
 // Entry Point
 // -----------
@@ -183,12 +163,12 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     float3 lightDir = normalize(-dirLights[0].direction);
     float shadow = ShadowCalculation(fragPosLightSpace, normal, lightDir);
     //float shadow = t_ShadowDepth.Sample(s_LinearClampSampler, ps_in.texCoords);
-    
     //ps_out.litImage = float3(shadow, shadow, shadow);
     //return ps_out;
     
+    
     float3 ambient = (diffuse_IBL + specular_IBL) * ambientOcclusion;
-    float3 combinedLightLuminance = (directionalLightLuminance + pointLightLuminance + spotLightLuminance) * (1.0 - shadow);
+    float3 combinedLightLuminance = (pointLightLuminance + spotLightLuminance) + (directionalLightLuminance * (1.0 - shadow));
     
      // Combine Light Luminance
     float3 pixelColor = ambient + combinedLightLuminance;
@@ -212,3 +192,23 @@ void GammaCorrect(inout float3 target)
     target = pow(abs(target.rgb), float3(1.0 / gamma, 1.0 / gamma, 1.0 / gamma));
 }
 
+float ShadowCalculation(float4 fragPosLightSpace, float3 normal, float3 lightDir)
+{
+    float3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    float closestDepth = t_ShadowDepth.Sample(s_PointClampSampler, projCoords.rg).r;
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+    // check whether current frag pos is in shadow
+    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+	
+    if (projCoords.z > 1.0)
+    {
+        shadow = 0.0;
+    }
+    
+    return shadow;
+}

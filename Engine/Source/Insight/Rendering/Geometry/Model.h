@@ -29,6 +29,11 @@ namespace Insight {
 		std::string GetDirectory() { return m_Directory; }
 		std::string GetAssetDirectoryRelativePath() { return m_AssetDirectoryRelativePath; }
 
+		bool GetCanBeRendered() { return m_Visible; }
+		bool SetCanBeRendered(bool Enabled) { m_Visible = Enabled; }
+		bool GetCanCastShadows() { return m_CastsShadows; }
+		bool SetCanCastShadows(bool Enabled) { m_CastsShadows = Enabled; }
+
 		unique_ptr<Mesh>& GetMeshAtIndex(const int& index) { return m_Meshes[index]; }
 		const size_t GetNumChildMeshes() const { return m_Meshes.size(); }
 
@@ -48,6 +53,9 @@ namespace Insight {
 		std::string m_AssetDirectoryRelativePath;
 		std::string m_Directory;
 		std::string m_FileName;
+
+		bool m_CastsShadows = true;
+		bool m_Visible = true;
 	};
 
 }

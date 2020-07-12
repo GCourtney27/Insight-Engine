@@ -35,7 +35,7 @@ namespace Insight {
 
 		m_Verticies = std::move(mesh.m_Verticies);
 		m_Indices = std::move(mesh.m_Indices);
-		
+
 		m_Transform = mesh.m_Transform;
 		m_ConstantBufferPerObject = mesh.m_ConstantBufferPerObject;
 
@@ -79,7 +79,7 @@ namespace Insight {
 
 	void Mesh::InitializeLocalVariables()
 	{
-		m_NumIndices   = static_cast<UINT>(m_Verticies.size());
+		m_NumIndices = static_cast<UINT>(m_Verticies.size());
 		m_NumVerticies = static_cast<UINT>(m_Indices.size());
 
 		m_IBufferSize = m_NumIndices * sizeof(UINT);
@@ -93,7 +93,7 @@ namespace Insight {
 	void Mesh::PreRender(const XMMATRIX& parentMat)
 	{
 		m_Transform.SetWorldMatrix(XMMatrixMultiply(parentMat, m_Transform.GetLocalMatrix()));
-		
+
 		XMMATRIX worldMatTransposed = XMMatrixTranspose(m_Transform.GetWorldMatrixRef());
 		XMFLOAT4X4 worldFloat;
 		XMStoreFloat4x4(&worldFloat, worldMatTransposed);

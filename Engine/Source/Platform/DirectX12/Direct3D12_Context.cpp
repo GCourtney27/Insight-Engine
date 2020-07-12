@@ -114,7 +114,7 @@ namespace Insight {
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
 		ACamera& playerCamera = ACamera::Get();
-		
+
 		// Send Per-Frame Variables to GPU
 		XMFLOAT4X4 viewFloat;
 		XMStoreFloat4x4(&viewFloat, XMMatrixTranspose(playerCamera.GetViewMatrix()));
@@ -135,7 +135,6 @@ namespace Insight {
 		m_PerFrameData.screenSize.y = (float)m_WindowHeight;
 		m_PerFrameData.lightSpaceView = m_DirectionalLights[0]->LightViewFloat;
 		m_PerFrameData.lightSpaceProj = m_DirectionalLights[0]->LightProjFloat;
-		m_PerFrameData.lightCamPos = m_DirectionalLights[0]->LightCamPos;
 		memcpy(m_cbvPerFrameGPUAddress, &m_PerFrameData, sizeof(CB_PS_VS_PerFrame));
 
 		// Send Point Lights to GPU
@@ -179,7 +178,7 @@ namespace Insight {
 		m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetRenderTarget(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
 		// Reset Scene Pass
-		float ClearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+		static float ClearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 		m_pScenePassCommandList->ClearRenderTargetView(GetRenderTargetView(), ClearColor, 0, nullptr);
 		m_pScenePassCommandList->RSSetScissorRects(1, &m_ScenePassScissorRect);
 		m_pScenePassCommandList->RSSetViewports(1, &m_ScenePassViewPort);
@@ -211,16 +210,13 @@ namespace Insight {
 		m_pShadowPassCommandList->SetPipelineState(m_pPipelineStateObject_ShadowPass.Get());
 		m_pShadowPassCommandList->SetGraphicsRootSignature(m_pRootSignature.Get());
 		m_pShadowPassCommandList->ClearDepthStencilView(m_dsvHeap.hCPU(1), D3D12_CLEAR_FLAG_DEPTH, m_DepthClearValue, 0xff, 0, nullptr);
-		
-		{
-			m_pShadowPassCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			m_pShadowPassCommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV->GetGPUVirtualAddress());
-		}
-		//m_pShadowPassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pShadowDepthTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
-		
+
+		m_pShadowPassCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_pShadowPassCommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV->GetGPUVirtualAddress());
+
 		// TODO Shadow pass logic here put this on another thread
 		m_pModelManager->Render(RenderPass::RenderPass_Shadow);
-		
+
 	}
 
 	void Direct3D12Context::BindGeometryPass(bool setPSO)
@@ -260,8 +256,8 @@ namespace Insight {
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE
 
-		//m_pCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, nullptr);
-		m_pScenePassCommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), true, nullptr);
+			//m_pCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, nullptr);
+			m_pScenePassCommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), true, nullptr);
 		BindLightingPass();
 
 		//m_pCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, &m_dsvHeap.hCPUHeapStart);
@@ -572,15 +568,6 @@ namespace Insight {
 	{
 		HRESULT hr;
 
-		/*m_dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
-		m_dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-		m_dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
-
-		D3D12_CLEAR_VALUE depthOptomizedClearValue = {};
-		depthOptomizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
-		depthOptomizedClearValue.DepthStencil.Depth = 1.0f;
-		depthOptomizedClearValue.DepthStencil.Stencil = 0;*/
-
 		m_dsvHeap.Create(m_pLogicalDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 2);
 		CD3DX12_HEAP_PROPERTIES heapProperty(D3D12_HEAP_TYPE_DEFAULT);
 
@@ -647,8 +634,8 @@ namespace Insight {
 		ShadowDepthResourceDesc.MipLevels = 1;
 		ShadowDepthResourceDesc.Format = m_ShadowMapFormat;
 		ShadowDepthResourceDesc.DepthOrArraySize = 1;
-		ShadowDepthResourceDesc.Width = (UINT)1024;
-		ShadowDepthResourceDesc.Height = (UINT)1024;
+		ShadowDepthResourceDesc.Width = m_ShadowMapWidth;
+		ShadowDepthResourceDesc.Height = m_ShadowMapHeight;
 		ShadowDepthResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 		ShadowDepthResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
@@ -851,7 +838,7 @@ namespace Insight {
 			D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE,
 			minLOD,
 			maxLOD,
-			D3D12_SHADER_VISIBILITY_PIXEL, 
+			D3D12_SHADER_VISIBILITY_PIXEL,
 			0U
 		);
 		descRootSignature.NumStaticSamplers = _countof(staticSamplers);
@@ -1348,8 +1335,8 @@ namespace Insight {
 	{
 		m_ShadowPassViewPort.TopLeftX = 0;
 		m_ShadowPassViewPort.TopLeftY = 0;
-		m_ScenePassViewPort.Width = 1024U;
-		m_ScenePassViewPort.Height = 1024U;
+		m_ScenePassViewPort.Width = static_cast<FLOAT>(m_ShadowMapWidth);
+		m_ScenePassViewPort.Height = static_cast<FLOAT>(m_ShadowMapHeight);
 		m_ScenePassViewPort.MinDepth = 0.0f;
 		m_ScenePassViewPort.MaxDepth = 1.0f;
 
@@ -1365,8 +1352,8 @@ namespace Insight {
 	{
 		m_ShadowPassScissorRect.left = 0;
 		m_ShadowPassScissorRect.top = 0;
-		m_ShadowPassScissorRect.right = 1024;
-		m_ShadowPassScissorRect.bottom = 1024;
+		m_ShadowPassScissorRect.right = m_ShadowMapWidth;
+		m_ShadowPassScissorRect.bottom = m_ShadowMapHeight;
 
 		m_ScenePassScissorRect.left = 0;
 		m_ScenePassScissorRect.top = 0;
