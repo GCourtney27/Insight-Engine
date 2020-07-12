@@ -49,6 +49,8 @@ namespace Insight {
 		// any given time.
 		m_EditorViewTarget = ACamera::GetDefaultViewTarget();
 		m_EditorViewTarget.FieldOfView = 75.0f;
+		m_EditorViewTarget.Position = Vector3(-17.0f, 8.0f, -31.0f);
+		m_EditorViewTarget.NearZ = 0.001f;
 		m_pCamera = new ACamera(m_EditorViewTarget);
 		m_pCamera->SetCanBeFileParsed(false);
 		m_pCamera->SetPerspectiveProjectionValues(

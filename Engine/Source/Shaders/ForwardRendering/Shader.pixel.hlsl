@@ -13,7 +13,7 @@ Texture2D t_SkyIrradiance	   : register(t7);
 Texture2D t_SkyEnvironmentMap  : register(t8);
 Texture2D t_SkyBRDFLUT		   : register(t9);
 
-SamplerState s_Sampler : register(s0);
+SamplerState s_Sampler : register(s1);
 
 struct PS_INPUT
 {

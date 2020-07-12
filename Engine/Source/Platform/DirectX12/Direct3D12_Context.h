@@ -196,7 +196,7 @@ namespace Insight {
 		//1:  SRV-Normal(RTV->SRV)
 		//2:  SRV-(R)Roughness/(G)Metallic/(B)AO(RTV->SRV)
 		//3:  SRV-Position(RTV->SRV)
-		//4:  SRV-Depth(DSV->SRV)
+		//4:  SRV-Scene Depth(DSV->SRV)
 		//5:  SRV-Light Pass Result(RTV->SRV)
 		//6:  SRV-Shadow Depth(DSV->SRV)
 		//-----PerObject-----
@@ -212,14 +212,15 @@ namespace Insight {
 		CDescriptorHeapWrapper				m_cbvsrvHeap;
 
 		ScreenQuad							m_ScreenQuad;
-		D3D12_VIEWPORT						m_ViewPort = {};
-		D3D12_RECT							m_ScissorRect = {};
-		DXGI_SAMPLE_DESC					m_SampleDesc = {};
-		D3D12_DEPTH_STENCIL_VIEW_DESC		m_dsvDesc = {};
+		D3D12_VIEWPORT						m_ScenePassViewPort = {};
+		D3D12_VIEWPORT						m_ShadowPassViewPort = {};
+		D3D12_RECT							m_ScenePassScissorRect = {};
+		D3D12_RECT							m_ShadowPassScissorRect = {};
 
+		DXGI_SAMPLE_DESC					m_SampleDesc = {};
+		D3D12_DEPTH_STENCIL_VIEW_DESC		m_ScenePassDsvDesc = {};
 		float								m_ClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		DXGI_FORMAT							m_DsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		//DXGI_FORMAT							m_DsvFormat = DXGI_FORMAT_D32_FLOAT;
 		DXGI_FORMAT							m_RtvFormat[5] = { 
 			DXGI_FORMAT_R11G11B10_FLOAT,	// Albedo buffer
 			DXGI_FORMAT_R8G8B8A8_SNORM,		// Normal
@@ -227,7 +228,7 @@ namespace Insight {
 			DXGI_FORMAT_R32G32B32A32_FLOAT, // Position
 			DXGI_FORMAT_R11G11B10_FLOAT,	// Light Pass result
 		};
-		float								m_ClearDepth = 1.0f;
+		float								m_DepthClearValue = 1.0f;
 		DXGI_FORMAT							m_ShadowMapFormat = DXGI_FORMAT_D32_FLOAT;
 
 

@@ -18,7 +18,7 @@
             ],
             "Sky": [
                 {
-                    "Diffuse": "../Assets/../Assets/../Assets/../Assets/../Assets/Textures/Skyboxes/MountainTop/MountainTop_Diff.dds"
+                    "Diffuse": "../Assets/Textures/Skyboxes/MountainTop/MountainTop_Diff.dds"
                 }
             ],
             "Subobjects": []
@@ -41,9 +41,9 @@
             ],
             "Sky": [
                 {
-                    "BRDFLUT": "../Assets/../Assets/../Assets/../Assets/../Assets/Textures/Skyboxes/ibl_brdf_lut.png",
-                    "Irradiance": "../Assets/../Assets/../Assets/../Assets/../Assets/Textures/Skyboxes/MountainTop/MountainTop_IR.dds",
-                    "Environment": "../Assets/../Assets/../Assets/../Assets/../Assets/Textures/Skyboxes/MountainTop/MountainTop_EnvMap.dds"
+                    "BRDFLUT": "../Assets/Textures/Skyboxes/ibl_brdf_lut.png",
+                    "Irradiance": "../Assets/Textures/Skyboxes/MountainTop/MountainTop_IR.dds",
+                    "Environment": "../Assets/Textures/Skyboxes/MountainTop/MountainTop_EnvMap.dds"
                 }
             ],
             "Subobjects": []
@@ -102,7 +102,7 @@
                 {
                     "StaticMesh": [
                         {
-                            "Mesh": "../Assets/../Assets/../Assets/../Assets/../Assets/Models/Sphere.obj",
+                            "Mesh": "../Assets/Models/Sphere.obj",
                             "Enabled": true
                         },
                         {
@@ -165,7 +165,7 @@
                 {
                     "StaticMesh": [
                         {
-                            "Mesh": "../Assets/../Assets/../Assets/../Assets/../Assets/Models/Quad.obj",
+                            "Mesh": "../Assets/Models/Quad.obj",
                             "Enabled": true
                         },
                         {
@@ -202,7 +202,7 @@
         },
         {
             "Type": "Actor",
-            "DisplayName": "Stone Wall",
+            "DisplayName": "Flower",
             "Transform": [
                 {
                     "posX": -25.0,
@@ -220,7 +220,7 @@
                 {
                     "StaticMesh": [
                         {
-                            "Mesh": "../Assets/../Assets/../Assets/../Assets/../Assets/Models/Quad.obj",
+                            "Mesh": "../Assets/Models/Quad.obj",
                             "Enabled": true
                         },
                         {
@@ -268,7 +268,7 @@
             "DisplayName": "PointLight",
             "Transform": [
                 {
-                    "posX": 40.07847213745117,
+                    "posX": -43.502323150634769,
                     "posY": 10.0,
                     "posZ": -32.0,
                     "rotX": 0.0,

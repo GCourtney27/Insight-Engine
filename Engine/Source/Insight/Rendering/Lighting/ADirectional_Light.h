@@ -33,10 +33,17 @@ namespace Insight {
 
 		CB_PS_DirectionalLight GetConstantBuffer() { return m_ShaderCB; }
 
-		XMFLOAT4X4 LightMat() { return m_ShaderCB.lightSpace; }
-
+		XMFLOAT4X4 LightViewFloat;
+		XMFLOAT4X4 LightProjFloat;
+		XMFLOAT4 LightCamPos;
 	private:
 		CB_PS_DirectionalLight m_ShaderCB;
+		XMVECTOR LightCamPositionVec;
+		XMFLOAT4 LightCamPosition;
+		float ViewTop = 40.0f;
+		float ViewRight = 40.0f;
+		XMMATRIX LightView;
+		XMMATRIX LightProj;
 	};
 
 }

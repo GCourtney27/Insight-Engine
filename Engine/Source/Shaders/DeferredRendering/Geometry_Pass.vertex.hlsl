@@ -9,6 +9,7 @@ VS_OUTPUT_GEOMPASS main(VS_INPUT_GEOMPASS vs_in)
     matrix worldView = mul(world, view);
     float4x4 worldViewProjection = mul(mul(world, view), projection);
     float4 worldPos = mul(float4(vs_in.position, 1.0), world);
+    //float4x4 wvpLightSpace = mul(mul(world, lightSpaceView), lightSpaceProj);
     
     vs_out.sv_position = mul(float4(vs_in.position, 1.0f), worldViewProjection);
 	

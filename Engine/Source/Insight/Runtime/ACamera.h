@@ -8,7 +8,7 @@ namespace Insight {
 
 	using namespace DirectX::SimpleMath;
 
-	enum CameraMovement
+	enum class CameraMovement
 	{
 		FORWARD,
 		BACKWARD,

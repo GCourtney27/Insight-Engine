@@ -1,5 +1,6 @@
 #include <Deferred_Rendering.hlsli>	
 #include <../Common/PBR_Helper.hlsli>
+#define SHADOW_DEPTH_BIAS 0.00005f
 
 // Texture Inputs
 // --------------
@@ -7,9 +8,9 @@ Texture2D t_AlbedoGBuffer               : register(t0);
 Texture2D t_NormalGBuffer               : register(t1);
 Texture2D t_RoughnessMetallicAOGBuffer  : register(t2);
 Texture2D t_PositionGBuffer             : register(t3);
-Texture2D t_DepthGBuffer                : register(t4);
+Texture2D t_SceneDepthGBuffer           : register(t4);
 
-Texture2D t_ShadowDepth                 : register(t10);
+Texture2D t_ShadowDepth         : register(t10);
 
 TextureCube tc_IrradianceMap    : register(t11);
 TextureCube tc_EnvironmentMap   : register(t12);
@@ -17,7 +18,8 @@ Texture2D t_BrdfLUT             : register(t13);
 
 // Samplers
 // --------
-sampler s_LinearWrapSampler : register(s0);
+sampler s_LinearClampSampler : register(s0);
+sampler s_LinearWrapSampler : register(s1);
 
 // Function Signatures
 // -------------------
@@ -35,21 +37,47 @@ float LinearizeDepth(float depth)
     float z = depth * 2.0 - 1.0; // back to NDC 
     return (2.0 * cameraNearZ * cameraFarZ) / (cameraFarZ + cameraNearZ - z * (cameraFarZ - cameraNearZ)) / cameraFarZ;
 }
+
+float ShadowCalculation(float4 fragPosLightSpace, float3 fragPos, float2 texCoords, float3 innormal, float3 lightPos)
+{
+    // perform perspective divide
+    float3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    float closestDepth = t_ShadowDepth.Sample(s_LinearClampSampler, projCoords.xy).r;
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+    // calculate bias (based on depth map resolution and slope)
+    float3 normal = normalize(innormal);
+    float3 lightDir = normalize(lightPos - fragPos);
+    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+    // check whether current frag pos is in shadow
+    // float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
+    // PCF
+    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+        
+    // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
+    if (projCoords.z > 1.0)
+    {
+        shadow = 0.0;
+    }
+        
+    return shadow;
+}
+
 // Entry Point
 // -----------
 PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
 {
-    PS_OUTPUT_LIGHTPASS ps_out;
-    float depth = LinearizeDepth(t_ShadowDepth.Sample(s_LinearWrapSampler, ps_in.texCoords).r);
-    ps_out.litImage = t_ShadowDepth.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
-    return ps_out;
+    PS_OUTPUT_LIGHTPASS ps_out;    
     
 	// Sample Textures
     float3 albedo = pow(abs(t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb), float3(2.2, 2.2, 2.2));
     float3 roughMetAOBufferSample = t_RoughnessMetallicAOGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
     float3 worldPosition = t_PositionGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).xyz;
     float3 normal = t_NormalGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).xyz;
-    float sceneDepth = t_DepthGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
+    float sceneDepth = t_SceneDepthGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
     float roughness = roughMetAOBufferSample.r;
     float metallic = roughMetAOBufferSample.g;
     float ambientOcclusion = roughMetAOBufferSample.b;
@@ -87,7 +115,8 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
         float3 kD = float3(1.0, 1.0, 1.0) - F;
         kD *= 1.0 - metallic;
         
-        directionalLightLuminance += (kD * albedo / PI + specular) * radiance * NdotL;
+        directionalLightLuminance += ((kD * albedo / PI + specular) * radiance * NdotL);
+
     }
     
     // Spot Lights
@@ -161,7 +190,18 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     float2 brdf = t_BrdfLUT.Sample(s_LinearWrapSampler, float2(NdotV, roughness)).rg;
     float3 specular_IBL = environmentMapColor * (F_IBL * brdf.r + brdf.g);
 
-    float3 ambient = (diffuse_IBL + specular_IBL) * ambientOcclusion;
+    //float d = LinearizeDepth(t_ShadowDepth.Sample(s_LinearClampSampler, ps_in.texCoords).r);
+    //ps_out.litImage = float3(d, d, d); //t_ShadowDepth.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
+    //return ps_out;
+    
+    float4 fragPosLightSpace = mul(mul(lightSpaceView, lightSpaceProj), float4(worldPosition, 1.0));
+    float3 lightDir = normalize(float3(-0.2f, -1.0f, -0.3f));
+    float shadow = ShadowCalculation(fragPosLightSpace, worldPosition, ps_in.texCoords, normal, lightDir);
+    //float sh = t_ShadowDepth.Sample(s_LinearClampSampler, ps_in.texCoords);
+    //ps_out.litImage = float3(sh, sh, sh);
+    //return ps_out;
+    
+    float3 ambient = ((diffuse_IBL + specular_IBL) * ambientOcclusion) * (1.0 - shadow);
     float3 outputLightLuminance = directionalLightLuminance + pointLightLuminance + spotLightLuminance;
     
      // Combine Light Luminance

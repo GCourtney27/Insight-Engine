@@ -111,27 +111,27 @@ namespace Insight {
 	void ACamera::ProcessKeyboardInput(CameraMovement direction, float deltaTime)
 	{
 		float velocity = m_MovementSpeed * deltaTime;
-		if (direction == FORWARD)
+		if (direction == CameraMovement::FORWARD)
 		{
 			GetTransformRef().GetPositionRef() += GetTransformRef().GetLocalForward() * velocity;
 		}
-		if (direction == BACKWARD)
+		if (direction == CameraMovement::BACKWARD)
 		{
 			GetTransformRef().GetPositionRef() -= GetTransformRef().GetLocalForward() * velocity;
 		}
-		if (direction == LEFT)
+		if (direction == CameraMovement::LEFT)
 		{
 			GetTransformRef().GetPositionRef() -= GetTransformRef().GetLocalRight() * velocity;
 		}
-		if (direction == RIGHT)
+		if (direction == CameraMovement::RIGHT)
 		{
 			GetTransformRef().GetPositionRef() += GetTransformRef().GetLocalRight() * velocity;
 		}
-		if (direction == UP)
+		if (direction == CameraMovement::UP)
 		{
 			GetTransformRef().GetPositionRef() += WORLD_DIRECTION.Up * velocity;
 		}
-		if (direction == DOWN)
+		if (direction == CameraMovement::DOWN)
 		{
 			GetTransformRef().GetPositionRef() -= WORLD_DIRECTION.Up * velocity;
 		}
@@ -151,6 +151,7 @@ namespace Insight {
 	void ACamera::SetOrthographicsProjectionValues(float viewWidth, float viewHeight, float nearZ, float farZ)
 	{
 		m_ProjectionMatrix = XMMatrixOrthographicLH(viewWidth, viewHeight, nearZ, farZ);
+		//m_ProjectionMatrix = XMMatrixOrthographicOffCenterLH(0.0f, viewWidth, 0.0f, viewHeight, nearZ, farZ);
 	}
 
 	void ACamera::RenderSceneHeirarchy()
@@ -173,13 +174,13 @@ namespace Insight {
 		ImGui::DragFloat("Exposure", &m_Exposure, 0.01f, 0.0f, 1.0f);
 
 		ImGui::Text("Projection");
-		static const char* projectionMethods[] = { "Perspective", "Orthographic" };
+		constexpr char* projectionMethods[] = { "Perspective", "Orthographic" };
 		ImGui::Combo("Method", &m_IsOrthographic, projectionMethods, IM_ARRAYSIZE(projectionMethods));
 		if (!m_IsOrthographic) {
 			SetPerspectiveProjectionValues(m_Fov, m_AspectRatio, m_NearZ, m_FarZ);
 		}
 		else {
-			SetOrthographicsProjectionValues((float)Application::Get().GetWindow().GetWidth(), (float)Application::Get().GetWindow().GetHeight(), m_NearZ, m_FarZ);
+			SetOrthographicsProjectionValues(40.0f, 40.0f, m_NearZ, m_FarZ);
 		}
 
 	}
