@@ -39,6 +39,8 @@ namespace Insight {
 		CB_PS_DirectionalLight m_ShaderCB;
 		XMVECTOR LightCamPositionVec;
 		XMFLOAT3 LightCamPositionOffset;
+		float m_NearPlane;
+		float m_FarPlane;
 		float ViewWidth = 87.0f;
 		float ViewLeft = -33.0f;
 		float ViewHeight = 36.0f;

@@ -18,10 +18,8 @@ namespace Insight {
 		DOWN
 	};
 
-	const float YAW = -90.0f;
-	const float PITCH = 0.0f;
-	const float ROLL = 0.0f;
-	const float SPEED = 30.05f;
+	const float BASE_SPEED = 30.05f;
+	const float BOOST_SPEED = 100.05f;
 	const float SENSITIVITY = 0.2f;
 	const float FOV = 45.0f;
 	const float EXPOSURE = 0.5f;
@@ -30,16 +28,19 @@ namespace Insight {
 
 	using namespace DirectX;
 
+	// Represents the outline of a camera. There can only be one
+	// camera in the world at any given time. To switch to a 
+	// 'new camera' set the view target of the global camera.
 	struct ViewTarget
 	{
-		Vector3 Position;
-		Vector3 Rotation;
-		float FieldOfView;
-		float Sensitivity;
-		float Speed;
-		float Exposure;
-		float NearZ;
-		float FarZ;
+		Vector3 Position = Vector3::Zero;
+		Vector3 Rotation = Vector3::Zero;
+		float FieldOfView = FOV;
+		float Sensitivity = SENSITIVITY;
+		float Speed = BASE_SPEED;
+		float Exposure = EXPOSURE;
+		float NearZ = NEAR_Z;
+		float FarZ = FAR_Z;
 	};
 
 	class INSIGHT_API ACamera : public AActor
@@ -47,12 +48,6 @@ namespace Insight {
 	public:
 		friend class APlayerCharacter;
 	public:
-		ACamera(Vector3 position = Vector3(0.0f, 10.0f, -20.0f),
-			float pitch = PITCH,
-			float yaw = YAW,
-			float roll = ROLL,
-			float exposure = EXPOSURE);
-			
 		ACamera(ViewTarget ViewTarget);
 		virtual ~ACamera();
 
@@ -77,28 +72,33 @@ namespace Insight {
 		inline float GetExposure() { return m_Exposure; }
 		inline void SetExposure(float exposure) { m_Exposure = exposure; }
 
-		static ViewTarget GetDefaultViewTarget() { return ViewTarget{ Vector3{0.0f, 10.0f, -20.0f}, Vector3{0.0f, 0.0f, 0.0f}, FOV, SENSITIVITY, SPEED, EXPOSURE, NEAR_Z, FAR_Z }; }
+		static ViewTarget GetDefaultViewTarget() { return ViewTarget{ Vector3{0.0f, 10.0f, -20.0f}, Vector3{0.0f, 0.0f, 0.0f}, FOV, SENSITIVITY, BASE_SPEED, EXPOSURE, NEAR_Z, FAR_Z }; }
 
-		inline void SetViewTarget(ViewTarget& ViewTarget) 
-		{ 
+		inline void SetViewTarget(ViewTarget& ViewTarget, bool UpdateProjection = true, bool UpdateView = true)
+		{
 			GetTransformRef().SetPosition(ViewTarget.Position);
-			GetTransformRef().SetRotation(ViewTarget.Rotation); 
+			GetTransformRef().SetRotation(ViewTarget.Rotation);
 
-			m_Fov = ViewTarget.FieldOfView; 
+			m_Fov = ViewTarget.FieldOfView;
 			m_MouseSensitivity = ViewTarget.Sensitivity;
 			m_MovementSpeed = ViewTarget.Speed;
-			m_Exposure = ViewTarget.Exposure; 
-			m_NearZ = ViewTarget.NearZ; 
-			m_FarZ = ViewTarget.FarZ; 
+			m_BaseMovementSpeed = ViewTarget.Speed;
+			m_Exposure = ViewTarget.Exposure;
+			m_NearZ = ViewTarget.NearZ;
+			m_FarZ = ViewTarget.FarZ;
 
-			SetPerspectiveProjectionValues(
-				m_Fov,
-				m_AspectRatio,
-				m_NearZ,
-				m_FarZ
-			);
+			if (UpdateProjection) {
+				SetPerspectiveProjectionValues(
+					m_Fov,
+					m_AspectRatio,
+					m_NearZ,
+					m_FarZ
+				);
+			}
 
-			UpdateViewMatrix();
+			if (UpdateView) {
+				UpdateViewMatrix();
+			}
 			GetTransformRef().UpdateLocalDirectionVectors();
 		}
 
@@ -124,6 +124,7 @@ namespace Insight {
 		float m_Roll = 0.0f;
 
 		float m_MovementSpeed = 0.0f;
+		float m_BaseMovementSpeed = 0.0f;
 		float m_MouseSensitivity = 0.0f;
 
 		float m_Fov = 0.0f;

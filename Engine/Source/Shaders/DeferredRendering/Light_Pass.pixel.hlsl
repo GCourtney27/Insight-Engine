@@ -159,7 +159,7 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     float3 specular_IBL = environmentMapColor * (F_IBL * brdf.r + brdf.g);
 
     // Shadowing
-    float4 fragPosLightSpace = mul(float4(worldPosition, 1.0), mul(lightSpaceView, lightSpaceProj));
+    float4 fragPosLightSpace = mul(float4(worldPosition, 1.0), mul(dirLights[0].lightSpaceView, dirLights[0].lightSpaceProj));
     float3 lightDir = normalize(-dirLights[0].direction);
     float shadow = ShadowCalculation(fragPosLightSpace, normal, lightDir);
     //float shadow = t_ShadowDepth.Sample(s_LinearClampSampler, ps_in.texCoords);
@@ -198,7 +198,7 @@ float ShadowCalculation(float4 fragPosLightSpace, float3 normal, float3 lightDir
     // transform to [0,1] range
     projCoords = projCoords * 0.5 + 0.5;
     // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-    float closestDepth = t_ShadowDepth.Sample(s_PointClampSampler, projCoords.rg).r;
+    float closestDepth = t_ShadowDepth.Sample(s_PointClampSampler, projCoords.xy).r;
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
     // check whether current frag pos is in shadow

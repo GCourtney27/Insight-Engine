@@ -38,9 +38,6 @@ struct CB_PS_VS_PerFrame
 	float padding1;
 	float padding2;
 
-	DirectX::XMFLOAT4X4 lightSpaceView;
-	DirectX::XMFLOAT4X4 lightSpaceProj;
-
 };
 
 struct CB_PS_PointLight
@@ -60,14 +57,8 @@ struct CB_PS_DirectionalLight
 	DirectX::XMFLOAT3 diffuse;
 	float strength;//4
 
-	//DirectX::XMFLOAT4X4 lightSpaceView;
-	//DirectX::XMFLOAT4X4 lightSpaceProj;
-	//DirectX::XMFLOAT4 lightCamPos;
-
-	float nearPlane;
-	float farPlane;
-	float paddin1;
-	float paddin2;
+	DirectX::XMFLOAT4X4 lightSpaceView;
+	DirectX::XMFLOAT4X4 lightSpaceProj;
 };
 
 struct CB_PS_SpotLight

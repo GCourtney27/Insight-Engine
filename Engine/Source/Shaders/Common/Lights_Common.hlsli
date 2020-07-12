@@ -26,14 +26,8 @@ struct DirectionalLight
     float3 diffuse;
     float strength;
     
-    //float4x4 lightSpaceView;
-    //float4x4 lightSpaceProj;
-    //float4 lightCamPos;
-
-    float nearPlane;
-    float farPlane;
-    float paddin1;
-    float paddin2;
+    float4x4 lightSpaceView;
+    float4x4 lightSpaceProj;
 };
 
 struct SpotLight

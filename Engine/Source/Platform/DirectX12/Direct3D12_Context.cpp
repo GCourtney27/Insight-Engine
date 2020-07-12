@@ -133,8 +133,6 @@ namespace Insight {
 		m_PerFrameData.numSpotLights = (float)m_SpotLights.size();
 		m_PerFrameData.screenSize.x = (float)m_WindowWidth;
 		m_PerFrameData.screenSize.y = (float)m_WindowHeight;
-		m_PerFrameData.lightSpaceView = m_DirectionalLights[0]->LightViewFloat;
-		m_PerFrameData.lightSpaceProj = m_DirectionalLights[0]->LightProjFloat;
 		memcpy(m_cbvPerFrameGPUAddress, &m_PerFrameData, sizeof(CB_PS_VS_PerFrame));
 
 		// Send Point Lights to GPU
@@ -213,6 +211,7 @@ namespace Insight {
 
 		m_pShadowPassCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		m_pShadowPassCommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV->GetGPUVirtualAddress());
+		m_pShadowPassCommandList->SetGraphicsRootConstantBufferView(2, m_LightCBV->GetGPUVirtualAddress());
 
 		// TODO Shadow pass logic here put this on another thread
 		m_pModelManager->Render(RenderPass::RenderPass_Shadow);
@@ -238,6 +237,7 @@ namespace Insight {
 
 		m_pScenePassCommandList->OMSetRenderTargets(m_NumRTV, &m_rtvHeap.hCPUHeapStart, true, &m_dsvHeap.hCPU(0));
 		m_pScenePassCommandList->SetGraphicsRootSignature(m_pRootSignature.Get());
+		// Set Scene Depth Texture
 		m_pScenePassCommandList->SetGraphicsRootDescriptorTable(5, m_cbvsrvHeap.hGPU(0));
 		// Set Shadow Depth Texture
 		m_pScenePassCommandList->SetGraphicsRootDescriptorTable(11, m_cbvsrvHeap.hGPU(6));
@@ -256,8 +256,8 @@ namespace Insight {
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE
 
-			//m_pCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, nullptr);
-			m_pScenePassCommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), true, nullptr);
+		//m_pCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, nullptr);
+		m_pScenePassCommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), true, nullptr);
 		BindLightingPass();
 
 		//m_pCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, &m_dsvHeap.hCPUHeapStart);
@@ -779,7 +779,7 @@ namespace Insight {
 		CD3DX12_ROOT_PARAMETER rootParameters[17];
 		rootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);	  // Per-Object constant buffer
 		rootParameters[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL);		  // Per-Frame constant buffer
-		rootParameters[2].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_PIXEL);	  // Light constant buffer
+		rootParameters[2].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_ALL);		  // Light constant buffer
 		rootParameters[3].InitAsConstantBufferView(3, 0, D3D12_SHADER_VISIBILITY_PIXEL);	  // PostFx constant buffer
 		rootParameters[4].InitAsConstantBufferView(4, 0, D3D12_SHADER_VISIBILITY_ALL);		  // Material Additives constant buffer
 		rootParameters[5].InitAsDescriptorTable(1, &range[0], D3D12_SHADER_VISIBILITY_PIXEL); // G-Buffer inputs

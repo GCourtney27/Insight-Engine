@@ -23,11 +23,6 @@ cbuffer cbPerFrame : register(b1)
     float2 screenSize;
 	float padding1;
 	float padding2;
-    
-    // TEMP
-    float4x4 lightSpaceView;
-    float4x4 lightSpaceProj;
-
 };
 
 cbuffer cbLights : register(b2)
