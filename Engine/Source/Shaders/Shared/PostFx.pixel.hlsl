@@ -14,6 +14,7 @@ Texture2D t_LightPassResult : register(t15);
 
 // Samplers
 // --------
+sampler s_PointClampSampler : register(s0);
 SamplerState s_LinearWrapSampler : register(s1);
 
 // Function Signatures
@@ -85,10 +86,10 @@ float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
     //    GammaCorrect(result);
     //    return float4(result, 1.0);
     //}
-    //float3 result = t_ShadowDepthPass.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
     float3 result = t_LightPassResult.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
-    //float D = LinearizeDepth(t_ShadowDepthPass.Sample(s_LinearWrapSampler, ps_in.texCoords).r);
+    //float D = (t_ShadowDepthPass.Sample(s_PointClampSampler, ps_in.texCoords).r);
     //float3 result = float3(D, D, D);
+    
     //if (vnEnabled)
     //{
     //    result = AddVignette(result, ps_in.texCoords);

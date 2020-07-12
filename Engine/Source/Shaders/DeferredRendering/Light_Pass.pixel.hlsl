@@ -18,7 +18,7 @@ Texture2D t_BrdfLUT             : register(t13);
 
 // Samplers
 // --------
-sampler s_LinearClampSampler : register(s0);
+sampler s_PointClampSampler : register(s0);
 sampler s_LinearWrapSampler : register(s1);
 
 // Function Signatures
@@ -32,37 +32,25 @@ struct PS_OUTPUT_LIGHTPASS
 {
     float3 litImage : SV_Target;
 };
-float LinearizeDepth(float depth)
-{
-    float z = depth * 2.0 - 1.0; // back to NDC 
-    return (2.0 * cameraNearZ * cameraFarZ) / (cameraFarZ + cameraNearZ - z * (cameraFarZ - cameraNearZ)) / cameraFarZ;
-}
 
-float ShadowCalculation(float4 fragPosLightSpace, float3 fragPos, float2 texCoords, float3 innormal, float3 lightPos)
+float ShadowCalculation(float4 fragPosLightSpace, float3 normal, float3 lightDir)
 {
-    // perform perspective divide
     float3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     // transform to [0,1] range
     projCoords = projCoords * 0.5 + 0.5;
     // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-    float closestDepth = t_ShadowDepth.Sample(s_LinearClampSampler, projCoords.xy).r;
+    float closestDepth = t_ShadowDepth.Sample(s_PointClampSampler, projCoords.rg).r;
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
-    // calculate bias (based on depth map resolution and slope)
-    float3 normal = normalize(innormal);
-    float3 lightDir = normalize(lightPos - fragPos);
-    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
     // check whether current frag pos is in shadow
-    // float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
-    // PCF
+    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
     float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
-        
-    // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
+	
     if (projCoords.z > 1.0)
     {
         shadow = 0.0;
     }
-        
+    
     return shadow;
 }
 
@@ -190,22 +178,20 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     float2 brdf = t_BrdfLUT.Sample(s_LinearWrapSampler, float2(NdotV, roughness)).rg;
     float3 specular_IBL = environmentMapColor * (F_IBL * brdf.r + brdf.g);
 
-    //float d = LinearizeDepth(t_ShadowDepth.Sample(s_LinearClampSampler, ps_in.texCoords).r);
-    //ps_out.litImage = float3(d, d, d); //t_ShadowDepth.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
+    // Shadowing
+    float4 fragPosLightSpace = mul(float4(worldPosition, 1.0), mul(lightSpaceView, lightSpaceProj));
+    float3 lightDir = normalize(-dirLights[0].direction);
+    float shadow = ShadowCalculation(fragPosLightSpace, normal, lightDir);
+    //float shadow = t_ShadowDepth.Sample(s_LinearClampSampler, ps_in.texCoords);
+    
+    //ps_out.litImage = float3(shadow, shadow, shadow);
     //return ps_out;
     
-    float4 fragPosLightSpace = mul(mul(lightSpaceView, lightSpaceProj), float4(worldPosition, 1.0));
-    float3 lightDir = normalize(float3(-0.2f, -1.0f, -0.3f));
-    float shadow = ShadowCalculation(fragPosLightSpace, worldPosition, ps_in.texCoords, normal, lightDir);
-    //float sh = t_ShadowDepth.Sample(s_LinearClampSampler, ps_in.texCoords);
-    //ps_out.litImage = float3(sh, sh, sh);
-    //return ps_out;
-    
-    float3 ambient = ((diffuse_IBL + specular_IBL) * ambientOcclusion) * (1.0 - shadow);
-    float3 outputLightLuminance = directionalLightLuminance + pointLightLuminance + spotLightLuminance;
+    float3 ambient = (diffuse_IBL + specular_IBL) * ambientOcclusion;
+    float3 combinedLightLuminance = (directionalLightLuminance + pointLightLuminance + spotLightLuminance) * (1.0 - shadow);
     
      // Combine Light Luminance
-    float3 pixelColor = ambient + outputLightLuminance;
+    float3 pixelColor = ambient + combinedLightLuminance;
     
     HDRToneMap(pixelColor);
     GammaCorrect(pixelColor);

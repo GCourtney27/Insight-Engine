@@ -39,10 +39,10 @@ namespace Insight {
 		m_ShaderCB.strength = strength;
 
 		m_ShaderCB.nearPlane = 1.0f;
-		m_ShaderCB.farPlane = 50.0f;
+		m_ShaderCB.farPlane = 210.0f;
 		
 		//LightCamPosition = { 49.0f, 172.0f, 262.0f , 0.0f };
-		LightCamPosition = { 0.0f, 14.0, 53.0f , 0.0f };
+		LightCamPosition = { 0.0f, 34.0, 53.0f , 0.0f };
 
 		XMFLOAT3 LookAtPos(0.0f, 0.0f, 0.0f);
 		XMVECTOR LookAtPosVec = XMLoadFloat3(&LookAtPos);
@@ -153,18 +153,24 @@ namespace Insight {
 
 	void ADirectionalLight::OnUpdate(const float& deltaMs)
 	{
+		m_ShaderCB.direction = SceneNode::GetTransformRef().GetPosition();
+		LightCamPos = LightCamPosition;
+
 		XMFLOAT3 LookAtPos(0.0f, 0.0f, 0.0f);
 		XMVECTOR LookAtPosVec = XMLoadFloat3(&LookAtPos);
 
 		XMFLOAT3 Up(0.0f, 1.0f, 0.0f);
 		XMVECTOR UpVec = XMLoadFloat3(&Up);
+		XMFLOAT3 direction = m_ShaderCB.direction;
+		direction.z = -direction.z;
+		direction.x = -direction.x;
+		//LightCamPositionVec = XMLoadFloat3(&XMFLOAT3(LightCamPosition.x, LightCamPosition.y, LightCamPosition.z));
+		LightCamPositionVec = XMLoadFloat3(&direction);
 
-		LightCamPositionVec = XMLoadFloat3(&XMFLOAT3(LightCamPosition.x, LightCamPosition.y, LightCamPosition.z));
-
-		//LightProj = XMMatrixOrthographicOffCenterLH(0.0f, ViewRight, 0.0f, ViewTop, m_ShaderCB.nearPlane, m_ShaderCB.farPlane);
+		LightProj = XMMatrixOrthographicOffCenterLH(ViewLeft, ViewWidth, ViewBottom, ViewHeight, m_ShaderCB.nearPlane, m_ShaderCB.farPlane);
 
 		LightView = XMMatrixLookAtLH(LightCamPositionVec, LookAtPosVec, UpVec);
-		LightProj = XMMatrixOrthographicLH(40.0f, 40.0f, m_ShaderCB.nearPlane, m_ShaderCB.farPlane);
+		//LightProj = XMMatrixOrthographicLH(ViewWidth, ViewHeight, m_ShaderCB.nearPlane, m_ShaderCB.farPlane);
 
 		//XMStoreFloat4x4(&LightViewFloat, XMMatrixTranspose(ACamera::Get().GetViewMatrix()));
 		XMStoreFloat4x4(&LightViewFloat, XMMatrixTranspose(LightView));
@@ -172,8 +178,7 @@ namespace Insight {
 		//XMStoreFloat4x4(&LightProjFloat, XMMatrixTranspose(ACamera::Get().GetProjectionMatrix()));
 		XMStoreFloat4x4(&LightProjFloat, XMMatrixTranspose(LightProj));
 
-		m_ShaderCB.direction = SceneNode::GetTransformRef().GetPosition();
-		LightCamPos = LightCamPosition;
+		
 	}
 
 	void ADirectionalLight::OnPreRender(XMMATRIX parentMat)
@@ -214,6 +219,10 @@ namespace Insight {
 		ImGui::DragFloat3("light cam pos: ", &LightCamPosition.x, 1.0f, -1000.0f, 1000.0f);
 		ImGui::DragFloat("light cam near z: ", &m_ShaderCB.nearPlane, 1.0f, 0.0f, 180.0f);
 		ImGui::DragFloat("light cam far z: ", &m_ShaderCB.farPlane, 1.0f, 0.0f, 1000.0f);
+		ImGui::DragFloat("light view width: ", &ViewWidth, 1.0f, 0.0f, 1000.0f);
+		ImGui::DragFloat("light view height: ", &ViewHeight, 1.0f, 0.0f, 1000.0f);
+		ImGui::DragFloat("light view left: ", &ViewLeft, 1.0f, -1000.0f, 1000.0f);
+		ImGui::DragFloat("light view bottom: ", &ViewBottom, 1.0f, -1000.0f, 1000.0f);
 		
 		ImGui::Spacing();
 		ImGui::Spacing();
