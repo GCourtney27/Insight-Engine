@@ -9,27 +9,20 @@ cbuffer cbPerObject : register(b0)
 cbuffer cbPerFrame : register(b1)
 {
     float3 cameraPosition;
-    float cameraExposure;
+    float cameraExposure;//4
     float4x4 view;
     float4x4 projection;
     float cameraNearZ;
     float cameraFarZ;
     float deltaMs;
-    float time;
+    float time;//4
     float numPointLights;
     float numDirectionalLights;
     float numSpotLights;
+    float padding;//4
     float2 screenSize;
-    
-    // Graphics Debug
-    float visualizeFinalPass;
-    float visualizeLightPassResult;
-    float visualizeAlbedoBuffer;
-    float visualizeNormalBuffer;
-    float visualizeRoughnessBuffer;
-    float visualizeMetallicBuffer;
-    float visualizeAOPBRTextureBuffer;
-	float padding;
+	float padding1;
+	float padding2;
 };
 
 cbuffer cbLights : register(b2)
@@ -70,6 +63,36 @@ cbuffer PerObjectAdditive : register(b4)
     float padding5;
 };
 
+/* Shadow Pass */
+struct VS_INPUT_SHADOWPASS
+{
+    float3 position : POSITION;
+    float2 texCoords : TEXCOORD;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 biTangent : BITANGENT;
+};
+
+struct VS_OUTPUT_SHADOWPASS
+{
+    float4 sv_position : SV_POSITION;
+    float3 fragPos : FRAG_POS;
+    float2 texCoords : TEXCOORD;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 biTangent : BITANGENT;
+};
+
+struct PS_INPUT_SHADOWPASS
+{
+    float4 sv_position : SV_POSITION;
+    float3 fragPos : FRAG_POS;
+    float2 texCoords : TEXCOORD;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 biTangent : BITANGENT;
+};
+
 /* Geometry Pass */
 struct VS_INPUT_GEOMPASS
 {
@@ -84,6 +107,7 @@ struct VS_OUTPUT_GEOMPASS
 {
     float4 sv_position : SV_POSITION;
     float3 fragPos : FRAG_POS;
+    float3 fragPosLightSpace : FRAG_POS_LIGHT_SPACE;
     float2 texCoords : TEXCOORD;
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
@@ -94,6 +118,7 @@ struct PS_INPUT_GEOMPASS
 {
     float4 sv_position : SV_POSITION;
     float3 fragPos : FRAG_POS;
+    float3 fragPosLightSpace : FRAG_POS_LIGHT_SPACE;
     float2 texCoords : TEXCOORD;
     float3 normal : NORMAL;
     float3 tangent : TANGENT;

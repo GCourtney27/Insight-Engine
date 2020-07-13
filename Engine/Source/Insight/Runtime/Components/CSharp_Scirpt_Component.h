@@ -23,7 +23,7 @@ namespace Insight {
 		virtual void OnInit() override;
 		virtual void OnPostInit() override;
 		virtual void OnDestroy() override;
-		virtual void OnPreRender(const DirectX::XMMATRIX& matrix) override;
+		virtual void CalculateParent(const DirectX::XMMATRIX& matrix) override;
 		virtual void OnUpdate(const float& deltaTime);
 		virtual void OnRender() override;
 		virtual void OnChanged() override;

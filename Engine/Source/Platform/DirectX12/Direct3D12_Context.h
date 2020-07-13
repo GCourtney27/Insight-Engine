@@ -15,6 +15,8 @@ using Microsoft::WRL::ComPtr;
 namespace Insight {
 
 	class WindowsWindow;
+	class ModelManager;
+
 	class ASkySphere;
 	class ASkyLight;
 	class APostFx;
@@ -54,7 +56,8 @@ namespace Insight {
 
 		inline static Direct3D12Context& Get() { return *s_Instance; }
 		inline ID3D12Device& GetDeviceContext() const { return *m_pLogicalDevice.Get(); }
-		inline ID3D12GraphicsCommandList& GetCommandList() const { return *m_pCommandList.Get(); }
+		inline ID3D12GraphicsCommandList& GetScenePassCommandList() const { return *m_pScenePassCommandList.Get(); }
+		inline ID3D12GraphicsCommandList& GetShadowPassCommandList() const { return *m_pShadowPassCommandList.Get(); }
 		inline ID3D12CommandQueue& GetCommandQueue() const { return *m_pCommandQueue.Get(); }
 
 		inline CDescriptorHeapWrapper& GetCBVSRVDescriptorHeap() { return m_cbvsrvHeap; }
@@ -87,8 +90,8 @@ namespace Insight {
 	private:
 		void CloseCommandListAndSignalCommandQueue();
 		// Per-Frame
-		void SetConstantBuffers();
 		void MoveToNextFrame();
+		void BindShadowPass();
 		void BindGeometryPass(bool setPSO = false);
 		void BindLightingPass();
 		void BindSkyPass();
@@ -102,10 +105,11 @@ namespace Insight {
 		void CreateSwapChain();
 		void CreateRenderTargetViewDescriptorHeap();
 
-		void CreateDSV();
+		void CreateDSVs();
 		void CreateRTVs();
 		void CreateConstantBufferViews();
 		void CreateRootSignature();
+		void CreateShadowPassPSO();
 		void CreateGeometryPassPSO();
 		void CreateSkyPassPSO();
 		void CreateLightPassPSO();
@@ -132,6 +136,7 @@ namespace Insight {
 		HWND* m_pWindowHandle = nullptr;
 		WindowsWindow* m_pWindow = nullptr;
 		D3D12Helper m_d3dDeviceResources;
+		ModelManager* m_pModelManager = nullptr;
 
 		// CPU/GPU Syncronization
 		int						m_FrameIndex = 0;
@@ -152,8 +157,10 @@ namespace Insight {
 		ComPtr<IDXGISwapChain3>				m_pSwapChain;
 
 		ComPtr<ID3D12CommandQueue>			m_pCommandQueue;
-		ComPtr<ID3D12GraphicsCommandList>	m_pCommandList;
-		ComPtr<ID3D12CommandAllocator>		m_pCommandAllocators[m_FrameBufferCount];
+		ComPtr<ID3D12GraphicsCommandList>	m_pScenePassCommandList;
+		ComPtr<ID3D12CommandAllocator>		m_pScenePassCommandAllocators[m_FrameBufferCount];
+		ComPtr<ID3D12GraphicsCommandList>	m_pShadowPassCommandList;
+		ComPtr<ID3D12CommandAllocator>		m_pShadowPassCommandAllocators[m_FrameBufferCount];
 
 		ComPtr<ID3D12Resource>				m_pRenderTargetTextures[m_NumRTV];
 		ComPtr<ID3D12Resource>				m_pRenderTargetTextures_PostFxPass[m_FrameBufferCount];
@@ -171,10 +178,14 @@ namespace Insight {
 		UINT								m_RTVDescriptorSize;
 
 		ComPtr<ID3D12Resource>				m_pDepthStencilTexture;
+		ComPtr<ID3D12Resource>				m_pShadowDepthTexture;
+		//0:  SceneDepth
+		//1:  ShadowDepth
 		CDescriptorHeapWrapper				m_dsvHeap;
 
 		ComPtr<ID3D12RootSignature>			m_pRootSignature;
 
+		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_ShadowPass;
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_GeometryPass;
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_LightingPass;
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_SkyPass;
@@ -185,29 +196,31 @@ namespace Insight {
 		//1:  SRV-Normal(RTV->SRV)
 		//2:  SRV-(R)Roughness/(G)Metallic/(B)AO(RTV->SRV)
 		//3:  SRV-Position(RTV->SRV)
-		//4:  SRV-Depth(DSV->SRV)
+		//4:  SRV-Scene Depth(DSV->SRV)
 		//5:  SRV-Light Pass Result(RTV->SRV)
+		//6:  SRV-Shadow Depth(DSV->SRV)
 		//-----PerObject-----
-		//6:  SRV-Albedo(SRV)
-		//7:  SRV-Normal(SRV)
-		//8:  SRV-Roughness(SRV)
-		//9:  SRV-Metallic(SRV)
-		//10: SRV-AO(SRV)
-		//11: SRV-Sky Irradiance(SRV)
-		//12: SRV-Sky Environment(SRV)
-		//13: SRV-Sky BRDF LUT(SRV)
-		//14: SRV-Sky Diffuse(SRV)
+		//7:  SRV-Albedo(SRV)
+		//8:  SRV-Normal(SRV)
+		//9:  SRV-Roughness(SRV)
+		//10:  SRV-Metallic(SRV)
+		//11: SRV-AO(SRV)
+		//12: SRV-Sky Irradiance(SRV)
+		//13: SRV-Sky Environment(SRV)
+		//14: SRV-Sky BRDF LUT(SRV)
+		//15: SRV-Sky Diffuse(SRV)
 		CDescriptorHeapWrapper				m_cbvsrvHeap;
 
 		ScreenQuad							m_ScreenQuad;
-		D3D12_VIEWPORT						m_ViewPort = {};
-		D3D12_RECT							m_ScissorRect = {};
-		DXGI_SAMPLE_DESC					m_SampleDesc = {};
-		D3D12_DEPTH_STENCIL_VIEW_DESC		m_dsvDesc = {};
+		D3D12_VIEWPORT						m_ScenePassViewPort = {};
+		D3D12_VIEWPORT						m_ShadowPassViewPort = {};
+		D3D12_RECT							m_ScenePassScissorRect = {};
+		D3D12_RECT							m_ShadowPassScissorRect = {};
 
+		DXGI_SAMPLE_DESC					m_SampleDesc = {};
+		D3D12_DEPTH_STENCIL_VIEW_DESC		m_ScenePassDsvDesc = {};
 		float								m_ClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		DXGI_FORMAT							m_DsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		//DXGI_FORMAT							m_DsvFormat = DXGI_FORMAT_D32_FLOAT;
 		DXGI_FORMAT							m_RtvFormat[5] = { 
 			DXGI_FORMAT_R11G11B10_FLOAT,	// Albedo buffer
 			DXGI_FORMAT_R8G8B8A8_SNORM,		// Normal
@@ -215,8 +228,11 @@ namespace Insight {
 			DXGI_FORMAT_R32G32B32A32_FLOAT, // Position
 			DXGI_FORMAT_R11G11B10_FLOAT,	// Light Pass result
 		};
-		float								m_ClearDepth = 1.0f;
+		float								m_DepthClearValue = 1.0f;
+		DXGI_FORMAT							m_ShadowMapFormat = DXGI_FORMAT_D32_FLOAT;
 
+		const UINT m_ShadowMapWidth = 1024U;
+		const UINT m_ShadowMapHeight = 1024U;
 
 		ComPtr<ID3D12Resource>	m_LightCBV;
 		UINT8*					m_cbvLightBufferGPUAddress;
@@ -256,16 +272,6 @@ namespace Insight {
 		std::vector<ASpotLight*> m_SpotLights;
 		int						 CBSpotLightsAlignedSize = (sizeof(CB_PS_SpotLight) + 255) & ~255;
 
-
-		// Utils
-		struct Resolution
-		{
-			UINT Width;
-			UINT Height;
-		};
-		static const Resolution m_ResolutionOptions[];
-		static const UINT m_ResolutionOptionsCount;
-		static UINT m_ResolutionIndex;
 
 		const UINT PIX_EVENT_UNICODE_VERSION = 0;
 

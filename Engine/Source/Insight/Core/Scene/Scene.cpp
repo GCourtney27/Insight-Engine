@@ -49,6 +49,8 @@ namespace Insight {
 		// any given time.
 		m_EditorViewTarget = ACamera::GetDefaultViewTarget();
 		m_EditorViewTarget.FieldOfView = 75.0f;
+		m_EditorViewTarget.Position = Vector3(-17.0f, 8.0f, -31.0f);
+		m_EditorViewTarget.NearZ = 0.001f;
 		m_pCamera = new ACamera(m_EditorViewTarget);
 		m_pCamera->SetCanBeFileParsed(false);
 		m_pCamera->SetPerspectiveProjectionValues(
@@ -121,15 +123,14 @@ namespace Insight {
 	void Scene::OnPreRender()
 	{
 		m_Renderer->OnPreFrameRender();
-		m_pSceneRoot->OnPreRender(XMMatrixIdentity());
-		m_ResourceManager.GetModelManager().UploadConstantBufferDataToGPU();
+		m_pSceneRoot->CalculateParent(XMMatrixIdentity());
+		m_ResourceManager.GetModelManager().GatherGeometry();
 	}
 
 	void Scene::OnRender()
 	{
 		m_Renderer->OnRender();
 		m_pSceneRoot->OnRender();
-		m_ResourceManager.GetModelManager().Render();
 	}
 
 	void Scene::OnMidFrameRender()

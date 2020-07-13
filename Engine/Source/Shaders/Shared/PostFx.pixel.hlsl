@@ -6,12 +6,15 @@ Texture2D t_AlbedoGBuffer : register(t0);
 Texture2D t_NormalGBuffer : register(t1);
 Texture2D t_RoughnessMetallicAOGBuffer : register(t2);
 Texture2D t_PositionGBuffer : register(t3);
-Texture2D t_DepthGBuffer : register(t4);
+Texture2D t_SceneDepthGBuffer : register(t4);
 
-Texture2D t_LightPassResult : register(t14);
+Texture2D t_ShadowDepthPass: register(t10);
+
+Texture2D t_LightPassResult : register(t15);
 
 // Samplers
 // --------
+sampler s_PointClampSampler : register(s0);
 SamplerState s_LinearWrapSampler : register(s1);
 
 // Function Signatures
@@ -31,60 +34,11 @@ struct PS_INPUT_POSTFX
 
 float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
 {
-    //float3 result = t_LightPassResult.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
-    //if (visualizeAlbedoBuffer)
-    //{
-    //    float3 result = t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
-    //    return float4(result, 1.0);
-    //}
-    //if (visualizeNormalBuffer)
-    //{
-    //    float3 result = t_NormalGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
-    //    return float4(result, 1.0);
-    //}
-    //if (visualizeRoughnessBuffer)
-    //{
-    //    float result = t_RoughnessMetallicAOGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
-    //    return float4(result, result, result, 1.0);
-    //}
-    //if (visualizeMetallicBuffer)
-    //{
-    //    float result = t_RoughnessMetallicAOGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).g;
-    //    return float4(result, result, result, 1.0);
-    //}
-    //if (visualizeAOPBRTextureBuffer)
-    //{
-    //    float result = t_RoughnessMetallicAOGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).b;
-    //    return float4(result, result, result, 1.0);
-    //}
-    //if (visualizeLightPassResult)
-    //{
-    //    float3 result = t_LightPassResult.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
-        
-    //}
-    //if (visualizeFinalPass)
-    //{
-    //    float3 result = t_LightPassResult.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
-        
-    //    if (vnEnabled)
-    //    {
-    //        result = AddVignette(result, ps_in.texCoords);
-    //    }
-    //    if (fgEnabled)
-    //    {
-    //        result = AddFilmGrain(result, ps_in.texCoords);
-    //    }
-    //    if (caEnabled)
-    //    {
-    //        result = AddChromaticAberration(result, ps_in.texCoords);
-    //    }
+   float3 result = t_LightPassResult.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
+   //float D = (t_ShadowDepthPass.Sample(s_PointClampSampler, ps_in.texCoords).r);
+   //float3 result = float3(D, D, D);
+   //return float4(result, 1.0);
     
-    //    HDRToneMap(result);
-    //    GammaCorrect(result);
-    //    return float4(result, 1.0);
-    //}
-    float3 result = t_LightPassResult.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
-        
     if (vnEnabled)
     {
         result = AddVignette(result, ps_in.texCoords);
@@ -99,7 +53,6 @@ float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
     }
     
     return float4(result, 1.0);
-    //return float4(0.0, 1.0, 0.0, 1.0);
 }
 
 float mod(float x, float y)

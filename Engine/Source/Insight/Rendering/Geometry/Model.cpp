@@ -41,6 +41,9 @@ namespace Insight {
 		ImGui::DragFloat3("Mesh-Scale", &m_pRoot->GetTransformRef().GetScaleRef().x, 0.05f, -1000.0f, 1000.0f);
 		ImGui::DragFloat3("Mesh-Rotation", &m_pRoot->GetTransformRef().GetRotationRef().x, 0.05f, -1000.0f, 1000.0f);
 
+		ImGui::Text("Rendering");
+		ImGui::Checkbox("Casts Shadows ", &m_CastsShadows);
+		ImGui::Checkbox("Visible ", &m_Visible);
 	}
 
 	void Model::RenderSceneHeirarchy()
@@ -67,11 +70,11 @@ namespace Insight {
 		}
 	}
 
-	void Model::Render()
+	void Model::Render(ID3D12GraphicsCommandList* pCommandList)
 	{
 		int numMeshChildren = (int)m_Meshes.size();
 		for (int i = 0; i < numMeshChildren; ++i) {
-			m_Meshes[i]->Render();
+			m_Meshes[i]->Render(pCommandList);
 		}
 	}
 

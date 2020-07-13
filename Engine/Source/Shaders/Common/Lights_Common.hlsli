@@ -25,6 +25,9 @@ struct DirectionalLight
     
     float3 diffuse;
     float strength;
+    
+    float4x4 lightSpaceView;
+    float4x4 lightSpaceProj;
 };
 
 struct SpotLight

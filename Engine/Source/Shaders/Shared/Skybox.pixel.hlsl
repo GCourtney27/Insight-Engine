@@ -4,9 +4,9 @@ struct PS_INPUT
     float3 inTexCoord : TEXCOORD;
 };
 
-TextureCube t_SkyMap : register(t13);
+TextureCube t_SkyMap : register(t14);
 
-SamplerState s_LinearWrapSampler : register(s0);
+SamplerState s_LinearWrapSampler : register(s1);
 
 float4 main(PS_INPUT input) : SV_TARGET
 {

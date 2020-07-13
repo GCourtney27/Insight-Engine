@@ -71,7 +71,7 @@ namespace Insight {
 	{
 	}
 
-	void StaticMeshComponent::OnPreRender(const XMMATRIX& parentMatrix)
+	void StaticMeshComponent::CalculateParent(const XMMATRIX& parentMatrix)
 	{
 		m_pModel->PreRender(parentMatrix);
 	}

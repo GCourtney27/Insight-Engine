@@ -24,7 +24,7 @@ namespace Insight {
 		void Init(Verticies verticies, Indices indices);
 		void InitializeLocalVariables();
 		void PreRender(const XMMATRIX& parentMat);
-		void Render();
+		void Render(ID3D12GraphicsCommandList*& pCommandList);
 		void Destroy();
 		void OnImGuiRender();
 
@@ -53,7 +53,6 @@ namespace Insight {
 		D3D12_INDEX_BUFFER_VIEW		m_IndexBufferView = {};
 
 		ID3D12Device*				m_pLogicalDevice = 0;
-		ID3D12GraphicsCommandList*	m_pCommandList = 0;
 
 		UINT						m_NumVerticies = 0;
 		UINT						m_NumIndices = 0;
@@ -66,5 +65,6 @@ namespace Insight {
 		Material					m_Material;
 		CB_VS_PerObject				m_ConstantBufferPerObject = {};
 
+		bool						m_CastsShadows = true;
 	};
 }

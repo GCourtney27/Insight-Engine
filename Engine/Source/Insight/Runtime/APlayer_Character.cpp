@@ -38,9 +38,9 @@ namespace Insight {
 		APawn::OnUpdate(deltaMs);
 	}
 
-	void APlayerCharacter::OnPreRender(XMMATRIX parentMat)
+	void APlayerCharacter::CalculateParent(XMMATRIX parentMat)
 	{
-		APawn::OnPreRender(parentMat);
+		APawn::CalculateParent(parentMat);
 	}
 
 	void APlayerCharacter::OnRender()
