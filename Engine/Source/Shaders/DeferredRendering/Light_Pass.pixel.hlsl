@@ -86,7 +86,6 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
         // Shadowing
         float4 fragPosLightSpace = mul(float4(worldPosition, 1.0), mul(dirLights[d].lightSpaceView, dirLights[d].lightSpaceProj));
         float shadow = ShadowCalculation(fragPosLightSpace, normal, lightDir);
-        //float shadow = t_ShadowDepth.Sample(s_LinearClampSampler, ps_in.texCoords);
         //ps_out.litImage = float3(shadow, shadow, shadow);
         //return ps_out;
         
@@ -195,18 +194,21 @@ float ShadowCalculation(float4 fragPosLightSpace, float3 normal, float3 lightDir
     float3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     // transform to [0,1] range
     projCoords = projCoords * 0.5 + 0.5;
-    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-    float closestDepth = t_ShadowDepth.Sample(s_PointClampSampler, projCoords.xy).r;
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
     // check whether current frag pos is in shadow
     float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
-    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
-	
-    if (projCoords.z > 1.0)
+    // Soften Shadows
+    float shadow = 0.0;
+    float2 texelSize = 1.0 / float2(1024.0, 1024.0);
+    for (int x = -1; x <= 1; ++x)
     {
-        shadow = 0.0;
+        for (int y = -1; y <= 1; ++y)
+        {
+            float depth = t_ShadowDepth.Sample(s_PointClampSampler, projCoords.xy + float2(x, y) * texelSize).r;
+            shadow += (depth + bias) < projCoords.z ? 0.0 : 1.0;
+
+        }
     }
-    
-    return shadow;
+    return (1.0 - shadow) / 9.0;
 }

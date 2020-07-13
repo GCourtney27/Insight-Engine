@@ -161,12 +161,14 @@ namespace Insight {
 
 		HRESULT hr;
 
+		// Reset Command Allocators
 		hr = m_pScenePassCommandAllocators[m_FrameIndex]->Reset();
 		ThrowIfFailed(hr, "Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Scene Pass");
 
 		hr = m_pShadowPassCommandAllocators[m_FrameIndex]->Reset();
 		ThrowIfFailed(hr, "Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Shadow Pass");
 
+		// Reset Command Lists
 		hr = m_pScenePassCommandList->Reset(m_pScenePassCommandAllocators[m_FrameIndex].Get(), m_pPipelineStateObject_GeometryPass.Get());
 		ThrowIfFailed(hr, "Failed to reset command list in Direct3D12Context::OnPreFrameRender for Scene Pass");
 
@@ -332,12 +334,14 @@ namespace Insight {
 		}
 
 		m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetRenderTarget(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-		//m_pShadowPassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pShadowDepthTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 
 		ThrowIfFailed(m_pScenePassCommandList->Close(), "Failed to close command list. Cannot execute draw commands");
 		ThrowIfFailed(m_pShadowPassCommandList->Close(), "Failed to close the command list for shadow pass.");
 
-		ID3D12CommandList* ppCommandLists[] = { m_pShadowPassCommandList.Get(), m_pScenePassCommandList.Get() };
+		ID3D12CommandList* ppCommandLists[] = { 
+			m_pShadowPassCommandList.Get(),
+			m_pScenePassCommandList.Get()
+		};
 		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
 		WaitForGPU();

@@ -15,7 +15,7 @@ namespace Insight {
 
 	ModelManager::~ModelManager()
 	{
-		//FlushModelCache();
+		FlushModelCache();
 	}
 
 	bool ModelManager::Init()
@@ -121,13 +121,7 @@ namespace Insight {
 
 	void ModelManager::FlushModelCache()
 	{
-		/*for (std::shared_ptr<Model>& model : m_Models)
-		{
-			model->Destroy();
-			model.reset();
-
-		}
-		m_Models.clear();*/
+		m_Models.clear();
 	}
 
 }

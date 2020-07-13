@@ -41,10 +41,8 @@ namespace Insight {
 		XMFLOAT3 LightCamPositionOffset;
 		float m_NearPlane;
 		float m_FarPlane;
-		float ViewWidth = 87.0f;
-		float ViewLeft = -33.0f;
-		float ViewHeight = 36.0f;
-		float ViewBottom = -39.0f;
+		float ViewWidth = 1024.0f;
+		float ViewHeight = 1024.0f;
 		XMMATRIX LightView;
 		XMMATRIX LightProj;
 	};
