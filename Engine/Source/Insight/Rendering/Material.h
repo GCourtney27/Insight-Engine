@@ -3,7 +3,8 @@
 #include <Insight/Core.h>
 
 #include "Insight/Rendering/Texture.h"
-#include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
+#include "Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
+
 namespace Insight {
 
 	class INSIGHT_API Material

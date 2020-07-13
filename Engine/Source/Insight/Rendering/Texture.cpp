@@ -4,7 +4,7 @@
 
 #include "Insight/Core/Application.h"
 #include "Insight/Utilities/String_Helper.h"
-#include "Platform/DirectX12/Direct3D12_Context.h"
+#include "Platform/Windows/DirectX12/Direct3D12_Context.h"
 
 #define CBVSRV_HEAP_TEXTURE_START 7
 

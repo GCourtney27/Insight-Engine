@@ -2,12 +2,12 @@
 
 #include <Insight/Core.h>
 
-#include "Platform/DirectX12/D3D12_Helper.h"
+#include "Platform/Windows/DirectX12/D3D12_Helper.h"
 #include "Insight/Rendering/Rendering_Context.h"
 #include "Platform/Windows/Error/COM_Exception.h"
 
-#include "Platform/DirectX12/Descriptor_Heap_Wrapper.h"
-#include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
+#include "Platform/Windows/DirectX12/Descriptor_Heap_Wrapper.h"
+#include "Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
 
 
 using Microsoft::WRL::ComPtr;

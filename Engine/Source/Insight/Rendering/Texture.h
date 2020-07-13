@@ -2,7 +2,7 @@
 
 #include <Insight/Core.h>
 
-#include "Platform/DirectX12/Descriptor_Heap_Wrapper.h"
+#include "Platform/Windows/DirectX12/Descriptor_Heap_Wrapper.h"
 
 
 namespace Insight {

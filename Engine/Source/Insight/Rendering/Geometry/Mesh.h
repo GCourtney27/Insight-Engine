@@ -5,7 +5,7 @@
 #include "Insight/Rendering/Geometry/Vertex.h"
 #include "Insight/Math/Transform.h"
 #include "Insight/Core/Scene/Scene_Node.h"
-#include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
+#include "Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
 #include "Insight/Rendering/Material.h"
 
 namespace Insight {
