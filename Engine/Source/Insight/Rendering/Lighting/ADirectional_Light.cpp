@@ -162,7 +162,7 @@ namespace Insight {
 	{
 		m_ShaderCB.direction = SceneNode::GetTransformRef().GetPosition();
 		
-		XMFLOAT3 LookAtPos(0.0f, 0.0f, 0.0f);
+		XMFLOAT3 LookAtPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		XMVECTOR LookAtPosVec = XMLoadFloat3(&LookAtPos);
 
 		XMFLOAT3 Up(0.0f, 1.0f, 0.0f);
@@ -175,8 +175,8 @@ namespace Insight {
 
 		LightView = XMMatrixLookAtLH(LightCamPositionVec, LookAtPosVec, UpVec);
 
-		LightProj = XMMatrixOrthographicOffCenterLH(ViewLeft, ViewWidth, ViewBottom, ViewHeight, m_NearPlane, m_FarPlane);
-		//LightProj = XMMatrixOrthographicLH(ViewWidth, ViewHeight, m_ShaderCB.nearPlane, m_ShaderCB.farPlane);
+		//LightProj = XMMatrixOrthographicOffCenterLH(ViewLeft, ViewWidth, ViewBottom, ViewHeight, m_NearPlane, m_FarPlane);
+		LightProj = XMMatrixOrthographicLH(ViewWidth, ViewHeight, m_NearPlane, m_FarPlane);
 
 		XMStoreFloat4x4(&LightViewFloat, XMMatrixTranspose(LightView));
 		XMStoreFloat4x4(&LightProjFloat, XMMatrixTranspose(LightProj));

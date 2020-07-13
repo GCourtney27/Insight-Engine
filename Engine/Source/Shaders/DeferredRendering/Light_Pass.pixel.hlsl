@@ -83,7 +83,14 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
         float3 kD = float3(1.0, 1.0, 1.0) - F;
         kD *= 1.0 - metallic;
         
-        directionalLightLuminance += ((kD * albedo / PI + specular) * radiance * NdotL);
+        // Shadowing
+        float4 fragPosLightSpace = mul(float4(worldPosition, 1.0), mul(dirLights[d].lightSpaceView, dirLights[d].lightSpaceProj));
+        float shadow = ShadowCalculation(fragPosLightSpace, normal, lightDir);
+        //float shadow = t_ShadowDepth.Sample(s_LinearClampSampler, ps_in.texCoords);
+        //ps_out.litImage = float3(shadow, shadow, shadow);
+        //return ps_out;
+        
+        directionalLightLuminance += ((kD * albedo / PI + specular) * radiance * NdotL) * (1.0 - shadow);
 
     }
     
@@ -157,18 +164,9 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     float3 environmentMapColor = tc_EnvironmentMap.SampleLevel(s_LinearWrapSampler, reflect(-viewDirection, normal), roughness * MAX_REFLECTION_MIP_LOD).rgb;
     float2 brdf = t_BrdfLUT.Sample(s_LinearWrapSampler, float2(NdotV, roughness)).rg;
     float3 specular_IBL = environmentMapColor * (F_IBL * brdf.r + brdf.g);
-
-    // Shadowing
-    float4 fragPosLightSpace = mul(float4(worldPosition, 1.0), mul(dirLights[0].lightSpaceView, dirLights[0].lightSpaceProj));
-    float3 lightDir = normalize(-dirLights[0].direction);
-    float shadow = ShadowCalculation(fragPosLightSpace, normal, lightDir);
-    //float shadow = t_ShadowDepth.Sample(s_LinearClampSampler, ps_in.texCoords);
-    //ps_out.litImage = float3(shadow, shadow, shadow);
-    //return ps_out;
-    
     
     float3 ambient = (diffuse_IBL + specular_IBL) * ambientOcclusion;
-    float3 combinedLightLuminance = (pointLightLuminance + spotLightLuminance) + (directionalLightLuminance * (1.0 - shadow));
+    float3 combinedLightLuminance = (pointLightLuminance + spotLightLuminance) + (directionalLightLuminance);
     
      // Combine Light Luminance
     float3 pixelColor = ambient + combinedLightLuminance;

@@ -183,7 +183,7 @@ namespace Insight {
 
 		// Reset Shadow Pass
 		m_pShadowPassCommandList->RSSetScissorRects(1, &m_ShadowPassScissorRect);
-		m_pShadowPassCommandList->RSSetViewports(1, &m_ScenePassViewPort);
+		m_pShadowPassCommandList->RSSetViewports(1, &m_ShadowPassViewPort);
 		m_pShadowPassCommandList->OMSetRenderTargets(0, nullptr, FALSE, &m_dsvHeap.hCPU(1));
 	}
 
@@ -1335,10 +1335,10 @@ namespace Insight {
 	{
 		m_ShadowPassViewPort.TopLeftX = 0;
 		m_ShadowPassViewPort.TopLeftY = 0;
-		m_ScenePassViewPort.Width = static_cast<FLOAT>(m_ShadowMapWidth);
-		m_ScenePassViewPort.Height = static_cast<FLOAT>(m_ShadowMapHeight);
-		m_ScenePassViewPort.MinDepth = 0.0f;
-		m_ScenePassViewPort.MaxDepth = 1.0f;
+		m_ShadowPassViewPort.Width = static_cast<FLOAT>(m_ShadowMapWidth);
+		m_ShadowPassViewPort.Height = static_cast<FLOAT>(m_ShadowMapHeight);
+		m_ShadowPassViewPort.MinDepth = 0.0f;
+		m_ShadowPassViewPort.MaxDepth = 1.0f;
 
 		m_ScenePassViewPort.TopLeftX = 0;
 		m_ScenePassViewPort.TopLeftY = 0;
