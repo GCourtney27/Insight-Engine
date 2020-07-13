@@ -34,6 +34,7 @@ namespace Insight {
 
 		Texture::IE_TEXTURE_INFO diffuseInfo;
 		diffuseInfo.Filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(diffuseMap));
+		diffuseInfo.AssetDirectoryRelPath = diffuseMap;
 		diffuseInfo.Type = Texture::eTextureType::SKY_DIFFUSE;
 		diffuseInfo.GenerateMipMaps = true;
 		diffuseInfo.IsCubeMap = true;
@@ -93,7 +94,7 @@ namespace Insight {
 			{
 				Writer.StartObject();
 				Writer.Key("Diffuse");
-				Writer.String(StringHelper::WideToString(m_Diffuse.GetFilepath()).c_str());
+				Writer.String(m_Diffuse.GetAssetDirectoryRelPath().c_str());
 				Writer.EndObject();
 			}
 			Writer.EndArray();

@@ -38,6 +38,7 @@ namespace Insight {
 			bool GenerateMipMaps = true;
 			bool IsCubeMap = false;
 			std::wstring Filepath;
+			std::string AssetDirectoryRelPath;
 			std::string DisplayName;
 			ID Id;
 		};
@@ -57,6 +58,7 @@ namespace Insight {
 		inline const IE_TEXTURE_INFO& GetTextureInfo() const { return m_TextureInfo; }
 		inline const std::string& GetDisplayName() const { return m_TextureInfo.DisplayName; }
 		inline const std::wstring& GetFilepath() const { return m_TextureInfo.Filepath; }
+		inline const std::string& GetAssetDirectoryRelPath() const { return m_TextureInfo.AssetDirectoryRelPath; }
 
 		inline const D3D12_RESOURCE_DESC& GetD3D12ResourceDescription() { return m_TextureDesc; }
 		inline const UINT64& GetWidth() const { return m_TextureDesc.Width; }

@@ -3,6 +3,7 @@
 #include "Model.h"
 #include "Insight/Utilities/String_Helper.h"
 #include "Platform/DirectX12/Direct3D12_Context.h"
+#include "Insight/Systems/File_System.h"
 #include "imgui.h"
 
 namespace Insight {
@@ -23,11 +24,11 @@ namespace Insight {
 	bool Model::Init(const std::string& path)
 	{
 		m_AssetDirectoryRelativePath = path;
-		m_Directory = StringHelper::GetDirectoryFromPath(path);
-		m_FileName = StringHelper::GetFilenameFromDirectory(path);
+		m_Directory = FileSystem::Get().GetRelativeAssetDirectoryPath(path);
+		m_FileName = StringHelper::GetFilenameFromDirectory(m_Directory);
 		SceneNode::SetDisplayName("Static Mesh");
 
-		return LoadModelFromFile(path);
+		return LoadModelFromFile(m_Directory);
 	}
 
 	void Model::OnImGuiRender()

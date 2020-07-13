@@ -34,6 +34,7 @@ namespace Insight {
 
 		Texture::IE_TEXTURE_INFO brdfInfo;
 		brdfInfo.Filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(brdfLUT));
+		brdfInfo.AssetDirectoryRelPath = brdfLUT;
 		brdfInfo.Type = Texture::eTextureType::SKY_BRDF_LUT;
 		brdfInfo.IsCubeMap = true;
 		brdfInfo.GenerateMipMaps = false;
@@ -41,6 +42,7 @@ namespace Insight {
 
 		Texture::IE_TEXTURE_INFO irMapInfo;
 		irMapInfo.Filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(irMap));
+		irMapInfo.AssetDirectoryRelPath = irMap;
 		irMapInfo.Type = Texture::eTextureType::SKY_IRRADIENCE;
 		irMapInfo.IsCubeMap = true;
 		brdfInfo.GenerateMipMaps = false;
@@ -48,6 +50,7 @@ namespace Insight {
 		
 		Texture::IE_TEXTURE_INFO envMapInfo;
 		envMapInfo.Filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(envMap));
+		envMapInfo.AssetDirectoryRelPath = envMap;
 		envMapInfo.Type = Texture::eTextureType::SKY_ENVIRONMENT_MAP;
 		envMapInfo.IsCubeMap = true;
 		brdfInfo.GenerateMipMaps = false;
@@ -107,11 +110,11 @@ namespace Insight {
 			{
 				Writer.StartObject();
 				Writer.Key("BRDFLUT");
-				Writer.String(StringHelper::WideToString(m_BrdfLUT.GetFilepath()).c_str());
+				Writer.String(m_BrdfLUT.GetAssetDirectoryRelPath().c_str());
 				Writer.Key("Irradiance");
-				Writer.String(StringHelper::WideToString(m_Irradiance.GetFilepath()).c_str());
+				Writer.String(m_Irradiance.GetAssetDirectoryRelPath().c_str());
 				Writer.Key("Environment");
-				Writer.String(StringHelper::WideToString(m_Environment.GetFilepath()).c_str());
+				Writer.String(m_Environment.GetAssetDirectoryRelPath().c_str());
 				Writer.EndObject();
 			}
 			Writer.EndArray();

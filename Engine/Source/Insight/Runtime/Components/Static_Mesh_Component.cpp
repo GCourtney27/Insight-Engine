@@ -26,7 +26,7 @@ namespace Insight {
 		std::string modelPath;
 		json::get_string(jsonStaticMeshComponent[0], "Mesh", modelPath);
 		json::get_bool(jsonStaticMeshComponent[0], "Enabled", ActorComponent::m_Enabled);
-		AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath(modelPath));
+		AttachMesh(modelPath);
 
 		// Load Material
 		m_Material.LoadFromJson(jsonStaticMeshComponent[1]);
@@ -98,14 +98,14 @@ namespace Insight {
 	{
 	}
 
-	void StaticMeshComponent::AttachMesh(const std::string& path)
+	void StaticMeshComponent::AttachMesh(const std::string& AssesDirectoryRelPath)
 	{
-		ScopedTimer timer(("StaticMeshComponent::AttachMesh \"" + path + "\"").c_str());
+		ScopedTimer timer(("StaticMeshComponent::AttachMesh \"" + AssesDirectoryRelPath + "\"").c_str());
 
 		if (m_pModel) {
 			m_pModel.reset();
 		}
-		m_pModel = make_shared<Model>(path, &m_Material);
+		m_pModel = make_shared<Model>(AssesDirectoryRelPath, &m_Material);
 		ResourceManager::Get().GetModelManager().RegisterModel(m_pModel);
 	}
 

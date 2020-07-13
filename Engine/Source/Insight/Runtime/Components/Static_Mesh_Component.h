@@ -25,7 +25,7 @@ namespace Insight {
 		virtual void OnChanged() {}
 		virtual void OnImGuiRender() override;
 		void RenderSceneHeirarchy() override;
-		void AttachMesh(const std::string& path);
+		void AttachMesh(const std::string& AssesDirectoryRelPath);
 
 		virtual void BeginPlay() override;
 		virtual void Tick(const float& deltaMs) override;

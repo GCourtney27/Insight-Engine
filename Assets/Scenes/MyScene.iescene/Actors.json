@@ -18,7 +18,7 @@
             ],
             "Sky": [
                 {
-                    "Diffuse": "../Assets/../Assets/../Assets/../Assets/../Assets/../Assets/Textures/Skyboxes/MountainTop/MountainTop_Diff.dds"
+                    "Diffuse": "Textures/Skyboxes/MountainTop/MountainTop_Diff.dds"
                 }
             ],
             "Subobjects": []
@@ -41,9 +41,9 @@
             ],
             "Sky": [
                 {
-                    "BRDFLUT": "../Assets/../Assets/../Assets/../Assets/../Assets/../Assets/Textures/Skyboxes/ibl_brdf_lut.png",
-                    "Irradiance": "../Assets/../Assets/../Assets/../Assets/../Assets/../Assets/Textures/Skyboxes/MountainTop/MountainTop_IR.dds",
-                    "Environment": "../Assets/../Assets/../Assets/../Assets/../Assets/../Assets/Textures/Skyboxes/MountainTop/MountainTop_EnvMap.dds"
+                    "BRDFLUT": "Textures/Skyboxes/ibl_brdf_lut.png",
+                    "Irradiance": "Textures/Skyboxes/MountainTop/MountainTop_IR.dds",
+                    "Environment": "Textures/Skyboxes/MountainTop/MountainTop_EnvMap.dds"
                 }
             ],
             "Subobjects": []
@@ -102,7 +102,7 @@
                 {
                     "StaticMesh": [
                         {
-                            "Mesh": "../Assets/../Assets/../Assets/../Assets/../Assets/../Assets/Models/Sphere.obj",
+                            "Mesh": "Models/Sphere.obj",
                             "Enabled": true
                         },
                         {
@@ -165,7 +165,7 @@
                 {
                     "StaticMesh": [
                         {
-                            "Mesh": "../Assets/../Assets/../Assets/../Assets/../Assets/../Assets/Models/Quad.obj",
+                            "Mesh": "Models/Quad.obj",
                             "Enabled": true
                         },
                         {
@@ -205,10 +205,10 @@
             "DisplayName": "Stone Wall",
             "Transform": [
                 {
-                    "posX": -28.875391006469728,
-                    "posY": 8.525547981262207,
-                    "posZ": 11.83508586883545,
-                    "rotX": -0.01934184692800045,
+                    "posX": -26.875,
+                    "posY": 2.7149999141693117,
+                    "posZ": 13.482000350952149,
+                    "rotX": -1.569000005722046,
                     "rotY": 0.0,
                     "rotZ": 0.0,
                     "scaX": 16.450559616088868,
@@ -220,7 +220,7 @@
                 {
                     "StaticMesh": [
                         {
-                            "Mesh": "../Assets/../Assets/../Assets/../Assets/../Assets/../Assets/Models/Quad.obj",
+                            "Mesh": "Models/Quad.obj",
                             "Enabled": true
                         },
                         {
