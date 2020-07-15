@@ -11,7 +11,7 @@ namespace Insight {
 	{
 	public:
 		Material();
-		//Material(Material&& material) noexcept;
+		Material(Material&& material) noexcept;
 		~Material();
 		
 		virtual bool LoadFromJson(const rapidjson::Value& jsonMaterial);

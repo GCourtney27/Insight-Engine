@@ -18,6 +18,7 @@ namespace Insight {
 	public:
 		Model(const std::string& path, Material* material);
 		Model() {}
+		Model(Model&& model) noexcept;
 		~Model();
 
 		bool Init(const std::string& path);
@@ -25,7 +26,7 @@ namespace Insight {
 		void RenderSceneHeirarchy();
 		void BindResources();
 
-		Material& GetMaterialRef() { return *m_Material; }
+		Material& GetMaterialRef() { return *m_pMaterial; }
 		std::string GetDirectory() { return m_Directory; }
 		std::string GetAssetDirectoryRelativePath() { return m_AssetDirectoryRelativePath; }
 
@@ -48,7 +49,7 @@ namespace Insight {
 		std::vector<unique_ptr<Mesh>> m_Meshes;
 		unique_ptr<MeshNode> m_pRoot;
 		
-		Material* m_Material;
+		Material* m_pMaterial;
 
 		std::string m_AssetDirectoryRelativePath;
 		std::string m_Directory;

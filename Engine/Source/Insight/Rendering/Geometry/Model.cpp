@@ -11,9 +11,23 @@ namespace Insight {
 	static std::mutex s_MeshMutex;
 
 	Model::Model(const std::string& path, Material* material)
-		: m_Material(material)
+		: m_pMaterial(material)
 	{
 		Init(path);
+	}
+
+	Model::Model(Model&& model) noexcept
+	{
+		m_Meshes = std::move(model.m_Meshes);
+		m_pRoot = std::move(model.m_pRoot);
+
+		m_pMaterial = std::move(model.m_pMaterial);
+		m_AssetDirectoryRelativePath = std::move(model.m_AssetDirectoryRelativePath);
+		m_Directory = std::move(model.m_Directory);
+		m_FileName = std::move(model.m_FileName);
+
+		model.m_pRoot = nullptr;
+		model.m_pMaterial = nullptr;
 	}
 
 	Model::~Model()
@@ -60,7 +74,7 @@ namespace Insight {
 
 	void Model::BindResources()
 	{
-		m_Material->BindResources();
+		m_pMaterial->BindResources();
 	}
 
 	void Model::PreRender(const XMMATRIX& parentMat)
