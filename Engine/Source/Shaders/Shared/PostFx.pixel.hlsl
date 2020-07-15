@@ -35,7 +35,7 @@ struct PS_INPUT_POSTFX
 float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
 {
    float3 result = t_LightPassResult.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
-   //float D = (t_ShadowDepthPass.Sample(s_PointClampSampler, ps_in.texCoords).r);
+   //float D = LinearizeDepth(t_SceneDepthGBuffer.Sample(s_PointClampSampler, ps_in.texCoords).r);
    //float3 result = float3(D, D, D);
    //return float4(result, 1.0);
     
@@ -70,7 +70,7 @@ float3 AddChromaticAberration(float3 sourceColor, float2 texCoords)
     float2 uvR = texCoords - texel.xy * precompute;
     float2 uvB = texCoords + texel.xy * precompute;
     
-    // TODO: this effect oferwrites othe effects because it adds the color texture directly. Fix it
+    // TODO: this effect overwrites other effects because it adds the color texture directly. Fix it
     sourceColor.r = t_LightPassResult.Sample(s_LinearWrapSampler, uvR).r;
     sourceColor.g = t_LightPassResult.Sample(s_LinearWrapSampler, texCoords).g;
     sourceColor.b = t_LightPassResult.Sample(s_LinearWrapSampler, uvB).b;
