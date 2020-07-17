@@ -4,6 +4,10 @@
 
 namespace Insight {
 
+	// TODO: This timer is currently platform independent.
+	// It should however be dependent on the OS for higher 
+	// more accurate performance.
+
 	template<typename TPeriod = std::chrono::high_resolution_clock::period>
 	class INSIGHT_API Timer
 	{
@@ -14,7 +18,7 @@ namespace Insight {
 	public:
 		Timer() : m_start_point(clock::now()) {}
 
-		void reset()
+		void Reset()
 		{
 			m_start_point = clock::now();
 		}
@@ -47,7 +51,7 @@ namespace Insight {
 		{ 
 		}
 
-		void tick()
+		void Tick()
 		{
 			clock_duration duration = std::chrono::duration_cast<clock_duration>(clock::now() - m_prev_frame_time);
 			m_prev_frame_time = clock::now();
@@ -67,17 +71,17 @@ namespace Insight {
 			}
 		}
 
-		inline float dt() const
+		inline float DeltaTime() const
 		{
 			return m_dt;
 		}
 
-		inline float milliseconds() const
+		inline float MilliSeconds() const
 		{
 			return m_dt * 1000.0f;
 		}
 
-		inline float fps() const
+		inline float FPS() const
 		{
 			return m_fps;
 		}

@@ -182,7 +182,7 @@ namespace Insight {
 		//	{
 		//		IE_CORE_INFO("Adding Static Mesh component to \"{0}\"", AActor::GetDisplayName());
 		//		StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<StaticMeshComponent>();
-		//		static_cast<StaticMeshComponent*>(ptr.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Models/Sphere.obj"));
+		//		static_cast<StaticMeshComponent*>(ptr.get())->AttachMesh(FileSystem::GetRelativeAssetDirectoryPath("Models/Sphere.obj"));
 		//		//TODO:Make something like this for the material: static_cast<StaticMeshComponent*>(ptr.get())->AttachMaterial(Material::GetDefaultUntexturedMaterial());
 		//		break;
 		//	}

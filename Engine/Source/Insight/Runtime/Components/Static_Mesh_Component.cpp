@@ -13,7 +13,7 @@ namespace Insight {
 	StaticMeshComponent::StaticMeshComponent(AActor* pOwner)
 		: ActorComponent("Static Mesh Component", pOwner)
 	{
-
+		
 	}
 
 	StaticMeshComponent::~StaticMeshComponent()
@@ -73,7 +73,9 @@ namespace Insight {
 
 	void StaticMeshComponent::CalculateParent(const XMMATRIX& parentMatrix)
 	{
-		m_pModel->PreRender(parentMatrix);
+		//if (m_ModelLoadFuture.get()) {
+			m_pModel->PreRender(parentMatrix);
+		//}
 	}
 
 	void StaticMeshComponent::OnRender()
@@ -98,6 +100,17 @@ namespace Insight {
 	{
 	}
 
+	static std::mutex s_MeshMutex;
+	static bool LoadMesh(StrongModelPtr Model, const std::string& Path, Material* Material)
+	{
+		Model->Init(Path, Material);
+
+		std::lock_guard<std::mutex> ResourceLock(s_MeshMutex);
+
+		ResourceManager::Get().GetModelManager().RegisterModel(Model);
+		return true;
+	}
+
 	void StaticMeshComponent::AttachMesh(const std::string& AssesDirectoryRelPath)
 	{
 		ScopedTimer timer(("StaticMeshComponent::AttachMesh \"" + AssesDirectoryRelPath + "\"").c_str());
@@ -105,8 +118,12 @@ namespace Insight {
 		if (m_pModel) {
 			m_pModel.reset();
 		}
-		m_pModel = make_shared<Model>(AssesDirectoryRelPath, &m_Material);
+
+		m_pModel = make_shared<Model>();
+		m_pModel->Init(AssesDirectoryRelPath, &m_Material);
+		//m_ModelLoadFuture = std::async(std::launch::async, LoadMesh, m_pModel, AssesDirectoryRelPath, &m_Material);
 		ResourceManager::Get().GetModelManager().RegisterModel(m_pModel);
+		
 	}
 
 	void StaticMeshComponent::BeginPlay()

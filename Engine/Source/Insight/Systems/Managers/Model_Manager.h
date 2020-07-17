@@ -8,13 +8,13 @@ namespace Insight {
 
 	using namespace Microsoft::WRL;
 
-	class ModelManager
+	class GeometryManager
 	{
 	public:
 		typedef std::vector<StrongModelPtr> SceneModels;
 	public:
-		ModelManager();
-		~ModelManager();
+		GeometryManager();
+		~GeometryManager();
 
 		bool Init();
 		virtual bool LoadResourcesFromJson(const rapidjson::Value& jsonMeshes);

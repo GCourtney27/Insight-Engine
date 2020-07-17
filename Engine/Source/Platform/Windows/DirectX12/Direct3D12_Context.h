@@ -15,7 +15,7 @@ using Microsoft::WRL::ComPtr;
 namespace Insight {
 
 	class WindowsWindow;
-	class ModelManager;
+	class GeometryManager;
 
 	class ASkySphere;
 	class ASkyLight;
@@ -55,13 +55,12 @@ namespace Insight {
 		virtual void OnWindowFullScreen() override;
 
 		inline static Direct3D12Context& Get() { return *s_Instance; }
-		inline ID3D12Device& GetDeviceContext() const { return *m_pLogicalDevice.Get(); }
+		inline ID3D12Device& GetDeviceContext() const { return *m_pDeviceContext.Get(); }
+
 		inline ID3D12GraphicsCommandList& GetScenePassCommandList() const { return *m_pScenePassCommandList.Get(); }
 		inline ID3D12GraphicsCommandList& GetShadowPassCommandList() const { return *m_pShadowPassCommandList.Get(); }
 		inline ID3D12CommandQueue& GetCommandQueue() const { return *m_pCommandQueue.Get(); }
-
 		inline CDescriptorHeapWrapper& GetCBVSRVDescriptorHeap() { return m_cbvsrvHeap; }
-
 		inline ID3D12Resource& GetConstantBufferPerObjectUploadHeap() const { return *m_PerObjectCBV[m_FrameIndex].Get(); }
 		inline UINT8& GetPerObjectCBVGPUHeapAddress() { return *m_cbvPerObjectGPUAddress[m_FrameIndex]; }
 
@@ -133,17 +132,17 @@ namespace Insight {
 		static Direct3D12Context* s_Instance;
 
 	private:
-		HWND* m_pWindowHandle = nullptr;
-		WindowsWindow* m_pWindow = nullptr;
-		D3D12Helper m_d3dDeviceResources;
-		ModelManager* m_pModelManager = nullptr;
+		HWND*			m_pWindowHandle = nullptr;
+		WindowsWindow*	m_pWindow = nullptr;
+		D3D12Helper		m_d3dDeviceResources;
+		GeometryManager*	m_pModelManager = nullptr;
 
 		// CPU/GPU Syncronization
 		int						m_FrameIndex = 0;
 		UINT64					m_FenceValues[m_FrameBufferCount] = {};
 		HANDLE					m_FenceEvent = {};
 		ComPtr<ID3D12Fence>		m_pFence;
-		static const unsigned int			m_NumRTV = 5;
+		static const UINT		m_NumRTV = 5;
 
 		bool		m_WindowResizeComplete = true;
 		bool		m_RayTraceEnabled = false;
@@ -151,8 +150,8 @@ namespace Insight {
 		int			m_RtvDescriptorIncrementSize = 0;
 
 		// D3D 12 Usings
-		ComPtr<IDXGIAdapter1>				m_pPhysicalDevice;
-		ComPtr<ID3D12Device>				m_pLogicalDevice;
+		ComPtr<IDXGIAdapter1>				m_pAdapter;
+		ComPtr<ID3D12Device>				m_pDeviceContext;
 		ComPtr<IDXGIFactory4>				m_pDxgiFactory;
 		ComPtr<IDXGISwapChain3>				m_pSwapChain;
 
@@ -179,6 +178,7 @@ namespace Insight {
 
 		ComPtr<ID3D12Resource>				m_pDepthStencilTexture;
 		ComPtr<ID3D12Resource>				m_pShadowDepthTexture;
+
 		//0:  SceneDepth
 		//1:  ShadowDepth
 		CDescriptorHeapWrapper				m_dsvHeap;

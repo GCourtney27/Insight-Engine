@@ -57,7 +57,7 @@ namespace Insight {
 	bool Application::Init()
 	{
 		m_pGameLayer = new GameLayer();
-		m_pGameLayer->LoadScene(FileSystem::Get().GetRelativeAssetDirectoryPath("Scenes/MyScene.iescene"));
+		m_pGameLayer->LoadScene(FileSystem::GetRelativeAssetDirectory("Scenes/Norway.iescene"));
 
 		PushEngineLayers();
 
@@ -71,9 +71,9 @@ namespace Insight {
 
 		while(m_Running) {
 
-			m_FrameTimer.tick();
-			const float& DeltaTime = (float)m_FrameTimer.dt();
-			m_pWindow->SetWindowTitleFPS(m_FrameTimer.fps());
+			m_FrameTimer.Tick();
+			const float& DeltaTime = (float)m_FrameTimer.DeltaTime();
+			m_pWindow->SetWindowTitleFPS(m_FrameTimer.FPS());
 
 			m_pWindow->OnUpdate(DeltaTime);
 			m_pGameLayer->Update(DeltaTime);
@@ -162,7 +162,7 @@ namespace Insight {
 
 	bool Application::SaveScene(SceneSaveEvent& e)
 	{
-		return FileSystem::Get().WriteSceneToJson(m_pGameLayer->GetScene());
+		return FileSystem::WriteSceneToJson(m_pGameLayer->GetScene());
 	}
 
 	bool Application::BeginPlay(AppBeginPlayEvent& e)

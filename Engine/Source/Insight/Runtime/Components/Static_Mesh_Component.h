@@ -36,6 +36,7 @@ namespace Insight {
 	private:
 		StrongModelPtr m_pModel;
 		Material m_Material;
+		std::future<bool> m_ModelLoadFuture;
 	};
 
 }

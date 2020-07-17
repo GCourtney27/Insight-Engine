@@ -12,14 +12,10 @@ namespace Insight {
 		FileSystem();
 		~FileSystem();
 
-		static FileSystem& Get() { return *s_Instance; }
-
-		std::string GetRelativeAssetDirectoryPath(std::string Path);
-		bool LoadSceneFromJson(const std::string& FileName, Scene* pScene);
-		bool WriteSceneToJson(Scene* pScene);
-		
-	private:
-		static FileSystem* s_Instance;
+		static std::string GetExecutbleDirectory();
+		static std::string GetRelativeAssetDirectory(std::string Path);
+		static bool LoadSceneFromJson(const std::string& FileName, Scene* pScene);
+		static bool WriteSceneToJson(Scene* pScene);
 	};
 
 }

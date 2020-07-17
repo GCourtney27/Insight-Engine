@@ -4,6 +4,7 @@
 
 #include "Insight/Core/Application.h"
 #include "Insight/Core/Scene/scene.h"
+#include "Insight/Core/ieException.h"
 #include "Insight/Utilities/String_Helper.h"
 
 #include "Insight/Rendering/APost_Fx.h"
@@ -16,19 +17,34 @@
 namespace Insight {
 
 
-	FileSystem* FileSystem::s_Instance = nullptr;
 
 	FileSystem::FileSystem()
 	{
-		IE_CORE_ASSERT(!s_Instance, "There is already an instance of a file system!");
-		s_Instance = this;
 	}
 
 	FileSystem::~FileSystem()
 	{
 	}
 
-	std::string FileSystem::GetRelativeAssetDirectoryPath(std::string Path)
+	std::string FileSystem::GetExecutbleDirectory()
+	{
+		WCHAR Path[512];
+		UINT PathSize = _countof(Path);
+		DWORD Size = GetModuleFileName(nullptr, Path, PathSize);
+		if(Size == 0 || Size == PathSize)
+		{
+			throw Insight::ieException("Failed to get module path name or path may have been truncated.");
+		}
+
+		WCHAR* LastSlash = wcsrchr(Path, L'\\');
+		if (LastSlash)
+		{
+			*(LastSlash + 1) = L'\0';
+		}
+		return StringHelper::WideToString(std::wstring{ Path });
+	}
+
+	std::string FileSystem::GetRelativeAssetDirectory(std::string Path)
 	{
 		std::string relativePath;
 #if defined IE_DEBUG

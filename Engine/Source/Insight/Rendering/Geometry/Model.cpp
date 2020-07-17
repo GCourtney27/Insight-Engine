@@ -10,10 +10,9 @@ namespace Insight {
 
 	static std::mutex s_MeshMutex;
 
-	Model::Model(const std::string& path, Material* material)
-		: m_pMaterial(material)
+	Model::Model(const std::string& Path, Material* Material)
 	{
-		Init(path);
+		Init(Path, Material);
 	}
 
 	Model::Model(Model&& model) noexcept
@@ -35,10 +34,12 @@ namespace Insight {
 		//Destroy();
 	}
 
-	bool Model::Init(const std::string& path)
+	bool Model::Init(const std::string& path, Material* pMaterial)
 	{
+		m_pMaterial = pMaterial;
+
 		m_AssetDirectoryRelativePath = path;
-		m_Directory = FileSystem::Get().GetRelativeAssetDirectoryPath(path);
+		m_Directory = FileSystem::GetRelativeAssetDirectory(path);
 		m_FileName = StringHelper::GetFilenameFromDirectory(m_Directory);
 		SceneNode::SetDisplayName("Static Mesh");
 
