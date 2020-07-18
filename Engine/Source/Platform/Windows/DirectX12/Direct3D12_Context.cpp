@@ -92,7 +92,7 @@ namespace Insight {
 				}
 
 				// Load Test Assets
-				LoadAssets();
+				LoadDemoAssets();
 			}
 			PIXEndEvent(m_pCommandQueue.Get());
 
@@ -1244,7 +1244,7 @@ namespace Insight {
 			THROW_COM_ERROR("Fence Event was nullptr");
 	}
 
-	void Direct3D12Context::LoadAssets()
+	void Direct3D12Context::LoadDemoAssets()
 	{
 
 	}

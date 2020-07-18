@@ -1,5 +1,8 @@
 #pragma once
 
+/*
+	Represents a base for a graphics context the application will use for rendering.
+*/
 
 namespace Insight {
 
