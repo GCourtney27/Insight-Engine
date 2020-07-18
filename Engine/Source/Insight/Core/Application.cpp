@@ -57,7 +57,7 @@ namespace Insight {
 	bool Application::Init()
 	{
 		m_pGameLayer = new GameLayer();
-		m_pGameLayer->LoadScene(FileSystem::GetRelativeAssetDirectory("Scenes/Norway.iescene"));
+		m_pGameLayer->LoadScene(FileSystem::GetRelativeAssetDirectory("Scenes/MyScene.iescene"));
 
 		PushEngineLayers();
 

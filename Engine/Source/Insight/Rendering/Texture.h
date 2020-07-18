@@ -69,16 +69,17 @@ namespace Insight {
 	private:
 		void InitDDSTexture(CDescriptorHeapWrapper& srvHeapHandle);
 		bool InitTextureFromFile(CDescriptorHeapWrapper& srvHeapHandle);
-
+		UINT GetRootParameterIndexForTextureType(eTextureType TextureType);
 	private:
 		ID3D12GraphicsCommandList*	m_pCommandList = nullptr;
-
+		CDescriptorHeapWrapper*		m_pCbvSrvHeapStart;
 		ComPtr<ID3D12Resource>		m_pTexture;
 		D3D12_RESOURCE_DESC			m_TextureDesc = {};
 		TextureHandle				m_GPUHeapIndex = 0u;
 
 		IE_TEXTURE_INFO				m_TextureInfo = {};
 
+		UINT						m_RootParamIndex = 0U;
 	private:
 		static UINT32 s_NumSceneTextures;
 	};

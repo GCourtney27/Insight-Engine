@@ -39,8 +39,6 @@ struct PS_OUTPUT_LIGHTPASS
 PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
 {
     PS_OUTPUT_LIGHTPASS ps_out;
-    ps_out.litImage = float3(0.6f, 0.6f, 0.0f);
-    return ps_out;
     
 	// Sample Textures
     float3 albedo = pow(abs(t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb), float3(2.2, 2.2, 2.2));
