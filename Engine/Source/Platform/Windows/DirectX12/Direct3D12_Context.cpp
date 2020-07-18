@@ -106,7 +106,7 @@ namespace Insight {
 
 	bool Direct3D12Context::PostInit()
 	{
-		m_pModelManager = &ResourceManager::Get().GetModelManager();
+		m_pModelManager = &ResourceManager::Get().GetGeometryManager();
 		CloseCommandListAndSignalCommandQueue();
 		return true;
 	}

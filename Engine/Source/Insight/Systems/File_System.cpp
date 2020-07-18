@@ -14,6 +14,7 @@
 #include "Insight/Rendering/Lighting/APoint_Light.h"
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
 
+
 namespace Insight {
 
 
@@ -33,7 +34,7 @@ namespace Insight {
 		DWORD Size = GetModuleFileName(nullptr, Path, PathSize);
 		if(Size == 0 || Size == PathSize)
 		{
-			throw Insight::ieException("Failed to get module path name or path may have been truncated.");
+			throw ieException("Failed to get module path name or path may have been truncated.");
 		}
 
 		WCHAR* LastSlash = wcsrchr(Path, L'\\');

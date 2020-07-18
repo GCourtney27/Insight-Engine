@@ -107,7 +107,7 @@ namespace Insight {
 
 		std::lock_guard<std::mutex> ResourceLock(s_MeshMutex);
 
-		ResourceManager::Get().GetModelManager().RegisterModel(Model);
+		ResourceManager::Get().GetGeometryManager().RegisterModel(Model);
 		return true;
 	}
 
@@ -118,12 +118,11 @@ namespace Insight {
 		if (m_pModel) {
 			m_pModel.reset();
 		}
-
 		m_pModel = make_shared<Model>();
 		m_pModel->Init(AssesDirectoryRelPath, &m_Material);
+
 		//m_ModelLoadFuture = std::async(std::launch::async, LoadMesh, m_pModel, AssesDirectoryRelPath, &m_Material);
-		ResourceManager::Get().GetModelManager().RegisterModel(m_pModel);
-		
+		ResourceManager::Get().GetGeometryManager().RegisterModel(m_pModel);
 	}
 
 	void StaticMeshComponent::BeginPlay()
