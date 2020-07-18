@@ -235,6 +235,13 @@ namespace Insight {
 				Application::Get().GetEditorLayer().SetUIEnabled(data.EditorUIEnabled);
 				break;
 			}
+			case IDM_EDITOR_RELOAD_SCRIPTS:
+			{
+				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+				AppScriptReloadEvent event;
+				data.EventCallback(event);
+				break;
+			}
 			case IDM_BEGIN_PLAY:
 			{
 				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
@@ -461,6 +468,7 @@ namespace Insight {
 			AppendMenuW(m_hMenuBar, MF_POPUP, (UINT_PTR)m_hEditorSubMenu, L"&Editor");
 			AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_BEGIN_PLAY, L"&Play");
 			AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_END_PLAY, L"&Stop");
+			AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_EDITOR_RELOAD_SCRIPTS, L"&Reload Scripts");
 			AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_EDITOR_TOGGLE, L"&Toggle Editor UI");
 
 			m_Data.hEditorSubMenu = m_hEditorSubMenu;

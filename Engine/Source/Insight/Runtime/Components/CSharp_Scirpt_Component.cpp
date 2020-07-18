@@ -29,7 +29,7 @@ namespace Insight {
 
 	void CSharpScriptComponent::OnDetach()
 	{
-
+		Cleanup();
 	}
 
 	void CSharpScriptComponent::RegisterScript()
@@ -42,10 +42,10 @@ namespace Insight {
 
 		// Register the engine methods for the object
 		if (!m_pMonoScriptManager->CreateMethod(m_pClass, m_pBeginPlayMethod, m_ModuleName.c_str(), "BeginPlay()")) {
-			IE_CORE_ERROR("Failed to find method \"BeginPlay\" in \"{0}\"", m_ModuleName);
+			IE_CORE_ERROR("Failed to find method \"BeginPlay\" in script \"{0}\"", m_ModuleName);
 		}
 		if (!m_pMonoScriptManager->CreateMethod(m_pClass, m_pUpdateMethod, m_ModuleName.c_str(), "Tick(double)")) {
-			IE_CORE_ERROR("Failed to find method \"Tick\" in \"{0}\"", m_ModuleName);
+			IE_CORE_ERROR("Failed to find method \"Tick\" in script \"{0}\"", m_ModuleName);
 		}
 
 		GetTransformFields();
@@ -54,7 +54,9 @@ namespace Insight {
 
 	void CSharpScriptComponent::Cleanup()
 	{
-		m_pMonoScriptManager = nullptr;
+		if (m_pMonoScriptManager) {
+			m_pMonoScriptManager = nullptr;
+		}
 	}
 
 	bool CSharpScriptComponent::LoadFromJson(const rapidjson::Value& jsonCSScriptComponent)

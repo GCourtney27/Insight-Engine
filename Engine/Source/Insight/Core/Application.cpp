@@ -7,7 +7,8 @@
 #include "Insight/Layer_Types/ImGui_Layer.h"
 #include "Platform/Windows/Windows_Window.h"
 
-
+static const char* ProjectName = "Development-Project";
+static const char* TargetSceneName = "DemoScene.iescene";
 
 namespace Insight {
 
@@ -56,9 +57,15 @@ namespace Insight {
 
 	bool Application::Init()
 	{
-		m_pGameLayer = new GameLayer();
-		m_pGameLayer->LoadScene(FileSystem::GetRelativeAssetDirectory("Scenes/MyScene.iescene"));
+		FileSystem::Init(ProjectName);
 
+		m_pGameLayer = new GameLayer();
+
+		std::string DocumentPath = FileSystem::ProjectDirectory;
+		DocumentPath += "/Assets/Scenes/";
+		DocumentPath += TargetSceneName;
+
+		m_pGameLayer->LoadScene(DocumentPath);
 		PushEngineLayers();
 
 		IE_CORE_TRACE("Application Initialized");
@@ -113,6 +120,7 @@ namespace Insight {
 		dispatcher.Dispatch<SceneSaveEvent>(IE_BIND_EVENT_FN(Application::SaveScene));
 		dispatcher.Dispatch<AppBeginPlayEvent>(IE_BIND_EVENT_FN(Application::BeginPlay));
 		dispatcher.Dispatch<AppEndPlayEvent>(IE_BIND_EVENT_FN(Application::EndPlay));
+		dispatcher.Dispatch<AppScriptReloadEvent>(IE_BIND_EVENT_FN(Application::ReloadScripts));
 
 		Input::GetInputManager().OnEvent(e);
 
@@ -177,6 +185,13 @@ namespace Insight {
 		m_pGameLayer->EndPlay();
 		m_LayerStack.PopLayer(m_pGameLayer);
 		m_pGameLayer->OnDetach();
+		return true;
+	}
+
+	bool Application::ReloadScripts(AppScriptReloadEvent& e)
+	{
+		IE_CORE_INFO("Reload Scirpts");
+		ResourceManager::Get().GetMonoScriptManager().ReCompile();
 		return true;
 	}
 

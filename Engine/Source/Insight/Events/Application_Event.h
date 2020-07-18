@@ -96,6 +96,15 @@ namespace Insight {
 			EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
+	class INSIGHT_API AppScriptReloadEvent : public Event
+	{
+	public:
+		AppScriptReloadEvent() {}
+
+		EVENT_CLASS_TYPE(AppScriptReload)
+			EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	};
+
 	class INSIGHT_API SceneSaveEvent : public Event
 	{
 	public:

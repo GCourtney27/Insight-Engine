@@ -12,10 +12,18 @@ namespace Insight {
 		FileSystem();
 		~FileSystem();
 
+		static bool Init(const char* ProjectName);
+
 		static std::string GetExecutbleDirectory();
-		static std::string GetRelativeAssetDirectory(std::string Path);
+		static std::string GetUserDocumentsFolderPath();
+		static std::string GetProjectRelativeAssetDirectory(std::string Path);
 		static bool LoadSceneFromJson(const std::string& FileName, Scene* pScene);
 		static bool WriteSceneToJson(Scene* pScene);
+
+	public:
+		static std::string ProjectDirectory;
+	private:
+
 	};
 
 }

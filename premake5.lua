@@ -30,6 +30,7 @@ include "Engine/Vendor/ImGui"
 
 CustomDefines = {}
 CustomDefines["IE_BUILD_DIR"] = "../Bin/" .. outputdir
+CustomDefines["IE_BUILD_CONFIG"] = outputdir
 
 -- Engine
 project ("Engine")
@@ -62,7 +63,8 @@ project ("Engine")
 	defines
 	{
 		"_CRT_SECURE_NO_WARNINGS",
-		"IE_BUILD_DIR=%{CustomDefines.IE_BUILD_DIR}/Engine/"
+		"IE_BUILD_DIR=%{CustomDefines.IE_BUILD_DIR}/Engine/",
+		"IE_BUILD_CONFIG=%{CustomDefines.IE_BUILD_CONFIG}"
 	}
 
 	includedirs
@@ -251,47 +253,47 @@ project (gameName)
 		symbols "on"
 
 
--- CSharp Scripting
-project (csharpAssemblyProjectName)
-	location(csharpAssemblyProjectName)
-	kind("SharedLib")
-	language("C#")
-	targetdir ("Bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("Bin-Int/" .. outputdir .. "/%{prj.name}")
+-- -- CSharp Scripting
+-- project (csharpAssemblyProjectName)
+-- 	location(csharpAssemblyProjectName)
+-- 	kind("SharedLib")
+-- 	language("C#")
+-- 	targetdir ("Bin/" .. outputdir .. "/%{prj.name}")
+-- 	objdir ("Bin-Int/" .. outputdir .. "/%{prj.name}")
 
-	files
-	{
-		-- Source code
-		"%{prj.name}/Source/**.cs",
-		"%{prj.name}/Source/**.xaml",
-		"%{prj.name}/Source/**.xaml.cs",
-		"%{prj.name}/Source/**.config",
-		-- Internal
-		"%{prj.name}/Internal/**.cs",
-		"%{prj.name}/Internal/**.xaml",
-		"%{prj.name}/Internal/**.xaml.cs",
-		"%{prj.name}/Internal/**.config"
-	}
+-- 	files
+-- 	{
+-- 		-- Source code
+-- 		"%{prj.name}/Source/**.cs",
+-- 		"%{prj.name}/Source/**.xaml",
+-- 		"%{prj.name}/Source/**.xaml.cs",
+-- 		"%{prj.name}/Source/**.config",
+-- 		-- Internal
+-- 		"%{prj.name}/Internal/**.cs",
+-- 		"%{prj.name}/Internal/**.xaml",
+-- 		"%{prj.name}/Internal/**.xaml.cs",
+-- 		"%{prj.name}/Internal/**.config"
+-- 	}
 
-	links
-	{
-		"Microsoft.CSharp",
-		"PresentationCore",
-		"PresentationFramework",
-		"System",
-		"System.Core",
-		"System.Data",
-		"System.Data.DataSetExtensions",
-		"System.Net.Http",
-		"System.Xaml",
-		"System.Xml",
-		"System.Xml.Linq",
-		"WindowsBase",
-	}
+-- 	links
+-- 	{
+-- 		"Microsoft.CSharp",
+-- 		"PresentationCore",
+-- 		"PresentationFramework",
+-- 		"System",
+-- 		"System.Core",
+-- 		"System.Data",
+-- 		"System.Data.DataSetExtensions",
+-- 		"System.Net.Http",
+-- 		"System.Xaml",
+-- 		"System.Xml",
+-- 		"System.Xml.Linq",
+-- 		"WindowsBase",
+-- 	}
 
-	postbuildcommands
-	{
-		-- ("{COPY} %{wks.location}Bin/$(TargetDir)/%{prj.name}.dll %{wks.location}Bin/"..outputdir.."/Engine")
-		("{COPY} $(TargetDir)%{prj.name}.dll $(TargetDir)../Engine/")
-	}
+-- 	postbuildcommands
+-- 	{
+-- 		-- ("{COPY} %{wks.location}Bin/$(TargetDir)/%{prj.name}.dll %{wks.location}Bin/"..outputdir.."/Engine")
+-- 		("{COPY} $(TargetDir)%{prj.name}.dll $(TargetDir)../Engine/")
+-- 	}
 	

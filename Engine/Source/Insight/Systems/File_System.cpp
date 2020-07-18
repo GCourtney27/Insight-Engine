@@ -15,9 +15,11 @@
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
 
 
+#include <shlobj.h>
+
 namespace Insight {
 
-
+	std::string FileSystem::ProjectDirectory = "";
 
 	FileSystem::FileSystem()
 	{
@@ -27,33 +29,42 @@ namespace Insight {
 	{
 	}
 
+	bool FileSystem::Init(const char* ProjectName)
+	{
+		FileSystem::ProjectDirectory += FileSystem::GetUserDocumentsFolderPath();
+		FileSystem::ProjectDirectory += "/Insight-Projects/";
+		FileSystem::ProjectDirectory += ProjectName;
+		return true;
+	}
+
 	std::string FileSystem::GetExecutbleDirectory()
 	{
 		WCHAR Path[512];
-		UINT PathSize = _countof(Path);
-		DWORD Size = GetModuleFileName(nullptr, Path, PathSize);
-		if(Size == 0 || Size == PathSize)
-		{
+		UINT RawPathSize = _countof(Path);
+		DWORD PathSize = GetModuleFileName(nullptr, Path, RawPathSize);
+		if(PathSize == 0 || PathSize == RawPathSize) {
 			throw ieException("Failed to get module path name or path may have been truncated.");
 		}
 
 		WCHAR* LastSlash = wcsrchr(Path, L'\\');
-		if (LastSlash)
-		{
+		if (LastSlash) {
 			*(LastSlash + 1) = L'\0';
 		}
 		return StringHelper::WideToString(std::wstring{ Path });
 	}
 
-	std::string FileSystem::GetRelativeAssetDirectory(std::string Path)
+	std::string FileSystem::GetUserDocumentsFolderPath()
 	{
-		std::string relativePath;
-#if defined IE_DEBUG
-		relativePath += "../Assets/" + Path;
-#elif defined IE_RELEASE || defined IE_GAME_DIST
-		relativePath += "../../../Assets/" + Path;
-#endif
-		return relativePath;
+		wchar_t Folder[1024];
+		HRESULT hr = SHGetFolderPathW(NULL, CSIDL_MYDOCUMENTS, 0, 0, Folder);
+		ThrowIfFailed(hr, "Failed to get path to user documents folder.");
+		
+		return StringHelper::WideToString(std::wstring{ Folder });
+	}
+
+	std::string FileSystem::GetProjectRelativeAssetDirectory(std::string Path)
+	{
+		return ProjectDirectory + "/Assets/" + Path;
 	}
 
 	bool FileSystem::LoadSceneFromJson(const std::string& FileName, Scene* pScene)
@@ -203,5 +214,6 @@ namespace Insight {
 
 		return true;
 	}
+
 
 }

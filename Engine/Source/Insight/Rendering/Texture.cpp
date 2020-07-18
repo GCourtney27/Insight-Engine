@@ -191,5 +191,6 @@ namespace Insight {
 			break;
 		}
 		}
+		return 6;
 	}
 }

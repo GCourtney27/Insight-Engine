@@ -12,7 +12,7 @@ namespace Insight {
 	{
 		None = 0,
 		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved, ToggleWindowFullScreen,
-		AppBeginPlay, AppEndPlay, AppTick, AppUpdate, AppRender,
+		AppBeginPlay, AppEndPlay, AppTick, AppUpdate, AppRender, AppScriptReload,
 		SceneSave,
 		KeyPressed, KeyReleased, KeyTyped,
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, RawMouseMoved, MouseScrolled
