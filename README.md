@@ -13,6 +13,7 @@ A full game engine made for my 2019 Capstone project. It is written in C/C++ wit
 **JSON File IO**
 * Save and load your scenes. In the background, JSON is being used to store all Game Objects and their corresponding components
 
+*Note: Insight is has received deferred DirectX12 PBR rendering, mono C# scripting, scene graph, advanced post-processing, and events in the dev branch of this repository 
 
 *This software falls under the MIT license
 
