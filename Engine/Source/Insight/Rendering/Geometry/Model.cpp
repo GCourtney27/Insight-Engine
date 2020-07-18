@@ -180,9 +180,9 @@ namespace Insight {
 				
 			} else {
 
-				vertex.TexCoords = XMFLOAT2(0.0f, 0.0f);
-				vertex.Tangent = XMFLOAT3(0.0f, 0.0f, 0.0f);
-				vertex.BiTangent = XMFLOAT3(0.0f, 0.0f, 0.0f);
+				vertex.TexCoords = ieFloat2(0.0f, 0.0f);
+				vertex.Tangent = ieFloat3(0.0f, 0.0f, 0.0f);
+				vertex.BiTangent = ieFloat3(0.0f, 0.0f, 0.0f);
 			}
 
 			verticies.push_back(vertex);

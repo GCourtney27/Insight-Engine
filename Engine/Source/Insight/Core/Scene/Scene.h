@@ -52,7 +52,7 @@ namespace Insight {
 		ACamera* m_pCamera = nullptr;
 		ViewTarget m_EditorViewTarget;
 
-		Vector3 newPos;
+		ieVector3 newPos;
 		AActor* m_pSelectedActor = nullptr;
 
 		SceneNode* m_pSceneRoot = nullptr;

@@ -73,9 +73,9 @@ namespace Insight {
 			Writer.StartArray(); // Start Write Transform
 			{
 				Transform& Transform = SceneNode::GetTransformRef();
-				Vector3 Pos = Transform.GetPosition();
-				Vector3 Rot = Transform.GetRotation();
-				Vector3 Sca = Transform.GetScale();
+				ieVector3 Pos = Transform.GetPosition();
+				ieVector3 Rot = Transform.GetRotation();
+				ieVector3 Sca = Transform.GetScale();
 
 				Writer.StartObject();
 				// Position

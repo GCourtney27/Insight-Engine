@@ -69,7 +69,6 @@ namespace Insight {
 		std::vector<StrongActorComponentPtr> GetAllSubobjects() const { return m_Components; }
 		
 	protected:
-		const Vector3 WORLD_DIRECTION = WORLD_DIRECTION.Zero;
 		ActorComponents m_Components;
 		UINT m_NumComponents = 0;
 		ActorId m_Id;

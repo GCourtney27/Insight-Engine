@@ -103,17 +103,17 @@ namespace Insight {
 
 	void CSharpScriptComponent::UpdateScriptFields()
 	{
-		Vector3 currentPos = m_pOwner->GetTransformRef().GetPosition();
+		ieVector3 currentPos = m_pOwner->GetTransformRef().GetPosition();
 		mono_field_set_value(m_PositionObj, m_XPositionField, &currentPos.x);
 		mono_field_set_value(m_PositionObj, m_YPositionField, &currentPos.y);
 		mono_field_set_value(m_PositionObj, m_ZPositionField, &currentPos.z);
 
-		Vector3 currentRot = m_pOwner->GetTransformRef().GetRotation();
+		ieVector3 currentRot = m_pOwner->GetTransformRef().GetRotation();
 		mono_field_set_value(m_RotationObj, m_XRotationField, &currentRot.x);
 		mono_field_set_value(m_RotationObj, m_YRotationField, &currentRot.y);
 		mono_field_set_value(m_RotationObj, m_ZRotationField, &currentRot.z);
 
-		Vector3 currentSca = m_pOwner->GetTransformRef().GetScale();
+		ieVector3 currentSca = m_pOwner->GetTransformRef().GetScale();
 		mono_field_set_value(m_ScaleObj, m_XScaleField, &currentSca.x);
 		mono_field_set_value(m_ScaleObj, m_YScaleField, &currentSca.y);
 		mono_field_set_value(m_ScaleObj, m_ZScaleField, &currentSca.z);

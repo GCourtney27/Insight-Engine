@@ -40,6 +40,7 @@
 #include "Insight/Core/Log.h"
 #include "Insight/Core/Interfaces.h"
 #include "Insight/Utilities/Profiling.h"
+#include "Insight/Math/ieVectors.h"
 
 // === Third Party === //
 // Rapid Json

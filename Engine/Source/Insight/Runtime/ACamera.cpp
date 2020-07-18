@@ -105,10 +105,10 @@ namespace Insight {
 			GetTransformRef().GetPositionRef() += GetTransformRef().GetLocalRight() * velocity;
 		}
 		if (direction == CameraMovement::UP) {
-			GetTransformRef().GetPositionRef() += WORLD_DIRECTION.Up * velocity;
+			GetTransformRef().GetPositionRef() += Vector3::Up * velocity;
 		}
 		if (direction == CameraMovement::DOWN) {
-			GetTransformRef().GetPositionRef() -= WORLD_DIRECTION.Up * velocity;
+			GetTransformRef().GetPositionRef() -= Vector3::Up * velocity;
 		}
 		UpdateViewMatrix();
 	}
@@ -163,9 +163,9 @@ namespace Insight {
 	void ACamera::UpdateViewMatrix()
 	{
 		XMMATRIX camRotationMatrix = XMMatrixRotationRollPitchYaw(GetTransformRef().GetRotation().x, GetTransformRef().GetRotation().y, 0.0f);
-		XMVECTOR camTarget = XMVector3TransformCoord(WORLD_DIRECTION.Forward, camRotationMatrix);
+		XMVECTOR camTarget = XMVector3TransformCoord(Vector3::Forward, camRotationMatrix);
 		camTarget += GetTransformRef().GetPosition();
-		XMVECTOR upDir = XMVector3TransformCoord(WORLD_DIRECTION.Up, camRotationMatrix);
+		XMVECTOR upDir = XMVector3TransformCoord(Vector3::Up, camRotationMatrix);
 		m_ViewMatrix = XMMatrixLookAtLH(GetTransformRef().GetPosition(), camTarget, upDir);
 	}
 }
