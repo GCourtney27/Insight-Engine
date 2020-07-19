@@ -93,7 +93,7 @@ namespace Insight {
 		ImGui::Spacing();
 		if (ImGui::CollapsingHeader(m_ComponentName, ImGuiTreeNodeFlags_DefaultOpen)) {
 
-			// Models/nanosuit/nanosuit.obj
+			//Models/nanosuit/nanosuit.obj
 			if (ImGui::InputText("New Mesh Dir: ", &m_DynamicAssetDir, ImGuiInputTextFlags_EnterReturnsTrue)) {
 				IE_CORE_INFO("Text input: {0}", m_DynamicAssetDir);
 				AttachMesh(m_DynamicAssetDir);

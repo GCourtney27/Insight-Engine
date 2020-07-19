@@ -32,7 +32,7 @@ namespace Insight {
 	bool FileSystem::Init(const char* ProjectName)
 	{
 		FileSystem::ProjectDirectory += FileSystem::GetUserDocumentsFolderPath();
-		FileSystem::ProjectDirectory += "/Insight-Projects/";
+		FileSystem::ProjectDirectory += "/Insight Projects/";
 		FileSystem::ProjectDirectory += ProjectName;
 		return true;
 	}
@@ -184,7 +184,8 @@ namespace Insight {
 			Writer.EndObject();
 
 			// Final Export
-			std::string sceneName = "../Assets/Scenes/" + pScene->GetDisplayName() + ".iescene/Meta.json";
+			
+			std::string sceneName = FileSystem::ProjectDirectory + "/Assets/Scenes/" + pScene->GetDisplayName() + ".iescene/Meta.json";
 			std::ofstream offstream(sceneName.c_str());
 			offstream << StrBuffer.GetString();
 
@@ -202,7 +203,7 @@ namespace Insight {
 			pScene->WriteToJson(Writer);
 
 			// Final Export
-			std::string sceneName = "../Assets/Scenes/" + pScene->GetDisplayName() + ".iescene/Actors.json";
+			std::string sceneName = FileSystem::ProjectDirectory + "/Assets/Scenes/" + pScene->GetDisplayName() + ".iescene/Actors.json";
 			std::ofstream offstream(sceneName.c_str());
 			offstream << StrBuffer.GetString();
 
