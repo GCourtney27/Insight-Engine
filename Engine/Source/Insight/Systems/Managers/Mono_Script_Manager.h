@@ -21,7 +21,7 @@ namespace Insight {
 		void Cleanup();
 
 		inline void RegisterScript(CSharpScriptComponent* Script) { m_RegisteredScripts.push_back(Script); }
-		inline void UnRegisterScript(CSharpScriptComponent* Script) { std::remove(m_RegisteredScripts.begin(), m_RegisteredScripts.end(), Script); }
+		void UnRegisterScript(CSharpScriptComponent* Script);
 
 		MonoDomain& GetDomain() { return *m_pDomain; }
 		MonoAssembly& GetAssembly() { return *m_pAssembly; }

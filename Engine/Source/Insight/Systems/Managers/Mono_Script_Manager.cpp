@@ -178,4 +178,13 @@ namespace Insight {
 		m_pImage = nullptr;
 	}
 
+	void MonoScriptManager::UnRegisterScript(CSharpScriptComponent* Script)
+	{
+		auto iter = std::find(m_RegisteredScripts.begin(), m_RegisteredScripts.end(), Script);
+
+		if (iter != m_RegisteredScripts.end()) {
+			m_RegisteredScripts.erase(iter);
+		}
+	}
+
 }

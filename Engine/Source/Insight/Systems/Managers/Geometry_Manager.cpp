@@ -124,5 +124,14 @@ namespace Insight {
 		m_Models.clear();
 	}
 
+	void GeometryManager::UnRegisterModel(StrongModelPtr Model)
+	{
+		auto iter = std::find(m_Models.begin(), m_Models.end(), Model);
+
+		if (iter != m_Models.end()) {
+			m_Models.erase(iter);
+		}
+	}
+
 }
 

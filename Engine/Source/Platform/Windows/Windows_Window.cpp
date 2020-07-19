@@ -417,7 +417,6 @@ namespace Insight {
 		ShowWindow(m_hWindow, m_nCmdShowArgs);
 		SetForegroundWindow(m_hWindow);
 		SetFocus(m_hWindow);
-		SetWindowTitle(m_Data.WindowTitle);
 
 		IE_CORE_TRACE("Window Initialized");
 		return true;
@@ -611,14 +610,14 @@ namespace Insight {
 		m_pRendererContext->SwapBuffers();
 	}
 
-	bool WindowsWindow::SetWindowTitle(const std::string& newText, bool completlyOverride)
+	bool WindowsWindow::SetWindowTitle(const std::string& NewText, bool completlyOverride)
 	{
 		BOOL succeeded = true;
 		if (completlyOverride) {
-			succeeded = SetWindowText(m_hWindow, StringHelper::StringToWide(newText).c_str());
+			succeeded = SetWindowText(m_hWindow, StringHelper::StringToWide(NewText).c_str());
 		}
 		else {
-			m_Data.WindowTitle_wide = m_Data.WindowTitle_wide + L" - " + StringHelper::StringToWide(newText);
+			m_Data.WindowTitle_wide = m_Data.WindowTitle_wide + L" - " + StringHelper::StringToWide(NewText);
 			succeeded = SetWindowText(m_hWindow, m_Data.WindowTitle_wide.c_str());
 		}
 		return succeeded;
@@ -626,10 +625,8 @@ namespace Insight {
 
 	bool WindowsWindow::SetWindowTitleFPS(float fps)
 	{
-		BOOL succeeded = true;
 		std::wstring windowTitle = m_Data.WindowTitle_wide + L" FPS: " + std::to_wstring((UINT)fps);
-		succeeded = SetWindowText(m_hWindow, windowTitle.c_str());
-		return succeeded;
+		return static_cast<bool>(SetWindowText(m_hWindow, windowTitle.c_str()));
 	}
 
 	void* WindowsWindow::GetNativeWindow() const

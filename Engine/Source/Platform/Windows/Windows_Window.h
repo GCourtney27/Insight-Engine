@@ -12,7 +12,7 @@ namespace Insight {
 		{
 			std::string WindowClassName = "Insight Engine Class";
 			std::wstring WindowClassName_wide;
-			std::string WindowTitle = "Insight Engine";
+			std::string WindowTitle = "Insight Editor";
 			std::wstring WindowTitle_wide;
 			UINT Width, Height;
 			bool VSyncEnabled = true;

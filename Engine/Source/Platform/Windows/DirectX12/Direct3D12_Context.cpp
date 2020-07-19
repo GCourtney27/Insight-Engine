@@ -159,8 +159,6 @@ namespace Insight {
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
-		HRESULT hr;
-
 		// Reset Command Allocators
 		ThrowIfFailed(m_pScenePassCommandAllocators[m_FrameIndex]->Reset(),
 			"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Scene Pass");
