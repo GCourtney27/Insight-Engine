@@ -42,12 +42,6 @@ namespace Insight {
 		return true;
 	}
 
-	bool GeometryManager::LoadResourcesFromJson(const rapidjson::Value& jsonMeshes)
-	{
-		return false;
-	}
-
-	// Issue draw commands to all models attached to the model manager
 	void GeometryManager::Render(RenderPass RenderPass)
 	{
 		if (RenderPass == RenderPass::RenderPass_Shadow) {
@@ -92,7 +86,6 @@ namespace Insight {
 		}
 	}
 
-	// Update the Constant buffers in the gpu with the new data for each model. Does not draw models
 	void GeometryManager::GatherGeometry()
 	{
 		for (UINT32 i = 0; i < m_Models.size(); i++) {

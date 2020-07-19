@@ -2,13 +2,18 @@
 
 #include "Editor_Layer.h"
 
-#include "Insight/Core/Application.h"
-#include "Insight/Core/Scene/Scene_Node.h"
-#include "Insight/Core/Scene/Scene.h"
-#include "Insight/Input/Input.h"
 #include "Insight/Runtime/ACamera.h"
 #include "Insight/Runtime/AActor.h"
 
+#include "Insight/Rendering/Lighting/ASpot_Light.h"
+#include "Insight/Rendering/Lighting/APoint_Light.h"
+#include "Insight/Rendering/Lighting/ADirectional_Light.h"
+
+#include "Insight/Core/Application.h"
+#include "Insight/Core/Scene/Scene_Node.h"
+#include "Insight/Core/Scene/Scene.h"
+
+#include "Insight/Input/Input.h"
 #include "imgui.h"
 #include "ImGuizmo.h"
 
@@ -18,7 +23,7 @@ namespace Insight {
 
 	EditorLayer::EditorLayer()
 	{
-		
+
 	}
 
 	EditorLayer::~EditorLayer()
@@ -27,16 +32,16 @@ namespace Insight {
 
 	void EditorLayer::OnAttach()
 	{
-		m_pCurrentScene = Application::Get().GetGameLayer().GetScene();
-		m_pSceneRoot = &m_pCurrentScene->GetSceneRoot();
-		m_pSceneCamera = &m_pCurrentScene->GetSceneCamera();
+		m_pCurrentSceneRef = Application::Get().GetGameLayer().GetScene();
+		m_pSceneRootRef = &m_pCurrentSceneRef->GetSceneRoot();
+		m_pSceneCameraRef = &m_pCurrentSceneRef->GetSceneCamera();
 	}
 
 	void EditorLayer::OnDetach()
 	{
-		m_pCurrentScene = nullptr;
-		m_pSceneRoot = nullptr;
-		m_pSceneCamera = nullptr;
+		m_pCurrentSceneRef = nullptr;
+		m_pSceneRootRef = nullptr;
+		m_pSceneCameraRef = nullptr;
 	}
 
 	void EditorLayer::OnImGuiRender()
@@ -53,9 +58,9 @@ namespace Insight {
 	{
 		ImGui::Begin("Heirarchy");
 		{
-			if (ImGui::CollapsingHeader(m_pSceneRoot->GetDisplayName(), ImGuiTreeNodeFlags_DefaultOpen))
+			if (ImGui::CollapsingHeader(m_pSceneRootRef->GetDisplayName(), ImGuiTreeNodeFlags_DefaultOpen))
 			{
-				m_pSceneRoot->RenderSceneHeirarchy();
+				m_pSceneRootRef->RenderSceneHeirarchy();
 			}
 		}
 		ImGui::End();
@@ -83,8 +88,8 @@ namespace Insight {
 		XMFLOAT4X4 viewMat;
 		XMFLOAT4X4 projMat;
 		XMStoreFloat4x4(&objectMat, m_pSelectedActor->GetTransformRef().GetLocalMatrix());
-		XMStoreFloat4x4(&viewMat, m_pSceneCamera->GetViewMatrix());
-		XMStoreFloat4x4(&projMat, m_pSceneCamera->GetProjectionMatrix());
+		XMStoreFloat4x4(&viewMat, m_pSceneCameraRef->GetViewMatrix());
+		XMStoreFloat4x4(&projMat, m_pSceneCameraRef->GetProjectionMatrix());
 
 		if (Input::IsKeyPressed('W')) {
 			mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
@@ -133,14 +138,36 @@ namespace Insight {
 
 	void EditorLayer::RenderCreatorWindow()
 	{
-		// TODO make this a colapsing header with different options
-		//ImGui::Begin("Creator");
+		ImGui::Begin("Creator");
 		{
-			/*if (ImGui::Button("New Point Light", { 125, 25 })) {
-				m_pSceneRoot->AddChild(new APointLight(5, "New cool point light"));
-			}*/
+			if (ImGui::CollapsingHeader("Lights", ImGuiTreeNodeFlags_DefaultOpen)) {
+
+				ImGuiTreeNodeFlags TreeFlags = ImGuiTreeNodeFlags_Leaf;
+
+				ImGui::TreeNodeEx("Point Light", TreeFlags);
+				if (ImGui::IsItemClicked()) {
+					IE_CORE_INFO("Create Point light");
+					static int Index = 0;
+					ActorType ActorType = "MyPointLight" + std::to_string(Index++);
+					m_pSceneRootRef->AddChild(new APointLight(5, ActorType));
+				}
+				ImGui::TreePop();
+
+				ImGui::TreeNodeEx("Spot Light", TreeFlags);
+				if (ImGui::IsItemClicked()) {
+					IE_CORE_INFO("Create Spot light");
+				}
+
+				ImGui::TreePop();
+			}
+			if (ImGui::CollapsingHeader("Actors", ImGuiTreeNodeFlags_DefaultOpen)) {
+
+			}
+			//if (ImGui::Button("New Point Light", { 125, 25 })) {
+			//	m_pSceneRoot->AddChild(new APointLight(5, "New cool point light"));
+			//}
 		}
-		//ImGui::End();
+		ImGui::End();
 	}
 
 	void EditorLayer::OnUpdate(const float& DeltaMs)

@@ -5,9 +5,14 @@
 
 namespace Insight {
 
-	class SceneNode;
-	class ACamera;
 	class Scene;
+	class ACamera;
+	class SceneNode;
+	
+	class ASpotLight;
+	class APointLight;
+	class ADirectionalLight;
+
 	class INSIGHT_API EditorLayer : public Layer
 	{
 	public:
@@ -32,9 +37,9 @@ namespace Insight {
 		void RenderCreatorWindow();
 	private:
 		AActor*		m_pSelectedActor = nullptr;
-		SceneNode*	m_pSceneRoot = nullptr;
-		ACamera*	m_pSceneCamera = nullptr;
-		Scene*		m_pCurrentScene = nullptr;
+		SceneNode*	m_pSceneRootRef = nullptr;
+		ACamera*	m_pSceneCameraRef = nullptr;
+		Scene*		m_pCurrentSceneRef = nullptr;
 
 		bool		m_UIEnabled = true;
 	};

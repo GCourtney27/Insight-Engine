@@ -15,6 +15,9 @@ namespace Insight {
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
 		graphicsContext.AddPointLight(this);
+
+		m_ShaderCB.diffuse = ieVector3(1.0f, 1.0f, 1.0f);
+		m_ShaderCB.strength = 1.0f;
 	}
 
 	APointLight::~APointLight()
