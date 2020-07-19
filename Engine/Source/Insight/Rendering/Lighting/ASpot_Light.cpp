@@ -46,7 +46,7 @@ namespace Insight {
 		m_ShaderCB.position = SceneNode::GetTransformRef().GetPosition();
 		m_ShaderCB.innerCutoff = cos(XMConvertToRadians(m_TempInnerCutoff));
 		m_ShaderCB.outerCutoff = cos(XMConvertToRadians(m_TempOuterCutoff));
-
+		
 		return true;
 	}
 

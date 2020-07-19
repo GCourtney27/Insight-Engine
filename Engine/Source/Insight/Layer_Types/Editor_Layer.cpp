@@ -160,7 +160,15 @@ namespace Insight {
 					ActorType ActorType = "MySpotLight" + std::to_string(SpotLightIndex++);
 					m_pSceneRootRef->AddChild(new ASpotLight(5, ActorType));
 				}
+				ImGui::TreePop();
 
+				ImGui::TreeNodeEx("Directional Light", TreeFlags);
+				if (ImGui::IsItemClicked()) {
+					IE_CORE_INFO("Create Directional light");
+					static int DirectionalLightIndex = 0;
+					ActorType ActorType = "MyDirectionalLight" + std::to_string(DirectionalLightIndex++);
+					m_pSceneRootRef->AddChild(new ADirectionalLight(5, ActorType));
+				}
 				ImGui::TreePop();
 			}
 			if (ImGui::CollapsingHeader("Actors", ImGuiTreeNodeFlags_DefaultOpen)) {

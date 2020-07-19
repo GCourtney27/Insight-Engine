@@ -17,6 +17,15 @@ namespace Insight {
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
 		graphicsContext.AddDirectionalLight(this);
+
+		AActor::GetTransformRef().SetPosition(0.0f, -1.0f, -6.0f);
+
+		m_ShaderCB.diffuse = ieVector3(1.0f, 1.0f, 1.0f);
+		m_ShaderCB.direction = SceneNode::GetTransformRef().GetPosition();
+		m_ShaderCB.strength = 8.0f;
+
+		m_NearPlane = 1.0f;
+		m_FarPlane = 210.0f;
 	}
 
 	ADirectionalLight::~ADirectionalLight()
