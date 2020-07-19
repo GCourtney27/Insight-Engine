@@ -17,11 +17,24 @@ namespace Insight {
 	{
 	}
 
-	//Material::Material(Material&& material) noexcept
-	//{
-	//	//m_AlbedoMap = material.m_AlbedoMap;
-	//	//m_NormalMap = material.m_NormalMap;
-	//}
+	Material::Material(Material&& material) noexcept
+	{
+		m_AlbedoMap = std::move(material.m_AlbedoMap);
+		m_NormalMap = std::move(material.m_NormalMap);
+		m_MetallicMap = std::move(material.m_RoughnessMap);
+		m_RoughnessMap = std::move(material.m_RoughnessMap);
+		m_AOMap = std::move(material.m_AOMap);
+
+		m_UVOffset = std::move(material.m_UVOffset);
+		m_Tiling = std::move(material.m_Tiling);
+		m_ColorAdditive = std::move(material.m_ColorAdditive);
+
+		m_AlbedoMap = nullptr;
+		m_NormalMap = nullptr;
+		m_MetallicMap = nullptr;
+		m_RoughnessMap = nullptr;
+		m_AOMap = nullptr;
+	}
 
 	Material::~Material()
 	{

@@ -1,7 +1,6 @@
 #include <ie_pch.h>
 
 #include "ClientApp.h"
-//#import "C:\VSDev\ComputerGraphics\InsightEngine\Engine\Editor\Editor\bin\Debug\Editor.tlb" no_namespace
 #include <thread>
 // Copyright 2020 Garrett Courtney
 

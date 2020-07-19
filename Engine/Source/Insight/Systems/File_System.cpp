@@ -4,6 +4,7 @@
 
 #include "Insight/Core/Application.h"
 #include "Insight/Core/Scene/scene.h"
+#include "Insight/Core/ieException.h"
 #include "Insight/Utilities/String_Helper.h"
 
 #include "Insight/Rendering/APost_Fx.h"
@@ -15,28 +16,52 @@
 
 namespace Insight {
 
-
-	FileSystem* FileSystem::s_Instance = nullptr;
+	std::string FileSystem::ProjectDirectory = "";
 
 	FileSystem::FileSystem()
 	{
-		IE_CORE_ASSERT(!s_Instance, "There is already an instance of a file system!");
-		s_Instance = this;
 	}
 
 	FileSystem::~FileSystem()
 	{
 	}
 
-	std::string FileSystem::GetRelativeAssetDirectoryPath(std::string Path)
+	bool FileSystem::Init(const char* ProjectName)
 	{
-		std::string relativePath;
-#if defined IE_DEBUG
-		relativePath += "../Assets/" + Path;
-#elif defined IE_RELEASE || defined IE_GAME_DIST
-		relativePath += "../../../Assets/" + Path;
-#endif
-		return relativePath;
+		FileSystem::ProjectDirectory += FileSystem::GetUserDocumentsFolderPath();
+		FileSystem::ProjectDirectory += "/Insight Projects/";
+		FileSystem::ProjectDirectory += ProjectName;
+		return true;
+	}
+
+	std::string FileSystem::GetExecutbleDirectory()
+	{
+		WCHAR Path[512];
+		UINT RawPathSize = _countof(Path);
+		DWORD PathSize = GetModuleFileName(nullptr, Path, RawPathSize);
+		if(PathSize == 0 || PathSize == RawPathSize) {
+			throw ieException("Failed to get module path name or path may have been truncated.");
+		}
+
+		WCHAR* LastSlash = wcsrchr(Path, L'\\');
+		if (LastSlash) {
+			*(LastSlash + 1) = L'\0';
+		}
+		return StringHelper::WideToString(std::wstring{ Path });
+	}
+
+	std::string FileSystem::GetUserDocumentsFolderPath()
+	{
+		wchar_t Folder[1024];
+		HRESULT hr = SHGetFolderPathW(NULL, CSIDL_MYDOCUMENTS, 0, 0, Folder);
+		ThrowIfFailed(hr, "Failed to get path to user documents folder.");
+		
+		return StringHelper::WideToString(std::wstring{ Folder });
+	}
+
+	std::string FileSystem::GetProjectRelativeAssetDirectory(std::string Path)
+	{
+		return ProjectDirectory + "/Assets/" + Path;
 	}
 
 	bool FileSystem::LoadSceneFromJson(const std::string& FileName, Scene* pScene)
@@ -156,7 +181,8 @@ namespace Insight {
 			Writer.EndObject();
 
 			// Final Export
-			std::string sceneName = "../Assets/Scenes/" + pScene->GetDisplayName() + ".iescene/Meta.json";
+			
+			std::string sceneName = FileSystem::ProjectDirectory + "/Assets/Scenes/" + pScene->GetDisplayName() + ".iescene/Meta.json";
 			std::ofstream offstream(sceneName.c_str());
 			offstream << StrBuffer.GetString();
 
@@ -174,7 +200,7 @@ namespace Insight {
 			pScene->WriteToJson(Writer);
 
 			// Final Export
-			std::string sceneName = "../Assets/Scenes/" + pScene->GetDisplayName() + ".iescene/Actors.json";
+			std::string sceneName = FileSystem::ProjectDirectory + "/Assets/Scenes/" + pScene->GetDisplayName() + ".iescene/Actors.json";
 			std::ofstream offstream(sceneName.c_str());
 			offstream << StrBuffer.GetString();
 
@@ -186,5 +212,11 @@ namespace Insight {
 
 		return true;
 	}
+
+	bool FileSystem::FileExists(const std::string& Path)
+	{
+		return PathFileExistsA(Path.c_str());
+	}
+
 
 }

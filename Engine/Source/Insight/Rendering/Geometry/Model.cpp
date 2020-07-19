@@ -10,10 +10,23 @@ namespace Insight {
 
 	static std::mutex s_MeshMutex;
 
-	Model::Model(const std::string& path, Material* material)
-		: m_Material(material)
+	Model::Model(const std::string& Path, Material* Material)
 	{
-		Init(path);
+		Init(Path, Material);
+	}
+
+	Model::Model(Model&& model) noexcept
+	{
+		m_Meshes = std::move(model.m_Meshes);
+		m_pRoot = std::move(model.m_pRoot);
+
+		m_pMaterial = std::move(model.m_pMaterial);
+		m_AssetDirectoryRelativePath = std::move(model.m_AssetDirectoryRelativePath);
+		m_Directory = std::move(model.m_Directory);
+		m_FileName = std::move(model.m_FileName);
+
+		model.m_pRoot = nullptr;
+		model.m_pMaterial = nullptr;
 	}
 
 	Model::~Model()
@@ -21,10 +34,12 @@ namespace Insight {
 		//Destroy();
 	}
 
-	bool Model::Init(const std::string& path)
+	bool Model::Init(const std::string& path, Material* pMaterial)
 	{
+		m_pMaterial = pMaterial;
+
 		m_AssetDirectoryRelativePath = path;
-		m_Directory = FileSystem::Get().GetRelativeAssetDirectoryPath(path);
+		m_Directory = FileSystem::GetProjectRelativeAssetDirectory(path);
 		m_FileName = StringHelper::GetFilenameFromDirectory(m_Directory);
 		SceneNode::SetDisplayName("Static Mesh");
 
@@ -60,7 +75,7 @@ namespace Insight {
 
 	void Model::BindResources()
 	{
-		m_Material->BindResources();
+		m_pMaterial->BindResources();
 	}
 
 	void Model::PreRender(const XMMATRIX& parentMat)
@@ -88,20 +103,21 @@ namespace Insight {
 
 	bool Model::LoadModelFromFile(const std::string& path)
 	{
-		Assimp::Importer importer;
-		const aiScene* pScene = importer.ReadFile(
+		Assimp::Importer Importer;
+		const aiScene* pScene = Importer.ReadFile(
 			path, 
 			aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded 
 		);
 
 		if (!pScene || pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !pScene->mRootNode) {
-			IE_CORE_TRACE("Assimp import error: {0}", importer.GetErrorString());
+			IE_CORE_ERROR("Assimp import error: {0}", Importer.GetErrorString());
 			return false;
 		}
 
 		for (size_t i = 0; i < pScene->mNumMeshes; ++i) {
 			m_Meshes.push_back(std::move(ProcessMesh(pScene->mMeshes[i], pScene)));
 		}
+
 		m_pRoot = ParseNode_r(pScene->mRootNode);
 		return true;
 	}
@@ -109,7 +125,9 @@ namespace Insight {
 	unique_ptr<MeshNode> Model::ParseNode_r(aiNode* pNode)
 	{
 		Transform transform;
-		transform.SetLocalMatrix(XMMatrixTranspose(XMMATRIX(&pNode->mTransformation.a1)));
+		if (pNode->mParent) {
+			transform.SetLocalMatrix(XMMatrixTranspose(XMMATRIX(&pNode->mTransformation.a1)));
+		}
 
 		// Create a pointer to all the meshes this node owns
 		std::vector<Mesh*> curMeshPtrs;
@@ -165,9 +183,9 @@ namespace Insight {
 				
 			} else {
 
-				vertex.TexCoords = XMFLOAT2(0.0f, 0.0f);
-				vertex.Tangent = XMFLOAT3(0.0f, 0.0f, 0.0f);
-				vertex.BiTangent = XMFLOAT3(0.0f, 0.0f, 0.0f);
+				vertex.TexCoords = ieFloat2(0.0f, 0.0f);
+				vertex.Tangent = ieFloat3(0.0f, 0.0f, 0.0f);
+				vertex.BiTangent = ieFloat3(0.0f, 0.0f, 0.0f);
 			}
 
 			verticies.push_back(vertex);

@@ -11,7 +11,7 @@ namespace Insight {
 	{
 	public:
 		Material();
-		//Material(Material&& material) noexcept;
+		Material(Material&& material) noexcept;
 		~Material();
 		
 		virtual bool LoadFromJson(const rapidjson::Value& jsonMaterial);
@@ -39,9 +39,9 @@ namespace Insight {
 
 		float m_RoughnessAdditive = 0.5f;
 		float m_MetallicAdditive = 0.5f;
-		Vector2 m_UVOffset;
-		Vector2 m_Tiling;
-		Vector3 m_ColorAdditive;
+		Math::ieVector2 m_UVOffset;
+		Math::ieVector2 m_Tiling;
+		Math::ieVector3 m_ColorAdditive;
 
 		CB_PS_VS_PerObjectAdditives m_ShaderCB;
 	};

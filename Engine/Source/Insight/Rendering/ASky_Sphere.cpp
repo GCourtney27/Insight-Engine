@@ -33,7 +33,7 @@ namespace Insight {
 		CDescriptorHeapWrapper& cbvSrvheap = graphicsContext.GetCBVSRVDescriptorHeap();
 
 		Texture::IE_TEXTURE_INFO diffuseInfo;
-		diffuseInfo.Filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(diffuseMap));
+		diffuseInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(diffuseMap));
 		diffuseInfo.AssetDirectoryRelPath = diffuseMap;
 		diffuseInfo.Type = Texture::eTextureType::SKY_DIFFUSE;
 		diffuseInfo.GenerateMipMaps = true;
@@ -57,9 +57,9 @@ namespace Insight {
 			Writer.StartArray(); // Start Write Transform
 			{
 				Transform& Transform = SceneNode::GetTransformRef();
-				Vector3 Pos = Transform.GetPosition();
-				Vector3 Rot = Transform.GetRotation();
-				Vector3 Sca = Transform.GetScale();
+				ieVector3 Pos = Transform.GetPosition();
+				ieVector3 Rot = Transform.GetRotation();
+				ieVector3 Sca = Transform.GetScale();
 
 				Writer.StartObject();
 				// Position

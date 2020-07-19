@@ -37,17 +37,17 @@ namespace Insight {
 		json::get_float(transform[0], "posX", posX);
 		json::get_float(transform[0], "posY", posY);
 		json::get_float(transform[0], "posZ", posZ);
-		SceneNode::GetTransformRef().SetPosition(Vector3(posX, posY, posZ));
+		SceneNode::GetTransformRef().SetPosition(ieVector3(posX, posY, posZ));
 		// Rotation
 		json::get_float(transform[0], "rotX", rotX);
 		json::get_float(transform[0], "rotY", rotY);
 		json::get_float(transform[0], "rotZ", rotZ);
-		SceneNode::GetTransformRef().SetRotation(Vector3(rotX, rotY, rotZ));
+		SceneNode::GetTransformRef().SetRotation(ieVector3(rotX, rotY, rotZ));
 		// Scale
 		json::get_float(transform[0], "scaX", scaX);
 		json::get_float(transform[0], "scaY", scaY);
 		json::get_float(transform[0], "scaZ", scaZ);
-		SceneNode::GetTransformRef().SetScale(Vector3(scaX, scaY, scaZ));
+		SceneNode::GetTransformRef().SetScale(ieVector3(scaX, scaY, scaZ));
 
 		SceneNode::GetTransformRef().EditorInit();
 
@@ -87,9 +87,9 @@ namespace Insight {
 			Writer.StartArray(); // Start Write Transform
 			{
 				Transform& Transform = SceneNode::GetTransformRef();
-				Vector3 Pos = Transform.GetPosition();
-				Vector3 Rot = Transform.GetRotation();
-				Vector3 Sca = Transform.GetScale();
+				ieVector3 Pos = Transform.GetPosition();
+				ieVector3 Rot = Transform.GetRotation();
+				ieVector3 Sca = Transform.GetScale();
 
 				Writer.StartObject();
 				// Position
@@ -182,7 +182,7 @@ namespace Insight {
 		//	{
 		//		IE_CORE_INFO("Adding Static Mesh component to \"{0}\"", AActor::GetDisplayName());
 		//		StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<StaticMeshComponent>();
-		//		static_cast<StaticMeshComponent*>(ptr.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Models/Sphere.obj"));
+		//		static_cast<StaticMeshComponent*>(ptr.get())->AttachMesh(FileSystem::GetRelativeAssetDirectoryPath("Models/Sphere.obj"));
 		//		//TODO:Make something like this for the material: static_cast<StaticMeshComponent*>(ptr.get())->AttachMaterial(Material::GetDefaultUntexturedMaterial());
 		//		break;
 		//	}

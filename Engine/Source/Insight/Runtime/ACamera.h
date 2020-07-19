@@ -33,8 +33,8 @@ namespace Insight {
 	// 'new camera' set the view target of the global camera.
 	struct ViewTarget
 	{
-		Vector3 Position = Vector3::Zero;
-		Vector3 Rotation = Vector3::Zero;
+		ieVector3 Position = Vector3::Zero;
+		ieVector3 Rotation = Vector3::Zero;
 		float FieldOfView = FOV;
 		float Sensitivity = SENSITIVITY;
 		float Speed = BASE_SPEED;
@@ -72,7 +72,7 @@ namespace Insight {
 		inline float GetExposure() { return m_Exposure; }
 		inline void SetExposure(float exposure) { m_Exposure = exposure; }
 
-		static ViewTarget GetDefaultViewTarget() { return ViewTarget{ Vector3{0.0f, 10.0f, -20.0f}, Vector3{0.0f, 0.0f, 0.0f}, FOV, SENSITIVITY, BASE_SPEED, EXPOSURE, NEAR_Z, FAR_Z }; }
+		static ViewTarget GetDefaultViewTarget() { return ViewTarget{ ieVector3{0.0f, 10.0f, -20.0f}, ieVector3{0.0f, 0.0f, 0.0f}, FOV, SENSITIVITY, BASE_SPEED, EXPOSURE, NEAR_Z, FAR_Z }; }
 
 		inline void SetViewTarget(ViewTarget& ViewTarget, bool UpdateProjection = true, bool UpdateView = true)
 		{

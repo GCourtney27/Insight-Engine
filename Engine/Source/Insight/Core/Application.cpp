@@ -7,7 +7,8 @@
 #include "Insight/Layer_Types/ImGui_Layer.h"
 #include "Platform/Windows/Windows_Window.h"
 
-
+static const char* ProjectName = "Development-Project";
+static const char* TargetSceneName = "DemoScene.iescene";
 
 namespace Insight {
 
@@ -42,7 +43,7 @@ namespace Insight {
 		// after the menu bar is added to the window to avoid blurry and misaligned UI text.
 		// Refactor it.
 		RECT clientRect = {};
-		GetClientRect((HWND)m_pWindow->GetNativeWindow(), &clientRect);
+		GetClientRect(static_cast<HWND>(m_pWindow->GetNativeWindow()), &clientRect);
 		WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, false );
 		OnWindowResize(event);
 
@@ -56,9 +57,15 @@ namespace Insight {
 
 	bool Application::Init()
 	{
-		m_pGameLayer = new GameLayer();
-		m_pGameLayer->LoadScene(FileSystem::Get().GetRelativeAssetDirectoryPath("Scenes/MyScene.iescene"));
+		FileSystem::Init(ProjectName);
 
+		m_pGameLayer = new GameLayer();
+
+		std::string DocumentPath = FileSystem::ProjectDirectory;
+		DocumentPath += "/Assets/Scenes/";
+		DocumentPath += TargetSceneName;
+
+		m_pGameLayer->LoadScene(DocumentPath);
 		PushEngineLayers();
 
 		IE_CORE_TRACE("Application Initialized");
@@ -67,13 +74,15 @@ namespace Insight {
 
 	void Application::Run()
 	{
-		IE_ADD_FOR_GAME_DIST(BeginPlay(AppBeginPlayEvent{}));
+		IE_ADD_FOR_GAME_DIST(
+			BeginPlay(AppBeginPlayEvent{})
+		);
 
 		while(m_Running) {
 
-			m_FrameTimer.tick();
-			const float& DeltaTime = (float)m_FrameTimer.dt();
-			m_pWindow->SetWindowTitleFPS(m_FrameTimer.fps());
+			m_FrameTimer.Tick();
+			const float& DeltaTime = (float)m_FrameTimer.DeltaTime();
+			m_pWindow->SetWindowTitleFPS(m_FrameTimer.FPS());
 
 			m_pWindow->OnUpdate(DeltaTime);
 			m_pGameLayer->Update(DeltaTime);
@@ -93,7 +102,7 @@ namespace Insight {
 				}
 				m_pGameLayer->OnImGuiRender();
 				m_pImGuiLayer->End();
-			)
+			);
 
 			m_pGameLayer->PostRender();
 			m_pWindow->EndFrame();
@@ -113,6 +122,7 @@ namespace Insight {
 		dispatcher.Dispatch<SceneSaveEvent>(IE_BIND_EVENT_FN(Application::SaveScene));
 		dispatcher.Dispatch<AppBeginPlayEvent>(IE_BIND_EVENT_FN(Application::BeginPlay));
 		dispatcher.Dispatch<AppEndPlayEvent>(IE_BIND_EVENT_FN(Application::EndPlay));
+		dispatcher.Dispatch<AppScriptReloadEvent>(IE_BIND_EVENT_FN(Application::ReloadScripts));
 
 		Input::GetInputManager().OnEvent(e);
 
@@ -162,7 +172,7 @@ namespace Insight {
 
 	bool Application::SaveScene(SceneSaveEvent& e)
 	{
-		return FileSystem::Get().WriteSceneToJson(m_pGameLayer->GetScene());
+		return FileSystem::WriteSceneToJson(m_pGameLayer->GetScene());
 	}
 
 	bool Application::BeginPlay(AppBeginPlayEvent& e)
@@ -177,6 +187,13 @@ namespace Insight {
 		m_pGameLayer->EndPlay();
 		m_LayerStack.PopLayer(m_pGameLayer);
 		m_pGameLayer->OnDetach();
+		return true;
+	}
+
+	bool Application::ReloadScripts(AppScriptReloadEvent& e)
+	{
+		IE_CORE_INFO("Reload Scirpts");
+		ResourceManager::Get().GetMonoScriptManager().ReCompile();
 		return true;
 	}
 

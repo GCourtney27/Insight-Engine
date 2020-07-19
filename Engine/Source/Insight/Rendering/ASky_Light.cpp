@@ -33,7 +33,7 @@ namespace Insight {
 		CDescriptorHeapWrapper& cbvSrvheap = Direct3D12Context::Get().GetCBVSRVDescriptorHeap();
 
 		Texture::IE_TEXTURE_INFO brdfInfo;
-		brdfInfo.Filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(brdfLUT));
+		brdfInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(brdfLUT));
 		brdfInfo.AssetDirectoryRelPath = brdfLUT;
 		brdfInfo.Type = Texture::eTextureType::SKY_BRDF_LUT;
 		brdfInfo.IsCubeMap = true;
@@ -41,7 +41,7 @@ namespace Insight {
 		m_BrdfLUT.Init(brdfInfo, cbvSrvheap);
 
 		Texture::IE_TEXTURE_INFO irMapInfo;
-		irMapInfo.Filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(irMap));
+		irMapInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(irMap));
 		irMapInfo.AssetDirectoryRelPath = irMap;
 		irMapInfo.Type = Texture::eTextureType::SKY_IRRADIENCE;
 		irMapInfo.IsCubeMap = true;
@@ -49,7 +49,7 @@ namespace Insight {
 		m_Irradiance.Init(irMapInfo, cbvSrvheap);
 		
 		Texture::IE_TEXTURE_INFO envMapInfo;
-		envMapInfo.Filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(envMap));
+		envMapInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(envMap));
 		envMapInfo.AssetDirectoryRelPath = envMap;
 		envMapInfo.Type = Texture::eTextureType::SKY_ENVIRONMENT_MAP;
 		envMapInfo.IsCubeMap = true;
@@ -73,9 +73,9 @@ namespace Insight {
 			Writer.StartArray(); // Start Write Transform
 			{
 				Transform& Transform = SceneNode::GetTransformRef();
-				Vector3 Pos = Transform.GetPosition();
-				Vector3 Rot = Transform.GetRotation();
-				Vector3 Sca = Transform.GetScale();
+				ieVector3 Pos = Transform.GetPosition();
+				ieVector3 Rot = Transform.GetRotation();
+				ieVector3 Sca = Transform.GetScale();
 
 				Writer.StartObject();
 				// Position

@@ -6,7 +6,7 @@
 #include "Insight/Utilities/String_Helper.h"
 #include "Platform/Windows/DirectX12/Direct3D12_Context.h"
 
-#define CBVSRV_HEAP_TEXTURE_START 7
+constexpr int CBVSRV_HEAP_TEXTURE_START = 7;
 
 namespace Insight {
 
@@ -47,6 +47,7 @@ namespace Insight {
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
 		std::string filepath = StringHelper::WideToString(createInfo.Filepath);
+		m_pCbvSrvHeapStart = &graphicsContext.GetCBVSRVDescriptorHeap();
 		m_pCommandList = &graphicsContext.GetScenePassCommandList();
 		m_TextureInfo = createInfo;
 		m_TextureInfo.DisplayName = StringHelper::GetFilenameFromDirectory(filepath);
@@ -59,6 +60,7 @@ namespace Insight {
 			InitTextureFromFile(srvHeapHandle);
 		}
 
+		m_RootParamIndex = GetRootParameterIndexForTextureType(m_TextureInfo.Type);
 		return true;
 	}
 
@@ -132,62 +134,63 @@ namespace Insight {
 
 	void Texture::Bind()
 	{
-		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		CDescriptorHeapWrapper& cbvSrvHeapStart = graphicsContext.GetCBVSRVDescriptorHeap();
-		const unsigned int numRTVs = graphicsContext.GetNumRTVs();
+		m_pCommandList->SetGraphicsRootDescriptorTable(m_RootParamIndex, m_pCbvSrvHeapStart->hGPU(CBVSRV_HEAP_TEXTURE_START + m_GPUHeapIndex));
+	}
 
+	UINT Texture::GetRootParameterIndexForTextureType(eTextureType TextureType)
+	{
 		switch (m_TextureInfo.Type) {
 		case eTextureType::ALBEDO:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(6, cbvSrvHeapStart.hGPU(CBVSRV_HEAP_TEXTURE_START + m_GPUHeapIndex));
+			return 6;
 			break;
 		}
 		case eTextureType::NORMAL:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(7, cbvSrvHeapStart.hGPU(CBVSRV_HEAP_TEXTURE_START + m_GPUHeapIndex));
+			return 7;
 			break;
 		}
 		case eTextureType::ROUGHNESS:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(8, cbvSrvHeapStart.hGPU(CBVSRV_HEAP_TEXTURE_START + m_GPUHeapIndex));
+			return 8;
 			break;
 		}
 		case eTextureType::METALLIC:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(9, cbvSrvHeapStart.hGPU(CBVSRV_HEAP_TEXTURE_START + m_GPUHeapIndex));
+			return 9;
 			break;
 		}
 		case eTextureType::AO:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(10, cbvSrvHeapStart.hGPU(CBVSRV_HEAP_TEXTURE_START + m_GPUHeapIndex));
+			return 10;
 			break;
 		}
 		case eTextureType::SKY_IRRADIENCE:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(12, cbvSrvHeapStart.hGPU(CBVSRV_HEAP_TEXTURE_START + m_GPUHeapIndex));
+			return 12;
 			break;
 		}
 		case eTextureType::SKY_ENVIRONMENT_MAP:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(13, cbvSrvHeapStart.hGPU(CBVSRV_HEAP_TEXTURE_START + m_GPUHeapIndex));
+			return 13;
 			break;
 		}
 		case eTextureType::SKY_BRDF_LUT:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(14, cbvSrvHeapStart.hGPU(CBVSRV_HEAP_TEXTURE_START + m_GPUHeapIndex));
+			return 14;
 			break;
 		}
 		case eTextureType::SKY_DIFFUSE:
 		{
-			m_pCommandList->SetGraphicsRootDescriptorTable(15, cbvSrvHeapStart.hGPU(CBVSRV_HEAP_TEXTURE_START + m_GPUHeapIndex));
+			return 15;
 			break;
 		}
 		default:
 		{
-			IE_CORE_WARN("Failed to bind texture {0}", m_TextureInfo.DisplayName);
+			IE_CORE_WARN("Failed to get root parameter index with texture type: {0}", TextureType);
 			break;
 		}
 		}
+		return 6;
 	}
-
 }

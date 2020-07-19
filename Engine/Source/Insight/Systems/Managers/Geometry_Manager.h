@@ -8,13 +8,13 @@ namespace Insight {
 
 	using namespace Microsoft::WRL;
 
-	class ModelManager
+	class GeometryManager
 	{
 	public:
 		typedef std::vector<StrongModelPtr> SceneModels;
 	public:
-		ModelManager();
-		~ModelManager();
+		GeometryManager();
+		~GeometryManager();
 
 		bool Init();
 		virtual bool LoadResourcesFromJson(const rapidjson::Value& jsonMeshes);
@@ -27,8 +27,8 @@ namespace Insight {
 		void PostRender();
 		void FlushModelCache();
 		
-		void RegisterModel(StrongModelPtr model) { m_Models.push_back(model); }
-
+		inline void RegisterModel(StrongModelPtr Model) { m_Models.push_back(Model); }
+		void UnRegisterModel(StrongModelPtr Model);
 	private:
 		SceneModels m_Models;  
 		D3D12_GPU_VIRTUAL_ADDRESS m_CbvUploadHeapHandle;

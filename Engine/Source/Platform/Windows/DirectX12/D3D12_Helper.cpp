@@ -77,9 +77,9 @@ namespace Insight {
 
 	void D3D12Helper::CreateDevice()
 	{
-		GetHardwareAdapter(m_pDxgiFactory.Get(), &m_pPhysicalDevice);
+		GetHardwareAdapter(m_pDxgiFactory.Get(), &m_pAdapter);
 
-		HRESULT hr = D3D12CreateDevice(m_pPhysicalDevice.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_pLogicalDevice));
+		HRESULT hr = D3D12CreateDevice(m_pAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_pDeviceContext));
 		ThrowIfFailed(hr, "Failed to create logical device.");
 	}
 
@@ -89,18 +89,20 @@ namespace Insight {
 		queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 		queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
-		HRESULT hr = m_pLogicalDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_pCommandQueue));
+		HRESULT hr = m_pDeviceContext->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_pCommandQueue));
 		ThrowIfFailed(hr, "Failed to Create Command Queue");
 	}
 
-	void D3D12Helper::CreateSwapChain()
+	void D3D12Helper::CreateSwapChain(HWND& WindowHandle, bool AllowTearing)
 	{
+		HRESULT hr;
+
 		DXGI_MODE_DESC backBufferDesc = {};
 		backBufferDesc.Width = m_WindowWidth;
 		backBufferDesc.Height = m_WindowHeight;
 
-		//m_SampleDesc = {};
-		//m_SampleDesc.Count = 1;
+		m_SampleDesc = {};
+		m_SampleDesc.Count = 1;
 
 		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
 		swapChainDesc.BufferCount = m_FrameBufferCount;
@@ -108,22 +110,22 @@ namespace Insight {
 		swapChainDesc.Height = m_WindowHeight;
 		swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		/*swapChainDesc.SampleDesc = m_SampleDesc;
-		swapChainDesc.Flags = m_AllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
-		Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain{};
+		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+		swapChainDesc.SampleDesc = m_SampleDesc;
+		swapChainDesc.Flags = AllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 
-		hr = m_pDxgiFactory->CreateSwapChainForHwnd(m_pCommandQueue.Get(), *m_pWindowHandle, &swapChainDesc, nullptr, nullptr, &swapChain);
+		Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain{};
+		hr = m_pDxgiFactory->CreateSwapChainForHwnd(m_pCommandQueue.Get(), WindowHandle, &swapChainDesc, nullptr, nullptr, &swapChain);
 		ThrowIfFailed(hr, "Failed to Create Swap Chain");
 
-		if (m_AllowTearing)
+		if (AllowTearing)
 		{
-			hr = m_pDxgiFactory->MakeWindowAssociation(*m_pWindowHandle, DXGI_MWA_NO_ALT_ENTER);
+			hr = m_pDxgiFactory->MakeWindowAssociation(WindowHandle, DXGI_MWA_NO_ALT_ENTER);
 			ThrowIfFailed(hr, "Failed to Make Window Association");
 		}
 
 		hr = swapChain.As(&m_pSwapChain);
-		ThrowIfFailed(hr, "Failed to cast SwapChain ComPtr");*/
+		ThrowIfFailed(hr, "Failed to cast SwapChain ComPtr");
 
 		m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 	}
@@ -141,12 +143,9 @@ namespace Insight {
 		HRESULT hr;
 		for (int i = 0; i < m_FrameBufferCount; i++)
 		{
-			hr = m_pLogicalDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pCommandAllocators[i]));
+			hr = m_pDeviceContext->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pCommandAllocators[i]));
 			ThrowIfFailed(hr, "Failed to Create Command Allocator");
 		}
-
-		hr = m_pLogicalDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pCommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pCommandList));
-		ThrowIfFailed(hr, "Failed to Create Command List");
 	}
 
 	void D3D12Helper::CreateFenceEvent()
@@ -154,7 +153,7 @@ namespace Insight {
 		HRESULT hr;
 		for (int i = 0; i < m_FrameBufferCount; i++)
 		{
-			hr = m_pLogicalDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pFences[i]));
+			hr = m_pDeviceContext->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pFences[i]));
 			ThrowIfFailed(hr, "Failed to create Fence on index" + std::to_string(i));
 
 			m_FenceValues[i] = 0;

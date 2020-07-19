@@ -9,13 +9,18 @@
 #include "Platform/Windows/DirectX12/Descriptor_Heap_Wrapper.h"
 #include "Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
 
+/*
+	Render context for Windows DirectX 12 API. Currently Deferred shading is the only pipeline supported.
+	TODO: Add Transparency forward pass.
+	TODO: Add forward rendering as optional shading technique
+*/
 
 using Microsoft::WRL::ComPtr;
 
 namespace Insight {
 
 	class WindowsWindow;
-	class ModelManager;
+	class GeometryManager;
 
 	class ASkySphere;
 	class ASkyLight;
@@ -24,12 +29,13 @@ namespace Insight {
 	class ADirectionalLight;
 	class APointLight;
 	class ASpotLight;
+	class ACamera;
 
 	class ScreenQuad
 	{
 	public:
 		void Init();
-		void Render(ComPtr<ID3D12GraphicsCommandList> commandList);
+		void OnRender(ComPtr<ID3D12GraphicsCommandList> commandList);
 
 	private:
 		ComPtr<ID3D12Resource> m_VertexBuffer;
@@ -43,25 +49,34 @@ namespace Insight {
 		Direct3D12Context(WindowsWindow* windowHandle);
 		virtual ~Direct3D12Context();
 
+		// Initilize Direc3D 12 library.
 		virtual bool Init() override;
+		// Submit initilize commands to the GPU.
 		virtual bool PostInit() override;
+		// Upload per-frame constants to the GPU as well as lighting information.
 		virtual void OnUpdate(const float& deltaTime) override;
+		// Flush the command allocators and clear render targets.
 		virtual void OnPreFrameRender() override;
+		// Draws shadow pass first then binds geometry pass for future draw commands.
 		virtual void OnRender() override;
+		// Binds light pass.
 		virtual void OnMidFrameRender() override;
+		// executes the command queue on the GPU. Waits for the GPU to finish before proceeding.
 		virtual void ExecuteDraw() override;
+		// Swap buffers with the new frame.
 		virtual void SwapBuffers() override;
+		// Resize render target, depth stencil and sreen rects when window size is changed.
 		virtual void OnWindowResize() override;
+		// Tells the swapchain to enable full screen rendering.
 		virtual void OnWindowFullScreen() override;
 
 		inline static Direct3D12Context& Get() { return *s_Instance; }
-		inline ID3D12Device& GetDeviceContext() const { return *m_pLogicalDevice.Get(); }
+		inline ID3D12Device& GetDeviceContext() const { return *m_pDeviceContext.Get(); }
+
 		inline ID3D12GraphicsCommandList& GetScenePassCommandList() const { return *m_pScenePassCommandList.Get(); }
 		inline ID3D12GraphicsCommandList& GetShadowPassCommandList() const { return *m_pShadowPassCommandList.Get(); }
 		inline ID3D12CommandQueue& GetCommandQueue() const { return *m_pCommandQueue.Get(); }
-
 		inline CDescriptorHeapWrapper& GetCBVSRVDescriptorHeap() { return m_cbvsrvHeap; }
-
 		inline ID3D12Resource& GetConstantBufferPerObjectUploadHeap() const { return *m_PerObjectCBV[m_FrameIndex].Get(); }
 		inline UINT8& GetPerObjectCBVGPUHeapAddress() { return *m_cbvPerObjectGPUAddress[m_FrameIndex]; }
 
@@ -78,18 +93,25 @@ namespace Insight {
 		}
 
 
-		// Lights
+		// Add a Directional Light to the scene. 
 		void AddDirectionalLight(ADirectionalLight* pointLight) { m_DirectionalLights.push_back(pointLight); }
+		// Add a Point Light to the scene. 
 		void AddPointLight(APointLight* pointLight) { m_PointLights.push_back(pointLight); }
+		// Add a Spot Light to the scene. 
 		void AddSpotLight(ASpotLight* spotLight) { m_SpotLights.push_back(spotLight); }
 
-		void AddSkySphere(ASkySphere* skySphere) { m_pSkySphere = skySphere; }
-		void AddPostFxActor(APostFx* postFxActor) { m_pPostFx = postFxActor; }
-		void AddSkyLight(ASkyLight* skyLight) { m_SkyLight = skyLight; }
+		// Add Sky Sphere to the scene. There can never be more than one in the scene at any given time.
+		void AddSkySphere(ASkySphere* skySphere) { if (!m_pSkySphere) { m_pSkySphere = skySphere; } }
+		// Add a post-fx volume to the scene.
+		void AddPostFxActor(APostFx* postFxActor) { {m_pPostFx = postFxActor; } }
+		// Add Sky light to the scene for Image-Based Lighting. There can never be more than one 
+		// in the scene at any given time.
+		void AddSkyLight(ASkyLight* skyLight) { if (!m_SkyLight) { m_SkyLight = skyLight; } }
 
 	private:
 		void CloseCommandListAndSignalCommandQueue();
 		// Per-Frame
+		
 		void MoveToNextFrame();
 		void BindShadowPass();
 		void BindGeometryPass(bool setPSO = false);
@@ -98,6 +120,7 @@ namespace Insight {
 		void BindPostFxPass();
 
 		// D3D12 Initialize
+		
 		void CreateDXGIFactory();
 		void GetHardwareAdapter(IDXGIFactory2* pFactory, IDXGIAdapter1** ppAdapter);
 		void CreateDevice();
@@ -105,6 +128,8 @@ namespace Insight {
 		void CreateSwapChain();
 		void CreateRenderTargetViewDescriptorHeap();
 
+		// Create app resources
+		
 		void CreateDSVs();
 		void CreateRTVs();
 		void CreateConstantBufferViews();
@@ -115,6 +140,8 @@ namespace Insight {
 		void CreateLightPassPSO();
 		void CreatePostFxPassPSO();
 
+		// Create window resources
+
 		void CreateCommandAllocators();
 		void CreateFenceEvent();
 		void CreateConstantBuffers();
@@ -122,28 +149,33 @@ namespace Insight {
 		void CreateScissorRect();
 		void CreateScreenQuad();
 		
+		// Close GPU handle and release resources for the graphics context.
 		void Cleanup();
+		// Once called CPU will wait for the GPU to finish executing any pending work.
 		void WaitForGPU();
+		// Resize render targets and depth stencil. Usually called from 'OnWindowResize'.
 		void UpdateSizeDependentResources();
+		// Update view and scissor rects to new window width and height.
 		void UpdateViewAndScissor();
 
-		void LoadAssets();
+		// Load any demo assets for debugging. Usually can be left empty
+		void LoadDemoAssets();
 
 	private:
 		static Direct3D12Context* s_Instance;
 
 	private:
-		HWND* m_pWindowHandle = nullptr;
-		WindowsWindow* m_pWindow = nullptr;
-		D3D12Helper m_d3dDeviceResources;
-		ModelManager* m_pModelManager = nullptr;
-
+		HWND*			m_pWindowHandle = nullptr;
+		WindowsWindow*	m_pWindow = nullptr;
+		D3D12Helper		m_d3dDeviceResources;
+		GeometryManager*	m_pModelManager = nullptr;
+		ACamera* m_pWorldCamera = nullptr;
 		// CPU/GPU Syncronization
 		int						m_FrameIndex = 0;
 		UINT64					m_FenceValues[m_FrameBufferCount] = {};
 		HANDLE					m_FenceEvent = {};
 		ComPtr<ID3D12Fence>		m_pFence;
-		static const unsigned int			m_NumRTV = 5;
+		static const UINT		m_NumRTV = 5;
 
 		bool		m_WindowResizeComplete = true;
 		bool		m_RayTraceEnabled = false;
@@ -151,8 +183,8 @@ namespace Insight {
 		int			m_RtvDescriptorIncrementSize = 0;
 
 		// D3D 12 Usings
-		ComPtr<IDXGIAdapter1>				m_pPhysicalDevice;
-		ComPtr<ID3D12Device>				m_pLogicalDevice;
+		ComPtr<IDXGIAdapter1>				m_pAdapter;
+		ComPtr<ID3D12Device>				m_pDeviceContext;
 		ComPtr<IDXGIFactory4>				m_pDxgiFactory;
 		ComPtr<IDXGISwapChain3>				m_pSwapChain;
 
@@ -179,6 +211,7 @@ namespace Insight {
 
 		ComPtr<ID3D12Resource>				m_pDepthStencilTexture;
 		ComPtr<ID3D12Resource>				m_pShadowDepthTexture;
+
 		//0:  SceneDepth
 		//1:  ShadowDepth
 		CDescriptorHeapWrapper				m_dsvHeap;

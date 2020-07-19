@@ -40,6 +40,7 @@
 #include "Insight/Core/Log.h"
 #include "Insight/Core/Interfaces.h"
 #include "Insight/Utilities/Profiling.h"
+#include "Insight/Math/ieVectors.h"
 
 // === Third Party === //
 // Rapid Json
@@ -59,6 +60,8 @@
 	#include <Windows.h>
 	#include <wrl/client.h>
 	#include <windowsx.h>
+	#include <shlobj.h>
+	#include "Shlwapi.h"
 
 	// Direct3D 12
 	#include <d3d12.h>

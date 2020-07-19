@@ -29,9 +29,9 @@ namespace Insight {
 		m_Data.Height = props.Height;
 	}
 
-	LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+	LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-		switch (msg) {
+		switch (uMsg) {
 		case WM_NCCREATE:
 		{
 			const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
@@ -89,6 +89,11 @@ namespace Insight {
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			MouseButtonPressedEvent event(1);
 			data.EventCallback(event);
+			
+			//RECT clientRect = {};
+			//POINT Point = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+			//TrackPopupMenu(data.hContextMenu, TPM_LEFTALIGN | TPM_TOPALIGN, Point.x, Point.y, 0, hWnd, &clientRect);
+
 			return 0;
 		}
 		case WM_RBUTTONUP:
@@ -210,7 +215,7 @@ namespace Insight {
 				}
 
 			}
-			return DefWindowProc(hWnd, msg, wParam, lParam);
+			return DefWindowProc(hWnd, uMsg, wParam, lParam);
 		}
 		case WM_DROPFILES:
 		{
@@ -232,7 +237,14 @@ namespace Insight {
 			{
 				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 				data.EditorUIEnabled = !data.EditorUIEnabled;
-				Application::Get().GetEditorLayer().SetUIEnabled(data.EditorUIEnabled);
+				IE_STRIP_FOR_GAME_DIST(Application::Get().GetEditorLayer().SetUIEnabled(data.EditorUIEnabled);)
+				break;
+			}
+			case IDM_EDITOR_RELOAD_SCRIPTS:
+			{
+				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+				AppScriptReloadEvent event;
+				data.EventCallback(event);
 				break;
 			}
 			case IDM_BEGIN_PLAY:
@@ -310,22 +322,22 @@ namespace Insight {
 				break;
 			}
 			default:
-				return DefWindowProcW(hWnd, msg, wParam, lParam);
+				return DefWindowProcW(hWnd, uMsg, wParam, lParam);
 			}
 		}
 		default:
 		{
-			return DefWindowProc(hWnd, msg, wParam, lParam);
+			return DefWindowProc(hWnd, uMsg, wParam, lParam);
 		}
 		}
-		return DefWindowProc(hWnd, msg, wParam, lParam);
+		return DefWindowProc(hWnd, uMsg, wParam, lParam);
 	}
 
 	bool WindowsWindow::Init(const WindowProps& props)
 	{
 		HRESULT hr = CoInitialize(NULL);
 		ThrowIfFailed(hr, "Failed to initialize COM library.");
-		
+
 		static bool raw_input_initialized = false;
 		if (raw_input_initialized == false)
 		{
@@ -358,6 +370,9 @@ namespace Insight {
 
 		// Create the menu bar
 		InitializeMenuBar();
+
+		// Create mouse Right-Click context menu
+		InitializeContextMenu();
 
 		// Create the main window for the engine/game
 		m_hWindow = CreateWindowExW(
@@ -398,10 +413,10 @@ namespace Insight {
 			}
 		}
 		m_Data.hGraphicsVisualizeSubMenu = m_hGraphicsVisualizeSubMenu;
+
 		ShowWindow(m_hWindow, m_nCmdShowArgs);
 		SetForegroundWindow(m_hWindow);
 		SetFocus(m_hWindow);
-		SetWindowTitle(m_Data.WindowTitle);
 
 		IE_CORE_TRACE("Window Initialized");
 		return true;
@@ -461,6 +476,7 @@ namespace Insight {
 			AppendMenuW(m_hMenuBar, MF_POPUP, (UINT_PTR)m_hEditorSubMenu, L"&Editor");
 			AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_BEGIN_PLAY, L"&Play");
 			AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_END_PLAY, L"&Stop");
+			AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_EDITOR_RELOAD_SCRIPTS, L"&Reload Scripts");
 			AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_EDITOR_TOGGLE, L"&Toggle Editor UI");
 
 			m_Data.hEditorSubMenu = m_hEditorSubMenu;
@@ -494,6 +510,16 @@ namespace Insight {
 
 			m_Data.hGraphicsVisualizeSubMenu = m_hGraphicsVisualizeSubMenu;
 		}
+	}
+
+	void WindowsWindow::InitializeContextMenu()
+	{
+		m_hContextMenu = CreatePopupMenu();
+		{
+			AppendMenuW(m_hContextMenu, MF_STRING, IDM_VISUALIZE_AO_BUFFER, L"&Hello");
+			AppendMenuW(m_hContextMenu, MF_STRING, IDM_VISUALIZE_AO_BUFFER, L"&World");
+		}
+		m_Data.hContextMenu = m_hContextMenu;
 	}
 
 	LPCTSTR WindowsWindow::GetLastWindowsError()
@@ -584,14 +610,14 @@ namespace Insight {
 		m_pRendererContext->SwapBuffers();
 	}
 
-	bool WindowsWindow::SetWindowTitle(const std::string& newText, bool completlyOverride)
+	bool WindowsWindow::SetWindowTitle(const std::string& NewText, bool completlyOverride)
 	{
 		BOOL succeeded = true;
 		if (completlyOverride) {
-			succeeded = SetWindowText(m_hWindow, StringHelper::StringToWide(newText).c_str());
+			succeeded = SetWindowText(m_hWindow, StringHelper::StringToWide(NewText).c_str());
 		}
 		else {
-			m_Data.WindowTitle_wide = m_Data.WindowTitle_wide + L" - " + StringHelper::StringToWide(newText);
+			m_Data.WindowTitle_wide = m_Data.WindowTitle_wide + L" - " + StringHelper::StringToWide(NewText);
 			succeeded = SetWindowText(m_hWindow, m_Data.WindowTitle_wide.c_str());
 		}
 		return succeeded;
@@ -599,15 +625,18 @@ namespace Insight {
 
 	bool WindowsWindow::SetWindowTitleFPS(float fps)
 	{
-		BOOL succeeded = true;
 		std::wstring windowTitle = m_Data.WindowTitle_wide + L" FPS: " + std::to_wstring((UINT)fps);
-		succeeded = SetWindowText(m_hWindow, windowTitle.c_str());
-		return succeeded;
+		return static_cast<bool>(SetWindowText(m_hWindow, windowTitle.c_str()));
 	}
 
 	void* WindowsWindow::GetNativeWindow() const
 	{
 		return m_hWindow;
+	}
+
+	void WindowsWindow::CreateMessageBox(const wchar_t* Message, const wchar_t* Title)
+	{
+		MessageBox(m_hWindow, Message, Title, MB_OK);
 	}
 
 	void WindowsWindow::SetVSync(bool enabled)
