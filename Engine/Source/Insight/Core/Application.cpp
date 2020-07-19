@@ -43,7 +43,7 @@ namespace Insight {
 		// after the menu bar is added to the window to avoid blurry and misaligned UI text.
 		// Refactor it.
 		RECT clientRect = {};
-		GetClientRect((HWND)m_pWindow->GetNativeWindow(), &clientRect);
+		GetClientRect(static_cast<HWND>(m_pWindow->GetNativeWindow()), &clientRect);
 		WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, false );
 		OnWindowResize(event);
 
@@ -74,7 +74,9 @@ namespace Insight {
 
 	void Application::Run()
 	{
-		IE_ADD_FOR_GAME_DIST(BeginPlay(AppBeginPlayEvent{}));
+		IE_ADD_FOR_GAME_DIST(
+			BeginPlay(AppBeginPlayEvent{})
+		);
 
 		while(m_Running) {
 
@@ -100,7 +102,7 @@ namespace Insight {
 				}
 				m_pGameLayer->OnImGuiRender();
 				m_pImGuiLayer->End();
-			)
+			);
 
 			m_pGameLayer->PostRender();
 			m_pWindow->EndFrame();

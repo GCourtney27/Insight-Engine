@@ -29,12 +29,13 @@ namespace Insight {
 	class ADirectionalLight;
 	class APointLight;
 	class ASpotLight;
+	class ACamera;
 
 	class ScreenQuad
 	{
 	public:
 		void Init();
-		void Render(ComPtr<ID3D12GraphicsCommandList> commandList);
+		void OnRender(ComPtr<ID3D12GraphicsCommandList> commandList);
 
 	private:
 		ComPtr<ID3D12Resource> m_VertexBuffer;
@@ -100,12 +101,12 @@ namespace Insight {
 		void AddSpotLight(ASpotLight* spotLight) { m_SpotLights.push_back(spotLight); }
 
 		// Add Sky Sphere to the scene. There can never be more than one in the scene at any given time.
-		void AddSkySphere(ASkySphere* skySphere) { if(!m_pSkySphere) m_pSkySphere = skySphere; }
+		void AddSkySphere(ASkySphere* skySphere) { if (!m_pSkySphere) { m_pSkySphere = skySphere; } }
 		// Add a post-fx volume to the scene.
-		void AddPostFxActor(APostFx* postFxActor) { m_pPostFx = postFxActor; }
+		void AddPostFxActor(APostFx* postFxActor) { {m_pPostFx = postFxActor; } }
 		// Add Sky light to the scene for Image-Based Lighting. There can never be more than one 
 		// in the scene at any given time.
-		void AddSkyLight(ASkyLight* skyLight) { if(!m_SkyLight) m_SkyLight = skyLight; }
+		void AddSkyLight(ASkyLight* skyLight) { if (!m_SkyLight) { m_SkyLight = skyLight; } }
 
 	private:
 		void CloseCommandListAndSignalCommandQueue();
@@ -168,7 +169,7 @@ namespace Insight {
 		WindowsWindow*	m_pWindow = nullptr;
 		D3D12Helper		m_d3dDeviceResources;
 		GeometryManager*	m_pModelManager = nullptr;
-
+		ACamera* m_pWorldCamera = nullptr;
 		// CPU/GPU Syncronization
 		int						m_FrameIndex = 0;
 		UINT64					m_FenceValues[m_FrameBufferCount] = {};

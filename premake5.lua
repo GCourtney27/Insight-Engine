@@ -149,8 +149,7 @@ project ("Engine")
 		postbuildcommands
 		{
 			("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
-			--("{COPY} %{wks.location}Bin/"..outputdir.."/"..csharpAssemblyProjectName.."/"..csharpAssemblyProjectName..".dll %{wks.location}Bin/"..outputdir.."/Engine")
+			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine")
 		}
 	-- Full Engine Distribution, all performance logs and debugging windows stripped
 	filter "configurations:Engine-Dist"
@@ -167,8 +166,7 @@ project ("Engine")
 		postbuildcommands
 		{
 			("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
-			--("{COPY} %{wks.location}Bin/"..outputdir.."/"..csharpAssemblyProjectName.."/"..csharpAssemblyProjectName..".dll %{wks.location}Bin/"..outputdir.."/Engine")
+			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine")
 		}
 	-- Full Game Distribution, all engine debug tools(leel editors, editor user interfaces) stripped
 	filter "configurations:Game-Dist"
@@ -185,8 +183,7 @@ project ("Engine")
 		postbuildcommands
 		{
 			("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
-			--("{COPY} %{wks.location}Bin/"..outputdir.."/"..csharpAssemblyProjectName.."/"..csharpAssemblyProjectName..".dll %{wks.location}Bin/"..outputdir.."/Engine")
+			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine")
 		}
 
 -- Application

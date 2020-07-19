@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Insight/Core.h>
-#include "Insight/Systems/Managers/Model_Manager.h"
+#include "Insight/Systems/Managers/Geometry_Manager.h"
 #include "Insight/Systems/Managers/Texture_Manager.h"
 #include "Insight/Systems/Managers/Mono_Script_Manager.h"
 

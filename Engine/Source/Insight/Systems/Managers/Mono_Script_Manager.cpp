@@ -6,12 +6,15 @@
 #include "Insight/Systems/Managers/Resource_Manager.h"
 #include "Insight/Input/Windows_Input.h"
 
+#include "Insight/Runtime/Components/CSharp_Scirpt_Component.h"
+
 #include "imgui.h"
 
 namespace Insight {
 
 	MonoScriptManager::MonoScriptManager()
 	{
+		
 	}
 
 	MonoScriptManager::~MonoScriptManager()
@@ -21,7 +24,7 @@ namespace Insight {
 
 	bool MonoScriptManager::CreateClass(MonoClass*& monoClass, MonoObject*& monoObject, const char* className)
 	{ 
-		monoClass = mono_class_from_name(m_pImage, m_CSCGlobalNamespace, className);
+		monoClass = mono_class_from_name(m_pImage, m_CSGlobalNamespace, className);
 		monoObject = mono_object_new(m_pDomain, monoClass);
 		mono_runtime_object_init(monoObject);
 
@@ -32,7 +35,7 @@ namespace Insight {
 	{
 		MonoMethodDesc* methodDesc;
 		std::string methodSignature;
-		methodSignature = m_CSCGlobalNamespace;
+		methodSignature = m_CSGlobalNamespace;
 		methodSignature += ".";
 		methodSignature += targetClassName;
 		methodSignature += ":";
@@ -53,18 +56,6 @@ namespace Insight {
 	{
 		ImGui::Begin("DEBUG: Mono Script Manager");
 		{
-			/*if (ImGui::Button("Close Assemblies", ImVec2{ 100.0f, 50.0f }))
-			{
-				mono_images_cleanup();
-				mono_image_close(m_pImage);
-				mono_assemblies_cleanup();
-				mono_assembly_close(m_pAssembly);
-
-			}
-			if (ImGui::Button("Re-Compile", ImVec2{ 100.0f, 50.0f }))
-			{
-				ReCompile();
-			}*/
 		}
 		ImGui::End();
 	}
@@ -93,40 +84,23 @@ namespace Insight {
 
 	bool MonoScriptManager::Init()
 	{
-		std::string DirectoryLocation = FileSystem::GetExecutbleDirectory();
+		const char* BuildConfig = MACRO_TO_STRING(IE_BUILD_CONFIG);
+		m_AssemblyDir = FileSystem::ProjectDirectory;
+		m_AssemblyDir += "/Bin/";
+		m_AssemblyDir += BuildConfig;
+		m_AssemblyDir += "/Assembly-CSharp/Assembly-CSharp.dll";
 
-#if defined IE_DEBUG
-		const char* libDir = "Vendor/Mono/lib";
-		const char* etcDir = "Vendor/Mono/etc";
-#elif defined IE_RELEASE || defined IE_GAME_DIST
-		const char* libDir = "../../../Engine/Vendor/Mono/lib";
-		const char* etcDir = "../../../Engine/Vendor/Mono/etc";
-#endif
-		mono_set_dirs(libDir, etcDir);
+		mono_set_dirs("C:/Program Files/Mono/lib", "C:/Program Files/Mono/etc");
 
 		m_pDomain = mono_jit_init("IE-Mono-Script-Engine");
 		if (!m_pDomain) {
 			IE_CORE_ERROR("Failed to initialize mono domain.");
 			return false;
 		}
-		std::string assemblyDir = FileSystem::ProjectDirectory;
-		char* BuildConfig = MACRO_TO_STRING(IE_BUILD_CONFIG);
-		assemblyDir += "/Bin/";
-		assemblyDir += BuildConfig;
-		assemblyDir += "/Assembly-CSharp/Assembly-CSharp.dll";
 		
-		/*std::string assemblyDir;
-#if defined IE_DEBUG
-		char* relativeDir = MACRO_TO_STRING(IE_BUILD_DIR);
-		assemblyDir = relativeDir;
-		assemblyDir += "Assembly-CSharp.dll";
-#elif defined IE_RELEASE || defined IE_GAME_DIST
-		assemblyDir = "Assembly-CSharp.dll";
-#endif*/
-		
-		m_pAssembly = mono_domain_assembly_open(m_pDomain, assemblyDir.c_str());
+		m_pAssembly = mono_domain_assembly_open(m_pDomain, m_AssemblyDir.c_str());
 		if (!m_pAssembly) {
-			IE_CORE_ERROR("Failed to open mono assembly with path: {0}", assemblyDir);
+			IE_CORE_ERROR("Failed to open mono assembly with path: {0}", m_AssemblyDir);
 			return false;
 		}
 
@@ -142,25 +116,37 @@ namespace Insight {
 		mono_add_internal_call("Internal.Input::IsMouseButtonPressed", reinterpret_cast<const void*>(Interop_IsMouseButtonPressed));
 		mono_add_internal_call("Internal.Input::GetMouseX", reinterpret_cast<const void*>(Interop_GetMouseX));
 		mono_add_internal_call("Internal.Input::GetMouseY", reinterpret_cast<const void*>(Interop_GetMouseY));
+		
+		return true;
+	}
 
+	bool MonoScriptManager::PostInit()
+	{
+		
 		return true;
 	}
 
 	void MonoScriptManager::ReCompile()
 	{
-		Cleanup();
-		std::string assemblyDir;
-#if defined IE_DEBUG
-		char* relativeDir = MACRO_TO_STRING(IE_BUILD_DIR);
-		assemblyDir = relativeDir;
-		assemblyDir += "Assembly-CSharp.dll";
-#elif defined IE_RELEASE || defined IE_GAME_DIST
-		assemblyDir = "Assembly-CSharp.dll";
-#endif
+		/*if (!AssemblyClosed) {
+			AssemblyClosed = true;
+			mono_assembly_close(m_pAssembly);
+			mono_assemblies_cleanup();
+			return;
+		}
 
-		m_pAssembly = mono_domain_assembly_open(m_pDomain, assemblyDir.c_str());
+		if (AssemblyClosed) {
+			AssemblyClosed = false;
+		}*/
+		//Cleanup();
+		
+		//mono_image_open_from_data()
+		//mono_image_open_from_data_full()
+		//mono_image_open_from_data_with_name()
+
+		m_pAssembly = mono_domain_assembly_open(m_pDomain, m_AssemblyDir.c_str());
 		if (!m_pAssembly) {
-			IE_CORE_ERROR("Failed to open mono assembly with path: \"{0}\" during recompile", assemblyDir);
+			IE_CORE_ERROR("Failed to open mono assembly with path: \"{0}\" during recompile", m_AssemblyDir);
 		}
 
 		m_pImage = mono_assembly_get_image(m_pAssembly);
@@ -174,14 +160,19 @@ namespace Insight {
 		mono_add_internal_call("Internal.Input::IsMouseButtonPressed", reinterpret_cast<const void*>(Interop_IsMouseButtonPressed));
 		mono_add_internal_call("Internal.Input::GetMouseX", reinterpret_cast<const void*>(Interop_GetMouseX));
 		mono_add_internal_call("Internal.Input::GetMouseY", reinterpret_cast<const void*>(Interop_GetMouseY));
+		/*for (auto& Script : m_RegisteredScripts)
+		{
+			Script->ReCompile();
+		}*/
 	}
 
 	void MonoScriptManager::Cleanup()
 	{
+		mono_image_close(m_pImage);
 		mono_assemblies_cleanup();
+		mono_jit_cleanup(m_pDomain);
 		mono_images_cleanup();
 		mono_assembly_close(m_pAssembly);
-		mono_image_close(m_pImage);
 		m_pDomain = nullptr;
 		m_pAssembly = nullptr;
 		m_pImage = nullptr;

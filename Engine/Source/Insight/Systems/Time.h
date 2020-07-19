@@ -16,27 +16,27 @@ namespace Insight {
 		using clock_duration = std::chrono::duration<clock::rep, TPeriod>;
 
 	public:
-		Timer() : m_start_point(clock::now()) {}
+		Timer() : m_StartPoint(clock::now()) {}
 
 		void Reset()
 		{
-			m_start_point = clock::now();
+			m_StartPoint = clock::now();
 		}
 
-		clock::rep elapsed_time() const
+		clock::rep ElapsedTime() const
 		{
-			clock_duration duration = std::chrono::duration_cast<clock_duration>(clock::now() - m_start_point);
+			clock_duration duration = std::chrono::duration_cast<clock_duration>(clock::now() - m_StartPoint);
 			return duration.count();
 		}
 
-		double seconds()
+		double Seconds()
 		{
-			clock_duration duration = std::chrono::duration_cast<clock_duration>(clock::now() - m_start_point);
+			clock_duration duration = std::chrono::duration_cast<clock_duration>(clock::now() - m_StartPoint);
 			return duration.count() / static_cast<double>(TPeriod::den);
 		}
 
 	protected:
-		clock::time_point m_start_point;
+		clock::time_point m_StartPoint;
 	};
 
 
@@ -44,55 +44,55 @@ namespace Insight {
 	{
 	public:
 		FrameTimer() :
-			m_frame_count(0),
-			m_fps(0.0f),
-			m_prev_frame_time(clock::now()),
-			m_start_frame_time(clock::now())
+			m_FrameCount(0),
+			m_FramesPerSecond(0.0f),
+			m_PrevFrameTime(clock::now()),
+			m_StartFrameTime(clock::now())
 		{ 
 		}
 
 		void Tick()
 		{
-			clock_duration duration = std::chrono::duration_cast<clock_duration>(clock::now() - m_prev_frame_time);
-			m_prev_frame_time = clock::now();
+			clock_duration duration = std::chrono::duration_cast<clock_duration>(clock::now() - m_PrevFrameTime);
+			m_PrevFrameTime = clock::now();
 
-			m_dt = duration.count() / static_cast<float>(clock_duration::duration::period::den);
+			m_DeltaTime = duration.count() / static_cast<float>(clock_duration::duration::period::den);
 
-			m_frame_count++;
-			if (m_frame_count == 100)
+			m_FrameCount++;
+			if (m_FrameCount == 100)
 			{
-				clock_duration duration = std::chrono::duration_cast<clock_duration>(clock::now() - m_start_frame_time);
-				m_start_frame_time = clock::now();
+				clock_duration duration = std::chrono::duration_cast<clock_duration>(clock::now() - m_StartFrameTime);
+				m_StartFrameTime = clock::now();
 
 				float elapsed = duration.count() / static_cast<float>(clock_duration::duration::period::den);
 
-				m_fps = static_cast<float>(m_frame_count / elapsed);
-				m_frame_count = 0;
+				m_FramesPerSecond = static_cast<float>(m_FrameCount / elapsed);
+				m_FrameCount = 0;
 			}
 		}
 
 		inline float DeltaTime() const
 		{
-			return m_dt;
+			return m_DeltaTime;
 		}
 
 		inline float MilliSeconds() const
 		{
-			return m_dt * 1000.0f;
+			return m_DeltaTime * 1000.0f;
 		}
 
 		inline float FPS() const
 		{
-			return m_fps;
+			return m_FramesPerSecond;
 		}
 
 	private:
-		float m_dt = 0.0f;
-		float m_fps = 0.0f;
+		float m_DeltaTime = 0.0f;
+		float m_FramesPerSecond = 0.0f;
 
-		clock::time_point m_prev_frame_time;
-		clock::time_point m_start_frame_time;
-		size_t m_frame_count;
+		clock::time_point m_PrevFrameTime;
+		clock::time_point m_StartFrameTime;
+		size_t m_FrameCount;
 	};
 
 	using ns_timer = Timer<std::nano>;

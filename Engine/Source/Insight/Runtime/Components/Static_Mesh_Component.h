@@ -24,6 +24,7 @@ namespace Insight {
 		virtual void OnUpdate(const float& deltaTime);
 		virtual void OnChanged() {}
 		virtual void OnImGuiRender() override;
+
 		void RenderSceneHeirarchy() override;
 		void AttachMesh(const std::string& AssesDirectoryRelPath);
 
@@ -34,6 +35,7 @@ namespace Insight {
 		virtual void OnDetach() override;
 
 	private:
+		std::string m_DynamicAssetDir;
 		StrongModelPtr m_pModel;
 		Material m_Material;
 		std::future<bool> m_ModelLoadFuture;

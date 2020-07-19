@@ -5,6 +5,7 @@
 #include "Insight/Systems/File_System.h"
 #include "Insight/Systems/Managers/Resource_Manager.h"
 #include <imgui.h>
+#include <misc/cpp/imgui_stdlib.h>
 
 namespace Insight {
 
@@ -69,6 +70,7 @@ namespace Insight {
 
 	void StaticMeshComponent::OnDestroy()
 	{
+		ResourceManager::Get().GetGeometryManager().UnRegisterModel(m_pModel);
 	}
 
 	void StaticMeshComponent::CalculateParent(const XMMATRIX& parentMatrix)
@@ -91,6 +93,12 @@ namespace Insight {
 		ImGui::Spacing();
 		if (ImGui::CollapsingHeader(m_ComponentName, ImGuiTreeNodeFlags_DefaultOpen)) {
 
+			// Models/nanosuit/nanosuit.obj
+			if (ImGui::InputText("New Mesh Dir: ", &m_DynamicAssetDir, ImGuiInputTextFlags_EnterReturnsTrue)) {
+				IE_CORE_INFO("Text input: {0}", m_DynamicAssetDir);
+				AttachMesh(m_DynamicAssetDir);
+			}
+
 			m_pModel->OnImGuiRender();
 			m_Material.OnImGuiRender();
 		}
@@ -111,16 +119,18 @@ namespace Insight {
 		return true;
 	}
 
-	void StaticMeshComponent::AttachMesh(const std::string& AssesDirectoryRelPath)
+	void StaticMeshComponent::AttachMesh(const std::string& AssestDirectoryRelPath)
 	{
-		ScopedTimer timer(("StaticMeshComponent::AttachMesh \"" + AssesDirectoryRelPath + "\"").c_str());
+		ScopedTimer timer(("StaticMeshComponent::AttachMesh \"" + AssestDirectoryRelPath + "\"").c_str());
 
 		if (m_pModel) {
+			ResourceManager::Get().GetGeometryManager().UnRegisterModel(m_pModel);
+			m_pModel->Destroy();
 			m_pModel.reset();
 		}
 		m_pModel = make_shared<Model>();
-		m_pModel->Init(AssesDirectoryRelPath, &m_Material);
-
+		m_pModel->Init(AssestDirectoryRelPath, &m_Material);
+		
 		//m_ModelLoadFuture = std::async(std::launch::async, LoadMesh, m_pModel, AssesDirectoryRelPath, &m_Material);
 		ResourceManager::Get().GetGeometryManager().RegisterModel(m_pModel);
 	}
@@ -139,6 +149,7 @@ namespace Insight {
 
 	void StaticMeshComponent::OnDetach()
 	{
+		ResourceManager::Get().GetGeometryManager().UnRegisterModel(m_pModel);
 	}
 
 }

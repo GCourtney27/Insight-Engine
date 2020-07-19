@@ -5,7 +5,7 @@
 #include "Insight/Core/Application.h"
 #include "Platform/Windows/Windows_Window.h"
 #include "Insight/Runtime/APlayer_Character.h"
-#include "Insight/Systems/Managers/Model_Manager.h"
+#include "Insight/Systems/Managers/Geometry_Manager.h"
 
 #include "Insight/Rendering/APost_Fx.h"
 #include "Insight/Rendering/ASky_Light.h"
@@ -20,9 +20,9 @@ namespace Insight {
 	Direct3D12Context* Direct3D12Context::s_Instance = nullptr;
 
 	Direct3D12Context::Direct3D12Context(WindowsWindow* WindowHandle)
-		:	m_pWindowHandle(&WindowHandle->GetWindowHandleReference()),
-			m_pWindow(WindowHandle),
-			RenderingContext(WindowHandle->GetWidth(), WindowHandle->GetHeight(), false)
+		: m_pWindowHandle(&WindowHandle->GetWindowHandleReference()),
+		m_pWindow(WindowHandle),
+		RenderingContext(WindowHandle->GetWidth(), WindowHandle->GetHeight(), false)
 	{
 		IE_CORE_ASSERT(WindowHandle, "Window handle is NULL!");
 		IE_ASSERT(!s_Instance, "Rendering instance already exists!");
@@ -95,10 +95,9 @@ namespace Insight {
 				LoadDemoAssets();
 			}
 			PIXEndEvent(m_pCommandQueue.Get());
-
 		}
 		catch (COMException& ex) {
-			MessageBox(*m_pWindowHandle, ex.what(), L"Fatal Error", MB_OK);
+			m_pWindow->CreateMessageBox(ex.what(), L"Fatal Error");
 			return false;
 		}
 		return true;
@@ -108,28 +107,28 @@ namespace Insight {
 	{
 		m_pModelManager = &ResourceManager::Get().GetGeometryManager();
 		CloseCommandListAndSignalCommandQueue();
+		m_pWorldCamera = &ACamera::Get();
+
 		return true;
 	}
 
-	void Direct3D12Context::OnUpdate(const float& deltaTime)
+	void Direct3D12Context::OnUpdate(const float& DeltaMs)
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
-		ACamera& playerCamera = ACamera::Get();
-
 		// Send Per-Frame Data to GPU
 		XMFLOAT4X4 viewFloat;
-		XMStoreFloat4x4(&viewFloat, XMMatrixTranspose(playerCamera.GetViewMatrix()));
+		XMStoreFloat4x4(&viewFloat, XMMatrixTranspose(m_pWorldCamera->GetViewMatrix()));
 		XMFLOAT4X4 projectionFloat;
-		XMStoreFloat4x4(&projectionFloat, XMMatrixTranspose(playerCamera.GetProjectionMatrix()));
+		XMStoreFloat4x4(&projectionFloat, XMMatrixTranspose(m_pWorldCamera->GetProjectionMatrix()));
 		m_PerFrameData.view = viewFloat;
 		m_PerFrameData.projection = projectionFloat;
-		m_PerFrameData.cameraPosition = playerCamera.GetTransformRef().GetPosition();
-		m_PerFrameData.deltaMs = deltaTime;
-		m_PerFrameData.time = (float)Application::Get().GetFrameTimer().seconds();
-		m_PerFrameData.cameraNearZ = (float)playerCamera.GetNearZ();
-		m_PerFrameData.cameraFarZ = (float)playerCamera.GetFarZ();
-		m_PerFrameData.cameraExposure = (float)playerCamera.GetExposure();
+		m_PerFrameData.cameraPosition = m_pWorldCamera->GetTransformRef().GetPosition();
+		m_PerFrameData.deltaMs = DeltaMs;
+		m_PerFrameData.time = (float)Application::Get().GetFrameTimer().Seconds();
+		m_PerFrameData.cameraNearZ = (float)m_pWorldCamera->GetNearZ();
+		m_PerFrameData.cameraFarZ = (float)m_pWorldCamera->GetFarZ();
+		m_PerFrameData.cameraExposure = (float)m_pWorldCamera->GetExposure();
 		m_PerFrameData.numPointLights = (float)m_PointLights.size();
 		m_PerFrameData.numDirectionalLights = (float)m_DirectionalLights.size();
 		m_PerFrameData.numSpotLights = (float)m_SpotLights.size();
@@ -161,20 +160,20 @@ namespace Insight {
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
 		HRESULT hr;
-		
-		// Reset Command Allocators
-		hr = m_pScenePassCommandAllocators[m_FrameIndex]->Reset();
-		ThrowIfFailed(hr, "Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Scene Pass");
 
-		hr = m_pShadowPassCommandAllocators[m_FrameIndex]->Reset();
-		ThrowIfFailed(hr, "Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Shadow Pass");
+		// Reset Command Allocators
+		ThrowIfFailed(m_pScenePassCommandAllocators[m_FrameIndex]->Reset(),
+			"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Scene Pass");
+
+		ThrowIfFailed(m_pShadowPassCommandAllocators[m_FrameIndex]->Reset(),
+			"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Shadow Pass");
 
 		// Reset Command Lists
-		hr = m_pScenePassCommandList->Reset(m_pScenePassCommandAllocators[m_FrameIndex].Get(), m_pPipelineStateObject_GeometryPass.Get());
-		ThrowIfFailed(hr, "Failed to reset command list in Direct3D12Context::OnPreFrameRender for Scene Pass");
-		
-		hr = m_pShadowPassCommandList->Reset(m_pShadowPassCommandAllocators[m_FrameIndex].Get(), m_pPipelineStateObject_ShadowPass.Get());
-		ThrowIfFailed(hr, "Failed to reset command list in Direct3D12Context::OnPreFrameRender for Shadow Pass");
+		ThrowIfFailed(m_pScenePassCommandList->Reset(m_pScenePassCommandAllocators[m_FrameIndex].Get(), m_pPipelineStateObject_GeometryPass.Get()),
+			"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Scene Pass");
+
+		ThrowIfFailed(m_pShadowPassCommandList->Reset(m_pShadowPassCommandAllocators[m_FrameIndex].Get(), m_pPipelineStateObject_ShadowPass.Get()),
+			"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Shadow Pass");
 
 		m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetRenderTarget(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
@@ -218,7 +217,6 @@ namespace Insight {
 
 		// TODO Shadow pass logic here put this on another thread
 		m_pModelManager->Render(RenderPass::RenderPass_Shadow);
-
 	}
 
 	void Direct3D12Context::BindGeometryPass(bool setPSO)
@@ -259,12 +257,10 @@ namespace Insight {
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE
 
-		//m_pCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, nullptr);
 		m_pScenePassCommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), true, nullptr);
 		BindLightingPass();
 
-		//m_pCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, &m_dsvHeap.hCPUHeapStart);
-		m_pScenePassCommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), true, &m_dsvHeap.hCPUHeapStart);
+		m_pScenePassCommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), true, &m_dsvHeap.hCPU(0));
 		BindSkyPass();
 
 		m_pScenePassCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, nullptr);
@@ -276,19 +272,18 @@ namespace Insight {
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
 		if (m_SkyLight) {
-
 			m_SkyLight->OnRender();
-
-			for (unsigned int i = 0; i < m_NumRTV - 1; ++i) {
-				m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
-			}
-
-			m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
-
-			m_pScenePassCommandList->SetPipelineState(m_pPipelineStateObject_LightingPass.Get());
-
-			m_ScreenQuad.Render(m_pScenePassCommandList);
 		}
+
+		for (unsigned int i = 0; i < m_NumRTV - 1; ++i) {
+			m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
+		}
+
+		m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
+
+		m_pScenePassCommandList->SetPipelineState(m_pPipelineStateObject_LightingPass.Get());
+
+		m_ScreenQuad.OnRender(m_pScenePassCommandList);
 
 	}
 
@@ -317,9 +312,8 @@ namespace Insight {
 			m_pScenePassCommandList->SetPipelineState(m_pPipelineStateObject_PostFxPass.Get());
 			m_pScenePassCommandList->SetGraphicsRootDescriptorTable(16, m_cbvsrvHeap.hGPU(5));
 
-			m_ScreenQuad.Render(m_pScenePassCommandList);
+			m_ScreenQuad.OnRender(m_pScenePassCommandList);
 		}
-
 	}
 
 	void Direct3D12Context::ExecuteDraw()
@@ -334,13 +328,14 @@ namespace Insight {
 			m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 		}
 
+		// Prepare render target to be presented
 		m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetRenderTarget(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
-		ThrowIfFailed(m_pScenePassCommandList->Close(), "Failed to close command list. Cannot execute draw commands");
+		ThrowIfFailed(m_pScenePassCommandList->Close(), "Failed to close command list for scene pass.");
 		ThrowIfFailed(m_pShadowPassCommandList->Close(), "Failed to close the command list for shadow pass.");
 
-		ID3D12CommandList* ppCommandLists[] = { 
-			m_pShadowPassCommandList.Get(),
+		ID3D12CommandList* ppCommandLists[] = {
+			m_pShadowPassCommandList.Get(), // Execure shadow pass first because we'll need the depth textures for the light pass
 			m_pScenePassCommandList.Get()
 		};
 		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
@@ -869,7 +864,7 @@ namespace Insight {
 #if defined IE_DEBUG
 		LPCWSTR VertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Shadow_Pass.vertex.cso";
 		LPCWSTR PixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Shadow_Pass.pixel.cso";
-#elif defined IE_RELEASE || defined IE_GAME_DIST
+#elif defined IE_RELEASE || defined IE_GAME_DIST || IE_ENGINE_DIST
 		LPCWSTR VertexShaderFolder = L"Shadow_Pass.vertex.cso";
 		LPCWSTR PixelShaderFolder = L"Shadow_Pass.pixel.cso";
 #endif 
@@ -939,7 +934,7 @@ namespace Insight {
 		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Geometry_Pass.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Geometry_Pass.pixel.cso";
 
-#elif defined IE_RELEASE || defined IE_GAME_DIST
+#elif defined IE_RELEASE || defined IE_GAME_DIST || IE_ENGINE_DIST
 		LPCWSTR vertexShaderFolder = L"Geometry_Pass.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"Geometry_Pass.pixel.cso";
 #endif 
@@ -1005,7 +1000,7 @@ namespace Insight {
 #if defined IE_DEBUG
 		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Skybox.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Skybox.pixel.cso";
-#elif defined IE_RELEASE || defined IE_GAME_DIST
+#elif defined IE_RELEASE || defined IE_GAME_DIST || IE_ENGINE_DIST
 		LPCWSTR vertexShaderFolder = L"Skybox.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"Skybox.pixel.cso";
 #endif 
@@ -1076,7 +1071,7 @@ namespace Insight {
 #if defined IE_DEBUG
 		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Light_Pass.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Light_Pass.pixel.cso";
-#elif defined IE_RELEASE || defined IE_GAME_DIST
+#elif defined IE_RELEASE || defined IE_GAME_DIST || IE_ENGINE_DIST
 		LPCWSTR vertexShaderFolder = L"Light_Pass.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"Light_Pass.pixel.cso";
 #endif 
@@ -1137,7 +1132,7 @@ namespace Insight {
 #if defined IE_DEBUG
 		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/PostFx.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/PostFx.pixel.cso";
-#elif defined IE_RELEASE || defined IE_GAME_DIST
+#elif defined IE_RELEASE || defined IE_GAME_DIST || IE_ENGINE_DIST
 		LPCWSTR vertexShaderFolder = L"PostFx.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"PostFx.pixel.cso";
 #endif 
@@ -1494,9 +1489,8 @@ namespace Insight {
 
 		// Recreate Camera Projection Matrix
 		{
-			ACamera& camera = ACamera::Get();
-			if (!camera.GetIsOrthographic()) {
-				camera.SetPerspectiveProjectionValues(camera.GetFOV(), static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight), camera.GetNearZ(), camera.GetFarZ());
+			if (!m_pWorldCamera->GetIsOrthographic()) {
+				m_pWorldCamera->SetPerspectiveProjectionValues(m_pWorldCamera->GetFOV(), static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight), m_pWorldCamera->GetNearZ(), m_pWorldCamera->GetFarZ());
 			}
 		}
 
@@ -1577,7 +1571,7 @@ namespace Insight {
 
 	}
 
-	void ScreenQuad::Render(ComPtr<ID3D12GraphicsCommandList> commandList)
+	void ScreenQuad::OnRender(ComPtr<ID3D12GraphicsCommandList> commandList)
 	{
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 		commandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);

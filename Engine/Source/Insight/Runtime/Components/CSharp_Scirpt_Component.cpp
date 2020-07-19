@@ -15,6 +15,9 @@ namespace Insight {
 		: ActorComponent("C-Sharp Script Component", pOwner)
 	{
 		m_pMonoScriptManager = &ResourceManager::Get().GetMonoScriptManager();
+		if (m_pMonoScriptManager) {
+			m_pMonoScriptManager->RegisterScript(this);
+		}
 	}
 
 	CSharpScriptComponent::~CSharpScriptComponent()
@@ -30,6 +33,12 @@ namespace Insight {
 	void CSharpScriptComponent::OnDetach()
 	{
 		Cleanup();
+	}
+
+	void CSharpScriptComponent::ReCompile()
+	{
+		//Cleanup();
+		RegisterScript();
 	}
 
 	void CSharpScriptComponent::RegisterScript()
@@ -57,6 +66,7 @@ namespace Insight {
 		if (m_pMonoScriptManager) {
 			m_pMonoScriptManager = nullptr;
 		}
+		ResourceManager::Get().GetMonoScriptManager().UnRegisterScript(this);
 	}
 
 	bool CSharpScriptComponent::LoadFromJson(const rapidjson::Value& jsonCSScriptComponent)

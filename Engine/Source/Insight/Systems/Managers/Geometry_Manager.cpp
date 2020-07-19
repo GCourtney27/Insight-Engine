@@ -1,6 +1,6 @@
 #include <ie_pch.h>
 
-#include "Model_Manager.h"
+#include "Geometry_Manager.h"
 
 #include "Platform/Windows/DirectX12/Direct3D12_Context.h"
 #include "Insight/Runtime/APlayer_Character.h"

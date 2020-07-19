@@ -27,8 +27,8 @@ namespace Insight {
 		void PostRender();
 		void FlushModelCache();
 		
-		void RegisterModel(StrongModelPtr model) { m_Models.push_back(model); }
-
+		inline void RegisterModel(StrongModelPtr Model) { m_Models.push_back(Model); }
+		inline void UnRegisterModel(StrongModelPtr Model){ std::remove(m_Models.begin(), m_Models.end(), Model); }
 	private:
 		SceneModels m_Models;  
 		D3D12_GPU_VIRTUAL_ADDRESS m_CbvUploadHeapHandle;
