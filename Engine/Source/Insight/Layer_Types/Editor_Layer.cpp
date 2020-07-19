@@ -147,8 +147,8 @@ namespace Insight {
 				ImGui::TreeNodeEx("Point Light", TreeFlags);
 				if (ImGui::IsItemClicked()) {
 					IE_CORE_INFO("Create Point light");
-					static int Index = 0;
-					ActorType ActorType = "MyPointLight" + std::to_string(Index++);
+					static int PointLightIndex = 0;
+					ActorType ActorType = "MyPointLight" + std::to_string(PointLightIndex++);
 					m_pSceneRootRef->AddChild(new APointLight(5, ActorType));
 				}
 				ImGui::TreePop();
@@ -156,6 +156,9 @@ namespace Insight {
 				ImGui::TreeNodeEx("Spot Light", TreeFlags);
 				if (ImGui::IsItemClicked()) {
 					IE_CORE_INFO("Create Spot light");
+					static int SpotLightIndex = 0;
+					ActorType ActorType = "MySpotLight" + std::to_string(SpotLightIndex++);
+					m_pSceneRootRef->AddChild(new ASpotLight(5, ActorType));
 				}
 
 				ImGui::TreePop();
