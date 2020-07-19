@@ -19,6 +19,7 @@ namespace Insight {
 		static std::string GetProjectRelativeAssetDirectory(std::string Path);
 		static bool LoadSceneFromJson(const std::string& FileName, Scene* pScene);
 		static bool WriteSceneToJson(Scene* pScene);
+		static bool FileExists(const std::string& Path);
 
 	public:
 		static std::string ProjectDirectory;

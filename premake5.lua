@@ -86,6 +86,7 @@ project ("Engine")
 	{
 		"d3d12.lib",
 		"dxgi.lib",
+		"Shlwapi.lib",
 		"d3dcompiler.lib",
 		"DirectXTK12.lib",
 		"assimp-vc140-mt.lib",

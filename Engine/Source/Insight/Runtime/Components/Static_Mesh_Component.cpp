@@ -95,8 +95,12 @@ namespace Insight {
 
 			//Models/nanosuit/nanosuit.obj
 			if (ImGui::InputText("New Mesh Dir: ", &m_DynamicAssetDir, ImGuiInputTextFlags_EnterReturnsTrue)) {
-				IE_CORE_INFO("Text input: {0}", m_DynamicAssetDir);
-				AttachMesh(m_DynamicAssetDir);
+				if (FileSystem::FileExists(m_DynamicAssetDir)) {
+					AttachMesh(m_DynamicAssetDir);
+				}
+				else {
+					IE_CORE_ERROR("File does not exist with path: \"{0}\"", m_DynamicAssetDir);
+				}
 			}
 
 			m_pModel->OnImGuiRender();

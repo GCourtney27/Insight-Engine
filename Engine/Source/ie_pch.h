@@ -60,6 +60,8 @@
 	#include <Windows.h>
 	#include <wrl/client.h>
 	#include <windowsx.h>
+	#include <shlobj.h>
+	#include "Shlwapi.h"
 
 	// Direct3D 12
 	#include <d3d12.h>

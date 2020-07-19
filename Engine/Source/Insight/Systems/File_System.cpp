@@ -14,9 +14,6 @@
 #include "Insight/Rendering/Lighting/APoint_Light.h"
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
 
-
-#include <shlobj.h>
-
 namespace Insight {
 
 	std::string FileSystem::ProjectDirectory = "";
@@ -214,6 +211,11 @@ namespace Insight {
 		}
 
 		return true;
+	}
+
+	bool FileSystem::FileExists(const std::string& Path)
+	{
+		return PathFileExistsA(Path.c_str());
 	}
 
 
