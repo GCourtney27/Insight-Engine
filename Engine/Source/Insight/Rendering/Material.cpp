@@ -38,11 +38,32 @@ namespace Insight {
 
 	Material::~Material()
 	{
+
+	}
+
+	Material* Material::CreateDefaultTexturedMaterial()
+	{
+		Material* pMaterial = new Material();
+
+		TextureManager& TextureManager = ResourceManager::Get().GetTextureManager();
+		
+		pMaterial->m_AlbedoMap = TextureManager.GetDefaultAlbedoTexture();
+		pMaterial->m_NormalMap = TextureManager.GetDefaultNormalTexture();
+		pMaterial->m_MetallicMap = TextureManager.GetDefaultMetallicTexture();
+		pMaterial->m_RoughnessMap = TextureManager.GetDefaultRoughnessTexture();
+		pMaterial->m_AOMap = TextureManager.GetDefaultAOTexture();
+
+		pMaterial->m_ShaderCB.diffuseAdditive	= ieVector3(0.0f, 0.0f, 0.0f);
+		pMaterial->m_ShaderCB.metallicAdditive	= 0.0f;
+		pMaterial->m_ShaderCB.roughnessAdditive = 0.0f;
+		pMaterial->m_ShaderCB.tiling			= ieVector2(1.0f, 1.0f);
+		pMaterial->m_ShaderCB.uvOffset			= ieVector2(0.0f, 0.0f);
+		
+		return pMaterial;
 	}
 
 	bool Material::LoadFromJson(const rapidjson::Value& jsonMaterial)
 	{
-		// TODO get texture handle by id from textre manager
 		const rapidjson::Value& jsonUVOffset = jsonMaterial["uvOffset"];
 		const rapidjson::Value& jsonTilingOffset = jsonMaterial["Tiling"];
 		const rapidjson::Value& jsonColorOverride = jsonMaterial["Color_Override"];
@@ -66,11 +87,11 @@ namespace Insight {
 		json::get_float(jsonMaterial, "Roughness_Override", m_ShaderCB.roughnessAdditive);
 
 		TextureManager& textureManager = ResourceManager::Get().GetTextureManager();
-		m_AlbedoMap = textureManager.GetTextureByID(m_AlbedoTextureManagerID, Texture::eTextureType::ALBEDO);
-		m_NormalMap = textureManager.GetTextureByID(m_NormalTextureManagerID, Texture::eTextureType::NORMAL);
-		m_MetallicMap = textureManager.GetTextureByID(m_MetallicTextureManagerID, Texture::eTextureType::METALLIC);
-		m_RoughnessMap = textureManager.GetTextureByID(m_RoughnessTextureManagerID, Texture::eTextureType::ROUGHNESS);
-		m_AOMap = textureManager.GetTextureByID(m_AoTextureManagerID, Texture::eTextureType::AO);
+		m_AlbedoMap		= textureManager.GetTextureByID(m_AlbedoTextureManagerID, Texture::eTextureType::ALBEDO);
+		m_NormalMap		= textureManager.GetTextureByID(m_NormalTextureManagerID, Texture::eTextureType::NORMAL);
+		m_MetallicMap	= textureManager.GetTextureByID(m_MetallicTextureManagerID, Texture::eTextureType::METALLIC);
+		m_RoughnessMap	= textureManager.GetTextureByID(m_RoughnessTextureManagerID, Texture::eTextureType::ROUGHNESS);
+		m_AOMap			= textureManager.GetTextureByID(m_AoTextureManagerID, Texture::eTextureType::AO);
 
 		return true;
 	}

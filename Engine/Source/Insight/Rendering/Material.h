@@ -14,8 +14,9 @@ namespace Insight {
 		Material(Material&& material) noexcept;
 		~Material();
 		
-		virtual bool LoadFromJson(const rapidjson::Value& jsonMaterial);
-		virtual bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer);
+		static Material* CreateDefaultTexturedMaterial();
+		bool LoadFromJson(const rapidjson::Value& jsonMaterial);
+		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer);
 
 		CB_PS_VS_PerObjectAdditives GetMaterialOverrideConstantBuffer() { return m_ShaderCB; }
 

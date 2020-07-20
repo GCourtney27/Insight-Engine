@@ -7,6 +7,10 @@
 #include "Insight/Layer_Types/ImGui_Layer.h"
 #include "Platform/Windows/Windows_Window.h"
 
+// Scenes (Development-Project)
+// ----------------------------
+// DemoScene
+// MultipleLights
 static const char* ProjectName = "Development-Project";
 static const char* TargetSceneName = "DemoScene.iescene";
 

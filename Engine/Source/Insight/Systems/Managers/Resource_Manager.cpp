@@ -36,7 +36,6 @@ namespace Insight {
 	bool ResourceManager::LoadResourcesFromJson(const rapidjson::Value& jsonResources)
 	{
 		const rapidjson::Value& jsonTextureResources = jsonResources["Textures"];
-		const rapidjson::Value& jsonMeshResources = jsonResources["Meshes"];
 		m_pTextureManager->LoadResourcesFromJson(jsonTextureResources);
 
 		return true;

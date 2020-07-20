@@ -98,7 +98,7 @@ namespace Insight {
 
 		UINT						m_RootParamIndex = 0U;
 	private:
-		static UINT32 s_NumSceneTextures;
+		static uint32_t s_NumSceneTextures;
 	};
 
 }

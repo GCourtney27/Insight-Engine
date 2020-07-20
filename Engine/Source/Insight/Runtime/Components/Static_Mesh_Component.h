@@ -27,6 +27,7 @@ namespace Insight {
 
 		void RenderSceneHeirarchy() override;
 		void AttachMesh(const std::string& AssesDirectoryRelPath);
+		void SetMaterial(Material* pMaterial);
 
 		virtual void BeginPlay() override;
 		virtual void Tick(const float& deltaMs) override;
@@ -37,7 +38,7 @@ namespace Insight {
 	private:
 		std::string m_DynamicAssetDir;
 		StrongModelPtr m_pModel;
-		Material m_Material;
+		Material* m_pMaterial;
 		std::future<bool> m_ModelLoadFuture;
 	};
 

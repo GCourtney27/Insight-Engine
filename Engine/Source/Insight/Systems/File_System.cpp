@@ -68,7 +68,7 @@ namespace Insight {
 	{
 		// Load in Meta.json
 		{
-			ScopedTimer timer("LoadSceneFromJson::LoadMetaData");
+			Profiling::ScopedTimer timer("LoadSceneFromJson::LoadMetaData");
 
 			rapidjson::Document rawMetaFile;
 			const std::string metaDir = FileName + "/Meta.json";
@@ -86,7 +86,7 @@ namespace Insight {
 
 		// Load in Resources.json
 		{
-			ScopedTimer timer("LoadSceneFromJson::LoadResources");
+			Profiling::ScopedTimer timer("LoadSceneFromJson::LoadResources");
 
 			rapidjson::Document rawResourceFile;
 			const std::string resorurceDir = FileName + "/Resources.json";
@@ -102,7 +102,7 @@ namespace Insight {
 
 		// Load in Actors.json last once resources have been intialized
 		{
-			ScopedTimer timer("LoadSceneFromJson::LoadActors");
+			Profiling::ScopedTimer timer("LoadSceneFromJson::LoadActors");
 
 			rapidjson::Document rawActorsFile;
 			const std::string actorsDir = FileName + "/Actors.json";

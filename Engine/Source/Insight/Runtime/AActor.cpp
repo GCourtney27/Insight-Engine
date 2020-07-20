@@ -167,39 +167,43 @@ namespace Insight {
 		ImGui::DragFloat3("Scale", &SceneNode::GetTransformRef().GetScaleRef().x, 0.05f, -100.0f, 100.0f);
 		ImGui::DragFloat3("Rotation", &SceneNode::GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);
 
+		{
+			ImGui::NewLine();
+			static const char* availableComponents[] = { "", "Static Mesh Component", "C-Sharp Script Component" };
+			if (ImGui::Combo("Add Component", &currentIndex, availableComponents, IM_ARRAYSIZE(availableComponents))) {
+				switch (currentIndex) {
+				case 0: break;
+				case 1:
+				{
+					IE_CORE_INFO("Adding Static Mesh component to \"{0}\"", AActor::GetDisplayName());
+					StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<StaticMeshComponent>();
+					static_cast<StaticMeshComponent*>(ptr.get())->SetMaterial(std::move(Material::CreateDefaultTexturedMaterial()));
+					static_cast<StaticMeshComponent*>(ptr.get())->AttachMesh("Models/Quad.obj");
+					
+					break;
+				}
+				case 2:
+				{
+					IE_CORE_INFO("Adding C-Sharp script component to \"{0}\"", AActor::GetDisplayName());
+					// StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<CSharpScriptComponent>();
+					break;
+				}
+				default:
+				{
+					IE_CORE_INFO("Failed to determine component to add to actor \"{0}\" with index of \"{1}\"", AActor::GetDisplayName(), currentIndex);
+					break;
+				}
+				}
+			}
+
+			ImGui::NewLine();
+		}
+
 		for (size_t i = 0; i < m_NumComponents; ++i)
 		{
 			ImGui::Spacing();
 			m_Components[i]->OnImGuiRender();
 		}
-		//ImGui::NewLine();
-		//ImGui::NewLine();
-		//ImGui::NewLine();
-		//static const char* availableComponents[] = { "Static Mesh", "C-Sharp Script" };
-		//if (ImGui::Combo("Add Component", &currentIndex, availableComponents, IM_ARRAYSIZE(availableComponents))) {
-		//	switch (currentIndex) {
-		//	case 0:
-		//	{
-		//		IE_CORE_INFO("Adding Static Mesh component to \"{0}\"", AActor::GetDisplayName());
-		//		StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<StaticMeshComponent>();
-		//		static_cast<StaticMeshComponent*>(ptr.get())->AttachMesh(FileSystem::GetRelativeAssetDirectoryPath("Models/Sphere.obj"));
-		//		//TODO:Make something like this for the material: static_cast<StaticMeshComponent*>(ptr.get())->AttachMaterial(Material::GetDefaultUntexturedMaterial());
-		//		break;
-		//	}
-		//	case 1:
-		//	{
-		//		IE_CORE_INFO("Adding C-Sharp script component to \"{0}\"", AActor::GetDisplayName());
-		//		StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<CSharpScriptComponent>();
-		//		break;
-		//	}
-		//	default:
-		//	{
-		//		IE_CORE_INFO("Failed to determine component to add to actor \"{0}\" with index of \"{1}\"", AActor::GetDisplayName(), currentIndex);
-		//		break;
-		//	}
-		//	}
-		//}
-
 	}
 
 	bool AActor::OnInit()

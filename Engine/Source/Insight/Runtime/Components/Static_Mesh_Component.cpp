@@ -14,7 +14,7 @@ namespace Insight {
 	StaticMeshComponent::StaticMeshComponent(AActor* pOwner)
 		: ActorComponent("Static Mesh Component", pOwner)
 	{
-		
+		m_pMaterial = new Material();
 	}
 
 	StaticMeshComponent::~StaticMeshComponent()
@@ -30,7 +30,7 @@ namespace Insight {
 		AttachMesh(modelPath);
 
 		// Load Material
-		m_Material.LoadFromJson(jsonStaticMeshComponent[1]);
+		m_pMaterial->LoadFromJson(jsonStaticMeshComponent[1]);
 
 		return true;
 	}
@@ -53,7 +53,7 @@ namespace Insight {
 			// Material
 			Writer.StartObject(); // Start Material Attributes
 			{
-				m_Material.WriteToJson(Writer);
+				m_pMaterial->WriteToJson(Writer);
 			}
 			Writer.EndObject(); // End Material Attributes
 
@@ -71,6 +71,7 @@ namespace Insight {
 	void StaticMeshComponent::OnDestroy()
 	{
 		ResourceManager::Get().GetGeometryManager().UnRegisterModel(m_pModel);
+		delete m_pMaterial;
 	}
 
 	void StaticMeshComponent::CalculateParent(const XMMATRIX& parentMatrix)
@@ -90,7 +91,7 @@ namespace Insight {
 
 	void StaticMeshComponent::OnImGuiRender()
 	{
-		ImGui::Spacing();
+		ImGui::Spacing();	
 		if (ImGui::CollapsingHeader(m_ComponentName, ImGuiTreeNodeFlags_DefaultOpen)) {
 
 			//Models/nanosuit/nanosuit.obj
@@ -104,7 +105,7 @@ namespace Insight {
 			}
 
 			m_pModel->OnImGuiRender();
-			m_Material.OnImGuiRender();
+			m_pMaterial->OnImGuiRender();
 		}
 	}
 
@@ -125,7 +126,7 @@ namespace Insight {
 
 	void StaticMeshComponent::AttachMesh(const std::string& AssestDirectoryRelPath)
 	{
-		ScopedTimer timer(("StaticMeshComponent::AttachMesh \"" + AssestDirectoryRelPath + "\"").c_str());
+		Profiling::ScopedTimer timer(("StaticMeshComponent::AttachMesh \"" + AssestDirectoryRelPath + "\"").c_str());
 
 		if (m_pModel) {
 			ResourceManager::Get().GetGeometryManager().UnRegisterModel(m_pModel);
@@ -133,10 +134,19 @@ namespace Insight {
 			m_pModel.reset();
 		}
 		m_pModel = make_shared<Model>();
-		m_pModel->Init(AssestDirectoryRelPath, &m_Material);
+		m_pModel->Init(AssestDirectoryRelPath, m_pMaterial);
 		
 		//m_ModelLoadFuture = std::async(std::launch::async, LoadMesh, m_pModel, AssesDirectoryRelPath, &m_Material);
 		ResourceManager::Get().GetGeometryManager().RegisterModel(m_pModel);
+	}
+
+	void StaticMeshComponent::SetMaterial(Material* pMaterial)
+	{
+		if (m_pMaterial) {
+			delete m_pMaterial;
+			m_pMaterial = nullptr;
+		}
+		m_pMaterial = pMaterial;
 	}
 
 	void StaticMeshComponent::BeginPlay()

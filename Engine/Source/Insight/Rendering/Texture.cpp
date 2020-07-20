@@ -6,11 +6,11 @@
 #include "Insight/Utilities/String_Helper.h"
 #include "Platform/Windows/DirectX12/Direct3D12_Context.h"
 
-constexpr int CBVSRV_HEAP_TEXTURE_START = 7;
+#define CBVSRV_HEAP_TEXTURE_START 7
 
 namespace Insight {
 
-	UINT32 Texture::s_NumSceneTextures = 0u;
+	uint32_t Texture::s_NumSceneTextures = 0U;
 
 	Texture::Texture(IE_TEXTURE_INFO createInfo, CDescriptorHeapWrapper& srvHeapHandle)
 	{
@@ -99,26 +99,26 @@ namespace Insight {
 
 	void Texture::InitDDSTexture(CDescriptorHeapWrapper& srvHeapHandle)
 	{
-		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		ID3D12Device* pDevice = &graphicsContext.GetDeviceContext();
-		ID3D12CommandQueue* pCommandQueue = &graphicsContext.GetCommandQueue();
+		Direct3D12Context& GraphicsContext = Direct3D12Context::Get();
+		ID3D12Device* pDevice = &GraphicsContext.GetDeviceContext();
+		ID3D12CommandQueue* pCommandQueue = &GraphicsContext.GetCommandQueue();
 		
-		ResourceUploadBatch resourceUpload(pDevice);
-		resourceUpload.Begin();
+		ResourceUploadBatch ResourceUpload(pDevice);
+		ResourceUpload.Begin();
 
 		HRESULT hr;
-		hr = CreateDDSTextureFromFile(pDevice, resourceUpload, m_TextureInfo.Filepath.c_str(), &m_pTexture, m_TextureInfo.GenerateMipMaps, 0, nullptr, &m_TextureInfo.IsCubeMap);
+		hr = CreateDDSTextureFromFile(pDevice, ResourceUpload, m_TextureInfo.Filepath.c_str(), &m_pTexture, m_TextureInfo.GenerateMipMaps, 0, nullptr, &m_TextureInfo.IsCubeMap);
 		ThrowIfFailed(hr, "Failed to load DDS texture from file");
 		m_TextureDesc = m_pTexture->GetDesc();
-		if (!resourceUpload.IsSupportedForGenerateMips(m_TextureDesc.Format)) {
+		if (!ResourceUpload.IsSupportedForGenerateMips(m_TextureDesc.Format)) {
 			//IE_CORE_WARN("Mip map generation not supported for texture: {0}", m_DisplayName);
 		}
 
 		// Upload the resources to the GPU
-		auto uploadResourcesFinished = resourceUpload.End(pCommandQueue);
+		auto UploadResourcesFinished = ResourceUpload.End(pCommandQueue);
 
 		// Wait for the upload thread to terminate
-		uploadResourcesFinished.wait();
+		UploadResourcesFinished.wait();
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Texture2D.MipLevels = m_TextureDesc.MipLevels;

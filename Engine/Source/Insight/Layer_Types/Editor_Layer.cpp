@@ -140,9 +140,10 @@ namespace Insight {
 	{
 		ImGui::Begin("Creator");
 		{
+			ImGuiTreeNodeFlags TreeFlags = ImGuiTreeNodeFlags_Leaf;
+			
 			if (ImGui::CollapsingHeader("Lights", ImGuiTreeNodeFlags_DefaultOpen)) {
 
-				ImGuiTreeNodeFlags TreeFlags = ImGuiTreeNodeFlags_Leaf;
 
 				ImGui::TreeNodeEx("Point Light", TreeFlags);
 				if (ImGui::IsItemClicked()) {
@@ -171,12 +172,19 @@ namespace Insight {
 				}
 				ImGui::TreePop();
 			}
+
 			if (ImGui::CollapsingHeader("Actors", ImGuiTreeNodeFlags_DefaultOpen)) {
 
+				ImGui::TreeNodeEx("Empty Actor", TreeFlags);
+				if (ImGui::IsItemClicked()) {
+					IE_CORE_INFO("Create Empty Actor");
+					static int ActorIndex = 0;
+					ActorType ActorType = "MyActor" + std::to_string(ActorIndex++);
+					m_pSceneRootRef->AddChild(new AActor(5, ActorType)); 
+				}
+				ImGui::TreePop();
 			}
-			//if (ImGui::Button("New Point Light", { 125, 25 })) {
-			//	m_pSceneRoot->AddChild(new APointLight(5, "New cool point light"));
-			//}
+
 		}
 		ImGui::End();
 	}

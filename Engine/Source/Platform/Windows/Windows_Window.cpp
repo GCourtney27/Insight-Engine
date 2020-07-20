@@ -400,7 +400,7 @@ namespace Insight {
 
 		// Create and Initialize the renderer. We are using Direct3D 12
 		{
-			ScopedTimer timer("WindowsWindow::Init::RendererInit");
+			Profiling::ScopedTimer timer("WindowsWindow::Init::RendererInit");
 
 			m_pRendererContext = std::make_shared<Direct3D12Context>(this);
 			if (!m_pRendererContext->Init())
