@@ -2,7 +2,7 @@
 
 #include "ImGui_Layer.h"
 #include "Insight/Core/Application.h"
-#include "Platform/Windows/DirectX12/Direct3D12_Context.h"
+#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 #include "Platform/Windows/Windows_Window.h"
 
 #include "imgui.h"

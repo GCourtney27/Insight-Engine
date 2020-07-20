@@ -3,7 +3,7 @@
 #include "ASky_Light.h"
 
 #include "Insight/Runtime//Components/Actor_Component.h"
-#include "Platform/Windows/DirectX12/Direct3D12_Context.h"
+#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 #include "Insight/Systems/File_System.h"
 
 namespace Insight {

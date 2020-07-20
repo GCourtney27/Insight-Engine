@@ -3,7 +3,7 @@
 #include "Texture_Manager.h"
 #include "Insight/Systems/File_System.h"
 #include "Insight/Utilities/String_Helper.h"
-#include "Platform/Windows/DirectX12/Direct3D12_Context.h"
+#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 namespace Insight {
 	

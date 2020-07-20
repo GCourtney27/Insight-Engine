@@ -2,7 +2,7 @@
 
 #include "Geometry_Manager.h"
 
-#include "Platform/Windows/DirectX12/Direct3D12_Context.h"
+#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 #include "Insight/Runtime/APlayer_Character.h"
 #include <fstream>
 
