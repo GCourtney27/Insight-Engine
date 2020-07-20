@@ -7,6 +7,7 @@
 #include "Insight/Core/Application.h"
 
 #include "imgui.h"
+#include <misc/cpp/imgui_stdlib.h>
 
 namespace Insight {
 
@@ -37,7 +38,7 @@ namespace Insight {
 
 	void CSharpScriptComponent::ReCompile()
 	{
-		//Cleanup();
+		Cleanup();
 		RegisterScript();
 	}
 
@@ -206,9 +207,12 @@ namespace Insight {
 	void CSharpScriptComponent::OnImGuiRender()
 	{
 		if (ImGui::CollapsingHeader(m_ComponentName, ImGuiTreeNodeFlags_DefaultOpen)) {
-			
-			ImGui::Text("Module Name: "); ImGui::SameLine();
-			ImGui::Text(m_ModuleName.c_str());
+
+			if (ImGui::InputText("##ActorNameField", &m_ModuleName, ImGuiInputTextFlags_EnterReturnsTrue)) {
+				RegisterScript();
+			}
+			//ImGui::Text("Module Name: "); ImGui::SameLine();
+			//ImGui::Text(m_ModuleName.c_str());
 		}
 	}
 

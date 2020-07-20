@@ -8,6 +8,7 @@
 #include "AActor.h"
 
 #include "imgui.h"
+#include <misc/cpp/imgui_stdlib.h>
 
 namespace Insight {
 
@@ -159,7 +160,8 @@ namespace Insight {
 	static int currentIndex = 0;
 	void AActor::OnImGuiRender()
 	{
-		ImGui::Text(SceneNode::GetDisplayName());
+		ImGui::InputText("##ActorNameField", &m_DisplayName, ImGuiInputTextFlags_EnterReturnsTrue);
+		
 		ImGui::Spacing();
 
 		ImGui::Text("Transform");
@@ -169,7 +171,7 @@ namespace Insight {
 
 		{
 			ImGui::NewLine();
-			static const char* availableComponents[] = { "", "Static Mesh Component", "C-Sharp Script Component" };
+			static constexpr char* availableComponents[] = { "", "Static Mesh Component", "C-Sharp Script Component" };
 			if (ImGui::Combo("Add Component", &currentIndex, availableComponents, IM_ARRAYSIZE(availableComponents))) {
 				switch (currentIndex) {
 				case 0: break;
@@ -185,7 +187,7 @@ namespace Insight {
 				case 2:
 				{
 					IE_CORE_INFO("Adding C-Sharp script component to \"{0}\"", AActor::GetDisplayName());
-					// StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<CSharpScriptComponent>();
+					 StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<CSharpScriptComponent>();
 					break;
 				}
 				default:
