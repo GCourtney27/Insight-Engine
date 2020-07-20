@@ -11,6 +11,7 @@
 
 namespace Insight {
 
+	uint32_t CSharpScriptComponent::s_NumActiveCSScriptComponents = 0U;
 
 	CSharpScriptComponent::CSharpScriptComponent(AActor* pOwner)
 		: ActorComponent("C-Sharp Script Component", pOwner)
@@ -28,11 +29,12 @@ namespace Insight {
 
 	void CSharpScriptComponent::OnAttach()
 	{
-		
+		m_ScriptWorldIndex = s_NumActiveCSScriptComponents++;
 	}
 
 	void CSharpScriptComponent::OnDetach()
 	{
+		s_NumActiveCSScriptComponents--;
 		Cleanup();
 	}
 
@@ -211,8 +213,7 @@ namespace Insight {
 			if (ImGui::InputText("##CSModuleNameField", &m_ModuleName, ImGuiInputTextFlags_EnterReturnsTrue)) {
 				RegisterScript();
 			}
-			//ImGui::Text("Module Name: "); ImGui::SameLine();
-			//ImGui::Text(m_ModuleName.c_str());
+
 		}
 	}
 

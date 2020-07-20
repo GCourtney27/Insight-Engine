@@ -40,6 +40,10 @@ namespace Insight {
 		StrongModelPtr m_pModel;
 		Material* m_pMaterial;
 		std::future<bool> m_ModelLoadFuture;
+
+		uint32_t m_SMWorldIndex = 0U;
+	private:
+		static uint32_t s_NumActiveSMComponents;
 	};
 
 }
