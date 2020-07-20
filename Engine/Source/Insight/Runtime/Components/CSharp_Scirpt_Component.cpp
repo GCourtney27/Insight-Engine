@@ -208,7 +208,7 @@ namespace Insight {
 	{
 		if (ImGui::CollapsingHeader(m_ComponentName, ImGuiTreeNodeFlags_DefaultOpen)) {
 
-			if (ImGui::InputText("##ActorNameField", &m_ModuleName, ImGuiInputTextFlags_EnterReturnsTrue)) {
+			if (ImGui::InputText("##CSModuleNameField", &m_ModuleName, ImGuiInputTextFlags_EnterReturnsTrue)) {
 				RegisterScript();
 			}
 			//ImGui::Text("Module Name: "); ImGui::SameLine();
