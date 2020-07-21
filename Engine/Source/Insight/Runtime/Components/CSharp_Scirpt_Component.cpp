@@ -30,6 +30,7 @@ namespace Insight {
 	void CSharpScriptComponent::OnAttach()
 	{
 		m_ScriptWorldIndex = s_NumActiveCSScriptComponents++;
+		sprintf_s(m_IDBuffer, "CSS-%u", m_ScriptWorldIndex);
 	}
 
 	void CSharpScriptComponent::OnDetach()
@@ -208,6 +209,8 @@ namespace Insight {
 
 	void CSharpScriptComponent::OnImGuiRender()
 	{
+		ImGui::PushID(m_IDBuffer);
+
 		if (ImGui::CollapsingHeader(m_ComponentName, ImGuiTreeNodeFlags_DefaultOpen)) {
 
 			if (ImGui::InputText("##CSModuleNameField", &m_ModuleName, ImGuiInputTextFlags_EnterReturnsTrue)) {
@@ -215,6 +218,8 @@ namespace Insight {
 			}
 
 		}
+
+		ImGui::PopID();
 	}
 
 	void CSharpScriptComponent::RenderSceneHeirarchy()

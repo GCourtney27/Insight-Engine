@@ -137,14 +137,15 @@ namespace Insight {
 
 	void AActor::RenderSceneHeirarchy()
 	{
-		ImGuiTreeNodeFlags treeFlags = m_Children.empty() ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
-		const bool isExpanded = ImGui::TreeNodeEx(SceneNode::GetDisplayName(), treeFlags);
+		ImGuiTreeNodeFlags TreeFlags = m_Children.empty() ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+		TreeFlags |= ImGuiTreeNodeFlags_SpanAvailWidth;
+		const bool IsExpanded = ImGui::TreeNodeEx(SceneNode::GetDisplayName(), TreeFlags);
 
 		if (ImGui::IsItemClicked()) {
 			IE_STRIP_FOR_GAME_DIST(Application::Get().GetEditorLayer().SetSelectedActor(this);)
 		}
 
-		if (isExpanded) {
+		if (IsExpanded) {
 
 			SceneNode::RenderSceneHeirarchy();
 
@@ -243,6 +244,7 @@ namespace Insight {
 
 		// Render Children
 		SceneNode::CalculateParent(GetTransformRef().GetWorldMatrixRef());
+
 		// Render Components
 		for (size_t i = 0; i < m_NumComponents; ++i) {
 			m_Components[i]->CalculateParent(GetTransformRef().GetLocalMatrixRef());

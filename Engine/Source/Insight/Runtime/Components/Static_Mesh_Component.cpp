@@ -146,6 +146,9 @@ namespace Insight {
 	void StaticMeshComponent::OnImGuiRender()
 	{
 		ImGui::Spacing();
+
+		ImGui::PushID(m_IDBuffer);
+
 		if (ImGui::CollapsingHeader(m_ComponentName, ImGuiTreeNodeFlags_DefaultOpen)) {
 
 			//Models/nanosuit/nanosuit.obj
@@ -161,6 +164,7 @@ namespace Insight {
 			m_pModel->OnImGuiRender();
 			m_pMaterial->OnImGuiRender();
 		}
+		ImGui::PopID();
 	}
 
 	void StaticMeshComponent::RenderSceneHeirarchy()
@@ -214,6 +218,7 @@ namespace Insight {
 	void StaticMeshComponent::OnAttach()
 	{
 		m_SMWorldIndex = s_NumActiveSMComponents++;
+		sprintf_s(m_IDBuffer, "SM-%u", m_SMWorldIndex);
 	}
 
 	void StaticMeshComponent::OnDetach()
