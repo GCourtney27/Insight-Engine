@@ -146,12 +146,10 @@ namespace Insight {
 	void StaticMeshComponent::OnImGuiRender()
 	{
 		ImGui::Spacing();
-
 		ImGui::PushID(m_IDBuffer);
-
+		
 		if (ImGui::CollapsingHeader(m_ComponentName, ImGuiTreeNodeFlags_DefaultOpen)) {
 
-			//Models/nanosuit/nanosuit.obj
 			if (ImGui::InputText("New Mesh Dir: ", &m_DynamicAssetDir, ImGuiInputTextFlags_EnterReturnsTrue)) {
 				if (FileSystem::FileExists(m_DynamicAssetDir)) {
 					AttachMesh(m_DynamicAssetDir);

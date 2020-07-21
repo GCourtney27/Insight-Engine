@@ -27,6 +27,7 @@ namespace Insight {
 		void SetCanBeFileParsed(bool CanBeParsed) { m_CanBeFileParsed = CanBeParsed; }
 
 		void AddChild(SceneNode* childNode);
+		void RemoveChild(SceneNode* ChildNode);
 		std::vector<SceneNode*>::const_iterator GetChildIteratorStart() { return m_Children.begin(); }
 		std::vector<SceneNode*>::const_iterator GetChildIteratorEnd() { return m_Children.end(); }
 

@@ -163,6 +163,24 @@ namespace Insight {
 	{
 		ImGui::InputText("##ActorNameField", &m_DisplayName, ImGuiInputTextFlags_EnterReturnsTrue);
 		
+		ImGuiTreeNodeFlags TreeFlags = ImGuiTreeNodeFlags_Leaf;
+		if (ImGui::TreeNodeEx("Properties", ImGuiTreeNodeFlags_OpenOnArrow)) {
+
+			ImGui::TreeNodeEx("Delete Actor", TreeFlags);
+			if (ImGui::IsItemClicked()) {
+				m_Parent->RemoveChild(this);
+			}
+			ImGui::TreePop();
+			/*ImGui::TreeNodeEx("Remove All Components", TreeFlags);
+			if (ImGui::IsItemClicked()) {
+
+			}
+			ImGui::TreePop();*/
+
+			ImGui::TreePop();
+		}
+
+
 		ImGui::Spacing();
 
 		ImGui::Text("Transform - Actor");

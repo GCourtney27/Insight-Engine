@@ -184,34 +184,34 @@ namespace Insight {
 				}
 				ImGui::TreePop();
 
-				ImGui::TreeNodeEx("TODO: Post-Process Actor", TreeFlags);
-				if (ImGui::IsItemClicked()) {
-					IE_CORE_INFO("Create Empty Actor");
-					//static int ActorIndex = 0;
-					//ActorType ActorType = "MyActor" + std::to_string(ActorIndex++);
-					//m_pSceneRootRef->AddChild(new AActor(5, ActorType));
-				}
-				ImGui::TreePop();
+				//ImGui::TreeNodeEx("TODO: Post-Process Actor", TreeFlags);
+				//if (ImGui::IsItemClicked()) {
+				//	IE_CORE_INFO("Create Empty Actor");
+				//	//static int ActorIndex = 0;
+				//	//ActorType ActorType = "MyActor" + std::to_string(ActorIndex++);
+				//	//m_pSceneRootRef->AddChild(new AActor(5, ActorType));
+				//}
+				//ImGui::TreePop();
 
 
-				ImGui::TreeNodeEx("TODO: Sky Sphere Actor", TreeFlags);
-				if (ImGui::IsItemClicked()) {
-					IE_CORE_INFO("Create Empty Actor");
-					//static int ActorIndex = 0;
-					//ActorType ActorType = "MyActor" + std::to_string(ActorIndex++);
-					//m_pSceneRootRef->AddChild(new AActor(5, ActorType));
-				}
-				ImGui::TreePop();
+				//ImGui::TreeNodeEx("TODO: Sky Sphere Actor", TreeFlags);
+				//if (ImGui::IsItemClicked()) {
+				//	IE_CORE_INFO("Create Empty Actor");
+				//	//static int ActorIndex = 0;
+				//	//ActorType ActorType = "MyActor" + std::to_string(ActorIndex++);
+				//	//m_pSceneRootRef->AddChild(new AActor(5, ActorType));
+				//}
+				//ImGui::TreePop();
 
 
-				ImGui::TreeNodeEx("TODO: Sky Light Actor", TreeFlags);
-				if (ImGui::IsItemClicked()) {
-					IE_CORE_INFO("Create Empty Actor");
-					//static int ActorIndex = 0;
-					//ActorType ActorType = "MyActor" + std::to_string(ActorIndex++);
-					//m_pSceneRootRef->AddChild(new AActor(5, ActorType));
-				}
-				ImGui::TreePop();
+				//ImGui::TreeNodeEx("TODO: Sky Light Actor", TreeFlags);
+				//if (ImGui::IsItemClicked()) {
+				//	IE_CORE_INFO("Create Empty Actor");
+				//	//static int ActorIndex = 0;
+				//	//ActorType ActorType = "MyActor" + std::to_string(ActorIndex++);
+				//	//m_pSceneRootRef->AddChild(new AActor(5, ActorType));
+				//}
+				//ImGui::TreePop();
 			}
 
 		}
