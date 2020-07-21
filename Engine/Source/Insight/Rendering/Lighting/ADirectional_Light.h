@@ -3,7 +3,7 @@
 #include <Insight/Core.h>
 
 #include <Insight/Runtime/AActor.h>
-#include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
+#include "Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
 
 namespace Insight {
 
@@ -33,8 +33,18 @@ namespace Insight {
 
 		CB_PS_DirectionalLight GetConstantBuffer() { return m_ShaderCB; }
 
+		XMFLOAT4X4 LightViewFloat;
+		XMFLOAT4X4 LightProjFloat;
 	private:
 		CB_PS_DirectionalLight m_ShaderCB;
+		XMVECTOR LightCamPositionVec;
+		XMFLOAT3 LightCamPositionOffset;
+		float m_NearPlane;
+		float m_FarPlane;
+		float ViewWidth = 1024.0f;
+		float ViewHeight = 1024.0f;
+		XMMATRIX LightView;
+		XMMATRIX LightProj;
 	};
 
 }

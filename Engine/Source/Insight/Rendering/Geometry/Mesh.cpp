@@ -3,7 +3,7 @@
 #include "Mesh.h"
 
 #include "Insight/Core/Application.h"
-#include "Platform/DirectX12/Direct3D12_Context.h"
+#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 #include "Insight/Runtime/APlayer_Character.h"
 #include "imgui.h"
 
@@ -11,14 +11,14 @@ namespace Insight {
 
 
 	Mesh::Mesh(Verticies verticies, Indices indices)
-		: m_Verticies(verticies), m_Indices(indices)
+		: m_Verticies(std::move(verticies)), m_Indices(std::move(indices))
 	{
-		InitializeLocalVariables();
+		SetupMesh();
 	}
 
 	Mesh::Mesh(Mesh&& mesh) noexcept
 	{
-		IE_CORE_INFO("Mesh moved in memory");
+		IE_CORE_WARN("Mesh moved in memory");
 
 		m_pVertexBufferUploadHeap = mesh.m_pVertexBufferUploadHeap;
 		m_pVertexBuffer = mesh.m_pVertexBuffer;
@@ -35,7 +35,7 @@ namespace Insight {
 
 		m_Verticies = std::move(mesh.m_Verticies);
 		m_Indices = std::move(mesh.m_Indices);
-		
+
 		m_Transform = mesh.m_Transform;
 		m_ConstantBufferPerObject = mesh.m_ConstantBufferPerObject;
 
@@ -67,35 +67,31 @@ namespace Insight {
 		COM_SAFE_RELEASE(m_pVertexBufferUploadHeap);
 		COM_SAFE_RELEASE(m_pIndexBufferUploadHeap);
 
-		m_pCommandList = nullptr;
-		m_pLogicalDevice = nullptr;
+		m_pDeviceContext = nullptr;
 	}
 
 	void Mesh::Init(Verticies verticies, Indices indices)
 	{
-		m_Verticies = verticies;
-		m_Indices = indices;
-		InitializeLocalVariables();
+		m_Verticies = std::move(verticies);
+		m_Indices = std::move(indices);
+		SetupMesh();
 	}
 
-	void Mesh::InitializeLocalVariables()
+	void Mesh::InitializeVariables()
 	{
-		m_NumIndices   = static_cast<UINT>(m_Verticies.size());
-		m_NumVerticies = static_cast<UINT>(m_Indices.size());
+		m_NumIndices = static_cast<uint32_t>(m_Verticies.size());
+		m_NumVerticies = static_cast<uint32_t>(m_Indices.size());
 
-		m_IBufferSize = m_NumIndices * sizeof(UINT);
+		m_IBufferSize = m_NumIndices * sizeof(uint32_t);
 		m_VBufferSize = m_NumVerticies * sizeof(Vertex3D);
 
-		m_pLogicalDevice = &Direct3D12Context::Get().GetDeviceContext();
-		m_pCommandList	 = &Direct3D12Context::Get().GetCommandList();
-
-		SetupMesh();
+		m_pDeviceContext = &Direct3D12Context::Get().GetDeviceContext();
 	}
 
 	void Mesh::PreRender(const XMMATRIX& parentMat)
 	{
 		m_Transform.SetWorldMatrix(XMMatrixMultiply(parentMat, m_Transform.GetLocalMatrix()));
-		
+
 		XMMATRIX worldMatTransposed = XMMatrixTranspose(m_Transform.GetWorldMatrixRef());
 		XMFLOAT4X4 worldFloat;
 		XMStoreFloat4x4(&worldFloat, worldMatTransposed);
@@ -108,32 +104,37 @@ namespace Insight {
 		return m_ConstantBufferPerObject;
 	}
 
-	void Mesh::Render()
+	void Mesh::Render(ID3D12GraphicsCommandList*& pCommandList)
 	{
-		m_pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);
-		m_pCommandList->IASetIndexBuffer(&m_IndexBufferView);
-		m_pCommandList->DrawIndexedInstanced(m_NumIndices, 1, 0, 0, 0);
+		pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);
+		pCommandList->IASetIndexBuffer(&m_IndexBufferView);
+		pCommandList->DrawIndexedInstanced(m_NumIndices, 1, 0, 0, 0);
 	}
 
 	void Mesh::OnImGuiRender()
 	{
-		m_Material.OnImGuiRender();
 	}
 
 	void Mesh::SetupMesh()
 	{
+		InitializeVariables();
+
 		if (!InitializeVertexDataForD3D12()) {
 			IE_CORE_TRACE("Failed to setup vertex data for D3D12");
+			Destroy();
+			return;
 		}
 		if (!InitializeIndexDataForD3D12()) {
 			IE_CORE_TRACE("Failed to setup index data for D3D12");
+			Destroy();
+			return;
 		}
 	}
 	bool Mesh::InitializeVertexDataForD3D12()
 	{
 		HRESULT hr;
 
-		hr = m_pLogicalDevice->CreateCommittedResource(
+		hr = m_pDeviceContext->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(m_VBufferSize),
@@ -146,7 +147,7 @@ namespace Insight {
 		}
 		m_pVertexBuffer->SetName(L"Vertex Buffer Resource Heap");
 
-		hr = m_pLogicalDevice->CreateCommittedResource(
+		hr = m_pDeviceContext->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(m_VBufferSize),
@@ -164,13 +165,16 @@ namespace Insight {
 		vertexData.RowPitch = m_VBufferSize;
 		vertexData.SlicePitch = m_VBufferSize;
 
-		UpdateSubresources(m_pCommandList, m_pVertexBuffer, m_pVertexBufferUploadHeap, 0, 0, 1, &vertexData);
+		// TODO: This will fail in multithread mode because UpdateSubresources
+		// modifies the command list and the command list is used elsewhere during this time
+		// recording draw commands still, initializing other assets etc., causing a corruption.
+		UpdateSubresources(&Direct3D12Context::Get().GetScenePassCommandList(), m_pVertexBuffer, m_pVertexBufferUploadHeap, 0, 0, 1, &vertexData);
 
 		m_VertexBufferView.BufferLocation = m_pVertexBuffer->GetGPUVirtualAddress();
 		m_VertexBufferView.StrideInBytes = sizeof(Vertex3D);
 		m_VertexBufferView.SizeInBytes = m_VBufferSize;
 
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pVertexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
+		Direct3D12Context::Get().GetScenePassCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pVertexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
 
 		return true;
 	}
@@ -179,7 +183,7 @@ namespace Insight {
 	{
 		HRESULT hr;
 
-		hr = m_pLogicalDevice->CreateCommittedResource(
+		hr = m_pDeviceContext->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(m_IBufferSize),
@@ -192,7 +196,7 @@ namespace Insight {
 		}
 		m_pIndexBuffer->SetName(L"Index Buffer Resource Heap");
 
-		hr = m_pLogicalDevice->CreateCommittedResource(
+		hr = m_pDeviceContext->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(m_IBufferSize),
@@ -210,13 +214,13 @@ namespace Insight {
 		indexData.RowPitch = m_IBufferSize;
 		indexData.SlicePitch = m_IBufferSize;
 
-		UpdateSubresources(m_pCommandList, m_pIndexBuffer, m_pIndexBufferUploadHeap, 0, 0, 1, &indexData);
+		UpdateSubresources(&Direct3D12Context::Get().GetScenePassCommandList(), m_pIndexBuffer, m_pIndexBufferUploadHeap, 0, 0, 1, &indexData);
 
 		m_IndexBufferView.BufferLocation = m_pIndexBuffer->GetGPUVirtualAddress();
 		m_IndexBufferView.Format = DXGI_FORMAT_R32_UINT;
 		m_IndexBufferView.SizeInBytes = m_IBufferSize;
 
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pIndexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER));
+		Direct3D12Context::Get().GetScenePassCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pIndexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER));
 
 		return true;
 	}

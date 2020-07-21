@@ -3,18 +3,22 @@
 #include <Insight/Core.h>
 
 #include "Insight/Rendering/Texture.h"
-#include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
+#include "Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
+
 namespace Insight {
 
 	class INSIGHT_API Material
 	{
 	public:
 		Material();
-		//Material(Material&& material) noexcept;
+		Material(Material&& material) noexcept;
 		~Material();
 		
-		virtual bool LoadFromJson(const rapidjson::Value& jsonMaterial);
-		virtual bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer);
+		void Destroy();
+
+		static Material* CreateDefaultTexturedMaterial();
+		bool LoadFromJson(const rapidjson::Value& jsonMaterial);
+		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer);
 
 		CB_PS_VS_PerObjectAdditives GetMaterialOverrideConstantBuffer() { return m_ShaderCB; }
 
@@ -38,9 +42,9 @@ namespace Insight {
 
 		float m_RoughnessAdditive = 0.5f;
 		float m_MetallicAdditive = 0.5f;
-		Vector2 m_UVOffset;
-		Vector2 m_Tiling;
-		Vector3 m_ColorAdditive;
+		Math::ieVector2 m_UVOffset;
+		Math::ieVector2 m_Tiling;
+		Math::ieVector3 m_ColorAdditive;
 
 		CB_PS_VS_PerObjectAdditives m_ShaderCB;
 	};

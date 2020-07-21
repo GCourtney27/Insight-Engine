@@ -2,19 +2,26 @@
 
 #include <Insight/Core.h>
 
-#include "Platform/DirectX12/D3D12_Helper.h"
+#include "Platform/Windows/DirectX_12/D3D12_Helper.h"
 #include "Insight/Rendering/Rendering_Context.h"
 #include "Platform/Windows/Error/COM_Exception.h"
 
-#include "Platform/DirectX12/Descriptor_Heap_Wrapper.h"
-#include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
+#include "Platform/Windows/DirectX_12/Descriptor_Heap_Wrapper.h"
+#include "Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
 
+/*
+	Render context for Windows DirectX 12 API. Currently Deferred shading is the only pipeline supported.
+	TODO: Add Transparency forward pass.
+	TODO: Add forward rendering as optional shading technique
+*/
 
 using Microsoft::WRL::ComPtr;
 
 namespace Insight {
 
 	class WindowsWindow;
+	class GeometryManager;
+
 	class ASkySphere;
 	class ASkyLight;
 	class APostFx;
@@ -22,12 +29,13 @@ namespace Insight {
 	class ADirectionalLight;
 	class APointLight;
 	class ASpotLight;
+	class ACamera;
 
 	class ScreenQuad
 	{
 	public:
 		void Init();
-		void Render(ComPtr<ID3D12GraphicsCommandList> commandList);
+		void OnRender(ComPtr<ID3D12GraphicsCommandList> commandList);
 
 	private:
 		ComPtr<ID3D12Resource> m_VertexBuffer;
@@ -41,24 +49,34 @@ namespace Insight {
 		Direct3D12Context(WindowsWindow* windowHandle);
 		virtual ~Direct3D12Context();
 
+		// Initilize Direc3D 12 library.
 		virtual bool Init() override;
+		// Submit initilize commands to the GPU.
 		virtual bool PostInit() override;
+		// Upload per-frame constants to the GPU as well as lighting information.
 		virtual void OnUpdate(const float& deltaTime) override;
+		// Flush the command allocators and clear render targets.
 		virtual void OnPreFrameRender() override;
+		// Draws shadow pass first then binds geometry pass for future draw commands.
 		virtual void OnRender() override;
+		// Binds light pass.
 		virtual void OnMidFrameRender() override;
+		// executes the command queue on the GPU. Waits for the GPU to finish before proceeding.
 		virtual void ExecuteDraw() override;
+		// Swap buffers with the new frame.
 		virtual void SwapBuffers() override;
+		// Resize render target, depth stencil and sreen rects when window size is changed.
 		virtual void OnWindowResize() override;
+		// Tells the swapchain to enable full screen rendering.
 		virtual void OnWindowFullScreen() override;
 
 		inline static Direct3D12Context& Get() { return *s_Instance; }
-		inline ID3D12Device& GetDeviceContext() const { return *m_pLogicalDevice.Get(); }
-		inline ID3D12GraphicsCommandList& GetCommandList() const { return *m_pCommandList.Get(); }
+		inline ID3D12Device& GetDeviceContext() const { return *m_pDeviceContext.Get(); }
+
+		inline ID3D12GraphicsCommandList& GetScenePassCommandList() const { return *m_pScenePassCommandList.Get(); }
+		inline ID3D12GraphicsCommandList& GetShadowPassCommandList() const { return *m_pShadowPassCommandList.Get(); }
 		inline ID3D12CommandQueue& GetCommandQueue() const { return *m_pCommandQueue.Get(); }
-
 		inline CDescriptorHeapWrapper& GetCBVSRVDescriptorHeap() { return m_cbvsrvHeap; }
-
 		inline ID3D12Resource& GetConstantBufferPerObjectUploadHeap() const { return *m_PerObjectCBV[m_FrameIndex].Get(); }
 		inline UINT8& GetPerObjectCBVGPUHeapAddress() { return *m_cbvPerObjectGPUAddress[m_FrameIndex]; }
 
@@ -75,26 +93,34 @@ namespace Insight {
 		}
 
 
-		// Lights
+		// Add a Directional Light to the scene. 
 		void AddDirectionalLight(ADirectionalLight* pointLight) { m_DirectionalLights.push_back(pointLight); }
+		// Add a Point Light to the scene. 
 		void AddPointLight(APointLight* pointLight) { m_PointLights.push_back(pointLight); }
+		// Add a Spot Light to the scene. 
 		void AddSpotLight(ASpotLight* spotLight) { m_SpotLights.push_back(spotLight); }
 
-		void AddSkySphere(ASkySphere* skySphere) { m_pSkySphere = skySphere; }
-		void AddPostFxActor(APostFx* postFxActor) { m_pPostFx = postFxActor; }
-		void AddSkyLight(ASkyLight* skyLight) { m_SkyLight = skyLight; }
+		// Add Sky Sphere to the scene. There can never be more than one in the scene at any given time.
+		void AddSkySphere(ASkySphere* skySphere) { if (!m_pSkySphere) { m_pSkySphere = skySphere; } }
+		// Add a post-fx volume to the scene.
+		void AddPostFxActor(APostFx* postFxActor) { {m_pPostFx = postFxActor; } }
+		// Add Sky light to the scene for Image-Based Lighting. There can never be more than one 
+		// in the scene at any given time.
+		void AddSkyLight(ASkyLight* skyLight) { if (!m_SkyLight) { m_SkyLight = skyLight; } }
 
 	private:
 		void CloseCommandListAndSignalCommandQueue();
 		// Per-Frame
-		void SetConstantBuffers();
+		
 		void MoveToNextFrame();
+		void BindShadowPass();
 		void BindGeometryPass(bool setPSO = false);
 		void BindLightingPass();
 		void BindSkyPass();
 		void BindPostFxPass();
 
 		// D3D12 Initialize
+		
 		void CreateDXGIFactory();
 		void GetHardwareAdapter(IDXGIFactory2* pFactory, IDXGIAdapter1** ppAdapter);
 		void CreateDevice();
@@ -102,14 +128,19 @@ namespace Insight {
 		void CreateSwapChain();
 		void CreateRenderTargetViewDescriptorHeap();
 
-		void CreateDSV();
+		// Create app resources
+		
+		void CreateDSVs();
 		void CreateRTVs();
 		void CreateConstantBufferViews();
 		void CreateRootSignature();
+		void CreateShadowPassPSO();
 		void CreateGeometryPassPSO();
 		void CreateSkyPassPSO();
 		void CreateLightPassPSO();
 		void CreatePostFxPassPSO();
+
+		// Create window resources
 
 		void CreateCommandAllocators();
 		void CreateFenceEvent();
@@ -118,27 +149,33 @@ namespace Insight {
 		void CreateScissorRect();
 		void CreateScreenQuad();
 		
+		// Close GPU handle and release resources for the graphics context.
 		void Cleanup();
+		// Once called CPU will wait for the GPU to finish executing any pending work.
 		void WaitForGPU();
+		// Resize render targets and depth stencil. Usually called from 'OnWindowResize'.
 		void UpdateSizeDependentResources();
+		// Update view and scissor rects to new window width and height.
 		void UpdateViewAndScissor();
 
-		void LoadAssets();
+		// Load any demo assets for debugging. Usually can be left empty
+		void LoadDemoAssets();
 
 	private:
 		static Direct3D12Context* s_Instance;
 
 	private:
-		HWND* m_pWindowHandle = nullptr;
-		WindowsWindow* m_pWindow = nullptr;
-		D3D12Helper m_d3dDeviceResources;
-
+		HWND*			m_pWindowHandle = nullptr;
+		WindowsWindow*	m_pWindow = nullptr;
+		D3D12Helper		m_d3dDeviceResources;
+		GeometryManager*	m_pModelManager = nullptr;
+		ACamera* m_pWorldCamera = nullptr;
 		// CPU/GPU Syncronization
 		int						m_FrameIndex = 0;
 		UINT64					m_FenceValues[m_FrameBufferCount] = {};
 		HANDLE					m_FenceEvent = {};
 		ComPtr<ID3D12Fence>		m_pFence;
-		static const unsigned int			m_NumRTV = 5;
+		static const UINT		m_NumRTV = 5;
 
 		bool		m_WindowResizeComplete = true;
 		bool		m_RayTraceEnabled = false;
@@ -146,14 +183,16 @@ namespace Insight {
 		int			m_RtvDescriptorIncrementSize = 0;
 
 		// D3D 12 Usings
-		ComPtr<IDXGIAdapter1>				m_pPhysicalDevice;
-		ComPtr<ID3D12Device>				m_pLogicalDevice;
+		ComPtr<IDXGIAdapter1>				m_pAdapter;
+		ComPtr<ID3D12Device>				m_pDeviceContext;
 		ComPtr<IDXGIFactory4>				m_pDxgiFactory;
 		ComPtr<IDXGISwapChain3>				m_pSwapChain;
 
 		ComPtr<ID3D12CommandQueue>			m_pCommandQueue;
-		ComPtr<ID3D12GraphicsCommandList>	m_pCommandList;
-		ComPtr<ID3D12CommandAllocator>		m_pCommandAllocators[m_FrameBufferCount];
+		ComPtr<ID3D12GraphicsCommandList>	m_pScenePassCommandList;
+		ComPtr<ID3D12CommandAllocator>		m_pScenePassCommandAllocators[m_FrameBufferCount];
+		ComPtr<ID3D12GraphicsCommandList>	m_pShadowPassCommandList;
+		ComPtr<ID3D12CommandAllocator>		m_pShadowPassCommandAllocators[m_FrameBufferCount];
 
 		ComPtr<ID3D12Resource>				m_pRenderTargetTextures[m_NumRTV];
 		ComPtr<ID3D12Resource>				m_pRenderTargetTextures_PostFxPass[m_FrameBufferCount];
@@ -171,10 +210,15 @@ namespace Insight {
 		UINT								m_RTVDescriptorSize;
 
 		ComPtr<ID3D12Resource>				m_pDepthStencilTexture;
+		ComPtr<ID3D12Resource>				m_pShadowDepthTexture;
+
+		//0:  SceneDepth
+		//1:  ShadowDepth
 		CDescriptorHeapWrapper				m_dsvHeap;
 
 		ComPtr<ID3D12RootSignature>			m_pRootSignature;
 
+		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_ShadowPass;
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_GeometryPass;
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_LightingPass;
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_SkyPass;
@@ -185,29 +229,31 @@ namespace Insight {
 		//1:  SRV-Normal(RTV->SRV)
 		//2:  SRV-(R)Roughness/(G)Metallic/(B)AO(RTV->SRV)
 		//3:  SRV-Position(RTV->SRV)
-		//4:  SRV-Depth(DSV->SRV)
+		//4:  SRV-Scene Depth(DSV->SRV)
 		//5:  SRV-Light Pass Result(RTV->SRV)
+		//6:  SRV-Shadow Depth(DSV->SRV)
 		//-----PerObject-----
-		//6:  SRV-Albedo(SRV)
-		//7:  SRV-Normal(SRV)
-		//8:  SRV-Roughness(SRV)
-		//9:  SRV-Metallic(SRV)
-		//10: SRV-AO(SRV)
-		//11: SRV-Sky Irradiance(SRV)
-		//12: SRV-Sky Environment(SRV)
-		//13: SRV-Sky BRDF LUT(SRV)
-		//14: SRV-Sky Diffuse(SRV)
+		//7:  SRV-Albedo(SRV)
+		//8:  SRV-Normal(SRV)
+		//9:  SRV-Roughness(SRV)
+		//10:  SRV-Metallic(SRV)
+		//11: SRV-AO(SRV)
+		//12: SRV-Sky Irradiance(SRV)
+		//13: SRV-Sky Environment(SRV)
+		//14: SRV-Sky BRDF LUT(SRV)
+		//15: SRV-Sky Diffuse(SRV)
 		CDescriptorHeapWrapper				m_cbvsrvHeap;
 
 		ScreenQuad							m_ScreenQuad;
-		D3D12_VIEWPORT						m_ViewPort = {};
-		D3D12_RECT							m_ScissorRect = {};
-		DXGI_SAMPLE_DESC					m_SampleDesc = {};
-		D3D12_DEPTH_STENCIL_VIEW_DESC		m_dsvDesc = {};
+		D3D12_VIEWPORT						m_ScenePassViewPort = {};
+		D3D12_VIEWPORT						m_ShadowPassViewPort = {};
+		D3D12_RECT							m_ScenePassScissorRect = {};
+		D3D12_RECT							m_ShadowPassScissorRect = {};
 
+		DXGI_SAMPLE_DESC					m_SampleDesc = {};
+		D3D12_DEPTH_STENCIL_VIEW_DESC		m_ScenePassDsvDesc = {};
 		float								m_ClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		DXGI_FORMAT							m_DsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		//DXGI_FORMAT							m_DsvFormat = DXGI_FORMAT_D32_FLOAT;
 		DXGI_FORMAT							m_RtvFormat[5] = { 
 			DXGI_FORMAT_R11G11B10_FLOAT,	// Albedo buffer
 			DXGI_FORMAT_R8G8B8A8_SNORM,		// Normal
@@ -215,8 +261,11 @@ namespace Insight {
 			DXGI_FORMAT_R32G32B32A32_FLOAT, // Position
 			DXGI_FORMAT_R11G11B10_FLOAT,	// Light Pass result
 		};
-		float								m_ClearDepth = 1.0f;
+		float								m_DepthClearValue = 1.0f;
+		DXGI_FORMAT							m_ShadowMapFormat = DXGI_FORMAT_D32_FLOAT;
 
+		const UINT m_ShadowMapWidth = 1024U;
+		const UINT m_ShadowMapHeight = 1024U;
 
 		ComPtr<ID3D12Resource>	m_LightCBV;
 		UINT8*					m_cbvLightBufferGPUAddress;
@@ -256,16 +305,6 @@ namespace Insight {
 		std::vector<ASpotLight*> m_SpotLights;
 		int						 CBSpotLightsAlignedSize = (sizeof(CB_PS_SpotLight) + 255) & ~255;
 
-
-		// Utils
-		struct Resolution
-		{
-			UINT Width;
-			UINT Height;
-		};
-		static const Resolution m_ResolutionOptions[];
-		static const UINT m_ResolutionOptionsCount;
-		static UINT m_ResolutionIndex;
 
 		const UINT PIX_EVENT_UNICODE_VERSION = 0;
 

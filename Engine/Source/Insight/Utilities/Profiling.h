@@ -5,27 +5,29 @@
 
 namespace Insight {
 
-	struct INSIGHT_API ScopedTimer
-	{
-		enum class eOutputType
-		{
-			SECONDS,
-			MILISECONDS
-		};
+	namespace Profiling {
 
-		ScopedTimer(const char* pScopeName, eOutputType outputType = eOutputType::MILISECONDS)
-			: m_ScopeName(pScopeName), m_OutputType(outputType)
+		struct INSIGHT_API ScopedTimer
 		{
-			start = std::chrono::high_resolution_clock::now();
-		}
+			enum class eOutputType
+			{
+				SECONDS,
+				MILISECONDS
+			};
 
-		~ScopedTimer()
-		{
-			end = std::chrono::high_resolution_clock::now();
-			duration = end - start;
+			ScopedTimer(const char* pScopeName, eOutputType outputType = eOutputType::MILISECONDS)
+				: m_ScopeName(pScopeName), m_OutputType(outputType)
+			{
+				start = std::chrono::high_resolution_clock::now();
+			}
 
-			float time = 0.0f;
-			switch (m_OutputType) {
+			~ScopedTimer()
+			{
+				end = std::chrono::high_resolution_clock::now();
+				duration = end - start;
+
+				float time = 0.0f;
+				switch (m_OutputType) {
 				case eOutputType::SECONDS:
 				{
 					time = duration.count();
@@ -46,15 +48,17 @@ namespace Insight {
 						IE_CORE_INFO("{0} took {1}ms", m_ScopeName, time);
 					}
 				}
+				}
+
 			}
+		private:
+			std::chrono::time_point<std::chrono::steady_clock> start, end;
+			std::chrono::duration<float> duration;
 
-		}
-	private:
-		std::chrono::time_point<std::chrono::steady_clock> start, end;
-		std::chrono::duration<float> duration;
+			std::string m_ScopeName;
+			eOutputType m_OutputType;
+		};
 
-		std::string m_ScopeName;
-		eOutputType m_OutputType;
-	};
+	} // End namespace Profiling
 
-}
+}// End namspace Insight

@@ -30,6 +30,7 @@ include "Engine/Vendor/ImGui"
 
 CustomDefines = {}
 CustomDefines["IE_BUILD_DIR"] = "../Bin/" .. outputdir
+CustomDefines["IE_BUILD_CONFIG"] = outputdir
 
 -- Engine
 project ("Engine")
@@ -62,7 +63,8 @@ project ("Engine")
 	defines
 	{
 		"_CRT_SECURE_NO_WARNINGS",
-		"IE_BUILD_DIR=%{CustomDefines.IE_BUILD_DIR}/Engine/"
+		"IE_BUILD_DIR=%{CustomDefines.IE_BUILD_DIR}/Engine/",
+		"IE_BUILD_CONFIG=%{CustomDefines.IE_BUILD_CONFIG}"
 	}
 
 	includedirs
@@ -84,6 +86,7 @@ project ("Engine")
 	{
 		"d3d12.lib",
 		"dxgi.lib",
+		"Shlwapi.lib",
 		"d3dcompiler.lib",
 		"DirectXTK12.lib",
 		"assimp-vc140-mt.lib",
@@ -129,8 +132,7 @@ project ("Engine")
 		postbuildcommands
 		{
 			("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/Debug/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
-			--("{COPY} %{wks.location}Bin/"..outputdir.."/"..csharpAssemblyProjectName.."/"..csharpAssemblyProjectName..".dll %{wks.location}Bin/"..outputdir.."/Engine")
+			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine")
 		}
 	-- Engine Release
 	filter "configurations:Release"
@@ -147,8 +149,7 @@ project ("Engine")
 		postbuildcommands
 		{
 			("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
-			--("{COPY} %{wks.location}Bin/"..outputdir.."/"..csharpAssemblyProjectName.."/"..csharpAssemblyProjectName..".dll %{wks.location}Bin/"..outputdir.."/Engine")
+			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine")
 		}
 	-- Full Engine Distribution, all performance logs and debugging windows stripped
 	filter "configurations:Engine-Dist"
@@ -165,10 +166,9 @@ project ("Engine")
 		postbuildcommands
 		{
 			("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
-			--("{COPY} %{wks.location}Bin/"..outputdir.."/"..csharpAssemblyProjectName.."/"..csharpAssemblyProjectName..".dll %{wks.location}Bin/"..outputdir.."/Engine")
+			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine")
 		}
-	-- Full Game Distribution, all engine debug tools(leel editors, editor user interfaces) stripped
+	-- Full Game Distribution, all engine debug tools(level editors, editor user interfaces) stripped
 	filter "configurations:Game-Dist"
 		defines "IE_GAME_DIST"
 		runtime "Release"
@@ -183,8 +183,7 @@ project ("Engine")
 		postbuildcommands
 		{
 			("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
-			--("{COPY} %{wks.location}Bin/"..outputdir.."/"..csharpAssemblyProjectName.."/"..csharpAssemblyProjectName..".dll %{wks.location}Bin/"..outputdir.."/Engine")
+			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine")
 		}
 
 -- Application
@@ -250,48 +249,4 @@ project (gameName)
 		optimize "on"
 		symbols "on"
 
-
--- CSharp Scripting
-project (csharpAssemblyProjectName)
-	location(csharpAssemblyProjectName)
-	kind("SharedLib")
-	language("C#")
-	targetdir ("Bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("Bin-Int/" .. outputdir .. "/%{prj.name}")
-
-	files
-	{
-		-- Source code
-		"%{prj.name}/Source/**.cs",
-		"%{prj.name}/Source/**.xaml",
-		"%{prj.name}/Source/**.xaml.cs",
-		"%{prj.name}/Source/**.config",
-		-- Internal
-		"%{prj.name}/Internal/**.cs",
-		"%{prj.name}/Internal/**.xaml",
-		"%{prj.name}/Internal/**.xaml.cs",
-		"%{prj.name}/Internal/**.config"
-	}
-
-	links
-	{
-		"Microsoft.CSharp",
-		"PresentationCore",
-		"PresentationFramework",
-		"System",
-		"System.Core",
-		"System.Data",
-		"System.Data.DataSetExtensions",
-		"System.Net.Http",
-		"System.Xaml",
-		"System.Xml",
-		"System.Xml.Linq",
-		"WindowsBase",
-	}
-
-	postbuildcommands
-	{
-		-- ("{COPY} %{wks.location}Bin/$(TargetDir)/%{prj.name}.dll %{wks.location}Bin/"..outputdir.."/Engine")
-		("{COPY} $(TargetDir)%{prj.name}.dll $(TargetDir)../Engine/")
-	}
 	

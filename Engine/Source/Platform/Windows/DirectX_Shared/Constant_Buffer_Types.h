@@ -33,17 +33,11 @@ struct CB_PS_VS_PerFrame
 	float numPointLights;
 	float numDirectionalLights;
 	float numSpotLights;
-	DirectX::XMFLOAT2 screenSize;//4
+	float padding;
+	DirectX::XMFLOAT2 screenSize;
+	float padding1;
+	float padding2;
 
-	// Graphics DEBUG
-	float visualizeFinalPass;
-	float visualizeLightPassResult;
-	float visualizeAlbedoBuffer;
-	float visualizeNormalBuffer;//4
-	float visualizeRoughnessBuffer;
-	float visualizeMetallicBuffer;
-	float visualizeAOPBRTextureBuffer;
-	float padding;//4
 };
 
 struct CB_PS_PointLight
@@ -62,6 +56,9 @@ struct CB_PS_DirectionalLight
 
 	DirectX::XMFLOAT3 diffuse;
 	float strength;//4
+
+	DirectX::XMFLOAT4X4 lightSpaceView;
+	DirectX::XMFLOAT4X4 lightSpaceProj;
 };
 
 struct CB_PS_SpotLight

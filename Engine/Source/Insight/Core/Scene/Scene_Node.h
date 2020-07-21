@@ -27,6 +27,7 @@ namespace Insight {
 		void SetCanBeFileParsed(bool CanBeParsed) { m_CanBeFileParsed = CanBeParsed; }
 
 		void AddChild(SceneNode* childNode);
+		void RemoveChild(SceneNode* ChildNode);
 		std::vector<SceneNode*>::const_iterator GetChildIteratorStart() { return m_Children.begin(); }
 		std::vector<SceneNode*>::const_iterator GetChildIteratorEnd() { return m_Children.end(); }
 
@@ -37,7 +38,7 @@ namespace Insight {
 		virtual bool OnInit();
 		virtual bool OnPostInit();
 		virtual void OnUpdate(const float& DeltaMs);
-		virtual void OnPreRender(XMMATRIX ParentMat);
+		virtual void CalculateParent(XMMATRIX ParentMat);
 		virtual void OnRender();
 		virtual void Destroy();
 

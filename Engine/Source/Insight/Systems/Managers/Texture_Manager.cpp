@@ -3,7 +3,7 @@
 #include "Texture_Manager.h"
 #include "Insight/Systems/File_System.h"
 #include "Insight/Utilities/String_Helper.h"
-#include "Platform/DirectX12/Direct3D12_Context.h"
+#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 namespace Insight {
 	
@@ -37,36 +37,36 @@ namespace Insight {
 		for (StrongTexturePtr& tex : m_AOTextures) {
 			tex.reset();
 		}
-
 	}
 
 	bool TextureManager::Init()
 	{
+		LoadDefaultTextures();
 		return true;
 	}
 
-	bool TextureManager::LoadResourcesFromJson(const rapidjson::Value& jsonTextures)
+	bool TextureManager::LoadResourcesFromJson(const rapidjson::Value& JsonTextures)
 	{
-		for (rapidjson::SizeType i = 0; i < jsonTextures.Size(); i++) {
-			std::string name, filepath;
-			int type, id;
-			bool genMipMaps;
-			json::get_int(jsonTextures[i], "ID", id);
-			json::get_int(jsonTextures[i], "Type", type);
-			json::get_string(jsonTextures[i], "Name", name);
-			json::get_string(jsonTextures[i], "Filepath", filepath);
-			json::get_bool(jsonTextures[i], "GenerateMipMaps", genMipMaps);
+		for (rapidjson::SizeType i = 0; i < JsonTextures.Size(); i++) {
+			std::string Name, Filepath;
+			int Type, ID;
+			bool GenMipMaps;
+			json::get_int(JsonTextures[i], "ID", ID);
+			json::get_int(JsonTextures[i], "Type", Type);
+			json::get_string(JsonTextures[i], "Name", Name);
+			json::get_string(JsonTextures[i], "Filepath", Filepath);
+			json::get_bool(JsonTextures[i], "GenerateMipMaps", GenMipMaps);
 
-			Texture::IE_TEXTURE_INFO texInfo = {};
-			texInfo.DisplayName = name;
-			texInfo.Id = id;
-			texInfo.Filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(filepath));
-			texInfo.GenerateMipMaps = genMipMaps;
-			texInfo.Type = (Texture::eTextureType)type;
+			Texture::IE_TEXTURE_INFO TexInfo = {};
+			TexInfo.DisplayName = Name;
+			TexInfo.Id = ID;
+			TexInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(Filepath));
+			TexInfo.GenerateMipMaps = GenMipMaps;
+			TexInfo.Type = (Texture::eTextureType)Type;
 			
-			RegisterTextureByType(texInfo);
+			RegisterTextureByType(TexInfo);
 
-			m_HighestTextureId = ((int)m_HighestTextureId < id) ? id : m_HighestTextureId;
+			m_HighestTextureId = ((int)m_HighestTextureId < ID) ? ID : m_HighestTextureId;
 		}
 
 		return true;
@@ -134,6 +134,43 @@ namespace Insight {
 		return nullptr;
 	}
 	
+	bool TextureManager::LoadDefaultTextures()
+	{
+		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
+		CDescriptorHeapWrapper& cbvSrvHeapStart = graphicsContext.GetCBVSRVDescriptorHeap();
+
+		Texture::IE_TEXTURE_INFO TexInfo = {};
+		TexInfo.Id = -1;
+		TexInfo.GenerateMipMaps = true;
+
+		TexInfo.DisplayName = "Default_Albedo";
+		TexInfo.Type = Texture::eTextureType::ALBEDO;
+		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_Albedo.png");
+		m_DefaultAlbedoTexture = make_shared<Texture>(TexInfo, cbvSrvHeapStart);
+
+		TexInfo.DisplayName = "Default_Normal";
+		TexInfo.Type = Texture::eTextureType::NORMAL;
+		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_Normal.png");
+		m_DefaultNormalTexture = make_shared<Texture>(TexInfo, cbvSrvHeapStart);
+
+		TexInfo.DisplayName = "Default_Metallic";
+		TexInfo.Type = Texture::eTextureType::METALLIC;
+		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_Metallic.png");
+		m_DefaultMetallicTexture = make_shared<Texture>(TexInfo, cbvSrvHeapStart);
+
+		TexInfo.DisplayName = "Default_Roughness";
+		TexInfo.Type = Texture::eTextureType::ROUGHNESS;
+		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_RoughAO.png");
+		m_DefaultRoughnessTexture = make_shared<Texture>(TexInfo, cbvSrvHeapStart);
+		
+		TexInfo.DisplayName = "Default_AO";
+		TexInfo.Type = Texture::eTextureType::AO;
+		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_RoughAO.png");
+		m_DefaultAOTexture = make_shared<Texture>(TexInfo, cbvSrvHeapStart);
+
+		return true;
+	}
+
 	void TextureManager::RegisterTextureByType(const Texture::IE_TEXTURE_INFO& texInfo)
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();

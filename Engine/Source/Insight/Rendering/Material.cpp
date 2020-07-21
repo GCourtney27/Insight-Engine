@@ -3,7 +3,7 @@
 #include "Material.h"
 
 #include "Insight/Utilities/String_Helper.h"
-#include "Platform/DirectX12/Direct3D12_Context.h"
+#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 #include "Insight/Systems/File_System.h"
 #include "Insight/Systems/Managers/Resource_Manager.h"
 
@@ -17,19 +17,58 @@ namespace Insight {
 	{
 	}
 
-	//Material::Material(Material&& material) noexcept
-	//{
-	//	//m_AlbedoMap = material.m_AlbedoMap;
-	//	//m_NormalMap = material.m_NormalMap;
-	//}
+	Material::Material(Material&& material) noexcept
+	{
+		m_AlbedoMap = std::move(material.m_AlbedoMap);
+		m_NormalMap = std::move(material.m_NormalMap);
+		m_MetallicMap = std::move(material.m_RoughnessMap);
+		m_RoughnessMap = std::move(material.m_RoughnessMap);
+		m_AOMap = std::move(material.m_AOMap);
+
+		m_UVOffset = std::move(material.m_UVOffset);
+		m_Tiling = std::move(material.m_Tiling);
+		m_ColorAdditive = std::move(material.m_ColorAdditive);
+
+		m_AlbedoMap = nullptr;
+		m_NormalMap = nullptr;
+		m_MetallicMap = nullptr;
+		m_RoughnessMap = nullptr;
+		m_AOMap = nullptr;
+	}
 
 	Material::~Material()
 	{
+		Destroy();
+	}
+
+	void Material::Destroy()
+	{
+
+	}
+
+	Material* Material::CreateDefaultTexturedMaterial()
+	{
+		Material* pMaterial = new Material();
+
+		TextureManager& TextureManager = ResourceManager::Get().GetTextureManager();
+		
+		pMaterial->m_AlbedoMap = TextureManager.GetDefaultAlbedoTexture();
+		pMaterial->m_NormalMap = TextureManager.GetDefaultNormalTexture();
+		pMaterial->m_MetallicMap = TextureManager.GetDefaultMetallicTexture();
+		pMaterial->m_RoughnessMap = TextureManager.GetDefaultRoughnessTexture();
+		pMaterial->m_AOMap = TextureManager.GetDefaultAOTexture();
+
+		pMaterial->m_ShaderCB.diffuseAdditive	= ieVector3(0.0f, 0.0f, 0.0f);
+		pMaterial->m_ShaderCB.metallicAdditive	= 0.0f;
+		pMaterial->m_ShaderCB.roughnessAdditive = 0.0f;
+		pMaterial->m_ShaderCB.tiling			= ieVector2(1.0f, 1.0f);
+		pMaterial->m_ShaderCB.uvOffset			= ieVector2(0.0f, 0.0f);
+		
+		return pMaterial;
 	}
 
 	bool Material::LoadFromJson(const rapidjson::Value& jsonMaterial)
 	{
-		// TODO get texture handle by id from textre manager
 		const rapidjson::Value& jsonUVOffset = jsonMaterial["uvOffset"];
 		const rapidjson::Value& jsonTilingOffset = jsonMaterial["Tiling"];
 		const rapidjson::Value& jsonColorOverride = jsonMaterial["Color_Override"];
@@ -53,11 +92,11 @@ namespace Insight {
 		json::get_float(jsonMaterial, "Roughness_Override", m_ShaderCB.roughnessAdditive);
 
 		TextureManager& textureManager = ResourceManager::Get().GetTextureManager();
-		m_AlbedoMap = textureManager.GetTextureByID(m_AlbedoTextureManagerID, Texture::eTextureType::ALBEDO);
-		m_NormalMap = textureManager.GetTextureByID(m_NormalTextureManagerID, Texture::eTextureType::NORMAL);
-		m_MetallicMap = textureManager.GetTextureByID(m_MetallicTextureManagerID, Texture::eTextureType::METALLIC);
-		m_RoughnessMap = textureManager.GetTextureByID(m_RoughnessTextureManagerID, Texture::eTextureType::ROUGHNESS);
-		m_AOMap = textureManager.GetTextureByID(m_AoTextureManagerID, Texture::eTextureType::AO);
+		m_AlbedoMap		= textureManager.GetTextureByID(m_AlbedoTextureManagerID, Texture::eTextureType::ALBEDO);
+		m_NormalMap		= textureManager.GetTextureByID(m_NormalTextureManagerID, Texture::eTextureType::NORMAL);
+		m_MetallicMap	= textureManager.GetTextureByID(m_MetallicTextureManagerID, Texture::eTextureType::METALLIC);
+		m_RoughnessMap	= textureManager.GetTextureByID(m_RoughnessTextureManagerID, Texture::eTextureType::ROUGHNESS);
+		m_AOMap			= textureManager.GetTextureByID(m_AoTextureManagerID, Texture::eTextureType::AO);
 
 		return true;
 	}

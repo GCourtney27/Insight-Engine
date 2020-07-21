@@ -8,6 +8,7 @@
 #include "AActor.h"
 
 #include "imgui.h"
+#include <misc/cpp/imgui_stdlib.h>
 
 namespace Insight {
 
@@ -37,17 +38,17 @@ namespace Insight {
 		json::get_float(transform[0], "posX", posX);
 		json::get_float(transform[0], "posY", posY);
 		json::get_float(transform[0], "posZ", posZ);
-		SceneNode::GetTransformRef().SetPosition(Vector3(posX, posY, posZ));
+		SceneNode::GetTransformRef().SetPosition(ieVector3(posX, posY, posZ));
 		// Rotation
 		json::get_float(transform[0], "rotX", rotX);
 		json::get_float(transform[0], "rotY", rotY);
 		json::get_float(transform[0], "rotZ", rotZ);
-		SceneNode::GetTransformRef().SetRotation(Vector3(rotX, rotY, rotZ));
+		SceneNode::GetTransformRef().SetRotation(ieVector3(rotX, rotY, rotZ));
 		// Scale
 		json::get_float(transform[0], "scaX", scaX);
 		json::get_float(transform[0], "scaY", scaY);
 		json::get_float(transform[0], "scaZ", scaZ);
-		SceneNode::GetTransformRef().SetScale(Vector3(scaX, scaY, scaZ));
+		SceneNode::GetTransformRef().SetScale(ieVector3(scaX, scaY, scaZ));
 
 		SceneNode::GetTransformRef().EditorInit();
 
@@ -87,9 +88,9 @@ namespace Insight {
 			Writer.StartArray(); // Start Write Transform
 			{
 				Transform& Transform = SceneNode::GetTransformRef();
-				Vector3 Pos = Transform.GetPosition();
-				Vector3 Rot = Transform.GetRotation();
-				Vector3 Sca = Transform.GetScale();
+				ieVector3 Pos = Transform.GetPosition();
+				ieVector3 Rot = Transform.GetRotation();
+				ieVector3 Sca = Transform.GetScale();
 
 				Writer.StartObject();
 				// Position
@@ -136,14 +137,15 @@ namespace Insight {
 
 	void AActor::RenderSceneHeirarchy()
 	{
-		ImGuiTreeNodeFlags treeFlags = m_Children.empty() ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
-		const bool isExpanded = ImGui::TreeNodeEx(SceneNode::GetDisplayName(), treeFlags);
+		ImGuiTreeNodeFlags TreeFlags = m_Children.empty() ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+		TreeFlags |= ImGuiTreeNodeFlags_SpanAvailWidth;
+		const bool IsExpanded = ImGui::TreeNodeEx(SceneNode::GetDisplayName(), TreeFlags);
 
 		if (ImGui::IsItemClicked()) {
 			IE_STRIP_FOR_GAME_DIST(Application::Get().GetEditorLayer().SetSelectedActor(this);)
 		}
 
-		if (isExpanded) {
+		if (IsExpanded) {
 
 			SceneNode::RenderSceneHeirarchy();
 
@@ -159,47 +161,80 @@ namespace Insight {
 	static int currentIndex = 0;
 	void AActor::OnImGuiRender()
 	{
-		ImGui::Text(SceneNode::GetDisplayName());
+		ImGui::InputText("##ActorNameField", &m_DisplayName, ImGuiInputTextFlags_EnterReturnsTrue);
+		
+		ImGuiTreeNodeFlags TreeFlags = ImGuiTreeNodeFlags_Leaf;
+		if (ImGui::TreeNodeEx("Actions", ImGuiTreeNodeFlags_OpenOnArrow)) {
+
+			ImGui::TreeNodeEx("Delete Actor", TreeFlags);
+			if (ImGui::IsItemClicked()) {
+
+				// Set the Details panel to be blank
+				Application::Get().GetEditorLayer().SetSelectedActor(nullptr);
+				// remove the actor fom the world
+				m_Parent->RemoveChild(this);
+				// Pop the rest of the tree nodes for ImGui.
+				// Thers no reason to leave this scope the actor has been deleted.
+				ImGui::TreePop();
+				ImGui::TreePop();
+				return;
+			}
+			ImGui::TreePop();
+			/*ImGui::TreeNodeEx("Remove All Components", TreeFlags);
+			if (ImGui::IsItemClicked()) {
+				RemoveAllSubobjects();
+			}
+			ImGui::TreePop();*/
+
+			ImGui::TreePop();
+		}
+
 		ImGui::Spacing();
+		// Show the actor's transform values
+		ImGui::Text("Transform - Actor");
+		ImGui::DragFloat3("Position##Actor", &SceneNode::GetTransformRef().GetPositionRef().x, 0.05f, -100.0f, 100.0f);
+		ImGui::DragFloat3("Scale##Actor", &SceneNode::GetTransformRef().GetScaleRef().x, 0.05f, -100.0f, 100.0f);
+		ImGui::DragFloat3("Rotation##Actor", &SceneNode::GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);
 
-		ImGui::Text("Transform");
-		ImGui::DragFloat3("Position", &SceneNode::GetTransformRef().GetPositionRef().x, 0.05f, -100.0f, 100.0f);
-		ImGui::DragFloat3("Scale", &SceneNode::GetTransformRef().GetScaleRef().x, 0.05f, -100.0f, 100.0f);
-		ImGui::DragFloat3("Rotation", &SceneNode::GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);
+		// Add new component drop down
+		{
+			ImGui::NewLine();
+			static constexpr char* availableComponents[] = { "", "Static Mesh Component", "C-Sharp Script Component" };
+			if (ImGui::Combo("Add Component", &currentIndex, availableComponents, IM_ARRAYSIZE(availableComponents))) {
+				switch (currentIndex) {
+				case 0: break;
+				case 1:
+				{
+					IE_CORE_INFO("Adding Static Mesh component to \"{0}\"", AActor::GetDisplayName());
+					StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<StaticMeshComponent>();
+					static_cast<StaticMeshComponent*>(ptr.get())->SetMaterial(std::move(Material::CreateDefaultTexturedMaterial()));
+					static_cast<StaticMeshComponent*>(ptr.get())->AttachMesh("Models/Quad.obj");
+					
+					break;
+				}
+				case 2:
+				{
+					IE_CORE_INFO("Adding C-Sharp script component to \"{0}\"", AActor::GetDisplayName());
+					 StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<CSharpScriptComponent>();
+					break;
+				}
+				default:
+				{
+					IE_CORE_INFO("Failed to determine component to add to actor \"{0}\" with index of \"{1}\"", AActor::GetDisplayName(), currentIndex);
+					break;
+				}
+				}
+			}
 
+			ImGui::NewLine();
+		}
+
+		// Render each components details panels
 		for (size_t i = 0; i < m_NumComponents; ++i)
 		{
 			ImGui::Spacing();
 			m_Components[i]->OnImGuiRender();
 		}
-		//ImGui::NewLine();
-		//ImGui::NewLine();
-		//ImGui::NewLine();
-		//static const char* availableComponents[] = { "Static Mesh", "C-Sharp Script" };
-		//if (ImGui::Combo("Add Component", &currentIndex, availableComponents, IM_ARRAYSIZE(availableComponents))) {
-		//	switch (currentIndex) {
-		//	case 0:
-		//	{
-		//		IE_CORE_INFO("Adding Static Mesh component to \"{0}\"", AActor::GetDisplayName());
-		//		StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<StaticMeshComponent>();
-		//		static_cast<StaticMeshComponent*>(ptr.get())->AttachMesh(FileSystem::Get().GetRelativeAssetDirectoryPath("Models/Sphere.obj"));
-		//		//TODO:Make something like this for the material: static_cast<StaticMeshComponent*>(ptr.get())->AttachMaterial(Material::GetDefaultUntexturedMaterial());
-		//		break;
-		//	}
-		//	case 1:
-		//	{
-		//		IE_CORE_INFO("Adding C-Sharp script component to \"{0}\"", AActor::GetDisplayName());
-		//		StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<CSharpScriptComponent>();
-		//		break;
-		//	}
-		//	default:
-		//	{
-		//		IE_CORE_INFO("Failed to determine component to add to actor \"{0}\" with index of \"{1}\"", AActor::GetDisplayName(), currentIndex);
-		//		break;
-		//	}
-		//	}
-		//}
-
 	}
 
 	bool AActor::OnInit()
@@ -226,7 +261,7 @@ namespace Insight {
 		}
 	}
 
-	void AActor::OnPreRender(XMMATRIX parentMat)
+	void AActor::CalculateParent(XMMATRIX parentMat)
 	{
 		if (m_Parent) {
 			GetTransformRef().SetWorldMatrix(XMMatrixMultiply(GetTransformRef().GetLocalMatrixRef(), parentMat));
@@ -236,10 +271,11 @@ namespace Insight {
 		}
 
 		// Render Children
-		SceneNode::OnPreRender(GetTransformRef().GetWorldMatrixRef());
+		SceneNode::CalculateParent(GetTransformRef().GetWorldMatrixRef());
+
 		// Render Components
 		for (size_t i = 0; i < m_NumComponents; ++i) {
-			m_Components[i]->OnPreRender(GetTransformRef().GetLocalMatrixRef());
+			m_Components[i]->CalculateParent(GetTransformRef().GetLocalMatrixRef());
 		}
 	}
 
@@ -282,6 +318,11 @@ namespace Insight {
 	{
 		SceneNode::Destroy();
 
+		for (uint32_t i = 0; i < m_NumComponents; i++) {
+			m_Components[i]->OnDestroy();
+			m_Components[i].reset();
+		}
+		m_Components.clear();
 	}
 
 	void AActor::OnEvent(Event& e)
@@ -300,6 +341,16 @@ namespace Insight {
 		(*iter).reset();
 		m_Components.erase(iter);
 		m_NumComponents--;
+	}
+
+	void AActor::RemoveAllSubobjects()
+	{
+		for (uint32_t i = 0; i < m_NumComponents; ++i) {
+			m_Components[i]->OnDestroy();
+			m_Components[i].reset();
+		}
+		m_Components.clear();
+		m_NumComponents = 0;
 	}
 
 }

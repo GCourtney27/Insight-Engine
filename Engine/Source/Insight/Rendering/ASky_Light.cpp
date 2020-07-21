@@ -3,7 +3,7 @@
 #include "ASky_Light.h"
 
 #include "Insight/Runtime//Components/Actor_Component.h"
-#include "Platform/DirectX12/Direct3D12_Context.h"
+#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 #include "Insight/Systems/File_System.h"
 
 namespace Insight {
@@ -14,7 +14,7 @@ namespace Insight {
 		: AActor(id, type)
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		m_pCommandList = &graphicsContext.GetCommandList();
+		m_pCommandList = &graphicsContext.GetScenePassCommandList();
 		graphicsContext.AddSkyLight(this);
 	}
 
@@ -33,21 +33,24 @@ namespace Insight {
 		CDescriptorHeapWrapper& cbvSrvheap = Direct3D12Context::Get().GetCBVSRVDescriptorHeap();
 
 		Texture::IE_TEXTURE_INFO brdfInfo;
-		brdfInfo.Filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(brdfLUT));
+		brdfInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(brdfLUT));
+		brdfInfo.AssetDirectoryRelPath = brdfLUT;
 		brdfInfo.Type = Texture::eTextureType::SKY_BRDF_LUT;
 		brdfInfo.IsCubeMap = true;
 		brdfInfo.GenerateMipMaps = false;
 		m_BrdfLUT.Init(brdfInfo, cbvSrvheap);
 
 		Texture::IE_TEXTURE_INFO irMapInfo;
-		irMapInfo.Filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(irMap));
+		irMapInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(irMap));
+		irMapInfo.AssetDirectoryRelPath = irMap;
 		irMapInfo.Type = Texture::eTextureType::SKY_IRRADIENCE;
 		irMapInfo.IsCubeMap = true;
 		brdfInfo.GenerateMipMaps = false;
 		m_Irradiance.Init(irMapInfo, cbvSrvheap);
 		
 		Texture::IE_TEXTURE_INFO envMapInfo;
-		envMapInfo.Filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(envMap));
+		envMapInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(envMap));
+		envMapInfo.AssetDirectoryRelPath = envMap;
 		envMapInfo.Type = Texture::eTextureType::SKY_ENVIRONMENT_MAP;
 		envMapInfo.IsCubeMap = true;
 		brdfInfo.GenerateMipMaps = false;
@@ -70,9 +73,9 @@ namespace Insight {
 			Writer.StartArray(); // Start Write Transform
 			{
 				Transform& Transform = SceneNode::GetTransformRef();
-				Vector3 Pos = Transform.GetPosition();
-				Vector3 Rot = Transform.GetRotation();
-				Vector3 Sca = Transform.GetScale();
+				ieVector3 Pos = Transform.GetPosition();
+				ieVector3 Rot = Transform.GetRotation();
+				ieVector3 Sca = Transform.GetScale();
 
 				Writer.StartObject();
 				// Position
@@ -107,11 +110,11 @@ namespace Insight {
 			{
 				Writer.StartObject();
 				Writer.Key("BRDFLUT");
-				Writer.String(StringHelper::WideToString(m_BrdfLUT.GetFilepath()).c_str());
+				Writer.String(m_BrdfLUT.GetAssetDirectoryRelPath().c_str());
 				Writer.Key("Irradiance");
-				Writer.String(StringHelper::WideToString(m_Irradiance.GetFilepath()).c_str());
+				Writer.String(m_Irradiance.GetAssetDirectoryRelPath().c_str());
 				Writer.Key("Environment");
-				Writer.String(StringHelper::WideToString(m_Environment.GetFilepath()).c_str());
+				Writer.String(m_Environment.GetAssetDirectoryRelPath().c_str());
 				Writer.EndObject();
 			}
 			Writer.EndArray();

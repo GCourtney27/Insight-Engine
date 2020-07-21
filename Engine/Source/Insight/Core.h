@@ -28,6 +28,7 @@
 	#define IE_CORE_ASSERT(x, ...)
 #endif // IE_ENABLE_ASSERTS
 
+// Configuration defines
 #if defined IE_GAME_DIST
 #define IE_STRIP_FOR_GAME_DIST(x)
 #define IE_ADD_FOR_GAME_DIST(x) x
@@ -44,5 +45,6 @@
 #define CAST_TO_UINT(...) static_cast<UINT>(__VA_ARGS__)
 #define QUOTE(value) #value
 #define MACRO_TO_STRING(macro) QUOTE(macro);
-#include "Insight/Math/Math_Helpers.h"
 
+// Includes
+#include "Insight/Math/Math_Helpers.h"

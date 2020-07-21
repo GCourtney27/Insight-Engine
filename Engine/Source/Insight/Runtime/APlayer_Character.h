@@ -25,7 +25,7 @@ namespace Insight {
 
 		virtual bool OnInit() override;
 		virtual void OnUpdate(const float& deltaMs) override;
-		virtual void OnPreRender(XMMATRIX parentMat) override;
+		virtual void CalculateParent(XMMATRIX parentMat) override;
 		virtual void OnRender() override;
 		virtual void Tick(const float& DeltaMs) override;
 		void RenderSceneHeirarchy() override;

@@ -8,26 +8,34 @@ namespace Insight {
 
 	using namespace Microsoft::WRL;
 
-	class ModelManager
+	class GeometryManager
 	{
 	public:
 		typedef std::vector<StrongModelPtr> SceneModels;
 	public:
-		ModelManager();
-		~ModelManager();
+		GeometryManager();
+		~GeometryManager();
 
 		bool Init();
-		virtual bool LoadResourcesFromJson(const rapidjson::Value& jsonMeshes);
-
-		void Render();
 
 		SceneModels* GetSceneModels() { return &m_Models; }
 
-		void UploadConstantBufferDataToGPU();
+		// Issue draw commands to all models attached to the geometry manager.
+		void Render(RenderPass RenderPass);
+		// Gather all geometry in the scene and uplaod their constant buffers to the GPU.
+		// Should only be called once, before 'Render()'. Does not draw models.
+		void GatherGeometry();
+		// Reset incrementor for model geometry gather phase.
+		// See 'GatherGeometry()' for more information.
 		void PostRender();
+		// UnRegister all model in the model cache. Usually used 
+		// when switching scenes.
 		void FlushModelCache();
 		
-		void RegisterModel(StrongModelPtr model) { m_Models.push_back(model); }
+		// Register a model to be drawn in the geometry pass
+		inline void RegisterModel(StrongModelPtr Model) { m_Models.push_back(Model); }
+		// Unregister a model to not be drawn in the geometry pass
+		void UnRegisterModel(StrongModelPtr Model);
 
 	private:
 		SceneModels m_Models;  
@@ -39,7 +47,8 @@ namespace Insight {
 
 		ID3D12Resource* m_ConstantBufferUploadHeaps = nullptr;
 		ID3D12Resource* m_ConstantBufferMaterialUploadHeaps = nullptr;
-		ID3D12GraphicsCommandList* m_pCommandList = nullptr;
+		ID3D12GraphicsCommandList* m_pScenePassCommandList = nullptr;
+		ID3D12GraphicsCommandList* m_pShadowPassCommandList = nullptr;
 
 		int ConstantBufferPerObjectAlignedSize = (sizeof(CB_VS_PerObject) + 255) & ~255;
 		int ConstantBufferPerObjectMaterialAlignedSize = (sizeof(CB_PS_VS_PerObjectAdditives) + 255) & ~255;

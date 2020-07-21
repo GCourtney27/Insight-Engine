@@ -3,7 +3,9 @@
 #include "ADirectional_Light.h"
 
 #include "Insight/Runtime/Components/Actor_Component.h"
-#include "Platform/DirectX12/Direct3D12_Context.h"
+#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
+#include "Insight/Runtime/ACamera.h"
+#include "Insight/Core/Application.h"
 #include "imgui.h"
 
 namespace Insight {
@@ -15,6 +17,15 @@ namespace Insight {
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
 		graphicsContext.AddDirectionalLight(this);
+
+		AActor::GetTransformRef().SetPosition(0.0f, -1.0f, -6.0f);
+
+		m_ShaderCB.diffuse = ieVector3(1.0f, 1.0f, 1.0f);
+		m_ShaderCB.direction = SceneNode::GetTransformRef().GetPosition();
+		m_ShaderCB.strength = 8.0f;
+
+		m_NearPlane = 1.0f;
+		m_FarPlane = 210.0f;
 	}
 
 	ADirectionalLight::~ADirectionalLight()
@@ -36,6 +47,37 @@ namespace Insight {
 		m_ShaderCB.direction = AActor::GetTransformRef().GetRotationRef();
 		m_ShaderCB.strength = strength;
 
+		m_NearPlane = 1.0f;
+		m_FarPlane = 210.0f;
+		
+		LightCamPositionOffset = XMFLOAT3(0.0f, 0.0f, 20.0f);
+
+		m_ShaderCB.direction = SceneNode::GetTransformRef().GetPosition();
+
+		XMFLOAT3 LookAtPos(0.0f, 0.0f, 0.0f);
+		XMVECTOR LookAtPosVec = XMLoadFloat3(&LookAtPos);
+
+		XMFLOAT3 Up(0.0f, 1.0f, 0.0f);
+		XMVECTOR UpVec = XMLoadFloat3(&Up);
+		XMFLOAT3 direction = m_ShaderCB.direction;
+		direction.x = -direction.x + LightCamPositionOffset.x;
+		direction.y =  direction.y + LightCamPositionOffset.y;
+		direction.z = -direction.z + LightCamPositionOffset.z;
+
+		LightCamPositionVec = XMLoadFloat3(&direction);
+
+
+		LightView = XMMatrixLookAtLH(LightCamPositionVec, LookAtPosVec, UpVec);
+
+		//LightProj = XMMatrixOrthographicOffCenterLH(ViewLeft, ViewWidth, ViewBottom, ViewHeight, m_NearPlane, m_FarPlane);
+		LightProj = XMMatrixOrthographicLH(ViewWidth, ViewHeight, m_NearPlane, m_FarPlane);
+
+		XMStoreFloat4x4(&LightViewFloat, XMMatrixTranspose(LightView));
+		XMStoreFloat4x4(&LightProjFloat, XMMatrixTranspose(LightProj));
+
+		m_ShaderCB.lightSpaceView = LightViewFloat;
+		m_ShaderCB.lightSpaceProj = LightProjFloat;
+
 		return true;
 	}
 
@@ -53,9 +95,9 @@ namespace Insight {
 			Writer.StartArray(); // Start Write Transform
 			{
 				Transform& Transform = SceneNode::GetTransformRef();
-				Vector3 Pos = Transform.GetPosition();
-				Vector3 Rot = Transform.GetRotation();
-				Vector3 Sca = Transform.GetScale();
+				ieVector3 Pos = Transform.GetPosition();
+				ieVector3 Rot = Transform.GetRotation();
+				ieVector3 Sca = Transform.GetScale();
 
 				Writer.StartObject();
 				// Position
@@ -128,6 +170,26 @@ namespace Insight {
 	void ADirectionalLight::OnUpdate(const float& deltaMs)
 	{
 		m_ShaderCB.direction = SceneNode::GetTransformRef().GetPosition();
+		
+		XMFLOAT3 LookAtPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		XMVECTOR LookAtPosVec = XMLoadFloat3(&LookAtPos);
+
+		XMFLOAT3 Up(0.0f, 1.0f, 0.0f);
+		XMVECTOR UpVec = XMLoadFloat3(&Up);
+		XMFLOAT3 direction = m_ShaderCB.direction;
+		direction.x = -direction.x + LightCamPositionOffset.x;
+		direction.y =  direction.y + LightCamPositionOffset.y;
+		direction.z = -direction.z + LightCamPositionOffset.z;
+		LightCamPositionVec = XMLoadFloat3(&direction);
+
+		LightView = XMMatrixLookAtLH(LightCamPositionVec, LookAtPosVec, UpVec);
+		LightProj = XMMatrixOrthographicLH(ViewWidth, ViewHeight, m_NearPlane, m_FarPlane);
+
+		XMStoreFloat4x4(&LightViewFloat, XMMatrixTranspose(LightView));
+		XMStoreFloat4x4(&LightProjFloat, XMMatrixTranspose(LightProj));
+
+		m_ShaderCB.lightSpaceView = LightViewFloat;
+		m_ShaderCB.lightSpaceProj = LightProjFloat;
 	}
 
 	void ADirectionalLight::OnPreRender(XMMATRIX parentMat)
@@ -162,6 +224,15 @@ namespace Insight {
 	{
 		AActor::OnImGuiRender();
 
+		ImGui::Spacing();
+		ImGui::Spacing();
+
+		ImGui::DragFloat3("light cam pos offset: ", &LightCamPositionOffset.x, 1.0f, 180.0f, 180.0f);
+		ImGui::DragFloat("light cam near z: ", &m_NearPlane, 1.0f, 0.0f, 180.0f);
+		ImGui::DragFloat("light cam far z: ", &m_FarPlane, 1.0f, 0.0f, 1000.0f);
+		ImGui::DragFloat("light view width: ", &ViewWidth, 1.0f, 0.0f, 1000.0f);
+		ImGui::DragFloat("light view height: ", &ViewHeight, 1.0f, 0.0f, 1000.0f);
+		
 		ImGui::Spacing();
 		ImGui::Spacing();
 

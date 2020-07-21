@@ -2,17 +2,31 @@
 
 #include "Model.h"
 #include "Insight/Utilities/String_Helper.h"
-#include "Platform/DirectX12/Direct3D12_Context.h"
+#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
+#include "Insight/Systems/File_System.h"
 #include "imgui.h"
 
 namespace Insight {
 
 	static std::mutex s_MeshMutex;
 
-	Model::Model(const std::string& path, Material* material)
-		: m_Material(material)
+	Model::Model(const std::string& Path, Material* Material)
 	{
-		Init(path);
+		Init(Path, Material);
+	}
+
+	Model::Model(Model&& model) noexcept
+	{
+		m_Meshes = std::move(model.m_Meshes);
+		m_pRoot = std::move(model.m_pRoot);
+
+		m_pMaterial = std::move(model.m_pMaterial);
+		m_AssetDirectoryRelativePath = std::move(model.m_AssetDirectoryRelativePath);
+		m_Directory = std::move(model.m_Directory);
+		m_FileName = std::move(model.m_FileName);
+
+		model.m_pRoot = nullptr;
+		model.m_pMaterial = nullptr;
 	}
 
 	Model::~Model()
@@ -20,14 +34,16 @@ namespace Insight {
 		//Destroy();
 	}
 
-	bool Model::Init(const std::string& path)
+	bool Model::Init(const std::string& path, Material* pMaterial)
 	{
+		m_pMaterial = pMaterial;
+
 		m_AssetDirectoryRelativePath = path;
-		m_Directory = StringHelper::GetDirectoryFromPath(path);
-		m_FileName = StringHelper::GetFilenameFromDirectory(path);
+		m_Directory = FileSystem::GetProjectRelativeAssetDirectory(path);
+		m_FileName = StringHelper::GetFilenameFromDirectory(m_Directory);
 		SceneNode::SetDisplayName("Static Mesh");
 
-		return LoadModelFromFile(path);
+		return LoadModelFromFile(m_Directory);
 	}
 
 	void Model::OnImGuiRender()
@@ -36,11 +52,14 @@ namespace Insight {
 		ImGui::SameLine();
 		ImGui::Text(m_FileName.c_str());
 
-		ImGui::Text("Transform");
-		ImGui::DragFloat3("Mesh-Position", &m_pRoot->GetTransformRef().GetPositionRef().x, 0.05f, -1000.0f, 1000.0f);
-		ImGui::DragFloat3("Mesh-Scale", &m_pRoot->GetTransformRef().GetScaleRef().x, 0.05f, -1000.0f, 1000.0f);
-		ImGui::DragFloat3("Mesh-Rotation", &m_pRoot->GetTransformRef().GetRotationRef().x, 0.05f, -1000.0f, 1000.0f);
+		ImGui::Text("Transform - StaticMesh");
+		ImGui::DragFloat3("Position##StaticMesh", &m_pRoot->GetTransformRef().GetPositionRef().x, 0.05f, -1000.0f, 1000.0f);
+		ImGui::DragFloat3("Scale##StaticMesh", &m_pRoot->GetTransformRef().GetScaleRef().x, 0.05f, -1000.0f, 1000.0f);
+		ImGui::DragFloat3("Rotation##StaticMesh", &m_pRoot->GetTransformRef().GetRotationRef().x, 0.05f, -1000.0f, 1000.0f);
 
+		ImGui::Text("Rendering");
+		ImGui::Checkbox("Casts Shadows ##StaticMesh", &m_CastsShadows);
+		ImGui::Checkbox("Visible ##StaticMesh", &m_Visible);
 	}
 
 	void Model::RenderSceneHeirarchy()
@@ -56,7 +75,7 @@ namespace Insight {
 
 	void Model::BindResources()
 	{
-		m_Material->BindResources();
+		m_pMaterial->BindResources();
 	}
 
 	void Model::PreRender(const XMMATRIX& parentMat)
@@ -67,11 +86,11 @@ namespace Insight {
 		}
 	}
 
-	void Model::Render()
+	void Model::Render(ID3D12GraphicsCommandList* pCommandList)
 	{
 		int numMeshChildren = (int)m_Meshes.size();
 		for (int i = 0; i < numMeshChildren; ++i) {
-			m_Meshes[i]->Render();
+			m_Meshes[i]->Render(pCommandList);
 		}
 	}
 
@@ -84,20 +103,21 @@ namespace Insight {
 
 	bool Model::LoadModelFromFile(const std::string& path)
 	{
-		Assimp::Importer importer;
-		const aiScene* pScene = importer.ReadFile(
+		Assimp::Importer Importer;
+		const aiScene* pScene = Importer.ReadFile(
 			path, 
 			aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded 
 		);
 
 		if (!pScene || pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !pScene->mRootNode) {
-			IE_CORE_TRACE("Assimp import error: {0}", importer.GetErrorString());
+			IE_CORE_ERROR("Assimp import error: {0}", Importer.GetErrorString());
 			return false;
 		}
 
 		for (size_t i = 0; i < pScene->mNumMeshes; ++i) {
 			m_Meshes.push_back(std::move(ProcessMesh(pScene->mMeshes[i], pScene)));
 		}
+
 		m_pRoot = ParseNode_r(pScene->mRootNode);
 		return true;
 	}
@@ -105,7 +125,9 @@ namespace Insight {
 	unique_ptr<MeshNode> Model::ParseNode_r(aiNode* pNode)
 	{
 		Transform transform;
-		transform.SetLocalMatrix(XMMatrixTranspose(XMMATRIX(&pNode->mTransformation.a1)));
+		if (pNode->mParent) {
+			transform.SetLocalMatrix(XMMatrixTranspose(XMMATRIX(&pNode->mTransformation.a1)));
+		}
 
 		// Create a pointer to all the meshes this node owns
 		std::vector<Mesh*> curMeshPtrs;
@@ -126,17 +148,24 @@ namespace Insight {
 	unique_ptr<Mesh> Model::ProcessMesh(aiMesh* pMesh, const aiScene* pScene)
 	{
 		using namespace DirectX;
-		std::vector<Vertex3D> verticies; //verticies.reserve(pMesh->mNumVertices);
+		std::vector<Vertex3D> verticies; verticies.reserve(pMesh->mNumVertices);
 		std::vector<DWORD> indices;
 		
 		// Load Verticies
 		for (UINT i = 0; i < pMesh->mNumVertices; i++) {
 
 			Vertex3D vertex;
+
 			// Position
 			vertex.Position.x = pMesh->mVertices[i].x;
 			vertex.Position.y = pMesh->mVertices[i].y;
 			vertex.Position.z = pMesh->mVertices[i].z;
+
+			// Normals
+			vertex.Normal.x = (float)pMesh->mNormals[i].x;
+			vertex.Normal.y = (float)pMesh->mNormals[i].y;
+			vertex.Normal.z = (float)pMesh->mNormals[i].z;
+
 
 			// Texture Coords/Tangents
 			if (pMesh->mTextureCoords[0]) {
@@ -147,20 +176,17 @@ namespace Insight {
 				vertex.Tangent.x = pMesh->mTangents[i].x;
 				vertex.Tangent.y = pMesh->mTangents[i].y;
 				vertex.Tangent.z = pMesh->mTangents[i].z;
-				
+
 				vertex.BiTangent.x = pMesh->mBitangents[i].x;
 				vertex.BiTangent.y = pMesh->mBitangents[i].y;
 				vertex.BiTangent.z = pMesh->mBitangents[i].z;
+				
 			} else {
 
-				vertex.TexCoords = XMFLOAT2(0.0f, 0.0f);
-				vertex.Tangent = XMFLOAT3(0.0f, 0.0f, 0.0f);
-				vertex.BiTangent = XMFLOAT3(0.0f, 0.0f, 0.0f);
+				vertex.TexCoords = ieFloat2(0.0f, 0.0f);
+				vertex.Tangent = ieFloat3(0.0f, 0.0f, 0.0f);
+				vertex.BiTangent = ieFloat3(0.0f, 0.0f, 0.0f);
 			}
-			// Normals
-			vertex.Normal.x = (float)pMesh->mNormals[i].x;
-			vertex.Normal.y = (float)pMesh->mNormals[i].y;
-			vertex.Normal.z = (float)pMesh->mNormals[i].z;
 
 			verticies.push_back(vertex);
 		}

@@ -45,10 +45,14 @@ namespace Insight {
 		m_ResourceManager.Init();
 
 		// Create the Scene camera and default view target. 
-		//There should only be one camera in the world at 
+		// There should only be one camera in the world at 
 		// any given time.
 		m_EditorViewTarget = ACamera::GetDefaultViewTarget();
 		m_EditorViewTarget.FieldOfView = 75.0f;
+		//m_EditorViewTarget.Position = ieVector3(-17.0f, 8.0f, -31.0f);
+		m_EditorViewTarget.Position = ieVector3(88.0f, 88.0f, -109.0f);
+		m_EditorViewTarget.Rotation = ieVector3(0.478f, -.681f, 0.0f);
+		m_EditorViewTarget.NearZ = 0.001f;
 		m_pCamera = new ACamera(m_EditorViewTarget);
 		m_pCamera->SetCanBeFileParsed(false);
 		m_pCamera->SetPerspectiveProjectionValues(
@@ -69,7 +73,7 @@ namespace Insight {
 		m_pPlayerStart->SetCanBeFileParsed(false);
 		m_pSceneRoot->AddChild(m_pPlayerStart);
 		// Load the scene from .iescene folder containing all .json resource files
-		FileSystem::Get().LoadSceneFromJson(fileName, this);
+		FileSystem::LoadSceneFromJson(fileName, this);
 
 		// Tell the renderer to set init commands to the gpu
 		m_Renderer->PostInit();
@@ -121,15 +125,15 @@ namespace Insight {
 	void Scene::OnPreRender()
 	{
 		m_Renderer->OnPreFrameRender();
-		m_pSceneRoot->OnPreRender(XMMatrixIdentity());
-		m_ResourceManager.GetModelManager().UploadConstantBufferDataToGPU();
+		//Application::Get().GetImGuiLayer().Begin();
+		m_pSceneRoot->CalculateParent(XMMatrixIdentity());
+		m_ResourceManager.GetGeometryManager().GatherGeometry();
 	}
 
 	void Scene::OnRender()
 	{
 		m_Renderer->OnRender();
 		m_pSceneRoot->OnRender();
-		m_ResourceManager.GetModelManager().Render();
 	}
 
 	void Scene::OnMidFrameRender()
@@ -139,7 +143,7 @@ namespace Insight {
 
 	void Scene::OnPostRender()
 	{
-		m_ResourceManager.GetModelManager().PostRender();
+		m_ResourceManager.GetGeometryManager().PostRender();
 	}
 
 	void Scene::Destroy()

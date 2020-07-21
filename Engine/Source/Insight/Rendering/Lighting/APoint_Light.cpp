@@ -3,7 +3,7 @@
 #include "APoint_Light.h"
 
 #include "Insight/Runtime/Components/Actor_Component.h"
-#include "Platform/DirectX12/Direct3D12_Context.h"
+#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 #include "imgui.h"
 
 namespace Insight {
@@ -15,6 +15,9 @@ namespace Insight {
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
 		graphicsContext.AddPointLight(this);
+
+		m_ShaderCB.diffuse = ieVector3(1.0f, 1.0f, 1.0f);
+		m_ShaderCB.strength = 1.0f;
 	}
 
 	APointLight::~APointLight()
@@ -52,9 +55,9 @@ namespace Insight {
 			Writer.StartArray(); // Start Write Transform
 			{
 				Transform& Transform = SceneNode::GetTransformRef();
-				Vector3 Pos = Transform.GetPosition();
-				Vector3 Rot = Transform.GetRotation();
-				Vector3 Sca = Transform.GetScale();
+				ieVector3 Pos = Transform.GetPosition();
+				ieVector3 Rot = Transform.GetRotation();
+				ieVector3 Sca = Transform.GetScale();
 
 				Writer.StartObject();
 				// Position

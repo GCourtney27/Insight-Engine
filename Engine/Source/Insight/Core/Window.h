@@ -4,7 +4,7 @@
 
 #include <Insight/Core.h>
 #include "Insight/Events/Event.h"
-#include "Platform/DirectX12/Direct3D12_Context.h"
+#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 class RenderingContext;
 
@@ -17,7 +17,7 @@ namespace Insight {
 		UINT Width;
 		UINT Height;
 
-		WindowProps(const std::string& title = "Insight Engine", const std::string winClass = "IE Class", UINT width = 1700, UINT height = 1000)
+		WindowProps(const std::string& title = "Insight Editor", const std::string winClass = "IE Class", UINT width = 1700, UINT height = 1000)
 			: Title(title), Width(width), Height(height) {}
 	};
 

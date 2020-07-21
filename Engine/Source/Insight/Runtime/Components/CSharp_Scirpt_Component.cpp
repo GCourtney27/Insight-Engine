@@ -7,14 +7,19 @@
 #include "Insight/Core/Application.h"
 
 #include "imgui.h"
+#include <misc/cpp/imgui_stdlib.h>
 
 namespace Insight {
 
+	uint32_t CSharpScriptComponent::s_NumActiveCSScriptComponents = 0U;
 
 	CSharpScriptComponent::CSharpScriptComponent(AActor* pOwner)
 		: ActorComponent("C-Sharp Script Component", pOwner)
 	{
 		m_pMonoScriptManager = &ResourceManager::Get().GetMonoScriptManager();
+		if (m_pMonoScriptManager) {
+			m_pMonoScriptManager->RegisterScript(this);
+		}
 	}
 
 	CSharpScriptComponent::~CSharpScriptComponent()
@@ -24,12 +29,20 @@ namespace Insight {
 
 	void CSharpScriptComponent::OnAttach()
 	{
-		
+		m_ScriptWorldIndex = s_NumActiveCSScriptComponents++;
+		sprintf_s(m_IDBuffer, "CSS-%u", m_ScriptWorldIndex);
 	}
 
 	void CSharpScriptComponent::OnDetach()
 	{
+		s_NumActiveCSScriptComponents--;
+		Cleanup();
+	}
 
+	void CSharpScriptComponent::ReCompile()
+	{
+		Cleanup();
+		RegisterScript();
 	}
 
 	void CSharpScriptComponent::RegisterScript()
@@ -42,10 +55,10 @@ namespace Insight {
 
 		// Register the engine methods for the object
 		if (!m_pMonoScriptManager->CreateMethod(m_pClass, m_pBeginPlayMethod, m_ModuleName.c_str(), "BeginPlay()")) {
-			IE_CORE_ERROR("Failed to find method \"BeginPlay\" in \"{0}\"", m_ModuleName);
+			IE_CORE_ERROR("Failed to find method \"BeginPlay\" in script \"{0}\"", m_ModuleName);
 		}
 		if (!m_pMonoScriptManager->CreateMethod(m_pClass, m_pUpdateMethod, m_ModuleName.c_str(), "Tick(double)")) {
-			IE_CORE_ERROR("Failed to find method \"Tick\" in \"{0}\"", m_ModuleName);
+			IE_CORE_ERROR("Failed to find method \"Tick\" in script \"{0}\"", m_ModuleName);
 		}
 
 		GetTransformFields();
@@ -54,7 +67,10 @@ namespace Insight {
 
 	void CSharpScriptComponent::Cleanup()
 	{
-		m_pMonoScriptManager = nullptr;
+		if (m_pMonoScriptManager) {
+			m_pMonoScriptManager = nullptr;
+		}
+		ResourceManager::Get().GetMonoScriptManager().UnRegisterScript(this);
 	}
 
 	bool CSharpScriptComponent::LoadFromJson(const rapidjson::Value& jsonCSScriptComponent)
@@ -97,23 +113,23 @@ namespace Insight {
 		Cleanup();
 	}
 
-	void CSharpScriptComponent::OnPreRender(const DirectX::XMMATRIX& matrix)
+	void CSharpScriptComponent::CalculateParent(const DirectX::XMMATRIX& matrix)
 	{
 	}
 
 	void CSharpScriptComponent::UpdateScriptFields()
 	{
-		Vector3 currentPos = m_pOwner->GetTransformRef().GetPosition();
+		ieVector3 currentPos = m_pOwner->GetTransformRef().GetPosition();
 		mono_field_set_value(m_PositionObj, m_XPositionField, &currentPos.x);
 		mono_field_set_value(m_PositionObj, m_YPositionField, &currentPos.y);
 		mono_field_set_value(m_PositionObj, m_ZPositionField, &currentPos.z);
 
-		Vector3 currentRot = m_pOwner->GetTransformRef().GetRotation();
+		ieVector3 currentRot = m_pOwner->GetTransformRef().GetRotation();
 		mono_field_set_value(m_RotationObj, m_XRotationField, &currentRot.x);
 		mono_field_set_value(m_RotationObj, m_YRotationField, &currentRot.y);
 		mono_field_set_value(m_RotationObj, m_ZRotationField, &currentRot.z);
 
-		Vector3 currentSca = m_pOwner->GetTransformRef().GetScale();
+		ieVector3 currentSca = m_pOwner->GetTransformRef().GetScale();
 		mono_field_set_value(m_ScaleObj, m_XScaleField, &currentSca.x);
 		mono_field_set_value(m_ScaleObj, m_YScaleField, &currentSca.y);
 		mono_field_set_value(m_ScaleObj, m_ZScaleField, &currentSca.z);
@@ -193,11 +209,17 @@ namespace Insight {
 
 	void CSharpScriptComponent::OnImGuiRender()
 	{
+		ImGui::PushID(m_IDBuffer);
+
 		if (ImGui::CollapsingHeader(m_ComponentName, ImGuiTreeNodeFlags_DefaultOpen)) {
-			
-			ImGui::Text("Module Name: "); ImGui::SameLine();
-			ImGui::Text(m_ModuleName.c_str());
+
+			if (ImGui::InputText("##CSModuleNameField", &m_ModuleName, ImGuiInputTextFlags_EnterReturnsTrue)) {
+				RegisterScript();
+			}
+
 		}
+
+		ImGui::PopID();
 	}
 
 	void CSharpScriptComponent::RenderSceneHeirarchy()

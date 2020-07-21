@@ -5,7 +5,7 @@
 #include "Insight/Rendering/Geometry/Vertex.h"
 #include "Insight/Math/Transform.h"
 #include "Insight/Core/Scene/Scene_Node.h"
-#include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
+#include "Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
 #include "Insight/Rendering/Material.h"
 
 namespace Insight {
@@ -14,7 +14,7 @@ namespace Insight {
 	{
 	public:
 		typedef std::vector<Vertex3D> Verticies;
-		typedef std::vector<DWORD> Indices;
+		typedef std::vector<unsigned long> Indices;
 	public:
 		Mesh(Verticies verticies, Indices indices);
 		Mesh() {}
@@ -22,9 +22,9 @@ namespace Insight {
 		~Mesh();
 
 		void Init(Verticies verticies, Indices indices);
-		void InitializeLocalVariables();
+		void InitializeVariables();
 		void PreRender(const XMMATRIX& parentMat);
-		void Render();
+		void Render(ID3D12GraphicsCommandList*& pCommandList);
 		void Destroy();
 		void OnImGuiRender();
 
@@ -32,10 +32,10 @@ namespace Insight {
 		inline const Transform& GetTransform() const { return m_Transform; }
 		CB_VS_PerObject GetConstantBuffer();
 		
-		const UINT& GetNumVertices() const { return m_NumVerticies; }
-		const UINT& GetNumIndices()  const { return m_NumIndices; }
-		const int& GetVertexBufferSize() const { return m_VBufferSize; }
-		const int& GetIndexBufferSize() const { return m_IBufferSize; }
+		const uint32_t GetNumVertices() const { return m_NumVerticies; }
+		const uint32_t GetNumIndices()  const { return m_NumIndices; }
+		const uint32_t GetVertexBufferSize() const { return m_VBufferSize; }
+		const uint32_t GetIndexBufferSize() const { return m_IBufferSize; }
 
 	private:
 		void SetupMesh();
@@ -52,19 +52,18 @@ namespace Insight {
 		ID3D12Resource*				m_pIndexBuffer = 0;
 		D3D12_INDEX_BUFFER_VIEW		m_IndexBufferView = {};
 
-		ID3D12Device*				m_pLogicalDevice = 0;
-		ID3D12GraphicsCommandList*	m_pCommandList = 0;
+		ID3D12Device*				m_pDeviceContext = 0;
 
-		UINT						m_NumVerticies = 0;
-		UINT						m_NumIndices = 0;
-		UINT						m_VBufferSize = 0;
-		UINT						m_IBufferSize = 0;
-		std::vector<Vertex3D>		m_Verticies;
-		std::vector<DWORD>			m_Indices;
+		uint32_t					m_NumVerticies = 0;
+		uint32_t					m_NumIndices = 0;
+		uint32_t					m_VBufferSize = 0;
+		uint32_t					m_IBufferSize = 0;
+		Verticies					m_Verticies;
+		Indices						m_Indices;
 
 		Transform					m_Transform;
-		Material					m_Material;
 		CB_VS_PerObject				m_ConstantBufferPerObject = {};
 
+		bool						m_CastsShadows = true;
 	};
 }

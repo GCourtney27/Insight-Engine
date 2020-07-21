@@ -1,24 +1,24 @@
 #pragma once
-#include <DirectXMath.h>
+#include "Insight/Math/ieVectors.h"
 
 namespace Insight {
 
-	using DirectX::XMFLOAT3;
-	using DirectX::XMFLOAT2;
+	using Math::ieFloat2;
+	using Math::ieFloat3;
 
 	struct Vertex3D
 	{
-		XMFLOAT3 Position	 = {};
-		XMFLOAT2 TexCoords	 = {};
-		XMFLOAT3 Normal		 = {};
-		XMFLOAT3 Tangent	 = {};
-		XMFLOAT3 BiTangent	 = {};
+		ieFloat3 Position	 = {};
+		ieFloat2 TexCoords	 = {};
+		ieFloat3 Normal		 = {};
+		ieFloat3 Tangent	 = {};
+		ieFloat3 BiTangent	 = {};
 	};
 
 	struct ScreenSpaceVertex
 	{
-		XMFLOAT3 Position	 = {};
-		XMFLOAT2 TexCoords	 = {};
+		ieFloat3 Position	 = {};
+		ieFloat2 TexCoords	 = {};
 	};
 
 }

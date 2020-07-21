@@ -31,7 +31,7 @@ namespace Insight {
 		virtual bool OnInit();
 		virtual bool OnPostInit();
 		virtual void OnUpdate(const float& deltaMs);
-		virtual void OnPreRender(XMMATRIX parentMat);
+		virtual void CalculateParent(XMMATRIX parentMat);
 		virtual void OnRender();
 		virtual void Destroy();
 
@@ -41,7 +41,6 @@ namespace Insight {
 		virtual void Tick(const float& deltaMs);
 		virtual void Exit();
 
-		void SetRenderPass(RenderPass renderPass) { m_RenderPass = renderPass; }
 		ActorId GetId() { return m_Id; }
 	public:
 		template<typename T>
@@ -67,13 +66,12 @@ namespace Insight {
 			return component;
 		}
 		void RemoveSubobject(StrongActorComponentPtr component);
+		void RemoveAllSubobjects();
 		std::vector<StrongActorComponentPtr> GetAllSubobjects() const { return m_Components; }
 		
 	protected:
-		const Vector3 WORLD_DIRECTION = WORLD_DIRECTION.Zero;
-		RenderPass m_RenderPass = RenderPass::RenderPass_Static;
 		ActorComponents m_Components;
-		UINT m_NumComponents = 0;
+		uint32_t m_NumComponents = 0;
 		ActorId m_Id;
 	private:
 

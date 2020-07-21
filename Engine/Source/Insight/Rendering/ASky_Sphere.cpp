@@ -3,7 +3,7 @@
 #include "ASky_Sphere.h"
 
 #include "Insight/Runtime/Components/Actor_Component.h"
-#include "Platform/DirectX12/Direct3D12_Context.h"
+#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 #include "Insight/Systems/File_System.h"
 
 namespace Insight {
@@ -15,7 +15,7 @@ namespace Insight {
 	{
 		m_Sphere.Init(10, 20, 20);
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		m_pCommandList = &graphicsContext.GetCommandList();
+		m_pCommandList = &graphicsContext.GetScenePassCommandList();
 		graphicsContext.AddSkySphere(this);
 	}
 
@@ -33,7 +33,8 @@ namespace Insight {
 		CDescriptorHeapWrapper& cbvSrvheap = graphicsContext.GetCBVSRVDescriptorHeap();
 
 		Texture::IE_TEXTURE_INFO diffuseInfo;
-		diffuseInfo.Filepath = StringHelper::StringToWide(FileSystem::Get().GetRelativeAssetDirectoryPath(diffuseMap));
+		diffuseInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(diffuseMap));
+		diffuseInfo.AssetDirectoryRelPath = diffuseMap;
 		diffuseInfo.Type = Texture::eTextureType::SKY_DIFFUSE;
 		diffuseInfo.GenerateMipMaps = true;
 		diffuseInfo.IsCubeMap = true;
@@ -56,9 +57,9 @@ namespace Insight {
 			Writer.StartArray(); // Start Write Transform
 			{
 				Transform& Transform = SceneNode::GetTransformRef();
-				Vector3 Pos = Transform.GetPosition();
-				Vector3 Rot = Transform.GetRotation();
-				Vector3 Sca = Transform.GetScale();
+				ieVector3 Pos = Transform.GetPosition();
+				ieVector3 Rot = Transform.GetRotation();
+				ieVector3 Sca = Transform.GetScale();
 
 				Writer.StartObject();
 				// Position
@@ -93,7 +94,7 @@ namespace Insight {
 			{
 				Writer.StartObject();
 				Writer.Key("Diffuse");
-				Writer.String(StringHelper::WideToString(m_Diffuse.GetFilepath()).c_str());
+				Writer.String(m_Diffuse.GetAssetDirectoryRelPath().c_str());
 				Writer.EndObject();
 			}
 			Writer.EndArray();
