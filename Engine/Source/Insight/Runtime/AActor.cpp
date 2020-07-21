@@ -161,8 +161,12 @@ namespace Insight {
 	static int currentIndex = 0;
 	void AActor::OnImGuiRender()
 	{
-		ImGui::InputText("##ActorNameField", &m_DisplayName, ImGuiInputTextFlags_EnterReturnsTrue);
-		
+		if (ImGui::InputText("##ActorNameField", &m_DisplayName, ImGuiInputTextFlags_EnterReturnsTrue)) {
+			if (m_DisplayName == "") {
+				m_DisplayName = "MyActor";
+			}
+		}
+
 		ImGuiTreeNodeFlags TreeFlags = ImGuiTreeNodeFlags_Leaf;
 		if (ImGui::TreeNodeEx("Actions", ImGuiTreeNodeFlags_OpenOnArrow)) {
 
@@ -209,13 +213,13 @@ namespace Insight {
 					StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<StaticMeshComponent>();
 					static_cast<StaticMeshComponent*>(ptr.get())->SetMaterial(std::move(Material::CreateDefaultTexturedMaterial()));
 					static_cast<StaticMeshComponent*>(ptr.get())->AttachMesh("Models/Quad.obj");
-					
+
 					break;
 				}
 				case 2:
 				{
 					IE_CORE_INFO("Adding C-Sharp script component to \"{0}\"", AActor::GetDisplayName());
-					 StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<CSharpScriptComponent>();
+					StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<CSharpScriptComponent>();
 					break;
 				}
 				default:

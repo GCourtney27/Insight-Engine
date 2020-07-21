@@ -38,9 +38,6 @@ namespace Insight {
 
 	LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-		if (ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam)) {
-			return true;
-		}
 
 		switch (uMsg) {
 		case WM_NCCREATE:

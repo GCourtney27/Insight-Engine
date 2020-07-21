@@ -14,7 +14,7 @@ namespace Insight {
 		: AActor(id, type)
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		graphicsContext.AddPointLight(this);
+		graphicsContext.RegisterPointLight(this);
 
 		m_ShaderCB.diffuse = ieVector3(1.0f, 1.0f, 1.0f);
 		m_ShaderCB.strength = 1.0f;
@@ -142,6 +142,8 @@ namespace Insight {
 
 	void APointLight::Destroy()
 	{
+		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
+		graphicsContext.UnRegisterPointLight(this);
 	}
 
 	void APointLight::OnEvent(Event& e)
