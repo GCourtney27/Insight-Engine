@@ -39,7 +39,7 @@ namespace Insight {
 		m_pSceneRoot = new SceneNode("Scene Root");
 
 		// Get the render context from the main window
-		m_Renderer = Application::Get().GetWindow().GetRenderContext();
+		//m_Renderer = RenderingContext::Get();
 
 		// Initialize resource managers this scene will need.
 		m_ResourceManager.Init();

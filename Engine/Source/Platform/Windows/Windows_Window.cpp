@@ -2,18 +2,17 @@
 
 #include "Windows_Window.h"
 
-#include "Platform/Windows/Window_Resources/Resource.h"
 #include "Insight/Core/Application.h"
-#include "Insight/Events/Application_Event.h"
-#include "Insight/Events/Mouse_Event.h"
-#include "Insight/Events/Key_Event.h"
-#include "Insight/Utilities/String_Helper.h"
-#include "Insight/Core/Log.h"
+#include "Insight/Rendering/Rendering_Context.h"
 
-#include <imgui.h>
-//#include <examples/imgui_impl_win32.h>
-//#include <examples/imgui_impl_dx12.h>
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+#include "Insight/Core/Log.h"
+#include "Insight/Utilities/String_Helper.h"
+#include "Platform/Windows/Window_Resources/Resource.h"
+
+#include "Insight/Events/Key_Event.h"
+#include "Insight/Events/Mouse_Event.h"
+#include "Insight/Events/Application_Event.h"
+
 
 namespace Insight {
 
@@ -344,7 +343,7 @@ namespace Insight {
 	bool WindowsWindow::Init(const WindowProps& props)
 	{
 		HRESULT hr = CoInitialize(NULL);
-		ThrowIfFailed(hr, "Failed to initialize COM library.");
+		//ThrowIfFailed(hr, "Failed to initialize COM library.");
 
 		static bool raw_input_initialized = false;
 		if (raw_input_initialized == false)
@@ -406,20 +405,6 @@ namespace Insight {
 			return false;
 		}
 
-		// Create and Initialize the renderer. We are using Direct3D 12
-		{
-			Profiling::ScopedTimer timer("WindowsWindow::Init::RendererInit");
-
-			m_pRendererContext = std::make_shared<Direct3D12Context>(this);
-			if (!m_pRendererContext->Init())
-			{
-				IE_CORE_FATAL(L"Failed to initialize graphics context");
-				return false;
-			}
-			else {
-				IE_CORE_TRACE("Renderer Initialized");
-			}
-		}
 		m_Data.hGraphicsVisualizeSubMenu = m_hGraphicsVisualizeSubMenu;
 
 		ShowWindow(m_hWindow, m_nCmdShowArgs);
@@ -560,13 +545,13 @@ namespace Insight {
 	{
 		m_Data.Width = newWidth;
 		m_Data.Height = newHeight;
-		m_pRendererContext->SetWindowWidthAndHeight(newWidth, newHeight, isMinimized);
+		RenderingContext::Get().SetWindowWidthAndHeight(newWidth, newHeight, isMinimized);
 	}
 
 	void WindowsWindow::ToggleFullScreen(bool enabled)
 	{
 		m_Data.FullScreenEnabled = enabled;
-		m_pRendererContext->OnWindowFullScreen();
+		RenderingContext::Get().OnWindowFullScreen();
 	}
 
 	bool WindowsWindow::ProccessWindowMessages()
@@ -604,18 +589,18 @@ namespace Insight {
 
 	void WindowsWindow::OnFramePreRender()
 	{
-		m_pRendererContext->OnPreFrameRender();
+		RenderingContext::Get().OnPreFrameRender();
 	}
 
 	void WindowsWindow::OnRender()
 	{
-		m_pRendererContext->OnRender();
+		RenderingContext::Get().OnRender();
 	}
 
 	void WindowsWindow::ExecuteDraw()
 	{
-		m_pRendererContext->ExecuteDraw();
-		m_pRendererContext->SwapBuffers();
+		RenderingContext::Get().ExecuteDraw();
+		RenderingContext::Get().SwapBuffers();
 	}
 
 	bool WindowsWindow::SetWindowTitle(const std::string& NewText, bool completlyOverride)
@@ -651,7 +636,7 @@ namespace Insight {
 	{
 		IE_CORE_INFO("V-sync: " + enabled ? "enabled" : "disabled");
 		m_Data.VSyncEnabled = enabled;
-		m_pRendererContext->SetVSyncEnabled(m_Data.VSyncEnabled);
+		RenderingContext::Get().SetVSyncEnabled(m_Data.VSyncEnabled);
 	}
 
 	const bool& WindowsWindow::IsVsyncActive() const
@@ -674,13 +659,14 @@ namespace Insight {
 			DestroyWindow(m_hWindow);
 		}
 
-		m_pRendererContext.reset();
+		// TODO Cleanup context
+		//RenderingContext::Get().Destroy()
 	}
 
 	void WindowsWindow::EndFrame()
 	{
-		m_pRendererContext->ExecuteDraw();
-		m_pRendererContext->SwapBuffers();
+		RenderingContext::Get().ExecuteDraw();
+		RenderingContext::Get().SwapBuffers();
 	}
 
 }

@@ -53,6 +53,8 @@ namespace Insight {
 
 	bool Direct3D12Context::Init()
 	{
+		IE_CORE_INFO("Renderer: D3D 12");
+
 		try {
 			CreateDXGIFactory();
 			CreateDevice();
@@ -484,6 +486,21 @@ namespace Insight {
 			ShowWindow(*m_pWindowHandle, SW_MAXIMIZE);
 		}
 		m_FullScreenMode = !m_FullScreenMode;
+	}
+
+	bool Direct3D12Context::SetVertexBuffers(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer)
+	{
+		return false;
+	}
+
+	bool Direct3D12Context::SetIndexBuffers(IndexBuffer Buffer)
+	{
+		return false;
+	}
+
+	bool Direct3D12Context::DrawIndexedInstanced(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation)
+	{
+		return false;
 	}
 
 	void Direct3D12Context::CreateSwapChain()

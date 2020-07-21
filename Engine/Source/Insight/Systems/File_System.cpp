@@ -55,7 +55,7 @@ namespace Insight {
 	{
 		wchar_t Folder[1024];
 		HRESULT hr = SHGetFolderPathW(NULL, CSIDL_MYDOCUMENTS, 0, 0, Folder);
-		ThrowIfFailed(hr, "Failed to get path to user documents folder.");
+		//ThrowIfFailed(hr, "Failed to get path to user documents folder.");
 		
 		return StringHelper::WideToString(std::wstring{ Folder });
 	}

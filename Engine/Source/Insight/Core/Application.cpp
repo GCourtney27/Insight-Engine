@@ -7,6 +7,7 @@
 #include "Insight/Layer_Types/ImGui_Layer.h"
 #include "Platform/Windows/Windows_Window.h"
 #include "Insight/Core/ieException.h"
+#include "Insight/Rendering/Rendering_Context.h"
 
 // Scenes (Development-Project)
 // ----------------------------
@@ -38,6 +39,9 @@ namespace Insight {
 			IE_CORE_FATAL(L"Fatal Error: Failed to initialize window.");
 			return false;
 		}
+
+		RenderingContext::SetContext(RenderingContext::RenderingAPI::D3D_12);
+		RenderingContext::Get().Init();
 
 		if (!Init()) {
 			IE_CORE_FATAL(L"Fatal Error: Failed to initiazlize application for Windows.");

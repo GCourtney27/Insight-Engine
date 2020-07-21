@@ -71,6 +71,11 @@ namespace Insight {
 		// Tells the swapchain to enable full screen rendering.
 		virtual void OnWindowFullScreen() override;
 
+		virtual bool SetVertexBuffers(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer) override;
+		virtual bool SetIndexBuffers(IndexBuffer Buffer) override;
+		virtual bool DrawIndexedInstanced(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) override;
+
+
 		inline static Direct3D12Context& Get() { return *s_Instance; }
 		inline ID3D12Device& GetDeviceContext() const { return *m_pDeviceContext.Get(); }
 

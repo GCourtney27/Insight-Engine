@@ -3,9 +3,13 @@
 #include "Mesh.h"
 
 #include "Insight/Core/Application.h"
-#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
+#include "Insight/Rendering/Rendering_Context.h"
+
 #include "Insight/Runtime/APlayer_Character.h"
 #include "imgui.h"
+
+// TEMP
+#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 namespace Insight {
 
@@ -85,6 +89,7 @@ namespace Insight {
 		m_IBufferSize = m_NumIndices * sizeof(uint32_t);
 		m_VBufferSize = m_NumVerticies * sizeof(Vertex3D);
 
+		//pRenderingContext = 
 		m_pDeviceContext = &Direct3D12Context::Get().GetDeviceContext();
 	}
 
