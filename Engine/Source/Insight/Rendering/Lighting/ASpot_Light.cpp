@@ -15,7 +15,7 @@ namespace Insight {
 		: AActor(id, type)
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		graphicsContext.AddSpotLight(this);
+		graphicsContext.RegisterSpotLight(this);
 
 		m_ShaderCB.diffuse = ieVector3(1.0f, 1.0f, 1.0f);
 		m_ShaderCB.direction = Vector3::Down;
@@ -161,6 +161,8 @@ namespace Insight {
 
 	void ASpotLight::Destroy()
 	{
+		Direct3D12Context& GraphicsContext = Direct3D12Context::Get();
+		GraphicsContext.UnRegisterSpotLight(this);
 	}
 
 	void ASpotLight::OnEvent(Event& e)

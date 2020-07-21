@@ -16,7 +16,7 @@ namespace Insight {
 		: AActor(id, type)
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		graphicsContext.AddDirectionalLight(this);
+		graphicsContext.RegisterDirectionalLight(this);
 
 		AActor::GetTransformRef().SetPosition(0.0f, -1.0f, -6.0f);
 
@@ -202,6 +202,8 @@ namespace Insight {
 
 	void ADirectionalLight::Destroy()
 	{
+		Direct3D12Context& GraphicsContext = Direct3D12Context::Get();
+		GraphicsContext.UnRegisterDirectionalLight(this);
 	}
 
 	void ADirectionalLight::OnEvent(Event& e)

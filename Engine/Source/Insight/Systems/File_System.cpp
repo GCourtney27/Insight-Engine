@@ -31,6 +31,7 @@ namespace Insight {
 		FileSystem::ProjectDirectory += FileSystem::GetUserDocumentsFolderPath();
 		FileSystem::ProjectDirectory += "/Insight Projects/";
 		FileSystem::ProjectDirectory += ProjectName;
+		FileSystem::ProjectDirectory += "/";
 		return true;
 	}
 
@@ -215,7 +216,8 @@ namespace Insight {
 
 	bool FileSystem::FileExists(const std::string& Path)
 	{
-		return PathFileExistsA(Path.c_str());
+		std::string RawPath = ProjectDirectory + "Assets/" + Path;
+		return PathFileExistsA(RawPath.c_str());
 	}
 
 

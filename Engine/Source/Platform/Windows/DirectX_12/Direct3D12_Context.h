@@ -29,6 +29,7 @@ namespace Insight {
 	class ADirectionalLight;
 	class APointLight;
 	class ASpotLight;
+
 	class ACamera;
 
 	class ScreenQuad
@@ -94,11 +95,14 @@ namespace Insight {
 
 
 		// Add a Directional Light to the scene. 
-		void AddDirectionalLight(ADirectionalLight* pointLight) { m_DirectionalLights.push_back(pointLight); }
+		void RegisterDirectionalLight(ADirectionalLight* DirectionalLight) { m_DirectionalLights.push_back(DirectionalLight); }
+		void UnRegisterDirectionalLight(ADirectionalLight* DirectionalLight);
 		// Add a Point Light to the scene. 
-		void AddPointLight(APointLight* pointLight) { m_PointLights.push_back(pointLight); }
+		void RegisterPointLight(APointLight* PointLight) { m_PointLights.push_back(PointLight); }
+		void UnRegisterPointLight(APointLight* PointLight);
 		// Add a Spot Light to the scene. 
-		void AddSpotLight(ASpotLight* spotLight) { m_SpotLights.push_back(spotLight); }
+		void RegisterSpotLight(ASpotLight* SpotLight) { m_SpotLights.push_back(SpotLight); }
+		void UnRegisterSpotLight(ASpotLight* SpotLight);
 
 		// Add Sky Sphere to the scene. There can never be more than one in the scene at any given time.
 		void AddSkySphere(ASkySphere* skySphere) { if (!m_pSkySphere) { m_pSkySphere = skySphere; } }
