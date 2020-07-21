@@ -62,6 +62,7 @@
 	#include <windowsx.h>
 	#include <shlobj.h>
 	#include "Shlwapi.h"
+	#include <strsafe.h>
 
 	// Direct3D 12
 	#include <d3d12.h>

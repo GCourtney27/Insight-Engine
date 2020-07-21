@@ -164,7 +164,7 @@ namespace Insight {
 		
 		ImGui::Spacing();
 
-		ImGui::Text("Transform##Actor");
+		ImGui::Text("Transform - Actor");
 		ImGui::DragFloat3("Position##Actor", &SceneNode::GetTransformRef().GetPositionRef().x, 0.05f, -100.0f, 100.0f);
 		ImGui::DragFloat3("Scale##Actor", &SceneNode::GetTransformRef().GetScaleRef().x, 0.05f, -100.0f, 100.0f);
 		ImGui::DragFloat3("Rotation##Actor", &SceneNode::GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);

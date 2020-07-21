@@ -6,6 +6,7 @@
 #include "Insight/Runtime/AActor.h"
 #include "Insight/Layer_Types/ImGui_Layer.h"
 #include "Platform/Windows/Windows_Window.h"
+#include "Insight/Core/ieException.h"
 
 // Scenes (Development-Project)
 // ----------------------------
@@ -68,8 +69,10 @@ namespace Insight {
 		std::string DocumentPath = FileSystem::ProjectDirectory;
 		DocumentPath += "/Assets/Scenes/";
 		DocumentPath += TargetSceneName;
-
-		m_pGameLayer->LoadScene(DocumentPath);
+		
+		if (!m_pGameLayer->LoadScene(DocumentPath)) {
+			throw ieException("Failed to initialize scene");
+		}
 		PushEngineLayers();
 
 		IE_CORE_TRACE("Application Initialized");

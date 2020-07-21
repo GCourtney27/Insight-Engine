@@ -20,13 +20,13 @@ namespace Insight {
 	Texture::Texture(Texture&& texture) noexcept
 	{
 		m_pTexture = texture.m_pTexture;
-		m_TextureDesc = texture.m_TextureDesc;
+		m_D3DTextureDesc = texture.m_D3DTextureDesc;
 		m_TextureInfo = texture.m_TextureInfo;
 		m_GPUHeapIndex = texture.m_GPUHeapIndex;
 	
 		texture.m_pTexture = nullptr;
 
-		texture.m_TextureDesc = {};
+		texture.m_D3DTextureDesc = {};
 		texture.m_GPUHeapIndex = 0u;
 
 		m_pCommandList = nullptr;
@@ -73,9 +73,12 @@ namespace Insight {
 		ResourceUploadBatch resourceUpload(pDevice);
 		resourceUpload.Begin();
 
-		ThrowIfFailed(CreateWICTextureFromFile(pDevice, resourceUpload, m_TextureInfo.Filepath.c_str(), &m_pTexture, m_TextureInfo.GenerateMipMaps), "Failed to Create WIC texture from file.");
-		m_TextureDesc = m_pTexture->GetDesc();
-		if (!resourceUpload.IsSupportedForGenerateMips(m_TextureDesc.Format)) {
+		HRESULT hr = CreateWICTextureFromFile(pDevice, resourceUpload, m_TextureInfo.Filepath.c_str(), &m_pTexture, m_TextureInfo.GenerateMipMaps);
+		if (FAILED(hr)) {
+			IE_CORE_ERROR("Failed to Create WIC texture from file.");
+		}
+		m_D3DTextureDesc = m_pTexture->GetDesc();
+		if (!resourceUpload.IsSupportedForGenerateMips(m_D3DTextureDesc.Format)) {
 			//IE_CORE_WARN("Mip map generation not supported for texture: {0}", m_DisplayName);
 		}
 
@@ -86,8 +89,8 @@ namespace Insight {
 		uploadResourcesFinished.wait();
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-		srvDesc.Texture2D.MipLevels = m_TextureDesc.MipLevels;
-		srvDesc.Format = m_TextureDesc.Format;
+		srvDesc.Texture2D.MipLevels = m_D3DTextureDesc.MipLevels;
+		srvDesc.Format = m_D3DTextureDesc.Format;
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		pDevice->CreateShaderResourceView(m_pTexture.Get(), &srvDesc, srvHeapHandle.hCPU(CBVSRV_HEAP_TEXTURE_START + s_NumSceneTextures));
@@ -108,9 +111,12 @@ namespace Insight {
 
 		HRESULT hr;
 		hr = CreateDDSTextureFromFile(pDevice, ResourceUpload, m_TextureInfo.Filepath.c_str(), &m_pTexture, m_TextureInfo.GenerateMipMaps, 0, nullptr, &m_TextureInfo.IsCubeMap);
-		ThrowIfFailed(hr, "Failed to load DDS texture from file");
-		m_TextureDesc = m_pTexture->GetDesc();
-		if (!ResourceUpload.IsSupportedForGenerateMips(m_TextureDesc.Format)) {
+		if (FAILED(hr)) {
+			IE_CORE_ERROR("Failed to load DDS texture from file.");
+		}
+
+		m_D3DTextureDesc = m_pTexture->GetDesc();
+		if (!ResourceUpload.IsSupportedForGenerateMips(m_D3DTextureDesc.Format)) {
 			//IE_CORE_WARN("Mip map generation not supported for texture: {0}", m_DisplayName);
 		}
 
@@ -121,8 +127,8 @@ namespace Insight {
 		UploadResourcesFinished.wait();
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-		srvDesc.Texture2D.MipLevels = m_TextureDesc.MipLevels;
-		srvDesc.Format = m_TextureDesc.Format;
+		srvDesc.Texture2D.MipLevels = m_D3DTextureDesc.MipLevels;
+		srvDesc.Format = m_D3DTextureDesc.Format;
 		// Regular dds texture or a cubemap?
 		srvDesc.ViewDimension = (m_TextureInfo.Type >= eTextureType::SKY_IRRADIENCE) ? D3D12_SRV_DIMENSION_TEXTURECUBE : D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;

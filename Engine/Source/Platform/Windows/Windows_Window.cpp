@@ -369,10 +369,10 @@ namespace Insight {
 		AdjustWindowRect(&m_WindowRect, WS_OVERLAPPEDWINDOW | WS_EX_ACCEPTFILES, FALSE);
 
 		// Create the menu bar
-		InitializeMenuBar();
+		IE_STRIP_FOR_GAME_DIST(InitializeMenuBar();)
 
 		// Create mouse Right-Click context menu
-		InitializeContextMenu();
+		IE_STRIP_FOR_GAME_DIST(InitializeContextMenu();)
 
 		// Create the main window for the engine/game
 		m_hWindow = CreateWindowExW(

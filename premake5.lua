@@ -132,8 +132,7 @@ project ("Engine")
 		postbuildcommands
 		{
 			("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/Debug/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
-			--("{COPY} %{wks.location}Bin/"..outputdir.."/"..csharpAssemblyProjectName.."/"..csharpAssemblyProjectName..".dll %{wks.location}Bin/"..outputdir.."/Engine")
+			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine")
 		}
 	-- Engine Release
 	filter "configurations:Release"
@@ -169,7 +168,7 @@ project ("Engine")
 			("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
 			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine")
 		}
-	-- Full Game Distribution, all engine debug tools(leel editors, editor user interfaces) stripped
+	-- Full Game Distribution, all engine debug tools(level editors, editor user interfaces) stripped
 	filter "configurations:Game-Dist"
 		defines "IE_GAME_DIST"
 		runtime "Release"
@@ -250,48 +249,4 @@ project (gameName)
 		optimize "on"
 		symbols "on"
 
-
--- -- CSharp Scripting
--- project (csharpAssemblyProjectName)
--- 	location(csharpAssemblyProjectName)
--- 	kind("SharedLib")
--- 	language("C#")
--- 	targetdir ("Bin/" .. outputdir .. "/%{prj.name}")
--- 	objdir ("Bin-Int/" .. outputdir .. "/%{prj.name}")
-
--- 	files
--- 	{
--- 		-- Source code
--- 		"%{prj.name}/Source/**.cs",
--- 		"%{prj.name}/Source/**.xaml",
--- 		"%{prj.name}/Source/**.xaml.cs",
--- 		"%{prj.name}/Source/**.config",
--- 		-- Internal
--- 		"%{prj.name}/Internal/**.cs",
--- 		"%{prj.name}/Internal/**.xaml",
--- 		"%{prj.name}/Internal/**.xaml.cs",
--- 		"%{prj.name}/Internal/**.config"
--- 	}
-
--- 	links
--- 	{
--- 		"Microsoft.CSharp",
--- 		"PresentationCore",
--- 		"PresentationFramework",
--- 		"System",
--- 		"System.Core",
--- 		"System.Data",
--- 		"System.Data.DataSetExtensions",
--- 		"System.Net.Http",
--- 		"System.Xaml",
--- 		"System.Xml",
--- 		"System.Xml.Linq",
--- 		"WindowsBase",
--- 	}
-
--- 	postbuildcommands
--- 	{
--- 		-- ("{COPY} %{wks.location}Bin/$(TargetDir)/%{prj.name}.dll %{wks.location}Bin/"..outputdir.."/Engine")
--- 		("{COPY} $(TargetDir)%{prj.name}.dll $(TargetDir)../Engine/")
--- 	}
 	

@@ -52,12 +52,12 @@ namespace Insight {
 		ImGui::SameLine();
 		ImGui::Text(m_FileName.c_str());
 
-		ImGui::Text("Transform##StaticMesh");
+		ImGui::Text("Transform - StaticMesh");
 		ImGui::DragFloat3("Position##StaticMesh", &m_pRoot->GetTransformRef().GetPositionRef().x, 0.05f, -1000.0f, 1000.0f);
 		ImGui::DragFloat3("Scale##StaticMesh", &m_pRoot->GetTransformRef().GetScaleRef().x, 0.05f, -1000.0f, 1000.0f);
 		ImGui::DragFloat3("Rotation##StaticMesh", &m_pRoot->GetTransformRef().GetRotationRef().x, 0.05f, -1000.0f, 1000.0f);
 
-		ImGui::Text("Rendering##StaticMesh");
+		ImGui::Text("Rendering");
 		ImGui::Checkbox("Casts Shadows ##StaticMesh", &m_CastsShadows);
 		ImGui::Checkbox("Visible ##StaticMesh", &m_Visible);
 	}
