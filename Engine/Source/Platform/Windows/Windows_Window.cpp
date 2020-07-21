@@ -9,7 +9,11 @@
 #include "Insight/Events/Key_Event.h"
 #include "Insight/Utilities/String_Helper.h"
 #include "Insight/Core/Log.h"
-#include <strsafe.h>
+
+#include <imgui.h>
+//#include <examples/imgui_impl_win32.h>
+//#include <examples/imgui_impl_dx12.h>
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace Insight {
 
@@ -29,8 +33,15 @@ namespace Insight {
 		m_Data.Height = props.Height;
 	}
 
+
+
+
 	LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
+		if (ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam)) {
+			return true;
+		}
+
 		switch (uMsg) {
 		case WM_NCCREATE:
 		{

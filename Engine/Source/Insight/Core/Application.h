@@ -38,8 +38,10 @@ namespace Insight {
 		// Remove a layer to the applications layer stack.
 		void PushOverlay(Layer* layer);
 
+		// Get the ImGui UI layer
+		inline ImGuiLayer& GetImGuiLayer() { return *m_pImGuiLayer; }
 		// Get the game layer that handles the update logic for the runtime components.
-		// Should only every be used for editor actions.
+		// Should only ever be used for editor actions.
 		inline GameLayer& GetGameLayer() { return *m_pGameLayer; }
 		// Get the editor layer for the application.
 		IE_STRIP_FOR_GAME_DIST(inline EditorLayer& GetEditorLayer() { return *m_pEditorLayer; })

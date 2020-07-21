@@ -24,7 +24,8 @@ namespace Insight {
 
 	void ImGuiLayer::OnAttach()
 	{
-		// TODO: Fix docking freezing the program
+		m_pIO = new ImGuiIO();
+
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -39,28 +40,31 @@ namespace Insight {
 		ImGui::StyleColorsDark();
 		//ImGui::StyleColorsClassic();
 
-		io.KeyMap[ImGuiKey_Tab] = VK_TAB;
-		io.KeyMap[ImGuiKey_LeftArrow] = VK_LEFT;
-		io.KeyMap[ImGuiKey_RightArrow] = VK_RIGHT;
-		io.KeyMap[ImGuiKey_UpArrow] = VK_UP;
-		io.KeyMap[ImGuiKey_DownArrow] = VK_DOWN;
-		io.KeyMap[ImGuiKey_PageUp] = VK_PRIOR;
-		io.KeyMap[ImGuiKey_PageDown] = VK_NEXT;
-		io.KeyMap[ImGuiKey_Home] = VK_HOME;
-		io.KeyMap[ImGuiKey_End] = VK_END;
-		io.KeyMap[ImGuiKey_Insert] = VK_INSERT;
-		io.KeyMap[ImGuiKey_Delete] = VK_DELETE;
-		io.KeyMap[ImGuiKey_Backspace] = VK_BACK;
-		io.KeyMap[ImGuiKey_Space] = VK_SPACE;
-		io.KeyMap[ImGuiKey_Enter] = VK_RETURN;
-		io.KeyMap[ImGuiKey_Escape] = VK_ESCAPE;
-		io.KeyMap[ImGuiKey_KeyPadEnter] = VK_RETURN;
-		io.KeyMap[ImGuiKey_A] = 'A';
-		io.KeyMap[ImGuiKey_C] = 'C';
-		io.KeyMap[ImGuiKey_V] = 'V';
-		io.KeyMap[ImGuiKey_X] = 'X';
-		io.KeyMap[ImGuiKey_Y] = 'Y';
-		io.KeyMap[ImGuiKey_Z] = 'Z';
+		// Set ImGui Key Bindings
+		{
+			io.KeyMap[ImGuiKey_Tab] = VK_TAB;
+			io.KeyMap[ImGuiKey_LeftArrow] = VK_LEFT;
+			io.KeyMap[ImGuiKey_RightArrow] = VK_RIGHT;
+			io.KeyMap[ImGuiKey_UpArrow] = VK_UP;
+			io.KeyMap[ImGuiKey_DownArrow] = VK_DOWN;
+			io.KeyMap[ImGuiKey_PageUp] = VK_PRIOR;
+			io.KeyMap[ImGuiKey_PageDown] = VK_NEXT;
+			io.KeyMap[ImGuiKey_Home] = VK_HOME;
+			io.KeyMap[ImGuiKey_End] = VK_END;
+			io.KeyMap[ImGuiKey_Insert] = VK_INSERT;
+			io.KeyMap[ImGuiKey_Delete] = VK_DELETE;
+			io.KeyMap[ImGuiKey_Backspace] = VK_BACK;
+			io.KeyMap[ImGuiKey_Space] = VK_SPACE;
+			io.KeyMap[ImGuiKey_Enter] = VK_RETURN;
+			io.KeyMap[ImGuiKey_Escape] = VK_ESCAPE;
+			io.KeyMap[ImGuiKey_KeyPadEnter] = VK_RETURN;
+			io.KeyMap[ImGuiKey_A] = 'A';
+			io.KeyMap[ImGuiKey_C] = 'C';
+			io.KeyMap[ImGuiKey_V] = 'V';
+			io.KeyMap[ImGuiKey_X] = 'X';
+			io.KeyMap[ImGuiKey_Y] = 'Y';
+			io.KeyMap[ImGuiKey_Z] = 'Z';
+		}
 
 		// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
 		ImGuiStyle& style = ImGui::GetStyle();
@@ -69,12 +73,14 @@ namespace Insight {
 			style.WindowRounding = 0.0f;
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
+		style.WindowRounding = 0.0f;
+		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
 
 		HWND* pWindowHandle = static_cast<HWND*>(Application::Get().GetWindow().GetNativeWindow());
-		
+
 		// Setup Platform/Renderer bindings
-		bool impleWin32Succeeded = ImGui_ImplWin32_Init((pWindowHandle));
+		bool impleWin32Succeeded = ImGui_ImplWin32_Init(pWindowHandle);
 		if (!impleWin32Succeeded)
 			IE_CORE_WARN("Failed to initialize ImGui for Win32. Some controls may not be functional or editor may not be rendered.");
 
@@ -95,6 +101,7 @@ namespace Insight {
 			IE_CORE_WARN("Failed to initialize ImGui for DX12. Editor will not be rendered");
 
 		m_pCommandList = &graphicsContext.GetScenePassCommandList();
+		*m_pIO = io;
 	}
 
 	void ImGuiLayer::OnDetach()
@@ -114,24 +121,26 @@ namespace Insight {
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 		ImGuizmo::BeginFrame();
+		ImGui::DockSpaceOverViewport(0, ImGuiDockNodeFlags_PassthruCentralNode);
 	}
 
 	void ImGuiLayer::End()
 	{
-		ImGuiIO& io = ImGui::GetIO();
+		//ImGuiIO& io = ImGui::GetIO();
+		
 		Application& app = Application::Get();
-		io.DisplaySize = ImVec2((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
-		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+		m_pIO->DisplaySize = ImVec2((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
+		m_pIO->DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
 
 		m_pCommandList->SetDescriptorHeaps(1, &m_pDescriptorHeap);
 		ImGui::Render();
 		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList);
 
-		/*if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		if (m_pIO->ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
 			ImGui::UpdatePlatformWindows();
 			ImGui::RenderPlatformWindowsDefault(NULL, (void*)m_pCommandList);
-		}*/
+		}
 	}
 
 	void ImGuiLayer::OnEvent(Event& event)

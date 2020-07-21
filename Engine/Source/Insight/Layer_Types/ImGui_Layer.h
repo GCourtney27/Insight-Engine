@@ -7,6 +7,8 @@
 #include "Insight/Events/Key_Event.h"
 #include "Insight/Events/Mouse_Event.h"
 
+struct ImGuiIO;
+
 namespace Insight {
 
 	class ImGuiLayer : public Layer
@@ -37,7 +39,7 @@ namespace Insight {
 		HWND* m_pWindowHandle = nullptr;
 		ID3D12DescriptorHeap* m_pDescriptorHeap = nullptr;
 		ID3D12GraphicsCommandList* m_pCommandList = nullptr;
-
+		ImGuiIO* m_pIO = nullptr;
 	};
 
 }
