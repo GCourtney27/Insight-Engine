@@ -18,20 +18,6 @@ namespace Insight {
 
 
 
-	bool Direct3D11Context::SetVertexBuffers(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer)
-	{
-		return false;
-	}
-
-	bool Direct3D11Context::SetIndexBuffers(IndexBuffer Buffer)
-	{
-		return false;
-	}
-
-	bool Direct3D11Context::DrawIndexedInstanced(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation)
-	{
-		return false;
-	}
 
 	Direct3D11Context::Direct3D11Context(WindowsWindow* WindowHandle) 
 		: m_pWindowHandle(&WindowHandle->GetWindowHandleReference()),
@@ -45,47 +31,63 @@ namespace Insight {
 	{
 	}
 
-	bool Direct3D11Context::Init()
+	bool Direct3D11Context::InitImpl()
 	{
 		IE_CORE_INFO("Renderer: D3D 11");
 
 		return false;
 	}
 
-	bool Direct3D11Context::PostInit()
+	void Direct3D11Context::SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer)
+	{
+	}
+
+	void Direct3D11Context::SetIndexBuffersImpl(IndexBuffer Buffer)
+	{
+	}
+
+	void Direct3D11Context::DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation)
+	{
+	}
+
+	void Direct3D11Context::DestroyImpl()
+	{
+	}
+
+	bool Direct3D11Context::PostInitImpl()
 	{
 		return false;
 	}
 
-	void Direct3D11Context::OnUpdate(const float& deltaTime)
+	void Direct3D11Context::OnUpdateImpl(const float DeltaMs)
 	{
 	}
 
-	void Direct3D11Context::OnPreFrameRender()
+	void Direct3D11Context::OnPreFrameRenderImpl()
 	{
 	}
 
-	void Direct3D11Context::OnRender()
+	void Direct3D11Context::OnRenderImpl()
 	{
 	}
 
-	void Direct3D11Context::OnMidFrameRender()
+	void Direct3D11Context::OnMidFrameRenderImpl()
 	{
 	}
 
-	void Direct3D11Context::ExecuteDraw()
+	void Direct3D11Context::ExecuteDrawImpl()
 	{
 	}
 
-	void Direct3D11Context::SwapBuffers()
+	void Direct3D11Context::SwapBuffersImpl()
 	{
 	}
 
-	void Direct3D11Context::OnWindowResize()
+	void Direct3D11Context::OnWindowResizeImpl()
 	{
 	}
 
-	void Direct3D11Context::OnWindowFullScreen()
+	void Direct3D11Context::OnWindowFullScreenImpl()
 	{
 	}
 

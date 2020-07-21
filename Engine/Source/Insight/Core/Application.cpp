@@ -41,7 +41,7 @@ namespace Insight {
 		}
 
 		RenderingContext::SetContext(RenderingContext::RenderingAPI::D3D_12);
-		RenderingContext::Get().Init();
+		RenderingContext::Init();
 
 		if (!Init()) {
 			IE_CORE_FATAL(L"Fatal Error: Failed to initiazlize application for Windows.");

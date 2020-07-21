@@ -659,8 +659,7 @@ namespace Insight {
 			DestroyWindow(m_hWindow);
 		}
 
-		// TODO Cleanup context
-		//RenderingContext::Get().Destroy()
+		RenderingContext::Get().Destroy();
 	}
 
 	void WindowsWindow::EndFrame()

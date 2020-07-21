@@ -30,12 +30,14 @@ namespace Insight {
 		{
 			WindowsWindow* Window = (WindowsWindow*)&Application::Get().GetWindow();
 			s_Instance = new Direct3D11Context(Window);
+			s_Instance->m_CurrentAPI = ContextType;
 			break;
 		}
 		case RenderingAPI::D3D_12:
 		{
 			WindowsWindow* Window = (WindowsWindow*)&Application::Get().GetWindow();
 			s_Instance = new Direct3D12Context(Window);
+			s_Instance->m_CurrentAPI = ContextType;
 			break;
 		}
 		default:
@@ -44,7 +46,6 @@ namespace Insight {
 			break;
 		}
 		}
-		s_Instance->m_CurrentAPI = ContextType;
 
 		return s_Instance != nullptr;
 	}

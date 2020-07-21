@@ -51,7 +51,7 @@ namespace Insight {
 		}
 	}
 
-	bool Direct3D12Context::Init()
+	bool Direct3D12Context::InitImpl()
 	{
 		IE_CORE_INFO("Renderer: D3D 12");
 
@@ -105,7 +105,12 @@ namespace Insight {
 		return true;
 	}
 
-	bool Direct3D12Context::PostInit()
+	void Direct3D12Context::DestroyImpl()
+	{
+		Cleanup();
+	}
+
+	bool Direct3D12Context::PostInitImpl()
 	{
 		m_pModelManager = &ResourceManager::Get().GetGeometryManager();
 		CloseCommandListAndSignalCommandQueue();
@@ -114,7 +119,7 @@ namespace Insight {
 		return true;
 	}
 
-	void Direct3D12Context::OnUpdate(const float& DeltaMs)
+	void Direct3D12Context::OnUpdateImpl(const float DeltaMs)
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
@@ -157,7 +162,7 @@ namespace Insight {
 		}
 	}
 
-	void Direct3D12Context::OnPreFrameRender()
+	void Direct3D12Context::OnPreFrameRenderImpl()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
@@ -189,7 +194,7 @@ namespace Insight {
 		m_pShadowPassCommandList->OMSetRenderTargets(0, nullptr, FALSE, &m_dsvHeap.hCPU(1));
 	}
 
-	void Direct3D12Context::OnRender()
+	void Direct3D12Context::OnRenderImpl()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
@@ -253,7 +258,7 @@ namespace Insight {
 		m_pModelManager->Render(RenderPass::RenderPass_Scene);
 	}
 
-	void Direct3D12Context::OnMidFrameRender()
+	void Direct3D12Context::OnMidFrameRenderImpl()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE
 
@@ -316,7 +321,7 @@ namespace Insight {
 		}
 	}
 
-	void Direct3D12Context::ExecuteDraw()
+	void Direct3D12Context::ExecuteDrawImpl()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
@@ -343,7 +348,7 @@ namespace Insight {
 		WaitForGPU();
 	}
 
-	void Direct3D12Context::SwapBuffers()
+	void Direct3D12Context::SwapBuffersImpl()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
@@ -377,7 +382,7 @@ namespace Insight {
 		m_FenceValues[m_FrameIndex] = currentFenceValue + 1;
 	}
 
-	void Direct3D12Context::OnWindowResize()
+	void Direct3D12Context::OnWindowResizeImpl()
 	{
 		if (!m_IsMinimized) {
 
@@ -415,7 +420,7 @@ namespace Insight {
 		m_WindowResizeComplete = true;
 	}
 
-	void Direct3D12Context::OnWindowFullScreen()
+	void Direct3D12Context::OnWindowFullScreenImpl()
 	{
 		if (m_FullScreenMode)
 		{
@@ -488,19 +493,16 @@ namespace Insight {
 		m_FullScreenMode = !m_FullScreenMode;
 	}
 
-	bool Direct3D12Context::SetVertexBuffers(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer)
+	void Direct3D12Context::SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer)
 	{
-		return false;
 	}
 
-	bool Direct3D12Context::SetIndexBuffers(IndexBuffer Buffer)
+	void Direct3D12Context::SetIndexBuffersImpl(IndexBuffer Buffer)
 	{
-		return false;
 	}
 
-	bool Direct3D12Context::DrawIndexedInstanced(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation)
+	void Direct3D12Context::DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation)
 	{
-		return false;
 	}
 
 	void Direct3D12Context::CreateSwapChain()

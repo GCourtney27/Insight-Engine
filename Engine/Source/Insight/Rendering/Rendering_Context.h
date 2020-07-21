@@ -25,20 +25,21 @@ namespace Insight {
 		static RenderingContext& Get() { return *s_Instance; }
 		static bool SetContext(RenderingAPI ContextType);
 
-		virtual bool Init() = 0;
-		virtual bool PostInit() = 0;
-		virtual void OnUpdate(const float& deltaTime) = 0;
-		virtual void OnPreFrameRender() = 0;
-		virtual void OnRender() = 0;
-		virtual void OnMidFrameRender() = 0;
-		virtual void ExecuteDraw() = 0;
-		virtual void SwapBuffers() = 0;
-		virtual void OnWindowResize() = 0;
-		virtual void OnWindowFullScreen() = 0;
+		static bool Init() { return s_Instance->InitImpl(); }
+		static void Destroy() { s_Instance->DestroyImpl(); }
+		static bool PostInit() { return s_Instance->PostInitImpl(); }
+		static void OnUpdate(const float DeltaMs) { s_Instance->OnUpdateImpl(DeltaMs); }
+		static void OnPreFrameRender() { s_Instance->OnPreFrameRenderImpl(); }
+		static void OnRender() { s_Instance->OnRenderImpl(); }
+		static void OnMidFrameRender() { s_Instance->OnMidFrameRenderImpl(); }
+		static void ExecuteDraw() { s_Instance->ExecuteDrawImpl(); }
+		static void SwapBuffers() { s_Instance->SwapBuffersImpl(); }
+		static void OnWindowResize() { s_Instance->OnWindowResizeImpl(); }
+		static void OnWindowFullScreen() { s_Instance->OnWindowFullScreenImpl(); }
 
-		virtual bool SetVertexBuffers(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer) = 0;
-		virtual bool SetIndexBuffers(IndexBuffer Buffer) = 0;
-		virtual bool DrawIndexedInstanced(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) = 0;
+		static void SetVertexBuffers(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer) { s_Instance->SetVertexBuffersImpl(StartSlot, NumBuffers, Buffer); }
+		static void SetIndexBuffers(IndexBuffer Buffer) { s_Instance->SetIndexBuffersImpl(Buffer); }
+		static void DrawIndexedInstanced(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) { s_Instance->DrawIndexedInstancedImpl(IndexCountPerInstance, NumInstances, StartIndexLocation, BaseVertexLoaction, StartInstanceLocation); }
 
 		inline static RenderingAPI GetAPI() { return s_Instance->m_CurrentAPI; }
 		inline static uint8_t GetFrameBufferCount() { return s_Instance->m_FrameBufferCount; }
@@ -51,6 +52,23 @@ namespace Insight {
 			s_Instance->m_AspectRatio = static_cast<float>(s_Instance->m_WindowWidth) / static_cast<float>(s_Instance->m_WindowHeight);
 			s_Instance->OnWindowResize();
 		}
+
+	private:
+		virtual bool InitImpl() = 0;
+		virtual void DestroyImpl() = 0;
+		virtual bool PostInitImpl() = 0;
+		virtual void OnUpdateImpl(const float DeltaMs) = 0;
+		virtual void OnPreFrameRenderImpl() = 0;
+		virtual void OnRenderImpl() = 0;
+		virtual void OnMidFrameRenderImpl() = 0;
+		virtual void ExecuteDrawImpl() = 0;
+		virtual void SwapBuffersImpl() = 0;
+		virtual void OnWindowResizeImpl() = 0;
+		virtual void OnWindowFullScreenImpl() = 0;
+
+		virtual void SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer) = 0;
+		virtual void SetIndexBuffersImpl(IndexBuffer Buffer) = 0;
+		virtual void DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) = 0;
 
 	protected:
 		RenderingContext(UINT windowWidth, UINT windowHeight, bool vSyncEabled);
