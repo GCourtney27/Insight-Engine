@@ -1,7 +1,8 @@
 #include <ie_pch.h>
 
 #include "ClientApp.h"
-#include <thread>
+#include "Insight/Core/ieException.h"
+
 // Copyright 2020 Garrett Courtney
 
 /*=====================================================================
@@ -26,11 +27,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	auto app = Insight::CreateApplication();
 
-	if (!app->InitializeAppForWindows(hInstance, nCmdShow)) {
-		IE_CORE_FATAL(L"Failed to initialize core engine. Exiting.");
-		return -1;
-	}
+	try {
 
+		if (!app->InitializeAppForWindows(hInstance, nCmdShow)) {
+			IE_CORE_FATAL(L"Failed to initialize core engine. Exiting.");
+			return -1;
+		}
+	}
+	catch (Insight::ieException& e) {
+		IE_CORE_INFO(e.What());
+	}
 	app->Run();
 	app->Shutdown();
 

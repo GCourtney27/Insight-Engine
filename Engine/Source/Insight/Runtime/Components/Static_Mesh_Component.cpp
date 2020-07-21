@@ -9,28 +9,50 @@
 
 namespace Insight {
 
-
+	uint32_t StaticMeshComponent::s_NumActiveSMComponents = 0U;
 
 	StaticMeshComponent::StaticMeshComponent(AActor* pOwner)
 		: ActorComponent("Static Mesh Component", pOwner)
 	{
-		
+		m_pMaterial = new Material();
 	}
 
 	StaticMeshComponent::~StaticMeshComponent()
 	{
 	}
 
-	bool StaticMeshComponent::LoadFromJson(const rapidjson::Value& jsonStaticMeshComponent)
+	bool StaticMeshComponent::LoadFromJson(const rapidjson::Value& JsonStaticMeshComponent)
 	{
 		// Load Mesh
-		std::string modelPath;
-		json::get_string(jsonStaticMeshComponent[0], "Mesh", modelPath);
-		json::get_bool(jsonStaticMeshComponent[0], "Enabled", ActorComponent::m_Enabled);
-		AttachMesh(modelPath);
+		std::string ModelPath;
+		json::get_string(JsonStaticMeshComponent[0], "Mesh", ModelPath);
+		AttachMesh(ModelPath);
+
+		json::get_bool(JsonStaticMeshComponent[0], "Enabled", ActorComponent::m_Enabled);
+		
+		// Load Mesh Local Transform
+		float posX, posY, posZ;
+		float rotX, rotY, rotZ;
+		float scaX, scaY, scaZ;
+		const rapidjson::Value& MeshTransform = JsonStaticMeshComponent[0]["LocalTransform"];
+		// Position
+		json::get_float(MeshTransform[0], "posX", posX);
+		json::get_float(MeshTransform[0], "posY", posY);
+		json::get_float(MeshTransform[0], "posZ", posZ);
+		m_pModel->GetMeshRootTransformRef().SetPosition(ieVector3(posX, posY, posZ));
+		// Rotation
+		json::get_float(MeshTransform[0], "rotX", rotX);
+		json::get_float(MeshTransform[0], "rotY", rotY);
+		json::get_float(MeshTransform[0], "rotZ", rotZ);
+		m_pModel->GetMeshRootTransformRef().SetRotation(ieVector3(rotX, rotY, rotZ));
+		// Scale
+		json::get_float(MeshTransform[0], "scaX", scaX);
+		json::get_float(MeshTransform[0], "scaY", scaY);
+		json::get_float(MeshTransform[0], "scaZ", scaZ);
+		m_pModel->GetMeshRootTransformRef().SetScale(ieVector3(scaX, scaY, scaZ));
 
 		// Load Material
-		m_Material.LoadFromJson(jsonStaticMeshComponent[1]);
+		m_pMaterial->LoadFromJson(JsonStaticMeshComponent[1]);
 
 		return true;
 	}
@@ -47,13 +69,45 @@ namespace Insight {
 				Writer.String(m_pModel->GetAssetDirectoryRelativePath().c_str());
 				Writer.Key("Enabled");
 				Writer.Bool(ActorComponent::m_Enabled);
+				Writer.Key("LocalTransform");
+				Writer.StartArray();
+				{
+					Transform& MeshTransform = m_pModel->GetMeshRootTransformRef();
+					ieVector3 Pos = MeshTransform.GetPosition();
+					ieVector3 Rot = MeshTransform.GetRotation();
+					ieVector3 Sca = MeshTransform.GetScale();
+					Writer.StartObject();
+					// Position
+					Writer.Key("posX");
+					Writer.Double(Pos.x);
+					Writer.Key("posY");
+					Writer.Double(Pos.y);
+					Writer.Key("posZ");
+					Writer.Double(Pos.z);
+					// Rotation
+					Writer.Key("rotX");
+					Writer.Double(Rot.x);
+					Writer.Key("rotY");
+					Writer.Double(Rot.y);
+					Writer.Key("rotZ");
+					Writer.Double(Rot.z);
+					// Scale
+					Writer.Key("scaX");
+					Writer.Double(Sca.x);
+					Writer.Key("scaY");
+					Writer.Double(Sca.y);
+					Writer.Key("scaZ");
+					Writer.Double(Sca.z);
+					Writer.EndObject();
+				}
+				Writer.EndArray();
 			}
 			Writer.EndObject(); // End Mesh Directory
 
 			// Material
 			Writer.StartObject(); // Start Material Attributes
 			{
-				m_Material.WriteToJson(Writer);
+				m_pMaterial->WriteToJson(Writer);
 			}
 			Writer.EndObject(); // End Material Attributes
 
@@ -71,6 +125,8 @@ namespace Insight {
 	void StaticMeshComponent::OnDestroy()
 	{
 		ResourceManager::Get().GetGeometryManager().UnRegisterModel(m_pModel);
+		m_pModel->Destroy();
+		delete m_pMaterial;
 	}
 
 	void StaticMeshComponent::CalculateParent(const XMMATRIX& parentMatrix)
@@ -91,9 +147,10 @@ namespace Insight {
 	void StaticMeshComponent::OnImGuiRender()
 	{
 		ImGui::Spacing();
+		ImGui::PushID(m_IDBuffer);
+		
 		if (ImGui::CollapsingHeader(m_ComponentName, ImGuiTreeNodeFlags_DefaultOpen)) {
 
-			//Models/nanosuit/nanosuit.obj
 			if (ImGui::InputText("New Mesh Dir: ", &m_DynamicAssetDir, ImGuiInputTextFlags_EnterReturnsTrue)) {
 				if (FileSystem::FileExists(m_DynamicAssetDir)) {
 					AttachMesh(m_DynamicAssetDir);
@@ -104,8 +161,9 @@ namespace Insight {
 			}
 
 			m_pModel->OnImGuiRender();
-			m_Material.OnImGuiRender();
+			m_pMaterial->OnImGuiRender();
 		}
+		ImGui::PopID();
 	}
 
 	void StaticMeshComponent::RenderSceneHeirarchy()
@@ -125,7 +183,7 @@ namespace Insight {
 
 	void StaticMeshComponent::AttachMesh(const std::string& AssestDirectoryRelPath)
 	{
-		ScopedTimer timer(("StaticMeshComponent::AttachMesh \"" + AssestDirectoryRelPath + "\"").c_str());
+		Profiling::ScopedTimer timer(("StaticMeshComponent::AttachMesh \"" + AssestDirectoryRelPath + "\"").c_str());
 
 		if (m_pModel) {
 			ResourceManager::Get().GetGeometryManager().UnRegisterModel(m_pModel);
@@ -133,10 +191,19 @@ namespace Insight {
 			m_pModel.reset();
 		}
 		m_pModel = make_shared<Model>();
-		m_pModel->Init(AssestDirectoryRelPath, &m_Material);
-		
+		m_pModel->Init(AssestDirectoryRelPath, m_pMaterial);
+
 		//m_ModelLoadFuture = std::async(std::launch::async, LoadMesh, m_pModel, AssesDirectoryRelPath, &m_Material);
 		ResourceManager::Get().GetGeometryManager().RegisterModel(m_pModel);
+	}
+
+	void StaticMeshComponent::SetMaterial(Material* pMaterial)
+	{
+		if (m_pMaterial) {
+			delete m_pMaterial;
+			m_pMaterial = nullptr;
+		}
+		m_pMaterial = pMaterial;
 	}
 
 	void StaticMeshComponent::BeginPlay()
@@ -149,10 +216,13 @@ namespace Insight {
 
 	void StaticMeshComponent::OnAttach()
 	{
+		m_SMWorldIndex = s_NumActiveSMComponents++;
+		sprintf_s(m_IDBuffer, "SM-%u", m_SMWorldIndex);
 	}
 
 	void StaticMeshComponent::OnDetach()
 	{
+		s_NumActiveSMComponents--;
 		ResourceManager::Get().GetGeometryManager().UnRegisterModel(m_pModel);
 	}
 

@@ -26,6 +26,16 @@ namespace Insight {
 		childNode->SetParent(this);
 	}
 
+	void SceneNode::RemoveChild(SceneNode* ChildNode)
+	{
+		auto iter = std::find(m_Children.begin(), m_Children.end(), ChildNode);
+		if (iter != m_Children.end()) {
+
+			(*iter)->Destroy();
+			m_Children.erase(iter);
+		}
+	}
+
 	bool SceneNode::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
 	{
 		size_t numChildrenObjects = m_Children.size();
@@ -110,6 +120,7 @@ namespace Insight {
 	{
 		size_t numChildrenObjects = m_Children.size();
 		for (size_t i = 0; i < numChildrenObjects; ++i) {
+			m_Children[i]->Destroy();
 			delete m_Children[i];
 		}
 	}

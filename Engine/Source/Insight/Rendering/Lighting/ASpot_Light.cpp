@@ -3,7 +3,7 @@
 #include "ASpot_Light.h"
 
 #include "Insight/Runtime/Components/Actor_Component.h"
-#include "Platform/Windows/DirectX12/Direct3D12_Context.h"
+#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 #include "imgui.h"
 
 namespace Insight {
@@ -16,6 +16,12 @@ namespace Insight {
 	{
 		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
 		graphicsContext.AddSpotLight(this);
+
+		m_ShaderCB.diffuse = ieVector3(1.0f, 1.0f, 1.0f);
+		m_ShaderCB.direction = Vector3::Down;
+		m_ShaderCB.strength = 1.0f;
+		m_ShaderCB.innerCutoff = cos(XMConvertToRadians(m_TempInnerCutoff));
+		m_ShaderCB.outerCutoff = cos(XMConvertToRadians(m_TempOuterCutoff));
 	}
 
 	ASpotLight::~ASpotLight()
@@ -30,15 +36,17 @@ namespace Insight {
 		json::get_float(emission[0], "diffuseR", m_ShaderCB.diffuse.x);
 		json::get_float(emission[0], "diffuseG", m_ShaderCB.diffuse.y);
 		json::get_float(emission[0], "diffuseB", m_ShaderCB.diffuse.z);
+		json::get_float(emission[0], "directionX", m_ShaderCB.direction.x);
+		json::get_float(emission[0], "directionY", m_ShaderCB.direction.y);
+		json::get_float(emission[0], "directionZ", m_ShaderCB.direction.z);
 		json::get_float(emission[0], "strength", m_ShaderCB.strength);
 		json::get_float(emission[0], "innerCutoff", m_TempInnerCutoff);
 		json::get_float(emission[0], "outerCutoff", m_TempOuterCutoff);
 
 		m_ShaderCB.position = SceneNode::GetTransformRef().GetPosition();
-		m_ShaderCB.direction = SceneNode::GetTransformRef().GetRotation();
 		m_ShaderCB.innerCutoff = cos(XMConvertToRadians(m_TempInnerCutoff));
 		m_ShaderCB.outerCutoff = cos(XMConvertToRadians(m_TempOuterCutoff));
-
+		
 		return true;
 	}
 
@@ -98,6 +106,12 @@ namespace Insight {
 				Writer.Double(m_ShaderCB.diffuse.y);
 				Writer.Key("diffuseB");
 				Writer.Double(m_ShaderCB.diffuse.z);
+				Writer.Key("directionX");
+				Writer.Double(m_ShaderCB.direction.x);
+				Writer.Key("directionY");
+				Writer.Double(m_ShaderCB.direction.y);
+				Writer.Key("directionZ");
+				Writer.Double(m_ShaderCB.direction.z);
 				Writer.Key("strength");
 				Writer.Double(m_ShaderCB.strength);
 				Writer.Key("innerCuttoff");
@@ -135,7 +149,6 @@ namespace Insight {
 	void ASpotLight::OnUpdate(const float& deltaMs)
 	{
 		m_ShaderCB.position = SceneNode::GetTransformRef().GetPosition();
-		m_ShaderCB.direction = SceneNode::GetTransformRef().GetRotation();
 	}
 
 	void ASpotLight::OnPreRender(XMMATRIX parentMat)
@@ -179,6 +192,7 @@ namespace Insight {
 			// Imgui will edit the color values in a normalized 0 to 1 space. 
 			// In the shaders we transform the color values back into 0 to 255 space.
 			ImGui::ColorEdit3("Diffuse", &m_ShaderCB.diffuse.x, colorWheelFlags);
+			ImGui::DragFloat3("Direction", &m_ShaderCB.direction.x, 0.05f, -1.0f, 1.0f);
 			ImGui::DragFloat("Inner Cut-off", &m_TempInnerCutoff, 0.1f, 0.0f, 50.0f);
 			ImGui::DragFloat("Outer Cut-off", &m_TempOuterCutoff, 0.1f, 0.0f, 50.0f);
 			ImGui::DragFloat("Strength", &m_ShaderCB.strength, 0.15f, 0.0f, 10.0f);

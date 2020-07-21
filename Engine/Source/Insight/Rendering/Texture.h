@@ -2,7 +2,7 @@
 
 #include <Insight/Core.h>
 
-#include "Platform/Windows/DirectX12/Descriptor_Heap_Wrapper.h"
+#include "Platform/Windows/DirectX_12/Descriptor_Heap_Wrapper.h"
 
 
 namespace Insight {
@@ -68,15 +68,15 @@ namespace Insight {
 		inline const std::string& GetAssetDirectoryRelPath() const { return m_TextureInfo.AssetDirectoryRelPath; }
 
 		// Get the Direc3D 12 resource description for this texture.
-		inline D3D12_RESOURCE_DESC GetD3D12ResourceDescription() { return m_TextureDesc; }
+		inline D3D12_RESOURCE_DESC GetD3D12ResourceDescription() { return m_D3DTextureDesc; }
 		// Get the width of the texture in texels.
-		inline UINT64 GetWidth() const { return m_TextureDesc.Width; }
+		inline UINT64 GetWidth() const { return m_D3DTextureDesc.Width; }
 		// Get the height of the texture in texels.
-		inline UINT64 GetHeight() const { return m_TextureDesc.Height; }
+		inline UINT64 GetHeight() const { return m_D3DTextureDesc.Height; }
 		// Get the number of mip levels this texture has access too.
-		inline UINT16 GetMipLevels() const { return m_TextureDesc.MipLevels; }
+		inline UINT16 GetMipLevels() const { return m_D3DTextureDesc.MipLevels; }
 		// Get the Direc3D pixel format of this texture.
-		inline DXGI_FORMAT GetFormat() const { return m_TextureDesc.Format; }
+		inline DXGI_FORMAT GetFormat() const { return m_D3DTextureDesc.Format; }
 		
 	private:
 		// Load a DDS texture from disk.
@@ -91,14 +91,14 @@ namespace Insight {
 		CDescriptorHeapWrapper*		m_pCbvSrvHeapStart;
 
 		ComPtr<ID3D12Resource>		m_pTexture;
-		D3D12_RESOURCE_DESC			m_TextureDesc = {};
+		D3D12_RESOURCE_DESC			m_D3DTextureDesc = {};
 		TextureHandle				m_GPUHeapIndex = 0U;
 
 		IE_TEXTURE_INFO				m_TextureInfo = {};
 
 		UINT						m_RootParamIndex = 0U;
 	private:
-		static UINT32 s_NumSceneTextures;
+		static uint32_t s_NumSceneTextures;
 	};
 
 }

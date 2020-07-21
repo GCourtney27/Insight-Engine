@@ -7,9 +7,11 @@
 #include "Insight/Core/Application.h"
 
 #include "imgui.h"
+#include <misc/cpp/imgui_stdlib.h>
 
 namespace Insight {
 
+	uint32_t CSharpScriptComponent::s_NumActiveCSScriptComponents = 0U;
 
 	CSharpScriptComponent::CSharpScriptComponent(AActor* pOwner)
 		: ActorComponent("C-Sharp Script Component", pOwner)
@@ -27,17 +29,19 @@ namespace Insight {
 
 	void CSharpScriptComponent::OnAttach()
 	{
-		
+		m_ScriptWorldIndex = s_NumActiveCSScriptComponents++;
+		sprintf_s(m_IDBuffer, "CSS-%u", m_ScriptWorldIndex);
 	}
 
 	void CSharpScriptComponent::OnDetach()
 	{
+		s_NumActiveCSScriptComponents--;
 		Cleanup();
 	}
 
 	void CSharpScriptComponent::ReCompile()
 	{
-		//Cleanup();
+		Cleanup();
 		RegisterScript();
 	}
 
@@ -205,11 +209,17 @@ namespace Insight {
 
 	void CSharpScriptComponent::OnImGuiRender()
 	{
+		ImGui::PushID(m_IDBuffer);
+
 		if (ImGui::CollapsingHeader(m_ComponentName, ImGuiTreeNodeFlags_DefaultOpen)) {
-			
-			ImGui::Text("Module Name: "); ImGui::SameLine();
-			ImGui::Text(m_ModuleName.c_str());
+
+			if (ImGui::InputText("##CSModuleNameField", &m_ModuleName, ImGuiInputTextFlags_EnterReturnsTrue)) {
+				RegisterScript();
+			}
+
 		}
+
+		ImGui::PopID();
 	}
 
 	void CSharpScriptComponent::RenderSceneHeirarchy()

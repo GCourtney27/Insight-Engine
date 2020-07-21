@@ -862,7 +862,7 @@ namespace Insight {
 #if defined IE_DEBUG
 		LPCWSTR VertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Shadow_Pass.vertex.cso";
 		LPCWSTR PixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Shadow_Pass.pixel.cso";
-#elif defined IE_RELEASE || defined IE_GAME_DIST || IE_ENGINE_DIST
+#elif defined IE_RELEASE || defined IE_GAME_DIST || defined IE_ENGINE_DIST
 		LPCWSTR VertexShaderFolder = L"Shadow_Pass.vertex.cso";
 		LPCWSTR PixelShaderFolder = L"Shadow_Pass.pixel.cso";
 #endif 
@@ -932,7 +932,7 @@ namespace Insight {
 		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Geometry_Pass.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Geometry_Pass.pixel.cso";
 
-#elif defined IE_RELEASE || defined IE_GAME_DIST || IE_ENGINE_DIST
+#elif defined IE_RELEASE || defined IE_GAME_DIST || defined IE_ENGINE_DIST
 		LPCWSTR vertexShaderFolder = L"Geometry_Pass.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"Geometry_Pass.pixel.cso";
 #endif 
@@ -998,7 +998,7 @@ namespace Insight {
 #if defined IE_DEBUG
 		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Skybox.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Skybox.pixel.cso";
-#elif defined IE_RELEASE || defined IE_GAME_DIST || IE_ENGINE_DIST
+#elif defined IE_RELEASE || defined IE_GAME_DIST || defined IE_ENGINE_DIST
 		LPCWSTR vertexShaderFolder = L"Skybox.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"Skybox.pixel.cso";
 #endif 
@@ -1069,7 +1069,7 @@ namespace Insight {
 #if defined IE_DEBUG
 		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Light_Pass.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Light_Pass.pixel.cso";
-#elif defined IE_RELEASE || defined IE_GAME_DIST || IE_ENGINE_DIST
+#elif defined IE_RELEASE || defined IE_GAME_DIST || defined IE_ENGINE_DIST
 		LPCWSTR vertexShaderFolder = L"Light_Pass.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"Light_Pass.pixel.cso";
 #endif 
@@ -1130,7 +1130,7 @@ namespace Insight {
 #if defined IE_DEBUG
 		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/PostFx.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/PostFx.pixel.cso";
-#elif defined IE_RELEASE || defined IE_GAME_DIST || IE_ENGINE_DIST
+#elif defined IE_RELEASE || defined IE_GAME_DIST || defined IE_ENGINE_DIST
 		LPCWSTR vertexShaderFolder = L"PostFx.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"PostFx.pixel.cso";
 #endif 

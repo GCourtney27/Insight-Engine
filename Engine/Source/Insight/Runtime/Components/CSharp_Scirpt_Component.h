@@ -52,8 +52,9 @@ namespace Insight {
 		MonoMethod* m_pUpdateMethod = nullptr;
 
 		std::string m_ModuleName;
-		bool m_CanBeTicked = true;
-		bool m_CanBeCalledOnBeginPlay = true;
+		bool m_CanBeTicked = true;// TODO ImGui field this
+		bool m_CanBeCalledOnBeginPlay = true;// TODO ImGui field this
+		uint32_t m_ScriptWorldIndex = 0U;
 
 		// Transform Script Fields
 		MonoObject* m_TransformObject;
@@ -72,6 +73,8 @@ namespace Insight {
 		MonoClassField* m_YScaleField;
 		MonoClassField* m_ZScaleField;
 		MonoObject* m_ScaleObj;
+	private:
+		static uint32_t s_NumActiveCSScriptComponents;
 
 	};
 

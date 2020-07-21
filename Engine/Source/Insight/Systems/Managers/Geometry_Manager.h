@@ -17,18 +17,26 @@ namespace Insight {
 		~GeometryManager();
 
 		bool Init();
-		virtual bool LoadResourcesFromJson(const rapidjson::Value& jsonMeshes);
-
-		void Render(RenderPass RenderPass);
 
 		SceneModels* GetSceneModels() { return &m_Models; }
 
+		// Issue draw commands to all models attached to the geometry manager.
+		void Render(RenderPass RenderPass);
+		// Gather all geometry in the scene and uplaod their constant buffers to the GPU.
+		// Should only be called once, before 'Render()'. Does not draw models.
 		void GatherGeometry();
+		// Reset incrementor for model geometry gather phase.
+		// See 'GatherGeometry()' for more information.
 		void PostRender();
+		// UnRegister all model in the model cache. Usually used 
+		// when switching scenes.
 		void FlushModelCache();
 		
+		// Register a model to be drawn in the geometry pass
 		inline void RegisterModel(StrongModelPtr Model) { m_Models.push_back(Model); }
+		// Unregister a model to not be drawn in the geometry pass
 		void UnRegisterModel(StrongModelPtr Model);
+
 	private:
 		SceneModels m_Models;  
 		D3D12_GPU_VIRTUAL_ADDRESS m_CbvUploadHeapHandle;

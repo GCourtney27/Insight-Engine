@@ -21,6 +21,11 @@ namespace Insight {
 		virtual void OnRender() = 0;
 		virtual void OnUpdate(const float& DeltaTime) {}
 		virtual void OnChanged() {}
+		// Sub-menus this component sould render when its owning actor is 
+		// selected in the details panel. 
+		// NOTE: This method should always 
+		// push and pop a ID in imgui to prevent dupllicated component types
+		// from editing eachother inadvertently.
 		virtual void OnImGuiRender() = 0;
 		virtual void RenderSceneHeirarchy() = 0;
 
@@ -44,6 +49,11 @@ namespace Insight {
 		AActor* m_pOwner;
 		const char* m_ComponentName;
 		bool m_Enabled = true;
+
+		// ImGui uses ID's to sort through subwindows.
+		// If we dont add a uid to each submenu, components of 
+		// the same type will get edited at the same time.
+		char m_IDBuffer[30];
 
 
 	};

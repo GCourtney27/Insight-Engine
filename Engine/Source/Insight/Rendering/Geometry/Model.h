@@ -14,8 +14,6 @@ namespace Insight {
 	class INSIGHT_API Model : public SceneNode
 	{
 	public:
-		typedef std::stack<XMMATRIX> InstanceMatrixStack;
-	public:
 		Model(const std::string& Path, Material* Material);
 		Model() {}
 		Model(Model&& Model) noexcept;
@@ -26,6 +24,8 @@ namespace Insight {
 		void RenderSceneHeirarchy();
 		void BindResources();
 
+		Transform& GetMeshRootTransformRef() { return m_pRoot->GetTransformRef(); }
+
 		Material& GetMaterialRef() { return *m_pMaterial; }
 		std::string GetDirectory() { return m_Directory; }
 		std::string GetAssetDirectoryRelativePath() { return m_AssetDirectoryRelativePath; }
@@ -35,16 +35,18 @@ namespace Insight {
 		bool GetCanCastShadows() { return m_CastsShadows; }
 		bool SetCanCastShadows(bool Enabled) { m_CastsShadows = Enabled; }
 
-		unique_ptr<Mesh>& GetMeshAtIndex(const int& index) { return m_Meshes[index]; }
+		unique_ptr<Mesh>& GetMeshAtIndex(int index) { return m_Meshes[index]; }
 		const size_t GetNumChildMeshes() const { return m_Meshes.size(); }
 
 		void PreRender(const XMMATRIX& parentMat);
 		void Render(ID3D12GraphicsCommandList* pCommandList);
 		void Destroy();
 		bool LoadModelFromFile(const std::string& path);
+
 	private:
 		unique_ptr<MeshNode> ParseNode_r(aiNode* pNode);
 		unique_ptr<Mesh> ProcessMesh(aiMesh* pMesh, const aiScene* pScene);
+
 	private:
 		std::vector<unique_ptr<Mesh>> m_Meshes;
 		unique_ptr<MeshNode> m_pRoot;

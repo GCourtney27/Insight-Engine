@@ -3,7 +3,7 @@
 #include "Mesh.h"
 
 #include "Insight/Core/Application.h"
-#include "Platform/Windows/DirectX12/Direct3D12_Context.h"
+#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 #include "Insight/Runtime/APlayer_Character.h"
 #include "imgui.h"
 
@@ -113,7 +113,6 @@ namespace Insight {
 
 	void Mesh::OnImGuiRender()
 	{
-		m_Material.OnImGuiRender();
 	}
 
 	void Mesh::SetupMesh()

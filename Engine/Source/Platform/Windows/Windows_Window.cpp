@@ -9,7 +9,11 @@
 #include "Insight/Events/Key_Event.h"
 #include "Insight/Utilities/String_Helper.h"
 #include "Insight/Core/Log.h"
-#include <strsafe.h>
+
+#include <imgui.h>
+//#include <examples/imgui_impl_win32.h>
+//#include <examples/imgui_impl_dx12.h>
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace Insight {
 
@@ -29,8 +33,15 @@ namespace Insight {
 		m_Data.Height = props.Height;
 	}
 
+
+
+
 	LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
+		if (ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam)) {
+			return true;
+		}
+
 		switch (uMsg) {
 		case WM_NCCREATE:
 		{
@@ -369,10 +380,10 @@ namespace Insight {
 		AdjustWindowRect(&m_WindowRect, WS_OVERLAPPEDWINDOW | WS_EX_ACCEPTFILES, FALSE);
 
 		// Create the menu bar
-		InitializeMenuBar();
+		IE_STRIP_FOR_GAME_DIST(InitializeMenuBar();)
 
 		// Create mouse Right-Click context menu
-		InitializeContextMenu();
+		IE_STRIP_FOR_GAME_DIST(InitializeContextMenu();)
 
 		// Create the main window for the engine/game
 		m_hWindow = CreateWindowExW(
@@ -400,7 +411,7 @@ namespace Insight {
 
 		// Create and Initialize the renderer. We are using Direct3D 12
 		{
-			ScopedTimer timer("WindowsWindow::Init::RendererInit");
+			Profiling::ScopedTimer timer("WindowsWindow::Init::RendererInit");
 
 			m_pRendererContext = std::make_shared<Direct3D12Context>(this);
 			if (!m_pRendererContext->Init())

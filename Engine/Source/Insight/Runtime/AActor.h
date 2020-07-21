@@ -66,11 +66,12 @@ namespace Insight {
 			return component;
 		}
 		void RemoveSubobject(StrongActorComponentPtr component);
+		void RemoveAllSubobjects();
 		std::vector<StrongActorComponentPtr> GetAllSubobjects() const { return m_Components; }
 		
 	protected:
 		ActorComponents m_Components;
-		UINT m_NumComponents = 0;
+		uint32_t m_NumComponents = 0;
 		ActorId m_Id;
 	private:
 

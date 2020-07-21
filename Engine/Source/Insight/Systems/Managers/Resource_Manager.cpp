@@ -1,7 +1,7 @@
 #include <ie_pch.h>
 
 #include "Resource_Manager.h"
-
+#include "Platform/Windows/Error/COM_Exception.h"
 
 namespace Insight {
 
@@ -13,30 +13,29 @@ namespace Insight {
 		IE_ASSERT(!s_Instance, "An instance of resource manager already exists!");
 		s_Instance = this;
 
-		m_pModelManager = new GeometryManager();
+		m_pGeometryManager = new GeometryManager();
 		m_pTextureManager = new TextureManager();
 		m_pMonoScriptManager = new MonoScriptManager();
 	}
 
 	ResourceManager::~ResourceManager()
 	{
-		delete m_pModelManager;
+		delete m_pGeometryManager;
 		delete m_pTextureManager;
 		delete m_pMonoScriptManager;
 	}
 
 	bool ResourceManager::Init()
 	{
-		m_pModelManager->Init();
-		m_pTextureManager->Init();
+		m_pGeometryManager->Init();
 		m_pMonoScriptManager->Init();
+		m_pTextureManager->Init();
 		return true;
 	}
 
 	bool ResourceManager::LoadResourcesFromJson(const rapidjson::Value& jsonResources)
 	{
 		const rapidjson::Value& jsonTextureResources = jsonResources["Textures"];
-		const rapidjson::Value& jsonMeshResources = jsonResources["Meshes"];
 		m_pTextureManager->LoadResourcesFromJson(jsonTextureResources);
 
 		return true;
@@ -47,7 +46,7 @@ namespace Insight {
 	// adding new resources AFTER this call
 	void ResourceManager::FlushAllResources()
 	{
-		m_pModelManager->FlushModelCache();
+		m_pGeometryManager->FlushModelCache();
 		m_pTextureManager->FlushTextureCache();
 		//m_pMonoScriptManager->Cleanup();
 	}

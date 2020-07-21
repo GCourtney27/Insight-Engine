@@ -62,7 +62,6 @@ namespace Insight {
 		Indices						m_Indices;
 
 		Transform					m_Transform;
-		Material					m_Material;
 		CB_VS_PerObject				m_ConstantBufferPerObject = {};
 
 		bool						m_CastsShadows = true;

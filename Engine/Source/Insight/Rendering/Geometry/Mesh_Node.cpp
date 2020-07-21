@@ -3,7 +3,7 @@
 
 #include "Insight/Rendering/Geometry/Mesh.h"
 #include "Mesh_Node.h"
-#include "Platform/Windows/DirectX12/Direct3D12_Context.h"
+#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 #include "imgui.h"
 
 namespace Insight {
