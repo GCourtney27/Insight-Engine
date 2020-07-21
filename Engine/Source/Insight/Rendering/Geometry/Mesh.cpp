@@ -113,7 +113,6 @@ namespace Insight {
 
 	void Mesh::OnImGuiRender()
 	{
-		m_Material.OnImGuiRender();
 	}
 
 	void Mesh::SetupMesh()

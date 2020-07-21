@@ -38,6 +38,11 @@ namespace Insight {
 
 	Material::~Material()
 	{
+		Destroy();
+	}
+
+	void Material::Destroy()
+	{
 
 	}
 

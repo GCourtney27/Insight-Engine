@@ -72,8 +72,8 @@ namespace Insight {
 		{
 			if (m_pSelectedActor != nullptr) {
 
-				m_pSelectedActor->OnImGuiRender();
 				RenderSelectionGizmo();
+				m_pSelectedActor->OnImGuiRender();
 			}
 		}
 		ImGui::End();

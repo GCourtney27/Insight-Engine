@@ -14,6 +14,8 @@ namespace Insight {
 		Material(Material&& material) noexcept;
 		~Material();
 		
+		void Destroy();
+
 		static Material* CreateDefaultTexturedMaterial();
 		bool LoadFromJson(const rapidjson::Value& jsonMaterial);
 		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer);

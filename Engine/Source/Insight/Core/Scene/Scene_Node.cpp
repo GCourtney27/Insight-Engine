@@ -120,6 +120,7 @@ namespace Insight {
 	{
 		size_t numChildrenObjects = m_Children.size();
 		for (size_t i = 0; i < numChildrenObjects; ++i) {
+			m_Children[i]->Destroy();
 			delete m_Children[i];
 		}
 	}

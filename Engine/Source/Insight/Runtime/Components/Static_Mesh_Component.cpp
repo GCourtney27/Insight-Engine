@@ -125,6 +125,7 @@ namespace Insight {
 	void StaticMeshComponent::OnDestroy()
 	{
 		ResourceManager::Get().GetGeometryManager().UnRegisterModel(m_pModel);
+		m_pModel->Destroy();
 		delete m_pMaterial;
 	}
 

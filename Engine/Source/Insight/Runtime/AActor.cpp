@@ -164,30 +164,39 @@ namespace Insight {
 		ImGui::InputText("##ActorNameField", &m_DisplayName, ImGuiInputTextFlags_EnterReturnsTrue);
 		
 		ImGuiTreeNodeFlags TreeFlags = ImGuiTreeNodeFlags_Leaf;
-		if (ImGui::TreeNodeEx("Properties", ImGuiTreeNodeFlags_OpenOnArrow)) {
+		if (ImGui::TreeNodeEx("Actions", ImGuiTreeNodeFlags_OpenOnArrow)) {
 
 			ImGui::TreeNodeEx("Delete Actor", TreeFlags);
 			if (ImGui::IsItemClicked()) {
+
+				// Set the Details panel to be blank
+				Application::Get().GetEditorLayer().SetSelectedActor(nullptr);
+				// remove the actor fom the world
 				m_Parent->RemoveChild(this);
+				// Pop the rest of the tree nodes for ImGui.
+				// Thers no reason to leave this scope the actor has been deleted.
+				ImGui::TreePop();
+				ImGui::TreePop();
+				return;
 			}
 			ImGui::TreePop();
 			/*ImGui::TreeNodeEx("Remove All Components", TreeFlags);
 			if (ImGui::IsItemClicked()) {
-
+				RemoveAllSubobjects();
 			}
 			ImGui::TreePop();*/
 
 			ImGui::TreePop();
 		}
 
-
 		ImGui::Spacing();
-
+		// Show the actor's transform values
 		ImGui::Text("Transform - Actor");
 		ImGui::DragFloat3("Position##Actor", &SceneNode::GetTransformRef().GetPositionRef().x, 0.05f, -100.0f, 100.0f);
 		ImGui::DragFloat3("Scale##Actor", &SceneNode::GetTransformRef().GetScaleRef().x, 0.05f, -100.0f, 100.0f);
 		ImGui::DragFloat3("Rotation##Actor", &SceneNode::GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);
 
+		// Add new component drop down
 		{
 			ImGui::NewLine();
 			static constexpr char* availableComponents[] = { "", "Static Mesh Component", "C-Sharp Script Component" };
@@ -220,6 +229,7 @@ namespace Insight {
 			ImGui::NewLine();
 		}
 
+		// Render each components details panels
 		for (size_t i = 0; i < m_NumComponents; ++i)
 		{
 			ImGui::Spacing();
@@ -308,6 +318,11 @@ namespace Insight {
 	{
 		SceneNode::Destroy();
 
+		for (uint32_t i = 0; i < m_NumComponents; i++) {
+			m_Components[i]->OnDestroy();
+			m_Components[i].reset();
+		}
+		m_Components.clear();
 	}
 
 	void AActor::OnEvent(Event& e)
@@ -326,6 +341,16 @@ namespace Insight {
 		(*iter).reset();
 		m_Components.erase(iter);
 		m_NumComponents--;
+	}
+
+	void AActor::RemoveAllSubobjects()
+	{
+		for (uint32_t i = 0; i < m_NumComponents; ++i) {
+			m_Components[i]->OnDestroy();
+			m_Components[i].reset();
+		}
+		m_Components.clear();
+		m_NumComponents = 0;
 	}
 
 }
