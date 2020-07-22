@@ -89,7 +89,6 @@ namespace Insight {
 		m_IBufferSize = m_NumIndices * sizeof(uint32_t);
 		m_VBufferSize = m_NumVerticies * sizeof(Vertex3D);
 
-		//pRenderingContext = 
 		m_pDeviceContext = &Direct3D12Context::Get().GetDeviceContext();
 	}
 
@@ -111,9 +110,9 @@ namespace Insight {
 
 	void Mesh::Render(ID3D12GraphicsCommandList*& pCommandList)
 	{
-		pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);
-		pCommandList->IASetIndexBuffer(&m_IndexBufferView);
-		pCommandList->DrawIndexedInstanced(m_NumIndices, 1, 0, 0, 0);
+		RenderingContext::SetVertexBuffers(0, 1, &m_VertexBufferView);
+		RenderingContext::SetIndexBuffer(&m_IndexBufferView);
+		RenderingContext::DrawIndexedInstanced(m_NumIndices, 1, 0, 0, 0);
 	}
 
 	void Mesh::OnImGuiRender()

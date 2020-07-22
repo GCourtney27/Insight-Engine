@@ -20,20 +20,20 @@ namespace Insight {
 	{
 	}
 
-	bool RenderingContext::SetContext(RenderingAPI ContextType)
+	bool RenderingContext::SetAPIAndCreateContext(eRenderingAPI ContextType)
 	{
 		IE_ASSERT(!s_Instance, "Rendering Context already exists! Cannot have more that one context created at a time.");
 
 		switch (ContextType)
 		{
-		case RenderingAPI::D3D_11:
+		case eRenderingAPI::D3D_11:
 		{
 			WindowsWindow* Window = (WindowsWindow*)&Application::Get().GetWindow();
 			s_Instance = new Direct3D11Context(Window);
 			s_Instance->m_CurrentAPI = ContextType;
 			break;
 		}
-		case RenderingAPI::D3D_12:
+		case eRenderingAPI::D3D_12:
 		{
 			WindowsWindow* Window = (WindowsWindow*)&Application::Get().GetWindow();
 			s_Instance = new Direct3D12Context(Window);

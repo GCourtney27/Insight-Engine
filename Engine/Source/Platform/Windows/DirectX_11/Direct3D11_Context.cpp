@@ -20,10 +20,9 @@ namespace Insight {
 
 
 	Direct3D11Context::Direct3D11Context(WindowsWindow* WindowHandle) 
-		: m_pWindowHandle(&WindowHandle->GetWindowHandleReference()),
-		m_pWindow(WindowHandle),
-		RenderingContext(WindowHandle->GetWidth(), WindowHandle->GetHeight(), false)
-
+		:	m_pWindowHandle(&WindowHandle->GetWindowHandleReference()),
+			m_pWindow(WindowHandle),
+			RenderingContext(WindowHandle->GetWidth(), WindowHandle->GetHeight(), false)
 	{
 	}
 
@@ -42,7 +41,7 @@ namespace Insight {
 	{
 	}
 
-	void Direct3D11Context::SetIndexBuffersImpl(IndexBuffer Buffer)
+	void Direct3D11Context::SetIndexBufferImpl(IndexBuffer Buffer)
 	{
 	}
 

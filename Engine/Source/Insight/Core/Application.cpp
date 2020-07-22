@@ -40,7 +40,7 @@ namespace Insight {
 			return false;
 		}
 
-		RenderingContext::SetContext(RenderingContext::RenderingAPI::D3D_12);
+		RenderingContext::SetAPIAndCreateContext(RenderingContext::eRenderingAPI::D3D_12);
 		RenderingContext::Init();
 
 		if (!Init()) {
@@ -48,13 +48,7 @@ namespace Insight {
 			return false;
 		}
 
-		// TODO: This isnt very clean. It's a way to resize the scissor 
-		// after the menu bar is added to the window to avoid blurry and misaligned UI text.
-		// Refactor it.
-		RECT clientRect = {};
-		GetClientRect(static_cast<HWND>(m_pWindow->GetNativeWindow()), &clientRect);
-		WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, false );
-		OnWindowResize(event);
+		((WindowsWindow*)m_pWindow.get())->PostInit();
 
 		return true;
 	}

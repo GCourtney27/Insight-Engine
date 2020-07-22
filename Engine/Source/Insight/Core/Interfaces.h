@@ -28,7 +28,7 @@ namespace Insight {
 	typedef shared_ptr<Texture> StrongTexturePtr;
 	typedef weak_ptr<Texture> WeakTexturePtr;
 
-	enum class RenderPass
+	enum class eRenderPass
 	{
 		RenderPass_0,
 		RenderPass_Scene,

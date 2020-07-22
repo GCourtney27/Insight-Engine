@@ -221,7 +221,7 @@ namespace Insight {
 		m_pShadowPassCommandList->SetGraphicsRootConstantBufferView(2, m_LightCBV->GetGPUVirtualAddress());
 
 		// TODO Shadow pass logic here put this on another thread
-		m_pModelManager->Render(RenderPass::RenderPass_Shadow);
+		m_pModelManager->Render(eRenderPass::RenderPass_Shadow);
 	}
 
 	void Direct3D12Context::BindGeometryPass(bool setPSO)
@@ -255,7 +255,7 @@ namespace Insight {
 			m_pScenePassCommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV->GetGPUVirtualAddress());
 		}
 
-		m_pModelManager->Render(RenderPass::RenderPass_Scene);
+		m_pModelManager->Render(eRenderPass::RenderPass_Scene);
 	}
 
 	void Direct3D12Context::OnMidFrameRenderImpl()
@@ -495,14 +495,18 @@ namespace Insight {
 
 	void Direct3D12Context::SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer)
 	{
+
+		m_pScenePassCommandList->IASetVertexBuffers(StartSlot, NumBuffers, reinterpret_cast<const D3D12_VERTEX_BUFFER_VIEW*>(Buffer));
 	}
 
-	void Direct3D12Context::SetIndexBuffersImpl(IndexBuffer Buffer)
+	void Direct3D12Context::SetIndexBufferImpl(IndexBuffer Buffer)
 	{
+		m_pScenePassCommandList->IASetIndexBuffer(reinterpret_cast<const D3D12_INDEX_BUFFER_VIEW*>(Buffer));
 	}
 
 	void Direct3D12Context::DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation)
 	{
+		m_pScenePassCommandList->DrawIndexedInstanced(IndexCountPerInstance, NumInstances, StartIndexLocation, BaseVertexLoaction, StartInstanceLocation);
 	}
 
 	void Direct3D12Context::CreateSwapChain()

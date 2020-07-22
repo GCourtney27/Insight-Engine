@@ -42,9 +42,9 @@ namespace Insight {
 		return true;
 	}
 
-	void GeometryManager::Render(RenderPass RenderPass)
+	void GeometryManager::Render(eRenderPass RenderPass)
 	{
-		if (RenderPass == RenderPass::RenderPass_Shadow) {
+		if (RenderPass == eRenderPass::RenderPass_Shadow) {
 
 			for (UINT32 i = 0; i < m_Models.size(); ++i) {
 
@@ -62,7 +62,7 @@ namespace Insight {
 			}
 			m_PerObjectCBDrawOffset = 0U;
 		}
-		else if (RenderPass == RenderPass::RenderPass_Scene) {
+		else if (RenderPass == eRenderPass::RenderPass_Scene) {
 
 			for (UINT32 i = 0; i < m_Models.size(); ++i) {
 

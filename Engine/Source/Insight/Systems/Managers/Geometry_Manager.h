@@ -21,7 +21,7 @@ namespace Insight {
 		SceneModels* GetSceneModels() { return &m_Models; }
 
 		// Issue draw commands to all models attached to the geometry manager.
-		void Render(RenderPass RenderPass);
+		void Render(eRenderPass RenderPass);
 		// Gather all geometry in the scene and uplaod their constant buffers to the GPU.
 		// Should only be called once, before 'Render()'. Does not draw models.
 		void GatherGeometry();

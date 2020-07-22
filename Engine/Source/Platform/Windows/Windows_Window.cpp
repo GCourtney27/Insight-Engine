@@ -342,8 +342,10 @@ namespace Insight {
 
 	bool WindowsWindow::Init(const WindowProps& props)
 	{
-		HRESULT hr = CoInitialize(NULL);
-		//ThrowIfFailed(hr, "Failed to initialize COM library.");
+		HRESULT hr = ::CoInitialize(NULL);
+		if (FAILED(hr)){
+			IE_CORE_ERROR("Failed to initialize COM library.");
+		}
 
 		static bool raw_input_initialized = false;
 		if (raw_input_initialized == false)
@@ -365,15 +367,15 @@ namespace Insight {
 
 		RegisterWindowClass();
 
-		int centerScreenX = GetSystemMetrics(SM_CXSCREEN) / 2 - m_Data.Width / 2;
-		int centerScreenY = GetSystemMetrics(SM_CYSCREEN) / 2 - m_Data.Height / 2;
+		int centerScreenX = ::GetSystemMetrics(SM_CXSCREEN) / 2 - m_Data.Width / 2;
+		int centerScreenY = ::GetSystemMetrics(SM_CYSCREEN) / 2 - m_Data.Height / 2;
 
 		// Center the window on the users monitor
 		m_WindowRect.left = centerScreenX;
 		m_WindowRect.top = centerScreenY + 35;
 		m_WindowRect.right = m_WindowRect.left + m_Data.Width;
 		m_WindowRect.bottom = m_WindowRect.top + m_Data.Height;
-		AdjustWindowRect(&m_WindowRect, WS_OVERLAPPEDWINDOW | WS_EX_ACCEPTFILES, FALSE);
+		::AdjustWindowRect(&m_WindowRect, WS_OVERLAPPEDWINDOW | WS_EX_ACCEPTFILES, FALSE);
 
 		// Create the menu bar
 		IE_STRIP_FOR_GAME_DIST(InitializeMenuBar();)
@@ -382,7 +384,7 @@ namespace Insight {
 		IE_STRIP_FOR_GAME_DIST(InitializeContextMenu();)
 
 		// Create the main window for the engine/game
-		m_hWindow = CreateWindowExW(
+		m_hWindow = ::CreateWindowExW(
 			WS_EX_ACCEPTFILES,						// Window Styles
 			m_Data.WindowClassName_wide.c_str(),	// Window Class
 			m_Data.WindowTitle_wide.c_str(),		// Window Title
@@ -407,11 +409,21 @@ namespace Insight {
 
 		m_Data.hGraphicsVisualizeSubMenu = m_hGraphicsVisualizeSubMenu;
 
-		ShowWindow(m_hWindow, m_nCmdShowArgs);
-		SetForegroundWindow(m_hWindow);
-		SetFocus(m_hWindow);
+		::ShowWindow(m_hWindow, m_nCmdShowArgs);
+		::SetForegroundWindow(m_hWindow);
+		::SetFocus(m_hWindow);
 
 		IE_CORE_TRACE("Window Initialized");
+		return true;
+	}
+
+	bool WindowsWindow::PostInit()
+	{
+		RECT ClientRect = {};
+		::GetClientRect(m_hWindow, &ClientRect);
+		WindowResizeEvent Event(ClientRect.right - ClientRect.left, ClientRect.bottom - ClientRect.top, false);
+		m_Data.EventCallback(Event);
+
 		return true;
 	}
 
@@ -424,14 +436,14 @@ namespace Insight {
 		wc.cbClsExtra = 0;
 		wc.cbWndExtra = 0;
 		wc.hInstance = *m_WindowsAppInstance;
-		wc.hIcon = LoadIcon(0, IDI_WINLOGO);
-		wc.hCursor = LoadCursor(0, IDC_ARROW);
+		wc.hIcon = ::LoadIcon(0, IDI_WINLOGO);
+		wc.hCursor = ::LoadCursor(0, IDC_ARROW);
 		wc.lpszMenuName = 0;
 		wc.hbrBackground = 0;
 		wc.lpszClassName = m_Data.WindowClassName_wide.c_str();
 
-		RegisterClassEx(&wc);
-		DWORD error = GetLastError();
+		::RegisterClassEx(&wc);
+		DWORD error = ::GetLastError();
 		if (error > 0)
 		{
 			IE_CORE_ERROR("An error occured while registering window class: {0} ", m_Data.WindowClassName);
@@ -441,7 +453,7 @@ namespace Insight {
 
 	void WindowsWindow::InitializeMenuBar()
 	{
-		m_hMenuBar = CreateMenu();
+		m_hMenuBar = ::CreateMenu();
 		if (m_hMenuBar == NULL) {
 			IE_CORE_ERROR("Failed to create menu bar for window \"{0}\"", m_Data.WindowTitle);
 			return;
@@ -449,28 +461,28 @@ namespace Insight {
 
 		// File SubMenu
 		{
-			m_hFileSubMenu = CreateMenu();
-			AppendMenuW(m_hMenuBar, MF_POPUP, (UINT_PTR)m_hFileSubMenu, L"&File");
-			AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_SCENE_SAVE, L"&Save Scene");
-			AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_ABOUT, L"&About");
-			AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_EXIT, L"&Exit");
+			m_hFileSubMenu = ::CreateMenu();
+			::AppendMenuW(m_hMenuBar, MF_POPUP, (UINT_PTR)m_hFileSubMenu, L"&File");
+			::AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_SCENE_SAVE, L"&Save Scene");
+			::AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_ABOUT, L"&About");
+			::AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_EXIT, L"&Exit");
 		}
 
 		// Edit SubMenu
 		{
-			m_hEditSubMenu = CreateMenu();
-			AppendMenuW(m_hMenuBar, MF_POPUP, (UINT_PTR)m_hEditSubMenu, L"&Edit");
+			m_hEditSubMenu = ::CreateMenu();
+			::AppendMenuW(m_hMenuBar, MF_POPUP, (UINT_PTR)m_hEditSubMenu, L"&Edit");
 
 		}
 
 		// Editor SubMenu
 		{
-			m_hEditorSubMenu = CreateMenu();
-			AppendMenuW(m_hMenuBar, MF_POPUP, (UINT_PTR)m_hEditorSubMenu, L"&Editor");
-			AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_BEGIN_PLAY, L"&Play");
-			AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_END_PLAY, L"&Stop");
-			AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_EDITOR_RELOAD_SCRIPTS, L"&Reload Scripts");
-			AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_EDITOR_TOGGLE, L"&Toggle Editor UI");
+			m_hEditorSubMenu = ::CreateMenu();
+			::AppendMenuW(m_hMenuBar, MF_POPUP, (UINT_PTR)m_hEditorSubMenu, L"&Editor");
+			::AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_BEGIN_PLAY, L"&Play");
+			::AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_END_PLAY, L"&Stop");
+			::AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_EDITOR_RELOAD_SCRIPTS, L"&Reload Scripts");
+			::AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_EDITOR_TOGGLE, L"&Toggle Editor UI");
 
 			m_Data.hEditorSubMenu = m_hEditorSubMenu;
 		}
@@ -478,28 +490,28 @@ namespace Insight {
 		return;
 		// Graphics SubMenu
 		{
-			m_hGraphicsSubMenu = CreateMenu();
-			m_hGraphicsVisualizeSubMenu = CreateMenu();
+			m_hGraphicsSubMenu = ::CreateMenu();
+			m_hGraphicsVisualizeSubMenu = ::CreateMenu();
 
-			AppendMenuW(m_hMenuBar, MF_POPUP, (UINT_PTR)m_hGraphicsSubMenu, L"&Graphics");
+			::AppendMenuW(m_hMenuBar, MF_POPUP, (UINT_PTR)m_hGraphicsSubMenu, L"&Graphics");
 			//AppendMenuW(m_GraphicsSubMenuHandle, MF_STRING, (UINT_PTR)m_GraphicsSubMenuHandle, L"&Reload Post-Fx Pass Shader");
 			//AppendMenuW(m_GraphicsSubMenuHandle, MF_STRING, (UINT_PTR)m_GraphicsSubMenuHandle, L"&Reload Geometry Pass Shader");
 			//AppendMenuW(m_GraphicsSubMenuHandle, MF_STRING, (UINT_PTR)m_GraphicsSubMenuHandle, L"&Reload Light Pass Shader");
-			AppendMenuW(m_hGraphicsSubMenu, MF_POPUP, (UINT_PTR)m_hGraphicsVisualizeSubMenu, L"&Visualize G-Buffer");
-			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_FINAL_RESULT, L"&Final Result");
-			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
-			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_LIGHT_PASS_RESULT, L"&Light Pass Result");
-			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
-			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_ALBEDO_BUFFER, L"&Albedo");
-			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
-			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_NORMAL_BUFFER, L"&Normal");
-			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
-			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_ROUGHNESS_BUFFER, L"&Roughness");
-			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
-			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_METALLIC_BUFFER, L"&Metallic");
-			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
-			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_AO_BUFFER, L"&Ambient Occlusion (PBR Texture)");
-			AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
+			::AppendMenuW(m_hGraphicsSubMenu, MF_POPUP, (UINT_PTR)m_hGraphicsVisualizeSubMenu, L"&Visualize G-Buffer");
+			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_FINAL_RESULT, L"&Final Result");
+			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
+			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_LIGHT_PASS_RESULT, L"&Light Pass Result");
+			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
+			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_ALBEDO_BUFFER, L"&Albedo");
+			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
+			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_NORMAL_BUFFER, L"&Normal");
+			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
+			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_ROUGHNESS_BUFFER, L"&Roughness");
+			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
+			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_METALLIC_BUFFER, L"&Metallic");
+			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
+			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_AO_BUFFER, L"&Ambient Occlusion (PBR Texture)");
+			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
 
 			m_Data.hGraphicsVisualizeSubMenu = m_hGraphicsVisualizeSubMenu;
 		}
@@ -507,10 +519,10 @@ namespace Insight {
 
 	void WindowsWindow::InitializeContextMenu()
 	{
-		m_hContextMenu = CreatePopupMenu();
+		m_hContextMenu = ::CreatePopupMenu();
 		{
-			AppendMenuW(m_hContextMenu, MF_STRING, IDM_VISUALIZE_AO_BUFFER, L"&Hello");
-			AppendMenuW(m_hContextMenu, MF_STRING, IDM_VISUALIZE_AO_BUFFER, L"&World");
+			::AppendMenuW(m_hContextMenu, MF_STRING, IDM_VISUALIZE_AO_BUFFER, L"&Hello");
+			::AppendMenuW(m_hContextMenu, MF_STRING, IDM_VISUALIZE_AO_BUFFER, L"&World");
 		}
 		m_Data.hContextMenu = m_hContextMenu;
 	}
@@ -519,7 +531,7 @@ namespace Insight {
 	{
 		LPVOID lpMsgBuf;
 		LPVOID lpDisplayBuf;
-		DWORD dw = GetLastError();
+		DWORD dw = ::GetLastError();
 
 		FormatMessage(
 			FORMAT_MESSAGE_ALLOCATE_BUFFER |
@@ -531,10 +543,10 @@ namespace Insight {
 			(LPTSTR)&lpMsgBuf,
 			0, NULL);
 
-		lpDisplayBuf = (LPVOID)LocalAlloc(LMEM_ZEROINIT, (lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)"") + 40) * sizeof(TCHAR));
+		lpDisplayBuf = (LPVOID)::LocalAlloc(LMEM_ZEROINIT, (lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)"") + 40) * sizeof(TCHAR));
 		StringCchPrintf(
 			(LPTSTR)lpDisplayBuf,
-			LocalSize(lpDisplayBuf) / sizeof(TCHAR),
+			::LocalSize(lpDisplayBuf) / sizeof(TCHAR),
 			TEXT("%s failed with error %d: %s"),
 			"", dw, lpMsgBuf
 		);
@@ -545,21 +557,21 @@ namespace Insight {
 	{
 		m_Data.Width = newWidth;
 		m_Data.Height = newHeight;
-		RenderingContext::Get().SetWindowWidthAndHeight(newWidth, newHeight, isMinimized);
+		RenderingContext::SetWindowWidthAndHeight(newWidth, newHeight, isMinimized);
 	}
 
 	void WindowsWindow::ToggleFullScreen(bool enabled)
 	{
 		m_Data.FullScreenEnabled = enabled;
-		RenderingContext::Get().OnWindowFullScreen();
+		RenderingContext::OnWindowFullScreen();
 	}
 
 	bool WindowsWindow::ProccessWindowMessages()
 	{
 		MSG msg;
-		ZeroMemory(&msg, sizeof(MSG));
+		::ZeroMemory(&msg, sizeof(MSG));
 
-		while (PeekMessage(&msg,	// Where to store message (if one exists)
+		while (::PeekMessage(&msg,	// Where to store message (if one exists)
 			m_hWindow,			// Handle to window we are checking messages for
 			0,						// Minimum Filter Msg Value - We are not filterinf for specific messages but min and max could be used to do so
 			0,						// Maximum Filter Msg Value
@@ -567,11 +579,11 @@ namespace Insight {
 		{
 			if (msg.message == WM_QUIT)
 				return false;
-			TranslateMessage(&msg);		// Translate message from virtual key message into character messages
-			DispatchMessage(&msg);		// Dispatch message to our WindowProc for this window
+			::TranslateMessage(&msg);		// Translate message from virtual key message into character messages
+			::DispatchMessage(&msg);		// Dispatch message to our WindowProc for this window
 		}
 
-		IE_ASSERT("Heap is currupted!", _CrtCheckMemory());
+		IE_ASSERT("Heap is currupted!", ::_CrtCheckMemory());
 		return true;
 	}
 
@@ -589,18 +601,18 @@ namespace Insight {
 
 	void WindowsWindow::OnFramePreRender()
 	{
-		RenderingContext::Get().OnPreFrameRender();
+		RenderingContext::OnPreFrameRender();
 	}
 
 	void WindowsWindow::OnRender()
 	{
-		RenderingContext::Get().OnRender();
+		RenderingContext::OnRender();
 	}
 
 	void WindowsWindow::ExecuteDraw()
 	{
-		RenderingContext::Get().ExecuteDraw();
-		RenderingContext::Get().SwapBuffers();
+		RenderingContext::ExecuteDraw();
+		RenderingContext::SwapBuffers();
 	}
 
 	bool WindowsWindow::SetWindowTitle(const std::string& NewText, bool completlyOverride)
@@ -636,7 +648,7 @@ namespace Insight {
 	{
 		IE_CORE_INFO("V-sync: " + enabled ? "enabled" : "disabled");
 		m_Data.VSyncEnabled = enabled;
-		RenderingContext::Get().SetVSyncEnabled(m_Data.VSyncEnabled);
+		RenderingContext::SetVSyncEnabled(m_Data.VSyncEnabled);
 	}
 
 	const bool& WindowsWindow::IsVsyncActive() const
@@ -651,21 +663,21 @@ namespace Insight {
 
 	void WindowsWindow::Shutdown()
 	{
-		CoUninitialize();
+		::CoUninitialize();
 
 		if (m_hWindow != NULL)
 		{
-			UnregisterClass(this->m_Data.WindowClassName_wide.c_str(), *m_WindowsAppInstance);
-			DestroyWindow(m_hWindow);
+			::UnregisterClass(this->m_Data.WindowClassName_wide.c_str(), *m_WindowsAppInstance);
+			::DestroyWindow(m_hWindow);
 		}
 
-		RenderingContext::Get().Destroy();
+		RenderingContext::Destroy();
 	}
 
 	void WindowsWindow::EndFrame()
 	{
-		RenderingContext::Get().ExecuteDraw();
-		RenderingContext::Get().SwapBuffers();
+		RenderingContext::ExecuteDraw();
+		RenderingContext::SwapBuffers();
 	}
 
 }

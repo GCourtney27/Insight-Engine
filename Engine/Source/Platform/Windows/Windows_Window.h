@@ -62,6 +62,7 @@ namespace Insight {
 		virtual const bool& IsVsyncActive() const override;
 		virtual const bool& IsFullScreenActive() const override;
 		virtual bool Init(const WindowProps& props);
+		virtual bool PostInit();
 	private:
 		inline void SetWindowsApplicationInstance(HINSTANCE& hInstance) { m_WindowsAppInstance = &hInstance; }
 		inline void SetCmdArgs(int nCmdShow) { m_nCmdShowArgs = nCmdShow; }

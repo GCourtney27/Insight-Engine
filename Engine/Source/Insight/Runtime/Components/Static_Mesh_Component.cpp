@@ -4,6 +4,8 @@
 #include "Static_Mesh_Component.h"
 #include "Insight/Systems/File_System.h"
 #include "Insight/Systems/Managers/Resource_Manager.h"
+#include "Insight/Rendering/Rendering_Context.h"
+
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
 
@@ -171,7 +173,7 @@ namespace Insight {
 	}
 
 	static std::mutex s_MeshMutex;
-	static bool LoadMesh(StrongModelPtr Model, const std::string& Path, Material* Material)
+	static bool LoadModelAsync(StrongModelPtr Model, const std::string& Path, Material* Material)
 	{
 		Model->Init(Path, Material);
 
@@ -193,7 +195,12 @@ namespace Insight {
 		m_pModel = make_shared<Model>();
 		m_pModel->Init(AssestDirectoryRelPath, m_pMaterial);
 
-		//m_ModelLoadFuture = std::async(std::launch::async, LoadMesh, m_pModel, AssesDirectoryRelPath, &m_Material);
+		// Experamental: Multi-threaded model laoding
+		//m_ModelLoadFuture = std::async(std::launch::async, LoadModelAsync, m_pModel, AssesDirectoryRelPath, &m_Material);
+		
+		if (RenderingContext::GetAPI() != RenderingContext::eRenderingAPI::D3D_12) {
+			return;
+		}
 		ResourceManager::Get().GetGeometryManager().RegisterModel(m_pModel);
 	}
 
