@@ -43,12 +43,12 @@ namespace Insight {
 		return true;
 	}
 
-	void Direct3D11Context::SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer, uint32_t Strides, uint32_t Offsets)
+	void Direct3D11Context::SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer* pBuffers)
 	{
 		//m_pDeviceContext->IASetVertexBuffers(StartSlot, NumBuffers, reinterpret_cast<D3D11VertexBuffer<Vertex3D>>(Buffer)->StridePtr(), 0);
 	}
 
-	void Direct3D11Context::SetIndexBufferImpl(IndexBuffer Buffer)
+	void Direct3D11Context::SetIndexBufferImpl(IndexBuffer* pBuffer)
 	{
 	}
 

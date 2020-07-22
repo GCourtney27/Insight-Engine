@@ -14,12 +14,14 @@ namespace Insight {
 			: m_Indices(std::move(Indices)) {}
 		virtual ~IndexBuffer() = default;
 
-		virtual void Init() = 0;
-		virtual void Destroy() = 0;
+		virtual void Destroy() {}
 
 		uint32_t GetNumIndices() { return m_NumIndices; }
 		uint32_t GetBufferSize() { return m_BufferSize; }
-	private:
+	protected:
+		virtual bool CreateResources() { return true; }
+
+	protected:
 		Indices		m_Indices;
 		uint32_t	m_NumIndices = 0U;
 		uint32_t	m_BufferSize = 0U;

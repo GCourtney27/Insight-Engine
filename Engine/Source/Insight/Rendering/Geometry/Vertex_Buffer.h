@@ -17,13 +17,14 @@ namespace Insight {
 		VertexBuffer() = default;
 		virtual ~VertexBuffer() = default;
 
-		virtual void Init() = 0;
-		virtual void Destroy() = 0;
+		virtual void Destroy() {}
 
 		uint32_t GetNumVerticies() { return m_NumVerticies; }
 		uint32_t GetBufferSize() { return m_BufferSize; }
+	protected:
+		virtual bool CreateResources() { return true; }
 
-	private:
+	protected:
 		Verticies	m_Verticies;
 		uint32_t	m_NumVerticies = 0U;
 		uint32_t	m_BufferSize = 0U;

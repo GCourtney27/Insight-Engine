@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Insight/Core/Interfaces.h"
-
+#include "Insight/Rendering/Geometry/Vertex_Buffer.h"
+#include "Insight/Rendering/Geometry/Index_Buffer.h"
 /*
 	Represents a base for a graphics context the application will use for rendering.
 	Context is API independent, meaning all rendering calls will pass through a *Imple
@@ -37,8 +38,6 @@ namespace Insight {
 			D3D_12,
 		};
 
-		typedef void* VertexBuffer;
-		typedef void* IndexBuffer;
 	public:
 		virtual ~Renderer();
 
@@ -73,8 +72,8 @@ namespace Insight {
 
 		static void SetRenderPass(eRenderPass RenderPass) { s_Instance->m_RenderPass = RenderPass; }
 
-		static void SetVertexBuffers(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer, uint32_t Strides, uint32_t Offsets) { s_Instance->SetVertexBuffersImpl(StartSlot, NumBuffers, Buffer, Strides, Offsets); }
-		static void SetIndexBuffer(IndexBuffer Buffer) { s_Instance->SetIndexBufferImpl(Buffer); }
+		static void SetVertexBuffers(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer* pBuffers) { s_Instance->SetVertexBuffersImpl(StartSlot, NumBuffers, pBuffers); }
+		static void SetIndexBuffer(IndexBuffer* pBuffer) { s_Instance->SetIndexBufferImpl(pBuffer); }
 		static void DrawIndexedInstanced(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) { s_Instance->DrawIndexedInstancedImpl(IndexCountPerInstance, NumInstances, StartIndexLocation, BaseVertexLoaction, StartInstanceLocation); }
 
 		inline static eRenderingAPI GetAPI() { return s_Instance->m_CurrentAPI; }
@@ -123,8 +122,8 @@ namespace Insight {
 		virtual void OnWindowResizeImpl() = 0;
 		virtual void OnWindowFullScreenImpl() = 0;
 
-		virtual void SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer, uint32_t Strides, uint32_t Offsets) = 0;
-		virtual void SetIndexBufferImpl(IndexBuffer Buffer) = 0;
+		virtual void SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer* pBuffers) = 0;
+		virtual void SetIndexBufferImpl(IndexBuffer* pBuffer) = 0;
 		virtual void DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) = 0;
 
 	protected:

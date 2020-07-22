@@ -6,6 +6,7 @@
 #include "Platform/Windows/DirectX_11/Direct3D11_Context.h"
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
+
 namespace Insight {
 
 

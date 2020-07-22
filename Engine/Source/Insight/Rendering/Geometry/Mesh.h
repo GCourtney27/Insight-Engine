@@ -16,11 +16,9 @@ namespace Insight {
 	{
 	public:
 		Mesh(Verticies verticies, Indices indices);
-		Mesh(Mesh&& mesh) noexcept;
+		//Mesh(Mesh&& mesh) noexcept;
 		~Mesh();
 
-		void Init(Verticies verticies, Indices indices);
-		void InitializeVariables();
 		void PreRender(const XMMATRIX& parentMat);
 		void Render(ID3D12GraphicsCommandList*& pCommandList);
 		void Destroy();
@@ -30,19 +28,19 @@ namespace Insight {
 		inline const Transform& GetTransform() const { return m_Transform; }
 		CB_VS_PerObject GetConstantBuffer();
 
-		uint32_t GetNumVertices() { return m_VertexBuffer.GetNumVerticies(); }
-		uint32_t GetVertexBufferSize() { return m_VertexBuffer.GetBufferSize(); }
+		uint32_t GetNumVertices() { return m_pVertexBuffer->GetNumVerticies(); }
+		uint32_t GetVertexBufferSize() { return m_pVertexBuffer->GetBufferSize(); }
 
-		uint32_t GetNumIndices() { return m_IndexBuffer.GetBufferSize(); }
-		uint32_t GetIndexBufferSize() { return m_IndexBuffer.GetBufferSize(); }
+		uint32_t GetNumIndices() { return m_pIndexBuffer->GetBufferSize(); }
+		uint32_t GetIndexBufferSize() { return m_pIndexBuffer->GetBufferSize(); }
 
 	private:
-		void SetupMesh();
-		bool InitializeVertexDataForD3D12();
-		bool InitializeIndexDataForD3D12();
+		void Init(Verticies& verticies, Indices& indices);
+		void CreateBuffers(Verticies& Verticies, Indices& Indices);
+
 	private:
-		VertexBuffer m_VertexBuffer;
-		IndexBuffer m_IndexBuffer;
+		VertexBuffer* m_pVertexBuffer;
+		IndexBuffer* m_pIndexBuffer;
 
 		Transform					m_Transform;
 		CB_VS_PerObject				m_ConstantBufferPerObject = {};

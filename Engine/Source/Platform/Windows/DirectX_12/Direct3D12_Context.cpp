@@ -14,6 +14,8 @@
 #include "Insight/Rendering/Lighting/APoint_Light.h"
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
 
+#include "Platform/Windows/DirectX_12/D3D12_Vertex_Buffer.h"
+#include "Platform/Windows/DirectX_12/D3D12_Index_Buffer.h"
 
 namespace Insight {
 
@@ -493,14 +495,14 @@ namespace Insight {
 		m_FullScreenMode = !m_FullScreenMode;
 	}
 
-	void Direct3D12Context::SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer, uint32_t Strides, uint32_t Offsets)
+	void Direct3D12Context::SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer* pBuffers)
 	{
-		m_pScenePassCommandList->IASetVertexBuffers(StartSlot, NumBuffers, reinterpret_cast<const D3D12_VERTEX_BUFFER_VIEW*>(Buffer));
+		m_pScenePassCommandList->IASetVertexBuffers(StartSlot, NumBuffers, reinterpret_cast<D3D12VertexBuffer*>(pBuffers)->GetVertexBufferView());
 	}
 
-	void Direct3D12Context::SetIndexBufferImpl(IndexBuffer Buffer)
+	void Direct3D12Context::SetIndexBufferImpl(IndexBuffer* pBuffer)
 	{
-		m_pScenePassCommandList->IASetIndexBuffer(reinterpret_cast<const D3D12_INDEX_BUFFER_VIEW*>(Buffer));
+		m_pScenePassCommandList->IASetIndexBuffer(&reinterpret_cast<D3D12IndexBuffer*>(pBuffer)->GetIndexBufferView());
 	}
 
 	void Direct3D12Context::DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation)
