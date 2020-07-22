@@ -352,8 +352,8 @@ namespace Insight {
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
-		UINT presentFlags = (m_AllowTearing && m_WindowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
-		HRESULT hr = m_pSwapChain->Present(m_VSyncEnabled, presentFlags);
+		UINT PresentFlags = (m_AllowTearing && m_WindowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
+		HRESULT hr = m_pSwapChain->Present(m_VSyncEnabled, PresentFlags);
 		ThrowIfFailed(hr, "Failed to present frame");
 		MoveToNextFrame();
 	}
@@ -513,35 +513,35 @@ namespace Insight {
 	{
 		HRESULT hr;
 
-		DXGI_MODE_DESC backBufferDesc = {};
-		backBufferDesc.Width = m_WindowWidth;
-		backBufferDesc.Height = m_WindowHeight;
+		DXGI_MODE_DESC BackBufferDesc = {};
+		BackBufferDesc.Width = m_WindowWidth;
+		BackBufferDesc.Height = m_WindowHeight;
 
 		m_SampleDesc = {};
 		m_SampleDesc.Count = 1;
 
-		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-		swapChainDesc.BufferCount = m_FrameBufferCount;
-		swapChainDesc.Width = m_WindowWidth;
-		swapChainDesc.Height = m_WindowHeight;
-		swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-		swapChainDesc.SampleDesc = m_SampleDesc;
-		swapChainDesc.Flags = m_AllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
+		DXGI_SWAP_CHAIN_DESC1 SwapChainDesc = {};
+		SwapChainDesc.BufferCount = m_FrameBufferCount;
+		SwapChainDesc.Width = m_WindowWidth;
+		SwapChainDesc.Height = m_WindowHeight;
+		SwapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+		SwapChainDesc.SampleDesc = m_SampleDesc;
+		SwapChainDesc.Flags = m_AllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 
-		Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain{};
-		hr = m_pDxgiFactory->CreateSwapChainForHwnd(m_pCommandQueue.Get(), *m_pWindowHandle, &swapChainDesc, nullptr, nullptr, &swapChain);
-		ThrowIfFailed(hr, "Failed to Create Swap Chain");
+		Microsoft::WRL::ComPtr<IDXGISwapChain1> SwapChain{};
+		hr = m_pDxgiFactory->CreateSwapChainForHwnd(m_pCommandQueue.Get(), *m_pWindowHandle, &SwapChainDesc, nullptr, nullptr, &SwapChain);
+		ThrowIfFailed(hr, "Failed to Create Swap Chain for D3D 12 context.");
 
 		if (m_AllowTearing)
 		{
 			hr = m_pDxgiFactory->MakeWindowAssociation(*m_pWindowHandle, DXGI_MWA_NO_ALT_ENTER);
-			ThrowIfFailed(hr, "Failed to Make Window Association");
+			ThrowIfFailed(hr, "Failed to make window association for D3D 12 context.");
 		}
 
-		hr = swapChain.As(&m_pSwapChain);
-		ThrowIfFailed(hr, "Failed to cast SwapChain ComPtr");
+		hr = SwapChain.As(&m_pSwapChain);
+		ThrowIfFailed(hr, "Failed to cast SwapChain ComPtr for D3D 12 context.");
 
 		m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 	}
@@ -551,12 +551,12 @@ namespace Insight {
 		HRESULT hr;
 		WaitForGPU();
 
-		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
-		desc.NumDescriptors = m_FrameBufferCount;
-		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		D3D12_DESCRIPTOR_HEAP_DESC HeapDesc = {};
+		HeapDesc.NumDescriptors = m_FrameBufferCount;
+		HeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+		HeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
-		hr = m_pDeviceContext->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_RTVDescriptorHeap));
+		hr = m_pDeviceContext->CreateDescriptorHeap(&HeapDesc, IID_PPV_ARGS(&m_RTVDescriptorHeap));
 		m_RTVDescriptorHeap->SetName(L"Render Target View Descriptor Heap");
 
 		// All pending GPU work was already finished. Update the tracked fence values
@@ -1467,31 +1467,34 @@ namespace Insight {
 
 	void Direct3D12Context::GetHardwareAdapter(IDXGIFactory2* pFactory, IDXGIAdapter1** ppAdapter)
 	{
-		ComPtr<IDXGIAdapter1> adapter;
+		ComPtr<IDXGIAdapter1> pAdapter;
 		*ppAdapter = nullptr;
 		UINT currentVideoCardMemory = 0;
-		DXGI_ADAPTER_DESC1 desc;
+		DXGI_ADAPTER_DESC1 Desc;
 
-		for (UINT adapterIndex = 0; DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapters1(adapterIndex, &adapter); ++adapterIndex)
+		for (UINT AdapterIndex = 0; DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapters1(AdapterIndex, &pAdapter); ++AdapterIndex)
 		{
-			desc = {};
-			adapter->GetDesc1(&desc);
+			Desc = {};
+			pAdapter->GetDesc1(&Desc);
 
 			// Make sure we get the video card that is not a software adapter
 			// and it has the most video memory
-			if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE || desc.DedicatedVideoMemory < currentVideoCardMemory)
-				continue;
+			if (Desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE || Desc.DedicatedVideoMemory < currentVideoCardMemory) continue;
 
-			if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device), nullptr)))
+			if (SUCCEEDED(D3D12CreateDevice(pAdapter.Get(), D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device), nullptr)))
 			{
-				currentVideoCardMemory = static_cast<UINT>(desc.DedicatedVideoMemory);
-				if (*ppAdapter != nullptr)
+				currentVideoCardMemory = static_cast<UINT>(Desc.DedicatedVideoMemory);
+				if (*ppAdapter != nullptr) {
 					(*ppAdapter)->Release();
-				*ppAdapter = adapter.Detach();
+				}
+				*ppAdapter = pAdapter.Detach();
 
-				IE_CORE_WARN("Found suitable D3D12 graphics hardware: {0}", StringHelper::WideToString(std::wstring{ desc.Description }));
+				IE_CORE_WARN("Found suitable Direct3D 12 graphics hardware: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
 			}
 		}
+		Desc = {};
+		(*ppAdapter)->GetDesc1(&Desc);
+		IE_CORE_WARN("\"{0}\" selected as Direct3D 11 graphics hardware.", StringHelper::WideToString(Desc.Description));
 	}
 
 	void Direct3D12Context::WaitForGPU()

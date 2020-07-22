@@ -68,6 +68,10 @@
 	#include <d3d12.h>
 	#include <d3dx12.h>
 
+	// Direct3D 11
+	#include <d3d11.h>
+
+
 	// DirectX
 	#include <dxgi1_2.h>
 	#include <dxgi1_4.h>

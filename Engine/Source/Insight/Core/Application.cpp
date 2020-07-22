@@ -40,7 +40,7 @@ namespace Insight {
 			return false;
 		}
 
-		RenderingContext::SetAPIAndCreateContext(RenderingContext::eRenderingAPI::D3D_12);
+		RenderingContext::SetAPIAndCreateContext(RenderingContext::eRenderingAPI::D3D_11);
 		RenderingContext::Init();
 
 		if (!Init()) {
@@ -64,14 +64,14 @@ namespace Insight {
 
 		m_pGameLayer = new GameLayer();
 
-		std::string DocumentPath = FileSystem::ProjectDirectory;
+		/*std::string DocumentPath = FileSystem::ProjectDirectory;
 		DocumentPath += "/Assets/Scenes/";
 		DocumentPath += TargetSceneName;
 		
 		if (!m_pGameLayer->LoadScene(DocumentPath)) {
 			throw ieException("Failed to initialize scene");
 		}
-		PushEngineLayers();
+		PushEngineLayers();*/
 
 		IE_CORE_TRACE("Application Initialized");
 		return true;
@@ -87,29 +87,36 @@ namespace Insight {
 
 			m_FrameTimer.Tick();
 			const float& DeltaTime = (float)m_FrameTimer.DeltaTime();
-			m_pWindow->SetWindowTitleFPS(m_FrameTimer.FPS());
+			//m_pWindow->SetWindowTitleFPS(m_FrameTimer.FPS());
 
 			m_pWindow->OnUpdate(DeltaTime);
-			m_pGameLayer->Update(DeltaTime);
-			
-			for (Layer* layer : m_LayerStack) {
-				layer->OnUpdate(DeltaTime);
+			//m_pGameLayer->Update(DeltaTime);
+
+			//TEMP
+			{
+				RenderingContext::OnUpdate(DeltaTime);
+				RenderingContext::OnPreFrameRender();
+				RenderingContext::OnMidFrameRender();
 			}
 
-			m_pGameLayer->PreRender();
-			m_pGameLayer->Render();
+			/*for (Layer* layer : m_LayerStack) {
+				layer->OnUpdate(DeltaTime);
+			}*/
+
+			//m_pGameLayer->PreRender();
+			//m_pGameLayer->Render();
 
 			// Render Editor UI
-			IE_STRIP_FOR_GAME_DIST(
+			/*IE_STRIP_FOR_GAME_DIST(
 				m_pImGuiLayer->Begin();
 				for (Layer* layer : m_LayerStack) {
 					layer->OnImGuiRender();
 				}
 				m_pGameLayer->OnImGuiRender();
 				m_pImGuiLayer->End();
-			);
+			);*/
 
-			m_pGameLayer->PostRender();
+			//m_pGameLayer->PostRender();
 			m_pWindow->EndFrame();
 		}
 	}

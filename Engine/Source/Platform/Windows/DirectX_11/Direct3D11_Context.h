@@ -5,8 +5,8 @@
 #include "Insight/Rendering/Rendering_Context.h"
 #include "Platform/Windows/Error/COM_Exception.h"
 
+#include "Platform/Windows/DirectX_11/D3D11_Helper.h"
 #include "Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
-
 
 using Microsoft::WRL::ComPtr;
 
@@ -59,12 +59,33 @@ namespace Insight {
 		virtual void DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) override;
 
 	private:
+		void CreateDXGIFactory();
+		void GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter** ppAdapter);
+		void CreateDeviceAndSwapChain();
+		void CreateRTVs();
+
+	private:
 		HWND*				m_pWindowHandle = nullptr;
 		WindowsWindow*		m_pWindow = nullptr;
 		GeometryManager*	m_pModelManager = nullptr;
 		ACamera*			m_pWorldCamera = nullptr;
 
 		bool				m_WindowResizeComplete = true;
+		float m_ClearColor[4] = { 0.01f, 0.01f, 0.01f, 1.0f };
+
+		//D3D11Helper m_DeviceResources;
+
+		ComPtr<IDXGIFactory1> m_pDxgiFactory;
+		ComPtr<IDXGIAdapter> m_pAdapter;
+
+		ComPtr<ID3D11Device> m_pDevice;
+		ComPtr<ID3D11DeviceContext> m_pDeviceContext;
+		ComPtr<IDXGISwapChain> m_pSwapChain;
+		ComPtr<ID3D11RenderTargetView> m_pRenderTargetView;
+		ComPtr<ID3D11Texture2D> m_pBackBuffer;
+
+		D3D_FEATURE_LEVEL m_DeviceMaxSupportedFeatureLevel;
+		DXGI_SAMPLE_DESC m_SampleDesc = {};
 
 	};
 
