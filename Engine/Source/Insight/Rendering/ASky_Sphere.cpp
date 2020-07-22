@@ -247,6 +247,7 @@ namespace Insight {
 		}
 		m_TriangleSize = (int)verts.size();
 		m_IndexSize = (int)triangles.size();
+
 		//Create D3D resources
 		D3D12_HEAP_PROPERTIES heapProperty;
 		ZeroMemory(&heapProperty, sizeof(heapProperty));

@@ -14,8 +14,8 @@
 namespace Insight {
 
 
-	Mesh::Mesh(Verticies verticies, Indices indices)
-		: m_Verticies(std::move(verticies)), m_Indices(std::move(indices))
+	Mesh::Mesh(Verticies Verticies, Indices Indices)
+		: m_VertexBuffer(std::move(Verticies)), m_IndexBuffer(std::move(Indices))
 	{
 		SetupMesh();
 	}
@@ -66,12 +66,8 @@ namespace Insight {
 
 	void Mesh::Destroy()
 	{
-		COM_SAFE_RELEASE(m_pIndexBuffer);
-		COM_SAFE_RELEASE(m_pVertexBuffer);
-		COM_SAFE_RELEASE(m_pVertexBufferUploadHeap);
-		COM_SAFE_RELEASE(m_pIndexBufferUploadHeap);
-
-		m_pDeviceContext = nullptr;
+		m_VertexBuffer.Destroy();
+		m_IndexBuffer.Destroy();
 	}
 
 	void Mesh::Init(Verticies verticies, Indices indices)
@@ -89,7 +85,7 @@ namespace Insight {
 		m_IBufferSize = m_NumIndices * sizeof(uint32_t);
 		m_VBufferSize = m_NumVerticies * sizeof(Vertex3D);
 
-		m_pDeviceContext = &Direct3D12Context::Get().GetDeviceContext();
+		
 	}
 
 	void Mesh::PreRender(const XMMATRIX& parentMat)
@@ -110,7 +106,7 @@ namespace Insight {
 
 	void Mesh::Render(ID3D12GraphicsCommandList*& pCommandList)
 	{
-		Renderer::SetVertexBuffers(0, 1, &m_VertexBufferView);
+		Renderer::SetVertexBuffers(0, 1, &m_VertexBufferView, 0, 0);
 		Renderer::SetIndexBuffer(&m_IndexBufferView);
 		Renderer::DrawIndexedInstanced(m_NumIndices, 1, 0, 0, 0);
 	}
@@ -138,7 +134,7 @@ namespace Insight {
 	{
 		HRESULT hr;
 
-		hr = m_pDeviceContext->CreateCommittedResource(
+		hr = Direct3D12Context::Get().GetDeviceContext().CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(m_VBufferSize),
@@ -151,7 +147,7 @@ namespace Insight {
 		}
 		m_pVertexBuffer->SetName(L"Vertex Buffer Resource Heap");
 
-		hr = m_pDeviceContext->CreateCommittedResource(
+		hr = Direct3D12Context::Get().GetDeviceContext().CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(m_VBufferSize),
@@ -187,7 +183,7 @@ namespace Insight {
 	{
 		HRESULT hr;
 
-		hr = m_pDeviceContext->CreateCommittedResource(
+		hr = Direct3D12Context::Get().GetDeviceContext().CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(m_IBufferSize),
@@ -200,7 +196,7 @@ namespace Insight {
 		}
 		m_pIndexBuffer->SetName(L"Index Buffer Resource Heap");
 
-		hr = m_pDeviceContext->CreateCommittedResource(
+		hr = Direct3D12Context::Get().GetDeviceContext().CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(m_IBufferSize),

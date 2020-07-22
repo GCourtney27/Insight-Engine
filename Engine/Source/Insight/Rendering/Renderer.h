@@ -73,7 +73,7 @@ namespace Insight {
 
 		static void SetRenderPass(eRenderPass RenderPass) { s_Instance->m_RenderPass = RenderPass; }
 
-		static void SetVertexBuffers(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer) { s_Instance->SetVertexBuffersImpl(StartSlot, NumBuffers, Buffer); }
+		static void SetVertexBuffers(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer, uint32_t Strides, uint32_t Offsets) { s_Instance->SetVertexBuffersImpl(StartSlot, NumBuffers, Buffer, Strides, Offsets); }
 		static void SetIndexBuffer(IndexBuffer Buffer) { s_Instance->SetIndexBufferImpl(Buffer); }
 		static void DrawIndexedInstanced(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) { s_Instance->DrawIndexedInstancedImpl(IndexCountPerInstance, NumInstances, StartIndexLocation, BaseVertexLoaction, StartInstanceLocation); }
 
@@ -91,12 +91,15 @@ namespace Insight {
 
 		// Add a Directional Light to the scene. 
 		void RegisterDirectionalLight(ADirectionalLight* DirectionalLight) { m_DirectionalLights.push_back(DirectionalLight); }
+		// Remove a Directional Light from the scene
 		void UnRegisterDirectionalLight(ADirectionalLight* DirectionalLight);
 		// Add a Point Light to the scene. 
 		void RegisterPointLight(APointLight* PointLight) { m_PointLights.push_back(PointLight); }
+		// Remove a Point Light from the scene
 		void UnRegisterPointLight(APointLight* PointLight);
 		// Add a Spot Light to the scene. 
 		void RegisterSpotLight(ASpotLight* SpotLight) { m_SpotLights.push_back(SpotLight); }
+		// Remove a Spot Light from the scene
 		void UnRegisterSpotLight(ASpotLight* SpotLight);
 
 		// Add Sky Sphere to the scene. There can never be more than one in the scene at any given time.
@@ -106,7 +109,6 @@ namespace Insight {
 		// Add Sky light to the scene for Image-Based Lighting. There can never be more than one 
 		// in the scene at any given time.
 		void AddSkyLight(ASkyLight* skyLight) { if (!m_SkyLight) { m_SkyLight = skyLight; } }
-
 
 	private:
 		virtual bool InitImpl() = 0;
@@ -121,7 +123,7 @@ namespace Insight {
 		virtual void OnWindowResizeImpl() = 0;
 		virtual void OnWindowFullScreenImpl() = 0;
 
-		virtual void SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer) = 0;
+		virtual void SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer, uint32_t Strides, uint32_t Offsets) = 0;
 		virtual void SetIndexBufferImpl(IndexBuffer Buffer) = 0;
 		virtual void DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) = 0;
 

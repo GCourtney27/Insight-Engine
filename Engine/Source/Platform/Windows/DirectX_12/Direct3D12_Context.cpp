@@ -493,9 +493,8 @@ namespace Insight {
 		m_FullScreenMode = !m_FullScreenMode;
 	}
 
-	void Direct3D12Context::SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer)
+	void Direct3D12Context::SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer, uint32_t Strides, uint32_t Offsets)
 	{
-
 		m_pScenePassCommandList->IASetVertexBuffers(StartSlot, NumBuffers, reinterpret_cast<const D3D12_VERTEX_BUFFER_VIEW*>(Buffer));
 	}
 

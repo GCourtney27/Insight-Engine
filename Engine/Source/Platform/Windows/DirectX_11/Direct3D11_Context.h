@@ -57,7 +57,7 @@ namespace Insight {
 		// Tells the swapchain to enable full screen rendering.
 		virtual void OnWindowFullScreenImpl() override;
 
-		virtual void SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer) override;
+		virtual void SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer, uint32_t Strides, uint32_t Offsets) override;
 		virtual void SetIndexBufferImpl(IndexBuffer Buffer) override;
 		virtual void DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) override;
 
@@ -74,7 +74,7 @@ namespace Insight {
 		ACamera*			m_pWorldCamera = nullptr;
 
 		bool				m_WindowResizeComplete = true;
-		float m_ClearColor[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
+		float m_ClearColor[4] = { 0.1f, 0.1f, 0.3f, 1.0f };
 
 		//D3D11Helper m_DeviceResources;
 

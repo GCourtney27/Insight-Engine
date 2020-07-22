@@ -53,7 +53,7 @@ namespace Insight {
 		virtual void OnWindowResizeImpl() override;
 		virtual void OnWindowFullScreenImpl() override;
 
-		virtual void SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer) override;
+		virtual void SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer, uint32_t Strides, uint32_t Offsets) override;
 		virtual void SetIndexBufferImpl(IndexBuffer Buffer) override;
 		virtual void DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) override;
 
