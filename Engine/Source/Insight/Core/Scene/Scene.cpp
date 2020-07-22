@@ -76,7 +76,7 @@ namespace Insight {
 		FileSystem::LoadSceneFromJson(fileName, this);
 
 		// Tell the renderer to set init commands to the gpu
-		m_Renderer->PostInit();
+		Renderer::PostInit();
 		return true;
 	}
 
@@ -114,7 +114,7 @@ namespace Insight {
 
 	void Scene::OnUpdate(const float& DeltaMs)
 	{
-		m_Renderer->OnUpdate(DeltaMs);
+		Renderer::OnUpdate(DeltaMs);
 		m_pSceneRoot->OnUpdate(DeltaMs);
 	}
 
@@ -124,7 +124,7 @@ namespace Insight {
 
 	void Scene::OnPreRender()
 	{
-		m_Renderer->OnPreFrameRender();
+		Renderer::OnPreFrameRender();
 		//Application::Get().GetImGuiLayer().Begin();
 		m_pSceneRoot->CalculateParent(XMMatrixIdentity());
 		m_ResourceManager.GetGeometryManager().GatherGeometry();
@@ -132,13 +132,13 @@ namespace Insight {
 
 	void Scene::OnRender()
 	{
-		m_Renderer->OnRender();
+		Renderer::OnRender();
 		m_pSceneRoot->OnRender();
 	}
 
 	void Scene::OnMidFrameRender()
 	{
-		m_Renderer->OnMidFrameRender();
+		Renderer::OnMidFrameRender();
 	}
 
 	void Scene::OnPostRender()

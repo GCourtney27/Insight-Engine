@@ -3,7 +3,7 @@
 #include <Insight/Core.h>
 
 #include "Platform/Windows/DirectX_12/D3D12_Helper.h"
-#include "Insight/Rendering/Rendering_Context.h"
+#include "Insight/Rendering/Renderer.h"
 #include "Platform/Windows/Error/COM_Exception.h"
 
 #include "Platform/Windows/DirectX_12/Descriptor_Heap_Wrapper.h"
@@ -22,15 +22,6 @@ namespace Insight {
 	class WindowsWindow;
 	class GeometryManager;
 
-	class ASkySphere;
-	class ASkyLight;
-	class APostFx;
-
-	class ADirectionalLight;
-	class APointLight;
-	class ASpotLight;
-
-	class ACamera;
 
 	class ScreenQuad
 	{
@@ -44,7 +35,7 @@ namespace Insight {
 		UINT m_NumVerticies = 0u;
 	};
 
-	class INSIGHT_API Direct3D12Context : public RenderingContext
+	class INSIGHT_API Direct3D12Context : public Renderer
 	{
 	public:
 		Direct3D12Context(WindowsWindow* windowHandle);
@@ -89,25 +80,7 @@ namespace Insight {
 			return handle;
 		}
 
-
-		// Add a Directional Light to the scene. 
-		void RegisterDirectionalLight(ADirectionalLight* DirectionalLight) { m_DirectionalLights.push_back(DirectionalLight); }
-		void UnRegisterDirectionalLight(ADirectionalLight* DirectionalLight);
-		// Add a Point Light to the scene. 
-		void RegisterPointLight(APointLight* PointLight) { m_PointLights.push_back(PointLight); }
-		void UnRegisterPointLight(APointLight* PointLight);
-		// Add a Spot Light to the scene. 
-		void RegisterSpotLight(ASpotLight* SpotLight) { m_SpotLights.push_back(SpotLight); }
-		void UnRegisterSpotLight(ASpotLight* SpotLight);
-
-		// Add Sky Sphere to the scene. There can never be more than one in the scene at any given time.
-		void AddSkySphere(ASkySphere* skySphere) { if (!m_pSkySphere) { m_pSkySphere = skySphere; } }
-		// Add a post-fx volume to the scene.
-		void AddPostFxActor(APostFx* postFxActor) { {m_pPostFx = postFxActor; } }
-		// Add Sky light to the scene for Image-Based Lighting. There can never be more than one 
-		// in the scene at any given time.
-		void AddSkyLight(ASkyLight* skyLight) { if (!m_SkyLight) { m_SkyLight = skyLight; } }
-
+		
 	private:
 		void CloseCommandListAndSignalCommandQueue();
 		// Per-Frame
@@ -165,11 +138,11 @@ namespace Insight {
 		static Direct3D12Context* s_Instance;
 
 	private:
-		HWND*			m_pWindowHandle = nullptr;
-		WindowsWindow*	m_pWindow = nullptr;
-		D3D12Helper		m_d3dDeviceResources;
+		HWND*				m_pWindowHandle = nullptr;
+		WindowsWindow*		m_pWindow = nullptr;
+		D3D12Helper			m_d3dDeviceResources;
 		GeometryManager*	m_pModelManager = nullptr;
-		ACamera* m_pWorldCamera = nullptr;
+
 		// CPU/GPU Syncronization
 		int						m_FrameIndex = 0;
 		UINT64					m_FenceValues[m_FrameBufferCount] = {};
@@ -284,26 +257,21 @@ namespace Insight {
 		UINT8*				   m_cbvPostFxGPUAddress;
 		CB_PS_VS_PerFrame	   m_PostFxData;
 		int CBPerFrameAlignedSize = (sizeof(CB_PS_VS_PerFrame) + 255) & ~255;
+		int CBPostFxAlignedSize = (sizeof(CB_PS_PostFx) + 255) & ~255;
 
-		ASkySphere*			   m_pSkySphere = nullptr;
-		ASkyLight*			   m_SkyLight = nullptr;
-		APostFx*			   m_pPostFx = nullptr;
-		int					   CBPostFxAlignedSize = (sizeof(CB_PS_PostFx) + 255) & ~255;
+		#define POINT_LIGHTS_CB_ALIGNED_OFFSET (0)
+		#define MAX_POINT_LIGHTS_SUPPORTED 16u
+		int	CBPointLightsAlignedSize = (sizeof(CB_PS_PointLight) + 255) & ~255;
 
-#define POINT_LIGHTS_CB_ALIGNED_OFFSET (0)
-#define MAX_POINT_LIGHTS_SUPPORTED 16u
-		std::vector<APointLight*> m_PointLights;
-		int						  CBPointLightsAlignedSize = (sizeof(CB_PS_PointLight) + 255) & ~255;
+		#define DIRECTIONAL_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight))
+		#define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 4u
+		int	CBDirectionalLightsAlignedSize = (sizeof(CB_PS_DirectionalLight) + 255) & ~255;
 
-#define DIRECTIONAL_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight))
-#define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 4u
-		std::vector<ADirectionalLight*> m_DirectionalLights;
-		int							    CBDirectionalLightsAlignedSize = (sizeof(CB_PS_DirectionalLight) + 255) & ~255;
+		#define SPOT_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight) + MAX_DIRECTIONAL_LIGHTS_SUPPORTED * sizeof(CB_PS_DirectionalLight))
+		#define MAX_SPOT_LIGHTS_SUPPORTED 16u
+		int	CBSpotLightsAlignedSize = (sizeof(CB_PS_SpotLight) + 255) & ~255;
 
-#define SPOT_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight) + MAX_DIRECTIONAL_LIGHTS_SUPPORTED * sizeof(CB_PS_DirectionalLight))
-#define MAX_SPOT_LIGHTS_SUPPORTED 16u
-		std::vector<ASpotLight*> m_SpotLights;
-		int						 CBSpotLightsAlignedSize = (sizeof(CB_PS_SpotLight) + 255) & ~255;
+
 
 
 		const UINT PIX_EVENT_UNICODE_VERSION = 0;

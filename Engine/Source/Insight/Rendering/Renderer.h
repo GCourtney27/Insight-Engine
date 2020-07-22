@@ -16,7 +16,18 @@
 namespace Insight {
 
 
-	class RenderingContext
+
+	class ASkySphere;
+	class ASkyLight;
+	class APostFx;
+
+	class ADirectionalLight;
+	class APointLight;
+	class ASpotLight;
+
+	class ACamera;
+
+	class Renderer
 	{
 	public:
 		enum class eRenderingAPI
@@ -29,36 +40,36 @@ namespace Insight {
 		typedef void* VertexBuffer;
 		typedef void* IndexBuffer;
 	public:
-		virtual ~RenderingContext();
+		virtual ~Renderer();
 
-		static RenderingContext& Get() { return *s_Instance; }
+		static Renderer& Get() { return *s_Instance; }
 		// Set the target graphics rendering API and create a context to it.
 		// Once set, it cannot be changed through the lifespan application, you must 
 		// set it re-launch the app.
 		static bool SetAPIAndCreateContext(eRenderingAPI ContextType);
 
 		// Initilize renderer's API library.
-		static bool Init() { return s_Instance->InitImpl(); }
+		static inline bool Init() { return s_Instance->InitImpl(); }
 		// Destroy the current graphics context
-		static void Destroy() { s_Instance->DestroyImpl(); }
+		static inline void Destroy() { s_Instance->DestroyImpl(); }
 		// Submit initilize commands to the GPU.
-		static bool PostInit() { return s_Instance->PostInitImpl(); }
+		static inline bool PostInit() { return s_Instance->PostInitImpl(); }
 		// Upload per-frame constants to the GPU as well as lighting information.
-		static void OnUpdate(const float DeltaMs) { s_Instance->OnUpdateImpl(DeltaMs); }
+		static inline void OnUpdate(const float DeltaMs) { s_Instance->OnUpdateImpl(DeltaMs); }
 		// Flush the command allocators and clear render targets.
-		static void OnPreFrameRender() { s_Instance->OnPreFrameRenderImpl(); }
+		static inline void OnPreFrameRender() { s_Instance->OnPreFrameRenderImpl(); }
 		// Draws shadow pass first then binds geometry pass for future draw commands.
-		static void OnRender() { s_Instance->OnRenderImpl(); }
+		static inline void OnRender() { s_Instance->OnRenderImpl(); }
 		// Binds light pass.
-		static void OnMidFrameRender() { s_Instance->OnMidFrameRenderImpl(); }
+		static inline void OnMidFrameRender() { s_Instance->OnMidFrameRenderImpl(); }
 		// executes the command queue on the GPU. Waits for the GPU to finish before proceeding.
-		static void ExecuteDraw() { s_Instance->ExecuteDrawImpl(); }
+		static inline void ExecuteDraw() { s_Instance->ExecuteDrawImpl(); }
 		// Swap buffers with the new frame.
-		static void SwapBuffers() { s_Instance->SwapBuffersImpl(); }
+		static inline void SwapBuffers() { s_Instance->SwapBuffersImpl(); }
 		// Resize render target, depth stencil and sreen rects when window size is changed.
-		static void OnWindowResize() { s_Instance->OnWindowResizeImpl(); }
+		static inline void OnWindowResize() { s_Instance->OnWindowResizeImpl(); }
 		// Tells the swapchain to enable full screen rendering.
-		static void OnWindowFullScreen() { s_Instance->OnWindowFullScreenImpl(); }
+		static inline void OnWindowFullScreen() { s_Instance->OnWindowFullScreenImpl(); }
 
 		static void SetRenderPass(eRenderPass RenderPass) { s_Instance->m_RenderPass = RenderPass; }
 
@@ -78,6 +89,25 @@ namespace Insight {
 			s_Instance->OnWindowResize();
 		}
 
+		// Add a Directional Light to the scene. 
+		void RegisterDirectionalLight(ADirectionalLight* DirectionalLight) { m_DirectionalLights.push_back(DirectionalLight); }
+		void UnRegisterDirectionalLight(ADirectionalLight* DirectionalLight);
+		// Add a Point Light to the scene. 
+		void RegisterPointLight(APointLight* PointLight) { m_PointLights.push_back(PointLight); }
+		void UnRegisterPointLight(APointLight* PointLight);
+		// Add a Spot Light to the scene. 
+		void RegisterSpotLight(ASpotLight* SpotLight) { m_SpotLights.push_back(SpotLight); }
+		void UnRegisterSpotLight(ASpotLight* SpotLight);
+
+		// Add Sky Sphere to the scene. There can never be more than one in the scene at any given time.
+		void AddSkySphere(ASkySphere* skySphere) { if (!m_pSkySphere) { m_pSkySphere = skySphere; } }
+		// Add a post-fx volume to the scene.
+		void AddPostFxActor(APostFx* postFxActor) { {m_pPostFx = postFxActor; } }
+		// Add Sky light to the scene for Image-Based Lighting. There can never be more than one 
+		// in the scene at any given time.
+		void AddSkyLight(ASkyLight* skyLight) { if (!m_SkyLight) { m_SkyLight = skyLight; } }
+
+
 	private:
 		virtual bool InitImpl() = 0;
 		virtual void DestroyImpl() = 0;
@@ -96,7 +126,7 @@ namespace Insight {
 		virtual void DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) = 0;
 
 	protected:
-		RenderingContext(UINT windowWidth, UINT windowHeight, bool vSyncEabled);
+		Renderer(UINT windowWidth, UINT windowHeight, bool vSyncEabled);
 	protected:
 		eRenderingAPI m_CurrentAPI = eRenderingAPI::INVALID;
 		eRenderPass m_RenderPass = eRenderPass::RenderPass_Scene;
@@ -114,8 +144,18 @@ namespace Insight {
 		
 		bool m_AllowTearing = true;
 
+		std::vector<APointLight*> m_PointLights;
+		std::vector<ADirectionalLight*> m_DirectionalLights;
+		std::vector<ASpotLight*> m_SpotLights;
+
+		ASkySphere* m_pSkySphere = nullptr;
+		ASkyLight* m_SkyLight = nullptr;
+		APostFx* m_pPostFx = nullptr;
+
+		ACamera* m_pWorldCamera = nullptr;
+
 	private:
-		static RenderingContext* s_Instance;
+		static Renderer* s_Instance;
 	};
 
 }

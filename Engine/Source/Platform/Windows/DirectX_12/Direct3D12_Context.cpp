@@ -22,7 +22,7 @@ namespace Insight {
 	Direct3D12Context::Direct3D12Context(WindowsWindow* WindowHandle)
 		: m_pWindowHandle(&WindowHandle->GetWindowHandleReference()),
 		m_pWindow(WindowHandle),
-		RenderingContext(WindowHandle->GetWidth(), WindowHandle->GetHeight(), false)
+		Renderer(WindowHandle->GetWidth(), WindowHandle->GetHeight(), false)
 	{
 		IE_CORE_ASSERT(WindowHandle, "Window handle is NULL!");
 		IE_ASSERT(!s_Instance, "Rendering instance already exists!");
@@ -1385,30 +1385,6 @@ namespace Insight {
 	void Direct3D12Context::CreateScreenQuad()
 	{
 		m_ScreenQuad.Init();
-	}
-
-	void Direct3D12Context::UnRegisterDirectionalLight(ADirectionalLight* DirectionalLight)
-	{
-		auto iter = std::find(m_DirectionalLights.begin(), m_DirectionalLights.end(), DirectionalLight);
-		if (iter != m_DirectionalLights.end()) {
-			m_DirectionalLights.erase(iter);
-		}
-	}
-
-	void Direct3D12Context::UnRegisterPointLight(APointLight* PointLight)
-	{
-		auto iter = std::find(m_PointLights.begin(), m_PointLights.end(), PointLight);
-		if (iter != m_PointLights.end()) {
-			m_PointLights.erase(iter);
-		}
-	}
-
-	void Direct3D12Context::UnRegisterSpotLight(ASpotLight* SpotLight)
-	{
-		auto iter = std::find(m_SpotLights.begin(), m_SpotLights.end(), SpotLight);
-		if (iter != m_SpotLights.end()) {
-			m_SpotLights.erase(iter);
-		}
 	}
 
 	void Direct3D12Context::CloseCommandListAndSignalCommandQueue()

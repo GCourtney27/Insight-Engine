@@ -3,7 +3,7 @@
 #include "Mesh.h"
 
 #include "Insight/Core/Application.h"
-#include "Insight/Rendering/Rendering_Context.h"
+#include "Insight/Rendering/Renderer.h"
 
 #include "Insight/Runtime/APlayer_Character.h"
 #include "imgui.h"
@@ -110,9 +110,9 @@ namespace Insight {
 
 	void Mesh::Render(ID3D12GraphicsCommandList*& pCommandList)
 	{
-		RenderingContext::SetVertexBuffers(0, 1, &m_VertexBufferView);
-		RenderingContext::SetIndexBuffer(&m_IndexBufferView);
-		RenderingContext::DrawIndexedInstanced(m_NumIndices, 1, 0, 0, 0);
+		Renderer::SetVertexBuffers(0, 1, &m_VertexBufferView);
+		Renderer::SetIndexBuffer(&m_IndexBufferView);
+		Renderer::DrawIndexedInstanced(m_NumIndices, 1, 0, 0, 0);
 	}
 
 	void Mesh::OnImGuiRender()

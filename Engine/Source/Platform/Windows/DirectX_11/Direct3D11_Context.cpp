@@ -4,6 +4,8 @@
 
 #include "Insight/Core/Application.h"
 #include "Platform/Windows/Windows_Window.h"
+#include "Platform/Windows/DirectX_11/D3D11_VertexBuffer.h"
+
 #include "Insight/Runtime/APlayer_Character.h"
 #include "Insight/Systems/Managers/Geometry_Manager.h"
 
@@ -22,7 +24,7 @@ namespace Insight {
 	Direct3D11Context::Direct3D11Context(WindowsWindow* WindowHandle) 
 		:	m_pWindowHandle(&WindowHandle->GetWindowHandleReference()),
 			m_pWindow(WindowHandle),
-			RenderingContext(WindowHandle->GetWidth(), WindowHandle->GetHeight(), false)
+			Renderer(WindowHandle->GetWidth(), WindowHandle->GetHeight(), false)
 	{
 	}
 
@@ -36,12 +38,14 @@ namespace Insight {
 
 		CreateDXGIFactory();
 		CreateDeviceAndSwapChain();
+		CreateRTVs();
 
 		return true;
 	}
 
 	void Direct3D11Context::SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer Buffer)
 	{
+		//m_pDeviceContext->IASetVertexBuffers(StartSlot, NumBuffers, reinterpret_cast<D3D11VertexBuffer<Vertex3D>>(Buffer)->StridePtr(), 0);
 	}
 
 	void Direct3D11Context::SetIndexBufferImpl(IndexBuffer Buffer)
@@ -63,11 +67,12 @@ namespace Insight {
 
 	void Direct3D11Context::OnUpdateImpl(const float DeltaMs)
 	{
-
 	}
 
 	void Direct3D11Context::OnPreFrameRenderImpl()
 	{
+		m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), nullptr);
+
 	}
 
 	void Direct3D11Context::OnRenderImpl()
@@ -130,7 +135,7 @@ namespace Insight {
 			if ((Desc.DedicatedVideoMemory < CurrentVideoCardMemory) || IsSoftwareAdapter) {
 				continue;
 			}
-			hr = D3D11CreateDevice(pAdapter.Get(), D3D_DRIVER_TYPE_UNKNOWN, NULL, NULL, nullptr, 0, D3D11_SDK_VERSION, NULL, NULL, NULL);
+			hr = ::D3D11CreateDevice(pAdapter.Get(), D3D_DRIVER_TYPE_UNKNOWN, NULL, NULL, nullptr, 0, D3D11_SDK_VERSION, NULL, NULL, NULL);
 			if (SUCCEEDED(hr)) {
 
 				CurrentVideoCardMemory = static_cast<uint32_t>(Desc.DedicatedSystemMemory);
@@ -162,7 +167,7 @@ namespace Insight {
 		m_SampleDesc = {};
 		m_SampleDesc.Count = 1;
 		m_SampleDesc.Quality = 0;
-
+		
 		// TODO Query for HDR support
 		DXGI_SWAP_CHAIN_DESC SwapChainDesc = { };
 		SwapChainDesc.BufferDesc.Width = m_WindowWidth;
@@ -180,7 +185,7 @@ namespace Insight {
 		SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 		SwapChainDesc.Flags = m_AllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 
-		hr = D3D11CreateDeviceAndSwapChain(
+		hr = ::D3D11CreateDeviceAndSwapChain(
 			m_pAdapter.Get(),
 			D3D_DRIVER_TYPE_UNKNOWN, 
 			NULL, 
@@ -204,9 +209,11 @@ namespace Insight {
 	void Direct3D11Context::CreateRTVs()
 	{
 		HRESULT hr;
-		hr = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(m_pBackBuffer.Get()));
+		hr = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(m_pBackBuffer.GetAddressOf()));
+		ThrowIfFailed(hr, "Failed to get the back buffer from the swapchain for D3D 11 context.");
 
-		hr = m_pDevice->CreateRenderTargetView(m_pBackBuffer.Get(), NULL, &m_pRenderTargetView);
+		hr = m_pDevice->CreateRenderTargetView(m_pBackBuffer.Get(), NULL, m_pRenderTargetView.GetAddressOf());
+		ThrowIfFailed(hr, "Failed to create render target view for D3D 11 context.");
 	}
 
 }

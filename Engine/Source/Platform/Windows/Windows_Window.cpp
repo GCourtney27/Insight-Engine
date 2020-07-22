@@ -3,7 +3,7 @@
 #include "Windows_Window.h"
 
 #include "Insight/Core/Application.h"
-#include "Insight/Rendering/Rendering_Context.h"
+#include "Insight/Rendering/Renderer.h"
 
 #include "Insight/Core/Log.h"
 #include "Insight/Utilities/String_Helper.h"
@@ -278,7 +278,7 @@ namespace Insight {
 			}
 			case IDM_ABOUT:
 			{
-				MessageBoxW(NULL, L"Version - (Pre-Release)1.5 \nRenderer - Direct3D 12 (Path Tracing - Disabled) \n\nVendor Runtime: \nMono - v6.8.0.123 \nAssimp - v3.3.1 \nRapidJson - v1.0.0 \nImGui - v1.75", L"About Insight Editor", MB_OK);
+				MessageBoxW(NULL, L"Version - (Pre-Release)1.5 \nRenderer - Direct3D 11 \n\nVendor Runtime: \nMono - v6.8.0.123 \nAssimp - v3.3.1 \nRapidJson - v1.0.0 \nImGui - v1.75", L"About Insight Editor", MB_OK);
 				break;
 			}
 			case IDM_EXIT:
@@ -557,13 +557,13 @@ namespace Insight {
 	{
 		m_Data.Width = newWidth;
 		m_Data.Height = newHeight;
-		RenderingContext::SetWindowWidthAndHeight(newWidth, newHeight, isMinimized);
+		Renderer::SetWindowWidthAndHeight(newWidth, newHeight, isMinimized);
 	}
 
 	void WindowsWindow::ToggleFullScreen(bool enabled)
 	{
 		m_Data.FullScreenEnabled = enabled;
-		RenderingContext::OnWindowFullScreen();
+		Renderer::OnWindowFullScreen();
 	}
 
 	bool WindowsWindow::ProccessWindowMessages()
@@ -601,18 +601,18 @@ namespace Insight {
 
 	void WindowsWindow::OnFramePreRender()
 	{
-		RenderingContext::OnPreFrameRender();
+		Renderer::OnPreFrameRender();
 	}
 
 	void WindowsWindow::OnRender()
 	{
-		RenderingContext::OnRender();
+		Renderer::OnRender();
 	}
 
 	void WindowsWindow::ExecuteDraw()
 	{
-		RenderingContext::ExecuteDraw();
-		RenderingContext::SwapBuffers();
+		Renderer::ExecuteDraw();
+		Renderer::SwapBuffers();
 	}
 
 	bool WindowsWindow::SetWindowTitle(const std::string& NewText, bool completlyOverride)
@@ -648,7 +648,7 @@ namespace Insight {
 	{
 		IE_CORE_INFO("V-sync: " + enabled ? "enabled" : "disabled");
 		m_Data.VSyncEnabled = enabled;
-		RenderingContext::SetVSyncEnabled(m_Data.VSyncEnabled);
+		Renderer::SetVSyncEnabled(m_Data.VSyncEnabled);
 	}
 
 	const bool& WindowsWindow::IsVsyncActive() const
@@ -671,13 +671,13 @@ namespace Insight {
 			::DestroyWindow(m_hWindow);
 		}
 
-		RenderingContext::Destroy();
+		Renderer::Destroy();
 	}
 
 	void WindowsWindow::EndFrame()
 	{
-		RenderingContext::ExecuteDraw();
-		RenderingContext::SwapBuffers();
+		Renderer::ExecuteDraw();
+		Renderer::SwapBuffers();
 	}
 
 }

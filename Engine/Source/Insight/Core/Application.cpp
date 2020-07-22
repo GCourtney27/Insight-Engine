@@ -7,7 +7,7 @@
 #include "Insight/Layer_Types/ImGui_Layer.h"
 #include "Platform/Windows/Windows_Window.h"
 #include "Insight/Core/ieException.h"
-#include "Insight/Rendering/Rendering_Context.h"
+#include "Insight/Rendering/Renderer.h"
 
 // Scenes (Development-Project)
 // ----------------------------
@@ -40,8 +40,8 @@ namespace Insight {
 			return false;
 		}
 
-		RenderingContext::SetAPIAndCreateContext(RenderingContext::eRenderingAPI::D3D_11);
-		RenderingContext::Init();
+		Renderer::SetAPIAndCreateContext(Renderer::eRenderingAPI::D3D_11);
+		Renderer::Init();
 
 		if (!Init()) {
 			IE_CORE_FATAL(L"Fatal Error: Failed to initiazlize application for Windows.");
@@ -94,9 +94,10 @@ namespace Insight {
 
 			//TEMP
 			{
-				RenderingContext::OnUpdate(DeltaTime);
-				RenderingContext::OnPreFrameRender();
-				RenderingContext::OnMidFrameRender();
+				Renderer::OnUpdate(DeltaTime);
+				Renderer::OnPreFrameRender();
+				Renderer::OnRender();
+				Renderer::OnMidFrameRender();
 			}
 
 			/*for (Layer* layer : m_LayerStack) {

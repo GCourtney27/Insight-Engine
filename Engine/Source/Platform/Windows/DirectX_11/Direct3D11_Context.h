@@ -2,7 +2,7 @@
 
 #include <Insight/Core.h>
 
-#include "Insight/Rendering/Rendering_Context.h"
+#include "Insight/Rendering/Renderer.h"
 #include "Platform/Windows/Error/COM_Exception.h"
 
 #include "Platform/Windows/DirectX_11/D3D11_Helper.h"
@@ -25,11 +25,14 @@ namespace Insight {
 
 	class ACamera;
 
-	class INSIGHT_API Direct3D11Context : public RenderingContext
+	class INSIGHT_API Direct3D11Context : public Renderer
 	{
 	public:
 		Direct3D11Context(WindowsWindow* windowHandle);
 		virtual ~Direct3D11Context();
+
+		ID3D11Device& GetDevice() { return *m_pDevice.Get(); }
+		ID3D11DeviceContext& GetDeviceContext() { return *m_pDeviceContext.Get(); }
 
 		// Initilize Direc3D 12 library.
 		virtual bool InitImpl() override;
@@ -71,7 +74,7 @@ namespace Insight {
 		ACamera*			m_pWorldCamera = nullptr;
 
 		bool				m_WindowResizeComplete = true;
-		float m_ClearColor[4] = { 0.01f, 0.01f, 0.01f, 1.0f };
+		float m_ClearColor[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
 
 		//D3D11Helper m_DeviceResources;
 

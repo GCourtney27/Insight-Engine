@@ -4,7 +4,7 @@
 #include "Static_Mesh_Component.h"
 #include "Insight/Systems/File_System.h"
 #include "Insight/Systems/Managers/Resource_Manager.h"
-#include "Insight/Rendering/Rendering_Context.h"
+#include "Insight/Rendering/Renderer.h"
 
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
@@ -198,7 +198,7 @@ namespace Insight {
 		// Experamental: Multi-threaded model laoding
 		//m_ModelLoadFuture = std::async(std::launch::async, LoadModelAsync, m_pModel, AssesDirectoryRelPath, &m_Material);
 		
-		if (RenderingContext::GetAPI() != RenderingContext::eRenderingAPI::D3D_12) {
+		if (Renderer::GetAPI() != Renderer::eRenderingAPI::D3D_12) {
 			return;
 		}
 		ResourceManager::Get().GetGeometryManager().RegisterModel(m_pModel);
