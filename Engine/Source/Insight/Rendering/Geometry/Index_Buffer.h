@@ -22,9 +22,9 @@ namespace Insight {
 		virtual bool CreateResources() { return true; }
 
 	protected:
-		Indices		m_Indices;
-		uint32_t	m_NumIndices = 0U;
-		uint32_t	m_BufferSize = 0U;
+		Indices			m_Indices;
+		unsigned long	m_NumIndices = 0;
+		uint32_t		m_BufferSize = 0U;
 	};
 
 }

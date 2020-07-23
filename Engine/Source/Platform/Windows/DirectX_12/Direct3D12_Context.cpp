@@ -14,8 +14,8 @@
 #include "Insight/Rendering/Lighting/APoint_Light.h"
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
 
-#include "Platform/Windows/DirectX_12/D3D12_Vertex_Buffer.h"
-#include "Platform/Windows/DirectX_12/D3D12_Index_Buffer.h"
+#include "Platform/Windows/DirectX_12/Geometry_Buffers/D3D12_Vertex_Buffer.h"
+#include "Platform/Windows/DirectX_12/Geometry_Buffers/D3D12_Index_Buffer.h"
 
 namespace Insight {
 

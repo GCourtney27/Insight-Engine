@@ -5,8 +5,8 @@
 #include "Insight/Core/Application.h"
 #include "Insight/Rendering/Renderer.h"
 
-#include "Platform/Windows/DirectX_12/D3D12_Vertex_Buffer.h"
-#include "Platform/Windows/DirectX_12/D3D12_Index_Buffer.h"
+#include "Platform/Windows/DirectX_12/Geometry_Buffers/D3D12_Vertex_Buffer.h"
+#include "Platform/Windows/DirectX_12/Geometry_Buffers/D3D12_Index_Buffer.h"
 
 
 #include "imgui.h"
