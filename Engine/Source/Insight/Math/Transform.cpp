@@ -7,22 +7,22 @@ namespace Insight {
 
 
 
-	Transform::Transform()
+	ieTransform::ieTransform()
 	{
 	}
 
-	Transform::~Transform()
+	ieTransform::~ieTransform()
 	{
 	}
 
-	Transform::Transform(const Transform& t)
+	ieTransform::ieTransform(const ieTransform& t)
 	{
 		m_Position = t.m_Position;
 		m_Rotation = t.m_Rotation;
 		m_Scale = t.m_Scale;
 	}
 
-	Transform::Transform(Transform&& transform) noexcept
+	ieTransform::ieTransform(ieTransform&& transform) noexcept
 	{
 		m_LocalMatrix = transform.m_LocalMatrix;
 		m_WorldMatrix = transform.m_WorldMatrix;
@@ -43,7 +43,7 @@ namespace Insight {
 		m_LocalDown = transform.m_LocalDown;
 	}
 
-	Transform& Transform::operator=(const Transform& transform)
+	ieTransform& ieTransform::operator=(const ieTransform& transform)
 	{
 		// Vectors
 		m_Position = transform.m_Position;
@@ -66,7 +66,7 @@ namespace Insight {
 		return *this;
 	}
 
-	void Transform::EditorEndPlay()
+	void ieTransform::EditorEndPlay()
 	{
 		m_Position = m_EditorPlayOriginPosition;
 		m_Rotation = m_EditorPlayOriginRotation;
@@ -75,7 +75,7 @@ namespace Insight {
 		UpdateIfTransformed(true);
 	}
 
-	void Transform::Translate(float x, float y, float z)
+	void ieTransform::Translate(float x, float y, float z)
 	{
 		m_Position.x += x; 
 		m_Position.y += y; 
@@ -84,7 +84,7 @@ namespace Insight {
 		UpdateLocalMatrix();
 	}
 
-	void Transform::Rotate(float XInDegrees, float YInDegrees, float ZInDegrees)
+	void ieTransform::Rotate(float XInDegrees, float YInDegrees, float ZInDegrees)
 	{
 		m_Rotation.x += DEGREES_TO_RADIANS(XInDegrees);
 		m_Rotation.y += DEGREES_TO_RADIANS(YInDegrees);
@@ -93,7 +93,7 @@ namespace Insight {
 		UpdateLocalMatrix();
 	}
 
-	void Transform::Scale(float x, float y, float z)
+	void ieTransform::Scale(float x, float y, float z)
 	{
 		m_Scale.x += x; 
 		m_Scale.y += y; 
@@ -102,7 +102,7 @@ namespace Insight {
 		UpdateLocalMatrix();
 	}
 
-	void Transform::LookAt(const ieVector3& target)
+	void ieTransform::LookAt(const ieVector3& target)
 	{
 		// Verify that look at pos is not the same as Model pos. They cannot be the same as that wouldn't make sense and would result in undefined behavior
 		if (target.x == m_Position.x && target.y == m_Position.y && target.z == m_Position.z)
@@ -130,7 +130,7 @@ namespace Insight {
 		SetRotation(ieVector3(pitch, yaw, 0.0f));
 	}
 
-	void Transform::SetDirection(const ieVector3& NewDirection)
+	void ieTransform::SetDirection(const ieVector3& NewDirection)
 	{
 		XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(NewDirection.x, NewDirection.y, NewDirection.z);
 		m_LocalForward = XMVector3TransformCoord(Vector3::Forward, vecRotationMatrix);
@@ -141,17 +141,17 @@ namespace Insight {
 		m_LocalDown = XMVector3TransformCoord(Vector3::Down, vecRotationMatrix);
 	}
 
-	void Transform::SetLocalMatrix(ieMatrix matrix)
+	void ieTransform::SetLocalMatrix(ieMatrix matrix)
 	{
 		m_LocalMatrix = matrix;
 	}
 
-	void Transform::SetWorldMatrix(ieMatrix matrix)
+	void ieTransform::SetWorldMatrix(ieMatrix matrix)
 	{
 		m_WorldMatrix = matrix;
 	}
 
-	void Transform::UpdateIfTransformed(bool ForceUpdate)
+	void ieTransform::UpdateIfTransformed(bool ForceUpdate)
 	{
 		if ((m_Transformed && !Application::Get().IsPlaySessionUnderWay()) || ForceUpdate)
 		{
@@ -166,18 +166,18 @@ namespace Insight {
 		}
 	}
 
-	void Transform::UpdateLocalMatrix()
+	void ieTransform::UpdateLocalMatrix()
 	{
 		m_LocalMatrix = m_ScaleMat * m_TranslationMat * m_RotationMat;
 		UpdateLocalDirectionVectors();
 	}
 
-	void Transform::TranslateLocalMatrix()
+	void ieTransform::TranslateLocalMatrix()
 	{
 		m_TranslationMat = XMMatrixTranslationFromVector(m_Position);
 	}
 
-	void Transform::ScaleLocalMatrix()
+	void ieTransform::ScaleLocalMatrix()
 	{
 		XMMATRIX position = m_TranslationMat;
 		// send to origin
@@ -189,12 +189,12 @@ namespace Insight {
 
 	}
 
-	void Transform::RotateLocalMatrix()
+	void ieTransform::RotateLocalMatrix()
 	{
 		m_RotationMat = XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z);
 	}
 
-	void Transform::UpdateLocalDirectionVectors()
+	void ieTransform::UpdateLocalDirectionVectors()
 	{
 		ieMatrix vecRotationMatrix = XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z);
 		m_LocalForward = XMVector3TransformCoord(Vector3::Forward, m_RotationMat);
@@ -205,7 +205,7 @@ namespace Insight {
 		m_LocalDown = XMVector3TransformCoord(Vector3::Down, m_RotationMat);
 	}
 
-	void Transform::UpdateEditorOriginPositionRotationScale()
+	void ieTransform::UpdateEditorOriginPositionRotationScale()
 	{
 		m_EditorPlayOriginPosition = m_Position;
 		m_EditorPlayOriginRotation = m_Rotation;

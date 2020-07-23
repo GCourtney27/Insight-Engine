@@ -14,12 +14,11 @@
 #include "Insight/Rendering/Lighting/APoint_Light.h"
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
 
-#include "Platform/Windows/DirectX_12/Geometry_Buffers/D3D12_Vertex_Buffer.h"
-#include "Platform/Windows/DirectX_12/Geometry_Buffers/D3D12_Index_Buffer.h"
+#include "Platform/Windows/DirectX_12/Geometry/D3D12_Vertex_Buffer.h"
+#include "Platform/Windows/DirectX_12/Geometry/D3D12_Index_Buffer.h"
 
 namespace Insight {
 
-	Direct3D12Context* Direct3D12Context::s_Instance = nullptr;
 
 	Direct3D12Context::Direct3D12Context(WindowsWindow* WindowHandle)
 		: m_pWindowHandle(&WindowHandle->GetWindowHandleReference()),
@@ -27,9 +26,6 @@ namespace Insight {
 		Renderer(WindowHandle->GetWidth(), WindowHandle->GetHeight(), false)
 	{
 		IE_CORE_ASSERT(WindowHandle, "Window handle is NULL!");
-		IE_ASSERT(!s_Instance, "Rendering instance already exists!");
-
-		s_Instance = this;
 		m_AspectRatio = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
 	}
 
@@ -201,10 +197,11 @@ namespace Insight {
 
 		// Render Scene Shadows
 		// TODO this should be on another thread
-		// BindShadowPass(); // When a mesh renders the Renderer:: will call 
-							 // draw indexed in this context, which currently 
-							 // defaults to the scene pass command list, causing d3d warnings
+		m_pActiveCommandList = m_pShadowPassCommandList;
+		BindShadowPass(); 
+						
 		// Render Scene
+		m_pActiveCommandList = m_pScenePassCommandList;
 		BindGeometryPass();
 	}
 
@@ -496,19 +493,19 @@ namespace Insight {
 		m_FullScreenMode = !m_FullScreenMode;
 	}
 
-	void Direct3D12Context::SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer* pBuffers)
+	void Direct3D12Context::SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers)
 	{
-		m_pScenePassCommandList->IASetVertexBuffers(StartSlot, NumBuffers, reinterpret_cast<D3D12VertexBuffer*>(pBuffers)->GetVertexBufferView());
+		m_pActiveCommandList->IASetVertexBuffers(StartSlot, NumBuffers, reinterpret_cast<D3D12VertexBuffer*>(pBuffers)->GetVertexBufferView());
 	}
 
-	void Direct3D12Context::SetIndexBufferImpl(IndexBuffer* pBuffer)
+	void Direct3D12Context::SetIndexBufferImpl(ieIndexBuffer* pBuffer)
 	{
-		m_pScenePassCommandList->IASetIndexBuffer(&reinterpret_cast<D3D12IndexBuffer*>(pBuffer)->GetIndexBufferView());
+		m_pActiveCommandList->IASetIndexBuffer(&reinterpret_cast<D3D12IndexBuffer*>(pBuffer)->GetIndexBufferView());
 	}
 
 	void Direct3D12Context::DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation)
 	{
-		m_pScenePassCommandList->DrawIndexedInstanced(IndexCountPerInstance, NumInstances, StartIndexLocation, BaseVertexLoaction, StartInstanceLocation);
+		m_pActiveCommandList->DrawIndexedInstanced(IndexCountPerInstance, NumInstances, StartIndexLocation, BaseVertexLoaction, StartInstanceLocation);
 	}
 
 	void Direct3D12Context::CreateSwapChain()
@@ -1538,6 +1535,7 @@ namespace Insight {
 	void ScreenQuad::Init()
 	{
 		HRESULT hr;
+		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
 
 		ScreenSpaceVertex quadVerts[] =
 		{
@@ -1560,7 +1558,7 @@ namespace Insight {
 		resourceDesc.Width = vBufferSize;
 		resourceDesc.Height = 1;
 		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-		hr = Direct3D12Context::Get().GetDeviceContext().CreateCommittedResource(
+		hr = graphicsContext->GetDeviceContext().CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			D3D12_HEAP_FLAG_NONE,
 			&resourceDesc,
@@ -1572,7 +1570,7 @@ namespace Insight {
 		ThrowIfFailed(hr, "Failed to create default heap resource for screen qauad");
 
 		ID3D12Resource* vBufferUploadHeap;
-		hr = Direct3D12Context::Get().GetDeviceContext().CreateCommittedResource(
+		hr = graphicsContext->GetDeviceContext().CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(vBufferSize),
@@ -1587,9 +1585,9 @@ namespace Insight {
 		vertexData.RowPitch = vBufferSize;
 		vertexData.SlicePitch = vBufferSize;
 
-		UpdateSubresources(&Direct3D12Context::Get().GetScenePassCommandList(), m_VertexBuffer.Get(), vBufferUploadHeap, 0, 0, 1, &vertexData);
+		UpdateSubresources(&graphicsContext->GetScenePassCommandList(), m_VertexBuffer.Get(), vBufferUploadHeap, 0, 0, 1, &vertexData);
 
-		Direct3D12Context::Get().GetScenePassCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_VertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
+		graphicsContext->GetScenePassCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_VertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
 
 		m_VertexBufferView.BufferLocation = m_VertexBuffer->GetGPUVirtualAddress();
 		m_VertexBufferView.StrideInBytes = sizeof(ScreenSpaceVertex);

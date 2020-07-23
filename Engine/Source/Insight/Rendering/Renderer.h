@@ -73,8 +73,8 @@ namespace Insight {
 
 		static void SetRenderPass(eRenderPass RenderPass) { s_Instance->m_RenderPass = RenderPass; }
 
-		static void SetVertexBuffers(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer* pBuffers) { s_Instance->SetVertexBuffersImpl(StartSlot, NumBuffers, pBuffers); }
-		static void SetIndexBuffer(IndexBuffer* pBuffer) { s_Instance->SetIndexBufferImpl(pBuffer); }
+		static void SetVertexBuffers(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) { s_Instance->SetVertexBuffersImpl(StartSlot, NumBuffers, pBuffers); }
+		static void SetIndexBuffer(ieIndexBuffer* pBuffer) { s_Instance->SetIndexBufferImpl(pBuffer); }
 		static void DrawIndexedInstanced(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) { s_Instance->DrawIndexedInstancedImpl(IndexCountPerInstance, NumInstances, StartIndexLocation, BaseVertexLoaction, StartInstanceLocation); }
 
 		inline static eRenderingAPI GetAPI() { return s_Instance->m_CurrentAPI; }
@@ -90,25 +90,25 @@ namespace Insight {
 		}
 
 		// Add a Directional Light to the scene. 
-		void RegisterDirectionalLight(ADirectionalLight* DirectionalLight) { m_DirectionalLights.push_back(DirectionalLight); }
+		static void RegisterDirectionalLight(ADirectionalLight* DirectionalLight) { s_Instance->m_DirectionalLights.push_back(DirectionalLight); }
 		// Remove a Directional Light from the scene
-		void UnRegisterDirectionalLight(ADirectionalLight* DirectionalLight);
+		static void UnRegisterDirectionalLight(ADirectionalLight* DirectionalLight);
 		// Add a Point Light to the scene. 
-		void RegisterPointLight(APointLight* PointLight) { m_PointLights.push_back(PointLight); }
+		static void RegisterPointLight(APointLight* PointLight) { s_Instance->m_PointLights.push_back(PointLight); }
 		// Remove a Point Light from the scene
-		void UnRegisterPointLight(APointLight* PointLight);
+		static void UnRegisterPointLight(APointLight* PointLight);
 		// Add a Spot Light to the scene. 
-		void RegisterSpotLight(ASpotLight* SpotLight) { m_SpotLights.push_back(SpotLight); }
+		static void RegisterSpotLight(ASpotLight* SpotLight) { s_Instance->m_SpotLights.push_back(SpotLight); }
 		// Remove a Spot Light from the scene
-		void UnRegisterSpotLight(ASpotLight* SpotLight);
+		static void UnRegisterSpotLight(ASpotLight* SpotLight);
 
 		// Add Sky Sphere to the scene. There can never be more than one in the scene at any given time.
-		void AddSkySphere(ASkySphere* skySphere) { if (!m_pSkySphere) { m_pSkySphere = skySphere; } }
+		static void AddSkySphere(ASkySphere* skySphere) { if (!s_Instance->m_pSkySphere) { s_Instance->m_pSkySphere = skySphere; } }
 		// Add a post-fx volume to the scene.
-		void AddPostFxActor(APostFx* postFxActor) { {m_pPostFx = postFxActor; } }
+		static void AddPostFxActor(APostFx* postFxActor) { s_Instance->m_pPostFx = postFxActor;  }
 		// Add Sky light to the scene for Image-Based Lighting. There can never be more than one 
 		// in the scene at any given time.
-		void AddSkyLight(ASkyLight* skyLight) { if (!m_SkyLight) { m_SkyLight = skyLight; } }
+		static void AddSkyLight(ASkyLight* skyLight) { if (!s_Instance->m_SkyLight) { s_Instance->m_SkyLight = skyLight; } }
 
 	private:
 		virtual bool InitImpl() = 0;
@@ -123,8 +123,8 @@ namespace Insight {
 		virtual void OnWindowResizeImpl() = 0;
 		virtual void OnWindowFullScreenImpl() = 0;
 
-		virtual void SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer* pBuffers) = 0;
-		virtual void SetIndexBufferImpl(IndexBuffer* pBuffer) = 0;
+		virtual void SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) = 0;
+		virtual void SetIndexBufferImpl(ieIndexBuffer* pBuffer) = 0;
 		virtual void DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) = 0;
 
 	protected:

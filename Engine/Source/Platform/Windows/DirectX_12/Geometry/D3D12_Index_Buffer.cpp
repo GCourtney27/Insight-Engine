@@ -9,7 +9,7 @@ namespace Insight {
 
 
 	D3D12IndexBuffer::D3D12IndexBuffer(Indices Indices)
-		: IndexBuffer(Indices)
+		: ieIndexBuffer(Indices)
 	{
 		m_NumIndices = static_cast<uint32_t>(Indices.size());
 		m_BufferSize = m_NumIndices * sizeof(uint32_t);
@@ -58,7 +58,8 @@ namespace Insight {
 		indexData.RowPitch = m_BufferSize;
 		indexData.SlicePitch = m_BufferSize;
 
-		UpdateSubresources(&Direct3D12Context::Get().GetScenePassCommandList(), m_pIndexBuffer, m_pIndexBufferUploadHeap, 0, 0, 1, &indexData);
+		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+		UpdateSubresources(&graphicsContext->GetScenePassCommandList(), m_pIndexBuffer, m_pIndexBufferUploadHeap, 0, 0, 1, &indexData);
 
 		m_IndexBufferView.BufferLocation = m_pIndexBuffer->GetGPUVirtualAddress();
 		m_IndexBufferView.Format = DXGI_FORMAT_R32_UINT;

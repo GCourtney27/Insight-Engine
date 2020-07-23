@@ -136,8 +136,8 @@ namespace Insight {
 	
 	bool TextureManager::LoadDefaultTextures()
 	{
-		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		CDescriptorHeapWrapper& cbvSrvHeapStart = graphicsContext.GetCBVSRVDescriptorHeap();
+		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+		CDescriptorHeapWrapper& cbvSrvHeapStart = graphicsContext->GetCBVSRVDescriptorHeap();
 
 		Texture::IE_TEXTURE_INFO TexInfo = {};
 		TexInfo.Id = -1;
@@ -173,8 +173,8 @@ namespace Insight {
 
 	void TextureManager::RegisterTextureByType(const Texture::IE_TEXTURE_INFO& texInfo)
 	{
-		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		CDescriptorHeapWrapper& cbvSrvHeapStart = graphicsContext.GetCBVSRVDescriptorHeap();
+		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+		CDescriptorHeapWrapper& cbvSrvHeapStart = graphicsContext->GetCBVSRVDescriptorHeap();
 
 		switch (texInfo.Type) {
 		case Texture::eTextureType::ALBEDO:

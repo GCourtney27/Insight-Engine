@@ -6,7 +6,7 @@
 
 namespace Insight {
 
-	class INSIGHT_API D3D11IndexBuffer : public IndexBuffer
+	class INSIGHT_API D3D11IndexBuffer : public ieIndexBuffer
 	{
 	public:
 		D3D11IndexBuffer(Indices Indices);

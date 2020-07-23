@@ -37,10 +37,8 @@ namespace Insight {
 
 	class INSIGHT_API Direct3D12Context : public Renderer
 	{
+		friend class Renderer;
 	public:
-		Direct3D12Context(WindowsWindow* windowHandle);
-		virtual ~Direct3D12Context();
-
 		virtual bool InitImpl() override;
 		virtual void DestroyImpl();
 		virtual bool PostInitImpl() override;
@@ -53,12 +51,11 @@ namespace Insight {
 		virtual void OnWindowResizeImpl() override;
 		virtual void OnWindowFullScreenImpl() override;
 
-		virtual void SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer* pBuffers) override;
-		virtual void SetIndexBufferImpl(IndexBuffer* pBuffer) override;
+		virtual void SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) override;
+		virtual void SetIndexBufferImpl(ieIndexBuffer* pBuffer) override;
 		virtual void DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) override;
 
 
-		inline static Direct3D12Context& Get() { return *s_Instance; }
 		inline ID3D12Device& GetDeviceContext() const { return *m_pDeviceContext.Get(); }
 
 		inline ID3D12GraphicsCommandList& GetScenePassCommandList() const { return *m_pScenePassCommandList.Get(); }
@@ -82,6 +79,9 @@ namespace Insight {
 
 		
 	private:
+		Direct3D12Context(WindowsWindow* windowHandle);
+		virtual ~Direct3D12Context();
+
 		void CloseCommandListAndSignalCommandQueue();
 		// Per-Frame
 		
@@ -135,9 +135,6 @@ namespace Insight {
 		void LoadDemoAssets();
 
 	private:
-		static Direct3D12Context* s_Instance;
-
-	private:
 		HWND*				m_pWindowHandle = nullptr;
 		WindowsWindow*		m_pWindow = nullptr;
 		D3D12Helper			m_d3dDeviceResources;
@@ -160,6 +157,7 @@ namespace Insight {
 		ComPtr<IDXGIFactory4>				m_pDxgiFactory;
 		ComPtr<IDXGISwapChain3>				m_pSwapChain;
 
+		ComPtr<ID3D12GraphicsCommandList>	m_pActiveCommandList;
 		ComPtr<ID3D12CommandQueue>			m_pCommandQueue;
 		ComPtr<ID3D12GraphicsCommandList>	m_pScenePassCommandList;
 		ComPtr<ID3D12CommandAllocator>		m_pScenePassCommandAllocators[m_FrameBufferCount];

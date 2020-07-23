@@ -66,7 +66,7 @@ namespace Insight {
 		style.WindowRounding = 0.0f;
 		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 
-		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
+		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
 
 		HWND* pWindowHandle = static_cast<HWND*>(Application::Get().GetWindow().GetNativeWindow());
 
@@ -80,10 +80,10 @@ namespace Insight {
 		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 		desc.NumDescriptors = 1;
 		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-		hr = graphicsContext.GetDeviceContext().CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_pDescriptorHeap));
+		hr = graphicsContext->GetDeviceContext().CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_pDescriptorHeap));
 
-		bool impleDX12Succeeded = ImGui_ImplDX12_Init(&graphicsContext.GetDeviceContext(),
-			graphicsContext.GetFrameBufferCount(),
+		bool impleDX12Succeeded = ImGui_ImplDX12_Init(&graphicsContext->GetDeviceContext(),
+			graphicsContext->GetFrameBufferCount(),
 			DXGI_FORMAT_R8G8B8A8_UNORM,
 			m_pDescriptorHeap,
 			m_pDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
@@ -91,7 +91,7 @@ namespace Insight {
 		if (!impleDX12Succeeded)
 			IE_CORE_WARN("Failed to initialize ImGui for DX12. Editor will not be rendered");
 
-		m_pCommandList = &graphicsContext.GetScenePassCommandList();
+		m_pCommandList = &graphicsContext->GetScenePassCommandList();
 		*m_pIO = io;
 	}
 

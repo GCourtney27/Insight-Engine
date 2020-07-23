@@ -14,8 +14,7 @@ namespace Insight {
 	ASpotLight::ASpotLight(ActorId id, ActorType type)
 		: AActor(id, type)
 	{
-		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		graphicsContext.RegisterSpotLight(this);
+		Renderer::RegisterSpotLight(this);
 
 		m_ShaderCB.diffuse = ieVector3(1.0f, 1.0f, 1.0f);
 		m_ShaderCB.direction = Vector3::Down;
@@ -63,7 +62,7 @@ namespace Insight {
 			Writer.Key("Transform");
 			Writer.StartArray(); // Start Write Transform
 			{
-				Transform& Transform = SceneNode::GetTransformRef();
+				ieTransform& Transform = SceneNode::GetTransformRef();
 				ieVector3 Pos = Transform.GetPosition();
 				ieVector3 Rot = Transform.GetRotation();
 				ieVector3 Sca = Transform.GetScale();
@@ -161,8 +160,7 @@ namespace Insight {
 
 	void ASpotLight::Destroy()
 	{
-		Direct3D12Context& GraphicsContext = Direct3D12Context::Get();
-		GraphicsContext.UnRegisterSpotLight(this);
+		Renderer::UnRegisterSpotLight(this);
 	}
 
 	void ASpotLight::OnEvent(Event& e)

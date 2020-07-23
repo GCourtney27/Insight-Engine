@@ -6,16 +6,15 @@
 
 namespace Insight {
 
+	using Verticies = std::vector<Vertex3D>;
 
-	typedef std::vector<Vertex3D> Verticies;
-
-	class INSIGHT_API VertexBuffer
+	class INSIGHT_API ieVertexBuffer
 	{
 	public:
-		VertexBuffer(Verticies Verticies)
+		ieVertexBuffer(Verticies Verticies)
 			: m_Verticies(std::move(Verticies)) {}
-		VertexBuffer() = default;
-		virtual ~VertexBuffer() = default;
+		ieVertexBuffer() = default;
+		virtual ~ieVertexBuffer() = default;
 
 		virtual void Destroy() {}
 

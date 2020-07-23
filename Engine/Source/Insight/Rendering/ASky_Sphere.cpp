@@ -3,6 +3,8 @@
 #include "ASky_Sphere.h"
 
 #include "Insight/Runtime/Components/Actor_Component.h"
+#include "Insight/Runtime/Components/Static_Mesh_Component.h"
+
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 #include "Insight/Systems/File_System.h"
 
@@ -14,9 +16,7 @@ namespace Insight {
 		: AActor(id, type)
 	{
 		m_Sphere.Init(10, 20, 20);
-		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		m_pCommandList = &graphicsContext.GetScenePassCommandList();
-		graphicsContext.AddSkySphere(this);
+		Renderer::AddSkySphere(this);
 	}
 
 	ASkySphere::~ASkySphere()
@@ -29,8 +29,8 @@ namespace Insight {
 		const rapidjson::Value& sky = jsonSkySphere["Sky"];
 		json::get_string(sky[0], "Diffuse", diffuseMap);
 
-		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		CDescriptorHeapWrapper& cbvSrvheap = graphicsContext.GetCBVSRVDescriptorHeap();
+		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+		CDescriptorHeapWrapper& cbvSrvheap = graphicsContext->GetCBVSRVDescriptorHeap();
 
 		Texture::IE_TEXTURE_INFO diffuseInfo;
 		diffuseInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(diffuseMap));
@@ -56,7 +56,7 @@ namespace Insight {
 			Writer.Key("Transform");
 			Writer.StartArray(); // Start Write Transform
 			{
-				Transform& Transform = SceneNode::GetTransformRef();
+				ieTransform& Transform = SceneNode::GetTransformRef();
 				ieVector3 Pos = Transform.GetPosition();
 				ieVector3 Rot = Transform.GetRotation();
 				ieVector3 Sca = Transform.GetScale();
@@ -115,6 +115,9 @@ namespace Insight {
 
 	bool ASkySphere::OnInit()
 	{
+		StrongActorComponentPtr ptr = CreateDefaultSubobject<StaticMeshComponent>();
+		static_cast<StaticMeshComponent*>(ptr.get())->AttachMesh("Models/Sphere.obj");
+
 		return true;
 	}
 
@@ -134,7 +137,9 @@ namespace Insight {
 	void ASkySphere::RenderSky(ComPtr<ID3D12GraphicsCommandList> commandList)
 	{
 		m_Diffuse.Bind();
-		m_Sphere.Render(m_pCommandList);
+		AActor::OnRender();
+
+		//m_Sphere.Render(m_pCommandList);
 	}
 
 	void ASkySphere::OnRender()
@@ -177,8 +182,8 @@ namespace Insight {
 
 	void Sphere::resourceSetup()
 	{
-		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		ID3D12Device* pDevice = &graphicsContext.GetDeviceContext();
+		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+		ID3D12Device* pDevice = &graphicsContext->GetDeviceContext();
 		HRESULT hr;
 
 		std::vector< SimpleVertex > verts;

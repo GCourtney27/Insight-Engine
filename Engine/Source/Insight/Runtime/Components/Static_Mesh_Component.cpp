@@ -1,10 +1,13 @@
 #include <ie_pch.h>
 
-#include "Insight/Runtime/AActor.h"
 #include "Static_Mesh_Component.h"
+
+#include "Insight/Runtime/AActor.h"
 #include "Insight/Systems/File_System.h"
 #include "Insight/Systems/Managers/Resource_Manager.h"
 #include "Insight/Rendering/Renderer.h"
+#include "Insight/Rendering/Material.h"
+
 
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
@@ -74,7 +77,7 @@ namespace Insight {
 				Writer.Key("LocalTransform");
 				Writer.StartArray();
 				{
-					Transform& MeshTransform = m_pModel->GetMeshRootTransformRef();
+					ieTransform& MeshTransform = m_pModel->GetMeshRootTransformRef();
 					ieVector3 Pos = MeshTransform.GetPosition();
 					ieVector3 Rot = MeshTransform.GetRotation();
 					ieVector3 Sca = MeshTransform.GetScale();

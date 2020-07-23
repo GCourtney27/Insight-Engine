@@ -20,8 +20,8 @@ namespace Insight {
 			m_Parent = parent;
 		}
 
-		const Transform& GetTransform() { return m_RootTransform; }
-		Transform& GetTransformRef() { return m_RootTransform; }
+		const ieTransform& GetTransform() { return m_RootTransform; }
+		ieTransform& GetTransformRef() { return m_RootTransform; }
 		const char* GetDisplayName() { return m_DisplayName.c_str(); }
 		void SetDisplayName(std::string Name) { m_DisplayName = Name; }
 		void SetCanBeFileParsed(bool CanBeParsed) { m_CanBeFileParsed = CanBeParsed; }
@@ -51,7 +51,7 @@ namespace Insight {
 		std::vector<SceneNode*> m_Children;
 	protected:
 		SceneNode* m_Parent = nullptr;
-		Transform m_RootTransform;
+		ieTransform m_RootTransform;
 		std::string m_DisplayName;
 		bool m_CanBeFileParsed = true;
 	};

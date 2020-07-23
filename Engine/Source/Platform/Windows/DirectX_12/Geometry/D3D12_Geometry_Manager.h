@@ -8,15 +8,16 @@ namespace Insight {
 
 	class INSIGHT_API D3D12GeometryManager : public GeometryManager
 	{
+		friend class GeometryManager;
 	public:
-		D3D12GeometryManager() = default;
-		virtual ~D3D12GeometryManager();
-
 		virtual bool InitImpl() override;
 		virtual void RenderImpl(eRenderPass RenderPass) override;
 		virtual void GatherGeometryImpl() override;
 		virtual void PostRenderImpl() override;
 
+	private:
+		D3D12GeometryManager() = default;
+		virtual ~D3D12GeometryManager();
 	private:
 		D3D12_GPU_VIRTUAL_ADDRESS m_CbvUploadHeapHandle;
 		D3D12_GPU_VIRTUAL_ADDRESS m_CbvMaterialHeapHandle;

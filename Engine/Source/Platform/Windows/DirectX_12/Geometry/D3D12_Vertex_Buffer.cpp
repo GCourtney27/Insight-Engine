@@ -7,9 +7,8 @@
 namespace Insight {
 
 
-
 	D3D12VertexBuffer::D3D12VertexBuffer(Verticies Verticies)
-		: VertexBuffer(Verticies) 
+		: ieVertexBuffer(Verticies) 
 	{
 		m_NumVerticies = static_cast<uint32_t>(Verticies.size());
 		m_BufferSize = m_NumVerticies * sizeof(Vertex3D);

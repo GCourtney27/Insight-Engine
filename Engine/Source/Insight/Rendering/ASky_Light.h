@@ -38,9 +38,6 @@ namespace Insight {
 		Texture m_Irradiance;
 		Texture m_Environment;
 		Texture m_BrdfLUT;
-
-		ID3D12GraphicsCommandList* m_pCommandList;
-
 	};
 
 

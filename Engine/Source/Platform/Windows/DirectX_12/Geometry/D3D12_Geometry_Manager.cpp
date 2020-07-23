@@ -4,6 +4,8 @@
 
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
+#include "Insight/Rendering/Material.h"
+
 namespace Insight {
 
 

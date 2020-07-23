@@ -5,14 +5,12 @@
 #include "Insight/Core/Application.h"
 #include "Insight/Rendering/Renderer.h"
 
-#include "Platform/Windows/DirectX_12/Geometry_Buffers/D3D12_Vertex_Buffer.h"
-#include "Platform/Windows/DirectX_12/Geometry_Buffers/D3D12_Index_Buffer.h"
-
+#include "Platform/Windows/DirectX_11/Geometry/D3D11_Index_Buffer.h"
+#include "Platform/Windows/DirectX_11/Geometry/D3D11_Vertex_Buffer.h"
+#include "Platform/Windows/DirectX_12/Geometry/D3D12_Index_Buffer.h"
+#include "Platform/Windows/DirectX_12/Geometry/D3D12_Vertex_Buffer.h"
 
 #include "imgui.h"
-
-// TEMP
-#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 namespace Insight {
 
@@ -52,6 +50,26 @@ namespace Insight {
 	CB_VS_PerObject Mesh::GetConstantBuffer()
 	{
 		return m_ConstantBufferPerObject;
+	}
+
+	uint32_t Mesh::GetVertexCount()
+	{
+		return m_pVertexBuffer->GetNumVerticies();
+	}
+
+	uint32_t Mesh::GetVertexBufferSize()
+	{
+		return m_pVertexBuffer->GetBufferSize();
+	}
+
+	uint32_t Mesh::GetIndexCount()
+	{
+		return m_pIndexBuffer->GetBufferSize();
+	}
+
+	uint32_t Mesh::GetIndexBufferSize()
+	{
+		return m_pIndexBuffer->GetBufferSize();
 	}
 
 	void Mesh::Render(ID3D12GraphicsCommandList*& pCommandList)

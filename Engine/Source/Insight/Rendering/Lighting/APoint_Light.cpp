@@ -13,8 +13,7 @@ namespace Insight {
 	APointLight::APointLight(ActorId id, ActorType type)
 		: AActor(id, type)
 	{
-		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		graphicsContext.RegisterPointLight(this);
+		Renderer::RegisterPointLight(this);
 
 		m_ShaderCB.diffuse = ieVector3(1.0f, 1.0f, 1.0f);
 		m_ShaderCB.strength = 1.0f;
@@ -54,7 +53,7 @@ namespace Insight {
 			Writer.Key("Transform");
 			Writer.StartArray(); // Start Write Transform
 			{
-				Transform& Transform = SceneNode::GetTransformRef();
+				ieTransform& Transform = SceneNode::GetTransformRef();
 				ieVector3 Pos = Transform.GetPosition();
 				ieVector3 Rot = Transform.GetRotation();
 				ieVector3 Sca = Transform.GetScale();
@@ -142,8 +141,7 @@ namespace Insight {
 
 	void APointLight::Destroy()
 	{
-		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		graphicsContext.UnRegisterPointLight(this);
+		Renderer::UnRegisterPointLight(this);
 	}
 
 	void APointLight::OnEvent(Event& e)

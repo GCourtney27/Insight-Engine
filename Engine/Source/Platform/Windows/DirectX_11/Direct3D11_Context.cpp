@@ -4,8 +4,8 @@
 
 #include "Insight/Core/Application.h"
 #include "Platform/Windows/Windows_Window.h"
-#include "Platform/Windows/DirectX_11/Geometry_Buffers/D3D11_Index_Buffer.h"
-#include "Platform/Windows/DirectX_11/Geometry_Buffers/D3D11_Vertex_Buffer.h"
+#include "Platform/Windows/DirectX_11/Geometry/D3D11_Index_Buffer.h"
+#include "Platform/Windows/DirectX_11/Geometry/D3D11_Vertex_Buffer.h"
 
 #include "Insight/Runtime/APlayer_Character.h"
 #include "Insight/Systems/Managers/Geometry_Manager.h"
@@ -44,12 +44,12 @@ namespace Insight {
 		return true;
 	}
 
-	void Direct3D11Context::SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer* pBuffers)
+	void Direct3D11Context::SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers)
 	{
 		m_pDeviceContext->IASetVertexBuffers(StartSlot, NumBuffers, reinterpret_cast<D3D11VertexBuffer*>(pBuffers)->GetBufferPtr(), reinterpret_cast<D3D11VertexBuffer*>(pBuffers)->GetStridePtr(), reinterpret_cast<D3D11VertexBuffer*>(pBuffers)->GetBufferOffset());
 	}
 
-	void Direct3D11Context::SetIndexBufferImpl(IndexBuffer* pBuffer)
+	void Direct3D11Context::SetIndexBufferImpl(ieIndexBuffer* pBuffer)
 	{
 		m_pDeviceContext->IASetIndexBuffer(reinterpret_cast<D3D11IndexBuffer*>(pBuffer)->GetBufferPtr(), reinterpret_cast<D3D11IndexBuffer*>(pBuffer)->GetFormat(), reinterpret_cast<D3D11IndexBuffer*>(pBuffer)->GetBufferOffset());
 	}

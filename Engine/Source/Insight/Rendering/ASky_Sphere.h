@@ -65,8 +65,6 @@ namespace Insight {
 	private:
 		Sphere m_Sphere;
 		Texture m_Diffuse;
-		
-		ID3D12GraphicsCommandList* m_pCommandList;
 
 	};
 

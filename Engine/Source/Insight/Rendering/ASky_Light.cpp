@@ -13,9 +13,7 @@ namespace Insight {
 	ASkyLight::ASkyLight(ActorId id, ActorType type)
 		: AActor(id, type)
 	{
-		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		m_pCommandList = &graphicsContext.GetScenePassCommandList();
-		graphicsContext.AddSkyLight(this);
+		Renderer::AddSkyLight(this);
 	}
 
 	ASkyLight::~ASkyLight()
@@ -30,7 +28,9 @@ namespace Insight {
 		json::get_string(sky[0], "Irradiance", irMap);
 		json::get_string(sky[0], "Environment", envMap);
 
-		CDescriptorHeapWrapper& cbvSrvheap = Direct3D12Context::Get().GetCBVSRVDescriptorHeap();
+
+		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+		CDescriptorHeapWrapper& cbvSrvheap = graphicsContext->GetCBVSRVDescriptorHeap();
 
 		Texture::IE_TEXTURE_INFO brdfInfo;
 		brdfInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(brdfLUT));
@@ -72,7 +72,7 @@ namespace Insight {
 			Writer.Key("Transform");
 			Writer.StartArray(); // Start Write Transform
 			{
-				Transform& Transform = SceneNode::GetTransformRef();
+				ieTransform& Transform = SceneNode::GetTransformRef();
 				ieVector3 Pos = Transform.GetPosition();
 				ieVector3 Rot = Transform.GetRotation();
 				ieVector3 Sca = Transform.GetScale();

@@ -7,7 +7,7 @@
 namespace Insight {
 
 	D3D11IndexBuffer::D3D11IndexBuffer(Indices Indices)
-		: IndexBuffer(Indices)
+		: ieIndexBuffer(Indices)
 	{
 		m_NumIndices = static_cast<uint32_t>(Indices.size());
 		m_BufferSize = m_NumIndices * sizeof(uint32_t);

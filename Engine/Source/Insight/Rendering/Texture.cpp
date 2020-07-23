@@ -45,10 +45,10 @@ namespace Insight {
 
 	bool Texture::Init(IE_TEXTURE_INFO createInfo, CDescriptorHeapWrapper& srvHeapHandle)
 	{
-		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
+		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
 		std::string filepath = StringHelper::WideToString(createInfo.Filepath);
-		m_pCbvSrvHeapStart = &graphicsContext.GetCBVSRVDescriptorHeap();
-		m_pCommandList = &graphicsContext.GetScenePassCommandList();
+		m_pCbvSrvHeapStart = &graphicsContext->GetCBVSRVDescriptorHeap();
+		m_pCommandList = &graphicsContext->GetScenePassCommandList();
 		m_TextureInfo = createInfo;
 		m_TextureInfo.DisplayName = StringHelper::GetFilenameFromDirectory(filepath);
 
@@ -66,9 +66,9 @@ namespace Insight {
 
 	bool Texture::InitTextureFromFile(CDescriptorHeapWrapper& srvHeapHandle)
 	{		
-		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		ID3D12Device* pDevice = &graphicsContext.GetDeviceContext();
-		ID3D12CommandQueue* pCommandQueue = &graphicsContext.GetCommandQueue();
+		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+		ID3D12Device* pDevice = &graphicsContext->GetDeviceContext();
+		ID3D12CommandQueue* pCommandQueue = &graphicsContext->GetCommandQueue();
 
 		ResourceUploadBatch resourceUpload(pDevice);
 		resourceUpload.Begin();
@@ -102,9 +102,9 @@ namespace Insight {
 
 	void Texture::InitDDSTexture(CDescriptorHeapWrapper& srvHeapHandle)
 	{
-		Direct3D12Context& GraphicsContext = Direct3D12Context::Get();
-		ID3D12Device* pDevice = &GraphicsContext.GetDeviceContext();
-		ID3D12CommandQueue* pCommandQueue = &GraphicsContext.GetCommandQueue();
+		Direct3D12Context* GraphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+		ID3D12Device* pDevice = &GraphicsContext->GetDeviceContext();
+		ID3D12CommandQueue* pCommandQueue = &GraphicsContext->GetCommandQueue();
 		
 		ResourceUploadBatch ResourceUpload(pDevice);
 		ResourceUpload.Begin();

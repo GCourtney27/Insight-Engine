@@ -27,9 +27,8 @@ namespace Insight {
 
 	class INSIGHT_API Direct3D11Context : public Renderer
 	{
+		friend class Renderer;
 	public:
-		Direct3D11Context(WindowsWindow* windowHandle);
-		virtual ~Direct3D11Context();
 
 		ID3D11Device& GetDevice() { return *m_pDevice.Get(); }
 		ID3D11DeviceContext& GetDeviceContext() { return *m_pDeviceContext.Get(); }
@@ -57,11 +56,14 @@ namespace Insight {
 		// Tells the swapchain to enable full screen rendering.
 		virtual void OnWindowFullScreenImpl() override;
 
-		virtual void SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, VertexBuffer* pBuffers) override;
-		virtual void SetIndexBufferImpl(IndexBuffer* pBuffer) override;
+		virtual void SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) override;
+		virtual void SetIndexBufferImpl(ieIndexBuffer* pBuffer) override;
 		virtual void DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) override;
 
 	private:
+		Direct3D11Context(WindowsWindow* windowHandle);
+		virtual ~Direct3D11Context();
+
 		void CreateDXGIFactory();
 		void GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter** ppAdapter);
 		void CreateDeviceAndSwapChain();

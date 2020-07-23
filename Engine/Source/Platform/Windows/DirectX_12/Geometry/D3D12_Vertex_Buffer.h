@@ -6,7 +6,7 @@
 
 namespace Insight {
 
-	class INSIGHT_API D3D12VertexBuffer : public VertexBuffer
+	class INSIGHT_API D3D12VertexBuffer : public ieVertexBuffer
 	{
 	public:
 		D3D12VertexBuffer(Verticies Verticies);

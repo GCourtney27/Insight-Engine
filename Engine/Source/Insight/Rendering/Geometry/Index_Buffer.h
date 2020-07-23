@@ -7,12 +7,12 @@ namespace Insight {
 
 	typedef std::vector<unsigned long> Indices;
 
-	class INSIGHT_API IndexBuffer
+	class INSIGHT_API ieIndexBuffer
 	{
 	public:
-		IndexBuffer(Indices Indices)
+		ieIndexBuffer(Indices Indices)
 			: m_Indices(std::move(Indices)) {}
-		virtual ~IndexBuffer() = default;
+		virtual ~ieIndexBuffer() = default;
 
 		virtual void Destroy() {}
 
