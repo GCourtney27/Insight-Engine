@@ -16,6 +16,7 @@
 
 #include "Platform/Windows/DirectX_12/Geometry/D3D12_Vertex_Buffer.h"
 #include "Platform/Windows/DirectX_12/Geometry/D3D12_Index_Buffer.h"
+#include "Platform/Windows/DirectX_12/Geometry/Sphere_Renderer.h"
 
 namespace Insight {
 
@@ -195,8 +196,7 @@ namespace Insight {
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
-		// Render Scene Shadows
-		// TODO this should be on another thread
+		// Render Shadows
 		m_pActiveCommandList = m_pShadowPassCommandList;
 		BindShadowPass(); 
 						
@@ -506,6 +506,26 @@ namespace Insight {
 	void Direct3D12Context::DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation)
 	{
 		m_pActiveCommandList->DrawIndexedInstanced(IndexCountPerInstance, NumInstances, StartIndexLocation, BaseVertexLoaction, StartInstanceLocation);
+	}
+
+	void Direct3D12Context::RenderSkySphereImpl()
+	{
+		m_SkySphere->Render(m_pScenePassCommandList);
+	}
+
+	bool Direct3D12Context::CreateSkyboxImpl()
+	{
+		m_SkySphere = new Sphere();
+		m_SkySphere->Init(10, 20, 20);
+
+		return true;
+	}
+
+	void Direct3D12Context::DestroySkyboxImpl()
+	{
+		if (m_SkySphere) {
+			delete m_pSkySphere;
+		}
 	}
 
 	void Direct3D12Context::CreateSwapChain()

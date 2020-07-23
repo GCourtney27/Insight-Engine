@@ -21,7 +21,7 @@ namespace Insight {
 
 	class WindowsWindow;
 	class GeometryManager;
-
+	class Sphere;
 
 	class ScreenQuad
 	{
@@ -55,6 +55,9 @@ namespace Insight {
 		virtual void SetIndexBufferImpl(ieIndexBuffer* pBuffer) override;
 		virtual void DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) override;
 
+		virtual void RenderSkySphereImpl() override;
+		virtual bool CreateSkyboxImpl() override;
+		virtual void DestroySkyboxImpl() override;
 
 		inline ID3D12Device& GetDeviceContext() const { return *m_pDeviceContext.Get(); }
 
@@ -138,7 +141,7 @@ namespace Insight {
 		HWND*				m_pWindowHandle = nullptr;
 		WindowsWindow*		m_pWindow = nullptr;
 		D3D12Helper			m_d3dDeviceResources;
-
+		Sphere*				m_SkySphere;
 		// CPU/GPU Syncronization
 		int						m_FrameIndex = 0;
 		UINT64					m_FenceValues[m_FrameBufferCount] = {};

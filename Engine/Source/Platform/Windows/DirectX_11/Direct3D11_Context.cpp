@@ -58,6 +58,19 @@ namespace Insight {
 	{
 	}
 
+	void Direct3D11Context::RenderSkySphereImpl()
+	{
+	}
+
+	bool Direct3D11Context::CreateSkyboxImpl()
+	{
+		return false;
+	}
+
+	void Direct3D11Context::DestroySkyboxImpl()
+	{
+	}
+
 	void Direct3D11Context::DestroyImpl()
 	{
 	}

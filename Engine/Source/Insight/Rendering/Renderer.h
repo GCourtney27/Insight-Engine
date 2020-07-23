@@ -77,6 +77,11 @@ namespace Insight {
 		static void SetIndexBuffer(ieIndexBuffer* pBuffer) { s_Instance->SetIndexBufferImpl(pBuffer); }
 		static void DrawIndexedInstanced(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) { s_Instance->DrawIndexedInstancedImpl(IndexCountPerInstance, NumInstances, StartIndexLocation, BaseVertexLoaction, StartInstanceLocation); }
 
+		static void RenderSkySphere() { s_Instance->RenderSkySphereImpl(); }
+		static bool CreateSkybox() { return s_Instance->CreateSkyboxImpl(); }
+		static void DestroySkybox() { s_Instance->DestroySkyboxImpl(); }
+
+
 		inline static eRenderingAPI GetAPI() { return s_Instance->m_CurrentAPI; }
 		inline static uint8_t GetFrameBufferCount() { return s_Instance->m_FrameBufferCount; }
 		inline static void SetVSyncEnabled(bool enabled) { s_Instance->m_VSyncEnabled = enabled; }
@@ -126,6 +131,10 @@ namespace Insight {
 		virtual void SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) = 0;
 		virtual void SetIndexBufferImpl(ieIndexBuffer* pBuffer) = 0;
 		virtual void DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) = 0;
+
+		virtual void RenderSkySphereImpl() = 0;
+		virtual bool CreateSkyboxImpl() = 0;
+		virtual void DestroySkyboxImpl() = 0;
 
 	protected:
 		Renderer(UINT windowWidth, UINT windowHeight, bool vSyncEabled);

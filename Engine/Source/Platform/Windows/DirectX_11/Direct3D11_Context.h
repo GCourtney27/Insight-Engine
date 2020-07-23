@@ -60,6 +60,10 @@ namespace Insight {
 		virtual void SetIndexBufferImpl(ieIndexBuffer* pBuffer) override;
 		virtual void DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) override;
 
+		virtual void RenderSkySphereImpl() override;
+		virtual bool CreateSkyboxImpl() override;
+		virtual void DestroySkyboxImpl() override;
+
 	private:
 		Direct3D11Context(WindowsWindow* windowHandle);
 		virtual ~Direct3D11Context();
