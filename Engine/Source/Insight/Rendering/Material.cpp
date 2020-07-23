@@ -3,9 +3,11 @@
 #include "Material.h"
 
 #include "Insight/Utilities/String_Helper.h"
-#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 #include "Insight/Systems/File_System.h"
 #include "Insight/Systems/Managers/Resource_Manager.h"
+
+// TEMP INCLUDE Becasue Tetures still rely on the D3D12 context
+#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 #include "imgui.h"
 

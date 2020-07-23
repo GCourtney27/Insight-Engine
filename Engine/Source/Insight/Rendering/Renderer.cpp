@@ -12,7 +12,7 @@ namespace Insight {
 
 	Renderer* Renderer::s_Instance = nullptr;
 
-	Renderer::Renderer(UINT windowWidth, UINT windowHeight, bool vSyncEabled)
+	Renderer::Renderer(uint32_t windowWidth, uint32_t windowHeight, bool vSyncEabled)
 		: m_WindowWidth(windowWidth), m_WindowHeight(windowHeight), m_VSyncEnabled(vSyncEabled)
 	{
 	}
@@ -21,26 +21,28 @@ namespace Insight {
 	{
 	}
 
-	bool Renderer::SetAPIAndCreateContext(eRenderingAPI ContextType)
+	bool Renderer::SetAPIAndCreateContext(eTargetRenderAPI ContextType)
 	{
 		IE_ASSERT(!s_Instance, "Rendering Context already exists! Cannot have more that one context created at a time.");
 
 		switch (ContextType)
 		{
-		case eRenderingAPI::D3D_11:
+#if defined IE_PLATFORM_WINDOWS
+		case eTargetRenderAPI::D3D_11:
 		{
 			WindowsWindow* Window = (WindowsWindow*)&Application::Get().GetWindow();
 			s_Instance = new Direct3D11Context(Window);
 			s_Instance->m_CurrentAPI = ContextType;
 			break;
 		}
-		case eRenderingAPI::D3D_12:
+		case eTargetRenderAPI::D3D_12:
 		{
 			WindowsWindow* Window = (WindowsWindow*)&Application::Get().GetWindow();
 			s_Instance = new Direct3D12Context(Window);
 			s_Instance->m_CurrentAPI = ContextType;
 			break;
 		}
+#endif // IE_PLATFORM_WINDOWS
 		default:
 		{
 			IE_CORE_ERROR("Failed to create render with given context type: {0}", ContextType);

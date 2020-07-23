@@ -16,7 +16,7 @@
 
 #include "Platform/Windows/DirectX_12/Geometry/D3D12_Vertex_Buffer.h"
 #include "Platform/Windows/DirectX_12/Geometry/D3D12_Index_Buffer.h"
-#include "Platform/Windows/DirectX_12/Geometry/Sphere_Renderer.h"
+#include "Platform/Windows/DirectX_12/Geometry/D3D12_Sphere_Renderer.h"
 
 namespace Insight {
 
@@ -26,7 +26,7 @@ namespace Insight {
 		m_pWindow(WindowHandle),
 		Renderer(WindowHandle->GetWidth(), WindowHandle->GetHeight(), false)
 	{
-		IE_CORE_ASSERT(WindowHandle, "Window handle is NULL!");
+		IE_CORE_ASSERT(WindowHandle, "Window handle is NULL, cannot initialize D3D 12 context with NULL window handle.");
 		m_AspectRatio = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
 	}
 
@@ -46,7 +46,7 @@ namespace Insight {
 		}
 
 		if (!CloseHandle(m_FenceEvent)) {
-			IE_CORE_ERROR("Failed to close GPU handle while cleaning up the renderer.");
+			IE_CORE_ERROR("Failed to close GPU handle while cleaning up the D3D 12 context.");
 		}
 	}
 
@@ -65,7 +65,7 @@ namespace Insight {
 			CreateConstantBuffers();
 			CreateConstantBufferViews();
 
-			PIXBeginEvent(m_pCommandQueue.Get(), 0, L"D3D12 Setup");
+			PIXBeginEvent(m_pCommandQueue.Get(), 0, L"D3D 12 context Setup");
 			{
 				// Window adn Viewport
 				{
@@ -336,8 +336,8 @@ namespace Insight {
 		// Prepare render target to be presented
 		m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetRenderTarget(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
-		ThrowIfFailed(m_pScenePassCommandList->Close(), "Failed to close command list for scene pass.");
-		ThrowIfFailed(m_pShadowPassCommandList->Close(), "Failed to close the command list for shadow pass.");
+		ThrowIfFailed(m_pScenePassCommandList->Close(), "Failed to close command list for D3D 12 context scene pass.");
+		ThrowIfFailed(m_pShadowPassCommandList->Close(), "Failed to close the command list for D3D 12 context shadow pass.");
 
 		ID3D12CommandList* ppCommandLists[] = {
 			m_pShadowPassCommandList.Get(), // Execure shadow pass first because we'll need the depth textures for the light pass
@@ -404,7 +404,7 @@ namespace Insight {
 				DXGI_SWAP_CHAIN_DESC desc = {};
 				m_pSwapChain->GetDesc(&desc);
 				hr = m_pSwapChain->ResizeBuffers(m_FrameBufferCount, m_WindowWidth, m_WindowHeight, desc.BufferDesc.Format, desc.Flags);
-				ThrowIfFailed(hr, "Failed to resize swap chain buffers");
+				ThrowIfFailed(hr, "Failed to resize swap chain buffers for D3D 12 context.");
 
 				BOOL fullScreenState;
 				m_pSwapChain->GetFullscreenState(&fullScreenState, nullptr);
@@ -450,9 +450,9 @@ namespace Insight {
 				{
 					// Get the settings of the display on which the app's window is currently displayed
 					ComPtr<IDXGIOutput> pOutput;
-					ThrowIfFailed(m_pSwapChain->GetContainingOutput(&pOutput), "Failed to get containing output");
+					ThrowIfFailed(m_pSwapChain->GetContainingOutput(&pOutput), "Failed to get containing output while switching to fullscreen mode in D3D 12 context.");
 					DXGI_OUTPUT_DESC Desc;
-					ThrowIfFailed(pOutput->GetDesc(&Desc), "Failed to get description from output");
+					ThrowIfFailed(pOutput->GetDesc(&Desc), "Failed to get description from output while switching to fullscreen mode in D3D 12 context.");
 					fullscreenWindowRect = Desc.DesktopCoordinates;
 				}
 				else
@@ -594,7 +594,7 @@ namespace Insight {
 			D3D12_CPU_DESCRIPTOR_HANDLE handle;
 			handle.ptr = hCPUHeapHandle.ptr + m_RTVDescriptorSize * n;
 			hr = m_pSwapChain->GetBuffer(n, IID_PPV_ARGS(&m_pRenderTargets[n]));
-			ThrowIfFailed(hr, "Failed to get buffer in swap chain during descriptor heap initialization.");
+			ThrowIfFailed(hr, "Failed to get buffer in swap chain during descriptor heap initialization for D3D 12 context.");
 			m_pDeviceContext->CreateRenderTargetView(m_pRenderTargets[n].Get(), nullptr, handle);
 
 
@@ -888,10 +888,10 @@ namespace Insight {
 		ComPtr<ID3DBlob> errorBlob;
 
 		HRESULT hr = D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, rootSigBlob.GetAddressOf(), errorBlob.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to serialize root signature");
+		ThrowIfFailed(hr, "Failed to serialize root signature for D3D 12 context.");
 
 		hr = m_pDeviceContext->CreateRootSignature(0, rootSigBlob->GetBufferPointer(), rootSigBlob->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature));
-		ThrowIfFailed(hr, "Failed to create root signature");
+		ThrowIfFailed(hr, "Failed to create root signature for D3D 12 context.");
 	}
 
 	void Direct3D12Context::CreateShadowPassPSO()
@@ -910,9 +910,9 @@ namespace Insight {
 #endif 
 
 		hr = D3DReadFileToBlob(VertexShaderFolder, &pVertexShader);
-		ThrowIfFailed(hr, "Failed to read Vertex Shader check log for more details.");
+		ThrowIfFailed(hr, "Failed to read Vertex Shader for D3D 12 context.");
 		hr = D3DReadFileToBlob(PixelShaderFolder, &pPixelShader);
-		ThrowIfFailed(hr, "Failed to read Pixel Shader check log for more details.");
+		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
 
 		D3D12_SHADER_BYTECODE VertexShaderBytecode = {};
 		VertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
@@ -959,7 +959,7 @@ namespace Insight {
 		PsoDesc.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
 
 		hr = m_pDeviceContext->CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pPipelineStateObject_ShadowPass));
-		ThrowIfFailed(hr, "Failed to create graphics pipeline state for shadow pass.");
+		ThrowIfFailed(hr, "Failed to create graphics pipeline state for shadow pass in D3D 12 context.");
 		m_pPipelineStateObject_ShadowPass->SetName(L"PSO Shadow Pass");
 	}
 
@@ -980,9 +980,9 @@ namespace Insight {
 #endif 
 
 		hr = D3DReadFileToBlob(vertexShaderFolder, &pVertexShader);
-		ThrowIfFailed(hr, "Failed to read Vertex Shader check log for more details.");
+		ThrowIfFailed(hr, "Failed to read Vertex Shader for D3D 12 context.");
 		hr = D3DReadFileToBlob(pixelShaderFolder, &pPixelShader);
-		ThrowIfFailed(hr, "Failed to read Pixel Shader check log for more details.");
+		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
 
 
 		D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
@@ -1046,9 +1046,9 @@ namespace Insight {
 #endif 
 
 		hr = D3DReadFileToBlob(vertexShaderFolder, &pVertexShader);
-		ThrowIfFailed(hr, "Failed to compile Vertex Shader check log for more details.");
+		ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context");
 		hr = D3DReadFileToBlob(pixelShaderFolder, &pPixelShader);
-		ThrowIfFailed(hr, "Failed to compile Pixel Shader check log for more details.");
+		ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context");
 
 
 		D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
@@ -1097,7 +1097,7 @@ namespace Insight {
 
 
 		hr = m_pDeviceContext->CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&m_pPipelineStateObject_SkyPass));
-		ThrowIfFailed(hr, "Failed to create skybox pipeline state object.");
+		ThrowIfFailed(hr, "Failed to create skybox pipeline state object for .");
 		m_pPipelineStateObject_SkyPass->SetName(L"PSO Sky Pass");
 	}
 
@@ -1117,9 +1117,9 @@ namespace Insight {
 #endif 
 
 		hr = D3DReadFileToBlob(vertexShaderFolder, &pVertexShader);
-		ThrowIfFailed(hr, "Failed to compile Vertex Shader check log for more details.");
+		ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context.");
 		hr = D3DReadFileToBlob(pixelShaderFolder, &pPixelShader);
-		ThrowIfFailed(hr, "Failed to compile Pixel Shader check log for more details.");
+		ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context.");
 
 
 		D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
@@ -1178,9 +1178,9 @@ namespace Insight {
 #endif 
 
 		hr = D3DReadFileToBlob(vertexShaderFolder, &pVertexShader);
-		ThrowIfFailed(hr, "Failed to compile Vertex Shader check log for more details.");
+		ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context.");
 		hr = D3DReadFileToBlob(pixelShaderFolder, &pPixelShader);
-		ThrowIfFailed(hr, "Failed to compile Pixel Shader check log for more details.");
+		ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context.");
 
 
 		D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
@@ -1219,7 +1219,7 @@ namespace Insight {
 		descPipelineState.SampleDesc.Count = 1;
 
 		hr = m_pDeviceContext->CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pPipelineStateObject_PostFxPass));
-		ThrowIfFailed(hr, "Failed to create graphics pipeline state for Post-Fx pass.");
+		ThrowIfFailed(hr, "Failed to create graphics pipeline state for Post-Fx pass in D3D 12 context.");
 		m_pPipelineStateObject_PostFxPass->SetName(L"PSO PostFx Pass");
 	}
 
@@ -1233,12 +1233,12 @@ namespace Insight {
 			{
 				hr = m_pDeviceContext->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pScenePassCommandAllocators[i]));
 				m_pScenePassCommandAllocators[i]->SetName(L"Scene Pass Command Allocator");
-				ThrowIfFailed(hr, "Failed to Scene Pass Create Command Allocator");
+				ThrowIfFailed(hr, "Failed to Scene Pass Create Command Allocator for D3D 12 context");
 			}
 
 			hr = m_pDeviceContext->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pScenePassCommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pScenePassCommandList));
 			m_pScenePassCommandList->SetName(L"Scene Pass Command List");
-			ThrowIfFailed(hr, "Failed to Scene Pass Create Command List");
+			ThrowIfFailed(hr, "Failed to Scene Pass Create Command List for D3D 12 context");
 		}
 
 		// Shadow Pass
@@ -1247,12 +1247,12 @@ namespace Insight {
 			{
 				hr = m_pDeviceContext->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pShadowPassCommandAllocators[i]));
 				m_pShadowPassCommandAllocators[i]->SetName(L"Graphics Command Allocator");
-				ThrowIfFailed(hr, "Failed to Create Command Allocator");
+				ThrowIfFailed(hr, "Failed to Create Command Allocator for D3D 12 context");
 			}
 
 			hr = m_pDeviceContext->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pShadowPassCommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pShadowPassCommandList));
 			m_pShadowPassCommandList->SetName(L"Shadow Pass Command List");
-			ThrowIfFailed(hr, "Failed to Create Shadow Pass Command List");
+			ThrowIfFailed(hr, "Failed to Create Shadow Pass Command List for D3D 12 context");
 
 			m_pShadowPassCommandList->Close();
 			ID3D12CommandList* ppCommandLists[] = { m_pShadowPassCommandList.Get() };

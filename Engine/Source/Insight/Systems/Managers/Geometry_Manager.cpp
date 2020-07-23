@@ -30,12 +30,12 @@ namespace Insight {
 
 		switch (Renderer::GetAPI())
 		{
-		case Renderer::eRenderingAPI::D3D_11:
+		case Renderer::eTargetRenderAPI::D3D_11:
 		{
 			s_Instance = new D3D11GeometryManager();
 			break;
 		}
-		case Renderer::eRenderingAPI::D3D_12:
+		case Renderer::eTargetRenderAPI::D3D_12:
 		{
 			s_Instance = new D3D12GeometryManager();
 			break;

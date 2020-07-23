@@ -3,19 +3,19 @@
 #include "Insight/Core/Interfaces.h"
 #include "Insight/Rendering/Geometry/Vertex_Buffer.h"
 #include "Insight/Rendering/Geometry/Index_Buffer.h"
+
 /*
 	Represents a base for a graphics context the application will use for rendering.
 	Context is API independent, meaning all rendering calls will pass through a *Imple
 	method and dispatched to the appropriate active rendering API.
 
 	Example usage:
-	Set a vertex buffers for rendering - RenderingContext::SetVertexBuffers(0, 1, m_VSBuffer);
+	Set a vertex buffers for rendering - RenderingContext::SetVertexBuffers(0, 1, ieVertexBuffer);
 */
 
 #define RETURN_IF_WINDOW_NOT_VISIBLE if (!m_WindowVisible){ return;}
 
 namespace Insight {
-
 
 
 	class ASkySphere;
@@ -31,7 +31,7 @@ namespace Insight {
 	class Renderer
 	{
 	public:
-		enum class eRenderingAPI
+		enum class eTargetRenderAPI
 		{
 			INVALID,
 			D3D_11,
@@ -46,7 +46,7 @@ namespace Insight {
 		// Set the target graphics rendering API and create a context to it.
 		// Once set, it cannot be changed through the lifespan application, you must 
 		// set it re-launch the app.
-		static bool SetAPIAndCreateContext(eRenderingAPI ContextType);
+		static bool SetAPIAndCreateContext(eTargetRenderAPI ContextType);
 
 		// Initilize renderer's API library.
 		static inline bool Init() { return s_Instance->InitImpl(); }
@@ -82,7 +82,7 @@ namespace Insight {
 		static void DestroySkybox() { s_Instance->DestroySkyboxImpl(); }
 
 
-		inline static eRenderingAPI GetAPI() { return s_Instance->m_CurrentAPI; }
+		inline static eTargetRenderAPI GetAPI() { return s_Instance->m_CurrentAPI; }
 		inline static uint8_t GetFrameBufferCount() { return s_Instance->m_FrameBufferCount; }
 		inline static void SetVSyncEnabled(bool enabled) { s_Instance->m_VSyncEnabled = enabled; }
 		inline static void SetWindowWidthAndHeight(UINT width, UINT height, bool isMinimized) 
@@ -137,14 +137,14 @@ namespace Insight {
 		virtual void DestroySkyboxImpl() = 0;
 
 	protected:
-		Renderer(UINT windowWidth, UINT windowHeight, bool vSyncEabled);
+		Renderer(uint32_t windowWidth, uint32_t windowHeight, bool vSyncEabled);
 	protected:
-		eRenderingAPI m_CurrentAPI = eRenderingAPI::INVALID;
+		eTargetRenderAPI m_CurrentAPI = eTargetRenderAPI::INVALID;
 		eRenderPass m_RenderPass = eRenderPass::RenderPass_Scene;
 
 		static const uint8_t m_FrameBufferCount = 3u;
-		UINT m_WindowWidth;
-		UINT m_WindowHeight;
+		uint32_t m_WindowWidth;
+		uint32_t m_WindowHeight;
 
 		float m_AspectRatio = 0.0f;
 		bool m_VSyncEnabled = false;

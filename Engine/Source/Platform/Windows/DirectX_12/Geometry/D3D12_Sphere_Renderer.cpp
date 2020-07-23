@@ -1,6 +1,6 @@
 #include <ie_pch.h>
 
-#include "Sphere_Renderer.h"
+#include "D3D12_Sphere_Renderer.h"
 
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 

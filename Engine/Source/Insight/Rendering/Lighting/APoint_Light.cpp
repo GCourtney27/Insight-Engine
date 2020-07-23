@@ -3,7 +3,7 @@
 #include "APoint_Light.h"
 
 #include "Insight/Runtime/Components/Actor_Component.h"
-#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
+#include "Insight/Rendering/Renderer.h"
 #include "imgui.h"
 
 namespace Insight {

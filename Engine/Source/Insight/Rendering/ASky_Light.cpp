@@ -2,8 +2,12 @@
 
 #include "ASky_Light.h"
 
-#include "Insight/Runtime//Components/Actor_Component.h"
+#include "Insight/Runtime/Components/Actor_Component.h"
+#include "Insight/Rendering/Renderer.h"
+
+// TEMP INCLUDE Because textures use the D3D12 context
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
+
 #include "Insight/Systems/File_System.h"
 
 namespace Insight {
