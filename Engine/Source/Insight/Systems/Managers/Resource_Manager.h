@@ -19,12 +19,10 @@ namespace Insight {
 		inline static ResourceManager& Get() { return *s_Instance; }
 		void FlushAllResources();
 
-		GeometryManager& GetGeometryManager() { return *m_pGeometryManager; }
 		TextureManager& GetTextureManager() { return *m_pTextureManager; }
 		MonoScriptManager& GetMonoScriptManager() { return *m_pMonoScriptManager; }
 
 	private:
-		GeometryManager*	m_pGeometryManager = nullptr;
 		TextureManager* m_pTextureManager = nullptr;
 		MonoScriptManager* m_pMonoScriptManager = nullptr;
 	private:

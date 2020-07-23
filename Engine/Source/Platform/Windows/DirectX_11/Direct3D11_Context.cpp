@@ -4,8 +4,8 @@
 
 #include "Insight/Core/Application.h"
 #include "Platform/Windows/Windows_Window.h"
-#include "Platform/Windows/DirectX_11/Geometry_Buffers/D3D11_IndexBuffer.h"
-#include "Platform/Windows/DirectX_11/Geometry_Buffers/D3D11_VertexBuffer.h"
+#include "Platform/Windows/DirectX_11/Geometry_Buffers/D3D11_Index_Buffer.h"
+#include "Platform/Windows/DirectX_11/Geometry_Buffers/D3D11_Vertex_Buffer.h"
 
 #include "Insight/Runtime/APlayer_Character.h"
 #include "Insight/Systems/Managers/Geometry_Manager.h"

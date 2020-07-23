@@ -114,7 +114,6 @@ namespace Insight {
 
 	bool Direct3D12Context::PostInitImpl()
 	{
-		m_pModelManager = &ResourceManager::Get().GetGeometryManager();
 		CloseCommandListAndSignalCommandQueue();
 		m_pWorldCamera = &ACamera::Get();
 
@@ -202,7 +201,9 @@ namespace Insight {
 
 		// Render Scene Shadows
 		// TODO this should be on another thread
-		BindShadowPass();
+		// BindShadowPass(); // When a mesh renders the Renderer:: will call 
+							 // draw indexed in this context, which currently 
+							 // defaults to the scene pass command list, causing d3d warnings
 		// Render Scene
 		BindGeometryPass();
 	}
@@ -223,7 +224,7 @@ namespace Insight {
 		m_pShadowPassCommandList->SetGraphicsRootConstantBufferView(2, m_LightCBV->GetGPUVirtualAddress());
 
 		// TODO Shadow pass logic here put this on another thread
-		m_pModelManager->Render(eRenderPass::RenderPass_Shadow);
+		GeometryManager::Render(eRenderPass::RenderPass_Shadow);
 	}
 
 	void Direct3D12Context::BindGeometryPass(bool setPSO)
@@ -257,7 +258,7 @@ namespace Insight {
 			m_pScenePassCommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV->GetGPUVirtualAddress());
 		}
 
-		m_pModelManager->Render(eRenderPass::RenderPass_Scene);
+		GeometryManager::Render(eRenderPass::RenderPass_Scene);
 	}
 
 	void Direct3D12Context::OnMidFrameRenderImpl()

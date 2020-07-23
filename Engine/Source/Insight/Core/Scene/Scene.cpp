@@ -125,9 +125,8 @@ namespace Insight {
 	void Scene::OnPreRender()
 	{
 		Renderer::OnPreFrameRender();
-		//Application::Get().GetImGuiLayer().Begin();
 		m_pSceneRoot->CalculateParent(XMMatrixIdentity());
-		m_ResourceManager.GetGeometryManager().GatherGeometry();
+		GeometryManager::GatherGeometry();
 	}
 
 	void Scene::OnRender()
@@ -143,7 +142,7 @@ namespace Insight {
 
 	void Scene::OnPostRender()
 	{
-		m_ResourceManager.GetGeometryManager().PostRender();
+		GeometryManager::PostRender();
 	}
 
 	void Scene::Destroy()

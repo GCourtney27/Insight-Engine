@@ -126,7 +126,7 @@ namespace Insight {
 
 	void StaticMeshComponent::OnDestroy()
 	{
-		ResourceManager::Get().GetGeometryManager().UnRegisterModel(m_pModel);
+		GeometryManager::UnRegisterModel(m_pModel);
 		m_pModel->Destroy();
 		delete m_pMaterial;
 	}
@@ -179,7 +179,7 @@ namespace Insight {
 
 		std::lock_guard<std::mutex> ResourceLock(s_MeshMutex);
 
-		ResourceManager::Get().GetGeometryManager().RegisterModel(Model);
+		GeometryManager::RegisterModel(Model);
 		return true;
 	}
 
@@ -188,7 +188,7 @@ namespace Insight {
 		Profiling::ScopedTimer timer(("StaticMeshComponent::AttachMesh \"" + AssestDirectoryRelPath + "\"").c_str());
 
 		if (m_pModel) {
-			ResourceManager::Get().GetGeometryManager().UnRegisterModel(m_pModel);
+			GeometryManager::UnRegisterModel(m_pModel);
 			m_pModel->Destroy();
 			m_pModel.reset();
 		}
@@ -201,7 +201,7 @@ namespace Insight {
 		if (Renderer::GetAPI() != Renderer::eRenderingAPI::D3D_12) {
 			return;
 		}
-		ResourceManager::Get().GetGeometryManager().RegisterModel(m_pModel);
+		GeometryManager::RegisterModel(m_pModel);
 	}
 
 	void StaticMeshComponent::SetMaterial(Material* pMaterial)
@@ -230,7 +230,7 @@ namespace Insight {
 	void StaticMeshComponent::OnDetach()
 	{
 		s_NumActiveSMComponents--;
-		ResourceManager::Get().GetGeometryManager().UnRegisterModel(m_pModel);
+		GeometryManager::UnRegisterModel(m_pModel);
 	}
 
 }

@@ -42,6 +42,7 @@ namespace Insight {
 		virtual ~Renderer();
 
 		static Renderer& Get() { return *s_Instance; }
+
 		// Set the target graphics rendering API and create a context to it.
 		// Once set, it cannot be changed through the lifespan application, you must 
 		// set it re-launch the app.

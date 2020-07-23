@@ -141,7 +141,6 @@ namespace Insight {
 		HWND*				m_pWindowHandle = nullptr;
 		WindowsWindow*		m_pWindow = nullptr;
 		D3D12Helper			m_d3dDeviceResources;
-		GeometryManager*	m_pModelManager = nullptr;
 
 		// CPU/GPU Syncronization
 		int						m_FrameIndex = 0;

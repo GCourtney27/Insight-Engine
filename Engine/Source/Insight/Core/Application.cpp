@@ -34,22 +34,31 @@ namespace Insight {
 		m_pWindow = std::unique_ptr<Window>(Window::Create());
 		m_pWindow->SetEventCallback(IE_BIND_EVENT_FN(Application::OnEvent));
 
-		((WindowsWindow*)m_pWindow.get())->SetWindowsSessionProps(hInstance, nCmdShow);
-		if (!((WindowsWindow*)m_pWindow.get())->Init(WindowProps())) {
+		WindowsWindow* pWindow = (WindowsWindow*)m_pWindow.get();
+		pWindow->SetWindowsSessionProps(hInstance, nCmdShow);
+		if (!pWindow->Init(WindowProps())) {
 			IE_CORE_FATAL(L"Fatal Error: Failed to initialize window.");
 			return false;
 		}
 
-		Renderer::SetAPIAndCreateContext(Renderer::eRenderingAPI::D3D_12);
+		Renderer::eRenderingAPI API = Renderer::eRenderingAPI::D3D_11;
+
+//#define TEST_D3D12
+
+#if defined TEST_D3D12
+		API = Renderer::eRenderingAPI::D3D_12;
+#endif
+		Renderer::SetAPIAndCreateContext(API);
 		Renderer::Init();
 
-		if (!Init()) {
+#if defined TEST_D3D12
+		if (!Init()) { // Disabled for d3d11 impl
 			IE_CORE_FATAL(L"Fatal Error: Failed to initiazlize application for Windows.");
 			return false;
 		}
+#endif
 
-		((WindowsWindow*)m_pWindow.get())->PostInit();
-
+		pWindow->PostInit();
 		return true;
 	}
 
@@ -87,28 +96,36 @@ namespace Insight {
 
 			m_FrameTimer.Tick();
 			const float& DeltaTime = (float)m_FrameTimer.DeltaTime();
-			//m_pWindow->SetWindowTitleFPS(m_FrameTimer.FPS());
+
+#if defined TEST_D3D12
+			m_pWindow->SetWindowTitleFPS(m_FrameTimer.FPS());
+#endif
 
 			m_pWindow->OnUpdate(DeltaTime);
-			m_pGameLayer->Update(DeltaTime);
+#if defined TEST_D3D12
+			m_pGameLayer->Update(DeltaTime); // Disabled for d3d11 impl
+#endif
 
+#ifndef TEST_D3D12
 			//TEMP
-			/*{
+			{
 				Renderer::OnUpdate(DeltaTime);
 				Renderer::OnPreFrameRender();
 				Renderer::OnRender();
 				Renderer::OnMidFrameRender();
-			}*/
+			}
+#endif
 
-			for (Layer* layer : m_LayerStack) {
+#if defined TEST_D3D12
+			for (Layer* layer : m_LayerStack) { // Disabled for d3d11 impl
 				layer->OnUpdate(DeltaTime);
 			}
 
-			m_pGameLayer->PreRender();
-			m_pGameLayer->Render();
+			m_pGameLayer->PreRender(); // Disabled for d3d11 impl
+			m_pGameLayer->Render(); // Disabled for d3d11 impl
 
 			// Render Editor UI
-			IE_STRIP_FOR_GAME_DIST(
+			IE_STRIP_FOR_GAME_DIST( // Disabled for d3d11 impl
 				m_pImGuiLayer->Begin();
 				for (Layer* layer : m_LayerStack) {
 					layer->OnImGuiRender();
@@ -117,7 +134,8 @@ namespace Insight {
 				m_pImGuiLayer->End();
 			);
 
-			m_pGameLayer->PostRender();
+			m_pGameLayer->PostRender(); // Disabled for d3d11 impl
+#endif
 			m_pWindow->EndFrame();
 		}
 	}

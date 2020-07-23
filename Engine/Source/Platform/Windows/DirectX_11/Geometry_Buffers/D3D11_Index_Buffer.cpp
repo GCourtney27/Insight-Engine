@@ -1,6 +1,6 @@
 #include <ie_pch.h>
 
-#include "D3D11_IndexBuffer.h"
+#include "D3D11_Index_Buffer.h"
 
 #include "Platform/Windows/DirectX_11/Direct3D11_Context.h"
 
