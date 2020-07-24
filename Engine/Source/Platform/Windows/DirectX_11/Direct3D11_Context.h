@@ -76,6 +76,7 @@ namespace Insight {
 		void CreateDeviceAndSwapChain();
 		void CreateRTVs();
 		void CreateDSV();
+		void CreateConstantBufferViews();
 		void CreateViewports();
 		void CreateSamplers();
 
@@ -116,6 +117,8 @@ namespace Insight {
 
 		D3D11_VIEWPORT m_ScenePassViewport;
 
+		CB_PS_VS_PerFrame		m_PerFrameData;
+		ComPtr<ID3D11Buffer>	m_pConstantBufferPerFrame;
 
 		// TEMP
 		VertexShader m_VertexShader; // Should be appart of the pipeline state
@@ -123,7 +126,8 @@ namespace Insight {
 
 		// TEMP 
 		ComPtr<ID3D11Buffer> m_pVertexBuffer;
-		ComPtr<ID3D11ShaderResourceView> m_pTextureView;
+		ComPtr<ID3D11Buffer> m_pIndexBuffer;
+
 		Texture* m_Texture;
 
 	};

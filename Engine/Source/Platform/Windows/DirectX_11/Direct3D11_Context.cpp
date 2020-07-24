@@ -41,6 +41,7 @@ namespace Insight {
 		CreateDeviceAndSwapChain();
 		CreateRTVs();
 		CreateDSV();
+		CreateConstantBufferViews();
 		InitShadersLayout();
 		CreateViewports();
 		CreateRasterizer();
@@ -89,6 +90,12 @@ namespace Insight {
 
 	void Direct3D11Context::OnUpdateImpl(const float DeltaMs)
 	{
+		m_PerFrameData.deltaMs = DeltaMs;
+		m_PerFrameData.time = Application::Get().GetFrameTimer().Seconds();
+		D3D11_MAPPED_SUBRESOURCE Mapped;
+		HRESULT hr = m_pDeviceContext->Map(m_pConstantBufferPerFrame.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &Mapped);
+		CopyMemory(Mapped.pData, &m_PerFrameData, sizeof(CB_PS_VS_PerFrame));
+		m_pDeviceContext->Unmap(m_pConstantBufferPerFrame.Get(), 0);
 	}
 
 	void Direct3D11Context::OnPreFrameRenderImpl()
@@ -107,6 +114,8 @@ namespace Insight {
 		m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 		m_pDeviceContext->PSSetSamplers(0, 1, m_pSamplerStateLinearWrap.GetAddressOf());
 
+		m_pDeviceContext->VSSetConstantBuffers(0, 1, m_pConstantBufferPerFrame.GetAddressOf());
+
 		m_pDeviceContext->VSSetShader(m_VertexShader.GetShader(), nullptr, 0);
 		m_pDeviceContext->PSSetShader(m_PixelShader.GetShader(), nullptr, 0);
 		m_Texture->Bind();
@@ -115,7 +124,8 @@ namespace Insight {
 		UINT Offset = 0U;
 		// Red Triangle
 		m_pDeviceContext->IASetVertexBuffers(0, 1, m_pVertexBuffer.GetAddressOf(), &Stride, &Offset);
-		m_pDeviceContext->Draw(6, 0);
+		m_pDeviceContext->IASetIndexBuffer(m_pIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+		m_pDeviceContext->DrawIndexed(6, 0, 0);
 
 	}
 
@@ -283,6 +293,20 @@ namespace Insight {
 
 	}
 
+	void Direct3D11Context::CreateConstantBufferViews()
+	{
+		D3D11_BUFFER_DESC PerFrameCBDesc = {};
+		PerFrameCBDesc.Usage = D3D11_USAGE_DYNAMIC;
+		PerFrameCBDesc.BindFlags = D3D10_BIND_CONSTANT_BUFFER;
+		PerFrameCBDesc.CPUAccessFlags = D3D10_CPU_ACCESS_WRITE;
+		PerFrameCBDesc.MiscFlags = 0U;
+		PerFrameCBDesc.ByteWidth = static_cast<UINT>(sizeof(CB_PS_VS_PerFrame) + (16 - sizeof(CB_PS_VS_PerFrame) % 16));
+		PerFrameCBDesc.StructureByteStride = 0U;
+		HRESULT hr = m_pDevice->CreateBuffer(&PerFrameCBDesc, 0, m_pConstantBufferPerFrame.GetAddressOf());
+		ThrowIfFailed(hr, "Failed to create per frame constant buffer for D3D 11.");
+
+	}
+
 	void Direct3D11Context::CreateViewports()
 	{
 		m_ScenePassViewport = {};
@@ -319,12 +343,9 @@ namespace Insight {
 				{ ieFloat3{-0.5f, -0.5f, 1.0f}, ieFloat2{0.0f, 1.0f} },// Bottom Left
 				{ ieFloat3{-0.5f, 0.5f, 1.0f}, ieFloat2{0.0f, 0.0f} }, // Top Left
 				{ ieFloat3{0.5f, 0.5f, 1.0f}, ieFloat2{1.0f, 0.0f} }, // Top Right
-
-				{ ieFloat3{-0.5f, -0.5f, 1.0f }, ieFloat2{ 0.0f, 1.0f } }, // Bottom Left
-				{ ieFloat3{0.5f, 0.5f, 1.0f}, ieFloat2{1.0f, 0.0f} }, // Top Right
 				{ ieFloat3{0.5f, -0.5f, 1.0f}, ieFloat2{1.0f, 1.0f} } // Bottom Right
-				
 			};
+
 			D3D11_BUFFER_DESC VertexBufferDesc = {};
 			VertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 			VertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -337,6 +358,24 @@ namespace Insight {
 
 			hr = m_pDevice->CreateBuffer(&VertexBufferDesc, &VertexBufferData, m_pVertexBuffer.GetAddressOf());
 			ThrowIfFailed(hr, "Failed to create vertex buffer for D3D11 context.");
+
+			DWORD Indices[] =
+			{
+				0, 1, 2,
+				0, 2, 3
+			};
+
+			D3D11_BUFFER_DESC IndexBufferDesc = {};
+			IndexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+			IndexBufferDesc.ByteWidth = sizeof(DWORD) * ARRAYSIZE(Indices);
+			IndexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+			IndexBufferDesc.CPUAccessFlags = 0U;
+			IndexBufferDesc.MiscFlags = 0U;
+
+			D3D11_SUBRESOURCE_DATA IndexBufferData = {};
+			IndexBufferData.pSysMem = Indices;
+			hr = m_pDevice->CreateBuffer(&IndexBufferDesc, &IndexBufferData, m_pIndexBuffer.GetAddressOf());
+			ThrowIfFailed(hr, "Failed to create D3D 11 index buffer");
 		}
 
 		// Texture
