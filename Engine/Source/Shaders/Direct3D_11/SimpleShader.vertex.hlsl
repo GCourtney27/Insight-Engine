@@ -5,7 +5,17 @@ struct VS_IN
     float2 TexCoord : TEXCOORDS;
 };
 
-float4 main(VS_IN vs_in) : SV_POSITION
+struct VS_OUT
 {
-    return float4(vs_in.Vertex, 1.0);
+    float4 sv_Position : SV_POSITION;
+    float2 TexCoords : TEXCOORDS;
+};
+
+VS_OUT main(VS_IN vs_in)
+{
+    VS_OUT vs_out;
+    vs_out.sv_Position = float4(vs_in.Vertex, 1.0);
+    vs_out.TexCoords = vs_in.TexCoord;
+    
+    return vs_out;
 }

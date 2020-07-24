@@ -22,10 +22,10 @@ namespace Insight {
 
 
 
-	Direct3D11Context::Direct3D11Context(WindowsWindow* WindowHandle) 
-		:	m_pWindowHandle(&WindowHandle->GetWindowHandleReference()),
-			m_pWindow(WindowHandle),
-			Renderer(WindowHandle->GetWidth(), WindowHandle->GetHeight(), false)
+	Direct3D11Context::Direct3D11Context(WindowsWindow* WindowHandle)
+		: m_pWindowHandle(&WindowHandle->GetWindowHandleReference()),
+		m_pWindow(WindowHandle),
+		Renderer(WindowHandle->GetWidth(), WindowHandle->GetHeight(), false)
 	{
 	}
 
@@ -97,7 +97,7 @@ namespace Insight {
 	void Direct3D11Context::OnRenderImpl()
 	{
 		m_pDeviceContext->IASetInputLayout(m_VertexShader.GetInputLayout());
-		m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_POINTLIST);
+		m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		m_pDeviceContext->VSSetShader(m_VertexShader.GetShader(), nullptr, 0);
 		m_pDeviceContext->PSSetShader(m_PixelShader.GetShader(), nullptr, 0);
@@ -157,7 +157,7 @@ namespace Insight {
 		{
 			Desc = {};
 			pAdapter->GetDesc(&Desc);
-			
+
 			// Make sure we get the video card that is not a software adapter
 			// and it has the most video memory. Likly a software adapter if 
 			// the device has no system or dedicated video memory.
@@ -197,7 +197,7 @@ namespace Insight {
 		m_SampleDesc = {};
 		m_SampleDesc.Count = 1;
 		m_SampleDesc.Quality = 0;
-		
+
 		// TODO Query for HDR support
 		DXGI_SWAP_CHAIN_DESC SwapChainDesc = { };
 		SwapChainDesc.BufferDesc.Width = m_WindowWidth;
@@ -217,16 +217,16 @@ namespace Insight {
 
 		hr = ::D3D11CreateDeviceAndSwapChain(
 			m_pAdapter.Get(),
-			D3D_DRIVER_TYPE_UNKNOWN, 
-			NULL, 
+			D3D_DRIVER_TYPE_UNKNOWN,
+			NULL,
 			DeviceCreateFlags,
-			NULL, 
-			0, 
-			D3D11_SDK_VERSION, 
+			NULL,
+			0,
+			D3D11_SDK_VERSION,
 			&SwapChainDesc,
-			&m_pSwapChain, 
-			&m_pDevice, 
-			NULL, 
+			&m_pSwapChain,
+			&m_pDevice,
+			NULL,
 			&m_pDeviceContext
 		);
 		ThrowIfFailed(hr, "Failed to create swapchain for D3D 11 context");
@@ -261,9 +261,9 @@ namespace Insight {
 	{
 		ScreenSpaceVertex Verticies[] =
 		{
-			{ ieFloat3{-0.5f, 0.0f, 0.0f}, ieFloat2{0.0f, 0.0f} },
-			{ ieFloat3{0.5f, 0.0f, 0.0f}, ieFloat2{0.0f, 0.0f} },
-			{ ieFloat3{0.0f, 0.5f, 0.0f}, ieFloat2{0.0f, 0.0f} }
+			{ ieFloat3{-0.5f, -0.5f, 0.0f}, ieFloat2{0.0f, 0.0f} },// Left
+			{ ieFloat3{0.0f, 0.5f, 0.0f}, ieFloat2{1.0f, 0.0f} }, // Top
+			{ ieFloat3{0.5f, -0.5f, 0.0f}, ieFloat2{0.0f, 1.0f} } // Right
 		};
 		D3D11_BUFFER_DESC VertexBufferDesc = {};
 		VertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -289,7 +289,7 @@ namespace Insight {
 		LPCWSTR PixelShaderFolder = L"SimpleShader.pixel.cso";
 #endif 
 
-		D3D11_INPUT_ELEMENT_DESC InputLayout[] = 
+		D3D11_INPUT_ELEMENT_DESC InputLayout[] =
 		{
 			{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
 			{"TEXCOORDS", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
