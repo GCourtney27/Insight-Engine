@@ -21,4 +21,5 @@ namespace Insight {
 		ieFloat2 TexCoords	 = {};
 	};
 
+
 }

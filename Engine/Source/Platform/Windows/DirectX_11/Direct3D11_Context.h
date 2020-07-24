@@ -8,6 +8,9 @@
 #include "Platform/Windows/DirectX_11/D3D11_Helper.h"
 #include "Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
 
+// TEMP
+#include "Platform/Windows/DirectX_11/D3D11_Shader.h"
+
 using Microsoft::WRL::ComPtr;
 
 namespace Insight {
@@ -72,6 +75,11 @@ namespace Insight {
 		void GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter** ppAdapter);
 		void CreateDeviceAndSwapChain();
 		void CreateRTVs();
+		void CreateViewports();
+
+		void LoadAssets();
+		// TEMP
+		void InitShadersLayout();
 
 	private:
 		HWND*				m_pWindowHandle = nullptr;
@@ -96,6 +104,14 @@ namespace Insight {
 		D3D_FEATURE_LEVEL m_DeviceMaxSupportedFeatureLevel;
 		DXGI_SAMPLE_DESC m_SampleDesc = {};
 
+		D3D11_VIEWPORT m_ScenePassViewport;
+
+		// TEMP
+		VertexShader m_VertexShader; // Should be appart of the pipeline state
+		PixelShader m_PixelShader; // Should be appart of the pipeline state
+
+		// TEMP 
+		ComPtr<ID3D11Buffer> m_pVertexBuffer;
 	};
 
 }

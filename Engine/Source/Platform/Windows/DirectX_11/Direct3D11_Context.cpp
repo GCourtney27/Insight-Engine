@@ -40,6 +40,9 @@ namespace Insight {
 		CreateDXGIFactory();
 		CreateDeviceAndSwapChain();
 		CreateRTVs();
+		InitShadersLayout();
+		CreateViewports();
+		LoadAssets();
 
 		return true;
 	}
@@ -87,12 +90,24 @@ namespace Insight {
 	void Direct3D11Context::OnPreFrameRenderImpl()
 	{
 		m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), nullptr);
-
+		m_pDeviceContext->RSSetViewports(1, &m_ScenePassViewport);
+		m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), m_ClearColor);
 	}
 
 	void Direct3D11Context::OnRenderImpl()
 	{
-		m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), m_ClearColor);
+		m_pDeviceContext->IASetInputLayout(m_VertexShader.GetInputLayout());
+		m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_POINTLIST);
+
+		m_pDeviceContext->VSSetShader(m_VertexShader.GetShader(), nullptr, 0);
+		m_pDeviceContext->PSSetShader(m_PixelShader.GetShader(), nullptr, 0);
+
+		UINT Stride = sizeof(ScreenSpaceVertex);
+		UINT Offset = 0U;
+		m_pDeviceContext->IASetVertexBuffers(0, 1, m_pVertexBuffer.GetAddressOf(), &Stride, &Offset);
+
+		m_pDeviceContext->Draw(3, 0);
+
 	}
 
 	void Direct3D11Context::OnMidFrameRenderImpl()
@@ -230,5 +245,59 @@ namespace Insight {
 		hr = m_pDevice->CreateRenderTargetView(m_pBackBuffer.Get(), NULL, m_pRenderTargetView.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create render target view for D3D 11 context.");
 	}
+
+	void Direct3D11Context::CreateViewports()
+	{
+		m_ScenePassViewport = {};
+		m_ScenePassViewport.TopLeftX = 0.0f;
+		m_ScenePassViewport.TopLeftY = 0.0f;
+		m_ScenePassViewport.Width = static_cast<FLOAT>(m_pWindow->GetWidth());
+		m_ScenePassViewport.Height = static_cast<FLOAT>(m_pWindow->GetHeight());
+		m_ScenePassViewport.MinDepth = 0.0f;
+		m_ScenePassViewport.MaxDepth = 1.0f;
+	}
+
+	void Direct3D11Context::LoadAssets()
+	{
+		ScreenSpaceVertex Verticies[] =
+		{
+			{ ieFloat3{-0.5f, 0.0f, 0.0f}, ieFloat2{0.0f, 0.0f} },
+			{ ieFloat3{0.5f, 0.0f, 0.0f}, ieFloat2{0.0f, 0.0f} },
+			{ ieFloat3{0.0f, 0.5f, 0.0f}, ieFloat2{0.0f, 0.0f} }
+		};
+		D3D11_BUFFER_DESC VertexBufferDesc = {};
+		VertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		VertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		VertexBufferDesc.ByteWidth = sizeof(ScreenSpaceVertex) * ARRAYSIZE(Verticies);
+		VertexBufferDesc.CPUAccessFlags = 0;
+		VertexBufferDesc.MiscFlags = 0;
+
+		D3D11_SUBRESOURCE_DATA VertexBufferData = {};
+		VertexBufferData.pSysMem = Verticies;
+
+		HRESULT hr = m_pDevice->CreateBuffer(&VertexBufferDesc, &VertexBufferData, m_pVertexBuffer.GetAddressOf());
+		ThrowIfFailed(hr, "Failed to create vertex buffer for D3D11 context.");
+	}
+
+	void Direct3D11Context::InitShadersLayout()
+	{
+#if defined IE_DEBUG
+		LPCWSTR VertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/SimpleShader.vertex.cso";
+		LPCWSTR PixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/SimpleShader.pixel.cso";
+#elif defined IE_RELEASE || defined IE_GAME_DIST || defined IE_ENGINE_DIST
+		LPCWSTR VertexShaderFolder = L"SimpleShader.vertex.cso";
+		LPCWSTR PixelShaderFolder = L"SimpleShader.pixel.cso";
+#endif 
+
+		D3D11_INPUT_ELEMENT_DESC InputLayout[] = 
+		{
+			{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"TEXCOORDS", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		};
+		m_VertexShader.Init(m_pDevice, VertexShaderFolder, InputLayout, ARRAYSIZE(InputLayout));
+		m_PixelShader.Init(m_pDevice, PixelShaderFolder);
+
+	}
+
 
 }

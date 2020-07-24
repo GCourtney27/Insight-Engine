@@ -2,7 +2,7 @@
 -- Tokens https://github.com/premake/premake-core/wiki/Tokens
 
 workspace ("Insight")
-	architecture "x64"
+	architecture ("x86_64")
 
 	configurations
 	{

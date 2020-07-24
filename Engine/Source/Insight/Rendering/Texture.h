@@ -70,11 +70,11 @@ namespace Insight {
 		// Get the Direc3D 12 resource description for this texture.
 		inline D3D12_RESOURCE_DESC GetD3D12ResourceDescription() { return m_D3DTextureDesc; }
 		// Get the width of the texture in texels.
-		inline UINT64 GetWidth() const { return m_D3DTextureDesc.Width; }
+		inline uint64_t GetWidth() const { return m_D3DTextureDesc.Width; }
 		// Get the height of the texture in texels.
-		inline UINT64 GetHeight() const { return m_D3DTextureDesc.Height; }
+		inline uint64_t GetHeight() const { return m_D3DTextureDesc.Height; }
 		// Get the number of mip levels this texture has access too.
-		inline UINT16 GetMipLevels() const { return m_D3DTextureDesc.MipLevels; }
+		inline uint64_t GetMipLevels() const { return m_D3DTextureDesc.MipLevels; }
 		// Get the Direc3D pixel format of this texture.
 		inline DXGI_FORMAT GetFormat() const { return m_D3DTextureDesc.Format; }
 		
@@ -96,7 +96,7 @@ namespace Insight {
 
 		IE_TEXTURE_INFO				m_TextureInfo = {};
 
-		UINT						m_RootParamIndex = 0U;
+		uint32_t						m_RootParamIndex = 0U;
 	private:
 		static uint32_t s_NumSceneTextures;
 	};
