@@ -80,6 +80,7 @@ namespace Insight {
 		HMENU	m_hEditorSubMenu;
 		HMENU	m_hGraphicsSubMenu;
 		HMENU	m_hGraphicsVisualizeSubMenu;
+		HMENU	m_hGraphicsCurrentRenderContextSubMenu;
 
 		HINSTANCE* m_WindowsAppInstance;
 		int m_nCmdShowArgs;

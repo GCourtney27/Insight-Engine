@@ -36,7 +36,7 @@ namespace Insight {
 		virtual void OnImGuiRender() override;
 
 	private:
-		Texture m_Diffuse;
+		Texture* m_Diffuse;
 
 	};
 

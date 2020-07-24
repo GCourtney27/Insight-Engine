@@ -5,9 +5,7 @@
 #include "Insight/Runtime/Components/Actor_Component.h"
 #include "Insight/Runtime/Components/Static_Mesh_Component.h"
 
-#include "Insight/Rendering/Renderer.h"
-
-// TEMP INCLUDE Because textures use the D3D12 graphics context
+#include "Platform/Windows/DirectX_12/D3D12_Texture.h"
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 #include "Insight/Systems/File_System.h"
@@ -33,8 +31,7 @@ namespace Insight {
 		const rapidjson::Value& sky = jsonSkySphere["Sky"];
 		json::get_string(sky[0], "Diffuse", diffuseMap);
 
-		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
-		CDescriptorHeapWrapper& cbvSrvheap = graphicsContext->GetCBVSRVDescriptorHeap();
+		
 
 		Texture::IE_TEXTURE_INFO diffuseInfo;
 		diffuseInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(diffuseMap));
@@ -42,7 +39,22 @@ namespace Insight {
 		diffuseInfo.Type = Texture::eTextureType::SKY_DIFFUSE;
 		diffuseInfo.GenerateMipMaps = true;
 		diffuseInfo.IsCubeMap = true;
-		m_Diffuse.Init(diffuseInfo, cbvSrvheap);
+		
+		switch (Renderer::GetAPI())
+		{
+		case Renderer::eTargetRenderAPI::D3D_11:
+		{
+
+			break;
+		}
+		case Renderer::eTargetRenderAPI::D3D_12:
+		{
+			Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+			CDescriptorHeapWrapper& cbvSrvheap = graphicsContext->GetCBVSRVDescriptorHeap();
+			m_Diffuse = new ieD3D12Texture(diffuseInfo, cbvSrvheap);
+			break;
+		}	
+		}
 
 		return true;
 	}
@@ -98,7 +110,7 @@ namespace Insight {
 			{
 				Writer.StartObject();
 				Writer.Key("Diffuse");
-				Writer.String(m_Diffuse.GetAssetDirectoryRelPath().c_str());
+				Writer.String(m_Diffuse->GetAssetDirectoryRelPath().c_str());
 				Writer.EndObject();
 			}
 			Writer.EndArray();
@@ -140,7 +152,7 @@ namespace Insight {
 
 	void ASkySphere::RenderSky(ComPtr<ID3D12GraphicsCommandList> commandList)
 	{
-		m_Diffuse.Bind();
+		m_Diffuse->Bind();
 		Renderer::RenderSkySphere();
 	}
 
@@ -150,7 +162,8 @@ namespace Insight {
 
 	void ASkySphere::Destroy()
 	{
-		Renderer::AddSkySphere(this);
+		//Renderer::AddSkySphere(this);
+		delete m_Diffuse;
 	}
 
 	void ASkySphere::OnEvent(Event& e)

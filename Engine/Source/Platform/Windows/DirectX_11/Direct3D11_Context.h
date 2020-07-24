@@ -32,7 +32,6 @@ namespace Insight {
 	{
 		friend class Renderer;
 	public:
-
 		ID3D11Device& GetDevice() { return *m_pDevice.Get(); }
 		ID3D11DeviceContext& GetDeviceContext() { return *m_pDeviceContext.Get(); }
 
@@ -75,11 +74,14 @@ namespace Insight {
 		void GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter** ppAdapter);
 		void CreateDeviceAndSwapChain();
 		void CreateRTVs();
+		void CreateDSV();
 		void CreateViewports();
+		void CreateSamplers();
 
 		void LoadAssets();
 		// TEMP
 		void InitShadersLayout();
+		void CreateRasterizer();
 
 	private:
 		HWND*				m_pWindowHandle = nullptr;
@@ -101,10 +103,18 @@ namespace Insight {
 		ComPtr<ID3D11RenderTargetView> m_pRenderTargetView;
 		ComPtr<ID3D11Texture2D> m_pBackBuffer;
 
+		ComPtr<ID3D11RasterizerState> m_pRasterizarState;
+		ComPtr<ID3D11DepthStencilView> m_pDepthStencilView;
+		ComPtr<ID3D11Texture2D> m_pDepthStencilTexture;
+		ComPtr<ID3D11DepthStencilState> m_pDepthStencilState;
+
+		ComPtr<ID3D11SamplerState> m_pSamplerStateLinearWrap;
+
 		D3D_FEATURE_LEVEL m_DeviceMaxSupportedFeatureLevel;
 		DXGI_SAMPLE_DESC m_SampleDesc = {};
 
 		D3D11_VIEWPORT m_ScenePassViewport;
+
 
 		// TEMP
 		VertexShader m_VertexShader; // Should be appart of the pipeline state
@@ -112,6 +122,7 @@ namespace Insight {
 
 		// TEMP 
 		ComPtr<ID3D11Buffer> m_pVertexBuffer;
+		ComPtr<ID3D11ShaderResourceView> m_pTextureView;
 	};
 
 }

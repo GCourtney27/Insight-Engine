@@ -115,7 +115,7 @@ namespace Insight {
 		// in the scene at any given time.
 		static void AddSkyLight(ASkyLight* skyLight) { if (!s_Instance->m_SkyLight) { s_Instance->m_SkyLight = skyLight; } }
 
-	private:
+	protected:
 		virtual bool InitImpl() = 0;
 		virtual void DestroyImpl() = 0;
 		virtual bool PostInitImpl() = 0;

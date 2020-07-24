@@ -328,6 +328,18 @@ namespace Insight {
 				IE_CORE_INFO("Visualize ambient occlusion buffer");
 				break;
 			}
+			case IDM_RENDERER_D3D_11:
+			{
+				IE_CORE_INFO("Switch render context to D3D 11");
+
+				break;
+			}
+			case IDM_RENDERER_D3D_12:
+			{
+				IE_CORE_INFO("Switch render context to D3D 12");
+
+				break;
+			}
 			default:
 				return DefWindowProcW(hWnd, uMsg, wParam, lParam);
 			}
@@ -487,17 +499,21 @@ namespace Insight {
 			m_Data.hEditorSubMenu = m_hEditorSubMenu;
 		}
 
-		return;
 		// Graphics SubMenu
 		{
 			m_hGraphicsSubMenu = ::CreateMenu();
 			m_hGraphicsVisualizeSubMenu = ::CreateMenu();
 
+			m_hGraphicsCurrentRenderContextSubMenu = ::CreateMenu();
+			::AppendMenuW(m_hGraphicsSubMenu, MF_POPUP, (UINT_PTR)m_hGraphicsCurrentRenderContextSubMenu, L"&Renderer");
+			::AppendMenuW(m_hGraphicsCurrentRenderContextSubMenu, MF_UNCHECKED, IDM_RENDERER_D3D_11, L"&Direct3D 11");
+			::AppendMenuW(m_hGraphicsCurrentRenderContextSubMenu, MF_UNCHECKED, IDM_RENDERER_D3D_12, L"&Direct3D 12");
+
 			::AppendMenuW(m_hMenuBar, MF_POPUP, (UINT_PTR)m_hGraphicsSubMenu, L"&Graphics");
 			//AppendMenuW(m_GraphicsSubMenuHandle, MF_STRING, (UINT_PTR)m_GraphicsSubMenuHandle, L"&Reload Post-Fx Pass Shader");
 			//AppendMenuW(m_GraphicsSubMenuHandle, MF_STRING, (UINT_PTR)m_GraphicsSubMenuHandle, L"&Reload Geometry Pass Shader");
 			//AppendMenuW(m_GraphicsSubMenuHandle, MF_STRING, (UINT_PTR)m_GraphicsSubMenuHandle, L"&Reload Light Pass Shader");
-			::AppendMenuW(m_hGraphicsSubMenu, MF_POPUP, (UINT_PTR)m_hGraphicsVisualizeSubMenu, L"&Visualize G-Buffer");
+			/*::AppendMenuW(m_hGraphicsSubMenu, MF_POPUP, (UINT_PTR)m_hGraphicsVisualizeSubMenu, L"&Visualize G-Buffer");
 			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_FINAL_RESULT, L"&Final Result");
 			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
 			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_LIGHT_PASS_RESULT, L"&Light Pass Result");
@@ -511,7 +527,7 @@ namespace Insight {
 			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_METALLIC_BUFFER, L"&Metallic");
 			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
 			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_AO_BUFFER, L"&Ambient Occlusion (PBR Texture)");
-			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
+			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);*/
 
 			m_Data.hGraphicsVisualizeSubMenu = m_hGraphicsVisualizeSubMenu;
 		}

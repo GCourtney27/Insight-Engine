@@ -35,9 +35,9 @@ namespace Insight {
 		/*CB_PS_SpotLight GetConstantBuffer() { return m_ShaderCB; }*/
 
 	private:
-		Texture m_Irradiance;
-		Texture m_Environment;
-		Texture m_BrdfLUT;
+		Texture* m_Irradiance;
+		Texture* m_Environment;
+		Texture* m_BrdfLUT;
 	};
 
 

@@ -43,7 +43,7 @@ namespace Insight {
 
 		Renderer::eTargetRenderAPI API = Renderer::eTargetRenderAPI::D3D_11;
 
-//#define TEST_D3D12
+#define TEST_D3D12
 
 #if defined TEST_D3D12
 		API = Renderer::eTargetRenderAPI::D3D_12;
