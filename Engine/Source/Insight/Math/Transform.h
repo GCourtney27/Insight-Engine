@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Insight/Core.h>
-#include "Insight/Math/ieVectors.h"
-#include "Insight/Math/ieMatricies.h"
+#include "Insight/Math/ie_Vectors.h"
+#include "Insight/Math/ie_Matricies.h"
 
 namespace Insight {
 

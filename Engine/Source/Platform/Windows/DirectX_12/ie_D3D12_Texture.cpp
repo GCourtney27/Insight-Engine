@@ -1,8 +1,12 @@
 #include <ie_pch.h>
 
-#include "D3D12_Texture.h"
+#include "ie_D3D12_Texture.h"
 
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
+
+#include <DirectX12/TK/Inc/DDSTextureLoader.h>
+#include <DirectX12/TK/Inc/WICTextureLoader.h>
+#include "DirectX12/TK/Inc/ResourceUploadBatch.h"
 
 #define CBVSRV_HEAP_TEXTURE_START 7
 

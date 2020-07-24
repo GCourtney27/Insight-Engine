@@ -10,6 +10,9 @@ namespace Insight {
 	class INSIGHT_API ieD3D12Texture : public Texture
 	{
 	public:
+		typedef UINT32 SRVHeapTextureHandle;
+
+	public:
 		ieD3D12Texture(IE_TEXTURE_INFO createInfo, CDescriptorHeapWrapper& srvHeapHandle);
 		virtual ~ieD3D12Texture();
 
@@ -19,7 +22,7 @@ namespace Insight {
 		virtual void Bind() override;
 
 		// Get the heap handle associated with the CBV/SRV heap bound to the pipeline.
-		inline const TextureHandle GetSrvHeapHandle() { return m_GPUHeapIndex; }
+		inline const SRVHeapTextureHandle GetSrvHeapHandle() { return m_GPUHeapIndex; }
 		// Get the Direc3D 12 resource description for this texture.
 		inline D3D12_RESOURCE_DESC GetD3D12ResourceDescription() { return m_D3DTextureDesc; }
 		// Get the width of the texture in texels.
@@ -47,7 +50,7 @@ namespace Insight {
 
 		ComPtr<ID3D12Resource>		m_pTexture;
 		D3D12_RESOURCE_DESC			m_D3DTextureDesc = {};
-		TextureHandle				m_GPUHeapIndex = 0U;
+		SRVHeapTextureHandle				m_GPUHeapIndex = 0U;
 
 		IE_TEXTURE_INFO				m_TextureInfo = {};
 

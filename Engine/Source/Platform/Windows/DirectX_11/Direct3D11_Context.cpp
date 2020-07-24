@@ -109,6 +109,7 @@ namespace Insight {
 
 		m_pDeviceContext->VSSetShader(m_VertexShader.GetShader(), nullptr, 0);
 		m_pDeviceContext->PSSetShader(m_PixelShader.GetShader(), nullptr, 0);
+		m_Texture->Bind();
 
 		UINT Stride = sizeof(ScreenSpaceVertex);
 		UINT Offset = 0U;
@@ -340,7 +341,9 @@ namespace Insight {
 
 		// Texture
 		{
-			//CreateWICTextureFromFile()
+			Texture::IE_TEXTURE_INFO TextureInfo = {};
+			TextureInfo.Type = Texture::eTextureType::ALBEDO;
+			m_Texture = new ieD3D11Texture(TextureInfo);
 		}
 
 	}

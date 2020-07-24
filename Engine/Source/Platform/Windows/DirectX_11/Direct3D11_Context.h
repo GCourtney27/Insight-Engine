@@ -10,6 +10,7 @@
 
 // TEMP
 #include "Platform/Windows/DirectX_11/D3D11_Shader.h"
+#include "Platform/Windows/DirectX_11/ie_D3D11_Texture.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -123,6 +124,8 @@ namespace Insight {
 		// TEMP 
 		ComPtr<ID3D11Buffer> m_pVertexBuffer;
 		ComPtr<ID3D11ShaderResourceView> m_pTextureView;
+		Texture* m_Texture;
+
 	};
 
 }

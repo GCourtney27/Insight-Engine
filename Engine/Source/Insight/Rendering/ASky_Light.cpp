@@ -5,7 +5,7 @@
 #include "Insight/Runtime/Components/Actor_Component.h"
 #include "Insight/Rendering/Renderer.h"
 
-#include "Platform/Windows/DirectX_12/D3D12_Texture.h"
+#include "Platform/Windows/DirectX_12/ie_D3D12_Texture.h"
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 #include "Insight/Systems/File_System.h"

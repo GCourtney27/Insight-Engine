@@ -20,8 +20,7 @@ csharpAssemblyProjectName = "Assembly-CSharp"
 IncludeDir = {}
 IncludeDir["ImGui"] = "Engine/Vendor/imgui"
 IncludeDir["assimp"] = "Engine/Vendor/assimp-3.3.1/include"
-IncludeDir["DX12TK"] = "Engine/Vendor/Microsoft/DirectX12/TK/Inc"
-IncludeDir["DX11TK"] = "Engine/Vendor/Microsoft/DirectX11/TK/Inc"
+IncludeDir["Microsoft"] = "Engine/Vendor/Microsoft/"
 IncludeDir["ImGuizmo"] = "Engine/Vendor/ImGuizmo"
 IncludeDir["rapidjson"] = "Engine/Vendor/rapidjson"
 IncludeDir["spdlog"] = "Engine/Vendor/spdlog"
@@ -76,8 +75,7 @@ project ("Engine")
 		"%{IncludeDir.spdlog}/include/",
 		"%{IncludeDir.ImGuizmo}/",
 		"%{IncludeDir.Mono}/",
-		"%{IncludeDir.DX12TK}/",
-		"%{IncludeDir.DX11TK}/",
+		"%{IncludeDir.Microsoft}/",
 		"%{IncludeDir.ImGui}/",
 		"%{IncludeDir.assimp}/",
 		"%{prj.name}/Source/",
@@ -221,8 +219,7 @@ project (gameName)
 	includedirs
 	{
 		"Engine/Vendor/assimp-3.3.1/include",
-		"Engine/Vendor/Microsoft/DirectX12/TK/Inc",
-		"Engine/Vendor/Microsoft/DirectX12",
+		"Engine/Vendor/Microsoft/",
 		"Engine/Vendor/Nvidia/DirectX12",
 		"Engine/Vendor/spdlog/include",
 		"Engine/Vendor/rapidjson/include",

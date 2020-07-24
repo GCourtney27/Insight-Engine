@@ -9,9 +9,7 @@ namespace Insight {
 	class Texture
 	{
 	public:
-
-		typedef UINT32 ID;
-		typedef UINT32 TextureHandle;
+		typedef uint32_t ID;
 
 		enum eTextureType
 		{

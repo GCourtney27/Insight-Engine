@@ -7,7 +7,7 @@
 
 // TEMP
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
-#include "Platform/Windows/DirectX_12/D3D12_Texture.h"
+#include "Platform/Windows/DirectX_12/ie_D3D12_Texture.h"
 
 namespace Insight {
 	
