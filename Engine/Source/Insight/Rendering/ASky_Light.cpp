@@ -6,6 +6,7 @@
 #include "Insight/Rendering/Renderer.h"
 
 #include "Platform/Windows/DirectX_12/ie_D3D12_Texture.h"
+#include "Platform/Windows/DirectX_11/ie_D3D11_Texture.h"
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 #include "Insight/Systems/File_System.h"
@@ -61,7 +62,9 @@ namespace Insight {
 		{
 		case Renderer::eTargetRenderAPI::D3D_11:
 		{
-
+			m_BrdfLUT = new ieD3D11Texture(brdfInfo);
+			m_Irradiance = new ieD3D11Texture(irMapInfo);
+			m_Environment = new ieD3D11Texture(envMapInfo);
 			break;
 		}
 		case Renderer::eTargetRenderAPI::D3D_12:
@@ -172,9 +175,9 @@ namespace Insight {
 
 	void ASkyLight::OnRender()
 	{
-		//m_Environment->Bind();
-		//m_Irradiance->Bind();
-		//m_BrdfLUT->Bind();
+		m_Environment->Bind();
+		m_Irradiance->Bind();
+		m_BrdfLUT->Bind();
 	}
 
 	void ASkyLight::Destroy()

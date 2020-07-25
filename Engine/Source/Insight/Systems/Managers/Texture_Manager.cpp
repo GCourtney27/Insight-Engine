@@ -5,9 +5,9 @@
 #include "Insight/Utilities/String_Helper.h"
 #include "Insight/Rendering/Renderer.h"
 
-// TEMP
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 #include "Platform/Windows/DirectX_12/ie_D3D12_Texture.h"
+#include "Platform/Windows/DirectX_11/ie_D3D11_Texture.h"
 
 namespace Insight {
 	
@@ -182,7 +182,38 @@ namespace Insight {
 		{
 		case Renderer::eTargetRenderAPI::D3D_11:
 		{
-			// TODO Create ieD3D11Texture
+			switch (texInfo.Type) {
+			case Texture::eTextureType::ALBEDO:
+			{
+				m_AlbedoTextures.push_back(make_shared<ieD3D11Texture>(texInfo));
+				break;
+			}
+			case Texture::eTextureType::NORMAL:
+			{
+				m_NormalTextures.push_back(make_shared<ieD3D11Texture>(texInfo));
+				break;
+			}
+			case Texture::eTextureType::ROUGHNESS:
+			{
+				m_RoughnessTextures.push_back(make_shared<ieD3D11Texture>(texInfo));
+				break;
+			}
+			case Texture::eTextureType::METALLIC:
+			{
+				m_MetallicTextures.push_back(make_shared<ieD3D11Texture>(texInfo));
+				break;
+			}
+			case Texture::eTextureType::AO:
+			{
+				m_AOTextures.push_back(make_shared<ieD3D11Texture>(texInfo));
+				break;
+			}
+			default:
+			{
+				IE_CORE_WARN("Failed to identify texture to create with name of {0} - ID({1})", texInfo.DisplayName, texInfo.Id);
+				break;
+			}
+			}
 			break;
 		}
 		case Renderer::eTargetRenderAPI::D3D_12:

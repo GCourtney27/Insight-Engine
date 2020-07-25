@@ -201,7 +201,6 @@ namespace Insight {
 		// Experamental: Multi-threaded model laoding
 		//m_ModelLoadFuture = std::async(std::launch::async, LoadModelAsync, m_pModel, AssesDirectoryRelPath, &m_Material);
 		
-		
 		GeometryManager::RegisterModel(m_pModel);
 	}
 

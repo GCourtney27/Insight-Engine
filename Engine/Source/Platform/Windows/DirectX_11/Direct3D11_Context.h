@@ -127,8 +127,6 @@ namespace Insight {
 		ComPtr<ID3D11Buffer> m_pVertexBuffer;
 		ComPtr<ID3D11Buffer> m_pIndexBuffer;
 
-		Texture* m_Texture;
-
 	};
 
 }

@@ -126,16 +126,8 @@ namespace Insight {
 
 		m_pDeviceContext->VSSetShader(m_VertexShader.GetShader(), nullptr, 0);
 		m_pDeviceContext->PSSetShader(m_PixelShader.GetShader(), nullptr, 0);
-		m_Texture->Bind();
 
 		GeometryManager::Render(eRenderPass::RenderPass_Scene);
-		//UINT Stride = sizeof(ScreenSpaceVertex);
-		//UINT Offset = 0U;
-		//// Red Triangle
-		//m_pDeviceContext->IASetVertexBuffers(0, 1, m_pVertexBuffer.GetAddressOf(), &Stride, &Offset);
-		//m_pDeviceContext->IASetIndexBuffer(m_pIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-		//m_pDeviceContext->DrawIndexed(6, 0, 0);
-
 	}
 
 	void Direct3D11Context::OnMidFrameRenderImpl()
@@ -377,13 +369,6 @@ namespace Insight {
 			IndexBufferData.pSysMem = Indices;
 			hr = m_pDevice->CreateBuffer(&IndexBufferDesc, &IndexBufferData, m_pIndexBuffer.GetAddressOf());
 			ThrowIfFailed(hr, "Failed to create D3D 11 index buffer");
-		}
-
-		// Texture
-		{
-			Texture::IE_TEXTURE_INFO TextureInfo = {};
-			TextureInfo.Type = Texture::eTextureType::ALBEDO;
-			m_Texture = new ieD3D11Texture(TextureInfo);
 		}
 
 	}

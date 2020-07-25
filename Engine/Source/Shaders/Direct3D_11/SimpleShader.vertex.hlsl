@@ -47,9 +47,6 @@ VS_OUT main(VS_IN vs_in)
     vs_out.sv_Position = mul(float4(vs_in.Position, 1.0f), worldViewProjection);
 	
     vs_out.FragPos = worldPos.xyz;
-    
-    //vs_in.Position.y = sin(vs_in.Position.y * time);
-    //vs_out.sv_Position = float4(vs_in.Position, 1.0);
     vs_out.TexCoords = vs_in.TexCoord;
     
     return vs_out;

@@ -20,8 +20,12 @@ namespace Insight {
 		virtual void Bind() override;
 
 	private:
+		// Load  the texture from disk and initialize.
 		bool Init();
-
+		// Load a DDS texture from disk.
+		void InitDDSTexture();
+		// Load  generic texture file from disk.
+		void InitTextureFromFile();
 	private:
 		ComPtr<ID3D11Device> m_pDevice;
 		ComPtr<ID3D11DeviceContext> m_pDeviceContext;

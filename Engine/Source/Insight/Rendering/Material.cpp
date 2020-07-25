@@ -6,9 +6,6 @@
 #include "Insight/Systems/File_System.h"
 #include "Insight/Systems/Managers/Resource_Manager.h"
 
-// TEMP INCLUDE Becasue Tetures still rely on the D3D12 context
-#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
-
 #include "imgui.h"
 
 namespace Insight {
@@ -215,11 +212,11 @@ namespace Insight {
 
 	void Material::BindResources()
 	{
-		//m_AlbedoMap->Bind();
-		//m_NormalMap->Bind();
-		//m_MetallicMap->Bind();
-		//m_RoughnessMap->Bind();
-		//m_AOMap->Bind();
+		m_AlbedoMap->Bind();
+		m_NormalMap->Bind();
+		m_MetallicMap->Bind();
+		m_RoughnessMap->Bind();
+		m_AOMap->Bind();
 	}
 
 }

@@ -6,6 +6,7 @@
 #include "Insight/Runtime/Components/Static_Mesh_Component.h"
 
 #include "Platform/Windows/DirectX_12/ie_D3D12_Texture.h"
+#include "Platform/Windows/DirectX_11/ie_D3D11_Texture.h"
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 #include "Insight/Systems/File_System.h"
@@ -44,7 +45,7 @@ namespace Insight {
 		{
 		case Renderer::eTargetRenderAPI::D3D_11:
 		{
-
+			m_Diffuse = new ieD3D11Texture(diffuseInfo);
 			break;
 		}
 		case Renderer::eTargetRenderAPI::D3D_12:

@@ -54,12 +54,6 @@ namespace Insight {
 			IE_CORE_FATAL(L"Fatal Error: Failed to initiazlize application for Windows.");
 			return false;
 		}
-#if defined TEST_D3D12
-		if (!Init()) { // Disabled for d3d11 impl
-			IE_CORE_FATAL(L"Fatal Error: Failed to initiazlize application for Windows.");
-			return false;
-		}
-#endif
 
 		pWindow->PostInit();
 		return true;
@@ -99,36 +93,22 @@ namespace Insight {
 
 			m_FrameTimer.Tick();
 			const float& DeltaTime = (float)m_FrameTimer.DeltaTime();
-
-#if defined TEST_D3D12
 			m_pWindow->SetWindowTitleFPS(m_FrameTimer.FPS());
-#endif
+
 
 			m_pWindow->OnUpdate(DeltaTime);
-//#if defined TEST_D3D12
-			m_pGameLayer->Update(DeltaTime); // Disabled for d3d11 impl
-//#endif
+			m_pGameLayer->Update(DeltaTime);
 
-#ifndef TEST_D3D12
-			////TEMP
-			//{
-			//	Renderer::OnUpdate(DeltaTime);
-			//	Renderer::OnPreFrameRender();
-			//	Renderer::OnRender();
-			//	Renderer::OnMidFrameRender();
-			//}
-#endif
-
-//#if defined TEST_D3D12
-			for (Layer* layer : m_LayerStack) { // Disabled for d3d11 impl
+			for (Layer* layer : m_LayerStack) { 
 				layer->OnUpdate(DeltaTime);
 			}
 
-			m_pGameLayer->PreRender(); // Disabled for d3d11 impl
-			m_pGameLayer->Render(); // Disabled for d3d11 impl
+			m_pGameLayer->PreRender();
+			m_pGameLayer->Render();
 
 			// Render Editor UI
-			//IE_STRIP_FOR_GAME_DIST( // Disabled for d3d11 impl
+			//IE_STRIP_FOR_GAME_DIST( // TEMP: DISABLE IF D3D11 IS ACTIVE 
+									  // Insight's ImGui implementation doesn't support D3D11 yet
 			//	m_pImGuiLayer->Begin();
 			//	for (Layer* layer : m_LayerStack) {
 			//		layer->OnImGuiRender();
@@ -137,8 +117,7 @@ namespace Insight {
 			//	m_pImGuiLayer->End();
 			//);
 
-			m_pGameLayer->PostRender(); // Disabled for d3d11 impl
-//#endif
+			m_pGameLayer->PostRender();
 			m_pWindow->EndFrame();
 		}
 	}
