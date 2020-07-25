@@ -6,7 +6,7 @@
 #include "Platform/Windows/Error/COM_Exception.h"
 
 #include "Platform/Windows/DirectX_11/D3D11_Helper.h"
-#include "Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
+#include "Platform/Windows/DirectX_11/Constant_Buffer_Wrapper.h"
 
 // TEMP
 #include "Platform/Windows/DirectX_11/D3D11_Shader.h"
@@ -117,8 +117,7 @@ namespace Insight {
 
 		D3D11_VIEWPORT m_ScenePassViewport;
 
-		CB_PS_VS_PerFrame		m_PerFrameData;
-		ComPtr<ID3D11Buffer>	m_pConstantBufferPerFrame;
+		ConstantBuffer<CB_PS_VS_PerFrame>	m_PerFrameData;
 
 		// TEMP
 		VertexShader m_VertexShader; // Should be appart of the pipeline state

@@ -1,6 +1,16 @@
 #pragma once
 #include <DirectXMath.h>
 
+/*
+
+	Constant buffers to be sent to the GPU during draw calls.
+	Nameing convention is as follows:
+	CB_ShaderVisibility_NameOfConstantBuffer
+	
+	Ex) CB_PS_VS_PerObjectAdditives - Is a Constant Buffer (CB) visible to the Vertex Shader (VS) and Pixel Shader (PS) with a name of PerObjectAdditives
+
+*/
+
 struct CB_VS_PerObject
 {
 	DirectX::XMFLOAT4X4 world;

@@ -172,9 +172,9 @@ namespace Insight {
 
 	void ASkyLight::OnRender()
 	{
-		m_Environment->Bind();
-		m_Irradiance->Bind();
-		m_BrdfLUT->Bind();
+		//m_Environment->Bind();
+		//m_Irradiance->Bind();
+		//m_BrdfLUT->Bind();
 	}
 
 	void ASkyLight::Destroy()

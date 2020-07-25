@@ -15,6 +15,7 @@ namespace Insight {
 		m_BufferSize = m_NumVerticies * sizeof(Vertex3D);
 		m_Stride = sizeof(Vertex3D);
 		m_BufferOffset = 0U;
+		m_Verticies = std::move(Verticies);
 
 		CreateResources();
 	}
@@ -32,17 +33,15 @@ namespace Insight {
 
 		Direct3D11Context* D3D11Context = reinterpret_cast<Direct3D11Context*>(&Renderer::Get());
 		
-		D3D11_BUFFER_DESC VertexBufferDesc;
-		ZeroMemory(&VertexBufferDesc, sizeof(VertexBufferDesc));
-
+		D3D11_BUFFER_DESC VertexBufferDesc = {};
+		VertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		VertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 		VertexBufferDesc.ByteWidth = m_Stride * m_NumVerticies;
-		VertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		VertexBufferDesc.CPUAccessFlags = 0;
 		VertexBufferDesc.MiscFlags = 0;
 
 		D3D11_SUBRESOURCE_DATA VertexBufferData;
-		VertexBufferData.pSysMem = reinterpret_cast<void*>(m_Verticies.data());
+		VertexBufferData.pSysMem = m_Verticies.data();
 
 		HRESULT hr = D3D11Context->GetDevice().CreateBuffer(&VertexBufferDesc, &VertexBufferData, &m_pVertexBuffer);
 		ThrowIfFailed(hr, "Failed to create vertex buffer for D3D 11 context.");

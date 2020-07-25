@@ -18,6 +18,13 @@ namespace Insight {
 	private:
 		D3D11GeometryManager() = default;
 		virtual ~D3D11GeometryManager();
+
+	private:
+		ID3D11Device* m_pDevice = nullptr;
+		ID3D11DeviceContext* m_pDeviceContext = nullptr;
+
+		ComPtr<ID3D11Buffer> m_pIntermediateConstantBuffer;
+
 	};
 
 }

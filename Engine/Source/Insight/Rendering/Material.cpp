@@ -215,11 +215,11 @@ namespace Insight {
 
 	void Material::BindResources()
 	{
-		m_AlbedoMap->Bind();
-		m_NormalMap->Bind();
-		m_MetallicMap->Bind();
-		m_RoughnessMap->Bind();
-		m_AOMap->Bind();
+		//m_AlbedoMap->Bind();
+		//m_NormalMap->Bind();
+		//m_MetallicMap->Bind();
+		//m_RoughnessMap->Bind();
+		//m_AOMap->Bind();
 	}
 
 }

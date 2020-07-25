@@ -12,6 +12,8 @@ namespace Insight {
 	{
 	public:
 		typedef std::vector<StrongModelPtr> SceneModels;
+		friend class D3D12GeometryManager;
+		friend class D3D11GeometryManager;
 	public:
 		GeometryManager();
 		virtual ~GeometryManager();

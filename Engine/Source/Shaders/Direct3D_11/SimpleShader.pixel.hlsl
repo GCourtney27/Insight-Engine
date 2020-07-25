@@ -3,6 +3,7 @@ struct PS_IN
 {
     float4 sv_position : SV_POSITION;
     float2 TexCoords : TEXCOORDS;
+    float3 FragPos : FRAGPOS;
 };
 
 Texture2D t_Texture : register(t0);

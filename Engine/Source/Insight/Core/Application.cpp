@@ -50,7 +50,10 @@ namespace Insight {
 #endif
 		Renderer::SetAPIAndCreateContext(API);
 		Renderer::Init();
-
+		if (!Init()) { // Disabled for d3d11 impl
+			IE_CORE_FATAL(L"Fatal Error: Failed to initiazlize application for Windows.");
+			return false;
+		}
 #if defined TEST_D3D12
 		if (!Init()) { // Disabled for d3d11 impl
 			IE_CORE_FATAL(L"Fatal Error: Failed to initiazlize application for Windows.");
@@ -102,21 +105,21 @@ namespace Insight {
 #endif
 
 			m_pWindow->OnUpdate(DeltaTime);
-#if defined TEST_D3D12
+//#if defined TEST_D3D12
 			m_pGameLayer->Update(DeltaTime); // Disabled for d3d11 impl
-#endif
+//#endif
 
 #ifndef TEST_D3D12
-			//TEMP
-			{
-				Renderer::OnUpdate(DeltaTime);
-				Renderer::OnPreFrameRender();
-				Renderer::OnRender();
-				Renderer::OnMidFrameRender();
-			}
+			////TEMP
+			//{
+			//	Renderer::OnUpdate(DeltaTime);
+			//	Renderer::OnPreFrameRender();
+			//	Renderer::OnRender();
+			//	Renderer::OnMidFrameRender();
+			//}
 #endif
 
-#if defined TEST_D3D12
+//#if defined TEST_D3D12
 			for (Layer* layer : m_LayerStack) { // Disabled for d3d11 impl
 				layer->OnUpdate(DeltaTime);
 			}
@@ -125,17 +128,17 @@ namespace Insight {
 			m_pGameLayer->Render(); // Disabled for d3d11 impl
 
 			// Render Editor UI
-			IE_STRIP_FOR_GAME_DIST( // Disabled for d3d11 impl
-				m_pImGuiLayer->Begin();
-				for (Layer* layer : m_LayerStack) {
-					layer->OnImGuiRender();
-				}
-				m_pGameLayer->OnImGuiRender();
-				m_pImGuiLayer->End();
-			);
+			//IE_STRIP_FOR_GAME_DIST( // Disabled for d3d11 impl
+			//	m_pImGuiLayer->Begin();
+			//	for (Layer* layer : m_LayerStack) {
+			//		layer->OnImGuiRender();
+			//	}
+			//	m_pGameLayer->OnImGuiRender();
+			//	m_pImGuiLayer->End();
+			//);
 
 			m_pGameLayer->PostRender(); // Disabled for d3d11 impl
-#endif
+//#endif
 			m_pWindow->EndFrame();
 		}
 	}
@@ -167,7 +170,7 @@ namespace Insight {
 
 	void Application::PushEngineLayers()
 	{
-		IE_STRIP_FOR_GAME_DIST(PushOverlay(m_pImGuiLayer);)
+		//IE_STRIP_FOR_GAME_DIST(PushOverlay(m_pImGuiLayer);)
 		IE_STRIP_FOR_GAME_DIST(PushOverlay(m_pEditorLayer);)
 	}
 

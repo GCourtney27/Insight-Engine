@@ -64,6 +64,7 @@ namespace Insight {
 
 	void Direct3D11Context::DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation)
 	{
+		m_pDeviceContext->DrawIndexed(IndexCountPerInstance, StartIndexLocation, BaseVertexLoaction);
 	}
 
 	void Direct3D11Context::RenderSkySphereImpl()
@@ -85,17 +86,24 @@ namespace Insight {
 
 	bool Direct3D11Context::PostInitImpl()
 	{
-		return false;
+		m_pWorldCamera = &ACamera::Get();
+
+		return true;
 	}
 
 	void Direct3D11Context::OnUpdateImpl(const float DeltaMs)
 	{
-		m_PerFrameData.deltaMs = DeltaMs;
-		m_PerFrameData.time = Application::Get().GetFrameTimer().Seconds();
-		D3D11_MAPPED_SUBRESOURCE Mapped;
-		HRESULT hr = m_pDeviceContext->Map(m_pConstantBufferPerFrame.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &Mapped);
-		CopyMemory(Mapped.pData, &m_PerFrameData, sizeof(CB_PS_VS_PerFrame));
-		m_pDeviceContext->Unmap(m_pConstantBufferPerFrame.Get(), 0);
+		XMFLOAT4X4 viewFloat;
+		XMStoreFloat4x4(&viewFloat, XMMatrixTranspose(m_pWorldCamera->GetViewMatrix()));
+		XMFLOAT4X4 projectionFloat;
+		XMStoreFloat4x4(&projectionFloat, XMMatrixTranspose(m_pWorldCamera->GetProjectionMatrix()));
+
+		m_PerFrameData.Data.deltaMs = DeltaMs;
+		m_PerFrameData.Data.time = static_cast<float>(Application::Get().GetFrameTimer().Seconds());
+		m_PerFrameData.Data.view = viewFloat;
+		m_PerFrameData.Data.projection = projectionFloat;
+		m_PerFrameData.SubmitToGPU();
+
 	}
 
 	void Direct3D11Context::OnPreFrameRenderImpl()
@@ -114,18 +122,19 @@ namespace Insight {
 		m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 		m_pDeviceContext->PSSetSamplers(0, 1, m_pSamplerStateLinearWrap.GetAddressOf());
 
-		m_pDeviceContext->VSSetConstantBuffers(0, 1, m_pConstantBufferPerFrame.GetAddressOf());
+		m_pDeviceContext->VSSetConstantBuffers(1, 1, m_PerFrameData.GetAddressOf());
 
 		m_pDeviceContext->VSSetShader(m_VertexShader.GetShader(), nullptr, 0);
 		m_pDeviceContext->PSSetShader(m_PixelShader.GetShader(), nullptr, 0);
 		m_Texture->Bind();
 
-		UINT Stride = sizeof(ScreenSpaceVertex);
-		UINT Offset = 0U;
-		// Red Triangle
-		m_pDeviceContext->IASetVertexBuffers(0, 1, m_pVertexBuffer.GetAddressOf(), &Stride, &Offset);
-		m_pDeviceContext->IASetIndexBuffer(m_pIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-		m_pDeviceContext->DrawIndexed(6, 0, 0);
+		GeometryManager::Render(eRenderPass::RenderPass_Scene);
+		//UINT Stride = sizeof(ScreenSpaceVertex);
+		//UINT Offset = 0U;
+		//// Red Triangle
+		//m_pDeviceContext->IASetVertexBuffers(0, 1, m_pVertexBuffer.GetAddressOf(), &Stride, &Offset);
+		//m_pDeviceContext->IASetIndexBuffer(m_pIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+		//m_pDeviceContext->DrawIndexed(6, 0, 0);
 
 	}
 
@@ -295,15 +304,7 @@ namespace Insight {
 
 	void Direct3D11Context::CreateConstantBufferViews()
 	{
-		D3D11_BUFFER_DESC PerFrameCBDesc = {};
-		PerFrameCBDesc.Usage = D3D11_USAGE_DYNAMIC;
-		PerFrameCBDesc.BindFlags = D3D10_BIND_CONSTANT_BUFFER;
-		PerFrameCBDesc.CPUAccessFlags = D3D10_CPU_ACCESS_WRITE;
-		PerFrameCBDesc.MiscFlags = 0U;
-		PerFrameCBDesc.ByteWidth = static_cast<UINT>(sizeof(CB_PS_VS_PerFrame) + (16 - sizeof(CB_PS_VS_PerFrame) % 16));
-		PerFrameCBDesc.StructureByteStride = 0U;
-		HRESULT hr = m_pDevice->CreateBuffer(&PerFrameCBDesc, 0, m_pConstantBufferPerFrame.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create per frame constant buffer for D3D 11.");
+		m_PerFrameData.Init(m_pDevice.Get(), m_pDeviceContext.Get());
 
 	}
 

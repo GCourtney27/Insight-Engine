@@ -20,7 +20,7 @@ namespace Insight {
 		~Mesh();
 
 		void PreRender(const XMMATRIX& parentMat);
-		void Render(ID3D12GraphicsCommandList*& pCommandList);
+		void Render(ID3D12GraphicsCommandList* pCommandList);
 		void Destroy();
 		void OnImGuiRender();
 
