@@ -9,6 +9,11 @@
 #include "Insight/Core/ieException.h"
 #include "Insight/Rendering/Renderer.h"
 
+#if defined IE_PLATFORM_WINDOWS
+#include "Platform/Windows/DirectX_12/D3D12_ImGui_Layer.h"
+#include "Platform/Windows/DirectX_11/D3D11_ImGui_Layer.h"
+#endif
+
 // Scenes (Development-Project)
 // ----------------------------
 // DemoScene
@@ -25,8 +30,7 @@ namespace Insight {
 		IE_ASSERT(!s_Instance, "Trying to create Application instance when one already exists!");
 		s_Instance = this;
 
-		IE_STRIP_FOR_GAME_DIST(m_pImGuiLayer = new ImGuiLayer());
-		IE_STRIP_FOR_GAME_DIST(m_pEditorLayer = new EditorLayer());
+		
 	}
 
 	bool Application::InitializeAppForWindows(HINSTANCE & hInstance, int nCmdShow)
@@ -43,7 +47,7 @@ namespace Insight {
 
 		Renderer::eTargetRenderAPI API = Renderer::eTargetRenderAPI::D3D_11;
 
-//#define D3D12_ENABLED
+#define D3D12_ENABLED
 
 #if defined D3D12_ENABLED
 		API = Renderer::eTargetRenderAPI::D3D_12;
@@ -107,15 +111,14 @@ namespace Insight {
 			m_pGameLayer->Render();
 
 			// Render Editor UI
-			//IE_STRIP_FOR_GAME_DIST( // TEMP: DISABLE IF D3D11 IS ACTIVE 
-									  // Insight's ImGui implementation doesn't support D3D11 yet
-			//	m_pImGuiLayer->Begin();
-			//	for (Layer* layer : m_LayerStack) {
-			//		layer->OnImGuiRender();
-			//	}
-			//	m_pGameLayer->OnImGuiRender();
-			//	m_pImGuiLayer->End();
-			//);
+			IE_STRIP_FOR_GAME_DIST(
+				m_pImGuiLayer->Begin();
+				for (Layer* layer : m_LayerStack) {
+					layer->OnImGuiRender();
+				}
+				m_pGameLayer->OnImGuiRender();
+				m_pImGuiLayer->End();
+			);
 
 			m_pGameLayer->PostRender();
 			m_pWindow->EndFrame();
@@ -149,7 +152,27 @@ namespace Insight {
 
 	void Application::PushEngineLayers()
 	{
-		//IE_STRIP_FOR_GAME_DIST(PushOverlay(m_pImGuiLayer);)
+		switch (Renderer::GetAPI())
+		{
+		case Renderer::eTargetRenderAPI::D3D_11:
+		{
+			
+			break;
+		}
+		case Renderer::eTargetRenderAPI::D3D_12:
+		{
+			IE_STRIP_FOR_GAME_DIST(m_pImGuiLayer = new D3D12ImGuiLayer());
+			break;
+		}
+		default:
+		{
+			IE_CORE_ERROR("Failed to creat ImGui layer in application with API of type \"{0}\"", Renderer::GetAPI());
+			break;
+		}
+		}
+
+		IE_STRIP_FOR_GAME_DIST(m_pEditorLayer = new EditorLayer());
+		IE_STRIP_FOR_GAME_DIST(PushOverlay(m_pImGuiLayer);)
 		IE_STRIP_FOR_GAME_DIST(PushOverlay(m_pEditorLayer);)
 	}
 

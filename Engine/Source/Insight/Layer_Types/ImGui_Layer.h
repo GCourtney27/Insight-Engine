@@ -21,8 +21,8 @@ namespace Insight {
 		virtual void OnDetach() override;
 		virtual void OnImGuiRender() override;
 
-		void Begin();
-		void End();
+		virtual void Begin() = 0;
+		virtual void End() = 0;
 		void OnEvent(Event& event);
 
 	private:
@@ -35,10 +35,8 @@ namespace Insight {
 		bool OnKeyPressedEvent(KeyPressedEvent& e);
 		bool OnKeyTypedEvent(KeyTypedEvent& e);
 		bool OnWindowResizedEvent(WindowResizeEvent& e);
-	private:
-		HWND* m_pWindowHandle = nullptr;
-		ID3D12DescriptorHeap* m_pDescriptorHeap = nullptr;
-		ID3D12GraphicsCommandList* m_pCommandList = nullptr;
+
+	protected:
 		ImGuiIO* m_pIO = nullptr;
 	};
 

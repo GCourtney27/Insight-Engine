@@ -41,6 +41,12 @@ namespace Insight {
 			D3D_12,
 		};
 
+		struct GraphicsQuality
+		{
+			uint32_t MaxAnisotropy = 1U; // Texture Filtering (1, 4, 8, 16)
+			float MipLodBias = 0.0f; // Texture Quality (0 - 9)
+		};
+
 	public:
 		virtual ~Renderer();
 
@@ -144,6 +150,7 @@ namespace Insight {
 	protected:
 		eTargetRenderAPI m_CurrentAPI = eTargetRenderAPI::INVALID;
 		eRenderPass m_RenderPass = eRenderPass::RenderPass_Scene;
+		GraphicsQuality m_GraphicsQuality = {}; // TODO Load this from a settings file
 
 		static const uint8_t m_FrameBufferCount = 3u;
 		uint32_t m_WindowWidth;

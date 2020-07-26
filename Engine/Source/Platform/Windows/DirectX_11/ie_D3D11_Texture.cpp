@@ -60,8 +60,16 @@ namespace Insight {
 
 	void ieD3D11Texture::InitTextureFromFile()
 	{
-		HRESULT hr = DirectX::CreateWICTextureFromFile(m_pDevice.Get(), m_TextureInfo.Filepath.c_str(), nullptr, m_pTextureView.GetAddressOf());
+		ComPtr<ID3D11Resource> res;
+
+		HRESULT hr = DirectX::CreateWICTextureFromFile(m_pDevice.Get(), m_TextureInfo.Filepath.c_str(), res.GetAddressOf(), m_pTextureView.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to load D3D 11 WIC texture from file.");
+
+		ComPtr<ID3D11Texture2D> tex;
+		res.As(&tex);
+		D3D11_TEXTURE2D_DESC desc;
+		tex->GetDesc(&desc);
+		IE_CORE_INFO("BREAK");
 	}
 
 	uint32_t ieD3D11Texture::GetShaderRegisterLocation()
