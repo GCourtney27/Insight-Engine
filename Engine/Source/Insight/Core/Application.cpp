@@ -47,7 +47,7 @@ namespace Insight {
 
 		Renderer::eTargetRenderAPI API = Renderer::eTargetRenderAPI::D3D_11;
 
-#define D3D12_ENABLED
+//#define D3D12_ENABLED
 
 #if defined D3D12_ENABLED
 		API = Renderer::eTargetRenderAPI::D3D_12;
@@ -156,7 +156,7 @@ namespace Insight {
 		{
 		case Renderer::eTargetRenderAPI::D3D_11:
 		{
-			
+			IE_STRIP_FOR_GAME_DIST(m_pImGuiLayer = new D3D11ImGuiLayer());
 			break;
 		}
 		case Renderer::eTargetRenderAPI::D3D_12:

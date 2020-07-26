@@ -1,21 +1,22 @@
 #include <ie_pch.h>
 
-#include "D3D12_ImGui_Layer.h"
+#include "D3D11_ImGui_Layer.h"
 
 #include "Insight/Core/Application.h"
 
-#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
-#include <examples/imgui_impl_dx12.cpp>
+#include "Platform/Windows/DirectX_11/Direct3D11_Context.h"
 
 #include "imgui.h"
-#include "examples/imgui_impl_dx12.h"
+#include "examples/imgui_impl_dx11.h"
 #include "examples/imgui_impl_win32.h"
+#include <examples/imgui_impl_dx11.cpp>
 
 
 namespace Insight {
 
 
-	void D3D12ImGuiLayer::OnAttach()
+
+	void D3D11ImGuiLayer::OnAttach()
 	{
 		ImGuiLayer::OnAttach();
 
@@ -45,60 +46,42 @@ namespace Insight {
 			m_pIO->KeyMap[ImGuiKey_Z] = 'Z';
 		}
 
-		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+		Direct3D11Context* GraphicsContext = reinterpret_cast<Direct3D11Context*>(&Renderer::Get());
 
 		HWND* pWindowHandle = static_cast<HWND*>(Application::Get().GetWindow().GetNativeWindow());
 		m_pWindowHandle = pWindowHandle;
 
-		// Setup Platform/Renderer bindings
-		bool impleWin32Succeeded = ImGui_ImplWin32_Init(pWindowHandle);
-		if (!impleWin32Succeeded)
+		if (!ImGui_ImplWin32_Init(m_pWindowHandle)) {
 			IE_CORE_WARN("Failed to initialize ImGui for Win32 - D3D 12. Some controls may not be functional or editor may not be rendered.");
+		}
+		ImGui_ImplDX11_Init(&GraphicsContext->GetDevice(), &GraphicsContext->GetDeviceContext());
 
-		HRESULT hr;
-		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
-		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		desc.NumDescriptors = 1;
-		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-		hr = graphicsContext->GetDeviceContext().CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_pDescriptorHeap));
-
-		bool impleDX12Succeeded = ImGui_ImplDX12_Init(&graphicsContext->GetDeviceContext(),
-			graphicsContext->GetFrameBufferCount(),
-			DXGI_FORMAT_R8G8B8A8_UNORM,
-			m_pDescriptorHeap,
-			m_pDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
-			m_pDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-		if (!impleDX12Succeeded)
-			IE_CORE_WARN("Failed to initialize ImGui for DX12. Editor will not be rendered");
-
-		m_pCommandList = &graphicsContext->GetScenePassCommandList();
 	}
 
-	void D3D12ImGuiLayer::OnDetach()
+	void D3D11ImGuiLayer::OnDetach()
 	{
-		ImGui_ImplDX12_Shutdown();
+		ImGui_ImplDX11_Shutdown();
 		ImGui_ImplWin32_Shutdown();
 		ImGuiLayer::OnDetach();
 	}
 
-	void D3D12ImGuiLayer::OnImGuiRender()
+	void D3D11ImGuiLayer::OnImGuiRender()
 	{
 		ImGuiLayer::OnImGuiRender();
 
 	}
 
-	void D3D12ImGuiLayer::Begin()
+	void D3D11ImGuiLayer::Begin()
 	{
-		ImGui_ImplDX12_NewFrame();
+		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGuiLayer::Begin();
 	}
 
-	void D3D12ImGuiLayer::End()
+	void D3D11ImGuiLayer::End()
 	{
-		m_pCommandList->SetDescriptorHeaps(1, &m_pDescriptorHeap);
 		ImGuiLayer::End();
-		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList);
+		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	}
 
 }
