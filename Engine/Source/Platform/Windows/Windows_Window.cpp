@@ -335,7 +335,7 @@ namespace Insight {
 				Renderer::GraphicsSettings Settings = {};
 				Settings.TargetRenderAPI = Renderer::eTargetRenderAPI::D3D_11;
 				FileSystem::SaveEngineUserSettings(Settings);
-				data.pWindow->CreateMessageBox(L"You must relaunch engine for changes to take effect.", L"Graphics API changed");
+				data.pWindow->CreateMessageBox(L"You must relaunch engine for changes to take effect.", L"Graphics API changed to DirectX 11");
 				break;
 			}
 			case IDM_RENDERER_D3D_12:
@@ -345,7 +345,7 @@ namespace Insight {
 				Renderer::GraphicsSettings Settings = {};
 				Settings.TargetRenderAPI = Renderer::eTargetRenderAPI::D3D_12;
 				FileSystem::SaveEngineUserSettings(Settings);
-				data.pWindow->CreateMessageBox(L"You must relaunch engine for changes to take effect.", L"Graphics API changed");
+				data.pWindow->CreateMessageBox(L"You must relaunch engine for changes to take effect.", L"Graphics API changed to DirectX 12");
 				break;
 			}
 			default:
