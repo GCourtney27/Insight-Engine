@@ -48,3 +48,8 @@
 
 // Includes
 #include "Insight/Math/Math_Helpers.h"
+
+// Rendering
+#define MAX_POINT_LIGHTS_SUPPORTED 16U
+#define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 4U
+#define MAX_SPOT_LIGHTS_SUPPORTED 16U

@@ -11,6 +11,8 @@
 
 namespace Insight {
 
+	class Material;
+	
 	class INSIGHT_API Model : public SceneNode
 	{
 	public:
@@ -24,7 +26,7 @@ namespace Insight {
 		void RenderSceneHeirarchy();
 		void BindResources();
 
-		Transform& GetMeshRootTransformRef() { return m_pRoot->GetTransformRef(); }
+		ieTransform& GetMeshRootTransformRef() { return m_pRoot->GetTransformRef(); }
 
 		Material& GetMaterialRef() { return *m_pMaterial; }
 		std::string GetDirectory() { return m_Directory; }

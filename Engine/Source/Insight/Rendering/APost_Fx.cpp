@@ -3,7 +3,6 @@
 #include "APost_Fx.h"
 
 #include "Insight/Runtime/Components/Actor_Component.h"
-#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 #include "Insight/Core/Application.h"
 #include "imgui.h"
 
@@ -15,8 +14,7 @@ namespace Insight {
 	APostFx::APostFx(ActorId id, ActorType type)
 		: AActor(id, type)
 	{
-		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		graphicsContext.AddPostFxActor(this);
+		Renderer::AddPostFxActor(this);
 	}
 
 	APostFx::~APostFx()
@@ -69,7 +67,7 @@ namespace Insight {
 			Writer.Key("Transform");
 			Writer.StartArray(); // Start Write Transform
 			{
-				Transform& Transform = SceneNode::GetTransformRef();
+				ieTransform& Transform = SceneNode::GetTransformRef();
 				ieVector3 Pos = Transform.GetPosition();
 				ieVector3 Rot = Transform.GetRotation();
 				ieVector3 Sca = Transform.GetScale();

@@ -3,7 +3,8 @@
 #include "ASpot_Light.h"
 
 #include "Insight/Runtime/Components/Actor_Component.h"
-#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
+#include "Insight/Rendering/Renderer.h"
+
 #include "imgui.h"
 
 namespace Insight {
@@ -14,8 +15,7 @@ namespace Insight {
 	ASpotLight::ASpotLight(ActorId id, ActorType type)
 		: AActor(id, type)
 	{
-		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		graphicsContext.AddSpotLight(this);
+		Renderer::RegisterSpotLight(this);
 
 		m_ShaderCB.diffuse = ieVector3(1.0f, 1.0f, 1.0f);
 		m_ShaderCB.direction = Vector3::Down;
@@ -63,7 +63,7 @@ namespace Insight {
 			Writer.Key("Transform");
 			Writer.StartArray(); // Start Write Transform
 			{
-				Transform& Transform = SceneNode::GetTransformRef();
+				ieTransform& Transform = SceneNode::GetTransformRef();
 				ieVector3 Pos = Transform.GetPosition();
 				ieVector3 Rot = Transform.GetRotation();
 				ieVector3 Sca = Transform.GetScale();
@@ -161,6 +161,7 @@ namespace Insight {
 
 	void ASpotLight::Destroy()
 	{
+		Renderer::UnRegisterSpotLight(this);
 	}
 
 	void ASpotLight::OnEvent(Event& e)

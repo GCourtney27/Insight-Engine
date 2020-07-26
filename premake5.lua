@@ -2,7 +2,7 @@
 -- Tokens https://github.com/premake/premake-core/wiki/Tokens
 
 workspace ("Insight")
-	architecture "x64"
+	architecture ("x86_64")
 
 	configurations
 	{
@@ -20,7 +20,7 @@ csharpAssemblyProjectName = "Assembly-CSharp"
 IncludeDir = {}
 IncludeDir["ImGui"] = "Engine/Vendor/imgui"
 IncludeDir["assimp"] = "Engine/Vendor/assimp-3.3.1/include"
-IncludeDir["DX12TK"] = "Engine/Vendor/Microsoft/DirectX12/TK/Inc"
+IncludeDir["Microsoft"] = "Engine/Vendor/Microsoft/"
 IncludeDir["ImGuizmo"] = "Engine/Vendor/ImGuizmo"
 IncludeDir["rapidjson"] = "Engine/Vendor/rapidjson"
 IncludeDir["spdlog"] = "Engine/Vendor/spdlog"
@@ -75,7 +75,7 @@ project ("Engine")
 		"%{IncludeDir.spdlog}/include/",
 		"%{IncludeDir.ImGuizmo}/",
 		"%{IncludeDir.Mono}/",
-		"%{IncludeDir.DX12TK}/",
+		"%{IncludeDir.Microsoft}/",
 		"%{IncludeDir.ImGui}/",
 		"%{IncludeDir.assimp}/",
 		"%{prj.name}/Source/",
@@ -86,7 +86,10 @@ project ("Engine")
 	{
 		"d3d12.lib",
 		"dxgi.lib",
+		"d3d11.lib",
+		-- "d3dx11.lib",
 		"Shlwapi.lib",
+		"DirectXTK.lib",
 		"d3dcompiler.lib",
 		"DirectXTK12.lib",
 		"assimp-vc140-mt.lib",
@@ -123,15 +126,20 @@ project ("Engine")
 		defines "IE_DEBUG"
 		runtime "Debug"
 		symbols "on"
+		
 		libdirs
 		{
 			"Engine/Vendor/assimp-3.3.1/build/code/Debug",
 			"Engine/Vendor/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Debug",
+			"Engine/Vendor/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Debug",
 			"Engine/Vendor/Mono/lib",
 		}
 		postbuildcommands
 		{
 			("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/Debug/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX11/Bin/D3DX11d_43.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX11/Bin/D3D11Ref.dll ../bin/"..outputdir.."/Engine"),
 			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine")
 		}
 	-- Engine Release
@@ -140,15 +148,23 @@ project ("Engine")
 		runtime "Release"
 		optimize "on"
 		symbols "on"
+		defines
+		{
+			"IE_IS_STANDALONE"
+		}
 		libdirs
 		{
 			"Engine/Vendor/assimp-3.3.1/build/code/Release",
 			"Engine/Vendor/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
+			"Engine/Vendor/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
 			"Engine/Vendor/Mono/lib",
 		}
 		postbuildcommands
 		{
 			("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX11/Bin/D3DX11d_43.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX11/Bin/D3D11Ref.dll ../bin/"..outputdir.."/Engine"),
 			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine")
 		}
 	-- Full Engine Distribution, all performance logs and debugging windows stripped
@@ -157,10 +173,15 @@ project ("Engine")
 		runtime "Release"
 		optimize "on"
 		symbols "on"
+		defines
+		{
+			"IE_IS_STANDALONE"
+		}
 		libdirs
 		{
 			"Engine/Vendor/assimp-3.3.1/build/code/Release",
 			"Engine/Vendor/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
+			"Engine/Vendor/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
 			"Engine/Vendor/Mono/lib",
 		}
 		postbuildcommands
@@ -174,10 +195,15 @@ project ("Engine")
 		runtime "Release"
 		optimize "on"
 		symbols "on"
+		defines
+		{
+			"IE_IS_STANDALONE"
+		}
 		libdirs
 		{
 			"Engine/Vendor/assimp-3.3.1/build/code/Release",
 			"Engine/Vendor/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
+			"Engine/Vendor/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
 			"Engine/Vendor/Mono/lib",
 		}
 		postbuildcommands
@@ -206,8 +232,7 @@ project (gameName)
 	includedirs
 	{
 		"Engine/Vendor/assimp-3.3.1/include",
-		"Engine/Vendor/Microsoft/DirectX12/TK/Inc",
-		"Engine/Vendor/Microsoft/DirectX12",
+		"Engine/Vendor/Microsoft/",
 		"Engine/Vendor/Nvidia/DirectX12",
 		"Engine/Vendor/spdlog/include",
 		"Engine/Vendor/rapidjson/include",

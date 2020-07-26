@@ -1,23 +1,23 @@
 #pragma once
 
 #include <Insight/Core.h>
-#include "Insight/Math/ieVectors.h"
-#include "Insight/Math/ieMatricies.h"
+#include "Insight/Math/ie_Vectors.h"
+#include "Insight/Math/ie_Matricies.h"
 
 namespace Insight {
 
 	using namespace DirectX;
 	using namespace Math;
 
-	class INSIGHT_API Transform
+	class INSIGHT_API ieTransform
 	{
 	public:
-		Transform();
-		~Transform();
-		Transform(const Transform& transform);
-		Transform(Transform&& transform) noexcept;
+		ieTransform();
+		~ieTransform();
+		ieTransform(const ieTransform& transform);
+		ieTransform(ieTransform&& transform) noexcept;
 
-		Transform& operator = (const Transform& transform);
+		ieTransform& operator = (const ieTransform& transform);
 
 		void EditorEndPlay();
 		void EditorInit() { UpdateEditorOriginPositionRotationScale(); }

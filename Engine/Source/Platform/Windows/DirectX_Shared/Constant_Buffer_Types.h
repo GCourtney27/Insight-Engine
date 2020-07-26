@@ -1,5 +1,18 @@
 #pragma once
+
+#include <Insight/Core.h>
+
 #include <DirectXMath.h>
+
+/*
+
+	Constant buffers to be sent to the GPU during draw calls.
+	Nameing convention is as follows:
+	CB_ShaderVisibility_NameOfConstantBuffer
+	
+	Ex) CB_PS_VS_PerObjectAdditives - Is a Constant Buffer (CB) visible to the Vertex Shader (VS) and Pixel Shader (PS) with a name of PerObjectAdditives
+
+*/
 
 struct CB_VS_PerObject
 {
@@ -87,4 +100,11 @@ struct CB_PS_PostFx
 	// Chromatic Aberration
 	int caEnabled;
 	float caIntensity;
+};
+
+struct D3D11_CB_PS_Lights
+{
+	CB_PS_PointLight pointLights[MAX_POINT_LIGHTS_SUPPORTED];
+	CB_PS_DirectionalLight directionalLights[MAX_DIRECTIONAL_LIGHTS_SUPPORTED];
+	CB_PS_SpotLight spotLights[MAX_SPOT_LIGHTS_SUPPORTED];
 };

@@ -1,9 +1,14 @@
 #include <ie_pch.h>
 
-#include "Insight/Runtime/AActor.h"
 #include "Static_Mesh_Component.h"
+
+#include "Insight/Runtime/AActor.h"
 #include "Insight/Systems/File_System.h"
 #include "Insight/Systems/Managers/Resource_Manager.h"
+#include "Insight/Rendering/Renderer.h"
+#include "Insight/Rendering/Material.h"
+
+
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
 
@@ -72,7 +77,7 @@ namespace Insight {
 				Writer.Key("LocalTransform");
 				Writer.StartArray();
 				{
-					Transform& MeshTransform = m_pModel->GetMeshRootTransformRef();
+					ieTransform& MeshTransform = m_pModel->GetMeshRootTransformRef();
 					ieVector3 Pos = MeshTransform.GetPosition();
 					ieVector3 Rot = MeshTransform.GetRotation();
 					ieVector3 Sca = MeshTransform.GetScale();
@@ -124,7 +129,7 @@ namespace Insight {
 
 	void StaticMeshComponent::OnDestroy()
 	{
-		ResourceManager::Get().GetGeometryManager().UnRegisterModel(m_pModel);
+		GeometryManager::UnRegisterModel(m_pModel);
 		m_pModel->Destroy();
 		delete m_pMaterial;
 	}
@@ -171,13 +176,13 @@ namespace Insight {
 	}
 
 	static std::mutex s_MeshMutex;
-	static bool LoadMesh(StrongModelPtr Model, const std::string& Path, Material* Material)
+	static bool LoadModelAsync(StrongModelPtr Model, const std::string& Path, Material* Material)
 	{
 		Model->Init(Path, Material);
 
 		std::lock_guard<std::mutex> ResourceLock(s_MeshMutex);
 
-		ResourceManager::Get().GetGeometryManager().RegisterModel(Model);
+		GeometryManager::RegisterModel(Model);
 		return true;
 	}
 
@@ -186,15 +191,17 @@ namespace Insight {
 		Profiling::ScopedTimer timer(("StaticMeshComponent::AttachMesh \"" + AssestDirectoryRelPath + "\"").c_str());
 
 		if (m_pModel) {
-			ResourceManager::Get().GetGeometryManager().UnRegisterModel(m_pModel);
+			GeometryManager::UnRegisterModel(m_pModel);
 			m_pModel->Destroy();
 			m_pModel.reset();
 		}
 		m_pModel = make_shared<Model>();
 		m_pModel->Init(AssestDirectoryRelPath, m_pMaterial);
 
-		//m_ModelLoadFuture = std::async(std::launch::async, LoadMesh, m_pModel, AssesDirectoryRelPath, &m_Material);
-		ResourceManager::Get().GetGeometryManager().RegisterModel(m_pModel);
+		// Experamental: Multi-threaded model laoding
+		//m_ModelLoadFuture = std::async(std::launch::async, LoadModelAsync, m_pModel, AssesDirectoryRelPath, &m_Material);
+		
+		GeometryManager::RegisterModel(m_pModel);
 	}
 
 	void StaticMeshComponent::SetMaterial(Material* pMaterial)
@@ -223,7 +230,7 @@ namespace Insight {
 	void StaticMeshComponent::OnDetach()
 	{
 		s_NumActiveSMComponents--;
-		ResourceManager::Get().GetGeometryManager().UnRegisterModel(m_pModel);
+		GeometryManager::UnRegisterModel(m_pModel);
 	}
 
 }

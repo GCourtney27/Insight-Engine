@@ -49,9 +49,9 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     float roughness = roughMetAOBufferSample.r;
     float metallic = roughMetAOBufferSample.g;
     float ambientOcclusion = roughMetAOBufferSample.b;
-
-    float3 viewDirection = normalize(cameraPosition - worldPosition);
     
+    float3 viewDirection = normalize(cameraPosition - worldPosition);
+        
     float3 F0 = float3(0.04, 0.04, 0.04);
     float3 baseReflectivity = lerp(F0, albedo, metallic);
     float NdotV = max(dot(normal, viewDirection), 0.0000001);
@@ -86,8 +86,6 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
         // Shadowing
         float4 fragPosLightSpace = mul(float4(worldPosition, 1.0), mul(dirLights[d].lightSpaceView, dirLights[d].lightSpaceProj));
         float shadow = ShadowCalculation(fragPosLightSpace, normal, lightDir);
-        //ps_out.litImage = float3(shadow, shadow, shadow);
-        //return ps_out;
         
         directionalLightLuminance += ((kD * albedo / PI + specular) * radiance * NdotL) * (1.0 - shadow);
 

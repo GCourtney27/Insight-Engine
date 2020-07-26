@@ -19,10 +19,11 @@ namespace Insight {
 			bool FullScreenEnabled = false;
 			bool EditorUIEnabled = true;
 			bool IsFirstLaunch = true;
+			WindowsWindow* pWindow;
 
-			HMENU hGraphicsVisualizeSubMenu;
-			HMENU hEditorSubMenu;
-			HMENU hContextMenu;
+			HMENU* hGraphicsVisualizeSubMenu;
+			HMENU* hEditorSubMenu;
+			HMENU* hContextMenu;
 
 			EventCallbackFn EventCallback;
 		};
@@ -62,6 +63,7 @@ namespace Insight {
 		virtual const bool& IsVsyncActive() const override;
 		virtual const bool& IsFullScreenActive() const override;
 		virtual bool Init(const WindowProps& props);
+		virtual bool PostInit();
 	private:
 		inline void SetWindowsApplicationInstance(HINSTANCE& hInstance) { m_WindowsAppInstance = &hInstance; }
 		inline void SetCmdArgs(int nCmdShow) { m_nCmdShowArgs = nCmdShow; }
@@ -79,6 +81,7 @@ namespace Insight {
 		HMENU	m_hEditorSubMenu;
 		HMENU	m_hGraphicsSubMenu;
 		HMENU	m_hGraphicsVisualizeSubMenu;
+		HMENU	m_hGraphicsCurrentRenderContextSubMenu;
 
 		HINSTANCE* m_WindowsAppInstance;
 		int m_nCmdShowArgs;

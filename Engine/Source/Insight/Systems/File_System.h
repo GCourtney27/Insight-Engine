@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Insight/Core.h>
+#include "Insight/Rendering/Renderer.h"
 
 namespace Insight {
 
@@ -14,9 +15,11 @@ namespace Insight {
 
 		static bool Init(const char* ProjectName);
 
+		static void SaveEngineUserSettings(Renderer::GraphicsSettings Settings);
 		static std::string GetExecutbleDirectory();
 		static std::string GetUserDocumentsFolderPath();
 		static std::string GetProjectRelativeAssetDirectory(std::string Path);
+		static Renderer::GraphicsSettings LoadGraphicsSettingsFromJson();
 		static bool LoadSceneFromJson(const std::string& FileName, Scene* pScene);
 		static bool WriteSceneToJson(Scene* pScene);
 		static bool FileExists(const std::string& Path);

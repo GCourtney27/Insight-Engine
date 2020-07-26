@@ -1,11 +1,14 @@
 #include <ie_pch.h>
 
+#include "AActor.h"
+
 #include "Insight/Core/Application.h"
 #include "Insight/Runtime/Components/Actor_Component.h"
 #include "Insight/Runtime/Components/Static_Mesh_Component.h"
 #include "Insight/Runtime/Components/CSharp_Scirpt_Component.h"
 
-#include "AActor.h"
+//TEMP
+#include "Insight/Rendering/Material.h"
 
 #include "imgui.h"
 #include <misc/cpp/imgui_stdlib.h>
@@ -87,7 +90,7 @@ namespace Insight {
 			Writer.Key("Transform");
 			Writer.StartArray(); // Start Write Transform
 			{
-				Transform& Transform = SceneNode::GetTransformRef();
+				ieTransform& Transform = SceneNode::GetTransformRef();
 				ieVector3 Pos = Transform.GetPosition();
 				ieVector3 Rot = Transform.GetRotation();
 				ieVector3 Sca = Transform.GetScale();
@@ -161,8 +164,12 @@ namespace Insight {
 	static int currentIndex = 0;
 	void AActor::OnImGuiRender()
 	{
-		ImGui::InputText("##ActorNameField", &m_DisplayName, ImGuiInputTextFlags_EnterReturnsTrue);
-		
+		if (ImGui::InputText("##ActorNameField", &m_DisplayName, ImGuiInputTextFlags_EnterReturnsTrue)) {
+			if (m_DisplayName == "") {
+				m_DisplayName = "MyActor";
+			}
+		}
+
 		ImGuiTreeNodeFlags TreeFlags = ImGuiTreeNodeFlags_Leaf;
 		if (ImGui::TreeNodeEx("Actions", ImGuiTreeNodeFlags_OpenOnArrow)) {
 
@@ -209,13 +216,13 @@ namespace Insight {
 					StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<StaticMeshComponent>();
 					static_cast<StaticMeshComponent*>(ptr.get())->SetMaterial(std::move(Material::CreateDefaultTexturedMaterial()));
 					static_cast<StaticMeshComponent*>(ptr.get())->AttachMesh("Models/Quad.obj");
-					
+
 					break;
 				}
 				case 2:
 				{
 					IE_CORE_INFO("Adding C-Sharp script component to \"{0}\"", AActor::GetDisplayName());
-					 StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<CSharpScriptComponent>();
+					StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<CSharpScriptComponent>();
 					break;
 				}
 				default:

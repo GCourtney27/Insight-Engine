@@ -40,7 +40,7 @@
 #include "Insight/Core/Log.h"
 #include "Insight/Core/Interfaces.h"
 #include "Insight/Utilities/Profiling.h"
-#include "Insight/Math/ieVectors.h"
+#include "Insight/Math/ie_Vectors.h"
 
 // === Third Party === //
 // Rapid Json
@@ -66,17 +66,18 @@
 
 	// Direct3D 12
 	#include <d3d12.h>
-	#include <d3dx12.h>
+	#include <DirectX12/d3dx12.h>
+
+	// Direct3D 11
+	#include <d3d11.h>
+
 
 	// DirectX
 	#include <dxgi1_2.h>
 	#include <dxgi1_4.h>
 	#include <wincodec.h>
-	#include <SimpleMath.h>
 	#include <DirectXMath.h>
 	#include <D3Dcompiler.h>
-	#include <DDSTextureLoader.h>
-	#include <WICTextureLoader.h>
-	#include "ResourceUploadBatch.h"
+	
 
 #endif // IE_PLATFORM_WINDOWS

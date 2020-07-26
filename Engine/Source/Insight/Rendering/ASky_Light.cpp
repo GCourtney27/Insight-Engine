@@ -2,8 +2,13 @@
 
 #include "ASky_Light.h"
 
-#include "Insight/Runtime//Components/Actor_Component.h"
+#include "Insight/Runtime/Components/Actor_Component.h"
+#include "Insight/Rendering/Renderer.h"
+
+#include "Platform/Windows/DirectX_12/ie_D3D12_Texture.h"
+#include "Platform/Windows/DirectX_11/ie_D3D11_Texture.h"
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
+
 #include "Insight/Systems/File_System.h"
 
 namespace Insight {
@@ -13,9 +18,7 @@ namespace Insight {
 	ASkyLight::ASkyLight(ActorId id, ActorType type)
 		: AActor(id, type)
 	{
-		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		m_pCommandList = &graphicsContext.GetScenePassCommandList();
-		graphicsContext.AddSkyLight(this);
+		Renderer::AddSkyLight(this);
 	}
 
 	ASkyLight::~ASkyLight()
@@ -30,7 +33,9 @@ namespace Insight {
 		json::get_string(sky[0], "Irradiance", irMap);
 		json::get_string(sky[0], "Environment", envMap);
 
-		CDescriptorHeapWrapper& cbvSrvheap = Direct3D12Context::Get().GetCBVSRVDescriptorHeap();
+
+		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+		CDescriptorHeapWrapper& cbvSrvheap = graphicsContext->GetCBVSRVDescriptorHeap();
 
 		Texture::IE_TEXTURE_INFO brdfInfo;
 		brdfInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(brdfLUT));
@@ -38,7 +43,6 @@ namespace Insight {
 		brdfInfo.Type = Texture::eTextureType::SKY_BRDF_LUT;
 		brdfInfo.IsCubeMap = true;
 		brdfInfo.GenerateMipMaps = false;
-		m_BrdfLUT.Init(brdfInfo, cbvSrvheap);
 
 		Texture::IE_TEXTURE_INFO irMapInfo;
 		irMapInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(irMap));
@@ -46,7 +50,6 @@ namespace Insight {
 		irMapInfo.Type = Texture::eTextureType::SKY_IRRADIENCE;
 		irMapInfo.IsCubeMap = true;
 		brdfInfo.GenerateMipMaps = false;
-		m_Irradiance.Init(irMapInfo, cbvSrvheap);
 		
 		Texture::IE_TEXTURE_INFO envMapInfo;
 		envMapInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(envMap));
@@ -54,7 +57,26 @@ namespace Insight {
 		envMapInfo.Type = Texture::eTextureType::SKY_ENVIRONMENT_MAP;
 		envMapInfo.IsCubeMap = true;
 		brdfInfo.GenerateMipMaps = false;
-		m_Environment.Init(envMapInfo, cbvSrvheap);
+
+		switch (Renderer::GetAPI())
+		{
+		case Renderer::eTargetRenderAPI::D3D_11:
+		{
+			m_BrdfLUT = new ieD3D11Texture(brdfInfo);
+			m_Irradiance = new ieD3D11Texture(irMapInfo);
+			m_Environment = new ieD3D11Texture(envMapInfo);
+			break;
+		}
+		case Renderer::eTargetRenderAPI::D3D_12:
+		{
+			Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+			CDescriptorHeapWrapper& cbvSrvheap = graphicsContext->GetCBVSRVDescriptorHeap();
+			m_BrdfLUT = new ieD3D12Texture(brdfInfo, cbvSrvheap);
+			m_Irradiance = new ieD3D12Texture(irMapInfo, cbvSrvheap);
+			m_Environment = new ieD3D12Texture(envMapInfo, cbvSrvheap);
+			break;
+		}
+		}
 
 		return true;
 	}
@@ -72,7 +94,7 @@ namespace Insight {
 			Writer.Key("Transform");
 			Writer.StartArray(); // Start Write Transform
 			{
-				Transform& Transform = SceneNode::GetTransformRef();
+				ieTransform& Transform = SceneNode::GetTransformRef();
 				ieVector3 Pos = Transform.GetPosition();
 				ieVector3 Rot = Transform.GetRotation();
 				ieVector3 Sca = Transform.GetScale();
@@ -110,11 +132,11 @@ namespace Insight {
 			{
 				Writer.StartObject();
 				Writer.Key("BRDFLUT");
-				Writer.String(m_BrdfLUT.GetAssetDirectoryRelPath().c_str());
+				Writer.String(m_BrdfLUT->GetAssetDirectoryRelPath().c_str());
 				Writer.Key("Irradiance");
-				Writer.String(m_Irradiance.GetAssetDirectoryRelPath().c_str());
+				Writer.String(m_Irradiance->GetAssetDirectoryRelPath().c_str());
 				Writer.Key("Environment");
-				Writer.String(m_Environment.GetAssetDirectoryRelPath().c_str());
+				Writer.String(m_Environment->GetAssetDirectoryRelPath().c_str());
 				Writer.EndObject();
 			}
 			Writer.EndArray();
@@ -153,9 +175,9 @@ namespace Insight {
 
 	void ASkyLight::OnRender()
 	{
-		m_Environment.Bind();
-		m_Irradiance.Bind();
-		m_BrdfLUT.Bind();
+		m_Environment->Bind();
+		m_Irradiance->Bind();
+		m_BrdfLUT->Bind();
 	}
 
 	void ASkyLight::Destroy()
