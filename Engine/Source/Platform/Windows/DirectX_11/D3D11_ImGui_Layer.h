@@ -12,7 +12,6 @@ namespace Insight {
 		D3D11ImGuiLayer() = default;
 		virtual ~D3D11ImGuiLayer() = default;
 
-
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
 		virtual void OnImGuiRender() override;

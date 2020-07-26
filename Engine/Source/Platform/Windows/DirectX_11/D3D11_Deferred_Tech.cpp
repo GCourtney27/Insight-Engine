@@ -32,7 +32,30 @@ namespace Insight {
 		return true;
 	}
 
-	void D3D11DeferredShadingTech::PrepPipeline()
+	void D3D11DeferredShadingTech::Destroy()
+	{
+		for (uint8_t i = 0; i < m_NumRTV; ++i) {
+
+			m_GBuffer[i].RenderTargetView.Reset();
+			m_GBuffer[i].ShaderResourceView.Reset();
+			m_GBuffer[i].Texture.Reset();
+		}
+
+		m_DepthStencilView.Reset();
+		m_pDepthStencilTexture.Reset();
+		m_pSceneDepthView.Reset();
+		m_pRasterizarState.Reset();
+		m_pDefaultDepthStencilState.Reset();
+
+		m_LightPassResult.RenderTargetView.Reset();
+		m_LightPassResult.ShaderResourceView.Reset();
+		m_LightPassResult.Texture.Reset();
+
+		m_pSkyPass_DepthStencilState.Reset();
+		m_pSkyPass_RasterizarState.Reset();
+	}
+
+	void D3D11DeferredShadingTech::PrepPipelineForRenderPass()
 	{
 		// Null the skybox SRV
 		{
@@ -55,23 +78,23 @@ namespace Insight {
 		m_pDeviceContext->IASetInputLayout(m_GeometryPassVS.GetInputLayout());
 		m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		m_pDeviceContext->RSSetState(m_pRasterizarState.Get());
-		m_pDeviceContext->OMSetDepthStencilState(m_pDefaultDepthStencilState, 0);
+		m_pDeviceContext->OMSetDepthStencilState(m_pDefaultDepthStencilState.Get(), 0);
 
 		// Set render targets
 		ID3D11RenderTargetView* RenderTargets[] = {
-			m_GBuffer[0].RenderTargetView,
-			m_GBuffer[1].RenderTargetView,
-			m_GBuffer[2].RenderTargetView,
-			m_GBuffer[3].RenderTargetView,
+			m_GBuffer[0].RenderTargetView.Get(),
+			m_GBuffer[1].RenderTargetView.Get(),
+			m_GBuffer[2].RenderTargetView.Get(),
+			m_GBuffer[3].RenderTargetView.Get(),
 		};
-		m_pDeviceContext->OMSetRenderTargets(m_NumRTV, RenderTargets, m_DepthStencilView);
+		m_pDeviceContext->OMSetRenderTargets(m_NumRTV, RenderTargets, m_DepthStencilView.Get());
 
 		// Clear render targets
-		m_pDeviceContext->ClearRenderTargetView(m_GBuffer[0].RenderTargetView, m_ClearColor);
-		m_pDeviceContext->ClearRenderTargetView(m_GBuffer[1].RenderTargetView, m_ClearColor);
-		m_pDeviceContext->ClearRenderTargetView(m_GBuffer[2].RenderTargetView, m_ClearColor);
-		m_pDeviceContext->ClearRenderTargetView(m_GBuffer[3].RenderTargetView, m_ClearColor);
-		m_pDeviceContext->ClearDepthStencilView(m_DepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0U);
+		m_pDeviceContext->ClearRenderTargetView(m_GBuffer[0].RenderTargetView.Get(), m_ClearColor);
+		m_pDeviceContext->ClearRenderTargetView(m_GBuffer[1].RenderTargetView.Get(), m_ClearColor);
+		m_pDeviceContext->ClearRenderTargetView(m_GBuffer[2].RenderTargetView.Get(), m_ClearColor);
+		m_pDeviceContext->ClearRenderTargetView(m_GBuffer[3].RenderTargetView.Get(), m_ClearColor);
+		m_pDeviceContext->ClearDepthStencilView(m_DepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0U);
 
 		// Set shaders
 		m_pDeviceContext->VSSetShader(m_GeometryPassVS.GetShader(), nullptr, 0);
@@ -82,16 +105,16 @@ namespace Insight {
 	{
 		m_pDeviceContext->IASetInputLayout(m_LightPassVS.GetInputLayout());
 		m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		m_pDeviceContext->OMSetRenderTargets(1, &m_LightPassResult.RenderTargetView, nullptr);
+		m_pDeviceContext->OMSetRenderTargets(1, m_LightPassResult.RenderTargetView.GetAddressOf(), nullptr);
 
-		m_pDeviceContext->PSSetShaderResources(0, 1, &m_GBuffer[0].ShaderResourceView); // Albedo
-		m_pDeviceContext->PSSetShaderResources(1, 1, &m_GBuffer[1].ShaderResourceView); // Normal
-		m_pDeviceContext->PSSetShaderResources(2, 1, &m_GBuffer[2].ShaderResourceView); // Roughness/Metallic/AO
-		m_pDeviceContext->PSSetShaderResources(3, 1, &m_GBuffer[3].ShaderResourceView); // Position
-		m_pDeviceContext->PSSetShaderResources(4, 1, &m_pSceneDepthView); // Scene Depth
+		m_pDeviceContext->PSSetShaderResources(0, 1, m_GBuffer[0].ShaderResourceView.GetAddressOf()); // Albedo
+		m_pDeviceContext->PSSetShaderResources(1, 1, m_GBuffer[1].ShaderResourceView.GetAddressOf()); // Normal
+		m_pDeviceContext->PSSetShaderResources(2, 1, m_GBuffer[2].ShaderResourceView.GetAddressOf()); // Roughness/Metallic/AO
+		m_pDeviceContext->PSSetShaderResources(3, 1, m_GBuffer[3].ShaderResourceView.GetAddressOf()); // Position
+		m_pDeviceContext->PSSetShaderResources(4, 1, m_pSceneDepthView.GetAddressOf()); // Scene Depth
 
-		m_pDeviceContext->OMSetRenderTargets(1, &m_LightPassResult.RenderTargetView, nullptr);
-		m_pDeviceContext->ClearRenderTargetView(m_LightPassResult.RenderTargetView, m_ClearColor);
+		m_pDeviceContext->OMSetRenderTargets(1, m_LightPassResult.RenderTargetView.GetAddressOf(), nullptr);
+		m_pDeviceContext->ClearRenderTargetView(m_LightPassResult.RenderTargetView.Get(), m_ClearColor);
 
 		// Set shaders
 		m_pDeviceContext->VSSetShader(m_LightPassVS.GetShader(), nullptr, 0);
@@ -111,7 +134,7 @@ namespace Insight {
 
 		m_pDeviceContext->RSSetState(m_pSkyPass_RasterizarState.Get());
 		m_pDeviceContext->OMSetDepthStencilState(m_pSkyPass_DepthStencilState.Get(), 0U);
-		m_pDeviceContext->OMSetRenderTargets(1, &m_LightPassResult.RenderTargetView, m_DepthStencilView);
+		m_pDeviceContext->OMSetRenderTargets(1, m_LightPassResult.RenderTargetView.GetAddressOf(), m_DepthStencilView.Get());
 
 		m_pDeviceContext->VSSetShader(m_SkyPassVS.GetShader(), nullptr, 0);
 		m_pDeviceContext->PSSetShader(m_SkyPassPS.GetShader(), nullptr, 0);
@@ -120,13 +143,11 @@ namespace Insight {
 
 	void D3D11DeferredShadingTech::BindPostFxPass()
 	{
-		m_pDeviceContext->OMSetDepthStencilState(m_pDefaultDepthStencilState, 0U);
+		m_pDeviceContext->OMSetDepthStencilState(m_pDefaultDepthStencilState.Get(), 0U);
 		m_pDeviceContext->RSSetState(m_pRasterizarState.Get());
 		m_pDeviceContext->IASetInputLayout(m_PostFxPassVS.GetInputLayout());
 
-		
-
-		m_pDeviceContext->PSSetShaderResources(15, 1, &m_LightPassResult.ShaderResourceView);
+		m_pDeviceContext->PSSetShaderResources(15, 1, m_LightPassResult.ShaderResourceView.GetAddressOf());
 
 		m_pDeviceContext->VSSetShader(m_PostFxPassVS.GetShader(), nullptr, 0);
 		m_pDeviceContext->PSSetShader(m_PostFxPassPS.GetShader(), nullptr, 0);
@@ -177,17 +198,17 @@ namespace Insight {
 		
 			// Create Textures
 			TextureDesc.Format = m_RtvFormat[i];
-			hr = m_pDevice->CreateTexture2D(&TextureDesc, nullptr, &m_GBuffer[i].Texture);
+			hr = m_pDevice->CreateTexture2D(&TextureDesc, nullptr, m_GBuffer[i].Texture.GetAddressOf());
 			ThrowIfFailed(hr, "Failed to create 2D texture for g-buffer in D3D 11 context.");
 
 			// Create Render Targets
 			RTVDesc.Format = m_RtvFormat[i];
-			hr = m_pDevice->CreateRenderTargetView(m_GBuffer[i].Texture, &RTVDesc, &m_GBuffer[i].RenderTargetView);
+			hr = m_pDevice->CreateRenderTargetView(m_GBuffer[i].Texture.Get(), &RTVDesc, m_GBuffer[i].RenderTargetView.GetAddressOf());
 			ThrowIfFailed(hr, "Failed to create render target view for g-buffer in D3D 11 context.");
 
 			// Create Shader Resource Views
 			SRVDesc.Format = m_RtvFormat[i];
-			m_pDevice->CreateShaderResourceView(m_GBuffer[i].Texture, &SRVDesc, &m_GBuffer[i].ShaderResourceView);
+			m_pDevice->CreateShaderResourceView(m_GBuffer[i].Texture.Get(), &SRVDesc, m_GBuffer[i].ShaderResourceView.GetAddressOf());
 			ThrowIfFailed(hr, "Failed to create shader resource view for g-buffer in D3D 11 context.");
 		}
 
@@ -203,14 +224,14 @@ namespace Insight {
 		DepthStencilBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 		DepthStencilBufferDesc.CPUAccessFlags = 0U;
 		DepthStencilBufferDesc.MiscFlags = 0U;
-		hr = m_pDevice->CreateTexture2D(&DepthStencilBufferDesc, nullptr, &m_pDepthStencilTexture);
+		hr = m_pDevice->CreateTexture2D(&DepthStencilBufferDesc, nullptr, m_pDepthStencilTexture.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create 2D texture for depth buffer in D3D 11 context.");
 
 		D3D11_DEPTH_STENCIL_VIEW_DESC DSVDesc = {};
 		DSVDesc.Format = DXGI_FORMAT_D32_FLOAT;
 		DSVDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 		DSVDesc.Texture2D.MipSlice = 0;
-		m_pDevice->CreateDepthStencilView(m_pDepthStencilTexture, &DSVDesc, &m_DepthStencilView);
+		m_pDevice->CreateDepthStencilView(m_pDepthStencilTexture.Get(), &DSVDesc, m_DepthStencilView.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create depth stencil view for g-buffer in D3D 11 context.");
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC DSVSRVDesc = {};
@@ -219,7 +240,7 @@ namespace Insight {
 		DSVSRVDesc.Format = DXGI_FORMAT_R32_FLOAT;
 		DSVSRVDesc.Texture2D.MipLevels = 1U;
 		DSVSRVDesc.Texture2D.MostDetailedMip = 0;
-		hr = m_pDevice->CreateShaderResourceView(m_pDepthStencilTexture, &DSVSRVDesc, &m_pSceneDepthView);
+		hr = m_pDevice->CreateShaderResourceView(m_pDepthStencilTexture.Get(), &DSVSRVDesc, &m_pSceneDepthView);
 		ThrowIfFailed(hr, "Faield to create shader resource view for depth stencil.");
 
 		// Create Rasterizer State
@@ -233,7 +254,7 @@ namespace Insight {
 		DSDesc.DepthEnable = TRUE;
 		DSDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 		DSDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-		hr = m_pDevice->CreateDepthStencilState(&DSDesc, &m_pDefaultDepthStencilState);
+		hr = m_pDevice->CreateDepthStencilState(&DSDesc, m_pDefaultDepthStencilState.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create depthstencil state for D3D11 context");
 	}
 
@@ -275,17 +296,17 @@ namespace Insight {
 
 		// Create Texture
 		TextureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		hr = m_pDevice->CreateTexture2D(&TextureDesc, nullptr, &m_LightPassResult.Texture);
+		hr = m_pDevice->CreateTexture2D(&TextureDesc, nullptr, m_LightPassResult.Texture.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create 2D texture for g-buffer in D3D 11 context.");
 
 		// Create Render Target
 		RTVDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		hr = m_pDevice->CreateRenderTargetView(m_LightPassResult.Texture, &RTVDesc, &m_LightPassResult.RenderTargetView);
+		hr = m_pDevice->CreateRenderTargetView(m_LightPassResult.Texture.Get(), &RTVDesc, m_LightPassResult.RenderTargetView.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create render target view for g-buffer in D3D 11 context.");
 
 		// Create Shader Resource View
 		SRVDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		m_pDevice->CreateShaderResourceView(m_LightPassResult.Texture, &SRVDesc, &m_LightPassResult.ShaderResourceView);
+		m_pDevice->CreateShaderResourceView(m_LightPassResult.Texture.Get(), &SRVDesc, m_LightPassResult.ShaderResourceView.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create shader resource view for g-buffer in D3D 11 context.");
 	}
 
@@ -345,6 +366,12 @@ namespace Insight {
 	{
 		HRESULT hr;
 
+		// If the device local pointer to the device is not null that means 
+		// this instance has already been initialized and a widow resize is 
+		// probably taking place. Just return, dont recreate the resourcs.
+		/*if (m_pDevice->GetFeatureLevel()) {
+			return true;
+		}*/
 		m_pDevice = pDevice;
 		m_pDeviceContext = pDeviceContext;
 

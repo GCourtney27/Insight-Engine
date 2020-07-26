@@ -43,6 +43,7 @@ namespace Insight {
 		CreateRTV();
 		CreateConstantBufferViews();
 		CreateViewports();
+		CreateScissorRect();
 		CreateSamplers();
 
 		m_DeferredShadingTech.Init(m_pDevice.Get(), m_pDeviceContext.Get(), m_pWindow);
@@ -169,11 +170,11 @@ namespace Insight {
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
 		// Set Persistant Pass Properties
-		m_pDeviceContext->RSSetViewports(1, &m_ScenePassViewport);
+		m_pDeviceContext->RSSetViewports(1, &m_ScenePassViewPort);
+		m_pDeviceContext->RSSetScissorRects(1, &m_ScenePassScissorRect);
 		m_pDeviceContext->PSSetSamplers(0, 1, m_pPointClamp_SamplerState.GetAddressOf());
 		m_pDeviceContext->PSSetSamplers(1, 1, m_pLinearWrap_SamplerState.GetAddressOf());
-
-		m_DeferredShadingTech.PrepPipeline();
+		m_DeferredShadingTech.PrepPipelineForRenderPass();
 	}
 
 	void Direct3D11Context::OnRenderImpl()
@@ -186,7 +187,6 @@ namespace Insight {
 		m_DeferredShadingTech.BindGeometryPass();
 		m_pDeviceContext->VSSetConstantBuffers(1, 1, m_PerFrameData.GetAddressOf());
 		m_pDeviceContext->PSSetConstantBuffers(1, 1, m_PerFrameData.GetAddressOf());
-		// TODO set ps vs per object addative buffer
 		GeometryManager::Render(eRenderPass::RenderPass_Scene);
 	}
 
@@ -205,7 +205,6 @@ namespace Insight {
 		}
 
 		// PostFx Pass
-		// TODO PSSet post fx buffer
 		if (m_pPostFx) {
 			m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), m_ClearColor);
 			m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), nullptr);
@@ -218,6 +217,8 @@ namespace Insight {
 	void Direct3D11Context::ExecuteDrawImpl()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
+
+
 	}
 
 	void Direct3D11Context::SwapBuffersImpl()
@@ -231,11 +232,147 @@ namespace Insight {
 
 	void Direct3D11Context::OnWindowResizeImpl()
 	{
+		if (!m_IsMinimized) {
+
+			if (m_WindowResizeComplete) {
+
+				m_WindowResizeComplete = false;
+				HRESULT hr;
+
+				m_pRenderTargetView.Reset();
+				m_pBackBuffer.Reset();
+
+				DXGI_SWAP_CHAIN_DESC SwapChainDesc = {};
+				m_pSwapChain->GetDesc(&SwapChainDesc);
+				hr = m_pSwapChain->ResizeBuffers(m_FrameBufferCount, m_WindowWidth, m_WindowHeight, SwapChainDesc.BufferDesc.Format, SwapChainDesc.Flags);
+				ThrowIfFailed(hr, "Failed to resize swap chain buffers for D3D 11 context.");
+
+				BOOL fullScreenState;
+				m_pSwapChain->GetFullscreenState(&fullScreenState, nullptr);
+				m_WindowedMode = !fullScreenState;
+
+				UpdateSizeDependentResources();
+			}
+		}
+		m_WindowVisible = !m_IsMinimized;
+		m_WindowResizeComplete = true;
 	}
 
 	void Direct3D11Context::OnWindowFullScreenImpl()
 	{
+		if (m_FullScreenMode)
+		{
+			SetWindowLong(*m_pWindowHandle, GWL_STYLE, WS_OVERLAPPEDWINDOW);
+
+			SetWindowPos(
+				*m_pWindowHandle,
+				HWND_NOTOPMOST,
+				m_pWindow->GetWindowRect().left,
+				m_pWindow->GetWindowRect().top,
+				m_pWindow->GetWindowRect().right - m_pWindow->GetWindowRect().left,
+				m_pWindow->GetWindowRect().bottom - m_pWindow->GetWindowRect().top,
+				SWP_FRAMECHANGED | SWP_NOACTIVATE
+			);
+			ShowWindow(*m_pWindowHandle, SW_NORMAL);
+		}
+		else
+		{
+			GetWindowRect(*m_pWindowHandle, &m_pWindow->GetWindowRect());
+
+			SetWindowLong(*m_pWindowHandle, GWL_STYLE, WS_OVERLAPPEDWINDOW & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
+
+			RECT FullscreenWindowRect;
+			try
+			{
+				if (m_pSwapChain)
+				{
+					// Get the settings of the display on which the app's window is currently displayed
+					ComPtr<IDXGIOutput> pOutput;
+					ThrowIfFailed(m_pSwapChain->GetContainingOutput(&pOutput), "Failed to get containing output while switching to fullscreen mode in D3D 12 context.");
+					DXGI_OUTPUT_DESC Desc;
+					ThrowIfFailed(pOutput->GetDesc(&Desc), "Failed to get description from output while switching to fullscreen mode in D3D 12 context.");
+					FullscreenWindowRect = Desc.DesktopCoordinates;
+				}
+				else
+				{
+					// Fallback to EnumDisplaySettings implementation
+					throw COMException(NULL, "No Swap chain available", __FILE__, __FUNCTION__, __LINE__);
+				}
+			}
+			catch (COMException& e)
+			{
+				UNREFERENCED_PARAMETER(e);
+
+				// Get the settings of the primary display
+				DEVMODE DevMode = {};
+				DevMode.dmSize = sizeof(DEVMODE);
+				EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &DevMode);
+
+				FullscreenWindowRect = {
+					DevMode.dmPosition.x,
+					DevMode.dmPosition.y,
+					DevMode.dmPosition.x + static_cast<LONG>(DevMode.dmPelsWidth),
+					DevMode.dmPosition.y + static_cast<LONG>(DevMode.dmPelsHeight)
+				};
+			}
+
+			SetWindowPos(
+				*m_pWindowHandle,
+				HWND_TOPMOST,
+				FullscreenWindowRect.left,
+				FullscreenWindowRect.top,
+				FullscreenWindowRect.right,
+				FullscreenWindowRect.bottom,
+				SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+
+			ShowWindow(*m_pWindowHandle, SW_MAXIMIZE);
+		}
+		m_FullScreenMode = !m_FullScreenMode;
 	}
+
+	void Direct3D11Context::UpdateSizeDependentResources()
+	{
+		UpdateViewAndScissor();
+
+		// Re-Create Render Target View
+		{
+			HRESULT hr;
+			hr = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(m_pBackBuffer.GetAddressOf()));
+			ThrowIfFailed(hr, "Failed to get the back buffer from the swapchain for D3D 11 context during window resize.");
+
+			hr = m_pDevice->CreateRenderTargetView(m_pBackBuffer.Get(), NULL, m_pRenderTargetView.GetAddressOf());
+			ThrowIfFailed(hr, "Failed to create render target view for D3D 11 context during window resize.");
+		}
+
+		// Re-Create GBuffer
+		{
+			m_DeferredShadingTech.Destroy();
+			m_DeferredShadingTech.Init(m_pDevice.Get(), m_pDeviceContext.Get(), m_pWindow);
+		}
+
+		// Recreate Camera Projection Matrix
+		{
+			if (!m_pWorldCamera->GetIsOrthographic()) {
+				m_pWorldCamera->SetPerspectiveProjectionValues(m_pWorldCamera->GetFOV(), static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight), m_pWorldCamera->GetNearZ(), m_pWorldCamera->GetFarZ());
+			}
+		}
+	}
+
+	void Direct3D11Context::UpdateViewAndScissor()
+	{
+		m_ScenePassViewPort.TopLeftX = 0.0f;
+		m_ScenePassViewPort.TopLeftY = 0.0f;
+		m_ScenePassViewPort.Width = static_cast<FLOAT>(m_WindowWidth);
+		m_ScenePassViewPort.Height = static_cast<FLOAT>(m_WindowHeight);
+
+		m_ScenePassScissorRect.left = static_cast<LONG>(m_ScenePassViewPort.TopLeftX);
+		m_ScenePassScissorRect.right = static_cast<LONG>(m_ScenePassViewPort.TopLeftX + m_ScenePassViewPort.Width);
+		m_ScenePassScissorRect.top = static_cast<LONG>(m_ScenePassViewPort.TopLeftY);
+		m_ScenePassScissorRect.bottom = static_cast<LONG>(m_ScenePassViewPort.TopLeftX + m_ScenePassViewPort.Height);
+	}
+
+
 
 
 
@@ -359,13 +496,21 @@ namespace Insight {
 
 	void Direct3D11Context::CreateViewports()
 	{
-		m_ScenePassViewport = {};
-		m_ScenePassViewport.TopLeftX = 0.0f;
-		m_ScenePassViewport.TopLeftY = 0.0f;
-		m_ScenePassViewport.Width = static_cast<FLOAT>(m_pWindow->GetWidth());
-		m_ScenePassViewport.Height = static_cast<FLOAT>(m_pWindow->GetHeight());
-		m_ScenePassViewport.MinDepth = 0.0f;
-		m_ScenePassViewport.MaxDepth = 1.0f;
+		m_ScenePassViewPort = {};
+		m_ScenePassViewPort.TopLeftX = 0.0f;
+		m_ScenePassViewPort.TopLeftY = 0.0f;
+		m_ScenePassViewPort.Width = static_cast<FLOAT>(m_pWindow->GetWidth());
+		m_ScenePassViewPort.Height = static_cast<FLOAT>(m_pWindow->GetHeight());
+		m_ScenePassViewPort.MinDepth = 0.0f;
+		m_ScenePassViewPort.MaxDepth = 1.0f;
+	}
+
+	void Direct3D11Context::CreateScissorRect()
+	{
+		m_ScenePassScissorRect.left = 0;
+		m_ScenePassScissorRect.top = 0;
+		m_ScenePassScissorRect.right = m_WindowWidth;
+		m_ScenePassScissorRect.bottom = m_WindowHeight;
 	}
 
 	void Direct3D11Context::CreateSamplers()

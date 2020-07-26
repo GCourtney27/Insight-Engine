@@ -8,6 +8,11 @@ namespace Insight {
 
 	bool VertexShader::Init(ComPtr<ID3D11Device>& pDevice, std::wstring ShaderPath, D3D11_INPUT_ELEMENT_DESC* pLayoutDesc, UINT NumElements)
 	{
+		// If the shader exists already then we are probably resising a window or
+		// doing something else. Dont read in a file or recreate the shader, just return
+		if (m_pShader.Get()) {
+			return true;
+		}
 		HRESULT hr = D3DReadFileToBlob(ShaderPath.c_str(), m_pShaderByteCode.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to read D3D 11 vertex shader from file.");
 
@@ -40,10 +45,15 @@ namespace Insight {
 
 	bool PixelShader::Init(ComPtr<ID3D11Device>& device, std::wstring shaderpath)
 	{
-		HRESULT hr = D3DReadFileToBlob(shaderpath.c_str(), m_ShaderByteCode.GetAddressOf());
+		// If the shader exists already then we are probably resising a window or
+		// doing something else. Dont read in a file or recreate the shader, just return
+		if (m_pShader.Get()) {
+			return true;
+		}
+		HRESULT hr = D3DReadFileToBlob(shaderpath.c_str(), m_pShaderByteCode.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to read D3D 11 pixel shader from file.");
 
-		hr = device->CreatePixelShader(m_ShaderByteCode.Get()->GetBufferPointer(), m_ShaderByteCode.Get()->GetBufferSize(), NULL, m_Shader.GetAddressOf());
+		hr = device->CreatePixelShader(m_pShaderByteCode.Get()->GetBufferPointer(), m_pShaderByteCode.Get()->GetBufferSize(), NULL, m_pShader.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create D3D 11 pixel shader from blob.");
 
 		return true;
@@ -51,12 +61,12 @@ namespace Insight {
 
 	ID3D11PixelShader* PixelShader::GetShader()
 	{
-		return m_Shader.Get();
+		return m_pShader.Get();
 	}
 
 	ID3D10Blob* PixelShader::GetBuffer()
 	{
-		return m_ShaderByteCode.Get();
+		return m_pShaderByteCode.Get();
 	}
 
 

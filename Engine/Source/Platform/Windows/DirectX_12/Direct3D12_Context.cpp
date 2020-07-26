@@ -414,7 +414,6 @@ namespace Insight {
 
 				UpdateSizeDependentResources();
 			}
-
 		}
 		m_WindowVisible = !m_IsMinimized;
 		m_WindowResizeComplete = true;

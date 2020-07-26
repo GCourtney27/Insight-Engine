@@ -24,7 +24,6 @@ namespace Insight {
 		ComPtr<ID3D11VertexShader> m_pShader = nullptr;
 		ComPtr<ID3D10Blob> m_pShaderByteCode = nullptr;
 		ComPtr<ID3D11InputLayout> m_pInputLayout = nullptr;
-
 	};
 
 
@@ -33,11 +32,11 @@ namespace Insight {
 	public:
 		bool Init(ComPtr<ID3D11Device>& pDevice, std::wstring Shaderpath);
 		ID3D11PixelShader* GetShader();
-		ID3D11PixelShader** GetShaderAddress() { return m_Shader.GetAddressOf(); }
+		ID3D11PixelShader** GetShaderAddress() { return m_pShader.GetAddressOf(); }
 		ID3D10Blob* GetBuffer();
 	private:
-		ComPtr<ID3D11PixelShader> m_Shader = nullptr;
-		ComPtr<ID3D10Blob> m_ShaderByteCode = nullptr;
+		ComPtr<ID3D11PixelShader> m_pShader = nullptr;
+		ComPtr<ID3D10Blob> m_pShaderByteCode = nullptr;
 	};
 
 }

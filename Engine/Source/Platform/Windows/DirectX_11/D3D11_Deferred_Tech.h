@@ -10,9 +10,9 @@ namespace Insight {
 
 	struct RenderTargetTexture
 	{
-		ID3D11Texture2D* Texture = nullptr;
-		ID3D11RenderTargetView* RenderTargetView = nullptr;
-		ID3D11ShaderResourceView* ShaderResourceView = nullptr;
+		ComPtr<ID3D11Texture2D> Texture = nullptr;
+		ComPtr<ID3D11RenderTargetView> RenderTargetView = nullptr;
+		ComPtr<ID3D11ShaderResourceView> ShaderResourceView = nullptr;
 	};
 
 	class ieD3D11ScreenQuad
@@ -25,8 +25,8 @@ namespace Insight {
 		void OnRender();
 		
 	private:
-		ID3D11Device* m_pDevice;
-		ID3D11DeviceContext* m_pDeviceContext;
+		ComPtr<ID3D11Device> m_pDevice;
+		ComPtr<ID3D11DeviceContext> m_pDeviceContext;
 		ComPtr<ID3D11Buffer> m_pVertexBuffer;
 		ComPtr<ID3D11Buffer> m_pIndexBuffer;
 		uint32_t m_NumVerticis;
@@ -40,8 +40,9 @@ namespace Insight {
 		~D3D11DeferredShadingTech();
 		
 		bool Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, WindowsWindow* pWindow);
+		void Destroy();
 
-		void PrepPipeline();
+		void PrepPipelineForRenderPass();
 		void BindGeometryPass();
 		void BindLightPass();
 		void BindSkyPass();
@@ -79,11 +80,11 @@ namespace Insight {
 		//3:  SRV-Position(RTV->SRV)
 		RenderTargetTexture m_GBuffer[m_NumRTV];
 
-		ID3D11DepthStencilView* m_DepthStencilView = nullptr;
-		ID3D11Texture2D* m_pDepthStencilTexture = nullptr;
-		ID3D11ShaderResourceView* m_pSceneDepthView = nullptr;
+		ComPtr<ID3D11DepthStencilView> m_DepthStencilView = nullptr;
+		ComPtr<ID3D11Texture2D> m_pDepthStencilTexture = nullptr;
+		ComPtr<ID3D11ShaderResourceView> m_pSceneDepthView = nullptr;
 		ComPtr<ID3D11RasterizerState> m_pRasterizarState;
-		ID3D11DepthStencilState* m_pDefaultDepthStencilState = nullptr;
+		ComPtr<ID3D11DepthStencilState> m_pDefaultDepthStencilState = nullptr;
 
 		// Light Pass
 		// ----------

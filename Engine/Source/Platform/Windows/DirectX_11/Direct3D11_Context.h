@@ -68,7 +68,10 @@ namespace Insight {
 		void CreateRTV();
 		void CreateConstantBufferViews();
 		void CreateViewports();
+		void CreateScissorRect();
 		void CreateSamplers();
+		void UpdateSizeDependentResources();
+		void UpdateViewAndScissor();
 
 		void LoadAssets();
 
@@ -82,11 +85,12 @@ namespace Insight {
 
 		ConstantBuffer<CB_PS_VS_PerFrame>	m_PerFrameData;
 		ConstantBuffer<D3D11_CB_PS_Lights>	m_LightData;
-		ConstantBuffer<CB_PS_PostFx>	m_PostFxData;
+		ConstantBuffer<CB_PS_PostFx>		m_PostFxData;
 		D3D_FEATURE_LEVEL					m_DeviceMaxSupportedFeatureLevel;
 		DXGI_SAMPLE_DESC					m_SampleDesc = {};
-		D3D11_VIEWPORT						m_ScenePassViewport;
-		D3D11DeferredShadingTech			m_DeferredShadingTech;
+		D3D11_VIEWPORT						m_ScenePassViewPort = {};
+		D3D12_RECT							m_ScenePassScissorRect = {};
+		D3D11DeferredShadingTech			m_DeferredShadingTech = {};
 
 		//D3D11Helper m_DeviceResources;
 
