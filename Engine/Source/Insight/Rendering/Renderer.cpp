@@ -21,34 +21,34 @@ namespace Insight {
 	{
 	}
 
-	bool Renderer::SetAPIAndCreateContext(eTargetRenderAPI ContextType)
+	bool Renderer::SetSettingsAndCreateContext(GraphicsSettings GraphicsSettings)
 	{
 		IE_ASSERT(!s_Instance, "Rendering Context already exists! Cannot have more that one context created at a time.");
 
-		switch (ContextType)
+
+		switch (GraphicsSettings.TargetRenderAPI)
 		{
 #if defined IE_PLATFORM_WINDOWS
 		case eTargetRenderAPI::D3D_11:
 		{
 			WindowsWindow* Window = (WindowsWindow*)&Application::Get().GetWindow();
 			s_Instance = new Direct3D11Context(Window);
-			s_Instance->m_CurrentAPI = ContextType;
 			break;
 		}
 		case eTargetRenderAPI::D3D_12:
 		{
 			WindowsWindow* Window = (WindowsWindow*)&Application::Get().GetWindow();
 			s_Instance = new Direct3D12Context(Window);
-			s_Instance->m_CurrentAPI = ContextType;
 			break;
 		}
 #endif // IE_PLATFORM_WINDOWS
 		default:
 		{
-			IE_CORE_ERROR("Failed to create render with given context type: {0}", ContextType);
+			IE_CORE_ERROR("Failed to create render with given context type: {0}", GraphicsSettings.TargetRenderAPI);
 			break;
 		}
 		}
+		s_Instance->SetGraphicsSettings(GraphicsSettings);
 
 		return s_Instance != nullptr;
 	}

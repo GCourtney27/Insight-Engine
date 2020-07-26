@@ -29,8 +29,6 @@ namespace Insight {
 	{
 		IE_ASSERT(!s_Instance, "Trying to create Application instance when one already exists!");
 		s_Instance = this;
-
-		
 	}
 
 	bool Application::InitializeAppForWindows(HINSTANCE & hInstance, int nCmdShow)
@@ -45,16 +43,7 @@ namespace Insight {
 			return false;
 		}
 
-		Renderer::eTargetRenderAPI API = Renderer::eTargetRenderAPI::D3D_11;
-
-//#define D3D12_ENABLED
-
-#if defined D3D12_ENABLED
-		API = Renderer::eTargetRenderAPI::D3D_12;
-#endif
-		Renderer::SetAPIAndCreateContext(API);
-		Renderer::Init();
-		if (!Init()) {
+		if (!InitCoreApplication()) {
 			IE_CORE_FATAL(L"Fatal Error: Failed to initiazlize application for Windows.");
 			return false;
 		}
@@ -68,19 +57,27 @@ namespace Insight {
 		Shutdown();
 	}
 
-	bool Application::Init()
+	bool Application::InitCoreApplication()
 	{
+		// Initize the main file system
 		FileSystem::Init(ProjectName);
 
+		// Create and initialize the renderer
+		Renderer::SetSettingsAndCreateContext(FileSystem::LoadGraphicsSettingsFromJson());
+		Renderer::Init();
+
+		// Create the main game layer
 		m_pGameLayer = new GameLayer();
 
+		// Load the Scene
 		std::string DocumentPath = FileSystem::ProjectDirectory;
 		DocumentPath += "/Assets/Scenes/";
 		DocumentPath += TargetSceneName;
-		
 		if (!m_pGameLayer->LoadScene(DocumentPath)) {
 			throw ieException("Failed to initialize scene");
 		}
+		
+		// Push core app layer to the layer stack
 		PushEngineLayers();
 
 		IE_CORE_TRACE("Application Initialized");

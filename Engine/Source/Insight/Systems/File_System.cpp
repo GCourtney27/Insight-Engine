@@ -67,6 +67,35 @@ namespace Insight {
 		return ProjectDirectory + "/Assets/" + Path;
 	}
 
+	Renderer::GraphicsSettings FileSystem::LoadGraphicsSettingsFromJson()
+	{
+		using GraphicsSettings = Renderer::GraphicsSettings;
+		GraphicsSettings UserGraphicsSettings = {};
+
+		{
+			Profiling::ScopedTimer timer("LoadSceneFromJson::LoadGraphicsSettingsFromJson");
+
+			rapidjson::Document RawSettingsFile;
+			const std::string SettingsDir = ProjectDirectory + "/PROFSAVE.ini";
+			if (!json::load(SettingsDir.c_str(), RawSettingsFile)) {
+				IE_CORE_ERROR("Failed to load graphics settings from file: \"{0}\". Default graphics settings will be applied.", SettingsDir);
+				return UserGraphicsSettings;
+			}
+
+			const rapidjson::Value& RendererSettings = RawSettingsFile["Renderer"];
+			int TargetAPI, TextureQuality;
+			float TextureFiltering;
+			json::get_int(RendererSettings[0], "TargetAPI", TargetAPI);
+			json::get_int(RendererSettings[0], "TextureQuality", TextureQuality);
+			json::get_float(RendererSettings[0], "TextureFiltering", TextureFiltering);
+			UserGraphicsSettings.TargetRenderAPI = (Renderer::eTargetRenderAPI)TargetAPI;
+			UserGraphicsSettings.MaxAnisotropy = TextureFiltering;
+			UserGraphicsSettings.MipLodBias = TextureQuality;
+		}
+
+		return UserGraphicsSettings;
+	}
+
 	bool FileSystem::LoadSceneFromJson(const std::string& FileName, Scene* pScene)
 	{
 		// Load in Meta.json

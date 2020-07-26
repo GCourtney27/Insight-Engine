@@ -34,15 +34,16 @@ namespace Insight {
 	class INSIGHT_API Renderer
 	{
 	public:
-		enum class eTargetRenderAPI
+		enum eTargetRenderAPI
 		{
-			INVALID,
-			D3D_11,
-			D3D_12,
+			INVALID = 0,
+			D3D_11 = 1,
+			D3D_12 = 2,
 		};
 
-		struct GraphicsQuality
+		struct GraphicsSettings
 		{
+			eTargetRenderAPI TargetRenderAPI = eTargetRenderAPI::D3D_11;
 			uint32_t MaxAnisotropy = 1U; // Texture Filtering (1, 4, 8, 16)
 			float MipLodBias = 0.0f; // Texture Quality (0 - 9)
 		};
@@ -55,7 +56,9 @@ namespace Insight {
 		// Set the target graphics rendering API and create a context to it.
 		// Once set, it cannot be changed through the lifespan application, you must 
 		// set it re-launch the app.
-		static bool SetAPIAndCreateContext(eTargetRenderAPI ContextType);
+		static bool SetSettingsAndCreateContext(GraphicsSettings GraphicsSettings);
+		// Set the graphics settings for the context
+		static void SetGraphicsSettings(GraphicsSettings GraphicsSettings) { s_Instance->m_GraphicsSettings = GraphicsSettings; }
 
 		// Initilize renderer's API library.
 		static inline bool Init() { return s_Instance->InitImpl(); }
@@ -91,7 +94,7 @@ namespace Insight {
 		static void DestroySkybox() { s_Instance->DestroySkyboxImpl(); }
 
 
-		inline static eTargetRenderAPI GetAPI() { return s_Instance->m_CurrentAPI; }
+		inline static eTargetRenderAPI GetAPI() { return s_Instance->m_GraphicsSettings.TargetRenderAPI; }
 		inline static uint8_t GetFrameBufferCount() { return s_Instance->m_FrameBufferCount; }
 		inline static void SetVSyncEnabled(bool enabled) { s_Instance->m_VSyncEnabled = enabled; }
 		inline static void SetWindowWidthAndHeight(UINT width, UINT height, bool isMinimized) 
@@ -148,9 +151,8 @@ namespace Insight {
 	protected:
 		Renderer(uint32_t windowWidth, uint32_t windowHeight, bool vSyncEabled);
 	protected:
-		eTargetRenderAPI m_CurrentAPI = eTargetRenderAPI::INVALID;
 		eRenderPass m_RenderPass = eRenderPass::RenderPass_Scene;
-		GraphicsQuality m_GraphicsQuality = {}; // TODO Load this from a settings file
+		GraphicsSettings m_GraphicsSettings = {}; // TODO Load this from a settings file
 
 		static const uint8_t m_FrameBufferCount = 3u;
 		uint32_t m_WindowWidth;

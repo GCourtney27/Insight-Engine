@@ -534,8 +534,8 @@ namespace Insight {
 		SamplerLinearWrapDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 		SamplerLinearWrapDesc.MinLOD = 0.0f;
 		SamplerLinearWrapDesc.MaxLOD = 9.0f;
-		SamplerLinearWrapDesc.MipLODBias = m_GraphicsQuality.MipLodBias;
-		SamplerLinearWrapDesc.MaxAnisotropy = m_GraphicsQuality.MaxAnisotropy;
+		SamplerLinearWrapDesc.MipLODBias = m_GraphicsSettings.MipLodBias;
+		SamplerLinearWrapDesc.MaxAnisotropy = m_GraphicsSettings.MaxAnisotropy;
 		hr = m_pDevice->CreateSamplerState(&SamplerLinearWrapDesc, m_pLinearWrap_SamplerState.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create linear wrap sampler for D3D11 context.");
 	}
