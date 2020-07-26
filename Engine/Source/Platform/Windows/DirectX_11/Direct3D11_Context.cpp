@@ -124,16 +124,33 @@ namespace Insight {
 		m_PerFrameData.SubmitToGPU();
 
 		// Send Point Lights to GPU
-		for (int i = 0; i < m_PointLights.size(); i++) {
-			m_LightData.Data.pointLights[i] = m_PointLights[i]->GetConstantBuffer();
+		if (m_PointLights.size() == 0) {
+			m_LightData.Data.pointLights[0] = CB_PS_PointLight{};
 		}
+		else {
+			for (int i = 0; i < m_PointLights.size(); i++) {
+				m_LightData.Data.pointLights[i] = m_PointLights[i]->GetConstantBuffer();
+			}
+		}
+
 		// Send Directionl Lights to GPU
-		for (int i = 0; i < m_DirectionalLights.size(); i++) {
-			m_LightData.Data.directionalLights[i] = m_DirectionalLights[i]->GetConstantBuffer();
+		if (m_DirectionalLights.size() == 0) {
+			m_LightData.Data.directionalLights[0] = CB_PS_DirectionalLight{};
 		}
+		else {
+			for (int i = 0; i < m_DirectionalLights.size(); i++) {
+				m_LightData.Data.directionalLights[i] = m_DirectionalLights[i]->GetConstantBuffer();
+			}
+		}
+
 		// Send Spot Lights to GPU
-		for (int i = 0; i < m_SpotLights.size(); i++) {
-			m_LightData.Data.spotLights[i] = m_SpotLights[i]->GetConstantBuffer();
+		if (m_SpotLights.size() == 0) {
+			m_LightData.Data.spotLights[0] = CB_PS_SpotLight{};
+		}
+		else {
+			for (int i = 0; i < m_SpotLights.size(); i++) {
+				m_LightData.Data.spotLights[i] = m_SpotLights[i]->GetConstantBuffer();
+			}
 		}
 		m_LightData.SubmitToGPU();
 
@@ -141,7 +158,10 @@ namespace Insight {
 		if (m_pPostFx) {
 			m_PostFxData.Data = m_pPostFx->GetConstantBuffer();
 		}
-
+		else {
+			m_PostFxData.Data = CB_PS_PostFx{};
+		}
+		m_PostFxData.SubmitToGPU();
 	}
 
 	void Direct3D11Context::OnPreFrameRenderImpl()

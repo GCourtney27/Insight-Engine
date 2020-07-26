@@ -84,12 +84,10 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
         kD *= 1.0 - metallic;
         
         // Shadowing
-        //float4 fragPosLightSpace = mul(float4(worldPosition, 1.0), mul(dirLights[d].lightSpaceView, dirLights[d].lightSpaceProj));
-        float shadow = 0.0f; //ShadowCalculation(fragPosLightSpace, normal, lightDir);
-        //ps_out.litImage = float3(shadow, shadow, shadow);
-        //return ps_out;
+        float4 fragPosLightSpace = mul(float4(worldPosition, 1.0), mul(dirLights[d].lightSpaceView, dirLights[d].lightSpaceProj));
+        float shadow = ShadowCalculation(fragPosLightSpace, normal, lightDir);
         
-        directionalLightLuminance += ((kD * albedo / PI + specular) * radiance * NdotL);// * (1.0 - shadow);
+        directionalLightLuminance += ((kD * albedo / PI + specular) * radiance * NdotL) * (1.0 - shadow);
 
     }
     
