@@ -3,7 +3,7 @@
 #include <Insight/Core.h>
 
 #include "Scene_Node.h"
-#include "Insight/Rendering/Rendering_Context.h"
+#include "Insight/Rendering/Renderer.h"
 #include "Insight/Systems/Managers/Resource_Manager.h"
 #include "Insight/Systems/File_System.h"
 #include "Insight/Runtime/ACamera.h"
@@ -83,7 +83,6 @@ namespace Insight {
 		AActor* m_pSelectedActor = nullptr;
 
 		SceneNode* m_pSceneRoot = nullptr;
-		std::shared_ptr<RenderingContext> m_Renderer = nullptr;
 		std::string m_DisplayName;
 		
 	private:

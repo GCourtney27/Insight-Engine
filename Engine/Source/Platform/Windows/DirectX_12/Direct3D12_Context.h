@@ -3,7 +3,7 @@
 #include <Insight/Core.h>
 
 #include "Platform/Windows/DirectX_12/D3D12_Helper.h"
-#include "Insight/Rendering/Rendering_Context.h"
+#include "Insight/Rendering/Renderer.h"
 #include "Platform/Windows/Error/COM_Exception.h"
 
 #include "Platform/Windows/DirectX_12/Descriptor_Heap_Wrapper.h"
@@ -21,16 +21,7 @@ namespace Insight {
 
 	class WindowsWindow;
 	class GeometryManager;
-
-	class ASkySphere;
-	class ASkyLight;
-	class APostFx;
-
-	class ADirectionalLight;
-	class APointLight;
-	class ASpotLight;
-
-	class ACamera;
+	class ieD3D12SphereRenderer;
 
 	class ScreenQuad
 	{
@@ -44,35 +35,31 @@ namespace Insight {
 		UINT m_NumVerticies = 0u;
 	};
 
-	class INSIGHT_API Direct3D12Context : public RenderingContext
+	class INSIGHT_API Direct3D12Context : public Renderer
 	{
+		friend class Renderer;
 	public:
-		Direct3D12Context(WindowsWindow* windowHandle);
-		virtual ~Direct3D12Context();
+		virtual bool InitImpl() override;
+		virtual void DestroyImpl();
+		virtual bool PostInitImpl() override;
+		virtual void OnUpdateImpl(const float DeltaMs) override;
+		virtual void OnPreFrameRenderImpl() override;
+		virtual void OnRenderImpl() override;
+		virtual void OnMidFrameRenderImpl() override;
+		virtual void ExecuteDrawImpl() override;
+		virtual void SwapBuffersImpl() override;
+		virtual void OnWindowResizeImpl() override;
+		virtual void OnWindowFullScreenImpl() override;
 
-		// Initilize Direc3D 12 library.
-		virtual bool Init() override;
-		// Submit initilize commands to the GPU.
-		virtual bool PostInit() override;
-		// Upload per-frame constants to the GPU as well as lighting information.
-		virtual void OnUpdate(const float& deltaTime) override;
-		// Flush the command allocators and clear render targets.
-		virtual void OnPreFrameRender() override;
-		// Draws shadow pass first then binds geometry pass for future draw commands.
-		virtual void OnRender() override;
-		// Binds light pass.
-		virtual void OnMidFrameRender() override;
-		// executes the command queue on the GPU. Waits for the GPU to finish before proceeding.
-		virtual void ExecuteDraw() override;
-		// Swap buffers with the new frame.
-		virtual void SwapBuffers() override;
-		// Resize render target, depth stencil and sreen rects when window size is changed.
-		virtual void OnWindowResize() override;
-		// Tells the swapchain to enable full screen rendering.
-		virtual void OnWindowFullScreen() override;
+		virtual void SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) override;
+		virtual void SetIndexBufferImpl(ieIndexBuffer* pBuffer) override;
+		virtual void DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) override;
 
-		inline static Direct3D12Context& Get() { return *s_Instance; }
-		inline ID3D12Device& GetDeviceContext() const { return *m_pDeviceContext.Get(); }
+		virtual void RenderSkySphereImpl() override;
+		virtual bool CreateSkyboxImpl() override;
+		virtual void DestroySkyboxImpl() override;
+
+		inline ID3D12Device& GetDeviceContext() const { return *m_pDevice.Get(); }
 
 		inline ID3D12GraphicsCommandList& GetScenePassCommandList() const { return *m_pScenePassCommandList.Get(); }
 		inline ID3D12GraphicsCommandList& GetShadowPassCommandList() const { return *m_pShadowPassCommandList.Get(); }
@@ -93,26 +80,11 @@ namespace Insight {
 			return handle;
 		}
 
-
-		// Add a Directional Light to the scene. 
-		void RegisterDirectionalLight(ADirectionalLight* DirectionalLight) { m_DirectionalLights.push_back(DirectionalLight); }
-		void UnRegisterDirectionalLight(ADirectionalLight* DirectionalLight);
-		// Add a Point Light to the scene. 
-		void RegisterPointLight(APointLight* PointLight) { m_PointLights.push_back(PointLight); }
-		void UnRegisterPointLight(APointLight* PointLight);
-		// Add a Spot Light to the scene. 
-		void RegisterSpotLight(ASpotLight* SpotLight) { m_SpotLights.push_back(SpotLight); }
-		void UnRegisterSpotLight(ASpotLight* SpotLight);
-
-		// Add Sky Sphere to the scene. There can never be more than one in the scene at any given time.
-		void AddSkySphere(ASkySphere* skySphere) { if (!m_pSkySphere) { m_pSkySphere = skySphere; } }
-		// Add a post-fx volume to the scene.
-		void AddPostFxActor(APostFx* postFxActor) { {m_pPostFx = postFxActor; } }
-		// Add Sky light to the scene for Image-Based Lighting. There can never be more than one 
-		// in the scene at any given time.
-		void AddSkyLight(ASkyLight* skyLight) { if (!m_SkyLight) { m_SkyLight = skyLight; } }
-
+		
 	private:
+		Direct3D12Context(WindowsWindow* windowHandle);
+		virtual ~Direct3D12Context();
+
 		void CloseCommandListAndSignalCommandQueue();
 		// Per-Frame
 		
@@ -166,14 +138,10 @@ namespace Insight {
 		void LoadDemoAssets();
 
 	private:
-		static Direct3D12Context* s_Instance;
-
-	private:
-		HWND*			m_pWindowHandle = nullptr;
-		WindowsWindow*	m_pWindow = nullptr;
-		D3D12Helper		m_d3dDeviceResources;
-		GeometryManager*	m_pModelManager = nullptr;
-		ACamera* m_pWorldCamera = nullptr;
+		HWND*				m_pWindowHandle = nullptr;
+		WindowsWindow*		m_pWindow = nullptr;
+		D3D12Helper			m_d3dDeviceResources;
+		ieD3D12SphereRenderer*				m_SkySphere;
 		// CPU/GPU Syncronization
 		int						m_FrameIndex = 0;
 		UINT64					m_FenceValues[m_FrameBufferCount] = {};
@@ -188,10 +156,11 @@ namespace Insight {
 
 		// D3D 12 Usings
 		ComPtr<IDXGIAdapter1>				m_pAdapter;
-		ComPtr<ID3D12Device>				m_pDeviceContext;
+		ComPtr<ID3D12Device>				m_pDevice;
 		ComPtr<IDXGIFactory4>				m_pDxgiFactory;
 		ComPtr<IDXGISwapChain3>				m_pSwapChain;
 
+		ComPtr<ID3D12GraphicsCommandList>	m_pActiveCommandList;
 		ComPtr<ID3D12CommandQueue>			m_pCommandQueue;
 		ComPtr<ID3D12GraphicsCommandList>	m_pScenePassCommandList;
 		ComPtr<ID3D12CommandAllocator>		m_pScenePassCommandAllocators[m_FrameBufferCount];
@@ -288,26 +257,18 @@ namespace Insight {
 		UINT8*				   m_cbvPostFxGPUAddress;
 		CB_PS_VS_PerFrame	   m_PostFxData;
 		int CBPerFrameAlignedSize = (sizeof(CB_PS_VS_PerFrame) + 255) & ~255;
+		int CBPostFxAlignedSize = (sizeof(CB_PS_PostFx) + 255) & ~255;
 
-		ASkySphere*			   m_pSkySphere = nullptr;
-		ASkyLight*			   m_SkyLight = nullptr;
-		APostFx*			   m_pPostFx = nullptr;
-		int					   CBPostFxAlignedSize = (sizeof(CB_PS_PostFx) + 255) & ~255;
+		#define POINT_LIGHTS_CB_ALIGNED_OFFSET (0)
+		int	CBPointLightsAlignedSize = (sizeof(CB_PS_PointLight) + 255) & ~255;
 
-#define POINT_LIGHTS_CB_ALIGNED_OFFSET (0)
-#define MAX_POINT_LIGHTS_SUPPORTED 16u
-		std::vector<APointLight*> m_PointLights;
-		int						  CBPointLightsAlignedSize = (sizeof(CB_PS_PointLight) + 255) & ~255;
+		#define DIRECTIONAL_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight))
+		int	CBDirectionalLightsAlignedSize = (sizeof(CB_PS_DirectionalLight) + 255) & ~255;
 
-#define DIRECTIONAL_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight))
-#define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 4u
-		std::vector<ADirectionalLight*> m_DirectionalLights;
-		int							    CBDirectionalLightsAlignedSize = (sizeof(CB_PS_DirectionalLight) + 255) & ~255;
+		#define SPOT_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight) + MAX_DIRECTIONAL_LIGHTS_SUPPORTED * sizeof(CB_PS_DirectionalLight))
+		int	CBSpotLightsAlignedSize = (sizeof(CB_PS_SpotLight) + 255) & ~255;
 
-#define SPOT_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight) + MAX_DIRECTIONAL_LIGHTS_SUPPORTED * sizeof(CB_PS_DirectionalLight))
-#define MAX_SPOT_LIGHTS_SUPPORTED 16u
-		std::vector<ASpotLight*> m_SpotLights;
-		int						 CBSpotLightsAlignedSize = (sizeof(CB_PS_SpotLight) + 255) & ~255;
+
 
 
 		const UINT PIX_EVENT_UNICODE_VERSION = 0;

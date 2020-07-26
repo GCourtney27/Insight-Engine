@@ -13,21 +13,23 @@ namespace Insight {
 		IE_ASSERT(!s_Instance, "An instance of resource manager already exists!");
 		s_Instance = this;
 
-		m_pGeometryManager = new GeometryManager();
+		//m_pGeometryManager = new GeometryManager();
 		m_pTextureManager = new TextureManager();
 		m_pMonoScriptManager = new MonoScriptManager();
 	}
 
 	ResourceManager::~ResourceManager()
 	{
-		delete m_pGeometryManager;
+		GeometryManager::Shutdown();
 		delete m_pTextureManager;
 		delete m_pMonoScriptManager;
 	}
 
 	bool ResourceManager::Init()
 	{
-		m_pGeometryManager->Init();
+		GeometryManager::InitGlobalInstance();
+		GeometryManager::Init();
+
 		m_pMonoScriptManager->Init();
 		m_pTextureManager->Init();
 		return true;
@@ -46,7 +48,7 @@ namespace Insight {
 	// adding new resources AFTER this call
 	void ResourceManager::FlushAllResources()
 	{
-		m_pGeometryManager->FlushModelCache();
+		GeometryManager::FlushModelCache();
 		m_pTextureManager->FlushTextureCache();
 		//m_pMonoScriptManager->Cleanup();
 	}

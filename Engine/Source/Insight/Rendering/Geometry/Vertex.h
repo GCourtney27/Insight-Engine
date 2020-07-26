@@ -1,5 +1,5 @@
 #pragma once
-#include "Insight/Math/ieVectors.h"
+#include "Insight/Math/ie_Vectors.h"
 
 namespace Insight {
 
@@ -20,5 +20,6 @@ namespace Insight {
 		ieFloat3 Position	 = {};
 		ieFloat2 TexCoords	 = {};
 	};
+
 
 }

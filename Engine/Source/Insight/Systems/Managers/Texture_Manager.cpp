@@ -3,7 +3,11 @@
 #include "Texture_Manager.h"
 #include "Insight/Systems/File_System.h"
 #include "Insight/Utilities/String_Helper.h"
+#include "Insight/Rendering/Renderer.h"
+
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
+#include "Platform/Windows/DirectX_12/ie_D3D12_Texture.h"
+#include "Platform/Windows/DirectX_11/ie_D3D11_Texture.h"
 
 namespace Insight {
 	
@@ -136,14 +140,14 @@ namespace Insight {
 	
 	bool TextureManager::LoadDefaultTextures()
 	{
-		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		CDescriptorHeapWrapper& cbvSrvHeapStart = graphicsContext.GetCBVSRVDescriptorHeap();
+		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+		CDescriptorHeapWrapper& cbvSrvHeapStart = graphicsContext->GetCBVSRVDescriptorHeap();
 
 		Texture::IE_TEXTURE_INFO TexInfo = {};
 		TexInfo.Id = -1;
 		TexInfo.GenerateMipMaps = true;
 
-		TexInfo.DisplayName = "Default_Albedo";
+		/*TexInfo.DisplayName = "Default_Albedo";
 		TexInfo.Type = Texture::eTextureType::ALBEDO;
 		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_Albedo.png");
 		m_DefaultAlbedoTexture = make_shared<Texture>(TexInfo, cbvSrvHeapStart);
@@ -166,47 +170,98 @@ namespace Insight {
 		TexInfo.DisplayName = "Default_AO";
 		TexInfo.Type = Texture::eTextureType::AO;
 		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_RoughAO.png");
-		m_DefaultAOTexture = make_shared<Texture>(TexInfo, cbvSrvHeapStart);
+		m_DefaultAOTexture = make_shared<Texture>(TexInfo, cbvSrvHeapStart);*/
 
 		return true;
 	}
 
 	void TextureManager::RegisterTextureByType(const Texture::IE_TEXTURE_INFO& texInfo)
 	{
-		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		CDescriptorHeapWrapper& cbvSrvHeapStart = graphicsContext.GetCBVSRVDescriptorHeap();
 
-		switch (texInfo.Type) {
-		case Texture::eTextureType::ALBEDO:
+		switch (Renderer::GetAPI())
 		{
-			m_AlbedoTextures.push_back(make_shared<Texture>(texInfo, cbvSrvHeapStart));
+		case Renderer::eTargetRenderAPI::D3D_11:
+		{
+			switch (texInfo.Type) {
+			case Texture::eTextureType::ALBEDO:
+			{
+				m_AlbedoTextures.push_back(make_shared<ieD3D11Texture>(texInfo));
+				break;
+			}
+			case Texture::eTextureType::NORMAL:
+			{
+				m_NormalTextures.push_back(make_shared<ieD3D11Texture>(texInfo));
+				break;
+			}
+			case Texture::eTextureType::ROUGHNESS:
+			{
+				m_RoughnessTextures.push_back(make_shared<ieD3D11Texture>(texInfo));
+				break;
+			}
+			case Texture::eTextureType::METALLIC:
+			{
+				m_MetallicTextures.push_back(make_shared<ieD3D11Texture>(texInfo));
+				break;
+			}
+			case Texture::eTextureType::AO:
+			{
+				m_AOTextures.push_back(make_shared<ieD3D11Texture>(texInfo));
+				break;
+			}
+			default:
+			{
+				IE_CORE_WARN("Failed to identify texture to create with name of {0} - ID({1})", texInfo.DisplayName, texInfo.Id);
+				break;
+			}
+			}
 			break;
 		}
-		case Texture::eTextureType::NORMAL:
+		case Renderer::eTargetRenderAPI::D3D_12:
 		{
-			m_NormalTextures.push_back(make_shared<Texture>(texInfo, cbvSrvHeapStart));
-			break;
-		}
-		case Texture::eTextureType::ROUGHNESS:
-		{
-			m_RoughnessTextures.push_back(make_shared<Texture>(texInfo, cbvSrvHeapStart));
-			break;
-		}
-		case Texture::eTextureType::METALLIC:
-		{
-			m_MetallicTextures.push_back(make_shared<Texture>(texInfo, cbvSrvHeapStart));
-			break;
-		}
-		case Texture::eTextureType::AO:
-		{
-			m_AOTextures.push_back(make_shared<Texture>(texInfo, cbvSrvHeapStart));
+			Direct3D12Context* GraphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+			CDescriptorHeapWrapper& cbvSrvHeapStart = GraphicsContext->GetCBVSRVDescriptorHeap();
+
+			switch (texInfo.Type) {
+			case Texture::eTextureType::ALBEDO:
+			{
+				m_AlbedoTextures.push_back(make_shared<ieD3D12Texture>(texInfo, cbvSrvHeapStart));
+				break;
+			}
+			case Texture::eTextureType::NORMAL:
+			{
+				m_NormalTextures.push_back(make_shared<ieD3D12Texture>(texInfo, cbvSrvHeapStart));
+				break;
+			}
+			case Texture::eTextureType::ROUGHNESS:
+			{
+				m_RoughnessTextures.push_back(make_shared<ieD3D12Texture>(texInfo, cbvSrvHeapStart));
+				break;
+			}
+			case Texture::eTextureType::METALLIC:
+			{
+				m_MetallicTextures.push_back(make_shared<ieD3D12Texture>(texInfo, cbvSrvHeapStart));
+				break;
+			}
+			case Texture::eTextureType::AO:
+			{
+				m_AOTextures.push_back(make_shared<ieD3D12Texture>(texInfo, cbvSrvHeapStart));
+				break;
+			}
+			default:
+			{
+				IE_CORE_WARN("Failed to identify texture to create with name of {0} - ID({1})", texInfo.DisplayName, texInfo.Id);
+				break;
+			}
+			}
 			break;
 		}
 		default:
 		{
-			IE_CORE_WARN("Failed to identify texture to create with name of {0} - ID({1})", texInfo.DisplayName, texInfo.Id);
+			IE_CORE_ERROR("Failed to determine graphics api to initialize texture. The renderer may not have been initialized yet.");
 			break;
 		}
 		}
+
+		
 	}
 }

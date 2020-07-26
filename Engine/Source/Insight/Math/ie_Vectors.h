@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Insight/Core.h>
+#include <DirectX12/TK/Inc/SimpleMath.h>
 
 namespace Insight {
 

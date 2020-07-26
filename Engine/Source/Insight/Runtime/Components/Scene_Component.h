@@ -13,11 +13,11 @@ namespace Insight {
 		SceneComponent();
 		~SceneComponent();
 
-		inline const Transform& GetTransform() const { return m_Transfrom; }
-		inline Transform& GetTransformRef() { return m_Transfrom; }
+		inline const ieTransform& GetTransform() const { return m_Transfrom; }
+		inline ieTransform& GetTransformRef() { return m_Transfrom; }
 
 	private:
-		Transform m_Transfrom;
+		ieTransform m_Transfrom;
 	};
 
 }

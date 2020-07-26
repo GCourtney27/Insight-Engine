@@ -3,7 +3,7 @@
 #include "ADirectional_Light.h"
 
 #include "Insight/Runtime/Components/Actor_Component.h"
-#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
+#include "Insight/Rendering/Renderer.h"
 #include "Insight/Runtime/ACamera.h"
 #include "Insight/Core/Application.h"
 #include "imgui.h"
@@ -15,8 +15,7 @@ namespace Insight {
 	ADirectionalLight::ADirectionalLight(ActorId id, ActorType type)
 		: AActor(id, type)
 	{
-		Direct3D12Context& graphicsContext = Direct3D12Context::Get();
-		graphicsContext.RegisterDirectionalLight(this);
+		Renderer::RegisterDirectionalLight(this);
 
 		AActor::GetTransformRef().SetPosition(0.0f, -1.0f, -6.0f);
 
@@ -94,7 +93,7 @@ namespace Insight {
 			Writer.Key("Transform");
 			Writer.StartArray(); // Start Write Transform
 			{
-				Transform& Transform = SceneNode::GetTransformRef();
+				ieTransform& Transform = SceneNode::GetTransformRef();
 				ieVector3 Pos = Transform.GetPosition();
 				ieVector3 Rot = Transform.GetRotation();
 				ieVector3 Sca = Transform.GetScale();
@@ -202,8 +201,7 @@ namespace Insight {
 
 	void ADirectionalLight::Destroy()
 	{
-		Direct3D12Context& GraphicsContext = Direct3D12Context::Get();
-		GraphicsContext.UnRegisterDirectionalLight(this);
+		Renderer::UnRegisterDirectionalLight(this);
 	}
 
 	void ADirectionalLight::OnEvent(Event& e)

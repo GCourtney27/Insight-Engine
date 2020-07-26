@@ -7,6 +7,12 @@
 #include "Insight/Layer_Types/ImGui_Layer.h"
 #include "Platform/Windows/Windows_Window.h"
 #include "Insight/Core/ieException.h"
+#include "Insight/Rendering/Renderer.h"
+
+#if defined IE_PLATFORM_WINDOWS
+#include "Platform/Windows/DirectX_12/D3D12_ImGui_Layer.h"
+#include "Platform/Windows/DirectX_11/D3D11_ImGui_Layer.h"
+#endif
 
 // Scenes (Development-Project)
 // ----------------------------
@@ -23,9 +29,6 @@ namespace Insight {
 	{
 		IE_ASSERT(!s_Instance, "Trying to create Application instance when one already exists!");
 		s_Instance = this;
-
-		IE_STRIP_FOR_GAME_DIST(m_pImGuiLayer = new ImGuiLayer());
-		IE_STRIP_FOR_GAME_DIST(m_pEditorLayer = new EditorLayer());
 	}
 
 	bool Application::InitializeAppForWindows(HINSTANCE & hInstance, int nCmdShow)
@@ -33,25 +36,19 @@ namespace Insight {
 		m_pWindow = std::unique_ptr<Window>(Window::Create());
 		m_pWindow->SetEventCallback(IE_BIND_EVENT_FN(Application::OnEvent));
 
-		((WindowsWindow*)m_pWindow.get())->SetWindowsSessionProps(hInstance, nCmdShow);
-		if (!((WindowsWindow*)m_pWindow.get())->Init(WindowProps())) {
+		WindowsWindow* pWindow = (WindowsWindow*)m_pWindow.get();
+		pWindow->SetWindowsSessionProps(hInstance, nCmdShow);
+		if (!pWindow->Init(WindowProps())) {
 			IE_CORE_FATAL(L"Fatal Error: Failed to initialize window.");
 			return false;
 		}
 
-		if (!Init()) {
+		if (!InitCoreApplication()) {
 			IE_CORE_FATAL(L"Fatal Error: Failed to initiazlize application for Windows.");
 			return false;
 		}
 
-		// TODO: This isnt very clean. It's a way to resize the scissor 
-		// after the menu bar is added to the window to avoid blurry and misaligned UI text.
-		// Refactor it.
-		RECT clientRect = {};
-		GetClientRect(static_cast<HWND>(m_pWindow->GetNativeWindow()), &clientRect);
-		WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, false );
-		OnWindowResize(event);
-
+		pWindow->PostInit();
 		return true;
 	}
 
@@ -60,19 +57,27 @@ namespace Insight {
 		Shutdown();
 	}
 
-	bool Application::Init()
+	bool Application::InitCoreApplication()
 	{
+		// Initize the main file system
 		FileSystem::Init(ProjectName);
 
+		// Create and initialize the renderer
+		Renderer::SetSettingsAndCreateContext(FileSystem::LoadGraphicsSettingsFromJson());
+		Renderer::Init();
+
+		// Create the main game layer
 		m_pGameLayer = new GameLayer();
 
+		// Load the Scene
 		std::string DocumentPath = FileSystem::ProjectDirectory;
 		DocumentPath += "/Assets/Scenes/";
 		DocumentPath += TargetSceneName;
-		
 		if (!m_pGameLayer->LoadScene(DocumentPath)) {
 			throw ieException("Failed to initialize scene");
 		}
+		
+		// Push core app layer to the layer stack
 		PushEngineLayers();
 
 		IE_CORE_TRACE("Application Initialized");
@@ -91,10 +96,11 @@ namespace Insight {
 			const float& DeltaTime = (float)m_FrameTimer.DeltaTime();
 			m_pWindow->SetWindowTitleFPS(m_FrameTimer.FPS());
 
+
 			m_pWindow->OnUpdate(DeltaTime);
 			m_pGameLayer->Update(DeltaTime);
-			
-			for (Layer* layer : m_LayerStack) {
+
+			for (Layer* layer : m_LayerStack) { 
 				layer->OnUpdate(DeltaTime);
 			}
 
@@ -143,6 +149,26 @@ namespace Insight {
 
 	void Application::PushEngineLayers()
 	{
+		switch (Renderer::GetAPI())
+		{
+		case Renderer::eTargetRenderAPI::D3D_11:
+		{
+			IE_STRIP_FOR_GAME_DIST(m_pImGuiLayer = new D3D11ImGuiLayer());
+			break;
+		}
+		case Renderer::eTargetRenderAPI::D3D_12:
+		{
+			IE_STRIP_FOR_GAME_DIST(m_pImGuiLayer = new D3D12ImGuiLayer());
+			break;
+		}
+		default:
+		{
+			IE_CORE_ERROR("Failed to creat ImGui layer in application with API of type \"{0}\"", Renderer::GetAPI());
+			break;
+		}
+		}
+
+		IE_STRIP_FOR_GAME_DIST(m_pEditorLayer = new EditorLayer());
 		IE_STRIP_FOR_GAME_DIST(PushOverlay(m_pImGuiLayer);)
 		IE_STRIP_FOR_GAME_DIST(PushOverlay(m_pEditorLayer);)
 	}

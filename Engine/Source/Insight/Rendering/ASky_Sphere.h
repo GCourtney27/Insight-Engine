@@ -7,32 +7,7 @@
 
 namespace Insight {
 
-	using Microsoft::WRL::ComPtr;
-
-	class Sphere
-	{
-	public:
-		void Init(float radius, int slices, int segments);
-		void resourceSetup();
-		void Render(ComPtr<ID3D12GraphicsCommandList> commandList);
-
-	private:
-		ComPtr<ID3D12Resource> m_VertexBuffer;
-		ComPtr<ID3D12Resource> m_DefaultBuffer;
-		ComPtr<ID3D12Resource> m_IndexBuffer;
-		D3D12_VERTEX_BUFFER_VIEW m_VertexView;
-		D3D12_INDEX_BUFFER_VIEW m_IndexView;
-		int m_Slices;
-		int m_Segments;
-		int m_TriangleSize;
-		int m_IndexSize;
-		float m_Radius;
-		struct SimpleVertex
-		{
-			DirectX::XMFLOAT4 position;
-		};
-	};
-
+	
 	class INSIGHT_API ASkySphere : public AActor
 	{
 	public:
@@ -60,13 +35,8 @@ namespace Insight {
 
 		virtual void OnImGuiRender() override;
 
-		/*CB_PS_SpotLight GetConstantBuffer() { return m_ShaderCB; }*/
-
 	private:
-		Sphere m_Sphere;
-		Texture m_Diffuse;
-		
-		ID3D12GraphicsCommandList* m_pCommandList;
+		Texture* m_Diffuse;
 
 	};
 

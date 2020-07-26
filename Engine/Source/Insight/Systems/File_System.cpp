@@ -35,6 +35,51 @@ namespace Insight {
 		return true;
 	}
 
+	void FileSystem::SaveEngineUserSettings(Renderer::GraphicsSettings Settings)
+	{
+
+		rapidjson::Document RawSettingsFile;
+		const std::string SettingsDir = ProjectDirectory + "/PROFSAVE.ini";
+		if (!json::load(SettingsDir.c_str(), RawSettingsFile)) {
+			IE_CORE_ERROR("Failed to load graphics settings from file: \"{0}\". Default graphics settings will be applied.", SettingsDir);
+
+		}
+
+		{
+			rapidjson::StringBuffer StrBuffer;
+			rapidjson::PrettyWriter<rapidjson::StringBuffer> Writer(StrBuffer);
+
+			Writer.StartObject();
+			{
+				Writer.Key("Renderer");
+				Writer.StartArray();
+				{
+					Writer.StartObject();
+					Writer.Key("TargetAPI");
+					Writer.Int((int)Settings.TargetRenderAPI);
+					Writer.Key("TextureQuality");
+					Writer.Int(Settings.MipLodBias);
+					Writer.Key("TextureFiltering");
+					Writer.Double(Settings.MaxAnisotropy);
+					Writer.EndObject();
+				}
+				Writer.EndArray();
+			}
+			Writer.EndObject();
+			
+
+			// Final Export
+			std::string sceneName = ProjectDirectory + "/PROFSAVE.ini";
+			std::ofstream offstream(sceneName.c_str());
+			offstream << StrBuffer.GetString();
+
+			if (!offstream.good()) {
+				IE_CORE_ERROR("Failed to save graphics properties to PROFSAVE.ini.");
+			}
+		}
+
+	}
+
 	std::string FileSystem::GetExecutbleDirectory()
 	{
 		WCHAR Path[512];
@@ -55,7 +100,9 @@ namespace Insight {
 	{
 		wchar_t Folder[1024];
 		HRESULT hr = SHGetFolderPathW(NULL, CSIDL_MYDOCUMENTS, 0, 0, Folder);
-		ThrowIfFailed(hr, "Failed to get path to user documents folder.");
+		if (FAILED(hr)) {
+			IE_CORE_ERROR("Failed to get path to user documents folder.");
+		}
 		
 		return StringHelper::WideToString(std::wstring{ Folder });
 	}
@@ -63,6 +110,35 @@ namespace Insight {
 	std::string FileSystem::GetProjectRelativeAssetDirectory(std::string Path)
 	{
 		return ProjectDirectory + "/Assets/" + Path;
+	}
+
+	Renderer::GraphicsSettings FileSystem::LoadGraphicsSettingsFromJson()
+	{
+		using GraphicsSettings = Renderer::GraphicsSettings;
+		GraphicsSettings UserGraphicsSettings = {};
+
+		{
+			Profiling::ScopedTimer timer("LoadSceneFromJson::LoadGraphicsSettingsFromJson");
+
+			rapidjson::Document RawSettingsFile;
+			const std::string SettingsDir = ProjectDirectory + "/PROFSAVE.ini";
+			if (!json::load(SettingsDir.c_str(), RawSettingsFile)) {
+				IE_CORE_ERROR("Failed to load graphics settings from file: \"{0}\". Default graphics settings will be applied.", SettingsDir);
+				return UserGraphicsSettings;
+			}
+
+			const rapidjson::Value& RendererSettings = RawSettingsFile["Renderer"];
+			int TargetAPI, TextureQuality;
+			float TextureFiltering;
+			json::get_int(RendererSettings[0], "TargetAPI", TargetAPI);
+			json::get_int(RendererSettings[0], "TextureQuality", TextureQuality);
+			json::get_float(RendererSettings[0], "TextureFiltering", TextureFiltering);
+			UserGraphicsSettings.TargetRenderAPI = (Renderer::eTargetRenderAPI)TargetAPI;
+			UserGraphicsSettings.MaxAnisotropy = TextureFiltering;
+			UserGraphicsSettings.MipLodBias = TextureQuality;
+		}
+
+		return UserGraphicsSettings;
 	}
 
 	bool FileSystem::LoadSceneFromJson(const std::string& FileName, Scene* pScene)
@@ -182,7 +258,6 @@ namespace Insight {
 			Writer.EndObject();
 
 			// Final Export
-			
 			std::string sceneName = FileSystem::ProjectDirectory + "/Assets/Scenes/" + pScene->GetDisplayName() + ".iescene/Meta.json";
 			std::ofstream offstream(sceneName.c_str());
 			offstream << StrBuffer.GetString();

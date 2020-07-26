@@ -26,7 +26,7 @@ namespace Insight {
 		bool InitializeAppForWindows(HINSTANCE& hInstance, int nCmdShow);
 		// Initialize the core components of the application. Should be called once
 		// at the beginning of the application, after the window has been initialized.
-		bool Init();
+		bool InitCoreApplication();
 		// Main loop of the application. This is the main entry point for every frame.
 		void Run();
 		// Shutdown the application and release all resources.
@@ -67,7 +67,7 @@ namespace Insight {
 		std::unique_ptr<Window>	m_pWindow;
 		IE_STRIP_FOR_GAME_DIST( ImGuiLayer* m_pImGuiLayer = nullptr; )
 		IE_STRIP_FOR_GAME_DIST( EditorLayer* m_pEditorLayer = nullptr; )
-		GameLayer*				m_pGameLayer;
+		GameLayer*				m_pGameLayer = nullptr;
 		bool					m_Running = true;
 		LayerStack				m_LayerStack;
 		FrameTimer				m_FrameTimer;

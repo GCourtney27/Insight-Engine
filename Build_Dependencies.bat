@@ -11,11 +11,18 @@ echo Compiling assimp source code & echo.
 echo ***************************************** & echo.
 call %~dp0Project_Build_Scripts\Compile_Assimp.bat
 
-REM Build DirectX Tool Kit (TK)
 cd ..\..\..\..\
+
+REM Build DirectX 12 Tool Kit (TK)
 echo ***************************************** & echo.
 echo Compiling DirectX 12 Tool Kit source code & echo.
 echo ***************************************** & echo.
-call %~dp0Project_Build_Scripts\Compile_DirectXTK.bat
+call %~dp0Project_Build_Scripts\Compile_DirectX_12_TK.bat
+
+REM Build DirectX 11 Tool Kit (TK)
+echo ***************************************** & echo.
+echo Compiling DirectX 11 Tool Kit source code & echo.
+echo ***************************************** & echo.
+call %~dp0Project_Build_Scripts\Compile_DirectX_11_TK.bat
 
 PAUSE

@@ -2,8 +2,8 @@
 
 #include "Model.h"
 #include "Insight/Utilities/String_Helper.h"
-#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 #include "Insight/Systems/File_System.h"
+#include "Insight/Rendering/Material.h"
 #include "imgui.h"
 
 namespace Insight {
@@ -124,7 +124,7 @@ namespace Insight {
 
 	unique_ptr<MeshNode> Model::ParseNode_r(aiNode* pNode)
 	{
-		Transform transform;
+		ieTransform transform;
 		if (pNode->mParent) {
 			transform.SetLocalMatrix(XMMatrixTranspose(XMMATRIX(&pNode->mTransformation.a1)));
 		}

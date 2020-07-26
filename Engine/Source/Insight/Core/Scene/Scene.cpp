@@ -39,7 +39,7 @@ namespace Insight {
 		m_pSceneRoot = new SceneNode("Scene Root");
 
 		// Get the render context from the main window
-		m_Renderer = Application::Get().GetWindow().GetRenderContext();
+		//m_Renderer = RenderingContext::Get();
 
 		// Initialize resource managers this scene will need.
 		m_ResourceManager.Init();
@@ -76,7 +76,7 @@ namespace Insight {
 		FileSystem::LoadSceneFromJson(fileName, this);
 
 		// Tell the renderer to set init commands to the gpu
-		m_Renderer->PostInit();
+		Renderer::PostInit();
 		return true;
 	}
 
@@ -114,7 +114,7 @@ namespace Insight {
 
 	void Scene::OnUpdate(const float& DeltaMs)
 	{
-		m_Renderer->OnUpdate(DeltaMs);
+		Renderer::OnUpdate(DeltaMs);
 		m_pSceneRoot->OnUpdate(DeltaMs);
 	}
 
@@ -124,26 +124,25 @@ namespace Insight {
 
 	void Scene::OnPreRender()
 	{
-		m_Renderer->OnPreFrameRender();
-		//Application::Get().GetImGuiLayer().Begin();
+		Renderer::OnPreFrameRender();
 		m_pSceneRoot->CalculateParent(XMMatrixIdentity());
-		m_ResourceManager.GetGeometryManager().GatherGeometry();
+		GeometryManager::GatherGeometry();
 	}
 
 	void Scene::OnRender()
 	{
-		m_Renderer->OnRender();
+		Renderer::OnRender();
 		m_pSceneRoot->OnRender();
 	}
 
 	void Scene::OnMidFrameRender()
 	{
-		m_Renderer->OnMidFrameRender();
+		Renderer::OnMidFrameRender();
 	}
 
 	void Scene::OnPostRender()
 	{
-		m_ResourceManager.GetGeometryManager().PostRender();
+		GeometryManager::PostRender();
 	}
 
 	void Scene::Destroy()

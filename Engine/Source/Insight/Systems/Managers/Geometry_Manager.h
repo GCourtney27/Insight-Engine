@@ -12,48 +12,48 @@ namespace Insight {
 	{
 	public:
 		typedef std::vector<StrongModelPtr> SceneModels;
+		friend class D3D12GeometryManager;
+		friend class D3D11GeometryManager;
 	public:
 		GeometryManager();
-		~GeometryManager();
+		virtual ~GeometryManager();
 
-		bool Init();
+		static bool InitGlobalInstance();
+		static void Shutdown();
 
+		static GeometryManager& Get() { return *s_Instance; }
 		SceneModels* GetSceneModels() { return &m_Models; }
 
+		static bool Init() { return s_Instance->InitImpl(); }
+
 		// Issue draw commands to all models attached to the geometry manager.
-		void Render(RenderPass RenderPass);
+		static void Render(eRenderPass RenderPass) { s_Instance->RenderImpl(RenderPass); }
 		// Gather all geometry in the scene and uplaod their constant buffers to the GPU.
 		// Should only be called once, before 'Render()'. Does not draw models.
-		void GatherGeometry();
+		static void GatherGeometry() { s_Instance->GatherGeometryImpl(); }
 		// Reset incrementor for model geometry gather phase.
 		// See 'GatherGeometry()' for more information.
-		void PostRender();
+		static void PostRender() { s_Instance->PostRenderImpl(); }
 		// UnRegister all model in the model cache. Usually used 
 		// when switching scenes.
-		void FlushModelCache();
+		static void FlushModelCache();
 		
 		// Register a model to be drawn in the geometry pass
-		inline void RegisterModel(StrongModelPtr Model) { m_Models.push_back(Model); }
+		static void RegisterModel(StrongModelPtr Model) { s_Instance->m_Models.push_back(Model); }
 		// Unregister a model to not be drawn in the geometry pass
-		void UnRegisterModel(StrongModelPtr Model);
+		static void UnRegisterModel(StrongModelPtr Model);
+
+	protected:
+		virtual bool InitImpl() = 0;
+		virtual void RenderImpl(eRenderPass RenderPass) = 0;
+		virtual void GatherGeometryImpl() = 0;
+		virtual void PostRenderImpl() = 0;
+
+	protected:
+		SceneModels m_Models;  
 
 	private:
-		SceneModels m_Models;  
-		D3D12_GPU_VIRTUAL_ADDRESS m_CbvUploadHeapHandle;
-		D3D12_GPU_VIRTUAL_ADDRESS m_CbvMaterialHeapHandle;
-		
-		UINT8* m_CbvPerObjectGPUAddress = nullptr;
-		UINT8* m_CbvMaterialGPUAddress = nullptr;
-
-		ID3D12Resource* m_ConstantBufferUploadHeaps = nullptr;
-		ID3D12Resource* m_ConstantBufferMaterialUploadHeaps = nullptr;
-		ID3D12GraphicsCommandList* m_pScenePassCommandList = nullptr;
-		ID3D12GraphicsCommandList* m_pShadowPassCommandList = nullptr;
-
-		int ConstantBufferPerObjectAlignedSize = (sizeof(CB_VS_PerObject) + 255) & ~255;
-		int ConstantBufferPerObjectMaterialAlignedSize = (sizeof(CB_PS_VS_PerObjectAdditives) + 255) & ~255;
-		UINT32 m_PerObjectCBDrawOffset = 0u;
-		UINT32 m_GPUAddressUploadOffset = 0u;
+		static GeometryManager* s_Instance;
 	};
 
 }

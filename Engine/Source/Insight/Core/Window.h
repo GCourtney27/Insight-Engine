@@ -4,7 +4,6 @@
 
 #include <Insight/Core.h>
 #include "Insight/Events/Event.h"
-#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 class RenderingContext;
 
@@ -40,8 +39,6 @@ namespace Insight {
 		virtual bool SetWindowTitle(const std::string& newText, bool completlyOverride = false) = 0;
 		virtual bool SetWindowTitleFPS(float fps) = 0;
 
-		inline shared_ptr<RenderingContext> GetRenderContext() { return m_pRendererContext; }
-
 		virtual void Resize(uint32_t newWidth, uint32_t newHeight, bool isMinimized) = 0;
 		virtual void ToggleFullScreen(bool enabled) = 0;
 
@@ -56,7 +53,6 @@ namespace Insight {
 
 		static Window* Create(const WindowProps& props = WindowProps());
 
-		shared_ptr<RenderingContext> m_pRendererContext;
 	protected:
 
 	};
