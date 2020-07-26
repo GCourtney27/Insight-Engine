@@ -51,11 +51,17 @@ namespace Insight {
 
 		TextureManager& TextureManager = ResourceManager::Get().GetTextureManager();
 		
-		pMaterial->m_AlbedoMap = TextureManager.GetDefaultAlbedoTexture();
-		pMaterial->m_NormalMap = TextureManager.GetDefaultNormalTexture();
-		pMaterial->m_MetallicMap = TextureManager.GetDefaultMetallicTexture();
-		pMaterial->m_RoughnessMap = TextureManager.GetDefaultRoughnessTexture();
-		pMaterial->m_AOMap = TextureManager.GetDefaultAOTexture();
+		pMaterial->m_AlbedoMap		= TextureManager.GetDefaultAlbedoTexture();
+		pMaterial->m_NormalMap		= TextureManager.GetDefaultNormalTexture();
+		pMaterial->m_MetallicMap	= TextureManager.GetDefaultMetallicTexture();
+		pMaterial->m_RoughnessMap	= TextureManager.GetDefaultRoughnessTexture();
+		pMaterial->m_AOMap			= TextureManager.GetDefaultAOTexture();
+		
+		pMaterial->m_AlbedoTextureManagerID		= pMaterial->m_AlbedoMap->GetTextureInfo().Id;
+		pMaterial->m_NormalTextureManagerID		= pMaterial->m_NormalMap->GetTextureInfo().Id;
+		pMaterial->m_MetallicTextureManagerID	= pMaterial->m_MetallicMap->GetTextureInfo().Id;
+		pMaterial->m_RoughnessTextureManagerID	= pMaterial->m_RoughnessMap->GetTextureInfo().Id;
+		pMaterial->m_AoTextureManagerID			= pMaterial->m_AOMap->GetTextureInfo().Id;
 
 		pMaterial->m_ShaderCB.diffuseAdditive	= ieVector3(0.0f, 0.0f, 0.0f);
 		pMaterial->m_ShaderCB.metallicAdditive	= 0.0f;
@@ -71,6 +77,7 @@ namespace Insight {
 		const rapidjson::Value& jsonUVOffset = jsonMaterial["uvOffset"];
 		const rapidjson::Value& jsonTilingOffset = jsonMaterial["Tiling"];
 		const rapidjson::Value& jsonColorOverride = jsonMaterial["Color_Override"];
+
 		json::get_int(jsonMaterial, "AlbedoMapID", m_AlbedoTextureManagerID);
 		json::get_int(jsonMaterial, "NormalMapID", m_NormalTextureManagerID);
 		json::get_int(jsonMaterial, "MetallicMapID", m_MetallicTextureManagerID);

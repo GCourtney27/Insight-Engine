@@ -36,9 +36,9 @@ namespace Insight {
 	public:
 		enum class eTargetRenderAPI
 		{
-			INVALID = 0,
-			D3D_11 = 1,
-			D3D_12 = 2,
+			INVALID,
+			D3D_11,
+			D3D_12,
 		};
 
 		struct GraphicsSettings

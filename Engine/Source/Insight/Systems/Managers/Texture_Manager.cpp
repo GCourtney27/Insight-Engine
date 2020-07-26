@@ -140,38 +140,60 @@ namespace Insight {
 	
 	bool TextureManager::LoadDefaultTextures()
 	{
-		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
-		CDescriptorHeapWrapper& cbvSrvHeapStart = graphicsContext->GetCBVSRVDescriptorHeap();
-
 		Texture::IE_TEXTURE_INFO TexInfo = {};
 		TexInfo.Id = -1;
 		TexInfo.GenerateMipMaps = true;
 
-		/*TexInfo.DisplayName = "Default_Albedo";
+		// Albedo
+		TexInfo.DisplayName = "Default_Albedo";
 		TexInfo.Type = Texture::eTextureType::ALBEDO;
 		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_Albedo.png");
-		m_DefaultAlbedoTexture = make_shared<Texture>(TexInfo, cbvSrvHeapStart);
-
+		// Normal
 		TexInfo.DisplayName = "Default_Normal";
 		TexInfo.Type = Texture::eTextureType::NORMAL;
 		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_Normal.png");
-		m_DefaultNormalTexture = make_shared<Texture>(TexInfo, cbvSrvHeapStart);
-
+		// Metallic
 		TexInfo.DisplayName = "Default_Metallic";
 		TexInfo.Type = Texture::eTextureType::METALLIC;
 		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_Metallic.png");
-		m_DefaultMetallicTexture = make_shared<Texture>(TexInfo, cbvSrvHeapStart);
-
+		// Roughness
 		TexInfo.DisplayName = "Default_Roughness";
 		TexInfo.Type = Texture::eTextureType::ROUGHNESS;
 		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_RoughAO.png");
-		m_DefaultRoughnessTexture = make_shared<Texture>(TexInfo, cbvSrvHeapStart);
-		
+		// AO
 		TexInfo.DisplayName = "Default_AO";
 		TexInfo.Type = Texture::eTextureType::AO;
 		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_RoughAO.png");
-		m_DefaultAOTexture = make_shared<Texture>(TexInfo, cbvSrvHeapStart);*/
 
+		switch (Renderer::GetAPI())
+		{
+		case Renderer::eTargetRenderAPI::D3D_11:
+		{
+			m_DefaultAlbedoTexture = make_shared<ieD3D11Texture>(TexInfo);
+			m_DefaultNormalTexture = make_shared<ieD3D11Texture>(TexInfo);
+			m_DefaultMetallicTexture = make_shared<ieD3D11Texture>(TexInfo);
+			m_DefaultRoughnessTexture = make_shared<ieD3D11Texture>(TexInfo);
+			m_DefaultAOTexture = make_shared<ieD3D11Texture>(TexInfo);
+			break;
+		}
+		case Renderer::eTargetRenderAPI::D3D_12:
+		{
+			Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+			CDescriptorHeapWrapper& cbvSrvHeapStart = graphicsContext->GetCBVSRVDescriptorHeap();
+
+			m_DefaultAlbedoTexture = make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart);
+			m_DefaultNormalTexture = make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart);
+			m_DefaultMetallicTexture = make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart);
+			m_DefaultRoughnessTexture = make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart);
+			m_DefaultAOTexture = make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart);
+			break;
+		}
+		default:
+		{
+			IE_CORE_ERROR("Failed to load default textures for api: {0}", Renderer::GetAPI());
+			break;
+		}
+		}
 		return true;
 	}
 

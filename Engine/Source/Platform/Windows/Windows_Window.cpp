@@ -278,7 +278,13 @@ namespace Insight {
 			}
 			case IDM_ABOUT:
 			{
-				MessageBoxW(NULL, L"Version - (Pre-Release)1.5 \nRenderer - Direct3D 11 \n\nVendor Runtime: \nMono - v6.8.0.123 \nAssimp - v3.3.1 \nRapidJson - v1.0.0 \nImGui - v1.75", L"About Insight Editor", MB_OK);
+				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+				
+				wchar_t AboutMsgBuffer[128];
+				int APIVersion = ((int)Renderer::GetAPI()) + 10;
+				swprintf_s(AboutMsgBuffer, L"Version - 1.8 \nRenderer - Direct3D %i \n\nVendor Runtime: \nMono - v6.8.0.123 \nAssimp - v3.3.1 \nRapidJson - v1.0.0 \nImGui - v1.75", APIVersion);
+				data.pWindow->CreateMessageBox(AboutMsgBuffer, L"About Insight Editor");
+				
 				break;
 			}
 			case IDM_EXIT:
