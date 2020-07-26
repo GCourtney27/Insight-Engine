@@ -49,8 +49,11 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     float roughness = roughMetAOBufferSample.r;
     float metallic = roughMetAOBufferSample.g;
     float ambientOcclusion = roughMetAOBufferSample.b;
-
+    
     float3 viewDirection = normalize(cameraPosition - worldPosition);
+    
+    ps_out.litImage = viewDirection;
+    return ps_out;
     
     float3 F0 = float3(0.04, 0.04, 0.04);
     float3 baseReflectivity = lerp(F0, albedo, metallic);

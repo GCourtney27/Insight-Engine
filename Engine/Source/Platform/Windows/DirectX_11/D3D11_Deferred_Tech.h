@@ -31,7 +31,6 @@ namespace Insight {
 		ComPtr<ID3D11Buffer> m_pIndexBuffer;
 		uint32_t m_NumVerticis;
 		uint32_t m_NumIndices;
-		uint32_t m_Stride;
 	};
 
 	class INSIGHT_API D3D11DeferredShadingTech
@@ -78,9 +77,12 @@ namespace Insight {
 		//2:  SRV-(R)Roughness/(G)Metallic/(B)AO(RTV->SRV)
 		//3:  SRV-Position(RTV->SRV)
 		RenderTargetTexture m_GBuffer[m_NumRTV];
+
 		ID3D11DepthStencilView* m_DepthStencilView = nullptr;
 		ID3D11Texture2D* m_pDepthStencilTexture = nullptr;
 		ID3D11ShaderResourceView* m_pSceneDepthView = nullptr;
+		ComPtr<ID3D11RasterizerState> m_pRasterizarState;
+		ID3D11DepthStencilState* m_pDefaultDepthStencilState = nullptr;
 
 		// Light Pass
 		// ----------

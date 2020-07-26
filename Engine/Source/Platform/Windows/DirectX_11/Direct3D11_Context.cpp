@@ -6,6 +6,7 @@
 #include "Platform/Windows/Windows_Window.h"
 #include "Platform/Windows/DirectX_11/Geometry/D3D11_Index_Buffer.h"
 #include "Platform/Windows/DirectX_11/Geometry/D3D11_Vertex_Buffer.h"
+#include "Platform/Windows/DirectX_11/Geometry/D3D11_Sphere_Renderer.h"
 
 #include "Insight/Runtime/APlayer_Character.h"
 #include "Insight/Systems/Managers/Geometry_Manager.h"
@@ -39,12 +40,9 @@ namespace Insight {
 
 		CreateDXGIFactory();
 		CreateDeviceAndSwapChain();
-		CreateRTVs();
-		CreateDSV();
+		CreateRTV();
 		CreateConstantBufferViews();
-		InitShadersLayout();
 		CreateViewports();
-		CreateRasterizer();
 		CreateSamplers();
 		
 		m_DeferredShadingTech.Init(m_pDevice.Get(), m_pDeviceContext.Get(), m_pWindow);
@@ -70,15 +68,22 @@ namespace Insight {
 
 	void Direct3D11Context::RenderSkySphereImpl()
 	{
+		m_SkySphere->Render();
 	}
 
 	bool Direct3D11Context::CreateSkyboxImpl()
 	{
-		return false;
+		m_SkySphere = new ieD3D11SphereRenderer();
+		m_SkySphere->Init(10, 20, 20, m_pDevice.Get(), m_pDeviceContext.Get());
+
+		return true;
 	}
 
 	void Direct3D11Context::DestroySkyboxImpl()
 	{
+		if (m_SkySphere) {
+			delete m_pSkySphere;
+		}
 	}
 
 	void Direct3D11Context::DestroyImpl()
@@ -111,28 +116,31 @@ namespace Insight {
 	{
 		// Set Persistant Pass Properties
 		m_pDeviceContext->RSSetViewports(1, &m_ScenePassViewport);
-		m_pDeviceContext->RSSetState(m_pRasterizarState.Get());
-		m_pDeviceContext->PSSetSamplers(0, 1, m_pSamplerStatePointClamp.GetAddressOf());
-		m_pDeviceContext->PSSetSamplers(1, 1, m_pSamplerStateLinearWrap.GetAddressOf());
+		m_pDeviceContext->PSSetSamplers(0, 1, m_pPointClamp_SamplerState.GetAddressOf());
+		m_pDeviceContext->PSSetSamplers(1, 1, m_pLinearWrap_SamplerState.GetAddressOf());
 	}
 
 	void Direct3D11Context::OnRenderImpl()
 	{
+		// TODO Shadow Pass
+
 		// Geometry Pass
 		m_DeferredShadingTech.BindGeometryPass();
 		m_pDeviceContext->VSSetConstantBuffers(1, 1, m_PerFrameData.GetAddressOf());
 		GeometryManager::Render(eRenderPass::RenderPass_Scene);
-
-		// Light Pass
-		m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), nullptr);
-		m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), m_ClearColor);
-		m_DeferredShadingTech.BindLightPass();
-
-
 	}
 
 	void Direct3D11Context::OnMidFrameRenderImpl()
 	{
+		// Light Pass
+		m_DeferredShadingTech.BindLightPass();
+
+		m_DeferredShadingTech.BindSkyPass();
+		m_pSkySphere->RenderSky(nullptr);
+
+		m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), nullptr);
+		m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), m_ClearColor);
+		//m_DeferredShadingTech.BindPostFxPass();
 	}
 
 	void Direct3D11Context::ExecuteDrawImpl()
@@ -257,7 +265,7 @@ namespace Insight {
 		}
 	}
 
-	void Direct3D11Context::CreateRTVs()
+	void Direct3D11Context::CreateRTV()
 	{
 		HRESULT hr;
 		hr = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(m_pBackBuffer.GetAddressOf()));
@@ -265,16 +273,6 @@ namespace Insight {
 
 		hr = m_pDevice->CreateRenderTargetView(m_pBackBuffer.Get(), NULL, m_pRenderTargetView.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create render target view for D3D 11 context.");
-	}
-
-	void Direct3D11Context::CreateDSV()
-	{
-		D3D11_DEPTH_STENCIL_DESC DSVDesc = {};
-		DSVDesc.DepthEnable = TRUE;
-		DSVDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-		DSVDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-		m_pDevice->CreateDepthStencilState(&DSVDesc, m_pDepthStencilState.GetAddressOf());
-
 	}
 
 	void Direct3D11Context::CreateConstantBufferViews()
@@ -304,7 +302,7 @@ namespace Insight {
 		SamplerPointClampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 		SamplerPointClampDesc.MinLOD = 0.0f;
 		SamplerPointClampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-		HRESULT hr = m_pDevice->CreateSamplerState(&SamplerPointClampDesc, m_pSamplerStatePointClamp.GetAddressOf());
+		HRESULT hr = m_pDevice->CreateSamplerState(&SamplerPointClampDesc, m_pPointClamp_SamplerState.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create linear wrap sampler for D3D11 context.");
 
 		D3D11_SAMPLER_DESC SamplerLinearWrapDesc = {};
@@ -315,26 +313,12 @@ namespace Insight {
 		SamplerLinearWrapDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 		SamplerLinearWrapDesc.MinLOD = 0.0f;
 		SamplerLinearWrapDesc.MaxLOD = D3D11_FLOAT32_MAX;
-		hr = m_pDevice->CreateSamplerState(&SamplerLinearWrapDesc, m_pSamplerStateLinearWrap.GetAddressOf());
+		hr = m_pDevice->CreateSamplerState(&SamplerLinearWrapDesc, m_pLinearWrap_SamplerState.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create linear wrap sampler for D3D11 context.");
 	}
 
 	void Direct3D11Context::LoadAssets()
 	{
-	}
-
-	void Direct3D11Context::InitShadersLayout()
-	{
-
-	}
-
-	void Direct3D11Context::CreateRasterizer()
-	{
-		D3D11_RASTERIZER_DESC RasterizerDesc = {};
-		RasterizerDesc.FillMode = D3D11_FILL_SOLID;
-		RasterizerDesc.CullMode = D3D11_CULL_BACK;
-		HRESULT hr = m_pDevice->CreateRasterizerState(&RasterizerDesc, m_pRasterizarState.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create rasterizer state for D3D11 context");
 	}
 
 

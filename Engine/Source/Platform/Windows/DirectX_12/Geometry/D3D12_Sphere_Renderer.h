@@ -6,7 +6,7 @@ namespace Insight {
 
 	using Microsoft::WRL::ComPtr;
 
-	class Sphere
+	class ieD3D12SphereRenderer
 	{
 	public:
 		void Init(float radius, int slices, int segments);

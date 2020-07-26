@@ -29,7 +29,6 @@ namespace Insight {
 		CreatePostFxPass();
 
 		m_ScreenQuad.Init(pDevice, pDeviceContext);
-
 		return true;
 	}
 
@@ -37,6 +36,8 @@ namespace Insight {
 	{
 		m_pDeviceContext->IASetInputLayout(m_GeometryPassVS.GetInputLayout());
 		m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_pDeviceContext->RSSetState(m_pRasterizarState.Get());
+		m_pDeviceContext->OMSetDepthStencilState(m_pDefaultDepthStencilState, 0);
 
 		// Set render targets
 		ID3D11RenderTargetView* RenderTargets[] = {
@@ -61,12 +62,10 @@ namespace Insight {
 
 	void D3D11DeferredShadingTech::BindLightPass()
 	{
-		m_pDeviceContext->IASetInputLayout(m_GeometryPassVS.GetInputLayout());
-		m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+		m_pDeviceContext->IASetInputLayout(m_LightPassVS.GetInputLayout());
+		m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_pDeviceContext->OMSetRenderTargets(1, &m_LightPassResult.RenderTargetView, nullptr);
 
-		m_pDeviceContext->VSSetShader(m_LightPassVS.GetShader(), nullptr, 0);
-		m_pDeviceContext->PSSetShader(m_LightPassPS.GetShader(), nullptr, 0);
-		
 		m_pDeviceContext->PSSetShaderResources(0, 1, &m_GBuffer[0].ShaderResourceView); // Albedo
 		m_pDeviceContext->PSSetShaderResources(1, 1, &m_GBuffer[1].ShaderResourceView); // Normal
 		m_pDeviceContext->PSSetShaderResources(2, 1, &m_GBuffer[2].ShaderResourceView); // Roughness/Metallic/AO
@@ -76,17 +75,30 @@ namespace Insight {
 		m_pDeviceContext->OMSetRenderTargets(1, &m_LightPassResult.RenderTargetView, nullptr);
 		m_pDeviceContext->ClearRenderTargetView(m_LightPassResult.RenderTargetView, m_ClearColor);
 
+		// Set shaders
+		m_pDeviceContext->VSSetShader(m_LightPassVS.GetShader(), nullptr, 0);
+		m_pDeviceContext->PSSetShader(m_LightPassPS.GetShader(), nullptr, 0);
+
 		m_ScreenQuad.OnRender();
 	}
 
 	void D3D11DeferredShadingTech::BindSkyPass()
 	{
 		m_pDeviceContext->OMSetDepthStencilState(m_pSkyPass_DepthStencilState.Get(), 0U);
-		m_pDeviceContext->RSSetState(m_pSkyPass_RasterizarState.Get());
+		m_pDeviceContext->IASetInputLayout(m_SkyPassVS.GetInputLayout());
+		
+		// Unbind the depth stencil SRV from the Pixel Shader
+		ID3D11ShaderResourceView* NullSRV[1] = { nullptr };
+		m_pDeviceContext->PSSetShaderResources(4, 1, NullSRV); // Scene Depth
 
+
+		m_pDeviceContext->RSSetState(m_pSkyPass_RasterizarState.Get());
+		m_pDeviceContext->OMSetDepthStencilState(m_pSkyPass_DepthStencilState.Get(), 0U);
+		m_pDeviceContext->OMSetRenderTargets(1, &m_LightPassResult.RenderTargetView, m_DepthStencilView);
 
 		m_pDeviceContext->VSSetShader(m_SkyPassVS.GetShader(), nullptr, 0);
 		m_pDeviceContext->PSSetShader(m_SkyPassPS.GetShader(), nullptr, 0);
+
 	}
 
 	void D3D11DeferredShadingTech::BindPostFxPass()
@@ -180,6 +192,20 @@ namespace Insight {
 		DSVSRVDesc.Texture2D.MostDetailedMip = 0;
 		hr = m_pDevice->CreateShaderResourceView(m_pDepthStencilTexture, &DSVSRVDesc, &m_pSceneDepthView);
 		ThrowIfFailed(hr, "Faield to create shader resource view for depth stencil.");
+
+		// Create Rasterizer State
+		D3D11_RASTERIZER_DESC RasterizerDesc = {};
+		RasterizerDesc.FillMode = D3D11_FILL_SOLID;
+		RasterizerDesc.CullMode = D3D11_CULL_BACK;
+		hr = m_pDevice->CreateRasterizerState(&RasterizerDesc, m_pRasterizarState.GetAddressOf());
+		ThrowIfFailed(hr, "Failed to create rasterizer state for D3D11 context");
+
+		D3D11_DEPTH_STENCIL_DESC DSDesc = {};
+		DSDesc.DepthEnable = TRUE;
+		DSDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		DSDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+		hr = m_pDevice->CreateDepthStencilState(&DSDesc, &m_pDefaultDepthStencilState);
+		ThrowIfFailed(hr, "Failed to create depthstencil state for D3D11 context");
 	}
 
 	void D3D11DeferredShadingTech::CreateLightPass()
@@ -259,8 +285,9 @@ namespace Insight {
 		m_pDevice->CreateDepthStencilState(&DSVDesc, m_pSkyPass_DepthStencilState.GetAddressOf());
 
 		D3D11_RASTERIZER_DESC RasterizerDesc = {};
-		RasterizerDesc.FillMode = D3D11_FILL_SOLID;
+		RasterizerDesc.DepthClipEnable = true;
 		RasterizerDesc.CullMode = D3D11_CULL_FRONT;
+		RasterizerDesc.FillMode = D3D11_FILL_SOLID;
 		HRESULT hr = m_pDevice->CreateRasterizerState(&RasterizerDesc, m_pSkyPass_RasterizarState.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create rasterizer state for D3D11 context");
 
@@ -281,17 +308,17 @@ namespace Insight {
 		{
 			ScreenSpaceVertex Verticies[] =
 			{
-				{ ieFloat3{-0.5f, -0.5f, 1.0f}, ieFloat2{0.0f, 1.0f} },// Bottom Left
-				{ ieFloat3{-0.5f, 0.5f, 1.0f}, ieFloat2{0.0f, 0.0f} }, // Top Left
-				{ ieFloat3{0.5f, 0.5f, 1.0f}, ieFloat2{1.0f, 0.0f} }, // Top Right
-				{ ieFloat3{0.5f, -0.5f, 1.0f}, ieFloat2{1.0f, 1.0f} } // Bottom Right
+				{ ieFloat3{-1.0f, -1.0f, 1.0f}, ieFloat2{0.0f, 1.0f} },// Bottom Left
+				{ ieFloat3{-1.0f, 1.0f, 1.0f}, ieFloat2{0.0f, 0.0f} }, // Top Left
+				{ ieFloat3{1.0f, 1.0f, 1.0f}, ieFloat2{1.0f, 0.0f} }, // Top Right
+				{ ieFloat3{1.0f, -1.0f, 1.0f}, ieFloat2{1.0f, 1.0f} } // Bottom Right
 			};
-			m_NumVerticis = ARRAYSIZE(Verticies);
+			m_NumVerticis = 4U;
 
 			D3D11_BUFFER_DESC VertexBufferDesc = {};
 			VertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 			VertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-			VertexBufferDesc.ByteWidth = sizeof(ScreenSpaceVertex) * m_NumVerticis;
+			VertexBufferDesc.ByteWidth = sizeof(ScreenSpaceVertex) * ARRAYSIZE(Verticies);
 			VertexBufferDesc.CPUAccessFlags = 0;
 			VertexBufferDesc.MiscFlags = 0;
 
@@ -306,11 +333,11 @@ namespace Insight {
 				0, 1, 2,
 				0, 2, 3
 			};
-			m_NumIndices = ARRAYSIZE(Indices);
+			m_NumIndices = 6U;
 
 			D3D11_BUFFER_DESC IndexBufferDesc = {};
 			IndexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-			IndexBufferDesc.ByteWidth = sizeof(DWORD) * m_NumIndices;
+			IndexBufferDesc.ByteWidth = sizeof(DWORD) * ARRAYSIZE(Indices);
 			IndexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 			IndexBufferDesc.CPUAccessFlags = 0U;
 			IndexBufferDesc.MiscFlags = 0U;
@@ -321,16 +348,16 @@ namespace Insight {
 			ThrowIfFailed(hr, "Failed to create D3D 11 index buffer");
 		}
 
-		m_Stride = sizeof(ScreenSpaceVertex);
-
 		return true;
 	}
 
 	void ieD3D11ScreenQuad::OnRender()
 	{
+		UINT Offsets = 0U;
+		UINT Stride = sizeof(ScreenSpaceVertex);
+		m_pDeviceContext->IASetVertexBuffers(0, 1, m_pVertexBuffer.GetAddressOf(), &Stride, &Offsets);
 		m_pDeviceContext->IASetIndexBuffer(m_pIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-		UINT Offsets = 0;
-		m_pDeviceContext->IASetVertexBuffers(0, 1, m_pVertexBuffer.GetAddressOf(), &m_Stride, &Offsets);
+
 		m_pDeviceContext->DrawIndexed(m_NumIndices, 0, 0);
 	}
 

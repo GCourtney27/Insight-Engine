@@ -20,6 +20,7 @@ namespace Insight {
 	class WindowsWindow;
 	class GeometryManager;
 
+	class ieD3D11SphereRenderer;
 	class ASkySphere;
 	class ASkyLight;
 	class APostFx;
@@ -75,25 +76,26 @@ namespace Insight {
 		void CreateDXGIFactory();
 		void GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter** ppAdapter);
 		void CreateDeviceAndSwapChain();
-		void CreateRTVs();
-		void CreateDSV();
+		void CreateRTV();
 		void CreateConstantBufferViews();
 		void CreateViewports();
 		void CreateSamplers();
 
 		void LoadAssets();
-		// TEMP
-		void InitShadersLayout();
-		void CreateRasterizer();
 
 	private:
 		HWND*				m_pWindowHandle = nullptr;
 		WindowsWindow*		m_pWindow = nullptr;
 		GeometryManager*	m_pModelManager = nullptr;
 		ACamera*			m_pWorldCamera = nullptr;
-
 		bool				m_WindowResizeComplete = true;
-		float m_ClearColor[4] = { 0.1f, 0.1f, 0.3f, 1.0f };
+		float				m_ClearColor[4] = { 0.1f, 0.1f, 0.3f, 1.0f };
+
+		ConstantBuffer<CB_PS_VS_PerFrame>	m_PerFrameData;
+		D3D_FEATURE_LEVEL					m_DeviceMaxSupportedFeatureLevel;
+		DXGI_SAMPLE_DESC					m_SampleDesc = {};
+		D3D11_VIEWPORT						m_ScenePassViewport;
+		D3D11DeferredShadingTech			m_DeferredShadingTech;
 
 		//D3D11Helper m_DeviceResources;
 
@@ -106,19 +108,11 @@ namespace Insight {
 		ComPtr<ID3D11RenderTargetView> m_pRenderTargetView;
 		ComPtr<ID3D11Texture2D> m_pBackBuffer;
 
-		ComPtr<ID3D11RasterizerState> m_pRasterizarState;
-		ComPtr<ID3D11DepthStencilState> m_pDepthStencilState;
 
-		ComPtr<ID3D11SamplerState> m_pSamplerStateLinearWrap;
-		ComPtr<ID3D11SamplerState> m_pSamplerStatePointClamp;
+		ComPtr<ID3D11SamplerState> m_pLinearWrap_SamplerState;
+		ComPtr<ID3D11SamplerState> m_pPointClamp_SamplerState;
 
-		D3D11DeferredShadingTech m_DeferredShadingTech;
-
-		D3D_FEATURE_LEVEL m_DeviceMaxSupportedFeatureLevel;
-		DXGI_SAMPLE_DESC m_SampleDesc = {};
-		D3D11_VIEWPORT m_ScenePassViewport;
-
-		ConstantBuffer<CB_PS_VS_PerFrame>	m_PerFrameData;
+		ieD3D11SphereRenderer* m_SkySphere;
 
 	};
 

@@ -7,7 +7,7 @@
 namespace Insight {
 
 
-	void Sphere::Init(float radius, int slices, int segments)
+	void ieD3D12SphereRenderer::Init(float radius, int slices, int segments)
 	{
 		m_Radius = radius;
 		m_Slices = slices;
@@ -16,7 +16,7 @@ namespace Insight {
 		resourceSetup();
 	}
 
-	void Sphere::resourceSetup()
+	void ieD3D12SphereRenderer::resourceSetup()
 	{
 		using namespace DirectX;
 
@@ -135,7 +135,7 @@ namespace Insight {
 		m_IndexView.SizeInBytes = sizeof(int) * (UINT)triangles.size();
 	}
 
-	void Sphere::Render(ComPtr<ID3D12GraphicsCommandList> commandList)
+	void ieD3D12SphereRenderer::Render(ComPtr<ID3D12GraphicsCommandList> commandList)
 	{
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		commandList->IASetIndexBuffer(&m_IndexView);

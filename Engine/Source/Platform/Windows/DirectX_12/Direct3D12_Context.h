@@ -21,7 +21,7 @@ namespace Insight {
 
 	class WindowsWindow;
 	class GeometryManager;
-	class Sphere;
+	class ieD3D12SphereRenderer;
 
 	class ScreenQuad
 	{
@@ -141,7 +141,7 @@ namespace Insight {
 		HWND*				m_pWindowHandle = nullptr;
 		WindowsWindow*		m_pWindow = nullptr;
 		D3D12Helper			m_d3dDeviceResources;
-		Sphere*				m_SkySphere;
+		ieD3D12SphereRenderer*				m_SkySphere;
 		// CPU/GPU Syncronization
 		int						m_FrameIndex = 0;
 		UINT64					m_FenceValues[m_FrameBufferCount] = {};

@@ -515,7 +515,7 @@ namespace Insight {
 
 	bool Direct3D12Context::CreateSkyboxImpl()
 	{
-		m_SkySphere = new Sphere();
+		m_SkySphere = new ieD3D12SphereRenderer();
 		m_SkySphere->Init(10, 20, 20);
 
 		return true;

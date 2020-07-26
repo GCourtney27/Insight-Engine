@@ -132,9 +132,6 @@ namespace Insight {
 
 	bool ASkySphere::OnInit()
 	{
-		StrongActorComponentPtr ptr = CreateDefaultSubobject<StaticMeshComponent>();
-		static_cast<StaticMeshComponent*>(ptr.get())->AttachMesh("Models/Sphere.obj");
-
 		return true;
 	}
 

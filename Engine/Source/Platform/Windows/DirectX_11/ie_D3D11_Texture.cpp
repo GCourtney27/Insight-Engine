@@ -70,47 +70,47 @@ namespace Insight {
 		{
 		case eTextureType::ALBEDO:
 		{
-			return 6;
+			return 5;
 			break;
 		}
 		case eTextureType::NORMAL:
 		{
-			return 7;
+			return 6;
 			break;
 		}
 		case eTextureType::ROUGHNESS:
 		{
-			return 8;
+			return 7;
 			break;
 		}
 		case eTextureType::METALLIC:
 		{
-			return 9;
+			return 8;
 			break;
 		}
 		case eTextureType::AO:
 		{
-			return 10;
+			return 9;
 			break;
 		}
 		case eTextureType::SKY_IRRADIENCE:
 		{
-			return 12;
+			return 11;
 			break;
 		}
 		case eTextureType::SKY_ENVIRONMENT_MAP:
 		{
-			return 13;
+			return 12;
 			break;
 		}
 		case eTextureType::SKY_BRDF_LUT:
 		{
-			return 14;
+			return 13;
 			break;
 		}
 		case eTextureType::SKY_DIFFUSE:
 		{
-			return 15;
+			return 14;
 			break;
 		}
 		default:
