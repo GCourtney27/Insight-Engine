@@ -3,12 +3,11 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
-# Insight Engine Resources
-Assets/
 
 # Binaries
 bin/
 bin-int/
+Engine/Vendor/Mono
 
 # User-specific files
 *.rsuser
@@ -16,6 +15,11 @@ bin-int/
 *.user
 *.userosscache
 *.sln.docstates
+*.sln
+*.vcxproj
+*.csproj
+*.vcxproj.user
+*.vcxproj.filters
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -355,7 +359,3 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
-
-#Retina
-/bin
-/bin-int

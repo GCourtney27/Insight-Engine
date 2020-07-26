@@ -1,0 +1,47 @@
+//{{NO_DEPENDENCIES}}
+// Microsoft Visual C++ generated include file.
+// Used by Engine.rc
+
+#define IDS_APP_TITLE			103
+
+#define IDR_MAINFRAME			128
+#define IDD_ENGINE_DIALOG		102
+#define IDD_ABOUTBOX			103
+// ENGINE MENU
+#define IDM_ABOUT				104
+#define IDM_EXIT				105
+#define IDM_SCENE_SAVE			106
+#define IDM_BEGIN_PLAY			107
+#define IDM_END_PLAY			108
+#define IDM_EDITOR_TOGGLE		109
+#define IDM_EDITOR_RELOAD_SCRIPTS 110
+// GRAPHICS MENU
+#define IDM_VISUALIZE_FINAL_RESULT		111
+#define IDM_VISUALIZE_LIGHT_PASS_RESULT	112
+#define IDM_VISUALIZE_ALBEDO_BUFFER		113
+#define IDM_VISUALIZE_NORMAL_BUFFER		114
+#define IDM_VISUALIZE_ROUGHNESS_BUFFER	115
+#define IDM_VISUALIZE_METALLIC_BUFFER	116
+#define IDM_VISUALIZE_AO_BUFFER			117
+#define IDM_RENDERER_D3D_11				118
+#define IDM_RENDERER_D3D_12				119
+
+#define IDI_ENGINE			107
+#define IDI_SMALL				108
+#define IDC_ENGINE			109
+#define IDC_MYICON				2
+#ifndef IDC_STATIC
+#define IDC_STATIC				-1
+#endif
+// Next default values for new objects
+//
+#ifdef APSTUDIO_INVOKED
+#ifndef APSTUDIO_READONLY_SYMBOLS
+
+#define _APS_NO_MFC					130
+#define _APS_NEXT_RESOURCE_VALUE	129
+#define _APS_NEXT_COMMAND_VALUE		32771
+#define _APS_NEXT_CONTROL_VALUE		1000
+#define _APS_NEXT_SYMED_VALUE		110
+#endif
+#endif

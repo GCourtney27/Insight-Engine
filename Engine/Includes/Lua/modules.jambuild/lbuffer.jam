@@ -1,1 +1,0 @@
-Lua.CModule lbuffer : buffer : lbuffer.c lbuffer.h lb_interface.c ;

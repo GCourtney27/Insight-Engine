@@ -1,5 +1,0 @@
-To test Lrexlib, execute the following command line:
-
-  lua ./runtest.lua [-v] LIBRARY...
-
--v gives verbose output

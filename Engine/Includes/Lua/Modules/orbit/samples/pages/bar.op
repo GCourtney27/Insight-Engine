@@ -1,3 +1,0 @@
-#!/usr/bin/env op.cgi
-
-<p>This is bar, and you passed $web|input|msg!</p>

@@ -1,6 +1,0 @@
-if $(OS) = NT {
-
-C.LinkPrebuiltLibraries clipboard : user32 ;
-Lua.CModule clipboard : : clipboard.c ;
-
-}
