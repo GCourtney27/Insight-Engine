@@ -99,40 +99,83 @@ namespace Insight {
 
 	void Direct3D11Context::OnUpdateImpl(const float DeltaMs)
 	{
+		RETURN_IF_WINDOW_NOT_VISIBLE;
+
+		// Send Per-Frame Data to GPU
 		XMFLOAT4X4 viewFloat;
 		XMStoreFloat4x4(&viewFloat, XMMatrixTranspose(m_pWorldCamera->GetViewMatrix()));
 		XMFLOAT4X4 projectionFloat;
 		XMStoreFloat4x4(&projectionFloat, XMMatrixTranspose(m_pWorldCamera->GetProjectionMatrix()));
-
 		m_PerFrameData.Data.deltaMs = DeltaMs;
 		m_PerFrameData.Data.time = static_cast<float>(Application::Get().GetFrameTimer().Seconds());
 		m_PerFrameData.Data.view = viewFloat;
 		m_PerFrameData.Data.projection = projectionFloat;
+		m_PerFrameData.Data.cameraPosition = m_pWorldCamera->GetTransformRef().GetPosition();
+		m_PerFrameData.Data.deltaMs = DeltaMs;
+		m_PerFrameData.Data.time = (float)Application::Get().GetFrameTimer().Seconds();
+		m_PerFrameData.Data.cameraNearZ = (float)m_pWorldCamera->GetNearZ();
+		m_PerFrameData.Data.cameraFarZ = (float)m_pWorldCamera->GetFarZ();
+		m_PerFrameData.Data.cameraExposure = (float)m_pWorldCamera->GetExposure();
+		m_PerFrameData.Data.numPointLights = (float)m_PointLights.size();
+		m_PerFrameData.Data.numDirectionalLights = (float)m_DirectionalLights.size();
+		m_PerFrameData.Data.numSpotLights = (float)m_SpotLights.size();
+		m_PerFrameData.Data.screenSize.x = (float)m_WindowWidth;
+		m_PerFrameData.Data.screenSize.y = (float)m_WindowHeight;
 		m_PerFrameData.SubmitToGPU();
+
+		// Send Point Lights to GPU
+		for (int i = 0; i < m_PointLights.size(); i++) {
+			m_LightData.Data.pointLights[i] = m_PointLights[i]->GetConstantBuffer();
+		}
+		// Send Directionl Lights to GPU
+		for (int i = 0; i < m_DirectionalLights.size(); i++) {
+			m_LightData.Data.directionalLights[i] = m_DirectionalLights[i]->GetConstantBuffer();
+		}
+		// Send Spot Lights to GPU
+		for (int i = 0; i < m_SpotLights.size(); i++) {
+			m_LightData.Data.spotLights[i] = m_SpotLights[i]->GetConstantBuffer();
+		}
+		m_LightData.SubmitToGPU();
+
+		// Send Post-Fx data to GPU
+		if (m_pPostFx) {
+			m_PostFxData.Data = m_pPostFx->GetConstantBuffer();
+		}
 
 	}
 
 	void Direct3D11Context::OnPreFrameRenderImpl()
 	{
+		RETURN_IF_WINDOW_NOT_VISIBLE;
+
 		// Set Persistant Pass Properties
 		m_pDeviceContext->RSSetViewports(1, &m_ScenePassViewport);
 		m_pDeviceContext->PSSetSamplers(0, 1, m_pPointClamp_SamplerState.GetAddressOf());
 		m_pDeviceContext->PSSetSamplers(1, 1, m_pLinearWrap_SamplerState.GetAddressOf());
+
+		m_DeferredShadingTech.PrepPipeline();
 	}
 
 	void Direct3D11Context::OnRenderImpl()
 	{
+		RETURN_IF_WINDOW_NOT_VISIBLE;
+
 		// TODO Shadow Pass
 
 		// Geometry Pass
 		m_DeferredShadingTech.BindGeometryPass();
 		m_pDeviceContext->VSSetConstantBuffers(1, 1, m_PerFrameData.GetAddressOf());
+		m_pDeviceContext->PSSetConstantBuffers(1, 1, m_PerFrameData.GetAddressOf());
+		// TODO set ps vs per object addative buffer
 		GeometryManager::Render(eRenderPass::RenderPass_Scene);
 	}
 
 	void Direct3D11Context::OnMidFrameRenderImpl()
 	{
+		RETURN_IF_WINDOW_NOT_VISIBLE;
+
 		// Light Pass
+		m_pDeviceContext->PSSetConstantBuffers(2, 1, m_LightData.GetAddressOf());
 		m_DeferredShadingTech.BindLightPass();
 
 		// Sky Pass
@@ -142,19 +185,25 @@ namespace Insight {
 		}
 
 		// PostFx Pass
+		// TODO PSSet post fx buffer
 		if (m_pPostFx) {
 			m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), m_ClearColor);
 			m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), nullptr);
+			m_pDeviceContext->PSSetConstantBuffers(3, 1, m_PostFxData.GetAddressOf());
+			m_pDeviceContext->PSSetConstantBuffers(1, 1, m_PerFrameData.GetAddressOf());
 			m_DeferredShadingTech.BindPostFxPass();
 		}
 	}
 
 	void Direct3D11Context::ExecuteDrawImpl()
 	{
+		RETURN_IF_WINDOW_NOT_VISIBLE;
 	}
 
 	void Direct3D11Context::SwapBuffersImpl()
 	{
+		RETURN_IF_WINDOW_NOT_VISIBLE;
+
 		UINT PresentFlags = (m_AllowTearing && m_WindowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
 		HRESULT hr = m_pSwapChain->Present(m_VSyncEnabled, PresentFlags);
 		ThrowIfFailed(hr, "Failed to present frame for D3D 11 context.");
@@ -284,7 +333,8 @@ namespace Insight {
 	void Direct3D11Context::CreateConstantBufferViews()
 	{
 		m_PerFrameData.Init(m_pDevice.Get(), m_pDeviceContext.Get());
-
+		m_LightData.Init(m_pDevice.Get(), m_pDeviceContext.Get());
+		m_PostFxData.Init(m_pDevice.Get(), m_pDeviceContext.Get());
 	}
 
 	void Direct3D11Context::CreateViewports()

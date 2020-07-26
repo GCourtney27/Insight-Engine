@@ -41,6 +41,7 @@ namespace Insight {
 		
 		bool Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, WindowsWindow* pWindow);
 
+		void PrepPipeline();
 		void BindGeometryPass();
 		void BindLightPass();
 		void BindSkyPass();

@@ -1,4 +1,7 @@
 #pragma once
+
+#include <Insight/Core.h>
+
 #include <DirectXMath.h>
 
 /*
@@ -97,4 +100,11 @@ struct CB_PS_PostFx
 	// Chromatic Aberration
 	int caEnabled;
 	float caIntensity;
+};
+
+struct D3D11_CB_PS_Lights
+{
+	CB_PS_PointLight pointLights[MAX_POINT_LIGHTS_SUPPORTED];
+	CB_PS_DirectionalLight directionalLights[MAX_DIRECTIONAL_LIGHTS_SUPPORTED];
+	CB_PS_SpotLight spotLights[MAX_SPOT_LIGHTS_SUPPORTED];
 };

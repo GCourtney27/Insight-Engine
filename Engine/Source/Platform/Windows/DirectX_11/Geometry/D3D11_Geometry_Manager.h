@@ -23,7 +23,8 @@ namespace Insight {
 		ID3D11Device* m_pDevice = nullptr;
 		ID3D11DeviceContext* m_pDeviceContext = nullptr;
 
-		ComPtr<ID3D11Buffer> m_pIntermediateConstantBuffer;
+		ComPtr<ID3D11Buffer> m_pIntermediatePerObjectCB;
+		ComPtr<ID3D11Buffer> m_pIntermediatematOverridesCB;
 
 	};
 

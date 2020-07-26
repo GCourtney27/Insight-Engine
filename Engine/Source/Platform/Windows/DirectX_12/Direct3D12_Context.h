@@ -260,15 +260,12 @@ namespace Insight {
 		int CBPostFxAlignedSize = (sizeof(CB_PS_PostFx) + 255) & ~255;
 
 		#define POINT_LIGHTS_CB_ALIGNED_OFFSET (0)
-		#define MAX_POINT_LIGHTS_SUPPORTED 16u
 		int	CBPointLightsAlignedSize = (sizeof(CB_PS_PointLight) + 255) & ~255;
 
 		#define DIRECTIONAL_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight))
-		#define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 4u
 		int	CBDirectionalLightsAlignedSize = (sizeof(CB_PS_DirectionalLight) + 255) & ~255;
 
 		#define SPOT_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight) + MAX_DIRECTIONAL_LIGHTS_SUPPORTED * sizeof(CB_PS_DirectionalLight))
-		#define MAX_SPOT_LIGHTS_SUPPORTED 16u
 		int	CBSpotLightsAlignedSize = (sizeof(CB_PS_SpotLight) + 255) & ~255;
 
 

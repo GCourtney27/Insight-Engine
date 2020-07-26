@@ -32,6 +32,24 @@ namespace Insight {
 		return true;
 	}
 
+	void D3D11DeferredShadingTech::PrepPipeline()
+	{
+		// Null the skybox SRV
+		{
+			ID3D11ShaderResourceView* NullSRV[1] = { nullptr };
+			m_pDeviceContext->PSSetShaderResources(15, 1, NullSRV);
+		}
+
+		// Unbind the RTV SRVs from last frame to prepare them as render targets again
+		{
+			ID3D11ShaderResourceView* NullSRV[1] = { nullptr };
+			m_pDeviceContext->PSSetShaderResources(0, 1, NullSRV); // Albedo
+			m_pDeviceContext->PSSetShaderResources(1, 1, NullSRV); // Normal
+			m_pDeviceContext->PSSetShaderResources(2, 1, NullSRV); // Roughness/Metallic/AO
+			m_pDeviceContext->PSSetShaderResources(3, 1, NullSRV); // Position
+		}
+	}
+
 	void D3D11DeferredShadingTech::BindGeometryPass()
 	{
 		m_pDeviceContext->IASetInputLayout(m_GeometryPassVS.GetInputLayout());
@@ -106,9 +124,8 @@ namespace Insight {
 		m_pDeviceContext->RSSetState(m_pRasterizarState.Get());
 		m_pDeviceContext->IASetInputLayout(m_PostFxPassVS.GetInputLayout());
 
-		ID3D11ShaderResourceView* NullSRV[1] = { nullptr };
+		
 
-		m_pDeviceContext->PSSetShaderResources(15, 1, NullSRV);
 		m_pDeviceContext->PSSetShaderResources(15, 1, &m_LightPassResult.ShaderResourceView);
 
 		m_pDeviceContext->VSSetShader(m_PostFxPassVS.GetShader(), nullptr, 0);

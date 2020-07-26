@@ -10,8 +10,6 @@
 
 #include "Platform/Windows/DirectX_11/D3D11_Deferred_Tech.h"
 
-// TEMP
-#include "Platform/Windows/DirectX_11/ie_D3D11_Texture.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -21,15 +19,6 @@ namespace Insight {
 	class GeometryManager;
 
 	class ieD3D11SphereRenderer;
-	class ASkySphere;
-	class ASkyLight;
-	class APostFx;
-
-	class ADirectionalLight;
-	class APointLight;
-	class ASpotLight;
-
-	class ACamera;
 
 	class INSIGHT_API Direct3D11Context : public Renderer
 	{
@@ -92,6 +81,8 @@ namespace Insight {
 		float				m_ClearColor[4] = { 0.1f, 0.1f, 0.3f, 1.0f };
 
 		ConstantBuffer<CB_PS_VS_PerFrame>	m_PerFrameData;
+		ConstantBuffer<D3D11_CB_PS_Lights>	m_LightData;
+		ConstantBuffer<CB_PS_PostFx>	m_PostFxData;
 		D3D_FEATURE_LEVEL					m_DeviceMaxSupportedFeatureLevel;
 		DXGI_SAMPLE_DESC					m_SampleDesc = {};
 		D3D11_VIEWPORT						m_ScenePassViewport;

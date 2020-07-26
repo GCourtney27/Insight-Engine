@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Insight/Core.h>
+
 #include "Insight/Core/Interfaces.h"
 #include "Insight/Rendering/Geometry/Vertex_Buffer.h"
 #include "Insight/Rendering/Geometry/Index_Buffer.h"
@@ -10,10 +12,11 @@
 	method and dispatched to the appropriate active rendering API.
 
 	Example usage:
-	Set a vertex buffers for rendering - RenderingContext::SetVertexBuffers(0, 1, ieVertexBuffer);
+	Set a vertex buffers for rendering - Renderer::SetVertexBuffers(0, 1, ieVertexBuffer);
 */
 
 #define RETURN_IF_WINDOW_NOT_VISIBLE if (!m_WindowVisible){ return;}
+
 
 namespace Insight {
 
@@ -28,7 +31,7 @@ namespace Insight {
 
 	class ACamera;
 
-	class Renderer
+	class INSIGHT_API Renderer
 	{
 	public:
 		enum class eTargetRenderAPI
