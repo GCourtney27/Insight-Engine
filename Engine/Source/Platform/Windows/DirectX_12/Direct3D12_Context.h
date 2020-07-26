@@ -59,7 +59,7 @@ namespace Insight {
 		virtual bool CreateSkyboxImpl() override;
 		virtual void DestroySkyboxImpl() override;
 
-		inline ID3D12Device& GetDeviceContext() const { return *m_pDeviceContext.Get(); }
+		inline ID3D12Device& GetDeviceContext() const { return *m_pDevice.Get(); }
 
 		inline ID3D12GraphicsCommandList& GetScenePassCommandList() const { return *m_pScenePassCommandList.Get(); }
 		inline ID3D12GraphicsCommandList& GetShadowPassCommandList() const { return *m_pShadowPassCommandList.Get(); }
@@ -156,7 +156,7 @@ namespace Insight {
 
 		// D3D 12 Usings
 		ComPtr<IDXGIAdapter1>				m_pAdapter;
-		ComPtr<ID3D12Device>				m_pDeviceContext;
+		ComPtr<ID3D12Device>				m_pDevice;
 		ComPtr<IDXGIFactory4>				m_pDxgiFactory;
 		ComPtr<IDXGISwapChain3>				m_pSwapChain;
 

@@ -43,14 +43,14 @@ namespace Insight {
 
 		Renderer::eTargetRenderAPI API = Renderer::eTargetRenderAPI::D3D_11;
 
-//#define TEST_D3D12
+//#define D3D12_ENABLED
 
-#if defined TEST_D3D12
+#if defined D3D12_ENABLED
 		API = Renderer::eTargetRenderAPI::D3D_12;
 #endif
 		Renderer::SetAPIAndCreateContext(API);
 		Renderer::Init();
-		if (!Init()) { // Disabled for d3d11 impl
+		if (!Init()) {
 			IE_CORE_FATAL(L"Fatal Error: Failed to initiazlize application for Windows.");
 			return false;
 		}

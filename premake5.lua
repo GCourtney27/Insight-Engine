@@ -126,6 +126,7 @@ project ("Engine")
 		defines "IE_DEBUG"
 		runtime "Debug"
 		symbols "on"
+		
 		libdirs
 		{
 			"Engine/Vendor/assimp-3.3.1/build/code/Debug",
@@ -147,6 +148,10 @@ project ("Engine")
 		runtime "Release"
 		optimize "on"
 		symbols "on"
+		defines
+		{
+			"IE_IS_STANDALONE"
+		}
 		libdirs
 		{
 			"Engine/Vendor/assimp-3.3.1/build/code/Release",
@@ -168,6 +173,10 @@ project ("Engine")
 		runtime "Release"
 		optimize "on"
 		symbols "on"
+		defines
+		{
+			"IE_IS_STANDALONE"
+		}
 		libdirs
 		{
 			"Engine/Vendor/assimp-3.3.1/build/code/Release",
@@ -186,6 +195,10 @@ project ("Engine")
 		runtime "Release"
 		optimize "on"
 		symbols "on"
+		defines
+		{
+			"IE_IS_STANDALONE"
+		}
 		libdirs
 		{
 			"Engine/Vendor/assimp-3.3.1/build/code/Release",

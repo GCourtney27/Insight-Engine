@@ -46,7 +46,8 @@ namespace Insight {
 		CreateViewports();
 		CreateRasterizer();
 		CreateSamplers();
-
+		
+		m_DeferredShadingTech.Init(m_pDevice.Get(), m_pDeviceContext.Get(), m_pWindow);
 		LoadAssets();
 
 		return true;
@@ -108,26 +109,26 @@ namespace Insight {
 
 	void Direct3D11Context::OnPreFrameRenderImpl()
 	{
-		m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+		// Set Persistant Pass Properties
 		m_pDeviceContext->RSSetViewports(1, &m_ScenePassViewport);
-		m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), m_ClearColor);
-		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0U);
+		m_pDeviceContext->RSSetState(m_pRasterizarState.Get());
+		m_pDeviceContext->PSSetSamplers(0, 1, m_pSamplerStatePointClamp.GetAddressOf());
+		m_pDeviceContext->PSSetSamplers(1, 1, m_pSamplerStateLinearWrap.GetAddressOf());
 	}
 
 	void Direct3D11Context::OnRenderImpl()
 	{
-		m_pDeviceContext->IASetInputLayout(m_VertexShader.GetInputLayout());
-		m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		m_pDeviceContext->RSSetState(m_pRasterizarState.Get());
-		m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
-		m_pDeviceContext->PSSetSamplers(0, 1, m_pSamplerStateLinearWrap.GetAddressOf());
-
+		// Geometry Pass
+		m_DeferredShadingTech.BindGeometryPass();
 		m_pDeviceContext->VSSetConstantBuffers(1, 1, m_PerFrameData.GetAddressOf());
-
-		m_pDeviceContext->VSSetShader(m_VertexShader.GetShader(), nullptr, 0);
-		m_pDeviceContext->PSSetShader(m_PixelShader.GetShader(), nullptr, 0);
-
 		GeometryManager::Render(eRenderPass::RenderPass_Scene);
+
+		// Light Pass
+		m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), nullptr);
+		m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), m_ClearColor);
+		m_DeferredShadingTech.BindLightPass();
+
+
 	}
 
 	void Direct3D11Context::OnMidFrameRenderImpl()
@@ -268,24 +269,6 @@ namespace Insight {
 
 	void Direct3D11Context::CreateDSV()
 	{
-		D3D11_TEXTURE2D_DESC DSVTextureDesc = {};
-		DSVTextureDesc.Width = static_cast<UINT>(m_pWindow->GetWidth());
-		DSVTextureDesc.Height = static_cast<UINT>(m_pWindow->GetHeight());
-		DSVTextureDesc.MipLevels = 1U;
-		DSVTextureDesc.ArraySize = 1U;
-		DSVTextureDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		DSVTextureDesc.SampleDesc.Count = 1;
-		DSVTextureDesc.SampleDesc.Quality = 0;
-		DSVTextureDesc.Usage = D3D11_USAGE_DEFAULT;
-		DSVTextureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-		DSVTextureDesc.CPUAccessFlags = 0U;
-		DSVTextureDesc.MiscFlags = 0U;
-		HRESULT hr = m_pDevice->CreateTexture2D(&DSVTextureDesc, nullptr, m_pDepthStencilTexture.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create depth stencil texture for D3D11 context.");
-
-		hr = m_pDevice->CreateDepthStencilView(m_pDepthStencilTexture.Get(), NULL, m_pDepthStencilView.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create depth stencil view for D3D 11 context.");
-
 		D3D11_DEPTH_STENCIL_DESC DSVDesc = {};
 		DSVDesc.DepthEnable = TRUE;
 		DSVDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
@@ -313,6 +296,17 @@ namespace Insight {
 
 	void Direct3D11Context::CreateSamplers()
 	{
+		D3D11_SAMPLER_DESC SamplerPointClampDesc = {};
+		SamplerPointClampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+		SamplerPointClampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		SamplerPointClampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		SamplerPointClampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+		SamplerPointClampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		SamplerPointClampDesc.MinLOD = 0.0f;
+		SamplerPointClampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+		HRESULT hr = m_pDevice->CreateSamplerState(&SamplerPointClampDesc, m_pSamplerStatePointClamp.GetAddressOf());
+		ThrowIfFailed(hr, "Failed to create linear wrap sampler for D3D11 context.");
+
 		D3D11_SAMPLER_DESC SamplerLinearWrapDesc = {};
 		SamplerLinearWrapDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 		SamplerLinearWrapDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -321,75 +315,16 @@ namespace Insight {
 		SamplerLinearWrapDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 		SamplerLinearWrapDesc.MinLOD = 0.0f;
 		SamplerLinearWrapDesc.MaxLOD = D3D11_FLOAT32_MAX;
-		HRESULT hr = m_pDevice->CreateSamplerState(&SamplerLinearWrapDesc, m_pSamplerStateLinearWrap.GetAddressOf());
+		hr = m_pDevice->CreateSamplerState(&SamplerLinearWrapDesc, m_pSamplerStateLinearWrap.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create linear wrap sampler for D3D11 context.");
 	}
 
 	void Direct3D11Context::LoadAssets()
 	{
-		HRESULT hr;
-
-		// Square
-		{
-			ScreenSpaceVertex Verticies[] =
-			{
-				{ ieFloat3{-0.5f, -0.5f, 1.0f}, ieFloat2{0.0f, 1.0f} },// Bottom Left
-				{ ieFloat3{-0.5f, 0.5f, 1.0f}, ieFloat2{0.0f, 0.0f} }, // Top Left
-				{ ieFloat3{0.5f, 0.5f, 1.0f}, ieFloat2{1.0f, 0.0f} }, // Top Right
-				{ ieFloat3{0.5f, -0.5f, 1.0f}, ieFloat2{1.0f, 1.0f} } // Bottom Right
-			};
-
-			D3D11_BUFFER_DESC VertexBufferDesc = {};
-			VertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-			VertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-			VertexBufferDesc.ByteWidth = sizeof(ScreenSpaceVertex) * ARRAYSIZE(Verticies);
-			VertexBufferDesc.CPUAccessFlags = 0;
-			VertexBufferDesc.MiscFlags = 0;
-
-			D3D11_SUBRESOURCE_DATA VertexBufferData = {};
-			VertexBufferData.pSysMem = Verticies;
-
-			hr = m_pDevice->CreateBuffer(&VertexBufferDesc, &VertexBufferData, m_pVertexBuffer.GetAddressOf());
-			ThrowIfFailed(hr, "Failed to create vertex buffer for D3D11 context.");
-
-			DWORD Indices[] =
-			{
-				0, 1, 2,
-				0, 2, 3
-			};
-
-			D3D11_BUFFER_DESC IndexBufferDesc = {};
-			IndexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-			IndexBufferDesc.ByteWidth = sizeof(DWORD) * ARRAYSIZE(Indices);
-			IndexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-			IndexBufferDesc.CPUAccessFlags = 0U;
-			IndexBufferDesc.MiscFlags = 0U;
-
-			D3D11_SUBRESOURCE_DATA IndexBufferData = {};
-			IndexBufferData.pSysMem = Indices;
-			hr = m_pDevice->CreateBuffer(&IndexBufferDesc, &IndexBufferData, m_pIndexBuffer.GetAddressOf());
-			ThrowIfFailed(hr, "Failed to create D3D 11 index buffer");
-		}
-
 	}
 
 	void Direct3D11Context::InitShadersLayout()
 	{
-#if defined IE_DEBUG
-		LPCWSTR VertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/SimpleShader.vertex.cso";
-		LPCWSTR PixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/SimpleShader.pixel.cso";
-#elif defined IE_RELEASE || defined IE_GAME_DIST || defined IE_ENGINE_DIST
-		LPCWSTR VertexShaderFolder = L"SimpleShader.vertex.cso";
-		LPCWSTR PixelShaderFolder = L"SimpleShader.pixel.cso";
-#endif 
-
-		D3D11_INPUT_ELEMENT_DESC InputLayout[] =
-		{
-			{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"TEXCOORDS", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
-		};
-		m_VertexShader.Init(m_pDevice, VertexShaderFolder, InputLayout, ARRAYSIZE(InputLayout));
-		m_PixelShader.Init(m_pDevice, PixelShaderFolder);
 
 	}
 

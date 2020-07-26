@@ -6,7 +6,7 @@
 
 namespace Insight {
 
-	bool VertexShader::Init(ComPtr<ID3D11Device>& pDevice, const std::wstring& ShaderPath, D3D11_INPUT_ELEMENT_DESC* pLayoutDesc, UINT NumElements)
+	bool VertexShader::Init(ComPtr<ID3D11Device>& pDevice, std::wstring ShaderPath, D3D11_INPUT_ELEMENT_DESC* pLayoutDesc, UINT NumElements)
 	{
 		HRESULT hr = D3DReadFileToBlob(ShaderPath.c_str(), m_pShaderByteCode.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to read D3D 11 vertex shader from file.");
@@ -38,7 +38,7 @@ namespace Insight {
 
 
 
-	bool PixelShader::Init(ComPtr<ID3D11Device>& device, const std::wstring& shaderpath)
+	bool PixelShader::Init(ComPtr<ID3D11Device>& device, std::wstring shaderpath)
 	{
 		HRESULT hr = D3DReadFileToBlob(shaderpath.c_str(), m_ShaderByteCode.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to read D3D 11 pixel shader from file.");

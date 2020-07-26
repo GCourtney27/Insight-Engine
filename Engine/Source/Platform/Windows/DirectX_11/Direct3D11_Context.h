@@ -8,8 +8,9 @@
 #include "Platform/Windows/DirectX_11/D3D11_Helper.h"
 #include "Platform/Windows/DirectX_11/Constant_Buffer_Wrapper.h"
 
+#include "Platform/Windows/DirectX_11/D3D11_Deferred_Tech.h"
+
 // TEMP
-#include "Platform/Windows/DirectX_11/D3D11_Shader.h"
 #include "Platform/Windows/DirectX_11/ie_D3D11_Texture.h"
 
 using Microsoft::WRL::ComPtr;
@@ -106,26 +107,18 @@ namespace Insight {
 		ComPtr<ID3D11Texture2D> m_pBackBuffer;
 
 		ComPtr<ID3D11RasterizerState> m_pRasterizarState;
-		ComPtr<ID3D11DepthStencilView> m_pDepthStencilView;
-		ComPtr<ID3D11Texture2D> m_pDepthStencilTexture;
 		ComPtr<ID3D11DepthStencilState> m_pDepthStencilState;
 
 		ComPtr<ID3D11SamplerState> m_pSamplerStateLinearWrap;
+		ComPtr<ID3D11SamplerState> m_pSamplerStatePointClamp;
+
+		D3D11DeferredShadingTech m_DeferredShadingTech;
 
 		D3D_FEATURE_LEVEL m_DeviceMaxSupportedFeatureLevel;
 		DXGI_SAMPLE_DESC m_SampleDesc = {};
-
 		D3D11_VIEWPORT m_ScenePassViewport;
 
 		ConstantBuffer<CB_PS_VS_PerFrame>	m_PerFrameData;
-
-		// TEMP
-		VertexShader m_VertexShader; // Should be appart of the pipeline state
-		PixelShader m_PixelShader; // Should be appart of the pipeline state
-
-		// TEMP 
-		ComPtr<ID3D11Buffer> m_pVertexBuffer;
-		ComPtr<ID3D11Buffer> m_pIndexBuffer;
 
 	};
 

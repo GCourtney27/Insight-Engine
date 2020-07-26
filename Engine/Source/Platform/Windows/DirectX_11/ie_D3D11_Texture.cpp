@@ -27,7 +27,7 @@ namespace Insight {
 
 	void ieD3D11Texture::Bind()
 	{
-		m_pDeviceContext->PSSetShaderResources(m_TextureInfo.Type, 1, m_pTextureView.GetAddressOf());
+		m_pDeviceContext->PSSetShaderResources(m_ShaderRegister, 1, m_pTextureView.GetAddressOf());
 	}
 
 	bool ieD3D11Texture::Init()
@@ -47,6 +47,8 @@ namespace Insight {
 			InitTextureFromFile();
 		}
 
+		m_ShaderRegister = GetShaderRegisterLocation();
+
 		return true;
 	}
 
@@ -60,6 +62,63 @@ namespace Insight {
 	{
 		HRESULT hr = DirectX::CreateWICTextureFromFile(m_pDevice.Get(), m_TextureInfo.Filepath.c_str(), nullptr, m_pTextureView.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to load D3D 11 WIC texture from file.");
+	}
+
+	uint32_t ieD3D11Texture::GetShaderRegisterLocation()
+	{
+		switch (m_TextureInfo.Type)
+		{
+		case eTextureType::ALBEDO:
+		{
+			return 6;
+			break;
+		}
+		case eTextureType::NORMAL:
+		{
+			return 7;
+			break;
+		}
+		case eTextureType::ROUGHNESS:
+		{
+			return 8;
+			break;
+		}
+		case eTextureType::METALLIC:
+		{
+			return 9;
+			break;
+		}
+		case eTextureType::AO:
+		{
+			return 10;
+			break;
+		}
+		case eTextureType::SKY_IRRADIENCE:
+		{
+			return 12;
+			break;
+		}
+		case eTextureType::SKY_ENVIRONMENT_MAP:
+		{
+			return 13;
+			break;
+		}
+		case eTextureType::SKY_BRDF_LUT:
+		{
+			return 14;
+			break;
+		}
+		case eTextureType::SKY_DIFFUSE:
+		{
+			return 15;
+			break;
+		}
+		default:
+		{
+			IE_CORE_ERROR("Failed to determine shader register of texture with type \"{0}\" in D3D 11 context.", m_TextureInfo.Type);
+		}
+		}
+		return - 1;
 	}
 
 }

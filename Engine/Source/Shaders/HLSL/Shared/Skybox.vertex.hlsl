@@ -1,4 +1,4 @@
-#include <../Direct3D_12/Deferred_Rendering/Deferred_Rendering.hlsli>	
+#include <../Deferred_Rendering/Deferred_Rendering.hlsli>	
 
 struct VS_INPUT
 {
