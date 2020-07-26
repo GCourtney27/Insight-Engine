@@ -15,6 +15,7 @@ namespace Insight {
 
 		static bool Init(const char* ProjectName);
 
+		static void SaveEngineUserSettings(Renderer::GraphicsSettings Settings);
 		static std::string GetExecutbleDirectory();
 		static std::string GetUserDocumentsFolderPath();
 		static std::string GetProjectRelativeAssetDirectory(std::string Path);

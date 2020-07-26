@@ -231,7 +231,7 @@ namespace Insight {
 			LPSTR lpszFile;
 			UINT cch;
 			DragQueryFileA((HDROP)wParam, iFile, lpszFile, cch);
-			IE_CORE_INFO("BREAK");*/
+			IE_CORE_INFO("File dropped on window");*/
 		}
 		// Menu Bar Events
 		case WM_COMMAND:
@@ -331,13 +331,21 @@ namespace Insight {
 			case IDM_RENDERER_D3D_11:
 			{
 				IE_CORE_INFO("Switch render context to D3D 11");
-
+				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+				Renderer::GraphicsSettings Settings = {};
+				Settings.TargetRenderAPI = Renderer::eTargetRenderAPI::D3D_11;
+				FileSystem::SaveEngineUserSettings(Settings);
+				data.pWindow->CreateMessageBox(L"You must relaunch engine for changes to take effect.", L"Graphics API changed");
 				break;
 			}
 			case IDM_RENDERER_D3D_12:
 			{
 				IE_CORE_INFO("Switch render context to D3D 12");
-
+				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+				Renderer::GraphicsSettings Settings = {};
+				Settings.TargetRenderAPI = Renderer::eTargetRenderAPI::D3D_12;
+				FileSystem::SaveEngineUserSettings(Settings);
+				data.pWindow->CreateMessageBox(L"You must relaunch engine for changes to take effect.", L"Graphics API changed");
 				break;
 			}
 			default:
@@ -419,7 +427,8 @@ namespace Insight {
 			return false;
 		}
 
-		m_Data.hGraphicsVisualizeSubMenu = m_hGraphicsVisualizeSubMenu;
+		m_Data.hGraphicsVisualizeSubMenu = &m_hGraphicsVisualizeSubMenu;
+		m_Data.pWindow = this;
 
 		::ShowWindow(m_hWindow, m_nCmdShowArgs);
 		::SetForegroundWindow(m_hWindow);
@@ -496,7 +505,7 @@ namespace Insight {
 			::AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_EDITOR_RELOAD_SCRIPTS, L"&Reload Scripts");
 			::AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_EDITOR_TOGGLE, L"&Toggle Editor UI");
 
-			m_Data.hEditorSubMenu = m_hEditorSubMenu;
+			m_Data.hEditorSubMenu = &m_hEditorSubMenu;
 		}
 
 		// Graphics SubMenu
@@ -529,7 +538,7 @@ namespace Insight {
 			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_AO_BUFFER, L"&Ambient Occlusion (PBR Texture)");
 			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);*/
 
-			m_Data.hGraphicsVisualizeSubMenu = m_hGraphicsVisualizeSubMenu;
+			m_Data.hGraphicsVisualizeSubMenu = &m_hGraphicsVisualizeSubMenu;
 		}
 	}
 
@@ -540,7 +549,7 @@ namespace Insight {
 			::AppendMenuW(m_hContextMenu, MF_STRING, IDM_VISUALIZE_AO_BUFFER, L"&Hello");
 			::AppendMenuW(m_hContextMenu, MF_STRING, IDM_VISUALIZE_AO_BUFFER, L"&World");
 		}
-		m_Data.hContextMenu = m_hContextMenu;
+		m_Data.hContextMenu = &m_hContextMenu;
 	}
 
 	LPCTSTR WindowsWindow::GetLastWindowsError()

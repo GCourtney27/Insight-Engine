@@ -34,7 +34,7 @@ namespace Insight {
 	class INSIGHT_API Renderer
 	{
 	public:
-		enum eTargetRenderAPI
+		enum class eTargetRenderAPI
 		{
 			INVALID = 0,
 			D3D_11 = 1,
@@ -57,8 +57,6 @@ namespace Insight {
 		// Once set, it cannot be changed through the lifespan application, you must 
 		// set it re-launch the app.
 		static bool SetSettingsAndCreateContext(GraphicsSettings GraphicsSettings);
-		// Set the graphics settings for the context
-		static void SetGraphicsSettings(GraphicsSettings GraphicsSettings) { s_Instance->m_GraphicsSettings = GraphicsSettings; }
 
 		// Initilize renderer's API library.
 		static inline bool Init() { return s_Instance->InitImpl(); }
@@ -82,6 +80,11 @@ namespace Insight {
 		static inline void OnWindowResize() { s_Instance->OnWindowResizeImpl(); }
 		// Tells the swapchain to enable full screen rendering.
 		static inline void OnWindowFullScreen() { s_Instance->OnWindowFullScreenImpl(); }
+
+		// Set the graphics settings for the context
+		static void SetGraphicsSettings(GraphicsSettings GraphicsSettings) { s_Instance->m_GraphicsSettings = GraphicsSettings; }
+		// Get the current graphics settings the renderer is using.
+		static GraphicsSettings GetGraphicsSettings() { return s_Instance->m_GraphicsSettings; }
 
 		static void SetRenderPass(eRenderPass RenderPass) { s_Instance->m_RenderPass = RenderPass; }
 

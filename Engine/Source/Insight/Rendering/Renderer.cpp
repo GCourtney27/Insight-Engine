@@ -6,6 +6,7 @@
 #include "Platform/Windows/DirectX_11/Direct3D11_Context.h"
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
+#include "Insight/Systems/File_System.h"
 
 namespace Insight {
 
@@ -52,7 +53,6 @@ namespace Insight {
 
 		return s_Instance != nullptr;
 	}
-
 
 	void Renderer::UnRegisterDirectionalLight(ADirectionalLight* DirectionalLight)
 	{

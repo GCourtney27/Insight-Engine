@@ -19,10 +19,11 @@ namespace Insight {
 			bool FullScreenEnabled = false;
 			bool EditorUIEnabled = true;
 			bool IsFirstLaunch = true;
+			WindowsWindow* pWindow;
 
-			HMENU hGraphicsVisualizeSubMenu;
-			HMENU hEditorSubMenu;
-			HMENU hContextMenu;
+			HMENU* hGraphicsVisualizeSubMenu;
+			HMENU* hEditorSubMenu;
+			HMENU* hContextMenu;
 
 			EventCallbackFn EventCallback;
 		};
