@@ -44,7 +44,7 @@ namespace Insight {
 		CreateConstantBufferViews();
 		CreateViewports();
 		CreateSamplers();
-		
+
 		m_DeferredShadingTech.Init(m_pDevice.Get(), m_pDeviceContext.Get(), m_pWindow);
 		LoadAssets();
 
@@ -135,12 +135,18 @@ namespace Insight {
 		// Light Pass
 		m_DeferredShadingTech.BindLightPass();
 
-		m_DeferredShadingTech.BindSkyPass();
-		m_pSkySphere->RenderSky(nullptr);
+		// Sky Pass
+		if (m_pSkySphere) {
+			m_DeferredShadingTech.BindSkyPass();
+			m_pSkySphere->RenderSky(nullptr);
+		}
 
-		m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), nullptr);
-		m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), m_ClearColor);
-		//m_DeferredShadingTech.BindPostFxPass();
+		// PostFx Pass
+		if (m_pPostFx) {
+			m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), m_ClearColor);
+			m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), nullptr);
+			m_DeferredShadingTech.BindPostFxPass();
+		}
 	}
 
 	void Direct3D11Context::ExecuteDrawImpl()

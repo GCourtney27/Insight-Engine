@@ -8,7 +8,7 @@ Texture2D t_RoughnessMetallicAOGBuffer : register(t2);
 Texture2D t_PositionGBuffer : register(t3);
 Texture2D t_SceneDepthGBuffer : register(t4);
 
-Texture2D t_ShadowDepthPass: register(t10);
+Texture2D t_ShadowDepthPass : register(t10);
 
 Texture2D t_LightPassResult : register(t15);
 
@@ -34,7 +34,9 @@ struct PS_INPUT_POSTFX
 
 float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
 {
-   float3 result = t_LightPassResult.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
+    float3 result = t_LightPassResult.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
+    return float4(result, 1.0);
+    
    //float D = LinearizeDepth(t_SceneDepthGBuffer.Sample(s_PointClampSampler, ps_in.texCoords).r);
    //float3 result = float3(D, D, D);
    //return float4(result, 1.0);

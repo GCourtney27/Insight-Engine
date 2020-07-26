@@ -91,7 +91,6 @@ namespace Insight {
 		ID3D11ShaderResourceView* NullSRV[1] = { nullptr };
 		m_pDeviceContext->PSSetShaderResources(4, 1, NullSRV); // Scene Depth
 
-
 		m_pDeviceContext->RSSetState(m_pSkyPass_RasterizarState.Get());
 		m_pDeviceContext->OMSetDepthStencilState(m_pSkyPass_DepthStencilState.Get(), 0U);
 		m_pDeviceContext->OMSetRenderTargets(1, &m_LightPassResult.RenderTargetView, m_DepthStencilView);
@@ -103,6 +102,19 @@ namespace Insight {
 
 	void D3D11DeferredShadingTech::BindPostFxPass()
 	{
+		m_pDeviceContext->OMSetDepthStencilState(m_pDefaultDepthStencilState, 0U);
+		m_pDeviceContext->RSSetState(m_pRasterizarState.Get());
+		m_pDeviceContext->IASetInputLayout(m_PostFxPassVS.GetInputLayout());
+
+		ID3D11ShaderResourceView* NullSRV[1] = { nullptr };
+
+		m_pDeviceContext->PSSetShaderResources(15, 1, NullSRV);
+		m_pDeviceContext->PSSetShaderResources(15, 1, &m_LightPassResult.ShaderResourceView);
+
+		m_pDeviceContext->VSSetShader(m_PostFxPassVS.GetShader(), nullptr, 0);
+		m_pDeviceContext->PSSetShader(m_PostFxPassPS.GetShader(), nullptr, 0);
+
+		m_ScreenQuad.OnRender();
 	}
 
 	void D3D11DeferredShadingTech::CreateGeometryPass()
@@ -295,6 +307,21 @@ namespace Insight {
 
 	void D3D11DeferredShadingTech::CreatePostFxPass()
 	{
+#ifndef IE_IS_STANDALONE
+		LPCWSTR VertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/PostFx.vertex.cso";
+		LPCWSTR PixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/PostFx.pixel.cso";
+#else
+		LPCWSTR VertexShaderFolder = L"PostFx.vertex.cso";
+		LPCWSTR PixelShaderFolder = L"PostFx.pixel.cso";
+#endif 
+
+		D3D11_INPUT_ELEMENT_DESC InputLayout[2] =
+		{
+			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		};
+		m_PostFxPassVS.Init(m_pDevice, VertexShaderFolder, InputLayout, ARRAYSIZE(InputLayout));
+		m_PostFxPassPS.Init(m_pDevice, PixelShaderFolder);
 	}
 
 	bool ieD3D11ScreenQuad::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext)
