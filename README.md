@@ -18,7 +18,7 @@ A full game engine made for my 2019 Capstone project. It is written in C/C++ wit
 * Visual Studio 2019/*2017
 
 **Getting Started**
-1) Clone the repo into a directory with "git clone --recursive".
+1) Clone the repo into a directory with "git clone --recurse-submodules".
 2) Navigate to InsightEngine
 3) Run the "Build_Dependencies.bat" file to build all dependencies.
 4) Run all intallers under Vendor/Redist. Download and install the mono runtime for C-Sharp scripting at "https://www.mono-project.com/download/stable/". Once intalled, navigate to the install diretory, usually in "C:/Program Files/Mono" and copy the Mono folder and past it into "InsightEngine/Engine/Vendor". This step is to keep file sizes low for GitHub
