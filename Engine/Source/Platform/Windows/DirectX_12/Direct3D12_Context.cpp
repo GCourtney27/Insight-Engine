@@ -262,13 +262,10 @@ namespace Insight {
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE
 
-		m_pScenePassCommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), true, nullptr);
 		BindLightingPass();
 
-		m_pScenePassCommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), true, &m_dsvHeap.hCPU(0));
 		BindSkyPass();
 
-		m_pScenePassCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, nullptr);
 		BindPostFxPass();
 	}
 
@@ -276,8 +273,10 @@ namespace Insight {
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
+		m_pScenePassCommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), true, nullptr);
+
 		if (m_SkyLight) {
-			m_SkyLight->OnRender();
+			m_SkyLight->BindCubeMaps();
 		}
 
 		for (unsigned int i = 0; i < m_NumRTV - 1; ++i) {
@@ -297,6 +296,7 @@ namespace Insight {
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
 		if (m_pSkySphere) {
+			m_pScenePassCommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), true, &m_dsvHeap.hCPU(0));
 
 			m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 
@@ -304,21 +304,24 @@ namespace Insight {
 
 			m_pSkySphere->RenderSky(m_pScenePassCommandList);
 		}
+		else {
+			m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+		}
+
 	}
 
 	void Direct3D12Context::BindPostFxPass()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
+		
+		m_pScenePassCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, nullptr);
 
-		if (m_pPostFx) {
+		m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
 
-			m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
+		m_pScenePassCommandList->SetPipelineState(m_pPipelineStateObject_PostFxPass.Get());
+		m_pScenePassCommandList->SetGraphicsRootDescriptorTable(16, m_cbvsrvHeap.hGPU(5));
 
-			m_pScenePassCommandList->SetPipelineState(m_pPipelineStateObject_PostFxPass.Get());
-			m_pScenePassCommandList->SetGraphicsRootDescriptorTable(16, m_cbvsrvHeap.hGPU(5));
-
-			m_ScreenQuad.OnRender(m_pScenePassCommandList);
-		}
+		m_ScreenQuad.OnRender(m_pScenePassCommandList);
 	}
 
 	void Direct3D12Context::ExecuteDrawImpl()
