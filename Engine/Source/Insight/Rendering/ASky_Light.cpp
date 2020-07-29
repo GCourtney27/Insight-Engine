@@ -50,7 +50,7 @@ namespace Insight {
 		irMapInfo.Type = Texture::eTextureType::SKY_IRRADIENCE;
 		irMapInfo.IsCubeMap = true;
 		brdfInfo.GenerateMipMaps = false;
-		
+
 		Texture::IE_TEXTURE_INFO envMapInfo;
 		envMapInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(envMap));
 		envMapInfo.AssetDirectoryRelPath = envMap;
@@ -175,9 +175,6 @@ namespace Insight {
 
 	void ASkyLight::OnRender()
 	{
-		m_Environment->Bind();
-		m_Irradiance->Bind();
-		m_BrdfLUT->Bind();
 	}
 
 	void ASkyLight::Destroy()
@@ -202,6 +199,13 @@ namespace Insight {
 
 	void ASkyLight::OnImGuiRender()
 	{
+	}
+
+	void ASkyLight::BindCubeMaps()
+	{
+		m_Environment->Bind();
+		m_Irradiance->Bind();
+		m_BrdfLUT->Bind();
 	}
 
 }

@@ -32,6 +32,8 @@ namespace Insight {
 
 		virtual void OnImGuiRender() override;
 
+		void BindCubeMaps();
+
 		/*CB_PS_SpotLight GetConstantBuffer() { return m_ShaderCB; }*/
 
 	private:
