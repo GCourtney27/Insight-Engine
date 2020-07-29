@@ -100,6 +100,10 @@ namespace Insight {
 		return true;
 	}
 
+	void CSharpScriptComponent::OnEvent(Event& e)
+	{
+	}
+
 	void CSharpScriptComponent::OnInit()
 	{
 	}

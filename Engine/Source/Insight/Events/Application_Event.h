@@ -4,6 +4,8 @@
 
 namespace Insight {
 
+
+
 	class INSIGHT_API WindowResizeEvent : public Event
 	{
 	public:
@@ -49,6 +51,22 @@ namespace Insight {
 
 		EVENT_CLASS_TYPE(WindowClose)
 			EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	};
+
+	class INSIGHT_API PhysicsEvent : public Event
+	{
+	public:
+		PhysicsEvent() {}
+		EVENT_CLASS_TYPE(PhysicsCollisionEvent)
+			EVENT_CLASS_CATEGORY(EventCatecoryPhysics)
+
+		struct CollisionDetails
+		{
+			AActor* pCollider;
+			float Velocity;
+			/*ieVector3 Direction;
+			ieVector3 Normal;*/
+		} CollisionInfo;
 	};
 
 	class INSIGHT_API AppTickEvent : public Event

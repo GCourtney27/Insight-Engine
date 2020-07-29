@@ -15,7 +15,8 @@ namespace Insight {
 		AppBeginPlay, AppEndPlay, AppTick, AppUpdate, AppRender, AppScriptReload,
 		SceneSave,
 		KeyPressed, KeyReleased, KeyTyped,
-		MouseButtonPressed, MouseButtonReleased, MouseMoved, RawMouseMoved, MouseScrolled
+		MouseButtonPressed, MouseButtonReleased, MouseMoved, RawMouseMoved, MouseScrolled,
+		PhysicsCollisionEvent
 	};
 
 	enum EventCategory
@@ -26,6 +27,7 @@ namespace Insight {
 		EventCategoryKeyboard = BIT_SHIFT(2),
 		EventCategoryMouse = BIT_SHIFT(3),
 		EventCategoryMouseButton = BIT_SHIFT(4),
+		EventCatecoryPhysics = BIT_SHIFT(5)
 	};
 
 #define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::##type; }\
