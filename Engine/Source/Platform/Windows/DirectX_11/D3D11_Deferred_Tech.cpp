@@ -147,6 +147,7 @@ namespace Insight {
 		m_pDeviceContext->RSSetState(m_pRasterizarState.Get());
 		m_pDeviceContext->IASetInputLayout(m_PostFxPassVS.GetInputLayout());
 
+		m_pDeviceContext->PSSetShaderResources(4, 1, m_pSceneDepthView.GetAddressOf());
 		m_pDeviceContext->PSSetShaderResources(15, 1, m_LightPassResult.ShaderResourceView.GetAddressOf());
 
 		m_pDeviceContext->VSSetShader(m_PostFxPassVS.GetShader(), nullptr, 0);
