@@ -5,6 +5,7 @@
 #include "Insight/Core/Interfaces.h"
 
 #include "Insight/Runtime/Components/Actor_Component.h"
+#include "Insight/Physics/Physics_Common.h"
 
 namespace Insight {
 

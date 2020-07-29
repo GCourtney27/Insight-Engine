@@ -2,6 +2,9 @@
 
 #include "Physics_Manager.h"
 
+#include "Insight/Physics/Physics_Common.h"
+
+
 namespace Insight {
 
 	PhysicsManager* PhysicsManager::s_Instance = nullptr;
@@ -9,13 +12,17 @@ namespace Insight {
 
 	PhysicsManager::PhysicsManager()
 	{
-		IE_ASSERT(!s_Instance, "An instance of physics manager already exists!");
-		s_Instance = this;
 	}
 
 	PhysicsManager::~PhysicsManager()
 	{
 
+	}
+
+	void PhysicsManager::InitGlobalInstance()
+	{
+		IE_ASSERT(!s_Instance, "An instance of physics manager already exists!");
+		s_Instance = new PhysicsManager();
 	}
 
 	void PhysicsManager::Simulate(const float DeltaMs)

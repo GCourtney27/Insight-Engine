@@ -32,24 +32,4 @@ namespace Insight {
 		RenderPass_Shadow,
 	};
 
-	class IPhysicsObject
-	{
-	public:
-		enum class eColliderType
-		{
-			INVALID,
-			SPHERE,
-			BOX
-		};
-		using ColliderType = IPhysicsObject::eColliderType;
-
-	public:
-
-		eColliderType GetColliderType() { return m_ColliderType; }
-
-	protected:
-		ColliderType m_ColliderType = ColliderType::INVALID;
-		bool m_IsStatic = false;
-	};
-
 }

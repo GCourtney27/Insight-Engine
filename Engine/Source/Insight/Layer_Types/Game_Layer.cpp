@@ -4,7 +4,6 @@
 
 #include "Insight/Core/Scene/Scene.h"
 
-
 namespace Insight {
 	
 	
