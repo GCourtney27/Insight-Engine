@@ -91,8 +91,6 @@ namespace Insight {
 		m_pPlayerStart->SpawnPlayer(m_pPlayerCharacter);
 		m_pCamera->SetViewTarget(m_pPlayerCharacter->GetViewTarget());
 		
-		m_pPlayerCharacter->BeginPlay();
-
 		m_pSceneRoot->BeginPlay();
 	}
 

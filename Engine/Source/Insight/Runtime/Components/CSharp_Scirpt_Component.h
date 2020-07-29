@@ -12,13 +12,20 @@ namespace Insight {
 	class INSIGHT_API CSharpScriptComponent : public ActorComponent
 	{
 	public:
-		
+		struct EventData
+		{
+			EventCallbackFn EventCallback;
+
+		};
 	public:
 		CSharpScriptComponent(AActor* pOwner);
 		virtual ~CSharpScriptComponent();
 
 		virtual bool LoadFromJson(const rapidjson::Value& jsonCSScriptComponent) override;
 		virtual bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer) override;
+
+		virtual inline void SetEventCallback(const EventCallbackFn& callback) override { m_EventData.EventCallback = callback; }
+		void OnEvent(Event& e);
 
 		virtual void OnInit() override;
 		virtual void OnPostInit() override;
@@ -55,6 +62,7 @@ namespace Insight {
 		bool m_CanBeTicked = true;// TODO ImGui field this
 		bool m_CanBeCalledOnBeginPlay = true;// TODO ImGui field this
 		uint32_t m_ScriptWorldIndex = 0U;
+		EventData m_EventData;
 
 		// Transform Script Fields
 		MonoObject* m_TransformObject;

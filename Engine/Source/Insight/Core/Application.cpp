@@ -142,8 +142,7 @@ namespace Insight {
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
 		{
 			(*--it)->OnEvent(e);
-			if (e.Handled())
-				break;
+			if (e.Handled()) break;
 		}
 	}
 
@@ -210,7 +209,6 @@ namespace Insight {
 
 	bool Application::BeginPlay(AppBeginPlayEvent& e)
 	{
-		m_pGameLayer->BeginPlay();
 		PushLayer(m_pGameLayer);
 		return true;
 	}

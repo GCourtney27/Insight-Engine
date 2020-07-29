@@ -5,6 +5,7 @@
 #include "Insight/Math/Transform.h"
 #include "Insight/Core/Scene/Scene_Node.h"
 #include "Insight/Runtime/Components/Scene_Component.h"
+#include "Insight/Events/Application_Event.h"
 
 
 namespace Insight {
@@ -50,6 +51,8 @@ namespace Insight {
 			IE_CORE_ASSERT(component, "Trying to add null component to actor");
 
 			component->OnAttach();
+			component->SetEventCallback(IE_BIND_EVENT_FN(AActor::OnEvent));
+
 			m_Components.push_back(component);
 			m_NumComponents++;
 			return component;
@@ -68,7 +71,8 @@ namespace Insight {
 		void RemoveSubobject(StrongActorComponentPtr component);
 		void RemoveAllSubobjects();
 		std::vector<StrongActorComponentPtr> GetAllSubobjects() const { return m_Components; }
-		
+	private:
+		bool OnCollision(PhysicsEvent& e);
 	protected:
 		ActorComponents m_Components;
 		uint32_t m_NumComponents = 0;

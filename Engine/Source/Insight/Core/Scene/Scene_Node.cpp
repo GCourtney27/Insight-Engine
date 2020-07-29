@@ -92,6 +92,7 @@ namespace Insight {
 
 	void SceneNode::BeginPlay()
 	{
+		IE_CORE_INFO("{0}", m_DisplayName);
 		for (auto i = m_Children.begin(); i != m_Children.end(); ++i) {
 			(*i)->BeginPlay();
 		}
