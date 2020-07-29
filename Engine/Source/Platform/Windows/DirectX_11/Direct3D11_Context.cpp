@@ -208,13 +208,11 @@ namespace Insight {
 		}
 
 		// PostFx Pass
-		if (m_pPostFx) {
-			m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), m_ClearColor);
-			m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), nullptr);
-			m_pDeviceContext->PSSetConstantBuffers(3, 1, m_PostFxData.GetAddressOf());
-			m_pDeviceContext->PSSetConstantBuffers(1, 1, m_PerFrameData.GetAddressOf());
-			m_DeferredShadingTech.BindPostFxPass();
-		}
+		m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), m_ClearColor);
+		m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), nullptr);
+		m_pDeviceContext->PSSetConstantBuffers(3, 1, m_PostFxData.GetAddressOf());
+		m_pDeviceContext->PSSetConstantBuffers(1, 1, m_PerFrameData.GetAddressOf());
+		m_DeferredShadingTech.BindPostFxPass();
 	}
 
 	void Direct3D11Context::ExecuteDrawImpl()

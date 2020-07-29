@@ -91,14 +91,14 @@ struct CB_PS_PostFx
 	float vnInnerRadius;
 	float vnOuterRadius;
 	float vnOpacity;
-	int vnEnabled;
+	int vnEnabled = 0;
 
 	// Film Grain
 	float fgStrength;
-	int fgEnabled;
+	int fgEnabled = 0;
 
 	// Chromatic Aberration
-	int caEnabled;
+	int caEnabled = 0;
 	float caIntensity;
 };
 
