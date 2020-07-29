@@ -266,6 +266,8 @@ namespace Insight {
 
 		BindSkyPass();
 
+		BindTransparencyPass();
+
 		BindPostFxPass();
 	}
 
@@ -307,6 +309,11 @@ namespace Insight {
 		else {
 			m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 		}
+
+	}
+
+	void Direct3D12Context::BindTransparencyPass()
+	{
 
 	}
 
@@ -1100,6 +1107,11 @@ namespace Insight {
 		hr = m_pDevice->CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&m_pPipelineStateObject_SkyPass));
 		ThrowIfFailed(hr, "Failed to create skybox pipeline state object for .");
 		m_pPipelineStateObject_SkyPass->SetName(L"PSO Sky Pass");
+	}
+
+	void Direct3D12Context::CreateTransparencyPassPSO()
+	{
+
 	}
 
 	void Direct3D12Context::CreateLightPassPSO()

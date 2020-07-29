@@ -1,8 +1,8 @@
 #include <Deferred_Rendering.hlsli>	
-#include <../Common/PBR_Helper.hlsli>
+
 #define SHADOW_DEPTH_BIAS 0.00005f
 
-// Texture Inputs
+// G-Buffer Inputs
 // --------------
 Texture2D t_AlbedoGBuffer               : register(t0);
 Texture2D t_NormalGBuffer               : register(t1);
@@ -65,89 +65,24 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     for (int d = 0; d < numDirectionalLights; d++)
     {
         float3 lightDir = normalize(-dirLights[d].direction);
-        float3 halfwayDir = normalize(viewDirection + lightDir);
-        float3 radiance = (dirLights[d].diffuse) * dirLights[d].strength;
-        
-        // Cook-Torrance BRDF
-        float NdotL = max(dot(normal, lightDir), 0.0000001);
-        float HdotV = max(dot(halfwayDir, viewDirection), 0.0);
-        float NdotH = max(dot(normal, halfwayDir), 0.0);
-        
-        float D = DistributionGGX(NdotH, roughness);
-        float G = GeometrySmith(NdotV, NdotL, roughness);
-        float3 F = FresnelSchlick(HdotV, baseReflectivity);
-        
-        float3 specular = D * G * F;
-        specular /= 4.0 * NdotV * NdotL;
-        
-        float3 kD = float3(1.0, 1.0, 1.0) - F;
-        kD *= 1.0 - metallic;
         
         // Shadowing
         float4 fragPosLightSpace = mul(float4(worldPosition, 1.0), mul(dirLights[d].lightSpaceView, dirLights[d].lightSpaceProj));
         float shadow = ShadowCalculation(fragPosLightSpace, normal, lightDir);
         
-        directionalLightLuminance += ((kD * albedo / PI + specular) * radiance * NdotL) * (1.0 - shadow);
-
+        directionalLightLuminance += CaclualteDirectionalLight(dirLights[d], viewDirection, normal, worldPosition, NdotV, albedo, roughness, metallic, baseReflectivity) * (1.0 - shadow);
     }
     
     // Spot Lights
     for (int s = 0; s < numPointLights; s++)
     {
-        float3 lightDir = normalize(spotLights[s].position - worldPosition);
-        float3 halfwayDir = normalize(lightDir + viewDirection);
-        float distance = length(spotLights[s].position - worldPosition);
-        float attenuation = 1.0 / (distance * distance);
-        
-        float theta = dot(lightDir, normalize(-spotLights[s].direction));
-        float epsilon = spotLights[s].innerCutOff - spotLights[s].outerCutOff;
-        float intensity = clamp((theta - spotLights[s].outerCutOff) / epsilon, 0.0, 1.0);
-
-        float3 radiance = ((spotLights[s].diffuse * (spotLights[s].strength * 10000.0)) * intensity) * attenuation;
-        
-         // Cook-Torrance BRDF
-        float NdotL = max(dot(normal, lightDir), 0.0000001);
-        float HdotV = max(dot(halfwayDir, viewDirection), 0.0);
-        float NdotH = max(dot(normal, halfwayDir), 0.0);
-        
-        float D = DistributionGGX(NdotH, roughness);
-        float G = GeometrySmith(NdotV, NdotL, roughness);
-        float3 F = FresnelSchlick(HdotV, baseReflectivity);
-        
-        float3 specular = D * G * F;
-        specular /= 4.0 * NdotV * NdotL;
-        
-        float3 kD = float3(1.0, 1.0, 1.0) - F;
-        kD *= 1.0 - metallic;
-        
-        spotLightLuminance += (kD * albedo / PI + specular) * radiance * NdotL;
+        spotLightLuminance += CalculateSpotLight(spotLights[s], viewDirection, NdotV, worldPosition, normal, albedo, roughness, metallic, baseReflectivity);
     }
     
     // Point Lights
     for (int p = 0; p < numPointLights; p++)
     {
-        float3 lightDir = normalize(pointLights[p].position - worldPosition);
-        float3 halfwayDir = normalize(viewDirection + lightDir);
-        float distance = length(pointLights[p].position - worldPosition);
-        float attenuation = 1.0 / (distance * distance);
-        float3 radiance = ((pointLights[p].diffuse * 255.0) * pointLights[p].strength) * attenuation;
-        
-        // Cook-Torrance BRDF
-        float NdotL = max(dot(normal, lightDir), 0.0000001);
-        float HdotV = max(dot(halfwayDir, viewDirection), 0.0);
-        float NdotH = max(dot(normal, halfwayDir), 0.0);
-        
-        float D = DistributionGGX(NdotH, roughness);
-        float G = GeometrySmith(NdotV, NdotL, roughness);
-        float3 F = FresnelSchlick(HdotV, baseReflectivity);
-        
-        float3 specular = D * G * F;
-        specular /= 4.0 * NdotV * NdotL;
-        
-        float3 kD = float3(1.0, 1.0, 1.0) - F;
-        kD *= 1.0 - metallic;
-        
-        pointLightLuminance += (kD * albedo / PI + specular) * radiance * NdotL;
+        pointLightLuminance += CalculatePointLight(pointLights[p], worldPosition, viewDirection, NdotV, normal, albedo, metallic, roughness, baseReflectivity);;
     }
     
     // IBL

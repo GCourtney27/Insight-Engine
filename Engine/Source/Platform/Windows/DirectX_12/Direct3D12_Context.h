@@ -93,6 +93,7 @@ namespace Insight {
 		void BindGeometryPass(bool setPSO = false);
 		void BindLightingPass();
 		void BindSkyPass();
+		void BindTransparencyPass();
 		void BindPostFxPass();
 
 		// D3D12 Initialize
@@ -113,6 +114,7 @@ namespace Insight {
 		void CreateShadowPassPSO();
 		void CreateGeometryPassPSO();
 		void CreateSkyPassPSO();
+		void CreateTransparencyPassPSO();
 		void CreateLightPassPSO();
 		void CreatePostFxPassPSO();
 
@@ -195,6 +197,7 @@ namespace Insight {
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_GeometryPass;
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_LightingPass;
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_SkyPass;
+		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_Transparency;
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_PostFxPass;
 
 		//-----Pipeline-----
