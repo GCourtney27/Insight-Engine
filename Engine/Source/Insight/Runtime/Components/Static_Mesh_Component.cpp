@@ -35,26 +35,26 @@ namespace Insight {
 
 		json::get_bool(JsonStaticMeshComponent[0], "Enabled", ActorComponent::m_Enabled);
 		
-		// Load Mesh Local Transform
-		float posX, posY, posZ;
-		float rotX, rotY, rotZ;
-		float scaX, scaY, scaZ;
-		const rapidjson::Value& MeshTransform = JsonStaticMeshComponent[0]["LocalTransform"];
-		// Position
-		json::get_float(MeshTransform[0], "posX", posX);
-		json::get_float(MeshTransform[0], "posY", posY);
-		json::get_float(MeshTransform[0], "posZ", posZ);
-		m_pModel->GetMeshRootTransformRef().SetPosition(ieVector3(posX, posY, posZ));
-		// Rotation
-		json::get_float(MeshTransform[0], "rotX", rotX);
-		json::get_float(MeshTransform[0], "rotY", rotY);
-		json::get_float(MeshTransform[0], "rotZ", rotZ);
-		m_pModel->GetMeshRootTransformRef().SetRotation(ieVector3(rotX, rotY, rotZ));
-		// Scale
-		json::get_float(MeshTransform[0], "scaX", scaX);
-		json::get_float(MeshTransform[0], "scaY", scaY);
-		json::get_float(MeshTransform[0], "scaZ", scaZ);
-		m_pModel->GetMeshRootTransformRef().SetScale(ieVector3(scaX, scaY, scaZ));
+		//// Load Mesh Local Transform
+		//float posX, posY, posZ;
+		//float rotX, rotY, rotZ;
+		//float scaX, scaY, scaZ;
+		//const rapidjson::Value& MeshTransform = JsonStaticMeshComponent[0]["LocalTransform"];
+		//// Position
+		//json::get_float(MeshTransform[0], "posX", posX);
+		//json::get_float(MeshTransform[0], "posY", posY);
+		//json::get_float(MeshTransform[0], "posZ", posZ);
+		//m_pModel->GetMeshRootTransformRef().SetPosition(ieVector3(posX, posY, posZ));
+		//// Rotation
+		//json::get_float(MeshTransform[0], "rotX", rotX);
+		//json::get_float(MeshTransform[0], "rotY", rotY);
+		//json::get_float(MeshTransform[0], "rotZ", rotZ);
+		//m_pModel->GetMeshRootTransformRef().SetRotation(ieVector3(rotX, rotY, rotZ));
+		//// Scale
+		//json::get_float(MeshTransform[0], "scaX", scaX);
+		//json::get_float(MeshTransform[0], "scaY", scaY);
+		//json::get_float(MeshTransform[0], "scaZ", scaZ);
+		//m_pModel->GetMeshRootTransformRef().SetScale(ieVector3(scaX, scaY, scaZ));
 
 		// Load Material
 		m_pMaterial->LoadFromJson(JsonStaticMeshComponent[1]);
@@ -137,7 +137,7 @@ namespace Insight {
 	void StaticMeshComponent::CalculateParent(const XMMATRIX& parentMatrix)
 	{
 		//if (m_ModelLoadFuture.get()) {
-			m_pModel->PreRender(parentMatrix);
+			m_pModel->CalculateParent(parentMatrix);
 		//}
 	}
 
@@ -178,7 +178,7 @@ namespace Insight {
 	static std::mutex s_MeshMutex;
 	static bool LoadModelAsync(StrongModelPtr Model, const std::string& Path, Material* Material)
 	{
-		Model->Init(Path, Material);
+		Model->Create(Path, Material);
 
 		std::lock_guard<std::mutex> ResourceLock(s_MeshMutex);
 
@@ -196,12 +196,11 @@ namespace Insight {
 			m_pModel.reset();
 		}
 		m_pModel = make_shared<Model>();
-		m_pModel->Init(AssestDirectoryRelPath, m_pMaterial);
+		m_pModel->Create(AssestDirectoryRelPath, m_pMaterial);
+		GeometryManager::RegisterModel(m_pModel);
 
 		// Experamental: Multi-threaded model laoding
-		//m_ModelLoadFuture = std::async(std::launch::async, LoadModelAsync, m_pModel, AssesDirectoryRelPath, &m_Material);
-		
-		GeometryManager::RegisterModel(m_pModel);
+		//m_ModelLoadFuture = std::async(std::launch::async, LoadModelAsync, m_pModel, AssestDirectoryRelPath, m_pMaterial);
 	}
 
 	void StaticMeshComponent::SetMaterial(Material* pMaterial)

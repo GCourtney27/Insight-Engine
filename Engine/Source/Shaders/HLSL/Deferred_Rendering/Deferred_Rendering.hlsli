@@ -107,7 +107,6 @@ struct VS_OUTPUT_GEOMPASS
 {
     float4 sv_position : SV_POSITION;
     float3 fragPos : FRAG_POS;
-    float3 fragPosLightSpace : FRAG_POS_LIGHT_SPACE;
     float2 texCoords : TEXCOORD;
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
@@ -118,7 +117,6 @@ struct PS_INPUT_GEOMPASS
 {
     float4 sv_position : SV_POSITION;
     float3 fragPos : FRAG_POS;
-    float3 fragPosLightSpace : FRAG_POS_LIGHT_SPACE;
     float2 texCoords : TEXCOORD;
     float3 normal : NORMAL;
     float3 tangent : TANGENT;

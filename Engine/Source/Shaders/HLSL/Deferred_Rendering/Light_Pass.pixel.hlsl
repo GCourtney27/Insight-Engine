@@ -199,8 +199,10 @@ float ShadowCalculation(float4 fragPosLightSpace, float3 normal, float3 lightDir
     // Soften Shadows
     float shadow = 0.0;
     float2 texelSize = 1.0 / float2(1024.0, 1024.0);
+    [unroll(2)]
     for (int x = -1; x <= 1; ++x)
     {
+        [unroll(2)]
         for (int y = -1; y <= 1; ++y)
         {
             float depth = t_ShadowDepth.Sample(s_PointClampSampler, projCoords.xy + float2(x, y) * texelSize).r;

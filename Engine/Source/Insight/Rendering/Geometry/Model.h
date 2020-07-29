@@ -21,7 +21,7 @@ namespace Insight {
 		Model(Model&& Model) noexcept;
 		~Model();
 
-		bool Init(const std::string& path, Material* pMaterial);
+		bool Create(const std::string& path, Material* pMaterial);
 		void OnImGuiRender();
 		void RenderSceneHeirarchy();
 		void BindResources();
@@ -32,6 +32,7 @@ namespace Insight {
 		std::string GetDirectory() { return m_Directory; }
 		std::string GetAssetDirectoryRelativePath() { return m_AssetDirectoryRelativePath; }
 
+		// Visibility
 		bool GetCanBeRendered() { return m_Visible; }
 		bool SetCanBeRendered(bool Enabled) { m_Visible = Enabled; }
 		bool GetCanCastShadows() { return m_CastsShadows; }
@@ -40,12 +41,12 @@ namespace Insight {
 		unique_ptr<Mesh>& GetMeshAtIndex(int index) { return m_Meshes[index]; }
 		const size_t GetNumChildMeshes() const { return m_Meshes.size(); }
 
-		void PreRender(const XMMATRIX& parentMat);
+		void CalculateParent(const XMMATRIX& parentMat);
 		void Render(ID3D12GraphicsCommandList* pCommandList);
 		void Destroy();
-		bool LoadModelFromFile(const std::string& path);
 
 	private:
+		bool LoadModelFromFile(const std::string& path);
 		unique_ptr<MeshNode> ParseNode_r(aiNode* pNode);
 		unique_ptr<Mesh> ProcessMesh(aiMesh* pMesh, const aiScene* pScene);
 

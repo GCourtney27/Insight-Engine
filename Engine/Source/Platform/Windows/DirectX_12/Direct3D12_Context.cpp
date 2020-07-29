@@ -275,8 +275,8 @@ namespace Insight {
 
 		m_pScenePassCommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), true, nullptr);
 
-		if (m_SkyLight) {
-			m_SkyLight->BindCubeMaps();
+		if (m_pSkyLight) {
+			m_pSkyLight->BindCubeMaps();
 		}
 
 		for (unsigned int i = 0; i < m_NumRTV - 1; ++i) {

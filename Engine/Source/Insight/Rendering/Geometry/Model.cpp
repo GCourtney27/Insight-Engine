@@ -4,6 +4,7 @@
 #include "Insight/Utilities/String_Helper.h"
 #include "Insight/Systems/File_System.h"
 #include "Insight/Rendering/Material.h"
+
 #include "imgui.h"
 
 namespace Insight {
@@ -12,7 +13,7 @@ namespace Insight {
 
 	Model::Model(const std::string& Path, Material* Material)
 	{
-		Init(Path, Material);
+		Create(Path, Material);
 	}
 
 	Model::Model(Model&& model) noexcept
@@ -34,7 +35,7 @@ namespace Insight {
 		//Destroy();
 	}
 
-	bool Model::Init(const std::string& path, Material* pMaterial)
+	bool Model::Create(const std::string& path, Material* pMaterial)
 	{
 		m_pMaterial = pMaterial;
 
@@ -78,7 +79,7 @@ namespace Insight {
 		m_pMaterial->BindResources();
 	}
 
-	void Model::PreRender(const XMMATRIX& parentMat)
+	void Model::CalculateParent(const XMMATRIX& parentMat)
 	{
 		auto worldMat = XMMatrixMultiply(m_pRoot->GetTransformRef().GetLocalMatrixRef(), parentMat);
 		for (unique_ptr<Mesh>& mesh : m_Meshes) {

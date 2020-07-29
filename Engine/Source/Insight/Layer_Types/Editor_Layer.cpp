@@ -5,6 +5,8 @@
 #include "Insight/Runtime/ACamera.h"
 #include "Insight/Runtime/AActor.h"
 
+#include "Insight/Rendering/APost_Fx.h"
+#include "Insight/Rendering/ASky_Sphere.h"
 #include "Insight/Rendering/Lighting/ASpot_Light.h"
 #include "Insight/Rendering/Lighting/APoint_Light.h"
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
@@ -184,24 +186,22 @@ namespace Insight {
 				}
 				ImGui::TreePop();
 
-				//ImGui::TreeNodeEx("TODO: Post-Process Actor", TreeFlags);
-				//if (ImGui::IsItemClicked()) {
-				//	IE_CORE_INFO("Create Empty Actor");
-				//	//static int ActorIndex = 0;
-				//	//ActorType ActorType = "MyActor" + std::to_string(ActorIndex++);
-				//	//m_pSceneRootRef->AddChild(new AActor(5, ActorType));
-				//}
-				//ImGui::TreePop();
+				/*ImGui::TreeNodeEx("TODO: Post-Process Actor", TreeFlags);
+				if (ImGui::IsItemClicked()) {
+					IE_CORE_INFO("Create Empty Actor");
+					ActorType ActorType = "PostProcess Actor";
+					m_pSceneRootRef->AddChild(new APostFx(5, ActorType));
+				}
+				ImGui::TreePop();*/
 
 
-				//ImGui::TreeNodeEx("TODO: Sky Sphere Actor", TreeFlags);
-				//if (ImGui::IsItemClicked()) {
-				//	IE_CORE_INFO("Create Empty Actor");
-				//	//static int ActorIndex = 0;
-				//	//ActorType ActorType = "MyActor" + std::to_string(ActorIndex++);
-				//	//m_pSceneRootRef->AddChild(new AActor(5, ActorType));
-				//}
-				//ImGui::TreePop();
+				/*ImGui::TreeNodeEx("Sky Sphere Actor", TreeFlags);
+				if (ImGui::IsItemClicked()) {
+					IE_CORE_INFO("Create Sky Sphere  Actor");
+					ActorType ActorType = "Sky Sphere Actor";
+					m_pSceneRootRef->AddChild(new ASkySphere(5, ActorType));
+				}
+				ImGui::TreePop();*/
 
 
 				//ImGui::TreeNodeEx("TODO: Sky Light Actor", TreeFlags);
