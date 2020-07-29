@@ -195,6 +195,9 @@ namespace Insight {
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
 		// Light Pass
+		if (m_pSkyLight) {
+			m_pSkyLight->BindCubeMaps();
+		}
 		m_pDeviceContext->PSSetConstantBuffers(2, 1, m_LightData.GetAddressOf());
 		m_DeferredShadingTech.BindLightPass();
 
