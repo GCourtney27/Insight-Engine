@@ -58,7 +58,7 @@ namespace Insight {
 					Writer.Key("TargetAPI");
 					Writer.Int((int)Settings.TargetRenderAPI);
 					Writer.Key("TextureQuality");
-					Writer.Int(Settings.MipLodBias);
+					Writer.Double(Settings.MipLodBias);
 					Writer.Key("TextureFiltering");
 					Writer.Double(Settings.MaxAnisotropy);
 					Writer.EndObject();
@@ -128,11 +128,11 @@ namespace Insight {
 			}
 
 			const rapidjson::Value& RendererSettings = RawSettingsFile["Renderer"];
-			int TargetAPI, TextureQuality;
-			float TextureFiltering;
+			int TargetAPI, TextureFiltering;
+			float TextureQuality;
 			json::get_int(RendererSettings[0], "TargetAPI", TargetAPI);
-			json::get_int(RendererSettings[0], "TextureQuality", TextureQuality);
-			json::get_float(RendererSettings[0], "TextureFiltering", TextureFiltering);
+			json::get_float(RendererSettings[0], "TextureQuality", TextureQuality);
+			json::get_int(RendererSettings[0], "TextureFiltering", TextureFiltering);
 			UserGraphicsSettings.TargetRenderAPI = (Renderer::eTargetRenderAPI)TargetAPI;
 			UserGraphicsSettings.MaxAnisotropy = TextureFiltering;
 			UserGraphicsSettings.MipLodBias = TextureQuality;

@@ -19,11 +19,12 @@ namespace Insight {
 		: AActor(id, type)
 	{
 		Renderer::CreateSkybox();
-		Renderer::AddSkySphere(this);
+		Renderer::RegisterSkySphere(this);
 	}
 
 	ASkySphere::~ASkySphere()
 	{
+		Destroy();
 	}
 
 	bool ASkySphere::LoadFromJson(const rapidjson::Value& jsonSkySphere)
@@ -160,7 +161,7 @@ namespace Insight {
 
 	void ASkySphere::Destroy()
 	{
-		//Renderer::AddSkySphere(this);
+		Renderer::RegisterSkySphere(this);
 		delete m_Diffuse;
 	}
 

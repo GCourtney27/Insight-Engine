@@ -3,6 +3,8 @@
 #include <Insight/Core.h>
 
 #include "Insight/Core/Interfaces.h"
+
+#include "Insight/Rendering/ASky_Sphere.h"
 #include "Insight/Rendering/Geometry/Vertex_Buffer.h"
 #include "Insight/Rendering/Geometry/Index_Buffer.h"
 
@@ -21,7 +23,6 @@
 namespace Insight {
 
 
-	class ASkySphere;
 	class ASkyLight;
 	class APostFx;
 
@@ -123,12 +124,13 @@ namespace Insight {
 		static void UnRegisterSpotLight(ASpotLight* SpotLight);
 
 		// Add Sky Sphere to the scene. There can never be more than one in the scene at any given time.
-		static void AddSkySphere(ASkySphere* skySphere) { if (!s_Instance->m_pSkySphere) { s_Instance->m_pSkySphere = skySphere; } }
+		static void RegisterSkySphere(ASkySphere* SkySphere) { if (!s_Instance->m_pSkySphere) { s_Instance->m_pSkySphere = SkySphere; } }
+		static void UnRegisterSkySphere() { if (s_Instance->m_pSkySphere) { delete s_Instance->m_pSkySphere; } }
 		// Add a post-fx volume to the scene.
-		static void AddPostFxActor(APostFx* postFxActor) { s_Instance->m_pPostFx = postFxActor;  }
+		static void AddPostFxActor(APostFx* PostFxActor) { s_Instance->m_pPostFx = PostFxActor;  }
 		// Add Sky light to the scene for Image-Based Lighting. There can never be more than one 
 		// in the scene at any given time.
-		static void AddSkyLight(ASkyLight* skyLight) { if (!s_Instance->m_SkyLight) { s_Instance->m_SkyLight = skyLight; } }
+		static void AddSkyLight(ASkyLight* SkyLight) { if (!s_Instance->m_pSkyLight) { s_Instance->m_pSkyLight = SkyLight; } }
 
 	protected:
 		virtual bool InitImpl() = 0;
@@ -175,7 +177,7 @@ namespace Insight {
 		std::vector<ASpotLight*> m_SpotLights;
 
 		ASkySphere* m_pSkySphere = nullptr;
-		ASkyLight* m_SkyLight = nullptr;
+		ASkyLight* m_pSkyLight = nullptr;
 		APostFx* m_pPostFx = nullptr;
 
 		ACamera* m_pWorldCamera = nullptr;
