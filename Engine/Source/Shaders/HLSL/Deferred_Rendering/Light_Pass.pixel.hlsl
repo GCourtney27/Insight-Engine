@@ -23,8 +23,8 @@ sampler s_LinearWrapSampler : register(s1);
 
 // Function Signatures
 // -------------------
-void GammaCorrect(inout float3 target);
 void HDRToneMap(inout float3 target);
+void GammaCorrect(inout float3 target);
 float ShadowCalculation(float4 fragPosLightSpace, float3 normal, float3 lightDir);
 
 // Pixel Shader Return Value

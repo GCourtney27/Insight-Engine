@@ -10,11 +10,11 @@
 #include "Platform/Windows/DirectX_11/ie_D3D11_Texture.h"
 
 namespace Insight {
-	
+
 	TextureManager::TextureManager()
 	{
 	}
-	
+
 	TextureManager::~TextureManager()
 	{
 		Destroy();
@@ -67,7 +67,7 @@ namespace Insight {
 			TexInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(Filepath));
 			TexInfo.GenerateMipMaps = GenMipMaps;
 			TexInfo.Type = (Texture::eTextureType)Type;
-			
+
 			RegisterTextureByType(TexInfo);
 
 			m_HighestTextureId = ((int)m_HighestTextureId < ID) ? ID : m_HighestTextureId;
@@ -137,33 +137,41 @@ namespace Insight {
 
 		return nullptr;
 	}
-	
+
 	bool TextureManager::LoadDefaultTextures()
 	{
+		return true;
 		Texture::IE_TEXTURE_INFO TexInfo = {};
 		TexInfo.Id = -1;
 		TexInfo.GenerateMipMaps = true;
 
+#ifndef IE_IS_STANDALONE
+		const char* DirExtension = "../../../Engine/";
+#else
+		const char* DirExtension = "";
+#endif
+		// TODO: Fix this not working in release and debug build without modification
+
 		// Albedo
 		TexInfo.DisplayName = "Default_Albedo";
 		TexInfo.Type = Texture::eTextureType::ALBEDO;
-		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_Albedo.png");
+		TexInfo.Filepath = StringHelper::StringToWide("../../../Engine/Assets/Textures/Default_Object/Default_Albedo.png");
 		// Normal
 		TexInfo.DisplayName = "Default_Normal";
 		TexInfo.Type = Texture::eTextureType::NORMAL;
-		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_Normal.png");
+		TexInfo.Filepath = StringHelper::StringToWide("../../../Engine/Assets/Textures/Default_Object/Default_Normal.png");
 		// Metallic
 		TexInfo.DisplayName = "Default_Metallic";
 		TexInfo.Type = Texture::eTextureType::METALLIC;
-		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_Metallic.png");
+		TexInfo.Filepath = StringHelper::StringToWide("../../../Engine/Assets/Textures/Default_Object/Default_Metallic.png");
 		// Roughness
 		TexInfo.DisplayName = "Default_Roughness";
 		TexInfo.Type = Texture::eTextureType::ROUGHNESS;
-		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_RoughAO.png");
+		TexInfo.Filepath = StringHelper::StringToWide("../../../Engine/Assets/Textures/Default_Object/Default_RoughAO.png");
 		// AO
 		TexInfo.DisplayName = "Default_AO";
 		TexInfo.Type = Texture::eTextureType::AO;
-		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_RoughAO.png");
+		TexInfo.Filepath = StringHelper::StringToWide("../../../Engine/Assets/Textures/Default_Object/Default_RoughAO.png");
 
 		switch (Renderer::GetAPI())
 		{
@@ -284,6 +292,6 @@ namespace Insight {
 		}
 		}
 
-		
+
 	}
 }

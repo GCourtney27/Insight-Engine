@@ -79,6 +79,28 @@ namespace Insight {
 			}
 			m_PerObjectCBDrawOffset = 0U;
 		}
+		else if (RenderPass == eRenderPass::RenderPass_Transparency) {
+
+			for (UINT32 i = 0; i < 1; ++i) {
+
+				if (m_Models[i]->GetCanBeRendered()) {
+
+					for (UINT32 j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
+
+						// Set Per-Object CBV
+						m_pScenePassCommandList->SetGraphicsRootConstantBufferView(0, m_CbvUploadHeapHandle + (ConstantBufferPerObjectAlignedSize * m_PerObjectCBDrawOffset));
+						// Set Per-Object Material Override CBV
+						m_pScenePassCommandList->SetGraphicsRootConstantBufferView(3, m_CbvMaterialHeapHandle + (ConstantBufferPerObjectMaterialAlignedSize * m_PerObjectCBDrawOffset));
+
+						m_Models[i]->BindResources();
+						m_Models[i]->GetMeshAtIndex(j)->Render(m_pScenePassCommandList);
+
+						m_PerObjectCBDrawOffset++;
+					}
+				}
+			}
+			m_PerObjectCBDrawOffset = 0U;
+		}
 	}
 
 	void D3D12GeometryManager::GatherGeometryImpl()

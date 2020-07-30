@@ -49,7 +49,7 @@ cbuffer cbPostFx : register(b3)
     float caIntensity;
 }
 
-cbuffer PerObjectAdditive : register(b4)
+cbuffer cbPerObjectAdditive : register(b4)
 {
     float roughnessAdditive;
     float metallicAdditive;

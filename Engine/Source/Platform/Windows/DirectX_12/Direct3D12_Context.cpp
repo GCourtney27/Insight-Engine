@@ -77,11 +77,13 @@ namespace Insight {
 
 				// Load Pipelines
 				{
-					CreateRootSignature();
+					CreateDeferredShadingRootSignature();
+					CreateForwardShadingRootSignature();
 					CreateShadowPassPSO();
 					CreateGeometryPassPSO();
 					CreateLightPassPSO();
 					CreateSkyPassPSO();
+					CreateTransparencyPassPSO();
 					CreatePostFxPassPSO();
 				}
 
@@ -213,7 +215,7 @@ namespace Insight {
 		m_pShadowPassCommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
 		m_pShadowPassCommandList->SetPipelineState(m_pPipelineStateObject_ShadowPass.Get());
-		m_pShadowPassCommandList->SetGraphicsRootSignature(m_pRootSignature.Get());
+		m_pShadowPassCommandList->SetGraphicsRootSignature(m_pRootSignature_DeferredShadingPass.Get());
 		m_pShadowPassCommandList->ClearDepthStencilView(m_dsvHeap.hCPU(1), D3D12_CLEAR_FLAG_DEPTH, m_DepthClearValue, 0xff, 0, nullptr);
 
 		m_pShadowPassCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -242,7 +244,7 @@ namespace Insight {
 		m_pScenePassCommandList->ClearDepthStencilView(m_dsvHeap.hCPU(0), D3D12_CLEAR_FLAG_DEPTH, m_DepthClearValue, 0xff, 0, nullptr);
 
 		m_pScenePassCommandList->OMSetRenderTargets(m_NumRTV, &m_rtvHeap.hCPUHeapStart, true, &m_dsvHeap.hCPU(0));
-		m_pScenePassCommandList->SetGraphicsRootSignature(m_pRootSignature.Get());
+		m_pScenePassCommandList->SetGraphicsRootSignature(m_pRootSignature_DeferredShadingPass.Get());
 		// Set Scene Depth Texture
 		m_pScenePassCommandList->SetGraphicsRootDescriptorTable(5, m_cbvsrvHeap.hGPU(0));
 		// Set Shadow Depth Texture
@@ -314,7 +316,15 @@ namespace Insight {
 
 	void Direct3D12Context::BindTransparencyPass()
 	{
+		m_pScenePassCommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), true, &m_dsvHeap.hCPU(0));
 
+		m_pScenePassCommandList->SetPipelineState(m_pPipelineStateObject_Transparency.Get());
+		m_pScenePassCommandList->SetGraphicsRootSignature(m_pRootSignature_ForwardShadingPass.Get());
+
+		m_pScenePassCommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV->GetGPUVirtualAddress());
+		m_pScenePassCommandList->SetGraphicsRootConstantBufferView(2, m_LightCBV->GetGPUVirtualAddress());
+
+		GeometryManager::Render(eRenderPass::RenderPass_Transparency);
 	}
 
 	void Direct3D12Context::BindPostFxPass()
@@ -324,6 +334,7 @@ namespace Insight {
 		m_pScenePassCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, nullptr);
 
 		m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
+		m_pScenePassCommandList->SetGraphicsRootSignature(m_pRootSignature_DeferredShadingPass.Get());
 
 		m_pScenePassCommandList->SetPipelineState(m_pPipelineStateObject_PostFxPass.Get());
 		m_pScenePassCommandList->SetGraphicsRootDescriptorTable(16, m_cbvsrvHeap.hGPU(5));
@@ -806,56 +817,56 @@ namespace Insight {
 
 	}
 
-	void Direct3D12Context::CreateRootSignature()
+	void Direct3D12Context::CreateDeferredShadingRootSignature()
 	{
-		CD3DX12_DESCRIPTOR_RANGE range[12];
-		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 0); // G-Buffer inputs t0-t4
+		CD3DX12_DESCRIPTOR_RANGE DescriptorRanges[12];
+		DescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 0); // G-Buffer inputs t0-t4
 
-		range[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 5); // PerObject texture inputs - Albedo
-		range[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 6); // PerObject texture inputs - Normal
-		range[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 7); // PerObject texture inputs - Roughness
-		range[4].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 8); // PerObject texture inputs - Metallic
-		range[5].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9); // PerObject texture inputs - AO
-		range[6].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 10); // Shadow Depth texture
+		DescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 5); // PerObject texture inputs - Albedo
+		DescriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 6); // PerObject texture inputs - Normal
+		DescriptorRanges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 7); // PerObject texture inputs - Roughness
+		DescriptorRanges[4].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 8); // PerObject texture inputs - Metallic
+		DescriptorRanges[5].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9); // PerObject texture inputs - AO
+		DescriptorRanges[6].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 10); // Shadow Depth texture
 
-		range[7].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 11); // Sky - Irradiance
-		range[8].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 12); // Sky - Environment Map
-		range[9].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 13); // Sky - BRDF LUT
-		range[10].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 14); // Sky - Diffuse
+		DescriptorRanges[7].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 11); // Sky - Irradiance
+		DescriptorRanges[8].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 12); // Sky - Environment Map
+		DescriptorRanges[9].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 13); // Sky - BRDF LUT
+		DescriptorRanges[10].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 14); // Sky - Diffuse
 
-		range[11].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 15); // Post-FX Input
+		DescriptorRanges[11].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 15); // Post-FX Input
 
-		CD3DX12_ROOT_PARAMETER rootParameters[17];
-		rootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);	  // Per-Object constant buffer
-		rootParameters[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL);		  // Per-Frame constant buffer
-		rootParameters[2].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_ALL);		  // Light constant buffer
-		rootParameters[3].InitAsConstantBufferView(3, 0, D3D12_SHADER_VISIBILITY_PIXEL);	  // PostFx constant buffer
-		rootParameters[4].InitAsConstantBufferView(4, 0, D3D12_SHADER_VISIBILITY_ALL);		  // Material Additives constant buffer
-		rootParameters[5].InitAsDescriptorTable(1, &range[0], D3D12_SHADER_VISIBILITY_PIXEL); // G-Buffer inputs
+		CD3DX12_ROOT_PARAMETER RootParameters[17];
+		RootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);	  // Per-Object constant buffer
+		RootParameters[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL);		  // Per-Frame constant buffer
+		RootParameters[2].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_PIXEL);	  // Light constant buffer
+		RootParameters[3].InitAsConstantBufferView(3, 0, D3D12_SHADER_VISIBILITY_PIXEL);	  // PostFx constant buffer
+		RootParameters[4].InitAsConstantBufferView(4, 0, D3D12_SHADER_VISIBILITY_ALL);		  // Material Additives constant buffer
+		RootParameters[5].InitAsDescriptorTable(1, &DescriptorRanges[0], D3D12_SHADER_VISIBILITY_PIXEL); // G-Buffer inputs
 
-		rootParameters[6].InitAsDescriptorTable(1, &range[1], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Albedo
-		rootParameters[7].InitAsDescriptorTable(1, &range[2], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Normal
-		rootParameters[8].InitAsDescriptorTable(1, &range[3], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Roughness
-		rootParameters[9].InitAsDescriptorTable(1, &range[4], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Metallic
-		rootParameters[10].InitAsDescriptorTable(1, &range[5], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - AO
-		rootParameters[11].InitAsDescriptorTable(1, &range[6], D3D12_SHADER_VISIBILITY_PIXEL); // Shadow Depth texture
+		RootParameters[6].InitAsDescriptorTable(1, &DescriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Albedo
+		RootParameters[7].InitAsDescriptorTable(1, &DescriptorRanges[2], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Normal
+		RootParameters[8].InitAsDescriptorTable(1, &DescriptorRanges[3], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Roughness
+		RootParameters[9].InitAsDescriptorTable(1, &DescriptorRanges[4], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Metallic
+		RootParameters[10].InitAsDescriptorTable(1, &DescriptorRanges[5], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - AO
+		RootParameters[11].InitAsDescriptorTable(1, &DescriptorRanges[6], D3D12_SHADER_VISIBILITY_PIXEL); // Shadow Depth texture
 
-		rootParameters[12].InitAsDescriptorTable(1, &range[7], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Irradiance
-		rootParameters[13].InitAsDescriptorTable(1, &range[8], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Environment Map
-		rootParameters[14].InitAsDescriptorTable(1, &range[9], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - BRDF LUT
-		rootParameters[15].InitAsDescriptorTable(1, &range[10], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Diffuse
+		RootParameters[12].InitAsDescriptorTable(1, &DescriptorRanges[7], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Irradiance
+		RootParameters[13].InitAsDescriptorTable(1, &DescriptorRanges[8], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Environment Map
+		RootParameters[14].InitAsDescriptorTable(1, &DescriptorRanges[9], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - BRDF LUT
+		RootParameters[15].InitAsDescriptorTable(1, &DescriptorRanges[10], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Diffuse
 
-		rootParameters[16].InitAsDescriptorTable(1, &range[11], D3D12_SHADER_VISIBILITY_PIXEL); // Final Image
-
-
+		RootParameters[16].InitAsDescriptorTable(1, &DescriptorRanges[11], D3D12_SHADER_VISIBILITY_PIXEL); // Final Image
 
 
-		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
-		descRootSignature.Init(_countof(rootParameters), rootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
-		CD3DX12_STATIC_SAMPLER_DESC staticSamplers[2];
+
+		CD3DX12_ROOT_SIGNATURE_DESC RootSignatureDesc;
+		RootSignatureDesc.Init(_countof(RootParameters), RootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+		CD3DX12_STATIC_SAMPLER_DESC StaticSamplers[2];
 		// Shadow map sampler
-		staticSamplers[0].Init(
+		StaticSamplers[0].Init(
 			0,
 			D3D12_FILTER_MIN_MAG_MIP_POINT,
 			D3D12_TEXTURE_ADDRESS_MODE_BORDER,
@@ -868,14 +879,12 @@ namespace Insight {
 			0,
 			0,
 			D3D12_SHADER_VISIBILITY_PIXEL,
-			0u
+			0U
 		);
 		// Scene Sampler
-		UINT maxAnisotropy = 16u;
-		FLOAT minLOD = 0.0f;
-		FLOAT maxLOD = 9.0f;
-		FLOAT lodBias = 0.0f;
-		staticSamplers[1].Init(
+		FLOAT MinLOD = 0.0f;
+		FLOAT MaxLOD = 9.0f;
+		StaticSamplers[1].Init(
 			1,
 			D3D12_FILTER_MIN_MAG_MIP_LINEAR,
 			D3D12_TEXTURE_ADDRESS_MODE_WRAP,
@@ -885,21 +894,106 @@ namespace Insight {
 			m_GraphicsSettings.MaxAnisotropy,
 			D3D12_COMPARISON_FUNC_LESS_EQUAL,
 			D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE,
-			minLOD,
-			maxLOD,
+			MinLOD,
+			MaxLOD,
 			D3D12_SHADER_VISIBILITY_PIXEL,
 			0U
 		);
-		descRootSignature.NumStaticSamplers = _countof(staticSamplers);
-		descRootSignature.pStaticSamplers = staticSamplers;
+		RootSignatureDesc.NumStaticSamplers = _countof(StaticSamplers);
+		RootSignatureDesc.pStaticSamplers = StaticSamplers;
 
-		ComPtr<ID3DBlob> rootSigBlob;
-		ComPtr<ID3DBlob> errorBlob;
+		ComPtr<ID3DBlob> RootSignatureBlob;
+		ComPtr<ID3DBlob> ErrorBlob;
 
-		HRESULT hr = D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, rootSigBlob.GetAddressOf(), errorBlob.GetAddressOf());
+		HRESULT hr = D3D12SerializeRootSignature(&RootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, RootSignatureBlob.GetAddressOf(), ErrorBlob.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to serialize root signature for D3D 12 context.");
 
-		hr = m_pDevice->CreateRootSignature(0, rootSigBlob->GetBufferPointer(), rootSigBlob->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature));
+		hr = m_pDevice->CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature_DeferredShadingPass));
+		ThrowIfFailed(hr, "Failed to create root signature for D3D 12 context.");
+	}
+
+	void Direct3D12Context::CreateForwardShadingRootSignature()
+	{
+		CD3DX12_DESCRIPTOR_RANGE DescriptorRanges[10];
+		DescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0); // PerObject texture inputs - Albedo
+		DescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1); // PerObject texture inputs - Normal
+		DescriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2); // PerObject texture inputs - Roughness
+		DescriptorRanges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 3); // PerObject texture inputs - Metallic
+		DescriptorRanges[4].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 4); // PerObject texture inputs - AO
+		DescriptorRanges[5].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 5); // PerObject texture inputs - Opacity
+		DescriptorRanges[6].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 6); // Shadow Depth texture
+
+		DescriptorRanges[7].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 7); // Sky - Irradiance
+		DescriptorRanges[8].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 8); // Sky - Environment Map
+		DescriptorRanges[9].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9); // Sky - BRDF LUT
+
+		CD3DX12_ROOT_PARAMETER RootParameters[14];
+		RootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);	  // Per-Object constant buffer
+		RootParameters[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL);		  // Per-Frame constant buffer
+		RootParameters[2].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_PIXEL);	  // Light constant buffer
+		RootParameters[3].InitAsConstantBufferView(3, 0, D3D12_SHADER_VISIBILITY_ALL);		  // Material Additives constant buffer
+
+		RootParameters[4].InitAsDescriptorTable(1, &DescriptorRanges[0], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Albedo
+		RootParameters[5].InitAsDescriptorTable(1, &DescriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Normal
+		RootParameters[6].InitAsDescriptorTable(1, &DescriptorRanges[2], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Roughness
+		RootParameters[7].InitAsDescriptorTable(1, &DescriptorRanges[3], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Metallic
+		RootParameters[8].InitAsDescriptorTable(1, &DescriptorRanges[4], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - AO
+		RootParameters[9].InitAsDescriptorTable(1, &DescriptorRanges[5], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - Opacity
+		RootParameters[10].InitAsDescriptorTable(1, &DescriptorRanges[6], D3D12_SHADER_VISIBILITY_PIXEL); // Shadow Depth texture
+
+		RootParameters[11].InitAsDescriptorTable(1, &DescriptorRanges[7], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Irradiance
+		RootParameters[12].InitAsDescriptorTable(1, &DescriptorRanges[8], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Environment Map
+		RootParameters[13].InitAsDescriptorTable(1, &DescriptorRanges[9], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - BRDF LUT
+
+
+		CD3DX12_ROOT_SIGNATURE_DESC RootSignatureDesc;
+		RootSignatureDesc.Init(_countof(RootParameters), RootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+		CD3DX12_STATIC_SAMPLER_DESC StaticSamplers[2];
+		// Shadow map sampler
+		StaticSamplers[0].Init(
+			0,
+			D3D12_FILTER_MIN_MAG_MIP_POINT,
+			D3D12_TEXTURE_ADDRESS_MODE_BORDER,
+			D3D12_TEXTURE_ADDRESS_MODE_BORDER,
+			D3D12_TEXTURE_ADDRESS_MODE_BORDER,
+			0,
+			1,
+			D3D12_COMPARISON_FUNC_LESS_EQUAL,
+			D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE,
+			0,
+			0,
+			D3D12_SHADER_VISIBILITY_PIXEL,
+			0U
+		);
+		// Scene Sampler
+		FLOAT MinLOD = 0.0f;
+		FLOAT MaxLOD = 9.0f;
+		StaticSamplers[1].Init(
+			1,
+			D3D12_FILTER_MIN_MAG_MIP_LINEAR,
+			D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+			D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+			D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+			m_GraphicsSettings.MipLodBias,
+			m_GraphicsSettings.MaxAnisotropy,
+			D3D12_COMPARISON_FUNC_LESS_EQUAL,
+			D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE,
+			MinLOD,
+			MaxLOD,
+			D3D12_SHADER_VISIBILITY_PIXEL,
+			0U
+		);
+		RootSignatureDesc.NumStaticSamplers = _countof(StaticSamplers);
+		RootSignatureDesc.pStaticSamplers = StaticSamplers;
+
+		ComPtr<ID3DBlob> RootSignatureBlob;
+		ComPtr<ID3DBlob> ErrorBlob;
+
+		HRESULT hr = D3D12SerializeRootSignature(&RootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, RootSignatureBlob.GetAddressOf(), ErrorBlob.GetAddressOf());
+		ThrowIfFailed(hr, "Failed to serialize root signature for D3D 12 context.");
+
+		hr = m_pDevice->CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature_ForwardShadingPass));
 		ThrowIfFailed(hr, "Failed to create root signature for D3D 12 context.");
 	}
 
@@ -956,7 +1050,7 @@ namespace Insight {
 		PsoDesc.PS = PixelShaderBytecode;
 		PsoDesc.InputLayout.pInputElementDescs = InputLayout;
 		PsoDesc.InputLayout.NumElements = _countof(InputLayout);
-		PsoDesc.pRootSignature = m_pRootSignature.Get();
+		PsoDesc.pRootSignature = m_pRootSignature_DeferredShadingPass.Get();
 		PsoDesc.DepthStencilState = ShadowDepthStencilDesc;
 		PsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		PsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
@@ -1019,7 +1113,7 @@ namespace Insight {
 		PsoDesc.PS = pixelShaderBytecode;
 		PsoDesc.InputLayout.pInputElementDescs = inputLayout;
 		PsoDesc.InputLayout.NumElements = _countof(inputLayout);
-		PsoDesc.pRootSignature = m_pRootSignature.Get();
+		PsoDesc.pRootSignature = m_pRootSignature_DeferredShadingPass.Get();
 		PsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 		PsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		PsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
@@ -1092,7 +1186,7 @@ namespace Insight {
 		pipelineDesc.PS = pixelShaderBytecode;
 		pipelineDesc.InputLayout.pInputElementDescs = inputLayout;
 		pipelineDesc.InputLayout.NumElements = _countof(inputLayout);
-		pipelineDesc.pRootSignature = m_pRootSignature.Get();
+		pipelineDesc.pRootSignature = m_pRootSignature_DeferredShadingPass.Get();
 		pipelineDesc.DepthStencilState = depthStencilStateDesc;
 		pipelineDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		pipelineDesc.RasterizerState = rasterizerStateDesc;
@@ -1111,6 +1205,71 @@ namespace Insight {
 
 	void Direct3D12Context::CreateTransparencyPassPSO()
 	{
+		HRESULT hr;
+
+		ComPtr<ID3DBlob> pVertexShader;
+		ComPtr<ID3DBlob> pPixelShader;
+
+#ifndef IE_IS_STANDALONE
+		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Transparency_Pass.vertex.cso";
+		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Transparency_Pass.pixel.cso";
+#else
+		LPCWSTR vertexShaderFolder = L"Transparency_Pass.vertex.cso";
+		LPCWSTR pixelShaderFolder = L"Transparency_Pass.pixel.cso";
+#endif 
+
+		hr = D3DReadFileToBlob(vertexShaderFolder, &pVertexShader);
+		ThrowIfFailed(hr, "Failed to read Vertex Shader for D3D 12 context.");
+		hr = D3DReadFileToBlob(pixelShaderFolder, &pPixelShader);
+		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
+
+		D3D12_SHADER_BYTECODE VertexShaderBytecode = {};
+		VertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
+		VertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
+
+		D3D12_SHADER_BYTECODE PixelShaderBytecode = {};
+		PixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
+		PixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
+
+
+		D3D12_INPUT_ELEMENT_DESC inputLayout[5] =
+		{
+			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
+			{ "TANGENT",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
+			{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
+		};
+
+		D3D12_INPUT_LAYOUT_DESC InputLayoutDesc = {};
+		InputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
+		InputLayoutDesc.pInputElementDescs = inputLayout;
+
+		auto DepthStencilStateDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+		DepthStencilStateDesc.DepthEnable = true;
+		DepthStencilStateDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+		DepthStencilStateDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC PsoDesc = {};
+		PsoDesc.VS = VertexShaderBytecode;
+		PsoDesc.PS = PixelShaderBytecode;
+		PsoDesc.InputLayout.pInputElementDescs = inputLayout;
+		PsoDesc.InputLayout.NumElements = _countof(inputLayout);
+		PsoDesc.pRootSignature = m_pRootSignature_ForwardShadingPass.Get();
+		PsoDesc.DepthStencilState = DepthStencilStateDesc;
+		PsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		PsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+		PsoDesc.SampleMask = UINT_MAX;
+		PsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		PsoDesc.NumRenderTargets = 1U;
+		PsoDesc.RTVFormats[0] = m_RtvFormat[0];
+		PsoDesc.DSVFormat = m_DsvFormat;
+		PsoDesc.SampleDesc.Count = 1;
+
+		hr = m_pDevice->CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pPipelineStateObject_Transparency));
+		ThrowIfFailed(hr, "Failed to create graphics pipeline state for geometry pass.");
+		m_pPipelineStateObject_Transparency->SetName(L"PSO Geometry Pass");
+
 
 	}
 
@@ -1120,7 +1279,7 @@ namespace Insight {
 
 		ComPtr<ID3DBlob> pVertexShader;
 		ComPtr<ID3DBlob> pPixelShader;
-		//IE_BUILD_DIR
+
 #ifndef IE_IS_STANDALONE
 		LPCWSTR vertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Light_Pass.vertex.cso";
 		LPCWSTR pixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Light_Pass.pixel.cso";
@@ -1158,7 +1317,7 @@ namespace Insight {
 		descPipelineState.PS = pixelShaderBytecode;
 		descPipelineState.InputLayout.pInputElementDescs = inputLayout;
 		descPipelineState.InputLayout.NumElements = _countof(inputLayout);
-		descPipelineState.pRootSignature = m_pRootSignature.Get();
+		descPipelineState.pRootSignature = m_pRootSignature_DeferredShadingPass.Get();
 		descPipelineState.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 		descPipelineState.DepthStencilState.DepthEnable = false;
 		descPipelineState.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
@@ -1219,7 +1378,7 @@ namespace Insight {
 		descPipelineState.PS = pixelShaderBytecode;
 		descPipelineState.InputLayout.pInputElementDescs = inputLayout;
 		descPipelineState.InputLayout.NumElements = _countof(inputLayout);
-		descPipelineState.pRootSignature = m_pRootSignature.Get();
+		descPipelineState.pRootSignature = m_pRootSignature_DeferredShadingPass.Get();
 		descPipelineState.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 		descPipelineState.DepthStencilState.DepthEnable = false;
 		descPipelineState.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);

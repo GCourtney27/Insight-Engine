@@ -110,7 +110,8 @@ namespace Insight {
 		void CreateDSVs();
 		void CreateRTVs();
 		void CreateConstantBufferViews();
-		void CreateRootSignature();
+		void CreateDeferredShadingRootSignature();
+		void CreateForwardShadingRootSignature();
 		void CreateShadowPassPSO();
 		void CreateGeometryPassPSO();
 		void CreateSkyPassPSO();
@@ -191,7 +192,8 @@ namespace Insight {
 		//1:  ShadowDepth
 		CDescriptorHeapWrapper				m_dsvHeap;
 
-		ComPtr<ID3D12RootSignature>			m_pRootSignature;
+		ComPtr<ID3D12RootSignature>			m_pRootSignature_DeferredShadingPass;
+		ComPtr<ID3D12RootSignature>			m_pRootSignature_ForwardShadingPass;
 
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_ShadowPass;
 		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_GeometryPass;
@@ -212,7 +214,7 @@ namespace Insight {
 		//7:  SRV-Albedo(SRV)
 		//8:  SRV-Normal(SRV)
 		//9:  SRV-Roughness(SRV)
-		//10:  SRV-Metallic(SRV)
+		//10: SRV-Metallic(SRV)
 		//11: SRV-AO(SRV)
 		//12: SRV-Sky Irradiance(SRV)
 		//13: SRV-Sky Environment(SRV)

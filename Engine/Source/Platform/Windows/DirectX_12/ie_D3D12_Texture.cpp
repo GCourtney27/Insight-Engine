@@ -2,6 +2,7 @@
 
 #include "ie_D3D12_Texture.h"
 
+#include "Insight/Systems/File_System.h"
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 #include <DirectX12/TK/Inc/DDSTextureLoader.h>
@@ -71,7 +72,7 @@ namespace Insight {
 		HRESULT hr;
 		hr = DirectX::CreateDDSTextureFromFile(pDevice, ResourceUpload, m_TextureInfo.Filepath.c_str(), &m_pTexture, m_TextureInfo.GenerateMipMaps, 0, nullptr, &m_TextureInfo.IsCubeMap);
 		if (FAILED(hr)) {
-			IE_CORE_ERROR("Failed to load DDS texture from file.");
+			IE_CORE_ERROR("Failed to load DDS texture from file with path \"{0}\"", StringHelper::WideToString(m_TextureInfo.Filepath));
 		}
 
 		m_D3DTextureDesc = m_pTexture->GetDesc();
@@ -108,7 +109,7 @@ namespace Insight {
 
 		HRESULT hr = DirectX::CreateWICTextureFromFile(pDevice, resourceUpload, m_TextureInfo.Filepath.c_str(), &m_pTexture, m_TextureInfo.GenerateMipMaps);
 		if (FAILED(hr)) {
-			IE_CORE_ERROR("Failed to Create WIC texture from file.");
+			IE_CORE_ERROR("Failed to Create WIC texture from file with path \"{0}\"", StringHelper::WideToString(m_TextureInfo.Filepath));
 		}
 		m_D3DTextureDesc = m_pTexture->GetDesc();
 		if (!resourceUpload.IsSupportedForGenerateMips(m_D3DTextureDesc.Format)) {
