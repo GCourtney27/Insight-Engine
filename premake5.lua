@@ -69,8 +69,9 @@ project ("Engine")
 
 	includedirs
 	{
-		"%{prj.name}/Vendor/Microsoft/DirectX12",
-		"%{prj.name}/Vendor/Nvidia/DirectX12",
+		"%{prj.name}/Vendor/Microsoft/DirectX12/",
+		"%{prj.name}/Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/Include/",
+		"%{prj.name}/Vendor/Nvidia/DirectX12/",
 		"%{IncludeDir.rapidjson}/include/",
 		"%{IncludeDir.spdlog}/include/",
 		"%{IncludeDir.ImGuizmo}/",
@@ -88,6 +89,8 @@ project ("Engine")
 		"dxgi.lib",
 		"d3d11.lib",
 		-- "d3dx11.lib",
+		"WinPixEventRuntime.lib",
+		"WinPixEventRuntime_UAP.lib",
 		"Shlwapi.lib",
 		"DirectXTK.lib",
 		"d3dcompiler.lib",
@@ -130,17 +133,24 @@ project ("Engine")
 		libdirs
 		{
 			"Engine/Vendor/assimp-3.3.1/build/code/Debug",
+			"Engine/Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
 			"Engine/Vendor/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Debug",
 			"Engine/Vendor/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Debug",
 			"Engine/Vendor/Mono/lib",
 		}
 		postbuildcommands
 		{
+			-- Assimp
 			("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/Debug/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
+			-- DX11 Debug Layers
 			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll ../bin/"..outputdir.."/Engine"),
 			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX11/Bin/D3DX11d_43.dll ../bin/"..outputdir.."/Engine"),
 			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX11/Bin/D3D11Ref.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine")
+			-- Mono
+			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
+			-- PIX
+			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../bin/"..outputdir.."/Engine")
 		}
 	-- Engine Release
 	filter "configurations:Release"
@@ -150,22 +160,30 @@ project ("Engine")
 		symbols "on"
 		defines
 		{
-			"IE_IS_STANDALONE"
+			"IE_IS_STANDALONE",
+			"IE_DEBUG"
 		}
 		libdirs
 		{
 			"Engine/Vendor/assimp-3.3.1/build/code/Release",
+			"Engine/Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin",
 			"Engine/Vendor/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
 			"Engine/Vendor/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
 			"Engine/Vendor/Mono/lib",
 		}
 		postbuildcommands
 		{
+			-- Assimp
 			("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
+			-- DX11 Debug Layers
 			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll ../bin/"..outputdir.."/Engine"),
 			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX11/Bin/D3DX11d_43.dll ../bin/"..outputdir.."/Engine"),
 			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX11/Bin/D3D11Ref.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine")
+			-- Mono
+			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
+			-- PIX
+			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../bin/"..outputdir.."/Engine")
 		}
 	-- Full Engine Distribution, all performance logs and debugging windows stripped
 	filter "configurations:Engine-Dist"
@@ -234,6 +252,7 @@ project (gameName)
 		"Engine/Vendor/assimp-3.3.1/include",
 		"Engine/Vendor/Microsoft/",
 		"Engine/Vendor/Nvidia/DirectX12",
+		"Engine/Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/Include/",
 		"Engine/Vendor/spdlog/include",
 		"Engine/Vendor/rapidjson/include",
 		"Engine/Vendor/Mono/include/mono-2.0",

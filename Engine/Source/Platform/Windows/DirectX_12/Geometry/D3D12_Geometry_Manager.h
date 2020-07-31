@@ -29,6 +29,7 @@ namespace Insight {
 		ID3D12Resource* m_ConstantBufferMaterialUploadHeaps = nullptr;
 		ID3D12GraphicsCommandList* m_pScenePassCommandList = nullptr;
 		ID3D12GraphicsCommandList* m_pShadowPassCommandList = nullptr;
+		ID3D12GraphicsCommandList* m_pTransparencyPassCommandList = nullptr;
 
 		int ConstantBufferPerObjectAlignedSize = (sizeof(CB_VS_PerObject) + 255) & ~255;
 		int ConstantBufferPerObjectMaterialAlignedSize = (sizeof(CB_PS_VS_PerObjectAdditives) + 255) & ~255;

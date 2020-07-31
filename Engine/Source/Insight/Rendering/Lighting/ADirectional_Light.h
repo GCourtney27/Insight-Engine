@@ -31,7 +31,7 @@ namespace Insight {
 
 		virtual void OnImGuiRender() override;
 
-		CB_PS_DirectionalLight GetConstantBuffer() { return m_ShaderCB; }
+		inline CB_PS_DirectionalLight GetConstantBuffer() { return m_ShaderCB; }
 
 		XMFLOAT4X4 LightViewFloat;
 		XMFLOAT4X4 LightProjFloat;

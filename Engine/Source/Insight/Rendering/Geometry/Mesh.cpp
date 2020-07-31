@@ -47,11 +47,6 @@ namespace Insight {
 		m_ConstantBufferPerObject.world = worldFloat;
 	}
 
-	CB_VS_PerObject Mesh::GetConstantBuffer()
-	{
-		return m_ConstantBufferPerObject;
-	}
-
 	uint32_t Mesh::GetVertexCount()
 	{
 		return m_pVertexBuffer->GetNumVerticies();

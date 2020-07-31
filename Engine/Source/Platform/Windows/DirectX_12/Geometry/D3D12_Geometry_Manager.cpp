@@ -22,6 +22,7 @@ namespace Insight {
 		m_ConstantBufferMaterialUploadHeaps = &D3D12Context->GetConstantBufferPerObjectMaterialUploadHeap();
 		m_pScenePassCommandList = &D3D12Context->GetScenePassCommandList();
 		m_pShadowPassCommandList = &D3D12Context->GetShadowPassCommandList();
+		m_pTransparencyPassCommandList = &D3D12Context->GetTransparencyPassCommandList();
 
 		m_CbvUploadHeapHandle = m_ConstantBufferUploadHeaps->GetGPUVirtualAddress();
 		m_CbvMaterialHeapHandle = m_ConstantBufferMaterialUploadHeaps->GetGPUVirtualAddress();
@@ -29,9 +30,9 @@ namespace Insight {
 		m_CbvPerObjectGPUAddress = &D3D12Context->GetPerObjectCBVGPUHeapAddress();
 		m_CbvMaterialGPUAddress = &D3D12Context->GetPerObjectMaterialAdditiveCBVGPUHeapAddress();
 
-		if (!(m_pScenePassCommandList && m_pShadowPassCommandList && m_ConstantBufferUploadHeaps && m_ConstantBufferMaterialUploadHeaps))
+		if (!(m_pScenePassCommandList && m_pShadowPassCommandList && m_pTransparencyPassCommandList && m_ConstantBufferUploadHeaps && m_ConstantBufferMaterialUploadHeaps))
 		{
-			IE_CORE_ERROR("Failed to initialize one or more resources for model manager.");
+			IE_CORE_ERROR("Failed to initialize one or more resources for D3D12 model manager.");
 			return false;
 		}
 		return true;
@@ -81,6 +82,8 @@ namespace Insight {
 		}
 		else if (RenderPass == eRenderPass::RenderPass_Transparency) {
 
+			// TODO Sort Transparent objects
+
 			for (UINT32 i = 0; i < 1; ++i) {
 
 				if (m_Models[i]->GetCanBeRendered()) {
@@ -88,12 +91,12 @@ namespace Insight {
 					for (UINT32 j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
 
 						// Set Per-Object CBV
-						m_pScenePassCommandList->SetGraphicsRootConstantBufferView(0, m_CbvUploadHeapHandle + (ConstantBufferPerObjectAlignedSize * m_PerObjectCBDrawOffset));
+						m_pTransparencyPassCommandList->SetGraphicsRootConstantBufferView(0, m_CbvUploadHeapHandle + (ConstantBufferPerObjectAlignedSize * m_PerObjectCBDrawOffset));
 						// Set Per-Object Material Override CBV
-						m_pScenePassCommandList->SetGraphicsRootConstantBufferView(3, m_CbvMaterialHeapHandle + (ConstantBufferPerObjectMaterialAlignedSize * m_PerObjectCBDrawOffset));
+						m_pTransparencyPassCommandList->SetGraphicsRootConstantBufferView(3, m_CbvMaterialHeapHandle + (ConstantBufferPerObjectMaterialAlignedSize * m_PerObjectCBDrawOffset));
 
 						m_Models[i]->BindResources();
-						m_Models[i]->GetMeshAtIndex(j)->Render(m_pScenePassCommandList);
+						m_Models[i]->GetMeshAtIndex(j)->Render(m_pTransparencyPassCommandList);
 
 						m_PerObjectCBDrawOffset++;
 					}

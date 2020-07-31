@@ -31,7 +31,7 @@ namespace Insight {
 
 		virtual void OnImGuiRender() override;
 
-		 CB_PS_PointLight GetConstantBuffer() { return m_ShaderCB; }
+		 inline CB_PS_PointLight GetConstantBuffer() { return m_ShaderCB; }
 
 	private:
 		CB_PS_PointLight m_ShaderCB;

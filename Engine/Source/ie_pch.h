@@ -56,6 +56,14 @@
 // === Windows Library === //
 #ifdef IE_PLATFORM_WINDOWS
 
+	#ifndef WIN32_LEAN_AND_MEAN
+		#define WIN32_LEAN_AND_MEAN            // Exclude rarely-used stuff from Windows headers.
+	#endif
+
+	#if defined IE_DEBUG
+		#define USE_PIX
+	#endif
+
 	// Windows API	
 	#include <Windows.h>
 	#include <wrl/client.h>
@@ -67,10 +75,10 @@
 	// Direct3D 12
 	#include <d3d12.h>
 	#include <DirectX12/d3dx12.h>
+	#include <WinPixEventRuntime/pix3.h>
 
 	// Direct3D 11
 	#include <d3d11.h>
-
 
 	// DirectX
 	#include <dxgi1_2.h>

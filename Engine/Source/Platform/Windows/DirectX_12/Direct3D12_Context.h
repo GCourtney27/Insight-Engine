@@ -63,6 +63,8 @@ namespace Insight {
 
 		inline ID3D12GraphicsCommandList& GetScenePassCommandList() const { return *m_pScenePassCommandList.Get(); }
 		inline ID3D12GraphicsCommandList& GetShadowPassCommandList() const { return *m_pShadowPassCommandList.Get(); }
+		inline ID3D12GraphicsCommandList& GetTransparencyPassCommandList() const { return *m_pTransparencyPassCommandList.Get(); }
+
 		inline ID3D12CommandQueue& GetCommandQueue() const { return *m_pCommandQueue.Get(); }
 		inline CDescriptorHeapWrapper& GetCBVSRVDescriptorHeap() { return m_cbvsrvHeap; }
 		inline ID3D12Resource& GetConstantBufferPerObjectUploadHeap() const { return *m_PerObjectCBV[m_FrameIndex].Get(); }
@@ -169,6 +171,8 @@ namespace Insight {
 		ComPtr<ID3D12CommandAllocator>		m_pScenePassCommandAllocators[m_FrameBufferCount];
 		ComPtr<ID3D12GraphicsCommandList>	m_pShadowPassCommandList;
 		ComPtr<ID3D12CommandAllocator>		m_pShadowPassCommandAllocators[m_FrameBufferCount];
+		ComPtr<ID3D12GraphicsCommandList>	m_pTransparencyPassCommandList;
+		ComPtr<ID3D12CommandAllocator>		m_pTransparencyPassCommandAllocators[m_FrameBufferCount];
 
 		ComPtr<ID3D12Resource>				m_pRenderTargetTextures[m_NumRTV];
 		ComPtr<ID3D12Resource>				m_pRenderTargetTextures_PostFxPass[m_FrameBufferCount];
@@ -273,28 +277,6 @@ namespace Insight {
 		#define SPOT_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight) + MAX_DIRECTIONAL_LIGHTS_SUPPORTED * sizeof(CB_PS_DirectionalLight))
 		int	CBSpotLightsAlignedSize = (sizeof(CB_PS_SpotLight) + 255) & ~255;
 
-
-
-
-		const UINT PIX_EVENT_UNICODE_VERSION = 0;
-
-		inline void PIXBeginEvent(ID3D12CommandQueue* pCommandQueue, UINT64 /*metadata*/, PCWSTR pFormat)
-		{
-			pCommandQueue->BeginEvent(PIX_EVENT_UNICODE_VERSION, pFormat, (UINT)((wcslen(pFormat) + 1) * sizeof(pFormat[0])));
-		}
-
-		inline void PIXBeginEvent(ID3D12GraphicsCommandList* pCommandList, UINT64 /*metadata*/, PCWSTR pFormat)
-		{
-			pCommandList->BeginEvent(PIX_EVENT_UNICODE_VERSION, pFormat, (UINT)((wcslen(pFormat) + 1) * sizeof(pFormat[0])));
-		}
-		inline void PIXEndEvent(ID3D12CommandQueue* pCommandQueue)
-		{
-			pCommandQueue->EndEvent();
-		}
-		inline void PIXEndEvent(ID3D12GraphicsCommandList* pCommandList)
-		{
-			pCommandList->EndEvent();
-		}
 	};
 
 }
