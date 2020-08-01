@@ -6,12 +6,13 @@ Texture2D t_Roughness   : register(t2);
 Texture2D t_Metallic   : register(t3);
 Texture2D t_AO          : register(t4);
 Texture2D t_Opacity     : register(t5);
+Texture2D t_Translucency     : register(t6);
 
-Texture2D t_ShadowDepth         : register(t6);
+Texture2D t_ShadowDepth         : register(t7);
 
-TextureCube tc_IrradianceMap : register(t7);
-TextureCube tc_EnvironmentMap : register(t8);
-Texture2D t_BrdfLUT : register(t9);
+TextureCube tc_IrradianceMap : register(t8);
+TextureCube tc_EnvironmentMap : register(t9);
+Texture2D t_BrdfLUT : register(t10);
 
 // Samplers
 // --------

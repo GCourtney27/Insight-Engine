@@ -72,17 +72,44 @@ namespace Insight {
 		return pMaterial;
 	}
 
-	bool Material::LoadFromJson(const rapidjson::Value& jsonMaterial)
+	bool Material::LoadFromJson(const rapidjson::Value& JsonMaterial)
 	{
-		const rapidjson::Value& jsonUVOffset = jsonMaterial["uvOffset"];
-		const rapidjson::Value& jsonTilingOffset = jsonMaterial["Tiling"];
-		const rapidjson::Value& jsonColorOverride = jsonMaterial["Color_Override"];
+		const rapidjson::Value& jsonUVOffset = JsonMaterial["uvOffset"];
+		const rapidjson::Value& jsonTilingOffset = JsonMaterial["Tiling"];
+		const rapidjson::Value& jsonColorOverride = JsonMaterial["Color_Override"];
 
-		json::get_int(jsonMaterial, "AlbedoMapID", m_AlbedoTextureManagerID);
-		json::get_int(jsonMaterial, "NormalMapID", m_NormalTextureManagerID);
-		json::get_int(jsonMaterial, "MetallicMapID", m_MetallicTextureManagerID);
-		json::get_int(jsonMaterial, "RoughnessMapID", m_RoughnessTextureManagerID);
-		json::get_int(jsonMaterial, "AOMapID", m_AoTextureManagerID);
+		json::get_int(JsonMaterial, "Category", *((int*)&m_MaterialType));
+
+		if (m_MaterialType == eMaterialType::eMaterialType_Opaque) {
+
+			json::get_int(JsonMaterial, "AlbedoMapID", m_AlbedoTextureManagerID);
+			json::get_int(JsonMaterial, "NormalMapID", m_NormalTextureManagerID);
+			json::get_int(JsonMaterial, "MetallicMapID", m_MetallicTextureManagerID);
+			json::get_int(JsonMaterial, "RoughnessMapID", m_RoughnessTextureManagerID);
+			json::get_int(JsonMaterial, "AOMapID", m_AoTextureManagerID);
+
+			TextureManager& textureManager = ResourceManager::Get().GetTextureManager();
+			m_AlbedoMap = textureManager.GetTextureByID(m_AlbedoTextureManagerID, Texture::eTextureType::eTextureType_Albedo);
+			m_NormalMap = textureManager.GetTextureByID(m_NormalTextureManagerID, Texture::eTextureType::eTextureType_Normal);
+			m_MetallicMap = textureManager.GetTextureByID(m_MetallicTextureManagerID, Texture::eTextureType::eTextureType_Metallic);
+			m_RoughnessMap = textureManager.GetTextureByID(m_RoughnessTextureManagerID, Texture::eTextureType::eTextureType_Roughness);
+			m_AOMap = textureManager.GetTextureByID(m_AoTextureManagerID, Texture::eTextureType::eTextureType_AmbientOcclusion);
+
+		} if (m_MaterialType == eMaterialType::eMaterialType_Translucent) {
+
+			json::get_int(JsonMaterial, "AlbedoMapID", m_AlbedoTextureManagerID);
+			json::get_int(JsonMaterial, "NormalMapID", m_NormalTextureManagerID);
+			json::get_int(JsonMaterial, "RoughnessMapID", m_RoughnessTextureManagerID);
+			json::get_int(JsonMaterial, "OpacityMapID", m_RoughnessTextureManagerID);
+			json::get_int(JsonMaterial, "TranslucencyMapID", m_RoughnessTextureManagerID);
+
+			TextureManager& textureManager = ResourceManager::Get().GetTextureManager();
+			m_AlbedoMap = textureManager.GetTextureByID(m_AlbedoTextureManagerID, Texture::eTextureType::eTextureType_Albedo);
+			m_NormalMap = textureManager.GetTextureByID(m_NormalTextureManagerID, Texture::eTextureType::eTextureType_Normal);
+			m_RoughnessMap = textureManager.GetTextureByID(m_RoughnessTextureManagerID, Texture::eTextureType::eTextureType_Roughness);
+			m_OpacityMap = textureManager.GetTextureByID(m_AoTextureManagerID, Texture::eTextureType::eTextureType_Opacity);
+			m_TranslucencyMap = textureManager.GetTextureByID(m_AoTextureManagerID, Texture::eTextureType::eTextureType_Translucency);
+		}
 
 		json::get_float(jsonUVOffset[0], "x", m_ShaderCB.uvOffset.x);
 		json::get_float(jsonUVOffset[0], "y", m_ShaderCB.uvOffset.y);
@@ -94,21 +121,20 @@ namespace Insight {
 		json::get_float(jsonColorOverride[0], "g", m_ShaderCB.diffuseAdditive.y);
 		json::get_float(jsonColorOverride[0], "b", m_ShaderCB.diffuseAdditive.z);
 
-		json::get_float(jsonMaterial, "Metallic_Override", m_ShaderCB.metallicAdditive);
-		json::get_float(jsonMaterial, "Roughness_Override", m_ShaderCB.roughnessAdditive);
-
-		TextureManager& textureManager = ResourceManager::Get().GetTextureManager();
-		m_AlbedoMap		= textureManager.GetTextureByID(m_AlbedoTextureManagerID, Texture::eTextureType::ALBEDO);
-		m_NormalMap		= textureManager.GetTextureByID(m_NormalTextureManagerID, Texture::eTextureType::NORMAL);
-		m_MetallicMap	= textureManager.GetTextureByID(m_MetallicTextureManagerID, Texture::eTextureType::METALLIC);
-		m_RoughnessMap	= textureManager.GetTextureByID(m_RoughnessTextureManagerID, Texture::eTextureType::ROUGHNESS);
-		m_AOMap			= textureManager.GetTextureByID(m_AoTextureManagerID, Texture::eTextureType::AO);
+		json::get_float(JsonMaterial, "Metallic_Override", m_ShaderCB.metallicAdditive);
+		json::get_float(JsonMaterial, "Roughness_Override", m_ShaderCB.roughnessAdditive);
 
 		return true;
 	}
 
 	bool Material::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
 	{
+		// Material Properties
+		{
+			Writer.Key("Category");
+			Writer.Int(m_MaterialType);
+		}
+
 		// Textures
 		{
 			Writer.Key("AlbedoMapID");
@@ -219,11 +245,26 @@ namespace Insight {
 
 	void Material::BindResources()
 	{
-		m_AlbedoMap->Bind();
-		m_NormalMap->Bind();
-		m_MetallicMap->Bind();
-		m_RoughnessMap->Bind();
-		m_AOMap->Bind();
+		if(m_AlbedoMap.get())
+			m_AlbedoMap->Bind();
+		
+		if(m_NormalMap.get())
+			m_NormalMap->Bind();
+		
+		if(m_MetallicMap.get())
+			m_MetallicMap->Bind();
+		
+		if(m_RoughnessMap.get())
+			m_RoughnessMap->Bind();
+		
+		if(m_AOMap.get())
+			m_AOMap->Bind();
+
+		if (m_OpacityMap.get())
+			m_OpacityMap->Bind();
+
+		if (m_TranslucencyMap.get())
+			m_TranslucencyMap->Bind();
 	}
 
 }

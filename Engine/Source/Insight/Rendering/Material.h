@@ -10,6 +10,13 @@ namespace Insight {
 	class INSIGHT_API Material
 	{
 	public:
+		enum eMaterialType
+		{
+			eMaterialType_Invalid = -1,
+			eMaterialType_Opaque = 0,
+			eMaterialType_Translucent = 1,
+		};
+	public:
 		Material();
 		Material(Material&& material) noexcept;
 		~Material();
@@ -27,18 +34,23 @@ namespace Insight {
 		void BindResources();
 
 	private:
+		eMaterialType m_MaterialType = eMaterialType::eMaterialType_Invalid;
 
 		StrongTexturePtr m_AlbedoMap;
 		StrongTexturePtr m_NormalMap;
 		StrongTexturePtr m_MetallicMap;
 		StrongTexturePtr m_RoughnessMap;
 		StrongTexturePtr m_AOMap;
+		StrongTexturePtr m_OpacityMap;
+		StrongTexturePtr m_TranslucencyMap;
 
 		int m_AlbedoTextureManagerID;
 		int m_NormalTextureManagerID;
 		int m_MetallicTextureManagerID;
 		int m_RoughnessTextureManagerID;
 		int m_AoTextureManagerID;
+		int m_OpacityTextureManagerID;
+		int m_TranslucencyTextureManagerID;
 
 		float m_RoughnessAdditive = 0.5f;
 		float m_MetallicAdditive = 0.5f;

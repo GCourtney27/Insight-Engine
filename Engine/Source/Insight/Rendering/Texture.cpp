@@ -8,7 +8,7 @@
 
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
-#define CBVSRV_HEAP_TEXTURE_START 7
+#define CBVSRV_HEAP_TEXTURE_START_SLOT 7
 
 namespace Insight {
 

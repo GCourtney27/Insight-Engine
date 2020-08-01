@@ -973,18 +973,19 @@ namespace Insight {
 
 	void Direct3D12Context::CreateForwardShadingRootSignature()
 	{
-		CD3DX12_DESCRIPTOR_RANGE DescriptorRanges[10];
+		CD3DX12_DESCRIPTOR_RANGE DescriptorRanges[11];
 		DescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0); // PerObject texture inputs - Albedo
 		DescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1); // PerObject texture inputs - Normal
 		DescriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2); // PerObject texture inputs - Roughness
 		DescriptorRanges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 3); // PerObject texture inputs - Metallic
 		DescriptorRanges[4].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 4); // PerObject texture inputs - AO
 		DescriptorRanges[5].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 5); // PerObject texture inputs - Opacity
-		DescriptorRanges[6].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 6); // Shadow Depth texture
+		DescriptorRanges[6].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 6); // PerObject texture inputs - Translucency
+		DescriptorRanges[7].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 7); // Shadow Depth texture
 
-		DescriptorRanges[7].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 7); // Sky - Irradiance
-		DescriptorRanges[8].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 8); // Sky - Environment Map
-		DescriptorRanges[9].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9); // Sky - BRDF LUT
+		DescriptorRanges[8].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 8); // Sky - Irradiance
+		DescriptorRanges[9].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9); // Sky - Environment Map
+		DescriptorRanges[10].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 10); // Sky - BRDF LUT
 
 		CD3DX12_ROOT_PARAMETER RootParameters[14];
 		RootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);	  // Per-Object constant buffer

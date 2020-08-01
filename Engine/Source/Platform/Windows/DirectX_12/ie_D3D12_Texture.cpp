@@ -9,7 +9,7 @@
 #include <DirectX12/TK/Inc/WICTextureLoader.h>
 #include "DirectX12/TK/Inc/ResourceUploadBatch.h"
 
-#define CBVSRV_HEAP_TEXTURE_START 7
+#define CBVSRV_HEAP_TEXTURE_START_SLOT 7
 
 
 namespace Insight {
@@ -35,7 +35,7 @@ namespace Insight {
 
 	void ieD3D12Texture::Bind()
 	{
-		m_pCommandList->SetGraphicsRootDescriptorTable(m_RootParamIndex, m_pCbvSrvHeapStart->hGPU(CBVSRV_HEAP_TEXTURE_START + m_GPUHeapIndex));
+		m_pCommandList->SetGraphicsRootDescriptorTable(m_RootParamIndex, m_pCbvSrvHeapStart->hGPU(CBVSRV_HEAP_TEXTURE_START_SLOT + m_GPUHeapIndex));
 	}
 
 	bool ieD3D12Texture::Init(IE_TEXTURE_INFO createInfo, CDescriptorHeapWrapper& srvHeapHandle)
@@ -90,9 +90,9 @@ namespace Insight {
 		srvDesc.Texture2D.MipLevels = m_D3DTextureDesc.MipLevels;
 		srvDesc.Format = m_D3DTextureDesc.Format;
 		// Regular dds texture or a cubemap?
-		srvDesc.ViewDimension = (m_TextureInfo.Type >= eTextureType::SKY_IRRADIENCE) ? D3D12_SRV_DIMENSION_TEXTURECUBE : D3D12_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.ViewDimension = (m_TextureInfo.Type >= eTextureType::eTextureType_SkyIrradience) ? D3D12_SRV_DIMENSION_TEXTURECUBE : D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		pDevice->CreateShaderResourceView(m_pTexture.Get(), &srvDesc, srvHeapHandle.hCPU(CBVSRV_HEAP_TEXTURE_START + s_NumSceneTextures));
+		pDevice->CreateShaderResourceView(m_pTexture.Get(), &srvDesc, srvHeapHandle.hCPU(CBVSRV_HEAP_TEXTURE_START_SLOT + s_NumSceneTextures));
 
 		m_GPUHeapIndex = s_NumSceneTextures;
 		s_NumSceneTextures++;
@@ -127,7 +127,7 @@ namespace Insight {
 		srvDesc.Format = m_D3DTextureDesc.Format;
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		pDevice->CreateShaderResourceView(m_pTexture.Get(), &srvDesc, srvHeapHandle.hCPU(CBVSRV_HEAP_TEXTURE_START + s_NumSceneTextures));
+		pDevice->CreateShaderResourceView(m_pTexture.Get(), &srvDesc, srvHeapHandle.hCPU(CBVSRV_HEAP_TEXTURE_START_SLOT + s_NumSceneTextures));
 
 		m_GPUHeapIndex = s_NumSceneTextures;
 		s_NumSceneTextures++;
@@ -137,47 +137,47 @@ namespace Insight {
 	UINT ieD3D12Texture::GetRootParameterIndexForTextureType(eTextureType TextureType)
 	{
 		switch (m_TextureInfo.Type) {
-		case eTextureType::ALBEDO:
+		case eTextureType::eTextureType_Albedo:
 		{
 			return 6;
 			break;
 		}
-		case eTextureType::NORMAL:
+		case eTextureType::eTextureType_Normal:
 		{
 			return 7;
 			break;
 		}
-		case eTextureType::ROUGHNESS:
+		case eTextureType::eTextureType_Roughness:
 		{
 			return 8;
 			break;
 		}
-		case eTextureType::METALLIC:
+		case eTextureType::eTextureType_Metallic:
 		{
 			return 9;
 			break;
 		}
-		case eTextureType::AO:
+		case eTextureType::eTextureType_AmbientOcclusion:
 		{
 			return 10;
 			break;
 		}
-		case eTextureType::SKY_IRRADIENCE:
+		case eTextureType::eTextureType_SkyIrradience:
 		{
 			return 12;
 			break;
 		}
-		case eTextureType::SKY_ENVIRONMENT_MAP:
+		case eTextureType::eTextureType_SkyEnvironmentMap:
 		{
 			return 13;
 			break;
 		}
-		case eTextureType::SKY_BRDF_LUT:
+		case eTextureType::eTextureType_IBLBRDFLUT:
 		{
 			return 14;
 			break;
 		}
-		case eTextureType::SKY_DIFFUSE:
+		case eTextureType::eTextureType_SkyDiffuse:
 		{
 			return 15;
 			break;

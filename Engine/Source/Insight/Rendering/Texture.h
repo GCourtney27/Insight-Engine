@@ -13,23 +13,25 @@ namespace Insight {
 
 		enum eTextureType
 		{
-			INVALID = -1,
+			eTextureType_Invalid = -1,
 			// Per Object
-			ALBEDO = 0,
-			NORMAL = 1,
-			ROUGHNESS = 2,
-			METALLIC = 3,
-			AO = 4,
+			eTextureType_Albedo = 0,
+			eTextureType_Normal = 1,
+			eTextureType_Roughness = 2,
+			eTextureType_Metallic = 3,
+			eTextureType_AmbientOcclusion = 4,
+			eTextureType_Opacity = 5,
+			eTextureType_Translucency = 6,
 			// Sky Sphere
-			SKY_IRRADIENCE = 5,
-			SKY_ENVIRONMENT_MAP = 6,
-			SKY_BRDF_LUT = 7,
-			SKY_DIFFUSE = 8,
+			eTextureType_SkyIrradience = 7,
+			eTextureType_SkyEnvironmentMap = 8,
+			eTextureType_IBLBRDFLUT = 9,
+			eTextureType_SkyDiffuse = 10,
 		};
 
 		struct IE_TEXTURE_INFO
 		{
-			eTextureType Type = eTextureType::INVALID;
+			eTextureType Type = eTextureType::eTextureType_Invalid;
 			bool GenerateMipMaps = true;
 			bool IsCubeMap = false;
 			std::wstring Filepath;
