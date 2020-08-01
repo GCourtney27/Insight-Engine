@@ -22,7 +22,7 @@ namespace Insight {
 		static void Shutdown();
 
 		static GeometryManager& Get() { return *s_Instance; }
-		SceneModels* GetSceneModels() { return &m_Models; }
+		SceneModels* GetSceneModels() { return &m_OpaqueModels; }
 
 		static bool Init() { return s_Instance->InitImpl(); }
 
@@ -38,10 +38,16 @@ namespace Insight {
 		// when switching scenes.
 		static void FlushModelCache();
 		
-		// Register a model to be drawn in the geometry pass
-		static void RegisterModel(StrongModelPtr Model) { s_Instance->m_Models.push_back(Model); }
-		// Unregister a model to not be drawn in the geometry pass
-		static void UnRegisterModel(StrongModelPtr Model);
+		// Register a model with an opaque material to be drawn in the geometry pass
+		static void RegisterOpaqueModel(StrongModelPtr Model) { s_Instance->m_OpaqueModels.push_back(Model); }
+		// Unregister a model with an opaque material to not be drawn in the geometry pass
+		static void UnRegisterOpaqueModel(StrongModelPtr Model);
+		
+		// Register a model with a translucent material to be drawn in the translucency pass
+		static void RegisterTranslucentModel(StrongModelPtr Model) { s_Instance->m_TranslucentModels.push_back(Model); }
+		// Unregister a model with a translucent material to not be drawn in the translucency pass
+		static void UnRegisterTranslucentModel(StrongModelPtr Model);
+
 
 	protected:
 		virtual bool InitImpl() = 0;
@@ -50,7 +56,8 @@ namespace Insight {
 		virtual void PostRenderImpl() = 0;
 
 	protected:
-		SceneModels m_Models;  
+		SceneModels m_OpaqueModels;
+		SceneModels m_TranslucentModels;
 
 	private:
 		static GeometryManager* s_Instance;

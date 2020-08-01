@@ -47,20 +47,20 @@ namespace Insight {
 	{
 		HRESULT hr;
 		
-		for (UINT32 i = 0; i < s_Instance->m_Models.size(); ++i) {
+		for (UINT32 i = 0; i < s_Instance->m_OpaqueModels.size(); ++i) {
 
-			if (s_Instance->m_Models[i]->GetCanBeRendered()) {
+			if (s_Instance->m_OpaqueModels[i]->GetCanBeRendered()) {
 
-				for (UINT32 j = 0; j < s_Instance->m_Models[i]->GetNumChildMeshes(); j++) {
+				for (UINT32 j = 0; j < s_Instance->m_OpaqueModels[i]->GetNumChildMeshes(); j++) {
 
-					CB_VS_PerObject cbPerObject = s_Instance->m_Models[i]->GetMeshAtIndex(j)->GetConstantBuffer();
+					CB_VS_PerObject cbPerObject = s_Instance->m_OpaqueModels[i]->GetMeshAtIndex(j)->GetConstantBuffer();
 					D3D11_MAPPED_SUBRESOURCE PerObjectMappedResource = {};
 					hr = m_pDeviceContext->Map(m_pIntermediatePerObjectCB.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &PerObjectMappedResource);
 					CopyMemory(PerObjectMappedResource.pData, &cbPerObject, sizeof(CB_VS_PerObject));
 					m_pDeviceContext->Unmap(m_pIntermediatePerObjectCB.Get(), 0);
 					m_pDeviceContext->VSSetConstantBuffers(0, 1, m_pIntermediatePerObjectCB.GetAddressOf());
 					
-					CB_PS_VS_PerObjectAdditives cbMatOverrides = s_Instance->m_Models[i]->GetMaterialRef().GetMaterialOverrideConstantBuffer();
+					CB_PS_VS_PerObjectAdditives cbMatOverrides = s_Instance->m_OpaqueModels[i]->GetMaterialRef().GetMaterialOverrideConstantBuffer();
 					D3D11_MAPPED_SUBRESOURCE MatOverridesMappedResource = {};
 					hr = m_pDeviceContext->Map(m_pIntermediatematOverridesCB.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &MatOverridesMappedResource);
 					CopyMemory(MatOverridesMappedResource.pData, &cbMatOverrides, sizeof(CB_PS_VS_PerObjectAdditives));
@@ -69,8 +69,8 @@ namespace Insight {
 					m_pDeviceContext->PSSetConstantBuffers(4, 1, m_pIntermediatematOverridesCB.GetAddressOf());
 
 
-					s_Instance->m_Models[i]->BindResources();
-					s_Instance->m_Models[i]->GetMeshAtIndex(j)->Render(nullptr);
+					s_Instance->m_OpaqueModels[i]->BindResources();
+					s_Instance->m_OpaqueModels[i]->GetMeshAtIndex(j)->Render();
 				}
 			}
 		}

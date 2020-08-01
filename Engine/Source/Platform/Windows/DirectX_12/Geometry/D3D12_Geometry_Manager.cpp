@@ -42,15 +42,17 @@ namespace Insight {
 	{
 		if (RenderPass == eRenderPass::RenderPass_Shadow) {
 
-			for (UINT32 i = 0; i < m_Models.size(); ++i) {
+			for (UINT32 i = 0; i < m_OpaqueModels.size(); ++i) {
 
-				if (m_Models[i]->GetCanCastShadows()) {
+				if (m_OpaqueModels[i]->GetCanCastShadows()) {
 
-					for (UINT32 j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
+					for (UINT32 j = 0; j < m_OpaqueModels[i]->GetNumChildMeshes(); j++) {
 
 						// Set Per-Object CBV
+						// We dont need any texture of material data,
+						// we only want the depth for the shadow map for each oject
 						m_pShadowPassCommandList->SetGraphicsRootConstantBufferView(0, m_CbvUploadHeapHandle + (ConstantBufferPerObjectAlignedSize * m_PerObjectCBDrawOffset));
-						m_Models[i]->GetMeshAtIndex(j)->Render(m_pShadowPassCommandList);
+						m_OpaqueModels[i]->GetMeshAtIndex(j)->Render();
 
 						m_PerObjectCBDrawOffset++;
 					}
@@ -60,19 +62,19 @@ namespace Insight {
 		}
 		else if (RenderPass == eRenderPass::RenderPass_Scene) {
 
-			for (UINT32 i = 0; i < m_Models.size(); ++i) {
+			for (UINT32 i = 0; i < m_OpaqueModels.size(); ++i) {
 
-				if (m_Models[i]->GetCanBeRendered()) {
+				if (m_OpaqueModels[i]->GetCanBeRendered()) {
 
-					for (UINT32 j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
+					for (UINT32 j = 0; j < m_OpaqueModels[i]->GetNumChildMeshes(); j++) {
 
 						// Set Per-Object CBV
 						m_pScenePassCommandList->SetGraphicsRootConstantBufferView(0, m_CbvUploadHeapHandle + (ConstantBufferPerObjectAlignedSize * m_PerObjectCBDrawOffset));
 						// Set Per-Object Material Override CBV
 						m_pScenePassCommandList->SetGraphicsRootConstantBufferView(4, m_CbvMaterialHeapHandle + (ConstantBufferPerObjectMaterialAlignedSize * m_PerObjectCBDrawOffset));
 
-						m_Models[i]->BindResources();
-						m_Models[i]->GetMeshAtIndex(j)->Render(m_pScenePassCommandList);
+						m_OpaqueModels[i]->BindResources();
+						m_OpaqueModels[i]->GetMeshAtIndex(j)->Render();
 
 						m_PerObjectCBDrawOffset++;
 					}
@@ -84,19 +86,19 @@ namespace Insight {
 
 			// TODO Sort Transparent objects
 
-			for (UINT32 i = 0; i < 1; ++i) {
+			for (UINT32 i = 0; i < m_TranslucentModels.size(); ++i) {
 
-				if (m_Models[i]->GetCanBeRendered()) {
+				if (m_TranslucentModels[i]->GetCanBeRendered()) {
 
-					for (UINT32 j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
+					for (UINT32 j = 0; j < m_TranslucentModels[i]->GetNumChildMeshes(); j++) {
 
 						// Set Per-Object CBV
 						m_pTransparencyPassCommandList->SetGraphicsRootConstantBufferView(0, m_CbvUploadHeapHandle + (ConstantBufferPerObjectAlignedSize * m_PerObjectCBDrawOffset));
 						// Set Per-Object Material Override CBV
 						m_pTransparencyPassCommandList->SetGraphicsRootConstantBufferView(3, m_CbvMaterialHeapHandle + (ConstantBufferPerObjectMaterialAlignedSize * m_PerObjectCBDrawOffset));
 
-						m_Models[i]->BindResources();
-						m_Models[i]->GetMeshAtIndex(j)->Render(m_pTransparencyPassCommandList);
+						m_TranslucentModels[i]->BindResources();
+						m_TranslucentModels[i]->GetMeshAtIndex(j)->Render();
 
 						m_PerObjectCBDrawOffset++;
 					}
@@ -108,16 +110,33 @@ namespace Insight {
 
 	void D3D12GeometryManager::GatherGeometryImpl()
 	{
-		for (UINT32 i = 0; i < m_Models.size(); i++) {
+		for (UINT32 i = 0; i < m_OpaqueModels.size(); i++) {
 
-			if (m_Models[i]->GetCanBeRendered()) {
+			if (m_OpaqueModels[i]->GetCanBeRendered()) {
 
-				for (UINT32 j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
+				for (UINT32 j = 0; j < m_OpaqueModels[i]->GetNumChildMeshes(); j++) {
 
-					const CB_PS_VS_PerObjectAdditives cbMatOverrides = m_Models[i]->GetMaterialRef().GetMaterialOverrideConstantBuffer();
+					const CB_PS_VS_PerObjectAdditives cbMatOverrides = m_OpaqueModels[i]->GetMaterialRef().GetMaterialOverrideConstantBuffer();
 					memcpy(m_CbvMaterialGPUAddress + (ConstantBufferPerObjectMaterialAlignedSize * m_GPUAddressUploadOffset), &cbMatOverrides, sizeof(cbMatOverrides));
 
-					const CB_VS_PerObject cbPerObject = m_Models[i]->GetMeshAtIndex(j)->GetConstantBuffer();
+					const CB_VS_PerObject cbPerObject = m_OpaqueModels[i]->GetMeshAtIndex(j)->GetConstantBuffer();
+					memcpy(m_CbvPerObjectGPUAddress + (ConstantBufferPerObjectAlignedSize * m_GPUAddressUploadOffset), &cbPerObject, sizeof(cbPerObject));
+
+					m_GPUAddressUploadOffset++;
+				}
+			}
+		}
+
+		for (UINT32 i = 0; i < m_TranslucentModels.size(); i++) {
+
+			if (m_TranslucentModels[i]->GetCanBeRendered()) {
+
+				for (UINT32 j = 0; j < m_TranslucentModels[i]->GetNumChildMeshes(); j++) {
+
+					const CB_PS_VS_PerObjectAdditives cbMatOverrides = m_TranslucentModels[i]->GetMaterialRef().GetMaterialOverrideConstantBuffer();
+					memcpy(m_CbvMaterialGPUAddress + (ConstantBufferPerObjectMaterialAlignedSize * m_GPUAddressUploadOffset), &cbMatOverrides, sizeof(cbMatOverrides));
+
+					const CB_VS_PerObject cbPerObject = m_TranslucentModels[i]->GetMeshAtIndex(j)->GetConstantBuffer();
 					memcpy(m_CbvPerObjectGPUAddress + (ConstantBufferPerObjectAlignedSize * m_GPUAddressUploadOffset), &cbPerObject, sizeof(cbPerObject));
 
 					m_GPUAddressUploadOffset++;

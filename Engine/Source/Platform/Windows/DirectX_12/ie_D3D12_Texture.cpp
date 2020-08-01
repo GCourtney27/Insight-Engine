@@ -9,7 +9,8 @@
 #include <DirectX12/TK/Inc/WICTextureLoader.h>
 #include "DirectX12/TK/Inc/ResourceUploadBatch.h"
 
-#define CBVSRV_HEAP_TEXTURE_START_SLOT 7
+#define CBVSRV_HEAP_TEXTURE_START_SLOT 7		// Keep this in sync with Direct3D12Context::m_cbvsrvHeap
+#define OBJECT_TEXTURE_ROOT_PARAM_INDEX_START 6 // Keep this in sync with deferred shading pass root root signature
 
 
 namespace Insight {
@@ -139,47 +140,47 @@ namespace Insight {
 		switch (m_TextureInfo.Type) {
 		case eTextureType::eTextureType_Albedo:
 		{
-			return 6;
+			return OBJECT_TEXTURE_ROOT_PARAM_INDEX_START;
 			break;
 		}
 		case eTextureType::eTextureType_Normal:
 		{
-			return 7;
+			return OBJECT_TEXTURE_ROOT_PARAM_INDEX_START + 1;
 			break;
 		}
 		case eTextureType::eTextureType_Roughness:
 		{
-			return 8;
+			return OBJECT_TEXTURE_ROOT_PARAM_INDEX_START + 2;
 			break;
 		}
 		case eTextureType::eTextureType_Metallic:
 		{
-			return 9;
+			return OBJECT_TEXTURE_ROOT_PARAM_INDEX_START + 3;
 			break;
 		}
 		case eTextureType::eTextureType_AmbientOcclusion:
 		{
-			return 10;
+			return OBJECT_TEXTURE_ROOT_PARAM_INDEX_START + 4;
 			break;
 		}
 		case eTextureType::eTextureType_SkyIrradience:
 		{
-			return 12;
+			return OBJECT_TEXTURE_ROOT_PARAM_INDEX_START + 6;
 			break;
 		}
 		case eTextureType::eTextureType_SkyEnvironmentMap:
 		{
-			return 13;
+			return OBJECT_TEXTURE_ROOT_PARAM_INDEX_START + 7;
 			break;
 		}
 		case eTextureType::eTextureType_IBLBRDFLUT:
 		{
-			return 14;
+			return OBJECT_TEXTURE_ROOT_PARAM_INDEX_START + 8;
 			break;
 		}
 		case eTextureType::eTextureType_SkyDiffuse:
 		{
-			return 15;
+			return OBJECT_TEXTURE_ROOT_PARAM_INDEX_START + 9;
 			break;
 		}
 		default:

@@ -27,6 +27,9 @@ namespace Insight {
 		bool LoadFromJson(const rapidjson::Value& jsonMaterial);
 		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer);
 
+		eMaterialType GetMaterialType() const { return m_MaterialType; }
+		void SetMaterialType(eMaterialType MaterialType) { m_MaterialType = MaterialType; }
+
 		CB_PS_VS_PerObjectAdditives GetMaterialOverrideConstantBuffer() { return m_ShaderCB; }
 
 		void OnImGuiRender();

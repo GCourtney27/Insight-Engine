@@ -49,6 +49,8 @@ namespace Insight {
 	{
 		Material* pMaterial = new Material();
 
+		pMaterial->m_MaterialType = eMaterialType::eMaterialType_Opaque;
+
 		TextureManager& TextureManager = ResourceManager::Get().GetTextureManager();
 		
 		pMaterial->m_AlbedoMap		= TextureManager.GetDefaultAlbedoTexture();

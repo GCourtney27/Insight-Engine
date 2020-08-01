@@ -67,7 +67,7 @@ namespace Insight {
 		return m_pIndexBuffer->GetBufferSize();
 	}
 
-	void Mesh::Render(ID3D12GraphicsCommandList* pCommandList)
+	void Mesh::Render()
 	{
 		Renderer::SetVertexBuffers(0, 1, m_pVertexBuffer);
 		Renderer::SetIndexBuffer(m_pIndexBuffer);
