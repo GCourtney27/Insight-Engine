@@ -10,8 +10,9 @@
 #include "DirectX12/TK/Inc/ResourceUploadBatch.h"
 
 #define CBVSRV_HEAP_TEXTURE_START_SLOT 7		// Keep this in sync with Direct3D12Context::m_cbvsrvHeap
-#define OBJECT_TEXTURE_ROOT_PARAM_INDEX_START 6 // Keep this in sync with deferred shading pass root signature
-
+#define OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START 6 // Keep this in sync with deferred shading pass root signature
+#define OBJECT_TEXTURE_FORW_PASS_ROOT_PARAM_INDEX_START 4 //Leep this in sync with forward shading pass root signature
+#define OBJECT_TEXTURE_FORW_DEFF_ROOT_PARAM_INDEX_DIFF (OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START - OBJECT_TEXTURE_FORW_PASS_ROOT_PARAM_INDEX_START)
 
 namespace Insight {
 
@@ -43,7 +44,7 @@ namespace Insight {
 	void ieD3D12Texture::BindForForwardPass()
 	{
 		if (m_TextureInfo.Type < eTextureType::eTextureType_Opacity) {
-			m_pTranslucencyPass_CommandList->SetGraphicsRootDescriptorTable(m_RootParamIndex - 2, m_pCbvSrvHeapStart->hGPU(CBVSRV_HEAP_TEXTURE_START_SLOT + m_GPUHeapIndex));
+			m_pTranslucencyPass_CommandList->SetGraphicsRootDescriptorTable(m_RootParamIndex - OBJECT_TEXTURE_FORW_DEFF_ROOT_PARAM_INDEX_DIFF, m_pCbvSrvHeapStart->hGPU(CBVSRV_HEAP_TEXTURE_START_SLOT + m_GPUHeapIndex));
 		}
 		else {
 			m_pTranslucencyPass_CommandList->SetGraphicsRootDescriptorTable(m_RootParamIndex, m_pCbvSrvHeapStart->hGPU(CBVSRV_HEAP_TEXTURE_START_SLOT + m_GPUHeapIndex));
@@ -152,47 +153,47 @@ namespace Insight {
 		switch (m_TextureInfo.Type) {
 		case eTextureType::eTextureType_Albedo:
 		{
-			return OBJECT_TEXTURE_ROOT_PARAM_INDEX_START;
+			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START;
 			break;
 		}
 		case eTextureType::eTextureType_Normal:
 		{
-			return OBJECT_TEXTURE_ROOT_PARAM_INDEX_START + 1;
+			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 1;
 			break;
 		}
 		case eTextureType::eTextureType_Roughness:
 		{
-			return OBJECT_TEXTURE_ROOT_PARAM_INDEX_START + 2;
+			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 2;
 			break;
 		}
 		case eTextureType::eTextureType_Metallic:
 		{
-			return OBJECT_TEXTURE_ROOT_PARAM_INDEX_START + 3;
+			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 3;
 			break;
 		}
 		case eTextureType::eTextureType_AmbientOcclusion:
 		{
-			return OBJECT_TEXTURE_ROOT_PARAM_INDEX_START + 4;
+			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 4;
 			break;
 		}
 		case eTextureType::eTextureType_SkyIrradience:
 		{
-			return OBJECT_TEXTURE_ROOT_PARAM_INDEX_START + 6;
+			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 6;
 			break;
 		}
 		case eTextureType::eTextureType_SkyEnvironmentMap:
 		{
-			return OBJECT_TEXTURE_ROOT_PARAM_INDEX_START + 7;
+			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 7;
 			break;
 		}
 		case eTextureType::eTextureType_IBLBRDFLUT:
 		{
-			return OBJECT_TEXTURE_ROOT_PARAM_INDEX_START + 8;
+			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 8;
 			break;
 		}
 		case eTextureType::eTextureType_SkyDiffuse:
 		{
-			return OBJECT_TEXTURE_ROOT_PARAM_INDEX_START + 9;
+			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 9;
 			break;
 		}
 		case eTextureType::eTextureType_Opacity:

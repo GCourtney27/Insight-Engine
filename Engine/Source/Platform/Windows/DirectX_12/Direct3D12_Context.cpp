@@ -364,6 +364,7 @@ namespace Insight {
 
 			m_pTransparencyPass_CommandList->RSSetScissorRects(1, &m_ScenePassScissorRect);
 			m_pTransparencyPass_CommandList->RSSetViewports(1, &m_ScenePassViewPort);
+			//m_pTransparencyPass_CommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), TRUE, nullptr);
 			m_pTransparencyPass_CommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), TRUE, &m_dsvHeap.hCPU(0));
 			//m_pPostEffectsPass_CommandList->OMSetRenderTargets(1, &GetRenderTargetView(), TRUE, &m_dsvHeap.hCPU(0));
 
@@ -1311,6 +1312,12 @@ namespace Insight {
 		auto RasterizerDesc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 		RasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
 		
+		auto BlendDesc = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		BlendDesc.AlphaToCoverageEnable = TRUE;
+		BlendDesc.IndependentBlendEnable = TRUE;
+		BlendDesc.RenderTarget[0].BlendEnable = true;
+
+
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC PsoDesc = {};
 		PsoDesc.VS = VertexShaderBytecode;
 		PsoDesc.PS = PixelShaderBytecode;
@@ -1318,12 +1325,13 @@ namespace Insight {
 		PsoDesc.InputLayout.NumElements = _countof(inputLayout);
 		PsoDesc.pRootSignature = m_pForwardShadingPass_RootSignature.Get();
 		PsoDesc.DepthStencilState = DepthStencilStateDesc;
-		PsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		PsoDesc.BlendState = BlendDesc;
 		PsoDesc.RasterizerState = RasterizerDesc;
 		PsoDesc.SampleMask = UINT_MAX;
 		PsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		PsoDesc.NumRenderTargets = 1U;
 		PsoDesc.RTVFormats[0] = m_RtvFormat[0];
+		//PsoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 		PsoDesc.DSVFormat = m_DsvFormat;
 		PsoDesc.SampleDesc.Count = 1;
 

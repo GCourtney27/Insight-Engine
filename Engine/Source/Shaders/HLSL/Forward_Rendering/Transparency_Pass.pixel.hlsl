@@ -36,7 +36,7 @@ struct PS_INPUT
 
 struct PS_OUT
 {
-    float3 LitImage : SV_TARGET;
+    float4 LitImage : SV_TARGET;
 };
 
 // Function Signatures
@@ -54,7 +54,7 @@ PS_OUT main(PS_INPUT ps_in)
     float opacity = t_Opacity.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
     float3 translucency = t_Translucency.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
     
-    ps_out.LitImage = translucency;
+    ps_out.LitImage = float4(albedo, opacity);
     
     return ps_out;
     
