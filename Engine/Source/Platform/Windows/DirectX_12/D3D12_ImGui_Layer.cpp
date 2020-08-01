@@ -71,7 +71,7 @@ namespace Insight {
 		if (!impleDX12Succeeded)
 			IE_CORE_WARN("Failed to initialize ImGui for DX12. Editor will not be rendered");
 
-		m_pCommandList = &graphicsContext->GetScenePassCommandList();
+		m_pCommandList = &graphicsContext->GetPostProcessPassCommandList();
 	}
 
 	void D3D12ImGuiLayer::OnDetach()

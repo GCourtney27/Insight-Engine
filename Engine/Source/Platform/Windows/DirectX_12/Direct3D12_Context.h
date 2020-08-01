@@ -61,9 +61,10 @@ namespace Insight {
 
 		inline ID3D12Device& GetDeviceContext() const { return *m_pDevice.Get(); }
 
-		inline ID3D12GraphicsCommandList& GetScenePassCommandList() const { return *m_pScenePassCommandList.Get(); }
-		inline ID3D12GraphicsCommandList& GetShadowPassCommandList() const { return *m_pShadowPassCommandList.Get(); }
-		inline ID3D12GraphicsCommandList& GetTransparencyPassCommandList() const { return *m_pTransparencyPassCommandList.Get(); }
+		inline ID3D12GraphicsCommandList& GetScenePassCommandList() const { return *m_pScenePass_CommandList.Get(); }
+		inline ID3D12GraphicsCommandList& GetPostProcessPassCommandList() const { return *m_pPostEffectsPass_CommandList.Get(); }
+		inline ID3D12GraphicsCommandList& GetShadowPassCommandList() const { return *m_pShadowPass_CommandList.Get(); }
+		inline ID3D12GraphicsCommandList& GetTransparencyPassCommandList() const { return *m_pTransparencyPass_CommandList.Get(); }
 
 		inline ID3D12CommandQueue& GetCommandQueue() const { return *m_pCommandQueue.Get(); }
 		inline CDescriptorHeapWrapper& GetCBVSRVDescriptorHeap() { return m_cbvsrvHeap; }
@@ -114,12 +115,13 @@ namespace Insight {
 		void CreateConstantBufferViews();
 		void CreateDeferredShadingRootSignature();
 		void CreateForwardShadingRootSignature();
+
 		void CreateShadowPassPSO();
 		void CreateGeometryPassPSO();
 		void CreateSkyPassPSO();
 		void CreateTransparencyPassPSO();
 		void CreateLightPassPSO();
-		void CreatePostFxPassPSO();
+		void CreatePostEffectsPassPSO();
 
 		// Create window resources
 
@@ -167,12 +169,15 @@ namespace Insight {
 
 		ComPtr<ID3D12GraphicsCommandList>	m_pActiveCommandList;
 		ComPtr<ID3D12CommandQueue>			m_pCommandQueue;
-		ComPtr<ID3D12GraphicsCommandList>	m_pScenePassCommandList;
-		ComPtr<ID3D12CommandAllocator>		m_pScenePassCommandAllocators[m_FrameBufferCount];
-		ComPtr<ID3D12GraphicsCommandList>	m_pShadowPassCommandList;
-		ComPtr<ID3D12CommandAllocator>		m_pShadowPassCommandAllocators[m_FrameBufferCount];
-		ComPtr<ID3D12GraphicsCommandList>	m_pTransparencyPassCommandList;
-		ComPtr<ID3D12CommandAllocator>		m_pTransparencyPassCommandAllocators[m_FrameBufferCount];
+
+		ComPtr<ID3D12GraphicsCommandList>	m_pShadowPass_CommandList;
+		ComPtr<ID3D12CommandAllocator>		m_pShadowPass_CommandAllocators[m_FrameBufferCount];
+		ComPtr<ID3D12GraphicsCommandList>	m_pScenePass_CommandList;
+		ComPtr<ID3D12CommandAllocator>		m_pScenePass_CommandAllocators[m_FrameBufferCount];
+		ComPtr<ID3D12GraphicsCommandList>	m_pTransparencyPass_CommandList;
+		ComPtr<ID3D12CommandAllocator>		m_pTransparencyPass_CommandAllocators[m_FrameBufferCount];
+		ComPtr<ID3D12GraphicsCommandList>	m_pPostEffectsPass_CommandList;
+		ComPtr<ID3D12CommandAllocator>		m_pPostEffectsPass_CommandAllocators[m_FrameBufferCount];
 
 		ComPtr<ID3D12Resource>				m_pRenderTargetTextures[m_NumRTV];
 		ComPtr<ID3D12Resource>				m_pRenderTargetTextures_PostFxPass[m_FrameBufferCount];
@@ -196,15 +201,15 @@ namespace Insight {
 		//1:  ShadowDepth
 		CDescriptorHeapWrapper				m_dsvHeap;
 
-		ComPtr<ID3D12RootSignature>			m_pRootSignature_DeferredShadingPass;
-		ComPtr<ID3D12RootSignature>			m_pRootSignature_ForwardShadingPass;
+		ComPtr<ID3D12RootSignature>			m_pDeferredShadingPass_RootSignature;
+		ComPtr<ID3D12RootSignature>			m_pForwardShadingPass_RootSignature;
 
-		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_ShadowPass;
-		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_GeometryPass;
-		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_LightingPass;
-		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_SkyPass;
-		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_Transparency;
-		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_PostFxPass;
+		ComPtr<ID3D12PipelineState>			m_pShadowPass_PSO;
+		ComPtr<ID3D12PipelineState>			m_pGeometryPass_PSO;
+		ComPtr<ID3D12PipelineState>			m_pLightingPass_PSO;
+		ComPtr<ID3D12PipelineState>			m_pSkyPass_PSO;
+		ComPtr<ID3D12PipelineState>			m_pTransparency_PSO;
+		ComPtr<ID3D12PipelineState>			m_pPostFxPass_PSO;
 
 		//-----Pipeline-----
 		//0:  SRV-Albedo(RTV->SRV)

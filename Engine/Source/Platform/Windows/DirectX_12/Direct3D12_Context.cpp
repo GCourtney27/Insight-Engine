@@ -84,7 +84,7 @@ namespace Insight {
 					CreateLightPassPSO();
 					CreateSkyPassPSO();
 					CreateTransparencyPassPSO();
-					CreatePostFxPassPSO();
+					CreatePostEffectsPassPSO();
 				}
 
 				// Render Targets and Constant Buffers
@@ -122,7 +122,6 @@ namespace Insight {
 	void Direct3D12Context::OnUpdateImpl(const float DeltaMs)
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
-		PIXSetMarker(m_pCommandQueue.Get(), 0, L"Getting last completed fence.");
 
 		// Send Per-Frame Data to GPU
 		XMFLOAT4X4 viewFloat;
@@ -168,37 +167,52 @@ namespace Insight {
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
 		// Reset Command Allocators
-		ThrowIfFailed(m_pScenePassCommandAllocators[m_FrameIndex]->Reset(),
+		ThrowIfFailed(m_pScenePass_CommandAllocators[m_FrameIndex]->Reset(),
 			"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Scene Pass");
 
-		ThrowIfFailed(m_pShadowPassCommandAllocators[m_FrameIndex]->Reset(),
+		ThrowIfFailed(m_pShadowPass_CommandAllocators[m_FrameIndex]->Reset(),
 			"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Shadow Pass");
-		
-		ThrowIfFailed(m_pTransparencyPassCommandAllocators[m_FrameIndex]->Reset(),
+
+		ThrowIfFailed(m_pTransparencyPass_CommandAllocators[m_FrameIndex]->Reset(),
 			"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Transparency Pass");
+		
+		ThrowIfFailed(m_pPostEffectsPass_CommandAllocators[m_FrameIndex]->Reset(),
+			"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
 
 		// Reset Command Lists
-		ThrowIfFailed(m_pScenePassCommandList->Reset(m_pScenePassCommandAllocators[m_FrameIndex].Get(), m_pPipelineStateObject_GeometryPass.Get()),
+		ThrowIfFailed(m_pScenePass_CommandList->Reset(m_pScenePass_CommandAllocators[m_FrameIndex].Get(), m_pGeometryPass_PSO.Get()),
 			"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Scene Pass");
 
-		ThrowIfFailed(m_pShadowPassCommandList->Reset(m_pShadowPassCommandAllocators[m_FrameIndex].Get(), m_pPipelineStateObject_ShadowPass.Get()),
+		ThrowIfFailed(m_pShadowPass_CommandList->Reset(m_pShadowPass_CommandAllocators[m_FrameIndex].Get(), m_pShadowPass_PSO.Get()),
 			"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Shadow Pass");
-		
-		ThrowIfFailed(m_pTransparencyPassCommandList->Reset(m_pTransparencyPassCommandAllocators[m_FrameIndex].Get(), m_pPipelineStateObject_Transparency.Get()),
+
+		ThrowIfFailed(m_pTransparencyPass_CommandList->Reset(m_pTransparencyPass_CommandAllocators[m_FrameIndex].Get(), m_pTransparency_PSO.Get()),
 			"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 
-		m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetRenderTarget(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+		ThrowIfFailed(m_pPostEffectsPass_CommandList->Reset(m_pPostEffectsPass_CommandAllocators[m_FrameIndex].Get(), m_pPostFxPass_PSO.Get()),
+			"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
+
+
+		m_pScenePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetRenderTarget(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+		const float ClearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+		m_pScenePass_CommandList->ClearRenderTargetView(GetRenderTargetView(), ClearColor, 0, nullptr);
 
 		// Reset Scene Pass
-		static float ClearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-		m_pScenePassCommandList->ClearRenderTargetView(GetRenderTargetView(), ClearColor, 0, nullptr);
-		m_pScenePassCommandList->RSSetScissorRects(1, &m_ScenePassScissorRect);
-		m_pScenePassCommandList->RSSetViewports(1, &m_ScenePassViewPort);
+		PIXBeginEvent(m_pScenePass_CommandList.Get(), 0, L"Resetting Scene Pass Command List");
+		{
+			m_pScenePass_CommandList->RSSetScissorRects(1, &m_ScenePassScissorRect);
+			m_pScenePass_CommandList->RSSetViewports(1, &m_ScenePassViewPort);
+		}
+		PIXEndEvent(m_pScenePass_CommandList.Get());
 
 		// Reset Shadow Pass
-		m_pShadowPassCommandList->RSSetScissorRects(1, &m_ShadowPassScissorRect);
-		m_pShadowPassCommandList->RSSetViewports(1, &m_ShadowPassViewPort);
-		m_pShadowPassCommandList->OMSetRenderTargets(0, nullptr, FALSE, &m_dsvHeap.hCPU(1));
+		PIXBeginEvent(m_pShadowPass_CommandList.Get(), 0, L"Resetting Shadow Pass Command List");
+		{
+			m_pShadowPass_CommandList->RSSetScissorRects(1, &m_ShadowPassScissorRect);
+			m_pShadowPass_CommandList->RSSetViewports(1, &m_ShadowPassViewPort);
+			m_pShadowPass_CommandList->OMSetRenderTargets(0, nullptr, FALSE, &m_dsvHeap.hCPU(1));
+		}
+		PIXEndEvent(m_pShadowPass_CommandList.Get());
 	}
 
 	void Direct3D12Context::OnRenderImpl()
@@ -206,80 +220,86 @@ namespace Insight {
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
 		// Render Shadows
-		m_pActiveCommandList = m_pShadowPassCommandList;
-		BindShadowPass(); 
-						
+		m_pActiveCommandList = m_pShadowPass_CommandList;
+		BindShadowPass();
+
 		// Render Scene
-		m_pActiveCommandList = m_pScenePassCommandList;
+		m_pActiveCommandList = m_pScenePass_CommandList;
 		BindGeometryPass();
+
+		// Transparency Forward Pass
+		m_pActiveCommandList = m_pTransparencyPass_CommandList;
+		BindTransparencyPass();
 	}
 
 	void Direct3D12Context::BindShadowPass()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
-		PIXBeginEvent(m_pShadowPassCommandList.Get(), 0, L"Rendering Shadow Pass");
+		PIXBeginEvent(m_pShadowPass_CommandList.Get(), 0, L"Rendering Shadow Pass");
+		{
+			ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
+			m_pShadowPass_CommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
-		ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
-		m_pShadowPassCommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+			m_pShadowPass_CommandList->SetPipelineState(m_pShadowPass_PSO.Get());
+			m_pShadowPass_CommandList->SetGraphicsRootSignature(m_pDeferredShadingPass_RootSignature.Get());
+			m_pShadowPass_CommandList->ClearDepthStencilView(m_dsvHeap.hCPU(1), D3D12_CLEAR_FLAG_DEPTH, m_DepthClearValue, 0xff, 0, nullptr);
 
-		m_pShadowPassCommandList->SetPipelineState(m_pPipelineStateObject_ShadowPass.Get());
-		m_pShadowPassCommandList->SetGraphicsRootSignature(m_pRootSignature_DeferredShadingPass.Get());
-		m_pShadowPassCommandList->ClearDepthStencilView(m_dsvHeap.hCPU(1), D3D12_CLEAR_FLAG_DEPTH, m_DepthClearValue, 0xff, 0, nullptr);
+			m_pShadowPass_CommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			m_pShadowPass_CommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV->GetGPUVirtualAddress());
+			m_pShadowPass_CommandList->SetGraphicsRootConstantBufferView(2, m_LightCBV->GetGPUVirtualAddress());
 
-		m_pShadowPassCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		m_pShadowPassCommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV->GetGPUVirtualAddress());
-		m_pShadowPassCommandList->SetGraphicsRootConstantBufferView(2, m_LightCBV->GetGPUVirtualAddress());
-
-		// TODO Shadow pass logic here put this on another thread
-		GeometryManager::Render(eRenderPass::RenderPass_Shadow);
-
-		PIXEndEvent(m_pShadowPassCommandList.Get());
+			// TODO Shadow pass logic here put this on another thread
+			GeometryManager::Render(eRenderPass::RenderPass_Shadow);
+		}
+		PIXEndEvent(m_pShadowPass_CommandList.Get());
 	}
 
 	void Direct3D12Context::BindGeometryPass(bool setPSO)
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
-		ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
-		m_pScenePassCommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
-
-		if (setPSO) {
-			m_pScenePassCommandList->SetPipelineState(m_pPipelineStateObject_GeometryPass.Get());
-		}
-
-		for (int i = 0; i < m_NumRTV - 1; i++) {
-			m_pScenePassCommandList->ClearRenderTargetView(m_rtvHeap.hCPU(i), m_ClearColor, 0, nullptr);
-		}
-
-		m_pScenePassCommandList->ClearDepthStencilView(m_dsvHeap.hCPU(0), D3D12_CLEAR_FLAG_DEPTH, m_DepthClearValue, 0xff, 0, nullptr);
-
-		m_pScenePassCommandList->OMSetRenderTargets(m_NumRTV, &m_rtvHeap.hCPUHeapStart, true, &m_dsvHeap.hCPU(0));
-		m_pScenePassCommandList->SetGraphicsRootSignature(m_pRootSignature_DeferredShadingPass.Get());
-		// Set Scene Depth Texture
-		m_pScenePassCommandList->SetGraphicsRootDescriptorTable(5, m_cbvsrvHeap.hGPU(0));
-		// Set Shadow Depth Texture
-		m_pScenePassCommandList->SetGraphicsRootDescriptorTable(11, m_cbvsrvHeap.hGPU(6));
-
+		PIXBeginEvent(m_pScenePass_CommandList.Get(), 0, L"Rendering Scene Pass");
 		{
-			m_pScenePassCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			m_pScenePassCommandList->SetGraphicsRootConstantBufferView(3, m_PostFxCBV->GetGPUVirtualAddress());
-			m_pScenePassCommandList->SetGraphicsRootConstantBufferView(2, m_LightCBV->GetGPUVirtualAddress());
-			m_pScenePassCommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV->GetGPUVirtualAddress());
-		}
+			ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
+			m_pScenePass_CommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
-		GeometryManager::Render(eRenderPass::RenderPass_Scene);
+			if (setPSO) {
+				m_pScenePass_CommandList->SetPipelineState(m_pGeometryPass_PSO.Get());
+			}
+
+			for (int i = 0; i < m_NumRTV - 1; i++) {
+				m_pScenePass_CommandList->ClearRenderTargetView(m_rtvHeap.hCPU(i), m_ClearColor, 0, nullptr);
+			}
+
+			m_pScenePass_CommandList->ClearDepthStencilView(m_dsvHeap.hCPU(0), D3D12_CLEAR_FLAG_DEPTH, m_DepthClearValue, 0xff, 0, nullptr);
+
+			m_pScenePass_CommandList->OMSetRenderTargets(m_NumRTV, &m_rtvHeap.hCPUHeapStart, TRUE, &m_dsvHeap.hCPU(0));
+			m_pScenePass_CommandList->SetGraphicsRootSignature(m_pDeferredShadingPass_RootSignature.Get());
+			// Set Scene Depth Texture
+			m_pScenePass_CommandList->SetGraphicsRootDescriptorTable(5, m_cbvsrvHeap.hGPU(0));
+			// Set Shadow Depth Texture
+			m_pScenePass_CommandList->SetGraphicsRootDescriptorTable(11, m_cbvsrvHeap.hGPU(6));
+
+			{
+				m_pScenePass_CommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				m_pScenePass_CommandList->SetGraphicsRootConstantBufferView(3, m_PostFxCBV->GetGPUVirtualAddress());
+				m_pScenePass_CommandList->SetGraphicsRootConstantBufferView(2, m_LightCBV->GetGPUVirtualAddress());
+				m_pScenePass_CommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV->GetGPUVirtualAddress());
+			}
+
+			GeometryManager::Render(eRenderPass::RenderPass_Scene);
+		}
+		PIXEndEvent(m_pScenePass_CommandList.Get());
 	}
 
 	void Direct3D12Context::OnMidFrameRenderImpl()
 	{
-		RETURN_IF_WINDOW_NOT_VISIBLE
+		RETURN_IF_WINDOW_NOT_VISIBLE;
 
 		BindLightingPass();
 
 		BindSkyPass();
-
-		BindTransparencyPass();
 
 		BindPostFxPass();
 	}
@@ -288,102 +308,122 @@ namespace Insight {
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
-		m_pScenePassCommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), true, nullptr);
+		PIXBeginEvent(m_pScenePass_CommandList.Get(), 0, L"Rendering Light Pass");
+		{
+			m_pScenePass_CommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), TRUE, nullptr);
 
-		if (m_pSkyLight) {
-			m_pSkyLight->BindCubeMaps();
+			if (m_pSkyLight) {
+				m_pSkyLight->BindCubeMaps();
+			}
+
+			for (unsigned int i = 0; i < m_NumRTV - 1; ++i) {
+				m_pScenePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
+			}
+
+			m_pScenePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
+
+			m_pScenePass_CommandList->SetPipelineState(m_pLightingPass_PSO.Get());
+
+			m_ScreenQuad.OnRender(m_pScenePass_CommandList);
 		}
-
-		for (unsigned int i = 0; i < m_NumRTV - 1; ++i) {
-			m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
-		}
-
-		m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
-
-		m_pScenePassCommandList->SetPipelineState(m_pPipelineStateObject_LightingPass.Get());
-
-		m_ScreenQuad.OnRender(m_pScenePassCommandList);
-
+		PIXEndEvent(m_pScenePass_CommandList.Get());
 	}
 
 	void Direct3D12Context::BindSkyPass()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
+		PIXBeginEvent(m_pScenePass_CommandList.Get(), 0, L"Rendering Sky Pass");
+		{
+			if (m_pSkySphere) {
+				m_pScenePass_CommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), TRUE, &m_dsvHeap.hCPU(0));
 
-		if (m_pSkySphere) {
-			m_pScenePassCommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), true, &m_dsvHeap.hCPU(0));
+				m_pScenePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 
-			m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+				m_pScenePass_CommandList->SetPipelineState(m_pSkyPass_PSO.Get());
 
-			m_pScenePassCommandList->SetPipelineState(m_pPipelineStateObject_SkyPass.Get());
-
-			m_pSkySphere->RenderSky(m_pScenePassCommandList);
+				m_pSkySphere->RenderSky(m_pScenePass_CommandList);
+			}
+			else {
+				m_pScenePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+			}
 		}
-		else {
-			m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
-		}
-
+		PIXEndEvent(m_pScenePass_CommandList.Get());
 	}
 
 	void Direct3D12Context::BindTransparencyPass()
 	{
-		RETURN_IF_WINDOW_NOT_VISIBLE
+		RETURN_IF_WINDOW_NOT_VISIBLE;
 
-		ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
-		m_pTransparencyPassCommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+		PIXBeginEvent(m_pTransparencyPass_CommandList.Get(), 0, "Rendering Transparency Pass");
+		{
+			ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
+			m_pTransparencyPass_CommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
-		m_pTransparencyPassCommandList->SetPipelineState(m_pPipelineStateObject_Transparency.Get());
-		m_pTransparencyPassCommandList->SetGraphicsRootSignature(m_pRootSignature_ForwardShadingPass.Get());
+			m_pTransparencyPass_CommandList->SetPipelineState(m_pTransparency_PSO.Get());
+			m_pTransparencyPass_CommandList->SetGraphicsRootSignature(m_pForwardShadingPass_RootSignature.Get());
 
-		m_pTransparencyPassCommandList->RSSetScissorRects(1, &m_ScenePassScissorRect);
-		m_pTransparencyPassCommandList->RSSetViewports(1, &m_ScenePassViewPort);
-		m_pTransparencyPassCommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), true, &m_dsvHeap.hCPU(0));
+			m_pTransparencyPass_CommandList->RSSetScissorRects(1, &m_ScenePassScissorRect);
+			m_pTransparencyPass_CommandList->RSSetViewports(1, &m_ScenePassViewPort);
+			m_pTransparencyPass_CommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), TRUE, &m_dsvHeap.hCPU(0));
 
-		m_pTransparencyPassCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		m_pTransparencyPassCommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV->GetGPUVirtualAddress());
-		m_pTransparencyPassCommandList->SetGraphicsRootConstantBufferView(2, m_LightCBV->GetGPUVirtualAddress());
+			m_pTransparencyPass_CommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			m_pTransparencyPass_CommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV->GetGPUVirtualAddress());
+			m_pTransparencyPass_CommandList->SetGraphicsRootConstantBufferView(2, m_LightCBV->GetGPUVirtualAddress());
 
-		GeometryManager::Render(eRenderPass::RenderPass_Transparency);
+			GeometryManager::Render(eRenderPass::RenderPass_Transparency);
+		}
+		PIXEndEvent(m_pTransparencyPass_CommandList.Get());
 	}
 
 	void Direct3D12Context::BindPostFxPass()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
-		
-		m_pScenePassCommandList->OMSetRenderTargets(1, &GetRenderTargetView(), true, nullptr);
 
-		m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
-		m_pScenePassCommandList->SetGraphicsRootSignature(m_pRootSignature_DeferredShadingPass.Get());
+		PIXBeginEvent(m_pPostEffectsPass_CommandList.Get(), 0, L"Rendering Post-Process Pass");
+		{
+			ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
+			m_pPostEffectsPass_CommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
-		m_pScenePassCommandList->SetPipelineState(m_pPipelineStateObject_PostFxPass.Get());
-		m_pScenePassCommandList->SetGraphicsRootDescriptorTable(16, m_cbvsrvHeap.hGPU(5));
+			m_pPostEffectsPass_CommandList->OMSetRenderTargets(1, &GetRenderTargetView(), TRUE, nullptr);
+			m_pPostEffectsPass_CommandList->RSSetScissorRects(1, &m_ScenePassScissorRect);
+			m_pPostEffectsPass_CommandList->RSSetViewports(1, &m_ScenePassViewPort);
 
-		m_ScreenQuad.OnRender(m_pScenePassCommandList);
+			m_pPostEffectsPass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
+			m_pPostEffectsPass_CommandList->SetGraphicsRootSignature(m_pDeferredShadingPass_RootSignature.Get());
+
+			m_pPostEffectsPass_CommandList->SetPipelineState(m_pPostFxPass_PSO.Get());
+			m_pPostEffectsPass_CommandList->SetGraphicsRootDescriptorTable(16, m_cbvsrvHeap.hGPU(5));
+
+			m_ScreenQuad.OnRender(m_pPostEffectsPass_CommandList);
+		}
+		PIXEndEvent(m_pPostEffectsPass_CommandList.Get());
 	}
 
 	void Direct3D12Context::ExecuteDrawImpl()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
-
+		
 		// Prepare the buffers for next frame
 		{
 			for (unsigned int i = 0; i < m_NumRTV - 1; ++i) {
-				m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
+				m_pPostEffectsPass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
 			}
-			m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+			m_pPostEffectsPass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 		}
 
 		// Prepare render target to be presented
-		m_pScenePassCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetRenderTarget(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+		m_pPostEffectsPass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetRenderTarget(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
-		ThrowIfFailed(m_pScenePassCommandList->Close(), "Failed to close command list for D3D 12 context scene pass.");
-		ThrowIfFailed(m_pShadowPassCommandList->Close(), "Failed to close the command list for D3D 12 context shadow pass.");
-		ThrowIfFailed(m_pTransparencyPassCommandList->Close(), "Failed to close the command list for D3D 12 context transparency pass.");
+		ThrowIfFailed(m_pShadowPass_CommandList->Close(), "Failed to close the command list for D3D 12 context shadow pass.");
+		ThrowIfFailed(m_pScenePass_CommandList->Close(), "Failed to close command list for D3D 12 context scene pass.");
+		ThrowIfFailed(m_pTransparencyPass_CommandList->Close(), "Failed to close the command list for D3D 12 context transparency pass.");
+		ThrowIfFailed(m_pPostEffectsPass_CommandList->Close(), "Failed to close the command list for D3D 12 context post-process pass.");
 
 		ID3D12CommandList* ppCommandLists[] = {
-			m_pShadowPassCommandList.Get(), // Execure shadow pass first because we'll need the depth textures for the light pass
-			m_pScenePassCommandList.Get(),
-			m_pTransparencyPassCommandList.Get()
+			m_pShadowPass_CommandList.Get(), // Execure shadow pass first because we'll need the depth textures for the light pass
+			m_pScenePass_CommandList.Get(),
+			m_pTransparencyPass_CommandList.Get(),
+			m_pPostEffectsPass_CommandList.Get(),
 		};
 		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
@@ -551,14 +591,13 @@ namespace Insight {
 
 	void Direct3D12Context::RenderSkySphereImpl()
 	{
-		m_SkySphere->Render(m_pScenePassCommandList);
+		m_SkySphere->Render(m_pScenePass_CommandList);
 	}
 
 	bool Direct3D12Context::CreateSkyboxImpl()
 	{
 		m_SkySphere = new ieD3D12SphereRenderer();
 		m_SkySphere->Init(10, 20, 20);
-
 		return true;
 	}
 
@@ -835,7 +874,6 @@ namespace Insight {
 	{
 		HRESULT hr = m_cbvsrvHeap.Create(m_pDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 35, true);
 		ThrowIfFailed(hr, "Failed to create CBV SRV descriptor heap");
-
 	}
 
 	void Direct3D12Context::CreateDeferredShadingRootSignature()
@@ -929,7 +967,7 @@ namespace Insight {
 		HRESULT hr = D3D12SerializeRootSignature(&RootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, RootSignatureBlob.GetAddressOf(), ErrorBlob.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to serialize root signature for D3D 12 context.");
 
-		hr = m_pDevice->CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature_DeferredShadingPass));
+		hr = m_pDevice->CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pDeferredShadingPass_RootSignature));
 		ThrowIfFailed(hr, "Failed to create root signature for D3D 12 context.");
 	}
 
@@ -1014,7 +1052,7 @@ namespace Insight {
 		HRESULT hr = D3D12SerializeRootSignature(&RootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, RootSignatureBlob.GetAddressOf(), ErrorBlob.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to serialize root signature for D3D 12 context.");
 
-		hr = m_pDevice->CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature_ForwardShadingPass));
+		hr = m_pDevice->CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pForwardShadingPass_RootSignature));
 		ThrowIfFailed(hr, "Failed to create root signature for D3D 12 context.");
 	}
 
@@ -1071,7 +1109,7 @@ namespace Insight {
 		PsoDesc.PS = PixelShaderBytecode;
 		PsoDesc.InputLayout.pInputElementDescs = InputLayout;
 		PsoDesc.InputLayout.NumElements = _countof(InputLayout);
-		PsoDesc.pRootSignature = m_pRootSignature_DeferredShadingPass.Get();
+		PsoDesc.pRootSignature = m_pDeferredShadingPass_RootSignature.Get();
 		PsoDesc.DepthStencilState = ShadowDepthStencilDesc;
 		PsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		PsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
@@ -1082,9 +1120,9 @@ namespace Insight {
 		PsoDesc.NumRenderTargets = 0;
 		PsoDesc.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
 
-		hr = m_pDevice->CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pPipelineStateObject_ShadowPass));
+		hr = m_pDevice->CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pShadowPass_PSO));
 		ThrowIfFailed(hr, "Failed to create graphics pipeline state for shadow pass in D3D 12 context.");
-		m_pPipelineStateObject_ShadowPass->SetName(L"PSO Shadow Pass");
+		m_pShadowPass_PSO->SetName(L"PSO Shadow Pass");
 	}
 
 	void Direct3D12Context::CreateGeometryPassPSO()
@@ -1134,7 +1172,7 @@ namespace Insight {
 		PsoDesc.PS = pixelShaderBytecode;
 		PsoDesc.InputLayout.pInputElementDescs = inputLayout;
 		PsoDesc.InputLayout.NumElements = _countof(inputLayout);
-		PsoDesc.pRootSignature = m_pRootSignature_DeferredShadingPass.Get();
+		PsoDesc.pRootSignature = m_pDeferredShadingPass_RootSignature.Get();
 		PsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 		PsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		PsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
@@ -1148,9 +1186,9 @@ namespace Insight {
 		PsoDesc.DSVFormat = m_DsvFormat;
 		PsoDesc.SampleDesc.Count = 1;
 
-		hr = m_pDevice->CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pPipelineStateObject_GeometryPass));
+		hr = m_pDevice->CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pGeometryPass_PSO));
 		ThrowIfFailed(hr, "Failed to create graphics pipeline state for geometry pass.");
-		m_pPipelineStateObject_GeometryPass->SetName(L"PSO Geometry Pass");
+		m_pGeometryPass_PSO->SetName(L"PSO Geometry Pass");
 	}
 
 	void Direct3D12Context::CreateSkyPassPSO()
@@ -1207,7 +1245,7 @@ namespace Insight {
 		pipelineDesc.PS = pixelShaderBytecode;
 		pipelineDesc.InputLayout.pInputElementDescs = inputLayout;
 		pipelineDesc.InputLayout.NumElements = _countof(inputLayout);
-		pipelineDesc.pRootSignature = m_pRootSignature_DeferredShadingPass.Get();
+		pipelineDesc.pRootSignature = m_pDeferredShadingPass_RootSignature.Get();
 		pipelineDesc.DepthStencilState = depthStencilStateDesc;
 		pipelineDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		pipelineDesc.RasterizerState = rasterizerStateDesc;
@@ -1219,9 +1257,9 @@ namespace Insight {
 		pipelineDesc.DSVFormat = m_DsvFormat;
 
 
-		hr = m_pDevice->CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&m_pPipelineStateObject_SkyPass));
+		hr = m_pDevice->CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&m_pSkyPass_PSO));
 		ThrowIfFailed(hr, "Failed to create skybox pipeline state object for .");
-		m_pPipelineStateObject_SkyPass->SetName(L"PSO Sky Pass");
+		m_pSkyPass_PSO->SetName(L"PSO Sky Pass");
 	}
 
 	void Direct3D12Context::CreateTransparencyPassPSO()
@@ -1276,7 +1314,7 @@ namespace Insight {
 		PsoDesc.PS = PixelShaderBytecode;
 		PsoDesc.InputLayout.pInputElementDescs = inputLayout;
 		PsoDesc.InputLayout.NumElements = _countof(inputLayout);
-		PsoDesc.pRootSignature = m_pRootSignature_ForwardShadingPass.Get();
+		PsoDesc.pRootSignature = m_pForwardShadingPass_RootSignature.Get();
 		PsoDesc.DepthStencilState = DepthStencilStateDesc;
 		PsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		PsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
@@ -1287,11 +1325,9 @@ namespace Insight {
 		PsoDesc.DSVFormat = m_DsvFormat;
 		PsoDesc.SampleDesc.Count = 1;
 
-		hr = m_pDevice->CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pPipelineStateObject_Transparency));
-		ThrowIfFailed(hr, "Failed to create graphics pipeline state for geometry pass.");
-		m_pPipelineStateObject_Transparency->SetName(L"PSO Geometry Pass");
-
-
+		hr = m_pDevice->CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pTransparency_PSO));
+		ThrowIfFailed(hr, "Failed to create graphics pipeline state for transparency pass.");
+		m_pTransparency_PSO->SetName(L"PSO Transparency Pass");
 	}
 
 	void Direct3D12Context::CreateLightPassPSO()
@@ -1338,7 +1374,7 @@ namespace Insight {
 		descPipelineState.PS = pixelShaderBytecode;
 		descPipelineState.InputLayout.pInputElementDescs = inputLayout;
 		descPipelineState.InputLayout.NumElements = _countof(inputLayout);
-		descPipelineState.pRootSignature = m_pRootSignature_DeferredShadingPass.Get();
+		descPipelineState.pRootSignature = m_pDeferredShadingPass_RootSignature.Get();
 		descPipelineState.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 		descPipelineState.DepthStencilState.DepthEnable = false;
 		descPipelineState.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
@@ -1350,12 +1386,12 @@ namespace Insight {
 		descPipelineState.RTVFormats[0] = m_RtvFormat[0];
 		descPipelineState.SampleDesc.Count = 1;
 
-		hr = m_pDevice->CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pPipelineStateObject_LightingPass));
+		hr = m_pDevice->CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pLightingPass_PSO));
 		ThrowIfFailed(hr, "Failed to create graphics pipeline state for lighting pass.");
-		m_pPipelineStateObject_LightingPass->SetName(L"PSO Light Pass");
+		m_pLightingPass_PSO->SetName(L"PSO Light Pass");
 	}
 
-	void Direct3D12Context::CreatePostFxPassPSO()
+	void Direct3D12Context::CreatePostEffectsPassPSO()
 	{
 		HRESULT hr;
 
@@ -1399,7 +1435,7 @@ namespace Insight {
 		descPipelineState.PS = pixelShaderBytecode;
 		descPipelineState.InputLayout.pInputElementDescs = inputLayout;
 		descPipelineState.InputLayout.NumElements = _countof(inputLayout);
-		descPipelineState.pRootSignature = m_pRootSignature_DeferredShadingPass.Get();
+		descPipelineState.pRootSignature = m_pDeferredShadingPass_RootSignature.Get();
 		descPipelineState.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 		descPipelineState.DepthStencilState.DepthEnable = false;
 		descPipelineState.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
@@ -1411,9 +1447,9 @@ namespace Insight {
 		descPipelineState.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 		descPipelineState.SampleDesc.Count = 1;
 
-		hr = m_pDevice->CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pPipelineStateObject_PostFxPass));
+		hr = m_pDevice->CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pPostFxPass_PSO));
 		ThrowIfFailed(hr, "Failed to create graphics pipeline state for Post-Fx pass in D3D 12 context.");
-		m_pPipelineStateObject_PostFxPass->SetName(L"PSO PostFx Pass");
+		m_pPostFxPass_PSO->SetName(L"PSO PostFx Pass");
 	}
 
 	void Direct3D12Context::CreateCommandAllocators()
@@ -1424,63 +1460,76 @@ namespace Insight {
 		{
 			for (int i = 0; i < m_FrameBufferCount; i++)
 			{
-				hr = m_pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pScenePassCommandAllocators[i]));
-				m_pScenePassCommandAllocators[i]->SetName(L"Scene Pass Command Allocator");
+				hr = m_pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pScenePass_CommandAllocators[i]));
 				ThrowIfFailed(hr, "Failed to Scene Pass Create Command Allocator for D3D 12 context");
+				m_pScenePass_CommandAllocators[i]->SetName(L"Scene Pass Command Allocator");
 			}
 
-			hr = m_pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pScenePassCommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pScenePassCommandList));
-			m_pScenePassCommandList->SetName(L"Scene Pass Command List");
+			hr = m_pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pScenePass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pScenePass_CommandList));
 			ThrowIfFailed(hr, "Failed to Scene Pass Create Command List for D3D 12 context");
+			m_pScenePass_CommandList->SetName(L"Scene Pass Command List");
+
+			// Dont close the Scene Pass command list yet. 
+			// We'll use it for application initialization.
 		}
 
 		// Shadow Pass
 		{
 			for (int i = 0; i < m_FrameBufferCount; i++)
 			{
-				hr = m_pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pShadowPassCommandAllocators[i]));
-				m_pShadowPassCommandAllocators[i]->SetName(L"Graphics Command Allocator");
+				hr = m_pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pShadowPass_CommandAllocators[i]));
 				ThrowIfFailed(hr, "Failed to Create Command Allocator for D3D 12 context");
+				m_pShadowPass_CommandAllocators[i]->SetName(L"Shadow Pass Command Allocator");
 			}
 
-			hr = m_pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pShadowPassCommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pShadowPassCommandList));
-			m_pShadowPassCommandList->SetName(L"Shadow Pass Command List");
+			hr = m_pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pShadowPass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pShadowPass_CommandList));
 			ThrowIfFailed(hr, "Failed to Create Shadow Pass Command List for D3D 12 context");
+			m_pShadowPass_CommandList->SetName(L"Shadow Pass Command List");
 
-			m_pShadowPassCommandList->Close();
-			ID3D12CommandList* ppCommandLists[] = { m_pShadowPassCommandList.Get() };
-			m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-			m_FenceValues[m_FrameIndex]++;
-			HRESULT hr = m_pCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]);
-			if (FAILED(hr)) {
-				IE_CORE_WARN("Command queue failed to signal.");
-			}
-			WaitForGPU();
+			m_pShadowPass_CommandList->Close();
 		}
 
 		// Transprency Pass
 		{
 			for (int i = 0; i < m_FrameBufferCount; i++)
 			{
-				hr = m_pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pTransparencyPassCommandAllocators[i]));
-				m_pTransparencyPassCommandAllocators[i]->SetName(L"Graphics Command Allocator");
+				hr = m_pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pTransparencyPass_CommandAllocators[i]));
 				ThrowIfFailed(hr, "Failed to Create Command Allocator for D3D 12 context");
+				m_pTransparencyPass_CommandAllocators[i]->SetName(L"Transparency Pass Command Allocator");
 			}
 
-			hr = m_pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pTransparencyPassCommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pTransparencyPassCommandList));
-			m_pTransparencyPassCommandList->SetName(L"Shadow Pass Command List");
-			ThrowIfFailed(hr, "Failed to Create Shadow Pass Command List for D3D 12 context");
+			hr = m_pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pTransparencyPass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pTransparencyPass_CommandList));
+			ThrowIfFailed(hr, "Failed to Create Transparency Pass Command List for D3D 12 context");
+			m_pTransparencyPass_CommandList->SetName(L"Transparency Pass Command List");
 
-			m_pTransparencyPassCommandList->Close();
-			ID3D12CommandList* ppCommandLists[] = { m_pTransparencyPassCommandList.Get() };
-			m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-			m_FenceValues[m_FrameIndex]++;
-			HRESULT hr = m_pCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]);
-			if (FAILED(hr)) {
-				IE_CORE_WARN("Command queue failed to signal.");
-			}
-			WaitForGPU();
+			m_pTransparencyPass_CommandList->Close();
 		}
+		
+		// Post-Process Pass
+		{
+			for (int i = 0; i < m_FrameBufferCount; i++)
+			{
+				hr = m_pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pPostEffectsPass_CommandAllocators[i]));
+				ThrowIfFailed(hr, "Failed to Create Command Allocator for D3D 12 context");
+				m_pPostEffectsPass_CommandAllocators[i]->SetName(L"Post-Process Pass Command Allocator");
+			}
+
+			hr = m_pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pPostEffectsPass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pPostEffectsPass_CommandList));
+			ThrowIfFailed(hr, "Failed to Create Post-Process Pass Command List for D3D 12 context");
+			m_pPostEffectsPass_CommandList->SetName(L"Post-Process Pass Command List");
+
+			m_pPostEffectsPass_CommandList->Close();
+		}
+
+		ID3D12CommandList* ppCommandLists[] = {
+			m_pShadowPass_CommandList.Get(),
+			m_pTransparencyPass_CommandList.Get(),
+			m_pPostEffectsPass_CommandList.Get(),
+		};
+		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+		m_FenceValues[m_FrameIndex]++;
+		ThrowIfFailed(m_pCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]), "Failed to signal command queue for command list initialization for D3D 12 context.");
+		WaitForGPU();
 	}
 
 	void Direct3D12Context::CreateFenceEvent()
@@ -1625,8 +1674,8 @@ namespace Insight {
 
 	void Direct3D12Context::CloseCommandListAndSignalCommandQueue()
 	{
-		m_pScenePassCommandList->Close();
-		ID3D12CommandList* ppCommandLists[] = { m_pScenePassCommandList.Get() };
+		m_pScenePass_CommandList->Close();
+		ID3D12CommandList* ppCommandLists[] = { m_pScenePass_CommandList.Get() };
 		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
 		m_FenceValues[m_FrameIndex]++;
