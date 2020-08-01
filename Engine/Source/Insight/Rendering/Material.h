@@ -34,7 +34,7 @@ namespace Insight {
 
 		void OnImGuiRender();
 		
-		void BindResources();
+		void BindResources(bool IsDeferredPass);
 
 	private:
 		eMaterialType m_MaterialType = eMaterialType::eMaterialType_Invalid;

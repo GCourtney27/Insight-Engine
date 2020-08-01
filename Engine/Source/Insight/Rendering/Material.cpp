@@ -52,25 +52,25 @@ namespace Insight {
 		pMaterial->m_MaterialType = eMaterialType::eMaterialType_Opaque;
 
 		TextureManager& TextureManager = ResourceManager::Get().GetTextureManager();
-		
-		pMaterial->m_AlbedoMap		= TextureManager.GetDefaultAlbedoTexture();
-		pMaterial->m_NormalMap		= TextureManager.GetDefaultNormalTexture();
-		pMaterial->m_MetallicMap	= TextureManager.GetDefaultMetallicTexture();
-		pMaterial->m_RoughnessMap	= TextureManager.GetDefaultRoughnessTexture();
-		pMaterial->m_AOMap			= TextureManager.GetDefaultAOTexture();
-		
-		pMaterial->m_AlbedoTextureManagerID		= pMaterial->m_AlbedoMap->GetTextureInfo().Id;
-		pMaterial->m_NormalTextureManagerID		= pMaterial->m_NormalMap->GetTextureInfo().Id;
-		pMaterial->m_MetallicTextureManagerID	= pMaterial->m_MetallicMap->GetTextureInfo().Id;
-		pMaterial->m_RoughnessTextureManagerID	= pMaterial->m_RoughnessMap->GetTextureInfo().Id;
-		pMaterial->m_AoTextureManagerID			= pMaterial->m_AOMap->GetTextureInfo().Id;
 
-		pMaterial->m_ShaderCB.diffuseAdditive	= ieVector3(0.0f, 0.0f, 0.0f);
-		pMaterial->m_ShaderCB.metallicAdditive	= 0.0f;
+		pMaterial->m_AlbedoMap = TextureManager.GetDefaultAlbedoTexture();
+		pMaterial->m_NormalMap = TextureManager.GetDefaultNormalTexture();
+		pMaterial->m_MetallicMap = TextureManager.GetDefaultMetallicTexture();
+		pMaterial->m_RoughnessMap = TextureManager.GetDefaultRoughnessTexture();
+		pMaterial->m_AOMap = TextureManager.GetDefaultAOTexture();
+
+		pMaterial->m_AlbedoTextureManagerID = pMaterial->m_AlbedoMap->GetTextureInfo().Id;
+		pMaterial->m_NormalTextureManagerID = pMaterial->m_NormalMap->GetTextureInfo().Id;
+		pMaterial->m_MetallicTextureManagerID = pMaterial->m_MetallicMap->GetTextureInfo().Id;
+		pMaterial->m_RoughnessTextureManagerID = pMaterial->m_RoughnessMap->GetTextureInfo().Id;
+		pMaterial->m_AoTextureManagerID = pMaterial->m_AOMap->GetTextureInfo().Id;
+
+		pMaterial->m_ShaderCB.diffuseAdditive = ieVector3(0.0f, 0.0f, 0.0f);
+		pMaterial->m_ShaderCB.metallicAdditive = 0.0f;
 		pMaterial->m_ShaderCB.roughnessAdditive = 0.0f;
-		pMaterial->m_ShaderCB.tiling			= ieVector2(1.0f, 1.0f);
-		pMaterial->m_ShaderCB.uvOffset			= ieVector2(0.0f, 0.0f);
-		
+		pMaterial->m_ShaderCB.tiling = ieVector2(1.0f, 1.0f);
+		pMaterial->m_ShaderCB.uvOffset = ieVector2(0.0f, 0.0f);
+
 		return pMaterial;
 	}
 
@@ -102,15 +102,15 @@ namespace Insight {
 			json::get_int(JsonMaterial, "AlbedoMapID", m_AlbedoTextureManagerID);
 			json::get_int(JsonMaterial, "NormalMapID", m_NormalTextureManagerID);
 			json::get_int(JsonMaterial, "RoughnessMapID", m_RoughnessTextureManagerID);
-			json::get_int(JsonMaterial, "OpacityMapID", m_RoughnessTextureManagerID);
-			json::get_int(JsonMaterial, "TranslucencyMapID", m_RoughnessTextureManagerID);
+			json::get_int(JsonMaterial, "OpacityMapID", m_OpacityTextureManagerID);
+			json::get_int(JsonMaterial, "TranslucencyMapID", m_TranslucencyTextureManagerID);
 
 			TextureManager& textureManager = ResourceManager::Get().GetTextureManager();
 			m_AlbedoMap = textureManager.GetTextureByID(m_AlbedoTextureManagerID, Texture::eTextureType::eTextureType_Albedo);
 			m_NormalMap = textureManager.GetTextureByID(m_NormalTextureManagerID, Texture::eTextureType::eTextureType_Normal);
 			m_RoughnessMap = textureManager.GetTextureByID(m_RoughnessTextureManagerID, Texture::eTextureType::eTextureType_Roughness);
-			m_OpacityMap = textureManager.GetTextureByID(m_AoTextureManagerID, Texture::eTextureType::eTextureType_Opacity);
-			m_TranslucencyMap = textureManager.GetTextureByID(m_AoTextureManagerID, Texture::eTextureType::eTextureType_Translucency);
+			m_OpacityMap = textureManager.GetTextureByID(m_OpacityTextureManagerID, Texture::eTextureType::eTextureType_Opacity);
+			m_TranslucencyMap = textureManager.GetTextureByID(m_TranslucencyTextureManagerID, Texture::eTextureType::eTextureType_Translucency);
 		}
 
 		json::get_float(jsonUVOffset[0], "x", m_ShaderCB.uvOffset.x);
@@ -245,28 +245,60 @@ namespace Insight {
 
 	}
 
-	void Material::BindResources()
+	void Material::BindResources(bool IsDeferredPass)
 	{
-		if(m_AlbedoMap.get())
-			m_AlbedoMap->Bind();
-		
-		if(m_NormalMap.get())
-			m_NormalMap->Bind();
-		
-		if(m_MetallicMap.get())
-			m_MetallicMap->Bind();
-		
-		if(m_RoughnessMap.get())
-			m_RoughnessMap->Bind();
-		
-		if(m_AOMap.get())
-			m_AOMap->Bind();
+		if (m_AlbedoMap.get()) {
+			if (IsDeferredPass) {
+				m_AlbedoMap->BindForDeferredPass();
+			}
+			else {
+				m_AlbedoMap->BindForForwardPass();
+			}
+		}
 
-		if (m_OpacityMap.get())
-			m_OpacityMap->Bind();
+		if (m_NormalMap.get()) {
+			if (IsDeferredPass) {
+				m_NormalMap->BindForDeferredPass();
+			}
+			else {
+				m_NormalMap->BindForForwardPass();
+			}
+		}
 
-		if (m_TranslucencyMap.get())
-			m_TranslucencyMap->Bind();
+		if (m_MetallicMap.get()) {
+			if (IsDeferredPass) {
+				m_MetallicMap->BindForDeferredPass();
+			}
+			else {
+				m_MetallicMap->BindForForwardPass();
+			}
+		}
+
+		if (m_RoughnessMap.get()) {
+			if (IsDeferredPass) {
+				m_RoughnessMap->BindForDeferredPass();
+			}
+			else {
+				m_RoughnessMap->BindForForwardPass();
+			}
+		}
+
+		if (m_AOMap.get()) {
+			if (IsDeferredPass) {
+				m_AOMap->BindForDeferredPass();
+			}
+			else {
+				m_AOMap->BindForForwardPass();
+			}
+		}
+
+		if (m_OpacityMap.get()) {
+			m_OpacityMap->BindForForwardPass();
+		}
+
+		if (m_TranslucencyMap.get()) {
+			m_TranslucencyMap->BindForForwardPass();
+		}
 	}
 
 }

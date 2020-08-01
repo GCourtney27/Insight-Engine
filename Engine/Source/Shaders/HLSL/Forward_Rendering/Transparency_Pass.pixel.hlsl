@@ -3,16 +3,14 @@
 Texture2D t_Albedo      : register(t0);
 Texture2D t_Normal      : register(t1);
 Texture2D t_Roughness   : register(t2);
-Texture2D t_Metallic   : register(t3);
-Texture2D t_AO          : register(t4);
-Texture2D t_Opacity     : register(t5);
-Texture2D t_Translucency     : register(t6);
+Texture2D t_Opacity     : register(t3);
+Texture2D t_Translucency     : register(t4);
 
-Texture2D t_ShadowDepth         : register(t7);
+Texture2D t_ShadowDepth         : register(t5);
 
-TextureCube tc_IrradianceMap : register(t8);
-TextureCube tc_EnvironmentMap : register(t9);
-Texture2D t_BrdfLUT : register(t10);
+TextureCube tc_IrradianceMap : register(t6);
+TextureCube tc_EnvironmentMap : register(t7);
+Texture2D t_BrdfLUT : register(t8);
 
 // Samplers
 // --------
@@ -50,12 +48,15 @@ PS_OUT main(PS_INPUT ps_in)
     PS_OUT ps_out;
 
     //// Sample Textures
-    //float3 albedo = pow(abs(t_Albedo.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb), float3(2.2, 2.2, 2.2));
-    //float3 normal = t_Normal.Sample(s_LinearWrapSampler, ps_in.texCoords).xyz;
-    //float roughness = t_Roughness.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
-    //float metallic = t_Metallic.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
-    //float ambientOcclusion = t_AO.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
-    //float opacity = t_Opacity.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
+    float3 albedo = pow(abs(t_Albedo.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb), float3(2.2, 2.2, 2.2));
+    float3 normal = t_Normal.Sample(s_LinearWrapSampler, ps_in.texCoords).xyz;
+    float roughness = t_Roughness.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
+    float opacity = t_Opacity.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
+    float3 translucency = t_Translucency.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
+    
+    ps_out.LitImage = translucency;
+    
+    return ps_out;
     
     //float3 viewDirection = normalize(cameraPosition - ps_in.FragPos);
         
@@ -114,9 +115,7 @@ PS_OUT main(PS_INPUT ps_in)
     //GammaCorrect(pixelColor);
     
     //ps_out.LitImage.rgb = pixelColor;
-    ps_out.LitImage.rgb = float3(1.0f, 0.0f, 0.0f);
-    
-    return ps_out;
+   
 }
 
 void HDRToneMap(inout float3 target)

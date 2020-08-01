@@ -69,7 +69,7 @@ namespace Insight {
 					m_pDeviceContext->PSSetConstantBuffers(4, 1, m_pIntermediatematOverridesCB.GetAddressOf());
 
 
-					s_Instance->m_OpaqueModels[i]->BindResources();
+					s_Instance->m_OpaqueModels[i]->BindResources(true);
 					s_Instance->m_OpaqueModels[i]->GetMeshAtIndex(j)->Render();
 				}
 			}

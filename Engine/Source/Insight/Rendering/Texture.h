@@ -49,7 +49,8 @@ namespace Insight {
 		// Destroy and release texture resources.
 		virtual void Destroy() = 0;
 		// Binds the texture to the pipeline to be drawn in the scene pass.
-		virtual void Bind() = 0;
+		virtual void BindForDeferredPass() = 0;
+		virtual void BindForForwardPass() = 0;
 		
 		// Get the general information about this texture.
 		inline const IE_TEXTURE_INFO& GetTextureInfo() const { return m_TextureInfo; }

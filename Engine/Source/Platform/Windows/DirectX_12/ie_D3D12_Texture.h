@@ -18,8 +18,10 @@ namespace Insight {
 
 		// Destroy and release texture resources.
 		virtual void Destroy() override;
-		// Binds the texture to the pipeline to be drawn in the scene pass.
-		virtual void Bind() override;
+		// Binds the texture to the pipeline to be used in the deferred render pass.
+		virtual void BindForDeferredPass() override;
+		// Binds the texture to the pipeline to be used in the forward render pass.
+		virtual void BindForForwardPass() override;
 
 		// Get the heap handle associated with the CBV/SRV heap bound to the pipeline.
 		inline const SRVHeapTextureHandle GetSrvHeapHandle() { return m_GPUHeapIndex; }
@@ -45,7 +47,8 @@ namespace Insight {
 		// This should only be called once during initialization of the texture.
 		UINT GetRootParameterIndexForTextureType(eTextureType TextureType);
 	private:
-		ID3D12GraphicsCommandList* m_pCommandList = nullptr;
+		ID3D12GraphicsCommandList* m_pScenePass_CommandList = nullptr;
+		ID3D12GraphicsCommandList* m_pTranslucencyPass_CommandList = nullptr;
 		CDescriptorHeapWrapper* m_pCbvSrvHeapStart;
 
 		ComPtr<ID3D12Resource>		m_pTexture;

@@ -74,9 +74,9 @@ namespace Insight {
 		}
 	}
 
-	void Model::BindResources()
+	void Model::BindResources(bool IsDeferredPass)
 	{
-		m_pMaterial->BindResources();
+		m_pMaterial->BindResources(IsDeferredPass);
 	}
 
 	void Model::CalculateParent(const XMMATRIX& parentMat)

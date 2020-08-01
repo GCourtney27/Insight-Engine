@@ -151,7 +151,7 @@ namespace Insight {
 
 	void ASkySphere::RenderSky(ComPtr<ID3D12GraphicsCommandList> commandList)
 	{
-		m_Diffuse->Bind();
+		m_Diffuse->BindForDeferredPass();
 		Renderer::RenderSkySphere();
 	}
 

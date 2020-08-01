@@ -73,7 +73,7 @@ namespace Insight {
 						// Set Per-Object Material Override CBV
 						m_pScenePassCommandList->SetGraphicsRootConstantBufferView(4, m_CbvMaterialHeapHandle + (ConstantBufferPerObjectMaterialAlignedSize * m_PerObjectCBDrawOffset));
 
-						m_OpaqueModels[i]->BindResources();
+						m_OpaqueModels[i]->BindResources(true);
 						m_OpaqueModels[i]->GetMeshAtIndex(j)->Render();
 
 						m_PerObjectCBDrawOffset++;
@@ -96,7 +96,7 @@ namespace Insight {
 						// Set Per-Object Material Override CBV
 						m_pTransparencyPassCommandList->SetGraphicsRootConstantBufferView(3, m_CbvMaterialHeapHandle + (ConstantBufferPerObjectMaterialAlignedSize * m_PerObjectCBDrawOffset));
 
-						m_TranslucentModels[i]->BindResources();
+						m_TranslucentModels[i]->BindResources(false);
 						m_TranslucentModels[i]->GetMeshAtIndex(j)->Render();
 
 						m_PerObjectCBDrawOffset++;

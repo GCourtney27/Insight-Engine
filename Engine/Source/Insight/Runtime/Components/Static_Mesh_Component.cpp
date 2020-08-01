@@ -59,9 +59,6 @@ namespace Insight {
 		json::get_float(MeshTransform[0], "scaZ", scaZ);
 		m_pModel->GetMeshRootTransformRef().SetScale(ieVector3(scaX, scaY, scaZ));
 
-		
-
-
 		return true;
 	}
 

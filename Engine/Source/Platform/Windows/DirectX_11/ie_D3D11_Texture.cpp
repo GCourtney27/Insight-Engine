@@ -25,9 +25,13 @@ namespace Insight {
 	{
 	}
 
-	void ieD3D11Texture::Bind()
+	void ieD3D11Texture::BindForDeferredPass()
 	{
 		m_pDeviceContext->PSSetShaderResources(m_ShaderRegister, 1, m_pTextureView.GetAddressOf());
+	}
+
+	void ieD3D11Texture::BindForForwardPass()
+	{
 	}
 
 	bool ieD3D11Texture::Init()

@@ -203,9 +203,9 @@ namespace Insight {
 
 	void ASkyLight::BindCubeMaps()
 	{
-		m_Environment->Bind();
-		m_Irradiance->Bind();
-		m_BrdfLUT->Bind();
+		m_Environment->BindForDeferredPass();
+		m_Irradiance->BindForDeferredPass();
+		m_BrdfLUT->BindForDeferredPass();
 	}
 
 }

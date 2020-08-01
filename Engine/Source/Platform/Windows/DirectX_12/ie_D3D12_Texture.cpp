@@ -10,7 +10,7 @@
 #include "DirectX12/TK/Inc/ResourceUploadBatch.h"
 
 #define CBVSRV_HEAP_TEXTURE_START_SLOT 7		// Keep this in sync with Direct3D12Context::m_cbvsrvHeap
-#define OBJECT_TEXTURE_ROOT_PARAM_INDEX_START 6 // Keep this in sync with deferred shading pass root root signature
+#define OBJECT_TEXTURE_ROOT_PARAM_INDEX_START 6 // Keep this in sync with deferred shading pass root signature
 
 
 namespace Insight {
@@ -31,12 +31,23 @@ namespace Insight {
 	void ieD3D12Texture::Destroy()
 	{
 		COM_SAFE_RELEASE(m_pTexture);
-		m_pCommandList = nullptr;
+		m_pScenePass_CommandList = nullptr;
+		m_pTranslucencyPass_CommandList = nullptr;
 	}
 
-	void ieD3D12Texture::Bind()
+	void ieD3D12Texture::BindForDeferredPass()
 	{
-		m_pCommandList->SetGraphicsRootDescriptorTable(m_RootParamIndex, m_pCbvSrvHeapStart->hGPU(CBVSRV_HEAP_TEXTURE_START_SLOT + m_GPUHeapIndex));
+		m_pScenePass_CommandList->SetGraphicsRootDescriptorTable(m_RootParamIndex, m_pCbvSrvHeapStart->hGPU(CBVSRV_HEAP_TEXTURE_START_SLOT + m_GPUHeapIndex));
+	}
+
+	void ieD3D12Texture::BindForForwardPass()
+	{
+		if (m_TextureInfo.Type < eTextureType::eTextureType_Opacity) {
+			m_pTranslucencyPass_CommandList->SetGraphicsRootDescriptorTable(m_RootParamIndex - 2, m_pCbvSrvHeapStart->hGPU(CBVSRV_HEAP_TEXTURE_START_SLOT + m_GPUHeapIndex));
+		}
+		else {
+			m_pTranslucencyPass_CommandList->SetGraphicsRootDescriptorTable(m_RootParamIndex, m_pCbvSrvHeapStart->hGPU(CBVSRV_HEAP_TEXTURE_START_SLOT + m_GPUHeapIndex));
+		}
 	}
 
 	bool ieD3D12Texture::Init(IE_TEXTURE_INFO createInfo, CDescriptorHeapWrapper& srvHeapHandle)
@@ -45,7 +56,8 @@ namespace Insight {
 		std::string Filepath = StringHelper::WideToString(createInfo.Filepath);
 
 		m_pCbvSrvHeapStart = &GraphicsContext->GetCBVSRVDescriptorHeap();
-		m_pCommandList = &GraphicsContext->GetScenePassCommandList();
+		m_pScenePass_CommandList = &GraphicsContext->GetScenePassCommandList();
+		m_pTranslucencyPass_CommandList = &GraphicsContext->GetTransparencyPassCommandList();
 		m_TextureInfo = createInfo;
 		m_TextureInfo.DisplayName = StringHelper::GetFilenameFromDirectory(Filepath);
 
@@ -181,6 +193,16 @@ namespace Insight {
 		case eTextureType::eTextureType_SkyDiffuse:
 		{
 			return OBJECT_TEXTURE_ROOT_PARAM_INDEX_START + 9;
+			break;
+		}
+		case eTextureType::eTextureType_Opacity:
+		{
+			return 7;
+			break;
+		}
+		case eTextureType::eTextureType_Translucency:
+		{
+			return 8;
 			break;
 		}
 		default:

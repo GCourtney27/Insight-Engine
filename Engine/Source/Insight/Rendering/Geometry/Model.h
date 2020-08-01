@@ -24,7 +24,7 @@ namespace Insight {
 		bool Create(const std::string& path, Material* pMaterial);
 		void OnImGuiRender();
 		void RenderSceneHeirarchy();
-		void BindResources();
+		void BindResources(bool IsDeferredPass);
 
 		ieTransform& GetMeshRootTransformRef() { return m_pRoot->GetTransformRef(); }
 
