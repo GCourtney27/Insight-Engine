@@ -46,7 +46,7 @@ float3 CalculatePointLight(PointLight light, float3 normal, float3 fragPosition,
 PS_OUT main(PS_INPUT ps_in)
 {
     PS_OUT ps_out;
-
+    
     //// Sample Textures
     float3 albedo = pow(abs(t_Albedo.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb), float3(2.2, 2.2, 2.2)) + diffuseAdditive;
     float3 normal = t_Normal.Sample(s_LinearWrapSampler, ps_in.texCoords).xyz;

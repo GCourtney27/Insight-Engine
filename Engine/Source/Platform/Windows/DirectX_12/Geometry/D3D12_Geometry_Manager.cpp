@@ -83,8 +83,6 @@ namespace Insight {
 		}
 		else if (RenderPass == eRenderPass::RenderPass_Transparency) {
 
-			// TODO Sort Transparent objects
-
 			for (UINT32 i = 0; i < m_TranslucentModels.size(); ++i) {
 
 				if (m_TranslucentModels[i]->GetCanBeRendered()) {

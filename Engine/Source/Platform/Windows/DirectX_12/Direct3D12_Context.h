@@ -11,7 +11,6 @@
 
 /*
 	Render context for Windows DirectX 12 API. Currently Deferred shading is the only pipeline supported.
-	TODO: Add Transparency forward pass.
 	TODO: Add forward rendering as optional shading technique
 */
 
