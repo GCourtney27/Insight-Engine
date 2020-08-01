@@ -50,72 +50,70 @@ PS_OUT main(PS_INPUT ps_in)
     //// Sample Textures
     float3 albedo = pow(abs(t_Albedo.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb), float3(2.2, 2.2, 2.2));
     float3 normal = t_Normal.Sample(s_LinearWrapSampler, ps_in.texCoords).xyz;
-    float roughness = t_Roughness.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
+    float roughnessInput = t_Roughness.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
     float opacity = t_Opacity.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
     float3 translucency = t_Translucency.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
+    float roughness = roughnessInput + roughnessAdditive;
     
-    ps_out.LitImage = float4(albedo, opacity);
+    float3 viewDirection = normalize(cameraPosition - ps_in.FragPos);
+        
+    float3 F0 = float3(0.04, 0.04, 0.04);
+    float3 baseReflectivity = lerp(F0, albedo, 0.0);
+    float NdotV = max(dot(normal, viewDirection), 0.0000001);
+    
+    float3 spotLightLuminance = float3(0.0, 0.0, 0.0);
+    float3 pointLightLuminance = float3(0.0, 0.0, 0.0);
+    float3 directionalLightLuminance = float3(0.0, 0.0, 0.0);
+    
+    // Calculate Light Radiance
+    // Directional Lights
+    for (int d = 0; d < numDirectionalLights; d++)
+    {
+        float3 lightDir = normalize(-dirLights[d].direction);
+        
+        // Shadowing
+        float4 fragPosLightSpace = mul(float4(ps_in.FragPos, 1.0), mul(dirLights[d].lightSpaceView, dirLights[d].lightSpaceProj));
+        float shadow = ShadowCalculation(fragPosLightSpace, normal, lightDir);
+        
+        directionalLightLuminance += CaclualteDirectionalLight(dirLights[d], viewDirection, normal, ps_in.FragPos, NdotV, albedo, roughness, metallicAdditive, baseReflectivity) * (1.0 - shadow);
+    }
+    
+    // Spot Lights
+    for (int s = 0; s < numPointLights; s++)
+    {
+        spotLightLuminance += CalculateSpotLight(spotLights[s], viewDirection, NdotV, ps_in.FragPos, normal, albedo, roughness, metallicAdditive, baseReflectivity);
+    }
+    
+    // Point Lights
+    for (int p = 0; p < numPointLights; p++)
+    {
+        pointLightLuminance += CalculatePointLight(pointLights[p], ps_in.FragPos, viewDirection, NdotV, normal, albedo, metallicAdditive, roughness, baseReflectivity);;
+    }
+    
+    // IBL
+    // Irradiance
+    float3 F_IBL = FresnelSchlickRoughness(NdotV, baseReflectivity, roughness);
+    float3 kD_IBL = (1.0f - F_IBL) * (1.0f - metallicAdditive);
+    float3 diffuse_IBL = tc_IrradianceMap.Sample(s_LinearWrapSampler, normal).rgb * albedo * kD_IBL;
+
+    // Specular IBL
+    const float MAX_REFLECTION_MIP_LOD = 10.0f;
+    float3 environmentMapColor = tc_EnvironmentMap.SampleLevel(s_LinearWrapSampler, reflect(-viewDirection, normal), roughness * MAX_REFLECTION_MIP_LOD).rgb;
+    float2 brdf = t_BrdfLUT.Sample(s_LinearWrapSampler, float2(NdotV, roughness)).rg;
+    float3 specular_IBL = environmentMapColor * (F_IBL * brdf.r + brdf.g);
+    
+    float3 ambient = (diffuse_IBL + specular_IBL);
+    float3 combinedLightLuminance = (pointLightLuminance + spotLightLuminance) + (directionalLightLuminance);
+    
+     // Combine Light Luminance
+    float3 pixelColor = ambient + combinedLightLuminance;
+    
+    HDRToneMap(pixelColor);
+    GammaCorrect(pixelColor);
+    
+    ps_out.LitImage = float4(pixelColor, opacity);
     
     return ps_out;
-    
-    //float3 viewDirection = normalize(cameraPosition - ps_in.FragPos);
-        
-    //float3 F0 = float3(0.04, 0.04, 0.04);
-    //float3 baseReflectivity = lerp(F0, albedo, metallic);
-    //float NdotV = max(dot(normal, viewDirection), 0.0000001);
-    
-    //float3 spotLightLuminance = float3(0.0, 0.0, 0.0);
-    //float3 pointLightLuminance = float3(0.0, 0.0, 0.0);
-    //float3 directionalLightLuminance = float3(0.0, 0.0, 0.0);
-    
-    //// Calculate Light Radiance
-    //// Directional Lights
-    //for (int d = 0; d < numDirectionalLights; d++)
-    //{
-    //    float3 lightDir = normalize(-dirLights[d].direction);
-        
-    //    // Shadowing
-    //    float4 fragPosLightSpace = mul(float4(ps_in.FragPos, 1.0), mul(dirLights[d].lightSpaceView, dirLights[d].lightSpaceProj));
-    //    float shadow = ShadowCalculation(fragPosLightSpace, normal, lightDir);
-        
-    //    directionalLightLuminance += CaclualteDirectionalLight(dirLights[d], viewDirection, normal, ps_in.FragPos, NdotV, albedo, roughness, metallic, baseReflectivity) * (1.0 - shadow);
-    //}
-    
-    //// Spot Lights
-    //for (int s = 0; s < numPointLights; s++)
-    //{
-    //    spotLightLuminance += CalculateSpotLight(spotLights[s], viewDirection, NdotV, ps_in.FragPos, normal, albedo, roughness, metallic, baseReflectivity);
-    //}
-    
-    //// Point Lights
-    //for (int p = 0; p < numPointLights; p++)
-    //{
-    //    pointLightLuminance += CalculatePointLight(pointLights[p], ps_in.FragPos, viewDirection, NdotV, normal, albedo, metallic, roughness, baseReflectivity);;
-    //}
-    
-    //// IBL
-    //// Irradiance
-    //float3 F_IBL = FresnelSchlickRoughness(NdotV, baseReflectivity, roughness);
-    //float3 kD_IBL = (1.0f - F_IBL) * (1.0f - metallic);
-    //float3 diffuse_IBL = tc_IrradianceMap.Sample(s_LinearWrapSampler, normal).rgb * albedo * kD_IBL;
-
-    //// Specular IBL
-    //const float MAX_REFLECTION_MIP_LOD = 10.0f;
-    //float3 environmentMapColor = tc_EnvironmentMap.SampleLevel(s_LinearWrapSampler, reflect(-viewDirection, normal), roughness * MAX_REFLECTION_MIP_LOD).rgb;
-    //float2 brdf = t_BrdfLUT.Sample(s_LinearWrapSampler, float2(NdotV, roughness)).rg;
-    //float3 specular_IBL = environmentMapColor * (F_IBL * brdf.r + brdf.g);
-    
-    //float3 ambient = (diffuse_IBL + specular_IBL) * ambientOcclusion;
-    //float3 combinedLightLuminance = (pointLightLuminance + spotLightLuminance) + (directionalLightLuminance);
-    
-    // // Combine Light Luminance
-    //float3 pixelColor = ambient + combinedLightLuminance;
-    
-    //HDRToneMap(pixelColor);
-    //GammaCorrect(pixelColor);
-    
-    //ps_out.LitImage.rgb = pixelColor;
-   
 }
 
 void HDRToneMap(inout float3 target)
