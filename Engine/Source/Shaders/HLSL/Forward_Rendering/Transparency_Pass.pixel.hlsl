@@ -48,7 +48,7 @@ PS_OUT main(PS_INPUT ps_in)
     PS_OUT ps_out;
 
     //// Sample Textures
-    float3 albedo = pow(abs(t_Albedo.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb), float3(2.2, 2.2, 2.2));
+    float3 albedo = pow(abs(t_Albedo.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb), float3(2.2, 2.2, 2.2)) + diffuseAdditive;
     float3 normal = t_Normal.Sample(s_LinearWrapSampler, ps_in.texCoords).xyz;
     float roughnessInput = t_Roughness.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
     float opacity = t_Opacity.Sample(s_LinearWrapSampler, ps_in.texCoords).r;

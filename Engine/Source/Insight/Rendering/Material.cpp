@@ -139,16 +139,31 @@ namespace Insight {
 
 		// Textures
 		{
-			Writer.Key("AlbedoMapID");
-			Writer.Int(m_AlbedoTextureManagerID);
-			Writer.Key("NormalMapID");
-			Writer.Int(m_NormalTextureManagerID);
-			Writer.Key("MetallicMapID");
-			Writer.Int(m_MetallicTextureManagerID);
-			Writer.Key("RoughnessMapID");
-			Writer.Int(m_RoughnessTextureManagerID);
-			Writer.Key("AOMapID");
-			Writer.Int(m_AoTextureManagerID);
+			if (m_MaterialType == eMaterialType::eMaterialType_Opaque) {
+				Writer.Key("AlbedoMapID");
+				Writer.Int(m_AlbedoTextureManagerID);
+				Writer.Key("NormalMapID");
+				Writer.Int(m_NormalTextureManagerID);
+				Writer.Key("MetallicMapID");
+				Writer.Int(m_MetallicTextureManagerID);
+				Writer.Key("RoughnessMapID");
+				Writer.Int(m_RoughnessTextureManagerID);
+				Writer.Key("AOMapID");
+				Writer.Int(m_AoTextureManagerID);
+			}
+			else if (m_MaterialType == eMaterialType::eMaterialType_Translucent) {
+				Writer.Key("AlbedoMapID");
+				Writer.Int(m_AlbedoTextureManagerID);
+				Writer.Key("NormalMapID");
+				Writer.Int(m_NormalTextureManagerID);
+				Writer.Key("RoughnessMapID");
+				Writer.Int(m_RoughnessTextureManagerID);
+				Writer.Key("OpacityMapID");
+				Writer.Int(m_OpacityTextureManagerID);
+				Writer.Key("TranslucencyMapID");
+				Writer.Int(m_TranslucencyTextureManagerID);
+			}
+			
 		}
 
 		// UV's
