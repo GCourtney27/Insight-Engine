@@ -80,7 +80,6 @@ namespace Insight {
 					}
 				}
 			}
-			m_PerObjectCBDrawOffset = 0U;
 		}
 		else if (RenderPass == eRenderPass::RenderPass_Transparency) {
 
@@ -104,12 +103,12 @@ namespace Insight {
 					}
 				}
 			}
-			m_PerObjectCBDrawOffset = 0U;
 		}
 	}
 
 	void D3D12GeometryManager::GatherGeometryImpl()
 	{
+
 		for (UINT32 i = 0; i < m_OpaqueModels.size(); i++) {
 
 			if (m_OpaqueModels[i]->GetCanBeRendered()) {

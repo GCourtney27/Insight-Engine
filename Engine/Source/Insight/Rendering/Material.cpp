@@ -213,19 +213,19 @@ namespace Insight {
 			ImGui::Text("Textures");
 
 			ImGui::Text("Albedo:"); ImGui::SameLine();
-			ImGui::Text(m_AlbedoMap->GetDisplayName().c_str());
+			//ImGui::Text(m_AlbedoMap->GetDisplayName().c_str());
 
 			ImGui::Text("Normal:"); ImGui::SameLine();
-			ImGui::Text(m_NormalMap->GetDisplayName().c_str());
+			//ImGui::Text(m_NormalMap->GetDisplayName().c_str());
 
 			ImGui::Text("Roughness:"); ImGui::SameLine();
-			ImGui::Text(m_RoughnessMap->GetDisplayName().c_str());
+			//ImGui::Text(m_RoughnessMap->GetDisplayName().c_str());
 
 			ImGui::Text("Metallic:"); ImGui::SameLine();
-			ImGui::Text(m_MetallicMap->GetDisplayName().c_str());
+			//ImGui::Text(m_MetallicMap->GetDisplayName().c_str());
 
 			ImGui::Text("AO:"); ImGui::SameLine();
-			ImGui::Text(m_AOMap->GetDisplayName().c_str());
+			//ImGui::Text(m_AOMap->GetDisplayName().c_str());
 
 			ImGui::Spacing();
 
