@@ -7,10 +7,11 @@ Texture2D t_Opacity     : register(t3);
 Texture2D t_Translucency     : register(t4);
 
 Texture2D t_ShadowDepth         : register(t5);
+Texture2D t_SceneDepth         : register(t6);
 
-TextureCube tc_IrradianceMap : register(t6);
-TextureCube tc_EnvironmentMap : register(t7);
-Texture2D t_BrdfLUT : register(t8);
+TextureCube tc_IrradianceMap : register(t7);
+TextureCube tc_EnvironmentMap : register(t8);
+Texture2D t_BrdfLUT : register(t9);
 
 // Samplers
 // --------
@@ -47,7 +48,7 @@ PS_OUT main(PS_INPUT ps_in)
 {
     PS_OUT ps_out;
     
-    //// Sample Textures
+    // Sample Textures
     float3 albedo = pow(abs(t_Albedo.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb), float3(2.2, 2.2, 2.2)) + diffuseAdditive;
     float3 normal = t_Normal.Sample(s_LinearWrapSampler, ps_in.texCoords).xyz;
     float roughnessInput = t_Roughness.Sample(s_LinearWrapSampler, ps_in.texCoords).r;

@@ -9,9 +9,9 @@
 #include <DirectX12/TK/Inc/WICTextureLoader.h>
 #include "DirectX12/TK/Inc/ResourceUploadBatch.h"
 
-#define CBVSRV_HEAP_TEXTURE_START_SLOT 7		// Keep this in sync with Direct3D12Context::m_cbvsrvHeap
-#define OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START 6 // Keep this in sync with deferred shading pass root signature
-#define OBJECT_TEXTURE_FORW_PASS_ROOT_PARAM_INDEX_START 4 //Leep this in sync with forward shading pass root signature
+#define CBVSRV_HEAP_TEXTURE_START_SLOT 7					// Keep this in sync with Direct3D12Context::m_cbvsrvHeap
+#define OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START 6	// Keep this in sync with deferred shading pass root signature
+#define OBJECT_TEXTURE_FORW_PASS_ROOT_PARAM_INDEX_START 4	//Leep this in sync with forward shading pass root signature
 #define OBJECT_TEXTURE_FORW_DEFF_ROOT_PARAM_INDEX_DIFF (OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START - OBJECT_TEXTURE_FORW_PASS_ROOT_PARAM_INDEX_START)
 
 namespace Insight {
@@ -43,12 +43,7 @@ namespace Insight {
 
 	void ieD3D12Texture::BindForForwardPass()
 	{
-		if (m_TextureInfo.Type < eTextureType::eTextureType_Opacity) {
-			m_pTranslucencyPass_CommandList->SetGraphicsRootDescriptorTable(m_RootParamIndex - OBJECT_TEXTURE_FORW_DEFF_ROOT_PARAM_INDEX_DIFF, m_pCbvSrvHeapStart->hGPU(CBVSRV_HEAP_TEXTURE_START_SLOT + m_GPUHeapIndex));
-		}
-		else {
-			m_pTranslucencyPass_CommandList->SetGraphicsRootDescriptorTable(m_RootParamIndex, m_pCbvSrvHeapStart->hGPU(CBVSRV_HEAP_TEXTURE_START_SLOT + m_GPUHeapIndex));
-		}
+		m_pTranslucencyPass_CommandList->SetGraphicsRootDescriptorTable(m_RootParamIndex, m_pCbvSrvHeapStart->hGPU(CBVSRV_HEAP_TEXTURE_START_SLOT + m_GPUHeapIndex));
 	}
 
 	bool ieD3D12Texture::Init(IE_TEXTURE_INFO createInfo, CDescriptorHeapWrapper& srvHeapHandle)
@@ -171,7 +166,17 @@ namespace Insight {
 			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 3;
 			break;
 		}
+		case eTextureType::eTextureType_Opacity:
+		{
+			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 3;
+			break;
+		}
 		case eTextureType::eTextureType_AmbientOcclusion:
+		{
+			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 4;
+			break;
+		}
+		case eTextureType::eTextureType_Translucency:
 		{
 			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 4;
 			break;
@@ -194,16 +199,6 @@ namespace Insight {
 		case eTextureType::eTextureType_SkyDiffuse:
 		{
 			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 9;
-			break;
-		}
-		case eTextureType::eTextureType_Opacity:
-		{
-			return 7;
-			break;
-		}
-		case eTextureType::eTextureType_Translucency:
-		{
-			return 8;
 			break;
 		}
 		default:
