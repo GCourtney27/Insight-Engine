@@ -47,11 +47,6 @@ namespace Insight {
 		m_ConstantBufferPerObject.world = worldFloat;
 	}
 
-	CB_VS_PerObject Mesh::GetConstantBuffer()
-	{
-		return m_ConstantBufferPerObject;
-	}
-
 	uint32_t Mesh::GetVertexCount()
 	{
 		return m_pVertexBuffer->GetNumVerticies();
@@ -72,7 +67,7 @@ namespace Insight {
 		return m_pIndexBuffer->GetBufferSize();
 	}
 
-	void Mesh::Render(ID3D12GraphicsCommandList* pCommandList)
+	void Mesh::Render()
 	{
 		Renderer::SetVertexBuffers(0, 1, m_pVertexBuffer);
 		Renderer::SetIndexBuffer(m_pIndexBuffer);

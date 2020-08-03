@@ -28,6 +28,9 @@ namespace Insight {
 
 	bool StaticMeshComponent::LoadFromJson(const rapidjson::Value& JsonStaticMeshComponent)
 	{
+		// Load Material
+		m_pMaterial->LoadFromJson(JsonStaticMeshComponent[1]);
+
 		// Load Mesh
 		std::string ModelPath;
 		json::get_string(JsonStaticMeshComponent[0], "Mesh", ModelPath);
@@ -55,9 +58,6 @@ namespace Insight {
 		json::get_float(MeshTransform[0], "scaY", scaY);
 		json::get_float(MeshTransform[0], "scaZ", scaZ);
 		m_pModel->GetMeshRootTransformRef().SetScale(ieVector3(scaX, scaY, scaZ));
-
-		// Load Material
-		m_pMaterial->LoadFromJson(JsonStaticMeshComponent[1]);
 
 		return true;
 	}
@@ -133,7 +133,7 @@ namespace Insight {
 
 	void StaticMeshComponent::OnDestroy()
 	{
-		GeometryManager::UnRegisterModel(m_pModel);
+		GeometryManager::UnRegisterOpaqueModel(m_pModel);
 		m_pModel->Destroy();
 		delete m_pMaterial;
 	}
@@ -186,7 +186,7 @@ namespace Insight {
 
 		std::lock_guard<std::mutex> ResourceLock(s_MeshMutex);
 
-		GeometryManager::RegisterModel(Model);
+		GeometryManager::RegisterOpaqueModel(Model);
 		return true;
 	}
 
@@ -195,13 +195,21 @@ namespace Insight {
 		Profiling::ScopedTimer timer(("StaticMeshComponent::AttachMesh \"" + AssestDirectoryRelPath + "\"").c_str());
 
 		if (m_pModel) {
-			GeometryManager::UnRegisterModel(m_pModel);
+			GeometryManager::UnRegisterOpaqueModel(m_pModel);
 			m_pModel->Destroy();
 			m_pModel.reset();
 		}
 		m_pModel = make_shared<Model>();
 		m_pModel->Create(AssestDirectoryRelPath, m_pMaterial);
-		GeometryManager::RegisterModel(m_pModel);
+
+		Material::eMaterialType MaterialType = m_pMaterial->GetMaterialType();
+		
+		if (MaterialType == Material::eMaterialType::eMaterialType_Opaque) {
+			GeometryManager::RegisterOpaqueModel(m_pModel);
+		}
+		else if (MaterialType == Material::eMaterialType::eMaterialType_Translucent) {
+			GeometryManager::RegisterTranslucentModel(m_pModel);
+		}
 
 		// Experamental: Multi-threaded model laoding
 		//m_ModelLoadFuture = std::async(std::launch::async, LoadModelAsync, m_pModel, AssestDirectoryRelPath, m_pMaterial);
@@ -233,7 +241,7 @@ namespace Insight {
 	void StaticMeshComponent::OnDetach()
 	{
 		s_NumActiveSMComponents--;
-		GeometryManager::UnRegisterModel(m_pModel);
+		GeometryManager::UnRegisterOpaqueModel(m_pModel);
 	}
 
 }

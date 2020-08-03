@@ -10,10 +10,10 @@ namespace Insight {
 	{
 		friend class GeometryManager;
 	public:
-		virtual bool InitImpl() override;
-		virtual void RenderImpl(eRenderPass RenderPass) override;
-		virtual void GatherGeometryImpl() override;
-		virtual void PostRenderImpl() override;
+		virtual bool Init_Impl() override;
+		virtual void Render_Impl(eRenderPass RenderPass) override;
+		virtual void GatherGeometry_Impl() override;
+		virtual void PostRender_Impl() override;
 
 	private:
 		D3D12GeometryManager() = default;
@@ -29,6 +29,7 @@ namespace Insight {
 		ID3D12Resource* m_ConstantBufferMaterialUploadHeaps = nullptr;
 		ID3D12GraphicsCommandList* m_pScenePassCommandList = nullptr;
 		ID3D12GraphicsCommandList* m_pShadowPassCommandList = nullptr;
+		ID3D12GraphicsCommandList* m_pTransparencyPassCommandList = nullptr;
 
 		int ConstantBufferPerObjectAlignedSize = (sizeof(CB_VS_PerObject) + 255) & ~255;
 		int ConstantBufferPerObjectMaterialAlignedSize = (sizeof(CB_PS_VS_PerObjectAdditives) + 255) & ~255;

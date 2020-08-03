@@ -37,6 +37,8 @@ namespace Insight {
 		std::vector<StrongTexturePtr> m_MetallicTextures;
 		std::vector<StrongTexturePtr> m_RoughnessTextures;
 		std::vector<StrongTexturePtr> m_AOTextures;
+		std::vector<StrongTexturePtr> m_OpacityTextures;
+		std::vector<StrongTexturePtr> m_TranslucencyTextures;
 
 		StrongTexturePtr m_DefaultAlbedoTexture;
 		StrongTexturePtr m_DefaultNormalTexture;

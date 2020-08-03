@@ -10,10 +10,10 @@ namespace Insight {
 	{
 		friend class GeometryManager;
 	public:
-		virtual bool InitImpl() override;
-		virtual void RenderImpl(eRenderPass RenderPass) override;
-		virtual void GatherGeometryImpl() override;
-		virtual void PostRenderImpl() override;
+		virtual bool Init_Impl() override;
+		virtual void Render_Impl(eRenderPass RenderPass) override;
+		virtual void GatherGeometry_Impl() override;
+		virtual void PostRender_Impl() override;
 
 	private:
 		D3D11GeometryManager() = default;

@@ -614,7 +614,7 @@ namespace Insight {
 			::DispatchMessage(&msg);		// Dispatch message to our WindowProc for this window
 		}
 
-		IE_ASSERT("Heap is currupted!", ::_CrtCheckMemory());
+		IE_ASSERT(_CrtCheckMemory(), "Heap is currupted!");
 		return true;
 	}
 

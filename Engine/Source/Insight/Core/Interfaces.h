@@ -30,6 +30,7 @@ namespace Insight {
 		RenderPass_0,
 		RenderPass_Scene,
 		RenderPass_Shadow,
+		RenderPass_Transparency,
 	};
 
 }

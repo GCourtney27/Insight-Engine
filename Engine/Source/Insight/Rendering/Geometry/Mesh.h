@@ -20,13 +20,13 @@ namespace Insight {
 		~Mesh();
 
 		void PreRender(const XMMATRIX& parentMat);
-		void Render(ID3D12GraphicsCommandList* pCommandList);
+		void Render();
 		void Destroy();
 		void OnImGuiRender();
 
 		inline ieTransform& GetTransformRef() { return m_Transform; }
 		inline const ieTransform& GetTransform() const { return m_Transform; }
-		CB_VS_PerObject GetConstantBuffer();
+		inline CB_VS_PerObject GetConstantBuffer() { return m_ConstantBufferPerObject; }
 
 		uint32_t GetVertexCount();
 		uint32_t GetVertexBufferSize();

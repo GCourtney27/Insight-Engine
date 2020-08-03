@@ -50,8 +50,8 @@ namespace Insight {
 		m_EditorViewTarget = ACamera::GetDefaultViewTarget();
 		m_EditorViewTarget.FieldOfView = 75.0f;
 		//m_EditorViewTarget.Position = ieVector3(-17.0f, 8.0f, -31.0f);
-		m_EditorViewTarget.Position = ieVector3(88.0f, 88.0f, -109.0f);
-		m_EditorViewTarget.Rotation = ieVector3(0.478f, -.681f, 0.0f);
+		m_EditorViewTarget.Position = ieVector3(83.0f, 31.0f, -23.0f);
+		m_EditorViewTarget.Rotation = ieVector3(0.478f, -0.981f, 0.0f);
 		m_EditorViewTarget.NearZ = 0.001f;
 		m_pCamera = new ACamera(m_EditorViewTarget);
 		m_pCamera->SetCanBeFileParsed(false);

@@ -110,8 +110,8 @@ namespace Insight {
 			// Render Editor UI
 			IE_STRIP_FOR_GAME_DIST(
 				m_pImGuiLayer->Begin();
-				for (Layer* layer : m_LayerStack) {
-					layer->OnImGuiRender();
+				for (Layer* Layer : m_LayerStack) {
+					Layer->OnImGuiRender();
 				}
 				m_pGameLayer->OnImGuiRender();
 				m_pImGuiLayer->End();

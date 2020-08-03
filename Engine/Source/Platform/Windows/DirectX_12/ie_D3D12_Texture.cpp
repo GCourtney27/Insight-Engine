@@ -2,14 +2,17 @@
 
 #include "ie_D3D12_Texture.h"
 
+#include "Insight/Systems/File_System.h"
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 #include <DirectX12/TK/Inc/DDSTextureLoader.h>
 #include <DirectX12/TK/Inc/WICTextureLoader.h>
 #include "DirectX12/TK/Inc/ResourceUploadBatch.h"
 
-#define CBVSRV_HEAP_TEXTURE_START 7
-
+#define CBVSRV_HEAP_TEXTURE_START_SLOT 7					// Keep this in sync with Direct3D12Context::m_cbvsrvHeap
+#define OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START 6	// Keep this in sync with deferred shading pass root signature
+#define OBJECT_TEXTURE_FORW_PASS_ROOT_PARAM_INDEX_START 4	// Keep this in sync with forward shading pass root signature
+#define OBJECT_TEXTURE_FORW_DEFF_ROOT_PARAM_INDEX_DIFF (OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START - OBJECT_TEXTURE_FORW_PASS_ROOT_PARAM_INDEX_START)
 
 namespace Insight {
 
@@ -29,12 +32,18 @@ namespace Insight {
 	void ieD3D12Texture::Destroy()
 	{
 		COM_SAFE_RELEASE(m_pTexture);
-		m_pCommandList = nullptr;
+		m_pScenePass_CommandList = nullptr;
+		m_pTranslucencyPass_CommandList = nullptr;
 	}
 
-	void ieD3D12Texture::Bind()
+	void ieD3D12Texture::BindForDeferredPass()
 	{
-		m_pCommandList->SetGraphicsRootDescriptorTable(m_RootParamIndex, m_pCbvSrvHeapStart->hGPU(CBVSRV_HEAP_TEXTURE_START + m_GPUHeapIndex));
+		m_pScenePass_CommandList->SetGraphicsRootDescriptorTable(m_RootParamIndex, m_pCbvSrvHeapStart->hGPU(CBVSRV_HEAP_TEXTURE_START_SLOT + m_GPUHeapIndex));
+	}
+
+	void ieD3D12Texture::BindForForwardPass()
+	{
+		m_pTranslucencyPass_CommandList->SetGraphicsRootDescriptorTable(m_RootParamIndex, m_pCbvSrvHeapStart->hGPU(CBVSRV_HEAP_TEXTURE_START_SLOT + m_GPUHeapIndex));
 	}
 
 	bool ieD3D12Texture::Init(IE_TEXTURE_INFO createInfo, CDescriptorHeapWrapper& srvHeapHandle)
@@ -43,7 +52,8 @@ namespace Insight {
 		std::string Filepath = StringHelper::WideToString(createInfo.Filepath);
 
 		m_pCbvSrvHeapStart = &GraphicsContext->GetCBVSRVDescriptorHeap();
-		m_pCommandList = &GraphicsContext->GetScenePassCommandList();
+		m_pScenePass_CommandList = &GraphicsContext->GetScenePassCommandList();
+		m_pTranslucencyPass_CommandList = &GraphicsContext->GetTransparencyPassCommandList();
 		m_TextureInfo = createInfo;
 		m_TextureInfo.DisplayName = StringHelper::GetFilenameFromDirectory(Filepath);
 
@@ -71,7 +81,7 @@ namespace Insight {
 		HRESULT hr;
 		hr = DirectX::CreateDDSTextureFromFile(pDevice, ResourceUpload, m_TextureInfo.Filepath.c_str(), &m_pTexture, m_TextureInfo.GenerateMipMaps, 0, nullptr, &m_TextureInfo.IsCubeMap);
 		if (FAILED(hr)) {
-			IE_CORE_ERROR("Failed to load DDS texture from file.");
+			IE_CORE_ERROR("Failed to load DDS texture from file with path \"{0}\"", StringHelper::WideToString(m_TextureInfo.Filepath));
 		}
 
 		m_D3DTextureDesc = m_pTexture->GetDesc();
@@ -89,9 +99,9 @@ namespace Insight {
 		srvDesc.Texture2D.MipLevels = m_D3DTextureDesc.MipLevels;
 		srvDesc.Format = m_D3DTextureDesc.Format;
 		// Regular dds texture or a cubemap?
-		srvDesc.ViewDimension = (m_TextureInfo.Type >= eTextureType::SKY_IRRADIENCE) ? D3D12_SRV_DIMENSION_TEXTURECUBE : D3D12_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.ViewDimension = (m_TextureInfo.Type >= eTextureType::eTextureType_SkyIrradience) ? D3D12_SRV_DIMENSION_TEXTURECUBE : D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		pDevice->CreateShaderResourceView(m_pTexture.Get(), &srvDesc, srvHeapHandle.hCPU(CBVSRV_HEAP_TEXTURE_START + s_NumSceneTextures));
+		pDevice->CreateShaderResourceView(m_pTexture.Get(), &srvDesc, srvHeapHandle.hCPU(CBVSRV_HEAP_TEXTURE_START_SLOT + s_NumSceneTextures));
 
 		m_GPUHeapIndex = s_NumSceneTextures;
 		s_NumSceneTextures++;
@@ -108,7 +118,7 @@ namespace Insight {
 
 		HRESULT hr = DirectX::CreateWICTextureFromFile(pDevice, resourceUpload, m_TextureInfo.Filepath.c_str(), &m_pTexture, m_TextureInfo.GenerateMipMaps);
 		if (FAILED(hr)) {
-			IE_CORE_ERROR("Failed to Create WIC texture from file.");
+			IE_CORE_ERROR("Failed to Create WIC texture from file with path \"{0}\"", StringHelper::WideToString(m_TextureInfo.Filepath));
 		}
 		m_D3DTextureDesc = m_pTexture->GetDesc();
 		if (!resourceUpload.IsSupportedForGenerateMips(m_D3DTextureDesc.Format)) {
@@ -126,7 +136,7 @@ namespace Insight {
 		srvDesc.Format = m_D3DTextureDesc.Format;
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		pDevice->CreateShaderResourceView(m_pTexture.Get(), &srvDesc, srvHeapHandle.hCPU(CBVSRV_HEAP_TEXTURE_START + s_NumSceneTextures));
+		pDevice->CreateShaderResourceView(m_pTexture.Get(), &srvDesc, srvHeapHandle.hCPU(CBVSRV_HEAP_TEXTURE_START_SLOT + s_NumSceneTextures));
 
 		m_GPUHeapIndex = s_NumSceneTextures;
 		s_NumSceneTextures++;
@@ -136,49 +146,59 @@ namespace Insight {
 	UINT ieD3D12Texture::GetRootParameterIndexForTextureType(eTextureType TextureType)
 	{
 		switch (m_TextureInfo.Type) {
-		case eTextureType::ALBEDO:
+		case eTextureType::eTextureType_Albedo:
 		{
-			return 6;
+			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START;
 			break;
 		}
-		case eTextureType::NORMAL:
+		case eTextureType::eTextureType_Normal:
 		{
-			return 7;
+			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 1;
 			break;
 		}
-		case eTextureType::ROUGHNESS:
+		case eTextureType::eTextureType_Roughness:
 		{
-			return 8;
+			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 2;
 			break;
 		}
-		case eTextureType::METALLIC:
+		case eTextureType::eTextureType_Metallic:
 		{
-			return 9;
+			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 3;
 			break;
 		}
-		case eTextureType::AO:
+		case eTextureType::eTextureType_Opacity:
 		{
-			return 10;
+			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 3;
 			break;
 		}
-		case eTextureType::SKY_IRRADIENCE:
+		case eTextureType::eTextureType_AmbientOcclusion:
 		{
-			return 12;
+			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 4;
 			break;
 		}
-		case eTextureType::SKY_ENVIRONMENT_MAP:
+		case eTextureType::eTextureType_Translucency:
 		{
-			return 13;
+			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 4;
 			break;
 		}
-		case eTextureType::SKY_BRDF_LUT:
+		case eTextureType::eTextureType_SkyIrradience:
 		{
-			return 14;
+			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 6;
 			break;
 		}
-		case eTextureType::SKY_DIFFUSE:
+		case eTextureType::eTextureType_SkyEnvironmentMap:
 		{
-			return 15;
+			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 7;
+			break;
+		}
+		case eTextureType::eTextureType_IBLBRDFLUT:
+		{
+			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 8;
+			break;
+		}
+		case eTextureType::eTextureType_SkyDiffuse:
+		{
+			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 9;
 			break;
 		}
 		default:

@@ -14,7 +14,7 @@ namespace Insight {
 	{
 	}
 
-	bool D3D12GeometryManager::InitImpl()
+	bool D3D12GeometryManager::Init_Impl()
 	{
 		Direct3D12Context* D3D12Context = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
 
@@ -22,6 +22,7 @@ namespace Insight {
 		m_ConstantBufferMaterialUploadHeaps = &D3D12Context->GetConstantBufferPerObjectMaterialUploadHeap();
 		m_pScenePassCommandList = &D3D12Context->GetScenePassCommandList();
 		m_pShadowPassCommandList = &D3D12Context->GetShadowPassCommandList();
+		m_pTransparencyPassCommandList = &D3D12Context->GetTransparencyPassCommandList();
 
 		m_CbvUploadHeapHandle = m_ConstantBufferUploadHeaps->GetGPUVirtualAddress();
 		m_CbvMaterialHeapHandle = m_ConstantBufferMaterialUploadHeaps->GetGPUVirtualAddress();
@@ -29,27 +30,29 @@ namespace Insight {
 		m_CbvPerObjectGPUAddress = &D3D12Context->GetPerObjectCBVGPUHeapAddress();
 		m_CbvMaterialGPUAddress = &D3D12Context->GetPerObjectMaterialAdditiveCBVGPUHeapAddress();
 
-		if (!(m_pScenePassCommandList && m_pShadowPassCommandList && m_ConstantBufferUploadHeaps && m_ConstantBufferMaterialUploadHeaps))
+		if (!(m_pScenePassCommandList && m_pShadowPassCommandList && m_pTransparencyPassCommandList && m_ConstantBufferUploadHeaps && m_ConstantBufferMaterialUploadHeaps))
 		{
-			IE_CORE_ERROR("Failed to initialize one or more resources for model manager.");
+			IE_CORE_ERROR("Failed to initialize one or more resources for D3D12 model manager.");
 			return false;
 		}
 		return true;
 	}
 
-	void D3D12GeometryManager::RenderImpl(eRenderPass RenderPass)
+	void D3D12GeometryManager::Render_Impl(eRenderPass RenderPass)
 	{
 		if (RenderPass == eRenderPass::RenderPass_Shadow) {
 
-			for (UINT32 i = 0; i < m_Models.size(); ++i) {
+			for (UINT32 i = 0; i < m_OpaqueModels.size(); ++i) {
 
-				if (m_Models[i]->GetCanCastShadows()) {
+				if (m_OpaqueModels[i]->GetCanCastShadows()) {
 
-					for (UINT32 j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
+					for (UINT32 j = 0; j < m_OpaqueModels[i]->GetNumChildMeshes(); j++) {
 
 						// Set Per-Object CBV
+						// We dont need any texture of material data,
+						// we only want the depth for the shadow map for each oject
 						m_pShadowPassCommandList->SetGraphicsRootConstantBufferView(0, m_CbvUploadHeapHandle + (ConstantBufferPerObjectAlignedSize * m_PerObjectCBDrawOffset));
-						m_Models[i]->GetMeshAtIndex(j)->Render(m_pShadowPassCommandList);
+						m_OpaqueModels[i]->GetMeshAtIndex(j)->Render();
 
 						m_PerObjectCBDrawOffset++;
 					}
@@ -59,40 +62,78 @@ namespace Insight {
 		}
 		else if (RenderPass == eRenderPass::RenderPass_Scene) {
 
-			for (UINT32 i = 0; i < m_Models.size(); ++i) {
+			for (UINT32 i = 0; i < m_OpaqueModels.size(); ++i) {
 
-				if (m_Models[i]->GetCanBeRendered()) {
+				if (m_OpaqueModels[i]->GetCanBeRendered()) {
 
-					for (UINT32 j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
+					for (UINT32 j = 0; j < m_OpaqueModels[i]->GetNumChildMeshes(); j++) {
 
 						// Set Per-Object CBV
 						m_pScenePassCommandList->SetGraphicsRootConstantBufferView(0, m_CbvUploadHeapHandle + (ConstantBufferPerObjectAlignedSize * m_PerObjectCBDrawOffset));
 						// Set Per-Object Material Override CBV
 						m_pScenePassCommandList->SetGraphicsRootConstantBufferView(4, m_CbvMaterialHeapHandle + (ConstantBufferPerObjectMaterialAlignedSize * m_PerObjectCBDrawOffset));
 
-						m_Models[i]->BindResources();
-						m_Models[i]->GetMeshAtIndex(j)->Render(m_pScenePassCommandList);
+						m_OpaqueModels[i]->BindResources(true);
+						m_OpaqueModels[i]->GetMeshAtIndex(j)->Render();
 
 						m_PerObjectCBDrawOffset++;
 					}
 				}
 			}
-			m_PerObjectCBDrawOffset = 0U;
+		}
+		else if (RenderPass == eRenderPass::RenderPass_Transparency) {
+
+			for (UINT32 i = 0; i < m_TranslucentModels.size(); ++i) {
+
+				if (m_TranslucentModels[i]->GetCanBeRendered()) {
+
+					for (UINT32 j = 0; j < m_TranslucentModels[i]->GetNumChildMeshes(); j++) {
+
+						// Set Per-Object CBV
+						m_pTransparencyPassCommandList->SetGraphicsRootConstantBufferView(0, m_CbvUploadHeapHandle + (ConstantBufferPerObjectAlignedSize * m_PerObjectCBDrawOffset));
+						// Set Per-Object Material Override CBV
+						m_pTransparencyPassCommandList->SetGraphicsRootConstantBufferView(3, m_CbvMaterialHeapHandle + (ConstantBufferPerObjectMaterialAlignedSize * m_PerObjectCBDrawOffset));
+
+						m_TranslucentModels[i]->BindResources(false);
+						m_TranslucentModels[i]->GetMeshAtIndex(j)->Render();
+
+						m_PerObjectCBDrawOffset++;
+					}
+				}
+			}
 		}
 	}
 
-	void D3D12GeometryManager::GatherGeometryImpl()
+	void D3D12GeometryManager::GatherGeometry_Impl()
 	{
-		for (UINT32 i = 0; i < m_Models.size(); i++) {
 
-			if (m_Models[i]->GetCanBeRendered()) {
+		for (UINT32 i = 0; i < m_OpaqueModels.size(); i++) {
 
-				for (UINT32 j = 0; j < m_Models[i]->GetNumChildMeshes(); j++) {
+			if (m_OpaqueModels[i]->GetCanBeRendered()) {
 
-					const CB_PS_VS_PerObjectAdditives cbMatOverrides = m_Models[i]->GetMaterialRef().GetMaterialOverrideConstantBuffer();
+				for (UINT32 j = 0; j < m_OpaqueModels[i]->GetNumChildMeshes(); j++) {
+
+					const CB_PS_VS_PerObjectAdditives cbMatOverrides = m_OpaqueModels[i]->GetMaterialRef().GetMaterialOverrideConstantBuffer();
 					memcpy(m_CbvMaterialGPUAddress + (ConstantBufferPerObjectMaterialAlignedSize * m_GPUAddressUploadOffset), &cbMatOverrides, sizeof(cbMatOverrides));
 
-					const CB_VS_PerObject cbPerObject = m_Models[i]->GetMeshAtIndex(j)->GetConstantBuffer();
+					const CB_VS_PerObject cbPerObject = m_OpaqueModels[i]->GetMeshAtIndex(j)->GetConstantBuffer();
+					memcpy(m_CbvPerObjectGPUAddress + (ConstantBufferPerObjectAlignedSize * m_GPUAddressUploadOffset), &cbPerObject, sizeof(cbPerObject));
+
+					m_GPUAddressUploadOffset++;
+				}
+			}
+		}
+
+		for (UINT32 i = 0; i < m_TranslucentModels.size(); i++) {
+
+			if (m_TranslucentModels[i]->GetCanBeRendered()) {
+
+				for (UINT32 j = 0; j < m_TranslucentModels[i]->GetNumChildMeshes(); j++) {
+
+					const CB_PS_VS_PerObjectAdditives cbMatOverrides = m_TranslucentModels[i]->GetMaterialRef().GetMaterialOverrideConstantBuffer();
+					memcpy(m_CbvMaterialGPUAddress + (ConstantBufferPerObjectMaterialAlignedSize * m_GPUAddressUploadOffset), &cbMatOverrides, sizeof(cbMatOverrides));
+
+					const CB_VS_PerObject cbPerObject = m_TranslucentModels[i]->GetMeshAtIndex(j)->GetConstantBuffer();
 					memcpy(m_CbvPerObjectGPUAddress + (ConstantBufferPerObjectAlignedSize * m_GPUAddressUploadOffset), &cbPerObject, sizeof(cbPerObject));
 
 					m_GPUAddressUploadOffset++;
@@ -101,7 +142,7 @@ namespace Insight {
 		}
 	}
 
-	void D3D12GeometryManager::PostRenderImpl()
+	void D3D12GeometryManager::PostRender_Impl()
 	{
 		m_PerObjectCBDrawOffset = 0u;
 		m_GPUAddressUploadOffset = 0u;

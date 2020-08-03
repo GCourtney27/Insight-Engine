@@ -11,7 +11,6 @@
 
 /*
 	Render context for Windows DirectX 12 API. Currently Deferred shading is the only pipeline supported.
-	TODO: Add Transparency forward pass.
 	TODO: Add forward rendering as optional shading technique
 */
 
@@ -39,30 +38,33 @@ namespace Insight {
 	{
 		friend class Renderer;
 	public:
-		virtual bool InitImpl() override;
-		virtual void DestroyImpl();
-		virtual bool PostInitImpl() override;
-		virtual void OnUpdateImpl(const float DeltaMs) override;
-		virtual void OnPreFrameRenderImpl() override;
-		virtual void OnRenderImpl() override;
-		virtual void OnMidFrameRenderImpl() override;
-		virtual void ExecuteDrawImpl() override;
-		virtual void SwapBuffersImpl() override;
-		virtual void OnWindowResizeImpl() override;
-		virtual void OnWindowFullScreenImpl() override;
+		virtual bool Init_Impl() override;
+		virtual void Destroy_Impl();
+		virtual bool PostInit_Impl() override;
+		virtual void OnUpdate_Impl(const float DeltaMs) override;
+		virtual void OnPreFrameRender_Impl() override;
+		virtual void OnRender_Impl() override;
+		virtual void OnMidFrameRender_Impl() override;
+		virtual void ExecuteDraw_Impl() override;
+		virtual void SwapBuffers_Impl() override;
+		virtual void OnWindowResize_Impl() override;
+		virtual void OnWindowFullScreen_Impl() override;
 
-		virtual void SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) override;
-		virtual void SetIndexBufferImpl(ieIndexBuffer* pBuffer) override;
-		virtual void DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) override;
+		virtual void SetVertexBuffers_Impl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) override;
+		virtual void SetIndexBuffer_Impl(ieIndexBuffer* pBuffer) override;
+		virtual void DrawIndexedInstanced_Impl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) override;
 
-		virtual void RenderSkySphereImpl() override;
-		virtual bool CreateSkyboxImpl() override;
-		virtual void DestroySkyboxImpl() override;
+		virtual void RenderSkySphere_Impl() override;
+		virtual bool CreateSkybox_Impl() override;
+		virtual void DestroySkybox_Impl() override;
 
 		inline ID3D12Device& GetDeviceContext() const { return *m_pDevice.Get(); }
 
-		inline ID3D12GraphicsCommandList& GetScenePassCommandList() const { return *m_pScenePassCommandList.Get(); }
-		inline ID3D12GraphicsCommandList& GetShadowPassCommandList() const { return *m_pShadowPassCommandList.Get(); }
+		inline ID3D12GraphicsCommandList& GetScenePassCommandList() const { return *m_pScenePass_CommandList.Get(); }
+		inline ID3D12GraphicsCommandList& GetPostProcessPassCommandList() const { return *m_pPostEffectsPass_CommandList.Get(); }
+		inline ID3D12GraphicsCommandList& GetShadowPassCommandList() const { return *m_pShadowPass_CommandList.Get(); }
+		inline ID3D12GraphicsCommandList& GetTransparencyPassCommandList() const { return *m_pTransparencyPass_CommandList.Get(); }
+
 		inline ID3D12CommandQueue& GetCommandQueue() const { return *m_pCommandQueue.Get(); }
 		inline CDescriptorHeapWrapper& GetCBVSRVDescriptorHeap() { return m_cbvsrvHeap; }
 		inline ID3D12Resource& GetConstantBufferPerObjectUploadHeap() const { return *m_PerObjectCBV[m_FrameIndex].Get(); }
@@ -93,6 +95,7 @@ namespace Insight {
 		void BindGeometryPass(bool setPSO = false);
 		void BindLightingPass();
 		void BindSkyPass();
+		void BindTransparencyPass();
 		void BindPostFxPass();
 
 		// D3D12 Initialize
@@ -109,12 +112,15 @@ namespace Insight {
 		void CreateDSVs();
 		void CreateRTVs();
 		void CreateConstantBufferViews();
-		void CreateRootSignature();
+		void CreateDeferredShadingRootSignature();
+		void CreateForwardShadingRootSignature();
+
 		void CreateShadowPassPSO();
 		void CreateGeometryPassPSO();
 		void CreateSkyPassPSO();
+		void CreateTransparencyPassPSO();
 		void CreateLightPassPSO();
-		void CreatePostFxPassPSO();
+		void CreatePostEffectsPassPSO();
 
 		// Create window resources
 
@@ -162,10 +168,15 @@ namespace Insight {
 
 		ComPtr<ID3D12GraphicsCommandList>	m_pActiveCommandList;
 		ComPtr<ID3D12CommandQueue>			m_pCommandQueue;
-		ComPtr<ID3D12GraphicsCommandList>	m_pScenePassCommandList;
-		ComPtr<ID3D12CommandAllocator>		m_pScenePassCommandAllocators[m_FrameBufferCount];
-		ComPtr<ID3D12GraphicsCommandList>	m_pShadowPassCommandList;
-		ComPtr<ID3D12CommandAllocator>		m_pShadowPassCommandAllocators[m_FrameBufferCount];
+
+		ComPtr<ID3D12GraphicsCommandList>	m_pShadowPass_CommandList;
+		ComPtr<ID3D12CommandAllocator>		m_pShadowPass_CommandAllocators[m_FrameBufferCount];
+		ComPtr<ID3D12GraphicsCommandList>	m_pScenePass_CommandList;
+		ComPtr<ID3D12CommandAllocator>		m_pScenePass_CommandAllocators[m_FrameBufferCount];
+		ComPtr<ID3D12GraphicsCommandList>	m_pTransparencyPass_CommandList;
+		ComPtr<ID3D12CommandAllocator>		m_pTransparencyPass_CommandAllocators[m_FrameBufferCount];
+		ComPtr<ID3D12GraphicsCommandList>	m_pPostEffectsPass_CommandList;
+		ComPtr<ID3D12CommandAllocator>		m_pPostEffectsPass_CommandAllocators[m_FrameBufferCount];
 
 		ComPtr<ID3D12Resource>				m_pRenderTargetTextures[m_NumRTV];
 		ComPtr<ID3D12Resource>				m_pRenderTargetTextures_PostFxPass[m_FrameBufferCount];
@@ -189,13 +200,15 @@ namespace Insight {
 		//1:  ShadowDepth
 		CDescriptorHeapWrapper				m_dsvHeap;
 
-		ComPtr<ID3D12RootSignature>			m_pRootSignature;
+		ComPtr<ID3D12RootSignature>			m_pDeferredShadingPass_RootSignature;
+		ComPtr<ID3D12RootSignature>			m_pForwardShadingPass_RootSignature;
 
-		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_ShadowPass;
-		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_GeometryPass;
-		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_LightingPass;
-		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_SkyPass;
-		ComPtr<ID3D12PipelineState>			m_pPipelineStateObject_PostFxPass;
+		ComPtr<ID3D12PipelineState>			m_pShadowPass_PSO;
+		ComPtr<ID3D12PipelineState>			m_pGeometryPass_PSO;
+		ComPtr<ID3D12PipelineState>			m_pLightingPass_PSO;
+		ComPtr<ID3D12PipelineState>			m_pSkyPass_PSO;
+		ComPtr<ID3D12PipelineState>			m_pTransparency_PSO;
+		ComPtr<ID3D12PipelineState>			m_pPostFxPass_PSO;
 
 		//-----Pipeline-----
 		//0:  SRV-Albedo(RTV->SRV)
@@ -209,7 +222,7 @@ namespace Insight {
 		//7:  SRV-Albedo(SRV)
 		//8:  SRV-Normal(SRV)
 		//9:  SRV-Roughness(SRV)
-		//10:  SRV-Metallic(SRV)
+		//10: SRV-Metallic(SRV)
 		//11: SRV-AO(SRV)
 		//12: SRV-Sky Irradiance(SRV)
 		//13: SRV-Sky Environment(SRV)
@@ -268,28 +281,6 @@ namespace Insight {
 		#define SPOT_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight) + MAX_DIRECTIONAL_LIGHTS_SUPPORTED * sizeof(CB_PS_DirectionalLight))
 		int	CBSpotLightsAlignedSize = (sizeof(CB_PS_SpotLight) + 255) & ~255;
 
-
-
-
-		const UINT PIX_EVENT_UNICODE_VERSION = 0;
-
-		inline void PIXBeginEvent(ID3D12CommandQueue* pCommandQueue, UINT64 /*metadata*/, PCWSTR pFormat)
-		{
-			pCommandQueue->BeginEvent(PIX_EVENT_UNICODE_VERSION, pFormat, (UINT)((wcslen(pFormat) + 1) * sizeof(pFormat[0])));
-		}
-
-		inline void PIXBeginEvent(ID3D12GraphicsCommandList* pCommandList, UINT64 /*metadata*/, PCWSTR pFormat)
-		{
-			pCommandList->BeginEvent(PIX_EVENT_UNICODE_VERSION, pFormat, (UINT)((wcslen(pFormat) + 1) * sizeof(pFormat[0])));
-		}
-		inline void PIXEndEvent(ID3D12CommandQueue* pCommandQueue)
-		{
-			pCommandQueue->EndEvent();
-		}
-		inline void PIXEndEvent(ID3D12GraphicsCommandList* pCommandList)
-		{
-			pCommandList->EndEvent();
-		}
 	};
 
 }

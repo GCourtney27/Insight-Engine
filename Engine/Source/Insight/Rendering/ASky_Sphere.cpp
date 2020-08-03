@@ -38,7 +38,7 @@ namespace Insight {
 		Texture::IE_TEXTURE_INFO diffuseInfo;
 		diffuseInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(diffuseMap));
 		diffuseInfo.AssetDirectoryRelPath = diffuseMap;
-		diffuseInfo.Type = Texture::eTextureType::SKY_DIFFUSE;
+		diffuseInfo.Type = Texture::eTextureType::eTextureType_SkyDiffuse;
 		diffuseInfo.GenerateMipMaps = true;
 		diffuseInfo.IsCubeMap = true;
 		
@@ -151,7 +151,7 @@ namespace Insight {
 
 	void ASkySphere::RenderSky(ComPtr<ID3D12GraphicsCommandList> commandList)
 	{
-		m_Diffuse->Bind();
+		m_Diffuse->BindForDeferredPass();
 		Renderer::RenderSkySphere();
 	}
 

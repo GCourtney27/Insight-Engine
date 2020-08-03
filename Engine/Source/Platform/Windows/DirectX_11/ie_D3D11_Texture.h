@@ -16,8 +16,10 @@ namespace Insight {
 
 		// Destroy and release texture resources.
 		virtual void Destroy() override;
-		// Binds the texture to the pipeline to be drawn in the scene pass.
-		virtual void Bind() override;
+		// Binds the texture to the pipeline to be used in the scene pass.
+		virtual void BindForDeferredPass() override;
+		// Binds the texture to the pipeline to be used in the forward render pass.
+		virtual void BindForForwardPass() override;
 
 	private:
 		// Load  the texture from disk and initialize.
