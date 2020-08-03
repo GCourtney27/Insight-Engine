@@ -28,35 +28,35 @@ namespace Insight {
 		ID3D11DeviceContext& GetDeviceContext() { return *m_pDeviceContext.Get(); }
 
 		// Initilize Direc3D 12 library.
-		virtual bool InitImpl() override;
+		virtual bool Init_Impl() override;
 		// Destroy the current graphics context
-		virtual void DestroyImpl() override;
+		virtual void Destroy_Impl() override;
 		// Submit initilize commands to the GPU.
-		virtual bool PostInitImpl() override;
+		virtual bool PostInit_Impl() override;
 		// Upload per-frame constants to the GPU as well as lighting information.
-		virtual void OnUpdateImpl(const float deltaTime) override;
+		virtual void OnUpdate_Impl(const float deltaTime) override;
 		// Flush the command allocators and clear render targets.
-		virtual void OnPreFrameRenderImpl() override;
+		virtual void OnPreFrameRender_Impl() override;
 		// Draws shadow pass first then binds geometry pass for future draw commands.
-		virtual void OnRenderImpl() override;
+		virtual void OnRender_Impl() override;
 		// Binds light pass.
-		virtual void OnMidFrameRenderImpl() override;
+		virtual void OnMidFrameRender_Impl() override;
 		// executes the command queue on the GPU. Waits for the GPU to finish before proceeding.
-		virtual void ExecuteDrawImpl() override;
+		virtual void ExecuteDraw_Impl() override;
 		// Swap buffers with the new frame.
-		virtual void SwapBuffersImpl() override;
+		virtual void SwapBuffers_Impl() override;
 		// Resize render target, depth stencil and sreen rects when window size is changed.
-		virtual void OnWindowResizeImpl() override;
+		virtual void OnWindowResize_Impl() override;
 		// Tells the swapchain to enable full screen rendering.
-		virtual void OnWindowFullScreenImpl() override;
+		virtual void OnWindowFullScreen_Impl() override;
 
-		virtual void SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) override;
-		virtual void SetIndexBufferImpl(ieIndexBuffer* pBuffer) override;
-		virtual void DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) override;
+		virtual void SetVertexBuffers_Impl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) override;
+		virtual void SetIndexBuffer_Impl(ieIndexBuffer* pBuffer) override;
+		virtual void DrawIndexedInstanced_Impl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) override;
 
-		virtual void RenderSkySphereImpl() override;
-		virtual bool CreateSkyboxImpl() override;
-		virtual void DestroySkyboxImpl() override;
+		virtual void RenderSkySphere_Impl() override;
+		virtual bool CreateSkybox_Impl() override;
+		virtual void DestroySkybox_Impl() override;
 
 	private:
 		Direct3D11Context(WindowsWindow* windowHandle);
@@ -108,6 +108,7 @@ namespace Insight {
 		ComPtr<ID3D11SamplerState> m_pPointClamp_SamplerState;
 
 		ieD3D11SphereRenderer* m_SkySphere;
+
 
 	};
 

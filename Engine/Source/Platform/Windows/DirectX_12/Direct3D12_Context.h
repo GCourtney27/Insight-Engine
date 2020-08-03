@@ -38,25 +38,25 @@ namespace Insight {
 	{
 		friend class Renderer;
 	public:
-		virtual bool InitImpl() override;
-		virtual void DestroyImpl();
-		virtual bool PostInitImpl() override;
-		virtual void OnUpdateImpl(const float DeltaMs) override;
-		virtual void OnPreFrameRenderImpl() override;
-		virtual void OnRenderImpl() override;
-		virtual void OnMidFrameRenderImpl() override;
-		virtual void ExecuteDrawImpl() override;
-		virtual void SwapBuffersImpl() override;
-		virtual void OnWindowResizeImpl() override;
-		virtual void OnWindowFullScreenImpl() override;
+		virtual bool Init_Impl() override;
+		virtual void Destroy_Impl();
+		virtual bool PostInit_Impl() override;
+		virtual void OnUpdate_Impl(const float DeltaMs) override;
+		virtual void OnPreFrameRender_Impl() override;
+		virtual void OnRender_Impl() override;
+		virtual void OnMidFrameRender_Impl() override;
+		virtual void ExecuteDraw_Impl() override;
+		virtual void SwapBuffers_Impl() override;
+		virtual void OnWindowResize_Impl() override;
+		virtual void OnWindowFullScreen_Impl() override;
 
-		virtual void SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) override;
-		virtual void SetIndexBufferImpl(ieIndexBuffer* pBuffer) override;
-		virtual void DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) override;
+		virtual void SetVertexBuffers_Impl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) override;
+		virtual void SetIndexBuffer_Impl(ieIndexBuffer* pBuffer) override;
+		virtual void DrawIndexedInstanced_Impl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) override;
 
-		virtual void RenderSkySphereImpl() override;
-		virtual bool CreateSkyboxImpl() override;
-		virtual void DestroySkyboxImpl() override;
+		virtual void RenderSkySphere_Impl() override;
+		virtual bool CreateSkybox_Impl() override;
+		virtual void DestroySkybox_Impl() override;
 
 		inline ID3D12Device& GetDeviceContext() const { return *m_pDevice.Get(); }
 

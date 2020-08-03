@@ -42,16 +42,21 @@ namespace Insight {
 		bool Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, WindowsWindow* pWindow);
 		void Destroy();
 
+		ID3D11ShaderResourceView* GetSceneDepthSRV() { return m_pSceneDepthView.Get(); }
+		ID3D11DepthStencilView* GetSceneDepthDSV() { return m_DepthStencilView.Get(); }
+
 		void PrepPipelineForRenderPass();
 		void BindGeometryPass();
 		void BindLightPass();
 		void BindSkyPass();
+		void BindTransparencyPass();
 		void BindPostFxPass();
 
 	private:
 		void CreateGeometryPass();
 		void CreateLightPass();
 		void CreateSkyPass();
+		void CreateTransparencyPass();
 		void CreatePostFxPass();
 
 	private:
@@ -98,6 +103,12 @@ namespace Insight {
 		PixelShader m_SkyPassPS;
 		ComPtr<ID3D11DepthStencilState> m_pSkyPass_DepthStencilState;
 		ComPtr<ID3D11RasterizerState> m_pSkyPass_RasterizarState;
+
+		// Transparency Pass
+		// -----------------
+		VertexShader m_TransparencyPassVS;
+		PixelShader m_TransparencyPassPS;
+		ComPtr<ID3D11RasterizerState> m_pTransparency_RasterizerState;
 
 		// PostFx Pass
 		// -----------

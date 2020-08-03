@@ -50,7 +50,7 @@ namespace Insight {
 		}
 	}
 
-	bool Direct3D12Context::InitImpl()
+	bool Direct3D12Context::Init_Impl()
 	{
 		IE_CORE_INFO("Renderer: D3D 12");
 
@@ -106,12 +106,12 @@ namespace Insight {
 		return true;
 	}
 
-	void Direct3D12Context::DestroyImpl()
+	void Direct3D12Context::Destroy_Impl()
 	{
 		Cleanup();
 	}
 
-	bool Direct3D12Context::PostInitImpl()
+	bool Direct3D12Context::PostInit_Impl()
 	{
 		CloseCommandListAndSignalCommandQueue();
 		m_pWorldCamera = &ACamera::Get();
@@ -119,7 +119,7 @@ namespace Insight {
 		return true;
 	}
 
-	void Direct3D12Context::OnUpdateImpl(const float DeltaMs)
+	void Direct3D12Context::OnUpdate_Impl(const float DeltaMs)
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
@@ -162,7 +162,7 @@ namespace Insight {
 		}
 	}
 
-	void Direct3D12Context::OnPreFrameRenderImpl()
+	void Direct3D12Context::OnPreFrameRender_Impl()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
@@ -215,7 +215,7 @@ namespace Insight {
 		PIXEndEvent(m_pShadowPass_CommandList.Get());
 	}
 
-	void Direct3D12Context::OnRenderImpl()
+	void Direct3D12Context::OnRender_Impl()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
@@ -293,7 +293,7 @@ namespace Insight {
 		PIXEndEvent(m_pScenePass_CommandList.Get());
 	}
 
-	void Direct3D12Context::OnMidFrameRenderImpl()
+	void Direct3D12Context::OnMidFrameRender_Impl()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
@@ -400,7 +400,7 @@ namespace Insight {
 		PIXEndEvent(m_pPostEffectsPass_CommandList.Get());
 	}
 
-	void Direct3D12Context::ExecuteDrawImpl()
+	void Direct3D12Context::ExecuteDraw_Impl()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 		
@@ -431,7 +431,7 @@ namespace Insight {
 		WaitForGPU();
 	}
 
-	void Direct3D12Context::SwapBuffersImpl()
+	void Direct3D12Context::SwapBuffers_Impl()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
@@ -465,7 +465,7 @@ namespace Insight {
 		m_FenceValues[m_FrameIndex] = currentFenceValue + 1;
 	}
 
-	void Direct3D12Context::OnWindowResizeImpl()
+	void Direct3D12Context::OnWindowResize_Impl()
 	{
 		if (!m_IsMinimized) {
 
@@ -502,7 +502,7 @@ namespace Insight {
 		m_WindowResizeComplete = true;
 	}
 
-	void Direct3D12Context::OnWindowFullScreenImpl()
+	void Direct3D12Context::OnWindowFullScreen_Impl()
 	{
 		if (m_FullScreenMode)
 		{
@@ -575,34 +575,34 @@ namespace Insight {
 		m_FullScreenMode = !m_FullScreenMode;
 	}
 
-	void Direct3D12Context::SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers)
+	void Direct3D12Context::SetVertexBuffers_Impl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers)
 	{
 		m_pActiveCommandList->IASetVertexBuffers(StartSlot, NumBuffers, reinterpret_cast<D3D12VertexBuffer*>(pBuffers)->GetVertexBufferView());
 	}
 
-	void Direct3D12Context::SetIndexBufferImpl(ieIndexBuffer* pBuffer)
+	void Direct3D12Context::SetIndexBuffer_Impl(ieIndexBuffer* pBuffer)
 	{
 		m_pActiveCommandList->IASetIndexBuffer(&reinterpret_cast<D3D12IndexBuffer*>(pBuffer)->GetIndexBufferView());
 	}
 
-	void Direct3D12Context::DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation)
+	void Direct3D12Context::DrawIndexedInstanced_Impl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation)
 	{
 		m_pActiveCommandList->DrawIndexedInstanced(IndexCountPerInstance, NumInstances, StartIndexLocation, BaseVertexLoaction, StartInstanceLocation);
 	}
 
-	void Direct3D12Context::RenderSkySphereImpl()
+	void Direct3D12Context::RenderSkySphere_Impl()
 	{
 		m_SkySphere->Render(m_pScenePass_CommandList);
 	}
 
-	bool Direct3D12Context::CreateSkyboxImpl()
+	bool Direct3D12Context::CreateSkybox_Impl()
 	{
 		m_SkySphere = new ieD3D12SphereRenderer();
 		m_SkySphere->Init(10, 20, 20);
 		return true;
 	}
 
-	void Direct3D12Context::DestroySkyboxImpl()
+	void Direct3D12Context::DestroySkybox_Impl()
 	{
 		if (m_SkySphere) {
 			delete m_pSkySphere;

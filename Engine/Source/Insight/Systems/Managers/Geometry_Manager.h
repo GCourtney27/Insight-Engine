@@ -24,16 +24,16 @@ namespace Insight {
 		static GeometryManager& Get() { return *s_Instance; }
 		SceneModels* GetSceneModels() { return &m_OpaqueModels; }
 
-		static bool Init() { return s_Instance->InitImpl(); }
+		static bool Init() { return s_Instance->Init_Impl(); }
 
 		// Issue draw commands to all models attached to the geometry manager.
-		static void Render(eRenderPass RenderPass) { s_Instance->RenderImpl(RenderPass); }
+		static void Render(eRenderPass RenderPass) { s_Instance->Render_Impl(RenderPass); }
 		// Gather all geometry in the scene and uplaod their constant buffers to the GPU.
 		// Should only be called once, before 'Render()'. Does not draw models.
-		static void GatherGeometry() { s_Instance->GatherGeometryImpl(); }
+		static void GatherGeometry() { s_Instance->GatherGeometry_Impl(); }
 		// Reset incrementor for model geometry gather phase.
 		// See 'GatherGeometry()' for more information.
-		static void PostRender() { s_Instance->PostRenderImpl(); }
+		static void PostRender() { s_Instance->PostRender_Impl(); }
 		// UnRegister all model in the model cache. Usually used 
 		// when switching scenes.
 		static void FlushModelCache();
@@ -50,10 +50,10 @@ namespace Insight {
 
 
 	protected:
-		virtual bool InitImpl() = 0;
-		virtual void RenderImpl(eRenderPass RenderPass) = 0;
-		virtual void GatherGeometryImpl() = 0;
-		virtual void PostRenderImpl() = 0;
+		virtual bool Init_Impl() = 0;
+		virtual void Render_Impl(eRenderPass RenderPass) = 0;
+		virtual void GatherGeometry_Impl() = 0;
+		virtual void PostRender_Impl() = 0;
 
 	protected:
 		SceneModels m_OpaqueModels;

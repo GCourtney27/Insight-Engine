@@ -26,6 +26,7 @@ namespace Insight {
 		CreateGeometryPass();
 		CreateLightPass();
 		CreateSkyPass();
+		CreateTransparencyPass();
 		CreatePostFxPass();
 
 		m_ScreenQuad.Init(pDevice, pDeviceContext);
@@ -57,19 +58,24 @@ namespace Insight {
 
 	void D3D11DeferredShadingTech::PrepPipelineForRenderPass()
 	{
+		ID3D11ShaderResourceView* NullSRV[1] = { nullptr };
+
 		// Null the skybox SRV
 		{
-			ID3D11ShaderResourceView* NullSRV[1] = { nullptr };
 			m_pDeviceContext->PSSetShaderResources(15, 1, NullSRV);
 		}
 
 		// Unbind the RTV SRVs from last frame to prepare them as render targets again
 		{
-			ID3D11ShaderResourceView* NullSRV[1] = { nullptr };
 			m_pDeviceContext->PSSetShaderResources(0, 1, NullSRV); // Albedo
 			m_pDeviceContext->PSSetShaderResources(1, 1, NullSRV); // Normal
 			m_pDeviceContext->PSSetShaderResources(2, 1, NullSRV); // Roughness/Metallic/AO
 			m_pDeviceContext->PSSetShaderResources(3, 1, NullSRV); // Position
+		}
+
+		// Null the scene depth texture
+		{
+			m_pDeviceContext->PSSetShaderResources(4, 1, NullSRV);
 		}
 	}
 
@@ -82,10 +88,10 @@ namespace Insight {
 
 		// Set render targets
 		ID3D11RenderTargetView* RenderTargets[] = {
-			m_GBuffer[0].RenderTargetView.Get(),
-			m_GBuffer[1].RenderTargetView.Get(),
-			m_GBuffer[2].RenderTargetView.Get(),
-			m_GBuffer[3].RenderTargetView.Get(),
+			m_GBuffer[0].RenderTargetView.Get(), // Albedo
+			m_GBuffer[1].RenderTargetView.Get(), // Normal
+			m_GBuffer[2].RenderTargetView.Get(), // Roughness/Metallic/AO
+			m_GBuffer[3].RenderTargetView.Get(), // Position
 		};
 		m_pDeviceContext->OMSetRenderTargets(m_NumRTV, RenderTargets, m_DepthStencilView.Get());
 
@@ -141,6 +147,18 @@ namespace Insight {
 
 	}
 
+	void D3D11DeferredShadingTech::BindTransparencyPass()
+	{
+		//m_pDeviceContext->PSSetShaderResources(4, 1, m_pSceneDepthView.GetAddressOf());
+		m_pDeviceContext->OMSetRenderTargets(1, m_LightPassResult.RenderTargetView.GetAddressOf(), m_DepthStencilView.Get());
+
+		m_pDeviceContext->RSSetState(m_pTransparency_RasterizerState.Get());
+		m_pDeviceContext->IASetInputLayout(m_TransparencyPassVS.GetInputLayout());
+
+		m_pDeviceContext->VSSetShader(m_TransparencyPassVS.GetShader(), nullptr, 0);
+		m_pDeviceContext->PSSetShader(m_TransparencyPassPS.GetShader(), nullptr, 0);
+	}
+
 	void D3D11DeferredShadingTech::BindPostFxPass()
 	{
 		m_pDeviceContext->OMSetDepthStencilState(m_pDefaultDepthStencilState.Get(), 0U);
@@ -170,11 +188,11 @@ namespace Insight {
 
 		D3D11_INPUT_ELEMENT_DESC InputLayout[5] =
 		{
-			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0  },
-			{ "TANGENT",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0  },
-			{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0  },
+			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0  },
+			{ "TANGENT",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0  },
+			{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0  },
 		};
 		m_GeometryPassVS.Init(m_pDevice, VertexShaderFolder, InputLayout, ARRAYSIZE(InputLayout));
 		m_GeometryPassPS.Init(m_pDevice, PixelShaderFolder);
@@ -323,8 +341,8 @@ namespace Insight {
 
 		D3D11_INPUT_ELEMENT_DESC InputLayout[2] =
 		{
-			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		};
 		m_SkyPassVS.Init(m_pDevice, VertexShaderFolder, InputLayout, ARRAYSIZE(InputLayout));
 		m_SkyPassPS.Init(m_pDevice, PixelShaderFolder);
@@ -344,6 +362,33 @@ namespace Insight {
 
 	}
 
+	void D3D11DeferredShadingTech::CreateTransparencyPass()
+	{
+#ifndef IE_IS_STANDALONE
+		LPCWSTR VertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Transparency_Pass.vertex.cso";
+		LPCWSTR PixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Transparency_Pass.pixel.cso";
+#else
+		LPCWSTR VertexShaderFolder = L"Transparency_Pass.vertex.cso";
+		LPCWSTR PixelShaderFolder = L"Transparency_Pass.pixel.cso";
+#endif 
+
+		D3D11_INPUT_ELEMENT_DESC InputLayout[5] =
+		{
+			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0  },
+			{ "TANGENT",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0  },
+			{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0  },
+		};
+		m_TransparencyPassVS.Init(m_pDevice, VertexShaderFolder, InputLayout, ARRAYSIZE(InputLayout));
+		m_TransparencyPassPS.Init(m_pDevice, PixelShaderFolder);
+
+		D3D11_RASTERIZER_DESC RasterizerDesc = {};
+		RasterizerDesc.CullMode = D3D11_CULL_NONE;
+		RasterizerDesc.FillMode = D3D11_FILL_SOLID;
+		m_pDevice->CreateRasterizerState(&RasterizerDesc, m_pTransparency_RasterizerState.GetAddressOf());
+	}
+
 	void D3D11DeferredShadingTech::CreatePostFxPass()
 	{
 #ifndef IE_IS_STANDALONE
@@ -356,8 +401,8 @@ namespace Insight {
 
 		D3D11_INPUT_ELEMENT_DESC InputLayout[2] =
 		{
-			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		};
 		m_PostFxPassVS.Init(m_pDevice, VertexShaderFolder, InputLayout, ARRAYSIZE(InputLayout));
 		m_PostFxPassPS.Init(m_pDevice, PixelShaderFolder);

@@ -14,7 +14,7 @@ namespace Insight {
 	{
 	}
 
-	bool D3D12GeometryManager::InitImpl()
+	bool D3D12GeometryManager::Init_Impl()
 	{
 		Direct3D12Context* D3D12Context = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
 
@@ -38,7 +38,7 @@ namespace Insight {
 		return true;
 	}
 
-	void D3D12GeometryManager::RenderImpl(eRenderPass RenderPass)
+	void D3D12GeometryManager::Render_Impl(eRenderPass RenderPass)
 	{
 		if (RenderPass == eRenderPass::RenderPass_Shadow) {
 
@@ -104,7 +104,7 @@ namespace Insight {
 		}
 	}
 
-	void D3D12GeometryManager::GatherGeometryImpl()
+	void D3D12GeometryManager::GatherGeometry_Impl()
 	{
 
 		for (UINT32 i = 0; i < m_OpaqueModels.size(); i++) {
@@ -142,7 +142,7 @@ namespace Insight {
 		}
 	}
 
-	void D3D12GeometryManager::PostRenderImpl()
+	void D3D12GeometryManager::PostRender_Impl()
 	{
 		m_PerObjectCBDrawOffset = 0u;
 		m_GPUAddressUploadOffset = 0u;

@@ -92,7 +92,17 @@ namespace Insight {
 			return 8;
 			break;
 		}
+		case eTextureType::eTextureType_Opacity:
+		{
+			return 8;
+			break;
+		}
 		case eTextureType::eTextureType_AmbientOcclusion:
+		{
+			return 9;
+			break;
+		}
+		case eTextureType::eTextureType_Translucency:
 		{
 			return 9;
 			break;
