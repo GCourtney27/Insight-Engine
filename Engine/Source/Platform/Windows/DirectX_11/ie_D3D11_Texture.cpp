@@ -32,6 +32,14 @@ namespace Insight {
 
 	void ieD3D11Texture::BindForForwardPass()
 	{
+		if (m_TextureInfo.IsCubeMap) {
+			constexpr uint32_t RenderPassShaderRegisterOffset = 4U;
+			m_pDeviceContext->PSSetShaderResources(m_ShaderRegister - RenderPassShaderRegisterOffset, 1, m_pTextureView.GetAddressOf());
+		}
+		else {
+			constexpr uint32_t RenderPassShaderRegisterOffset = 5U;
+			m_pDeviceContext->PSSetShaderResources(m_ShaderRegister - RenderPassShaderRegisterOffset, 1, m_pTextureView.GetAddressOf());
+		}
 	}
 
 	bool ieD3D11Texture::Init()

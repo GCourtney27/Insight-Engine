@@ -313,7 +313,7 @@ namespace Insight {
 			m_pScenePass_CommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), TRUE, nullptr);
 
 			if (m_pSkyLight) {
-				m_pSkyLight->BindCubeMaps();
+				m_pSkyLight->BindCubeMaps(true);
 			}
 
 			for (unsigned int i = 0; i < m_NumRTV - 1; ++i) {
@@ -1317,7 +1317,6 @@ namespace Insight {
 		BlendDesc.AlphaToCoverageEnable = TRUE;
 		BlendDesc.IndependentBlendEnable = TRUE;
 		BlendDesc.RenderTarget[0].BlendEnable = true;
-
 
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC PsoDesc = {};
 		PsoDesc.VS = VertexShaderBytecode;

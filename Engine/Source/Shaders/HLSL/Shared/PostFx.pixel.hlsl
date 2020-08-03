@@ -34,7 +34,7 @@ struct PS_INPUT_POSTFX
 
 float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
 {
-    float3 result = t_LightPassResult.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
+    float3 result = t_LightPassResult.Sample(s_PointClampSampler, ps_in.texCoords).rgb;
     
    //float D = LinearizeDepth(t_SceneDepthGBuffer.Sample(s_PointClampSampler, ps_in.texCoords).r);
    //float3 result = float3(D, D, D);

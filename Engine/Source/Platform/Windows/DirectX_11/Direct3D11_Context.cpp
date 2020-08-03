@@ -197,7 +197,7 @@ namespace Insight {
 
 		// Light Pass
 		if (m_pSkyLight) {
-			m_pSkyLight->BindCubeMaps();
+			m_pSkyLight->BindCubeMaps(true);
 		}
 		m_pDeviceContext->PSSetConstantBuffers(2, 1, m_LightData.GetAddressOf());
 		m_DeferredShadingTech.BindLightPass();
@@ -209,6 +209,9 @@ namespace Insight {
 		}
 
 		// Transparency Pass
+		if (m_pSkyLight) {
+			m_pSkyLight->BindCubeMaps(false);
+		}
 		m_pDeviceContext->VSSetConstantBuffers(1, 1, m_PerFrameData.GetAddressOf());
 		m_pDeviceContext->PSSetConstantBuffers(1, 1, m_PerFrameData.GetAddressOf());
 		m_pDeviceContext->PSSetConstantBuffers(2, 1, m_LightData.GetAddressOf());

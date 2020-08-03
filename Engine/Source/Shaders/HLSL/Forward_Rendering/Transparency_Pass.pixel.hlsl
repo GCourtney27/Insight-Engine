@@ -47,8 +47,7 @@ float3 CalculatePointLight(PointLight light, float3 normal, float3 fragPosition,
 PS_OUT main(PS_INPUT ps_in)
 {
     PS_OUT ps_out;
-    ps_out.LitImage = float4(1.0, 0.0, 0.0, 1.0);
-    return ps_out;
+    
     // Sample Textures
     float3 albedo = pow(abs(t_Albedo.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb), float3(2.2, 2.2, 2.2)) + diffuseAdditive;
     float3 normal = t_Normal.Sample(s_LinearWrapSampler, ps_in.texCoords).xyz;
@@ -56,6 +55,7 @@ PS_OUT main(PS_INPUT ps_in)
     float opacity = t_Opacity.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
     float3 translucency = t_Translucency.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
     float roughness = roughnessInput + roughnessAdditive;
+    
     
     float3 viewDirection = normalize(cameraPosition - ps_in.FragPos);
         

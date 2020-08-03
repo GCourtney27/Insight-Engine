@@ -201,11 +201,18 @@ namespace Insight {
 	{
 	}
 
-	void ASkyLight::BindCubeMaps()
+	void ASkyLight::BindCubeMaps(bool RenderPassIsDeferred)
 	{
-		m_Environment->BindForDeferredPass();
-		m_Irradiance->BindForDeferredPass();
-		m_BrdfLUT->BindForDeferredPass();
+		if (RenderPassIsDeferred) {
+			m_Environment->BindForDeferredPass();
+			m_Irradiance->BindForDeferredPass();
+			m_BrdfLUT->BindForDeferredPass();
+		}
+		else {
+			m_Environment->BindForForwardPass();
+			m_Irradiance->BindForForwardPass();
+			m_BrdfLUT->BindForDeferredPass();
+		}
 	}
 
 }

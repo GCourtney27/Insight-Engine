@@ -77,6 +77,12 @@ namespace Insight {
 		{
 			m_pDeviceContext->PSSetShaderResources(4, 1, NullSRV);
 		}
+
+		// Reset the blend stat from the Transparency pass
+		{
+			ID3D11BlendState* NullBlendState[1] = { nullptr };
+			m_pDeviceContext->OMSetBlendState(NullBlendState[0], nullptr, 0xFFFFFFFF);
+		}
 	}
 
 	void D3D11DeferredShadingTech::BindGeometryPass()
@@ -153,6 +159,7 @@ namespace Insight {
 		m_pDeviceContext->OMSetRenderTargets(1, m_LightPassResult.RenderTargetView.GetAddressOf(), m_DepthStencilView.Get());
 
 		m_pDeviceContext->RSSetState(m_pTransparency_RasterizerState.Get());
+		m_pDeviceContext->OMSetBlendState(m_pTransparencyPass_BlendState.Get(), nullptr, 0xFFFFFFFF);
 		m_pDeviceContext->IASetInputLayout(m_TransparencyPassVS.GetInputLayout());
 
 		m_pDeviceContext->VSSetShader(m_TransparencyPassVS.GetShader(), nullptr, 0);
@@ -387,6 +394,19 @@ namespace Insight {
 		RasterizerDesc.CullMode = D3D11_CULL_NONE;
 		RasterizerDesc.FillMode = D3D11_FILL_SOLID;
 		m_pDevice->CreateRasterizerState(&RasterizerDesc, m_pTransparency_RasterizerState.GetAddressOf());
+
+		D3D11_RENDER_TARGET_BLEND_DESC RenderTargetBlendDesc = {};
+		RenderTargetBlendDesc.BlendEnable = true;
+		RenderTargetBlendDesc.SrcBlend = D3D11_BLEND::D3D11_BLEND_SRC_ALPHA;
+		RenderTargetBlendDesc.DestBlend = D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA;
+		RenderTargetBlendDesc.BlendOp = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+		RenderTargetBlendDesc.SrcBlendAlpha = D3D11_BLEND::D3D11_BLEND_ONE;
+		RenderTargetBlendDesc.DestBlendAlpha = D3D11_BLEND::D3D11_BLEND_ZERO;
+		RenderTargetBlendDesc.BlendOpAlpha = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+		RenderTargetBlendDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE::D3D11_COLOR_WRITE_ENABLE_ALL;
+		D3D11_BLEND_DESC BlendDesc = {};
+		BlendDesc.RenderTarget[0] = RenderTargetBlendDesc;
+		m_pDevice->CreateBlendState(&BlendDesc, m_pTransparencyPass_BlendState.GetAddressOf());
 	}
 
 	void D3D11DeferredShadingTech::CreatePostFxPass()

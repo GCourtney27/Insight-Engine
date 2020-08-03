@@ -109,6 +109,7 @@ namespace Insight {
 		VertexShader m_TransparencyPassVS;
 		PixelShader m_TransparencyPassPS;
 		ComPtr<ID3D11RasterizerState> m_pTransparency_RasterizerState;
+		ComPtr<ID3D11BlendState> m_pTransparencyPass_BlendState;
 
 		// PostFx Pass
 		// -----------
