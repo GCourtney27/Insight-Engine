@@ -60,7 +60,7 @@ namespace Insight {
 					Writer.Key("TextureQuality");
 					Writer.Double(Settings.MipLodBias);
 					Writer.Key("TextureFiltering");
-					Writer.Double(Settings.MaxAnisotropy);
+					Writer.Int(Settings.MaxAnisotropy);
 					Writer.EndObject();
 				}
 				Writer.EndArray();
