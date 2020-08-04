@@ -1,5 +1,6 @@
 ## Insight Engine
-A full game engine made for my 2019 Capstone project. It is written in C/C++ with DirectX 11 being the driver for the graphics.
+A full game engine made for my 2019 Capstone project. It is written in C/C++ with DirectX 11 being the driver for the graphics. <br />
+This engine is still under active development. To view the work done during the 10 weeks, visit the '2019-Capstone' branch.
 
 **World Editor**
 * Quickly update the transforms and components of your objects in real-time without having to close the engine and make adjustments. ImGui being used to provide quick window docking display information for Game Objects
