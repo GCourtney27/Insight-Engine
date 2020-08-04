@@ -344,6 +344,7 @@ namespace Insight {
 
 	void Direct3D11Context::OnShaderReload_Impl()
 	{
+		m_DeferredShadingTech.ReloadShaders();
 	}
 
 	void Direct3D11Context::UpdateSizeDependentResources()

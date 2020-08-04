@@ -33,6 +33,29 @@ namespace Insight {
 		return true;
 	}
 
+	void D3D11DeferredShadingTech::ReloadShaders()
+	{
+		m_GeometryPassVS.Reload();
+		m_GeometryPassPS.Reload();
+		CreateGeometryPass();
+
+		m_LightPassVS.Reload();
+		m_LightPassPS.Reload();
+		CreateLightPass();
+
+		m_SkyPassVS.Reload();
+		m_SkyPassPS.Reload();
+		CreateSkyPass();
+
+		m_TransparencyPassVS.Reload();
+		m_TransparencyPassPS.Reload();
+		CreateTransparencyPass();
+
+		m_PostFxPassVS.Reload();
+		m_PostFxPassPS.Reload();
+		CreatePostFxPass();
+	}
+
 	void D3D11DeferredShadingTech::Destroy()
 	{
 		for (uint8_t i = 0; i < m_NumRTV; ++i) {
@@ -497,6 +520,7 @@ namespace Insight {
 
 		m_pDeviceContext->DrawIndexed(m_NumIndices, 0, 0);
 	}
+
 
 }
 

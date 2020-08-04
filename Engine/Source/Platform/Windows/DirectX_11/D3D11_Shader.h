@@ -19,6 +19,8 @@ namespace Insight {
 		ID3D10Blob* GetBuffer();
 		ID3D11VertexShader** GetShaderAddress() { return m_pShader.GetAddressOf(); }
 		ID3D11InputLayout* GetInputLayout();
+		
+		void Reload();
 
 	private:
 		ComPtr<ID3D11VertexShader> m_pShader = nullptr;
@@ -34,6 +36,9 @@ namespace Insight {
 		ID3D11PixelShader* GetShader();
 		ID3D11PixelShader** GetShaderAddress() { return m_pShader.GetAddressOf(); }
 		ID3D10Blob* GetBuffer();
+		
+		void Reload();
+
 	private:
 		ComPtr<ID3D11PixelShader> m_pShader = nullptr;
 		ComPtr<ID3D10Blob> m_pShaderByteCode = nullptr;

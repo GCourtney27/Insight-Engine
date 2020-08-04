@@ -23,7 +23,7 @@ namespace Insight {
 		
 		bool Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext);
 		void OnRender();
-		
+
 	private:
 		ComPtr<ID3D11Device> m_pDevice;
 		ComPtr<ID3D11DeviceContext> m_pDeviceContext;
@@ -51,6 +51,8 @@ namespace Insight {
 		void BindSkyPass();
 		void BindTransparencyPass();
 		void BindPostFxPass();
+
+		void ReloadShaders();
 
 	private:
 		void CreateGeometryPass();

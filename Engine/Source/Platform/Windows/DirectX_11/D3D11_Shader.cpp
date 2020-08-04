@@ -40,6 +40,13 @@ namespace Insight {
 		return m_pInputLayout.Get();
 	}
 
+	void VertexShader::Reload()
+	{
+		m_pInputLayout.Reset();
+		m_pShaderByteCode.Reset();
+		m_pShader.Reset();
+	}
+
 
 
 
@@ -67,6 +74,12 @@ namespace Insight {
 	ID3D10Blob* PixelShader::GetBuffer()
 	{
 		return m_pShaderByteCode.Get();
+	}
+
+	void PixelShader::Reload()
+	{
+		m_pShaderByteCode.Reset();
+		m_pShader.Reset();
 	}
 
 
