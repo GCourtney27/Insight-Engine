@@ -11,7 +11,7 @@ namespace Insight {
 	enum class EventType
 	{
 		None = 0,
-		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved, ToggleWindowFullScreen,
+		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved, ToggleWindowFullScreen, ShaderReload,
 		AppBeginPlay, AppEndPlay, AppTick, AppUpdate, AppRender, AppScriptReload,
 		SceneSave,
 		KeyPressed, KeyReleased, KeyTyped,

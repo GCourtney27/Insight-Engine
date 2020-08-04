@@ -342,6 +342,10 @@ namespace Insight {
 		m_FullScreenMode = !m_FullScreenMode;
 	}
 
+	void Direct3D11Context::OnShaderReload_Impl()
+	{
+	}
+
 	void Direct3D11Context::UpdateSizeDependentResources()
 	{
 		UpdateViewAndScissor();

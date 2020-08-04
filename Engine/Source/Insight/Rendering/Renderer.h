@@ -81,6 +81,8 @@ namespace Insight {
 		static inline void OnWindowResize() { s_Instance->OnWindowResize_Impl(); }
 		// Tells the swapchain to enable full screen rendering.
 		static inline void OnWindowFullScreen() { s_Instance->OnWindowFullScreen_Impl(); }
+		// Reloads all shaders
+		static inline void OnShaderReload() { s_Instance->OnShaderReload_Impl(); }
 
 		// Set the graphics settings for the context
 		static void SetGraphicsSettings(GraphicsSettings GraphicsSettings) { s_Instance->m_GraphicsSettings = GraphicsSettings; }
@@ -144,6 +146,7 @@ namespace Insight {
 		virtual void SwapBuffers_Impl() = 0;
 		virtual void OnWindowResize_Impl() = 0;
 		virtual void OnWindowFullScreen_Impl() = 0;
+		virtual void OnShaderReload_Impl() = 0;
 
 		virtual void SetVertexBuffers_Impl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) = 0;
 		virtual void SetIndexBuffer_Impl(ieIndexBuffer* pBuffer) = 0;

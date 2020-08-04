@@ -81,7 +81,7 @@ PS_OUT main(PS_INPUT ps_in)
     }
     
     // Spot Lights
-    for (int s = 0; s < numPointLights; s++)
+    for (int s = 0; s < numSpotLights; s++)
     {
         spotLightLuminance += CalculateSpotLight(spotLights[s], viewDirection, NdotV, ps_in.FragPos, normal, albedo, roughness, metallicAdditive, baseReflectivity);
     }

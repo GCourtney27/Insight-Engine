@@ -25,6 +25,7 @@
 #define IDM_VISUALIZE_AO_BUFFER			117
 #define IDM_RENDERER_D3D_11				118
 #define IDM_RENDERER_D3D_12				119
+#define IDM_RELOAD_SHADERS				120
 
 #define IDI_ENGINE			107
 #define IDI_SMALL				108

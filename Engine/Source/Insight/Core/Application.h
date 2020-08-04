@@ -63,6 +63,7 @@ namespace Insight {
 		bool BeginPlay(AppBeginPlayEvent& e);
 		bool EndPlay(AppEndPlayEvent& e);
 		bool ReloadScripts(AppScriptReloadEvent& e);
+		bool ReloadShaders(ShaderReloadEvent& e);
 	private:
 		std::unique_ptr<Window>	m_pWindow;
 		IE_STRIP_FOR_GAME_DIST( ImGuiLayer* m_pImGuiLayer = nullptr; )

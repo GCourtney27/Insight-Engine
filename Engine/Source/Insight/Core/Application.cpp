@@ -136,6 +136,7 @@ namespace Insight {
 		dispatcher.Dispatch<AppBeginPlayEvent>(IE_BIND_EVENT_FN(Application::BeginPlay));
 		dispatcher.Dispatch<AppEndPlayEvent>(IE_BIND_EVENT_FN(Application::EndPlay));
 		dispatcher.Dispatch<AppScriptReloadEvent>(IE_BIND_EVENT_FN(Application::ReloadScripts));
+		dispatcher.Dispatch<ShaderReloadEvent>(IE_BIND_EVENT_FN(Application::ReloadShaders));
 
 		Input::GetInputManager().OnEvent(e);
 
@@ -225,6 +226,12 @@ namespace Insight {
 	{
 		IE_CORE_INFO("Reload Scirpts");
 		ResourceManager::Get().GetMonoScriptManager().ReCompile();
+		return true;
+	}
+
+	bool Application::ReloadShaders(ShaderReloadEvent& e)
+	{
+		Renderer::OnShaderReload();
 		return true;
 	}
 

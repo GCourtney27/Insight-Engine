@@ -354,6 +354,13 @@ namespace Insight {
 				data.pWindow->CreateMessageBox(L"You must relaunch engine for changes to take effect.", L"Graphics API changed to DirectX 12");
 				break;
 			}
+			case IDM_RELOAD_SHADERS:
+			{
+				IE_CORE_INFO("Reloading scripts.");
+				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+				ShaderReloadEvent event;
+				data.EventCallback(event);
+			}
 			default:
 				return DefWindowProcW(hWnd, uMsg, wParam, lParam);
 			}
@@ -520,6 +527,7 @@ namespace Insight {
 			m_hGraphicsVisualizeSubMenu = ::CreateMenu();
 
 			m_hGraphicsCurrentRenderContextSubMenu = ::CreateMenu();
+			::AppendMenuW(m_hGraphicsSubMenu, MF_STRING, IDM_RELOAD_SHADERS, L"Relead Shaders");
 			::AppendMenuW(m_hGraphicsSubMenu, MF_POPUP, (UINT_PTR)m_hGraphicsCurrentRenderContextSubMenu, L"&Renderer");
 			::AppendMenuW(m_hGraphicsCurrentRenderContextSubMenu, MF_UNCHECKED, IDM_RENDERER_D3D_11, L"&Direct3D 11");
 			::AppendMenuW(m_hGraphicsCurrentRenderContextSubMenu, MF_UNCHECKED, IDM_RENDERER_D3D_12, L"&Direct3D 12");
