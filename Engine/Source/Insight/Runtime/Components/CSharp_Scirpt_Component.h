@@ -43,14 +43,14 @@ namespace Insight {
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
 
-		void ReCompile();
+		void Cleanup();
+		void RegisterScript();
+
 
 	private:
 		void UpdateScriptFields();
 		void ProcessScriptTransformChanges();
 		void GetTransformFields();
-		void RegisterScript();
-		void Cleanup();
 	private:
 		MonoScriptManager* m_pMonoScriptManager = nullptr;
 		MonoClass* m_pClass = nullptr;
@@ -59,8 +59,8 @@ namespace Insight {
 		MonoMethod* m_pUpdateMethod = nullptr;
 
 		std::string m_ModuleName;
-		bool m_CanBeTicked = true;// TODO ImGui field this
-		bool m_CanBeCalledOnBeginPlay = true;// TODO ImGui field this
+		bool m_CanBeTicked = true;
+		bool m_CanBeCalledOnBeginPlay = true;
 		uint32_t m_ScriptWorldIndex = 0U;
 		EventData m_EventData;
 

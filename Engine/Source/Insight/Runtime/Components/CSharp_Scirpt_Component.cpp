@@ -39,12 +39,6 @@ namespace Insight {
 		Cleanup();
 	}
 
-	void CSharpScriptComponent::ReCompile()
-	{
-		Cleanup();
-		RegisterScript();
-	}
-
 	void CSharpScriptComponent::RegisterScript()
 	{
 		// Register the class with mono runtime
@@ -67,10 +61,7 @@ namespace Insight {
 
 	void CSharpScriptComponent::Cleanup()
 	{
-		if (m_pMonoScriptManager) {
-			m_pMonoScriptManager = nullptr;
-		}
-		ResourceManager::Get().GetMonoScriptManager().UnRegisterScript(this);
+
 	}
 
 	bool CSharpScriptComponent::LoadFromJson(const rapidjson::Value& jsonCSScriptComponent)
@@ -114,7 +105,10 @@ namespace Insight {
 
 	void CSharpScriptComponent::OnDestroy()
 	{
-		Cleanup();
+		if (m_pMonoScriptManager) {
+			m_pMonoScriptManager = nullptr;
+		}
+		ResourceManager::Get().GetMonoScriptManager().UnRegisterScript(this);
 	}
 
 	void CSharpScriptComponent::CalculateParent(const DirectX::XMMATRIX& matrix)
@@ -220,6 +214,11 @@ namespace Insight {
 			if (ImGui::InputText("##CSModuleNameField", &m_ModuleName, ImGuiInputTextFlags_EnterReturnsTrue)) {
 				RegisterScript();
 			}
+
+			ImGui::Checkbox("Can Be Ticked: ", &m_CanBeTicked);
+			ImGui::Checkbox("Can Be Called on Begin Play: ", &m_CanBeCalledOnBeginPlay);
+			
+
 
 		}
 

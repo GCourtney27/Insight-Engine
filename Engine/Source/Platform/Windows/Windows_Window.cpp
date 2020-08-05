@@ -242,6 +242,13 @@ namespace Insight {
 			// Parse the menu selections:
 			switch (wmId)
 			{
+			case IDM_NEW_SCENE:
+			{
+				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+
+
+				break;
+			}
 			case IDM_EDITOR_TOGGLE:
 			{
 				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
@@ -500,6 +507,7 @@ namespace Insight {
 			m_hFileSubMenu = ::CreateMenu();
 			::AppendMenuW(m_hMenuBar, MF_POPUP, (UINT_PTR)m_hFileSubMenu, L"&File");
 			::AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_SCENE_SAVE, L"&Save Scene");
+			//::AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_NEW_SCENE, L"New Scene");
 			::AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_ABOUT, L"&About");
 			::AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_EXIT, L"&Exit");
 		}

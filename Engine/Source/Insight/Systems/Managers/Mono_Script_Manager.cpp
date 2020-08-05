@@ -98,11 +98,21 @@ namespace Insight {
 			return false;
 		}
 		
+		
+		//m_pAssembly = mono_domain_assembly_open(m_pDomain, m_AssemblyDir.c_str());
 		m_pAssembly = mono_domain_assembly_open(m_pDomain, m_AssemblyDir.c_str());
 		if (!m_pAssembly) {
 			IE_CORE_ERROR("Failed to open mono assembly with path: {0}", m_AssemblyDir);
 			return false;
 		}
+
+		/*m_AssemblyDir = FileSystem::ProjectDirectory;
+		m_AssemblyDir += "/Bin/";
+		m_AssemblyDir += BuildConfig;
+		m_AssemblyDir += "/Assembly-CSharp/";
+		MonoImageOpenStatus* Status = nullptr;
+		m_pImage = mono_image_open_from_data_with_name(reinterpret_cast<char*>(m_pImage), sizeof(m_pImage), true, Status, true, m_AssemblyDir.c_str());*/
+
 
 		m_pImage = mono_assembly_get_image(m_pAssembly);
 		if (!m_pImage) {
@@ -128,6 +138,16 @@ namespace Insight {
 
 	void MonoScriptManager::ReCompile()
 	{
+		for (CSharpScriptComponent*& Script : m_RegisteredScripts) {
+
+			Script->Cleanup();
+		}
+
+		mono_images_cleanup();
+		//mono_image_close(m_pImage);
+		mono_assemblies_cleanup();
+		//mono_assembly_close(m_pAssembly);
+
 		/*if (!AssemblyClosed) {
 			AssemblyClosed = true;
 			mono_assembly_close(m_pAssembly);
@@ -160,10 +180,10 @@ namespace Insight {
 		mono_add_internal_call("Internal.Input::IsMouseButtonPressed", reinterpret_cast<const void*>(Interop_IsMouseButtonPressed));
 		mono_add_internal_call("Internal.Input::GetMouseX", reinterpret_cast<const void*>(Interop_GetMouseX));
 		mono_add_internal_call("Internal.Input::GetMouseY", reinterpret_cast<const void*>(Interop_GetMouseY));
-		/*for (auto& Script : m_RegisteredScripts)
-		{
-			Script->ReCompile();
-		}*/
+		for (CSharpScriptComponent*& Script : m_RegisteredScripts) {
+
+			Script->RegisterScript();
+		}
 	}
 
 	void MonoScriptManager::Cleanup()

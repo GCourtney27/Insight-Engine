@@ -14,7 +14,7 @@ namespace Insight {
 		ieVertexBuffer(Verticies Verticies)
 			: m_Verticies(std::move(Verticies)) {}
 		ieVertexBuffer() = default;
-		virtual ~ieVertexBuffer() = default;
+		virtual ~ieVertexBuffer() {}
 
 		virtual void Destroy() {}
 

@@ -197,6 +197,10 @@ namespace Insight {
 
 	bool ACamera::OnMouseScrolled(MouseScrolledEvent& e)
 	{
+		if (Application::Get().GetImGuiLayer().IsMouseOverUI()) {
+			return false;
+		}
+
 		if (e.GetYOffset() > 0.0f) {
 			ProcessKeyboardInput(CameraMovement::FORWARD, 0.05f);
 		}
