@@ -56,7 +56,7 @@ namespace Insight {
 		inline static ACamera& Get() { return *s_Instance; }
 
 		virtual void BeginPlay() override;
-		virtual void OnUpdate(const float& DeltaMs) override;
+		virtual void OnUpdate(const float DeltaMs) override;
 		virtual void EditorEndPlay() override;
 
 		void ProcessMouseScroll(float yOffset);

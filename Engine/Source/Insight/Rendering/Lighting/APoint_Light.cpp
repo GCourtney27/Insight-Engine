@@ -126,7 +126,7 @@ namespace Insight {
 		return true;
 	}
 
-	void APointLight::OnUpdate(const float& deltaMs)
+	void APointLight::OnUpdate(const float DeltaMs)
 	{
 		m_ShaderCB.position = SceneNode::GetTransformRef().GetPosition();
 	}
@@ -152,7 +152,7 @@ namespace Insight {
 	{
 	}
 
-	void APointLight::Tick(const float& deltaMs)
+	void APointLight::Tick(const float DeltaMs)
 	{
 	}
 

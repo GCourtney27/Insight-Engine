@@ -39,7 +39,7 @@ namespace Insight {
 		void SetMaterial(Material* pMaterial);
 
 		virtual void BeginPlay() override;
-		virtual void Tick(const float& deltaMs) override;
+		virtual void Tick(const float DeltaMs) override;
 
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;

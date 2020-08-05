@@ -158,7 +158,7 @@ namespace Insight {
 		return true;
 	}
 
-	void APostFx::OnUpdate(const float& deltaMs)
+	void APostFx::OnUpdate(const float DeltaMs)
 	{
 
 	}
@@ -183,7 +183,7 @@ namespace Insight {
 	{
 	}
 
-	void APostFx::Tick(const float& deltaMs)
+	void APostFx::Tick(const float DeltaMs)
 	{
 	}
 

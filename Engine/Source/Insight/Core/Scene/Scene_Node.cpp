@@ -68,10 +68,10 @@ namespace Insight {
 		return false;
 	}
 
-	void SceneNode::OnUpdate(const float& deltaMs)
+	void SceneNode::OnUpdate(const float DeltaMs)
 	{
 		for (auto i = m_Children.begin(); i != m_Children.end(); ++i) {
-			(*i)->OnUpdate(deltaMs);
+			(*i)->OnUpdate(DeltaMs);
 		}
 	}
 
@@ -98,10 +98,10 @@ namespace Insight {
 		}
 	}
 
-	void SceneNode::Tick(const float& deltaMs)
+	void SceneNode::Tick(const float DeltaMs)
 	{
 		for (auto i = m_Children.begin(); i != m_Children.end(); ++i) {
-			(*i)->Tick(deltaMs);
+			(*i)->Tick(DeltaMs);
 		}
 	}
 

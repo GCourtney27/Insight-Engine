@@ -30,10 +30,12 @@ namespace Insight {
 	{
 	}
 
-	// TODO Strip this out for game distribution we dont need it 
-	// during runtime character controller will do this for us
-	void ACamera::OnUpdate(const float& DeltaMs)
+	void ACamera::OnUpdate(const float DeltaMs)
 	{
+		// Strip this out for game distribution we dont need it 
+		// during runtime character controller will do this for us
+		IE_ADD_FOR_GAME_DIST(return);
+
 		if (Application::Get().IsPlaySessionUnderWay()) {
 			return;
 		}
@@ -200,6 +202,13 @@ namespace Insight {
 		}
 		if (e.GetYOffset() < 0.0f) {
 			ProcessKeyboardInput(CameraMovement::BACKWARD, 0.05f);
+		}
+
+		if (e.GetXOffset() > 0.0f) {
+			ProcessKeyboardInput(CameraMovement::RIGHT, 0.05f);
+		}
+		if (e.GetXOffset() < 0.0f) {
+			ProcessKeyboardInput(CameraMovement::LEFT, 0.05f);
 		}
 		return false;
 	}

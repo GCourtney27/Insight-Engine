@@ -24,17 +24,17 @@ namespace Insight {
 		}
 
 		virtual bool OnInit() override;
-		virtual void OnUpdate(const float& deltaMs) override;
+		virtual void OnUpdate(const float DeltaMs) override;
 		virtual void CalculateParent(XMMATRIX parentMat) override;
 		virtual void OnRender() override;
-		virtual void Tick(const float& DeltaMs) override;
+		virtual void Tick(const float DeltaMs) override;
 		void RenderSceneHeirarchy() override;
 		void OnImGuiRender() override;
 
 	private:
 		ViewTarget m_ViewTarget;
 		ACamera* m_pCamera;
-		virtual void ProcessInput(const float& deltaMs);
+		virtual void ProcessInput(const float DeltaMs);
 	private:
 		static APlayerCharacter* s_Instance;
 	};

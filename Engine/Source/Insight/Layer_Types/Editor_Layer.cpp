@@ -218,7 +218,7 @@ namespace Insight {
 		ImGui::End();
 	}
 
-	void EditorLayer::OnUpdate(const float& DeltaMs)
+	void EditorLayer::OnUpdate(const float DeltaMs)
 	{
 	}
 

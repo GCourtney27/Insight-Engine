@@ -14,7 +14,7 @@ cbuffer cbPerFrame : register(b1)
     float4x4 projection;
     float cameraNearZ;
     float cameraFarZ;
-    float deltaMs;
+    float DeltaMs;
     float time;//4
     float numPointLights;
     float numDirectionalLights;

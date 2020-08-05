@@ -141,7 +141,7 @@ namespace Insight {
 		return true;
 	}
 
-	void ASkySphere::OnUpdate(const float& deltaMs)
+	void ASkySphere::OnUpdate(const float DeltaMs)
 	{
 	}
 
@@ -173,7 +173,7 @@ namespace Insight {
 	{
 	}
 
-	void ASkySphere::Tick(const float& deltaMs)
+	void ASkySphere::Tick(const float DeltaMs)
 	{
 	}
 

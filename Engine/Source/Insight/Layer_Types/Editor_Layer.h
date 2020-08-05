@@ -23,7 +23,7 @@ namespace Insight {
 		virtual void OnDetach() override;
 		virtual void OnImGuiRender() override;
 
-		virtual void OnUpdate(const float& DeltaMs) override;
+		virtual void OnUpdate(const float DeltaMs) override;
 		void OnEvent(Event& event) override;
 
 		inline void SetUIEnabled(bool Enabled) { m_UIEnabled = Enabled; }

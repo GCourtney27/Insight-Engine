@@ -42,7 +42,7 @@ namespace Insight {
 		virtual void RenderSceneHeirarchy() override;
 
 		virtual void BeginPlay() override;
-		virtual void Tick(const float& DeltaMs) override;
+		virtual void Tick(const float DeltaMs) override;
 
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;

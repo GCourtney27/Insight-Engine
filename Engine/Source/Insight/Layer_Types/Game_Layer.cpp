@@ -23,7 +23,7 @@ namespace Insight {
 		m_pScene->BeginPlay();
 	}
 
-	void GameLayer::Update(const float& DeltaMs)
+	void GameLayer::Update(const float DeltaMs)
 	{
 		m_pScene->OnUpdate(DeltaMs);
 	}
@@ -67,7 +67,7 @@ namespace Insight {
 
 	}
 
-	void GameLayer::OnUpdate(const float& DeltaMs)
+	void GameLayer::OnUpdate(const float DeltaMs)
 	{
 		m_pScene->Tick(DeltaMs);
 	}

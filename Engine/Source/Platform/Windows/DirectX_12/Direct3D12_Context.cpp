@@ -131,7 +131,7 @@ namespace Insight {
 		m_PerFrameData.view = viewFloat;
 		m_PerFrameData.projection = projectionFloat;
 		m_PerFrameData.cameraPosition = m_pWorldCamera->GetTransformRef().GetPosition();
-		m_PerFrameData.deltaMs = DeltaMs;
+		m_PerFrameData.DeltaMs = DeltaMs;
 		m_PerFrameData.time = (float)Application::Get().GetFrameTimer().Seconds();
 		m_PerFrameData.cameraNearZ = (float)m_pWorldCamera->GetNearZ();
 		m_PerFrameData.cameraFarZ = (float)m_pWorldCamera->GetFarZ();

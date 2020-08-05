@@ -198,7 +198,7 @@ namespace Insight {
 
 	}
 
-	void CSharpScriptComponent::OnUpdate(const float& deltaMs)
+	void CSharpScriptComponent::OnUpdate(const float DeltaMs)
 	{
 		
 	}
@@ -236,13 +236,13 @@ namespace Insight {
 		m_pMonoScriptManager->InvokeMethod(m_pBeginPlayMethod, m_pObject, nullptr);
 	}
 
-	void CSharpScriptComponent::Tick(const float& deltaMs)
+	void CSharpScriptComponent::Tick(const float DeltaMs)
 	{
 		if (!m_CanBeTicked) { return; }
 		UpdateScriptFields();
 
 		void* args[1];
-		double doubleDt = (double)deltaMs;
+		double doubleDt = (double)DeltaMs;
 		args[0] = &doubleDt;
 		m_pMonoScriptManager->InvokeMethod(m_pUpdateMethod, m_pObject, args);
 

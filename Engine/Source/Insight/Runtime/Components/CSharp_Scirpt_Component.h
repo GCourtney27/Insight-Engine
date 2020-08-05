@@ -31,14 +31,14 @@ namespace Insight {
 		virtual void OnPostInit() override;
 		virtual void OnDestroy() override;
 		virtual void CalculateParent(const DirectX::XMMATRIX& matrix) override;
-		virtual void OnUpdate(const float& deltaTime);
+		virtual void OnUpdate(const float deltaTime);
 		virtual void OnRender() override;
 		virtual void OnChanged() override;
 		virtual void OnImGuiRender() override;
 		virtual void RenderSceneHeirarchy() override;
 
 		virtual void BeginPlay() override;
-		virtual void Tick(const float& deltaMs) override;
+		virtual void Tick(const float DeltaMs) override;
 
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;

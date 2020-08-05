@@ -228,7 +228,7 @@ namespace Insight {
 	{
 	}
 
-	void StaticMeshComponent::Tick(const float& deltaMs)
+	void StaticMeshComponent::Tick(const float DeltaMs)
 	{
 	}
 
