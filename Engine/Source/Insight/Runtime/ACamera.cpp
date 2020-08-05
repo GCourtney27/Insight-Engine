@@ -38,6 +38,24 @@ namespace Insight {
 			return;
 		}
 
+		if (Input::IsMouseButtonPressed(IE_MOUSEBUTTON_MIDDLE)) {
+
+			auto [x, y] = Input::GetRawMousePosition();
+
+			if (x < 0.0f) {
+				ProcessKeyboardInput(CameraMovement::LEFT, DeltaMs);
+			}
+			if (x > 0.0f) {
+				ProcessKeyboardInput(CameraMovement::RIGHT, DeltaMs);
+			}
+			if (y < 0.0f) {
+				ProcessKeyboardInput(CameraMovement::UP, DeltaMs);
+			}
+			if (y > 0.0f) {
+				ProcessKeyboardInput(CameraMovement::DOWN, DeltaMs);
+			}
+		}
+		
 		if (Input::IsKeyPressed(VK_SHIFT)) {
 			m_MovementSpeed = BOOST_SPEED;
 		}
@@ -113,6 +131,13 @@ namespace Insight {
 		UpdateViewMatrix();
 	}
 
+	void ACamera::OnEvent(Event& e)
+	{
+		EventDispatcher Dispatcher(e);
+		Dispatcher.Dispatch<MouseScrolledEvent>(IE_BIND_EVENT_FN(ACamera::OnMouseScrolled));
+
+	}
+
 	void ACamera::SetPerspectiveProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ)
 	{
 		m_Fov = fovDegrees;
@@ -126,7 +151,6 @@ namespace Insight {
 	void ACamera::SetOrthographicsProjectionValues(float viewWidth, float viewHeight, float nearZ, float farZ)
 	{
 		m_ProjectionMatrix = XMMatrixOrthographicLH(viewWidth, viewHeight, nearZ, farZ);
-		//m_ProjectionMatrix = XMMatrixOrthographicOffCenterLH(0.0f, viewWidth, 0.0f, viewHeight, nearZ, farZ);
 	}
 
 	void ACamera::RenderSceneHeirarchy()
@@ -150,7 +174,7 @@ namespace Insight {
 
 		ImGui::Text("Projection");
 		constexpr char* projectionMethods[] = { "Perspective", "Orthographic" };
-		ImGui::Combo("Method", &m_IsOrthographic, projectionMethods, IM_ARRAYSIZE(projectionMethods));
+		ImGui::Combo("Method", (int*)&m_IsOrthographic, projectionMethods, IM_ARRAYSIZE(projectionMethods));
 		if (!m_IsOrthographic) {
 			SetPerspectiveProjectionValues(m_Fov, m_AspectRatio, m_NearZ, m_FarZ);
 		}
@@ -168,4 +192,16 @@ namespace Insight {
 		XMVECTOR upDir = XMVector3TransformCoord(Vector3::Up, camRotationMatrix);
 		m_ViewMatrix = XMMatrixLookAtLH(GetTransformRef().GetPosition(), camTarget, upDir);
 	}
+
+	bool ACamera::OnMouseScrolled(MouseScrolledEvent& e)
+	{
+		if (e.GetYOffset() > 0.0f) {
+			ProcessKeyboardInput(CameraMovement::FORWARD, 0.05f);
+		}
+		if (e.GetYOffset() < 0.0f) {
+			ProcessKeyboardInput(CameraMovement::BACKWARD, 0.05f);
+		}
+		return false;
+	}
+
 }

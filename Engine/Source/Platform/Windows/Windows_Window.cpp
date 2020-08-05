@@ -66,14 +66,16 @@ namespace Insight {
 		case WM_MOUSEWHEEL:
 		{
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			MouseScrolledEvent event(0, GET_WHEEL_DELTA_WPARAM(wParam));
+			float yOffset = GET_WHEEL_DELTA_WPARAM(wParam) / 120.0f;
+			MouseScrolledEvent event(0.0f, yOffset);
 			data.EventCallback(event);
 			return 0;
 		}
 		case WM_MOUSEHWHEEL:
 		{
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			MouseScrolledEvent event(GET_WHEEL_DELTA_WPARAM(wParam), 0);
+			float xOffset = GET_WHEEL_DELTA_WPARAM(wParam) / 120.0f;
+			MouseScrolledEvent event(xOffset, 0.0f);
 			data.EventCallback(event);
 			return 0;
 		}
@@ -381,8 +383,8 @@ namespace Insight {
 		}
 
 		static bool raw_input_initialized = false;
-		if (raw_input_initialized == false)
-		{
+		if (raw_input_initialized == false) {
+
 			RAWINPUTDEVICE rid;
 
 			rid.usUsagePage = 0x01; // Mouse

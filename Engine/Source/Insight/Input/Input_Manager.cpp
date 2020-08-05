@@ -18,6 +18,7 @@ namespace Insight {
 		// Mouse Moved
 		dispatcher.Dispatch<MouseMovedEvent>(IE_BIND_EVENT_FN(InputManager::OnMouseMovedEvent));
 		dispatcher.Dispatch<MouseRawMoveEvent>(IE_BIND_EVENT_FN(InputManager::OnRawMouseMoveEvent));
+		// Mouse Scroll
 		dispatcher.Dispatch<MouseScrolledEvent>(IE_BIND_EVENT_FN(InputManager::OnMouseScrollEvent));
 		// Key Pressed
 		dispatcher.Dispatch<KeyPressedEvent>(IE_BIND_EVENT_FN(InputManager::OnKeyPressedEvent));
@@ -41,7 +42,7 @@ namespace Insight {
 	bool InputManager::OnMouseScrollEvent(MouseScrolledEvent& e)
 	{
 		m_MouseBuffer.OnMouseScroll(e.GetXOffset(), e.GetYOffset());
-		//IE_CORE_INFO("{0}", e.GetYOffset());
+		IE_CORE_INFO("{0}", e.GetYOffset());
 
 		return false;
 	}

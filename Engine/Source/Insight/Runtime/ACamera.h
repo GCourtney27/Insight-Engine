@@ -4,6 +4,8 @@
 
 #include "Insight/Runtime/AActor.h"
 
+#include "Insight/Events/Mouse_Event.h"
+
 namespace Insight {
 
 	using namespace DirectX::SimpleMath;
@@ -102,22 +104,25 @@ namespace Insight {
 			GetTransformRef().UpdateLocalDirectionVectors();
 		}
 
+		void OnEvent(Event& e);
+
 		void SetPerspectiveProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ);
 		void SetOrthographicsProjectionValues(float viewWidth, float viewHeight, float nearZ, float farZ);
 		void RenderSceneHeirarchy() override;
 		void OnImGuiRender() override;
 
-		BOOL GetIsOrthographic() { return m_IsOrthographic; }
+		int GetIsOrthographic() { return m_IsOrthographic; }
 
 	private:
 		void UpdateViewMatrix();
+		bool OnMouseScrolled(MouseScrolledEvent& e);
 	private:
 
 		XMFLOAT4X4 m_ViewMat4x4;
 		XMMATRIX m_ViewMatrix;
 		XMFLOAT4X4 m_ProjectionMat4x4;
 		XMMATRIX m_ProjectionMatrix;
-		BOOL m_IsOrthographic = false;
+		bool m_IsOrthographic = false;
 
 		float m_Yaw = 0.0f;
 		float m_Pitch = 0.0f;

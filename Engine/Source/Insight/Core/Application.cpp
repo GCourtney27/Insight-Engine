@@ -139,6 +139,7 @@ namespace Insight {
 		dispatcher.Dispatch<ShaderReloadEvent>(IE_BIND_EVENT_FN(Application::ReloadShaders));
 
 		Input::GetInputManager().OnEvent(e);
+		ACamera::Get().OnEvent(e);
 
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
 		{
