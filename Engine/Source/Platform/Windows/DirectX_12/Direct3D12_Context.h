@@ -219,23 +219,25 @@ namespace Insight {
 		ComPtr<ID3D12PipelineState>			m_pPostFxPass_PSO;
 
 		//-----Pipeline-----
-		//0:  SRV-Albedo(RTV->SRV)
-		//1:  SRV-Normal(RTV->SRV)
-		//2:  SRV-(R)Roughness/(G)Metallic/(B)AO(RTV->SRV)
-		//3:  SRV-Position(RTV->SRV)
-		//4:  SRV-Scene Depth(DSV->SRV)
-		//5:  SRV-Light Pass Result(RTV->SRV)
-		//6:  SRV-Shadow Depth(DSV->SRV)
+		//0:   SRV-Albedo(RTV->SRV)
+		//1:   SRV-Normal(RTV->SRV)
+		//2:   SRV-(R)Roughness/(G)Metallic/(B)AO(RTV->SRV)
+		//3:   SRV-Position(RTV->SRV)
+		//4:   SRV-Scene Depth(DSV->SRV)
+		//5:   SRV-Light Pass Result(RTV->SRV)
+		//6:   UAV-Ray Trace Output(UAV->SRV)
+		//7:   SRV-RayTrace TLAS(SRV)
+		//8:   SRV-Shadow Depth(DSV->SRV)
 		//-----PerObject-----
-		//7:  SRV-Albedo(SRV)
-		//8:  SRV-Normal(SRV)
-		//9:  SRV-Roughness(SRV)
-		//10: SRV-Metallic(SRV)
-		//11: SRV-AO(SRV)
-		//12: SRV-Sky Irradiance(SRV)
-		//13: SRV-Sky Environment(SRV)
-		//14: SRV-Sky BRDF LUT(SRV)
-		//15: SRV-Sky Diffuse(SRV)
+		//9:   SRV-Albedo(SRV)
+		//10:  SRV-Normal(SRV)
+		//11:  SRV-Roughness(SRV)
+		//12:  SRV-Metallic(SRV)
+		//13:  SRV-AO(SRV)
+		//14:  SRV-Sky Irradiance(SRV)
+		//15:  SRV-Sky Environment(SRV)
+		//16:  SRV-Sky BRDF LUT(SRV)
+		//17:  SRV-Sky Diffuse(SRV)
 		CDescriptorHeapWrapper				m_cbvsrvHeap;
 
 		ScreenQuad							m_ScreenQuad;

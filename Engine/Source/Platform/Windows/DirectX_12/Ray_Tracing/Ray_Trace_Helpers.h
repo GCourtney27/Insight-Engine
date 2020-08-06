@@ -32,6 +32,15 @@ namespace Insight {
 		AccelerationStructureBuffers CreateBottomLevelAS(std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> vVertexBuffers);
 		void CreateTopLevelAS(const std::vector<std::pair<ComPtr<ID3D12Resource>, DirectX::XMMATRIX>>& instances);
 		void CreateAccelerationStructures();
+
+		void CreateRaytracingPipeline();
+		void CreateRaytracingOutputBuffer();
+		void CreateShaderBindingTable();
+		
+		ComPtr<ID3D12RootSignature> CreateRayGenSignature();
+		ComPtr<ID3D12RootSignature> CreateMissSignature();
+		ComPtr<ID3D12RootSignature> CreateHitSignature();
+
 		// TEMP
 		void LoadDemoAssets(); 	ieD3D12SphereRenderer* m_Sphere;
 
@@ -40,6 +49,7 @@ namespace Insight {
 		ComPtr<ID3D12Device>				m_pDeviceRef;
 		ComPtr<ID3D12GraphicsCommandList4>	m_pRayTracePass_CommandList;
 
+		ComPtr<ID3D12Resource>					m_OutputBuffer;
 		ComPtr<ID3D12Resource>					m_bottomLevelAS;
 
 		nv_helpers_dx12::TopLevelASGenerator	m_TopLevelASGenerator;
@@ -48,6 +58,19 @@ namespace Insight {
 
 		std::vector<std::pair<ComPtr<ID3D12Resource>, DirectX::XMMATRIX>> m_Instances;
 
+		ComPtr<IDxcBlob> m_RayGenLibrary;
+		ComPtr<IDxcBlob> m_HitLibrary;
+		ComPtr<IDxcBlob> m_MissLibrary;
+
+		ComPtr<ID3D12RootSignature> m_RayGenSignature;
+		ComPtr<ID3D12RootSignature> m_HitSignature;
+		ComPtr<ID3D12RootSignature> m_MissSignature;
+
+		ComPtr<ID3D12StateObject> m_rtStateObject;
+		ComPtr<ID3D12StateObjectProperties> m_rtStateObjectProps;
+
+		nv_helpers_dx12::ShaderBindingTableGenerator m_sbtHelper;
+		ComPtr<ID3D12Resource> m_sbtStorage;
 	};
 
 }
