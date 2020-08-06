@@ -41,7 +41,7 @@ struct CB_PS_VS_PerFrame
 	DirectX::XMFLOAT4X4 projection;//4x4
 	float cameraNearZ;
 	float cameraFarZ;
-	float deltaMs;
+	float DeltaMs;
 	float time;//4
 	float numPointLights;
 	float numDirectionalLights;

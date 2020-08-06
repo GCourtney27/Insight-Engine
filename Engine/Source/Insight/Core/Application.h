@@ -2,14 +2,18 @@
 
 #include <Insight/Core.h>
 
-#include "Window.h"
-#include "Insight/Systems/Time.h"
+#include "Insight/Core/Window.h"
 #include "Insight/Core/Scene/Scene.h"
-#include "Insight/Layer_Types/ImGui_Layer.h"
-#include "Insight/Layer_Types/Game_Layer.h"
-#include "Insight/Layer_Types/Editor_Layer.h"
+#include "Insight/Systems/Frame_Timer.h"
 #include "Insight/Core/Layer/Layer_Stack.h"
+
 #include "Insight/Events/Application_Event.h"
+
+#include "Insight/Layer_Types/Game_Layer.h"
+#include "Insight/Layer_Types/ImGui_Layer.h"
+#include "Insight/Layer_Types/Editor_Layer.h"
+
+
 
 namespace Insight {
 
@@ -63,6 +67,7 @@ namespace Insight {
 		bool BeginPlay(AppBeginPlayEvent& e);
 		bool EndPlay(AppEndPlayEvent& e);
 		bool ReloadScripts(AppScriptReloadEvent& e);
+		bool ReloadShaders(ShaderReloadEvent& e);
 	private:
 		std::unique_ptr<Window>	m_pWindow;
 		IE_STRIP_FOR_GAME_DIST( ImGuiLayer* m_pImGuiLayer = nullptr; )

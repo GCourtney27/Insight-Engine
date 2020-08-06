@@ -31,7 +31,7 @@ namespace Insight {
 
 		virtual bool OnInit();
 		virtual bool OnPostInit();
-		virtual void OnUpdate(const float& deltaMs);
+		virtual void OnUpdate(const float DeltaMs);
 		virtual void CalculateParent(XMMATRIX parentMat);
 		virtual void OnRender();
 		virtual void Destroy();
@@ -39,7 +39,7 @@ namespace Insight {
 		void OnEvent(Event& e);
 
 		virtual void BeginPlay();
-		virtual void Tick(const float& deltaMs);
+		virtual void Tick(const float DeltaMs);
 		virtual void Exit();
 
 		ActorId GetId() { return m_Id; }

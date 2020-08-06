@@ -23,9 +23,9 @@ namespace Insight {
 		return true;
 	}
 
-	void APawn::OnUpdate(const float& deltaMs)
+	void APawn::OnUpdate(const float DeltaMs)
 	{
-		AActor::OnUpdate(deltaMs);
+		AActor::OnUpdate(DeltaMs);
 
 	}
 

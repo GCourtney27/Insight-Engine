@@ -17,6 +17,8 @@ namespace Insight {
 		
 		bool Init();
 		bool PostInit();
+		void OnBeginPlay();
+		void OnEndPlaySession();
 		void ReCompile();
 		void Cleanup();
 
@@ -37,7 +39,7 @@ namespace Insight {
 		MonoAssembly* m_pAssembly = nullptr;
 		MonoImage* m_pImage = nullptr;
 		
-		bool AssemblyClosed = false;
+		bool m_ManagerIsInitialized = false;
 
 		const char* m_CSGlobalNamespace = "InsightEngine";
 		std::string m_AssemblyDir = "";

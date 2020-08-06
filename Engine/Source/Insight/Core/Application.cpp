@@ -80,6 +80,7 @@ namespace Insight {
 		// Push core app layer to the layer stack
 		PushEngineLayers();
 
+		ResourceManager::Get().GetMonoScriptManager().PostInit();
 		IE_CORE_TRACE("Application Initialized");
 		return true;
 	}
@@ -128,16 +129,18 @@ namespace Insight {
 
 	void Application::OnEvent(Event & e)
 	{
-		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowCloseEvent>(IE_BIND_EVENT_FN(Application::OnWindowClose));
-		dispatcher.Dispatch<WindowResizeEvent>(IE_BIND_EVENT_FN(Application::OnWindowResize));
-		dispatcher.Dispatch<WindowToggleFullScreenEvent>(IE_BIND_EVENT_FN(Application::OnWindowFullScreen));
-		dispatcher.Dispatch<SceneSaveEvent>(IE_BIND_EVENT_FN(Application::SaveScene));
-		dispatcher.Dispatch<AppBeginPlayEvent>(IE_BIND_EVENT_FN(Application::BeginPlay));
-		dispatcher.Dispatch<AppEndPlayEvent>(IE_BIND_EVENT_FN(Application::EndPlay));
-		dispatcher.Dispatch<AppScriptReloadEvent>(IE_BIND_EVENT_FN(Application::ReloadScripts));
+		EventDispatcher Dispatcher(e);
+		Dispatcher.Dispatch<WindowCloseEvent>(IE_BIND_EVENT_FN(Application::OnWindowClose));
+		Dispatcher.Dispatch<WindowResizeEvent>(IE_BIND_EVENT_FN(Application::OnWindowResize));
+		Dispatcher.Dispatch<WindowToggleFullScreenEvent>(IE_BIND_EVENT_FN(Application::OnWindowFullScreen));
+		Dispatcher.Dispatch<SceneSaveEvent>(IE_BIND_EVENT_FN(Application::SaveScene));
+		Dispatcher.Dispatch<AppBeginPlayEvent>(IE_BIND_EVENT_FN(Application::BeginPlay));
+		Dispatcher.Dispatch<AppEndPlayEvent>(IE_BIND_EVENT_FN(Application::EndPlay));
+		Dispatcher.Dispatch<AppScriptReloadEvent>(IE_BIND_EVENT_FN(Application::ReloadScripts));
+		Dispatcher.Dispatch<ShaderReloadEvent>(IE_BIND_EVENT_FN(Application::ReloadShaders));
 
 		Input::GetInputManager().OnEvent(e);
+		ACamera::Get().OnEvent(e);
 
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
 		{
@@ -223,8 +226,14 @@ namespace Insight {
 
 	bool Application::ReloadScripts(AppScriptReloadEvent& e)
 	{
-		IE_CORE_INFO("Reload Scirpts");
+		IE_CORE_INFO("Reload Scripts");
 		ResourceManager::Get().GetMonoScriptManager().ReCompile();
+		return true;
+	}
+
+	bool Application::ReloadShaders(ShaderReloadEvent& e)
+	{
+		Renderer::OnShaderReload();
 		return true;
 	}
 

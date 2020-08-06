@@ -18,7 +18,7 @@ namespace Insight {
 		virtual void OnDetach() override;
 		virtual void OnImGuiRender() override;
 
-		virtual void OnUpdate(const float& DeltaMs) override;
+		virtual void OnUpdate(const float DeltaMs) override;
 		void OnEvent(Event& event) override;
 
 		bool LoadScene(const std::string& FileName);
@@ -27,7 +27,7 @@ namespace Insight {
 		bool IsPlaySesionUnderWay() { return m_TickScene; }
 
 		void BeginPlay();
-		void Update(const float& DeltaMs);
+		void Update(const float DeltaMs);
 		void PreRender();
 		void Render();
 		void PostRender();

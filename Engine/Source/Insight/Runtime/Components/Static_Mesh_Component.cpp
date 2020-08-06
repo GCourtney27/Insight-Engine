@@ -196,7 +196,6 @@ namespace Insight {
 
 		if (m_pModel) {
 			GeometryManager::UnRegisterOpaqueModel(m_pModel);
-			m_pModel->Destroy();
 			m_pModel.reset();
 		}
 		m_pModel = make_shared<Model>();
@@ -228,7 +227,7 @@ namespace Insight {
 	{
 	}
 
-	void StaticMeshComponent::Tick(const float& deltaMs)
+	void StaticMeshComponent::Tick(const float DeltaMs)
 	{
 	}
 

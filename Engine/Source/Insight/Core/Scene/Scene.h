@@ -37,11 +37,11 @@ namespace Insight {
 		// is loaded during game runtime 
 		void BeginPlay();
 		// Called once per frame during game runtime. 
-		void Tick(const float& deltaMs);
+		void Tick(const float DeltaMs);
 		// Called once per frame during the application's runtime. Some resoruces
 		// aways need to be updated, such as pushing geometry to the GPU for example. This
 		// guarantees it get exexcuted regardless if the game is simmulating or not.
-		void OnUpdate(const float& deltaMs);
+		void OnUpdate(const float DeltaMs);
 		// Render an ImGui widget for thie module.
 		void OnImGuiRender();
 		// Flushes GPU command lists and prepares for next frame. Also calculates 

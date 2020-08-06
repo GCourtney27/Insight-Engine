@@ -66,14 +66,16 @@ namespace Insight {
 		case WM_MOUSEWHEEL:
 		{
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			MouseScrolledEvent event(0, GET_WHEEL_DELTA_WPARAM(wParam));
+			float yOffset = GET_WHEEL_DELTA_WPARAM(wParam) / 120.0f;
+			MouseScrolledEvent event(0.0f, yOffset);
 			data.EventCallback(event);
 			return 0;
 		}
 		case WM_MOUSEHWHEEL:
 		{
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			MouseScrolledEvent event(GET_WHEEL_DELTA_WPARAM(wParam), 0);
+			float xOffset = GET_WHEEL_DELTA_WPARAM(wParam) / 120.0f;
+			MouseScrolledEvent event(xOffset, 0.0f);
 			data.EventCallback(event);
 			return 0;
 		}
@@ -240,6 +242,13 @@ namespace Insight {
 			// Parse the menu selections:
 			switch (wmId)
 			{
+			case IDM_NEW_SCENE:
+			{
+				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+
+
+				break;
+			}
 			case IDM_EDITOR_TOGGLE:
 			{
 				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
@@ -354,6 +363,13 @@ namespace Insight {
 				data.pWindow->CreateMessageBox(L"You must relaunch engine for changes to take effect.", L"Graphics API changed to DirectX 12");
 				break;
 			}
+			case IDM_RELOAD_SHADERS:
+			{
+				IE_CORE_INFO("Reloading scripts.");
+				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+				ShaderReloadEvent event;
+				data.EventCallback(event);
+			}
 			default:
 				return DefWindowProcW(hWnd, uMsg, wParam, lParam);
 			}
@@ -374,8 +390,8 @@ namespace Insight {
 		}
 
 		static bool raw_input_initialized = false;
-		if (raw_input_initialized == false)
-		{
+		if (raw_input_initialized == false) {
+
 			RAWINPUTDEVICE rid;
 
 			rid.usUsagePage = 0x01; // Mouse
@@ -491,6 +507,7 @@ namespace Insight {
 			m_hFileSubMenu = ::CreateMenu();
 			::AppendMenuW(m_hMenuBar, MF_POPUP, (UINT_PTR)m_hFileSubMenu, L"&File");
 			::AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_SCENE_SAVE, L"&Save Scene");
+			//::AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_NEW_SCENE, L"New Scene");
 			::AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_ABOUT, L"&About");
 			::AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_EXIT, L"&Exit");
 		}
@@ -520,6 +537,7 @@ namespace Insight {
 			m_hGraphicsVisualizeSubMenu = ::CreateMenu();
 
 			m_hGraphicsCurrentRenderContextSubMenu = ::CreateMenu();
+			::AppendMenuW(m_hGraphicsSubMenu, MF_STRING, IDM_RELOAD_SHADERS, L"Relead Shaders");
 			::AppendMenuW(m_hGraphicsSubMenu, MF_POPUP, (UINT_PTR)m_hGraphicsCurrentRenderContextSubMenu, L"&Renderer");
 			::AppendMenuW(m_hGraphicsCurrentRenderContextSubMenu, MF_UNCHECKED, IDM_RENDERER_D3D_11, L"&Direct3D 11");
 			::AppendMenuW(m_hGraphicsCurrentRenderContextSubMenu, MF_UNCHECKED, IDM_RENDERER_D3D_12, L"&Direct3D 12");

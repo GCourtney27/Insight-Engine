@@ -49,7 +49,7 @@ float3 CaclualteDirectionalLight(DirectionalLight Light, float3 ViewDirection, f
     float3 HalfwayDir = normalize(ViewDirection + LightDir);
     float3 Radiance = (Light.diffuse) * Light.strength;
         
-        // Cook-Torrance BRDF
+    // Cook-Torrance BRDF
     float NdotL = max(dot(WorldNormal, LightDir), 0.0000001);
     float HdotV = max(dot(HalfwayDir, ViewDirection), 0.0);
     float NdotH = max(dot(WorldNormal, HalfwayDir), 0.0);

@@ -107,12 +107,12 @@ namespace Insight {
 		XMStoreFloat4x4(&viewFloat, XMMatrixTranspose(m_pWorldCamera->GetViewMatrix()));
 		XMFLOAT4X4 projectionFloat;
 		XMStoreFloat4x4(&projectionFloat, XMMatrixTranspose(m_pWorldCamera->GetProjectionMatrix()));
-		m_PerFrameData.Data.deltaMs = DeltaMs;
+		m_PerFrameData.Data.DeltaMs = DeltaMs;
 		m_PerFrameData.Data.time = static_cast<float>(Application::Get().GetFrameTimer().Seconds());
 		m_PerFrameData.Data.view = viewFloat;
 		m_PerFrameData.Data.projection = projectionFloat;
 		m_PerFrameData.Data.cameraPosition = m_pWorldCamera->GetTransformRef().GetPosition();
-		m_PerFrameData.Data.deltaMs = DeltaMs;
+		m_PerFrameData.Data.DeltaMs = DeltaMs;
 		m_PerFrameData.Data.time = (float)Application::Get().GetFrameTimer().Seconds();
 		m_PerFrameData.Data.cameraNearZ = (float)m_pWorldCamera->GetNearZ();
 		m_PerFrameData.Data.cameraFarZ = (float)m_pWorldCamera->GetFarZ();
@@ -340,6 +340,11 @@ namespace Insight {
 			ShowWindow(*m_pWindowHandle, SW_MAXIMIZE);
 		}
 		m_FullScreenMode = !m_FullScreenMode;
+	}
+
+	void Direct3D11Context::OnShaderReload_Impl()
+	{
+		m_DeferredShadingTech.ReloadShaders();
 	}
 
 	void Direct3D11Context::UpdateSizeDependentResources()

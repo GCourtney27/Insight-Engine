@@ -132,4 +132,12 @@ namespace Insight {
 			EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
+	class INSIGHT_API ShaderReloadEvent : public Event
+	{
+	public:
+		ShaderReloadEvent() {}
+
+		EVENT_CLASS_TYPE(ShaderReload)
+			EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	};
 }

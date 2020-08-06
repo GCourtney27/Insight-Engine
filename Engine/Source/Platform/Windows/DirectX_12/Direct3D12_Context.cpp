@@ -131,7 +131,7 @@ namespace Insight {
 		m_PerFrameData.view = viewFloat;
 		m_PerFrameData.projection = projectionFloat;
 		m_PerFrameData.cameraPosition = m_pWorldCamera->GetTransformRef().GetPosition();
-		m_PerFrameData.deltaMs = DeltaMs;
+		m_PerFrameData.DeltaMs = DeltaMs;
 		m_PerFrameData.time = (float)Application::Get().GetFrameTimer().Seconds();
 		m_PerFrameData.cameraNearZ = (float)m_pWorldCamera->GetNearZ();
 		m_PerFrameData.cameraFarZ = (float)m_pWorldCamera->GetFarZ();
@@ -283,7 +283,6 @@ namespace Insight {
 
 			{
 				m_pScenePass_CommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-				m_pScenePass_CommandList->SetGraphicsRootConstantBufferView(3, m_PostFxCBV->GetGPUVirtualAddress());
 				m_pScenePass_CommandList->SetGraphicsRootConstantBufferView(2, m_LightCBV->GetGPUVirtualAddress());
 				m_pScenePass_CommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV->GetGPUVirtualAddress());
 			}
@@ -394,6 +393,9 @@ namespace Insight {
 
 			m_pPostEffectsPass_CommandList->SetPipelineState(m_pPostFxPass_PSO.Get());
 			m_pPostEffectsPass_CommandList->SetGraphicsRootDescriptorTable(16, m_cbvsrvHeap.hGPU(5));
+			m_pPostEffectsPass_CommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV->GetGPUVirtualAddress());
+			m_pPostEffectsPass_CommandList->SetGraphicsRootConstantBufferView(3, m_PostFxCBV->GetGPUVirtualAddress());
+
 
 			m_ScreenQuad.OnRender(m_pPostEffectsPass_CommandList);
 		}
@@ -573,6 +575,39 @@ namespace Insight {
 			ShowWindow(*m_pWindowHandle, SW_MAXIMIZE);
 		}
 		m_FullScreenMode = !m_FullScreenMode;
+	}
+
+	void Direct3D12Context::OnShaderReload_Impl()
+	{
+		// Relaoad Post Process
+		{
+			m_pPostFxPass_PSO.Reset();
+			CreatePostEffectsPassPSO();
+		}
+
+		// Reload Geometry Pass
+		{
+			m_pGeometryPass_PSO.Reset();
+			CreateGeometryPassPSO();
+		}
+
+		// Reload Light Pass
+		{
+			m_pLightingPass_PSO.Reset();
+			CreateLightPassPSO();
+		}
+
+		// Reload Sky Pass
+		{
+			m_pSkyPass_PSO.Reset();
+			CreateSkyPassPSO();
+		}
+
+		// Reload Transparency Pass
+		{
+			m_pTransparency_PSO.Reset();
+			CreateTransparencyPassPSO();
+		}
 	}
 
 	void Direct3D12Context::SetVertexBuffers_Impl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers)
@@ -894,7 +929,7 @@ namespace Insight {
 		DescriptorRanges[9].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 13);  // Sky - BRDF LUT
 		DescriptorRanges[10].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 14); // Sky - Diffuse
 
-		DescriptorRanges[11].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 15); // Post-FX Input
+		DescriptorRanges[11].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 15); // Post-FX Input Final Image input
 
 		CD3DX12_ROOT_PARAMETER RootParameters[17];
 		RootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);	  // Per-Object constant buffer
@@ -1765,7 +1800,7 @@ namespace Insight {
 		}
 		Desc = {};
 		(*ppAdapter)->GetDesc1(&Desc);
-		IE_CORE_WARN("\"{0}\" selected as Direct3D 11 graphics hardware.", StringHelper::WideToString(Desc.Description));
+		IE_CORE_WARN("\"{0}\" selected as Direct3D 12 graphics hardware.", StringHelper::WideToString(Desc.Description));
 	}
 
 	void Direct3D12Context::WaitForGPU()

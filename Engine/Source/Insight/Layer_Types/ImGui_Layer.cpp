@@ -83,6 +83,11 @@ namespace Insight {
 		dispatcher.Dispatch<WindowResizeEvent>(IE_BIND_EVENT_FN(ImGuiLayer::OnWindowResizedEvent));
 	}
 
+	bool ImGuiLayer::IsMouseOverUI()
+	{
+		return ImGui::IsAnyWindowHovered();
+	}
+
 	bool ImGuiLayer::OnMouseButtonPressedEvent(MouseButtonPressedEvent& e)
 	{
 		ImGuiIO& io = ImGui::GetIO();

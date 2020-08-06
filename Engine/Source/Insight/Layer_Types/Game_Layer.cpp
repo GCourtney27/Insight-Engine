@@ -20,10 +20,11 @@ namespace Insight {
 	void GameLayer::BeginPlay()
 	{
 		m_TickScene = true;
+		ResourceManager::Get().GetMonoScriptManager().OnBeginPlay();
 		m_pScene->BeginPlay();
 	}
 
-	void GameLayer::Update(const float& DeltaMs)
+	void GameLayer::Update(const float DeltaMs)
 	{
 		m_pScene->OnUpdate(DeltaMs);
 	}
@@ -48,6 +49,7 @@ namespace Insight {
 	{
 		m_TickScene = false;
 		m_pScene->EndPlaySession();
+		ResourceManager::Get().GetMonoScriptManager().OnEndPlaySession();
 	}
 
 	void GameLayer::OnAttach()
@@ -67,7 +69,7 @@ namespace Insight {
 
 	}
 
-	void GameLayer::OnUpdate(const float& DeltaMs)
+	void GameLayer::OnUpdate(const float DeltaMs)
 	{
 		m_pScene->Tick(DeltaMs);
 	}

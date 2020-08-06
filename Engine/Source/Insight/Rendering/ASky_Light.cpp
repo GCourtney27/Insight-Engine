@@ -165,7 +165,7 @@ namespace Insight {
 		return false;
 	}
 
-	void ASkyLight::OnUpdate(const float& deltaMs)
+	void ASkyLight::OnUpdate(const float DeltaMs)
 	{
 	}
 
@@ -189,7 +189,7 @@ namespace Insight {
 	{
 	}
 
-	void ASkyLight::Tick(const float& deltaMs)
+	void ASkyLight::Tick(const float DeltaMs)
 	{
 	}
 

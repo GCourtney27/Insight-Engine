@@ -165,6 +165,51 @@ namespace Insight {
 		return nullptr;
 	}
 
+	StrongTexturePtr TextureManager::GetDefaultAlbedoTexture()
+	{
+#ifndef IE_IS_STANDALONE
+		return m_AlbedoTextures[0];
+#else
+		return m_DefaultAlbedoTexture;
+#endif
+	}
+
+	StrongTexturePtr TextureManager::GetDefaultNormalTexture()
+	{
+#ifndef IE_IS_STANDALONE
+		return m_NormalTextures[0];
+#else
+		return m_DefaultNormalTexture;
+#endif
+	}
+
+	StrongTexturePtr TextureManager::GetDefaultMetallicTexture()
+	{
+#ifndef IE_IS_STANDALONE
+		return m_MetallicTextures[0];
+#else
+		return m_DefaultMetallicTexture;
+#endif
+	}
+
+	StrongTexturePtr TextureManager::GetDefaultRoughnessTexture()
+	{
+#ifndef IE_IS_STANDALONE
+		return m_RoughnessTextures[0];
+#else
+		return m_DefaultRoughnessTexture;
+#endif
+	}
+
+	StrongTexturePtr TextureManager::GetDefaultAOTexture()
+	{
+#ifndef IE_IS_STANDALONE
+		return m_AOTextures[0];
+#else
+		return m_DefaultAOTexture;
+#endif
+	}
+
 	bool TextureManager::LoadDefaultTextures()
 	{
 		return true;
@@ -182,23 +227,23 @@ namespace Insight {
 		// Albedo
 		TexInfo.DisplayName = "Default_Albedo";
 		TexInfo.Type = Texture::eTextureType::eTextureType_Albedo;
-		TexInfo.Filepath = StringHelper::StringToWide("../../../Engine/Assets/Textures/Default_Object/Default_Albedo.png");
+		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_Albedo.png");
 		// Normal
 		TexInfo.DisplayName = "Default_Normal";
 		TexInfo.Type = Texture::eTextureType::eTextureType_Normal;
-		TexInfo.Filepath = StringHelper::StringToWide("../../../Engine/Assets/Textures/Default_Object/Default_Normal.png");
+		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_Normal.png");
 		// Metallic
 		TexInfo.DisplayName = "Default_Metallic";
 		TexInfo.Type = Texture::eTextureType::eTextureType_Metallic;
-		TexInfo.Filepath = StringHelper::StringToWide("../../../Engine/Assets/Textures/Default_Object/Default_Metallic.png");
+		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_Metallic.png");
 		// Roughness
 		TexInfo.DisplayName = "Default_Roughness";
 		TexInfo.Type = Texture::eTextureType::eTextureType_Roughness;
-		TexInfo.Filepath = StringHelper::StringToWide("../../../Engine/Assets/Textures/Default_Object/Default_RoughAO.png");
+		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_RoughAO.png");
 		// AO
 		TexInfo.DisplayName = "Default_AO";
 		TexInfo.Type = Texture::eTextureType::eTextureType_AmbientOcclusion;
-		TexInfo.Filepath = StringHelper::StringToWide("../../../Engine/Assets/Textures/Default_Object/Default_RoughAO.png");
+		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_RoughAO.png");
 
 		switch (Renderer::GetAPI())
 		{

@@ -166,7 +166,7 @@ namespace Insight {
 		return true;
 	}
 
-	void ADirectionalLight::OnUpdate(const float& deltaMs)
+	void ADirectionalLight::OnUpdate(const float DeltaMs)
 	{
 		m_ShaderCB.direction = SceneNode::GetTransformRef().GetPosition();
 		
@@ -212,7 +212,7 @@ namespace Insight {
 	{
 	}
 
-	void ADirectionalLight::Tick(const float& deltaMs)
+	void ADirectionalLight::Tick(const float DeltaMs)
 	{
 	}
 

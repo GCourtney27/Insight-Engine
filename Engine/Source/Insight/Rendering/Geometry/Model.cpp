@@ -35,6 +35,13 @@ namespace Insight {
 		//Destroy();
 	}
 
+	void Model::Destroy()
+	{
+		for (UINT i = 0; i < m_Meshes.size(); i++) {
+			m_Meshes[i]->Destroy();
+		}
+	}
+
 	bool Model::Create(const std::string& path, Material* pMaterial)
 	{
 		m_pMaterial = pMaterial;
@@ -92,13 +99,6 @@ namespace Insight {
 		int numMeshChildren = (int)m_Meshes.size();
 		for (int i = 0; i < numMeshChildren; ++i) {
 			m_Meshes[i]->Render();
-		}
-	}
-
-	void Model::Destroy()
-	{
-		for (UINT i = 0; i < m_Meshes.size(); i++) {
-			m_Meshes[i]->Destroy();
 		}
 	}
 

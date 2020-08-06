@@ -22,7 +22,7 @@ namespace Insight {
 
 	Mesh::~Mesh()
 	{
-		Destroy();
+		//Destroy();
 	}
 
 	void Mesh::Destroy()

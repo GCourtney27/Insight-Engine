@@ -49,6 +49,8 @@ namespace Insight {
 		virtual void OnWindowResize_Impl() override;
 		// Tells the swapchain to enable full screen rendering.
 		virtual void OnWindowFullScreen_Impl() override;
+		// Reloads all shaders
+		virtual void OnShaderReload_Impl() override;
 
 		virtual void SetVertexBuffers_Impl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) override;
 		virtual void SetIndexBuffer_Impl(ieIndexBuffer* pBuffer) override;

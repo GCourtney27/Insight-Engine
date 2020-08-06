@@ -74,7 +74,7 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     }
     
     // Spot Lights
-    for (int s = 0; s < numPointLights; s++)
+    for (int s = 0; s < numSpotLights; s++)
     {
         spotLightLuminance += CalculateSpotLight(spotLights[s], viewDirection, NdotV, worldPosition, normal, albedo, roughness, metallic, baseReflectivity);
     }

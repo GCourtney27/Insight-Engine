@@ -80,7 +80,7 @@ namespace Insight {
 		m_CollisionData.EventCallback(e);
 	}
 
-	void SphereColliderComponent::Tick(const float& DeltaMs)
+	void SphereColliderComponent::Tick(const float DeltaMs)
 	{
 	}
 

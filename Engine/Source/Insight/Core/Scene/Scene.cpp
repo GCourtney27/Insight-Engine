@@ -104,13 +104,13 @@ namespace Insight {
 		m_pSceneRoot->EditorEndPlay();
 	}
 
-	void Scene::Tick(const float& DeltaMs)
+	void Scene::Tick(const float DeltaMs)
 	{
 		m_pPlayerCharacter->Tick(DeltaMs);
 		m_pSceneRoot->Tick(DeltaMs);
 	}
 
-	void Scene::OnUpdate(const float& DeltaMs)
+	void Scene::OnUpdate(const float DeltaMs)
 	{
 		Renderer::OnUpdate(DeltaMs);
 		m_pSceneRoot->OnUpdate(DeltaMs);

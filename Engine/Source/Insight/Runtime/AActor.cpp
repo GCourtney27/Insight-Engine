@@ -263,14 +263,14 @@ namespace Insight {
 		return true;
 	}
 
-	void AActor::OnUpdate(const float& deltaMs)
+	void AActor::OnUpdate(const float DeltaMs)
 	{
-		SceneNode::OnUpdate(deltaMs);
+		SceneNode::OnUpdate(DeltaMs);
 
 
 		for (size_t i = 0; i < m_NumComponents; ++i)
 		{
-			m_Components[i]->OnUpdate(deltaMs);
+			m_Components[i]->OnUpdate(DeltaMs);
 		}
 	}
 
@@ -312,12 +312,12 @@ namespace Insight {
 		}
 	}
 
-	void AActor::Tick(const float& deltaMs)
+	void AActor::Tick(const float DeltaMs)
 	{
-		SceneNode::Tick(deltaMs);
+		SceneNode::Tick(DeltaMs);
 		for (auto& comp : m_Components)
 		{
-			comp->Tick(deltaMs);
+			comp->Tick(DeltaMs);
 		}
 	}
 

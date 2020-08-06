@@ -33,9 +33,9 @@ namespace Insight {
 		return true;
 	}
 
-	void APlayerCharacter::OnUpdate(const float& deltaMs)
+	void APlayerCharacter::OnUpdate(const float DeltaMs)
 	{
-		APawn::OnUpdate(deltaMs);
+		APawn::OnUpdate(DeltaMs);
 	}
 
 	void APlayerCharacter::CalculateParent(XMMATRIX parentMat)
@@ -48,7 +48,7 @@ namespace Insight {
 		APawn::OnRender();
 	}
 
-	void APlayerCharacter::Tick(const float& DeltaMs)
+	void APlayerCharacter::Tick(const float DeltaMs)
 	{
 		ProcessInput(DeltaMs);
 	}
@@ -63,7 +63,7 @@ namespace Insight {
 		AActor::OnImGuiRender();
 	}
 
-	void APlayerCharacter::ProcessInput(const float& deltaMs)
+	void APlayerCharacter::ProcessInput(const float DeltaMs)
 	{
 		if (Input::IsMouseButtonPressed(IE_MOUSEBUTTON_RIGHT))
 		{
@@ -71,33 +71,33 @@ namespace Insight {
 			m_pCamera->ProcessMouseMovement((float)x, (float)y);
 			if (Input::IsKeyPressed('W'))
 			{
-				APawn::Move(eMovement::FORWARD, deltaMs);
-				m_pCamera->ProcessKeyboardInput(CameraMovement::FORWARD, deltaMs);
+				APawn::Move(eMovement::FORWARD, DeltaMs);
+				m_pCamera->ProcessKeyboardInput(CameraMovement::FORWARD, DeltaMs);
 			}
 			if (Input::IsKeyPressed('S'))
 			{
-				APawn::Move(eMovement::BACKWARD, deltaMs);
-				m_pCamera->ProcessKeyboardInput(CameraMovement::BACKWARD, deltaMs);
+				APawn::Move(eMovement::BACKWARD, DeltaMs);
+				m_pCamera->ProcessKeyboardInput(CameraMovement::BACKWARD, DeltaMs);
 			}
 			if (Input::IsKeyPressed('A'))
 			{
-				APawn::Move(eMovement::LEFT, deltaMs);
-				m_pCamera->ProcessKeyboardInput(CameraMovement::LEFT, deltaMs);
+				APawn::Move(eMovement::LEFT, DeltaMs);
+				m_pCamera->ProcessKeyboardInput(CameraMovement::LEFT, DeltaMs);
 			}
 			if (Input::IsKeyPressed('D'))
 			{
-				APawn::Move(eMovement::RIGHT, deltaMs);
-				m_pCamera->ProcessKeyboardInput(CameraMovement::RIGHT, deltaMs);
+				APawn::Move(eMovement::RIGHT, DeltaMs);
+				m_pCamera->ProcessKeyboardInput(CameraMovement::RIGHT, DeltaMs);
 			}
 			if (Input::IsKeyPressed('E'))
 			{
-				APawn::Move(eMovement::UP, deltaMs);
-				m_pCamera->ProcessKeyboardInput(CameraMovement::UP, deltaMs);
+				APawn::Move(eMovement::UP, DeltaMs);
+				m_pCamera->ProcessKeyboardInput(CameraMovement::UP, DeltaMs);
 			}
 			if (Input::IsKeyPressed('Q'))
 			{
-				APawn::Move(eMovement::DOWN, deltaMs);
-				m_pCamera->ProcessKeyboardInput(CameraMovement::DOWN, deltaMs);
+				APawn::Move(eMovement::DOWN, DeltaMs);
+				m_pCamera->ProcessKeyboardInput(CameraMovement::DOWN, DeltaMs);
 			}
 		}
 
