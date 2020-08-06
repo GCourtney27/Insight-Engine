@@ -2,12 +2,13 @@
 
 #include <Insight/Core.h>
 
-#include "Platform/Windows/DirectX_12/D3D12_Helper.h"
 #include "Insight/Rendering/Renderer.h"
-#include "Platform/Windows/Error/COM_Exception.h"
 
+#include "Platform/Windows/Error/COM_Exception.h"
+#include "Platform/Windows/DirectX_12/D3D12_Helper.h"
 #include "Platform/Windows/DirectX_12/Descriptor_Heap_Wrapper.h"
 #include "Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
+#include "Platform/Windows/DirectX_12/Ray_Tracing/Ray_Trace_Helpers.h"
 
 /*
 	Render context for Windows DirectX 12 API. Currently Deferred shading is the only pipeline supported.
@@ -97,6 +98,7 @@ namespace Insight {
 		void BindLightingPass();
 		void BindSkyPass();
 		void BindTransparencyPass();
+		void BindRayTracePass();
 		void BindPostFxPass();
 
 		// D3D12 Initialize
@@ -149,6 +151,8 @@ namespace Insight {
 		WindowsWindow*		m_pWindow = nullptr;
 		D3D12Helper			m_d3dDeviceResources;
 		ieD3D12SphereRenderer*				m_SkySphere;
+		RayTraceHelpers						m_RTHelper;
+
 		// CPU/GPU Syncronization
 		int						m_FrameIndex = 0;
 		UINT64					m_FenceValues[m_FrameBufferCount] = {};
@@ -157,7 +161,8 @@ namespace Insight {
 		static const UINT		m_NumRTV = 5;
 
 		bool		m_WindowResizeComplete = true;
-		bool		m_RayTraceEnabled = false;
+		bool		m_IsRayTraceEnabled = true;
+		bool		m_IsRayTraceSupported = false;
 		bool		m_UseWarpDevice = false;
 		int			m_RtvDescriptorIncrementSize = 0;
 
@@ -170,6 +175,8 @@ namespace Insight {
 		ComPtr<ID3D12GraphicsCommandList>	m_pActiveCommandList;
 		ComPtr<ID3D12CommandQueue>			m_pCommandQueue;
 
+		ComPtr<ID3D12GraphicsCommandList4>	m_pRayTracePass_CommandList;
+		ComPtr<ID3D12CommandAllocator>		m_pRayTracePass_CommandAllocators[m_FrameBufferCount];
 		ComPtr<ID3D12GraphicsCommandList>	m_pShadowPass_CommandList;
 		ComPtr<ID3D12CommandAllocator>		m_pShadowPass_CommandAllocators[m_FrameBufferCount];
 		ComPtr<ID3D12GraphicsCommandList>	m_pScenePass_CommandList;

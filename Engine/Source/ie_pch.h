@@ -76,6 +76,7 @@
 	#include <d3d12.h>
 	#include <DirectX12/d3dx12.h>
 	#include <WinPixEventRuntime/pix3.h>
+	#include <dxcapi.h>
 
 	// Direct3D 11
 	#include <d3d11.h>

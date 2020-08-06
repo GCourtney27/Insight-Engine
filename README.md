@@ -16,6 +16,7 @@ This engine is still under active development. To view the work done during the 
 
 **Platforms**
 * Windows PCDesktop (x64)
+* Windows 10 Version 1809 if running DXR
 * Visual Studio 2019/*2017
 
 **Getting Started**

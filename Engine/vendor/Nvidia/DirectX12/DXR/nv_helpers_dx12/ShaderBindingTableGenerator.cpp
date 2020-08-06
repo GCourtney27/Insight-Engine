@@ -34,7 +34,10 @@ dispatch rays description.
 
 */
 
+#include <ie_pch.h>
 #include "ShaderBindingTableGenerator.h"
+#include <string>
+#include <stdexcept>
 
 // Helper to compute aligned buffer sizes
 #ifndef ROUND_UP

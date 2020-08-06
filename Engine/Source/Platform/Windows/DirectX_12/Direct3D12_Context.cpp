@@ -41,6 +41,8 @@ namespace Insight {
 		// before closing all handles and releasing resources
 		WaitForGPU();
 
+		m_RTHelper.OnDestroy();
+
 		if (!m_AllowTearing) {
 			m_pSwapChain->SetFullscreenState(false, NULL);
 		}
@@ -85,6 +87,7 @@ namespace Insight {
 					CreateSkyPassPSO();
 					CreateTransparencyPassPSO();
 					CreatePostEffectsPassPSO();
+					m_RTHelper.OnInit(m_pDevice, m_pRayTracePass_CommandList);
 				}
 
 				// Render Targets and Constant Buffers
@@ -175,7 +178,10 @@ namespace Insight {
 
 		ThrowIfFailed(m_pTransparencyPass_CommandAllocators[m_FrameIndex]->Reset(),
 			"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Transparency Pass");
-		
+
+		ThrowIfFailed(m_pRayTracePass_CommandAllocators[m_FrameIndex]->Reset(),
+			"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
+
 		ThrowIfFailed(m_pPostEffectsPass_CommandAllocators[m_FrameIndex]->Reset(),
 			"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
 
@@ -188,6 +194,9 @@ namespace Insight {
 
 		ThrowIfFailed(m_pTransparencyPass_CommandList->Reset(m_pTransparencyPass_CommandAllocators[m_FrameIndex].Get(), m_pTransparency_PSO.Get()),
 			"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
+
+		ThrowIfFailed(m_pRayTracePass_CommandList->Reset(m_pRayTracePass_CommandAllocators[m_FrameIndex].Get(), m_pTransparency_PSO.Get()),
+			"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
 
 		ThrowIfFailed(m_pPostEffectsPass_CommandList->Reset(m_pPostEffectsPass_CommandAllocators[m_FrameIndex].Get(), m_pPostFxPass_PSO.Get()),
 			"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
@@ -230,6 +239,11 @@ namespace Insight {
 		// Transparency Forward Pass
 		m_pActiveCommandList = m_pTransparencyPass_CommandList;
 		BindTransparencyPass();
+
+		if (m_IsRayTraceEnabled) {
+			m_pActiveCommandList = m_pRayTracePass_CommandList;
+			BindRayTracePass();
+		}
 	}
 
 	void Direct3D12Context::BindShadowPass()
@@ -375,6 +389,20 @@ namespace Insight {
 		PIXEndEvent(m_pTransparencyPass_CommandList.Get());
 	}
 
+	void Direct3D12Context::BindRayTracePass()
+	{
+		RETURN_IF_WINDOW_NOT_VISIBLE;
+
+		PIXBeginEvent(m_pRayTracePass_CommandList.Get(), 0, L"Rendering Ray Trace Pass");
+		{
+
+
+
+			m_ScreenQuad.OnRender(m_pRayTracePass_CommandList);
+		}
+		PIXEndEvent(m_pRayTracePass_CommandList.Get());
+	}
+
 	void Direct3D12Context::BindPostFxPass()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
@@ -405,7 +433,7 @@ namespace Insight {
 	void Direct3D12Context::ExecuteDraw_Impl()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
-		
+
 		// Prepare the buffers for next frame
 		{
 			for (unsigned int i = 0; i < m_NumRTV - 1; ++i) {
@@ -421,11 +449,13 @@ namespace Insight {
 		ThrowIfFailed(m_pScenePass_CommandList->Close(), "Failed to close command list for D3D 12 context scene pass.");
 		ThrowIfFailed(m_pTransparencyPass_CommandList->Close(), "Failed to close the command list for D3D 12 context transparency pass.");
 		ThrowIfFailed(m_pPostEffectsPass_CommandList->Close(), "Failed to close the command list for D3D 12 context post-process pass.");
+		ThrowIfFailed(m_pRayTracePass_CommandList->Close(), "Failed to close the command list for D3D 12 context ray trace pass.");
 
 		ID3D12CommandList* ppCommandLists[] = {
 			m_pShadowPass_CommandList.Get(), // Execure shadow pass first because we'll need the depth textures for the light pass
 			m_pScenePass_CommandList.Get(),
 			m_pTransparencyPass_CommandList.Get(),
+			m_pRayTracePass_CommandList.Get(),
 			m_pPostEffectsPass_CommandList.Get(),
 		};
 		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
@@ -1347,7 +1377,7 @@ namespace Insight {
 
 		auto RasterizerDesc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 		RasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
-		
+
 		auto BlendDesc = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		BlendDesc.AlphaToCoverageEnable = TRUE;
 		BlendDesc.IndependentBlendEnable = TRUE;
@@ -1549,7 +1579,7 @@ namespace Insight {
 
 			m_pTransparencyPass_CommandList->Close();
 		}
-		
+
 		// Post-Process Pass
 		{
 			for (int i = 0; i < m_FrameBufferCount; i++)
@@ -1564,6 +1594,23 @@ namespace Insight {
 			m_pPostEffectsPass_CommandList->SetName(L"Post-Process Pass Command List");
 
 			m_pPostEffectsPass_CommandList->Close();
+		}
+
+		// Ray Trace Pass
+		{
+			for (int i = 0; i < m_FrameBufferCount; i++)
+			{
+				hr = m_pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pRayTracePass_CommandAllocators[i]));
+				ThrowIfFailed(hr, "Failed to Create Command Allocator for D3D 12 context");
+				m_pRayTracePass_CommandAllocators[i]->SetName(L"Post-Process Pass Command Allocator");
+			}
+
+			hr = m_pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pRayTracePass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pRayTracePass_CommandList));
+			ThrowIfFailed(hr, "Failed to Create Post-Process Pass Command List for D3D 12 context");
+			m_pRayTracePass_CommandList->SetName(L"Post-Process Pass Command List");
+
+			// Dont close the Ray Trace Pass command list yet. 
+			// We'll use it for pipeline initialization.
 		}
 
 		ID3D12CommandList* ppCommandLists[] = {
@@ -1720,7 +1767,12 @@ namespace Insight {
 	void Direct3D12Context::CloseCommandListAndSignalCommandQueue()
 	{
 		m_pScenePass_CommandList->Close();
-		ID3D12CommandList* ppCommandLists[] = { m_pScenePass_CommandList.Get() };
+		m_pRayTracePass_CommandList->Close();
+
+		ID3D12CommandList* ppCommandLists[] = {
+			m_pScenePass_CommandList.Get(),
+			m_pRayTracePass_CommandList.Get()
+		};
 		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
 		m_FenceValues[m_FrameIndex]++;
@@ -1728,6 +1780,7 @@ namespace Insight {
 		if (FAILED(hr)) {
 			IE_CORE_WARN("Command queue failed to signal.");
 		}
+		m_RTHelper.OnPostInit();
 
 		WaitForGPU();
 	}
@@ -1767,8 +1820,16 @@ namespace Insight {
 	{
 		GetHardwareAdapter(m_pDxgiFactory.Get(), &m_pAdapter);
 
-		HRESULT hr = D3D12CreateDevice(m_pAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_pDevice));
-		ThrowIfFailed(hr, "Failed to create logical device.");
+		if (m_IsRayTraceSupported) {
+			ComPtr<ID3D12Device5> TempDevice;
+			HRESULT hr = D3D12CreateDevice(m_pAdapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&TempDevice));
+			ThrowIfFailed(hr, "Failed to create logical device for ray tracing.");
+			m_pDevice = TempDevice.Detach();
+		}
+		else {
+			HRESULT hr = D3D12CreateDevice(m_pAdapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&m_pDevice));
+			ThrowIfFailed(hr, "Failed to create logical device.");
+		}
 	}
 
 	void Direct3D12Context::GetHardwareAdapter(IDXGIFactory2* pFactory, IDXGIAdapter1** ppAdapter)
@@ -1777,6 +1838,17 @@ namespace Insight {
 		*ppAdapter = nullptr;
 		UINT currentVideoCardMemory = 0;
 		DXGI_ADAPTER_DESC1 Desc;
+
+		auto CheckRayTracingSupport = [](ID3D12Device* pDevice) {
+
+			D3D12_FEATURE_DATA_D3D12_OPTIONS5 Options5 = {};
+			ThrowIfFailed(pDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &Options5, sizeof(Options5)), "Failed to query feature support for ray trace with device.");
+			if (Options5.RaytracingTier < D3D12_RAYTRACING_TIER_1_0) {
+				IE_CORE_WARN("Ray tracing not supported on this device.");
+				return false;
+			}
+			return true;
+		};
 
 		for (UINT AdapterIndex = 0; DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapters1(AdapterIndex, &pAdapter); ++AdapterIndex)
 		{
@@ -1787,8 +1859,30 @@ namespace Insight {
 			// and it has the most video memory
 			if (Desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE || Desc.DedicatedVideoMemory < currentVideoCardMemory) continue;
 
-			if (SUCCEEDED(D3D12CreateDevice(pAdapter.Get(), D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device), nullptr)))
-			{
+			// Check if we can support ray tracing with the device
+			if (m_IsRayTraceEnabled) {
+
+				ComPtr<ID3D12Device5> TempDevice;
+				if (SUCCEEDED(D3D12CreateDevice(pAdapter.Get(), D3D_FEATURE_LEVEL_12_1, __uuidof(ID3D12Device5), &TempDevice))) {
+					if (CheckRayTracingSupport(TempDevice.Get())) {
+
+						currentVideoCardMemory = static_cast<UINT>(Desc.DedicatedVideoMemory);
+						if (*ppAdapter != nullptr) {
+							(*ppAdapter)->Release();
+						}
+						*ppAdapter = pAdapter.Detach();
+
+						m_IsRayTraceSupported = true;
+
+						IE_CORE_WARN("Found suitable Direct3D 12 graphics hardware that can support ray tracing: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
+						continue;
+					}
+				}
+			}
+
+			// If we cannot support ray tracing, just see if D3D 12 is supported and create a default device
+			if (SUCCEEDED(D3D12CreateDevice(pAdapter.Get(), D3D_FEATURE_LEVEL_12_0, __uuidof(ID3D12Device), nullptr))) {
+
 				currentVideoCardMemory = static_cast<UINT>(Desc.DedicatedVideoMemory);
 				if (*ppAdapter != nullptr) {
 					(*ppAdapter)->Release();

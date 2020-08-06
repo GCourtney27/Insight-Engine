@@ -45,7 +45,9 @@ buffer needs to be kept until the command list execution is finished.
 
 */
 
+#include <ie_pch.h>
 #include "TopLevelASGenerator.h"
+#include <stdexcept>
 
 // Helper to compute aligned buffer sizes
 #ifndef ROUND_UP

@@ -13,6 +13,11 @@ namespace Insight {
 		void resourceSetup();
 		void Render(ComPtr<ID3D12GraphicsCommandList> commandList);
 
+		ComPtr<ID3D12Resource> GetVertexBuffer() { return m_VertexBuffer; }
+		ComPtr<ID3D12Resource> GetIndexBuffer() { return m_IndexBuffer; }
+
+		int GetVertexCount() { return m_TriangleSize; }
+
 	private:
 		ComPtr<ID3D12Resource> m_VertexBuffer;
 		ComPtr<ID3D12Resource> m_DefaultBuffer;
