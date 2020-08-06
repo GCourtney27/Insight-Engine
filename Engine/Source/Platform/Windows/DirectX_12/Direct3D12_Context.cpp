@@ -1800,7 +1800,7 @@ namespace Insight {
 		}
 		Desc = {};
 		(*ppAdapter)->GetDesc1(&Desc);
-		IE_CORE_WARN("\"{0}\" selected as Direct3D 11 graphics hardware.", StringHelper::WideToString(Desc.Description));
+		IE_CORE_WARN("\"{0}\" selected as Direct3D 12 graphics hardware.", StringHelper::WideToString(Desc.Description));
 	}
 
 	void Direct3D12Context::WaitForGPU()

@@ -80,6 +80,7 @@ namespace Insight {
 		// Push core app layer to the layer stack
 		PushEngineLayers();
 
+		ResourceManager::Get().GetMonoScriptManager().PostInit();
 		IE_CORE_TRACE("Application Initialized");
 		return true;
 	}
@@ -225,7 +226,7 @@ namespace Insight {
 
 	bool Application::ReloadScripts(AppScriptReloadEvent& e)
 	{
-		IE_CORE_INFO("Reload Scirpts");
+		IE_CORE_INFO("Reload Scripts");
 		ResourceManager::Get().GetMonoScriptManager().ReCompile();
 		return true;
 	}

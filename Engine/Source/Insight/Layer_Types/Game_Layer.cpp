@@ -20,6 +20,7 @@ namespace Insight {
 	void GameLayer::BeginPlay()
 	{
 		m_TickScene = true;
+		ResourceManager::Get().GetMonoScriptManager().OnBeginPlay();
 		m_pScene->BeginPlay();
 	}
 
@@ -48,6 +49,7 @@ namespace Insight {
 	{
 		m_TickScene = false;
 		m_pScene->EndPlaySession();
+		ResourceManager::Get().GetMonoScriptManager().OnEndPlaySession();
 	}
 
 	void GameLayer::OnAttach()
