@@ -3,6 +3,7 @@
 #include <Insight/Core.h>
 
 #include "DXR/nv_helpers_dx12/TopLevelASGenerator.h"
+#include "DXR/nv_helpers_dx12/ShaderBindingTableGenerator.h"
 
 
 namespace Insight {
@@ -24,12 +25,15 @@ namespace Insight {
 		RayTraceHelpers() = default;
 		~RayTraceHelpers() = default;
 
-		bool OnInit(ComPtr<ID3D12Device> pDevice, ComPtr<ID3D12GraphicsCommandList4> pRTCommandList);
+		bool OnInit(ComPtr<ID3D12Device> pDevice, ComPtr<ID3D12GraphicsCommandList4> pRTCommandList, std::pair<uint32_t, uint32_t> WindowDimensions);
 		void OnPostInit();
 		void OnDestroy();
+		void OnTraceScene();
+
+		ID3D12Resource* GetOutputBuffer() { return m_OutputBuffer_UAV.Get(); }
 
 	private:
-		AccelerationStructureBuffers CreateBottomLevelAS(std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> vVertexBuffers);
+		AccelerationStructureBuffers CreateBottomLevelAS(std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> vVertexBuffers, std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> vIndexBuffers = {});
 		void CreateTopLevelAS(const std::vector<std::pair<ComPtr<ID3D12Resource>, DirectX::XMMATRIX>>& instances);
 		void CreateAccelerationStructures();
 
@@ -42,14 +46,29 @@ namespace Insight {
 		ComPtr<ID3D12RootSignature> CreateHitSignature();
 
 		// TEMP
-		void LoadDemoAssets(); 	ieD3D12SphereRenderer* m_Sphere;
+		struct SimpleVertex3D
+		{
+			SimpleVertex3D() {}
+			SimpleVertex3D(float x, float y, float z, float r, float u, float v) : pos(x, y, z), textCoord(u, v) {}
 
+			DirectX::XMFLOAT3 pos;
+			DirectX::XMFLOAT2 textCoord;
+		};
+		void LoadDemoAssets(); 	/*ieD3D12SphereRenderer* m_Sphere*/;
+		int numCubeIndices;
+		int numCubeVerticies;
+		ComPtr<ID3D12Resource> pIndexBuffer;
+		ComPtr<ID3D12Resource> pVertexBuffer;
 	private:
 		
-		ComPtr<ID3D12Device>				m_pDeviceRef;
+		ComPtr<ID3D12Device5>				m_pDeviceRef;
 		ComPtr<ID3D12GraphicsCommandList4>	m_pRayTracePass_CommandList;
 
-		ComPtr<ID3D12Resource>					m_OutputBuffer;
+		uint32_t m_WindowWidth = 0U;
+		uint32_t m_WindowHeight = 0U;
+
+		ComPtr<ID3D12Resource>					m_OutputBuffer_UAV;
+		ComPtr<ID3D12Resource>					m_OutputBuffer_SRV;
 		ComPtr<ID3D12Resource>					m_bottomLevelAS;
 
 		nv_helpers_dx12::TopLevelASGenerator	m_TopLevelASGenerator;

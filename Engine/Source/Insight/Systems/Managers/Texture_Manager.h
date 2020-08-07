@@ -20,11 +20,11 @@ namespace Insight {
 		bool LoadResourcesFromJson(const rapidjson::Value& jsonTextures);
 		StrongTexturePtr GetTextureByID(Texture::ID textureID, Texture::eTextureType textreType);
 		
-		StrongTexturePtr GetDefaultAlbedoTexture();
-		StrongTexturePtr GetDefaultNormalTexture();
-		StrongTexturePtr GetDefaultMetallicTexture();
-		StrongTexturePtr GetDefaultRoughnessTexture();
-		StrongTexturePtr GetDefaultAOTexture();
+		StrongTexturePtr GetDefaultAlbedoTexture() { return m_AlbedoTextures[0]; }
+		StrongTexturePtr GetDefaultNormalTexture() { return m_NormalTextures[0]; }
+		StrongTexturePtr GetDefaultMetallicTexture() { return m_MetallicTextures[0]; }
+		StrongTexturePtr GetDefaultRoughnessTexture() { return m_RoughnessTextures[0]; }
+		StrongTexturePtr GetDefaultAOTexture() { return m_AOTextures[0]; }
 
 	private:
 		bool LoadDefaultTextures();

@@ -165,51 +165,6 @@ namespace Insight {
 		return nullptr;
 	}
 
-	StrongTexturePtr TextureManager::GetDefaultAlbedoTexture()
-	{
-#ifndef IE_IS_STANDALONE
-		return m_AlbedoTextures[0];
-#else
-		return m_DefaultAlbedoTexture;
-#endif
-	}
-
-	StrongTexturePtr TextureManager::GetDefaultNormalTexture()
-	{
-#ifndef IE_IS_STANDALONE
-		return m_NormalTextures[0];
-#else
-		return m_DefaultNormalTexture;
-#endif
-	}
-
-	StrongTexturePtr TextureManager::GetDefaultMetallicTexture()
-	{
-#ifndef IE_IS_STANDALONE
-		return m_MetallicTextures[0];
-#else
-		return m_DefaultMetallicTexture;
-#endif
-	}
-
-	StrongTexturePtr TextureManager::GetDefaultRoughnessTexture()
-	{
-#ifndef IE_IS_STANDALONE
-		return m_RoughnessTextures[0];
-#else
-		return m_DefaultRoughnessTexture;
-#endif
-	}
-
-	StrongTexturePtr TextureManager::GetDefaultAOTexture()
-	{
-#ifndef IE_IS_STANDALONE
-		return m_AOTextures[0];
-#else
-		return m_DefaultAOTexture;
-#endif
-	}
-
 	bool TextureManager::LoadDefaultTextures()
 	{
 		return true;

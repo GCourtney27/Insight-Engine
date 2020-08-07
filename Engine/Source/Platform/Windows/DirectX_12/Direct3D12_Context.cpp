@@ -87,7 +87,7 @@ namespace Insight {
 					CreateSkyPassPSO();
 					CreateTransparencyPassPSO();
 					CreatePostEffectsPassPSO();
-					m_RTHelper.OnInit(m_pDevice, m_pRayTracePass_CommandList);
+					m_RTHelper.OnInit(m_pDevice, m_pRayTracePass_CommandList, { m_WindowWidth, m_WindowHeight });
 				}
 
 				// Render Targets and Constant Buffers
@@ -195,7 +195,7 @@ namespace Insight {
 		ThrowIfFailed(m_pTransparencyPass_CommandList->Reset(m_pTransparencyPass_CommandAllocators[m_FrameIndex].Get(), m_pTransparency_PSO.Get()),
 			"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 
-		ThrowIfFailed(m_pRayTracePass_CommandList->Reset(m_pRayTracePass_CommandAllocators[m_FrameIndex].Get(), m_pTransparency_PSO.Get()),
+		ThrowIfFailed(m_pRayTracePass_CommandList->Reset(m_pRayTracePass_CommandAllocators[m_FrameIndex].Get(), nullptr),
 			"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
 
 		ThrowIfFailed(m_pPostEffectsPass_CommandList->Reset(m_pPostEffectsPass_CommandAllocators[m_FrameIndex].Get(), m_pPostFxPass_PSO.Get()),
@@ -395,10 +395,10 @@ namespace Insight {
 
 		PIXBeginEvent(m_pRayTracePass_CommandList.Get(), 0, L"Rendering Ray Trace Pass");
 		{
+			ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
+			m_pRayTracePass_CommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
-
-
-			m_ScreenQuad.OnRender(m_pRayTracePass_CommandList);
+			m_RTHelper.OnTraceScene();
 		}
 		PIXEndEvent(m_pRayTracePass_CommandList.Get());
 	}
@@ -420,7 +420,8 @@ namespace Insight {
 			m_pPostEffectsPass_CommandList->SetGraphicsRootSignature(m_pDeferredShadingPass_RootSignature.Get());
 
 			m_pPostEffectsPass_CommandList->SetPipelineState(m_pPostFxPass_PSO.Get());
-			m_pPostEffectsPass_CommandList->SetGraphicsRootDescriptorTable(16, m_cbvsrvHeap.hGPU(5));
+			m_pPostEffectsPass_CommandList->SetGraphicsRootDescriptorTable(16, m_cbvsrvHeap.hGPU(5)); // Light Pass result
+			m_pPostEffectsPass_CommandList->SetGraphicsRootDescriptorTable(17, m_cbvsrvHeap.hGPU(6)); // Ray Trace Result
 			m_pPostEffectsPass_CommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV->GetGPUVirtualAddress());
 			m_pPostEffectsPass_CommandList->SetGraphicsRootConstantBufferView(3, m_PostFxCBV->GetGPUVirtualAddress());
 
@@ -859,32 +860,32 @@ namespace Insight {
 		HRESULT hr;
 
 		m_rtvHeap.Create(m_pDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 5);
-		CD3DX12_HEAP_PROPERTIES heapProperty(D3D12_HEAP_TYPE_DEFAULT);
+		CD3DX12_HEAP_PROPERTIES HeapProperties(D3D12_HEAP_TYPE_DEFAULT);
 
-		D3D12_RESOURCE_DESC resourceDesc = {};
-		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-		resourceDesc.Alignment = 0;
-		resourceDesc.SampleDesc.Count = 1;
-		resourceDesc.SampleDesc.Quality = 0;
-		resourceDesc.MipLevels = 1;
+		D3D12_RESOURCE_DESC ResourceDesc = {};
+		ResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		ResourceDesc.Alignment = 0;
+		ResourceDesc.SampleDesc.Count = 1;
+		ResourceDesc.SampleDesc.Quality = 0;
+		ResourceDesc.MipLevels = 1;
 
-		resourceDesc.DepthOrArraySize = 1;
-		resourceDesc.Width = (UINT)m_WindowWidth;
-		resourceDesc.Height = (UINT)m_WindowHeight;
-		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-		resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+		ResourceDesc.DepthOrArraySize = 1;
+		ResourceDesc.Width = (UINT)m_WindowWidth;
+		ResourceDesc.Height = (UINT)m_WindowHeight;
+		ResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+		ResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 
 
-		D3D12_CLEAR_VALUE clearVal;
-		clearVal.Color[0] = m_ClearColor[0];
-		clearVal.Color[1] = m_ClearColor[1];
-		clearVal.Color[2] = m_ClearColor[2];
-		clearVal.Color[3] = m_ClearColor[3];
+		D3D12_CLEAR_VALUE ClearVal;
+		ClearVal.Color[0] = m_ClearColor[0];
+		ClearVal.Color[1] = m_ClearColor[1];
+		ClearVal.Color[2] = m_ClearColor[2];
+		ClearVal.Color[3] = m_ClearColor[3];
 
 		for (int i = 0; i < m_NumRTV; i++) {
-			resourceDesc.Format = m_RtvFormat[i];
-			clearVal.Format = m_RtvFormat[i];
-			hr = m_pDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET, &clearVal, IID_PPV_ARGS(&m_pRenderTargetTextures[i]));
+			ResourceDesc.Format = m_RtvFormat[i];
+			ClearVal.Format = m_RtvFormat[i];
+			hr = m_pDevice->CreateCommittedResource(&HeapProperties, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET, &ClearVal, IID_PPV_ARGS(&m_pRenderTargetTextures[i]));
 			ThrowIfFailed(hr, "Failed to create committed resource for RTV at index: " + std::to_string(i));
 		}
 		m_pRenderTargetTextures[0]->SetName(L"Render Target Texture Diffuse");
@@ -899,30 +900,30 @@ namespace Insight {
 		//m_pRenderTargetTextures[4]->SetName(L"Render Target Texture Light Pass Result");
 
 
-		D3D12_RENDER_TARGET_VIEW_DESC desc = {};
-		desc.Texture2D.MipSlice = 0;
-		desc.Texture2D.PlaneSlice = 0;
-		desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+		D3D12_RENDER_TARGET_VIEW_DESC RTVDesc = {};
+		RTVDesc.Texture2D.MipSlice = 0;
+		RTVDesc.Texture2D.PlaneSlice = 0;
+		RTVDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
 		for (int i = 0; i < m_NumRTV; i++) {
-			desc.Format = m_RtvFormat[i];
-			m_pDevice->CreateRenderTargetView(m_pRenderTargetTextures[i].Get(), &desc, m_rtvHeap.hCPU(i));
+			RTVDesc.Format = m_RtvFormat[i];
+			m_pDevice->CreateRenderTargetView(m_pRenderTargetTextures[i].Get(), &RTVDesc, m_rtvHeap.hCPU(i));
 		}
 		//desc.Format = m_RtvFormat[4];
 		//m_pLogicalDevice->CreateRenderTargetView(m_pRenderTargetTextures[4].Get(), &desc, m_rtvHeap.hCPU(4));
 
 		//Create SRVs for Render Targets
-		D3D12_SHADER_RESOURCE_VIEW_DESC descSRV = {};
-		descSRV.Texture2D.MipLevels = resourceDesc.MipLevels;
-		descSRV.Texture2D.MostDetailedMip = 0;
-		descSRV.Format = resourceDesc.Format;
-		descSRV.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		descSRV.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		D3D12_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
+		SRVDesc.Texture2D.MipLevels = ResourceDesc.MipLevels;
+		SRVDesc.Texture2D.MostDetailedMip = 0;
+		SRVDesc.Format = ResourceDesc.Format;
+		SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		SRVDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
 
 		for (int i = 0; i < m_NumRTV - 1; i++) {
-			descSRV.Format = m_RtvFormat[i];
-			m_pDevice->CreateShaderResourceView(m_pRenderTargetTextures[i].Get(), &descSRV, m_cbvsrvHeap.hCPU(i));
+			SRVDesc.Format = m_RtvFormat[i];
+			m_pDevice->CreateShaderResourceView(m_pRenderTargetTextures[i].Get(), &SRVDesc, m_cbvsrvHeap.hCPU(i));
 		}
 		m_pRenderTargetTextures[0]->SetName(L"Render Target SRV Albedo");
 		m_pRenderTargetTextures[1]->SetName(L"Render Target SRV Normal");
@@ -930,8 +931,8 @@ namespace Insight {
 		m_pRenderTargetTextures[3]->SetName(L"Render Target SRV Position");
 
 		// m_cbvsrvHeap.hCPU(4) is reserved for the depth stencil view
-		descSRV.Format = m_RtvFormat[4];
-		m_pDevice->CreateShaderResourceView(m_pRenderTargetTextures[4].Get(), &descSRV, m_cbvsrvHeap.hCPU(5));
+		SRVDesc.Format = m_RtvFormat[4];
+		m_pDevice->CreateShaderResourceView(m_pRenderTargetTextures[4].Get(), &SRVDesc, m_cbvsrvHeap.hCPU(5));
 		m_pRenderTargetTextures[4]->SetName(L"Render Target SRV Light Pass Result");
 
 	}
@@ -944,7 +945,7 @@ namespace Insight {
 
 	void Direct3D12Context::CreateDeferredShadingRootSignature()
 	{
-		CD3DX12_DESCRIPTOR_RANGE DescriptorRanges[12];
+		CD3DX12_DESCRIPTOR_RANGE DescriptorRanges[13];
 		DescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 0); // G-Buffer inputs t0-t4
 
 		DescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 5);  // PerObject texture inputs - Albedo
@@ -960,8 +961,9 @@ namespace Insight {
 		DescriptorRanges[10].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 14); // Sky - Diffuse
 
 		DescriptorRanges[11].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 15); // Post-FX Input Final Image input
+		DescriptorRanges[12].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 16); // Post-FX Input Final Image input
 
-		CD3DX12_ROOT_PARAMETER RootParameters[17];
+		CD3DX12_ROOT_PARAMETER RootParameters[18];
 		RootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);	  // Per-Object constant buffer
 		RootParameters[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL);		  // Per-Frame constant buffer
 		RootParameters[2].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_ALL);		  // Light constant buffer
@@ -981,7 +983,8 @@ namespace Insight {
 		RootParameters[14].InitAsDescriptorTable(1, &DescriptorRanges[9], D3D12_SHADER_VISIBILITY_PIXEL);  // Sky - BRDF LUT
 		RootParameters[15].InitAsDescriptorTable(1, &DescriptorRanges[10], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Diffuse
 
-		RootParameters[16].InitAsDescriptorTable(1, &DescriptorRanges[11], D3D12_SHADER_VISIBILITY_PIXEL); // Final Image
+		RootParameters[16].InitAsDescriptorTable(1, &DescriptorRanges[11], D3D12_SHADER_VISIBILITY_PIXEL); // Rasterized Image
+		RootParameters[17].InitAsDescriptorTable(1, &DescriptorRanges[12], D3D12_SHADER_VISIBILITY_PIXEL); // Ray Traced Image
 
 
 

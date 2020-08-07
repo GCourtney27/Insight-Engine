@@ -18,22 +18,27 @@ namespace Insight {
 
 
 
-	bool RayTraceHelpers::OnInit(ComPtr<ID3D12Device> pDevice, ComPtr<ID3D12GraphicsCommandList4> pRTCommandList)
+	bool RayTraceHelpers::OnInit(ComPtr<ID3D12Device> pDevice, ComPtr<ID3D12GraphicsCommandList4> pRTCommandList, std::pair<uint32_t, uint32_t> WindowDimensions)
 	{
-		m_pDeviceRef = pDevice;
+		m_pDeviceRef = reinterpret_cast<ID3D12Device5*>(pDevice.Get());
 		m_pRayTracePass_CommandList = pRTCommandList;
+
+		m_WindowWidth = WindowDimensions.first;
+		m_WindowHeight = WindowDimensions.second;
 
 		LoadDemoAssets();
 
 		CreateAccelerationStructures();
 		CreateRaytracingPipeline();
 		CreateRaytracingOutputBuffer();
+		CreateShaderBindingTable();
 
 		return true;
 	}
 
 	void RayTraceHelpers::OnPostInit()
 	{
+		return;
 		m_bottomLevelAS = m_TempBottomLevelBuffers.pResult;
 
 		m_TempBottomLevelBuffers.pScratch->Release();
@@ -42,37 +47,79 @@ namespace Insight {
 
 	void RayTraceHelpers::OnDestroy()
 	{
-		delete m_Sphere;
+		//delete m_Sphere;
 	}
 
-	RayTraceHelpers::AccelerationStructureBuffers RayTraceHelpers::CreateBottomLevelAS(std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> vVertexBuffers)
+	void RayTraceHelpers::OnTraceScene()
+	{
+		m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_OutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
+
+
+		D3D12_DISPATCH_RAYS_DESC DispatchRaysDesc = {};
+		uint32_t RayGenerationSectionSizeInBytes = m_sbtHelper.GetRayGenSectionSize();
+		DispatchRaysDesc.RayGenerationShaderRecord.StartAddress = m_sbtStorage->GetGPUVirtualAddress();
+		DispatchRaysDesc.RayGenerationShaderRecord.SizeInBytes = RayGenerationSectionSizeInBytes;
+
+		uint32_t MissSectionSizeInBytes = m_sbtHelper.GetMissSectionSize();
+		DispatchRaysDesc.MissShaderTable.StartAddress = m_sbtStorage->GetGPUVirtualAddress() + RayGenerationSectionSizeInBytes;
+		DispatchRaysDesc.MissShaderTable.SizeInBytes = MissSectionSizeInBytes;
+		DispatchRaysDesc.MissShaderTable.StrideInBytes = m_sbtHelper.GetMissEntrySize();
+
+		uint32_t HitGroupsSectionSize = m_sbtHelper.GetHitGroupSectionSize();
+		DispatchRaysDesc.HitGroupTable.StartAddress = m_sbtStorage->GetGPUVirtualAddress() + RayGenerationSectionSizeInBytes + MissSectionSizeInBytes;
+		DispatchRaysDesc.HitGroupTable.SizeInBytes = HitGroupsSectionSize;
+		DispatchRaysDesc.HitGroupTable.StrideInBytes = m_sbtHelper.GetHitGroupEntrySize();
+
+		DispatchRaysDesc.Width = m_WindowWidth;
+		DispatchRaysDesc.Height = m_WindowHeight;
+		DispatchRaysDesc.Depth = 1;
+
+		m_pRayTracePass_CommandList->SetPipelineState1(m_rtStateObject.Get());
+		m_pRayTracePass_CommandList->DispatchRays(&DispatchRaysDesc);
+
+		m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_OutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_DEST));
+		m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_OutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE));
+		m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_OutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+
+		//m_pRayTracePass_CommandList->CopyResource(m_OutputBuffer_SRV.Get(), m_OutputBuffer_UAV.Get());
+
+		//m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_OutputBuffer_SRV.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+	}
+
+	RayTraceHelpers::AccelerationStructureBuffers RayTraceHelpers::CreateBottomLevelAS(std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> vVertexBuffers, std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> vIndexBuffers)
 	{
 		nv_helpers_dx12::BottomLevelASGenerator BottomLevelAS;
 
-		for (const auto& buffer : vVertexBuffers) {
-			BottomLevelAS.AddVertexBuffer(buffer.first.Get(), 0, buffer.second, sizeof(Vertex3D), 0, 0);
+		for (size_t i = 0; i < vVertexBuffers.size(); i++) {
+
+			if (i < vIndexBuffers.size() && vIndexBuffers[i].second > 0)
+			{
+				BottomLevelAS.AddVertexBuffer(vVertexBuffers[i].first.Get(), 0,
+					vVertexBuffers[i].second, sizeof(SimpleVertex3D),
+					vIndexBuffers[i].first.Get(), 0,
+					vIndexBuffers[i].second, nullptr, 0, true);
+			}
+			else
+			{
+				BottomLevelAS.AddVertexBuffer(vVertexBuffers[i].first.Get(), 0, vVertexBuffers[i].second, sizeof(SimpleVertex3D), 0, 0);
+			}
 		}
 
-		UINT64 ScratchSizeInBytes = 0;
-		UINT64 ResultSizeInBytes = 0;
+		UINT64 scratchSizeInBytes = 0;
+		UINT64 resultSizeInBytes = 0;
 
-		BottomLevelAS.ComputeASBufferSizes(reinterpret_cast<ID3D12Device5*>(m_pDeviceRef.Get()), false, &ScratchSizeInBytes, &ResultSizeInBytes);
+		BottomLevelAS.ComputeASBufferSizes(m_pDeviceRef.Get(), false, &scratchSizeInBytes, &resultSizeInBytes);
 
 		AccelerationStructureBuffers buffers;
 		buffers.pScratch = nv_helpers_dx12::CreateBuffer(
-			m_pDeviceRef.Get(),
-			ScratchSizeInBytes,
-			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-			D3D12_RESOURCE_STATE_COMMON,
-			nv_helpers_dx12::kDefaultHeapProps
-		);
+			m_pDeviceRef.Get(), scratchSizeInBytes,
+			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON,
+			nv_helpers_dx12::kDefaultHeapProps);
 		buffers.pResult = nv_helpers_dx12::CreateBuffer(
-			m_pDeviceRef.Get(),
-			ResultSizeInBytes,
+			m_pDeviceRef.Get(), resultSizeInBytes,
 			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
 			D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
-			nv_helpers_dx12::kDefaultHeapProps
-		);
+			nv_helpers_dx12::kDefaultHeapProps);
 
 		BottomLevelAS.Generate(m_pRayTracePass_CommandList.Get(), buffers.pScratch.Get(), buffers.pResult.Get(), false, nullptr);
 
@@ -85,42 +132,41 @@ namespace Insight {
 			m_TopLevelASGenerator.AddInstance(instances[i].first.Get(), instances[i].second, static_cast<UINT>(i), static_cast<UINT>(0));
 		}
 
-		UINT64 ScratchSize, ResultSize, InstanceDescsSize;
+		UINT64 scratchSize, resultSize, instanceDescsSize;
+		m_TopLevelASGenerator.ComputeASBufferSizes(m_pDeviceRef.Get(), true, &scratchSize, &resultSize, &instanceDescsSize);
 
-		m_TopLevelASGenerator.ComputeASBufferSizes(reinterpret_cast<ID3D12Device5*>(m_pDeviceRef.Get()), true, &ScratchSize, &ResultSize, &InstanceDescsSize);
-
-		m_TopLevelASBuffers.pScratch = nv_helpers_dx12::CreateBuffer(
-			m_pDeviceRef.Get(), ScratchSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-			D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+		m_TopLevelASBuffers.pScratch = nv_helpers_dx12::CreateBuffer(m_pDeviceRef.Get(),
+			resultSize,
+			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+			D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
 			nv_helpers_dx12::kDefaultHeapProps);
-		m_TopLevelASBuffers.pResult = nv_helpers_dx12::CreateBuffer(
-			m_pDeviceRef.Get(), ResultSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+		m_TopLevelASBuffers.pResult = nv_helpers_dx12::CreateBuffer(m_pDeviceRef.Get(),
+			resultSize,
+			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
 			D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
 			nv_helpers_dx12::kDefaultHeapProps);
 
-		m_TopLevelASBuffers.pInstanceDesc = nv_helpers_dx12::CreateBuffer(
-			m_pDeviceRef.Get(),
-			InstanceDescsSize,
+		m_TopLevelASBuffers.pInstanceDesc = nv_helpers_dx12::CreateBuffer(m_pDeviceRef.Get(),
+			instanceDescsSize,
 			D3D12_RESOURCE_FLAG_NONE,
 			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nv_helpers_dx12::kUploadHeapProps
-		);
+			nv_helpers_dx12::kUploadHeapProps);
 
-		m_TopLevelASGenerator.Generate(
-			m_pRayTracePass_CommandList.Get(),
+		m_TopLevelASGenerator.Generate(m_pRayTracePass_CommandList.Get(),
 			m_TopLevelASBuffers.pScratch.Get(),
 			m_TopLevelASBuffers.pResult.Get(),
-			m_TopLevelASBuffers.pInstanceDesc.Get()
-		);
+			m_TopLevelASBuffers.pInstanceDesc.Get());
 	}
 
 	void RayTraceHelpers::CreateAccelerationStructures()
 	{
-		m_TempBottomLevelBuffers = CreateBottomLevelAS({ {m_Sphere->GetVertexBuffer(), m_Sphere->GetVertexCount()} });
+		// Build the bottom AS from the Triangle vertex buffer
+		AccelerationStructureBuffers bottomLevelBuffers = CreateBottomLevelAS({ {pVertexBuffer.Get(), numCubeVerticies} }, { {pIndexBuffer.Get(), numCubeIndices} });
 
-		// Just one instance for now
-		m_Instances = { {m_TempBottomLevelBuffers.pResult, DirectX::XMMatrixIdentity()} };
+		m_Instances = { {bottomLevelBuffers.pResult, XMMatrixIdentity()} };
 		CreateTopLevelAS(m_Instances);
+
+		m_bottomLevelAS = bottomLevelBuffers.pResult;
 	}
 
 	void RayTraceHelpers::CreateRaytracingPipeline()
@@ -162,30 +208,29 @@ namespace Insight {
 	{
 		CDescriptorHeapWrapper& cbvsrvHeap = reinterpret_cast<Direct3D12Context*>(&Renderer::Get())->GetCBVSRVDescriptorHeap();
 
-		D3D12_RESOURCE_DESC resDesc = {};
-		resDesc.DepthOrArraySize = 1;
-		resDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-		// The backbuffer is actually DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, but sRGB
-		// formats cannot be used with UAVs. For accuracy we should convert to sRGB
-		// ourselves in the shader
-		resDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		D3D12_RESOURCE_DESC ResourceDesc = {};
+		ResourceDesc.DepthOrArraySize = 1;
+		ResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		ResourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-		resDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
-		resDesc.Width = static_cast<UINT64>(Application::Get().GetWindow().GetWidth());
-		resDesc.Height = static_cast<UINT64>(Application::Get().GetWindow().GetHeight());
-		resDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-		resDesc.MipLevels = 1;
-		resDesc.SampleDesc.Count = 1;
+		ResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+		ResourceDesc.Width = static_cast<UINT64>(m_WindowWidth);
+		ResourceDesc.Height = static_cast<UINT64>(m_WindowHeight);
+		ResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+		ResourceDesc.MipLevels = 1;
+		ResourceDesc.SampleDesc.Count = 1;
 		ThrowIfFailed(m_pDeviceRef->CreateCommittedResource(
-			&nv_helpers_dx12::kDefaultHeapProps, D3D12_HEAP_FLAG_NONE, &resDesc,
+			&nv_helpers_dx12::kDefaultHeapProps, D3D12_HEAP_FLAG_NONE, &ResourceDesc,
 			D3D12_RESOURCE_STATE_COPY_SOURCE, nullptr,
-			IID_PPV_ARGS(&m_OutputBuffer)), "Failed to create commited resource for RT output buffer.");
+			IID_PPV_ARGS(&m_OutputBuffer_UAV)
+		), "Failed to create commited resource for Raytracing output buffer.");
 
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
 		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-		m_pDeviceRef->CreateUnorderedAccessView(m_OutputBuffer.Get(), nullptr, &uavDesc, cbvsrvHeap.hCPU(6));
+		m_pDeviceRef->CreateUnorderedAccessView(m_OutputBuffer_UAV.Get(), nullptr, &uavDesc, cbvsrvHeap.hCPU(6));
+		m_OutputBuffer_UAV->SetName(L"Raytracing UAV output buffer");
 
-		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc;
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Format = DXGI_FORMAT_UNKNOWN;
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -195,7 +240,37 @@ namespace Insight {
 
 	void RayTraceHelpers::CreateShaderBindingTable()
 	{
+		m_sbtHelper.Reset();
+		CDescriptorHeapWrapper& cbvsrvHeap = reinterpret_cast<Direct3D12Context*>(&Renderer::Get())->GetCBVSRVDescriptorHeap();
+		
+		D3D12_GPU_DESCRIPTOR_HANDLE srvUavHeapHandle = cbvsrvHeap.hGPU(6);
+		auto HeapPointer = reinterpret_cast<UINT64*>(srvUavHeapHandle.ptr);
 
+		// The ray generation only uses heap data
+		m_sbtHelper.AddRayGenerationProgram(L"RayGen", { HeapPointer });
+
+		// The miss and hit shaders do not access any external resources: instead they
+		// communicate their results through the ray payload
+		m_sbtHelper.AddMissProgram(L"Miss", {});
+
+		// Adding the triangle hit shader
+		m_sbtHelper.AddHitGroup(L"HitGroup", { (void*)(pVertexBuffer->GetGPUVirtualAddress()),
+											   (void*)(pIndexBuffer->GetGPUVirtualAddress()) });
+
+		uint32_t sbtSize = m_sbtHelper.ComputeSBTSize();
+
+		m_sbtStorage = nv_helpers_dx12::CreateBuffer(
+			m_pDeviceRef.Get(), 
+			sbtSize, 
+			D3D12_RESOURCE_FLAG_NONE,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nv_helpers_dx12::kUploadHeapProps
+		);
+		if (!m_sbtStorage) {
+			throw std::logic_error("Could not allocate the shader binding table");
+		}
+
+		m_sbtHelper.Generate(m_sbtStorage.Get(), m_rtStateObjectProps.Get());
 	}
 
 	ComPtr<ID3D12RootSignature> RayTraceHelpers::CreateRayGenSignature()
@@ -205,10 +280,8 @@ namespace Insight {
 			{ {0 /*u0*/, 1 /*1 descriptor */, 0 /*use the implicit register space 0*/,
 			  D3D12_DESCRIPTOR_RANGE_TYPE_UAV /* UAV representing the output buffer*/,
 			  0 /*heap slot where the UAV is defined*/},
-			 {0 /*t0*/, 1, 0,
-			  D3D12_DESCRIPTOR_RANGE_TYPE_SRV /*Top-level acceleration structure*/,
-			  1} }
-		);
+			 {0 /*t0*/, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV /*Top-level acceleration structure*/, 1},
+			 {0 /*b0*/, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV /*Camera parameters*/, 2} });
 
 		return rsc.Generate(m_pDeviceRef.Get(), true);
 	}
@@ -222,13 +295,172 @@ namespace Insight {
 	ComPtr<ID3D12RootSignature> RayTraceHelpers::CreateHitSignature()
 	{
 		nv_helpers_dx12::RootSignatureGenerator rsc;
+		rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV, 0 /*t0*/); // vertices and colors
+		rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV, 1 /*t1*/); // indices
 		return rsc.Generate(m_pDeviceRef.Get(), true);
 	}
 
 	void RayTraceHelpers::LoadDemoAssets()
 	{
-		m_Sphere = new ieD3D12SphereRenderer();
-		m_Sphere->Init(10, 20, 20);
+		/*m_Sphere = new ieD3D12SphereRenderer();
+		m_Sphere->Init(10, 20, 20);*/
+		// Create vertex buffer
+
+	// A triangle
+	// a triangle
+		SimpleVertex3D vList[] = {
+			// front face
+			{ -0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f },
+			{  0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 1.0f },
+			{ -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f },
+			{  0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f },
+
+			// right side face
+			{  0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f },
+			{  0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 1.0f },
+			{  0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f },
+			{  0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f },
+
+			// left side face					    
+			{ -0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 0.0f },
+			{ -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 1.0f },
+			{ -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f },
+			{ -0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f },
+
+			// back face						    
+			{  0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 0.0f },
+			{ -0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 1.0f },
+			{  0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f },
+			{ -0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f },
+
+			// top face
+			{ -0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f },
+			{ 0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 1.0f },
+			{ 0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 1.0f },
+			{ -0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f },
+
+			// bottom face
+			{  0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 0.0f },
+			{ -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 1.0f },
+			{  0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f },
+			{ -0.5f, -0.5f,  0.5f, 0.0f, 1.0f, 0.0f },
+		};
+		int vBufferSize = sizeof(vList);
+		numCubeVerticies = vBufferSize / sizeof(SimpleVertex3D);
+
+		// Create default heap
+		// Default heap is memeory on the GPU. Only the GPU has access to this memory
+		// To get data into the heap, we will have to upload the data using
+		// an upload heap
+		m_pDeviceRef->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), // A default heap
+			D3D12_HEAP_FLAG_NONE, // No flags
+			&CD3DX12_RESOURCE_DESC::Buffer(vBufferSize), // Resource description for a buffer
+			D3D12_RESOURCE_STATE_COPY_DEST, // We will start this heap in the copy destination state since we will copy
+											// will copy data from the upload hea to this heap
+			nullptr, // Optomized clear value must be null for this type of resource. Used for render targets and depth/stencil buffers
+			IID_PPV_ARGS(&pVertexBuffer)
+		);
+
+		// We can give resource heaps a name so we debug with the graphics debugger we know what resource we are looking at
+		pVertexBuffer->SetName(L"Vertex Buffer Resource Heap");
+
+		// Create upload heap
+		// Upload heaps are used to upload data to the GPU. CPU can write to it, GPU can read from it
+		// We will upload the vertex buffer using this heap to the deafault heap
+		ID3D12Resource* vBufferUploadHeap;
+		m_pDeviceRef->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), // Upload heap
+			D3D12_HEAP_FLAG_NONE, // No Flags
+			&CD3DX12_RESOURCE_DESC::Buffer(vBufferSize), // Resource description for a buffer
+			D3D12_RESOURCE_STATE_GENERIC_READ, // GPU will read form this buffer and copy it's contents to the default heap
+			nullptr,
+			IID_PPV_ARGS(&vBufferUploadHeap)
+		);
+		vBufferUploadHeap->SetName(L"Vetex Buffer Upload Resource Heap");
+
+		// Store Vertes buffer in upload heap
+		D3D12_SUBRESOURCE_DATA vertexData = {};
+		vertexData.pData = reinterpret_cast<BYTE*>(vList); // Pointer to our vertex array
+		vertexData.RowPitch = vBufferSize; // Soze of our triangle vertex data
+		vertexData.SlicePitch = vBufferSize; // Also the size of our triangle vertex data
+
+		// We are now creating a command with the command list to copu the data from
+		// the upload heap to the default heap
+		UpdateSubresources(m_pRayTracePass_CommandList.Get(), pVertexBuffer.Get(), vBufferUploadHeap, 0, 0, 1, &vertexData);
+
+		// Transition the vertex buffer data from copy destination state to verte buffer state
+		m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(pVertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
+
+		// Create Index Buffer
+
+		// A quad (2 triangles)
+		DWORD iList[] = {
+			// front face
+			0, 1, 2, // first triangle
+			0, 3, 1, // second triangle
+
+			// left face
+			4, 5, 6, // first triangle
+			4, 7, 5, // second triangle
+
+			// right face
+			8, 9, 10, // first triangle
+			8, 11, 9, // second triangle
+
+			// back face
+			12, 13, 14, // first triangle
+			12, 15, 13, // second triangle
+
+			// top face
+			16, 17, 18, // first triangle
+			16, 19, 17, // second triangle
+
+			// bottom face
+			20, 21, 22, // first triangle
+			20, 23, 21, // second triangle
+		};
+
+		int iBufferSize = sizeof(iList);
+
+		numCubeIndices = sizeof(iList) / sizeof(DWORD);
+
+		// Create default heap to hold index buffer
+		m_pDeviceRef->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), // a default heap
+			D3D12_HEAP_FLAG_NONE, // no flags
+			&CD3DX12_RESOURCE_DESC::Buffer(iBufferSize), // resource description for a buffer
+			D3D12_RESOURCE_STATE_COPY_DEST, // start in the copy destination state
+			nullptr, // optimized clear value must be null for this type of resource
+			IID_PPV_ARGS(&pIndexBuffer));
+
+		// We can give resource hesaps a name so when we debug with the graphcs debugger we know what resources we are looking at
+		pIndexBuffer->SetName(L"Index Buffer Resource Heap");
+
+		// Create upload heap to upload index buffer
+		ID3D12Resource* iBufferUploadHeap;
+		m_pDeviceRef->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), // upload heap
+			D3D12_HEAP_FLAG_NONE, // no flags
+			&CD3DX12_RESOURCE_DESC::Buffer(vBufferSize), // resource description for a buffer
+			D3D12_RESOURCE_STATE_GENERIC_READ, // GPU will read from this buffer and copy its contents to the default heap
+			nullptr,
+			IID_PPV_ARGS(&iBufferUploadHeap));
+		iBufferUploadHeap->SetName(L"Index buffer Upload Resource Heap");
+
+		// Store vertex buffer in upload heap
+		D3D12_SUBRESOURCE_DATA indexData = {};
+		indexData.pData = reinterpret_cast<BYTE*>(iList); // pointer to our index array
+		indexData.RowPitch = iBufferSize; // size of all our index buffer
+		indexData.SlicePitch = iBufferSize; // also the size of our index buffer
+
+
+		// We are now creating a command with the command list to copy the data from
+		// the upload heal to the default
+		UpdateSubresources(m_pRayTracePass_CommandList.Get(), pIndexBuffer.Get(), iBufferUploadHeap, 0, 0, 1, &indexData);
+
+		// Transition the vertex buffer data from the copy destination state to vertex buffer state
+		m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(pIndexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER));
 	}
 
 }
