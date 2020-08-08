@@ -9,6 +9,7 @@
 namespace Insight {
 
 	class ieD3D12SphereRenderer;
+	class Direct3D12Context;
 
 	using Microsoft::WRL::ComPtr;
 
@@ -25,10 +26,12 @@ namespace Insight {
 		RayTraceHelpers() = default;
 		~RayTraceHelpers() = default;
 
-		bool OnInit(ComPtr<ID3D12Device> pDevice, ComPtr<ID3D12GraphicsCommandList4> pRTCommandList, std::pair<uint32_t, uint32_t> WindowDimensions);
+		bool OnInit(ComPtr<ID3D12Device> pDevice, ComPtr<ID3D12GraphicsCommandList4> pRTCommandList, std::pair<uint32_t, uint32_t> WindowDimensions, Direct3D12Context* pRendererContext);
 		void OnPostInit();
 		void OnDestroy();
-		void OnTraceScene();
+		void UpdateCBVs();
+		void SetCommonPipeline();
+		void TraceScene();
 
 		ID3D12Resource* GetOutputBuffer() { return m_OutputBuffer_UAV.Get(); }
 
@@ -40,7 +43,8 @@ namespace Insight {
 		void CreateRaytracingPipeline();
 		void CreateRaytracingOutputBuffer();
 		void CreateShaderBindingTable();
-		
+		void CreateShaderResourceHeap();
+
 		ComPtr<ID3D12RootSignature> CreateRayGenSignature();
 		ComPtr<ID3D12RootSignature> CreateMissSignature();
 		ComPtr<ID3D12RootSignature> CreateHitSignature();
@@ -66,9 +70,12 @@ namespace Insight {
 
 		uint32_t m_WindowWidth = 0U;
 		uint32_t m_WindowHeight = 0U;
+		D3D12_DISPATCH_RAYS_DESC DispatchRaysDesc = {};
+		Direct3D12Context* m_pRendererContext;
 
+		ComPtr<ID3D12DescriptorHeap>			m_srvUavHeap;
+		ComPtr<ID3D12Resource>					m_CameraIntermediateBuffer;
 		ComPtr<ID3D12Resource>					m_OutputBuffer_UAV;
-		ComPtr<ID3D12Resource>					m_OutputBuffer_SRV;
 		ComPtr<ID3D12Resource>					m_bottomLevelAS;
 
 		nv_helpers_dx12::TopLevelASGenerator	m_TopLevelASGenerator;

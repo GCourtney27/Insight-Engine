@@ -75,6 +75,8 @@ namespace Insight {
 		inline ID3D12Resource& GetConstantBufferPerObjectMaterialUploadHeap() const { return *m_PerObjectMaterialAdditivesCBV[m_FrameIndex].Get(); }
 		inline UINT8& GetPerObjectMaterialAdditiveCBVGPUHeapAddress() { return *m_cbvPerObjectMaterialOverridesGPUAddress[m_FrameIndex]; }
 
+
+		ID3D12Resource* GetRayTracingSRV() const { return m_RayTraceOutput_SRV.Get(); }
 		ID3D12Resource* GetRenderTarget() const { return m_pRenderTargets[m_FrameIndex].Get(); }
 		const unsigned int GetNumRTVs() const { return m_NumRTV; }
 		inline D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const
@@ -114,7 +116,8 @@ namespace Insight {
 		
 		void CreateDSVs();
 		void CreateRTVs();
-		void CreateConstantBufferViews();
+		void CreateCBVs();
+		void CreateSRVs();
 		void CreateDeferredShadingRootSignature();
 		void CreateForwardShadingRootSignature();
 
@@ -158,11 +161,11 @@ namespace Insight {
 		UINT64					m_FenceValues[m_FrameBufferCount] = {};
 		HANDLE					m_FenceEvent = {};
 		ComPtr<ID3D12Fence>		m_pFence;
-		static const UINT		m_NumRTV = 5;
 
+		static const UINT		m_NumRTV = 5;
 		bool		m_WindowResizeComplete = true;
 		bool		m_IsRayTraceEnabled = true;
-		bool		m_IsRayTraceSupported = false;
+		bool		m_IsRayTraceSupported = false; // Assume ray tracing is not supported on the GPU
 		bool		m_UseWarpDevice = false;
 		int			m_RtvDescriptorIncrementSize = 0;
 
@@ -225,8 +228,8 @@ namespace Insight {
 		//3:   SRV-Position(RTV->SRV)
 		//4:   SRV-Scene Depth(DSV->SRV)
 		//5:   SRV-Light Pass Result(RTV->SRV)
-		//6:   UAV-Ray Trace Output(UAV->SRV)
-		//7:   SRV-RayTrace TLAS(SRV)
+		//6:   UAV-Ray Trace Output(RTHelper UAV(COPY)->SRV)
+		//7:   SRV-RayTrace TLAS(SRV) // TODO Depricate
 		//8:   SRV-Shadow Depth(DSV->SRV)
 		//-----PerObject-----
 		//9:   SRV-Albedo(SRV)
@@ -262,6 +265,8 @@ namespace Insight {
 
 		const UINT m_ShadowMapWidth = 1024U;
 		const UINT m_ShadowMapHeight = 1024U;
+
+		ComPtr<ID3D12Resource>	m_RayTraceOutput_SRV;
 
 		ComPtr<ID3D12Resource>	m_LightCBV;
 		UINT8*					m_cbvLightBufferGPUAddress;

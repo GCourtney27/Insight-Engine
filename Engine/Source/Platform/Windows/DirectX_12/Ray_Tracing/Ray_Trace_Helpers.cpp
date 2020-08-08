@@ -18,11 +18,12 @@ namespace Insight {
 
 
 
-	bool RayTraceHelpers::OnInit(ComPtr<ID3D12Device> pDevice, ComPtr<ID3D12GraphicsCommandList4> pRTCommandList, std::pair<uint32_t, uint32_t> WindowDimensions)
+	bool RayTraceHelpers::OnInit(ComPtr<ID3D12Device> pDevice, ComPtr<ID3D12GraphicsCommandList4> pRTCommandList, std::pair<uint32_t, uint32_t> WindowDimensions, Direct3D12Context* pRendererContext)
 	{
 		m_pDeviceRef = reinterpret_cast<ID3D12Device5*>(pDevice.Get());
 		m_pRayTracePass_CommandList = pRTCommandList;
-
+		m_pRendererContext = pRendererContext;
+		
 		m_WindowWidth = WindowDimensions.first;
 		m_WindowHeight = WindowDimensions.second;
 
@@ -31,8 +32,8 @@ namespace Insight {
 		CreateAccelerationStructures();
 		CreateRaytracingPipeline();
 		CreateRaytracingOutputBuffer();
+		CreateShaderResourceHeap();
 		CreateShaderBindingTable();
-
 		return true;
 	}
 
@@ -50,13 +51,20 @@ namespace Insight {
 		//delete m_Sphere;
 	}
 
-	void RayTraceHelpers::OnTraceScene()
+	void RayTraceHelpers::UpdateCBVs()
 	{
+	}
+
+	void RayTraceHelpers::SetCommonPipeline()
+	{
+		ID3D12DescriptorHeap* ppHeaps[] = { m_srvUavHeap.Get() };
+		m_pRayTracePass_CommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+
+
 		m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_OutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_SOURCE));
 		m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_OutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
 
-
-		D3D12_DISPATCH_RAYS_DESC DispatchRaysDesc = {};
+		DispatchRaysDesc = {};
 		uint32_t RayGenerationSectionSizeInBytes = m_sbtHelper.GetRayGenSectionSize();
 		DispatchRaysDesc.RayGenerationShaderRecord.StartAddress = m_sbtStorage->GetGPUVirtualAddress();
 		DispatchRaysDesc.RayGenerationShaderRecord.SizeInBytes = RayGenerationSectionSizeInBytes;
@@ -76,15 +84,16 @@ namespace Insight {
 		DispatchRaysDesc.Depth = 1;
 
 		m_pRayTracePass_CommandList->SetPipelineState1(m_rtStateObject.Get());
+	}
+
+	void RayTraceHelpers::TraceScene()
+	{
 		m_pRayTracePass_CommandList->DispatchRays(&DispatchRaysDesc);
 
-		m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_OutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_DEST));
-		m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_OutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE));
-		m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_OutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
-
-		//m_pRayTracePass_CommandList->CopyResource(m_OutputBuffer_SRV.Get(), m_OutputBuffer_UAV.Get());
-
-		//m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_OutputBuffer_SRV.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+		//m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_OutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_DEST));
+		//m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_OutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE));
+		//m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_OutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+		
 	}
 
 	RayTraceHelpers::AccelerationStructureBuffers RayTraceHelpers::CreateBottomLevelAS(std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> vVertexBuffers, std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> vIndexBuffers)
@@ -174,10 +183,19 @@ namespace Insight {
 	{
 		nv_helpers_dx12::RayTracingPipelineGenerator Pipeline(reinterpret_cast<ID3D12Device5*>(m_pDeviceRef.Get()));
 		
+#ifndef IE_IS_STANDALONE
+		LPCWSTR RayGenShaderFolder = L"Source/Shaders/HLSL/Ray_Tracing/RayGen.hlsl";
+		LPCWSTR MissShaderFolder = L"Source/Shaders/HLSL/Ray_Tracing/Miss.hlsl";
+		LPCWSTR HitShaderFolder = L"Source/Shaders/HLSL/Ray_Tracing/Hit.hlsl";
+#else
+		LPCWSTR RayGenShaderFolder = L"RayGen.hlsl";
+		LPCWSTR MissShaderFolder = L"Miss.hlsl";
+		LPCWSTR HitShaderFolder = L"Hit.hlsl";
+#endif
 		// TODO Change the shader paths to be path independent!
-		m_RayGenLibrary = nv_helpers_dx12::CompileShaderLibrary(L"Source/Shaders/HLSL/Ray_Tracing/RayGen.hlsl");
-		m_MissLibrary = nv_helpers_dx12::CompileShaderLibrary(L"Source/Shaders/HLSL/Ray_Tracing/Miss.hlsl");
-		m_HitLibrary = nv_helpers_dx12::CompileShaderLibrary(L"Source/Shaders/HLSL/Ray_Tracing/Hit.hlsl");
+		m_RayGenLibrary = nv_helpers_dx12::CompileShaderLibrary(RayGenShaderFolder);
+		m_MissLibrary = nv_helpers_dx12::CompileShaderLibrary(MissShaderFolder);
+		m_HitLibrary = nv_helpers_dx12::CompileShaderLibrary(HitShaderFolder);
 
 		Pipeline.AddLibrary(m_RayGenLibrary.Get(), { L"RayGen" });
 		Pipeline.AddLibrary(m_MissLibrary.Get(), { L"Miss" });
@@ -207,7 +225,26 @@ namespace Insight {
 
 	void RayTraceHelpers::CreateRaytracingOutputBuffer()
 	{
-		CDescriptorHeapWrapper& cbvsrvHeap = reinterpret_cast<Direct3D12Context*>(&Renderer::Get())->GetCBVSRVDescriptorHeap();
+		D3D12_RESOURCE_DESC resDesc = {};
+		resDesc.DepthOrArraySize = 1;
+		resDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		// The backbuffer is actually DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, but sRGB
+		// formats cannot be used with UAVs. For accuracy we should convert to sRGB
+		// ourselves in the shader
+		resDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+		resDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+		resDesc.Width = static_cast<UINT64>(m_WindowWidth);
+		resDesc.Height = static_cast<UINT64>(m_WindowHeight);
+		resDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+		resDesc.MipLevels = 1;
+		resDesc.SampleDesc.Count = 1;
+		ThrowIfFailed(m_pDeviceRef->CreateCommittedResource(
+			&nv_helpers_dx12::kDefaultHeapProps, D3D12_HEAP_FLAG_NONE, &resDesc,
+			D3D12_RESOURCE_STATE_COPY_SOURCE, nullptr,
+			IID_PPV_ARGS(&m_OutputBuffer_UAV)), "Failed to create raytracing outptut buffer.");
+
+		/*CDescriptorHeapWrapper& cbvsrvHeap = reinterpret_cast<Direct3D12Context*>(&Renderer::Get())->GetCBVSRVDescriptorHeap();
 
 		D3D12_RESOURCE_DESC ResourceDesc = {};
 		ResourceDesc.DepthOrArraySize = 1;
@@ -236,15 +273,16 @@ namespace Insight {
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		srvDesc.RaytracingAccelerationStructure.Location = m_TopLevelASBuffers.pResult->GetGPUVirtualAddress();
-		m_pDeviceRef->CreateShaderResourceView(nullptr, &srvDesc, cbvsrvHeap.hCPU(7));
+		m_pDeviceRef->CreateShaderResourceView(nullptr, &srvDesc, cbvsrvHeap.hCPU(7));*/
 	}
 
 	void RayTraceHelpers::CreateShaderBindingTable()
 	{
 		m_sbtHelper.Reset();
-		CDescriptorHeapWrapper& cbvsrvHeap = reinterpret_cast<Direct3D12Context*>(&Renderer::Get())->GetCBVSRVDescriptorHeap();
-		
-		D3D12_GPU_DESCRIPTOR_HANDLE srvUavHeapHandle = cbvsrvHeap.hGPU(6);
+		//CDescriptorHeapWrapper& cbvsrvHeap = reinterpret_cast<Direct3D12Context*>(&Renderer::Get())->GetCBVSRVDescriptorHeap();
+		D3D12_GPU_DESCRIPTOR_HANDLE srvUavHeapHandle = m_srvUavHeap->GetGPUDescriptorHandleForHeapStart();
+
+		//D3D12_GPU_DESCRIPTOR_HANDLE srvUavHeapHandle = cbvsrvHeap.hGPU(6);
 		auto HeapPointer = reinterpret_cast<UINT64*>(srvUavHeapHandle.ptr);
 
 		// The ray generation only uses heap data
@@ -274,15 +312,43 @@ namespace Insight {
 		m_sbtHelper.Generate(m_sbtStorage.Get(), m_rtStateObjectProps.Get());
 	}
 
+	void RayTraceHelpers::CreateShaderResourceHeap()
+	{
+		m_srvUavHeap = nv_helpers_dx12::CreateDescriptorHeap(m_pDeviceRef.Get(), 2, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, true);
+
+		D3D12_CPU_DESCRIPTOR_HANDLE srvHandle = m_srvUavHeap->GetCPUDescriptorHandleForHeapStart();
+
+		// Output Buffer
+		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+		m_pDeviceRef->CreateUnorderedAccessView(m_OutputBuffer_UAV.Get(), nullptr, &uavDesc, srvHandle);
+
+		srvHandle.ptr += m_pDeviceRef->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+		// Tol-Level Accereration Structure
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc;
+		srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
+		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		srvDesc.RaytracingAccelerationStructure.Location = m_TopLevelASBuffers.pResult->GetGPUVirtualAddress();
+		m_pDeviceRef->CreateShaderResourceView(nullptr, &srvDesc, srvHandle);
+	}
+
 	ComPtr<ID3D12RootSignature> RayTraceHelpers::CreateRayGenSignature()
 	{
 		nv_helpers_dx12::RootSignatureGenerator rsc;
+
 		rsc.AddHeapRangesParameter(
-			{ {0 /*u0*/, 1 /*1 descriptor */, 0 /*use the implicit register space 0*/,
-			  D3D12_DESCRIPTOR_RANGE_TYPE_UAV /* UAV representing the output buffer*/,
-			  0 /*heap slot where the UAV is defined*/},
-			 {0 /*t0*/, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV /*Top-level acceleration structure*/, 1},
-			 {0 /*b0*/, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV /*Camera parameters*/, 2} });
+			{
+				 {0 /*u0*/, 1 /*1 descriptor */, 0 /*use the implicit register space 0*/,
+				  D3D12_DESCRIPTOR_RANGE_TYPE_UAV /* UAV representing the output buffer*/,
+				  0 /*heap slot where the UAV is defined*/},
+			 
+				{0 /*t0*/, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV /*Top-level acceleration structure*/, 1},
+			
+				//{0 /*b0*/, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV /*Camera parameters*/, 2} 
+			}
+		);
 
 		return rsc.Generate(m_pDeviceRef.Get(), true);
 	}

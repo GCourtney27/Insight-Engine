@@ -77,7 +77,7 @@ namespace Insight {
 			throw ieException("Failed to initialize scene");
 		}
 		
-		// Push core app layer to the layer stack
+		// Push core app layers to the layer stack
 		PushEngineLayers();
 
 		ResourceManager::Get().GetMonoScriptManager().PostInit();

@@ -65,7 +65,8 @@ namespace Insight {
 			CreateCommandAllocators();
 
 			CreateConstantBuffers();
-			CreateConstantBufferViews();
+			CreateCBVs();
+			CreateSRVs();
 
 			PIXBeginEvent(m_pCommandQueue.Get(), 0, L"D3D 12 context Setup");
 			{
@@ -87,7 +88,7 @@ namespace Insight {
 					CreateSkyPassPSO();
 					CreateTransparencyPassPSO();
 					CreatePostEffectsPassPSO();
-					m_RTHelper.OnInit(m_pDevice, m_pRayTracePass_CommandList, { m_WindowWidth, m_WindowHeight });
+					m_RTHelper.OnInit(m_pDevice, m_pRayTracePass_CommandList, { m_WindowWidth, m_WindowHeight }, this);
 				}
 
 				// Render Targets and Constant Buffers
@@ -131,8 +132,18 @@ namespace Insight {
 		XMStoreFloat4x4(&viewFloat, XMMatrixTranspose(m_pWorldCamera->GetViewMatrix()));
 		XMFLOAT4X4 projectionFloat;
 		XMStoreFloat4x4(&projectionFloat, XMMatrixTranspose(m_pWorldCamera->GetProjectionMatrix()));
+		XMVECTOR det;
+		XMMATRIX invView = XMMatrixTranspose(XMMatrixInverse(&det, m_pWorldCamera->GetViewMatrix()));
+		XMMATRIX invProjection = XMMatrixTranspose(XMMatrixInverse(&det, m_pWorldCamera->GetProjectionMatrix()));
+		XMFLOAT4X4 invViewFloat;
+		XMStoreFloat4x4(&invViewFloat, invView);
+		XMFLOAT4X4 invProjectionFloat;
+		XMStoreFloat4x4(&invProjectionFloat, invProjection);
+
 		m_PerFrameData.view = viewFloat;
 		m_PerFrameData.projection = projectionFloat;
+		m_PerFrameData.inverseView = invViewFloat;
+		m_PerFrameData.inverseProjection = invProjectionFloat;
 		m_PerFrameData.cameraPosition = m_pWorldCamera->GetTransformRef().GetPosition();
 		m_PerFrameData.DeltaMs = DeltaMs;
 		m_PerFrameData.time = (float)Application::Get().GetFrameTimer().Seconds();
@@ -145,6 +156,8 @@ namespace Insight {
 		m_PerFrameData.screenSize.x = (float)m_WindowWidth;
 		m_PerFrameData.screenSize.y = (float)m_WindowHeight;
 		memcpy(m_cbvPerFrameGPUAddress, &m_PerFrameData, sizeof(CB_PS_VS_PerFrame));
+
+		m_RTHelper.UpdateCBVs();
 
 		// Send Point Lights to GPU
 		for (int i = 0; i < m_PointLights.size(); i++) {
@@ -395,10 +408,17 @@ namespace Insight {
 
 		PIXBeginEvent(m_pRayTracePass_CommandList.Get(), 0, L"Rendering Ray Trace Pass");
 		{
-			ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
-			m_pRayTracePass_CommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+			//ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
+			//m_pRayTracePass_CommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
-			m_RTHelper.OnTraceScene();
+			m_RTHelper.SetCommonPipeline();
+			
+			//m_pRayTracePass_CommandList->SetGraphicsRootConstantBufferView(0, m_PerFrameCBV->GetGPUVirtualAddress());
+			
+			m_pRayTracePass_CommandList->CopyResource(m_RayTraceOutput_SRV.Get(), m_RTHelper.GetOutputBuffer());
+
+			m_RTHelper.TraceScene();
+
 		}
 		PIXEndEvent(m_pRayTracePass_CommandList.Get());
 	}
@@ -893,11 +913,6 @@ namespace Insight {
 		m_pRenderTargetTextures[2]->SetName(L"Render Target Texture (R)Roughness/(G)Metallic/(B)AO");
 		m_pRenderTargetTextures[3]->SetName(L"Render Target Texture Position");
 		m_pRenderTargetTextures[4]->SetName(L"Render Target Texture Light Pass Result");
-		//resourceDesc.Format = m_RtvFormat[4];
-		//clearVal.Format = m_RtvFormat[4];
-		//hr = m_pLogicalDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET, &clearVal, IID_PPV_ARGS(&m_pRenderTargetTextures[4]));
-		//ThrowIfFailed(hr, "Failed to create committed resource for RTV at index: " + std::to_string(4));
-		//m_pRenderTargetTextures[4]->SetName(L"Render Target Texture Light Pass Result");
 
 
 		D3D12_RENDER_TARGET_VIEW_DESC RTVDesc = {};
@@ -909,8 +924,6 @@ namespace Insight {
 			RTVDesc.Format = m_RtvFormat[i];
 			m_pDevice->CreateRenderTargetView(m_pRenderTargetTextures[i].Get(), &RTVDesc, m_rtvHeap.hCPU(i));
 		}
-		//desc.Format = m_RtvFormat[4];
-		//m_pLogicalDevice->CreateRenderTargetView(m_pRenderTargetTextures[4].Get(), &desc, m_rtvHeap.hCPU(4));
 
 		//Create SRVs for Render Targets
 		D3D12_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
@@ -930,22 +943,50 @@ namespace Insight {
 		m_pRenderTargetTextures[2]->SetName(L"Render Target SRV (R)Roughness/(G)Metallic/(B)AO");
 		m_pRenderTargetTextures[3]->SetName(L"Render Target SRV Position");
 
-		// m_cbvsrvHeap.hCPU(4) is reserved for the depth stencil view
 		SRVDesc.Format = m_RtvFormat[4];
 		m_pDevice->CreateShaderResourceView(m_pRenderTargetTextures[4].Get(), &SRVDesc, m_cbvsrvHeap.hCPU(5));
 		m_pRenderTargetTextures[4]->SetName(L"Render Target SRV Light Pass Result");
 
 	}
 
-	void Direct3D12Context::CreateConstantBufferViews()
+	void Direct3D12Context::CreateCBVs()
 	{
 		HRESULT hr = m_cbvsrvHeap.Create(m_pDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 45, true);
 		ThrowIfFailed(hr, "Failed to create CBV SRV descriptor heap");
 	}
 
+	void Direct3D12Context::CreateSRVs()
+	{
+		HRESULT hr;
+		CD3DX12_HEAP_PROPERTIES HeapProperties(D3D12_HEAP_TYPE_DEFAULT);
+
+		D3D12_RESOURCE_DESC ResourceDesc = {};
+		ResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		ResourceDesc.Alignment = 0;
+		ResourceDesc.SampleDesc.Count = 1;
+		ResourceDesc.SampleDesc.Quality = 0;
+		ResourceDesc.MipLevels = 1;
+		ResourceDesc.DepthOrArraySize = 1;
+		ResourceDesc.Width = (UINT)m_WindowWidth;
+		ResourceDesc.Height = (UINT)m_WindowHeight;
+		ResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+		ResourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+		hr = m_pDevice->CreateCommittedResource(&HeapProperties, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, NULL, IID_PPV_ARGS(&m_RayTraceOutput_SRV));
+		ThrowIfFailed(hr, "Failed to create ray trace output srv");
+
+		D3D12_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
+		SRVDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		SRVDesc.Texture2D.MipLevels = 1U;
+		SRVDesc.Texture2D.MostDetailedMip = 0;
+		SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		SRVDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		m_pDevice->CreateShaderResourceView(m_RayTraceOutput_SRV.Get(), &SRVDesc, m_cbvsrvHeap.hCPU(6));
+	}
+
 	void Direct3D12Context::CreateDeferredShadingRootSignature()
 	{
-		CD3DX12_DESCRIPTOR_RANGE DescriptorRanges[13];
+		CD3DX12_DESCRIPTOR_RANGE DescriptorRanges[13] = {};
 		DescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 0); // G-Buffer inputs t0-t4
 
 		DescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 5);  // PerObject texture inputs - Albedo
@@ -953,6 +994,7 @@ namespace Insight {
 		DescriptorRanges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 7);  // PerObject texture inputs - Roughness
 		DescriptorRanges[4].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 8);  // PerObject texture inputs - Metallic
 		DescriptorRanges[5].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9);  // PerObject texture inputs - AO
+
 		DescriptorRanges[6].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 10); // Shadow Depth texture
 
 		DescriptorRanges[7].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 11);  // Sky - Irradiance
@@ -960,10 +1002,10 @@ namespace Insight {
 		DescriptorRanges[9].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 13);  // Sky - BRDF LUT
 		DescriptorRanges[10].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 14); // Sky - Diffuse
 
-		DescriptorRanges[11].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 15); // Post-FX Input Final Image input
-		DescriptorRanges[12].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 16); // Post-FX Input Final Image input
+		DescriptorRanges[11].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 15); // Post-FX input deferred light pass result
+		DescriptorRanges[12].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 16); // Post-FX input raytrace pass result
 
-		CD3DX12_ROOT_PARAMETER RootParameters[18];
+		CD3DX12_ROOT_PARAMETER RootParameters[18] = {};
 		RootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);	  // Per-Object constant buffer
 		RootParameters[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL);		  // Per-Frame constant buffer
 		RootParameters[2].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_ALL);		  // Light constant buffer
@@ -976,6 +1018,7 @@ namespace Insight {
 		RootParameters[8].InitAsDescriptorTable(1, &DescriptorRanges[3], D3D12_SHADER_VISIBILITY_PIXEL);  // PerObject texture inputs - Roughness
 		RootParameters[9].InitAsDescriptorTable(1, &DescriptorRanges[4], D3D12_SHADER_VISIBILITY_PIXEL);  // PerObject texture inputs - Metallic
 		RootParameters[10].InitAsDescriptorTable(1, &DescriptorRanges[5], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - AO
+
 		RootParameters[11].InitAsDescriptorTable(1, &DescriptorRanges[6], D3D12_SHADER_VISIBILITY_PIXEL); // Shadow Depth texture
 
 		RootParameters[12].InitAsDescriptorTable(1, &DescriptorRanges[7], D3D12_SHADER_VISIBILITY_PIXEL);  // Sky - Irradiance
@@ -992,7 +1035,7 @@ namespace Insight {
 		CD3DX12_ROOT_SIGNATURE_DESC RootSignatureDesc;
 		RootSignatureDesc.Init(_countof(RootParameters), RootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
-		CD3DX12_STATIC_SAMPLER_DESC StaticSamplers[2];
+		CD3DX12_STATIC_SAMPLER_DESC StaticSamplers[2] = {};
 		// Shadow map sampler
 		StaticSamplers[0].Init(
 			0,
@@ -1010,8 +1053,7 @@ namespace Insight {
 			0U
 		);
 		// Scene Sampler
-		FLOAT MinLOD = 0.0f;
-		FLOAT MaxLOD = 9.0f;
+		FLOAT MinLOD = 0.0f, MaxLOD = 9.0f;
 		StaticSamplers[1].Init(
 			1,
 			D3D12_FILTER_MIN_MAG_MIP_LINEAR,
@@ -1042,7 +1084,7 @@ namespace Insight {
 
 	void Direct3D12Context::CreateForwardShadingRootSignature()
 	{
-		CD3DX12_DESCRIPTOR_RANGE DescriptorRanges[10];
+		CD3DX12_DESCRIPTOR_RANGE DescriptorRanges[10] = {};
 		DescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);   // PerObject texture inputs - Albedo
 		DescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);   // PerObject texture inputs - Normal
 		DescriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2);   // PerObject texture inputs - Roughness
@@ -1055,7 +1097,7 @@ namespace Insight {
 		DescriptorRanges[8].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 8);   // Sky - Environment Map
 		DescriptorRanges[9].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9);   // Sky - BRDF LUT
 
-		CD3DX12_ROOT_PARAMETER RootParameters[14];
+		CD3DX12_ROOT_PARAMETER RootParameters[14] = {};
 		RootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);	  // Per-Object constant buffer
 		RootParameters[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL);		  // Per-Frame constant buffer
 		RootParameters[2].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_ALL);	      // Light constant buffer
@@ -1077,7 +1119,7 @@ namespace Insight {
 		CD3DX12_ROOT_SIGNATURE_DESC RootSignatureDesc;
 		RootSignatureDesc.Init(_countof(RootParameters), RootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
-		CD3DX12_STATIC_SAMPLER_DESC StaticSamplers[2];
+		CD3DX12_STATIC_SAMPLER_DESC StaticSamplers[2] = {};
 		// Shadow map sampler
 		StaticSamplers[0].Init(
 			0,
