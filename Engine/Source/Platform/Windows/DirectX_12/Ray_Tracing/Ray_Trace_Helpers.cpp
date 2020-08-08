@@ -32,6 +32,7 @@ namespace Insight {
 		CreateAccelerationStructures();
 		CreateRaytracingPipeline();
 		CreateRaytracingOutputBuffer();
+		CreateCameraBuffer();
 		CreateShaderResourceHeap();
 		CreateShaderBindingTable();
 		return true;
@@ -40,7 +41,7 @@ namespace Insight {
 	void RayTraceHelpers::OnPostInit()
 	{
 		return;
-		m_bottomLevelAS = m_TempBottomLevelBuffers.pResult;
+		m_BottomLevelAS = m_TempBottomLevelBuffers.pResult;
 
 		m_TempBottomLevelBuffers.pScratch->Release();
 		m_TempBottomLevelBuffers.pResult->Release();
@@ -53,6 +54,21 @@ namespace Insight {
 
 	void RayTraceHelpers::UpdateCBVs()
 	{
+		std::vector<XMMATRIX> matrices(4);
+
+		const CB_PS_VS_PerFrame PerFrameData = m_pRendererContext->GetPerFrameCB();
+
+		matrices[0] = XMLoadFloat4x4(&PerFrameData.view);
+		matrices[1] = XMLoadFloat4x4(&PerFrameData.projection);
+
+		matrices[2] = XMLoadFloat4x4(&PerFrameData.inverseView);
+		matrices[3] = XMLoadFloat4x4(&PerFrameData.inverseProjection);
+
+		// Copy the matrix contents
+		uint8_t* pData;
+		ThrowIfFailed(m_CameraBuffer->Map(0, nullptr, (void**)&pData), "Failed to map camera buffer");
+		memcpy(pData, matrices.data(), m_CameraBufferSize);
+		m_CameraBuffer->Unmap(0, nullptr);
 	}
 
 	void RayTraceHelpers::SetCommonPipeline()
@@ -60,9 +76,10 @@ namespace Insight {
 		ID3D12DescriptorHeap* ppHeaps[] = { m_srvUavHeap.Get() };
 		m_pRayTracePass_CommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
-
-		m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_OutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_SOURCE));
 		m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_OutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
+
+		//m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_OutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_SOURCE));
+		//m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_OutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
 
 		DispatchRaysDesc = {};
 		uint32_t RayGenerationSectionSizeInBytes = m_sbtHelper.GetRayGenSectionSize();
@@ -90,6 +107,9 @@ namespace Insight {
 	{
 		m_pRayTracePass_CommandList->DispatchRays(&DispatchRaysDesc);
 
+		m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_OutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE));
+		
+		
 		//m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_OutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_DEST));
 		//m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_OutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE));
 		//m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_OutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
@@ -176,7 +196,32 @@ namespace Insight {
 		m_Instances = { {bottomLevelBuffers.pResult, XMMatrixIdentity()} };
 		CreateTopLevelAS(m_Instances);
 
-		m_bottomLevelAS = bottomLevelBuffers.pResult;
+		m_BottomLevelAS = bottomLevelBuffers.pResult;
+	}
+
+	void RayTraceHelpers::CreateCameraBuffer() {
+		uint32_t nbMatrix = 4; // view, perspective, viewInv, perspectiveInv
+		m_CameraBufferSize = nbMatrix * sizeof(XMMATRIX);
+
+		// Create the constant buffer for all matrices
+		m_CameraBuffer = nv_helpers_dx12::CreateBuffer(
+			m_pDeviceRef.Get(), m_CameraBufferSize, D3D12_RESOURCE_FLAG_NONE,
+			D3D12_RESOURCE_STATE_GENERIC_READ, nv_helpers_dx12::kUploadHeapProps);
+
+		// Create a descriptor heap that will be used by the rasterization shaders
+		m_ConstHeap = nv_helpers_dx12::CreateDescriptorHeap(
+			m_pDeviceRef.Get(), 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, true);
+
+		// Describe and create the constant buffer view.
+		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+		cbvDesc.BufferLocation = m_CameraBuffer->GetGPUVirtualAddress();
+		cbvDesc.SizeInBytes = m_CameraBufferSize;
+
+		// Get a handle to the heap memory on the CPU side, to be able to write the
+		// descriptors directly
+		D3D12_CPU_DESCRIPTOR_HANDLE srvHandle =
+			m_ConstHeap->GetCPUDescriptorHandleForHeapStart();
+		m_pDeviceRef->CreateConstantBufferView(&cbvDesc, srvHandle);
 	}
 
 	void RayTraceHelpers::CreateRaytracingPipeline()
@@ -314,7 +359,7 @@ namespace Insight {
 
 	void RayTraceHelpers::CreateShaderResourceHeap()
 	{
-		m_srvUavHeap = nv_helpers_dx12::CreateDescriptorHeap(m_pDeviceRef.Get(), 2, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, true);
+		m_srvUavHeap = nv_helpers_dx12::CreateDescriptorHeap(m_pDeviceRef.Get(), 3, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, true);
 
 		D3D12_CPU_DESCRIPTOR_HANDLE srvHandle = m_srvUavHeap->GetCPUDescriptorHandleForHeapStart();
 
@@ -332,6 +377,15 @@ namespace Insight {
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		srvDesc.RaytracingAccelerationStructure.Location = m_TopLevelASBuffers.pResult->GetGPUVirtualAddress();
 		m_pDeviceRef->CreateShaderResourceView(nullptr, &srvDesc, srvHandle);
+
+		srvHandle.ptr +=
+			m_pDeviceRef->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+		// Describe and create a constant buffer view for the camera
+		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+		cbvDesc.BufferLocation = m_CameraBuffer->GetGPUVirtualAddress();
+		cbvDesc.SizeInBytes = m_CameraBufferSize;
+		m_pDeviceRef->CreateConstantBufferView(&cbvDesc, srvHandle);
 	}
 
 	ComPtr<ID3D12RootSignature> RayTraceHelpers::CreateRayGenSignature()
@@ -346,7 +400,7 @@ namespace Insight {
 			 
 				{0 /*t0*/, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV /*Top-level acceleration structure*/, 1},
 			
-				//{0 /*b0*/, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV /*Camera parameters*/, 2} 
+				{0 /*b0*/, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV /*Camera parameters*/, 2} 
 			}
 		);
 

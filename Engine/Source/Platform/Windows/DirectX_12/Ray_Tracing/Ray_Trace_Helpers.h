@@ -44,6 +44,7 @@ namespace Insight {
 		void CreateRaytracingOutputBuffer();
 		void CreateShaderBindingTable();
 		void CreateShaderResourceHeap();
+		void CreateCameraBuffer();
 
 		ComPtr<ID3D12RootSignature> CreateRayGenSignature();
 		ComPtr<ID3D12RootSignature> CreateMissSignature();
@@ -74,9 +75,13 @@ namespace Insight {
 		Direct3D12Context* m_pRendererContext;
 
 		ComPtr<ID3D12DescriptorHeap>			m_srvUavHeap;
-		ComPtr<ID3D12Resource>					m_CameraIntermediateBuffer;
+		ComPtr<ID3D12DescriptorHeap>			m_ConstHeap;
+		
+		ComPtr<ID3D12Resource>					m_CameraBuffer;
+		int										m_CameraBufferSize = 0;
+
 		ComPtr<ID3D12Resource>					m_OutputBuffer_UAV;
-		ComPtr<ID3D12Resource>					m_bottomLevelAS;
+		ComPtr<ID3D12Resource>					m_BottomLevelAS;
 
 		nv_helpers_dx12::TopLevelASGenerator	m_TopLevelASGenerator;
 		AccelerationStructureBuffers			m_TopLevelASBuffers;

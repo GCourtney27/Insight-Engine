@@ -133,8 +133,8 @@ namespace Insight {
 		XMFLOAT4X4 projectionFloat;
 		XMStoreFloat4x4(&projectionFloat, XMMatrixTranspose(m_pWorldCamera->GetProjectionMatrix()));
 		XMVECTOR det;
-		XMMATRIX invView = XMMatrixTranspose(XMMatrixInverse(&det, m_pWorldCamera->GetViewMatrix()));
-		XMMATRIX invProjection = XMMatrixTranspose(XMMatrixInverse(&det, m_pWorldCamera->GetProjectionMatrix()));
+		XMMATRIX invView = (XMMatrixInverse(&det, m_pWorldCamera->GetViewMatrix()));
+		XMMATRIX invProjection = (XMMatrixInverse(&det, m_pWorldCamera->GetProjectionMatrix()));
 		XMFLOAT4X4 invViewFloat;
 		XMStoreFloat4x4(&invViewFloat, invView);
 		XMFLOAT4X4 invProjectionFloat;
@@ -408,17 +408,12 @@ namespace Insight {
 
 		PIXBeginEvent(m_pRayTracePass_CommandList.Get(), 0, L"Rendering Ray Trace Pass");
 		{
-			//ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
-			//m_pRayTracePass_CommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
-
 			m_RTHelper.SetCommonPipeline();
-			
-			//m_pRayTracePass_CommandList->SetGraphicsRootConstantBufferView(0, m_PerFrameCBV->GetGPUVirtualAddress());
-			
-			m_pRayTracePass_CommandList->CopyResource(m_RayTraceOutput_SRV.Get(), m_RTHelper.GetOutputBuffer());
-
 			m_RTHelper.TraceScene();
 
+			m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_RayTraceOutput_SRV.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST));
+			m_pRayTracePass_CommandList->CopyResource(m_RayTraceOutput_SRV.Get(), m_RTHelper.GetOutputBuffer());
+			m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_RayTraceOutput_SRV.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 		}
 		PIXEndEvent(m_pRayTracePass_CommandList.Get());
 	}

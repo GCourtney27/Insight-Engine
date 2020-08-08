@@ -6,26 +6,13 @@ RWTexture2D<float4> gOutput : register(u0);
 // Raytracing acceleration structure, accessed as a SRV
 RaytracingAccelerationStructure SceneBVH : register(t0);
 
-cbuffer cbPerFrame : register(b0)
+cbuffer CameraParams : register(b0)
 {
-    float3 cameraPosition;
-    float cameraExposure; //4
     float4x4 view;
-    float4x4 inverseView;
     float4x4 projection;
+    float4x4 inverseView;
     float4x4 inverseProjection;
-    float cameraNearZ;
-    float cameraFarZ;
-    float DeltaMs;
-    float time; //4
-    float numPointLights;
-    float numDirectionalLights;
-    float numSpotLights;
-    float padding; //4
-    float2 screenSize;
-    float padding1;
-    float padding2;
-};
+}
 
 [shader("raygeneration")]
 void RayGen()
@@ -44,11 +31,11 @@ void RayGen()
   // Perspective
     RayDesc ray;
     // Define a ray, consisting of origin, direction, and the min-max distance values
-    //ray.Origin = mul(inverseView, float4(0, 0, 0, 1));
-    //float4 target = mul(inverseProjection, float4(d.x, -d.y, 1, 1));
-    //ray.Direction = mul(inverseView, float4(target.xyz, 0));
-    ray.Origin = float3(d.x, -d.y, 1);
-    ray.Direction = float3(0, 0, -1);
+    ray.Origin = mul(inverseView, float4(0, 0, 0, 1));
+    float4 target = mul(inverseProjection, float4(d.x, -d.y, 1, 1));
+    ray.Direction = mul(inverseView, float4(target.xyz, 0));
+    //ray.Origin = float3(d.x, -d.y, 1);
+    //ray.Direction = float3(0, 0, -1);
     ray.TMin = 0;
     ray.TMax = 100000;
     
