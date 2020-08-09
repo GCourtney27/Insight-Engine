@@ -1,4 +1,4 @@
-## Insight Engine
+# Insight Engine
 A full game engine made for my 2019 Capstone project. It is written in C/C++ with DirectX 11 being the driver for the graphics. <br />
 This engine is still under active development. To view the work done during the 10 weeks, visit the '2019-Capstone' branch.
 
@@ -13,6 +13,12 @@ This engine is still under active development. To view the work done during the 
 
 **JSON File IO**
 * Save and load your scenes. In the background, JSON is being used to store all Game Objects and their corresponding components
+
+### Editor
+<img src="https://static.wixstatic.com/media/4544f2_3252dc11f49047a285650c8382d3dc55~mv2.png" witdth="550" height="350" alt="Editor"/>
+
+### Physically Based Rendering
+<img src="https://static.wixstatic.com/media/4544f2_3a5cb391f076489f9ef60476ff035890~mv2.png" witdth="550" height="350" alt="Editor"/>
 
 **Platforms**
 * Windows PCDesktop (x64)
