@@ -91,10 +91,12 @@ namespace Insight {
 		ComPtr<IDxcBlob> m_RayGenLibrary;
 		ComPtr<IDxcBlob> m_HitLibrary;
 		ComPtr<IDxcBlob> m_MissLibrary;
+		ComPtr<IDxcBlob> m_ShadowLibrary;
 
 		ComPtr<ID3D12RootSignature> m_RayGenSignature;
 		ComPtr<ID3D12RootSignature> m_HitSignature;
 		ComPtr<ID3D12RootSignature> m_MissSignature;
+		ComPtr<ID3D12RootSignature> m_ShadowSignature;
 
 		ComPtr<ID3D12StateObject> m_rtStateObject;
 		ComPtr<ID3D12StateObjectProperties> m_rtStateObjectProps;

@@ -19,7 +19,7 @@ void RayGen()
 {
     // Initialize the ray payload
     HitInfo HitInfo;
-    HitInfo.ColorAndDistance = float4(0, 0, 0, 0);
+    HitInfo.ColorAndDistance = float4(1, 1, 1, 0);
 
     // Get the location within the dispatched 2D grid of work items
     // (often maps to pixels, so this could represent a pixel coordinate).

@@ -11,6 +11,8 @@
 
 #include "Insight/Systems/File_System.h"
 
+#include "imgui.h"
+
 namespace Insight {
 
 
@@ -199,19 +201,25 @@ namespace Insight {
 
 	void ASkyLight::OnImGuiRender()
 	{
+		AActor::OnImGuiRender();
+		
+		ImGui::Checkbox("Sky Light Enabled", &m_Enabled);
 	}
 
 	void ASkyLight::BindCubeMaps(bool RenderPassIsDeferred)
 	{
-		if (RenderPassIsDeferred) {
-			m_Environment->BindForDeferredPass();
-			m_Irradiance->BindForDeferredPass();
-			m_BrdfLUT->BindForDeferredPass();
-		}
-		else {
-			m_Environment->BindForForwardPass();
-			m_Irradiance->BindForForwardPass();
-			m_BrdfLUT->BindForDeferredPass();
+		if (m_Enabled) {
+
+			if (RenderPassIsDeferred) {
+				m_Environment->BindForDeferredPass();
+				m_Irradiance->BindForDeferredPass();
+				m_BrdfLUT->BindForDeferredPass();
+			}
+			else {
+				m_Environment->BindForForwardPass();
+				m_Irradiance->BindForForwardPass();
+				m_BrdfLUT->BindForDeferredPass();
+			}
 		}
 	}
 

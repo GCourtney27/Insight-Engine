@@ -64,7 +64,6 @@ float3 CaclualteDirectionalLight(DirectionalLight Light, float3 ViewDirection, f
     float3 kD = float3(1.0, 1.0, 1.0) - F;
     kD *= 1.0 - MaterialMetallic;
         
-    
     return ((kD * MaterialAlbedo / PI + Specular) * Radiance * NdotL);
 }
 

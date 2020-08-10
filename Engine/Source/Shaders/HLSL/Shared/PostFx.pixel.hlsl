@@ -11,7 +11,6 @@ Texture2D t_SceneDepthGBuffer : register(t4);
 Texture2D t_ShadowDepthPass : register(t10);
 
 Texture2D t_LightPassResult : register(t15);
-Texture2D t_RayTracePassResult : register(t16);
 
 // Samplers
 // --------
@@ -36,9 +35,8 @@ struct PS_INPUT_POSTFX
 float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
 {
     float3 LightPassResult = t_LightPassResult.Sample(s_PointClampSampler, ps_in.texCoords).rgb;
-    float3 RayTraceResult = t_RayTracePassResult.Sample(s_PointClampSampler, ps_in.texCoords).rgb;
     
-    float3 result = LightPassResult + RayTraceResult;
+    float3 result = LightPassResult;
     
     if (vnEnabled)
     {

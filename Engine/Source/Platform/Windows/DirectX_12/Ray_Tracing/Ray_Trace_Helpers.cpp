@@ -174,7 +174,7 @@ namespace Insight {
 		if (!UpdateOnly) {
 
 			for (size_t i = 0; i < instances.size(); i++) {
-				m_TopLevelASGenerator.AddInstance(instances[i].first.Get(), instances[i].second, static_cast<UINT>(i), static_cast<UINT>(0));
+				m_TopLevelASGenerator.AddInstance(instances[i].first.Get(), instances[i].second, static_cast<UINT>(i), static_cast<UINT>(2*i));
 			}
 
 			UINT64 scratchSize, resultSize, instanceDescsSize;
@@ -212,19 +212,6 @@ namespace Insight {
 
 	void RayTraceHelpers::CreateAccelerationStructures()
 	{
-		// TODO: Make a AccelerationStructureBuffers for each mesh
-		//AccelerationStructureBuffers bottomLevelBuffers = CreateBottomLevelAS(
-		//	{ {m_pSphere->GetVertexBuffer().Get(), m_pSphere->GetVertexCount()} }, { {m_pSphere->GetIndexBuffer(), m_pSphere->GetIndexBufferCount()} }
-		//);
-
-		//AccelerationStructureBuffers BottomLevelBuffers = CreateBottomLevelAS(m_ASVertexBuffers, m_ASIndexBuffers);
-
-		//XMMATRIX WorldMat = XMMatrixIdentity();
-		//WorldMat = XMMatrixScaling(10.0f, 10.0f, 10.0f);
-		//// TODO: Put the AccelerationStructureBuffers from above into the m_Instances with the mesh's world matrix
-		//m_Instances = { {bottomLevelBuffers.pResult, WorldMat} };
-		
-		
 		CreateTopLevelAS(m_Instances);
 	}
 
@@ -264,35 +251,43 @@ namespace Insight {
 		LPCWSTR RayGenShaderFolder = L"Source/Shaders/HLSL/Ray_Tracing/RayGen.hlsl";
 		LPCWSTR MissShaderFolder = L"Source/Shaders/HLSL/Ray_Tracing/Miss.hlsl";
 		LPCWSTR HitShaderFolder = L"Source/Shaders/HLSL/Ray_Tracing/Closest_Hit.hlsl";
+		LPCWSTR ShadowShaderFolder = L"Source/Shaders/HLSL/Ray_Tracing/Shadow_Ray.hlsl";
 #else
 		LPCWSTR RayGenShaderFolder = L"RayGen.hlsl";
 		LPCWSTR MissShaderFolder = L"Miss.hlsl";
 		LPCWSTR HitShaderFolder = L"Closest_Hit.hlsl";
+		LPCWSTR ShadowShaderFolder = L"Shadow_Ray.hlsl";
 #endif
 		// TODO Change the shader paths to be path independent!
 		m_RayGenLibrary = NvidiaHelpers::CompileShaderLibrary(RayGenShaderFolder);
 		m_MissLibrary = NvidiaHelpers::CompileShaderLibrary(MissShaderFolder);
 		m_HitLibrary = NvidiaHelpers::CompileShaderLibrary(HitShaderFolder);
+		m_ShadowLibrary = NvidiaHelpers::CompileShaderLibrary(ShadowShaderFolder);
 
 		Pipeline.AddLibrary(m_RayGenLibrary.Get(), { L"RayGen" });
 		Pipeline.AddLibrary(m_MissLibrary.Get(), { L"Miss" });
 		Pipeline.AddLibrary(m_HitLibrary.Get(), { L"ClosestHit" });
+		Pipeline.AddLibrary(m_ShadowLibrary.Get(), { L"ShadowClosestHit", L"ShadowMiss" });
 
 		m_RayGenSignature = CreateRayGenSignature();
 		m_MissSignature = CreateMissSignature();
 		m_HitSignature = CreateHitSignature();
+		m_ShadowSignature = CreateHitSignature();
 
 		Pipeline.AddHitGroup(L"HitGroup", L"ClosestHit");
+		Pipeline.AddHitGroup(L"ShadowHitGroup", L"ShadowClosestHit");
 
 		Pipeline.AddRootSignatureAssociation(m_RayGenSignature.Get(), { L"RayGen" });
 		Pipeline.AddRootSignatureAssociation(m_MissSignature.Get(), { L"Miss" });
 		Pipeline.AddRootSignatureAssociation(m_HitSignature.Get(), { L"HitGroup" });
+		Pipeline.AddRootSignatureAssociation(m_ShadowSignature.Get(), { L"ShadowHitGroup" });
+		Pipeline.AddRootSignatureAssociation(m_MissSignature.Get(), { L"Miss", L"ShadowMiss" });
 
 		Pipeline.SetMaxPayloadSize(4 * sizeof(float)); // RGB + distance
 
 		Pipeline.SetMaxAttributeSize(2 * sizeof(float)); // barycentric coordinates
 
-		Pipeline.SetMaxRecursionDepth(1);
+		Pipeline.SetMaxRecursionDepth(2);
 
 		// Compile the pipeline for execution on the GPU
 		m_rtStateObject = Pipeline.Generate();
@@ -337,17 +332,14 @@ namespace Insight {
 		// The miss and hit shaders do not access any external resources: instead they
 		// communicate their results through the ray payload
 		m_sbtHelper.AddMissProgram(L"Miss", {});
-		
+		m_sbtHelper.AddMissProgram(L"ShadowMiss", {});
+
 		for (uint32_t i = 0; i < m_ASVertexBuffers.size(); ++i) {
 
 			m_sbtHelper.AddHitGroup(L"HitGroup", { (void*)m_ASVertexBuffers[i].first->GetGPUVirtualAddress(),
 													(void*)m_ASIndexBuffers[i].first->GetGPUVirtualAddress() });
-
+			m_sbtHelper.AddHitGroup(L"ShadowHitGroup", {});
 		}
-
-		// Adding the triangle hit shader
-		//m_sbtHelper.AddHitGroup(L"HitGroup", { (void*)(m_pSphere->GetVertexBuffer()->GetGPUVirtualAddress()),
-		//									   (void*)(m_pSphere->GetIndexBuffer()->GetGPUVirtualAddress()) });
 
 		uint32_t sbtSize = m_sbtHelper.ComputeSBTSize();
 
@@ -426,6 +418,11 @@ namespace Insight {
 		NvidiaHelpers::RootSignatureGenerator rsc;
 		rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV, 0 /*t0*/); // vertices and colors
 		rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV, 1 /*t1*/); // indices
+		rsc.AddHeapRangesParameter(
+			{
+				{ 2 /*t2*/, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1 /*2nd slot of the heap*/ },
+			}
+		);
 		return rsc.Generate(m_pDeviceRef.Get(), true);
 	}
 

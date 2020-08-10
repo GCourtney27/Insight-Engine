@@ -351,6 +351,7 @@ namespace Insight {
 			m_pScenePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
 
 			m_pScenePass_CommandList->SetPipelineState(m_pLightingPass_PSO.Get());
+			m_pScenePass_CommandList->SetGraphicsRootDescriptorTable(17, m_cbvsrvHeap.hGPU(6)); // Ray Trace Result
 
 			m_ScreenQuad.OnRender(m_pScenePass_CommandList);
 		}
@@ -438,7 +439,6 @@ namespace Insight {
 
 			m_pPostEffectsPass_CommandList->SetPipelineState(m_pPostFxPass_PSO.Get());
 			m_pPostEffectsPass_CommandList->SetGraphicsRootDescriptorTable(16, m_cbvsrvHeap.hGPU(5)); // Light Pass result
-			m_pPostEffectsPass_CommandList->SetGraphicsRootDescriptorTable(17, m_cbvsrvHeap.hGPU(6)); // Ray Trace Result
 			m_pPostEffectsPass_CommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV->GetGPUVirtualAddress());
 			m_pPostEffectsPass_CommandList->SetGraphicsRootConstantBufferView(3, m_PostFxCBV->GetGPUVirtualAddress());
 
@@ -471,9 +471,9 @@ namespace Insight {
 
 		ID3D12CommandList* ppCommandLists[] = {
 			m_pShadowPass_CommandList.Get(), // Execure shadow pass first because we'll need the depth textures for the light pass
+			m_pRayTracePass_CommandList.Get(),
 			m_pScenePass_CommandList.Get(),
 			m_pTransparencyPass_CommandList.Get(),
-			m_pRayTracePass_CommandList.Get(),
 			m_pPostEffectsPass_CommandList.Get(),
 		};
 		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
@@ -694,7 +694,7 @@ namespace Insight {
 
 	uint32_t Direct3D12Context::RegisterGeometryWithRTAccelerationStucture(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat)
 	{
-		return m_RTHelper.RegisterBottomLevelASGeometry(pVertexBuffer, pIndexBuffer, NumIndices, NumVerticies, MeshWorldMat);
+		return m_RTHelper.RegisterBottomLevelASGeometry(pVertexBuffer, pIndexBuffer, NumVerticies, NumIndices, MeshWorldMat);
 	}
 
 	void Direct3D12Context::CreateSwapChain()
