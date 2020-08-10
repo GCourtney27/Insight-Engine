@@ -21,6 +21,7 @@
 namespace Insight {
 
 
+
 	Direct3D12Context::Direct3D12Context(WindowsWindow* WindowHandle)
 		: m_pWindowHandle(&WindowHandle->GetWindowHandleReference()),
 		m_pWindow(WindowHandle),
@@ -68,6 +69,8 @@ namespace Insight {
 			CreateCBVs();
 			CreateSRVs();
 
+			m_RTHelper.OnInit(m_pDevice, m_pRayTracePass_CommandList, { m_WindowWidth, m_WindowHeight }, this);
+
 			PIXBeginEvent(m_pCommandQueue.Get(), 0, L"D3D 12 context Setup");
 			{
 				// Window adn Viewport
@@ -88,7 +91,6 @@ namespace Insight {
 					CreateSkyPassPSO();
 					CreateTransparencyPassPSO();
 					CreatePostEffectsPassPSO();
-					m_RTHelper.OnInit(m_pDevice, m_pRayTracePass_CommandList, { m_WindowWidth, m_WindowHeight }, this);
 				}
 
 				// Render Targets and Constant Buffers
@@ -133,8 +135,8 @@ namespace Insight {
 		XMFLOAT4X4 projectionFloat;
 		XMStoreFloat4x4(&projectionFloat, XMMatrixTranspose(m_pWorldCamera->GetProjectionMatrix()));
 		XMVECTOR det;
-		XMMATRIX invView = (XMMatrixInverse(&det, m_pWorldCamera->GetViewMatrix()));
-		XMMATRIX invProjection = (XMMatrixInverse(&det, m_pWorldCamera->GetProjectionMatrix()));
+		XMMATRIX invView = XMMatrixInverse(&det, m_pWorldCamera->GetViewMatrix());
+		XMMATRIX invProjection = XMMatrixInverse(&det, m_pWorldCamera->GetProjectionMatrix());
 		XMFLOAT4X4 invViewFloat;
 		XMStoreFloat4x4(&invViewFloat, invView);
 		XMFLOAT4X4 invProjectionFloat;
@@ -690,6 +692,11 @@ namespace Insight {
 		}
 	}
 
+	void Direct3D12Context::RegisterGeometryWithAccelerationStucture(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat)
+	{
+		m_RTHelper.RegisterBottomLevelASGeometry(pVertexBuffer, pIndexBuffer, NumIndices, NumVerticies, MeshWorldMat);
+	}
+
 	void Direct3D12Context::CreateSwapChain()
 	{
 		HRESULT hr;
@@ -867,7 +874,7 @@ namespace Insight {
 		ShadowDSVSRV.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		ShadowDSVSRV.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
-		m_pDevice->CreateShaderResourceView(m_pShadowDepthTexture.Get(), &ShadowDSVSRV, m_cbvsrvHeap.hCPU(8));
+		m_pDevice->CreateShaderResourceView(m_pShadowDepthTexture.Get(), &ShadowDSVSRV, m_cbvsrvHeap.hCPU(7));
 	}
 
 	void Direct3D12Context::CreateRTVs()
@@ -1806,6 +1813,11 @@ namespace Insight {
 
 	void Direct3D12Context::CloseCommandListAndSignalCommandQueue()
 	{
+		// Generate the acceleration structures for the ray tracer
+		if (m_IsRayTraceEnabled) {
+			m_RTHelper.GenerateAccelerationStructure();
+		}
+
 		m_pScenePass_CommandList->Close();
 		m_pRayTracePass_CommandList->Close();
 

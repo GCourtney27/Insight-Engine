@@ -12,6 +12,7 @@ namespace Insight {
 	class Direct3D12Context;
 
 	using Microsoft::WRL::ComPtr;
+	namespace NvidiaHelpers = nv_helpers_dx12;
 
 	class INSIGHT_API RayTraceHelpers
 	{
@@ -27,17 +28,19 @@ namespace Insight {
 		~RayTraceHelpers() = default;
 
 		bool OnInit(ComPtr<ID3D12Device> pDevice, ComPtr<ID3D12GraphicsCommandList4> pRTCommandList, std::pair<uint32_t, uint32_t> WindowDimensions, Direct3D12Context* pRendererContext);
+		void GenerateAccelerationStructure();
 		void OnPostInit();
 		void OnDestroy();
 		void UpdateCBVs();
 		void SetCommonPipeline();
 		void TraceScene();
 
-		ID3D12Resource* GetOutputBuffer() { return m_OutputBuffer_UAV.Get(); }
+		ID3D12Resource* GetOutputBuffer() { return m_pOutputBuffer_UAV.Get(); }
+		void RegisterBottomLevelASGeometry(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, size_t NumVeticies, size_t NumIndices, DirectX::XMMATRIX WorldMat);
 
 	private:
-		AccelerationStructureBuffers CreateBottomLevelAS(std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> vVertexBuffers, std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> vIndexBuffers = {});
-		void CreateTopLevelAS(const std::vector<std::pair<ComPtr<ID3D12Resource>, DirectX::XMMATRIX>>& instances);
+		AccelerationStructureBuffers CreateBottomLevelAS(std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> VertexBuffers, std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> IndexBuffers = {});
+		void CreateTopLevelAS(const std::vector<std::pair<ComPtr<ID3D12Resource>, DirectX::XMMATRIX>>& instances, bool UpdateOnly = false);
 		void CreateAccelerationStructures();
 
 		void CreateRaytracingPipeline();
@@ -51,28 +54,22 @@ namespace Insight {
 		ComPtr<ID3D12RootSignature> CreateHitSignature();
 
 		// TEMP
-		struct SimpleVertex3D
-		{
-			SimpleVertex3D() {}
-			SimpleVertex3D(float x, float y, float z, float r, float u, float v) : pos(x, y, z), textCoord(u, v) {}
+		void LoadDemoAssets();
+		//ieD3D12SphereRenderer* m_pSphere;
 
-			DirectX::XMFLOAT3 pos;
-			DirectX::XMFLOAT2 textCoord;
-		};
-		void LoadDemoAssets(); 	/*ieD3D12SphereRenderer* m_Sphere*/;
-		int numCubeIndices;
-		int numCubeVerticies;
-		ComPtr<ID3D12Resource> pIndexBuffer;
-		ComPtr<ID3D12Resource> pVertexBuffer;
 	private:
-		
+		uint32_t m_Time = 0U;// TEMP
+
+		std::vector< std::pair<ComPtr<ID3D12Resource>, uint32_t> > m_ASVertexBuffers;
+		std::vector< std::pair<ComPtr<ID3D12Resource>, uint32_t> > m_ASIndexBuffers;
+
 		ComPtr<ID3D12Device5>				m_pDeviceRef;
-		ComPtr<ID3D12GraphicsCommandList4>	m_pRayTracePass_CommandList;
+		ComPtr<ID3D12GraphicsCommandList4>	m_pRayTracePass_CommandListRef;
 
 		uint32_t m_WindowWidth = 0U;
 		uint32_t m_WindowHeight = 0U;
-		D3D12_DISPATCH_RAYS_DESC DispatchRaysDesc = {};
 		Direct3D12Context* m_pRendererContext;
+		D3D12_DISPATCH_RAYS_DESC m_DispatchRaysDesc = {};
 
 		ComPtr<ID3D12DescriptorHeap>			m_srvUavHeap;
 		ComPtr<ID3D12DescriptorHeap>			m_ConstHeap;
@@ -80,15 +77,14 @@ namespace Insight {
 		ComPtr<ID3D12Resource>					m_CameraBuffer;
 		int										m_CameraBufferSize = 0;
 
-		ComPtr<ID3D12Resource>					m_OutputBuffer_UAV;
-		ComPtr<ID3D12Resource>					m_BottomLevelAS;
+		ComPtr<ID3D12Resource>					m_pOutputBuffer_UAV;
 
-		nv_helpers_dx12::TopLevelASGenerator	m_TopLevelASGenerator;
+		NvidiaHelpers::TopLevelASGenerator		m_TopLevelASGenerator;
 		AccelerationStructureBuffers			m_TopLevelASBuffers;
-		AccelerationStructureBuffers			m_TempBottomLevelBuffers;
 
 		std::vector<std::pair<ComPtr<ID3D12Resource>, DirectX::XMMATRIX>> m_Instances;
-
+		std::vector<AccelerationStructureBuffers> m_AccelerationStructureBuffers;
+		
 		ComPtr<IDxcBlob> m_RayGenLibrary;
 		ComPtr<IDxcBlob> m_HitLibrary;
 		ComPtr<IDxcBlob> m_MissLibrary;
@@ -100,7 +96,7 @@ namespace Insight {
 		ComPtr<ID3D12StateObject> m_rtStateObject;
 		ComPtr<ID3D12StateObjectProperties> m_rtStateObjectProps;
 
-		nv_helpers_dx12::ShaderBindingTableGenerator m_sbtHelper;
+		NvidiaHelpers::ShaderBindingTableGenerator m_sbtHelper;
 		ComPtr<ID3D12Resource> m_sbtStorage;
 	};
 

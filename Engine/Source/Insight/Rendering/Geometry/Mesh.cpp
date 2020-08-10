@@ -9,6 +9,7 @@
 #include "Platform/Windows/DirectX_11/Geometry/D3D11_Vertex_Buffer.h"
 #include "Platform/Windows/DirectX_12/Geometry/D3D12_Index_Buffer.h"
 #include "Platform/Windows/DirectX_12/Geometry/D3D12_Vertex_Buffer.h"
+#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 #include "imgui.h"
 
@@ -91,6 +92,17 @@ namespace Insight {
 		{
 			m_pVertexBuffer = new D3D12VertexBuffer(Verticies);
 			m_pIndexBuffer = new D3D12IndexBuffer(Indices);
+
+			reinterpret_cast<Direct3D12Context*>(&Renderer::Get())->RegisterGeometryWithAccelerationStucture(
+				reinterpret_cast<D3D12VertexBuffer*>(m_pVertexBuffer)->GetVertexBuffer(),
+				reinterpret_cast<D3D12IndexBuffer*>(m_pIndexBuffer)->GetIndexBuffer(),
+				reinterpret_cast<D3D12VertexBuffer*>(m_pVertexBuffer)->GetNumVerticies(),
+				reinterpret_cast<D3D12IndexBuffer*>(m_pIndexBuffer)->GetNumIndices(),
+				m_Transform.GetWorldMatrix()
+			);
+			// TODO Register buffers for bottom level AS
+			
+
 			break;
 		}
 		case Renderer::eTargetRenderAPI::INVALID:

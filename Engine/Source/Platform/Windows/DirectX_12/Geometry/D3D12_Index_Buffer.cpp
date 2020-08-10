@@ -59,13 +59,13 @@ namespace Insight {
 		indexData.SlicePitch = m_BufferSize;
 
 		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
-		UpdateSubresources(&graphicsContext->GetScenePassCommandList(), m_pIndexBuffer, m_pIndexBufferUploadHeap, 0, 0, 1, &indexData);
+		UpdateSubresources(&graphicsContext->GetScenePassCommandList(), m_pIndexBuffer.Get(), m_pIndexBufferUploadHeap.Get(), 0, 0, 1, &indexData);
 
 		m_IndexBufferView.BufferLocation = m_pIndexBuffer->GetGPUVirtualAddress();
 		m_IndexBufferView.Format = DXGI_FORMAT_R32_UINT;
 		m_IndexBufferView.SizeInBytes = m_BufferSize;
 
-		D3D12Context->GetScenePassCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pIndexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER));
+		D3D12Context->GetScenePassCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pIndexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER));
 
 		return true;
 	}

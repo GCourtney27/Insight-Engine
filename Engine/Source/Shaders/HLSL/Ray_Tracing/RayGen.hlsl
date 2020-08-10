@@ -1,4 +1,4 @@
-#include "Common.hlsl"
+#include "RayTrace_Common.hlsli"
 
 // Raytracing output texture, accessed as a UAV
 RWTexture2D<float4> gOutput : register(u0);
@@ -18,29 +18,26 @@ cbuffer CameraParams : register(b0)
 void RayGen()
 {
     // Initialize the ray payload
-    HitInfo payload;
-    payload.colorAndDistance = float4(0, 0, 0, 0);
+    HitInfo HitInfo;
+    HitInfo.ColorAndDistance = float4(0, 0, 0, 0);
 
     // Get the location within the dispatched 2D grid of work items
     // (often maps to pixels, so this could represent a pixel coordinate).
-    uint2 launchIndex = DispatchRaysIndex().xy;
-    float2 dims = float2(DispatchRaysDimensions().xy);
-    float2 d = (((launchIndex.xy + 0.5f) / dims.xy) * 2.f - 1.f);
+    uint2 PixelLaunchIndex = DispatchRaysIndex().xy;
+    float2 Dimensions = float2(DispatchRaysDimensions().xy);
+    float2 d = (((PixelLaunchIndex.xy + 0.5f) / Dimensions.xy) * 2.f - 1.f);
+    float aspectRatio = Dimensions.x / Dimensions.y;
 
-    float aspectRatio = dims.x / dims.y;
-  // Perspective
-    RayDesc ray;
     // Define a ray, consisting of origin, direction, and the min-max distance values
-    ray.Origin = mul(inverseView, float4(0, 0, 0, 1));
     float4 target = mul(inverseProjection, float4(d.x, -d.y, 1, 1));
-    ray.Direction = mul(inverseView, float4(target.xyz, 0));
-    //ray.Origin = float3(d.x, -d.y, 1);
-    //ray.Direction = float3(0, 0, -1);
-    ray.TMin = 0;
-    ray.TMax = 100000;
+    RayDesc Ray;
+    Ray.Origin = mul(inverseView, float4(0, 0, 0, 1));
+    Ray.Direction = mul(inverseView, float4(target.xyz, 0));
+    Ray.TMin = 0;
+    Ray.TMax = 100000;
     
-  // Trace the ray
-    TraceRay(SceneBVH, RAY_FLAG_NONE, 0xFF, 0, 0, 0, ray, payload);
+    // Trace the ray
+    TraceRay(SceneBVH, RAY_FLAG_NONE, 0xFF, 0, 0, 0, Ray, HitInfo);
 
-    gOutput[launchIndex] = float4(payload.colorAndDistance.rgb, 1.f);
+    gOutput[PixelLaunchIndex] = float4(HitInfo.ColorAndDistance.rgb, 1.f);
 }

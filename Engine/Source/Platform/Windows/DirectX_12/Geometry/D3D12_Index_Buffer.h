@@ -6,6 +6,8 @@
 
 namespace Insight {
 
+	using Microsoft::WRL::ComPtr;
+
 	class INSIGHT_API D3D12IndexBuffer : public ieIndexBuffer
 	{
 	public:
@@ -16,16 +18,16 @@ namespace Insight {
 		}
 		virtual void Destroy() override;
 
-		ID3D12Resource& GetIndexBuffer() { return *m_pIndexBuffer; }
-		ID3D12Resource& GetUploadHeap() { return *m_pIndexBufferUploadHeap; }
+		ComPtr<ID3D12Resource> GetIndexBuffer() { return m_pIndexBuffer; }
+		ComPtr<ID3D12Resource> GetUploadHeap() { return m_pIndexBufferUploadHeap; }
 		D3D12_INDEX_BUFFER_VIEW& GetIndexBufferView() { return m_IndexBufferView; }
 
 	protected:
 		virtual bool CreateResources() override;
 
 	private:
-		ID3D12Resource* m_pIndexBufferUploadHeap = 0;
-		ID3D12Resource* m_pIndexBuffer = 0;
+		ComPtr<ID3D12Resource>		m_pIndexBufferUploadHeap;
+		ComPtr<ID3D12Resource>		m_pIndexBuffer;
 		D3D12_INDEX_BUFFER_VIEW		m_IndexBufferView = {};
 	};
 }

@@ -77,7 +77,10 @@ namespace Insight {
 
 		const CB_PS_VS_PerFrame& GetPerFrameCB() const { return m_PerFrameData; }
 
+		// Ray Tracing
 		ID3D12Resource* GetRayTracingSRV() const { return m_RayTraceOutput_SRV.Get(); }
+		void RegisterGeometryWithAccelerationStucture(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat);
+
 		ID3D12Resource* GetRenderTarget() const { return m_pRenderTargets[m_FrameIndex].Get(); }
 		const unsigned int GetNumRTVs() const { return m_NumRTV; }
 		inline D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const
@@ -229,19 +232,18 @@ namespace Insight {
 		//3:   SRV-Position(RTV->SRV)
 		//4:   SRV-Scene Depth(DSV->SRV)
 		//5:   SRV-Light Pass Result(RTV->SRV)
-		//6:   UAV-Ray Trace Output(RTHelper UAV(COPY)->SRV)
-		//7:   SRV-RayTrace TLAS(SRV) // TODO Depricate
-		//8:   SRV-Shadow Depth(DSV->SRV)
+		//6:   SAV-Ray Trace Output(RTHelper UAV(COPY)->SRV)
+		//7:   SRV-Shadow Depth(DSV->SRV)
 		//-----PerObject-----
-		//9:   SRV-Albedo(SRV)
-		//10:  SRV-Normal(SRV)
-		//11:  SRV-Roughness(SRV)
-		//12:  SRV-Metallic(SRV)
-		//13:  SRV-AO(SRV)
-		//14:  SRV-Sky Irradiance(SRV)
-		//15:  SRV-Sky Environment(SRV)
-		//16:  SRV-Sky BRDF LUT(SRV)
-		//17:  SRV-Sky Diffuse(SRV)
+		//8:   SRV-Albedo(SRV)
+		//9:  SRV-Normal(SRV)
+		//10:  SRV-Roughness(SRV)
+		//11:  SRV-Metallic(SRV)
+		//12:  SRV-AO(SRV)
+		//13:  SRV-Sky Irradiance(SRV)
+		//14:  SRV-Sky Environment(SRV)
+		//15:  SRV-Sky BRDF LUT(SRV)
+		//15:  SRV-Sky Diffuse(SRV)
 		CDescriptorHeapWrapper				m_cbvsrvHeap;
 
 		ScreenQuad							m_ScreenQuad;
