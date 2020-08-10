@@ -46,6 +46,9 @@ namespace Insight {
 		XMStoreFloat4x4(&worldFloat, worldMatTransposed);
 
 		m_ConstantBufferPerObject.world = worldFloat;
+
+		// TODO check if d3d12 is active
+		reinterpret_cast<Direct3D12Context*>(&Renderer::Get())->UpdateRTAccelerationStructureMatrix(m_RTInstanceIndex, m_Transform.GetWorldMatrix());
 	}
 
 	uint32_t Mesh::GetVertexCount()
@@ -93,15 +96,15 @@ namespace Insight {
 			m_pVertexBuffer = new D3D12VertexBuffer(Verticies);
 			m_pIndexBuffer = new D3D12IndexBuffer(Indices);
 
-			reinterpret_cast<Direct3D12Context*>(&Renderer::Get())->RegisterGeometryWithAccelerationStucture(
+			// TODO Check if ray tracing is available first before we register the buffers
+			m_RTInstanceIndex  = reinterpret_cast<Direct3D12Context*>(&Renderer::Get())
+				->RegisterGeometryWithRTAccelerationStucture(
 				reinterpret_cast<D3D12VertexBuffer*>(m_pVertexBuffer)->GetVertexBuffer(),
 				reinterpret_cast<D3D12IndexBuffer*>(m_pIndexBuffer)->GetIndexBuffer(),
 				reinterpret_cast<D3D12VertexBuffer*>(m_pVertexBuffer)->GetNumVerticies(),
 				reinterpret_cast<D3D12IndexBuffer*>(m_pIndexBuffer)->GetNumIndices(),
 				m_Transform.GetWorldMatrix()
 			);
-			// TODO Register buffers for bottom level AS
-			
 
 			break;
 		}

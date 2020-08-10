@@ -46,5 +46,6 @@ namespace Insight {
 		CB_VS_PerObject				m_ConstantBufferPerObject = {};
 
 		bool						m_CastsShadows = true;
+		uint32_t					m_RTInstanceIndex = 0U;
 	};
 }

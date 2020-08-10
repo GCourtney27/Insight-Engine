@@ -692,9 +692,9 @@ namespace Insight {
 		}
 	}
 
-	void Direct3D12Context::RegisterGeometryWithAccelerationStucture(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat)
+	uint32_t Direct3D12Context::RegisterGeometryWithRTAccelerationStucture(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat)
 	{
-		m_RTHelper.RegisterBottomLevelASGeometry(pVertexBuffer, pIndexBuffer, NumIndices, NumVerticies, MeshWorldMat);
+		return m_RTHelper.RegisterBottomLevelASGeometry(pVertexBuffer, pIndexBuffer, NumIndices, NumVerticies, MeshWorldMat);
 	}
 
 	void Direct3D12Context::CreateSwapChain()

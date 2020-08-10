@@ -105,8 +105,8 @@ namespace Insight {
 
 		m_pRayTracePass_CommandListRef->SetPipelineState1(m_rtStateObject.Get());
 
-		// Animate the instance
-		//CreateTopLevelAS(m_Instances, true);
+		// Update the AS with new vertex transform data
+		CreateTopLevelAS(m_Instances, true);
 	}
 
 	void RayTraceHelpers::TraceScene()
@@ -116,14 +116,15 @@ namespace Insight {
 		m_pRayTracePass_CommandListRef->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pOutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE));
 	}
 
-	void RayTraceHelpers::RegisterBottomLevelASGeometry(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, size_t NumVeticies, size_t NumIndices, XMMATRIX WorldMat)
+	uint32_t RayTraceHelpers::RegisterBottomLevelASGeometry(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, size_t NumVeticies, size_t NumIndices, XMMATRIX WorldMat)
 	{
 		m_ASVertexBuffers.push_back(std::pair(pVertexBuffer, NumVeticies));
 		m_ASIndexBuffers.push_back(std::pair(pIndexBuffer, NumIndices));
 
-		AccelerationStructureBuffers bottomLevelBuffers = CreateBottomLevelAS({ {pVertexBuffer.Get(), NumVeticies} }, { {pIndexBuffer.Get(), NumIndices} });
-		//m_Instances = { {bottomLevelBuffers.pResult, WorldMat} };
-		m_Instances.push_back(std::pair(bottomLevelBuffers.pResult, WorldMat));
+		AccelerationStructureBuffers BottomLevelBuffers = CreateBottomLevelAS({ {pVertexBuffer.Get(), NumVeticies} }, { {pIndexBuffer.Get(), NumIndices} });
+		
+		m_Instances.push_back(std::pair(BottomLevelBuffers.pResult, WorldMat));
+		return m_NextAvailabledInstanceArrIndex++;
 	}
 
 	RayTraceHelpers::AccelerationStructureBuffers RayTraceHelpers::CreateBottomLevelAS(std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> VertexBuffers, std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> IndexBuffers)
