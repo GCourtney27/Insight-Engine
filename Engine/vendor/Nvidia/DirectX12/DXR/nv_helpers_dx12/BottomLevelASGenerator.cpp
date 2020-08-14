@@ -29,8 +29,9 @@ Contacts for feedback:
 - mlefrancois@nvidia.com (Martin-Karl Lefrancois)
 */
 
+#include <ie_pch.h>
 #include "BottomLevelASGenerator.h"
-
+#include <stdexcept>
 // Helper to compute aligned buffer sizes
 #ifndef ROUND_UP
 #define ROUND_UP(v, powerOf2Alignment)                                         \

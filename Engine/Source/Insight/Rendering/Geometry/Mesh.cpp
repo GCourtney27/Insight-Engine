@@ -9,6 +9,7 @@
 #include "Platform/Windows/DirectX_11/Geometry/D3D11_Vertex_Buffer.h"
 #include "Platform/Windows/DirectX_12/Geometry/D3D12_Index_Buffer.h"
 #include "Platform/Windows/DirectX_12/Geometry/D3D12_Vertex_Buffer.h"
+#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 #include "imgui.h"
 
@@ -45,6 +46,8 @@ namespace Insight {
 		XMStoreFloat4x4(&worldFloat, worldMatTransposed);
 
 		m_ConstantBufferPerObject.world = worldFloat;
+
+		if (m_ShouldUpdateAS) UpdateAccelerationStructures();
 	}
 
 	uint32_t Mesh::GetVertexCount()
@@ -91,6 +94,21 @@ namespace Insight {
 		{
 			m_pVertexBuffer = new D3D12VertexBuffer(Verticies);
 			m_pIndexBuffer = new D3D12IndexBuffer(Indices);
+
+			// TODO Check if ray tracing is available first before we register the buffers
+			if (Renderer::GetIsRayTraceEnabled()) {
+
+				m_ShouldUpdateAS = true;
+				m_RTInstanceIndex = reinterpret_cast<Direct3D12Context*>(&Renderer::Get())
+					->RegisterGeometryWithRTAccelerationStucture(
+						reinterpret_cast<D3D12VertexBuffer*>(m_pVertexBuffer)->GetVertexBuffer(),
+						reinterpret_cast<D3D12IndexBuffer*>(m_pIndexBuffer)->GetIndexBuffer(),
+						reinterpret_cast<D3D12VertexBuffer*>(m_pVertexBuffer)->GetNumVerticies(),
+						reinterpret_cast<D3D12IndexBuffer*>(m_pIndexBuffer)->GetNumIndices(),
+						m_Transform.GetWorldMatrix()
+					);
+			}
+
 			break;
 		}
 		case Renderer::eTargetRenderAPI::INVALID:
@@ -105,5 +123,11 @@ namespace Insight {
 		}
 		}
 	}
+	
+	void Mesh::UpdateAccelerationStructures()
+	{
+		reinterpret_cast<Direct3D12Context*>(&Renderer::Get())->UpdateRTAccelerationStructureMatrix(m_RTInstanceIndex, m_Transform.GetWorldMatrix());
+	}
+
 }
 

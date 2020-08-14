@@ -6,6 +6,8 @@
 
 namespace Insight {
 
+	using Microsoft::WRL::ComPtr;
+
 	class INSIGHT_API D3D12VertexBuffer : public ieVertexBuffer
 	{
 	public:
@@ -16,16 +18,16 @@ namespace Insight {
 		}
 		virtual void Destroy() override;
 
-		ID3D12Resource& GetVertexBuffer() { return *m_pVertexBuffer; }
-		ID3D12Resource& GetUploadHeap() { return *m_pVertexBufferUploadHeap; }
+		ComPtr<ID3D12Resource> GetVertexBuffer() { return m_pVertexBuffer; }
+		ComPtr<ID3D12Resource> GetUploadHeap() { return m_pVertexBufferUploadHeap; }
 		D3D12_VERTEX_BUFFER_VIEW* GetVertexBufferView() { return &m_VertexBufferView; }
 
 	protected:
 		virtual bool CreateResources() override;
 
 	private:
-		ID3D12Resource*				m_pVertexBufferUploadHeap = 0;
-		ID3D12Resource*				m_pVertexBuffer = 0;
+		ComPtr<ID3D12Resource>		m_pVertexBufferUploadHeap;
+		ComPtr<ID3D12Resource>		m_pVertexBuffer;
 		D3D12_VERTEX_BUFFER_VIEW	m_VertexBufferView = {};
 	};
 }

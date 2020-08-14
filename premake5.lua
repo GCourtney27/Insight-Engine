@@ -93,7 +93,8 @@ project ("Engine")
 		"WinPixEventRuntime_UAP.lib",
 		"Shlwapi.lib",
 		"DirectXTK.lib",
-		"d3dcompiler.lib",
+		"D3Dcompiler.lib",
+		"dxcompiler.lib",
 		"DirectXTK12.lib",
 		"assimp-vc140-mt.lib",
 		"MonoPosixHelper.lib",
@@ -148,6 +149,9 @@ project ("Engine")
 			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX11/Bin/D3D11Ref.dll ../bin/"..outputdir.."/Engine"),
 			-- Mono
 			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
+			-- DirectX
+			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX12/Bin/dxcompiler.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX12/Bin/dxil.dll ../bin/"..outputdir.."/Engine"),
 			-- PIX
 			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../bin/"..outputdir.."/Engine"),
 			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../bin/"..outputdir.."/Engine")
@@ -181,6 +185,9 @@ project ("Engine")
 			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX11/Bin/D3D11Ref.dll ../bin/"..outputdir.."/Engine"),
 			-- Mono
 			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
+			-- DirectX
+			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX12/Bin/dxcompiler.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX12/Bin/dxil.dll ../bin/"..outputdir.."/Engine"),
 			-- PIX
 			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../bin/"..outputdir.."/Engine"),
 			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../bin/"..outputdir.."/Engine")
@@ -205,7 +212,10 @@ project ("Engine")
 		postbuildcommands
 		{
 			("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine")
+			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
+			-- DirectX
+			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX12/Bin/dxcompiler.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX12/Bin/dxil.dll ../bin/"..outputdir.."/Engine")
 		}
 	-- Full Game Distribution, all engine debug tools(level editors, editor user interfaces) stripped
 	filter "configurations:Game-Dist"
@@ -227,7 +237,10 @@ project ("Engine")
 		postbuildcommands
 		{
 			("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine")
+			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
+			-- DirectX
+			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX12/Bin/dxcompiler.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX12/Bin/dxil.dll ../bin/"..outputdir.."/Engine")
 		}
 
 -- Application

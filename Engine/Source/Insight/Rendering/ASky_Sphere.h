@@ -24,7 +24,7 @@ namespace Insight {
 		virtual void OnRender();
 		virtual void Destroy();
 
-		void RenderSky(ComPtr<ID3D12GraphicsCommandList> commandList);
+		void RenderSky();
 
 
 		void OnEvent(Event& e);

@@ -12,3 +12,10 @@
 // RapidJson
 #include <rapidjson/json.cpp>
 
+// DXR
+#include "DXR/nv_helpers_dx12/TopLevelASGenerator.cpp"
+#include "DXR/nv_helpers_dx12/BottomLevelASGenerator.cpp"
+#include "DXR/nv_helpers_dx12/RootSignatureGenerator.cpp"
+#include "DXR/nv_helpers_dx12/RaytracingPipelineGenerator.cpp"
+#include "DXR/nv_helpers_dx12/ShaderBindingTableGenerator.cpp"
+

@@ -37,14 +37,16 @@ namespace Insight {
 	private:
 		void Init(Verticies& verticies, Indices& indices);
 		void CreateBuffers(Verticies& Verticies, Indices& Indices);
-
+		void UpdateAccelerationStructures();
 	private:
 		ieVertexBuffer* m_pVertexBuffer;
 		ieIndexBuffer* m_pIndexBuffer;
 
-		ieTransform					m_Transform;
-		CB_VS_PerObject				m_ConstantBufferPerObject = {};
+		ieTransform		m_Transform;
+		CB_VS_PerObject	m_ConstantBufferPerObject = {};
 
-		bool						m_CastsShadows = true;
+		bool			m_CastsShadows = true;
+		uint32_t		m_RTInstanceIndex = 0U;
+		bool			m_ShouldUpdateAS = false;
 	};
 }

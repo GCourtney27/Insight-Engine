@@ -48,6 +48,7 @@ namespace Insight {
 			return false;
 		}
 
+		m_AppInitialized = true;
 		pWindow->PostInit();
 		return true;
 	}
@@ -77,7 +78,7 @@ namespace Insight {
 			throw ieException("Failed to initialize scene");
 		}
 		
-		// Push core app layer to the layer stack
+		// Push core app layers to the layer stack
 		PushEngineLayers();
 
 		ResourceManager::Get().GetMonoScriptManager().PostInit();
@@ -121,6 +122,7 @@ namespace Insight {
 			m_pGameLayer->PostRender();
 			m_pWindow->EndFrame();
 		}
+
 	}
 
 	void Application::Shutdown()

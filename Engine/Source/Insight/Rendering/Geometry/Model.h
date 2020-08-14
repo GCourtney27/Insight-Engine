@@ -9,10 +9,12 @@
 #include "Insight/Core/Scene/Scene_Node.h"
 #include "Insight/Rendering/Geometry/Mesh_Node.h"
 
+
 namespace Insight {
 
 	class Material;
 	
+
 	class INSIGHT_API Model : public SceneNode
 	{
 	public:

@@ -16,6 +16,9 @@ TextureCube tc_IrradianceMap    : register(t11);
 TextureCube tc_EnvironmentMap   : register(t12);
 Texture2D t_BrdfLUT             : register(t13);
 
+Texture2D t_RayTracePassResult : register(t16);
+
+
 // Samplers
 // --------
 sampler s_PointClampSampler : register(s0);
@@ -68,9 +71,10 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
         
         // Shadowing
         float4 fragPosLightSpace = mul(float4(worldPosition, 1.0), mul(dirLights[d].lightSpaceView, dirLights[d].lightSpaceProj));
-        float shadow = ShadowCalculation(fragPosLightSpace, normal, lightDir);
+        //float shadow = 0.0; //ShadowCalculation(fragPosLightSpace, normal, lightDir);
+        float3 shadow = t_RayTracePassResult.Sample(s_PointClampSampler, ps_in.texCoords).r;
         
-        directionalLightLuminance += CaclualteDirectionalLight(dirLights[d], viewDirection, normal, worldPosition, NdotV, albedo, roughness, metallic, baseReflectivity) * (1.0 - shadow);
+        directionalLightLuminance += CaclualteDirectionalLight(dirLights[d], viewDirection, normal, worldPosition, NdotV, albedo, roughness, metallic, baseReflectivity) * (shadow);
     }
     
     // Spot Lights

@@ -9,8 +9,6 @@
 
 namespace Insight {
 
-	static std::mutex s_MeshMutex;
-
 	Model::Model(const std::string& Path, Material* Material)
 	{
 		Create(Path, Material);
@@ -148,61 +146,60 @@ namespace Insight {
 
 	unique_ptr<Mesh> Model::ProcessMesh(aiMesh* pMesh, const aiScene* pScene)
 	{
-		using namespace DirectX;
-		std::vector<Vertex3D> verticies; verticies.reserve(pMesh->mNumVertices);
-		std::vector<DWORD> indices;
+		std::vector<Vertex3D> Verticies; Verticies.reserve(pMesh->mNumVertices);
+		std::vector<DWORD> Indices;
 		
 		// Load Verticies
-		for (UINT i = 0; i < pMesh->mNumVertices; i++) {
+		for (uint32_t i = 0; i < pMesh->mNumVertices; i++) {
 
-			Vertex3D vertex;
+			Vertex3D Vertex;
 
 			// Position
-			vertex.Position.x = pMesh->mVertices[i].x;
-			vertex.Position.y = pMesh->mVertices[i].y;
-			vertex.Position.z = pMesh->mVertices[i].z;
+			Vertex.Position.x = pMesh->mVertices[i].x;
+			Vertex.Position.y = pMesh->mVertices[i].y;
+			Vertex.Position.z = pMesh->mVertices[i].z;
 
 			// Normals
-			vertex.Normal.x = (float)pMesh->mNormals[i].x;
-			vertex.Normal.y = (float)pMesh->mNormals[i].y;
-			vertex.Normal.z = (float)pMesh->mNormals[i].z;
+			Vertex.Normal.x = (float)pMesh->mNormals[i].x;
+			Vertex.Normal.y = (float)pMesh->mNormals[i].y;
+			Vertex.Normal.z = (float)pMesh->mNormals[i].z;
 
 
 			// Texture Coords/Tangents
 			if (pMesh->mTextureCoords[0]) {
 
-				vertex.TexCoords.x = (float)pMesh->mTextureCoords[0][i].x;
-				vertex.TexCoords.y = (float)pMesh->mTextureCoords[0][i].y;
+				Vertex.TexCoords.x = (float)pMesh->mTextureCoords[0][i].x;
+				Vertex.TexCoords.y = (float)pMesh->mTextureCoords[0][i].y;
 
-				vertex.Tangent.x = pMesh->mTangents[i].x;
-				vertex.Tangent.y = pMesh->mTangents[i].y;
-				vertex.Tangent.z = pMesh->mTangents[i].z;
+				Vertex.Tangent.x = pMesh->mTangents[i].x;
+				Vertex.Tangent.y = pMesh->mTangents[i].y;
+				Vertex.Tangent.z = pMesh->mTangents[i].z;
 
-				vertex.BiTangent.x = pMesh->mBitangents[i].x;
-				vertex.BiTangent.y = pMesh->mBitangents[i].y;
-				vertex.BiTangent.z = pMesh->mBitangents[i].z;
+				Vertex.BiTangent.x = pMesh->mBitangents[i].x;
+				Vertex.BiTangent.y = pMesh->mBitangents[i].y;
+				Vertex.BiTangent.z = pMesh->mBitangents[i].z;
 				
 			} else {
 
-				vertex.TexCoords = ieFloat2(0.0f, 0.0f);
-				vertex.Tangent = ieFloat3(0.0f, 0.0f, 0.0f);
-				vertex.BiTangent = ieFloat3(0.0f, 0.0f, 0.0f);
+				Vertex.TexCoords	= ieFloat2(0.0f, 0.0f);
+				Vertex.Tangent		= ieFloat3(0.0f, 0.0f, 0.0f);
+				Vertex.BiTangent	= ieFloat3(0.0f, 0.0f, 0.0f);
 			}
 
-			verticies.push_back(vertex);
+			Verticies.push_back(Vertex);
 		}
 
 		// Load Indices
-		for (UINT i = 0; i < pMesh->mNumFaces; i++) {
+		for (uint32_t i = 0; i < pMesh->mNumFaces; i++) {
 
 			aiFace face = pMesh->mFaces[i];
 			for (unsigned int j = 0; j < face.mNumIndices; j++) {
 
-				indices.push_back(face.mIndices[j]);
+				Indices.push_back(face.mIndices[j]);
 			}
 		}
 
-		return std::make_unique<Mesh>(verticies, indices);
+		return std::make_unique<Mesh>(Verticies, Indices);
 	}
 
 }

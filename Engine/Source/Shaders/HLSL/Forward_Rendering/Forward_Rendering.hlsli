@@ -10,8 +10,10 @@ cbuffer cbPerFrame : register(b1)
     float3 cameraPosition;
     float cameraExposure; //4
     float4x4 view;
+    float4x4 inverseView;
     float4x4 projection;
     float cameraNearZ;
+    float4x4 inverseProjection;
     float cameraFarZ;
     float DeltaMs;
     float time; //4

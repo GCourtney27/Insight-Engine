@@ -22,8 +22,8 @@ namespace Insight {
 
 
 	Direct3D12Context::Direct3D12Context(WindowsWindow* WindowHandle)
-		: m_pWindowHandle(&WindowHandle->GetWindowHandleReference()),
-		m_pWindow(WindowHandle),
+		: m_pWindowHandleRef(&WindowHandle->GetWindowHandleReference()),
+		m_pWindowRef(WindowHandle),
 		Renderer(WindowHandle->GetWidth(), WindowHandle->GetHeight(), false)
 	{
 		IE_CORE_ASSERT(WindowHandle, "Window handle is NULL, cannot initialize D3D 12 context with NULL window handle.");
@@ -39,15 +39,15 @@ namespace Insight {
 	{
 		// Wait until GPU is done consuming all data
 		// before closing all handles and releasing resources
-		WaitForGPU();
+		m_d3dDeviceResources.WaitForGPU();
+
+		m_RTHelper.OnDestroy();
 
 		if (!m_AllowTearing) {
-			m_pSwapChain->SetFullscreenState(false, NULL);
+			m_d3dDeviceResources.GetSwapChain().SetFullscreenState(false, NULL);
 		}
 
-		if (!CloseHandle(m_FenceEvent)) {
-			IE_CORE_ERROR("Failed to close GPU handle while cleaning up the D3D 12 context.");
-		}
+		m_d3dDeviceResources.CleanUp();
 	}
 
 	bool Direct3D12Context::Init_Impl()
@@ -55,25 +55,20 @@ namespace Insight {
 		IE_CORE_INFO("Renderer: D3D 12");
 
 		try {
-			CreateDXGIFactory();
-			CreateDevice();
 
-			CreateCommandQueue();
-			CreateFenceEvent();
+			m_d3dDeviceResources.Init(this);
+
 			CreateCommandAllocators();
 
 			CreateConstantBuffers();
-			CreateConstantBufferViews();
+			CreateCBVs();
+			CreateSRVs();
 
-			PIXBeginEvent(m_pCommandQueue.Get(), 0, L"D3D 12 context Setup");
+			if (m_IsRayTraceEnabled) m_RTHelper.OnInit(&m_d3dDeviceResources.GetDeviceContext(), m_pRayTracePass_CommandList, { m_WindowWidth, m_WindowHeight }, this);
+
+			PIXBeginEvent(&m_d3dDeviceResources.GetCommandQueue(), 0, L"D3D 12 context Setup");
 			{
-				// Window adn Viewport
-				{
-					CreateSwapChain();
-					CreateViewport();
-					CreateScissorRect();
-					CreateScreenQuad();
-				}
+				CreateScreenQuad();
 
 				// Load Pipelines
 				{
@@ -87,20 +82,20 @@ namespace Insight {
 					CreatePostEffectsPassPSO();
 				}
 
-				// Render Targets and Constant Buffers
+				// Create Render Targets and Depth Stencils
 				{
 					CreateDSVs();
 					CreateRTVs();
 					CreateRenderTargetViewDescriptorHeap();
 				}
 
-				// Load Test Assets
+				// Load Test Assets if any
 				LoadDemoAssets();
 			}
-			PIXEndEvent(m_pCommandQueue.Get());
+			PIXEndEvent(&m_d3dDeviceResources.GetCommandQueue());
 		}
 		catch (COMException& ex) {
-			m_pWindow->CreateMessageBox(ex.what(), L"Fatal Error");
+			m_pWindowRef->CreateMessageBox(ex.what(), L"Fatal Error");
 			return false;
 		}
 		return true;
@@ -128,8 +123,18 @@ namespace Insight {
 		XMStoreFloat4x4(&viewFloat, XMMatrixTranspose(m_pWorldCamera->GetViewMatrix()));
 		XMFLOAT4X4 projectionFloat;
 		XMStoreFloat4x4(&projectionFloat, XMMatrixTranspose(m_pWorldCamera->GetProjectionMatrix()));
+		XMVECTOR det;
+		XMMATRIX invView = XMMatrixInverse(&det, m_pWorldCamera->GetViewMatrix());
+		XMMATRIX invProjection = XMMatrixInverse(&det, m_pWorldCamera->GetProjectionMatrix());
+		XMFLOAT4X4 invViewFloat;
+		XMStoreFloat4x4(&invViewFloat, invView);
+		XMFLOAT4X4 invProjectionFloat;
+		XMStoreFloat4x4(&invProjectionFloat, invProjection);
+
 		m_PerFrameData.view = viewFloat;
 		m_PerFrameData.projection = projectionFloat;
+		m_PerFrameData.inverseView = invViewFloat;
+		m_PerFrameData.inverseProjection = invProjectionFloat;
 		m_PerFrameData.cameraPosition = m_pWorldCamera->GetTransformRef().GetPosition();
 		m_PerFrameData.DeltaMs = DeltaMs;
 		m_PerFrameData.time = (float)Application::Get().GetFrameTimer().Seconds();
@@ -142,6 +147,8 @@ namespace Insight {
 		m_PerFrameData.screenSize.x = (float)m_WindowWidth;
 		m_PerFrameData.screenSize.y = (float)m_WindowHeight;
 		memcpy(m_cbvPerFrameGPUAddress, &m_PerFrameData, sizeof(CB_PS_VS_PerFrame));
+
+		if (m_IsRayTraceEnabled) m_RTHelper.UpdateCBVs();
 
 		// Send Point Lights to GPU
 		for (int i = 0; i < m_PointLights.size(); i++) {
@@ -167,49 +174,61 @@ namespace Insight {
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
 		// Reset Command Allocators
-		ThrowIfFailed(m_pScenePass_CommandAllocators[m_FrameIndex]->Reset(),
-			"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Scene Pass");
+		{
+			ThrowIfFailed(m_pScenePass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
+				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Scene Pass");
 
-		ThrowIfFailed(m_pShadowPass_CommandAllocators[m_FrameIndex]->Reset(),
-			"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Shadow Pass");
+			ThrowIfFailed(m_pShadowPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
+				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Shadow Pass");
 
-		ThrowIfFailed(m_pTransparencyPass_CommandAllocators[m_FrameIndex]->Reset(),
-			"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Transparency Pass");
-		
-		ThrowIfFailed(m_pPostEffectsPass_CommandAllocators[m_FrameIndex]->Reset(),
-			"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
+			ThrowIfFailed(m_pTransparencyPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
+				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Transparency Pass");
+
+			ThrowIfFailed(m_pRayTracePass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
+				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
+
+			ThrowIfFailed(m_pPostEffectsPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
+				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
+		}
 
 		// Reset Command Lists
-		ThrowIfFailed(m_pScenePass_CommandList->Reset(m_pScenePass_CommandAllocators[m_FrameIndex].Get(), m_pGeometryPass_PSO.Get()),
-			"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Scene Pass");
+		{
+			ThrowIfFailed(m_pScenePass_CommandList->Reset(m_pScenePass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pGeometryPass_PSO.Get()),
+				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Scene Pass");
 
-		ThrowIfFailed(m_pShadowPass_CommandList->Reset(m_pShadowPass_CommandAllocators[m_FrameIndex].Get(), m_pShadowPass_PSO.Get()),
-			"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Shadow Pass");
+			ThrowIfFailed(m_pShadowPass_CommandList->Reset(m_pShadowPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pShadowPass_PSO.Get()),
+				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Shadow Pass");
 
-		ThrowIfFailed(m_pTransparencyPass_CommandList->Reset(m_pTransparencyPass_CommandAllocators[m_FrameIndex].Get(), m_pTransparency_PSO.Get()),
-			"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
+			ThrowIfFailed(m_pTransparencyPass_CommandList->Reset(m_pTransparencyPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pTransparency_PSO.Get()),
+				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 
-		ThrowIfFailed(m_pPostEffectsPass_CommandList->Reset(m_pPostEffectsPass_CommandAllocators[m_FrameIndex].Get(), m_pPostFxPass_PSO.Get()),
-			"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
+			ThrowIfFailed(m_pRayTracePass_CommandList->Reset(m_pRayTracePass_CommandAllocators[IE_D3D12_FrameIndex].Get(), nullptr),
+				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
 
+			ThrowIfFailed(m_pPostEffectsPass_CommandList->Reset(m_pPostEffectsPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pPostFxPass_PSO.Get()),
+				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
+		}
 
-		m_pScenePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetRenderTarget(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
-		const float ClearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-		m_pScenePass_CommandList->ClearRenderTargetView(GetRenderTargetView(), ClearColor, 0, nullptr);
+		// Prepare the Render Target for this Frame
+		{
+			m_pScenePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetRenderTarget(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+			const float ClearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+			m_pScenePass_CommandList->ClearRenderTargetView(GetRenderTargetView(), ClearColor, 0, nullptr);
+		}
 
 		// Reset Scene Pass
 		PIXBeginEvent(m_pScenePass_CommandList.Get(), 0, L"Resetting Scene Pass Command List");
 		{
-			m_pScenePass_CommandList->RSSetScissorRects(1, &m_ScenePassScissorRect);
-			m_pScenePass_CommandList->RSSetViewports(1, &m_ScenePassViewPort);
+			m_pScenePass_CommandList->RSSetScissorRects(1, &m_d3dDeviceResources.GetClientScissorRect());
+			m_pScenePass_CommandList->RSSetViewports(1, &m_d3dDeviceResources.GetClientViewPort());
 		}
 		PIXEndEvent(m_pScenePass_CommandList.Get());
 
 		// Reset Shadow Pass
 		PIXBeginEvent(m_pShadowPass_CommandList.Get(), 0, L"Resetting Shadow Pass Command List");
 		{
-			m_pShadowPass_CommandList->RSSetScissorRects(1, &m_ShadowPassScissorRect);
-			m_pShadowPass_CommandList->RSSetViewports(1, &m_ShadowPassViewPort);
+			m_pShadowPass_CommandList->RSSetScissorRects(1, &m_ShadowPass_ScissorRect);
+			m_pShadowPass_CommandList->RSSetViewports(1, &m_ShadowPass_ViewPort);
 			m_pShadowPass_CommandList->OMSetRenderTargets(0, nullptr, FALSE, &m_dsvHeap.hCPU(1));
 		}
 		PIXEndEvent(m_pShadowPass_CommandList.Get());
@@ -230,6 +249,16 @@ namespace Insight {
 		// Transparency Forward Pass
 		m_pActiveCommandList = m_pTransparencyPass_CommandList;
 		BindTransparencyPass();
+
+		if (m_IsRayTraceEnabled) {
+#if RENDERER_MULTI_THREAD_ENABLED
+			std::thread RTThread(&Direct3D12Context::BindRayTracePass, this);
+			RTThread.join();
+#else
+			m_pActiveCommandList = m_pRayTracePass_CommandList;
+			BindRayTracePass();
+#endif
+		}
 	}
 
 	void Direct3D12Context::BindShadowPass()
@@ -242,7 +271,7 @@ namespace Insight {
 			m_pShadowPass_CommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
 			m_pShadowPass_CommandList->SetPipelineState(m_pShadowPass_PSO.Get());
-			m_pShadowPass_CommandList->SetGraphicsRootSignature(m_pDeferredShadingPass_RootSignature.Get());
+			m_pShadowPass_CommandList->SetGraphicsRootSignature(m_pDeferredShadingPass_RS.Get());
 			m_pShadowPass_CommandList->ClearDepthStencilView(m_dsvHeap.hCPU(1), D3D12_CLEAR_FLAG_DEPTH, m_DepthClearValue, 0xff, 0, nullptr);
 
 			m_pShadowPass_CommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -255,7 +284,7 @@ namespace Insight {
 		PIXEndEvent(m_pShadowPass_CommandList.Get());
 	}
 
-	void Direct3D12Context::BindGeometryPass(bool setPSO)
+	void Direct3D12Context::BindGeometryPass()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
@@ -264,18 +293,14 @@ namespace Insight {
 			ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
 			m_pScenePass_CommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
-			if (setPSO) {
-				m_pScenePass_CommandList->SetPipelineState(m_pGeometryPass_PSO.Get());
-			}
-
-			for (int i = 0; i < m_NumRTV - 1; i++) {
-				m_pScenePass_CommandList->ClearRenderTargetView(m_rtvHeap.hCPU(i), m_ClearColor, 0, nullptr);
+			for (int i = 0; i < m_NumRenderTargetViews - 1; i++) {
+				m_pScenePass_CommandList->ClearRenderTargetView(m_rtvHeap.hCPU(i), m_ScreenClearColor, 0, nullptr);
 			}
 
 			m_pScenePass_CommandList->ClearDepthStencilView(m_dsvHeap.hCPU(0), D3D12_CLEAR_FLAG_DEPTH, m_DepthClearValue, 0xff, 0, nullptr);
 
-			m_pScenePass_CommandList->OMSetRenderTargets(m_NumRTV, &m_rtvHeap.hCPUHeapStart, TRUE, &m_dsvHeap.hCPU(0));
-			m_pScenePass_CommandList->SetGraphicsRootSignature(m_pDeferredShadingPass_RootSignature.Get());
+			m_pScenePass_CommandList->OMSetRenderTargets(m_NumRenderTargetViews, &m_rtvHeap.hCPUHeapStart, TRUE, &m_dsvHeap.hCPU(0));
+			m_pScenePass_CommandList->SetGraphicsRootSignature(m_pDeferredShadingPass_RS.Get());
 			// Set Scene Depth Texture
 			m_pScenePass_CommandList->SetGraphicsRootDescriptorTable(5, m_cbvsrvHeap.hGPU(0));
 			// Set Shadow Depth Texture
@@ -315,13 +340,14 @@ namespace Insight {
 				m_pSkyLight->BindCubeMaps(true);
 			}
 
-			for (unsigned int i = 0; i < m_NumRTV - 1; ++i) {
+			for (unsigned int i = 0; i < m_NumRenderTargetViews - 1; ++i) {
 				m_pScenePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
 			}
 
-			m_pScenePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
+			m_pScenePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pSceneDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
 
 			m_pScenePass_CommandList->SetPipelineState(m_pLightingPass_PSO.Get());
+			m_pScenePass_CommandList->SetGraphicsRootDescriptorTable(17, m_cbvsrvHeap.hGPU(6)); // Ray Trace Result
 
 			m_ScreenQuad.OnRender(m_pScenePass_CommandList);
 		}
@@ -336,14 +362,14 @@ namespace Insight {
 			if (m_pSkySphere) {
 				m_pScenePass_CommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), TRUE, &m_dsvHeap.hCPU(0));
 
-				m_pScenePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+				m_pScenePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pSceneDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 
 				m_pScenePass_CommandList->SetPipelineState(m_pSkyPass_PSO.Get());
 
-				m_pSkySphere->RenderSky(m_pScenePass_CommandList);
+				m_pSkySphere->RenderSky();
 			}
 			else {
-				m_pScenePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+				m_pScenePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pSceneDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 			}
 		}
 		PIXEndEvent(m_pScenePass_CommandList.Get());
@@ -359,10 +385,10 @@ namespace Insight {
 			m_pTransparencyPass_CommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
 			m_pTransparencyPass_CommandList->SetPipelineState(m_pTransparency_PSO.Get());
-			m_pTransparencyPass_CommandList->SetGraphicsRootSignature(m_pForwardShadingPass_RootSignature.Get());
+			m_pTransparencyPass_CommandList->SetGraphicsRootSignature(m_pForwardShadingPass_RS.Get());
 
-			m_pTransparencyPass_CommandList->RSSetScissorRects(1, &m_ScenePassScissorRect);
-			m_pTransparencyPass_CommandList->RSSetViewports(1, &m_ScenePassViewPort);
+			m_pTransparencyPass_CommandList->RSSetScissorRects(1, &m_d3dDeviceResources.GetClientScissorRect());
+			m_pTransparencyPass_CommandList->RSSetViewports(1, &m_d3dDeviceResources.GetClientViewPort());
 			m_pTransparencyPass_CommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), TRUE, &m_dsvHeap.hCPU(0));
 
 			m_pTransparencyPass_CommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -375,6 +401,22 @@ namespace Insight {
 		PIXEndEvent(m_pTransparencyPass_CommandList.Get());
 	}
 
+	void Direct3D12Context::BindRayTracePass()
+	{
+		RETURN_IF_WINDOW_NOT_VISIBLE;
+
+		PIXBeginEvent(m_pRayTracePass_CommandList.Get(), 0, L"Rendering Ray Trace Pass");
+		{
+			m_RTHelper.SetCommonPipeline();
+			m_RTHelper.TraceScene();
+
+			m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_RayTraceOutput_SRV.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST));
+			m_pRayTracePass_CommandList->CopyResource(m_RayTraceOutput_SRV.Get(), m_RTHelper.GetOutputBuffer());
+			m_pRayTracePass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_RayTraceOutput_SRV.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+		}
+		PIXEndEvent(m_pRayTracePass_CommandList.Get());
+	}
+
 	void Direct3D12Context::BindPostFxPass()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
@@ -385,14 +427,14 @@ namespace Insight {
 			m_pPostEffectsPass_CommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
 			m_pPostEffectsPass_CommandList->OMSetRenderTargets(1, &GetRenderTargetView(), TRUE, nullptr);
-			m_pPostEffectsPass_CommandList->RSSetScissorRects(1, &m_ScenePassScissorRect);
-			m_pPostEffectsPass_CommandList->RSSetViewports(1, &m_ScenePassViewPort);
+			m_pPostEffectsPass_CommandList->RSSetScissorRects(1, &m_d3dDeviceResources.GetClientScissorRect());
+			m_pPostEffectsPass_CommandList->RSSetViewports(1, &m_d3dDeviceResources.GetClientViewPort());
 
-			m_pPostEffectsPass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
-			m_pPostEffectsPass_CommandList->SetGraphicsRootSignature(m_pDeferredShadingPass_RootSignature.Get());
+			m_pPostEffectsPass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pSceneDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
+			m_pPostEffectsPass_CommandList->SetGraphicsRootSignature(m_pDeferredShadingPass_RS.Get());
 
 			m_pPostEffectsPass_CommandList->SetPipelineState(m_pPostFxPass_PSO.Get());
-			m_pPostEffectsPass_CommandList->SetGraphicsRootDescriptorTable(16, m_cbvsrvHeap.hGPU(5));
+			m_pPostEffectsPass_CommandList->SetGraphicsRootDescriptorTable(16, m_cbvsrvHeap.hGPU(5)); // Light Pass result
 			m_pPostEffectsPass_CommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV->GetGPUVirtualAddress());
 			m_pPostEffectsPass_CommandList->SetGraphicsRootConstantBufferView(3, m_PostFxCBV->GetGPUVirtualAddress());
 
@@ -405,13 +447,13 @@ namespace Insight {
 	void Direct3D12Context::ExecuteDraw_Impl()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
-		
+
 		// Prepare the buffers for next frame
 		{
-			for (unsigned int i = 0; i < m_NumRTV - 1; ++i) {
+			for (unsigned int i = 0; i < m_NumRenderTargetViews - 1; ++i) {
 				m_pPostEffectsPass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
 			}
-			m_pPostEffectsPass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+			m_pPostEffectsPass_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pSceneDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 		}
 
 		// Prepare render target to be presented
@@ -421,16 +463,18 @@ namespace Insight {
 		ThrowIfFailed(m_pScenePass_CommandList->Close(), "Failed to close command list for D3D 12 context scene pass.");
 		ThrowIfFailed(m_pTransparencyPass_CommandList->Close(), "Failed to close the command list for D3D 12 context transparency pass.");
 		ThrowIfFailed(m_pPostEffectsPass_CommandList->Close(), "Failed to close the command list for D3D 12 context post-process pass.");
+		ThrowIfFailed(m_pRayTracePass_CommandList->Close(), "Failed to close the command list for D3D 12 context ray trace pass.");
 
 		ID3D12CommandList* ppCommandLists[] = {
 			m_pShadowPass_CommandList.Get(), // Execure shadow pass first because we'll need the depth textures for the light pass
+			m_pRayTracePass_CommandList.Get(),
 			m_pScenePass_CommandList.Get(),
 			m_pTransparencyPass_CommandList.Get(),
 			m_pPostEffectsPass_CommandList.Get(),
 		};
-		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+		m_d3dDeviceResources.GetCommandQueue().ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
-		WaitForGPU();
+		m_d3dDeviceResources.WaitForGPU();
 	}
 
 	void Direct3D12Context::SwapBuffers_Impl()
@@ -438,33 +482,9 @@ namespace Insight {
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
 		UINT PresentFlags = (m_AllowTearing && m_WindowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
-		HRESULT hr = m_pSwapChain->Present(m_VSyncEnabled, PresentFlags);
+		HRESULT hr = m_d3dDeviceResources.GetSwapChain().Present(m_VSyncEnabled, PresentFlags);
 		ThrowIfFailed(hr, "Failed to present frame");
-		MoveToNextFrame();
-	}
-
-	void Direct3D12Context::MoveToNextFrame()
-	{
-		HRESULT hr;
-
-		// Schedule a Signal command in the queue.
-		const UINT64 currentFenceValue = m_FenceValues[m_FrameIndex];
-		hr = m_pCommandQueue->Signal(m_pFence.Get(), currentFenceValue);
-		ThrowIfFailed(hr, "Failed to signal fence on Command Queue");
-
-		// Advance the frame index.
-		m_FrameIndex = (m_FrameIndex + 1) % m_FrameBufferCount;
-
-		// Check to see if the next frame is ready to start.
-		if (m_pFence->GetCompletedValue() < m_FenceValues[m_FrameIndex])
-		{
-			hr = m_pFence->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_FenceEvent);
-			ThrowIfFailed(hr, "Failed to set completion event on fence");
-			WaitForSingleObjectEx(m_FenceEvent, INFINITE, FALSE);
-		}
-
-		// Set the fence value for the next frame.
-		m_FenceValues[m_FrameIndex] = currentFenceValue + 1;
+		m_d3dDeviceResources.MoveToNextFrame();
 	}
 
 	void Direct3D12Context::OnWindowResize_Impl()
@@ -475,27 +495,24 @@ namespace Insight {
 
 				m_WindowResizeComplete = false;
 
-				WaitForGPU();
-				HRESULT hr;
+				m_d3dDeviceResources.WaitForGPU();
 
 				for (UINT i = 0; i < m_FrameBufferCount; i++) {
 					m_pRenderTargetTextures[i].Reset();
 					m_pRenderTargets[i].Reset();
 					m_pRenderTargetTextures_PostFxPass[i].Reset();
-					m_FenceValues[i] = m_FenceValues[m_FrameIndex];
+					//m_FenceValues[i] = m_FenceValues[m_FrameIndex];
 				}
-				m_pDepthStencilTexture.Reset();
+				m_pSceneDepthStencilTexture.Reset();
 
-				DXGI_SWAP_CHAIN_DESC desc = {};
-				m_pSwapChain->GetDesc(&desc);
-				hr = m_pSwapChain->ResizeBuffers(m_FrameBufferCount, m_WindowWidth, m_WindowHeight, desc.BufferDesc.Format, desc.Flags);
-				ThrowIfFailed(hr, "Failed to resize swap chain buffers for D3D 12 context.");
 
-				BOOL fullScreenState;
-				m_pSwapChain->GetFullscreenState(&fullScreenState, nullptr);
-				m_WindowedMode = !fullScreenState;
+				m_d3dDeviceResources.ResizeResources();
 
-				m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
+				BOOL FullScreenState;
+				m_d3dDeviceResources.GetSwapChain().GetFullscreenState(&FullScreenState, nullptr);
+				m_WindowedMode = !FullScreenState;
+				m_d3dDeviceResources.SetFrameIndex(m_d3dDeviceResources.GetSwapChain().GetCurrentBackBufferIndex());
+
 
 				UpdateSizeDependentResources();
 			}
@@ -508,33 +525,33 @@ namespace Insight {
 	{
 		if (m_FullScreenMode)
 		{
-			SetWindowLong(*m_pWindowHandle, GWL_STYLE, WS_OVERLAPPEDWINDOW);
+			SetWindowLong(*m_pWindowHandleRef, GWL_STYLE, WS_OVERLAPPEDWINDOW);
 
 			SetWindowPos(
-				*m_pWindowHandle,
+				*m_pWindowHandleRef,
 				HWND_NOTOPMOST,
-				m_pWindow->GetWindowRect().left,
-				m_pWindow->GetWindowRect().top,
-				m_pWindow->GetWindowRect().right - m_pWindow->GetWindowRect().left,
-				m_pWindow->GetWindowRect().bottom - m_pWindow->GetWindowRect().top,
+				m_pWindowRef->GetWindowRect().left,
+				m_pWindowRef->GetWindowRect().top,
+				m_pWindowRef->GetWindowRect().right - m_pWindowRef->GetWindowRect().left,
+				m_pWindowRef->GetWindowRect().bottom - m_pWindowRef->GetWindowRect().top,
 				SWP_FRAMECHANGED | SWP_NOACTIVATE
 			);
-			ShowWindow(*m_pWindowHandle, SW_NORMAL);
+			ShowWindow(*m_pWindowHandleRef, SW_NORMAL);
 		}
 		else
 		{
-			GetWindowRect(*m_pWindowHandle, &m_pWindow->GetWindowRect());
+			GetWindowRect(*m_pWindowHandleRef, &m_pWindowRef->GetWindowRect());
 
-			SetWindowLong(*m_pWindowHandle, GWL_STYLE, WS_OVERLAPPEDWINDOW & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
+			SetWindowLong(*m_pWindowHandleRef, GWL_STYLE, WS_OVERLAPPEDWINDOW & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
 
 			RECT fullscreenWindowRect;
 			try
 			{
-				if (m_pSwapChain)
+				if (&m_d3dDeviceResources.GetSwapChain())
 				{
 					// Get the settings of the display on which the app's window is currently displayed
 					ComPtr<IDXGIOutput> pOutput;
-					ThrowIfFailed(m_pSwapChain->GetContainingOutput(&pOutput), "Failed to get containing output while switching to fullscreen mode in D3D 12 context.");
+					ThrowIfFailed(m_d3dDeviceResources.GetSwapChain().GetContainingOutput(&pOutput), "Failed to get containing output while switching to fullscreen mode in D3D 12 context.");
 					DXGI_OUTPUT_DESC Desc;
 					ThrowIfFailed(pOutput->GetDesc(&Desc), "Failed to get description from output while switching to fullscreen mode in D3D 12 context.");
 					fullscreenWindowRect = Desc.DesktopCoordinates;
@@ -563,7 +580,7 @@ namespace Insight {
 			}
 
 			SetWindowPos(
-				*m_pWindowHandle,
+				*m_pWindowHandleRef,
 				HWND_TOPMOST,
 				fullscreenWindowRect.left,
 				fullscreenWindowRect.top,
@@ -572,7 +589,7 @@ namespace Insight {
 				SWP_FRAMECHANGED | SWP_NOACTIVATE);
 
 
-			ShowWindow(*m_pWindowHandle, SW_MAXIMIZE);
+			ShowWindow(*m_pWindowHandleRef, SW_MAXIMIZE);
 		}
 		m_FullScreenMode = !m_FullScreenMode;
 	}
@@ -627,91 +644,59 @@ namespace Insight {
 
 	void Direct3D12Context::RenderSkySphere_Impl()
 	{
-		m_SkySphere->Render(m_pScenePass_CommandList);
+		m_pSkySphere_Geometry->Render(m_pScenePass_CommandList);
 	}
 
 	bool Direct3D12Context::CreateSkybox_Impl()
 	{
-		m_SkySphere = new ieD3D12SphereRenderer();
-		m_SkySphere->Init(10, 20, 20);
+		m_pSkySphere_Geometry = new ieD3D12SphereRenderer();
+		m_pSkySphere_Geometry->Init(10, 20, 20);
 		return true;
 	}
 
 	void Direct3D12Context::DestroySkybox_Impl()
 	{
-		if (m_SkySphere) {
+		if (m_pSkySphere) {
 			delete m_pSkySphere;
 		}
 	}
 
-	void Direct3D12Context::CreateSwapChain()
+	uint32_t Direct3D12Context::RegisterGeometryWithRTAccelerationStucture(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat)
 	{
-		HRESULT hr;
-
-		DXGI_MODE_DESC BackBufferDesc = {};
-		BackBufferDesc.Width = m_WindowWidth;
-		BackBufferDesc.Height = m_WindowHeight;
-
-		m_SampleDesc = {};
-		m_SampleDesc.Count = 1;
-
-		DXGI_SWAP_CHAIN_DESC1 SwapChainDesc = {};
-		SwapChainDesc.BufferCount = m_FrameBufferCount;
-		SwapChainDesc.Width = m_WindowWidth;
-		SwapChainDesc.Height = m_WindowHeight;
-		SwapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-		SwapChainDesc.SampleDesc = m_SampleDesc;
-		SwapChainDesc.Flags = m_AllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
-
-		Microsoft::WRL::ComPtr<IDXGISwapChain1> SwapChain{};
-		hr = m_pDxgiFactory->CreateSwapChainForHwnd(m_pCommandQueue.Get(), *m_pWindowHandle, &SwapChainDesc, nullptr, nullptr, &SwapChain);
-		ThrowIfFailed(hr, "Failed to Create Swap Chain for D3D 12 context.");
-
-		if (m_AllowTearing)
-		{
-			hr = m_pDxgiFactory->MakeWindowAssociation(*m_pWindowHandle, DXGI_MWA_NO_ALT_ENTER);
-			ThrowIfFailed(hr, "Failed to make window association for D3D 12 context.");
-		}
-
-		hr = SwapChain.As(&m_pSwapChain);
-		ThrowIfFailed(hr, "Failed to cast SwapChain ComPtr for D3D 12 context.");
-
-		m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
+		return m_RTHelper.RegisterBottomLevelASGeometry(pVertexBuffer, pIndexBuffer, NumVerticies, NumIndices, MeshWorldMat);
 	}
 
 	void Direct3D12Context::CreateRenderTargetViewDescriptorHeap()
 	{
 		HRESULT hr;
-		WaitForGPU();
+		m_d3dDeviceResources.WaitForGPU();
 
 		D3D12_DESCRIPTOR_HEAP_DESC HeapDesc = {};
 		HeapDesc.NumDescriptors = m_FrameBufferCount;
 		HeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 		HeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
-		hr = m_pDevice->CreateDescriptorHeap(&HeapDesc, IID_PPV_ARGS(&m_RTVDescriptorHeap));
+		hr = m_d3dDeviceResources.GetDeviceContext().CreateDescriptorHeap(&HeapDesc, IID_PPV_ARGS(&m_RTVDescriptorHeap));
 		m_RTVDescriptorHeap->SetName(L"Render Target View Descriptor Heap");
 
 		// All pending GPU work was already finished. Update the tracked fence values
 		// to the last value signaled.
-		for (UINT n = 0; n < m_FrameBufferCount; n++)
+		/*for (UINT n = 0; n < m_FrameBufferCount; n++)
 		{
 			m_FenceValues[n] = m_FenceValues[m_FrameIndex];
-		}
+		}*/
 
-		m_FrameIndex = 0;
+		//m_FrameIndex = 0;
 		D3D12_CPU_DESCRIPTOR_HANDLE  hCPUHeapHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-		m_RTVDescriptorSize = m_pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+		m_RTVDescriptorSize = m_d3dDeviceResources.GetDeviceContext().GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
 		for (UINT n = 0; n < m_FrameBufferCount; n++)
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE handle;
 			handle.ptr = hCPUHeapHandle.ptr + m_RTVDescriptorSize * n;
-			hr = m_pSwapChain->GetBuffer(n, IID_PPV_ARGS(&m_pRenderTargets[n]));
+			hr = m_d3dDeviceResources.GetSwapChain().GetBuffer(n, IID_PPV_ARGS(&m_pRenderTargets[n]));
 			ThrowIfFailed(hr, "Failed to get buffer in swap chain during descriptor heap initialization for D3D 12 context.");
-			m_pDevice->CreateRenderTargetView(m_pRenderTargets[n].Get(), nullptr, handle);
+			m_d3dDeviceResources.GetDeviceContext().CreateRenderTargetView(m_pRenderTargets[n].Get(), nullptr, handle);
 
 
 			WCHAR name[25];
@@ -724,7 +709,7 @@ namespace Insight {
 	{
 		HRESULT hr;
 
-		m_dsvHeap.Create(m_pDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 2);
+		m_dsvHeap.Create(&m_d3dDeviceResources.GetDeviceContext(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 2);
 		CD3DX12_HEAP_PROPERTIES heapProperty(D3D12_HEAP_TYPE_DEFAULT);
 
 		// === Scene Depth Texture == //
@@ -747,14 +732,14 @@ namespace Insight {
 		SceneDepthOptomizedClearValue.DepthStencil.Depth = m_DepthClearValue;
 		SceneDepthOptomizedClearValue.DepthStencil.Stencil = 0;
 
-		hr = m_pDevice->CreateCommittedResource(
+		hr = m_d3dDeviceResources.GetDeviceContext().CreateCommittedResource(
 			&heapProperty,
 			D3D12_HEAP_FLAG_NONE,
 			&SceneDepthResourceDesc,
 			D3D12_RESOURCE_STATE_DEPTH_WRITE,
 			&SceneDepthOptomizedClearValue,
-			IID_PPV_ARGS(&m_pDepthStencilTexture));
-		m_pDepthStencilTexture->SetName(L"Scene Depth Stencil Buffer");
+			IID_PPV_ARGS(&m_pSceneDepthStencilTexture));
+		m_pSceneDepthStencilTexture->SetName(L"Scene Depth Stencil Buffer");
 		if (FAILED(hr))
 			IE_CORE_ERROR("Failed to create comitted resource for depth stencil view");
 
@@ -764,7 +749,7 @@ namespace Insight {
 		SceneDSVDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 		SceneDSVDesc.Flags = D3D12_DSV_FLAG_NONE;
 
-		m_pDevice->CreateDepthStencilView(m_pDepthStencilTexture.Get(), &SceneDSVDesc, m_dsvHeap.hCPU(0));
+		m_d3dDeviceResources.GetDeviceContext().CreateDepthStencilView(m_pSceneDepthStencilTexture.Get(), &SceneDSVDesc, m_dsvHeap.hCPU(0));
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC SceneDSVSRV = {};
 		SceneDSVSRV.Texture2D.MipLevels = SceneDepthResourceDesc.MipLevels;
@@ -773,7 +758,7 @@ namespace Insight {
 		SceneDSVSRV.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		SceneDSVSRV.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
-		m_pDevice->CreateShaderResourceView(m_pDepthStencilTexture.Get(), &SceneDSVSRV, m_cbvsrvHeap.hCPU(4));
+		m_d3dDeviceResources.GetDeviceContext().CreateShaderResourceView(m_pSceneDepthStencilTexture.Get(), &SceneDSVSRV, m_cbvsrvHeap.hCPU(4));
 
 		// === Shadow Depth Texture === //
 
@@ -801,7 +786,7 @@ namespace Insight {
 		ShadowDepthDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 		ShadowDepthDesc.Flags = D3D12_DSV_FLAG_NONE;
 
-		hr = m_pDevice->CreateCommittedResource(
+		hr = m_d3dDeviceResources.GetDeviceContext().CreateCommittedResource(
 			&heapProperty,
 			D3D12_HEAP_FLAG_NONE,
 			&ShadowDepthResourceDesc,
@@ -812,7 +797,7 @@ namespace Insight {
 		if (FAILED(hr))
 			IE_CORE_ERROR("Failed to create comitted resource for depth stencil view");
 
-		m_pDevice->CreateDepthStencilView(m_pShadowDepthTexture.Get(), &ShadowDepthDesc, m_dsvHeap.hCPU(1));
+		m_d3dDeviceResources.GetDeviceContext().CreateDepthStencilView(m_pShadowDepthTexture.Get(), &ShadowDepthDesc, m_dsvHeap.hCPU(1));
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC ShadowDSVSRV = {};
 		ShadowDSVSRV.Texture2D.MipLevels = ShadowDepthResourceDesc.MipLevels;
@@ -821,40 +806,40 @@ namespace Insight {
 		ShadowDSVSRV.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		ShadowDSVSRV.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
-		m_pDevice->CreateShaderResourceView(m_pShadowDepthTexture.Get(), &ShadowDSVSRV, m_cbvsrvHeap.hCPU(6));
+		m_d3dDeviceResources.GetDeviceContext().CreateShaderResourceView(m_pShadowDepthTexture.Get(), &ShadowDSVSRV, m_cbvsrvHeap.hCPU(7));
 	}
 
 	void Direct3D12Context::CreateRTVs()
 	{
 		HRESULT hr;
 
-		m_rtvHeap.Create(m_pDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 5);
-		CD3DX12_HEAP_PROPERTIES heapProperty(D3D12_HEAP_TYPE_DEFAULT);
+		m_rtvHeap.Create(&m_d3dDeviceResources.GetDeviceContext(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 5);
+		CD3DX12_HEAP_PROPERTIES HeapProperties(D3D12_HEAP_TYPE_DEFAULT);
 
-		D3D12_RESOURCE_DESC resourceDesc = {};
-		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-		resourceDesc.Alignment = 0;
-		resourceDesc.SampleDesc.Count = 1;
-		resourceDesc.SampleDesc.Quality = 0;
-		resourceDesc.MipLevels = 1;
+		D3D12_RESOURCE_DESC ResourceDesc = {};
+		ResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		ResourceDesc.Alignment = 0;
+		ResourceDesc.SampleDesc.Count = 1;
+		ResourceDesc.SampleDesc.Quality = 0;
+		ResourceDesc.MipLevels = 1;
 
-		resourceDesc.DepthOrArraySize = 1;
-		resourceDesc.Width = (UINT)m_WindowWidth;
-		resourceDesc.Height = (UINT)m_WindowHeight;
-		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-		resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+		ResourceDesc.DepthOrArraySize = 1;
+		ResourceDesc.Width = (UINT)m_WindowWidth;
+		ResourceDesc.Height = (UINT)m_WindowHeight;
+		ResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+		ResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 
 
-		D3D12_CLEAR_VALUE clearVal;
-		clearVal.Color[0] = m_ClearColor[0];
-		clearVal.Color[1] = m_ClearColor[1];
-		clearVal.Color[2] = m_ClearColor[2];
-		clearVal.Color[3] = m_ClearColor[3];
+		D3D12_CLEAR_VALUE ClearVal;
+		ClearVal.Color[0] = m_ScreenClearColor[0];
+		ClearVal.Color[1] = m_ScreenClearColor[1];
+		ClearVal.Color[2] = m_ScreenClearColor[2];
+		ClearVal.Color[3] = m_ScreenClearColor[3];
 
-		for (int i = 0; i < m_NumRTV; i++) {
-			resourceDesc.Format = m_RtvFormat[i];
-			clearVal.Format = m_RtvFormat[i];
-			hr = m_pDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET, &clearVal, IID_PPV_ARGS(&m_pRenderTargetTextures[i]));
+		for (int i = 0; i < m_NumRenderTargetViews; i++) {
+			ResourceDesc.Format = m_RtvFormat[i];
+			ClearVal.Format = m_RtvFormat[i];
+			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommittedResource(&HeapProperties, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET, &ClearVal, IID_PPV_ARGS(&m_pRenderTargetTextures[i]));
 			ThrowIfFailed(hr, "Failed to create committed resource for RTV at index: " + std::to_string(i));
 		}
 		m_pRenderTargetTextures[0]->SetName(L"Render Target Texture Diffuse");
@@ -862,59 +847,80 @@ namespace Insight {
 		m_pRenderTargetTextures[2]->SetName(L"Render Target Texture (R)Roughness/(G)Metallic/(B)AO");
 		m_pRenderTargetTextures[3]->SetName(L"Render Target Texture Position");
 		m_pRenderTargetTextures[4]->SetName(L"Render Target Texture Light Pass Result");
-		//resourceDesc.Format = m_RtvFormat[4];
-		//clearVal.Format = m_RtvFormat[4];
-		//hr = m_pLogicalDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET, &clearVal, IID_PPV_ARGS(&m_pRenderTargetTextures[4]));
-		//ThrowIfFailed(hr, "Failed to create committed resource for RTV at index: " + std::to_string(4));
-		//m_pRenderTargetTextures[4]->SetName(L"Render Target Texture Light Pass Result");
 
 
-		D3D12_RENDER_TARGET_VIEW_DESC desc = {};
-		desc.Texture2D.MipSlice = 0;
-		desc.Texture2D.PlaneSlice = 0;
-		desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+		D3D12_RENDER_TARGET_VIEW_DESC RTVDesc = {};
+		RTVDesc.Texture2D.MipSlice = 0;
+		RTVDesc.Texture2D.PlaneSlice = 0;
+		RTVDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
-		for (int i = 0; i < m_NumRTV; i++) {
-			desc.Format = m_RtvFormat[i];
-			m_pDevice->CreateRenderTargetView(m_pRenderTargetTextures[i].Get(), &desc, m_rtvHeap.hCPU(i));
+		for (int i = 0; i < m_NumRenderTargetViews; i++) {
+			RTVDesc.Format = m_RtvFormat[i];
+			m_d3dDeviceResources.GetDeviceContext().CreateRenderTargetView(m_pRenderTargetTextures[i].Get(), &RTVDesc, m_rtvHeap.hCPU(i));
 		}
-		//desc.Format = m_RtvFormat[4];
-		//m_pLogicalDevice->CreateRenderTargetView(m_pRenderTargetTextures[4].Get(), &desc, m_rtvHeap.hCPU(4));
 
 		//Create SRVs for Render Targets
-		D3D12_SHADER_RESOURCE_VIEW_DESC descSRV = {};
-		descSRV.Texture2D.MipLevels = resourceDesc.MipLevels;
-		descSRV.Texture2D.MostDetailedMip = 0;
-		descSRV.Format = resourceDesc.Format;
-		descSRV.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		descSRV.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		D3D12_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
+		SRVDesc.Texture2D.MipLevels = ResourceDesc.MipLevels;
+		SRVDesc.Texture2D.MostDetailedMip = 0;
+		SRVDesc.Format = ResourceDesc.Format;
+		SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		SRVDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
 
-		for (int i = 0; i < m_NumRTV - 1; i++) {
-			descSRV.Format = m_RtvFormat[i];
-			m_pDevice->CreateShaderResourceView(m_pRenderTargetTextures[i].Get(), &descSRV, m_cbvsrvHeap.hCPU(i));
+		for (int i = 0; i < m_NumRenderTargetViews - 1; i++) {
+			SRVDesc.Format = m_RtvFormat[i];
+			m_d3dDeviceResources.GetDeviceContext().CreateShaderResourceView(m_pRenderTargetTextures[i].Get(), &SRVDesc, m_cbvsrvHeap.hCPU(i));
 		}
 		m_pRenderTargetTextures[0]->SetName(L"Render Target SRV Albedo");
 		m_pRenderTargetTextures[1]->SetName(L"Render Target SRV Normal");
 		m_pRenderTargetTextures[2]->SetName(L"Render Target SRV (R)Roughness/(G)Metallic/(B)AO");
 		m_pRenderTargetTextures[3]->SetName(L"Render Target SRV Position");
 
-		// m_cbvsrvHeap.hCPU(4) is reserved for the depth stencil view
-		descSRV.Format = m_RtvFormat[4];
-		m_pDevice->CreateShaderResourceView(m_pRenderTargetTextures[4].Get(), &descSRV, m_cbvsrvHeap.hCPU(5));
+		SRVDesc.Format = m_RtvFormat[4];
+		m_d3dDeviceResources.GetDeviceContext().CreateShaderResourceView(m_pRenderTargetTextures[4].Get(), &SRVDesc, m_cbvsrvHeap.hCPU(5));
 		m_pRenderTargetTextures[4]->SetName(L"Render Target SRV Light Pass Result");
 
 	}
 
-	void Direct3D12Context::CreateConstantBufferViews()
+	void Direct3D12Context::CreateCBVs()
 	{
-		HRESULT hr = m_cbvsrvHeap.Create(m_pDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 45, true);
+		HRESULT hr = m_cbvsrvHeap.Create(&m_d3dDeviceResources.GetDeviceContext(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 45, true);
 		ThrowIfFailed(hr, "Failed to create CBV SRV descriptor heap");
+	}
+
+	void Direct3D12Context::CreateSRVs()
+	{
+		HRESULT hr;
+		CD3DX12_HEAP_PROPERTIES HeapProperties(D3D12_HEAP_TYPE_DEFAULT);
+
+		D3D12_RESOURCE_DESC ResourceDesc = {};
+		ResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		ResourceDesc.Alignment = 0;
+		ResourceDesc.SampleDesc.Count = 1;
+		ResourceDesc.SampleDesc.Quality = 0;
+		ResourceDesc.MipLevels = 1;
+		ResourceDesc.DepthOrArraySize = 1;
+		ResourceDesc.Width = (UINT)m_WindowWidth;
+		ResourceDesc.Height = (UINT)m_WindowHeight;
+		ResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+		ResourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+		hr = m_d3dDeviceResources.GetDeviceContext().CreateCommittedResource(&HeapProperties, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, NULL, IID_PPV_ARGS(&m_RayTraceOutput_SRV));
+		ThrowIfFailed(hr, "Failed to create ray trace output srv");
+
+		D3D12_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
+		SRVDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		SRVDesc.Texture2D.MipLevels = 1U;
+		SRVDesc.Texture2D.MostDetailedMip = 0;
+		SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		SRVDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		m_d3dDeviceResources.GetDeviceContext().CreateShaderResourceView(m_RayTraceOutput_SRV.Get(), &SRVDesc, m_cbvsrvHeap.hCPU(6));
 	}
 
 	void Direct3D12Context::CreateDeferredShadingRootSignature()
 	{
-		CD3DX12_DESCRIPTOR_RANGE DescriptorRanges[12];
+		CD3DX12_DESCRIPTOR_RANGE DescriptorRanges[13] = {};
 		DescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 0); // G-Buffer inputs t0-t4
 
 		DescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 5);  // PerObject texture inputs - Albedo
@@ -922,6 +928,7 @@ namespace Insight {
 		DescriptorRanges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 7);  // PerObject texture inputs - Roughness
 		DescriptorRanges[4].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 8);  // PerObject texture inputs - Metallic
 		DescriptorRanges[5].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9);  // PerObject texture inputs - AO
+
 		DescriptorRanges[6].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 10); // Shadow Depth texture
 
 		DescriptorRanges[7].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 11);  // Sky - Irradiance
@@ -929,9 +936,10 @@ namespace Insight {
 		DescriptorRanges[9].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 13);  // Sky - BRDF LUT
 		DescriptorRanges[10].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 14); // Sky - Diffuse
 
-		DescriptorRanges[11].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 15); // Post-FX Input Final Image input
+		DescriptorRanges[11].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 15); // Post-FX input deferred light pass result
+		DescriptorRanges[12].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 16); // Post-FX input raytrace pass result
 
-		CD3DX12_ROOT_PARAMETER RootParameters[17];
+		CD3DX12_ROOT_PARAMETER RootParameters[18] = {};
 		RootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);	  // Per-Object constant buffer
 		RootParameters[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL);		  // Per-Frame constant buffer
 		RootParameters[2].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_ALL);		  // Light constant buffer
@@ -944,6 +952,7 @@ namespace Insight {
 		RootParameters[8].InitAsDescriptorTable(1, &DescriptorRanges[3], D3D12_SHADER_VISIBILITY_PIXEL);  // PerObject texture inputs - Roughness
 		RootParameters[9].InitAsDescriptorTable(1, &DescriptorRanges[4], D3D12_SHADER_VISIBILITY_PIXEL);  // PerObject texture inputs - Metallic
 		RootParameters[10].InitAsDescriptorTable(1, &DescriptorRanges[5], D3D12_SHADER_VISIBILITY_PIXEL); // PerObject texture inputs - AO
+
 		RootParameters[11].InitAsDescriptorTable(1, &DescriptorRanges[6], D3D12_SHADER_VISIBILITY_PIXEL); // Shadow Depth texture
 
 		RootParameters[12].InitAsDescriptorTable(1, &DescriptorRanges[7], D3D12_SHADER_VISIBILITY_PIXEL);  // Sky - Irradiance
@@ -951,7 +960,8 @@ namespace Insight {
 		RootParameters[14].InitAsDescriptorTable(1, &DescriptorRanges[9], D3D12_SHADER_VISIBILITY_PIXEL);  // Sky - BRDF LUT
 		RootParameters[15].InitAsDescriptorTable(1, &DescriptorRanges[10], D3D12_SHADER_VISIBILITY_PIXEL); // Sky - Diffuse
 
-		RootParameters[16].InitAsDescriptorTable(1, &DescriptorRanges[11], D3D12_SHADER_VISIBILITY_PIXEL); // Final Image
+		RootParameters[16].InitAsDescriptorTable(1, &DescriptorRanges[11], D3D12_SHADER_VISIBILITY_PIXEL); // Rasterized Image
+		RootParameters[17].InitAsDescriptorTable(1, &DescriptorRanges[12], D3D12_SHADER_VISIBILITY_PIXEL); // Ray Traced Image
 
 
 
@@ -959,7 +969,7 @@ namespace Insight {
 		CD3DX12_ROOT_SIGNATURE_DESC RootSignatureDesc;
 		RootSignatureDesc.Init(_countof(RootParameters), RootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
-		CD3DX12_STATIC_SAMPLER_DESC StaticSamplers[2];
+		CD3DX12_STATIC_SAMPLER_DESC StaticSamplers[2] = {};
 		// Shadow map sampler
 		StaticSamplers[0].Init(
 			0,
@@ -977,8 +987,7 @@ namespace Insight {
 			0U
 		);
 		// Scene Sampler
-		FLOAT MinLOD = 0.0f;
-		FLOAT MaxLOD = 9.0f;
+		FLOAT MinLOD = 0.0f, MaxLOD = 9.0f;
 		StaticSamplers[1].Init(
 			1,
 			D3D12_FILTER_MIN_MAG_MIP_LINEAR,
@@ -1003,13 +1012,13 @@ namespace Insight {
 		HRESULT hr = D3D12SerializeRootSignature(&RootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, RootSignatureBlob.GetAddressOf(), ErrorBlob.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to serialize root signature for D3D 12 context.");
 
-		hr = m_pDevice->CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pDeferredShadingPass_RootSignature));
+		hr = m_d3dDeviceResources.GetDeviceContext().CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pDeferredShadingPass_RS));
 		ThrowIfFailed(hr, "Failed to create root signature for D3D 12 context.");
 	}
 
 	void Direct3D12Context::CreateForwardShadingRootSignature()
 	{
-		CD3DX12_DESCRIPTOR_RANGE DescriptorRanges[10];
+		CD3DX12_DESCRIPTOR_RANGE DescriptorRanges[10] = {};
 		DescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);   // PerObject texture inputs - Albedo
 		DescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);   // PerObject texture inputs - Normal
 		DescriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2);   // PerObject texture inputs - Roughness
@@ -1022,7 +1031,7 @@ namespace Insight {
 		DescriptorRanges[8].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 8);   // Sky - Environment Map
 		DescriptorRanges[9].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9);   // Sky - BRDF LUT
 
-		CD3DX12_ROOT_PARAMETER RootParameters[14];
+		CD3DX12_ROOT_PARAMETER RootParameters[14] = {};
 		RootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);	  // Per-Object constant buffer
 		RootParameters[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_ALL);		  // Per-Frame constant buffer
 		RootParameters[2].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_ALL);	      // Light constant buffer
@@ -1044,7 +1053,7 @@ namespace Insight {
 		CD3DX12_ROOT_SIGNATURE_DESC RootSignatureDesc;
 		RootSignatureDesc.Init(_countof(RootParameters), RootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
-		CD3DX12_STATIC_SAMPLER_DESC StaticSamplers[2];
+		CD3DX12_STATIC_SAMPLER_DESC StaticSamplers[2] = {};
 		// Shadow map sampler
 		StaticSamplers[0].Init(
 			0,
@@ -1088,7 +1097,7 @@ namespace Insight {
 		HRESULT hr = D3D12SerializeRootSignature(&RootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, RootSignatureBlob.GetAddressOf(), ErrorBlob.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to serialize root signature for D3D 12 context.");
 
-		hr = m_pDevice->CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pForwardShadingPass_RootSignature));
+		hr = m_d3dDeviceResources.GetDeviceContext().CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pForwardShadingPass_RS));
 		ThrowIfFailed(hr, "Failed to create root signature for D3D 12 context.");
 	}
 
@@ -1145,7 +1154,7 @@ namespace Insight {
 		PsoDesc.PS = PixelShaderBytecode;
 		PsoDesc.InputLayout.pInputElementDescs = InputLayout;
 		PsoDesc.InputLayout.NumElements = _countof(InputLayout);
-		PsoDesc.pRootSignature = m_pDeferredShadingPass_RootSignature.Get();
+		PsoDesc.pRootSignature = m_pDeferredShadingPass_RS.Get();
 		PsoDesc.DepthStencilState = ShadowDepthStencilDesc;
 		PsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		PsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
@@ -1156,7 +1165,7 @@ namespace Insight {
 		PsoDesc.NumRenderTargets = 0;
 		PsoDesc.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
 
-		hr = m_pDevice->CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pShadowPass_PSO));
+		hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pShadowPass_PSO));
 		ThrowIfFailed(hr, "Failed to create graphics pipeline state for shadow pass in D3D 12 context.");
 		m_pShadowPass_PSO->SetName(L"PSO Shadow Pass");
 	}
@@ -1208,13 +1217,13 @@ namespace Insight {
 		PsoDesc.PS = pixelShaderBytecode;
 		PsoDesc.InputLayout.pInputElementDescs = inputLayout;
 		PsoDesc.InputLayout.NumElements = _countof(inputLayout);
-		PsoDesc.pRootSignature = m_pDeferredShadingPass_RootSignature.Get();
+		PsoDesc.pRootSignature = m_pDeferredShadingPass_RS.Get();
 		PsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 		PsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		PsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 		PsoDesc.SampleMask = UINT_MAX;
 		PsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		PsoDesc.NumRenderTargets = m_NumRTV;
+		PsoDesc.NumRenderTargets = m_NumRenderTargetViews;
 		PsoDesc.RTVFormats[0] = m_RtvFormat[0];
 		PsoDesc.RTVFormats[1] = m_RtvFormat[1];
 		PsoDesc.RTVFormats[2] = m_RtvFormat[2];
@@ -1222,7 +1231,7 @@ namespace Insight {
 		PsoDesc.DSVFormat = m_DsvFormat;
 		PsoDesc.SampleDesc.Count = 1;
 
-		hr = m_pDevice->CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pGeometryPass_PSO));
+		hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pGeometryPass_PSO));
 		ThrowIfFailed(hr, "Failed to create graphics pipeline state for geometry pass.");
 		m_pGeometryPass_PSO->SetName(L"PSO Geometry Pass");
 	}
@@ -1281,7 +1290,7 @@ namespace Insight {
 		pipelineDesc.PS = pixelShaderBytecode;
 		pipelineDesc.InputLayout.pInputElementDescs = inputLayout;
 		pipelineDesc.InputLayout.NumElements = _countof(inputLayout);
-		pipelineDesc.pRootSignature = m_pDeferredShadingPass_RootSignature.Get();
+		pipelineDesc.pRootSignature = m_pDeferredShadingPass_RS.Get();
 		pipelineDesc.DepthStencilState = depthStencilStateDesc;
 		pipelineDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		pipelineDesc.RasterizerState = rasterizerStateDesc;
@@ -1293,7 +1302,7 @@ namespace Insight {
 		pipelineDesc.DSVFormat = m_DsvFormat;
 
 
-		hr = m_pDevice->CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&m_pSkyPass_PSO));
+		hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&m_pSkyPass_PSO));
 		ThrowIfFailed(hr, "Failed to create skybox pipeline state object for .");
 		m_pSkyPass_PSO->SetName(L"PSO Sky Pass");
 	}
@@ -1347,7 +1356,7 @@ namespace Insight {
 
 		auto RasterizerDesc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 		RasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
-		
+
 		auto BlendDesc = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		BlendDesc.AlphaToCoverageEnable = TRUE;
 		BlendDesc.IndependentBlendEnable = TRUE;
@@ -1358,7 +1367,7 @@ namespace Insight {
 		PsoDesc.PS = PixelShaderBytecode;
 		PsoDesc.InputLayout.pInputElementDescs = inputLayout;
 		PsoDesc.InputLayout.NumElements = _countof(inputLayout);
-		PsoDesc.pRootSignature = m_pForwardShadingPass_RootSignature.Get();
+		PsoDesc.pRootSignature = m_pForwardShadingPass_RS.Get();
 		PsoDesc.DepthStencilState = DepthStencilStateDesc;
 		PsoDesc.BlendState = BlendDesc;
 		PsoDesc.RasterizerState = RasterizerDesc;
@@ -1370,7 +1379,7 @@ namespace Insight {
 		PsoDesc.DSVFormat = m_DsvFormat;
 		PsoDesc.SampleDesc.Count = 1;
 
-		hr = m_pDevice->CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pTransparency_PSO));
+		hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pTransparency_PSO));
 		ThrowIfFailed(hr, "Failed to create graphics pipeline state for transparency pass.");
 		m_pTransparency_PSO->SetName(L"PSO Transparency Pass");
 	}
@@ -1419,7 +1428,7 @@ namespace Insight {
 		descPipelineState.PS = pixelShaderBytecode;
 		descPipelineState.InputLayout.pInputElementDescs = inputLayout;
 		descPipelineState.InputLayout.NumElements = _countof(inputLayout);
-		descPipelineState.pRootSignature = m_pDeferredShadingPass_RootSignature.Get();
+		descPipelineState.pRootSignature = m_pDeferredShadingPass_RS.Get();
 		descPipelineState.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 		descPipelineState.DepthStencilState.DepthEnable = false;
 		descPipelineState.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
@@ -1431,7 +1440,7 @@ namespace Insight {
 		descPipelineState.RTVFormats[0] = m_RtvFormat[0];
 		descPipelineState.SampleDesc.Count = 1;
 
-		hr = m_pDevice->CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pLightingPass_PSO));
+		hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pLightingPass_PSO));
 		ThrowIfFailed(hr, "Failed to create graphics pipeline state for lighting pass.");
 		m_pLightingPass_PSO->SetName(L"PSO Light Pass");
 	}
@@ -1480,7 +1489,7 @@ namespace Insight {
 		descPipelineState.PS = pixelShaderBytecode;
 		descPipelineState.InputLayout.pInputElementDescs = inputLayout;
 		descPipelineState.InputLayout.NumElements = _countof(inputLayout);
-		descPipelineState.pRootSignature = m_pDeferredShadingPass_RootSignature.Get();
+		descPipelineState.pRootSignature = m_pDeferredShadingPass_RS.Get();
 		descPipelineState.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 		descPipelineState.DepthStencilState.DepthEnable = false;
 		descPipelineState.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
@@ -1492,7 +1501,7 @@ namespace Insight {
 		descPipelineState.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 		descPipelineState.SampleDesc.Count = 1;
 
-		hr = m_pDevice->CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pPostFxPass_PSO));
+		hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pPostFxPass_PSO));
 		ThrowIfFailed(hr, "Failed to create graphics pipeline state for Post-Fx pass in D3D 12 context.");
 		m_pPostFxPass_PSO->SetName(L"PSO PostFx Pass");
 	}
@@ -1505,12 +1514,12 @@ namespace Insight {
 		{
 			for (int i = 0; i < m_FrameBufferCount; i++)
 			{
-				hr = m_pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pScenePass_CommandAllocators[i]));
+				hr = m_d3dDeviceResources.GetDeviceContext().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pScenePass_CommandAllocators[i]));
 				ThrowIfFailed(hr, "Failed to Scene Pass Create Command Allocator for D3D 12 context");
 				m_pScenePass_CommandAllocators[i]->SetName(L"Scene Pass Command Allocator");
 			}
 
-			hr = m_pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pScenePass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pScenePass_CommandList));
+			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pScenePass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pScenePass_CommandList));
 			ThrowIfFailed(hr, "Failed to Scene Pass Create Command List for D3D 12 context");
 			m_pScenePass_CommandList->SetName(L"Scene Pass Command List");
 
@@ -1522,12 +1531,12 @@ namespace Insight {
 		{
 			for (int i = 0; i < m_FrameBufferCount; i++)
 			{
-				hr = m_pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pShadowPass_CommandAllocators[i]));
+				hr = m_d3dDeviceResources.GetDeviceContext().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pShadowPass_CommandAllocators[i]));
 				ThrowIfFailed(hr, "Failed to Create Command Allocator for D3D 12 context");
 				m_pShadowPass_CommandAllocators[i]->SetName(L"Shadow Pass Command Allocator");
 			}
 
-			hr = m_pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pShadowPass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pShadowPass_CommandList));
+			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pShadowPass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pShadowPass_CommandList));
 			ThrowIfFailed(hr, "Failed to Create Shadow Pass Command List for D3D 12 context");
 			m_pShadowPass_CommandList->SetName(L"Shadow Pass Command List");
 
@@ -1538,32 +1547,49 @@ namespace Insight {
 		{
 			for (int i = 0; i < m_FrameBufferCount; i++)
 			{
-				hr = m_pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pTransparencyPass_CommandAllocators[i]));
+				hr = m_d3dDeviceResources.GetDeviceContext().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pTransparencyPass_CommandAllocators[i]));
 				ThrowIfFailed(hr, "Failed to Create Command Allocator for D3D 12 context");
 				m_pTransparencyPass_CommandAllocators[i]->SetName(L"Transparency Pass Command Allocator");
 			}
 
-			hr = m_pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pTransparencyPass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pTransparencyPass_CommandList));
+			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pTransparencyPass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pTransparencyPass_CommandList));
 			ThrowIfFailed(hr, "Failed to Create Transparency Pass Command List for D3D 12 context");
 			m_pTransparencyPass_CommandList->SetName(L"Transparency Pass Command List");
 
 			m_pTransparencyPass_CommandList->Close();
 		}
-		
+
 		// Post-Process Pass
 		{
 			for (int i = 0; i < m_FrameBufferCount; i++)
 			{
-				hr = m_pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pPostEffectsPass_CommandAllocators[i]));
+				hr = m_d3dDeviceResources.GetDeviceContext().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pPostEffectsPass_CommandAllocators[i]));
 				ThrowIfFailed(hr, "Failed to Create Command Allocator for D3D 12 context");
 				m_pPostEffectsPass_CommandAllocators[i]->SetName(L"Post-Process Pass Command Allocator");
 			}
 
-			hr = m_pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pPostEffectsPass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pPostEffectsPass_CommandList));
+			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pPostEffectsPass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pPostEffectsPass_CommandList));
 			ThrowIfFailed(hr, "Failed to Create Post-Process Pass Command List for D3D 12 context");
 			m_pPostEffectsPass_CommandList->SetName(L"Post-Process Pass Command List");
 
 			m_pPostEffectsPass_CommandList->Close();
+		}
+
+		// Ray Trace Pass
+		{
+			for (int i = 0; i < m_FrameBufferCount; i++)
+			{
+				hr = m_d3dDeviceResources.GetDeviceContext().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pRayTracePass_CommandAllocators[i]));
+				ThrowIfFailed(hr, "Failed to Create Command Allocator for D3D 12 context");
+				m_pRayTracePass_CommandAllocators[i]->SetName(L"Post-Process Pass Command Allocator");
+			}
+
+			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pRayTracePass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pRayTracePass_CommandList));
+			ThrowIfFailed(hr, "Failed to Create Post-Process Pass Command List for D3D 12 context");
+			m_pRayTracePass_CommandList->SetName(L"Post-Process Pass Command List");
+
+			// Dont close the Ray Trace Pass command list yet. 
+			// We'll use it for pipeline initialization.
 		}
 
 		ID3D12CommandList* ppCommandLists[] = {
@@ -1571,23 +1597,9 @@ namespace Insight {
 			m_pTransparencyPass_CommandList.Get(),
 			m_pPostEffectsPass_CommandList.Get(),
 		};
-		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-		m_FenceValues[m_FrameIndex]++;
-		ThrowIfFailed(m_pCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]), "Failed to signal command queue for command list initialization for D3D 12 context.");
-		WaitForGPU();
-	}
-
-	void Direct3D12Context::CreateFenceEvent()
-	{
-		HRESULT hr;
-		hr = m_pDevice->CreateFence(m_FenceValues[m_FrameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pFence));
-		ThrowIfFailed(hr, "Failed to create Fence Event");
-		m_FenceValues[m_FrameIndex]++;
-
-
-		m_FenceEvent = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
-		if (m_FenceEvent == nullptr)
-			THROW_COM_ERROR("Fence Event was nullptr");
+		m_d3dDeviceResources.GetCommandQueue().ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+		m_d3dDeviceResources.IncrementAndSignalFence();
+		m_d3dDeviceResources.WaitForGPU();
 	}
 
 	void Direct3D12Context::LoadDemoAssets()
@@ -1601,7 +1613,7 @@ namespace Insight {
 
 		// Light Constant buffer
 		{
-			hr = m_pDevice->CreateCommittedResource(
+			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommittedResource(
 				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 				D3D12_HEAP_FLAG_NONE,
 				&CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
@@ -1618,7 +1630,7 @@ namespace Insight {
 		// PerObject Constant buffer
 		for (int i = 0; i < m_FrameBufferCount; ++i)
 		{
-			hr = m_pDevice->CreateCommittedResource(
+			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommittedResource(
 				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 				D3D12_HEAP_FLAG_NONE,
 				&CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
@@ -1635,7 +1647,7 @@ namespace Insight {
 		// PerObject Material Constant buffer
 		for (int i = 0; i < m_FrameBufferCount; ++i)
 		{
-			hr = m_pDevice->CreateCommittedResource(
+			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommittedResource(
 				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 				D3D12_HEAP_FLAG_NONE,
 				&CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
@@ -1651,7 +1663,7 @@ namespace Insight {
 
 		// Per Frame
 		{
-			hr = m_pDevice->CreateCommittedResource(
+			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommittedResource(
 				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 				D3D12_HEAP_FLAG_NONE,
 				&CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
@@ -1667,7 +1679,7 @@ namespace Insight {
 
 		// Post-Fx
 		{
-			hr = m_pDevice->CreateCommittedResource(
+			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommittedResource(
 				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 				D3D12_HEAP_FLAG_NONE,
 				&CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
@@ -1684,32 +1696,20 @@ namespace Insight {
 
 	void Direct3D12Context::CreateViewport()
 	{
-		m_ShadowPassViewPort.TopLeftX = 0;
-		m_ShadowPassViewPort.TopLeftY = 0;
-		m_ShadowPassViewPort.Width = static_cast<FLOAT>(m_ShadowMapWidth);
-		m_ShadowPassViewPort.Height = static_cast<FLOAT>(m_ShadowMapHeight);
-		m_ShadowPassViewPort.MinDepth = 0.0f;
-		m_ShadowPassViewPort.MaxDepth = 1.0f;
-
-		m_ScenePassViewPort.TopLeftX = 0;
-		m_ScenePassViewPort.TopLeftY = 0;
-		m_ScenePassViewPort.Width = static_cast<FLOAT>(m_WindowWidth);
-		m_ScenePassViewPort.Height = static_cast<FLOAT>(m_WindowHeight);
-		m_ScenePassViewPort.MinDepth = 0.0f;
-		m_ScenePassViewPort.MaxDepth = 1.0f;
+		m_ShadowPass_ViewPort.TopLeftX = 0;
+		m_ShadowPass_ViewPort.TopLeftY = 0;
+		m_ShadowPass_ViewPort.Width = static_cast<FLOAT>(m_ShadowMapWidth);
+		m_ShadowPass_ViewPort.Height = static_cast<FLOAT>(m_ShadowMapHeight);
+		m_ShadowPass_ViewPort.MinDepth = 0.0f;
+		m_ShadowPass_ViewPort.MaxDepth = 1.0f;
 	}
 
 	void Direct3D12Context::CreateScissorRect()
 	{
-		m_ShadowPassScissorRect.left = 0;
-		m_ShadowPassScissorRect.top = 0;
-		m_ShadowPassScissorRect.right = m_ShadowMapWidth;
-		m_ShadowPassScissorRect.bottom = m_ShadowMapHeight;
-
-		m_ScenePassScissorRect.left = 0;
-		m_ScenePassScissorRect.top = 0;
-		m_ScenePassScissorRect.right = m_WindowWidth;
-		m_ScenePassScissorRect.bottom = m_WindowHeight;
+		m_ShadowPass_ScissorRect.left = 0;
+		m_ShadowPass_ScissorRect.top = 0;
+		m_ShadowPass_ScissorRect.right = m_ShadowMapWidth;
+		m_ShadowPass_ScissorRect.bottom = m_ShadowMapHeight;
 	}
 
 	void Direct3D12Context::CreateScreenQuad()
@@ -1719,117 +1719,60 @@ namespace Insight {
 
 	void Direct3D12Context::CloseCommandListAndSignalCommandQueue()
 	{
+		// Generate the acceleration structures for the ray tracer
+		if (m_IsRayTraceEnabled) {
+			m_RTHelper.GenerateAccelerationStructure();
+		}
+
 		m_pScenePass_CommandList->Close();
-		ID3D12CommandList* ppCommandLists[] = { m_pScenePass_CommandList.Get() };
-		m_pCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+		m_pRayTracePass_CommandList->Close();
 
-		m_FenceValues[m_FrameIndex]++;
-		HRESULT hr = m_pCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]);
-		if (FAILED(hr)) {
-			IE_CORE_WARN("Command queue failed to signal.");
-		}
+		ID3D12CommandList* ppCommandLists[] = {
+			m_pScenePass_CommandList.Get(),
+			m_pRayTracePass_CommandList.Get()
+		};
+		m_d3dDeviceResources.GetCommandQueue().ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
-		WaitForGPU();
+		m_d3dDeviceResources.IncrementAndSignalFence();
+		m_RTHelper.OnPostInit();
+
+		m_d3dDeviceResources.WaitForGPU();
 	}
 
-	void Direct3D12Context::CreateCommandQueue()
+	void Direct3D12Context::LoadContexts()
 	{
-		D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-		queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-		queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-
-		HRESULT hr = m_pDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_pCommandQueue));
-		ThrowIfFailed(hr, "Failed to Create Command Queue");
-	}
-
-	void Direct3D12Context::CreateDXGIFactory()
-	{
-		UINT dxgiFactoryFlags = 0u;
-
-		// Enable debug layers if in debug builds
-#if defined IE_DEBUG
+		struct ThreadWrapper
 		{
-			ComPtr<ID3D12Debug> debugController;
-			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
+			static unsigned int WINAPI thunk(LPVOID lpParameter)
 			{
-				debugController->EnableDebugLayer();
-				dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+				ThreadParameter* Parameter = reinterpret_cast<ThreadParameter*>(lpParameter);
+
+				return 0;
 			}
-		}
-#endif
-
-		HRESULT hr = CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&m_pDxgiFactory));
-		ThrowIfFailed(hr, "Failed to create DXGI Factory.");
-
+		};
 	}
 
-	void Direct3D12Context::CreateDevice()
+	void Direct3D12Context::WorkerThread(uint8_t ThreadIndex)
 	{
-		GetHardwareAdapter(m_pDxgiFactory.Get(), &m_pAdapter);
+		// Make sure there are no out of bounds threads
+		assert(ThreadIndex >= 0);
+		assert(ThreadIndex < s_NumRenderContexts);
 
-		HRESULT hr = D3D12CreateDevice(m_pAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_pDevice));
-		ThrowIfFailed(hr, "Failed to create logical device.");
-	}
-
-	void Direct3D12Context::GetHardwareAdapter(IDXGIFactory2* pFactory, IDXGIAdapter1** ppAdapter)
-	{
-		ComPtr<IDXGIAdapter1> pAdapter;
-		*ppAdapter = nullptr;
-		UINT currentVideoCardMemory = 0;
-		DXGI_ADAPTER_DESC1 Desc;
-
-		for (UINT AdapterIndex = 0; DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapters1(AdapterIndex, &pAdapter); ++AdapterIndex)
-		{
-			Desc = {};
-			pAdapter->GetDesc1(&Desc);
-
-			// Make sure we get the video card that is not a software adapter
-			// and it has the most video memory
-			if (Desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE || Desc.DedicatedVideoMemory < currentVideoCardMemory) continue;
-
-			if (SUCCEEDED(D3D12CreateDevice(pAdapter.Get(), D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device), nullptr)))
-			{
-				currentVideoCardMemory = static_cast<UINT>(Desc.DedicatedVideoMemory);
-				if (*ppAdapter != nullptr) {
-					(*ppAdapter)->Release();
-				}
-				*ppAdapter = pAdapter.Detach();
-
-				IE_CORE_WARN("Found suitable Direct3D 12 graphics hardware: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
-			}
-		}
-		Desc = {};
-		(*ppAdapter)->GetDesc1(&Desc);
-		IE_CORE_WARN("\"{0}\" selected as Direct3D 12 graphics hardware.", StringHelper::WideToString(Desc.Description));
-	}
-
-	void Direct3D12Context::WaitForGPU()
-	{
-		HRESULT hr;
-		// Schedule a Signal command in the queue.
-		hr = m_pCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]);
-		ThrowIfFailed(hr, "Fialed to signal command queue while waiting for GPU");
-
-		// Wait until the fence has been processed.
-		hr = m_pFence.Get()->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_FenceEvent);
-		ThrowIfFailed(hr, "Fialed to set fence on completion event while waiting for GPU");
-
-		WaitForSingleObjectEx(m_FenceEvent, INFINITE, FALSE);
-
-		// Increment the fence value for the current frame.
-		m_FenceValues[m_FrameIndex]++;
+		OnPreFrameRender_Impl();
+		OnRender_Impl();
+		OnMidFrameRender_Impl();
+		ExecuteDraw_Impl();
+		//SwapBuffers_Impl();
 	}
 
 	void Direct3D12Context::UpdateSizeDependentResources()
 	{
-		UpdateViewAndScissor();
-
 		// Re-Create Render Target View
 		{
 			for (UINT i = 0; i < m_FrameBufferCount; i++)
 			{
-				m_pSwapChain->GetBuffer(i, IID_PPV_ARGS(&m_pRenderTargets[i]));
-				m_pDevice->CreateRenderTargetView(m_pRenderTargets[i].Get(), nullptr, m_rtvHeap.hCPU(i));
+				m_d3dDeviceResources.GetSwapChain().GetBuffer(i, IID_PPV_ARGS(&m_pRenderTargets[i]));
+				m_d3dDeviceResources.GetDeviceContext().CreateRenderTargetView(m_pRenderTargets[i].Get(), nullptr, m_rtvHeap.hCPU(i));
 			}
 		}
 
@@ -1848,19 +1791,6 @@ namespace Insight {
 			}
 		}
 
-	}
-
-	void Direct3D12Context::UpdateViewAndScissor()
-	{
-		m_ScenePassViewPort.TopLeftX = 0.0f;
-		m_ScenePassViewPort.TopLeftY = 0.0f;
-		m_ScenePassViewPort.Width = static_cast<FLOAT>(m_WindowWidth);
-		m_ScenePassViewPort.Height = static_cast<FLOAT>(m_WindowHeight);
-
-		m_ScenePassScissorRect.left = static_cast<LONG>(m_ScenePassViewPort.TopLeftX);
-		m_ScenePassScissorRect.right = static_cast<LONG>(m_ScenePassViewPort.TopLeftX + m_ScenePassViewPort.Width);
-		m_ScenePassScissorRect.top = static_cast<LONG>(m_ScenePassViewPort.TopLeftY);
-		m_ScenePassScissorRect.bottom = static_cast<LONG>(m_ScenePassViewPort.TopLeftX + m_ScenePassViewPort.Height);
 	}
 
 	void ScreenQuad::Init()

@@ -9,9 +9,20 @@ namespace Insight {
 	class ieD3D12SphereRenderer
 	{
 	public:
+		struct SimpleVertex
+		{
+			DirectX::XMFLOAT4 position;
+		};
+	public:
 		void Init(float radius, int slices, int segments);
 		void resourceSetup();
 		void Render(ComPtr<ID3D12GraphicsCommandList> commandList);
+
+		ComPtr<ID3D12Resource> GetVertexBuffer() { return m_VertexBuffer; }
+		ComPtr<ID3D12Resource> GetIndexBuffer() { return m_IndexBuffer; }
+
+		int GetVertexCount() { return m_TriangleSize; }
+		int GetIndexBufferCount() { return m_IndexSize; }
 
 	private:
 		ComPtr<ID3D12Resource> m_VertexBuffer;
@@ -24,10 +35,7 @@ namespace Insight {
 		int m_TriangleSize;
 		int m_IndexSize;
 		float m_Radius;
-		struct SimpleVertex
-		{
-			DirectX::XMFLOAT4 position;
-		};
+		
 	};
 
 }
