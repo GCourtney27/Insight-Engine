@@ -99,7 +99,7 @@ namespace Insight {
 		static bool CreateSkybox() { return s_Instance->CreateSkybox_Impl(); }
 		static void DestroySkybox() { s_Instance->DestroySkybox_Impl(); }
 
-
+		inline static bool GetIsRayTraceEnabled() { return s_Instance->m_IsRayTraceEnabled; }
 		inline static eTargetRenderAPI GetAPI() { return s_Instance->m_GraphicsSettings.TargetRenderAPI; }
 		inline static uint8_t GetFrameBufferCount() { return s_Instance->m_FrameBufferCount; }
 		inline static void SetVSyncEnabled(bool enabled) { s_Instance->m_VSyncEnabled = enabled; }
@@ -158,6 +158,8 @@ namespace Insight {
 
 	protected:
 		Renderer(uint32_t windowWidth, uint32_t windowHeight, bool vSyncEabled);
+		void SetIsRayTraceSupported(bool Supported) { m_IsRayTraceSupported = Supported; }
+
 	protected:
 		eRenderPass m_RenderPass = eRenderPass::RenderPass_Scene;
 		GraphicsSettings m_GraphicsSettings = {}; // TODO Load this from a settings file
@@ -174,6 +176,8 @@ namespace Insight {
 		bool m_WindowVisible = true;
 		
 		bool m_AllowTearing = true;
+		bool m_IsRayTraceEnabled = true;
+		bool m_IsRayTraceSupported = false; // Assume ray tracing is not supported on the GPU
 
 		std::vector<APointLight*> m_PointLights;
 		std::vector<ADirectionalLight*> m_DirectionalLights;

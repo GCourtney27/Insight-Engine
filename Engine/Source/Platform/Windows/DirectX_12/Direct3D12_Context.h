@@ -17,6 +17,8 @@
 
 using Microsoft::WRL::ComPtr;
 
+#define IE_D3D12_FrameIndex m_d3dDeviceResources.GetFrameIndex()
+
 namespace Insight {
 
 	class WindowsWindow;
@@ -37,7 +39,9 @@ namespace Insight {
 
 	class INSIGHT_API Direct3D12Context : public Renderer
 	{
+	public:
 		friend class Renderer;
+		friend class D3D12Helper;
 	public:
 		virtual bool Init_Impl() override;
 		virtual void Destroy_Impl();
@@ -60,20 +64,20 @@ namespace Insight {
 		virtual bool CreateSkybox_Impl() override;
 		virtual void DestroySkybox_Impl() override;
 
-		inline ID3D12Device& GetDeviceContext() const { return *m_pDevice.Get(); }
+		inline ID3D12Device& GetDeviceContext() const { return m_d3dDeviceResources.GetDeviceContext(); }
 
 		inline ID3D12GraphicsCommandList& GetScenePassCommandList() const { return *m_pScenePass_CommandList.Get(); }
 		inline ID3D12GraphicsCommandList& GetPostProcessPassCommandList() const { return *m_pPostEffectsPass_CommandList.Get(); }
 		inline ID3D12GraphicsCommandList& GetShadowPassCommandList() const { return *m_pShadowPass_CommandList.Get(); }
 		inline ID3D12GraphicsCommandList& GetTransparencyPassCommandList() const { return *m_pTransparencyPass_CommandList.Get(); }
 
-		inline ID3D12CommandQueue& GetCommandQueue() const { return *m_pCommandQueue.Get(); }
+		inline ID3D12CommandQueue& GetCommandQueue() const { return m_d3dDeviceResources.GetCommandQueue(); }
 		inline CDescriptorHeapWrapper& GetCBVSRVDescriptorHeap() { return m_cbvsrvHeap; }
-		inline ID3D12Resource& GetConstantBufferPerObjectUploadHeap() const { return *m_PerObjectCBV[m_FrameIndex].Get(); }
-		inline UINT8& GetPerObjectCBVGPUHeapAddress() { return *m_cbvPerObjectGPUAddress[m_FrameIndex]; }
+		inline ID3D12Resource& GetConstantBufferPerObjectUploadHeap() const { return *m_PerObjectCBV[IE_D3D12_FrameIndex].Get(); }
+		inline UINT8& GetPerObjectCBVGPUHeapAddress() { return *m_cbvPerObjectGPUAddress[IE_D3D12_FrameIndex]; }
 
-		inline ID3D12Resource& GetConstantBufferPerObjectMaterialUploadHeap() const { return *m_PerObjectMaterialAdditivesCBV[m_FrameIndex].Get(); }
-		inline UINT8& GetPerObjectMaterialAdditiveCBVGPUHeapAddress() { return *m_cbvPerObjectMaterialOverridesGPUAddress[m_FrameIndex]; }
+		inline ID3D12Resource& GetConstantBufferPerObjectMaterialUploadHeap() const { return *m_PerObjectMaterialAdditivesCBV[IE_D3D12_FrameIndex].Get(); }
+		inline UINT8& GetPerObjectMaterialAdditiveCBVGPUHeapAddress() { return *m_cbvPerObjectMaterialOverridesGPUAddress[IE_D3D12_FrameIndex]; }
 
 		const CB_PS_VS_PerFrame& GetPerFrameCB() const { return m_PerFrameData; }
 
@@ -83,12 +87,12 @@ namespace Insight {
 		uint32_t RegisterGeometryWithRTAccelerationStucture(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat);
 		void UpdateRTAccelerationStructureMatrix(uint32_t InstanceArrIndex, DirectX::XMMATRIX NewWorldMat) { m_RTHelper.UpdateInstanceTransformByIndex(InstanceArrIndex, NewWorldMat); }
 
-		ID3D12Resource* GetRenderTarget() const { return m_pRenderTargets[m_FrameIndex].Get(); }
-		const unsigned int GetNumRTVs() const { return m_NumRTV; }
+		ID3D12Resource* GetRenderTarget() const { return m_pRenderTargets[IE_D3D12_FrameIndex].Get(); }
+		const unsigned int GetNumRTVs() const { return m_NumRenderTargetViews; }
 		inline D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE handle;
-			handle.ptr = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + m_RTVDescriptorSize * m_FrameIndex;
+			handle.ptr = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + m_RTVDescriptorSize * IE_D3D12_FrameIndex;
 			return handle;
 		}
 
@@ -98,11 +102,16 @@ namespace Insight {
 		virtual ~Direct3D12Context();
 
 		void CloseCommandListAndSignalCommandQueue();
+		
+		// Threading
+
+		void LoadContexts();
+		void WorkerThread(uint8_t ThreadIndex);
+
 		// Per-Frame
 		
-		void MoveToNextFrame();
 		void BindShadowPass();
-		void BindGeometryPass(bool setPSO = false);
+		void BindGeometryPass();
 		void BindLightingPass();
 		void BindSkyPass();
 		void BindTransparencyPass();
@@ -111,11 +120,6 @@ namespace Insight {
 
 		// D3D12 Initialize
 		
-		void CreateDXGIFactory();
-		void GetHardwareAdapter(IDXGIFactory2* pFactory, IDXGIAdapter1** ppAdapter);
-		void CreateDevice();
-		void CreateCommandQueue();
-		void CreateSwapChain();
 		void CreateRenderTargetViewDescriptorHeap();
 
 		// Create app resources
@@ -137,7 +141,6 @@ namespace Insight {
 		// Create window resources
 
 		void CreateCommandAllocators();
-		void CreateFenceEvent();
 		void CreateConstantBuffers();
 		void CreateViewport();
 		void CreateScissorRect();
@@ -145,44 +148,36 @@ namespace Insight {
 		
 		// Close GPU handle and release resources for the graphics context.
 		void Cleanup();
-		// Once called CPU will wait for the GPU to finish executing any pending work.
-		void WaitForGPU();
 		// Resize render targets and depth stencil. Usually called from 'OnWindowResize'.
 		void UpdateSizeDependentResources();
-		// Update view and scissor rects to new window width and height.
-		void UpdateViewAndScissor();
 
 		// Load any demo assets for debugging. Usually can be left empty
 		void LoadDemoAssets();
 
 	private:
-		HWND*				m_pWindowHandle = nullptr;
-		WindowsWindow*		m_pWindow = nullptr;
+		HWND*				m_pWindowHandleRef;
+		WindowsWindow*		m_pWindowRef = nullptr;
 		D3D12Helper			m_d3dDeviceResources;
-		ieD3D12SphereRenderer*				m_SkySphere;
-		RayTraceHelpers						m_RTHelper;
+		RayTraceHelpers		m_RTHelper;
 
-		// CPU/GPU Syncronization
-		int						m_FrameIndex = 0;
-		UINT64					m_FenceValues[m_FrameBufferCount] = {};
-		HANDLE					m_FenceEvent = {};
-		ComPtr<ID3D12Fence>		m_pFence;
+		ieD3D12SphereRenderer*	m_pSkySphere_Geometry;
 
-		static const UINT		m_NumRTV = 5;
-		bool		m_WindowResizeComplete = true;
-		bool		m_IsRayTraceEnabled = true;
-		bool		m_IsRayTraceSupported = false; // Assume ray tracing is not supported on the GPU
-		bool		m_UseWarpDevice = false;
-		int			m_RtvDescriptorIncrementSize = 0;
+		// Threading
+		HANDLE m_WorkerThreadPreFrameRender[s_NumRenderContexts];
+		HANDLE m_WorkerThreadRender[s_NumRenderContexts];
+		HANDLE m_WorkerThreadExecuteDraw[s_NumRenderContexts];
+		struct ThreadParameter
+		{
+			uint8_t ThreadIndex;
+		};
+		ThreadParameter m_ThreadParameters[s_NumRenderContexts];
+
+		static const UINT	m_NumRenderTargetViews = 5;
+		bool				m_WindowResizeComplete = true;
+		bool				m_UseWarpDevice = false;
 
 		// D3D 12 Usings
-		ComPtr<IDXGIAdapter1>				m_pAdapter;
-		ComPtr<ID3D12Device>				m_pDevice;
-		ComPtr<IDXGIFactory4>				m_pDxgiFactory;
-		ComPtr<IDXGISwapChain3>				m_pSwapChain;
-
 		ComPtr<ID3D12GraphicsCommandList>	m_pActiveCommandList;
-		ComPtr<ID3D12CommandQueue>			m_pCommandQueue;
 
 		ComPtr<ID3D12GraphicsCommandList4>	m_pRayTracePass_CommandList;
 		ComPtr<ID3D12CommandAllocator>		m_pRayTracePass_CommandAllocators[m_FrameBufferCount];
@@ -195,30 +190,31 @@ namespace Insight {
 		ComPtr<ID3D12GraphicsCommandList>	m_pPostEffectsPass_CommandList;
 		ComPtr<ID3D12CommandAllocator>		m_pPostEffectsPass_CommandAllocators[m_FrameBufferCount];
 
-		ComPtr<ID3D12Resource>				m_pRenderTargetTextures[m_NumRTV];
+		ComPtr<ID3D12Resource>				m_pRenderTargetTextures[m_NumRenderTargetViews];
 		ComPtr<ID3D12Resource>				m_pRenderTargetTextures_PostFxPass[m_FrameBufferCount];
 		ComPtr<ID3D12Resource>				m_pRenderTargets[m_FrameBufferCount];
 		
 		//-----Light Pass-----
 		// 0: Albedo
 		// 1: Normal
-		// 2: Roughness/Metallic/AO
-		// 3: Position
+		// 2: (R)Roughness/(G)Metallic/(B)AO
+		// 3: World Position
 		// -----Post-Fx Pass-----
 		// 4: Light Pass result
 		CDescriptorHeapWrapper				m_rtvHeap;
 		ComPtr<ID3D12DescriptorHeap>		m_RTVDescriptorHeap;
 		UINT								m_RTVDescriptorSize;
 
-		ComPtr<ID3D12Resource>				m_pDepthStencilTexture;
+		ComPtr<ID3D12Resource>				m_pSceneDepthStencilTexture;
 		ComPtr<ID3D12Resource>				m_pShadowDepthTexture;
+		ComPtr<ID3D12Resource>				m_RayTraceOutput_SRV;
 
 		//0:  SceneDepth
 		//1:  ShadowDepth
 		CDescriptorHeapWrapper				m_dsvHeap;
 
-		ComPtr<ID3D12RootSignature>			m_pDeferredShadingPass_RootSignature;
-		ComPtr<ID3D12RootSignature>			m_pForwardShadingPass_RootSignature;
+		ComPtr<ID3D12RootSignature>			m_pDeferredShadingPass_RS;
+		ComPtr<ID3D12RootSignature>			m_pForwardShadingPass_RS;
 
 		ComPtr<ID3D12PipelineState>			m_pShadowPass_PSO;
 		ComPtr<ID3D12PipelineState>			m_pGeometryPass_PSO;
@@ -238,7 +234,7 @@ namespace Insight {
 		//7:   SRV-Shadow Depth(DSV->SRV)
 		//-----PerObject-----
 		//8:   SRV-Albedo(SRV)
-		//9:  SRV-Normal(SRV)
+		//9:   SRV-Normal(SRV)
 		//10:  SRV-Roughness(SRV)
 		//11:  SRV-Metallic(SRV)
 		//12:  SRV-AO(SRV)
@@ -249,29 +245,26 @@ namespace Insight {
 		CDescriptorHeapWrapper				m_cbvsrvHeap;
 
 		ScreenQuad							m_ScreenQuad;
-		D3D12_VIEWPORT						m_ScenePassViewPort = {};
-		D3D12_VIEWPORT						m_ShadowPassViewPort = {};
-		D3D12_RECT							m_ScenePassScissorRect = {};
-		D3D12_RECT							m_ShadowPassScissorRect = {};
+		D3D12_VIEWPORT						m_ShadowPass_ViewPort = {};
+		D3D12_RECT							m_ShadowPass_ScissorRect = {};
 
 		DXGI_SAMPLE_DESC					m_SampleDesc = {};
-		D3D12_DEPTH_STENCIL_VIEW_DESC		m_ScenePassDsvDesc = {};
-		float								m_ClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		D3D12_DEPTH_STENCIL_VIEW_DESC		m_ScenePass_DsvDesc = {};
+		float								m_ScreenClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		DXGI_FORMAT							m_DsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		DXGI_FORMAT							m_RtvFormat[5] = { 
-			DXGI_FORMAT_R11G11B10_FLOAT,	// Albedo buffer
-			DXGI_FORMAT_R8G8B8A8_SNORM,		// Normal
-			DXGI_FORMAT_R11G11B10_FLOAT,	// (R)Roughness/(G)Metallic/(B)AO
-			DXGI_FORMAT_R32G32B32A32_FLOAT, // Position
-			DXGI_FORMAT_R11G11B10_FLOAT,	// Light Pass result
-		};
+												DXGI_FORMAT_R11G11B10_FLOAT,	// Albedo buffer
+												DXGI_FORMAT_R8G8B8A8_SNORM,		// Normal
+												DXGI_FORMAT_R11G11B10_FLOAT,	// (R)Roughness/(G)Metallic/(B)AO
+												DXGI_FORMAT_R32G32B32A32_FLOAT, // Position
+												DXGI_FORMAT_R11G11B10_FLOAT,	// Light Pass result
+											};
 		float								m_DepthClearValue = 1.0f;
 		DXGI_FORMAT							m_ShadowMapFormat = DXGI_FORMAT_D32_FLOAT;
 
 		const UINT m_ShadowMapWidth = 1024U;
 		const UINT m_ShadowMapHeight = 1024U;
 
-		ComPtr<ID3D12Resource>	m_RayTraceOutput_SRV;
 
 		ComPtr<ID3D12Resource>	m_LightCBV;
 		UINT8*					m_cbvLightBufferGPUAddress;

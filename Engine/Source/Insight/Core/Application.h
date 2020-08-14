@@ -74,6 +74,7 @@ namespace Insight {
 		IE_STRIP_FOR_GAME_DIST( EditorLayer* m_pEditorLayer = nullptr; )
 		GameLayer*				m_pGameLayer = nullptr;
 		bool					m_Running = true;
+		bool					m_AppInitialized = false;
 		LayerStack				m_LayerStack;
 		FrameTimer				m_FrameTimer;
 		FileSystem				m_FileSystem;

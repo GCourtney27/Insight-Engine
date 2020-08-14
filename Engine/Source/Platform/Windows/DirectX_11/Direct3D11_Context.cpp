@@ -205,7 +205,7 @@ namespace Insight {
 		// Sky Pass
 		if (m_pSkySphere) {
 			m_DeferredShadingTech.BindSkyPass();
-			m_pSkySphere->RenderSky(nullptr);
+			m_pSkySphere->RenderSky();
 		}
 
 		// Transparency Pass

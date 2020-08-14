@@ -9,46 +9,63 @@ using Microsoft::WRL::ComPtr;
 
 namespace Insight {
 
+	class Direct3D12Context;
+
 	class INSIGHT_API D3D12Helper
 	{
 	public:
 		D3D12Helper();
 		~D3D12Helper();
 
-		bool Init(HWND windowHandle, UINT windowWidth, UINT windowHeight);
+		bool Init(Direct3D12Context* pRendererContext);
+		void ResizeResources();
+		void CleanUp();
 
-		inline ID3D12Device& GetDeviceContext() const { return *m_pDeviceContext.Get(); }
+		inline ID3D12Device& GetDeviceContext() const { return *m_pDevice.Get(); }
 		inline IDXGIAdapter1& GetAdapter() const { return *m_pAdapter.Get(); }
 		inline IDXGIFactory4& GetDXGIFactor() const { return *m_pDxgiFactory.Get(); }
 
 		inline IDXGISwapChain3& GetSwapChain() const { return *m_pSwapChain.Get(); }
-		inline ID3D12Resource* GetRenderTarget() const { return m_pRenderTargets[m_FrameIndex].Get(); }
+		inline ID3D12Resource* GetSwapChainRenderTarget() const { return m_pRenderTargets[m_FrameIndex].Get(); }
 		inline ID3D12CommandQueue& GetCommandQueue() const { return *m_pCommandQueue.Get(); }
 
-	private:
+		void MoveToNextFrame();
+		void WaitForGPU();
+		inline int GetFrameIndex() const { return m_FrameIndex; }
+		inline void SetFrameIndex(int FrameIndex) { m_FrameIndex = FrameIndex; }
+		inline void IncrementAndSignalFence()
+		{
+			m_FenceValues[m_FrameIndex]++;
+			ThrowIfFailed(m_pCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]),
+				"Failed to signal command queue while incremenitign fence values for D3D 12 device resources.");
+		}
 
+		const D3D12_VIEWPORT& GetClientViewPort() const { return m_Client_ViewPort; }
+		const D3D12_RECT& GetClientScissorRect() const { return m_Client_ScissorRect; }
+
+	private:
 		void CreateDXGIFactory();
-		void GetHardwareAdapter(IDXGIFactory2* pFactory, IDXGIAdapter1** ppAdapter);
 		void CreateDevice();
-		void CreateSwapChain(HWND& WindowHandle, bool AllowTearing);
+		void GetHardwareAdapter(IDXGIFactory2* pFactory, IDXGIAdapter1** ppAdapter);
 		void CreateCommandQueue();
-		void CreateCommandAllocators();
-		void CreateFenceEvent();
+		void CreateSwapChain();
 		void CreateViewport();
 		void CreateScissorRect();
+		void CreateFenceEvent();
+
 	private:
+		Direct3D12Context* m_pRenderContextRef;
+
 		static const uint8_t m_FrameBufferCount = 3;
-		UINT				 m_WindowWidth;
-		UINT				 m_WindowHeight;
-		// Sync Values
-		int									m_FrameIndex = 0;
-		int									m_RtvDescriptorIncrementSize = 0;
-		UINT64								m_FenceValues[m_FrameBufferCount] = {};
-		HANDLE								m_FenceEvent = {};
-		ComPtr<ID3D12Fence>					m_pFences[m_FrameBufferCount];
+
+		// CPU/GPU Syncronization
+		int						m_FrameIndex = 0;
+		UINT64					m_FenceValues[m_FrameBufferCount] = {};
+		HANDLE					m_FenceEvent = {};
+		ComPtr<ID3D12Fence>		m_pFence;
 
 		ComPtr<IDXGIAdapter1>				m_pAdapter;
-		ComPtr<ID3D12Device>				m_pDeviceContext;
+		ComPtr<ID3D12Device>				m_pDevice;
 		ComPtr<IDXGIFactory4>				m_pDxgiFactory;
 		ComPtr<IDXGISwapChain3>				m_pSwapChain;
 
@@ -59,8 +76,8 @@ namespace Insight {
 		ComPtr<ID3D12DescriptorHeap>		m_pRtvHeap;
 		
 		UINT								m_RtvDescriptorSize;
-		D3D12_VIEWPORT						m_ViewPort = {};
-		D3D12_RECT							m_ScissorRect = {};
+		D3D12_VIEWPORT						m_Client_ViewPort = {};
+		D3D12_RECT							m_Client_ScissorRect = {};
 		DXGI_SAMPLE_DESC					m_SampleDesc = {};
 	};
 

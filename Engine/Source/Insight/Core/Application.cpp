@@ -48,6 +48,7 @@ namespace Insight {
 			return false;
 		}
 
+		m_AppInitialized = true;
 		pWindow->PostInit();
 		return true;
 	}
@@ -121,6 +122,7 @@ namespace Insight {
 			m_pGameLayer->PostRender();
 			m_pWindow->EndFrame();
 		}
+
 	}
 
 	void Application::Shutdown()

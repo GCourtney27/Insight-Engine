@@ -41,6 +41,9 @@
 #include "Insight/Core/Interfaces.h"
 #include "Insight/Utilities/Profiling.h"
 #include "Insight/Math/ie_Vectors.h"
+// Parameters
+#define RENDERER_MULTI_THREAD_ENABLED 0
+	static const uint8_t s_NumRenderContexts = 2;
 
 // === Third Party === //
 // Rapid Json

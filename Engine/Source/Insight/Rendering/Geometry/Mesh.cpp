@@ -47,8 +47,7 @@ namespace Insight {
 
 		m_ConstantBufferPerObject.world = worldFloat;
 
-		// TODO check if d3d12 is active
-		reinterpret_cast<Direct3D12Context*>(&Renderer::Get())->UpdateRTAccelerationStructureMatrix(m_RTInstanceIndex, m_Transform.GetWorldMatrix());
+		if (m_ShouldUpdateAS) UpdateAccelerationStructures();
 	}
 
 	uint32_t Mesh::GetVertexCount()
@@ -97,14 +96,18 @@ namespace Insight {
 			m_pIndexBuffer = new D3D12IndexBuffer(Indices);
 
 			// TODO Check if ray tracing is available first before we register the buffers
-			m_RTInstanceIndex  = reinterpret_cast<Direct3D12Context*>(&Renderer::Get())
-				->RegisterGeometryWithRTAccelerationStucture(
-				reinterpret_cast<D3D12VertexBuffer*>(m_pVertexBuffer)->GetVertexBuffer(),
-				reinterpret_cast<D3D12IndexBuffer*>(m_pIndexBuffer)->GetIndexBuffer(),
-				reinterpret_cast<D3D12VertexBuffer*>(m_pVertexBuffer)->GetNumVerticies(),
-				reinterpret_cast<D3D12IndexBuffer*>(m_pIndexBuffer)->GetNumIndices(),
-				m_Transform.GetWorldMatrix()
-			);
+			if (Renderer::GetIsRayTraceEnabled()) {
+
+				m_ShouldUpdateAS = true;
+				m_RTInstanceIndex = reinterpret_cast<Direct3D12Context*>(&Renderer::Get())
+					->RegisterGeometryWithRTAccelerationStucture(
+						reinterpret_cast<D3D12VertexBuffer*>(m_pVertexBuffer)->GetVertexBuffer(),
+						reinterpret_cast<D3D12IndexBuffer*>(m_pIndexBuffer)->GetIndexBuffer(),
+						reinterpret_cast<D3D12VertexBuffer*>(m_pVertexBuffer)->GetNumVerticies(),
+						reinterpret_cast<D3D12IndexBuffer*>(m_pIndexBuffer)->GetNumIndices(),
+						m_Transform.GetWorldMatrix()
+					);
+			}
 
 			break;
 		}
@@ -120,5 +123,11 @@ namespace Insight {
 		}
 		}
 	}
+	
+	void Mesh::UpdateAccelerationStructures()
+	{
+		reinterpret_cast<Direct3D12Context*>(&Renderer::Get())->UpdateRTAccelerationStructureMatrix(m_RTInstanceIndex, m_Transform.GetWorldMatrix());
+	}
+
 }
 
