@@ -290,13 +290,13 @@ namespace Insight {
 			ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
 			m_pScenePass_CommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
-			for (int i = 0; i < m_NumRenderTargetViews - 1; i++) {
+			for (int i = 0; i < m_NumLightPassRTVs - 1; i++) {
 				m_pScenePass_CommandList->ClearRenderTargetView(m_rtvHeap.hCPU(i), m_ScreenClearColor, 0, nullptr);
 			}
 
 			m_pScenePass_CommandList->ClearDepthStencilView(m_dsvHeap.hCPU(0), D3D12_CLEAR_FLAG_DEPTH, m_DepthClearValue, 0xff, 0, nullptr);
 
-			m_pScenePass_CommandList->OMSetRenderTargets(m_NumRenderTargetViews, &m_rtvHeap.hCPUHeapStart, TRUE, &m_dsvHeap.hCPU(0));
+			m_pScenePass_CommandList->OMSetRenderTargets(m_NumLightPassRTVs, &m_rtvHeap.hCPUHeapStart, TRUE, &m_dsvHeap.hCPU(0));
 			m_pScenePass_CommandList->SetGraphicsRootSignature(m_pDeferredShadingPass_RS.Get());
 			// Set Scene Depth Texture
 			m_pScenePass_CommandList->SetGraphicsRootDescriptorTable(5, m_cbvsrvHeap.hGPU(0));
@@ -337,7 +337,7 @@ namespace Insight {
 				m_pSkyLight->BindCubeMaps(true);
 			}
 
-			for (unsigned int i = 0; i < m_NumRenderTargetViews - 1; ++i) {
+			for (unsigned int i = 0; i < m_NumLightPassRTVs - 1; ++i) {
 				ResourceBarrier(m_pScenePass_CommandList.Get(), m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ);
 			}
 
@@ -445,7 +445,7 @@ namespace Insight {
 
 		// Prepare the buffers for next frame
 		{
-			for (unsigned int i = 0; i < m_NumRenderTargetViews - 1; ++i) {
+			for (unsigned int i = 0; i < m_NumLightPassRTVs - 1; ++i) {
 				ResourceBarrier(m_pPostEffectsPass_CommandList.Get(), m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET);
 			}
 			ResourceBarrier(m_pPostEffectsPass_CommandList.Get(), m_pSceneDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE);
@@ -832,7 +832,7 @@ namespace Insight {
 		ClearVal.Color[2] = m_ScreenClearColor[2];
 		ClearVal.Color[3] = m_ScreenClearColor[3];
 
-		for (int i = 0; i < m_NumRenderTargetViews; i++) {
+		for (int i = 0; i < m_NumLightPassRTVs; i++) {
 			ResourceDesc.Format = m_RtvFormat[i];
 			ClearVal.Format = m_RtvFormat[i];
 			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommittedResource(&HeapProperties, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET, &ClearVal, IID_PPV_ARGS(&m_pRenderTargetTextures[i]));
@@ -850,7 +850,7 @@ namespace Insight {
 		RTVDesc.Texture2D.PlaneSlice = 0;
 		RTVDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
-		for (int i = 0; i < m_NumRenderTargetViews; i++) {
+		for (int i = 0; i < m_NumLightPassRTVs; i++) {
 			RTVDesc.Format = m_RtvFormat[i];
 			m_d3dDeviceResources.GetDeviceContext().CreateRenderTargetView(m_pRenderTargetTextures[i].Get(), &RTVDesc, m_rtvHeap.hCPU(i));
 		}
@@ -864,7 +864,7 @@ namespace Insight {
 		SRVDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
 
-		for (int i = 0; i < m_NumRenderTargetViews - 1; i++) {
+		for (int i = 0; i < m_NumLightPassRTVs - 1; i++) {
 			SRVDesc.Format = m_RtvFormat[i];
 			m_d3dDeviceResources.GetDeviceContext().CreateShaderResourceView(m_pRenderTargetTextures[i].Get(), &SRVDesc, m_cbvsrvHeap.hCPU(i));
 		}
@@ -1219,7 +1219,7 @@ namespace Insight {
 		PsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 		PsoDesc.SampleMask = UINT_MAX;
 		PsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		PsoDesc.NumRenderTargets = m_NumRenderTargetViews;
+		PsoDesc.NumRenderTargets = m_NumLightPassRTVs;
 		PsoDesc.RTVFormats[0] = m_RtvFormat[0];
 		PsoDesc.RTVFormats[1] = m_RtvFormat[1];
 		PsoDesc.RTVFormats[2] = m_RtvFormat[2];

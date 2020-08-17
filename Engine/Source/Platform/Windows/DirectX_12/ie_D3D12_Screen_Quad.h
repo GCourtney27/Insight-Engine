@@ -15,8 +15,11 @@ namespace Insight {
 
 	private:
 		ComPtr<ID3D12Resource> m_VertexBuffer;
+		ComPtr<ID3D12Resource>		m_pIndexBuffer;
 		D3D12_VERTEX_BUFFER_VIEW m_VertexBufferView;
-		UINT m_NumVerticies = 0u;
+		D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;
+		UINT m_NumVerticies = 0U;
+		UINT m_NumIndices = 0U;
 	};
 
 }

@@ -79,7 +79,7 @@ namespace Insight {
 		void UpdateRTAccelerationStructureMatrix(uint32_t InstanceArrIndex, DirectX::XMMATRIX NewWorldMat) { m_RTHelper.UpdateInstanceTransformByIndex(InstanceArrIndex, NewWorldMat); }
 
 		ID3D12Resource* GetSwapChainRenderTarget() const { return m_pRenderTargets[IE_D3D12_FrameIndex].Get(); }
-		const unsigned int GetNumLightPassRTVs() const { return m_NumRenderTargetViews; }
+		const unsigned int GetNumLightPassRTVs() const { return m_NumLightPassRTVs; }
 		inline D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE handle;
@@ -148,6 +148,10 @@ namespace Insight {
 		D3D12Helper			m_d3dDeviceResources;
 		RayTraceHelpers		m_RTHelper;
 
+		ieD3D12ScreenQuad					m_ScreenQuad;
+		D3D12_VIEWPORT						m_ShadowPass_ViewPort = {};
+		D3D12_RECT							m_ShadowPass_ScissorRect = {};
+
 		ieD3D12SphereRenderer*	m_pSkySphere_Geometry;
 
 		// Threading
@@ -160,7 +164,7 @@ namespace Insight {
 		};
 		ThreadParameter m_ThreadParameters[s_NumRenderContexts];
 
-		static const UINT	m_NumRenderTargetViews = 5;
+		static const UINT	m_NumLightPassRTVs = 5;
 		bool				m_WindowResizeComplete = true;
 		bool				m_UseWarpDevice = false;
 
@@ -178,7 +182,7 @@ namespace Insight {
 		ComPtr<ID3D12GraphicsCommandList>	m_pPostEffectsPass_CommandList;
 		ComPtr<ID3D12CommandAllocator>		m_pPostEffectsPass_CommandAllocators[m_FrameBufferCount];
 
-		ComPtr<ID3D12Resource>				m_pRenderTargetTextures[m_NumRenderTargetViews];
+		ComPtr<ID3D12Resource>				m_pRenderTargetTextures[m_NumLightPassRTVs];
 		ComPtr<ID3D12Resource>				m_pRenderTargetTextures_PostFxPass[m_FrameBufferCount];
 		ComPtr<ID3D12Resource>				m_pRenderTargets[m_FrameBufferCount];
 		
@@ -232,9 +236,6 @@ namespace Insight {
 		//15:  SRV-Sky Diffuse(SRV)
 		CDescriptorHeapWrapper				m_cbvsrvHeap;
 
-		ieD3D12ScreenQuad					m_ScreenQuad;
-		D3D12_VIEWPORT						m_ShadowPass_ViewPort = {};
-		D3D12_RECT							m_ShadowPass_ScissorRect = {};
 
 		DXGI_SAMPLE_DESC					m_SampleDesc = {};
 		D3D12_DEPTH_STENCIL_VIEW_DESC		m_ScenePass_DsvDesc = {};
