@@ -8,7 +8,6 @@
 
 namespace Insight {
 
-	class ieD3D12SphereRenderer;
 	class Direct3D12Context;
 
 	using Microsoft::WRL::ComPtr;

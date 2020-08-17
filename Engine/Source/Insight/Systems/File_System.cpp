@@ -186,19 +186,19 @@ namespace Insight {
 
 		// Load in Actors.json last once resources have been intialized
 		{
-			Profiling::ScopedTimer timer("LoadSceneFromJson::LoadActors");
+			Profiling::ScopedTimer ScopeTimer("LoadSceneFromJson::LoadActors");
 
-			rapidjson::Document rawActorsFile;
+			rapidjson::Document RawActorsFile;
 			const std::string actorsDir = FileName + "/Actors.json";
-			if (!json::load(actorsDir.c_str(), rawActorsFile)) {
+			if (!json::load(actorsDir.c_str(), RawActorsFile)) {
 				IE_CORE_ERROR("Failed to load actor file from scene: \"{0}\" from file.", FileName);
 				return false;
 			}
 
-			AActor* newActor = nullptr;
-			UINT actorSceneIndex = 0;
+			AActor* pNewActor = nullptr;
+			UINT ActorSceneIndex = 0;
 
-			const rapidjson::Value& sceneObjects = rawActorsFile["Set"];
+			const rapidjson::Value& sceneObjects = RawActorsFile["Set"];
 			for (rapidjson::SizeType a = 0; a < sceneObjects.Size(); a++)
 			{
 				const rapidjson::Value& jsonActor = sceneObjects[a];
@@ -209,41 +209,41 @@ namespace Insight {
 				json::get_string(jsonActor, "Type", actorType);
 
 				if (actorType == "Actor") {
-					newActor = new AActor(actorSceneIndex, actorDisplayName);
-					newActor->LoadFromJson(jsonActor);
+					pNewActor = new AActor(ActorSceneIndex, actorDisplayName);
+					pNewActor->LoadFromJson(jsonActor);
 				}
 				else if (actorType == "PointLight") {
-					newActor = new APointLight(actorSceneIndex, actorDisplayName);
-					newActor->LoadFromJson(jsonActor);
+					pNewActor = new APointLight(ActorSceneIndex, actorDisplayName);
+					pNewActor->LoadFromJson(jsonActor);
 				}
 				else if (actorType == "SpotLight") {
-					newActor = new ASpotLight(actorSceneIndex, actorDisplayName);
-					newActor->LoadFromJson(jsonActor);
+					pNewActor = new ASpotLight(ActorSceneIndex, actorDisplayName);
+					pNewActor->LoadFromJson(jsonActor);
 				}
 				else if (actorType == "DirectionalLight") {
-					newActor = new ADirectionalLight(actorSceneIndex, actorDisplayName);
-					newActor->LoadFromJson(jsonActor);
+					pNewActor = new ADirectionalLight(ActorSceneIndex, actorDisplayName);
+					pNewActor->LoadFromJson(jsonActor);
 				}
 				else if (actorType == "SkySphere") {
-					newActor = new ASkySphere(actorSceneIndex, actorDisplayName);
-					newActor->LoadFromJson(jsonActor);
+					pNewActor = new ASkySphere(ActorSceneIndex, actorDisplayName);
+					pNewActor->LoadFromJson(jsonActor);
 				}
 				else if (actorType == "SkyLight") {
-					newActor = new ASkyLight(actorSceneIndex, actorDisplayName);
-					newActor->LoadFromJson(jsonActor);
+					pNewActor = new ASkyLight(ActorSceneIndex, actorDisplayName);
+					pNewActor->LoadFromJson(jsonActor);
 				}
 				else if (actorType == "PostFxVolume") {
-					newActor = new APostFx(actorSceneIndex, actorDisplayName);
-					newActor->LoadFromJson(jsonActor);
+					pNewActor = new APostFx(ActorSceneIndex, actorDisplayName);
+					pNewActor->LoadFromJson(jsonActor);
 				}
 
-				if (newActor == nullptr) {
+				if (pNewActor == nullptr) {
 					IE_CORE_ERROR("Failed to parse actor \"{0}\" into scene", (actorDisplayName == "") ? "INVALID NAME" : actorDisplayName);
 					continue;
 				}
 
-				pScene->GetRootNode()->AddChild(newActor);
-				actorSceneIndex++;
+				pScene->GetRootNode()->AddChild(pNewActor);
+				ActorSceneIndex++;
 			}
 
 			IE_CORE_TRACE("Scene actors loaded.");

@@ -9,10 +9,10 @@
 #include "Platform/Windows/DirectX_12/Descriptor_Heap_Wrapper.h"
 #include "Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
 #include "Platform/Windows/DirectX_12/Ray_Tracing/Ray_Trace_Helpers.h"
+#include "Platform/Windows/DirectX_12/ie_D3D12_Screen_Quad.h"
 
 /*
-	Render context for Windows DirectX 12 API. Currently Deferred shading is the only pipeline supported.
-	TODO: Add forward rendering as optional shading technique
+	Render context for Windows DirectX 12 API. 
 */
 
 using Microsoft::WRL::ComPtr;
@@ -24,18 +24,6 @@ namespace Insight {
 	class WindowsWindow;
 	class GeometryManager;
 	class ieD3D12SphereRenderer;
-
-	class ScreenQuad
-	{
-	public:
-		void Init();
-		void OnRender(ComPtr<ID3D12GraphicsCommandList> commandList);
-
-	private:
-		ComPtr<ID3D12Resource> m_VertexBuffer;
-		D3D12_VERTEX_BUFFER_VIEW m_VertexBufferView;
-		UINT m_NumVerticies = 0u;
-	};
 
 	class INSIGHT_API Direct3D12Context : public Renderer
 	{
@@ -64,7 +52,7 @@ namespace Insight {
 		virtual bool CreateSkybox_Impl() override;
 		virtual void DestroySkybox_Impl() override;
 
-		WindowsWindow& GetWindow() const { return *m_pWindowRef; }
+		WindowsWindow& GetWindowRef() const { return *m_pWindowRef; }
 
 		inline ID3D12Device& GetDeviceContext() const { return m_d3dDeviceResources.GetDeviceContext(); }
 
@@ -72,7 +60,6 @@ namespace Insight {
 		inline ID3D12GraphicsCommandList& GetPostProcessPassCommandList() const { return *m_pPostEffectsPass_CommandList.Get(); }
 		inline ID3D12GraphicsCommandList& GetShadowPassCommandList() const { return *m_pShadowPass_CommandList.Get(); }
 		inline ID3D12GraphicsCommandList& GetTransparencyPassCommandList() const { return *m_pTransparencyPass_CommandList.Get(); }
-		inline ID3D12GraphicsCommandList4& GetRayTracePassCommandList() const { return *m_pRayTracePass_CommandList.Get(); }
 
 		inline ID3D12CommandQueue& GetCommandQueue() const { return m_d3dDeviceResources.GetCommandQueue(); }
 		inline CDescriptorHeapWrapper& GetCBVSRVDescriptorHeap() { return m_cbvsrvHeap; }
@@ -86,12 +73,13 @@ namespace Insight {
 
 		// Ray Tracing
 		// -----------
+		inline ID3D12GraphicsCommandList4& GetRayTracePassCommandList() const { return *m_pRayTracePass_CommandList.Get(); }
 		ID3D12Resource* GetRayTracingSRV() const { return m_RayTraceOutput_SRV.Get(); }
 		uint32_t RegisterGeometryWithRTAccelerationStucture(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat);
 		void UpdateRTAccelerationStructureMatrix(uint32_t InstanceArrIndex, DirectX::XMMATRIX NewWorldMat) { m_RTHelper.UpdateInstanceTransformByIndex(InstanceArrIndex, NewWorldMat); }
 
-		ID3D12Resource* GetRenderTarget() const { return m_pRenderTargets[IE_D3D12_FrameIndex].Get(); }
-		const unsigned int GetNumRTVs() const { return m_NumRenderTargetViews; }
+		ID3D12Resource* GetSwapChainRenderTarget() const { return m_pRenderTargets[IE_D3D12_FrameIndex].Get(); }
+		const unsigned int GetNumLightPassRTVs() const { return m_NumRenderTargetViews; }
 		inline D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE handle;
@@ -142,21 +130,19 @@ namespace Insight {
 		void CreatePostEffectsPassPSO();
 
 		// Create window resources
-
+		
 		void CreateCommandAllocators();
 		void CreateConstantBuffers();
 		void CreateViewport();
 		void CreateScissorRect();
 		void CreateScreenQuad();
 		
-		// Close GPU handle and release resources for the graphics context.
+		// Close GPU handle and release resources for the D3D 12 context.
 		void Cleanup();
 		// Resize render targets and depth stencil. Usually called from 'OnWindowResize'.
 		void UpdateSizeDependentResources();
 
-		// Load any demo assets for debugging. Usually can be left empty
-		void LoadDemoAssets();
-
+		void ResourceBarrier(ID3D12GraphicsCommandList* pCommandList, ID3D12Resource* pResource, D3D12_RESOURCE_STATES StateBefore, D3D12_RESOURCE_STATES StateAfter);
 	private:
 		WindowsWindow*		m_pWindowRef = nullptr;
 		D3D12Helper			m_d3dDeviceResources;
@@ -246,7 +232,7 @@ namespace Insight {
 		//15:  SRV-Sky Diffuse(SRV)
 		CDescriptorHeapWrapper				m_cbvsrvHeap;
 
-		ScreenQuad							m_ScreenQuad;
+		ieD3D12ScreenQuad					m_ScreenQuad;
 		D3D12_VIEWPORT						m_ShadowPass_ViewPort = {};
 		D3D12_RECT							m_ShadowPass_ScissorRect = {};
 

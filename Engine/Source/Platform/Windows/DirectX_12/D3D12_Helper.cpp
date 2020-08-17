@@ -200,11 +200,11 @@ namespace Insight {
 		SwapChainDesc.SampleDesc = m_SampleDesc;
 
 		Microsoft::WRL::ComPtr<IDXGISwapChain1> TempSwapChain = {};
-		hr = m_pDxgiFactory->CreateSwapChainForHwnd(&m_pRenderContextRef->GetCommandQueue(), m_pRenderContextRef->GetWindow().GetWindowHandleRef(), &SwapChainDesc, nullptr, nullptr, &TempSwapChain);
+		hr = m_pDxgiFactory->CreateSwapChainForHwnd(&m_pRenderContextRef->GetCommandQueue(), m_pRenderContextRef->GetWindowRef().GetWindowHandleRef(), &SwapChainDesc, nullptr, nullptr, &TempSwapChain);
 		ThrowIfFailed(hr, "Failed to Create Swap Chain");
 
 		if (m_pRenderContextRef->m_AllowTearing) {
-			ThrowIfFailed(m_pDxgiFactory->MakeWindowAssociation(m_pRenderContextRef->GetWindow().GetWindowHandleRef(), DXGI_MWA_NO_ALT_ENTER),
+			ThrowIfFailed(m_pDxgiFactory->MakeWindowAssociation(m_pRenderContextRef->GetWindowRef().GetWindowHandleRef(), DXGI_MWA_NO_ALT_ENTER),
 				"Failed to Make Window Association");
 		}
 

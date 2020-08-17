@@ -25,8 +25,8 @@ namespace Insight {
 		m_pRayTracePass_CommandListRef = &pRendererContext->GetRayTracePassCommandList();
 		m_pRendererContext = pRendererContext;
 		
-		m_WindowWidth = pRendererContext->GetWindow().GetWidth();
-		m_WindowHeight = pRendererContext->GetWindow().GetHeight();
+		m_WindowWidth = pRendererContext->GetWindowRef().GetWidth();
+		m_WindowHeight = pRendererContext->GetWindowRef().GetHeight();
 
 		return true;
 	}
