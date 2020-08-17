@@ -52,7 +52,7 @@ namespace Insight {
 
 		void SetWindowsSessionProps(HINSTANCE& hInstance, int nCmdShow) { SetWindowsApplicationInstance(hInstance); SetCmdArgs(nCmdShow); }
 		inline HINSTANCE& GetWindowsApplicationReference() const { return *m_WindowsAppInstance; }
-		inline HWND& GetWindowHandleReference() { return m_hWindow; }
+		inline HWND& GetWindowHandleRef() { return m_hWindow; }
 		inline RECT& GetWindowRect() { return m_WindowRect; }
 
 		void CreateMessageBox(const wchar_t* Message, const wchar_t* Title);

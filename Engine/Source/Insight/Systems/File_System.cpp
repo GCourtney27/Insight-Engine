@@ -55,12 +55,16 @@ namespace Insight {
 				Writer.StartArray();
 				{
 					Writer.StartObject();
+
 					Writer.Key("TargetAPI");
 					Writer.Int((int)Settings.TargetRenderAPI);
 					Writer.Key("TextureQuality");
 					Writer.Double(Settings.MipLodBias);
 					Writer.Key("TextureFiltering");
 					Writer.Int(Settings.MaxAnisotropy);
+					Writer.Key("RayTraceEnabled");
+					Writer.Bool(Settings.RayTraceEnabled);
+
 					Writer.EndObject();
 				}
 				Writer.EndArray();
@@ -130,12 +134,15 @@ namespace Insight {
 			const rapidjson::Value& RendererSettings = RawSettingsFile["Renderer"];
 			int TargetAPI, TextureFiltering;
 			float TextureQuality;
+			bool RTEnabled;
 			json::get_int(RendererSettings[0], "TargetAPI", TargetAPI);
 			json::get_float(RendererSettings[0], "TextureQuality", TextureQuality);
 			json::get_int(RendererSettings[0], "TextureFiltering", TextureFiltering);
+			json::get_bool(RendererSettings[0], "RayTraceEnabled", RTEnabled);
 			UserGraphicsSettings.TargetRenderAPI = (Renderer::eTargetRenderAPI)TargetAPI;
 			UserGraphicsSettings.MaxAnisotropy = TextureFiltering;
 			UserGraphicsSettings.MipLodBias = TextureQuality;
+			UserGraphicsSettings.RayTraceEnabled = RTEnabled;
 		}
 
 		return UserGraphicsSettings;
@@ -154,9 +161,13 @@ namespace Insight {
 				return false;
 			}
 			std::string sceneName;
-			json::get_string(rawMetaFile, "SceneName", sceneName); // Find something that says 'SceneName' and load sceneName variable
+			int NumActorsInScene;
+			json::get_string(rawMetaFile, "SceneName", sceneName);
 			pScene->SetDisplayName(sceneName);
 			Application::Get().GetWindow().SetWindowTitle(sceneName);
+			
+			json::get_int(rawMetaFile, "NumSceneActors", NumActorsInScene);
+			pScene->ResizeSceneGraph(NumActorsInScene);
 
 			IE_CORE_TRACE("Scene meta data loaded.");
 		}
@@ -179,19 +190,19 @@ namespace Insight {
 
 		// Load in Actors.json last once resources have been intialized
 		{
-			Profiling::ScopedTimer timer("LoadSceneFromJson::LoadActors");
+			Profiling::ScopedTimer ScopeTimer("LoadSceneFromJson::LoadActors");
 
-			rapidjson::Document rawActorsFile;
+			rapidjson::Document RawActorsFile;
 			const std::string actorsDir = FileName + "/Actors.json";
-			if (!json::load(actorsDir.c_str(), rawActorsFile)) {
+			if (!json::load(actorsDir.c_str(), RawActorsFile)) {
 				IE_CORE_ERROR("Failed to load actor file from scene: \"{0}\" from file.", FileName);
 				return false;
 			}
 
-			AActor* newActor = nullptr;
-			UINT actorSceneIndex = 0;
+			AActor* pNewActor = nullptr;
+			UINT ActorSceneIndex = 0;
 
-			const rapidjson::Value& sceneObjects = rawActorsFile["Set"];
+			const rapidjson::Value& sceneObjects = RawActorsFile["Set"];
 			for (rapidjson::SizeType a = 0; a < sceneObjects.Size(); a++)
 			{
 				const rapidjson::Value& jsonActor = sceneObjects[a];
@@ -202,41 +213,41 @@ namespace Insight {
 				json::get_string(jsonActor, "Type", actorType);
 
 				if (actorType == "Actor") {
-					newActor = new AActor(actorSceneIndex, actorDisplayName);
-					newActor->LoadFromJson(jsonActor);
+					pNewActor = new AActor(ActorSceneIndex, actorDisplayName);
+					pNewActor->LoadFromJson(jsonActor);
 				}
 				else if (actorType == "PointLight") {
-					newActor = new APointLight(actorSceneIndex, actorDisplayName);
-					newActor->LoadFromJson(jsonActor);
+					pNewActor = new APointLight(ActorSceneIndex, actorDisplayName);
+					pNewActor->LoadFromJson(jsonActor);
 				}
 				else if (actorType == "SpotLight") {
-					newActor = new ASpotLight(actorSceneIndex, actorDisplayName);
-					newActor->LoadFromJson(jsonActor);
+					pNewActor = new ASpotLight(ActorSceneIndex, actorDisplayName);
+					pNewActor->LoadFromJson(jsonActor);
 				}
 				else if (actorType == "DirectionalLight") {
-					newActor = new ADirectionalLight(actorSceneIndex, actorDisplayName);
-					newActor->LoadFromJson(jsonActor);
+					pNewActor = new ADirectionalLight(ActorSceneIndex, actorDisplayName);
+					pNewActor->LoadFromJson(jsonActor);
 				}
 				else if (actorType == "SkySphere") {
-					newActor = new ASkySphere(actorSceneIndex, actorDisplayName);
-					newActor->LoadFromJson(jsonActor);
+					pNewActor = new ASkySphere(ActorSceneIndex, actorDisplayName);
+					pNewActor->LoadFromJson(jsonActor);
 				}
 				else if (actorType == "SkyLight") {
-					newActor = new ASkyLight(actorSceneIndex, actorDisplayName);
-					newActor->LoadFromJson(jsonActor);
+					pNewActor = new ASkyLight(ActorSceneIndex, actorDisplayName);
+					pNewActor->LoadFromJson(jsonActor);
 				}
 				else if (actorType == "PostFxVolume") {
-					newActor = new APostFx(actorSceneIndex, actorDisplayName);
-					newActor->LoadFromJson(jsonActor);
+					pNewActor = new APostFx(ActorSceneIndex, actorDisplayName);
+					pNewActor->LoadFromJson(jsonActor);
 				}
 
-				if (newActor == nullptr) {
+				if (pNewActor == nullptr) {
 					IE_CORE_ERROR("Failed to parse actor \"{0}\" into scene", (actorDisplayName == "") ? "INVALID NAME" : actorDisplayName);
 					continue;
 				}
 
-				pScene->GetRootNode()->AddChild(newActor);
-				actorSceneIndex++;
+				pScene->GetRootNode()->AddChild(pNewActor);
+				ActorSceneIndex++;
 			}
 
 			IE_CORE_TRACE("Scene actors loaded.");
@@ -255,6 +266,8 @@ namespace Insight {
 			Writer.StartObject();
 			Writer.Key("SceneName");
 			Writer.String(pScene->GetDisplayName().c_str());
+			Writer.Key("NumSceneActors");
+			Writer.Int(pScene->GetNumSceneActors());
 			Writer.EndObject();
 
 			// Final Export

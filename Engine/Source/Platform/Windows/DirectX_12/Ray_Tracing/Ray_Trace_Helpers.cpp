@@ -7,6 +7,7 @@
 
 #include "Platform/Windows/DirectX_12/Geometry/D3D12_Sphere_Renderer.h"
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
+#include "Platform/Windows/Windows_Window.h"
 
 #include "DXR/DXRHelper.h"
 #include "DXR/nv_helpers_dx12/BottomLevelASGenerator.h"
@@ -18,17 +19,14 @@ namespace Insight {
 
 
 
-	bool RayTraceHelpers::OnInit(ComPtr<ID3D12Device> pDevice, ComPtr<ID3D12GraphicsCommandList4> pRTCommandList, std::pair<uint32_t, uint32_t> WindowDimensions, Direct3D12Context* pRendererContext)
+	bool RayTraceHelpers::OnInit(Direct3D12Context* pRendererContext)
 	{
-		m_pDeviceRef = reinterpret_cast<ID3D12Device5*>(pDevice.Get());
-		m_pRayTracePass_CommandListRef = pRTCommandList;
+		m_pDeviceRef = reinterpret_cast<ID3D12Device5*>(&pRendererContext->GetDeviceContext());
+		m_pRayTracePass_CommandListRef = &pRendererContext->GetRayTracePassCommandList();
 		m_pRendererContext = pRendererContext;
 		
-		m_WindowWidth = WindowDimensions.first;
-		m_WindowHeight = WindowDimensions.second;
-
-		//LoadDemoAssets();
-
+		m_WindowWidth = pRendererContext->GetWindowRef().GetWidth();
+		m_WindowHeight = pRendererContext->GetWindowRef().GetHeight();
 
 		return true;
 	}
@@ -49,16 +47,10 @@ namespace Insight {
 
 	void RayTraceHelpers::OnDestroy()
 	{
-		//delete m_Sphere;
 	}
 
 	void RayTraceHelpers::UpdateCBVs()
 	{
-		m_Time++;
-
-		//m_Instances[0].second = XMMatrixRotationAxis({ 0.f, 1.f, 0.f }, static_cast<float>(m_Time) / 50.0f) *
-		//	XMMatrixTranslation(0.f, 0.1f * cosf(m_Time / 20.f), 0.f);
-
 		std::vector<XMMATRIX> matrices(4);
 
 		const CB_PS_VS_PerFrame PerFrameData = m_pRendererContext->GetPerFrameCB();
@@ -116,7 +108,7 @@ namespace Insight {
 		m_pRayTracePass_CommandListRef->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pOutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE));
 	}
 
-	uint32_t RayTraceHelpers::RegisterBottomLevelASGeometry(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, size_t NumVeticies, size_t NumIndices, XMMATRIX WorldMat)
+	uint32_t RayTraceHelpers::RegisterBottomLevelASGeometry(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVeticies, uint32_t NumIndices, XMMATRIX WorldMat)
 	{
 		m_ASVertexBuffers.push_back(std::pair(pVertexBuffer, NumVeticies));
 		m_ASIndexBuffers.push_back(std::pair(pIndexBuffer, NumIndices));
@@ -424,13 +416,6 @@ namespace Insight {
 			}
 		);
 		return rsc.Generate(m_pDeviceRef.Get(), true);
-	}
-
-	void RayTraceHelpers::LoadDemoAssets()
-	{
-		/*m_pSphere = new ieD3D12SphereRenderer();
-		m_pSphere->Init(10, 20, 20);*/
-
 	}
 
 }

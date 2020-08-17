@@ -47,6 +47,7 @@ namespace Insight {
 			eTargetRenderAPI TargetRenderAPI = eTargetRenderAPI::D3D_11;
 			uint32_t MaxAnisotropy = 1U; // Texture Filtering (1, 4, 8, 16)
 			float MipLodBias = 0.0f; // Texture Quality (0 - 9)
+			bool RayTraceEnabled = false;
 		};
 
 	public:
@@ -99,7 +100,7 @@ namespace Insight {
 		static bool CreateSkybox() { return s_Instance->CreateSkybox_Impl(); }
 		static void DestroySkybox() { s_Instance->DestroySkybox_Impl(); }
 
-		inline static bool GetIsRayTraceEnabled() { return s_Instance->m_IsRayTraceEnabled; }
+		inline static bool GetIsRayTraceEnabled() { return s_Instance->m_GraphicsSettings.RayTraceEnabled; }
 		inline static eTargetRenderAPI GetAPI() { return s_Instance->m_GraphicsSettings.TargetRenderAPI; }
 		inline static uint8_t GetFrameBufferCount() { return s_Instance->m_FrameBufferCount; }
 		inline static void SetVSyncEnabled(bool enabled) { s_Instance->m_VSyncEnabled = enabled; }
@@ -176,7 +177,6 @@ namespace Insight {
 		bool m_WindowVisible = true;
 		
 		bool m_AllowTearing = true;
-		bool m_IsRayTraceEnabled = true;
 		bool m_IsRayTraceSupported = false; // Assume ray tracing is not supported on the GPU
 
 		std::vector<APointLight*> m_PointLights;

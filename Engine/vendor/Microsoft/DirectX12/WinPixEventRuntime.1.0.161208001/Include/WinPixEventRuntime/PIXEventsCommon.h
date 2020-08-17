@@ -98,18 +98,18 @@ inline UINT64 PIXEncodeStringInfo(UINT64 alignment, UINT64 copyChunkSize, BOOL i
         (((UINT64)isShortcut & PIXEventsStringIsShortcutWriteMask) << PIXEventsStringIsShortcutBitShift);
 }
 
-template<UINT alignment, class T>
-inline bool PIXIsPointerAligned(T* pointer)
+template<UINT alignment, class Event>
+inline bool PIXIsPointerAligned(Event* pointer)
 {
     return !(((UINT64)pointer) & (alignment - 1));
 }
 
-template<class T>
-inline void PIXCopyEventArgument(_Out_writes_to_ptr_(limit) UINT64*& destination, _In_ const UINT64* limit, T argument)
+template<class Event>
+inline void PIXCopyEventArgument(_Out_writes_to_ptr_(limit) UINT64*& destination, _In_ const UINT64* limit, Event argument)
 {
     if (destination < limit)
     {
-        *((T*)destination) = argument;
+        *((Event*)destination) = argument;
         ++destination;
     }
 }
@@ -476,10 +476,10 @@ inline void PIXEndEventOnContext(_In_ ID3D12CommandQueue* commandQueue)
 
 #endif //__d3d12_x_h__
 
-template<class T> struct PIXInferScopedEventType { typedef T Type; };
-template<class T> struct PIXInferScopedEventType<const T> { typedef T Type; };
-template<class T> struct PIXInferScopedEventType<T*> { typedef T Type; };
-template<class T> struct PIXInferScopedEventType<T* const> { typedef T Type; };
+template<class Event> struct PIXInferScopedEventType { typedef Event Type; };
+template<class Event> struct PIXInferScopedEventType<const Event> { typedef Event Type; };
+template<class Event> struct PIXInferScopedEventType<Event*> { typedef Event Type; };
+template<class Event> struct PIXInferScopedEventType<Event* const> { typedef Event Type; };
 template<> struct PIXInferScopedEventType<UINT64> { typedef void Type; };
 template<> struct PIXInferScopedEventType<const UINT64> { typedef void Type; };
 template<> struct PIXInferScopedEventType<INT64> { typedef void Type; };

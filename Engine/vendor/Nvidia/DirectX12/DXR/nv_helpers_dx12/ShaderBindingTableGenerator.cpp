@@ -38,6 +38,7 @@ dispatch rays description.
 #include "ShaderBindingTableGenerator.h"
 #include <string>
 #include <stdexcept>
+#include "Insight/Utilities/String_Helper.h"
 
 // Helper to compute aligned buffer sizes
 #ifndef ROUND_UP
@@ -213,9 +214,8 @@ uint32_t ShaderBindingTableGenerator::CopyShaderData(
     void* id = raytracingPipeline->GetShaderIdentifier(shader.m_entryPoint.c_str());
     if (!id)
     {
-      std::wstring errMsg(std::wstring(L"Unknown shader identifier used in the SBT: ") +
-                          shader.m_entryPoint);
-      throw std::logic_error(std::string(errMsg.begin(), errMsg.end()));
+      std::wstring errMsg(std::wstring(L"Unknown shader identifier used in the SBT: ") + shader.m_entryPoint);
+      throw std::logic_error(Insight::StringHelper::WideToString(errMsg));
     }
     // Copy the shader identifier
     memcpy(pData, id, m_progIdSize);

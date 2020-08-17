@@ -21,9 +21,20 @@ namespace Insight {
 		Init(Verticies, Indices);
 	}
 
+	Mesh::Mesh(Mesh&& mesh) noexcept
+	{
+		IE_CORE_WARN("Mesh being moved in memory.");
+		
+		m_pIndexBuffer = mesh.m_pIndexBuffer;
+		m_pVertexBuffer = mesh.m_pVertexBuffer;
+
+		m_Transform = std::move(mesh.m_Transform);
+		m_ConstantBufferPerObject = mesh.m_ConstantBufferPerObject;
+	}
+
 	Mesh::~Mesh()
 	{
-		//Destroy();
+		Destroy();
 	}
 
 	void Mesh::Destroy()
@@ -95,7 +106,6 @@ namespace Insight {
 			m_pVertexBuffer = new D3D12VertexBuffer(Verticies);
 			m_pIndexBuffer = new D3D12IndexBuffer(Indices);
 
-			// TODO Check if ray tracing is available first before we register the buffers
 			if (Renderer::GetIsRayTraceEnabled()) {
 
 				m_ShouldUpdateAS = true;

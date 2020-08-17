@@ -289,9 +289,10 @@ namespace Insight {
 			{
 				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 				
-				wchar_t AboutMsgBuffer[128];
+				wchar_t AboutMsgBuffer[256];
 				int APIVersion = ((int)Renderer::GetAPI()) + 10;
-				swprintf_s(AboutMsgBuffer, L"Version - 1.8 \nRenderer - Direct3D %i \n\nVendor Runtime: \nMono - v6.8.0.123 \nAssimp - v3.3.1 \nRapidJson - v1.0.0 \nImGui - v1.75", APIVersion);
+				const wchar_t* RTEnabled = Renderer::GetIsRayTraceEnabled() ? L"Enabled" : L"Disabled";
+				swprintf_s(AboutMsgBuffer, L"Version - 1.8 \nRenderer - Direct3D %i (Ray Traceing: %s) \n\nVendor Runtime: \nMono - v6.8.0.123 \nAssimp - v3.3.1 \nRapidJson - v1.0.0 \nImGui - v1.75", APIVersion, RTEnabled);
 				data.pWindow->CreateMessageBox(AboutMsgBuffer, L"About Insight Editor");
 				
 				break;
@@ -663,10 +664,10 @@ namespace Insight {
 		Renderer::SwapBuffers();
 	}
 
-	bool WindowsWindow::SetWindowTitle(const std::string& NewText, bool completlyOverride)
+	bool WindowsWindow::SetWindowTitle(const std::string& NewText, bool CompletlyOverride)
 	{
 		BOOL succeeded = true;
-		if (completlyOverride) {
+		if (CompletlyOverride) {
 			succeeded = SetWindowText(m_hWindow, StringHelper::StringToWide(NewText).c_str());
 		}
 		else {

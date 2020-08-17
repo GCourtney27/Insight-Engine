@@ -16,6 +16,8 @@ namespace Insight {
 
 	Model::Model(Model&& model) noexcept
 	{
+		IE_CORE_WARN("Model being moved in memory.");
+
 		m_Meshes = std::move(model.m_Meshes);
 		m_pRoot = std::move(model.m_pRoot);
 
@@ -30,7 +32,7 @@ namespace Insight {
 
 	Model::~Model()
 	{
-		//Destroy();
+		Destroy();
 	}
 
 	void Model::Destroy()
