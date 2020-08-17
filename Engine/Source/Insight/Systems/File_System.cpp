@@ -55,12 +55,16 @@ namespace Insight {
 				Writer.StartArray();
 				{
 					Writer.StartObject();
+
 					Writer.Key("TargetAPI");
 					Writer.Int((int)Settings.TargetRenderAPI);
 					Writer.Key("TextureQuality");
 					Writer.Double(Settings.MipLodBias);
 					Writer.Key("TextureFiltering");
 					Writer.Int(Settings.MaxAnisotropy);
+					Writer.Key("RayTraceEnabled");
+					Writer.Bool(Settings.RayTraceEnabled);
+
 					Writer.EndObject();
 				}
 				Writer.EndArray();
@@ -130,12 +134,15 @@ namespace Insight {
 			const rapidjson::Value& RendererSettings = RawSettingsFile["Renderer"];
 			int TargetAPI, TextureFiltering;
 			float TextureQuality;
+			bool RTEnabled;
 			json::get_int(RendererSettings[0], "TargetAPI", TargetAPI);
 			json::get_float(RendererSettings[0], "TextureQuality", TextureQuality);
 			json::get_int(RendererSettings[0], "TextureFiltering", TextureFiltering);
+			json::get_bool(RendererSettings[0], "RayTraceEnabled", RTEnabled);
 			UserGraphicsSettings.TargetRenderAPI = (Renderer::eTargetRenderAPI)TargetAPI;
 			UserGraphicsSettings.MaxAnisotropy = TextureFiltering;
 			UserGraphicsSettings.MipLodBias = TextureQuality;
+			UserGraphicsSettings.RayTraceEnabled = RTEnabled;
 		}
 
 		return UserGraphicsSettings;
@@ -154,7 +161,7 @@ namespace Insight {
 				return false;
 			}
 			std::string sceneName;
-			json::get_string(rawMetaFile, "SceneName", sceneName); // Find something that says 'SceneName' and load sceneName variable
+			json::get_string(rawMetaFile, "SceneName", sceneName);
 			pScene->SetDisplayName(sceneName);
 			Application::Get().GetWindow().SetWindowTitle(sceneName);
 

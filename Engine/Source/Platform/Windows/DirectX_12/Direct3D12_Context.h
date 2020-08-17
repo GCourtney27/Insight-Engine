@@ -64,12 +64,15 @@ namespace Insight {
 		virtual bool CreateSkybox_Impl() override;
 		virtual void DestroySkybox_Impl() override;
 
+		WindowsWindow& GetWindow() const { return *m_pWindowRef; }
+
 		inline ID3D12Device& GetDeviceContext() const { return m_d3dDeviceResources.GetDeviceContext(); }
 
 		inline ID3D12GraphicsCommandList& GetScenePassCommandList() const { return *m_pScenePass_CommandList.Get(); }
 		inline ID3D12GraphicsCommandList& GetPostProcessPassCommandList() const { return *m_pPostEffectsPass_CommandList.Get(); }
 		inline ID3D12GraphicsCommandList& GetShadowPassCommandList() const { return *m_pShadowPass_CommandList.Get(); }
 		inline ID3D12GraphicsCommandList& GetTransparencyPassCommandList() const { return *m_pTransparencyPass_CommandList.Get(); }
+		inline ID3D12GraphicsCommandList4& GetRayTracePassCommandList() const { return *m_pRayTracePass_CommandList.Get(); }
 
 		inline ID3D12CommandQueue& GetCommandQueue() const { return m_d3dDeviceResources.GetCommandQueue(); }
 		inline CDescriptorHeapWrapper& GetCBVSRVDescriptorHeap() { return m_cbvsrvHeap; }
@@ -155,7 +158,6 @@ namespace Insight {
 		void LoadDemoAssets();
 
 	private:
-		HWND*				m_pWindowHandleRef;
 		WindowsWindow*		m_pWindowRef = nullptr;
 		D3D12Helper			m_d3dDeviceResources;
 		RayTraceHelpers		m_RTHelper;

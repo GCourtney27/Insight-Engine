@@ -22,8 +22,7 @@ namespace Insight {
 
 
 	Direct3D12Context::Direct3D12Context(WindowsWindow* WindowHandle)
-		: m_pWindowHandleRef(&WindowHandle->GetWindowHandleReference()),
-		m_pWindowRef(WindowHandle),
+		: m_pWindowRef(WindowHandle),
 		Renderer(WindowHandle->GetWidth(), WindowHandle->GetHeight(), false)
 	{
 		IE_CORE_ASSERT(WindowHandle, "Window handle is NULL, cannot initialize D3D 12 context with NULL window handle.");
@@ -64,7 +63,7 @@ namespace Insight {
 			CreateCBVs();
 			CreateSRVs();
 
-			if (m_IsRayTraceEnabled) m_RTHelper.OnInit(&m_d3dDeviceResources.GetDeviceContext(), m_pRayTracePass_CommandList, { m_WindowWidth, m_WindowHeight }, this);
+			if (m_IsRayTraceEnabled) m_RTHelper.OnInit(this);
 
 			PIXBeginEvent(&m_d3dDeviceResources.GetCommandQueue(), 0, L"D3D 12 context Setup");
 			{
@@ -523,12 +522,14 @@ namespace Insight {
 
 	void Direct3D12Context::OnWindowFullScreen_Impl()
 	{
+		HWND& pHWND = m_pWindowRef->GetWindowHandleRef();
+		
 		if (m_FullScreenMode)
 		{
-			SetWindowLong(*m_pWindowHandleRef, GWL_STYLE, WS_OVERLAPPEDWINDOW);
+			SetWindowLong(pHWND, GWL_STYLE, WS_OVERLAPPEDWINDOW);
 
 			SetWindowPos(
-				*m_pWindowHandleRef,
+				pHWND,
 				HWND_NOTOPMOST,
 				m_pWindowRef->GetWindowRect().left,
 				m_pWindowRef->GetWindowRect().top,
@@ -536,13 +537,13 @@ namespace Insight {
 				m_pWindowRef->GetWindowRect().bottom - m_pWindowRef->GetWindowRect().top,
 				SWP_FRAMECHANGED | SWP_NOACTIVATE
 			);
-			ShowWindow(*m_pWindowHandleRef, SW_NORMAL);
+			ShowWindow(pHWND, SW_NORMAL);
 		}
 		else
 		{
-			GetWindowRect(*m_pWindowHandleRef, &m_pWindowRef->GetWindowRect());
+			GetWindowRect(pHWND, &m_pWindowRef->GetWindowRect());
 
-			SetWindowLong(*m_pWindowHandleRef, GWL_STYLE, WS_OVERLAPPEDWINDOW & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
+			SetWindowLong(pHWND, GWL_STYLE, WS_OVERLAPPEDWINDOW & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
 
 			RECT fullscreenWindowRect;
 			try
@@ -580,7 +581,7 @@ namespace Insight {
 			}
 
 			SetWindowPos(
-				*m_pWindowHandleRef,
+				pHWND,
 				HWND_TOPMOST,
 				fullscreenWindowRect.left,
 				fullscreenWindowRect.top,
@@ -589,7 +590,7 @@ namespace Insight {
 				SWP_FRAMECHANGED | SWP_NOACTIVATE);
 
 
-			ShowWindow(*m_pWindowHandleRef, SW_MAXIMIZE);
+			ShowWindow(pHWND, SW_MAXIMIZE);
 		}
 		m_FullScreenMode = !m_FullScreenMode;
 	}

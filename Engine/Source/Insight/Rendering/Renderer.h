@@ -47,6 +47,7 @@ namespace Insight {
 			eTargetRenderAPI TargetRenderAPI = eTargetRenderAPI::D3D_11;
 			uint32_t MaxAnisotropy = 1U; // Texture Filtering (1, 4, 8, 16)
 			float MipLodBias = 0.0f; // Texture Quality (0 - 9)
+			bool RayTraceEnabled = false;
 		};
 
 	public:

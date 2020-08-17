@@ -24,7 +24,7 @@ namespace Insight {
 
 
 	Direct3D11Context::Direct3D11Context(WindowsWindow* WindowHandle)
-		: m_pWindowHandle(&WindowHandle->GetWindowHandleReference()),
+		: m_pWindowHandle(&WindowHandle->GetWindowHandleRef()),
 		m_pWindow(WindowHandle),
 		Renderer(WindowHandle->GetWidth(), WindowHandle->GetHeight(), false)
 	{

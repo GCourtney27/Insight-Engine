@@ -27,7 +27,7 @@ namespace Insight {
 		RayTraceHelpers() = default;
 		~RayTraceHelpers() = default;
 
-		bool OnInit(ComPtr<ID3D12Device> pDevice, ComPtr<ID3D12GraphicsCommandList4> pRTCommandList, std::pair<uint32_t, uint32_t> WindowDimensions, Direct3D12Context* pRendererContext);
+		bool OnInit(Direct3D12Context* pRendererContext);
 		void GenerateAccelerationStructure();
 		void OnPostInit();
 		void OnDestroy();
@@ -38,7 +38,7 @@ namespace Insight {
 		void UpdateInstanceTransformByIndex(uint32_t ArrIndex, DirectX::XMMATRIX UpdatedMat) { m_Instances[ArrIndex].second = UpdatedMat; }
 
 		ID3D12Resource* GetOutputBuffer() { return m_pOutputBuffer_UAV.Get(); }
-		uint32_t RegisterBottomLevelASGeometry(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, size_t NumVeticies, size_t NumIndices, DirectX::XMMATRIX WorldMat);
+		uint32_t RegisterBottomLevelASGeometry(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVeticies, uint32_t NumIndices, DirectX::XMMATRIX WorldMat);
 
 	private:
 		AccelerationStructureBuffers CreateBottomLevelAS(std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> VertexBuffers, std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> IndexBuffers = {});
@@ -55,12 +55,7 @@ namespace Insight {
 		ComPtr<ID3D12RootSignature> CreateMissSignature();
 		ComPtr<ID3D12RootSignature> CreateHitSignature();
 
-		// TEMP
-		void LoadDemoAssets();
-		//ieD3D12SphereRenderer* m_pSphere;
-
 	private:
-		uint32_t m_Time = 0U;// TEMP
 		uint32_t m_NextAvailabledInstanceArrIndex = 0U;
 
 		std::vector< std::pair<ComPtr<ID3D12Resource>, uint32_t> > m_ASVertexBuffers;
