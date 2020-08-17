@@ -664,10 +664,10 @@ namespace Insight {
 		Renderer::SwapBuffers();
 	}
 
-	bool WindowsWindow::SetWindowTitle(const std::string& NewText, bool completlyOverride)
+	bool WindowsWindow::SetWindowTitle(const std::string& NewText, bool CompletlyOverride)
 	{
 		BOOL succeeded = true;
-		if (completlyOverride) {
+		if (CompletlyOverride) {
 			succeeded = SetWindowText(m_hWindow, StringHelper::StringToWide(NewText).c_str());
 		}
 		else {

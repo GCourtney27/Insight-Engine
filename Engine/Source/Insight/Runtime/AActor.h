@@ -44,10 +44,10 @@ namespace Insight {
 
 		ActorId GetId() { return m_Id; }
 	public:
-		template<typename T>
+		template<typename Event>
 		StrongActorComponentPtr CreateDefaultSubobject()
 		{
-			StrongActorComponentPtr component = std::make_shared<T>(this);
+			StrongActorComponentPtr component = std::make_shared<Event>(this);
 			IE_CORE_ASSERT(component, "Trying to add null component to actor");
 
 			component->OnAttach();
@@ -57,13 +57,13 @@ namespace Insight {
 			m_NumComponents++;
 			return component;
 		}
-		template<typename T>
+		template<typename Event>
 		WeakActorComponentPtr GetSubobject()
 		{
 			WeakActorComponentPtr component = nullptr;
 			for (UniqueActorComponentPtr _component : m_components)
 			{
-				component = dynamic_cast<T>(_component);
+				component = dynamic_cast<Event>(_component);
 				if (component != nullptr) break;
 			}
 			return component;

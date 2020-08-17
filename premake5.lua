@@ -18,13 +18,13 @@ gameName = "Application"
 csharpAssemblyProjectName = "Assembly-CSharp"
 
 IncludeDir = {}
-IncludeDir["ImGui"] = "Engine/Vendor/imgui"
-IncludeDir["assimp"] = "Engine/Vendor/assimp-3.3.1/include"
+IncludeDir["ImGui"] 	= "Engine/Vendor/imgui"
+IncludeDir["assimp"] 	= "Engine/Vendor/assimp-3.3.1/include"
 IncludeDir["Microsoft"] = "Engine/Vendor/Microsoft/"
-IncludeDir["ImGuizmo"] = "Engine/Vendor/ImGuizmo"
+IncludeDir["ImGuizmo"] 	= "Engine/Vendor/ImGuizmo"
 IncludeDir["rapidjson"] = "Engine/Vendor/rapidjson"
-IncludeDir["spdlog"] = "Engine/Vendor/spdlog"
-IncludeDir["Mono"] = "Engine/Vendor/Mono/include/mono-2.0"
+IncludeDir["spdlog"] 	= "Engine/Vendor/spdlog"
+IncludeDir["Mono"] 		= "Engine/Vendor/Mono/include/mono-2.0"
 
 include "Engine/Vendor/ImGui"
 

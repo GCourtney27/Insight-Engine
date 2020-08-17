@@ -161,9 +161,13 @@ namespace Insight {
 				return false;
 			}
 			std::string sceneName;
+			int NumActorsInScene;
 			json::get_string(rawMetaFile, "SceneName", sceneName);
 			pScene->SetDisplayName(sceneName);
 			Application::Get().GetWindow().SetWindowTitle(sceneName);
+			
+			json::get_int(rawMetaFile, "NumSceneActors", NumActorsInScene);
+			pScene->ResizeSceneGraph(NumActorsInScene);
 
 			IE_CORE_TRACE("Scene meta data loaded.");
 		}
@@ -262,6 +266,8 @@ namespace Insight {
 			Writer.StartObject();
 			Writer.Key("SceneName");
 			Writer.String(pScene->GetDisplayName().c_str());
+			Writer.Key("NumSceneActors");
+			Writer.Int(pScene->GetNumSceneActors());
 			Writer.EndObject();
 
 			// Final Export

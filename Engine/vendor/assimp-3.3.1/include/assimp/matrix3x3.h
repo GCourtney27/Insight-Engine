@@ -49,8 +49,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef __cplusplus
 
-template <typename T> class aiMatrix4x4t;
-template <typename T> class aiVector2t;
+template <typename Event> class aiMatrix4x4t;
+template <typename Event> class aiVector2t;
 
 // ---------------------------------------------------------------------------
 /** @brief Represents a row-major 3x3 matrix

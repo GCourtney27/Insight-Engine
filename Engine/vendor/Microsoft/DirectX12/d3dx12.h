@@ -1697,10 +1697,10 @@ inline UINT D3D12CalcSubresource(UINT MipSlice, UINT ArraySlice, UINT PlaneSlice
 }
 
 //------------------------------------------------------------------------------------------------
-template <typename T, typename U, typename V>
-inline void D3D12DecomposeSubresource(UINT Subresource, UINT MipLevels, UINT ArraySize, _Out_ T& MipSlice, _Out_ U& ArraySlice, _Out_ V& PlaneSlice)
+template <typename Event, typename U, typename V>
+inline void D3D12DecomposeSubresource(UINT Subresource, UINT MipLevels, UINT ArraySize, _Out_ Event& MipSlice, _Out_ U& ArraySlice, _Out_ V& PlaneSlice)
 {
-	MipSlice = static_cast<T>(Subresource % MipLevels);
+	MipSlice = static_cast<Event>(Subresource % MipLevels);
 	ArraySlice = static_cast<U>((Subresource / MipLevels) % ArraySize);
 	PlaneSlice = static_cast<V>(Subresource / (MipLevels * ArraySize));
 }
@@ -2823,10 +2823,10 @@ public:
 	//                                             // are exported
 	//    etc.
 
-	template<typename T>
-	T* CreateSubobject()
+	template<typename Event>
+	Event* CreateSubobject()
 	{
-		T* pSubobject = new T(*this);
+		Event* pSubobject = new Event(*this);
 		m_OwnedSubobjectHelpers.emplace_back(pSubobject);
 		return pSubobject;
 	}

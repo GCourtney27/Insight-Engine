@@ -16,7 +16,7 @@ namespace Insight {
 	{
 	public:
 		Mesh(Verticies Verticies, Indices Indices);
-		//Mesh(Mesh&& mesh) noexcept;
+		Mesh(Mesh&& mesh) noexcept;
 		~Mesh();
 
 		void PreRender(const XMMATRIX& parentMat);

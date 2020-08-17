@@ -40,7 +40,7 @@ namespace Insight {
 		// before closing all handles and releasing resources
 		m_d3dDeviceResources.WaitForGPU();
 
-		m_RTHelper.OnDestroy();
+		if (m_GraphicsSettings.RayTraceEnabled) m_RTHelper.OnDestroy();
 
 		if (!m_AllowTearing) {
 			m_d3dDeviceResources.GetSwapChain().SetFullscreenState(false, NULL);
@@ -63,7 +63,7 @@ namespace Insight {
 			CreateCBVs();
 			CreateSRVs();
 
-			if (m_IsRayTraceEnabled) m_RTHelper.OnInit(this);
+			if (m_GraphicsSettings.RayTraceEnabled) m_RTHelper.OnInit(this);
 
 			PIXBeginEvent(&m_d3dDeviceResources.GetCommandQueue(), 0, L"D3D 12 context Setup");
 			{
@@ -145,7 +145,7 @@ namespace Insight {
 		m_PerFrameData.screenSize.y = (float)m_WindowHeight;
 		memcpy(m_cbvPerFrameGPUAddress, &m_PerFrameData, sizeof(CB_PS_VS_PerFrame));
 
-		if (m_IsRayTraceEnabled) m_RTHelper.UpdateCBVs();
+		if (m_GraphicsSettings.RayTraceEnabled) m_RTHelper.UpdateCBVs();
 
 		// Send Point Lights to GPU
 		for (int i = 0; i < m_PointLights.size(); i++) {
@@ -181,11 +181,13 @@ namespace Insight {
 			ThrowIfFailed(m_pTransparencyPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 
-			ThrowIfFailed(m_pRayTracePass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
-				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
-
 			ThrowIfFailed(m_pPostEffectsPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
+
+			if (m_GraphicsSettings.RayTraceEnabled) {
+				ThrowIfFailed(m_pRayTracePass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
+					"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
+			}
 		}
 
 		// Reset Command Lists
@@ -199,11 +201,13 @@ namespace Insight {
 			ThrowIfFailed(m_pTransparencyPass_CommandList->Reset(m_pTransparencyPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pTransparency_PSO.Get()),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 
-			ThrowIfFailed(m_pRayTracePass_CommandList->Reset(m_pRayTracePass_CommandAllocators[IE_D3D12_FrameIndex].Get(), nullptr),
-				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
-
 			ThrowIfFailed(m_pPostEffectsPass_CommandList->Reset(m_pPostEffectsPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pPostFxPass_PSO.Get()),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
+
+			if (m_GraphicsSettings.RayTraceEnabled) {
+				ThrowIfFailed(m_pRayTracePass_CommandList->Reset(m_pRayTracePass_CommandAllocators[IE_D3D12_FrameIndex].Get(), nullptr),
+					"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
+			}
 		}
 
 		// Prepare the Render Target for this Frame
@@ -247,7 +251,7 @@ namespace Insight {
 		m_pActiveCommandList = m_pTransparencyPass_CommandList;
 		BindTransparencyPass();
 
-		if (m_IsRayTraceEnabled) {
+		if (m_GraphicsSettings.RayTraceEnabled) {
 #if RENDERER_MULTI_THREAD_ENABLED
 			std::thread RTThread(&Direct3D12Context::BindRayTracePass, this);
 			RTThread.join();
@@ -255,8 +259,8 @@ namespace Insight {
 			m_pActiveCommandList = m_pRayTracePass_CommandList;
 			BindRayTracePass();
 #endif
-		}
 	}
+}
 
 	void Direct3D12Context::BindShadowPass()
 	{
@@ -457,7 +461,9 @@ namespace Insight {
 		ThrowIfFailed(m_pScenePass_CommandList->Close(), "Failed to close command list for D3D 12 context scene pass.");
 		ThrowIfFailed(m_pTransparencyPass_CommandList->Close(), "Failed to close the command list for D3D 12 context transparency pass.");
 		ThrowIfFailed(m_pPostEffectsPass_CommandList->Close(), "Failed to close the command list for D3D 12 context post-process pass.");
-		ThrowIfFailed(m_pRayTracePass_CommandList->Close(), "Failed to close the command list for D3D 12 context ray trace pass.");
+		if (m_GraphicsSettings.RayTraceEnabled) {
+			ThrowIfFailed(m_pRayTracePass_CommandList->Close(), "Failed to close the command list for D3D 12 context ray trace pass.");
+		}
 
 		ID3D12CommandList* ppCommandLists[] = {
 			m_pShadowPass_CommandList.Get(), // Execute shadow pass first because we'll need the depth textures for the light pass
@@ -466,6 +472,7 @@ namespace Insight {
 			m_pTransparencyPass_CommandList.Get(),
 			m_pPostEffectsPass_CommandList.Get(),
 		};
+
 		m_d3dDeviceResources.GetCommandQueue().ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
 		m_d3dDeviceResources.WaitForGPU();
@@ -518,7 +525,7 @@ namespace Insight {
 	void Direct3D12Context::OnWindowFullScreen_Impl()
 	{
 		HWND& pHWND = m_pWindowRef->GetWindowHandleRef();
-		
+
 		if (m_FullScreenMode)
 		{
 			SetWindowLong(pHWND, GWL_STYLE, WS_OVERLAPPEDWINDOW);
@@ -1711,9 +1718,7 @@ namespace Insight {
 	void Direct3D12Context::CloseCommandListAndSignalCommandQueue()
 	{
 		// Generate the acceleration structures for the ray tracer
-		if (m_IsRayTraceEnabled) {
-			m_RTHelper.GenerateAccelerationStructure();
-		}
+		if (m_GraphicsSettings.RayTraceEnabled) m_RTHelper.GenerateAccelerationStructure();
 
 		m_pScenePass_CommandList->Close();
 		m_pRayTracePass_CommandList->Close();
@@ -1725,7 +1730,7 @@ namespace Insight {
 		m_d3dDeviceResources.GetCommandQueue().ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
 		m_d3dDeviceResources.IncrementAndSignalFence();
-		m_RTHelper.OnPostInit();
+		if (m_GraphicsSettings.RayTraceEnabled) m_RTHelper.OnPostInit();
 
 		m_d3dDeviceResources.WaitForGPU();
 	}
@@ -1783,7 +1788,7 @@ namespace Insight {
 		}
 
 	}
-	
+
 	void Direct3D12Context::ResourceBarrier(ID3D12GraphicsCommandList* pCommandList, ID3D12Resource* pResource, D3D12_RESOURCE_STATES StateBefore, D3D12_RESOURCE_STATES StateAfter)
 	{
 		pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(pResource, StateBefore, StateAfter));

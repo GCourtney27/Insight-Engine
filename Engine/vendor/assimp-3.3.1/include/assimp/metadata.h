@@ -194,8 +194,8 @@ struct aiMetadata
 
 
 
-    template<typename T>
-    inline void Set( unsigned index, const std::string& key, const T& value )
+    template<typename Event>
+    inline void Set( unsigned index, const std::string& key, const Event& value )
     {
         // In range assertion
         assert(index < mNumProperties);
@@ -206,11 +206,11 @@ struct aiMetadata
         // Set metadata type
         mValues[index].mType = GetAiType(value);
         // Copy the given value to the dynamic storage
-        mValues[index].mData = new T(value);
+        mValues[index].mData = new Event(value);
     }
 
-    template<typename T>
-    inline bool Get( unsigned index, T& value )
+    template<typename Event>
+    inline bool Get( unsigned index, Event& value )
     {
         // In range assertion
         assert(index < mNumProperties);
@@ -223,12 +223,12 @@ struct aiMetadata
 
         // Otherwise, output the found value and
         // return true
-        value = *static_cast<T*>(mValues[index].mData);
+        value = *static_cast<Event*>(mValues[index].mData);
         return true;
     }
 
-    template<typename T>
-    inline bool Get( const aiString& key, T& value )
+    template<typename Event>
+    inline bool Get( const aiString& key, Event& value )
     {
         // Search for the given key
         for (unsigned i=0; i<mNumProperties; ++i)
@@ -237,8 +237,8 @@ struct aiMetadata
         return false;
     }
 
-    template<typename T>
-    inline bool Get( const std::string& key, T& value ) {
+    template<typename Event>
+    inline bool Get( const std::string& key, Event& value ) {
         return Get(aiString(key), value);
     }
 

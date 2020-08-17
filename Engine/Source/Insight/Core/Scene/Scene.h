@@ -70,8 +70,12 @@ namespace Insight {
 		std::string GetDisplayName() { return m_DisplayName; }
 		// Ends the game runtime simulation for the editor.
 		void EndPlaySession();
+		// Resize the number of actors the scene owns. Usually only needs to be 
+		// done when a new scene is being loaded.
+		void ResizeSceneGraph(size_t NewSceneSize) { m_pSceneRoot->ResizeNumChildren(NewSceneSize); }
+		// Get the number of actors that are currently in the scene.
+		uint32_t GetNumSceneActors() { return m_pSceneRoot->GetNumChildrenNodes(); }
 
-	private:
 
 	private:
 		APlayerCharacter* m_pPlayerCharacter = nullptr;
