@@ -56,8 +56,8 @@ project ("Engine")
 		"%{prj.name}/Vendor/Vendor_Build.cpp",
 		"%{prj.name}/Source/**.cpp",
 		"%{prj.name}/Source/**.h",
-		"%{prj.name}/Source/**.hlsl",
-		"%{prj.name}/Source/**.hlsli",
+		"%{prj.name}/Source/**.Pixel.hlsl",
+		"%{prj.name}/Source/**.Vertex.hlsli",
 	}
 
 	defines
@@ -88,7 +88,6 @@ project ("Engine")
 		"d3d12.lib",
 		"dxgi.lib",
 		"d3d11.lib",
-		-- "d3dx11.lib",
 		"WinPixEventRuntime.lib",
 		"WinPixEventRuntime_UAP.lib",
 		"Shlwapi.lib",
@@ -103,7 +102,7 @@ project ("Engine")
 		"ImGui",
 	}
 
-	filter "system:windows"
+	filter {"system:windows"}
 		systemversion "latest"
 
 		defines
@@ -116,15 +115,17 @@ project ("Engine")
 			"MultiProcessorCompile"
 		}
 
-		filter { "files:**.hlsl" }
-			shadermodel "5.0"
-
+		-- Shaders
 		filter { "files:**.pixel.hlsl" }
 			shadertype "Pixel"
+			shadermodel "5.0"
 		
 		filter { "files:**.vertex.hlsl" }
 			shadertype "Vertex"
-	
+			shadermodel "5.0"
+		
+	-- End filter - windows
+
 	-- Engine Development
 	filter "configurations:Debug"
 		defines "IE_DEBUG"

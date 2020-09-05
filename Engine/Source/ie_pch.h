@@ -56,7 +56,11 @@
 #include <rapidjson/ostreamwrapper.h>
 #include <rapidjson/prettywriter.h>
 
-// === Windows Library === //
+// -----------
+// Platforms |
+// -----------
+
+// === Windows === //
 #ifdef IE_PLATFORM_WINDOWS
 
 	#ifndef WIN32_LEAN_AND_MEAN
@@ -93,3 +97,10 @@
 	
 
 #endif // IE_PLATFORM_WINDOWS
+
+// === Mac === //
+#ifdef IE_PLATFORM_MAC
+
+
+
+#endif // IE_PLATFORM_MAC
