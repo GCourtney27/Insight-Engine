@@ -57,15 +57,24 @@ namespace Insight {
 
 	void GeometryManager::FlushModelCache()
 	{
-		s_Instance->m_Models.clear();
+		s_Instance->m_OpaqueModels.clear();
 	}
 
-	void GeometryManager::UnRegisterModel(StrongModelPtr Model)
+	void GeometryManager::UnRegisterOpaqueModel(StrongModelPtr Model)
 	{
-		auto iter = std::find(s_Instance->m_Models.begin(), s_Instance->m_Models.end(), Model);
+		auto iter = std::find(s_Instance->m_OpaqueModels.begin(), s_Instance->m_OpaqueModels.end(), Model);
 
-		if (iter != s_Instance->m_Models.end()) {
-			s_Instance->m_Models.erase(iter);
+		if (iter != s_Instance->m_OpaqueModels.end()) {
+			s_Instance->m_OpaqueModels.erase(iter);
+		}
+	}
+
+	void GeometryManager::UnRegisterTranslucentModel(StrongModelPtr Model)
+	{
+		auto iter = std::find(s_Instance->m_TranslucentModels.begin(), s_Instance->m_TranslucentModels.end(), Model);
+
+		if (iter != s_Instance->m_TranslucentModels.end()) {
+			s_Instance->m_TranslucentModels.erase(iter);
 		}
 	}
 

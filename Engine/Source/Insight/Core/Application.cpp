@@ -10,10 +10,11 @@
 #include "Insight/Rendering/Renderer.h"
 
 #if defined IE_PLATFORM_WINDOWS
-#include "Platform/Windows/DirectX_12/D3D12_ImGui_Layer.h"
 #include "Platform/Windows/DirectX_11/D3D11_ImGui_Layer.h"
+#include "Platform/Windows/DirectX_12/D3D12_ImGui_Layer.h"
 #endif
 
+// TODO: Make the project hot reloadable
 // Scenes (Development-Project)
 // ----------------------------
 // DemoScene
@@ -48,6 +49,7 @@ namespace Insight {
 			return false;
 		}
 
+		m_AppInitialized = true;
 		pWindow->PostInit();
 		return true;
 	}
@@ -77,9 +79,10 @@ namespace Insight {
 			throw ieException("Failed to initialize scene");
 		}
 		
-		// Push core app layer to the layer stack
+		// Push core app layers to the layer stack
 		PushEngineLayers();
 
+		ResourceManager::Get().GetMonoScriptManager().PostInit();
 		IE_CORE_TRACE("Application Initialized");
 		return true;
 	}
@@ -93,15 +96,15 @@ namespace Insight {
 		while(m_Running) {
 
 			m_FrameTimer.Tick();
-			const float& DeltaTime = (float)m_FrameTimer.DeltaTime();
+			const float& DeltaMs = m_FrameTimer.DeltaTime();
 			m_pWindow->SetWindowTitleFPS(m_FrameTimer.FPS());
 
 
-			m_pWindow->OnUpdate(DeltaTime);
-			m_pGameLayer->Update(DeltaTime);
+			m_pWindow->OnUpdate(DeltaMs);
+			m_pGameLayer->Update(DeltaMs);
 
 			for (Layer* layer : m_LayerStack) { 
-				layer->OnUpdate(DeltaTime);
+				layer->OnUpdate(DeltaMs);
 			}
 
 			m_pGameLayer->PreRender();
@@ -110,8 +113,8 @@ namespace Insight {
 			// Render Editor UI
 			IE_STRIP_FOR_GAME_DIST(
 				m_pImGuiLayer->Begin();
-				for (Layer* layer : m_LayerStack) {
-					layer->OnImGuiRender();
+				for (Layer* Layer : m_LayerStack) {
+					Layer->OnImGuiRender();
 				}
 				m_pGameLayer->OnImGuiRender();
 				m_pImGuiLayer->End();
@@ -120,6 +123,7 @@ namespace Insight {
 			m_pGameLayer->PostRender();
 			m_pWindow->EndFrame();
 		}
+
 	}
 
 	void Application::Shutdown()
@@ -128,22 +132,22 @@ namespace Insight {
 
 	void Application::OnEvent(Event & e)
 	{
-		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowCloseEvent>(IE_BIND_EVENT_FN(Application::OnWindowClose));
-		dispatcher.Dispatch<WindowResizeEvent>(IE_BIND_EVENT_FN(Application::OnWindowResize));
-		dispatcher.Dispatch<WindowToggleFullScreenEvent>(IE_BIND_EVENT_FN(Application::OnWindowFullScreen));
-		dispatcher.Dispatch<SceneSaveEvent>(IE_BIND_EVENT_FN(Application::SaveScene));
-		dispatcher.Dispatch<AppBeginPlayEvent>(IE_BIND_EVENT_FN(Application::BeginPlay));
-		dispatcher.Dispatch<AppEndPlayEvent>(IE_BIND_EVENT_FN(Application::EndPlay));
-		dispatcher.Dispatch<AppScriptReloadEvent>(IE_BIND_EVENT_FN(Application::ReloadScripts));
+		EventDispatcher Dispatcher(e);
+		Dispatcher.Dispatch<WindowCloseEvent>(IE_BIND_EVENT_FN(Application::OnWindowClose));
+		Dispatcher.Dispatch<WindowResizeEvent>(IE_BIND_EVENT_FN(Application::OnWindowResize));
+		Dispatcher.Dispatch<WindowToggleFullScreenEvent>(IE_BIND_EVENT_FN(Application::OnWindowFullScreen));
+		Dispatcher.Dispatch<SceneSaveEvent>(IE_BIND_EVENT_FN(Application::SaveScene));
+		Dispatcher.Dispatch<AppBeginPlayEvent>(IE_BIND_EVENT_FN(Application::BeginPlay));
+		Dispatcher.Dispatch<AppEndPlayEvent>(IE_BIND_EVENT_FN(Application::EndPlay));
+		Dispatcher.Dispatch<AppScriptReloadEvent>(IE_BIND_EVENT_FN(Application::ReloadScripts));
+		Dispatcher.Dispatch<ShaderReloadEvent>(IE_BIND_EVENT_FN(Application::ReloadShaders));
 
 		Input::GetInputManager().OnEvent(e);
-
-		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
-		{
+		ACamera::Get().OnEvent(e);
+		
+		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();) {
 			(*--it)->OnEvent(e);
-			if (e.Handled())
-				break;
+			if (e.Handled()) break;
 		}
 	}
 
@@ -151,6 +155,7 @@ namespace Insight {
 	{
 		switch (Renderer::GetAPI())
 		{
+#if defined IE_PLATFORM_WINDOWS
 		case Renderer::eTargetRenderAPI::D3D_11:
 		{
 			IE_STRIP_FOR_GAME_DIST(m_pImGuiLayer = new D3D11ImGuiLayer());
@@ -161,6 +166,7 @@ namespace Insight {
 			IE_STRIP_FOR_GAME_DIST(m_pImGuiLayer = new D3D12ImGuiLayer());
 			break;
 		}
+#endif
 		default:
 		{
 			IE_CORE_ERROR("Failed to creat ImGui layer in application with API of type \"{0}\"", Renderer::GetAPI());
@@ -205,12 +211,12 @@ namespace Insight {
 
 	bool Application::SaveScene(SceneSaveEvent& e)
 	{
-		return FileSystem::WriteSceneToJson(m_pGameLayer->GetScene());
+		std::future<bool> Future = std::async(std::launch::async, FileSystem::WriteSceneToJson, m_pGameLayer->GetScene());
+		return true;
 	}
 
 	bool Application::BeginPlay(AppBeginPlayEvent& e)
 	{
-		m_pGameLayer->BeginPlay();
 		PushLayer(m_pGameLayer);
 		return true;
 	}
@@ -225,8 +231,14 @@ namespace Insight {
 
 	bool Application::ReloadScripts(AppScriptReloadEvent& e)
 	{
-		IE_CORE_INFO("Reload Scirpts");
+		IE_CORE_INFO("Reload Scripts");
 		ResourceManager::Get().GetMonoScriptManager().ReCompile();
+		return true;
+	}
+
+	bool Application::ReloadShaders(ShaderReloadEvent& e)
+	{
+		Renderer::OnShaderReload();
 		return true;
 	}
 

@@ -47,6 +47,7 @@ namespace Insight {
 			eTargetRenderAPI TargetRenderAPI = eTargetRenderAPI::D3D_11;
 			uint32_t MaxAnisotropy = 1U; // Texture Filtering (1, 4, 8, 16)
 			float MipLodBias = 0.0f; // Texture Quality (0 - 9)
+			bool RayTraceEnabled = false;
 		};
 
 	public:
@@ -60,27 +61,29 @@ namespace Insight {
 		static bool SetSettingsAndCreateContext(GraphicsSettings GraphicsSettings);
 
 		// Initilize renderer's API library.
-		static inline bool Init() { return s_Instance->InitImpl(); }
+		static inline bool Init() { return s_Instance->Init_Impl(); }
 		// Destroy the current graphics context
-		static inline void Destroy() { s_Instance->DestroyImpl(); }
+		static inline void Destroy() { s_Instance->Destroy_Impl(); }
 		// Submit initilize commands to the GPU.
-		static inline bool PostInit() { return s_Instance->PostInitImpl(); }
+		static inline bool PostInit() { return s_Instance->PostInit_Impl(); }
 		// Upload per-frame constants to the GPU as well as lighting information.
-		static inline void OnUpdate(const float DeltaMs) { s_Instance->OnUpdateImpl(DeltaMs); }
+		static inline void OnUpdate(const float DeltaMs) { s_Instance->OnUpdate_Impl(DeltaMs); }
 		// Flush the command allocators and clear render targets.
-		static inline void OnPreFrameRender() { s_Instance->OnPreFrameRenderImpl(); }
+		static inline void OnPreFrameRender() { s_Instance->OnPreFrameRender_Impl(); }
 		// Draws shadow pass first then binds geometry pass for future draw commands.
-		static inline void OnRender() { s_Instance->OnRenderImpl(); }
+		static inline void OnRender() { s_Instance->OnRender_Impl(); }
 		// Binds light pass.
-		static inline void OnMidFrameRender() { s_Instance->OnMidFrameRenderImpl(); }
+		static inline void OnMidFrameRender() { s_Instance->OnMidFrameRender_Impl(); }
 		// executes the command queue on the GPU. Waits for the GPU to finish before proceeding.
-		static inline void ExecuteDraw() { s_Instance->ExecuteDrawImpl(); }
+		static inline void ExecuteDraw() { s_Instance->ExecuteDraw_Impl(); }
 		// Swap buffers with the new frame.
-		static inline void SwapBuffers() { s_Instance->SwapBuffersImpl(); }
+		static inline void SwapBuffers() { s_Instance->SwapBuffers_Impl(); }
 		// Resize render target, depth stencil and sreen rects when window size is changed.
-		static inline void OnWindowResize() { s_Instance->OnWindowResizeImpl(); }
+		static inline void OnWindowResize() { s_Instance->OnWindowResize_Impl(); }
 		// Tells the swapchain to enable full screen rendering.
-		static inline void OnWindowFullScreen() { s_Instance->OnWindowFullScreenImpl(); }
+		static inline void OnWindowFullScreen() { s_Instance->OnWindowFullScreen_Impl(); }
+		// Reloads all shaders
+		static inline void OnShaderReload() { s_Instance->OnShaderReload_Impl(); }
 
 		// Set the graphics settings for the context
 		static void SetGraphicsSettings(GraphicsSettings GraphicsSettings) { s_Instance->m_GraphicsSettings = GraphicsSettings; }
@@ -89,15 +92,15 @@ namespace Insight {
 
 		static void SetRenderPass(eRenderPass RenderPass) { s_Instance->m_RenderPass = RenderPass; }
 
-		static void SetVertexBuffers(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) { s_Instance->SetVertexBuffersImpl(StartSlot, NumBuffers, pBuffers); }
-		static void SetIndexBuffer(ieIndexBuffer* pBuffer) { s_Instance->SetIndexBufferImpl(pBuffer); }
-		static void DrawIndexedInstanced(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) { s_Instance->DrawIndexedInstancedImpl(IndexCountPerInstance, NumInstances, StartIndexLocation, BaseVertexLoaction, StartInstanceLocation); }
+		static void SetVertexBuffers(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) { s_Instance->SetVertexBuffers_Impl(StartSlot, NumBuffers, pBuffers); }
+		static void SetIndexBuffer(ieIndexBuffer* pBuffer) { s_Instance->SetIndexBuffer_Impl(pBuffer); }
+		static void DrawIndexedInstanced(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) { s_Instance->DrawIndexedInstanced_Impl(IndexCountPerInstance, NumInstances, StartIndexLocation, BaseVertexLoaction, StartInstanceLocation); }
 
-		static void RenderSkySphere() { s_Instance->RenderSkySphereImpl(); }
-		static bool CreateSkybox() { return s_Instance->CreateSkyboxImpl(); }
-		static void DestroySkybox() { s_Instance->DestroySkyboxImpl(); }
+		static void RenderSkySphere() { s_Instance->RenderSkySphere_Impl(); }
+		static bool CreateSkybox() { return s_Instance->CreateSkybox_Impl(); }
+		static void DestroySkybox() { s_Instance->DestroySkybox_Impl(); }
 
-
+		inline static bool GetIsRayTraceEnabled() { return s_Instance->m_GraphicsSettings.RayTraceEnabled; }
 		inline static eTargetRenderAPI GetAPI() { return s_Instance->m_GraphicsSettings.TargetRenderAPI; }
 		inline static uint8_t GetFrameBufferCount() { return s_Instance->m_FrameBufferCount; }
 		inline static void SetVSyncEnabled(bool enabled) { s_Instance->m_VSyncEnabled = enabled; }
@@ -133,28 +136,31 @@ namespace Insight {
 		static void AddSkyLight(ASkyLight* SkyLight) { if (!s_Instance->m_pSkyLight) { s_Instance->m_pSkyLight = SkyLight; } }
 
 	protected:
-		virtual bool InitImpl() = 0;
-		virtual void DestroyImpl() = 0;
-		virtual bool PostInitImpl() = 0;
-		virtual void OnUpdateImpl(const float DeltaMs) = 0;
-		virtual void OnPreFrameRenderImpl() = 0;
-		virtual void OnRenderImpl() = 0;
-		virtual void OnMidFrameRenderImpl() = 0;
-		virtual void ExecuteDrawImpl() = 0;
-		virtual void SwapBuffersImpl() = 0;
-		virtual void OnWindowResizeImpl() = 0;
-		virtual void OnWindowFullScreenImpl() = 0;
+		virtual bool Init_Impl() = 0;
+		virtual void Destroy_Impl() = 0;
+		virtual bool PostInit_Impl() = 0;
+		virtual void OnUpdate_Impl(const float DeltaMs) = 0;
+		virtual void OnPreFrameRender_Impl() = 0;
+		virtual void OnRender_Impl() = 0;
+		virtual void OnMidFrameRender_Impl() = 0;
+		virtual void ExecuteDraw_Impl() = 0;
+		virtual void SwapBuffers_Impl() = 0;
+		virtual void OnWindowResize_Impl() = 0;
+		virtual void OnWindowFullScreen_Impl() = 0;
+		virtual void OnShaderReload_Impl() = 0;
 
-		virtual void SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) = 0;
-		virtual void SetIndexBufferImpl(ieIndexBuffer* pBuffer) = 0;
-		virtual void DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) = 0;
+		virtual void SetVertexBuffers_Impl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) = 0;
+		virtual void SetIndexBuffer_Impl(ieIndexBuffer* pBuffer) = 0;
+		virtual void DrawIndexedInstanced_Impl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) = 0;
 
-		virtual void RenderSkySphereImpl() = 0;
-		virtual bool CreateSkyboxImpl() = 0;
-		virtual void DestroySkyboxImpl() = 0;
+		virtual void RenderSkySphere_Impl() = 0;
+		virtual bool CreateSkybox_Impl() = 0;
+		virtual void DestroySkybox_Impl() = 0;
 
 	protected:
 		Renderer(uint32_t windowWidth, uint32_t windowHeight, bool vSyncEabled);
+		void SetIsRayTraceSupported(bool Supported) { m_IsRayTraceSupported = Supported; }
+
 	protected:
 		eRenderPass m_RenderPass = eRenderPass::RenderPass_Scene;
 		GraphicsSettings m_GraphicsSettings = {}; // TODO Load this from a settings file
@@ -171,6 +177,7 @@ namespace Insight {
 		bool m_WindowVisible = true;
 		
 		bool m_AllowTearing = true;
+		bool m_IsRayTraceSupported = false; // Assume ray tracing is not supported on the GPU
 
 		std::vector<APointLight*> m_PointLights;
 		std::vector<ADirectionalLight*> m_DirectionalLights;

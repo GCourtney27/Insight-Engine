@@ -39,12 +39,6 @@ namespace Insight {
 		Cleanup();
 	}
 
-	void CSharpScriptComponent::ReCompile()
-	{
-		Cleanup();
-		RegisterScript();
-	}
-
 	void CSharpScriptComponent::RegisterScript()
 	{
 		// Register the class with mono runtime
@@ -67,10 +61,7 @@ namespace Insight {
 
 	void CSharpScriptComponent::Cleanup()
 	{
-		if (m_pMonoScriptManager) {
-			m_pMonoScriptManager = nullptr;
-		}
-		ResourceManager::Get().GetMonoScriptManager().UnRegisterScript(this);
+
 	}
 
 	bool CSharpScriptComponent::LoadFromJson(const rapidjson::Value& jsonCSScriptComponent)
@@ -100,6 +91,10 @@ namespace Insight {
 		return true;
 	}
 
+	void CSharpScriptComponent::OnEvent(Event& e)
+	{
+	}
+
 	void CSharpScriptComponent::OnInit()
 	{
 	}
@@ -110,7 +105,10 @@ namespace Insight {
 
 	void CSharpScriptComponent::OnDestroy()
 	{
-		Cleanup();
+		if (m_pMonoScriptManager) {
+			m_pMonoScriptManager = nullptr;
+		}
+		ResourceManager::Get().GetMonoScriptManager().UnRegisterScript(this);
 	}
 
 	void CSharpScriptComponent::CalculateParent(const DirectX::XMMATRIX& matrix)
@@ -194,7 +192,7 @@ namespace Insight {
 
 	}
 
-	void CSharpScriptComponent::OnUpdate(const float& deltaMs)
+	void CSharpScriptComponent::OnUpdate(const float DeltaMs)
 	{
 		
 	}
@@ -217,6 +215,11 @@ namespace Insight {
 				RegisterScript();
 			}
 
+			ImGui::Checkbox("Can Be Ticked: ", &m_CanBeTicked);
+			ImGui::Checkbox("Can Be Called on Begin Play: ", &m_CanBeCalledOnBeginPlay);
+			
+
+
 		}
 
 		ImGui::PopID();
@@ -232,13 +235,13 @@ namespace Insight {
 		m_pMonoScriptManager->InvokeMethod(m_pBeginPlayMethod, m_pObject, nullptr);
 	}
 
-	void CSharpScriptComponent::Tick(const float& deltaMs)
+	void CSharpScriptComponent::Tick(const float DeltaMs)
 	{
 		if (!m_CanBeTicked) { return; }
 		UpdateScriptFields();
 
 		void* args[1];
-		double doubleDt = (double)deltaMs;
+		double doubleDt = (double)DeltaMs;
 		args[0] = &doubleDt;
 		m_pMonoScriptManager->InvokeMethod(m_pUpdateMethod, m_pObject, args);
 

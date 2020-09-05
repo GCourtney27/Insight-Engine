@@ -26,6 +26,9 @@ namespace Insight {
 		void SetDisplayName(std::string Name) { m_DisplayName = Name; }
 		void SetCanBeFileParsed(bool CanBeParsed) { m_CanBeFileParsed = CanBeParsed; }
 
+		void ResizeNumChildren(size_t NumChildren) { m_Children.reserve(NumChildren); }
+		uint32_t GetNumChildrenNodes() { return static_cast<uint32_t>(m_Children.size()); }
+
 		void AddChild(SceneNode* childNode);
 		void RemoveChild(SceneNode* ChildNode);
 		std::vector<SceneNode*>::const_iterator GetChildIteratorStart() { return m_Children.begin(); }
@@ -37,13 +40,13 @@ namespace Insight {
 		virtual void RenderSceneHeirarchy();
 		virtual bool OnInit();
 		virtual bool OnPostInit();
-		virtual void OnUpdate(const float& DeltaMs);
+		virtual void OnUpdate(const float DeltaMs);
 		virtual void CalculateParent(XMMATRIX ParentMat);
 		virtual void OnRender();
 		virtual void Destroy();
 
 		virtual void BeginPlay();
-		virtual void Tick(const float& DeltaMs);
+		virtual void Tick(const float DeltaMs);
 		virtual void Exit();
 
 		virtual void EditorEndPlay();

@@ -19,18 +19,18 @@ namespace Insight {
 		
 		virtual bool OnInit();
 		virtual bool OnPostInit();
-		virtual void OnUpdate(const float& deltaMs);
+		virtual void OnUpdate(const float DeltaMs);
 		virtual void OnPreRender(XMMATRIX parentMat);
 		virtual void OnRender();
 		virtual void Destroy();
 
-		void RenderSky(ComPtr<ID3D12GraphicsCommandList> commandList);
+		void RenderSky();
 
 
 		void OnEvent(Event& e);
 
 		virtual void BeginPlay();
-		virtual void Tick(const float& deltaMs);
+		virtual void Tick(const float DeltaMs);
 		virtual void Exit();
 
 		virtual void OnImGuiRender() override;

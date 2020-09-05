@@ -5,6 +5,7 @@
 #include "Insight/Math/Transform.h"
 #include "Insight/Core/Scene/Scene_Node.h"
 #include "Insight/Runtime/Components/Scene_Component.h"
+#include "Insight/Events/Application_Event.h"
 
 
 namespace Insight {
@@ -30,7 +31,7 @@ namespace Insight {
 
 		virtual bool OnInit();
 		virtual bool OnPostInit();
-		virtual void OnUpdate(const float& deltaMs);
+		virtual void OnUpdate(const float DeltaMs);
 		virtual void CalculateParent(XMMATRIX parentMat);
 		virtual void OnRender();
 		virtual void Destroy();
@@ -38,29 +39,31 @@ namespace Insight {
 		void OnEvent(Event& e);
 
 		virtual void BeginPlay();
-		virtual void Tick(const float& deltaMs);
+		virtual void Tick(const float DeltaMs);
 		virtual void Exit();
 
 		ActorId GetId() { return m_Id; }
 	public:
-		template<typename T>
+		template<typename Event>
 		StrongActorComponentPtr CreateDefaultSubobject()
 		{
-			StrongActorComponentPtr component = std::make_shared<T>(this);
+			StrongActorComponentPtr component = std::make_shared<Event>(this);
 			IE_CORE_ASSERT(component, "Trying to add null component to actor");
 
 			component->OnAttach();
+			component->SetEventCallback(IE_BIND_EVENT_FN(AActor::OnEvent));
+
 			m_Components.push_back(component);
 			m_NumComponents++;
 			return component;
 		}
-		template<typename T>
+		template<typename Event>
 		WeakActorComponentPtr GetSubobject()
 		{
 			WeakActorComponentPtr component = nullptr;
 			for (UniqueActorComponentPtr _component : m_components)
 			{
-				component = dynamic_cast<T>(_component);
+				component = dynamic_cast<Event>(_component);
 				if (component != nullptr) break;
 			}
 			return component;
@@ -68,7 +71,8 @@ namespace Insight {
 		void RemoveSubobject(StrongActorComponentPtr component);
 		void RemoveAllSubobjects();
 		std::vector<StrongActorComponentPtr> GetAllSubobjects() const { return m_Components; }
-		
+	private:
+		bool OnCollision(PhysicsEvent& e);
 	protected:
 		ActorComponents m_Components;
 		uint32_t m_NumComponents = 0;

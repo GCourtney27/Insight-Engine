@@ -17,8 +17,6 @@ namespace Insight {
 
 	void D3D12VertexBuffer::Destroy()
 	{
-		COM_SAFE_RELEASE(m_pVertexBuffer);
-		COM_SAFE_RELEASE(m_pVertexBufferUploadHeap);
 	}
 
 	bool D3D12VertexBuffer::CreateResources()
@@ -60,13 +58,13 @@ namespace Insight {
 		// TODO: This will fail in multithread mode because UpdateSubresources
 		// modifies the command list and the command list is used elsewhere during this time
 		// recording draw commands still, initializing other assets etc., causing a corruption.
-		UpdateSubresources(&D3D12Context->GetScenePassCommandList(), m_pVertexBuffer, m_pVertexBufferUploadHeap, 0, 0, 1, &vertexData);
+		UpdateSubresources(&D3D12Context->GetScenePassCommandList(), m_pVertexBuffer.Get(), m_pVertexBufferUploadHeap.Get(), 0, 0, 1, &vertexData);
 
 		m_VertexBufferView.BufferLocation = m_pVertexBuffer->GetGPUVirtualAddress();
 		m_VertexBufferView.StrideInBytes = sizeof(Vertex3D);
 		m_VertexBufferView.SizeInBytes = m_BufferSize;
 
-		D3D12Context->GetScenePassCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pVertexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
+		D3D12Context->GetScenePassCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pVertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
 
 		return true;
 	}

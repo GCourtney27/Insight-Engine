@@ -9,6 +9,7 @@
 #include "Platform/Windows/DirectX_11/Geometry/D3D11_Vertex_Buffer.h"
 #include "Platform/Windows/DirectX_12/Geometry/D3D12_Index_Buffer.h"
 #include "Platform/Windows/DirectX_12/Geometry/D3D12_Vertex_Buffer.h"
+#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 #include "imgui.h"
 
@@ -18,6 +19,17 @@ namespace Insight {
 	Mesh::Mesh(Verticies Verticies, Indices Indices)
 	{
 		Init(Verticies, Indices);
+	}
+
+	Mesh::Mesh(Mesh&& mesh) noexcept
+	{
+		IE_CORE_WARN("Mesh being moved in memory.");
+		
+		m_pIndexBuffer = mesh.m_pIndexBuffer;
+		m_pVertexBuffer = mesh.m_pVertexBuffer;
+
+		m_Transform = std::move(mesh.m_Transform);
+		m_ConstantBufferPerObject = mesh.m_ConstantBufferPerObject;
 	}
 
 	Mesh::~Mesh()
@@ -45,11 +57,8 @@ namespace Insight {
 		XMStoreFloat4x4(&worldFloat, worldMatTransposed);
 
 		m_ConstantBufferPerObject.world = worldFloat;
-	}
 
-	CB_VS_PerObject Mesh::GetConstantBuffer()
-	{
-		return m_ConstantBufferPerObject;
+		if (m_ShouldUpdateAS) UpdateAccelerationStructures();
 	}
 
 	uint32_t Mesh::GetVertexCount()
@@ -72,7 +81,7 @@ namespace Insight {
 		return m_pIndexBuffer->GetBufferSize();
 	}
 
-	void Mesh::Render(ID3D12GraphicsCommandList* pCommandList)
+	void Mesh::Render()
 	{
 		Renderer::SetVertexBuffers(0, 1, m_pVertexBuffer);
 		Renderer::SetIndexBuffer(m_pIndexBuffer);
@@ -96,6 +105,20 @@ namespace Insight {
 		{
 			m_pVertexBuffer = new D3D12VertexBuffer(Verticies);
 			m_pIndexBuffer = new D3D12IndexBuffer(Indices);
+
+			if (Renderer::GetIsRayTraceEnabled()) {
+
+				m_ShouldUpdateAS = true;
+				m_RTInstanceIndex = reinterpret_cast<Direct3D12Context*>(&Renderer::Get())
+					->RegisterGeometryWithRTAccelerationStucture(
+						reinterpret_cast<D3D12VertexBuffer*>(m_pVertexBuffer)->GetVertexBuffer(),
+						reinterpret_cast<D3D12IndexBuffer*>(m_pIndexBuffer)->GetIndexBuffer(),
+						reinterpret_cast<D3D12VertexBuffer*>(m_pVertexBuffer)->GetNumVerticies(),
+						reinterpret_cast<D3D12IndexBuffer*>(m_pIndexBuffer)->GetNumIndices(),
+						m_Transform.GetWorldMatrix()
+					);
+			}
+
 			break;
 		}
 		case Renderer::eTargetRenderAPI::INVALID:
@@ -110,5 +133,11 @@ namespace Insight {
 		}
 		}
 	}
+	
+	void Mesh::UpdateAccelerationStructures()
+	{
+		reinterpret_cast<Direct3D12Context*>(&Renderer::Get())->UpdateRTAccelerationStructureMatrix(m_RTInstanceIndex, m_Transform.GetWorldMatrix());
+	}
+
 }
 

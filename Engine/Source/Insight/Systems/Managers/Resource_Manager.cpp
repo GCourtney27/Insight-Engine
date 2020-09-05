@@ -13,7 +13,6 @@ namespace Insight {
 		IE_ASSERT(!s_Instance, "An instance of resource manager already exists!");
 		s_Instance = this;
 
-		//m_pGeometryManager = new GeometryManager();
 		m_pTextureManager = new TextureManager();
 		m_pMonoScriptManager = new MonoScriptManager();
 	}

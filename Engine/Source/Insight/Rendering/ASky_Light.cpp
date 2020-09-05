@@ -11,6 +11,8 @@
 
 #include "Insight/Systems/File_System.h"
 
+#include "imgui.h"
+
 namespace Insight {
 
 
@@ -40,21 +42,21 @@ namespace Insight {
 		Texture::IE_TEXTURE_INFO brdfInfo;
 		brdfInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(brdfLUT));
 		brdfInfo.AssetDirectoryRelPath = brdfLUT;
-		brdfInfo.Type = Texture::eTextureType::SKY_BRDF_LUT;
+		brdfInfo.Type = Texture::eTextureType::eTextureType_IBLBRDFLUT;
 		brdfInfo.IsCubeMap = true;
 		brdfInfo.GenerateMipMaps = false;
 
 		Texture::IE_TEXTURE_INFO irMapInfo;
 		irMapInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(irMap));
 		irMapInfo.AssetDirectoryRelPath = irMap;
-		irMapInfo.Type = Texture::eTextureType::SKY_IRRADIENCE;
+		irMapInfo.Type = Texture::eTextureType::eTextureType_SkyIrradience;
 		irMapInfo.IsCubeMap = true;
 		brdfInfo.GenerateMipMaps = false;
 
 		Texture::IE_TEXTURE_INFO envMapInfo;
 		envMapInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(envMap));
 		envMapInfo.AssetDirectoryRelPath = envMap;
-		envMapInfo.Type = Texture::eTextureType::SKY_ENVIRONMENT_MAP;
+		envMapInfo.Type = Texture::eTextureType::eTextureType_SkyEnvironmentMap;
 		envMapInfo.IsCubeMap = true;
 		brdfInfo.GenerateMipMaps = false;
 
@@ -165,7 +167,7 @@ namespace Insight {
 		return false;
 	}
 
-	void ASkyLight::OnUpdate(const float& deltaMs)
+	void ASkyLight::OnUpdate(const float DeltaMs)
 	{
 	}
 
@@ -189,7 +191,7 @@ namespace Insight {
 	{
 	}
 
-	void ASkyLight::Tick(const float& deltaMs)
+	void ASkyLight::Tick(const float DeltaMs)
 	{
 	}
 
@@ -199,13 +201,26 @@ namespace Insight {
 
 	void ASkyLight::OnImGuiRender()
 	{
+		AActor::OnImGuiRender();
+		
+		ImGui::Checkbox("Sky Light Enabled", &m_Enabled);
 	}
 
-	void ASkyLight::BindCubeMaps()
+	void ASkyLight::BindCubeMaps(bool RenderPassIsDeferred)
 	{
-		m_Environment->Bind();
-		m_Irradiance->Bind();
-		m_BrdfLUT->Bind();
+		if (m_Enabled) {
+
+			if (RenderPassIsDeferred) {
+				m_Environment->BindForDeferredPass();
+				m_Irradiance->BindForDeferredPass();
+				m_BrdfLUT->BindForDeferredPass();
+			}
+			else {
+				m_Environment->BindForForwardPass();
+				m_Irradiance->BindForForwardPass();
+				m_BrdfLUT->BindForDeferredPass();
+			}
+		}
 	}
 
 }

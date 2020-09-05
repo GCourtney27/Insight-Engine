@@ -9,10 +9,12 @@
 #include "Insight/Core/Scene/Scene_Node.h"
 #include "Insight/Rendering/Geometry/Mesh_Node.h"
 
+
 namespace Insight {
 
 	class Material;
 	
+
 	class INSIGHT_API Model : public SceneNode
 	{
 	public:
@@ -24,7 +26,7 @@ namespace Insight {
 		bool Create(const std::string& path, Material* pMaterial);
 		void OnImGuiRender();
 		void RenderSceneHeirarchy();
-		void BindResources();
+		void BindResources(bool IsDeferredPass);
 
 		ieTransform& GetMeshRootTransformRef() { return m_pRoot->GetTransformRef(); }
 

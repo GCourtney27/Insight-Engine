@@ -16,17 +16,17 @@ namespace Insight {
 	{
 	public:
 		Mesh(Verticies Verticies, Indices Indices);
-		//Mesh(Mesh&& mesh) noexcept;
+		Mesh(Mesh&& mesh) noexcept;
 		~Mesh();
 
 		void PreRender(const XMMATRIX& parentMat);
-		void Render(ID3D12GraphicsCommandList* pCommandList);
+		void Render();
 		void Destroy();
 		void OnImGuiRender();
 
 		inline ieTransform& GetTransformRef() { return m_Transform; }
 		inline const ieTransform& GetTransform() const { return m_Transform; }
-		CB_VS_PerObject GetConstantBuffer();
+		inline CB_VS_PerObject GetConstantBuffer() { return m_ConstantBufferPerObject; }
 
 		uint32_t GetVertexCount();
 		uint32_t GetVertexBufferSize();
@@ -37,14 +37,16 @@ namespace Insight {
 	private:
 		void Init(Verticies& verticies, Indices& indices);
 		void CreateBuffers(Verticies& Verticies, Indices& Indices);
-
+		void UpdateAccelerationStructures();
 	private:
 		ieVertexBuffer* m_pVertexBuffer;
 		ieIndexBuffer* m_pIndexBuffer;
 
-		ieTransform					m_Transform;
-		CB_VS_PerObject				m_ConstantBufferPerObject = {};
+		ieTransform		m_Transform;
+		CB_VS_PerObject	m_ConstantBufferPerObject = {};
 
-		bool						m_CastsShadows = true;
+		bool			m_CastsShadows = true;
+		uint32_t		m_RTInstanceIndex = 0U;
+		bool			m_ShouldUpdateAS = false;
 	};
 }

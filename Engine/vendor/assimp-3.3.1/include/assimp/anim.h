@@ -411,7 +411,7 @@ namespace Assimp {
  *
  *  The type of interpolation is chosen automatically depending on the
  *  types of the arguments. */
-template <typename T>
+template <typename Event>
 struct Interpolator
 {
     // ------------------------------------------------------------------
@@ -420,7 +420,7 @@ struct Interpolator
      *  The interpolation algorithm depends on the type of the operands.
      *  aiQuaternion's and aiQuatKey's SLERP, the rest does a simple
      *  linear interpolation. */
-    void operator () (T& out,const T& a, const T& b, float d) const {
+    void operator () (Event& out,const Event& a, const Event& b, float d) const {
         out = a + (b-a)*d;
     }
 }; // ! Interpolator <T>

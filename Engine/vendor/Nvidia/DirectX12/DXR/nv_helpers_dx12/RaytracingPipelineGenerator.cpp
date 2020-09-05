@@ -39,11 +39,12 @@ compiling in debug mode.
 
 */
 
+#include <ie_pch.h>
 #include "RaytracingPipelineGenerator.h"
 
 #include "dxcapi.h"
 #include <unordered_set>
-
+#include <stdexcept>
 namespace nv_helpers_dx12
 {
 

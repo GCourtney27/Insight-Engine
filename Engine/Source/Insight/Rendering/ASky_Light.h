@@ -19,7 +19,7 @@ namespace Insight {
 
 		virtual bool OnInit();
 		virtual bool OnPostInit();
-		virtual void OnUpdate(const float& deltaMs);
+		virtual void OnUpdate(const float DeltaMs);
 		virtual void OnPreRender(XMMATRIX parentMat);
 		virtual void OnRender();
 		virtual void Destroy();
@@ -27,19 +27,22 @@ namespace Insight {
 		void OnEvent(Event& e);
 
 		virtual void BeginPlay();
-		virtual void Tick(const float& deltaMs);
+		virtual void Tick(const float DeltaMs);
 		virtual void Exit();
 
 		virtual void OnImGuiRender() override;
 
-		void BindCubeMaps();
+		void BindCubeMaps(bool RenderPassIsDeferred);
 
 		/*CB_PS_SpotLight GetConstantBuffer() { return m_ShaderCB; }*/
 
 	private:
+		bool m_Enabled = true;
+		
 		Texture* m_Irradiance;
 		Texture* m_Environment;
 		Texture* m_BrdfLUT;
+
 	};
 
 

@@ -32,9 +32,9 @@ namespace Insight {
 		return true;
 	}
 
-	void APlayerStart::OnUpdate(const float& deltaMs)
+	void APlayerStart::OnUpdate(const float DeltaMs)
 	{
-		AActor::OnUpdate(deltaMs);
+		AActor::OnUpdate(DeltaMs);
 
 	}
 
@@ -54,7 +54,7 @@ namespace Insight {
 	{
 	}
 
-	void APlayerStart::Tick(const float& DeltaMs)
+	void APlayerStart::Tick(const float DeltaMs)
 	{
 	}
 

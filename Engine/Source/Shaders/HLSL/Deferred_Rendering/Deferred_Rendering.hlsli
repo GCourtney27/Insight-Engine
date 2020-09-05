@@ -1,5 +1,5 @@
-#define MAX_PER_OBJECT_LOD 9
 #include <../Common/Lights_Common.hlsli>
+#define MAX_PER_OBJECT_LOD 9
 
 cbuffer cbPerObject : register(b0)
 {
@@ -11,10 +11,12 @@ cbuffer cbPerFrame : register(b1)
     float3 cameraPosition;
     float cameraExposure;//4
     float4x4 view;
+    float4x4 inverseView;
     float4x4 projection;
+    float4x4 inverseProjection;
     float cameraNearZ;
     float cameraFarZ;
-    float deltaMs;
+    float DeltaMs;
     float time;//4
     float numPointLights;
     float numDirectionalLights;
@@ -49,7 +51,7 @@ cbuffer cbPostFx : register(b3)
     float caIntensity;
 }
 
-cbuffer PerObjectAdditive : register(b4)
+cbuffer cbPerObjectAdditive : register(b4)
 {
     float roughnessAdditive;
     float metallicAdditive;

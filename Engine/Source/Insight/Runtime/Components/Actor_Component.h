@@ -1,6 +1,9 @@
 #pragma once
 #include <Insight/Core.h>
 
+#include "Insight/Events/Event.h"
+
+
 namespace Insight {
 
 
@@ -9,10 +12,16 @@ namespace Insight {
 	class ActorComponent
 	{
 	public:
+		using EventCallbackFn = std::function<void(Event&)>;
+
+	public:
 		virtual ~ActorComponent(void) { m_pOwner = nullptr; }
 
 		virtual bool LoadFromJson(const rapidjson::Value& JsonComponent) = 0;
 		virtual bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer) = 0;
+		
+		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
+		virtual void OnEvent(Event& e) = 0;
 
 		virtual void OnInit() = 0;
 		virtual void OnPostInit() {}
@@ -30,7 +39,7 @@ namespace Insight {
 		virtual void RenderSceneHeirarchy() = 0;
 
 		virtual void BeginPlay() = 0;
-		virtual void Tick(const float& DeltaMs) = 0;
+		virtual void Tick(const float DeltaMs) = 0;
 
 		virtual void OnAttach() = 0;
 		virtual void OnDetach() = 0;

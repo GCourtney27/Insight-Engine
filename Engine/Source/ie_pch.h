@@ -41,6 +41,9 @@
 #include "Insight/Core/Interfaces.h"
 #include "Insight/Utilities/Profiling.h"
 #include "Insight/Math/ie_Vectors.h"
+// Parameters
+#define RENDERER_MULTI_THREAD_ENABLED 0
+	static const uint8_t s_NumRenderContexts = 2;
 
 // === Third Party === //
 // Rapid Json
@@ -56,6 +59,14 @@
 // === Windows Library === //
 #ifdef IE_PLATFORM_WINDOWS
 
+	#ifndef WIN32_LEAN_AND_MEAN
+		#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers.
+	#endif
+
+	#if defined IE_DEBUG
+		#define USE_PIX
+	#endif
+
 	// Windows API	
 	#include <Windows.h>
 	#include <wrl/client.h>
@@ -67,10 +78,11 @@
 	// Direct3D 12
 	#include <d3d12.h>
 	#include <DirectX12/d3dx12.h>
+	#include <WinPixEventRuntime/pix3.h>
+	#include <dxcapi.h>
 
 	// Direct3D 11
 	#include <d3d11.h>
-
 
 	// DirectX
 	#include <dxgi1_2.h>

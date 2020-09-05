@@ -20,11 +20,11 @@ namespace Insight {
 		bool LoadResourcesFromJson(const rapidjson::Value& jsonTextures);
 		StrongTexturePtr GetTextureByID(Texture::ID textureID, Texture::eTextureType textreType);
 		
-		StrongTexturePtr GetDefaultAlbedoTexture() { return m_AlbedoTextures[0];/*return m_DefaultAlbedoTexture;*/ }
-		StrongTexturePtr GetDefaultNormalTexture() { return m_NormalTextures[0];/*return m_DefaultNormalTexture;*/ }
-		StrongTexturePtr GetDefaultMetallicTexture() { return m_MetallicTextures[0];/*return m_DefaultMetallicTexture;*/ }
-		StrongTexturePtr GetDefaultRoughnessTexture() { return m_RoughnessTextures[0];/*return m_DefaultRoughnessTexture;*/ }
-		StrongTexturePtr GetDefaultAOTexture() { return m_AOTextures[0];/*return m_DefaultAOTexture;*/ }
+		StrongTexturePtr GetDefaultAlbedoTexture() { return m_AlbedoTextures[0]; }
+		StrongTexturePtr GetDefaultNormalTexture() { return m_NormalTextures[0]; }
+		StrongTexturePtr GetDefaultMetallicTexture() { return m_MetallicTextures[0]; }
+		StrongTexturePtr GetDefaultRoughnessTexture() { return m_RoughnessTextures[0]; }
+		StrongTexturePtr GetDefaultAOTexture() { return m_AOTextures[0]; }
 
 	private:
 		bool LoadDefaultTextures();
@@ -37,6 +37,8 @@ namespace Insight {
 		std::vector<StrongTexturePtr> m_MetallicTextures;
 		std::vector<StrongTexturePtr> m_RoughnessTextures;
 		std::vector<StrongTexturePtr> m_AOTextures;
+		std::vector<StrongTexturePtr> m_OpacityTextures;
+		std::vector<StrongTexturePtr> m_TranslucencyTextures;
 
 		StrongTexturePtr m_DefaultAlbedoTexture;
 		StrongTexturePtr m_DefaultNormalTexture;

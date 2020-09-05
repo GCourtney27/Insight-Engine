@@ -11,19 +11,20 @@ namespace Insight {
 
 	void InputManager::OnEvent(Event& event)
 	{
-		EventDispatcher dispatcher(event);
+		EventDispatcher Dispatcher(event);
 		// Mouse Buttons
-		dispatcher.Dispatch<MouseButtonPressedEvent>(IE_BIND_EVENT_FN(InputManager::OnMouseButtonPressedEvent));
-		dispatcher.Dispatch<MouseButtonReleasedEvent>(IE_BIND_EVENT_FN(InputManager::OnMouseButtonReleasedEvent));
+		Dispatcher.Dispatch<MouseButtonPressedEvent>(IE_BIND_EVENT_FN(InputManager::OnMouseButtonPressedEvent));
+		Dispatcher.Dispatch<MouseButtonReleasedEvent>(IE_BIND_EVENT_FN(InputManager::OnMouseButtonReleasedEvent));
 		// Mouse Moved
-		dispatcher.Dispatch<MouseMovedEvent>(IE_BIND_EVENT_FN(InputManager::OnMouseMovedEvent));
-		dispatcher.Dispatch<MouseRawMoveEvent>(IE_BIND_EVENT_FN(InputManager::OnRawMouseMoveEvent));
-		dispatcher.Dispatch<MouseScrolledEvent>(IE_BIND_EVENT_FN(InputManager::OnMouseScrollEvent));
+		Dispatcher.Dispatch<MouseMovedEvent>(IE_BIND_EVENT_FN(InputManager::OnMouseMovedEvent));
+		Dispatcher.Dispatch<MouseRawMoveEvent>(IE_BIND_EVENT_FN(InputManager::OnRawMouseMoveEvent));
+		// Mouse Scroll
+		Dispatcher.Dispatch<MouseScrolledEvent>(IE_BIND_EVENT_FN(InputManager::OnMouseScrollEvent));
 		// Key Pressed
-		dispatcher.Dispatch<KeyPressedEvent>(IE_BIND_EVENT_FN(InputManager::OnKeyPressedEvent));
-		dispatcher.Dispatch<KeyReleasedEvent>(IE_BIND_EVENT_FN(InputManager::OnKeyReleasedEvent));
+		Dispatcher.Dispatch<KeyPressedEvent>(IE_BIND_EVENT_FN(InputManager::OnKeyPressedEvent));
+		Dispatcher.Dispatch<KeyReleasedEvent>(IE_BIND_EVENT_FN(InputManager::OnKeyReleasedEvent));
 		// Key Typed
-		dispatcher.Dispatch<KeyTypedEvent>(IE_BIND_EVENT_FN(InputManager::OnKeyTypedEvent));
+		Dispatcher.Dispatch<KeyTypedEvent>(IE_BIND_EVENT_FN(InputManager::OnKeyTypedEvent));
 	}
 
 	bool InputManager::OnMouseButtonPressedEvent(MouseButtonPressedEvent& e)
@@ -41,8 +42,6 @@ namespace Insight {
 	bool InputManager::OnMouseScrollEvent(MouseScrolledEvent& e)
 	{
 		m_MouseBuffer.OnMouseScroll(e.GetXOffset(), e.GetYOffset());
-		//IE_CORE_INFO("{0}", e.GetYOffset());
-
 		return false;
 	}
 

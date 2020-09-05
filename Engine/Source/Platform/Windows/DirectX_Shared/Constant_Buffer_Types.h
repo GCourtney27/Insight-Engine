@@ -5,9 +5,10 @@
 #include <DirectXMath.h>
 
 /*
+	** These buffers are 16 byte aligned, edit with caution **
 
 	Constant buffers to be sent to the GPU during draw calls.
-	Nameing convention is as follows:
+	Naming convention is as follows:
 	CB_ShaderVisibility_NameOfConstantBuffer
 	
 	Ex) CB_PS_VS_PerObjectAdditives - Is a Constant Buffer (CB) visible to the Vertex Shader (VS) and Pixel Shader (PS) with a name of PerObjectAdditives
@@ -38,10 +39,12 @@ struct CB_PS_VS_PerFrame
 	DirectX::XMFLOAT3 cameraPosition;
 	float cameraExposure;//4
 	DirectX::XMFLOAT4X4 view;//4x4
+	DirectX::XMFLOAT4X4 inverseView;//4x4
 	DirectX::XMFLOAT4X4 projection;//4x4
+	DirectX::XMFLOAT4X4 inverseProjection;//4x4
 	float cameraNearZ;
 	float cameraFarZ;
-	float deltaMs;
+	float DeltaMs;
 	float time;//4
 	float numPointLights;
 	float numDirectionalLights;
@@ -91,14 +94,14 @@ struct CB_PS_PostFx
 	float vnInnerRadius;
 	float vnOuterRadius;
 	float vnOpacity;
-	int vnEnabled;
+	int vnEnabled = 0;
 
 	// Film Grain
 	float fgStrength;
-	int fgEnabled;
+	int fgEnabled = 0;
 
 	// Chromatic Aberration
-	int caEnabled;
+	int caEnabled = 0;
 	float caIntensity;
 };
 

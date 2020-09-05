@@ -24,7 +24,7 @@ namespace Insight {
 
 
 	Direct3D11Context::Direct3D11Context(WindowsWindow* WindowHandle)
-		: m_pWindowHandle(&WindowHandle->GetWindowHandleReference()),
+		: m_pWindowHandle(&WindowHandle->GetWindowHandleRef()),
 		m_pWindow(WindowHandle),
 		Renderer(WindowHandle->GetWidth(), WindowHandle->GetHeight(), false)
 	{
@@ -34,7 +34,7 @@ namespace Insight {
 	{
 	}
 
-	bool Direct3D11Context::InitImpl()
+	bool Direct3D11Context::Init_Impl()
 	{
 		IE_CORE_INFO("Renderer: D3D 11");
 
@@ -52,27 +52,27 @@ namespace Insight {
 		return true;
 	}
 
-	void Direct3D11Context::SetVertexBuffersImpl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers)
+	void Direct3D11Context::SetVertexBuffers_Impl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers)
 	{
 		m_pDeviceContext->IASetVertexBuffers(StartSlot, NumBuffers, reinterpret_cast<D3D11VertexBuffer*>(pBuffers)->GetBufferPtr(), reinterpret_cast<D3D11VertexBuffer*>(pBuffers)->GetStridePtr(), reinterpret_cast<D3D11VertexBuffer*>(pBuffers)->GetBufferOffset());
 	}
 
-	void Direct3D11Context::SetIndexBufferImpl(ieIndexBuffer* pBuffer)
+	void Direct3D11Context::SetIndexBuffer_Impl(ieIndexBuffer* pBuffer)
 	{
 		m_pDeviceContext->IASetIndexBuffer(reinterpret_cast<D3D11IndexBuffer*>(pBuffer)->GetBufferPtr(), reinterpret_cast<D3D11IndexBuffer*>(pBuffer)->GetFormat(), reinterpret_cast<D3D11IndexBuffer*>(pBuffer)->GetBufferOffset());
 	}
 
-	void Direct3D11Context::DrawIndexedInstancedImpl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation)
+	void Direct3D11Context::DrawIndexedInstanced_Impl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation)
 	{
 		m_pDeviceContext->DrawIndexed(IndexCountPerInstance, StartIndexLocation, BaseVertexLoaction);
 	}
 
-	void Direct3D11Context::RenderSkySphereImpl()
+	void Direct3D11Context::RenderSkySphere_Impl()
 	{
 		m_SkySphere->Render();
 	}
 
-	bool Direct3D11Context::CreateSkyboxImpl()
+	bool Direct3D11Context::CreateSkybox_Impl()
 	{
 		m_SkySphere = new ieD3D11SphereRenderer();
 		m_SkySphere->Init(10, 20, 20, m_pDevice.Get(), m_pDeviceContext.Get());
@@ -80,25 +80,25 @@ namespace Insight {
 		return true;
 	}
 
-	void Direct3D11Context::DestroySkyboxImpl()
+	void Direct3D11Context::DestroySkybox_Impl()
 	{
 		if (m_SkySphere) {
 			delete m_pSkySphere;
 		}
 	}
 
-	void Direct3D11Context::DestroyImpl()
+	void Direct3D11Context::Destroy_Impl()
 	{
 	}
 
-	bool Direct3D11Context::PostInitImpl()
+	bool Direct3D11Context::PostInit_Impl()
 	{
 		m_pWorldCamera = &ACamera::Get();
 
 		return true;
 	}
 
-	void Direct3D11Context::OnUpdateImpl(const float DeltaMs)
+	void Direct3D11Context::OnUpdate_Impl(const float DeltaMs)
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
@@ -107,12 +107,12 @@ namespace Insight {
 		XMStoreFloat4x4(&viewFloat, XMMatrixTranspose(m_pWorldCamera->GetViewMatrix()));
 		XMFLOAT4X4 projectionFloat;
 		XMStoreFloat4x4(&projectionFloat, XMMatrixTranspose(m_pWorldCamera->GetProjectionMatrix()));
-		m_PerFrameData.Data.deltaMs = DeltaMs;
+		m_PerFrameData.Data.DeltaMs = DeltaMs;
 		m_PerFrameData.Data.time = static_cast<float>(Application::Get().GetFrameTimer().Seconds());
 		m_PerFrameData.Data.view = viewFloat;
 		m_PerFrameData.Data.projection = projectionFloat;
 		m_PerFrameData.Data.cameraPosition = m_pWorldCamera->GetTransformRef().GetPosition();
-		m_PerFrameData.Data.deltaMs = DeltaMs;
+		m_PerFrameData.Data.DeltaMs = DeltaMs;
 		m_PerFrameData.Data.time = (float)Application::Get().GetFrameTimer().Seconds();
 		m_PerFrameData.Data.cameraNearZ = (float)m_pWorldCamera->GetNearZ();
 		m_PerFrameData.Data.cameraFarZ = (float)m_pWorldCamera->GetFarZ();
@@ -165,9 +165,10 @@ namespace Insight {
 		m_PostFxData.SubmitToGPU();
 	}
 
-	void Direct3D11Context::OnPreFrameRenderImpl()
+	void Direct3D11Context::OnPreFrameRender_Impl()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
+		m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), m_ClearColor);
 
 		// Set Persistant Pass Properties
 		m_pDeviceContext->RSSetViewports(1, &m_ScenePassViewPort);
@@ -177,7 +178,7 @@ namespace Insight {
 		m_DeferredShadingTech.PrepPipelineForRenderPass();
 	}
 
-	void Direct3D11Context::OnRenderImpl()
+	void Direct3D11Context::OnRender_Impl()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
@@ -190,38 +191,48 @@ namespace Insight {
 		GeometryManager::Render(eRenderPass::RenderPass_Scene);
 	}
 
-	void Direct3D11Context::OnMidFrameRenderImpl()
+	void Direct3D11Context::OnMidFrameRender_Impl()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
 		// Light Pass
+		if (m_pSkyLight) {
+			m_pSkyLight->BindCubeMaps(true);
+		}
 		m_pDeviceContext->PSSetConstantBuffers(2, 1, m_LightData.GetAddressOf());
 		m_DeferredShadingTech.BindLightPass();
 
 		// Sky Pass
 		if (m_pSkySphere) {
 			m_DeferredShadingTech.BindSkyPass();
-			m_pSkySphere->RenderSky(nullptr);
+			m_pSkySphere->RenderSky();
 		}
+
+		// Transparency Pass
+		if (m_pSkyLight) {
+			m_pSkyLight->BindCubeMaps(false);
+		}
+		m_pDeviceContext->VSSetConstantBuffers(1, 1, m_PerFrameData.GetAddressOf());
+		m_pDeviceContext->PSSetConstantBuffers(1, 1, m_PerFrameData.GetAddressOf());
+		m_pDeviceContext->PSSetConstantBuffers(2, 1, m_LightData.GetAddressOf());
+		m_DeferredShadingTech.BindTransparencyPass();
+		GeometryManager::Render(eRenderPass::RenderPass_Transparency);
 
 		// PostFx Pass
-		if (m_pPostFx) {
-			m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), m_ClearColor);
-			m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), nullptr);
-			m_pDeviceContext->PSSetConstantBuffers(3, 1, m_PostFxData.GetAddressOf());
-			m_pDeviceContext->PSSetConstantBuffers(1, 1, m_PerFrameData.GetAddressOf());
-			m_DeferredShadingTech.BindPostFxPass();
-		}
+		m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), nullptr);
+		m_pDeviceContext->PSSetConstantBuffers(3, 1, m_PostFxData.GetAddressOf());
+		m_pDeviceContext->PSSetConstantBuffers(1, 1, m_PerFrameData.GetAddressOf());
+		m_DeferredShadingTech.BindPostFxPass();
 	}
 
-	void Direct3D11Context::ExecuteDrawImpl()
+	void Direct3D11Context::ExecuteDraw_Impl()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
 
 	}
 
-	void Direct3D11Context::SwapBuffersImpl()
+	void Direct3D11Context::SwapBuffers_Impl()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
@@ -230,7 +241,7 @@ namespace Insight {
 		ThrowIfFailed(hr, "Failed to present frame for D3D 11 context.");
 	}
 
-	void Direct3D11Context::OnWindowResizeImpl()
+	void Direct3D11Context::OnWindowResize_Impl()
 	{
 		if (!m_IsMinimized) {
 
@@ -258,7 +269,7 @@ namespace Insight {
 		m_WindowResizeComplete = true;
 	}
 
-	void Direct3D11Context::OnWindowFullScreenImpl()
+	void Direct3D11Context::OnWindowFullScreen_Impl()
 	{
 		if (m_FullScreenMode)
 		{
@@ -295,7 +306,7 @@ namespace Insight {
 				}
 				else
 				{
-					// Fallback to EnumDisplaySettings implementation
+					// Fallback to EnumDisplaySettings _Implementation
 					throw COMException(NULL, "No Swap chain available", __FILE__, __FUNCTION__, __LINE__);
 				}
 			}
@@ -329,6 +340,11 @@ namespace Insight {
 			ShowWindow(*m_pWindowHandle, SW_MAXIMIZE);
 		}
 		m_FullScreenMode = !m_FullScreenMode;
+	}
+
+	void Direct3D11Context::OnShaderReload_Impl()
+	{
+		m_DeferredShadingTech.ReloadShaders();
 	}
 
 	void Direct3D11Context::UpdateSizeDependentResources()
@@ -371,6 +387,7 @@ namespace Insight {
 		m_ScenePassScissorRect.top = static_cast<LONG>(m_ScenePassViewPort.TopLeftY);
 		m_ScenePassScissorRect.bottom = static_cast<LONG>(m_ScenePassViewPort.TopLeftX + m_ScenePassViewPort.Height);
 	}
+
 
 
 

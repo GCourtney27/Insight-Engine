@@ -14,7 +14,7 @@ namespace Insight {
 
 	MonoScriptManager::MonoScriptManager()
 	{
-		
+
 	}
 
 	MonoScriptManager::~MonoScriptManager()
@@ -23,7 +23,7 @@ namespace Insight {
 	}
 
 	bool MonoScriptManager::CreateClass(MonoClass*& monoClass, MonoObject*& monoObject, const char* className)
-	{ 
+	{
 		monoClass = mono_class_from_name(m_pImage, m_CSGlobalNamespace, className);
 		monoObject = mono_object_new(m_pDomain, monoClass);
 		mono_runtime_object_init(monoObject);
@@ -31,25 +31,25 @@ namespace Insight {
 		return (monoClass && monoObject);
 	}
 
-	bool MonoScriptManager::CreateMethod(MonoClass*& classToInitFrom, MonoMethod*& monoMethod, const char* targetClassName, const char* methodName)
+	bool MonoScriptManager::CreateMethod(MonoClass*& ClassToInitFrom, MonoMethod*& MonoMethod, const char* TargetClassName, const char* MethodName)
 	{
-		MonoMethodDesc* methodDesc;
-		std::string methodSignature;
-		methodSignature = m_CSGlobalNamespace;
-		methodSignature += ".";
-		methodSignature += targetClassName;
-		methodSignature += ":";
-		methodSignature += methodName;
-		methodDesc = mono_method_desc_new(methodSignature.c_str(), true);
-		monoMethod = mono_method_desc_search_in_class(methodDesc, classToInitFrom);
-		mono_method_desc_free(methodDesc);
+		MonoMethodDesc* MethodDesc;
+		std::string MethodSignature;
+		MethodSignature = m_CSGlobalNamespace;
+		MethodSignature += ".";
+		MethodSignature += TargetClassName;
+		MethodSignature += ":";
+		MethodSignature += MethodName;
+		MethodDesc = mono_method_desc_new(MethodSignature.c_str(), true);
+		MonoMethod = mono_method_desc_search_in_class(MethodDesc, ClassToInitFrom);
+		mono_method_desc_free(MethodDesc);
 
-		return (monoMethod);
+		return (MonoMethod);
 	}
 
-	MonoObject* MonoScriptManager::InvokeMethod(MonoMethod*& methodToCall, MonoObject*& belongingObject, void* methodArgs[])
+	MonoObject* MonoScriptManager::InvokeMethod(MonoMethod*& MethodToCall, MonoObject*& BelongingObject, void* MethodArgs[])
 	{
-		return mono_runtime_invoke(methodToCall, belongingObject, methodArgs, nullptr);
+		return mono_runtime_invoke(MethodToCall, BelongingObject, MethodArgs, nullptr);
 	}
 
 	void MonoScriptManager::ImGuiRender()
@@ -60,15 +60,15 @@ namespace Insight {
 		ImGui::End();
 	}
 
-	mono_bool Interop_IsKeyPressed(char keyCode)
+	mono_bool Interop_IsKeyPressed(char KeyCode)
 	{
-		mono_bool pressed = Input::IsKeyPressed(keyCode);
+		mono_bool pressed = Input::IsKeyPressed(KeyCode);
 		return pressed;
 	}
 
-	mono_bool Interop_IsMouseButtonPressed(int mouseButton)
+	mono_bool Interop_IsMouseButtonPressed(int MouseButton)
 	{
-		mono_bool pressed = Input::IsMouseButtonPressed(mouseButton);
+		mono_bool pressed = Input::IsMouseButtonPressed(MouseButton);
 		return pressed;
 	}
 
@@ -84,20 +84,27 @@ namespace Insight {
 
 	bool MonoScriptManager::Init()
 	{
-		const char* BuildConfig = MACRO_TO_STRING(IE_BUILD_CONFIG);
-		m_AssemblyDir = FileSystem::ProjectDirectory;
-		m_AssemblyDir += "/Bin/";
-		m_AssemblyDir += BuildConfig;
-		m_AssemblyDir += "/Assembly-CSharp/Assembly-CSharp.dll";
+		if (!m_ManagerIsInitialized) {
 
-		mono_set_dirs("C:/Program Files/Mono/lib", "C:/Program Files/Mono/etc");
+			const char* BuildConfig = MACRO_TO_STRING(IE_BUILD_CONFIG);
+			m_AssemblyDir = FileSystem::ProjectDirectory;
+			m_AssemblyDir += "/Bin/";
+			m_AssemblyDir += BuildConfig;
+			m_AssemblyDir += "/Assembly-CSharp/Assembly-CSharp.dll";
 
-		m_pDomain = mono_jit_init("IE-Mono-Script-Engine");
-		if (!m_pDomain) {
-			IE_CORE_ERROR("Failed to initialize mono domain.");
-			return false;
+			mono_set_dirs("C:/Program Files/Mono/lib", "C:/Program Files/Mono/etc");
+
+			m_pDomain = mono_jit_init_version("IE-Mono-Script-Engine", "v4.7.2");
+			if (!m_pDomain) {
+				IE_CORE_ERROR("Failed to initialize mono domain.");
+				return false;
+			}
+			m_ManagerIsInitialized = true;
+
 		}
-		
+		m_pDomain = mono_domain_create_appdomain("IE-Mono-Script-Engine", NULL);
+		mono_domain_set(m_pDomain, false);
+
 		m_pAssembly = mono_domain_assembly_open(m_pDomain, m_AssemblyDir.c_str());
 		if (!m_pAssembly) {
 			IE_CORE_ERROR("Failed to open mono assembly with path: {0}", m_AssemblyDir);
@@ -116,54 +123,40 @@ namespace Insight {
 		mono_add_internal_call("Internal.Input::IsMouseButtonPressed", reinterpret_cast<const void*>(Interop_IsMouseButtonPressed));
 		mono_add_internal_call("Internal.Input::GetMouseX", reinterpret_cast<const void*>(Interop_GetMouseX));
 		mono_add_internal_call("Internal.Input::GetMouseY", reinterpret_cast<const void*>(Interop_GetMouseY));
-		
+
 		return true;
 	}
 
 	bool MonoScriptManager::PostInit()
 	{
-		
+		/*MonoDomain* domainToUnload = mono_domain_get();
+		if (domainToUnload && domainToUnload != mono_get_root_domain())
+		{
+			mono_domain_set(mono_get_root_domain(), false);
+			mono_domain_unload(domainToUnload);
+		}*/
+
+		mono_assembly_close(m_pAssembly);
+
 		return true;
+	}
+
+	void MonoScriptManager::OnBeginPlay()
+	{
+		Init();
+
+	}
+
+	void MonoScriptManager::OnEndPlaySession()
+	{
+		mono_domain_unload(m_pDomain);
+		mono_assemblies_cleanup();
+
 	}
 
 	void MonoScriptManager::ReCompile()
 	{
-		/*if (!AssemblyClosed) {
-			AssemblyClosed = true;
-			mono_assembly_close(m_pAssembly);
-			mono_assemblies_cleanup();
-			return;
-		}
-
-		if (AssemblyClosed) {
-			AssemblyClosed = false;
-		}*/
-		//Cleanup();
-		
-		//mono_image_open_from_data()
-		//mono_image_open_from_data_full()
-		//mono_image_open_from_data_with_name()
-
-		m_pAssembly = mono_domain_assembly_open(m_pDomain, m_AssemblyDir.c_str());
-		if (!m_pAssembly) {
-			IE_CORE_ERROR("Failed to open mono assembly with path: \"{0}\" during recompile", m_AssemblyDir);
-		}
-
-		m_pImage = mono_assembly_get_image(m_pAssembly);
-		if (!m_pImage) {
-			IE_CORE_ERROR("Failed to get image from mono assembly during recompile.");
-		}
-
-		// Register C# -> C++ calls
-		// Input
-		mono_add_internal_call("Internal.Input::IsKeyPressed", reinterpret_cast<const void*>(Interop_IsKeyPressed));
-		mono_add_internal_call("Internal.Input::IsMouseButtonPressed", reinterpret_cast<const void*>(Interop_IsMouseButtonPressed));
-		mono_add_internal_call("Internal.Input::GetMouseX", reinterpret_cast<const void*>(Interop_GetMouseX));
-		mono_add_internal_call("Internal.Input::GetMouseY", reinterpret_cast<const void*>(Interop_GetMouseY));
-		/*for (auto& Script : m_RegisteredScripts)
-		{
-			Script->ReCompile();
-		}*/
+		// TODO Unload while in editor and reload when playing
 	}
 
 	void MonoScriptManager::Cleanup()

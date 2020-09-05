@@ -6,6 +6,7 @@
 #include "Insight/Runtime/Components/Actor_Component.h"
 #include "Insight/Runtime/Components/Static_Mesh_Component.h"
 #include "Insight/Runtime/Components/CSharp_Scirpt_Component.h"
+#include "Insight/Runtime/Components/Sphere_Collider.h"
 
 //TEMP
 #include "Insight/Rendering/Material.h"
@@ -68,6 +69,11 @@ namespace Insight {
 			else if (jsonSubobjects[i].HasMember("CSharpScript")) {
 				StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<CSharpScriptComponent>();
 				ptr->LoadFromJson(jsonSubobjects[i]["CSharpScript"]);
+				continue;
+			}
+			else if (jsonSubobjects[i].HasMember("SphereCollider")) {
+				StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<SphereColliderComponent>();
+				//ptr->LoadFromJson(jsonSubobjects[i]["SphereCollider"]);
 				continue;
 			}
 		}
@@ -257,14 +263,14 @@ namespace Insight {
 		return true;
 	}
 
-	void AActor::OnUpdate(const float& deltaMs)
+	void AActor::OnUpdate(const float DeltaMs)
 	{
-		SceneNode::OnUpdate(deltaMs);
+		SceneNode::OnUpdate(DeltaMs);
 
 
 		for (size_t i = 0; i < m_NumComponents; ++i)
 		{
-			m_Components[i]->OnUpdate(deltaMs);
+			m_Components[i]->OnUpdate(DeltaMs);
 		}
 	}
 
@@ -306,12 +312,12 @@ namespace Insight {
 		}
 	}
 
-	void AActor::Tick(const float& deltaMs)
+	void AActor::Tick(const float DeltaMs)
 	{
-		SceneNode::Tick(deltaMs);
+		SceneNode::Tick(DeltaMs);
 		for (auto& comp : m_Components)
 		{
-			comp->Tick(deltaMs);
+			comp->Tick(DeltaMs);
 		}
 	}
 
@@ -335,7 +341,13 @@ namespace Insight {
 	void AActor::OnEvent(Event& e)
 	{
 		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<PhysicsEvent>(IE_BIND_EVENT_FN(AActor::OnCollision));
 
+		for (uint32_t i = 0; i < m_NumComponents; ++i)
+		{
+			m_Components[i]->OnEvent(e);
+			if (e.Handled()) break;
+		}
 	}
 
 	void AActor::RemoveSubobject(StrongActorComponentPtr component)
@@ -358,6 +370,12 @@ namespace Insight {
 		}
 		m_Components.clear();
 		m_NumComponents = 0;
+	}
+
+	bool AActor::OnCollision(PhysicsEvent& e)
+	{
+		IE_CORE_INFO("Physics Collision");
+		return false;
 	}
 
 }

@@ -25,9 +25,21 @@ namespace Insight {
 	{
 	}
 
-	void ieD3D11Texture::Bind()
+	void ieD3D11Texture::BindForDeferredPass()
 	{
 		m_pDeviceContext->PSSetShaderResources(m_ShaderRegister, 1, m_pTextureView.GetAddressOf());
+	}
+
+	void ieD3D11Texture::BindForForwardPass()
+	{
+		if (m_TextureInfo.IsCubeMap) {
+			constexpr uint32_t RenderPassShaderRegisterOffset = 4U;
+			m_pDeviceContext->PSSetShaderResources(m_ShaderRegister - RenderPassShaderRegisterOffset, 1, m_pTextureView.GetAddressOf());
+		}
+		else {
+			constexpr uint32_t RenderPassShaderRegisterOffset = 5U;
+			m_pDeviceContext->PSSetShaderResources(m_ShaderRegister - RenderPassShaderRegisterOffset, 1, m_pTextureView.GetAddressOf());
+		}
 	}
 
 	bool ieD3D11Texture::Init()
@@ -68,47 +80,57 @@ namespace Insight {
 	{
 		switch (m_TextureInfo.Type)
 		{
-		case eTextureType::ALBEDO:
+		case eTextureType::eTextureType_Albedo:
 		{
 			return 5;
 			break;
 		}
-		case eTextureType::NORMAL:
+		case eTextureType::eTextureType_Normal:
 		{
 			return 6;
 			break;
 		}
-		case eTextureType::ROUGHNESS:
+		case eTextureType::eTextureType_Roughness:
 		{
 			return 7;
 			break;
 		}
-		case eTextureType::METALLIC:
+		case eTextureType::eTextureType_Metallic:
 		{
 			return 8;
 			break;
 		}
-		case eTextureType::AO:
+		case eTextureType::eTextureType_Opacity:
+		{
+			return 8;
+			break;
+		}
+		case eTextureType::eTextureType_AmbientOcclusion:
 		{
 			return 9;
 			break;
 		}
-		case eTextureType::SKY_IRRADIENCE:
+		case eTextureType::eTextureType_Translucency:
+		{
+			return 9;
+			break;
+		}
+		case eTextureType::eTextureType_SkyIrradience:
 		{
 			return 11;
 			break;
 		}
-		case eTextureType::SKY_ENVIRONMENT_MAP:
+		case eTextureType::eTextureType_SkyEnvironmentMap:
 		{
 			return 12;
 			break;
 		}
-		case eTextureType::SKY_BRDF_LUT:
+		case eTextureType::eTextureType_IBLBRDFLUT:
 		{
 			return 13;
 			break;
 		}
-		case eTextureType::SKY_DIFFUSE:
+		case eTextureType::eTextureType_SkyDiffuse:
 		{
 			return 14;
 			break;

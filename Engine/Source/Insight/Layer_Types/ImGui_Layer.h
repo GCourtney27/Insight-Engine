@@ -25,6 +25,8 @@ namespace Insight {
 		virtual void End() = 0;
 		void OnEvent(Event& event);
 
+		bool IsMouseOverUI();
+
 	private:
 		bool OnMouseButtonPressedEvent(MouseButtonPressedEvent& e);
 		bool OnMouseButtonReleasedEvent(MouseButtonReleasedEvent& e);

@@ -11,11 +11,12 @@ namespace Insight {
 	enum class EventType
 	{
 		None = 0,
-		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved, ToggleWindowFullScreen,
+		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved, ToggleWindowFullScreen, ShaderReload,
 		AppBeginPlay, AppEndPlay, AppTick, AppUpdate, AppRender, AppScriptReload,
 		SceneSave,
 		KeyPressed, KeyReleased, KeyTyped,
-		MouseButtonPressed, MouseButtonReleased, MouseMoved, RawMouseMoved, MouseScrolled
+		MouseButtonPressed, MouseButtonReleased, MouseMoved, RawMouseMoved, MouseScrolled,
+		PhysicsCollisionEvent
 	};
 
 	enum EventCategory
@@ -26,6 +27,7 @@ namespace Insight {
 		EventCategoryKeyboard = BIT_SHIFT(2),
 		EventCategoryMouse = BIT_SHIFT(3),
 		EventCategoryMouseButton = BIT_SHIFT(4),
+		EventCatecoryPhysics = BIT_SHIFT(5)
 	};
 
 #define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::##type; }\
@@ -55,19 +57,19 @@ namespace Insight {
 
 	class EventDispatcher
 	{
-		template<typename T>
-		using EventFn = std::function<bool(T&)>;
+		template<typename Event>
+		using EventFn = std::function<bool(Event&)>;
 
 	public:
 		EventDispatcher(Event& event)
 			: m_Event(event) {}
 
-		template<typename T>
-		bool Dispatch(EventFn<T> func)
+		template<typename Event>
+		bool Dispatch(EventFn<Event> func)
 		{
-			if (m_Event.GetEventType() == T::GetStaticType())
+			if (m_Event.GetEventType() == Event::GetStaticType())
 			{
-				m_Event.m_Handled = func(*(T*)&m_Event);
+				m_Event.m_Handled = func(*(Event*)&m_Event);
 				return true;
 			}
 			return false;
