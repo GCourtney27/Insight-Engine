@@ -21,19 +21,19 @@
 #include <unordered_set>
 
 #if _MSC_VER >= 1700
-	using std::shared_ptr;
-	using std::weak_ptr;
-	using std::unique_ptr;
-	using std::static_pointer_cast;
-	using std::dynamic_pointer_cast;
-	using std::make_shared;
-	using std::make_unique;
+using std::shared_ptr;
+using std::weak_ptr;
+using std::unique_ptr;
+using std::static_pointer_cast;
+using std::dynamic_pointer_cast;
+using std::make_shared;
+using std::make_unique;
 #elif _MSC_VER == 1600
-	using std::tr1::shared_ptr;
-	using std::tr1::weak_ptr;
-	using std::tr1::unique_ptr;
-	using std::tr1::static_pointer_cast;
-	using std::tr1::dynamic_pointer_cast;
+using std::tr1::shared_ptr;
+using std::tr1::weak_ptr;
+using std::tr1::unique_ptr;
+using std::tr1::static_pointer_cast;
+using std::tr1::dynamic_pointer_cast;
 #endif
 
 // === Insight Specific === //
@@ -41,9 +41,6 @@
 #include "Insight/Core/Interfaces.h"
 #include "Insight/Utilities/Profiling.h"
 #include "Insight/Math/ie_Vectors.h"
-// Parameters
-#define RENDERER_MULTI_THREAD_ENABLED 0
-	static const uint8_t s_NumRenderContexts = 2;
 
 // === Third Party === //
 // Rapid Json
@@ -63,38 +60,38 @@
 // === Windows === //
 #if defined IE_PLATFORM_WINDOWS
 
-	#ifndef WIN32_LEAN_AND_MEAN
-		#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers.
-	#endif
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers.
+#endif
 
-	#if defined IE_DEBUG
-		#define USE_PIX
-	#endif
+#if defined IE_DEBUG
+#define USE_PIX
+#endif
 
-	// Windows API	
-	#include <Windows.h>
-	#include <wrl/client.h>
-	#include <windowsx.h>
-	#include <shlobj.h>
-	#include "Shlwapi.h"
-	#include <strsafe.h>
+// Windows API
+#include <Windows.h>
+#include <wrl/client.h>
+#include <windowsx.h>
+#include <shlobj.h>
+#include "Shlwapi.h"
+#include <strsafe.h>
 
-	// Direct3D 12
-	#include <d3d12.h>
-	#include <DirectX12/d3dx12.h> 
-	#include <WinPixEventRuntime/pix3.h>
-	#include <dxcapi.h>
+// Direct3D 12
+#include <d3d12.h>
+#include <DirectX12/d3dx12.h> 
+#include <WinPixEventRuntime/pix3.h>
+#include <dxcapi.h>
 
-	// Direct3D 11
-	#include <d3d11.h>
+// Direct3D 11
+#include <d3d11.h>
 
-	// DirectX
-	#include <dxgi1_2.h>
-	#include <dxgi1_4.h>
-	#include <wincodec.h>
-	#include <DirectXMath.h>
-	#include <D3Dcompiler.h>
-	
+// DirectX
+#include <dxgi1_2.h>
+#include <dxgi1_4.h>
+#include <wincodec.h>
+#include <DirectXMath.h>
+#include <D3Dcompiler.h>
+
 #endif // IE_PLATFORM_WINDOWS
 
 // === Mac === //

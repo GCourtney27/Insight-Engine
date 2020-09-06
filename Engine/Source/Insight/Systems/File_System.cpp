@@ -17,6 +17,7 @@
 namespace Insight {
 
 	std::string FileSystem::ProjectDirectory = "";
+	std::string FileSystem::ExecutableDirectory = "";
 
 	FileSystem::FileSystem()
 	{
@@ -32,6 +33,8 @@ namespace Insight {
 		FileSystem::ProjectDirectory += "/Insight Projects/";
 		FileSystem::ProjectDirectory += ProjectName;
 		FileSystem::ProjectDirectory += "/";
+		
+		FileSystem::ExecutableDirectory = FileSystem::GetExecutbleDirectory();
 		return true;
 	}
 
@@ -98,6 +101,22 @@ namespace Insight {
 			*(LastSlash + 1) = L'\0';
 		}
 		return StringHelper::WideToString(std::wstring{ Path });
+	}
+
+	std::wstring FileSystem::GetExecutbleDirectoryW()
+	{
+		WCHAR Path[512];
+		UINT RawPathSize = _countof(Path);
+		DWORD PathSize = GetModuleFileName(nullptr, Path, RawPathSize);
+		if (PathSize == 0 || PathSize == RawPathSize) {
+			throw ieException("Failed to get module path name or path may have been truncated.");
+		}
+
+		WCHAR* LastSlash = wcsrchr(Path, L'\\');
+		if (LastSlash) {
+			*(LastSlash + 1) = L'\0';
+		}
+		return std::wstring{ Path };
 	}
 
 	std::string FileSystem::GetUserDocumentsFolderPath()

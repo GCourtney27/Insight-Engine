@@ -19,8 +19,8 @@
 // ----------------------------
 // DemoScene
 // MultipleLights
-static const char* ProjectName = "IE-Tank-Game";
-static const char* TargetSceneName = "TestArena.iescene";
+static const char* ProjectName = "Development-Project";
+static const char* TargetSceneName = "DemoScene.iescene";
 
 namespace Insight {
 

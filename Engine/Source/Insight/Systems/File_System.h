@@ -17,6 +17,7 @@ namespace Insight {
 
 		static void SaveEngineUserSettings(Renderer::GraphicsSettings Settings);
 		static std::string GetExecutbleDirectory();
+		static std::wstring FileSystem::GetExecutbleDirectoryW();
 		static std::string GetUserDocumentsFolderPath();
 		static std::string GetProjectRelativeAssetDirectory(std::string Path);
 		static Renderer::GraphicsSettings LoadGraphicsSettingsFromJson();
@@ -26,6 +27,8 @@ namespace Insight {
 
 	public:
 		static std::string ProjectDirectory;
+		static std::string ExecutableDirectory;
+
 	private:
 
 	};
