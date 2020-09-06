@@ -7,10 +7,10 @@
 
 namespace Insight {
 
-	class INSIGHT_API APostFx : public AActor
+	class INSIGHT_API APostFx : public Runtime::AActor
 	{
 	public:
-		APostFx(ActorId id, ActorType type = "Spot Light Actor");
+		APostFx(ActorId id, Runtime::ActorType type = "Spot Light Actor");
 		virtual ~APostFx();
 
 		virtual bool LoadFromJson(const rapidjson::Value& jsonPostFx) override;

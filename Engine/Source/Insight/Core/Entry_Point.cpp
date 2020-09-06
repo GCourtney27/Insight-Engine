@@ -1,7 +1,7 @@
 #include <Engine_pch.h>
 
 #include "ClientApp.h"
-#include "Insight/Core/ieException.h"
+#include "Insight/Core/ie_Exception.h"
 
 // Copyright 2020 Garrett Courtney
 

@@ -30,7 +30,9 @@ namespace Insight {
 	class APointLight;
 	class ASpotLight;
 
-	class ACamera;
+	namespace Runtime {
+		class ACamera;
+	}
 
 	class INSIGHT_API Renderer
 	{
@@ -45,8 +47,8 @@ namespace Insight {
 		struct GraphicsSettings
 		{
 			eTargetRenderAPI TargetRenderAPI = eTargetRenderAPI::D3D_11;
-			uint32_t MaxAnisotropy = 1U; // Texture Filtering (1, 4, 8, 16)
-			float MipLodBias = 0.0f; // Texture Quality (0 - 9)
+			uint32_t MaxAnisotropy = 1U;	// Texture Filtering (1, 4, 8, 16)
+			float MipLodBias = 0.0f;		// Texture Quality (0 - 9)
 			bool RayTraceEnabled = false;
 		};
 
@@ -187,7 +189,7 @@ namespace Insight {
 		ASkyLight* m_pSkyLight = nullptr;
 		APostFx* m_pPostFx = nullptr;
 
-		ACamera* m_pWorldCamera = nullptr;
+		Runtime::ACamera* m_pWorldCamera = nullptr;
 
 	private:
 		static Renderer* s_Instance;

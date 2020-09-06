@@ -40,11 +40,6 @@ namespace Insight {
 		m_pScene->OnMidFrameRender();
 	}
 
-	void GameLayer::PostRender()
-	{
-		m_pScene->OnPostRender();
-	}
-
 	void GameLayer::EndPlay()
 	{
 		m_TickScene = false;

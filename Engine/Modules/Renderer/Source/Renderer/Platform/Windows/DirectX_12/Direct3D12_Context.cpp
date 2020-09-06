@@ -106,7 +106,7 @@ namespace Insight {
 	bool Direct3D12Context::PostInit_Impl()
 	{
 		CloseCommandListAndSignalCommandQueue();
-		m_pWorldCamera = &ACamera::Get();
+		m_pWorldCamera = &Runtime::ACamera::Get();
 
 		return true;
 	}
@@ -484,7 +484,7 @@ namespace Insight {
 
 		UINT PresentFlags = (m_AllowTearing && m_WindowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
 		HRESULT hr = m_d3dDeviceResources.GetSwapChain().Present(m_VSyncEnabled, PresentFlags);
-		ThrowIfFailed(hr, "Failed to present frame");
+		ThrowIfFailed(hr, "Failed to present frame for d3d12 context.");
 		m_d3dDeviceResources.MoveToNextFrame();
 	}
 

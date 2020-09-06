@@ -11,9 +11,13 @@
 namespace Insight {
 
 	class Scene;
-	class ACamera;
 	class SceneNode;
 	class ImGuiLayer;
+
+	namespace Runtime {
+		class ACamera;
+		class AActor;
+	}
 
 	class ASpotLight;
 	class APointLight;
@@ -33,8 +37,8 @@ namespace Insight {
 		void OnEvent(Event& event) override;
 
 		inline void SetUIEnabled(bool Enabled) { m_UIEnabled = Enabled; }
-		void SetSelectedActor(AActor* actor) { m_pSelectedActor = actor; }
-		AActor* GetSelectedActor() { return m_pSelectedActor; }
+		void SetSelectedActor(Runtime::AActor* actor) { m_pSelectedActor = actor; }
+		Runtime::AActor* GetSelectedActor() { return m_pSelectedActor; }
 
 	private:
 		void RenderSceneHeirarchy();
@@ -47,9 +51,9 @@ namespace Insight {
 
 		bool DispatchObjectSelectionRay(MouseButtonPressedEvent& e);
 	private:
-		AActor*		m_pSelectedActor = nullptr;
+		Runtime::AActor*		m_pSelectedActor = nullptr;
 		SceneNode*	m_pSceneRootRef = nullptr;
-		ACamera*	m_pSceneCameraRef = nullptr;
+		Runtime::ACamera*	m_pSceneCameraRef = nullptr;
 		Scene*		m_pCurrentSceneRef = nullptr;
 		ImGuiLayer* m_pImGuiLayerRef = nullptr;
 

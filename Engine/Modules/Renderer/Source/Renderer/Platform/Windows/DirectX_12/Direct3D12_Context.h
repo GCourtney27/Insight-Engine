@@ -32,7 +32,7 @@ namespace Insight {
 		friend class D3D12Helper;
 	public:
 		virtual bool Init_Impl() override;
-		virtual void Destroy_Impl();
+		virtual void Destroy_Impl() override;
 		virtual bool PostInit_Impl() override;
 		virtual void OnUpdate_Impl(const float DeltaMs) override;
 		virtual void OnPreFrameRender_Impl() override;
@@ -75,7 +75,7 @@ namespace Insight {
 		// -----------
 		inline ID3D12GraphicsCommandList4& GetRayTracePassCommandList() const { return *m_pRayTracePass_CommandList.Get(); }
 		ID3D12Resource* GetRayTracingSRV() const { return m_RayTraceOutput_SRV.Get(); }
-		uint32_t RegisterGeometryWithRTAccelerationStucture(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat);
+		[[nodiscard]] uint32_t RegisterGeometryWithRTAccelerationStucture(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat);
 		void UpdateRTAccelerationStructureMatrix(uint32_t InstanceArrIndex, DirectX::XMMATRIX NewWorldMat) { m_RTHelper.UpdateInstanceTransformByIndex(InstanceArrIndex, NewWorldMat); }
 
 		ID3D12Resource* GetSwapChainRenderTarget() const { return m_pRenderTargets[IE_D3D12_FrameIndex].Get(); }

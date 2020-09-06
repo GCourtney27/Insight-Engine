@@ -31,9 +31,6 @@ namespace Insight {
 		// Gather all geometry in the scene and uplaod their constant buffers to the GPU.
 		// Should only be called once, before 'Render()'. Does not draw models.
 		static void GatherGeometry() { s_Instance->GatherGeometry_Impl(); }
-		// Reset incrementor for model geometry gather phase.
-		// See 'GatherGeometry()' for more information.
-		static void PostRender() { s_Instance->PostRender_Impl(); }
 		// UnRegister all model in the model cache. Usually used 
 		// when switching scenes.
 		static void FlushModelCache();
@@ -53,7 +50,6 @@ namespace Insight {
 		virtual bool Init_Impl() = 0;
 		virtual void Render_Impl(eRenderPass RenderPass) = 0;
 		virtual void GatherGeometry_Impl() = 0;
-		virtual void PostRender_Impl() = 0;
 
 	protected:
 		SceneModels m_OpaqueModels;

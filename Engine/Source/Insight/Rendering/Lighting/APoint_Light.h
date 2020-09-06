@@ -7,10 +7,10 @@
 
 namespace Insight {
 
-	class INSIGHT_API APointLight : public AActor
+	class INSIGHT_API APointLight : public Runtime::AActor
 	{
 	public:
-		APointLight(ActorId id, ActorType type = "Point Light Actor");
+		APointLight(ActorId id, Runtime::ActorType type = "Point Light Actor");
 		virtual ~APointLight();
 
 		virtual bool LoadFromJson(const rapidjson::Value& jsonPointLight) override;

@@ -81,7 +81,6 @@ namespace Insight {
 		HWND*				m_pWindowHandle = nullptr;
 		WindowsWindow*		m_pWindow = nullptr;
 		GeometryManager*	m_pModelManager = nullptr;
-		ACamera*			m_pWorldCamera = nullptr;
 		bool				m_WindowResizeComplete = true;
 		float				m_ClearColor[4] = { 0.1f, 0.1f, 0.3f, 1.0f };
 

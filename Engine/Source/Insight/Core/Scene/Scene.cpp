@@ -5,6 +5,7 @@
 #include "Insight/Core/Application.h"
 #include "Insight/Runtime/APlayer_Character.h"
 #include "Insight/Runtime/APlayer_Start.h"
+#include "Insight/Runtime/ACamera.h"
 
 #include "imgui.h"
 
@@ -34,12 +35,9 @@ namespace Insight {
 		return true;
 	}
 
-	bool Scene::Init(const std::string fileName)
+	bool Scene::Init(const std::string& fileName)
 	{
 		m_pSceneRoot = new SceneNode("Scene Root");
-
-		// Get the render context from the main window
-		//m_Renderer = RenderingContext::Get();
 
 		// Initialize resource managers this scene will need.
 		m_ResourceManager.Init();
@@ -47,13 +45,13 @@ namespace Insight {
 		// Create the Scene camera and default view target. 
 		// There should only be one camera in the world at 
 		// any given time.
-		m_EditorViewTarget = ACamera::GetDefaultViewTarget();
+		m_EditorViewTarget = Runtime::ACamera::GetDefaultViewTarget();
 		m_EditorViewTarget.FieldOfView = 75.0f;
 		//m_EditorViewTarget.Position = ieVector3(-17.0f, 8.0f, -31.0f);
 		m_EditorViewTarget.Position = ieVector3(83.0f, 31.0f, -23.0f);
 		m_EditorViewTarget.Rotation = ieVector3(0.478f, -0.981f, 0.0f);
 		m_EditorViewTarget.NearZ = 0.001f;
-		m_pCamera = new ACamera(m_EditorViewTarget);
+		m_pCamera = new Runtime::ACamera(m_EditorViewTarget);
 		m_pCamera->SetCanBeFileParsed(false);
 		m_pCamera->SetPerspectiveProjectionValues(
 			m_EditorViewTarget.FieldOfView, 
@@ -64,12 +62,12 @@ namespace Insight {
 		m_pSceneRoot->AddChild(m_pCamera);
 
 		// Create the player character
-		m_pPlayerCharacter = new APlayerCharacter(0);
+		m_pPlayerCharacter = new Runtime::APlayerCharacter(0);
 		m_pPlayerCharacter->SetCanBeFileParsed(false);
 		m_pSceneRoot->AddChild(m_pPlayerCharacter);
 
 		// Create the player start point
-		m_pPlayerStart = new APlayerStart(0);
+		m_pPlayerStart = new Runtime::APlayerStart(0);
 		m_pPlayerStart->SetCanBeFileParsed(false);
 		m_pSceneRoot->AddChild(m_pPlayerStart);
 		// Load the scene from .iescene folder containing all .json resource files
@@ -136,11 +134,6 @@ namespace Insight {
 	void Scene::OnMidFrameRender()
 	{
 		Renderer::OnMidFrameRender();
-	}
-
-	void Scene::OnPostRender()
-	{
-		GeometryManager::PostRender();
 	}
 
 	void Scene::Destroy()

@@ -62,7 +62,7 @@ namespace Insight {
 
 		struct CollisionDetails
 		{
-			AActor* pCollider;
+			Runtime::AActor* pCollider;
 			float Velocity;
 			/*ieVector3 Direction;
 			ieVector3 Normal;*/

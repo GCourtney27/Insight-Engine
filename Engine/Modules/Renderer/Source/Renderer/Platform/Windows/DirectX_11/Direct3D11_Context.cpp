@@ -93,7 +93,7 @@ namespace Insight {
 
 	bool Direct3D11Context::PostInit_Impl()
 	{
-		m_pWorldCamera = &ACamera::Get();
+		m_pWorldCamera = &Runtime::ACamera::Get();
 
 		return true;
 	}

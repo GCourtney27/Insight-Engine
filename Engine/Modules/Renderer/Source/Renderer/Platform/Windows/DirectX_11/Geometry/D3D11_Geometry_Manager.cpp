@@ -116,8 +116,4 @@ namespace Insight {
 	{
 	}
 
-	void D3D11GeometryManager::PostRender_Impl()
-	{
-	}
-
 }

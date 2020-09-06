@@ -17,7 +17,7 @@ namespace Insight {
 
 
 
-	ASkyLight::ASkyLight(ActorId id, ActorType type)
+	ASkyLight::ASkyLight(ActorId id, Runtime::ActorType type)
 		: AActor(id, type)
 	{
 		Renderer::AddSkyLight(this);

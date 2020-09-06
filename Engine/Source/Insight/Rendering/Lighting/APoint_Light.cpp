@@ -10,7 +10,7 @@ namespace Insight {
 
 
 
-	APointLight::APointLight(ActorId id, ActorType type)
+	APointLight::APointLight(ActorId id, Runtime::ActorType type)
 		: AActor(id, type)
 	{
 		Renderer::RegisterPointLight(this);

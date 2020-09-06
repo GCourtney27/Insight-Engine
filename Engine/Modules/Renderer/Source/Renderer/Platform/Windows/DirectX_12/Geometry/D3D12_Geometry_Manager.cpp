@@ -140,11 +140,6 @@ namespace Insight {
 				}
 			}
 		}
-	}
-
-	void D3D12GeometryManager::PostRender_Impl()
-	{
-		m_PerObjectCBDrawOffset = 0u;
 		m_GPUAddressUploadOffset = 0u;
 	}
 

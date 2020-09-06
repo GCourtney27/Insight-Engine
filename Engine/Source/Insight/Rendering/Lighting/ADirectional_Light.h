@@ -7,10 +7,10 @@
 
 namespace Insight {
 
-	class INSIGHT_API ADirectionalLight : public AActor
+	class INSIGHT_API ADirectionalLight : public Runtime::AActor
 	{
 	public:
-		ADirectionalLight(ActorId id, ActorType type = "Directional Light Actor");
+		ADirectionalLight(ActorId id, Runtime::ActorType type = "Directional Light Actor");
 		virtual ~ADirectionalLight();
 
 		virtual bool LoadFromJson(const rapidjson::Value& jsonDirectionalLight) override;

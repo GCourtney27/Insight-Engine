@@ -30,7 +30,6 @@ namespace Insight {
 		void Update(const float DeltaMs);
 		void PreRender();
 		void Render();
-		void PostRender();
 		void EndPlay();
 
 	private:

@@ -15,7 +15,7 @@ namespace Insight {
 
 
 
-	ASkySphere::ASkySphere(ActorId id, ActorType type)
+	ASkySphere::ASkySphere(ActorId id, Runtime::ActorType type)
 		: AActor(id, type)
 	{
 		Renderer::CreateSkybox();

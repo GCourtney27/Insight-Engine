@@ -11,7 +11,7 @@ namespace Insight {
 
 
 
-	APostFx::APostFx(ActorId id, ActorType type)
+	APostFx::APostFx(ActorId id, Runtime::ActorType type)
 		: AActor(id, type)
 	{
 		Renderer::AddPostFxActor(this);

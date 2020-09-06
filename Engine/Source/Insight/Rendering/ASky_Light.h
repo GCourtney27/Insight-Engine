@@ -8,10 +8,10 @@
 
 namespace Insight {
 
-	class INSIGHT_API ASkyLight : public AActor
+	class INSIGHT_API ASkyLight : public Runtime::AActor
 	{
 	public:
-		ASkyLight(ActorId id, ActorType type = "Sky Light Actor");
+		ASkyLight(ActorId id, Runtime::ActorType type = "Sky Light Actor");
 		virtual ~ASkyLight();
 
 		virtual bool LoadFromJson(const rapidjson::Value& jsonSkyLight) override;

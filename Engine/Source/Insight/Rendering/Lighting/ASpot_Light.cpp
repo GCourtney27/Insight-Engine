@@ -12,7 +12,7 @@ namespace Insight {
 
 
 
-	ASpotLight::ASpotLight(ActorId id, ActorType type)
+	ASpotLight::ASpotLight(ActorId id, Runtime::ActorType type)
 		: AActor(id, type)
 	{
 		Renderer::RegisterSpotLight(this);

@@ -34,7 +34,7 @@ namespace TankGame {
 		{
 			Super::InitCoreApplication();
 
-			Insight::AActor* pTank = new Insight::AActor(0, "Tank");
+			Insight::Runtime::AActor* pTank = new Insight::Runtime::AActor(0, "Tank");
 			pTank->GetTransformRef().SetPosition({ 0.0f, 0.0f, 0.0f });
 			pTank->GetTransformRef().SetRotation({ 0.0f, 0.0f, 0.0f });
 			pTank->GetTransformRef().SetScale({ 1.0f, 1.0f, 0.0f });

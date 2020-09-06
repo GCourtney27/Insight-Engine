@@ -12,7 +12,7 @@ namespace Insight {
 
 
 
-	ADirectionalLight::ADirectionalLight(ActorId id, ActorType type)
+	ADirectionalLight::ADirectionalLight(ActorId id, Runtime::ActorType type)
 		: AActor(id, type)
 	{
 		Renderer::RegisterDirectionalLight(this);
