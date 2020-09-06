@@ -25,11 +25,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	}
 	IE_CORE_TRACE("Logger Initialized");
 
-	auto app = Insight::CreateApplication();
+	auto App = Insight::CreateApplication();
 
 	try {
 
-		if (!app->InitializeAppForWindows(hInstance, nCmdShow)) {
+		if (!App->InitializeAppForWindows(hInstance, nCmdShow)) {
 			IE_CORE_FATAL(L"Failed to initialize core engine. Exiting.");
 			return -1;
 		}
@@ -37,10 +37,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	catch (Insight::ieException& e) {
 		IE_CORE_INFO(e.What());
 	}
-	app->Run();
-	app->Shutdown();
+	App->PostInit();
+	App->Run();
+	App->Shutdown();
 
-	delete app;
+	delete App;
 
 	//Insight::Log::HoldForUserInput();
 	return 0;
@@ -48,10 +49,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 #elif IE_PLATFORM_MAC
 int main(int argc, char** argv)
 {
-	auto app = Insight::CreateApplication();
-	app->Init();
-	app->Run();
-	delete app;
+	auto App = Insight::CreateApplication();
+	App->Init();
+	App->Run();
+	delete App;
 	return 0;
 }
 #else

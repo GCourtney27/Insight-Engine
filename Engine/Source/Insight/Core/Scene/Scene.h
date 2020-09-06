@@ -64,6 +64,9 @@ namespace Insight {
 		SceneNode& GetSceneRoot() { return *m_pSceneRoot; }
 		ACamera& GetSceneCamera() { return *m_pCamera; }
 
+		// Add an actor to the scene.
+		void AddActor(AActor* pActor) { m_pSceneRoot->AddChild(pActor); }
+
 		// Set the name of the level.
 		void SetDisplayName(const std::string& name) { m_DisplayName = name; }
 		// Gets the name of the level.

@@ -1,44 +1,43 @@
 #include "ClientApp.h"
 
-//#include <Insight.h>
+#include "Insight/Runtime/AActor.h"
 
-//
-//class ExampleLayer : public Insight::Layer
-//{
-//public:
-//	ExampleLayer()
-//		: Layer("Example")
-//	{
-//
-//	}
-//
-//	void OnUpdate() override
-//	{
-//
-//	}
-//
-//	void OnEvent(Insight::Event& event) override
-//	{
-//		//IE_INFO("{0}", event);
-//	}
-//};
-//
-//class Sandbox : public Insight::Application
-//{
-//public:
-//	Sandbox()
-//	{
-//		//PushLayer(new ExampleLayer());
-//	}
-//
-//	virtual ~Sandbox()
-//	{
-//
-//	}
-//
-//};
+#include "Insight/Runtime/Components/Static_Mesh_Component.h"
 
-//Insight::Application * Insight::CreateApplication()
-//{
-//	return new Sandbox();
-//}
+namespace TankGame {
+
+
+	/*bool Game::InitCoreApplication()
+	{
+		Super::InitCoreApplication();
+
+		Insight::AActor* pTank = new Insight::AActor(0, "Tank");
+		pTank->GetTransformRef().SetPosition({ 0.0f, 0.0f, 0.0f });
+		pTank->GetTransformRef().SetRotation({ 0.0f, 0.0f, 0.0f });
+		pTank->GetTransformRef().SetScale({ 1.0f, 1.0f, 0.0f });
+		
+		Insight::StaticMeshComponent* Component = reinterpret_cast<Insight::StaticMeshComponent*>(pTank->CreateDefaultSubobject<Insight::StaticMeshComponent>().get());
+		Component->AttachMesh("Models/Tiger_NoTracks.obj");
+
+		m_pGameLayer->GetScene()->AddActor(pTank);
+
+		return true;
+	}*/
+
+	/*void Game::PostInit()
+	{
+		Super::PostInit();
+	}
+
+	void Game::Run()
+	{
+		Super::Run();
+	}
+
+	void Game::Shutdown()
+	{
+		Super::Shutdown();
+	}*/
+
+}
+

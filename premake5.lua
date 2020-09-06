@@ -57,7 +57,8 @@ project ("Engine")
 		"%{prj.name}/Source/**.cpp",
 		"%{prj.name}/Source/**.h",
 		"%{prj.name}/Source/**.Pixel.hlsl",
-		"%{prj.name}/Source/**.Vertex.hlsli",
+		"%{prj.name}/Source/**.Vertex.hlsl",
+		"%{prj.name}/Source/**.hlsli",
 	}
 
 	defines
