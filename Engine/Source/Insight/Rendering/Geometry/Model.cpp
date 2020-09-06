@@ -86,7 +86,7 @@ namespace Insight {
 		m_pMaterial->BindResources(IsDeferredPass);
 	}
 
-	void Model::CalculateParent(const XMMATRIX& parentMat)
+	void Model::CalculateParent(const ieMatrix4x4& parentMat)
 	{
 		auto worldMat = XMMatrixMultiply(m_pRoot->GetTransformRef().GetLocalMatrixRef(), parentMat);
 		for (unique_ptr<Mesh>& mesh : m_Meshes) {
@@ -94,7 +94,7 @@ namespace Insight {
 		}
 	}
 
-	void Model::Render(ID3D12GraphicsCommandList* pCommandList)
+	void Model::Render()
 	{
 		int numMeshChildren = (int)m_Meshes.size();
 		for (int i = 0; i < numMeshChildren; ++i) {

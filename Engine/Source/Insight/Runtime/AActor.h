@@ -44,10 +44,10 @@ namespace Insight {
 
 		ActorId GetId() { return m_Id; }
 	public:
-		template<typename Event>
+		template<typename Component>
 		StrongActorComponentPtr CreateDefaultSubobject()
 		{
-			StrongActorComponentPtr component = std::make_shared<Event>(this);
+			StrongActorComponentPtr component = std::make_shared<Component>(this);
 			IE_CORE_ASSERT(component, "Trying to add null component to actor");
 
 			component->OnAttach();

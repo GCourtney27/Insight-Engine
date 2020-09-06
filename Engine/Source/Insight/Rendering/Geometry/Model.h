@@ -43,8 +43,8 @@ namespace Insight {
 		unique_ptr<Mesh>& GetMeshAtIndex(int index) { return m_Meshes[index]; }
 		const size_t GetNumChildMeshes() const { return m_Meshes.size(); }
 
-		void CalculateParent(const XMMATRIX& parentMat);
-		void Render(ID3D12GraphicsCommandList* pCommandList);
+		void CalculateParent(const ieMatrix4x4& parentMat);
+		void Render();
 		void Destroy();
 
 	private:

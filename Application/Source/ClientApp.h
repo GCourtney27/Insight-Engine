@@ -1,48 +1,71 @@
 #pragma once
 #include <Insight.h>
+#include "Insight/Runtime/Components/Static_Mesh_Component.h"
 
 /*=====================================================================
 
-	This class is your game. Include all game logic here it will get 
-	called and synced with the engine. If you would like to cage the 
-	title of your game, Edit the macro 'Game' should you like to edit
-	the macro, amek sure to change the name in all places of in the class.
+	This class is your game. Include all game logic here it will get
+	called and synced with the engine. If you would like to change the
+	title of your game, Edit the macro 'Game'. Should you like to edit
+	the macro, makk sure to change the name in all places of in the class.
 
  ======================================================================*/
 
 #define Game Sandbox
 
-class ExampleLayer : public Insight::Layer
-{
-public:
-	ExampleLayer()
-		: Layer("Example")
+namespace TankGame {
+
+	using Super = Insight::Application;
+
+	class Game : public Insight::Application
 	{
+	public:
+		Game()
+		{
+			//PushLayer(new ExampleLayer());
+		}
 
-	}
+		virtual ~Game()
+		{
 
-	void OnEvent(Insight::Event& event) override
-	{
-		//IE_INFO("{0}", event);
-	}
-};
+		}
 
-class Game : public Insight::Application
-{
-public:
-	Game()
-	{
-		//PushLayer(new ExampleLayer());
-	}
+		virtual bool InitCoreApplication() override
+		{
+			Super::InitCoreApplication();
 
-	virtual ~Game()
-	{
+			Insight::AActor* pTank = new Insight::AActor(0, "Tank");
+			pTank->GetTransformRef().SetPosition({ 0.0f, 0.0f, 0.0f });
+			pTank->GetTransformRef().SetRotation({ 0.0f, 0.0f, 0.0f });
+			pTank->GetTransformRef().SetScale({ 1.0f, 1.0f, 0.0f });
+			pTank->OnInit();
 
-	}
+			m_pGameLayer->GetScene()->AddActor(pTank);
 
-};
+			return true;
+		}
+		 
+		// Called when the main portion of the applicaiton has been initialized.
+		virtual void PostInit() override
+		{
+			Super::PostInit();
+		}
+
+		// Main loop of the application. This is the main entry point for every frame.
+		virtual void Run() override
+		{
+			Super::Run();
+		}
+		// Shutdown the application and release all resources.
+		virtual void Shutdown() override
+		{
+			Super::Shutdown();
+		}
+	};
+
+}
 
 Insight::Application* Insight::CreateApplication()
 {
-	return new Game();
+	return new TankGame::Game();
 }

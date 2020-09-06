@@ -19,7 +19,7 @@ namespace Insight {
 		Mesh(Mesh&& mesh) noexcept;
 		~Mesh();
 
-		void PreRender(const XMMATRIX& parentMat);
+		void PreRender(const ieMatrix4x4& parentMat);
 		void Render();
 		void Destroy();
 		void OnImGuiRender();

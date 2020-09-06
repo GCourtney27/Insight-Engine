@@ -28,18 +28,22 @@ namespace Insight {
 
 		// Initialie a new application for the windows platform.
 		bool InitializeAppForWindows(HINSTANCE& hInstance, int nCmdShow);
+		// Initialize new application for mac platform.
+		//bool InitializeAppForMac();
 		// Initialize the core components of the application. Should be called once
 		// at the beginning of the application, after the window has been initialized.
-		bool InitCoreApplication();
+		virtual bool InitCoreApplication();
+		// Called when the main portion of the applicaiton has been initialized.
+		virtual void PostInit();
 		// Main loop of the application. This is the main entry point for every frame.
-		void Run();
+		virtual void Run();
 		// Shutdown the application and release all resources.
-		void Shutdown();
+		virtual void Shutdown();
 
 		void OnEvent(Event& e);
 		// Add a layer to the applications layer stack.
 		void PushLayer(Layer* layer);
-		// Remove a layer to the applications layer stack.
+		// Push an overlay onto the applications layer stack.
 		void PushOverlay(Layer* layer);
 
 		// Get the ImGui UI layer
@@ -62,13 +66,13 @@ namespace Insight {
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
 		bool OnWindowFullScreen(WindowToggleFullScreenEvent& e);
-		//TEMP
+		// TEMP
 		bool SaveScene(SceneSaveEvent& e);
 		bool BeginPlay(AppBeginPlayEvent& e);
 		bool EndPlay(AppEndPlayEvent& e);
 		bool ReloadScripts(AppScriptReloadEvent& e);
 		bool ReloadShaders(ShaderReloadEvent& e);
-	private:
+	protected:
 		std::unique_ptr<Window>	m_pWindow;
 		IE_STRIP_FOR_GAME_DIST( ImGuiLayer* m_pImGuiLayer = nullptr; )
 		IE_STRIP_FOR_GAME_DIST( EditorLayer* m_pEditorLayer = nullptr; )

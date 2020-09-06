@@ -207,46 +207,46 @@ namespace Insight {
 			{
 				const rapidjson::Value& jsonActor = sceneObjects[a];
 
-				std::string actorDisplayName;
+				std::string ActorDisplayName;
 				std::string actorType;
-				json::get_string(jsonActor, "DisplayName", actorDisplayName);
+				json::get_string(jsonActor, "DisplayName", ActorDisplayName);
 				json::get_string(jsonActor, "Type", actorType);
 
 				if (actorType == "Actor") {
-					pNewActor = new AActor(ActorSceneIndex, actorDisplayName);
+					pNewActor = new AActor(ActorSceneIndex, ActorDisplayName);
 					pNewActor->LoadFromJson(jsonActor);
 				}
 				else if (actorType == "PointLight") {
-					pNewActor = new APointLight(ActorSceneIndex, actorDisplayName);
+					pNewActor = new APointLight(ActorSceneIndex, ActorDisplayName);
 					pNewActor->LoadFromJson(jsonActor);
 				}
 				else if (actorType == "SpotLight") {
-					pNewActor = new ASpotLight(ActorSceneIndex, actorDisplayName);
+					pNewActor = new ASpotLight(ActorSceneIndex, ActorDisplayName);
 					pNewActor->LoadFromJson(jsonActor);
 				}
 				else if (actorType == "DirectionalLight") {
-					pNewActor = new ADirectionalLight(ActorSceneIndex, actorDisplayName);
+					pNewActor = new ADirectionalLight(ActorSceneIndex, ActorDisplayName);
 					pNewActor->LoadFromJson(jsonActor);
 				}
 				else if (actorType == "SkySphere") {
-					pNewActor = new ASkySphere(ActorSceneIndex, actorDisplayName);
+					pNewActor = new ASkySphere(ActorSceneIndex, ActorDisplayName);
 					pNewActor->LoadFromJson(jsonActor);
 				}
 				else if (actorType == "SkyLight") {
-					pNewActor = new ASkyLight(ActorSceneIndex, actorDisplayName);
+					pNewActor = new ASkyLight(ActorSceneIndex, ActorDisplayName);
 					pNewActor->LoadFromJson(jsonActor);
 				}
 				else if (actorType == "PostFxVolume") {
-					pNewActor = new APostFx(ActorSceneIndex, actorDisplayName);
+					pNewActor = new APostFx(ActorSceneIndex, ActorDisplayName);
 					pNewActor->LoadFromJson(jsonActor);
 				}
 
 				if (pNewActor == nullptr) {
-					IE_CORE_ERROR("Failed to parse actor \"{0}\" into scene", (actorDisplayName == "") ? "INVALID NAME" : actorDisplayName);
+					IE_CORE_ERROR("Failed to parse actor \"{0}\" into scene", (ActorDisplayName == "") ? "INVALID NAME" : ActorDisplayName);
 					continue;
 				}
 
-				pScene->GetRootNode()->AddChild(pNewActor);
+				pScene->AddActor(pNewActor);
 				ActorSceneIndex++;
 			}
 

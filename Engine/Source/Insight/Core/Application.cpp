@@ -19,8 +19,8 @@
 // ----------------------------
 // DemoScene
 // MultipleLights
-static const char* ProjectName = "Development-Project";
-static const char* TargetSceneName = "DemoScene.iescene";
+static const char* ProjectName = "IE-Tank-Game";
+static const char* TargetSceneName = "TestArena.iescene";
 
 namespace Insight {
 
@@ -49,7 +49,6 @@ namespace Insight {
 			return false;
 		}
 
-		m_AppInitialized = true;
 		pWindow->PostInit();
 		return true;
 	}
@@ -82,9 +81,15 @@ namespace Insight {
 		// Push core app layers to the layer stack
 		PushEngineLayers();
 
+		return true;
+	}
+
+	void Application::PostInit()
+	{
 		ResourceManager::Get().GetMonoScriptManager().PostInit();
 		IE_CORE_TRACE("Application Initialized");
-		return true;
+
+		m_AppInitialized = true;
 	}
 
 	void Application::Run()
@@ -169,7 +174,7 @@ namespace Insight {
 #endif
 		default:
 		{
-			IE_CORE_ERROR("Failed to creat ImGui layer in application with API of type \"{0}\"", Renderer::GetAPI());
+			IE_CORE_ERROR("Failed to create ImGui layer in application with API of type \"{0}\"", Renderer::GetAPI());
 			break;
 		}
 		}

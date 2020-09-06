@@ -274,7 +274,7 @@ namespace Insight {
 		}
 	}
 
-	void AActor::CalculateParent(XMMATRIX parentMat)
+	void AActor::CalculateParent(ieMatrix4x4 parentMat)
 	{
 		if (m_Parent) {
 			GetTransformRef().SetWorldMatrix(XMMatrixMultiply(GetTransformRef().GetLocalMatrixRef(), parentMat));

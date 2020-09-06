@@ -60,12 +60,13 @@ namespace Insight {
 
 	bool SceneNode::OnInit()
 	{
-		return false;
+		m_RootTransform.EditorInit();
+		return true;
 	}
 
 	bool SceneNode::OnPostInit()
 	{
-		return false;
+		return true;
 	}
 
 	void SceneNode::OnUpdate(const float DeltaMs)
