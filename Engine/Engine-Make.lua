@@ -49,6 +49,7 @@ project ("Engine")
 
 	includedirs
 	{
+		-- Vendor
 		"%{EngineIncludeDirs.Microsoft}/",
         "%{EngineIncludeDirs.Microsoft}/DirectX12/WinPixEventRuntime.1.0.161208001/Include/",
 		"%{EngineIncludeDirs.Microsoft}/DirectX12",
@@ -59,9 +60,13 @@ project ("Engine")
 		"%{EngineIncludeDirs.Mono}/",
 		"%{EngineIncludeDirs.ImGui}/",
 		"%{EngineIncludeDirs.assimp}/",
+		
+		-- Modules
         "%{EngineIncludeDirs.Modules}/Renderer/Source/",
-        
+		
+		-- Engine
 		"Source/",
+		-- Application
 		rootDirectoryPath .. gameName .. "/Source/"
 	}
 

@@ -49,6 +49,7 @@ project("Renderer")
 		"%{RendererIncludeDirs.Mono}/",
         
         engineDirectory .. "Source/",
+        "Source/Renderer/",
         "Source/"
     }
     

@@ -3,7 +3,7 @@
 #include <Insight/Core.h>
 
 #include <Insight/Runtime/AActor.h>
-#include "Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
+#include "Renderer/Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
 
 namespace Insight {
 

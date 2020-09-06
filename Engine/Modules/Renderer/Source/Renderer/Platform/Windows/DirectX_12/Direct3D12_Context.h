@@ -2,14 +2,14 @@
 
 #include <Insight/Core.h>
 
-#include "Renderer.h"
+#include "Renderer/Renderer.h"
 
 #include "Platform/Windows/Error/COM_Exception.h"
-#include "Platform/Windows/DirectX_12/D3D12_Helper.h"
-#include "Platform/Windows/DirectX_12/Descriptor_Heap_Wrapper.h"
-#include "Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
-#include "Platform/Windows/DirectX_12/Ray_Tracing/Ray_Trace_Helpers.h"
-#include "Platform/Windows/DirectX_12/ie_D3D12_Screen_Quad.h"
+#include "Renderer/Platform/Windows/DirectX_12/D3D12_Helper.h"
+#include "Renderer/Platform/Windows/DirectX_12/Descriptor_Heap_Wrapper.h"
+#include "Renderer/Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
+#include "Renderer/Platform/Windows/DirectX_12/Ray_Tracing/Ray_Trace_Helpers.h"
+#include "Renderer/Platform/Windows/DirectX_12/ie_D3D12_Screen_Quad.h"
 
 /*
 	Render context for Windows DirectX 12 API. 

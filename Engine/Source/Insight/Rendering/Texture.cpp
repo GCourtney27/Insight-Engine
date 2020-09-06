@@ -4,9 +4,9 @@
 
 #include "Insight/Core/Application.h"
 #include "Insight/Utilities/String_Helper.h"
-#include "Renderer.h"
+#include "Renderer/Renderer.h"
 
-#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
+#include "Renderer/Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 #define CBVSRV_HEAP_TEXTURE_START_SLOT 7
 
