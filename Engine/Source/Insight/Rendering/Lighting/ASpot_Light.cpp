@@ -1,9 +1,9 @@
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include "ASpot_Light.h"
 
 #include "Insight/Runtime/Components/Actor_Component.h"
-#include "Insight/Rendering/Renderer.h"
+#include "Renderer.h"
 
 #include "imgui.h"
 

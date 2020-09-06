@@ -45,7 +45,7 @@ buffer needs to be kept until the command list execution is finished.
 
 */
 
-#include <ie_pch.h>
+#include <Renderer_pch.h>
 #include "TopLevelASGenerator.h"
 #include <stdexcept>
 

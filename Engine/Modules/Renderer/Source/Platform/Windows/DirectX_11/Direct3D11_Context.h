@@ -2,7 +2,7 @@
 
 #include <Insight/Core.h>
 
-#include "Insight/Rendering/Renderer.h"
+#include "Renderer.h"
 #include "Platform/Windows/Error/COM_Exception.h"
 
 #include "Platform/Windows/DirectX_11/D3D11_Helper.h"

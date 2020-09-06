@@ -20,7 +20,13 @@ CustomDefines["IE_BUILD_DIR"] = "../Bin/" .. outputdir
 CustomDefines["IE_BUILD_CONFIG"] = outputdir
 
 -- Modules
+group "Tools"
 include "Engine/Vendor/ImGui/premake5.lua"
+group ""
+
 include "Application/Application-Make.lua"
 include "Engine/Engine-Make.lua"
+
+group "Sub-Systems"
 include "Engine/Modules/Renderer/Renderer-Make.lua"
+group ""

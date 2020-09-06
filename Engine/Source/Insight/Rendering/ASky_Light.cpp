@@ -1,9 +1,9 @@
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include "ASky_Light.h"
 
 #include "Insight/Runtime/Components/Actor_Component.h"
-#include "Insight/Rendering/Renderer.h"
+#include "Renderer.h"
 
 #include "Platform/Windows/DirectX_12/ie_D3D12_Texture.h"
 #include "Platform/Windows/DirectX_11/ie_D3D11_Texture.h"

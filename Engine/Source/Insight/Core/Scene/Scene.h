@@ -3,7 +3,7 @@
 #include <Insight/Core.h>
 
 #include "Scene_Node.h"
-#include "Insight/Rendering/Renderer.h"
+#include "Renderer.h"
 #include "Insight/Systems/Managers/Resource_Manager.h"
 #include "Insight/Systems/File_System.h"
 #include "Insight/Runtime/ACamera.h"

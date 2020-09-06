@@ -30,8 +30,8 @@ project ("Engine")
 	targetdir (rootDirectoryPath .. "Bin/" .. outputdir .. "/%{prj.name}")
 	objdir (rootDirectoryPath .. "Bin-Int/" .. outputdir .. "/%{prj.name}")
 
-	pchheader ("ie_pch.h")
-	pchsource ("Source/ie_pch.cpp")
+	pchheader ("Engine_pch.h")
+	pchsource ("Source/Engine_pch.cpp")
 
 	files
 	{

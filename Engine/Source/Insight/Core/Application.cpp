@@ -1,4 +1,4 @@
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include "Application.h"
 
@@ -7,7 +7,7 @@
 #include "Insight/Layer_Types/ImGui_Layer.h"
 #include "Platform/Windows/Windows_Window.h"
 #include "Insight/Core/ieException.h"
-#include "Insight/Rendering/Renderer.h"
+#include "Renderer.h"
 
 #if defined IE_PLATFORM_WINDOWS
 #include "Platform/Windows/DirectX_11/D3D11_ImGui_Layer.h"
