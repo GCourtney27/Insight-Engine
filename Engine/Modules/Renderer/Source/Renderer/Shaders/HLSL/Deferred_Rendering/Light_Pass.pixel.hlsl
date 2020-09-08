@@ -78,7 +78,7 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
         }
         else
         {
-            shadow = 1.0f; //ShadowCalculation(fragPosLightSpace, normal, lightDir);
+            shadow = ShadowCalculation(fragPosLightSpace, normal, lightDir);
         }
         
         directionalLightLuminance += CaclualteDirectionalLight(dirLights[d], viewDirection, normal, worldPosition, NdotV, albedo, roughness, metallic, baseReflectivity) * (shadow);
