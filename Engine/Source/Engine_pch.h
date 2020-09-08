@@ -67,10 +67,6 @@
 		#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers.
 	#endif
 
-	#if defined IE_DEBUG
-		#define USE_PIX
-	#endif
-
 	// Windows API	
 	#include <Windows.h>
 	#include <wrl/client.h>

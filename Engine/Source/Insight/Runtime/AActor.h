@@ -18,7 +18,7 @@ namespace Insight {
 		class INSIGHT_API AActor : public SceneNode
 		{
 		public:
-			typedef std::vector<StrongActorComponentPtr> ActorComponents;
+			typedef std::vector<ActorComponent*> ActorComponents;
 
 		public:
 			AActor(ActorId Id, ActorName ActorName = "MyActor");
@@ -46,18 +46,18 @@ namespace Insight {
 
 			ActorId GetId() { return m_Id; }
 		public:
-			template<typename Component>
-			StrongActorComponentPtr CreateDefaultSubobject()
+			template<typename ComponentType>
+			ComponentType* CreateDefaultSubobject()
 			{
-				StrongActorComponentPtr component = std::make_shared<Component>(this);
-				IE_CORE_ASSERT(component, "Trying to add null component to actor");
+				ActorComponent* Component = new ComponentType(this);
+				IE_CORE_ASSERT(Component, "Trying to add null component to actor.");
 
-				component->OnAttach();
-				component->SetEventCallback(IE_BIND_EVENT_FN(AActor::OnEvent));
+				Component->OnAttach();
+				Component->SetEventCallback(IE_BIND_EVENT_FN(AActor::OnEvent));
 
-				m_Components.push_back(component);
+				m_Components.push_back(Component);
 				m_NumComponents++;
-				return component;
+				return (ComponentType*)Component;
 			}
 			template<typename Event>
 			WeakActorComponentPtr GetSubobject()
@@ -70,9 +70,9 @@ namespace Insight {
 				}
 				return component;
 			}
-			void RemoveSubobject(StrongActorComponentPtr component);
+			void RemoveSubobject(ActorComponent* component);
 			void RemoveAllSubobjects();
-			std::vector<StrongActorComponentPtr> GetAllSubobjects() const { return m_Components; }
+			std::vector<ActorComponent*> GetAllSubobjects() const { return m_Components; }
 		private:
 			bool OnCollision(PhysicsEvent& e);
 		protected:

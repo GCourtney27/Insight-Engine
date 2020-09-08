@@ -20,7 +20,7 @@
 // DemoScene
 // MultipleLights
 static const char* ProjectName = "Development-Project";
-static const char* TargetSceneName = "DemoScene.iescene";
+static const char* TargetSceneName = "Norway.iescene";
 
 namespace Insight {
 
@@ -49,7 +49,6 @@ namespace Insight {
 			return false;
 		}
 
-		pWindow->PostInit();
 		return true;
 	}
 
@@ -77,7 +76,7 @@ namespace Insight {
 		if (!m_pGameLayer->LoadScene(DocumentPath)) {
 			throw ieException("Failed to initialize scene");
 		}
-		
+
 		// Push core app layers to the layer stack
 		PushEngineLayers();
 
@@ -86,6 +85,10 @@ namespace Insight {
 
 	void Application::PostInit()
 	{
+		Renderer::PostInit();
+
+		m_pWindow->PostInit();
+
 		ResourceManager::Get().GetMonoScriptManager().PostInit();
 		IE_CORE_TRACE("Application Initialized");
 

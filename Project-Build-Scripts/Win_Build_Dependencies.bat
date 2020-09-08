@@ -1,5 +1,5 @@
 REM Build assimp
-cd Engine\Vendor\assimp-3.3.1
+cd ..\Engine\Vendor\assimp-3.3.1
 mkdir build
 cd build
 echo ***************************************** & echo.

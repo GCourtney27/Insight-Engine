@@ -94,7 +94,7 @@ namespace Insight {
 
 			mono_set_dirs("C:/Program Files/Mono/lib", "C:/Program Files/Mono/etc");
 
-			m_pDomain = mono_jit_init_version("IE-Mono-Script-Engine", "v4.7.2");
+			m_pDomain = mono_jit_init_version("IE-Mono-Script-Engine", "v4.0.30319");
 			if (!m_pDomain) {
 				IE_CORE_ERROR("Failed to initialize mono domain.");
 				return false;

@@ -29,6 +29,7 @@ project("Renderer")
     
     files
 	{
+        "Renderer-Make.lua",
 		"Source/**.cpp",
 		"Source/**.h",
 		"Source/**.Pixel.hlsl",
@@ -53,7 +54,18 @@ project("Renderer")
         "Source/"
     }
     
-    
+    filter {"system:windows"}
+		systemversion "latest"
+
+		defines
+		{
+			"IE_PLATFORM_WINDOWS"
+		}
+
+		flags
+		{
+			"MultiProcessorCompile"
+		}
     
     -- Shaders
     filter {"system:windows"}

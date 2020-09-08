@@ -61,12 +61,16 @@ using std::tr1::dynamic_pointer_cast;
 #if defined IE_PLATFORM_WINDOWS
 
 #ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers.
-#endif
+	#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers.
+#endif //WIN32_LEAN_AND_MEAN
 
 #if defined IE_DEBUG
-#define USE_PIX
-#endif
+	#define USE_PIX
+#endif // IE_DEBUG
+#if !defined USE_PIX
+	#define PIXBeginEvent 
+	#define PIXEndEvent
+#endif // !USE_PIX
 
 // Windows API
 #include <Windows.h>

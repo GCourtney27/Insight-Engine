@@ -1,6 +1,7 @@
 #pragma once
 #include <Insight.h>
 #include "Insight/Runtime/Components/Static_Mesh_Component.h"
+#include "Insight/Rendering/Material.h"
 
 /*=====================================================================
 
@@ -13,7 +14,7 @@
 
 #define Game Sandbox
 
-namespace TankGame {
+namespace SandBoxApp {
 
 	using Super = Insight::Application;
 
@@ -22,25 +23,17 @@ namespace TankGame {
 	public:
 		Game()
 		{
-			//PushLayer(new ExampleLayer());
 		}
 
 		virtual ~Game()
 		{
-
 		}
 
 		virtual bool InitCoreApplication() override
 		{
 			Super::InitCoreApplication();
 
-			Insight::Runtime::AActor* pTank = new Insight::Runtime::AActor(0, "Tank");
-			pTank->GetTransformRef().SetPosition({ 0.0f, 0.0f, 0.0f });
-			pTank->GetTransformRef().SetRotation({ 0.0f, 0.0f, 0.0f });
-			pTank->GetTransformRef().SetScale({ 1.0f, 1.0f, 0.0f });
-			pTank->OnInit();
-
-			m_pGameLayer->GetScene()->AddActor(pTank);
+			FillScene();
 
 			return true;
 		}
@@ -56,16 +49,40 @@ namespace TankGame {
 		{
 			Super::Run();
 		}
+
 		// Shutdown the application and release all resources.
 		virtual void Shutdown() override
 		{
 			Super::Shutdown();
 		}
+
+	private:
+		void FillScene()
+		{
+			using namespace Insight::Runtime;
+			using namespace Insight;
+
+			// House Resting Terrain
+			AActor* pARestingTerrain = new AActor(0, "HouseRestingTerrain");
+			pARestingTerrain->GetTransformRef().SetPosition(ieVector3(0.0f, 0.0f, 0.0f));
+			pARestingTerrain->GetTransformRef().SetRotation(ieVector3(0.0f, 0.0f, 0.0f));
+			pARestingTerrain->GetTransformRef().SetScale(ieVector3(1.0f, 1.0f, 1.0f));
+			pARestingTerrain->OnInit();
+			StaticMeshComponent* pStaticMesh = pARestingTerrain->CreateDefaultSubobject<StaticMeshComponent>();
+			pStaticMesh->SetMaterial(std::move(Material::CreateDefaultTexturedMaterial()));
+			pStaticMesh->AttachMesh("Models/HouseRestingTerrain.obj");
+
+			m_pGameLayer->GetScene()->AddActor(pARestingTerrain);
+
+
+
+		}
+
 	};
 
 }
 
 Insight::Application* Insight::CreateApplication()
 {
-	return new TankGame::Game();
+	return new SandBoxApp::Game();
 }

@@ -73,14 +73,14 @@ namespace Insight {
 		// Load the scene from .iescene folder containing all .json resource files
 		FileSystem::LoadSceneFromJson(fileName, this);
 
-		// Tell the renderer to set init commands to the gpu
-		Renderer::PostInit();
+		// Tell the renderer to send init commands to the gpu
+		//Renderer::PostInit();
 		return true;
 	}
 
 	bool Scene::PostInit()
 	{
-		return false;
+		return true;
 	}
 
 	void Scene::BeginPlay()

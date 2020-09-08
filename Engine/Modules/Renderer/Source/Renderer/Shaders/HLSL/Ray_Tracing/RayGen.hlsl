@@ -1,4 +1,4 @@
-#include "RayTrace_Common.dxr.hlsli"
+#include "RayTrace_Common.hlsli"
 
 // Raytracing output texture, accessed as a UAV
 RWTexture2D<float4> gOutput : register(u0);

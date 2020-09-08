@@ -65,6 +65,7 @@ namespace Insight {
 		pMaterial->m_RoughnessTextureManagerID = pMaterial->m_RoughnessMap->GetTextureInfo().Id;
 		pMaterial->m_AoTextureManagerID = pMaterial->m_AOMap->GetTextureInfo().Id;
 
+		pMaterial->m_MaterialType = eMaterialType::eMaterialType_Opaque;
 		pMaterial->m_ShaderCB.diffuseAdditive = ieVector3(0.0f, 0.0f, 0.0f);
 		pMaterial->m_ShaderCB.metallicAdditive = 0.0f;
 		pMaterial->m_ShaderCB.roughnessAdditive = 0.0f;

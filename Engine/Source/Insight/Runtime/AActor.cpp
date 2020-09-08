@@ -63,17 +63,17 @@ namespace Insight {
 			for (UINT i = 0; i < jsonSubobjects.Size(); ++i) {
 
 				if (jsonSubobjects[i].HasMember("StaticMesh")) {
-					StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<StaticMeshComponent>();
+					StaticMeshComponent* ptr = AActor::CreateDefaultSubobject<StaticMeshComponent>();
 					ptr->LoadFromJson(jsonSubobjects[i]["StaticMesh"]);
 					continue;
 				}
 				else if (jsonSubobjects[i].HasMember("CSharpScript")) {
-					StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<CSharpScriptComponent>();
+					CSharpScriptComponent* ptr = AActor::CreateDefaultSubobject<CSharpScriptComponent>();
 					ptr->LoadFromJson(jsonSubobjects[i]["CSharpScript"]);
 					continue;
 				}
 				else if (jsonSubobjects[i].HasMember("SphereCollider")) {
-					StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<SphereColliderComponent>();
+					SphereColliderComponent* ptr = AActor::CreateDefaultSubobject<SphereColliderComponent>();
 					//ptr->LoadFromJson(jsonSubobjects[i]["SphereCollider"]);
 					continue;
 				}
@@ -219,17 +219,17 @@ namespace Insight {
 					case 0: break;
 					case 1:
 					{
-						IE_CORE_INFO("Adding Static Mesh component to \"{0}\"", AActor::GetDisplayName());
-						StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<StaticMeshComponent>();
-						static_cast<StaticMeshComponent*>(ptr.get())->SetMaterial(std::move(Material::CreateDefaultTexturedMaterial()));
-						static_cast<StaticMeshComponent*>(ptr.get())->AttachMesh("Models/Quad.obj");
+						IE_CORE_INFO("Adding Static Mesh Component to \"{0}\"", AActor::GetDisplayName());
+						StaticMeshComponent* ptr = AActor::CreateDefaultSubobject<StaticMeshComponent>();
+						ptr->SetMaterial(std::move(Material::CreateDefaultTexturedMaterial()));
+						ptr->AttachMesh("Models/Quad.obj");
 
 						break;
 					}
 					case 2:
 					{
-						IE_CORE_INFO("Adding C-Sharp script component to \"{0}\"", AActor::GetDisplayName());
-						StrongActorComponentPtr ptr = AActor::CreateDefaultSubobject<CSharpScriptComponent>();
+						IE_CORE_INFO("Adding C-Sharp Script Component to \"{0}\"", AActor::GetDisplayName());
+						CSharpScriptComponent* ptr = AActor::CreateDefaultSubobject<CSharpScriptComponent>();
 						break;
 					}
 					default:
@@ -334,7 +334,7 @@ namespace Insight {
 
 			for (uint32_t i = 0; i < m_NumComponents; i++) {
 				m_Components[i]->OnDestroy();
-				m_Components[i].reset();
+				delete m_Components[i];
 			}
 			m_Components.clear();
 		}
@@ -351,14 +351,13 @@ namespace Insight {
 			}
 		}
 
-		void AActor::RemoveSubobject(StrongActorComponentPtr component)
+		void AActor::RemoveSubobject(ActorComponent* component)
 		{
 			IE_CORE_ASSERT(std::find(m_Components.begin(), m_Components.end(), component) != m_Components.end(), "Could not find Component in Actor list while attempting to delete");
 
 			auto iter = std::find(m_Components.begin(), m_Components.end(), component);
 			(*iter)->OnDetach();
 			(*iter)->OnDestroy();
-			(*iter).reset();
 			m_Components.erase(iter);
 			m_NumComponents--;
 		}
@@ -367,7 +366,7 @@ namespace Insight {
 		{
 			for (uint32_t i = 0; i < m_NumComponents; ++i) {
 				m_Components[i]->OnDestroy();
-				m_Components[i].reset();
+				delete m_Components[i];
 			}
 			m_Components.clear();
 			m_NumComponents = 0;

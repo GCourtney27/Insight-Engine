@@ -53,7 +53,7 @@ namespace Insight {
 	{
 		std::vector<XMMATRIX> matrices(4);
 
-		const CB_PS_VS_PerFrame PerFrameData = m_pRendererContext->GetPerFrameCB();
+		const CB_PS_VS_PerFrame& PerFrameData = m_pRendererContext->GetPerFrameCB();
 
 		matrices[0] = XMLoadFloat4x4(&PerFrameData.view);
 		matrices[1] = XMLoadFloat4x4(&PerFrameData.projection);
@@ -239,18 +239,20 @@ namespace Insight {
 	{
 		NvidiaHelpers::RayTracingPipelineGenerator Pipeline(reinterpret_cast<ID3D12Device5*>(m_pDeviceRef.Get()));
 		
-#ifndef IE_IS_STANDALONE
-		LPCWSTR RayGenShaderFolder = L"Source/Shaders/HLSL/Ray_Tracing/RayGen.hlsl";
-		LPCWSTR MissShaderFolder = L"Source/Shaders/HLSL/Ray_Tracing/Miss.hlsl";
-		LPCWSTR HitShaderFolder = L"Source/Shaders/HLSL/Ray_Tracing/Closest_Hit.hlsl";
-		LPCWSTR ShadowShaderFolder = L"Source/Shaders/HLSL/Ray_Tracing/Shadow_Ray.hlsl";
-#else
-		LPCWSTR RayGenShaderFolder = L"RayGen.hlsl";
-		LPCWSTR MissShaderFolder = L"Miss.hlsl";
-		LPCWSTR HitShaderFolder = L"Closest_Hit.hlsl";
-		LPCWSTR ShadowShaderFolder = L"Shadow_Ray.hlsl";
-#endif
-		// TODO Change the shader paths to be path independent!
+		std::wstring ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		// Ray Gen
+		std::wstring rayGenShaderFolder = ExeDirectory + L"../Renderer/RayGen.hlsl";
+		LPCWSTR RayGenShaderFolder = rayGenShaderFolder.c_str();
+		// Miss
+		std::wstring missShaderFolder = ExeDirectory + L"../Renderer/Miss.hlsl";
+		LPCWSTR MissShaderFolder = missShaderFolder.c_str();
+		// Hit
+		std::wstring hitShaderFolder = ExeDirectory + L"../Renderer/Closest_Hit.hlsl";
+		LPCWSTR HitShaderFolder = hitShaderFolder.c_str();
+		// Shadow
+		std::wstring shadowShaderFolder = ExeDirectory + L"../Renderer/Shadow_Ray.hlsl";
+		LPCWSTR ShadowShaderFolder = shadowShaderFolder.c_str();
+
 		m_RayGenLibrary = NvidiaHelpers::CompileShaderLibrary(RayGenShaderFolder);
 		m_MissLibrary = NvidiaHelpers::CompileShaderLibrary(MissShaderFolder);
 		m_HitLibrary = NvidiaHelpers::CompileShaderLibrary(HitShaderFolder);

@@ -292,7 +292,7 @@ namespace Insight {
 				wchar_t AboutMsgBuffer[256];
 				int APIVersion = ((int)Renderer::GetAPI()) + 10;
 				const wchar_t* RTEnabled = Renderer::GetIsRayTraceEnabled() ? L"Enabled" : L"Disabled";
-				swprintf_s(AboutMsgBuffer, L"Version - 1.8 \nRenderer - Direct3D %i (Ray Traceing: %s) \n\nVendor Runtime: \nMono - v6.8.0.123 \nAssimp - v3.3.1 \nRapidJson - v1.0.0 \nImGui - v1.75", APIVersion, RTEnabled);
+				swprintf_s(AboutMsgBuffer, L"Version - 1.8 \nRenderer - Direct3D %i (Ray Tracing: %s) \n\nVendor Runtime: \nMono - v6.8.0.123 \nAssimp - v3.3.1 \nRapidJson - v1.0.0 \nImGui - v1.75", APIVersion, RTEnabled);
 				data.pWindow->CreateMessageBox(AboutMsgBuffer, L"About Insight Editor");
 				
 				break;
@@ -461,14 +461,12 @@ namespace Insight {
 		return true;
 	}
 
-	bool WindowsWindow::PostInit()
+	void WindowsWindow::PostInit()
 	{
 		RECT ClientRect = {};
 		::GetClientRect(m_hWindow, &ClientRect);
 		WindowResizeEvent Event(ClientRect.right - ClientRect.left, ClientRect.bottom - ClientRect.top, false);
 		m_Data.EventCallback(Event);
-
-		return true;
 	}
 
 	void WindowsWindow::RegisterWindowClass()

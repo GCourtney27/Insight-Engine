@@ -1,4 +1,4 @@
-#include "RayTrace_Common.dxr.hlsli"
+#include "RayTrace_Common.hlsli"
 
 struct Vertex
 {
