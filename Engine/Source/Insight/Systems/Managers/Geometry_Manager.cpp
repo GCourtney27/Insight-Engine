@@ -1,13 +1,13 @@
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include "Geometry_Manager.h"
 
-#include "Insight/Rendering/Renderer.h"
+#include "Renderer/Renderer.h"
 #include "Insight/Runtime/APlayer_Character.h"
 
-#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
-#include "Platform/Windows/DirectX_11/Geometry/D3D11_Geometry_Manager.h"
-#include "Platform/Windows/DirectX_12/Geometry/D3D12_Geometry_Manager.h"
+#include "Renderer/Platform/Windows/DirectX_12/Direct3D12_Context.h"
+#include "Renderer/Platform/Windows/DirectX_11/Geometry/D3D11_Geometry_Manager.h"
+#include "Renderer/Platform/Windows/DirectX_12/Geometry/D3D12_Geometry_Manager.h"
 
 #include <fstream>
 

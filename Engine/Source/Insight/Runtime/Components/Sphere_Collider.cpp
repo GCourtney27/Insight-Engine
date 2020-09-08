@@ -1,4 +1,4 @@
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include "Sphere_Collider.h"
 
@@ -9,93 +9,97 @@
 
 namespace Insight {
 
-	uint32_t SphereColliderComponent::s_NumActiveSphereColliderComponents = 0U;
+	namespace Runtime {
 
 
-	SphereColliderComponent::SphereColliderComponent(AActor* pOwner)
-		: ActorComponent("Sphere Collider Component", pOwner)
-	{
-		m_ColliderType = ColliderType::SPHERE;
+		uint32_t SphereColliderComponent::s_NumActiveSphereColliderComponents = 0U;
 
-	}
 
-	SphereColliderComponent::~SphereColliderComponent()
-	{
-	}
-
-	bool SphereColliderComponent::LoadFromJson(const rapidjson::Value& JsonSphereColliderComponent)
-	{
-		//json::get_bool(JsonSphereColliderComponent, "IsStatic", m_IsStatic);
-		return true;
-	}
-
-	bool SphereColliderComponent::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
-	{
-
-		return true;
-	}
-
-	void SphereColliderComponent::OnEvent(Event& e)
-	{
-	}
-
-	void SphereColliderComponent::OnInit()
-	{
-	}
-
-	void SphereColliderComponent::OnDestroy()
-	{
-	}
-
-	void SphereColliderComponent::CalculateParent(const DirectX::XMMATRIX& Matrix)
-	{
-	}
-
-	void SphereColliderComponent::OnRender()
-	{
-	}
-
-	void SphereColliderComponent::OnImGuiRender()
-	{
-		ImGui::Spacing();
-		ImGui::PushID(m_IDBuffer);
-
-		if (ImGui::CollapsingHeader(m_ComponentName, ImGuiTreeNodeFlags_DefaultOpen)) {
-
-			ImGui::Checkbox("Is World Static: ", &m_IsStatic);
+		SphereColliderComponent::SphereColliderComponent(AActor* pOwner)
+			: ActorComponent("Sphere Collider Component", pOwner)
+		{
+			m_ColliderType = ColliderType::SPHERE;
 
 		}
 
-		ImGui::PopID();
-	}
+		SphereColliderComponent::~SphereColliderComponent()
+		{
+		}
 
-	void SphereColliderComponent::RenderSceneHeirarchy()
-	{
-	}
+		bool SphereColliderComponent::LoadFromJson(const rapidjson::Value& JsonSphereColliderComponent)
+		{
+			//json::get_bool(JsonSphereColliderComponent, "IsStatic", m_IsStatic);
+			return true;
+		}
 
-	void SphereColliderComponent::BeginPlay()
-	{
-		PhysicsEvent e;
+		bool SphereColliderComponent::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
+		{
 
-		m_CollisionData.EventCallback(e);
-	}
+			return true;
+		}
 
-	void SphereColliderComponent::Tick(const float DeltaMs)
-	{
-	}
+		void SphereColliderComponent::OnEvent(Event& e)
+		{
+		}
 
-	void SphereColliderComponent::OnAttach()
-	{
-		m_SphereColliderWorldIndex = s_NumActiveSphereColliderComponents++;
-		sprintf_s(m_IDBuffer, "SM-%u", m_SphereColliderWorldIndex);
+		void SphereColliderComponent::OnInit()
+		{
+		}
 
-		PhysicsManager::RegisterPhysicsObject(this);
-	}
+		void SphereColliderComponent::OnDestroy()
+		{
+		}
 
-	void SphereColliderComponent::OnDetach()
-	{
-		PhysicsManager::UnRegisterPhysicsObject(this);
+		void SphereColliderComponent::CalculateParent(const DirectX::XMMATRIX& Matrix)
+		{
+		}
 
-	}
+		void SphereColliderComponent::OnRender()
+		{
+		}
 
-}
+		void SphereColliderComponent::OnImGuiRender()
+		{
+			ImGui::Spacing();
+			ImGui::PushID(m_IDBuffer);
+
+			if (ImGui::CollapsingHeader(m_ComponentName, ImGuiTreeNodeFlags_DefaultOpen)) {
+
+				ImGui::Checkbox("Is World Static: ", &m_IsStatic);
+
+			}
+
+			ImGui::PopID();
+		}
+
+		void SphereColliderComponent::RenderSceneHeirarchy()
+		{
+		}
+
+		void SphereColliderComponent::BeginPlay()
+		{
+			PhysicsEvent e;
+
+			m_CollisionData.EventCallback(e);
+		}
+
+		void SphereColliderComponent::Tick(const float DeltaMs)
+		{
+		}
+
+		void SphereColliderComponent::OnAttach()
+		{
+			m_SphereColliderWorldIndex = s_NumActiveSphereColliderComponents++;
+			sprintf_s(m_IDBuffer, "SM-%u", m_SphereColliderWorldIndex);
+
+			PhysicsManager::RegisterPhysicsObject(this);
+		}
+
+		void SphereColliderComponent::OnDetach()
+		{
+			PhysicsManager::UnRegisterPhysicsObject(this);
+
+		}
+
+	} // end namespace Runtime
+} // end namespace Insight

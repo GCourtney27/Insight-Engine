@@ -1,10 +1,10 @@
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include "File_System.h"
 
 #include "Insight/Core/Application.h"
 #include "Insight/Core/Scene/scene.h"
-#include "Insight/Core/ieException.h"
+#include "Insight/Core/ie_Exception.h"
 #include "Insight/Utilities/String_Helper.h"
 
 #include "Insight/Rendering/APost_Fx.h"
@@ -218,7 +218,7 @@ namespace Insight {
 				return false;
 			}
 
-			AActor* pNewActor = nullptr;
+			Runtime::AActor* pNewActor = nullptr;
 			UINT ActorSceneIndex = 0;
 
 			const rapidjson::Value& sceneObjects = RawActorsFile["Set"];
@@ -232,7 +232,7 @@ namespace Insight {
 				json::get_string(jsonActor, "Type", actorType);
 
 				if (actorType == "Actor") {
-					pNewActor = new AActor(ActorSceneIndex, ActorDisplayName);
+					pNewActor = new Runtime::AActor(ActorSceneIndex, ActorDisplayName);
 					pNewActor->LoadFromJson(jsonActor);
 				}
 				else if (actorType == "PointLight") {

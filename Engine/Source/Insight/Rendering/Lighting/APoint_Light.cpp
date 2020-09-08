@@ -1,16 +1,16 @@
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include "APoint_Light.h"
 
 #include "Insight/Runtime/Components/Actor_Component.h"
-#include "Insight/Rendering/Renderer.h"
+#include "Renderer/Renderer.h"
 #include "imgui.h"
 
 namespace Insight {
 
 
 
-	APointLight::APointLight(ActorId id, ActorType type)
+	APointLight::APointLight(ActorId id, Runtime::ActorType type)
 		: AActor(id, type)
 	{
 		Renderer::RegisterPointLight(this);

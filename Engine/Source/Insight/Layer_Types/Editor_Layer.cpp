@@ -1,4 +1,4 @@
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include "Editor_Layer.h"
 
@@ -155,7 +155,7 @@ namespace Insight {
 				if (ImGui::IsItemClicked()) {
 					IE_CORE_INFO("Create Point light");
 					static int PointLightIndex = 0;
-					ActorType ActorType = "MyPointLight" + std::to_string(PointLightIndex++);
+					Runtime::ActorType ActorType = "MyPointLight" + std::to_string(PointLightIndex++);
 					m_pSceneRootRef->AddChild(new APointLight(5, ActorType));
 				}
 				ImGui::TreePop();
@@ -164,7 +164,7 @@ namespace Insight {
 				if (ImGui::IsItemClicked()) {
 					IE_CORE_INFO("Create Spot light");
 					static int SpotLightIndex = 0;
-					ActorType ActorType = "MySpotLight" + std::to_string(SpotLightIndex++);
+					Runtime::ActorType ActorType = "MySpotLight" + std::to_string(SpotLightIndex++);
 					m_pSceneRootRef->AddChild(new ASpotLight(5, ActorType));
 				}
 				ImGui::TreePop();
@@ -173,7 +173,7 @@ namespace Insight {
 				if (ImGui::IsItemClicked()) {
 					IE_CORE_INFO("Create Directional light");
 					static int DirectionalLightIndex = 0;
-					ActorType ActorType = "MyDirectionalLight" + std::to_string(DirectionalLightIndex++);
+					Runtime::ActorType ActorType = "MyDirectionalLight" + std::to_string(DirectionalLightIndex++);
 					m_pSceneRootRef->AddChild(new ADirectionalLight(5, ActorType));
 				}
 				ImGui::TreePop();
@@ -185,8 +185,8 @@ namespace Insight {
 				if (ImGui::IsItemClicked()) {
 					IE_CORE_INFO("Create Empty Actor");
 					static int ActorIndex = 0;
-					ActorType ActorType = "MyActor" + std::to_string(ActorIndex++);
-					m_pSceneRootRef->AddChild(new AActor(5, ActorType)); 
+					Runtime::ActorType ActorType = "MyActor" + std::to_string(ActorIndex++);
+					m_pSceneRootRef->AddChild(new Runtime::AActor(5, ActorType));
 				}
 				ImGui::TreePop();
 

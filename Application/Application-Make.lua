@@ -16,6 +16,7 @@ project (gameName)
 
 	files
 	{
+		"Application-Make.lua",
 		"Source/**.h",
 		"Source/**.cpp",
 	}

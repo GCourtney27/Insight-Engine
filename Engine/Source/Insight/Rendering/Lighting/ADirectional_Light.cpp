@@ -1,9 +1,9 @@
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include "ADirectional_Light.h"
 
 #include "Insight/Runtime/Components/Actor_Component.h"
-#include "Insight/Rendering/Renderer.h"
+#include "Renderer/Renderer.h"
 #include "Insight/Runtime/ACamera.h"
 #include "Insight/Core/Application.h"
 #include "imgui.h"
@@ -12,7 +12,7 @@ namespace Insight {
 
 
 
-	ADirectionalLight::ADirectionalLight(ActorId id, ActorType type)
+	ADirectionalLight::ADirectionalLight(ActorId id, Runtime::ActorType type)
 		: AActor(id, type)
 	{
 		Renderer::RegisterDirectionalLight(this);

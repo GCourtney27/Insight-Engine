@@ -3,14 +3,14 @@
 #include <Insight/Core.h>
 
 #include <Insight/Runtime/AActor.h>
-#include "Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
+#include "Renderer/Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
 
 namespace Insight {
 
-	class INSIGHT_API APointLight : public AActor
+	class INSIGHT_API APointLight : public Runtime::AActor
 	{
 	public:
-		APointLight(ActorId id, ActorType type = "Point Light Actor");
+		APointLight(ActorId id, Runtime::ActorType type = "Point Light Actor");
 		virtual ~APointLight();
 
 		virtual bool LoadFromJson(const rapidjson::Value& jsonPointLight) override;

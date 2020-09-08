@@ -1,13 +1,13 @@
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include "ASky_Sphere.h"
 
 #include "Insight/Runtime/Components/Actor_Component.h"
 #include "Insight/Runtime/Components/Static_Mesh_Component.h"
 
-#include "Platform/Windows/DirectX_12/ie_D3D12_Texture.h"
-#include "Platform/Windows/DirectX_11/ie_D3D11_Texture.h"
-#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
+#include "Renderer/Platform/Windows/DirectX_12/ie_D3D12_Texture.h"
+#include "Renderer/Platform/Windows/DirectX_11/ie_D3D11_Texture.h"
+#include "Renderer/Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 #include "Insight/Systems/File_System.h"
 
@@ -15,7 +15,7 @@ namespace Insight {
 
 
 
-	ASkySphere::ASkySphere(ActorId id, ActorType type)
+	ASkySphere::ASkySphere(ActorId id, Runtime::ActorType type)
 		: AActor(id, type)
 	{
 		Renderer::CreateSkybox();

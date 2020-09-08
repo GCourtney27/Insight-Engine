@@ -1,4 +1,4 @@
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include "Game_Layer.h"
 
@@ -38,11 +38,6 @@ namespace Insight {
 	{
 		m_pScene->OnRender();
 		m_pScene->OnMidFrameRender();
-	}
-
-	void GameLayer::PostRender()
-	{
-		m_pScene->OnPostRender();
 	}
 
 	void GameLayer::EndPlay()

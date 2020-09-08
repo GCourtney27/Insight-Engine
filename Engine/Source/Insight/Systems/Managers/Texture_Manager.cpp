@@ -1,13 +1,13 @@
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include "Texture_Manager.h"
 #include "Insight/Systems/File_System.h"
 #include "Insight/Utilities/String_Helper.h"
-#include "Insight/Rendering/Renderer.h"
+#include "Renderer/Renderer.h"
 
-#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
-#include "Platform/Windows/DirectX_12/ie_D3D12_Texture.h"
-#include "Platform/Windows/DirectX_11/ie_D3D11_Texture.h"
+#include "Renderer/Platform/Windows/DirectX_12/Direct3D12_Context.h"
+#include "Renderer/Platform/Windows/DirectX_12/ie_D3D12_Texture.h"
+#include "Renderer/Platform/Windows/DirectX_11/ie_D3D11_Texture.h"
 
 namespace Insight {
 

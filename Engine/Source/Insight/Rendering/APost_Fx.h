@@ -3,14 +3,14 @@
 #include <Insight/Core.h>
 
 #include "Insight/Runtime/AActor.h"
-#include "Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
+#include "Renderer/Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
 
 namespace Insight {
 
-	class INSIGHT_API APostFx : public AActor
+	class INSIGHT_API APostFx : public Runtime::AActor
 	{
 	public:
-		APostFx(ActorId id, ActorType type = "Spot Light Actor");
+		APostFx(ActorId id, Runtime::ActorType type = "Spot Light Actor");
 		virtual ~APostFx();
 
 		virtual bool LoadFromJson(const rapidjson::Value& jsonPostFx) override;

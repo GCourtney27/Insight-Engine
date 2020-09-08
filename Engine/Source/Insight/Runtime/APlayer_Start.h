@@ -7,31 +7,33 @@
 
 namespace Insight {
 
+	namespace Runtime {
 
-	class APlayerCharacter;
+		class APlayerCharacter;
 
-	class INSIGHT_API APlayerStart : public AActor
-	{
-	public:
-		APlayerStart(ActorId id, ActorName name = "Player Start");
-		virtual ~APlayerStart();
+		class INSIGHT_API APlayerStart : public AActor
+		{
+		public:
+			APlayerStart(ActorId id, ActorName name = "Player Start");
+			virtual ~APlayerStart();
 
-		virtual bool OnInit() override;
-		virtual bool OnPostInit() override;
-		virtual void OnUpdate(const float DeltaMs) override;
-		virtual void CalculateParent(XMMATRIX parentMat) override;
-		virtual void OnRender() override;
+			virtual bool OnInit() override;
+			virtual bool OnPostInit() override;
+			virtual void OnUpdate(const float DeltaMs) override;
+			virtual void CalculateParent(XMMATRIX parentMat) override;
+			virtual void OnRender() override;
 
-		virtual void BeginPlay() override;
-		virtual void Tick(const float DeltaMs) override;
+			virtual void BeginPlay() override;
+			virtual void Tick(const float DeltaMs) override;
 
-		void RenderSceneHeirarchy() override;
-		void OnImGuiRender() override;
+			void RenderSceneHeirarchy() override;
+			void OnImGuiRender() override;
 
-		void SpawnPlayer(APlayerCharacter* PlayerCharacter);
+			void SpawnPlayer(APlayerCharacter* PlayerCharacter);
 
-	private:
+		private:
 
-	};
+		};
 
-}
+	} // end namespace Runtime
+} // end namespace Insight

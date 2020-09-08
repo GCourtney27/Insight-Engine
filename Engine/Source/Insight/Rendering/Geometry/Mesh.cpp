@@ -1,15 +1,15 @@
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include "Mesh.h"
 
 #include "Insight/Core/Application.h"
-#include "Insight/Rendering/Renderer.h"
+#include "Renderer/Renderer.h"
 
-#include "Platform/Windows/DirectX_11/Geometry/D3D11_Index_Buffer.h"
-#include "Platform/Windows/DirectX_11/Geometry/D3D11_Vertex_Buffer.h"
-#include "Platform/Windows/DirectX_12/Geometry/D3D12_Index_Buffer.h"
-#include "Platform/Windows/DirectX_12/Geometry/D3D12_Vertex_Buffer.h"
-#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
+#include "Renderer/Platform/Windows/DirectX_11/Geometry/D3D11_Index_Buffer.h"
+#include "Renderer/Platform/Windows/DirectX_11/Geometry/D3D11_Vertex_Buffer.h"
+#include "Renderer/Platform/Windows/DirectX_12/Geometry/D3D12_Index_Buffer.h"
+#include "Renderer/Platform/Windows/DirectX_12/Geometry/D3D12_Vertex_Buffer.h"
+#include "Renderer/Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 #include "imgui.h"
 

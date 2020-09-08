@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include <Insight/Core.h>
 #include "Insight/Events/Event.h"
@@ -33,6 +33,8 @@ namespace Insight {
 		virtual void ExecuteDraw() = 0;
 		virtual void Shutdown() = 0;
 		virtual void EndFrame() = 0;
+
+		virtual void PostInit() = 0;
 
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;

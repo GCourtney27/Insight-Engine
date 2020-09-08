@@ -7,7 +7,9 @@
 
 namespace Insight {
 
-	class CSharpScriptComponent;
+	namespace Runtime {
+		class CSharpScriptComponent;
+	}
 
 	class INSIGHT_API MonoScriptManager
 	{
@@ -22,8 +24,8 @@ namespace Insight {
 		void ReCompile();
 		void Cleanup();
 
-		inline void RegisterScript(CSharpScriptComponent* Script) { m_RegisteredScripts.push_back(Script); }
-		void UnRegisterScript(CSharpScriptComponent* Script);
+		inline void RegisterScript(Runtime::CSharpScriptComponent* Script) { m_RegisteredScripts.push_back(Script); }
+		void UnRegisterScript(Runtime::CSharpScriptComponent* Script);
 
 		MonoDomain& GetDomain() { return *m_pDomain; }
 		MonoAssembly& GetAssembly() { return *m_pAssembly; }
@@ -43,7 +45,7 @@ namespace Insight {
 
 		const char* m_CSGlobalNamespace = "InsightEngine";
 		std::string m_AssemblyDir = "";
-		std::vector<CSharpScriptComponent*> m_RegisteredScripts;
+		std::vector<Runtime::CSharpScriptComponent*> m_RegisteredScripts;
 	};
 
 }

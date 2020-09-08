@@ -1,4 +1,4 @@
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include "Application.h"
 
@@ -6,12 +6,12 @@
 #include "Insight/Runtime/AActor.h"
 #include "Insight/Layer_Types/ImGui_Layer.h"
 #include "Platform/Windows/Windows_Window.h"
-#include "Insight/Core/ieException.h"
-#include "Insight/Rendering/Renderer.h"
+#include "Insight/Core/ie_Exception.h"
+#include "Renderer/Renderer.h"
 
 #if defined IE_PLATFORM_WINDOWS
-#include "Platform/Windows/DirectX_11/D3D11_ImGui_Layer.h"
-#include "Platform/Windows/DirectX_12/D3D12_ImGui_Layer.h"
+#include "Renderer/Platform/Windows/DirectX_11/D3D11_ImGui_Layer.h"
+#include "Renderer/Platform/Windows/DirectX_12/D3D12_ImGui_Layer.h"
 #endif
 
 // TODO: Make the project hot reloadable
@@ -20,7 +20,7 @@
 // DemoScene
 // MultipleLights
 static const char* ProjectName = "Development-Project";
-static const char* TargetSceneName = "DemoScene.iescene";
+static const char* TargetSceneName = "Norway.iescene";
 
 namespace Insight {
 
@@ -49,7 +49,6 @@ namespace Insight {
 			return false;
 		}
 
-		pWindow->PostInit();
 		return true;
 	}
 
@@ -77,7 +76,7 @@ namespace Insight {
 		if (!m_pGameLayer->LoadScene(DocumentPath)) {
 			throw ieException("Failed to initialize scene");
 		}
-		
+
 		// Push core app layers to the layer stack
 		PushEngineLayers();
 
@@ -86,6 +85,10 @@ namespace Insight {
 
 	void Application::PostInit()
 	{
+		Renderer::PostInit();
+
+		m_pWindow->PostInit();
+
 		ResourceManager::Get().GetMonoScriptManager().PostInit();
 		IE_CORE_TRACE("Application Initialized");
 
@@ -125,7 +128,6 @@ namespace Insight {
 				m_pImGuiLayer->End();
 			);
 
-			m_pGameLayer->PostRender();
 			m_pWindow->EndFrame();
 		}
 
@@ -148,7 +150,7 @@ namespace Insight {
 		Dispatcher.Dispatch<ShaderReloadEvent>(IE_BIND_EVENT_FN(Application::ReloadShaders));
 
 		Input::GetInputManager().OnEvent(e);
-		ACamera::Get().OnEvent(e);
+		Runtime::ACamera::Get().OnEvent(e);
 		
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();) {
 			(*--it)->OnEvent(e);

@@ -29,6 +29,7 @@ project("Renderer")
     
     files
 	{
+        "Renderer-Make.lua",
 		"Source/**.cpp",
 		"Source/**.h",
 		"Source/**.Pixel.hlsl",
@@ -49,10 +50,22 @@ project("Renderer")
 		"%{RendererIncludeDirs.Mono}/",
         
         engineDirectory .. "Source/",
+        "Source/Renderer/",
         "Source/"
     }
     
-    
+    filter {"system:windows"}
+		systemversion "latest"
+
+		defines
+		{
+			"IE_PLATFORM_WINDOWS"
+		}
+
+		flags
+		{
+			"MultiProcessorCompile"
+		}
     
     -- Shaders
     filter {"system:windows"}

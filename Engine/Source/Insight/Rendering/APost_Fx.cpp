@@ -1,4 +1,4 @@
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include "APost_Fx.h"
 
@@ -11,7 +11,7 @@ namespace Insight {
 
 
 
-	APostFx::APostFx(ActorId id, ActorType type)
+	APostFx::APostFx(ActorId id, Runtime::ActorType type)
 		: AActor(id, type)
 	{
 		Renderer::AddPostFxActor(this);

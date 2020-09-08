@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Insight/Core.h>
-#include "Insight/Rendering/Renderer.h"
+#include "Renderer/Renderer.h"
 
 namespace Insight {
 

@@ -35,7 +35,7 @@ pointers will be bound.
 
 */
 
-#include <ie_pch.h>
+#include <Renderer_pch.h>
 #include "RootSignatureGenerator.h"
 #include <stdexcept>
 

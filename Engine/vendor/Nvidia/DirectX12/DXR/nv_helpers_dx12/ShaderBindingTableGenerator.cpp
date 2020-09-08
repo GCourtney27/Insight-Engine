@@ -34,7 +34,7 @@ dispatch rays description.
 
 */
 
-#include <ie_pch.h>
+#include <Renderer_pch.h>
 #include "ShaderBindingTableGenerator.h"
 #include <string>
 #include <stdexcept>
