@@ -21,7 +21,7 @@ cbuffer cbPerFrame : register(b1)
     float numPointLights;
     float numDirectionalLights;
     float numSpotLights;
-    float padding;//4
+    float rayTraceEnabled; //4
     float2 screenSize;
 	float padding1;
 	float padding2;

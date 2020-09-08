@@ -49,7 +49,7 @@ struct CB_PS_VS_PerFrame
 	float numPointLights;
 	float numDirectionalLights;
 	float numSpotLights;
-	float padding;
+	float rayTraceEnabled;
 	DirectX::XMFLOAT2 screenSize;
 	float padding1;
 	float padding2;

@@ -71,8 +71,15 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
         
         // Shadowing
         float4 fragPosLightSpace = mul(float4(worldPosition, 1.0), mul(dirLights[d].lightSpaceView, dirLights[d].lightSpaceProj));
-        //float shadow = 0.0; //ShadowCalculation(fragPosLightSpace, normal, lightDir);
-        float3 shadow = t_RayTracePassResult.Sample(s_PointClampSampler, ps_in.texCoords).r;
+        float shadow;
+        if (rayTraceEnabled)
+        {
+            shadow = t_RayTracePassResult.Sample(s_PointClampSampler, ps_in.texCoords).r;
+        }
+        else
+        {
+            shadow = 1.0f; //ShadowCalculation(fragPosLightSpace, normal, lightDir);
+        }
         
         directionalLightLuminance += CaclualteDirectionalLight(dirLights[d], viewDirection, normal, worldPosition, NdotV, albedo, roughness, metallic, baseReflectivity) * (shadow);
     }

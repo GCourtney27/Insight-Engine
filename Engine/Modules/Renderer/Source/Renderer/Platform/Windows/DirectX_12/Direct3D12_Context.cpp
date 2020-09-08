@@ -141,6 +141,7 @@ namespace Insight {
 		m_PerFrameData.cameraExposure = (float)m_pWorldCamera->GetExposure();
 		m_PerFrameData.numPointLights = (float)m_PointLights.size();
 		m_PerFrameData.numDirectionalLights = (float)m_DirectionalLights.size();
+		m_PerFrameData.rayTraceEnabled = (float)m_GraphicsSettings.RayTraceEnabled;
 		m_PerFrameData.numSpotLights = (float)m_SpotLights.size();
 		m_PerFrameData.screenSize.x = (float)m_WindowWidth;
 		m_PerFrameData.screenSize.y = (float)m_WindowHeight;
