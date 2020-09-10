@@ -45,6 +45,10 @@ namespace Insight {
 		Texture() {}
 		virtual ~Texture();
 	
+		bool operator==(const Texture& Tex)
+		{
+			return m_TextureInfo.Id == Tex.GetTextureInfo().Id;
+		}
 
 		// Destroy and release texture resources.
 		virtual void Destroy() = 0;

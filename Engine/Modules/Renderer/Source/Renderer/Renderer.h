@@ -30,6 +30,8 @@ namespace Insight {
 	class APointLight;
 	class ASpotLight;
 
+	class PointLightComponent;
+
 	namespace Runtime {
 		class ACamera;
 	}
