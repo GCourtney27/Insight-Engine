@@ -61,7 +61,7 @@ float mod(float x, float y)
 
 float3 AddChromaticAberration(float3 sourceColor, float2 texCoords)
 {
-    float2 texel = 1.0 / screenSize;
+    float2 texel = 1.0 / cbScreenSize;
     float2 coords = (texCoords - 0.5) * 2.0;
     float coordsDot = dot(coords, coords);
     
@@ -79,7 +79,7 @@ float3 AddChromaticAberration(float3 sourceColor, float2 texCoords)
 
 float3 AddFilmGrain(float3 sourceColor, float2 texCoords)
 {
-    float x = (texCoords.x + 4.0) * (texCoords.y + 4.0) * (time * 10.0);
+    float x = (texCoords.x + 4.0) * (texCoords.y + 4.0) * (cbTime * 10.0);
     float grain = mod((mod(x, 13.0) + 1.0) * (mod(x, 123.0) + 1.0), 0.01) - 0.005;
     float4 grainAmount = float4(grain, grain, grain, grain) * fgStrength;
     
@@ -102,5 +102,5 @@ float3 AddVignette(float3 sourceColor, float2 texCoords)
 float LinearizeDepth(float depth)
 {
     float z = depth * 2.0 - 1.0; // back to NDC 
-    return (2.0 * cameraNearZ * cameraFarZ) / (cameraFarZ + cameraNearZ - z * (cameraFarZ - cameraNearZ)) / cameraFarZ;
+    return (2.0 * cbCameraNearZ * cbCameraFarZ) / (cbCameraFarZ + cbCameraNearZ - z * (cbCameraFarZ - cbCameraNearZ)) / cbCameraFarZ;
 }

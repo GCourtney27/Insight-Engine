@@ -16,6 +16,31 @@ namespace Insight {
 	{
 	}
 
+	Material::Material(std::array<Texture::ID, 5> TextureMangerIds)
+	{
+		m_MaterialType = eMaterialType::eMaterialType_Opaque;
+
+		TextureManager& TextureManager = ResourceManager::Get().GetTextureManager();
+		m_AlbedoMap = TextureManager.GetTextureByID(TextureMangerIds[0], Texture::eTextureType_Albedo);
+		m_NormalMap = TextureManager.GetTextureByID(TextureMangerIds[1], Texture::eTextureType_Normal);
+		m_MetallicMap = TextureManager.GetTextureByID(TextureMangerIds[2], Texture::eTextureType_Metallic);
+		m_RoughnessMap = TextureManager.GetTextureByID(TextureMangerIds[3], Texture::eTextureType_Roughness);
+		m_AOMap = TextureManager.GetTextureByID(TextureMangerIds[4], Texture::eTextureType_AmbientOcclusion);
+		
+		m_AlbedoTextureManagerID = TextureMangerIds[0];
+		m_NormalTextureManagerID = TextureMangerIds[1];
+		m_MetallicTextureManagerID = TextureMangerIds[2];
+		m_RoughnessTextureManagerID = TextureMangerIds[3];
+		m_AoTextureManagerID = TextureMangerIds[4];
+
+		m_MaterialType = eMaterialType::eMaterialType_Opaque;
+		m_ShaderCB.diffuseAdditive = ieVector3(0.0f, 0.0f, 0.0f);
+		m_ShaderCB.metallicAdditive = 0.0f;
+		m_ShaderCB.roughnessAdditive = 0.0f;
+		m_ShaderCB.tiling = ieVector2(1.0f, 1.0f);
+		m_ShaderCB.uvOffset = ieVector2(0.0f, 0.0f);
+	}
+
 	Material::Material(Material&& material) noexcept
 	{
 		m_AlbedoMap = std::move(material.m_AlbedoMap);
@@ -264,6 +289,9 @@ namespace Insight {
 	void Material::BindResources(bool IsDeferredPass)
 	{
 		if (m_AlbedoMap.get()) {
+			if (m_AlbedoMap->GetTextureInfo().Id == -1) {
+				m_AlbedoMap = ResourceManager::Get().GetTextureManager().GetTextureByID(m_AlbedoTextureManagerID, Texture::eTextureType_Albedo);
+			}
 			if (IsDeferredPass) {
 				m_AlbedoMap->BindForDeferredPass();
 			}
@@ -273,6 +301,9 @@ namespace Insight {
 		}
 
 		if (m_NormalMap.get()) {
+			if (m_NormalMap->GetTextureInfo().Id == -2) {
+				m_NormalMap = ResourceManager::Get().GetTextureManager().GetTextureByID(m_NormalTextureManagerID, Texture::eTextureType_Normal);
+			}
 			if (IsDeferredPass) {
 				m_NormalMap->BindForDeferredPass();
 			}
@@ -282,6 +313,9 @@ namespace Insight {
 		}
 
 		if (m_MetallicMap.get()) {
+			if (m_MetallicMap->GetTextureInfo().Id == -3) {
+				m_MetallicMap = ResourceManager::Get().GetTextureManager().GetTextureByID(m_MetallicTextureManagerID, Texture::eTextureType_Metallic);
+			}
 			if (IsDeferredPass) {
 				m_MetallicMap->BindForDeferredPass();
 			}
@@ -291,6 +325,9 @@ namespace Insight {
 		}
 
 		if (m_RoughnessMap.get()) {
+			if (m_RoughnessMap->GetTextureInfo().Id == -4) {
+				m_RoughnessMap = ResourceManager::Get().GetTextureManager().GetTextureByID(m_RoughnessTextureManagerID, Texture::eTextureType_Roughness);
+			}
 			if (IsDeferredPass) {
 				m_RoughnessMap->BindForDeferredPass();
 			}
@@ -300,6 +337,9 @@ namespace Insight {
 		}
 
 		if (m_AOMap.get()) {
+			if (m_AOMap->GetTextureInfo().Id == -4) {
+				m_AOMap = ResourceManager::Get().GetTextureManager().GetTextureByID(m_AoTextureManagerID, Texture::eTextureType_AmbientOcclusion);
+			}
 			if (IsDeferredPass) {
 				m_AOMap->BindForDeferredPass();
 			}

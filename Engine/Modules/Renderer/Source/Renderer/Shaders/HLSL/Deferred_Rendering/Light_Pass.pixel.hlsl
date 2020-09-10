@@ -53,7 +53,7 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     float metallic = roughMetAOBufferSample.g;
     float ambientOcclusion = roughMetAOBufferSample.b;
     
-    float3 viewDirection = normalize(cameraPosition - worldPosition);
+    float3 viewDirection = normalize(cbCameraPosition - worldPosition);
         
     float3 F0 = float3(0.04, 0.04, 0.04);
     float3 baseReflectivity = lerp(F0, albedo, metallic);
@@ -65,16 +65,17 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     
     // Calculate Light Radiance
     // Directional Lights
-    for (int d = 0; d < numDirectionalLights; d++)
+    for (int d = 0; d < cbNumDirectionalLights; d++)
     {
         float3 lightDir = normalize(-dirLights[d].direction);
         
         // Shadowing
         float4 fragPosLightSpace = mul(float4(worldPosition, 1.0), mul(dirLights[d].lightSpaceView, dirLights[d].lightSpaceProj));
         float shadow;
-        if (rayTraceEnabled)
+        if (cbRayTraceEnabled)
         {
             shadow = t_RayTracePassResult.Sample(s_PointClampSampler, ps_in.texCoords).r;
+
         }
         else
         {
@@ -85,13 +86,13 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     }
     
     // Spot Lights
-    for (int s = 0; s < numSpotLights; s++)
+    for (int s = 0; s < cbNumSpotLights; s++)
     {
         spotLightLuminance += CalculateSpotLight(spotLights[s], viewDirection, NdotV, worldPosition, normal, albedo, roughness, metallic, baseReflectivity);
     }
     
     // Point Lights
-    for (int p = 0; p < numPointLights; p++)
+    for (int p = 0; p < cbNumPointLights; p++)
     {
         pointLightLuminance += CalculatePointLight(pointLights[p], worldPosition, viewDirection, NdotV, normal, albedo, metallic, roughness, baseReflectivity);;
     }
@@ -124,7 +125,7 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
 
 void HDRToneMap(inout float3 target)
 {
-    target = float3(1.0, 1.0, 1.0) - exp(-target * cameraExposure);
+    target = float3(1.0, 1.0, 1.0) - exp(-target * cbCameraExposure);
 }
 
 void GammaCorrect(inout float3 target)

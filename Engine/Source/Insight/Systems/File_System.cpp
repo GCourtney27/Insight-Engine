@@ -141,7 +141,7 @@ namespace Insight {
 		GraphicsSettings UserGraphicsSettings = {};
 
 		{
-			Profiling::ScopedTimer timer("LoadSceneFromJson::LoadGraphicsSettingsFromJson");
+			ScopedPerfTimer("LoadSceneFromJson::LoadGraphicsSettingsFromJson", eOutputType_Seconds);
 
 			rapidjson::Document RawSettingsFile;
 			const std::string SettingsDir = ProjectDirectory + "/PROFSAVE.ini";
@@ -171,7 +171,7 @@ namespace Insight {
 	{
 		// Load in Meta.json
 		{
-			Profiling::ScopedTimer timer("LoadSceneFromJson::LoadMetaData");
+			ScopedPerfTimer("LoadSceneFromJson::LoadMetaData", eOutputType_Seconds);
 
 			rapidjson::Document rawMetaFile;
 			const std::string metaDir = FileName + "/Meta.json";
@@ -193,7 +193,7 @@ namespace Insight {
 
 		// Load in Resources.json
 		{
-			Profiling::ScopedTimer timer("LoadSceneFromJson::LoadResources");
+			ScopedPerfTimer("LoadSceneFromJson::LoadResources", eOutputType_Seconds);
 
 			rapidjson::Document rawResourceFile;
 			const std::string resorurceDir = FileName + "/Resources.json";
@@ -209,7 +209,7 @@ namespace Insight {
 
 		// Load in Actors.json last once resources have been intialized
 		{
-			Profiling::ScopedTimer ScopeTimer("LoadSceneFromJson::LoadActors");
+			ScopedPerfTimer("LoadSceneFromJson::LoadActors", eOutputType_Seconds);
 
 			rapidjson::Document RawActorsFile;
 			const std::string actorsDir = FileName + "/Actors.json";
@@ -243,7 +243,7 @@ namespace Insight {
 					pNewActor = new ASpotLight(ActorSceneIndex, ActorDisplayName);
 					pNewActor->LoadFromJson(jsonActor);
 				}
-				else if (actorType == "DirectionalLight") {
+ 				else if (actorType == "DirectionalLight") {
 					pNewActor = new ADirectionalLight(ActorSceneIndex, ActorDisplayName);
 					pNewActor->LoadFromJson(jsonActor);
 				}

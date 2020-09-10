@@ -144,7 +144,10 @@ project ("Engine")
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../bin/"..outputdir.."/Engine"),
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../bin/"..outputdir.."/Engine"),
 			-- DXR Shaders
-			("{COPY} %{wks.location}/Engine/Modules/Renderer/Source/Renderer/Shaders/HLSL/Ray_Tracing/** ../bin/"..outputdir.."/Renderer")
+			("{COPY} %{wks.location}/Engine/Modules/Renderer/Source/Renderer/Shaders/HLSL/Ray_Tracing/** ../bin/"..outputdir.."/Renderer"),
+			-- Copy over default engine assets
+			("{COPY} %{wks.location}/Engine/Assets/Textures/Default_Object/** ../bin/"..outputdir.."/Default_Assets/")
+
 		}
 	-- Engine Release
 	filter "configurations:Release"
@@ -182,7 +185,9 @@ project ("Engine")
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../bin/"..outputdir.."/Engine"),
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../bin/"..outputdir.."/Engine"),
 			-- DXR Shaders
-			("{COPY} %{wks.location}/Engine/Modules/Renderer/Source/Renderer/Shaders/HLSL/Ray_Tracing/** ../bin/"..outputdir.."/Renderer")
+			("{COPY} %{wks.location}/Engine/Modules/Renderer/Source/Renderer/Shaders/HLSL/Ray_Tracing/** ../bin/"..outputdir.."/Renderer"),
+			-- Copy over default engine assets
+			("{COPY} %{wks.location}/Engine/Assets/Textures/Default_Object/** ../bin/"..outputdir.."/Default_Assets/")
 		}
 
 
@@ -217,7 +222,10 @@ project ("Engine")
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxcompiler.dll ../bin/"..outputdir.."/Engine"),
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxil.dll ../bin/"..outputdir.."/Engine"),
 			-- DXR Shaders
-			("{COPY} %{wks.location}/Engine/Modules/Renderer/Source/Renderer/Shaders/HLSL/Ray_Tracing/** ../bin/"..outputdir.."/Renderer")
+			("{COPY} %{wks.location}/Engine/Modules/Renderer/Source/Renderer/Shaders/HLSL/Ray_Tracing/** ../bin/"..outputdir.."/Renderer"),
+			-- Copy over default engine assets
+			("{COPY} %{wks.location}/Engine/Assets/Textures/Default_Object/** ../bin/"..outputdir.."/Default_Assets/")
+
 		}
 	-- Full Game Distribution, all engine debug tools(level editors, editor user interfaces) stripped
 	filter "configurations:Game-Dist"
@@ -247,5 +255,6 @@ project ("Engine")
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxcompiler.dll ../bin/"..outputdir.."/Engine"),
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxil.dll ../bin/"..outputdir.."/Engine"),
 			-- DXR Shaders
-			("{COPY} %{wks.location}/Engine/Modules/Renderer/Source/Renderer/Shaders/HLSL/Ray_Tracing/** ../bin/"..outputdir.."/Renderer")
+			("{COPY} %{wks.location}/Engine/Modules/Renderer/Source/Renderer/Shaders/HLSL/Ray_Tracing/** ../bin/"..outputdir.."/Renderer"),
 		}
+

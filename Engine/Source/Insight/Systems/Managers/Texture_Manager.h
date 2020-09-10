@@ -20,15 +20,15 @@ namespace Insight {
 		bool LoadResourcesFromJson(const rapidjson::Value& jsonTextures);
 		StrongTexturePtr GetTextureByID(Texture::ID textureID, Texture::eTextureType textreType);
 		
-		StrongTexturePtr GetDefaultAlbedoTexture() { return m_AlbedoTextures[0]; }
-		StrongTexturePtr GetDefaultNormalTexture() { return m_NormalTextures[0]; }
-		StrongTexturePtr GetDefaultMetallicTexture() { return m_MetallicTextures[0]; }
-		StrongTexturePtr GetDefaultRoughnessTexture() { return m_RoughnessTextures[0]; }
-		StrongTexturePtr GetDefaultAOTexture() { return m_AOTextures[0]; }
+		StrongTexturePtr GetDefaultAlbedoTexture() { return m_DefaultAlbedoTexture; }
+		StrongTexturePtr GetDefaultNormalTexture() { return m_DefaultNormalTexture; }
+		StrongTexturePtr GetDefaultMetallicTexture() { return m_DefaultMetallicTexture; }
+		StrongTexturePtr GetDefaultRoughnessTexture() { return m_DefaultRoughnessTexture; }
+		StrongTexturePtr GetDefaultAOTexture() { return m_DefaultAOTexture; }
 
 	private:
 		bool LoadDefaultTextures();
-		void RegisterTextureByType(const Texture::IE_TEXTURE_INFO& texInfo);
+		void RegisterTextureByType(const Texture::IE_TEXTURE_INFO texInfo);
 
 	private:
 		Texture::ID m_HighestTextureId = 0;
@@ -45,6 +45,9 @@ namespace Insight {
 		StrongTexturePtr m_DefaultMetallicTexture;
 		StrongTexturePtr m_DefaultRoughnessTexture;
 		StrongTexturePtr m_DefaultAOTexture;
+		
+		std::vector<std::future<void>> m_Futures;
+
 	};
 
 }

@@ -890,7 +890,7 @@ namespace Insight {
 
 	void Direct3D12Context::CreateCBVs()
 	{
-		HRESULT hr = m_cbvsrvHeap.Create(&m_d3dDeviceResources.GetDeviceContext(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 45, true);
+		HRESULT hr = m_cbvsrvHeap.Create(&m_d3dDeviceResources.GetDeviceContext(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 60, true);
 		ThrowIfFailed(hr, "Failed to create CBV SRV descriptor heap");
 	}
 

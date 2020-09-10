@@ -6,8 +6,8 @@ VS_OUTPUT_GEOMPASS main(VS_INPUT_GEOMPASS vs_in)
 {
 	VS_OUTPUT_GEOMPASS vs_out;
 	
-    matrix worldView = mul(world, view);
-    float4x4 worldViewProjection = mul(mul(world, view), projection);
+    matrix worldView = mul(world, cbView);
+    float4x4 worldViewProjection = mul(mul(world, cbView), cbProjection);
     float4 worldPos = mul(float4(vs_in.position, 1.0), world);
     
     vs_out.sv_position = mul(float4(vs_in.position, 1.0f), worldViewProjection);

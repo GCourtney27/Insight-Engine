@@ -41,7 +41,7 @@ PS_OUTPUT_GEOMPASS main(PS_INPUT_GEOMPASS ps_in)
     
     ps_out.normal = float4(normal, 1.0);
     ps_out.position = float4(ps_in.fragPos, 1.0);
-    float3 viewDist = cameraPosition - ps_in.fragPos;
+    float3 viewDist = cbCameraPosition - ps_in.fragPos;
     ps_out.albedo = t_AlbedoObject.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb + diffuseAdditive;
     //MAX_PER_OBJECT_LOD
     //ps_out.albedo = t_AlbedoObject.SampleLevel(s_LinearWrapSampler, ps_in.texCoords, length(viewDist)).rgb + diffuseAdditive;

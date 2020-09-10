@@ -17,12 +17,12 @@ struct PS_OUTPUT
 PS_OUTPUT main(VS_INPUT input)
 {
     PS_OUTPUT output;
-    matrix viewNoMovement = view;
+    matrix viewNoMovement = cbView;
     viewNoMovement._41 = 0;
     viewNoMovement._42 = 0;
     viewNoMovement._43 = 0;
     
-    matrix viewProjection = mul(viewNoMovement, projection);
+    matrix viewProjection = mul(viewNoMovement, cbProjection);
     output.outPosition = mul(float4(input.inPosition, 1.0), viewProjection);
     output.outPosition.z = output.outPosition.w;
     

@@ -18,6 +18,10 @@ namespace Insight {
 		};
 	public:
 		Material();
+		/*
+		@param TextureMangerIds - 0: Albedo, 1: Normal, 2: Metallic, 3: Roughness, 4:AO
+		*/
+		Material(std::array<Texture::ID, 5> TextureMangerIds);
 		Material(Material&& material) noexcept;
 		~Material();
 		
@@ -26,6 +30,17 @@ namespace Insight {
 		static Material* CreateDefaultTexturedMaterial();
 		bool LoadFromJson(const rapidjson::Value& jsonMaterial);
 		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer);
+
+		void AddColorAddative(float R, float G, float B) { m_ShaderCB.diffuseAdditive.x += R; m_ShaderCB.diffuseAdditive.y += G; m_ShaderCB.diffuseAdditive.y += G;}
+		void SetColorAddative(float R, float G, float B) { m_ShaderCB.diffuseAdditive.x = R; m_ShaderCB.diffuseAdditive.y = G; m_ShaderCB.diffuseAdditive.y = G;}
+		void SetUVTilingOffset(float U, float V) { m_ShaderCB.tiling.x = U; m_ShaderCB.tiling.y = V; }
+		void AddUVTilingOffset(float U, float V) { m_ShaderCB.tiling.x += U; m_ShaderCB.tiling.y += V; }
+		void SetUVOffset(float U, float V) { m_ShaderCB.uvOffset.x = U; m_ShaderCB.uvOffset.y = V; }
+		void AddUVOffset(float U, float V) { m_ShaderCB.uvOffset.x += U; m_ShaderCB.uvOffset.y += V; }
+		void SetMetallicOverride(float Override) { m_ShaderCB.metallicAdditive = Override; }
+		void AddMetallicOverride(float Override) { m_ShaderCB.metallicAdditive += Override; }
+		void SetRoughnessOverride(float Override) { m_ShaderCB.roughnessAdditive = Override; }
+		void AddRoughnessOverride(float Override) { m_ShaderCB.roughnessAdditive += Override; }
 
 		eMaterialType GetMaterialType() const { return m_MaterialType; }
 		void SetMaterialType(eMaterialType MaterialType) { m_MaterialType = MaterialType; }

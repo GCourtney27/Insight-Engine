@@ -195,7 +195,7 @@ namespace Insight {
 
 		void StaticMeshComponent::AttachMesh(const std::string& AssestDirectoryRelPath)
 		{
-			Profiling::ScopedTimer timer(("StaticMeshComponent::AttachMesh \"" + AssestDirectoryRelPath + "\"").c_str());
+			ScopedPerfTimer(("StaticMeshComponent::AttachMesh \"" + AssestDirectoryRelPath + "\"").c_str(), eOutputType_Seconds);
 
 			if (m_pModel) {
 				GeometryManager::UnRegisterOpaqueModel(m_pModel);

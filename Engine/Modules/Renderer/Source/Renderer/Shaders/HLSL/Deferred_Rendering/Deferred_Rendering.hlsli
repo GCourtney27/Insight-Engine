@@ -8,21 +8,21 @@ cbuffer cbPerObject : register(b0)
 
 cbuffer cbPerFrame : register(b1)
 {
-    float3 cameraPosition;
-    float cameraExposure;//4
-    float4x4 view;
-    float4x4 inverseView;
-    float4x4 projection;
-    float4x4 inverseProjection;
-    float cameraNearZ;
-    float cameraFarZ;
-    float DeltaMs;
-    float time;//4
-    float numPointLights;
-    float numDirectionalLights;
-    float numSpotLights;
-    float rayTraceEnabled; //4
-    float2 screenSize;
+    float3 cbCameraPosition;
+    float cbCameraExposure;//4
+    float4x4 cbView;
+    float4x4 cbInverseView;
+    float4x4 cbProjection;
+    float4x4 cbInverseProjection;
+    float cbCameraNearZ;
+    float cbCameraFarZ;
+    float cbDeltaMs;
+    float cbTime; //4
+    float cbNumPointLights;
+    float cbNumDirectionalLights;
+    float cbNumSpotLights;
+    float cbRayTraceEnabled; //4
+    float2 cbScreenSize;
 	float padding1;
 	float padding2;
 };

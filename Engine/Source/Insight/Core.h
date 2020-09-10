@@ -18,6 +18,7 @@
 
 #if defined IE_DEBUG
 	#define IE_ENABLE_ASSERTS
+	#define IE_SCOPE_PROFILING_ENABLED
 #endif // IE_DEBUG
 
 #if defined IE_ENABLE_ASSERTS

@@ -58,7 +58,9 @@ namespace Insight {
 
 	bool TextureManager::LoadResourcesFromJson(const rapidjson::Value& JsonTextures)
 	{
+		// Load each texture from the texture resource file and cache it.
 		for (rapidjson::SizeType i = 0; i < JsonTextures.Size(); i++) {
+
 			std::string Name, Filepath;
 			int Type, ID;
 			bool GenMipMaps;
@@ -75,7 +77,8 @@ namespace Insight {
 			TexInfo.GenerateMipMaps = GenMipMaps;
 			TexInfo.Type = (Texture::eTextureType)Type;
 
-			RegisterTextureByType(TexInfo);
+			m_Futures.push_back(std::async(std::launch::async, &TextureManager::RegisterTextureByType, this, TexInfo));
+			//RegisterTextureByType(TexInfo);
 
 			m_HighestTextureId = ((int)m_HighestTextureId < ID) ? ID : m_HighestTextureId;
 		}
@@ -93,6 +96,7 @@ namespace Insight {
 					return m_AlbedoTextures[i];
 				}
 			}
+			return m_DefaultAlbedoTexture;
 			break;
 		}
 		case Texture::eTextureType::eTextureType_Normal:
@@ -103,6 +107,7 @@ namespace Insight {
 					return m_NormalTextures[i];
 				}
 			}
+			return m_DefaultNormalTexture;
 			break;
 		}
 		case Texture::eTextureType::eTextureType_Roughness:
@@ -113,6 +118,7 @@ namespace Insight {
 					return m_RoughnessTextures[i];
 				}
 			}
+			return m_DefaultRoughnessTexture;
 			break;
 		}
 		case Texture::eTextureType::eTextureType_Metallic:
@@ -123,6 +129,7 @@ namespace Insight {
 					return m_MetallicTextures[i];
 				}
 			}
+			return m_DefaultMetallicTexture;
 			break;
 		}
 		case Texture::eTextureType::eTextureType_AmbientOcclusion:
@@ -133,6 +140,7 @@ namespace Insight {
 					return m_AOTextures[i];
 				}
 			}
+			return m_DefaultAOTexture;
 			break;
 		}
 		case Texture::eTextureType::eTextureType_Opacity:
@@ -167,48 +175,55 @@ namespace Insight {
 
 	bool TextureManager::LoadDefaultTextures()
 	{
-		return true;
-		Texture::IE_TEXTURE_INFO TexInfo = {};
-		TexInfo.Id = -1;
-		TexInfo.GenerateMipMaps = true;
-
-#ifndef IE_IS_STANDALONE
-		const char* DirExtension = "../../../Engine/";
-#else
-		const char* DirExtension = "";
-#endif
-		// TODO: Fix this not working in release and debug build without modification
-
+		std::wstring ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		ExeDirectory += L"../Default_Assets/";
+		
 		// Albedo
-		TexInfo.DisplayName = "Default_Albedo";
-		TexInfo.Type = Texture::eTextureType::eTextureType_Albedo;
-		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_Albedo.png");
+		IE_TEXTURE_INFO AlbedoTexInfo = {};
+		AlbedoTexInfo.Id = -1;
+		AlbedoTexInfo.GenerateMipMaps = true;
+		AlbedoTexInfo.DisplayName = "Default_Albedo";
+		AlbedoTexInfo.Type = Texture::eTextureType::eTextureType_Albedo;
+		AlbedoTexInfo.Filepath = ExeDirectory + L"Default_Albedo.png";
 		// Normal
-		TexInfo.DisplayName = "Default_Normal";
-		TexInfo.Type = Texture::eTextureType::eTextureType_Normal;
-		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_Normal.png");
+		IE_TEXTURE_INFO NormalTexInfo = {};
+		NormalTexInfo.Id = -2;
+		NormalTexInfo.GenerateMipMaps = true;
+		NormalTexInfo.DisplayName = "Default_Normal";
+		NormalTexInfo.Type = Texture::eTextureType::eTextureType_Normal;
+		NormalTexInfo.Filepath = ExeDirectory + L"Default_Normal.png";
 		// Metallic
-		TexInfo.DisplayName = "Default_Metallic";
-		TexInfo.Type = Texture::eTextureType::eTextureType_Metallic;
-		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_Metallic.png");
+		IE_TEXTURE_INFO MetallicTexInfo = {};
+		MetallicTexInfo.Id = -3;
+		MetallicTexInfo.GenerateMipMaps = true;
+		MetallicTexInfo.DisplayName = "Default_Metallic";
+		MetallicTexInfo.Type = Texture::eTextureType::eTextureType_Metallic;
+		MetallicTexInfo.Filepath = ExeDirectory + L"Default_Metallic.png";
 		// Roughness
-		TexInfo.DisplayName = "Default_Roughness";
-		TexInfo.Type = Texture::eTextureType::eTextureType_Roughness;
-		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_RoughAO.png");
+		IE_TEXTURE_INFO RoughnessTexInfo = {};
+		RoughnessTexInfo.Id = -4;
+		RoughnessTexInfo.GenerateMipMaps = true;
+		RoughnessTexInfo.DisplayName = "Default_Roughness";
+		RoughnessTexInfo.Type = Texture::eTextureType::eTextureType_Roughness;
+		RoughnessTexInfo.Filepath = ExeDirectory + L"Default_RoughAO.png";
 		// AO
-		TexInfo.DisplayName = "Default_AO";
-		TexInfo.Type = Texture::eTextureType::eTextureType_AmbientOcclusion;
-		TexInfo.Filepath = StringHelper::StringToWide("Assets/Textures/Default_Object/Default_RoughAO.png");
+		IE_TEXTURE_INFO AOTexInfo = {};
+		AOTexInfo.Id = -5;
+		AOTexInfo.GenerateMipMaps = true;
+		AOTexInfo.DisplayName = "Default_AO";
+		AOTexInfo.Type = Texture::eTextureType::eTextureType_AmbientOcclusion;
+		AOTexInfo.Filepath = ExeDirectory + L"Default_RoughAO.png";
 
 		switch (Renderer::GetAPI())
 		{
+#if defined IE_PLATFORM_WINDOWS
 		case Renderer::eTargetRenderAPI::D3D_11:
 		{
-			m_DefaultAlbedoTexture = make_shared<ieD3D11Texture>(TexInfo);
-			m_DefaultNormalTexture = make_shared<ieD3D11Texture>(TexInfo);
-			m_DefaultMetallicTexture = make_shared<ieD3D11Texture>(TexInfo);
-			m_DefaultRoughnessTexture = make_shared<ieD3D11Texture>(TexInfo);
-			m_DefaultAOTexture = make_shared<ieD3D11Texture>(TexInfo);
+			m_DefaultAlbedoTexture = make_shared<ieD3D11Texture>(AlbedoTexInfo);
+			m_DefaultNormalTexture = make_shared<ieD3D11Texture>(NormalTexInfo);
+			m_DefaultMetallicTexture = make_shared<ieD3D11Texture>(MetallicTexInfo);
+			m_DefaultRoughnessTexture = make_shared<ieD3D11Texture>(RoughnessTexInfo);
+			m_DefaultAOTexture = make_shared<ieD3D11Texture>(AOTexInfo);
 			break;
 		}
 		case Renderer::eTargetRenderAPI::D3D_12:
@@ -216,13 +231,14 @@ namespace Insight {
 			Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
 			CDescriptorHeapWrapper& cbvSrvHeapStart = graphicsContext->GetCBVSRVDescriptorHeap();
 
-			m_DefaultAlbedoTexture = make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart);
-			m_DefaultNormalTexture = make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart);
-			m_DefaultMetallicTexture = make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart);
-			m_DefaultRoughnessTexture = make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart);
-			m_DefaultAOTexture = make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart);
+			m_DefaultAlbedoTexture = make_shared<ieD3D12Texture>(AlbedoTexInfo, cbvSrvHeapStart);
+			m_DefaultNormalTexture = make_shared<ieD3D12Texture>(NormalTexInfo, cbvSrvHeapStart);
+			m_DefaultMetallicTexture = make_shared<ieD3D12Texture>(MetallicTexInfo, cbvSrvHeapStart);
+			m_DefaultRoughnessTexture = make_shared<ieD3D12Texture>(RoughnessTexInfo, cbvSrvHeapStart);
+			m_DefaultAOTexture = make_shared<ieD3D12Texture>(AOTexInfo, cbvSrvHeapStart);
 			break;
 		}
+#endif
 		default:
 		{
 			IE_CORE_ERROR("Failed to load default textures for api: {0}", Renderer::GetAPI());
@@ -232,7 +248,12 @@ namespace Insight {
 		return true;
 	}
 
-	void TextureManager::RegisterTextureByType(const Texture::IE_TEXTURE_INFO& TexInfo)
+	static std::mutex s_AlbedoMutex;
+	static std::mutex s_NormalMutex;
+	static std::mutex s_MetallicMutex;
+	static std::mutex s_RoughnessMutex;
+	static std::mutex s_AOMutex;
+	void TextureManager::RegisterTextureByType(const Texture::IE_TEXTURE_INFO TexInfo)
 	{
 
 		switch (Renderer::GetAPI())
@@ -242,37 +263,42 @@ namespace Insight {
 				switch (TexInfo.Type) {
 				case Texture::eTextureType::eTextureType_Albedo:
 				{
-					m_AlbedoTextures.push_back(make_shared<ieD3D11Texture>(TexInfo));
+					std::lock_guard<std::mutex> Lock(s_AlbedoMutex);
+					m_AlbedoTextures.push_back(std::move(make_shared<ieD3D11Texture>(TexInfo)));
 					break;
 				}
 				case Texture::eTextureType::eTextureType_Normal:
 				{
-					m_NormalTextures.push_back(make_shared<ieD3D11Texture>(TexInfo));
+					std::lock_guard<std::mutex> Lock(s_NormalMutex);
+					m_NormalTextures.push_back(std::move(make_shared<ieD3D11Texture>(TexInfo)));
 					break;
 				}
 				case Texture::eTextureType::eTextureType_Roughness:
 				{
-					m_RoughnessTextures.push_back(make_shared<ieD3D11Texture>(TexInfo));
+					std::lock_guard<std::mutex> Lock(s_RoughnessMutex);
+					m_RoughnessTextures.push_back(std::move(make_shared<ieD3D11Texture>(TexInfo)));
 					break;
 				}
 				case Texture::eTextureType::eTextureType_Metallic:
 				{
-					m_MetallicTextures.push_back(make_shared<ieD3D11Texture>(TexInfo));
+					std::lock_guard<std::mutex> Lock(s_MetallicMutex);
+					m_MetallicTextures.push_back(std::move(make_shared<ieD3D11Texture>(TexInfo)));
 					break;
 				}
 				case Texture::eTextureType::eTextureType_AmbientOcclusion:
 				{
-					m_AOTextures.push_back(make_shared<ieD3D11Texture>(TexInfo));
+					std::lock_guard<std::mutex> Lock(s_AOMutex);
+					m_AOTextures.push_back(std::move(make_shared<ieD3D11Texture>(TexInfo)));
 					break;
 				}
 				case Texture::eTextureType::eTextureType_Opacity:
 				{
-					m_OpacityTextures.push_back(make_shared<ieD3D11Texture>(TexInfo));
+					m_OpacityTextures.push_back(std::move(make_shared<ieD3D11Texture>(TexInfo)));
 					break;
 				}
 				case Texture::eTextureType::eTextureType_Translucency:
 				{
-					m_TranslucencyTextures.push_back(make_shared<ieD3D11Texture>(TexInfo));
+					m_TranslucencyTextures.push_back(std::move(make_shared<ieD3D11Texture>(TexInfo)));
 					break;
 				}
 				default:
@@ -291,37 +317,42 @@ namespace Insight {
 				switch (TexInfo.Type) {
 				case Texture::eTextureType::eTextureType_Albedo:
 				{
-					m_AlbedoTextures.push_back(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart));
+					std::lock_guard<std::mutex> Lock(s_AlbedoMutex);
+					m_AlbedoTextures.push_back(std::move(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart)));
 					break;
 				}
 				case Texture::eTextureType::eTextureType_Normal:
 				{
-					m_NormalTextures.push_back(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart));
+					std::lock_guard<std::mutex> Lock(s_NormalMutex);
+					m_NormalTextures.push_back(std::move(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart)));
 					break;
 				}
 				case Texture::eTextureType::eTextureType_Roughness:
 				{
-					m_RoughnessTextures.push_back(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart));
+					std::lock_guard<std::mutex> Lock(s_RoughnessMutex);
+					m_RoughnessTextures.push_back(std::move(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart)));
 					break;
 				}
 				case Texture::eTextureType::eTextureType_Metallic:
 				{
-					m_MetallicTextures.push_back(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart));
+					std::lock_guard<std::mutex> Lock(s_MetallicMutex);
+					m_MetallicTextures.push_back(std::move(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart)));
 					break;
 				}
 				case Texture::eTextureType::eTextureType_AmbientOcclusion:
 				{
-					m_AOTextures.push_back(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart));
+					std::lock_guard<std::mutex> Lock(s_AOMutex);
+					m_AOTextures.push_back(std::move(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart)));
 					break;
 				}
 				case Texture::eTextureType::eTextureType_Opacity:
 				{
-					m_OpacityTextures.push_back(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart));
+					m_OpacityTextures.push_back(std::move(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart)));
 					break;
 				}
 				case Texture::eTextureType::eTextureType_Translucency:
 				{
-					m_TranslucencyTextures.push_back(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart));
+					m_TranslucencyTextures.push_back(std::move(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart)));
 					break;
 				}
 				default:

@@ -65,4 +65,6 @@ namespace Insight {
 		IE_TEXTURE_INFO				m_TextureInfo = {};
 	};
 
+	using IE_TEXTURE_INFO = Texture::IE_TEXTURE_INFO;
+
 }
