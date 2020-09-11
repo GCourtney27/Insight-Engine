@@ -62,18 +62,6 @@ namespace Insight {
 	bool TextureManager::PostInit()
 	{
 		return true;
-
-		for (auto [Key, Value] : m_AwaitingLoadTextures)
-		{
-			StrongTexturePtr Tex = GetTextureByID(Key, (*Value)->GetTextureInfo().Type);
-			if (Tex != nullptr)
-			{
-				(*Value) = Tex;
-				m_AwaitingLoadTextures.erase(Key);
-			}
-		}
-
-		return true;
 	}
 
 	bool TextureManager::LoadResourcesFromJson(const rapidjson::Value& JsonTextures)
@@ -108,8 +96,8 @@ namespace Insight {
 
 	StrongTexturePtr TextureManager::GetTextureByID(Texture::ID textureID, Texture::eTextureType textreType)
 	{
-		switch (textreType) {
-
+		switch (textreType) 
+		{
 		case Texture::eTextureType::eTextureType_Albedo:
 		{
 			auto Iter = m_AlbedoTextureMap.find(textureID);
@@ -192,7 +180,17 @@ namespace Insight {
 
 	void TextureManager::RegisterTextureLoadCallback(Texture::ID AwaitingTextureId, StrongTexturePtr* AwaitingTexture)
 	{
-		m_AwaitingLoadTextures.insert({ AwaitingTextureId, AwaitingTexture });
+		auto Iter = m_AwaitingLoadTextures.find(AwaitingTextureId);
+		if (Iter != m_AwaitingLoadTextures.end())
+		{
+			// Add the texture to the queue to be initialized once the asset is created.
+			(*Iter).second.push_back(AwaitingTexture);
+		}
+		else
+		{
+			// If the element does not exist, create a new list and initialize it with the texture.
+			m_AwaitingLoadTextures.insert({ AwaitingTextureId, { AwaitingTexture } });
+		}
 	}
 
 	bool TextureManager::LoadDefaultTextures()
@@ -397,29 +395,18 @@ namespace Insight {
 			}
 
 		} // end switch(Renderer::GetAPI())
-
-		//auto Iter = m_AwaitingLoadTextures.find({ TexInfo.Id, TexInfo.Type });
-		
-		//if (Iter != m_AwaitingLoadTextures.end())
-		//{
-		//	// Reasign the texture in the material.
-		//	(*(*Iter).second) = GetTextureByID(TexInfo.Id, TexInfo.Type);
-		//	// Erase the pointer from the map.
-		//	m_AwaitingLoadTextures.erase({ TexInfo.Id, TexInfo.Type });
-		//}
-		
+				
 		// Check if the loaded texture is currently being waited upon by any materials.
 		auto Iter = m_AwaitingLoadTextures.find(TexInfo.Id);
-
-		while (Iter != m_AwaitingLoadTextures.end())
+		if (Iter != m_AwaitingLoadTextures.end())
 		{
-			// Reasign the texture in the material.
-			(*(*Iter).second) = GetTextureByID(TexInfo.Id, TexInfo.Type);
-			// Erase the pointer from the map.
+			// Reasign the texture in the material. There could be multiple materials waiting for the texture.
+			for (auto Tex : (*Iter).second)
+			{
+				*Tex = GetTextureByID(TexInfo.Id, TexInfo.Type);;
+			}
+			// Erase the element from the map.
 			m_AwaitingLoadTextures.erase(Iter);
-			Iter = m_AwaitingLoadTextures.find(TexInfo.Id);
 		}
-
-
 	}
 }

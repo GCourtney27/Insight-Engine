@@ -29,7 +29,7 @@ namespace Insight {
 		// Returns a reference to an existing texture by id that is owned by the manager. 
 		// Returns the default texture for the given texture type if it does not exist.
 		StrongTexturePtr GetTextureByID(Texture::ID TextureID, Texture::eTextureType TextreType);
-		
+		// Queue a texture to wait for its file asset to be loaded. 
 		void RegisterTextureLoadCallback(Texture::ID AwaitingTextureId, StrongTexturePtr* AwaitingTexture);
 
 		// Return the default albedo texture.
@@ -68,7 +68,7 @@ namespace Insight {
 		
 		std::vector<std::future<void>> m_TextureLoadFutures;
 
-		std::map<Texture::ID, StrongTexturePtr*> m_AwaitingLoadTextures;
+		std::map<Texture::ID, std::list<StrongTexturePtr*>> m_AwaitingLoadTextures;
 	};
 
 }

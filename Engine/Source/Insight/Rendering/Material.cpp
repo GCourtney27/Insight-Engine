@@ -54,12 +54,12 @@ namespace Insight {
 		m_RoughnessTextureManagerID = TextureMangerIds[3];
 		m_AoTextureManagerID		= TextureMangerIds[4];
 
-		m_MaterialType = eMaterialType::eMaterialType_Opaque;
-		m_ShaderCB.DiffuseAdditive = ieVector3(0.0f, 0.0f, 0.0f);
-		m_ShaderCB.MetallicAdditive = 0.0f;
-		m_ShaderCB.RoughnessAdditive = 0.0f;
-		m_ShaderCB.UVTiling = ieVector2(1.0f, 1.0f);
-		m_ShaderCB.UVOffset = ieVector2(0.0f, 0.0f);
+		m_MaterialType					= eMaterialType::eMaterialType_Opaque;
+		m_ShaderCB.DiffuseAdditive		= ieVector3(0.0f, 0.0f, 0.0f);
+		m_ShaderCB.MetallicAdditive		= 0.0f;
+		m_ShaderCB.RoughnessAdditive	= 0.0f;
+		m_ShaderCB.UVTiling				= ieVector2(1.0f, 1.0f);
+		m_ShaderCB.UVOffset				= ieVector2(0.0f, 0.0f);
 	}
 
 	Material::Material(Material&& material) noexcept
