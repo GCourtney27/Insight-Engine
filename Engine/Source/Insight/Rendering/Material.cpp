@@ -21,24 +21,45 @@ namespace Insight {
 		m_MaterialType = eMaterialType::eMaterialType_Opaque;
 
 		TextureManager& TextureManager = ResourceManager::Get().GetTextureManager();
-		m_AlbedoMap = TextureManager.GetTextureByID(TextureMangerIds[0], Texture::eTextureType_Albedo);
-		m_NormalMap = TextureManager.GetTextureByID(TextureMangerIds[1], Texture::eTextureType_Normal);
-		m_MetallicMap = TextureManager.GetTextureByID(TextureMangerIds[2], Texture::eTextureType_Metallic);
-		m_RoughnessMap = TextureManager.GetTextureByID(TextureMangerIds[3], Texture::eTextureType_Roughness);
-		m_AOMap = TextureManager.GetTextureByID(TextureMangerIds[4], Texture::eTextureType_AmbientOcclusion);
+		m_AlbedoMap		= TextureManager.GetTextureByID(TextureMangerIds[0], Texture::eTextureType_Albedo);
+		m_NormalMap		= TextureManager.GetTextureByID(TextureMangerIds[1], Texture::eTextureType_Normal);
+		m_MetallicMap	= TextureManager.GetTextureByID(TextureMangerIds[2], Texture::eTextureType_Metallic);
+		m_RoughnessMap	= TextureManager.GetTextureByID(TextureMangerIds[3], Texture::eTextureType_Roughness);
+		m_AOMap			= TextureManager.GetTextureByID(TextureMangerIds[4], Texture::eTextureType_AmbientOcclusion);
 		
-		m_AlbedoTextureManagerID = TextureMangerIds[0];
-		m_NormalTextureManagerID = TextureMangerIds[1];
-		m_MetallicTextureManagerID = TextureMangerIds[2];
+		// If we got back a default texture, queue the texture for the texture manager
+		// to give us the proper texture once it is loaded.
+		{
+			if (m_AlbedoMap->IsDefaultTexture()) {
+				TextureManager.RegisterTextureLoadCallback(TextureMangerIds[0], &m_AlbedoMap);
+			}
+			if (m_NormalMap->IsDefaultTexture()) {
+				TextureManager.RegisterTextureLoadCallback(TextureMangerIds[1], &m_NormalMap);
+			}
+			if (m_MetallicMap->IsDefaultTexture()) {
+				TextureManager.RegisterTextureLoadCallback(TextureMangerIds[2], &m_MetallicMap);
+			}
+			if (m_RoughnessMap->IsDefaultTexture()) {
+				TextureManager.RegisterTextureLoadCallback(TextureMangerIds[3], &m_RoughnessMap);
+			}
+			if (m_AOMap->IsDefaultTexture()) {
+				TextureManager.RegisterTextureLoadCallback(TextureMangerIds[4], &m_AOMap);
+			}
+		}
+
+
+		m_AlbedoTextureManagerID	= TextureMangerIds[0];
+		m_NormalTextureManagerID	= TextureMangerIds[1];
+		m_MetallicTextureManagerID	= TextureMangerIds[2];
 		m_RoughnessTextureManagerID = TextureMangerIds[3];
-		m_AoTextureManagerID = TextureMangerIds[4];
+		m_AoTextureManagerID		= TextureMangerIds[4];
 
 		m_MaterialType = eMaterialType::eMaterialType_Opaque;
-		m_ShaderCB.diffuseAdditive = ieVector3(0.0f, 0.0f, 0.0f);
-		m_ShaderCB.metallicAdditive = 0.0f;
-		m_ShaderCB.roughnessAdditive = 0.0f;
-		m_ShaderCB.tiling = ieVector2(1.0f, 1.0f);
-		m_ShaderCB.uvOffset = ieVector2(0.0f, 0.0f);
+		m_ShaderCB.DiffuseAdditive = ieVector3(0.0f, 0.0f, 0.0f);
+		m_ShaderCB.MetallicAdditive = 0.0f;
+		m_ShaderCB.RoughnessAdditive = 0.0f;
+		m_ShaderCB.UVTiling = ieVector2(1.0f, 1.0f);
+		m_ShaderCB.UVOffset = ieVector2(0.0f, 0.0f);
 	}
 
 	Material::Material(Material&& material) noexcept
@@ -91,11 +112,11 @@ namespace Insight {
 		pMaterial->m_AoTextureManagerID = pMaterial->m_AOMap->GetTextureInfo().Id;
 
 		pMaterial->m_MaterialType = eMaterialType::eMaterialType_Opaque;
-		pMaterial->m_ShaderCB.diffuseAdditive = ieVector3(0.0f, 0.0f, 0.0f);
-		pMaterial->m_ShaderCB.metallicAdditive = 0.0f;
-		pMaterial->m_ShaderCB.roughnessAdditive = 0.0f;
-		pMaterial->m_ShaderCB.tiling = ieVector2(1.0f, 1.0f);
-		pMaterial->m_ShaderCB.uvOffset = ieVector2(0.0f, 0.0f);
+		pMaterial->m_ShaderCB.DiffuseAdditive = ieVector3(0.0f, 0.0f, 0.0f);
+		pMaterial->m_ShaderCB.MetallicAdditive = 0.0f;
+		pMaterial->m_ShaderCB.RoughnessAdditive = 0.0f;
+		pMaterial->m_ShaderCB.UVTiling = ieVector2(1.0f, 1.0f);
+		pMaterial->m_ShaderCB.UVOffset = ieVector2(0.0f, 0.0f);
 
 		return pMaterial;
 	}
@@ -139,18 +160,18 @@ namespace Insight {
 			m_TranslucencyMap = textureManager.GetTextureByID(m_TranslucencyTextureManagerID, Texture::eTextureType::eTextureType_Translucency);
 		}
 
-		json::get_float(jsonUVOffset[0], "x", m_ShaderCB.uvOffset.x);
-		json::get_float(jsonUVOffset[0], "y", m_ShaderCB.uvOffset.y);
+		json::get_float(jsonUVOffset[0], "x", m_ShaderCB.UVOffset.x);
+		json::get_float(jsonUVOffset[0], "y", m_ShaderCB.UVOffset.y);
 
-		json::get_float(jsonTilingOffset[0], "u", m_ShaderCB.tiling.x);
-		json::get_float(jsonTilingOffset[0], "v", m_ShaderCB.tiling.y);
+		json::get_float(jsonTilingOffset[0], "u", m_ShaderCB.UVTiling.x);
+		json::get_float(jsonTilingOffset[0], "v", m_ShaderCB.UVTiling.y);
 
-		json::get_float(jsonColorOverride[0], "r", m_ShaderCB.diffuseAdditive.x);
-		json::get_float(jsonColorOverride[0], "g", m_ShaderCB.diffuseAdditive.y);
-		json::get_float(jsonColorOverride[0], "b", m_ShaderCB.diffuseAdditive.z);
+		json::get_float(jsonColorOverride[0], "r", m_ShaderCB.DiffuseAdditive.x);
+		json::get_float(jsonColorOverride[0], "g", m_ShaderCB.DiffuseAdditive.y);
+		json::get_float(jsonColorOverride[0], "b", m_ShaderCB.DiffuseAdditive.z);
 
-		json::get_float(JsonMaterial, "Metallic_Override", m_ShaderCB.metallicAdditive);
-		json::get_float(JsonMaterial, "Roughness_Override", m_ShaderCB.roughnessAdditive);
+		json::get_float(JsonMaterial, "Metallic_Override", m_ShaderCB.MetallicAdditive);
+		json::get_float(JsonMaterial, "Roughness_Override", m_ShaderCB.RoughnessAdditive);
 
 		return true;
 	}
@@ -199,9 +220,9 @@ namespace Insight {
 			Writer.StartObject();
 			{
 				Writer.Key("x");
-				Writer.Double(m_ShaderCB.uvOffset.x);
+				Writer.Double(m_ShaderCB.UVOffset.x);
 				Writer.Key("y");
-				Writer.Double(m_ShaderCB.uvOffset.y);
+				Writer.Double(m_ShaderCB.UVOffset.y);
 			}
 			Writer.EndObject();
 			Writer.EndArray(); // End Offsets
@@ -211,9 +232,9 @@ namespace Insight {
 			Writer.StartObject();
 			{
 				Writer.Key("u");
-				Writer.Double(m_ShaderCB.tiling.x);
+				Writer.Double(m_ShaderCB.UVTiling.x);
 				Writer.Key("v");
-				Writer.Double(m_ShaderCB.tiling.y);
+				Writer.Double(m_ShaderCB.UVTiling.y);
 			}
 			Writer.EndObject();
 			Writer.EndArray(); // End Tiling
@@ -226,11 +247,11 @@ namespace Insight {
 			Writer.StartObject();
 			{
 				Writer.Key("r");
-				Writer.Double(m_ShaderCB.diffuseAdditive.x);
+				Writer.Double(m_ShaderCB.DiffuseAdditive.x);
 				Writer.Key("g");
-				Writer.Double(m_ShaderCB.diffuseAdditive.y);
+				Writer.Double(m_ShaderCB.DiffuseAdditive.y);
 				Writer.Key("b");
-				Writer.Double(m_ShaderCB.diffuseAdditive.z);
+				Writer.Double(m_ShaderCB.DiffuseAdditive.z);
 			}
 			Writer.EndObject();
 			Writer.EndArray(); // End Tiling
@@ -239,9 +260,9 @@ namespace Insight {
 		// PBR Overrides
 		{
 			Writer.Key("Metallic_Override");
-			Writer.Double(m_ShaderCB.metallicAdditive);
+			Writer.Double(m_ShaderCB.MetallicAdditive);
 			Writer.Key("Roughness_Override");
-			Writer.Double(m_ShaderCB.roughnessAdditive);
+			Writer.Double(m_ShaderCB.RoughnessAdditive);
 		}
 
 		return true;
@@ -254,19 +275,19 @@ namespace Insight {
 			ImGui::Text("Textures");
 
 			ImGui::Text("Albedo:"); ImGui::SameLine();
-			//ImGui::Text(m_AlbedoMap->GetDisplayName().c_str());
+			ImGui::Text(m_AlbedoMap->GetDisplayName().c_str());
 
 			ImGui::Text("Normal:"); ImGui::SameLine();
-			//ImGui::Text(m_NormalMap->GetDisplayName().c_str());
+			ImGui::Text(m_NormalMap->GetDisplayName().c_str());
 
 			ImGui::Text("Roughness:"); ImGui::SameLine();
-			//ImGui::Text(m_RoughnessMap->GetDisplayName().c_str());
+			ImGui::Text(m_RoughnessMap->GetDisplayName().c_str());
 
 			ImGui::Text("Metallic:"); ImGui::SameLine();
-			//ImGui::Text(m_MetallicMap->GetDisplayName().c_str());
+			ImGui::Text(m_MetallicMap->GetDisplayName().c_str());
 
 			ImGui::Text("AO:"); ImGui::SameLine();
-			//ImGui::Text(m_AOMap->GetDisplayName().c_str());
+			ImGui::Text(m_AOMap->GetDisplayName().c_str());
 
 			ImGui::Spacing();
 
@@ -274,13 +295,13 @@ namespace Insight {
 			ImGuiColorEditFlags colorWheelFlags = ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_PickerHueWheel;
 			// Imgui will edit the color values in a normalized 0 to 1 space. 
 			// In the shaders we transform the color values back into 0 to 255 space.
-			ImGui::ColorEdit3("Diffuse Additive: ", &m_ShaderCB.diffuseAdditive.x, colorWheelFlags);
-			ImGui::SliderFloat("Metallic Addative", &m_ShaderCB.metallicAdditive, 0.0f, 1.0f);
-			ImGui::SliderFloat("Roughness Addative", &m_ShaderCB.roughnessAdditive, 0.0f, 1.0f);
+			ImGui::ColorEdit3("Diffuse Additive: ", &m_ShaderCB.DiffuseAdditive.x, colorWheelFlags);
+			ImGui::SliderFloat("Metallic Addative", &m_ShaderCB.MetallicAdditive, 0.0f, 1.0f);
+			ImGui::SliderFloat("Roughness Addative", &m_ShaderCB.RoughnessAdditive, 0.0f, 1.0f);
 
 			ImGui::Text("UVs");
-			ImGui::DragFloat2("Tiling:", &m_ShaderCB.tiling.x, 0.01f, -50.0f, 50.0f);
-			ImGui::DragFloat2("Offset:", &m_ShaderCB.uvOffset.x, 0.01f, -50.0f, 50.0f);
+			ImGui::DragFloat2("Tiling:", &m_ShaderCB.UVTiling.x, 0.01f, -50.0f, 50.0f);
+			ImGui::DragFloat2("Offset:", &m_ShaderCB.UVOffset.x, 0.01f, -50.0f, 50.0f);
 			ImGui::TreePop();
 		}
 
@@ -289,9 +310,6 @@ namespace Insight {
 	void Material::BindResources(bool IsDeferredPass)
 	{
 		if (m_AlbedoMap.get()) {
-			if (m_AlbedoMap->GetTextureInfo().Id == -1) {
-				m_AlbedoMap = ResourceManager::Get().GetTextureManager().GetTextureByID(m_AlbedoTextureManagerID, Texture::eTextureType_Albedo);
-			}
 			if (IsDeferredPass) {
 				m_AlbedoMap->BindForDeferredPass();
 			}
@@ -301,9 +319,6 @@ namespace Insight {
 		}
 
 		if (m_NormalMap.get()) {
-			if (m_NormalMap->GetTextureInfo().Id == -2) {
-				m_NormalMap = ResourceManager::Get().GetTextureManager().GetTextureByID(m_NormalTextureManagerID, Texture::eTextureType_Normal);
-			}
 			if (IsDeferredPass) {
 				m_NormalMap->BindForDeferredPass();
 			}
@@ -313,9 +328,6 @@ namespace Insight {
 		}
 
 		if (m_MetallicMap.get()) {
-			if (m_MetallicMap->GetTextureInfo().Id == -3) {
-				m_MetallicMap = ResourceManager::Get().GetTextureManager().GetTextureByID(m_MetallicTextureManagerID, Texture::eTextureType_Metallic);
-			}
 			if (IsDeferredPass) {
 				m_MetallicMap->BindForDeferredPass();
 			}
@@ -325,9 +337,6 @@ namespace Insight {
 		}
 
 		if (m_RoughnessMap.get()) {
-			if (m_RoughnessMap->GetTextureInfo().Id == -4) {
-				m_RoughnessMap = ResourceManager::Get().GetTextureManager().GetTextureByID(m_RoughnessTextureManagerID, Texture::eTextureType_Roughness);
-			}
 			if (IsDeferredPass) {
 				m_RoughnessMap->BindForDeferredPass();
 			}
@@ -337,9 +346,6 @@ namespace Insight {
 		}
 
 		if (m_AOMap.get()) {
-			if (m_AOMap->GetTextureInfo().Id == -4) {
-				m_AOMap = ResourceManager::Get().GetTextureManager().GetTextureByID(m_AoTextureManagerID, Texture::eTextureType_AmbientOcclusion);
-			}
 			if (IsDeferredPass) {
 				m_AOMap->BindForDeferredPass();
 			}

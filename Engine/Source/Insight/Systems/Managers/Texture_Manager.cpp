@@ -11,6 +11,8 @@
 
 namespace Insight {
 
+
+
 	TextureManager::TextureManager()
 		: m_HighestTextureId(0u)
 	{
@@ -54,6 +56,23 @@ namespace Insight {
 	bool TextureManager::Init()
 	{
 		LoadDefaultTextures();
+		return true;
+	}
+
+	bool TextureManager::PostInit()
+	{
+		return true;
+
+		for (auto [Key, Value] : m_AwaitingLoadTextures)
+		{
+			StrongTexturePtr Tex = GetTextureByID(Key, (*Value)->GetTextureInfo().Type);
+			if (Tex != nullptr)
+			{
+				(*Value) = Tex;
+				m_AwaitingLoadTextures.erase(Key);
+			}
+		}
+
 		return true;
 	}
 
@@ -171,6 +190,11 @@ namespace Insight {
 		return nullptr;
 	}
 
+	void TextureManager::RegisterTextureLoadCallback(Texture::ID AwaitingTextureId, StrongTexturePtr* AwaitingTexture)
+	{
+		m_AwaitingLoadTextures.insert({ AwaitingTextureId, AwaitingTexture });
+	}
+
 	bool TextureManager::LoadDefaultTextures()
 	{
 		std::wstring ExeDirectory = FileSystem::GetExecutbleDirectoryW();
@@ -178,35 +202,35 @@ namespace Insight {
 		
 		// Albedo
 		IE_TEXTURE_INFO AlbedoTexInfo = {};
-		AlbedoTexInfo.Id = -1;
+		AlbedoTexInfo.Id = DEFAULT_ALBEDO_TEXTURE_ID;
 		AlbedoTexInfo.GenerateMipMaps = true;
 		AlbedoTexInfo.DisplayName = "Default_Albedo";
 		AlbedoTexInfo.Type = Texture::eTextureType::eTextureType_Albedo;
 		AlbedoTexInfo.Filepath = ExeDirectory + L"Default_Albedo.png";
 		// Normal
 		IE_TEXTURE_INFO NormalTexInfo = {};
-		NormalTexInfo.Id = -2;
+		NormalTexInfo.Id = DEFAULT_NORMAL_TEXTURE_ID;
 		NormalTexInfo.GenerateMipMaps = true;
 		NormalTexInfo.DisplayName = "Default_Normal";
 		NormalTexInfo.Type = Texture::eTextureType::eTextureType_Normal;
 		NormalTexInfo.Filepath = ExeDirectory + L"Default_Normal.png";
 		// Metallic
 		IE_TEXTURE_INFO MetallicTexInfo = {};
-		MetallicTexInfo.Id = -3;
+		MetallicTexInfo.Id = DEFAULT_METALLIC_TEXTURE_ID;
 		MetallicTexInfo.GenerateMipMaps = true;
 		MetallicTexInfo.DisplayName = "Default_Metallic";
 		MetallicTexInfo.Type = Texture::eTextureType::eTextureType_Metallic;
 		MetallicTexInfo.Filepath = ExeDirectory + L"Default_Metallic.png";
 		// Roughness
 		IE_TEXTURE_INFO RoughnessTexInfo = {};
-		RoughnessTexInfo.Id = -4;
+		RoughnessTexInfo.Id = DEFAULT_ROUGHNESS_TEXTURE_ID;
 		RoughnessTexInfo.GenerateMipMaps = true;
 		RoughnessTexInfo.DisplayName = "Default_Roughness";
 		RoughnessTexInfo.Type = Texture::eTextureType::eTextureType_Roughness;
 		RoughnessTexInfo.Filepath = ExeDirectory + L"Default_RoughAO.png";
 		// AO
 		IE_TEXTURE_INFO AOTexInfo = {};
-		AOTexInfo.Id = -5;
+		AOTexInfo.Id = DEFAULT_AO_TEXTURE_ID;
 		AOTexInfo.GenerateMipMaps = true;
 		AOTexInfo.DisplayName = "Default_AO";
 		AOTexInfo.Type = Texture::eTextureType::eTextureType_AmbientOcclusion;
@@ -255,7 +279,6 @@ namespace Insight {
 	static std::mutex s_TranslucencyMutex;
 	void TextureManager::RegisterTextureByType(const IE_TEXTURE_INFO TexInfo)
 	{
-
 		switch (Renderer::GetAPI())
 		{
 			case Renderer::eTargetRenderAPI::D3D_11:
@@ -372,6 +395,29 @@ namespace Insight {
 				IE_CORE_ERROR("Failed to determine graphics api to initialize texture. The renderer may not have been initialized yet.");
 				break;
 			}
+
+		} // end switch(Renderer::GetAPI())
+
+		//auto Iter = m_AwaitingLoadTextures.find({ TexInfo.Id, TexInfo.Type });
+		
+		//if (Iter != m_AwaitingLoadTextures.end())
+		//{
+		//	// Reasign the texture in the material.
+		//	(*(*Iter).second) = GetTextureByID(TexInfo.Id, TexInfo.Type);
+		//	// Erase the pointer from the map.
+		//	m_AwaitingLoadTextures.erase({ TexInfo.Id, TexInfo.Type });
+		//}
+		
+		// Check if the loaded texture is currently being waited upon by any materials.
+		auto Iter = m_AwaitingLoadTextures.find(TexInfo.Id);
+
+		while (Iter != m_AwaitingLoadTextures.end())
+		{
+			// Reasign the texture in the material.
+			(*(*Iter).second) = GetTextureByID(TexInfo.Id, TexInfo.Type);
+			// Erase the pointer from the map.
+			m_AwaitingLoadTextures.erase(Iter);
+			Iter = m_AwaitingLoadTextures.find(TexInfo.Id);
 		}
 
 

@@ -195,14 +195,14 @@ namespace Insight {
 		{
 			ScopedPerfTimer("LoadSceneFromJson::LoadResources", eOutputType_Seconds);
 
-			rapidjson::Document rawResourceFile;
-			const std::string resorurceDir = FileName + "/Resources.json";
-			if (!json::load(resorurceDir.c_str(), rawResourceFile)) {
+			rapidjson::Document RawResourceFile;
+			const std::string ResorurceDir = FileName + "/Resources.json";
+			if (!json::load(ResorurceDir.c_str(), RawResourceFile)) {
 				IE_CORE_ERROR("Failed to load resource file from scene: \"{0}\" from file.", FileName);
 				return false;
 			}
 
-			ResourceManager::Get().LoadResourcesFromJson(rawResourceFile);
+			ResourceManager::Get().LoadResourcesFromJson(RawResourceFile);
 
 			IE_CORE_TRACE("Scene resouces loaded.");
 		}
@@ -212,50 +212,50 @@ namespace Insight {
 			ScopedPerfTimer("LoadSceneFromJson::LoadActors", eOutputType_Seconds);
 
 			rapidjson::Document RawActorsFile;
-			const std::string actorsDir = FileName + "/Actors.json";
-			if (!json::load(actorsDir.c_str(), RawActorsFile)) {
+			const std::string ActorsDir = FileName + "/Actors.json";
+			if (!json::load(ActorsDir.c_str(), RawActorsFile)) {
 				IE_CORE_ERROR("Failed to load actor file from scene: \"{0}\" from file.", FileName);
 				return false;
 			}
 
 			Runtime::AActor* pNewActor = nullptr;
-			UINT ActorSceneIndex = 0;
+			uint32_t ActorSceneIndex = 0;
 
-			const rapidjson::Value& sceneObjects = RawActorsFile["Set"];
-			for (rapidjson::SizeType a = 0; a < sceneObjects.Size(); a++)
+			const rapidjson::Value& SceneObjects = RawActorsFile["Set"];
+			for (rapidjson::SizeType a = 0; a < SceneObjects.Size(); a++)
 			{
-				const rapidjson::Value& jsonActor = sceneObjects[a];
+				const rapidjson::Value& jsonActor = SceneObjects[a];
 
 				std::string ActorDisplayName;
-				std::string actorType;
+				std::string ActorType;
 				json::get_string(jsonActor, "DisplayName", ActorDisplayName);
-				json::get_string(jsonActor, "Type", actorType);
+				json::get_string(jsonActor, "Type", ActorType);
 
-				if (actorType == "Actor") {
+				if (ActorType == "Actor") {
 					pNewActor = new Runtime::AActor(ActorSceneIndex, ActorDisplayName);
 					pNewActor->LoadFromJson(jsonActor);
 				}
-				else if (actorType == "PointLight") {
+				else if (ActorType == "PointLight") {
 					pNewActor = new APointLight(ActorSceneIndex, ActorDisplayName);
 					pNewActor->LoadFromJson(jsonActor);
 				}
-				else if (actorType == "SpotLight") {
+				else if (ActorType == "SpotLight") {
 					pNewActor = new ASpotLight(ActorSceneIndex, ActorDisplayName);
 					pNewActor->LoadFromJson(jsonActor);
 				}
- 				else if (actorType == "DirectionalLight") {
+ 				else if (ActorType == "DirectionalLight") {
 					pNewActor = new ADirectionalLight(ActorSceneIndex, ActorDisplayName);
 					pNewActor->LoadFromJson(jsonActor);
 				}
-				else if (actorType == "SkySphere") {
+				else if (ActorType == "SkySphere") {
 					pNewActor = new ASkySphere(ActorSceneIndex, ActorDisplayName);
 					pNewActor->LoadFromJson(jsonActor);
 				}
-				else if (actorType == "SkyLight") {
+				else if (ActorType == "SkyLight") {
 					pNewActor = new ASkyLight(ActorSceneIndex, ActorDisplayName);
 					pNewActor->LoadFromJson(jsonActor);
 				}
-				else if (actorType == "PostFxVolume") {
+				else if (ActorType == "PostFxVolume") {
 					pNewActor = new APostFx(ActorSceneIndex, ActorDisplayName);
 					pNewActor->LoadFromJson(jsonActor);
 				}

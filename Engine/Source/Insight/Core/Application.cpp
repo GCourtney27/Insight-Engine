@@ -89,7 +89,7 @@ namespace Insight {
 
 		m_pWindow->PostInit();
 
-		ResourceManager::Get().GetMonoScriptManager().PostInit();
+		ResourceManager::Get().PostAppInit();
 		IE_CORE_TRACE("Application Initialized");
 
 		m_AppInitialized = true;

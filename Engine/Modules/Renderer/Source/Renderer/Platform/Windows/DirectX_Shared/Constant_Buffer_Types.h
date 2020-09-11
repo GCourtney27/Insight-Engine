@@ -22,15 +22,15 @@ struct CB_VS_PerObject
 
 struct CB_PS_VS_PerObjectAdditives
 {
-	float roughnessAdditive;
-	float metallicAdditive;
-	DirectX::XMFLOAT2 uvOffset;
+	float RoughnessAdditive;
+	float MetallicAdditive;
+	DirectX::XMFLOAT2 UVOffset;
 
-	DirectX::XMFLOAT2 tiling;
+	DirectX::XMFLOAT2 UVTiling;
 	float padding1;
 	float padding2;
 	
-	DirectX::XMFLOAT3 diffuseAdditive;
+	DirectX::XMFLOAT3 DiffuseAdditive;
 	float padding3;
 };
 

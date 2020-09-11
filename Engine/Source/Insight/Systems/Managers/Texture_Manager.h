@@ -4,6 +4,11 @@
 
 #include "Insight/Rendering/Texture.h"
 
+#define DEFAULT_ALBEDO_TEXTURE_ID -1
+#define DEFAULT_NORMAL_TEXTURE_ID -2
+#define DEFAULT_METALLIC_TEXTURE_ID -3
+#define DEFAULT_ROUGHNESS_TEXTURE_ID -4
+#define DEFAULT_AO_TEXTURE_ID -5
 
 namespace Insight {
 
@@ -14,6 +19,7 @@ namespace Insight {
 		~TextureManager();
 		
 		bool Init();
+		bool PostInit();
 		void Destroy();
 
 		// Destroy all textures owned by the manager.
@@ -22,8 +28,10 @@ namespace Insight {
 		bool LoadResourcesFromJson(const rapidjson::Value& jsonTextures);
 		// Returns a reference to an existing texture by id that is owned by the manager. 
 		// Returns the default texture for the given texture type if it does not exist.
-		StrongTexturePtr GetTextureByID(Texture::ID textureID, Texture::eTextureType textreType);
+		StrongTexturePtr GetTextureByID(Texture::ID TextureID, Texture::eTextureType TextreType);
 		
+		void RegisterTextureLoadCallback(Texture::ID AwaitingTextureId, StrongTexturePtr* AwaitingTexture);
+
 		// Return the default albedo texture.
 		StrongTexturePtr GetDefaultAlbedoTexture() { return m_DefaultAlbedoTexture; }
 		// Return the default normal texture.
@@ -39,7 +47,7 @@ namespace Insight {
 		// Load the default textures that will be used as fallbacks for invalid or placeholders textures.
 		bool LoadDefaultTextures();
 		// Create and register a texture inside the texture manager to be reused by other materials.
-		void RegisterTextureByType(const IE_TEXTURE_INFO texInfo);
+		void RegisterTextureByType(const IE_TEXTURE_INFO TexInfo);
 
 	private:
 		Texture::ID m_HighestTextureId;
@@ -59,6 +67,8 @@ namespace Insight {
 		StrongTexturePtr m_DefaultAOTexture;
 		
 		std::vector<std::future<void>> m_TextureLoadFutures;
+
+		std::map<Texture::ID, StrongTexturePtr*> m_AwaitingLoadTextures;
 	};
 
 }

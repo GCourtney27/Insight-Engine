@@ -14,6 +14,7 @@ namespace Insight {
 		~ResourceManager();
 
 		bool Init();
+		bool PostAppInit();
 		virtual bool LoadResourcesFromJson(const rapidjson::Value& jsonResources);
 
 		inline static ResourceManager& Get() { return *s_Instance; }

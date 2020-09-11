@@ -34,6 +34,14 @@ namespace Insight {
 		return true;
 	}
 
+	bool ResourceManager::PostAppInit()
+	{
+		m_pTextureManager->PostInit();
+		m_pMonoScriptManager->PostInit();
+
+		return true;
+	}
+
 	bool ResourceManager::LoadResourcesFromJson(const rapidjson::Value& jsonResources)
 	{
 		const rapidjson::Value& jsonTextureResources = jsonResources["Textures"];

@@ -27,6 +27,9 @@ namespace Insight {
 			ieFloat2(ieFloat2&&) = default;
 			ieFloat2& operator=(ieFloat2&&) = default;
 
+			constexpr ieFloat2(float Val)
+				: x(Val), y(Val) {}
+
 			constexpr ieFloat2(float _X, float _Y)
 				: x(_X), y(_Y) {}
 		};
@@ -46,6 +49,9 @@ namespace Insight {
 			ieFloat3(ieFloat3&&) = default;
 			ieFloat3& operator=(ieFloat3&&) = default;
 
+			constexpr ieFloat3(float Val)
+				: x(Val), y(Val), z(Val) {}
+			
 			constexpr ieFloat3(float _X, float _Y, float _Z)
 				: x(_X), y(_Y), z(_Z) {}
 		};
@@ -65,6 +71,9 @@ namespace Insight {
 
 			ieFloat4(ieFloat4&&) = default;
 			ieFloat4& operator=(ieFloat4&&) = default;
+
+			constexpr ieFloat4(float Val)
+				: x(Val), y(Val), z(Val), w(Val) {}
 
 			constexpr ieFloat4(float _X, float _Y, float _Z, float _W)
 				: x(_X), y(_Y), z(_Z), w(_W) {}
