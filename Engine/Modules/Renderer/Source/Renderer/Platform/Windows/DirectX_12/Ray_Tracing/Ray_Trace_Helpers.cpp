@@ -74,9 +74,9 @@ namespace Insight {
 		m_pCameraBuffer->Unmap(0, nullptr);
 
 		// Copy the directional light contents
-		const CB_PS_DirectionalLight& DirLightData = m_pRendererContext->GetDirectionalLightCB();
+		const CB_PS_DirectionalLight DirLightData = m_pRendererContext->GetDirectionalLightCB();
 		m_CBLightParams.DirLightDirection = XMFLOAT4(DirLightData.direction.x, DirLightData.direction.y, DirLightData.direction.z, 1.0f);
-		m_CBLightParams.ShadowDarkness = 0.2f;
+		m_CBLightParams.ShadowDarkness = DirLightData.shadowDarknessMultiplier;
 
 		uint8_t* pLightData;
 		ThrowIfFailed(m_pLightBuffer->Map(0, nullptr, (void**)&pLightData), "Failed to map light buffer");

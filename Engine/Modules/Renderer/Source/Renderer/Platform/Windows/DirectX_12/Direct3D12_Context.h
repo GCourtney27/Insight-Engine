@@ -14,7 +14,7 @@
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
 
 /*
-	Render context for Windows DirectX 12 API. 
+	Render context for Windows Direct3D 12 API. 
 */
 
 using Microsoft::WRL::ComPtr;
@@ -72,7 +72,6 @@ namespace Insight {
 		inline UINT8& GetPerObjectMaterialAdditiveCBVGPUHeapAddress() { return *m_cbvPerObjectMaterialOverridesGPUAddress[IE_D3D12_FrameIndex]; }
 
 		const CB_PS_VS_PerFrame& GetPerFrameCB() const { return m_PerFrameData; }
-		CB_PS_DirectionalLight GetDirectionalLightCB() const { return m_DirectionalLights[0]->GetConstantBuffer(); }
 
 		// Ray Tracing
 		// -----------

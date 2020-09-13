@@ -120,7 +120,7 @@ namespace Insight {
 		m_PerFrameData.Data.cameraFarZ = (float)m_pWorldCamera->GetFarZ();
 		m_PerFrameData.Data.cameraExposure = (float)m_pWorldCamera->GetExposure();
 		m_PerFrameData.Data.numPointLights = (float)m_PointLights.size();
-		m_PerFrameData.Data.numDirectionalLights = (float)m_DirectionalLights.size();
+		m_PerFrameData.Data.numDirectionalLights = (m_pWorldDirectionalLight != nullptr) ? 1.0f : 0.0f;
 		m_PerFrameData.Data.numSpotLights = (float)m_SpotLights.size();
 		m_PerFrameData.Data.screenSize.x = (float)m_WindowWidth;
 		m_PerFrameData.Data.screenSize.y = (float)m_WindowHeight;
@@ -137,13 +137,11 @@ namespace Insight {
 		}
 
 		// Send Directionl Lights to GPU
-		if (m_DirectionalLights.size() == 0) {
-			m_LightData.Data.directionalLights[0] = CB_PS_DirectionalLight{};
+		if (m_pWorldDirectionalLight == nullptr) {
+			m_LightData.Data.directionalLight = CB_PS_DirectionalLight{};
 		}
 		else {
-			for (int i = 0; i < m_DirectionalLights.size(); i++) {
-				m_LightData.Data.directionalLights[i] = m_DirectionalLights[i]->GetConstantBuffer();
-			}
+			m_LightData.Data.directionalLight = m_pWorldDirectionalLight->GetConstantBuffer();
 		}
 
 		// Send Spot Lights to GPU

@@ -8,6 +8,8 @@
 #include "Insight/Rendering/Geometry/Vertex_Buffer.h"
 #include "Insight/Rendering/Geometry/Index_Buffer.h"
 
+#include "Renderer/Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
+
 /*
 	Represents a base for a graphics context the application will use for rendering.
 	Context is API independent, meaning all rendering calls will pass through a *Imple
@@ -49,8 +51,8 @@ namespace Insight {
 		struct GraphicsSettings
 		{
 			eTargetRenderAPI TargetRenderAPI = eTargetRenderAPI::D3D_11;
-			uint32_t MaxAnisotropy = 1U;	// Texture Filtering (1, 4, 8, 16)
-			float MipLodBias = 0.0f;		// Texture Quality (0 - 9)
+			uint32_t MaxAnisotropy = 1U;	// Texture Filtering (1, 4, 8, 16) *16 highest quality
+			float MipLodBias = 0.0f;		// Texture Quality (0 - 9) *9 highest quality
 			bool RayTraceEnabled = false;
 		};
 
@@ -117,18 +119,20 @@ namespace Insight {
 			s_Instance->OnWindowResize();
 		}
 
+		CB_PS_DirectionalLight GetDirectionalLightCB() const;
+
 		// Add a Directional Light to the scene. 
-		static void RegisterDirectionalLight(ADirectionalLight* DirectionalLight) { s_Instance->m_DirectionalLights.push_back(DirectionalLight); }
+		static void RegisterWorldDirectionalLight(ADirectionalLight* pDirectionalLight) { s_Instance->m_pWorldDirectionalLight = pDirectionalLight; }
 		// Remove a Directional Light from the scene
-		static void UnRegisterDirectionalLight(ADirectionalLight* DirectionalLight);
+		static void UnRegisterWorldDirectionalLight();
 		// Add a Point Light to the scene. 
-		static void RegisterPointLight(APointLight* PointLight) { s_Instance->m_PointLights.push_back(PointLight); }
+		static void RegisterPointLight(APointLight* pPointLight) { s_Instance->m_PointLights.push_back(pPointLight); }
 		// Remove a Point Light from the scene
-		static void UnRegisterPointLight(APointLight* PointLight);
+		static void UnRegisterPointLight(APointLight* pPointLight);
 		// Add a Spot Light to the scene. 
-		static void RegisterSpotLight(ASpotLight* SpotLight) { s_Instance->m_SpotLights.push_back(SpotLight); }
+		static void RegisterSpotLight(ASpotLight* pSpotLight) { s_Instance->m_SpotLights.push_back(pSpotLight); }
 		// Remove a Spot Light from the scene
-		static void UnRegisterSpotLight(ASpotLight* SpotLight);
+		static void UnRegisterSpotLight(ASpotLight* pSpotLight);
 
 		// Add Sky Sphere to the scene. There can never be more than one in the scene at any given time.
 		static void RegisterSkySphere(ASkySphere* SkySphere) { if (!s_Instance->m_pSkySphere) { s_Instance->m_pSkySphere = SkySphere; } }
@@ -184,7 +188,7 @@ namespace Insight {
 		bool m_IsRayTraceSupported = false; // Assume ray tracing is not supported on the GPU
 
 		std::vector<APointLight*> m_PointLights;
-		std::vector<ADirectionalLight*> m_DirectionalLights;
+		ADirectionalLight* m_pWorldDirectionalLight;
 		std::vector<ASpotLight*> m_SpotLights;
 
 		ASkySphere* m_pSkySphere = nullptr;

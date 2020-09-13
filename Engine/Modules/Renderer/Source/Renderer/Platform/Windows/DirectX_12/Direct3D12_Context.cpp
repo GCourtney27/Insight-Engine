@@ -141,7 +141,7 @@ namespace Insight {
 		m_PerFrameData.cameraFarZ = (float)m_pWorldCamera->GetFarZ();
 		m_PerFrameData.cameraExposure = (float)m_pWorldCamera->GetExposure();
 		m_PerFrameData.numPointLights = (float)m_PointLights.size();
-		m_PerFrameData.numDirectionalLights = (float)m_DirectionalLights.size();
+		m_PerFrameData.numDirectionalLights = (m_pWorldDirectionalLight != nullptr) ? 1.0f : 0.0f;
 		m_PerFrameData.rayTraceEnabled = (float)m_GraphicsSettings.RayTraceEnabled;
 		m_PerFrameData.numSpotLights = (float)m_SpotLights.size();
 		m_PerFrameData.screenSize.x = (float)m_WindowWidth;
@@ -154,10 +154,10 @@ namespace Insight {
 		for (int i = 0; i < m_PointLights.size(); i++) {
 			memcpy(m_cbvLightBufferGPUAddress + POINT_LIGHTS_CB_ALIGNED_OFFSET + (sizeof(CB_PS_PointLight) * i), &m_PointLights[i]->GetConstantBuffer(), sizeof(CB_PS_PointLight));
 		}
-		// Send Directionl Lights to GPU
-		for (int i = 0; i < m_DirectionalLights.size(); i++) {
-			memcpy(m_cbvLightBufferGPUAddress + DIRECTIONAL_LIGHTS_CB_ALIGNED_OFFSET + (sizeof(CB_PS_DirectionalLight) * i), &m_DirectionalLights[i]->GetConstantBuffer(), sizeof(CB_PS_DirectionalLight));
-		}
+		
+		// Send Directionl Light to GPU
+		memcpy(m_cbvLightBufferGPUAddress + DIRECTIONAL_LIGHTS_CB_ALIGNED_OFFSET, &m_pWorldDirectionalLight->GetConstantBuffer(), sizeof(CB_PS_DirectionalLight));
+		
 		// Send Spot Lights to GPU
 		for (int i = 0; i < m_SpotLights.size(); i++) {
 			memcpy(m_cbvLightBufferGPUAddress + SPOT_LIGHTS_CB_ALIGNED_OFFSET + (sizeof(CB_PS_SpotLight) * i), &m_SpotLights[i]->GetConstantBuffer(), sizeof(CB_PS_SpotLight));

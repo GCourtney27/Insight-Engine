@@ -68,7 +68,7 @@ struct CB_PS_PointLight
 struct CB_PS_DirectionalLight
 {
 	DirectX::XMFLOAT3 direction;
-	float padding;//4
+	float shadowDarknessMultiplier;//4
 
 	DirectX::XMFLOAT3 diffuse;
 	float strength;//4
@@ -108,6 +108,6 @@ struct CB_PS_PostFx
 struct D3D11_CB_PS_Lights
 {
 	CB_PS_PointLight pointLights[MAX_POINT_LIGHTS_SUPPORTED];
-	CB_PS_DirectionalLight directionalLights[MAX_DIRECTIONAL_LIGHTS_SUPPORTED];
+	CB_PS_DirectionalLight directionalLight;
 	CB_PS_SpotLight spotLights[MAX_SPOT_LIGHTS_SUPPORTED];
 };

@@ -107,7 +107,7 @@ namespace Insight {
 		Assimp::Importer Importer;
 		const aiScene* pScene = Importer.ReadFile(
 			path, 
-			aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded 
+			aiProcess_ImproveCacheLocality | aiProcessPreset_TargetRealtime_Fast | aiProcess_ConvertToLeftHanded
 		);
 
 		if (!pScene || pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !pScene->mRootNode) {

@@ -15,13 +15,14 @@ namespace Insight {
 	ADirectionalLight::ADirectionalLight(ActorId id, Runtime::ActorType type)
 		: AActor(id, type)
 	{
-		Renderer::RegisterDirectionalLight(this);
+		Renderer::RegisterWorldDirectionalLight(this);
 
 		AActor::GetTransformRef().SetPosition(0.0f, -1.0f, -6.0f);
 
 		m_ShaderCB.diffuse = ieVector3(1.0f, 1.0f, 1.0f);
 		m_ShaderCB.direction = SceneNode::GetTransformRef().GetPosition();
 		m_ShaderCB.strength = 8.0f;
+		m_ShaderCB.shadowDarknessMultiplier = 0.6f;
 
 		m_NearPlane = 1.0f;
 		m_FarPlane = 210.0f;
@@ -35,16 +36,18 @@ namespace Insight {
 	{
 		AActor::LoadFromJson(jsonDirectionalLight);
 
-		float diffuseR, diffuseG, diffuseB, strength;
+		float diffuseR, diffuseG, diffuseB, strength, shdowDarkness;
 		const rapidjson::Value& emission = jsonDirectionalLight["Emission"];
 		json::get_float(emission[0], "diffuseR", diffuseR);
 		json::get_float(emission[0], "diffuseG", diffuseG);
 		json::get_float(emission[0], "diffuseB", diffuseB);
 		json::get_float(emission[0], "strength", strength);
+		json::get_float(emission[0], "shadowDarkness", shdowDarkness);
 
 		m_ShaderCB.diffuse = XMFLOAT3(diffuseR, diffuseG, diffuseB);
 		m_ShaderCB.direction = AActor::GetTransformRef().GetRotationRef();
 		m_ShaderCB.strength = strength;
+		m_ShaderCB.shadowDarknessMultiplier = shdowDarkness;
 
 		m_NearPlane = 1.0f;
 		m_FarPlane = 210.0f;
@@ -201,7 +204,7 @@ namespace Insight {
 
 	void ADirectionalLight::Destroy()
 	{
-		Renderer::UnRegisterDirectionalLight(this);
+		Renderer::UnRegisterWorldDirectionalLight();
 	}
 
 	void ADirectionalLight::OnEvent(Event& e)
@@ -227,12 +230,12 @@ namespace Insight {
 		ImGui::Spacing();
 		ImGui::Spacing();
 
-		ImGui::DragFloat3("light cam pos offset: ", &LightCamPositionOffset.x, 1.0f, 180.0f, 180.0f);
+		/*ImGui::DragFloat3("light cam pos offset: ", &LightCamPositionOffset.x, 1.0f, 180.0f, 180.0f);
 		ImGui::DragFloat("light cam near z: ", &m_NearPlane, 1.0f, 0.0f, 180.0f);
 		ImGui::DragFloat("light cam far z: ", &m_FarPlane, 1.0f, 0.0f, 1000.0f);
 		ImGui::DragFloat("light view width: ", &ViewWidth, 1.0f, 0.0f, 1000.0f);
 		ImGui::DragFloat("light view height: ", &ViewHeight, 1.0f, 0.0f, 1000.0f);
-		
+		*/
 		ImGui::Spacing();
 		ImGui::Spacing();
 
@@ -243,6 +246,9 @@ namespace Insight {
 			// In the shaders we transform the color values back into 0 to 255 space.
 			ImGui::ColorEdit3("Diffuse", &m_ShaderCB.diffuse.x, colorWheelFlags);
 			ImGui::DragFloat("Strength", &m_ShaderCB.strength, 0.01f, 0.0f, 10.0f);
+
+			ImGui::Text("Shadows");
+			ImGui::DragFloat("Shadow Darkness Multiplier: ", &m_ShaderCB.shadowDarknessMultiplier, 0.05f, 0.0f, 1.0f);
 		}
 
 	}

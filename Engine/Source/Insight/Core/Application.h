@@ -41,9 +41,9 @@ namespace Insight {
 		virtual void Shutdown();
 
 		void OnEvent(Event& e);
-		// Add a layer to the applications layer stack.
+		// Add a layer to the application's layer stack.
 		void PushLayer(Layer* layer);
-		// Push an overlay onto the applications layer stack.
+		// Push an overlay to the front of the application's layer stack.
 		void PushOverlay(Layer* layer);
 
 		// Get the ImGui UI layer

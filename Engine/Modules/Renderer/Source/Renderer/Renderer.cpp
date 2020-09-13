@@ -54,25 +54,28 @@ namespace Insight {
 		return s_Instance != nullptr;
 	}
 
-	void Renderer::UnRegisterDirectionalLight(ADirectionalLight* DirectionalLight)
+	CB_PS_DirectionalLight Renderer::GetDirectionalLightCB() const
 	{
-		auto iter = std::find(s_Instance->m_DirectionalLights.begin(), s_Instance->m_DirectionalLights.end(), DirectionalLight);
-		if (iter != s_Instance->m_DirectionalLights.end()) {
-			s_Instance->m_DirectionalLights.erase(iter);
-		}
+		return s_Instance->m_pWorldDirectionalLight->GetConstantBuffer();
 	}
 
-	void Renderer::UnRegisterPointLight(APointLight* PointLight)
+
+	void Renderer::UnRegisterWorldDirectionalLight()
 	{
-		auto iter = std::find(s_Instance->m_PointLights.begin(), s_Instance->m_PointLights.end(), PointLight);
+		delete s_Instance->m_pWorldDirectionalLight;
+	}
+
+	void Renderer::UnRegisterPointLight(APointLight* pPointLight)
+	{
+		auto iter = std::find(s_Instance->m_PointLights.begin(), s_Instance->m_PointLights.end(), pPointLight);
 		if (iter != s_Instance->m_PointLights.end()) {
 			s_Instance->m_PointLights.erase(iter);
 		}
 	}
 
-	void Renderer::UnRegisterSpotLight(ASpotLight* SpotLight)
+	void Renderer::UnRegisterSpotLight(ASpotLight* pSpotLight)
 	{
-		auto iter = std::find(s_Instance->m_SpotLights.begin(), s_Instance->m_SpotLights.end(), SpotLight);
+		auto iter = std::find(s_Instance->m_SpotLights.begin(), s_Instance->m_SpotLights.end(), pSpotLight);
 		if (iter != s_Instance->m_SpotLights.end()) {
 			s_Instance->m_SpotLights.erase(iter);
 		}

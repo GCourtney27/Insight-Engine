@@ -1,6 +1,6 @@
 #include <Deferred_Rendering.hlsli>	
 
-// Texture Inputs
+// Per-Object Texture Inputs
 // --------------
 Texture2D t_AlbedoObject    : register(t5);
 Texture2D t_NormalObject    : register(t6);

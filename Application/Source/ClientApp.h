@@ -161,13 +161,28 @@ namespace SandBoxApp {
 			pAStairs->GetTransformRef().SetRotation(ieVector3(0.0f, 3.158f, 0.0f));
 			pAStairs->OnInit();
 			// Outer House
-			//Insight::Material* pStairsMat = new Insight::Material({ 31, 32, 33, 34, 35 });
+			Insight::Material* pStairsMat = new Insight::Material({ 1, 2, 3, 4, 5 });
 			StaticMeshComponent* pStairsMesh = pAStairs->CreateDefaultSubobject<StaticMeshComponent>();
-			pStairsMesh->SetMaterial(Material::CreateDefaultTexturedMaterial());
+			pStairsMesh->SetMaterial(pStairsMat);
 			pStairsMesh->AttachMesh("Objects/Norway/Stairs.obj");
 
 			m_pGameLayer->GetScene()->AddActor(pAStairs);
 
+
+			// Front Rocks
+			/*AActor* pAFrontRocks = new AActor(0, "Front Rocks");
+			pAFrontRocks->GetTransformRef().SetPosition(ieVector3(14.5f, 1.9f, -81.0f));
+			pAFrontRocks->GetTransformRef().SetScale(ieVector3(0.063f, 0.063f, 0.063f));
+			pAFrontRocks->GetTransformRef().SetRotation(ieVector3(0.0f, 3.158f, 0.0f));
+			pAFrontRocks->OnInit();
+
+			Insight::Material* pFrontRocksMat = new Insight::Material({ 36, 37, 38, 39, 40 });
+			StaticMeshComponent* pFrontRocks = pAFrontRocks->CreateDefaultSubobject<StaticMeshComponent>();
+			pFrontRocks->SetMaterial(pFrontRocksMat);
+			pFrontRocks->AttachMesh("Objects/Norway/Opaque/CoastRock/CoastRock_LOD2.obj");
+			pFrontRocks->SetRotation(ieVector3(0.5f, 0.0f, 0.0f));
+
+			m_pGameLayer->GetScene()->AddActor(pAFrontRocks);*/
 
 		}
 
