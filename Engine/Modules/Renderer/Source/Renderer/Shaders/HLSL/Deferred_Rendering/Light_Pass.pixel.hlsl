@@ -67,11 +67,11 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     // Directional Lights
     for (int d = 0; d < cbNumDirectionalLights; d++)
     {
-        float3 lightDir = normalize(-dirLights.direction);
+        float3 lightDir = normalize(-dirLight.direction);
         
         // Shadowing
-        float4 fragPosLightSpace = mul(float4(worldPosition, 1.0), mul(dirLights.lightSpaceView, dirLights.lightSpaceProj));
-        float shadow;
+        float4 fragPosLightSpace = mul(float4(worldPosition, 1.0), mul(dirLight.lightSpaceView, dirLight.lightSpaceProj));
+        float shadow = 1.0f;
         if (cbRayTraceEnabled)
         {
             shadow = t_RayTracePassResult.Sample(s_PointClampSampler, ps_in.texCoords).r;
@@ -81,7 +81,7 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
             shadow = ShadowCalculation(fragPosLightSpace, normal, lightDir);
         }
         
-        directionalLightLuminance += CaclualteDirectionalLight(dirLights, viewDirection, normal, worldPosition, NdotV, albedo, roughness, metallic, baseReflectivity) * (shadow);
+        directionalLightLuminance += CaclualteDirectionalLight(dirLight, viewDirection, normal, worldPosition, NdotV, albedo, roughness, metallic, baseReflectivity) * (shadow);
     }
     
     // Spot Lights

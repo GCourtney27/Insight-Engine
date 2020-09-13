@@ -59,7 +59,7 @@ namespace Insight {
 		void CreateLightPass();
 		void CreateSkyPass();
 		void CreateTransparencyPass();
-		void CreatePostFxPass();
+		void CreatePostEffectsPass();
 
 	private:
 		ComPtr<ID3D11Device>				m_pDevice = nullptr;

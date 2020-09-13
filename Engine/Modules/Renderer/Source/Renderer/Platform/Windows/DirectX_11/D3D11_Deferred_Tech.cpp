@@ -5,6 +5,7 @@
 #include "Platform/Windows/Windows_Window.h"
 #include "Platform/Windows/Error/COM_Exception.h"
 #include "Insight/Rendering/Geometry/Vertex.h"
+#include "Insight/Systems/File_System.h"
 
 namespace Insight {
 
@@ -27,7 +28,7 @@ namespace Insight {
 		CreateLightPass();
 		CreateSkyPass();
 		CreateTransparencyPass();
-		CreatePostFxPass();
+		CreatePostEffectsPass();
 
 		m_ScreenQuad.Init(pDevice, pDeviceContext);
 		return true;
@@ -53,7 +54,7 @@ namespace Insight {
 
 		m_PostFxPassVS.Reload();
 		m_PostFxPassPS.Reload();
-		CreatePostFxPass();
+		CreatePostEffectsPass();
 	}
 
 	void D3D11DeferredShadingTech::Destroy()
@@ -208,13 +209,11 @@ namespace Insight {
 	{
 		HRESULT hr;
 
-#ifndef IE_IS_STANDALONE
-		LPCWSTR VertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Geometry_Pass.vertex.cso";
-		LPCWSTR PixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Geometry_Pass.pixel.cso";
-#else
-		LPCWSTR VertexShaderFolder = L"Geometry_Pass.vertex.cso";
-		LPCWSTR PixelShaderFolder = L"Geometry_Pass.pixel.cso";
-#endif 
+		std::wstring ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring vertShaderFolder = ExeDirectory + L"../Renderer/Geometry_Pass.vertex.cso";
+		LPCWSTR VertexShaderFolder = vertShaderFolder.c_str();
+		std::wstring pixShaderFolder = ExeDirectory + L"../Renderer/Geometry_Pass.pixel.cso";
+		LPCWSTR PixelShaderFolder = pixShaderFolder.c_str();
 
 		D3D11_INPUT_ELEMENT_DESC InputLayout[5] =
 		{
@@ -311,13 +310,11 @@ namespace Insight {
 	{
 		HRESULT hr;
 
-#ifndef IE_IS_STANDALONE
-		LPCWSTR VertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Light_Pass.vertex.cso";
-		LPCWSTR PixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Light_Pass.pixel.cso";
-#else
-		LPCWSTR VertexShaderFolder = L"Light_Pass.vertex.cso";
-		LPCWSTR PixelShaderFolder = L"Light_Pass.pixel.cso";
-#endif 
+		std::wstring ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring vertShaderFolder = ExeDirectory + L"../Renderer/Light_Pass.vertex.cso";
+		LPCWSTR VertexShaderFolder = vertShaderFolder.c_str();
+		std::wstring pixShaderFolder = ExeDirectory + L"../Renderer/Light_Pass.pixel.cso";
+		LPCWSTR PixelShaderFolder = pixShaderFolder.c_str();
 
 		D3D11_INPUT_ELEMENT_DESC InputLayout[2] =
 		{
@@ -361,13 +358,11 @@ namespace Insight {
 
 	void D3D11DeferredShadingTech::CreateSkyPass()
 	{
-#ifndef IE_IS_STANDALONE
-		LPCWSTR VertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Skybox.vertex.cso";
-		LPCWSTR PixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Skybox.pixel.cso";
-#else
-		LPCWSTR VertexShaderFolder = L"Skybox.vertex.cso";
-		LPCWSTR PixelShaderFolder = L"Skybox.pixel.cso";
-#endif 
+		std::wstring ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring vertShaderFolder = ExeDirectory + L"../Renderer/Skybox.vertex.cso";
+		LPCWSTR VertexShaderFolder = vertShaderFolder.c_str();
+		std::wstring pixShaderFolder = ExeDirectory + L"../Renderer/Skybox.pixel.cso";
+		LPCWSTR PixelShaderFolder = pixShaderFolder.c_str();
 
 		D3D11_INPUT_ELEMENT_DESC InputLayout[2] =
 		{
@@ -394,13 +389,11 @@ namespace Insight {
 
 	void D3D11DeferredShadingTech::CreateTransparencyPass()
 	{
-#ifndef IE_IS_STANDALONE
-		LPCWSTR VertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Transparency_Pass.vertex.cso";
-		LPCWSTR PixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/Transparency_Pass.pixel.cso";
-#else
-		LPCWSTR VertexShaderFolder = L"Transparency_Pass.vertex.cso";
-		LPCWSTR PixelShaderFolder = L"Transparency_Pass.pixel.cso";
-#endif 
+		std::wstring ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring vertShaderFolder = ExeDirectory + L"../Renderer/Transparency_Pass.vertex.cso";
+		LPCWSTR VertexShaderFolder = vertShaderFolder.c_str();
+		std::wstring pixShaderFolder = ExeDirectory + L"../Renderer/Transparency_Pass.pixel.cso";
+		LPCWSTR PixelShaderFolder = pixShaderFolder.c_str();
 
 		D3D11_INPUT_ELEMENT_DESC InputLayout[5] =
 		{
@@ -432,15 +425,14 @@ namespace Insight {
 		m_pDevice->CreateBlendState(&BlendDesc, m_pTransparencyPass_BlendState.GetAddressOf());
 	}
 
-	void D3D11DeferredShadingTech::CreatePostFxPass()
+	void D3D11DeferredShadingTech::CreatePostEffectsPass()
 	{
-#ifndef IE_IS_STANDALONE
-		LPCWSTR VertexShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/PostFx.vertex.cso";
-		LPCWSTR PixelShaderFolder = L"../Bin/Debug-windows-x86_64/Engine/PostFx.pixel.cso";
-#else
-		LPCWSTR VertexShaderFolder = L"PostFx.vertex.cso";
-		LPCWSTR PixelShaderFolder = L"PostFx.pixel.cso";
-#endif 
+		std::wstring ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring vertShaderFolder = ExeDirectory + L"../Renderer/PostFx.vertex.cso";
+		LPCWSTR VertexShaderFolder = vertShaderFolder.c_str();
+		std::wstring pixShaderFolder = ExeDirectory + L"../Renderer/PostFx.pixel.cso";
+		LPCWSTR PixelShaderFolder = pixShaderFolder.c_str();
+
 
 		D3D11_INPUT_ELEMENT_DESC InputLayout[2] =
 		{

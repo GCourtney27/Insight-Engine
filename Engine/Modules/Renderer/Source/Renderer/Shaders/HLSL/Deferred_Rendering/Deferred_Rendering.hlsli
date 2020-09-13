@@ -30,7 +30,7 @@ cbuffer cbPerFrame : register(b1)
 cbuffer cbLights : register(b2)
 {
     PointLight pointLights[MAX_POINT_LIGHTS_SUPPORTED];
-    DirectionalLight dirLights;
+    DirectionalLight dirLight;
     SpotLight spotLights[MAX_SPOT_LIGHTS_SUPPORTED];
 };
 

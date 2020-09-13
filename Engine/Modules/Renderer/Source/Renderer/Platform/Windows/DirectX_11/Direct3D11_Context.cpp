@@ -104,18 +104,21 @@ namespace Insight {
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
+		static float WorldTime;
+		WorldTime += DeltaMs;
+
 		// Send Per-Frame Data to GPU
 		XMFLOAT4X4 viewFloat;
 		XMStoreFloat4x4(&viewFloat, XMMatrixTranspose(m_pWorldCamera->GetViewMatrix()));
 		XMFLOAT4X4 projectionFloat;
 		XMStoreFloat4x4(&projectionFloat, XMMatrixTranspose(m_pWorldCamera->GetProjectionMatrix()));
 		m_PerFrameData.Data.DeltaMs = DeltaMs;
-		m_PerFrameData.Data.time = static_cast<float>(Application::Get().GetFrameTimer().Seconds());
 		m_PerFrameData.Data.view = viewFloat;
 		m_PerFrameData.Data.projection = projectionFloat;
 		m_PerFrameData.Data.cameraPosition = m_pWorldCamera->GetTransformRef().GetPosition();
 		m_PerFrameData.Data.DeltaMs = DeltaMs;
-		m_PerFrameData.Data.time = (float)Application::Get().GetFrameTimer().Seconds();
+		m_PerFrameData.Data.time = WorldTime;
+		m_PerFrameData.Data.rayTraceEnabled = 0.0f;
 		m_PerFrameData.Data.cameraNearZ = (float)m_pWorldCamera->GetNearZ();
 		m_PerFrameData.Data.cameraFarZ = (float)m_pWorldCamera->GetFarZ();
 		m_PerFrameData.Data.cameraExposure = (float)m_pWorldCamera->GetExposure();
@@ -128,29 +131,29 @@ namespace Insight {
 
 		// Send Point Lights to GPU
 		if (m_PointLights.size() == 0) {
-			m_LightData.Data.pointLights[0] = CB_PS_PointLight{};
+			m_LightData.Data.PointLights[0] = CB_PS_PointLight{};
 		}
 		else {
 			for (int i = 0; i < m_PointLights.size(); i++) {
-				m_LightData.Data.pointLights[i] = m_PointLights[i]->GetConstantBuffer();
+				m_LightData.Data.PointLights[i] = m_PointLights[i]->GetConstantBuffer();
 			}
 		}
 
-		// Send Directionl Lights to GPU
+		// Send Directionl Light to GPU
 		if (m_pWorldDirectionalLight == nullptr) {
-			m_LightData.Data.directionalLight = CB_PS_DirectionalLight{};
+			m_LightData.Data.DirectionalLight = CB_PS_DirectionalLight{};
 		}
 		else {
-			m_LightData.Data.directionalLight = m_pWorldDirectionalLight->GetConstantBuffer();
+			m_LightData.Data.DirectionalLight = m_pWorldDirectionalLight->GetConstantBuffer();
 		}
 
 		// Send Spot Lights to GPU
 		if (m_SpotLights.size() == 0) {
-			m_LightData.Data.spotLights[0] = CB_PS_SpotLight{};
+			m_LightData.Data.SpotLights[0] = CB_PS_SpotLight{};
 		}
 		else {
 			for (int i = 0; i < m_SpotLights.size(); i++) {
-				m_LightData.Data.spotLights[i] = m_SpotLights[i]->GetConstantBuffer();
+				m_LightData.Data.SpotLights[i] = m_SpotLights[i]->GetConstantBuffer();
 			}
 		}
 		m_LightData.SubmitToGPU();

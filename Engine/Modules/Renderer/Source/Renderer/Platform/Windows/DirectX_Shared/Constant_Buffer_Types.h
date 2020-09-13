@@ -107,7 +107,7 @@ struct CB_PS_PostFx
 
 struct D3D11_CB_PS_Lights
 {
-	CB_PS_PointLight pointLights[MAX_POINT_LIGHTS_SUPPORTED];
-	CB_PS_DirectionalLight directionalLight;
-	CB_PS_SpotLight spotLights[MAX_SPOT_LIGHTS_SUPPORTED];
+	CB_PS_PointLight PointLights[MAX_POINT_LIGHTS_SUPPORTED];
+	CB_PS_DirectionalLight DirectionalLight;
+	CB_PS_SpotLight SpotLights[MAX_SPOT_LIGHTS_SUPPORTED];
 };
