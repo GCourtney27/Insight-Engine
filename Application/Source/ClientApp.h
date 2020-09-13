@@ -92,11 +92,11 @@ namespace SandBoxApp {
 			pOuterHouse->AttachMesh("Objects/Norway/House/Outer_House.obj");
 			// Inner House
 			StaticMeshComponent* pInnerHouse = pAHouse->CreateDefaultSubobject<StaticMeshComponent>();
-			pInnerHouse->SetMaterial(std::move(Material::CreateDefaultTexturedMaterial()));
+			pInnerHouse->SetMaterial(Material::CreateDefaultTexturedMaterial());
 			pInnerHouse->AttachMesh("Objects/Norway/House/Inner_House.obj");
 			// Floor
 			StaticMeshComponent* pFloor = pAHouse->CreateDefaultSubobject<StaticMeshComponent>();
-			pFloor->SetMaterial(std::move(Material::CreateDefaultTexturedMaterial()));
+			pFloor->SetMaterial(Material::CreateDefaultTexturedMaterial());
 			pFloor->AttachMesh("Objects/Norway/House/Floor.obj");
 			// Roof
 			Insight::Material* pRoofMat = new Insight::Material({ 26, 27, 28, 29, 30 });
@@ -106,11 +106,11 @@ namespace SandBoxApp {
 			pRoof->AttachMesh("Objects/Norway/House/Roof_Metal.obj");
 			// Door-Back
 			StaticMeshComponent* pDoorBack = pAHouse->CreateDefaultSubobject<StaticMeshComponent>();
-			pDoorBack->SetMaterial(std::move(Material::CreateDefaultTexturedMaterial()));
+			pDoorBack->SetMaterial(Material::CreateDefaultTexturedMaterial());
 			pDoorBack->AttachMesh("Objects/Norway/House/Door_Back.obj");
 			// Door-Front
 			StaticMeshComponent* pDoorFront = pAHouse->CreateDefaultSubobject<StaticMeshComponent>();
-			pDoorFront->SetMaterial(std::move(Material::CreateDefaultTexturedMaterial()));
+			pDoorFront->SetMaterial(Material::CreateDefaultTexturedMaterial());
 			pDoorFront->AttachMesh("Objects/Norway/House/Door_Front.obj");
 			// Window Frames
 			Insight::Material* pWindowFramesMat = new Insight::Material({ 21, 22, 23, 24, 25 });
@@ -130,18 +130,18 @@ namespace SandBoxApp {
 			pRoofTrimRight->AttachMesh("Objects/Norway/House/RoofTrim_Right.obj");
 			// Entry Stairs
 			StaticMeshComponent* pEntryStairs = pAHouse->CreateDefaultSubobject<StaticMeshComponent>();
-			pEntryStairs->SetMaterial(std::move(Material::CreateDefaultTexturedMaterial()));
+			pEntryStairs->SetMaterial(Material::CreateDefaultTexturedMaterial());
 			pEntryStairs->AttachMesh("Objects/Norway/House/Stairs_Entry.obj");
 			// House Supports
 			StaticMeshComponent* pHouseSupports = pAHouse->CreateDefaultSubobject<StaticMeshComponent>();
-			pHouseSupports->SetMaterial(std::move(Material::CreateDefaultTexturedMaterial()));
+			pHouseSupports->SetMaterial(Material::CreateDefaultTexturedMaterial());
 			pHouseSupports->AttachMesh("Objects/Norway/House/House_Supports.obj");
 			pHouseSupports->SetPosition(ieVector3(-30.5f, -28.65f, 88.45f));
 			pHouseSupports->SetRotation(ieVector3(0.0f, 1.55f, 0.0f));
 			pHouseSupports->SetScale(ieVector3(40.0f, 40.0f, 40.0f));
 			// Foliage Supports
 			StaticMeshComponent* pFoliageSupports = pAHouse->CreateDefaultSubobject<StaticMeshComponent>();
-			pFoliageSupports->SetMaterial(std::move(Material::CreateDefaultTexturedMaterial()));
+			pFoliageSupports->SetMaterial(Material::CreateDefaultTexturedMaterial());
 			pFoliageSupports->AttachMesh("Objects/Norway/House/Foliage_Supports.obj");
 			// Patio
 			Insight::Material* pPatioMat = new Insight::Material({ 11, 12, 13, 14, 15});
@@ -161,8 +161,9 @@ namespace SandBoxApp {
 			pAStairs->GetTransformRef().SetRotation(ieVector3(0.0f, 3.158f, 0.0f));
 			pAStairs->OnInit();
 			// Outer House
+			//Insight::Material* pStairsMat = new Insight::Material({ 31, 32, 33, 34, 35 });
 			StaticMeshComponent* pStairsMesh = pAStairs->CreateDefaultSubobject<StaticMeshComponent>();
-			pStairsMesh->SetMaterial(std::move(Material::CreateDefaultTexturedMaterial()));
+			pStairsMesh->SetMaterial(Material::CreateDefaultTexturedMaterial());
 			pStairsMesh->AttachMesh("Objects/Norway/Stairs.obj");
 
 			m_pGameLayer->GetScene()->AddActor(pAStairs);

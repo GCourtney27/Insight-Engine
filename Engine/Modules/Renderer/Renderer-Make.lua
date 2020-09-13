@@ -54,6 +54,12 @@ project("Renderer")
         "Source/"
     }
     
+    postbuildcommands
+    {
+		-- DXR Shaders
+		("{COPY} %{wks.location}/Engine/Modules/Renderer/Source/Renderer/Shaders/HLSL/Ray_Tracing/** ".. rootDirectoryPath .."bin/"..outputdir.."/Renderer"),
+    }
+
     filter {"system:windows"}
 		systemversion "latest"
 
@@ -67,13 +73,18 @@ project("Renderer")
 			"MultiProcessorCompile"
 		}
     
-    -- Shaders
     filter {"system:windows"}
         defines
 		{
 			"IE_PLATFORM_WINDOWS"
         }
+
+		flags
+		{
+			"MultiProcessorCompile"
+		}
         
+    -- Shaders
         filter { "files:**.pixel.hlsl" }
             shadertype "Pixel"
             shadermodel "5.0"
@@ -81,7 +92,7 @@ project("Renderer")
         filter { "files:**.vertex.hlsl" }
             shadertype "Vertex"
             shadermodel "5.0"
-        
+
     -- End filter - windows
     
     

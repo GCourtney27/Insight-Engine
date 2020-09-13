@@ -5,9 +5,9 @@
 #include "Insight/Core/Application.h"
 #include "Insight/Rendering/Geometry/Vertex.h"
 
-#include "Platform/Windows/DirectX_12/Geometry/D3D12_Sphere_Renderer.h"
-#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 #include "Platform/Windows/Windows_Window.h"
+#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
+#include "Platform/Windows/DirectX_12/Geometry/D3D12_Sphere_Renderer.h"
 
 #include "DXR/DXRHelper.h"
 #include "DXR/nv_helpers_dx12/BottomLevelASGenerator.h"
@@ -24,7 +24,7 @@ namespace Insight {
 		m_pDeviceRef = reinterpret_cast<ID3D12Device5*>(&pRendererContext->GetDeviceContext());
 		m_pRayTracePass_CommandListRef = &pRendererContext->GetRayTracePassCommandList();
 		m_pRendererContext = pRendererContext;
-		
+
 		m_WindowWidth = pRendererContext->GetWindowRef().GetWidth();
 		m_WindowHeight = pRendererContext->GetWindowRef().GetHeight();
 
@@ -33,11 +33,19 @@ namespace Insight {
 
 	void RayTraceHelpers::GenerateAccelerationStructure()
 	{
-		CreateAccelerationStructures();
-		CreateRaytracingPipeline();
-		CreateRaytracingOutputBuffer();
-		CreateCameraBuffer();
-		CreateShaderResourceHeap();
+		// Initialize DXR
+		{
+			CreateAccelerationStructures();
+			CreateRTPipeline();
+			CreateRTOutputBuffer();
+		}
+
+		// Create Resources
+		{
+			CreateBuffers();
+			CreateShaderResourceHeap();
+		}
+
 		CreateShaderBindingTable();
 	}
 
@@ -51,21 +59,29 @@ namespace Insight {
 
 	void RayTraceHelpers::UpdateCBVs()
 	{
-		std::vector<XMMATRIX> matrices(4);
-
 		const CB_PS_VS_PerFrame& PerFrameData = m_pRendererContext->GetPerFrameCB();
 
+		std::vector<XMMATRIX> matrices(4);
 		matrices[0] = XMLoadFloat4x4(&PerFrameData.view);
 		matrices[1] = XMLoadFloat4x4(&PerFrameData.projection);
-
 		matrices[2] = XMLoadFloat4x4(&PerFrameData.inverseView);
 		matrices[3] = XMLoadFloat4x4(&PerFrameData.inverseProjection);
 
-		// Copy the matrix contents
-		uint8_t* pData;
-		ThrowIfFailed(m_CameraBuffer->Map(0, nullptr, (void**)&pData), "Failed to map camera buffer");
-		memcpy(pData, matrices.data(), m_CameraBufferSize);
-		m_CameraBuffer->Unmap(0, nullptr);
+		// Copy the camera matrix contents
+		uint8_t* pCameraData;
+		ThrowIfFailed(m_pCameraBuffer->Map(0, nullptr, (void**)&pCameraData), "Failed to map camera buffer");
+		memcpy(pCameraData, matrices.data(), m_CameraBufferSize);
+		m_pCameraBuffer->Unmap(0, nullptr);
+
+		// Copy the directional light contents
+		const CB_PS_DirectionalLight& DirLightData = m_pRendererContext->GetDirectionalLightCB();
+		m_CBLightParams.DirLightDirection = XMFLOAT4(DirLightData.direction.x, DirLightData.direction.y, DirLightData.direction.z, 1.0f);
+		m_CBLightParams.ShadowDarkness = 0.2f;
+
+		uint8_t* pLightData;
+		ThrowIfFailed(m_pLightBuffer->Map(0, nullptr, (void**)&pLightData), "Failed to map light buffer");
+		memcpy(pLightData, &m_CBLightParams, m_LightBufferSize);
+		m_pLightBuffer->Unmap(0, nullptr);
 
 	}
 
@@ -114,7 +130,7 @@ namespace Insight {
 		m_ASIndexBuffers.push_back(std::pair(pIndexBuffer, NumIndices));
 
 		AccelerationStructureBuffers BottomLevelBuffers = CreateBottomLevelAS({ {pVertexBuffer.Get(), NumVeticies} }, { {pIndexBuffer.Get(), NumIndices} });
-		
+
 		m_Instances.push_back(std::pair(BottomLevelBuffers.pResult, WorldMat));
 		return m_NextAvailabledInstanceArrIndex++;
 	}
@@ -163,10 +179,11 @@ namespace Insight {
 
 	void RayTraceHelpers::CreateTopLevelAS(const std::vector<std::pair<ComPtr<ID3D12Resource>, DirectX::XMMATRIX>>& instances, bool UpdateOnly /*= false*/)
 	{
-		if (!UpdateOnly) {
+		if (!UpdateOnly)
+		{
 
 			for (size_t i = 0; i < instances.size(); i++) {
-				m_TopLevelASGenerator.AddInstance(instances[i].first.Get(), instances[i].second, static_cast<UINT>(i), static_cast<UINT>(2*i));
+				m_TopLevelASGenerator.AddInstance(instances[i].first.Get(), instances[i].second, static_cast<UINT>(i), static_cast<UINT>(2 * i));
 			}
 
 			UINT64 scratchSize, resultSize, instanceDescsSize;
@@ -192,12 +209,11 @@ namespace Insight {
 			);
 		}
 
-		
 		m_TopLevelASGenerator.Generate(m_pRayTracePass_CommandListRef.Get(),
 			m_TopLevelASBuffers.pScratch.Get(),
 			m_TopLevelASBuffers.pResult.Get(),
 			m_TopLevelASBuffers.pInstanceDesc.Get(),
-			UpdateOnly, 
+			UpdateOnly,
 			m_TopLevelASBuffers.pResult.Get()
 		);
 	}
@@ -207,56 +223,61 @@ namespace Insight {
 		CreateTopLevelAS(m_Instances);
 	}
 
-	void RayTraceHelpers::CreateCameraBuffer() {
-		
-		uint32_t NumMatricies = 4; // view, perspective, viewInv, perspectiveInv
-		m_CameraBufferSize = NumMatricies * sizeof(XMMATRIX);
+	void RayTraceHelpers::CreateBuffers()
+	{
+		// Create Camera Buffer
+		{
+			constexpr UINT NumMatricies = 4; // view, perspective, viewInv, perspectiveInv
+			//m_CameraBufferSize = NumMatricies * sizeof(XMMATRIX);
+			m_CameraBufferSize = (sizeof(XMMATRIX) + 255) & ~255;
 
-		// Create the constant buffer for all matrices
-		m_CameraBuffer = NvidiaHelpers::CreateBuffer(
-			m_pDeviceRef.Get(),
-			m_CameraBufferSize, 
-			D3D12_RESOURCE_FLAG_NONE,
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			NvidiaHelpers::kUploadHeapProps
-		);
+			// Create the constant buffer for all matrices
+			m_pCameraBuffer = NvidiaHelpers::CreateBuffer(
+				m_pDeviceRef.Get(),
+				m_CameraBufferSize,
+				D3D12_RESOURCE_FLAG_NONE,
+				D3D12_RESOURCE_STATE_GENERIC_READ,
+				NvidiaHelpers::kUploadHeapProps
+			);
+		}
 
-		// Create a descriptor heap that will be used by the rasterization shaders
-		m_ConstHeap = NvidiaHelpers::CreateDescriptorHeap(m_pDeviceRef.Get(), 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, true);
+		// Create Light Buffer
+		{
+			//m_LightBufferSize = sizeof(XMFLOAT4);
+			m_LightBufferSize = (sizeof(CB_CHS_LightParams) + 255) & ~255;
+			//m_LightBufferSize = sizeof(CB_CHS_LightParams);
 
-		// Describe and create the constant buffer view.
-		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-		cbvDesc.BufferLocation = m_CameraBuffer->GetGPUVirtualAddress();
-		cbvDesc.SizeInBytes = m_CameraBufferSize;
-
-		// Get a handle to the heap memory on the CPU side, to be able to write the
-		// descriptors directly
-		D3D12_CPU_DESCRIPTOR_HANDLE srvHandle = m_ConstHeap->GetCPUDescriptorHandleForHeapStart();
-		m_pDeviceRef->CreateConstantBufferView(&cbvDesc, srvHandle);
+			// Create the constant buffer
+			m_pLightBuffer = NvidiaHelpers::CreateBuffer(
+				m_pDeviceRef.Get(),
+				m_LightBufferSize,
+				D3D12_RESOURCE_FLAG_NONE,
+				D3D12_RESOURCE_STATE_GENERIC_READ,
+				NvidiaHelpers::kUploadHeapProps
+			);
+		}
 	}
 
-	void RayTraceHelpers::CreateRaytracingPipeline()
+	void RayTraceHelpers::CreateRTPipeline()
 	{
+		IE_CORE_ASSERT(dynamic_cast<ID3D12Device5*>(m_pDeviceRef.Get()) != nullptr, "Provided device must be \"ID3D12Device5\" which is ray trace compatible.");
 		NvidiaHelpers::RayTracingPipelineGenerator Pipeline(reinterpret_cast<ID3D12Device5*>(m_pDeviceRef.Get()));
-		
-		std::wstring ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		// Ray Gen
-		std::wstring rayGenShaderFolder = ExeDirectory + L"../Renderer/RayGen.hlsl";
-		LPCWSTR RayGenShaderFolder = rayGenShaderFolder.c_str();
-		// Miss
-		std::wstring missShaderFolder = ExeDirectory + L"../Renderer/Miss.hlsl";
-		LPCWSTR MissShaderFolder = missShaderFolder.c_str();
-		// Hit
-		std::wstring hitShaderFolder = ExeDirectory + L"../Renderer/Closest_Hit.hlsl";
-		LPCWSTR HitShaderFolder = hitShaderFolder.c_str();
-		// Shadow
-		std::wstring shadowShaderFolder = ExeDirectory + L"../Renderer/Shadow_Ray.hlsl";
-		LPCWSTR ShadowShaderFolder = shadowShaderFolder.c_str();
 
-		m_RayGenLibrary = NvidiaHelpers::CompileShaderLibrary(RayGenShaderFolder);
-		m_MissLibrary = NvidiaHelpers::CompileShaderLibrary(MissShaderFolder);
-		m_HitLibrary = NvidiaHelpers::CompileShaderLibrary(HitShaderFolder);
-		m_ShadowLibrary = NvidiaHelpers::CompileShaderLibrary(ShadowShaderFolder);
+		const std::wstring& ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring ShaderFolder; ShaderFolder.reserve(512);
+		// Ray Gen
+		ShaderFolder += ExeDirectory + L"../Renderer/RayGen.hlsl";
+		m_RayGenLibrary = NvidiaHelpers::CompileShaderLibrary(ShaderFolder.c_str());
+		// Miss
+		ShaderFolder = ExeDirectory + L"../Renderer/Miss.hlsl";
+		m_MissLibrary = NvidiaHelpers::CompileShaderLibrary(ShaderFolder.c_str());
+		// Hit
+		ShaderFolder = ExeDirectory + L"../Renderer/Closest_Hit.hlsl";
+		m_HitLibrary = NvidiaHelpers::CompileShaderLibrary(ShaderFolder.c_str());
+		// Shadow
+		ShaderFolder = ExeDirectory + L"../Renderer/Shadow_Ray.hlsl";
+		m_ShadowLibrary = NvidiaHelpers::CompileShaderLibrary(ShaderFolder.c_str());
+
 
 		Pipeline.AddLibrary(m_RayGenLibrary.Get(), { L"RayGen" });
 		Pipeline.AddLibrary(m_MissLibrary.Get(), { L"Miss" });
@@ -283,13 +304,13 @@ namespace Insight {
 
 		Pipeline.SetMaxRecursionDepth(2);
 
-		// Compile the pipeline for execution on the GPU
+		// Compile the pipeline for execution on the GPU.
 		m_rtStateObject = Pipeline.Generate();
 
 		ThrowIfFailed(m_rtStateObject->QueryInterface(IID_PPV_ARGS(&m_rtStateObjectProps)), "Failed to query interface when creating rt state object.");
 	}
 
-	void RayTraceHelpers::CreateRaytracingOutputBuffer()
+	void RayTraceHelpers::CreateRTOutputBuffer()
 	{
 		D3D12_RESOURCE_DESC resDesc = {};
 		resDesc.DepthOrArraySize = 1;
@@ -314,15 +335,15 @@ namespace Insight {
 	void RayTraceHelpers::CreateShaderBindingTable()
 	{
 		m_sbtHelper.Reset();
-		//CDescriptorHeapWrapper& cbvsrvHeap = reinterpret_cast<Direct3D12Context*>(&Renderer::Get())->GetCBVSRVDescriptorHeap();
+
 		D3D12_GPU_DESCRIPTOR_HANDLE srvUavHeapHandle = m_srvUavHeap->GetGPUDescriptorHandleForHeapStart();
+		UINT IncrementSize = m_pDeviceRef->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
-		//D3D12_GPU_DESCRIPTOR_HANDLE srvUavHeapHandle = cbvsrvHeap.hGPU(6);
 		auto HeapPointer = reinterpret_cast<UINT64*>(srvUavHeapHandle.ptr);
-
+		
 		// The ray generation only uses heap data
 		m_sbtHelper.AddRayGenerationProgram(L"RayGen", { HeapPointer });
-
+		
 		// The miss and hit shaders do not access any external resources: instead they
 		// communicate their results through the ray payload
 		m_sbtHelper.AddMissProgram(L"Miss", {});
@@ -330,16 +351,23 @@ namespace Insight {
 
 		for (uint32_t i = 0; i < m_ASVertexBuffers.size(); ++i) {
 
-			m_sbtHelper.AddHitGroup(L"HitGroup", { (void*)m_ASVertexBuffers[i].first->GetGPUVirtualAddress(),
-													(void*)m_ASIndexBuffers[i].first->GetGPUVirtualAddress() });
+			m_sbtHelper.AddHitGroup(L"HitGroup",
+				{
+					(void*)m_ASVertexBuffers[i].first->GetGPUVirtualAddress(),
+					(void*)m_ASIndexBuffers[i].first->GetGPUVirtualAddress(),
+					(void*)HeapPointer
+				}
+			);
+
 			m_sbtHelper.AddHitGroup(L"ShadowHitGroup", {});
 		}
+
 
 		uint32_t sbtSize = m_sbtHelper.ComputeSBTSize();
 
 		m_sbtStorage = NvidiaHelpers::CreateBuffer(
-			m_pDeviceRef.Get(), 
-			sbtSize, 
+			m_pDeviceRef.Get(),
+			sbtSize,
 			D3D12_RESOURCE_FLAG_NONE,
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			NvidiaHelpers::kUploadHeapProps
@@ -353,17 +381,17 @@ namespace Insight {
 
 	void RayTraceHelpers::CreateShaderResourceHeap()
 	{
-		m_srvUavHeap = NvidiaHelpers::CreateDescriptorHeap(m_pDeviceRef.Get(), 3, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, true);
+		m_srvUavHeap = NvidiaHelpers::CreateDescriptorHeap(m_pDeviceRef.Get(), 4, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, true);
 
 		D3D12_CPU_DESCRIPTOR_HANDLE srvHandle = m_srvUavHeap->GetCPUDescriptorHandleForHeapStart();
+		const UINT HandleIncrementSize = m_pDeviceRef->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 		// Output Buffer
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
 		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 		m_pDeviceRef->CreateUnorderedAccessView(m_pOutputBuffer_UAV.Get(), nullptr, &uavDesc, srvHandle);
 
-		srvHandle.ptr += m_pDeviceRef->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
+		srvHandle.ptr += HandleIncrementSize;
 		// Tol-Level Accereration Structure
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc;
 		srvDesc.Format = DXGI_FORMAT_UNKNOWN;
@@ -372,14 +400,20 @@ namespace Insight {
 		srvDesc.RaytracingAccelerationStructure.Location = m_TopLevelASBuffers.pResult->GetGPUVirtualAddress();
 		m_pDeviceRef->CreateShaderResourceView(nullptr, &srvDesc, srvHandle);
 
-		srvHandle.ptr +=
-			m_pDeviceRef->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
+		srvHandle.ptr += HandleIncrementSize;
 		// Describe and create a constant buffer view for the camera
-		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-		cbvDesc.BufferLocation = m_CameraBuffer->GetGPUVirtualAddress();
-		cbvDesc.SizeInBytes = m_CameraBufferSize;
-		m_pDeviceRef->CreateConstantBufferView(&cbvDesc, srvHandle);
+		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvCameraDesc = {};
+		cbvCameraDesc.BufferLocation = m_pCameraBuffer->GetGPUVirtualAddress();
+		cbvCameraDesc.SizeInBytes = m_CameraBufferSize;
+		m_pDeviceRef->CreateConstantBufferView(&cbvCameraDesc, srvHandle);
+
+		srvHandle.ptr += HandleIncrementSize;
+		// Describe and create a constant buffer view for the lights
+		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvLightDesc = {};
+		cbvLightDesc.BufferLocation = m_pLightBuffer->GetGPUVirtualAddress();
+		cbvLightDesc.SizeInBytes = m_LightBufferSize;
+		m_pDeviceRef->CreateConstantBufferView(&cbvLightDesc, srvHandle);
+
 	}
 
 	ComPtr<ID3D12RootSignature> RayTraceHelpers::CreateRayGenSignature()
@@ -388,13 +422,9 @@ namespace Insight {
 
 		rsc.AddHeapRangesParameter(
 			{
-				 {0 /*u0*/, 1 /*1 descriptor */, 0 /*use the implicit register space 0*/,
-				  D3D12_DESCRIPTOR_RANGE_TYPE_UAV /* UAV representing the output buffer*/,
-				  0 /*heap slot where the UAV is defined*/},
-			 
+				{0 /*u0*/, 1 /*1 descriptor */, 0 , D3D12_DESCRIPTOR_RANGE_TYPE_UAV,0 /*heap slot where the UAV is defined*/},
 				{0 /*t0*/, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV /*Top-level acceleration structure*/, 1},
-			
-				{0 /*b0*/, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV /*Camera parameters*/, 2} 
+				{0 /*b0*/, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV /*Camera parameters*/, 2}
 			}
 		);
 
@@ -410,13 +440,15 @@ namespace Insight {
 	ComPtr<ID3D12RootSignature> RayTraceHelpers::CreateHitSignature()
 	{
 		NvidiaHelpers::RootSignatureGenerator rsc;
-		rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV, 0 /*t0*/); // vertices and colors
+		rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV, 0 /*t0*/); // vertices
 		rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV, 1 /*t1*/); // indices
 		rsc.AddHeapRangesParameter(
 			{
-				{ 2 /*t2*/, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1 /*2nd slot of the heap*/ },
+				{ 2 /*t2*/, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1 /* 2nd slot of the heap */ },
+				{ 1 /*b0*/, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 3} /* Light parameters */
 			}
 		);
+
 		return rsc.Generate(m_pDeviceRef.Get(), true);
 	}
 

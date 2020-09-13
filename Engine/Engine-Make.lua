@@ -26,6 +26,7 @@ project ("Engine")
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "off"
+	targetname("InsightEngine");
 
 	targetdir (rootDirectoryPath .. "Bin/" .. outputdir .. "/%{prj.name}")
 	objdir (rootDirectoryPath .. "Bin-Int/" .. outputdir .. "/%{prj.name}")
@@ -143,8 +144,6 @@ project ("Engine")
 			-- PIX
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../bin/"..outputdir.."/Engine"),
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../bin/"..outputdir.."/Engine"),
-			-- DXR Shaders
-			("{COPY} %{wks.location}/Engine/Modules/Renderer/Source/Renderer/Shaders/HLSL/Ray_Tracing/** ../bin/"..outputdir.."/Renderer"),
 			-- Copy over default engine assets
 			("{COPY} %{wks.location}/Engine/Assets/Textures/Default_Object/** ../bin/"..outputdir.."/Default_Assets/")
 
@@ -184,8 +183,6 @@ project ("Engine")
 			-- PIX					
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../bin/"..outputdir.."/Engine"),
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../bin/"..outputdir.."/Engine"),
-			-- DXR Shaders
-			("{COPY} %{wks.location}/Engine/Modules/Renderer/Source/Renderer/Shaders/HLSL/Ray_Tracing/** ../bin/"..outputdir.."/Renderer"),
 			-- Copy over default engine assets
 			("{COPY} %{wks.location}/Engine/Assets/Textures/Default_Object/** ../bin/"..outputdir.."/Default_Assets/")
 		}
@@ -221,8 +218,6 @@ project ("Engine")
 			-- DirectX
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxcompiler.dll ../bin/"..outputdir.."/Engine"),
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxil.dll ../bin/"..outputdir.."/Engine"),
-			-- DXR Shaders
-			("{COPY} %{wks.location}/Engine/Modules/Renderer/Source/Renderer/Shaders/HLSL/Ray_Tracing/** ../bin/"..outputdir.."/Renderer"),
 			-- Copy over default engine assets
 			("{COPY} %{wks.location}/Engine/Assets/Textures/Default_Object/** ../bin/"..outputdir.."/Default_Assets/")
 
@@ -254,7 +249,5 @@ project ("Engine")
 			-- DirectX
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxcompiler.dll ../bin/"..outputdir.."/Engine"),
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxil.dll ../bin/"..outputdir.."/Engine"),
-			-- DXR Shaders
-			("{COPY} %{wks.location}/Engine/Modules/Renderer/Source/Renderer/Shaders/HLSL/Ray_Tracing/** ../bin/"..outputdir.."/Renderer"),
 		}
 

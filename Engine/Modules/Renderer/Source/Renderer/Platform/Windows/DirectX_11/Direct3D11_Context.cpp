@@ -54,11 +54,13 @@ namespace Insight {
 
 	void Direct3D11Context::SetVertexBuffers_Impl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers)
 	{
+		IE_CORE_ASSERT(dynamic_cast<D3D11VertexBuffer*>(pBuffers) != nullptr, "A vertex buffer passed to renderer with D3D 11 active must be a \"D3D11VertexBuffer\"");
 		m_pDeviceContext->IASetVertexBuffers(StartSlot, NumBuffers, reinterpret_cast<D3D11VertexBuffer*>(pBuffers)->GetBufferPtr(), reinterpret_cast<D3D11VertexBuffer*>(pBuffers)->GetStridePtr(), reinterpret_cast<D3D11VertexBuffer*>(pBuffers)->GetBufferOffset());
 	}
 
 	void Direct3D11Context::SetIndexBuffer_Impl(ieIndexBuffer* pBuffer)
 	{
+		IE_CORE_ASSERT(dynamic_cast<D3D11IndexBuffer*>(pBuffer) != nullptr, "A index buffer passed to renderer with D3D 11 active must be a \"D3D11IndexBuffer\"");
 		m_pDeviceContext->IASetIndexBuffer(reinterpret_cast<D3D11IndexBuffer*>(pBuffer)->GetBufferPtr(), reinterpret_cast<D3D11IndexBuffer*>(pBuffer)->GetFormat(), reinterpret_cast<D3D11IndexBuffer*>(pBuffer)->GetBufferOffset());
 	}
 

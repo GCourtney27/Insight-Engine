@@ -19,6 +19,7 @@
 #include <functional>
 #include <unordered_map>
 #include <unordered_set>
+#include <type_traits>
 
 #if _MSC_VER >= 1700
 	using std::shared_ptr;

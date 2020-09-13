@@ -75,6 +75,8 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
         if (cbRayTraceEnabled)
         {
             shadow = t_RayTracePassResult.Sample(s_PointClampSampler, ps_in.texCoords).r;
+            //ps_out.litImage = float3(shadow, shadow, shadow);
+            //return ps_out;
 
         }
         else

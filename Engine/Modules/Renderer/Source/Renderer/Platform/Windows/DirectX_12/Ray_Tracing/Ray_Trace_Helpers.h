@@ -22,6 +22,13 @@ namespace Insight {
 			ComPtr<ID3D12Resource> pResult;       // Where the AS is
 			ComPtr<ID3D12Resource> pInstanceDesc; // Hold the matrices of the instances
 		};
+	private:
+		struct CB_CHS_LightParams
+		{
+			DirectX::XMFLOAT4 DirLightDirection;
+			float ShadowDarkness;
+			float padding[3];
+		};
 	public:
 		RayTraceHelpers() = default;
 		~RayTraceHelpers() = default;
@@ -44,12 +51,12 @@ namespace Insight {
 		void CreateTopLevelAS(const std::vector<std::pair<ComPtr<ID3D12Resource>, DirectX::XMMATRIX>>& instances, bool UpdateOnly = false);
 		void CreateAccelerationStructures();
 
-		void CreateRaytracingPipeline();
-		void CreateRaytracingOutputBuffer();
+		void CreateRTPipeline();
+		void CreateRTOutputBuffer();
 		void CreateShaderBindingTable();
 		void CreateShaderResourceHeap();
-		void CreateCameraBuffer();
-
+		void CreateBuffers();
+		
 		ComPtr<ID3D12RootSignature> CreateRayGenSignature();
 		ComPtr<ID3D12RootSignature> CreateMissSignature();
 		ComPtr<ID3D12RootSignature> CreateHitSignature();
@@ -69,11 +76,13 @@ namespace Insight {
 		D3D12_DISPATCH_RAYS_DESC m_DispatchRaysDesc = {};
 
 		ComPtr<ID3D12DescriptorHeap>			m_srvUavHeap;
-		ComPtr<ID3D12DescriptorHeap>			m_ConstHeap;
 		
-		ComPtr<ID3D12Resource>					m_CameraBuffer;
+		ComPtr<ID3D12Resource>					m_pCameraBuffer;
 		int										m_CameraBufferSize = 0;
-
+		ComPtr<ID3D12Resource>					m_pLightBuffer;
+		int										m_LightBufferSize = 0;
+		CB_CHS_LightParams						m_CBLightParams;
+		
 		ComPtr<ID3D12Resource>					m_pOutputBuffer_UAV;
 
 		NvidiaHelpers::TopLevelASGenerator		m_TopLevelASGenerator;

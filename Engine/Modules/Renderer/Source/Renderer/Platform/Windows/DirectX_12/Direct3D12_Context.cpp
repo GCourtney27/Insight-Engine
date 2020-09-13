@@ -12,12 +12,10 @@
 #include "Insight/Rendering/ASky_Sphere.h"
 #include "Insight/Rendering/Lighting/ASpot_Light.h"
 #include "Insight/Rendering/Lighting/APoint_Light.h"
-#include "Insight/Rendering/Lighting/ADirectional_Light.h"
 
 #include "Platform/Windows/DirectX_12/Geometry/D3D12_Vertex_Buffer.h"
 #include "Platform/Windows/DirectX_12/Geometry/D3D12_Index_Buffer.h"
 #include "Platform/Windows/DirectX_12/Geometry/D3D12_Sphere_Renderer.h"
-
 
 namespace Insight {
 
@@ -115,6 +113,9 @@ namespace Insight {
 	void Direct3D12Context::OnUpdate_Impl(const float DeltaMs)
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
+		
+		static float WorldSecond;
+		WorldSecond += DeltaMs;
 
 		// Send Per-Frame Data to GPU
 		XMFLOAT4X4 viewFloat;
@@ -135,7 +136,7 @@ namespace Insight {
 		m_PerFrameData.inverseProjection = invProjectionFloat;
 		m_PerFrameData.cameraPosition = m_pWorldCamera->GetTransformRef().GetPosition();
 		m_PerFrameData.DeltaMs = DeltaMs;
-		m_PerFrameData.time = (float)Application::Get().GetFrameTimer().Seconds();
+		m_PerFrameData.time = (float)WorldSecond;
 		m_PerFrameData.cameraNearZ = (float)m_pWorldCamera->GetNearZ();
 		m_PerFrameData.cameraFarZ = (float)m_pWorldCamera->GetFarZ();
 		m_PerFrameData.cameraExposure = (float)m_pWorldCamera->GetExposure();
@@ -634,11 +635,13 @@ namespace Insight {
 
 	void Direct3D12Context::SetVertexBuffers_Impl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers)
 	{
+		IE_CORE_ASSERT(dynamic_cast<D3D12VertexBuffer*>(pBuffers) != nullptr, "A vertex buffer passed to renderer with D3D 12 active must be a \"D3D12VertexBuffer\"");
 		m_pActiveCommandList->IASetVertexBuffers(StartSlot, NumBuffers, reinterpret_cast<D3D12VertexBuffer*>(pBuffers)->GetVertexBufferView());
 	}
 
 	void Direct3D12Context::SetIndexBuffer_Impl(ieIndexBuffer* pBuffer)
 	{
+		IE_CORE_ASSERT(dynamic_cast<D3D12IndexBuffer*>(pBuffer) != nullptr, "A index buffer passed to renderer with D3D 12 active must be a \"D3D12IndexBuffer\"");
 		m_pActiveCommandList->IASetIndexBuffer(&reinterpret_cast<D3D12IndexBuffer*>(pBuffer)->GetIndexBufferView());
 	}
 
