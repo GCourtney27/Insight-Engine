@@ -1,3 +1,4 @@
+#include <../Common/Insight_Common.hlsli>
 #include <Deferred_Rendering.hlsli>	
 
 #define SHADOW_DEPTH_BIAS 0.00005f
@@ -45,6 +46,8 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     
 	// Sample Textures
     float3 albedo = pow(abs(t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb), float3(2.2, 2.2, 2.2));
+    //ps_out.litImage = albedo;
+    //return ps_out;
     float3 roughMetAOBufferSample = t_RoughnessMetallicAOGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
     float3 worldPosition = t_PositionGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).xyz;
     float3 normal = t_NormalGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).xyz;

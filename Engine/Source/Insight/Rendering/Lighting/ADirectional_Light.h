@@ -37,6 +37,7 @@ namespace Insight {
 		XMFLOAT4X4 LightProjFloat;
 	private:
 		CB_PS_DirectionalLight m_ShaderCB;
+
 		XMVECTOR LightCamPositionVec;
 		XMFLOAT3 LightCamPositionOffset;
 		float m_NearPlane;

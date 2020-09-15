@@ -61,16 +61,13 @@ namespace Insight {
 	{
 		const CB_PS_VS_PerFrame& PerFrameData = m_pRendererContext->GetPerFrameCB();
 
-		std::vector<XMMATRIX> matrices(4);
-		matrices[0] = XMLoadFloat4x4(&PerFrameData.view);
-		matrices[1] = XMLoadFloat4x4(&PerFrameData.projection);
-		matrices[2] = XMLoadFloat4x4(&PerFrameData.inverseView);
-		matrices[3] = XMLoadFloat4x4(&PerFrameData.inverseProjection);
-
+		m_CBCameraParams.InverseView = PerFrameData.inverseView;
+		m_CBCameraParams.InverseProjection = PerFrameData.inverseProjection;
+		
 		// Copy the camera matrix contents
 		uint8_t* pCameraData;
 		ThrowIfFailed(m_pCameraBuffer->Map(0, nullptr, (void**)&pCameraData), "Failed to map camera buffer");
-		memcpy(pCameraData, matrices.data(), m_CameraBufferSize);
+		memcpy(pCameraData, &m_CBCameraParams, m_CameraBufferSize);
 		m_pCameraBuffer->Unmap(0, nullptr);
 
 		// Copy the directional light contents
@@ -227,9 +224,7 @@ namespace Insight {
 	{
 		// Create Camera Buffer
 		{
-			constexpr UINT NumMatricies = 4; // view, perspective, viewInv, perspectiveInv
-			//m_CameraBufferSize = NumMatricies * sizeof(XMMATRIX);
-			m_CameraBufferSize = (sizeof(XMMATRIX) + 255) & ~255;
+			m_CameraBufferSize = (sizeof(CB_RG_CameraParams) + 255) & ~255;
 
 			// Create the constant buffer for all matrices
 			m_pCameraBuffer = NvidiaHelpers::CreateBuffer(
@@ -243,9 +238,7 @@ namespace Insight {
 
 		// Create Light Buffer
 		{
-			//m_LightBufferSize = sizeof(XMFLOAT4);
 			m_LightBufferSize = (sizeof(CB_CHS_LightParams) + 255) & ~255;
-			//m_LightBufferSize = sizeof(CB_CHS_LightParams);
 
 			// Create the constant buffer
 			m_pLightBuffer = NvidiaHelpers::CreateBuffer(

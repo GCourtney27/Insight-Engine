@@ -108,20 +108,20 @@ namespace Insight {
 		WorldTime += DeltaMs;
 
 		// Send Per-Frame Data to GPU
-		XMFLOAT4X4 viewFloat;
+		/*XMFLOAT4X4 viewFloat;
 		XMStoreFloat4x4(&viewFloat, XMMatrixTranspose(m_pWorldCamera->GetViewMatrix()));
 		XMFLOAT4X4 projectionFloat;
 		XMStoreFloat4x4(&projectionFloat, XMMatrixTranspose(m_pWorldCamera->GetProjectionMatrix()));
 		m_PerFrameData.Data.DeltaMs = DeltaMs;
 		m_PerFrameData.Data.view = viewFloat;
-		m_PerFrameData.Data.projection = projectionFloat;
+		m_PerFrameData.Data.projection = projectionFloat;*/
 		m_PerFrameData.Data.cameraPosition = m_pWorldCamera->GetTransformRef().GetPosition();
 		m_PerFrameData.Data.DeltaMs = DeltaMs;
 		m_PerFrameData.Data.time = WorldTime;
 		m_PerFrameData.Data.rayTraceEnabled = 0.0f;
-		m_PerFrameData.Data.cameraNearZ = (float)m_pWorldCamera->GetNearZ();
-		m_PerFrameData.Data.cameraFarZ = (float)m_pWorldCamera->GetFarZ();
-		m_PerFrameData.Data.cameraExposure = (float)m_pWorldCamera->GetExposure();
+		m_PerFrameData.Data.cameraNearZ = m_pWorldCamera->GetNearZ();
+		m_PerFrameData.Data.cameraFarZ = m_pWorldCamera->GetFarZ();
+		m_PerFrameData.Data.cameraExposure = m_pWorldCamera->GetExposure();
 		m_PerFrameData.Data.numPointLights = (float)m_PointLights.size();
 		m_PerFrameData.Data.numDirectionalLights = (m_pWorldDirectionalLight != nullptr) ? 1.0f : 0.0f;
 		m_PerFrameData.Data.numSpotLights = (float)m_SpotLights.size();

@@ -1,3 +1,4 @@
+#include <../Common/Insight_Common.hlsli>
 #include <Forward_Rendering.hlsli>
 
 struct VS_INPUT

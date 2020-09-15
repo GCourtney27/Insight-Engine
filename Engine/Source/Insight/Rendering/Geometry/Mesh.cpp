@@ -51,12 +51,7 @@ namespace Insight {
 	void Mesh::PreRender(const XMMATRIX& parentMat)
 	{
 		m_Transform.SetWorldMatrix(XMMatrixMultiply(parentMat, m_Transform.GetLocalMatrix()));
-
-		XMMATRIX worldMatTransposed = XMMatrixTranspose(m_Transform.GetWorldMatrixRef());
-		XMFLOAT4X4 worldFloat;
-		XMStoreFloat4x4(&worldFloat, worldMatTransposed);
-
-		m_ConstantBufferPerObject.world = worldFloat;
+		m_ConstantBufferPerObject.world = m_Transform.GetWorldMatrixRef();
 
 		if (m_ShouldUpdateAS) UpdateAccelerationStructures();
 	}

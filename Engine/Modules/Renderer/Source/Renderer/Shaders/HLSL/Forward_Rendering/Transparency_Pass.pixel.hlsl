@@ -1,3 +1,4 @@
+#include <../Common/Insight_Common.hlsli>
 #include <Forward_Rendering.hlsli>
 
 Texture2D t_Albedo      : register(t0);

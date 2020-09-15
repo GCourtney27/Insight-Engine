@@ -1,3 +1,4 @@
+#include <../Common/Insight_Common.hlsli>
 #include <Deferred_Rendering.hlsli>	
 
 // Entry Point

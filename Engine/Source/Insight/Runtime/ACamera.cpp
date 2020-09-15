@@ -191,11 +191,11 @@ namespace Insight {
 
 		void ACamera::UpdateViewMatrix()
 		{
-			XMMATRIX camRotationMatrix = XMMatrixRotationRollPitchYaw(GetTransformRef().GetRotation().x, GetTransformRef().GetRotation().y, 0.0f);
-			XMVECTOR camTarget = XMVector3TransformCoord(Vector3::Forward, camRotationMatrix);
-			camTarget += GetTransformRef().GetPosition();
-			XMVECTOR upDir = XMVector3TransformCoord(Vector3::Up, camRotationMatrix);
-			m_ViewMatrix = XMMatrixLookAtLH(GetTransformRef().GetPosition(), camTarget, upDir);
+			m_CamRotationMatrix = XMMatrixRotationRollPitchYaw(GetTransformRef().GetRotation().x, GetTransformRef().GetRotation().y, 0.0f);
+			m_CamTarget = XMVector3TransformCoord(Vector3::Forward, m_CamRotationMatrix);
+			m_CamTarget += GetTransformRef().GetPosition();
+			m_UpDir = XMVector3TransformCoord(Vector3::Up, m_CamRotationMatrix);
+			m_ViewMatrix = XMMatrixLookAtLH(GetTransformRef().GetPosition(), m_CamTarget, m_UpDir);
 		}
 
 		bool ACamera::OnMouseScrolled(MouseScrolledEvent& e)
@@ -204,13 +204,14 @@ namespace Insight {
 				return false;
 			}
 
+			// Vertical scroll wheel
 			if (e.GetYOffset() > 0.0f) {
 				ProcessKeyboardInput(CameraMovement::FORWARD, 0.05f);
 			}
 			if (e.GetYOffset() < 0.0f) {
 				ProcessKeyboardInput(CameraMovement::BACKWARD, 0.05f);
 			}
-
+			// Horizontal scroll wheel
 			if (e.GetXOffset() > 0.0f) {
 				ProcessKeyboardInput(CameraMovement::RIGHT, 0.05f);
 			}

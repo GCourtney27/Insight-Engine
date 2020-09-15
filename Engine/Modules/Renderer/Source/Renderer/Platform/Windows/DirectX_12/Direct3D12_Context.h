@@ -12,7 +12,7 @@
 #include "Renderer/Platform/Windows/DirectX_12/ie_D3D12_Screen_Quad.h"
 
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
-
+#include "Renderer/Platform/Windows/DirectX_12/D3D12_Constant_Buffer_Wrapper.h"
 /*
 	Render context for Windows Direct3D 12 API. 
 */
@@ -71,7 +71,7 @@ namespace Insight {
 		inline ID3D12Resource& GetConstantBufferPerObjectMaterialUploadHeap() const { return *m_PerObjectMaterialAdditivesCBV[IE_D3D12_FrameIndex].Get(); }
 		inline UINT8& GetPerObjectMaterialAdditiveCBVGPUHeapAddress() { return *m_cbvPerObjectMaterialOverridesGPUAddress[IE_D3D12_FrameIndex]; }
 
-		const CB_PS_VS_PerFrame& GetPerFrameCB() const { return m_PerFrameData; }
+		const CB_PS_VS_PerFrame& GetPerFrameCB() const { return m_CBPerFrame.Data; }
 
 		// Ray Tracing
 		// -----------
@@ -224,7 +224,7 @@ namespace Insight {
 		//3:   SRV-Position(RTV->SRV)
 		//4:   SRV-Scene Depth(DSV->SRV)
 		//5:   SRV-Light Pass Result(RTV->SRV)
-		//6:   SAV-Ray Trace Output(RTHelper UAV(COPY)->SRV)
+		//6:   UAV-Ray Trace Output(RTHelper UAV(COPY)->SRV)
 		//7:   SRV-Shadow Depth(DSV->SRV)
 		//-----PerObject-----
 		//8:   SRV-Albedo(SRV)
@@ -256,34 +256,17 @@ namespace Insight {
 		const UINT m_ShadowMapWidth = 1024U;
 		const UINT m_ShadowMapHeight = 1024U;
 
-
-		ComPtr<ID3D12Resource>	m_LightCBV;
-		UINT8*					m_cbvLightBufferGPUAddress;
-
 		ComPtr<ID3D12Resource>	m_PerObjectCBV[m_FrameBufferCount];
 		UINT8*					m_cbvPerObjectGPUAddress[m_FrameBufferCount];
 
 		ComPtr<ID3D12Resource>	m_PerObjectMaterialAdditivesCBV[m_FrameBufferCount];
 		UINT8*					m_cbvPerObjectMaterialOverridesGPUAddress[m_FrameBufferCount];
 
-		ComPtr<ID3D12Resource> m_PerFrameCBV;
-		UINT8*				   m_cbvPerFrameGPUAddress;
-		CB_PS_VS_PerFrame	   m_PerFrameData;
+		ieD3D12ConstantBuffer<CB_PS_VS_PerFrame> m_CBPerFrame;
+		ieD3D12ConstantBuffer<CB_PS_Lights> m_CBLights;
 
 		ComPtr<ID3D12Resource> m_PostFxCBV;
 		UINT8*				   m_cbvPostFxGPUAddress;
-		CB_PS_VS_PerFrame	   m_PostFxData;
-		int CBPerFrameAlignedSize = (sizeof(CB_PS_VS_PerFrame) + 255) & ~255;
-		int CBPostFxAlignedSize = (sizeof(CB_PS_PostFx) + 255) & ~255;
-
-		#define POINT_LIGHTS_CB_ALIGNED_OFFSET (0)
-		int	CBPointLightsAlignedSize = (sizeof(CB_PS_PointLight) + 255) & ~255;
-
-		#define DIRECTIONAL_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight))
-		int	CBDirectionalLightsAlignedSize = (sizeof(CB_PS_DirectionalLight) + 255) & ~255;
-
-		#define SPOT_LIGHTS_CB_ALIGNED_OFFSET (MAX_POINT_LIGHTS_SUPPORTED * sizeof(CB_PS_PointLight) + MAX_DIRECTIONAL_LIGHTS_SUPPORTED * sizeof(CB_PS_DirectionalLight))
-		int	CBSpotLightsAlignedSize = (sizeof(CB_PS_SpotLight) + 255) & ~255;
 
 	};
 

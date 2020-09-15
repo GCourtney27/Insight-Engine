@@ -65,15 +65,15 @@ namespace Insight {
 			void ProcessMouseMovement(float xOffset, float yOffset);
 			void ProcessKeyboardInput(CameraMovement direction, float deltaTime);
 
-			const inline XMMATRIX& GetViewMatrix() const { return m_ViewMatrix; }
-			const inline XMMATRIX& GetProjectionMatrix() const { return m_ProjectionMatrix; };
-			const inline float& GetFOV() const { return m_Fov; }
-			const inline float& GetNearZ() const { return m_NearZ; }
-			const inline float& GetFarZ() const { return m_FarZ; }
-			inline void SetFOV(float& fovDegrees) { SetPerspectiveProjectionValues(fovDegrees, m_AspectRatio, m_NearZ, m_FarZ); }
-			inline void SetNearZ(float& nearZ) { SetPerspectiveProjectionValues(m_Fov, m_AspectRatio, nearZ, m_FarZ); }
-			inline void SetFarZ(float& farZ) { SetPerspectiveProjectionValues(m_Fov, m_AspectRatio, m_NearZ, farZ); }
+			inline XMMATRIX GetViewMatrix() const { return m_ViewMatrix; }
+			inline XMMATRIX GetProjectionMatrix() const { return m_ProjectionMatrix; };
+			inline float GetFOV() const { return m_Fov; }
+			inline float GetNearZ() const { return m_NearZ; }
+			inline float GetFarZ() const { return m_FarZ; }
 			inline float GetExposure() { return m_Exposure; }
+			inline void SetFOV(float fovDegrees) { SetPerspectiveProjectionValues(fovDegrees, m_AspectRatio, m_NearZ, m_FarZ); }
+			inline void SetNearZ(float nearZ) { SetPerspectiveProjectionValues(m_Fov, m_AspectRatio, nearZ, m_FarZ); }
+			inline void SetFarZ(float farZ) { SetPerspectiveProjectionValues(m_Fov, m_AspectRatio, m_NearZ, farZ); }
 			inline void SetExposure(float exposure) { m_Exposure = exposure; }
 
 			static ViewTarget GetDefaultViewTarget() { return ViewTarget{ ieVector3{0.0f, 10.0f, -20.0f}, ieVector3{0.0f, 0.0f, 0.0f}, FOV, SENSITIVITY, BASE_SPEED, EXPOSURE, NEAR_Z, FAR_Z }; }
@@ -119,7 +119,6 @@ namespace Insight {
 			void UpdateViewMatrix();
 			bool OnMouseScrolled(MouseScrolledEvent& e);
 		private:
-
 			XMFLOAT4X4 m_ViewMat4x4;
 			XMMATRIX m_ViewMatrix;
 			XMFLOAT4X4 m_ProjectionMat4x4;
@@ -138,8 +137,13 @@ namespace Insight {
 			float m_NearZ = 0.0001f;
 			float m_FarZ = 0.0f;
 			float m_AspectRatio = 0.0f;
-
 			float m_Exposure = 1.0f;
+
+			// Caches Internal Variables
+			XMMATRIX m_CamRotationMatrix;
+			XMVECTOR m_CamTarget;
+			XMVECTOR m_UpDir;
+
 		private:
 			static ACamera* s_Instance;
 		};

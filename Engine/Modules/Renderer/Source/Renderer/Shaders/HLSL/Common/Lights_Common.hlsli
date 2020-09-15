@@ -1,3 +1,4 @@
+#include <../Common/Insight_Common.hlsli>
 
 /*
     This file includes all lights that are able to be rendered inside a pixel shader

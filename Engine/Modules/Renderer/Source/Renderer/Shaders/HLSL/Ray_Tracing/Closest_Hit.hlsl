@@ -1,3 +1,4 @@
+//#include <../Common/Insight_Common.hlsli>
 #include "RayTrace_Common.hlsli"
 
 struct Vertex
@@ -40,7 +41,6 @@ void ClosestHit(inout HitInfo HitInfo, Attributes Attrib)
     ray.Direction = lightDir;
     ray.TMin = 0.01;
     ray.TMax = 100000;
-    bool hit = true;
 
     // Initialize the ray payload
     ShadowHitInfo shadowPayload;
@@ -49,9 +49,8 @@ void ClosestHit(inout HitInfo HitInfo, Attributes Attrib)
     // Trace the shadow ray
     TraceRay(SceneBVH, RAY_FLAG_NONE, 0xFF, 1, 0, 1, ray, shadowPayload);
 
-    float factor = shadowPayload.isHit ? ShadowDarkness : 1.0;
-    float3 barycentrics = float3(1.f - Attrib.Barycentrics.x - Attrib.Barycentrics.y, Attrib.Barycentrics.x, Attrib.Barycentrics.y);
-    float4 hitColor = float4(float3(factor, factor, factor), RayTCurrent());
+    float ShadowFactor = shadowPayload.isHit ? ShadowDarkness : 1.0;
+    float4 hitColor = float4(float3(ShadowFactor, ShadowFactor, ShadowFactor), RayTCurrent());
     
     HitInfo.ColorAndDistance = float4(hitColor);
 }

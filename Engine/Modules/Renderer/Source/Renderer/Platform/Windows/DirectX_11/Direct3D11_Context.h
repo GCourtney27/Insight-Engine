@@ -85,7 +85,7 @@ namespace Insight {
 		float				m_ClearColor[4] = { 0.1f, 0.1f, 0.3f, 1.0f };
 
 		ConstantBuffer<CB_PS_VS_PerFrame>	m_PerFrameData;
-		ConstantBuffer<D3D11_CB_PS_Lights>	m_LightData;
+		ConstantBuffer<CB_PS_Lights>	m_LightData;
 		ConstantBuffer<CB_PS_PostFx>		m_PostFxData;
 		D3D_FEATURE_LEVEL					m_DeviceMaxSupportedFeatureLevel;
 		DXGI_SAMPLE_DESC					m_SampleDesc = {};

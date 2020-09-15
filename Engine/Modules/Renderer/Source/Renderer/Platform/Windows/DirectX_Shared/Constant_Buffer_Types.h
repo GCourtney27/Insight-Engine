@@ -17,7 +17,7 @@
 
 struct CB_VS_PerObject
 {
-	DirectX::XMFLOAT4X4 world;
+	DirectX::XMMATRIX world;
 };
 
 struct CB_PS_VS_PerObjectAdditives
@@ -38,10 +38,10 @@ struct CB_PS_VS_PerFrame
 {
 	DirectX::XMFLOAT3 cameraPosition;
 	float cameraExposure;//4
-	DirectX::XMFLOAT4X4 view;//4x4
-	DirectX::XMFLOAT4X4 inverseView;//4x4
-	DirectX::XMFLOAT4X4 projection;//4x4
-	DirectX::XMFLOAT4X4 inverseProjection;//4x4
+	DirectX::XMMATRIX view;//4x4
+	DirectX::XMMATRIX inverseView;//4x4
+	DirectX::XMMATRIX projection;//4x4
+	DirectX::XMMATRIX inverseProjection;//4x4
 	float cameraNearZ;
 	float cameraFarZ;
 	float DeltaMs;
@@ -105,7 +105,7 @@ struct CB_PS_PostFx
 	float caIntensity;
 };
 
-struct D3D11_CB_PS_Lights
+struct CB_PS_Lights
 {
 	CB_PS_PointLight PointLights[MAX_POINT_LIGHTS_SUPPORTED];
 	CB_PS_DirectionalLight DirectionalLight;

@@ -29,6 +29,11 @@ namespace Insight {
 			float ShadowDarkness;
 			float padding[3];
 		};
+		struct CB_RG_CameraParams
+		{
+			DirectX::XMMATRIX InverseView;
+			DirectX::XMMATRIX InverseProjection;
+		};
 	public:
 		RayTraceHelpers() = default;
 		~RayTraceHelpers() = default;
@@ -79,6 +84,7 @@ namespace Insight {
 		
 		ComPtr<ID3D12Resource>					m_pCameraBuffer;
 		int										m_CameraBufferSize = 0;
+		CB_RG_CameraParams						m_CBCameraParams;
 		ComPtr<ID3D12Resource>					m_pLightBuffer;
 		int										m_LightBufferSize = 0;
 		CB_CHS_LightParams						m_CBLightParams;

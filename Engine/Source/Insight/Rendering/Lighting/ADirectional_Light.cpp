@@ -17,10 +17,10 @@ namespace Insight {
 	{
 		Renderer::RegisterWorldDirectionalLight(this);
 
-		AActor::GetTransformRef().SetPosition(0.0f, -1.0f, -6.0f);
+		AActor::GetTransformRef().SetRotation(0.0f, -1.0f, -6.0f);
 
 		m_ShaderCB.diffuse = ieVector3(1.0f, 1.0f, 1.0f);
-		m_ShaderCB.direction = SceneNode::GetTransformRef().GetPosition();
+		m_ShaderCB.direction = SceneNode::GetTransformRef().GetRotation();
 		m_ShaderCB.strength = 8.0f;
 		m_ShaderCB.shadowDarknessMultiplier = 0.6f;
 
@@ -30,31 +30,32 @@ namespace Insight {
 
 	ADirectionalLight::~ADirectionalLight()
 	{
+		Renderer::UnRegisterWorldDirectionalLight();
 	}
 
 	bool ADirectionalLight::LoadFromJson(const rapidjson::Value& jsonDirectionalLight)
 	{
 		AActor::LoadFromJson(jsonDirectionalLight);
 
-		float diffuseR, diffuseG, diffuseB, strength, shdowDarkness;
+		float DiffuseR, DiffuseG, DiffuseB, Strength, ShdowDarkness;
 		const rapidjson::Value& emission = jsonDirectionalLight["Emission"];
-		json::get_float(emission[0], "diffuseR", diffuseR);
-		json::get_float(emission[0], "diffuseG", diffuseG);
-		json::get_float(emission[0], "diffuseB", diffuseB);
-		json::get_float(emission[0], "strength", strength);
-		json::get_float(emission[0], "shadowDarkness", shdowDarkness);
+		json::get_float(emission[0], "diffuseR", DiffuseR);
+		json::get_float(emission[0], "diffuseG", DiffuseG);
+		json::get_float(emission[0], "diffuseB", DiffuseB);
+		json::get_float(emission[0], "strength", Strength);
+		json::get_float(emission[0], "shadowDarkness", ShdowDarkness);
 
-		m_ShaderCB.diffuse = XMFLOAT3(diffuseR, diffuseG, diffuseB);
+		m_ShaderCB.diffuse = XMFLOAT3(DiffuseR, DiffuseG, DiffuseB);
 		m_ShaderCB.direction = AActor::GetTransformRef().GetRotationRef();
-		m_ShaderCB.strength = strength;
-		m_ShaderCB.shadowDarknessMultiplier = shdowDarkness;
+		m_ShaderCB.strength = Strength;
+		m_ShaderCB.shadowDarknessMultiplier = ShdowDarkness;
 
 		m_NearPlane = 1.0f;
 		m_FarPlane = 210.0f;
 		
 		LightCamPositionOffset = XMFLOAT3(0.0f, 0.0f, 20.0f);
 
-		m_ShaderCB.direction = SceneNode::GetTransformRef().GetPosition();
+		m_ShaderCB.direction = SceneNode::GetTransformRef().GetRotation();
 
 		XMFLOAT3 LookAtPos(0.0f, 0.0f, 0.0f);
 		XMVECTOR LookAtPosVec = XMLoadFloat3(&LookAtPos);
@@ -70,8 +71,6 @@ namespace Insight {
 
 
 		LightView = XMMatrixLookAtLH(LightCamPositionVec, LookAtPosVec, UpVec);
-
-		//LightProj = XMMatrixOrthographicOffCenterLH(ViewLeft, ViewWidth, ViewBottom, ViewHeight, m_NearPlane, m_FarPlane);
 		LightProj = XMMatrixOrthographicLH(ViewWidth, ViewHeight, m_NearPlane, m_FarPlane);
 
 		XMStoreFloat4x4(&LightViewFloat, XMMatrixTranspose(LightView));
@@ -171,7 +170,7 @@ namespace Insight {
 
 	void ADirectionalLight::OnUpdate(const float DeltaMs)
 	{
-		m_ShaderCB.direction = SceneNode::GetTransformRef().GetPosition();
+		m_ShaderCB.direction = SceneNode::GetTransformRef().GetRotation();
 		
 		XMFLOAT3 LookAtPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		XMVECTOR LookAtPosVec = XMLoadFloat3(&LookAtPos);

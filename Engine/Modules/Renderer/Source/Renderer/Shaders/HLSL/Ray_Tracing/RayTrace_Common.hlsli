@@ -1,3 +1,5 @@
+//#include "../Common/Insight_Common.hlsli"
+
 // Hit information, aka ray payload
 // This sample only carries a shading color and hit distance.
 // Note that the payload should be kept as small as possible,

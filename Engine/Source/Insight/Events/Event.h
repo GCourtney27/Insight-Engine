@@ -64,12 +64,12 @@ namespace Insight {
 		EventDispatcher(Event& event)
 			: m_Event(event) {}
 
-		template<typename Event>
-		bool Dispatch(EventFn<Event> func)
+		template<typename Func>
+		bool Dispatch(EventFn<Func> func)
 		{
-			if (m_Event.GetEventType() == Event::GetStaticType())
+			if (m_Event.GetEventType() == Func::GetStaticType())
 			{
-				m_Event.m_Handled = func(*(Event*)&m_Event);
+				m_Event.m_Handled = func(*(Func*)&m_Event);
 				return true;
 			}
 			return false;

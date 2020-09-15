@@ -62,7 +62,7 @@ namespace Insight {
 
 	void Renderer::UnRegisterWorldDirectionalLight()
 	{
-		delete s_Instance->m_pWorldDirectionalLight;
+		s_Instance->m_pWorldDirectionalLight = nullptr;
 	}
 
 	void Renderer::UnRegisterPointLight(APointLight* pPointLight)

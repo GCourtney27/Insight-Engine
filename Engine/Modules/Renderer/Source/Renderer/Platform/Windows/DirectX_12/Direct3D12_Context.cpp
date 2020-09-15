@@ -117,54 +117,50 @@ namespace Insight {
 		static float WorldSecond;
 		WorldSecond += DeltaMs;
 
-		// Send Per-Frame Data to GPU
-		XMFLOAT4X4 viewFloat;
-		XMStoreFloat4x4(&viewFloat, XMMatrixTranspose(m_pWorldCamera->GetViewMatrix()));
-		XMFLOAT4X4 projectionFloat;
-		XMStoreFloat4x4(&projectionFloat, XMMatrixTranspose(m_pWorldCamera->GetProjectionMatrix()));
-		XMVECTOR det;
-		XMMATRIX invView = XMMatrixInverse(&det, m_pWorldCamera->GetViewMatrix());
-		XMMATRIX invProjection = XMMatrixInverse(&det, m_pWorldCamera->GetProjectionMatrix());
-		XMFLOAT4X4 invViewFloat;
-		XMStoreFloat4x4(&invViewFloat, invView);
-		XMFLOAT4X4 invProjectionFloat;
-		XMStoreFloat4x4(&invProjectionFloat, invProjection);
+		XMVECTOR InvMatDeterminent;
 
-		m_PerFrameData.view = viewFloat;
-		m_PerFrameData.projection = projectionFloat;
-		m_PerFrameData.inverseView = invViewFloat;
-		m_PerFrameData.inverseProjection = invProjectionFloat;
-		m_PerFrameData.cameraPosition = m_pWorldCamera->GetTransformRef().GetPosition();
-		m_PerFrameData.DeltaMs = DeltaMs;
-		m_PerFrameData.time = (float)WorldSecond;
-		m_PerFrameData.cameraNearZ = (float)m_pWorldCamera->GetNearZ();
-		m_PerFrameData.cameraFarZ = (float)m_pWorldCamera->GetFarZ();
-		m_PerFrameData.cameraExposure = (float)m_pWorldCamera->GetExposure();
-		m_PerFrameData.numPointLights = (float)m_PointLights.size();
-		m_PerFrameData.numDirectionalLights = (m_pWorldDirectionalLight != nullptr) ? 1.0f : 0.0f;
-		m_PerFrameData.rayTraceEnabled = (float)m_GraphicsSettings.RayTraceEnabled;
-		m_PerFrameData.numSpotLights = (float)m_SpotLights.size();
-		m_PerFrameData.screenSize.x = (float)m_WindowWidth;
-		m_PerFrameData.screenSize.y = (float)m_WindowHeight;
-		memcpy(m_cbvPerFrameGPUAddress, &m_PerFrameData, sizeof(CB_PS_VS_PerFrame));
+		// Send Per-Frame Data to GPU
+		m_CBPerFrame.Data.view = m_pWorldCamera->GetViewMatrix();
+		m_CBPerFrame.Data.projection = m_pWorldCamera->GetProjectionMatrix();
+		m_CBPerFrame.Data.inverseView = XMMatrixInverse(&InvMatDeterminent, m_pWorldCamera->GetViewMatrix());
+		m_CBPerFrame.Data.inverseProjection = XMMatrixInverse(&InvMatDeterminent, m_pWorldCamera->GetProjectionMatrix());
+		m_CBPerFrame.Data.cameraPosition = m_pWorldCamera->GetTransformRef().GetPosition();
+		m_CBPerFrame.Data.DeltaMs = DeltaMs;
+		m_CBPerFrame.Data.time = WorldSecond;
+		m_CBPerFrame.Data.cameraNearZ = m_pWorldCamera->GetNearZ();
+		m_CBPerFrame.Data.cameraFarZ = m_pWorldCamera->GetFarZ();
+		m_CBPerFrame.Data.cameraExposure = m_pWorldCamera->GetExposure();
+		m_CBPerFrame.Data.numPointLights = (float)m_PointLights.size();
+		m_CBPerFrame.Data.numDirectionalLights = (m_pWorldDirectionalLight != nullptr) ? 1.0f : 0.0f;
+		m_CBPerFrame.Data.rayTraceEnabled = (float)m_GraphicsSettings.RayTraceEnabled;
+		m_CBPerFrame.Data.numSpotLights = (float)m_SpotLights.size();
+		m_CBPerFrame.Data.screenSize.x = (float)m_WindowWidth;
+		m_CBPerFrame.Data.screenSize.y = (float)m_WindowHeight;
+		m_CBPerFrame.SubmitToGPU();
 
 		if (m_GraphicsSettings.RayTraceEnabled) m_RTHelper.UpdateCBVs();
 
+		
 		// Send Point Lights to GPU
-		for (int i = 0; i < m_PointLights.size(); i++) {
-			memcpy(m_cbvLightBufferGPUAddress + POINT_LIGHTS_CB_ALIGNED_OFFSET + (sizeof(CB_PS_PointLight) * i), &m_PointLights[i]->GetConstantBuffer(), sizeof(CB_PS_PointLight));
+		for (int i = 0; i < m_PointLights.size(); i++) 
+		{
+			m_CBLights.Data.PointLights[i] = m_PointLights[i]->GetConstantBuffer();
 		}
-		
 		// Send Directionl Light to GPU
-		memcpy(m_cbvLightBufferGPUAddress + DIRECTIONAL_LIGHTS_CB_ALIGNED_OFFSET, &m_pWorldDirectionalLight->GetConstantBuffer(), sizeof(CB_PS_DirectionalLight));
-		
-		// Send Spot Lights to GPU
-		for (int i = 0; i < m_SpotLights.size(); i++) {
-			memcpy(m_cbvLightBufferGPUAddress + SPOT_LIGHTS_CB_ALIGNED_OFFSET + (sizeof(CB_PS_SpotLight) * i), &m_SpotLights[i]->GetConstantBuffer(), sizeof(CB_PS_SpotLight));
+		if (m_pWorldDirectionalLight)
+		{
+			m_CBLights.Data.DirectionalLight = m_pWorldDirectionalLight->GetConstantBuffer();
 		}
+		// Send Spot Lights to GPU
+		for (int i = 0; i < m_SpotLights.size(); i++) 
+		{
+			m_CBLights.Data.SpotLights[i] = m_SpotLights[i]->GetConstantBuffer();
+		}
+		m_CBLights.SubmitToGPU();
 
 		// Send Post-Fx data to GPU
-		if (m_pPostFx) {
+		if (m_pPostFx) 
+		{
 			memcpy(m_cbvPostFxGPUAddress, &m_pPostFx->GetConstantBuffer(), sizeof(CB_PS_PostFx));
 		}
 	}
@@ -279,8 +275,8 @@ namespace Insight {
 			m_pShadowPass_CommandList->ClearDepthStencilView(m_dsvHeap.hCPU(1), D3D12_CLEAR_FLAG_DEPTH, m_DepthClearValue, 0xff, 0, nullptr);
 
 			m_pShadowPass_CommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			m_pShadowPass_CommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV->GetGPUVirtualAddress());
-			m_pShadowPass_CommandList->SetGraphicsRootConstantBufferView(2, m_LightCBV->GetGPUVirtualAddress());
+			m_CBPerFrame.SetAsRootConstantBufferView(m_pShadowPass_CommandList.Get(), 1);
+			m_CBLights.SetAsRootConstantBufferView(m_pShadowPass_CommandList.Get(), 2);
 
 			// TODO Shadow pass logic here put this on another thread
 			GeometryManager::Render(eRenderPass::RenderPass_Shadow);
@@ -312,8 +308,8 @@ namespace Insight {
 
 			{
 				m_pScenePass_CommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-				m_pScenePass_CommandList->SetGraphicsRootConstantBufferView(2, m_LightCBV->GetGPUVirtualAddress());
-				m_pScenePass_CommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV->GetGPUVirtualAddress());
+				m_CBLights.SetAsRootConstantBufferView(m_pScenePass_CommandList.Get(), 2);
+				m_pScenePass_CommandList->SetGraphicsRootConstantBufferView(1, m_CBPerFrame.GetGPUVirtualAddress());
 			}
 
 			GeometryManager::Render(eRenderPass::RenderPass_Scene);
@@ -394,8 +390,8 @@ namespace Insight {
 			m_pTransparencyPass_CommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), TRUE, &m_dsvHeap.hCPU(0));
 
 			m_pTransparencyPass_CommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			m_pTransparencyPass_CommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV->GetGPUVirtualAddress());
-			m_pTransparencyPass_CommandList->SetGraphicsRootConstantBufferView(2, m_LightCBV->GetGPUVirtualAddress());
+			m_CBPerFrame.SetAsRootConstantBufferView(m_pTransparencyPass_CommandList.Get(), 1);
+			m_CBLights.SetAsRootConstantBufferView(m_pTransparencyPass_CommandList.Get(), 4);
 			m_pTransparencyPass_CommandList->SetGraphicsRootDescriptorTable(4, m_cbvsrvHeap.hGPU(4));
 
 			GeometryManager::Render(eRenderPass::RenderPass_Transparency);
@@ -437,7 +433,7 @@ namespace Insight {
 
 			m_pPostEffectsPass_CommandList->SetPipelineState(m_pPostFxPass_PSO.Get());
 			m_pPostEffectsPass_CommandList->SetGraphicsRootDescriptorTable(16, m_cbvsrvHeap.hGPU(5)); // Light Pass result
-			m_pPostEffectsPass_CommandList->SetGraphicsRootConstantBufferView(1, m_PerFrameCBV->GetGPUVirtualAddress());
+			m_CBPerFrame.SetAsRootConstantBufferView(m_pPostEffectsPass_CommandList.Get(), 1);
 			m_pPostEffectsPass_CommandList->SetGraphicsRootConstantBufferView(3, m_PostFxCBV->GetGPUVirtualAddress());
 
 
@@ -1603,24 +1599,12 @@ namespace Insight {
 		HRESULT hr;
 
 		// Light Constant buffer
-		{
-			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommittedResource(
-				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-				D3D12_HEAP_FLAG_NONE,
-				&CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
-				D3D12_RESOURCE_STATE_GENERIC_READ,
-				nullptr,
-				IID_PPV_ARGS(&m_LightCBV));
-			m_LightCBV->SetName(L"Constant Buffer Light Buffer Upload Resource Heap");
-			ThrowIfFailed(hr, "Failed to create upload heap for light buffer upload resource heaps");
-			CD3DX12_RANGE readRange(0, 0);
-			hr = m_LightCBV->Map(0, &readRange, reinterpret_cast<void**>(&m_cbvLightBufferGPUAddress));
-			ThrowIfFailed(hr, "Failed to map upload heap for light buffer upload resource heaps");
-		}
+		m_CBLights.Init(&m_d3dDeviceResources.GetDeviceContext(), L"Lights Constant Buffer");
 
 		// PerObject Constant buffer
 		for (int i = 0; i < m_FrameBufferCount; ++i)
 		{
+			int BufferSize = (sizeof(CB_VS_PerObject) + 255) & ~255;
 			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommittedResource(
 				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 				D3D12_HEAP_FLAG_NONE,
@@ -1638,6 +1622,8 @@ namespace Insight {
 		// PerObject Material Constant buffer
 		for (int i = 0; i < m_FrameBufferCount; ++i)
 		{
+			int BufferSize = (sizeof(CB_PS_VS_PerObjectAdditives) + 255) & ~255;
+
 			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommittedResource(
 				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 				D3D12_HEAP_FLAG_NONE,
@@ -1653,23 +1639,12 @@ namespace Insight {
 		}
 
 		// Per Frame
-		{
-			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommittedResource(
-				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-				D3D12_HEAP_FLAG_NONE,
-				&CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
-				D3D12_RESOURCE_STATE_GENERIC_READ,
-				nullptr,
-				IID_PPV_ARGS(&m_PerFrameCBV));
-			m_PerFrameCBV->SetName(L"Constant Buffer Per-Frame Upload Heap");
-			ThrowIfFailed(hr, "Failed to create upload heap for per-frame upload resource heaps");
-			CD3DX12_RANGE readRange(0, 0);
-			hr = m_PerFrameCBV->Map(0, &readRange, reinterpret_cast<void**>(&m_cbvPerFrameGPUAddress));
-			ThrowIfFailed(hr, "Failed to create map heap for per-frame upload resource heaps");
-		}
+		m_CBPerFrame.Init(&m_d3dDeviceResources.GetDeviceContext(), L"PerFrameConstant Buffer");
 
 		// Post-Fx
 		{
+			int BufferSize = (sizeof(CB_PS_PostFx) + 255) & ~255;
+
 			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommittedResource(
 				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 				D3D12_HEAP_FLAG_NONE,

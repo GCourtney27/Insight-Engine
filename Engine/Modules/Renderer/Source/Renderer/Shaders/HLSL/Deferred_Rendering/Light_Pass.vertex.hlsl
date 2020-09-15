@@ -1,3 +1,4 @@
+#include <../Common/Insight_Common.hlsli>
 #include <Deferred_Rendering.hlsli>	
 
 VS_OUTPUT_LIGHTPASS main(VS_INPUT_LIGHTPASS vs_in)
