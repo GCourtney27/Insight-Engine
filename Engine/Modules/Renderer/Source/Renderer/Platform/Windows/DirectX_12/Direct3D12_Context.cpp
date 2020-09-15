@@ -30,10 +30,10 @@ namespace Insight {
 
 	Direct3D12Context::~Direct3D12Context()
 	{
-		Cleanup();
+		InternalCleanup();
 	}
 
-	void Direct3D12Context::Cleanup()
+	void Direct3D12Context::InternalCleanup()
 	{
 		// Wait until GPU is done consuming all data
 		// before closing all handles and releasing resources
@@ -53,12 +53,10 @@ namespace Insight {
 		IE_CORE_INFO("Renderer: D3D 12");
 
 		try {
-
 			m_d3dDeviceResources.Init(this);
 
 			CreateCommandAllocators();
 
-			CreateConstantBuffers();
 			CreateCBVs();
 			CreateSRVs();
 
@@ -84,7 +82,7 @@ namespace Insight {
 				{
 					CreateDSVs();
 					CreateRTVs();
-					CreateRenderTargetViewDescriptorHeap();
+					CreateSwapChainRTVDescriptorHeap();
 				}
 
 			}
@@ -99,7 +97,7 @@ namespace Insight {
 
 	void Direct3D12Context::Destroy_Impl()
 	{
-		Cleanup();
+		InternalCleanup();
 	}
 
 	bool Direct3D12Context::PostInit_Impl()
@@ -120,48 +118,45 @@ namespace Insight {
 		XMVECTOR InvMatDeterminent;
 
 		// Send Per-Frame Data to GPU
-		m_CBPerFrame.Data.view = m_pWorldCamera->GetViewMatrix();
-		m_CBPerFrame.Data.projection = m_pWorldCamera->GetProjectionMatrix();
-		m_CBPerFrame.Data.inverseView = XMMatrixInverse(&InvMatDeterminent, m_pWorldCamera->GetViewMatrix());
-		m_CBPerFrame.Data.inverseProjection = XMMatrixInverse(&InvMatDeterminent, m_pWorldCamera->GetProjectionMatrix());
-		m_CBPerFrame.Data.cameraPosition = m_pWorldCamera->GetTransformRef().GetPosition();
+		m_CBPerFrame.Data.View = m_pWorldCamera->GetViewMatrix();
+		m_CBPerFrame.Data.Projection = m_pWorldCamera->GetProjectionMatrix();
+		m_CBPerFrame.Data.InverseView = XMMatrixInverse(&InvMatDeterminent, m_pWorldCamera->GetViewMatrix());
+		m_CBPerFrame.Data.InverseProjection = XMMatrixInverse(&InvMatDeterminent, m_pWorldCamera->GetProjectionMatrix());
+		m_CBPerFrame.Data.CameraPosition = m_pWorldCamera->GetTransformRef().GetPosition();
 		m_CBPerFrame.Data.DeltaMs = DeltaMs;
-		m_CBPerFrame.Data.time = WorldSecond;
-		m_CBPerFrame.Data.cameraNearZ = m_pWorldCamera->GetNearZ();
-		m_CBPerFrame.Data.cameraFarZ = m_pWorldCamera->GetFarZ();
-		m_CBPerFrame.Data.cameraExposure = m_pWorldCamera->GetExposure();
-		m_CBPerFrame.Data.numPointLights = (float)m_PointLights.size();
-		m_CBPerFrame.Data.numDirectionalLights = (m_pWorldDirectionalLight != nullptr) ? 1.0f : 0.0f;
-		m_CBPerFrame.Data.rayTraceEnabled = (float)m_GraphicsSettings.RayTraceEnabled;
-		m_CBPerFrame.Data.numSpotLights = (float)m_SpotLights.size();
-		m_CBPerFrame.Data.screenSize.x = (float)m_WindowWidth;
-		m_CBPerFrame.Data.screenSize.y = (float)m_WindowHeight;
+		m_CBPerFrame.Data.WorldTime = WorldSecond;
+		m_CBPerFrame.Data.CameraNearZ = m_pWorldCamera->GetNearZ();
+		m_CBPerFrame.Data.CameraFarZ = m_pWorldCamera->GetFarZ();
+		m_CBPerFrame.Data.CameraExposure = m_pWorldCamera->GetExposure();
+		m_CBPerFrame.Data.NumPointLights = (float)m_PointLights.size();
+		m_CBPerFrame.Data.NumDirectionalLights = (m_pWorldDirectionalLight != nullptr) ? 1.0f : 0.0f;
+		m_CBPerFrame.Data.RayTraceEnabled = (float)m_GraphicsSettings.RayTraceEnabled;
+		m_CBPerFrame.Data.NumSpotLights = (float)m_SpotLights.size();
+		m_CBPerFrame.Data.ScreenSize.x = (float)m_WindowWidth;
+		m_CBPerFrame.Data.ScreenSize.y = (float)m_WindowHeight;
 		m_CBPerFrame.SubmitToGPU();
 
 		if (m_GraphicsSettings.RayTraceEnabled) m_RTHelper.UpdateCBVs();
 
 		
 		// Send Point Lights to GPU
-		for (int i = 0; i < m_PointLights.size(); i++) 
-		{
+		for (int i = 0; i < m_PointLights.size(); i++) 	{
 			m_CBLights.Data.PointLights[i] = m_PointLights[i]->GetConstantBuffer();
 		}
 		// Send Directionl Light to GPU
-		if (m_pWorldDirectionalLight)
-		{
+		if (m_pWorldDirectionalLight) {
 			m_CBLights.Data.DirectionalLight = m_pWorldDirectionalLight->GetConstantBuffer();
 		}
 		// Send Spot Lights to GPU
-		for (int i = 0; i < m_SpotLights.size(); i++) 
-		{
+		for (int i = 0; i < m_SpotLights.size(); i++) {
 			m_CBLights.Data.SpotLights[i] = m_SpotLights[i]->GetConstantBuffer();
 		}
 		m_CBLights.SubmitToGPU();
 
 		// Send Post-Fx data to GPU
-		if (m_pPostFx) 
-		{
-			memcpy(m_cbvPostFxGPUAddress, &m_pPostFx->GetConstantBuffer(), sizeof(CB_PS_PostFx));
+		if (m_pPostFx) {
+			m_CBPostFx.Data = m_pPostFx->GetConstantBuffer();
+			m_CBPostFx.SubmitToGPU();
 		}
 	}
 
@@ -213,7 +208,7 @@ namespace Insight {
 		{
 			ResourceBarrier(m_pScenePass_CommandList.Get(), GetSwapChainRenderTarget(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 			const float ClearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-			m_pScenePass_CommandList->ClearRenderTargetView(GetRenderTargetView(), ClearColor, 0, nullptr);
+			m_pScenePass_CommandList->ClearRenderTargetView(GetSwapChainRTV(), ClearColor, 0, nullptr);
 		}
 
 		// Reset Scene Pass
@@ -288,7 +283,7 @@ namespace Insight {
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
-		PIXBeginEvent(m_pScenePass_CommandList.Get(), 0, L"Rendering Scene Pass");
+		PIXBeginEvent(m_pScenePass_CommandList.Get(), 0, L"Rendering Geometry Pass");
 		{
 			ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
 			m_pScenePass_CommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
@@ -424,7 +419,7 @@ namespace Insight {
 			ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
 			m_pPostEffectsPass_CommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
-			m_pPostEffectsPass_CommandList->OMSetRenderTargets(1, &GetRenderTargetView(), TRUE, nullptr);
+			m_pPostEffectsPass_CommandList->OMSetRenderTargets(1, &GetSwapChainRTV(), TRUE, nullptr);
 			m_pPostEffectsPass_CommandList->RSSetScissorRects(1, &m_d3dDeviceResources.GetClientScissorRect());
 			m_pPostEffectsPass_CommandList->RSSetViewports(1, &m_d3dDeviceResources.GetClientViewPort());
 
@@ -434,7 +429,7 @@ namespace Insight {
 			m_pPostEffectsPass_CommandList->SetPipelineState(m_pPostFxPass_PSO.Get());
 			m_pPostEffectsPass_CommandList->SetGraphicsRootDescriptorTable(16, m_cbvsrvHeap.hGPU(5)); // Light Pass result
 			m_CBPerFrame.SetAsRootConstantBufferView(m_pPostEffectsPass_CommandList.Get(), 1);
-			m_pPostEffectsPass_CommandList->SetGraphicsRootConstantBufferView(3, m_PostFxCBV->GetGPUVirtualAddress());
+			m_CBPostFx.SetAsRootConstantBufferView(m_pPostEffectsPass_CommandList.Get(), 3);
 
 
 			m_ScreenQuad.OnRender(m_pPostEffectsPass_CommandList);
@@ -484,6 +479,7 @@ namespace Insight {
 		UINT PresentFlags = (m_AllowTearing && m_WindowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
 		HRESULT hr = m_d3dDeviceResources.GetSwapChain().Present(m_VSyncEnabled, PresentFlags);
 		ThrowIfFailed(hr, "Failed to present frame for d3d12 context.");
+
 		m_d3dDeviceResources.MoveToNextFrame();
 	}
 
@@ -670,42 +666,21 @@ namespace Insight {
 		return m_RTHelper.RegisterBottomLevelASGeometry(pVertexBuffer, pIndexBuffer, NumVerticies, NumIndices, MeshWorldMat);
 	}
 
-	void Direct3D12Context::CreateRenderTargetViewDescriptorHeap()
+	void Direct3D12Context::CreateSwapChainRTVDescriptorHeap()
 	{
 		HRESULT hr;
 		m_d3dDeviceResources.WaitForGPU();
 
-		D3D12_DESCRIPTOR_HEAP_DESC HeapDesc = {};
-		HeapDesc.NumDescriptors = m_FrameBufferCount;
-		HeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-		HeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		m_SwapChainRTVHeap.Create(&m_d3dDeviceResources.GetDeviceContext(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_FrameBufferCount, false);
 
-		hr = m_d3dDeviceResources.GetDeviceContext().CreateDescriptorHeap(&HeapDesc, IID_PPV_ARGS(&m_RTVDescriptorHeap));
-		m_RTVDescriptorHeap->SetName(L"Render Target View Descriptor Heap");
-
-		// All pending GPU work was already finished. Update the tracked fence values
-		// to the last value signaled.
-		/*for (UINT n = 0; n < m_FrameBufferCount; n++)
-		{
-			m_FenceValues[n] = m_FenceValues[m_FrameIndex];
-		}*/
-
-		//m_FrameIndex = 0;
-		D3D12_CPU_DESCRIPTOR_HANDLE  hCPUHeapHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-		m_RTVDescriptorSize = m_d3dDeviceResources.GetDeviceContext().GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
-		for (UINT n = 0; n < m_FrameBufferCount; n++)
-		{
-			D3D12_CPU_DESCRIPTOR_HANDLE handle;
-			handle.ptr = hCPUHeapHandle.ptr + m_RTVDescriptorSize * n;
-			hr = m_d3dDeviceResources.GetSwapChain().GetBuffer(n, IID_PPV_ARGS(&m_pRenderTargets[n]));
+		for (UINT i = 0; i < m_FrameBufferCount; i++) {
+			hr = m_d3dDeviceResources.GetSwapChain().GetBuffer(i, IID_PPV_ARGS(&m_pRenderTargets[i]));
 			ThrowIfFailed(hr, "Failed to get buffer in swap chain during descriptor heap initialization for D3D 12 context.");
-			m_d3dDeviceResources.GetDeviceContext().CreateRenderTargetView(m_pRenderTargets[n].Get(), nullptr, handle);
-
+			m_d3dDeviceResources.GetDeviceContext().CreateRenderTargetView(m_pRenderTargets[i].Get(), nullptr, m_SwapChainRTVHeap.hCPU(i));
 
 			WCHAR name[25];
-			swprintf_s(name, L"Render Target %d", n);
-			m_pRenderTargets[n]->SetName(name);
+			swprintf_s(name, L"Render Target %d", i);
+			m_pRenderTargets[i]->SetName(name);
 		}
 	}
 
@@ -726,8 +701,8 @@ namespace Insight {
 		SceneDepthResourceDesc.MipLevels = 1;
 		SceneDepthResourceDesc.Format = m_DsvFormat;
 		SceneDepthResourceDesc.DepthOrArraySize = 1;
-		SceneDepthResourceDesc.Width = (UINT)m_WindowWidth;
-		SceneDepthResourceDesc.Height = (UINT)m_WindowHeight;
+		SceneDepthResourceDesc.Width = (UINT64)m_WindowWidth;
+		SceneDepthResourceDesc.Height = (UINT64)m_WindowHeight;
 		SceneDepthResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 		SceneDepthResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
@@ -889,8 +864,36 @@ namespace Insight {
 
 	void Direct3D12Context::CreateCBVs()
 	{
+		// Create the GPU heap.
 		HRESULT hr = m_cbvsrvHeap.Create(&m_d3dDeviceResources.GetDeviceContext(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 60, true);
 		ThrowIfFailed(hr, "Failed to create CBV SRV descriptor heap");
+
+		// Create Constant Buffers.
+
+		// Light Constant Buffer.
+		m_CBLights.Init(&m_d3dDeviceResources.GetDeviceContext(), L"Lights Constant Buffer");
+
+		// Per-Object Constant Buffers.
+		for (int i = 0; i < m_FrameBufferCount; ++i)
+		{
+			wchar_t DebugNameBuffer[64];
+			wprintf_s(DebugNameBuffer, "Per-Object Constant Buffer. Frame: %i", i);
+			m_CBPerObject->Init(&m_d3dDeviceResources.GetDeviceContext(), DebugNameBuffer);
+		}
+
+		// Per-Object Material Constant Buffers.
+		for (int i = 0; i < m_FrameBufferCount; ++i)
+		{
+			wchar_t DebugNameBuffer[128];
+			wprintf_s(DebugNameBuffer, "Per-Object Material Overrides Constant Buffer. Frame: %i", i);
+			m_CBPerObjectMaterial[i].Init(&m_d3dDeviceResources.GetDeviceContext(), DebugNameBuffer);
+		}
+
+		// Per Frame Constant Buffer.
+		m_CBPerFrame.Init(&m_d3dDeviceResources.GetDeviceContext(), L"PerFrameConstant Buffer");
+
+		// Post-Processing Constant Buffer.
+		m_CBPostFx.Init(&m_d3dDeviceResources.GetDeviceContext(), L"PostFx Constant Buffer");
 	}
 
 	void Direct3D12Context::CreateSRVs()
@@ -1581,7 +1584,7 @@ namespace Insight {
 			m_pRayTracePass_CommandList->SetName(L"Post-Process Pass Command List");
 
 			// Dont close the Ray Trace Pass command list yet. 
-			// We'll use it for pipeline initialization.
+			// We'll use it for RT pipeline initialization.
 		}
 
 		ID3D12CommandList* ppCommandLists[] = {
@@ -1592,72 +1595,6 @@ namespace Insight {
 		m_d3dDeviceResources.GetCommandQueue().ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 		m_d3dDeviceResources.IncrementAndSignalFence();
 		m_d3dDeviceResources.WaitForGPU();
-	}
-
-	void Direct3D12Context::CreateConstantBuffers()
-	{
-		HRESULT hr;
-
-		// Light Constant buffer
-		m_CBLights.Init(&m_d3dDeviceResources.GetDeviceContext(), L"Lights Constant Buffer");
-
-		// PerObject Constant buffer
-		for (int i = 0; i < m_FrameBufferCount; ++i)
-		{
-			int BufferSize = (sizeof(CB_VS_PerObject) + 255) & ~255;
-			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommittedResource(
-				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-				D3D12_HEAP_FLAG_NONE,
-				&CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
-				D3D12_RESOURCE_STATE_GENERIC_READ,
-				nullptr,
-				IID_PPV_ARGS(&m_PerObjectCBV[i]));
-			m_PerObjectCBV[i]->SetName(L"Constant Buffer Per-Object Upload Resource Heap");
-			ThrowIfFailed(hr, "Failed to create upload heap for per-object upload resource heaps");
-			CD3DX12_RANGE readRange(0, 0);
-			hr = m_PerObjectCBV[i]->Map(0, &readRange, reinterpret_cast<void**>(&m_cbvPerObjectGPUAddress[i]));
-			ThrowIfFailed(hr, "Failed to map upload heap for per-object upload resource heaps");
-		}
-
-		// PerObject Material Constant buffer
-		for (int i = 0; i < m_FrameBufferCount; ++i)
-		{
-			int BufferSize = (sizeof(CB_PS_VS_PerObjectAdditives) + 255) & ~255;
-
-			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommittedResource(
-				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-				D3D12_HEAP_FLAG_NONE,
-				&CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
-				D3D12_RESOURCE_STATE_GENERIC_READ,
-				nullptr,
-				IID_PPV_ARGS(&m_PerObjectMaterialAdditivesCBV[i]));
-			m_PerObjectMaterialAdditivesCBV[i]->SetName(L"Constant Buffer Per-Object Material Upload Resource Heap");
-			ThrowIfFailed(hr, "Failed to create upload heap for per-object upload resource heaps");
-			CD3DX12_RANGE readRange(0, 0);
-			hr = m_PerObjectMaterialAdditivesCBV[i]->Map(0, &readRange, reinterpret_cast<void**>(&m_cbvPerObjectMaterialOverridesGPUAddress[i]));
-			ThrowIfFailed(hr, "Failed to map upload heap for per-object material upload resource heaps");
-		}
-
-		// Per Frame
-		m_CBPerFrame.Init(&m_d3dDeviceResources.GetDeviceContext(), L"PerFrameConstant Buffer");
-
-		// Post-Fx
-		{
-			int BufferSize = (sizeof(CB_PS_PostFx) + 255) & ~255;
-
-			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommittedResource(
-				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-				D3D12_HEAP_FLAG_NONE,
-				&CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
-				D3D12_RESOURCE_STATE_GENERIC_READ,
-				nullptr,
-				IID_PPV_ARGS(&m_PostFxCBV));
-			m_PostFxCBV->SetName(L"Constant Buffer Per-Frame Upload Heap");
-			ThrowIfFailed(hr, "Failed to create upload heap for per-frame upload resource heaps");
-			CD3DX12_RANGE readRange(0, 0);
-			hr = m_PostFxCBV->Map(0, &readRange, reinterpret_cast<void**>(&m_cbvPostFxGPUAddress));
-			ThrowIfFailed(hr, "Failed to create map heap for per-frame upload resource heaps");
-		}
 	}
 
 	void Direct3D12Context::CreateViewport()
@@ -1744,8 +1681,8 @@ namespace Insight {
 		{
 			CreateDSVs();
 			CreateRTVs();
-			m_RTVDescriptorHeap.Reset();
-			CreateRenderTargetViewDescriptorHeap();
+			//m_pSwapChainRTVDescriptorHeap.Reset();
+			CreateSwapChainRTVDescriptorHeap();
 		}
 
 		// Recreate Camera Projection Matrix

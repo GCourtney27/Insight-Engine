@@ -61,8 +61,8 @@ namespace Insight {
 	{
 		const CB_PS_VS_PerFrame& PerFrameData = m_pRendererContext->GetPerFrameCB();
 
-		m_CBCameraParams.InverseView = PerFrameData.inverseView;
-		m_CBCameraParams.InverseProjection = PerFrameData.inverseProjection;
+		m_CBCameraParams.InverseView = PerFrameData.InverseView;
+		m_CBCameraParams.InverseProjection = PerFrameData.InverseProjection;
 		
 		// Copy the camera matrix contents
 		uint8_t* pCameraData;
@@ -72,8 +72,8 @@ namespace Insight {
 
 		// Copy the directional light contents
 		const CB_PS_DirectionalLight DirLightData = m_pRendererContext->GetDirectionalLightCB();
-		m_CBLightParams.DirLightDirection = XMFLOAT4(DirLightData.direction.x, DirLightData.direction.y, DirLightData.direction.z, 1.0f);
-		m_CBLightParams.ShadowDarkness = DirLightData.shadowDarknessMultiplier;
+		m_CBLightParams.DirLightDirection = XMFLOAT4(DirLightData.Direction.x, DirLightData.Direction.y, DirLightData.Direction.z, 1.0f);
+		m_CBLightParams.ShadowDarkness = DirLightData.ShadowDarknessMultiplier;
 
 		uint8_t* pLightData;
 		ThrowIfFailed(m_pLightBuffer->Map(0, nullptr, (void**)&pLightData), "Failed to map light buffer");

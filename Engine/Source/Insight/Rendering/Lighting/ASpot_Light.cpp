@@ -17,11 +17,11 @@ namespace Insight {
 	{
 		Renderer::RegisterSpotLight(this);
 
-		m_ShaderCB.diffuse = ieVector3(1.0f, 1.0f, 1.0f);
-		m_ShaderCB.direction = Vector3::Down;
-		m_ShaderCB.strength = 1.0f;
-		m_ShaderCB.innerCutoff = cos(XMConvertToRadians(m_TempInnerCutoff));
-		m_ShaderCB.outerCutoff = cos(XMConvertToRadians(m_TempOuterCutoff));
+		m_ShaderCB.DiffuseColor = ieVector3(1.0f, 1.0f, 1.0f);
+		m_ShaderCB.Direction = Vector3::Down;
+		m_ShaderCB.Strength = 1.0f;
+		m_ShaderCB.InnerCutoff = cos(XMConvertToRadians(m_TempInnerCutoff));
+		m_ShaderCB.OuterCutoff = cos(XMConvertToRadians(m_TempOuterCutoff));
 	}
 
 	ASpotLight::~ASpotLight()
@@ -33,19 +33,19 @@ namespace Insight {
 		AActor::LoadFromJson(jsonSpotLight);
 
 		const rapidjson::Value& emission = jsonSpotLight["Emission"];
-		json::get_float(emission[0], "diffuseR", m_ShaderCB.diffuse.x);
-		json::get_float(emission[0], "diffuseG", m_ShaderCB.diffuse.y);
-		json::get_float(emission[0], "diffuseB", m_ShaderCB.diffuse.z);
-		json::get_float(emission[0], "directionX", m_ShaderCB.direction.x);
-		json::get_float(emission[0], "directionY", m_ShaderCB.direction.y);
-		json::get_float(emission[0], "directionZ", m_ShaderCB.direction.z);
-		json::get_float(emission[0], "strength", m_ShaderCB.strength);
+		json::get_float(emission[0], "diffuseR", m_ShaderCB.DiffuseColor.x);
+		json::get_float(emission[0], "diffuseG", m_ShaderCB.DiffuseColor.y);
+		json::get_float(emission[0], "diffuseB", m_ShaderCB.DiffuseColor.z);
+		json::get_float(emission[0], "directionX", m_ShaderCB.Direction.x);
+		json::get_float(emission[0], "directionY", m_ShaderCB.Direction.y);
+		json::get_float(emission[0], "directionZ", m_ShaderCB.Direction.z);
+		json::get_float(emission[0], "strength", m_ShaderCB.Strength);
 		json::get_float(emission[0], "innerCutoff", m_TempInnerCutoff);
 		json::get_float(emission[0], "outerCutoff", m_TempOuterCutoff);
 
-		m_ShaderCB.position = SceneNode::GetTransformRef().GetPosition();
-		m_ShaderCB.innerCutoff = cos(XMConvertToRadians(m_TempInnerCutoff));
-		m_ShaderCB.outerCutoff = cos(XMConvertToRadians(m_TempOuterCutoff));
+		m_ShaderCB.Position = SceneNode::GetTransformRef().GetPosition();
+		m_ShaderCB.InnerCutoff = cos(XMConvertToRadians(m_TempInnerCutoff));
+		m_ShaderCB.OuterCutoff = cos(XMConvertToRadians(m_TempOuterCutoff));
 		
 		return true;
 	}
@@ -101,23 +101,23 @@ namespace Insight {
 			{
 				Writer.StartObject();
 				Writer.Key("diffuseR");
-				Writer.Double(m_ShaderCB.diffuse.x);
+				Writer.Double(m_ShaderCB.DiffuseColor.x);
 				Writer.Key("diffuseG");
-				Writer.Double(m_ShaderCB.diffuse.y);
+				Writer.Double(m_ShaderCB.DiffuseColor.y);
 				Writer.Key("diffuseB");
-				Writer.Double(m_ShaderCB.diffuse.z);
+				Writer.Double(m_ShaderCB.DiffuseColor.z);
 				Writer.Key("directionX");
-				Writer.Double(m_ShaderCB.direction.x);
+				Writer.Double(m_ShaderCB.Direction.x);
 				Writer.Key("directionY");
-				Writer.Double(m_ShaderCB.direction.y);
+				Writer.Double(m_ShaderCB.Direction.y);
 				Writer.Key("directionZ");
-				Writer.Double(m_ShaderCB.direction.z);
+				Writer.Double(m_ShaderCB.Direction.z);
 				Writer.Key("strength");
-				Writer.Double(m_ShaderCB.strength);
+				Writer.Double(m_ShaderCB.Strength);
 				Writer.Key("innerCuttoff");
-				Writer.Double(m_ShaderCB.innerCutoff);
+				Writer.Double(m_ShaderCB.InnerCutoff);
 				Writer.Key("outerCuttoff");
-				Writer.Double(m_ShaderCB.outerCutoff);
+				Writer.Double(m_ShaderCB.OuterCutoff);
 				Writer.EndObject();
 			}
 			Writer.EndArray();
@@ -148,7 +148,7 @@ namespace Insight {
 
 	void ASpotLight::OnUpdate(const float DeltaMs)
 	{
-		m_ShaderCB.position = SceneNode::GetTransformRef().GetPosition();
+		m_ShaderCB.Position = SceneNode::GetTransformRef().GetPosition();
 	}
 
 	void ASpotLight::OnPreRender(XMMATRIX parentMat)
@@ -192,16 +192,16 @@ namespace Insight {
 			ImGuiColorEditFlags colorWheelFlags = ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_PickerHueWheel;
 			// Imgui will edit the color values in a normalized 0 to 1 space. 
 			// In the shaders we transform the color values back into 0 to 255 space.
-			ImGui::ColorEdit3("Diffuse", &m_ShaderCB.diffuse.x, colorWheelFlags);
-			ImGui::DragFloat3("Direction", &m_ShaderCB.direction.x, 0.05f, -1.0f, 1.0f);
+			ImGui::ColorEdit3("Diffuse", &m_ShaderCB.DiffuseColor.x, colorWheelFlags);
+			ImGui::DragFloat3("Direction", &m_ShaderCB.Direction.x, 0.05f, -1.0f, 1.0f);
 			ImGui::DragFloat("Inner Cut-off", &m_TempInnerCutoff, 0.1f, 0.0f, 50.0f);
 			ImGui::DragFloat("Outer Cut-off", &m_TempOuterCutoff, 0.1f, 0.0f, 50.0f);
-			ImGui::DragFloat("Strength", &m_ShaderCB.strength, 0.15f, 0.0f, 10.0f);
+			ImGui::DragFloat("Strength", &m_ShaderCB.Strength, 0.15f, 0.0f, 10.0f);
 			if (m_TempInnerCutoff > m_TempOuterCutoff) {
 				m_TempInnerCutoff = m_TempOuterCutoff;
 			}
-			m_ShaderCB.innerCutoff = cos(XMConvertToRadians(m_TempInnerCutoff));
-			m_ShaderCB.outerCutoff = cos(XMConvertToRadians(m_TempOuterCutoff));
+			m_ShaderCB.InnerCutoff = cos(XMConvertToRadians(m_TempInnerCutoff));
+			m_ShaderCB.OuterCutoff = cos(XMConvertToRadians(m_TempOuterCutoff));
 		}
 	}
 

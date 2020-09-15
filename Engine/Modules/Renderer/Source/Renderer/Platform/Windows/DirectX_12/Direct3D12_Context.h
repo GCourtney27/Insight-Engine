@@ -13,6 +13,7 @@
 
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
 #include "Renderer/Platform/Windows/DirectX_12/D3D12_Constant_Buffer_Wrapper.h"
+
 /*
 	Render context for Windows Direct3D 12 API. 
 */
@@ -65,11 +66,11 @@ namespace Insight {
 
 		inline ID3D12CommandQueue& GetCommandQueue() const { return m_d3dDeviceResources.GetCommandQueue(); }
 		inline CDescriptorHeapWrapper& GetCBVSRVDescriptorHeap() { return m_cbvsrvHeap; }
-		inline ID3D12Resource& GetConstantBufferPerObjectUploadHeap() const { return *m_PerObjectCBV[IE_D3D12_FrameIndex].Get(); }
-		inline UINT8& GetPerObjectCBVGPUHeapAddress() { return *m_cbvPerObjectGPUAddress[IE_D3D12_FrameIndex]; }
-
-		inline ID3D12Resource& GetConstantBufferPerObjectMaterialUploadHeap() const { return *m_PerObjectMaterialAdditivesCBV[IE_D3D12_FrameIndex].Get(); }
-		inline UINT8& GetPerObjectMaterialAdditiveCBVGPUHeapAddress() { return *m_cbvPerObjectMaterialOverridesGPUAddress[IE_D3D12_FrameIndex]; }
+		
+		inline ID3D12Resource& GetConstantBufferPerObjectUploadHeap() const { return *m_CBPerObject[IE_D3D12_FrameIndex].GetResource(); }
+		inline UINT8* GetPerObjectCBVGPUHeapAddress() { return m_CBPerObject[IE_D3D12_FrameIndex].GetGPUAddress(); }
+		inline ID3D12Resource& GetConstantBufferPerObjectMaterialUploadHeap() const { return *m_CBPerObjectMaterial[IE_D3D12_FrameIndex].GetResource(); }
+		inline UINT8* GetPerObjectMaterialAdditiveCBVGPUHeapAddress() { return m_CBPerObjectMaterial[IE_D3D12_FrameIndex].GetGPUAddress(); }
 
 		const CB_PS_VS_PerFrame& GetPerFrameCB() const { return m_CBPerFrame.Data; }
 
@@ -81,11 +82,11 @@ namespace Insight {
 		void UpdateRTAccelerationStructureMatrix(uint32_t InstanceArrIndex, DirectX::XMMATRIX NewWorldMat) { m_RTHelper.UpdateInstanceTransformByIndex(InstanceArrIndex, NewWorldMat); }
 
 		ID3D12Resource* GetSwapChainRenderTarget() const { return m_pRenderTargets[IE_D3D12_FrameIndex].Get(); }
-		const unsigned int GetNumLightPassRTVs() const { return m_NumLightPassRTVs; }
-		inline D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const
+		const UINT GetNumLightPassRTVs() const { return m_NumLightPassRTVs; }
+		inline D3D12_CPU_DESCRIPTOR_HANDLE GetSwapChainRTV() const
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE handle;
-			handle.ptr = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + m_RTVDescriptorSize * IE_D3D12_FrameIndex;
+			handle.ptr = m_SwapChainRTVHeap.hCPUHeapStart.ptr + m_SwapChainRTVHeap.HandleIncrementSize * IE_D3D12_FrameIndex;
 			return handle;
 		}
 
@@ -113,7 +114,7 @@ namespace Insight {
 
 		// D3D12 Initialize
 		
-		void CreateRenderTargetViewDescriptorHeap();
+		void CreateSwapChainRTVDescriptorHeap();
 
 		// Create app resources
 		
@@ -134,25 +135,25 @@ namespace Insight {
 		// Create window resources
 		
 		void CreateCommandAllocators();
-		void CreateConstantBuffers();
 		void CreateViewport();
 		void CreateScissorRect();
 		void CreateScreenQuad();
 		
 		// Close GPU handle and release resources for the D3D 12 context.
-		void Cleanup();
+		void InternalCleanup();
 		// Resize render targets and depth stencil. Usually called from 'OnWindowResize'.
 		void UpdateSizeDependentResources();
 
 		void ResourceBarrier(ID3D12GraphicsCommandList* pCommandList, ID3D12Resource* pResource, D3D12_RESOURCE_STATES StateBefore, D3D12_RESOURCE_STATES StateAfter);
+		
 	private:
 		WindowsWindow*		m_pWindowRef = nullptr;
 		D3D12Helper			m_d3dDeviceResources;
 		RayTraceHelpers		m_RTHelper;
 
-		ieD3D12ScreenQuad					m_ScreenQuad;
-		D3D12_VIEWPORT						m_ShadowPass_ViewPort = {};
-		D3D12_RECT							m_ShadowPass_ScissorRect = {};
+		ieD3D12ScreenQuad	m_ScreenQuad;
+		D3D12_VIEWPORT		m_ShadowPass_ViewPort = {};
+		D3D12_RECT			m_ShadowPass_ScissorRect = {};
 
 		ieD3D12SphereRenderer*	m_pSkySphere_Geometry;
 
@@ -196,16 +197,15 @@ namespace Insight {
 		// -----Post-Fx Pass-----
 		// 4: Light Pass result
 		CDescriptorHeapWrapper				m_rtvHeap;
-		ComPtr<ID3D12DescriptorHeap>		m_RTVDescriptorHeap;
-		UINT								m_RTVDescriptorSize;
+		// Number of decriptors depends on frame buffer count. Start slot is 0.
+		CDescriptorHeapWrapper				m_SwapChainRTVHeap;
+		//0:  SceneDepth
+		//1:  ShadowDepth
+		CDescriptorHeapWrapper				m_dsvHeap;
 
 		ComPtr<ID3D12Resource>				m_pSceneDepthStencilTexture;
 		ComPtr<ID3D12Resource>				m_pShadowDepthTexture;
 		ComPtr<ID3D12Resource>				m_RayTraceOutput_SRV;
-
-		//0:  SceneDepth
-		//1:  ShadowDepth
-		CDescriptorHeapWrapper				m_dsvHeap;
 
 		ComPtr<ID3D12RootSignature>			m_pDeferredShadingPass_RS;
 		ComPtr<ID3D12RootSignature>			m_pForwardShadingPass_RS;
@@ -256,17 +256,13 @@ namespace Insight {
 		const UINT m_ShadowMapWidth = 1024U;
 		const UINT m_ShadowMapHeight = 1024U;
 
-		ComPtr<ID3D12Resource>	m_PerObjectCBV[m_FrameBufferCount];
-		UINT8*					m_cbvPerObjectGPUAddress[m_FrameBufferCount];
-
-		ComPtr<ID3D12Resource>	m_PerObjectMaterialAdditivesCBV[m_FrameBufferCount];
-		UINT8*					m_cbvPerObjectMaterialOverridesGPUAddress[m_FrameBufferCount];
-
-		ieD3D12ConstantBuffer<CB_PS_VS_PerFrame> m_CBPerFrame;
-		ieD3D12ConstantBuffer<CB_PS_Lights> m_CBLights;
-
-		ComPtr<ID3D12Resource> m_PostFxCBV;
-		UINT8*				   m_cbvPostFxGPUAddress;
+		// Constant Buffers
+		
+		ieD3D12ConstantBuffer<CB_PS_Lights>			m_CBLights;
+		ieD3D12ConstantBuffer<CB_PS_PostFx>			m_CBPostFx;
+		ieD3D12ConstantBuffer<CB_PS_VS_PerFrame>	m_CBPerFrame;
+		ieD3D12ConstantBuffer<CB_VS_PerObject>		m_CBPerObject[m_FrameBufferCount];
+		ieD3D12ConstantBuffer<CB_PS_VS_PerObjectMaterialAdditives> m_CBPerObjectMaterial[m_FrameBufferCount];
 
 	};
 

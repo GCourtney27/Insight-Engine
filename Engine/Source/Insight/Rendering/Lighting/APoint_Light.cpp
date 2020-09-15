@@ -15,8 +15,8 @@ namespace Insight {
 	{
 		Renderer::RegisterPointLight(this);
 
-		m_ShaderCB.diffuse = ieVector3(1.0f, 1.0f, 1.0f);
-		m_ShaderCB.strength = 1.0f;
+		m_ShaderCB.DiffuseColor = ieVector3(1.0f, 1.0f, 1.0f);
+		m_ShaderCB.Strength = 1.0f;
 	}
 
 	APointLight::~APointLight()
@@ -34,8 +34,8 @@ namespace Insight {
 		json::get_float(emission[0], "diffuseB", diffuseB);
 		json::get_float(emission[0], "strength", strength);
 
-		m_ShaderCB.diffuse = XMFLOAT3(diffuseR, diffuseG, diffuseB);
-		m_ShaderCB.strength = strength;
+		m_ShaderCB.DiffuseColor = XMFLOAT3(diffuseR, diffuseG, diffuseB);
+		m_ShaderCB.Strength = strength;
 
 		return true;
 	}
@@ -91,13 +91,13 @@ namespace Insight {
 			{
 				Writer.StartObject();
 				Writer.Key("diffuseR");
-				Writer.Double(m_ShaderCB.diffuse.x);
+				Writer.Double(m_ShaderCB.DiffuseColor.x);
 				Writer.Key("diffuseG");
-				Writer.Double(m_ShaderCB.diffuse.y);
+				Writer.Double(m_ShaderCB.DiffuseColor.y);
 				Writer.Key("diffuseB");
-				Writer.Double(m_ShaderCB.diffuse.z);
+				Writer.Double(m_ShaderCB.DiffuseColor.z);
 				Writer.Key("strength");
-				Writer.Double(m_ShaderCB.strength);
+				Writer.Double(m_ShaderCB.Strength);
 				Writer.EndObject();
 			}
 			Writer.EndArray();
@@ -128,7 +128,7 @@ namespace Insight {
 
 	void APointLight::OnUpdate(const float DeltaMs)
 	{
-		m_ShaderCB.position = SceneNode::GetTransformRef().GetPosition();
+		m_ShaderCB.Position = SceneNode::GetTransformRef().GetPosition();
 	}
 
 	void APointLight::OnPreRender(XMMATRIX parentMat)
@@ -172,8 +172,8 @@ namespace Insight {
 			ImGuiColorEditFlags colorWheelFlags = ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_PickerHueWheel;
 			// Imgui will edit the color values in a normalized 0 to 1 space. 
 			// In the shaders we transform the color values back into 0 to 255 space.
-			ImGui::ColorEdit3("Diffuse", &m_ShaderCB.diffuse.x, colorWheelFlags);
-			ImGui::DragFloat("Strength", &m_ShaderCB.strength, 0.1f, 0.0f, 100.0f);
+			ImGui::ColorEdit3("Diffuse", &m_ShaderCB.DiffuseColor.x, colorWheelFlags);
+			ImGui::DragFloat("Strength", &m_ShaderCB.Strength, 0.1f, 0.0f, 100.0f);
 		}
 
 	}

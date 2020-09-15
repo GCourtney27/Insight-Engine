@@ -31,7 +31,7 @@ namespace Insight {
 		ID3D12GraphicsCommandList* m_pTransparencyPassCommandList = nullptr;
 
 		int ConstantBufferPerObjectAlignedSize = (sizeof(CB_VS_PerObject) + 255) & ~255;
-		int ConstantBufferPerObjectMaterialAlignedSize = (sizeof(CB_PS_VS_PerObjectAdditives) + 255) & ~255;
+		int ConstantBufferPerObjectMaterialAlignedSize = (sizeof(CB_PS_VS_PerObjectMaterialAdditives) + 255) & ~255;
 		UINT32 m_PerObjectCBDrawOffset = 0u;
 		UINT32 m_GPUAddressUploadOffset = 0u;
 

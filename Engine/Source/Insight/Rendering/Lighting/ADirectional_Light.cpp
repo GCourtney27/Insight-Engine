@@ -19,10 +19,10 @@ namespace Insight {
 
 		AActor::GetTransformRef().SetRotation(0.0f, -1.0f, -6.0f);
 
-		m_ShaderCB.diffuse = ieVector3(1.0f, 1.0f, 1.0f);
-		m_ShaderCB.direction = SceneNode::GetTransformRef().GetRotation();
-		m_ShaderCB.strength = 8.0f;
-		m_ShaderCB.shadowDarknessMultiplier = 0.6f;
+		m_ShaderCB.DiffuseColor = ieVector3(1.0f, 1.0f, 1.0f);
+		m_ShaderCB.Direction = SceneNode::GetTransformRef().GetRotation();
+		m_ShaderCB.Strength = 8.0f;
+		m_ShaderCB.ShadowDarknessMultiplier = 0.6f;
 
 		m_NearPlane = 1.0f;
 		m_FarPlane = 210.0f;
@@ -45,24 +45,24 @@ namespace Insight {
 		json::get_float(emission[0], "strength", Strength);
 		json::get_float(emission[0], "shadowDarkness", ShdowDarkness);
 
-		m_ShaderCB.diffuse = XMFLOAT3(DiffuseR, DiffuseG, DiffuseB);
-		m_ShaderCB.direction = AActor::GetTransformRef().GetRotationRef();
-		m_ShaderCB.strength = Strength;
-		m_ShaderCB.shadowDarknessMultiplier = ShdowDarkness;
+		m_ShaderCB.DiffuseColor = XMFLOAT3(DiffuseR, DiffuseG, DiffuseB);
+		m_ShaderCB.Direction = AActor::GetTransformRef().GetRotationRef();
+		m_ShaderCB.Strength = Strength;
+		m_ShaderCB.ShadowDarknessMultiplier = ShdowDarkness;
 
 		m_NearPlane = 1.0f;
 		m_FarPlane = 210.0f;
 		
 		LightCamPositionOffset = XMFLOAT3(0.0f, 0.0f, 20.0f);
 
-		m_ShaderCB.direction = SceneNode::GetTransformRef().GetRotation();
+		m_ShaderCB.Direction = SceneNode::GetTransformRef().GetRotation();
 
 		XMFLOAT3 LookAtPos(0.0f, 0.0f, 0.0f);
 		XMVECTOR LookAtPosVec = XMLoadFloat3(&LookAtPos);
 
 		XMFLOAT3 Up(0.0f, 1.0f, 0.0f);
 		XMVECTOR UpVec = XMLoadFloat3(&Up);
-		XMFLOAT3 direction = m_ShaderCB.direction;
+		XMFLOAT3 direction = m_ShaderCB.Direction;
 		direction.x = -direction.x + LightCamPositionOffset.x;
 		direction.y =  direction.y + LightCamPositionOffset.y;
 		direction.z = -direction.z + LightCamPositionOffset.z;
@@ -76,8 +76,8 @@ namespace Insight {
 		XMStoreFloat4x4(&LightViewFloat, XMMatrixTranspose(LightView));
 		XMStoreFloat4x4(&LightProjFloat, XMMatrixTranspose(LightProj));
 
-		m_ShaderCB.lightSpaceView = LightViewFloat;
-		m_ShaderCB.lightSpaceProj = LightProjFloat;
+		m_ShaderCB.LightSpaceView = LightViewFloat;
+		m_ShaderCB.LightSpaceProj = LightProjFloat;
 
 		return true;
 	}
@@ -133,13 +133,13 @@ namespace Insight {
 			{
 				Writer.StartObject();
 				Writer.Key("diffuseR");
-				Writer.Double(m_ShaderCB.diffuse.x);
+				Writer.Double(m_ShaderCB.DiffuseColor.x);
 				Writer.Key("diffuseG");
-				Writer.Double(m_ShaderCB.diffuse.y);
+				Writer.Double(m_ShaderCB.DiffuseColor.y);
 				Writer.Key("diffuseB");
-				Writer.Double(m_ShaderCB.diffuse.z);
+				Writer.Double(m_ShaderCB.DiffuseColor.z);
 				Writer.Key("strength");
-				Writer.Double(m_ShaderCB.strength);
+				Writer.Double(m_ShaderCB.Strength);
 				Writer.EndObject();
 			}
 			Writer.EndArray();
@@ -170,14 +170,14 @@ namespace Insight {
 
 	void ADirectionalLight::OnUpdate(const float DeltaMs)
 	{
-		m_ShaderCB.direction = SceneNode::GetTransformRef().GetRotation();
+		m_ShaderCB.Direction = SceneNode::GetTransformRef().GetRotation();
 		
 		XMFLOAT3 LookAtPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		XMVECTOR LookAtPosVec = XMLoadFloat3(&LookAtPos);
 
 		XMFLOAT3 Up(0.0f, 1.0f, 0.0f);
 		XMVECTOR UpVec = XMLoadFloat3(&Up);
-		XMFLOAT3 direction = m_ShaderCB.direction;
+		XMFLOAT3 direction = m_ShaderCB.Direction;
 		direction.x = -direction.x + LightCamPositionOffset.x;
 		direction.y =  direction.y + LightCamPositionOffset.y;
 		direction.z = -direction.z + LightCamPositionOffset.z;
@@ -189,8 +189,8 @@ namespace Insight {
 		XMStoreFloat4x4(&LightViewFloat, XMMatrixTranspose(LightView));
 		XMStoreFloat4x4(&LightProjFloat, XMMatrixTranspose(LightProj));
 
-		m_ShaderCB.lightSpaceView = LightViewFloat;
-		m_ShaderCB.lightSpaceProj = LightProjFloat;
+		m_ShaderCB.LightSpaceView = LightViewFloat;
+		m_ShaderCB.LightSpaceProj = LightProjFloat;
 	}
 
 	void ADirectionalLight::OnPreRender(XMMATRIX parentMat)
@@ -243,11 +243,11 @@ namespace Insight {
 			ImGuiColorEditFlags colorWheelFlags = ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_PickerHueWheel;
 			// Imgui will edit the color values in a normalized 0 to 1 space. 
 			// In the shaders we transform the color values back into 0 to 255 space.
-			ImGui::ColorEdit3("Diffuse", &m_ShaderCB.diffuse.x, colorWheelFlags);
-			ImGui::DragFloat("Strength", &m_ShaderCB.strength, 0.01f, 0.0f, 10.0f);
+			ImGui::ColorEdit3("Diffuse", &m_ShaderCB.DiffuseColor.x, colorWheelFlags);
+			ImGui::DragFloat("Strength", &m_ShaderCB.Strength, 0.01f, 0.0f, 10.0f);
 
 			ImGui::Text("Shadows");
-			ImGui::DragFloat("Shadow Darkness Multiplier: ", &m_ShaderCB.shadowDarknessMultiplier, 0.05f, 0.0f, 1.0f);
+			ImGui::DragFloat("Shadow Darkness Multiplier: ", &m_ShaderCB.ShadowDarknessMultiplier, 0.05f, 0.0f, 1.0f);
 		}
 
 	}

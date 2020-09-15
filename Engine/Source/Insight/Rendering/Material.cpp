@@ -99,24 +99,24 @@ namespace Insight {
 
 		TextureManager& TextureManager = ResourceManager::Get().GetTextureManager();
 
-		pMaterial->m_AlbedoMap = TextureManager.GetDefaultAlbedoTexture();
-		pMaterial->m_NormalMap = TextureManager.GetDefaultNormalTexture();
-		pMaterial->m_MetallicMap = TextureManager.GetDefaultMetallicTexture();
-		pMaterial->m_RoughnessMap = TextureManager.GetDefaultRoughnessTexture();
-		pMaterial->m_AOMap = TextureManager.GetDefaultAOTexture();
+		pMaterial->m_AlbedoMap		= TextureManager.GetDefaultAlbedoTexture();
+		pMaterial->m_NormalMap		= TextureManager.GetDefaultNormalTexture();
+		pMaterial->m_MetallicMap	= TextureManager.GetDefaultMetallicTexture();
+		pMaterial->m_RoughnessMap	= TextureManager.GetDefaultRoughnessTexture();
+		pMaterial->m_AOMap			= TextureManager.GetDefaultAOTexture();
 
-		pMaterial->m_AlbedoTextureManagerID = pMaterial->m_AlbedoMap->GetTextureInfo().Id;
-		pMaterial->m_NormalTextureManagerID = pMaterial->m_NormalMap->GetTextureInfo().Id;
-		pMaterial->m_MetallicTextureManagerID = pMaterial->m_MetallicMap->GetTextureInfo().Id;
-		pMaterial->m_RoughnessTextureManagerID = pMaterial->m_RoughnessMap->GetTextureInfo().Id;
-		pMaterial->m_AoTextureManagerID = pMaterial->m_AOMap->GetTextureInfo().Id;
+		pMaterial->m_AlbedoTextureManagerID		= pMaterial->m_AlbedoMap->GetTextureInfo().Id;
+		pMaterial->m_NormalTextureManagerID		= pMaterial->m_NormalMap->GetTextureInfo().Id;
+		pMaterial->m_MetallicTextureManagerID	= pMaterial->m_MetallicMap->GetTextureInfo().Id;
+		pMaterial->m_RoughnessTextureManagerID	= pMaterial->m_RoughnessMap->GetTextureInfo().Id;
+		pMaterial->m_AoTextureManagerID			= pMaterial->m_AOMap->GetTextureInfo().Id;
 
-		pMaterial->m_MaterialType = eMaterialType::eMaterialType_Opaque;
-		pMaterial->m_ShaderCB.DiffuseAdditive = ieVector3(0.0f, 0.0f, 0.0f);
-		pMaterial->m_ShaderCB.MetallicAdditive = 0.0f;
+		pMaterial->m_MaterialType				= eMaterialType::eMaterialType_Opaque;
+		pMaterial->m_ShaderCB.DiffuseAdditive	= ieVector3(0.0f, 0.0f, 0.0f);
+		pMaterial->m_ShaderCB.MetallicAdditive	= 0.0f;
 		pMaterial->m_ShaderCB.RoughnessAdditive = 0.0f;
-		pMaterial->m_ShaderCB.UVTiling = ieVector2(5.0f, 5.0f);
-		pMaterial->m_ShaderCB.UVOffset = ieVector2(0.0f, 0.0f);
+		pMaterial->m_ShaderCB.UVTiling			= ieVector2(5.0f, 5.0f);
+		pMaterial->m_ShaderCB.UVOffset			= ieVector2(0.0f, 0.0f);
 
 		return pMaterial;
 	}

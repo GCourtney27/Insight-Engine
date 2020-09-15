@@ -27,8 +27,8 @@ namespace Insight {
 		m_CbvUploadHeapHandle = m_ConstantBufferUploadHeaps->GetGPUVirtualAddress();
 		m_CbvMaterialHeapHandle = m_ConstantBufferMaterialUploadHeaps->GetGPUVirtualAddress();
 
-		m_CbvPerObjectGPUAddress = &D3D12Context->GetPerObjectCBVGPUHeapAddress();
-		m_CbvMaterialGPUAddress = &D3D12Context->GetPerObjectMaterialAdditiveCBVGPUHeapAddress();
+		m_CbvPerObjectGPUAddress = D3D12Context->GetPerObjectCBVGPUHeapAddress();
+		m_CbvMaterialGPUAddress = D3D12Context->GetPerObjectMaterialAdditiveCBVGPUHeapAddress();
 
 		if (!(m_pScenePassCommandList && m_pShadowPassCommandList && m_pTransparencyPassCommandList && m_ConstantBufferUploadHeaps && m_ConstantBufferMaterialUploadHeaps))
 		{
@@ -113,7 +113,7 @@ namespace Insight {
 
 				for (UINT32 j = 0; j < m_OpaqueModels[i]->GetNumChildMeshes(); j++) {
 
-					const CB_PS_VS_PerObjectAdditives cbMatOverrides = m_OpaqueModels[i]->GetMaterialRef().GetMaterialOverrideConstantBuffer();
+					const CB_PS_VS_PerObjectMaterialAdditives cbMatOverrides = m_OpaqueModels[i]->GetMaterialRef().GetMaterialOverrideConstantBuffer();
 					memcpy(m_CbvMaterialGPUAddress + (ConstantBufferPerObjectMaterialAlignedSize * m_GPUAddressUploadOffset), &cbMatOverrides, sizeof(cbMatOverrides));
 
 					const CB_VS_PerObject cbPerObject = m_OpaqueModels[i]->GetMeshAtIndex(j)->GetConstantBuffer();
@@ -130,7 +130,7 @@ namespace Insight {
 
 				for (UINT32 j = 0; j < m_TranslucentModels[i]->GetNumChildMeshes(); j++) {
 
-					const CB_PS_VS_PerObjectAdditives cbMatOverrides = m_TranslucentModels[i]->GetMaterialRef().GetMaterialOverrideConstantBuffer();
+					const CB_PS_VS_PerObjectMaterialAdditives cbMatOverrides = m_TranslucentModels[i]->GetMaterialRef().GetMaterialOverrideConstantBuffer();
 					memcpy(m_CbvMaterialGPUAddress + (ConstantBufferPerObjectMaterialAlignedSize * m_GPUAddressUploadOffset), &cbMatOverrides, sizeof(cbMatOverrides));
 
 					const CB_VS_PerObject cbPerObject = m_TranslucentModels[i]->GetMeshAtIndex(j)->GetConstantBuffer();

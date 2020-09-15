@@ -18,8 +18,8 @@ namespace Insight {
 		{
 			//Renderer::RegisterPointLight(this);
 
-			m_ShaderCB.diffuse = ieVector3(1.0f, 1.0f, 1.0f);
-			m_ShaderCB.strength = 1.0f;
+			m_ShaderCB.DiffuseColor = ieVector3(1.0f, 1.0f, 1.0f);
+			m_ShaderCB.Strength = 1.0f;
 		}
 
 		PointLightComponent::~PointLightComponent()
@@ -54,7 +54,7 @@ namespace Insight {
 
 		void PointLightComponent::OnUpdate(const float& deltaTime)
 		{
-			m_ShaderCB.position = m_Transform.GetPosition();
+			m_ShaderCB.Position = m_Transform.GetPosition();
 		}
 
 		void PointLightComponent::OnImGuiRender()
@@ -67,8 +67,8 @@ namespace Insight {
 				ImGuiColorEditFlags colorWheelFlags = ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_PickerHueWheel;
 				// Imgui will edit the color values in a normalized 0 to 1 space. 
 				// In the shaders we transform the color values back into 0 to 255 space.
-				ImGui::ColorEdit3("Diffuse", &m_ShaderCB.diffuse.x, colorWheelFlags);
-				ImGui::DragFloat("Strength", &m_ShaderCB.strength, 0.1f, 0.0f, 100.0f);
+				ImGui::ColorEdit3("Diffuse", &m_ShaderCB.DiffuseColor.x, colorWheelFlags);
+				ImGui::DragFloat("Strength", &m_ShaderCB.Strength, 0.1f, 0.0f, 100.0f);
 			}
 		}
 

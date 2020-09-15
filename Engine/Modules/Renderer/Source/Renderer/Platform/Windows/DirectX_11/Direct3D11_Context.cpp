@@ -115,18 +115,18 @@ namespace Insight {
 		m_PerFrameData.Data.DeltaMs = DeltaMs;
 		m_PerFrameData.Data.view = viewFloat;
 		m_PerFrameData.Data.projection = projectionFloat;*/
-		m_PerFrameData.Data.cameraPosition = m_pWorldCamera->GetTransformRef().GetPosition();
+		m_PerFrameData.Data.CameraPosition = m_pWorldCamera->GetTransformRef().GetPosition();
 		m_PerFrameData.Data.DeltaMs = DeltaMs;
-		m_PerFrameData.Data.time = WorldTime;
-		m_PerFrameData.Data.rayTraceEnabled = 0.0f;
-		m_PerFrameData.Data.cameraNearZ = m_pWorldCamera->GetNearZ();
-		m_PerFrameData.Data.cameraFarZ = m_pWorldCamera->GetFarZ();
-		m_PerFrameData.Data.cameraExposure = m_pWorldCamera->GetExposure();
-		m_PerFrameData.Data.numPointLights = (float)m_PointLights.size();
-		m_PerFrameData.Data.numDirectionalLights = (m_pWorldDirectionalLight != nullptr) ? 1.0f : 0.0f;
-		m_PerFrameData.Data.numSpotLights = (float)m_SpotLights.size();
-		m_PerFrameData.Data.screenSize.x = (float)m_WindowWidth;
-		m_PerFrameData.Data.screenSize.y = (float)m_WindowHeight;
+		m_PerFrameData.Data.WorldTime = WorldTime;
+		m_PerFrameData.Data.RayTraceEnabled = 0.0f;
+		m_PerFrameData.Data.CameraNearZ = m_pWorldCamera->GetNearZ();
+		m_PerFrameData.Data.CameraFarZ = m_pWorldCamera->GetFarZ();
+		m_PerFrameData.Data.CameraExposure = m_pWorldCamera->GetExposure();
+		m_PerFrameData.Data.NumPointLights = (float)m_PointLights.size();
+		m_PerFrameData.Data.NumDirectionalLights = (m_pWorldDirectionalLight != nullptr) ? 1.0f : 0.0f;
+		m_PerFrameData.Data.NumSpotLights = (float)m_SpotLights.size();
+		m_PerFrameData.Data.ScreenSize.x = (float)m_WindowWidth;
+		m_PerFrameData.Data.ScreenSize.y = (float)m_WindowHeight;
 		m_PerFrameData.SubmitToGPU();
 
 		// Send Point Lights to GPU

@@ -45,7 +45,7 @@ namespace Insight {
 		eMaterialType GetMaterialType() const { return m_MaterialType; }
 		void SetMaterialType(eMaterialType MaterialType) { m_MaterialType = MaterialType; }
 
-		CB_PS_VS_PerObjectAdditives GetMaterialOverrideConstantBuffer() { return m_ShaderCB; }
+		CB_PS_VS_PerObjectMaterialAdditives GetMaterialOverrideConstantBuffer() { return m_ShaderCB; }
 
 		void OnImGuiRender();
 		
@@ -76,7 +76,7 @@ namespace Insight {
 		Math::ieVector2 m_Tiling;
 		Math::ieVector3 m_ColorAdditive;
 
-		CB_PS_VS_PerObjectAdditives m_ShaderCB;
+		CB_PS_VS_PerObjectMaterialAdditives m_ShaderCB;
 	};
 
 }
