@@ -386,7 +386,7 @@ namespace Insight {
 
 			m_pTransparencyPass_CommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 			m_CBPerFrame.SetAsRootConstantBufferView(m_pTransparencyPass_CommandList.Get(), 1);
-			m_CBLights.SetAsRootConstantBufferView(m_pTransparencyPass_CommandList.Get(), 4);
+			m_CBLights.SetAsRootConstantBufferView(m_pTransparencyPass_CommandList.Get(), 2);
 			m_pTransparencyPass_CommandList->SetGraphicsRootDescriptorTable(4, m_cbvsrvHeap.hGPU(4));
 
 			GeometryManager::Render(eRenderPass::RenderPass_Transparency);
