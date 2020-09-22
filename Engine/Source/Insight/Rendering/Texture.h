@@ -24,7 +24,7 @@ namespace Insight {
 			eTextureType_Translucency = 6,
 			// Sky Sphere
 			eTextureType_SkyIrradience = 7,
-			eTextureType_SkyEnvironmentMap = 8,
+			eTextureType_SkyRadianceMap = 8,
 			eTextureType_IBLBRDFLUT = 9,
 			eTextureType_SkyDiffuse = 10,
 		};

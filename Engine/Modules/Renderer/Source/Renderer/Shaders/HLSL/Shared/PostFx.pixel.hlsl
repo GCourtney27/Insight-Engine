@@ -22,7 +22,7 @@ SamplerState s_LinearWrapSampler : register(s1);
 float3 AddFilmGrain(float3 sourceColor, float2 texCoords);
 float3 AddVignette(float3 sourceColor, float2 texCoords);
 float3 AddChromaticAberration(float3 sourceColor, float2 texCoords);
-float LinearizeDepth(float depth);
+void LinearizeDepth(inout float depth);
 
 // Pixel Shader Return Value
 // -------------------------
@@ -51,6 +51,7 @@ float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
         result = AddChromaticAberration(result, ps_in.texCoords);
     }
     
+
     return float4(result, 1.0);
 }
 
@@ -99,8 +100,8 @@ float3 AddVignette(float3 sourceColor, float2 texCoords)
     return color;
 }
 
-float LinearizeDepth(float depth)
+void LinearizeDepth(inout float depth)
 {
     float z = depth * 2.0 - 1.0; // back to NDC 
-    return (2.0 * cbCameraNearZ * cbCameraFarZ) / (cbCameraFarZ + cbCameraNearZ - z * (cbCameraFarZ - cbCameraNearZ)) / cbCameraFarZ;
+    depth = (2.0 * cbCameraNearZ * cbCameraFarZ) / (cbCameraFarZ + cbCameraNearZ - z * (cbCameraFarZ - cbCameraNearZ)) / cbCameraFarZ;
 }

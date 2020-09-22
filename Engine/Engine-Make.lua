@@ -91,6 +91,7 @@ project ("Engine")
 		"D3Dcompiler.lib",
 		"dxcompiler.lib",
         "DirectXTK12.lib",
+		"DirectXTex.lib",
         
         "ImGui",
         "Renderer"
@@ -125,6 +126,7 @@ project ("Engine")
             "Vendor/assimp-3.3.1/build/code/Debug",
             "Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
             "Vendor/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Debug",
+            "Vendor/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Debug",
             "Vendor/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Debug",
 			"Vendor/Mono/lib",
 		}
@@ -164,6 +166,7 @@ project ("Engine")
 			"Vendor/assimp-3.3.1/build/code/Release",
             "Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
             "Vendor/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
+			"Vendor/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
             "Vendor/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
 			"Vendor/Mono/lib",
 		}
@@ -206,6 +209,7 @@ project ("Engine")
 			"Vendor/assimp-3.3.1/build/code/Release",
             "Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
             "Vendor/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
+			"Vendor/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
             "Vendor/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
 			"Vendor/Mono/lib",
 		}
@@ -237,6 +241,7 @@ project ("Engine")
             "Vendor/assimp-3.3.1/build/code/Release",            
             "Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
             "Vendor/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
+			"Vendor/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
             "Vendor/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
 			"Vendor/Mono/lib",
 		}

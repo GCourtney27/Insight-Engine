@@ -19,6 +19,12 @@ echo Compiling DirectX 12 Tool Kit source code & echo.
 echo ***************************************** & echo.
 call %~dp0..\Dependency-Build-Scripts\Compile_DirectX_12_TK.bat
 
+REM Build DirectX 12 Texture Tools
+echo ***************************************** & echo.
+echo Compiling DirectX 12 Texture Tools source code & echo.
+echo ***************************************** & echo.
+call %~dp0..\Dependency-Build-Scripts\Compile_DirectX_12_Tex.bat
+
 REM Build DirectX 11 Tool Kit (TK)
 echo ***************************************** & echo.
 echo Compiling DirectX 11 Tool Kit source code & echo.

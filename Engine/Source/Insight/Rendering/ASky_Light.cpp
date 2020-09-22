@@ -33,7 +33,7 @@ namespace Insight {
 		const rapidjson::Value& sky = jsonSkyLight["Sky"];
 		json::get_string(sky[0], "BRDFLUT", brdfLUT);
 		json::get_string(sky[0], "Irradiance", irMap);
-		json::get_string(sky[0], "Environment", envMap);
+		json::get_string(sky[0], "Radiance", envMap);
 
 
 		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
@@ -43,7 +43,7 @@ namespace Insight {
 		brdfInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(brdfLUT));
 		brdfInfo.AssetDirectoryRelPath = brdfLUT;
 		brdfInfo.Type = Texture::eTextureType::eTextureType_IBLBRDFLUT;
-		brdfInfo.IsCubeMap = true;
+		brdfInfo.IsCubeMap = false;
 		brdfInfo.GenerateMipMaps = false;
 
 		Texture::IE_TEXTURE_INFO irMapInfo;
@@ -53,11 +53,11 @@ namespace Insight {
 		irMapInfo.IsCubeMap = true;
 		brdfInfo.GenerateMipMaps = false;
 
-		Texture::IE_TEXTURE_INFO envMapInfo;
-		envMapInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(envMap));
-		envMapInfo.AssetDirectoryRelPath = envMap;
-		envMapInfo.Type = Texture::eTextureType::eTextureType_SkyEnvironmentMap;
-		envMapInfo.IsCubeMap = true;
+		Texture::IE_TEXTURE_INFO radMapInfo;
+		radMapInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(envMap));
+		radMapInfo.AssetDirectoryRelPath = envMap;
+		radMapInfo.Type = Texture::eTextureType::eTextureType_SkyRadianceMap;
+		radMapInfo.IsCubeMap = true;
 		brdfInfo.GenerateMipMaps = false;
 
 		switch (Renderer::GetAPI())
@@ -66,7 +66,7 @@ namespace Insight {
 		{
 			m_BrdfLUT = new ieD3D11Texture(brdfInfo);
 			m_Irradiance = new ieD3D11Texture(irMapInfo);
-			m_Environment = new ieD3D11Texture(envMapInfo);
+			m_Radiance = new ieD3D11Texture(radMapInfo);
 			break;
 		}
 		case Renderer::eTargetRenderAPI::D3D_12:
@@ -75,7 +75,7 @@ namespace Insight {
 			CDescriptorHeapWrapper& cbvSrvheap = graphicsContext->GetCBVSRVDescriptorHeap();
 			m_BrdfLUT = new ieD3D12Texture(brdfInfo, cbvSrvheap);
 			m_Irradiance = new ieD3D12Texture(irMapInfo, cbvSrvheap);
-			m_Environment = new ieD3D12Texture(envMapInfo, cbvSrvheap);
+			m_Radiance = new ieD3D12Texture(radMapInfo, cbvSrvheap);
 			break;
 		}
 		}
@@ -137,8 +137,8 @@ namespace Insight {
 				Writer.String(m_BrdfLUT->GetAssetDirectoryRelPath().c_str());
 				Writer.Key("Irradiance");
 				Writer.String(m_Irradiance->GetAssetDirectoryRelPath().c_str());
-				Writer.Key("Environment");
-				Writer.String(m_Environment->GetAssetDirectoryRelPath().c_str());
+				Writer.Key("Radiance");
+				Writer.String(m_Radiance->GetAssetDirectoryRelPath().c_str());
 				Writer.EndObject();
 			}
 			Writer.EndArray();
@@ -211,12 +211,12 @@ namespace Insight {
 		if (m_Enabled) {
 
 			if (RenderPassIsDeferred) {
-				m_Environment->BindForDeferredPass();
+				m_Radiance->BindForDeferredPass();
 				m_Irradiance->BindForDeferredPass();
 				m_BrdfLUT->BindForDeferredPass();
 			}
 			else {
-				m_Environment->BindForForwardPass();
+				m_Radiance->BindForForwardPass();
 				m_Irradiance->BindForForwardPass();
 				m_BrdfLUT->BindForDeferredPass();
 			}

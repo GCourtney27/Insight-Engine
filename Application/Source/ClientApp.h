@@ -2,6 +2,8 @@
 #include <Insight.h>
 #include "Insight/Runtime/Components/Static_Mesh_Component.h"
 #include "Insight/Rendering/Material.h"
+#include "Renderer/Platform/Windows/DirectX_12/ie_D3D12_Texture.h"
+#include "Renderer/Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 /*=====================================================================
 
@@ -168,6 +170,24 @@ namespace SandBoxApp {
 
 			m_pGameLayer->GetScene()->AddActor(pAStairs);
 
+
+			// DEBUG
+			AActor* pAFrontRocks = new AActor(0, "Front Rocks");
+			/*pAFrontRocks->GetTransformRef().SetPosition(ieVector3(14.5f, 1.9f, -81.0f));
+			pAFrontRocks->GetTransformRef().SetScale(ieVector3(0.063f, 0.063f, 0.063f));
+			pAFrontRocks->GetTransformRef().SetRotation(ieVector3(0.0f, 3.158f, 0.0f));*/
+			pAFrontRocks->GetTransformRef().SetPosition(ieVector3(49.5f, 38.9f, -16.0f));
+			pAFrontRocks->GetTransformRef().SetScale(ieVector3(6.0f, 6.0f, 6.0f));
+			pAFrontRocks->GetTransformRef().SetRotation(ieVector3(0.0f, 0.0f, 0.0f));
+			pAFrontRocks->OnInit();
+
+			Insight::Material* pFrontRocksMat = new Insight::Material({ 36, 37, 38, 39, 40 });
+			StaticMeshComponent* pFrontRocks = pAFrontRocks->CreateDefaultSubobject<StaticMeshComponent>();
+			pFrontRocks->SetMaterial(pFrontRocksMat);
+			pFrontRocks->AttachMesh("Models/Sphere.obj");
+			pFrontRocks->SetRotation(ieVector3(0.5f, 0.0f, 0.0f));
+
+			m_pGameLayer->GetScene()->AddActor(pAFrontRocks);
 
 			// Front Rocks
 			/*AActor* pAFrontRocks = new AActor(0, "Front Rocks");

@@ -57,7 +57,7 @@ namespace Insight {
 
 		m_ShaderCB.Direction = SceneNode::GetTransformRef().GetRotation();
 
-		XMFLOAT3 LookAtPos(0.0f, 0.0f, 0.0f);
+		XMFLOAT3 LookAtPos = SceneNode::GetTransformRef().GetPosition();// (0.0f, 0.0f, 0.0f);
 		XMVECTOR LookAtPosVec = XMLoadFloat3(&LookAtPos);
 
 		XMFLOAT3 Up(0.0f, 1.0f, 0.0f);

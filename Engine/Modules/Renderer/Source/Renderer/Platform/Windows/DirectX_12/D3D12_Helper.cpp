@@ -23,7 +23,7 @@ namespace Insight {
 		m_pRenderContextRef = pRendererContext;
 		CreateDXGIFactory();
 		CreateDevice();
-		CreateCommandQueue();
+		CreateCommandQueues();
 		CreateSwapChain();
 		CreateViewport();
 		CreateScissorRect();
@@ -168,13 +168,22 @@ namespace Insight {
 		}
 	}
 
-	void D3D12Helper::CreateCommandQueue()
+	void D3D12Helper::CreateCommandQueues()
 	{
-		D3D12_COMMAND_QUEUE_DESC CommandQueueDesc = {};
-		CommandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-		CommandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+		// Create Graphics Command Queue
+		D3D12_COMMAND_QUEUE_DESC GraphicsCommandQueueDesc = {};
+		GraphicsCommandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+		GraphicsCommandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
-		HRESULT hr = m_pDevice->CreateCommandQueue(&CommandQueueDesc, IID_PPV_ARGS(&m_pCommandQueue));
+		HRESULT hr = m_pDevice->CreateCommandQueue(&GraphicsCommandQueueDesc, IID_PPV_ARGS(&m_pGraphicsCommandQueue));
+		ThrowIfFailed(hr, "Failed to Create Command Queue");
+		
+		// Create Compute Command Queue
+		D3D12_COMMAND_QUEUE_DESC ComputeCommandQueueDesc = {};
+		ComputeCommandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+		ComputeCommandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_COMPUTE;
+
+		hr = m_pDevice->CreateCommandQueue(&ComputeCommandQueueDesc, IID_PPV_ARGS(&m_pComputeCommandQueue));
 		ThrowIfFailed(hr, "Failed to Create Command Queue");
 	}
 
@@ -249,7 +258,7 @@ namespace Insight {
 
 		// Schedule a Signal command in the queue.
 		const UINT64 currentFenceValue = m_FenceValues[m_FrameIndex];
-		hr = m_pCommandQueue->Signal(m_pFence.Get(), currentFenceValue);
+		hr = m_pGraphicsCommandQueue->Signal(m_pFence.Get(), currentFenceValue);
 		ThrowIfFailed(hr, "Failed to signal fence on Command Queue");
 
 		// Advance the frame index.
@@ -271,7 +280,7 @@ namespace Insight {
 	{
 		HRESULT hr;
 		// Schedule a Signal command in the queue.
-		hr = m_pCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]);
+		hr = m_pGraphicsCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]);
 		ThrowIfFailed(hr, "Fialed to signal command queue while waiting for GPU");
 
 		// Wait until the fence has been processed.

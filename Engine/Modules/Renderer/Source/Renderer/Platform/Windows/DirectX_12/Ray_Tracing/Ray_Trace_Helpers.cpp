@@ -385,7 +385,7 @@ namespace Insight {
 		m_pDeviceRef->CreateUnorderedAccessView(m_pOutputBuffer_UAV.Get(), nullptr, &uavDesc, srvHandle);
 
 		srvHandle.ptr += HandleIncrementSize;
-		// Tol-Level Accereration Structure
+		// Top-Level Accereration Structure
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc;
 		srvDesc.Format = DXGI_FORMAT_UNKNOWN;
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;

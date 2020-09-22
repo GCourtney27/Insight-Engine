@@ -14,7 +14,7 @@ Texture2D t_SceneDepthGBuffer           : register(t4);
 Texture2D t_ShadowDepth         : register(t10);
 
 TextureCube tc_IrradianceMap    : register(t11);
-TextureCube tc_EnvironmentMap   : register(t12);
+TextureCube tc_RadianceMap   : register(t12);
 Texture2D t_BrdfLUT             : register(t13);
 
 Texture2D t_RayTracePassResult : register(t16);
@@ -24,6 +24,7 @@ Texture2D t_RayTracePassResult : register(t16);
 // --------
 sampler s_PointClampSampler : register(s0);
 sampler s_LinearWrapSampler : register(s1);
+sampler s_LinearClampSampler : register(s2);
 
 // Function Signatures
 // -------------------
@@ -35,7 +36,8 @@ float ShadowCalculation(float4 fragPosLightSpace, float3 normal, float3 lightDir
 // -------------------------
 struct PS_OUTPUT_LIGHTPASS
 {
-    float3 litImage : SV_Target;
+    float4 litImage     : SV_Target0;
+    float3 BloomBuffer  : SV_Target1;
 };
 
 // Entry Point
@@ -46,8 +48,6 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     
 	// Sample Textures
     float3 albedo = pow(abs(t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb), float3(2.2, 2.2, 2.2));
-    //ps_out.litImage = albedo;
-    //return ps_out;
     float3 roughMetAOBufferSample = t_RoughnessMetallicAOGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
     float3 worldPosition = t_PositionGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).xyz;
     float3 normal = t_NormalGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).xyz;
@@ -101,14 +101,14 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     
     // IBL
     // Irradiance
-    float3 F_IBL = FresnelSchlickRoughness(NdotV, baseReflectivity, roughness);
+    float3 F_IBL = FresnelSchlickRoughness(max(NdotV, 0.0), baseReflectivity, roughness);
     float3 kD_IBL = (1.0f - F_IBL) * (1.0f - metallic);
-    float3 diffuse_IBL = tc_IrradianceMap.Sample(s_LinearWrapSampler, normal).rgb * albedo * kD_IBL;
+    float3 diffuse_IBL = tc_IrradianceMap.Sample(s_LinearClampSampler, normal).rgb * albedo * kD_IBL;
 
     // Specular IBL
-    const float MAX_REFLECTION_MIP_LOD = 10.0f;
-    float3 environmentMapColor = tc_EnvironmentMap.SampleLevel(s_LinearWrapSampler, reflect(-viewDirection, normal), roughness * MAX_REFLECTION_MIP_LOD).rgb;
-    float2 brdf = t_BrdfLUT.Sample(s_LinearWrapSampler, float2(NdotV, roughness)).rg;
+    const float MAX_REFLECTION_MIP_LOD = 7.0f;
+    float3 environmentMapColor = tc_RadianceMap.SampleLevel(s_LinearClampSampler, reflect(-viewDirection, normal), roughness * MAX_REFLECTION_MIP_LOD).rgb;
+    float2 brdf = t_BrdfLUT.Sample(s_LinearClampSampler, float2(NdotV, roughness)).rg;
     float3 specular_IBL = environmentMapColor * (F_IBL * brdf.r + brdf.g);
     
     float3 ambient = (diffuse_IBL + specular_IBL) * ambientOcclusion;
@@ -117,9 +117,17 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
      // Combine Light Luminance
     float3 pixelColor = ambient + combinedLightLuminance;
     
+    // Bloom
+    float brightness = dot(pixelColor.rgb, float3(0.2126, 0.7152, 0.0722));
+    if (brightness > 1.0)
+        ps_out.BloomBuffer.rgb = pixelColor;
+    else
+        ps_out.BloomBuffer.rgb = float3(0.0, 0.0, 0.0);
+
+    // Color Correction
+    // TODO: When adding the bloom buffer to the lightpass result in the postfx shader to tonemapping there.
     HDRToneMap(pixelColor);
     GammaCorrect(pixelColor);
-    
     ps_out.litImage.rgb = pixelColor;
     
     return ps_out;
@@ -133,7 +141,7 @@ void HDRToneMap(inout float3 target)
 void GammaCorrect(inout float3 target)
 {
     const float gamma = 2.2;
-    target = pow(abs(target.rgb), float3(1.0 / gamma, 1.0 / gamma, 1.0 / gamma));
+    target = pow(target.rgb, float3(1.0 / gamma, 1.0 / gamma, 1.0 / gamma));
 }
 
 float ShadowCalculation(float4 fragPosLightSpace, float3 normal, float3 lightDir)

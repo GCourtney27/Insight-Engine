@@ -120,7 +120,7 @@ namespace Insight {
 			return 11;
 			break;
 		}
-		case eTextureType::eTextureType_SkyEnvironmentMap:
+		case eTextureType::eTextureType_SkyRadianceMap:
 		{
 			return 12;
 			break;

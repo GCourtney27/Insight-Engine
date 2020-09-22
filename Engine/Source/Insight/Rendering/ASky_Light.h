@@ -40,7 +40,7 @@ namespace Insight {
 		bool m_Enabled = true;
 		
 		Texture* m_Irradiance;
-		Texture* m_Environment;
+		Texture* m_Radiance;
 		Texture* m_BrdfLUT;
 
 	};

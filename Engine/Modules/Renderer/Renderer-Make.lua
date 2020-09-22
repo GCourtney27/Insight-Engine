@@ -34,6 +34,7 @@ project("Renderer")
 		"Source/**.h",
 		"Source/**.Pixel.hlsl",
 		"Source/**.Vertex.hlsl",
+		"Source/**.Compute.hlsl",
 		"Source/**.hlsli",
     }
 
@@ -91,6 +92,10 @@ project("Renderer")
         
         filter { "files:**.vertex.hlsl" }
             shadertype "Vertex"
+            shadermodel "5.0"
+
+        filter { "files:**.compute.hlsl" }
+            shadertype "Compute"
             shadermodel "5.0"
 
     -- End filter - windows

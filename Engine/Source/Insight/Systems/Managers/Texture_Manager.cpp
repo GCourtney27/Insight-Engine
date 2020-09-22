@@ -94,13 +94,13 @@ namespace Insight {
 		return true;
 	}
 
-	StrongTexturePtr TextureManager::GetTextureByID(Texture::ID textureID, Texture::eTextureType textreType)
+	StrongTexturePtr TextureManager::GetTextureByID(Texture::ID TextureID, Texture::eTextureType TextureType)
 	{
-		switch (textreType) 
+		switch (TextureType) 
 		{
 		case Texture::eTextureType::eTextureType_Albedo:
 		{
-			auto Iter = m_AlbedoTextureMap.find(textureID);
+			auto Iter = m_AlbedoTextureMap.find(TextureID);
 			if (Iter != m_AlbedoTextureMap.end()) {
 				return (*Iter).second;
 			}
@@ -110,7 +110,7 @@ namespace Insight {
 		}
 		case Texture::eTextureType::eTextureType_Normal:
 		{
-			auto Iter = m_NormalTextureMap.find(textureID);
+			auto Iter = m_NormalTextureMap.find(TextureID);
 			if (Iter != m_NormalTextureMap.end()) {
 				return (*Iter).second;
 			}
@@ -120,7 +120,7 @@ namespace Insight {
 		}
 		case Texture::eTextureType::eTextureType_Roughness:
 		{
-			auto Iter = m_RoughnessTextureMap.find(textureID);
+			auto Iter = m_RoughnessTextureMap.find(TextureID);
 			if (Iter != m_RoughnessTextureMap.end()) {
 				return (*Iter).second;
 			}
@@ -130,7 +130,7 @@ namespace Insight {
 		}
 		case Texture::eTextureType::eTextureType_Metallic:
 		{
-			auto Iter = m_MetallicTextureMap.find(textureID);
+			auto Iter = m_MetallicTextureMap.find(TextureID);
 			if (Iter != m_MetallicTextureMap.end()) {
 				return (*Iter).second;
 			}
@@ -140,7 +140,7 @@ namespace Insight {
 		}
 		case Texture::eTextureType::eTextureType_AmbientOcclusion:
 		{
-			auto Iter = m_AOTextureMap.find(textureID);
+			auto Iter = m_AOTextureMap.find(TextureID);
 			if (Iter != m_AOTextureMap.end()) {
 				return (*Iter).second;
 			}
@@ -150,7 +150,7 @@ namespace Insight {
 		}
 		case Texture::eTextureType::eTextureType_Opacity:
 		{
-			auto Iter = m_OpacityTextureMap.find(textureID);
+			auto Iter = m_OpacityTextureMap.find(TextureID);
 			if (Iter != m_OpacityTextureMap.end()) {
 				return (*Iter).second;
 			}
@@ -160,7 +160,7 @@ namespace Insight {
 		}
 		case Texture::eTextureType::eTextureType_Translucency:
 		{
-			auto Iter = m_TranslucencyTextureMap.find(textureID);
+			auto Iter = m_TranslucencyTextureMap.find(TextureID);
 			if (Iter != m_TranslucencyTextureMap.end()) {
 				return (*Iter).second;
 			}
@@ -170,7 +170,7 @@ namespace Insight {
 		}
 		default:
 		{
-			IE_CORE_WARN("Failed to get texture handle for texture with ID: {0}", textureID);
+			IE_CORE_WARN("Failed to get texture handle for texture with ID: {0}", TextureID);
 			break;
 		}
 		}

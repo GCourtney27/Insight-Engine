@@ -28,8 +28,21 @@ namespace Insight {
 	class GeometryManager;
 	class ieD3D12SphereRenderer;
 
+	typedef ID3D12Resource D3D12Texture2D;
+	typedef ID3D12Resource D3D12RenderTargetView;
+	typedef ID3D12Resource D3D12ShaderResourceView;
+	typedef ID3D12Resource D3D12UnoreredAccessView;
+
 	class INSIGHT_API Direct3D12Context : public Renderer
 	{
+	private:
+		struct RenderTarget
+		{
+			D3D12Texture2D* RenderTargetTexture;
+			D3D12RenderTargetView* RenderTargetView;
+			D3D12RenderTargetView* ShaderResourceView;
+			D3D12UnoreredAccessView* UnorderedAccessView;
+		};
 	public:
 		friend class Renderer;
 		friend class D3D12Helper;
@@ -64,7 +77,7 @@ namespace Insight {
 		inline ID3D12GraphicsCommandList& GetShadowPassCommandList() const { return *m_pShadowPass_CommandList.Get(); }
 		inline ID3D12GraphicsCommandList& GetTransparencyPassCommandList() const { return *m_pTransparencyPass_CommandList.Get(); }
 
-		inline ID3D12CommandQueue& GetCommandQueue() const { return m_d3dDeviceResources.GetCommandQueue(); }
+		inline ID3D12CommandQueue& GetCommandQueue() const { return m_d3dDeviceResources.GetGraphicsCommandQueue(); }
 		inline CDescriptorHeapWrapper& GetCBVSRVDescriptorHeap() { return m_cbvsrvHeap; }
 		
 		inline ID3D12Resource& GetConstantBufferPerObjectUploadHeap() const { return *m_CBPerObject[IE_D3D12_FrameIndex].GetResource(); }
@@ -81,8 +94,8 @@ namespace Insight {
 		[[nodiscard]] uint32_t RegisterGeometryWithRTAccelerationStucture(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat);
 		void UpdateRTAccelerationStructureMatrix(uint32_t InstanceArrIndex, DirectX::XMMATRIX NewWorldMat) { m_RTHelper.UpdateInstanceTransformByIndex(InstanceArrIndex, NewWorldMat); }
 
-		ID3D12Resource* GetSwapChainRenderTarget() const { return m_pRenderTargets[IE_D3D12_FrameIndex].Get(); }
-		const UINT GetNumLightPassRTVs() const { return m_NumLightPassRTVs; }
+		ID3D12Resource* GetSwapChainRenderTarget() const { return m_pSwapChainRenderTargets[IE_D3D12_FrameIndex].Get(); }
+		const UINT GetNumLightPassRTVs() const { return m_NumRTVs; }
 		inline D3D12_CPU_DESCRIPTOR_HANDLE GetSwapChainRTV() const
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE handle;
@@ -96,11 +109,6 @@ namespace Insight {
 		virtual ~Direct3D12Context();
 
 		void CloseCommandListAndSignalCommandQueue();
-		
-		// Threading
-
-		void LoadContexts();
-		void WorkerThread(uint8_t ThreadIndex);
 
 		// Per-Frame
 		
@@ -111,6 +119,7 @@ namespace Insight {
 		void BindTransparencyPass();
 		void BindRayTracePass();
 		void BindPostFxPass();
+		void BlurBloomBuffer();
 
 		// D3D12 Initialize
 		
@@ -122,8 +131,9 @@ namespace Insight {
 		void CreateRTVs();
 		void CreateCBVs();
 		void CreateSRVs();
-		void CreateDeferredShadingRootSignature();
-		void CreateForwardShadingRootSignature();
+		void CreateDeferredShadingRS();
+		void CreateForwardShadingRS();
+		void CreateTextureDownSampleRS();
 
 		void CreateShadowPassPSO();
 		void CreateGeometryPassPSO();
@@ -131,6 +141,8 @@ namespace Insight {
 		void CreateTransparencyPassPSO();
 		void CreateLightPassPSO();
 		void CreatePostEffectsPassPSO();
+		void CreateDownSamplePSO();
+
 
 		// Create window resources
 		
@@ -157,17 +169,7 @@ namespace Insight {
 
 		ieD3D12SphereRenderer*	m_pSkySphere_Geometry;
 
-		// Threading
-		HANDLE m_WorkerThreadPreFrameRender[s_NumRenderContexts];
-		HANDLE m_WorkerThreadRender[s_NumRenderContexts];
-		HANDLE m_WorkerThreadExecuteDraw[s_NumRenderContexts];
-		struct ThreadParameter
-		{
-			uint8_t ThreadIndex;
-		};
-		ThreadParameter m_ThreadParameters[s_NumRenderContexts];
-
-		static const UINT	m_NumLightPassRTVs = 5;
+		static const UINT	m_NumRTVs = 6;
 		bool				m_WindowResizeComplete = true;
 		bool				m_UseWarpDevice = false;
 
@@ -184,10 +186,11 @@ namespace Insight {
 		ComPtr<ID3D12CommandAllocator>		m_pTransparencyPass_CommandAllocators[m_FrameBufferCount];
 		ComPtr<ID3D12GraphicsCommandList>	m_pPostEffectsPass_CommandList;
 		ComPtr<ID3D12CommandAllocator>		m_pPostEffectsPass_CommandAllocators[m_FrameBufferCount];
+		ComPtr<ID3D12GraphicsCommandList>	m_pDownSample_CommandList;
+		ComPtr<ID3D12CommandAllocator>		m_pDownSample_CommandAllocators[m_FrameBufferCount];
 
-		ComPtr<ID3D12Resource>				m_pRenderTargetTextures[m_NumLightPassRTVs];
-		ComPtr<ID3D12Resource>				m_pRenderTargetTextures_PostFxPass[m_FrameBufferCount];
-		ComPtr<ID3D12Resource>				m_pRenderTargets[m_FrameBufferCount];
+		ComPtr<ID3D12Resource>				m_pRenderTargetTextures[m_NumRTVs];
+		ComPtr<ID3D12Resource>				m_pSwapChainRenderTargets[m_FrameBufferCount];
 		
 		//-----Light Pass-----
 		// 0: Albedo
@@ -196,6 +199,7 @@ namespace Insight {
 		// 3: World Position
 		// -----Post-Fx Pass-----
 		// 4: Light Pass result
+		// 5: Bloom Buffer
 		CDescriptorHeapWrapper				m_rtvHeap;
 		// Number of decriptors depends on frame buffer count. Start slot is 0.
 		CDescriptorHeapWrapper				m_SwapChainRTVHeap;
@@ -206,9 +210,12 @@ namespace Insight {
 		ComPtr<ID3D12Resource>				m_pSceneDepthStencilTexture;
 		ComPtr<ID3D12Resource>				m_pShadowDepthTexture;
 		ComPtr<ID3D12Resource>				m_RayTraceOutput_SRV;
+		ComPtr<ID3D12Resource>				m_pBloomBlurResult_UAV;
+		ComPtr<ID3D12Resource>				m_pBloomBlurIntermediate_UAV;
 
 		ComPtr<ID3D12RootSignature>			m_pDeferredShadingPass_RS;
 		ComPtr<ID3D12RootSignature>			m_pForwardShadingPass_RS;
+		ComPtr<ID3D12RootSignature>			m_pTextureDownSample_RS;
 
 		ComPtr<ID3D12PipelineState>			m_pShadowPass_PSO;
 		ComPtr<ID3D12PipelineState>			m_pGeometryPass_PSO;
@@ -216,6 +223,7 @@ namespace Insight {
 		ComPtr<ID3D12PipelineState>			m_pSkyPass_PSO;
 		ComPtr<ID3D12PipelineState>			m_pTransparency_PSO;
 		ComPtr<ID3D12PipelineState>			m_pPostFxPass_PSO;
+		ComPtr<ID3D12PipelineState>			m_pBloomGaussianBlur_PSO;
 
 		//-----Pipeline-----
 		//0:   SRV-Albedo(RTV->SRV)
@@ -226,16 +234,19 @@ namespace Insight {
 		//5:   SRV-Light Pass Result(RTV->SRV)
 		//6:   UAV-Ray Trace Output(RTHelper UAV(COPY)->SRV)
 		//7:   SRV-Shadow Depth(DSV->SRV)
+		//8:   SRV-Bloom Buffer(RTV->SRV)
+		//9:   UAV-Bloom Down Sampled(UAV(COPY)->SRV)
+		//10:  UAV-Bloom Intermediate Buffer
 		//-----PerObject-----
-		//8:   SRV-Albedo(SRV)
-		//9:   SRV-Normal(SRV)
-		//10:  SRV-Roughness(SRV)
-		//11:  SRV-Metallic(SRV)
-		//12:  SRV-AO(SRV)
-		//13:  SRV-Sky Irradiance(SRV)
-		//14:  SRV-Sky Environment(SRV)
-		//15:  SRV-Sky BRDF LUT(SRV)
-		//15:  SRV-Sky Diffuse(SRV)
+		//11:   SRV-Albedo(SRV)
+		//12:  SRV-Normal(SRV)
+		//13:  SRV-Roughness(SRV)
+		//14:  SRV-Metallic(SRV)
+		//15:  SRV-AO(SRV)
+		//16:  SRV-Sky Irradiance(SRV)
+		//17:  SRV-Sky Environment(SRV)
+		//18:  SRV-Sky BRDF LUT(SRV)
+		//19:  SRV-Sky Diffuse(SRV)
 		CDescriptorHeapWrapper				m_cbvsrvHeap;
 
 
@@ -243,12 +254,13 @@ namespace Insight {
 		D3D12_DEPTH_STENCIL_VIEW_DESC		m_ScenePass_DsvDesc = {};
 		float								m_ScreenClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		DXGI_FORMAT							m_DsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		DXGI_FORMAT							m_RtvFormat[5] = { 
+		DXGI_FORMAT							m_RtvFormat[6] = { 
 												DXGI_FORMAT_R11G11B10_FLOAT,	// Albedo buffer
-												DXGI_FORMAT_R8G8B8A8_SNORM,		// Normal
+												DXGI_FORMAT_R16G16B16A16_SNORM,	// Normal
 												DXGI_FORMAT_R11G11B10_FLOAT,	// (R)Roughness/(G)Metallic/(B)AO
 												DXGI_FORMAT_R32G32B32A32_FLOAT, // Position
 												DXGI_FORMAT_R11G11B10_FLOAT,	// Light Pass result
+												DXGI_FORMAT_R11G11B10_FLOAT,	// Bloom buffer
 											};
 		float								m_DepthClearValue = 1.0f;
 		DXGI_FORMAT							m_ShadowMapFormat = DXGI_FORMAT_D32_FLOAT;
@@ -258,10 +270,11 @@ namespace Insight {
 
 		// Constant Buffers
 		
-		ieD3D12ConstantBuffer<CB_PS_Lights>			m_CBLights;
-		ieD3D12ConstantBuffer<CB_PS_PostFx>			m_CBPostFx;
-		ieD3D12ConstantBuffer<CB_PS_VS_PerFrame>	m_CBPerFrame;
-		ieD3D12ConstantBuffer<CB_VS_PerObject>		m_CBPerObject[m_FrameBufferCount];
+		ieD3D12ConstantBuffer<CB_CS_DownSampleParams>	m_CBDownSampleParams;
+		ieD3D12ConstantBuffer<CB_PS_Lights>				m_CBLights;
+		ieD3D12ConstantBuffer<CB_PS_PostFx>				m_CBPostFx;
+		ieD3D12ConstantBuffer<CB_PS_VS_PerFrame>		m_CBPerFrame;
+		ieD3D12ConstantBuffer<CB_VS_PerObject>			m_CBPerObject[m_FrameBufferCount];
 		ieD3D12ConstantBuffer<CB_PS_VS_PerObjectMaterialAdditives> m_CBPerObjectMaterial[m_FrameBufferCount];
 
 	};

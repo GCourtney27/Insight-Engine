@@ -27,7 +27,8 @@ namespace Insight {
 
 		inline IDXGISwapChain3& GetSwapChain() const { return *m_pSwapChain.Get(); }
 		inline ID3D12Resource* GetSwapChainRenderTarget() const { return m_pRenderTargets[m_FrameIndex].Get(); }
-		inline ID3D12CommandQueue& GetCommandQueue() const { return *m_pCommandQueue.Get(); }
+		inline ID3D12CommandQueue& GetGraphicsCommandQueue() const { return *m_pGraphicsCommandQueue.Get(); }
+		inline ID3D12CommandQueue& GetComputeCommandQueue() const { return *m_pComputeCommandQueue.Get(); }
 
 		void MoveToNextFrame();
 		void WaitForGPU();
@@ -36,7 +37,7 @@ namespace Insight {
 		inline void IncrementAndSignalFence()
 		{
 			m_FenceValues[m_FrameIndex]++;
-			ThrowIfFailed(m_pCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]),
+			ThrowIfFailed(m_pGraphicsCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]),
 				"Failed to signal command queue while incremenitign fence values for D3D 12 device resources.");
 		}
 
@@ -47,7 +48,7 @@ namespace Insight {
 		void CreateDXGIFactory();
 		void CreateDevice();
 		void GetHardwareAdapter(IDXGIFactory2* pFactory, IDXGIAdapter1** ppAdapter);
-		void CreateCommandQueue();
+		void CreateCommandQueues();
 		void CreateSwapChain();
 		void CreateViewport();
 		void CreateScissorRect();
@@ -69,7 +70,8 @@ namespace Insight {
 		ComPtr<IDXGIFactory4>				m_pDxgiFactory;
 		ComPtr<IDXGISwapChain3>				m_pSwapChain;
 
-		ComPtr<ID3D12CommandQueue>			m_pCommandQueue;
+		ComPtr<ID3D12CommandQueue>			m_pGraphicsCommandQueue;
+		ComPtr<ID3D12CommandQueue>			m_pComputeCommandQueue;
 		ComPtr<ID3D12CommandAllocator>		m_pCommandAllocators[m_FrameBufferCount];
 
 		ComPtr<ID3D12Resource>				m_pRenderTargets[m_FrameBufferCount];

@@ -8,8 +8,9 @@
 #include <DirectX12/TK/Inc/DDSTextureLoader.h>
 #include <DirectX12/TK/Inc/WICTextureLoader.h>
 #include "DirectX12/TK/Inc/ResourceUploadBatch.h"
+#include "DirectX12/DXTex/DirectXTex/DirectXTex.h"
 
-#define CBVSRV_HEAP_TEXTURE_START_SLOT 8					// Keep this in sync with Direct3D12Context::m_cbvsrvHeap
+#define CBVSRV_HEAP_TEXTURE_START_SLOT 11					// Keep this in sync with Direct3D12Context::m_cbvsrvHeap
 #define OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START 6	// Keep this in sync with deferred shading pass root signature
 #define OBJECT_TEXTURE_FORW_PASS_ROOT_PARAM_INDEX_START 4	// Keep this in sync with forward shading pass root signature
 #define OBJECT_TEXTURE_FORW_DEFF_ROOT_PARAM_INDEX_DIFF (OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START - OBJECT_TEXTURE_FORW_PASS_ROOT_PARAM_INDEX_START)
@@ -61,6 +62,9 @@ namespace Insight {
 		if (FileExtension == "dds") {
 			InitDDSTexture(srvHeapHandle);
 		}
+		else if (FileExtension == "hdr") {
+			InitHDRTexture(srvHeapHandle);
+		}
 		else {
 			InitTextureFromFile(srvHeapHandle);
 		}
@@ -107,6 +111,16 @@ namespace Insight {
 		s_NumSceneTextures++;
 	}
 
+	void ieD3D12Texture::InitHDRTexture(CDescriptorHeapWrapper& srvHeapHandle)
+	{
+		HRESULT hr;
+		DirectX::TexMetadata TexMeta;
+		DirectX::ScratchImage Scratch;
+		hr = LoadFromHDRFile(m_TextureInfo.Filepath.c_str(), &TexMeta, Scratch);
+		ThrowIfFailed(hr, "Filaed to load HDR image from file");
+
+	}
+
 	bool ieD3D12Texture::InitTextureFromFile(CDescriptorHeapWrapper& srvHeapHandle)
 	{
 		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
@@ -120,6 +134,7 @@ namespace Insight {
 		if (FAILED(hr)) {
 			IE_CORE_ERROR("Failed to Create WIC texture from file with path \"{0}\"", StringHelper::WideToString(m_TextureInfo.Filepath));
 		}
+
 		m_D3DTextureDesc = m_pTexture->GetDesc();
 		if (!resourceUpload.IsSupportedForGenerateMips(m_D3DTextureDesc.Format)) {
 			//IE_CORE_WARN("Mip map generation not supported for texture: {0}", m_DisplayName);
@@ -186,7 +201,7 @@ namespace Insight {
 			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 6;
 			break;
 		}
-		case eTextureType::eTextureType_SkyEnvironmentMap:
+		case eTextureType::eTextureType_SkyRadianceMap:
 		{
 			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 7;
 			break;

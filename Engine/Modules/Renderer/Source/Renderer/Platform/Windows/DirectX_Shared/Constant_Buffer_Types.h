@@ -111,3 +111,8 @@ struct CB_PS_Lights
 	CB_PS_DirectionalLight DirectionalLight;
 	CB_PS_SpotLight SpotLights[MAX_SPOT_LIGHTS_SUPPORTED];
 };
+
+struct CB_CS_DownSampleParams
+{
+	alignas(16) float Threshold; // Auto align as 16 bytes 
+};

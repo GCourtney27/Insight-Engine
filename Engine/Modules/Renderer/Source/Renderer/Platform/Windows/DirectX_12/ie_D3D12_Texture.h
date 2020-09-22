@@ -41,6 +41,8 @@ namespace Insight {
 		bool Init(IE_TEXTURE_INFO createInfo, CDescriptorHeapWrapper& srvHeapHandle);
 		// Load a DDS texture from disk.
 		void InitDDSTexture(CDescriptorHeapWrapper& srvHeapHandle);
+		// Load a HDR file from disk.
+		void InitHDRTexture(CDescriptorHeapWrapper& srvHeapHandle);
 		// Load  generic texture file from disk.
 		bool InitTextureFromFile(CDescriptorHeapWrapper& srvHeapHandle);
 		// Get the Root Parameter Index this texture belongs too.
