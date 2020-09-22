@@ -16,3 +16,6 @@
 [submodule "Engine/Vendor/Microsoft/DirectX11/TK"]
 	path = Engine/Vendor/Microsoft/DirectX11/TK
 	url = https://github.com/GCourtney27/DirectXTK.git
+[submodule "Engine/Vendor/Microsoft/DirectX12/DXTex"]
+	path = Engine/Vendor/Microsoft/DirectX12/DXTex
+	url = https://github.com/microsoft/DirectXTex.git
