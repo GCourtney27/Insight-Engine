@@ -366,7 +366,7 @@ namespace Insight {
 				m_pSkyLight->BindCubeMaps(true);
 			}
 
-			for (unsigned int i = 0; i < m_NumRTVs; ++i) {
+			for (unsigned int i = 0; i < m_NumRTVs - 2; ++i) {
 				ResourceBarrier(m_pScenePass_CommandList.Get(), m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ);
 			}
 
@@ -375,6 +375,9 @@ namespace Insight {
 			m_pScenePass_CommandList->SetGraphicsRootDescriptorTable(17, m_cbvsrvHeap.hGPU(6)); // Ray Trace Result
 
 			m_ScreenQuad.OnRender(m_pScenePass_CommandList);
+			
+			ResourceBarrier(m_pScenePass_CommandList.Get(), m_pRenderTargetTextures[4].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ);
+			ResourceBarrier(m_pScenePass_CommandList.Get(), m_pRenderTargetTextures[5].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ);
 		}
 		PIXEndEvent(m_pScenePass_CommandList.Get());
 	}
@@ -387,11 +390,14 @@ namespace Insight {
 		PIXBeginEvent(m_pScenePass_CommandList.Get(), 0, L"Rendering Sky Pass");
 		{
 			if (m_pSkySphere) {
+
+				ResourceBarrier(m_pScenePass_CommandList.Get(), m_pRenderTargetTextures[4].Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET);
 				m_pScenePass_CommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), TRUE, &m_dsvHeap.hCPU(0));
 
 				m_pScenePass_CommandList->SetPipelineState(m_pSkyPass_PSO.Get());
 
 				m_pSkySphere->RenderSky();
+				ResourceBarrier(m_pScenePass_CommandList.Get(), m_pRenderTargetTextures[4].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ);
 			}
 		}
 		PIXEndEvent(m_pScenePass_CommandList.Get());
