@@ -15,6 +15,7 @@ namespace Insight {
 		: AActor(id, type)
 	{
 		Renderer::AddPostFxActor(this);
+		m_ShaderCB.blEnabled = 1;
 		m_ShaderCB.blCombineCoefficient = 0.75f;
 	}
 
