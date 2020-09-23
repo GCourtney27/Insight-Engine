@@ -6,7 +6,7 @@
 #include "Platform/Windows/Error/COM_Exception.h"
 
 #include "Platform/Windows/DirectX_11/D3D11_Helper.h"
-#include "Platform/Windows/DirectX_11/Constant_Buffer_Wrapper.h"
+#include "Platform/Windows/DirectX_11/Wrappers/Constant_Buffer_Wrapper.h"
 
 #include "Platform/Windows/DirectX_11/D3D11_Deferred_Tech.h"
 

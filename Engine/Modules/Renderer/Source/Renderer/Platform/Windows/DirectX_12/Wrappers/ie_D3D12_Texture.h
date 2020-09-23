@@ -3,7 +3,7 @@
 #include <Insight/Core.h>
 
 #include "Insight/Rendering/Texture.h"
-#include "Renderer/Platform/Windows/DirectX_12/Descriptor_Heap_Wrapper.h"
+#include "Renderer/Platform/Windows/DirectX_12/Wrappers/Descriptor_Heap_Wrapper.h"
 
 namespace Insight {
 

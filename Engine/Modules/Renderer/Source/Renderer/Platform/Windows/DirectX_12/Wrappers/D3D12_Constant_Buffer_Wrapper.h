@@ -68,9 +68,14 @@ namespace Insight {
 			return m_BufferSize;
 		}
 
-		void SetAsRootConstantBufferView(ID3D12GraphicsCommandList* pCommandList, UINT RootParameterIndex)
+		void SetAsGraphicsRootConstantBufferView(ID3D12GraphicsCommandList* pCommandList, UINT RootParameterIndex)
 		{
 			pCommandList->SetGraphicsRootConstantBufferView(RootParameterIndex, GetGPUVirtualAddress());
+		}
+
+		void SetAsComputeRootConstantBufferView(ID3D12GraphicsCommandList* pCommandList, UINT RootParameterIndex)
+		{
+			pCommandList->SetComputeRootConstantBufferView(RootParameterIndex, GetGPUVirtualAddress());
 		}
 
 	private:

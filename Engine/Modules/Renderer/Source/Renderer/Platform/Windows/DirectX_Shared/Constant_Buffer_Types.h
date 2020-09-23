@@ -103,6 +103,11 @@ struct CB_PS_PostFx
 	// Chromatic Aberration
 	int caEnabled = 0;
 	float caIntensity;
+
+	// Bloom
+	int blEnabled;
+	float blCombineCoefficient;
+	float padding[2];
 };
 
 struct CB_PS_Lights
@@ -115,4 +120,13 @@ struct CB_PS_Lights
 struct CB_CS_DownSampleParams
 {
 	alignas(16) float Threshold; // Auto align as 16 bytes 
+};
+
+#define GAUSSIAN_RADIUS 7
+
+struct CB_CS_BlurParams
+{
+	alignas(16) float coefficients[GAUSSIAN_RADIUS + 1];
+	int radius;     // must be <= MAX_GAUSSIAN_RADIUS
+	int direction;  // 0 = horizontal, 1 = vertical
 };

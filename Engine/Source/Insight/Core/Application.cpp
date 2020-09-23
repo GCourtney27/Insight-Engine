@@ -10,8 +10,8 @@
 #include "Renderer/Renderer.h"
 
 #if defined IE_PLATFORM_WINDOWS
-#include "Renderer/Platform/Windows/DirectX_11/D3D11_ImGui_Layer.h"
-#include "Renderer/Platform/Windows/DirectX_12/D3D12_ImGui_Layer.h"
+#include "Renderer/Platform/Windows/DirectX_11/Wrappers/D3D11_ImGui_Layer.h"
+#include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_ImGui_Layer.h"
 #endif
 
 // TODO: Make the project hot reloadable

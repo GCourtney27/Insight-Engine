@@ -15,6 +15,7 @@ namespace Insight {
 		: AActor(id, type)
 	{
 		Renderer::AddPostFxActor(this);
+		m_ShaderCB.blCombineCoefficient = 0.75f;
 	}
 
 	APostFx::~APostFx()
@@ -207,6 +208,10 @@ namespace Insight {
 		m_ShaderCB.vnInnerRadius = m_TempInnerRadius;
 		m_ShaderCB.vnOuterRadius = m_TempOuterRadius;
 		ImGui::Spacing();
+
+		ImGui::Text("Bloom");
+		ImGui::Checkbox("bmEnabled", (bool*)&m_ShaderCB.blEnabled);
+		ImGui::DragFloat("bmStrength", &m_ShaderCB.blCombineCoefficient, 0.1f, 0.0f, 80.0f);
 
 		ImGui::Text("Film Grain");
 		ImGui::Checkbox("fgEnabled", (bool*)&m_ShaderCB.fgEnabled);

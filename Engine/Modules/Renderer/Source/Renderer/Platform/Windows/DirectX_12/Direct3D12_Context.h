@@ -6,13 +6,13 @@
 
 #include "Platform/Windows/Error/COM_Exception.h"
 #include "Renderer/Platform/Windows/DirectX_12/D3D12_Helper.h"
-#include "Renderer/Platform/Windows/DirectX_12/Descriptor_Heap_Wrapper.h"
+#include "Renderer/Platform/Windows/DirectX_12/Wrappers/Descriptor_Heap_Wrapper.h"
 #include "Renderer/Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
 #include "Renderer/Platform/Windows/DirectX_12/Ray_Tracing/Ray_Trace_Helpers.h"
-#include "Renderer/Platform/Windows/DirectX_12/ie_D3D12_Screen_Quad.h"
+#include "Renderer/Platform/Windows/DirectX_12/Wrappers/ie_D3D12_Screen_Quad.h"
 
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
-#include "Renderer/Platform/Windows/DirectX_12/D3D12_Constant_Buffer_Wrapper.h"
+#include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_Constant_Buffer_Wrapper.h"
 
 /*
 	Render context for Windows Direct3D 12 API. 
@@ -36,13 +36,31 @@ namespace Insight {
 	class INSIGHT_API Direct3D12Context : public Renderer
 	{
 	private:
-		struct RenderTarget
+		
+		/*struct RenderTargetTexture
 		{
+			void Create(CDescriptorHeapWrapper &rtHeap)
+			{
+
+			}
+			RenderTarget(){}
 			D3D12Texture2D* RenderTargetTexture;
 			D3D12RenderTargetView* RenderTargetView;
 			D3D12RenderTargetView* ShaderResourceView;
 			D3D12UnoreredAccessView* UnorderedAccessView;
 		};
+		const static UINT NumDummyRTs = 6;
+		RenderTargetTexture RenderTargets[NumDummyRTs];
+		void DummyCreateRenderTargets()
+		{
+			CDescriptorHeapWrapper rtHeap;
+			rtHeap.Create(&m_d3dDeviceResources.GetDeviceContext(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, NumDummyRTs, false);
+
+			for (size_t i = 0; i < NumDummyRTs; i++)
+			{
+				RenderTargets[i].Create(rtHeap);
+			}
+		}*/
 	public:
 		friend class Renderer;
 		friend class D3D12Helper;
@@ -133,7 +151,8 @@ namespace Insight {
 		void CreateSRVs();
 		void CreateDeferredShadingRS();
 		void CreateForwardShadingRS();
-		void CreateTextureDownSampleRS();
+		// Texture down-sample and Gaussian Blur pipelines share the same shader inputs for the Bloom Pass.
+		void CreateBloomPassRS();
 
 		void CreateShadowPassPSO();
 		void CreateGeometryPassPSO();
@@ -142,7 +161,7 @@ namespace Insight {
 		void CreateLightPassPSO();
 		void CreatePostEffectsPassPSO();
 		void CreateDownSamplePSO();
-
+		void CreateGaussianBlurPSO();
 
 		// Create window resources
 		
@@ -210,12 +229,16 @@ namespace Insight {
 		ComPtr<ID3D12Resource>				m_pSceneDepthStencilTexture;
 		ComPtr<ID3D12Resource>				m_pShadowDepthTexture;
 		ComPtr<ID3D12Resource>				m_RayTraceOutput_SRV;
+
 		ComPtr<ID3D12Resource>				m_pBloomBlurResult_UAV;
-		ComPtr<ID3D12Resource>				m_pBloomBlurIntermediate_UAV;
+		ComPtr<ID3D12Resource>				m_pBloomBlurResult_SRV;
+		ComPtr<ID3D12Resource>				m_pBloomBlurIntermediateBuffer_UAV;
+		ComPtr<ID3D12Resource>				m_pBloomBlurIntermediateBuffer_SRV;
+
 
 		ComPtr<ID3D12RootSignature>			m_pDeferredShadingPass_RS;
 		ComPtr<ID3D12RootSignature>			m_pForwardShadingPass_RS;
-		ComPtr<ID3D12RootSignature>			m_pTextureDownSample_RS;
+		ComPtr<ID3D12RootSignature>			m_pBloomPass_RS;
 
 		ComPtr<ID3D12PipelineState>			m_pShadowPass_PSO;
 		ComPtr<ID3D12PipelineState>			m_pGeometryPass_PSO;
@@ -223,7 +246,8 @@ namespace Insight {
 		ComPtr<ID3D12PipelineState>			m_pSkyPass_PSO;
 		ComPtr<ID3D12PipelineState>			m_pTransparency_PSO;
 		ComPtr<ID3D12PipelineState>			m_pPostFxPass_PSO;
-		ComPtr<ID3D12PipelineState>			m_pBloomGaussianBlur_PSO;
+		ComPtr<ID3D12PipelineState>			m_pThresholdDownSample_PSO;
+		ComPtr<ID3D12PipelineState>			m_pGaussianBlur_PSO;
 
 		//-----Pipeline-----
 		//0:   SRV-Albedo(RTV->SRV)
@@ -234,19 +258,21 @@ namespace Insight {
 		//5:   SRV-Light Pass Result(RTV->SRV)
 		//6:   UAV-Ray Trace Output(RTHelper UAV(COPY)->SRV)
 		//7:   SRV-Shadow Depth(DSV->SRV)
-		//8:   SRV-Bloom Buffer(RTV->SRV)
-		//9:   UAV-Bloom Down Sampled(UAV(COPY)->SRV)
-		//10:  UAV-Bloom Intermediate Buffer
+		//8:   SRV-Raw Bloom Buffer(RTV->SRV)
+		//9:   UAV-Bloom Down Sampled(UAV)
+		//TEMP 10:  SRV-Bloom Down Sampled(UAV(COPY)->SRV)
+		//11:  UAV-Bloom Down Sampled Intermediate Buffer(UAV)
+		//TEMP 12:  SRV-Bloom Down Sampled Intermediate Buffer(UAV(COPY)->SRV)
 		//-----PerObject-----
-		//11:   SRV-Albedo(SRV)
-		//12:  SRV-Normal(SRV)
-		//13:  SRV-Roughness(SRV)
-		//14:  SRV-Metallic(SRV)
-		//15:  SRV-AO(SRV)
-		//16:  SRV-Sky Irradiance(SRV)
-		//17:  SRV-Sky Environment(SRV)
-		//18:  SRV-Sky BRDF LUT(SRV)
-		//19:  SRV-Sky Diffuse(SRV)
+		//13:  SRV-Albedo(SRV)
+		//14:  SRV-Normal(SRV)
+		//15:  SRV-Roughness(SRV)
+		//16:  SRV-Metallic(SRV)
+		//17:  SRV-AO(SRV)
+		//18:  SRV-Sky Irradiance(SRV)
+		//19:  SRV-Sky Environment(SRV)
+		//20:  SRV-Sky BRDF LUT(SRV)
+		//21:  SRV-Sky Diffuse(SRV)
 		CDescriptorHeapWrapper				m_cbvsrvHeap;
 
 
@@ -271,6 +297,7 @@ namespace Insight {
 		// Constant Buffers
 		
 		ieD3D12ConstantBuffer<CB_CS_DownSampleParams>	m_CBDownSampleParams;
+		ieD3D12ConstantBuffer<CB_CS_BlurParams>			m_CBBlurParams;
 		ieD3D12ConstantBuffer<CB_PS_Lights>				m_CBLights;
 		ieD3D12ConstantBuffer<CB_PS_PostFx>				m_CBPostFx;
 		ieD3D12ConstantBuffer<CB_PS_VS_PerFrame>		m_CBPerFrame;

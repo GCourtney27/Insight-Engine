@@ -12,6 +12,8 @@ Texture2D t_ShadowDepthPass : register(t10);
 
 Texture2D t_LightPassResult : register(t15);
 
+RWTexture2D<float4> rw_BloomPassResult : register(u1);
+
 // Samplers
 // --------
 sampler s_PointClampSampler : register(s0);
@@ -22,6 +24,7 @@ SamplerState s_LinearWrapSampler : register(s1);
 float3 AddFilmGrain(float3 sourceColor, float2 texCoords);
 float3 AddVignette(float3 sourceColor, float2 texCoords);
 float3 AddChromaticAberration(float3 sourceColor, float2 texCoords);
+float3 AddBloom(float3 sourceColor, float2 texCoords);
 void LinearizeDepth(inout float depth);
 
 // Pixel Shader Return Value
@@ -36,8 +39,15 @@ float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
 {
     float3 LightPassResult = t_LightPassResult.Sample(s_PointClampSampler, ps_in.texCoords).rgb;
     
+    float2 PixelCoords = ps_in.texCoords * cbScreenSize;
+    float3 BloomPassResult = rw_BloomPassResult.Load(int3(PixelCoords, 0.0)).rgb;
+    
     float3 result = LightPassResult;
     
+    if(blEnabled)
+    {
+        result = AddBloom(result, ps_in.texCoords);
+    }
     if (vnEnabled)
     {
         result = AddVignette(result, ps_in.texCoords);
@@ -58,6 +68,14 @@ float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
 float mod(float x, float y)
 {
     return (x - y * floor(x / y));
+}
+
+float3 AddBloom(float3 sourceColor, float2 texCoords)
+{
+    float2 PixelCoords = texCoords * cbScreenSize;
+    float3 BloomPassResult = rw_BloomPassResult.Load(int3(PixelCoords, 0.0)).rgb;
+ 
+    return mad(blCombineCoefficient, BloomPassResult, sourceColor);
 }
 
 float3 AddChromaticAberration(float3 sourceColor, float2 texCoords)

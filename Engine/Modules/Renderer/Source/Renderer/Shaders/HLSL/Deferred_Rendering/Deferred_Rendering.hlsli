@@ -50,6 +50,11 @@ cbuffer cbPostFx : register(b3)
     // Chromatic Aberration
     int caEnabled;
     float caIntensity;
+    
+    // Bloom
+    int blEnabled;
+    float blCombineCoefficient;
+    float padding[2];
 }
 
 cbuffer cbPerObjectAdditive : register(b4)

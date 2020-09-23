@@ -2,7 +2,7 @@
 
 #include <Insight/Core.h>
 
-#include "Platform/Windows/DirectX_11/D3D11_Shader.h"
+#include "Platform/Windows/DirectX_11/Wrappers/D3D11_Shader.h"
 
 namespace Insight {
 
