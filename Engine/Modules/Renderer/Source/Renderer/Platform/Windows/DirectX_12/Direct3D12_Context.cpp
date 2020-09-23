@@ -571,14 +571,12 @@ namespace Insight {
 			m_pTransparencyPass_CommandList.Get(),
 		};
 		m_d3dDeviceResources.GetGraphicsCommandQueue().ExecuteCommandLists(_countof(ppScenePassLists), ppScenePassLists);
-		m_d3dDeviceResources.WaitForGPU();
 
-		// Compute Pass
+		// Bloom Compute
 		ID3D12CommandList* ppComputeLists[] = {
 			m_pDownSample_CommandList.Get(),
 		};
 		m_d3dDeviceResources.GetComputeCommandQueue().ExecuteCommandLists(_countof(ppComputeLists), ppComputeLists);
-		m_d3dDeviceResources.WaitForGPU();
 
 		// Post Process Pass
 		ID3D12CommandList* ppPostFxPassLists[] = {
