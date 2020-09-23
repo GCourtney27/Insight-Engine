@@ -15,8 +15,7 @@ namespace Insight {
 		: AActor(id, type)
 	{
 		Renderer::AddPostFxActor(this);
-		m_ShaderCB.blEnabled = 1;
-		m_ShaderCB.blCombineCoefficient = 0.75f;
+		m_ShaderCB.blBrightnessThreshold = XMFLOAT3{ 0.2126f, 0.7152f, 0.0722f };
 	}
 
 	APostFx::~APostFx()
@@ -27,7 +26,7 @@ namespace Insight {
 	{
 		AActor::LoadFromJson(JsonPostFx);
 
-		bool vnEnabled, caEnabled, fgEnabled;
+		bool vnEnabled, caEnabled, fgEnabled, blEnabled;
 
 		const rapidjson::Value& postFx = JsonPostFx["PostFx"];
 
@@ -45,9 +44,14 @@ namespace Insight {
 		json::get_float(chromAb, "caIntensity", m_ShaderCB.caIntensity);
 		json::get_bool(chromAb, "caEnabled", caEnabled);
 
+		const rapidjson::Value& Bloom = postFx[3];
+		json::get_float(Bloom, "blIntensity", m_ShaderCB.blCombineCoefficient);
+		json::get_bool(Bloom, "blEnabled", blEnabled);
+
 		m_ShaderCB.vnEnabled = static_cast<int>(vnEnabled);
 		m_ShaderCB.fgEnabled = static_cast<int>(fgEnabled);
 		m_ShaderCB.caEnabled = static_cast<int>(caEnabled);
+		m_ShaderCB.blEnabled = static_cast<int>(blEnabled);
 		m_ShaderCB.vnInnerRadius = m_TempInnerRadius;
 		m_ShaderCB.vnOuterRadius = m_TempOuterRadius;
 		
@@ -133,6 +137,14 @@ namespace Insight {
 					Writer.Bool(m_ShaderCB.caEnabled);
 				}
 				Writer.EndObject(); // End Chromatic Abberation
+				Writer.StartObject(); // Start Chromatic Abberation
+				{
+					Writer.Key("blIntensity");
+					Writer.Double(m_ShaderCB.blCombineCoefficient);
+					Writer.Key("blEnabled");
+					Writer.Bool(m_ShaderCB.blEnabled);
+				}
+				Writer.EndObject(); // End Chromatic Abberation
 			}
 			Writer.EndArray();
 
@@ -211,8 +223,8 @@ namespace Insight {
 		ImGui::Spacing();
 
 		ImGui::Text("Bloom");
-		ImGui::Checkbox("bmEnabled", (bool*)&m_ShaderCB.blEnabled);
-		ImGui::DragFloat("bmStrength", &m_ShaderCB.blCombineCoefficient, 0.1f, 0.0f, 80.0f);
+		ImGui::Checkbox("blEnabled", (bool*)&m_ShaderCB.blEnabled);
+		ImGui::DragFloat("blStrength", &m_ShaderCB.blCombineCoefficient, 0.1f, 0.0f, 80.0f);
 
 		ImGui::Text("Film Grain");
 		ImGui::Checkbox("fgEnabled", (bool*)&m_ShaderCB.fgEnabled);

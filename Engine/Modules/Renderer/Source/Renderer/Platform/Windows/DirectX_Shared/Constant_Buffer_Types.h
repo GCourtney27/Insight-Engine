@@ -107,7 +107,8 @@ struct CB_PS_PostFx
 	// Bloom
 	int blEnabled;
 	float blCombineCoefficient;
-	float padding[2];
+	DirectX::XMFLOAT3 blBrightnessThreshold;
+	float pad[3];
 };
 
 struct CB_PS_Lights

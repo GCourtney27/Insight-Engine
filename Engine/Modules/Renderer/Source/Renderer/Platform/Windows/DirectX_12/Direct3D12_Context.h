@@ -260,9 +260,9 @@ namespace Insight {
 		//7:   SRV-Shadow Depth(DSV->SRV)
 		//8:   SRV-Raw Bloom Buffer(RTV->SRV)
 		//9:   UAV-Bloom Down Sampled(UAV)
-		//TEMP 10:  SRV-Bloom Down Sampled(UAV(COPY)->SRV)
+		//10:  SRV-Bloom Down Sampled(UAV(COPY)->SRV)
 		//11:  UAV-Bloom Down Sampled Intermediate Buffer(UAV)
-		//TEMP 12:  SRV-Bloom Down Sampled Intermediate Buffer(UAV(COPY)->SRV)
+		//12:  SRV-Bloom Down Sampled Intermediate Buffer(UAV(COPY)->SRV)
 		//-----PerObject-----
 		//13:  SRV-Albedo(SRV)
 		//14:  SRV-Normal(SRV)

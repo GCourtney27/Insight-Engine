@@ -314,8 +314,8 @@ namespace Insight {
 		resDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 		resDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
-		resDesc.Width = static_cast<UINT64>(m_WindowWidth);
-		resDesc.Height = static_cast<UINT64>(m_WindowHeight);
+		resDesc.Width = static_cast<UINT64>(m_pRendererContext->GetWindowRef().GetWidth());
+		resDesc.Height = static_cast<UINT64>(m_pRendererContext->GetWindowRef().GetHeight());
 		resDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 		resDesc.MipLevels = 1;
 		resDesc.SampleDesc.Count = 1;

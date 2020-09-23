@@ -27,6 +27,8 @@ float3 AddChromaticAberration(float3 sourceColor, float2 texCoords);
 float3 AddBloom(float3 sourceColor, float2 texCoords);
 void LinearizeDepth(inout float depth);
 
+void HDRToneMap(inout float3 target);
+void GammaCorrect(inout float3 target);
 // Pixel Shader Return Value
 // -------------------------
 struct PS_INPUT_POSTFX
@@ -58,8 +60,21 @@ float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
         result = AddChromaticAberration(result, ps_in.texCoords);
     }
     
-
+    HDRToneMap(result);
+    GammaCorrect(result);
+    
     return float4(result, 1.0);
+}
+
+void HDRToneMap(inout float3 target)
+{
+    target = float3(1.0, 1.0, 1.0) - exp(-target * cbCameraExposure);
+}
+
+void GammaCorrect(inout float3 target)
+{
+    const float gamma = 2.2;
+    target = pow(target.rgb, float3(1.0 / gamma, 1.0 / gamma, 1.0 / gamma));
 }
 
 float mod(float x, float y)

@@ -54,7 +54,8 @@ cbuffer cbPostFx : register(b3)
     // Bloom
     int blEnabled;
     float blCombineCoefficient;
-    float padding[2];
+    float3 blBrightnessThreshold;
+    float padding[3];
 }
 
 cbuffer cbPerObjectAdditive : register(b4)

@@ -296,8 +296,8 @@ namespace Insight {
 			// Imgui will edit the color values in a normalized 0 to 1 space. 
 			// In the shaders we transform the color values back into 0 to 255 space.
 			ImGui::ColorEdit3("Diffuse Additive: ", &m_ShaderCB.DiffuseAdditive.x, colorWheelFlags);
-			ImGui::SliderFloat("Metallic Addative", &m_ShaderCB.MetallicAdditive, 0.0f, 1.0f);
-			ImGui::SliderFloat("Roughness Addative", &m_ShaderCB.RoughnessAdditive, 0.0f, 1.0f);
+			ImGui::SliderFloat("Metallic Addative", &m_ShaderCB.MetallicAdditive, -1.0f, 1.0f);
+			ImGui::SliderFloat("Roughness Addative", &m_ShaderCB.RoughnessAdditive, -1.0f, 1.0f);
 
 			ImGui::Text("UVs");
 			ImGui::DragFloat2("Tiling:", &m_ShaderCB.UVTiling.x, 0.01f, -50.0f, 50.0f);

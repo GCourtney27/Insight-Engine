@@ -81,7 +81,7 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
         }
         else
         {
-            //shadow = ShadowCalculation(fragPosLightSpace, normal, lightDir);
+            shadow = ShadowCalculation(fragPosLightSpace, normal, lightDir);
         }
         
         directionalLightLuminance += CaclualteDirectionalLight(dirLight, viewDirection, normal, worldPosition, NdotV, albedo, roughness, metallic, baseReflectivity) * (shadow);
@@ -126,8 +126,8 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
 
     // Color Correction
     // TODO: When adding the bloom buffer to the lightpass result in the postfx shader to tonemapping there.
-    HDRToneMap(pixelColor);
-    GammaCorrect(pixelColor);
+    //HDRToneMap(pixelColor);
+    //GammaCorrect(pixelColor);
     ps_out.litImage.rgb = pixelColor;
     
     return ps_out;

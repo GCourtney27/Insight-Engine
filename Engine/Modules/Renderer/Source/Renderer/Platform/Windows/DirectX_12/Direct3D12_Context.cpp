@@ -1098,7 +1098,7 @@ namespace Insight {
 		SRVDesc.Texture2D.MostDetailedMip = 0;
 		SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		SRVDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		pDevice->CreateShaderResourceView(m_RayTraceOutput_SRV.Get(), &SRVDesc, m_cbvsrvHeap.hCPU(10));
+		pDevice->CreateShaderResourceView(m_RayTraceOutput_SRV.Get(), &SRVDesc, m_cbvsrvHeap.hCPU(6));
 
 		// SRV Down-Sampled Buffer
 		ResourceDesc.Width = (UINT)m_WindowWidth / 2;
@@ -1955,6 +1955,7 @@ namespace Insight {
 		{
 			CreateDSVs();
 			CreateRTVs();
+			m_RTHelper.ReCreateOutputBuffer();
 			CreateSRVs();
 			CreateSwapChainRTVDescriptorHeap();
 		}

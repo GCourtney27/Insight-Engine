@@ -45,6 +45,7 @@ namespace Insight {
 		void UpdateCBVs();
 		void SetCommonPipeline();
 		void TraceScene();
+		inline void ReCreateOutputBuffer() { CreateRTOutputBuffer(); }
 
 		void UpdateInstanceTransformByIndex(uint32_t ArrIndex, DirectX::XMMATRIX UpdatedMat) { m_Instances[ArrIndex].second = UpdatedMat; }
 
