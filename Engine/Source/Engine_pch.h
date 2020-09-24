@@ -37,15 +37,6 @@
 	using std::tr1::dynamic_pointer_cast;
 #endif
 
-// === Insight Specific === //
-#include "Insight/Core/Log.h"
-#include "Insight/Core/Interfaces.h"
-#include "Insight/Utilities/Profiling.h"
-#include "Insight/Math/ie_Vectors.h"
-// Parameters
-#define RENDERER_MULTI_THREAD_ENABLED 0
-	static const uint8_t s_NumRenderContexts = 2;
-
 // === Third Party === //
 // Rapid Json
 #include <rapidjson/json.h>
@@ -56,6 +47,18 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/ostreamwrapper.h>
 #include <rapidjson/prettywriter.h>
+
+// === Insight Specific === //
+#include "Insight/Core/Log.h"
+#include "Insight/Core/Interfaces.h"
+#include "Insight/Math/ie_Vectors.h"
+#include "Insight/Utilities/Profiling.h"
+#include "Insight/Utilities/String_Helper.h"
+#include "Insight/Systems/File_System.h"
+
+// Parameters
+#define RENDERER_MULTI_THREAD_ENABLED 0
+	static const uint8_t s_NumRenderContexts = 2;
 
 // -----------
 // Platforms |

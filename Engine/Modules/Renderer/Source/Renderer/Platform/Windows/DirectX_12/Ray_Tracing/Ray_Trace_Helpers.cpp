@@ -21,7 +21,7 @@ namespace Insight {
 
 	bool RayTraceHelpers::OnInit(Direct3D12Context* pRendererContext)
 	{
-		m_pDeviceRef = reinterpret_cast<ID3D12Device5*>(&pRendererContext->GetDeviceContext());
+		m_pDeviceRef = dynamic_cast<ID3D12Device5*>(&pRendererContext->GetDeviceContext());
 		m_pRayTracePass_CommandListRef = &pRendererContext->GetRayTracePassCommandList();
 		m_pRendererContext = pRendererContext;
 
@@ -254,21 +254,28 @@ namespace Insight {
 	void RayTraceHelpers::CreateRTPipeline()
 	{
 		IE_CORE_ASSERT(dynamic_cast<ID3D12Device5*>(m_pDeviceRef.Get()) != nullptr, "Provided device must be \"ID3D12Device5\" which is ray trace compatible.");
-		NvidiaHelpers::RayTracingPipelineGenerator Pipeline(reinterpret_cast<ID3D12Device5*>(m_pDeviceRef.Get()));
+		NvidiaHelpers::RayTracingPipelineGenerator Pipeline(dynamic_cast<ID3D12Device5*>(m_pDeviceRef.Get()));
 
-		const std::wstring& ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring ShaderFolder; ShaderFolder.reserve(512);
+		const std::wstring_view& ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring ShaderFolder(ExeDirectory);
+
 		// Ray Gen
-		ShaderFolder += ExeDirectory + L"../Renderer/RayGen.hlsl";
+		ShaderFolder += L"../Renderer/RayGen.hlsl";
 		m_RayGenLibrary = NvidiaHelpers::CompileShaderLibrary(ShaderFolder.c_str());
 		// Miss
-		ShaderFolder = ExeDirectory + L"../Renderer/Miss.hlsl";
+		ShaderFolder.clear();
+		ShaderFolder = ExeDirectory;
+		ShaderFolder += L"../Renderer/Miss.hlsl";
 		m_MissLibrary = NvidiaHelpers::CompileShaderLibrary(ShaderFolder.c_str());
 		// Hit
-		ShaderFolder = ExeDirectory + L"../Renderer/Closest_Hit.hlsl";
+		ShaderFolder.clear();
+		ShaderFolder = ExeDirectory;
+		ShaderFolder += L"../Renderer/Closest_Hit.hlsl";
 		m_HitLibrary = NvidiaHelpers::CompileShaderLibrary(ShaderFolder.c_str());
 		// Shadow
-		ShaderFolder = ExeDirectory + L"../Renderer/Shadow_Ray.hlsl";
+		ShaderFolder.clear();
+		ShaderFolder = ExeDirectory;
+		ShaderFolder += L"../Renderer/Shadow_Ray.hlsl";
 		m_ShadowLibrary = NvidiaHelpers::CompileShaderLibrary(ShaderFolder.c_str());
 
 

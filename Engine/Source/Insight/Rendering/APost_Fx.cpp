@@ -22,13 +22,13 @@ namespace Insight {
 	{
 	}
 
-	bool APostFx::LoadFromJson(const rapidjson::Value& JsonPostFx)
+	bool APostFx::LoadFromJson(const rapidjson::Value* JsonPostFx)
 	{
 		AActor::LoadFromJson(JsonPostFx);
 
 		bool vnEnabled, caEnabled, fgEnabled, blEnabled;
 
-		const rapidjson::Value& postFx = JsonPostFx["PostFx"];
+		const rapidjson::Value& postFx = (*JsonPostFx)["PostFx"];
 
 		const rapidjson::Value& vignette = postFx[0];
 		json::get_float(vignette, "vnInnerRadius", m_TempInnerRadius);
@@ -58,107 +58,107 @@ namespace Insight {
 		return true;
 	}
 
-	bool APostFx::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
+	bool APostFx::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>* Writer)
 	{
 		// TODO this work should be done in the base Actor class
 
-		Writer.StartObject(); // Start Write Actor
+		Writer->StartObject(); // Start Write Actor
 		{
-			Writer.Key("Type");
-			Writer.String("PostFxVolume");
+			Writer->Key("Type");
+			Writer->String("PostFxVolume");
 
-			Writer.Key("DisplayName");
-			Writer.String(SceneNode::GetDisplayName());
+			Writer->Key("DisplayName");
+			Writer->String(SceneNode::GetDisplayName());
 
-			Writer.Key("Transform");
-			Writer.StartArray(); // Start Write Transform
+			Writer->Key("Transform");
+			Writer->StartArray(); // Start Write Transform
 			{
 				ieTransform& Transform = SceneNode::GetTransformRef();
 				ieVector3 Pos = Transform.GetPosition();
 				ieVector3 Rot = Transform.GetRotation();
 				ieVector3 Sca = Transform.GetScale();
 
-				Writer.StartObject();
+				Writer->StartObject();
 				// Position
-				Writer.Key("posX");
-				Writer.Double(Pos.x);
-				Writer.Key("posY");
-				Writer.Double(Pos.y);
-				Writer.Key("posZ");
-				Writer.Double(Pos.z);
+				Writer->Key("posX");
+				Writer->Double(Pos.x);
+				Writer->Key("posY");
+				Writer->Double(Pos.y);
+				Writer->Key("posZ");
+				Writer->Double(Pos.z);
 				// Rotation
-				Writer.Key("rotX");
-				Writer.Double(Rot.x);
-				Writer.Key("rotY");
-				Writer.Double(Rot.y);
-				Writer.Key("rotZ");
-				Writer.Double(Rot.z);
+				Writer->Key("rotX");
+				Writer->Double(Rot.x);
+				Writer->Key("rotY");
+				Writer->Double(Rot.y);
+				Writer->Key("rotZ");
+				Writer->Double(Rot.z);
 				// Scale
-				Writer.Key("scaX");
-				Writer.Double(Sca.x);
-				Writer.Key("scaY");
-				Writer.Double(Sca.y);
-				Writer.Key("scaZ");
-				Writer.Double(Sca.z);
+				Writer->Key("scaX");
+				Writer->Double(Sca.x);
+				Writer->Key("scaY");
+				Writer->Double(Sca.y);
+				Writer->Key("scaZ");
+				Writer->Double(Sca.z);
 
-				Writer.EndObject();
+				Writer->EndObject();
 			}
-			Writer.EndArray(); // End Write Transform
+			Writer->EndArray(); // End Write Transform
 
 			// Post-Fx Volume Attributes
-			Writer.Key("PostFx");
-			Writer.StartArray();
+			Writer->Key("PostFx");
+			Writer->StartArray();
 			{
-				Writer.StartObject(); // Start Vignette
+				Writer->StartObject(); // Start Vignette
 				{
-					Writer.Key("vnInnerRadius");
-					Writer.Double(m_ShaderCB.vnInnerRadius);
-					Writer.Key("vnOuterRadius");
-					Writer.Double(m_ShaderCB.vnOuterRadius);
-					Writer.Key("vnOpacity");
-					Writer.Double(m_ShaderCB.vnOpacity);
-					Writer.Key("vnEnabled");
-					Writer.Bool(m_ShaderCB.vnEnabled);
+					Writer->Key("vnInnerRadius");
+					Writer->Double(m_ShaderCB.vnInnerRadius);
+					Writer->Key("vnOuterRadius");
+					Writer->Double(m_ShaderCB.vnOuterRadius);
+					Writer->Key("vnOpacity");
+					Writer->Double(m_ShaderCB.vnOpacity);
+					Writer->Key("vnEnabled");
+					Writer->Bool(m_ShaderCB.vnEnabled);
 				}
-				Writer.EndObject(); // End Vignette
-				Writer.StartObject(); // Start Film Grain
+				Writer->EndObject(); // End Vignette
+				Writer->StartObject(); // Start Film Grain
 				{
-					Writer.Key("fgStrength");
-					Writer.Double(m_ShaderCB.fgStrength);
-					Writer.Key("fgEnabled");
-					Writer.Bool(m_ShaderCB.fgEnabled);
+					Writer->Key("fgStrength");
+					Writer->Double(m_ShaderCB.fgStrength);
+					Writer->Key("fgEnabled");
+					Writer->Bool(m_ShaderCB.fgEnabled);
 				}
-				Writer.EndObject(); // End Film Grain
-				Writer.StartObject(); // Start Chromatic Abberation
+				Writer->EndObject(); // End Film Grain
+				Writer->StartObject(); // Start Chromatic Abberation
 				{
-					Writer.Key("caIntensity");
-					Writer.Double(m_ShaderCB.caIntensity);
-					Writer.Key("caEnabled");
-					Writer.Bool(m_ShaderCB.caEnabled);
+					Writer->Key("caIntensity");
+					Writer->Double(m_ShaderCB.caIntensity);
+					Writer->Key("caEnabled");
+					Writer->Bool(m_ShaderCB.caEnabled);
 				}
-				Writer.EndObject(); // End Chromatic Abberation
-				Writer.StartObject(); // Start Chromatic Abberation
+				Writer->EndObject(); // End Chromatic Abberation
+				Writer->StartObject(); // Start Chromatic Abberation
 				{
-					Writer.Key("blIntensity");
-					Writer.Double(m_ShaderCB.blCombineCoefficient);
-					Writer.Key("blEnabled");
-					Writer.Bool(m_ShaderCB.blEnabled);
+					Writer->Key("blIntensity");
+					Writer->Double(m_ShaderCB.blCombineCoefficient);
+					Writer->Key("blEnabled");
+					Writer->Bool(m_ShaderCB.blEnabled);
 				}
-				Writer.EndObject(); // End Chromatic Abberation
+				Writer->EndObject(); // End Chromatic Abberation
 			}
-			Writer.EndArray();
+			Writer->EndArray();
 
-			Writer.Key("Subobjects");
-			Writer.StartArray(); // Start Write SubObjects
+			Writer->Key("Subobjects");
+			Writer->StartArray(); // Start Write SubObjects
 			{
 				for (size_t i = 0; i < m_NumComponents; ++i)
 				{
-					AActor::m_Components[i]->WriteToJson(Writer);
+					AActor::m_Components[i]->WriteToJson(*Writer);
 				}
 			}
-			Writer.EndArray(); // End Write SubObjects
+			Writer->EndArray(); // End Write SubObjects
 		}
-		Writer.EndObject(); // End Write Actor
+		Writer->EndObject(); // End Write Actor
 		return true;
 	}
 

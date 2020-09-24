@@ -7,6 +7,8 @@
 
 namespace Insight {
 
+	using Microsoft::WRL::ComPtr;
+
 	class INSIGHT_API ieD3D11Texture : public Texture
 	{
 	public:

@@ -16,7 +16,7 @@ namespace Insight {
 
 	bool D3D12GeometryManager::Init_Impl()
 	{
-		Direct3D12Context* D3D12Context = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+		Direct3D12Context* D3D12Context = dynamic_cast<Direct3D12Context*>(&Renderer::Get());
 
 		m_ConstantBufferUploadHeaps = &D3D12Context->GetConstantBufferPerObjectUploadHeap();
 		m_ConstantBufferMaterialUploadHeaps = &D3D12Context->GetConstantBufferPerObjectMaterialUploadHeap();

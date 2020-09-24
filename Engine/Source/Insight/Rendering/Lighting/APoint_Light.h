@@ -13,8 +13,8 @@ namespace Insight {
 		APointLight(ActorId id, Runtime::ActorType type = "Point Light Actor");
 		virtual ~APointLight();
 
-		virtual bool LoadFromJson(const rapidjson::Value& jsonPointLight) override;
-		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer) override;
+		virtual bool LoadFromJson(const rapidjson::Value* jsonPointLight) override;
+		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>* Writer) override;
 
 		virtual bool OnInit();
 		virtual bool OnPostInit();

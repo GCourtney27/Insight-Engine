@@ -24,7 +24,7 @@ namespace Insight {
 
 	bool D3D11IndexBuffer::CreateResources()
 	{
-		Direct3D11Context* D3D11Context = reinterpret_cast<Direct3D11Context*>(&Renderer::Get());
+		Direct3D11Context* D3D11Context = dynamic_cast<Direct3D11Context*>(&Renderer::Get());
 
 		if (m_pIndexBuffer != nullptr) {
 			m_pIndexBuffer->Release();

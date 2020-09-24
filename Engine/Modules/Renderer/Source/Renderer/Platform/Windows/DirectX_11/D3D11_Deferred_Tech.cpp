@@ -5,7 +5,6 @@
 #include "Platform/Windows/Windows_Window.h"
 #include "Platform/Windows/Error/COM_Exception.h"
 #include "Insight/Rendering/Geometry/Vertex.h"
-#include "Insight/Systems/File_System.h"
 
 namespace Insight {
 
@@ -209,11 +208,11 @@ namespace Insight {
 	{
 		HRESULT hr;
 
-		std::wstring ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring vertShaderFolder = ExeDirectory + L"../Renderer/Geometry_Pass.vertex.cso";
-		LPCWSTR VertexShaderFolder = vertShaderFolder.c_str();
-		std::wstring pixShaderFolder = ExeDirectory + L"../Renderer/Geometry_Pass.pixel.cso";
-		LPCWSTR PixelShaderFolder = pixShaderFolder.c_str();
+		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring VertexShaderFolder(ExeDirectory);
+		VertexShaderFolder += L"../Renderer/Geometry_Pass.vertex.cso";
+		std::wstring PixelShaderFolder(ExeDirectory);
+		PixelShaderFolder += L"../Renderer/Geometry_Pass.pixel.cso";
 
 		D3D11_INPUT_ELEMENT_DESC InputLayout[5] =
 		{
@@ -310,11 +309,11 @@ namespace Insight {
 	{
 		HRESULT hr;
 
-		std::wstring ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring vertShaderFolder = ExeDirectory + L"../Renderer/Light_Pass.vertex.cso";
-		LPCWSTR VertexShaderFolder = vertShaderFolder.c_str();
-		std::wstring pixShaderFolder = ExeDirectory + L"../Renderer/Light_Pass.pixel.cso";
-		LPCWSTR PixelShaderFolder = pixShaderFolder.c_str();
+		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring VertexShaderFolder(ExeDirectory);
+		VertexShaderFolder += L"../Renderer/Light_Pass.vertex.cso";
+		std::wstring PixelShaderFolder(ExeDirectory);
+		PixelShaderFolder += L"../Renderer/Light_Pass.pixel.cso";
 
 		D3D11_INPUT_ELEMENT_DESC InputLayout[2] =
 		{
@@ -358,11 +357,11 @@ namespace Insight {
 
 	void D3D11DeferredShadingTech::CreateSkyPass()
 	{
-		std::wstring ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring vertShaderFolder = ExeDirectory + L"../Renderer/Skybox.vertex.cso";
-		LPCWSTR VertexShaderFolder = vertShaderFolder.c_str();
-		std::wstring pixShaderFolder = ExeDirectory + L"../Renderer/Skybox.pixel.cso";
-		LPCWSTR PixelShaderFolder = pixShaderFolder.c_str();
+		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring VertexShaderFolder(ExeDirectory);
+		VertexShaderFolder += L"../Renderer/Skybox.vertex.cso";
+		std::wstring PixelShaderFolder(ExeDirectory);
+		PixelShaderFolder += L"../Renderer/Skybox.pixel.cso";
 
 		D3D11_INPUT_ELEMENT_DESC InputLayout[2] =
 		{
@@ -389,11 +388,11 @@ namespace Insight {
 
 	void D3D11DeferredShadingTech::CreateTransparencyPass()
 	{
-		std::wstring ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring vertShaderFolder = ExeDirectory + L"../Renderer/Transparency_Pass.vertex.cso";
-		LPCWSTR VertexShaderFolder = vertShaderFolder.c_str();
-		std::wstring pixShaderFolder = ExeDirectory + L"../Renderer/Transparency_Pass.pixel.cso";
-		LPCWSTR PixelShaderFolder = pixShaderFolder.c_str();
+		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring VertexShaderFolder(ExeDirectory);
+		VertexShaderFolder += L"../Renderer/Transparency_Pass.vertex.cso";
+		std::wstring PixelShaderFolder(ExeDirectory);
+		PixelShaderFolder += L"../Renderer/Transparency_Pass.pixel.cso";
 
 		D3D11_INPUT_ELEMENT_DESC InputLayout[5] =
 		{
@@ -427,12 +426,11 @@ namespace Insight {
 
 	void D3D11DeferredShadingTech::CreatePostEffectsPass()
 	{
-		std::wstring ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring vertShaderFolder = ExeDirectory + L"../Renderer/PostFx.vertex.cso";
-		LPCWSTR VertexShaderFolder = vertShaderFolder.c_str();
-		std::wstring pixShaderFolder = ExeDirectory + L"../Renderer/PostFx.pixel.cso";
-		LPCWSTR PixelShaderFolder = pixShaderFolder.c_str();
-
+		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring VertexShaderFolder(ExeDirectory);
+		VertexShaderFolder += L"../Renderer/PostFx.vertex.cso";
+		std::wstring PixelShaderFolder(ExeDirectory);
+		PixelShaderFolder += L"../Renderer/PostFx.pixel.cso";
 
 		D3D11_INPUT_ELEMENT_DESC InputLayout[2] =
 		{

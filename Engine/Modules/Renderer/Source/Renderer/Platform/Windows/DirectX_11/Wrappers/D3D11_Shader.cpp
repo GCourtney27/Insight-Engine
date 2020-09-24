@@ -6,7 +6,7 @@
 
 namespace Insight {
 
-	bool VertexShader::Init(ComPtr<ID3D11Device>& pDevice, std::wstring ShaderPath, D3D11_INPUT_ELEMENT_DESC* pLayoutDesc, UINT NumElements)
+	bool VertexShader::Init(ComPtr<ID3D11Device>& pDevice, std::wstring& ShaderPath, D3D11_INPUT_ELEMENT_DESC* pLayoutDesc, UINT NumElements)
 	{
 		// If the shader exists already then we are probably resising a window or
 		// doing something else. Dont read in a file or recreate the shader, just return
@@ -50,7 +50,7 @@ namespace Insight {
 
 
 
-	bool PixelShader::Init(ComPtr<ID3D11Device>& device, std::wstring shaderpath)
+	bool PixelShader::Init(ComPtr<ID3D11Device>& device, std::wstring& shaderpath)
 	{
 		// If the shader exists already then we are probably resising a window or
 		// doing something else. Dont read in a file or recreate the shader, just return

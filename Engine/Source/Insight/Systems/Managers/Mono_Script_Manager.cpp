@@ -2,7 +2,6 @@
 
 #include "Mono_Script_Manager.h"
 
-#include "Insight/Systems/File_System.h"
 #include "Insight/Systems/Managers/Resource_Manager.h"
 #include "Insight/Input/Windows_Input.h"
 
@@ -87,7 +86,7 @@ namespace Insight {
 		if (!m_ManagerIsInitialized) {
 
 			const char* BuildConfig = MACRO_TO_STRING(IE_BUILD_CONFIG);
-			m_AssemblyDir = FileSystem::ProjectDirectory;
+			m_AssemblyDir = FileSystem::GetProjectDirectory();
 			m_AssemblyDir += "/Bin/";
 			m_AssemblyDir += BuildConfig;
 			m_AssemblyDir += "/Assembly-CSharp/Assembly-CSharp.dll";

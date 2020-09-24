@@ -3,7 +3,6 @@
 #include "Material.h"
 
 #include "Insight/Utilities/String_Helper.h"
-#include "Insight/Systems/File_System.h"
 #include "Insight/Systems/Managers/Resource_Manager.h"
 
 #include "imgui.h"
@@ -272,25 +271,6 @@ namespace Insight {
 	{
 		if (ImGui::TreeNodeEx("Material", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			ImGui::Text("Textures");
-
-			ImGui::Text("Albedo:"); ImGui::SameLine();
-			ImGui::Text(m_AlbedoMap->GetDisplayName().c_str());
-
-			ImGui::Text("Normal:"); ImGui::SameLine();
-			ImGui::Text(m_NormalMap->GetDisplayName().c_str());
-
-			ImGui::Text("Roughness:"); ImGui::SameLine();
-			ImGui::Text(m_RoughnessMap->GetDisplayName().c_str());
-
-			ImGui::Text("Metallic:"); ImGui::SameLine();
-			ImGui::Text(m_MetallicMap->GetDisplayName().c_str());
-
-			ImGui::Text("AO:"); ImGui::SameLine();
-			ImGui::Text(m_AOMap->GetDisplayName().c_str());
-
-			ImGui::Spacing();
-
 			ImGui::Text("PBR Offsets");
 			ImGuiColorEditFlags colorWheelFlags = ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_PickerHueWheel;
 			// Imgui will edit the color values in a normalized 0 to 1 space. 

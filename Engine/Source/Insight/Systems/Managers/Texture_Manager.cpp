@@ -1,7 +1,6 @@
 #include <Engine_pch.h>
 
 #include "Texture_Manager.h"
-#include "Insight/Systems/File_System.h"
 #include "Insight/Utilities/String_Helper.h"
 #include "Renderer/Renderer.h"
 
@@ -79,7 +78,6 @@ namespace Insight {
 			json::get_bool(JsonTextures[i], "GenerateMipMaps", GenMipMaps);
 
 			Texture::IE_TEXTURE_INFO TexInfo = {};
-			TexInfo.DisplayName = Name;
 			TexInfo.Id = ID;
 			TexInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(Filepath));
 			TexInfo.GenerateMipMaps = GenMipMaps;
@@ -195,42 +193,39 @@ namespace Insight {
 
 	bool TextureManager::LoadDefaultTextures()
 	{
-		std::wstring ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring_view ExeDir = FileSystem::GetExecutbleDirectoryW();
+		std::wstring ExeDirectory(ExeDir);
 		ExeDirectory += L"../Default_Assets/";
 		
 		// Albedo
 		IE_TEXTURE_INFO AlbedoTexInfo = {};
+		size_t TextureInfo = sizeof(IE_TEXTURE_INFO);
 		AlbedoTexInfo.Id = DEFAULT_ALBEDO_TEXTURE_ID;
 		AlbedoTexInfo.GenerateMipMaps = true;
-		AlbedoTexInfo.DisplayName = "Default_Albedo";
 		AlbedoTexInfo.Type = Texture::eTextureType::eTextureType_Albedo;
 		AlbedoTexInfo.Filepath = ExeDirectory + L"Default_Albedo.png";
 		// Normal
 		IE_TEXTURE_INFO NormalTexInfo = {};
 		NormalTexInfo.Id = DEFAULT_NORMAL_TEXTURE_ID;
 		NormalTexInfo.GenerateMipMaps = true;
-		NormalTexInfo.DisplayName = "Default_Normal";
 		NormalTexInfo.Type = Texture::eTextureType::eTextureType_Normal;
 		NormalTexInfo.Filepath = ExeDirectory + L"Default_Normal.png";
 		// Metallic
 		IE_TEXTURE_INFO MetallicTexInfo = {};
 		MetallicTexInfo.Id = DEFAULT_METALLIC_TEXTURE_ID;
 		MetallicTexInfo.GenerateMipMaps = true;
-		MetallicTexInfo.DisplayName = "Default_Metallic";
 		MetallicTexInfo.Type = Texture::eTextureType::eTextureType_Metallic;
 		MetallicTexInfo.Filepath = ExeDirectory + L"Default_Metallic.png";
 		// Roughness
 		IE_TEXTURE_INFO RoughnessTexInfo = {};
 		RoughnessTexInfo.Id = DEFAULT_ROUGHNESS_TEXTURE_ID;
 		RoughnessTexInfo.GenerateMipMaps = true;
-		RoughnessTexInfo.DisplayName = "Default_Roughness";
 		RoughnessTexInfo.Type = Texture::eTextureType::eTextureType_Roughness;
 		RoughnessTexInfo.Filepath = ExeDirectory + L"Default_RoughAO.png";
 		// AO
 		IE_TEXTURE_INFO AOTexInfo = {};
 		AOTexInfo.Id = DEFAULT_AO_TEXTURE_ID;
 		AOTexInfo.GenerateMipMaps = true;
-		AOTexInfo.DisplayName = "Default_AO";
 		AOTexInfo.Type = Texture::eTextureType::eTextureType_AmbientOcclusion;
 		AOTexInfo.Filepath = ExeDirectory + L"Default_RoughAO.png";
 
@@ -326,7 +321,7 @@ namespace Insight {
 				}
 				default:
 				{
-					IE_CORE_WARN("Failed to identify texture to create with name of {0} - ID({1})", TexInfo.DisplayName, TexInfo.Id);
+					IE_CORE_WARN("Failed to identify texture to create with ID of {0}", TexInfo.Id);
 					break;
 				}
 				}
@@ -382,7 +377,7 @@ namespace Insight {
 				}
 				default:
 				{
-					IE_CORE_WARN("Failed to identify texture to create with name of {0} - ID({1})", TexInfo.DisplayName, TexInfo.Id);
+					IE_CORE_WARN("Failed to identify texture to create with ID of: {0}", TexInfo.Id);
 					break;
 				}
 				}

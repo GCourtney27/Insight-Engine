@@ -31,7 +31,7 @@ namespace Insight {
 			m_pVertexBuffer->Release();
 		}
 
-		Direct3D11Context* D3D11Context = reinterpret_cast<Direct3D11Context*>(&Renderer::Get());
+		Direct3D11Context* D3D11Context = dynamic_cast<Direct3D11Context*>(&Renderer::Get());
 		
 		D3D11_BUFFER_DESC VertexBufferDesc = {};
 		VertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;

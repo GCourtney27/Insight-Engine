@@ -25,7 +25,7 @@ namespace Insight {
 		// other game actors in the world are children too.
 		SceneNode* GetRootNode() const { return m_pSceneRoot; }
 		// Write scene out to JSON file.
-		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
+		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>* writer);
 
 		// Initialize the scene
 		bool Init(const std::string& fileName);

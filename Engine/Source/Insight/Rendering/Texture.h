@@ -4,7 +4,6 @@
 
 namespace Insight {
 
-	using Microsoft::WRL::ComPtr;
 
 	class Texture
 	{
@@ -35,19 +34,23 @@ namespace Insight {
 			bool GenerateMipMaps = true;
 			bool IsCubeMap = false;
 			std::wstring Filepath;
-			std::string AssetDirectoryRelPath;
-			std::string DisplayName;
 			ID Id;
 		};
 
 	public:
-		Texture(IE_TEXTURE_INFO createInfo);
-		Texture() {}
-		virtual ~Texture();
+		Texture(IE_TEXTURE_INFO CreateInfo)
+			: m_TextureInfo(CreateInfo) {}
+		Texture() = delete;
+		virtual ~Texture() = default;
 	
 		bool operator==(const Texture& Tex)
 		{
 			return m_TextureInfo.Id == Tex.GetTextureInfo().Id;
+		}
+		
+		bool operator!=(const Texture& Tex)
+		{
+			return m_TextureInfo.Id != Tex.GetTextureInfo().Id;
 		}
 
 		// Destroy and release texture resources.
@@ -58,19 +61,14 @@ namespace Insight {
 		
 		// Get the general information about this texture.
 		inline const IE_TEXTURE_INFO& GetTextureInfo() const { return m_TextureInfo; }
-		// Get the filename for this texture.
-		inline const std::string& GetDisplayName() const { return m_TextureInfo.DisplayName; }
 		// Get the full file path to this texture on disk.
 		inline const std::wstring& GetFilepath() const { return m_TextureInfo.Filepath; }
-		// Get the Asset directory relative path for the texture for this project.
-		inline const std::string& GetAssetDirectoryRelPath() const { return m_TextureInfo.AssetDirectoryRelPath; }
 		// Returns true if the texture is the default for its type. False if not.
 		inline bool IsDefaultTexture() const { return m_TextureInfo.Id < 0; }
 
 	protected:
-		IE_TEXTURE_INFO				m_TextureInfo = {};
+		IE_TEXTURE_INFO	m_TextureInfo = {};
 	};
 
 	using IE_TEXTURE_INFO = Texture::IE_TEXTURE_INFO;
-
 }

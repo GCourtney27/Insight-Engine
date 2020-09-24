@@ -6,11 +6,13 @@
 #include "Renderer/Platform/Windows/DirectX_12/Wrappers/Descriptor_Heap_Wrapper.h"
 
 namespace Insight {
+	
+	using Microsoft::WRL::ComPtr;
 
 	class INSIGHT_API ieD3D12Texture : public Texture
 	{
 	public:
-		typedef UINT32 SRVHeapTextureHandle;
+		typedef UINT32 SRVHeapIndex;
 
 	public:
 		ieD3D12Texture(IE_TEXTURE_INFO createInfo, CDescriptorHeapWrapper& srvHeapHandle);
@@ -24,7 +26,7 @@ namespace Insight {
 		virtual void BindForForwardPass() override;
 
 		// Get the heap handle associated with the CBV/SRV heap bound to the pipeline.
-		inline const SRVHeapTextureHandle GetSrvHeapHandle() { return m_GPUHeapIndex; }
+		inline const SRVHeapIndex GetSrvHeapHandle() { return m_GPUHeapIndex; }
 		// Get the Direc3D 12 resource description for this texture.
 		inline D3D12_RESOURCE_DESC GetD3D12ResourceDescription() { return m_D3DTextureDesc; }
 		// Get the width of the texture in texels.
@@ -49,17 +51,15 @@ namespace Insight {
 		// This should only be called once during initialization of the texture.
 		UINT GetRootParameterIndexForTextureType(eTextureType TextureType);
 	private:
-		ID3D12GraphicsCommandList* m_pScenePass_CommandList = nullptr;
-		ID3D12GraphicsCommandList* m_pTranslucencyPass_CommandList = nullptr;
-		CDescriptorHeapWrapper* m_pCbvSrvHeapStart;
+		ID3D12GraphicsCommandList*	m_pScenePass_CommandList;
+		ID3D12GraphicsCommandList*	m_pTranslucencyPass_CommandList;
+		CDescriptorHeapWrapper*		m_pCbvSrvHeapStart;
 
 		ComPtr<ID3D12Resource>		m_pTexture;
 		D3D12_RESOURCE_DESC			m_D3DTextureDesc = {};
-		SRVHeapTextureHandle				m_GPUHeapIndex = 0U;
+		SRVHeapIndex				m_GPUHeapIndex;
 
-		IE_TEXTURE_INFO				m_TextureInfo = {};
-
-		uint32_t						m_RootParamIndex = 0U;
+		uint32_t					m_RootParamIndex;
 	private:
 		static uint32_t s_NumSceneTextures;
 

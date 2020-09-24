@@ -125,7 +125,6 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
         ps_out.BloomBuffer.rgb = float3(0.0, 0.0, 0.0);
 
     // Color Correction
-    // TODO: When adding the bloom buffer to the lightpass result in the postfx shader to tonemapping there.
     //HDRToneMap(pixelColor);
     //GammaCorrect(pixelColor);
     ps_out.litImage.rgb = pixelColor;

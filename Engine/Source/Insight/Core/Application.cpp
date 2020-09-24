@@ -5,13 +5,13 @@
 #include "Insight/Input/Input.h"
 #include "Insight/Runtime/AActor.h"
 #include "Insight/Layer_Types/ImGui_Layer.h"
-#include "Platform/Windows/Windows_Window.h"
 #include "Insight/Core/ie_Exception.h"
 #include "Renderer/Renderer.h"
 
 #if defined IE_PLATFORM_WINDOWS
 #include "Renderer/Platform/Windows/DirectX_11/Wrappers/D3D11_ImGui_Layer.h"
 #include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_ImGui_Layer.h"
+#include "Platform/Windows/Windows_Window.h"
 #endif
 
 // TODO: Make the project hot reloadable
@@ -70,7 +70,7 @@ namespace Insight {
 		m_pGameLayer = new GameLayer();
 
 		// Load the Scene
-		std::string DocumentPath = FileSystem::ProjectDirectory;
+		std::string DocumentPath(FileSystem::GetProjectDirectory());
 		DocumentPath += "/Assets/Scenes/";
 		DocumentPath += TargetSceneName;
 		if (!m_pGameLayer->LoadScene(DocumentPath)) {

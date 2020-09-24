@@ -16,8 +16,10 @@
 
 namespace Insight {
 
+	std::string FileSystem::UserDocumentsFolder = "";
 	std::string FileSystem::ProjectDirectory = "";
 	std::string FileSystem::ExecutableDirectory = "";
+	std::wstring FileSystem::ExecutableDirectoryW = L"";
 
 	FileSystem::FileSystem()
 	{
@@ -29,12 +31,11 @@ namespace Insight {
 
 	bool FileSystem::Init(const char* ProjectName)
 	{
-		FileSystem::ProjectDirectory += FileSystem::GetUserDocumentsFolderPath();
-		FileSystem::ProjectDirectory += "/Insight Projects/";
-		FileSystem::ProjectDirectory += ProjectName;
-		FileSystem::ProjectDirectory += "/";
+		SetUserDocumentsFolderDirectory();
+		SetProjectDirectory(ProjectName);
+		SetExecutableDirectory();
 		
-		FileSystem::ExecutableDirectory = FileSystem::GetExecutbleDirectory();
+		FileSystem::ExecutableDirectory = GetExecutbleDirectory();
 		return true;
 	}
 
@@ -85,49 +86,6 @@ namespace Insight {
 			}
 		}
 
-	}
-
-	std::string FileSystem::GetExecutbleDirectory()
-	{
-		WCHAR Path[512];
-		UINT RawPathSize = _countof(Path);
-		DWORD PathSize = GetModuleFileName(nullptr, Path, RawPathSize);
-		if(PathSize == 0 || PathSize == RawPathSize) {
-			throw ieException("Failed to get module path name or path may have been truncated.");
-		}
-
-		WCHAR* LastSlash = wcsrchr(Path, L'\\');
-		if (LastSlash) {
-			*(LastSlash + 1) = L'\0';
-		}
-		return StringHelper::WideToString(std::wstring{ Path });
-	}
-
-	std::wstring FileSystem::GetExecutbleDirectoryW()
-	{
-		WCHAR Path[512];
-		UINT RawPathSize = _countof(Path);
-		DWORD PathSize = GetModuleFileName(nullptr, Path, RawPathSize);
-		if (PathSize == 0 || PathSize == RawPathSize) {
-			throw ieException("Failed to get module path name or path may have been truncated.");
-		}
-
-		WCHAR* LastSlash = wcsrchr(Path, L'\\');
-		if (LastSlash) {
-			*(LastSlash + 1) = L'\0';
-		}
-		return std::wstring{ Path };
-	}
-
-	std::string FileSystem::GetUserDocumentsFolderPath()
-	{
-		wchar_t Folder[1024];
-		HRESULT hr = SHGetFolderPathW(NULL, CSIDL_MYDOCUMENTS, 0, 0, Folder);
-		if (FAILED(hr)) {
-			IE_CORE_ERROR("Failed to get path to user documents folder.");
-		}
-		
-		return StringHelper::WideToString(std::wstring{ Folder });
 	}
 
 	std::string FileSystem::GetProjectRelativeAssetDirectory(std::string Path)
@@ -233,31 +191,31 @@ namespace Insight {
 
 				if (ActorType == "Actor") {
 					pNewActor = new Runtime::AActor(ActorSceneIndex, ActorDisplayName);
-					pNewActor->LoadFromJson(jsonActor);
+					pNewActor->LoadFromJson(&jsonActor);
 				}
 				else if (ActorType == "PointLight") {
 					pNewActor = new APointLight(ActorSceneIndex, ActorDisplayName);
-					pNewActor->LoadFromJson(jsonActor);
+					pNewActor->LoadFromJson(&jsonActor);
 				}
 				else if (ActorType == "SpotLight") {
 					pNewActor = new ASpotLight(ActorSceneIndex, ActorDisplayName);
-					pNewActor->LoadFromJson(jsonActor);
+					pNewActor->LoadFromJson(&jsonActor);
 				}
  				else if (ActorType == "DirectionalLight") {
 					pNewActor = new ADirectionalLight(ActorSceneIndex, ActorDisplayName);
-					pNewActor->LoadFromJson(jsonActor);
+					pNewActor->LoadFromJson(&jsonActor);
 				}
 				else if (ActorType == "SkySphere") {
 					pNewActor = new ASkySphere(ActorSceneIndex, ActorDisplayName);
-					pNewActor->LoadFromJson(jsonActor);
+					pNewActor->LoadFromJson(&jsonActor);
 				}
 				else if (ActorType == "SkyLight") {
 					pNewActor = new ASkyLight(ActorSceneIndex, ActorDisplayName);
-					pNewActor->LoadFromJson(jsonActor);
+					pNewActor->LoadFromJson(&jsonActor);
 				}
 				else if (ActorType == "PostFxVolume") {
 					pNewActor = new APostFx(ActorSceneIndex, ActorDisplayName);
-					pNewActor->LoadFromJson(jsonActor);
+					pNewActor->LoadFromJson(&jsonActor);
 				}
 
 				if (pNewActor == nullptr) {
@@ -305,7 +263,7 @@ namespace Insight {
 			rapidjson::StringBuffer StrBuffer;
 			rapidjson::PrettyWriter<rapidjson::StringBuffer> Writer(StrBuffer);
 
-			pScene->WriteToJson(Writer);
+			pScene->WriteToJson(&Writer);
 
 			// Final Export
 			std::string sceneName = FileSystem::ProjectDirectory + "/Assets/Scenes/" + pScene->GetDisplayName() + ".iescene/Actors.json";
@@ -321,10 +279,47 @@ namespace Insight {
 		return true;
 	}
 
-	bool FileSystem::FileExists(const std::string& Path)
+	bool FileSystem::FileExistsInAssetDirectory(const std::string& Path)
 	{
-		std::string RawPath = ProjectDirectory + "Assets/" + Path;
+		std::string RawPath(GetProjectDirectory());
+		RawPath += "Assets/" + Path;
 		return PathFileExistsA(RawPath.c_str());
+	}
+
+	void FileSystem::SetExecutableDirectory()
+	{
+		WCHAR Path[512];
+		UINT RawPathSize = _countof(Path);
+		DWORD PathSize = GetModuleFileName(nullptr, Path, RawPathSize);
+		if (PathSize == 0 || PathSize == RawPathSize) {
+			throw ieException("Failed to get module path name or path may have been truncated.");
+		}
+
+		WCHAR* LastSlash = wcsrchr(Path, L'\\');
+		if (LastSlash) {
+			*(LastSlash + 1) = L'\0';
+		}
+		FileSystem::ExecutableDirectoryW = std::wstring{ Path };
+		FileSystem::ExecutableDirectory = StringHelper::WideToString(FileSystem::ExecutableDirectoryW);
+	}
+
+	void FileSystem::SetProjectDirectory(const char* ProjectName)
+	{
+		FileSystem::ProjectDirectory += FileSystem::GetUserDocumentsFolderPath();
+		FileSystem::ProjectDirectory += "/Insight Projects/";
+		FileSystem::ProjectDirectory += ProjectName;
+		FileSystem::ProjectDirectory += "/";
+	}
+
+	void FileSystem::SetUserDocumentsFolderDirectory()
+	{
+		wchar_t Folder[1024];
+		HRESULT hr = SHGetFolderPathW(NULL, CSIDL_MYDOCUMENTS, 0, 0, Folder);
+		if (FAILED(hr)) {
+			IE_CORE_ERROR("Failed to get path to user documents folder.");
+		}
+
+		UserDocumentsFolder = StringHelper::WideToString(std::wstring{ Folder });
 	}
 
 

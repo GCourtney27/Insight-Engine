@@ -28,11 +28,11 @@ namespace Insight {
 	{
 	}
 
-	bool ASpotLight::LoadFromJson(const rapidjson::Value& jsonSpotLight)
+	bool ASpotLight::LoadFromJson(const rapidjson::Value* jsonSpotLight)
 	{
 		AActor::LoadFromJson(jsonSpotLight);
 
-		const rapidjson::Value& emission = jsonSpotLight["Emission"];
+		const rapidjson::Value& emission = (*jsonSpotLight)["Emission"];
 		json::get_float(emission[0], "diffuseR", m_ShaderCB.DiffuseColor.x);
 		json::get_float(emission[0], "diffuseG", m_ShaderCB.DiffuseColor.y);
 		json::get_float(emission[0], "diffuseB", m_ShaderCB.DiffuseColor.z);
@@ -50,89 +50,89 @@ namespace Insight {
 		return true;
 	}
 
-	bool ASpotLight::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
+	bool ASpotLight::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>* Writer)
 	{
-		Writer.StartObject(); // Start Write Actor
+		Writer->StartObject(); // Start Write Actor
 		{
-			Writer.Key("Type");
-			Writer.String("SpotLight");
+			Writer->Key("Type");
+			Writer->String("SpotLight");
 
-			Writer.Key("DisplayName");
-			Writer.String(SceneNode::GetDisplayName());
+			Writer->Key("DisplayName");
+			Writer->String(SceneNode::GetDisplayName());
 
-			Writer.Key("Transform");
-			Writer.StartArray(); // Start Write Transform
+			Writer->Key("Transform");
+			Writer->StartArray(); // Start Write Transform
 			{
 				ieTransform& Transform = SceneNode::GetTransformRef();
 				ieVector3 Pos = Transform.GetPosition();
 				ieVector3 Rot = Transform.GetRotation();
 				ieVector3 Sca = Transform.GetScale();
 
-				Writer.StartObject();
+				Writer->StartObject();
 				// Position
-				Writer.Key("posX");
-				Writer.Double(Pos.x);
-				Writer.Key("posY");
-				Writer.Double(Pos.y);
-				Writer.Key("posZ");
-				Writer.Double(Pos.z);
+				Writer->Key("posX");
+				Writer->Double(Pos.x);
+				Writer->Key("posY");
+				Writer->Double(Pos.y);
+				Writer->Key("posZ");
+				Writer->Double(Pos.z);
 				// Rotation
-				Writer.Key("rotX");
-				Writer.Double(Rot.x);
-				Writer.Key("rotY");
-				Writer.Double(Rot.y);
-				Writer.Key("rotZ");
-				Writer.Double(Rot.z);
+				Writer->Key("rotX");
+				Writer->Double(Rot.x);
+				Writer->Key("rotY");
+				Writer->Double(Rot.y);
+				Writer->Key("rotZ");
+				Writer->Double(Rot.z);
 				// Scale
-				Writer.Key("scaX");
-				Writer.Double(Sca.x);
-				Writer.Key("scaY");
-				Writer.Double(Sca.y);
-				Writer.Key("scaZ");
-				Writer.Double(Sca.z);
+				Writer->Key("scaX");
+				Writer->Double(Sca.x);
+				Writer->Key("scaY");
+				Writer->Double(Sca.y);
+				Writer->Key("scaZ");
+				Writer->Double(Sca.z);
 
-				Writer.EndObject();
+				Writer->EndObject();
 			}
-			Writer.EndArray(); // End Write Transform
+			Writer->EndArray(); // End Write Transform
 
 			// Spot Light Attributes
-			Writer.Key("Emission");
-			Writer.StartArray();
+			Writer->Key("Emission");
+			Writer->StartArray();
 			{
-				Writer.StartObject();
-				Writer.Key("diffuseR");
-				Writer.Double(m_ShaderCB.DiffuseColor.x);
-				Writer.Key("diffuseG");
-				Writer.Double(m_ShaderCB.DiffuseColor.y);
-				Writer.Key("diffuseB");
-				Writer.Double(m_ShaderCB.DiffuseColor.z);
-				Writer.Key("directionX");
-				Writer.Double(m_ShaderCB.Direction.x);
-				Writer.Key("directionY");
-				Writer.Double(m_ShaderCB.Direction.y);
-				Writer.Key("directionZ");
-				Writer.Double(m_ShaderCB.Direction.z);
-				Writer.Key("strength");
-				Writer.Double(m_ShaderCB.Strength);
-				Writer.Key("innerCuttoff");
-				Writer.Double(m_ShaderCB.InnerCutoff);
-				Writer.Key("outerCuttoff");
-				Writer.Double(m_ShaderCB.OuterCutoff);
-				Writer.EndObject();
+				Writer->StartObject();
+				Writer->Key("diffuseR");
+				Writer->Double(m_ShaderCB.DiffuseColor.x);
+				Writer->Key("diffuseG");
+				Writer->Double(m_ShaderCB.DiffuseColor.y);
+				Writer->Key("diffuseB");
+				Writer->Double(m_ShaderCB.DiffuseColor.z);
+				Writer->Key("directionX");
+				Writer->Double(m_ShaderCB.Direction.x);
+				Writer->Key("directionY");
+				Writer->Double(m_ShaderCB.Direction.y);
+				Writer->Key("directionZ");
+				Writer->Double(m_ShaderCB.Direction.z);
+				Writer->Key("strength");
+				Writer->Double(m_ShaderCB.Strength);
+				Writer->Key("innerCuttoff");
+				Writer->Double(m_ShaderCB.InnerCutoff);
+				Writer->Key("outerCuttoff");
+				Writer->Double(m_ShaderCB.OuterCutoff);
+				Writer->EndObject();
 			}
-			Writer.EndArray();
+			Writer->EndArray();
 
-			Writer.Key("Subobjects");
-			Writer.StartArray(); // Start Write SubObjects
+			Writer->Key("Subobjects");
+			Writer->StartArray(); // Start Write SubObjects
 			{
 				for (size_t i = 0; i < m_NumComponents; ++i)
 				{
-					m_Components[i]->WriteToJson(Writer);
+					m_Components[i]->WriteToJson(*Writer);
 				}
 			}
-			Writer.EndArray(); // End Write SubObjects
+			Writer->EndArray(); // End Write SubObjects
 		}
-		Writer.EndObject(); // End Write Actor
+		Writer->EndObject(); // End Write Actor
 		return true;
 	}
 

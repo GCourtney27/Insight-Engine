@@ -9,7 +9,7 @@ namespace Insight {
 	void ieD3D12ScreenQuad::Init()
 	{
 		HRESULT hr;
-		Direct3D12Context* GraphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+		Direct3D12Context* GraphicsContext = dynamic_cast<Direct3D12Context*>(&Renderer::Get());
 
 		// Vertex Buffer
 		ScreenSpaceVertex quadVerts[] =

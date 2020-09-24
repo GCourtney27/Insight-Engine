@@ -46,7 +46,7 @@ namespace Insight {
 			m_pIO->KeyMap[ImGuiKey_Z] = 'Z';
 		}
 
-		Direct3D11Context* GraphicsContext = reinterpret_cast<Direct3D11Context*>(&Renderer::Get());
+		Direct3D11Context* GraphicsContext = dynamic_cast<Direct3D11Context*>(&Renderer::Get());
 
 		HWND* pWindowHandle = static_cast<HWND*>(Application::Get().GetWindow().GetNativeWindow());
 		m_pWindowHandle = pWindowHandle;

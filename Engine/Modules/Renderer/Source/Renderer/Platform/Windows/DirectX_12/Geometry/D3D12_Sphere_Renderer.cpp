@@ -20,7 +20,7 @@ namespace Insight {
 	{
 		using namespace DirectX;
 
-		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+		Direct3D12Context* graphicsContext = dynamic_cast<Direct3D12Context*>(&Renderer::Get());
 		ID3D12Device* pDevice = &graphicsContext->GetDeviceContext();
 		HRESULT hr;
 

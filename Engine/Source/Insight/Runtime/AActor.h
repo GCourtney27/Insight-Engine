@@ -24,8 +24,8 @@ namespace Insight {
 			AActor(ActorId Id, ActorName ActorName = "MyActor");
 			virtual ~AActor();
 
-			virtual bool LoadFromJson(const rapidjson::Value& jsonActor) override;
-			bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer) override;
+			virtual bool LoadFromJson(const rapidjson::Value* jsonActor) override;
+			bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>* Writer) override;
 
 			// Editor
 			virtual void RenderSceneHeirarchy();

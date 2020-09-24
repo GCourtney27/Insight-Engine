@@ -13,8 +13,8 @@ namespace Insight {
 		ADirectionalLight(ActorId id, Runtime::ActorType type = "Directional Light Actor");
 		virtual ~ADirectionalLight();
 
-		virtual bool LoadFromJson(const rapidjson::Value& jsonDirectionalLight) override;
-		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer) override;
+		virtual bool LoadFromJson(const rapidjson::Value* jsonDirectionalLight) override;
+		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>* Writer) override;
 
 		virtual bool OnInit();
 		virtual bool OnPostInit();

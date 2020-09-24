@@ -12,8 +12,8 @@ namespace Insight {
 
 
 	ieD3D11Texture::ieD3D11Texture(IE_TEXTURE_INFO CreateInfo)
+		: Texture(CreateInfo)
 	{
-		m_TextureInfo = CreateInfo;
 		Init();
 	}
 
@@ -44,12 +44,11 @@ namespace Insight {
 
 	bool ieD3D11Texture::Init()
 	{
-		Direct3D11Context* Context = reinterpret_cast<Direct3D11Context*>(&Renderer::Get());
+		Direct3D11Context* Context = dynamic_cast<Direct3D11Context*>(&Renderer::Get());
 		m_pDevice = &Context->GetDevice();
 		m_pDeviceContext = &Context->GetDeviceContext();
 
 		std::string Filepath = StringHelper::WideToString(m_TextureInfo.Filepath);
-		m_TextureInfo.DisplayName = StringHelper::GetFilenameFromDirectory(Filepath);
 
 		std::string FileExtension = StringHelper::GetFileExtension(Filepath);
 		if (FileExtension == "dds") {

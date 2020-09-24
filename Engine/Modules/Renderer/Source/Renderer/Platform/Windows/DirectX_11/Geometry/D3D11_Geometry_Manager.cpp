@@ -14,7 +14,7 @@ namespace Insight {
 
 	bool D3D11GeometryManager::Init_Impl()
 	{
-		Direct3D11Context* D3D12Context = reinterpret_cast<Direct3D11Context*>(&Renderer::Get());
+		Direct3D11Context* D3D12Context = dynamic_cast<Direct3D11Context*>(&Renderer::Get());
 		m_pDevice = &D3D12Context->GetDevice();
 		m_pDeviceContext = &D3D12Context->GetDeviceContext();
 

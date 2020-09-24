@@ -13,8 +13,8 @@ namespace Insight {
 		APostFx(ActorId id, Runtime::ActorType type = "Spot Light Actor");
 		virtual ~APostFx();
 
-		virtual bool LoadFromJson(const rapidjson::Value& jsonPostFx) override;
-		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer) override;
+		virtual bool LoadFromJson(const rapidjson::Value* jsonPostFx) override;
+		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>* Writer) override;
 
 		virtual bool OnInit();
 		virtual bool OnPostInit();

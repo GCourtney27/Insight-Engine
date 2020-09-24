@@ -2,13 +2,12 @@
 
 #include "ie_D3D12_Texture.h"
 
-#include "Insight/Systems/File_System.h"
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 #include <DirectX12/TK/Inc/DDSTextureLoader.h>
 #include <DirectX12/TK/Inc/WICTextureLoader.h>
-#include "DirectX12/TK/Inc/ResourceUploadBatch.h"
-#include "DirectX12/DXTex/DirectXTex/DirectXTex.h"
+#include <DirectX12/TK/Inc/ResourceUploadBatch.h>
+#include <DirectX12/DXTex/DirectXTex/DirectXTex.h>
 
 #define CBVSRV_HEAP_TEXTURE_START_SLOT 13					// Keep this in sync with Direct3D12Context::m_cbvsrvHeap
 #define OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START 6	// Keep this in sync with deferred shading pass root signature
@@ -21,7 +20,11 @@ namespace Insight {
 	uint32_t ieD3D12Texture::s_NumSceneTextures = 0U;
 
 	ieD3D12Texture::ieD3D12Texture(IE_TEXTURE_INFO CreateInfo, CDescriptorHeapWrapper& srvHeapHandle)
-		: Texture(CreateInfo)
+		: Texture(CreateInfo),
+		m_pScenePass_CommandList(nullptr),
+		m_pTranslucencyPass_CommandList(nullptr),
+		m_GPUHeapIndex(0U),
+		m_RootParamIndex(0U)
 	{
 		Init(CreateInfo, srvHeapHandle);
 	}
@@ -49,14 +52,13 @@ namespace Insight {
 
 	bool ieD3D12Texture::Init(IE_TEXTURE_INFO createInfo, CDescriptorHeapWrapper& srvHeapHandle)
 	{
-		Direct3D12Context* GraphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+		Direct3D12Context* GraphicsContext = dynamic_cast<Direct3D12Context*>(&Renderer::Get());
 		std::string Filepath = StringHelper::WideToString(createInfo.Filepath);
 
 		m_pCbvSrvHeapStart = &GraphicsContext->GetCBVSRVDescriptorHeap();
 		m_pScenePass_CommandList = &GraphicsContext->GetScenePassCommandList();
 		m_pTranslucencyPass_CommandList = &GraphicsContext->GetTransparencyPassCommandList();
 		m_TextureInfo = createInfo;
-		m_TextureInfo.DisplayName = StringHelper::GetFilenameFromDirectory(Filepath);
 
 		std::string FileExtension = StringHelper::GetFileExtension(Filepath);
 		if (FileExtension == "dds") {
@@ -75,7 +77,7 @@ namespace Insight {
 
 	void ieD3D12Texture::InitDDSTexture(CDescriptorHeapWrapper& srvHeapHandle)
 	{
-		Direct3D12Context* GraphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+		Direct3D12Context* GraphicsContext = dynamic_cast<Direct3D12Context*>(&Renderer::Get());
 		ID3D12Device* pDevice = &GraphicsContext->GetDeviceContext();
 		ID3D12CommandQueue* pCommandQueue = &GraphicsContext->GetCommandQueue();
 
@@ -123,7 +125,7 @@ namespace Insight {
 
 	bool ieD3D12Texture::InitTextureFromFile(CDescriptorHeapWrapper& srvHeapHandle)
 	{
-		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+		Direct3D12Context* graphicsContext = dynamic_cast<Direct3D12Context*>(&Renderer::Get());
 		ID3D12Device* pDevice = &graphicsContext->GetDeviceContext();
 		ID3D12CommandQueue* pCommandQueue = &graphicsContext->GetCommandQueue();
 

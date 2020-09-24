@@ -22,7 +22,7 @@ namespace Insight {
 	bool D3D12VertexBuffer::CreateResources()
 	{
 		HRESULT hr;
-		Direct3D12Context* D3D12Context = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+		Direct3D12Context* D3D12Context = dynamic_cast<Direct3D12Context*>(&Renderer::Get());
 
 		hr = D3D12Context->GetDeviceContext().CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),

@@ -22,16 +22,16 @@ namespace Insight {
 		Destroy();
 	}
 
-	bool Scene::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
+	bool Scene::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>* Writer)
 	{
-		Writer.StartObject();
-		Writer.Key("Set");
-		Writer.StartArray();
+		Writer->StartObject();
+		Writer->Key("Set");
+		Writer->StartArray();
 		{
 			m_pSceneRoot->WriteToJson(Writer);
 		}
-		Writer.EndArray();
-		Writer.EndObject();
+		Writer->EndArray();
+		Writer->EndObject();
 		return true;
 	}
 

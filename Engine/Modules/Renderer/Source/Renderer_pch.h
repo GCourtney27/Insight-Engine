@@ -36,11 +36,24 @@ using std::tr1::static_pointer_cast;
 using std::tr1::dynamic_pointer_cast;
 #endif
 
+// === Third Party === //
+// Rapid Json
+#include <rapidjson/json.h>
+#include <rapidjson/document.h>
+#include <rapidjson/filewritestream.h>
+#include <rapidjson/istreamwrapper.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/ostreamwrapper.h>
+#include <rapidjson/prettywriter.h>
+
 // === Insight Specific === //
 #include "Insight/Core/Log.h"
 #include "Insight/Core/Interfaces.h"
-#include "Insight/Utilities/Profiling.h"
 #include "Insight/Math/ie_Vectors.h"
+#include "Insight/Utilities/Profiling.h"
+#include "Insight/Utilities/String_Helper.h"
+#include "Insight/Systems/File_System.h"
 
 // === Third Party === //
 // Rapid Json

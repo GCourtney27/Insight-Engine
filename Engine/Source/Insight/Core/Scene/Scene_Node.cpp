@@ -36,7 +36,7 @@ namespace Insight {
 		}
 	}
 
-	bool SceneNode::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
+	bool SceneNode::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>* Writer)
 	{
 		size_t numChildrenObjects = m_Children.size();
 		for (size_t i = 0; i < numChildrenObjects; ++i) {
@@ -45,7 +45,7 @@ namespace Insight {
 		return false;
 	}
 
-	bool SceneNode::LoadFromJson(const rapidjson::Value& jsonActor)
+	bool SceneNode::LoadFromJson(const rapidjson::Value* jsonActor)
 	{
 		return false;
 	}

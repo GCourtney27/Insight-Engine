@@ -60,7 +60,8 @@ namespace Insight {
 			CreateCBVs();
 			CreateSRVs();
 
-			if (m_GraphicsSettings.RayTraceEnabled) m_RTHelper.OnInit(this);
+			if (m_GraphicsSettings.RayTraceEnabled) 
+				m_RTHelper.OnInit(this);
 
 			PIXBeginEvent(&m_d3dDeviceResources.GetGraphicsCommandQueue(), 0, L"D3D 12 context Setup");
 			{
@@ -181,8 +182,8 @@ namespace Insight {
 			ThrowIfFailed(m_pPostEffectsPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
 
-			ThrowIfFailed(m_pDownSample_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
-				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
+			//ThrowIfFailed(m_pDownSample_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
+			//	"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
 
 			if (m_GraphicsSettings.RayTraceEnabled) {
 				ThrowIfFailed(m_pRayTracePass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
@@ -204,8 +205,8 @@ namespace Insight {
 			ThrowIfFailed(m_pPostEffectsPass_CommandList->Reset(m_pPostEffectsPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pPostFxPass_PSO.Get()),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 
-			ThrowIfFailed(m_pDownSample_CommandList->Reset(m_pDownSample_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
-				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
+			//ThrowIfFailed(m_pDownSample_CommandList->Reset(m_pDownSample_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
+			//	"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 
 			if (m_GraphicsSettings.RayTraceEnabled) {
 				ThrowIfFailed(m_pRayTracePass_CommandList->Reset(m_pRayTracePass_CommandAllocators[IE_D3D12_FrameIndex].Get(), nullptr),
@@ -328,7 +329,7 @@ namespace Insight {
 		BindLightingPass();
 
 		BindSkyPass();
-		BlurBloomBuffer();
+		//BlurBloomBuffer();
 
 		BindPostFxPass();
 	}
@@ -557,7 +558,7 @@ namespace Insight {
 		ThrowIfFailed(m_pScenePass_CommandList->Close(), "Failed to close command list for D3D 12 context scene pass.");
 		ThrowIfFailed(m_pTransparencyPass_CommandList->Close(), "Failed to close the command list for D3D 12 context transparency pass.");
 		ThrowIfFailed(m_pPostEffectsPass_CommandList->Close(), "Failed to close the command list for D3D 12 context post-process pass.");
-		ThrowIfFailed(m_pDownSample_CommandList->Close(), "Failed to close command list for D3D 12 context bloom blur pass.");
+		//ThrowIfFailed(m_pDownSample_CommandList->Close(), "Failed to close command list for D3D 12 context bloom blur pass.");
 		if (m_GraphicsSettings.RayTraceEnabled) {
 			ThrowIfFailed(m_pRayTracePass_CommandList->Close(), "Failed to close the command list for D3D 12 context ray trace pass.");
 		}
@@ -573,16 +574,17 @@ namespace Insight {
 		m_d3dDeviceResources.GetGraphicsCommandQueue().ExecuteCommandLists(_countof(ppScenePassLists), ppScenePassLists);
 
 		// Bloom Compute
-		ID3D12CommandList* ppComputeLists[] = {
-			m_pDownSample_CommandList.Get(),
-		};
-		m_d3dDeviceResources.GetComputeCommandQueue().ExecuteCommandLists(_countof(ppComputeLists), ppComputeLists);
+		//ID3D12CommandList* ppComputeLists[] = {
+		//	m_pDownSample_CommandList.Get(),
+		//};
+		//m_d3dDeviceResources.GetComputeCommandQueue().ExecuteCommandLists(_countof(ppComputeLists), ppComputeLists);
 
 		// Post Process Pass
 		ID3D12CommandList* ppPostFxPassLists[] = {
 			m_pPostEffectsPass_CommandList.Get(),
 		};
 		m_d3dDeviceResources.GetGraphicsCommandQueue().ExecuteCommandLists(_countof(ppPostFxPassLists), ppPostFxPassLists);
+
 		m_d3dDeviceResources.WaitForGPU();
 	}
 
@@ -903,8 +905,9 @@ namespace Insight {
 	void Direct3D12Context::CreateRTVs()
 	{
 		HRESULT hr;
-		ID3D12Device* pDevice = &m_d3dDeviceResources.GetDeviceContext();
 
+		ID3D12Device* pDevice = &m_d3dDeviceResources.GetDeviceContext();
+		
 		hr = m_rtvHeap.Create(&m_d3dDeviceResources.GetDeviceContext(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_NumRTVs);
 		ThrowIfFailed(hr, "Failed to create render target view descriptor heap for D3D 12 context.");
 
@@ -977,6 +980,7 @@ namespace Insight {
 		pDevice->CreateShaderResourceView(m_pRenderTargetTextures[5].Get(), &SRVDesc, m_cbvsrvHeap.hCPU(8));
 		m_pRenderTargetTextures[5]->SetName(L"Render Target SRV Bloom Buffer");
 
+		return;
 
 		// UAV Down-Sampled Buffer
 		ResourceDesc = {};
@@ -1099,6 +1103,8 @@ namespace Insight {
 		SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		SRVDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		pDevice->CreateShaderResourceView(m_RayTraceOutput_SRV.Get(), &SRVDesc, m_cbvsrvHeap.hCPU(6));
+
+		return;
 
 		// SRV Down-Sampled Buffer
 		ResourceDesc.Width = (UINT)m_WindowWidth / 2;
@@ -1347,15 +1353,15 @@ namespace Insight {
 		ComPtr<ID3DBlob> pVertexShader;
 		ComPtr<ID3DBlob> pPixelShader;
 
-		const std::wstring& ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring vertShaderFolder = ExeDirectory + L"../Renderer/Shadow_Pass.vertex.cso";
-		LPCWSTR VertexShaderFolder = vertShaderFolder.c_str();
-		std::wstring pixShaderFolder = ExeDirectory + L"../Renderer/Shadow_Pass.pixel.cso";
-		LPCWSTR PixelShaderFolder = pixShaderFolder.c_str();
+		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring VertShaderFolder(ExeDirectory);
+		VertShaderFolder += L"../Renderer/Shadow_Pass.vertex.cso";
+		std::wstring PixelShaderFolder(ExeDirectory);
+		PixelShaderFolder += L"../Renderer/Shadow_Pass.pixel.cso";
 
-		hr = D3DReadFileToBlob(VertexShaderFolder, &pVertexShader);
+		hr = D3DReadFileToBlob(VertShaderFolder.c_str(), &pVertexShader);
 		ThrowIfFailed(hr, "Failed to read Vertex Shader for D3D 12 context.");
-		hr = D3DReadFileToBlob(PixelShaderFolder, &pPixelShader);
+		hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
 		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
 
 		D3D12_SHADER_BYTECODE VertexShaderBytecode = {};
@@ -1409,20 +1415,20 @@ namespace Insight {
 
 	void Direct3D12Context::CreateGeometryPassPSO()
 	{
-		HRESULT hr;
+		HRESULT hr = S_OK;
 
 		ComPtr<ID3DBlob> pVertexShader;
 		ComPtr<ID3DBlob> pPixelShader;
 
-		const std::wstring& ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring vertShaderFolder = ExeDirectory + L"../Renderer/Geometry_Pass.vertex.cso";
-		LPCWSTR VertexShaderFolder = vertShaderFolder.c_str();
-		std::wstring pixShaderFolder = ExeDirectory + L"../Renderer/Geometry_Pass.pixel.cso";
-		LPCWSTR PixelShaderFolder = pixShaderFolder.c_str();
+		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring VertexShaderFolder(ExeDirectory);
+		VertexShaderFolder += L"../Renderer/Geometry_Pass.vertex.cso";
+		std::wstring PixelShaderFolder(ExeDirectory);
+		PixelShaderFolder += L"../Renderer/Geometry_Pass.pixel.cso";
 
-		hr = D3DReadFileToBlob(VertexShaderFolder, &pVertexShader);
+		hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
 		ThrowIfFailed(hr, "Failed to read Vertex Shader for D3D 12 context.");
-		hr = D3DReadFileToBlob(PixelShaderFolder, &pPixelShader);
+		hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
 		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
 
 
@@ -1478,15 +1484,15 @@ namespace Insight {
 		ComPtr<ID3DBlob> pVertexShader;
 		ComPtr<ID3DBlob> pPixelShader;
 
-		const std::wstring& ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring vertShaderFolder = ExeDirectory + L"../Renderer/Skybox.vertex.cso";
-		LPCWSTR VertexShaderFolder = vertShaderFolder.c_str();
-		std::wstring pixShaderFolder = ExeDirectory + L"../Renderer/Skybox.pixel.cso";
-		LPCWSTR PixelShaderFolder = pixShaderFolder.c_str();
+		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring VertexShaderFolder(ExeDirectory);
+		VertexShaderFolder += L"../Renderer/Skybox.vertex.cso";
+		std::wstring PixelShaderFolder(ExeDirectory);
+		PixelShaderFolder += L"../Renderer/Skybox.pixel.cso";
 
-		hr = D3DReadFileToBlob(VertexShaderFolder, &pVertexShader);
+		hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
 		ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context");
-		hr = D3DReadFileToBlob(PixelShaderFolder, &pPixelShader);
+		hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
 		ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context");
 
 
@@ -1547,15 +1553,15 @@ namespace Insight {
 		ComPtr<ID3DBlob> pVertexShader;
 		ComPtr<ID3DBlob> pPixelShader;
 
-		std::wstring ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring vertShaderFolder = ExeDirectory + L"../Renderer/Transparency_Pass.vertex.cso";
-		LPCWSTR VertexShaderFolder = vertShaderFolder.c_str();
-		std::wstring pixShaderFolder = ExeDirectory + L"../Renderer/Transparency_Pass.pixel.cso";
-		LPCWSTR PixelShaderFolder = pixShaderFolder.c_str();
+		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring VertexShaderFolder(ExeDirectory);
+		VertexShaderFolder += L"../Renderer/Transparency_Pass.vertex.cso";
+		std::wstring PixelShaderFolder(ExeDirectory);
+		PixelShaderFolder += L"../Renderer/Transparency_Pass.pixel.cso";
 
-		hr = D3DReadFileToBlob(VertexShaderFolder, &pVertexShader);
+		hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
 		ThrowIfFailed(hr, "Failed to read Vertex Shader for D3D 12 context.");
-		hr = D3DReadFileToBlob(PixelShaderFolder, &pPixelShader);
+		hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
 		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
 
 		D3D12_SHADER_BYTECODE VertexShaderBytecode = {};
@@ -1622,15 +1628,15 @@ namespace Insight {
 		ComPtr<ID3DBlob> pVertexShader;
 		ComPtr<ID3DBlob> pPixelShader;
 
-		const std::wstring& ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring vertShaderFolder = ExeDirectory + L"../Renderer/Light_Pass.vertex.cso";
-		LPCWSTR VertexShaderFolder = vertShaderFolder.c_str();
-		std::wstring pixShaderFolder = ExeDirectory + L"../Renderer/Light_Pass.pixel.cso";
-		LPCWSTR PixelShaderFolder = pixShaderFolder.c_str();
+		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring VertexShaderFolder(ExeDirectory);
+		VertexShaderFolder += L"../Renderer/Light_Pass.vertex.cso";
+		std::wstring PixelShaderFolder(ExeDirectory);
+		PixelShaderFolder += L"../Renderer/Light_Pass.pixel.cso";
 
-		hr = D3DReadFileToBlob(VertexShaderFolder, &pVertexShader);
+		hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
 		ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context.");
-		hr = D3DReadFileToBlob(PixelShaderFolder, &pPixelShader);
+		hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
 		ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context.");
 
 
@@ -1682,15 +1688,15 @@ namespace Insight {
 		ComPtr<ID3DBlob> pVertexShader;
 		ComPtr<ID3DBlob> pPixelShader;
 
-		std::wstring ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring vertShaderFolder = ExeDirectory + L"../Renderer/PostFx.vertex.cso";
-		LPCWSTR VertexShaderFolder = vertShaderFolder.c_str();
-		std::wstring pixShaderFolder = ExeDirectory + L"../Renderer/PostFx.pixel.cso";
-		LPCWSTR PixelShaderFolder = pixShaderFolder.c_str();
+		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring VertexShaderFolder(ExeDirectory);
+		VertexShaderFolder += L"../Renderer/PostFx.vertex.cso";
+		std::wstring PixelShaderFolder(ExeDirectory);
+		PixelShaderFolder += L"../Renderer/PostFx.pixel.cso";
 
-		hr = D3DReadFileToBlob(VertexShaderFolder, &pVertexShader);
+		hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
 		ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context.");
-		hr = D3DReadFileToBlob(PixelShaderFolder, &pPixelShader);
+		hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
 		ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context.");
 
 
@@ -1740,10 +1746,11 @@ namespace Insight {
 
 		ComPtr<ID3DBlob> pComputeShader;
 
-		const std::wstring& ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring vertShaderFolder = ExeDirectory + L"../Renderer/ThresholdDownSample.compute.cso";
-		LPCWSTR VertexShaderFolder = vertShaderFolder.c_str();
-		hr = D3DReadFileToBlob(VertexShaderFolder, &pComputeShader);
+		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring VertexShaderFolder(ExeDirectory);
+		VertexShaderFolder += L"../Renderer/ThresholdDownSample.compute.cso";
+
+		hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pComputeShader);
 		ThrowIfFailed(hr, "Failed to read compute shader for D3D 12 context");
 
 		D3D12_SHADER_BYTECODE ComputeShaderBytecode = {};
@@ -1765,10 +1772,11 @@ namespace Insight {
 
 		ComPtr<ID3DBlob> pComputeShader;
 
-		const std::wstring& ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring vertShaderFolder = ExeDirectory + L"../Renderer/GaussianBlur.compute.cso";
-		LPCWSTR VertexShaderFolder = vertShaderFolder.c_str();
-		hr = D3DReadFileToBlob(VertexShaderFolder, &pComputeShader);
+		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring ComputeShaderFolder(ExeDirectory);
+		ComputeShaderFolder += L"../Renderer/GaussianBlur.compute.cso";
+
+		hr = D3DReadFileToBlob(ComputeShaderFolder.c_str(), &pComputeShader);
 		ThrowIfFailed(hr, "Failed to read compute shader for D3D 12 context");
 
 		D3D12_SHADER_BYTECODE ComputeShaderBytecode = {};
@@ -1955,8 +1963,8 @@ namespace Insight {
 		{
 			CreateDSVs();
 			CreateRTVs();
-			m_RTHelper.ReCreateOutputBuffer();
-			CreateSRVs();
+			//m_RTHelper.ReCreateOutputBuffer();
+			//CreateSRVs();
 			CreateSwapChainRTVDescriptorHeap();
 		}
 

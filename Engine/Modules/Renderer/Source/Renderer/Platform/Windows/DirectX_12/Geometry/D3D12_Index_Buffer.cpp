@@ -25,7 +25,7 @@ namespace Insight {
 	bool D3D12IndexBuffer::CreateResources()
 	{
 		HRESULT hr;
-		Direct3D12Context* D3D12Context = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+		Direct3D12Context* D3D12Context = dynamic_cast<Direct3D12Context*>(&Renderer::Get());
 
 		hr = D3D12Context->GetDeviceContext().CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
@@ -58,7 +58,7 @@ namespace Insight {
 		indexData.RowPitch = m_BufferSize;
 		indexData.SlicePitch = m_BufferSize;
 
-		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+		Direct3D12Context* graphicsContext = dynamic_cast<Direct3D12Context*>(&Renderer::Get());
 		UpdateSubresources(&graphicsContext->GetScenePassCommandList(), m_pIndexBuffer.Get(), m_pIndexBufferUploadHeap.Get(), 0, 0, 1, &indexData);
 
 		m_IndexBufferView.BufferLocation = m_pIndexBuffer->GetGPUVirtualAddress();

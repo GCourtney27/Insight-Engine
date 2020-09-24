@@ -4,6 +4,7 @@
 
 #include "Insight/Math/Transform.h"
 
+
 namespace Insight {
 	
 	class Scene;
@@ -34,8 +35,8 @@ namespace Insight {
 		std::vector<SceneNode*>::const_iterator GetChildIteratorStart() { return m_Children.begin(); }
 		std::vector<SceneNode*>::const_iterator GetChildIteratorEnd() { return m_Children.end(); }
 
-		virtual bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer);
-		virtual bool LoadFromJson(const rapidjson::Value& JsonActor);
+		virtual bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>* Writer);
+		virtual bool LoadFromJson(const rapidjson::Value* JsonActor);
 
 		virtual void RenderSceneHeirarchy();
 		virtual bool OnInit();
