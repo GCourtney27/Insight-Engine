@@ -2,29 +2,29 @@
 
 #include "Direct3D12_Context.h"
 
-#include "Insight/Core/Application.h"
+#include "Retina/Core/Application.h"
 #include "Platform/Windows/Windows_Window.h"
-#include "Insight/Runtime/APlayer_Character.h"
-#include "Insight/Systems/Managers/Geometry_Manager.h"
+#include "Retina/Runtime/APlayer_Character.h"
+#include "Retina/Systems/Managers/Geometry_Manager.h"
 
-#include "Insight/Rendering/APost_Fx.h"
-#include "Insight/Rendering/ASky_Light.h"
-#include "Insight/Rendering/ASky_Sphere.h"
-#include "Insight/Rendering/Lighting/ASpot_Light.h"
-#include "Insight/Rendering/Lighting/APoint_Light.h"
+#include "Retina/Rendering/APost_Fx.h"
+#include "Retina/Rendering/ASky_Light.h"
+#include "Retina/Rendering/ASky_Sphere.h"
+#include "Retina/Rendering/Lighting/ASpot_Light.h"
+#include "Retina/Rendering/Lighting/APoint_Light.h"
 
 #include "Platform/Windows/DirectX_12/Geometry/D3D12_Vertex_Buffer.h"
 #include "Platform/Windows/DirectX_12/Geometry/D3D12_Index_Buffer.h"
 #include "Platform/Windows/DirectX_12/Geometry/D3D12_Sphere_Renderer.h"
 
-namespace Insight {
+namespace Retina {
 
 
 	Direct3D12Context::Direct3D12Context(WindowsWindow* WindowHandle)
 		: m_pWindowRef(WindowHandle),
 		Renderer(WindowHandle->GetWidth(), WindowHandle->GetHeight(), false)
 	{
-		IE_CORE_ASSERT(WindowHandle, "Window handle is NULL, cannot initialize D3D 12 context with NULL window handle.");
+		RN_CORE_ASSERT(WindowHandle, "Window handle is NULL, cannot initialize D3D 12 context with NULL window handle.");
 		m_AspectRatio = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
 	}
 
@@ -50,7 +50,7 @@ namespace Insight {
 
 	bool Direct3D12Context::Init_Impl()
 	{
-		IE_CORE_INFO("Renderer: D3D 12");
+		RN_CORE_INFO("Renderer: D3D 12");
 
 		try {
 			m_d3dDeviceResources.Init(this);
@@ -92,8 +92,8 @@ namespace Insight {
 			}
 			PIXEndEvent(&m_d3dDeviceResources.GetGraphicsCommandQueue());
 		}
-		catch (COMException& ex) {
-			m_pWindowRef->CreateMessageBox(ex.what(), L"Fatal Error");
+		catch (COMException& Ex) {
+			m_pWindowRef->CreateMessageBox(Ex.what(), L"Fatal Error");
 			return false;
 		}
 		return true;
@@ -170,46 +170,46 @@ namespace Insight {
 
 		// Reset Command Allocators
 		{
-			ThrowIfFailed(m_pScenePass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
+			ThrowIfFailed(m_pScenePass_CommandAllocators[RN_D3D12_FrameIndex]->Reset(),
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Scene Pass");
 
-			ThrowIfFailed(m_pShadowPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
+			ThrowIfFailed(m_pShadowPass_CommandAllocators[RN_D3D12_FrameIndex]->Reset(),
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Shadow Pass");
 
-			ThrowIfFailed(m_pTransparencyPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
+			ThrowIfFailed(m_pTransparencyPass_CommandAllocators[RN_D3D12_FrameIndex]->Reset(),
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 
-			ThrowIfFailed(m_pPostEffectsPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
+			ThrowIfFailed(m_pPostEffectsPass_CommandAllocators[RN_D3D12_FrameIndex]->Reset(),
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
 
-			//ThrowIfFailed(m_pDownSample_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
+			//ThrowIfFailed(m_pDownSample_CommandAllocators[RN_D3D12_FrameIndex]->Reset(),
 			//	"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
 
 			if (m_GraphicsSettings.RayTraceEnabled) {
-				ThrowIfFailed(m_pRayTracePass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
+				ThrowIfFailed(m_pRayTracePass_CommandAllocators[RN_D3D12_FrameIndex]->Reset(),
 					"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
 			}
 		}
 
 		// Reset Command Lists
 		{
-			ThrowIfFailed(m_pScenePass_CommandList->Reset(m_pScenePass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pGeometryPass_PSO.Get()),
+			ThrowIfFailed(m_pScenePass_CommandList->Reset(m_pScenePass_CommandAllocators[RN_D3D12_FrameIndex].Get(), m_pGeometryPass_PSO.Get()),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Scene Pass");
 
-			ThrowIfFailed(m_pShadowPass_CommandList->Reset(m_pShadowPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pShadowPass_PSO.Get()),
+			ThrowIfFailed(m_pShadowPass_CommandList->Reset(m_pShadowPass_CommandAllocators[RN_D3D12_FrameIndex].Get(), m_pShadowPass_PSO.Get()),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Shadow Pass");
 
-			ThrowIfFailed(m_pTransparencyPass_CommandList->Reset(m_pTransparencyPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pTransparency_PSO.Get()),
+			ThrowIfFailed(m_pTransparencyPass_CommandList->Reset(m_pTransparencyPass_CommandAllocators[RN_D3D12_FrameIndex].Get(), m_pTransparency_PSO.Get()),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 
-			ThrowIfFailed(m_pPostEffectsPass_CommandList->Reset(m_pPostEffectsPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pPostFxPass_PSO.Get()),
+			ThrowIfFailed(m_pPostEffectsPass_CommandList->Reset(m_pPostEffectsPass_CommandAllocators[RN_D3D12_FrameIndex].Get(), m_pPostFxPass_PSO.Get()),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 
-			//ThrowIfFailed(m_pDownSample_CommandList->Reset(m_pDownSample_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
+			//ThrowIfFailed(m_pDownSample_CommandList->Reset(m_pDownSample_CommandAllocators[RN_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
 			//	"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 
 			if (m_GraphicsSettings.RayTraceEnabled) {
-				ThrowIfFailed(m_pRayTracePass_CommandList->Reset(m_pRayTracePass_CommandAllocators[IE_D3D12_FrameIndex].Get(), nullptr),
+				ThrowIfFailed(m_pRayTracePass_CommandList->Reset(m_pRayTracePass_CommandAllocators[RN_D3D12_FrameIndex].Get(), nullptr),
 					"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
 			}
 		}
@@ -741,13 +741,13 @@ namespace Insight {
 
 	void Direct3D12Context::SetVertexBuffers_Impl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers)
 	{
-		IE_CORE_ASSERT(dynamic_cast<D3D12VertexBuffer*>(pBuffers) != nullptr, "A vertex buffer passed to renderer with D3D 12 active must be a \"D3D12VertexBuffer\"");
+		RN_CORE_ASSERT(dynamic_cast<D3D12VertexBuffer*>(pBuffers) != nullptr, "A vertex buffer passed to renderer with D3D 12 active must be a \"D3D12VertexBuffer\"");
 		m_pActiveCommandList->IASetVertexBuffers(StartSlot, NumBuffers, reinterpret_cast<D3D12VertexBuffer*>(pBuffers)->GetVertexBufferView());
 	}
 
 	void Direct3D12Context::SetIndexBuffer_Impl(ieIndexBuffer* pBuffer)
 	{
-		IE_CORE_ASSERT(dynamic_cast<D3D12IndexBuffer*>(pBuffer) != nullptr, "A index buffer passed to renderer with D3D 12 active must be a \"D3D12IndexBuffer\"");
+		RN_CORE_ASSERT(dynamic_cast<D3D12IndexBuffer*>(pBuffer) != nullptr, "A index buffer passed to renderer with D3D 12 active must be a \"D3D12IndexBuffer\"");
 		m_pActiveCommandList->IASetIndexBuffer(&reinterpret_cast<D3D12IndexBuffer*>(pBuffer)->GetIndexBufferView());
 	}
 
@@ -834,7 +834,7 @@ namespace Insight {
 			IID_PPV_ARGS(&m_pSceneDepthStencilTexture));
 		m_pSceneDepthStencilTexture->SetName(L"Scene Depth Stencil Buffer");
 		if (FAILED(hr))
-			IE_CORE_ERROR("Failed to create comitted resource for depth stencil view");
+			RN_CORE_ERROR("Failed to create comitted resource for depth stencil view");
 
 		D3D12_DEPTH_STENCIL_VIEW_DESC SceneDSVDesc = {};
 		SceneDSVDesc.Texture2D.MipSlice = 0;
@@ -888,7 +888,7 @@ namespace Insight {
 			IID_PPV_ARGS(&m_pShadowDepthTexture));
 		m_pShadowDepthTexture->SetName(L"Shadow Depth Buffer");
 		if (FAILED(hr))
-			IE_CORE_ERROR("Failed to create comitted resource for depth stencil view");
+			RN_CORE_ERROR("Failed to create comitted resource for depth stencil view");
 
 		m_d3dDeviceResources.GetDeviceContext().CreateDepthStencilView(m_pShadowDepthTexture.Get(), &ShadowDepthDesc, m_dsvHeap.hCPU(1));
 

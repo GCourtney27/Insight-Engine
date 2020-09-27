@@ -4,7 +4,7 @@
 
 #include "Platform/Windows/Error/COM_Exception.h"
 
-namespace Insight {
+namespace Retina {
 
 	bool VertexShader::Init(ComPtr<ID3D11Device>& pDevice, std::wstring& ShaderPath, D3D11_INPUT_ELEMENT_DESC* pLayoutDesc, UINT NumElements)
 	{

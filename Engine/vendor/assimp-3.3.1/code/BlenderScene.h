@@ -727,7 +727,7 @@ struct Tex : ElemBase {
     //short xrepeat, yrepeat;
     //short extend;
 
-    //short fie_ima;
+    //short fRN_ima;
     //int len;
     //int frames, offset, sfra;
 

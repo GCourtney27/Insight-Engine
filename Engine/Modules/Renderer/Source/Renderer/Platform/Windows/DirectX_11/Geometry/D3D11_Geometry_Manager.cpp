@@ -3,9 +3,9 @@
 #include "D3D11_Geometry_Manager.h"
 
 #include "Platform/Windows/DirectX_11/Direct3D11_Context.h"
-#include "Insight/Rendering/Material.h"
+#include "Retina/Rendering/Material.h"
 
-namespace Insight {
+namespace Retina {
 
 
 	D3D11GeometryManager::~D3D11GeometryManager()

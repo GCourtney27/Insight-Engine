@@ -66,7 +66,7 @@ project("Renderer")
 
 		defines
 		{
-			"IE_PLATFORM_WINDOWS"
+			"RN_PLATFORM_WINDOWS"
 		}
 
 		flags
@@ -77,7 +77,7 @@ project("Renderer")
     filter {"system:windows"}
         defines
 		{
-			"IE_PLATFORM_WINDOWS"
+			"RN_PLATFORM_WINDOWS"
         }
 
 		flags
@@ -103,41 +103,41 @@ project("Renderer")
     
 -- Engine Development
 filter "configurations:Debug"
-    defines "IE_DEBUG"
+    defines "RN_DEBUG"
     runtime "Debug"
     symbols "on"
     defines
     {
-        "IE_DEBUG"
+        "RN_DEBUG"
     }
 -- Engine Release
 filter "configurations:Release"
-    defines "IE_RELEASE"
+    defines "RN_RELEASE"
     runtime "Release"
     optimize "on"
     symbols "on"
     defines
     {
-        "IE_IS_STANDALONE",
-        "IE_DEBUG"
+        "RN_IS_STANDALONE",
+        "RN_DEBUG"
     }
 -- Full Engine Distribution, all performance logs and debugging windows stripped
 filter "configurations:Engine-Dist"
-    defines "IE_ENGINE_DIST"
+    defines "RN_ENGINE_DIST"
     runtime "Release"
     optimize "on"
     symbols "on"
     defines
     {
-        "IE_IS_STANDALONE"
+        "RN_IS_STANDALONE"
     }
 -- Full Game Distribution, all engine debug tools(level editors, editor user interfaces) stripped
 filter "configurations:Game-Dist"
-    defines "IE_GAME_DIST"
+    defines "RN_GAME_DIST"
     runtime "Release"
     optimize "on"
     symbols "on"
     defines
     {
-        "IE_IS_STANDALONE"
+        "RN_IS_STANDALONE"
     }

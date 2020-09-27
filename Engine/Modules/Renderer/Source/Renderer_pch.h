@@ -48,12 +48,12 @@ using std::tr1::dynamic_pointer_cast;
 #include <rapidjson/prettywriter.h>
 
 // === Insight Specific === //
-#include "Insight/Core/Log.h"
-#include "Insight/Core/Interfaces.h"
-#include "Insight/Math/ie_Vectors.h"
-#include "Insight/Utilities/Profiling.h"
-#include "Insight/Utilities/String_Helper.h"
-#include "Insight/Systems/File_System.h"
+#include "Retina/Core/Log.h"
+#include "Retina/Core/Interfaces.h"
+#include "Retina/Math/ie_Vectors.h"
+#include "Retina/Utilities/Profiling.h"
+#include "Retina/Utilities/String_Helper.h"
+#include "Retina/Systems/File_System.h"
 
 // === Third Party === //
 // Rapid Json
@@ -71,15 +71,15 @@ using std::tr1::dynamic_pointer_cast;
 // -----------
 
 // === Windows === //
-#if defined IE_PLATFORM_WINDOWS
+#if defined RN_PLATFORM_WINDOWS
 
 #ifndef WIN32_LEAN_AND_MEAN
 	#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers.
 #endif //WIN32_LEAN_AND_MEAN
 
-#if defined IE_DEBUG
+#if defined RN_DEBUG
 	#define USE_PIX
-#endif // IE_DEBUG
+#endif // RN_DEBUG
 #if !defined USE_PIX
 	#define PIXBeginEvent 
 	#define PIXEndEvent
@@ -109,11 +109,11 @@ using std::tr1::dynamic_pointer_cast;
 #include <DirectXMath.h>
 #include <D3Dcompiler.h>
 
-#endif // IE_PLATFORM_WINDOWS
+#endif // RN_PLATFORM_WINDOWS
 
 // === Mac === //
-#ifdef IE_PLATFORM_MAC
+#ifdef RN_PLATFORM_MAC
 
 
 
-#endif // IE_PLATFORM_MAC
+#endif // RN_PLATFORM_MAC

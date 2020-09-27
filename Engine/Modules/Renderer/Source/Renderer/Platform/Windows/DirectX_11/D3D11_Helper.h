@@ -1,13 +1,13 @@
 #pragma once
 
-#include <Insight/Core.h>
+#include <Retina/Core.h>
 
 using Microsoft::WRL::ComPtr;
 
-namespace Insight {
+namespace Retina {
 
 
-	class INSIGHT_API D3D11Helper
+	class RETINA_API D3D11Helper
 	{
 	public:
 		D3D11Helper(HWND hWindow, uint32_t Width, uint32_t Height);

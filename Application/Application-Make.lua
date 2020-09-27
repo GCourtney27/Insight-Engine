@@ -45,26 +45,26 @@ project (gameName)
 
 		defines
 		{
-			"IE_PLATFORM_WINDOWS",
-			"IE_BUILD_DLL"
+			"RN_PLATFORM_WINDOWS",
+			"RN_BUILD_DLL"
 		}
 
 	filter "configurations:Debug"
-		defines "IE_DEBUG"
+		defines "RN_DEBUG"
 		symbols "on"
 	
 	filter "configurations:Release"
-		defines "IE_RELEASE"
+		defines "RN_RELEASE"
 		symbols "on"
 		optimize "on"
 
 	filter "configurations:EngineDist"
-		defines "IE_ENGINE_DIST"
+		defines "RN_ENGINE_DIST"
 		optimize "on"
 		symbols "on"
 		
 	filter "configurations:GameDist"
-		defines "IE_GAME_DIST"
+		defines "RN_GAME_DIST"
 		optimize "on"
 		symbols "on"
 

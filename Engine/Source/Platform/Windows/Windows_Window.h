@@ -1,18 +1,18 @@
 #pragma once
 
-#include "Insight/Core/Window.h"
+#include "Retina/Core/Window.h"
 
 
-namespace Insight {
+namespace Retina {
 
 	class WindowsWindow : public Window
 	{
 	public:
 		struct WindowData
 		{
-			std::string WindowClassName = "Insight Engine Class";
+			std::string WindowClassName = "Retina Engine Class";
 			std::wstring WindowClassName_wide;
-			std::string WindowTitle = "Insight Editor";
+			std::string WindowTitle = "Retina Editor";
 			std::wstring WindowTitle_wide;
 			UINT Width, Height;
 			bool VSyncEnabled = true;

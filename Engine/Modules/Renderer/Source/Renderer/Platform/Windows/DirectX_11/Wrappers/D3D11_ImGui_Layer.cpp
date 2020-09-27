@@ -2,7 +2,7 @@
 
 #include "D3D11_ImGui_Layer.h"
 
-#include "Insight/Core/Application.h"
+#include "Retina/Core/Application.h"
 
 #include "Platform/Windows/DirectX_11/Direct3D11_Context.h"
 
@@ -12,7 +12,7 @@
 #include <examples/imgui_impl_dx11.cpp>
 
 
-namespace Insight {
+namespace Retina {
 
 
 
@@ -52,7 +52,7 @@ namespace Insight {
 		m_pWindowHandle = pWindowHandle;
 
 		if (!ImGui_ImplWin32_Init(m_pWindowHandle)) {
-			IE_CORE_WARN("Failed to initialize ImGui for Win32 - D3D 12. Some controls may not be functional or editor may not be rendered.");
+			RN_CORE_WARN("Failed to initialize ImGui for Win32 - D3D 12. Some controls may not be functional or editor may not be rendered.");
 		}
 		ImGui_ImplDX11_Init(&GraphicsContext->GetDevice(), &GraphicsContext->GetDeviceContext());
 

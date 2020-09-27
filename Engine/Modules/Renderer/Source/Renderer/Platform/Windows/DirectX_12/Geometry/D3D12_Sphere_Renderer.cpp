@@ -4,7 +4,7 @@
 
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
-namespace Insight {
+namespace Retina {
 
 
 	void ieD3D12SphereRenderer::Init(float radius, int slices, int segments)

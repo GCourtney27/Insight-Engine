@@ -4,7 +4,7 @@
 
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
-namespace Insight {
+namespace Retina {
 
 
 	D3D12VertexBuffer::D3D12VertexBuffer(Verticies Verticies)
@@ -32,7 +32,7 @@ namespace Insight {
 			nullptr,
 			IID_PPV_ARGS(&m_pVertexBuffer));
 		if (FAILED(hr)) {
-			IE_CORE_ERROR("Failed to upload vertex buffer resource heap");
+			RN_CORE_ERROR("Failed to upload vertex buffer resource heap");
 			return false;
 		}
 		m_pVertexBuffer->SetName(L"Vertex Buffer Resource Heap");
@@ -45,7 +45,7 @@ namespace Insight {
 			nullptr,
 			IID_PPV_ARGS(&m_pVertexBufferUploadHeap));
 		if (FAILED(hr)) {
-			IE_CORE_ERROR("Failed to upload vertex buffer heap");
+			RN_CORE_ERROR("Failed to upload vertex buffer heap");
 			return false;
 		}
 		m_pVertexBufferUploadHeap->SetName(L"Vertex Buffer Upload Resource Heap");

@@ -2,7 +2,7 @@
 
 #include "D3D11_Helper.h"
 
-namespace Insight {
+namespace Retina {
 
 
 

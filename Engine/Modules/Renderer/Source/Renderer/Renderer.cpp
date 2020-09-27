@@ -1,13 +1,13 @@
 #include <Renderer_pch.h>
 
 #include "Renderer.h"
-#include "Insight/Core/Application.h"
+#include "Retina/Core/Application.h"
 
 #include "Platform/Windows/DirectX_11/Direct3D11_Context.h"
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 
-namespace Insight {
+namespace Retina {
 
 
 	Renderer* Renderer::s_Instance = nullptr;
@@ -23,12 +23,12 @@ namespace Insight {
 
 	bool Renderer::SetSettingsAndCreateContext(GraphicsSettings GraphicsSettings)
 	{
-		IE_ASSERT(!s_Instance, "Rendering Context already exists! Cannot have more that one context created at a time.");
+		RN_ASSERT(!s_Instance, "Rendering Context already exists! Cannot have more that one context created at a time.");
 
 
 		switch (GraphicsSettings.TargetRenderAPI)
 		{
-#if defined IE_PLATFORM_WINDOWS
+#if defined RN_PLATFORM_WINDOWS
 		case eTargetRenderAPI::D3D_11:
 		{
 			WindowsWindow* Window = (WindowsWindow*)&Application::Get().GetWindow();
@@ -41,10 +41,10 @@ namespace Insight {
 			s_Instance = new Direct3D12Context(Window);
 			break;
 		}
-#endif // IE_PLATFORM_WINDOWS
+#endif // RN_PLATFORM_WINDOWS
 		default:
 		{
-			IE_CORE_ERROR("Failed to create render with given context type: {0}", GraphicsSettings.TargetRenderAPI);
+			RN_CORE_ERROR("Failed to create render with given context type: {0}", GraphicsSettings.TargetRenderAPI);
 			break;
 		}
 		}

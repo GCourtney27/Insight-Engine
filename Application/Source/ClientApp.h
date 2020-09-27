@@ -1,8 +1,8 @@
 #pragma once
-#include <Insight.h>
-#include "Insight/Runtime/Components/Static_Mesh_Component.h"
-#include "Insight/Rendering/Material.h"
-#include "Renderer/Platform/Windows/DirectX_12/Wrappers/ie_D3D12_Texture.h"
+#include <Retina.h>
+#include "Retina/Runtime/Components/Static_Mesh_Component.h"
+#include "Retina/Rendering/Material.h"
+#include "Renderer/Platform/Windows/DirectX_12/Wrappers/rn_D3D12_Texture.h"
 #include "Renderer/Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 /*=====================================================================
@@ -18,9 +18,9 @@
 
 namespace SandBoxApp {
 
-	using Super = Insight::Application;
+	using Super = Retina::Application;
 
-	class Game : public Insight::Application
+	class Game : public Retina::Application
 	{
 	public:
 		Game()
@@ -31,9 +31,9 @@ namespace SandBoxApp {
 		{
 		}
 
-		virtual bool InitCoreApplication() override
+		virtual bool InitializeCoreApplication() override
 		{
-			Super::InitCoreApplication();
+			Super::InitializeCoreApplication();
 
 			FillScene();
 
@@ -61,11 +61,11 @@ namespace SandBoxApp {
 	private:
 		void FillScene()
 		{
-			using namespace Insight::Runtime;
-			using namespace Insight;
+			using namespace Retina::Runtime;
+			using namespace Retina;
 
 			// House Resting Terrain
-			Insight::Material* pRestingTerrainMat = new Insight::Material({ 6, 7, 8, 9, 10 });
+			Retina::Material* pRestingTerrainMat = new Retina::Material({ 6, 7, 8, 9, 10 });
 			pRestingTerrainMat->SetUVTilingOffset(9.0f, 9.0f);
 			AActor* pARestingTerrain = new AActor(0, "HouseRestingTerrain");
 			pARestingTerrain->GetTransformRef().SetPosition(ieVector3(-14.7f, -6.3f, 9.2f));
@@ -86,7 +86,7 @@ namespace SandBoxApp {
 			pAHouse->GetTransformRef().SetRotation(ieVector3(0.0f, 1.6f, 0.0f));
 			pAHouse->OnInit();
 			// Outer House
-			Insight::Material* pOuterHouseMat = new Insight::Material({ 16, 17, 18, 19, 20 });
+			Retina::Material* pOuterHouseMat = new Retina::Material({ 16, 17, 18, 19, 20 });
 			pOuterHouseMat->SetColorAddative(97.0f / 255.0f, 0.0f, 0.0f);
 			pOuterHouseMat->SetUVTilingOffset(9.0f, 9.0f);
 			StaticMeshComponent* pOuterHouse = pAHouse->CreateDefaultSubobject<StaticMeshComponent>();
@@ -101,7 +101,7 @@ namespace SandBoxApp {
 			pFloor->SetMaterial(Material::CreateDefaultTexturedMaterial());
 			pFloor->AttachMesh("Objects/Norway/House/Floor.obj");
 			// Roof
-			Insight::Material* pRoofMat = new Insight::Material({ 26, 27, 28, 29, 30 });
+			Retina::Material* pRoofMat = new Retina::Material({ 26, 27, 28, 29, 30 });
 			pRoofMat->SetUVTilingOffset(6.0f, 6.0f);
 			StaticMeshComponent* pRoof = pAHouse->CreateDefaultSubobject<StaticMeshComponent>();
 			pRoof->SetMaterial(pRoofMat);
@@ -115,13 +115,13 @@ namespace SandBoxApp {
 			pDoorFront->SetMaterial(Material::CreateDefaultTexturedMaterial());
 			pDoorFront->AttachMesh("Objects/Norway/House/Door_Front.obj");
 			// Window Frames
-			Insight::Material* pWindowFramesMat = new Insight::Material({ 21, 22, 23, 24, 25 });
+			Retina::Material* pWindowFramesMat = new Retina::Material({ 21, 22, 23, 24, 25 });
 			pWindowFramesMat->SetUVTilingOffset(2.0f, 2.0f);
 			StaticMeshComponent* pWindowFrames = pAHouse->CreateDefaultSubobject<StaticMeshComponent>();
 			pWindowFrames->SetMaterial(pWindowFramesMat);
 			pWindowFrames->AttachMesh("Objects/Norway/House/Window_Frames.obj");
 			// Roof Trim-Left
-			Insight::Material* pRoofTrimMat = new Insight::Material({ 21, 22, 23, 24, 25 });
+			Retina::Material* pRoofTrimMat = new Retina::Material({ 21, 22, 23, 24, 25 });
 			pRoofTrimMat->SetUVTilingOffset(7.0f, 7.0f);
 			StaticMeshComponent* pRoofTrimLeft = pAHouse->CreateDefaultSubobject<StaticMeshComponent>();
 			pRoofTrimLeft->SetMaterial(pRoofTrimMat);
@@ -146,7 +146,7 @@ namespace SandBoxApp {
 			pFoliageSupports->SetMaterial(Material::CreateDefaultTexturedMaterial());
 			pFoliageSupports->AttachMesh("Objects/Norway/House/Foliage_Supports.obj");
 			// Patio
-			Insight::Material* pPatioMat = new Insight::Material({ 11, 12, 13, 14, 15});
+			Retina::Material* pPatioMat = new Retina::Material({ 11, 12, 13, 14, 15});
 			StaticMeshComponent* pPatio = pAHouse->CreateDefaultSubobject<StaticMeshComponent>();
 			pPatio->SetMaterial(pPatioMat);
 			pPatio->AttachMesh("Objects/Norway/House/Patio.obj");
@@ -163,7 +163,7 @@ namespace SandBoxApp {
 			pAStairs->GetTransformRef().SetRotation(ieVector3(0.0f, 3.158f, 0.0f));
 			pAStairs->OnInit();
 			// Outer House
-			Insight::Material* pStairsMat = new Insight::Material({ 1, 2, 3, 4, 5 });
+			Retina::Material* pStairsMat = new Retina::Material({ 1, 2, 3, 4, 5 });
 			StaticMeshComponent* pStairsMesh = pAStairs->CreateDefaultSubobject<StaticMeshComponent>();
 			pStairsMesh->SetMaterial(pStairsMat);
 			pStairsMesh->AttachMesh("Objects/Norway/Stairs.obj");
@@ -181,7 +181,7 @@ namespace SandBoxApp {
 			pAFrontRocks->GetTransformRef().SetRotation(ieVector3(0.0f, 0.0f, 0.0f));
 			pAFrontRocks->OnInit();
 
-			Insight::Material* pFrontRocksMat = new Insight::Material({ 36, 37, 38, 39, 40 });
+			Retina::Material* pFrontRocksMat = new Retina::Material({ 36, 37, 38, 39, 40 });
 			StaticMeshComponent* pFrontRocks = pAFrontRocks->CreateDefaultSubobject<StaticMeshComponent>();
 			pFrontRocks->SetMaterial(pFrontRocksMat);
 			pFrontRocks->AttachMesh("Models/Sphere.obj");
@@ -196,7 +196,7 @@ namespace SandBoxApp {
 			pAFrontRocks->GetTransformRef().SetRotation(ieVector3(0.0f, 3.158f, 0.0f));
 			pAFrontRocks->OnInit();
 
-			Insight::Material* pFrontRocksMat = new Insight::Material({ 36, 37, 38, 39, 40 });
+			Retina::Material* pFrontRocksMat = new Retina::Material({ 36, 37, 38, 39, 40 });
 			StaticMeshComponent* pFrontRocks = pAFrontRocks->CreateDefaultSubobject<StaticMeshComponent>();
 			pFrontRocks->SetMaterial(pFrontRocksMat);
 			pFrontRocks->AttachMesh("Objects/Norway/Opaque/CoastRock/CoastRock_LOD2.obj");
@@ -210,7 +210,7 @@ namespace SandBoxApp {
 
 }
 
-Insight::Application* Insight::CreateApplication()
+Retina::Application* Retina::CreateApplication()
 {
 	return new SandBoxApp::Game();
 }

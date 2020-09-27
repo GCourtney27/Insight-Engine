@@ -1,8 +1,8 @@
 #pragma once
 #include <comdef.h>
-#include "Insight/Utilities/String_Helper.h"
+#include "Retina/Utilities/String_Helper.h"
 
-namespace Insight {
+namespace Retina {
 
 	#define ThrowIfFailed( hr, msg ) if( FAILED( hr ) ) throw COMException (hr, msg, __FILE__, __FUNCTION__, __LINE__ )
 	#define THROW_COM_ERROR(msg) throw COMException(NULL, msg, __FILE__, __FUNCTION__, __LINE__)

@@ -1,12 +1,12 @@
 #pragma once
 
-#include <Insight/Core.h>
+#include <Retina/Core.h>
 
-#include "Insight/Systems/Managers/Geometry_Manager.h"
+#include "Retina/Systems/Managers/Geometry_Manager.h"
 
-namespace Insight {
+namespace Retina {
 
-	class INSIGHT_API D3D12GeometryManager : public GeometryManager
+	class RETINA_API D3D12GeometryManager : public GeometryManager
 	{
 		friend class GeometryManager;
 	public:

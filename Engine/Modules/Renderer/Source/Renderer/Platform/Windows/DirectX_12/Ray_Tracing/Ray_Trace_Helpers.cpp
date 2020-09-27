@@ -2,8 +2,8 @@
 
 #include "Ray_Trace_Helpers.h"
 
-#include "Insight/Core/Application.h"
-#include "Insight/Rendering/Geometry/Vertex.h"
+#include "Retina/Core/Application.h"
+#include "Retina/Rendering/Geometry/Vertex.h"
 
 #include "Platform/Windows/Windows_Window.h"
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
@@ -15,7 +15,7 @@
 #include "DXR/nv_helpers_dx12/ShaderBindingTableGenerator.h"
 #include "DXR/nv_helpers_dx12/RaytracingPipelineGenerator.h"
 
-namespace Insight {
+namespace Retina {
 
 
 
@@ -253,7 +253,7 @@ namespace Insight {
 
 	void RayTraceHelpers::CreateRTPipeline()
 	{
-		IE_CORE_ASSERT(dynamic_cast<ID3D12Device5*>(m_pDeviceRef.Get()) != nullptr, "Provided device must be \"ID3D12Device5\" which is ray trace compatible.");
+		RN_CORE_ASSERT(dynamic_cast<ID3D12Device5*>(m_pDeviceRef.Get()) != nullptr, "Provided device must be \"ID3D12Device5\" which is ray trace compatible.");
 		NvidiaHelpers::RayTracingPipelineGenerator Pipeline(dynamic_cast<ID3D12Device5*>(m_pDeviceRef.Get()));
 
 		const std::wstring_view& ExeDirectory = FileSystem::GetExecutbleDirectoryW();

@@ -4,7 +4,7 @@
 
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
-namespace Insight {
+namespace Retina {
 
 
 
@@ -35,7 +35,7 @@ namespace Insight {
 			nullptr,
 			IID_PPV_ARGS(&m_pIndexBuffer));
 		if (FAILED(hr)) {
-			IE_CORE_ERROR("Failed to create Committed Resource for Index Buffer to the Deafault Heap");
+			RN_CORE_ERROR("Failed to create Committed Resource for Index Buffer to the Deafault Heap");
 			return false;
 		}
 		m_pIndexBuffer->SetName(L"Index Buffer Resource Heap");
@@ -48,7 +48,7 @@ namespace Insight {
 			nullptr,
 			IID_PPV_ARGS(&m_pIndexBufferUploadHeap));
 		if (FAILED(hr)) {
-			IE_CORE_ERROR("Failed to create Committed Resource for Index Buffer to the Upload Heap");
+			RN_CORE_ERROR("Failed to create Committed Resource for Index Buffer to the Upload Heap");
 			return false;
 		}
 		m_pIndexBufferUploadHeap->SetName(L"Index Buffer Upload Resource Heap");

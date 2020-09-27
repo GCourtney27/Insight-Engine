@@ -2,23 +2,23 @@
 
 #include "Direct3D11_Context.h"
 
-#include "Insight/Core/Application.h"
+#include "Retina/Core/Application.h"
 #include "Platform/Windows/Windows_Window.h"
 #include "Platform/Windows/DirectX_11/Geometry/D3D11_Index_Buffer.h"
 #include "Platform/Windows/DirectX_11/Geometry/D3D11_Vertex_Buffer.h"
 #include "Platform/Windows/DirectX_11/Geometry/D3D11_Sphere_Renderer.h"
 
-#include "Insight/Runtime/APlayer_Character.h"
-#include "Insight/Systems/Managers/Geometry_Manager.h"
+#include "Retina/Runtime/APlayer_Character.h"
+#include "Retina/Systems/Managers/Geometry_Manager.h"
 
-#include "Insight/Rendering/APost_Fx.h"
-#include "Insight/Rendering/ASky_Light.h"
-#include "Insight/Rendering/ASky_Sphere.h"
-#include "Insight/Rendering/Lighting/ASpot_Light.h"
-#include "Insight/Rendering/Lighting/APoint_Light.h"
-#include "Insight/Rendering/Lighting/ADirectional_Light.h"
+#include "Retina/Rendering/APost_Fx.h"
+#include "Retina/Rendering/ASky_Light.h"
+#include "Retina/Rendering/ASky_Sphere.h"
+#include "Retina/Rendering/Lighting/ASpot_Light.h"
+#include "Retina/Rendering/Lighting/APoint_Light.h"
+#include "Retina/Rendering/Lighting/ADirectional_Light.h"
 
-namespace Insight {
+namespace Retina {
 
 
 
@@ -36,7 +36,7 @@ namespace Insight {
 
 	bool Direct3D11Context::Init_Impl()
 	{
-		IE_CORE_INFO("Renderer: D3D 11");
+		RN_CORE_INFO("Renderer: D3D 11");
 
 		CreateDXGIFactory();
 		CreateDeviceAndSwapChain();
@@ -54,13 +54,13 @@ namespace Insight {
 
 	void Direct3D11Context::SetVertexBuffers_Impl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers)
 	{
-		IE_CORE_ASSERT(dynamic_cast<D3D11VertexBuffer*>(pBuffers) != nullptr, "A vertex buffer passed to renderer with D3D 11 active must be a \"D3D11VertexBuffer\"");
+		RN_CORE_ASSERT(dynamic_cast<D3D11VertexBuffer*>(pBuffers) != nullptr, "A vertex buffer passed to renderer with D3D 11 active must be a \"D3D11VertexBuffer\"");
 		m_pDeviceContext->IASetVertexBuffers(StartSlot, NumBuffers, reinterpret_cast<D3D11VertexBuffer*>(pBuffers)->GetBufferPtr(), reinterpret_cast<D3D11VertexBuffer*>(pBuffers)->GetStridePtr(), reinterpret_cast<D3D11VertexBuffer*>(pBuffers)->GetBufferOffset());
 	}
 
 	void Direct3D11Context::SetIndexBuffer_Impl(ieIndexBuffer* pBuffer)
 	{
-		IE_CORE_ASSERT(dynamic_cast<D3D11IndexBuffer*>(pBuffer) != nullptr, "A index buffer passed to renderer with D3D 11 active must be a \"D3D11IndexBuffer\"");
+		RN_CORE_ASSERT(dynamic_cast<D3D11IndexBuffer*>(pBuffer) != nullptr, "A index buffer passed to renderer with D3D 11 active must be a \"D3D11IndexBuffer\"");
 		m_pDeviceContext->IASetIndexBuffer(reinterpret_cast<D3D11IndexBuffer*>(pBuffer)->GetBufferPtr(), reinterpret_cast<D3D11IndexBuffer*>(pBuffer)->GetFormat(), reinterpret_cast<D3D11IndexBuffer*>(pBuffer)->GetBufferOffset());
 	}
 
@@ -435,12 +435,12 @@ namespace Insight {
 				}
 				*ppAdapter = pAdapter.Detach();
 
-				IE_CORE_WARN("Found suitable Direct3D 11 graphics hardware: {0}", StringHelper::WideToString(Desc.Description));
+				RN_CORE_WARN("Found suitable Direct3D 11 graphics hardware: {0}", StringHelper::WideToString(Desc.Description));
 			}
 		}
 		Desc = {};
 		(*ppAdapter)->GetDesc(&Desc);
-		IE_CORE_WARN("\"{0}\" selected as Direct3D 11 graphics hardware.", StringHelper::WideToString(Desc.Description));
+		RN_CORE_WARN("\"{0}\" selected as Direct3D 11 graphics hardware.", StringHelper::WideToString(Desc.Description));
 	}
 
 	void Direct3D11Context::CreateDeviceAndSwapChain()
@@ -449,7 +449,7 @@ namespace Insight {
 		GetHardwareAdapter(m_pDxgiFactory.Get(), &m_pAdapter);
 
 		UINT DeviceCreateFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
-#if defined IE_DEBUG
+#if defined RN_DEBUG
 		DeviceCreateFlags |= D3D11_CREATE_DEVICE_DEBUG;
 		if (m_DeviceMaxSupportedFeatureLevel >= D3D_FEATURE_LEVEL_11_1) {
 			DeviceCreateFlags |= D3D11_CREATE_DEVICE_DEBUGGABLE;

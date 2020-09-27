@@ -48,13 +48,13 @@
 #include <rapidjson/ostreamwrapper.h>
 #include <rapidjson/prettywriter.h>
 
-// === Insight Specific === //
-#include "Insight/Core/Log.h"
-#include "Insight/Core/Interfaces.h"
-#include "Insight/Math/ie_Vectors.h"
-#include "Insight/Utilities/Profiling.h"
-#include "Insight/Utilities/String_Helper.h"
-#include "Insight/Systems/File_System.h"
+// === Retina Specific === //
+#include "Retina/Core/Log.h"
+#include "Retina/Core/Interfaces.h"
+#include "Retina/Math/ie_Vectors.h"
+#include "Retina/Utilities/Profiling.h"
+#include "Retina/Utilities/String_Helper.h"
+#include "Retina/Systems/File_System.h"
 
 // Parameters
 #define RENDERER_MULTI_THREAD_ENABLED 0
@@ -65,7 +65,7 @@
 // -----------
 
 // === Windows === //
-#if defined IE_PLATFORM_WINDOWS
+#if defined RN_PLATFORM_WINDOWS
 
 	#ifndef WIN32_LEAN_AND_MEAN
 		#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers.
@@ -95,11 +95,11 @@
 	#include <DirectXMath.h>
 	#include <D3Dcompiler.h>
 	
-#endif // IE_PLATFORM_WINDOWS
+#endif // RN_PLATFORM_WINDOWS
 
 // === Mac === //
-#ifdef IE_PLATFORM_MAC
+#ifdef RN_PLATFORM_MAC
 
 
 
-#endif // IE_PLATFORM_MAC
+#endif // RN_PLATFORM_MAC

@@ -1,14 +1,14 @@
 #pragma once
 
-#include <Insight/Core.h>
+#include <Retina/Core.h>
 
-#include "Insight/Rendering/Geometry/Vertex_Buffer.h"
+#include "Retina/Rendering/Geometry/Vertex_Buffer.h"
 
-namespace Insight {
+namespace Retina {
 
 	using Microsoft::WRL::ComPtr;
 
-	class INSIGHT_API D3D12VertexBuffer : public ieVertexBuffer
+	class RETINA_API D3D12VertexBuffer : public ieVertexBuffer
 	{
 	public:
 		D3D12VertexBuffer(Verticies Verticies);

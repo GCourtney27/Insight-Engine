@@ -1,14 +1,14 @@
 #pragma once
 
-#include <Insight/Core.h>
+#include <Retina/Core.h>
 
-#include "Insight/Rendering/Geometry/Index_Buffer.h"
+#include "Retina/Rendering/Geometry/Index_Buffer.h"
 
-namespace Insight {
+namespace Retina {
 
 	using Microsoft::WRL::ComPtr;
 
-	class INSIGHT_API D3D12IndexBuffer : public ieIndexBuffer
+	class RETINA_API D3D12IndexBuffer : public ieIndexBuffer
 	{
 	public:
 		D3D12IndexBuffer(Indices Indices);

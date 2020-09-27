@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Insight/Core.h>
+#include <Retina/Core.h>
 #include <Windows.h>
 
-namespace Insight {
+namespace Retina {
 
-	class INSIGHT_API ConsoleWindow
+	class RETINA_API ConsoleWindow
 	{
 	public:
 		ConsoleWindow();

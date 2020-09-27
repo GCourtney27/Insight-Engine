@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Insight/Core.h>
+#include <Retina/Core.h>
 
 #include "Renderer/Renderer.h"
 
@@ -9,9 +9,9 @@
 #include "Renderer/Platform/Windows/DirectX_12/Wrappers/Descriptor_Heap_Wrapper.h"
 #include "Renderer/Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
 #include "Renderer/Platform/Windows/DirectX_12/Ray_Tracing/Ray_Trace_Helpers.h"
-#include "Renderer/Platform/Windows/DirectX_12/Wrappers/ie_D3D12_Screen_Quad.h"
+#include "Renderer/Platform/Windows/DirectX_12/Wrappers/rn_D3D12_Screen_Quad.h"
 
-#include "Insight/Rendering/Lighting/ADirectional_Light.h"
+#include "Retina/Rendering/Lighting/ADirectional_Light.h"
 #include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_Constant_Buffer_Wrapper.h"
 
 /*
@@ -20,9 +20,9 @@
 
 using Microsoft::WRL::ComPtr;
 
-#define IE_D3D12_FrameIndex m_d3dDeviceResources.GetFrameIndex()
+#define RN_D3D12_FrameIndex m_d3dDeviceResources.GetFrameIndex()
 
-namespace Insight {
+namespace Retina {
 
 	class WindowsWindow;
 	class GeometryManager;
@@ -33,7 +33,7 @@ namespace Insight {
 	typedef ID3D12Resource D3D12ShaderResourceView;
 	typedef ID3D12Resource D3D12UnoreredAccessView;
 
-	class INSIGHT_API Direct3D12Context : public Renderer
+	class RETINA_API Direct3D12Context : public Renderer
 	{
 	private:
 		
@@ -98,10 +98,10 @@ namespace Insight {
 		inline ID3D12CommandQueue& GetCommandQueue() const { return m_d3dDeviceResources.GetGraphicsCommandQueue(); }
 		inline CDescriptorHeapWrapper& GetCBVSRVDescriptorHeap() { return m_cbvsrvHeap; }
 		
-		inline ID3D12Resource& GetConstantBufferPerObjectUploadHeap() const { return *m_CBPerObject[IE_D3D12_FrameIndex].GetResource(); }
-		inline UINT8* GetPerObjectCBVGPUHeapAddress() { return m_CBPerObject[IE_D3D12_FrameIndex].GetGPUAddress(); }
-		inline ID3D12Resource& GetConstantBufferPerObjectMaterialUploadHeap() const { return *m_CBPerObjectMaterial[IE_D3D12_FrameIndex].GetResource(); }
-		inline UINT8* GetPerObjectMaterialAdditiveCBVGPUHeapAddress() { return m_CBPerObjectMaterial[IE_D3D12_FrameIndex].GetGPUAddress(); }
+		inline ID3D12Resource& GetConstantBufferPerObjectUploadHeap() const { return *m_CBPerObject[RN_D3D12_FrameIndex].GetResource(); }
+		inline UINT8* GetPerObjectCBVGPUHeapAddress() { return m_CBPerObject[RN_D3D12_FrameIndex].GetGPUAddress(); }
+		inline ID3D12Resource& GetConstantBufferPerObjectMaterialUploadHeap() const { return *m_CBPerObjectMaterial[RN_D3D12_FrameIndex].GetResource(); }
+		inline UINT8* GetPerObjectMaterialAdditiveCBVGPUHeapAddress() { return m_CBPerObjectMaterial[RN_D3D12_FrameIndex].GetGPUAddress(); }
 
 		const CB_PS_VS_PerFrame& GetPerFrameCB() const { return m_CBPerFrame.Data; }
 
@@ -112,12 +112,12 @@ namespace Insight {
 		[[nodiscard]] uint32_t RegisterGeometryWithRTAccelerationStucture(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat);
 		void UpdateRTAccelerationStructureMatrix(uint32_t InstanceArrIndex, DirectX::XMMATRIX NewWorldMat) { m_RTHelper.UpdateInstanceTransformByIndex(InstanceArrIndex, NewWorldMat); }
 
-		ID3D12Resource* GetSwapChainRenderTarget() const { return m_pSwapChainRenderTargets[IE_D3D12_FrameIndex].Get(); }
+		ID3D12Resource* GetSwapChainRenderTarget() const { return m_pSwapChainRenderTargets[RN_D3D12_FrameIndex].Get(); }
 		const UINT GetNumLightPassRTVs() const { return m_NumRTVs; }
 		inline D3D12_CPU_DESCRIPTOR_HANDLE GetSwapChainRTV() const
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE handle;
-			handle.ptr = m_SwapChainRTVHeap.hCPUHeapStart.ptr + m_SwapChainRTVHeap.HandleIncrementSize * IE_D3D12_FrameIndex;
+			handle.ptr = m_SwapChainRTVHeap.hCPUHeapStart.ptr + m_SwapChainRTVHeap.HandleIncrementSize * RN_D3D12_FrameIndex;
 			return handle;
 		}
 

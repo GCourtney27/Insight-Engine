@@ -4,9 +4,9 @@
 
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
-#include "Insight/Rendering/Material.h"
+#include "Retina/Rendering/Material.h"
 
-namespace Insight {
+namespace Retina {
 
 
 
@@ -32,7 +32,7 @@ namespace Insight {
 
 		if (!(m_pScenePassCommandList && m_pShadowPassCommandList && m_pTransparencyPassCommandList && m_ConstantBufferUploadHeaps && m_ConstantBufferMaterialUploadHeaps))
 		{
-			IE_CORE_ERROR("Failed to initialize one or more resources for D3D12 model manager.");
+			RN_CORE_ERROR("Failed to initialize one or more resources for D3D12 model manager.");
 			return false;
 		}
 		return true;

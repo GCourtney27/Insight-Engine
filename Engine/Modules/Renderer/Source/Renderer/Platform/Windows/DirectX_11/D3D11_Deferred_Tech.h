@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Insight/Core.h>
+#include <Retina/Core.h>
 
 #include "Platform/Windows/DirectX_11/Wrappers/D3D11_Shader.h"
 
-namespace Insight {
+namespace Retina {
 
 	class WindowsWindow;
 
@@ -33,7 +33,7 @@ namespace Insight {
 		uint32_t m_NumIndices;
 	};
 
-	class INSIGHT_API D3D11DeferredShadingTech
+	class RETINA_API D3D11DeferredShadingTech
 	{
 	public:
 		D3D11DeferredShadingTech();

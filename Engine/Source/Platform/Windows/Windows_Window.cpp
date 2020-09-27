@@ -2,19 +2,19 @@
 
 #include "Windows_Window.h"
 
-#include "Insight/Core/Application.h"
+#include "Retina/Core/Application.h"
 #include "Renderer/Renderer.h"
 
-#include "Insight/Core/Log.h"
-#include "Insight/Utilities/String_Helper.h"
+#include "Retina/Core/Log.h"
+#include "Retina/Utilities/String_Helper.h"
 #include "Platform/Windows/Window_Resources/Resource.h"
 
-#include "Insight/Events/Key_Event.h"
-#include "Insight/Events/Mouse_Event.h"
-#include "Insight/Events/Application_Event.h"
+#include "Retina/Events/Key_Event.h"
+#include "Retina/Events/Mouse_Event.h"
+#include "Retina/Events/Application_Event.h"
 
 
-namespace Insight {
+namespace Retina {
 
 
 	Window* Window::Create(const WindowProps& props)
@@ -176,7 +176,7 @@ namespace Insight {
 		// Aplication Events
 		case WM_COMPACTING:
 		{
-			IE_CORE_WARN("System memory is low!");
+			RN_CORE_WARN("System memory is low!");
 			return 0;
 		}
 		case WM_EXITSIZEMOVE:
@@ -187,7 +187,7 @@ namespace Insight {
 			WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, wParam == SIZE_MINIMIZED);
 			data.EventCallback(event);
 
-			IE_CORE_INFO("Window size has changed");
+			RN_CORE_INFO("Window size has changed");
 			return 0;
 		}
 		case WM_SIZE:
@@ -233,7 +233,7 @@ namespace Insight {
 			LPSTR lpszFile;
 			UINT cch;
 			DragQueryFileA((HDROP)wParam, iFile, lpszFile, cch);
-			IE_CORE_INFO("File dropped on window");*/
+			RN_CORE_INFO("File dropped on window");*/
 		}
 		// Menu Bar Events
 		case WM_COMMAND:
@@ -253,7 +253,7 @@ namespace Insight {
 			{
 				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 				data.EditorUIEnabled = !data.EditorUIEnabled;
-				IE_STRIP_FOR_GAME_DIST(Application::Get().GetEditorLayer().SetUIEnabled(data.EditorUIEnabled);)
+				RN_STRIP_FOR_GAME_DIST(Application::Get().GetEditorLayer().SetUIEnabled(data.EditorUIEnabled);)
 				break;
 			}
 			case IDM_EDITOR_RELOAD_SCRIPTS:
@@ -282,7 +282,7 @@ namespace Insight {
 				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 				SceneSaveEvent event;
 				data.EventCallback(event);
-				IE_CORE_INFO("Scene Saved");
+				RN_CORE_INFO("Scene Saved");
 				break;
 			}
 			case IDM_ABOUT:
@@ -293,7 +293,7 @@ namespace Insight {
 				int APIVersion = ((int)Renderer::GetAPI()) + 10;
 				const wchar_t* RTEnabled = Renderer::GetIsRayTraceEnabled() ? L"Enabled" : L"Disabled";
 				swprintf_s(AboutMsgBuffer, L"Version - 1.8 \nRenderer - Direct3D %i (Ray Tracing: %s) \n\nVendor Runtime: \nMono - v6.8.0.123 \nAssimp - v3.3.1 \nRapidJson - v1.0.0 \nImGui - v1.75", APIVersion, RTEnabled);
-				data.pWindow->CreateMessageBox(AboutMsgBuffer, L"About Insight Editor");
+				data.pWindow->CreateMessageBox(AboutMsgBuffer, L"About Retina Editor");
 				
 				break;
 			}
@@ -309,44 +309,44 @@ namespace Insight {
 			{
 				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
-				IE_CORE_INFO("Visualize final result");
+				RN_CORE_INFO("Visualize final result");
 				//ModifyMenuW(data.hGraphicsVisualizeSubMenu, IDM_VISUALIZE_FINAL_RESULT, MF_CHECKED, IDM_VISUALIZE_FINAL_RESULT, L"&Final Result");
 
 				break;
 			}
 			case IDM_VISUALIZE_LIGHT_PASS_RESULT:
 			{
-				IE_CORE_INFO("Visualize light pass result");
+				RN_CORE_INFO("Visualize light pass result");
 				break;
 			}
 			case IDM_VISUALIZE_ALBEDO_BUFFER:
 			{
-				IE_CORE_INFO("Visualize albedo buffer");
+				RN_CORE_INFO("Visualize albedo buffer");
 				break;
 			}
 			case IDM_VISUALIZE_NORMAL_BUFFER:
 			{
-				IE_CORE_INFO("Visualize normal buffer");
+				RN_CORE_INFO("Visualize normal buffer");
 				break;
 			}
 			case IDM_VISUALIZE_ROUGHNESS_BUFFER:
 			{
-				IE_CORE_INFO("Visualize roughness buffer");
+				RN_CORE_INFO("Visualize roughness buffer");
 				break;
 			}
 			case IDM_VISUALIZE_METALLIC_BUFFER:
 			{
-				IE_CORE_INFO("Visualize metallic buffer");
+				RN_CORE_INFO("Visualize metallic buffer");
 				break;
 			}
 			case IDM_VISUALIZE_AO_BUFFER:
 			{
-				IE_CORE_INFO("Visualize ambient occlusion buffer");
+				RN_CORE_INFO("Visualize ambient occlusion buffer");
 				break;
 			}
 			case IDM_RENDERER_D3D_11:
 			{
-				IE_CORE_INFO("Switch render context to D3D 11");
+				RN_CORE_INFO("Switch render context to D3D 11");
 				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 				Renderer::GraphicsSettings Settings = {};
 				Settings.TargetRenderAPI = Renderer::eTargetRenderAPI::D3D_11;
@@ -356,7 +356,7 @@ namespace Insight {
 			}
 			case IDM_RENDERER_D3D_12:
 			{
-				IE_CORE_INFO("Switch render context to D3D 12");
+				RN_CORE_INFO("Switch render context to D3D 12");
 				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 				Renderer::GraphicsSettings Settings = {};
 				Settings.TargetRenderAPI = Renderer::eTargetRenderAPI::D3D_12;
@@ -366,7 +366,7 @@ namespace Insight {
 			}
 			case IDM_RELOAD_SHADERS:
 			{
-				IE_CORE_INFO("Reloading scripts.");
+				RN_CORE_INFO("Reloading scripts.");
 				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 				ShaderReloadEvent event;
 				data.EventCallback(event);
@@ -387,7 +387,7 @@ namespace Insight {
 	{
 		HRESULT hr = ::CoInitialize(NULL);
 		if (FAILED(hr)){
-			IE_CORE_ERROR("Failed to initialize COM library.");
+			RN_CORE_ERROR("Failed to initialize COM library.");
 		}
 
 		static bool raw_input_initialized = false;
@@ -402,7 +402,7 @@ namespace Insight {
 
 			if (RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE)
 			{
-				IE_CORE_ERROR("Failed to register raw input devices. Error: {0}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
+				RN_CORE_ERROR("Failed to register raw input devices. Error: {0}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
 				return false;
 			}
 			raw_input_initialized = true;
@@ -421,10 +421,10 @@ namespace Insight {
 		::AdjustWindowRect(&m_WindowRect, WS_OVERLAPPEDWINDOW | WS_EX_ACCEPTFILES, FALSE);
 
 		// Create the menu bar
-		IE_STRIP_FOR_GAME_DIST(InitializeMenuBar();)
+		RN_STRIP_FOR_GAME_DIST(InitializeMenuBar();)
 
 		// Create mouse Right-Click context menu
-		IE_STRIP_FOR_GAME_DIST(InitializeContextMenu();)
+		RN_STRIP_FOR_GAME_DIST(InitializeContextMenu();)
 
 		// Create the main window for the engine/game
 		m_hWindow = ::CreateWindowExW(
@@ -445,8 +445,8 @@ namespace Insight {
 		);
 
 		if (m_hWindow == NULL) {
-			IE_ERROR("Unable to create Windows window.");
-			IE_ERROR("    Error: {0}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
+			RN_ERROR("Unable to create Windows window.");
+			RN_ERROR("    Error: {0}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
 			return false;
 		}
 
@@ -459,7 +459,7 @@ namespace Insight {
 		::SetForegroundWindow(m_hWindow);
 		::SetFocus(m_hWindow);
 
-		IE_CORE_TRACE("Window Initialized");
+		RN_CORE_TRACE("Window Initialized");
 		return true;
 	}
 
@@ -490,8 +490,8 @@ namespace Insight {
 		DWORD error = ::GetLastError();
 		if (error > 0)
 		{
-			IE_CORE_ERROR("An error occured while registering window class: {0} ", m_Data.WindowClassName);
-			IE_CORE_ERROR("    Error: {1}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
+			RN_CORE_ERROR("An error occured while registering window class: {0} ", m_Data.WindowClassName);
+			RN_CORE_ERROR("    Error: {1}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
 		}
 	}
 
@@ -499,7 +499,7 @@ namespace Insight {
 	{
 		m_hMenuBar = ::CreateMenu();
 		if (m_hMenuBar == NULL) {
-			IE_CORE_ERROR("Failed to create menu bar for window \"{0}\"", m_Data.WindowTitle);
+			RN_CORE_ERROR("Failed to create menu bar for window \"{0}\"", m_Data.WindowTitle);
 			return;
 		}
 
@@ -633,13 +633,13 @@ namespace Insight {
 			::DispatchMessage(&msg);		// Dispatch message to our WindowProc for this window
 		}
 
-		IE_ASSERT(_CrtCheckMemory(), "Heap is currupted!");
+		RN_ASSERT(_CrtCheckMemory(), "Heap is currupted!");
 		return true;
 	}
 
 	WindowsWindow::~WindowsWindow()
 	{
-		IE_CORE_WARN("Destroying window: {0}", m_Data.WindowTitle);
+		RN_CORE_WARN("Destroying window: {0}", m_Data.WindowTitle);
 		Shutdown();
 	}
 
@@ -695,7 +695,7 @@ namespace Insight {
 
 	void WindowsWindow::SetVSync(bool enabled)
 	{
-		IE_CORE_INFO("V-sync: " + enabled ? "enabled" : "disabled");
+		RN_CORE_INFO("V-sync: " + enabled ? "enabled" : "disabled");
 		m_Data.VSyncEnabled = enabled;
 		Renderer::SetVSyncEnabled(m_Data.VSyncEnabled);
 	}

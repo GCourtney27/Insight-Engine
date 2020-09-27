@@ -1,19 +1,19 @@
 #pragma once
 
-#include <Insight/Core.h>
+#include <Retina/Core.h>
 
 #include "DXR/nv_helpers_dx12/TopLevelASGenerator.h"
 #include "DXR/nv_helpers_dx12/ShaderBindingTableGenerator.h"
 
 
-namespace Insight {
+namespace Retina {
 
 	class Direct3D12Context;
 
 	using Microsoft::WRL::ComPtr;
 	namespace NvidiaHelpers = nv_helpers_dx12;
 
-	class INSIGHT_API RayTraceHelpers
+	class RETINA_API RayTraceHelpers
 	{
 	public:
 		struct AccelerationStructureBuffers

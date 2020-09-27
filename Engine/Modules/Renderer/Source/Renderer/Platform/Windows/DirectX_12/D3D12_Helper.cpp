@@ -5,7 +5,7 @@
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 #include "Platform/Windows/Windows_Window.h"
 
-namespace Insight {
+namespace Retina {
 
 
 
@@ -62,7 +62,7 @@ namespace Insight {
 	{
 		// Close the fence handle on the GPU
 		if (!CloseHandle(m_FenceEvent)) {
-			IE_CORE_ERROR("Failed to close GPU handle while cleaning up the D3D 12 context.");
+			RN_CORE_ERROR("Failed to close GPU handle while cleaning up the D3D 12 context.");
 		}
 	}
 
@@ -71,7 +71,7 @@ namespace Insight {
 		UINT DxgiFactoryFlags = 0u;
 
 		// Enable debug layers if in debug builds
-#if defined IE_DEBUG
+#if defined RN_DEBUG
 		{
 			ComPtr<ID3D12Debug> debugController;
 			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
@@ -98,7 +98,7 @@ namespace Insight {
 			D3D12_FEATURE_DATA_D3D12_OPTIONS5 Options5 = {};
 			ThrowIfFailed(pDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &Options5, sizeof(Options5)), "Failed to query feature support for ray trace with device.");
 			if (Options5.RaytracingTier < D3D12_RAYTRACING_TIER_1_0) {
-				IE_CORE_WARN("Ray tracing not supported on this device.");
+				RN_CORE_WARN("Ray tracing not supported on this device.");
 				return false;
 			}
 			return true;
@@ -128,14 +128,14 @@ namespace Insight {
 
 						m_pRenderContextRef->SetIsRayTraceSupported(true);
 
-						IE_CORE_WARN("Found suitable Direct3D 12 graphics hardware that can support ray tracing: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
+						RN_CORE_WARN("Found suitable Direct3D 12 graphics hardware that can support ray tracing: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
 						continue;
 					}
 				}
 			}
 
 			// If we cannot support ray tracing, just see if D3D 12 is supported and create a default device
-			if (SUCCEEDED(D3D12CreateDevice(pAdapter.Get(), D3D_FEATURE_LEVEL_12_0, __uuidof(ID3D12Device), nullptr))) {
+			if (SUCCEEDED(D3D12CreateDevice(pAdapter.Get(), D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device), nullptr))) {
 
 				currentVideoCardMemory = static_cast<UINT>(Desc.DedicatedVideoMemory);
 				if (*ppAdapter != nullptr) {
@@ -143,12 +143,12 @@ namespace Insight {
 				}
 				*ppAdapter = pAdapter.Detach();
 
-				IE_CORE_WARN("Found suitable Direct3D 12 graphics hardware: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
+				RN_CORE_WARN("Found suitable Direct3D 12 graphics hardware: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
 			}
 		}
 		Desc = {};
 		(*ppAdapter)->GetDesc1(&Desc);
-		IE_CORE_WARN("\"{0}\" selected as Direct3D 12 graphics hardware.", StringHelper::WideToString(Desc.Description));
+		RN_CORE_WARN("\"{0}\" selected as Direct3D 12 graphics hardware.", StringHelper::WideToString(Desc.Description));
 	}
 
 	void D3D12Helper::CreateDevice()
@@ -163,7 +163,7 @@ namespace Insight {
 			m_pDevice = TempDevice.Detach();
 		}
 		else {
-			HRESULT hr = D3D12CreateDevice(m_pAdapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&m_pDevice));
+			HRESULT hr = D3D12CreateDevice(m_pAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_pDevice));
 			ThrowIfFailed(hr, "Failed to create logical device.");
 		}
 	}

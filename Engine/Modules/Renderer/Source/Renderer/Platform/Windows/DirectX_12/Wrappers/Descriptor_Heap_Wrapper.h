@@ -1,15 +1,15 @@
 #pragma once
 
-#include <Insight/Core.h>
+#include <Retina/Core.h>
 #include <comdef.h>
 
 /*
 	Based on shuhuai's implementation in https://github.com/shuhuai/DeferredShadingD3D12
 */
 
-namespace Insight {
+namespace Retina {
 
-	class INSIGHT_API CDescriptorHeapWrapper
+	class RETINA_API CDescriptorHeapWrapper
 	{
 	public:
 		CDescriptorHeapWrapper() { memset(this, 0, sizeof(*this)); }
