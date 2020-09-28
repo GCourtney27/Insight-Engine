@@ -12,7 +12,7 @@ namespace Retina {
 		APlayerStart::APlayerStart(ActorId id, ActorName name)
 			: AActor(id, name)
 		{
-
+			m_pSceneComponent = CreateDefaultSubobject<SceneComponent>();
 		}
 
 		APlayerStart::~APlayerStart()
@@ -36,12 +36,6 @@ namespace Retina {
 		void APlayerStart::OnUpdate(const float DeltaMs)
 		{
 			AActor::OnUpdate(DeltaMs);
-
-		}
-
-		void APlayerStart::CalculateParent(XMMATRIX parentMat)
-		{
-			AActor::CalculateParent(parentMat);
 
 		}
 
@@ -73,7 +67,7 @@ namespace Retina {
 
 		void APlayerStart::SpawnPlayer(APlayerCharacter* PlayerCharacter)
 		{
-			PlayerCharacter->GetTransformRef().SetPosition(GetTransform().GetPosition());
+			//PlayerCharacter->SetPosition(m_pSceneComponent->GetTransform().GetPositionFloat3());
 			//PlayerCharacter->GetTransformRef().SetDirection(GetTransform().GetLocalForward());
 		}
 

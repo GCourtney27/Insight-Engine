@@ -5,8 +5,8 @@
 #include "Retina/Runtime/Components/Actor_Component.h"
 #include "Renderer/Renderer.h"
 
-#include "Renderer/Platform/Windows/DirectX_12/Wrappers/ie_D3D12_Texture.h"
-#include "Renderer/Platform/Windows/DirectX_11/Wrappers/ie_D3D11_Texture.h"
+#include "Renderer/Platform/Windows/DirectX_12/Wrappers/rn_D3D12_Texture.h"
+#include "Renderer/Platform/Windows/DirectX_11/Wrappers/rn_D3D11_Texture.h"
 #include "Renderer/Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 #include "imgui.h"
@@ -91,33 +91,33 @@ namespace Retina {
 			Writer->Key("Transform");
 			Writer->StartArray(); // Start Write Transform
 			{
-				ieTransform& Transform = SceneNode::GetTransformRef();
-				ieVector3 Pos = Transform.GetPosition();
-				ieVector3 Rot = Transform.GetRotation();
-				ieVector3 Sca = Transform.GetScale();
+				//ieTransform& Transform = SceneNode::GetTransformRef();
+				//ieVector3 Pos = Transform.GetPosition();
+				//ieVector3 Rot = Transform.GetRotation();
+				//ieVector3 Sca = Transform.GetScale();
 
-				Writer->StartObject();
-				// Position
-				Writer->Key("posX");
-				Writer->Double(Pos.x);
-				Writer->Key("posY");
-				Writer->Double(Pos.y);
-				Writer->Key("posZ");
-				Writer->Double(Pos.z);
-				// Rotation
-				Writer->Key("rotX");
-				Writer->Double(Rot.x);
-				Writer->Key("rotY");
-				Writer->Double(Rot.y);
-				Writer->Key("rotZ");
-				Writer->Double(Rot.z);
-				// Scale
-				Writer->Key("scaX");
-				Writer->Double(Sca.x);
-				Writer->Key("scaY");
-				Writer->Double(Sca.y);
-				Writer->Key("scaZ");
-				Writer->Double(Sca.z);
+				//Writer->StartObject();
+				//// Position
+				//Writer->Key("posX");
+				//Writer->Double(Pos.x);
+				//Writer->Key("posY");
+				//Writer->Double(Pos.y);
+				//Writer->Key("posZ");
+				//Writer->Double(Pos.z);
+				//// Rotation
+				//Writer->Key("rotX");
+				//Writer->Double(Rot.x);
+				//Writer->Key("rotY");
+				//Writer->Double(Rot.y);
+				//Writer->Key("rotZ");
+				//Writer->Double(Rot.z);
+				//// Scale
+				//Writer->Key("scaX");
+				//Writer->Double(Sca.x);
+				//Writer->Key("scaY");
+				//Writer->Double(Sca.y);
+				//Writer->Key("scaZ");
+				//Writer->Double(Sca.z);
 
 				Writer->EndObject();
 			}

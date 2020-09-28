@@ -78,68 +78,11 @@ namespace Retina {
 		{
 			if (m_pSelectedActor != nullptr) {
 
-				RenderSelectionGizmo();
+				//RenderSelectionGizmo();
 				m_pSelectedActor->OnImGuiRender();
 			}
 		}
 		ImGui::End();
-	}
-
-	static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
-	static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
-	void EditorLayer::RenderSelectionGizmo()
-	{
-		XMFLOAT4X4 objectMat;
-		XMFLOAT4X4 deltaMat;
-		XMFLOAT4X4 viewMat;
-		XMFLOAT4X4 projMat;
-		XMStoreFloat4x4(&objectMat, m_pSelectedActor->GetTransformRef().GetLocalMatrix());
-		XMStoreFloat4x4(&viewMat, m_pSceneCameraRef->GetViewMatrix());
-		XMStoreFloat4x4(&projMat, m_pSceneCameraRef->GetProjectionMatrix());
-
-		if (Input::IsKeyPressed('W')) {
-			mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-		}
-		else if (Input::IsKeyPressed('E')) {
-			mCurrentGizmoOperation = ImGuizmo::ROTATE;
-		}
-		else if (Input::IsKeyPressed('R')) {
-			mCurrentGizmoOperation = ImGuizmo::SCALE;
-		}
-
-		ImGuiIO& io = ImGui::GetIO();
-		ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-		//TODO if(Raycast::LastRayCast::Succeeded) than run this line if false than skip it (disbles the guizmo)
-		ImGuizmo::Manipulate(*viewMat.m, *projMat.m, mCurrentGizmoOperation, mCurrentGizmoMode, *objectMat.m, *deltaMat.m, NULL, NULL, NULL);
-
-		if (ImGuizmo::IsOver())
-		{
-			float pos[3] = { 0.0f, 0.0f, 0.0f };
-			float sca[3] = { 0.0f, 0.0f, 0.0f };
-			float rot[3] = { 0.0f, 0.0f, 0.0f };
-
-			switch (mCurrentGizmoOperation) {
-			case ImGuizmo::TRANSLATE:
-			{
-				ImGuizmo::DecomposeMatrixToComponents(*deltaMat.m, pos, rot, sca);
-				m_pSelectedActor->GetTransformRef().Translate(pos[0], pos[1], pos[2]);
-				break;
-			}
-			case ImGuizmo::SCALE:
-			{
-				ImGuizmo::DecomposeMatrixToComponents(*objectMat.m, pos, rot, sca);
-				m_pSelectedActor->GetTransformRef().SetScale(sca[0], sca[1], sca[2]);
-				break;
-			}
-			case ImGuizmo::ROTATE:
-			{
-				ImGuizmo::DecomposeMatrixToComponents(*deltaMat.m, pos, rot, sca);
-				m_pSelectedActor->GetTransformRef().Rotate(rot[0], rot[1], rot[2]);
-				break;
-			}
-			default: { break; }
-			}
-		}
 	}
 
 	void EditorLayer::RenderCreatorWindow()
@@ -278,7 +221,7 @@ namespace Retina {
 		if (e.GetMouseButton() != RN_MOUSEBUTTON_LEFT) return false;
 		return false;
 
-		ieVector3 CameraPosition = m_pSceneCameraRef->GetTransformRef().GetPositionRef();
+		ieVector3 CameraPosition = m_pSceneCameraRef->GetPosition();
 		ieVector3 MouseDirection = GetMouseDirectionVector();
 		Physics::Ray ray(CameraPosition, MouseDirection);
 

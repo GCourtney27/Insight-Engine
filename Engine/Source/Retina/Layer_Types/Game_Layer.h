@@ -31,6 +31,7 @@ namespace Retina {
 		void PreRender();
 		void Render();
 		void EndPlay();
+		void PostInit();
 
 	private:
 		Scene* m_pScene = nullptr;

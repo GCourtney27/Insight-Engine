@@ -50,6 +50,8 @@ namespace Retina {
 			inline void SetPosition(ieVector3& Pos) { m_pModel->GetMeshRootTransformRef().SetPosition(Pos.x, Pos.y, Pos.z); }
 			inline void SetRotation(ieVector3& Rot) { m_pModel->GetMeshRootTransformRef().SetRotation(Rot.x, Rot.y, Rot.z); }
 			inline void SetScale(ieVector3& Sca) { m_pModel->GetMeshRootTransformRef().SetScale(Sca.x, Sca.y, Sca.z); }
+		private:
+			bool OnEventTranslation(TranslationEvent& e);
 
 		private:
 			std::string m_DynamicAssetDir;

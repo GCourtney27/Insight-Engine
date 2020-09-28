@@ -22,8 +22,12 @@ namespace Retina {
 		void EditorEndPlay();
 		void EditorInit() { UpdateEditorOriginPositionRotationScale(); }
 
-		inline const ieVector3& GetPosition()		const { return m_Position; }
-		inline const ieVector3& GetRotation()		const { return m_Rotation; }
+		inline ieFloat3 GetPositionFloat3() const { return ieFloat3(m_Position.x, m_Position.y, m_Position.z); }
+		inline ieFloat3 GetRotationFloat3() const { return ieFloat3(m_Rotation.x, m_Rotation.y, m_Rotation.z); }
+		inline ieFloat3 GetScaleFloat3() const { return ieFloat3(m_Scale.x, m_Scale.y, m_Scale.z); }
+
+		inline const ieVector3& GetPosition()	const { return m_Position; }
+		inline const ieVector3& GetRotation()	const { return m_Rotation; }
 		inline const ieVector3& GetScale()		const { return m_Scale; }
 
 		inline ieVector3& GetPositionRef()	{ m_Transformed = true; return m_Position; }
@@ -62,7 +66,7 @@ namespace Retina {
 		ieMatrix GetLocalMatrixTransposed() const { return XMMatrixTranspose(m_LocalMatrix); }
 
 		// Returns the objects world space matrix
-		const ieMatrix& GetWorldMatrix() { UpdateIfTransformed(); return m_WorldMatrix; }
+		ieMatrix GetWorldMatrix() { UpdateIfTransformed(); return m_WorldMatrix; }
 		// Returns a reference to the objects world space matrix
 		ieMatrix& GetWorldMatrixRef() { return m_WorldMatrix; }
 		// Set the objects world matrix

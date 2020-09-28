@@ -40,22 +40,22 @@ namespace Retina {
 			float scaX, scaY, scaZ;
 			const rapidjson::Value& transform = (*jsonActor)["Transform"];
 			// Position
-			json::get_float(transform[0], "posX", posX);
-			json::get_float(transform[0], "posY", posY);
-			json::get_float(transform[0], "posZ", posZ);
-			SceneNode::GetTransformRef().SetPosition(ieVector3(posX, posY, posZ));
-			// Rotation
-			json::get_float(transform[0], "rotX", rotX);
-			json::get_float(transform[0], "rotY", rotY);
-			json::get_float(transform[0], "rotZ", rotZ);
-			SceneNode::GetTransformRef().SetRotation(ieVector3(rotX, rotY, rotZ));
-			// Scale
-			json::get_float(transform[0], "scaX", scaX);
-			json::get_float(transform[0], "scaY", scaY);
-			json::get_float(transform[0], "scaZ", scaZ);
-			SceneNode::GetTransformRef().SetScale(ieVector3(scaX, scaY, scaZ));
+			//json::get_float(transform[0], "posX", posX);
+			//json::get_float(transform[0], "posY", posY);
+			//json::get_float(transform[0], "posZ", posZ);
+			//SceneNode::GetTransformRef().SetPosition(ieVector3(posX, posY, posZ));
+			//// Rotation
+			//json::get_float(transform[0], "rotX", rotX);
+			//json::get_float(transform[0], "rotY", rotY);
+			//json::get_float(transform[0], "rotZ", rotZ);
+			//SceneNode::GetTransformRef().SetRotation(ieVector3(rotX, rotY, rotZ));
+			//// Scale
+			//json::get_float(transform[0], "scaX", scaX);
+			//json::get_float(transform[0], "scaY", scaY);
+			//json::get_float(transform[0], "scaZ", scaZ);
+			//SceneNode::GetTransformRef().SetScale(ieVector3(scaX, scaY, scaZ));
 
-			SceneNode::GetTransformRef().EditorInit();
+			//SceneNode::GetTransformRef().EditorInit();
 
 			// Load Subobjects
 			const rapidjson::Value& jsonSubobjects = (*jsonActor)["Subobjects"];
@@ -97,33 +97,33 @@ namespace Retina {
 				Writer->Key("Transform");
 				Writer->StartArray(); // Start Write Transform
 				{
-					ieTransform& Transform = SceneNode::GetTransformRef();
-					ieVector3 Pos = Transform.GetPosition();
-					ieVector3 Rot = Transform.GetRotation();
-					ieVector3 Sca = Transform.GetScale();
+					//ieTransform& Transform = SceneNode::GetTransformRef();
+					//ieVector3 Pos = Transform.GetPosition();
+					//ieVector3 Rot = Transform.GetRotation();
+					//ieVector3 Sca = Transform.GetScale();
 
-					Writer->StartObject();
-					// Position
-					Writer->Key("posX");
-					Writer->Double(Pos.x);
-					Writer->Key("posY");
-					Writer->Double(Pos.y);
-					Writer->Key("posZ");
-					Writer->Double(Pos.z);
-					// Rotation
-					Writer->Key("rotX");
-					Writer->Double(Rot.x);
-					Writer->Key("rotY");
-					Writer->Double(Rot.y);
-					Writer->Key("rotZ");
-					Writer->Double(Rot.z);
-					// Scale
-					Writer->Key("scaX");
-					Writer->Double(Sca.x);
-					Writer->Key("scaY");
-					Writer->Double(Sca.y);
-					Writer->Key("scaZ");
-					Writer->Double(Sca.z);
+					//Writer->StartObject();
+					//// Position
+					//Writer->Key("posX");
+					//Writer->Double(Pos.x);
+					//Writer->Key("posY");
+					//Writer->Double(Pos.y);
+					//Writer->Key("posZ");
+					//Writer->Double(Pos.z);
+					//// Rotation
+					//Writer->Key("rotX");
+					//Writer->Double(Rot.x);
+					//Writer->Key("rotY");
+					//Writer->Double(Rot.y);
+					//Writer->Key("rotZ");
+					//Writer->Double(Rot.z);
+					//// Scale
+					//Writer->Key("scaX");
+					//Writer->Double(Sca.x);
+					//Writer->Key("scaY");
+					//Writer->Double(Sca.y);
+					//Writer->Key("scaZ");
+					//Writer->Double(Sca.z);
 
 					Writer->EndObject();
 				}
@@ -204,11 +204,6 @@ namespace Retina {
 			}
 
 			ImGui::Spacing();
-			// Show the actor's transform values
-			ImGui::Text("Transform - Actor");
-			ImGui::DragFloat3("Position##Actor", &SceneNode::GetTransformRef().GetPositionRef().x, 0.05f, -100.0f, 100.0f);
-			ImGui::DragFloat3("Scale##Actor", &SceneNode::GetTransformRef().GetScaleRef().x, 0.05f, -100.0f, 100.0f);
-			ImGui::DragFloat3("Rotation##Actor", &SceneNode::GetTransformRef().GetRotationRef().x, 0.05f, -100.0f, 100.0f);
 
 			// Add new component drop down
 			{
@@ -261,6 +256,10 @@ namespace Retina {
 		{
 			SceneNode::OnPostInit();
 
+			for (uint32_t i = 0; i < m_NumComponents; ++i)
+			{
+				m_Components[i]->OnPostInit();
+			}
 			return true;
 		}
 
@@ -268,28 +267,9 @@ namespace Retina {
 		{
 			SceneNode::OnUpdate(DeltaMs);
 
-
 			for (size_t i = 0; i < m_NumComponents; ++i)
 			{
 				m_Components[i]->OnUpdate(DeltaMs);
-			}
-		}
-
-		void AActor::CalculateParent(ieMatrix4x4 parentMat)
-		{
-			if (m_Parent) {
-				GetTransformRef().SetWorldMatrix(XMMatrixMultiply(GetTransformRef().GetLocalMatrixRef(), parentMat));
-			}
-			else {
-				GetTransformRef().SetWorldMatrix(GetTransformRef().GetLocalMatrix());
-			}
-
-			// Render Children
-			SceneNode::CalculateParent(GetTransformRef().GetWorldMatrixRef());
-
-			// Render Components
-			for (size_t i = 0; i < m_NumComponents; ++i) {
-				m_Components[i]->CalculateParent(GetTransformRef().GetLocalMatrixRef());
 			}
 		}
 
@@ -341,8 +321,8 @@ namespace Retina {
 
 		void AActor::OnEvent(Event& e)
 		{
-			EventDispatcher dispatcher(e);
-			dispatcher.Dispatch<PhysicsEvent>(RN_BIND_EVENT_FN(AActor::OnCollision));
+			EventDispatcher Dispatcher(e);
+			Dispatcher.Dispatch<PhysicsEvent>(RN_BIND_EVENT_FN(AActor::OnCollision));
 
 			for (uint32_t i = 0; i < m_NumComponents; ++i)
 			{

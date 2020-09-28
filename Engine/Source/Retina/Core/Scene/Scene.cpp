@@ -73,13 +73,12 @@ namespace Retina {
 		// Load the scene from .iescene folder containing all .json resource files
 		FileSystem::LoadSceneFromJson(fileName, this);
 
-		// Tell the renderer to send init commands to the gpu
-		//Renderer::PostInit();
 		return true;
 	}
 
 	bool Scene::PostInit()
 	{
+		m_pSceneRoot->OnPostInit();
 		return true;
 	}
 
@@ -97,7 +96,7 @@ namespace Retina {
 		m_pCamera->SetParent(m_pSceneRoot);
 		m_pCamera->SetViewTarget(m_EditorViewTarget);
 
-		m_pPlayerCharacter->GetTransformRef().SetPosition(0.0f, 0.0f, 0.0f);
+		m_pPlayerCharacter->SetPosition(0.0f, 0.0f, 0.0f);
 
 		m_pSceneRoot->EditorEndPlay();
 	}
@@ -120,8 +119,8 @@ namespace Retina {
 
 	void Scene::OnPreRender()
 	{
-		//Renderer::OnPreFrameRender();
-		m_pSceneRoot->CalculateParent(XMMatrixIdentity());
+		Renderer::OnPreFrameRender();
+		//m_pSceneRoot->CalculateParent(XMMatrixIdentity());
 		GeometryManager::GatherGeometry();
 	}
 

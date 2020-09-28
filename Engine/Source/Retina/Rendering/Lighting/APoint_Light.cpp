@@ -2,7 +2,7 @@
 
 #include "APoint_Light.h"
 
-#include "Retina/Runtime/Components/Actor_Component.h"
+#include "Retina/Runtime/Components/Scene_Component.h"
 #include "Renderer/Renderer.h"
 #include "imgui.h"
 
@@ -17,6 +17,8 @@ namespace Retina {
 
 		m_ShaderCB.DiffuseColor = ieVector3(1.0f, 1.0f, 1.0f);
 		m_ShaderCB.Strength = 1.0f;
+
+		m_pSceneComponent = CreateDefaultSubobject<Runtime::SceneComponent>();
 	}
 
 	APointLight::~APointLight()
@@ -53,33 +55,33 @@ namespace Retina {
 			Writer->Key("Transform");
 			Writer->StartArray(); // Start Write Transform
 			{
-				ieTransform& Transform = SceneNode::GetTransformRef();
-				ieVector3 Pos = Transform.GetPosition();
-				ieVector3 Rot = Transform.GetRotation();
-				ieVector3 Sca = Transform.GetScale();
+				//ieTransform& Transform = SceneNode::GetTransformRef();
+				//ieVector3 Pos = Transform.GetPosition();
+				//ieVector3 Rot = Transform.GetRotation();
+				//ieVector3 Sca = Transform.GetScale();
 
-				Writer->StartObject();
-				// Position
-				Writer->Key("posX");
-				Writer->Double(Pos.x);
-				Writer->Key("posY");
-				Writer->Double(Pos.y);
-				Writer->Key("posZ");
-				Writer->Double(Pos.z);
-				// Rotation
-				Writer->Key("rotX");
-				Writer->Double(Rot.x);
-				Writer->Key("rotY");
-				Writer->Double(Rot.y);
-				Writer->Key("rotZ");
-				Writer->Double(Rot.z);
-				// Scale
-				Writer->Key("scaX");
-				Writer->Double(Sca.x);
-				Writer->Key("scaY");
-				Writer->Double(Sca.y);
-				Writer->Key("scaZ");
-				Writer->Double(Sca.z);
+				//Writer->StartObject();
+				//// Position
+				//Writer->Key("posX");
+				//Writer->Double(Pos.x);
+				//Writer->Key("posY");
+				//Writer->Double(Pos.y);
+				//Writer->Key("posZ");
+				//Writer->Double(Pos.z);
+				//// Rotation
+				//Writer->Key("rotX");
+				//Writer->Double(Rot.x);
+				//Writer->Key("rotY");
+				//Writer->Double(Rot.y);
+				//Writer->Key("rotZ");
+				//Writer->Double(Rot.z);
+				//// Scale
+				//Writer->Key("scaX");
+				//Writer->Double(Sca.x);
+				//Writer->Key("scaY");
+				//Writer->Double(Sca.y);
+				//Writer->Key("scaZ");
+				//Writer->Double(Sca.z);
 
 				Writer->EndObject();
 			}
@@ -128,7 +130,6 @@ namespace Retina {
 
 	void APointLight::OnUpdate(const float DeltaMs)
 	{
-		m_ShaderCB.Position = SceneNode::GetTransformRef().GetPosition();
 	}
 
 	void APointLight::OnPreRender(XMMATRIX parentMat)
@@ -146,6 +147,8 @@ namespace Retina {
 
 	void APointLight::OnEvent(Event& e)
 	{
+		EventDispatcher Dispatcher(e);
+		Dispatcher.Dispatch<TranslationEvent>(RN_BIND_EVENT_FN(APointLight::OnEventTranslation));
 	}
 
 	void APointLight::BeginPlay()
@@ -176,6 +179,12 @@ namespace Retina {
 			ImGui::DragFloat("Strength", &m_ShaderCB.Strength, 0.1f, 0.0f, 100.0f);
 		}
 
+	}
+
+	bool APointLight::OnEventTranslation(TranslationEvent& e)
+	{
+		m_ShaderCB.Position = m_pSceneComponent->GetPosition();
+		return false;
 	}
 
 }

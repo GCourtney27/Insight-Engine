@@ -65,6 +65,7 @@ namespace Retina {
 			void ProcessMouseMovement(float xOffset, float yOffset);
 			void ProcessKeyboardInput(CameraMovement direction, float deltaTime);
 
+			ieVector3 GetPosition() const { return m_pSceneComponent->GetPosition(); }
 			inline XMMATRIX GetViewMatrix() const { return m_ViewMatrix; }
 			inline XMMATRIX GetProjectionMatrix() const { return m_ProjectionMatrix; };
 			inline float GetFOV() const { return m_Fov; }
@@ -80,8 +81,8 @@ namespace Retina {
 
 			inline void SetViewTarget(ViewTarget& ViewTarget, bool UpdateProjection = true, bool UpdateView = true)
 			{
-				GetTransformRef().SetPosition(ViewTarget.Position);
-				GetTransformRef().SetRotation(ViewTarget.Rotation);
+				m_pSceneComponent->SetPosition(ViewTarget.Position);
+				m_pSceneComponent->SetRotation(ViewTarget.Rotation);
 
 				m_Fov = ViewTarget.FieldOfView;
 				m_MouseSensitivity = ViewTarget.Sensitivity;
@@ -103,7 +104,7 @@ namespace Retina {
 				if (UpdateView) {
 					UpdateViewMatrix();
 				}
-				GetTransformRef().UpdateLocalDirectionVectors();
+				m_pSceneComponent->GetTransformRef().UpdateLocalDirectionVectors();
 			}
 
 			void OnEvent(Event& e);
@@ -124,6 +125,8 @@ namespace Retina {
 			XMFLOAT4X4 m_ProjectionMat4x4;
 			XMMATRIX m_ProjectionMatrix;
 			bool m_IsOrthographic = false;
+
+			SceneComponent* m_pSceneComponent = nullptr;
 
 			float m_Yaw = 0.0f;
 			float m_Pitch = 0.0f;

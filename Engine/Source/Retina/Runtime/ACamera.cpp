@@ -21,6 +21,7 @@ namespace Retina {
 		{
 			RN_CORE_ASSERT(!s_Instance, "Cannot have more than one camera in the world at once!");
 			s_Instance = this;
+			m_pSceneComponent = CreateDefaultSubobject<SceneComponent>();
 
 			SetViewTarget(ViewTarget, false, true);
 		}
@@ -105,10 +106,10 @@ namespace Retina {
 
 		void ACamera::ProcessMouseMovement(float xPos, float yPos)
 		{
-			GetTransformRef().Rotate(yPos * m_MouseSensitivity, xPos * m_MouseSensitivity, 0.0f);
+			m_pSceneComponent->Rotate(yPos * m_MouseSensitivity, xPos * m_MouseSensitivity, 0.0f);
 
 			UpdateViewMatrix();
-			GetTransformRef().UpdateLocalDirectionVectors();
+			m_pSceneComponent->GetTransformRef().UpdateLocalDirectionVectors();
 		}
 
 		void ACamera::ProcessKeyboardInput(CameraMovement direction, float deltaTime)
@@ -116,22 +117,22 @@ namespace Retina {
 			float velocity = m_MovementSpeed * deltaTime;
 
 			if (direction == CameraMovement::FORWARD) {
-				GetTransformRef().GetPositionRef() += GetTransformRef().GetLocalForward() * velocity;
+				m_pSceneComponent->GetTransformRef().GetPositionRef() += m_pSceneComponent->GetTransformRef().GetLocalForward() * velocity;
 			}
 			if (direction == CameraMovement::BACKWARD) {
-				GetTransformRef().GetPositionRef() -= GetTransformRef().GetLocalForward() * velocity;
+				m_pSceneComponent->GetTransformRef().GetPositionRef() -= m_pSceneComponent->GetTransformRef().GetLocalForward() * velocity;
 			}
 			if (direction == CameraMovement::LEFT) {
-				GetTransformRef().GetPositionRef() -= GetTransformRef().GetLocalRight() * velocity;
+				m_pSceneComponent->GetTransformRef().GetPositionRef() -= m_pSceneComponent->GetTransformRef().GetLocalRight() * velocity;
 			}
 			if (direction == CameraMovement::RIGHT) {
-				GetTransformRef().GetPositionRef() += GetTransformRef().GetLocalRight() * velocity;
+				m_pSceneComponent->GetTransformRef().GetPositionRef() += m_pSceneComponent->GetTransformRef().GetLocalRight() * velocity;
 			}
 			if (direction == CameraMovement::UP) {
-				GetTransformRef().GetPositionRef() += Vector3::Up * velocity;
+				m_pSceneComponent->GetTransformRef().GetPositionRef() += Vector3::Up * velocity;
 			}
 			if (direction == CameraMovement::DOWN) {
-				GetTransformRef().GetPositionRef() -= Vector3::Up * velocity;
+				m_pSceneComponent->GetTransformRef().GetPositionRef() -= Vector3::Up * velocity;
 			}
 			UpdateViewMatrix();
 		}
@@ -191,11 +192,11 @@ namespace Retina {
 
 		void ACamera::UpdateViewMatrix()
 		{
-			m_CamRotationMatrix = XMMatrixRotationRollPitchYaw(GetTransformRef().GetRotation().x, GetTransformRef().GetRotation().y, 0.0f);
+			m_CamRotationMatrix = XMMatrixRotationRollPitchYaw(m_pSceneComponent->GetRotation().x, m_pSceneComponent->GetRotation().y, 0.0f);
 			m_CamTarget = XMVector3TransformCoord(Vector3::Forward, m_CamRotationMatrix);
-			m_CamTarget += GetTransformRef().GetPosition();
+			m_CamTarget += m_pSceneComponent->GetPosition();
 			m_UpDir = XMVector3TransformCoord(Vector3::Up, m_CamRotationMatrix);
-			m_ViewMatrix = XMMatrixLookAtLH(GetTransformRef().GetPosition(), m_CamTarget, m_UpDir);
+			m_ViewMatrix = XMMatrixLookAtLH(m_pSceneComponent->GetPosition(), m_CamTarget, m_UpDir);
 		}
 
 		bool ACamera::OnMouseScrolled(MouseScrolledEvent& e)

@@ -5,7 +5,7 @@
 #include "Retina/Input/Input.h"
 #include "Retina/Runtime/AActor.h"
 #include "Retina/Layer_Types/ImGui_Layer.h"
-#include "Retina/Core/ie_Exception.h"
+#include "Retina/Core/rn_Exception.h"
 #include "Renderer/Renderer.h"
 
 #if defined RN_PLATFORM_WINDOWS
@@ -92,13 +92,16 @@ namespace Retina {
 		ResourceManager::Get().PostAppInit();
 		RN_CORE_TRACE("Application Initialized");
 
+		m_pGameLayer->PostInit();
+
 		m_AppInitialized = true;
 	}
 
 	static void RenderThread()
 	{
+		bool IsAppRunning = Application::Get().IsApplicationRunning();
 		FrameTimer GraphicsTimer;
-		while (true)
+		while (IsAppRunning)
 		{
 			GraphicsTimer.Tick();
 			float DeltaMs = GraphicsTimer.DeltaTime();
@@ -119,7 +122,7 @@ namespace Retina {
 			BeginPlay(AppBeginPlayEvent{})
 		);
 
-		std::thread RenderThread(RenderThread);
+		//std::thread RenderThread(RenderThread);
 
 		while(m_Running) {
 
@@ -136,22 +139,22 @@ namespace Retina {
 			}
 
 			m_pGameLayer->PreRender();
-			//m_pGameLayer->Render();
+			m_pGameLayer->Render();
 
 			// Render Editor UI
-			/*RN_STRIP_FOR_GAME_DIST(
+			RN_STRIP_FOR_GAME_DIST(
 				m_pImGuiLayer->Begin();
 				for (Layer* Layer : m_LayerStack) {
 					Layer->OnImGuiRender();
 				}
 				m_pGameLayer->OnImGuiRender();
 				m_pImGuiLayer->End();
-			);*/
+			);
 
-			//m_pWindow->EndFrame();
+			m_pWindow->EndFrame();
 		}
 		
-		RenderThread.join();
+		//RenderThread.join();
 	}
 
 	void Application::Shutdown()

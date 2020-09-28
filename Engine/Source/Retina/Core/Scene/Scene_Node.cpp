@@ -60,12 +60,15 @@ namespace Retina {
 
 	bool SceneNode::OnInit()
 	{
-		m_RootTransform.EditorInit();
 		return true;
 	}
 
 	bool SceneNode::OnPostInit()
 	{
+		for (uint32_t i = 0; i < m_Children.size(); ++i)
+		{
+			m_Children[i]->OnPostInit();
+		}
 		return true;
 	}
 
@@ -76,13 +79,13 @@ namespace Retina {
 		}
 	}
 
-	void SceneNode::CalculateParent(XMMATRIX parentMat)
+	/*void SceneNode::CalculateParent(XMMATRIX parentMat)
 	{
 		GetTransformRef().SetWorldMatrix(XMMatrixMultiply(parentMat, GetTransformRef().GetLocalMatrixRef()));
 		for (auto i = m_Children.begin(); i != m_Children.end(); ++i) {
 			(*i)->CalculateParent(GetTransformRef().GetWorldMatrixRef());
 		}
-	}
+	}*/
 
 	void SceneNode::OnRender()
 	{
@@ -112,7 +115,6 @@ namespace Retina {
 
 	void SceneNode::EditorEndPlay()
 	{
-		m_RootTransform.EditorEndPlay();
 		for (auto i = m_Children.begin(); i != m_Children.end(); ++i) {
 			(*i)->EditorEndPlay();
 		}

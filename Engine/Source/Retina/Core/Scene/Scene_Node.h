@@ -21,8 +21,6 @@ namespace Retina {
 			m_Parent = parent;
 		}
 
-		const ieTransform& GetTransform() { return m_RootTransform; }
-		ieTransform& GetTransformRef() { return m_RootTransform; }
 		const char* GetDisplayName() { return m_DisplayName.c_str(); }
 		void SetDisplayName(std::string Name) { m_DisplayName = Name; }
 		void SetCanBeFileParsed(bool CanBeParsed) { m_CanBeFileParsed = CanBeParsed; }
@@ -42,7 +40,6 @@ namespace Retina {
 		virtual bool OnInit();
 		virtual bool OnPostInit();
 		virtual void OnUpdate(const float DeltaMs);
-		virtual void CalculateParent(XMMATRIX ParentMat);
 		virtual void OnRender();
 		virtual void Destroy();
 
@@ -55,7 +52,6 @@ namespace Retina {
 		std::vector<SceneNode*> m_Children;
 	protected:
 		SceneNode* m_Parent = nullptr;
-		ieTransform m_RootTransform;
 		std::string m_DisplayName;
 		bool m_CanBeFileParsed = true;
 	};

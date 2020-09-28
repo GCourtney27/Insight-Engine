@@ -78,7 +78,7 @@ namespace Retina {
 
 		struct TranslationDetails
 		{
-			
+			ieMatrix4x4 WorldMat;
 		} TranslationInfo;
 	};
 

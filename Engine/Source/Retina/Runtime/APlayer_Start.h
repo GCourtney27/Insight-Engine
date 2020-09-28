@@ -20,7 +20,6 @@ namespace Retina {
 			virtual bool OnInit() override;
 			virtual bool OnPostInit() override;
 			virtual void OnUpdate(const float DeltaMs) override;
-			virtual void CalculateParent(XMMATRIX parentMat) override;
 			virtual void OnRender() override;
 
 			virtual void BeginPlay() override;
@@ -32,7 +31,7 @@ namespace Retina {
 			void SpawnPlayer(APlayerCharacter* PlayerCharacter);
 
 		private:
-
+			SceneComponent* m_pSceneComponent = nullptr;
 		};
 
 	} // end namespace Runtime

@@ -28,7 +28,6 @@ namespace Retina {
 
 			virtual bool OnInit() override;
 			virtual void OnUpdate(const float DeltaMs) override;
-			virtual void CalculateParent(XMMATRIX parentMat) override;
 			virtual void OnRender() override;
 
 			inline void SetMovementSpeed(const float& movementSpeed) { m_MovementSpeed = movementSpeed; }
@@ -37,6 +36,7 @@ namespace Retina {
 			void Move(eMovement direction, const float& deltaTime);
 		private:
 			float m_MovementSpeed = 20.0f;
+			SceneComponent* m_pSceneComponent = nullptr;
 		};
 
 	} // end namespace Runtime

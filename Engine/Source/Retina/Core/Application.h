@@ -59,6 +59,7 @@ namespace Retina {
 
 		// Returns true if the editor is currently simmulating a game session.
 		inline static bool IsPlaySessionUnderWay() { return s_Instance->m_pGameLayer->IsPlaySesionUnderWay(); }
+		inline static bool IsApplicationRunning() { return s_Instance->m_Running; }
 		
 	private:
 		void PushEngineLayers();

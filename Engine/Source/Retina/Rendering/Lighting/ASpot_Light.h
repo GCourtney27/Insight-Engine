@@ -32,11 +32,15 @@ namespace Retina {
 		virtual void OnImGuiRender() override;
 
 		inline CB_PS_SpotLight GetConstantBuffer() { return m_ShaderCB; }
+		
+	private:
+		bool OnEventTranslation(TranslationEvent& e);
 
 	private:
 		CB_PS_SpotLight m_ShaderCB;
 		float m_TempInnerCutoff = 12.5f;
 		float m_TempOuterCutoff = 15.0f;
+		Runtime::SceneComponent* m_pSceneComponent = nullptr;
 	};
 
 }

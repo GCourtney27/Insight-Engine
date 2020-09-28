@@ -10,6 +10,7 @@ namespace Retina {
 		APawn::APawn(ActorId id, ActorName name)
 			: AActor(id, name)
 		{
+			m_pSceneComponent = CreateDefaultSubobject<SceneComponent>();
 		}
 
 		APawn::~APawn()
@@ -30,11 +31,6 @@ namespace Retina {
 
 		}
 
-		void APawn::CalculateParent(XMMATRIX parentMat)
-		{
-			AActor::CalculateParent(parentMat);
-		}
-
 		void APawn::OnRender()
 		{
 			AActor::OnRender();
@@ -48,32 +44,32 @@ namespace Retina {
 			{
 			case Runtime::APawn::FORWARD:
 			{
-				GetTransformRef().GetPositionRef() += GetTransformRef().GetLocalForward() * velocity;
+				m_pSceneComponent->GetPositionRef() += m_pSceneComponent->GetTransformRef().GetLocalForward() * velocity;
 				break;
 			}
 			case Runtime::APawn::BACKWARD:
 			{
-				GetTransformRef().GetPositionRef() -= GetTransformRef().GetLocalForward() * velocity;
+				m_pSceneComponent->GetPositionRef() -= m_pSceneComponent->GetTransformRef().GetLocalForward() * velocity;
 				break;
 			}
 			case Runtime::APawn::LEFT:
 			{
-				GetTransformRef().GetPositionRef() -= GetTransformRef().GetLocalRight() * velocity;
+				m_pSceneComponent->GetPositionRef() -= m_pSceneComponent->GetTransformRef().GetLocalRight() * velocity;
 				break;
 			}
 			case Runtime::APawn::RIGHT:
 			{
-				GetTransformRef().GetPositionRef() += GetTransformRef().GetLocalRight() * velocity;
+				m_pSceneComponent->GetPositionRef() += m_pSceneComponent->GetTransformRef().GetLocalRight() * velocity;
 				break;
 			}
 			case Runtime::APawn::UP:
 			{
-				GetTransformRef().GetPositionRef() += GetTransformRef().GetLocalUp() * velocity;
+				m_pSceneComponent->GetPositionRef() += m_pSceneComponent->GetTransformRef().GetLocalUp() * velocity;
 				break;
 			}
 			case Runtime::APawn::DOWN:
 			{
-				GetTransformRef().GetPositionRef() -= GetTransformRef().GetLocalUp() * velocity;
+				m_pSceneComponent->GetPositionRef() -= m_pSceneComponent->GetTransformRef().GetLocalUp() * velocity;
 				break;
 			}
 			default:

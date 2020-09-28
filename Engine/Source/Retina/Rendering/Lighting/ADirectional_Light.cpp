@@ -17,10 +17,12 @@ namespace Retina {
 	{
 		Renderer::RegisterWorldDirectionalLight(this);
 
-		AActor::GetTransformRef().SetRotation(0.0f, -1.0f, -6.0f);
+		m_pSceneComponent = CreateDefaultSubobject<Runtime::SceneComponent>();
+
+		m_pSceneComponent->SetRotation(0.0f, -1.0f, -6.0f);
 
 		m_ShaderCB.DiffuseColor = ieVector3(1.0f, 1.0f, 1.0f);
-		m_ShaderCB.Direction = SceneNode::GetTransformRef().GetRotation();
+		m_ShaderCB.Direction = m_pSceneComponent->GetRotation();
 		m_ShaderCB.Strength = 8.0f;
 		m_ShaderCB.ShadowDarknessMultiplier = 0.6f;
 
@@ -46,7 +48,7 @@ namespace Retina {
 		json::get_float(emission[0], "shadowDarkness", ShdowDarkness);
 
 		m_ShaderCB.DiffuseColor = XMFLOAT3(DiffuseR, DiffuseG, DiffuseB);
-		m_ShaderCB.Direction = AActor::GetTransformRef().GetRotationRef();
+		//m_ShaderCB.Direction = AActor::GetTransformRef().GetRotationRef();
 		m_ShaderCB.Strength = Strength;
 		m_ShaderCB.ShadowDarknessMultiplier = ShdowDarkness;
 
@@ -55,12 +57,12 @@ namespace Retina {
 		
 		LightCamPositionOffset = XMFLOAT3(0.0f, 0.0f, 20.0f);
 
-		m_ShaderCB.Direction = SceneNode::GetTransformRef().GetRotation();
+		//m_ShaderCB.Direction = SceneNode::GetTransformRef().GetRotation();
 
-		XMFLOAT3 LookAtPos = SceneNode::GetTransformRef().GetPosition();// (0.0f, 0.0f, 0.0f);
-		XMVECTOR LookAtPosVec = XMLoadFloat3(&LookAtPos);
+		//XMFLOAT3 LookAtPos = SceneNode::GetTransformRef().GetPosition();// (0.0f, 0.0f, 0.0f);
+		//XMVECTOR LookAtPosVec = XMLoadFloat3(&LookAtPos);
 
-		XMFLOAT3 Up(0.0f, 1.0f, 0.0f);
+		/*XMFLOAT3 Up(0.0f, 1.0f, 0.0f);
 		XMVECTOR UpVec = XMLoadFloat3(&Up);
 		XMFLOAT3 direction = m_ShaderCB.Direction;
 		direction.x = -direction.x + LightCamPositionOffset.x;
@@ -77,7 +79,7 @@ namespace Retina {
 		XMStoreFloat4x4(&LightProjFloat, XMMatrixTranspose(LightProj));
 
 		m_ShaderCB.LightSpaceView = LightViewFloat;
-		m_ShaderCB.LightSpaceProj = LightProjFloat;
+		m_ShaderCB.LightSpaceProj = LightProjFloat;*/
 
 		return true;
 	}
@@ -95,33 +97,33 @@ namespace Retina {
 			Writer->Key("Transform");
 			Writer->StartArray(); // Start Write Transform
 			{
-				ieTransform& Transform = SceneNode::GetTransformRef();
-				ieVector3 Pos = Transform.GetPosition();
-				ieVector3 Rot = Transform.GetRotation();
-				ieVector3 Sca = Transform.GetScale();
+				//ieTransform& Transform = SceneNode::GetTransformRef();
+				//ieVector3 Pos = Transform.GetPosition();
+				//ieVector3 Rot = Transform.GetRotation();
+				//ieVector3 Sca = Transform.GetScale();
 
-				Writer->StartObject();
-				// Position
-				Writer->Key("posX");
-				Writer->Double(Pos.x);
-				Writer->Key("posY");
-				Writer->Double(Pos.y);
-				Writer->Key("posZ");
-				Writer->Double(Pos.z);
-				// Rotation
-				Writer->Key("rotX");
-				Writer->Double(Rot.x);
-				Writer->Key("rotY");
-				Writer->Double(Rot.y);
-				Writer->Key("rotZ");
-				Writer->Double(Rot.z);
-				// Scale
-				Writer->Key("scaX");
-				Writer->Double(Sca.x);
-				Writer->Key("scaY");
-				Writer->Double(Sca.y);
-				Writer->Key("scaZ");
-				Writer->Double(Sca.z);
+				//Writer->StartObject();
+				//// Position
+				//Writer->Key("posX");
+				//Writer->Double(Pos.x);
+				//Writer->Key("posY");
+				//Writer->Double(Pos.y);
+				//Writer->Key("posZ");
+				//Writer->Double(Pos.z);
+				//// Rotation
+				//Writer->Key("rotX");
+				//Writer->Double(Rot.x);
+				//Writer->Key("rotY");
+				//Writer->Double(Rot.y);
+				//Writer->Key("rotZ");
+				//Writer->Double(Rot.z);
+				//// Scale
+				//Writer->Key("scaX");
+				//Writer->Double(Sca.x);
+				//Writer->Key("scaY");
+				//Writer->Double(Sca.y);
+				//Writer->Key("scaZ");
+				//Writer->Double(Sca.z);
 
 				Writer->EndObject();
 			}
@@ -170,27 +172,7 @@ namespace Retina {
 
 	void ADirectionalLight::OnUpdate(const float DeltaMs)
 	{
-		m_ShaderCB.Direction = SceneNode::GetTransformRef().GetRotation();
 		
-		XMFLOAT3 LookAtPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		XMVECTOR LookAtPosVec = XMLoadFloat3(&LookAtPos);
-
-		XMFLOAT3 Up(0.0f, 1.0f, 0.0f);
-		XMVECTOR UpVec = XMLoadFloat3(&Up);
-		XMFLOAT3 direction = m_ShaderCB.Direction;
-		direction.x = -direction.x + LightCamPositionOffset.x;
-		direction.y =  direction.y + LightCamPositionOffset.y;
-		direction.z = -direction.z + LightCamPositionOffset.z;
-		LightCamPositionVec = XMLoadFloat3(&direction);
-
-		LightView = XMMatrixLookAtLH(LightCamPositionVec, LookAtPosVec, UpVec);
-		LightProj = XMMatrixOrthographicLH(ViewWidth, ViewHeight, m_NearPlane, m_FarPlane);
-
-		XMStoreFloat4x4(&LightViewFloat, XMMatrixTranspose(LightView));
-		XMStoreFloat4x4(&LightProjFloat, XMMatrixTranspose(LightProj));
-
-		m_ShaderCB.LightSpaceView = LightViewFloat;
-		m_ShaderCB.LightSpaceProj = LightProjFloat;
 	}
 
 	void ADirectionalLight::OnPreRender(XMMATRIX parentMat)
@@ -208,6 +190,8 @@ namespace Retina {
 
 	void ADirectionalLight::OnEvent(Event& e)
 	{
+		EventDispatcher Dispatcher(e);
+		Dispatcher.Dispatch<TranslationEvent>(RN_BIND_EVENT_FN(ADirectionalLight::OnEventTranslation));
 	}
 
 	void ADirectionalLight::BeginPlay()
@@ -250,6 +234,32 @@ namespace Retina {
 			ImGui::DragFloat("Shadow Darkness Multiplier: ", &m_ShaderCB.ShadowDarknessMultiplier, 0.05f, 0.0f, 1.0f);
 		}
 
+	}
+
+	bool ADirectionalLight::OnEventTranslation(TranslationEvent& e)
+	{
+		m_ShaderCB.Direction = m_pSceneComponent->GetRotation();
+
+		XMFLOAT3 LookAtPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		XMVECTOR LookAtPosVec = XMLoadFloat3(&LookAtPos);
+
+		XMFLOAT3 Up(0.0f, 1.0f, 0.0f);
+		XMVECTOR UpVec = XMLoadFloat3(&Up);
+		XMFLOAT3 direction = m_ShaderCB.Direction;
+		direction.x = -direction.x + LightCamPositionOffset.x;
+		direction.y = direction.y + LightCamPositionOffset.y;
+		direction.z = -direction.z + LightCamPositionOffset.z;
+		LightCamPositionVec = XMLoadFloat3(&direction);
+
+		LightView = XMMatrixLookAtLH(LightCamPositionVec, LookAtPosVec, UpVec);
+		LightProj = XMMatrixOrthographicLH(ViewWidth, ViewHeight, m_NearPlane, m_FarPlane);
+
+		XMStoreFloat4x4(&LightViewFloat, XMMatrixTranspose(LightView));
+		XMStoreFloat4x4(&LightProjFloat, XMMatrixTranspose(LightProj));
+
+		m_ShaderCB.LightSpaceView = LightViewFloat;
+		m_ShaderCB.LightSpaceProj = LightProjFloat;
+		return false;
 	}
 
 }

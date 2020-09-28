@@ -34,7 +34,6 @@ namespace Retina {
 			virtual bool OnInit();
 			virtual bool OnPostInit();
 			virtual void OnUpdate(const float DeltaMs);
-			virtual void CalculateParent(XMMATRIX parentMat);
 			virtual void OnRender();
 			virtual void Destroy();
 
@@ -59,13 +58,13 @@ namespace Retina {
 				m_NumComponents++;
 				return (ComponentType*)Component;
 			}
-			template<typename Event>
-			WeakActorComponentPtr GetSubobject()
+			template<typename ComponentType>
+			ComponentType* GetSubobject()
 			{
-				WeakActorComponentPtr component = nullptr;
-				for (UniqueActorComponentPtr _component : m_components)
+				ComponentType* component = nullptr;
+				for (ActorComponent* _component : m_Components)
 				{
-					component = dynamic_cast<Event>(_component);
+					component = dynamic_cast<ComponentType*>(_component);
 					if (component != nullptr) break;
 				}
 				return component;

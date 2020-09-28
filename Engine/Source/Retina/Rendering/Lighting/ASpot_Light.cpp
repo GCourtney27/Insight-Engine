@@ -22,6 +22,9 @@ namespace Retina {
 		m_ShaderCB.Strength = 1.0f;
 		m_ShaderCB.InnerCutoff = cos(XMConvertToRadians(m_TempInnerCutoff));
 		m_ShaderCB.OuterCutoff = cos(XMConvertToRadians(m_TempOuterCutoff));
+
+		m_pSceneComponent = CreateDefaultSubobject<Runtime::SceneComponent>();
+
 	}
 
 	ASpotLight::~ASpotLight()
@@ -43,7 +46,7 @@ namespace Retina {
 		json::get_float(emission[0], "innerCutoff", m_TempInnerCutoff);
 		json::get_float(emission[0], "outerCutoff", m_TempOuterCutoff);
 
-		m_ShaderCB.Position = SceneNode::GetTransformRef().GetPosition();
+		//m_ShaderCB.Position = SceneNode::GetTransformRef().GetPosition();
 		m_ShaderCB.InnerCutoff = cos(XMConvertToRadians(m_TempInnerCutoff));
 		m_ShaderCB.OuterCutoff = cos(XMConvertToRadians(m_TempOuterCutoff));
 		
@@ -63,33 +66,33 @@ namespace Retina {
 			Writer->Key("Transform");
 			Writer->StartArray(); // Start Write Transform
 			{
-				ieTransform& Transform = SceneNode::GetTransformRef();
-				ieVector3 Pos = Transform.GetPosition();
-				ieVector3 Rot = Transform.GetRotation();
-				ieVector3 Sca = Transform.GetScale();
+				//ieTransform& Transform = SceneNode::GetTransformRef();
+				//ieVector3 Pos = Transform.GetPosition();
+				//ieVector3 Rot = Transform.GetRotation();
+				//ieVector3 Sca = Transform.GetScale();
 
-				Writer->StartObject();
-				// Position
-				Writer->Key("posX");
-				Writer->Double(Pos.x);
-				Writer->Key("posY");
-				Writer->Double(Pos.y);
-				Writer->Key("posZ");
-				Writer->Double(Pos.z);
-				// Rotation
-				Writer->Key("rotX");
-				Writer->Double(Rot.x);
-				Writer->Key("rotY");
-				Writer->Double(Rot.y);
-				Writer->Key("rotZ");
-				Writer->Double(Rot.z);
-				// Scale
-				Writer->Key("scaX");
-				Writer->Double(Sca.x);
-				Writer->Key("scaY");
-				Writer->Double(Sca.y);
-				Writer->Key("scaZ");
-				Writer->Double(Sca.z);
+				//Writer->StartObject();
+				//// Position
+				//Writer->Key("posX");
+				//Writer->Double(Pos.x);
+				//Writer->Key("posY");
+				//Writer->Double(Pos.y);
+				//Writer->Key("posZ");
+				//Writer->Double(Pos.z);
+				//// Rotation
+				//Writer->Key("rotX");
+				//Writer->Double(Rot.x);
+				//Writer->Key("rotY");
+				//Writer->Double(Rot.y);
+				//Writer->Key("rotZ");
+				//Writer->Double(Rot.z);
+				//// Scale
+				//Writer->Key("scaX");
+				//Writer->Double(Sca.x);
+				//Writer->Key("scaY");
+				//Writer->Double(Sca.y);
+				//Writer->Key("scaZ");
+				//Writer->Double(Sca.z);
 
 				Writer->EndObject();
 			}
@@ -148,7 +151,6 @@ namespace Retina {
 
 	void ASpotLight::OnUpdate(const float DeltaMs)
 	{
-		m_ShaderCB.Position = SceneNode::GetTransformRef().GetPosition();
 	}
 
 	void ASpotLight::OnPreRender(XMMATRIX parentMat)
@@ -166,6 +168,12 @@ namespace Retina {
 
 	void ASpotLight::OnEvent(Event& e)
 	{
+	}
+
+	bool ASpotLight::OnEventTranslation(TranslationEvent& e)
+	{
+		m_ShaderCB.Position = m_pSceneComponent->GetPosition();
+		return false;
 	}
 
 	void ASpotLight::BeginPlay()

@@ -47,6 +47,10 @@ namespace Retina {
 		ResourceManager::Get().GetMonoScriptManager().OnEndPlaySession();
 	}
 
+	void GameLayer::PostInit()
+	{
+		m_pScene->PostInit();
+	}
 	void GameLayer::OnAttach()
 	{
 		RN_CORE_INFO("Game Layer Attached");

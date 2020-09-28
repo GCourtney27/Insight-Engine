@@ -22,6 +22,8 @@ namespace Retina {
 			m_ViewTarget = ACamera::GetDefaultViewTarget(); // This should be loaded through a player settings file
 
 			m_pCamera = &ACamera::Get();
+
+			m_pCharacterRoot = CreateDefaultSubobject<SceneComponent>();
 		}
 
 		APlayerCharacter::~APlayerCharacter()
@@ -39,11 +41,6 @@ namespace Retina {
 		void APlayerCharacter::OnUpdate(const float DeltaMs)
 		{
 			APawn::OnUpdate(DeltaMs);
-		}
-
-		void APlayerCharacter::CalculateParent(XMMATRIX parentMat)
-		{
-			APawn::CalculateParent(parentMat);
 		}
 
 		void APlayerCharacter::OnRender()

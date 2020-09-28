@@ -115,7 +115,7 @@ namespace Retina {
 		m_PerFrameData.Data.DeltaMs = DeltaMs;
 		m_PerFrameData.Data.view = viewFloat;
 		m_PerFrameData.Data.projection = projectionFloat;*/
-		m_PerFrameData.Data.CameraPosition = m_pWorldCamera->GetTransformRef().GetPosition();
+		m_PerFrameData.Data.CameraPosition = m_pWorldCamera->GetPosition();
 		m_PerFrameData.Data.DeltaMs = DeltaMs;
 		m_PerFrameData.Data.WorldTime = WorldTime;
 		m_PerFrameData.Data.RayTraceEnabled = 0.0f;

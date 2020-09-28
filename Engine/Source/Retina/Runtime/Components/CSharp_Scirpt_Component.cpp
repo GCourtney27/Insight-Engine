@@ -120,7 +120,7 @@ namespace Retina {
 
 		void CSharpScriptComponent::UpdateScriptFields()
 		{
-			ieVector3 currentPos = m_pOwner->GetTransformRef().GetPosition();
+			/*ieVector3 currentPos = m_pOwner->GetTransformRef().GetPosition();
 			mono_field_set_value(m_PositionObj, m_XPositionField, &currentPos.x);
 			mono_field_set_value(m_PositionObj, m_YPositionField, &currentPos.y);
 			mono_field_set_value(m_PositionObj, m_ZPositionField, &currentPos.z);
@@ -133,7 +133,7 @@ namespace Retina {
 			ieVector3 currentSca = m_pOwner->GetTransformRef().GetScale();
 			mono_field_set_value(m_ScaleObj, m_XScaleField, &currentSca.x);
 			mono_field_set_value(m_ScaleObj, m_YScaleField, &currentSca.y);
-			mono_field_set_value(m_ScaleObj, m_ZScaleField, &currentSca.z);
+			mono_field_set_value(m_ScaleObj, m_ZScaleField, &currentSca.z);*/
 		}
 
 		void CSharpScriptComponent::ProcessScriptTransformChanges()
@@ -142,7 +142,7 @@ namespace Retina {
 			float rot[3];
 			float sca[3];
 
-			mono_field_get_value(m_PositionObj, m_XPositionField, &pos[0]);
+			/*mono_field_get_value(m_PositionObj, m_XPositionField, &pos[0]);
 			mono_field_get_value(m_PositionObj, m_YPositionField, &pos[1]);
 			mono_field_get_value(m_PositionObj, m_ZPositionField, &pos[2]);
 			ActorComponent::m_pOwner->GetTransformRef().SetPosition(pos[0], pos[1], pos[2]);
@@ -155,7 +155,7 @@ namespace Retina {
 			mono_field_get_value(m_ScaleObj, m_XScaleField, &sca[0]);
 			mono_field_get_value(m_ScaleObj, m_YScaleField, &sca[1]);
 			mono_field_get_value(m_ScaleObj, m_ZScaleField, &sca[2]);
-			ActorComponent::m_pOwner->GetTransformRef().SetScale(sca[0], sca[1], sca[2]);
+			ActorComponent::m_pOwner->GetTransformRef().SetScale(sca[0], sca[1], sca[2]);*/
 		}
 
 		void CSharpScriptComponent::GetTransformFields()

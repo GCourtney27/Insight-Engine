@@ -35,8 +35,12 @@ namespace Retina {
 
 		XMFLOAT4X4 LightViewFloat;
 		XMFLOAT4X4 LightProjFloat;
+
+	private:
+		bool OnEventTranslation(TranslationEvent& e);
 	private:
 		CB_PS_DirectionalLight m_ShaderCB;
+		Runtime::SceneComponent* m_pSceneComponent = nullptr;
 
 		XMVECTOR LightCamPositionVec;
 		XMFLOAT3 LightCamPositionOffset;

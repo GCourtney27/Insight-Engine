@@ -32,9 +32,6 @@ namespace Retina {
 		m_Data.Height = props.Height;
 	}
 
-
-
-
 	LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 
@@ -98,7 +95,7 @@ namespace Retina {
 			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			MouseButtonPressedEvent event(1);
 			data.EventCallback(event);
-			
+
 			//RECT clientRect = {};
 			//POINT Point = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
 			//TrackPopupMenu(data.hContextMenu, TPM_LEFTALIGN | TPM_TOPALIGN, Point.x, Point.y, 0, hWnd, &clientRect);
@@ -254,7 +251,7 @@ namespace Retina {
 				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 				data.EditorUIEnabled = !data.EditorUIEnabled;
 				RN_STRIP_FOR_GAME_DIST(Application::Get().GetEditorLayer().SetUIEnabled(data.EditorUIEnabled);)
-				break;
+					break;
 			}
 			case IDM_EDITOR_RELOAD_SCRIPTS:
 			{
@@ -288,13 +285,13 @@ namespace Retina {
 			case IDM_ABOUT:
 			{
 				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-				
+
 				wchar_t AboutMsgBuffer[256];
 				int APIVersion = ((int)Renderer::GetAPI()) + 10;
 				const wchar_t* RTEnabled = Renderer::GetIsRayTraceEnabled() ? L"Enabled" : L"Disabled";
 				swprintf_s(AboutMsgBuffer, L"Version - 1.8 \nRenderer - Direct3D %i (Ray Tracing: %s) \n\nVendor Runtime: \nMono - v6.8.0.123 \nAssimp - v3.3.1 \nRapidJson - v1.0.0 \nImGui - v1.75", APIVersion, RTEnabled);
 				data.pWindow->CreateMessageBox(AboutMsgBuffer, L"About Retina Editor");
-				
+
 				break;
 			}
 			case IDM_EXIT:

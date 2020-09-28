@@ -126,6 +126,8 @@ namespace Retina {
 
 		void StaticMeshComponent::OnEvent(Event& e)
 		{
+			EventDispatcher Dispatcher(e);
+			Dispatcher.Dispatch<TranslationEvent>(RN_BIND_EVENT_FN(StaticMeshComponent::OnEventTranslation));
 		}
 
 		void StaticMeshComponent::OnInit()
@@ -141,9 +143,6 @@ namespace Retina {
 
 		void StaticMeshComponent::CalculateParent(const XMMATRIX& parentMatrix)
 		{
-			//if (m_ModelLoadFuture.get()) {
-			m_pModel->CalculateParent(parentMatrix);
-			//}
 		}
 
 		void StaticMeshComponent::OnRender()
@@ -242,6 +241,13 @@ namespace Retina {
 		{
 			s_NumActiveSMComponents--;
 			GeometryManager::UnRegisterOpaqueModel(m_pModel);
+		}
+
+		bool StaticMeshComponent::OnEventTranslation(TranslationEvent& e)
+		{
+			m_pModel->CalculateParent(e.TranslationInfo.WorldMat);
+
+			return false;
 		}
 
 	} // end namespace Runtime

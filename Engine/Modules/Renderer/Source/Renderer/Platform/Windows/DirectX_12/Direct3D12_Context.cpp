@@ -126,7 +126,7 @@ namespace Retina {
 		m_CBPerFrame.Data.Projection = m_pWorldCamera->GetProjectionMatrix();
 		m_CBPerFrame.Data.InverseView = XMMatrixInverse(&InvMatDeterminent, m_pWorldCamera->GetViewMatrix());
 		m_CBPerFrame.Data.InverseProjection = XMMatrixInverse(&InvMatDeterminent, m_pWorldCamera->GetProjectionMatrix());
-		m_CBPerFrame.Data.CameraPosition = m_pWorldCamera->GetTransformRef().GetPosition();
+		m_CBPerFrame.Data.CameraPosition = m_pWorldCamera->GetPosition();
 		m_CBPerFrame.Data.DeltaMs = DeltaMs;
 		m_CBPerFrame.Data.WorldTime = WorldSecond;
 		m_CBPerFrame.Data.CameraNearZ = m_pWorldCamera->GetNearZ();

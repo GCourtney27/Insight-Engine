@@ -2,6 +2,9 @@
 
 #include "Scene_Component.h"
 
+#include "Retina/Input/Input.h"
+#include "Retina/Runtime/ACamera.h"
+
 #include "imgui.h"
 #include "ImGuizmo.h"
 
@@ -9,7 +12,7 @@ namespace Retina {
 
 	namespace Runtime {
 
-
+		
 		SceneComponent::SceneComponent(AActor* pOwner)
 			: ActorComponent("SceneComponent", pOwner)
 		{
@@ -31,6 +34,7 @@ namespace Retina {
 
 		void SceneComponent::SetEventCallback(const EventCallbackFn& callback)
 		{
+			m_TranslationData.EventCallback = callback;
 		}
 
 		void SceneComponent::OnEvent(Event& e)
@@ -39,6 +43,13 @@ namespace Retina {
 
 		void SceneComponent::OnInit()
 		{
+		}
+
+		void SceneComponent::OnPostInit()
+		{
+			TranslationEvent e;
+			e.TranslationInfo.WorldMat = m_Transform.GetLocalMatrix();
+			m_TranslationData.EventCallback(e);
 		}
 
 		void SceneComponent::OnDestroy()
@@ -53,9 +64,37 @@ namespace Retina {
 		{
 		}
 
+		void SceneComponent::OnUpdate(const float& DeltaTime)
+		{
+		}
+
 		void SceneComponent::OnImGuiRender()
 		{
 			RenderSelectionGizmo();
+			
+			if (ImGui::CollapsingHeader(m_ComponentName, ImGuiTreeNodeFlags_DefaultOpen)) {
+
+				// Show the actor's transform values
+				ImGui::Text("Transform##SceneNode");
+				ImGui::DragFloat3("Position##SceneNode", &m_Transform.GetPositionRef().x, 0.05f, -1000.0f, 1000.0f);
+				ImGui::DragFloat3("Rotation##SceneNode", &m_Transform.GetRotationRef().x, 0.05f, -1000.0f, 1000.0f);
+				ImGui::DragFloat3("Scale##SceneNode", &m_Transform.GetScaleRef().x, 0.05f, -1000.0f, 1000.0f);
+
+				ImGui::Checkbox("IsStatic##SceneNode", &IsStatic);
+
+				if (m_pParent)
+				{
+					m_Transform.SetWorldMatrix(XMMatrixMultiply(m_Transform.GetLocalMatrix(), m_pParent->GetTransformRef().GetWorldMatrix()));
+				}
+				else
+				{
+					m_Transform.SetWorldMatrix(m_Transform.GetLocalMatrix());
+				}
+
+				TranslationEvent e;
+				e.TranslationInfo.WorldMat = m_Transform.GetWorldMatrix();
+				m_TranslationData.EventCallback(e);
+			}
 		}
 
 		void SceneComponent::RenderSceneHeirarchy()
@@ -64,6 +103,7 @@ namespace Retina {
 
 		void SceneComponent::BeginPlay()
 		{
+			m_EditorTransform = m_Transform;
 		}
 
 		void SceneComponent::Tick(const float DeltaMs)
@@ -82,23 +122,25 @@ namespace Retina {
 		static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
 		void SceneComponent::RenderSelectionGizmo()
 		{
+			static ACamera& s_WorldCameraRef = ACamera::Get();
+
 			XMFLOAT4X4 objectMat;
 			XMFLOAT4X4 deltaMat;
 			XMFLOAT4X4 viewMat;
 			XMFLOAT4X4 projMat;
 			XMStoreFloat4x4(&objectMat, m_Transform.GetLocalMatrix());
-			//XMStoreFloat4x4(&viewMat, m_pSceneCameraRef->GetViewMatrix());
-			//XMStoreFloat4x4(&projMat, m_pSceneCameraRef->GetProjectionMatrix());
+			XMStoreFloat4x4(&viewMat, s_WorldCameraRef.GetViewMatrix());
+			XMStoreFloat4x4(&projMat, s_WorldCameraRef.GetProjectionMatrix());
 
-			//if (Input::IsKeyPressed('W')) {
-			//	mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-			//}
-			//else if (Input::IsKeyPressed('E')) {
-			//	mCurrentGizmoOperation = ImGuizmo::ROTATE;
-			//}
-			//else if (Input::IsKeyPressed('R')) {
-			//	mCurrentGizmoOperation = ImGuizmo::SCALE;
-			//}
+			if (Input::IsKeyPressed('W')) {
+				mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+			}
+			else if (Input::IsKeyPressed('E')) {
+				mCurrentGizmoOperation = ImGuizmo::ROTATE;
+			}
+			else if (Input::IsKeyPressed('R')) {
+				mCurrentGizmoOperation = ImGuizmo::SCALE;
+			}
 
 			ImGuiIO& io = ImGui::GetIO();
 			ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);

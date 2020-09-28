@@ -4,7 +4,7 @@
 
 #include "Retina/Core/Application.h"
 #include "Retina/Core/Scene/scene.h"
-#include "Retina/Core/ie_Exception.h"
+#include "Retina/Core/rn_Exception.h"
 #include "Retina/Utilities/String_Helper.h"
 
 #include "Retina/Rendering/APost_Fx.h"

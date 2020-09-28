@@ -7,6 +7,10 @@
 
 namespace Retina {
 
+	namespace Runtime {
+		class SceneComponent;
+	}
+
 	class RETINA_API APointLight : public Runtime::AActor
 	{
 	public:
@@ -31,10 +35,13 @@ namespace Retina {
 
 		virtual void OnImGuiRender() override;
 
-		 inline CB_PS_PointLight GetConstantBuffer() { return m_ShaderCB; }
+		inline CB_PS_PointLight GetConstantBuffer() { return m_ShaderCB; }
 
 	private:
+		bool OnEventTranslation(TranslationEvent& e);
+	private:
 		CB_PS_PointLight m_ShaderCB;
+		Runtime::SceneComponent* m_pSceneComponent = nullptr;
 	};
 
 }
