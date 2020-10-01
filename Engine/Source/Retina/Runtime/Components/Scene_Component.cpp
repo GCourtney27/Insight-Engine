@@ -24,17 +24,71 @@ namespace Retina {
 
 		bool SceneComponent::LoadFromJson(const rapidjson::Value& JsonComponent)
 		{
-			return false;
+			// Load Transform
+			float X, Y, Z;
+			const rapidjson::Value& Transform = JsonComponent[0]["Transform"];
+			// Position
+			json::get_float(Transform[0], "posX", X);
+			json::get_float(Transform[0], "posY", Y);
+			json::get_float(Transform[0], "posZ", Z);
+			m_Transform.SetPosition(ieVector3(X, Y, Z));
+			// Rotation
+			json::get_float(Transform[0], "rotX", X);
+			json::get_float(Transform[0], "rotY", Y);
+			json::get_float(Transform[0], "rotZ", Z);
+			m_Transform.SetRotation(ieVector3(X, Y, Z));
+			// Scale
+			json::get_float(Transform[0], "scaX", X);
+			json::get_float(Transform[0], "scaZ", Z);
+			json::get_float(Transform[0], "scaY", Y);
+			m_Transform.SetScale(ieVector3(X, Y, Z));
+
+			return true;
 		}
 
 		bool SceneComponent::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
 		{
-			return false;
+			ieVector3 Pos = m_Transform.GetPosition();
+			ieVector3 Rot = m_Transform.GetRotation();
+			ieVector3 Sca = m_Transform.GetScale();
+
+			Writer.Key("SceneComponent");
+			Writer.StartArray();
+			{
+				Writer.StartObject();
+				{
+					// Position
+					Writer.Key("posX");
+					Writer.Double(Pos.x);
+					Writer.Key("posY");
+					Writer.Double(Pos.y);
+					Writer.Key("posZ");
+					Writer.Double(Pos.z);
+					// Rotation
+					Writer.Key("rotX");
+					Writer.Double(Rot.x);
+					Writer.Key("rotY");
+					Writer.Double(Rot.y);
+					Writer.Key("rotZ");
+					Writer.Double(Rot.z);
+					// Scale
+					Writer.Key("scaX");
+					Writer.Double(Sca.x);
+					Writer.Key("scaY");
+					Writer.Double(Sca.y);
+					Writer.Key("scaZ");
+					Writer.Double(Sca.z);
+				}
+				Writer.EndObject();
+			}
+			Writer.EndArray();
+
+			return true;
 		}
 
-		void SceneComponent::SetEventCallback(const EventCallbackFn& callback)
+		void SceneComponent::SetEventCallback(const EventCallbackFn& Callback)
 		{
-			m_TranslationData.EventCallback = callback;
+			m_TranslationData.EventCallback = Callback;
 		}
 
 		void SceneComponent::OnEvent(Event& e)
@@ -53,10 +107,6 @@ namespace Retina {
 		}
 
 		void SceneComponent::OnDestroy()
-		{
-		}
-
-		void SceneComponent::CalculateParent(const DirectX::XMMATRIX& Matrix)
 		{
 		}
 
@@ -80,7 +130,7 @@ namespace Retina {
 				ImGui::DragFloat3("Rotation##SceneNode", &m_Transform.GetRotationRef().x, 0.05f, -1000.0f, 1000.0f);
 				ImGui::DragFloat3("Scale##SceneNode", &m_Transform.GetScaleRef().x, 0.05f, -1000.0f, 1000.0f);
 
-				ImGui::Checkbox("IsStatic##SceneNode", &IsStatic);
+				ImGui::Checkbox("IsStatic##SceneNode", &m_IsStatic);
 
 				if (m_pParent)
 				{
@@ -102,6 +152,11 @@ namespace Retina {
 		}
 
 		void SceneComponent::BeginPlay()
+		{
+			m_EditorTransform = m_Transform;
+		}
+
+		void SceneComponent::EditorEndPlay()
 		{
 			m_EditorTransform = m_Transform;
 		}

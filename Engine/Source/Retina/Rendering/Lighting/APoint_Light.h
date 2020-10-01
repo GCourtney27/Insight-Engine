@@ -23,7 +23,6 @@ namespace Retina {
 		virtual bool OnInit();
 		virtual bool OnPostInit();
 		virtual void OnUpdate(const float DeltaMs);
-		virtual void OnPreRender(XMMATRIX parentMat);
 		virtual void OnRender();
 		virtual void Destroy();
 

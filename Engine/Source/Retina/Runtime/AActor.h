@@ -40,6 +40,7 @@ namespace Retina {
 			void OnEvent(Event& e);
 
 			virtual void BeginPlay();
+			virtual void EditorEndPlay() override;
 			virtual void Tick(const float DeltaMs);
 			virtual void Exit();
 

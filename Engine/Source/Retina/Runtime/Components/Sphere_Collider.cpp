@@ -50,10 +50,6 @@ namespace Retina {
 		{
 		}
 
-		void SphereColliderComponent::CalculateParent(const DirectX::XMMATRIX& Matrix)
-		{
-		}
-
 		void SphereColliderComponent::OnRender()
 		{
 		}
@@ -81,6 +77,10 @@ namespace Retina {
 			PhysicsEvent e;
 
 			m_CollisionData.EventCallback(e);
+		}
+
+		void SphereColliderComponent::EditorEndPlay()
+		{
 		}
 
 		void SphereColliderComponent::Tick(const float DeltaMs)

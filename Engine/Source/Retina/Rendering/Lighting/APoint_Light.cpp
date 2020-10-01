@@ -18,6 +18,7 @@ namespace Retina {
 		m_ShaderCB.DiffuseColor = ieVector3(1.0f, 1.0f, 1.0f);
 		m_ShaderCB.Strength = 1.0f;
 
+		// Load Components
 		m_pSceneComponent = CreateDefaultSubobject<Runtime::SceneComponent>();
 	}
 
@@ -52,58 +53,6 @@ namespace Retina {
 			Writer->Key("DisplayName");
 			Writer->String(SceneNode::GetDisplayName());
 
-			Writer->Key("Transform");
-			Writer->StartArray(); // Start Write Transform
-			{
-				//ieTransform& Transform = SceneNode::GetTransformRef();
-				//ieVector3 Pos = Transform.GetPosition();
-				//ieVector3 Rot = Transform.GetRotation();
-				//ieVector3 Sca = Transform.GetScale();
-
-				//Writer->StartObject();
-				//// Position
-				//Writer->Key("posX");
-				//Writer->Double(Pos.x);
-				//Writer->Key("posY");
-				//Writer->Double(Pos.y);
-				//Writer->Key("posZ");
-				//Writer->Double(Pos.z);
-				//// Rotation
-				//Writer->Key("rotX");
-				//Writer->Double(Rot.x);
-				//Writer->Key("rotY");
-				//Writer->Double(Rot.y);
-				//Writer->Key("rotZ");
-				//Writer->Double(Rot.z);
-				//// Scale
-				//Writer->Key("scaX");
-				//Writer->Double(Sca.x);
-				//Writer->Key("scaY");
-				//Writer->Double(Sca.y);
-				//Writer->Key("scaZ");
-				//Writer->Double(Sca.z);
-
-				Writer->EndObject();
-			}
-			Writer->EndArray(); // End Write Transform
-
-			// Point Light Attributes
-			Writer->Key("Emission");
-			Writer->StartArray();
-			{
-				Writer->StartObject();
-				Writer->Key("diffuseR");
-				Writer->Double(m_ShaderCB.DiffuseColor.x);
-				Writer->Key("diffuseG");
-				Writer->Double(m_ShaderCB.DiffuseColor.y);
-				Writer->Key("diffuseB");
-				Writer->Double(m_ShaderCB.DiffuseColor.z);
-				Writer->Key("strength");
-				Writer->Double(m_ShaderCB.Strength);
-				Writer->EndObject();
-			}
-			Writer->EndArray();
-
 			Writer->Key("Subobjects");
 			Writer->StartArray(); // Start Write SubObjects
 			{
@@ -130,10 +79,7 @@ namespace Retina {
 
 	void APointLight::OnUpdate(const float DeltaMs)
 	{
-	}
-
-	void APointLight::OnPreRender(XMMATRIX parentMat)
-	{
+		m_ShaderCB.Position = m_pSceneComponent->GetPosition();
 	}
 
 	void APointLight::OnRender()

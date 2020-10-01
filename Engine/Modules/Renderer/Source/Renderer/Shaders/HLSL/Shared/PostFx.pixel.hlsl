@@ -40,7 +40,7 @@ struct PS_INPUT_POSTFX
 float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
 {
     float3 LightPassResult = t_LightPassResult.Sample(s_PointClampSampler, ps_in.texCoords).rgb;
-        
+    
     float3 result = LightPassResult;
     
     if(blEnabled)
@@ -84,9 +84,6 @@ float mod(float x, float y)
 
 float3 AddBloom(float3 sourceColor, float2 texCoords)
 {
-    //uint2 Dimensions;
-    //rw_BloomPassResult.GetDimensions(Dimensions.x, Dimensions.y);
-    
     float2 PixelCoords = (texCoords * cbScreenSize) / 2;
     float3 BloomPassResult = rw_BloomPassResult.Load(int3(PixelCoords, 0.0)).rgb;
  

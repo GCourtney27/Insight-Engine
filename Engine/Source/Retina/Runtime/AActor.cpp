@@ -22,7 +22,6 @@ namespace Retina {
 			: m_Id(Id)
 		{
 			SceneNode::SetDisplayName(ActorName);
-
 		}
 
 		AActor::~AActor()
@@ -34,45 +33,27 @@ namespace Retina {
 			if (!m_CanBeFileParsed)
 				return true;
 
-			// Load Transform
-			float posX, posY, posZ;
-			float rotX, rotY, rotZ;
-			float scaX, scaY, scaZ;
-			const rapidjson::Value& transform = (*jsonActor)["Transform"];
-			// Position
-			//json::get_float(transform[0], "posX", posX);
-			//json::get_float(transform[0], "posY", posY);
-			//json::get_float(transform[0], "posZ", posZ);
-			//SceneNode::GetTransformRef().SetPosition(ieVector3(posX, posY, posZ));
-			//// Rotation
-			//json::get_float(transform[0], "rotX", rotX);
-			//json::get_float(transform[0], "rotY", rotY);
-			//json::get_float(transform[0], "rotZ", rotZ);
-			//SceneNode::GetTransformRef().SetRotation(ieVector3(rotX, rotY, rotZ));
-			//// Scale
-			//json::get_float(transform[0], "scaX", scaX);
-			//json::get_float(transform[0], "scaY", scaY);
-			//json::get_float(transform[0], "scaZ", scaZ);
-			//SceneNode::GetTransformRef().SetScale(ieVector3(scaX, scaY, scaZ));
-
-			//SceneNode::GetTransformRef().EditorInit();
-
 			// Load Subobjects
-			const rapidjson::Value& jsonSubobjects = (*jsonActor)["Subobjects"];
+			const rapidjson::Value& JsonSubobjects = (*jsonActor)["Subobjects"];
 
-			for (UINT i = 0; i < jsonSubobjects.Size(); ++i) {
+			for (UINT i = 0; i < JsonSubobjects.Size(); ++i) {
 
-				if (jsonSubobjects[i].HasMember("StaticMesh")) {
+				if (JsonSubobjects[i].HasMember("SceneComponent")) {
+					SceneComponent* ptr = AActor::CreateDefaultSubobject<SceneComponent>();
+					ptr->LoadFromJson(JsonSubobjects[i]["SceneComponent"]);
+					continue;
+				}
+				else if (JsonSubobjects[i].HasMember("StaticMesh")) {
 					StaticMeshComponent* ptr = AActor::CreateDefaultSubobject<StaticMeshComponent>();
-					ptr->LoadFromJson(jsonSubobjects[i]["StaticMesh"]);
+					ptr->LoadFromJson(JsonSubobjects[i]["StaticMesh"]);
 					continue;
 				}
-				else if (jsonSubobjects[i].HasMember("CSharpScript")) {
+				else if (JsonSubobjects[i].HasMember("CSharpScript")) {
 					CSharpScriptComponent* ptr = AActor::CreateDefaultSubobject<CSharpScriptComponent>();
-					ptr->LoadFromJson(jsonSubobjects[i]["CSharpScript"]);
+					ptr->LoadFromJson(JsonSubobjects[i]["CSharpScript"]);
 					continue;
 				}
-				else if (jsonSubobjects[i].HasMember("SphereCollider")) {
+				else if (JsonSubobjects[i].HasMember("SphereCollider")) {
 					SphereColliderComponent* ptr = AActor::CreateDefaultSubobject<SphereColliderComponent>();
 					//ptr->LoadFromJson(jsonSubobjects[i]["SphereCollider"]);
 					continue;
@@ -93,41 +74,6 @@ namespace Retina {
 
 				Writer->Key("DisplayName");
 				Writer->String(SceneNode::GetDisplayName());
-
-				Writer->Key("Transform");
-				Writer->StartArray(); // Start Write Transform
-				{
-					//ieTransform& Transform = SceneNode::GetTransformRef();
-					//ieVector3 Pos = Transform.GetPosition();
-					//ieVector3 Rot = Transform.GetRotation();
-					//ieVector3 Sca = Transform.GetScale();
-
-					//Writer->StartObject();
-					//// Position
-					//Writer->Key("posX");
-					//Writer->Double(Pos.x);
-					//Writer->Key("posY");
-					//Writer->Double(Pos.y);
-					//Writer->Key("posZ");
-					//Writer->Double(Pos.z);
-					//// Rotation
-					//Writer->Key("rotX");
-					//Writer->Double(Rot.x);
-					//Writer->Key("rotY");
-					//Writer->Double(Rot.y);
-					//Writer->Key("rotZ");
-					//Writer->Double(Rot.z);
-					//// Scale
-					//Writer->Key("scaX");
-					//Writer->Double(Sca.x);
-					//Writer->Key("scaY");
-					//Writer->Double(Sca.y);
-					//Writer->Key("scaZ");
-					//Writer->Double(Sca.z);
-
-					Writer->EndObject();
-				}
-				Writer->EndArray(); // End Write Transform
 
 				Writer->Key("Subobjects");
 				Writer->StartArray(); // Start Write SubObjects
@@ -290,6 +236,14 @@ namespace Retina {
 			for (auto& comp : m_Components)
 			{
 				comp->BeginPlay();
+			}
+		}
+
+		void AActor::EditorEndPlay()
+		{
+			SceneNode::EditorEndPlay();
+			for (uint32_t i = 0; i < m_NumComponents; ++i) {
+				m_Components[i]->EditorEndPlay();
 			}
 		}
 

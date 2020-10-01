@@ -114,10 +114,6 @@ namespace Retina {
 			ResourceManager::Get().GetMonoScriptManager().UnRegisterScript(this);
 		}
 
-		void CSharpScriptComponent::CalculateParent(const DirectX::XMMATRIX& matrix)
-		{
-		}
-
 		void CSharpScriptComponent::UpdateScriptFields()
 		{
 			/*ieVector3 currentPos = m_pOwner->GetTransformRef().GetPosition();
@@ -236,6 +232,10 @@ namespace Retina {
 		{
 			if (!m_CanBeCalledOnBeginPlay) { return; }
 			m_pMonoScriptManager->InvokeMethod(m_pBeginPlayMethod, m_pObject, nullptr);
+		}
+
+		void CSharpScriptComponent::EditorEndPlay()
+		{
 		}
 
 		void CSharpScriptComponent::Tick(const float DeltaMs)

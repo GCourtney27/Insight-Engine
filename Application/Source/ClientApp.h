@@ -68,7 +68,6 @@ namespace SandBoxApp {
 			Retina::Material* pRestingTerrainMat = new Retina::Material({ 6, 7, 8, 9, 10 });
 			pRestingTerrainMat->SetUVTilingOffset(9.0f, 9.0f);
 			AActor* pARestingTerrain = new AActor(0, "HouseRestingTerrain");
-			pARestingTerrain->OnInit();
 			SceneComponent* pSCHouseTerrain = pARestingTerrain->CreateDefaultSubobject<SceneComponent>();
 			pSCHouseTerrain->SetPosition(-14.7f, -6.3f, 9.2f);
 			pSCHouseTerrain->SetScale(10.786f, 10.786f, 10.786f);
@@ -82,7 +81,6 @@ namespace SandBoxApp {
 
 			// House
 			AActor* pAHouse = new AActor(0, "House");
-			pAHouse->OnInit();
 			SceneComponent* pSCHouse= pAHouse->CreateDefaultSubobject<SceneComponent>();
 			pSCHouse->SetPosition(-56.550f, 18.6f, -57.2f);
 			pSCHouse->SetScale(0.651f, 0.651f, 0.651f);
@@ -160,7 +158,6 @@ namespace SandBoxApp {
 
 			// Stars
 			AActor* pAStairs = new AActor(0, "Stairs");
-			pAStairs->OnInit();
 			SceneComponent* pSCStairs = pAStairs->CreateDefaultSubobject<SceneComponent>();
 			pSCStairs->SetPosition(31.2f, -3.13f, 6.268f);
 			pSCStairs->SetScale(30.334f, 30.334f, 30.334f);
@@ -179,7 +176,6 @@ namespace SandBoxApp {
 			/*pAFrontRocks->GetTransformRef().SetPosition(ieVector3(14.5f, 1.9f, -81.0f));
 			pAFrontRocks->GetTransformRef().SetScale(ieVector3(0.063f, 0.063f, 0.063f));
 			pAFrontRocks->GetTransformRef().SetRotation(ieVector3(0.0f, 3.158f, 0.0f));*/
-			pASphere->OnInit();
 			SceneComponent* pSCSphere= pASphere->CreateDefaultSubobject<SceneComponent>();
 			pSCSphere->SetPosition(49.5f, 38.9f, -16.0f);
 			pSCSphere->SetScale(6.0f, 6.0f, 6.0f);
@@ -199,7 +195,6 @@ namespace SandBoxApp {
 			pAFrontRocks->GetTransformRef().SetPosition(ieVector3(14.5f, 1.9f, -81.0f));
 			pAFrontRocks->GetTransformRef().SetScale(ieVector3(0.063f, 0.063f, 0.063f));
 			pAFrontRocks->GetTransformRef().SetRotation(ieVector3(0.0f, 3.158f, 0.0f));
-			pAFrontRocks->OnInit();
 
 			Retina::Material* pFrontRocksMat = new Retina::Material({ 36, 37, 38, 39, 40 });
 			StaticMeshComponent* pFrontRocks = pAFrontRocks->CreateDefaultSubobject<StaticMeshComponent>();

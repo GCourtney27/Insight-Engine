@@ -18,7 +18,6 @@ namespace Retina {
 			struct CollisionData
 			{
 				AActor* pCollider;
-
 				EventCallbackFn EventCallback;
 			};
 
@@ -35,7 +34,6 @@ namespace Retina {
 			virtual void OnInit() override;
 			virtual void OnPostInit() {}
 			virtual void OnDestroy() override;
-			virtual void CalculateParent(const DirectX::XMMATRIX& Matrix) override;
 			virtual void OnRender() override;
 			virtual void OnUpdate(const float& DeltaTime) {}
 			virtual void OnChanged() {}
@@ -43,6 +41,7 @@ namespace Retina {
 			virtual void RenderSceneHeirarchy() override;
 
 			virtual void BeginPlay() override;
+			virtual void EditorEndPlay() override;
 			virtual void Tick(const float DeltaMs) override;
 
 			virtual void OnAttach() override;

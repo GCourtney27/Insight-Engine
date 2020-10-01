@@ -29,7 +29,6 @@ namespace Retina {
 			virtual void OnInit() = 0;
 			virtual void OnPostInit() {}
 			virtual void OnDestroy() = 0;
-			virtual void CalculateParent(const DirectX::XMMATRIX& Matrix) = 0;
 			virtual void OnRender() = 0;
 			virtual void OnUpdate(const float& DeltaTime) {}
 			virtual void OnChanged() {}
@@ -42,21 +41,23 @@ namespace Retina {
 			virtual void RenderSceneHeirarchy() = 0;
 
 			virtual void BeginPlay() = 0;
+			virtual void EditorEndPlay() = 0;
 			virtual void Tick(const float DeltaMs) = 0;
 
 			virtual void OnAttach() = 0;
 			virtual void OnDetach() = 0;
 
 			//void SetEventCallbackFunction()
-			const bool& GetIsComponentEnabled() const { return m_Enabled; }
+			bool GetIsComponentEnabled() const { return m_Enabled; }
 			void SetComponentEnabled(bool Enable) { m_Enabled = Enable; }
 
-			virtual const char* GetName() const { return m_ComponentName; };
+			const char* GetName() const { return m_ComponentName; };
 
-			void SetOwner(Runtime::AActor* Owner) { m_pOwner = Owner; }
+			void SetOwner(AActor* Owner) { m_pOwner = Owner; }
 		protected:
 			ActorComponent(const char* ComponentName, Runtime::AActor* Owner)
-				: m_ComponentName(ComponentName), m_pOwner(Owner) {}
+				: m_ComponentName(ComponentName), m_pOwner(Owner) 
+			{}
 		protected:
 			Runtime::AActor* m_pOwner;
 			const char* m_ComponentName;
@@ -66,9 +67,6 @@ namespace Retina {
 			// If we dont add a uid to each submenu, components of 
 			// the same type will get edited at the same time.
 			char m_IDBuffer[30];
-
-
 		};
-
 	} // end namespace Runtime
 } // end namespace Retina

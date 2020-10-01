@@ -182,8 +182,8 @@ namespace Retina {
 			ThrowIfFailed(m_pPostEffectsPass_CommandAllocators[RN_D3D12_FrameIndex]->Reset(),
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
 
-			//ThrowIfFailed(m_pDownSample_CommandAllocators[RN_D3D12_FrameIndex]->Reset(),
-			//	"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
+			ThrowIfFailed(m_pDownSample_CommandAllocators[RN_D3D12_FrameIndex]->Reset(),
+				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
 
 			if (m_GraphicsSettings.RayTraceEnabled) {
 				ThrowIfFailed(m_pRayTracePass_CommandAllocators[RN_D3D12_FrameIndex]->Reset(),
@@ -205,8 +205,8 @@ namespace Retina {
 			ThrowIfFailed(m_pPostEffectsPass_CommandList->Reset(m_pPostEffectsPass_CommandAllocators[RN_D3D12_FrameIndex].Get(), m_pPostFxPass_PSO.Get()),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 
-			//ThrowIfFailed(m_pDownSample_CommandList->Reset(m_pDownSample_CommandAllocators[RN_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
-			//	"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
+			ThrowIfFailed(m_pDownSample_CommandList->Reset(m_pDownSample_CommandAllocators[RN_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
+				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 
 			if (m_GraphicsSettings.RayTraceEnabled) {
 				ThrowIfFailed(m_pRayTracePass_CommandList->Reset(m_pRayTracePass_CommandAllocators[RN_D3D12_FrameIndex].Get(), nullptr),
@@ -329,7 +329,7 @@ namespace Retina {
 		BindLightingPass();
 
 		BindSkyPass();
-		//BlurBloomBuffer();
+		BlurBloomBuffer();
 
 		BindPostFxPass();
 	}
@@ -558,7 +558,7 @@ namespace Retina {
 		ThrowIfFailed(m_pScenePass_CommandList->Close(), "Failed to close command list for D3D 12 context scene pass.");
 		ThrowIfFailed(m_pTransparencyPass_CommandList->Close(), "Failed to close the command list for D3D 12 context transparency pass.");
 		ThrowIfFailed(m_pPostEffectsPass_CommandList->Close(), "Failed to close the command list for D3D 12 context post-process pass.");
-		//ThrowIfFailed(m_pDownSample_CommandList->Close(), "Failed to close command list for D3D 12 context bloom blur pass.");
+		ThrowIfFailed(m_pDownSample_CommandList->Close(), "Failed to close command list for D3D 12 context bloom blur pass.");
 		if (m_GraphicsSettings.RayTraceEnabled) {
 			ThrowIfFailed(m_pRayTracePass_CommandList->Close(), "Failed to close the command list for D3D 12 context ray trace pass.");
 		}
@@ -574,10 +574,10 @@ namespace Retina {
 		m_d3dDeviceResources.GetGraphicsCommandQueue().ExecuteCommandLists(_countof(ppScenePassLists), ppScenePassLists);
 
 		// Bloom Compute
-		//ID3D12CommandList* ppComputeLists[] = {
-		//	m_pDownSample_CommandList.Get(),
-		//};
-		//m_d3dDeviceResources.GetComputeCommandQueue().ExecuteCommandLists(_countof(ppComputeLists), ppComputeLists);
+		ID3D12CommandList* ppComputeLists[] = {
+			m_pDownSample_CommandList.Get(),
+		};
+		m_d3dDeviceResources.GetComputeCommandQueue().ExecuteCommandLists(_countof(ppComputeLists), ppComputeLists);
 
 		// Post Process Pass
 		ID3D12CommandList* ppPostFxPassLists[] = {
@@ -980,7 +980,9 @@ namespace Retina {
 		pDevice->CreateShaderResourceView(m_pRenderTargetTextures[5].Get(), &SRVDesc, m_cbvsrvHeap.hCPU(8));
 		m_pRenderTargetTextures[5]->SetName(L"Render Target SRV Bloom Buffer");
 
-		return;
+		static bool Created = false;
+		if (Created) return;
+		Created = true;
 
 		// UAV Down-Sampled Buffer
 		ResourceDesc = {};
@@ -1104,7 +1106,6 @@ namespace Retina {
 		SRVDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		pDevice->CreateShaderResourceView(m_RayTraceOutput_SRV.Get(), &SRVDesc, m_cbvsrvHeap.hCPU(6));
 
-		return;
 
 		// SRV Down-Sampled Buffer
 		ResourceDesc.Width = (UINT)m_WindowWidth / 2;
@@ -1897,8 +1898,7 @@ namespace Retina {
 		ID3D12CommandList* ppCommandLists[] = {
 			m_pShadowPass_CommandList.Get(),
 			m_pTransparencyPass_CommandList.Get(),
-			m_pPostEffectsPass_CommandList.Get(),
-			//m_pGaussianBlur_CommandList.Get(),
+			m_pPostEffectsPass_CommandList.Get()
 		};
 		m_d3dDeviceResources.GetGraphicsCommandQueue().ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 		m_d3dDeviceResources.IncrementAndSignalFence();

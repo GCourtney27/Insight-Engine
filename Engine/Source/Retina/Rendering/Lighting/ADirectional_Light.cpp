@@ -94,41 +94,6 @@ namespace Retina {
 			Writer->Key("DisplayName");
 			Writer->String(SceneNode::GetDisplayName());
 
-			Writer->Key("Transform");
-			Writer->StartArray(); // Start Write Transform
-			{
-				//ieTransform& Transform = SceneNode::GetTransformRef();
-				//ieVector3 Pos = Transform.GetPosition();
-				//ieVector3 Rot = Transform.GetRotation();
-				//ieVector3 Sca = Transform.GetScale();
-
-				//Writer->StartObject();
-				//// Position
-				//Writer->Key("posX");
-				//Writer->Double(Pos.x);
-				//Writer->Key("posY");
-				//Writer->Double(Pos.y);
-				//Writer->Key("posZ");
-				//Writer->Double(Pos.z);
-				//// Rotation
-				//Writer->Key("rotX");
-				//Writer->Double(Rot.x);
-				//Writer->Key("rotY");
-				//Writer->Double(Rot.y);
-				//Writer->Key("rotZ");
-				//Writer->Double(Rot.z);
-				//// Scale
-				//Writer->Key("scaX");
-				//Writer->Double(Sca.x);
-				//Writer->Key("scaY");
-				//Writer->Double(Sca.y);
-				//Writer->Key("scaZ");
-				//Writer->Double(Sca.z);
-
-				Writer->EndObject();
-			}
-			Writer->EndArray(); // End Write Transform
-
 			// Directional Light Attributes
 			Writer->Key("Emission");
 			Writer->StartArray();

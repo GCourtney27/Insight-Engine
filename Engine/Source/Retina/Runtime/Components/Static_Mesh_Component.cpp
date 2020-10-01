@@ -141,10 +141,6 @@ namespace Retina {
 			delete m_pMaterial;
 		}
 
-		void StaticMeshComponent::CalculateParent(const XMMATRIX& parentMatrix)
-		{
-		}
-
 		void StaticMeshComponent::OnRender()
 		{
 		}
@@ -224,6 +220,10 @@ namespace Retina {
 		}
 
 		void StaticMeshComponent::BeginPlay()
+		{
+		}
+
+		void StaticMeshComponent::EditorEndPlay()
 		{
 		}
 
