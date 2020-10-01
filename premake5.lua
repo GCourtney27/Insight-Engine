@@ -1,7 +1,7 @@
 -- Helpful premake documentation
 -- Tokens https://github.com/premake/premake-core/wiki/Tokens
 
-workspace ("Retina")
+workspace ("Insight")
 	architecture ("x86_64")
 
 	configurations
@@ -16,8 +16,8 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 
 CustomDefines = {}
-CustomDefines["RN_BUILD_DIR"] = "../Bin/" .. outputdir
-CustomDefines["RN_BUILD_CONFIG"] = outputdir
+CustomDefines["IE_BUILD_DIR"] = "../Bin/" .. outputdir
+CustomDefines["IE_BUILD_CONFIG"] = outputdir
 
 -- Modules
 group "Tools"

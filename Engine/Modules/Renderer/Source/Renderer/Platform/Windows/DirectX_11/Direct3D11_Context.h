@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Retina/Core.h>
+#include <Insight/Core.h>
 
 #include "Renderer.h"
 #include "Platform/Windows/Error/COM_Exception.h"
@@ -13,14 +13,14 @@
 
 using Microsoft::WRL::ComPtr;
 
-namespace Retina {
+namespace Insight {
 
 	class WindowsWindow;
 	class GeometryManager;
 
 	class ieD3D11SphereRenderer;
 
-	class RETINA_API Direct3D11Context : public Renderer
+	class INSIGHT_API Direct3D11Context : public Renderer
 	{
 		friend class Renderer;
 	public:

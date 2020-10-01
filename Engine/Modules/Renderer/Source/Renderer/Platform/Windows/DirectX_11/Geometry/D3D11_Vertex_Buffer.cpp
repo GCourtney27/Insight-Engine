@@ -5,7 +5,7 @@
 #include "Platform/Windows/DirectX_11/Direct3D11_Context.h"
 
 
-namespace Retina {
+namespace Insight {
 
 
 

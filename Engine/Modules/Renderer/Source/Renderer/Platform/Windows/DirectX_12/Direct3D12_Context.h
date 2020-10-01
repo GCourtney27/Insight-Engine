@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Retina/Core.h>
+#include <Insight/Core.h>
 
 #include "Renderer/Renderer.h"
 
@@ -9,9 +9,9 @@
 #include "Renderer/Platform/Windows/DirectX_12/Wrappers/Descriptor_Heap_Wrapper.h"
 #include "Renderer/Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
 #include "Renderer/Platform/Windows/DirectX_12/Ray_Tracing/Ray_Trace_Helpers.h"
-#include "Renderer/Platform/Windows/DirectX_12/Wrappers/rn_D3D12_Screen_Quad.h"
+#include "Renderer/Platform/Windows/DirectX_12/Wrappers/ie_D3D12_Screen_Quad.h"
 
-#include "Retina/Rendering/Lighting/ADirectional_Light.h"
+#include "Insight/Rendering/Lighting/ADirectional_Light.h"
 #include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_Constant_Buffer_Wrapper.h"
 
 /*
@@ -22,7 +22,7 @@ using Microsoft::WRL::ComPtr;
 
 #define RN_D3D12_FrameIndex m_d3dDeviceResources.GetFrameIndex()
 
-namespace Retina {
+namespace Insight {
 
 	class WindowsWindow;
 	class GeometryManager;
@@ -33,7 +33,7 @@ namespace Retina {
 	typedef ID3D12Resource D3D12ShaderResourceView;
 	typedef ID3D12Resource D3D12UnoreredAccessView;
 
-	class RETINA_API Direct3D12Context : public Renderer
+	class INSIGHT_API Direct3D12Context : public Renderer
 	{
 	private:
 		

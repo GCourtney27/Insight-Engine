@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Retina/Core/Window.h"
+#include "Insight/Core/Window.h"
 
 
-namespace Retina {
+namespace Insight {
 
 	class WindowsWindow : public Window
 	{

@@ -4,9 +4,9 @@
 
 #include "Platform/Windows/Windows_Window.h"
 #include "Platform/Windows/Error/COM_Exception.h"
-#include "Retina/Rendering/Geometry/Vertex.h"
+#include "Insight/Rendering/Geometry/Vertex.h"
 
-namespace Retina {
+namespace Insight {
 
 
 	D3D11DeferredShadingTech::D3D11DeferredShadingTech()

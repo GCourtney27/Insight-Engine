@@ -5,7 +5,7 @@
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 #include "Platform/Windows/Windows_Window.h"
 
-namespace Retina {
+namespace Insight {
 
 
 
@@ -62,7 +62,7 @@ namespace Retina {
 	{
 		// Close the fence handle on the GPU
 		if (!CloseHandle(m_FenceEvent)) {
-			RN_CORE_ERROR("Failed to close GPU handle while cleaning up the D3D 12 context.");
+			IE_CORE_ERROR("Failed to close GPU handle while cleaning up the D3D 12 context.");
 		}
 	}
 
@@ -71,7 +71,7 @@ namespace Retina {
 		UINT DxgiFactoryFlags = 0u;
 
 		// Enable debug layers if in debug builds
-#if defined RN_DEBUG
+#if defined IE_DEBUG
 		{
 			ComPtr<ID3D12Debug> debugController;
 			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
@@ -98,7 +98,7 @@ namespace Retina {
 			D3D12_FEATURE_DATA_D3D12_OPTIONS5 Options5 = {};
 			ThrowIfFailed(pDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &Options5, sizeof(Options5)), "Failed to query feature support for ray trace with device.");
 			if (Options5.RaytracingTier < D3D12_RAYTRACING_TIER_1_0) {
-				RN_CORE_WARN("Ray tracing not supported on this device.");
+				IE_CORE_WARN("Ray tracing not supported on this device.");
 				return false;
 			}
 			return true;
@@ -128,7 +128,7 @@ namespace Retina {
 
 						m_pRenderContextRef->SetIsRayTraceSupported(true);
 
-						RN_CORE_WARN("Found suitable Direct3D 12 graphics hardware that can support ray tracing: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
+						IE_CORE_WARN("Found suitable Direct3D 12 graphics hardware that can support ray tracing: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
 						continue;
 					}
 				}
@@ -143,12 +143,12 @@ namespace Retina {
 				}
 				*ppAdapter = pAdapter.Detach();
 
-				RN_CORE_WARN("Found suitable Direct3D 12 graphics hardware: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
+				IE_CORE_WARN("Found suitable Direct3D 12 graphics hardware: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
 			}
 		}
 		Desc = {};
 		(*ppAdapter)->GetDesc1(&Desc);
-		RN_CORE_WARN("\"{0}\" selected as Direct3D 12 graphics hardware.", StringHelper::WideToString(Desc.Description));
+		IE_CORE_WARN("\"{0}\" selected as Direct3D 12 graphics hardware.", StringHelper::WideToString(Desc.Description));
 	}
 
 	void D3D12Helper::CreateDevice()

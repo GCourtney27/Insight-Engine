@@ -1,17 +1,17 @@
 #pragma once
 
-#include <Retina/Core.h>
+#include <Insight/Core.h>
 
 #include "Platform/Windows/Error/COM_Exception.h"
 
 
 using Microsoft::WRL::ComPtr;
 
-namespace Retina {
+namespace Insight {
 
 	class Direct3D12Context;
 
-	class RETINA_API D3D12Helper
+	class INSIGHT_API D3D12Helper
 	{
 	public:
 		D3D12Helper();

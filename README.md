@@ -1,4 +1,4 @@
-# Retina Engine
+# Insight Engine
 Game engine written in C/C++ with DirectX 11/12graphics API support. <br />
 
 **World Editor**
@@ -23,7 +23,7 @@ Game engine written in C/C++ with DirectX 11/12graphics API support. <br />
 
 **Getting Started**
 1) Clone the repo into a directory with "git clone --recurse-submodules".
-2) Navigate to RetinaEngine
+2) Navigate to InsightEngine
 3) Run the "Dependency_Build_Scripts/Win_Build_Dependencies.bat" file to build all dependencies.
 4) Run all intallers under Vendor/Redist. Download and install the mono runtime for C-Sharp scripting at "https://www.mono-project.com/download/stable/". Once intalled, navigate to the install diretory, usually in "C:/Program Files/Mono" and copy the Mono folder and past it into "Engine/Vendor". This step is to keep file sizes low for GitHub
 5) Run "Project_Build_Scripts/Win_Gen_Projects_VS2019.bat" to generate the Visual Studio Project files. Note: Visual Studio 2017 is supported, however, you must change the Visual Studio location to Visual Studio 2017 in "Win_Gen_Projects_VS2019.bat" and all scripts in "Project_Build_Scripts/" and "Dependency_Build_Scripts" as this script searches for your local Visual Studio command line executable to build dependency binaries.

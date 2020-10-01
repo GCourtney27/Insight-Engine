@@ -2,7 +2,7 @@
 
 #include "Console_Window.h"
 
-namespace Retina {
+namespace Insight {
 
 
 

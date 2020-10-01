@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Retina/Core.h>
+#include <Insight/Core.h>
 
-namespace Retina {
+namespace Insight {
 
 	using Microsoft::WRL::ComPtr;
 

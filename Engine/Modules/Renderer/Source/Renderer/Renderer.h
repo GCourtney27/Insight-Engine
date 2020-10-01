@@ -1,12 +1,12 @@
 #pragma once
 
-#include <Retina/Core.h>
+#include <Insight/Core.h>
 
-#include "Retina/Core/Interfaces.h"
+#include "Insight/Core/Interfaces.h"
 
-#include "Retina/Rendering/ASky_Sphere.h"
-#include "Retina/Rendering/Geometry/Vertex_Buffer.h"
-#include "Retina/Rendering/Geometry/Index_Buffer.h"
+#include "Insight/Rendering/ASky_Sphere.h"
+#include "Insight/Rendering/Geometry/Vertex_Buffer.h"
+#include "Insight/Rendering/Geometry/Index_Buffer.h"
 
 #include "Renderer/Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
 
@@ -22,7 +22,7 @@
 #define RETURN_IF_WINDOW_NOT_VISIBLE if (!m_WindowVisible){ return;}
 
 
-namespace Retina {
+namespace Insight {
 
 
 	class ASkyLight;
@@ -38,7 +38,7 @@ namespace Retina {
 		class ACamera;
 	}
 
-	class RETINA_API Renderer
+	class INSIGHT_API Renderer
 	{
 	public:
 		enum class eTargetRenderAPI

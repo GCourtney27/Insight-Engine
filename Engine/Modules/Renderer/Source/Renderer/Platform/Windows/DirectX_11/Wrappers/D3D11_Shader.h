@@ -1,17 +1,17 @@
 #pragma once
 
-#include <Retina/Core.h>
+#include <Insight/Core.h>
 
-namespace Retina {
+namespace Insight {
 
 	using Microsoft::WRL::ComPtr;
 
-	class RETINA_API Shader
+	class INSIGHT_API Shader
 	{
 
 	};
 
-	class RETINA_API VertexShader : public Shader
+	class INSIGHT_API VertexShader : public Shader
 	{
 	public:
 		bool Init(ComPtr<ID3D11Device>& pDevice, std::wstring& ShaderPath, D3D11_INPUT_ELEMENT_DESC* pLayoutDesc, UINT NumElements);

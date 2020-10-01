@@ -26,7 +26,7 @@ project ("Engine")
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "off"
-	targetname("RetinaEngine");
+	targetname("InsightEngine");
 
 	targetdir (rootDirectoryPath .. "Bin/" .. outputdir .. "/%{prj.name}")
 	objdir (rootDirectoryPath .. "Bin-Int/" .. outputdir .. "/%{prj.name}")
@@ -45,8 +45,8 @@ project ("Engine")
 	defines
 	{
 		"_CRT_SECURE_NO_WARNINGS",
-		"RN_BUILD_DIR=%{CustomDefines.RN_BUILD_DIR}/Engine/",
-		"RN_BUILD_CONFIG=%{CustomDefines.RN_BUILD_CONFIG}"
+		"IE_BUILD_DIR=%{CustomDefines.IE_BUILD_DIR}/Engine/",
+		"IE_BUILD_CONFIG=%{CustomDefines.IE_BUILD_CONFIG}"
 	}
 
 	includedirs
@@ -102,7 +102,7 @@ project ("Engine")
 
 		defines
 		{
-			"RN_PLATFORM_WINDOWS"
+			"IE_PLATFORM_WINDOWS"
 		}
 
 		flags
@@ -114,12 +114,12 @@ project ("Engine")
 
 	-- Engine Development
 	filter "configurations:Debug"
-		defines "RN_DEBUG"
+		defines "IE_DEBUG"
 		runtime "Debug"
 		symbols "on"
 		defines
         {
-            "RN_DEBUG"
+            "IE_DEBUG"
         }
 		libdirs
 		{
@@ -152,14 +152,14 @@ project ("Engine")
 		}
 	-- Engine Release
 	filter "configurations:Release"
-		defines "RN_RELEASE"
+		defines "IE_RELEASE"
 		runtime "Release"
 		optimize "on"
 		symbols "on"
 		defines
 		{
-			"RN_IS_STANDALONE",
-			"RN_DEBUG"
+			"IE_IS_STANDALONE",
+			"IE_DEBUG"
 		}
 		libdirs
 		{
@@ -196,13 +196,13 @@ project ("Engine")
 
 	-- Full Engine Distribution, all performance logs and debugging windows stripped
 	filter "configurations:Engine-Dist"
-		defines "RN_ENGINE_DIST"
+		defines "IE_ENGINE_DIST"
 		runtime "Release"
 		optimize "on"
 		symbols "on"
 		defines
 		{
-			"RN_IS_STANDALONE"
+			"IE_IS_STANDALONE"
 		}
 		libdirs
 		{
@@ -228,13 +228,13 @@ project ("Engine")
 		}
 	-- Full Game Distribution, all engine debug tools(level editors, editor user interfaces) stripped
 	filter "configurations:Game-Dist"
-		defines "RN_GAME_DIST"
+		defines "IE_GAME_DIST"
 		runtime "Release"
 		optimize "on"
 		symbols "on"
 		defines
 		{
-			"RN_IS_STANDALONE"
+			"IE_IS_STANDALONE"
 		}
 		libdirs
 		{

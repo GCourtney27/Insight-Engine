@@ -2,7 +2,7 @@
 
 #include "D3D12_ImGui_Layer.h"
 
-#include "Retina/Core/Application.h"
+#include "Insight/Core/Application.h"
 
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 #include <examples/imgui_impl_dx12.cpp>
@@ -12,7 +12,7 @@
 #include "examples/imgui_impl_win32.h"
 
 
-namespace Retina {
+namespace Insight {
 
 
 	void D3D12ImGuiLayer::OnAttach()
@@ -53,7 +53,7 @@ namespace Retina {
 		// Setup Platform/Renderer bindings
 		bool impleWin32Succeeded = ImGui_ImplWin32_Init(pWindowHandle);
 		if (!impleWin32Succeeded)
-			RN_CORE_WARN("Failed to initialize ImGui for Win32 - D3D 12. Some controls may not be functional or editor may not be rendered.");
+			IE_CORE_WARN("Failed to initialize ImGui for Win32 - D3D 12. Some controls may not be functional or editor may not be rendered.");
 
 		HRESULT hr;
 		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
@@ -69,7 +69,7 @@ namespace Retina {
 			m_pDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
 			m_pDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 		if (!impleDX12Succeeded)
-			RN_CORE_WARN("Failed to initialize ImGui for DX12. Editor will not be rendered");
+			IE_CORE_WARN("Failed to initialize ImGui for DX12. Editor will not be rendered");
 
 		m_pCommandList = &graphicsContext->GetPostProcessPassCommandList();
 	}

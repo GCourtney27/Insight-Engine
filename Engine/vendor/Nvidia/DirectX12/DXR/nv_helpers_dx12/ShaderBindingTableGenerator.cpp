@@ -38,7 +38,7 @@ dispatch rays description.
 #include "ShaderBindingTableGenerator.h"
 #include <string>
 #include <stdexcept>
-#include "Retina/Utilities/String_Helper.h"
+#include "Insight/Utilities/String_Helper.h"
 
 // Helper to compute aligned buffer sizes
 #ifndef ROUND_UP
@@ -215,7 +215,7 @@ uint32_t ShaderBindingTableGenerator::CopyShaderData(
     if (!id)
     {
       std::wstring errMsg(std::wstring(L"Unknown shader identifier used in the SBT: ") + shader.m_entryPoint);
-      throw std::logic_error(Retina::StringHelper::WideToString(errMsg));
+      throw std::logic_error(Insight::StringHelper::WideToString(errMsg));
     }
     // Copy the shader identifier
     memcpy(pData, id, m_progIdSize);

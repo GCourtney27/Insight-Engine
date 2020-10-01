@@ -1,13 +1,13 @@
 #pragma once
 
-#include <Retina/Core.h>
+#include <Insight/Core.h>
 
-#include "Retina/Layer_Types/ImGui_Layer.h"
+#include "Insight/Layer_Types/ImGui_Layer.h"
 
 
-namespace Retina {
+namespace Insight {
 	
-	class RETINA_API D3D12ImGuiLayer : public ImGuiLayer
+	class INSIGHT_API D3D12ImGuiLayer : public ImGuiLayer
 	{
 	public:
 		D3D12ImGuiLayer() = default;

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Retina/Core.h>
+#include <Insight/Core.h>
 #include "Platform/Windows/Error/COM_Exception.h"
 #include <d3d12.h>
 #include <wrl/client.h>
 
-namespace Retina {
+namespace Insight {
 
 	using Microsoft::WRL::ComPtr;
 
