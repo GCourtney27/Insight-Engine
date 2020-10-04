@@ -428,9 +428,9 @@ namespace Insight {
 	{
 		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
 		std::wstring VertexShaderFolder(ExeDirectory);
-		VertexShaderFolder += L"../Renderer/PostFx.vertex.cso";
+		VertexShaderFolder += L"../Renderer/PostProcessComposite.vertex.cso";
 		std::wstring PixelShaderFolder(ExeDirectory);
-		PixelShaderFolder += L"../Renderer/PostFx.pixel.cso";
+		PixelShaderFolder += L"../Renderer/PostProcessComposite.pixel.cso";
 
 		D3D11_INPUT_ELEMENT_DESC InputLayout[2] =
 		{

@@ -137,6 +137,7 @@ namespace Insight {
 		void BindTransparencyPass();
 		void BindRayTracePass();
 		void BindPostFxPass();
+		void DrawDebugScreenQuad();
 		void BlurBloomBuffer();
 
 		// D3D12 Initialize
@@ -153,6 +154,7 @@ namespace Insight {
 		void CreateForwardShadingRS();
 		// Texture down-sample and Gaussian Blur pipelines share the same shader inputs for the Bloom Pass.
 		void CreateBloomPassRS();
+		void CreateDebugScreenQuadRS();
 
 		void CreateShadowPassPSO();
 		void CreateGeometryPassPSO();
@@ -160,6 +162,7 @@ namespace Insight {
 		void CreateTransparencyPassPSO();
 		void CreateLightPassPSO();
 		void CreatePostEffectsPassPSO();
+		void CreateDebugScreenQuadPSO();
 		void CreateDownSamplePSO();
 		void CreateGaussianBlurPSO();
 
@@ -183,6 +186,7 @@ namespace Insight {
 		RayTraceHelpers		m_RTHelper;
 
 		ieD3D12ScreenQuad	m_ScreenQuad;
+		ieD3D12ScreenQuad	m_DebugScreenQuad;
 		D3D12_VIEWPORT		m_ShadowPass_ViewPort = {};
 		D3D12_RECT			m_ShadowPass_ScissorRect = {};
 
@@ -239,6 +243,7 @@ namespace Insight {
 		ComPtr<ID3D12RootSignature>			m_pDeferredShadingPass_RS;
 		ComPtr<ID3D12RootSignature>			m_pForwardShadingPass_RS;
 		ComPtr<ID3D12RootSignature>			m_pBloomPass_RS;
+		ComPtr<ID3D12RootSignature>			m_pDebugScreenQuad_RS;
 
 		ComPtr<ID3D12PipelineState>			m_pShadowPass_PSO;
 		ComPtr<ID3D12PipelineState>			m_pGeometryPass_PSO;
@@ -246,6 +251,7 @@ namespace Insight {
 		ComPtr<ID3D12PipelineState>			m_pSkyPass_PSO;
 		ComPtr<ID3D12PipelineState>			m_pTransparency_PSO;
 		ComPtr<ID3D12PipelineState>			m_pPostFxPass_PSO;
+		ComPtr<ID3D12PipelineState>			m_pDebugScreenQuad_PSO;
 		ComPtr<ID3D12PipelineState>			m_pThresholdDownSample_PSO;
 		ComPtr<ID3D12PipelineState>			m_pGaussianBlur_PSO;
 

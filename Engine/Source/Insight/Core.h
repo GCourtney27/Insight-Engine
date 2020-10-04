@@ -46,6 +46,7 @@
 #define CAST_TO_UINT(...) static_cast<UINT>(__VA_ARGS__)
 #define QUOTE(value) #value
 #define MACRO_TO_STRING(macro) QUOTE(macro);
+#define FORCE_INLINE __forceinline
 
 // Includes
 #include "Insight/Math/Math_Helpers.h"

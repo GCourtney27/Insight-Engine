@@ -58,7 +58,6 @@ namespace Insight {
 					}
 				}
 			}
-			m_PerObjectCBDrawOffset = 0U;
 		}
 		else if (RenderPass == eRenderPass::RenderPass_Scene) {
 
@@ -102,6 +101,7 @@ namespace Insight {
 				}
 			}
 		}
+		m_PerObjectCBDrawOffset = 0U;
 	}
 
 	void D3D12GeometryManager::GatherGeometry_Impl()

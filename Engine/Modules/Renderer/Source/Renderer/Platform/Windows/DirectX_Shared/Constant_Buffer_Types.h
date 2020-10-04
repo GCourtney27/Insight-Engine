@@ -75,6 +75,10 @@ struct CB_PS_DirectionalLight
 
 	DirectX::XMFLOAT4X4 LightSpaceView;
 	DirectX::XMFLOAT4X4 LightSpaceProj;
+
+	float NearZ;
+	float FarZ;
+	float Padding[2];
 };
 
 struct CB_PS_SpotLight
@@ -127,7 +131,7 @@ struct CB_CS_DownSampleParams
 
 struct CB_CS_BlurParams
 {
-	alignas(16) float coefficients[GAUSSIAN_RADIUS + 1];
-	int radius;     // must be <= MAX_GAUSSIAN_RADIUS
-	int direction;  // 0 = horizontal, 1 = vertical
+	alignas(16) float Coefficients[GAUSSIAN_RADIUS + 1];
+	int Radius;     // must be <= MAX_GAUSSIAN_RADIUS
+	int Direction;  // 0 = horizontal, 1 = vertical
 };

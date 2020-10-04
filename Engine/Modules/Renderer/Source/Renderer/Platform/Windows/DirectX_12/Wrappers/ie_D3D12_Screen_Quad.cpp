@@ -6,21 +6,14 @@
 
 namespace Insight {
 
-	void ieD3D12ScreenQuad::Init()
+	void ieD3D12ScreenQuad::Init(ScreenSpaceVertex Verticies[], uint32_t VertexBufferSize, uint32_t Indices[], uint32_t IndexBufferSize)
 	{
 		HRESULT hr;
 		Direct3D12Context* GraphicsContext = dynamic_cast<Direct3D12Context*>(&Renderer::Get());
 
 		// Vertex Buffer
-		ScreenSpaceVertex quadVerts[] =
-		{
-			{ { -1.0f, 1.0f, 0.0f }, { 0.0f,0.0f } }, // Top Left
-			{ {  1.0f, 1.0f, 0.0f }, { 1.0f,0.0f } }, // Top Right
-			{ { -1.0f,-1.0f, 0.0f }, { 0.0f,1.0f } }, // Bottom Left
-			{ {  1.0f,-1.0f, 0.0f }, { 1.0f,1.0f } }, // Bottom Right
-		};
-		int vBufferSize = sizeof(quadVerts);
-		m_NumVerticies = vBufferSize / sizeof(ScreenSpaceVertex);
+		// -------------
+		m_NumVerticies = VertexBufferSize / sizeof(ScreenSpaceVertex);
 
 		D3D12_RESOURCE_DESC resourceDesc = {};
 		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
@@ -30,7 +23,7 @@ namespace Insight {
 		resourceDesc.MipLevels = 1;
 		resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
 		resourceDesc.DepthOrArraySize = 1;
-		resourceDesc.Width = vBufferSize;
+		resourceDesc.Width = VertexBufferSize;
 		resourceDesc.Height = 1;
 		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 		hr = GraphicsContext->GetDeviceContext().CreateCommittedResource(
@@ -48,7 +41,7 @@ namespace Insight {
 		hr = GraphicsContext->GetDeviceContext().CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(vBufferSize),
+			&CD3DX12_RESOURCE_DESC::Buffer(VertexBufferSize),
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
 			IID_PPV_ARGS(&vBufferUploadHeap));
@@ -56,9 +49,9 @@ namespace Insight {
 		ThrowIfFailed(hr, "Failed to create upload heap resource for screen qauad");
 
 		D3D12_SUBRESOURCE_DATA vertexData = {};
-		vertexData.pData = reinterpret_cast<BYTE*>(quadVerts);
-		vertexData.RowPitch = vBufferSize;
-		vertexData.SlicePitch = vBufferSize;
+		vertexData.pData = reinterpret_cast<BYTE*>(Verticies);
+		vertexData.RowPitch = VertexBufferSize;
+		vertexData.SlicePitch = VertexBufferSize;
 
 		UpdateSubresources(&GraphicsContext->GetScenePassCommandList(), m_VertexBuffer.Get(), vBufferUploadHeap, 0, 0, 1, &vertexData);
 
@@ -66,16 +59,10 @@ namespace Insight {
 
 		m_VertexBufferView.BufferLocation = m_VertexBuffer->GetGPUVirtualAddress();
 		m_VertexBufferView.StrideInBytes = sizeof(ScreenSpaceVertex);
-		m_VertexBufferView.SizeInBytes = vBufferSize;
+		m_VertexBufferView.SizeInBytes = VertexBufferSize;
 
 		// Index Buffer
-
-		uint32_t QuadIndices[] =
-		{
-			0, 1, 3,
-			0, 3, 2
-		};
-		uint32_t IndexBufferSize = 6 * sizeof(uint32_t);
+		// ------------
 		ComPtr<ID3D12Resource>		pIndexBufferUploadHeap;
 
 		hr = GraphicsContext->GetDeviceContext().CreateCommittedResource(
@@ -103,7 +90,7 @@ namespace Insight {
 		pIndexBufferUploadHeap->SetName(L"Index Buffer Upload Resource Heap");
 
 		D3D12_SUBRESOURCE_DATA indexData = {};
-		indexData.pData = reinterpret_cast<BYTE*>(QuadIndices);
+		indexData.pData = reinterpret_cast<BYTE*>(Indices);
 		indexData.RowPitch = IndexBufferSize;
 		indexData.SlicePitch = IndexBufferSize;
 

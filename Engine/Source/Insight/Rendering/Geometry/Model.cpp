@@ -126,7 +126,9 @@ namespace Insight {
 	{
 		ieTransform transform;
 		if (pNode->mParent) {
-			transform.SetLocalMatrix(XMMatrixTranspose(XMMATRIX(&pNode->mTransformation.a1)));
+			XMMATRIX mat = XMMatrixMultiply(XMMATRIX(&pNode->mTransformation.a1), XMMATRIX(&pNode->mParent->mTransformation.a1));
+			//transform.SetLocalMatrix(XMMatrixTranspose(XMMATRIX(&pNode->mTransformation.a1)));
+			transform.SetWorldMatrix(mat);
 		}
 
 		// Create a pointer to all the meshes this node owns

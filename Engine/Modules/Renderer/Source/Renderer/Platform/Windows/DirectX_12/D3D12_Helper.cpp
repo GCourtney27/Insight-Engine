@@ -220,6 +220,10 @@ namespace Insight {
 		ThrowIfFailed(TempSwapChain.As(&m_pSwapChain), "Failed to cast SwapChain ComPtr");
 
 		m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
+
+		DXGI_SWAP_CHAIN_DESC1 Desc = {};
+		m_pSwapChain->GetDesc1(&Desc);
+		m_SwapChainBackBufferFormat = Desc.Format;
 	}
 
 	void D3D12Helper::CreateViewport()

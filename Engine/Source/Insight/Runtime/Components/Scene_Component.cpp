@@ -125,12 +125,12 @@ namespace Insight {
 			if (ImGui::CollapsingHeader(m_ComponentName, ImGuiTreeNodeFlags_DefaultOpen)) {
 
 				// Show the actor's transform values
-				ImGui::Text("Transform##SceneNode");
+				ImGui::Text("Transform");
 				ImGui::DragFloat3("Position##SceneNode", &m_Transform.GetPositionRef().x, 0.05f, -1000.0f, 1000.0f);
 				ImGui::DragFloat3("Rotation##SceneNode", &m_Transform.GetRotationRef().x, 0.05f, -1000.0f, 1000.0f);
 				ImGui::DragFloat3("Scale##SceneNode", &m_Transform.GetScaleRef().x, 0.05f, -1000.0f, 1000.0f);
 
-				ImGui::Checkbox("IsStatic##SceneNode", &m_IsStatic);
+				ImGui::Checkbox("IsStatic", &m_IsStatic);
 
 				if (m_pParent)
 				{

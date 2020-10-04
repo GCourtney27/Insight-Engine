@@ -18,7 +18,7 @@ namespace Insight {
 		Renderer::RegisterWorldDirectionalLight(this);
 
 		m_pSceneComponent = CreateDefaultSubobject<Runtime::SceneComponent>();
-
+		m_pSceneComponent->SetEventCallback(IE_BIND_EVENT_FN(ADirectionalLight::OnEvent));
 		m_pSceneComponent->SetRotation(0.0f, -1.0f, -6.0f);
 
 		m_ShaderCB.DiffuseColor = ieVector3(1.0f, 1.0f, 1.0f);
@@ -57,12 +57,12 @@ namespace Insight {
 		
 		LightCamPositionOffset = XMFLOAT3(0.0f, 0.0f, 20.0f);
 
-		//m_ShaderCB.Direction = SceneNode::GetTransformRef().GetRotation();
+		m_ShaderCB.Direction = m_pSceneComponent->GetRotation();
 
-		//XMFLOAT3 LookAtPos = SceneNode::GetTransformRef().GetPosition();// (0.0f, 0.0f, 0.0f);
-		//XMVECTOR LookAtPosVec = XMLoadFloat3(&LookAtPos);
+		XMFLOAT3 LookAtPos = m_pSceneComponent->GetPosition();// (0.0f, 0.0f, 0.0f);
+		XMVECTOR LookAtPosVec = XMLoadFloat3(&LookAtPos);
 
-		/*XMFLOAT3 Up(0.0f, 1.0f, 0.0f);
+		XMFLOAT3 Up(0.0f, 1.0f, 0.0f);
 		XMVECTOR UpVec = XMLoadFloat3(&Up);
 		XMFLOAT3 direction = m_ShaderCB.Direction;
 		direction.x = -direction.x + LightCamPositionOffset.x;
@@ -79,7 +79,7 @@ namespace Insight {
 		XMStoreFloat4x4(&LightProjFloat, XMMatrixTranspose(LightProj));
 
 		m_ShaderCB.LightSpaceView = LightViewFloat;
-		m_ShaderCB.LightSpaceProj = LightProjFloat;*/
+		m_ShaderCB.LightSpaceProj = LightProjFloat;
 
 		return true;
 	}
@@ -137,7 +137,6 @@ namespace Insight {
 
 	void ADirectionalLight::OnUpdate(const float DeltaMs)
 	{
-		
 	}
 
 	void ADirectionalLight::OnPreRender(XMMATRIX parentMat)
@@ -178,18 +177,18 @@ namespace Insight {
 		ImGui::Spacing();
 		ImGui::Spacing();
 
-		/*ImGui::DragFloat3("light cam pos offset: ", &LightCamPositionOffset.x, 1.0f, 180.0f, 180.0f);
+		ImGui::DragFloat3("light cam pos offset: ", &LightCamPositionOffset.x, 1.0f, 180.0f, 180.0f);
 		ImGui::DragFloat("light cam near z: ", &m_NearPlane, 1.0f, 0.0f, 180.0f);
 		ImGui::DragFloat("light cam far z: ", &m_FarPlane, 1.0f, 0.0f, 1000.0f);
 		ImGui::DragFloat("light view width: ", &ViewWidth, 1.0f, 0.0f, 1000.0f);
 		ImGui::DragFloat("light view height: ", &ViewHeight, 1.0f, 0.0f, 1000.0f);
-		*/
+		
 		ImGui::Spacing();
 		ImGui::Spacing();
 
 		if (ImGui::CollapsingHeader("Emission", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			ImGuiColorEditFlags colorWheelFlags = ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_PickerHueWheel;
+			constexpr ImGuiColorEditFlags colorWheelFlags = ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_PickerHueWheel;
 			// Imgui will edit the color values in a normalized 0 to 1 space. 
 			// In the shaders we transform the color values back into 0 to 255 space.
 			ImGui::ColorEdit3("Diffuse", &m_ShaderCB.DiffuseColor.x, colorWheelFlags);
@@ -199,6 +198,8 @@ namespace Insight {
 			ImGui::DragFloat("Shadow Darkness Multiplier: ", &m_ShaderCB.ShadowDarknessMultiplier, 0.05f, 0.0f, 1.0f);
 		}
 
+		m_ShaderCB.NearZ = m_NearPlane;
+		m_ShaderCB.FarZ = m_FarPlane;
 	}
 
 	bool ADirectionalLight::OnEventTranslation(TranslationEvent& e)
@@ -219,8 +220,8 @@ namespace Insight {
 		LightView = XMMatrixLookAtLH(LightCamPositionVec, LookAtPosVec, UpVec);
 		LightProj = XMMatrixOrthographicLH(ViewWidth, ViewHeight, m_NearPlane, m_FarPlane);
 
-		XMStoreFloat4x4(&LightViewFloat, XMMatrixTranspose(LightView));
-		XMStoreFloat4x4(&LightProjFloat, XMMatrixTranspose(LightProj));
+		XMStoreFloat4x4(&LightViewFloat, (LightView));
+		XMStoreFloat4x4(&LightProjFloat, (LightProj));
 
 		m_ShaderCB.LightSpaceView = LightViewFloat;
 		m_ShaderCB.LightSpaceProj = LightProjFloat;

@@ -7,10 +7,12 @@ namespace Insight {
 	class ieException
 	{
 	public:
+		ieException() = default;
 		ieException(const char* Msg)
 		{
 			m_WhatMsg = Msg;
 		}
+		~ieException() = default;
 
 		const char* What() const
 		{

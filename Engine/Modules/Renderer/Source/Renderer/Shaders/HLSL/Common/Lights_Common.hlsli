@@ -31,6 +31,10 @@ struct DirectionalLight
     
     float4x4 lightSpaceView;
     float4x4 lightSpaceProj;
+    
+    float NearZ;
+    float FarZ;
+    float2 Padding;
 };
 
 struct SpotLight

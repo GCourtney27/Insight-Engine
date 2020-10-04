@@ -10,7 +10,7 @@ namespace Insight {
 	class INSIGHT_API ieD3D12ScreenQuad
 	{
 	public:
-		void Init();
+		void Init(ScreenSpaceVertex Verticies[], uint32_t VertexBufferSize, uint32_t Indices[], uint32_t IndexBufferSize);
 		void OnRender(ComPtr<ID3D12GraphicsCommandList> commandList);
 
 	private:

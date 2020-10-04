@@ -29,20 +29,21 @@ namespace Insight {
 		inline ID3D12Resource* GetSwapChainRenderTarget() const { return m_pRenderTargets[m_FrameIndex].Get(); }
 		inline ID3D12CommandQueue& GetGraphicsCommandQueue() const { return *m_pGraphicsCommandQueue.Get(); }
 		inline ID3D12CommandQueue& GetComputeCommandQueue() const { return *m_pComputeCommandQueue.Get(); }
+		inline DXGI_FORMAT GetSwapChainBackBufferFormat() const { return m_SwapChainBackBufferFormat; }
 
-		void MoveToNextFrame();
-		void WaitForGPU();
 		inline int GetFrameIndex() const { return m_FrameIndex; }
 		inline void SetFrameIndex(int FrameIndex) { m_FrameIndex = FrameIndex; }
-		inline void IncrementAndSignalFence()
+		void MoveToNextFrame();
+		void WaitForGPU();
+		FORCE_INLINE void IncrementAndSignalFence()
 		{
 			m_FenceValues[m_FrameIndex]++;
 			ThrowIfFailed(m_pGraphicsCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]),
 				"Failed to signal command queue while incremenitign fence values for D3D 12 device resources.");
 		}
 
-		const D3D12_VIEWPORT& GetClientViewPort() const { return m_Client_ViewPort; }
-		const D3D12_RECT& GetClientScissorRect() const { return m_Client_ScissorRect; }
+		inline const D3D12_VIEWPORT& GetClientViewPort() const { return m_Client_ViewPort; }
+		inline const D3D12_RECT& GetClientScissorRect() const { return m_Client_ScissorRect; }
 
 	private:
 		void CreateDXGIFactory();
@@ -55,15 +56,15 @@ namespace Insight {
 		void CreateFenceEvent();
 
 	private:
-		Direct3D12Context* m_pRenderContextRef;
+		Direct3D12Context*		m_pRenderContextRef;
 
-		static const uint8_t m_FrameBufferCount = 3;
+		static const uint8_t	m_FrameBufferCount = 3;
 
 		// CPU/GPU Syncronization
-		int						m_FrameIndex = 0;
-		UINT64					m_FenceValues[m_FrameBufferCount] = {};
-		HANDLE					m_FenceEvent = {};
-		ComPtr<ID3D12Fence>		m_pFence;
+		int									m_FrameIndex = 0;
+		UINT64								m_FenceValues[m_FrameBufferCount] = {};
+		HANDLE								m_FenceEvent = {};
+		ComPtr<ID3D12Fence>					m_pFence;
 
 		ComPtr<IDXGIAdapter1>				m_pAdapter;
 		ComPtr<ID3D12Device>				m_pDevice;
@@ -72,11 +73,11 @@ namespace Insight {
 
 		ComPtr<ID3D12CommandQueue>			m_pGraphicsCommandQueue;
 		ComPtr<ID3D12CommandQueue>			m_pComputeCommandQueue;
-		ComPtr<ID3D12CommandAllocator>		m_pCommandAllocators[m_FrameBufferCount];
 
 		ComPtr<ID3D12Resource>				m_pRenderTargets[m_FrameBufferCount];
 		ComPtr<ID3D12DescriptorHeap>		m_pRtvHeap;
 		
+		DXGI_FORMAT							m_SwapChainBackBufferFormat;
 		UINT								m_RtvDescriptorSize;
 		D3D12_VIEWPORT						m_Client_ViewPort = {};
 		D3D12_RECT							m_Client_ScissorRect = {};

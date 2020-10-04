@@ -17,6 +17,8 @@
 #include "Platform/Windows/DirectX_12/Geometry/D3D12_Index_Buffer.h"
 #include "Platform/Windows/DirectX_12/Geometry/D3D12_Sphere_Renderer.h"
 
+//#define BLOOM_ENABLED
+
 namespace Insight {
 
 
@@ -72,6 +74,7 @@ namespace Insight {
 					CreateDeferredShadingRS();
 					CreateForwardShadingRS();
 					CreateBloomPassRS();
+					CreateDebugScreenQuadRS();
 					CreateGeometryPassPSO();
 					CreateShadowPassPSO();
 					CreateLightPassPSO();
@@ -80,6 +83,7 @@ namespace Insight {
 					CreateDownSamplePSO();
 					CreateGaussianBlurPSO();
 					CreatePostEffectsPassPSO();
+					CreateDebugScreenQuadPSO();
 				}
 
 				// Create Render Targets and Depth Stencils
@@ -181,9 +185,10 @@ namespace Insight {
 
 			ThrowIfFailed(m_pPostEffectsPass_CommandAllocators[RN_D3D12_FrameIndex]->Reset(),
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
-
+#ifdef BLOOM_ENABLED
 			ThrowIfFailed(m_pDownSample_CommandAllocators[RN_D3D12_FrameIndex]->Reset(),
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
+#endif // BLOOM_ENABLED
 
 			if (m_GraphicsSettings.RayTraceEnabled) {
 				ThrowIfFailed(m_pRayTracePass_CommandAllocators[RN_D3D12_FrameIndex]->Reset(),
@@ -205,9 +210,10 @@ namespace Insight {
 			ThrowIfFailed(m_pPostEffectsPass_CommandList->Reset(m_pPostEffectsPass_CommandAllocators[RN_D3D12_FrameIndex].Get(), m_pPostFxPass_PSO.Get()),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 
+#ifdef BLOOM_ENABLED
 			ThrowIfFailed(m_pDownSample_CommandList->Reset(m_pDownSample_CommandAllocators[RN_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
-
+#endif
 			if (m_GraphicsSettings.RayTraceEnabled) {
 				ThrowIfFailed(m_pRayTracePass_CommandList->Reset(m_pRayTracePass_CommandAllocators[RN_D3D12_FrameIndex].Get(), nullptr),
 					"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
@@ -277,7 +283,14 @@ namespace Insight {
 
 			m_pShadowPass_CommandList->SetPipelineState(m_pShadowPass_PSO.Get());
 			m_pShadowPass_CommandList->SetGraphicsRootSignature(m_pDeferredShadingPass_RS.Get());
-			m_pShadowPass_CommandList->ClearDepthStencilView(m_dsvHeap.hCPU(1), D3D12_CLEAR_FLAG_DEPTH, m_DepthClearValue, 0xff, 0, nullptr);
+			
+			ResourceBarrier(m_pShadowPass_CommandList.Get(), m_pShadowDepthTexture.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+
+			m_pShadowPass_CommandList->ClearDepthStencilView(m_dsvHeap.hCPU(1), D3D12_CLEAR_FLAG_DEPTH, m_DepthClearValue, 0xFF, 0, nullptr);
+			m_pShadowPass_CommandList->OMSetRenderTargets(0, nullptr, FALSE, &m_dsvHeap.hCPU(1));
+
+			m_pShadowPass_CommandList->RSSetScissorRects(1, &m_ShadowPass_ScissorRect);
+			m_pShadowPass_CommandList->RSSetViewports(1, &m_ShadowPass_ViewPort);
 
 			m_pShadowPass_CommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 			m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pShadowPass_CommandList.Get(), 1);
@@ -285,6 +298,7 @@ namespace Insight {
 
 			// TODO Shadow pass logic here put this on another thread
 			GeometryManager::Render(eRenderPass::RenderPass_Shadow);
+			ResourceBarrier(m_pShadowPass_CommandList.Get(), m_pShadowDepthTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ);
 		}
 		PIXEndEvent(m_pShadowPass_CommandList.Get());
 	}
@@ -329,9 +343,15 @@ namespace Insight {
 		BindLightingPass();
 
 		BindSkyPass();
+#ifdef BLOOM_ENABLED
 		BlurBloomBuffer();
 
+#endif // BLOOM_ENABLED
+
+
 		BindPostFxPass();
+		
+		DrawDebugScreenQuad();
 	}
 
 	void Direct3D12Context::BindRayTracePass()
@@ -374,6 +394,8 @@ namespace Insight {
 			ResourceBarrier(m_pScenePass_CommandList.Get(), m_pSceneDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ);
 			m_pScenePass_CommandList->SetPipelineState(m_pLightingPass_PSO.Get());
 			m_pScenePass_CommandList->SetGraphicsRootDescriptorTable(17, m_cbvsrvHeap.hGPU(6)); // Ray Trace Result
+
+			m_pScenePass_CommandList->SetGraphicsRootDescriptorTable(11, m_cbvsrvHeap.hGPU(7));
 
 			m_ScreenQuad.OnRender(m_pScenePass_CommandList);
 			
@@ -460,6 +482,31 @@ namespace Insight {
 		PIXEndEvent(m_pPostEffectsPass_CommandList.Get());
 	}
 
+	void Direct3D12Context::DrawDebugScreenQuad()
+	{
+		RETURN_IF_WINDOW_NOT_VISIBLE;
+
+		PIXBeginEvent(m_pPostEffectsPass_CommandList.Get(), 0, L"Rendering Debug Screen Quad Pass");
+		{
+			ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
+			m_pPostEffectsPass_CommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+
+			m_pPostEffectsPass_CommandList->OMSetRenderTargets(1, &GetSwapChainRTV(), TRUE, nullptr);
+
+			m_pPostEffectsPass_CommandList->RSSetScissorRects(1, &m_d3dDeviceResources.GetClientScissorRect());
+			m_pPostEffectsPass_CommandList->RSSetViewports(1, &m_d3dDeviceResources.GetClientViewPort());
+
+			m_pPostEffectsPass_CommandList->SetPipelineState(m_pDebugScreenQuad_PSO.Get());
+			m_pPostEffectsPass_CommandList->SetGraphicsRootSignature(m_pDebugScreenQuad_RS.Get());
+			
+			m_CBLights.SetAsGraphicsRootConstantBufferView(m_pPostEffectsPass_CommandList.Get(), 1); // Set the light buffer
+			m_pPostEffectsPass_CommandList->SetGraphicsRootDescriptorTable(0, m_cbvsrvHeap.hGPU(4)); // Debug Texture
+
+			m_DebugScreenQuad.OnRender(m_pPostEffectsPass_CommandList);
+		}
+		PIXEndEvent(m_pPostEffectsPass_CommandList.Get());
+	}
+
 	void Direct3D12Context::BlurBloomBuffer()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
@@ -494,7 +541,6 @@ namespace Insight {
 			// ---------------
 			PIXBeginEvent(m_pDownSample_CommandList.Get(), 0, L"Blurring bloom texture HORIZONTALLY");
 			{
-
 				ResourceBarrier(m_pDownSample_CommandList.Get(), m_pBloomBlurResult_UAV.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
 				// Copy the UAV to a shader readable SRV
 				ResourceBarrier(m_pDownSample_CommandList.Get(), m_pBloomBlurResult_SRV.Get(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
@@ -506,11 +552,11 @@ namespace Insight {
 				m_pDownSample_CommandList->SetComputeRootDescriptorTable(1, m_cbvsrvHeap.hGPU(10)); // Set the SRV of the down sampled bloom texture
 				m_pDownSample_CommandList->SetComputeRootDescriptorTable(2, m_cbvsrvHeap.hGPU(11)); // Set the UAV for the intermediate buffer
 
-				m_CBBlurParams.Data.direction = 0;
+				m_CBBlurParams.Data.Direction = 0;
 				m_CBBlurParams.SubmitToGPU();
 				m_CBBlurParams.SetAsComputeRootConstantBufferView(m_pDownSample_CommandList.Get(), 0);
+
 				m_pDownSample_CommandList->Dispatch(m_WindowWidth / ThreadsPerPixel, m_WindowHeight / ThreadsPerPixel, 1);
-				//ResourceBarrier(m_pDownSample_CommandList.Get(), m_pBloomBlurResult.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 			}
 			PIXEndEvent(m_pDownSample_CommandList.Get());
 
@@ -518,7 +564,6 @@ namespace Insight {
 			// -------------
 			PIXBeginEvent(m_pDownSample_CommandList.Get(), 0, L"Blurring bloom texture VERTICALLY");
 			{
-
 				ResourceBarrier(m_pDownSample_CommandList.Get(), m_pBloomBlurIntermediateBuffer_UAV.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
 				// Copy the UAV to a shader readable SRV
 				ResourceBarrier(m_pDownSample_CommandList.Get(), m_pBloomBlurIntermediateBuffer_SRV.Get(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
@@ -526,10 +571,10 @@ namespace Insight {
 				ResourceBarrier(m_pDownSample_CommandList.Get(), m_pBloomBlurIntermediateBuffer_SRV.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 				ResourceBarrier(m_pDownSample_CommandList.Get(), m_pBloomBlurIntermediateBuffer_UAV.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-
-				m_CBBlurParams.Data.direction = 1;
+				m_CBBlurParams.Data.Direction = 1;
 				m_CBBlurParams.SubmitToGPU();
 				m_CBBlurParams.SetAsComputeRootConstantBufferView(m_pDownSample_CommandList.Get(), 0);
+
 				m_pDownSample_CommandList->SetComputeRootDescriptorTable(1, m_cbvsrvHeap.hGPU(12)); // Set the SRV of the down sampled intermediate bloom texture
 				m_pDownSample_CommandList->SetComputeRootDescriptorTable(2, m_cbvsrvHeap.hGPU(9)); // Set the origional UAV for final blur pass
 
@@ -558,7 +603,9 @@ namespace Insight {
 		ThrowIfFailed(m_pScenePass_CommandList->Close(), "Failed to close command list for D3D 12 context scene pass.");
 		ThrowIfFailed(m_pTransparencyPass_CommandList->Close(), "Failed to close the command list for D3D 12 context transparency pass.");
 		ThrowIfFailed(m_pPostEffectsPass_CommandList->Close(), "Failed to close the command list for D3D 12 context post-process pass.");
+#ifdef BLOOM_ENABLED
 		ThrowIfFailed(m_pDownSample_CommandList->Close(), "Failed to close command list for D3D 12 context bloom blur pass.");
+#endif
 		if (m_GraphicsSettings.RayTraceEnabled) {
 			ThrowIfFailed(m_pRayTracePass_CommandList->Close(), "Failed to close the command list for D3D 12 context ray trace pass.");
 		}
@@ -574,10 +621,12 @@ namespace Insight {
 		m_d3dDeviceResources.GetGraphicsCommandQueue().ExecuteCommandLists(_countof(ppScenePassLists), ppScenePassLists);
 
 		// Bloom Compute
+#ifdef BLOOM_ENABLED
 		ID3D12CommandList* ppComputeLists[] = {
 			m_pDownSample_CommandList.Get(),
 		};
 		m_d3dDeviceResources.GetComputeCommandQueue().ExecuteCommandLists(_countof(ppComputeLists), ppComputeLists);
+#endif // BLOOM_ENABLED
 
 		// Post Process Pass
 		ID3D12CommandList* ppPostFxPassLists[] = {
@@ -1045,8 +1094,8 @@ namespace Insight {
 		m_CBBlurParams.Init(&m_d3dDeviceResources.GetDeviceContext(), L"Bloom Gaussian Blur Params");
 		// compute blur parameters
 		{
-			m_CBBlurParams.Data.radius = GAUSSIAN_RADIUS;
-			m_CBBlurParams.Data.direction = 0;
+			m_CBBlurParams.Data.Radius = GAUSSIAN_RADIUS;
+			m_CBBlurParams.Data.Direction = 0;
 
 			// compute Gaussian kernel
 			float sigma = 10.f;
@@ -1057,18 +1106,18 @@ namespace Insight {
 			for (size_t i = 0; i <= GAUSSIAN_RADIUS; ++i)
 			{
 				// we omit the normalization factor here for the discrete version and normalize using the sum afterwards
-				m_CBBlurParams.Data.coefficients[i] = (1.f / sigma) * std::expf(-static_cast<float>(i * i) / twoSigmaSq);
+				m_CBBlurParams.Data.Coefficients[i] = (1.f / sigma) * std::expf(-static_cast<float>(i * i) / twoSigmaSq);
 				// we use each entry twice since we only compute one half of the curve
-				sum += 2 * m_CBBlurParams.Data.coefficients[i];
+				sum += 2 * m_CBBlurParams.Data.Coefficients[i];
 			}
 			// the center (index 0) has been counted twice, so we subtract it once
-			sum -= m_CBBlurParams.Data.coefficients[0];
+			sum -= m_CBBlurParams.Data.Coefficients[0];
 
 			// we normalize all entries using the sum so that the entire kernel gives us a sum of coefficients = 0
 			float normalizationFactor = 1.f / sum;
 			for (size_t i = 0; i <= GAUSSIAN_RADIUS; ++i)
 			{
-				m_CBBlurParams.Data.coefficients[i] *= normalizationFactor;
+				m_CBBlurParams.Data.Coefficients[i] *= normalizationFactor;
 			}
 		}
 
@@ -1344,6 +1393,47 @@ namespace Insight {
 		ThrowIfFailed(hr, "Failed to serialize root signature for D3D 12 context.");
 
 		hr = m_d3dDeviceResources.GetDeviceContext().CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pBloomPass_RS));
+		ThrowIfFailed(hr, "Failed to create root signature for D3D 12 context.");
+	}
+
+	void Direct3D12Context::CreateDebugScreenQuadRS()
+	{
+		CD3DX12_DESCRIPTOR_RANGE DescriptorRanges[1] = {};
+		DescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0); // Debug Texture
+
+		CD3DX12_ROOT_PARAMETER RootParameters[2] = {};
+		RootParameters[0].InitAsDescriptorTable(1, &DescriptorRanges[0], D3D12_SHADER_VISIBILITY_PIXEL); // Debug Texture
+		RootParameters[1].InitAsConstantBufferView(0); // Light Buffer
+
+		CD3DX12_STATIC_SAMPLER_DESC StaticSamplers[1] = {};
+		StaticSamplers[0].Init(
+			0,
+			D3D12_FILTER_MIN_MAG_MIP_POINT,
+			D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+			D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+			D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+			0,
+			4,
+			D3D12_COMPARISON_FUNC_LESS_EQUAL,
+			D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE,
+			0,
+			1,
+			D3D12_SHADER_VISIBILITY_PIXEL,
+			0U
+		);
+
+		CD3DX12_ROOT_SIGNATURE_DESC RootSignatureDesc;
+		RootSignatureDesc.Init(_countof(RootParameters), RootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+		RootSignatureDesc.NumStaticSamplers = _countof(StaticSamplers);
+		RootSignatureDesc.pStaticSamplers = StaticSamplers;
+
+		ComPtr<ID3DBlob> RootSignatureBlob;
+		ComPtr<ID3DBlob> ErrorBlob;
+
+		HRESULT hr = D3D12SerializeRootSignature(&RootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, RootSignatureBlob.GetAddressOf(), ErrorBlob.GetAddressOf());
+		ThrowIfFailed(hr, "Failed to serialize root signature for D3D 12 context.");
+
+		hr = m_d3dDeviceResources.GetDeviceContext().CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pDebugScreenQuad_RS));
 		ThrowIfFailed(hr, "Failed to create root signature for D3D 12 context.");
 	}
 
@@ -1691,9 +1781,9 @@ namespace Insight {
 
 		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
 		std::wstring VertexShaderFolder(ExeDirectory);
-		VertexShaderFolder += L"../Renderer/PostFx.vertex.cso";
+		VertexShaderFolder += L"../Renderer/Screen_Aligned_Quad.vertex.cso";
 		std::wstring PixelShaderFolder(ExeDirectory);
-		PixelShaderFolder += L"../Renderer/PostFx.pixel.cso";
+		PixelShaderFolder += L"../Renderer/PostProcess_Composite.pixel.cso";
 
 		hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
 		ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context.");
@@ -1733,12 +1823,71 @@ namespace Insight {
 		descPipelineState.SampleMask = UINT_MAX;
 		descPipelineState.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		descPipelineState.NumRenderTargets = 1;
-		descPipelineState.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		descPipelineState.RTVFormats[0] = m_d3dDeviceResources.GetSwapChainBackBufferFormat();
 		descPipelineState.SampleDesc.Count = 1;
 
 		hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pPostFxPass_PSO));
 		ThrowIfFailed(hr, "Failed to create graphics pipeline state for Post-Fx pass in D3D 12 context.");
 		m_pPostFxPass_PSO->SetName(L"PSO PostFx Pass");
+	}
+
+	void Direct3D12Context::CreateDebugScreenQuadPSO()
+	{
+		HRESULT hr;
+
+		ComPtr<ID3DBlob> pVertexShader;
+		ComPtr<ID3DBlob> pPixelShader;
+
+		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring VertexShaderFolder(ExeDirectory);
+		VertexShaderFolder += L"../Renderer/Screen_Aligned_Quad.vertex.cso";
+		std::wstring PixelShaderFolder(ExeDirectory);
+		PixelShaderFolder += L"../Renderer/Debug_Screen_Quad.pixel.cso";
+
+		hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
+		ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context.");
+		hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
+		ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context.");
+
+
+		D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
+		vertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
+		vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
+
+		D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
+		pixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
+		pixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
+
+		D3D12_INPUT_ELEMENT_DESC inputLayout[2] =
+		{
+			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		};
+
+		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
+		inputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
+		inputLayoutDesc.pInputElementDescs = inputLayout;
+
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC descPipelineState = {};
+		descPipelineState.VS = vertexShaderBytecode;
+		descPipelineState.PS = pixelShaderBytecode;
+		descPipelineState.InputLayout.pInputElementDescs = inputLayout;
+		descPipelineState.InputLayout.NumElements = _countof(inputLayout);
+		descPipelineState.pRootSignature = m_pDebugScreenQuad_RS.Get();
+		descPipelineState.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+		descPipelineState.DepthStencilState.DepthEnable = false;
+		descPipelineState.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		descPipelineState.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+		descPipelineState.RasterizerState.DepthClipEnable = false;
+		descPipelineState.SampleMask = UINT_MAX;
+		descPipelineState.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		descPipelineState.NumRenderTargets = 1;
+		descPipelineState.RTVFormats[0] = m_d3dDeviceResources.GetSwapChainBackBufferFormat();
+		descPipelineState.SampleDesc.Count = 1;
+
+		hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pDebugScreenQuad_PSO));
+		ThrowIfFailed(hr, "Failed to create graphics pipeline state for Debug Screen Quad pass in D3D 12 context.");
+		m_pDebugScreenQuad_PSO->SetName(L"PSO Debug Screen Quad Pass");
 	}
 
 	void Direct3D12Context::CreateDownSamplePSO()
@@ -1749,7 +1898,7 @@ namespace Insight {
 
 		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
 		std::wstring VertexShaderFolder(ExeDirectory);
-		VertexShaderFolder += L"../Renderer/ThresholdDownSample.compute.cso";
+		VertexShaderFolder += L"../Renderer/Threshold_Down_Sample.compute.cso";
 
 		hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pComputeShader);
 		ThrowIfFailed(hr, "Failed to read compute shader for D3D 12 context");
@@ -1775,7 +1924,7 @@ namespace Insight {
 
 		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
 		std::wstring ComputeShaderFolder(ExeDirectory);
-		ComputeShaderFolder += L"../Renderer/GaussianBlur.compute.cso";
+		ComputeShaderFolder += L"../Renderer/Gaussian_Blur.compute.cso";
 
 		hr = D3DReadFileToBlob(ComputeShaderFolder.c_str(), &pComputeShader);
 		ThrowIfFailed(hr, "Failed to read compute shader for D3D 12 context");
@@ -1925,7 +2074,30 @@ namespace Insight {
 
 	void Direct3D12Context::CreateScreenQuad()
 	{
-		m_ScreenQuad.Init();
+		uint32_t QuadIndices[] =
+		{
+			0, 1, 3,
+			0, 3, 2
+		};
+
+		ScreenSpaceVertex FullScreenQuadVerts[] =
+		{
+			{ { -1.0f, 1.0f, 0.0f }, { 0.0f, 0.0f } }, // Top Left
+			{ {  1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } }, // Top Right
+			{ { -1.0f,-1.0f, 0.0f }, { 0.0f, 1.0f } }, // Bottom Left
+			{ {  1.0f,-1.0f, 0.0f }, { 1.0f, 1.0f } }, // Bottom Right
+		};
+		m_ScreenQuad.Init(FullScreenQuadVerts, sizeof(FullScreenQuadVerts), QuadIndices, sizeof(QuadIndices));
+
+
+		ScreenSpaceVertex DebugScreenQuadVerts[] =
+		{
+			{ { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f } }, // Top Left
+			{ {  0.0f, 0.0f, 0.0f }, { 1.0f, 0.0f } }, // Top Right
+			{ { -1.0f,-1.0f, 0.0f }, { 0.0f, 1.0f } }, // Bottom Left
+			{ {  0.0f,-1.0f, 0.0f }, { 1.0f, 1.0f } }, // Bottom Right
+		};
+		m_DebugScreenQuad.Init(DebugScreenQuadVerts, sizeof(DebugScreenQuadVerts), QuadIndices, sizeof(QuadIndices));
 	}
 
 	void Direct3D12Context::CloseCommandListAndSignalCommandQueue()

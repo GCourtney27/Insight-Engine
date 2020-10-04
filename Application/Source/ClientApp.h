@@ -185,8 +185,9 @@ namespace SandBoxApp {
 			Insight::Material* pFrontRocksMat = new Insight::Material({ 36, 37, 38, 39, 40 });
 			StaticMeshComponent* pFrontRocks = pASphere->CreateDefaultSubobject<StaticMeshComponent>();
 			pFrontRocks->SetMaterial(pFrontRocksMat);
+			//pFrontRocks->AttachMesh("Models/1911a1.fbx");
 			pFrontRocks->AttachMesh("Models/Sphere.obj");
-			pFrontRocks->SetRotation(ieVector3(0.5f, 0.0f, 0.0f));
+			pFrontRocks->SetRotation(ieVector3(1.5f, 0.0f, 0.0f));
 
 			m_pGameLayer->GetScene()->AddActor(pASphere);
 

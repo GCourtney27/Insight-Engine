@@ -42,8 +42,7 @@ namespace Insight {
 
 		void SubmitToGPU()
 		{
-			uint8_t* pIntermediateAddress;
-			m_pResource->Map(0, nullptr, (void**)&pIntermediateAddress);
+			m_pResource->Map(0, nullptr, (void**)&m_GPUAddress);
 			memcpy(m_GPUAddress, &Data, sizeof(ConstantBufferType));
 			m_pResource->Unmap(0, nullptr);
 		}
