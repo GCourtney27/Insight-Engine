@@ -2,7 +2,7 @@
 
 #if defined IE_PLATFORM_WINDOWS
 	#if defined IE_DYNAMIC_LINK
-		#if defined RN_BUILD_DLL
+		#if defined IE_BUILD_DLL
 			#define INSIGHT_API __declspec(dllexport)
 		#else
 			#define INSIGHT_API __declspec(dllimport)
@@ -13,7 +13,7 @@
 #endif // IE_PLATFORM_WINDOWS
 
 #if defined IE_ENGINE_DIST || defined IE_GAME_DIST
-	#define RN_PRODUCTION
+	#define IE_PRODUCTION
 #endif
 
 #if defined IE_DEBUG

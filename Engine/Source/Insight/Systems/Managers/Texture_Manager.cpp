@@ -199,7 +199,6 @@ namespace Insight {
 		
 		// Albedo
 		IE_TEXTURE_INFO AlbedoTexInfo = {};
-		size_t TextureInfo = sizeof(IE_TEXTURE_INFO);
 		AlbedoTexInfo.Id = DEFAULT_ALBEDO_TEXTURE_ID;
 		AlbedoTexInfo.GenerateMipMaps = true;
 		AlbedoTexInfo.Type = Texture::eTextureType::eTextureType_Albedo;
@@ -243,7 +242,7 @@ namespace Insight {
 		}
 		case Renderer::eTargetRenderAPI::D3D_12:
 		{
-			Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
+			Direct3D12Context* graphicsContext = dynamic_cast<Direct3D12Context*>(&Renderer::Get());
 			CDescriptorHeapWrapper& cbvSrvHeapStart = graphicsContext->GetCBVSRVDescriptorHeap();
 
 			m_DefaultAlbedoTexture = make_shared<ieD3D12Texture>(AlbedoTexInfo, cbvSrvHeapStart);

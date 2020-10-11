@@ -15,14 +15,14 @@ namespace Insight {
 		};
 	public:
 		void Init(float radius, int slices, int segments);
-		void resourceSetup();
+		void ResourceSetup();
 		void Render(ComPtr<ID3D12GraphicsCommandList> commandList);
 
 		ComPtr<ID3D12Resource> GetVertexBuffer() { return m_VertexBuffer; }
 		ComPtr<ID3D12Resource> GetIndexBuffer() { return m_IndexBuffer; }
 
-		int GetVertexCount() { return m_TriangleSize; }
-		int GetIndexBufferCount() { return m_IndexSize; }
+		int GetVertexCount() { return m_NumTriangles; }
+		int GetIndexBufferCount() { return m_NumIndices; }
 
 	private:
 		ComPtr<ID3D12Resource> m_VertexBuffer;
@@ -32,8 +32,8 @@ namespace Insight {
 		D3D12_INDEX_BUFFER_VIEW m_IndexView;
 		int m_Slices;
 		int m_Segments;
-		int m_TriangleSize;
-		int m_IndexSize;
+		int m_NumTriangles;
+		int m_NumIndices;
 		float m_Radius;
 		
 	};

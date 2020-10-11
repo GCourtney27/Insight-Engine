@@ -57,7 +57,6 @@
 #include "Insight/Systems/File_System.h"
 
 // Parameters
-#define RENDERER_MULTI_THREAD_ENABLED 0
 	static const uint8_t s_NumRenderContexts = 2;
 
 // -----------

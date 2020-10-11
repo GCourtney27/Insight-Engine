@@ -44,7 +44,7 @@ namespace Insight {
 				return;
 			}
 
-			if (Input::IsMouseButtonPressed(RN_MOUSEBUTTON_MIDDLE)) {
+			if (Input::IsMouseButtonPressed(IE_MOUSEBUTTON_MIDDLE)) {
 
 				auto [x, y] = Input::GetRawMousePosition();
 
@@ -69,7 +69,7 @@ namespace Insight {
 				m_MovementSpeed = m_BaseMovementSpeed;
 			}
 
-			if (Input::IsMouseButtonPressed(RN_MOUSEBUTTON_RIGHT)) {
+			if (Input::IsMouseButtonPressed(IE_MOUSEBUTTON_RIGHT)) {
 
 				auto [x, y] = Input::GetRawMousePosition();
 				ProcessMouseMovement((float)x, (float)y);

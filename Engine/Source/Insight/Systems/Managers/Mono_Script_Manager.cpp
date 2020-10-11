@@ -85,7 +85,7 @@ namespace Insight {
 	{
 		if (!m_ManagerIsInitialized) {
 
-			const char* BuildConfig = MACRO_TO_STRING(RN_BUILD_CONFIG);
+			const char* BuildConfig = MACRO_TO_STRING(IE_BUILD_CONFIG);
 			m_AssemblyDir = FileSystem::GetProjectDirectory();
 			m_AssemblyDir += "/Bin/";
 			m_AssemblyDir += BuildConfig;

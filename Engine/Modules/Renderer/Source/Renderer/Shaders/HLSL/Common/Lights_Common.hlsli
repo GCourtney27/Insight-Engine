@@ -24,7 +24,7 @@ struct PointLight
 struct DirectionalLight
 {
     float3 direction;
-    float padding;
+    float shadowDarknessMultiplier;
     
     float3 diffuse;
     float strength;
@@ -50,7 +50,7 @@ struct SpotLight
 
 float3 CaclualteDirectionalLight(DirectionalLight Light, float3 ViewDirection, float3 WorldNormal, float3 WorldPosition, float NdotV, float3 MaterialAlbedo, float MaterialRoughness, float MaterialMetallic, float3 BaseReflectivity)
 {
-    float3 LightDir = normalize(-Light.direction);
+    float3 LightDir = normalize(Light.direction);
     float3 HalfwayDir = normalize(ViewDirection + LightDir);
     float3 Radiance = (Light.diffuse) * Light.strength;
         

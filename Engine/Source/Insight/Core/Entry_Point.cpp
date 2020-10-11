@@ -9,7 +9,7 @@
 /*=====================================================================
 
 	Here, an entry point is decided for the application to start.
-	*Note: If you decide to compile and run on mac, you must define RN_PLATFORM_MAC
+	*Note: If you decide to compile and run on mac, you must define IE_PLATFORM_MAC
 	in premake file as well as change 'kind' under project "Application" to 'ConsoleApp'
 	becasue mac does not recognize wWinMain as a valid entry point
 
@@ -52,7 +52,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	//Insight::Log::HoldForUserInput();
 	return 0;
 }
-#elif RN_PLATFORM_MAC
+#elif IE_PLATFORM_MAC
 int main(int argc, char** argv)
 {
 	auto App = Insight::CreateApplication();

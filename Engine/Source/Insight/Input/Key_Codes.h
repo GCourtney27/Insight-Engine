@@ -3,9 +3,9 @@
 namespace Insight {
 
 	// Mouse
-#define RN_MOUSEBUTTON_LEFT 0
-#define RN_MOUSEBUTTON_RIGHT 1
-#define RN_MOUSEBUTTON_MIDDLE 2
+#define IE_MOUSEBUTTON_LEFT 0
+#define IE_MOUSEBUTTON_RIGHT 1
+#define IE_MOUSEBUTTON_MIDDLE 2
 
 	
 

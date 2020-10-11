@@ -38,6 +38,8 @@ namespace Insight {
 
 	private:
 		bool OnEventTranslation(TranslationEvent& e);
+
+		void CreateProjectionMatrix(ieVector3 Direction);
 	private:
 		CB_PS_DirectionalLight m_ShaderCB;
 		Runtime::SceneComponent* m_pSceneComponent = nullptr;
@@ -46,8 +48,8 @@ namespace Insight {
 		XMFLOAT3 LightCamPositionOffset;
 		float m_NearPlane;
 		float m_FarPlane;
-		float ViewWidth = 1024.0f;
-		float ViewHeight = 1024.0f;
+		float m_ViewWidth;
+		float m_ViewHeight;
 		XMMATRIX LightView;
 		XMMATRIX LightProj;
 	};

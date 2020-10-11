@@ -42,8 +42,8 @@ namespace Insight {
 				"Failed to signal command queue while incremenitign fence values for D3D 12 device resources.");
 		}
 
-		inline const D3D12_VIEWPORT& GetClientViewPort() const { return m_Client_ViewPort; }
-		inline const D3D12_RECT& GetClientScissorRect() const { return m_Client_ScissorRect; }
+		inline const D3D12_VIEWPORT GetClientViewPort() const { return m_Client_ViewPort; }
+		inline const D3D12_RECT GetClientScissorRect() const { return m_Client_ScissorRect; }
 
 	private:
 		void CreateDXGIFactory();

@@ -171,7 +171,7 @@ namespace Insight {
 
 	protected:
 		eRenderPass m_RenderPass = eRenderPass::RenderPass_Scene;
-		GraphicsSettings m_GraphicsSettings = {}; // TODO Load this from a settings file
+		GraphicsSettings m_GraphicsSettings = {};
 
 		static const uint8_t m_FrameBufferCount = 3u;
 		uint32_t m_WindowWidth;
@@ -195,7 +195,7 @@ namespace Insight {
 		ASkyLight* m_pSkyLight = nullptr;
 		APostFx* m_pPostFx = nullptr;
 
-		Runtime::ACamera* m_pWorldCamera = nullptr;
+		Runtime::ACamera* m_pWorldCameraRef = nullptr;
 
 	private:
 		static Renderer* s_Instance;

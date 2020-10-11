@@ -14,7 +14,7 @@ Texture2D t_SceneDepthGBuffer           : register(t4);
 Texture2D t_ShadowDepth         : register(t10);
 
 TextureCube tc_IrradianceMap    : register(t11);
-TextureCube tc_RadianceMap   : register(t12);
+TextureCube tc_RadianceMap      : register(t12);
 Texture2D t_BrdfLUT             : register(t13);
 
 Texture2D t_RayTracePassResult : register(t16);
@@ -22,7 +22,7 @@ Texture2D t_RayTracePassResult : register(t16);
 
 // Samplers
 // --------
-sampler s_PointClampSampler : register(s0);
+sampler s_PointBorderSampler : register(s0);
 sampler s_LinearWrapSampler : register(s1);
 sampler s_LinearClampSampler : register(s2);
 
@@ -40,6 +40,11 @@ struct PS_OUTPUT_LIGHTPASS
     float3 BloomBuffer  : SV_Target1;
 };
 
+void LinearizeDepth(inout float depth)
+{
+    float z = depth * 2.0 - 1.0; // back to NDC 
+    depth = (2.0 * cbCameraNearZ * cbCameraFarZ) / (cbCameraFarZ + cbCameraNearZ - z * (cbCameraFarZ - cbCameraNearZ)) / cbCameraFarZ;
+}
 // Entry Point
 // -----------
 PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
@@ -55,7 +60,7 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     float roughness = roughMetAOBufferSample.r;
     float metallic = roughMetAOBufferSample.g;
     float ambientOcclusion = roughMetAOBufferSample.b;
-    
+        
     float3 viewDirection = normalize(cbCameraPosition - worldPosition);
         
     float3 F0 = float3(0.04, 0.04, 0.04);
@@ -73,18 +78,22 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
         float3 lightDir = normalize(-dirLight.direction);
         
         // Shadowing
-        float4 fragPosLightSpace = mul(float4(worldPosition, 1.0), mul(dirLight.lightSpaceView, dirLight.lightSpaceProj));
         float shadow = 1.0f;
         if (cbRayTraceEnabled)
         {
-            shadow = t_RayTracePassResult.Sample(s_PointClampSampler, ps_in.texCoords).r;
+            shadow = t_RayTracePassResult.Sample(s_PointBorderSampler, ps_in.texCoords).r;
         }
         else
         {
+            float4 fragPosLightSpace = mul(mul(float4(worldPosition, 1.0), dirLight.lightSpaceView), dirLight.lightSpaceProj);
             shadow = ShadowCalculation(fragPosLightSpace, normal, lightDir);
+            //shadow *= dirLight.shadowDarknessMultiplier;
+
+            //ps_out.litImage = float4(shadow, shadow, shadow, 1.0);
+            //return ps_out;
         }
         
-        directionalLightLuminance += CaclualteDirectionalLight(dirLight, viewDirection, normal, worldPosition, NdotV, albedo, roughness, metallic, baseReflectivity) * (shadow);
+        directionalLightLuminance += CaclualteDirectionalLight(dirLight, viewDirection, normal, worldPosition, NdotV, albedo, roughness, metallic, baseReflectivity) /** (1-shadow)*/;
     }
     
     // Spot Lights
@@ -146,25 +155,32 @@ void GammaCorrect(inout float3 target)
 float ShadowCalculation(float4 fragPosLightSpace, float3 normal, float3 lightDir)
 {
     float3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    if (projCoords.z > 1.0)
+    {
+        projCoords.z = 1.0;
+    }
     // transform to [0,1] range
     projCoords = projCoords * 0.5 + 0.5;
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
     // check whether current frag pos is in shadow
     float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+    
     // Soften Shadows
+    uint3 texDimensions = int3(0, 0, 0);
+    t_ShadowDepth.GetDimensions(0, texDimensions.x, texDimensions.y, texDimensions.z);
     float shadow = 0.0;
-    float2 texelSize = 1.0 / float2(1024.0, 1024.0);
+    float2 texelSize = 1.0 / texDimensions;
     [unroll(2)]
     for (int x = -1; x <= 1; ++x)
     {
         [unroll(2)]
         for (int y = -1; y <= 1; ++y)
         {
-            float depth = t_ShadowDepth.Sample(s_PointClampSampler, projCoords.xy + float2(x, y) * texelSize).r;
-            shadow += (depth + bias) < projCoords.z ? 0.0 : 1.0;
+            float depth = t_ShadowDepth.Sample(s_PointBorderSampler, projCoords.xy + float2(x, y) * texelSize).r;
+            shadow += (currentDepth - bias) > depth ? 1.0 : 0.0;
 
         }
     }
-    return (1.0 - shadow) / 9.0;
+    return shadow /= 9.0;
 }

@@ -2,22 +2,21 @@
 
 // Texture Inputs
 // --------------
-Texture2D t_AlbedoGBuffer : register(t0);
-Texture2D t_NormalGBuffer : register(t1);
-Texture2D t_RoughnessMetallicAOGBuffer : register(t2);
-Texture2D t_PositionGBuffer : register(t3);
-Texture2D t_SceneDepthGBuffer : register(t4);
+Texture2D t_AlbedoGBuffer               : register(t0);
+Texture2D t_NormalGBuffer               : register(t1);
+Texture2D t_RoughnessMetallicAOGBuffer  : register(t2);
+Texture2D t_PositionGBuffer             : register(t3);
+Texture2D t_SceneDepthGBuffer           : register(t4);
 
 Texture2D t_ShadowDepthPass : register(t10);
-
 Texture2D t_LightPassResult : register(t15);
 
 RWTexture2D<float4> rw_BloomPassResult : register(u1);
 
 // Samplers
 // --------
-sampler s_PointClampSampler : register(s0);
-SamplerState s_LinearWrapSampler : register(s1);
+sampler s_PointClampSampler         : register(s0);
+SamplerState s_LinearWrapSampler    : register(s1);
 
 // Function Signatures
 // -------------------

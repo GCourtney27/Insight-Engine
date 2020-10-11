@@ -95,7 +95,7 @@ namespace Insight {
 
 	bool Direct3D11Context::PostInit_Impl()
 	{
-		m_pWorldCamera = &Runtime::ACamera::Get();
+		m_pWorldCameraRef = &Runtime::ACamera::Get();
 
 		return true;
 	}
@@ -115,13 +115,13 @@ namespace Insight {
 		m_PerFrameData.Data.DeltaMs = DeltaMs;
 		m_PerFrameData.Data.view = viewFloat;
 		m_PerFrameData.Data.projection = projectionFloat;*/
-		m_PerFrameData.Data.CameraPosition = m_pWorldCamera->GetPosition();
+		m_PerFrameData.Data.CameraPosition = m_pWorldCameraRef->GetPosition();
 		m_PerFrameData.Data.DeltaMs = DeltaMs;
 		m_PerFrameData.Data.WorldTime = WorldTime;
 		m_PerFrameData.Data.RayTraceEnabled = 0.0f;
-		m_PerFrameData.Data.CameraNearZ = m_pWorldCamera->GetNearZ();
-		m_PerFrameData.Data.CameraFarZ = m_pWorldCamera->GetFarZ();
-		m_PerFrameData.Data.CameraExposure = m_pWorldCamera->GetExposure();
+		m_PerFrameData.Data.CameraNearZ = m_pWorldCameraRef->GetNearZ();
+		m_PerFrameData.Data.CameraFarZ = m_pWorldCameraRef->GetFarZ();
+		m_PerFrameData.Data.CameraExposure = m_pWorldCameraRef->GetExposure();
 		m_PerFrameData.Data.NumPointLights = (float)m_PointLights.size();
 		m_PerFrameData.Data.NumDirectionalLights = (m_pWorldDirectionalLight != nullptr) ? 1.0f : 0.0f;
 		m_PerFrameData.Data.NumSpotLights = (float)m_SpotLights.size();
@@ -372,8 +372,8 @@ namespace Insight {
 
 		// Recreate Camera Projection Matrix
 		{
-			if (!m_pWorldCamera->GetIsOrthographic()) {
-				m_pWorldCamera->SetPerspectiveProjectionValues(m_pWorldCamera->GetFOV(), static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight), m_pWorldCamera->GetNearZ(), m_pWorldCamera->GetFarZ());
+			if (!m_pWorldCameraRef->GetIsOrthographic()) {
+				m_pWorldCameraRef->SetPerspectiveProjectionValues(m_pWorldCameraRef->GetFOV(), static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight), m_pWorldCameraRef->GetNearZ(), m_pWorldCameraRef->GetFarZ());
 			}
 		}
 	}

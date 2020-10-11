@@ -4,6 +4,8 @@
 
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
+
+
 namespace Insight {
 
 
@@ -13,13 +15,11 @@ namespace Insight {
 		m_Slices = slices;
 		m_Segments = segments;
 
-		resourceSetup();
+		ResourceSetup();
 	}
 
-	void ieD3D12SphereRenderer::resourceSetup()
+	void ieD3D12SphereRenderer::ResourceSetup()
 	{
-		using namespace DirectX;
-
 		Direct3D12Context* graphicsContext = dynamic_cast<Direct3D12Context*>(&Renderer::Get());
 		ID3D12Device* pDevice = &graphicsContext->GetDeviceContext();
 		HRESULT hr;
@@ -48,10 +48,10 @@ namespace Insight {
 		}
 		verts[verts.size() - 1].position = XMFLOAT4(0, -m_Radius, 0, 1);
 
-		int nbFaces = (int)verts.size();
-		int nbTriangles = nbFaces * 2;
-		int nbIndexes = nbTriangles * 3;
-		std::vector< int >  triangles(nbIndexes);
+		int NumFaces = (int)verts.size();
+		int NumTris = NumFaces * 2;
+		int NumIndices = NumTris * 3;
+		std::vector<int>  triangles(NumIndices);
 		//int* triangles = new int[nbIndexes];
 
 
@@ -63,7 +63,7 @@ namespace Insight {
 			triangles[i++] = 0;
 		}
 
-		//Middle
+		// Middle
 		for (int lat = 0; lat < m_Slices - 1; lat++)
 		{
 			for (int lon = 0; lon < m_Segments; lon++)
@@ -81,15 +81,15 @@ namespace Insight {
 			}
 		}
 
-		//Bottom Cap
+		// Bottom Cap
 		for (int lon = 0; lon < m_Segments; lon++)
 		{
 			triangles[i++] = (int)verts.size() - 1;
 			triangles[i++] = (int)verts.size() - (lon + 2) - 1;
 			triangles[i++] = (int)verts.size() - (lon + 1) - 1;
 		}
-		m_TriangleSize = (int)verts.size();
-		m_IndexSize = (int)triangles.size();
+		m_NumTriangles = (int)verts.size();
+		m_NumIndices = (int)triangles.size();
 
 		//Create D3D resources
 		D3D12_HEAP_PROPERTIES heapProperty;
@@ -140,7 +140,7 @@ namespace Insight {
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		commandList->IASetIndexBuffer(&m_IndexView);
 		commandList->IASetVertexBuffers(0, 1, &m_VertexView);
-		commandList->DrawIndexedInstanced(m_IndexSize, 1, 0, 0, 0);
+		commandList->DrawIndexedInstanced(m_NumIndices, 1, 0, 0, 0);
 	}
 
 }

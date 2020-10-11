@@ -46,7 +46,7 @@ project (gameName)
 		defines
 		{
 			"IE_PLATFORM_WINDOWS",
-			"RN_BUILD_DLL"
+			"IE_BUILD_DLL"
 		}
 
 	filter "configurations:Debug"
