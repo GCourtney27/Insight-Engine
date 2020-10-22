@@ -23,13 +23,11 @@ namespace Insight {
 
 		bool LoadScene(const std::string& FileName);
 
-		Scene* GetScene() const { return m_pScene; }
+		inline Scene* GetScene() const { return m_pScene; }
 		bool IsPlaySesionUnderWay() { return m_TickScene; }
 
 		void BeginPlay();
 		void Update(const float DeltaMs);
-		void PreRender();
-		void Render();
 		void EndPlay();
 		void PostInit();
 

@@ -9,7 +9,7 @@
 #include <DirectX12/TK/Inc/ResourceUploadBatch.h>
 #include <DirectX12/DXTex/DirectXTex/DirectXTex.h>
 
-#define CBVSRV_HEAP_TEXTURE_START_SLOT 13					// Keep this in sync with Direct3D12Context::m_cbvsrvHeap
+#define CBVSRV_HEAP_TEXTURE_START_SLOT 14					// Keep this in sync with Direct3D12Context::m_cbvsrvHeap
 #define OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START 6	// Keep this in sync with deferred shading pass root signature
 #define OBJECT_TEXTURE_FORW_PASS_ROOT_PARAM_INDEX_START 4	// Keep this in sync with forward shading pass root signature
 #define OBJECT_TEXTURE_FORW_DEFF_ROOT_PARAM_INDEX_DIFF (OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START - OBJECT_TEXTURE_FORW_PASS_ROOT_PARAM_INDEX_START)

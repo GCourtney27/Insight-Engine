@@ -13,8 +13,8 @@ namespace Insight {
 
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
-		virtual void OnUpdate(const float deltaTime) {}
-		virtual void OnEvent(Event& event) {}
+		virtual void OnUpdate(const float DeltaTime) {}
+		virtual void OnEvent(Event& Event) {}
 		virtual void OnImGuiRender() {}
 
 		inline const std::string& GetName() const { return m_DebugName; }

@@ -28,11 +28,7 @@ namespace Insight {
 		virtual ~Window() {}
 
 		virtual void OnUpdate(const float& deltaTime) = 0;
-		virtual void OnFramePreRender() = 0;
-		virtual void OnRender() = 0;
-		virtual void ExecuteDraw() = 0;
 		virtual void Shutdown() = 0;
-		virtual void EndFrame() = 0;
 
 		virtual void PostInit() = 0;
 

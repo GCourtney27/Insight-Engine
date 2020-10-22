@@ -61,6 +61,7 @@ project("Renderer")
 		("{COPY} %{wks.location}/Engine/Modules/Renderer/Source/Renderer/Shaders/HLSL/Ray_Tracing/** ".. rootDirectoryPath .."bin/"..outputdir.."/Renderer"),
     }
 
+
     filter {"system:windows"}
 		systemversion "latest"
 

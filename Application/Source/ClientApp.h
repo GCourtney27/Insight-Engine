@@ -59,7 +59,8 @@ namespace SandBoxApp {
 		}
 
 	private:
-		void FillScene()
+
+		void Norway()
 		{
 			using namespace Insight::Runtime;
 			using namespace Insight;
@@ -76,12 +77,12 @@ namespace SandBoxApp {
 			pStaticMesh->SetMaterial(pRestingTerrainMat);
 			pStaticMesh->AttachMesh("Models/HouseRestingTerrain.obj");
 
-			m_pGameLayer->GetScene()->AddActor(pARestingTerrain);
+			GetScene().AddActor(pARestingTerrain);
 
 
 			// House
 			AActor* pAHouse = new AActor(0, "House");
-			SceneComponent* pSCHouse= pAHouse->CreateDefaultSubobject<SceneComponent>();
+			SceneComponent* pSCHouse = pAHouse->CreateDefaultSubobject<SceneComponent>();
 			pSCHouse->SetPosition(-56.550f, 18.6f, -57.2f);
 			pSCHouse->SetScale(0.651f, 0.651f, 0.651f);
 			pSCHouse->SetRotation(0.0f, 1.6f, 0.0f);
@@ -146,7 +147,7 @@ namespace SandBoxApp {
 			pFoliageSupports->SetMaterial(Material::CreateDefaultTexturedMaterial());
 			pFoliageSupports->AttachMesh("Objects/Norway/House/Foliage_Supports.obj");
 			// Patio
-			Insight::Material* pPatioMat = new Insight::Material({ 11, 12, 13, 14, 15});
+			Insight::Material* pPatioMat = new Insight::Material({ 11, 12, 13, 14, 15 });
 			StaticMeshComponent* pPatio = pAHouse->CreateDefaultSubobject<StaticMeshComponent>();
 			pPatio->SetMaterial(pPatioMat);
 			pPatio->AttachMesh("Objects/Norway/House/Patio.obj");
@@ -154,7 +155,7 @@ namespace SandBoxApp {
 			pPatio->SetRotation(ieVector3(0.0f, 1.55f, 0.0f));
 			pPatio->SetScale(ieVector3(50.0f, 50.0f, 50.0f));
 
-			m_pGameLayer->GetScene()->AddActor(pAHouse);
+			GetScene().AddActor(pAHouse);
 
 			// Stars
 			AActor* pAStairs = new AActor(0, "Stairs");
@@ -168,7 +169,7 @@ namespace SandBoxApp {
 			pStairsMesh->SetMaterial(pStairsMat);
 			pStairsMesh->AttachMesh("Objects/Norway/Stairs.obj");
 
-			m_pGameLayer->GetScene()->AddActor(pAStairs);
+			GetScene().AddActor(pAStairs);
 
 
 			// DEBUG
@@ -176,7 +177,7 @@ namespace SandBoxApp {
 			/*pAFrontRocks->GetTransformRef().SetPosition(ieVector3(14.5f, 1.9f, -81.0f));
 			pAFrontRocks->GetTransformRef().SetScale(ieVector3(0.063f, 0.063f, 0.063f));
 			pAFrontRocks->GetTransformRef().SetRotation(ieVector3(0.0f, 3.158f, 0.0f));*/
-			SceneComponent* pSCSphere= pASphere->CreateDefaultSubobject<SceneComponent>();
+			SceneComponent* pSCSphere = pASphere->CreateDefaultSubobject<SceneComponent>();
 			pSCSphere->SetPosition(49.5f, 38.9f, -16.0f);
 			pSCSphere->SetScale(6.0f, 6.0f, 6.0f);
 			pSCSphere->SetRotation(0.0f, 0.0f, 0.0f);
@@ -189,7 +190,7 @@ namespace SandBoxApp {
 			pFrontRocks->AttachMesh("Models/Sphere.obj");
 			pFrontRocks->SetRotation(ieVector3(1.5f, 0.0f, 0.0f));
 
-			m_pGameLayer->GetScene()->AddActor(pASphere);
+			GetScene().AddActor(pASphere);
 
 			// Front Rocks
 			/*AActor* pAFrontRocks = new AActor(0, "Front Rocks");
@@ -203,7 +204,35 @@ namespace SandBoxApp {
 			pFrontRocks->AttachMesh("Objects/Norway/Opaque/CoastRock/CoastRock_LOD2.obj");
 			pFrontRocks->SetRotation(ieVector3(0.5f, 0.0f, 0.0f));
 
-			m_pGameLayer->GetScene()->AddActor(pAFrontRocks);*/
+			GetScene().AddActor(pAFrontRocks);*/
+		}
+
+		void FillScene()
+		{
+			using namespace Insight::Runtime;
+			using namespace Insight;
+
+			// Wooden Floor
+			Insight::Material* pWood = new Insight::Material({ 1, 2, 3, 4, 5 });
+			pWood->SetUVTilingOffset(9.0f, 9.0f);
+			AActor* pAWoodenFloor = new AActor(0, "Wooden Floor");
+			SceneComponent* pSCWoodenFloor = pAWoodenFloor->CreateDefaultSubobject<SceneComponent>();
+			pSCWoodenFloor->SetScale(500.0f);
+			StaticMeshComponent* pSMQuad = pAWoodenFloor->CreateDefaultSubobject<StaticMeshComponent>();
+			pSMQuad->SetMaterial(pWood);
+			pSMQuad->AttachMesh("Models/Quad.obj");
+			GetScene().AddActor(pAWoodenFloor);
+
+			// Demo Ball
+			AActor* pADemoBall = new AActor(0, "Demo Ball");
+			SceneComponent* pSCDemoBall = pADemoBall->CreateDefaultSubobject<SceneComponent>();
+			pSCDemoBall->SetScale(20.0f);
+			pSCDemoBall->SetPosition(10.0f, 40.0f, 0.0f);
+			Insight::Material* pRustedIron = new Insight::Material({ 6, 7, 8, 9, 10 });
+			StaticMeshComponent* pSMCube = pADemoBall->CreateDefaultSubobject<StaticMeshComponent>();
+			pSMCube->SetMaterial(pRustedIron);
+			pSMCube->AttachMesh("Models/Sphere.obj");
+			GetScene().AddActor(pADemoBall);
 
 		}
 

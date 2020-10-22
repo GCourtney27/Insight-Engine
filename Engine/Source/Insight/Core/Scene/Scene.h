@@ -44,15 +44,6 @@ namespace Insight {
 		void OnUpdate(const float DeltaMs);
 		// Render an ImGui widget for thie module.
 		void OnImGuiRender();
-		// Flushes GPU command lists and prepares for next frame. Also calculates 
-		// the parent child relationships of all actors in the scene. Once calcualted,
-		// the constant buffers are updated on the GPU.
-		void OnPreRender();
-		// Begins the geometry pass on the scene. Anything that is not transparent or you would like to be 
-		// included in PBR lighting must be drawn between now and 'OnMidFrameRender'.
-		void OnRender();
-		// Ends the geometry pass and begins the lighting pass.
-		void OnMidFrameRender();
 		// Destroys the scene and releases resources. DOES NOT save scene.
 		void Destroy();
 		// Close the current scene and open a new scene.

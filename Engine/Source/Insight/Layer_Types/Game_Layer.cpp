@@ -29,17 +29,6 @@ namespace Insight {
 		m_pScene->OnUpdate(DeltaMs);
 	}
 
-	void GameLayer::PreRender()
-	{
-		m_pScene->OnPreRender();
-	}
-
-	void GameLayer::Render()
-	{
-		m_pScene->OnRender();
-		m_pScene->OnMidFrameRender();
-	}
-
 	void GameLayer::EndPlay()
 	{
 		m_TickScene = false;

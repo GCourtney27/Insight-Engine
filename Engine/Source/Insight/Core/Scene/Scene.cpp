@@ -109,30 +109,11 @@ namespace Insight {
 
 	void Scene::OnUpdate(const float DeltaMs)
 	{
-		Renderer::OnUpdate(DeltaMs);
 		m_pSceneRoot->OnUpdate(DeltaMs);
 	}
 
 	void Scene::OnImGuiRender()
 	{
-	}
-
-	void Scene::OnPreRender()
-	{
-		Renderer::OnPreFrameRender();
-		//m_pSceneRoot->CalculateParent(XMMatrixIdentity());
-		GeometryManager::GatherGeometry();
-	}
-
-	void Scene::OnRender()
-	{
-		Renderer::OnRender();
-		m_pSceneRoot->OnRender();
-	}
-
-	void Scene::OnMidFrameRender()
-	{
-		Renderer::OnMidFrameRender();
 	}
 
 	void Scene::Destroy()

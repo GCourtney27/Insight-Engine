@@ -101,7 +101,7 @@ namespace Insight {
 		static void SetVertexBuffers(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) { s_Instance->SetVertexBuffers_Impl(StartSlot, NumBuffers, pBuffers); }
 		static void SetIndexBuffer(ieIndexBuffer* pBuffer) { s_Instance->SetIndexBuffer_Impl(pBuffer); }
 		static void DrawIndexedInstanced(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) { s_Instance->DrawIndexedInstanced_Impl(IndexCountPerInstance, NumInstances, StartIndexLocation, BaseVertexLoaction, StartInstanceLocation); }
-
+		static void DrawText(const char* Text) { s_Instance->DrawText_Impl(Text); }
 		static void RenderSkySphere() { s_Instance->RenderSkySphere_Impl(); }
 		static bool CreateSkybox() { return s_Instance->CreateSkybox_Impl(); }
 		static void DestroySkybox() { s_Instance->DestroySkybox_Impl(); }
@@ -160,6 +160,7 @@ namespace Insight {
 		virtual void SetVertexBuffers_Impl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) = 0;
 		virtual void SetIndexBuffer_Impl(ieIndexBuffer* pBuffer) = 0;
 		virtual void DrawIndexedInstanced_Impl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) = 0;
+		virtual void DrawText_Impl(const char* Text) = 0;
 
 		virtual void RenderSkySphere_Impl() = 0;
 		virtual bool CreateSkybox_Impl() = 0;

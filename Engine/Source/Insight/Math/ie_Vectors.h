@@ -81,6 +81,15 @@ namespace Insight {
 
 	} // End namespace Math
 
+
+
+
+
+
+
+
+
+
 	namespace Math {
 
 		/*

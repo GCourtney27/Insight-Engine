@@ -12,6 +12,7 @@
 #include "Insight/Layer_Types/Game_Layer.h"
 #include "Insight/Layer_Types/ImGui_Layer.h"
 #include "Insight/Layer_Types/Editor_Layer.h"
+#include "Insight/Layer_Types/Perf_Monitor_Layer.h"
 
 
 namespace Insight {
@@ -45,7 +46,10 @@ namespace Insight {
 		// Push an overlay to the front of the application's layer stack.
 		void PushOverlay(Layer* layer);
 
-		// Get the ImGui UI layer
+		inline Scene& GetScene() const { return *(m_pGameLayer->GetScene()); }
+		// Get the applications core layer stack.
+		inline LayerStack& GetLayerStack() { return m_LayerStack; }
+		// Get the ImGui UI layer.
 		inline ImGuiLayer& GetImGuiLayer() { return *m_pImGuiLayer; }
 		// Get the game layer that handles the update logic for the runtime components.
 		// Should only ever be used for editor actions.
@@ -59,10 +63,12 @@ namespace Insight {
 
 		// Returns true if the editor is currently simmulating a game session.
 		inline static bool IsPlaySessionUnderWay() { return s_Instance->m_pGameLayer->IsPlaySesionUnderWay(); }
-		inline static bool IsApplicationRunning() { return s_Instance->m_Running; }
+		inline static const bool& IsApplicationRunning() { return s_Instance->m_Running; }
 		
 	private:
 		void PushEngineLayers();
+		void RenderThread();
+
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
 		bool OnWindowFullScreen(WindowToggleFullScreenEvent& e);
@@ -74,8 +80,9 @@ namespace Insight {
 		bool ReloadShaders(ShaderReloadEvent& e);
 	protected:
 		std::unique_ptr<Window>	m_pWindow;
-		IE_STRIP_FOR_GAME_DIST( ImGuiLayer* m_pImGuiLayer = nullptr; )
-		IE_STRIP_FOR_GAME_DIST( EditorLayer* m_pEditorLayer = nullptr; )
+		IE_STRIP_FOR_GAME_DIST(ImGuiLayer* m_pImGuiLayer = nullptr; )
+		IE_STRIP_FOR_GAME_DIST(EditorLayer* m_pEditorLayer = nullptr; )
+		PerfOverlay*			m_pPerfOverlay = nullptr;
 		GameLayer*				m_pGameLayer = nullptr;
 		bool					m_Running = true;
 		bool					m_AppInitialized = false;

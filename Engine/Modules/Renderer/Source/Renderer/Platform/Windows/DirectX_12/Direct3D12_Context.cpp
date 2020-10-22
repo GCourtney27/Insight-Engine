@@ -22,11 +22,13 @@
 namespace Insight {
 
 
+
+
 	Direct3D12Context::Direct3D12Context(WindowsWindow* WindowHandle)
 		: m_pWindowRef(WindowHandle),
 		Renderer(WindowHandle->GetWidth(), WindowHandle->GetHeight(), false)
 	{
-		IE_CORE_ASSERT(WindowHandle, "Window handle is NULL, cannot initialize D3D 12 context with NULL window handle.");
+		IE_CORE_ASSERT(WindowHandle != nullptr, "Window handle is NULL, cannot initialize D3D 12 context with NULL window handle.");
 		m_AspectRatio = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
 	}
 
@@ -77,15 +79,7 @@ namespace Insight {
 					CreateForwardShadingRS();
 					CreateBloomPassRS();
 					CreateDebugScreenQuadRS();
-					CreateGeometryPassPSO();
-					CreateShadowPassPSO();
-					CreateLightPassPSO();
-					CreateSkyPassPSO();
-					CreateTransparencyPassPSO();
-					CreateDownSamplePSO();
-					CreateGaussianBlurPSO();
-					CreatePostEffectsPassPSO();
-					CreateDebugScreenQuadPSO();
+					LoadPipelines();
 				}
 
 				// Create Render Targets and Depth Stencils
@@ -252,15 +246,18 @@ namespace Insight {
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
-		// Render Shadows
+		// Gather the geometry in the world and send it to the GPU.
+		GeometryManager::GatherGeometry();
+
+		// Render Shadows.
 		m_pActiveCommandList = m_pShadowPass_CommandList;
 		BindShadowPass();
 
-		// Render Scene
+		// Render Scene.
 		m_pActiveCommandList = m_pScenePass_CommandList;
 		BindGeometryPass();
 
-		// Transparency Forward Pass
+		// Transparency Forward Pass.
 		m_pActiveCommandList = m_pTransparencyPass_CommandList;
 		BindTransparencyPass();
 
@@ -335,7 +332,7 @@ namespace Insight {
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
 		BindLightingPass();
-
+		
 		BindSkyPass();
 
 #if BLOOM_ENABLED
@@ -345,6 +342,7 @@ namespace Insight {
 		BindPostFxPass();
 
 		//DrawDebugScreenQuad();
+
 	}
 
 	void Direct3D12Context::BindRayTracePass()
@@ -635,8 +633,7 @@ namespace Insight {
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
 		UINT PresentFlags = (m_AllowTearing && m_WindowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
-		HRESULT hr = m_d3dDeviceResources.GetSwapChain().Present(m_VSyncEnabled, PresentFlags);
-		ThrowIfFailed(hr, "Failed to present frame for d3d12 context.");
+		ThrowIfFailed(m_d3dDeviceResources.GetSwapChain().Present(m_VSyncEnabled, PresentFlags), "Failed to present frame for D3D 12 context.");
 
 		m_d3dDeviceResources.MoveToNextFrame();
 	}
@@ -750,42 +747,14 @@ namespace Insight {
 
 	void Direct3D12Context::OnShaderReload_Impl()
 	{
-		// Relaoad Post Process
-		{
-			m_pPostFxPass_PSO.Reset();
-			CreatePostEffectsPassPSO();
-		}
+		m_pPostFxPass_PSO.Reset();
+		m_pGeometryPass_PSO.Reset();
+		m_pLightingPass_PSO.Reset();
+		m_pSkyPass_PSO.Reset();
+		m_pTransparency_PSO.Reset();
+		m_pShadowPass_PSO.Reset();
 
-		// Reload Geometry Pass
-		{
-			m_pGeometryPass_PSO.Reset();
-			CreateGeometryPassPSO();
-		}
-
-		// Reload Light Pass
-		{
-			m_pLightingPass_PSO.Reset();
-			CreateLightPassPSO();
-		}
-
-		// Reload Sky Pass
-		{
-			m_pSkyPass_PSO.Reset();
-			CreateSkyPassPSO();
-		}
-
-		// Reload Transparency Pass
-		{
-			m_pTransparency_PSO.Reset();
-			CreateTransparencyPassPSO();
-		}
-
-		// Reload Shadow Pass
-		{
-			m_pShadowPass_PSO.Reset();
-			CreateShadowPassPSO();
-		}
-
+		LoadPipelines();
 	}
 
 	void Direct3D12Context::SetVertexBuffers_Impl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers)
@@ -803,6 +772,13 @@ namespace Insight {
 	void Direct3D12Context::DrawIndexedInstanced_Impl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation)
 	{
 		m_pActiveCommandList->DrawIndexedInstanced(IndexCountPerInstance, NumInstances, StartIndexLocation, BaseVertexLoaction, StartInstanceLocation);
+	}
+
+	void Direct3D12Context::DrawText_Impl(const char* Text)
+	{
+		//m_SpriteBatch->Begin(m_pPostEffectsPass_CommandList.Get());
+		//m_pFont->DrawString(m_SpriteBatch.get(), Text, )
+		//m_SpriteBatch->End();
 	}
 
 	void Direct3D12Context::RenderSkySphere_Impl()
@@ -849,7 +825,7 @@ namespace Insight {
 
 	void Direct3D12Context::CreateDSVs()
 	{
-		HRESULT hr;
+		HRESULT hr = S_OK;
 
 		ID3D12Device* pDevice = &m_d3dDeviceResources.GetDeviceContext();
 		m_dsvHeap.Create(pDevice, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 2);
@@ -860,8 +836,7 @@ namespace Insight {
 			D3D12_RESOURCE_DESC SceneDepthResourceDesc = {};
 			SceneDepthResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 			SceneDepthResourceDesc.Alignment = 0;
-			SceneDepthResourceDesc.SampleDesc.Count = 1;
-			SceneDepthResourceDesc.SampleDesc.Quality = 0;
+			SceneDepthResourceDesc.SampleDesc = { 1, 0 };
 			SceneDepthResourceDesc.MipLevels = 1;
 			SceneDepthResourceDesc.Format = m_DsvFormat;
 			SceneDepthResourceDesc.DepthOrArraySize = 1;
@@ -872,8 +847,7 @@ namespace Insight {
 
 			D3D12_CLEAR_VALUE SceneDepthOptomizedClearValue = {};
 			SceneDepthOptomizedClearValue.Format = m_DsvFormat;
-			SceneDepthOptomizedClearValue.DepthStencil.Depth = m_DepthClearValue;
-			SceneDepthOptomizedClearValue.DepthStencil.Stencil = 0;
+			SceneDepthOptomizedClearValue.DepthStencil = { m_DepthClearValue, 0 };
 
 			hr = pDevice->CreateCommittedResource(
 				&DefaultHeapProps,
@@ -882,27 +856,26 @@ namespace Insight {
 				D3D12_RESOURCE_STATE_DEPTH_WRITE,
 				&SceneDepthOptomizedClearValue,
 				IID_PPV_ARGS(&m_pSceneDepthStencilTexture));
-			m_pSceneDepthStencilTexture->SetName(L"Scene Depth Stencil Buffer");
 			if (FAILED(hr))
 				IE_CORE_ERROR("Failed to create comitted resource for depth stencil view");
+			m_pSceneDepthStencilTexture->SetName(L"Scene Depth Stencil Buffer");
 
 			D3D12_DEPTH_STENCIL_VIEW_DESC SceneDSVDesc = {};
 			SceneDSVDesc.Texture2D.MipSlice = 0;
 			SceneDSVDesc.Format = SceneDepthResourceDesc.Format;
 			SceneDSVDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 			SceneDSVDesc.Flags = D3D12_DSV_FLAG_NONE;
-
 			pDevice->CreateDepthStencilView(m_pSceneDepthStencilTexture.Get(), &SceneDSVDesc, m_dsvHeap.hCPU(0));
 
 			D3D12_SHADER_RESOURCE_VIEW_DESC SceneDSVSRV = {};
 			SceneDSVSRV.Texture2D.MipLevels = SceneDepthResourceDesc.MipLevels;
 			SceneDSVSRV.Texture2D.MostDetailedMip = 0;
-			SceneDSVSRV.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+			SceneDSVSRV.Format = m_SceneDepthSRVFormat;
 			SceneDSVSRV.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 			SceneDSVSRV.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-
 			pDevice->CreateShaderResourceView(m_pSceneDepthStencilTexture.Get(), &SceneDSVSRV, m_cbvsrvHeap.hCPU(4));
 		}
+
 		// Shadow Depth Texture 
 		{
 			D3D12_CLEAR_VALUE ShadowDepthOptomizedClearValue = {};
@@ -936,10 +909,9 @@ namespace Insight {
 				D3D12_RESOURCE_STATE_DEPTH_WRITE,
 				&ShadowDepthOptomizedClearValue,
 				IID_PPV_ARGS(&m_pShadowDepthTexture));
-			m_pShadowDepthTexture->SetName(L"Shadow Depth Buffer");
 			if (FAILED(hr))
 				IE_CORE_ERROR("Failed to create comitted resource for depth stencil view");
-
+			m_pShadowDepthTexture->SetName(L"Shadow Depth Buffer");
 			pDevice->CreateDepthStencilView(m_pShadowDepthTexture.Get(), &ShadowDepthDesc, m_dsvHeap.hCPU(1));
 
 			D3D12_SHADER_RESOURCE_VIEW_DESC ShadowDSVSRV = {};
@@ -948,14 +920,13 @@ namespace Insight {
 			ShadowDSVSRV.Format = DXGI_FORMAT_R32_FLOAT;
 			ShadowDSVSRV.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 			ShadowDSVSRV.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-
 			pDevice->CreateShaderResourceView(m_pShadowDepthTexture.Get(), &ShadowDSVSRV, m_cbvsrvHeap.hCPU(7));
 		}
 	}
 
 	void Direct3D12Context::CreateRTVs()
 	{
-		HRESULT hr;
+		HRESULT hr = S_OK;
 
 		ID3D12Device* pDevice = &m_d3dDeviceResources.GetDeviceContext();
 
@@ -1434,514 +1405,500 @@ namespace Insight {
 		ThrowIfFailed(hr, "Failed to create root signature for D3D 12 context.");
 	}
 
-	void Direct3D12Context::CreateShadowPassPSO()
-	{
-		HRESULT hr;
-
-		ComPtr<ID3DBlob> pVertexShader;
-		ComPtr<ID3DBlob> pPixelShader;
-
-		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring VertShaderFolder(ExeDirectory);
-		VertShaderFolder += L"../Renderer/Shadow_Pass.vertex.cso";
-		std::wstring PixelShaderFolder(ExeDirectory);
-		PixelShaderFolder += L"../Renderer/Shadow_Pass.pixel.cso";
-
-		hr = D3DReadFileToBlob(VertShaderFolder.c_str(), &pVertexShader);
-		ThrowIfFailed(hr, "Failed to read Vertex Shader for D3D 12 context.");
-		hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
-		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
-
-		D3D12_SHADER_BYTECODE VertexShaderBytecode = {};
-		VertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
-		VertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
-
-		D3D12_SHADER_BYTECODE PixelShaderBytecode = {};
-		PixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
-		PixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
-
-		D3D12_INPUT_ELEMENT_DESC InputLayout[5] =
-		{
-			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
-			{ "TANGENT",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
-			{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
-		};
-
-		D3D12_INPUT_LAYOUT_DESC InputLayoutDesc = {};
-		InputLayoutDesc.NumElements = sizeof(InputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
-		InputLayoutDesc.pInputElementDescs = InputLayout;
-
-		auto ShadowDepthStencilDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-		ShadowDepthStencilDesc.DepthEnable = true;
-		ShadowDepthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-		ShadowDepthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-		ShadowDepthStencilDesc.StencilEnable = FALSE;
-
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC PsoDesc = {};
-		PsoDesc.InputLayout = InputLayoutDesc;
-		PsoDesc.VS = VertexShaderBytecode;
-		PsoDesc.PS = PixelShaderBytecode;
-		PsoDesc.InputLayout.pInputElementDescs = InputLayout;
-		PsoDesc.InputLayout.NumElements = _countof(InputLayout);
-		PsoDesc.pRootSignature = m_pDeferredShadingPass_RS.Get();
-		PsoDesc.DepthStencilState = ShadowDepthStencilDesc;
-		PsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-		PsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-		PsoDesc.SampleMask = UINT_MAX;
-		PsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		PsoDesc.DSVFormat = m_ShadowMapFormat;
-		PsoDesc.SampleDesc.Count = 1;
-		PsoDesc.NumRenderTargets = 0;
-		PsoDesc.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
-
-		hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pShadowPass_PSO));
-		ThrowIfFailed(hr, "Failed to create graphics pipeline state for shadow pass in D3D 12 context.");
-		m_pShadowPass_PSO->SetName(L"PSO Shadow Pass");
-	}
-
-	void Direct3D12Context::CreateGeometryPassPSO()
+	void Direct3D12Context::LoadPipelines()
 	{
 		HRESULT hr = S_OK;
 
-		ComPtr<ID3DBlob> pVertexShader;
-		ComPtr<ID3DBlob> pPixelShader;
-
-		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring VertexShaderFolder(ExeDirectory);
-		VertexShaderFolder += L"../Renderer/Geometry_Pass.vertex.cso";
-		std::wstring PixelShaderFolder(ExeDirectory);
-		PixelShaderFolder += L"../Renderer/Geometry_Pass.pixel.cso";
-
-		hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
-		ThrowIfFailed(hr, "Failed to read Vertex Shader for D3D 12 context.");
-		hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
-		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
-
-
-		D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
-		vertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
-		vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
-
-		D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
-		pixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
-		pixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
-
-		D3D12_INPUT_ELEMENT_DESC inputLayout[5] =
+		// Create Shadow Pass
 		{
-			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
-			{ "TANGENT",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
-			{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
-		};
+			ComPtr<ID3DBlob> pVertexShader;
+			ComPtr<ID3DBlob> pPixelShader;
 
-		D3D12_INPUT_LAYOUT_DESC InputLayoutDesc = {};
-		InputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
-		InputLayoutDesc.pInputElementDescs = inputLayout;
+			const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+			std::wstring VertShaderFolder(ExeDirectory);
+			VertShaderFolder += L"../Renderer/Shadow_Pass.vertex.cso";
+			std::wstring PixelShaderFolder(ExeDirectory);
+			PixelShaderFolder += L"../Renderer/Shadow_Pass.pixel.cso";
 
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC PsoDesc = {};
-		PsoDesc.VS = vertexShaderBytecode;
-		PsoDesc.PS = pixelShaderBytecode;
-		PsoDesc.InputLayout.pInputElementDescs = inputLayout;
-		PsoDesc.InputLayout.NumElements = _countof(inputLayout);
-		PsoDesc.pRootSignature = m_pDeferredShadingPass_RS.Get();
-		PsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-		PsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-		PsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-		PsoDesc.SampleMask = UINT_MAX;
-		PsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		PsoDesc.NumRenderTargets = m_NumRTVs;
-		PsoDesc.RTVFormats[0] = m_RtvFormat[0];
-		PsoDesc.RTVFormats[1] = m_RtvFormat[1];
-		PsoDesc.RTVFormats[2] = m_RtvFormat[2];
-		PsoDesc.RTVFormats[3] = m_RtvFormat[3];
-		PsoDesc.DSVFormat = m_DsvFormat;
-		PsoDesc.SampleDesc.Count = 1;
+			hr = D3DReadFileToBlob(VertShaderFolder.c_str(), &pVertexShader);
+			ThrowIfFailed(hr, "Failed to read Vertex Shader for D3D 12 context.");
+			hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
+			ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
 
-		hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pGeometryPass_PSO));
-		ThrowIfFailed(hr, "Failed to create graphics pipeline state for geometry pass.");
-		m_pGeometryPass_PSO->SetName(L"PSO Geometry Pass");
-	}
+			D3D12_SHADER_BYTECODE VertexShaderBytecode = {};
+			VertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
+			VertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
 
-	void Direct3D12Context::CreateSkyPassPSO()
-	{
-		HRESULT hr;
+			D3D12_SHADER_BYTECODE PixelShaderBytecode = {};
+			PixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
+			PixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
 
-		ComPtr<ID3DBlob> pVertexShader;
-		ComPtr<ID3DBlob> pPixelShader;
+			D3D12_INPUT_ELEMENT_DESC InputLayout[5] =
+			{
+				{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+				{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+				{ "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
+				{ "TANGENT",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
+				{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
+			};
 
-		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring VertexShaderFolder(ExeDirectory);
-		VertexShaderFolder += L"../Renderer/Skybox.vertex.cso";
-		std::wstring PixelShaderFolder(ExeDirectory);
-		PixelShaderFolder += L"../Renderer/Skybox.pixel.cso";
+			D3D12_INPUT_LAYOUT_DESC InputLayoutDesc = {};
+			InputLayoutDesc.NumElements = sizeof(InputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
+			InputLayoutDesc.pInputElementDescs = InputLayout;
 
-		hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
-		ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context");
-		hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
-		ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context");
+			auto ShadowDepthStencilDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+			ShadowDepthStencilDesc.DepthEnable = true;
+			ShadowDepthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+			ShadowDepthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+			ShadowDepthStencilDesc.StencilEnable = FALSE;
 
+			D3D12_GRAPHICS_PIPELINE_STATE_DESC PsoDesc = {};
+			PsoDesc.InputLayout = InputLayoutDesc;
+			PsoDesc.VS = VertexShaderBytecode;
+			PsoDesc.PS = PixelShaderBytecode;
+			PsoDesc.InputLayout.pInputElementDescs = InputLayout;
+			PsoDesc.InputLayout.NumElements = _countof(InputLayout);
+			PsoDesc.pRootSignature = m_pDeferredShadingPass_RS.Get();
+			PsoDesc.DepthStencilState = ShadowDepthStencilDesc;
+			PsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+			PsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+			PsoDesc.SampleMask = UINT_MAX;
+			PsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+			PsoDesc.DSVFormat = m_ShadowMapFormat;
+			PsoDesc.SampleDesc.Count = 1;
+			PsoDesc.NumRenderTargets = 0;
+			PsoDesc.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
 
-		D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
-		vertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
-		vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
-
-		D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
-		pixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
-		pixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
-
-		D3D12_INPUT_ELEMENT_DESC inputLayout[2] =
+			hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pShadowPass_PSO));
+			ThrowIfFailed(hr, "Failed to create graphics pipeline state for shadow pass in D3D 12 context.");
+			m_pShadowPass_PSO->SetName(L"PSO Shadow Pass");
+		}
+		
+		// Create Geometry Pass
 		{
-			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		};
+			ComPtr<ID3DBlob> pVertexShader;
+			ComPtr<ID3DBlob> pPixelShader;
 
-		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
-		inputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
-		inputLayoutDesc.pInputElementDescs = inputLayout;
+			const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+			std::wstring VertexShaderFolder(ExeDirectory);
+			VertexShaderFolder += L"../Renderer/Geometry_Pass.vertex.cso";
+			std::wstring PixelShaderFolder(ExeDirectory);
+			PixelShaderFolder += L"../Renderer/Geometry_Pass.pixel.cso";
 
-		auto depthStencilStateDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-		depthStencilStateDesc.DepthEnable = true;
-		depthStencilStateDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-		depthStencilStateDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-
-		auto rasterizerStateDesc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-		rasterizerStateDesc.DepthClipEnable = true;
-		rasterizerStateDesc.CullMode = D3D12_CULL_MODE_FRONT;
-		rasterizerStateDesc.FillMode = D3D12_FILL_MODE_SOLID;
-
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineDesc = {};
-		pipelineDesc.VS = vertexShaderBytecode;
-		pipelineDesc.PS = pixelShaderBytecode;
-		pipelineDesc.InputLayout.pInputElementDescs = inputLayout;
-		pipelineDesc.InputLayout.NumElements = _countof(inputLayout);
-		pipelineDesc.pRootSignature = m_pDeferredShadingPass_RS.Get();
-		pipelineDesc.DepthStencilState = depthStencilStateDesc;
-		pipelineDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-		pipelineDesc.RasterizerState = rasterizerStateDesc;
-		pipelineDesc.SampleMask = UINT_MAX;
-		pipelineDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		pipelineDesc.NumRenderTargets = 1;
-		pipelineDesc.RTVFormats[0] = m_RtvFormat[0];
-		pipelineDesc.SampleDesc.Count = 1;
-		pipelineDesc.DSVFormat = m_DsvFormat;
+			hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
+			ThrowIfFailed(hr, "Failed to read Vertex Shader for D3D 12 context.");
+			hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
+			ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
 
 
-		hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&m_pSkyPass_PSO));
-		ThrowIfFailed(hr, "Failed to create skybox pipeline state object for .");
-		m_pSkyPass_PSO->SetName(L"PSO Sky Pass");
-	}
+			D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
+			vertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
+			vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
 
-	void Direct3D12Context::CreateTransparencyPassPSO()
-	{
-		HRESULT hr;
+			D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
+			pixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
+			pixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
 
-		ComPtr<ID3DBlob> pVertexShader;
-		ComPtr<ID3DBlob> pPixelShader;
+			D3D12_INPUT_ELEMENT_DESC inputLayout[5] =
+			{
+				{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
+				{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
+				{ "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
+				{ "TANGENT",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
+				{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
+			};
 
-		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring VertexShaderFolder(ExeDirectory);
-		VertexShaderFolder += L"../Renderer/Transparency_Pass.vertex.cso";
-		std::wstring PixelShaderFolder(ExeDirectory);
-		PixelShaderFolder += L"../Renderer/Transparency_Pass.pixel.cso";
+			D3D12_INPUT_LAYOUT_DESC InputLayoutDesc = {};
+			InputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
+			InputLayoutDesc.pInputElementDescs = inputLayout;
 
-		hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
-		ThrowIfFailed(hr, "Failed to read Vertex Shader for D3D 12 context.");
-		hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
-		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
+			D3D12_GRAPHICS_PIPELINE_STATE_DESC PsoDesc = {};
+			PsoDesc.VS = vertexShaderBytecode;
+			PsoDesc.PS = pixelShaderBytecode;
+			PsoDesc.InputLayout.pInputElementDescs = inputLayout;
+			PsoDesc.InputLayout.NumElements = _countof(inputLayout);
+			PsoDesc.pRootSignature = m_pDeferredShadingPass_RS.Get();
+			PsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+			PsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+			PsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+			PsoDesc.SampleMask = UINT_MAX;
+			PsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+			PsoDesc.NumRenderTargets = m_NumGBuffers;
+			for (UINT i = 0; i < m_NumGBuffers; ++i)
+				PsoDesc.RTVFormats[i] = m_RtvFormat[i];
+			PsoDesc.DSVFormat = m_DsvFormat;
+			PsoDesc.SampleDesc = { 1, 0 };
 
-		D3D12_SHADER_BYTECODE VertexShaderBytecode = {};
-		VertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
-		VertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
+			hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pGeometryPass_PSO));
+			ThrowIfFailed(hr, "Failed to create graphics pipeline state for geometry pass.");
+			m_pGeometryPass_PSO->SetName(L"PSO Geometry Pass");
+		}
 
-		D3D12_SHADER_BYTECODE PixelShaderBytecode = {};
-		PixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
-		PixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
-
-
-		D3D12_INPUT_ELEMENT_DESC inputLayout[5] =
+		// Create Light Pass
 		{
-			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
-			{ "TANGENT",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
-			{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
-		};
+			ComPtr<ID3DBlob> pVertexShader;
+			ComPtr<ID3DBlob> pPixelShader;
 
-		D3D12_INPUT_LAYOUT_DESC InputLayoutDesc = {};
-		InputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
-		InputLayoutDesc.pInputElementDescs = inputLayout;
+			const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+			std::wstring VertexShaderFolder(ExeDirectory);
+			VertexShaderFolder += L"../Renderer/Light_Pass.vertex.cso";
+			std::wstring PixelShaderFolder(ExeDirectory);
+			PixelShaderFolder += L"../Renderer/Light_Pass.pixel.cso";
 
-		auto DepthStencilStateDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-		DepthStencilStateDesc.DepthEnable = true;
-		DepthStencilStateDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-		DepthStencilStateDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-
-		auto RasterizerDesc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-		RasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
-
-		auto BlendDesc = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-		BlendDesc.AlphaToCoverageEnable = TRUE;
-		BlendDesc.IndependentBlendEnable = TRUE;
-		BlendDesc.RenderTarget[0].BlendEnable = true;
-
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC PsoDesc = {};
-		PsoDesc.VS = VertexShaderBytecode;
-		PsoDesc.PS = PixelShaderBytecode;
-		PsoDesc.InputLayout.pInputElementDescs = inputLayout;
-		PsoDesc.InputLayout.NumElements = _countof(inputLayout);
-		PsoDesc.pRootSignature = m_pForwardShadingPass_RS.Get();
-		PsoDesc.DepthStencilState = DepthStencilStateDesc;
-		PsoDesc.BlendState = BlendDesc;
-		PsoDesc.RasterizerState = RasterizerDesc;
-		PsoDesc.SampleMask = UINT_MAX;
-		PsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		PsoDesc.NumRenderTargets = 1U;
-		PsoDesc.RTVFormats[0] = m_RtvFormat[0];
-		//PsoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-		PsoDesc.DSVFormat = m_DsvFormat;
-		PsoDesc.SampleDesc.Count = 1;
-
-		hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pTransparency_PSO));
-		ThrowIfFailed(hr, "Failed to create graphics pipeline state for transparency pass.");
-		m_pTransparency_PSO->SetName(L"PSO Transparency Pass");
-	}
-
-	void Direct3D12Context::CreateLightPassPSO()
-	{
-		HRESULT hr;
-
-		ComPtr<ID3DBlob> pVertexShader;
-		ComPtr<ID3DBlob> pPixelShader;
-
-		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring VertexShaderFolder(ExeDirectory);
-		VertexShaderFolder += L"../Renderer/Light_Pass.vertex.cso";
-		std::wstring PixelShaderFolder(ExeDirectory);
-		PixelShaderFolder += L"../Renderer/Light_Pass.pixel.cso";
-
-		hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
-		ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context.");
-		hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
-		ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context.");
+			hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
+			ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context.");
+			hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
+			ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context.");
 
 
-		D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
-		vertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
-		vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
+			D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
+			vertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
+			vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
 
-		D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
-		pixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
-		pixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
+			D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
+			pixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
+			pixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
 
-		D3D12_INPUT_ELEMENT_DESC inputLayout[2] =
+			D3D12_INPUT_ELEMENT_DESC inputLayout[2] =
+			{
+				{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+				{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			};
+
+			D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
+			inputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
+			inputLayoutDesc.pInputElementDescs = inputLayout;
+
+			D3D12_GRAPHICS_PIPELINE_STATE_DESC descPipelineState = {};
+			descPipelineState.VS = vertexShaderBytecode;
+			descPipelineState.PS = pixelShaderBytecode;
+			descPipelineState.InputLayout.pInputElementDescs = inputLayout;
+			descPipelineState.InputLayout.NumElements = _countof(inputLayout);
+			descPipelineState.pRootSignature = m_pDeferredShadingPass_RS.Get();
+			descPipelineState.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+			descPipelineState.DepthStencilState.DepthEnable = false;
+			descPipelineState.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+			descPipelineState.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+			descPipelineState.RasterizerState.DepthClipEnable = false;
+			descPipelineState.SampleMask = UINT_MAX;
+			descPipelineState.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+			descPipelineState.NumRenderTargets = 2;
+			descPipelineState.RTVFormats[0] = m_RtvFormat[4]; // Light Pass
+			descPipelineState.RTVFormats[1] = m_RtvFormat[5]; // Bloom Buffer
+			descPipelineState.SampleDesc.Count = 1;
+
+			hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pLightingPass_PSO));
+			ThrowIfFailed(hr, "Failed to create graphics pipeline state for lighting pass.");
+			m_pLightingPass_PSO->SetName(L"PSO Light Pass");
+		}
+		
+		// Create Sky Pass
 		{
-			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		};
+			ComPtr<ID3DBlob> pVertexShader;
+			ComPtr<ID3DBlob> pPixelShader;
 
-		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
-		inputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
-		inputLayoutDesc.pInputElementDescs = inputLayout;
+			const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+			std::wstring VertexShaderFolder(ExeDirectory);
+			VertexShaderFolder += L"../Renderer/Skybox.vertex.cso";
+			std::wstring PixelShaderFolder(ExeDirectory);
+			PixelShaderFolder += L"../Renderer/Skybox.pixel.cso";
 
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC descPipelineState = {};
-		descPipelineState.VS = vertexShaderBytecode;
-		descPipelineState.PS = pixelShaderBytecode;
-		descPipelineState.InputLayout.pInputElementDescs = inputLayout;
-		descPipelineState.InputLayout.NumElements = _countof(inputLayout);
-		descPipelineState.pRootSignature = m_pDeferredShadingPass_RS.Get();
-		descPipelineState.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-		descPipelineState.DepthStencilState.DepthEnable = false;
-		descPipelineState.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-		descPipelineState.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-		descPipelineState.RasterizerState.DepthClipEnable = false;
-		descPipelineState.SampleMask = UINT_MAX;
-		descPipelineState.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		descPipelineState.NumRenderTargets = 2;
-		descPipelineState.RTVFormats[0] = m_RtvFormat[0]; // Light Pass
-		descPipelineState.RTVFormats[1] = m_RtvFormat[5]; // Bloom Buffer
-		descPipelineState.SampleDesc.Count = 1;
-
-		hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pLightingPass_PSO));
-		ThrowIfFailed(hr, "Failed to create graphics pipeline state for lighting pass.");
-		m_pLightingPass_PSO->SetName(L"PSO Light Pass");
-	}
-
-	void Direct3D12Context::CreatePostEffectsPassPSO()
-	{
-		HRESULT hr;
-
-		ComPtr<ID3DBlob> pVertexShader;
-		ComPtr<ID3DBlob> pPixelShader;
-
-		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring VertexShaderFolder(ExeDirectory);
-		VertexShaderFolder += L"../Renderer/Screen_Aligned_Quad.vertex.cso";
-		std::wstring PixelShaderFolder(ExeDirectory);
-		PixelShaderFolder += L"../Renderer/PostProcess_Composite.pixel.cso";
-
-		hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
-		ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context.");
-		hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
-		ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context.");
+			hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
+			ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context");
+			hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
+			ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context");
 
 
-		D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
-		vertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
-		vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
+			D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
+			vertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
+			vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
 
-		D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
-		pixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
-		pixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
+			D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
+			pixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
+			pixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
 
-		D3D12_INPUT_ELEMENT_DESC inputLayout[2] =
+			D3D12_INPUT_ELEMENT_DESC inputLayout[2] =
+			{
+				{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+				{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			};
+
+			D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
+			inputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
+			inputLayoutDesc.pInputElementDescs = inputLayout;
+
+			auto depthStencilStateDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+			depthStencilStateDesc.DepthEnable = true;
+			depthStencilStateDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+			depthStencilStateDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+
+			auto rasterizerStateDesc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+			rasterizerStateDesc.DepthClipEnable = true;
+			rasterizerStateDesc.CullMode = D3D12_CULL_MODE_FRONT;
+			rasterizerStateDesc.FillMode = D3D12_FILL_MODE_SOLID;
+
+			D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineDesc = {};
+			pipelineDesc.VS = vertexShaderBytecode;
+			pipelineDesc.PS = pixelShaderBytecode;
+			pipelineDesc.InputLayout.pInputElementDescs = inputLayout;
+			pipelineDesc.InputLayout.NumElements = _countof(inputLayout);
+			pipelineDesc.pRootSignature = m_pDeferredShadingPass_RS.Get();
+			pipelineDesc.DepthStencilState = depthStencilStateDesc;
+			pipelineDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+			pipelineDesc.RasterizerState = rasterizerStateDesc;
+			pipelineDesc.SampleMask = UINT_MAX;
+			pipelineDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+			pipelineDesc.NumRenderTargets = 1;
+			pipelineDesc.RTVFormats[0] = m_RtvFormat[4];
+			pipelineDesc.SampleDesc.Count = 1;
+			pipelineDesc.DSVFormat = m_DsvFormat;
+
+
+			hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&m_pSkyPass_PSO));
+			ThrowIfFailed(hr, "Failed to create skybox pipeline state object for .");
+			m_pSkyPass_PSO->SetName(L"PSO Sky Pass");
+		}
+
+		// Create Transparency Pass
 		{
-			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		};
+			ComPtr<ID3DBlob> pVertexShader;
+			ComPtr<ID3DBlob> pPixelShader;
 
-		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
-		inputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
-		inputLayoutDesc.pInputElementDescs = inputLayout;
+			const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+			std::wstring VertexShaderFolder(ExeDirectory);
+			VertexShaderFolder += L"../Renderer/Transparency_Pass.vertex.cso";
+			std::wstring PixelShaderFolder(ExeDirectory);
+			PixelShaderFolder += L"../Renderer/Transparency_Pass.pixel.cso";
 
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC descPipelineState = {};
-		descPipelineState.VS = vertexShaderBytecode;
-		descPipelineState.PS = pixelShaderBytecode;
-		descPipelineState.InputLayout.pInputElementDescs = inputLayout;
-		descPipelineState.InputLayout.NumElements = _countof(inputLayout);
-		descPipelineState.pRootSignature = m_pDeferredShadingPass_RS.Get();
-		descPipelineState.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-		descPipelineState.DepthStencilState.DepthEnable = false;
-		descPipelineState.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-		descPipelineState.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-		descPipelineState.RasterizerState.DepthClipEnable = false;
-		descPipelineState.SampleMask = UINT_MAX;
-		descPipelineState.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		descPipelineState.NumRenderTargets = 1;
-		descPipelineState.RTVFormats[0] = m_d3dDeviceResources.GetSwapChainBackBufferFormat();
-		descPipelineState.SampleDesc.Count = 1;
+			hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
+			ThrowIfFailed(hr, "Failed to read Vertex Shader for D3D 12 context.");
+			hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
+			ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
 
-		hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pPostFxPass_PSO));
-		ThrowIfFailed(hr, "Failed to create graphics pipeline state for Post-Fx pass in D3D 12 context.");
-		m_pPostFxPass_PSO->SetName(L"PSO PostFx Pass");
-	}
+			D3D12_SHADER_BYTECODE VertexShaderBytecode = {};
+			VertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
+			VertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
 
-	void Direct3D12Context::CreateDebugScreenQuadPSO()
-	{
-		HRESULT hr;
-
-		ComPtr<ID3DBlob> pVertexShader;
-		ComPtr<ID3DBlob> pPixelShader;
-
-		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring VertexShaderFolder(ExeDirectory);
-		VertexShaderFolder += L"../Renderer/Screen_Aligned_Quad.vertex.cso";
-		std::wstring PixelShaderFolder(ExeDirectory);
-		PixelShaderFolder += L"../Renderer/Debug_Screen_Quad.pixel.cso";
-
-		hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
-		ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context.");
-		hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
-		ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context.");
+			D3D12_SHADER_BYTECODE PixelShaderBytecode = {};
+			PixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
+			PixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
 
 
-		D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
-		vertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
-		vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
+			D3D12_INPUT_ELEMENT_DESC inputLayout[5] =
+			{
+				{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+				{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+				{ "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
+				{ "TANGENT",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
+				{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
+			};
 
-		D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
-		pixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
-		pixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
+			D3D12_INPUT_LAYOUT_DESC InputLayoutDesc = {};
+			InputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
+			InputLayoutDesc.pInputElementDescs = inputLayout;
 
-		D3D12_INPUT_ELEMENT_DESC inputLayout[2] =
+			auto DepthStencilStateDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+			DepthStencilStateDesc.DepthEnable = true;
+			DepthStencilStateDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+			DepthStencilStateDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+
+			auto RasterizerDesc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+			RasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
+
+			auto BlendDesc = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+			BlendDesc.AlphaToCoverageEnable = TRUE;
+			BlendDesc.IndependentBlendEnable = TRUE;
+			BlendDesc.RenderTarget[0].BlendEnable = true;
+
+			D3D12_GRAPHICS_PIPELINE_STATE_DESC PsoDesc = {};
+			PsoDesc.VS = VertexShaderBytecode;
+			PsoDesc.PS = PixelShaderBytecode;
+			PsoDesc.InputLayout.pInputElementDescs = inputLayout;
+			PsoDesc.InputLayout.NumElements = _countof(inputLayout);
+			PsoDesc.pRootSignature = m_pForwardShadingPass_RS.Get();
+			PsoDesc.DepthStencilState = DepthStencilStateDesc;
+			PsoDesc.BlendState = BlendDesc;
+			PsoDesc.RasterizerState = RasterizerDesc;
+			PsoDesc.SampleMask = UINT_MAX;
+			PsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+			PsoDesc.NumRenderTargets = 1U;
+			PsoDesc.RTVFormats[0] = m_RtvFormat[4];
+			//PsoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+			PsoDesc.DSVFormat = m_DsvFormat;
+			PsoDesc.SampleDesc.Count = 1;
+
+			hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pTransparency_PSO));
+			ThrowIfFailed(hr, "Failed to create graphics pipeline state for transparency pass.");
+			m_pTransparency_PSO->SetName(L"PSO Transparency Pass");
+		}
+
+		// Create Post Process Pass
 		{
-			{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		};
+			ComPtr<ID3DBlob> pVertexShader;
+			ComPtr<ID3DBlob> pPixelShader;
 
-		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
-		inputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
-		inputLayoutDesc.pInputElementDescs = inputLayout;
+			const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+			std::wstring VertexShaderFolder(ExeDirectory);
+			VertexShaderFolder += L"../Renderer/Screen_Aligned_Quad.vertex.cso";
+			std::wstring PixelShaderFolder(ExeDirectory);
+			PixelShaderFolder += L"../Renderer/PostProcess_Composite.pixel.cso";
 
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC descPipelineState = {};
-		descPipelineState.VS = vertexShaderBytecode;
-		descPipelineState.PS = pixelShaderBytecode;
-		descPipelineState.InputLayout.pInputElementDescs = inputLayout;
-		descPipelineState.InputLayout.NumElements = _countof(inputLayout);
-		descPipelineState.pRootSignature = m_pDebugScreenQuad_RS.Get();
-		descPipelineState.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-		descPipelineState.DepthStencilState.DepthEnable = false;
-		descPipelineState.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-		descPipelineState.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-		descPipelineState.RasterizerState.DepthClipEnable = false;
-		descPipelineState.SampleMask = UINT_MAX;
-		descPipelineState.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		descPipelineState.NumRenderTargets = 1;
-		descPipelineState.RTVFormats[0] = m_d3dDeviceResources.GetSwapChainBackBufferFormat();
-		descPipelineState.SampleDesc.Count = 1;
+			hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
+			ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context.");
+			hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
+			ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context.");
 
-		hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pDebugScreenQuad_PSO));
-		ThrowIfFailed(hr, "Failed to create graphics pipeline state for Debug Screen Quad pass in D3D 12 context.");
-		m_pDebugScreenQuad_PSO->SetName(L"PSO Debug Screen Quad Pass");
-	}
 
-	void Direct3D12Context::CreateDownSamplePSO()
-	{
-		HRESULT hr;
+			D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
+			vertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
+			vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
 
-		ComPtr<ID3DBlob> pComputeShader;
+			D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
+			pixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
+			pixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
 
-		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring VertexShaderFolder(ExeDirectory);
-		VertexShaderFolder += L"../Renderer/Threshold_Down_Sample.compute.cso";
+			D3D12_INPUT_ELEMENT_DESC inputLayout[2] =
+			{
+				{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+				{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			};
 
-		hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pComputeShader);
-		ThrowIfFailed(hr, "Failed to read compute shader for D3D 12 context");
+			D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
+			inputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
+			inputLayoutDesc.pInputElementDescs = inputLayout;
 
-		D3D12_SHADER_BYTECODE ComputeShaderBytecode = {};
-		ComputeShaderBytecode.BytecodeLength = pComputeShader->GetBufferSize();
-		ComputeShaderBytecode.pShaderBytecode = pComputeShader->GetBufferPointer();
+			D3D12_GRAPHICS_PIPELINE_STATE_DESC descPipelineState = {};
+			descPipelineState.VS = vertexShaderBytecode;
+			descPipelineState.PS = pixelShaderBytecode;
+			descPipelineState.InputLayout.pInputElementDescs = inputLayout;
+			descPipelineState.InputLayout.NumElements = _countof(inputLayout);
+			descPipelineState.pRootSignature = m_pDeferredShadingPass_RS.Get();
+			descPipelineState.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+			descPipelineState.DepthStencilState.DepthEnable = false;
+			descPipelineState.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+			descPipelineState.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+			descPipelineState.RasterizerState.DepthClipEnable = false;
+			descPipelineState.SampleMask = UINT_MAX;
+			descPipelineState.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+			descPipelineState.NumRenderTargets = 1;
+			descPipelineState.RTVFormats[0] = m_d3dDeviceResources.GetSwapChainBackBufferFormat();
+			descPipelineState.SampleDesc.Count = 1;
 
-		D3D12_COMPUTE_PIPELINE_STATE_DESC PipelineDesc = {};
-		PipelineDesc.CS = ComputeShaderBytecode;
-		PipelineDesc.pRootSignature = m_pBloomPass_RS.Get();
+			hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pPostFxPass_PSO));
+			ThrowIfFailed(hr, "Failed to create graphics pipeline state for Post-Fx pass in D3D 12 context.");
+			m_pPostFxPass_PSO->SetName(L"PSO PostFx Pass");
+		}
+		
+		// Create Debug Screen Quad Pass
+		{
+			ComPtr<ID3DBlob> pVertexShader;
+			ComPtr<ID3DBlob> pPixelShader;
 
-		hr = m_d3dDeviceResources.GetDeviceContext().CreateComputePipelineState(&PipelineDesc, IID_PPV_ARGS(&m_pThresholdDownSample_PSO));
-		ThrowIfFailed(hr, "Failed to create texture downsampling pipeline for bloom pass.");
-		m_pThresholdDownSample_PSO->SetName(L"Bloom Pass PSO");
-	}
+			const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+			std::wstring VertexShaderFolder(ExeDirectory);
+			VertexShaderFolder += L"../Renderer/Screen_Aligned_Quad.vertex.cso";
+			std::wstring PixelShaderFolder(ExeDirectory);
+			PixelShaderFolder += L"../Renderer/Debug_Screen_Quad.pixel.cso";
 
-	void Direct3D12Context::CreateGaussianBlurPSO()
-	{
-		HRESULT hr;
+			hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
+			ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context.");
+			hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
+			ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context.");
 
-		ComPtr<ID3DBlob> pComputeShader;
 
-		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring ComputeShaderFolder(ExeDirectory);
-		ComputeShaderFolder += L"../Renderer/Gaussian_Blur.compute.cso";
+			D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
+			vertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
+			vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
 
-		hr = D3DReadFileToBlob(ComputeShaderFolder.c_str(), &pComputeShader);
-		ThrowIfFailed(hr, "Failed to read compute shader for D3D 12 context");
+			D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
+			pixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
+			pixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
 
-		D3D12_SHADER_BYTECODE ComputeShaderBytecode = {};
-		ComputeShaderBytecode.BytecodeLength = pComputeShader->GetBufferSize();
-		ComputeShaderBytecode.pShaderBytecode = pComputeShader->GetBufferPointer();
+			D3D12_INPUT_ELEMENT_DESC inputLayout[2] =
+			{
+				{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+				{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			};
 
-		D3D12_COMPUTE_PIPELINE_STATE_DESC PipelineDesc = {};
-		PipelineDesc.CS = ComputeShaderBytecode;
-		PipelineDesc.pRootSignature = m_pBloomPass_RS.Get();
+			D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
+			inputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
+			inputLayoutDesc.pInputElementDescs = inputLayout;
 
-		hr = m_d3dDeviceResources.GetDeviceContext().CreateComputePipelineState(&PipelineDesc, IID_PPV_ARGS(&m_pGaussianBlur_PSO));
-		ThrowIfFailed(hr, "Failed to create gaussian blur pipeline for bloom pass.");
-		m_pGaussianBlur_PSO->SetName(L"Bloom Pass PSO");
+			D3D12_GRAPHICS_PIPELINE_STATE_DESC descPipelineState = {};
+			descPipelineState.VS = vertexShaderBytecode;
+			descPipelineState.PS = pixelShaderBytecode;
+			descPipelineState.InputLayout.pInputElementDescs = inputLayout;
+			descPipelineState.InputLayout.NumElements = _countof(inputLayout);
+			descPipelineState.pRootSignature = m_pDebugScreenQuad_RS.Get();
+			descPipelineState.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+			descPipelineState.DepthStencilState.DepthEnable = false;
+			descPipelineState.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+			descPipelineState.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+			descPipelineState.RasterizerState.DepthClipEnable = false;
+			descPipelineState.SampleMask = UINT_MAX;
+			descPipelineState.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+			descPipelineState.NumRenderTargets = 1;
+			descPipelineState.RTVFormats[0] = m_d3dDeviceResources.GetSwapChainBackBufferFormat();
+			descPipelineState.SampleDesc.Count = 1;
+
+			hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pDebugScreenQuad_PSO));
+			ThrowIfFailed(hr, "Failed to create graphics pipeline state for Debug Screen Quad pass in D3D 12 context.");
+			m_pDebugScreenQuad_PSO->SetName(L"PSO Debug Screen Quad Pass");
+		}
+
+		// Create Down Sample Pass
+		{
+			ComPtr<ID3DBlob> pComputeShader;
+
+			const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+			std::wstring VertexShaderFolder(ExeDirectory);
+			VertexShaderFolder += L"../Renderer/Threshold_Down_Sample.compute.cso";
+
+			hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pComputeShader);
+			ThrowIfFailed(hr, "Failed to read compute shader for D3D 12 context");
+
+			D3D12_SHADER_BYTECODE ComputeShaderBytecode = {};
+			ComputeShaderBytecode.BytecodeLength = pComputeShader->GetBufferSize();
+			ComputeShaderBytecode.pShaderBytecode = pComputeShader->GetBufferPointer();
+
+			D3D12_COMPUTE_PIPELINE_STATE_DESC PipelineDesc = {};
+			PipelineDesc.CS = ComputeShaderBytecode;
+			PipelineDesc.pRootSignature = m_pBloomPass_RS.Get();
+
+			hr = m_d3dDeviceResources.GetDeviceContext().CreateComputePipelineState(&PipelineDesc, IID_PPV_ARGS(&m_pThresholdDownSample_PSO));
+			ThrowIfFailed(hr, "Failed to create texture downsampling pipeline for bloom pass.");
+			m_pThresholdDownSample_PSO->SetName(L"Bloom Pass PSO");
+		}
+
+		// Create Gausian Blur Pass
+		{
+			ComPtr<ID3DBlob> pComputeShader;
+
+			const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+			std::wstring ComputeShaderFolder(ExeDirectory);
+			ComputeShaderFolder += L"../Renderer/Gaussian_Blur.compute.cso";
+
+			hr = D3DReadFileToBlob(ComputeShaderFolder.c_str(), &pComputeShader);
+			ThrowIfFailed(hr, "Failed to read compute shader for D3D 12 context");
+
+			D3D12_SHADER_BYTECODE ComputeShaderBytecode = {};
+			ComputeShaderBytecode.BytecodeLength = pComputeShader->GetBufferSize();
+			ComputeShaderBytecode.pShaderBytecode = pComputeShader->GetBufferPointer();
+
+			D3D12_COMPUTE_PIPELINE_STATE_DESC PipelineDesc = {};
+			PipelineDesc.CS = ComputeShaderBytecode;
+			PipelineDesc.pRootSignature = m_pBloomPass_RS.Get();
+
+			hr = m_d3dDeviceResources.GetDeviceContext().CreateComputePipelineState(&PipelineDesc, IID_PPV_ARGS(&m_pGaussianBlur_PSO));
+			ThrowIfFailed(hr, "Failed to create gaussian blur pipeline for bloom pass.");
+			m_pGaussianBlur_PSO->SetName(L"Bloom Pass PSO");
+		}
+
 	}
 
 	void Direct3D12Context::CreateCommandAllocators()
 	{
-		HRESULT hr;
+		HRESULT hr = S_OK;
 
 		// Scene Pass
 		{

@@ -56,29 +56,33 @@ namespace Insight {
 			virtual void OnDetach() override;
 
 			// Set the parent of transform this scene component will translate relative too.
-			void AttachTo(SceneComponent* pNewParent) { m_pParent = pNewParent; }
+			inline void AttachTo(SceneComponent* pNewParent) { m_pParent = pNewParent; }
 			// Remove the parent this scene component.
-			void DetachParent() { m_pParent = nullptr; }
+			inline void DetachParent() { m_pParent = nullptr; }
 
-			void SetPosition(ieVector3 NewPosition) { m_Transform.SetPosition(NewPosition); }
-			void SetRotation(ieVector3 NewRotation) { m_Transform.SetRotation(NewRotation); }
-			void SetScale(ieVector3 NewScale) { m_Transform.SetScale(NewScale); }
+			inline void SetPosition(ieVector3 NewPosition) { m_Transform.SetPosition(NewPosition); }
+			inline void SetRotation(ieVector3 NewRotation) { m_Transform.SetRotation(NewRotation); }
+			inline void SetScale(ieVector3 NewScale) { m_Transform.SetScale(NewScale); }
+			 
+			inline void SetPosition(float X, float Y, float Z) { m_Transform.SetPosition({ X, Y, Z }); }
+			inline void SetRotation(float X, float Y, float Z) { m_Transform.SetRotation({ X, Y, Z }); }
+			inline void SetScale(float X, float Y, float Z) { m_Transform.SetScale({ X, Y, Z }); }
+			 
+			inline void SetPosition(float XYZ) { m_Transform.SetPosition({ XYZ, XYZ, XYZ }); }
+			inline void SetRotation(float XYZ) { m_Transform.SetRotation({ XYZ, XYZ, XYZ }); }
+			inline void SetScale(float XYZ) { m_Transform.SetScale({ XYZ, XYZ, XYZ }); }
+			 
+			inline void Translate(float X, float Y, float Z) { m_Transform.Translate(X, Y, Z); }
+			inline void Rotate(float X, float Y, float Z) { m_Transform.Rotate(X, Y, Z); }
+			inline void Scale(float X, float Y, float Z) { m_Transform.Scale(X, Y, Z); }
 
-			void SetPosition(float X, float Y, float Z) { m_Transform.SetPosition({ X, Y, Z }); }
-			void SetRotation(float X, float Y, float Z) { m_Transform.SetRotation({ X, Y, Z }); }
-			void SetScale(float X, float Y, float Z) { m_Transform.SetScale({ X, Y, Z }); }
-
-			void Translate(float X, float Y, float Z) { m_Transform.Translate(X, Y, Z); }
-			void Rotate(float X, float Y, float Z) { m_Transform.Rotate(X, Y, Z); }
-			void Scale(float X, float Y, float Z) { m_Transform.Scale(X, Y, Z); }
-
-			ieVector3 GetPosition() { return m_Transform.GetPosition(); }
-			ieVector3 GetRotation() { return m_Transform.GetRotation(); }
-			ieVector3 GetScale() { return m_Transform.GetScale(); }
-
-			ieVector3& GetPositionRef() { return m_Transform.GetPositionRef(); }
-			ieVector3& GetRotationRef() { return m_Transform.GetRotationRef(); }
-			ieVector3& GetScaleRef() { return m_Transform.GetScaleRef(); }
+			inline ieVector3 GetPosition() { return m_Transform.GetPosition(); }
+			inline ieVector3 GetRotation() { return m_Transform.GetRotation(); }
+			inline ieVector3 GetScale() { return m_Transform.GetScale(); }
+			
+			inline ieVector3& GetPositionRef() { return m_Transform.GetPositionRef(); }
+			inline ieVector3& GetRotationRef() { return m_Transform.GetRotationRef(); }
+			inline ieVector3& GetScaleRef() { return m_Transform.GetScaleRef(); }
 
 			inline const ieTransform& GetTransform() const { return m_Transform; }
 			inline ieTransform& GetTransformRef() { return m_Transform; }

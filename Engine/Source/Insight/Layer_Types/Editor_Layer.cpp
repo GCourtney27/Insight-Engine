@@ -27,7 +27,6 @@ namespace Insight {
 
 	EditorLayer::EditorLayer()
 	{
-
 	}
 
 	EditorLayer::~EditorLayer()
@@ -52,12 +51,11 @@ namespace Insight {
 
 	void EditorLayer::OnImGuiRender()
 	{
-		if (!m_UIEnabled) {
-			return;
-		}
+		if (!m_UIEnabled) return;
+
 		RenderSceneHeirarchy();
-		RenderInspector();
 		RenderCreatorWindow();
+		RenderInspector();
 	}
 
 	void EditorLayer::RenderSceneHeirarchy()

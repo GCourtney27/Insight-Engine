@@ -645,22 +645,6 @@ namespace Insight {
 		ProccessWindowMessages();
 	}
 
-	void WindowsWindow::OnFramePreRender()
-	{
-		Renderer::OnPreFrameRender();
-	}
-
-	void WindowsWindow::OnRender()
-	{
-		Renderer::OnRender();
-	}
-
-	void WindowsWindow::ExecuteDraw()
-	{
-		Renderer::ExecuteDraw();
-		Renderer::SwapBuffers();
-	}
-
 	bool WindowsWindow::SetWindowTitle(const std::string& NewText, bool CompletlyOverride)
 	{
 		BOOL succeeded = true;
@@ -718,12 +702,6 @@ namespace Insight {
 		}
 
 		Renderer::Destroy();
-	}
-
-	void WindowsWindow::EndFrame()
-	{
-		Renderer::ExecuteDraw();
-		Renderer::SwapBuffers();
 	}
 
 }

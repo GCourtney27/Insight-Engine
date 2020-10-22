@@ -34,11 +34,7 @@ namespace Insight {
 		virtual ~WindowsWindow();
 
 		virtual void OnUpdate(const float& deltaTime) override;
-		virtual void OnFramePreRender() override;
-		virtual void OnRender() override;
-		virtual void ExecuteDraw() override;
 		virtual void Shutdown() override;
-		virtual void EndFrame() override;
 
 		virtual void PostInit() override;
 

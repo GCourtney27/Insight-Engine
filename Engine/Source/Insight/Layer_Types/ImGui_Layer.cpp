@@ -128,11 +128,6 @@ namespace Insight {
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[e.GetKeyCode()] = true;
-
-		io.KeyCtrl = io.KeysDown[VK_LCONTROL] || io.KeysDown[VK_RCONTROL];
-		io.KeyShift = io.KeysDown[VK_LSHIFT] || io.KeysDown[VK_RCONTROL];
-		io.KeySuper = io.KeysDown[VK_LWIN] || io.KeysDown[VK_RWIN];
-		io.KeyAlt = io.KeysDown[VK_LMENU] || io.KeysDown[VK_RMENU];
 		return false;
 	}
 

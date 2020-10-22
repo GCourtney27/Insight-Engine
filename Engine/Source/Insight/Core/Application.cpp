@@ -14,13 +14,13 @@
 #include "Platform/Windows/Windows_Window.h"
 #endif
 
-// TODO: Make the project hot reloadable
+// TODO: Make the project hot swapable
 // Scenes (Development-Project)
 // ----------------------------
 // DemoScene
 // MultipleLights
 static const char* ProjectName = "Development-Project";
-static const char* TargetSceneName = "Norway.iescene";
+static const char* TargetSceneName = "Debug.iescene";
 
 namespace Insight {
 
@@ -32,7 +32,7 @@ namespace Insight {
 		s_Instance = this;
 	}
 
-	bool Application::InitializeAppForWindows(HINSTANCE & hInstance, int nCmdShow)
+	bool Application::InitializeAppForWindows(HINSTANCE& hInstance, int nCmdShow)
 	{
 		m_pWindow = std::unique_ptr<Window>(Window::Create());
 		m_pWindow->SetEventCallback(IE_BIND_EVENT_FN(Application::OnEvent));
@@ -97,20 +97,35 @@ namespace Insight {
 		m_AppInitialized = true;
 	}
 
-	static void RenderThread()
+	void Application::RenderThread()
 	{
-		bool IsAppRunning = Application::Get().IsApplicationRunning();
 		FrameTimer GraphicsTimer;
-		while (IsAppRunning)
+		float DeltaMs = 0.0f;
+
+		while (m_Running)
 		{
 			GraphicsTimer.Tick();
-			float DeltaMs = GraphicsTimer.DeltaTime();
+			DeltaMs = GraphicsTimer.DeltaTime();
 
 			Renderer::OnUpdate(DeltaMs);
+
+			// Prepare for the render pass.
 			Renderer::OnPreFrameRender();
-			//GeometryManager::GatherGeometry();
+
+			// Render the world.
 			Renderer::OnRender();
 			Renderer::OnMidFrameRender();
+
+			IE_STRIP_FOR_GAME_DIST
+			(
+				m_pImGuiLayer->Begin();
+				for (Layer* pLayer : m_LayerStack)
+					pLayer->OnImGuiRender();
+				m_pGameLayer->OnImGuiRender();
+				m_pImGuiLayer->End();
+			);
+
+			// Submit for draw.
 			Renderer::ExecuteDraw();
 			Renderer::SwapBuffers();
 		}
@@ -122,46 +137,29 @@ namespace Insight {
 			BeginPlay(AppBeginPlayEvent{})
 		);
 
-		//std::thread RenderThread(RenderThread);
-
-		while(m_Running) {
-
+		std::thread RenderThread(&Application::RenderThread, this);
+		
+		while (m_Running) 
+		{
 			m_FrameTimer.Tick();
-			const float& DeltaMs = m_FrameTimer.DeltaTime();
+			float DeltaMs = m_FrameTimer.DeltaTime();
 			m_pWindow->SetWindowTitleFPS(m_FrameTimer.FPS());
-
 
 			m_pWindow->OnUpdate(DeltaMs);
 			m_pGameLayer->Update(DeltaMs);
 
-			for (Layer* layer : m_LayerStack) { 
+			for (Layer* layer : m_LayerStack) 
 				layer->OnUpdate(DeltaMs);
-			}
-
-			m_pGameLayer->PreRender();
-			m_pGameLayer->Render();
-
-			// Render Editor UI
-			IE_STRIP_FOR_GAME_DIST(
-				m_pImGuiLayer->Begin();
-				for (Layer* Layer : m_LayerStack) {
-					Layer->OnImGuiRender();
-				}
-				m_pGameLayer->OnImGuiRender();
-				m_pImGuiLayer->End();
-			);
-
-			m_pWindow->EndFrame();
 		}
-		
-		//RenderThread.join();
+
+		RenderThread.join();
 	}
 
 	void Application::Shutdown()
 	{
 	}
 
-	void Application::OnEvent(Event & e)
+	void Application::OnEvent(Event& e)
 	{
 		EventDispatcher Dispatcher(e);
 		Dispatcher.Dispatch<WindowCloseEvent>(IE_BIND_EVENT_FN(Application::OnWindowClose));
@@ -175,8 +173,9 @@ namespace Insight {
 
 		Input::GetInputManager().OnEvent(e);
 		Runtime::ACamera::Get().OnEvent(e);
-		
-		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();) {
+
+		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();) 
+		{
 			(*--it)->OnEvent(e);
 			if (e.Handled()) break;
 		}
@@ -188,41 +187,38 @@ namespace Insight {
 		{
 #if defined IE_PLATFORM_WINDOWS
 		case Renderer::eTargetRenderAPI::D3D_11:
-		{
 			IE_STRIP_FOR_GAME_DIST(m_pImGuiLayer = new D3D11ImGuiLayer());
 			break;
-		}
 		case Renderer::eTargetRenderAPI::D3D_12:
-		{
 			IE_STRIP_FOR_GAME_DIST(m_pImGuiLayer = new D3D12ImGuiLayer());
 			break;
-		}
 #endif
 		default:
-		{
 			IE_CORE_ERROR("Failed to create ImGui layer in application with API of type \"{0}\"", Renderer::GetAPI());
 			break;
-		}
 		}
 
 		IE_STRIP_FOR_GAME_DIST(m_pEditorLayer = new EditorLayer());
 		IE_STRIP_FOR_GAME_DIST(PushOverlay(m_pImGuiLayer);)
 		IE_STRIP_FOR_GAME_DIST(PushOverlay(m_pEditorLayer);)
+
+		m_pPerfOverlay = new PerfOverlay();
+		PushOverlay(m_pPerfOverlay);
 	}
 
-	void Application::PushLayer(Layer * layer)
+	void Application::PushLayer(Layer* layer)
 	{
 		m_LayerStack.PushLayer(layer);
 		layer->OnAttach();
 	}
 
-	void Application::PushOverlay(Layer * layer)
+	void Application::PushOverlay(Layer* layer)
 	{
 		m_LayerStack.PushOverLay(layer);
 		layer->OnAttach();
 	}
 
-	bool Application::OnWindowClose(WindowCloseEvent & e)
+	bool Application::OnWindowClose(WindowCloseEvent& e)
 	{
 		m_Running = false;
 		return true;

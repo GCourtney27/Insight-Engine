@@ -9,6 +9,8 @@ namespace Insight {
 	
 	class INSIGHT_API D3D12ImGuiLayer : public ImGuiLayer
 	{
+	private:
+		using Super = ImGuiLayer;
 	public:
 		D3D12ImGuiLayer() = default;
 		~D3D12ImGuiLayer() = default;

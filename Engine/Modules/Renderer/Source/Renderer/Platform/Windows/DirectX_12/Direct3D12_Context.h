@@ -14,6 +14,7 @@
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
 #include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_Constant_Buffer_Wrapper.h"
 
+
 /*
 	Render context for Windows Direct3D 12 API. 
 */
@@ -21,6 +22,7 @@
 using Microsoft::WRL::ComPtr;
 
 #define IE_D3D12_FrameIndex m_d3dDeviceResources.GetFrameIndex()
+
 
 namespace Insight {
 
@@ -81,6 +83,7 @@ namespace Insight {
 		virtual void SetVertexBuffers_Impl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) override;
 		virtual void SetIndexBuffer_Impl(ieIndexBuffer* pBuffer) override;
 		virtual void DrawIndexedInstanced_Impl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) override;
+		virtual void DrawText_Impl(const char* Text) override;
 
 		virtual void RenderSkySphere_Impl() override;
 		virtual bool CreateSkybox_Impl() override;
@@ -89,6 +92,7 @@ namespace Insight {
 		WindowsWindow& GetWindowRef() const { return *m_pWindowRef; }
 
 		inline ID3D12Device& GetDeviceContext() const { return m_d3dDeviceResources.GetDeviceContext(); }
+		inline DXGI_FORMAT GetSwapChainBackBufferFormat() const { return m_d3dDeviceResources.GetSwapChainBackBufferFormat(); }
 
 		inline ID3D12GraphicsCommandList& GetScenePassCommandList() const { return *m_pScenePass_CommandList.Get(); }
 		inline ID3D12GraphicsCommandList& GetPostProcessPassCommandList() const { return *m_pPostEffectsPass_CommandList.Get(); }
@@ -156,15 +160,7 @@ namespace Insight {
 		void CreateBloomPassRS();
 		void CreateDebugScreenQuadRS();
 
-		void CreateShadowPassPSO();
-		void CreateGeometryPassPSO();
-		void CreateSkyPassPSO();
-		void CreateTransparencyPassPSO();
-		void CreateLightPassPSO();
-		void CreatePostEffectsPassPSO();
-		void CreateDebugScreenQuadPSO();
-		void CreateDownSamplePSO();
-		void CreateGaussianBlurPSO();
+		void LoadPipelines();
 
 		// Create window resources
 		
@@ -172,7 +168,7 @@ namespace Insight {
 		void CreateViewport();
 		void CreateScissorRect();
 		void CreateScreenQuad();
-		
+
 		// Close GPU handle and release resources for the D3D 12 context.
 		void InternalCleanup();
 		// Resize render targets and depth stencil. Usually called from 'OnWindowResize'.
@@ -193,6 +189,7 @@ namespace Insight {
 		ieD3D12SphereRenderer*	m_pSkySphere_Geometry;
 
 		static const UINT	m_NumRTVs = 6;
+		static const UINT	m_NumGBuffers = m_NumRTVs - 2;
 		bool				m_WindowResizeComplete = true;
 		bool				m_UseWarpDevice = false;
 
@@ -269,46 +266,41 @@ namespace Insight {
 		//10:  SRV-Bloom Down Sampled(UAV(COPY)->SRV)
 		//11:  UAV-Bloom Down Sampled Intermediate Buffer(UAV)
 		//12:  SRV-Bloom Down Sampled Intermediate Buffer(UAV(COPY)->SRV)
+		//13:  SRV-Debug Font
 		//-----PerObject-----
-		//13:  SRV-Albedo(SRV)
-		//14:  SRV-Normal(SRV)
-		//15:  SRV-Roughness(SRV)
-		//16:  SRV-Metallic(SRV)
-		//17:  SRV-AO(SRV)
-		//18:  SRV-Sky Irradiance(SRV)
-		//19:  SRV-Sky Environment(SRV)
-		//20:  SRV-Sky BRDF LUT(SRV)
-		//21:  SRV-Sky Diffuse(SRV)
+		//14:  SRV-PerObject Texture Begin Slot
 		CDescriptorHeapWrapper				m_cbvsrvHeap;
 
 
 		DXGI_SAMPLE_DESC					m_SampleDesc = {};
 		D3D12_DEPTH_STENCIL_VIEW_DESC		m_ScenePass_DsvDesc = {};
 		float								m_ScreenClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-		DXGI_FORMAT							m_DsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		DXGI_FORMAT							m_DsvFormat = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+		DXGI_FORMAT							m_SceneDepthSRVFormat = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
 		DXGI_FORMAT							m_RtvFormat[6] = { 
 												DXGI_FORMAT_R11G11B10_FLOAT,	// Albedo buffer
 												DXGI_FORMAT_R16G16B16A16_SNORM,	// Normal
 												DXGI_FORMAT_R11G11B10_FLOAT,	// (R)Roughness/(G)Metallic/(B)AO
 												DXGI_FORMAT_R32G32B32A32_FLOAT, // Position
-												DXGI_FORMAT_R11G11B10_FLOAT,	// Light Pass result
+												DXGI_FORMAT_R32G32B32A32_FLOAT,	// Light Pass result
 												DXGI_FORMAT_R11G11B10_FLOAT,	// Bloom buffer
 											};
-		float								m_DepthClearValue = 1.0f;
+		FLOAT								m_DepthClearValue = 1.0f;
 		DXGI_FORMAT							m_ShadowMapFormat = DXGI_FORMAT_D32_FLOAT;
 
 		const UINT m_ShadowMapWidth = 2048;
 		const UINT m_ShadowMapHeight = 2048;
 
-		// Constant Buffers
 		
-		ieD3D12ConstantBuffer<CB_CS_DownSampleParams>	m_CBDownSampleParams;
-		ieD3D12ConstantBuffer<CB_CS_BlurParams>			m_CBBlurParams;
-		ieD3D12ConstantBuffer<CB_PS_Lights>				m_CBLights;
-		ieD3D12ConstantBuffer<CB_PS_PostFx>				m_CBPostFx;
-		ieD3D12ConstantBuffer<CB_PS_VS_PerFrame>		m_CBPerFrame;
-		ieD3D12ConstantBuffer<CB_VS_PerObject>			m_CBPerObject[m_FrameBufferCount];
-		ieD3D12ConstantBuffer<CB_PS_VS_PerObjectMaterialAdditives> m_CBPerObjectMaterial[m_FrameBufferCount];
+
+		// Constant Buffers
+		ieD3D12ConstantBuffer<CB_CS_DownSampleParams>				m_CBDownSampleParams;
+		ieD3D12ConstantBuffer<CB_CS_BlurParams>						m_CBBlurParams;
+		ieD3D12ConstantBuffer<CB_PS_Lights>							m_CBLights;
+		ieD3D12ConstantBuffer<CB_PS_PostFx>							m_CBPostFx;
+		ieD3D12ConstantBuffer<CB_PS_VS_PerFrame>					m_CBPerFrame;
+		ieD3D12ConstantBuffer<CB_VS_PerObject>						m_CBPerObject[m_FrameBufferCount];
+		ieD3D12ConstantBuffer<CB_PS_VS_PerObjectMaterialAdditives>	m_CBPerObjectMaterial[m_FrameBufferCount];
 
 	};
 

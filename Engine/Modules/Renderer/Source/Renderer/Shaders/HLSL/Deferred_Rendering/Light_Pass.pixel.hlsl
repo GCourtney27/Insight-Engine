@@ -36,7 +36,7 @@ float ShadowCalculation(float4 fragPosLightSpace, float3 normal, float3 lightDir
 // -------------------------
 struct PS_OUTPUT_LIGHTPASS
 {
-    float4 litImage     : SV_Target0;
+    float4 LitImage     : SV_Target0;
     float3 BloomBuffer  : SV_Target1;
 };
 
@@ -89,7 +89,7 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
             shadow = ShadowCalculation(fragPosLightSpace, normal, lightDir);
             //shadow *= dirLight.shadowDarknessMultiplier;
 
-            //ps_out.litImage = float4(shadow, shadow, shadow, 1.0);
+            //ps_out.LitImage = float4(shadow, shadow, shadow, 1.0);
             //return ps_out;
         }
         
@@ -136,7 +136,7 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     // Color Correction
     //HDRToneMap(pixelColor);
     //GammaCorrect(pixelColor);
-    ps_out.litImage.rgb = pixelColor;
+    ps_out.LitImage.rgb = pixelColor;
     
     return ps_out;
 }
