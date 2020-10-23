@@ -5,7 +5,7 @@
 #include "Insight/Systems/Managers/Resource_Manager.h"
 #include "Insight/Input/Windows_Input.h"
 
-#include "Insight/Runtime/Components/CSharp_Scirpt_Component.h"
+#include "Insight/Actors/Components/CSharp_Scirpt_Component.h"
 
 #include "imgui.h"
 

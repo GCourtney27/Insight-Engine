@@ -2,8 +2,8 @@
 
 #include "Editor_Layer.h"
 
-#include "Insight/Runtime/ACamera.h"
-#include "Insight/Runtime/AActor.h"
+#include "Insight/Actors/ACamera.h"
+#include "Insight/Actors/AActor.h"
 
 #include "Insight/Rendering/APost_Fx.h"
 #include "Insight/Rendering/ASky_Sphere.h"

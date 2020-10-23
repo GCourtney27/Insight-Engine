@@ -1,7 +1,7 @@
 #include <Engine_pch.h>
 
 #include "Renderer/Renderer.h"
-#include "Insight/Runtime/AActor.h"
+#include "Insight/Actors/AActor.h"
 #include "imgui.h"
 #include "Scene_Node.h"
 #include "Insight/Core/Scene/Scene.h"

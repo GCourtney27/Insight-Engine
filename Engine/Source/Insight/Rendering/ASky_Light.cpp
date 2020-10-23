@@ -2,7 +2,7 @@
 
 #include "ASky_Light.h"
 
-#include "Insight/Runtime/Components/Actor_Component.h"
+#include "Insight/Actors/Components/Actor_Component.h"
 #include "Renderer/Renderer.h"
 
 #include "Renderer/Platform/Windows/DirectX_12/Wrappers/ie_D3D12_Texture.h"

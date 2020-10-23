@@ -3,7 +3,7 @@
 #include "Application.h"
 
 #include "Insight/Input/Input.h"
-#include "Insight/Runtime/AActor.h"
+#include "Insight/Actors/AActor.h"
 #include "Insight/Layer_Types/ImGui_Layer.h"
 #include "Insight/Core/ie_Exception.h"
 #include "Renderer/Renderer.h"
@@ -116,6 +116,7 @@ namespace Insight {
 			Renderer::OnRender();
 			Renderer::OnMidFrameRender();
 
+			// Render the Editor/UI last.
 			IE_STRIP_FOR_GAME_DIST
 			(
 				m_pImGuiLayer->Begin();
@@ -157,6 +158,7 @@ namespace Insight {
 
 	void Application::Shutdown()
 	{
+		Renderer::Destroy();
 	}
 
 	void Application::OnEvent(Event& e)

@@ -14,7 +14,7 @@ Game engine written in C/C++ with DirectX 11/12graphics API support. <br />
 * Save and load your scenes. In the background, JSON is being used to store all Game Objects and their corresponding components
 
 ### Editor
-<img src="Images/WorldEditor.png" witdth="550" height="350" alt="Editor"/>
+<img src="Images/World_Editor.png" witdth="550" height="350" alt="Editor"/>
 
 ### PBR
 <img src="Images/PBR_1911.png" witdth="550" height="350" alt="Editor"/>

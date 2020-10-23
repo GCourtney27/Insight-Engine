@@ -8,7 +8,7 @@
 #include "Platform/Windows/DirectX_11/Geometry/D3D11_Vertex_Buffer.h"
 #include "Platform/Windows/DirectX_11/Geometry/D3D11_Sphere_Renderer.h"
 
-#include "Insight/Runtime/APlayer_Character.h"
+#include "Insight/Actors/APlayer_Character.h"
 #include "Insight/Systems/Managers/Geometry_Manager.h"
 
 #include "Insight/Rendering/APost_Fx.h"

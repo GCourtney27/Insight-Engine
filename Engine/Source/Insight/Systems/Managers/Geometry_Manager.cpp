@@ -3,7 +3,7 @@
 #include "Geometry_Manager.h"
 
 #include "Renderer/Renderer.h"
-#include "Insight/Runtime/APlayer_Character.h"
+#include "Insight/Actors/APlayer_Character.h"
 
 #include "Renderer/Platform/Windows/DirectX_12/Direct3D12_Context.h"
 #include "Renderer/Platform/Windows/DirectX_11/Geometry/D3D11_Geometry_Manager.h"

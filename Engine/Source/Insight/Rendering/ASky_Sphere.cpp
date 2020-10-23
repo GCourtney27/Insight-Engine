@@ -2,8 +2,8 @@
 
 #include "ASky_Sphere.h"
 
-#include "Insight/Runtime/Components/Actor_Component.h"
-#include "Insight/Runtime/Components/Static_Mesh_Component.h"
+#include "Insight/Actors/Components/Actor_Component.h"
+#include "Insight/Actors/Components/Static_Mesh_Component.h"
 
 #include "Renderer/Platform/Windows/DirectX_12/Wrappers/ie_D3D12_Texture.h"
 #include "Renderer/Platform/Windows/DirectX_11/Wrappers/ie_D3D11_Texture.h"

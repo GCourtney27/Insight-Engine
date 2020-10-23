@@ -1,0 +1,2 @@
+C:\VSDev\Insight\InsightEngine\Binaries\Debug-windows-x86_64\Application\Application.pdb
+C:\VSDev\Insight\InsightEngine\Binaries\Intermediates\Debug-windows-x86_64\Application\Application.pdb

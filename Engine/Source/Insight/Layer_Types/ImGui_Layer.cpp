@@ -16,6 +16,7 @@ namespace Insight {
 
 	ImGuiLayer::~ImGuiLayer()
 	{
+		delete m_pIO;
 	}
 
 	void ImGuiLayer::OnAttach()

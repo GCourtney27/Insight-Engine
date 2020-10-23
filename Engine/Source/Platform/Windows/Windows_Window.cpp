@@ -700,8 +700,6 @@ namespace Insight {
 			::UnregisterClass(this->m_Data.WindowClassName_wide.c_str(), *m_WindowsAppInstance);
 			::DestroyWindow(m_hWindow);
 		}
-
-		Renderer::Destroy();
 	}
 
 }

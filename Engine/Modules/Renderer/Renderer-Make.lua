@@ -24,8 +24,8 @@ project("Renderer")
     pchheader ("Renderer_pch.h")
     pchsource ("Source/Renderer_pch.cpp")
 
-	targetdir (rootDirectoryPath .. "Bin/" .. outputdir .. "/%{prj.name}")
-    objdir (rootDirectoryPath .. "Bin-Int/" .. outputdir .. "/%{prj.name}")
+	targetdir (rootDirectoryPath .. "Binaries/" .. outputdir .. "/%{prj.name}")
+    objdir (rootDirectoryPath .. "Binaries/Intermediates/" .. outputdir .. "/%{prj.name}")
     
     files
 	{
@@ -58,7 +58,7 @@ project("Renderer")
     postbuildcommands
     {
 		-- DXR Shaders
-		("{COPY} %{wks.location}/Engine/Modules/Renderer/Source/Renderer/Shaders/HLSL/Ray_Tracing/** ".. rootDirectoryPath .."bin/"..outputdir.."/Renderer"),
+		("{COPY} %{wks.location}/Engine/Modules/Renderer/Source/Renderer/Shaders/HLSL/Ray_Tracing/** ".. rootDirectoryPath .. "Binaries/" .. outputdir.."/Renderer"),
     }
 
 
