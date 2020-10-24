@@ -21,7 +21,11 @@ namespace Insight {
 		{
 			m_pSceneComponent = CreateDefaultSubobject<SceneComponent>();
 			m_pInputComponent = CreateDefaultSubobject<InputComponent>();
-			m_pInputComponent->BindAxis("MoveForward", IE_BIND_EVENT_FN(ACamera::TestMove));
+			
+			// Setup event callbacks for camera movement.
+			m_pInputComponent->BindAxis("MoveForward", IE_BIND_EVENT_FN(ACamera::MoveForward));
+			m_pInputComponent->BindAxis("MoveRight", IE_BIND_EVENT_FN(ACamera::MoveRight));
+			m_pInputComponent->BindAxis("MoveUp", IE_BIND_EVENT_FN(ACamera::MoveUp));
 			
 			SetViewTarget(ViewTarget, false, true);
 		}
@@ -33,66 +37,10 @@ namespace Insight {
 		void ACamera::BeginPlay()
 		{
 		}
-
+		static float s_DeltaMs = 0.0f;
 		void ACamera::OnUpdate(const float DeltaMs)
 		{
-			// Strip this out for game distribution we dont need it 
-			// during runtime character controller will do this for us
-			IE_ADD_FOR_GAME_DIST(return);
-
-			if (Application::Get().IsPlaySessionUnderWay()) {
-				return;
-			}
-
-			/*if (Input::IsMouseButtonPressed(IE_MOUSEBUTTON_MIDDLE)) {
-
-				auto [x, y] = Input::GetRawMousePosition();
-
-				if (x < 0.0f) {
-					ProcessKeyboardInput(CameraMovement::LEFT, DeltaMs);
-				}
-				if (x > 0.0f) {
-					ProcessKeyboardInput(CameraMovement::RIGHT, DeltaMs);
-				}
-				if (y < 0.0f) {
-					ProcessKeyboardInput(CameraMovement::UP, DeltaMs);
-				}
-				if (y > 0.0f) {
-					ProcessKeyboardInput(CameraMovement::DOWN, DeltaMs);
-				}
-			}*/
-
-			/*if (Input::IsKeyPressed(VK_SHIFT)) {
-				m_MovementSpeed = BOOST_SPEED;
-			}
-			else {
-				m_MovementSpeed = m_BaseMovementSpeed;
-			}
-
-			if (Input::IsMouseButtonPressed(IE_MOUSEBUTTON_RIGHT)) {
-
-				auto [x, y] = Input::GetRawMousePosition();
-				ProcessMouseMovement((float)x, (float)y);
-
-				if (Input::IsKeyPressed('W')) {
-					ProcessKeyboardInput(CameraMovement::FORWARD, DeltaMs);
-				}
-				if (Input::IsKeyPressed('S')) {
-					ProcessKeyboardInput(CameraMovement::BACKWARD, DeltaMs);
-				}
-				if (Input::IsKeyPressed('A')) {
-					ProcessKeyboardInput(CameraMovement::LEFT, DeltaMs);
-				}
-				if (Input::IsKeyPressed('D')) {
-					ProcessKeyboardInput(CameraMovement::RIGHT, DeltaMs);
-				}
-				if (Input::IsKeyPressed('E')) {
-					ProcessKeyboardInput(CameraMovement::UP, DeltaMs);
-				}
-				if (Input::IsKeyPressed('Q')) {
-					ProcessKeyboardInput(CameraMovement::DOWN, DeltaMs);
-				}
-			}*/
+			s_DeltaMs = DeltaMs;
 		}
 
 		void ACamera::EditorEndPlay()
@@ -110,31 +58,6 @@ namespace Insight {
 
 			UpdateViewMatrix();
 			m_pSceneComponent->GetTransformRef().UpdateLocalDirectionVectors();
-		}
-
-		void ACamera::ProcessKeyboardInput(CameraMovement direction, float deltaTime)
-		{
-			float velocity = m_MovementSpeed * deltaTime;
-
-			if (direction == CameraMovement::FORWARD) {
-				m_pSceneComponent->GetTransformRef().GetPositionRef() += m_pSceneComponent->GetTransformRef().GetLocalForward() * velocity;
-			}
-			if (direction == CameraMovement::BACKWARD) {
-				m_pSceneComponent->GetTransformRef().GetPositionRef() -= m_pSceneComponent->GetTransformRef().GetLocalForward() * velocity;
-			}
-			if (direction == CameraMovement::LEFT) {
-				m_pSceneComponent->GetTransformRef().GetPositionRef() -= m_pSceneComponent->GetTransformRef().GetLocalRight() * velocity;
-			}
-			if (direction == CameraMovement::RIGHT) {
-				m_pSceneComponent->GetTransformRef().GetPositionRef() += m_pSceneComponent->GetTransformRef().GetLocalRight() * velocity;
-			}
-			if (direction == CameraMovement::UP) {
-				m_pSceneComponent->GetTransformRef().GetPositionRef() += Vector3::Up * velocity;
-			}
-			if (direction == CameraMovement::DOWN) {
-				m_pSceneComponent->GetTransformRef().GetPositionRef() -= Vector3::Up * velocity;
-			}
-			UpdateViewMatrix();
 		}
 
 		void ACamera::OnEvent(Event& e)
@@ -190,11 +113,6 @@ namespace Insight {
 
 		}
 
-		void ACamera::TestMove(float Value)
-		{
-			IE_CORE_INFO("Hello from camera move function!");
-		}
-
 		void ACamera::UpdateViewMatrix()
 		{
 			m_CamRotationMatrix = XMMatrixRotationRollPitchYaw(m_pSceneComponent->GetRotation().x, m_pSceneComponent->GetRotation().y, 0.0f);
@@ -210,21 +128,31 @@ namespace Insight {
 				return false;
 			}
 
-			// Vertical scroll wheel
-			if (e.GetYOffset() > 0.0f) {
-				ProcessKeyboardInput(CameraMovement::FORWARD, 0.05f);
-			}
-			if (e.GetYOffset() < 0.0f) {
-				ProcessKeyboardInput(CameraMovement::BACKWARD, 0.05f);
-			}
-			// Horizontal scroll wheel
-			if (e.GetXOffset() > 0.0f) {
-				ProcessKeyboardInput(CameraMovement::RIGHT, 0.05f);
-			}
-			if (e.GetXOffset() < 0.0f) {
-				ProcessKeyboardInput(CameraMovement::LEFT, 0.05f);
-			}
 			return false;
+		}
+
+		void ACamera::MoveForward(float Value)
+		{
+			float Velocity = m_MovementSpeed * Value * s_DeltaMs;
+			ieVector3 Direction = m_pSceneComponent->GetTransform().GetLocalForward() * Velocity;
+			m_pSceneComponent->GetPositionRef() += Direction;
+			UpdateViewMatrix();
+		}
+
+		void ACamera::MoveRight(float Value)
+		{
+			float Velocity = m_MovementSpeed * Value * s_DeltaMs;
+			ieVector3 Direction = m_pSceneComponent->GetTransform().GetLocalRight() * Velocity;
+			m_pSceneComponent->GetPositionRef() += Direction;
+			UpdateViewMatrix();
+		}
+
+		void ACamera::MoveUp(float Value)
+		{
+			float Velocity = m_MovementSpeed * Value * s_DeltaMs;
+			ieVector3 Direction = m_pSceneComponent->GetTransform().GetLocalUp() * Velocity;
+			m_pSceneComponent->GetPositionRef() += Direction;
+			UpdateViewMatrix();
 		}
 
 	} // end namespace Runtime

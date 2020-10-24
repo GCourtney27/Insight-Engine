@@ -56,10 +56,13 @@ namespace Insight {
 				m_AxisMappings.push_back({ "MoveForward", 'S', -1.0f });
 				m_AxisMappings.push_back({ "MoveRight", 'D', 1.0f });
 				m_AxisMappings.push_back({ "MoveRight", 'A', -1.0f });
+				m_AxisMappings.push_back({ "MoveUp", 'E', 1.0f });
+				m_AxisMappings.push_back({ "MoveUp", 'Q', -1.0f });
 
 			}
 			~InputDispatcher() = default;
 			static InputDispatcher& Get() { return *s_Instance; }
+			void Update();
 
 			void ProcessInputEvent(Event& e);
 			

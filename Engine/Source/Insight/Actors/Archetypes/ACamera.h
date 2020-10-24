@@ -63,7 +63,6 @@ namespace Insight {
 
 			void ProcessMouseScroll(float yOffset);
 			void ProcessMouseMovement(float xOffset, float yOffset);
-			void ProcessKeyboardInput(CameraMovement direction, float deltaTime);
 
 			ieVector3 GetPosition() const { return m_pSceneComponent->GetPosition(); }
 			inline XMMATRIX GetViewMatrix() const { return m_ViewMatrix; }
@@ -115,10 +114,14 @@ namespace Insight {
 			void OnImGuiRender() override;
 
 			int GetIsOrthographic() { return m_IsOrthographic; }
-			void TestMove(float Value);
 		private:
 			void UpdateViewMatrix();
 			bool OnMouseScrolled(MouseScrolledEvent& e);
+
+			// TODO: Move this to the Pawn class! Translation
+			void MoveForward(float Value);
+			void MoveRight(float Value);
+			void MoveUp(float Value);
 		private:
 			XMFLOAT4X4 m_ViewMat4x4;
 			XMMATRIX m_ViewMatrix;

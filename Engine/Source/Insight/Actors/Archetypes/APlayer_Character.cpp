@@ -69,36 +69,7 @@ namespace Insight {
 			{
 				auto [x, y] = Input::GetRawMousePosition();
 				m_pCamera->ProcessMouseMovement((float)x, (float)y);
-				if (Input::IsKeyPressed('W'))
-				{
-					APawn::Move(eMovement::FORWARD, DeltaMs);
-					m_pCamera->ProcessKeyboardInput(CameraMovement::FORWARD, DeltaMs);
-				}
-				if (Input::IsKeyPressed('S'))
-				{
-					APawn::Move(eMovement::BACKWARD, DeltaMs);
-					m_pCamera->ProcessKeyboardInput(CameraMovement::BACKWARD, DeltaMs);
-				}
-				if (Input::IsKeyPressed('A'))
-				{
-					APawn::Move(eMovement::LEFT, DeltaMs);
-					m_pCamera->ProcessKeyboardInput(CameraMovement::LEFT, DeltaMs);
-				}
-				if (Input::IsKeyPressed('D'))
-				{
-					APawn::Move(eMovement::RIGHT, DeltaMs);
-					m_pCamera->ProcessKeyboardInput(CameraMovement::RIGHT, DeltaMs);
-				}
-				if (Input::IsKeyPressed('E'))
-				{
-					APawn::Move(eMovement::UP, DeltaMs);
-					m_pCamera->ProcessKeyboardInput(CameraMovement::UP, DeltaMs);
-				}
-				if (Input::IsKeyPressed('Q'))
-				{
-					APawn::Move(eMovement::DOWN, DeltaMs);
-					m_pCamera->ProcessKeyboardInput(CameraMovement::DOWN, DeltaMs);
-				}
+				
 			}
 
 		}
