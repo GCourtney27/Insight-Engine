@@ -26,7 +26,7 @@ namespace Insight {
 
 	bool ResourceManager::Init()
 	{
-		GeometryManager::InitGlobalInstance();
+		GeometryManager::CreateInstance();
 		GeometryManager::Init();
 
 		m_pMonoScriptManager->Init();
@@ -57,7 +57,7 @@ namespace Insight {
 	{
 		GeometryManager::FlushModelCache();
 		m_pTextureManager->FlushTextureCache();
-		//m_pMonoScriptManager->Cleanup();
+		m_pMonoScriptManager->Cleanup();
 	}
 
 }

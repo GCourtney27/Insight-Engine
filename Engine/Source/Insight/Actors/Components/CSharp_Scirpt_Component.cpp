@@ -134,9 +134,9 @@ namespace Insight {
 
 		void CSharpScriptComponent::ProcessScriptTransformChanges()
 		{
-			float pos[3];
-			float rot[3];
-			float sca[3];
+			//float pos[3];
+			//float rot[3];
+			//float sca[3];
 
 			/*mono_field_get_value(m_PositionObj, m_XPositionField, &pos[0]);
 			mono_field_get_value(m_PositionObj, m_YPositionField, &pos[1]);

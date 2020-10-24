@@ -387,22 +387,22 @@ namespace Insight {
 			IE_CORE_ERROR("Failed to initialize COM library.");
 		}
 
-		static bool raw_input_initialized = false;
-		if (raw_input_initialized == false) {
+		static bool RIDInitialized = false;
+		if (RIDInitialized == false) {
 
-			RAWINPUTDEVICE rid;
+			RAWINPUTDEVICE RID;
 
-			rid.usUsagePage = 0x01; // Mouse
-			rid.usUsage = 0x02;
-			rid.dwFlags = 0;
-			rid.hwndTarget = NULL;
+			RID.usUsagePage = 0x01; // Mouse
+			RID.usUsage = 0x02;
+			RID.dwFlags = 0;
+			RID.hwndTarget = NULL;
 
-			if (RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE)
+			if (RegisterRawInputDevices(&RID, 1, sizeof(RID)) == FALSE)
 			{
 				IE_CORE_ERROR("Failed to register raw input devices. Error: {0}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
 				return false;
 			}
-			raw_input_initialized = true;
+			RIDInitialized = true;
 		}
 
 		RegisterWindowClass();

@@ -18,7 +18,7 @@ namespace Insight {
 		GeometryManager();
 		virtual ~GeometryManager();
 
-		static bool InitGlobalInstance();
+		static bool CreateInstance();
 		static void Shutdown();
 
 		static GeometryManager& Get() { return *s_Instance; }

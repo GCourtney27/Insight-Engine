@@ -118,6 +118,7 @@ namespace Insight {
 			s_Instance->m_AspectRatio = static_cast<float>(s_Instance->m_WindowWidth) / static_cast<float>(s_Instance->m_WindowHeight);
 			s_Instance->OnWindowResize();
 		}
+		static void SetActiveCamera(Runtime::ACamera* pCamera) { s_Instance->m_pWorldCameraRef = pCamera; }
 
 		CB_PS_DirectionalLight GetDirectionalLightCB() const;
 

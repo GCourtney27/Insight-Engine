@@ -26,7 +26,7 @@ namespace Insight {
 			virtual bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer) override;
 
 			virtual inline void SetEventCallback(const EventCallbackFn& callback) override { m_EventData.EventCallback = callback; }
-			void OnEvent(Event& e);
+			virtual void OnEvent(Event& e) override;
 
 			virtual void OnInit() override;
 			virtual void OnPostInit() {}

@@ -4,7 +4,7 @@
 
 #include "Insight/Core/Application.h"
 #include "Platform/Windows/Windows_Window.h"
-#include "Insight/Actors/APlayer_Character.h"
+#include "Insight/Actors/Archetypes/APlayer_Character.h"
 #include "Insight/Systems/Managers/Geometry_Manager.h"
 
 #include "Insight/Rendering/APost_Fx.h"
@@ -107,7 +107,6 @@ namespace Insight {
 	bool Direct3D12Context::PostInit_Impl()
 	{
 		CloseCommandListAndSignalCommandQueue();
-		m_pWorldCameraRef = &Runtime::ACamera::Get();
 
 		return true;
 	}

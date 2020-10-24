@@ -3,7 +3,7 @@
 #include "Scene_Component.h"
 
 #include "Insight/Input/Input.h"
-#include "Insight/Actors/ACamera.h"
+#include "Insight/Actors/Archetypes/ACamera.h"
 
 #include "Insight/UI/UI_Lib.h"
 
@@ -176,59 +176,59 @@ namespace Insight {
 		static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
 		void SceneComponent::RenderSelectionGizmo()
 		{
-			static ACamera& s_WorldCameraRef = ACamera::Get();
+			//static ACamera& s_WorldCameraRef = ACamera::Get();
 
-			XMFLOAT4X4 objectMat;
-			XMFLOAT4X4 deltaMat;
-			XMFLOAT4X4 viewMat;
-			XMFLOAT4X4 projMat;
-			XMStoreFloat4x4(&objectMat, m_Transform.GetLocalMatrix());
-			XMStoreFloat4x4(&viewMat, s_WorldCameraRef.GetViewMatrix());
-			XMStoreFloat4x4(&projMat, s_WorldCameraRef.GetProjectionMatrix());
+			//XMFLOAT4X4 objectMat;
+			//XMFLOAT4X4 deltaMat;
+			//XMFLOAT4X4 viewMat;
+			//XMFLOAT4X4 projMat;
+			//XMStoreFloat4x4(&objectMat, m_Transform.GetLocalMatrix());
+			//XMStoreFloat4x4(&viewMat, s_WorldCameraRef.GetViewMatrix());
+			//XMStoreFloat4x4(&projMat, s_WorldCameraRef.GetProjectionMatrix());
 
-			if (Input::IsKeyPressed('W')) {
-				mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-			}
-			else if (Input::IsKeyPressed('E')) {
-				mCurrentGizmoOperation = ImGuizmo::ROTATE;
-			}
-			else if (Input::IsKeyPressed('R')) {
-				mCurrentGizmoOperation = ImGuizmo::SCALE;
-			}
+			//if (Input::IsKeyPressed('W')) {
+			//	mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+			//}
+			//else if (Input::IsKeyPressed('E')) {
+			//	mCurrentGizmoOperation = ImGuizmo::ROTATE;
+			//}
+			//else if (Input::IsKeyPressed('R')) {
+			//	mCurrentGizmoOperation = ImGuizmo::SCALE;
+			//}
 
-			ImGuiIO& io = ImGui::GetIO();
-			ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-			//TODO if(Raycast::LastRayCast::Succeeded) than run this line if false than skip it (disbles the guizmo)
-			ImGuizmo::Manipulate(*viewMat.m, *projMat.m, mCurrentGizmoOperation, mCurrentGizmoMode, *objectMat.m, *deltaMat.m, NULL, NULL, NULL);
+			//ImGuiIO& io = ImGui::GetIO();
+			//ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+			////TODO if(Raycast::LastRayCast::Succeeded) than run this line if false than skip it (disbles the guizmo)
+			//ImGuizmo::Manipulate(*viewMat.m, *projMat.m, mCurrentGizmoOperation, mCurrentGizmoMode, *objectMat.m, *deltaMat.m, NULL, NULL, NULL);
 
-			if (ImGuizmo::IsOver())
-			{
-				float pos[3] = { 0.0f, 0.0f, 0.0f };
-				float sca[3] = { 0.0f, 0.0f, 0.0f };
-				float rot[3] = { 0.0f, 0.0f, 0.0f };
+			//if (ImGuizmo::IsOver())
+			//{
+			//	float pos[3] = { 0.0f, 0.0f, 0.0f };
+			//	float sca[3] = { 0.0f, 0.0f, 0.0f };
+			//	float rot[3] = { 0.0f, 0.0f, 0.0f };
 
-				switch (mCurrentGizmoOperation) {
-				case ImGuizmo::TRANSLATE:
-				{
-					ImGuizmo::DecomposeMatrixToComponents(*deltaMat.m, pos, rot, sca);
-					m_Transform.Translate(pos[0], pos[1], pos[2]);
-					break;
-				}
-				case ImGuizmo::SCALE:
-				{
-					ImGuizmo::DecomposeMatrixToComponents(*objectMat.m, pos, rot, sca);
-					m_Transform.SetScale(sca[0], sca[1], sca[2]);
-					break;
-				}
-				case ImGuizmo::ROTATE:
-				{
-					ImGuizmo::DecomposeMatrixToComponents(*deltaMat.m, pos, rot, sca);
-					m_Transform.Rotate(rot[0], rot[1], rot[2]);
-					break;
-				}
-				default: { break; }
-				}
-			}
+			//	switch (mCurrentGizmoOperation) {
+			//	case ImGuizmo::TRANSLATE:
+			//	{
+			//		ImGuizmo::DecomposeMatrixToComponents(*deltaMat.m, pos, rot, sca);
+			//		m_Transform.Translate(pos[0], pos[1], pos[2]);
+			//		break;
+			//	}
+			//	case ImGuizmo::SCALE:
+			//	{
+			//		ImGuizmo::DecomposeMatrixToComponents(*objectMat.m, pos, rot, sca);
+			//		m_Transform.SetScale(sca[0], sca[1], sca[2]);
+			//		break;
+			//	}
+			//	case ImGuizmo::ROTATE:
+			//	{
+			//		ImGuizmo::DecomposeMatrixToComponents(*deltaMat.m, pos, rot, sca);
+			//		m_Transform.Rotate(rot[0], rot[1], rot[2]);
+			//		break;
+			//	}
+			//	default: { break; }
+			//	}
+			//}
 		}
 
 	} // end namspace Runtime

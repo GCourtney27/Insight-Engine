@@ -94,28 +94,19 @@ namespace Insight {
 			mono_set_dirs("C:/Program Files/Mono/lib", "C:/Program Files/Mono/etc");
 
 			m_pDomain = mono_jit_init_version("IE-Mono-Script-Engine", "v4.0.30319");
-			if (!m_pDomain) {
-				IE_CORE_ERROR("Failed to initialize mono domain.");
-				return false;
-			}
+			IE_ASSERT(m_pDomain != nullptr, "Failed to initialize mono jit compiler.");
 			m_ManagerIsInitialized = true;
-
 		}
 		m_pDomain = mono_domain_create_appdomain("IE-Mono-Script-Engine", NULL);
+		IE_ASSERT(m_pDomain != nullptr, "Failed to create mono domain. Mono may not be installed on your machine.");
 		mono_domain_set(m_pDomain, false);
 
 		m_pAssembly = mono_domain_assembly_open(m_pDomain, m_AssemblyDir.c_str());
-		if (!m_pAssembly) {
-			IE_CORE_ERROR("Failed to open mono assembly with path: {0}", m_AssemblyDir);
-			return false;
-		}
+		IE_ASSERT(m_pAssembly != nullptr, "Failed to open Assembly (.dll) file. Make sure it was compiled correctly in your editor or the file path is correct.");
 
 		m_pImage = mono_assembly_get_image(m_pAssembly);
-		if (!m_pImage) {
-			IE_CORE_ERROR("Failed to get image from mono assembly.");
-			return false;
-		}
-
+		IE_ASSERT(m_pImage != nullptr, "Failed to create image from loaded assembly.");
+		
 		// Register C# -> C++ calls
 		// Input
 		mono_add_internal_call("Internal.Input::IsKeyPressed", reinterpret_cast<const void*>(Interop_IsKeyPressed));

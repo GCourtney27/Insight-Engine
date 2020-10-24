@@ -3,7 +3,7 @@
 #include <Insight/Core.h>
 
 #include "Insight/Systems/Managers/Resource_Manager.h"
-#include "Insight/Actors/ACamera.h"
+#include "Insight/Actors/Archetypes/ACamera.h"
 
 
 namespace Insight {

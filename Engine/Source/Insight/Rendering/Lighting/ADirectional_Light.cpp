@@ -4,7 +4,7 @@
 
 #include "Insight/Actors/Components/Actor_Component.h"
 #include "Renderer/Renderer.h"
-#include "Insight/Actors/ACamera.h"
+#include "Insight/Actors/Archetypes/ACamera.h"
 #include "Insight/Core/Application.h"
 #include "imgui.h"
 

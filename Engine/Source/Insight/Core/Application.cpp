@@ -4,14 +4,14 @@
 
 #include "Insight/Input/Input.h"
 #include "Insight/Actors/AActor.h"
-#include "Insight/Layer_Types/ImGui_Layer.h"
+#include "Insight/Core/Layer/ImGui_Layer.h"
 #include "Insight/Core/ie_Exception.h"
 #include "Renderer/Renderer.h"
 
 #if defined IE_PLATFORM_WINDOWS
-#include "Renderer/Platform/Windows/DirectX_11/Wrappers/D3D11_ImGui_Layer.h"
-#include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_ImGui_Layer.h"
-#include "Platform/Windows/Windows_Window.h"
+	#include "Renderer/Platform/Windows/DirectX_11/Wrappers/D3D11_ImGui_Layer.h"
+	#include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_ImGui_Layer.h"
+	#include "Platform/Windows/Windows_Window.h"
 #endif
 
 // TODO: Make the project hot swapable
@@ -76,9 +76,10 @@ namespace Insight {
 		if (!m_pGameLayer->LoadScene(DocumentPath)) {
 			throw ieException("Failed to initialize scene");
 		}
+		Renderer::SetActiveCamera(&m_pGameLayer->GetScene()->GetSceneCamera());
 
 		// Push core app layers to the layer stack
-		PushEngineLayers();
+		PushCoreLayers();
 
 		return true;
 	}
@@ -159,31 +160,13 @@ namespace Insight {
 	void Application::Shutdown()
 	{
 		Renderer::Destroy();
+		delete m_pGameLayer;
+		delete m_pPerfOverlay;
+		delete m_pEditorLayer;
+		delete m_pImGuiLayer;
 	}
 
-	void Application::OnEvent(Event& e)
-	{
-		EventDispatcher Dispatcher(e);
-		Dispatcher.Dispatch<WindowCloseEvent>(IE_BIND_EVENT_FN(Application::OnWindowClose));
-		Dispatcher.Dispatch<WindowResizeEvent>(IE_BIND_EVENT_FN(Application::OnWindowResize));
-		Dispatcher.Dispatch<WindowToggleFullScreenEvent>(IE_BIND_EVENT_FN(Application::OnWindowFullScreen));
-		Dispatcher.Dispatch<SceneSaveEvent>(IE_BIND_EVENT_FN(Application::SaveScene));
-		Dispatcher.Dispatch<AppBeginPlayEvent>(IE_BIND_EVENT_FN(Application::BeginPlay));
-		Dispatcher.Dispatch<AppEndPlayEvent>(IE_BIND_EVENT_FN(Application::EndPlay));
-		Dispatcher.Dispatch<AppScriptReloadEvent>(IE_BIND_EVENT_FN(Application::ReloadScripts));
-		Dispatcher.Dispatch<ShaderReloadEvent>(IE_BIND_EVENT_FN(Application::ReloadShaders));
-
-		Input::GetInputManager().OnEvent(e);
-		Runtime::ACamera::Get().OnEvent(e);
-
-		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();) 
-		{
-			(*--it)->OnEvent(e);
-			if (e.Handled()) break;
-		}
-	}
-
-	void Application::PushEngineLayers()
+	void Application::PushCoreLayers()
 	{
 		switch (Renderer::GetAPI())
 		{
@@ -218,6 +201,36 @@ namespace Insight {
 	{
 		m_LayerStack.PushOverLay(layer);
 		layer->OnAttach();
+	}
+
+
+
+	// -----------------
+	// Events Callbacks |
+	// -----------------
+
+	void Application::OnEvent(Event& e)
+	{
+		EventDispatcher Dispatcher(e);
+		Dispatcher.Dispatch<WindowCloseEvent>(IE_BIND_EVENT_FN(Application::OnWindowClose));
+		Dispatcher.Dispatch<WindowResizeEvent>(IE_BIND_EVENT_FN(Application::OnWindowResize));
+		Dispatcher.Dispatch<WindowToggleFullScreenEvent>(IE_BIND_EVENT_FN(Application::OnWindowFullScreen));
+		Dispatcher.Dispatch<SceneSaveEvent>(IE_BIND_EVENT_FN(Application::SaveScene));
+		Dispatcher.Dispatch<AppBeginPlayEvent>(IE_BIND_EVENT_FN(Application::BeginPlay));
+		Dispatcher.Dispatch<AppEndPlayEvent>(IE_BIND_EVENT_FN(Application::EndPlay));
+		Dispatcher.Dispatch<AppScriptReloadEvent>(IE_BIND_EVENT_FN(Application::ReloadScripts));
+		Dispatcher.Dispatch<ShaderReloadEvent>(IE_BIND_EVENT_FN(Application::ReloadShaders));
+
+		// Process event callbacks.
+		m_InputDispatcher.ProcessInputEvent(e);
+
+		//Input::GetInputManager().OnEvent(e);
+
+		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
+		{
+			(*--it)->OnEvent(e);
+			if (e.Handled()) break;
+		}
 	}
 
 	bool Application::OnWindowClose(WindowCloseEvent& e)

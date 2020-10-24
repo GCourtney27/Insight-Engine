@@ -8,11 +8,12 @@
 #include "Insight/Core/Layer/Layer_Stack.h"
 
 #include "Insight/Events/Application_Event.h"
+#include "Insight/Input/Input_Dispatcher.h"
 
-#include "Insight/Layer_Types/Game_Layer.h"
-#include "Insight/Layer_Types/ImGui_Layer.h"
-#include "Insight/Layer_Types/Editor_Layer.h"
-#include "Insight/Layer_Types/Perf_Monitor_Layer.h"
+#include "Insight/Core/Layer/Game_Layer.h"
+#include "Insight/Core/Layer/ImGui_Layer.h"
+#include "Insight/Core/Layer/Editor_Layer.h"
+#include "Insight/Core/Layer/Perf_Monitor_Layer.h"
 
 
 namespace Insight {
@@ -66,7 +67,7 @@ namespace Insight {
 		inline static const bool& IsApplicationRunning() { return s_Instance->m_Running; }
 		
 	private:
-		void PushEngineLayers();
+		void PushCoreLayers();
 		void RenderThread();
 
 		bool OnWindowClose(WindowCloseEvent& e);
@@ -89,11 +90,12 @@ namespace Insight {
 		LayerStack				m_LayerStack;
 		FrameTimer				m_FrameTimer;
 		FileSystem				m_FileSystem;
+		InputDispatcher			m_InputDispatcher;
 	private:
 		static Application*		s_Instance;
 	};
 
-	// To be defined in client
+	// To be defined by client.
 	Application* CreateApplication();
 
 }

@@ -7,8 +7,7 @@
 *.DS_Store
 
 # Binaries
-bin/
-bin-int/
+[Bb]inaries/
 Engine/Vendor/Mono
 
 # User-specific files
