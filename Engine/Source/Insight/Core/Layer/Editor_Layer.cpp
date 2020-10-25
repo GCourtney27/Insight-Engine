@@ -216,7 +216,7 @@ namespace Insight {
 
 	bool EditorLayer::DispatchObjectSelectionRay(MouseButtonPressedEvent& e)
 	{
-		if (e.GetMouseButton() != IE_MOUSEBUTTON_LEFT) return false;
+		//if (e.GetMouseButton() != MouseButton::MouseButton_Left) return false;
 		return false;
 
 		ieVector3 CameraPosition = m_pSceneCameraRef->GetPosition();

@@ -65,12 +65,12 @@ namespace Insight {
 
 		void APlayerCharacter::ProcessInput(const float DeltaMs)
 		{
-			if (Input::IsMouseButtonPressed(IE_MOUSEBUTTON_RIGHT))
+			/*if (Input::IsMouseButtonPressed(MouseButton::MouseButton_Right))
 			{
 				auto [x, y] = Input::GetRawMousePosition();
 				m_pCamera->ProcessMouseMovement((float)x, (float)y);
 				
-			}
+			}*/
 
 		}
 

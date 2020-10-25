@@ -41,8 +41,8 @@ namespace Insight {
 
 
 
-			void BindAction(const char* ActionName, InputEventType EventType, EventInputActionFn Callback);
 			void BindAxis(const char* AxisName, EventInputAxisFn Callback);
+			void BindAction(const char* ActionName, InputEventType EventType, EventInputActionFn Callback);
 
 
 		private:

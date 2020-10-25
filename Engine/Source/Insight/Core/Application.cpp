@@ -147,7 +147,7 @@ namespace Insight {
 			float DeltaMs = m_FrameTimer.DeltaTime();
 			m_pWindow->SetWindowTitleFPS(m_FrameTimer.FPS());
 
-			InputDispatcher::Get().Update();
+			InputDispatcher::Get().UpdateInputs();
 
 			m_pWindow->OnUpdate(DeltaMs);
 			m_pGameLayer->Update(DeltaMs);
@@ -224,7 +224,7 @@ namespace Insight {
 		Dispatcher.Dispatch<ShaderReloadEvent>(IE_BIND_EVENT_FN(Application::ReloadShaders));
 
 		// Process event callbacks.
-		//m_InputDispatcher.ProcessInputEvent(e);
+		m_InputDispatcher.ProcessInputEvent(e);
 
 		//Input::GetInputManager().OnEvent(e);
 

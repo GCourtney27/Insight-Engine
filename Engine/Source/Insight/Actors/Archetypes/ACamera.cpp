@@ -7,6 +7,7 @@
 #include "Insight/Actors/Archetypes/APlayer_Character.h"
 #include "Insight/Core/Application.h"
 #include "Insight/Input/Input.h"
+#include "Insight/Input/Key_Codes.h"
 
 #include "imgui.h"
 
@@ -26,7 +27,13 @@ namespace Insight {
 			m_pInputComponent->BindAxis("MoveForward", IE_BIND_EVENT_FN(ACamera::MoveForward));
 			m_pInputComponent->BindAxis("MoveRight", IE_BIND_EVENT_FN(ACamera::MoveRight));
 			m_pInputComponent->BindAxis("MoveUp", IE_BIND_EVENT_FN(ACamera::MoveUp));
+			m_pInputComponent->BindAxis("LookUp", IE_BIND_EVENT_FN(ACamera::LookUp));
+			m_pInputComponent->BindAxis("LookRight", IE_BIND_EVENT_FN(ACamera::LookRight));
 			
+			m_pInputComponent->BindAction("MouseButtonPress", InputEventType_Pressed, IE_BIND_VOID_FN(ACamera::ButtonPressTest));
+			m_pInputComponent->BindAction("MouseButtonPress", InputEventType_Released, IE_BIND_VOID_FN(ACamera::ButtonReleaseTest));
+
+
 			SetViewTarget(ViewTarget, false, true);
 		}
 
@@ -153,6 +160,44 @@ namespace Insight {
 			ieVector3 Direction = m_pSceneComponent->GetTransform().GetLocalUp() * Velocity;
 			m_pSceneComponent->GetPositionRef() += Direction;
 			UpdateViewMatrix();
+		}
+
+		void ACamera::LookUp(float Value)
+		{
+			//if (CanRotateCamera)
+			{
+				m_pSceneComponent->Rotate(Value * m_MouseSensitivity * s_DeltaMs, 0.0f, 0.0f);
+
+				UpdateViewMatrix();
+				m_pSceneComponent->GetTransformRef().UpdateLocalDirectionVectors();
+			}
+		}
+
+		void ACamera::LookRight(float Value)
+		{
+			//if (CanRotateCamera)
+			{
+				m_pSceneComponent->Rotate(0.0f, Value * m_MouseSensitivity * s_DeltaMs, 0.0f);
+
+				UpdateViewMatrix();
+				m_pSceneComponent->GetTransformRef().UpdateLocalDirectionVectors();
+			}
+		}
+
+		void ACamera::UnlockCamRotation()
+		{
+			IE_CORE_INFO("Funciton called");
+			CanRotateCamera = !CanRotateCamera;
+		}
+
+		void ACamera::ButtonPressTest()
+		{
+			IE_CORE_INFO("Pressed");
+		}
+
+		void ACamera::ButtonReleaseTest()
+		{
+			IE_CORE_INFO("Released");
 		}
 
 	} // end namespace Runtime

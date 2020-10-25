@@ -12,23 +12,14 @@ namespace Insight {
 
 	namespace Runtime {
 
-		enum class CameraMovement
-		{
-			FORWARD,
-			BACKWARD,
-			LEFT,
-			RIGHT,
-			UP,
-			DOWN
-		};
 
-		const float BASE_SPEED = 30.05f;
-		const float BOOST_SPEED = 100.05f;
-		const float SENSITIVITY = 0.2f;
-		const float FOV = 45.0f;
-		const float EXPOSURE = 0.5f;
-		const float NEAR_Z = 0.0001f;
-		const float FAR_Z = 1000.0f;
+		constexpr float DEFAULT_BASE_SPEED = 30.05f;
+		constexpr float DEFAULT_BOOST_SPEED = 100.05f;
+		constexpr float DEFAULT_SENSITIVITY = 50.0f;
+		constexpr float DEFAULT_FOV = 45.0f;
+		constexpr float DEFAULT_EXPOSURE = 0.5f;
+		constexpr float DEFAULT_NEAR_Z = 0.0001f;
+		constexpr float DEFAULT_FAR_Z = 1000.0f;
 
 		using namespace DirectX;
 
@@ -39,12 +30,12 @@ namespace Insight {
 		{
 			ieVector3 Position = Vector3::Zero;
 			ieVector3 Rotation = Vector3::Zero;
-			float FieldOfView = FOV;
-			float Sensitivity = SENSITIVITY;
-			float Speed = BASE_SPEED;
-			float Exposure = EXPOSURE;
-			float NearZ = NEAR_Z;
-			float FarZ = FAR_Z;
+			float FieldOfView = DEFAULT_FOV;
+			float Sensitivity = DEFAULT_SENSITIVITY;
+			float Speed = DEFAULT_BASE_SPEED;
+			float Exposure = DEFAULT_EXPOSURE;
+			float NearZ = DEFAULT_NEAR_Z;
+			float FarZ = DEFAULT_FAR_Z;
 		};
 
 		class InputComponent;
@@ -76,7 +67,7 @@ namespace Insight {
 			inline void SetFarZ(float farZ) { SetPerspectiveProjectionValues(m_Fov, m_AspectRatio, m_NearZ, farZ); }
 			inline void SetExposure(float exposure) { m_Exposure = exposure; }
 
-			static ViewTarget GetDefaultViewTarget() { return ViewTarget{ ieVector3{0.0f, 10.0f, -20.0f}, ieVector3{0.0f, 0.0f, 0.0f}, FOV, SENSITIVITY, BASE_SPEED, EXPOSURE, NEAR_Z, FAR_Z }; }
+			static ViewTarget GetDefaultViewTarget() { return ViewTarget(); }
 
 			inline void SetViewTarget(ViewTarget& ViewTarget, bool UpdateProjection = true, bool UpdateView = true)
 			{
@@ -122,6 +113,12 @@ namespace Insight {
 			void MoveForward(float Value);
 			void MoveRight(float Value);
 			void MoveUp(float Value);
+			void LookUp(float Value);
+			void LookRight(float Value);
+
+			void UnlockCamRotation();
+			void ButtonPressTest();
+			void ButtonReleaseTest();
 		private:
 			XMFLOAT4X4 m_ViewMat4x4;
 			XMMATRIX m_ViewMatrix;
@@ -132,6 +129,7 @@ namespace Insight {
 			SceneComponent* m_pSceneComponent = nullptr;
 			InputComponent* m_pInputComponent = nullptr;
 
+			bool CanRotateCamera = false;
 			float m_Yaw = 0.0f;
 			float m_Pitch = 0.0f;
 			float m_Roll = 0.0f;

@@ -3,7 +3,6 @@
 #include <Insight/Core.h>
 
 #include "Insight/Events/Event.h"
-#include "Insight/Input/Key_Codes.h"
 #include "Insight/Events/Key_Event.h"
 #include "Insight/Events/Mouse_Event.h"
 
@@ -11,35 +10,22 @@ namespace Insight {
 
 
 
-		using EventInputAxisFn = std::function<void(float)>;	// void MyFn(float);
-		using EventInputActionFn = std::function<void(void)>;	// void MyFn(void);
-		
-		struct ActionBinding
-		{
-			const char* ActionName;
-			InputEventType Type;
-			EventInputActionFn ActionBindFn;
-		};
-
-		struct AxisBinding
-		{
-			const char* AxisName;
-			EventInputAxisFn AxisBindFn;
-		};
+		using EventInputAxisFn = std::function<void(float)>;
+		using EventInputActionFn = std::function<void(void)>;
 
 		struct AxisMapping
 		{
-			const char* Hint;
-			uint32_t Keycode;
+			const char Hint[32];
+			KeymapCode MappedKeycode;
 			float Scale;
 		};
 		
 		struct ActionMapping
 		{
-			const char* Hint;
-			uint32_t Keycode;
+			const char Hint[32];
+			KeymapCode MappedKeycode;
+			bool CanDispatch = true;
 		};
-
 
 		class INSIGHT_API InputDispatcher
 		{
@@ -49,21 +35,28 @@ namespace Insight {
 				s_Instance = this;
 				
 				// TODO load these from a settings file
-				//AxisMapping MoveForward{ "MoveForward", 'A', 1.0f };
-				//m_AxisMappingsMap["MoveForward"] = MoveForward;
+				// TODO Change axis mappings depending on play mode (Editor/InGame)
+				m_AxisMappings.push_back({ "MoveForward", KeymapCode_Keyboard_W, 1.0f });
+				m_AxisMappings.push_back({ "MoveForward", KeymapCode_Keyboard_S, -1.0f });
+				m_AxisMappings.push_back({ "MoveRight", KeymapCode_Keyboard_D, 1.0f });
+				m_AxisMappings.push_back({ "MoveRight", KeymapCode_Keyboard_A, -1.0f });
+				m_AxisMappings.push_back({ "MoveUp", KeymapCode_Keyboard_E, 1.0f });
+				m_AxisMappings.push_back({ "MoveUp", KeymapCode_Keyboard_Q, -1.0f });
 
-				m_AxisMappings.push_back({ "MoveForward", 'W', 1.0f });
-				m_AxisMappings.push_back({ "MoveForward", 'S', -1.0f });
-				m_AxisMappings.push_back({ "MoveRight", 'D', 1.0f });
-				m_AxisMappings.push_back({ "MoveRight", 'A', -1.0f });
-				m_AxisMappings.push_back({ "MoveUp", 'E', 1.0f });
-				m_AxisMappings.push_back({ "MoveUp", 'Q', -1.0f });
+				m_AxisMappings.push_back({ "LookUp", KeymapCode_Mouse_MoveY, 1.0f });
+				m_AxisMappings.push_back({ "LookUp", KeymapCode_Mouse_MoveY, -1.0f });
+				m_AxisMappings.push_back({ "LookRight", KeymapCode_Mouse_MoveX, 1.0f });
+				m_AxisMappings.push_back({ "LookRight", KeymapCode_Mouse_MoveX, -1.0f });
+
+				//m_ActionMappings.push_back({ "ButtonPress", KeymapCode_Mouse_Button_Right });
+				m_ActionMappings.push_back({ "ButtonPress", KeymapCode_Keyboard_K });
+				m_ActionMappings.push_back({ "MouseButtonPress", KeymapCode_Mouse_Button_Right });
 
 			}
 			~InputDispatcher() = default;
 			static InputDispatcher& Get() { return *s_Instance; }
-			void Update();
 
+			void UpdateInputs();
 			void ProcessInputEvent(Event& e);
 			
 			void RegisterAxisCallback(const char* Name, EventInputAxisFn Callback);
@@ -72,14 +65,16 @@ namespace Insight {
 
 		private:
 			bool DispatchKeyPressEvent(KeyPressedEvent& e);
-			bool DispatchKeyReleaseEvent(KeyReleasedEvent& e);
-			
+			bool DispatchMouseMoveEvent(MouseMovedEvent& e);
+			bool DispatchActionEvent(InputEvent& e);
+
 		private:
 
 			std::vector<AxisMapping> m_AxisMappings;
-			std::vector<ActionMapping> m_ActionMappings;
-
 			std::map<std::string, std::vector<EventInputAxisFn>> m_AxisCallbacks;
+
+			std::vector<ActionMapping> m_ActionMappings;
+			std::map<std::pair<std::string, InputEventType>, std::vector<EventInputActionFn>> m_ActionCallbacks;
 
 		private:
 			static InputDispatcher* s_Instance;

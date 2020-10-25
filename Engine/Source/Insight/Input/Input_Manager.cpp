@@ -29,13 +29,13 @@ namespace Insight {
 
 	bool InputManager::OnMouseButtonPressedEvent(MouseButtonPressedEvent& e)
 	{
-		m_MouseBuffer.OnButtonPressed(e.GetMouseButton());
+		m_MouseBuffer.OnButtonPressed(e.GetKeyCode());
 		return false;
 	}
 
 	bool InputManager::OnMouseButtonReleasedEvent(MouseButtonReleasedEvent& e)
 	{
-		m_MouseBuffer.OnButtonReleased(e.GetMouseButton());
+		m_MouseBuffer.OnButtonReleased(e.GetKeyCode());
 		return false;
 	}
 

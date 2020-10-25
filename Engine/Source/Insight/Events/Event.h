@@ -2,6 +2,7 @@
 #include <Engine_pch.h>
 
 #include <Insight/Core.h>
+#include "Insight/Input/Key_Codes.h"
 
 namespace Insight {
 
@@ -54,6 +55,27 @@ namespace Insight {
 		}
 	protected:
 		bool m_Handled = false;
+	};
+
+	class INSIGHT_API InputEvent
+	{
+	public:
+		inline KeymapCode GetKeyCode() const { return m_KeyMapCode; }
+		inline InputEventType GetEventType() const { return m_Status; }
+		
+		std::string ToString() const
+		{
+			std::stringstream ss;
+			ss << "Input Event: (Button) " << m_KeyMapCode << " (Status) " << m_Status;
+			return ss.str();
+		}
+	protected:
+		InputEvent(KeymapCode KeyMapCode, InputEventType Status)
+			: m_KeyMapCode(KeyMapCode), m_Status(Status) 
+		{}
+
+		KeymapCode m_KeyMapCode;
+		InputEventType m_Status;
 	};
 
 	class EventDispatcher
