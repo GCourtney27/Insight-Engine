@@ -3,7 +3,6 @@
 #include "Mono_Script_Manager.h"
 
 #include "Insight/Systems/Managers/Resource_Manager.h"
-#include "Insight/Input/Windows_Input.h"
 
 #include "Insight/Actors/Components/CSharp_Scirpt_Component.h"
 
@@ -61,24 +60,25 @@ namespace Insight {
 
 	mono_bool Interop_IsKeyPressed(char KeyCode)
 	{
-		mono_bool pressed = Input::IsKeyPressed(KeyCode);
+#pragma "Fix the C# scripting system!"
+		mono_bool pressed = false;
 		return pressed;
 	}
 
 	mono_bool Interop_IsMouseButtonPressed(int MouseButton)
 	{
-		mono_bool pressed = Input::IsMouseButtonPressed(MouseButton);
+		mono_bool pressed = false;
 		return pressed;
 	}
 
 	int Interop_GetMouseX()
 	{
-		return (int)Input::GetMouseX();
+		return (int)-1;
 	}
 
 	int Interop_GetMouseY()
 	{
-		return (int)Input::GetMouseY();
+		return (int)-1;
 	}
 
 	bool MonoScriptManager::Init()

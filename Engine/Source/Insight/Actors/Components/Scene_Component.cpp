@@ -2,7 +2,6 @@
 
 #include "Scene_Component.h"
 
-#include "Insight/Input/Input.h"
 #include "Insight/Actors/Archetypes/ACamera.h"
 
 #include "Insight/UI/UI_Lib.h"

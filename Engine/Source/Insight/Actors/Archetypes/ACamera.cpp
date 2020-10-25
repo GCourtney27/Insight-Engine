@@ -6,7 +6,6 @@
 #include "Insight/Actors/Components/Input_Component.h"
 #include "Insight/Actors/Archetypes/APlayer_Character.h"
 #include "Insight/Core/Application.h"
-#include "Insight/Input/Input.h"
 #include "Insight/Input/Key_Codes.h"
 
 #include "imgui.h"
@@ -29,9 +28,13 @@ namespace Insight {
 			m_pInputComponent->BindAxis("MoveUp", IE_BIND_EVENT_FN(ACamera::MoveUp));
 			m_pInputComponent->BindAxis("LookUp", IE_BIND_EVENT_FN(ACamera::LookUp));
 			m_pInputComponent->BindAxis("LookRight", IE_BIND_EVENT_FN(ACamera::LookRight));
-			
-			m_pInputComponent->BindAction("MouseButtonPress", InputEventType_Pressed, IE_BIND_VOID_FN(ACamera::ButtonPressTest));
-			m_pInputComponent->BindAction("MouseButtonPress", InputEventType_Released, IE_BIND_VOID_FN(ACamera::ButtonReleaseTest));
+			m_pInputComponent->BindAxis("MouseWheelUp", IE_BIND_EVENT_FN(ACamera::MoveForward));
+
+			m_pInputComponent->BindAction("CameraPitchYawLock", InputEventType_Pressed, IE_BIND_VOID_FN(ACamera::TogglePitchYawRotation));
+			m_pInputComponent->BindAction("CameraPitchYawLock", InputEventType_Released, IE_BIND_VOID_FN(ACamera::TogglePitchYawRotation));
+			m_pInputComponent->BindAction("Sprint", InputEventType_Released, IE_BIND_VOID_FN(ACamera::Sprint));
+			m_pInputComponent->BindAction("Sprint", InputEventType_Released, IE_BIND_VOID_FN(ACamera::Sprint));
+
 
 
 			SetViewTarget(ViewTarget, false, true);
@@ -164,7 +167,7 @@ namespace Insight {
 
 		void ACamera::LookUp(float Value)
 		{
-			//if (CanRotateCamera)
+			if (CanRotateCamera)
 			{
 				m_pSceneComponent->Rotate(Value * m_MouseSensitivity * s_DeltaMs, 0.0f, 0.0f);
 
@@ -175,7 +178,7 @@ namespace Insight {
 
 		void ACamera::LookRight(float Value)
 		{
-			//if (CanRotateCamera)
+			if (CanRotateCamera)
 			{
 				m_pSceneComponent->Rotate(0.0f, Value * m_MouseSensitivity * s_DeltaMs, 0.0f);
 
@@ -184,21 +187,24 @@ namespace Insight {
 			}
 		}
 
-		void ACamera::UnlockCamRotation()
+		void ACamera::TogglePitchYawRotation()
 		{
-			IE_CORE_INFO("Funciton called");
 			CanRotateCamera = !CanRotateCamera;
 		}
 
-		void ACamera::ButtonPressTest()
+		void ACamera::Sprint()
 		{
-			IE_CORE_INFO("Pressed");
+			m_Sprinting = !m_Sprinting;
+			if (m_Sprinting)
+			{
+				m_MovementSpeed = DEFAULT_BASE_SPEED;
+			}
+			else
+			{
+				m_MovementSpeed = DEFAULT_BOOST_SPEED;
+			}
 		}
 
-		void ACamera::ButtonReleaseTest()
-		{
-			IE_CORE_INFO("Released");
-		}
 
 	} // end namespace Runtime
 } // end namespace Insight

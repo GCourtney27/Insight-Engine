@@ -56,7 +56,7 @@ namespace Insight {
 		// Mouse Input
 		case WM_MOUSEMOVE:
 		{
-			MouseMovedEvent event(LOWORD(lParam), HIWORD(lParam), (KeymapCode)(KeymapCode_Mouse_MoveX | KeymapCode_Mouse_MoveY));
+			MouseMovedEvent event(LOWORD(lParam), HIWORD(lParam), (KeyMapCode)(KeymapCode_Mouse_MoveX | KeymapCode_Mouse_MoveY));
 			data.EventCallback(event);
 			return 0;
 		}
@@ -70,7 +70,7 @@ namespace Insight {
 		case WM_MOUSEHWHEEL:
 		{
 			float xOffset = GET_WHEEL_DELTA_WPARAM(wParam) / 120.0f;
-			MouseScrolledEvent event(xOffset, 0.0f, (KeymapCode)(KeymapCode_Mouse_Wheel_Left | KeymapCode_Mouse_Wheel_Right), InputEventType_Moved);
+			MouseScrolledEvent event(xOffset, 0.0f, (KeyMapCode)(KeymapCode_Mouse_Wheel_Left | KeymapCode_Mouse_Wheel_Right), InputEventType_Moved);
 			data.EventCallback(event);
 			return 0;
 		}
@@ -118,7 +118,7 @@ namespace Insight {
 		// Keyboard Input
 		case WM_CHAR:
 		{
-			KeyTypedEvent event((KeymapCode)((char)wParam));
+			KeyTypedEvent event((KeyMapCode)((char)wParam));
 			data.EventCallback(event);
 			return 0;
 		}
@@ -149,13 +149,13 @@ namespace Insight {
 				}
 
 			}
-			KeyPressedEvent event((KeymapCode)((char)wParam), 0);
+			KeyPressedEvent event((KeyMapCode)((char)wParam), 0);
 			data.EventCallback(event);
 			return 0;
 		}
 		case WM_KEYUP:
 		{
-			KeyReleasedEvent event((KeymapCode)((char)wParam));
+			KeyReleasedEvent event((KeyMapCode)((char)wParam));
 			data.EventCallback(event);
 			return 0;
 		}
@@ -202,12 +202,12 @@ namespace Insight {
 					{
 						if (raw->data.mouse.lLastX != 0.0f)
 						{
-							MouseMovedEvent event(raw->data.mouse.lLastX, 0.0f, KeymapCode_Mouse_MoveX);
+							MouseMovedEvent event((float)raw->data.mouse.lLastX, 0.0f, KeymapCode_Mouse_MoveX);
 							data.EventCallback(event);
 						}
 						if (raw->data.mouse.lLastY != 0.0f)
 						{
-							MouseMovedEvent event(0.0f, raw->data.mouse.lLastY, KeymapCode_Mouse_MoveY);
+							MouseMovedEvent event(0.0f, (float)raw->data.mouse.lLastY, KeymapCode_Mouse_MoveY);
 							data.EventCallback(event);
 						}
 					}

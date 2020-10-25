@@ -12,11 +12,11 @@ namespace Insight {
 	{
 		for (uint32_t i = 0; i < m_AxisMappings.size(); i++)
 		{
-			SHORT KeyState = ::GetAsyncKeyState(m_AxisMappings[i].MappedKeycode);
+			SHORT KeyState = ::GetAsyncKeyState(m_AxisMappings[i].MappedKeyCode);
 			bool Pressed = (BIT_SHIFT(15)) & KeyState;
 			if (Pressed)
 			{
-				KeyPressedEvent e(m_AxisMappings[i].MappedKeycode, 0);
+				KeyPressedEvent e(m_AxisMappings[i].MappedKeyCode, 0);
 				ProcessInputEvent(e);
 			}
 		}
@@ -34,11 +34,8 @@ namespace Insight {
 		Dispatcher.Dispatch<MouseMovedEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchMouseMoveEvent));
 		Dispatcher.Dispatch<MouseButtonPressedEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchActionEvent));
 		Dispatcher.Dispatch<MouseButtonReleasedEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchActionEvent));
-
-
-
 		// Mouse Scroll
-		//Dispatcher.Dispatch<MouseScrolledEvent>(IE_BIND_EVENT_FN(InputManager::OnMouseScrollEvent));
+		Dispatcher.Dispatch<MouseScrolledEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchMouseScrolledEvent));
 
 		// Key Pressed
 		Dispatcher.Dispatch<KeyPressedEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchKeyPressEvent));
@@ -64,7 +61,7 @@ namespace Insight {
 		for (AxisMapping& Axis : m_AxisMappings)
 		{
 			// Find the key in the axis map.
-			if (Axis.MappedKeycode == e.GetKeyCode())
+			if (Axis.MappedKeyCode == e.GetKeyCode())
 			{
 				// Use the keycode as the key into the axis map to find 
 				// the callbacks associated with it.
@@ -76,7 +73,29 @@ namespace Insight {
 				}
 			}
 		}
-		return false;
+		return true;
+	}
+
+	bool InputDispatcher::DispatchMouseScrolledEvent(MouseScrolledEvent& e)
+	{
+		for (AxisMapping& Axis : m_AxisMappings)
+		{
+			// Find the key in the axis map.
+			if (Axis.MappedKeyCode == e.GetKeyCode())
+			{
+				float MoveFactor = e.GetYOffset();
+
+				// Use the keycode as the key into the axis map to find 
+				// the callbacks associated with it.
+				auto Callbacks = &m_AxisCallbacks[Axis.Hint];
+				for (EventInputAxisFn Callback : *Callbacks)
+				{
+					// Invoke the callbacks.
+					Callback(MoveFactor);
+				}
+			}
+		}
+		return true;
 	}
 
 	bool InputDispatcher::DispatchMouseMoveEvent(MouseMovedEvent& e)
@@ -84,7 +103,7 @@ namespace Insight {
 		for(AxisMapping& Axis : m_AxisMappings)
 		{
 			// Find the key in the axis map.
-			if (Axis.MappedKeycode == e.GetKeyCode())
+			if (Axis.MappedKeyCode == e.GetKeyCode())
 			{
 				float MoveFactor = 0.0f;
 				if (e.GetKeyCode() == KeymapCode_Mouse_MoveX) MoveFactor = e.GetX();

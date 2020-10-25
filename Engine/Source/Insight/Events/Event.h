@@ -60,7 +60,7 @@ namespace Insight {
 	class INSIGHT_API InputEvent
 	{
 	public:
-		inline KeymapCode GetKeyCode() const { return m_KeyMapCode; }
+		inline KeyMapCode GetKeyCode() const { return m_KeyMapCode; }
 		inline InputEventType GetEventType() const { return m_Status; }
 		
 		std::string ToString() const
@@ -70,11 +70,11 @@ namespace Insight {
 			return ss.str();
 		}
 	protected:
-		InputEvent(KeymapCode KeyMapCode, InputEventType Status)
+		InputEvent(KeyMapCode KeyMapCode, InputEventType Status)
 			: m_KeyMapCode(KeyMapCode), m_Status(Status) 
 		{}
 
-		KeymapCode m_KeyMapCode;
+		KeyMapCode m_KeyMapCode;
 		InputEventType m_Status;
 	};
 

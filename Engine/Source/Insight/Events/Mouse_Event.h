@@ -7,7 +7,7 @@ namespace Insight {
 	class INSIGHT_API MouseMovedEvent : public Event, public InputEvent
 	{
 	public:
-		MouseMovedEvent(float x, float y, KeymapCode KeyMapCode)
+		MouseMovedEvent(float x, float y, KeyMapCode KeyMapCode)
 			: InputEvent(KeyMapCode, InputEventType_Moved), m_MouseX(x), m_MouseY(y) {}
 
 		inline float GetX() const { return m_MouseX; }
@@ -29,7 +29,7 @@ namespace Insight {
 	class INSIGHT_API MouseRawMoveEvent : public Event, public InputEvent
 	{
 	public:
-		MouseRawMoveEvent(int x, int y, KeymapCode KeyMapCode, InputEventType EventType)
+		MouseRawMoveEvent(int x, int y, KeyMapCode KeyMapCode, InputEventType EventType)
 			: InputEvent(KeyMapCode, EventType), m_MouseX(x), m_MouseY(y) {}
 
 		inline int GetX() const { return m_MouseX; }
@@ -51,7 +51,7 @@ namespace Insight {
 	class INSIGHT_API MouseScrolledEvent : public Event, public InputEvent
 	{
 	public:
-		MouseScrolledEvent(float xOffset, float yOffset, KeymapCode KeyMapCode, InputEventType EventType)
+		MouseScrolledEvent(float xOffset, float yOffset, KeyMapCode KeyMapCode, InputEventType EventType)
 			: InputEvent(KeyMapCode, EventType), m_XOffset(xOffset), m_YOffset(yOffset) {}
 
 		inline float GetXOffset() const { return m_XOffset; }
@@ -76,7 +76,7 @@ namespace Insight {
 
 		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 	protected:
-		MouseButtonEvent(KeymapCode KeyMapCode, InputEventType EventType)
+		MouseButtonEvent(KeyMapCode KeyMapCode, InputEventType EventType)
 			: InputEvent(KeyMapCode, EventType) {}
 
 	};
@@ -84,7 +84,7 @@ namespace Insight {
 	class INSIGHT_API MouseButtonPressedEvent : public MouseButtonEvent
 	{
 	public:
-		MouseButtonPressedEvent(KeymapCode KeyMapCode)
+		MouseButtonPressedEvent(KeyMapCode KeyMapCode)
 			: MouseButtonEvent(KeyMapCode, InputEventType_Pressed) {}
 
 		EVENT_CLASS_TYPE(MouseButtonPressed)
@@ -93,7 +93,7 @@ namespace Insight {
 	class INSIGHT_API MouseButtonReleasedEvent : public MouseButtonEvent
 	{
 	public:
-		MouseButtonReleasedEvent(KeymapCode KeyMapCode)
+		MouseButtonReleasedEvent(KeyMapCode KeyMapCode)
 			: MouseButtonEvent(KeyMapCode, InputEventType_Released) {}
 
 		EVENT_CLASS_TYPE(MouseButtonReleased)

@@ -15,7 +15,6 @@
 #include "Insight/Core/Scene/Scene_Node.h"
 #include "Insight/Core/Scene/Scene.h"
 
-#include "Insight/Input/Input.h"
 #include "Insight/Core/Layer/ImGui_Layer.h"
 
 #include "imgui.h"
@@ -170,65 +169,6 @@ namespace Insight {
 	void EditorLayer::OnEvent(Event& e)
 	{
 		EventDispatcher Dispatcher(e);
-		Dispatcher.Dispatch<MouseButtonPressedEvent>(IE_BIND_EVENT_FN(EditorLayer::DispatchObjectSelectionRay));
-	}
-
-	ieVector3 EditorLayer::GetMouseDirectionVector()
-	{
-		auto [PosX, PosY] = Input::GetMousePosition();
-		float WindowWidth = (float)Application::Get().GetWindow().GetWidth();
-		float WindowHeight = (float)Application::Get().GetWindow().GetHeight();
-		float CameraNearZ = m_pSceneCameraRef->GetNearZ();
-		float CameraFarZ = m_pSceneCameraRef->GetFarZ();
-		ieMatrix ProjMat = m_pSceneCameraRef->GetProjectionMatrix();
-		ieMatrix ViewMat = m_pSceneCameraRef->GetViewMatrix();
-
-
-		DirectX::XMVECTOR mouseNear = DirectX::XMVectorSet(PosX, PosY, 0.0f, 0.0f);
-
-		DirectX::XMVECTOR mouseFar = DirectX::XMVectorSet(PosX, PosY, 1.0f, 0.0f);
-
-		DirectX::XMVECTOR unprojectedNear = DirectX::XMVector3Unproject(mouseNear, 0, 0, WindowWidth, WindowHeight, CameraNearZ, CameraFarZ,
-			ProjMat, ViewMat, DirectX::XMMatrixIdentity());
-
-		DirectX::XMVECTOR unprojectedFar = DirectX::XMVector3Unproject(mouseFar, 0, 0, WindowWidth, WindowHeight, CameraNearZ,CameraFarZ,
-			ProjMat, ViewMat, DirectX::XMMatrixIdentity());
-
-		DirectX::XMVECTOR result = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(unprojectedFar, unprojectedNear));
-
-		DirectX::XMFLOAT3 direction;
-
-		DirectX::XMStoreFloat3(&direction, result);
-
-		return direction;
-	}
-
-	bool EditorLayer::hit_sphere(const ieVector3& center, float radius, const Physics::Ray& r)
-	{
-		ieVector3 oc = r.Orgin() - center;
-
-		float a = r.Direction().Dot(r.Direction());
-		float b = 2.0f * oc.Dot(r.Direction());
-		float c = oc.Dot(oc) - radius * radius;
-		float discriminant = b * b - 4 * a * c;
-		return (discriminant > 0.0f);
-	}
-
-	bool EditorLayer::DispatchObjectSelectionRay(MouseButtonPressedEvent& e)
-	{
-		//if (e.GetMouseButton() != MouseButton::MouseButton_Left) return false;
-		return false;
-
-		ieVector3 CameraPosition = m_pSceneCameraRef->GetPosition();
-		ieVector3 MouseDirection = GetMouseDirectionVector();
-		Physics::Ray ray(CameraPosition, MouseDirection);
-
-		if (hit_sphere(ieVector3(12.0f, 14.0f, 3.0f), 6.0f, ray))
-		{
-			IE_CORE_INFO("Ray hit");
-		}
-
-		return false;
 	}
 
 }

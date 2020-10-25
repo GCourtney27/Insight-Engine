@@ -13,13 +13,13 @@ namespace Insight {
 	namespace Runtime {
 
 
-		constexpr float DEFAULT_BASE_SPEED = 30.05f;
-		constexpr float DEFAULT_BOOST_SPEED = 100.05f;
-		constexpr float DEFAULT_SENSITIVITY = 50.0f;
-		constexpr float DEFAULT_FOV = 45.0f;
-		constexpr float DEFAULT_EXPOSURE = 0.5f;
-		constexpr float DEFAULT_NEAR_Z = 0.0001f;
-		constexpr float DEFAULT_FAR_Z = 1000.0f;
+		constexpr float DEFAULT_BASE_SPEED	= 30.05f;
+		constexpr float DEFAULT_SENSITIVITY	= 150.0f;
+		constexpr float DEFAULT_BOOST_SPEED	= DEFAULT_BASE_SPEED * 2.0f;
+		constexpr float DEFAULT_FOV			= 45.0f;
+		constexpr float DEFAULT_EXPOSURE	= 0.5f;
+		constexpr float DEFAULT_NEAR_Z		= 0.0001f;
+		constexpr float DEFAULT_FAR_Z		= 1000.0f;
 
 		using namespace DirectX;
 
@@ -28,14 +28,14 @@ namespace Insight {
 		// 'new camera' set the view target of the global camera.
 		struct ViewTarget
 		{
-			ieVector3 Position = Vector3::Zero;
-			ieVector3 Rotation = Vector3::Zero;
-			float FieldOfView = DEFAULT_FOV;
-			float Sensitivity = DEFAULT_SENSITIVITY;
-			float Speed = DEFAULT_BASE_SPEED;
-			float Exposure = DEFAULT_EXPOSURE;
-			float NearZ = DEFAULT_NEAR_Z;
-			float FarZ = DEFAULT_FAR_Z;
+			ieVector3 Position	= Vector3::Zero;
+			ieVector3 Rotation	= Vector3::Zero;
+			float FieldOfView	= DEFAULT_FOV;
+			float Sensitivity	= DEFAULT_SENSITIVITY;
+			float Speed			= DEFAULT_BASE_SPEED;
+			float Exposure		= DEFAULT_EXPOSURE;
+			float NearZ			= DEFAULT_NEAR_Z;
+			float FarZ			= DEFAULT_FAR_Z;
 		};
 
 		class InputComponent;
@@ -115,10 +115,9 @@ namespace Insight {
 			void MoveUp(float Value);
 			void LookUp(float Value);
 			void LookRight(float Value);
+			void TogglePitchYawRotation();
+			void Sprint();
 
-			void UnlockCamRotation();
-			void ButtonPressTest();
-			void ButtonReleaseTest();
 		private:
 			XMFLOAT4X4 m_ViewMat4x4;
 			XMMATRIX m_ViewMatrix;
@@ -130,6 +129,7 @@ namespace Insight {
 			InputComponent* m_pInputComponent = nullptr;
 
 			bool CanRotateCamera = false;
+			bool m_Sprinting = false;
 			float m_Yaw = 0.0f;
 			float m_Pitch = 0.0f;
 			float m_Roll = 0.0f;

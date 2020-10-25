@@ -2,7 +2,6 @@
 
 #include "Application.h"
 
-#include "Insight/Input/Input.h"
 #include "Insight/Actors/AActor.h"
 #include "Insight/Core/Layer/ImGui_Layer.h"
 #include "Insight/Core/ie_Exception.h"
@@ -148,7 +147,7 @@ namespace Insight {
 			m_pWindow->SetWindowTitleFPS(m_FrameTimer.FPS());
 
 			InputDispatcher::Get().UpdateInputs();
-
+			
 			m_pWindow->OnUpdate(DeltaMs);
 			m_pGameLayer->Update(DeltaMs);
 

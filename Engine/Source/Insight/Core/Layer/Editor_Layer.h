@@ -45,11 +45,6 @@ namespace Insight {
 		void RenderInspector();
 		void RenderSelectionGizmo();
 		void RenderCreatorWindow();
-		// TEMP
-		ieVector3 GetMouseDirectionVector();
-		bool hit_sphere(const ieVector3& center, float radius, const Physics::Ray& r);
-
-		bool DispatchObjectSelectionRay(MouseButtonPressedEvent& e);
 	private:
 		Runtime::AActor*		m_pSelectedActor = nullptr;
 		SceneNode*				m_pSceneRootRef = nullptr;
