@@ -2,7 +2,7 @@
 
 #include "APoint_Light.h"
 
-#include "Insight/Actors/Components/Scene_Component.h"
+#include "Insight/Runtime/Components/Scene_Component.h"
 #include "Renderer/Renderer.h"
 #include "imgui.h"
 

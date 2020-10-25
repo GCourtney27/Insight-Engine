@@ -3,9 +3,9 @@
 #include "Scene.h"
 
 #include "Insight/Core/Application.h"
-#include "Insight/Actors/Archetypes/APlayer_Character.h"
-#include "Insight/Actors/Archetypes/APlayer_Start.h"
-#include "Insight/Actors/Archetypes/ACamera.h"
+#include "Insight/Runtime/Archetypes/APlayer_Character.h"
+#include "Insight/Runtime/Archetypes/APlayer_Start.h"
+#include "Insight/Runtime/Archetypes/ACamera.h"
 
 #include "imgui.h"
 

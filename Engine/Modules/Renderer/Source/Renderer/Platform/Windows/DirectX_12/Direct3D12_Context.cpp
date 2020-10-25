@@ -4,7 +4,7 @@
 
 #include "Insight/Core/Application.h"
 #include "Platform/Windows/Windows_Window.h"
-#include "Insight/Actors/Archetypes/APlayer_Character.h"
+#include "Insight/Runtime/Archetypes/APlayer_Character.h"
 #include "Insight/Systems/Managers/Geometry_Manager.h"
 
 #include "Insight/Rendering/APost_Fx.h"

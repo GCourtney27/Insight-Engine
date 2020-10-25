@@ -1,9 +1,10 @@
+// Copyright Insight Interactive. All Rights Reserved.
 #include <Engine_pch.h>
 
 #include "Editor_Layer.h"
 
-#include "Insight/Actors/Archetypes/ACamera.h"
-#include "Insight/Actors/AActor.h"
+#include "Insight/Runtime/Archetypes/ACamera.h"
+#include "Insight/Runtime/AActor.h"
 
 #include "Insight/Rendering/APost_Fx.h"
 #include "Insight/Rendering/ASky_Sphere.h"

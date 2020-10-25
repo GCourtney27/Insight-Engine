@@ -1,3 +1,4 @@
+// Copyright Insight Interactive. All Rights Reserved.
 #pragma once
 #include <Engine_pch.h>
 
@@ -5,9 +6,6 @@
 #include "Insight/Input/Key_Codes.h"
 
 namespace Insight {
-
-	// Event system is currently a blocking event system
-	// TODO: Implement defered event system
 
 	enum class EventType
 	{

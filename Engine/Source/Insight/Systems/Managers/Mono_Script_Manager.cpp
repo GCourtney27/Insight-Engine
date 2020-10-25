@@ -1,10 +1,11 @@
+// Copyright Insight Interactive. All Rights Reserved.
 #include <Engine_pch.h>
 
 #include "Mono_Script_Manager.h"
 
 #include "Insight/Systems/Managers/Resource_Manager.h"
 
-#include "Insight/Actors/Components/CSharp_Scirpt_Component.h"
+#include "Insight/Runtime/Components/CSharp_Scirpt_Component.h"
 
 #include "imgui.h"
 
@@ -60,7 +61,6 @@ namespace Insight {
 
 	mono_bool Interop_IsKeyPressed(char KeyCode)
 	{
-#pragma "Fix the C# scripting system!"
 		mono_bool pressed = false;
 		return pressed;
 	}

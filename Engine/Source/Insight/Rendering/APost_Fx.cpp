@@ -2,7 +2,7 @@
 
 #include "APost_Fx.h"
 
-#include "Insight/Actors/Components/Actor_Component.h"
+#include "Insight/Runtime/Components/Actor_Component.h"
 #include "Insight/Core/Application.h"
 #include "imgui.h"
 

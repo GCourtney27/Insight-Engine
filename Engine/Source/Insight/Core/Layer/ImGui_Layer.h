@@ -38,6 +38,16 @@ namespace Insight {
 		bool OnKeyTypedEvent(KeyTypedEvent& e);
 		bool OnWindowResizedEvent(WindowResizeEvent& e);
 
+		/*
+			Translate a mouse button code from KeyMapCode to ImGuiMouseButton_
+			Insight stores mouse codes differently than ImGui.
+		*/
+		inline void TranslateMouseCode(KeyMapCode MouseKey, uint8_t& ImGuiMouseCode)
+		{
+			if		(MouseKey & KeyMapCode_Mouse_Button_Left)	ImGuiMouseCode = 0;
+			else if (MouseKey & KeyMapCode_Mouse_Button_Right)	ImGuiMouseCode = 1;
+			else if (MouseKey & KeyMapCode_Mouse_Button_Middle) ImGuiMouseCode = 2;
+		}
 	protected:
 		ImGuiIO* m_pIO = nullptr;
 	};

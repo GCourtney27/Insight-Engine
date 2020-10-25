@@ -2,7 +2,7 @@
 
 #include "Static_Mesh_Component.h"
 
-#include "Insight/Actors/AActor.h"
+#include "Insight/Runtime/AActor.h"
 #include "Insight/Systems/Managers/Resource_Manager.h"
 #include "Renderer/Renderer.h"
 #include "Insight/Rendering/Material.h"

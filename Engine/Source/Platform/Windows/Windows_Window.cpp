@@ -1,3 +1,4 @@
+// Copyright Insight Interactive. All Rights Reserved.
 #include <Engine_pch.h>
 
 #include "Windows_Window.h"
@@ -56,41 +57,42 @@ namespace Insight {
 		// Mouse Input
 		case WM_MOUSEMOVE:
 		{
-			MouseMovedEvent event(LOWORD(lParam), HIWORD(lParam), (KeyMapCode)(KeymapCode_Mouse_MoveX | KeymapCode_Mouse_MoveY));
+			MouseMovedEvent event(LOWORD(lParam), HIWORD(lParam), (KeyMapCode)(KeyMapCode_Mouse_MoveX | KeyMapCode_Mouse_MoveY));
 			data.EventCallback(event);
 			return 0;
 		}
 		case WM_MOUSEWHEEL:
 		{
 			float yOffset = GET_WHEEL_DELTA_WPARAM(wParam) / 120.0f;
-			MouseScrolledEvent event(0.0f, yOffset, KeymapCode_Mouse_Wheel_Up, InputEventType_Moved);
+			MouseScrolledEvent event(0.0f, yOffset, KeyMapCode_Mouse_Wheel_Up, InputEventType_Moved);
 			data.EventCallback(event);
 			return 0;
 		}
 		case WM_MOUSEHWHEEL:
 		{
 			float xOffset = GET_WHEEL_DELTA_WPARAM(wParam) / 120.0f;
-			MouseScrolledEvent event(xOffset, 0.0f, (KeyMapCode)(KeymapCode_Mouse_Wheel_Left | KeymapCode_Mouse_Wheel_Right), InputEventType_Moved);
+			MouseScrolledEvent event(xOffset, 0.0f, (KeyMapCode)(KeyMapCode_Mouse_Wheel_Left | KeyMapCode_Mouse_Wheel_Right), InputEventType_Moved);
 			data.EventCallback(event);
 			return 0;
 		}
 		case WM_LBUTTONDOWN:
 		{
-			MouseButtonPressedEvent event(KeymapCode_Mouse_Button_Left);
+			MouseButtonPressedEvent event(KeyMapCode_Mouse_Button_Left);
 			data.EventCallback(event);
 			return 0;
 		}
 		case WM_LBUTTONUP:
 		{
-			MouseButtonReleasedEvent event(KeymapCode_Mouse_Button_Left);
+			MouseButtonReleasedEvent event(KeyMapCode_Mouse_Button_Left);
 			data.EventCallback(event);
 			return 0;
 		}
 		case WM_RBUTTONDOWN:
 		{
-			MouseButtonPressedEvent event(KeymapCode_Mouse_Button_Right);
+			MouseButtonPressedEvent event(KeyMapCode_Mouse_Button_Right);
 			data.EventCallback(event);
 
+			// WIP Right click context menu
 			//RECT clientRect = {};
 			//POINT Point = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
 			//TrackPopupMenu(data.hContextMenu, TPM_LEFTALIGN | TPM_TOPALIGN, Point.x, Point.y, 0, hWnd, &clientRect);
@@ -99,19 +101,19 @@ namespace Insight {
 		}
 		case WM_RBUTTONUP:
 		{
-			MouseButtonReleasedEvent event(KeymapCode_Mouse_Button_Right);
+			MouseButtonReleasedEvent event(KeyMapCode_Mouse_Button_Right);
 			data.EventCallback(event);
 			return 0;
 		}
 		case WM_MBUTTONDOWN:
 		{
-			MouseButtonPressedEvent event(KeymapCode_Mouse_Button_Middle);
+			MouseButtonPressedEvent event(KeyMapCode_Mouse_Button_Middle);
 			data.EventCallback(event);
 			return 0;
 		}
 		case WM_MBUTTONUP:
 		{
-			MouseButtonReleasedEvent event(KeymapCode_Mouse_Button_Middle);
+			MouseButtonReleasedEvent event(KeyMapCode_Mouse_Button_Middle);
 			data.EventCallback(event);
 			return 0;
 		}
@@ -202,12 +204,12 @@ namespace Insight {
 					{
 						if (raw->data.mouse.lLastX != 0.0f)
 						{
-							MouseMovedEvent event((float)raw->data.mouse.lLastX, 0.0f, KeymapCode_Mouse_MoveX);
+							MouseMovedEvent event((float)raw->data.mouse.lLastX, 0.0f, KeyMapCode_Mouse_MoveX);
 							data.EventCallback(event);
 						}
 						if (raw->data.mouse.lLastY != 0.0f)
 						{
-							MouseMovedEvent event(0.0f, (float)raw->data.mouse.lLastY, KeymapCode_Mouse_MoveY);
+							MouseMovedEvent event(0.0f, (float)raw->data.mouse.lLastY, KeyMapCode_Mouse_MoveY);
 							data.EventCallback(event);
 						}
 					}

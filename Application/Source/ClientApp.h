@@ -1,6 +1,6 @@
 #pragma once
 #include <Insight.h>
-#include "Insight/Actors/Components/Static_Mesh_Component.h"
+#include "Insight/Runtime/Components/Static_Mesh_Component.h"
 #include "Insight/Rendering/Material.h"
 #include "Renderer/Platform/Windows/DirectX_12/Wrappers/ie_D3D12_Texture.h"
 #include "Renderer/Platform/Windows/DirectX_12/Direct3D12_Context.h"

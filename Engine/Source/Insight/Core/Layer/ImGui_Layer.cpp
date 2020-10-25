@@ -92,14 +92,18 @@ namespace Insight {
 	bool ImGuiLayer::OnMouseButtonPressedEvent(MouseButtonPressedEvent& e)
 	{
 		ImGuiIO& io = ImGui::GetIO();
-		io.MouseDown[e.GetKeyCode()] = true;
+		uint8_t Keycode = 0;
+		TranslateMouseCode(e.GetKeyCode(), Keycode);
+		io.MouseDown[Keycode] = true;
 		return false;
 	}
 
 	bool ImGuiLayer::OnMouseButtonReleasedEvent(MouseButtonReleasedEvent& e)
 	{
 		ImGuiIO& io = ImGui::GetIO();
-		io.MouseDown[e.GetKeyCode()] = false;
+		uint8_t Keycode = 0;
+		TranslateMouseCode(e.GetKeyCode(), Keycode);
+		io.MouseDown[Keycode] = false;
 		return false;
 	}
 

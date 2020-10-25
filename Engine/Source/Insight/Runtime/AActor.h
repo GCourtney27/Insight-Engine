@@ -4,7 +4,7 @@
 #include "Insight/Events/Event.h"
 #include "Insight/Math/Transform.h"
 #include "Insight/Core/Scene/Scene_Node.h"
-#include "Insight/Actors/Components/Scene_Component.h"
+#include "Insight/Runtime/Components/Scene_Component.h"
 #include "Insight/Events/Application_Event.h"
 
 
@@ -77,8 +77,9 @@ namespace Insight {
 			bool OnCollision(PhysicsEvent& e);
 		protected:
 			ActorComponents m_Components;
-			uint32_t m_NumComponents = 0;
+			uint32_t m_NumComponents;
 			ActorId m_Id;
+			float m_DeltaMs;
 		private:
 
 		};

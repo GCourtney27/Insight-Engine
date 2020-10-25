@@ -3,10 +3,10 @@
 #include "AActor.h"
 
 #include "Insight/Core/Application.h"
-#include "Insight/Actors/Components/Actor_Component.h"
-#include "Insight/Actors/Components/Static_Mesh_Component.h"
-#include "Insight/Actors/Components/CSharp_Scirpt_Component.h"
-#include "Insight/Actors/Components/Sphere_Collider.h"
+#include "Insight/Runtime/Components/Actor_Component.h"
+#include "Insight/Runtime/Components/Static_Mesh_Component.h"
+#include "Insight/Runtime/Components/CSharp_Scirpt_Component.h"
+#include "Insight/Runtime/Components/Sphere_Collider.h"
 
 //TEMP
 #include "Insight/Rendering/Material.h"
@@ -19,7 +19,7 @@ namespace Insight {
 	namespace Runtime {
 
 		AActor::AActor(ActorId Id, ActorName ActorName)
-			: m_Id(Id)
+			: m_Id(Id), m_NumComponents(0), m_DeltaMs(0.0f)
 		{
 			SceneNode::SetDisplayName(ActorName);
 		}
@@ -96,6 +96,14 @@ namespace Insight {
 			ImGuiTreeNodeFlags TreeFlags = m_Children.empty() ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 			TreeFlags |= ImGuiTreeNodeFlags_SpanAvailWidth;
 			const bool IsExpanded = ImGui::TreeNodeEx(SceneNode::GetDisplayName(), TreeFlags);
+
+			int i = KeyMapCode_Mouse_Button_Left;
+			int j = KeyMapCode_Mouse_Button_Right;
+			int k = KeyMapCode_Mouse_Button_Middle;
+			if (ImGui::IsMouseClicked(0))
+			{
+				IE_CORE_INFO("Pressed");
+			}
 
 			if (ImGui::IsItemClicked()) {
 				IE_STRIP_FOR_GAME_DIST(Application::Get().GetEditorLayer().SetSelectedActor(this);)
@@ -212,6 +220,7 @@ namespace Insight {
 		void AActor::OnUpdate(const float DeltaMs)
 		{
 			SceneNode::OnUpdate(DeltaMs);
+			m_DeltaMs = DeltaMs;
 
 			for (size_t i = 0; i < m_NumComponents; ++i)
 			{

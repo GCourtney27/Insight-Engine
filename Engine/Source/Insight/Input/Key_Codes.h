@@ -1,3 +1,4 @@
+// Copyright Insight Interactive. All Rights Reserved.
 #pragma once
 
 // -------------------------------------
@@ -16,6 +17,7 @@
 // Keyboard Codes
 // --------------
 // Functions
+#define PlatformKeyboardCode_Shift			VK_SHIFT
 #define PlatformKeyboardCode_Shift_Left		VK_LSHIFT
 #define PlatformKeyboardCode_Shift_Right	VK_RSHIFT
 #define PlatformKeyboardCode_Alt			VK_MENU
@@ -83,65 +85,66 @@ namespace Insight {
 		// Mouse
 		// -----
 		// Buttons
-		KeymapCode_Mouse_Button_Left	= PlatformMouseCode_Button_Left,
-		KeymapCode_Mouse_Button_Right	= PlatformMouseCode_Button_Right,
-		KeymapCode_Mouse_Button_Middle	= PlatformMouseCode_Button_Middle,
-		KeymapCode_Mouse_Wheel_Up		= 3,
-		KeymapCode_Mouse_Wheel_Down		= 4,
-		KeymapCode_Mouse_Wheel_Left		= 5,
-		KeymapCode_Mouse_Wheel_Right	= 6,
-		KeymapCode_Mouse_MoveX			= 7,
-		KeymapCode_Mouse_MoveY			= 8,
+		KeyMapCode_Mouse_Button_Left	= PlatformMouseCode_Button_Left,
+		KeyMapCode_Mouse_Button_Right	= PlatformMouseCode_Button_Right,
+		KeyMapCode_Mouse_Button_Middle	= PlatformMouseCode_Button_Middle,
+		KeyMapCode_Mouse_Wheel_Up		= 3,
+		KeyMapCode_Mouse_Wheel_Down		= 4,
+		KeyMapCode_Mouse_Wheel_Left		= 5,
+		KeyMapCode_Mouse_Wheel_Right	= 6,
+		KeyMapCode_Mouse_MoveX			= 7,
+		KeyMapCode_Mouse_MoveY			= 8,
 		
 		// Keyboard
 		// --------
 		// Functions
-		KeymapCode_Keyboard_Shift_Left	= PlatformKeyboardCode_Shift_Left,
-		KeymapCode_Keyboard_Shift_Right = PlatformKeyboardCode_Shift_Right,
-		KeymapCode_Keyboard_Alt			= PlatformKeyboardCode_Alt,
-		KeymapCode_Keyboard_Control		= PlatformKeyboardCode_Control,
-		KeymapCode_Keyboard_Arrow_Left	= PlatformKeyboardCode_Arrow_Left,
-		KeymapCode_Keyboard_Arrow_Right = PlatformKeyboardCode_Arrow_Right,
-		KeymapCode_Keyboard_Arrow_Up	= PlatformKeyboardCode_Arrow_Up,
-		KeymapCode_Keyboard_Arrow_Down	= PlatformKeyboardCode_Arrow_Down,
+		KeyMapCode_Keyboard_Shift		= PlatformKeyboardCode_Shift,
+		KeyMapCode_Keyboard_Shift_Left	= PlatformKeyboardCode_Shift_Left,
+		KeyMapCode_Keyboard_Shift_Right = PlatformKeyboardCode_Shift_Right,
+		KeyMapCode_Keyboard_Alt			= PlatformKeyboardCode_Alt,
+		KeyMapCode_Keyboard_Control		= PlatformKeyboardCode_Control,
+		KeyMapCode_Keyboard_Arrow_Left	= PlatformKeyboardCode_Arrow_Left,
+		KeyMapCode_Keyboard_Arrow_Right = PlatformKeyboardCode_Arrow_Right,
+		KeyMapCode_Keyboard_Arrow_Up	= PlatformKeyboardCode_Arrow_Up,
+		KeyMapCode_Keyboard_Arrow_Down	= PlatformKeyboardCode_Arrow_Down,
 		// Numbers
-		KeymapCode_Keyboard_0 = PlatformKeyboardCode_0,
-		KeymapCode_Keyboard_1 = PlatformKeyboardCode_1,
-		KeymapCode_Keyboard_2 = PlatformKeyboardCode_2,
-		KeymapCode_Keyboard_3 = PlatformKeyboardCode_3,
-		KeymapCode_Keyboard_4 = PlatformKeyboardCode_4,
-		KeymapCode_Keyboard_5 = PlatformKeyboardCode_5,
-		KeymapCode_Keyboard_6 = PlatformKeyboardCode_6,
-		KeymapCode_Keyboard_7 = PlatformKeyboardCode_7,
-		KeymapCode_Keyboard_8 = PlatformKeyboardCode_8,
-		KeymapCode_Keyboard_9 = PlatformKeyboardCode_9,
+		KeyMapCode_Keyboard_0 = PlatformKeyboardCode_0,
+		KeyMapCode_Keyboard_1 = PlatformKeyboardCode_1,
+		KeyMapCode_Keyboard_2 = PlatformKeyboardCode_2,
+		KeyMapCode_Keyboard_3 = PlatformKeyboardCode_3,
+		KeyMapCode_Keyboard_4 = PlatformKeyboardCode_4,
+		KeyMapCode_Keyboard_5 = PlatformKeyboardCode_5,
+		KeyMapCode_Keyboard_6 = PlatformKeyboardCode_6,
+		KeyMapCode_Keyboard_7 = PlatformKeyboardCode_7,
+		KeyMapCode_Keyboard_8 = PlatformKeyboardCode_8,
+		KeyMapCode_Keyboard_9 = PlatformKeyboardCode_9,
 		// Letters
-		KeymapCode_Keyboard_A = PlatformKeyboardCode_A,
-		KeymapCode_Keyboard_B = PlatformKeyboardCode_B,
-		KeymapCode_Keyboard_C = PlatformKeyboardCode_C,
-		KeymapCode_Keyboard_D = PlatformKeyboardCode_D,
-		KeymapCode_Keyboard_E = PlatformKeyboardCode_E,
-		KeymapCode_Keyboard_F = PlatformKeyboardCode_F,
-		KeymapCode_Keyboard_G = PlatformKeyboardCode_G,
-		KeymapCode_Keyboard_H = PlatformKeyboardCode_H,
-		KeymapCode_Keyboard_I = PlatformKeyboardCode_I,
-		KeymapCode_Keyboard_J = PlatformKeyboardCode_J,
-		KeymapCode_Keyboard_K = PlatformKeyboardCode_K,
-		KeymapCode_Keyboard_L = PlatformKeyboardCode_L,
-		KeymapCode_Keyboard_M = PlatformKeyboardCode_M,
-		KeymapCode_Keyboard_N = PlatformKeyboardCode_N,
-		KeymapCode_Keyboard_O = PlatformKeyboardCode_O,
-		KeymapCode_Keyboard_P = PlatformKeyboardCode_P,
-		KeymapCode_Keyboard_Q = PlatformKeyboardCode_Q,
-		KeymapCode_Keyboard_R = PlatformKeyboardCode_R,
-		KeymapCode_Keyboard_S = PlatformKeyboardCode_S,
-		KeymapCode_Keyboard_T = PlatformKeyboardCode_T,
-		KeymapCode_Keyboard_U = PlatformKeyboardCode_U,
-		KeymapCode_Keyboard_V = PlatformKeyboardCode_V,
-		KeymapCode_Keyboard_W = PlatformKeyboardCode_W,
-		KeymapCode_Keyboard_X = PlatformKeyboardCode_X,
-		KeymapCode_Keyboard_Y = PlatformKeyboardCode_Y,
-		KeymapCode_Keyboard_Z = PlatformKeyboardCode_Z,
+		KeyMapCode_Keyboard_A = PlatformKeyboardCode_A,
+		KeyMapCode_Keyboard_B = PlatformKeyboardCode_B,
+		KeyMapCode_Keyboard_C = PlatformKeyboardCode_C,
+		KeyMapCode_Keyboard_D = PlatformKeyboardCode_D,
+		KeyMapCode_Keyboard_E = PlatformKeyboardCode_E,
+		KeyMapCode_Keyboard_F = PlatformKeyboardCode_F,
+		KeyMapCode_Keyboard_G = PlatformKeyboardCode_G,
+		KeyMapCode_Keyboard_H = PlatformKeyboardCode_H,
+		KeyMapCode_Keyboard_I = PlatformKeyboardCode_I,
+		KeyMapCode_Keyboard_J = PlatformKeyboardCode_J,
+		KeyMapCode_Keyboard_K = PlatformKeyboardCode_K,
+		KeyMapCode_Keyboard_L = PlatformKeyboardCode_L,
+		KeyMapCode_Keyboard_M = PlatformKeyboardCode_M,
+		KeyMapCode_Keyboard_N = PlatformKeyboardCode_N,
+		KeyMapCode_Keyboard_O = PlatformKeyboardCode_O,
+		KeyMapCode_Keyboard_P = PlatformKeyboardCode_P,
+		KeyMapCode_Keyboard_Q = PlatformKeyboardCode_Q,
+		KeyMapCode_Keyboard_R = PlatformKeyboardCode_R,
+		KeyMapCode_Keyboard_S = PlatformKeyboardCode_S,
+		KeyMapCode_Keyboard_T = PlatformKeyboardCode_T,
+		KeyMapCode_Keyboard_U = PlatformKeyboardCode_U,
+		KeyMapCode_Keyboard_V = PlatformKeyboardCode_V,
+		KeyMapCode_Keyboard_W = PlatformKeyboardCode_W,
+		KeyMapCode_Keyboard_X = PlatformKeyboardCode_X,
+		KeyMapCode_Keyboard_Y = PlatformKeyboardCode_Y,
+		KeyMapCode_Keyboard_Z = PlatformKeyboardCode_Z,
 
 		
 		

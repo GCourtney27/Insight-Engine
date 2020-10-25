@@ -1,8 +1,9 @@
+// Copyright Insight Interactive. All Rights Reserved.
 #include <Engine_pch.h>
 
 #include "Application.h"
 
-#include "Insight/Actors/AActor.h"
+#include "Insight/Runtime/AActor.h"
 #include "Insight/Core/Layer/ImGui_Layer.h"
 #include "Insight/Core/ie_Exception.h"
 #include "Renderer/Renderer.h"
@@ -126,7 +127,7 @@ namespace Insight {
 				m_pImGuiLayer->End();
 			);
 
-			// Submit for draw.
+			// Submit for draw and present.
 			Renderer::ExecuteDraw();
 			Renderer::SwapBuffers();
 		}
@@ -138,6 +139,7 @@ namespace Insight {
 			BeginPlay(AppBeginPlayEvent{})
 		);
 
+		// Put all rendering and GPU logic on another thread.
 		std::thread RenderThread(&Application::RenderThread, this);
 		
 		while (m_Running) 
@@ -146,11 +148,16 @@ namespace Insight {
 			float DeltaMs = m_FrameTimer.DeltaTime();
 			m_pWindow->SetWindowTitleFPS(m_FrameTimer.FPS());
 
-			InputDispatcher::Get().UpdateInputs();
-			
+			// Process the window's Messages
 			m_pWindow->OnUpdate(DeltaMs);
+
+			// Update the input system.
+			m_InputDispatcher.UpdateInputs();
+
+			// Update game logic.
 			m_pGameLayer->Update(DeltaMs);
 
+			// Update the layer stack.
 			for (Layer* layer : m_LayerStack) 
 				layer->OnUpdate(DeltaMs);
 		}
@@ -224,8 +231,6 @@ namespace Insight {
 
 		// Process event callbacks.
 		m_InputDispatcher.ProcessInputEvent(e);
-
-		//Input::GetInputManager().OnEvent(e);
 
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
 		{

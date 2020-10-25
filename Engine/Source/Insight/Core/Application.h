@@ -1,3 +1,19 @@
+// Copyright Insight Interactive. All Rights Reserved.
+/*
+	File - Application.h
+	Source - Application.cpp
+
+	Author - Garrett Courtney
+
+	Purpose:
+	Core application the engine uses to execute.
+
+	Description:
+	The application holds the layers that make up the application. Layers give functionality to the application
+	whether it be game code, editor code etc. These are the core components of any program using the Insight api.
+
+*/
+
 #pragma once
 
 #include <Insight/Core.h>
@@ -90,7 +106,7 @@ namespace Insight {
 		LayerStack				m_LayerStack;
 		FrameTimer				m_FrameTimer;
 		FileSystem				m_FileSystem;
-		InputDispatcher			m_InputDispatcher;
+		Input::InputDispatcher	m_InputDispatcher;
 	private:
 		static Application*		s_Instance;
 	};

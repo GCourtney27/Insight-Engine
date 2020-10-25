@@ -1,3 +1,4 @@
+// Copyright Insight Interactive. All Rights Reserved.
 #pragma once
 
 #include "Event.h"

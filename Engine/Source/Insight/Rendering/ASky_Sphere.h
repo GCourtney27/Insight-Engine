@@ -2,7 +2,7 @@
 
 #include <Insight/Core.h>
 
-#include "Insight/Actors/AActor.h"
+#include "Insight/Runtime/AActor.h"
 #include "Insight/Rendering/Texture.h"
 
 namespace Insight {
