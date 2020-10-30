@@ -26,12 +26,13 @@ namespace Insight {
 	typedef shared_ptr<Texture> StrongTexturePtr;
 	typedef weak_ptr<Texture> WeakTexturePtr;
 
-	enum class eRenderPass
+	typedef enum class RenderPassType
 	{
-		RenderPass_0,
-		RenderPass_Scene,
-		RenderPass_Shadow,
-		RenderPass_Transparency,
-	};
+		RenderPassType_Invalid,
+		RenderPassType_Scene,
+		RenderPassType_Shadow,
+		RenderPassType_Transparency,
+		RenderPassType_UI,
+	} RenderPassType;
 
 }

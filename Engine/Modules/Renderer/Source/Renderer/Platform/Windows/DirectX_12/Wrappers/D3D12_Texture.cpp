@@ -1,6 +1,6 @@
 #include <Renderer_pch.h>
 
-#include "ie_D3D12_Texture.h"
+#include "D3D12_Texture.h"
 
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
@@ -52,12 +52,13 @@ namespace Insight {
 
 	bool ieD3D12Texture::Init(IE_TEXTURE_INFO createInfo, CDescriptorHeapWrapper& srvHeapHandle)
 	{
-		Direct3D12Context* GraphicsContext = dynamic_cast<Direct3D12Context*>(&Renderer::Get());
 		std::string Filepath = StringHelper::WideToString(createInfo.Filepath);
+		Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
 
-		m_pCbvSrvHeapStart = &GraphicsContext->GetCBVSRVDescriptorHeap();
-		m_pScenePass_CommandList = &GraphicsContext->GetScenePassCommandList();
-		m_pTranslucencyPass_CommandList = &GraphicsContext->GetTransparencyPassCommandList();
+
+		m_pCbvSrvHeapStart = &RenderContext.GetCBVSRVDescriptorHeap();
+		m_pScenePass_CommandList = &RenderContext.GetScenePassCommandList();
+		m_pTranslucencyPass_CommandList = &RenderContext.GetTransparencyPassCommandList();
 		m_TextureInfo = createInfo;
 
 		std::string FileExtension = StringHelper::GetFileExtension(Filepath);
@@ -77,9 +78,10 @@ namespace Insight {
 
 	void ieD3D12Texture::InitDDSTexture(CDescriptorHeapWrapper& srvHeapHandle)
 	{
-		Direct3D12Context* GraphicsContext = dynamic_cast<Direct3D12Context*>(&Renderer::Get());
-		ID3D12Device* pDevice = &GraphicsContext->GetDeviceContext();
-		ID3D12CommandQueue* pCommandQueue = &GraphicsContext->GetCommandQueue();
+		Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
+		ID3D12Device* pDevice = &RenderContext.GetDeviceContext();
+
+		ID3D12CommandQueue* pCommandQueue = &RenderContext.GetCommandQueue();
 
 		DirectX::ResourceUploadBatch ResourceUpload(pDevice);
 		ResourceUpload.Begin();
@@ -125,9 +127,10 @@ namespace Insight {
 
 	bool ieD3D12Texture::InitTextureFromFile(CDescriptorHeapWrapper& srvHeapHandle)
 	{
-		Direct3D12Context* graphicsContext = dynamic_cast<Direct3D12Context*>(&Renderer::Get());
-		ID3D12Device* pDevice = &graphicsContext->GetDeviceContext();
-		ID3D12CommandQueue* pCommandQueue = &graphicsContext->GetCommandQueue();
+		Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
+		ID3D12Device* pDevice = &RenderContext.GetDeviceContext();
+
+		ID3D12CommandQueue* pCommandQueue = &RenderContext.GetCommandQueue();
 
 		DirectX::ResourceUploadBatch resourceUpload(pDevice);
 		resourceUpload.Begin();

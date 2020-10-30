@@ -16,19 +16,19 @@ namespace Insight {
 
 	bool D3D12GeometryManager::Init_Impl()
 	{
-		Direct3D12Context* D3D12Context = dynamic_cast<Direct3D12Context*>(&Renderer::Get());
+		Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
 
-		m_ConstantBufferUploadHeaps = &D3D12Context->GetConstantBufferPerObjectUploadHeap();
-		m_ConstantBufferMaterialUploadHeaps = &D3D12Context->GetConstantBufferPerObjectMaterialUploadHeap();
-		m_pScenePassCommandList = &D3D12Context->GetScenePassCommandList();
-		m_pShadowPassCommandList = &D3D12Context->GetShadowPassCommandList();
-		m_pTransparencyPassCommandList = &D3D12Context->GetTransparencyPassCommandList();
+		m_ConstantBufferUploadHeaps = &RenderContext.GetConstantBufferPerObjectUploadHeap();
+		m_ConstantBufferMaterialUploadHeaps = &RenderContext.GetConstantBufferPerObjectMaterialUploadHeap();
+		m_pScenePassCommandList = &RenderContext.GetScenePassCommandList();
+		m_pShadowPassCommandList = &RenderContext.GetShadowPassCommandList();
+		m_pTransparencyPassCommandList = &RenderContext.GetTransparencyPassCommandList();
 
 		m_CbvUploadHeapHandle = m_ConstantBufferUploadHeaps->GetGPUVirtualAddress();
 		m_CbvMaterialHeapHandle = m_ConstantBufferMaterialUploadHeaps->GetGPUVirtualAddress();
 
-		m_CbvPerObjectGPUAddress = D3D12Context->GetPerObjectCBVGPUHeapAddress();
-		m_CbvMaterialGPUAddress = D3D12Context->GetPerObjectMaterialAdditiveCBVGPUHeapAddress();
+		m_CbvPerObjectGPUAddress = RenderContext.GetPerObjectCBVGPUHeapAddress();
+		m_CbvMaterialGPUAddress = RenderContext.GetPerObjectMaterialAdditiveCBVGPUHeapAddress();
 
 		if (!(m_pScenePassCommandList && m_pShadowPassCommandList && m_pTransparencyPassCommandList && m_ConstantBufferUploadHeaps && m_ConstantBufferMaterialUploadHeaps))
 		{
@@ -38,9 +38,9 @@ namespace Insight {
 		return true;
 	}
 
-	void D3D12GeometryManager::Render_Impl(eRenderPass RenderPass)
+	void D3D12GeometryManager::Render_Impl(RenderPassType RenderPass)
 	{
-		if (RenderPass == eRenderPass::RenderPass_Shadow) {
+		if (RenderPass == RenderPassType::RenderPassType_Shadow) {
 
 			for (UINT32 i = 0; i < m_OpaqueModels.size(); ++i) {
 
@@ -59,7 +59,7 @@ namespace Insight {
 				}
 			}
 		}
-		else if (RenderPass == eRenderPass::RenderPass_Scene) {
+		else if (RenderPass == RenderPassType::RenderPassType_Scene) {
 
 			for (UINT32 i = 0; i < m_OpaqueModels.size(); ++i) {
 
@@ -80,7 +80,7 @@ namespace Insight {
 				}
 			}
 		}
-		else if (RenderPass == eRenderPass::RenderPass_Transparency) {
+		else if (RenderPass == RenderPassType::RenderPassType_Transparency) {
 
 			for (UINT32 i = 0; i < m_TranslucentModels.size(); ++i) {
 

@@ -5,7 +5,7 @@
 #include "Renderer/Renderer.h"
 
 #include "Renderer/Platform/Windows/DirectX_12/Direct3D12_Context.h"
-#include "Renderer/Platform/Windows/DirectX_12/Wrappers/ie_D3D12_Texture.h"
+#include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_Texture.h"
 #include "Renderer/Platform/Windows/DirectX_11/Wrappers/ie_D3D11_Texture.h"
 
 namespace Insight {
@@ -242,8 +242,8 @@ namespace Insight {
 		}
 		case Renderer::eTargetRenderAPI::D3D_12:
 		{
-			Direct3D12Context* graphicsContext = dynamic_cast<Direct3D12Context*>(&Renderer::Get());
-			CDescriptorHeapWrapper& cbvSrvHeapStart = graphicsContext->GetCBVSRVDescriptorHeap();
+			Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
+			CDescriptorHeapWrapper& cbvSrvHeapStart = RenderContext.GetCBVSRVDescriptorHeap();
 
 			m_DefaultAlbedoTexture = make_shared<ieD3D12Texture>(AlbedoTexInfo, cbvSrvHeapStart);
 			m_DefaultNormalTexture = make_shared<ieD3D12Texture>(NormalTexInfo, cbvSrvHeapStart);
@@ -328,8 +328,8 @@ namespace Insight {
 			}
 			case Renderer::eTargetRenderAPI::D3D_12:
 			{
-				Direct3D12Context* GraphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
-				CDescriptorHeapWrapper& cbvSrvHeapStart = GraphicsContext->GetCBVSRVDescriptorHeap();
+				Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
+				CDescriptorHeapWrapper& cbvSrvHeapStart = RenderContext.GetCBVSRVDescriptorHeap();
 
 				switch (TexInfo.Type) {
 				case Texture::eTextureType::eTextureType_Albedo:

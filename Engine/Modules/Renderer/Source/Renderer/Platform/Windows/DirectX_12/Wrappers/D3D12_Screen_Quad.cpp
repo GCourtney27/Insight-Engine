@@ -1,6 +1,6 @@
 #include <Renderer_pch.h>
 
-#include "ie_D3D12_Screen_Quad.h"
+#include "D3D12_Screen_Quad.h"
 
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
@@ -9,7 +9,7 @@ namespace Insight {
 	void ieD3D12ScreenQuad::Init(ScreenSpaceVertex Verticies[], uint32_t VertexBufferSize, uint32_t Indices[], uint32_t IndexBufferSize)
 	{
 		HRESULT hr;
-		Direct3D12Context* GraphicsContext = dynamic_cast<Direct3D12Context*>(&Renderer::Get());
+		Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
 
 		// Vertex Buffer
 		// -------------
@@ -26,7 +26,7 @@ namespace Insight {
 		resourceDesc.Width = VertexBufferSize;
 		resourceDesc.Height = 1;
 		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-		hr = GraphicsContext->GetDeviceContext().CreateCommittedResource(
+		hr = RenderContext.GetDeviceContext().CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			D3D12_HEAP_FLAG_NONE,
 			&resourceDesc,
@@ -38,7 +38,7 @@ namespace Insight {
 		ThrowIfFailed(hr, "Failed to create default heap resource for screen qauad");
 
 		ID3D12Resource* vBufferUploadHeap;
-		hr = GraphicsContext->GetDeviceContext().CreateCommittedResource(
+		hr = RenderContext.GetDeviceContext().CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(VertexBufferSize),
@@ -53,9 +53,9 @@ namespace Insight {
 		vertexData.RowPitch = VertexBufferSize;
 		vertexData.SlicePitch = VertexBufferSize;
 
-		UpdateSubresources(&GraphicsContext->GetScenePassCommandList(), m_VertexBuffer.Get(), vBufferUploadHeap, 0, 0, 1, &vertexData);
+		UpdateSubresources(&RenderContext.GetScenePassCommandList(), m_VertexBuffer.Get(), vBufferUploadHeap, 0, 0, 1, &vertexData);
 
-		GraphicsContext->GetScenePassCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_VertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
+		RenderContext.GetScenePassCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_VertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
 
 		m_VertexBufferView.BufferLocation = m_VertexBuffer->GetGPUVirtualAddress();
 		m_VertexBufferView.StrideInBytes = sizeof(ScreenSpaceVertex);
@@ -65,7 +65,7 @@ namespace Insight {
 		// ------------
 		ComPtr<ID3D12Resource>		pIndexBufferUploadHeap;
 
-		hr = GraphicsContext->GetDeviceContext().CreateCommittedResource(
+		hr = RenderContext.GetDeviceContext().CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(IndexBufferSize),
@@ -77,7 +77,7 @@ namespace Insight {
 		}
 		m_pIndexBuffer->SetName(L"Index Buffer Resource Heap");
 
-		hr = GraphicsContext->GetDeviceContext().CreateCommittedResource(
+		hr = RenderContext.GetDeviceContext().CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(IndexBufferSize),
@@ -94,13 +94,13 @@ namespace Insight {
 		indexData.RowPitch = IndexBufferSize;
 		indexData.SlicePitch = IndexBufferSize;
 
-		UpdateSubresources(&GraphicsContext->GetScenePassCommandList(), m_pIndexBuffer.Get(), pIndexBufferUploadHeap.Get(), 0, 0, 1, &indexData);
+		UpdateSubresources(&RenderContext.GetScenePassCommandList(), m_pIndexBuffer.Get(), pIndexBufferUploadHeap.Get(), 0, 0, 1, &indexData);
 
 		m_IndexBufferView.BufferLocation = m_pIndexBuffer->GetGPUVirtualAddress();
 		m_IndexBufferView.Format = DXGI_FORMAT_R32_UINT;
 		m_IndexBufferView.SizeInBytes = IndexBufferSize;
 
-		GraphicsContext->GetScenePassCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pIndexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER));
+		RenderContext.GetScenePassCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pIndexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER));
 	}
 
 	void ieD3D12ScreenQuad::OnRender(ComPtr<ID3D12GraphicsCommandList> pCommandList)

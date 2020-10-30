@@ -11,7 +11,7 @@ namespace Insight {
 		friend class GeometryManager;
 	public:
 		virtual bool Init_Impl() override;
-		virtual void Render_Impl(eRenderPass RenderPass) override;
+		virtual void Render_Impl(RenderPassType RenderPass) override;
 		virtual void GatherGeometry_Impl() override;
 
 	private:

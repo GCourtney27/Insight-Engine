@@ -45,8 +45,7 @@ namespace Insight {
 			m_pIO->KeyMap[ImGuiKey_Z] = 'Z';
 		}
 
-		Direct3D12Context* pRenderContext = dynamic_cast<Direct3D12Context*>(&Renderer::Get());
-		IE_ASSERT(pRenderContext != nullptr, "Trying to create D3D21 ImGuiLayer with invalid renderer.");
+		Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
 
 		HWND* pWindowHandle = static_cast<HWND*>(Application::Get().GetWindow().GetNativeWindow());
 		IE_ASSERT(pWindowHandle != nullptr, "Trying to create D3D12 ImGuiLayer with invalid HWND handle.");
@@ -63,18 +62,18 @@ namespace Insight {
 		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 		desc.NumDescriptors = 1;
 		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-		hr = pRenderContext->GetDeviceContext().CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_pDescriptorHeap));
+		hr = RenderContext.GetDeviceContext().CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_pDescriptorHeap));
 
-		bool impleDX12Succeeded = ImGui_ImplDX12_Init(&pRenderContext->GetDeviceContext(),
-			pRenderContext->GetFrameBufferCount(),
-			pRenderContext->GetSwapChainBackBufferFormat(),
+		bool impleDX12Succeeded = ImGui_ImplDX12_Init(&RenderContext.GetDeviceContext(),
+			RenderContext.GetFrameBufferCount(),
+			RenderContext.GetSwapChainBackBufferFormat(),
 			m_pDescriptorHeap,
 			m_pDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
 			m_pDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 		if (!impleDX12Succeeded)
 			IE_CORE_WARN("Failed to initialize ImGui for DX12. Editor will not be rendered");
 
-		m_pCommandList = &pRenderContext->GetPostProcessPassCommandList();
+		m_pCommandList = &RenderContext.GetPostProcessPassCommandList();
 	}
 
 	void D3D12ImGuiLayer::OnDetach()

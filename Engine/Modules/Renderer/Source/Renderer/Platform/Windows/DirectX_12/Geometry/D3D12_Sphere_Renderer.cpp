@@ -20,8 +20,9 @@ namespace Insight {
 
 	void ieD3D12SphereRenderer::ResourceSetup()
 	{
-		Direct3D12Context* graphicsContext = dynamic_cast<Direct3D12Context*>(&Renderer::Get());
-		ID3D12Device* pDevice = &graphicsContext->GetDeviceContext();
+		Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
+		ID3D12Device* pDevice = &RenderContext.GetDeviceContext();
+
 		HRESULT hr;
 
 		std::vector< SimpleVertex > verts;

@@ -44,9 +44,10 @@ namespace Insight {
 
 	bool ieD3D11Texture::Init()
 	{
-		Direct3D11Context* Context = dynamic_cast<Direct3D11Context*>(&Renderer::Get());
-		m_pDevice = &Context->GetDevice();
-		m_pDeviceContext = &Context->GetDeviceContext();
+		Direct3D11Context& RenderContext = Renderer::GetAs<Direct3D11Context>();
+
+		m_pDevice = &RenderContext.GetDevice();
+		m_pDeviceContext = &RenderContext.GetDeviceContext();
 
 		std::string Filepath = StringHelper::WideToString(m_TextureInfo.Filepath);
 

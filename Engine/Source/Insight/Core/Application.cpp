@@ -101,21 +101,19 @@ namespace Insight {
 	void Application::RenderThread()
 	{
 		FrameTimer GraphicsTimer;
-		float DeltaMs = 0.0f;
 
 		while (m_Running)
 		{
 			GraphicsTimer.Tick();
-			DeltaMs = GraphicsTimer.DeltaTime();
 
-			Renderer::OnUpdate(DeltaMs);
+			Renderer::OnUpdate(GraphicsTimer.DeltaTime());
 
-			// Prepare for the render pass.
+			// Prepare for rendering.
 			Renderer::OnPreFrameRender();
 
 			// Render the world.
 			Renderer::OnRender();
-			Renderer::OnMidFrameRender();
+			//Renderer::OnMidFrameRender();
 
 			// Render the Editor/UI last.
 			IE_STRIP_FOR_GAME_DIST

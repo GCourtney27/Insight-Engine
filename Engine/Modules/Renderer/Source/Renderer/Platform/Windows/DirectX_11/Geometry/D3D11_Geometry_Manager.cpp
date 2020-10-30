@@ -14,9 +14,10 @@ namespace Insight {
 
 	bool D3D11GeometryManager::Init_Impl()
 	{
-		Direct3D11Context* D3D12Context = dynamic_cast<Direct3D11Context*>(&Renderer::Get());
-		m_pDevice = &D3D12Context->GetDevice();
-		m_pDeviceContext = &D3D12Context->GetDeviceContext();
+		Direct3D11Context& RenderContext = Renderer::GetAs<Direct3D11Context>();
+		m_pDevice = &RenderContext.GetDevice();
+
+		m_pDeviceContext = &RenderContext.GetDeviceContext();
 
 		D3D11_BUFFER_DESC PerObjectBufferDesc = {};
 		PerObjectBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -43,11 +44,11 @@ namespace Insight {
 		return true;
 	}
 
-	void D3D11GeometryManager::Render_Impl(eRenderPass RenderPass)
+	void D3D11GeometryManager::Render_Impl(RenderPassType RenderPass)
 	{
 		HRESULT hr;
 
-		if (RenderPass == eRenderPass::RenderPass_Scene) {
+		if (RenderPass == RenderPassType::RenderPassType_Scene) {
 
 			for (UINT32 i = 0; i < s_Instance->m_OpaqueModels.size(); ++i) {
 
@@ -78,7 +79,7 @@ namespace Insight {
 			}
 
 		}
-		else if (RenderPass == eRenderPass::RenderPass_Transparency) {
+		else if (RenderPass == RenderPassType::RenderPassType_Transparency) {
 
 			for (UINT32 i = 0; i < m_TranslucentModels.size(); ++i) {
 

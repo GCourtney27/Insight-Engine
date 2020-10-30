@@ -5,7 +5,7 @@
 #include "Insight/Runtime/Components/Actor_Component.h"
 #include "Insight/Runtime/Components/Static_Mesh_Component.h"
 
-#include "Renderer/Platform/Windows/DirectX_12/Wrappers/ie_D3D12_Texture.h"
+#include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_Texture.h"
 #include "Renderer/Platform/Windows/DirectX_11/Wrappers/ie_D3D11_Texture.h"
 #include "Renderer/Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
@@ -48,8 +48,8 @@ namespace Insight {
 		}
 		case Renderer::eTargetRenderAPI::D3D_12:
 		{
-			Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
-			CDescriptorHeapWrapper& cbvSrvheap = graphicsContext->GetCBVSRVDescriptorHeap();
+			Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
+			CDescriptorHeapWrapper& cbvSrvheap = RenderContext.GetCBVSRVDescriptorHeap();
 			m_Diffuse = new ieD3D12Texture(diffuseInfo, cbvSrvheap);
 			break;
 		}	

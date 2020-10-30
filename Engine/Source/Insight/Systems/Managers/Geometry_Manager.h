@@ -27,7 +27,7 @@ namespace Insight {
 		static bool Init() { return s_Instance->Init_Impl(); }
 
 		// Issue draw commands to all models attached to the geometry manager.
-		static void Render(eRenderPass RenderPass) { s_Instance->Render_Impl(RenderPass); }
+		static void Render(RenderPassType RenderPass) { s_Instance->Render_Impl(RenderPass); }
 		// Gather all geometry in the scene and uplaod their constant buffers to the GPU.
 		// Should only be called once, before 'Render()'. Does not draw models.
 		static void GatherGeometry() { s_Instance->GatherGeometry_Impl(); }
@@ -48,7 +48,7 @@ namespace Insight {
 
 	protected:
 		virtual bool Init_Impl() = 0;
-		virtual void Render_Impl(eRenderPass RenderPass) = 0;
+		virtual void Render_Impl(RenderPassType RenderPass) = 0;
 		virtual void GatherGeometry_Impl() = 0;
 
 	protected:

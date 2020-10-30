@@ -6,14 +6,14 @@
 
 #include "Platform/Windows/Error/COM_Exception.h"
 #include "Renderer/Platform/Windows/DirectX_12/D3D12_Helper.h"
-#include "Renderer/Platform/Windows/DirectX_12/Wrappers/Descriptor_Heap_Wrapper.h"
 #include "Renderer/Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
 #include "Renderer/Platform/Windows/DirectX_12/Ray_Tracing/Ray_Trace_Helpers.h"
-#include "Renderer/Platform/Windows/DirectX_12/Wrappers/ie_D3D12_Screen_Quad.h"
+#include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_Screen_Quad.h"
 
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
 #include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_Constant_Buffer_Wrapper.h"
 
+#include "Renderer/Platform/Windows/DirectX_12/Render_Techniques/Render_Pass_Stack.h"
 
 /*
 	Render context for Windows Direct3D 12 API. 
@@ -37,35 +37,11 @@ namespace Insight {
 
 	class INSIGHT_API Direct3D12Context : public Renderer
 	{
-	private:
-		
-		/*struct RenderTargetTexture
-		{
-			void Create(CDescriptorHeapWrapper &rtHeap)
-			{
-
-			}
-			RenderTarget(){}
-			D3D12Texture2D* RenderTargetTexture;
-			D3D12RenderTargetView* RenderTargetView;
-			D3D12RenderTargetView* ShaderResourceView;
-			D3D12UnoreredAccessView* UnorderedAccessView;
-		};
-		const static UINT NumDummyRTs = 6;
-		RenderTargetTexture RenderTargets[NumDummyRTs];
-		void DummyCreateRenderTargets()
-		{
-			CDescriptorHeapWrapper rtHeap;
-			rtHeap.Create(&m_d3dDeviceResources.GetDeviceContext(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, NumDummyRTs, false);
-
-			for (size_t i = 0; i < NumDummyRTs; i++)
-			{
-				RenderTargets[i].Create(rtHeap);
-			}
-		}*/
 	public:
 		friend class Renderer;
 		friend class D3D12Helper;
+		friend class DeferredGeometryPass;
+		friend class DeferredLightPass;
 	public:
 		virtual bool Init_Impl() override;
 		virtual void Destroy_Impl() override;
@@ -99,6 +75,8 @@ namespace Insight {
 		inline ID3D12GraphicsCommandList& GetShadowPassCommandList() const { return *m_pShadowPass_CommandList.Get(); }
 		inline ID3D12GraphicsCommandList& GetTransparencyPassCommandList() const { return *m_pTransparencyPass_CommandList.Get(); }
 
+		inline D3D12_RECT GetClientScissorRect() const { return m_d3dDeviceResources.GetClientScissorRect(); }
+		inline D3D12_VIEWPORT GetClientViewPort() const { return m_d3dDeviceResources.GetClientViewPort(); }
 		inline ID3D12CommandQueue& GetCommandQueue() const { return m_d3dDeviceResources.GetGraphicsCommandQueue(); }
 		inline CDescriptorHeapWrapper& GetCBVSRVDescriptorHeap() { return m_cbvsrvHeap; }
 		
@@ -109,6 +87,8 @@ namespace Insight {
 
 		const CB_PS_VS_PerFrame& GetPerFrameCB() const { return m_CBPerFrame.Data; }
 
+		inline void SetActiveCommandList(ComPtr<ID3D12GraphicsCommandList> pCommandList) { m_pActiveCommandList = pCommandList; }
+
 		// Ray Tracing
 		// -----------
 		inline ID3D12GraphicsCommandList4& GetRayTracePassCommandList() const { return *m_pRayTracePass_CommandList.Get(); }
@@ -116,13 +96,14 @@ namespace Insight {
 		[[nodiscard]] uint32_t RegisterGeometryWithRTAccelerationStucture(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat);
 		void UpdateRTAccelerationStructureMatrix(uint32_t InstanceArrIndex, DirectX::XMMATRIX NewWorldMat) { m_RTHelper.UpdateInstanceTransformByIndex(InstanceArrIndex, NewWorldMat); }
 
+
 		ID3D12Resource* GetSwapChainRenderTarget() const { return m_pSwapChainRenderTargets[IE_D3D12_FrameIndex].Get(); }
-		const UINT GetNumLightPassRTVs() const { return m_NumRTVs; }
+		inline const UINT GetNumLightPassRTVs() const { return m_NumRTVs; }
 		inline D3D12_CPU_DESCRIPTOR_HANDLE GetSwapChainRTV() const
 		{
-			D3D12_CPU_DESCRIPTOR_HANDLE handle;
-			handle.ptr = m_SwapChainRTVHeap.hCPUHeapStart.ptr + m_SwapChainRTVHeap.HandleIncrementSize * IE_D3D12_FrameIndex;
-			return handle;
+			D3D12_CPU_DESCRIPTOR_HANDLE Handle;
+			Handle.ptr = m_SwapChainRTVHeap.hCPUHeapStart.ptr + m_SwapChainRTVHeap.HandleIncrementSize * IE_D3D12_FrameIndex;
+			return Handle;
 		}
 
 		
@@ -181,6 +162,14 @@ namespace Insight {
 		D3D12Helper			m_d3dDeviceResources;
 		RayTraceHelpers		m_RTHelper;
 
+		
+		RenderPassStack				m_RenderPassStack;
+		DeferredGeometryPass		m_GeometryPass;
+		DeferredLightPass			m_LightPass;
+		PostProcessCompositePass	m_PostProcessCompositePass;
+
+
+
 		ieD3D12ScreenQuad	m_ScreenQuad;
 		ieD3D12ScreenQuad	m_DebugScreenQuad;
 		D3D12_VIEWPORT		m_ShadowPass_ViewPort = {};
@@ -194,6 +183,7 @@ namespace Insight {
 		bool				m_UseWarpDevice = false;
 
 		// D3D 12 Usings
+
 		ComPtr<ID3D12GraphicsCommandList>	m_pActiveCommandList;
 
 		ComPtr<ID3D12GraphicsCommandList4>	m_pRayTracePass_CommandList;

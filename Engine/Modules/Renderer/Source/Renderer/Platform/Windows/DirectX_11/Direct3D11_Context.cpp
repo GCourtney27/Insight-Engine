@@ -193,7 +193,7 @@ namespace Insight {
 		m_DeferredShadingTech.BindGeometryPass();
 		m_pDeviceContext->VSSetConstantBuffers(1, 1, m_PerFrameData.GetAddressOf());
 		m_pDeviceContext->PSSetConstantBuffers(1, 1, m_PerFrameData.GetAddressOf());
-		GeometryManager::Render(eRenderPass::RenderPass_Scene);
+		GeometryManager::Render(RenderPassType::RenderPassType_Scene);
 	}
 
 	void Direct3D11Context::OnMidFrameRender_Impl()
@@ -221,7 +221,7 @@ namespace Insight {
 		m_pDeviceContext->PSSetConstantBuffers(1, 1, m_PerFrameData.GetAddressOf());
 		m_pDeviceContext->PSSetConstantBuffers(2, 1, m_LightData.GetAddressOf());
 		m_DeferredShadingTech.BindTransparencyPass();
-		GeometryManager::Render(eRenderPass::RenderPass_Transparency);
+		GeometryManager::Render(RenderPassType::RenderPassType_Transparency);
 
 		// PostFx Pass
 		m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), nullptr);

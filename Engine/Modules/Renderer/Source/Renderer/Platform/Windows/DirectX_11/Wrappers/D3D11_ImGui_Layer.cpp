@@ -46,7 +46,7 @@ namespace Insight {
 			m_pIO->KeyMap[ImGuiKey_Z] = 'Z';
 		}
 
-		Direct3D11Context* GraphicsContext = dynamic_cast<Direct3D11Context*>(&Renderer::Get());
+		Direct3D11Context& RenderContext = Renderer::GetAs<Direct3D11Context>();
 
 		HWND* pWindowHandle = static_cast<HWND*>(Application::Get().GetWindow().GetNativeWindow());
 		m_pWindowHandle = pWindowHandle;
@@ -54,7 +54,7 @@ namespace Insight {
 		if (!ImGui_ImplWin32_Init(m_pWindowHandle)) {
 			IE_CORE_WARN("Failed to initialize ImGui for Win32 - D3D 12. Some controls may not be functional or editor may not be rendered.");
 		}
-		ImGui_ImplDX11_Init(&GraphicsContext->GetDevice(), &GraphicsContext->GetDeviceContext());
+		ImGui_ImplDX11_Init(&RenderContext.GetDevice(), &RenderContext.GetDeviceContext());
 
 	}
 

@@ -79,6 +79,27 @@ namespace Insight {
 					CreateForwardShadingRS();
 					CreateBloomPassRS();
 					CreateDebugScreenQuadRS();
+					
+					{
+						// Create the Geometry Pass and push it to the render stack.
+						m_GeometryPass.Create(this, &m_cbvsrvHeap, m_pScenePass_CommandList.Get(), m_pDeferredShadingPass_RS.Get());
+						m_RenderPassStack.PushPass(&m_GeometryPass);
+						
+						// Create the Light Pass and push it to the render stack.
+						m_LightPass.Create(this, &m_cbvsrvHeap, m_pScenePass_CommandList.Get(), m_pDeferredShadingPass_RS.Get());
+						uint8_t NumGBuffers = m_GeometryPass.GetNumGBuffers();
+						for (uint8_t i = 0; i < NumGBuffers; ++i)
+							m_LightPass.SetRenderTargetTextureRef(m_GeometryPass.GetGBufferRenderTargetTexture(i));
+						m_LightPass.SetSceneDepthTextureRef(m_GeometryPass.GetSceneDepthTexture());
+						m_RenderPassStack.PushPass(&m_LightPass);
+						
+						// Create the Post Process Composite Pass ad push it to the render stack.
+						m_PostProcessCompositePass.Create(this, &m_cbvsrvHeap, m_pPostEffectsPass_CommandList.Get(), m_pDeferredShadingPass_RS.Get());
+						m_RenderPassStack.PushPass(&m_PostProcessCompositePass);
+
+					}
+
+					
 					LoadPipelines();
 				}
 
@@ -92,7 +113,8 @@ namespace Insight {
 			}
 			PIXEndEvent(&m_d3dDeviceResources.GetGraphicsCommandQueue());
 		}
-		catch (COMException& Ex) {
+		catch (COMException& Ex) 
+		{
 			m_pWindowRef->CreateMessageBox(Ex.what(), L"Fatal Error");
 			return false;
 		}
@@ -245,8 +267,28 @@ namespace Insight {
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
+
 		// Gather the geometry in the world and send it to the GPU.
 		GeometryManager::GatherGeometry();
+
+		/*m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pPostEffectsPass_CommandList.Get(), 2);
+		m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pScenePass_CommandList.Get(), 1);
+		m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pPostEffectsPass_CommandList.Get(), 1);
+
+		m_CBLights.SetAsGraphicsRootConstantBufferView(m_pScenePass_CommandList.Get(), 2);
+		m_CBLights.SetAsGraphicsRootConstantBufferView(m_pShadowPass_CommandList.Get(), 2);
+		m_CBLights.SetAsGraphicsRootConstantBufferView(m_pTransparencyPass_CommandList.Get(), 2);
+
+		m_CBPostFx.SetAsGraphicsRootConstantBufferView(m_pPostEffectsPass_CommandList.Get(), 3);*/
+
+		// Traverse the render stack and draw the scene.
+		for (RenderPass* Pass : m_RenderPassStack)
+		{
+			Pass->Render();
+		}
+
+		return;
+
 
 		// Render Shadows.
 		m_pActiveCommandList = m_pShadowPass_CommandList;
@@ -291,7 +333,7 @@ namespace Insight {
 			m_CBLights.SetAsGraphicsRootConstantBufferView(m_pShadowPass_CommandList.Get(), 2);
 
 			// TODO Shadow pass logic here put this on another thread
-			GeometryManager::Render(eRenderPass::RenderPass_Shadow);
+			GeometryManager::Render(RenderPassType::RenderPassType_Shadow);
 			ResourceBarrier(m_pShadowPass_CommandList.Get(), m_pShadowDepthTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 		}
 		PIXEndEvent(m_pShadowPass_CommandList.Get());
@@ -300,6 +342,18 @@ namespace Insight {
 	void Direct3D12Context::BindGeometryPass()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
+
+		m_GeometryPass.Set();
+		
+		m_CBLights.SetAsGraphicsRootConstantBufferView(m_pScenePass_CommandList.Get(), 2);
+		m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pScenePass_CommandList.Get(), 1);
+		GeometryManager::Render(RenderPassType::RenderPassType_Scene);
+		
+		m_GeometryPass.UnSet();
+		
+		
+		return;
+
 
 		PIXBeginEvent(m_pScenePass_CommandList.Get(), 0, L"Rendering Geometry Pass");
 		{
@@ -321,7 +375,7 @@ namespace Insight {
 				m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pScenePass_CommandList.Get(), 1);
 			}
 
-			GeometryManager::Render(eRenderPass::RenderPass_Scene);
+			GeometryManager::Render(RenderPassType::RenderPassType_Scene);
 		}
 		PIXEndEvent(m_pScenePass_CommandList.Get());
 	}
@@ -433,7 +487,7 @@ namespace Insight {
 			m_CBLights.SetAsGraphicsRootConstantBufferView(m_pTransparencyPass_CommandList.Get(), 2);
 			//m_pTransparencyPass_CommandList->SetGraphicsRootDescriptorTable(4, m_cbvsrvHeap.hGPU(4));
 
-			GeometryManager::Render(eRenderPass::RenderPass_Transparency);
+			GeometryManager::Render(RenderPassType::RenderPassType_Transparency);
 		}
 		PIXEndEvent(m_pTransparencyPass_CommandList.Get());
 	}
@@ -1474,7 +1528,7 @@ namespace Insight {
 		}
 		
 		// Create Geometry Pass
-		{
+		/*{
 			ComPtr<ID3DBlob> pVertexShader;
 			ComPtr<ID3DBlob> pPixelShader;
 
@@ -1531,7 +1585,7 @@ namespace Insight {
 			hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pGeometryPass_PSO));
 			ThrowIfFailed(hr, "Failed to create graphics pipeline state for geometry pass.");
 			m_pGeometryPass_PSO->SetName(L"PSO Geometry Pass");
-		}
+		}*/
 
 		// Create Light Pass
 		{

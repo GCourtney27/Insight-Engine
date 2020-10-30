@@ -5,7 +5,7 @@
 #include "Insight/Runtime/Components/Actor_Component.h"
 #include "Renderer/Renderer.h"
 
-#include "Renderer/Platform/Windows/DirectX_12/Wrappers/ie_D3D12_Texture.h"
+#include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_Texture.h"
 #include "Renderer/Platform/Windows/DirectX_11/Wrappers/ie_D3D11_Texture.h"
 #include "Renderer/Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
@@ -34,8 +34,6 @@ namespace Insight {
 		json::get_string(sky[0], "Radiance", envMap);
 
 
-		Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
-		CDescriptorHeapWrapper& cbvSrvheap = graphicsContext->GetCBVSRVDescriptorHeap();
 
 		Texture::IE_TEXTURE_INFO brdfInfo;
 		brdfInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(brdfLUT));
@@ -66,8 +64,8 @@ namespace Insight {
 		}
 		case Renderer::eTargetRenderAPI::D3D_12:
 		{
-			Direct3D12Context* graphicsContext = reinterpret_cast<Direct3D12Context*>(&Renderer::Get());
-			CDescriptorHeapWrapper& cbvSrvheap = graphicsContext->GetCBVSRVDescriptorHeap();
+			Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
+			CDescriptorHeapWrapper& cbvSrvheap = RenderContext.GetCBVSRVDescriptorHeap();
 			m_BrdfLUT = new ieD3D12Texture(brdfInfo, cbvSrvheap);
 			m_Irradiance = new ieD3D12Texture(irMapInfo, cbvSrvheap);
 			m_Radiance = new ieD3D12Texture(radMapInfo, cbvSrvheap);

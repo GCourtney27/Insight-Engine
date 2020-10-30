@@ -104,8 +104,9 @@ namespace Insight {
 			if (Renderer::GetIsRayTraceEnabled()) {
 
 				m_ShouldUpdateAS = true;
-				m_RTInstanceIndex = reinterpret_cast<Direct3D12Context*>(&Renderer::Get())
-					->RegisterGeometryWithRTAccelerationStucture(
+				
+				m_RTInstanceIndex = Renderer::GetAs<Direct3D12Context>()
+					.RegisterGeometryWithRTAccelerationStucture(
 						reinterpret_cast<D3D12VertexBuffer*>(m_pVertexBuffer)->GetVertexBuffer(),
 						reinterpret_cast<D3D12IndexBuffer*>(m_pIndexBuffer)->GetIndexBuffer(),
 						reinterpret_cast<D3D12VertexBuffer*>(m_pVertexBuffer)->GetNumVerticies(),
@@ -131,7 +132,7 @@ namespace Insight {
 	
 	void Mesh::UpdateAccelerationStructures()
 	{
-		reinterpret_cast<Direct3D12Context*>(&Renderer::Get())->UpdateRTAccelerationStructureMatrix(m_RTInstanceIndex, m_Transform.GetWorldMatrix());
+		Renderer::GetAs<Direct3D12Context>().UpdateRTAccelerationStructureMatrix(m_RTInstanceIndex, m_Transform.GetWorldMatrix());
 	}
 
 }

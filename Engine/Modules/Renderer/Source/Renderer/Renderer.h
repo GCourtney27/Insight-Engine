@@ -59,7 +59,15 @@ namespace Insight {
 	public:
 		virtual ~Renderer();
 
-		static Renderer& Get() { return *s_Instance; }
+		template <class RenderContext>
+		static inline RenderContext& GetAs()
+		{
+			// Make sure the requested class is a valid render context.
+			constexpr bool ValidClass = std::is_base_of<Renderer, RenderContext>::value;
+			static_assert(ValidClass, "Trying to get Rendere with invalid context type.");
+
+			return *((RenderContext*)s_Instance);
+		}
 
 		// Set the target graphics rendering API and create a context to it.
 		// Once set, it cannot be changed through the lifespan application, you must 
@@ -96,7 +104,7 @@ namespace Insight {
 		// Get the current graphics settings the renderer is using.
 		static GraphicsSettings GetGraphicsSettings() { return s_Instance->m_GraphicsSettings; }
 
-		static void SetRenderPass(eRenderPass RenderPass) { s_Instance->m_RenderPass = RenderPass; }
+		static void SetRenderPass(RenderPassType RenderPass) { s_Instance->m_RenderPass = RenderPass; }
 
 		static void SetVertexBuffers(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) { s_Instance->SetVertexBuffers_Impl(StartSlot, NumBuffers, pBuffers); }
 		static void SetIndexBuffer(ieIndexBuffer* pBuffer) { s_Instance->SetIndexBuffer_Impl(pBuffer); }
@@ -172,7 +180,7 @@ namespace Insight {
 		void SetIsRayTraceSupported(bool Supported) { m_IsRayTraceSupported = Supported; }
 
 	protected:
-		eRenderPass m_RenderPass = eRenderPass::RenderPass_Scene;
+		RenderPassType m_RenderPass = RenderPassType::RenderPassType_Scene;
 		GraphicsSettings m_GraphicsSettings = {};
 
 		static const uint8_t m_FrameBufferCount = 3u;

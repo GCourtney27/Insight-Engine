@@ -31,7 +31,7 @@ namespace Insight {
 			m_pVertexBuffer->Release();
 		}
 
-		Direct3D11Context* D3D11Context = dynamic_cast<Direct3D11Context*>(&Renderer::Get());
+		Direct3D11Context& RenderContext = Renderer::GetAs<Direct3D11Context>();
 		
 		D3D11_BUFFER_DESC VertexBufferDesc = {};
 		VertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -43,7 +43,7 @@ namespace Insight {
 		D3D11_SUBRESOURCE_DATA VertexBufferData;
 		VertexBufferData.pSysMem = m_Verticies.data();
 
-		HRESULT hr = D3D11Context->GetDevice().CreateBuffer(&VertexBufferDesc, &VertexBufferData, &m_pVertexBuffer);
+		HRESULT hr = RenderContext.GetDevice().CreateBuffer(&VertexBufferDesc, &VertexBufferData, &m_pVertexBuffer);
 		ThrowIfFailed(hr, "Failed to create vertex buffer for D3D 11 context.");
 
 		return true;

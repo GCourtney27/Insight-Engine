@@ -22,9 +22,9 @@ namespace Insight {
 	bool D3D12VertexBuffer::CreateResources()
 	{
 		HRESULT hr;
-		Direct3D12Context* D3D12Context = dynamic_cast<Direct3D12Context*>(&Renderer::Get());
+		Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
 
-		hr = D3D12Context->GetDeviceContext().CreateCommittedResource(
+		hr = RenderContext.GetDeviceContext().CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(m_BufferSize),
@@ -37,7 +37,7 @@ namespace Insight {
 		}
 		m_pVertexBuffer->SetName(L"Vertex Buffer Resource Heap");
 
-		hr = D3D12Context->GetDeviceContext().CreateCommittedResource(
+		hr = RenderContext.GetDeviceContext().CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(m_BufferSize),
@@ -58,13 +58,13 @@ namespace Insight {
 		// TODO: This will fail in multithread mode because UpdateSubresources
 		// modifies the command list and the command list is used elsewhere during this time
 		// recording draw commands still, initializing other assets etc., causing a corruption.
-		UpdateSubresources(&D3D12Context->GetScenePassCommandList(), m_pVertexBuffer.Get(), m_pVertexBufferUploadHeap.Get(), 0, 0, 1, &vertexData);
+		UpdateSubresources(&RenderContext.GetScenePassCommandList(), m_pVertexBuffer.Get(), m_pVertexBufferUploadHeap.Get(), 0, 0, 1, &vertexData);
 
 		m_VertexBufferView.BufferLocation = m_pVertexBuffer->GetGPUVirtualAddress();
 		m_VertexBufferView.StrideInBytes = sizeof(Vertex3D);
 		m_VertexBufferView.SizeInBytes = m_BufferSize;
 
-		D3D12Context->GetScenePassCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pVertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
+		RenderContext.GetScenePassCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pVertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
 
 		return true;
 	}

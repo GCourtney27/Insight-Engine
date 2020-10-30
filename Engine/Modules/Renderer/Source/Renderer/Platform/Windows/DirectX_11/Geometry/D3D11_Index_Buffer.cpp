@@ -24,7 +24,7 @@ namespace Insight {
 
 	bool D3D11IndexBuffer::CreateResources()
 	{
-		Direct3D11Context* D3D11Context = dynamic_cast<Direct3D11Context*>(&Renderer::Get());
+		Direct3D11Context& RenderContext = Renderer::GetAs<Direct3D11Context>();
 
 		if (m_pIndexBuffer != nullptr) {
 			m_pIndexBuffer->Release();
@@ -41,7 +41,7 @@ namespace Insight {
 
 		D3D11_SUBRESOURCE_DATA indexBufferData;
 		indexBufferData.pSysMem = reinterpret_cast<void*>(m_Indices.data());
-		HRESULT hr = D3D11Context->GetDevice().CreateBuffer(&IndexBufferDesc, &indexBufferData, &m_pIndexBuffer);
+		HRESULT hr = RenderContext.GetDevice().CreateBuffer(&IndexBufferDesc, &indexBufferData, &m_pIndexBuffer);
 		ThrowIfFailed(hr, "Failed to create index buffer for D3D 11 context.");
 
 		return true;
