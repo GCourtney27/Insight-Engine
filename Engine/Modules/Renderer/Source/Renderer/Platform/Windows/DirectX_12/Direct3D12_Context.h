@@ -26,6 +26,75 @@ using Microsoft::WRL::ComPtr;
 
 namespace Insight {
 
+
+
+
+	class FrameResources
+	{
+	public:
+		FrameResources()	= default;
+		~FrameResources()	= default;
+
+		void Init(ComPtr<ID3D12Device> pDevice)
+		{
+			m_CBLights.Init(pDevice.Get(), L"Lights Constant Buffer");
+			m_CBPerFrame.Init(pDevice.Get(), L"Per-Frame Constant Buffer");
+
+			// Per-Object Constant Buffers.
+			m_CBPerObject.Init(pDevice.Get(), L"Per-Object Constant Buffer");
+
+			// Per-Object Material Constant Buffers.
+			m_CBPerObjectMaterial.Init(pDevice.Get(), L"Per-Object Material Overrides Constant Buffer");
+
+			// Down Sample Params for Bloom Pass
+			m_CBDownSampleParams.Init(pDevice.Get(), L"Down Sample Params");
+
+			// Gaussian Blur Params
+			m_CBBlurParams.Init(pDevice.Get(), L"Bloom Gaussian Blur Params");
+			// Compute Blur Params
+			{
+				m_CBBlurParams.Data.Radius = GAUSSIAN_RADIUS;
+				m_CBBlurParams.Data.Direction = 0;
+
+				// compute Gaussian kernel
+				float sigma = 10.0f;
+				float sigmaRcp = 1.0f / sigma;
+				float twoSigmaSq = 2.0f * sigma * sigma;
+
+				float sum = 0.0f;
+				for (size_t i = 0; i <= GAUSSIAN_RADIUS; ++i)
+				{
+					// we omit the normalization factor here for the discrete version and normalize using the sum afterwards
+					m_CBBlurParams.Data.Coefficients[i] = (1.f / sigma) * std::expf(-static_cast<float>(i * i) / twoSigmaSq);
+					// we use each entry twice since we only compute one half of the curve
+					sum += 2 * m_CBBlurParams.Data.Coefficients[i];
+				}
+				// the center (index 0) has been counted twice, so we subtract it once
+				sum -= m_CBBlurParams.Data.Coefficients[0];
+
+				// we normalize all entries using the sum so that the entire kernel gives us a sum of coefficients = 0
+				float normalizationFactor = 1.f / sum;
+				for (size_t i = 0; i <= GAUSSIAN_RADIUS; ++i)
+				{
+					m_CBBlurParams.Data.Coefficients[i] *= normalizationFactor;
+				}
+			}
+
+			// Post-Processing Constant Buffer.
+			m_CBPostProcessParams.Init(pDevice.Get(), L"Post-Process Constant Buffer");
+		}
+
+		D3D12ConstantBuffer<CB_PS_Lights>							m_CBLights;
+		D3D12ConstantBuffer<CB_PS_VS_PerFrame>						m_CBPerFrame;
+		D3D12ConstantBuffer<CB_CS_BlurParams>						m_CBBlurParams;
+		D3D12ConstantBuffer<CB_CS_DownSampleParams>					m_CBDownSampleParams;
+		D3D12ConstantBuffer<CB_PS_PostFx>							m_CBPostProcessParams;
+		D3D12ConstantBuffer<CB_VS_PerObject>						m_CBPerObject;
+		D3D12ConstantBuffer<CB_PS_VS_PerObjectMaterialAdditives>	m_CBPerObjectMaterial;
+
+	};
+
+
 	class WindowsWindow;
 	class GeometryManager;
 	class ieD3D12SphereRenderer;
@@ -42,6 +111,7 @@ namespace Insight {
 		friend class D3D12Helper;
 		friend class DeferredGeometryPass;
 		friend class DeferredLightPass;
+		friend class PostProcessCompositePass;
 	public:
 		virtual bool Init_Impl() override;
 		virtual void Destroy_Impl() override;
@@ -80,12 +150,12 @@ namespace Insight {
 		inline ID3D12CommandQueue& GetCommandQueue() const { return m_d3dDeviceResources.GetGraphicsCommandQueue(); }
 		inline CDescriptorHeapWrapper& GetCBVSRVDescriptorHeap() { return m_cbvsrvHeap; }
 		
-		inline ID3D12Resource& GetConstantBufferPerObjectUploadHeap() const { return *m_CBPerObject[IE_D3D12_FrameIndex].GetResource(); }
-		inline UINT8* GetPerObjectCBVGPUHeapAddress() { return m_CBPerObject[IE_D3D12_FrameIndex].GetGPUAddress(); }
-		inline ID3D12Resource& GetConstantBufferPerObjectMaterialUploadHeap() const { return *m_CBPerObjectMaterial[IE_D3D12_FrameIndex].GetResource(); }
-		inline UINT8* GetPerObjectMaterialAdditiveCBVGPUHeapAddress() { return m_CBPerObjectMaterial[IE_D3D12_FrameIndex].GetGPUAddress(); }
+		inline ID3D12Resource& GetConstantBufferPerObjectUploadHeap() const { return *m_FrameResources.m_CBPerObject.GetResource(); }
+		inline UINT8* GetPerObjectCBVGPUHeapAddress() { return m_FrameResources.m_CBPerObject.GetGPUAddress(); }
+		inline ID3D12Resource& GetConstantBufferPerObjectMaterialUploadHeap() const { return *m_FrameResources.m_CBPerObjectMaterial.GetResource(); }
+		inline UINT8* GetPerObjectMaterialAdditiveCBVGPUHeapAddress() { return m_FrameResources.m_CBPerObjectMaterial.GetGPUAddress(); }
 
-		const CB_PS_VS_PerFrame& GetPerFrameCB() const { return m_CBPerFrame.Data; }
+		const CB_PS_VS_PerFrame& GetPerFrameCB() const { return m_FrameResources.m_CBPerFrame.Data; }
 
 		inline void SetActiveCommandList(ComPtr<ID3D12GraphicsCommandList> pCommandList) { m_pActiveCommandList = pCommandList; }
 
@@ -133,7 +203,6 @@ namespace Insight {
 		
 		void CreateDSVs();
 		void CreateRTVs();
-		void CreateCBVs();
 		void CreateSRVs();
 		void CreateDeferredShadingRS();
 		void CreateForwardShadingRS();
@@ -170,8 +239,8 @@ namespace Insight {
 
 
 
-		ieD3D12ScreenQuad	m_ScreenQuad;
-		ieD3D12ScreenQuad	m_DebugScreenQuad;
+		D3D12ScreenQuad	m_ScreenQuad;
+		D3D12ScreenQuad	m_DebugScreenQuad;
 		D3D12_VIEWPORT		m_ShadowPass_ViewPort = {};
 		D3D12_RECT			m_ShadowPass_ScissorRect = {};
 
@@ -281,17 +350,10 @@ namespace Insight {
 		const UINT m_ShadowMapWidth = 2048;
 		const UINT m_ShadowMapHeight = 2048;
 
-		
-
-		// Constant Buffers
-		ieD3D12ConstantBuffer<CB_CS_DownSampleParams>				m_CBDownSampleParams;
-		ieD3D12ConstantBuffer<CB_CS_BlurParams>						m_CBBlurParams;
-		ieD3D12ConstantBuffer<CB_PS_Lights>							m_CBLights;
-		ieD3D12ConstantBuffer<CB_PS_PostFx>							m_CBPostFx;
-		ieD3D12ConstantBuffer<CB_PS_VS_PerFrame>					m_CBPerFrame;
-		ieD3D12ConstantBuffer<CB_VS_PerObject>						m_CBPerObject[m_FrameBufferCount];
-		ieD3D12ConstantBuffer<CB_PS_VS_PerObjectMaterialAdditives>	m_CBPerObjectMaterial[m_FrameBufferCount];
+		FrameResources m_FrameResources;
 
 	};
+
+
 
 }

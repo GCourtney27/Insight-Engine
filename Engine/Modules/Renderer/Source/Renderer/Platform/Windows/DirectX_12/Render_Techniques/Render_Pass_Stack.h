@@ -23,7 +23,7 @@ namespace Insight {
 			m_PassInsertIndex++;
 		}
 
-		inline void PushPassOverLay(RenderPass* pOverlayPass)
+		inline void PushPassOverlay(RenderPass* pOverlayPass)
 		{
 			m_RenderPasses.emplace_back(pOverlayPass);
 			pOverlayPass->OnStackAttach();
@@ -57,7 +57,7 @@ namespace Insight {
 		{
 			for (uint32_t i = 0; i < m_RenderPasses.size(); ++i)
 			{
-				if (dynamic_cast<RenderPasType*>(m_RenderPasses[i]))
+				if (dynamic_cast<RenderPassType*>(m_RenderPasses[i]))
 				{
 					//TODO insert Tech at i++
 				}

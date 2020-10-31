@@ -6,7 +6,7 @@
 
 namespace Insight {
 
-	void ieD3D12ScreenQuad::Init(ScreenSpaceVertex Verticies[], uint32_t VertexBufferSize, uint32_t Indices[], uint32_t IndexBufferSize)
+	void D3D12ScreenQuad::Init(ScreenSpaceVertex Verticies[], uint32_t VertexBufferSize, uint32_t Indices[], uint32_t IndexBufferSize)
 	{
 		HRESULT hr;
 		Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
@@ -103,7 +103,7 @@ namespace Insight {
 		RenderContext.GetScenePassCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pIndexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER));
 	}
 
-	void ieD3D12ScreenQuad::OnRender(ComPtr<ID3D12GraphicsCommandList> pCommandList)
+	void D3D12ScreenQuad::OnRender(ComPtr<ID3D12GraphicsCommandList> pCommandList)
 	{
 		pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 		pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);

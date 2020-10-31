@@ -3,13 +3,14 @@
 #include "Insight/Core.h"
 
 #include "Renderer/Platform/Windows/DirectX_12/Wrappers/Descriptor_Heap_Wrapper.h"
+#include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_Constant_Buffer_Wrapper.h"
 
 namespace Insight {
 
 	using Microsoft::WRL::ComPtr;
 
 	class Direct3D12Context;
-
+	class FrameResources;
 
 	class RenderPass
 	{
@@ -26,9 +27,9 @@ namespace Insight {
 			return InternalCreate();
 		}
 
-		inline void Render()
+		inline void Render(FrameResources* pFrameResources)
 		{
-			this->Set();
+			this->Set(pFrameResources);
 			this->UnSet();
 		}
 
@@ -46,7 +47,7 @@ namespace Insight {
 		RenderPass()			= default;
 		virtual ~RenderPass()	= default;
 
-		virtual bool Set() = 0;
+		virtual bool Set(FrameResources* pFrameResources) = 0;
 		virtual void UnSet() = 0;
 
 		virtual bool InternalCreate() = 0;
@@ -69,15 +70,15 @@ namespace Insight {
 	};
 
 
+	/*===========================*/
+	/*		Geometry Pass		 */
+	/*===========================*/
 
 	class DeferredGeometryPass : public RenderPass
 	{
 	public:
 		DeferredGeometryPass()			= default;
 		virtual ~DeferredGeometryPass() = default;
-
-		virtual bool Set()		override;
-		virtual void UnSet()	override;
 
 		// Returns the Scene Depth buffer.
 		inline ComPtr<ID3D12Resource> GetSceneDepthTexture() const { return m_pSceneDepthStencilTexture; }
@@ -92,10 +93,11 @@ namespace Insight {
 		inline uint8_t GetNumGBuffers() const { return m_NumRenderTargets; }
 
 	protected:
-
 		virtual bool InternalCreate()	override;
 		virtual void CreateResources()	override;
 
+		virtual bool Set(FrameResources* pFrameResources) override;
+		virtual void UnSet() override;
 	private:
 		static const uint8_t m_NumRenderTargets = 4u;
 
@@ -118,14 +120,15 @@ namespace Insight {
 	};
 
 
+	/*==============================*/
+	/*			Light Pass			*/
+	/*==============================*/
+
 	class DeferredLightPass : public RenderPass
 	{
 	public:
 		DeferredLightPass()				= default;
 		virtual ~DeferredLightPass()	= default;
-
-		virtual bool Set()		override;
-		virtual void UnSet()	override;
 
 		// Set the reference to the G-Buffer.
 		inline void SetRenderTargetTextureRef(ComPtr<ID3D12Resource> pRenderTarget) { m_GBufferRefs.push_back(pRenderTarget); }
@@ -141,6 +144,8 @@ namespace Insight {
 		virtual bool InternalCreate()	override;
 		virtual void CreateResources()	override;
 
+		virtual bool Set(FrameResources* pFrameResources) override;
+		virtual void UnSet() override;
 	private:
 		static const uint8_t	m_NumRenderTargets = 2u;
 		ComPtr<ID3D12Resource>	m_pRenderTargetTextures[m_NumRenderTargets];
@@ -159,14 +164,19 @@ namespace Insight {
 	};
 
 
+	/*=======================================*/
+	/*		Post-Process Composite Pass		 */
+	/*=======================================*/
+
 	class PostProcessCompositePass : public RenderPass
 	{
 	public:
 		PostProcessCompositePass()	= default;
 		~PostProcessCompositePass() = default;
 		
-		virtual bool Set()		override;
-		virtual void UnSet()	override;
+		// Set the reference to the Scene Depth Buffer.
+		inline void SetSceneDepthTextureRef(ComPtr<ID3D12Resource> pDepthTexture) { m_pSceneDepthTextureRef = pDepthTexture; }
+
 
 		virtual void OnStackAttach() {}
 		virtual void OnStackDetach() {}
@@ -174,8 +184,11 @@ namespace Insight {
 	protected:
 		virtual bool InternalCreate()	override;
 		virtual void CreateResources()	override;
-		
+
+		virtual bool Set(FrameResources* pFrameResources) override;
+		virtual void UnSet() override;
 	private:
+		ComPtr<ID3D12Resource> m_pSceneDepthTextureRef;
 
 	};
 

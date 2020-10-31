@@ -56,20 +56,24 @@ namespace Insight {
 	{
 		IE_CORE_INFO("Renderer: D3D 12");
 
-		try {
+		try 
+		{
 			m_d3dDeviceResources.Init(this);
+			
+			m_FrameResources.Init(&m_d3dDeviceResources.GetDeviceContext());
+			HRESULT hr = m_cbvsrvHeap.Create(&m_d3dDeviceResources.GetDeviceContext(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 70, true);
+			ThrowIfFailed(hr, "Failed to create descriptor heap for shader visible resources.");
 
 			CreateCommandAllocators();
 
-			CreateCBVs();
-			CreateSRVs();
+			//CreateSRVs();
 
 			if (m_GraphicsSettings.RayTraceEnabled)
 				m_RTHelper.OnInit(this);
 
-			PIXBeginEvent(&m_d3dDeviceResources.GetGraphicsCommandQueue(), 0, L"D3D 12 context Setup");
+			PIXBeginEvent(&m_d3dDeviceResources.GetGraphicsCommandQueue(), 0, L"D3D12 Context Setup");
 			{
-				CreateScreenQuad();
+				//CreateScreenQuad();
 				CreateViewport();
 				CreateScissorRect();
 
@@ -95,18 +99,21 @@ namespace Insight {
 						
 						// Create the Post Process Composite Pass ad push it to the render stack.
 						m_PostProcessCompositePass.Create(this, &m_cbvsrvHeap, m_pPostEffectsPass_CommandList.Get(), m_pDeferredShadingPass_RS.Get());
-						m_RenderPassStack.PushPass(&m_PostProcessCompositePass);
+						m_PostProcessCompositePass.SetSceneDepthTextureRef(m_GeometryPass.GetSceneDepthTexture());
+						m_RenderPassStack.PushPassOverlay(&m_PostProcessCompositePass);
+
+
 
 					}
 
 					
-					LoadPipelines();
+					//LoadPipelines();
 				}
 
 				// Create Render Targets and Depth Stencils
 				{
-					CreateDSVs();
-					CreateRTVs();
+					//CreateDSVs();
+					//CreateRTVs();
 					CreateSwapChainRTVDescriptorHeap();
 				}
 
@@ -143,46 +150,46 @@ namespace Insight {
 		XMVECTOR InvMatDeterminent;
 
 		// Send Per-Frame Data to GPU
-		m_CBPerFrame.Data.View = m_pWorldCameraRef->GetViewMatrix();
-		m_CBPerFrame.Data.Projection = m_pWorldCameraRef->GetProjectionMatrix();
-		m_CBPerFrame.Data.InverseView = XMMatrixInverse(&InvMatDeterminent, m_pWorldCameraRef->GetViewMatrix());
-		m_CBPerFrame.Data.InverseProjection = XMMatrixInverse(&InvMatDeterminent, m_pWorldCameraRef->GetProjectionMatrix());
-		m_CBPerFrame.Data.CameraPosition = m_pWorldCameraRef->GetPosition();
-		m_CBPerFrame.Data.DeltaMs = DeltaMs;
-		m_CBPerFrame.Data.WorldTime = WorldSecond;
-		m_CBPerFrame.Data.CameraNearZ = m_pWorldCameraRef->GetNearZ();
-		m_CBPerFrame.Data.CameraFarZ = m_pWorldCameraRef->GetFarZ();
-		m_CBPerFrame.Data.CameraExposure = m_pWorldCameraRef->GetExposure();
-		m_CBPerFrame.Data.NumPointLights = (float)m_PointLights.size();
-		m_CBPerFrame.Data.NumDirectionalLights = (m_pWorldDirectionalLight != nullptr) ? 1.0f : 0.0f;
-		m_CBPerFrame.Data.RayTraceEnabled = (float)m_GraphicsSettings.RayTraceEnabled;
-		m_CBPerFrame.Data.NumSpotLights = (float)m_SpotLights.size();
-		m_CBPerFrame.Data.ScreenSize.x = (float)m_WindowWidth;
-		m_CBPerFrame.Data.ScreenSize.y = (float)m_WindowHeight;
-		m_CBPerFrame.SubmitToGPU();
+		m_FrameResources.m_CBPerFrame.Data.View = m_pWorldCameraRef->GetViewMatrix();
+		m_FrameResources.m_CBPerFrame.Data.Projection = m_pWorldCameraRef->GetProjectionMatrix();
+		m_FrameResources.m_CBPerFrame.Data.InverseView = XMMatrixInverse(&InvMatDeterminent, m_pWorldCameraRef->GetViewMatrix());
+		m_FrameResources.m_CBPerFrame.Data.InverseProjection = XMMatrixInverse(&InvMatDeterminent, m_pWorldCameraRef->GetProjectionMatrix());
+		m_FrameResources.m_CBPerFrame.Data.CameraPosition = m_pWorldCameraRef->GetPosition();
+		m_FrameResources.m_CBPerFrame.Data.DeltaMs = DeltaMs;
+		m_FrameResources.m_CBPerFrame.Data.WorldTime = WorldSecond;
+		m_FrameResources.m_CBPerFrame.Data.CameraNearZ = m_pWorldCameraRef->GetNearZ();
+		m_FrameResources.m_CBPerFrame.Data.CameraFarZ = m_pWorldCameraRef->GetFarZ();
+		m_FrameResources.m_CBPerFrame.Data.CameraExposure = m_pWorldCameraRef->GetExposure();
+		m_FrameResources.m_CBPerFrame.Data.NumPointLights = (float)m_PointLights.size();
+		m_FrameResources.m_CBPerFrame.Data.NumDirectionalLights = (m_pWorldDirectionalLight != nullptr) ? 1.0f : 0.0f;
+		m_FrameResources.m_CBPerFrame.Data.RayTraceEnabled = (float)m_GraphicsSettings.RayTraceEnabled;
+		m_FrameResources.m_CBPerFrame.Data.NumSpotLights = (float)m_SpotLights.size();
+		m_FrameResources.m_CBPerFrame.Data.ScreenSize.x = (float)m_WindowWidth;
+		m_FrameResources.m_CBPerFrame.Data.ScreenSize.y = (float)m_WindowHeight;
+		m_FrameResources.m_CBPerFrame.SubmitToGPU();
 
 		if (m_GraphicsSettings.RayTraceEnabled) m_RTHelper.UpdateCBVs();
 
 
 		// Send Point Lights to GPU
 		for (int i = 0; i < m_PointLights.size(); i++)
-			m_CBLights.Data.PointLights[i] = m_PointLights[i]->GetConstantBuffer();
+			m_FrameResources.m_CBLights.Data.PointLights[i] = m_PointLights[i]->GetConstantBuffer();
 
 		// Send Directionl Light to GPU
 		if (m_pWorldDirectionalLight)
-			m_CBLights.Data.DirectionalLight = m_pWorldDirectionalLight->GetConstantBuffer();
+			m_FrameResources.m_CBLights.Data.DirectionalLight = m_pWorldDirectionalLight->GetConstantBuffer();
 
 		// Send Spot Lights to GPU
 		for (int i = 0; i < m_SpotLights.size(); i++)
-			m_CBLights.Data.SpotLights[i] = m_SpotLights[i]->GetConstantBuffer();
+			m_FrameResources.m_CBLights.Data.SpotLights[i] = m_SpotLights[i]->GetConstantBuffer();
 
-		m_CBLights.SubmitToGPU();
+		m_FrameResources.m_CBLights.SubmitToGPU();
 
 		// Send Post-Fx data to GPU
 		if (m_pPostFx)
 		{
-			m_CBPostFx.Data = m_pPostFx->GetConstantBuffer();
-			m_CBPostFx.SubmitToGPU();
+			m_FrameResources.m_CBPostProcessParams.Data = m_pPostFx->GetConstantBuffer();
+			m_FrameResources.m_CBPostProcessParams.SubmitToGPU();
 		}
 	}
 
@@ -195,11 +202,11 @@ namespace Insight {
 			ThrowIfFailed(m_pScenePass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Scene Pass");
 
-			ThrowIfFailed(m_pShadowPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
-				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Shadow Pass");
+			//ThrowIfFailed(m_pShadowPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
+			//	"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Shadow Pass");
 
-			ThrowIfFailed(m_pTransparencyPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
-				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Transparency Pass");
+			//ThrowIfFailed(m_pTransparencyPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
+			//	"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 
 			ThrowIfFailed(m_pPostEffectsPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
@@ -208,10 +215,10 @@ namespace Insight {
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
 #endif // BLOOM_ENABLED
 
-			if (m_GraphicsSettings.RayTraceEnabled) {
-				ThrowIfFailed(m_pRayTracePass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
-					"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
-			}
+			//if (m_GraphicsSettings.RayTraceEnabled) {
+			//	ThrowIfFailed(m_pRayTracePass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
+			//		"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
+			//}
 		}
 
 		// Reset Command Lists
@@ -219,11 +226,11 @@ namespace Insight {
 			ThrowIfFailed(m_pScenePass_CommandList->Reset(m_pScenePass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pGeometryPass_PSO.Get()),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Scene Pass");
 
-			ThrowIfFailed(m_pShadowPass_CommandList->Reset(m_pShadowPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pShadowPass_PSO.Get()),
-				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Shadow Pass");
+			//ThrowIfFailed(m_pShadowPass_CommandList->Reset(m_pShadowPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pShadowPass_PSO.Get()),
+			//	"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Shadow Pass");
 
-			ThrowIfFailed(m_pTransparencyPass_CommandList->Reset(m_pTransparencyPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pTransparency_PSO.Get()),
-				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
+			//ThrowIfFailed(m_pTransparencyPass_CommandList->Reset(m_pTransparencyPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pTransparency_PSO.Get()),
+			//	"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 
 			ThrowIfFailed(m_pPostEffectsPass_CommandList->Reset(m_pPostEffectsPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pPostFxPass_PSO.Get()),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
@@ -232,10 +239,10 @@ namespace Insight {
 			ThrowIfFailed(m_pDownSample_CommandList->Reset(m_pDownSample_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 #endif
-			if (m_GraphicsSettings.RayTraceEnabled) {
-				ThrowIfFailed(m_pRayTracePass_CommandList->Reset(m_pRayTracePass_CommandAllocators[IE_D3D12_FrameIndex].Get(), nullptr),
-					"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
-			}
+			//if (m_GraphicsSettings.RayTraceEnabled) {
+			//	ThrowIfFailed(m_pRayTracePass_CommandList->Reset(m_pRayTracePass_CommandAllocators[IE_D3D12_FrameIndex].Get(), nullptr),
+			//		"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
+			//}
 		}
 
 		// Prepare the Render Target for this Frame
@@ -254,13 +261,13 @@ namespace Insight {
 		PIXEndEvent(m_pScenePass_CommandList.Get());
 
 		// Reset Shadow Pass
-		PIXBeginEvent(m_pShadowPass_CommandList.Get(), 0, L"Resetting Shadow Pass Command List");
+		/*PIXBeginEvent(m_pShadowPass_CommandList.Get(), 0, L"Resetting Shadow Pass Command List");
 		{
 			m_pShadowPass_CommandList->RSSetScissorRects(1, &m_ShadowPass_ScissorRect);
 			m_pShadowPass_CommandList->RSSetViewports(1, &m_ShadowPass_ViewPort);
 			m_pShadowPass_CommandList->OMSetRenderTargets(0, nullptr, FALSE, &m_dsvHeap.hCPU(1));
 		}
-		PIXEndEvent(m_pShadowPass_CommandList.Get());
+		PIXEndEvent(m_pShadowPass_CommandList.Get());*/
 	}
 
 	void Direct3D12Context::OnRender_Impl()
@@ -284,7 +291,7 @@ namespace Insight {
 		// Traverse the render stack and draw the scene.
 		for (RenderPass* Pass : m_RenderPassStack)
 		{
-			Pass->Render();
+			Pass->Render(&m_FrameResources);
 		}
 
 		return;
@@ -329,8 +336,8 @@ namespace Insight {
 			m_pShadowPass_CommandList->RSSetViewports(1, &m_ShadowPass_ViewPort);
 
 			m_pShadowPass_CommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pShadowPass_CommandList.Get(), 1);
-			m_CBLights.SetAsGraphicsRootConstantBufferView(m_pShadowPass_CommandList.Get(), 2);
+			m_FrameResources.m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pShadowPass_CommandList.Get(), 1);
+			m_FrameResources.m_CBLights.SetAsGraphicsRootConstantBufferView(m_pShadowPass_CommandList.Get(), 2);
 
 			// TODO Shadow pass logic here put this on another thread
 			GeometryManager::Render(RenderPassType::RenderPassType_Shadow);
@@ -342,19 +349,7 @@ namespace Insight {
 	void Direct3D12Context::BindGeometryPass()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
-
-		m_GeometryPass.Set();
 		
-		m_CBLights.SetAsGraphicsRootConstantBufferView(m_pScenePass_CommandList.Get(), 2);
-		m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pScenePass_CommandList.Get(), 1);
-		GeometryManager::Render(RenderPassType::RenderPassType_Scene);
-		
-		m_GeometryPass.UnSet();
-		
-		
-		return;
-
-
 		PIXBeginEvent(m_pScenePass_CommandList.Get(), 0, L"Rendering Geometry Pass");
 		{
 			ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
@@ -371,8 +366,8 @@ namespace Insight {
 
 			{
 				m_pScenePass_CommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-				m_CBLights.SetAsGraphicsRootConstantBufferView(m_pScenePass_CommandList.Get(), 2);
-				m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pScenePass_CommandList.Get(), 1);
+				m_FrameResources.m_CBLights.SetAsGraphicsRootConstantBufferView(m_pScenePass_CommandList.Get(), 2);
+				m_FrameResources.m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pScenePass_CommandList.Get(), 1);
 			}
 
 			GeometryManager::Render(RenderPassType::RenderPassType_Scene);
@@ -483,8 +478,8 @@ namespace Insight {
 			m_pTransparencyPass_CommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), TRUE, &m_dsvHeap.hCPU(0));
 
 			m_pTransparencyPass_CommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pTransparencyPass_CommandList.Get(), 1);
-			m_CBLights.SetAsGraphicsRootConstantBufferView(m_pTransparencyPass_CommandList.Get(), 2);
+			m_FrameResources.m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pTransparencyPass_CommandList.Get(), 1);
+			m_FrameResources.m_CBLights.SetAsGraphicsRootConstantBufferView(m_pTransparencyPass_CommandList.Get(), 2);
 			//m_pTransparencyPass_CommandList->SetGraphicsRootDescriptorTable(4, m_cbvsrvHeap.hGPU(4));
 
 			GeometryManager::Render(RenderPassType::RenderPassType_Transparency);
@@ -512,8 +507,8 @@ namespace Insight {
 			m_pPostEffectsPass_CommandList->SetGraphicsRootDescriptorTable(16, m_cbvsrvHeap.hGPU(5)); // Light Pass result
 			m_pPostEffectsPass_CommandList->SetGraphicsRootDescriptorTable(18, m_cbvsrvHeap.hGPU(9)); // Bloom Pass result
 
-			m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pPostEffectsPass_CommandList.Get(), 1);
-			m_CBPostFx.SetAsGraphicsRootConstantBufferView(m_pPostEffectsPass_CommandList.Get(), 3);
+			m_FrameResources.m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pPostEffectsPass_CommandList.Get(), 1);
+			m_FrameResources.m_CBPostProcessParams.SetAsGraphicsRootConstantBufferView(m_pPostEffectsPass_CommandList.Get(), 3);
 
 
 			m_ScreenQuad.OnRender(m_pPostEffectsPass_CommandList);
@@ -538,8 +533,8 @@ namespace Insight {
 			m_pPostEffectsPass_CommandList->SetPipelineState(m_pDebugScreenQuad_PSO.Get());
 			m_pPostEffectsPass_CommandList->SetGraphicsRootSignature(m_pDebugScreenQuad_RS.Get());
 
-			m_CBLights.SetAsGraphicsRootConstantBufferView(m_pPostEffectsPass_CommandList.Get(), 1); // Set the light buffer
-			m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pPostEffectsPass_CommandList.Get(), 2); // Set the per frame buffer
+			m_FrameResources.m_CBLights.SetAsGraphicsRootConstantBufferView(m_pPostEffectsPass_CommandList.Get(), 1); // Set the light buffer
+			m_FrameResources.m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pPostEffectsPass_CommandList.Get(), 2); // Set the per frame buffer
 			m_pPostEffectsPass_CommandList->SetGraphicsRootDescriptorTable(0, m_cbvsrvHeap.hGPU(7)); // Debug Texture
 
 			m_DebugScreenQuad.OnRender(m_pPostEffectsPass_CommandList);
@@ -564,9 +559,9 @@ namespace Insight {
 				m_pDownSample_CommandList->SetPipelineState(m_pThresholdDownSample_PSO.Get());
 				m_pDownSample_CommandList->SetComputeRootSignature(m_pBloomPass_RS.Get());
 
-				m_CBDownSampleParams.Data.Threshold = 0.5f;
-				m_CBDownSampleParams.SubmitToGPU();
-				m_CBDownSampleParams.SetAsComputeRootConstantBufferView(m_pDownSample_CommandList.Get(), 0);
+				m_FrameResources.m_CBDownSampleParams.Data.Threshold = 0.5f;
+				m_FrameResources.m_CBDownSampleParams.SubmitToGPU();
+				m_FrameResources.m_CBDownSampleParams.SetAsComputeRootConstantBufferView(m_pDownSample_CommandList.Get(), 0);
 				m_pDownSample_CommandList->SetComputeRootDescriptorTable(1, m_cbvsrvHeap.hGPU(8));
 				m_pDownSample_CommandList->SetComputeRootDescriptorTable(2, m_cbvsrvHeap.hGPU(9));
 
@@ -592,9 +587,9 @@ namespace Insight {
 				m_pDownSample_CommandList->SetComputeRootDescriptorTable(1, m_cbvsrvHeap.hGPU(10)); // Set the SRV of the down sampled bloom texture
 				m_pDownSample_CommandList->SetComputeRootDescriptorTable(2, m_cbvsrvHeap.hGPU(11)); // Set the UAV for the intermediate buffer
 
-				m_CBBlurParams.Data.Direction = 0;
-				m_CBBlurParams.SubmitToGPU();
-				m_CBBlurParams.SetAsComputeRootConstantBufferView(m_pDownSample_CommandList.Get(), 0);
+				m_FrameResources.m_CBBlurParams.Data.Direction = 0;
+				m_FrameResources.m_CBBlurParams.SubmitToGPU();
+				m_FrameResources.m_CBBlurParams.SetAsComputeRootConstantBufferView(m_pDownSample_CommandList.Get(), 0);
 
 				m_pDownSample_CommandList->Dispatch(m_WindowWidth / ThreadsPerPixel, m_WindowHeight / ThreadsPerPixel, 1);
 			}
@@ -611,9 +606,9 @@ namespace Insight {
 				ResourceBarrier(m_pDownSample_CommandList.Get(), m_pBloomBlurIntermediateBuffer_SRV.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 				ResourceBarrier(m_pDownSample_CommandList.Get(), m_pBloomBlurIntermediateBuffer_UAV.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-				m_CBBlurParams.Data.Direction = 1;
-				m_CBBlurParams.SubmitToGPU();
-				m_CBBlurParams.SetAsComputeRootConstantBufferView(m_pDownSample_CommandList.Get(), 0);
+				m_FrameResources.m_CBBlurParams.Data.Direction = 1;
+				m_FrameResources.m_CBBlurParams.SubmitToGPU();
+				m_FrameResources.m_CBBlurParams.SetAsComputeRootConstantBufferView(m_pDownSample_CommandList.Get(), 0);
 
 				m_pDownSample_CommandList->SetComputeRootDescriptorTable(1, m_cbvsrvHeap.hGPU(12)); // Set the SRV of the down sampled intermediate bloom texture
 				m_pDownSample_CommandList->SetComputeRootDescriptorTable(2, m_cbvsrvHeap.hGPU(9)); // Set the origional UAV for final blur pass
@@ -631,18 +626,18 @@ namespace Insight {
 
 		// Prepare the buffers for next frame
 		{
-			for (unsigned int i = 0; i < m_NumRTVs; ++i) {
-				ResourceBarrier(m_pPostEffectsPass_CommandList.Get(), m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+			for (unsigned int i = 0; i < m_GeometryPass.GetNumGBuffers(); ++i) {
+				ResourceBarrier(m_pPostEffectsPass_CommandList.Get(), m_GeometryPass.GetGBufferRenderTargetTexture(i).Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
 			}
-			ResourceBarrier(m_pPostEffectsPass_CommandList.Get(), m_pSceneDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+			ResourceBarrier(m_pPostEffectsPass_CommandList.Get(), m_GeometryPass.GetSceneDepthTexture().Get(), D3D12_RESOURCE_STATE_DEPTH_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 		}
 
 		// Prepare render target to be presented on the swap chain
 		ResourceBarrier(m_pPostEffectsPass_CommandList.Get(), GetSwapChainRenderTarget(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
-		ThrowIfFailed(m_pShadowPass_CommandList->Close(), "Failed to close the command list for D3D 12 context shadow pass.");
+		//ThrowIfFailed(m_pShadowPass_CommandList->Close(), "Failed to close the command list for D3D 12 context shadow pass.");
 		ThrowIfFailed(m_pScenePass_CommandList->Close(), "Failed to close command list for D3D 12 context scene pass.");
-		ThrowIfFailed(m_pTransparencyPass_CommandList->Close(), "Failed to close the command list for D3D 12 context transparency pass.");
+		//ThrowIfFailed(m_pTransparencyPass_CommandList->Close(), "Failed to close the command list for D3D 12 context transparency pass.");
 		ThrowIfFailed(m_pPostEffectsPass_CommandList->Close(), "Failed to close the command list for D3D 12 context post-process pass.");
 #if BLOOM_ENABLED
 		ThrowIfFailed(m_pDownSample_CommandList->Close(), "Failed to close command list for D3D 12 context bloom blur pass.");
@@ -654,10 +649,10 @@ namespace Insight {
 
 		// Scene Pass
 		ID3D12CommandList* ppScenePassLists[] = {
-			m_pShadowPass_CommandList.Get(), // Execute shadow pass first because we'll need the depth textures for the light pass
-			m_pRayTracePass_CommandList.Get(),
+			//m_pShadowPass_CommandList.Get(), // Execute shadow pass first because we'll need the depth textures for the light pass
+			//m_pRayTracePass_CommandList.Get(),
 			m_pScenePass_CommandList.Get(),
-			m_pTransparencyPass_CommandList.Get(),
+			//m_pTransparencyPass_CommandList.Get(),
 			m_pPostEffectsPass_CommandList.Get(),
 
 		};
@@ -693,6 +688,7 @@ namespace Insight {
 
 	void Direct3D12Context::OnWindowResize_Impl()
 	{
+		return;
 		if (!m_IsMinimized) {
 
 			if (m_WindowResizeComplete) {
@@ -1076,73 +1072,6 @@ namespace Insight {
 		ThrowIfFailed(hr, "Failed to create committed resource for bloom down sampled intermdiate UAV.");
 		pDevice->CreateUnorderedAccessView(m_pBloomBlurIntermediateBuffer_UAV.Get(), nullptr, &UAVDesc, m_cbvsrvHeap.hCPU(11));
 		m_pBloomBlurIntermediateBuffer_UAV->SetName(L"UAV: Bloom Pass Down Sampled INTERMEDIENT Buffer");
-	}
-
-	void Direct3D12Context::CreateCBVs()
-	{
-		// Create the GPU heap.
-		HRESULT hr = m_cbvsrvHeap.Create(&m_d3dDeviceResources.GetDeviceContext(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 70, true);
-		ThrowIfFailed(hr, "Failed to create CBV SRV descriptor heap");
-
-		// Create Constant Buffers.
-
-		// Light Constant Buffer.
-		m_CBLights.Init(&m_d3dDeviceResources.GetDeviceContext(), L"Lights Constant Buffer");
-
-		// Per-Object Constant Buffers.
-		wchar_t DebugNameBuffer[64] = {};
-		for (int i = 0; i < m_FrameBufferCount; ++i)
-		{
-			wprintf_s(DebugNameBuffer, "Per-Object Constant Buffer. Frame: %i", i);
-			m_CBPerObject->Init(&m_d3dDeviceResources.GetDeviceContext(), DebugNameBuffer);
-		}
-
-		// Per-Object Material Constant Buffers.
-		for (int i = 0; i < m_FrameBufferCount; ++i)
-		{
-			wprintf_s(DebugNameBuffer, "Per-Object Material Overrides Constant Buffer. Frame: %i", i);
-			m_CBPerObjectMaterial[i].Init(&m_d3dDeviceResources.GetDeviceContext(), DebugNameBuffer);
-		}
-
-		// Per Frame Constant Buffer.
-		m_CBPerFrame.Init(&m_d3dDeviceResources.GetDeviceContext(), L"PerFrameConstant Buffer");
-
-		// Down Sample Params for Bloom Pass
-		m_CBDownSampleParams.Init(&m_d3dDeviceResources.GetDeviceContext(), L"Down Sample Params");
-
-		// Gaussian Blur Params
-		m_CBBlurParams.Init(&m_d3dDeviceResources.GetDeviceContext(), L"Bloom Gaussian Blur Params");
-		// compute blur parameters
-		{
-			m_CBBlurParams.Data.Radius = GAUSSIAN_RADIUS;
-			m_CBBlurParams.Data.Direction = 0;
-
-			// compute Gaussian kernel
-			float sigma = 10.f;
-			float sigmaRcp = 1.f / sigma;
-			float twoSigmaSq = 2 * sigma * sigma;
-
-			float sum = 0.f;
-			for (size_t i = 0; i <= GAUSSIAN_RADIUS; ++i)
-			{
-				// we omit the normalization factor here for the discrete version and normalize using the sum afterwards
-				m_CBBlurParams.Data.Coefficients[i] = (1.f / sigma) * std::expf(-static_cast<float>(i * i) / twoSigmaSq);
-				// we use each entry twice since we only compute one half of the curve
-				sum += 2 * m_CBBlurParams.Data.Coefficients[i];
-			}
-			// the center (index 0) has been counted twice, so we subtract it once
-			sum -= m_CBBlurParams.Data.Coefficients[0];
-
-			// we normalize all entries using the sum so that the entire kernel gives us a sum of coefficients = 0
-			float normalizationFactor = 1.f / sum;
-			for (size_t i = 0; i <= GAUSSIAN_RADIUS; ++i)
-			{
-				m_CBBlurParams.Data.Coefficients[i] *= normalizationFactor;
-			}
-		}
-
-		// Post-Processing Constant Buffer.
-		m_CBPostFx.Init(&m_d3dDeviceResources.GetDeviceContext(), L"PostFx Constant Buffer");
 	}
 
 	void Direct3D12Context::CreateSRVs()

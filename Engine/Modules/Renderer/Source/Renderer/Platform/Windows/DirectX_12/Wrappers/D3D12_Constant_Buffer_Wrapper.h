@@ -10,12 +10,12 @@ namespace Insight {
 	using Microsoft::WRL::ComPtr;
 
 	template <typename ConstantBufferType>
-	class ieD3D12ConstantBuffer
+	class D3D12ConstantBuffer
 	{
 	public:
-		ieD3D12ConstantBuffer() = default;
-		~ieD3D12ConstantBuffer() = default;
-		ieD3D12ConstantBuffer(ieD3D12ConstantBuffer& rhs) = delete;
+		D3D12ConstantBuffer() = default;
+		~D3D12ConstantBuffer() = default;
+		D3D12ConstantBuffer(D3D12ConstantBuffer& rhs) = delete;
 
 		ConstantBufferType Data = {};
 

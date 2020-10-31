@@ -7,7 +7,7 @@ using Microsoft::WRL::ComPtr;
 namespace Insight {
 
 
-	class INSIGHT_API ieD3D12ScreenQuad
+	class INSIGHT_API D3D12ScreenQuad
 	{
 	public:
 		void Init(ScreenSpaceVertex Verticies[], uint32_t VertexBufferSize, uint32_t Indices[], uint32_t IndexBufferSize);

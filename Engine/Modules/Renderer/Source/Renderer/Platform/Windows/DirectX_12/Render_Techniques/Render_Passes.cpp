@@ -9,14 +9,14 @@
 namespace Insight {
 
 	
-	ieD3D12ScreenQuad g_ScreenQuad;
+	D3D12ScreenQuad g_ScreenQuad;
 
 
 	/*===========================*/
 	/*		Geometry Pass		 */
 	/*===========================*/
 
-	bool DeferredGeometryPass::Set()
+	bool DeferredGeometryPass::Set(FrameResources* pFrameResources)
 	{
 		PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Rendering Geometry Pass");
 		{
@@ -24,6 +24,10 @@ namespace Insight {
 
 			ID3D12DescriptorHeap* ppHeaps[] = { m_pCBVSRVHeapRef->pDH.Get() };
 			m_pCommandListRef->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+
+			// Set the buffers to a Render Target state.
+			for (uint8_t i = 0; i < m_NumRenderTargets; ++i)
+				m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pRenderTargetTextures[i].Get(), IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 			// Clear the render targets.
 			for(uint8_t i = 0; i < m_NumRenderTargets; ++i)
@@ -43,6 +47,9 @@ namespace Insight {
 			
 			// Set the main pipeline for this pass.
 			m_pCommandListRef->SetPipelineState(m_pPipelineState.Get());
+
+			pFrameResources->m_CBLights.SetAsGraphicsRootConstantBufferView(m_pCommandListRef.Get(), 2);
+			pFrameResources->m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pCommandListRef.Get(), 1);
 
 			GeometryManager::Render(RenderPassType::RenderPassType_Scene);
 		}
@@ -66,7 +73,7 @@ namespace Insight {
 		static bool Created = false;
 		if (!Created)
 		{
-			uint32_t QuadIndices[] =
+			UINT QuadIndices[] =
 			{
 				0, 1, 3,
 				0, 3, 2
@@ -263,11 +270,11 @@ namespace Insight {
 	/*			Light Pass			*/
 	/*==============================*/
 
-	bool DeferredLightPass::Set()
+	bool DeferredLightPass::Set(FrameResources* pFrameResources)
 	{
 		PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Rendering Light Pass");
 		{
-			m_pRenderContextRef->SetActiveCommandList(m_pCommandListRef);
+			//m_pRenderContextRef->SetActiveCommandList(m_pCommandListRef);
 
 			ID3D12DescriptorHeap* ppHeaps[] = { m_pCBVSRVHeapRef->pDH.Get() };
 			m_pCommandListRef->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
@@ -280,6 +287,10 @@ namespace Insight {
 			//m_pCommandListRef->OMSetRenderTargets(m_NumRenderTargets, &m_RTVHeap.hCPUHeapStart, FALSE, false);
 			D3D12_CPU_DESCRIPTOR_HANDLE pRTVHandles[] = { m_RTVHeap.hCPU(0), m_RTVHeap.hCPU(1) };
 			m_pCommandListRef->OMSetRenderTargets(_countof(pRTVHandles), pRTVHandles, FALSE, nullptr);
+
+			// Set the light pass and bloom threshold results in a Render Target state.
+			for (uint8_t i = 0; i < m_NumRenderTargets; ++i)
+				m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pRenderTargetTextures[i].Get(), IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 			// Transition the G-Buffer to shader resources we can sample from.
 			for (uint8_t i = 0; i < m_GBufferRefs.size(); ++i)
@@ -294,6 +305,10 @@ namespace Insight {
 			// Set the main pipeline for this pass.
 			m_pCommandListRef->SetPipelineState(m_pPipelineState.Get());
 
+			m_pCommandListRef->SetGraphicsRootDescriptorTable(17, m_pCBVSRVHeapRef->hGPU(6)); // Ray Trace Result
+			m_pCommandListRef->SetGraphicsRootDescriptorTable(11, m_pCBVSRVHeapRef->hGPU(7)); // Shadow Depth
+			m_pCommandListRef->SetGraphicsRootDescriptorTable(5,  m_pCBVSRVHeapRef->hGPU(0)); // G-Buffer
+
 			// Render.
 			g_ScreenQuad.OnRender(m_pCommandListRef);
 		}
@@ -307,7 +322,11 @@ namespace Insight {
 		// Set the light pass and bloom threshold results in a generic state.
 		for (uint8_t i = 0; i < m_NumRenderTargets; ++i)
 			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, IE_D3D12_DEFAULT_RESOURCE_STATE);
-		
+
+		// Transition the G-Buffer back to a common state for other passes.
+		for (uint8_t i = 0; i < m_GBufferRefs.size(); ++i)
+			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_GBufferRefs[i].Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, IE_D3D12_DEFAULT_RESOURCE_STATE);
+
 		// Set the depth buffer back to a generic state.
 		m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pSceneDepthTextureRef.Get(), D3D12_RESOURCE_STATE_DEPTH_READ, IE_D3D12_DEFAULT_RESOURCE_STATE);
 	}
@@ -446,11 +465,11 @@ namespace Insight {
 	/*		Post-Process Composite Pass		 */
 	/*=======================================*/
 	
-	bool PostProcessCompositePass::Set()
+	bool PostProcessCompositePass::Set(FrameResources* pFrameResources)
 	{
 		PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Rendering Post-Process Pass");
 		{
-			m_pRenderContextRef->SetActiveCommandList(m_pCommandListRef);
+			//m_pRenderContextRef->SetActiveCommandList(m_pCommandListRef);
 
 			ID3D12DescriptorHeap* ppHeaps[] = { m_pCBVSRVHeapRef->pDH.Get() };
 			m_pCommandListRef->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
@@ -463,8 +482,16 @@ namespace Insight {
 			m_pCommandListRef->SetGraphicsRootSignature(m_pRootSignatureRef.Get());
 
 			m_pCommandListRef->SetPipelineState(m_pPipelineState.Get());
+
+			// Make sure we can read from the depth buffer.
+			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pSceneDepthTextureRef.Get(), IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_DEPTH_READ);
+
+
 			m_pCommandListRef->SetGraphicsRootDescriptorTable(16, m_pCBVSRVHeapRef->hGPU(5)); // Light Pass result
 			m_pCommandListRef->SetGraphicsRootDescriptorTable(18, m_pCBVSRVHeapRef->hGPU(9)); // Bloom Pass result
+
+			pFrameResources->m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pCommandListRef.Get(), 1);
+			pFrameResources->m_CBPostProcessParams.SetAsGraphicsRootConstantBufferView(m_pCommandListRef.Get(), 3);
 
 			g_ScreenQuad.OnRender(m_pCommandListRef);
 		}
@@ -474,6 +501,9 @@ namespace Insight {
 
 	void PostProcessCompositePass::UnSet()
 	{
+		// Set the depth buffer back to a generic state.
+		m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pSceneDepthTextureRef.Get(), D3D12_RESOURCE_STATE_DEPTH_READ, IE_D3D12_DEFAULT_RESOURCE_STATE);
+	
 	}
 
 	bool PostProcessCompositePass::InternalCreate()
