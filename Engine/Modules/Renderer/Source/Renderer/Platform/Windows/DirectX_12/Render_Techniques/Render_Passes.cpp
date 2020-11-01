@@ -93,6 +93,15 @@ namespace Insight {
 			Created = true;
 		}
 
+		LoadPipeline();
+
+		CreateResources();
+
+		return true;
+	}
+
+	void DeferredGeometryPass::LoadPipeline()
+	{
 		ComPtr<ID3DBlob> pVertexShader;
 		ComPtr<ID3DBlob> pPixelShader;
 
@@ -144,22 +153,28 @@ namespace Insight {
 		PsoDesc.DSVFormat = m_DSVFormat;
 		PsoDesc.SampleDesc = { 1, 0 };
 
+		m_pPipelineState.Reset();
 		hr = m_pRenderContextRef->GetDeviceContext().CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pPipelineState));
 		ThrowIfFailed(hr, "Failed to create graphics pipeline state for geometry pass.");
 		m_pPipelineState->SetName(L"PSO Geometry Pass");
-
-		CreateResources();
-
-		return true;
 	}
 
 	void DeferredGeometryPass::CreateResources()
 	{
 		ID3D12Device* pDevice = &m_pRenderContextRef->GetDeviceContext();
-		const UINT WindowWidth = static_cast<UINT>(m_pRenderContextRef->GetWindowRef().GetWidth());
-		const UINT WindowHeight = static_cast<UINT>(m_pRenderContextRef->GetWindowRef().GetHeight());
+		const UINT WindowWidth = m_pRenderContextRef->GetWindowRef().GetWidth();
+		const UINT WindowHeight = m_pRenderContextRef->GetWindowRef().GetHeight();
 		const CD3DX12_HEAP_PROPERTIES DefaultHeapProps(D3D12_HEAP_TYPE_DEFAULT);
 		
+		// Destroy resources if they already exist. We might be resizing the window if we come back here.
+		for (auto Resource : m_pRenderTargetTextures)
+		{
+			if(Resource.Get())
+				Resource.Reset();
+		}
+
+		if(m_pSceneDepthStencilTexture.Get())
+			m_pSceneDepthStencilTexture.Reset();
 		
 		// Create the render targets
 		HRESULT hr = m_RTVHeap.Create(pDevice, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_NumRenderTargets);
@@ -344,6 +359,15 @@ namespace Insight {
 	
 	bool DeferredLightPass::InternalCreate()
 	{
+		LoadPipeline();
+
+		CreateResources();
+
+		return true;
+	}
+
+	void DeferredLightPass::LoadPipeline()
+	{
 		ComPtr<ID3DBlob> pVertexShader;
 		ComPtr<ID3DBlob> pPixelShader;
 
@@ -394,13 +418,10 @@ namespace Insight {
 		descPipelineState.RTVFormats[1] = m_RTVFormats[1]; // Bloom Buffer
 		descPipelineState.SampleDesc.Count = 1;
 
+		m_pPipelineState.Reset();
 		hr = m_pRenderContextRef->GetDeviceContext().CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pPipelineState));
 		ThrowIfFailed(hr, "Failed to create graphics pipeline state for lighting pass.");
 		m_pPipelineState->SetName(L"PSO Light Pass");
-
-		CreateResources();
-
-		return true;
 	}
 	
 	void DeferredLightPass::CreateResources()
@@ -410,6 +431,18 @@ namespace Insight {
 		const UINT WindowHeight = static_cast<UINT>(m_pRenderContextRef->GetWindowRef().GetHeight());
 		const CD3DX12_HEAP_PROPERTIES DefaultHeapProps(D3D12_HEAP_TYPE_DEFAULT);
 
+		// Destroy resources if they already exist. We might be resizing the window if we come back here.
+		for (auto Resource : m_pRenderTargetTextures)
+		{
+			if(Resource.Get())
+				Resource.Reset();
+		}
+		
+		if(m_GBufferRefs.size() > 0)
+			m_GBufferRefs.clear();
+		
+		if(m_pSceneDepthTextureRef.Get())
+			m_pSceneDepthTextureRef.ReleaseAndGetAddressOf();
 
 		// Create the render targets
 		HRESULT hr = m_RTVHeap.Create(pDevice, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_NumRenderTargets);
@@ -535,6 +568,13 @@ namespace Insight {
 
 	bool PostProcessCompositePass::InternalCreate()
 	{
+		LoadPipeline();
+
+		return true;
+	}
+
+	void PostProcessCompositePass::LoadPipeline()
+	{
 		ComPtr<ID3DBlob> pVertexShader;
 		ComPtr<ID3DBlob> pPixelShader;
 
@@ -584,11 +624,10 @@ namespace Insight {
 		PipelineStateDesc.RTVFormats[0] = m_pRenderContextRef->GetSwapChainBackBufferFormat();
 		PipelineStateDesc.SampleDesc = { 1, 0 };
 
+		m_pPipelineState.Reset();
 		hr = m_pRenderContextRef->GetDeviceContext().CreateGraphicsPipelineState(&PipelineStateDesc, IID_PPV_ARGS(&m_pPipelineState));
 		ThrowIfFailed(hr, "Failed to create graphics pipeline state for Post-Fx pass in D3D 12 context.");
 		m_pPipelineState->SetName(L"PSO Post-Process Combine Pass");
-
-		return true;
 	}
 
 	void PostProcessCompositePass::CreateResources()

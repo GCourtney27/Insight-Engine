@@ -64,6 +64,22 @@ namespace Insight {
 			}
 		}
 
+		inline void ReloadBuffers()
+		{
+			for (RenderPass* Pass : m_RenderPasses)
+			{
+				Pass->CreateResources();
+			}
+		}
+
+		inline void ReloadPipelines()
+		{
+			for (RenderPass* Pass : m_RenderPasses)
+			{
+				Pass->LoadPipeline();
+			}
+		}
+
 		std::vector<RenderPass*>::iterator begin() { return m_RenderPasses.begin(); }
 		std::vector<RenderPass*>::iterator end() { return m_RenderPasses.end(); }
 

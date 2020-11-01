@@ -43,6 +43,11 @@ namespace Insight {
 		}
 		operator ID3D12DescriptorHeap* () { return pDH.Get(); }
 
+		inline void Destroy()
+		{
+			pDH.Reset();
+		}
+
 		SIZE_T MakeOffsetted_SizeT(SIZE_T ptr, UINT index)
 		{
 			SIZE_T offsetted;

@@ -167,7 +167,7 @@ namespace Insight {
 
 
 		ID3D12Resource* GetSwapChainRenderTarget() const { return m_pSwapChainRenderTargets[IE_D3D12_FrameIndex].Get(); }
-		inline const UINT GetNumLightPassRTVs() const { return m_NumRTVs; }
+
 		inline D3D12_CPU_DESCRIPTOR_HANDLE GetSwapChainRTV() const
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE Handle;
@@ -185,12 +185,9 @@ namespace Insight {
 		// Per-Frame
 		
 		void BindShadowPass();
-		void BindGeometryPass();
-		void BindLightingPass();
 		void BindSkyPass();
 		void BindTransparencyPass();
 		void BindRayTracePass();
-		void BindPostFxPass();
 		void DrawDebugScreenQuad();
 		void BlurBloomBuffer();
 
@@ -230,7 +227,6 @@ namespace Insight {
 		D3D12Helper			m_d3dDeviceResources;
 		RayTraceHelpers		m_RTHelper;
 
-		
 		RenderPassStack				m_RenderPassStack;
 		DeferredGeometryPass		m_GeometryPass;
 		DeferredLightPass			m_LightPass;
@@ -238,15 +234,12 @@ namespace Insight {
 
 
 
-		D3D12ScreenQuad	m_ScreenQuad;
-		D3D12ScreenQuad	m_DebugScreenQuad;
+		D3D12ScreenQuad		m_DebugScreenQuad;
 		D3D12_VIEWPORT		m_ShadowPass_ViewPort = {};
 		D3D12_RECT			m_ShadowPass_ScissorRect = {};
 
 		ieD3D12SphereRenderer*	m_pSkySphere_Geometry;
 
-		static const UINT	m_NumRTVs = 6;
-		static const UINT	m_NumGBuffers = m_NumRTVs - 2;
 		bool				m_WindowResizeComplete = true;
 		bool				m_UseWarpDevice = false;
 
@@ -267,7 +260,6 @@ namespace Insight {
 		ComPtr<ID3D12GraphicsCommandList>	m_pDownSample_CommandList;
 		ComPtr<ID3D12CommandAllocator>		m_pDownSample_CommandAllocators[m_FrameBufferCount];
 
-		ComPtr<ID3D12Resource>				m_pRenderTargetTextures[m_NumRTVs];
 		ComPtr<ID3D12Resource>				m_pSwapChainRenderTargets[m_FrameBufferCount];
 		
 		//-----Light Pass-----
@@ -285,7 +277,6 @@ namespace Insight {
 		//1:  ShadowDepth
 		CDescriptorHeapWrapper				m_dsvHeap;
 
-		ComPtr<ID3D12Resource>				m_pSceneDepthStencilTexture;
 		ComPtr<ID3D12Resource>				m_pShadowDepthTexture;
 		ComPtr<ID3D12Resource>				m_RayTraceOutput_SRV;
 
@@ -301,11 +292,8 @@ namespace Insight {
 		ComPtr<ID3D12RootSignature>			m_pDebugScreenQuad_RS;
 
 		ComPtr<ID3D12PipelineState>			m_pShadowPass_PSO;
-		ComPtr<ID3D12PipelineState>			m_pGeometryPass_PSO;
-		ComPtr<ID3D12PipelineState>			m_pLightingPass_PSO;
 		ComPtr<ID3D12PipelineState>			m_pSkyPass_PSO;
 		ComPtr<ID3D12PipelineState>			m_pTransparency_PSO;
-		ComPtr<ID3D12PipelineState>			m_pPostFxPass_PSO;
 		ComPtr<ID3D12PipelineState>			m_pDebugScreenQuad_PSO;
 		ComPtr<ID3D12PipelineState>			m_pThresholdDownSample_PSO;
 		ComPtr<ID3D12PipelineState>			m_pGaussianBlur_PSO;
@@ -330,22 +318,7 @@ namespace Insight {
 		CDescriptorHeapWrapper				m_cbvsrvHeap;
 
 
-		DXGI_SAMPLE_DESC					m_SampleDesc = {};
-		D3D12_DEPTH_STENCIL_VIEW_DESC		m_ScenePass_DsvDesc = {};
-		float								m_ScreenClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-		DXGI_FORMAT							m_DsvFormat = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
-		DXGI_FORMAT							m_SceneDepthSRVFormat = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
-		DXGI_FORMAT							m_RtvFormat[6] = { 
-												DXGI_FORMAT_R11G11B10_FLOAT,	// Albedo buffer
-												DXGI_FORMAT_R16G16B16A16_SNORM,	// Normal
-												DXGI_FORMAT_R11G11B10_FLOAT,	// (R)Roughness/(G)Metallic/(B)AO
-												DXGI_FORMAT_R32G32B32A32_FLOAT, // Position
-												DXGI_FORMAT_R32G32B32A32_FLOAT,	// Light Pass result
-												DXGI_FORMAT_R11G11B10_FLOAT,	// Bloom buffer
-											};
-		FLOAT								m_DepthClearValue = 1.0f;
 		DXGI_FORMAT							m_ShadowMapFormat = DXGI_FORMAT_D32_FLOAT;
-
 		const UINT m_ShadowMapWidth = 2048;
 		const UINT m_ShadowMapHeight = 2048;
 

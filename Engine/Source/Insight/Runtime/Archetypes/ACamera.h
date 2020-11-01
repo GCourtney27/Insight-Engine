@@ -100,6 +100,7 @@ namespace Insight {
 			void RenderSceneHeirarchy() override;
 			void OnImGuiRender() override;
 
+			// Returns truw if the camera is currently in a orthographics projection state. Returns false if not.
 			int GetIsOrthographic() { return m_IsOrthographic; }
 		private:
 			void UpdateViewMatrix();

@@ -33,15 +33,15 @@ namespace Insight {
 			this->UnSet(pFrameResources);
 		}
 
-		virtual void Reload()
+		void ReloadShaders() 
 		{
-			throw std::runtime_error("Not Implemented!");
+			this->LoadPipeline();
 		}
-
-		virtual void Destroy()
+		void ResizeBuffers() 
 		{
-			throw std::runtime_error("Not Implemented");
+			this->CreateResources();
 		}
+		
 
 	protected:
 		RenderPass()			= default;
@@ -51,11 +51,11 @@ namespace Insight {
 		virtual void UnSet(FrameResources* pFrameResources) = 0;
 
 		virtual bool InternalCreate() = 0;
+		virtual void LoadPipeline() = 0;
 		virtual void CreateResources() = 0;
 
 		virtual void OnStackAttach() {}
 		virtual void OnStackDetach() {}
-
 
 	protected:
 		Direct3D12Context*					m_pRenderContextRef;
@@ -94,7 +94,9 @@ namespace Insight {
 
 	protected:
 		virtual bool InternalCreate()	override;
+		virtual void LoadPipeline() override;
 		virtual void CreateResources()	override;
+
 
 		virtual bool Set(FrameResources* pFrameResources) override;
 		virtual void UnSet(FrameResources* pFrameResources) override;
@@ -142,6 +144,7 @@ namespace Insight {
 
 	protected:
 		virtual bool InternalCreate()	override;
+		virtual void LoadPipeline() override;
 		virtual void CreateResources()	override;
 
 		virtual bool Set(FrameResources* pFrameResources) override;
@@ -183,6 +186,7 @@ namespace Insight {
 
 	protected:
 		virtual bool InternalCreate()	override;
+		virtual void LoadPipeline() override;
 		virtual void CreateResources()	override;
 
 		virtual bool Set(FrameResources* pFrameResources) override;
