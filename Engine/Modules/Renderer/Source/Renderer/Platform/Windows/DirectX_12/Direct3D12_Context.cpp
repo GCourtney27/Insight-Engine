@@ -95,12 +95,23 @@ namespace Insight {
 						for (uint8_t i = 0; i < NumGBuffers; ++i)
 							m_LightPass.SetRenderTargetTextureRef(m_GeometryPass.GetGBufferRenderTargetTexture(i));
 						m_LightPass.SetSceneDepthTextureRef(m_GeometryPass.GetSceneDepthTexture());
+						m_LightPass.SetSkyLightRef(m_pSkyLight);
 						m_RenderPassStack.PushPass(&m_LightPass);
 						
+						
+						// Create the Sky Pass ad push it to the render stack.
+						m_SkyPass.SetSceneDepthTextureRef(m_GeometryPass.GetSceneDepthTexture());
+						m_SkyPass.SetRenderTargetRef(m_LightPass.GetLightPassResult());
+						m_SkyPass.Create(this, &m_cbvsrvHeap, m_pScenePass_CommandList.Get(), m_pDeferredShadingPass_RS.Get());
+						m_SkyPass.SetSkySphereRef(m_pSkySphere);
+						m_SkyPass.SetRenderHandleRefs(m_LightPass.GetLightPassResultCPUHandle(), m_GeometryPass.GetSceneDepthCPUHandle());
+						m_RenderPassStack.PushPass(&m_SkyPass);
+
 						// Create the Post Process Composite Pass ad push it to the render stack.
 						m_PostProcessCompositePass.Create(this, &m_cbvsrvHeap, m_pPostEffectsPass_CommandList.Get(), m_pDeferredShadingPass_RS.Get());
 						m_PostProcessCompositePass.SetSceneDepthTextureRef(m_GeometryPass.GetSceneDepthTexture());
 						m_RenderPassStack.PushPassOverlay(&m_PostProcessCompositePass);
+
 					}
 
 					
@@ -580,10 +591,10 @@ namespace Insight {
 
 	void Direct3D12Context::OnWindowResize_Impl()
 	{
-		if (!m_IsMinimized) {
-
-			if (m_WindowResizeComplete) {
-
+		if (!m_IsMinimized)
+		{
+			if (m_WindowResizeComplete) 
+			{
 				m_WindowResizeComplete = false;
 
 				m_d3dDeviceResources.WaitForGPU();
@@ -1717,6 +1728,12 @@ namespace Insight {
 			for (uint8_t i = 0; i < NumGBuffers; ++i)
 				m_LightPass.SetRenderTargetTextureRef(m_GeometryPass.GetGBufferRenderTargetTexture(i));
 			m_LightPass.SetSceneDepthTextureRef(m_GeometryPass.GetSceneDepthTexture());
+			m_LightPass.SetSkyLightRef(m_pSkyLight);
+
+			m_SkyPass.SetSceneDepthTextureRef(m_GeometryPass.GetSceneDepthTexture());
+			m_SkyPass.SetRenderTargetRef(m_LightPass.GetLightPassResult());
+			m_SkyPass.SetSkySphereRef(m_pSkySphere);
+			m_SkyPass.SetRenderHandleRefs(m_LightPass.GetLightPassResultCPUHandle(), m_GeometryPass.GetSceneDepthCPUHandle());
 			
 			m_PostProcessCompositePass.SetSceneDepthTextureRef(m_GeometryPass.GetSceneDepthTexture());
 

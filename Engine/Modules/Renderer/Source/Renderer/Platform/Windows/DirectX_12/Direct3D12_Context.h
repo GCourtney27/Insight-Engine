@@ -37,13 +37,16 @@ namespace Insight {
 
 		void Init(ComPtr<ID3D12Device> pDevice)
 		{
+			// Constant Buffer containing lights for the world.
 			m_CBLights.Init(pDevice.Get(), L"Lights Constant Buffer");
+
+			// Per-Frame information.
 			m_CBPerFrame.Init(pDevice.Get(), L"Per-Frame Constant Buffer");
 
-			// Per-Object Constant Buffers.
+			// Per-Object Constant Buffer.
 			m_CBPerObject.Init(pDevice.Get(), L"Per-Object Constant Buffer");
 
-			// Per-Object Material Constant Buffers.
+			// Per-Object Material Constant Buffer.
 			m_CBPerObjectMaterial.Init(pDevice.Get(), L"Per-Object Material Overrides Constant Buffer");
 
 			// Down Sample Params for Bloom Pass
@@ -111,6 +114,7 @@ namespace Insight {
 		friend class DeferredGeometryPass;
 		friend class DeferredLightPass;
 		friend class PostProcessCompositePass;
+		friend class SkyPass;
 	public:
 		virtual bool Init_Impl() override;
 		virtual void Destroy_Impl() override;
@@ -230,6 +234,7 @@ namespace Insight {
 		RenderPassStack				m_RenderPassStack;
 		DeferredGeometryPass		m_GeometryPass;
 		DeferredLightPass			m_LightPass;
+		SkyPass						m_SkyPass;
 		PostProcessCompositePass	m_PostProcessCompositePass;
 
 

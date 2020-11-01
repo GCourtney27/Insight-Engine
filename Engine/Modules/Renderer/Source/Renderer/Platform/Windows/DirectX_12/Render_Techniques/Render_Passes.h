@@ -58,10 +58,10 @@ namespace Insight {
 		virtual void OnStackDetach() {}
 
 	protected:
-		Direct3D12Context*					m_pRenderContextRef;
+		Direct3D12Context*					m_pRenderContextRef = nullptr;
+		CDescriptorHeapWrapper*				m_pCBVSRVHeapRef = nullptr;
 		ComPtr<ID3D12GraphicsCommandList>	m_pCommandListRef;
 		ComPtr<ID3D12RootSignature>			m_pRootSignatureRef;
-		CDescriptorHeapWrapper*				m_pCBVSRVHeapRef;
 
 		ComPtr<ID3D12PipelineState> m_pPipelineState;
 		const float					m_ScreenClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -91,6 +91,13 @@ namespace Insight {
 
 		// Returns the number of G-Buffers the Geometry pass will write to.
 		inline uint8_t GetNumGBuffers() const { return m_NumRenderTargets; }
+
+		// Returns the format of the scene depth buffer.
+		DXGI_FORMAT GetSceneDepthBufferFormat() const { return m_DSVFormat; }
+
+		// Returns the CPU handle to the Scene depth buffer.
+		inline D3D12_CPU_DESCRIPTOR_HANDLE GetSceneDepthCPUHandle() { return m_DSVHeap.hCPU(0); }
+
 
 	protected:
 		virtual bool InternalCreate()	override;
@@ -138,8 +145,23 @@ namespace Insight {
 		// Set the reference to the Scene Depth Buffer.
 		inline void SetSceneDepthTextureRef(ComPtr<ID3D12Resource> pDepthTexture) { m_pSceneDepthTextureRef = pDepthTexture; }
 
+		// Set the referance to the global skylight;
+		inline void SetSkyLightRef(ASkyLight* pSkyLight) { m_pSkyLightRef = pSkyLight; }
+
 		// Returns the number of render targets this pass writes to.
 		inline uint8_t GetNumRenderTargets() const { return m_NumRenderTargets; }
+
+		// Returns the result of the light pass.
+		inline ComPtr<ID3D12Resource> GetLightPassResult() const { return m_pRenderTargetTextures[0]; }
+
+		// Returns the CPU handle to the light pass result buffer.
+		inline D3D12_CPU_DESCRIPTOR_HANDLE GetLightPassResultCPUHandle() { return m_RTVHeap.hCPU(0); }
+
+		// Returns the prefilted bloom threshold buffer.
+		inline ComPtr<ID3D12Resource> GetBloomThresholdResult() const { return m_pRenderTargetTextures[1]; }
+
+		// Returns the CPU handle to the Bloom threshold buffer.
+		inline D3D12_CPU_DESCRIPTOR_HANDLE GetBloomThresholdCPUHandle() { return m_RTVHeap.hCPU(1); }
 
 
 	protected:
@@ -164,7 +186,51 @@ namespace Insight {
 		std::vector<ComPtr<ID3D12Resource>> m_GBufferRefs;
 		// Scene depth texture referenced from the geometry pass.
 		ComPtr<ID3D12Resource> m_pSceneDepthTextureRef;
+
+		ASkyLight* m_pSkyLightRef;
 	};
+
+
+
+	/*=======================*/
+	/*		Sky Pass		 */
+	/*=======================*/
+
+	class SkyPass : public RenderPass
+	{
+	public:
+		SkyPass() = default;
+		~SkyPass() = default;
+	
+
+		inline void SetSceneDepthTextureRef(ComPtr<ID3D12Resource> pSceneDepthBuffer) { m_pSceneDepthTextureRef = pSceneDepthBuffer; }
+		
+		
+		inline void SetRenderTargetRef(ComPtr<ID3D12Resource> pRenderTarget) { m_pRenderTargetRef = pRenderTarget; }
+		
+		
+		inline void SetSkySphereRef(ASkySphere* pSkySphere) { m_pSkyShereRef = pSkySphere; }
+		
+		
+		inline void SetRenderHandleRefs(D3D12_CPU_DESCRIPTOR_HANDLE pRTV, D3D12_CPU_DESCRIPTOR_HANDLE pDSV) { m_pRTVHandle = pRTV; m_pDSVHandle = pDSV; }
+
+	protected:
+		virtual bool Set(FrameResources* pFrameResources) override;
+		virtual void UnSet(FrameResources* pFrameResources) override;
+
+		virtual bool InternalCreate() override;
+		virtual void LoadPipeline() override;
+		virtual void CreateResources() override;
+
+	private:
+		ComPtr<ID3D12Resource> m_pSceneDepthTextureRef;
+		ComPtr<ID3D12Resource> m_pRenderTargetRef;
+		ASkySphere* m_pSkyShereRef;
+
+		D3D12_CPU_DESCRIPTOR_HANDLE m_pRTVHandle;
+		D3D12_CPU_DESCRIPTOR_HANDLE m_pDSVHandle;
+	};
+
 
 
 	/*=======================================*/
