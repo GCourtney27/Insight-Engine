@@ -28,6 +28,9 @@ namespace Insight {
 			// Set the buffers to a Render Target state.
 			for (uint8_t i = 0; i < m_NumRenderTargets; ++i)
 				m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pRenderTargetTextures[i].Get(), IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+			
+			// Make sure we can write to the depth buffer in this pass.
+			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pSceneDepthStencilTexture.Get(), IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
 			// Clear the render targets.
 			for(uint8_t i = 0; i < m_NumRenderTargets; ++i)
@@ -36,21 +39,21 @@ namespace Insight {
 			// Clear the Depth Stencil View.
 			m_pCommandListRef->ClearDepthStencilView(m_DSVHeap.hCPU(0), D3D12_CLEAR_FLAG_DEPTH, m_DepthClearValue, 0xFF, 0, nullptr);
 			
-			// Make sure we can write to the depth buffer in this pass.
-			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pSceneDepthStencilTexture.Get(), IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-
 			// Set the render targets and depth stencil for this pass.
 			m_pCommandListRef->OMSetRenderTargets(m_NumRenderTargets, &m_RTVHeap.hCPUHeapStart, TRUE, &m_DSVHeap.hCPU(0));
+			m_pCommandListRef->RSSetScissorRects(1, &m_pRenderContextRef->GetClientScissorRect());
+			m_pCommandListRef->RSSetViewports(1, &m_pRenderContextRef->GetClientViewPort());
 
-			// Set the root signature for this pass.
+			// Set the root signature and pipeline state for this pass.
 			m_pCommandListRef->SetGraphicsRootSignature(m_pRootSignatureRef.Get());
-			
-			// Set the main pipeline for this pass.
 			m_pCommandListRef->SetPipelineState(m_pPipelineState.Get());
 
+			// Bind resources to the pipeline.
 			pFrameResources->m_CBLights.SetAsGraphicsRootConstantBufferView(m_pCommandListRef.Get(), 2);
 			pFrameResources->m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pCommandListRef.Get(), 1);
 
+			// Render.
+			m_pCommandListRef->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 			GeometryManager::Render(RenderPassType::RenderPassType_Scene);
 		}
 		PIXEndEvent(m_pCommandListRef.Get());
@@ -58,7 +61,7 @@ namespace Insight {
 		return false;
 	}
 
-	void DeferredGeometryPass::UnSet()
+	void DeferredGeometryPass::UnSet(FrameResources* pFrameResources)
 	{
 		// After we are finished with the buffers but them in a generic state for other passes to use them.
 		for (uint8_t i = 0; i < m_NumRenderTargets; ++i)
@@ -182,7 +185,14 @@ namespace Insight {
 		{
 			ResourceDesc.Format = m_GBufferRTVFormats[i];
 			ClearVal.Format = m_GBufferRTVFormats[i];
-			hr = pDevice->CreateCommittedResource(&DefaultHeapProps, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET, &ClearVal, IID_PPV_ARGS(&m_pRenderTargetTextures[i]));
+			hr = pDevice->CreateCommittedResource(
+				&DefaultHeapProps, 
+				D3D12_HEAP_FLAG_NONE, 
+				&ResourceDesc, 
+				IE_D3D12_DEFAULT_RESOURCE_STATE, 
+				&ClearVal, 
+				IID_PPV_ARGS(&m_pRenderTargetTextures[i])
+			);
 			ThrowIfFailed(hr, "Failed to create committed resource for RTV at index: " + std::to_string(i));
 		}
 		m_pRenderTargetTextures[0]->SetName(L"Render Target Texture Albedo");
@@ -243,7 +253,7 @@ namespace Insight {
 			&DefaultHeapProps,
 			D3D12_HEAP_FLAG_NONE,
 			&SceneDepthResourceDesc,
-			D3D12_RESOURCE_STATE_DEPTH_WRITE,
+			IE_D3D12_DEFAULT_RESOURCE_STATE,
 			&SceneDepthOptomizedClearValue,
 			IID_PPV_ARGS(&m_pSceneDepthStencilTexture));
 		ThrowIfFailed(hr, "Failed to create comitted resource for depth stencil view");
@@ -279,15 +289,6 @@ namespace Insight {
 			ID3D12DescriptorHeap* ppHeaps[] = { m_pCBVSRVHeapRef->pDH.Get() };
 			m_pCommandListRef->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
-			// Clear the render targets.
-			for (uint8_t i = 0; i < m_NumRenderTargets; ++i)
-				m_pCommandListRef->ClearRenderTargetView(m_RTVHeap.hCPU(i), m_ScreenClearColor, 0, nullptr);
-
-			// Set the render targets and depth stencil for this pass.
-			//m_pCommandListRef->OMSetRenderTargets(m_NumRenderTargets, &m_RTVHeap.hCPUHeapStart, FALSE, false);
-			D3D12_CPU_DESCRIPTOR_HANDLE pRTVHandles[] = { m_RTVHeap.hCPU(0), m_RTVHeap.hCPU(1) };
-			m_pCommandListRef->OMSetRenderTargets(_countof(pRTVHandles), pRTVHandles, FALSE, nullptr);
-
 			// Set the light pass and bloom threshold results in a Render Target state.
 			for (uint8_t i = 0; i < m_NumRenderTargets; ++i)
 				m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pRenderTargetTextures[i].Get(), IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -299,12 +300,22 @@ namespace Insight {
 			// Make sure we can read from the depth buffer.
 			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pSceneDepthTextureRef.Get(), IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_DEPTH_READ);
 
-			// Set the root signature for this pass.
-			m_pCommandListRef->SetGraphicsRootSignature(m_pRootSignatureRef.Get());
+			// Clear the render targets.
+			for (uint8_t i = 0; i < m_NumRenderTargets; ++i)
+				m_pCommandListRef->ClearRenderTargetView(m_RTVHeap.hCPU(i), m_ScreenClearColor, 0, nullptr);
 
-			// Set the main pipeline for this pass.
+			// Set the render targets and depth stencil for this pass.
+			//m_pCommandListRef->OMSetRenderTargets(m_NumRenderTargets, &m_RTVHeap.hCPUHeapStart, FALSE, false);
+			D3D12_CPU_DESCRIPTOR_HANDLE pRTVHandles[] = { m_RTVHeap.hCPU(0), m_RTVHeap.hCPU(1) };
+			m_pCommandListRef->OMSetRenderTargets(_countof(pRTVHandles), pRTVHandles, FALSE, nullptr);
+			m_pCommandListRef->RSSetScissorRects(1, &m_pRenderContextRef->GetClientScissorRect());
+			m_pCommandListRef->RSSetViewports(1, &m_pRenderContextRef->GetClientViewPort());
+
+			// Set the root signature and pipeline state for this pass.
+			m_pCommandListRef->SetGraphicsRootSignature(m_pRootSignatureRef.Get());
 			m_pCommandListRef->SetPipelineState(m_pPipelineState.Get());
 
+			// Bind resources to the pipeline.
 			m_pCommandListRef->SetGraphicsRootDescriptorTable(17, m_pCBVSRVHeapRef->hGPU(6)); // Ray Trace Result
 			m_pCommandListRef->SetGraphicsRootDescriptorTable(11, m_pCBVSRVHeapRef->hGPU(7)); // Shadow Depth
 			m_pCommandListRef->SetGraphicsRootDescriptorTable(5,  m_pCBVSRVHeapRef->hGPU(0)); // G-Buffer
@@ -317,7 +328,7 @@ namespace Insight {
 		return true;
 	}
 	
-	void DeferredLightPass::UnSet()
+	void DeferredLightPass::UnSet(FrameResources* pFrameResources)
 	{
 		// Set the light pass and bloom threshold results in a generic state.
 		for (uint8_t i = 0; i < m_NumRenderTargets; ++i)
@@ -378,7 +389,7 @@ namespace Insight {
 		descPipelineState.RasterizerState.DepthClipEnable = false;
 		descPipelineState.SampleMask = UINT_MAX;
 		descPipelineState.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		descPipelineState.NumRenderTargets = 2;
+		descPipelineState.NumRenderTargets = m_NumRenderTargets;
 		descPipelineState.RTVFormats[0] = m_RTVFormats[0]; // Light Pass
 		descPipelineState.RTVFormats[1] = m_RTVFormats[1]; // Bloom Buffer
 		descPipelineState.SampleDesc.Count = 1;
@@ -423,7 +434,14 @@ namespace Insight {
 		{
 			ResourceDesc.Format = m_RTVFormats[i];
 			ClearVal.Format = m_RTVFormats[i];
-			hr = pDevice->CreateCommittedResource(&DefaultHeapProps, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET, &ClearVal, IID_PPV_ARGS(&m_pRenderTargetTextures[i]));
+			hr = pDevice->CreateCommittedResource(
+				&DefaultHeapProps, 
+				D3D12_HEAP_FLAG_NONE, 
+				&ResourceDesc, 
+				IE_D3D12_DEFAULT_RESOURCE_STATE, 
+				&ClearVal, 
+				IID_PPV_ARGS(&m_pRenderTargetTextures[i])
+			);
 			ThrowIfFailed(hr, "Failed to create committed resource for RTV at index: " + std::to_string(i));
 		}
 		m_pRenderTargetTextures[0]->SetName(L"Render Target Texture Light Pass Result");
@@ -474,36 +492,45 @@ namespace Insight {
 			ID3D12DescriptorHeap* ppHeaps[] = { m_pCBVSRVHeapRef->pDH.Get() };
 			m_pCommandListRef->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
+			// Transition the main render target.
+			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pRenderContextRef->GetSwapChainRenderTarget(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+			
+			// Make sure we can read from the depth buffer.
+			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pSceneDepthTextureRef.Get(), IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_DEPTH_READ);
+
+			m_pCommandListRef->ClearRenderTargetView(m_pRenderContextRef->GetSwapChainRTV(), m_ScreenClearColor, 0, nullptr);
+
 			// Set the render target and rasterizer settings.
 			m_pCommandListRef->OMSetRenderTargets(1, &m_pRenderContextRef->GetSwapChainRTV(), TRUE, nullptr);
 			m_pCommandListRef->RSSetScissorRects(1, &m_pRenderContextRef->GetClientScissorRect());
 			m_pCommandListRef->RSSetViewports(1, &m_pRenderContextRef->GetClientViewPort());
 
+			// Set the root signature and pipeline state.
 			m_pCommandListRef->SetGraphicsRootSignature(m_pRootSignatureRef.Get());
-
 			m_pCommandListRef->SetPipelineState(m_pPipelineState.Get());
 
-			// Make sure we can read from the depth buffer.
-			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pSceneDepthTextureRef.Get(), IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_DEPTH_READ);
-
-
+			// Bind resources to the pipeline.
 			m_pCommandListRef->SetGraphicsRootDescriptorTable(16, m_pCBVSRVHeapRef->hGPU(5)); // Light Pass result
 			m_pCommandListRef->SetGraphicsRootDescriptorTable(18, m_pCBVSRVHeapRef->hGPU(9)); // Bloom Pass result
-
 			pFrameResources->m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pCommandListRef.Get(), 1);
 			pFrameResources->m_CBPostProcessParams.SetAsGraphicsRootConstantBufferView(m_pCommandListRef.Get(), 3);
 
+			// Render.
 			g_ScreenQuad.OnRender(m_pCommandListRef);
 		}
 		PIXEndEvent(m_pCommandListRef.Get());
 		return true;
 	}
 
-	void PostProcessCompositePass::UnSet()
+	void PostProcessCompositePass::UnSet(FrameResources* pFrameResources)
 	{
+		// Transition the render target for presentation to the sreen on the swap chain.
+		IE_ADD_FOR_GAME_DIST(
+			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pRenderContextRef->GetSwapChainRenderTarget(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+		);
+
 		// Set the depth buffer back to a generic state.
 		m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pSceneDepthTextureRef.Get(), D3D12_RESOURCE_STATE_DEPTH_READ, IE_D3D12_DEFAULT_RESOURCE_STATE);
-	
 	}
 
 	bool PostProcessCompositePass::InternalCreate()
@@ -541,23 +568,23 @@ namespace Insight {
 		InputLayoutDesc.NumElements = _countof(inputLayout);
 		InputLayoutDesc.pInputElementDescs = inputLayout;
 
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC descPipelineState = {};
-		descPipelineState.VS = vertexShaderBytecode;
-		descPipelineState.PS = pixelShaderBytecode;
-		descPipelineState.InputLayout = InputLayoutDesc;
-		descPipelineState.pRootSignature = m_pRootSignatureRef.Get();
-		descPipelineState.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-		descPipelineState.DepthStencilState.DepthEnable = false;
-		descPipelineState.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-		descPipelineState.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-		descPipelineState.RasterizerState.DepthClipEnable = false;
-		descPipelineState.SampleMask = UINT_MAX;
-		descPipelineState.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		descPipelineState.NumRenderTargets = 1; // Rendering directly to the back buffer of the swapchain
-		descPipelineState.RTVFormats[0] = m_pRenderContextRef->GetSwapChainBackBufferFormat();
-		descPipelineState.SampleDesc.Count = 1;
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC PipelineStateDesc = {};
+		PipelineStateDesc.VS = vertexShaderBytecode;
+		PipelineStateDesc.PS = pixelShaderBytecode;
+		PipelineStateDesc.InputLayout = InputLayoutDesc;
+		PipelineStateDesc.pRootSignature = m_pRootSignatureRef.Get();
+		PipelineStateDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+		PipelineStateDesc.DepthStencilState.DepthEnable = false;
+		PipelineStateDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		PipelineStateDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+		PipelineStateDesc.RasterizerState.DepthClipEnable = false;
+		PipelineStateDesc.SampleMask = UINT_MAX;
+		PipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		PipelineStateDesc.NumRenderTargets = m_NumRenderTargets; // Rendering directly to the back buffer of the swapchain
+		PipelineStateDesc.RTVFormats[0] = m_pRenderContextRef->GetSwapChainBackBufferFormat();
+		PipelineStateDesc.SampleDesc = { 1, 0 };
 
-		hr = m_pRenderContextRef->GetDeviceContext().CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pPipelineState));
+		hr = m_pRenderContextRef->GetDeviceContext().CreateGraphicsPipelineState(&PipelineStateDesc, IID_PPV_ARGS(&m_pPipelineState));
 		ThrowIfFailed(hr, "Failed to create graphics pipeline state for Post-Fx pass in D3D 12 context.");
 		m_pPipelineState->SetName(L"PSO Post-Process Combine Pass");
 

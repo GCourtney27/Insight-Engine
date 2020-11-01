@@ -30,7 +30,7 @@ namespace Insight {
 		inline void Render(FrameResources* pFrameResources)
 		{
 			this->Set(pFrameResources);
-			this->UnSet();
+			this->UnSet(pFrameResources);
 		}
 
 		virtual void Reload()
@@ -48,7 +48,7 @@ namespace Insight {
 		virtual ~RenderPass()	= default;
 
 		virtual bool Set(FrameResources* pFrameResources) = 0;
-		virtual void UnSet() = 0;
+		virtual void UnSet(FrameResources* pFrameResources) = 0;
 
 		virtual bool InternalCreate() = 0;
 		virtual void CreateResources() = 0;
@@ -97,7 +97,7 @@ namespace Insight {
 		virtual void CreateResources()	override;
 
 		virtual bool Set(FrameResources* pFrameResources) override;
-		virtual void UnSet() override;
+		virtual void UnSet(FrameResources* pFrameResources) override;
 	private:
 		static const uint8_t m_NumRenderTargets = 4u;
 
@@ -145,7 +145,7 @@ namespace Insight {
 		virtual void CreateResources()	override;
 
 		virtual bool Set(FrameResources* pFrameResources) override;
-		virtual void UnSet() override;
+		virtual void UnSet(FrameResources* pFrameResources) override;
 	private:
 		static const uint8_t	m_NumRenderTargets = 2u;
 		ComPtr<ID3D12Resource>	m_pRenderTargetTextures[m_NumRenderTargets];
@@ -186,10 +186,10 @@ namespace Insight {
 		virtual void CreateResources()	override;
 
 		virtual bool Set(FrameResources* pFrameResources) override;
-		virtual void UnSet() override;
+		virtual void UnSet(FrameResources* pFrameResources) override;
 	private:
 		ComPtr<ID3D12Resource> m_pSceneDepthTextureRef;
-
+		static const uint8_t m_NumRenderTargets = 1u;
 	};
 
 }

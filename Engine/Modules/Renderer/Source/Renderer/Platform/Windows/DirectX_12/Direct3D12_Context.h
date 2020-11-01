@@ -91,7 +91,6 @@ namespace Insight {
 		D3D12ConstantBuffer<CB_PS_PostFx>							m_CBPostProcessParams;
 		D3D12ConstantBuffer<CB_VS_PerObject>						m_CBPerObject;
 		D3D12ConstantBuffer<CB_PS_VS_PerObjectMaterialAdditives>	m_CBPerObjectMaterial;
-
 	};
 
 
@@ -224,7 +223,7 @@ namespace Insight {
 		// Resize render targets and depth stencil. Usually called from 'OnWindowResize'.
 		void UpdateSizeDependentResources();
 
-		void ResourceBarrier(ID3D12GraphicsCommandList* pCommandList, ID3D12Resource* pResource, D3D12_RESOURCE_STATES StateBefore, D3D12_RESOURCE_STATES StateAfter);
+		void ResourceBarrier(ID3D12GraphicsCommandList* pCommandList, ID3D12Resource* pResource, D3D12_RESOURCE_STATES StateBefore, D3D12_RESOURCE_STATES StateAfter, uint32_t NumBarriers = 1u);
 		
 	private:
 		WindowsWindow*		m_pWindowRef = nullptr;

@@ -101,9 +101,6 @@ namespace Insight {
 						m_PostProcessCompositePass.Create(this, &m_cbvsrvHeap, m_pPostEffectsPass_CommandList.Get(), m_pDeferredShadingPass_RS.Get());
 						m_PostProcessCompositePass.SetSceneDepthTextureRef(m_GeometryPass.GetSceneDepthTexture());
 						m_RenderPassStack.PushPassOverlay(&m_PostProcessCompositePass);
-
-
-
 					}
 
 					
@@ -247,18 +244,18 @@ namespace Insight {
 
 		// Prepare the Render Target for this Frame
 		{
-			ResourceBarrier(m_pScenePass_CommandList.Get(), GetSwapChainRenderTarget(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-			const float ClearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-			m_pScenePass_CommandList->ClearRenderTargetView(GetSwapChainRTV(), ClearColor, 0, nullptr);
+			//ResourceBarrier(m_pScenePass_CommandList.Get(), GetSwapChainRenderTarget(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+			//const float ClearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+			//m_pScenePass_CommandList->ClearRenderTargetView(GetSwapChainRTV(), ClearColor, 0, nullptr);
 		}
 
 		// Reset Scene Pass
-		PIXBeginEvent(m_pScenePass_CommandList.Get(), 0, L"Resetting Scene Pass Command List");
-		{
-			m_pScenePass_CommandList->RSSetScissorRects(1, &m_d3dDeviceResources.GetClientScissorRect());
-			m_pScenePass_CommandList->RSSetViewports(1, &m_d3dDeviceResources.GetClientViewPort());
-		}
-		PIXEndEvent(m_pScenePass_CommandList.Get());
+		//PIXBeginEvent(m_pScenePass_CommandList.Get(), 0, L"Resetting Scene Pass Command List");
+		//{
+		//	m_pScenePass_CommandList->RSSetScissorRects(1, &m_d3dDeviceResources.GetClientScissorRect());
+		//	m_pScenePass_CommandList->RSSetViewports(1, &m_d3dDeviceResources.GetClientViewPort());
+		//}
+		//PIXEndEvent(m_pScenePass_CommandList.Get());
 
 		// Reset Shadow Pass
 		/*PIXBeginEvent(m_pShadowPass_CommandList.Get(), 0, L"Resetting Shadow Pass Command List");
@@ -277,16 +274,6 @@ namespace Insight {
 
 		// Gather the geometry in the world and send it to the GPU.
 		GeometryManager::GatherGeometry();
-
-		/*m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pPostEffectsPass_CommandList.Get(), 2);
-		m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pScenePass_CommandList.Get(), 1);
-		m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pPostEffectsPass_CommandList.Get(), 1);
-
-		m_CBLights.SetAsGraphicsRootConstantBufferView(m_pScenePass_CommandList.Get(), 2);
-		m_CBLights.SetAsGraphicsRootConstantBufferView(m_pShadowPass_CommandList.Get(), 2);
-		m_CBLights.SetAsGraphicsRootConstantBufferView(m_pTransparencyPass_CommandList.Get(), 2);
-
-		m_CBPostFx.SetAsGraphicsRootConstantBufferView(m_pPostEffectsPass_CommandList.Get(), 3);*/
 
 		// Traverse the render stack and draw the scene.
 		for (RenderPass* Pass : m_RenderPassStack)
@@ -626,10 +613,10 @@ namespace Insight {
 
 		// Prepare the buffers for next frame
 		{
-			for (unsigned int i = 0; i < m_GeometryPass.GetNumGBuffers(); ++i) {
-				ResourceBarrier(m_pPostEffectsPass_CommandList.Get(), m_GeometryPass.GetGBufferRenderTargetTexture(i).Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
-			}
-			ResourceBarrier(m_pPostEffectsPass_CommandList.Get(), m_GeometryPass.GetSceneDepthTexture().Get(), D3D12_RESOURCE_STATE_DEPTH_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+			//for (unsigned int i = 0; i < m_GeometryPass.GetNumGBuffers(); ++i) {
+			//	ResourceBarrier(m_pPostEffectsPass_CommandList.Get(), m_GeometryPass.GetGBufferRenderTargetTexture(i).Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+			//}
+			//ResourceBarrier(m_pPostEffectsPass_CommandList.Get(), m_GeometryPass.GetSceneDepthTexture().Get(), D3D12_RESOURCE_STATE_DEPTH_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 		}
 
 		// Prepare render target to be presented on the swap chain
@@ -861,13 +848,14 @@ namespace Insight {
 
 		m_SwapChainRTVHeap.Create(&m_d3dDeviceResources.GetDeviceContext(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_FrameBufferCount, false);
 
-		for (UINT i = 0; i < m_FrameBufferCount; i++) {
+		for (UINT i = 0; i < m_FrameBufferCount; i++) 
+		{
 			hr = m_d3dDeviceResources.GetSwapChain().GetBuffer(i, IID_PPV_ARGS(&m_pSwapChainRenderTargets[i]));
 			ThrowIfFailed(hr, "Failed to get buffer in swap chain during descriptor heap initialization for D3D 12 context.");
 			m_d3dDeviceResources.GetDeviceContext().CreateRenderTargetView(m_pSwapChainRenderTargets[i].Get(), nullptr, m_SwapChainRTVHeap.hCPU(i));
 
-			WCHAR name[25];
-			swprintf_s(name, L"Render Target %d", i);
+			WCHAR name[32];
+			swprintf_s(name, L"SwapChain Render Target %d", i);
 			m_pSwapChainRenderTargets[i]->SetName(name);
 		}
 	}
@@ -2085,9 +2073,9 @@ namespace Insight {
 
 	}
 
-	void Direct3D12Context::ResourceBarrier(ID3D12GraphicsCommandList* pCommandList, ID3D12Resource* pResource, D3D12_RESOURCE_STATES StateBefore, D3D12_RESOURCE_STATES StateAfter)
+	void Direct3D12Context::ResourceBarrier(ID3D12GraphicsCommandList* pCommandList, ID3D12Resource* pResource, D3D12_RESOURCE_STATES StateBefore, D3D12_RESOURCE_STATES StateAfter, uint32_t NumBarriers)
 	{
-		pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(pResource, StateBefore, StateAfter));
+		pCommandList->ResourceBarrier(NumBarriers, &CD3DX12_RESOURCE_BARRIER::Transition(pResource, StateBefore, StateAfter));
 	}
 
 }
