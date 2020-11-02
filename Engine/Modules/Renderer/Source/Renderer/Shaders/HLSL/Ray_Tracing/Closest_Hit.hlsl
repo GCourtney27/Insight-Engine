@@ -27,7 +27,7 @@ void ClosestHit(inout HitInfo HitInfo, Attributes Attrib)
 {
 
     //float3 lightDir = float3(0.2, 2, 6);
-    float3 lightDir = (-LightDir.xyz);
+    float3 lightDir = (LightDir.xyz);
 
     // Find the world - space hit position
     float3 worldOrigin = WorldRayOrigin() + RayTCurrent() * WorldRayDirection();

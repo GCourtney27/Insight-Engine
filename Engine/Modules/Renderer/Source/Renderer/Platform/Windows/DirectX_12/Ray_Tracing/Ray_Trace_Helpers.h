@@ -47,7 +47,10 @@ namespace Insight {
 		void TraceScene();
 		inline void ReCreateOutputBuffer() { CreateRTOutputBuffer(); }
 
-		void UpdateInstanceTransformByIndex(uint32_t ArrIndex, DirectX::XMMATRIX UpdatedMat) { m_Instances[ArrIndex].second = UpdatedMat; }
+		inline void UpdateInstanceTransformByIndex(uint32_t ArrIndex, DirectX::XMMATRIX UpdatedMat) 
+		{
+			m_Instances[ArrIndex].second = UpdatedMat; 
+		}
 
 		inline ID3D12Resource* GetOutputBuffer() { return m_pOutputBuffer_UAV.Get(); }
 		uint32_t RegisterBottomLevelASGeometry(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVeticies, uint32_t NumIndices, DirectX::XMMATRIX WorldMat);

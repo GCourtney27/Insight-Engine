@@ -730,7 +730,7 @@ namespace Insight {
 	void Direct3D12Context::CreateDSVs()
 	{
 		HRESULT hr = S_OK;
-
+		return;
 		ID3D12Device* pDevice = &m_d3dDeviceResources.GetDeviceContext();
 		m_dsvHeap.Create(pDevice, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 2);
 		CD3DX12_HEAP_PROPERTIES DefaultHeapProps(D3D12_HEAP_TYPE_DEFAULT);
@@ -786,7 +786,7 @@ namespace Insight {
 	void Direct3D12Context::CreateRTVs()
 	{
 		HRESULT hr = S_OK;
-
+		return;
 		ID3D12Device* pDevice = &m_d3dDeviceResources.GetDeviceContext();
 
 		hr = m_rtvHeap.Create(pDevice, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 1);
@@ -831,7 +831,7 @@ namespace Insight {
 	void Direct3D12Context::CreateSRVs()
 	{
 		HRESULT hr;
-
+		return;
 		ID3D12Device* pDevice = &m_d3dDeviceResources.GetDeviceContext();
 		CD3DX12_HEAP_PROPERTIES DefaultHeapProps(D3D12_HEAP_TYPE_DEFAULT);
 
@@ -1449,6 +1449,7 @@ namespace Insight {
 
 	void Direct3D12Context::CreateScreenQuad()
 	{
+		return;
 		uint32_t QuadIndices[] =
 		{
 			0, 1, 3,

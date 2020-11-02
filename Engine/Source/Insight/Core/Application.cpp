@@ -20,7 +20,7 @@
 // DemoScene
 // MultipleLights
 static const char* ProjectName = "Development-Project";
-static const char* TargetSceneName = "Debug.iescene";
+static const char* TargetSceneName = "Norway.iescene";
 
 namespace Insight {
 

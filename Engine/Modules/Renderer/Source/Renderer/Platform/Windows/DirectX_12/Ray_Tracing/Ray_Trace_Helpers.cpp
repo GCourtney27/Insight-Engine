@@ -39,13 +39,13 @@ namespace Insight {
 		{
 			CreateAccelerationStructures();
 			CreateRTPipeline();
-			CreateRTOutputBuffer();
 		}
 
 		// Create Resources
 		{
 			CreateBuffers();
 			CreateShaderResourceHeap();
+			CreateRTOutputBuffer();
 		}
 
 		CreateShaderBindingTable();
@@ -339,6 +339,12 @@ namespace Insight {
 		);
 		ThrowIfFailed(hr, "Failed to create raytracing outptut buffer.");
 		m_pOutputBuffer_UAV->SetName(L"Ray Traceing Output Buffer");
+
+		// Output Buffer
+		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+		m_pDeviceRef->CreateUnorderedAccessView(m_pOutputBuffer_UAV.Get(), nullptr, &uavDesc, m_srvUavHeap.hCPU(0));
+		m_pOutputBuffer_UAV->SetName(L"Ray Tracing output buffer UAV");
 	}
 
 	void RayTraceHelpers::CreateShaderBindingTable()
@@ -392,12 +398,6 @@ namespace Insight {
 	{
 		m_srvUavHeap.Create(m_pDeviceRef.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 4, true);
 		
-
-		// Output Buffer
-		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-		m_pDeviceRef->CreateUnorderedAccessView(m_pOutputBuffer_UAV.Get(), nullptr, &uavDesc, m_srvUavHeap.hCPU(0));
-		m_pOutputBuffer_UAV->SetName(L"Ray Tracing output buffer UAV");
 
 		// Top-Level Accereration Structure
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc;

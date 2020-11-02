@@ -212,6 +212,9 @@ namespace SandBoxApp {
 			using namespace Insight::Runtime;
 			using namespace Insight;
 			
+			Norway();
+			return;
+
 			// Wooden Floor
 			Insight::Material* pWood = new Insight::Material({ 1, 2, 3, 4, 5 });
 			pWood->SetUVTilingOffset(9.0f, 9.0f);
