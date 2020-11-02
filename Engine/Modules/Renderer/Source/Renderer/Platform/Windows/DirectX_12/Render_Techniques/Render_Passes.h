@@ -4,6 +4,7 @@
 
 #include "Renderer/Platform/Windows/DirectX_12/Wrappers/Descriptor_Heap_Wrapper.h"
 #include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_Constant_Buffer_Wrapper.h"
+#include "Renderer/Platform/Windows/DirectX_12/Ray_Tracing/Ray_Trace_Helpers.h"
 
 namespace Insight {
 
@@ -202,18 +203,15 @@ namespace Insight {
 		SkyPass() = default;
 		~SkyPass() = default;
 	
-
-		inline void SetSceneDepthTextureRef(ComPtr<ID3D12Resource> pSceneDepthBuffer) { m_pSceneDepthTextureRef = pSceneDepthBuffer; }
+		// Set the reference to the Scene depth texture.
+		inline void SetSceneDepthTextureRef(ComPtr<ID3D12Resource> pSceneDepthBuffer, D3D12_CPU_DESCRIPTOR_HANDLE pDSV) { m_pSceneDepthTextureRef = pSceneDepthBuffer; m_pDSVHandle = pDSV; }
 		
+		// Set the reference to the render target to draw the sky to.
+		inline void SetRenderTargetRef(ComPtr<ID3D12Resource> pRenderTarget, D3D12_CPU_DESCRIPTOR_HANDLE pRTV) { m_pRenderTargetRef = pRenderTarget; m_pRTVHandle = pRTV;}
 		
-		inline void SetRenderTargetRef(ComPtr<ID3D12Resource> pRenderTarget) { m_pRenderTargetRef = pRenderTarget; }
-		
-		
+		// Set the sky that will be drawn.
 		inline void SetSkySphereRef(ASkySphere* pSkySphere) { m_pSkyShereRef = pSkySphere; }
 		
-		
-		inline void SetRenderHandleRefs(D3D12_CPU_DESCRIPTOR_HANDLE pRTV, D3D12_CPU_DESCRIPTOR_HANDLE pDSV) { m_pRTVHandle = pRTV; m_pDSVHandle = pDSV; }
-
 	protected:
 		virtual bool Set(FrameResources* pFrameResources) override;
 		virtual void UnSet(FrameResources* pFrameResources) override;
@@ -231,6 +229,43 @@ namespace Insight {
 		D3D12_CPU_DESCRIPTOR_HANDLE m_pDSVHandle;
 	};
 
+
+	/*===================================*/
+	/*		Ray-Traced Shadows Pass		 */
+	/*===================================*/
+
+	class RayTracedShadowsPass : public RenderPass
+	{
+	public:
+		RayTracedShadowsPass() = default;
+		~RayTracedShadowsPass() = default;
+
+		RayTraceHelpers* GetRTHelper() { return &m_RTHelper; }
+
+	protected:
+		virtual bool Set(FrameResources* pFrameResources) override;
+		virtual void UnSet(FrameResources* pFrameResources) override;
+
+		virtual bool InternalCreate() override;
+		virtual void LoadPipeline() override;
+		virtual void CreateResources() override;
+
+	private:
+		RayTraceHelpers		m_RTHelper;
+		ComPtr<ID3D12Resource>	m_pRayTraceOutput_SRV;
+
+
+	};
+
+
+	/*===================================*/
+	/*		Shadow Map Shadows Pass		 */
+	/*===================================*/
+
+	class ShadowMapPass : public RenderPass
+	{
+
+	};
 
 
 	/*=======================================*/

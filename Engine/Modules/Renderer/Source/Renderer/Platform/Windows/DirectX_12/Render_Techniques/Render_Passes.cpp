@@ -77,13 +77,13 @@ namespace Insight {
 		static bool Created = false;
 		if (!Created)
 		{
-			UINT QuadIndices[] =
+			static UINT QuadIndices[] =
 			{
 				0, 1, 3,
 				0, 3, 2
 			};
 
-			ScreenSpaceVertex FullScreenQuadVerts[] =
+			static ScreenSpaceVertex FullScreenQuadVerts[] =
 			{
 				{ { -1.0f, 1.0f, 0.0f }, { 0.0f, 0.0f } }, // Top Left
 				{ {  1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } }, // Top Right
@@ -753,6 +753,89 @@ namespace Insight {
 
 	void PostProcessCompositePass::CreateResources()
 	{
+	}
+
+
+	/*===================================*/
+	/*		Ray-Traced Shadows Pass		 */
+	/*===================================*/
+
+	bool RayTracedShadowsPass::Set(FrameResources* pFrameResources)
+	{
+		PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Rendering Ray Trace Pass");
+		{
+			m_pRenderContextRef->SetActiveCommandList(m_pCommandListRef);
+
+			// TEMP
+			m_RTHelper.UpdateCBVs();
+
+			m_RTHelper.SetCommonPipeline();
+			m_RTHelper.TraceScene();
+
+			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pRayTraceOutput_SRV.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
+			m_pCommandListRef->CopyResource(m_pRayTraceOutput_SRV.Get(), m_RTHelper.GetOutputBuffer());
+			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pRayTraceOutput_SRV.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		}
+		PIXEndEvent(m_pCommandListRef.Get());
+		return true;
+	}
+
+	void RayTracedShadowsPass::UnSet(FrameResources* pFrameResources)
+	{
+	}
+
+	bool RayTracedShadowsPass::InternalCreate()
+	{
+		LoadPipeline();
+		CreateResources();
+
+		return true;
+	}
+
+	void RayTracedShadowsPass::LoadPipeline()
+	{
+		m_RTHelper.Init(m_pRenderContextRef);
+	}
+
+	void RayTracedShadowsPass::CreateResources()
+	{
+		ID3D12Device* pDevice = &m_pRenderContextRef->GetDeviceContext();
+		const UINT WindowWidth = static_cast<UINT>(m_pRenderContextRef->GetWindowRef().GetWidth());
+		const UINT WindowHeight = static_cast<UINT>(m_pRenderContextRef->GetWindowRef().GetHeight());
+		const CD3DX12_HEAP_PROPERTIES DefaultHeapProps(D3D12_HEAP_TYPE_DEFAULT);
+
+		D3D12_RESOURCE_DESC ResourceDesc = {};
+		ResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		ResourceDesc.Alignment = 0;
+		ResourceDesc.SampleDesc.Count = 1;
+		ResourceDesc.SampleDesc.Quality = 0;
+		ResourceDesc.MipLevels = 1;
+		ResourceDesc.DepthOrArraySize = 1;
+		ResourceDesc.Width = WindowWidth;
+		ResourceDesc.Height = WindowHeight;
+		ResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+		ResourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+		m_pRayTraceOutput_SRV.Reset();
+
+		// Ray Trace Pass Result SRV
+		HRESULT hr = pDevice->CreateCommittedResource(
+			&DefaultHeapProps,
+			D3D12_HEAP_FLAG_NONE, 
+			&ResourceDesc, 
+			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, 
+			NULL, 
+			IID_PPV_ARGS(&m_pRayTraceOutput_SRV)
+		);
+		ThrowIfFailed(hr, "Failed to create ray trace output srv.");
+
+		D3D12_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
+		SRVDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		SRVDesc.Texture2D.MipLevels = 1U;
+		SRVDesc.Texture2D.MostDetailedMip = 0;
+		SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		SRVDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		pDevice->CreateShaderResourceView(m_pRayTraceOutput_SRV.Get(), &SRVDesc, m_pCBVSRVHeapRef->hCPU(6));
 	}
 
 }

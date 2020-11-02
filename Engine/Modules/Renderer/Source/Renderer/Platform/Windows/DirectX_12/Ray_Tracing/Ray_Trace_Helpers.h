@@ -38,10 +38,9 @@ namespace Insight {
 		RayTraceHelpers() = default;
 		~RayTraceHelpers() = default;
 
-		bool OnInit(Direct3D12Context* pRendererContext);
+		bool Init(Direct3D12Context* pRendererContext);
 		void GenerateAccelerationStructure();
-		void OnPostInit();
-		void OnDestroy();
+		void Destroy();
 		void UpdateCBVs();
 		void SetCommonPipeline();
 		void TraceScene();
@@ -78,7 +77,7 @@ namespace Insight {
 
 		uint32_t m_WindowWidth = 0U;
 		uint32_t m_WindowHeight = 0U;
-		Direct3D12Context* m_pRendererContext;
+		Direct3D12Context* m_pRenderContextRef;
 		D3D12_DISPATCH_RAYS_DESC m_DispatchRaysDesc = {};
 
 		ComPtr<ID3D12DescriptorHeap>			m_srvUavHeap;

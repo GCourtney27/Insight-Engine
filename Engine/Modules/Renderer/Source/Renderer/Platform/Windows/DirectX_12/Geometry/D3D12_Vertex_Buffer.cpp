@@ -64,7 +64,7 @@ namespace Insight {
 		m_VertexBufferView.StrideInBytes = sizeof(Vertex3D);
 		m_VertexBufferView.SizeInBytes = m_BufferSize;
 
-		RenderContext.GetScenePassCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pVertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
+		RenderContext.GetScenePassCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pVertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE));
 
 		return true;
 	}

@@ -97,14 +97,6 @@ namespace Insight {
 			TreeFlags |= ImGuiTreeNodeFlags_SpanAvailWidth;
 			const bool IsExpanded = ImGui::TreeNodeEx(SceneNode::GetDisplayName(), TreeFlags);
 
-			int i = KeyMapCode_Mouse_Button_Left;
-			int j = KeyMapCode_Mouse_Button_Right;
-			int k = KeyMapCode_Mouse_Button_Middle;
-			if (ImGui::IsMouseClicked(0))
-			{
-				IE_CORE_INFO("Pressed");
-			}
-
 			if (ImGui::IsItemClicked()) {
 				IE_STRIP_FOR_GAME_DIST(Application::Get().GetEditorLayer().SetSelectedActor(this);)
 			}

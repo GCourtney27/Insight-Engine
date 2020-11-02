@@ -32,20 +32,19 @@ namespace Insight {
 			&resourceDesc,
 			D3D12_RESOURCE_STATE_COPY_DEST,
 			nullptr,
-			IID_PPV_ARGS(&m_VertexBuffer)
+			IID_PPV_ARGS(&m_pVertexBuffer)
 		);
-		m_VertexBuffer->SetName(L"Screen Quad Default Resource Heap");
+		m_pVertexBuffer->SetName(L"Screen Quad Default Resource Heap");
 		ThrowIfFailed(hr, "Failed to create default heap resource for screen qauad");
 
-		ID3D12Resource* vBufferUploadHeap;
 		hr = RenderContext.GetDeviceContext().CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(VertexBufferSize),
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
-			IID_PPV_ARGS(&vBufferUploadHeap));
-		vBufferUploadHeap->SetName(L"Screen Quad Upload Resource Heap");
+			IID_PPV_ARGS(&m_pVertexBufferUploadHeap));
+		m_pVertexBufferUploadHeap->SetName(L"Screen Quad Upload Resource Heap");
 		ThrowIfFailed(hr, "Failed to create upload heap resource for screen qauad");
 
 		D3D12_SUBRESOURCE_DATA vertexData = {};
@@ -53,17 +52,16 @@ namespace Insight {
 		vertexData.RowPitch = VertexBufferSize;
 		vertexData.SlicePitch = VertexBufferSize;
 
-		UpdateSubresources(&RenderContext.GetScenePassCommandList(), m_VertexBuffer.Get(), vBufferUploadHeap, 0, 0, 1, &vertexData);
+		UpdateSubresources(&RenderContext.GetScenePassCommandList(), m_pVertexBuffer.Get(), m_pVertexBufferUploadHeap.Get(), 0, 0, 1, &vertexData);
 
-		RenderContext.GetScenePassCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_VertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
+		RenderContext.GetScenePassCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pVertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
 
-		m_VertexBufferView.BufferLocation = m_VertexBuffer->GetGPUVirtualAddress();
+		m_VertexBufferView.BufferLocation = m_pVertexBuffer->GetGPUVirtualAddress();
 		m_VertexBufferView.StrideInBytes = sizeof(ScreenSpaceVertex);
 		m_VertexBufferView.SizeInBytes = VertexBufferSize;
 
 		// Index Buffer
 		// ------------
-		ComPtr<ID3D12Resource>		pIndexBufferUploadHeap;
 
 		hr = RenderContext.GetDeviceContext().CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
@@ -83,18 +81,18 @@ namespace Insight {
 			&CD3DX12_RESOURCE_DESC::Buffer(IndexBufferSize),
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
-			IID_PPV_ARGS(&pIndexBufferUploadHeap));
+			IID_PPV_ARGS(&m_pIndexBufferUploadHeap));
 		if (FAILED(hr)) {
 			IE_CORE_ERROR("Failed to create Committed Resource for Index Buffer to the Upload Heap");
 		}
-		pIndexBufferUploadHeap->SetName(L"Index Buffer Upload Resource Heap");
+		m_pIndexBufferUploadHeap->SetName(L"Index Buffer Upload Resource Heap");
 
 		D3D12_SUBRESOURCE_DATA indexData = {};
 		indexData.pData = reinterpret_cast<BYTE*>(Indices);
 		indexData.RowPitch = IndexBufferSize;
 		indexData.SlicePitch = IndexBufferSize;
 
-		UpdateSubresources(&RenderContext.GetScenePassCommandList(), m_pIndexBuffer.Get(), pIndexBufferUploadHeap.Get(), 0, 0, 1, &indexData);
+		UpdateSubresources(&RenderContext.GetScenePassCommandList(), m_pIndexBuffer.Get(), m_pIndexBufferUploadHeap.Get(), 0, 0, 1, &indexData);
 
 		m_IndexBufferView.BufferLocation = m_pIndexBuffer->GetGPUVirtualAddress();
 		m_IndexBufferView.Format = DXGI_FORMAT_R32_UINT;

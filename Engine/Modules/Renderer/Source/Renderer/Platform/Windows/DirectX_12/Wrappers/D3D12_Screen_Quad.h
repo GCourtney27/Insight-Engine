@@ -14,12 +14,16 @@ namespace Insight {
 		void OnRender(ComPtr<ID3D12GraphicsCommandList> commandList);
 
 	private:
-		ComPtr<ID3D12Resource> m_VertexBuffer;
+		ComPtr<ID3D12Resource> 		m_pVertexBuffer;
 		ComPtr<ID3D12Resource>		m_pIndexBuffer;
-		D3D12_VERTEX_BUFFER_VIEW m_VertexBufferView;
-		D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;
-		UINT m_NumVerticies = 0U;
-		UINT m_NumIndices = 0U;
+		ComPtr<ID3D12Resource>		m_pVertexBufferUploadHeap;
+		ComPtr<ID3D12Resource>		m_pIndexBufferUploadHeap;
+		
+		D3D12_VERTEX_BUFFER_VIEW	m_VertexBufferView;
+		D3D12_INDEX_BUFFER_VIEW		m_IndexBufferView;
+		
+		UINT						m_NumVerticies = 0U;
+		UINT						m_NumIndices = 0U;
 	};
 
 }

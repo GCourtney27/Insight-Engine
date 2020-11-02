@@ -111,10 +111,14 @@ namespace Insight {
 	public:
 		friend class Renderer;
 		friend class D3D12Helper;
-		friend class DeferredGeometryPass;
-		friend class DeferredLightPass;
-		friend class PostProcessCompositePass;
+
 		friend class SkyPass;
+		friend class ShadowMapPass;
+		friend class DeferredLightPass;
+		friend class DeferredGeometryPass;
+		friend class RayTracedShadowsPass;
+		friend class PostProcessCompositePass;
+		friend class RayTracedShadowsPass;
 	public:
 		virtual bool Init_Impl() override;
 		virtual void Destroy_Impl() override;
@@ -167,7 +171,7 @@ namespace Insight {
 		inline ID3D12GraphicsCommandList4& GetRayTracePassCommandList() const { return *m_pRayTracePass_CommandList.Get(); }
 		ID3D12Resource* GetRayTracingSRV() const { return m_RayTraceOutput_SRV.Get(); }
 		[[nodiscard]] uint32_t RegisterGeometryWithRTAccelerationStucture(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat);
-		void UpdateRTAccelerationStructureMatrix(uint32_t InstanceArrIndex, DirectX::XMMATRIX NewWorldMat) { m_RTHelper.UpdateInstanceTransformByIndex(InstanceArrIndex, NewWorldMat); }
+		void UpdateRTAccelerationStructureMatrix(uint32_t InstanceArrIndex, DirectX::XMMATRIX NewWorldMat) { m_RayTracedShadowPass.GetRTHelper()->UpdateInstanceTransformByIndex(InstanceArrIndex, NewWorldMat); }
 
 
 		ID3D12Resource* GetSwapChainRenderTarget() const { return m_pSwapChainRenderTargets[IE_D3D12_FrameIndex].Get(); }
@@ -191,7 +195,6 @@ namespace Insight {
 		void BindShadowPass();
 		void BindSkyPass();
 		void BindTransparencyPass();
-		void BindRayTracePass();
 		void DrawDebugScreenQuad();
 		void BlurBloomBuffer();
 
@@ -229,11 +232,11 @@ namespace Insight {
 	private:
 		WindowsWindow*		m_pWindowRef = nullptr;
 		D3D12Helper			m_d3dDeviceResources;
-		RayTraceHelpers		m_RTHelper;
 
 		RenderPassStack				m_RenderPassStack;
 		DeferredGeometryPass		m_GeometryPass;
 		DeferredLightPass			m_LightPass;
+		RayTracedShadowsPass		m_RayTracedShadowPass;
 		SkyPass						m_SkyPass;
 		PostProcessCompositePass	m_PostProcessCompositePass;
 
@@ -330,7 +333,5 @@ namespace Insight {
 		FrameResources m_FrameResources;
 
 	};
-
-
 
 }

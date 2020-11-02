@@ -43,7 +43,7 @@ namespace Insight {
 		// before closing all handles and releasing resources
 		m_d3dDeviceResources.WaitForGPU();
 
-		if (m_GraphicsSettings.RayTraceEnabled) m_RTHelper.OnDestroy();
+		//if (m_GraphicsSettings.RayTraceEnabled) m_RTHelper.Destroy();
 
 		if (!m_AllowTearing) {
 			m_d3dDeviceResources.GetSwapChain().SetFullscreenState(false, NULL);
@@ -68,8 +68,8 @@ namespace Insight {
 
 			//CreateSRVs();
 
-			if (m_GraphicsSettings.RayTraceEnabled)
-				m_RTHelper.OnInit(this);
+			/*if (m_GraphicsSettings.RayTraceEnabled)
+				m_RTHelper.Init(this);*/
 
 			PIXBeginEvent(&m_d3dDeviceResources.GetGraphicsCommandQueue(), 0, L"D3D12 Context Setup");
 			{
@@ -88,7 +88,13 @@ namespace Insight {
 						// Create the Geometry Pass and push it to the render stack.
 						m_GeometryPass.Create(this, &m_cbvsrvHeap, m_pScenePass_CommandList.Get(), m_pDeferredShadingPass_RS.Get());
 						m_RenderPassStack.PushPass(&m_GeometryPass);
-						
+
+						if (m_GraphicsSettings.RayTraceEnabled)
+						{
+							m_RayTracedShadowPass.Create(this, &m_cbvsrvHeap, m_pRayTracePass_CommandList.Get(), nullptr);
+							m_RenderPassStack.PushPass(&m_RayTracedShadowPass);
+						}
+
 						// Create the Light Pass and push it to the render stack.
 						m_LightPass.Create(this, &m_cbvsrvHeap, m_pScenePass_CommandList.Get(), m_pDeferredShadingPass_RS.Get());
 						uint8_t NumGBuffers = m_GeometryPass.GetNumGBuffers();
@@ -97,14 +103,12 @@ namespace Insight {
 						m_LightPass.SetSceneDepthTextureRef(m_GeometryPass.GetSceneDepthTexture());
 						m_LightPass.SetSkyLightRef(m_pSkyLight);
 						m_RenderPassStack.PushPass(&m_LightPass);
-						
-						
+
 						// Create the Sky Pass ad push it to the render stack.
-						m_SkyPass.SetSceneDepthTextureRef(m_GeometryPass.GetSceneDepthTexture());
-						m_SkyPass.SetRenderTargetRef(m_LightPass.GetLightPassResult());
+						m_SkyPass.SetSceneDepthTextureRef(m_GeometryPass.GetSceneDepthTexture(), m_GeometryPass.GetSceneDepthCPUHandle());
+						m_SkyPass.SetRenderTargetRef(m_LightPass.GetLightPassResult(), m_LightPass.GetLightPassResultCPUHandle());
 						m_SkyPass.Create(this, &m_cbvsrvHeap, m_pScenePass_CommandList.Get(), m_pDeferredShadingPass_RS.Get());
 						m_SkyPass.SetSkySphereRef(m_pSkySphere);
-						m_SkyPass.SetRenderHandleRefs(m_LightPass.GetLightPassResultCPUHandle(), m_GeometryPass.GetSceneDepthCPUHandle());
 						m_RenderPassStack.PushPass(&m_SkyPass);
 
 						// Create the Post Process Composite Pass ad push it to the render stack.
@@ -176,7 +180,7 @@ namespace Insight {
 		m_FrameResources.m_CBPerFrame.Data.ScreenSize.y = (float)m_WindowHeight;
 		m_FrameResources.m_CBPerFrame.SubmitToGPU();
 
-		if (m_GraphicsSettings.RayTraceEnabled) m_RTHelper.UpdateCBVs();
+		//if (m_GraphicsSettings.RayTraceEnabled) m_RTHelper.UpdateCBVs();
 
 
 		// Send Point Lights to GPU
@@ -223,10 +227,10 @@ namespace Insight {
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
 #endif // BLOOM_ENABLED
 
-			//if (m_GraphicsSettings.RayTraceEnabled) {
-			//	ThrowIfFailed(m_pRayTracePass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
-			//		"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
-			//}
+			if (m_GraphicsSettings.RayTraceEnabled) {
+				ThrowIfFailed(m_pRayTracePass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
+					"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
+			}
 		}
 
 		// Reset Command Lists
@@ -247,10 +251,10 @@ namespace Insight {
 			ThrowIfFailed(m_pDownSample_CommandList->Reset(m_pDownSample_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 #endif
-			//if (m_GraphicsSettings.RayTraceEnabled) {
-			//	ThrowIfFailed(m_pRayTracePass_CommandList->Reset(m_pRayTracePass_CommandAllocators[IE_D3D12_FrameIndex].Get(), nullptr),
-			//		"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
-			//}
+			if (m_GraphicsSettings.RayTraceEnabled) {
+				ThrowIfFailed(m_pRayTracePass_CommandList->Reset(m_pRayTracePass_CommandAllocators[IE_D3D12_FrameIndex].Get(), nullptr),
+					"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
+			}
 		}
 
 		// Prepare the Render Target for this Frame
@@ -307,10 +311,6 @@ namespace Insight {
 		m_pActiveCommandList = m_pTransparencyPass_CommandList;
 		BindTransparencyPass();
 
-		if (m_GraphicsSettings.RayTraceEnabled) {
-			m_pActiveCommandList = m_pRayTracePass_CommandList;
-			BindRayTracePass();
-		}
 	}
 
 	void Direct3D12Context::BindShadowPass()
@@ -360,22 +360,6 @@ namespace Insight {
 
 		//DrawDebugScreenQuad();
 
-	}
-
-	void Direct3D12Context::BindRayTracePass()
-	{
-		RETURN_IF_WINDOW_NOT_VISIBLE;
-
-		PIXBeginEvent(m_pRayTracePass_CommandList.Get(), 0, L"Rendering Ray Trace Pass");
-		{
-			m_RTHelper.SetCommonPipeline();
-			m_RTHelper.TraceScene();
-
-			ResourceBarrier(m_pRayTracePass_CommandList.Get(), m_RayTraceOutput_SRV.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
-			m_pRayTracePass_CommandList->CopyResource(m_RayTraceOutput_SRV.Get(), m_RTHelper.GetOutputBuffer());
-			ResourceBarrier(m_pRayTracePass_CommandList.Get(), m_RayTraceOutput_SRV.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-		}
-		PIXEndEvent(m_pRayTracePass_CommandList.Get());
 	}
 
 	void Direct3D12Context::BindSkyPass()
@@ -545,15 +529,15 @@ namespace Insight {
 #if BLOOM_ENABLED
 		ThrowIfFailed(m_pDownSample_CommandList->Close(), "Failed to close command list for D3D 12 context bloom blur pass.");
 #endif
-		if (m_GraphicsSettings.RayTraceEnabled) {
+		if (m_GraphicsSettings.RayTraceEnabled) 
 			ThrowIfFailed(m_pRayTracePass_CommandList->Close(), "Failed to close the command list for D3D 12 context ray trace pass.");
-		}
+		
 
 
 		// Scene Pass
 		ID3D12CommandList* ppScenePassLists[] = {
 			//m_pShadowPass_CommandList.Get(), // Execute shadow pass first because we'll need the depth textures for the light pass
-			//m_pRayTracePass_CommandList.Get(),
+			m_pRayTracePass_CommandList.Get(),
 			m_pScenePass_CommandList.Get(),
 			//m_pTransparencyPass_CommandList.Get(),
 			m_pPostEffectsPass_CommandList.Get(),
@@ -742,7 +726,7 @@ namespace Insight {
 
 	uint32_t Direct3D12Context::RegisterGeometryWithRTAccelerationStucture(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat)
 	{
-		return m_RTHelper.RegisterBottomLevelASGeometry(pVertexBuffer, pIndexBuffer, NumVerticies, NumIndices, MeshWorldMat);
+		return m_RayTracedShadowPass.GetRTHelper()->RegisterBottomLevelASGeometry(pVertexBuffer, pIndexBuffer, NumVerticies, NumIndices, MeshWorldMat);
 	}
 
 	void Direct3D12Context::CreateSwapChainRTVDescriptorHeap()
@@ -897,18 +881,18 @@ namespace Insight {
 
 
 		// SRV Down-Sampled Buffer
-		ResourceDesc.Width = (UINT)m_WindowWidth / 2;
-		ResourceDesc.Height = (UINT)m_WindowHeight / 2;
-		hr = pDevice->CreateCommittedResource(&DefaultHeapProps, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, nullptr, IID_PPV_ARGS(&m_pBloomBlurResult_SRV));
-		ThrowIfFailed(hr, "Failed to create committed resource for down sampled UAV.");
-		pDevice->CreateShaderResourceView(m_pBloomBlurResult_SRV.Get(), &SRVDesc, m_cbvsrvHeap.hCPU(10));
-		m_pBloomBlurResult_SRV->SetName(L"SRV: Bloom Pass Down Sampled Buffer");
+		//ResourceDesc.Width = (UINT)m_WindowWidth / 2;
+		//ResourceDesc.Height = (UINT)m_WindowHeight / 2;
+		//hr = pDevice->CreateCommittedResource(&DefaultHeapProps, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, nullptr, IID_PPV_ARGS(&m_pBloomBlurResult_SRV));
+		//ThrowIfFailed(hr, "Failed to create committed resource for down sampled UAV.");
+		//pDevice->CreateShaderResourceView(m_pBloomBlurResult_SRV.Get(), &SRVDesc, m_cbvsrvHeap.hCPU(10));
+		//m_pBloomBlurResult_SRV->SetName(L"SRV: Bloom Pass Down Sampled Buffer");
 
-		// Bloom Blur Intermediate Buffer
-		ThrowIfFailed(hr, "Failed to create committed resource for down sampled UAV.");
-		hr = pDevice->CreateCommittedResource(&DefaultHeapProps, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, nullptr, IID_PPV_ARGS(&m_pBloomBlurIntermediateBuffer_SRV));
-		pDevice->CreateShaderResourceView(m_pBloomBlurIntermediateBuffer_SRV.Get(), &SRVDesc, m_cbvsrvHeap.hCPU(12));
-		m_pBloomBlurIntermediateBuffer_SRV->SetName(L"SRV: Bloom Pass Down Sampled INTERMEDIENT Buffer");
+		//// Bloom Blur Intermediate Buffer
+		//ThrowIfFailed(hr, "Failed to create committed resource for down sampled UAV.");
+		//hr = pDevice->CreateCommittedResource(&DefaultHeapProps, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, nullptr, IID_PPV_ARGS(&m_pBloomBlurIntermediateBuffer_SRV));
+		//pDevice->CreateShaderResourceView(m_pBloomBlurIntermediateBuffer_SRV.Get(), &SRVDesc, m_cbvsrvHeap.hCPU(12));
+		//m_pBloomBlurIntermediateBuffer_SRV->SetName(L"SRV: Bloom Pass Down Sampled INTERMEDIENT Buffer");
 	}
 
 	void Direct3D12Context::CreateDeferredShadingRS()
@@ -1247,203 +1231,6 @@ namespace Insight {
 			m_pShadowPass_PSO->SetName(L"PSO Shadow Pass");
 		}
 		
-		// Create Sky Pass
-		//{
-		//	ComPtr<ID3DBlob> pVertexShader;
-		//	ComPtr<ID3DBlob> pPixelShader;
-
-		//	const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		//	std::wstring VertexShaderFolder(ExeDirectory);
-		//	VertexShaderFolder += L"../Renderer/Skybox.vertex.cso";
-		//	std::wstring PixelShaderFolder(ExeDirectory);
-		//	PixelShaderFolder += L"../Renderer/Skybox.pixel.cso";
-
-		//	hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
-		//	ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context");
-		//	hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
-		//	ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context");
-
-
-		//	D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
-		//	vertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
-		//	vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
-
-		//	D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
-		//	pixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
-		//	pixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
-
-		//	D3D12_INPUT_ELEMENT_DESC inputLayout[2] =
-		//	{
-		//		{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		//		{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		//	};
-
-		//	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
-		//	inputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
-		//	inputLayoutDesc.pInputElementDescs = inputLayout;
-
-		//	auto depthStencilStateDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-		//	depthStencilStateDesc.DepthEnable = true;
-		//	depthStencilStateDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-		//	depthStencilStateDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-
-		//	auto rasterizerStateDesc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-		//	rasterizerStateDesc.DepthClipEnable = true;
-		//	rasterizerStateDesc.CullMode = D3D12_CULL_MODE_FRONT;
-		//	rasterizerStateDesc.FillMode = D3D12_FILL_MODE_SOLID;
-
-		//	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineDesc = {};
-		//	pipelineDesc.VS = vertexShaderBytecode;
-		//	pipelineDesc.PS = pixelShaderBytecode;
-		//	pipelineDesc.InputLayout.pInputElementDescs = inputLayout;
-		//	pipelineDesc.InputLayout.NumElements = _countof(inputLayout);
-		//	pipelineDesc.pRootSignature = m_pDeferredShadingPass_RS.Get();
-		//	pipelineDesc.DepthStencilState = depthStencilStateDesc;
-		//	pipelineDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-		//	pipelineDesc.RasterizerState = rasterizerStateDesc;
-		//	pipelineDesc.SampleMask = UINT_MAX;
-		//	pipelineDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		//	pipelineDesc.NumRenderTargets = 1;
-		//	pipelineDesc.RTVFormats[0] = m_RtvFormat[4];
-		//	pipelineDesc.SampleDesc.Count = 1;
-		//	pipelineDesc.DSVFormat = m_DsvFormat;
-
-
-		//	hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&m_pSkyPass_PSO));
-		//	ThrowIfFailed(hr, "Failed to create skybox pipeline state object for .");
-		//	m_pSkyPass_PSO->SetName(L"PSO Sky Pass");
-		//}
-
-		//// Create Transparency Pass
-		//{
-		//	ComPtr<ID3DBlob> pVertexShader;
-		//	ComPtr<ID3DBlob> pPixelShader;
-
-		//	const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		//	std::wstring VertexShaderFolder(ExeDirectory);
-		//	VertexShaderFolder += L"../Renderer/Transparency_Pass.vertex.cso";
-		//	std::wstring PixelShaderFolder(ExeDirectory);
-		//	PixelShaderFolder += L"../Renderer/Transparency_Pass.pixel.cso";
-
-		//	hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
-		//	ThrowIfFailed(hr, "Failed to read Vertex Shader for D3D 12 context.");
-		//	hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
-		//	ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
-
-		//	D3D12_SHADER_BYTECODE VertexShaderBytecode = {};
-		//	VertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
-		//	VertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
-
-		//	D3D12_SHADER_BYTECODE PixelShaderBytecode = {};
-		//	PixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
-		//	PixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
-
-
-		//	D3D12_INPUT_ELEMENT_DESC inputLayout[5] =
-		//	{
-		//		{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		//		{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		//		{ "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
-		//		{ "TANGENT",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
-		//		{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0  },
-		//	};
-
-		//	D3D12_INPUT_LAYOUT_DESC InputLayoutDesc = {};
-		//	InputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
-		//	InputLayoutDesc.pInputElementDescs = inputLayout;
-
-		//	auto DepthStencilStateDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-		//	DepthStencilStateDesc.DepthEnable = true;
-		//	DepthStencilStateDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-		//	DepthStencilStateDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-
-		//	auto RasterizerDesc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-		//	RasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
-
-		//	auto BlendDesc = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-		//	BlendDesc.AlphaToCoverageEnable = TRUE;
-		//	BlendDesc.IndependentBlendEnable = TRUE;
-		//	BlendDesc.RenderTarget[0].BlendEnable = true;
-
-		//	D3D12_GRAPHICS_PIPELINE_STATE_DESC PsoDesc = {};
-		//	PsoDesc.VS = VertexShaderBytecode;
-		//	PsoDesc.PS = PixelShaderBytecode;
-		//	PsoDesc.InputLayout.pInputElementDescs = inputLayout;
-		//	PsoDesc.InputLayout.NumElements = _countof(inputLayout);
-		//	PsoDesc.pRootSignature = m_pForwardShadingPass_RS.Get();
-		//	PsoDesc.DepthStencilState = DepthStencilStateDesc;
-		//	PsoDesc.BlendState = BlendDesc;
-		//	PsoDesc.RasterizerState = RasterizerDesc;
-		//	PsoDesc.SampleMask = UINT_MAX;
-		//	PsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		//	PsoDesc.NumRenderTargets = 1U;
-		//	PsoDesc.RTVFormats[0] = m_RtvFormat[4];
-		//	//PsoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-		//	PsoDesc.DSVFormat = m_DsvFormat;
-		//	PsoDesc.SampleDesc.Count = 1;
-
-		//	hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pTransparency_PSO));
-		//	ThrowIfFailed(hr, "Failed to create graphics pipeline state for transparency pass.");
-		//	m_pTransparency_PSO->SetName(L"PSO Transparency Pass");
-		//}
-
-		//// Create Post Process Pass
-		//{
-		//	ComPtr<ID3DBlob> pVertexShader;
-		//	ComPtr<ID3DBlob> pPixelShader;
-
-		//	const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		//	std::wstring VertexShaderFolder(ExeDirectory);
-		//	VertexShaderFolder += L"../Renderer/Screen_Aligned_Quad.vertex.cso";
-		//	std::wstring PixelShaderFolder(ExeDirectory);
-		//	PixelShaderFolder += L"../Renderer/PostProcess_Composite.pixel.cso";
-
-		//	hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
-		//	ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context.");
-		//	hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
-		//	ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context.");
-
-
-		//	D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
-		//	vertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
-		//	vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
-
-		//	D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
-		//	pixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
-		//	pixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
-
-		//	D3D12_INPUT_ELEMENT_DESC inputLayout[2] =
-		//	{
-		//		{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		//		{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		//	};
-
-		//	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
-		//	inputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
-		//	inputLayoutDesc.pInputElementDescs = inputLayout;
-
-		//	D3D12_GRAPHICS_PIPELINE_STATE_DESC descPipelineState = {};
-		//	descPipelineState.VS = vertexShaderBytecode;
-		//	descPipelineState.PS = pixelShaderBytecode;
-		//	descPipelineState.InputLayout.pInputElementDescs = inputLayout;
-		//	descPipelineState.InputLayout.NumElements = _countof(inputLayout);
-		//	descPipelineState.pRootSignature = m_pDeferredShadingPass_RS.Get();
-		//	descPipelineState.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-		//	descPipelineState.DepthStencilState.DepthEnable = false;
-		//	descPipelineState.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-		//	descPipelineState.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-		//	descPipelineState.RasterizerState.DepthClipEnable = false;
-		//	descPipelineState.SampleMask = UINT_MAX;
-		//	descPipelineState.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		//	descPipelineState.NumRenderTargets = 1;
-		//	descPipelineState.RTVFormats[0] = m_d3dDeviceResources.GetSwapChainBackBufferFormat();
-		//	descPipelineState.SampleDesc.Count = 1;
-
-		//	hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pPostFxPass_PSO));
-		//	ThrowIfFailed(hr, "Failed to create graphics pipeline state for Post-Fx pass in D3D 12 context.");
-		//	m_pPostFxPass_PSO->SetName(L"PSO PostFx Pass");
-		//}
-		
 		// Create Debug Screen Quad Pass
 		{
 			ComPtr<ID3DBlob> pVertexShader;
@@ -1647,7 +1434,7 @@ namespace Insight {
 
 			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pRayTracePass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pRayTracePass_CommandList));
 			ThrowIfFailed(hr, "Failed to Create Post-Process Pass Command List for D3D 12 context");
-			m_pRayTracePass_CommandList->SetName(L"Post-Process Pass Command List");
+			m_pRayTracePass_CommandList->SetName(L"Ray Trace Pass Command List");
 
 			// Dont close the Ray Trace Pass command list yet. 
 			// We'll use it for RT pipeline initialization.
@@ -1702,7 +1489,8 @@ namespace Insight {
 	void Direct3D12Context::CloseCommandListAndSignalCommandQueue()
 	{
 		// Generate the acceleration structures for the ray tracer
-		if (m_GraphicsSettings.RayTraceEnabled) m_RTHelper.GenerateAccelerationStructure();
+		//if (m_GraphicsSettings.RayTraceEnabled) m_RTHelper.GenerateAccelerationStructure();
+		if (m_GraphicsSettings.RayTraceEnabled) m_RayTracedShadowPass.GetRTHelper()->GenerateAccelerationStructure();
 
 		m_pScenePass_CommandList->Close();
 		m_pRayTracePass_CommandList->Close();
@@ -1714,7 +1502,6 @@ namespace Insight {
 		m_d3dDeviceResources.GetGraphicsCommandQueue().ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
 		m_d3dDeviceResources.IncrementAndSignalFence();
-		if (m_GraphicsSettings.RayTraceEnabled) m_RTHelper.OnPostInit();
 
 		m_d3dDeviceResources.WaitForGPU();
 	}
@@ -1724,17 +1511,20 @@ namespace Insight {
 		// Re-Create Render Targets
 		{
 			m_RenderPassStack.ReloadBuffers();
+
 			uint8_t NumGBuffers = m_GeometryPass.GetNumGBuffers();
 			for (uint8_t i = 0; i < NumGBuffers; ++i)
 				m_LightPass.SetRenderTargetTextureRef(m_GeometryPass.GetGBufferRenderTargetTexture(i));
 			m_LightPass.SetSceneDepthTextureRef(m_GeometryPass.GetSceneDepthTexture());
 			m_LightPass.SetSkyLightRef(m_pSkyLight);
 
-			m_SkyPass.SetSceneDepthTextureRef(m_GeometryPass.GetSceneDepthTexture());
-			m_SkyPass.SetRenderTargetRef(m_LightPass.GetLightPassResult());
+			m_SkyPass.SetSceneDepthTextureRef(m_GeometryPass.GetSceneDepthTexture(), m_GeometryPass.GetSceneDepthCPUHandle());
+			m_SkyPass.SetRenderTargetRef(m_LightPass.GetLightPassResult(), m_LightPass.GetLightPassResultCPUHandle());
 			m_SkyPass.SetSkySphereRef(m_pSkySphere);
-			m_SkyPass.SetRenderHandleRefs(m_LightPass.GetLightPassResultCPUHandle(), m_GeometryPass.GetSceneDepthCPUHandle());
 			
+			if (m_GraphicsSettings.RayTraceEnabled)
+				m_RayTracedShadowPass.GetRTHelper()->ReCreateOutputBuffer();
+
 			m_PostProcessCompositePass.SetSceneDepthTextureRef(m_GeometryPass.GetSceneDepthTexture());
 
 			for (uint8_t i = 0; i < m_FrameBufferCount; ++i)

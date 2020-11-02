@@ -19,11 +19,13 @@ namespace Insight {
 
 
 
-	bool RayTraceHelpers::OnInit(Direct3D12Context* pRendererContext)
+	bool RayTraceHelpers::Init(Direct3D12Context* pRendererContext)
 	{
-		m_pDeviceRef = dynamic_cast<ID3D12Device5*>(&pRendererContext->GetDeviceContext());
+		m_pDeviceRef = reinterpret_cast<ID3D12Device5*>(&pRendererContext->GetDeviceContext());
+		IE_CORE_ASSERT(m_pDeviceRef.Get() != nullptr, "Provided device must be \"ID3D12Device5\" which is ray trace compatible.");
+
 		m_pRayTracePass_CommandListRef = &pRendererContext->GetRayTracePassCommandList();
-		m_pRendererContext = pRendererContext;
+		m_pRenderContextRef = pRendererContext;
 
 		m_WindowWidth = pRendererContext->GetWindowRef().GetWidth();
 		m_WindowHeight = pRendererContext->GetWindowRef().GetHeight();
@@ -49,17 +51,13 @@ namespace Insight {
 		CreateShaderBindingTable();
 	}
 
-	void RayTraceHelpers::OnPostInit()
-	{
-	}
-
-	void RayTraceHelpers::OnDestroy()
+	void RayTraceHelpers::Destroy()
 	{
 	}
 
 	void RayTraceHelpers::UpdateCBVs()
 	{
-		const CB_PS_VS_PerFrame& PerFrameData = m_pRendererContext->GetPerFrameCB();
+		const CB_PS_VS_PerFrame& PerFrameData = m_pRenderContextRef->GetPerFrameCB();
 
 		m_CBCameraParams.InverseView = PerFrameData.InverseView;
 		m_CBCameraParams.InverseProjection = PerFrameData.InverseProjection;
@@ -71,7 +69,7 @@ namespace Insight {
 		m_pCameraBuffer->Unmap(0, nullptr);
 
 		// Copy the directional light contents
-		const CB_PS_DirectionalLight DirLightData = m_pRendererContext->GetDirectionalLightCB();
+		const CB_PS_DirectionalLight DirLightData = m_pRenderContextRef->GetDirectionalLightCB();
 		m_CBLightParams.DirLightDirection = XMFLOAT4(DirLightData.Direction.x, DirLightData.Direction.y, DirLightData.Direction.z, 1.0f);
 		m_CBLightParams.ShadowDarkness = DirLightData.ShadowDarknessMultiplier;
 
@@ -179,7 +177,8 @@ namespace Insight {
 		if (!UpdateOnly)
 		{
 
-			for (size_t i = 0; i < instances.size(); i++) {
+			for (size_t i = 0; i < instances.size(); i++) 
+			{
 				m_TopLevelASGenerator.AddInstance(instances[i].first.Get(), instances[i].second, static_cast<UINT>(i), static_cast<UINT>(2 * i));
 			}
 
@@ -187,9 +186,9 @@ namespace Insight {
 			m_TopLevelASGenerator.ComputeASBufferSizes(m_pDeviceRef.Get(), true, &scratchSize, &resultSize, &instanceDescsSize);
 
 			m_TopLevelASBuffers.pScratch = NvidiaHelpers::CreateBuffer(m_pDeviceRef.Get(),
-				resultSize,
+				scratchSize,
 				D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-				D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
+				D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 				NvidiaHelpers::kDefaultHeapProps
 			);
 			m_TopLevelASBuffers.pResult = NvidiaHelpers::CreateBuffer(m_pDeviceRef.Get(),
@@ -213,6 +212,10 @@ namespace Insight {
 			UpdateOnly,
 			m_TopLevelASBuffers.pResult.Get()
 		);
+
+		m_TopLevelASBuffers.pResult->SetName(L"Ray Tracing acceleration structure");
+		m_TopLevelASBuffers.pScratch->SetName(L"Ray Tracing acceleration structure scratch");
+		m_TopLevelASBuffers.pInstanceDesc->SetName(L"Ray Tracing acceleration structure instance desc");
 	}
 
 	void RayTraceHelpers::CreateAccelerationStructures()
@@ -253,8 +256,7 @@ namespace Insight {
 
 	void RayTraceHelpers::CreateRTPipeline()
 	{
-		IE_CORE_ASSERT(dynamic_cast<ID3D12Device5*>(m_pDeviceRef.Get()) != nullptr, "Provided device must be \"ID3D12Device5\" which is ray trace compatible.");
-		NvidiaHelpers::RayTracingPipelineGenerator Pipeline(dynamic_cast<ID3D12Device5*>(m_pDeviceRef.Get()));
+		NvidiaHelpers::RayTracingPipelineGenerator Pipeline(m_pDeviceRef.Get());
 
 		const std::wstring_view& ExeDirectory = FileSystem::GetExecutbleDirectoryW();
 		std::wstring ShaderFolder(ExeDirectory);
@@ -312,24 +314,33 @@ namespace Insight {
 
 	void RayTraceHelpers::CreateRTOutputBuffer()
 	{
-		D3D12_RESOURCE_DESC resDesc = {};
-		resDesc.DepthOrArraySize = 1;
-		resDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-		// The backbuffer is actually DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, but sRGB
-		// formats cannot be used with UAVs. For accuracy we should convert to sRGB
-		// ourselves in the shader
-		resDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-		resDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
-		resDesc.Width = static_cast<UINT64>(m_pRendererContext->GetWindowRef().GetWidth());
-		resDesc.Height = static_cast<UINT64>(m_pRendererContext->GetWindowRef().GetHeight());
-		resDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-		resDesc.MipLevels = 1;
-		resDesc.SampleDesc.Count = 1;
-		ThrowIfFailed(m_pDeviceRef->CreateCommittedResource(
-			&NvidiaHelpers::kDefaultHeapProps, D3D12_HEAP_FLAG_NONE, &resDesc,
-			D3D12_RESOURCE_STATE_COPY_SOURCE, nullptr,
-			IID_PPV_ARGS(&m_pOutputBuffer_UAV)), "Failed to create raytracing outptut buffer.");
+		m_WindowWidth = static_cast<UINT>(m_pRenderContextRef->GetWindowRef().GetWidth());
+		m_WindowHeight = static_cast<UINT>(m_pRenderContextRef->GetWindowRef().GetHeight());
+
+		D3D12_RESOURCE_DESC ResourceDesc = {};
+		ResourceDesc.DepthOrArraySize = 1;
+		ResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		ResourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		ResourceDesc.Width = static_cast<UINT64>(m_pRenderContextRef->GetWindowRef().GetWidth());
+		ResourceDesc.Height = static_cast<UINT64>(m_pRenderContextRef->GetWindowRef().GetHeight());
+		ResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+		ResourceDesc.MipLevels = 1;
+		ResourceDesc.SampleDesc.Count = 1;
+		ResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+
+		m_pOutputBuffer_UAV.Reset();
+
+		HRESULT hr = m_pDeviceRef->CreateCommittedResource(
+			&NvidiaHelpers::kDefaultHeapProps, 
+			D3D12_HEAP_FLAG_NONE, 
+			&ResourceDesc,
+			D3D12_RESOURCE_STATE_COPY_SOURCE, 
+			nullptr,
+			IID_PPV_ARGS(&m_pOutputBuffer_UAV)
+		);
+		ThrowIfFailed(hr, "Failed to create raytracing outptut buffer.");
+		m_pOutputBuffer_UAV->SetName(L"Ray Traceing Output Buffer");
 	}
 
 	void RayTraceHelpers::CreateShaderBindingTable()
@@ -382,9 +393,9 @@ namespace Insight {
 	void RayTraceHelpers::CreateShaderResourceHeap()
 	{
 		m_srvUavHeap = NvidiaHelpers::CreateDescriptorHeap(m_pDeviceRef.Get(), 4, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, true);
-
+		
 		D3D12_CPU_DESCRIPTOR_HANDLE srvHandle = m_srvUavHeap->GetCPUDescriptorHandleForHeapStart();
-		const UINT HandleIncrementSize = m_pDeviceRef->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		const UINT HandleIncrementSize = m_pDeviceRef->GetDescriptorHandleIncrementSize(m_srvUavHeap->GetDesc().Type);
 
 		// Output Buffer
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
