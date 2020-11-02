@@ -7,12 +7,10 @@
 #include "Platform/Windows/Error/COM_Exception.h"
 #include "Renderer/Platform/Windows/DirectX_12/D3D12_Helper.h"
 #include "Renderer/Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
-#include "Renderer/Platform/Windows/DirectX_12/Ray_Tracing/Ray_Trace_Helpers.h"
+#include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_Constant_Buffer_Wrapper.h"
 #include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_Screen_Quad.h"
 
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
-#include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_Constant_Buffer_Wrapper.h"
-
 #include "Renderer/Platform/Windows/DirectX_12/Render_Techniques/Render_Pass_Stack.h"
 
 /*
@@ -112,6 +110,8 @@ namespace Insight {
 		friend class Renderer;
 		friend class D3D12Helper;
 
+		friend class RayTraceHelpers;
+
 		friend class SkyPass;
 		friend class ShadowMapPass;
 		friend class DeferredLightPass;
@@ -168,7 +168,6 @@ namespace Insight {
 
 		// Ray Tracing
 		// -----------
-		inline ID3D12GraphicsCommandList4& GetRayTracePassCommandList() const { return *m_pRayTracePass_CommandList.Get(); }
 		ID3D12Resource* GetRayTracingSRV() const { return m_RayTraceOutput_SRV.Get(); }
 		[[nodiscard]] uint32_t RegisterGeometryWithRTAccelerationStucture(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat);
 		void UpdateRTAccelerationStructureMatrix(uint32_t InstanceArrIndex, DirectX::XMMATRIX NewWorldMat) { m_RayTracedShadowPass.GetRTHelper()->UpdateInstanceTransformByIndex(InstanceArrIndex, NewWorldMat); }
@@ -193,7 +192,6 @@ namespace Insight {
 		// Per-Frame
 		
 		void BindShadowPass();
-		void BindSkyPass();
 		void BindTransparencyPass();
 		void DrawDebugScreenQuad();
 		void BlurBloomBuffer();

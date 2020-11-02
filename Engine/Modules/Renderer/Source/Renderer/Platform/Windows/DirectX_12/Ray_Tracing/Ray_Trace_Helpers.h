@@ -4,6 +4,7 @@
 
 #include "DXR/nv_helpers_dx12/TopLevelASGenerator.h"
 #include "DXR/nv_helpers_dx12/ShaderBindingTableGenerator.h"
+#include "Renderer/Platform/Windows/DirectX_12/Wrappers/Descriptor_Heap_Wrapper.h"
 
 
 namespace Insight {
@@ -38,7 +39,7 @@ namespace Insight {
 		RayTraceHelpers() = default;
 		~RayTraceHelpers() = default;
 
-		bool Init(Direct3D12Context* pRendererContext);
+		bool Init(Direct3D12Context* pRendererContext, ID3D12GraphicsCommandList4* pCommandList);
 		void GenerateAccelerationStructure();
 		void Destroy();
 		void UpdateCBVs();
@@ -48,7 +49,7 @@ namespace Insight {
 
 		void UpdateInstanceTransformByIndex(uint32_t ArrIndex, DirectX::XMMATRIX UpdatedMat) { m_Instances[ArrIndex].second = UpdatedMat; }
 
-		ID3D12Resource* GetOutputBuffer() { return m_pOutputBuffer_UAV.Get(); }
+		inline ID3D12Resource* GetOutputBuffer() { return m_pOutputBuffer_UAV.Get(); }
 		uint32_t RegisterBottomLevelASGeometry(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVeticies, uint32_t NumIndices, DirectX::XMMATRIX WorldMat);
 
 	private:
@@ -73,15 +74,19 @@ namespace Insight {
 		std::vector< std::pair<ComPtr<ID3D12Resource>, uint32_t> > m_ASIndexBuffers;
 
 		ComPtr<ID3D12Device5>				m_pDeviceRef;
-		ComPtr<ID3D12GraphicsCommandList4>	m_pRayTracePass_CommandListRef;
+		ComPtr<ID3D12GraphicsCommandList4>	m_pCommandListRef;
 
 		uint32_t m_WindowWidth = 0U;
 		uint32_t m_WindowHeight = 0U;
 		Direct3D12Context* m_pRenderContextRef;
 		D3D12_DISPATCH_RAYS_DESC m_DispatchRaysDesc = {};
 
-		ComPtr<ID3D12DescriptorHeap>			m_srvUavHeap;
-		
+		// 0: Ray Tracing output buffer
+		// 1: Top-level acceleration structure
+		// 2: Camera constant buffer
+		// 3: light constant buffer
+		CDescriptorHeapWrapper				m_srvUavHeap;
+
 		ComPtr<ID3D12Resource>					m_pCameraBuffer;
 		int										m_CameraBufferSize = 0;
 		CB_RG_CameraParams						m_CBCameraParams;

@@ -251,9 +251,8 @@ namespace Insight {
 		virtual void CreateResources() override;
 
 	private:
-		RayTraceHelpers		m_RTHelper;
+		RayTraceHelpers			m_RTHelper;
 		ComPtr<ID3D12Resource>	m_pRayTraceOutput_SRV;
-
 
 	};
 

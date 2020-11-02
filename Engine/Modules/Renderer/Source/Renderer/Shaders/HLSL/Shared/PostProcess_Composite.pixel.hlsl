@@ -46,7 +46,7 @@ float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
 	
 	if (blEnabled)
 	{
-		result = AddBloom(result, ps_in.texCoords);
+		//result = AddBloom(result, ps_in.texCoords);
 	}
 	if (vnEnabled)
 	{

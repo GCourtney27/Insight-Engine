@@ -98,6 +98,7 @@ namespace Insight {
 		m_AppInitialized = true;
 	}
 
+	float g_GPUThreadFPS = 0.0f;
 	void Application::RenderThread()
 	{
 		FrameTimer GraphicsTimer;
@@ -105,7 +106,7 @@ namespace Insight {
 		while (m_Running)
 		{
 			GraphicsTimer.Tick();
-
+			g_GPUThreadFPS = GraphicsTimer.FPS();
 			Renderer::OnUpdate(GraphicsTimer.DeltaTime());
 
 			// Prepare for rendering.
@@ -144,7 +145,7 @@ namespace Insight {
 		{
 			m_FrameTimer.Tick();
 			float DeltaMs = m_FrameTimer.DeltaTime();
-			m_pWindow->SetWindowTitleFPS(m_FrameTimer.FPS());
+			m_pWindow->SetWindowTitleFPS(g_GPUThreadFPS);
 
 			// Process the window's Messages
 			m_pWindow->OnUpdate(DeltaMs);

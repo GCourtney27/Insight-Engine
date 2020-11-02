@@ -6,6 +6,7 @@
 #include "Platform/Windows/Windows_Window.h"
 #include "Insight/Runtime/Archetypes/APlayer_Character.h"
 #include "Insight/Systems/Managers/Geometry_Manager.h"
+#include "Renderer/Platform/Windows/DirectX_12/Ray_Tracing/Ray_Trace_Helpers.h"
 
 #include "Insight/Rendering/APost_Fx.h"
 #include "Insight/Rendering/ASky_Light.h"
@@ -181,6 +182,7 @@ namespace Insight {
 		m_FrameResources.m_CBPerFrame.SubmitToGPU();
 
 		//if (m_GraphicsSettings.RayTraceEnabled) m_RTHelper.UpdateCBVs();
+		if (m_GraphicsSettings.RayTraceEnabled) m_RayTracedShadowPass.GetRTHelper()->UpdateCBVs();
 
 
 		// Send Point Lights to GPU
@@ -350,8 +352,6 @@ namespace Insight {
 
 		//BindLightingPass();
 		
-		BindSkyPass();
-
 #if BLOOM_ENABLED
 		BlurBloomBuffer();
 #endif // BLOOM_ENABLED
@@ -360,27 +360,6 @@ namespace Insight {
 
 		//DrawDebugScreenQuad();
 
-	}
-
-	void Direct3D12Context::BindSkyPass()
-	{
-		RETURN_IF_WINDOW_NOT_VISIBLE;
-
-		//ResourceBarrier(m_pScenePass_CommandList.Get(), m_pSceneDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-		PIXBeginEvent(m_pScenePass_CommandList.Get(), 0, L"Rendering Sky Pass");
-		{
-			if (m_pSkySphere) {
-
-				//ResourceBarrier(m_pScenePass_CommandList.Get(), m_pRenderTargetTextures[4].Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
-				m_pScenePass_CommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), TRUE, &m_dsvHeap.hCPU(0));
-
-				m_pScenePass_CommandList->SetPipelineState(m_pSkyPass_PSO.Get());
-
-				m_pSkySphere->RenderSky();
-				//ResourceBarrier(m_pScenePass_CommandList.Get(), m_pRenderTargetTextures[4].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-			}
-		}
-		PIXEndEvent(m_pScenePass_CommandList.Get());
 	}
 
 	void Direct3D12Context::BindTransparencyPass()
@@ -1490,7 +1469,8 @@ namespace Insight {
 	{
 		// Generate the acceleration structures for the ray tracer
 		//if (m_GraphicsSettings.RayTraceEnabled) m_RTHelper.GenerateAccelerationStructure();
-		if (m_GraphicsSettings.RayTraceEnabled) m_RayTracedShadowPass.GetRTHelper()->GenerateAccelerationStructure();
+		if (m_GraphicsSettings.RayTraceEnabled) 
+			m_RayTracedShadowPass.GetRTHelper()->GenerateAccelerationStructure();
 
 		m_pScenePass_CommandList->Close();
 		m_pRayTracePass_CommandList->Close();

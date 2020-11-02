@@ -326,7 +326,6 @@ namespace Insight {
 				m_pCommandListRef->ClearRenderTargetView(m_RTVHeap.hCPU(i), m_ScreenClearColor, 0, nullptr);
 
 			// Set the render targets and depth stencil for this pass.
-			//m_pCommandListRef->OMSetRenderTargets(m_NumRenderTargets, &m_RTVHeap.hCPUHeapStart, FALSE, false);
 			D3D12_CPU_DESCRIPTOR_HANDLE pRTVHandles[] = { m_RTVHeap.hCPU(0), m_RTVHeap.hCPU(1) };
 			m_pCommandListRef->OMSetRenderTargets(_countof(pRTVHandles), pRTVHandles, FALSE, nullptr);
 			m_pCommandListRef->RSSetScissorRects(1, &m_pRenderContextRef->GetClientScissorRect());
@@ -339,8 +338,9 @@ namespace Insight {
 			// Bind resources to the pipeline.
 			m_pCommandListRef->SetGraphicsRootDescriptorTable(17, m_pCBVSRVHeapRef->hGPU(6)); // Ray Trace Result
 			m_pCommandListRef->SetGraphicsRootDescriptorTable(11, m_pCBVSRVHeapRef->hGPU(7)); // Shadow Depth
-			m_pCommandListRef->SetGraphicsRootDescriptorTable(5, m_pCBVSRVHeapRef->hGPU(0)); // G-Buffer
-			if (m_pSkyLightRef) m_pSkyLightRef->BindCubeMaps(true);
+			m_pCommandListRef->SetGraphicsRootDescriptorTable(5,  m_pCBVSRVHeapRef->hGPU(0)); // G-Buffer
+			if (m_pSkyLightRef) 
+				m_pSkyLightRef->BindCubeMaps(true);
 
 			// Render.
 			g_ScreenQuad.OnRender(m_pCommandListRef);
@@ -764,11 +764,6 @@ namespace Insight {
 	{
 		PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Rendering Ray Trace Pass");
 		{
-			m_pRenderContextRef->SetActiveCommandList(m_pCommandListRef);
-
-			// TEMP
-			m_RTHelper.UpdateCBVs();
-
 			m_RTHelper.SetCommonPipeline();
 			m_RTHelper.TraceScene();
 
@@ -794,11 +789,13 @@ namespace Insight {
 
 	void RayTracedShadowsPass::LoadPipeline()
 	{
-		m_RTHelper.Init(m_pRenderContextRef);
+		m_RTHelper.Init(m_pRenderContextRef, reinterpret_cast<ID3D12GraphicsCommandList4*>(m_pCommandListRef.Get()));
 	}
 
 	void RayTracedShadowsPass::CreateResources()
 	{
+		m_pRayTraceOutput_SRV.Reset();
+
 		ID3D12Device* pDevice = &m_pRenderContextRef->GetDeviceContext();
 		const UINT WindowWidth = static_cast<UINT>(m_pRenderContextRef->GetWindowRef().GetWidth());
 		const UINT WindowHeight = static_cast<UINT>(m_pRenderContextRef->GetWindowRef().GetHeight());
@@ -816,8 +813,6 @@ namespace Insight {
 		ResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 		ResourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-		m_pRayTraceOutput_SRV.Reset();
-
 		// Ray Trace Pass Result SRV
 		HRESULT hr = pDevice->CreateCommittedResource(
 			&DefaultHeapProps,
@@ -827,7 +822,7 @@ namespace Insight {
 			NULL, 
 			IID_PPV_ARGS(&m_pRayTraceOutput_SRV)
 		);
-		ThrowIfFailed(hr, "Failed to create ray trace output srv.");
+		ThrowIfFailed(hr, "Failed to create ray trace output SRV.");
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
 		SRVDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;

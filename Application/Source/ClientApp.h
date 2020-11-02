@@ -211,13 +211,14 @@ namespace SandBoxApp {
 		{
 			using namespace Insight::Runtime;
 			using namespace Insight;
-
+			
 			// Wooden Floor
 			Insight::Material* pWood = new Insight::Material({ 1, 2, 3, 4, 5 });
 			pWood->SetUVTilingOffset(9.0f, 9.0f);
 			AActor* pAWoodenFloor = new AActor(0, "Wooden Floor");
 			SceneComponent* pSCWoodenFloor = pAWoodenFloor->CreateDefaultSubobject<SceneComponent>();
-			pSCWoodenFloor->SetScale(500.0f);
+			pSCWoodenFloor->SetScale(1000.0f);
+			pSCWoodenFloor->SetPosition(0.0f, -20.0f, 0.0f);
 			StaticMeshComponent* pSMQuad = pAWoodenFloor->CreateDefaultSubobject<StaticMeshComponent>();
 			pSMQuad->SetMaterial(pWood);
 			pSMQuad->AttachMesh("Models/Quad.obj");
