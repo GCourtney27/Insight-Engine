@@ -5,7 +5,7 @@
 #include "Platform/Windows/Error/COM_Exception.h"
 
 
-using Microsoft::WRL::ComPtr;
+
 
 namespace Insight {
 

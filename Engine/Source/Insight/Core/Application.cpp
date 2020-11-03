@@ -20,7 +20,7 @@
 // DemoScene
 // MultipleLights
 static const char* ProjectName = "Development-Project";
-static const char* TargetSceneName = "Norway.iescene";
+static const char* TargetSceneName = "Debug.iescene";
 
 namespace Insight {
 
@@ -107,6 +107,7 @@ namespace Insight {
 		{
 			GraphicsTimer.Tick();
 			g_GPUThreadFPS = GraphicsTimer.FPS();
+
 			Renderer::OnUpdate(GraphicsTimer.DeltaTime());
 
 			// Prepare for rendering.
@@ -228,7 +229,7 @@ namespace Insight {
 		Dispatcher.Dispatch<AppScriptReloadEvent>(IE_BIND_EVENT_FN(Application::ReloadScripts));
 		Dispatcher.Dispatch<ShaderReloadEvent>(IE_BIND_EVENT_FN(Application::ReloadShaders));
 
-		// Process event callbacks.
+		// Process input event callbacks.
 		m_InputDispatcher.ProcessInputEvent(e);
 
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
@@ -247,12 +248,15 @@ namespace Insight {
 	bool Application::OnWindowResize(WindowResizeEvent& e)
 	{
 		m_pWindow->Resize(e.GetWidth(), e.GetHeight(), e.GetIsMinimized());
+		Renderer::PushEvent<WindowResizeEvent>(e);
+
 		return true;
 	}
 
 	bool Application::OnWindowFullScreen(WindowToggleFullScreenEvent& e)
 	{
 		m_pWindow->ToggleFullScreen(e.GetFullScreenEnabled());
+		Renderer::PushEvent<WindowToggleFullScreenEvent>(e);
 		return true;
 	}
 
@@ -285,7 +289,8 @@ namespace Insight {
 
 	bool Application::ReloadShaders(ShaderReloadEvent& e)
 	{
-		Renderer::OnShaderReload();
+		//Renderer::OnShaderReload();
+		Renderer::PushEvent<ShaderReloadEvent>(e);
 		return true;
 	}
 

@@ -11,7 +11,7 @@ namespace Insight {
 
 	class Direct3D12Context;
 
-	using Microsoft::WRL::ComPtr;
+	
 	namespace NvidiaHelpers = nv_helpers_dx12;
 
 	class INSIGHT_API RayTraceHelpers

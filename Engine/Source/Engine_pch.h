@@ -94,6 +94,9 @@
 	#include <DirectXMath.h>
 	#include <D3Dcompiler.h>
 	
+	using Microsoft::WRL::ComPtr;
+
+
 #endif // IE_PLATFORM_WINDOWS
 
 // === Mac === //

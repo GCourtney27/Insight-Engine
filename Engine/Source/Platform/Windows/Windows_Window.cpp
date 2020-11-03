@@ -585,13 +585,11 @@ namespace Insight {
 	{
 		m_Data.Width = newWidth;
 		m_Data.Height = newHeight;
-		Renderer::SetWindowWidthAndHeight(newWidth, newHeight, isMinimized);
 	}
 
 	void WindowsWindow::ToggleFullScreen(bool enabled)
 	{
 		m_Data.FullScreenEnabled = enabled;
-		Renderer::OnWindowFullScreen();
 	}
 
 	bool WindowsWindow::ProccessWindowMessages()

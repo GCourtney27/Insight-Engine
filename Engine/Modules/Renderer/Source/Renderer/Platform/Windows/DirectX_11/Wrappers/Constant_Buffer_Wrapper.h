@@ -3,7 +3,7 @@
 
 #include "Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
 
-using Microsoft::WRL::ComPtr;
+
 
 template<class ConstantBufferType>
 class ConstantBuffer

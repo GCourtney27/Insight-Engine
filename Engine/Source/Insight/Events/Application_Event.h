@@ -6,7 +6,7 @@ namespace Insight {
 
 
 
-	class INSIGHT_API WindowResizeEvent : public Event
+	class INSIGHT_API WindowResizeEvent : public RendererEvent
 	{
 	public:
 		WindowResizeEvent(unsigned int width, unsigned int height, bool minimized)
@@ -30,7 +30,7 @@ namespace Insight {
 		bool m_Minimized;
 	};
 
-	class INSIGHT_API WindowToggleFullScreenEvent : public Event
+	class INSIGHT_API WindowToggleFullScreenEvent : public RendererEvent
 	{
 	public:
 		WindowToggleFullScreenEvent(bool enabled) 
@@ -145,7 +145,7 @@ namespace Insight {
 			EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
-	class INSIGHT_API ShaderReloadEvent : public Event
+	class INSIGHT_API ShaderReloadEvent : public RendererEvent
 	{
 	public:
 		ShaderReloadEvent() {}

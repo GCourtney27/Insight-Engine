@@ -6,7 +6,7 @@
 
 namespace Insight {
 
-	using Microsoft::WRL::ComPtr;
+	
 
 	class INSIGHT_API D3D12IndexBuffer : public ieIndexBuffer
 	{

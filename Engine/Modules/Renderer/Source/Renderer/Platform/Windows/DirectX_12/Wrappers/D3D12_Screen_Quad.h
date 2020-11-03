@@ -2,7 +2,7 @@
 
 #include <Insight/Core.h>
 
-using Microsoft::WRL::ComPtr;
+
 
 namespace Insight {
 

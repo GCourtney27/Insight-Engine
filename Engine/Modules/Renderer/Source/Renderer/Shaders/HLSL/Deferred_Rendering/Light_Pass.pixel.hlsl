@@ -87,8 +87,8 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
         {
             float4 fragPosLightSpace = mul(mul(float4(worldPosition, 1.0), dirLight.lightSpaceView), dirLight.lightSpaceProj);
             shadow = ShadowCalculation(fragPosLightSpace, normal, lightDir);
-            //shadow *= dirLight.shadowDarknessMultiplier;
 
+            // Visuaize RT shadow map
             //ps_out.LitImage = float4(shadow, shadow, shadow, 1.0);
             //return ps_out;
         }
@@ -132,7 +132,7 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
         ps_out.BloomBuffer.rgb = pixelColor;
     else
         ps_out.BloomBuffer.rgb = float3(0.0, 0.0, 0.0);
-
+    
     // Color Correction
     //HDRToneMap(pixelColor);
     //GammaCorrect(pixelColor);

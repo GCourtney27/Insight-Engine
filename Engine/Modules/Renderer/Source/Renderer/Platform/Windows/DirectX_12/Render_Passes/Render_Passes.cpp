@@ -10,7 +10,12 @@
 namespace Insight {
 
 
+	// Global Helpers
 	D3D12ScreenQuad g_ScreenQuad;
+	GaussianBlurHelper g_GaussianBlurHelper;
+	ThresholdDownSampleHelper g_DownSampleHelper;
+
+
 
 
 	/*===========================*/
@@ -35,7 +40,7 @@ namespace Insight {
 
 			// Clear the render targets.
 			for (uint8_t i = 0; i < m_NumRenderTargets; ++i)
-				m_pCommandListRef->ClearRenderTargetView(m_RTVHeap.hCPU(i), m_ScreenClearColor, 0, nullptr);
+				m_pCommandListRef->ClearRenderTargetView(m_RTVHeap.hCPU(i), s_ScreenClearColor, 0, nullptr);
 
 			// Clear the Depth Stencil View.
 			m_pCommandListRef->ClearDepthStencilView(m_DSVHeap.hCPU(0), D3D12_CLEAR_FLAG_DEPTH, m_DepthClearValue, 0xFF, 0, nullptr);
@@ -195,7 +200,7 @@ namespace Insight {
 
 		D3D12_CLEAR_VALUE ClearVal;
 		for (uint8_t i = 0; i < m_NumRenderTargets; i++)
-			ClearVal.Color[i] = m_ScreenClearColor[i];
+			ClearVal.Color[i] = s_ScreenClearColor[i];
 
 		// Create memory for the buffers on the GPU.
 		for (uint8_t i = 0; i < m_NumRenderTargets; i++)
@@ -323,7 +328,7 @@ namespace Insight {
 
 			// Clear the render targets.
 			for (uint8_t i = 0; i < m_NumRenderTargets; ++i)
-				m_pCommandListRef->ClearRenderTargetView(m_RTVHeap.hCPU(i), m_ScreenClearColor, 0, nullptr);
+				m_pCommandListRef->ClearRenderTargetView(m_RTVHeap.hCPU(i), s_ScreenClearColor, 0, nullptr);
 
 			// Set the render targets and depth stencil for this pass.
 			D3D12_CPU_DESCRIPTOR_HANDLE pRTVHandles[] = { m_RTVHeap.hCPU(0), m_RTVHeap.hCPU(1) };
@@ -469,7 +474,7 @@ namespace Insight {
 
 		D3D12_CLEAR_VALUE ClearVal;
 		for (uint8_t i = 0; i < 4; i++)
-			ClearVal.Color[i] = m_ScreenClearColor[i];
+			ClearVal.Color[i] = s_ScreenClearColor[i];
 
 		for (uint8_t i = 0; i < m_NumRenderTargets; i++)
 		{
@@ -652,7 +657,7 @@ namespace Insight {
 			// Make sure we can read from the depth buffer.
 			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pSceneDepthTextureRef.Get(), IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_DEPTH_READ);
 
-			m_pCommandListRef->ClearRenderTargetView(m_pRenderContextRef->GetSwapChainRTV(), m_ScreenClearColor, 0, nullptr);
+			m_pCommandListRef->ClearRenderTargetView(m_pRenderContextRef->GetSwapChainRTV(), s_ScreenClearColor, 0, nullptr);
 
 			// Set the render target and rasterizer settings.
 			m_pCommandListRef->OMSetRenderTargets(1, &m_pRenderContextRef->GetSwapChainRTV(), TRUE, nullptr);
@@ -831,6 +836,39 @@ namespace Insight {
 		SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		SRVDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		pDevice->CreateShaderResourceView(m_pRayTraceOutput_SRV.Get(), &SRVDesc, m_pCBVSRVHeapRef->hCPU(6));
+	}
+
+	bool BloomPass::Set(FrameResources* pFrameResources)
+	{
+		PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Computing Bloom Blur Pass");
+		{
+
+		}
+		PIXEndEvent(m_pCommandListRef.Get());
+
+		return true;
+	}
+
+	void BloomPass::UnSet(FrameResources* pFrameResources)
+	{
+	}
+
+	bool BloomPass::InternalCreate()
+	{
+		LoadPipeline();
+		CreateResources();
+
+		return false;
+	}
+
+	void BloomPass::LoadPipeline()
+	{
+		ID3D12Device* pDevice = &m_pRenderContextRef->GetDeviceContext();
+
+	}
+
+	void BloomPass::CreateResources()
+	{
 	}
 
 }

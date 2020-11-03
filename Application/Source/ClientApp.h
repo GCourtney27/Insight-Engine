@@ -212,8 +212,8 @@ namespace SandBoxApp {
 			using namespace Insight::Runtime;
 			using namespace Insight;
 			
-			Norway();
-			return;
+			//Norway();
+			//return;
 
 			// Wooden Floor
 			Insight::Material* pWood = new Insight::Material({ 1, 2, 3, 4, 5 });

@@ -9,6 +9,7 @@
 #include "Insight/Rendering/Geometry/Index_Buffer.h"
 
 #include "Renderer/Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
+#include "Insight/Events/Event.h"
 
 /*
 	Represents a base for a graphics context the application will use for rendering.
@@ -81,7 +82,13 @@ namespace Insight {
 		// Submit initilize commands to the GPU.
 		static inline bool PostInit() { return s_Instance->PostInit_Impl(); }
 		// Upload per-frame constants to the GPU as well as lighting information.
-		static inline void OnUpdate(const float DeltaMs) { s_Instance->OnUpdate_Impl(DeltaMs); }
+		static inline void OnUpdate(const float DeltaMs) 
+		{
+			// Process any events that eed to take place before the start of this frame.
+			s_Instance->HandleEvents();
+			// Then update.
+			s_Instance->OnUpdate_Impl(DeltaMs); 
+		}
 		// Flush the command allocators and clear render targets.
 		static inline void OnPreFrameRender() { s_Instance->OnPreFrameRender_Impl(); }
 		// Draws shadow pass first then binds geometry pass for future draw commands.
@@ -92,20 +99,53 @@ namespace Insight {
 		static inline void ExecuteDraw() { s_Instance->ExecuteDraw_Impl(); }
 		// Swap buffers with the new frame.
 		static inline void SwapBuffers() { s_Instance->SwapBuffers_Impl(); }
+		
+		//-----------------
+		// Event Handling  |
+		//-----------------
+
 		// Resize render target, depth stencil and sreen rects when window size is changed.
-		static inline void OnWindowResize() { s_Instance->OnWindowResize_Impl(); }
+		inline bool OnWindowResize(WindowResizeEvent& e) 
+		{
+			s_Instance->m_WindowWidth = e.GetWidth();
+			s_Instance->m_WindowHeight = e.GetHeight();
+			s_Instance->m_IsMinimized = e.GetIsMinimized();
+			s_Instance->m_AspectRatio = static_cast<float>(s_Instance->m_WindowWidth) / static_cast<float>(s_Instance->m_WindowHeight);
+			s_Instance->OnWindowResize_Impl();
+			return true;
+		}
 		// Tells the swapchain to enable full screen rendering.
-		static inline void OnWindowFullScreen() { s_Instance->OnWindowFullScreen_Impl(); }
+		inline bool OnWindowFullScreen(WindowToggleFullScreenEvent& e) { s_Instance->OnWindowFullScreen_Impl(); return true; }
 		// Reloads all shaders
-		static inline void OnShaderReload() { s_Instance->OnShaderReload_Impl(); }
+		inline bool OnShaderReload(ShaderReloadEvent& e) { s_Instance->OnShaderReload_Impl(); return true; }
+		// Push an event to the renderers queue. Window resize events, shader resload events etc. 
+		// Before each fram the renderer ill handle all events in the queue before proessing a frame, 
+		// eliminateing the possibility of the Game thread modifying resources the Render thread is using mid frame.
+		template <class EventType>
+		static void PushEvent(EventType& e)
+		{ 
+			if constexpr (std::is_same<EventType, WindowResizeEvent>::value)
+			{
+				s_Instance->m_WindowResizeEventQueue.push(e);
+			}
+			if constexpr (std::is_same<EventType, WindowToggleFullScreenEvent>::value)
+			{
+				s_Instance->m_WindowFullScreenEventQueue.push(e);
+			}
+			if constexpr (std::is_same<EventType, ShaderReloadEvent>::value)
+			{
+				s_Instance->m_ShaderReloadEventQueue.push(e);
+			}
+
+		}
+
+
 
 		// Set the graphics settings for the context
 		static void SetGraphicsSettings(GraphicsSettings GraphicsSettings) { s_Instance->m_GraphicsSettings = GraphicsSettings; }
 		// Get the current graphics settings the renderer is using.
 		static GraphicsSettings GetGraphicsSettings() { return s_Instance->m_GraphicsSettings; }
-
 		static void SetRenderPass(RenderPassType RenderPass) { s_Instance->m_RenderPass = RenderPass; }
-
 		static void SetVertexBuffers(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) { s_Instance->SetVertexBuffers_Impl(StartSlot, NumBuffers, pBuffers); }
 		static void SetIndexBuffer(ieIndexBuffer* pBuffer) { s_Instance->SetIndexBuffer_Impl(pBuffer); }
 		static void DrawIndexedInstanced(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) { s_Instance->DrawIndexedInstanced_Impl(IndexCountPerInstance, NumInstances, StartIndexLocation, BaseVertexLoaction, StartInstanceLocation); }
@@ -118,14 +158,6 @@ namespace Insight {
 		inline static eTargetRenderAPI GetAPI() { return s_Instance->m_GraphicsSettings.TargetRenderAPI; }
 		inline static uint8_t GetFrameBufferCount() { return s_Instance->m_FrameBufferCount; }
 		inline static void SetVSyncEnabled(bool enabled) { s_Instance->m_VSyncEnabled = enabled; }
-		inline static void SetWindowWidthAndHeight(UINT width, UINT height, bool isMinimized) 
-		{ 
-			s_Instance->m_WindowWidth = width;
-			s_Instance->m_WindowHeight = height;
-			s_Instance->m_IsMinimized = isMinimized;
-			s_Instance->m_AspectRatio = static_cast<float>(s_Instance->m_WindowWidth) / static_cast<float>(s_Instance->m_WindowHeight);
-			s_Instance->OnWindowResize();
-		}
 		static void SetActiveCamera(Runtime::ACamera* pCamera) { s_Instance->m_pWorldCameraRef = pCamera; }
 
 		CB_PS_DirectionalLight GetDirectionalLightCB() const;
@@ -177,7 +209,10 @@ namespace Insight {
 
 	protected:
 		Renderer(uint32_t windowWidth, uint32_t windowHeight, bool vSyncEabled);
+
 		void SetIsRayTraceSupported(bool Supported) { m_IsRayTraceSupported = Supported; }
+
+		void HandleEvents();
 
 	protected:
 		RenderPassType m_RenderPass = RenderPassType::RenderPassType_Scene;
@@ -195,7 +230,7 @@ namespace Insight {
 		bool m_WindowVisible = true;
 		
 		bool m_AllowTearing = true;
-		bool m_IsRayTraceSupported = false; // Assume ray tracing is not supported on the GPU
+		bool m_IsRayTraceSupported = false; // Assume real-time ray tracing is not supported on the GPU.
 
 		std::vector<APointLight*> m_PointLights;
 		ADirectionalLight* m_pWorldDirectionalLight;
@@ -206,6 +241,10 @@ namespace Insight {
 		APostFx* m_pPostFx = nullptr;
 
 		Runtime::ACamera* m_pWorldCameraRef = nullptr;
+
+		std::queue<WindowResizeEvent> m_WindowResizeEventQueue;
+		std::queue<WindowToggleFullScreenEvent> m_WindowFullScreenEventQueue;
+		std::queue<ShaderReloadEvent> m_ShaderReloadEventQueue;
 
 	private:
 		static Renderer* s_Instance;

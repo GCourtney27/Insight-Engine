@@ -11,7 +11,7 @@
 #include "Platform/Windows/DirectX_11/D3D11_Deferred_Tech.h"
 
 
-using Microsoft::WRL::ComPtr;
+
 
 namespace Insight {
 

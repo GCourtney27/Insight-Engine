@@ -5,10 +5,11 @@
 #include "Renderer/Platform/Windows/DirectX_12/Wrappers/Descriptor_Heap_Wrapper.h"
 #include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_Constant_Buffer_Wrapper.h"
 #include "Renderer/Platform/Windows/DirectX_12/Ray_Tracing/Ray_Trace_Helpers.h"
+#include "Renderer/Platform/Windows/DirectX_12/Render_Passes/Helpers/Pass_Helpers.h"
 
 namespace Insight {
 
-	using Microsoft::WRL::ComPtr;
+	
 
 	class Direct3D12Context;
 	class FrameResources;
@@ -18,6 +19,8 @@ namespace Insight {
 	public:
 		friend class RenderPassStack;
 	public:
+
+		// Assign variables and initialize the components of the render pass.
 		bool Create(Direct3D12Context* pRenderContext, CDescriptorHeapWrapper* pCBVSRVHeapRef, ID3D12GraphicsCommandList* pCommandList, ID3D12RootSignature* pRootSignature)
 		{
 			m_pRenderContextRef = pRenderContext;
@@ -28,45 +31,58 @@ namespace Insight {
 			return InternalCreate();
 		}
 
+		// Render the pass.
 		inline void Render(FrameResources* pFrameResources)
 		{
 			this->Set(pFrameResources);
 			this->UnSet(pFrameResources);
 		}
 
-		void ReloadShaders() 
-		{
-			this->LoadPipeline();
-		}
-		void ResizeBuffers() 
-		{
-			this->CreateResources();
-		}
-		
+		// Reload the shaders and pipeline associated with this pass.
+		inline void ReloadShaders() { this->LoadPipeline(); }
 
+		// Resize and/or recreate any resoures this pass contains.
+		inline void ResizeBuffers() { this->CreateResources(); }
+		
 	protected:
 		RenderPass()			= default;
 		virtual ~RenderPass()	= default;
 
+		// Bind the pass for rendering.
 		virtual bool Set(FrameResources* pFrameResources) = 0;
+		// Unbind the pass for rendering and resotore any resoures to their generic state for other passes.
 		virtual void UnSet(FrameResources* pFrameResources) = 0;
 
+		// Hlepr function fo initializing the pass.
 		virtual bool InternalCreate() = 0;
+		// Load the pipeline state for the pas.
 		virtual void LoadPipeline() = 0;
+		// Create any resoures the pass needs.
 		virtual void CreateResources() = 0;
 
+		// Called when the pass is attached to the render pass stack.
 		virtual void OnStackAttach() {}
+		// Called when the pass is detached from the render pass stack.
 		virtual void OnStackDetach() {}
 
 	protected:
+		// Reference to the render context.
 		Direct3D12Context*					m_pRenderContextRef = nullptr;
+		// Reference to the GPU memory for the resources in the application.
 		CDescriptorHeapWrapper*				m_pCBVSRVHeapRef = nullptr;
+		// Reference Command list used to execure commands assocaiated with this pass.
 		ComPtr<ID3D12GraphicsCommandList>	m_pCommandListRef;
+		// Reference to the shader root siganture this pass will exeute with.
 		ComPtr<ID3D12RootSignature>			m_pRootSignatureRef;
 
+		// The state of the pipeline including which shaders get exected.
 		ComPtr<ID3D12PipelineState> m_pPipelineState;
-		const float					m_ScreenClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		// Clear color for all buffers the render passes will clear to.
+		static constexpr float					s_ScreenClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
+		// The genreric state all resources will be bind to/from when they are finished to resources.
+		// Execution of a resource could happen from any pass, "ResourceBarrier'ing to this state will
+		// insure there are no state conflics.
 		static const D3D12_RESOURCE_STATES IE_D3D12_DEFAULT_RESOURCE_STATE = D3D12_RESOURCE_STATE_COMMON;
 	};
 
@@ -257,15 +273,54 @@ namespace Insight {
 	};
 
 
-	/*===================================*/
-	/*		Shadow Map Shadows Pass		 */
-	/*===================================*/
+	/*===========================*/
+	/*		Shadow Map Pass		 */
+	/*===========================*/
 
 	class ShadowMapPass : public RenderPass
 	{
+	public:
+		ShadowMapPass() = default;
+		~ShadowMapPass() = default;
+
+	protected:
+		virtual bool Set(FrameResources * pFrameResources) override;
+		virtual void UnSet(FrameResources * pFrameResources) override;
+
+		virtual bool InternalCreate() override;
+		virtual void LoadPipeline() override;
+		virtual void CreateResources() override;
+	};
+
+
+	/*===========================*/
+	/*		Shadow Map Pass		 */
+	/*===========================*/
+	class BloomPass : public RenderPass
+	{
+	public:
+		BloomPass() = default;
+		~BloomPass() = default;
+
+	protected:
+
+		virtual bool Set(FrameResources * pFrameResources) override;
+		virtual void UnSet(FrameResources * pFrameResources) override;
+
+		virtual bool InternalCreate() override;
+		virtual void LoadPipeline() override;
+		virtual void CreateResources() override;
+		
+	private:
 
 	};
 
+
+
+	class ThresholdDownSamplePass : public RenderPass
+	{
+
+	};
 
 	/*=======================================*/
 	/*		Post-Process Composite Pass		 */

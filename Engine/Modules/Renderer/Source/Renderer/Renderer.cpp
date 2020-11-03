@@ -1,3 +1,4 @@
+#include "Renderer.h"
 #include <Renderer_pch.h>
 
 #include "Renderer.h"
@@ -15,6 +16,25 @@ namespace Insight {
 	Renderer::Renderer(uint32_t windowWidth, uint32_t windowHeight, bool vSyncEabled)
 		: m_WindowWidth(windowWidth), m_WindowHeight(windowHeight), m_VSyncEnabled(vSyncEabled)
 	{
+	}
+
+	void Renderer::HandleEvents()
+	{
+		while(s_Instance->m_WindowResizeEventQueue.size() != 0)
+		{
+			s_Instance->OnWindowResize(s_Instance->m_WindowResizeEventQueue.front());
+			s_Instance->m_WindowResizeEventQueue.pop();
+		}
+		while (s_Instance->m_ShaderReloadEventQueue.size() != 0)
+		{
+			s_Instance->OnShaderReload(s_Instance->m_ShaderReloadEventQueue.front());
+			s_Instance->m_ShaderReloadEventQueue.pop();
+		}
+		while (s_Instance->m_WindowFullScreenEventQueue.size() != 0)
+		{
+			s_Instance->OnWindowFullScreen(s_Instance->m_WindowFullScreenEventQueue.front());
+			s_Instance->m_WindowFullScreenEventQueue.pop();
+		}
 	}
 
 	Renderer::~Renderer()

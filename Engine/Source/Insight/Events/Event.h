@@ -76,6 +76,17 @@ namespace Insight {
 		InputEventType m_Status;
 	};
 
+	class INSIGHT_API RendererEvent : public Event
+	{
+	public:
+		RendererEvent() = default;
+		~RendererEvent() = default;
+
+		virtual EventType GetEventType() const override { return EventType::AppRender; }
+		virtual const char* GetName() const override { return "Default Render Event Type"; }
+		virtual int GetCategoryFlags() const override { return -1; }
+	};
+
 	class EventDispatcher
 	{
 		template<typename Event>

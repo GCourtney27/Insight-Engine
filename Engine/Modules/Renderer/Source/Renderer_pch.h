@@ -19,6 +19,7 @@
 #include <functional>
 #include <unordered_map>
 #include <unordered_set>
+#include <variant>
 
 #if _MSC_VER >= 1700
 using std::shared_ptr;
@@ -108,6 +109,9 @@ using std::tr1::dynamic_pointer_cast;
 #include <wincodec.h>
 #include <DirectXMath.h>
 #include <D3Dcompiler.h>
+
+using Microsoft::WRL::ComPtr;
+
 
 #endif // IE_PLATFORM_WINDOWS
 

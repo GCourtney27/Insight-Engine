@@ -11,20 +11,18 @@
 #include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_Screen_Quad.h"
 
 #include "Insight/Rendering/Lighting/ADirectional_Light.h"
-#include "Renderer/Platform/Windows/DirectX_12/Render_Techniques/Render_Pass_Stack.h"
+#include "Renderer/Platform/Windows/DirectX_12/Render_Passes/Render_Pass_Stack.h"
 
 /*
 	Render context for Windows Direct3D 12 API. 
 */
 
-using Microsoft::WRL::ComPtr;
+
 
 #define IE_D3D12_FrameIndex m_d3dDeviceResources.GetFrameIndex()
 
 
 namespace Insight {
-
-
 
 
 	class FrameResources
@@ -119,6 +117,8 @@ namespace Insight {
 		friend class RayTracedShadowsPass;
 		friend class PostProcessCompositePass;
 		friend class RayTracedShadowsPass;
+		friend class BloomPass;
+
 	public:
 		virtual bool Init_Impl() override;
 		virtual void Destroy_Impl() override;
@@ -236,6 +236,7 @@ namespace Insight {
 		DeferredLightPass			m_LightPass;
 		RayTracedShadowsPass		m_RayTracedShadowPass;
 		SkyPass						m_SkyPass;
+		BloomPass					m_BloomPass;
 		PostProcessCompositePass	m_PostProcessCompositePass;
 
 

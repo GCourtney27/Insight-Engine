@@ -7,7 +7,7 @@
 
 namespace Insight {
 
-	using Microsoft::WRL::ComPtr;
+	
 
 	template <typename ConstantBufferType>
 	class D3D12ConstantBuffer

@@ -112,6 +112,10 @@ namespace Insight {
 						m_SkyPass.SetSkySphereRef(m_pSkySphere);
 						m_RenderPassStack.PushPass(&m_SkyPass);
 
+						// Create the Bloom Pass ad push it to the render stack.
+						//m_BloomPass.Create(this, &m_cbvsrvHeap, nullptr, m_pBloomPass_RS.Get());
+						//m_RenderPassStack.PushPassOverlay(&m_BloomPass);
+
 						// Create the Post Process Composite Pass ad push it to the render stack.
 						m_PostProcessCompositePass.Create(this, &m_cbvsrvHeap, m_pPostEffectsPass_CommandList.Get(), m_pDeferredShadingPass_RS.Get());
 						m_PostProcessCompositePass.SetSceneDepthTextureRef(m_GeometryPass.GetSceneDepthTexture());
@@ -561,11 +565,6 @@ namespace Insight {
 				m_WindowResizeComplete = false;
 
 				m_d3dDeviceResources.WaitForGPU();
-
-				BOOL FullScreenState;
-				m_d3dDeviceResources.GetSwapChain().GetFullscreenState(&FullScreenState, nullptr);
-				m_WindowedMode = !FullScreenState;
-				m_d3dDeviceResources.SetFrameIndex(m_d3dDeviceResources.GetSwapChain().GetCurrentBackBufferIndex());
 
 
 				UpdateSizeDependentResources();
@@ -1491,6 +1490,7 @@ namespace Insight {
 	{
 		// Re-Create Render Targets
 		{
+			// Resize the buffers in the render stack
 			m_RenderPassStack.ReloadBuffers();
 
 			uint8_t NumGBuffers = m_GeometryPass.GetNumGBuffers();
@@ -1508,11 +1508,16 @@ namespace Insight {
 
 			m_PostProcessCompositePass.SetSceneDepthTextureRef(m_GeometryPass.GetSceneDepthTexture());
 
+			// Resize the Swapchain
 			for (uint8_t i = 0; i < m_FrameBufferCount; ++i)
 				m_pSwapChainRenderTargets[i].Reset();
 
 			m_d3dDeviceResources.ResizeResources();
 			CreateSwapChainRTVDescriptorHeap();
+			BOOL FullScreenState;
+			m_d3dDeviceResources.GetSwapChain().GetFullscreenState(&FullScreenState, nullptr);
+			m_WindowedMode = !FullScreenState;
+			m_d3dDeviceResources.SetFrameIndex(m_d3dDeviceResources.GetSwapChain().GetCurrentBackBufferIndex());
 		}
 
 		// Re-Create Depth Stencil View

@@ -4,7 +4,7 @@
 
 namespace Insight {
 
-	using Microsoft::WRL::ComPtr;
+	
 
 	class ieD3D12SphereRenderer
 	{
