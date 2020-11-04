@@ -16,10 +16,10 @@ SamplerState s_LinearWrapSampler : register(s1);
 
 struct PS_OUTPUT_GEOMPASS
 {
-    float3 albedo               : SV_Target0;
-    float4 normal               : SV_Target1;
-    float3 roughnessMetallicAO  : SV_Target2;
-    float4 position             : SV_Target3;
+    float3 albedo                   : SV_Target0;
+    float4 normal                   : SV_Target1;
+    float4 roughnessMetallicAOSpec  : SV_Target2;
+    float4 position                 : SV_Target3;
 };
 
 // Entry Point
@@ -42,13 +42,12 @@ PS_OUTPUT_GEOMPASS main(PS_INPUT_GEOMPASS ps_in)
     
     ps_out.normal = float4(normal, 1.0);
     ps_out.position = float4(ps_in.fragPos, 1.0);
-    ps_out.albedo = t_AlbedoObject.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
-    //MAX_PER_OBJECT_LOD
-    //float3 viewDist = cbCameraPosition - ps_in.fragPos;
-    //ps_out.albedo = t_AlbedoObject.SampleLevel(s_LinearWrapSampler, ps_in.texCoords, length(viewDist)).rgb + diffuseAdditive;
-    ps_out.roughnessMetallicAO.r = t_RougnessObject.Sample(s_LinearWrapSampler, ps_in.texCoords).r + roughnessAdditive;
-    ps_out.roughnessMetallicAO.g = t_MetallicObject.Sample(s_LinearWrapSampler, ps_in.texCoords).r + metallicAdditive;
-    ps_out.roughnessMetallicAO.b = t_AOObject.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
-
+    
+    ps_out.albedo = t_AlbedoObject.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb + diffuseAdditive;
+    ps_out.roughnessMetallicAOSpec.r = t_RougnessObject.Sample(s_LinearWrapSampler, ps_in.texCoords).r + roughnessAdditive;
+    ps_out.roughnessMetallicAOSpec.g = t_MetallicObject.Sample(s_LinearWrapSampler, ps_in.texCoords).r + metallicAdditive;
+    ps_out.roughnessMetallicAOSpec.b = t_AOObject.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
+    ps_out.roughnessMetallicAOSpec.a = specular;
+    
     return ps_out;
 }

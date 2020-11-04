@@ -43,10 +43,8 @@
 #define IE_BIND_EVENT_FN(fn) std::bind( &fn, this, std::placeholders::_1 )
 #define IE_BIND_VOID_FN(fn) std::bind( &fn, this )
 #define COM_SAFE_RELEASE(ptr) if(ptr) ptr->Release();
-#define CAST_TO_FLOAT(...) static_cast<float>(__VA_ARGS__)
-#define CAST_TO_UINT(...) static_cast<UINT>(__VA_ARGS__)
-#define QUOTE(value) #value
-#define MACRO_TO_STRING(macro) QUOTE(macro);
+#define RAW_LITERAL(value) #value
+#define MACRO_TO_STRING(macro) RAW_LITERAL(macro);
 #define FORCE_INLINE __forceinline
 
 // Includes

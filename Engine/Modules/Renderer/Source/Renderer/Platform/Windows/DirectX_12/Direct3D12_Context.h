@@ -92,6 +92,21 @@ namespace Insight {
 		D3D12ConstantBuffer<CB_PS_VS_PerObjectMaterialAdditives>	m_CBPerObjectMaterial;
 	};
 
+	//class CD3D12CommandListWrapper
+	//{
+	//public:
+	//	void Create(ComPtr<ID3D12Device> pDevice)
+	//	{
+	//		//TODO
+	//	}
+
+	//	inline ComPtr<ID3D12GraphicsCommandList> GetCommandList() const { return m_pCommandList; }
+	//	inline ComPtr<ID3D12CommandAllocator> GetCommandAllocatorAtIndex(uint8_t Index) const { return m_pCommandAllocators[Index]; ] }
+
+	//protected:
+	//	ComPtr<ID3D12GraphicsCommandList> m_pCommandList;
+	//	ComPtr<ID3D12CommandAllocator> m_pCommandAllocators[Renderer::GetFrameBufferCount()];
+	//};
 
 	class WindowsWindow;
 	class GeometryManager;
@@ -272,7 +287,7 @@ namespace Insight {
 		//-----Light Pass-----
 		// 0: Albedo
 		// 1: Normal
-		// 2: (R)Roughness/(G)Metallic/(B)AO
+		// 2: (R)Roughness/(G)Metallic/(B)AO/(A)Specular
 		// 3: World Position
 		// -----Post-Fx Pass-----
 		// 4: Light Pass result

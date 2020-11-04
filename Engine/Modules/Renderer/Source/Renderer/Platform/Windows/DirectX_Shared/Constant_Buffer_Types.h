@@ -31,7 +31,7 @@ struct CB_PS_VS_PerObjectMaterialAdditives
 	float Padding2;
 	
 	DirectX::XMFLOAT3 DiffuseAdditive;
-	float Padding3;
+	float Specular;
 };
 
 struct CB_PS_VS_PerFrame

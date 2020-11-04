@@ -34,6 +34,7 @@ namespace Insight {
 
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
+		virtual std::pair<uint32_t, uint32_t> GetDimensions() const = 0;
 		virtual bool SetWindowTitle(const std::string& newText, bool completlyOverride = false) = 0;
 		virtual bool SetWindowTitleFPS(float fps) = 0;
 

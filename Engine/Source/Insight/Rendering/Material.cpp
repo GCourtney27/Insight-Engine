@@ -59,6 +59,7 @@ namespace Insight {
 		m_ShaderCB.RoughnessAdditive	= 0.0f;
 		m_ShaderCB.UVTiling				= ieVector2(1.0f, 1.0f);
 		m_ShaderCB.UVOffset				= ieVector2(0.0f, 0.0f);
+		m_ShaderCB.Specular				= 0.04f;
 	}
 
 	Material::Material(Material&& material) noexcept
@@ -116,6 +117,7 @@ namespace Insight {
 		pMaterial->m_ShaderCB.RoughnessAdditive = 0.0f;
 		pMaterial->m_ShaderCB.UVTiling			= ieVector2(5.0f, 5.0f);
 		pMaterial->m_ShaderCB.UVOffset			= ieVector2(0.0f, 0.0f);
+		pMaterial->m_ShaderCB.Specular			= 0.04f;
 
 		return pMaterial;
 	}
@@ -278,7 +280,8 @@ namespace Insight {
 			ImGui::ColorEdit3("Diffuse Additive: ", &m_ShaderCB.DiffuseAdditive.x, colorWheelFlags);
 			ImGui::SliderFloat("Metallic Addative", &m_ShaderCB.MetallicAdditive, -1.0f, 1.0f);
 			ImGui::SliderFloat("Roughness Addative", &m_ShaderCB.RoughnessAdditive, -1.0f, 1.0f);
-
+			//ImGui::SliderFloat("Specular Addative", &m_ShaderCB.Specular, -1.0f, 1.0f, "%.3f", 0.01f);
+			ImGui::DragFloat("Specular Addative", &m_ShaderCB.Specular, 0.01f, 0.0f, 0.8f);
 			ImGui::Text("UVs");
 			ImGui::DragFloat2("Tiling:", &m_ShaderCB.UVTiling.x, 0.01f, -50.0f, 50.0f);
 			ImGui::DragFloat2("Offset:", &m_ShaderCB.UVOffset.x, 0.01f, -50.0f, 50.0f);

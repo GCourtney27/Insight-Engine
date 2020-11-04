@@ -40,6 +40,7 @@ namespace Insight {
 
 		inline virtual uint32_t GetWidth() const override { return m_Data.Width; }
 		inline virtual uint32_t GetHeight() const override { return m_Data.Height; }
+		inline virtual std::pair<uint32_t, uint32_t> GetDimensions() const override { return std::make_pair(m_Data.Width, m_Data.Height); }
 		virtual void* GetNativeWindow() const override;
 		virtual void Resize(UINT newWidth, UINT newHeight, bool isMinimized) override;
 		virtual void ToggleFullScreen(bool enabled) override;

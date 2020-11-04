@@ -7,7 +7,7 @@
 
 // If max supported lights is changed here it must also be changed inside <Insight/Core.h>
 #define MAX_POINT_LIGHTS_SUPPORTED 16
-#define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 4
+#define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 1
 #define MAX_SPOT_LIGHTS_SUPPORTED 16
 
 #include <PBR_Helper.hlsli>
@@ -52,7 +52,7 @@ float3 CaclualteDirectionalLight(DirectionalLight Light, float3 ViewDirection, f
 {
     float3 LightDir = normalize(Light.direction);
     float3 HalfwayDir = normalize(ViewDirection + LightDir);
-    float3 Radiance = (Light.diffuse) * Light.strength;
+    float3 Radiance = Light.diffuse * Light.strength;
         
     // Cook-Torrance BRDF
     float NdotL = max(dot(WorldNormal, LightDir), 0.0000001);

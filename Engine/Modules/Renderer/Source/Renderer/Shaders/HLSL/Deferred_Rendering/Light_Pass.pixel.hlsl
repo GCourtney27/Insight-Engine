@@ -5,11 +5,11 @@
 
 // G-Buffer Inputs
 // --------------
-Texture2D t_AlbedoGBuffer               : register(t0);
-Texture2D t_NormalGBuffer               : register(t1);
-Texture2D t_RoughnessMetallicAOGBuffer  : register(t2);
-Texture2D t_PositionGBuffer             : register(t3);
-Texture2D t_SceneDepthGBuffer           : register(t4);
+Texture2D t_AlbedoGBuffer                       : register(t0);
+Texture2D t_NormalGBuffer                       : register(t1);
+Texture2D t_RoughnessMetallicAOSpecularGBuffer  : register(t2);
+Texture2D t_PositionGBuffer                     : register(t3);
+Texture2D t_SceneDepthGBuffer                   : register(t4);
 
 Texture2D t_ShadowDepth         : register(t10);
 
@@ -53,17 +53,18 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     
 	// Sample Textures
     float3 albedo = pow(abs(t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb), float3(2.2, 2.2, 2.2));
-    float3 roughMetAOBufferSample = t_RoughnessMetallicAOGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
+    float4 roughMetAOSpecularBufferSample = t_RoughnessMetallicAOSpecularGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgba;
     float3 worldPosition = t_PositionGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).xyz;
     float3 normal = t_NormalGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).xyz;
     float sceneDepth = t_SceneDepthGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
-    float roughness = roughMetAOBufferSample.r;
-    float metallic = roughMetAOBufferSample.g;
-    float ambientOcclusion = roughMetAOBufferSample.b;
+    float roughness = roughMetAOSpecularBufferSample.r;
+    float metallic = roughMetAOSpecularBufferSample.g;
+    float ambientOcclusion = roughMetAOSpecularBufferSample.b;
+    float specular = roughMetAOSpecularBufferSample.a;
         
     float3 viewDirection = normalize(cbCameraPosition - worldPosition);
         
-    float3 F0 = float3(0.04, 0.04, 0.04);
+    float3 F0 = float3(specular, specular, specular);
     float3 baseReflectivity = lerp(F0, albedo, metallic);
     float NdotV = max(dot(normal, viewDirection), 0.0000001);
     
@@ -170,7 +171,7 @@ float ShadowCalculation(float4 fragPosLightSpace, float3 normal, float3 lightDir
     uint3 texDimensions = int3(0, 0, 0);
     t_ShadowDepth.GetDimensions(0, texDimensions.x, texDimensions.y, texDimensions.z);
     float shadow = 0.0;
-    float2 texelSize = 1.0 / texDimensions;
+    float2 texelSize = 1.0 / texDimensions.xy;
     [unroll(2)]
     for (int x = -1; x <= 1; ++x)
     {

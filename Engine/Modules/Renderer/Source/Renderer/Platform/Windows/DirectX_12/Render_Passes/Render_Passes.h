@@ -2,10 +2,11 @@
 
 #include "Insight/Core.h"
 
-#include "Renderer/Platform/Windows/DirectX_12/Wrappers/Descriptor_Heap_Wrapper.h"
-#include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_Constant_Buffer_Wrapper.h"
 #include "Renderer/Platform/Windows/DirectX_12/Ray_Tracing/Ray_Trace_Helpers.h"
 #include "Renderer/Platform/Windows/DirectX_12/Render_Passes/Helpers/Pass_Helpers.h"
+#include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_Constant_Buffer_Wrapper.h"
+
+
 
 namespace Insight {
 
@@ -121,7 +122,6 @@ namespace Insight {
 		virtual void LoadPipeline() override;
 		virtual void CreateResources()	override;
 
-
 		virtual bool Set(FrameResources* pFrameResources) override;
 		virtual void UnSet(FrameResources* pFrameResources) override;
 	private:
@@ -134,7 +134,7 @@ namespace Insight {
 		DXGI_FORMAT	m_GBufferRTVFormats[m_NumRenderTargets] = {
 						DXGI_FORMAT_R11G11B10_FLOAT,	// Albedo
 						DXGI_FORMAT_R16G16B16A16_SNORM,	// Normal
-						DXGI_FORMAT_R11G11B10_FLOAT,	// (R)Roughness/(G)Metallic/(B)AO
+						DXGI_FORMAT_R16G16B16A16_FLOAT,	// (R)Roughness/(G)Metallic/(B)AO/ (A)Specular
 						DXGI_FORMAT_R32G32B32A32_FLOAT, // Position
 		};
 
@@ -204,7 +204,7 @@ namespace Insight {
 		// Scene depth texture referenced from the geometry pass.
 		ComPtr<ID3D12Resource> m_pSceneDepthTextureRef;
 
-		ASkyLight* m_pSkyLightRef;
+		ASkyLight* m_pSkyLightRef = nullptr;
 	};
 
 
@@ -239,7 +239,7 @@ namespace Insight {
 	private:
 		ComPtr<ID3D12Resource> m_pSceneDepthTextureRef;
 		ComPtr<ID3D12Resource> m_pRenderTargetRef;
-		ASkySphere* m_pSkyShereRef;
+		ASkySphere* m_pSkyShereRef = nullptr;
 
 		D3D12_CPU_DESCRIPTOR_HANDLE m_pRTVHandle;
 		D3D12_CPU_DESCRIPTOR_HANDLE m_pDSVHandle;
@@ -293,14 +293,17 @@ namespace Insight {
 	};
 
 
-	/*===========================*/
-	/*		Shadow Map Pass		 */
-	/*===========================*/
+	/*=======================*/
+	/*		Bloom Pass		 */
+	/*=======================*/
+
 	class BloomPass : public RenderPass
 	{
 	public:
 		BloomPass() = default;
 		~BloomPass() = default;
+
+		void InitDownSampler(ComPtr<ID3D12GraphicsCommandList> pCommandList);
 
 	protected:
 
@@ -312,15 +315,11 @@ namespace Insight {
 		virtual void CreateResources() override;
 		
 	private:
+		ThresholdDownSampleHelper m_DownSampleHelper;
+		GaussianBlurHelper m_GaussianBlurHelper;
 
 	};
 
-
-
-	class ThresholdDownSamplePass : public RenderPass
-	{
-
-	};
 
 	/*=======================================*/
 	/*		Post-Process Composite Pass		 */

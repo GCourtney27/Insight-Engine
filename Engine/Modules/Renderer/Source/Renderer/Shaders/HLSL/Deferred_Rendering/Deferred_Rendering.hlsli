@@ -69,7 +69,7 @@ cbuffer cbPerObjectAdditive : register(b4)
     float padding4;
     
     float3 diffuseAdditive;
-    float padding5;
+    float specular;
 };
 
 /* Shadow Pass */

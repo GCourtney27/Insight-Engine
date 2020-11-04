@@ -18,7 +18,7 @@
 #include "Platform/Windows/DirectX_12/Geometry/D3D12_Index_Buffer.h"
 #include "Platform/Windows/DirectX_12/Geometry/D3D12_Sphere_Renderer.h"
 
-#define BLOOM_ENABLED 0
+#define BLOOM_ENABLED 1
 
 namespace Insight {
 
@@ -113,8 +113,9 @@ namespace Insight {
 						m_RenderPassStack.PushPass(&m_SkyPass);
 
 						// Create the Bloom Pass ad push it to the render stack.
-						//m_BloomPass.Create(this, &m_cbvsrvHeap, nullptr, m_pBloomPass_RS.Get());
-						//m_RenderPassStack.PushPassOverlay(&m_BloomPass);
+						m_BloomPass.Create(this, &m_cbvsrvHeap, m_pDownSample_CommandList.Get(), m_pBloomPass_RS.Get());
+						m_BloomPass.InitDownSampler(m_pDownSample_CommandList);
+						m_RenderPassStack.PushPassOverlay(&m_BloomPass);
 
 						// Create the Post Process Composite Pass ad push it to the render stack.
 						m_PostProcessCompositePass.Create(this, &m_cbvsrvHeap, m_pPostEffectsPass_CommandList.Get(), m_pDeferredShadingPass_RS.Get());
@@ -523,8 +524,9 @@ namespace Insight {
 			m_pRayTracePass_CommandList.Get(),
 			m_pScenePass_CommandList.Get(),
 			//m_pTransparencyPass_CommandList.Get(),
+#if !BLOOM_ENABLED
 			m_pPostEffectsPass_CommandList.Get(),
-
+#endif
 		};
 		m_d3dDeviceResources.GetGraphicsCommandQueue().ExecuteCommandLists(_countof(ppScenePassLists), ppScenePassLists);
 
@@ -563,9 +565,7 @@ namespace Insight {
 			if (m_WindowResizeComplete) 
 			{
 				m_WindowResizeComplete = false;
-
 				m_d3dDeviceResources.WaitForGPU();
-
 
 				UpdateSizeDependentResources();
 			}
@@ -652,11 +652,6 @@ namespace Insight {
 	void Direct3D12Context::OnShaderReload_Impl()
 	{
 		m_RenderPassStack.ReloadPipelines();
-		//m_pSkyPass_PSO.Reset();
-		//m_pTransparency_PSO.Reset();
-		//m_pShadowPass_PSO.Reset();
-
-		//LoadPipelines();
 	}
 
 	void Direct3D12Context::SetVertexBuffers_Impl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers)
@@ -701,6 +696,11 @@ namespace Insight {
 			delete m_pSkySphere;
 		}
 	}
+
+
+
+
+
 
 	uint32_t Direct3D12Context::RegisterGeometryWithRTAccelerationStucture(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat)
 	{

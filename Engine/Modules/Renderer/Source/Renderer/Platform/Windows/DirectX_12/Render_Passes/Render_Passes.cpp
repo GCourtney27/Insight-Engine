@@ -2,18 +2,16 @@
 
 #include "Render_Passes.h"
 
-#include "Renderer/Platform/Windows/DirectX_12/Direct3D12_Context.h"
+#include "Insight/Rendering/ASky_Light.h"
 #include "Platform/Windows/Windows_Window.h"
 #include "Insight/Systems/Managers/Geometry_Manager.h"
-#include "Insight/Rendering/ASky_Light.h"
+#include "Renderer/Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 namespace Insight {
 
 
 	// Global Helpers
 	D3D12ScreenQuad g_ScreenQuad;
-	GaussianBlurHelper g_GaussianBlurHelper;
-	ThresholdDownSampleHelper g_DownSampleHelper;
 
 
 
@@ -96,6 +94,9 @@ namespace Insight {
 				{ {  1.0f,-1.0f, 0.0f }, { 1.0f, 1.0f } }, // Bottom Right
 			};
 			g_ScreenQuad.Init(FullScreenQuadVerts, sizeof(FullScreenQuadVerts), QuadIndices, sizeof(QuadIndices));
+			
+
+
 			Created = true;
 		}
 
@@ -646,8 +647,6 @@ namespace Insight {
 	{
 		PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Rendering Post-Process Pass");
 		{
-			//m_pRenderContextRef->SetActiveCommandList(m_pCommandListRef);
-
 			ID3D12DescriptorHeap* ppHeaps[] = { m_pCBVSRVHeapRef->pDH.Get() };
 			m_pCommandListRef->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
@@ -838,11 +837,41 @@ namespace Insight {
 		pDevice->CreateShaderResourceView(m_pRayTraceOutput_SRV.Get(), &SRVDesc, m_pCBVSRVHeapRef->hCPU(6));
 	}
 
+
+	/*=======================*/
+	/*		Bloom Pass		 */
+	/*=======================*/
+
+	void BloomPass::InitDownSampler(ComPtr<ID3D12GraphicsCommandList> pCommandList)
+	{
+		m_DownSampleHelper.Create(&m_pRenderContextRef->GetDeviceContext(), { m_pRenderContextRef->GetWindowRef().GetWidth(), m_pRenderContextRef->GetWindowRef().GetHeight() }, pCommandList, m_pCBVSRVHeapRef, m_pCBVSRVHeapRef->hGPU(8));
+	}
+
 	bool BloomPass::Set(FrameResources* pFrameResources)
 	{
 		PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Computing Bloom Blur Pass");
 		{
 
+			ID3D12DescriptorHeap* ppHeaps[] = { m_pCBVSRVHeapRef->pDH.Get() };
+			m_pCommandListRef->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+
+			PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Downsampling buffer to UAV");
+			{
+				m_DownSampleHelper.Execute(pFrameResources);
+			}
+			PIXEndEvent(m_pCommandListRef.Get());
+
+			PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Blurring texture HORIZONTALLY");
+			{
+
+			}
+			PIXEndEvent(m_pCommandListRef.Get());
+			
+			PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Blurring texture VERTICALLY");
+			{
+
+			}
+			PIXEndEvent(m_pCommandListRef.Get());
 		}
 		PIXEndEvent(m_pCommandListRef.Get());
 
@@ -865,6 +894,7 @@ namespace Insight {
 	{
 		ID3D12Device* pDevice = &m_pRenderContextRef->GetDeviceContext();
 
+		//m_GaussianBlurHelper.Create(&m_pRenderContextRef->GetDeviceContext());
 	}
 
 	void BloomPass::CreateResources()
