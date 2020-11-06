@@ -107,10 +107,8 @@ namespace Insight {
 		// Resize render target, depth stencil and sreen rects when window size is changed.
 		inline bool OnWindowResize(WindowResizeEvent& e) 
 		{
-			s_Instance->m_WindowWidth = e.GetWidth();
-			s_Instance->m_WindowHeight = e.GetHeight();
 			s_Instance->m_IsMinimized = e.GetIsMinimized();
-			s_Instance->m_AspectRatio = static_cast<float>(s_Instance->m_WindowWidth) / static_cast<float>(s_Instance->m_WindowHeight);
+			s_Instance->m_AspectRatio = static_cast<float>(e.GetWidth()) / static_cast<float>(e.GetHeight());
 			s_Instance->OnWindowResize_Impl();
 			return true;
 		}
@@ -208,7 +206,7 @@ namespace Insight {
 		virtual void DestroySkybox_Impl() = 0;
 
 	protected:
-		Renderer(uint32_t windowWidth, uint32_t windowHeight, bool vSyncEabled);
+		Renderer(bool vSyncEabled);
 
 		void SetIsRayTraceSupported(bool Supported) { m_IsRayTraceSupported = Supported; }
 
@@ -219,8 +217,6 @@ namespace Insight {
 		GraphicsSettings m_GraphicsSettings = {};
 
 		static const uint8_t m_FrameBufferCount = 3u;
-		uint32_t m_WindowWidth;
-		uint32_t m_WindowHeight;
 
 		float m_AspectRatio = 0.0f;
 		bool m_VSyncEnabled = false;

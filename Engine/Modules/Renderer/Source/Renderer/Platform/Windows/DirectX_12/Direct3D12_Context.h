@@ -17,7 +17,7 @@
 	Render context for Windows Direct3D 12 API. 
 */
 
-
+#include "DirectX12/TK/Inc/GamePad.h"
 
 #define IE_D3D12_FrameIndex m_d3dDeviceResources.GetFrameIndex()
 

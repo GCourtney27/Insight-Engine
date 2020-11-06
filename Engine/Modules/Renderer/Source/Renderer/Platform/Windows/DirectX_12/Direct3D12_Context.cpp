@@ -18,7 +18,7 @@
 #include "Platform/Windows/DirectX_12/Geometry/D3D12_Index_Buffer.h"
 #include "Platform/Windows/DirectX_12/Geometry/D3D12_Sphere_Renderer.h"
 
-#define BLOOM_ENABLED 1
+#define BLOOM_ENABLED 0
 
 namespace Insight {
 
@@ -27,10 +27,10 @@ namespace Insight {
 
 	Direct3D12Context::Direct3D12Context(WindowsWindow* WindowHandle)
 		: m_pWindowRef(WindowHandle),
-		Renderer(WindowHandle->GetWidth(), WindowHandle->GetHeight(), false)
+		Renderer(false)
 	{
 		IE_CORE_ASSERT(WindowHandle != nullptr, "Window handle is NULL, cannot initialize D3D 12 context with NULL window handle.");
-		m_AspectRatio = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
+		m_AspectRatio = static_cast<float>(m_pWindowRef->GetWidth()) / static_cast<float>(m_pWindowRef->GetHeight());
 	}
 
 	Direct3D12Context::~Direct3D12Context()
@@ -112,11 +112,12 @@ namespace Insight {
 						m_SkyPass.SetSkySphereRef(m_pSkySphere);
 						m_RenderPassStack.PushPass(&m_SkyPass);
 
+#if BLOOM_ENABLED
 						// Create the Bloom Pass ad push it to the render stack.
-						m_BloomPass.Create(this, &m_cbvsrvHeap, m_pDownSample_CommandList.Get(), m_pBloomPass_RS.Get());
-						m_BloomPass.InitDownSampler(m_pDownSample_CommandList);
+						m_BloomPass.Create(this, &m_cbvsrvHeap, m_pDownSample_CommandList.Get(), nullptr);
+						m_BloomPass.InitHelpers(m_pDownSample_CommandList);
 						m_RenderPassStack.PushPassOverlay(&m_BloomPass);
-
+#endif
 						// Create the Post Process Composite Pass ad push it to the render stack.
 						m_PostProcessCompositePass.Create(this, &m_cbvsrvHeap, m_pPostEffectsPass_CommandList.Get(), m_pDeferredShadingPass_RS.Get());
 						m_PostProcessCompositePass.SetSceneDepthTextureRef(m_GeometryPass.GetSceneDepthTexture());
@@ -182,8 +183,8 @@ namespace Insight {
 		m_FrameResources.m_CBPerFrame.Data.NumDirectionalLights = (m_pWorldDirectionalLight != nullptr) ? 1.0f : 0.0f;
 		m_FrameResources.m_CBPerFrame.Data.RayTraceEnabled = (float)m_GraphicsSettings.RayTraceEnabled;
 		m_FrameResources.m_CBPerFrame.Data.NumSpotLights = (float)m_SpotLights.size();
-		m_FrameResources.m_CBPerFrame.Data.ScreenSize.x = (float)m_WindowWidth;
-		m_FrameResources.m_CBPerFrame.Data.ScreenSize.y = (float)m_WindowHeight;
+		m_FrameResources.m_CBPerFrame.Data.ScreenSize.x = (float)m_pWindowRef->GetWidth();
+		m_FrameResources.m_CBPerFrame.Data.ScreenSize.y = (float)m_pWindowRef->GetHeight();;
 		m_FrameResources.m_CBPerFrame.SubmitToGPU();
 
 		//if (m_GraphicsSettings.RayTraceEnabled) m_RTHelper.UpdateCBVs();
@@ -442,7 +443,7 @@ namespace Insight {
 				m_pDownSample_CommandList->SetComputeRootDescriptorTable(1, m_cbvsrvHeap.hGPU(8));
 				m_pDownSample_CommandList->SetComputeRootDescriptorTable(2, m_cbvsrvHeap.hGPU(9));
 
-				m_pDownSample_CommandList->Dispatch(m_WindowWidth / ThreadsPerPixel, m_WindowHeight / ThreadsPerPixel, 1);
+				//m_pDownSample_CommandList->Dispatch(m_WindowWidth / ThreadsPerPixel, m_WindowHeight / ThreadsPerPixel, 1);
 			}
 			PIXEndEvent(m_pDownSample_CommandList.Get());
 
@@ -468,7 +469,7 @@ namespace Insight {
 				m_FrameResources.m_CBBlurParams.SubmitToGPU();
 				m_FrameResources.m_CBBlurParams.SetAsComputeRootConstantBufferView(m_pDownSample_CommandList.Get(), 0);
 
-				m_pDownSample_CommandList->Dispatch(m_WindowWidth / ThreadsPerPixel, m_WindowHeight / ThreadsPerPixel, 1);
+				//m_pDownSample_CommandList->Dispatch(m_WindowWidth / ThreadsPerPixel, m_WindowHeight / ThreadsPerPixel, 1);
 			}
 			PIXEndEvent(m_pDownSample_CommandList.Get());
 
@@ -490,7 +491,7 @@ namespace Insight {
 				m_pDownSample_CommandList->SetComputeRootDescriptorTable(1, m_cbvsrvHeap.hGPU(12)); // Set the SRV of the down sampled intermediate bloom texture
 				m_pDownSample_CommandList->SetComputeRootDescriptorTable(2, m_cbvsrvHeap.hGPU(9)); // Set the origional UAV for final blur pass
 
-				m_pDownSample_CommandList->Dispatch(m_WindowWidth / ThreadsPerPixel, m_WindowHeight / ThreadsPerPixel, 1);
+				//m_pDownSample_CommandList->Dispatch(m_WindowWidth / ThreadsPerPixel, m_WindowHeight / ThreadsPerPixel, 1);
 			}
 			PIXEndEvent(m_pDownSample_CommandList.Get());
 		}
@@ -805,14 +806,14 @@ namespace Insight {
 		ResourceDesc.SampleDesc = { 1, 0 };
 		ResourceDesc.MipLevels = 1;
 		ResourceDesc.DepthOrArraySize = 1;
-		ResourceDesc.Width = (UINT)m_WindowWidth;
-		ResourceDesc.Height = (UINT)m_WindowHeight;
+		//ResourceDesc.Width = (UINT)m_WindowWidth;
+		//ResourceDesc.Height = (UINT)m_WindowHeight;
 		ResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 		ResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 		ResourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		ResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
-		ResourceDesc.Width = m_WindowWidth / 2;
-		ResourceDesc.Height = m_WindowHeight / 2;
+		//ResourceDesc.Width = m_WindowWidth / 2;
+		//ResourceDesc.Height = m_WindowHeight / 2;
 		hr = pDevice->CreateCommittedResource(&DefaultHeapProps, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, nullptr, IID_PPV_ARGS(&m_pBloomBlurResult_UAV));
 		ThrowIfFailed(hr, "Failed to create committed resource for bloom down sampled UAV.");
 		D3D12_UNORDERED_ACCESS_VIEW_DESC UAVDesc = {};
@@ -841,8 +842,8 @@ namespace Insight {
 		ResourceDesc.SampleDesc.Quality = 0;
 		ResourceDesc.MipLevels = 1;
 		ResourceDesc.DepthOrArraySize = 1;
-		ResourceDesc.Width = (UINT)m_WindowWidth;
-		ResourceDesc.Height = (UINT)m_WindowHeight;
+		//ResourceDesc.Width = (UINT)m_WindowWidth;
+		//ResourceDesc.Height = (UINT)m_WindowHeight;
 		ResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 		ResourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
@@ -1507,6 +1508,10 @@ namespace Insight {
 				m_RayTracedShadowPass.GetRTHelper()->ReCreateOutputBuffer();
 
 			m_PostProcessCompositePass.SetSceneDepthTextureRef(m_GeometryPass.GetSceneDepthTexture());
+			
+#if BLOOM_ENABLED
+			m_BloomPass.ResizeHelperBuffers();
+#endif
 
 			// Resize the Swapchain
 			for (uint8_t i = 0; i < m_FrameBufferCount; ++i)
@@ -1531,7 +1536,7 @@ namespace Insight {
 		// Recreate Camera Projection Matrix
 		{
 			if (!m_pWorldCameraRef->GetIsOrthographic()) {
-				m_pWorldCameraRef->SetPerspectiveProjectionValues(m_pWorldCameraRef->GetFOV(), static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight), m_pWorldCameraRef->GetNearZ(), m_pWorldCameraRef->GetFarZ());
+				m_pWorldCameraRef->SetPerspectiveProjectionValues(m_pWorldCameraRef->GetFOV(), static_cast<float>(m_pWindowRef->GetWidth()) / static_cast<float>(m_pWindowRef->GetHeight()), m_pWorldCameraRef->GetNearZ(), m_pWorldCameraRef->GetFarZ());
 			}
 		}
 	}

@@ -35,12 +35,16 @@ namespace Insight {
 
 	void D3D12Helper::ResizeResources()
 	{
+
+		uint32_t WindowWidth = m_pRenderContextRef->GetWindowRef().GetWidth();
+		uint32_t WindowHeight = m_pRenderContextRef->GetWindowRef().GetHeight();
+
 		// Resize the swapchain
 		{
 			HRESULT hr;
 			DXGI_SWAP_CHAIN_DESC SwapChainDesc = {};
 			m_pSwapChain->GetDesc(&SwapChainDesc);
-			hr = m_pSwapChain->ResizeBuffers(m_FrameBufferCount, m_pRenderContextRef->m_WindowWidth, m_pRenderContextRef->m_WindowHeight, SwapChainDesc.BufferDesc.Format, SwapChainDesc.Flags);
+			hr = m_pSwapChain->ResizeBuffers(m_FrameBufferCount, WindowWidth, WindowHeight, SwapChainDesc.BufferDesc.Format, SwapChainDesc.Flags);
 			ThrowIfFailed(hr, "Failed to resize swap chain buffers for D3D 12 context.");
 		}
 		
@@ -48,8 +52,8 @@ namespace Insight {
 		{
 			m_Client_ViewPort.TopLeftX = 0.0f;
 			m_Client_ViewPort.TopLeftY = 0.0f;
-			m_Client_ViewPort.Width = static_cast<FLOAT>(m_pRenderContextRef->m_WindowWidth);
-			m_Client_ViewPort.Height = static_cast<FLOAT>(m_pRenderContextRef->m_WindowHeight);
+			m_Client_ViewPort.Width = static_cast<FLOAT>(WindowWidth);
+			m_Client_ViewPort.Height = static_cast<FLOAT>(WindowHeight);
 			  
 			m_Client_ScissorRect.left = static_cast<LONG>(m_Client_ViewPort.TopLeftX);
 			m_Client_ScissorRect.right = static_cast<LONG>(m_Client_ViewPort.TopLeftX + m_Client_ViewPort.Width);
@@ -191,17 +195,20 @@ namespace Insight {
 	{
 		HRESULT hr;
 
+		uint32_t WindowWidth = m_pRenderContextRef->GetWindowRef().GetWidth() / 2u;
+		uint32_t WindowHeight = m_pRenderContextRef->GetWindowRef().GetHeight() / 2u;
+
 		DXGI_MODE_DESC backBufferDesc = {};
-		backBufferDesc.Width = m_pRenderContextRef->m_WindowWidth;
-		backBufferDesc.Height = m_pRenderContextRef->m_WindowHeight;
+		backBufferDesc.Width = WindowWidth;
+		backBufferDesc.Height = WindowHeight;
 
 		m_SampleDesc = {};
 		m_SampleDesc.Count = 1;
 
 		DXGI_SWAP_CHAIN_DESC1 SwapChainDesc = {};
 		SwapChainDesc.BufferCount = m_FrameBufferCount;
-		SwapChainDesc.Width = m_pRenderContextRef->m_WindowWidth;
-		SwapChainDesc.Height = m_pRenderContextRef->m_WindowHeight;
+		SwapChainDesc.Width = WindowWidth;
+		SwapChainDesc.Height = WindowHeight;
 		SwapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; // Dont save the contents of the back buffer after presented
@@ -228,20 +235,26 @@ namespace Insight {
 
 	void D3D12Helper::CreateViewport()
 	{
+		uint32_t WindowWidth = m_pRenderContextRef->GetWindowRef().GetWidth() / 2u;
+		uint32_t WindowHeight = m_pRenderContextRef->GetWindowRef().GetHeight() / 2u;
+
 		m_Client_ViewPort.TopLeftX = 0;
 		m_Client_ViewPort.TopLeftY = 0;
-		m_Client_ViewPort.Width = static_cast<FLOAT>(m_pRenderContextRef->m_WindowWidth);
-		m_Client_ViewPort.Height = static_cast<FLOAT>(m_pRenderContextRef->m_WindowHeight);
+		m_Client_ViewPort.Width = static_cast<FLOAT>(WindowWidth);
+		m_Client_ViewPort.Height = static_cast<FLOAT>(WindowHeight);
 		m_Client_ViewPort.MinDepth = 0.0f;
 		m_Client_ViewPort.MaxDepth = 1.0f;
 	}
 
 	void D3D12Helper::CreateScissorRect()
 	{
+		uint32_t WindowWidth = m_pRenderContextRef->GetWindowRef().GetWidth() / 2u;
+		uint32_t WindowHeight = m_pRenderContextRef->GetWindowRef().GetHeight() / 2u;
+
 		m_Client_ScissorRect.left = 0;
 		m_Client_ScissorRect.top = 0;
-		m_Client_ScissorRect.right = m_pRenderContextRef->m_WindowWidth;
-		m_Client_ScissorRect.bottom = m_pRenderContextRef->m_WindowHeight;
+		m_Client_ScissorRect.right = WindowWidth;
+		m_Client_ScissorRect.bottom = WindowHeight;
 	}
 
 	void D3D12Helper::CreateFenceEvent()

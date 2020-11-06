@@ -46,7 +46,7 @@ float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
 	
 	if (blEnabled)
 	{
-		//result = AddBloom(result, ps_in.texCoords);
+		result = AddBloom(result, ps_in.texCoords);
 	}
 	if (vnEnabled)
 	{
@@ -67,41 +67,32 @@ float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
 	return float4(result, 1.0);
 }
 
-void HDRToneMap
-	(inout
-	float3 target)
+void HDRToneMap(inout float3 target)
 {
 	target = float3(1.0, 1.0, 1.0) - exp(-target * cbCameraExposure);
 }
 
-void GammaCorrect
-	(inout
-	float3 target)
+void GammaCorrect(inout float3 target)
 {
 	const float gamma = 2.2;
 	target = pow(target.rgb, float3(1.0 / gamma, 1.0 / gamma, 1.0 / gamma));
 }
 
-float mod
-	(
-	float x, float y)
+float mod(float x, float y)
 {
 	return (x - y * floor(x / y));
 }
 
-float3 AddBloom
-	(
-	float3 sourceColor, float2 texCoords)
+float3 AddBloom(float3 sourceColor, float2 texCoords)
 {
-	float2 PixelCoords = (texCoords * cbScreenSize) / 2;
+	//float2 PixelCoords = (texCoords * cbScreenSize) / 2;
+    float2 PixelCoords = (texCoords);
 	float3 BloomPassResult = rw_BloomPassResult.Load(int3(PixelCoords, 0.0)).rgb;
  
 	return mad(blCombineCoefficient, BloomPassResult, sourceColor);
 }
 
-float3 AddChromaticAberration
-	(
-	float3 sourceColor, float2 texCoords)
+float3 AddChromaticAberration(float3 sourceColor, float2 texCoords)
 {
 	float2 texel = 1.0 / cbScreenSize;
 	float2 coords = (texCoords - 0.5) * 2.0;
@@ -119,9 +110,7 @@ float3 AddChromaticAberration
 	return sourceColor;
 }
 
-float3 AddFilmGrain
-	(
-	float3 sourceColor, float2 texCoords)
+float3 AddFilmGrain(float3 sourceColor, float2 texCoords)
 {
 	float x = (texCoords.x + 4.0) * (texCoords.y + 4.0) * (cbTime * 10.0);
 	float grain = mod((mod(x, 13.0) + 1.0) * (mod(x, 123.0) + 1.0), 0.01) - 0.005;
@@ -131,9 +120,7 @@ float3 AddFilmGrain
 	return grainAmount.rgb * sourceColor;
 }
 
-float3 AddVignette
-	(
-	float3 sourceColor, float2 texCoords)
+float3 AddVignette(float3 sourceColor, float2 texCoords)
 {
 	float2 centerUV = texCoords - float2(0.5, 0.5);
 	float3 color = float3(1.0, 1.0, 1.0);
@@ -145,9 +132,7 @@ float3 AddVignette
 	return color;
 }
 
-void LinearizeDepth
-	(inout
-	float depth)
+void LinearizeDepth(inout float depth)
 {
 	float z = depth * 2.0 - 1.0; // back to NDC 
 	depth = (2.0 * cbCameraNearZ * cbCameraFarZ) / (cbCameraFarZ + cbCameraNearZ - z * (cbCameraFarZ - cbCameraNearZ)) / cbCameraFarZ;

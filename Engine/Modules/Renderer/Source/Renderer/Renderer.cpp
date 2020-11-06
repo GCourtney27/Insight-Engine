@@ -13,8 +13,8 @@ namespace Insight {
 
 	Renderer* Renderer::s_Instance = nullptr;
 
-	Renderer::Renderer(uint32_t windowWidth, uint32_t windowHeight, bool vSyncEabled)
-		: m_WindowWidth(windowWidth), m_WindowHeight(windowHeight), m_VSyncEnabled(vSyncEabled)
+	Renderer::Renderer(bool vSyncEabled)
+		: m_VSyncEnabled(vSyncEabled)
 	{
 	}
 

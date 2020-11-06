@@ -26,7 +26,7 @@ namespace Insight {
 	Direct3D11Context::Direct3D11Context(WindowsWindow* WindowHandle)
 		: m_pWindowHandle(&WindowHandle->GetWindowHandleRef()),
 		m_pWindow(WindowHandle),
-		Renderer(WindowHandle->GetWidth(), WindowHandle->GetHeight(), false)
+		Renderer(false)
 	{
 	}
 
@@ -108,6 +108,8 @@ namespace Insight {
 
 		static float WorldTime;
 		WorldTime += DeltaMs;
+		/*uint32_t WindowWidth = GetWindowRef().GetWidth() / 2u;
+		uint32_t WindowHeight = GetWindowRef().GetHeight() / 2u;*/
 
 		// Send Per-Frame Data to GPU
 		/*XMFLOAT4X4 viewFloat;
@@ -127,8 +129,8 @@ namespace Insight {
 		m_PerFrameData.Data.NumPointLights = (float)m_PointLights.size();
 		m_PerFrameData.Data.NumDirectionalLights = (m_pWorldDirectionalLight != nullptr) ? 1.0f : 0.0f;
 		m_PerFrameData.Data.NumSpotLights = (float)m_SpotLights.size();
-		m_PerFrameData.Data.ScreenSize.x = (float)m_WindowWidth;
-		m_PerFrameData.Data.ScreenSize.y = (float)m_WindowHeight;
+		//m_PerFrameData.Data.ScreenSize.x = (float)WindowWidth;
+		//m_PerFrameData.Data.ScreenSize.y = (float)WindowHeight;
 		m_PerFrameData.SubmitToGPU();
 
 		// Send Point Lights to GPU
@@ -253,14 +255,14 @@ namespace Insight {
 			if (m_WindowResizeComplete) {
 
 				m_WindowResizeComplete = false;
-				HRESULT hr;
+				HRESULT hr = S_OK;
 
 				m_pRenderTargetView.Reset();
 				m_pBackBuffer.Reset();
 
 				DXGI_SWAP_CHAIN_DESC SwapChainDesc = {};
 				m_pSwapChain->GetDesc(&SwapChainDesc);
-				hr = m_pSwapChain->ResizeBuffers(m_FrameBufferCount, m_WindowWidth, m_WindowHeight, SwapChainDesc.BufferDesc.Format, SwapChainDesc.Flags);
+				//hr = m_pSwapChain->ResizeBuffers(m_FrameBufferCount, m_WindowWidth, m_WindowHeight, SwapChainDesc.BufferDesc.Format, SwapChainDesc.Flags);
 				ThrowIfFailed(hr, "Failed to resize swap chain buffers for D3D 11 context.");
 
 				BOOL fullScreenState;
@@ -375,7 +377,7 @@ namespace Insight {
 		// Recreate Camera Projection Matrix
 		{
 			if (!m_pWorldCameraRef->GetIsOrthographic()) {
-				m_pWorldCameraRef->SetPerspectiveProjectionValues(m_pWorldCameraRef->GetFOV(), static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight), m_pWorldCameraRef->GetNearZ(), m_pWorldCameraRef->GetFarZ());
+				//m_pWorldCameraRef->SetPerspectiveProjectionValues(m_pWorldCameraRef->GetFOV(), static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight), m_pWorldCameraRef->GetNearZ(), m_pWorldCameraRef->GetFarZ());
 			}
 		}
 	}
@@ -384,8 +386,8 @@ namespace Insight {
 	{
 		m_ScenePassViewPort.TopLeftX = 0.0f;
 		m_ScenePassViewPort.TopLeftY = 0.0f;
-		m_ScenePassViewPort.Width = static_cast<FLOAT>(m_WindowWidth);
-		m_ScenePassViewPort.Height = static_cast<FLOAT>(m_WindowHeight);
+		//m_ScenePassViewPort.Width = static_cast<FLOAT>(m_WindowWidth);
+		//m_ScenePassViewPort.Height = static_cast<FLOAT>(m_WindowHeight);
 
 		m_ScenePassScissorRect.left = static_cast<LONG>(m_ScenePassViewPort.TopLeftX);
 		m_ScenePassScissorRect.right = static_cast<LONG>(m_ScenePassViewPort.TopLeftX + m_ScenePassViewPort.Width);
@@ -463,8 +465,8 @@ namespace Insight {
 
 		// TODO Query for HDR support
 		DXGI_SWAP_CHAIN_DESC SwapChainDesc = { };
-		SwapChainDesc.BufferDesc.Width = m_WindowWidth;
-		SwapChainDesc.BufferDesc.Height = m_WindowHeight;
+		//SwapChainDesc.BufferDesc.Width = m_WindowWidth;
+		//SwapChainDesc.BufferDesc.Height = m_WindowHeight;
 		SwapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
 		SwapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
 		SwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -531,8 +533,8 @@ namespace Insight {
 	{
 		m_ScenePassScissorRect.left = 0;
 		m_ScenePassScissorRect.top = 0;
-		m_ScenePassScissorRect.right = m_WindowWidth;
-		m_ScenePassScissorRect.bottom = m_WindowHeight;
+		//m_ScenePassScissorRect.right = m_WindowWidth;
+		//m_ScenePassScissorRect.bottom = m_WindowHeight;
 	}
 
 	void Direct3D11Context::CreateSamplers()

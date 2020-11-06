@@ -842,16 +842,29 @@ namespace Insight {
 	/*		Bloom Pass		 */
 	/*=======================*/
 
-	void BloomPass::InitDownSampler(ComPtr<ID3D12GraphicsCommandList> pCommandList)
+	void BloomPass::InitHelpers(ComPtr<ID3D12GraphicsCommandList> pCommandList)
 	{
-		m_DownSampleHelper.Create(&m_pRenderContextRef->GetDeviceContext(), { m_pRenderContextRef->GetWindowRef().GetWidth(), m_pRenderContextRef->GetWindowRef().GetHeight() }, pCommandList, m_pCBVSRVHeapRef, m_pCBVSRVHeapRef->hGPU(8));
+		uint32_t HalfResWidth = m_pRenderContextRef->GetWindowRef().GetWidth() / 2u;
+		uint32_t HalfResHeight = m_pRenderContextRef->GetWindowRef().GetHeight() / 2u;
+
+		// The handles have been created elsewhere in the code so we just pass them in from the Heap.
+		m_DownSampleHelper.Create(&m_pRenderContextRef->GetDeviceContext(), { HalfResWidth, HalfResHeight }, pCommandList, m_pCBVSRVHeapRef->hGPU(8), m_pCBVSRVHeapRef->hGPU(9));
+		
+		m_GaussianBlurHelper.Create(
+			&m_pRenderContextRef->GetDeviceContext(),
+			pCommandList,
+			{ HalfResWidth, HalfResHeight },
+			m_pDownsampleResult_UAV, m_pCBVSRVHeapRef->hGPU(9),
+			m_pDownsampleResult_SRV, m_pCBVSRVHeapRef->hGPU(10),
+			m_pIntermediateBuffer_UAV, m_pCBVSRVHeapRef->hGPU(11),
+			m_pIntermediateBuffer_SRV, m_pCBVSRVHeapRef->hGPU(12)
+		);
 	}
 
 	bool BloomPass::Set(FrameResources* pFrameResources)
 	{
 		PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Computing Bloom Blur Pass");
 		{
-
 			ID3D12DescriptorHeap* ppHeaps[] = { m_pCBVSRVHeapRef->pDH.Get() };
 			m_pCommandListRef->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
@@ -860,16 +873,10 @@ namespace Insight {
 				m_DownSampleHelper.Execute(pFrameResources);
 			}
 			PIXEndEvent(m_pCommandListRef.Get());
-
-			PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Blurring texture HORIZONTALLY");
+		
+			PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Blurring the bloom buffer");
 			{
-
-			}
-			PIXEndEvent(m_pCommandListRef.Get());
-			
-			PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Blurring texture VERTICALLY");
-			{
-
+				m_GaussianBlurHelper.Execute(pFrameResources);
 			}
 			PIXEndEvent(m_pCommandListRef.Get());
 		}
@@ -892,13 +899,84 @@ namespace Insight {
 
 	void BloomPass::LoadPipeline()
 	{
-		ID3D12Device* pDevice = &m_pRenderContextRef->GetDeviceContext();
-
-		//m_GaussianBlurHelper.Create(&m_pRenderContextRef->GetDeviceContext());
 	}
 
 	void BloomPass::CreateResources()
 	{
+		ID3D12Device* pDevice = &m_pRenderContextRef->GetDeviceContext();
+		const UINT WindowWidth = static_cast<UINT>(m_pRenderContextRef->GetWindowRef().GetWidth());
+		const UINT WindowHeight = static_cast<UINT>(m_pRenderContextRef->GetWindowRef().GetHeight());
+		CD3DX12_HEAP_PROPERTIES DefaultHeapProps(D3D12_HEAP_TYPE_DEFAULT);
+
+
+		// Down Sample UAV
+		D3D12_RESOURCE_DESC ResourceDesc = {};
+		ResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		ResourceDesc.Alignment = 0;
+		ResourceDesc.SampleDesc = { 1, 0 };
+		ResourceDesc.MipLevels = 1;
+		ResourceDesc.DepthOrArraySize = 1;
+		ResourceDesc.Width = WindowWidth / 2u; // Downsample to half-resolution.
+		ResourceDesc.Height = WindowHeight / 2u;
+		ResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+		ResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+		ResourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		ResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+
+		m_pDownsampleResult_UAV.Reset();
+		HRESULT hr = pDevice->CreateCommittedResource(
+			&DefaultHeapProps,
+			D3D12_HEAP_FLAG_NONE,
+			&ResourceDesc,
+			D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+			nullptr,
+			IID_PPV_ARGS(&m_pDownsampleResult_UAV)
+		);
+		ThrowIfFailed(hr, "Failed to create committed resource for bloom down sampled UAV.");
+
+		D3D12_UNORDERED_ACCESS_VIEW_DESC UAVDesc = {};
+		UAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+		pDevice->CreateUnorderedAccessView(m_pDownsampleResult_UAV.Get(), nullptr, &UAVDesc, m_pCBVSRVHeapRef->hCPU(9));
+		m_pDownsampleResult_UAV->SetName(L"UAV: Bloom Pass Down Sampled Buffer");
+
+		// Shader Resource View for the Down-Sampled Buffer m_pDownsampleResult_UAV
+		ResourceDesc.Width = WindowWidth / 2u;
+		ResourceDesc.Height = WindowHeight / 2u;
+		D3D12_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
+		SRVDesc.Format = ResourceDesc.Format;
+		SRVDesc.Texture2D.MipLevels = 1U;
+		SRVDesc.Texture2D.MostDetailedMip = 0;
+		SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		SRVDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+		m_pDownsampleResult_SRV.Reset();
+		hr = pDevice->CreateCommittedResource(
+			&DefaultHeapProps, 
+			D3D12_HEAP_FLAG_NONE, 
+			&ResourceDesc, 
+			D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, 
+			nullptr, 
+			IID_PPV_ARGS(&m_pDownsampleResult_SRV)
+		);
+		ThrowIfFailed(hr, "Failed to create committed resource for down sampled UAV.");
+		pDevice->CreateShaderResourceView(m_pDownsampleResult_SRV.Get(), &SRVDesc, m_pCBVSRVHeapRef->hCPU(10));
+		m_pDownsampleResult_SRV->SetName(L"SRV: Bloom Pass Down Sampled Buffer");
+
+		// Create the intermediate buffer that will blur vertically to.
+
+		// UAV Down-Sampled Intermediate Buffer
+		m_pIntermediateBuffer_UAV.Reset();
+		hr = pDevice->CreateCommittedResource(&DefaultHeapProps, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, nullptr, IID_PPV_ARGS(&m_pIntermediateBuffer_UAV));
+		ThrowIfFailed(hr, "Failed to create committed resource for bloom down sampled intermdiate UAV.");
+		pDevice->CreateUnorderedAccessView(m_pIntermediateBuffer_UAV.Get(), nullptr, &UAVDesc, m_pCBVSRVHeapRef->hCPU(11));
+		m_pIntermediateBuffer_UAV->SetName(L"UAV: Bloom Pass Down Sampled INTERMEDIENT Buffer");
+
+		// SRV Bloom Blur Intermediate Buffer
+		m_pIntermediateBuffer_SRV.Reset();
+		ThrowIfFailed(hr, "Failed to create committed resource for down sampled UAV.");
+		hr = pDevice->CreateCommittedResource(&DefaultHeapProps, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, nullptr, IID_PPV_ARGS(&m_pIntermediateBuffer_SRV));
+		pDevice->CreateShaderResourceView(m_pIntermediateBuffer_SRV.Get(), &SRVDesc, m_pCBVSRVHeapRef->hCPU(12));
+		m_pIntermediateBuffer_SRV->SetName(L"SRV: Bloom Pass Down Sampled INTERMEDIENT Buffer");
 	}
 
 }

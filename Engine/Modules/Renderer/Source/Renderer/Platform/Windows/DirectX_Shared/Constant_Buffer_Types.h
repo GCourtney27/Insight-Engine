@@ -128,7 +128,8 @@ struct CB_CS_DownSampleParams
 };
 
 #define GAUSSIAN_RADIUS 7
-
+constexpr int BlurPassVertical = 1;
+constexpr int BlurPassHorizontal= 1;
 struct CB_CS_BlurParams
 {
 	alignas(16) float Coefficients[GAUSSIAN_RADIUS + 1];

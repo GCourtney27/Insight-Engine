@@ -303,10 +303,24 @@ namespace Insight {
 		BloomPass() = default;
 		~BloomPass() = default;
 
-		void InitDownSampler(ComPtr<ID3D12GraphicsCommandList> pCommandList);
+		/*
+			Create the downsampler and assigned the resources it will depend on.
+			@param pCommandList - The command list the downsampler will execute on.
+		*/
+		void InitHelpers(ComPtr<ID3D12GraphicsCommandList> pCommandList);
+
+		void ResizeHelperBuffers()
+		{
+			m_DownSampleHelper.SetSRVSourceHandle(m_pCBVSRVHeapRef->hGPU(8));
+			m_DownSampleHelper.SetUAVDestinationHandle(m_pCBVSRVHeapRef->hGPU(9));
+		
+			m_GaussianBlurHelper.SetSourceSRV(m_pDownsampleResult_SRV, m_pCBVSRVHeapRef->hGPU(9));
+			m_GaussianBlurHelper.SetSourceUAV(m_pDownsampleResult_UAV, m_pCBVSRVHeapRef->hGPU(10));
+			m_GaussianBlurHelper.SetIntermediateUAV(m_pIntermediateBuffer_UAV, m_pCBVSRVHeapRef->hGPU(11));
+			m_GaussianBlurHelper.SetIntermediateSRV(m_pIntermediateBuffer_SRV, m_pCBVSRVHeapRef->hGPU(12));
+		}
 
 	protected:
-
 		virtual bool Set(FrameResources * pFrameResources) override;
 		virtual void UnSet(FrameResources * pFrameResources) override;
 
@@ -315,8 +329,27 @@ namespace Insight {
 		virtual void CreateResources() override;
 		
 	private:
-		ThresholdDownSampleHelper m_DownSampleHelper;
-		GaussianBlurHelper m_GaussianBlurHelper;
+		// The Unorder Access View that will be used to downsample and blur.
+		ComPtr<ID3D12Resource>		m_pDownsampleResult_UAV;
+
+		// The Shader Resource View alias for the UAV that was downsampled to in with "BloomPass::m_DownSampleHelper".
+		// The constents are populated via a ID3D12GraphicsCommandList::ResourceCopy command, with 
+		// "BloomPass::m_pDownsampleResult_UAV" being the source for the copy.
+		ComPtr<ID3D12Resource>		m_pDownsampleResult_SRV;
+
+		// Unordered Access View to the intermediate resource to blur to.
+		ComPtr<ID3D12Resource>		m_pIntermediateBuffer_UAV;
+
+		// The Sahder Resouce view alias of "BloomPass::m_pBloomBlurIntermediateBuffer_UAV". This is the final blurred image.
+		// The contents are populated via a "ID3D12GraphicsCommandList::ResourceCopy" command, with 
+		// "BloomPass::m_pIntermediateBuffer_UAV" being the source for the copy.
+		ComPtr<ID3D12Resource>		m_pIntermediateBuffer_SRV;
+
+		// Helper that will downsample the bloom render target.
+		ThresholdDownSampleHelper	m_DownSampleHelper;
+
+		// Helper that will blur the downsampled render target.
+		GaussianBlurHelper			m_GaussianBlurHelper;
 
 	};
 
