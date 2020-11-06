@@ -2,24 +2,27 @@
 
 #include <Insight/Core.h>
 
-#include <Insight/Runtime/AActor.h>
-#include "Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
+#include "Insight/Runtime/AActor.h"
+#include "Renderer/Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
 
 namespace Insight {
 
-	class INSIGHT_API APointLight : public AActor
+	namespace Runtime {
+		class SceneComponent;
+	}
+
+	class INSIGHT_API APointLight : public Runtime::AActor
 	{
 	public:
-		APointLight(ActorId id, ActorType type = "Point Light Actor");
+		APointLight(ActorId id, Runtime::ActorType type = "Point Light Actor");
 		virtual ~APointLight();
 
-		virtual bool LoadFromJson(const rapidjson::Value& jsonPointLight) override;
-		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer) override;
+		virtual bool LoadFromJson(const rapidjson::Value* jsonPointLight) override;
+		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>* Writer) override;
 
 		virtual bool OnInit();
 		virtual bool OnPostInit();
 		virtual void OnUpdate(const float DeltaMs);
-		virtual void OnPreRender(XMMATRIX parentMat);
 		virtual void OnRender();
 		virtual void Destroy();
 
@@ -31,10 +34,13 @@ namespace Insight {
 
 		virtual void OnImGuiRender() override;
 
-		 inline CB_PS_PointLight GetConstantBuffer() { return m_ShaderCB; }
+		inline CB_PS_PointLight GetConstantBuffer() { return m_ShaderCB; }
 
 	private:
+		bool OnEventTranslation(TranslationEvent& e);
+	private:
 		CB_PS_PointLight m_ShaderCB;
+		Runtime::SceneComponent* m_pSceneComponent = nullptr;
 	};
 
 }

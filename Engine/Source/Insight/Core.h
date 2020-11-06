@@ -18,6 +18,7 @@
 
 #if defined IE_DEBUG
 	#define IE_ENABLE_ASSERTS
+	#define IE_SCOPE_PROFILING_ENABLED
 #endif // IE_DEBUG
 
 #if defined IE_ENABLE_ASSERTS
@@ -40,16 +41,16 @@
 // Utilities
 #define BIT_SHIFT(x) ( 1 << x )
 #define IE_BIND_EVENT_FN(fn) std::bind( &fn, this, std::placeholders::_1 )
+#define IE_BIND_VOID_FN(fn) std::bind( &fn, this )
 #define COM_SAFE_RELEASE(ptr) if(ptr) ptr->Release();
-#define CAST_TO_FLOAT(...) static_cast<float>(__VA_ARGS__)
-#define CAST_TO_UINT(...) static_cast<UINT>(__VA_ARGS__)
-#define QUOTE(value) #value
-#define MACRO_TO_STRING(macro) QUOTE(macro);
+#define RAW_LITERAL(value) #value
+#define MACRO_TO_STRING(macro) RAW_LITERAL(macro);
+#define FORCE_INLINE __forceinline
 
 // Includes
 #include "Insight/Math/Math_Helpers.h"
 
 // Rendering
 #define MAX_POINT_LIGHTS_SUPPORTED 16U
-#define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 4U
+#define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 1U
 #define MAX_SPOT_LIGHTS_SUPPORTED 16U

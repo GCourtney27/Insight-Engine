@@ -1,15 +1,15 @@
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include "Mesh.h"
 
 #include "Insight/Core/Application.h"
-#include "Insight/Rendering/Renderer.h"
+#include "Renderer/Renderer.h"
 
-#include "Platform/Windows/DirectX_11/Geometry/D3D11_Index_Buffer.h"
-#include "Platform/Windows/DirectX_11/Geometry/D3D11_Vertex_Buffer.h"
-#include "Platform/Windows/DirectX_12/Geometry/D3D12_Index_Buffer.h"
-#include "Platform/Windows/DirectX_12/Geometry/D3D12_Vertex_Buffer.h"
-#include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
+#include "Renderer/Platform/Windows/DirectX_11/Geometry/D3D11_Index_Buffer.h"
+#include "Renderer/Platform/Windows/DirectX_11/Geometry/D3D11_Vertex_Buffer.h"
+#include "Renderer/Platform/Windows/DirectX_12/Geometry/D3D12_Index_Buffer.h"
+#include "Renderer/Platform/Windows/DirectX_12/Geometry/D3D12_Vertex_Buffer.h"
+#include "Renderer/Platform/Windows/DirectX_12/Direct3D12_Context.h"
 
 #include "imgui.h"
 
@@ -51,12 +51,7 @@ namespace Insight {
 	void Mesh::PreRender(const XMMATRIX& parentMat)
 	{
 		m_Transform.SetWorldMatrix(XMMatrixMultiply(parentMat, m_Transform.GetLocalMatrix()));
-
-		XMMATRIX worldMatTransposed = XMMatrixTranspose(m_Transform.GetWorldMatrixRef());
-		XMFLOAT4X4 worldFloat;
-		XMStoreFloat4x4(&worldFloat, worldMatTransposed);
-
-		m_ConstantBufferPerObject.world = worldFloat;
+		m_ConstantBufferPerObject.World = m_Transform.GetWorldMatrixRef();
 
 		if (m_ShouldUpdateAS) UpdateAccelerationStructures();
 	}
@@ -109,8 +104,9 @@ namespace Insight {
 			if (Renderer::GetIsRayTraceEnabled()) {
 
 				m_ShouldUpdateAS = true;
-				m_RTInstanceIndex = reinterpret_cast<Direct3D12Context*>(&Renderer::Get())
-					->RegisterGeometryWithRTAccelerationStucture(
+				
+				m_RTInstanceIndex = Renderer::GetAs<Direct3D12Context>()
+					.RegisterGeometryWithRTAccelerationStucture(
 						reinterpret_cast<D3D12VertexBuffer*>(m_pVertexBuffer)->GetVertexBuffer(),
 						reinterpret_cast<D3D12IndexBuffer*>(m_pIndexBuffer)->GetIndexBuffer(),
 						reinterpret_cast<D3D12VertexBuffer*>(m_pVertexBuffer)->GetNumVerticies(),
@@ -136,7 +132,7 @@ namespace Insight {
 	
 	void Mesh::UpdateAccelerationStructures()
 	{
-		reinterpret_cast<Direct3D12Context*>(&Renderer::Get())->UpdateRTAccelerationStructureMatrix(m_RTInstanceIndex, m_Transform.GetWorldMatrix());
+		Renderer::GetAs<Direct3D12Context>().UpdateRTAccelerationStructureMatrix(m_RTInstanceIndex, m_Transform.GetWorldMatrix());
 	}
 
 }

@@ -8,14 +8,14 @@
 namespace Insight {
 
 	
-	class INSIGHT_API ASkySphere : public AActor
+	class INSIGHT_API ASkySphere : public Runtime::AActor
 	{
 	public:
-		ASkySphere(ActorId id, ActorType type = "Sky Sphere Actor");
+		ASkySphere(ActorId id, Runtime::ActorType type = "Sky Sphere Actor");
 		virtual ~ASkySphere();
 
-		virtual bool LoadFromJson(const rapidjson::Value& jsonSkySphere) override;
-		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer) override;
+		virtual bool LoadFromJson(const rapidjson::Value* jsonSkySphere) override;
+		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>* Writer) override;
 		
 		virtual bool OnInit();
 		virtual bool OnPostInit();

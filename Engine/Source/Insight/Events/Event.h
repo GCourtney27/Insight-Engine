@@ -1,12 +1,11 @@
+// Copyright Insight Interactive. All Rights Reserved.
 #pragma once
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include <Insight/Core.h>
+#include "Insight/Input/Key_Codes.h"
 
 namespace Insight {
-
-	// Event system is currently a blocking event system
-	// TODO: Implement defered event system
 
 	enum class EventType
 	{
@@ -16,7 +15,7 @@ namespace Insight {
 		SceneSave,
 		KeyPressed, KeyReleased, KeyTyped,
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, RawMouseMoved, MouseScrolled,
-		PhysicsCollisionEvent
+		PhysicsCollisionEvent, WorldTranslationEvent
 	};
 
 	enum EventCategory
@@ -27,7 +26,8 @@ namespace Insight {
 		EventCategoryKeyboard = BIT_SHIFT(2),
 		EventCategoryMouse = BIT_SHIFT(3),
 		EventCategoryMouseButton = BIT_SHIFT(4),
-		EventCatecoryPhysics = BIT_SHIFT(5)
+		EventCategoryPhysics = BIT_SHIFT(5),
+		EventCategoryTranslation = BIT_SHIFT(6)
 	};
 
 #define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::##type; }\
@@ -55,6 +55,38 @@ namespace Insight {
 		bool m_Handled = false;
 	};
 
+	class INSIGHT_API InputEvent
+	{
+	public:
+		inline KeyMapCode GetKeyCode() const { return m_KeyMapCode; }
+		inline InputEventType GetEventType() const { return m_Status; }
+		
+		std::string ToString() const
+		{
+			std::stringstream ss;
+			ss << "Input Event: (Button) " << m_KeyMapCode << " (Status) " << m_Status;
+			return ss.str();
+		}
+	protected:
+		InputEvent(KeyMapCode KeyMapCode, InputEventType Status)
+			: m_KeyMapCode(KeyMapCode), m_Status(Status) 
+		{}
+
+		KeyMapCode m_KeyMapCode;
+		InputEventType m_Status;
+	};
+
+	class INSIGHT_API RendererEvent : public Event
+	{
+	public:
+		RendererEvent() = default;
+		~RendererEvent() = default;
+
+		virtual EventType GetEventType() const override { return EventType::AppRender; }
+		virtual const char* GetName() const override { return "Default Render Event Type"; }
+		virtual int GetCategoryFlags() const override { return -1; }
+	};
+
 	class EventDispatcher
 	{
 		template<typename Event>
@@ -64,12 +96,12 @@ namespace Insight {
 		EventDispatcher(Event& event)
 			: m_Event(event) {}
 
-		template<typename Event>
-		bool Dispatch(EventFn<Event> func)
+		template<typename Func>
+		bool Dispatch(EventFn<Func> func)
 		{
-			if (m_Event.GetEventType() == Event::GetStaticType())
+			if (m_Event.GetEventType() == Func::GetStaticType())
 			{
-				m_Event.m_Handled = func(*(Event*)&m_Event);
+				m_Event.m_Handled = func(*(Func*)&m_Event);
 				return true;
 			}
 			return false;

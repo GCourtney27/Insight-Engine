@@ -1,6 +1,6 @@
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
-#include "Insight/Rendering/Renderer.h"
+#include "Renderer/Renderer.h"
 #include "Insight/Runtime/AActor.h"
 #include "imgui.h"
 #include "Scene_Node.h"
@@ -36,7 +36,7 @@ namespace Insight {
 		}
 	}
 
-	bool SceneNode::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
+	bool SceneNode::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>* Writer)
 	{
 		size_t numChildrenObjects = m_Children.size();
 		for (size_t i = 0; i < numChildrenObjects; ++i) {
@@ -45,7 +45,7 @@ namespace Insight {
 		return false;
 	}
 
-	bool SceneNode::LoadFromJson(const rapidjson::Value& jsonActor)
+	bool SceneNode::LoadFromJson(const rapidjson::Value* jsonActor)
 	{
 		return false;
 	}
@@ -60,12 +60,15 @@ namespace Insight {
 
 	bool SceneNode::OnInit()
 	{
-		m_RootTransform.EditorInit();
 		return true;
 	}
 
 	bool SceneNode::OnPostInit()
 	{
+		for (uint32_t i = 0; i < m_Children.size(); ++i)
+		{
+			m_Children[i]->OnPostInit();
+		}
 		return true;
 	}
 
@@ -76,13 +79,13 @@ namespace Insight {
 		}
 	}
 
-	void SceneNode::CalculateParent(XMMATRIX parentMat)
+	/*void SceneNode::CalculateParent(XMMATRIX parentMat)
 	{
 		GetTransformRef().SetWorldMatrix(XMMatrixMultiply(parentMat, GetTransformRef().GetLocalMatrixRef()));
 		for (auto i = m_Children.begin(); i != m_Children.end(); ++i) {
 			(*i)->CalculateParent(GetTransformRef().GetWorldMatrixRef());
 		}
-	}
+	}*/
 
 	void SceneNode::OnRender()
 	{
@@ -112,7 +115,6 @@ namespace Insight {
 
 	void SceneNode::EditorEndPlay()
 	{
-		m_RootTransform.EditorEndPlay();
 		for (auto i = m_Children.begin(); i != m_Children.end(); ++i) {
 			(*i)->EditorEndPlay();
 		}

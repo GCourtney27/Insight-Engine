@@ -1,11 +1,10 @@
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include "Model.h"
 #include "Insight/Utilities/String_Helper.h"
-#include "Insight/Systems/File_System.h"
 #include "Insight/Rendering/Material.h"
 
-#include "imgui.h"
+#include "Insight/UI/UI_Lib.h"
 
 namespace Insight {
 
@@ -59,15 +58,18 @@ namespace Insight {
 		ImGui::Text("Asset: ");
 		ImGui::SameLine();
 		ImGui::Text(m_FileName.c_str());
+		ImGui::PushID(m_FileName.c_str());
 
-		ImGui::Text("Transform - StaticMesh");
-		ImGui::DragFloat3("Position##StaticMesh", &m_pRoot->GetTransformRef().GetPositionRef().x, 0.05f, -1000.0f, 1000.0f);
-		ImGui::DragFloat3("Scale##StaticMesh", &m_pRoot->GetTransformRef().GetScaleRef().x, 0.05f, -1000.0f, 1000.0f);
-		ImGui::DragFloat3("Rotation##StaticMesh", &m_pRoot->GetTransformRef().GetRotationRef().x, 0.05f, -1000.0f, 1000.0f);
+		ImGui::Text("Transform");
+		UI::DrawVector3Control("Position", m_pRoot->GetTransformRef().GetPositionRef());
+		UI::DrawVector3Control("Rotation", m_pRoot->GetTransformRef().GetRotationRef());
+		UI::DrawVector3Control("Scale", m_pRoot->GetTransformRef().GetScaleRef(), 1.0f);
 
 		ImGui::Text("Rendering");
 		ImGui::Checkbox("Casts Shadows ##StaticMesh", &m_CastsShadows);
 		ImGui::Checkbox("Visible ##StaticMesh", &m_Visible);
+
+		ImGui::PopID();
 	}
 
 	void Model::RenderSceneHeirarchy()
@@ -107,7 +109,7 @@ namespace Insight {
 		Assimp::Importer Importer;
 		const aiScene* pScene = Importer.ReadFile(
 			path, 
-			aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded 
+			aiProcess_ImproveCacheLocality | aiProcessPreset_TargetRealtime_Fast | aiProcess_ConvertToLeftHanded
 		);
 
 		if (!pScene || pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !pScene->mRootNode) {
@@ -127,7 +129,9 @@ namespace Insight {
 	{
 		ieTransform transform;
 		if (pNode->mParent) {
-			transform.SetLocalMatrix(XMMatrixTranspose(XMMATRIX(&pNode->mTransformation.a1)));
+			XMMATRIX mat = XMMatrixMultiply(XMMATRIX(&pNode->mTransformation.a1), XMMATRIX(&pNode->mParent->mTransformation.a1));
+			//transform.SetLocalMatrix(XMMatrixTranspose(XMMATRIX(&pNode->mTransformation.a1)));
+			transform.SetWorldMatrix(mat);
 		}
 
 		// Create a pointer to all the meshes this node owns

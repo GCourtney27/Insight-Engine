@@ -1,10 +1,10 @@
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include "File_System.h"
 
 #include "Insight/Core/Application.h"
 #include "Insight/Core/Scene/scene.h"
-#include "Insight/Core/ieException.h"
+#include "Insight/Core/ie_Exception.h"
 #include "Insight/Utilities/String_Helper.h"
 
 #include "Insight/Rendering/APost_Fx.h"
@@ -16,8 +16,10 @@
 
 namespace Insight {
 
+	std::string FileSystem::UserDocumentsFolder = "";
 	std::string FileSystem::ProjectDirectory = "";
 	std::string FileSystem::ExecutableDirectory = "";
+	std::wstring FileSystem::ExecutableDirectoryW = L"";
 
 	FileSystem::FileSystem()
 	{
@@ -29,12 +31,11 @@ namespace Insight {
 
 	bool FileSystem::Init(const char* ProjectName)
 	{
-		FileSystem::ProjectDirectory += FileSystem::GetUserDocumentsFolderPath();
-		FileSystem::ProjectDirectory += "/Insight Projects/";
-		FileSystem::ProjectDirectory += ProjectName;
-		FileSystem::ProjectDirectory += "/";
+		SetUserDocumentsFolderDirectory();
+		SetProjectDirectory(ProjectName);
+		SetExecutableDirectory();
 		
-		FileSystem::ExecutableDirectory = FileSystem::GetExecutbleDirectory();
+		FileSystem::ExecutableDirectory = GetExecutbleDirectory();
 		return true;
 	}
 
@@ -87,49 +88,6 @@ namespace Insight {
 
 	}
 
-	std::string FileSystem::GetExecutbleDirectory()
-	{
-		WCHAR Path[512];
-		UINT RawPathSize = _countof(Path);
-		DWORD PathSize = GetModuleFileName(nullptr, Path, RawPathSize);
-		if(PathSize == 0 || PathSize == RawPathSize) {
-			throw ieException("Failed to get module path name or path may have been truncated.");
-		}
-
-		WCHAR* LastSlash = wcsrchr(Path, L'\\');
-		if (LastSlash) {
-			*(LastSlash + 1) = L'\0';
-		}
-		return StringHelper::WideToString(std::wstring{ Path });
-	}
-
-	std::wstring FileSystem::GetExecutbleDirectoryW()
-	{
-		WCHAR Path[512];
-		UINT RawPathSize = _countof(Path);
-		DWORD PathSize = GetModuleFileName(nullptr, Path, RawPathSize);
-		if (PathSize == 0 || PathSize == RawPathSize) {
-			throw ieException("Failed to get module path name or path may have been truncated.");
-		}
-
-		WCHAR* LastSlash = wcsrchr(Path, L'\\');
-		if (LastSlash) {
-			*(LastSlash + 1) = L'\0';
-		}
-		return std::wstring{ Path };
-	}
-
-	std::string FileSystem::GetUserDocumentsFolderPath()
-	{
-		wchar_t Folder[1024];
-		HRESULT hr = SHGetFolderPathW(NULL, CSIDL_MYDOCUMENTS, 0, 0, Folder);
-		if (FAILED(hr)) {
-			IE_CORE_ERROR("Failed to get path to user documents folder.");
-		}
-		
-		return StringHelper::WideToString(std::wstring{ Folder });
-	}
-
 	std::string FileSystem::GetProjectRelativeAssetDirectory(std::string Path)
 	{
 		return ProjectDirectory + "/Assets/" + Path;
@@ -141,7 +99,7 @@ namespace Insight {
 		GraphicsSettings UserGraphicsSettings = {};
 
 		{
-			Profiling::ScopedTimer timer("LoadSceneFromJson::LoadGraphicsSettingsFromJson");
+			ScopedPerfTimer("LoadSceneFromJson::LoadGraphicsSettingsFromJson", eOutputType_Seconds);
 
 			rapidjson::Document RawSettingsFile;
 			const std::string SettingsDir = ProjectDirectory + "/PROFSAVE.ini";
@@ -171,7 +129,7 @@ namespace Insight {
 	{
 		// Load in Meta.json
 		{
-			Profiling::ScopedTimer timer("LoadSceneFromJson::LoadMetaData");
+			ScopedPerfTimer("LoadSceneFromJson::LoadMetaData", eOutputType_Seconds);
 
 			rapidjson::Document rawMetaFile;
 			const std::string metaDir = FileName + "/Meta.json";
@@ -193,71 +151,71 @@ namespace Insight {
 
 		// Load in Resources.json
 		{
-			Profiling::ScopedTimer timer("LoadSceneFromJson::LoadResources");
+			ScopedPerfTimer("LoadSceneFromJson::LoadResources", eOutputType_Seconds);
 
-			rapidjson::Document rawResourceFile;
-			const std::string resorurceDir = FileName + "/Resources.json";
-			if (!json::load(resorurceDir.c_str(), rawResourceFile)) {
+			rapidjson::Document RawResourceFile;
+			const std::string ResorurceDir = FileName + "/Resources.json";
+			if (!json::load(ResorurceDir.c_str(), RawResourceFile)) {
 				IE_CORE_ERROR("Failed to load resource file from scene: \"{0}\" from file.", FileName);
 				return false;
 			}
 
-			ResourceManager::Get().LoadResourcesFromJson(rawResourceFile);
+			ResourceManager::Get().LoadResourcesFromJson(RawResourceFile);
 
 			IE_CORE_TRACE("Scene resouces loaded.");
 		}
 
 		// Load in Actors.json last once resources have been intialized
 		{
-			Profiling::ScopedTimer ScopeTimer("LoadSceneFromJson::LoadActors");
+			ScopedPerfTimer("LoadSceneFromJson::LoadActors", eOutputType_Seconds);
 
 			rapidjson::Document RawActorsFile;
-			const std::string actorsDir = FileName + "/Actors.json";
-			if (!json::load(actorsDir.c_str(), RawActorsFile)) {
+			const std::string ActorsDir = FileName + "/Actors.json";
+			if (!json::load(ActorsDir.c_str(), RawActorsFile)) {
 				IE_CORE_ERROR("Failed to load actor file from scene: \"{0}\" from file.", FileName);
 				return false;
 			}
 
-			AActor* pNewActor = nullptr;
-			UINT ActorSceneIndex = 0;
+			Runtime::AActor* pNewActor = nullptr;
+			uint32_t ActorSceneIndex = 0;
 
-			const rapidjson::Value& sceneObjects = RawActorsFile["Set"];
-			for (rapidjson::SizeType a = 0; a < sceneObjects.Size(); a++)
+			const rapidjson::Value& SceneObjects = RawActorsFile["Set"];
+			for (rapidjson::SizeType a = 0; a < SceneObjects.Size(); a++)
 			{
-				const rapidjson::Value& jsonActor = sceneObjects[a];
+				const rapidjson::Value& jsonActor = SceneObjects[a];
 
 				std::string ActorDisplayName;
-				std::string actorType;
+				std::string ActorType;
 				json::get_string(jsonActor, "DisplayName", ActorDisplayName);
-				json::get_string(jsonActor, "Type", actorType);
+				json::get_string(jsonActor, "Type", ActorType);
 
-				if (actorType == "Actor") {
-					pNewActor = new AActor(ActorSceneIndex, ActorDisplayName);
-					pNewActor->LoadFromJson(jsonActor);
+				if (ActorType == "Actor") {
+					pNewActor = new Runtime::AActor(ActorSceneIndex, ActorDisplayName);
+					pNewActor->LoadFromJson(&jsonActor);
 				}
-				else if (actorType == "PointLight") {
+				else if (ActorType == "PointLight") {
 					pNewActor = new APointLight(ActorSceneIndex, ActorDisplayName);
-					pNewActor->LoadFromJson(jsonActor);
+					pNewActor->LoadFromJson(&jsonActor);
 				}
-				else if (actorType == "SpotLight") {
+				else if (ActorType == "SpotLight") {
 					pNewActor = new ASpotLight(ActorSceneIndex, ActorDisplayName);
-					pNewActor->LoadFromJson(jsonActor);
+					pNewActor->LoadFromJson(&jsonActor);
 				}
-				else if (actorType == "DirectionalLight") {
+ 				else if (ActorType == "DirectionalLight") {
 					pNewActor = new ADirectionalLight(ActorSceneIndex, ActorDisplayName);
-					pNewActor->LoadFromJson(jsonActor);
+					pNewActor->LoadFromJson(&jsonActor);
 				}
-				else if (actorType == "SkySphere") {
+				else if (ActorType == "SkySphere") {
 					pNewActor = new ASkySphere(ActorSceneIndex, ActorDisplayName);
-					pNewActor->LoadFromJson(jsonActor);
+					pNewActor->LoadFromJson(&jsonActor);
 				}
-				else if (actorType == "SkyLight") {
+				else if (ActorType == "SkyLight") {
 					pNewActor = new ASkyLight(ActorSceneIndex, ActorDisplayName);
-					pNewActor->LoadFromJson(jsonActor);
+					pNewActor->LoadFromJson(&jsonActor);
 				}
-				else if (actorType == "PostFxVolume") {
+				else if (ActorType == "PostFxVolume") {
 					pNewActor = new APostFx(ActorSceneIndex, ActorDisplayName);
-					pNewActor->LoadFromJson(jsonActor);
+					pNewActor->LoadFromJson(&jsonActor);
 				}
 
 				if (pNewActor == nullptr) {
@@ -305,7 +263,7 @@ namespace Insight {
 			rapidjson::StringBuffer StrBuffer;
 			rapidjson::PrettyWriter<rapidjson::StringBuffer> Writer(StrBuffer);
 
-			pScene->WriteToJson(Writer);
+			pScene->WriteToJson(&Writer);
 
 			// Final Export
 			std::string sceneName = FileSystem::ProjectDirectory + "/Assets/Scenes/" + pScene->GetDisplayName() + ".iescene/Actors.json";
@@ -321,10 +279,47 @@ namespace Insight {
 		return true;
 	}
 
-	bool FileSystem::FileExists(const std::string& Path)
+	bool FileSystem::FileExistsInAssetDirectory(const std::string& Path)
 	{
-		std::string RawPath = ProjectDirectory + "Assets/" + Path;
+		std::string RawPath(GetProjectDirectory());
+		RawPath += "Assets/" + Path;
 		return PathFileExistsA(RawPath.c_str());
+	}
+
+	void FileSystem::SetExecutableDirectory()
+	{
+		WCHAR Path[512];
+		UINT RawPathSize = _countof(Path);
+		DWORD PathSize = GetModuleFileName(nullptr, Path, RawPathSize);
+		if (PathSize == 0 || PathSize == RawPathSize) {
+			throw ieException("Failed to get module path name or path may have been truncated.");
+		}
+
+		WCHAR* LastSlash = wcsrchr(Path, L'\\');
+		if (LastSlash) {
+			*(LastSlash + 1) = L'\0';
+		}
+		FileSystem::ExecutableDirectoryW = std::wstring{ Path };
+		FileSystem::ExecutableDirectory = StringHelper::WideToString(FileSystem::ExecutableDirectoryW);
+	}
+
+	void FileSystem::SetProjectDirectory(const char* ProjectName)
+	{
+		FileSystem::ProjectDirectory += FileSystem::GetUserDocumentsFolderPath();
+		FileSystem::ProjectDirectory += "/Insight Projects/";
+		FileSystem::ProjectDirectory += ProjectName;
+		FileSystem::ProjectDirectory += "/";
+	}
+
+	void FileSystem::SetUserDocumentsFolderDirectory()
+	{
+		wchar_t Folder[1024];
+		HRESULT hr = SHGetFolderPathW(NULL, CSIDL_MYDOCUMENTS, 0, 0, Folder);
+		if (FAILED(hr)) {
+			IE_CORE_ERROR("Failed to get path to user documents folder.");
+		}
+
+		UserDocumentsFolder = StringHelper::WideToString(std::wstring{ Folder });
 	}
 
 

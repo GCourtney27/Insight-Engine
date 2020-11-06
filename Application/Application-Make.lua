@@ -10,12 +10,13 @@ project (gameName)
 	cppdialect "C++17"
 	language "C++"
 	staticruntime "off"
-
-	targetdir (rootDirectoryPath .. "Bin/" .. outputdir .. "/%{prj.name}")
-	objdir (rootDirectoryPath .. "Bin-Int/" .. outputdir .. "/%{prj.name}")
+	
+	targetdir (rootDirectoryPath .. "Binaries/" .. outputdir .. "/%{prj.name}")
+    objdir (rootDirectoryPath .. "Binaries/Intermediates/" .. outputdir .. "/%{prj.name}")
 
 	files
 	{
+		"Application-Make.lua",
 		"Source/**.h",
 		"Source/**.cpp",
 	}

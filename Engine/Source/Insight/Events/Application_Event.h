@@ -6,7 +6,7 @@ namespace Insight {
 
 
 
-	class INSIGHT_API WindowResizeEvent : public Event
+	class INSIGHT_API WindowResizeEvent : public RendererEvent
 	{
 	public:
 		WindowResizeEvent(unsigned int width, unsigned int height, bool minimized)
@@ -30,7 +30,7 @@ namespace Insight {
 		bool m_Minimized;
 	};
 
-	class INSIGHT_API WindowToggleFullScreenEvent : public Event
+	class INSIGHT_API WindowToggleFullScreenEvent : public RendererEvent
 	{
 	public:
 		WindowToggleFullScreenEvent(bool enabled) 
@@ -58,15 +58,28 @@ namespace Insight {
 	public:
 		PhysicsEvent() {}
 		EVENT_CLASS_TYPE(PhysicsCollisionEvent)
-			EVENT_CLASS_CATEGORY(EventCatecoryPhysics)
+			EVENT_CLASS_CATEGORY(EventCategoryPhysics)
 
 		struct CollisionDetails
 		{
-			AActor* pCollider;
+			Runtime::AActor* pCollider;
 			float Velocity;
 			/*ieVector3 Direction;
 			ieVector3 Normal;*/
 		} CollisionInfo;
+	};
+
+	class INSIGHT_API TranslationEvent : public Event
+	{
+	public:
+		TranslationEvent() {}
+		EVENT_CLASS_TYPE(WorldTranslationEvent)
+			EVENT_CLASS_CATEGORY(EventCategoryTranslation)
+
+		struct TranslationDetails
+		{
+			ieMatrix4x4 WorldMat;
+		} TranslationInfo;
 	};
 
 	class INSIGHT_API AppTickEvent : public Event
@@ -132,7 +145,7 @@ namespace Insight {
 			EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
-	class INSIGHT_API ShaderReloadEvent : public Event
+	class INSIGHT_API ShaderReloadEvent : public RendererEvent
 	{
 	public:
 		ShaderReloadEvent() {}

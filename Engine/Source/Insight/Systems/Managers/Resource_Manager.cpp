@@ -1,4 +1,4 @@
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include "Resource_Manager.h"
 #include "Platform/Windows/Error/COM_Exception.h"
@@ -26,11 +26,19 @@ namespace Insight {
 
 	bool ResourceManager::Init()
 	{
-		GeometryManager::InitGlobalInstance();
+		GeometryManager::CreateInstance();
 		GeometryManager::Init();
 
 		m_pMonoScriptManager->Init();
 		m_pTextureManager->Init();
+		return true;
+	}
+
+	bool ResourceManager::PostAppInit()
+	{
+		m_pTextureManager->PostInit();
+		m_pMonoScriptManager->PostInit();
+
 		return true;
 	}
 
@@ -49,7 +57,7 @@ namespace Insight {
 	{
 		GeometryManager::FlushModelCache();
 		m_pTextureManager->FlushTextureCache();
-		//m_pMonoScriptManager->Cleanup();
+		m_pMonoScriptManager->Cleanup();
 	}
 
 }

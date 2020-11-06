@@ -19,6 +19,7 @@
 #include <functional>
 #include <unordered_map>
 #include <unordered_set>
+#include <variant>
 
 #if _MSC_VER >= 1700
 using std::shared_ptr;
@@ -36,11 +37,24 @@ using std::tr1::static_pointer_cast;
 using std::tr1::dynamic_pointer_cast;
 #endif
 
+// === Third Party === //
+// Rapid Json
+#include <rapidjson/json.h>
+#include <rapidjson/document.h>
+#include <rapidjson/filewritestream.h>
+#include <rapidjson/istreamwrapper.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/ostreamwrapper.h>
+#include <rapidjson/prettywriter.h>
+
 // === Insight Specific === //
 #include "Insight/Core/Log.h"
 #include "Insight/Core/Interfaces.h"
-#include "Insight/Utilities/Profiling.h"
 #include "Insight/Math/ie_Vectors.h"
+#include "Insight/Utilities/Profiling.h"
+#include "Insight/Utilities/String_Helper.h"
+#include "Insight/Systems/File_System.h"
 
 // === Third Party === //
 // Rapid Json
@@ -61,12 +75,16 @@ using std::tr1::dynamic_pointer_cast;
 #if defined IE_PLATFORM_WINDOWS
 
 #ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers.
-#endif
+	#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers.
+#endif //WIN32_LEAN_AND_MEAN
 
 #if defined IE_DEBUG
-#define USE_PIX
-#endif
+	#define USE_PIX
+#endif // IE_DEBUG
+#if !defined USE_PIX
+	#define PIXBeginEvent 
+	#define PIXEndEvent
+#endif // !USE_PIX
 
 // Windows API
 #include <Windows.h>
@@ -92,11 +110,14 @@ using std::tr1::dynamic_pointer_cast;
 #include <DirectXMath.h>
 #include <D3Dcompiler.h>
 
+using Microsoft::WRL::ComPtr;
+
+
 #endif // IE_PLATFORM_WINDOWS
 
 // === Mac === //
-#ifdef IE_PLATFORM_MAC
+#ifdef RN_PLATFORM_MAC
 
 
 
-#endif // IE_PLATFORM_MAC
+#endif // RN_PLATFORM_MAC

@@ -1,16 +1,18 @@
 #pragma once
 #include <comdef.h>
 #include "Insight/Utilities/String_Helper.h"
+#include "Insight/Core/ie_Exception.h"
 
 namespace Insight {
 
 	#define ThrowIfFailed( hr, msg ) if( FAILED( hr ) ) throw COMException (hr, msg, __FILE__, __FUNCTION__, __LINE__ )
 	#define THROW_COM_ERROR(msg) throw COMException(NULL, msg, __FILE__, __FUNCTION__, __LINE__)
 
-	class COMException
+	class COMException : public ieException
 	{
 	public:
 		COMException(HRESULT hr, const std::string& msg, const std::string& file, const std::string& function, int line)
+			: ieException(msg.c_str())
 		{
 			_com_error error(hr);
 			whatmsg = L"Msg: " + StringHelper::StringToWide(std::string(msg)) + L"\n";

@@ -1,10 +1,11 @@
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include "Scene.h"
 
 #include "Insight/Core/Application.h"
-#include "Insight/Runtime/APlayer_Character.h"
-#include "Insight/Runtime/APlayer_Start.h"
+#include "Insight/Runtime/Archetypes/APlayer_Character.h"
+#include "Insight/Runtime/Archetypes/APlayer_Start.h"
+#include "Insight/Runtime/Archetypes/ACamera.h"
 
 #include "imgui.h"
 
@@ -21,25 +22,22 @@ namespace Insight {
 		Destroy();
 	}
 
-	bool Scene::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
+	bool Scene::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>* Writer)
 	{
-		Writer.StartObject();
-		Writer.Key("Set");
-		Writer.StartArray();
+		Writer->StartObject();
+		Writer->Key("Set");
+		Writer->StartArray();
 		{
 			m_pSceneRoot->WriteToJson(Writer);
 		}
-		Writer.EndArray();
-		Writer.EndObject();
+		Writer->EndArray();
+		Writer->EndObject();
 		return true;
 	}
 
-	bool Scene::Init(const std::string fileName)
+	bool Scene::Init(const std::string& fileName)
 	{
 		m_pSceneRoot = new SceneNode("Scene Root");
-
-		// Get the render context from the main window
-		//m_Renderer = RenderingContext::Get();
 
 		// Initialize resource managers this scene will need.
 		m_ResourceManager.Init();
@@ -47,13 +45,14 @@ namespace Insight {
 		// Create the Scene camera and default view target. 
 		// There should only be one camera in the world at 
 		// any given time.
-		m_EditorViewTarget = ACamera::GetDefaultViewTarget();
+		m_EditorViewTarget = Runtime::ACamera::GetDefaultViewTarget();
 		m_EditorViewTarget.FieldOfView = 75.0f;
 		//m_EditorViewTarget.Position = ieVector3(-17.0f, 8.0f, -31.0f);
 		m_EditorViewTarget.Position = ieVector3(83.0f, 31.0f, -23.0f);
 		m_EditorViewTarget.Rotation = ieVector3(0.478f, -0.981f, 0.0f);
 		m_EditorViewTarget.NearZ = 0.001f;
-		m_pCamera = new ACamera(m_EditorViewTarget);
+		m_EditorViewTarget.FarZ = 2500.0f;
+		m_pCamera = new Runtime::ACamera(m_EditorViewTarget);
 		m_pCamera->SetCanBeFileParsed(false);
 		m_pCamera->SetPerspectiveProjectionValues(
 			m_EditorViewTarget.FieldOfView, 
@@ -64,25 +63,24 @@ namespace Insight {
 		m_pSceneRoot->AddChild(m_pCamera);
 
 		// Create the player character
-		m_pPlayerCharacter = new APlayerCharacter(0);
+		m_pPlayerCharacter = new Runtime::APlayerCharacter(0);
 		m_pPlayerCharacter->SetCanBeFileParsed(false);
 		m_pSceneRoot->AddChild(m_pPlayerCharacter);
 
 		// Create the player start point
-		m_pPlayerStart = new APlayerStart(0);
+		m_pPlayerStart = new Runtime::APlayerStart(0);
 		m_pPlayerStart->SetCanBeFileParsed(false);
 		m_pSceneRoot->AddChild(m_pPlayerStart);
 		// Load the scene from .iescene folder containing all .json resource files
 		FileSystem::LoadSceneFromJson(fileName, this);
 
-		// Tell the renderer to set init commands to the gpu
-		Renderer::PostInit();
 		return true;
 	}
 
 	bool Scene::PostInit()
 	{
-		return false;
+		m_pSceneRoot->OnPostInit();
+		return true;
 	}
 
 	void Scene::BeginPlay()
@@ -99,7 +97,7 @@ namespace Insight {
 		m_pCamera->SetParent(m_pSceneRoot);
 		m_pCamera->SetViewTarget(m_EditorViewTarget);
 
-		m_pPlayerCharacter->GetTransformRef().SetPosition(0.0f, 0.0f, 0.0f);
+		m_pPlayerCharacter->SetPosition(0.0f, 0.0f, 0.0f);
 
 		m_pSceneRoot->EditorEndPlay();
 	}
@@ -112,35 +110,11 @@ namespace Insight {
 
 	void Scene::OnUpdate(const float DeltaMs)
 	{
-		Renderer::OnUpdate(DeltaMs);
 		m_pSceneRoot->OnUpdate(DeltaMs);
 	}
 
 	void Scene::OnImGuiRender()
 	{
-	}
-
-	void Scene::OnPreRender()
-	{
-		Renderer::OnPreFrameRender();
-		m_pSceneRoot->CalculateParent(XMMatrixIdentity());
-		GeometryManager::GatherGeometry();
-	}
-
-	void Scene::OnRender()
-	{
-		Renderer::OnRender();
-		m_pSceneRoot->OnRender();
-	}
-
-	void Scene::OnMidFrameRender()
-	{
-		Renderer::OnMidFrameRender();
-	}
-
-	void Scene::OnPostRender()
-	{
-		GeometryManager::PostRender();
 	}
 
 	void Scene::Destroy()

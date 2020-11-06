@@ -27,6 +27,9 @@ namespace Insight {
 			ieFloat2(ieFloat2&&) = default;
 			ieFloat2& operator=(ieFloat2&&) = default;
 
+			constexpr ieFloat2(float Val)
+				: x(Val), y(Val) {}
+
 			constexpr ieFloat2(float _X, float _Y)
 				: x(_X), y(_Y) {}
 		};
@@ -46,6 +49,9 @@ namespace Insight {
 			ieFloat3(ieFloat3&&) = default;
 			ieFloat3& operator=(ieFloat3&&) = default;
 
+			constexpr ieFloat3(float Val)
+				: x(Val), y(Val), z(Val) {}
+			
 			constexpr ieFloat3(float _X, float _Y, float _Z)
 				: x(_X), y(_Y), z(_Z) {}
 		};
@@ -66,11 +72,23 @@ namespace Insight {
 			ieFloat4(ieFloat4&&) = default;
 			ieFloat4& operator=(ieFloat4&&) = default;
 
+			constexpr ieFloat4(float Val)
+				: x(Val), y(Val), z(Val), w(Val) {}
+
 			constexpr ieFloat4(float _X, float _Y, float _Z, float _W)
 				: x(_X), y(_Y), z(_Z), w(_W) {}
 		};
 
 	} // End namespace Math
+
+
+
+
+
+
+
+
+
 
 	namespace Math {
 
@@ -85,7 +103,7 @@ namespace Insight {
 		using ieVector2 = DirectX::SimpleMath::Vector2;
 		using ieVector3 = DirectX::SimpleMath::Vector3;
 		using ieVector4 = DirectX::SimpleMath::Vector4;
-#elif defined IE_PLATFORM_MAC
+#elif defined RN_PLATFORM_MAC
 		using ieVector2 = glm::vec2;
 		using ieVector3 = glm::vec3;
 		using ieVector4 = glm::vec4;

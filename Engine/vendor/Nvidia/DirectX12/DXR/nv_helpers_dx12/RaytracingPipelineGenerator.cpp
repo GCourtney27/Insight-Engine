@@ -39,7 +39,7 @@ compiling in debug mode.
 
 */
 
-#include <ie_pch.h>
+#include <Renderer_pch.h>
 #include "RaytracingPipelineGenerator.h"
 
 #include "dxcapi.h"

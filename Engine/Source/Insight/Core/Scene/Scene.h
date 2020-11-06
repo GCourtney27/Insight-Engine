@@ -2,18 +2,18 @@
 
 #include <Insight/Core.h>
 
-#include "Scene_Node.h"
-#include "Insight/Rendering/Renderer.h"
 #include "Insight/Systems/Managers/Resource_Manager.h"
-#include "Insight/Systems/File_System.h"
-#include "Insight/Runtime/ACamera.h"
+#include "Insight/Runtime/Archetypes/ACamera.h"
 
 
 namespace Insight {
 
+	namespace Runtime {
+		class APlayerCharacter;
+		class APlayerStart;
+	}
 
-	class APlayerCharacter;
-	class APlayerStart;
+	class SceneNode;
 
 	class INSIGHT_API Scene
 	{
@@ -25,10 +25,10 @@ namespace Insight {
 		// other game actors in the world are children too.
 		SceneNode* GetRootNode() const { return m_pSceneRoot; }
 		// Write scene out to JSON file.
-		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
+		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>* writer);
 
 		// Initialize the scene
-		bool Init(const std::string fileName);
+		bool Init(const std::string& fileName);
 		// Post-Initialize of the scene. Used for dispatching 
 		// initialization commands for actors on the GPU (Mesh 
 		// creation, texture generation etc..)
@@ -44,28 +44,16 @@ namespace Insight {
 		void OnUpdate(const float DeltaMs);
 		// Render an ImGui widget for thie module.
 		void OnImGuiRender();
-		// Flushes GPU command lists and prepares for next frame. Also calculates 
-		// the parent child relationships of all actors in the scene. Once calcualted,
-		// the constant buffers are updated on the GPU.
-		void OnPreRender();
-		// Begins the geometry pass on the scene. Anything that is not transparent or you would like to be 
-		// included in PBR lighting must be drawn between now and 'OnMidFrameRender'.
-		void OnRender();
-		// Ends the geometry pass and begins the lighting pass.
-		void OnMidFrameRender();
-		// Ends the light pass begins the post-process pass. Once complete, swaps buffers and 
-		// presents the final frame
-		void OnPostRender();
 		// Destroys the scene and releases resources. DOES NOT save scene.
 		void Destroy();
 		// Close the current scene and open a new scene.
 		bool FlushAndOpenNewScene(const std::string& NewScene);
 
 		SceneNode& GetSceneRoot() { return *m_pSceneRoot; }
-		ACamera& GetSceneCamera() { return *m_pCamera; }
+		Runtime::ACamera& GetSceneCamera() { return *m_pCamera; }
 
 		// Add an actor to the scene.
-		void AddActor(AActor* pActor) { m_pSceneRoot->AddChild(pActor); }
+		void AddActor(Runtime::AActor* pActor) { m_pSceneRoot->AddChild(pActor); }
 
 		// Set the name of the level.
 		void SetDisplayName(const std::string& name) { m_DisplayName = name; }
@@ -81,13 +69,13 @@ namespace Insight {
 
 
 	private:
-		APlayerCharacter* m_pPlayerCharacter = nullptr;
-		APlayerStart* m_pPlayerStart = nullptr;
-		ACamera* m_pCamera = nullptr;
-		ViewTarget m_EditorViewTarget;
+		Runtime::APlayerCharacter* m_pPlayerCharacter = nullptr;
+		Runtime::APlayerStart* m_pPlayerStart = nullptr;
+		Runtime::ACamera* m_pCamera = nullptr;
+		Runtime::ViewTarget m_EditorViewTarget;
 
 		ieVector3 newPos;
-		AActor* m_pSelectedActor = nullptr;
+		Runtime::AActor* m_pSelectedActor = nullptr;
 
 		SceneNode* m_pSceneRoot = nullptr;
 		std::string m_DisplayName;

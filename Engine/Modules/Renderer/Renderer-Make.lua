@@ -24,15 +24,17 @@ project("Renderer")
     pchheader ("Renderer_pch.h")
     pchsource ("Source/Renderer_pch.cpp")
 
-	targetdir (rootDirectoryPath .. "Bin/" .. outputdir .. "/%{prj.name}")
-    objdir (rootDirectoryPath .. "Bin-Int/" .. outputdir .. "/%{prj.name}")
+	targetdir (rootDirectoryPath .. "Binaries/" .. outputdir .. "/%{prj.name}")
+    objdir (rootDirectoryPath .. "Binaries/Intermediates/" .. outputdir .. "/%{prj.name}")
     
     files
 	{
+        "Renderer-Make.lua",
 		"Source/**.cpp",
 		"Source/**.h",
 		"Source/**.Pixel.hlsl",
 		"Source/**.Vertex.hlsl",
+		"Source/**.Compute.hlsl",
 		"Source/**.hlsli",
     }
 
@@ -49,18 +51,42 @@ project("Renderer")
 		"%{RendererIncludeDirs.Mono}/",
         
         engineDirectory .. "Source/",
+        "Source/Renderer/",
         "Source/"
     }
     
+    postbuildcommands
+    {
+		-- DXR Shaders
+		("{COPY} %{wks.location}/Engine/Modules/Renderer/Source/Renderer/Shaders/HLSL/Ray_Tracing/** ".. rootDirectoryPath .. "Binaries/" .. outputdir.."/Renderer"),
+    }
+
+
+    filter {"system:windows"}
+		systemversion "latest"
+
+		defines
+		{
+			"IE_PLATFORM_WINDOWS"
+		}
+
+		flags
+		{
+			"MultiProcessorCompile"
+		}
     
-    
-    -- Shaders
     filter {"system:windows"}
         defines
 		{
 			"IE_PLATFORM_WINDOWS"
         }
+
+		flags
+		{
+			"MultiProcessorCompile"
+		}
         
+    -- Shaders
         filter { "files:**.pixel.hlsl" }
             shadertype "Pixel"
             shadermodel "5.0"
@@ -68,7 +94,11 @@ project("Renderer")
         filter { "files:**.vertex.hlsl" }
             shadertype "Vertex"
             shadermodel "5.0"
-        
+
+        filter { "files:**.compute.hlsl" }
+            shadertype "Compute"
+            shadermodel "5.0"
+
     -- End filter - windows
     
     

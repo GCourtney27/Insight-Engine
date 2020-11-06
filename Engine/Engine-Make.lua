@@ -13,28 +13,25 @@ EngineIncludeDirs["assimp"] 	= "Vendor/assimp-3.3.1/include"
 EngineIncludeDirs["Modules"] 	= "Modules"
 EngineIncludeDirs["Nvidia"] 	= "Vendor/Nvidia"
 
-
+vendorDir = "%{wks.location}/Engine/Vendor/"
 
 project ("Engine")
 	location (rootDirectoryPath .. "Engine")
 	kind "WindowedApp"
-	-- kind "ConsoleApp"
-	--[[
-	TODO:   Change kind to ConsoleApp when using Vulkan
-			or change kind to WindowedApp when using DX12
-	--]]
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "off"
+	targetname("InsightEngine");
+	
+	targetdir (rootDirectoryPath .. "Binaries/" .. outputdir .. "/%{prj.name}")
+    objdir (rootDirectoryPath .. "Binaries/Intermediates/" .. outputdir .. "/%{prj.name}")
 
-	targetdir (rootDirectoryPath .. "Bin/" .. outputdir .. "/%{prj.name}")
-	objdir (rootDirectoryPath .. "Bin-Int/" .. outputdir .. "/%{prj.name}")
-
-	pchheader ("ie_pch.h")
-	pchsource ("Source/ie_pch.cpp")
+	pchheader ("Engine_pch.h")
+	pchsource ("Source/Engine_pch.cpp")
 
 	files
 	{
+		"Engine-Make.lua",
 		"Vendor/Vendor_Build.cpp",
 		"Source/**.cpp",
 		"Source/**.h",
@@ -49,6 +46,7 @@ project ("Engine")
 
 	includedirs
 	{
+		-- Vendor
 		"%{EngineIncludeDirs.Microsoft}/",
         "%{EngineIncludeDirs.Microsoft}/DirectX12/WinPixEventRuntime.1.0.161208001/Include/",
 		"%{EngineIncludeDirs.Microsoft}/DirectX12",
@@ -59,9 +57,13 @@ project ("Engine")
 		"%{EngineIncludeDirs.Mono}/",
 		"%{EngineIncludeDirs.ImGui}/",
 		"%{EngineIncludeDirs.assimp}/",
+		
+		-- Modules
         "%{EngineIncludeDirs.Modules}/Renderer/Source/",
-        
+		
+		-- Engine
 		"Source/",
+		-- Application
 		rootDirectoryPath .. gameName .. "/Source/"
 	}
 
@@ -84,12 +86,13 @@ project ("Engine")
 		"D3Dcompiler.lib",
 		"dxcompiler.lib",
         "DirectXTK12.lib",
+		"DirectXTex.lib",
         
         "ImGui",
         "Renderer"
 	}
 
-	filter {"system:windows"}
+	filter { "system:windows" }
 		systemversion "latest"
 
 		defines
@@ -103,6 +106,8 @@ project ("Engine")
 		}
 		
 	-- End filter - windows
+
+
 
 	-- Engine Development
 	filter "configurations:Debug"
@@ -118,25 +123,29 @@ project ("Engine")
             "Vendor/assimp-3.3.1/build/code/Debug",
             "Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
             "Vendor/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Debug",
+            "Vendor/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Debug",
             "Vendor/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Debug",
 			"Vendor/Mono/lib",
 		}
 		postbuildcommands
 		{
 			-- Assimp
-			("{COPY} %{wks.location}Engine/Vendor/assimp-3.3.1/build/code/Debug/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} ".. vendorDir .."/assimp-3.3.1/build/code/Debug/assimp-vc140-mt.dll ../Binaries/"..outputdir.."/Engine"),
 			-- DX11 Debug Layers
-			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX11/Bin/D3DX11d_43.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX11/Bin/D3D11Ref.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} ".. vendorDir .."/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll ../Binaries/"..outputdir.."/Engine"),
+			("{COPY} ".. vendorDir .."/Microsoft/DirectX11/Bin/D3DX11d_43.dll ../Binaries/"..outputdir.."/Engine"),
+			("{COPY} ".. vendorDir .."/Microsoft/DirectX11/Bin/D3D11Ref.dll ../Binaries/"..outputdir.."/Engine"),
 			-- Mono
-			("{COPY} %{wks.location}Engine/Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} ".. vendorDir .."/Mono/bin/mono-2.0-sgen.dll ../Binaries/"..outputdir.."/Engine"),
 			-- DirectX
-			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX12/Bin/dxcompiler.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX12/Bin/dxil.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxcompiler.dll ../Binaries/"..outputdir.."/Engine"),
+			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxil.dll ../Binaries/"..outputdir.."/Engine"),
 			-- PIX
-			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Engine/Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../bin/"..outputdir.."/Engine")
+			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../Binaries/"..outputdir.."/Engine"),
+			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../Binaries/"..outputdir.."/Engine"),
+			-- Copy over default engine assets
+			("{COPY} %{wks.location}/Engine/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Default_Assets/")
+
 		}
 	-- Engine Release
 	filter "configurations:Release"
@@ -154,26 +163,34 @@ project ("Engine")
 			"Vendor/assimp-3.3.1/build/code/Release",
             "Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
             "Vendor/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
+			"Vendor/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
             "Vendor/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
 			"Vendor/Mono/lib",
 		}
 		postbuildcommands
 		{
 			-- Assimp
-			("{COPY} %{wks.location}Vendor/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
-			-- DX11 Debug Layers
-			("{COPY} %{wks.location}Vendor/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Vendor/Microsoft/DirectX11/Bin/D3DX11d_43.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Vendor/Microsoft/DirectX11/Bin/D3D11Ref.dll ../bin/"..outputdir.."/Engine"),
-			-- Mono
-			("{COPY} %{wks.location}Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
-			-- DirectX
-			("{COPY} %{wks.location}Vendor/Microsoft/DirectX12/Bin/dxcompiler.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Vendor/Microsoft/DirectX12/Bin/dxil.dll ../bin/"..outputdir.."/Engine"),
-			-- PIX
-			("{COPY} %{wks.location}Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../bin/"..outputdir.."/Engine")
+			("{COPY} ".. vendorDir .."/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
+			-- DX11 Debug Layers	
+			("{COPY} ".. vendorDir .."/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} ".. vendorDir .."/Microsoft/DirectX11/Bin/D3DX11d_43.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} ".. vendorDir .."/Microsoft/DirectX11/Bin/D3D11Ref.dll ../bin/"..outputdir.."/Engine"),
+			-- Mono					
+			("{COPY} ".. vendorDir .."/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
+			-- DirectX				
+			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxcompiler.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxil.dll ../bin/"..outputdir.."/Engine"),
+			-- PIX					
+			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../bin/"..outputdir.."/Engine"),
+			-- Copy over default engine assets
+			("{COPY} %{wks.location}/Engine/Assets/Textures/Default_Object/** ../bin/"..outputdir.."/Default_Assets/")
 		}
+
+
+
+
+
 	-- Full Engine Distribution, all performance logs and debugging windows stripped
 	filter "configurations:Engine-Dist"
 		defines "IE_ENGINE_DIST"
@@ -189,16 +206,22 @@ project ("Engine")
 			"Vendor/assimp-3.3.1/build/code/Release",
             "Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
             "Vendor/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
+			"Vendor/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
             "Vendor/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
 			"Vendor/Mono/lib",
 		}
 		postbuildcommands
 		{
-			("{COPY} %{wks.location}Vendor/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
+			-- assimp
+			("{COPY} ".. vendorDir .."/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
+			-- mono
+			("{COPY} ".. vendorDir .."/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
 			-- DirectX
-			("{COPY} %{wks.location}Vendor/Microsoft/DirectX12/Bin/dxcompiler.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Vendor/Microsoft/DirectX12/Bin/dxil.dll ../bin/"..outputdir.."/Engine")
+			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxcompiler.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxil.dll ../bin/"..outputdir.."/Engine"),
+			-- Copy over default engine assets
+			("{COPY} %{wks.location}/Engine/Assets/Textures/Default_Object/** ../bin/"..outputdir.."/Default_Assets/")
+
 		}
 	-- Full Game Distribution, all engine debug tools(level editors, editor user interfaces) stripped
 	filter "configurations:Game-Dist"
@@ -215,14 +238,18 @@ project ("Engine")
             "Vendor/assimp-3.3.1/build/code/Release",            
             "Vendor/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
             "Vendor/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
+			"Vendor/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
             "Vendor/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
 			"Vendor/Mono/lib",
 		}
 		postbuildcommands
 		{
-			("{COPY} %{wks.location}Vendor/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Vendor/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
+			-- assimp
+			("{COPY} ".. vendorDir .."/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../bin/"..outputdir.."/Engine"),
+			-- mono
+			("{COPY} ".. vendorDir .."/Mono/bin/mono-2.0-sgen.dll ../bin/"..outputdir.."/Engine"),
 			-- DirectX
-			("{COPY} %{wks.location}Vendor/Microsoft/DirectX12/Bin/dxcompiler.dll ../bin/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}Vendor/Microsoft/DirectX12/Bin/dxil.dll ../bin/"..outputdir.."/Engine")
+			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxcompiler.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxil.dll ../bin/"..outputdir.."/Engine"),
 		}
+

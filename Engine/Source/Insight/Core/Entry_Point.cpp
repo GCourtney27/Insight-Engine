@@ -1,7 +1,8 @@
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include "ClientApp.h"
-#include "Insight/Core/ieException.h"
+#include "Insight/Core/ie_Exception.h"
+#include "Insight/Utilities/Profiling.h"
 
 // Copyright 2020 Garrett Courtney
 
@@ -16,6 +17,7 @@
 
 extern Insight::Application* Insight::CreateApplication();
 
+
 #if defined IE_PLATFORM_WINDOWS
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
@@ -27,17 +29,22 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	auto App = Insight::CreateApplication();
 
-	try {
+	{
+		ScopedPerfTimer("Core application initialization", eOutputType_Millis);
 
-		if (!App->InitializeAppForWindows(hInstance, nCmdShow)) {
-			IE_CORE_FATAL(L"Failed to initialize core engine. Exiting.");
-			return -1;
+		try {
+
+			if (!App->InitializeAppForWindows(hInstance, nCmdShow)) {
+				IE_CORE_FATAL(L"Failed to initialize core engine. Exiting.");
+				return -1;
+			}
 		}
+		catch (Insight::ieException& e) {
+			IE_CORE_INFO(e.What());
+		}
+		App->PostInit();
 	}
-	catch (Insight::ieException& e) {
-		IE_CORE_INFO(e.What());
-	}
-	App->PostInit();
+
 	App->Run();
 	App->Shutdown();
 

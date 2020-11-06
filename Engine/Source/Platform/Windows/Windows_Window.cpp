@@ -1,9 +1,10 @@
-#include <ie_pch.h>
+// Copyright Insight Interactive. All Rights Reserved.
+#include <Engine_pch.h>
 
 #include "Windows_Window.h"
 
 #include "Insight/Core/Application.h"
-#include "Insight/Rendering/Renderer.h"
+#include "Renderer/Renderer.h"
 
 #include "Insight/Core/Log.h"
 #include "Insight/Utilities/String_Helper.h"
@@ -32,13 +33,12 @@ namespace Insight {
 		m_Data.Height = props.Height;
 	}
 
-
-
-
 	LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
+		WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
-		switch (uMsg) {
+		switch (uMsg) 
+		{
 		case WM_NCCREATE:
 		{
 			const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
@@ -50,7 +50,6 @@ namespace Insight {
 		case WM_DESTROY:
 		{
 			PostQuitMessage(0);
-			WindowsWindow::WindowData data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			WindowCloseEvent event;
 			data.EventCallback(event);
 			return 0;
@@ -58,47 +57,42 @@ namespace Insight {
 		// Mouse Input
 		case WM_MOUSEMOVE:
 		{
-			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			MouseMovedEvent event(LOWORD(lParam), HIWORD(lParam));
+			MouseMovedEvent event(LOWORD(lParam), HIWORD(lParam), (KeyMapCode)(KeyMapCode_Mouse_MoveX | KeyMapCode_Mouse_MoveY));
 			data.EventCallback(event);
 			return 0;
 		}
 		case WM_MOUSEWHEEL:
 		{
-			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			float yOffset = GET_WHEEL_DELTA_WPARAM(wParam) / 120.0f;
-			MouseScrolledEvent event(0.0f, yOffset);
+			MouseScrolledEvent event(0.0f, yOffset, KeyMapCode_Mouse_Wheel_Up, InputEventType_Moved);
 			data.EventCallback(event);
 			return 0;
 		}
 		case WM_MOUSEHWHEEL:
 		{
-			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			float xOffset = GET_WHEEL_DELTA_WPARAM(wParam) / 120.0f;
-			MouseScrolledEvent event(xOffset, 0.0f);
+			MouseScrolledEvent event(xOffset, 0.0f, (KeyMapCode)(KeyMapCode_Mouse_Wheel_Left | KeyMapCode_Mouse_Wheel_Right), InputEventType_Moved);
 			data.EventCallback(event);
 			return 0;
 		}
 		case WM_LBUTTONDOWN:
 		{
-			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			MouseButtonPressedEvent event(0);
+			MouseButtonPressedEvent event(KeyMapCode_Mouse_Button_Left);
 			data.EventCallback(event);
 			return 0;
 		}
 		case WM_LBUTTONUP:
 		{
-			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			MouseButtonReleasedEvent event(0);
+			MouseButtonReleasedEvent event(KeyMapCode_Mouse_Button_Left);
 			data.EventCallback(event);
 			return 0;
 		}
 		case WM_RBUTTONDOWN:
 		{
-			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			MouseButtonPressedEvent event(1);
+			MouseButtonPressedEvent event(KeyMapCode_Mouse_Button_Right);
 			data.EventCallback(event);
-			
+
+			// WIP Right click context menu
 			//RECT clientRect = {};
 			//POINT Point = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
 			//TrackPopupMenu(data.hContextMenu, TPM_LEFTALIGN | TPM_TOPALIGN, Point.x, Point.y, 0, hWnd, &clientRect);
@@ -107,36 +101,31 @@ namespace Insight {
 		}
 		case WM_RBUTTONUP:
 		{
-			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			MouseButtonReleasedEvent event(1);
+			MouseButtonReleasedEvent event(KeyMapCode_Mouse_Button_Right);
 			data.EventCallback(event);
 			return 0;
 		}
 		case WM_MBUTTONDOWN:
 		{
-			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			MouseButtonPressedEvent event(2);
+			MouseButtonPressedEvent event(KeyMapCode_Mouse_Button_Middle);
 			data.EventCallback(event);
 			return 0;
 		}
 		case WM_MBUTTONUP:
 		{
-			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			MouseButtonReleasedEvent event(2);
+			MouseButtonReleasedEvent event(KeyMapCode_Mouse_Button_Middle);
 			data.EventCallback(event);
 			return 0;
 		}
 		// Keyboard Input
 		case WM_CHAR:
 		{
-			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			KeyTypedEvent event((char)wParam);
+			KeyTypedEvent event((KeyMapCode)((char)wParam));
 			data.EventCallback(event);
 			return 0;
 		}
 		case WM_KEYDOWN:
 		{
-			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			// Debug force engine close Escape key
 			if (wParam == VK_ESCAPE)
 			{
@@ -162,14 +151,13 @@ namespace Insight {
 				}
 
 			}
-			KeyPressedEvent event((char)wParam, 0);
+			KeyPressedEvent event((KeyMapCode)((char)wParam), 0);
 			data.EventCallback(event);
 			return 0;
 		}
 		case WM_KEYUP:
 		{
-			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			KeyReleasedEvent event((char)wParam);
+			KeyReleasedEvent event((KeyMapCode)((char)wParam));
 			data.EventCallback(event);
 			return 0;
 		}
@@ -181,7 +169,6 @@ namespace Insight {
 		}
 		case WM_EXITSIZEMOVE:
 		{
-			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			RECT clientRect = {};
 			GetClientRect(hWnd, &clientRect);
 			WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, wParam == SIZE_MINIMIZED);
@@ -192,8 +179,6 @@ namespace Insight {
 		}
 		case WM_SIZE:
 		{
-			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-
 			if (data.IsFirstLaunch) {
 				data.IsFirstLaunch = false;
 				return 0;
@@ -206,20 +191,27 @@ namespace Insight {
 		}
 		case WM_INPUT:
 		{
-			WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			UINT dataSize;
-			GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, NULL, &dataSize, sizeof(RAWINPUTHEADER));
+			UINT DataSize;
+			GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, NULL, &DataSize, sizeof(RAWINPUTHEADER));
 
-			if (dataSize > 0)
+			if (DataSize > 0)
 			{
-				std::unique_ptr<BYTE[]> rawdata = std::make_unique<BYTE[]>(dataSize);
-				if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, rawdata.get(), &dataSize, sizeof(RAWINPUTHEADER)) == dataSize)
+				std::unique_ptr<BYTE[]> rawdata = std::make_unique<BYTE[]>(DataSize);
+				if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, rawdata.get(), &DataSize, sizeof(RAWINPUTHEADER)) == DataSize)
 				{
 					RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(rawdata.get());
 					if (raw->header.dwType == RIM_TYPEMOUSE)
 					{
-						MouseRawMoveEvent event(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
-						data.EventCallback(event);
+						if (raw->data.mouse.lLastX != 0.0f)
+						{
+							MouseMovedEvent event((float)raw->data.mouse.lLastX, 0.0f, KeyMapCode_Mouse_MoveX);
+							data.EventCallback(event);
+						}
+						if (raw->data.mouse.lLastY != 0.0f)
+						{
+							MouseMovedEvent event(0.0f, (float)raw->data.mouse.lLastY, KeyMapCode_Mouse_MoveY);
+							data.EventCallback(event);
+						}
 					}
 				}
 
@@ -244,42 +236,36 @@ namespace Insight {
 			{
 			case IDM_NEW_SCENE:
 			{
-				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
 
 				break;
 			}
 			case IDM_EDITOR_TOGGLE:
 			{
-				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 				data.EditorUIEnabled = !data.EditorUIEnabled;
 				IE_STRIP_FOR_GAME_DIST(Application::Get().GetEditorLayer().SetUIEnabled(data.EditorUIEnabled);)
-				break;
+					break;
 			}
 			case IDM_EDITOR_RELOAD_SCRIPTS:
 			{
-				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 				AppScriptReloadEvent event;
 				data.EventCallback(event);
 				break;
 			}
 			case IDM_BEGIN_PLAY:
 			{
-				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 				AppBeginPlayEvent event;
 				data.EventCallback(event);
 				break;
 			}
 			case IDM_END_PLAY:
 			{
-				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 				AppEndPlayEvent event;
 				data.EventCallback(event);
 				break;
 			}
 			case IDM_SCENE_SAVE:
 			{
-				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 				SceneSaveEvent event;
 				data.EventCallback(event);
 				IE_CORE_INFO("Scene Saved");
@@ -287,19 +273,16 @@ namespace Insight {
 			}
 			case IDM_ABOUT:
 			{
-				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-				
 				wchar_t AboutMsgBuffer[256];
 				int APIVersion = ((int)Renderer::GetAPI()) + 10;
 				const wchar_t* RTEnabled = Renderer::GetIsRayTraceEnabled() ? L"Enabled" : L"Disabled";
-				swprintf_s(AboutMsgBuffer, L"Version - 1.8 \nRenderer - Direct3D %i (Ray Traceing: %s) \n\nVendor Runtime: \nMono - v6.8.0.123 \nAssimp - v3.3.1 \nRapidJson - v1.0.0 \nImGui - v1.75", APIVersion, RTEnabled);
-				data.pWindow->CreateMessageBox(AboutMsgBuffer, L"About Insight Editor");
-				
+				swprintf_s(AboutMsgBuffer, L"Version - 1.8 \nRenderer - Direct3D %i (Ray Tracing: %s) \n\nVendor Runtime: \nMono - v6.8.0.123 \nAssimp - v3.3.1 \nRapidJson - v1.0.0 \nImGui - v1.75", APIVersion, RTEnabled);
+				data.pWindow->CreateMessageBox(AboutMsgBuffer, L"About Retina Editor");
+
 				break;
 			}
 			case IDM_EXIT:
 			{
-				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 				PostQuitMessage(0);
 				WindowCloseEvent event;
 				data.EventCallback(event);
@@ -307,8 +290,6 @@ namespace Insight {
 			}
 			case IDM_VISUALIZE_FINAL_RESULT:
 			{
-				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-
 				IE_CORE_INFO("Visualize final result");
 				//ModifyMenuW(data.hGraphicsVisualizeSubMenu, IDM_VISUALIZE_FINAL_RESULT, MF_CHECKED, IDM_VISUALIZE_FINAL_RESULT, L"&Final Result");
 
@@ -347,7 +328,6 @@ namespace Insight {
 			case IDM_RENDERER_D3D_11:
 			{
 				IE_CORE_INFO("Switch render context to D3D 11");
-				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 				Renderer::GraphicsSettings Settings = {};
 				Settings.TargetRenderAPI = Renderer::eTargetRenderAPI::D3D_11;
 				FileSystem::SaveEngineUserSettings(Settings);
@@ -357,7 +337,6 @@ namespace Insight {
 			case IDM_RENDERER_D3D_12:
 			{
 				IE_CORE_INFO("Switch render context to D3D 12");
-				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 				Renderer::GraphicsSettings Settings = {};
 				Settings.TargetRenderAPI = Renderer::eTargetRenderAPI::D3D_12;
 				FileSystem::SaveEngineUserSettings(Settings);
@@ -367,7 +346,6 @@ namespace Insight {
 			case IDM_RELOAD_SHADERS:
 			{
 				IE_CORE_INFO("Reloading scripts.");
-				WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 				ShaderReloadEvent event;
 				data.EventCallback(event);
 			}
@@ -390,22 +368,22 @@ namespace Insight {
 			IE_CORE_ERROR("Failed to initialize COM library.");
 		}
 
-		static bool raw_input_initialized = false;
-		if (raw_input_initialized == false) {
+		static bool RIDInitialized = false;
+		if (RIDInitialized == false) {
 
-			RAWINPUTDEVICE rid;
+			RAWINPUTDEVICE RID;
 
-			rid.usUsagePage = 0x01; // Mouse
-			rid.usUsage = 0x02;
-			rid.dwFlags = 0;
-			rid.hwndTarget = NULL;
+			RID.usUsagePage = 0x01; // Mouse
+			RID.usUsage = 0x02;
+			RID.dwFlags = 0;
+			RID.hwndTarget = NULL;
 
-			if (RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE)
+			if (RegisterRawInputDevices(&RID, 1, sizeof(RID)) == FALSE)
 			{
 				IE_CORE_ERROR("Failed to register raw input devices. Error: {0}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
 				return false;
 			}
-			raw_input_initialized = true;
+			RIDInitialized = true;
 		}
 
 		RegisterWindowClass();
@@ -453,6 +431,8 @@ namespace Insight {
 		m_Data.hGraphicsVisualizeSubMenu = &m_hGraphicsVisualizeSubMenu;
 		m_Data.pWindow = this;
 
+		//m_nCmdShowArgs = SW_SHOWMAXIMIZED;
+
 		::ShowWindow(m_hWindow, m_nCmdShowArgs);
 		::SetForegroundWindow(m_hWindow);
 		::SetFocus(m_hWindow);
@@ -461,14 +441,12 @@ namespace Insight {
 		return true;
 	}
 
-	bool WindowsWindow::PostInit()
+	void WindowsWindow::PostInit()
 	{
 		RECT ClientRect = {};
 		::GetClientRect(m_hWindow, &ClientRect);
 		WindowResizeEvent Event(ClientRect.right - ClientRect.left, ClientRect.bottom - ClientRect.top, false);
 		m_Data.EventCallback(Event);
-
-		return true;
 	}
 
 	void WindowsWindow::RegisterWindowClass()
@@ -607,13 +585,11 @@ namespace Insight {
 	{
 		m_Data.Width = newWidth;
 		m_Data.Height = newHeight;
-		Renderer::SetWindowWidthAndHeight(newWidth, newHeight, isMinimized);
 	}
 
 	void WindowsWindow::ToggleFullScreen(bool enabled)
 	{
 		m_Data.FullScreenEnabled = enabled;
-		Renderer::OnWindowFullScreen();
 	}
 
 	bool WindowsWindow::ProccessWindowMessages()
@@ -646,22 +622,6 @@ namespace Insight {
 	void WindowsWindow::OnUpdate(const float& deltaTime)
 	{
 		ProccessWindowMessages();
-	}
-
-	void WindowsWindow::OnFramePreRender()
-	{
-		Renderer::OnPreFrameRender();
-	}
-
-	void WindowsWindow::OnRender()
-	{
-		Renderer::OnRender();
-	}
-
-	void WindowsWindow::ExecuteDraw()
-	{
-		Renderer::ExecuteDraw();
-		Renderer::SwapBuffers();
 	}
 
 	bool WindowsWindow::SetWindowTitle(const std::string& NewText, bool CompletlyOverride)
@@ -719,14 +679,6 @@ namespace Insight {
 			::UnregisterClass(this->m_Data.WindowClassName_wide.c_str(), *m_WindowsAppInstance);
 			::DestroyWindow(m_hWindow);
 		}
-
-		Renderer::Destroy();
-	}
-
-	void WindowsWindow::EndFrame()
-	{
-		Renderer::ExecuteDraw();
-		Renderer::SwapBuffers();
 	}
 
 }

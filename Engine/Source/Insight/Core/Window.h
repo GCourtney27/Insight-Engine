@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ie_pch.h>
+#include <Engine_pch.h>
 
 #include <Insight/Core.h>
 #include "Insight/Events/Event.h"
@@ -28,14 +28,13 @@ namespace Insight {
 		virtual ~Window() {}
 
 		virtual void OnUpdate(const float& deltaTime) = 0;
-		virtual void OnFramePreRender() = 0;
-		virtual void OnRender() = 0;
-		virtual void ExecuteDraw() = 0;
 		virtual void Shutdown() = 0;
-		virtual void EndFrame() = 0;
+
+		virtual void PostInit() = 0;
 
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
+		virtual std::pair<uint32_t, uint32_t> GetDimensions() const = 0;
 		virtual bool SetWindowTitle(const std::string& newText, bool completlyOverride = false) = 0;
 		virtual bool SetWindowTitleFPS(float fps) = 0;
 
