@@ -33,7 +33,7 @@ namespace Insight {
 		WindowsWindow(const WindowProps& props);
 		virtual ~WindowsWindow();
 
-		virtual void OnUpdate(const float& deltaTime) override;
+		virtual void OnUpdate() override;
 		virtual void Shutdown() override;
 
 		virtual void PostInit() override;
@@ -62,6 +62,11 @@ namespace Insight {
 		virtual const bool& IsVsyncActive() const override;
 		virtual const bool& IsFullScreenActive() const override;
 		virtual bool Init(const WindowProps& props);
+		virtual inline float GeAspectRatio() const
+		{
+			return static_cast<float>(m_Data.Width) / static_cast<float>(m_Data.Height);
+		}
+
 	private:
 		inline void SetWindowsApplicationInstance(HINSTANCE& hInstance) { m_WindowsAppInstance = &hInstance; }
 		inline void SetCmdArgs(int nCmdShow) { m_nCmdShowArgs = nCmdShow; }

@@ -35,6 +35,8 @@ namespace Insight {
 
 	class PointLightComponent;
 
+	class Window;
+
 	namespace Runtime {
 		class ACamera;
 	}
@@ -73,7 +75,7 @@ namespace Insight {
 		// Set the target graphics rendering API and create a context to it.
 		// Once set, it cannot be changed through the lifespan application, you must 
 		// set it re-launch the app.
-		static bool SetSettingsAndCreateContext(GraphicsSettings GraphicsSettings);
+		static bool SetSettingsAndCreateContext(GraphicsSettings GraphicsSettings, Window* pWindow);
 
 		// Initilize renderer's API library.
 		static inline bool Init() { return s_Instance->Init_Impl(); }
@@ -100,6 +102,16 @@ namespace Insight {
 		// Swap buffers with the new frame.
 		static inline void SwapBuffers() { s_Instance->SwapBuffers_Impl(); }
 		
+		template <class WindowClassType>
+		static inline WindowClassType& GetWindowRefAs() 
+		{ 
+			constexpr bool IsValidWindow = std::is_base_of<Window, WindowsWindow>::value;
+			static_assert(IsValidWindow, "Class type is not a valid window.");
+			return *(WindowClassType*)(s_Instance->m_pWindowRef);
+		}
+		
+		static inline Window& GetWindowRef() { return *(s_Instance->m_pWindowRef); }
+
 		//-----------------
 		// Event Handling  |
 		//-----------------
@@ -237,6 +249,7 @@ namespace Insight {
 		APostFx* m_pPostFx = nullptr;
 
 		Runtime::ACamera* m_pWorldCameraRef = nullptr;
+		Window* m_pWindowRef;
 
 		std::queue<WindowResizeEvent> m_WindowResizeEventQueue;
 		std::queue<WindowToggleFullScreenEvent> m_WindowFullScreenEventQueue;

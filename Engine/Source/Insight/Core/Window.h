@@ -27,7 +27,7 @@ namespace Insight {
 		
 		virtual ~Window() {}
 
-		virtual void OnUpdate(const float& deltaTime) = 0;
+		virtual void OnUpdate() = 0;
 		virtual void Shutdown() = 0;
 
 		virtual void PostInit() = 0;
@@ -50,7 +50,10 @@ namespace Insight {
 
 		virtual void* GetNativeWindow() const = 0;
 
+		virtual inline float GeAspectRatio() const = 0;
+
 		static Window* Create(const WindowProps& props = WindowProps());
+
 
 	protected:
 

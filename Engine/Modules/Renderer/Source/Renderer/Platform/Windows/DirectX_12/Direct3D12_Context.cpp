@@ -44,11 +44,8 @@ namespace Insight {
 		// before closing all handles and releasing resources
 		m_d3dDeviceResources.WaitForGPU();
 
-		//if (m_GraphicsSettings.RayTraceEnabled) m_RTHelper.Destroy();
-
-		if (!m_AllowTearing) {
+		if (!m_AllowTearing) 
 			m_d3dDeviceResources.GetSwapChain().SetFullscreenState(false, NULL);
-		}
 
 		m_d3dDeviceResources.CleanUp();
 	}
@@ -66,11 +63,6 @@ namespace Insight {
 			ThrowIfFailed(hr, "Failed to create descriptor heap for shader visible resources.");
 
 			CreateCommandAllocators();
-
-			//CreateSRVs();
-
-			/*if (m_GraphicsSettings.RayTraceEnabled)
-				m_RTHelper.Init(this);*/
 
 			PIXBeginEvent(&m_d3dDeviceResources.GetGraphicsCommandQueue(), 0, L"D3D12 Context Setup");
 			{
@@ -124,18 +116,9 @@ namespace Insight {
 						m_RenderPassStack.PushPassOverlay(&m_PostProcessCompositePass);
 
 					}
-
-					
-					//LoadPipelines();
 				}
 
-				// Create Render Targets and Depth Stencils
-				{
-					//CreateDSVs();
-					//CreateRTVs();
-					CreateSwapChainRTVDescriptorHeap();
-				}
-
+				CreateSwapChainRTVDescriptorHeap();
 			}
 			PIXEndEvent(&m_d3dDeviceResources.GetGraphicsCommandQueue());
 		}
@@ -294,7 +277,6 @@ namespace Insight {
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
-
 		// Gather the geometry in the world and send it to the GPU.
 		GeometryManager::GatherGeometry();
 
@@ -305,7 +287,6 @@ namespace Insight {
 		}
 
 		return;
-
 
 		// Render Shadows.
 		m_pActiveCommandList = m_pShadowPass_CommandList;
@@ -781,97 +762,6 @@ namespace Insight {
 			ShadowDSVSRV.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 			pDevice->CreateShaderResourceView(m_pShadowDepthTexture.Get(), &ShadowDSVSRV, m_cbvsrvHeap.hCPU(7));
 		}
-	}
-
-	void Direct3D12Context::CreateRTVs()
-	{
-		HRESULT hr = S_OK;
-		return;
-		ID3D12Device* pDevice = &m_d3dDeviceResources.GetDeviceContext();
-
-		hr = m_rtvHeap.Create(pDevice, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 1);
-		ThrowIfFailed(hr, "Failed to create render target view descriptor heap for D3D 12 context.");
-
-		CD3DX12_HEAP_PROPERTIES DefaultHeapProps(D3D12_HEAP_TYPE_DEFAULT);
-
-		static bool Created = false;
-		if (Created) return;
-		Created = true;
-
-
-		// UAV Down-Sampled Buffer
-		D3D12_RESOURCE_DESC ResourceDesc = {};
-		ResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-		ResourceDesc.Alignment = 0;
-		ResourceDesc.SampleDesc = { 1, 0 };
-		ResourceDesc.MipLevels = 1;
-		ResourceDesc.DepthOrArraySize = 1;
-		//ResourceDesc.Width = (UINT)m_WindowWidth;
-		//ResourceDesc.Height = (UINT)m_WindowHeight;
-		ResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-		ResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
-		ResourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		ResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
-		//ResourceDesc.Width = m_WindowWidth / 2;
-		//ResourceDesc.Height = m_WindowHeight / 2;
-		hr = pDevice->CreateCommittedResource(&DefaultHeapProps, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, nullptr, IID_PPV_ARGS(&m_pBloomBlurResult_UAV));
-		ThrowIfFailed(hr, "Failed to create committed resource for bloom down sampled UAV.");
-		D3D12_UNORDERED_ACCESS_VIEW_DESC UAVDesc = {};
-		UAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-		pDevice->CreateUnorderedAccessView(m_pBloomBlurResult_UAV.Get(), nullptr, &UAVDesc, m_cbvsrvHeap.hCPU(9));
-		m_pBloomBlurResult_UAV->SetName(L"UAV: Bloom Pass Down Sampled Buffer");
-
-		// UAV Down-Sampled Intermediate Buffer
-		hr = pDevice->CreateCommittedResource(&DefaultHeapProps, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, nullptr, IID_PPV_ARGS(&m_pBloomBlurIntermediateBuffer_UAV));
-		ThrowIfFailed(hr, "Failed to create committed resource for bloom down sampled intermdiate UAV.");
-		pDevice->CreateUnorderedAccessView(m_pBloomBlurIntermediateBuffer_UAV.Get(), nullptr, &UAVDesc, m_cbvsrvHeap.hCPU(11));
-		m_pBloomBlurIntermediateBuffer_UAV->SetName(L"UAV: Bloom Pass Down Sampled INTERMEDIENT Buffer");
-	}
-
-	void Direct3D12Context::CreateSRVs()
-	{
-		HRESULT hr;
-		return;
-		ID3D12Device* pDevice = &m_d3dDeviceResources.GetDeviceContext();
-		CD3DX12_HEAP_PROPERTIES DefaultHeapProps(D3D12_HEAP_TYPE_DEFAULT);
-
-		D3D12_RESOURCE_DESC ResourceDesc = {};
-		ResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-		ResourceDesc.Alignment = 0;
-		ResourceDesc.SampleDesc.Count = 1;
-		ResourceDesc.SampleDesc.Quality = 0;
-		ResourceDesc.MipLevels = 1;
-		ResourceDesc.DepthOrArraySize = 1;
-		//ResourceDesc.Width = (UINT)m_WindowWidth;
-		//ResourceDesc.Height = (UINT)m_WindowHeight;
-		ResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-		ResourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-
-		// Ray Trace Pass Result SRV
-		hr = pDevice->CreateCommittedResource(&DefaultHeapProps, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, NULL, IID_PPV_ARGS(&m_RayTraceOutput_SRV));
-		ThrowIfFailed(hr, "Failed to create ray trace output srv");
-		D3D12_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
-		SRVDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		SRVDesc.Texture2D.MipLevels = 1U;
-		SRVDesc.Texture2D.MostDetailedMip = 0;
-		SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		SRVDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		pDevice->CreateShaderResourceView(m_RayTraceOutput_SRV.Get(), &SRVDesc, m_cbvsrvHeap.hCPU(6));
-
-
-		// SRV Down-Sampled Buffer
-		//ResourceDesc.Width = (UINT)m_WindowWidth / 2;
-		//ResourceDesc.Height = (UINT)m_WindowHeight / 2;
-		//hr = pDevice->CreateCommittedResource(&DefaultHeapProps, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, nullptr, IID_PPV_ARGS(&m_pBloomBlurResult_SRV));
-		//ThrowIfFailed(hr, "Failed to create committed resource for down sampled UAV.");
-		//pDevice->CreateShaderResourceView(m_pBloomBlurResult_SRV.Get(), &SRVDesc, m_cbvsrvHeap.hCPU(10));
-		//m_pBloomBlurResult_SRV->SetName(L"SRV: Bloom Pass Down Sampled Buffer");
-
-		//// Bloom Blur Intermediate Buffer
-		//ThrowIfFailed(hr, "Failed to create committed resource for down sampled UAV.");
-		//hr = pDevice->CreateCommittedResource(&DefaultHeapProps, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, nullptr, IID_PPV_ARGS(&m_pBloomBlurIntermediateBuffer_SRV));
-		//pDevice->CreateShaderResourceView(m_pBloomBlurIntermediateBuffer_SRV.Get(), &SRVDesc, m_cbvsrvHeap.hCPU(12));
-		//m_pBloomBlurIntermediateBuffer_SRV->SetName(L"SRV: Bloom Pass Down Sampled INTERMEDIENT Buffer");
 	}
 
 	void Direct3D12Context::CreateDeferredShadingRS()
@@ -1523,14 +1413,6 @@ namespace Insight {
 			m_d3dDeviceResources.GetSwapChain().GetFullscreenState(&FullScreenState, nullptr);
 			m_WindowedMode = !FullScreenState;
 			m_d3dDeviceResources.SetFrameIndex(m_d3dDeviceResources.GetSwapChain().GetCurrentBackBufferIndex());
-		}
-
-		// Re-Create Depth Stencil View
-		{
-			//CreateDSVs();
-			//CreateRTVs();
-			//m_RTHelper.ReCreateOutputBuffer();
-			//CreateSRVs();
 		}
 
 		// Recreate Camera Projection Matrix

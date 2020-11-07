@@ -41,19 +41,18 @@ namespace Insight {
 		Application();
 		virtual ~Application();
 
+		Application(Application& App) = delete;
+		Application(Application&& App) = delete;
+
 		inline static Application& Get() { return *s_Instance; }
 
-		// Initialie a new application for the windows platform.
-		bool InitializeAppForWindows(HINSTANCE& hInstance, int nCmdShow);
-		// Initialize new application for mac platform.
-		// virtual bool InitializeAppForMac();
 		// Initialize the core components of the application. Should be called once
 		// at the beginning of the application, after the window has been initialized.
 		virtual bool InitializeCoreApplication();
 		// Called when the main portion of the applicaiton has been initialized.
 		virtual void PostInit();
 		// Main loop of the application. This is the main entry point for every frame.
-		virtual void Run();
+		virtual void Run(float DeltaMs);
 		// Shutdown the application and release all resources.
 		virtual void Shutdown();
 
@@ -73,40 +72,24 @@ namespace Insight {
 		inline GameLayer& GetGameLayer() { return *m_pGameLayer; }
 		// Get the editor layer for the application.
 		IE_STRIP_FOR_GAME_DIST(inline EditorLayer& GetEditorLayer() { return *m_pEditorLayer; })
-		// Get the main rendering window assocciated with the application.
-		inline Window& GetWindow() { return *m_pWindow; }
-		// Get the frame timer for the application.
-		inline FrameTimer& GetFrameTimer() { return m_FrameTimer; }
 
 		// Returns true if the editor is currently simmulating a game session.
 		inline static bool IsPlaySessionUnderWay() { return s_Instance->m_pGameLayer->IsPlaySesionUnderWay(); }
-		inline static const bool& IsApplicationRunning() { return s_Instance->m_Running; }
 		
 	private:
 		void PushCoreLayers();
-		void RenderThread();
 
-		bool OnWindowClose(WindowCloseEvent& e);
-		bool OnWindowResize(WindowResizeEvent& e);
-		bool OnWindowFullScreen(WindowToggleFullScreenEvent& e);
-		// TEMP
 		bool SaveScene(SceneSaveEvent& e);
 		bool BeginPlay(AppBeginPlayEvent& e);
 		bool EndPlay(AppEndPlayEvent& e);
 		bool ReloadScripts(AppScriptReloadEvent& e);
-		bool ReloadShaders(ShaderReloadEvent& e);
 	protected:
-		std::unique_ptr<Window>	m_pWindow;
-		IE_STRIP_FOR_GAME_DIST(ImGuiLayer* m_pImGuiLayer = nullptr; )
-		IE_STRIP_FOR_GAME_DIST(EditorLayer* m_pEditorLayer = nullptr; )
-		PerfOverlay*			m_pPerfOverlay = nullptr;
-		GameLayer*				m_pGameLayer = nullptr;
-		bool					m_Running = true;
-		bool					m_AppInitialized = false;
+		bool					m_AppInitialized;
+		IE_STRIP_FOR_GAME_DIST(ImGuiLayer* m_pImGuiLayer; )
+		IE_STRIP_FOR_GAME_DIST(EditorLayer* m_pEditorLayer; )
+		PerfOverlay*			m_pPerfOverlay;
+		GameLayer*				m_pGameLayer;
 		LayerStack				m_LayerStack;
-		FrameTimer				m_FrameTimer;
-		FileSystem				m_FileSystem;
-		Input::InputDispatcher	m_InputDispatcher;
 	private:
 		static Application*		s_Instance;
 	};

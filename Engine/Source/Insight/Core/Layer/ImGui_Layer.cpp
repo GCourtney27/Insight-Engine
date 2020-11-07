@@ -58,10 +58,6 @@ namespace Insight {
 
 	void ImGuiLayer::End()
 	{
-		Application& app = Application::Get();
-		m_pIO->DisplaySize = ImVec2((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
-		m_pIO->DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
-
 		ImGui::Render();
 	}
 

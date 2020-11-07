@@ -23,7 +23,6 @@ namespace Insight {
 		virtual void End() override;
 
 	private:
-		HWND* m_pWindowHandle = nullptr;
 		ID3D12DescriptorHeap* m_pDescriptorHeap = nullptr;
 		ID3D12GraphicsCommandList* m_pCommandList = nullptr;
 	};

@@ -5,7 +5,6 @@ rootDirectoryPath = "../"
 
 project (gameName)
 	location (rootDirectoryPath .. gameName)
-	
 	kind "StaticLib"
 	cppdialect "C++17"
 	language "C++"

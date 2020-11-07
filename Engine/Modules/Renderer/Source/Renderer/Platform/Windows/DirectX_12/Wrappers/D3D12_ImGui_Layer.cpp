@@ -5,6 +5,7 @@
 #include "Insight/Core/Application.h"
 
 #include "Platform/Windows/DirectX_12/Direct3D12_Context.h"
+#include "Platform/Windows/Windows_Window.h"
 #include <examples/imgui_impl_dx12.cpp>
 
 #include "imgui.h"
@@ -46,14 +47,11 @@ namespace Insight {
 		}
 
 		Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
-
-		HWND* pWindowHandle = static_cast<HWND*>(Application::Get().GetWindow().GetNativeWindow());
-		IE_ASSERT(pWindowHandle != nullptr, "Trying to create D3D12 ImGuiLayer with invalid HWND handle.");
-
-		m_pWindowHandle = pWindowHandle;
+		
+		HWND& WindowHandle = RenderContext.GetWindowRefAs<WindowsWindow>().GetWindowHandleRef();
 
 		// Setup Platform/Renderer bindings
-		bool impleWin32Succeeded = ImGui_ImplWin32_Init(pWindowHandle);
+		bool impleWin32Succeeded = ImGui_ImplWin32_Init(WindowHandle);
 		if (!impleWin32Succeeded)
 			IE_CORE_ERROR("Failed to initialize ImGui for Win32 - D3D 12. Some controls may not be functional or editor may not be rendered.");
 
@@ -64,7 +62,8 @@ namespace Insight {
 		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 		hr = RenderContext.GetDeviceContext().CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_pDescriptorHeap));
 
-		bool impleDX12Succeeded = ImGui_ImplDX12_Init(&RenderContext.GetDeviceContext(),
+		bool impleDX12Succeeded = ImGui_ImplDX12_Init(
+			&RenderContext.GetDeviceContext(),
 			RenderContext.GetFrameBufferCount(),
 			RenderContext.GetSwapChainBackBufferFormat(),
 			m_pDescriptorHeap,

@@ -1,10 +1,11 @@
+// Copyright 2020 Garrett Courtney
+
 #include <Engine_pch.h>
 
 #include "ClientApp.h"
 #include "Insight/Core/ie_Exception.h"
 #include "Insight/Utilities/Profiling.h"
-
-// Copyright 2020 Garrett Courtney
+#include "Insight/Core/Engine.h"
 
 /*=====================================================================
 
@@ -22,38 +23,19 @@ extern Insight::Application* Insight::CreateApplication();
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
-	IE_STRIP_FOR_GAME_DIST(if (!Insight::Log::Init())) {
-		IE_CORE_FATAL(L"Failed to Core logger.");
-	}
-	IE_CORE_TRACE("Logger Initialized");
-
+	Insight::Engine Engine;
 	auto App = Insight::CreateApplication();
-
-	{
-		ScopedPerfTimer("Core application initialization", eOutputType_Millis);
-
-		try {
-
-			if (!App->InitializeAppForWindows(hInstance, nCmdShow)) {
-				IE_CORE_FATAL(L"Failed to initialize core engine. Exiting.");
-				return -1;
-			}
-		}
-		catch (Insight::ieException& e) {
-			IE_CORE_INFO(e.What());
-		}
-		App->PostInit();
-	}
-
-	App->Run();
-	App->Shutdown();
-
+	Engine.RunWin32App(App, hInstance, lpCmdLine, nCmdShow);
 	delete App;
-
-	//Insight::Log::HoldForUserInput();
 	return 0;
 }
+
+#elif IE_PLATFORM_XBOX_ONE
+
+
+
 #elif IE_PLATFORM_MAC
+
 int main(int argc, char** argv)
 {
 	auto App = Insight::CreateApplication();
@@ -62,6 +44,7 @@ int main(int argc, char** argv)
 	delete App;
 	return 0;
 }
+
 #else
 #error No valid entry point found for engine to begin execution.
 #endif

@@ -41,23 +41,23 @@ namespace Insight {
 	{
 	}
 
-	bool Renderer::SetSettingsAndCreateContext(GraphicsSettings GraphicsSettings)
+	bool Renderer::SetSettingsAndCreateContext(GraphicsSettings GraphicsSettings, Window* pWindow)
 	{
 		IE_ASSERT(!s_Instance, "Rendering Context already exists! Cannot have more that one context created at a time.");
-
+		IE_ASSERT(pWindow, "Cannot initialize renderer with NULL window context.");
 
 		switch (GraphicsSettings.TargetRenderAPI)
 		{
 #if defined IE_PLATFORM_WINDOWS
 		case eTargetRenderAPI::D3D_11:
 		{
-			WindowsWindow* Window = (WindowsWindow*)&Application::Get().GetWindow();
+			WindowsWindow* Window = (WindowsWindow*)pWindow;
 			s_Instance = new Direct3D11Context(Window);
 			break;
 		}
 		case eTargetRenderAPI::D3D_12:
 		{
-			WindowsWindow* Window = (WindowsWindow*)&Application::Get().GetWindow();
+			WindowsWindow* Window = (WindowsWindow*)pWindow;
 			s_Instance = new Direct3D12Context(Window);
 			break;
 		}
@@ -68,6 +68,7 @@ namespace Insight {
 			break;
 		}
 		}
+		s_Instance->m_pWindowRef = pWindow;
 		s_Instance->SetGraphicsSettings(GraphicsSettings);
 
 		return s_Instance != nullptr;

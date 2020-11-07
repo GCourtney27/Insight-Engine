@@ -56,9 +56,6 @@
 #include "Insight/Utilities/String_Helper.h"
 #include "Insight/Systems/File_System.h"
 
-// Parameters
-	static const uint8_t s_NumRenderContexts = 2;
-
 // -----------
 // Platforms |
 // -----------

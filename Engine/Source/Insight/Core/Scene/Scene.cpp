@@ -6,6 +6,7 @@
 #include "Insight/Runtime/Archetypes/APlayer_Character.h"
 #include "Insight/Runtime/Archetypes/APlayer_Start.h"
 #include "Insight/Runtime/Archetypes/ACamera.h"
+#include "Insight/Core/Window.h"
 
 #include "imgui.h"
 
@@ -52,11 +53,12 @@ namespace Insight {
 		m_EditorViewTarget.Rotation = ieVector3(0.478f, -0.981f, 0.0f);
 		m_EditorViewTarget.NearZ = 0.001f;
 		m_EditorViewTarget.FarZ = 2500.0f;
+
 		m_pCamera = new Runtime::ACamera(m_EditorViewTarget);
 		m_pCamera->SetCanBeFileParsed(false);
 		m_pCamera->SetPerspectiveProjectionValues(
-			m_EditorViewTarget.FieldOfView, 
-			(float)Application::Get().GetWindow().GetWidth() / (float)Application::Get().GetWindow().GetHeight(), 
+			m_EditorViewTarget.FieldOfView,
+			Renderer::GetWindowRef().GeAspectRatio(),
 			m_EditorViewTarget.NearZ,
 			m_EditorViewTarget.FarZ
 		);

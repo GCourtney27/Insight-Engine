@@ -157,8 +157,6 @@ namespace Insight {
 		virtual bool CreateSkybox_Impl() override;
 		virtual void DestroySkybox_Impl() override;
 
-		WindowsWindow& GetWindowRef() const { return *m_pWindowRef; }
-
 		inline ID3D12Device& GetDeviceContext() const { return m_d3dDeviceResources.GetDeviceContext(); }
 		inline DXGI_FORMAT GetSwapChainBackBufferFormat() const { return m_d3dDeviceResources.GetSwapChainBackBufferFormat(); }
 

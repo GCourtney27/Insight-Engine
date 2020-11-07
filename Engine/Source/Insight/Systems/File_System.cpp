@@ -141,7 +141,7 @@ namespace Insight {
 			int NumActorsInScene;
 			json::get_string(rawMetaFile, "SceneName", sceneName);
 			pScene->SetDisplayName(sceneName);
-			Application::Get().GetWindow().SetWindowTitle(sceneName);
+			Renderer::GetWindowRef().SetWindowTitle(sceneName);
 			
 			json::get_int(rawMetaFile, "NumSceneActors", NumActorsInScene);
 			pScene->ResizeSceneGraph(NumActorsInScene);

@@ -20,7 +20,7 @@ namespace Insight {
 		virtual void End() override;
 
 	private:
-		HWND* m_pWindowHandle = nullptr;
+
 	};
 
 }

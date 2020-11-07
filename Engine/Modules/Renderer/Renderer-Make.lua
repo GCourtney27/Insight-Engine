@@ -15,7 +15,6 @@ RendererIncludeDirs["Mono"] 		= engineDirectory .. "Vendor/Mono/include/mono-2.0
 
 project("Renderer")
     location("../Renderer")
-
     kind "StaticLib"
 	cppdialect "C++17"
     language "C++"

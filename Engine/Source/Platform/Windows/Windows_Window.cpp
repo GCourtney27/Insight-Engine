@@ -619,7 +619,7 @@ namespace Insight {
 		Shutdown();
 	}
 
-	void WindowsWindow::OnUpdate(const float& deltaTime)
+	void WindowsWindow::OnUpdate()
 	{
 		ProccessWindowMessages();
 	}

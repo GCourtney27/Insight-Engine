@@ -5,6 +5,7 @@
 #include "Insight/Core/Application.h"
 
 #include "Platform/Windows/DirectX_11/Direct3D11_Context.h"
+#include "Platform/Windows/Windows_Window.h"
 
 #include "imgui.h"
 #include "examples/imgui_impl_dx11.h"
@@ -47,11 +48,10 @@ namespace Insight {
 		}
 
 		Direct3D11Context& RenderContext = Renderer::GetAs<Direct3D11Context>();
+		
+		HWND& WindowHandle = RenderContext.GetWindowRefAs<WindowsWindow>().GetWindowHandleRef();
 
-		HWND* pWindowHandle = static_cast<HWND*>(Application::Get().GetWindow().GetNativeWindow());
-		m_pWindowHandle = pWindowHandle;
-
-		if (!ImGui_ImplWin32_Init(m_pWindowHandle)) {
+		if (!ImGui_ImplWin32_Init(WindowHandle)) {
 			IE_CORE_WARN("Failed to initialize ImGui for Win32 - D3D 12. Some controls may not be functional or editor may not be rendered.");
 		}
 		ImGui_ImplDX11_Init(&RenderContext.GetDevice(), &RenderContext.GetDeviceContext());
