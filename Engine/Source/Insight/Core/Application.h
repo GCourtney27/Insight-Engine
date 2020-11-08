@@ -84,7 +84,6 @@ namespace Insight {
 		bool EndPlay(AppEndPlayEvent& e);
 		bool ReloadScripts(AppScriptReloadEvent& e);
 	protected:
-		bool					m_AppInitialized;
 		IE_STRIP_FOR_GAME_DIST(ImGuiLayer* m_pImGuiLayer; )
 		IE_STRIP_FOR_GAME_DIST(EditorLayer* m_pEditorLayer; )
 		PerfOverlay*			m_pPerfOverlay;

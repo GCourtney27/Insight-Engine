@@ -29,7 +29,7 @@ Contacts for feedback:
 - mlefrancois@nvidia.com (Martin-Karl Lefrancois)
 */
 
-#include <Renderer_pch.h>
+#include <Engine_pch.h>
 #include "BottomLevelASGenerator.h"
 #include <stdexcept>
 // Helper to compute aligned buffer sizes

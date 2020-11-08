@@ -1,8 +1,9 @@
 #pragma once
 
-#include <Insight/Core.h>
-#include "Renderer/Renderer.h"
 #include <string_view>
+
+#include <Insight/Core.h>
+#include "Insight/Rendering/Renderer.h"
 
 namespace Insight {
 

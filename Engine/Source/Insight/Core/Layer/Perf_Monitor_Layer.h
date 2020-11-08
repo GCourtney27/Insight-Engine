@@ -4,7 +4,7 @@
 #include "Insight/Core/Layer/Layer.h"
 
 #include "Insight/Systems/Frame_Timer.h"
-#include "Renderer/Renderer.h"
+#include "Insight/Rendering/Renderer.h"
 
 namespace Insight {
 

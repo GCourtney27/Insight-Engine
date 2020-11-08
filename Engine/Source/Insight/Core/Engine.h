@@ -3,7 +3,7 @@
 #include <Insight/Core.h>
 
 #include "Insight/Core/Log.h"
-#include "Renderer/Renderer.h"
+#include "Insight/Rendering/Renderer.h"
 #include "Insight/Core/Application.h"
 #include "Insight/Core/ie_Exception.h"
 #include "Insight/Utilities/Profiling.h"

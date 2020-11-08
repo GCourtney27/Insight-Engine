@@ -3,7 +3,7 @@
 #include "ASpot_Light.h"
 
 #include "Insight/Runtime/Components/Actor_Component.h"
-#include "Renderer/Renderer.h"
+#include "Insight/Rendering/Renderer.h"
 
 #include "imgui.h"
 

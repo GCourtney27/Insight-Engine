@@ -30,7 +30,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	return 0;
 }
 
-#elif IE_PLATFORM_XBOX_ONE
+#elif IE_PLATFORM_UWP
 
 
 

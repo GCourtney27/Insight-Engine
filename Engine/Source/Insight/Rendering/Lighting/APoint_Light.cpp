@@ -3,7 +3,7 @@
 #include "APoint_Light.h"
 
 #include "Insight/Runtime/Components/Scene_Component.h"
-#include "Renderer/Renderer.h"
+#include "Insight/Rendering/Renderer.h"
 #include "imgui.h"
 
 namespace Insight {

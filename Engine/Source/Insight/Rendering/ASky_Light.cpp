@@ -3,11 +3,11 @@
 #include "ASky_Light.h"
 
 #include "Insight/Runtime/Components/Actor_Component.h"
-#include "Renderer/Renderer.h"
+#include "Insight/Rendering/Renderer.h"
 
-#include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_Texture.h"
-#include "Renderer/Platform/Windows/DirectX_11/Wrappers/ie_D3D11_Texture.h"
-#include "Renderer/Platform/Windows/DirectX_12/Direct3D12_Context.h"
+#include "Platform/DirectX_12/Wrappers/D3D12_Texture.h"
+#include "Platform/DirectX_11/Wrappers/ie_D3D11_Texture.h"
+#include "Platform/DirectX_12/Direct3D12_Context.h"
 
 #include "imgui.h"
 

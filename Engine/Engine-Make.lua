@@ -58,11 +58,10 @@ project ("Engine")
 		"%{EngineIncludeDirs.ImGui}/",
 		"%{EngineIncludeDirs.assimp}/",
 		
-		-- Modules
-        "%{EngineIncludeDirs.Modules}/Renderer/Source/",
-		
 		-- Engine
 		"Source/",
+		"Source/Insight",
+
 		-- Application
 		rootDirectoryPath .. gameName .. "/Source/"
 	}
@@ -88,8 +87,7 @@ project ("Engine")
         "DirectXTK12.lib",
 		"DirectXTex.lib",
         
-        "ImGui",
-        "Renderer"
+        "ImGui"
 	}
 
 	filter { "system:windows" }

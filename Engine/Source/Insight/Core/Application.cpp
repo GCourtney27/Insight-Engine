@@ -6,12 +6,12 @@
 #include "Insight/Runtime/AActor.h"
 #include "Insight/Core/Layer/ImGui_Layer.h"
 #include "Insight/Core/ie_Exception.h"
-#include "Renderer/Renderer.h"
+#include "Insight/Rendering/Renderer.h"
 
 #if defined IE_PLATFORM_WINDOWS
-	#include "Renderer/Platform/Windows/DirectX_11/Wrappers/D3D11_ImGui_Layer.h"
-	#include "Renderer/Platform/Windows/DirectX_12/Wrappers/D3D12_ImGui_Layer.h"
-	#include "Platform/Windows/Windows_Window.h"
+	#include "Platform/DirectX_11/Wrappers/D3D11_ImGui_Layer.h"
+	#include "Platform/DirectX_12/Wrappers/D3D12_ImGui_Layer.h"
+	#include "Platform/Win32/Win32_Window.h"
 #endif
 
 // TODO: Make the project hot swapable
@@ -28,7 +28,6 @@ namespace Insight {
 	Application* Application::s_Instance = nullptr;
 
 	Application::Application()
-		:	m_AppInitialized(false)
 	{
 		IE_ASSERT(!s_Instance, "Trying to create Application instance when one already exists!");
 		s_Instance = this;
@@ -65,7 +64,6 @@ namespace Insight {
 
 		m_pGameLayer->PostInit();
 
-		m_AppInitialized = true;
 	}
 
 	void Application::Run(float DeltaMs)

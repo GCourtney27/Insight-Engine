@@ -3,7 +3,7 @@
 #include "Engine.h"
 
 #if defined IE_PLATFORM_WINDOWS
-#include "Platform/Windows/Windows_Window.h"
+#include "Platform/Win32/Win32_Window.h"
 #endif
 
 namespace Insight {
@@ -46,7 +46,6 @@ namespace Insight {
 
 		// Create and initialize the renderer
 		Renderer::SetSettingsAndCreateContext(FileSystem::LoadGraphicsSettingsFromJson(), m_pWindow.get());
-		Renderer::Init();
 
 		pApp->InitializeCoreApplication();
 

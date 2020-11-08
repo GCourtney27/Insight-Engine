@@ -2,7 +2,7 @@
 
 #include <Insight/Core.h>
 #ifdef IE_PLATFORM_WINDOWS
-	#include "Platform/Windows/Console_Window.h"
+	#include "Platform/Win32/Console_Window.h"
 #endif 
 
 #pragma warning (disable : 26451)

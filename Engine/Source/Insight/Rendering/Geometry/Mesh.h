@@ -4,7 +4,7 @@
 
 #include "Insight/Math/Transform.h"
 
-#include "Renderer/Platform/Windows/DirectX_Shared/Constant_Buffer_Types.h"
+#include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
 
 #include "Insight/Rendering/Geometry/Vertex_Buffer.h"
 #include "Insight/Rendering/Geometry/Index_Buffer.h"

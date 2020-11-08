@@ -26,7 +26,3 @@ group ""
 
 include "Application/Application-Make.lua"
 include "Engine/Engine-Make.lua"
-
-group "Subsystems"
-include "Engine/Modules/Renderer/Renderer-Make.lua"
-group ""

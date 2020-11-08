@@ -1,7 +1,7 @@
 #include <Engine_pch.h>
 
 #include "Resource_Manager.h"
-#include "Platform/Windows/Error/COM_Exception.h"
+#include "Platform/Win32/Error/COM_Exception.h"
 
 namespace Insight {
 
