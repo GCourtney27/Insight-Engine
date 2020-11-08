@@ -5,7 +5,7 @@
 #include <DirectXMath.h>
 
 /*
-	** Warning: These buffers are 16 byte aligned, edit with caution **
+	** WARNING: These buffers are 16 byte aligned, edit with caution **
 
 	Constant buffers to be sent to the GPU during draw calls.
 	Naming convention is as follows:
@@ -129,7 +129,7 @@ struct CB_CS_DownSampleParams
 
 #define GAUSSIAN_RADIUS 7
 constexpr int BlurPassVertical = 1;
-constexpr int BlurPassHorizontal= 1;
+constexpr int BlurPassHorizontal = 0;
 struct CB_CS_BlurParams
 {
 	alignas(16) float Coefficients[GAUSSIAN_RADIUS + 1];

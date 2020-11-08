@@ -261,22 +261,22 @@ namespace Insight {
 		std::wstring ShaderFolder(ExeDirectory);
 
 		// Ray Gen
-		ShaderFolder += L"../Renderer/RayGen.hlsl";
+		ShaderFolder += L"RayGen.hlsl";
 		m_RayGenLibrary = NvidiaHelpers::CompileShaderLibrary(ShaderFolder.c_str());
 		// Miss
 		ShaderFolder.clear();
 		ShaderFolder = ExeDirectory;
-		ShaderFolder += L"../Renderer/Miss.hlsl";
+		ShaderFolder += L"Miss.hlsl";
 		m_MissLibrary = NvidiaHelpers::CompileShaderLibrary(ShaderFolder.c_str());
 		// Hit
 		ShaderFolder.clear();
 		ShaderFolder = ExeDirectory;
-		ShaderFolder += L"../Renderer/Closest_Hit.hlsl";
+		ShaderFolder += L"Closest_Hit.hlsl";
 		m_HitLibrary = NvidiaHelpers::CompileShaderLibrary(ShaderFolder.c_str());
 		// Shadow
 		ShaderFolder.clear();
 		ShaderFolder = ExeDirectory;
-		ShaderFolder += L"../Renderer/Shadow_Ray.hlsl";
+		ShaderFolder += L"Shadow_Ray.hlsl";
 		m_ShadowLibrary = NvidiaHelpers::CompileShaderLibrary(ShaderFolder.c_str());
 
 

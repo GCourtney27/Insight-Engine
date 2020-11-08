@@ -96,7 +96,6 @@ namespace Insight {
 			g_ScreenQuad.Init(FullScreenQuadVerts, sizeof(FullScreenQuadVerts), QuadIndices, sizeof(QuadIndices));
 			
 
-
 			Created = true;
 		}
 
@@ -114,9 +113,9 @@ namespace Insight {
 
 		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
 		std::wstring VertexShaderFolder(ExeDirectory);
-		VertexShaderFolder += L"../Renderer/Geometry_Pass.vertex.cso";
+		VertexShaderFolder += L"Geometry_Pass.vertex.cso";
 		std::wstring PixelShaderFolder(ExeDirectory);
-		PixelShaderFolder += L"../Renderer/Geometry_Pass.pixel.cso";
+		PixelShaderFolder += L"Geometry_Pass.pixel.cso";
 
 		HRESULT hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
 		ThrowIfFailed(hr, "Failed to read Vertex Shader for D3D 12 context.");
@@ -386,9 +385,9 @@ namespace Insight {
 
 		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
 		std::wstring VertexShaderFolder(ExeDirectory);
-		VertexShaderFolder += L"../Renderer/Light_Pass.vertex.cso";
+		VertexShaderFolder += L"Light_Pass.vertex.cso";
 		std::wstring PixelShaderFolder(ExeDirectory);
-		PixelShaderFolder += L"../Renderer/Light_Pass.pixel.cso";
+		PixelShaderFolder += L"Light_Pass.pixel.cso";
 
 		HRESULT hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
 		ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context.");
@@ -574,9 +573,9 @@ namespace Insight {
 
 		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
 		std::wstring VertexShaderFolder(ExeDirectory);
-		VertexShaderFolder += L"../Renderer/Skybox.vertex.cso";
+		VertexShaderFolder += L"Skybox.vertex.cso";
 		std::wstring PixelShaderFolder(ExeDirectory);
-		PixelShaderFolder += L"../Renderer/Skybox.pixel.cso";
+		PixelShaderFolder += L"Skybox.pixel.cso";
 
 		HRESULT hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
 		ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context");
@@ -705,9 +704,9 @@ namespace Insight {
 
 		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
 		std::wstring VertexShaderFolder(ExeDirectory);
-		VertexShaderFolder += L"../Renderer/Screen_Aligned_Quad.vertex.cso";
+		VertexShaderFolder += L"Screen_Aligned_Quad.vertex.cso";
 		std::wstring PixelShaderFolder(ExeDirectory);
-		PixelShaderFolder += L"../Renderer/PostProcess_Composite.pixel.cso";
+		PixelShaderFolder += L"PostProcess_Composite.pixel.cso";
 
 		HRESULT hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
 		ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context.");

@@ -35,13 +35,15 @@ project ("Engine")
 		"Vendor/Vendor_Build.cpp",
 		"Source/**.cpp",
 		"Source/**.h",
+		"Source/**.vertex.hlsl",
+		"Source/**.pixel.hlsl",
 	}
 
 	defines
 	{
 		"_CRT_SECURE_NO_WARNINGS",
 		"IE_BUILD_DIR=%{CustomDefines.IE_BUILD_DIR}/Engine/",
-		"IE_BUILD_CONFIG=%{CustomDefines.IE_BUILD_CONFIG}"
+		"IE_BUILD_CONFIG=%{CustomDefines.IE_BUILD_CONFIG}",
 	}
 
 	includedirs
@@ -63,7 +65,7 @@ project ("Engine")
 		"Source/Insight",
 
 		-- Application
-		rootDirectoryPath .. gameName .. "/Source/"
+		rootDirectoryPath .. gameName .. "/Source/",
 	}
 
 	links
@@ -87,8 +89,10 @@ project ("Engine")
         "DirectXTK12.lib",
 		"DirectXTex.lib",
         
-        "ImGui"
+        "ImGui",
 	}
+
+
 
 	filter { "system:windows" }
 		systemversion "latest"
@@ -103,6 +107,19 @@ project ("Engine")
 			"MultiProcessorCompile"
 		}
 		
+		-- Shaders
+        filter { "files:**.pixel.hlsl" }
+            shadertype "Pixel"
+            shadermodel "5.0"
+        
+        filter { "files:**.vertex.hlsl" }
+            shadertype "Vertex"
+            shadermodel "5.0"
+
+        filter { "files:**.compute.hlsl" }
+            shadertype "Compute"
+            shadermodel "5.0"
+
 	-- End filter - windows
 
 
@@ -138,6 +155,7 @@ project ("Engine")
 			-- DirectX
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxcompiler.dll ../Binaries/"..outputdir.."/Engine"),
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxil.dll ../Binaries/"..outputdir.."/Engine"),
+			("{COPY} %{wks.location}/Engine/Source/Shaders/HLSL/Ray_Tracing/** ".. rootDirectoryPath .. "Binaries/" .. outputdir.."/Engine"),
 			-- PIX
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../Binaries/"..outputdir.."/Engine"),
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../Binaries/"..outputdir.."/Engine"),
@@ -178,6 +196,7 @@ project ("Engine")
 			-- DirectX				
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxcompiler.dll ../bin/"..outputdir.."/Engine"),
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxil.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} %{wks.location}/Engine/Source/Shaders/HLSL/Ray_Tracing/** ".. rootDirectoryPath .. "Binaries/" .. outputdir.."/Engine"),
 			-- PIX					
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../bin/"..outputdir.."/Engine"),
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../bin/"..outputdir.."/Engine"),
@@ -217,6 +236,7 @@ project ("Engine")
 			-- DirectX
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxcompiler.dll ../bin/"..outputdir.."/Engine"),
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxil.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} %{wks.location}/Engine/Source/Shaders/HLSL/Ray_Tracing/** ".. rootDirectoryPath .. "Binaries/" .. outputdir.."/Engine"),
 			-- Copy over default engine assets
 			("{COPY} %{wks.location}/Engine/Assets/Textures/Default_Object/** ../bin/"..outputdir.."/Default_Assets/")
 
@@ -249,5 +269,6 @@ project ("Engine")
 			-- DirectX
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxcompiler.dll ../bin/"..outputdir.."/Engine"),
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/Bin/dxil.dll ../bin/"..outputdir.."/Engine"),
+			("{COPY} %{wks.location}/Engine/Source/Shaders/HLSL/Ray_Tracing/** ".. rootDirectoryPath .. "Binaries/" .. outputdir.."/Engine"),
 		}
 
