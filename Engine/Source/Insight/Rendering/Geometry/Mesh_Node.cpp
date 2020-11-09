@@ -40,7 +40,7 @@ namespace Insight {
 
 		if (ImGui::IsItemClicked()) {
 			// TODO: Open material editor window
-			IE_CORE_TRACE("Model node clicked");
+			IE_DEBUG_LOG(LogSeverity::Verbose, "Model node clicked");
 		}
 
 		if (isExpanded) {

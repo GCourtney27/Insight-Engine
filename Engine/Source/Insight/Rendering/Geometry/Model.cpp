@@ -15,7 +15,7 @@ namespace Insight {
 
 	Model::Model(Model&& model) noexcept
 	{
-		IE_CORE_WARN("Model being moved in memory.");
+		IE_DEBUG_LOG(LogSeverity::Warning, "Model being moved in memory.");
 
 		m_Meshes = std::move(model.m_Meshes);
 		m_pRoot = std::move(model.m_pRoot);
@@ -46,7 +46,7 @@ namespace Insight {
 		m_pMaterial = pMaterial;
 
 		m_AssetDirectoryRelativePath = path;
-		m_Directory = FileSystem::GetProjectRelativeAssetDirectory(path);
+		m_Directory = FileSystem::GetProjectRelativeContentDirectory(path);
 		m_FileName = StringHelper::GetFilenameFromDirectory(m_Directory);
 		SceneNode::SetDisplayName("Static Mesh");
 
@@ -113,7 +113,7 @@ namespace Insight {
 		);
 
 		if (!pScene || pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !pScene->mRootNode) {
-			IE_CORE_ERROR("Assimp import error: {0}", Importer.GetErrorString());
+			IE_DEBUG_LOG(LogSeverity::Error, "Assimp import error: {0}", Importer.GetErrorString());
 			return false;
 		}
 

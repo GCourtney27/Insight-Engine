@@ -50,7 +50,7 @@ namespace Insight {
 			ComponentType* CreateDefaultSubobject()
 			{
 				ActorComponent* Component = new ComponentType(this);
-				IE_CORE_ASSERT(Component, "Trying to add null component to actor.");
+				IE_ASSERT(Component, "Trying to add null component to actor.");
 
 				Component->OnAttach();
 				Component->SetEventCallback(IE_BIND_EVENT_FN(AActor::OnEvent));

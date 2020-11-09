@@ -89,12 +89,12 @@ namespace Insight {
 		HRESULT hr;
 		hr = DirectX::CreateDDSTextureFromFile(pDevice, ResourceUpload, m_TextureInfo.Filepath.c_str(), &m_pTexture, m_TextureInfo.GenerateMipMaps, 0, nullptr, &m_TextureInfo.IsCubeMap);
 		if (FAILED(hr)) {
-			IE_CORE_ERROR("Failed to load DDS texture from file with path \"{0}\"", StringHelper::WideToString(m_TextureInfo.Filepath));
+			IE_DEBUG_LOG(LogSeverity::Error, "Failed to load DDS texture from file with path \"{0}\"", StringHelper::WideToString(m_TextureInfo.Filepath));
 		}
 
 		m_D3DTextureDesc = m_pTexture->GetDesc();
 		if (!ResourceUpload.IsSupportedForGenerateMips(m_D3DTextureDesc.Format)) {
-			//ie_CORE_WARN("Mip map generation not supported for texture: {0}", m_DisplayName);
+			//IE_DEBUG_LOG(LogSeverity::Warning, "Mip map generation not supported for texture: {0}", m_DisplayName);
 		}
 
 		// Upload the resources to the GPU
@@ -137,12 +137,12 @@ namespace Insight {
 
 		HRESULT hr = DirectX::CreateWICTextureFromFile(pDevice, resourceUpload, m_TextureInfo.Filepath.c_str(), &m_pTexture, m_TextureInfo.GenerateMipMaps);
 		if (FAILED(hr)) {
-			IE_CORE_ERROR("Failed to Create WIC texture from file with path \"{0}\"", StringHelper::WideToString(m_TextureInfo.Filepath));
+			IE_DEBUG_LOG(LogSeverity::Error, "Failed to Create WIC texture from file with path \"{0}\"", StringHelper::WideToString(m_TextureInfo.Filepath));
 		}
 
 		m_D3DTextureDesc = m_pTexture->GetDesc();
 		if (!resourceUpload.IsSupportedForGenerateMips(m_D3DTextureDesc.Format)) {
-			//ie_CORE_WARN("Mip map generation not supported for texture: {0}", m_DisplayName);
+			//IE_DEBUG_LOG(LogSeverity::Warning, "Mip map generation not supported for texture: {0}", m_DisplayName);
 		}
 
 		// Upload the resources to the GPU
@@ -223,7 +223,7 @@ namespace Insight {
 		}
 		default:
 		{
-			IE_CORE_WARN("Failed to get root parameter index with texture type: {0}", TextureType);
+			IE_DEBUG_LOG(LogSeverity::Warning, "Failed to get root parameter index with texture type: {0}", TextureType);
 			break;
 		}
 		}

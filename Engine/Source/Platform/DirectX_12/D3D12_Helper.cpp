@@ -66,7 +66,7 @@ namespace Insight {
 	{
 		// Close the fence handle on the GPU
 		if (!CloseHandle(m_FenceEvent)) {
-			IE_CORE_ERROR("Failed to close GPU handle while cleaning up the D3D 12 context.");
+			IE_DEBUG_LOG(LogSeverity::Error, "Failed to close GPU handle while cleaning up the D3D 12 context.");
 		}
 	}
 
@@ -102,7 +102,7 @@ namespace Insight {
 			D3D12_FEATURE_DATA_D3D12_OPTIONS5 Options5 = {};
 			ThrowIfFailed(pDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &Options5, sizeof(Options5)), "Failed to query feature support for ray trace with device.");
 			if (Options5.RaytracingTier < D3D12_RAYTRACING_TIER_1_0) {
-				IE_CORE_WARN("Ray tracing not supported on this device.");
+				IE_DEBUG_LOG(LogSeverity::Warning, "Ray tracing not supported on this device.");
 				return false;
 			}
 			return true;
@@ -132,7 +132,7 @@ namespace Insight {
 
 						m_pRenderContextRef->SetIsRayTraceSupported(true);
 
-						IE_CORE_WARN("Found suitable Direct3D 12 graphics hardware that can support ray tracing: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
+						IE_DEBUG_LOG(LogSeverity::Warning, "Found suitable Direct3D 12 graphics hardware that can support ray tracing: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
 						continue;
 					}
 				}
@@ -147,12 +147,12 @@ namespace Insight {
 				}
 				*ppAdapter = pAdapter.Detach();
 
-				IE_CORE_WARN("Found suitable Direct3D 12 graphics hardware: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
+				IE_DEBUG_LOG(LogSeverity::Warning, "Found suitable Direct3D 12 graphics hardware: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
 			}
 		}
 		Desc = {};
 		(*ppAdapter)->GetDesc1(&Desc);
-		IE_CORE_WARN("\"{0}\" selected as Direct3D 12 graphics hardware.", StringHelper::WideToString(Desc.Description));
+		IE_DEBUG_LOG(LogSeverity::Warning, "\"{0}\" selected as Direct3D 12 graphics hardware.", StringHelper::WideToString(Desc.Description));
 	}
 
 	void D3D12Helper::CreateDevice()

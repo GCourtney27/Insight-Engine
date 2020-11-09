@@ -36,33 +36,33 @@ namespace Insight {
 
 
 		Texture::IE_TEXTURE_INFO brdfInfo;
-		brdfInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(brdfLUT));
+		brdfInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeContentDirectory(brdfLUT));
 		brdfInfo.Type = Texture::eTextureType::eTextureType_IBLBRDFLUT;
 		brdfInfo.IsCubeMap = false;
 		brdfInfo.GenerateMipMaps = false;
 
 		Texture::IE_TEXTURE_INFO irMapInfo;
-		irMapInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(irMap));
+		irMapInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeContentDirectory(irMap));
 		irMapInfo.Type = Texture::eTextureType::eTextureType_SkyIrradience;
 		irMapInfo.IsCubeMap = true;
 		brdfInfo.GenerateMipMaps = false;
 
 		Texture::IE_TEXTURE_INFO radMapInfo;
-		radMapInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(envMap));
+		radMapInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeContentDirectory(envMap));
 		radMapInfo.Type = Texture::eTextureType::eTextureType_SkyRadianceMap;
 		radMapInfo.IsCubeMap = true;
 		brdfInfo.GenerateMipMaps = false;
 
 		switch (Renderer::GetAPI())
 		{
-		case Renderer::eTargetRenderAPI::D3D_11:
+		case Renderer::TargetRenderAPI::Direct3D_11:
 		{
 			m_BrdfLUT = new ieD3D11Texture(brdfInfo);
 			m_Irradiance = new ieD3D11Texture(irMapInfo);
 			m_Radiance = new ieD3D11Texture(radMapInfo);
 			break;
 		}
-		case Renderer::eTargetRenderAPI::D3D_12:
+		case Renderer::TargetRenderAPI::Direct3D_12:
 		{
 			Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
 			CDescriptorHeapWrapper& cbvSrvheap = RenderContext.GetCBVSRVDescriptorHeap();

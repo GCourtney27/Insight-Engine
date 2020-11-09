@@ -34,19 +34,19 @@ namespace Insight {
 		
 
 		Texture::IE_TEXTURE_INFO diffuseInfo;
-		diffuseInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(diffuseMap));
+		diffuseInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeContentDirectory(diffuseMap));
 		diffuseInfo.Type = Texture::eTextureType::eTextureType_SkyDiffuse;
 		diffuseInfo.GenerateMipMaps = true;
 		diffuseInfo.IsCubeMap = true;
 		
 		switch (Renderer::GetAPI())
 		{
-		case Renderer::eTargetRenderAPI::D3D_11:
+		case Renderer::TargetRenderAPI::Direct3D_11:
 		{
 			m_Diffuse = new ieD3D11Texture(diffuseInfo);
 			break;
 		}
-		case Renderer::eTargetRenderAPI::D3D_12:
+		case Renderer::TargetRenderAPI::Direct3D_12:
 		{
 			Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
 			CDescriptorHeapWrapper& cbvSrvheap = RenderContext.GetCBVSRVDescriptorHeap();

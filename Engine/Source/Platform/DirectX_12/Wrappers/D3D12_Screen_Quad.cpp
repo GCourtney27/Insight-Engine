@@ -71,7 +71,7 @@ namespace Insight {
 			nullptr,
 			IID_PPV_ARGS(&m_pIndexBuffer));
 		if (FAILED(hr)) {
-			IE_CORE_ERROR("Failed to create Committed Resource for Index Buffer to the Deafault Heap");
+			IE_DEBUG_LOG(LogSeverity::Error, "Failed to create Committed Resource for Index Buffer to the Deafault Heap");
 		}
 		m_pIndexBuffer->SetName(L"Index Buffer Resource Heap");
 
@@ -83,7 +83,7 @@ namespace Insight {
 			nullptr,
 			IID_PPV_ARGS(&m_pIndexBufferUploadHeap));
 		if (FAILED(hr)) {
-			IE_CORE_ERROR("Failed to create Committed Resource for Index Buffer to the Upload Heap");
+			IE_DEBUG_LOG(LogSeverity::Error, "Failed to create Committed Resource for Index Buffer to the Upload Heap");
 		}
 		m_pIndexBufferUploadHeap->SetName(L"Index Buffer Upload Resource Heap");
 

@@ -44,19 +44,20 @@ namespace Insight {
 	class INSIGHT_API Renderer
 	{
 	public:
-		enum class eTargetRenderAPI
+		typedef enum class TargetRenderAPI
 		{
-			INVALID,
-			D3D_11,
-			D3D_12,
-		};
+			Invalid,
+			Direct3D_11,
+			Direct3D_12,
+		} TargetRenderAPI;
 
 		struct GraphicsSettings
 		{
-			eTargetRenderAPI TargetRenderAPI = eTargetRenderAPI::D3D_11;
+			TargetRenderAPI TargetRenderAPI = TargetRenderAPI::Direct3D_11;
 			uint32_t MaxAnisotropy = 1U;	// Texture Filtering (1, 4, 8, 16) *16 highest quality
 			float MipLodBias = 0.0f;		// Texture Quality (0 - 9) *9 highest quality
 			bool RayTraceEnabled = false;
+			int pad[3];
 		};
 
 	public:
@@ -165,7 +166,7 @@ namespace Insight {
 		static void DestroySkybox() { s_Instance->DestroySkybox_Impl(); }
 
 		inline static bool GetIsRayTraceEnabled() { return s_Instance->m_GraphicsSettings.RayTraceEnabled; }
-		inline static eTargetRenderAPI GetAPI() { return s_Instance->m_GraphicsSettings.TargetRenderAPI; }
+		inline static TargetRenderAPI GetAPI() { return s_Instance->m_GraphicsSettings.TargetRenderAPI; }
 		inline static uint8_t GetFrameBufferCount() { return s_Instance->m_FrameBufferCount; }
 		inline static void SetVSyncEnabled(bool enabled) { s_Instance->m_VSyncEnabled = enabled; }
 		static void SetActiveCamera(Runtime::ACamera* pCamera) { s_Instance->m_pWorldCameraRef = pCamera; }

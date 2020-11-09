@@ -22,7 +22,7 @@ namespace Insight {
 	bool RayTraceHelpers::Init(Direct3D12Context* pRendererContext, ID3D12GraphicsCommandList4* pCommandList)
 	{
 		m_pDeviceRef = reinterpret_cast<ID3D12Device5*>(&pRendererContext->GetDeviceContext());
-		IE_CORE_ASSERT(m_pDeviceRef.Get() != nullptr, "Provided device must be \"ID3D12Device5\" which is DXR compatible.");
+		IE_ASSERT(m_pDeviceRef.Get() != nullptr, "Provided device must be \"ID3D12Device5\" which is DXR compatible.");
 
 		m_pCommandListRef = pCommandList;
 		m_pRenderContextRef = pRendererContext;

@@ -155,11 +155,11 @@ namespace Insight {
 			if (ImGui::CollapsingHeader(m_ComponentName, ImGuiTreeNodeFlags_DefaultOpen)) {
 
 				if (ImGui::InputText("New Mesh Dir: ", &m_DynamicAssetDir, ImGuiInputTextFlags_EnterReturnsTrue)) {
-					if (FileSystem::FileExistsInAssetDirectory(m_DynamicAssetDir)) {
+					if (FileSystem::FileExistsInContentDirectory(m_DynamicAssetDir)) {
 						AttachMesh(m_DynamicAssetDir);
 					}
 					else {
-						IE_CORE_ERROR("File does not exist with path: \"{0}\"", m_DynamicAssetDir);
+						IE_DEBUG_LOG(LogSeverity::Error, "File does not exist with path: \"{0}\"", m_DynamicAssetDir);
 					}
 				}
 
@@ -186,7 +186,7 @@ namespace Insight {
 
 		void StaticMeshComponent::AttachMesh(const std::string& AssestDirectoryRelPath)
 		{
-			ScopedPerfTimer(("StaticMeshComponent::AttachMesh \"" + AssestDirectoryRelPath + "\"").c_str(), eOutputType_Seconds);
+			ScopedPerfTimer(("StaticMeshComponent::AttachMesh \"" + AssestDirectoryRelPath + "\"").c_str(), OutputType_Seconds);
 
 			if (m_pModel) {
 				GeometryManager::UnRegisterOpaqueModel(m_pModel);

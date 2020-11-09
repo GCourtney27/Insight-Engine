@@ -79,7 +79,7 @@ namespace Insight {
 
 			Texture::IE_TEXTURE_INFO TexInfo = {};
 			TexInfo.Id = ID;
-			TexInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeAssetDirectory(Filepath));
+			TexInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeContentDirectory(Filepath));
 			TexInfo.GenerateMipMaps = GenMipMaps;
 			TexInfo.Type = (Texture::eTextureType)Type;
 
@@ -168,7 +168,7 @@ namespace Insight {
 		}
 		default:
 		{
-			IE_CORE_WARN("Failed to get texture handle for texture with ID: {0}", TextureID);
+			IE_DEBUG_LOG(LogSeverity::Warning, "Failed to get texture handle for texture with ID: {0}", TextureID);
 			break;
 		}
 		}
@@ -231,7 +231,7 @@ namespace Insight {
 		switch (Renderer::GetAPI())
 		{
 #if defined IE_PLATFORM_WINDOWS
-		case Renderer::eTargetRenderAPI::D3D_11:
+		case Renderer::TargetRenderAPI::Direct3D_11:
 		{
 			m_DefaultAlbedoTexture = make_shared<ieD3D11Texture>(AlbedoTexInfo);
 			m_DefaultNormalTexture = make_shared<ieD3D11Texture>(NormalTexInfo);
@@ -240,7 +240,7 @@ namespace Insight {
 			m_DefaultAOTexture = make_shared<ieD3D11Texture>(AOTexInfo);
 			break;
 		}
-		case Renderer::eTargetRenderAPI::D3D_12:
+		case Renderer::TargetRenderAPI::Direct3D_12:
 		{
 			Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
 			CDescriptorHeapWrapper& cbvSrvHeapStart = RenderContext.GetCBVSRVDescriptorHeap();
@@ -255,7 +255,7 @@ namespace Insight {
 #endif
 		default:
 		{
-			IE_CORE_ERROR("Failed to load default textures for api: {0}", Renderer::GetAPI());
+			IE_DEBUG_LOG(LogSeverity::Error, "Failed to load default textures for api: {0}", Renderer::GetAPI());
 			break;
 		}
 		}
@@ -273,7 +273,7 @@ namespace Insight {
 	{
 		switch (Renderer::GetAPI())
 		{
-			case Renderer::eTargetRenderAPI::D3D_11:
+			case Renderer::TargetRenderAPI::Direct3D_11:
 			{
 				switch (TexInfo.Type) {
 				case Texture::eTextureType::eTextureType_Albedo:
@@ -320,13 +320,13 @@ namespace Insight {
 				}
 				default:
 				{
-					IE_CORE_WARN("Failed to identify texture to create with ID of {0}", TexInfo.Id);
+					IE_DEBUG_LOG(LogSeverity::Warning, "Failed to identify texture to create with ID of {0}", TexInfo.Id);
 					break;
 				}
 				}
 				break;
 			}
-			case Renderer::eTargetRenderAPI::D3D_12:
+			case Renderer::TargetRenderAPI::Direct3D_12:
 			{
 				Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
 				CDescriptorHeapWrapper& cbvSrvHeapStart = RenderContext.GetCBVSRVDescriptorHeap();
@@ -376,7 +376,7 @@ namespace Insight {
 				}
 				default:
 				{
-					IE_CORE_WARN("Failed to identify texture to create with ID of: {0}", TexInfo.Id);
+					IE_DEBUG_LOG(LogSeverity::Warning, "Failed to identify texture to create with ID of: {0}", TexInfo.Id);
 					break;
 				}
 				}
@@ -384,7 +384,7 @@ namespace Insight {
 			}
 			default:
 			{
-				IE_CORE_ERROR("Failed to determine graphics api to initialize texture. The renderer may not have been initialized yet.");
+				IE_DEBUG_LOG(LogSeverity::Error, "Failed to determine graphics api to initialize texture. The renderer may not have been initialized yet.");
 				break;
 			}
 

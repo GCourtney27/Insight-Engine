@@ -164,7 +164,7 @@ namespace Insight {
 		// Aplication Events
 		case WM_COMPACTING:
 		{
-			IE_CORE_WARN("System memory is low!");
+			IE_DEBUG_LOG(LogSeverity::Warning, "System memory is low!");
 			return 0;
 		}
 		case WM_EXITSIZEMOVE:
@@ -174,7 +174,7 @@ namespace Insight {
 			WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, wParam == SIZE_MINIMIZED);
 			data.EventCallback(event);
 
-			IE_CORE_INFO("Window size has changed");
+			IE_DEBUG_LOG(LogSeverity::Log, "Window size has changed");
 			return 0;
 		}
 		case WM_SIZE:
@@ -225,7 +225,7 @@ namespace Insight {
 			LPSTR lpszFile;
 			UINT cch;
 			DragQueryFileA((HDROP)wParam, iFile, lpszFile, cch);
-			IE_CORE_INFO("File dropped on window");*/
+			IE_DEBUG_LOG(LogSeverity::Log, "File dropped on window");*/
 		}
 		// Menu Bar Events
 		case WM_COMMAND:
@@ -268,7 +268,7 @@ namespace Insight {
 			{
 				SceneSaveEvent event;
 				data.EventCallback(event);
-				IE_CORE_INFO("Scene Saved");
+				IE_DEBUG_LOG(LogSeverity::Log, "Scene Saved");
 				break;
 			}
 			case IDM_ABOUT:
@@ -290,62 +290,62 @@ namespace Insight {
 			}
 			case IDM_VISUALIZE_FINAL_RESULT:
 			{
-				IE_CORE_INFO("Visualize final result");
+				IE_DEBUG_LOG(LogSeverity::Log, "Visualize final result");
 				//ModifyMenuW(data.hGraphicsVisualizeSubMenu, IDM_VISUALIZE_FINAL_RESULT, MF_CHECKED, IDM_VISUALIZE_FINAL_RESULT, L"&Final Result");
 
 				break;
 			}
 			case IDM_VISUALIZE_LIGHT_PASS_RESULT:
 			{
-				IE_CORE_INFO("Visualize light pass result");
+				IE_DEBUG_LOG(LogSeverity::Log, "Visualize light pass result");
 				break;
 			}
 			case IDM_VISUALIZE_ALBEDO_BUFFER:
 			{
-				IE_CORE_INFO("Visualize albedo buffer");
+				IE_DEBUG_LOG(LogSeverity::Log, "Visualize albedo buffer");
 				break;
 			}
 			case IDM_VISUALIZE_NORMAL_BUFFER:
 			{
-				IE_CORE_INFO("Visualize normal buffer");
+				IE_DEBUG_LOG(LogSeverity::Log, "Visualize normal buffer");
 				break;
 			}
 			case IDM_VISUALIZE_ROUGHNESS_BUFFER:
 			{
-				IE_CORE_INFO("Visualize roughness buffer");
+				IE_DEBUG_LOG(LogSeverity::Log, "Visualize roughness buffer");
 				break;
 			}
 			case IDM_VISUALIZE_METALLIC_BUFFER:
 			{
-				IE_CORE_INFO("Visualize metallic buffer");
+				IE_DEBUG_LOG(LogSeverity::Log, "Visualize metallic buffer");
 				break;
 			}
 			case IDM_VISUALIZE_AO_BUFFER:
 			{
-				IE_CORE_INFO("Visualize ambient occlusion buffer");
+				IE_DEBUG_LOG(LogSeverity::Log, "Visualize ambient occlusion buffer");
 				break;
 			}
 			case IDM_RENDERER_D3D_11:
 			{
-				IE_CORE_INFO("Switch render context to D3D 11");
+				IE_DEBUG_LOG(LogSeverity::Log, "Switch render context to D3D 11");
 				Renderer::GraphicsSettings Settings = {};
-				Settings.TargetRenderAPI = Renderer::eTargetRenderAPI::D3D_11;
+				Settings.TargetRenderAPI = Renderer::TargetRenderAPI::Direct3D_11;
 				FileSystem::SaveEngineUserSettings(Settings);
 				data.pWindow->CreateMessageBox(L"You must relaunch engine for changes to take effect.", L"Graphics API changed to DirectX 11");
 				break;
 			}
 			case IDM_RENDERER_D3D_12:
 			{
-				IE_CORE_INFO("Switch render context to D3D 12");
+				IE_DEBUG_LOG(LogSeverity::Log, "Switch render context to D3D 12");
 				Renderer::GraphicsSettings Settings = {};
-				Settings.TargetRenderAPI = Renderer::eTargetRenderAPI::D3D_12;
+				Settings.TargetRenderAPI = Renderer::TargetRenderAPI::Direct3D_12;
 				FileSystem::SaveEngineUserSettings(Settings);
 				data.pWindow->CreateMessageBox(L"You must relaunch engine for changes to take effect.", L"Graphics API changed to DirectX 12");
 				break;
 			}
 			case IDM_RELOAD_SHADERS:
 			{
-				IE_CORE_INFO("Reloading scripts.");
+				IE_DEBUG_LOG(LogSeverity::Log, "Reloading scripts.");
 				ShaderReloadEvent event;
 				data.EventCallback(event);
 			}
@@ -365,7 +365,7 @@ namespace Insight {
 	{
 		HRESULT hr = ::CoInitialize(NULL);
 		if (FAILED(hr)){
-			IE_CORE_ERROR("Failed to initialize COM library.");
+			IE_DEBUG_LOG(LogSeverity::Error, "Failed to initialize COM library.");
 		}
 
 		static bool RIDInitialized = false;
@@ -380,7 +380,7 @@ namespace Insight {
 
 			if (RegisterRawInputDevices(&RID, 1, sizeof(RID)) == FALSE)
 			{
-				IE_CORE_ERROR("Failed to register raw input devices. Error: {0}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
+				IE_DEBUG_LOG(LogSeverity::Error, "Failed to register raw input devices. Error: {0}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
 				return false;
 			}
 			RIDInitialized = true;
@@ -423,8 +423,8 @@ namespace Insight {
 		);
 
 		if (m_hWindow == NULL) {
-			IE_ERROR("Unable to create Windows window.");
-			IE_ERROR("    Error: {0}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
+			IE_DEBUG_LOG(LogSeverity::Critical, "Unable to create Windows window.");
+			IE_DEBUG_LOG(LogSeverity::Critical, "    Error: {0}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
 			return false;
 		}
 
@@ -437,7 +437,7 @@ namespace Insight {
 		::SetForegroundWindow(m_hWindow);
 		::SetFocus(m_hWindow);
 
-		IE_CORE_TRACE("Window Initialized");
+		IE_DEBUG_LOG(LogSeverity::Verbose, "Window Initialized");
 		return true;
 	}
 
@@ -468,8 +468,8 @@ namespace Insight {
 		DWORD error = ::GetLastError();
 		if (error > 0)
 		{
-			IE_CORE_ERROR("An error occured while registering window class: {0} ", m_Data.WindowClassName);
-			IE_CORE_ERROR("    Error: {1}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
+			IE_DEBUG_LOG(LogSeverity::Error, "An error occured while registering window class: {0} ", m_Data.WindowClassName);
+			IE_DEBUG_LOG(LogSeverity::Error, "    Error: {1}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
 		}
 	}
 
@@ -477,7 +477,7 @@ namespace Insight {
 	{
 		m_hMenuBar = ::CreateMenu();
 		if (m_hMenuBar == NULL) {
-			IE_CORE_ERROR("Failed to create menu bar for window \"{0}\"", m_Data.WindowTitle);
+			IE_DEBUG_LOG(LogSeverity::Error, "Failed to create menu bar for window \"{0}\"", m_Data.WindowTitle);
 			return;
 		}
 
@@ -615,7 +615,7 @@ namespace Insight {
 
 	WindowsWindow::~WindowsWindow()
 	{
-		IE_CORE_WARN("Destroying window: {0}", m_Data.WindowTitle);
+		IE_DEBUG_LOG(LogSeverity::Warning, "Destroying window: {0}", m_Data.WindowTitle);
 		Shutdown();
 	}
 
@@ -655,7 +655,7 @@ namespace Insight {
 
 	void WindowsWindow::SetVSync(bool enabled)
 	{
-		IE_CORE_INFO("V-sync: " + enabled ? "enabled" : "disabled");
+		IE_DEBUG_LOG(LogSeverity::Log, "V-sync: " + enabled ? "enabled" : "disabled");
 		m_Data.VSyncEnabled = enabled;
 		Renderer::SetVSyncEnabled(m_Data.VSyncEnabled);
 	}

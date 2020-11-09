@@ -160,7 +160,7 @@ namespace Insight {
 					case 0: break;
 					case 1:
 					{
-						IE_CORE_INFO("Adding Static Mesh Component to \"{0}\"", AActor::GetDisplayName());
+						IE_DEBUG_LOG(LogSeverity::Log, "Adding Static Mesh Component to \"{0}\"", AActor::GetDisplayName());
 						StaticMeshComponent* ptr = AActor::CreateDefaultSubobject<StaticMeshComponent>();
 						ptr->SetMaterial(std::move(Material::CreateDefaultTexturedMaterial()));
 						ptr->AttachMesh("Models/Quad.obj");
@@ -169,13 +169,13 @@ namespace Insight {
 					}
 					case 2:
 					{
-						IE_CORE_INFO("Adding C-Sharp Script Component to \"{0}\"", AActor::GetDisplayName());
+						IE_DEBUG_LOG(LogSeverity::Log, "Adding C-Sharp Script Component to \"{0}\"", AActor::GetDisplayName());
 						CSharpScriptComponent* ptr = AActor::CreateDefaultSubobject<CSharpScriptComponent>();
 						break;
 					}
 					default:
 					{
-						IE_CORE_INFO("Failed to determine component to add to actor \"{0}\" with index of \"{1}\"", AActor::GetDisplayName(), currentIndex);
+						IE_DEBUG_LOG(LogSeverity::Log, "Failed to determine component to add to actor \"{0}\" with index of \"{1}\"", AActor::GetDisplayName(), currentIndex);
 						break;
 					}
 					}
@@ -288,7 +288,7 @@ namespace Insight {
 
 		void AActor::RemoveSubobject(ActorComponent* component)
 		{
-			IE_CORE_ASSERT(std::find(m_Components.begin(), m_Components.end(), component) != m_Components.end(), "Could not find Component in Actor list while attempting to delete");
+			IE_ASSERT(std::find(m_Components.begin(), m_Components.end(), component) != m_Components.end(), "Could not find Component in Actor list while attempting to delete");
 
 			auto iter = std::find(m_Components.begin(), m_Components.end(), component);
 			(*iter)->OnDetach();
@@ -309,7 +309,7 @@ namespace Insight {
 
 		bool AActor::OnCollision(PhysicsEvent& e)
 		{
-			IE_CORE_INFO("Physics Collision");
+			IE_DEBUG_LOG(LogSeverity::Log, "Physics Collision");
 			return false;
 		}
 

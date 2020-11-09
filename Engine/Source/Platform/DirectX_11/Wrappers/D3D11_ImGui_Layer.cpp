@@ -52,7 +52,7 @@ namespace Insight {
 		HWND& WindowHandle = RenderContext.GetWindowRefAs<WindowsWindow>().GetWindowHandleRef();
 
 		if (!ImGui_ImplWin32_Init(WindowHandle)) {
-			IE_CORE_WARN("Failed to initialize ImGui for Win32 - D3D 12. Some controls may not be functional or editor may not be rendered.");
+			IE_DEBUG_LOG(LogSeverity::Warning, "Failed to initialize ImGui for Win32 - D3D 12. Some controls may not be functional or editor may not be rendered.");
 		}
 		ImGui_ImplDX11_Init(&RenderContext.GetDevice(), &RenderContext.GetDeviceContext());
 

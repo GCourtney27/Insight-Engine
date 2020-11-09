@@ -12,21 +12,15 @@
 	#endif
 #endif // IE_PLATFORM_WINDOWS
 
-#if defined IE_ENGINE_DIST || defined IE_GAME_DIST
-	#define IE_PRODUCTION
-#endif
-
 #if defined IE_DEBUG
 	#define IE_ENABLE_ASSERTS
 	#define IE_SCOPE_PROFILING_ENABLED
 #endif // IE_DEBUG
 
 #if defined IE_ENABLE_ASSERTS
-	#define IE_ASSERT(x, ...) {if( !(x) ) { IE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
-	#define IE_CORE_ASSERT(x, ...) { if(!(x)) { IE_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+	#define IE_ASSERT(x, ...) {if( !(x) ) { IE_DEBUG_LOG(LogSeverity::Error, "Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
 #else
 	#define IE_ASSERT(x, ...)
-	#define IE_CORE_ASSERT(x, ...)
 #endif // IE_ENABLE_ASSERTS
 
 // Configuration defines
@@ -51,6 +45,6 @@
 #include "Insight/Math/Math_Helpers.h"
 
 // Rendering
-#define MAX_POINT_LIGHTS_SUPPORTED 16U
-#define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 1U
-#define MAX_SPOT_LIGHTS_SUPPORTED 16U
+#define MAX_POINT_LIGHTS_SUPPORTED 16u
+#define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 1u
+#define MAX_SPOT_LIGHTS_SUPPORTED 16u

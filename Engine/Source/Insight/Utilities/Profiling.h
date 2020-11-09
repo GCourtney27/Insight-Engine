@@ -18,11 +18,11 @@ namespace Insight {
 		{
 			enum class eOutputType
 			{
-				eOutputType_Seconds,
-				eOutputType_Millis
+				OutputType_Seconds,
+				OutputType_Millis
 			};
 
-			ScopedTimer(const char* pScopeName, eOutputType outputType = eOutputType::eOutputType_Millis)
+			ScopedTimer(const char* pScopeName, eOutputType outputType = eOutputType::OutputType_Millis)
 				: m_ScopeName(pScopeName), m_OutputType(outputType)
 			{
 				m_Start = std::chrono::high_resolution_clock::now();
@@ -35,24 +35,24 @@ namespace Insight {
 
 				float time = 0.0f;
 				switch (m_OutputType) {
-				case eOutputType::eOutputType_Millis:
+				case eOutputType::OutputType_Millis:
 				{
 					time = m_Duration.count();
 					if (time > 1.0f) {
-						IE_CORE_WARN("{0} took {1}ms. Performance degradation.", m_ScopeName, time);
+						IE_DEBUG_LOG(LogSeverity::Warning, "{0} took {1}ms. Performance degradation.", m_ScopeName, time);
 					}
 					else {
-						IE_CORE_INFO("{0} took {1}s", m_ScopeName, time);
+						IE_DEBUG_LOG(LogSeverity::Log, "{0} took {1}s", m_ScopeName, time);
 					}
 				}
-				case eOutputType::eOutputType_Seconds:
+				case eOutputType::OutputType_Seconds:
 				{
 					time = m_Duration.count() * 1000.0f;
 					if (time > 1000.0f) {
-						IE_CORE_WARN("{0} took {1}s. Performance degradation.", m_ScopeName, time);
+						IE_DEBUG_LOG(LogSeverity::Warning, "{0} took {1}s. Performance degradation.", m_ScopeName, time);
 					}
 					else {
-						IE_CORE_INFO("{0} took {1}s", m_ScopeName, time);
+						IE_DEBUG_LOG(LogSeverity::Log, "{0} took {1}s", m_ScopeName, time);
 					}
 				}
 				}

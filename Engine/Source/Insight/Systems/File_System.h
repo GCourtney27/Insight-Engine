@@ -19,16 +19,16 @@ namespace Insight {
 
 		static void SaveEngineUserSettings(Renderer::GraphicsSettings Settings);
 		
-		static inline std::string_view GetExecutbleDirectory() { return std::string_view{ FileSystem::ExecutableDirectory.c_str() }; }
+		static inline std::string_view GetExecutableDirectory() { return std::string_view{ FileSystem::ExecutableDirectory.c_str() }; }
 		static inline std::wstring_view GetExecutbleDirectoryW() { return std::wstring_view{ FileSystem::ExecutableDirectoryW.c_str() }; }
 		static inline std::string_view GetProjectDirectory() { return std::string_view{ FileSystem::ProjectDirectory.c_str() }; }
 		static inline std::string_view GetUserDocumentsFolderPath() { return std::string_view{ FileSystem::UserDocumentsFolder.c_str() }; }
-		static std::string GetProjectRelativeAssetDirectory(std::string Path);
+		static std::string GetProjectRelativeContentDirectory(std::string Path);
 
 		static Renderer::GraphicsSettings LoadGraphicsSettingsFromJson();
 		static bool LoadSceneFromJson(const std::string& FileName, Scene* pScene);
 		static bool WriteSceneToJson(Scene* pScene);
-		static bool FileExistsInAssetDirectory(const std::string& Path);
+		static bool FileExistsInContentDirectory(const std::string& Path);
 
 	protected:
 		static std::string UserDocumentsFolder;

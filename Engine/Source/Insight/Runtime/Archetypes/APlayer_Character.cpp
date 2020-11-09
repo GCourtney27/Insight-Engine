@@ -17,7 +17,7 @@ namespace Insight {
 		APlayerCharacter::APlayerCharacter(ActorId id, ActorName name)
 			: APawn(id, name)
 		{
-			IE_CORE_ASSERT(!s_Instance, "Trying to create another instnace of a player character!");
+			IE_ASSERT(!s_Instance, "Trying to create another instnace of a player character!");
 			s_Instance = this;
 			m_ViewTarget = ACamera::GetDefaultViewTarget(); // This should be loaded through a player settings file
 

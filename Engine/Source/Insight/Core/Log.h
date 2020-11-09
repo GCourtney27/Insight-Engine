@@ -2,7 +2,7 @@
 
 #include <Insight/Core.h>
 #ifdef IE_PLATFORM_WINDOWS
-	#include "Platform/Win32/Console_Window.h"
+#include "Platform/Win32/Console_Window.h"
 #endif 
 
 #pragma warning (disable : 26451)
@@ -11,52 +11,77 @@
 
 namespace Insight {
 
-	class INSIGHT_API Log
-	{
-	public:
-		static bool Init();
-		~Log() { }
+	namespace Debug {
 
-		inline static void HoldForUserInput() { system("PAUSE"); }
 
-		inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
-		inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
-	private:
-		static std::shared_ptr<spdlog::logger> s_CoreLogger;
-		static std::shared_ptr<spdlog::logger> s_ClientLogger;
+		class INSIGHT_API Logger
+		{
+		public:
+			static bool Init();
+			~Logger() { }
+
+			inline static void HoldForUserInput() { system("PAUSE"); }
+
+			inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
+			inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
+		private:
+			static std::shared_ptr<spdlog::logger> s_CoreLogger;
+			static std::shared_ptr<spdlog::logger> s_ClientLogger;
 #if defined IE_DEBUG || defined IE_RELEASE
-		static ConsoleWindow m_ConsoleWindow;
+			static ConsoleWindow m_ConsoleWindow;
 #endif
-	};
+		};
+
+		
+	}
 
 }
 
+enum class LogSeverity
+{
+	Log,
+	Verbose,
+	Warning,
+	Error,
+	Critical,
+};
+
+namespace Debug {
+
+	// Logger that will log output to the console window. Recommended that you dont call directly. 
+	// Instead, use IE_DEBUG_LOG so logs will be stripped from release builds.
+	template <typename ... Params>
+	inline constexpr void Log(LogSeverity Severity, Params ... params)
+	{
+		switch (Severity)
+		{
+		case LogSeverity::Log:
+			Insight::Debug::Logger::GetCoreLogger()->info(params...);
+			break;
+		case LogSeverity::Verbose:
+			Insight::Debug::Logger::GetCoreLogger()->trace(params...);
+			break;
+		case LogSeverity::Warning:
+			Insight::Debug::Logger::GetCoreLogger()->warn(params...);
+			break;
+		case LogSeverity::Error:
+			Insight::Debug::Logger::GetCoreLogger()->error(params...);
+			break;
+		case LogSeverity::Critical:
+			Insight::Debug::Logger::GetCoreLogger()->critical(params...);
+			break;
+		default:
+			Insight::Debug::Logger::GetCoreLogger()->warn("Invalid log severity given to logger. Choose one option from Log::LogSeverity enum when Debug Logging.");
+			break;
+		}
+	}
+}
+
+
 #if defined IE_DEBUG || defined IE_RELEASE
-	// Engine log macros
-	#define IE_CORE_TRACE(...) ::Insight::Log::GetCoreLogger()->trace(__VA_ARGS__);
-	#define IE_CORE_INFO(...)  ::Insight::Log::GetCoreLogger()->info(__VA_ARGS__);
-	#define IE_CORE_WARN(...)  ::Insight::Log::GetCoreLogger()->warn(__VA_ARGS__);
-	#define IE_CORE_ERROR(...) ::Insight::Log::GetCoreLogger()->error(__VA_ARGS__);
-	#define IE_CORE_FATAL(...) __debugbreak(); OutputDebugString(__VA_ARGS__)
-
-	// Client log macros
-	#define IE_INFO(...)	   ::Insight::Log::GetClientLogger()->info(__VA_ARGS__);
-	#define IE_TRACE(...)	   ::Insight::Log::GetClientLogger()->trace(__VA_ARGS__);
-	#define IE_WARN(...)	   ::Insight::Log::GetClientLogger()->warn(__VA_ARGS__);
-	#define IE_ERROR(...)	   ::Insight::Log::GetClientLogger()->error(__VA_ARGS__);
-	#define IE_FATAL(...)	   __debugbreak(); OutputDebugString(__VA_ARGS__)
+#define IE_FATAL_ERROR(...) __debugbreak(); OutputDebugString(__VA_ARGS__)
+#define IE_DEBUG_LOG(Severity, ...) ::Debug::Log(Severity, __VA_ARGS__);
 #else
-	// Engine logging
-	#define IE_CORE_TRACE
-	#define IE_CORE_INFO
-	#define IE_CORE_WARN
-	#define IE_CORE_ERROR
-	#define IE_CORE_FATAL
-
-	// Client logging
-	#define IE_INFO
-	#define IE_TRACE
-	#define IE_WARN
-	#define IE_ERROR
-	#define IE_FATAL
+#define IE_FATAL_ERROR(...)
+#define IE_DEBUG_LOG(LogSeverity, ...)
 #endif

@@ -29,7 +29,7 @@ namespace Insight {
 		: m_pWindowRef(WindowHandle),
 		Renderer(false)
 	{
-		IE_CORE_ASSERT(WindowHandle != nullptr, "Window handle is NULL, cannot initialize D3D 12 context with NULL window handle.");
+		IE_ASSERT(WindowHandle != nullptr, "Window handle is NULL, cannot initialize D3D 12 context with NULL window handle.");
 		m_AspectRatio = static_cast<float>(m_pWindowRef->GetWidth()) / static_cast<float>(m_pWindowRef->GetHeight());
 	}
 
@@ -52,7 +52,7 @@ namespace Insight {
 
 	bool Direct3D12Context::Init_Impl()
 	{
-		IE_CORE_INFO("Renderer: D3D 12");
+		IE_DEBUG_LOG(LogSeverity::Log, "Renderer: D3D 12");
 
 		try 
 		{
@@ -638,13 +638,13 @@ namespace Insight {
 
 	void Direct3D12Context::SetVertexBuffers_Impl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers)
 	{
-		IE_CORE_ASSERT(dynamic_cast<D3D12VertexBuffer*>(pBuffers) != nullptr, "A vertex buffer passed to renderer with D3D 12 active must be a \"D3D12VertexBuffer\"");
+		IE_ASSERT(dynamic_cast<D3D12VertexBuffer*>(pBuffers) != nullptr, "A vertex buffer passed to renderer with D3D 12 active must be a \"D3D12VertexBuffer\"");
 		m_pActiveCommandList->IASetVertexBuffers(StartSlot, NumBuffers, reinterpret_cast<D3D12VertexBuffer*>(pBuffers)->GetVertexBufferView());
 	}
 
 	void Direct3D12Context::SetIndexBuffer_Impl(ieIndexBuffer* pBuffer)
 	{
-		IE_CORE_ASSERT(dynamic_cast<D3D12IndexBuffer*>(pBuffer) != nullptr, "A index buffer passed to renderer with D3D 12 active must be a \"D3D12IndexBuffer\"");
+		IE_ASSERT(dynamic_cast<D3D12IndexBuffer*>(pBuffer) != nullptr, "A index buffer passed to renderer with D3D 12 active must be a \"D3D12IndexBuffer\"");
 		m_pActiveCommandList->IASetIndexBuffer(&reinterpret_cast<D3D12IndexBuffer*>(pBuffer)->GetIndexBufferView());
 	}
 
@@ -750,7 +750,7 @@ namespace Insight {
 				&ShadowDepthOptomizedClearValue,
 				IID_PPV_ARGS(&m_pShadowDepthTexture));
 			if (FAILED(hr))
-				IE_CORE_ERROR("Failed to create comitted resource for depth stencil view");
+				IE_DEBUG_LOG(LogSeverity::Error, "Failed to create comitted resource for depth stencil view");
 			m_pShadowDepthTexture->SetName(L"Shadow Depth Buffer");
 			pDevice->CreateDepthStencilView(m_pShadowDepthTexture.Get(), &ShadowDepthDesc, m_dsvHeap.hCPU(1));
 

@@ -94,7 +94,7 @@ namespace Insight {
 
 				ImGui::TreeNodeEx("Point Light", TreeFlags);
 				if (ImGui::IsItemClicked()) {
-					IE_CORE_INFO("Create Point light");
+					IE_DEBUG_LOG(LogSeverity::Log, "Create Point light");
 					static int PointLightIndex = 0;
 					Runtime::ActorType ActorType = "MyPointLight" + std::to_string(PointLightIndex++);
 					m_pSceneRootRef->AddChild(new APointLight(5, ActorType));
@@ -103,7 +103,7 @@ namespace Insight {
 
 				ImGui::TreeNodeEx("Spot Light", TreeFlags);
 				if (ImGui::IsItemClicked()) {
-					IE_CORE_INFO("Create Spot light");
+					IE_DEBUG_LOG(LogSeverity::Log, "Create Spot light");
 					static int SpotLightIndex = 0;
 					Runtime::ActorType ActorType = "MySpotLight" + std::to_string(SpotLightIndex++);
 					m_pSceneRootRef->AddChild(new ASpotLight(5, ActorType));
@@ -112,7 +112,7 @@ namespace Insight {
 
 				ImGui::TreeNodeEx("Directional Light", TreeFlags);
 				if (ImGui::IsItemClicked()) {
-					IE_CORE_INFO("Create Directional light");
+					IE_DEBUG_LOG(LogSeverity::Log, "Create Directional light");
 					static int DirectionalLightIndex = 0;
 					Runtime::ActorType ActorType = "MyDirectionalLight" + std::to_string(DirectionalLightIndex++);
 					m_pSceneRootRef->AddChild(new ADirectionalLight(5, ActorType));
@@ -124,7 +124,7 @@ namespace Insight {
 
 				ImGui::TreeNodeEx("Empty Actor", TreeFlags);
 				if (ImGui::IsItemClicked()) {
-					IE_CORE_INFO("Create Empty Actor");
+					IE_DEBUG_LOG(LogSeverity::Log, "Create Empty Actor");
 					static int ActorIndex = 0;
 					Runtime::ActorType ActorType = "MyActor" + std::to_string(ActorIndex++);
 					m_pSceneRootRef->AddChild(new Runtime::AActor(5, ActorType));
@@ -133,7 +133,7 @@ namespace Insight {
 
 				/*ImGui::TreeNodeEx("TODO: Post-Process Actor", TreeFlags);
 				if (ImGui::IsItemClicked()) {
-					IE_CORE_INFO("Create Empty Actor");
+					IE_DEBUG_LOG(LogSeverity::Log, "Create Empty Actor");
 					ActorType ActorType = "PostProcess Actor";
 					m_pSceneRootRef->AddChild(new APostFx(5, ActorType));
 				}
@@ -142,7 +142,7 @@ namespace Insight {
 
 				/*ImGui::TreeNodeEx("Sky Sphere Actor", TreeFlags);
 				if (ImGui::IsItemClicked()) {
-					IE_CORE_INFO("Create Sky Sphere  Actor");
+					IE_DEBUG_LOG(LogSeverity::Log, "Create Sky Sphere  Actor");
 					ActorType ActorType = "Sky Sphere Actor";
 					m_pSceneRootRef->AddChild(new ASkySphere(5, ActorType));
 				}
@@ -151,7 +151,7 @@ namespace Insight {
 
 				//ImGui::TreeNodeEx("TODO: Sky Light Actor", TreeFlags);
 				//if (ImGui::IsItemClicked()) {
-				//	IE_CORE_INFO("Create Empty Actor");
+				//	IE_DEBUG_LOG(LogSeverity::Log, "Create Empty Actor");
 				//	//static int ActorIndex = 0;
 				//	//ActorType ActorType = "MyActor" + std::to_string(ActorIndex++);
 				//	//m_pSceneRootRef->AddChild(new AActor(5, ActorType));

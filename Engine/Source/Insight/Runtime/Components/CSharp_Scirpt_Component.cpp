@@ -46,16 +46,16 @@ namespace Insight {
 		{
 			// Register the class with mono runtime
 			if (!m_pMonoScriptManager->CreateClass(m_pClass, m_pObject, m_ModuleName.c_str())) {
-				IE_CORE_ERROR("Failed to create C# class for \"{0}\"", m_ModuleName);
+				IE_DEBUG_LOG(LogSeverity::Error, "Failed to create C# class for \"{0}\"", m_ModuleName);
 				return;
 			}
 
 			// Register the engine methods for the object
 			if (!m_pMonoScriptManager->CreateMethod(m_pClass, m_pBeginPlayMethod, m_ModuleName.c_str(), "BeginPlay()")) {
-				IE_CORE_ERROR("Failed to find method \"BeginPlay\" in script \"{0}\"", m_ModuleName);
+				IE_DEBUG_LOG(LogSeverity::Error, "Failed to find method \"BeginPlay\" in script \"{0}\"", m_ModuleName);
 			}
 			if (!m_pMonoScriptManager->CreateMethod(m_pClass, m_pUpdateMethod, m_ModuleName.c_str(), "Tick(double)")) {
-				IE_CORE_ERROR("Failed to find method \"Tick\" in script \"{0}\"", m_ModuleName);
+				IE_DEBUG_LOG(LogSeverity::Error, "Failed to find method \"Tick\" in script \"{0}\"", m_ModuleName);
 			}
 
 			GetTransformFields();

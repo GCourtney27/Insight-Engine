@@ -30,14 +30,14 @@ namespace Insight {
 
 		switch (Renderer::GetAPI())
 		{
-		case Renderer::eTargetRenderAPI::D3D_11:
+		case Renderer::TargetRenderAPI::Direct3D_11:
 			s_Instance = new D3D11GeometryManager();
 			break;
-		case Renderer::eTargetRenderAPI::D3D_12:
+		case Renderer::TargetRenderAPI::Direct3D_12:
 			s_Instance = new D3D12GeometryManager();
 			break;
 		default:
-			IE_CORE_FATAL(L"Failed to determine graphics api to initialize geometry manager. The render may have not been initialized properly or may not have been initialized at all.");
+			IE_FATAL_ERROR(L"Failed to determine graphics api to initialize geometry manager. The render may have not been initialized properly or may not have been initialized at all.");
 			break;
 		}
 

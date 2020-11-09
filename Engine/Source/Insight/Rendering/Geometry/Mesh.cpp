@@ -23,7 +23,7 @@ namespace Insight {
 
 	Mesh::Mesh(Mesh&& mesh) noexcept
 	{
-		IE_CORE_WARN("Mesh being moved in memory.");
+		IE_DEBUG_LOG(LogSeverity::Warning, "Mesh being moved in memory.");
 		
 		m_pIndexBuffer = mesh.m_pIndexBuffer;
 		m_pVertexBuffer = mesh.m_pVertexBuffer;
@@ -90,13 +90,13 @@ namespace Insight {
 	void Mesh::CreateBuffers(Verticies& Verticies, Indices& Indices)
 	{
 		switch (Renderer::GetAPI()) {
-		case Renderer::eTargetRenderAPI::D3D_11:
+		case Renderer::TargetRenderAPI::Direct3D_11:
 		{
 			m_pVertexBuffer = new D3D11VertexBuffer(Verticies);
 			m_pIndexBuffer = new D3D11IndexBuffer(Indices);
 			break;
 		}
-		case Renderer::eTargetRenderAPI::D3D_12:
+		case Renderer::TargetRenderAPI::Direct3D_12:
 		{
 			m_pVertexBuffer = new D3D12VertexBuffer(Verticies);
 			m_pIndexBuffer = new D3D12IndexBuffer(Indices);
@@ -117,14 +117,14 @@ namespace Insight {
 
 			break;
 		}
-		case Renderer::eTargetRenderAPI::INVALID:
+		case Renderer::TargetRenderAPI::Invalid:
 		{
-			IE_CORE_FATAL(L"Mesh trying to be created before the renderer has been initialized.");
+			IE_FATAL_ERROR(L"Mesh trying to be created before the renderer has been initialized.");
 			break;
 		}
 		default:
 		{
-			IE_CORE_ERROR("Failed to determine vertex buffer type for mesh.");
+			IE_DEBUG_LOG(LogSeverity::Error, "Failed to determine vertex buffer type for mesh.");
 			break;
 		}
 		}

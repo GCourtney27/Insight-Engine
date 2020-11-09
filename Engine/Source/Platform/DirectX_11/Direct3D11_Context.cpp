@@ -36,7 +36,7 @@ namespace Insight {
 
 	bool Direct3D11Context::Init_Impl()
 	{
-		IE_CORE_INFO("Renderer: D3D 11");
+		IE_DEBUG_LOG(LogSeverity::Log, "Renderer: D3D 11");
 
 		CreateDXGIFactory();
 		CreateDeviceAndSwapChain();
@@ -54,13 +54,13 @@ namespace Insight {
 
 	void Direct3D11Context::SetVertexBuffers_Impl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers)
 	{
-		IE_CORE_ASSERT(dynamic_cast<D3D11VertexBuffer*>(pBuffers) != nullptr, "A vertex buffer passed to renderer with D3D 11 active must be a \"D3D11VertexBuffer\"");
+		IE_ASSERT(dynamic_cast<D3D11VertexBuffer*>(pBuffers) != nullptr, "A vertex buffer passed to renderer with D3D 11 active must be a \"D3D11VertexBuffer\"");
 		m_pDeviceContext->IASetVertexBuffers(StartSlot, NumBuffers, reinterpret_cast<D3D11VertexBuffer*>(pBuffers)->GetBufferPtr(), reinterpret_cast<D3D11VertexBuffer*>(pBuffers)->GetStridePtr(), reinterpret_cast<D3D11VertexBuffer*>(pBuffers)->GetBufferOffset());
 	}
 
 	void Direct3D11Context::SetIndexBuffer_Impl(ieIndexBuffer* pBuffer)
 	{
-		IE_CORE_ASSERT(dynamic_cast<D3D11IndexBuffer*>(pBuffer) != nullptr, "A index buffer passed to renderer with D3D 11 active must be a \"D3D11IndexBuffer\"");
+		IE_ASSERT(dynamic_cast<D3D11IndexBuffer*>(pBuffer) != nullptr, "A index buffer passed to renderer with D3D 11 active must be a \"D3D11IndexBuffer\"");
 		m_pDeviceContext->IASetIndexBuffer(reinterpret_cast<D3D11IndexBuffer*>(pBuffer)->GetBufferPtr(), reinterpret_cast<D3D11IndexBuffer*>(pBuffer)->GetFormat(), reinterpret_cast<D3D11IndexBuffer*>(pBuffer)->GetBufferOffset());
 	}
 
@@ -439,12 +439,12 @@ namespace Insight {
 				}
 				*ppAdapter = pAdapter.Detach();
 
-				IE_CORE_WARN("Found suitable Direct3D 11 graphics hardware: {0}", StringHelper::WideToString(Desc.Description));
+				IE_DEBUG_LOG(LogSeverity::Warning, "Found suitable Direct3D 11 graphics hardware: {0}", StringHelper::WideToString(Desc.Description));
 			}
 		}
 		Desc = {};
 		(*ppAdapter)->GetDesc(&Desc);
-		IE_CORE_WARN("\"{0}\" selected as Direct3D 11 graphics hardware.", StringHelper::WideToString(Desc.Description));
+		IE_DEBUG_LOG(LogSeverity::Warning, "\"{0}\" selected as Direct3D 11 graphics hardware.", StringHelper::WideToString(Desc.Description));
 	}
 
 	void Direct3D11Context::CreateDeviceAndSwapChain()

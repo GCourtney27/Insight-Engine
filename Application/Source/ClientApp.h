@@ -47,9 +47,9 @@ namespace SandBoxApp {
 		}
 
 		// Main loop of the application. This is the main entry point for every frame.
-		virtual void Run(float DelatMs) override
+		virtual void Run() override
 		{
-			Super::Run(DelatMs);
+			Super::Run();
 		}
 
 		// Shutdown the application and release all resources.

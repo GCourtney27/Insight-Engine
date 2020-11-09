@@ -1,7 +1,7 @@
 -- Helpful premake documentation
 -- Tokens https://github.com/premake/premake-core/wiki/Tokens
 
-workspace ("Insight")
+workspace ("InsightEngine")
 	architecture ("x86_64")
 
 	configurations

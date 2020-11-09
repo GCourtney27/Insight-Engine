@@ -62,7 +62,6 @@ project ("Engine")
 		
 		-- Engine
 		"Source/",
-		"Source/Insight",
 
 		-- Application
 		rootDirectoryPath .. gameName .. "/Source/",
@@ -99,7 +98,7 @@ project ("Engine")
 
 		defines
 		{
-			"IE_PLATFORM_WINDOWS"
+			"IE_PLATFORM_WINDOWS",
 		}
 
 		flags
@@ -161,7 +160,6 @@ project ("Engine")
 			("{COPY} ".. vendorDir .."/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../Binaries/"..outputdir.."/Engine"),
 			-- Copy over default engine assets
 			("{COPY} %{wks.location}/Engine/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Default_Assets/")
-
 		}
 	-- Engine Release
 	filter "configurations:Release"
@@ -171,7 +169,7 @@ project ("Engine")
 		symbols "on"
 		defines
 		{
-			"IE_IS_STANDALONE",
+			"IE_DEPLOYMENT",
 			"IE_DEBUG"
 		}
 		libdirs
@@ -216,7 +214,7 @@ project ("Engine")
 		symbols "on"
 		defines
 		{
-			"IE_IS_STANDALONE"
+			"IE_DISTRIBUTION"
 		}
 		libdirs
 		{
@@ -239,7 +237,6 @@ project ("Engine")
 			("{COPY} %{wks.location}/Engine/Source/Shaders/HLSL/Ray_Tracing/** ".. rootDirectoryPath .. "Binaries/" .. outputdir.."/Engine"),
 			-- Copy over default engine assets
 			("{COPY} %{wks.location}/Engine/Assets/Textures/Default_Object/** ../bin/"..outputdir.."/Default_Assets/")
-
 		}
 	-- Full Game Distribution, all engine debug tools(level editors, editor user interfaces) stripped
 	filter "configurations:Game-Dist"
@@ -249,7 +246,7 @@ project ("Engine")
 		symbols "on"
 		defines
 		{
-			"IE_IS_STANDALONE"
+			"IE_DISTRIBUTION"
 		}
 		libdirs
 		{
