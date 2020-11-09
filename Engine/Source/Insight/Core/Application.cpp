@@ -149,7 +149,7 @@ namespace Insight {
 			m_pWindow->OnUpdate();
 
 			// Update the input system. 
-			m_InputDispatcher.UpdateInputs();
+			m_InputDispatcher.UpdateInputs(DeltaMs);
 
 			// Update game logic. 
 			m_pGameLayer->Update(DeltaMs);

@@ -5,7 +5,7 @@
 // Define platform specific key codes. |
 // -------------------------------------
 
-#if defined IE_PLATFORM_WINDOWS
+#if defined (IE_PLATFORM_WINDOWS) || defined (IE_PLATFORM_UWP)
 
 // Mouse Codes
 // -----------
@@ -64,6 +64,14 @@
 #define PlatformKeyboardCode_X	0x58
 #define PlatformKeyboardCode_Y	0x59
 #define PlatformKeyboardCode_Z	0x5A
+
+// Gamepad Codes
+// -------------
+#define XBoxCode_Button_A 0x1000
+#define XBoxCode_Button_B 0x2000
+#define XBoxCode_Button_X 0x4000
+#define XBoxCode_Button_Y 0x8000
+
 #elif defined IE_PLATFORM_MAC
 // Mac platform codes
 #endif
@@ -85,28 +93,29 @@ namespace Insight {
 		// Mouse
 		// -----
 		// Buttons
-		KeyMapCode_Mouse_Button_Left	= PlatformMouseCode_Button_Left,
-		KeyMapCode_Mouse_Button_Right	= PlatformMouseCode_Button_Right,
-		KeyMapCode_Mouse_Button_Middle	= PlatformMouseCode_Button_Middle,
-		KeyMapCode_Mouse_Wheel_Up		= 3,
-		KeyMapCode_Mouse_Wheel_Down		= 4,
-		KeyMapCode_Mouse_Wheel_Left		= 5,
-		KeyMapCode_Mouse_Wheel_Right	= 6,
-		KeyMapCode_Mouse_MoveX			= 7,
-		KeyMapCode_Mouse_MoveY			= 8,
-		
+		KeyMapCode_Mouse_Button_Left = PlatformMouseCode_Button_Left,
+		KeyMapCode_Mouse_Button_Right = PlatformMouseCode_Button_Right,
+		KeyMapCode_Mouse_Button_Middle = PlatformMouseCode_Button_Middle,
+		KeyMapCode_Mouse_Wheel_Up = 3,
+		KeyMapCode_Mouse_Wheel_Down = 4,
+		KeyMapCode_Mouse_Wheel_Left = 5,
+		KeyMapCode_Mouse_Wheel_Right = 6,
+		KeyMapCode_Mouse_MoveX = 7,
+		KeyMapCode_Mouse_MoveY = 8,
+
+
 		// Keyboard
 		// --------
 		// Functions
-		KeyMapCode_Keyboard_Shift		= PlatformKeyboardCode_Shift,
-		KeyMapCode_Keyboard_Shift_Left	= PlatformKeyboardCode_Shift_Left,
+		KeyMapCode_Keyboard_Shift = PlatformKeyboardCode_Shift,
+		KeyMapCode_Keyboard_Shift_Left = PlatformKeyboardCode_Shift_Left,
 		KeyMapCode_Keyboard_Shift_Right = PlatformKeyboardCode_Shift_Right,
-		KeyMapCode_Keyboard_Alt			= PlatformKeyboardCode_Alt,
-		KeyMapCode_Keyboard_Control		= PlatformKeyboardCode_Control,
-		KeyMapCode_Keyboard_Arrow_Left	= PlatformKeyboardCode_Arrow_Left,
+		KeyMapCode_Keyboard_Alt = PlatformKeyboardCode_Alt,
+		KeyMapCode_Keyboard_Control = PlatformKeyboardCode_Control,
+		KeyMapCode_Keyboard_Arrow_Left = PlatformKeyboardCode_Arrow_Left,
 		KeyMapCode_Keyboard_Arrow_Right = PlatformKeyboardCode_Arrow_Right,
-		KeyMapCode_Keyboard_Arrow_Up	= PlatformKeyboardCode_Arrow_Up,
-		KeyMapCode_Keyboard_Arrow_Down	= PlatformKeyboardCode_Arrow_Down,
+		KeyMapCode_Keyboard_Arrow_Up = PlatformKeyboardCode_Arrow_Up,
+		KeyMapCode_Keyboard_Arrow_Down = PlatformKeyboardCode_Arrow_Down,
 		// Numbers
 		KeyMapCode_Keyboard_0 = PlatformKeyboardCode_0,
 		KeyMapCode_Keyboard_1 = PlatformKeyboardCode_1,
@@ -146,10 +155,37 @@ namespace Insight {
 		KeyMapCode_Keyboard_Y = PlatformKeyboardCode_Y,
 		KeyMapCode_Keyboard_Z = PlatformKeyboardCode_Z,
 
-		
-		
-		// TODO Gamepad
-		
+
+		// Gamepad
+		// -------
+		// Buttons
+		GamepadCode_Button_A = 91,
+		GamepadCode_Button_B = 92,
+		GamepadCode_Button_X = 93,
+		GamepadCode_Button_Y = 94,
+		GamepadCode_Button_DPad_Up = 95,
+		GamepadCode_Button_DPad_Down = 96,
+		GamepadCode_Button_DPad_Left = 97,
+		GamepadCode_Button_DPad_Right = 97,
+		GamepadCode_Button_Start = 98,
+		GamepadCode_Button_Back = 99,
+		GamepadCode_Button_Thubstick_Left = 100,
+		GamepadCode_Button_Thubstick_Right = 101,
+		GamepadCode_Button_Shoulder_Left = 102,
+		GamepadCode_Button_Shoulder_Right = 103,
+		// Trigger
+		GamepadCode_Trigger_Left = 104,
+		GamepadCode_Trigger_Right = 105,
+		// Thumbstick Axis
+		GamepadCode_Thumbstick_Left_Axis_X = 106,
+		GamepadCode_Thumbstick_Left_Axis_Y = 107,
+		GamepadCode_Thumbstick_Right_Axis_X = 108,
+		GamepadCode_Thumbstick_Right_Axis_Y = 109,
+		GamepadCode_Misc_1 = 110,
+		GamepadCode_Misc_2 = 111,
+		GamepadCode_Misc_3 = 112,
+
+
 	} KeymapCode;
 
 }

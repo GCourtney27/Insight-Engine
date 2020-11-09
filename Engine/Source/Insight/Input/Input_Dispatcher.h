@@ -30,6 +30,9 @@
 #include "Insight/Events/Key_Event.h"
 #include "Insight/Events/Mouse_Event.h"
 
+// For XBox Controllers
+#include <Xinput.h>
+
 namespace Insight {
 
 	namespace Input {
@@ -66,39 +69,14 @@ namespace Insight {
 		struct ActionMapping
 		{
 			const char	Hint[MaxHintStringLength];
-			KeyMapCode	MappedKeycode;
+			KeyMapCode	MappedKeyCode;
 			bool		CanDispatch = true;
 		};
 
 		class INSIGHT_API InputDispatcher
 		{
 		public:
-			InputDispatcher()
-			{
-				s_Instance = this;
-
-				// TODO load these from a settings file
-				// TODO Change axis mappings depending on play mode (Editor/InGame)
-				m_AxisMappings.reserve(12);
-				m_AxisMappings.push_back({ "MoveForward", KeyMapCode_Keyboard_W, 1.0f });
-				m_AxisMappings.push_back({ "MoveForward", KeyMapCode_Keyboard_S, -1.0f });
-				m_AxisMappings.push_back({ "MoveRight", KeyMapCode_Keyboard_D, 1.0f });
-				m_AxisMappings.push_back({ "MoveRight", KeyMapCode_Keyboard_A, -1.0f });
-				m_AxisMappings.push_back({ "MoveUp", KeyMapCode_Keyboard_E, 1.0f });
-				m_AxisMappings.push_back({ "MoveUp", KeyMapCode_Keyboard_Q, -1.0f });
-
-				m_AxisMappings.push_back({ "LookUp", KeyMapCode_Mouse_MoveY, 1.0f });
-				m_AxisMappings.push_back({ "LookUp", KeyMapCode_Mouse_MoveY, -1.0f });
-				m_AxisMappings.push_back({ "LookRight", KeyMapCode_Mouse_MoveX, 1.0f });
-				m_AxisMappings.push_back({ "LookRight", KeyMapCode_Mouse_MoveX, -1.0f });
-				m_AxisMappings.push_back({ "MouseWheelUp", KeyMapCode_Mouse_Wheel_Up, 1.0f });
-				m_AxisMappings.push_back({ "MouseWheelUp", KeyMapCode_Mouse_Wheel_Up, -1.0f });
-
-				m_ActionMappings.reserve(2);
-				m_ActionMappings.push_back({ "CameraPitchYawLock", KeyMapCode_Mouse_Button_Right });
-				m_ActionMappings.push_back({ "Sprint", KeyMapCode_Keyboard_Shift });
-
-			}
+			InputDispatcher();
 			~InputDispatcher() = default;
 
 			/*
@@ -109,7 +87,7 @@ namespace Insight {
 			/*
 				Updates the keyboard axis mappings with the OS.
 			*/
-			void UpdateInputs();
+			void UpdateInputs(float DeltaMs);
 			/*
 				Decodes and sends events to approbriate Dispatch* functions.
 			*/
@@ -129,7 +107,7 @@ namespace Insight {
 			/*
 				Dispatch an event to all callbacks that request a key press event.
 			*/
-			bool DispatchKeyPressEvent(KeyPressedEvent& e);
+			bool DispatchAxisEvent(KeyPressedEvent& e);
 
 			/*
 				Dispatch an event to all callbacks that request a mouse scroll event.
@@ -143,7 +121,13 @@ namespace Insight {
 				Dispatch an event to all callbacks that request an action event.
 			*/
 			bool DispatchActionEvent(InputEvent& e);
-
+			/*
+				Returns the movement delta for one of the gamepad thumbsticks.
+				@param Axis: 0 for X Axis or 1 for Y Axis
+				@param GetLeftValue: Returns the move delta for the left thumbstick if true. 
+					   Returns the move delta for the right thumbstick if false.
+			*/
+			float GetGamepadThumbstickMoveDelta(uint8_t Axis, bool GetLeftValue);
 		private:
 			// Holds all axis mapping profiles.
 			std::vector<AxisMapping> m_AxisMappings;
@@ -153,6 +137,13 @@ namespace Insight {
 			std::vector<ActionMapping> m_ActionMappings;
 			// Holds all callback funcitons and their corisponding hints found the actoin mappings stored in InputDispatcher::m_ActionMappings.
 			std::map<std::pair<std::string, InputEventType>, std::vector<EventInputActionFn>> m_ActionCallbacks;
+
+
+			XINPUT_STATE m_XBoxGamepads[XUSER_MAX_COUNT];
+			float m_GamepadPollInterval;
+			float m_GamepadLeftStickSensitivity;
+			float m_GamepadRightStickSensitivity;
+
 
 		private:
 			// Static instance of the Input Dispatcher.

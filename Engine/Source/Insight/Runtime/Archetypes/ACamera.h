@@ -115,6 +115,8 @@ namespace Insight {
 			void TogglePitchYawRotation();
 			void Sprint();
 
+			void Test();
+
 		private:
 			XMFLOAT4X4 m_ViewMat4x4;
 			XMMATRIX m_ViewMatrix;

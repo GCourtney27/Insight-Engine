@@ -30,7 +30,7 @@ namespace Insight {
 			inline void SetMovementSpeed(const float& movementSpeed) { m_MovementSpeed = movementSpeed; }
 
 		protected:
-			FORCEINLINE void Move(const ieVector3& Direction, const float Value)
+			void Move(const ieVector3& Direction, const float Value)
 			{
 				float Velocity = m_MovementSpeed * Value * m_DeltaMs;
 				m_pSceneComponent->GetPositionRef() += Direction * Velocity;

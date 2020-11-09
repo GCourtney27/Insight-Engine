@@ -19,11 +19,12 @@ namespace Insight {
 	class INSIGHT_API KeyPressedEvent : public KeyEvent
 	{
 	public:
-		KeyPressedEvent(KeyMapCode keycode, int repeatCount)
-			: KeyEvent(keycode, InputEventType_Pressed), m_RepeatCount(repeatCount)
+		KeyPressedEvent(KeyMapCode keycode, int repeatCount, float MoveDelta = 1.0f)
+			: KeyEvent(keycode, InputEventType_Pressed), m_RepeatCount(repeatCount), m_MoveDelta(MoveDelta)
 		{}
 
 		inline int GetRepeatCount() const { return m_RepeatCount; }
+		inline float GetMoveDelta() const { return m_MoveDelta; }
 
 		std::string ToString() const override
 		{
@@ -35,6 +36,7 @@ namespace Insight {
 		EVENT_CLASS_TYPE(KeyPressed)
 	private:
 		int m_RepeatCount;
+		float m_MoveDelta;
 	};
 
 	class INSIGHT_API KeyReleasedEvent : public KeyEvent
