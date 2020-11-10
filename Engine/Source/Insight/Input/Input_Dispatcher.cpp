@@ -56,10 +56,9 @@ namespace Insight {
 				}
 			}
 
-			// TODO space out controller polling ~every few miliseconds.
+
 			static float GamepadPollRate = 0.0f;
 			GamepadPollRate += DeltaMs;
-
 			if (GamepadPollRate >= m_GamepadPollInterval)
 			{
 				GamepadPollRate = 0.0f;

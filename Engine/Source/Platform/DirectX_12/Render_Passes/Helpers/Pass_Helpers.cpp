@@ -72,7 +72,7 @@ namespace Insight {
 		ComPtr<ID3DBlob> pComputeShader;
 		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
 		std::wstring VertexShaderFolder(ExeDirectory);
-		VertexShaderFolder += L"../Renderer/Threshold_Down_Sample.compute.cso";
+		VertexShaderFolder += L"../Engine/Threshold_Down_Sample.compute.cso";
 
 		hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pComputeShader);
 		ThrowIfFailed(hr, "Failed to read compute shader for D3D 12 context");
@@ -175,7 +175,7 @@ namespace Insight {
 
 		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
 		std::wstring ComputeShaderFolder(ExeDirectory);
-		ComputeShaderFolder += L"../Renderer/Gaussian_Blur.compute.cso";
+		ComputeShaderFolder += L"../Engine/Gaussian_Blur.compute.cso";
 
 		ComPtr<ID3DBlob> pComputeShader;
 		hr = D3DReadFileToBlob(ComputeShaderFolder.c_str(), &pComputeShader);

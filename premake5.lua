@@ -24,5 +24,5 @@ group "Tools"
 include "Engine/Vendor/ImGui/premake5.lua"
 group ""
 
-include "Application/Application-Make.lua"
+include "Application_Windows/Application-Make.lua"
 include "Engine/Engine-Make.lua"

@@ -9,6 +9,6 @@
 
 // Entry point
 //------------------------
-//#include "Insight/Core/Entry_Point.h"
+#include "Insight/Core/Entry_Point.h"
 //------------------------
 
