@@ -328,31 +328,75 @@ namespace Insight {
 						}
 
 						float MoveDeltaLY = (normalizedLY * NormalizedDistanceL) * m_GamepadLeftStickSensitivity;
+						static bool MoovedLY = false;
 						if(MoveDeltaLY != 0.0f)
 						{
+							MoovedLY = true;
 							KeyPressedEvent e(GamepadCode_Thumbstick_Left_Axis_Y, 0, MoveDeltaLY);
 							ProcessInputEvent(e);
 						}
+						else
+						{
+							if (MoovedLY)
+							{
+								MoovedLY = false;
+								KeyReleasedEvent e(GamepadCode_Thumbstick_Left_Axis_Y);
+								ProcessInputEvent(e);
+							}
+						}
 
 						float MoveDeltaLX = (normalizedLX * NormalizedDistanceL) * m_GamepadLeftStickSensitivity;
+						static bool MoovedLX = false;
 						if(MoveDeltaLX != 0.0f)
 						{
+							MoovedLX = true;
 							KeyPressedEvent e(GamepadCode_Thumbstick_Left_Axis_X, 0, MoveDeltaLX);
 							ProcessInputEvent(e);
 						}
+						else
+						{
+							if (MoovedLX)
+							{
+								MoovedLX = false;
+								KeyReleasedEvent e(GamepadCode_Thumbstick_Left_Axis_X);
+								ProcessInputEvent(e);
+							}
+						}
 
 						float MoveDeltaRY = (normalizedRY * NormalizedDistanceR) * m_GamepadRightStickSensitivity;
+						static bool MoovedRY = false;
 						if(MoveDeltaRY != 0.0f)
 						{
+							MoovedRY = true;
 							KeyPressedEvent e(GamepadCode_Thumbstick_Right_Axis_Y, 0, MoveDeltaRY);
 							ProcessInputEvent(e);
 						}
+						else
+						{
+							if (MoovedRY)
+							{
+								MoovedRY = false;
+								KeyReleasedEvent e(GamepadCode_Thumbstick_Right_Axis_Y);
+								ProcessInputEvent(e);
+							}
+						}
 
 						float MoveDeltaRX = (normalizedRX * NormalizedDistanceR) * m_GamepadRightStickSensitivity;
+						static bool MoovedRX = false;
 						if(MoveDeltaRX != 0.0f)
 						{
+							MoovedRX = true;
 							KeyPressedEvent e(GamepadCode_Thumbstick_Right_Axis_X, 0, MoveDeltaRX);
 							ProcessInputEvent(e);
+						}
+						else
+						{
+							if (MoovedRX)
+							{
+								MoovedRX = false;
+								KeyReleasedEvent e(GamepadCode_Thumbstick_Right_Axis_X);
+								ProcessInputEvent(e);
+							}
 						}
 					}
 					else
