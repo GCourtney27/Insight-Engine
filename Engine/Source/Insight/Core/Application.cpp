@@ -57,6 +57,13 @@ namespace Insight {
 		return true;
 	}
 
+	bool Application::InitializeAppForUWP()
+	{
+
+
+		return true;
+	}
+
 	bool Application::InitializeCoreApplication()
 	{
 		// Initize the main file system 

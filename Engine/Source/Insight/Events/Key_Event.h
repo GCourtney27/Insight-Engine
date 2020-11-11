@@ -39,6 +39,22 @@ namespace Insight {
 		float m_MoveDelta;
 	};
 
+	class INSIGHT_API KeyHeldEvent : public KeyEvent
+	{
+	public:
+		KeyHeldEvent(KeyMapCode Keycode)
+			: KeyEvent(Keycode, InputEventType_Held) {}
+
+		std::string ToString() const override
+		{
+			std::stringstream ss;
+			ss << "KeyHeldEvent: " << m_KeyMapCode;
+			return ss.str();
+		}
+
+		EVENT_CLASS_TYPE(KeyHeld)
+	};
+
 	class INSIGHT_API KeyReleasedEvent : public KeyEvent
 	{
 	public:

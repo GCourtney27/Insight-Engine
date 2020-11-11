@@ -27,7 +27,7 @@ project (appName .. "_Windows")
 
 	files
 	{
-		"Application-Make.lua",
+		"Application-Windows-Make.lua",
 		"Source/**.h",
 		"Source/**.cpp",
 	}
@@ -43,6 +43,8 @@ project (appName .. "_Windows")
 		"%{applicationIncludeDirs.Mono}/mono-2.0/",
 		"%{applicationIncludeDirs.Engine}/Source/",
 		"%{applicationIncludeDirs.Engine}/Vendor/",
+
+		"Source/"
 	}
 
 	links
@@ -66,7 +68,7 @@ project (appName .. "_Windows")
         "DirectXTK12.lib",
 		"DirectXTex.lib",
 		
-		"Engine",
+		"Engine_Source",
 	}
 
 	filter "system:windows"
@@ -148,7 +150,7 @@ project (appName .. "_Windows")
 			("{COPY} ".. engineVendorDir .."/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../Binaries/"..outputdir.."/Engine"),
 			("{COPY} ".. engineVendorDir .."/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../Binaries/"..outputdir.."/Engine"),
 			-- Copy over default engine assets
-			("{COPY} %{wks.location}/Engine/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Default_Assets/")
+			("{COPY} %{wks.location}/Engine_Source/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Default_Assets/")
 		}
 
 

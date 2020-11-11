@@ -64,13 +64,14 @@ namespace Insight {
 			@param Hint: The name to associate an event with.
 			@param MappedKeyCode: The keycode that will trigger the event callbacks attached to this axis mapping
 			@param CanDispatch: Internal variable used to determine wether to send a "released" event once a
-						   "pressed" event has been sent.
+								"pressed" event has been sent.
 		*/
 		struct ActionMapping
 		{
 			const char	Hint[MaxHintStringLength];
 			KeyMapCode	MappedKeyCode;
 			bool		CanDispatch = true;
+			float		HoldTime;
 		};
 
 		class INSIGHT_API InputDispatcher
@@ -121,13 +122,10 @@ namespace Insight {
 				Dispatch an event to all callbacks that request an action event.
 			*/
 			bool DispatchActionEvent(InputEvent& e);
-			/*
-				Returns the movement delta for one of the gamepad thumbsticks.
-				@param Axis: 0 for X Axis or 1 for Y Axis
-				@param GetLeftValue: Returns the move delta for the left thumbstick if true. 
-					   Returns the move delta for the right thumbstick if false.
-			*/
-			float GetGamepadThumbstickMoveDelta(uint8_t Axis, bool GetLeftValue);
+			
+
+			void HandleControllerInput();
+
 		private:
 			// Holds all axis mapping profiles.
 			std::vector<AxisMapping> m_AxisMappings;
@@ -138,11 +136,13 @@ namespace Insight {
 			// Holds all callback funcitons and their corisponding hints found the actoin mappings stored in InputDispatcher::m_ActionMappings.
 			std::map<std::pair<std::string, InputEventType>, std::vector<EventInputActionFn>> m_ActionCallbacks;
 
-
-			XINPUT_STATE m_XBoxGamepads[XUSER_MAX_COUNT];
-			float m_GamepadPollInterval;
+			// TODO Expose these to the user to modify
 			float m_GamepadLeftStickSensitivity;
 			float m_GamepadRightStickSensitivity;
+
+			float m_MaxKeyHoldTime = 1.0f;
+			XINPUT_STATE m_XBoxGamepads[XUSER_MAX_COUNT];
+			float m_GamepadPollInterval;
 
 
 		private:

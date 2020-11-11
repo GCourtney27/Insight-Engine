@@ -23,6 +23,8 @@ namespace Insight {
 			m_AxisMappings.push_back({ "MoveRight", GamepadCode_Thumbstick_Left_Axis_X, 1.0f });
 			m_AxisMappings.push_back({ "MoveUp", KeyMapCode_Keyboard_E, 1.0f });
 			m_AxisMappings.push_back({ "MoveUp", KeyMapCode_Keyboard_Q, -1.0f });
+			m_AxisMappings.push_back({ "MoveUp", GamepadCode_Button_A, 1.0f });
+			m_AxisMappings.push_back({ "MoveUp", GamepadCode_Button_B, -1.0f });
 
 			m_AxisMappings.push_back({ "LookUp", KeyMapCode_Mouse_MoveY, 1.0f });
 			m_AxisMappings.push_back({ "LookUp", KeyMapCode_Mouse_MoveY, -1.0f });
@@ -36,7 +38,14 @@ namespace Insight {
 			m_ActionMappings.push_back({ "CameraPitchYawLock", KeyMapCode_Mouse_Button_Right });
 			m_ActionMappings.push_back({ "CameraPitchYawLock", GamepadCode_Thumbstick_Right_Axis_X });
 			m_ActionMappings.push_back({ "Sprint", KeyMapCode_Keyboard_Shift });
-			m_ActionMappings.push_back({ "Sprint", GamepadCode_Button_A });
+			m_ActionMappings.push_back({ "Sprint", GamepadCode_Button_Thumbstick_Left });
+			
+			//m_ActionMappings.push_back({ "TestPressed", GamepadCode_Button_A });
+			//m_ActionMappings.push_back({ "TestReleased", GamepadCode_Button_A });
+			//m_ActionMappings.push_back({ "TestHeld", GamepadCode_Button_A });
+			//m_ActionMappings.push_back({ "TestPressed", KeyMapCode_Keyboard_O });
+			//m_ActionMappings.push_back({ "TestReleased", KeyMapCode_Keyboard_O });
+			//m_ActionMappings.push_back({ "TestHeld", KeyMapCode_Keyboard_O });
 
 
 			m_GamepadLeftStickSensitivity = 20.0f;
@@ -45,18 +54,28 @@ namespace Insight {
 
 		void InputDispatcher::UpdateInputs(float DeltaMs)
 		{
+			// Keyboard
+			// --------
+			// The Window only send one event telling us the key has been pressed.
+			// We need to continuously check it to see if it is being held.
+			// We do this below.
 			for (uint32_t i = 0; i < m_AxisMappings.size(); i++)
 			{
+				// If the key in the axis mapping is pressed, dispatch an event.
 				SHORT KeyState = ::GetAsyncKeyState(m_AxisMappings[i].MappedKeyCode);
 				bool Pressed = (BIT_SHIFT(15)) & KeyState;
 				if (Pressed)
 				{
+					// Dispatching KeyHolding events will happen in InputDispatcher::DispatchActionEvent
 					KeyPressedEvent e(m_AxisMappings[i].MappedKeyCode, 0, 1.0f);
 					ProcessInputEvent(e);
 				}
 			}
 
-
+			// Gamepad
+			// -------
+			// Constant gamepad polling is poor for performance, so set
+			// a poll interval and update the controller every other frame.
 			static float GamepadPollRate = 0.0f;
 			GamepadPollRate += DeltaMs;
 			if (GamepadPollRate >= m_GamepadPollInterval)
@@ -68,29 +87,193 @@ namespace Insight {
 				{
 					XINPUT_STATE State;
 					ZeroMemory(&State, sizeof(XINPUT_STATE));
-
 					dwResult = XInputGetState(i, &State);
 
 					if (dwResult == ERROR_SUCCESS)
 					{
 						// Controller is connected
+						if (State.Gamepad.wButtons & XBoxCode_Button_PressMask_A)
+						{
+							KeyPressedEvent e(GamepadCode_Button_A, 0);
+							ProcessInputEvent(e);
+						}
+						else if (m_XBoxGamepads[i].Gamepad.wButtons & XBoxCode_Button_PressMask_A)
+						{
+							KeyReleasedEvent e(GamepadCode_Button_A);
+							ProcessInputEvent(e);
+						}
+						
+						if (State.Gamepad.wButtons & XBoxCode_Button_PressMask_B)
+						{
+							KeyPressedEvent e(GamepadCode_Button_B, 0);
+							ProcessInputEvent(e);
+						}
+						else if (m_XBoxGamepads[i].Gamepad.wButtons & XBoxCode_Button_PressMask_B)
+						{
+							KeyReleasedEvent e(GamepadCode_Button_B);
+							ProcessInputEvent(e);
+						}
+
+
+
+						if (State.Gamepad.wButtons & XBoxCode_Button_PressMask_X)
+						{
+							KeyPressedEvent e(GamepadCode_Button_X, 0);
+							ProcessInputEvent(e);
+						}
+						else if (m_XBoxGamepads[i].Gamepad.wButtons & XBoxCode_Button_PressMask_X)
+						{
+							KeyReleasedEvent e(GamepadCode_Button_X);
+							ProcessInputEvent(e);
+						}
+
+
+
+						if (State.Gamepad.wButtons & XBoxCode_Button_PressMask_Y)
+						{
+							KeyPressedEvent e(GamepadCode_Button_Y, 0);
+							ProcessInputEvent(e);
+						}
+						else if (m_XBoxGamepads[i].Gamepad.wButtons & XBoxCode_Button_PressMask_Y)
+						{
+							KeyReleasedEvent e(GamepadCode_Button_Y);
+							ProcessInputEvent(e);
+						}
+
+
+
+						if (State.Gamepad.wButtons & XBoxCode_Button_PressMask_DPad_Up)
+						{
+							KeyPressedEvent e(GamepadCode_Button_DPad_Up, 0);
+							ProcessInputEvent(e);
+						}
+						else if ((m_XBoxGamepads[i].Gamepad.wButtons & XBoxCode_Button_PressMask_DPad_Up))
+						{
+							KeyReleasedEvent e(GamepadCode_Button_DPad_Up);
+							ProcessInputEvent(e);
+						}
+
+
+
+						if (State.Gamepad.wButtons & XBoxCode_Button_PressMask_DPad_Down)
+						{
+							KeyPressedEvent e(GamepadCode_Button_DPad_Down, 0);
+							ProcessInputEvent(e);
+						}
+						else if ((m_XBoxGamepads[i].Gamepad.wButtons & XBoxCode_Button_PressMask_DPad_Down))
+						{
+							KeyReleasedEvent e(GamepadCode_Button_DPad_Down);
+							ProcessInputEvent(e);
+						}
+
+
+
+						if (State.Gamepad.wButtons & XBoxCode_Button_PressMask_DPad_Left)
+						{
+							KeyPressedEvent e(GamepadCode_Button_DPad_Left, 0);
+							ProcessInputEvent(e);
+						}
+						else if ((m_XBoxGamepads[i].Gamepad.wButtons & XBoxCode_Button_PressMask_DPad_Left))
+						{
+							KeyReleasedEvent e(GamepadCode_Button_DPad_Left);
+							ProcessInputEvent(e);
+						}
+
+
+
+						if (State.Gamepad.wButtons & XBoxCode_Button_PressMask_DPad_Right)
+						{
+							KeyPressedEvent e(GamepadCode_Button_DPad_Right, 0);
+							ProcessInputEvent(e);
+						}
+						else if ((m_XBoxGamepads[i].Gamepad.wButtons & XBoxCode_Button_PressMask_DPad_Right))
+						{
+							KeyReleasedEvent e(GamepadCode_Button_DPad_Right);
+							ProcessInputEvent(e);
+						}
+
+
+
+						if (State.Gamepad.wButtons & XBoxCode_Button_PressMask_Start)
+						{
+							KeyPressedEvent e(GamepadCode_Button_Start, 0);
+							ProcessInputEvent(e);
+						}
+						else if ((m_XBoxGamepads[i].Gamepad.wButtons & XBoxCode_Button_PressMask_Start))
+						{
+							KeyReleasedEvent e(GamepadCode_Button_Start);
+							ProcessInputEvent(e);
+						}
+
+
+
+						if (State.Gamepad.wButtons & XBoxCode_Button_PressMask_Back)
+						{
+							KeyPressedEvent e(GamepadCode_Button_Back, 0);
+							ProcessInputEvent(e);
+						}
+						else if ((m_XBoxGamepads[i].Gamepad.wButtons & XBoxCode_Button_PressMask_Back))
+						{
+							KeyReleasedEvent e(GamepadCode_Button_Back);
+							ProcessInputEvent(e);
+						}
+
+
+
+						if (State.Gamepad.wButtons & XBoxCode_Button_PressMask_Thumbstick_Left)
+						{
+							KeyPressedEvent e(GamepadCode_Button_Thumbstick_Left, 0);
+							ProcessInputEvent(e);
+						}
+						else if ((m_XBoxGamepads[i].Gamepad.wButtons & XBoxCode_Button_PressMask_Thumbstick_Left))
+						{
+							KeyReleasedEvent e(GamepadCode_Button_Thumbstick_Left);
+							ProcessInputEvent(e);
+						}
+
+
+
+						if (State.Gamepad.wButtons & XBoxCode_Button_PressMask_Thumbstick_Right)
+						{
+							KeyPressedEvent e(GamepadCode_Button_Thumbstick_Right, 0);
+							ProcessInputEvent(e);
+						}
+						else if ((m_XBoxGamepads[i].Gamepad.wButtons & XBoxCode_Button_PressMask_Thumbstick_Right))
+						{
+							KeyReleasedEvent e(GamepadCode_Button_Thumbstick_Right);
+							ProcessInputEvent(e);
+						}
+
+
+
+						if (State.Gamepad.wButtons & XBoxCode_Button_PressMask_Shoulder_Left)
+						{
+							KeyPressedEvent e(GamepadCode_Button_Shoulder_Left, 0);
+							ProcessInputEvent(e);
+						}
+						else if ((m_XBoxGamepads[i].Gamepad.wButtons & XBoxCode_Button_PressMask_Shoulder_Left))
+						{
+							KeyReleasedEvent e(GamepadCode_Button_Shoulder_Left);
+							ProcessInputEvent(e);
+						}
+
+
+
+						if (State.Gamepad.wButtons & XBoxCode_Button_PressMask_Shoulder_Right)
+						{
+							KeyPressedEvent e(GamepadCode_Button_Shoulder_Right, 0);
+							ProcessInputEvent(e);
+						}
+						else if ((m_XBoxGamepads[i].Gamepad.wButtons & XBoxCode_Button_PressMask_Shoulder_Right))
+						{
+							KeyReleasedEvent e(GamepadCode_Button_Shoulder_Right);
+							ProcessInputEvent(e);
+						}
 
 						// Has the state changed since last poll?
 						if (State.dwPacketNumber != m_XBoxGamepads[i].dwPacketNumber)
 						{
 							m_XBoxGamepads[i] = State;
-							if (State.Gamepad.wButtons & XBoxCode_Button_A)
-							{
-								for (uint32_t j = 0; j < m_ActionMappings.size(); j++)
-								{
-									if (m_ActionMappings[j].MappedKeyCode == GamepadCode_Button_A)
-									{
-										KeyPressedEvent e(m_ActionMappings[j].MappedKeyCode, 0);
-										ProcessInputEvent(e);
-									}
-								}
-							}
-
 						}
 
 						// Thumbstick Left
@@ -144,39 +327,37 @@ namespace Insight {
 							normalizedRX = 0.0f;
 						}
 
-						for (uint32_t j = 0; j < m_AxisMappings.size(); j++)
+						float MoveDeltaLY = (normalizedLY * NormalizedDistanceL) * m_GamepadLeftStickSensitivity;
+						if(MoveDeltaLY != 0.0f)
 						{
-							if (m_AxisMappings[j].MappedKeyCode == GamepadCode_Thumbstick_Left_Axis_Y)
-							{
-								float MoveDelta = (normalizedLY * NormalizedDistanceL) * m_GamepadLeftStickSensitivity;
-								KeyPressedEvent e(m_AxisMappings[j].MappedKeyCode, 0, MoveDelta);
-								ProcessInputEvent(e);
-							}
-							else if (m_AxisMappings[j].MappedKeyCode == GamepadCode_Thumbstick_Left_Axis_X)
-							{
-								float MoveDelta = (normalizedLX * NormalizedDistanceL) * m_GamepadLeftStickSensitivity;
-								KeyPressedEvent e(m_AxisMappings[j].MappedKeyCode, 0, MoveDelta);
-								ProcessInputEvent(e);
-							}
-							else if(m_AxisMappings[j].MappedKeyCode == GamepadCode_Thumbstick_Right_Axis_Y)
-							{
-								float MoveDelta = (normalizedRY * NormalizedDistanceR) * m_GamepadRightStickSensitivity;
-								KeyPressedEvent e(m_AxisMappings[j].MappedKeyCode, 0, MoveDelta);
-								ProcessInputEvent(e);
-							}
-							else if (m_AxisMappings[j].MappedKeyCode == GamepadCode_Thumbstick_Right_Axis_X)
-							{
-								float MoveDelta = (normalizedRX * NormalizedDistanceR) * m_GamepadRightStickSensitivity;
-								KeyPressedEvent e(m_AxisMappings[j].MappedKeyCode, 0, MoveDelta);
-								ProcessInputEvent(e);
-							}
+							KeyPressedEvent e(GamepadCode_Thumbstick_Left_Axis_Y, 0, MoveDeltaLY);
+							ProcessInputEvent(e);
 						}
 
-						
+						float MoveDeltaLX = (normalizedLX * NormalizedDistanceL) * m_GamepadLeftStickSensitivity;
+						if(MoveDeltaLX != 0.0f)
+						{
+							KeyPressedEvent e(GamepadCode_Thumbstick_Left_Axis_X, 0, MoveDeltaLX);
+							ProcessInputEvent(e);
+						}
+
+						float MoveDeltaRY = (normalizedRY * NormalizedDistanceR) * m_GamepadRightStickSensitivity;
+						if(MoveDeltaRY != 0.0f)
+						{
+							KeyPressedEvent e(GamepadCode_Thumbstick_Right_Axis_Y, 0, MoveDeltaRY);
+							ProcessInputEvent(e);
+						}
+
+						float MoveDeltaRX = (normalizedRX * NormalizedDistanceR) * m_GamepadRightStickSensitivity;
+						if(MoveDeltaRX != 0.0f)
+						{
+							KeyPressedEvent e(GamepadCode_Thumbstick_Right_Axis_X, 0, MoveDeltaRX);
+							ProcessInputEvent(e);
+						}
 					}
 					else
 					{
-						// Controller is not connected
+						// Controller is not connected. Dont do anything.
 					}
 				}
 			}
@@ -225,8 +406,7 @@ namespace Insight {
 					for (EventInputAxisFn Callback : *Callbacks)
 					{
 						// Call the callbacks.
-						float TotalDelta = Axis.Scale * e.GetMoveDelta();
-						Callback(TotalDelta);
+						Callback(Axis.Scale * e.GetMoveDelta());
 					}
 				}
 			}
@@ -288,9 +468,14 @@ namespace Insight {
 					if (e.GetEventType() == InputEventType_Released)
 					{
 						Action.CanDispatch = true;
+						// The key had been released reset 
+						// the holding timer.
+						Action.HoldTime = 0.0f;
 					}
 
-					if (Action.CanDispatch)
+					// If the key has been pressed once or a key is being held, dispatch the function calls.
+					// Note: KeyHeld events are only dispatched from the timer code below.
+					if (Action.CanDispatch || (e.GetEventType() == InputEventType_Held))
 					{
 						auto Callbacks = &m_ActionCallbacks[{Action.Hint, e.GetEventType()}];
 						for (EventInputActionFn Callback : *Callbacks)
@@ -303,19 +488,28 @@ namespace Insight {
 					if (e.GetEventType() == InputEventType_Pressed)
 					{
 						Action.CanDispatch = false;
+						// If the the key is pressed start the timer to see if the key is being held.
+						Action.HoldTime += 0.16f;
+						if (Action.HoldTime >= m_MaxKeyHoldTime)
+						{
+							// Time is greater than the max hold time 
+							// (They have been holding the key for 1/0.16 seconds)
+							// meaning they are holding the key. Send out a key hold 
+							KeyHeldEvent e(e.GetKeyCode());
+							DispatchActionEvent(e);
+						}
 					}
 				}
 			}
 			return false;
 		}
-		
-		float InputDispatcher::GetGamepadThumbstickMoveDelta(uint8_t Axis, bool GetLeftValue)
+
+		void InputDispatcher::HandleControllerInput()
 		{
-			float MoveDelta = 0.0f;
-
-
-			return MoveDelta;
+			
 		}
+		
+		
 	}
 
 }

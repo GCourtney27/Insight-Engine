@@ -31,7 +31,9 @@ namespace Insight {
 			m_pInputComponent->BindAction("CameraPitchYawLock", InputEventType_Released, IE_BIND_VOID_FN(ACamera::TogglePitchYawRotation));
 			m_pInputComponent->BindAction("Sprint", InputEventType_Pressed, IE_BIND_VOID_FN(ACamera::Sprint));
 			m_pInputComponent->BindAction("Sprint", InputEventType_Released, IE_BIND_VOID_FN(ACamera::Sprint));
-			m_pInputComponent->BindAction("TestButton", InputEventType_Pressed, IE_BIND_VOID_FN(ACamera::Test));
+			//m_pInputComponent->BindAction("TestPressed", InputEventType_Pressed, IE_BIND_VOID_FN(ACamera::Pressed));
+			//m_pInputComponent->BindAction("TestReleased", InputEventType_Released, IE_BIND_VOID_FN(ACamera::Released));
+			//m_pInputComponent->BindAction("TestHeld", InputEventType_Held, IE_BIND_VOID_FN(ACamera::Held));
 
 		}
 
@@ -184,19 +186,16 @@ namespace Insight {
 		void ACamera::Sprint()
 		{
 			m_Sprinting = !m_Sprinting;
+		
 			if (m_Sprinting)
-			{
 				m_MovementSpeed = DEFAULT_BOOST_SPEED;
-			}
 			else
-			{
 				m_MovementSpeed = DEFAULT_BASE_SPEED;
-			}
 		}
 
 		void ACamera::Test()
 		{
-			IE_DEBUG_LOG(LogSeverity::Log, "Button Pressed!");
+			IE_DEBUG_LOG(LogSeverity::Log, "Button held!");
 		}
 
 

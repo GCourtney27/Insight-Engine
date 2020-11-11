@@ -2,7 +2,8 @@
 -- Tokens https://github.com/premake/premake-core/wiki/Tokens
 
 workspace ("InsightEngine")
-	architecture ("x86_64")
+	architecture ("x64")
+	startproject ("Application_Windows")
 
 	configurations
 	{
@@ -12,17 +13,19 @@ workspace ("InsightEngine")
 		"Game-Dist"
 	}
 
-outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+outputdir = "%{cfg.buildcfg}-$(SDKIdentifier)-$(Platform)"
 
 
 CustomDefines = {}
 CustomDefines["IE_BUILD_DIR"] = "../Bin/" .. outputdir
 CustomDefines["IE_BUILD_CONFIG"] = outputdir
 
--- Modules
+-- Tools
 group "Tools"
 include "Engine/Vendor/ImGui/premake5.lua"
 group ""
 
-include "Application_Windows/Application-Make.lua"
+-- Engine
+include "Application_Windows/Application-Windows-Make.lua"
 include "Engine/Engine-Make.lua"
+

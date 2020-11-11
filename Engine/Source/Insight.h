@@ -6,9 +6,6 @@
 #include "Insight/Core/Layer/Layer.h"
 #include "Insight/Core/Layer/ImGui_Layer.h"
 
-
-// Entry point
-//------------------------
-#include "Insight/Core/Entry_Point.h"
-//------------------------
+#include "Insight/Core/ie_Exception.h"
+#include "Insight/Utilities/Profiling.h"
 

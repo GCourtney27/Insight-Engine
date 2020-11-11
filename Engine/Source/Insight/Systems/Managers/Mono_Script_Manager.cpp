@@ -83,6 +83,7 @@ namespace Insight {
 
 	bool MonoScriptManager::Init()
 	{
+		return true;
 		if (!m_ManagerIsInitialized) {
 
 			const char* BuildConfig = MACRO_TO_STRING(IE_BUILD_CONFIG);

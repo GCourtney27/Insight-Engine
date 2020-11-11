@@ -48,8 +48,8 @@ namespace Insight {
 
 		// Initialie a new application for the windows platform. 
 		bool InitializeAppForWindows(HINSTANCE& hInstance, int nCmdShow);
-		// Initialize new application for mac platform. 
-		// virtual bool InitializeAppForMac(); 
+		// Initialize new application for UWP platform. 
+		virtual bool InitializeAppForUWP(); 
 		// Initialize the core components of the application. Should be called once
 		// at the beginning of the application, after the window has been initialized.
 		virtual bool InitializeCoreApplication();
@@ -89,15 +89,15 @@ namespace Insight {
 		void PushCoreLayers();
 		void RenderThread();
 
-		bool OnWindowClose(WindowCloseEvent& e);
-		bool OnWindowResize(WindowResizeEvent& e);
-		bool OnWindowFullScreen(WindowToggleFullScreenEvent& e);
+		virtual bool OnWindowClose(WindowCloseEvent& e);
+		virtual bool OnWindowResize(WindowResizeEvent& e);
+		virtual bool OnWindowFullScreen(WindowToggleFullScreenEvent& e);
 
-		bool SaveScene(SceneSaveEvent& e);
-		bool BeginPlay(AppBeginPlayEvent& e);
-		bool EndPlay(AppEndPlayEvent& e);
-		bool ReloadScripts(AppScriptReloadEvent& e);
-		bool ReloadShaders(ShaderReloadEvent& e);
+		virtual bool SaveScene(SceneSaveEvent& e);
+		virtual bool BeginPlay(AppBeginPlayEvent& e);
+		virtual bool EndPlay(AppEndPlayEvent& e);
+		virtual bool ReloadScripts(AppScriptReloadEvent& e);
+		virtual bool ReloadShaders(ShaderReloadEvent& e);
 	protected:
 		std::unique_ptr<Window>	m_pWindow;
 		IE_STRIP_FOR_GAME_DIST(ImGuiLayer* m_pImGuiLayer = nullptr; )

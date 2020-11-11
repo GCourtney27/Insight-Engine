@@ -246,7 +246,3 @@ namespace SandBoxApp {
 
 }
 
-Insight::Application* Insight::CreateApplication()
-{
-	return new SandBoxApp::Game();
-}
