@@ -31,10 +31,6 @@ namespace Insight {
 			m_pInputComponent->BindAction("CameraPitchYawLock", InputEventType_Released, IE_BIND_VOID_FN(ACamera::TogglePitchYawRotation));
 			m_pInputComponent->BindAction("Sprint", InputEventType_Pressed, IE_BIND_VOID_FN(ACamera::Sprint));
 			m_pInputComponent->BindAction("Sprint", InputEventType_Released, IE_BIND_VOID_FN(ACamera::Sprint));
-			//m_pInputComponent->BindAction("TestPressed", InputEventType_Pressed, IE_BIND_VOID_FN(ACamera::Pressed));
-			//m_pInputComponent->BindAction("TestReleased", InputEventType_Released, IE_BIND_VOID_FN(ACamera::Released));
-			//m_pInputComponent->BindAction("TestHeld", InputEventType_Held, IE_BIND_VOID_FN(ACamera::Held));
-
 		}
 
 		ACamera::~ACamera()
@@ -195,7 +191,7 @@ namespace Insight {
 
 		void ACamera::Test()
 		{
-			IE_DEBUG_LOG(LogSeverity::Log, "Button held!");
+			IE_DEBUG_LOG(LogSeverity::Log, "Test Fn!");
 		}
 
 

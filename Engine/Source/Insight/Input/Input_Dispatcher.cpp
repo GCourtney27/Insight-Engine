@@ -23,8 +23,8 @@ namespace Insight {
 			m_AxisMappings.push_back({ "MoveRight", GamepadCode_Thumbstick_Left_Axis_X, 1.0f });
 			m_AxisMappings.push_back({ "MoveUp", KeyMapCode_Keyboard_E, 1.0f });
 			m_AxisMappings.push_back({ "MoveUp", KeyMapCode_Keyboard_Q, -1.0f });
-			m_AxisMappings.push_back({ "MoveUp", GamepadCode_Button_A, 1.0f });
-			m_AxisMappings.push_back({ "MoveUp", GamepadCode_Button_B, -1.0f });
+			m_AxisMappings.push_back({ "MoveUp", GamepadCode_Trigger_Right, 1.0f });
+			m_AxisMappings.push_back({ "MoveUp", GamepadCode_Trigger_Left, -1.0f });
 
 			m_AxisMappings.push_back({ "LookUp", KeyMapCode_Mouse_MoveY, 1.0f });
 			m_AxisMappings.push_back({ "LookUp", KeyMapCode_Mouse_MoveY, -1.0f });
@@ -39,7 +39,10 @@ namespace Insight {
 			m_ActionMappings.push_back({ "CameraPitchYawLock", GamepadCode_Thumbstick_Right_Axis_X });
 			m_ActionMappings.push_back({ "Sprint", KeyMapCode_Keyboard_Shift });
 			m_ActionMappings.push_back({ "Sprint", GamepadCode_Button_Thumbstick_Left });
-			
+
+			m_ActionMappings.push_back({ "TestPressed", GamepadCode_Button_A });
+			m_ActionMappings.push_back({ "TestReleased", GamepadCode_Button_A });
+			m_ActionMappings.push_back({ "TestHeld", GamepadCode_Button_A });
 			//m_ActionMappings.push_back({ "TestPressed", GamepadCode_Button_A });
 			//m_ActionMappings.push_back({ "TestReleased", GamepadCode_Button_A });
 			//m_ActionMappings.push_back({ "TestHeld", GamepadCode_Button_A });
@@ -76,6 +79,152 @@ namespace Insight {
 			// -------
 			// Constant gamepad polling is poor for performance, so set
 			// a poll interval and update the controller every other frame.
+			HandleControllerInput(DeltaMs);
+
+		}
+
+		void InputDispatcher::ProcessInputEvent(Event& e)
+		{
+			EventDispatcher Dispatcher(e);
+			// Mouse Buttons
+			Dispatcher.Dispatch<MouseMovedEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchMouseMoveEvent));
+			Dispatcher.Dispatch<MouseButtonPressedEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchActionEvent));
+			Dispatcher.Dispatch<MouseButtonReleasedEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchActionEvent));
+			// Mouse Scroll
+			Dispatcher.Dispatch<MouseScrolledEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchMouseScrolledEvent));
+
+			// Key Pressed
+			Dispatcher.Dispatch<KeyPressedEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchAxisEvent));
+			Dispatcher.Dispatch<KeyPressedEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchActionEvent));
+			Dispatcher.Dispatch<KeyReleasedEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchActionEvent));
+
+			// Key Typed
+			//Dispatcher.Dispatch<KeyTypedEvent>(IE_BIND_EVENT_FN(InputManager::OnKeyTypedEvent));
+		}
+
+		void InputDispatcher::RegisterAxisCallback(const char* Name, EventInputAxisFn Callback)
+		{
+			m_AxisCallbacks[Name].push_back(Callback);
+		}
+
+		void InputDispatcher::RegisterActionCallback(const char* Name, InputEventType EventType, EventInputActionFn Callback)
+		{
+			m_ActionCallbacks[{Name, EventType}].push_back(Callback);
+		}
+
+		bool InputDispatcher::DispatchAxisEvent(KeyPressedEvent& e)
+		{
+			for (AxisMapping& Axis : m_AxisMappings)
+			{
+				// Find the key in the axis map.
+				if (Axis.MappedKeyCode == e.GetKeyCode())
+				{
+					// Use the keycode as the key into the axis map to find 
+					// the callbacks associated with it.
+					auto Callbacks = &m_AxisCallbacks[Axis.Hint];
+					for (EventInputAxisFn Callback : *Callbacks)
+					{
+						// Call the callbacks.
+						Callback(Axis.Scale * e.GetMoveDelta());
+					}
+				}
+			}
+			return false;
+		}
+
+		bool InputDispatcher::DispatchMouseScrolledEvent(MouseScrolledEvent& e)
+		{
+			for (AxisMapping& Axis : m_AxisMappings)
+			{
+				// Find the key in the axis map.
+				if (Axis.MappedKeyCode == e.GetKeyCode())
+				{
+					float MoveFactor = e.GetYOffset();
+
+					// Use the keycode as the key into the axis map to find 
+					// the callbacks associated with it.
+					auto Callbacks = &m_AxisCallbacks[Axis.Hint];
+					for (EventInputAxisFn Callback : *Callbacks)
+					{
+						// Invoke the callbacks.
+						Callback(MoveFactor);
+					}
+				}
+			}
+			return false;
+		}
+
+		bool InputDispatcher::DispatchMouseMoveEvent(MouseMovedEvent& e)
+		{
+			for (AxisMapping& Axis : m_AxisMappings)
+			{
+				// Find the key in the axis map.
+				if (Axis.MappedKeyCode == e.GetKeyCode())
+				{
+					float MoveFactor = 0.0f;
+					if (e.GetKeyCode() == KeyMapCode_Mouse_MoveX) MoveFactor = e.GetX();
+					if (e.GetKeyCode() == KeyMapCode_Mouse_MoveY) MoveFactor = e.GetY();
+
+					// Use the keycode as the key into the axis map to find 
+					// the callbacks associated with it.
+					auto Callbacks = &m_AxisCallbacks[Axis.Hint];
+					for (EventInputAxisFn Callback : *Callbacks)
+					{
+						// Invoke the callbacks.
+						Callback(MoveFactor);
+					}
+				}
+			}
+			return false;
+		}
+
+		bool InputDispatcher::DispatchActionEvent(InputEvent& e)
+		{
+			for (ActionMapping& Action : m_ActionMappings)
+			{
+				if (Action.MappedKeyCode == e.GetKeyCode())
+				{
+					if (e.GetEventType() == InputEventType_Released)
+					{
+						Action.CanDispatch = true;
+						// The key had been released reset 
+						// the holding timer.
+						Action.HoldTime = 0.0f;
+					}
+
+					// If the key has been pressed once or a key is being held, dispatch the function calls.
+					// Note: KeyHeld events are only dispatched from the timer code below.
+					if (Action.CanDispatch || (e.GetEventType() == InputEventType_Held))
+					{
+						auto Callbacks = &m_ActionCallbacks[{Action.Hint, e.GetEventType()}];
+						for (EventInputActionFn Callback : *Callbacks)
+						{
+							// Invoke the callbacks.
+							Callback();
+						}
+					}
+
+					if (e.GetEventType() == InputEventType_Pressed)
+					{
+						Action.CanDispatch = false;
+						// If the the key is pressed start the timer to see if the key is being held.
+						Action.HoldTime += 0.16f;
+						if (Action.HoldTime >= m_MaxKeyHoldTime)
+						{
+							// Time is greater than the max hold time 
+							// (They have been holding the key for 1/0.16 seconds)
+							// meaning they are holding the key. Send out a key hold 
+							KeyHeldEvent e(e.GetKeyCode());
+							DispatchActionEvent(e);
+						}
+					}
+				}
+			}
+			return false;
+		}
+
+		void InputDispatcher::HandleControllerInput(const float DeltaMs)
+		{
 			static float GamepadPollRate = 0.0f;
 			GamepadPollRate += DeltaMs;
 			if (GamepadPollRate >= m_GamepadPollInterval)
@@ -102,7 +251,7 @@ namespace Insight {
 							KeyReleasedEvent e(GamepadCode_Button_A);
 							ProcessInputEvent(e);
 						}
-						
+
 						if (State.Gamepad.wButtons & XBoxCode_Button_PressMask_B)
 						{
 							KeyPressedEvent e(GamepadCode_Button_B, 0);
@@ -276,6 +425,48 @@ namespace Insight {
 							m_XBoxGamepads[i] = State;
 						}
 
+						// Trigger Left
+						float TriggerL = State.Gamepad.bLeftTrigger;
+						static bool TriggerLPressed = false;
+						if (TriggerL > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
+						{
+							TriggerLPressed = true;
+							float TriggerNormalized = TriggerL / 255;
+							//IE_DEBUG_LOG(LogSeverity::Log, "0 - 1: {0}", TriggerNormalized);
+							KeyPressedEvent e(GamepadCode_Trigger_Left, 0, TriggerNormalized);
+							ProcessInputEvent(e);
+						}
+						else
+						{
+							if (TriggerLPressed)
+							{
+								TriggerLPressed = false; 
+								KeyReleasedEvent e(GamepadCode_Trigger_Left);
+								ProcessInputEvent(e);
+							}
+						}
+
+						// Trigger Right
+						float TriggerR = State.Gamepad.bRightTrigger;
+						static bool TriggerRPressed = false;
+						if (TriggerR > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
+						{
+							TriggerRPressed = true;
+							float TriggerNormalized = TriggerR / 255;
+							//IE_DEBUG_LOG(LogSeverity::Log, "0 - 1: {0}", TriggerNormalized);
+							KeyPressedEvent e(GamepadCode_Trigger_Right, 0, TriggerNormalized);
+							ProcessInputEvent(e);
+						}
+						else
+						{
+							if (TriggerRPressed)
+							{
+								TriggerRPressed = false;
+								KeyReleasedEvent e(GamepadCode_Trigger_Right);
+								ProcessInputEvent(e);
+							}
+						}
+
 						// Thumbstick Left
 						float LeftX = State.Gamepad.sThumbLX;
 						float LeftY = State.Gamepad.sThumbLY;
@@ -329,7 +520,7 @@ namespace Insight {
 
 						float MoveDeltaLY = (normalizedLY * NormalizedDistanceL) * m_GamepadLeftStickSensitivity;
 						static bool MoovedLY = false;
-						if(MoveDeltaLY != 0.0f)
+						if (MoveDeltaLY != 0.0f)
 						{
 							MoovedLY = true;
 							KeyPressedEvent e(GamepadCode_Thumbstick_Left_Axis_Y, 0, MoveDeltaLY);
@@ -347,7 +538,7 @@ namespace Insight {
 
 						float MoveDeltaLX = (normalizedLX * NormalizedDistanceL) * m_GamepadLeftStickSensitivity;
 						static bool MoovedLX = false;
-						if(MoveDeltaLX != 0.0f)
+						if (MoveDeltaLX != 0.0f)
 						{
 							MoovedLX = true;
 							KeyPressedEvent e(GamepadCode_Thumbstick_Left_Axis_X, 0, MoveDeltaLX);
@@ -365,7 +556,7 @@ namespace Insight {
 
 						float MoveDeltaRY = (normalizedRY * NormalizedDistanceR) * m_GamepadRightStickSensitivity;
 						static bool MoovedRY = false;
-						if(MoveDeltaRY != 0.0f)
+						if (MoveDeltaRY != 0.0f)
 						{
 							MoovedRY = true;
 							KeyPressedEvent e(GamepadCode_Thumbstick_Right_Axis_Y, 0, MoveDeltaRY);
@@ -383,7 +574,7 @@ namespace Insight {
 
 						float MoveDeltaRX = (normalizedRX * NormalizedDistanceR) * m_GamepadRightStickSensitivity;
 						static bool MoovedRX = false;
-						if(MoveDeltaRX != 0.0f)
+						if (MoveDeltaRX != 0.0f)
 						{
 							MoovedRX = true;
 							KeyPressedEvent e(GamepadCode_Thumbstick_Right_Axis_X, 0, MoveDeltaRX);
@@ -405,152 +596,6 @@ namespace Insight {
 					}
 				}
 			}
-
-		}
-
-		void InputDispatcher::ProcessInputEvent(Event& e)
-		{
-			EventDispatcher Dispatcher(e);
-			// Mouse Buttons
-			Dispatcher.Dispatch<MouseMovedEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchMouseMoveEvent));
-			Dispatcher.Dispatch<MouseButtonPressedEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchActionEvent));
-			Dispatcher.Dispatch<MouseButtonReleasedEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchActionEvent));
-			// Mouse Scroll
-			Dispatcher.Dispatch<MouseScrolledEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchMouseScrolledEvent));
-
-			// Key Pressed
-			Dispatcher.Dispatch<KeyPressedEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchAxisEvent));
-			Dispatcher.Dispatch<KeyPressedEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchActionEvent));
-			Dispatcher.Dispatch<KeyReleasedEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchActionEvent));
-
-			// Key Typed
-			//Dispatcher.Dispatch<KeyTypedEvent>(IE_BIND_EVENT_FN(InputManager::OnKeyTypedEvent));
-		}
-
-		void InputDispatcher::RegisterAxisCallback(const char* Name, EventInputAxisFn Callback)
-		{
-			m_AxisCallbacks[Name].push_back(Callback);
-		}
-
-		void InputDispatcher::RegisterActionCallback(const char* Name, InputEventType EventType, EventInputActionFn Callback)
-		{
-			m_ActionCallbacks[{Name, EventType}].push_back(Callback);
-		}
-
-		bool InputDispatcher::DispatchAxisEvent(KeyPressedEvent& e)
-		{
-			for (AxisMapping& Axis : m_AxisMappings)
-			{
-				// Find the key in the axis map.
-				if (Axis.MappedKeyCode == e.GetKeyCode())
-				{
-					// Use the keycode as the key into the axis map to find 
-					// the callbacks associated with it.
-					auto Callbacks = &m_AxisCallbacks[Axis.Hint];
-					for (EventInputAxisFn Callback : *Callbacks)
-					{
-						// Call the callbacks.
-						Callback(Axis.Scale * e.GetMoveDelta());
-					}
-				}
-			}
-			return false;
-		}
-
-		bool InputDispatcher::DispatchMouseScrolledEvent(MouseScrolledEvent& e)
-		{
-			for (AxisMapping& Axis : m_AxisMappings)
-			{
-				// Find the key in the axis map.
-				if (Axis.MappedKeyCode == e.GetKeyCode())
-				{
-					float MoveFactor = e.GetYOffset();
-
-					// Use the keycode as the key into the axis map to find 
-					// the callbacks associated with it.
-					auto Callbacks = &m_AxisCallbacks[Axis.Hint];
-					for (EventInputAxisFn Callback : *Callbacks)
-					{
-						// Invoke the callbacks.
-						Callback(MoveFactor);
-					}
-				}
-			}
-			return false;
-		}
-
-		bool InputDispatcher::DispatchMouseMoveEvent(MouseMovedEvent& e)
-		{
-			for (AxisMapping& Axis : m_AxisMappings)
-			{
-				// Find the key in the axis map.
-				if (Axis.MappedKeyCode == e.GetKeyCode())
-				{
-					float MoveFactor = 0.0f;
-					if (e.GetKeyCode() == KeyMapCode_Mouse_MoveX) MoveFactor = e.GetX();
-					if (e.GetKeyCode() == KeyMapCode_Mouse_MoveY) MoveFactor = e.GetY();
-
-					// Use the keycode as the key into the axis map to find 
-					// the callbacks associated with it.
-					auto Callbacks = &m_AxisCallbacks[Axis.Hint];
-					for (EventInputAxisFn Callback : *Callbacks)
-					{
-						// Invoke the callbacks.
-						Callback(MoveFactor);
-					}
-				}
-			}
-			return false;
-		}
-
-		bool InputDispatcher::DispatchActionEvent(InputEvent& e)
-		{
-			for (ActionMapping& Action : m_ActionMappings)
-			{
-				if (Action.MappedKeyCode == e.GetKeyCode())
-				{
-					if (e.GetEventType() == InputEventType_Released)
-					{
-						Action.CanDispatch = true;
-						// The key had been released reset 
-						// the holding timer.
-						Action.HoldTime = 0.0f;
-					}
-
-					// If the key has been pressed once or a key is being held, dispatch the function calls.
-					// Note: KeyHeld events are only dispatched from the timer code below.
-					if (Action.CanDispatch || (e.GetEventType() == InputEventType_Held))
-					{
-						auto Callbacks = &m_ActionCallbacks[{Action.Hint, e.GetEventType()}];
-						for (EventInputActionFn Callback : *Callbacks)
-						{
-							// Invoke the callbacks.
-							Callback();
-						}
-					}
-
-					if (e.GetEventType() == InputEventType_Pressed)
-					{
-						Action.CanDispatch = false;
-						// If the the key is pressed start the timer to see if the key is being held.
-						Action.HoldTime += 0.16f;
-						if (Action.HoldTime >= m_MaxKeyHoldTime)
-						{
-							// Time is greater than the max hold time 
-							// (They have been holding the key for 1/0.16 seconds)
-							// meaning they are holding the key. Send out a key hold 
-							KeyHeldEvent e(e.GetKeyCode());
-							DispatchActionEvent(e);
-						}
-					}
-				}
-			}
-			return false;
-		}
-
-		void InputDispatcher::HandleControllerInput()
-		{
-			
 		}
 		
 		

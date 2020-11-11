@@ -124,7 +124,7 @@ namespace Insight {
 			bool DispatchActionEvent(InputEvent& e);
 			
 
-			void HandleControllerInput();
+			void HandleControllerInput(const float DeltaMs);
 
 		private:
 			// Holds all axis mapping profiles.
