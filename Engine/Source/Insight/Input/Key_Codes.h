@@ -65,6 +65,33 @@
 #define PlatformKeyboardCode_Y	0x59
 #define PlatformKeyboardCode_Z	0x5A
 
+// Gamepad Buttons
+// ---------------
+#define PlatformGamepadButtonCode_A					VK_GAMEPAD_A
+#define PlatformGamepadButtonCode_B					VK_GAMEPAD_B
+#define PlatformGamepadButtonCode_X					VK_GAMEPAD_X
+#define PlatformGamepadButtonCode_Y					VK_GAMEPAD_Y
+#define PlatformGamepadButtonCode_DPad_Up			VK_GAMEPAD_DPAD_UP
+#define PlatformGamepadButtonCode_DPad_Down			VK_GAMEPAD_DPAD_DOWN
+#define PlatformGamepadButtonCode_DPad_Left			VK_GAMEPAD_DPAD_LEFT
+#define PlatformGamepadButtonCode_DPad_Right		VK_GAMEPAD_DPAD_RIGHT
+#define PlatformGamepadButtonCode_Start				VK_GAMEPAD_MENU
+#define PlatformGamepadButtonCode_Back				VK_GAMEPAD_VIEW
+#define PlatformGamepadButtonCode_Thumbstick_Left	VK_GAMEPAD_LEFT_THUMBSTICK_BUTTON
+#define PlatformGamepadButtonCode_Thumbstick_Right	VK_GAMEPAD_RIGHT_THUMBSTICK_BUTTON
+#define PlatformGamepadButtonCode_Shoulder_Left		VK_GAMEPAD_LEFT_SHOULDER
+#define PlatformGamepadButtonCode_Shoulder_Right	VK_GAMEPAD_RIGHT_SHOULDER
+
+#define PlatformGamepadTriggerCode_Left				VK_GAMEPAD_LEFT_TRIGGER
+#define PlatformGamepadTriggerCode_Right			VK_GAMEPAD_RIGHT_TRIGGER
+
+#define PlatformGamepadThumbstick_Left_Axis_X		VK_GAMEPAD_LEFT_THUMBSTICK_RIGHT
+#define PlatformGamepadThumbstick_Left_Axis_Y		VK_GAMEPAD_LEFT_THUMBSTICK_UP
+#define PlatformGamepadThumbstick_Right_Axis_X		VK_GAMEPAD_RIGHT_THUMBSTICK_RIGHT
+#define PlatformGamepadThumbstick_Right_Axis_Y		VK_GAMEPAD_RIGHT_THUMBSTICK_UP
+
+
+
 // Gamepad Press Masks
 // -------------------
 #define XBoxCode_Button_PressMask_DPad_Up			0x0001
@@ -89,7 +116,7 @@
 namespace Insight {
 
 
-	typedef enum InputEventType
+	typedef enum _InputEventType
 	{
 		InputEventType_Pressed	= 0,
 		InputEventType_Released	= 1,
@@ -99,7 +126,7 @@ namespace Insight {
 	} InputEventType;
 
 
-	typedef enum KeyMapCode
+	typedef enum _KeyMapCode
 	{
 		// Mouse
 		// -----
@@ -170,31 +197,37 @@ namespace Insight {
 		// Gamepad
 		// -------
 		// Buttons
-		GamepadCode_Button_A = VK_GAMEPAD_A,
-		GamepadCode_Button_B = VK_GAMEPAD_B,
-		GamepadCode_Button_X = VK_GAMEPAD_X,
-		GamepadCode_Button_Y = VK_GAMEPAD_Y,
-		GamepadCode_Button_DPad_Up = VK_GAMEPAD_DPAD_UP,
-		GamepadCode_Button_DPad_Down = VK_GAMEPAD_DPAD_DOWN,
-		GamepadCode_Button_DPad_Left = VK_GAMEPAD_DPAD_LEFT,
-		GamepadCode_Button_DPad_Right = VK_GAMEPAD_DPAD_RIGHT,
-		GamepadCode_Button_Start = VK_GAMEPAD_MENU,
-		GamepadCode_Button_Back = VK_GAMEPAD_VIEW,
-		GamepadCode_Button_Thumbstick_Left = VK_GAMEPAD_LEFT_THUMBSTICK_BUTTON,
-		GamepadCode_Button_Thumbstick_Right = VK_GAMEPAD_RIGHT_THUMBSTICK_BUTTON,
-		GamepadCode_Button_Shoulder_Left = VK_GAMEPAD_LEFT_SHOULDER,
-		GamepadCode_Button_Shoulder_Right = VK_GAMEPAD_RIGHT_SHOULDER,
+		GamepadCode_Button_A				= PlatformGamepadButtonCode_A,
+		GamepadCode_Button_B				= PlatformGamepadButtonCode_B,
+		GamepadCode_Button_X				= PlatformGamepadButtonCode_X,
+		GamepadCode_Button_Y				= PlatformGamepadButtonCode_Y,
+		GamepadCode_Button_DPad_Up			= PlatformGamepadButtonCode_DPad_Up,
+		GamepadCode_Button_DPad_Down		= PlatformGamepadButtonCode_DPad_Down,
+		GamepadCode_Button_DPad_Left		= PlatformGamepadButtonCode_DPad_Left,
+		GamepadCode_Button_DPad_Right		= PlatformGamepadButtonCode_DPad_Right,
+		GamepadCode_Button_Start			= PlatformGamepadButtonCode_Start,
+		GamepadCode_Button_Back				= PlatformGamepadButtonCode_Back,
+		GamepadCode_Button_Thumbstick_Left	= PlatformGamepadButtonCode_Thumbstick_Left,
+		GamepadCode_Button_Thumbstick_Right	= PlatformGamepadButtonCode_Thumbstick_Right,
+		GamepadCode_Button_Shoulder_Left	= PlatformGamepadButtonCode_Shoulder_Left,
+		GamepadCode_Button_Shoulder_Right	= PlatformGamepadButtonCode_Shoulder_Right,
 		// Trigger
-		GamepadCode_Trigger_Left = VK_GAMEPAD_LEFT_TRIGGER,
-		GamepadCode_Trigger_Right = VK_GAMEPAD_RIGHT_TRIGGER,
+		GamepadCode_Trigger_Left			= PlatformGamepadTriggerCode_Left,
+		GamepadCode_Trigger_Right			= PlatformGamepadTriggerCode_Right,
 		// Thumbstick Axis
-		GamepadCode_Thumbstick_Left_Axis_X = VK_GAMEPAD_LEFT_THUMBSTICK_RIGHT,
-		GamepadCode_Thumbstick_Left_Axis_Y = VK_GAMEPAD_LEFT_THUMBSTICK_UP,
-		GamepadCode_Thumbstick_Right_Axis_X = VK_GAMEPAD_RIGHT_THUMBSTICK_RIGHT,
-		GamepadCode_Thumbstick_Right_Axis_Y = VK_GAMEPAD_RIGHT_THUMBSTICK_UP,
+		GamepadCode_Thumbstick_Left_Axis_X	= PlatformGamepadThumbstick_Left_Axis_X,
+		GamepadCode_Thumbstick_Left_Axis_Y	= PlatformGamepadThumbstick_Left_Axis_Y,
+		GamepadCode_Thumbstick_Right_Axis_X	= PlatformGamepadThumbstick_Right_Axis_X,
+		GamepadCode_Thumbstick_Right_Axis_Y	= PlatformGamepadThumbstick_Right_Axis_Y,
 
 
-	} KeymapCode;
+	} KeyMapCode;
+
+	typedef enum _GampadRumbleMotor
+	{
+		GampadRumbleMotor_Left	= BIT_SHIFT(0),
+		GampadRumbleMotor_Right = BIT_SHIFT(1),
+	} GampadRumbleMotor;
 
 }
 

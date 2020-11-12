@@ -117,18 +117,6 @@ namespace Insight {
 
 			// DEBUG
 			void Test();
-			void Pressed()
-			{
-				IE_DEBUG_LOG(LogSeverity::Log, "Pressed");
-			}
-			void Released()
-			{
-				IE_DEBUG_LOG(LogSeverity::Log, "Released");
-			}
-			void Held()
-			{
-				IE_DEBUG_LOG(LogSeverity::Log, "Held");
-			}
 		private:
 			XMFLOAT4X4 m_ViewMat4x4;
 			XMMATRIX m_ViewMatrix;

@@ -9,7 +9,9 @@ namespace Insight {
 
 
 		InputComponent::InputComponent(AActor* pOwner)
-			: ActorComponent("Input Component", pOwner)
+			: ActorComponent("Input Component", pOwner),
+			m_GamepadLeftStickSensitivity(DEFAULT_THUMBSTICK_LEFT_SENSITIVITY),
+			m_GamepadRightStickSensitivity(DEFAULT_THUMBSTICK_RIGHT_SENSITIVITY)
 		{
 		}
 
@@ -52,6 +54,11 @@ namespace Insight {
 		void InputComponent::BindAction(const char* ActionName, InputEventType EventType, Input::EventInputActionFn Callback)
 		{
 			Input::InputDispatcher::Get().RegisterActionCallback(ActionName, EventType, Callback);
+		}
+
+		void InputComponent::AddGamepadVibration(uint32_t PlayerIndex, GampadRumbleMotor Motor, float Amount)
+		{
+			Input::InputDispatcher::Get().AddGamepadVibration(PlayerIndex, Motor, Amount);
 		}
 
 		void InputComponent::BindAxis(const char* AxisName, Input::EventInputAxisFn Callback)

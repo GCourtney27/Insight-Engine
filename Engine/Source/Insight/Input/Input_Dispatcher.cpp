@@ -40,16 +40,6 @@ namespace Insight {
 			m_ActionMappings.push_back({ "Sprint", KeyMapCode_Keyboard_Shift });
 			m_ActionMappings.push_back({ "Sprint", GamepadCode_Button_Thumbstick_Left });
 
-			m_ActionMappings.push_back({ "TestPressed", GamepadCode_Button_A });
-			m_ActionMappings.push_back({ "TestReleased", GamepadCode_Button_A });
-			m_ActionMappings.push_back({ "TestHeld", GamepadCode_Button_A });
-			//m_ActionMappings.push_back({ "TestPressed", GamepadCode_Button_A });
-			//m_ActionMappings.push_back({ "TestReleased", GamepadCode_Button_A });
-			//m_ActionMappings.push_back({ "TestHeld", GamepadCode_Button_A });
-			//m_ActionMappings.push_back({ "TestPressed", KeyMapCode_Keyboard_O });
-			//m_ActionMappings.push_back({ "TestReleased", KeyMapCode_Keyboard_O });
-			//m_ActionMappings.push_back({ "TestHeld", KeyMapCode_Keyboard_O });
-
 
 			m_GamepadLeftStickSensitivity = 20.0f;
 			m_GamepadRightStickSensitivity = 20.0f;
@@ -110,6 +100,21 @@ namespace Insight {
 		void InputDispatcher::RegisterActionCallback(const char* Name, InputEventType EventType, EventInputActionFn Callback)
 		{
 			m_ActionCallbacks[{Name, EventType}].push_back(Callback);
+		}
+
+		void InputDispatcher::AddGamepadVibration(uint32_t PlayerIndex, GampadRumbleMotor Direction, float Amount)
+		{
+			IE_ASSERT(PlayerIndex <= XUSER_MAX_COUNT, "Trying to add vibration to an invalid controller index");
+
+			XINPUT_VIBRATION VibrationInfo;
+			ZeroMemory(&VibrationInfo, sizeof(XINPUT_VIBRATION));
+
+			if (Direction & GampadRumbleMotor_Left)
+				VibrationInfo.wLeftMotorSpeed = static_cast<WORD>(65535 / (65535 * Amount));
+			if (Direction & GampadRumbleMotor_Right)
+				VibrationInfo.wRightMotorSpeed = static_cast<WORD>(65535 / (65535 * Amount));
+
+			XInputSetState(PlayerIndex, &VibrationInfo);
 		}
 
 		bool InputDispatcher::DispatchAxisEvent(KeyPressedEvent& e)

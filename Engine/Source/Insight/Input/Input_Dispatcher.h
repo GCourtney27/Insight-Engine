@@ -65,6 +65,9 @@ namespace Insight {
 			@param MappedKeyCode: The keycode that will trigger the event callbacks attached to this axis mapping
 			@param CanDispatch: Internal variable used to determine wether to send a "released" event once a
 								"pressed" event has been sent.
+			@parame HoldTime: Internal counter variable that keeps track of how much time the mapped key has been 
+							  held down. If greater than InputDispatcher::m_MaxKeyHoldTime, InputEventType::InputEventType_Held 
+							  events will be dispatched for this action.
 		*/
 		struct ActionMapping
 		{
@@ -102,7 +105,13 @@ namespace Insight {
 				Register an Action callback function. Used by Actor input components.
 			*/
 			void RegisterActionCallback(const char* Name, InputEventType EventType, EventInputActionFn Callback);
-
+			/*
+				Adds vibration to a controller at a player index.
+				@param PlayerIndex: The index of the player to add vibration to.
+				@param Motor: The motor to add vibration to. This can be either the left or right gamepad motor.
+				@param Amount: A normalized value (0 - 1) that specifies the amount of vibration to add to the controller. 0 being no vibration and 1 being full vibration.
+			*/
+			void AddGamepadVibration(uint32_t PlayerIndex, GampadRumbleMotor Direction, float Amount);
 
 		private:
 			/*
@@ -122,9 +131,13 @@ namespace Insight {
 				Dispatch an event to all callbacks that request an action event.
 			*/
 			bool DispatchActionEvent(InputEvent& e);
-			
-
+			/*
+				Handles all controller input and dispatches events to the appropriate 
+				functions when necessary.
+				@param DeltaMs: World delta time.
+			*/
 			void HandleControllerInput(const float DeltaMs);
+
 
 		private:
 			// Holds all axis mapping profiles.
@@ -136,14 +149,16 @@ namespace Insight {
 			// Holds all callback funcitons and their corisponding hints found the actoin mappings stored in InputDispatcher::m_ActionMappings.
 			std::map<std::pair<std::string, InputEventType>, std::vector<EventInputActionFn>> m_ActionCallbacks;
 
+			// Max amount of time the user pressed a key before it is recognized as being held.
+			float m_MaxKeyHoldTime = 1.0f;
+			// Input states for all XBox controllers.
+			XINPUT_STATE m_XBoxGamepads[XUSER_MAX_COUNT];
+			// The interval in which to poll controllers and update their input state. This should be kep to a small value and never be 0.
+			float m_GamepadPollInterval;
+
 			// TODO Expose these to the user to modify
 			float m_GamepadLeftStickSensitivity;
 			float m_GamepadRightStickSensitivity;
-
-			float m_MaxKeyHoldTime = 1.0f;
-			XINPUT_STATE m_XBoxGamepads[XUSER_MAX_COUNT];
-			float m_GamepadPollInterval;
-
 
 		private:
 			// Static instance of the Input Dispatcher.
