@@ -3,14 +3,14 @@
 rootDirPath = "../"
 
 EngineIncludeDirs = {}
-EngineIncludeDirs["ImGui"] 	    = "Vendor/imgui"
-EngineIncludeDirs["ImGuizmo"] 	= "Vendor/ImGuizmo"
-EngineIncludeDirs["Microsoft"] 	= "Vendor/Microsoft"
-EngineIncludeDirs["rapidjson"]  = "Vendor/rapidjson"
-EngineIncludeDirs["spdlog"] 	= "Vendor/spdlog"
-EngineIncludeDirs["Mono"] 		= "Vendor/Mono/include/mono-2.0"
-EngineIncludeDirs["assimp"] 	= "Vendor/assimp-3.3.1/include"
-EngineIncludeDirs["Nvidia"] 	= "Vendor/Nvidia"
+EngineIncludeDirs["ImGui"] 	    = "Third_Party/imgui"
+EngineIncludeDirs["ImGuizmo"] 	= "Third_Party/ImGuizmo"
+EngineIncludeDirs["Microsoft"] 	= "Third_Party/Microsoft"
+EngineIncludeDirs["rapidjson"]  = "Third_Party/rapidjson"
+EngineIncludeDirs["spdlog"] 	= "Third_Party/spdlog"
+EngineIncludeDirs["Mono"] 		= "Third_Party/Mono/include/mono-2.0"
+EngineIncludeDirs["assimp"] 	= "Third_Party/assimp-3.3.1/include"
+EngineIncludeDirs["Nvidia"] 	= "Third_Party/Nvidia"
 
 
 project ("Engine")
@@ -30,7 +30,7 @@ project ("Engine")
 	files
 	{
 		"Engine-Make.lua",
-		"Vendor/Vendor_Build.cpp",
+		"Third_Party/Vendor_Build.cpp",
 		"Source/**.cpp",
 		"Source/**.h",
 		"Source/**.vertex.hlsl",
@@ -46,7 +46,7 @@ project ("Engine")
 
 	includedirs
 	{
-		-- Vendor
+		-- Third Party
 		"%{EngineIncludeDirs.Microsoft}/",
         "%{EngineIncludeDirs.Microsoft}/DirectX12/WinPixEventRuntime.1.0.161208001/Include/",
 		"%{EngineIncludeDirs.Microsoft}/DirectX12",

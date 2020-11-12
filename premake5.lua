@@ -22,7 +22,7 @@ CustomDefines["IE_BUILD_CONFIG"] = outputdir
 
 -- Tools
 group "Tools"
-include "Engine/Vendor/ImGui/premake5.lua"
+include "Engine/Third_Party/ImGui/premake5.lua"
 group ""
 
 -- Engine
