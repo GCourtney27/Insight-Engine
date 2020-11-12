@@ -3,6 +3,7 @@
 appName = "Application"
 
 engineThirdPartyDir = "../Engine/Third_Party/"
+monoInstallDir = "C:/Program Files/Mono/"
 rootDirPath = "../"
 
 applicationIncludeDirs = {}
@@ -11,7 +12,7 @@ applicationIncludeDirs["Microsoft"] = engineThirdPartyDir .. "Microsoft"
 applicationIncludeDirs["Nvidia"]	= engineThirdPartyDir .. "Nvidia"
 applicationIncludeDirs["spdlog"]	= engineThirdPartyDir .. "spdlog/include"
 applicationIncludeDirs["rapidjson"] = engineThirdPartyDir .. "rapidjson/include"
-applicationIncludeDirs["Mono"]		= engineThirdPartyDir .. "Mono/include"
+applicationIncludeDirs["Mono"]		= monoInstallDir .. "include"
 applicationIncludeDirs["Engine"]	= rootDirPath .. "Engine"
 
 project (appName .. "_Windows")
@@ -66,9 +67,8 @@ project (appName .. "_Windows")
 		"D3Dcompiler.lib",
 		"dxcompiler.lib",
         "DirectXTK12.lib",
-		"DirectXTex.lib",
 		
-		"Engine_Source",
+		"Engine",
 	}
 
 	filter "system:windows"
@@ -90,7 +90,7 @@ project (appName .. "_Windows")
 			("{COPY} " .. engineThirdPartyDir .. "/Microsoft/DirectX11/Bin/D3DX11d_43.dll ../Binaries/"..outputdir.."/" .. appName .. "_Windows"),
 			("{COPY} " .. engineThirdPartyDir .. "/Microsoft/DirectX11/Bin/D3D11Ref.dll ../Binaries/"..outputdir.."/" .. appName .. "_Windows"),
 			-- Mono
-			("{COPY} ".. engineThirdPartyDir .."/Mono/bin/mono-2.0-sgen.dll ../Binaries/"..outputdir.."/" .. appName .. "_Windows"),
+			("{COPY} \"".. monoInstallDir .."/bin/mono-2.0-sgen.dll\" ../Binaries/" .. outputdir .. "/" .. appName .. "_Windows"),
 			-- DirectX
 			("{COPY} ".. engineThirdPartyDir .."/Microsoft/DirectX12/Bin/dxcompiler.dll ../Binaries/"..outputdir.."/" .. appName .. "_Windows"),
 			("{COPY} ".. engineThirdPartyDir .."/Microsoft/DirectX12/Bin/dxil.dll ../Binaries/"..outputdir.."/" .. appName .. "_Windows"),
@@ -101,6 +101,11 @@ project (appName .. "_Windows")
 			-- Copy over default engine assets
 			("{COPY} ../Engine/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Default_Assets/")
 		}
+
+
+
+-- Build Configurations
+
 	filter "configurations:Debug"
 		defines "IE_DEBUG"
 		symbols "on"
@@ -108,15 +113,13 @@ project (appName .. "_Windows")
         {
             "IE_DEBUG"
         }
-		
 		libdirs
 		{
-            engineThirdPartyDir .. "/assimp-3.3.1/build/code/Debug",
+            engineThirdPartyDir .. "/assimp-3.3.1/build/code/Debug/",
             engineThirdPartyDir .. "/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
-            engineThirdPartyDir .. "/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Debug",
-            engineThirdPartyDir .. "/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Debug",
-            engineThirdPartyDir .. "/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Debug",
-			engineThirdPartyDir .. "/Mono/lib",
+            engineThirdPartyDir .. "/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Debug/",
+            engineThirdPartyDir .. "/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Debug/",
+			monoInstallDir .. "/lib/",
 		}
 	
 	filter "configurations:Release"
@@ -125,12 +128,12 @@ project (appName .. "_Windows")
 		optimize "on"
 		libdirs
 		{
-			"Third_Party/assimp-3.3.1/build/code/Release",
-            "Third_Party/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
-            "Third_Party/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
-			"Third_Party/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
-            "Third_Party/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
-			"Third_Party/Mono/lib",
+			engineThirdPartyDir .. "/assimp-3.3.1/build/code/Release",
+            engineThirdPartyDir .. "/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
+            engineThirdPartyDir .. "/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
+			engineThirdPartyDir .. "/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
+            engineThirdPartyDir .. "/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
+			monoInstallDir .. "/lib",
 		}
 		postbuildcommands
 		{
@@ -153,20 +156,18 @@ project (appName .. "_Windows")
 			("{COPY} %{wks.location}/Engine_Source/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Default_Assets/")
 		}
 
-
-
 	filter "configurations:EngineDist"
 		defines "IE_ENGINE_DIST"
 		optimize "on"
 		symbols "on"
 		libdirs
 		{
-			"Third_Party/assimp-3.3.1/build/code/Release",
-            "Third_Party/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
-            "Third_Party/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
-			"Third_Party/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
-            "Third_Party/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
-			"Third_Party/Mono/lib",
+			engineThirdPartyDir .. "/assimp-3.3.1/build/code/Release",
+            engineThirdPartyDir .. "/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
+            engineThirdPartyDir .. "/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
+			engineThirdPartyDir .. "/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
+            engineThirdPartyDir .. "/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
+			monoInstallDir .. "/lib",
 		}
 		postbuildcommands
 		{
@@ -188,12 +189,12 @@ project (appName .. "_Windows")
 		symbols "on"
 		libdirs
 		{
-            "Third_Party/assimp-3.3.1/build/code/Release",            
-            "Third_Party/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
-            "Third_Party/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
-			"Third_Party/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
-            "Third_Party/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
-			"Third_Party/Mono/lib",
+            engineThirdPartyDir .. "/assimp-3.3.1/build/code/Release",            
+            engineThirdPartyDir .. "/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
+            engineThirdPartyDir .. "/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
+			engineThirdPartyDir .. "/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
+            engineThirdPartyDir .. "/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
+			monoInstallDir .. "/lib",
 		}
 		postbuildcommands
 		{

@@ -19,7 +19,7 @@
 #include "Insight/Core/Layer/ImGui_Layer.h"
 
 #include "imgui.h"
-#include "ImGuizmo.h"
+//#include "ImGuizmo.h"
 
 namespace Insight {
 

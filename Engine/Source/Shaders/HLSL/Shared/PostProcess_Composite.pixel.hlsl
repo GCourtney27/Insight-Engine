@@ -85,11 +85,11 @@ float mod(float x, float y)
 
 float3 AddBloom(float3 sourceColor, float2 texCoords)
 {
-	//float2 PixelCoords = (texCoords * cbScreenSize) / 2;
-    float2 PixelCoords = (texCoords);
-	float3 BloomPassResult = rw_BloomPassResult.Load(int3(PixelCoords, 0.0)).rgb;
- 
-	return mad(blCombineCoefficient, BloomPassResult, sourceColor);
+	float2 PixelCoords = (texCoords * cbScreenSize) / 2;
+    //float2 PixelCoords = (texCoords);
+    float4 BloomPassResult = rw_BloomPassResult.Load(int3(PixelCoords.xy, 0));
+    
+	return mad(blCombineCoefficient, BloomPassResult.rgb, sourceColor);
 }
 
 float3 AddChromaticAberration(float3 sourceColor, float2 texCoords)

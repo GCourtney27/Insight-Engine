@@ -5,6 +5,10 @@
 VS_OUTPUT_SHADOWPASS main(VS_INPUT_SHADOWPASS vs_in)
 {
     VS_OUTPUT_SHADOWPASS vs_out;
+    vs_out.biTangent = float3(0.0f, 0.0f, 0.0f);
+    vs_out.normal = float3(0.0f, 0.0f, 0.0f);
+    vs_out.tangent = float3(0.0f, 0.0f, 0.0f);
+    vs_out.texCoords = float2(0.0f, 0.0f);
     
     //vs_in.position.x *= 0.5;
     //vs_in.position.y *= 0.5;

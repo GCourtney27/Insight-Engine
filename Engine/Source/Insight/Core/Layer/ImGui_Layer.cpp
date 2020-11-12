@@ -4,7 +4,7 @@
 #include "Insight/Core/Application.h"
 
 #include "imgui.h"
-#include "ImGuizmo.h"
+//#include "ImGuizmo.h"
 
 namespace Insight {
 
@@ -27,7 +27,7 @@ namespace Insight {
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;		// Enable Gamepad Controls
-		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+		//io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
 
 		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
@@ -52,8 +52,8 @@ namespace Insight {
 	void ImGuiLayer::Begin()
 	{
 		ImGui::NewFrame();
-		ImGuizmo::BeginFrame();
-		ImGui::DockSpaceOverViewport(0, ImGuiDockNodeFlags_PassthruCentralNode);
+		//ImGuizmo::BeginFrame();
+		//ImGui::DockSpaceOverViewport(0, ImGuiDockNodeFlags_PassthruCentralNode);
 	}
 
 	void ImGuiLayer::End()

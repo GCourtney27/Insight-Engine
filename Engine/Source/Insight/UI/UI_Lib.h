@@ -3,7 +3,7 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 #include <misc/cpp/imgui_stdlib.h>
-#include "ImGuizmo.h"
+//#include "ImGuizmo.h"
 
 #include "Insight/Math/ie_Vectors.h"
 

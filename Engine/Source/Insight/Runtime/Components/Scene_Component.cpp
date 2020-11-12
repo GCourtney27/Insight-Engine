@@ -171,8 +171,8 @@ namespace Insight {
 		{
 		}
 
-		static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
-		static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
+		//static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
+		//static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
 		void SceneComponent::RenderSelectionGizmo()
 		{
 			//static ACamera& s_WorldCameraRef = ACamera::Get();

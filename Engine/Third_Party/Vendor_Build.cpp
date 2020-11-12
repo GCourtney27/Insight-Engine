@@ -5,9 +5,9 @@
 #include <misc/cpp/imgui_stdlib.cpp>
 
 // ImGuizmo
-#include "ImGuizmo.cpp"
-#include "ImGradient.cpp"
-#include "ImCurveEdit.cpp"
+//#include "ImGuizmo.cpp"
+//#include "ImGradient.cpp"
+//#include "ImCurveEdit.cpp"
 
 // RapidJson
 #include <rapidjson/json.cpp>

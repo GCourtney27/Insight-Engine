@@ -7,7 +7,6 @@
 #include <DirectX12/TK/Inc/DDSTextureLoader.h>
 #include <DirectX12/TK/Inc/WICTextureLoader.h>
 #include <DirectX12/TK/Inc/ResourceUploadBatch.h>
-#include <DirectX12/DXTex/DirectXTex/DirectXTex.h>
 
 #define CBVSRV_HEAP_TEXTURE_START_SLOT 14					// Keep this in sync with Direct3D12Context::m_cbvsrvHeap
 #define OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START 6	// Keep this in sync with deferred shading pass root signature
@@ -117,11 +116,6 @@ namespace Insight {
 
 	void ieD3D12Texture::InitHDRTexture(CDescriptorHeapWrapper& srvHeapHandle)
 	{
-		HRESULT hr;
-		DirectX::TexMetadata TexMeta;
-		DirectX::ScratchImage Scratch;
-		hr = LoadFromHDRFile(m_TextureInfo.Filepath.c_str(), &TexMeta, Scratch);
-		ThrowIfFailed(hr, "Filaed to load HDR image from file");
 
 	}
 

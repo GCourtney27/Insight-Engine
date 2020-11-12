@@ -50,6 +50,8 @@ void LinearizeDepth(inout float depth)
 PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
 {
     PS_OUTPUT_LIGHTPASS ps_out;
+    ps_out.BloomBuffer  = float3(0.0f, 0.0f, 0.0f);
+    ps_out.LitImage     = float4(0.0f, 0.0f, 0.0f, 0.0f);
     
 	// Sample Textures
     float3 albedo = pow(abs(t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb), float3(2.2, 2.2, 2.2));

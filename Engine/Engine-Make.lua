@@ -1,6 +1,7 @@
 -- Engine
 
 rootDirPath = "../"
+monoInstallDir = "C:/Program Files/Mono/"
 
 EngineIncludeDirs = {}
 EngineIncludeDirs["ImGui"] 	    = "Third_Party/imgui"
@@ -8,7 +9,7 @@ EngineIncludeDirs["ImGuizmo"] 	= "Third_Party/ImGuizmo"
 EngineIncludeDirs["Microsoft"] 	= "Third_Party/Microsoft"
 EngineIncludeDirs["rapidjson"]  = "Third_Party/rapidjson"
 EngineIncludeDirs["spdlog"] 	= "Third_Party/spdlog"
-EngineIncludeDirs["Mono"] 		= "Third_Party/Mono/include/mono-2.0"
+EngineIncludeDirs["Mono"] 		= monoInstallDir .. "/include/mono-2.0"
 EngineIncludeDirs["assimp"] 	= "Third_Party/assimp-3.3.1/include"
 EngineIncludeDirs["Nvidia"] 	= "Third_Party/Nvidia"
 
@@ -53,7 +54,7 @@ project ("Engine")
 		"%{EngineIncludeDirs.Nvidia}/DirectX12/",
 		"%{EngineIncludeDirs.rapidjson}/include/",
 		"%{EngineIncludeDirs.spdlog}/include/",
-		"%{EngineIncludeDirs.ImGuizmo}/",
+		--"%{EngineIncludeDirs.ImGuizmo}/",
 		"%{EngineIncludeDirs.Mono}/",
 		"%{EngineIncludeDirs.ImGui}/",
 		"%{EngineIncludeDirs.assimp}/",

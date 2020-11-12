@@ -314,7 +314,7 @@ namespace Insight {
 	{
 		//wchar_t Folder[1024];
 #if defined (IE_DEBUG)
-		std::wstring Folder = L"C:/VSDev/Insight Interactive/InsightEngine/";
+		std::wstring Folder = L"C:/VSDev/Insight-Interactive/InsightEngine/";
 #elif
 		HRESULT hr = SHGetFolderPathW(NULL, CSIDL_MYDOCUMENTS, 0, 0, Folder);
 		if (FAILED(hr)) {
