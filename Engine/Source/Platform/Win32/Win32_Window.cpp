@@ -20,10 +20,10 @@ namespace Insight {
 
 	Window* Window::Create(const WindowProps& props)
 	{
-		return new WindowsWindow(props);
+		return new Win32Window(props);
 	}
 
-	WindowsWindow::WindowsWindow(const WindowProps& props)
+	Win32Window::Win32Window(const WindowProps& props)
 	{
 		m_Data.WindowTitle = props.Title;
 		m_Data.WindowTitle_wide = StringHelper::StringToWide(m_Data.WindowTitle);
@@ -35,14 +35,14 @@ namespace Insight {
 
 	LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-		WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+		Win32Window::WindowData& data = *(Win32Window::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
 		switch (uMsg) 
 		{
 		case WM_NCCREATE:
 		{
 			const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
-			WindowsWindow::WindowData* data = reinterpret_cast<WindowsWindow::WindowData*>(pCreate->lpCreateParams);
+			Win32Window::WindowData* data = reinterpret_cast<Win32Window::WindowData*>(pCreate->lpCreateParams);
 			SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(data));
 
 			return 1;
@@ -361,8 +361,11 @@ namespace Insight {
 		return DefWindowProc(hWnd, uMsg, wParam, lParam);
 	}
 
-	bool WindowsWindow::Init(const WindowProps& props)
+	bool Win32Window::Init(HINSTANCE& hInstance, int nCmdShow, LPWSTR CmdLineArgs)
 	{
+		m_WindowsAppInstance = &hInstance;
+		m_NumCmdLineArgs = nCmdShow;
+
 		HRESULT hr = ::CoInitialize(NULL);
 		if (FAILED(hr)){
 			IE_DEBUG_LOG(LogSeverity::Error, "Failed to initialize COM library.");
@@ -433,7 +436,7 @@ namespace Insight {
 
 		//m_nCmdShowArgs = SW_SHOWMAXIMIZED;
 
-		::ShowWindow(m_hWindow, m_nCmdShowArgs);
+		::ShowWindow(m_hWindow, m_NumCmdLineArgs);
 		::SetForegroundWindow(m_hWindow);
 		::SetFocus(m_hWindow);
 
@@ -441,7 +444,7 @@ namespace Insight {
 		return true;
 	}
 
-	void WindowsWindow::PostInit()
+	void Win32Window::PostInit()
 	{
 		RECT ClientRect = {};
 		::GetClientRect(m_hWindow, &ClientRect);
@@ -449,7 +452,7 @@ namespace Insight {
 		m_Data.EventCallback(Event);
 	}
 
-	void WindowsWindow::RegisterWindowClass()
+	void Win32Window::RegisterWindowClass()
 	{
 		WNDCLASSEX wc = {};
 		wc.cbSize = sizeof(WNDCLASSEX);
@@ -473,7 +476,7 @@ namespace Insight {
 		}
 	}
 
-	void WindowsWindow::InitializeMenuBar()
+	void Win32Window::InitializeMenuBar()
 	{
 		m_hMenuBar = ::CreateMenu();
 		if (m_hMenuBar == NULL) {
@@ -545,7 +548,7 @@ namespace Insight {
 		}
 	}
 
-	void WindowsWindow::InitializeContextMenu()
+	void Win32Window::InitializeContextMenu()
 	{
 		m_hContextMenu = ::CreatePopupMenu();
 		{
@@ -555,7 +558,7 @@ namespace Insight {
 		m_Data.hContextMenu = &m_hContextMenu;
 	}
 
-	LPCTSTR WindowsWindow::GetLastWindowsError()
+	LPCTSTR Win32Window::GetLastWindowsError()
 	{
 		LPVOID lpMsgBuf;
 		LPVOID lpDisplayBuf;
@@ -581,18 +584,18 @@ namespace Insight {
 		return (LPCTSTR)lpDisplayBuf;
 	}
 
-	void WindowsWindow::Resize(UINT newWidth, UINT newHeight, bool isMinimized)
+	void Win32Window::Resize(UINT newWidth, UINT newHeight, bool isMinimized)
 	{
 		m_Data.Width = newWidth;
 		m_Data.Height = newHeight;
 	}
 
-	void WindowsWindow::ToggleFullScreen(bool enabled)
+	void Win32Window::ToggleFullScreen(bool enabled)
 	{
 		m_Data.FullScreenEnabled = enabled;
 	}
 
-	bool WindowsWindow::ProccessWindowMessages()
+	bool Win32Window::ProccessWindowMessages()
 	{
 		MSG msg;
 		::ZeroMemory(&msg, sizeof(MSG));
@@ -613,18 +616,18 @@ namespace Insight {
 		return true;
 	}
 
-	WindowsWindow::~WindowsWindow()
+	Win32Window::~Win32Window()
 	{
 		IE_DEBUG_LOG(LogSeverity::Warning, "Destroying window: {0}", m_Data.WindowTitle);
 		Shutdown();
 	}
 
-	void WindowsWindow::OnUpdate()
+	void Win32Window::OnUpdate()
 	{
 		ProccessWindowMessages();
 	}
 
-	bool WindowsWindow::SetWindowTitle(const std::string& NewText, bool CompletlyOverride)
+	bool Win32Window::SetWindowTitle(const std::string& NewText, bool CompletlyOverride)
 	{
 		BOOL succeeded = true;
 		if (CompletlyOverride) {
@@ -637,40 +640,40 @@ namespace Insight {
 		return succeeded;
 	}
 
-	bool WindowsWindow::SetWindowTitleFPS(float fps)
+	bool Win32Window::SetWindowTitleFPS(float fps)
 	{
 		std::wstring windowTitle = m_Data.WindowTitle_wide + L" FPS: " + std::to_wstring((UINT)fps);
 		return static_cast<bool>(SetWindowText(m_hWindow, windowTitle.c_str()));
 	}
 
-	void* WindowsWindow::GetNativeWindow() const
+	void* Win32Window::GetNativeWindow() const
 	{
 		return m_hWindow;
 	}
 
-	void WindowsWindow::CreateMessageBox(const wchar_t* Message, const wchar_t* Title)
+	void Win32Window::CreateMessageBox(const wchar_t* Message, const wchar_t* Title)
 	{
 		MessageBox(m_hWindow, Message, Title, MB_OK);
 	}
 
-	void WindowsWindow::SetVSync(bool enabled)
+	void Win32Window::SetVSync(bool enabled)
 	{
 		IE_DEBUG_LOG(LogSeverity::Log, "V-sync: " + enabled ? "enabled" : "disabled");
 		m_Data.VSyncEnabled = enabled;
 		Renderer::SetVSyncEnabled(m_Data.VSyncEnabled);
 	}
 
-	const bool& WindowsWindow::IsVsyncActive() const
+	const bool& Win32Window::IsVsyncActive() const
 	{
 		return m_Data.VSyncEnabled;
 	}
 
-	const bool& WindowsWindow::IsFullScreenActive() const
+	const bool& Win32Window::IsFullScreenActive() const
 	{
 		return m_Data.FullScreenEnabled;
 	}
 
-	void WindowsWindow::Shutdown()
+	void Win32Window::Shutdown()
 	{
 		::CoUninitialize();
 

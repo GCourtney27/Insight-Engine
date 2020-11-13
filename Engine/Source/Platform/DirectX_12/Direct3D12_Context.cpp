@@ -25,7 +25,7 @@ namespace Insight {
 
 
 
-	Direct3D12Context::Direct3D12Context(WindowsWindow* WindowHandle)
+	Direct3D12Context::Direct3D12Context(Win32Window* WindowHandle)
 		: m_pWindowRef(WindowHandle),
 		Renderer(false)
 	{

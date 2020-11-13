@@ -214,13 +214,18 @@ namespace Insight {
 		SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; // Dont save the contents of the back buffer after presented
 		SwapChainDesc.Flags	= m_pRenderContextRef->m_AllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 		SwapChainDesc.SampleDesc = m_SampleDesc;
-
+		
+#if defined (IE_PLATFORM_WINDOWS)
 		Microsoft::WRL::ComPtr<IDXGISwapChain1> TempSwapChain = {};
-		hr = m_pDxgiFactory->CreateSwapChainForHwnd(&m_pRenderContextRef->GetCommandQueue(), m_pRenderContextRef->GetWindowRefAs<WindowsWindow>().GetWindowHandleRef(), &SwapChainDesc, nullptr, nullptr, &TempSwapChain);
+		hr = m_pDxgiFactory->CreateSwapChainForHwnd(&m_pRenderContextRef->GetCommandQueue(), m_pRenderContextRef->GetWindowRefAs<Win32Window>().GetWindowHandleRef(), &SwapChainDesc, nullptr, nullptr, &TempSwapChain);
 		ThrowIfFailed(hr, "Failed to Create Swap Chain");
-
+#elif defined IE_PLATFORM_UWP
+		// TODO
+		hr = m_pDxgiFactory->CreateSwapChain(reinterpret_cast<IUnknown*>(m_pWindow->GetNativeWindow(), &SwapChainDesc, &m_pSwapChain);
+		ThrowIfFailed(hr, "Failed to Create Swap Chain");
+#endif
 		if (m_pRenderContextRef->m_AllowTearing) {
-			ThrowIfFailed(m_pDxgiFactory->MakeWindowAssociation(m_pRenderContextRef->GetWindowRefAs<WindowsWindow>().GetWindowHandleRef(), DXGI_MWA_NO_ALT_ENTER),
+			ThrowIfFailed(m_pDxgiFactory->MakeWindowAssociation(m_pRenderContextRef->GetWindowRefAs<Win32Window>().GetWindowHandleRef(), DXGI_MWA_NO_ALT_ENTER),
 				"Failed to Make Window Association");
 		}
 

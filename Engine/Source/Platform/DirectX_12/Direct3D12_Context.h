@@ -108,7 +108,7 @@ namespace Insight {
 	//	ComPtr<ID3D12CommandAllocator> m_pCommandAllocators[Renderer::GetFrameBufferCount()];
 	//};
 
-	class WindowsWindow;
+	class Win32Window;
 	class GeometryManager;
 	class ieD3D12SphereRenderer;
 
@@ -197,7 +197,7 @@ namespace Insight {
 
 		
 	private:
-		Direct3D12Context(WindowsWindow* windowHandle);
+		Direct3D12Context(Win32Window* windowHandle);
 		virtual ~Direct3D12Context();
 
 		void CloseCommandListAndSignalCommandQueue();
@@ -241,7 +241,7 @@ namespace Insight {
 		void ResourceBarrier(ID3D12GraphicsCommandList* pCommandList, ID3D12Resource* pResource, D3D12_RESOURCE_STATES StateBefore, D3D12_RESOURCE_STATES StateAfter, uint32_t NumBarriers = 1u);
 		
 	private:
-		WindowsWindow*		m_pWindowRef = nullptr;
+		Win32Window*		m_pWindowRef = nullptr;
 		D3D12Helper			m_d3dDeviceResources;
 
 		RenderPassStack				m_RenderPassStack;

@@ -2,17 +2,11 @@
 
 #include <Insight.h>
 
-#include "Insight/Rendering/Material.h"
-#include "Platform/DirectX_12/Direct3D12_Context.h"
-#include "Platform/DirectX_12/Wrappers/D3D12_Texture.h"
-#include "Insight/Runtime/Components/Static_Mesh_Component.h"
-
 /*=====================================================================
 
-	This class is your game. Include all game logic here it will get
-	called and synced with the engine. If you would like to change the
-	title of your game, Edit the macro 'Game'. Should you like to edit
-	the macro, makk sure to change the name in all places of in the class.
+	This class is your game. Include all gameplay logic here it will get
+	called and synced with the engine. If you would want to change the
+	title of your game, Edit the macro 'Game'.
 
  ======================================================================*/
 
@@ -33,9 +27,9 @@ namespace SandBoxApp {
 		{
 		}
 
-		virtual bool InitializeCoreApplication() override
+		virtual bool Init() override
 		{
-			Super::InitializeCoreApplication();
+			Super::Init();
 
 			FillScene();
 
@@ -229,16 +223,27 @@ namespace SandBoxApp {
 			pSMQuad->AttachMesh("Models/Quad.obj");
 			GetScene().AddActor(pAWoodenFloor);
 
-			// Demo Ball
-			AActor* pADemoBall = new AActor(0, "Demo Ball");
-			SceneComponent* pSCDemoBall = pADemoBall->CreateDefaultSubobject<SceneComponent>();
+			// Rusted Ball
+			AActor* pARustedBall = new AActor(0, "Rusted Ball");
+			SceneComponent* pSCDemoBall = pARustedBall->CreateDefaultSubobject<SceneComponent>();
 			pSCDemoBall->SetScale(20.0f);
 			pSCDemoBall->SetPosition(10.0f, 40.0f, 0.0f);
 			Insight::Material* pRustedIron = new Insight::Material({ 6, 7, 8, 9, 10 });
-			StaticMeshComponent* pSMCube = pADemoBall->CreateDefaultSubobject<StaticMeshComponent>();
+			StaticMeshComponent* pSMCube = pARustedBall->CreateDefaultSubobject<StaticMeshComponent>();
 			pSMCube->SetMaterial(pRustedIron);
 			pSMCube->AttachMesh("Models/Sphere.obj");
-			GetScene().AddActor(pADemoBall);
+			GetScene().AddActor(pARustedBall);
+
+			// Bamboo Ball
+			AActor* pABambooBall = new AActor(0, "Bamboo Ball");
+			SceneComponent* pSCBall = pABambooBall->CreateDefaultSubobject<SceneComponent>();
+			pSCBall->SetScale(20.0f);
+			pSCBall->SetPosition(-50.0f, 40.0f, 0.0f);
+			Insight::Material* pBamboo = new Insight::Material({ 11, 12, 13, 14, 15 });
+			StaticMeshComponent* pSMBall = pABambooBall->CreateDefaultSubobject<StaticMeshComponent>();
+			pSMBall->SetMaterial(pBamboo);
+			pSMBall->AttachMesh("Models/Sphere.obj");
+			GetScene().AddActor(pABambooBall);
 
 		}
 

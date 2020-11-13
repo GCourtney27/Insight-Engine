@@ -301,26 +301,18 @@ namespace Insight {
 	void FileSystem::SetProjectDirectory(const char* ProjectName)
 	{
 		FileSystem::ProjectDirectory += FileSystem::GetUserDocumentsFolderPath();
-#if defined (IE_DEBUG)
-		FileSystem::ProjectDirectory += "/Samples/";
-#elif
 		FileSystem::ProjectDirectory += "/Insight Projects/";
-#endif	
 		FileSystem::ProjectDirectory += ProjectName;
 		FileSystem::ProjectDirectory += "/";
 	}
 
 	void FileSystem::SetUserDocumentsFolderDirectory()
 	{
-		//wchar_t Folder[1024];
-#if defined (IE_DEBUG)
-		std::wstring Folder = L"C:/VSDev/Insight-Interactive/InsightEngine/";
-#elif
+		wchar_t Folder[1024];
 		HRESULT hr = SHGetFolderPathW(NULL, CSIDL_MYDOCUMENTS, 0, 0, Folder);
 		if (FAILED(hr)) {
 			IE_DEBUG_LOG(LogSeverity::Error, "Failed to get path to user documents folder.");
 		}
-#endif
 		UserDocumentsFolder = StringHelper::WideToString( Folder );
 	}
 

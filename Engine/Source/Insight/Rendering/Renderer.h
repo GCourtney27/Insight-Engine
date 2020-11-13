@@ -106,7 +106,7 @@ namespace Insight {
 		template <class WindowClassType>
 		static inline WindowClassType& GetWindowRefAs() 
 		{ 
-			constexpr bool IsValidWindow = std::is_base_of<Window, WindowsWindow>::value;
+			constexpr bool IsValidWindow = std::is_base_of<Window, Win32Window>::value;
 			static_assert(IsValidWindow, "Class type is not a valid window.");
 			return *(WindowClassType*)(s_Instance->m_pWindowRef);
 		}

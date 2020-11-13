@@ -15,7 +15,7 @@
 
 namespace Insight {
 
-	class WindowsWindow;
+	class Win32Window;
 	class GeometryManager;
 
 	class ieD3D11SphereRenderer;
@@ -62,7 +62,7 @@ namespace Insight {
 		virtual void DestroySkybox_Impl() override;
 
 	private:
-		Direct3D11Context(WindowsWindow* windowHandle);
+		Direct3D11Context(Win32Window* windowHandle);
 		virtual ~Direct3D11Context();
 
 		void CreateDXGIFactory();
@@ -80,7 +80,7 @@ namespace Insight {
 
 	private:
 		HWND*				m_pWindowHandle = nullptr;
-		WindowsWindow*		m_pWindow = nullptr;
+		Win32Window*		m_pWindow = nullptr;
 		GeometryManager*	m_pModelManager = nullptr;
 		bool				m_WindowResizeComplete = true;
 		float				m_ClearColor[4] = { 0.1f, 0.1f, 0.3f, 1.0f };

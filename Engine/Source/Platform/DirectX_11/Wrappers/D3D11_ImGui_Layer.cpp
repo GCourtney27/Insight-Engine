@@ -49,7 +49,7 @@ namespace Insight {
 
 		Direct3D11Context& RenderContext = Renderer::GetAs<Direct3D11Context>();
 		
-		HWND& WindowHandle = RenderContext.GetWindowRefAs<WindowsWindow>().GetWindowHandleRef();
+		HWND& WindowHandle = RenderContext.GetWindowRefAs<Win32Window>().GetWindowHandleRef();
 
 		if (!ImGui_ImplWin32_Init(WindowHandle)) {
 			IE_DEBUG_LOG(LogSeverity::Warning, "Failed to initialize ImGui for Win32 - D3D 12. Some controls may not be functional or editor may not be rendered.");

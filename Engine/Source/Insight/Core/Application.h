@@ -46,13 +46,10 @@ namespace Insight {
 
 		inline static Application& Get() { return *s_Instance; }
 
-		// Initialie a new application for the windows platform. 
-		bool InitializeAppForWindows(HINSTANCE& hInstance, int nCmdShow);
-		// Initialize new application for UWP platform. 
-		virtual bool InitializeAppForUWP(); 
+
 		// Initialize the core components of the application. Should be called once
 		// at the beginning of the application, after the window has been initialized.
-		virtual bool InitializeCoreApplication();
+		virtual bool Init();
 		// Called when the main portion of the applicaiton has been initialized.
 		virtual void PostInit();
 		// Main loop of the application. This is the main entry point for every frame.
@@ -66,6 +63,13 @@ namespace Insight {
 		// Push an overlay to the front of the application's layer stack.
 		void PushOverlay(Layer* layer);
 
+
+		inline void SetWindow(std::shared_ptr<Window> pWindow) 
+		{ 
+			m_pWindow = pWindow; 
+		}
+		
+		// Returns a reference to the currently active scene.
 		inline Scene& GetScene() const { return *(m_pGameLayer->GetScene()); }
 		// Get the applications core layer stack.
 		inline LayerStack& GetLayerStack() { return m_LayerStack; }
@@ -99,7 +103,7 @@ namespace Insight {
 		virtual bool ReloadScripts(AppScriptReloadEvent& e);
 		virtual bool ReloadShaders(ShaderReloadEvent& e);
 	protected:
-		std::unique_ptr<Window>	m_pWindow;
+		std::shared_ptr<Window>	m_pWindow;
 		IE_STRIP_FOR_GAME_DIST(ImGuiLayer* m_pImGuiLayer = nullptr; )
 			IE_STRIP_FOR_GAME_DIST(EditorLayer* m_pEditorLayer = nullptr; )
 			PerfOverlay* m_pPerfOverlay = nullptr;

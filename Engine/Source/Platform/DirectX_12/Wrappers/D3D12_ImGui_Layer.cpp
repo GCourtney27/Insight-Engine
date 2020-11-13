@@ -48,7 +48,7 @@ namespace Insight {
 
 		Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
 		
-		HWND& WindowHandle = RenderContext.GetWindowRefAs<WindowsWindow>().GetWindowHandleRef();
+		HWND& WindowHandle = RenderContext.GetWindowRefAs<Win32Window>().GetWindowHandleRef();
 
 		// Setup Platform/Renderer bindings
 		bool impleWin32Succeeded = ImGui_ImplWin32_Init(WindowHandle);

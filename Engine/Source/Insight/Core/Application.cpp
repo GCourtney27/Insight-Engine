@@ -25,6 +25,7 @@ static const char* TargetSceneName = "Debug.iescene";
 
 namespace Insight {
 
+	
 	Application* Application::s_Instance = nullptr;
 
 	Application::Application()
@@ -37,34 +38,7 @@ namespace Insight {
 	{
 	}
 
-	bool Application::InitializeAppForWindows(HINSTANCE& hInstance, int nCmdShow)
-	{
-		m_pWindow = std::unique_ptr<Window>(Window::Create());
-		m_pWindow->SetEventCallback(IE_BIND_EVENT_FN(Application::OnEvent));
-
-		WindowsWindow* pWindow = (WindowsWindow*)m_pWindow.get();
-		pWindow->SetWindowsSessionProps(hInstance, nCmdShow);
-		if (!pWindow->Init(WindowProps())) {
-			IE_FATAL_ERROR(L"Fatal Error: Failed to initialize window.");
-			return false;
-		}
-
-		if (!InitializeCoreApplication()) {
-			IE_FATAL_ERROR(L"Fatal Error: Failed to initiazlize application for Windows.");
-			return false;
-		}
-
-		return true;
-	}
-
-	bool Application::InitializeAppForUWP()
-	{
-
-
-		return true;
-	}
-
-	bool Application::InitializeCoreApplication()
+	bool Application::Init()
 	{
 		// Initize the main file system 
 		FileSystem::Init(ProjectName);
@@ -92,7 +66,6 @@ namespace Insight {
 
 	void Application::PostInit()
 	{
-
 		Renderer::PostInit();
 
 		m_pWindow->PostInit();
@@ -119,12 +92,11 @@ namespace Insight {
 
 			// Render the world. 
 			Renderer::OnRender();
-			//Renderer::OnMidFrameRender(); 
 
 			// Render the Editor/UI last. 
 			IE_STRIP_FOR_GAME_DIST
 			(
-				m_pImGuiLayer->Begin();
+			m_pImGuiLayer->Begin();
 			for (Layer* pLayer : m_LayerStack)
 				pLayer->OnImGuiRender();
 			m_pGameLayer->OnImGuiRender();
@@ -143,7 +115,7 @@ namespace Insight {
 			BeginPlay(AppBeginPlayEvent{})
 		);
 
-		// Put all rendering and GPU logic on another thread. 
+		// Put all rendering on another thread. 
 		std::thread RenderThread(&Application::RenderThread, this);
 
 		while (m_Running)
@@ -166,7 +138,11 @@ namespace Insight {
 				layer->OnUpdate(DeltaMs);
 		}
 
+		// Close the render thread and flush the GPU.
 		RenderThread.join();
+
+		// Shutdown the application and release all resources.
+		Shutdown();
 	}
 
 	void Application::Shutdown()

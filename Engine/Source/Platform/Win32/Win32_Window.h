@@ -5,7 +5,7 @@
 
 namespace Insight {
 
-	class WindowsWindow : public Window
+	class Win32Window : public Window
 	{
 	public:
 		struct WindowData
@@ -19,7 +19,7 @@ namespace Insight {
 			bool FullScreenEnabled = false;
 			bool EditorUIEnabled = true;
 			bool IsFirstLaunch = true;
-			WindowsWindow* pWindow;
+			Win32Window* pWindow;
 
 			HMENU* hGraphicsVisualizeSubMenu;
 			HMENU* hEditorSubMenu;
@@ -30,8 +30,8 @@ namespace Insight {
 
 	public:
 
-		WindowsWindow(const WindowProps& props);
-		virtual ~WindowsWindow();
+		Win32Window(const WindowProps& props);
+		virtual ~Win32Window();
 
 		virtual void OnUpdate() override;
 		virtual void Shutdown() override;
@@ -49,7 +49,6 @@ namespace Insight {
 		bool SetWindowTitle(const std::string& newText, bool completlyOverride = false) override;
 		bool SetWindowTitleFPS(float fps) override;
 
-		void SetWindowsSessionProps(HINSTANCE& hInstance, int nCmdShow) { SetWindowsApplicationInstance(hInstance); SetCmdArgs(nCmdShow); }
 		inline HINSTANCE& GetWindowsApplicationReference() const { return *m_WindowsAppInstance; }
 		inline HWND& GetWindowHandleRef() { return m_hWindow; }
 		inline RECT& GetWindowRect() { return m_WindowRect; }
@@ -61,15 +60,13 @@ namespace Insight {
 		virtual void SetVSync(bool enabled) override;
 		virtual const bool& IsVsyncActive() const override;
 		virtual const bool& IsFullScreenActive() const override;
-		virtual bool Init(const WindowProps& props);
+		virtual bool Init(HINSTANCE& hInstance, int nCmdShow, LPWSTR CmdLineArgs);
 		virtual inline float GeAspectRatio() const
 		{
 			return static_cast<float>(m_Data.Width) / static_cast<float>(m_Data.Height);
 		}
 
 	private:
-		inline void SetWindowsApplicationInstance(HINSTANCE& hInstance) { m_WindowsAppInstance = &hInstance; }
-		inline void SetCmdArgs(int nCmdShow) { m_nCmdShowArgs = nCmdShow; }
 		void RegisterWindowClass();
 		void InitializeMenuBar();
 		void InitializeContextMenu();
@@ -87,7 +84,8 @@ namespace Insight {
 		HMENU	m_hGraphicsCurrentRenderContextSubMenu;
 
 		HINSTANCE* m_WindowsAppInstance;
-		int m_nCmdShowArgs;
+		int m_NumCmdLineArgs;
+		LPWSTR m_CmdLineArgs;
 		RECT m_WindowRect;
 
 		WindowData m_Data;

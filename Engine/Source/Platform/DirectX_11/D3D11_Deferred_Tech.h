@@ -6,7 +6,7 @@
 
 namespace Insight {
 
-	class WindowsWindow;
+	class Win32Window;
 
 	struct RenderTargetTexture
 	{
@@ -39,7 +39,7 @@ namespace Insight {
 		D3D11DeferredShadingTech();
 		~D3D11DeferredShadingTech();
 		
-		bool Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, WindowsWindow* pWindow);
+		bool Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, Win32Window* pWindow);
 		void Destroy();
 
 		ID3D11ShaderResourceView* GetSceneDepthSRV() { return m_pSceneDepthView.Get(); }
@@ -64,7 +64,7 @@ namespace Insight {
 	private:
 		ComPtr<ID3D11Device>				m_pDevice = nullptr;
 		ComPtr<ID3D11DeviceContext>			m_pDeviceContext = nullptr;
-		WindowsWindow*						m_pWindow;
+		Win32Window*						m_pWindow;
 		float								m_DepthClearValue = 1.0f;
 		float								m_ClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		static const UINT					m_NumRTV = 4;

@@ -51,13 +51,13 @@ namespace Insight {
 #if defined IE_PLATFORM_WINDOWS
 		case TargetRenderAPI::Direct3D_11:
 		{
-			WindowsWindow* Window = (WindowsWindow*)pWindow;
+			Win32Window* Window = (Win32Window*)pWindow;
 			s_Instance = new Direct3D11Context(Window);
 			break;
 		}
 		case TargetRenderAPI::Direct3D_12:
 		{
-			WindowsWindow* Window = (WindowsWindow*)pWindow;
+			Win32Window* Window = (Win32Window*)pWindow;
 			s_Instance = new Direct3D12Context(Window);
 			break;
 		}
