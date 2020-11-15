@@ -21,11 +21,21 @@ CustomDefines["IE_BUILD_DIR"] = "../Bin/" .. outputdir
 CustomDefines["IE_BUILD_CONFIG"] = outputdir
 
 -- Tools
-group "Tools"
-include "Engine/Third_Party/ImGui/premake5.lua"
-group ""
+group ("Tools")
+	include ("Engine_Source/Third_Party/ImGui/premake5.lua")
+group ("")
 
 -- Engine
-include "Application_Windows/Application-Windows-Make.lua"
-include "Engine/Engine-Make.lua"
+include ("Engine_Source/Engine-Make.lua")
 
+-- Engine Source Build Rules
+group ("Build Rules")
+	include ("Build_Rules/Build-Rules-Make.lua")
+group ""
+-- Applications
+group ("Applications")
+	include ("Application_Win32/Application-Win32-Make.lua")
+
+	include ("Application_UWP/Application-UWP-Make.lua")
+
+group ("")

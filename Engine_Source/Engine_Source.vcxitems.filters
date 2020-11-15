@@ -1,0 +1,707 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{56EB95D1-428D-C0A7-2B48-D4FB178947F8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight">
+      <UniqueIdentifier>{9B188450-87E6-7756-707A-E87C5CE753BB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Core">
+      <UniqueIdentifier>{D3D5DBAB-3F37-B9B9-C8A4-FF6B3405F078}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Core\Layer">
+      <UniqueIdentifier>{DFA420FE-4B67-5488-9417-E31400192D66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Core\Scene">
+      <UniqueIdentifier>{3015A0FE-9CD7-D388-E587-62155189AC66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Events">
+      <UniqueIdentifier>{1FA84A17-8B14-0612-5408-9E6FC033287A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Input">
+      <UniqueIdentifier>{DA90C227-C61F-4CF1-6F3E-60EC5BAC5C97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Math">
+      <UniqueIdentifier>{5416E1AB-C077-BEB9-49E5-046CB545F578}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Physics">
+      <UniqueIdentifier>{0D872430-F980-4D82-E2ED-E392CE86B3EE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Rendering">
+      <UniqueIdentifier>{A89F977D-94C4-E6FD-BD0F-CC8DA993E51B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Rendering\Geometry">
+      <UniqueIdentifier>{03EA3841-6F58-8EC0-B841-49C024EF835C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Rendering\Lighting">
+      <UniqueIdentifier>{2D506FFF-99BE-C47E-E2A7-7F7E4E55BA1A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Runtime">
+      <UniqueIdentifier>{CE90A5E7-BA8A-CE39-A3F7-644A8F9034A6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Runtime\Archetypes">
+      <UniqueIdentifier>{F58D2DF8-61FC-8277-AAE5-3D7716937813}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Runtime\Components">
+      <UniqueIdentifier>{23990D5C-8F07-63DB-D8F0-1DDB449E5877}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Runtime\Identification">
+      <UniqueIdentifier>{A7513CE6-1316-3BD6-DC7B-6BA048FFD60B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Systems">
+      <UniqueIdentifier>{A2D94E3E-8ED3-7790-7740-0EA163D9DDFC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Systems\Managers">
+      <UniqueIdentifier>{BF91E65E-2B75-F59E-3478-23DBA0DABBEF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\UI">
+      <UniqueIdentifier>{E8E982BF-5400-8155-9D77-0C7709CD51DD}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Utilities">
+      <UniqueIdentifier>{C6FAF744-B21F-47C5-DB6A-2C55C7EE45E3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform">
+      <UniqueIdentifier>{6A48A913-D6D3-16D8-DFE4-99CC4BEF72D8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\DirectX_11">
+      <UniqueIdentifier>{4D904D68-39A0-F938-A259-5E578E88E8D1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\DirectX_11\Geometry">
+      <UniqueIdentifier>{48646C8A-B41D-D734-3D7D-F10EA9358DA4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\DirectX_11\Wrappers">
+      <UniqueIdentifier>{30A1D216-9C5A-3DC1-25BA-579B9172F330}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\DirectX_12">
+      <UniqueIdentifier>{4E904D68-3AA0-F938-A359-5E578F88E8D1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\DirectX_12\Geometry">
+      <UniqueIdentifier>{69F5768E-D5AE-E138-5E0E-FC12CAC697A8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\DirectX_12\Ray_Tracing">
+      <UniqueIdentifier>{1076D632-FCC7-AD22-E5E6-EA32D1D7C60B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\DirectX_12\Render_Passes">
+      <UniqueIdentifier>{6BF9C154-5776-B597-80F3-B5AB6CCF512B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\DirectX_12\Render_Passes\Helpers">
+      <UniqueIdentifier>{2DE59F39-198E-0769-4224-23E82E2C22AA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\DirectX_12\Wrappers">
+      <UniqueIdentifier>{5132DD1A-BDEB-47C5-464B-629FB203FE34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\DirectX_Shared">
+      <UniqueIdentifier>{02BB704D-EEE0-3AB4-D726-C07FC3EB5F80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\Win32">
+      <UniqueIdentifier>{CCA72023-3814-DC1D-0108-747B6D33FE85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\Win32\Error">
+      <UniqueIdentifier>{05D8ED02-71E5-1BE9-FACB-17D466D8E79F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\Win32\Window_Resources">
+      <UniqueIdentifier>{8DAE5559-7900-2D49-621F-6A594E104632}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Shaders">
+      <UniqueIdentifier>{2F060343-1BD4-F648-0468-676FF0D4D2AD}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Shaders\HLSL">
+      <UniqueIdentifier>{D184F40C-3DE6-D11A-C653-18CD32B408DA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Shaders\HLSL\Deferred_Rendering">
+      <UniqueIdentifier>{5ED0BBBB-4A22-93AB-3341-D0BB1F32AC94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Shaders\HLSL\Forward_Rendering">
+      <UniqueIdentifier>{B221DCEB-1EE6-DADB-E74B-0BA653CF7611}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Shaders\HLSL\Shared">
+      <UniqueIdentifier>{D73A1531-C34A-C101-2C04-26201833B09A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Third_Party">
+      <UniqueIdentifier>{CFF8B343-3BAE-2C39-C4A2-26103057233D}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Core.h">
+      <Filter>Source\Insight</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Core\Application.h">
+      <Filter>Source\Insight\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Core\Interfaces.h">
+      <Filter>Source\Insight\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Core\Layer\Editor_Layer.h">
+      <Filter>Source\Insight\Core\Layer</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Core\Layer\Game_Layer.h">
+      <Filter>Source\Insight\Core\Layer</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Core\Layer\ImGui_Layer.h">
+      <Filter>Source\Insight\Core\Layer</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Core\Layer\Layer.h">
+      <Filter>Source\Insight\Core\Layer</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Core\Layer\Layer_Stack.h">
+      <Filter>Source\Insight\Core\Layer</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Core\Layer\Perf_Monitor_Layer.h">
+      <Filter>Source\Insight\Core\Layer</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Core\Log.h">
+      <Filter>Source\Insight\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Core\Scene\Scene.h">
+      <Filter>Source\Insight\Core\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Core\Scene\Scene_Node.h">
+      <Filter>Source\Insight\Core\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Core\Window.h">
+      <Filter>Source\Insight\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Core\ie_Exception.h">
+      <Filter>Source\Insight\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Events\Application_Event.h">
+      <Filter>Source\Insight\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Events\Event.h">
+      <Filter>Source\Insight\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Events\Key_Event.h">
+      <Filter>Source\Insight\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Events\Mouse_Event.h">
+      <Filter>Source\Insight\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Input\Input_Dispatcher.h">
+      <Filter>Source\Insight\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Input\Key_Codes.h">
+      <Filter>Source\Insight\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Input\Platform_Key_Codes.h">
+      <Filter>Source\Insight\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Math\Math_Helpers.h">
+      <Filter>Source\Insight\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Math\Transform.h">
+      <Filter>Source\Insight\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Math\ie_Matricies.h">
+      <Filter>Source\Insight\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Math\ie_Vectors.h">
+      <Filter>Source\Insight\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Physics\Physics_Common.h">
+      <Filter>Source\Insight\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Physics\Ray.h">
+      <Filter>Source\Insight\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\APost_Fx.h">
+      <Filter>Source\Insight\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\ASky_Light.h">
+      <Filter>Source\Insight\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\ASky_Sphere.h">
+      <Filter>Source\Insight\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\Geometry\Index_Buffer.h">
+      <Filter>Source\Insight\Rendering\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\Geometry\Mesh.h">
+      <Filter>Source\Insight\Rendering\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\Geometry\Mesh_Node.h">
+      <Filter>Source\Insight\Rendering\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\Geometry\Model.h">
+      <Filter>Source\Insight\Rendering\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\Geometry\Vertex.h">
+      <Filter>Source\Insight\Rendering\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\Geometry\Vertex_Buffer.h">
+      <Filter>Source\Insight\Rendering\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\Lighting\ADirectional_Light.h">
+      <Filter>Source\Insight\Rendering\Lighting</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\Lighting\APoint_Light.h">
+      <Filter>Source\Insight\Rendering\Lighting</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\Lighting\ASpot_Light.h">
+      <Filter>Source\Insight\Rendering\Lighting</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\Material.h">
+      <Filter>Source\Insight\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\Renderer.h">
+      <Filter>Source\Insight\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\Texture.h">
+      <Filter>Source\Insight\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\AActor.h">
+      <Filter>Source\Insight\Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Archetypes\ACamera.h">
+      <Filter>Source\Insight\Runtime\Archetypes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Archetypes\APawn.h">
+      <Filter>Source\Insight\Runtime\Archetypes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Archetypes\APlayer_Character.h">
+      <Filter>Source\Insight\Runtime\Archetypes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Archetypes\APlayer_Controller.h">
+      <Filter>Source\Insight\Runtime\Archetypes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Archetypes\APlayer_Start.h">
+      <Filter>Source\Insight\Runtime\Archetypes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Components\Actor_Component.h">
+      <Filter>Source\Insight\Runtime\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Components\CSharp_Scirpt_Component.h">
+      <Filter>Source\Insight\Runtime\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Components\Input_Component.h">
+      <Filter>Source\Insight\Runtime\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Components\Scene_Component.h">
+      <Filter>Source\Insight\Runtime\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Components\Sphere_Collider.h">
+      <Filter>Source\Insight\Runtime\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Components\Static_Mesh_Component.h">
+      <Filter>Source\Insight\Runtime\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Identification\ID.h">
+      <Filter>Source\Insight\Runtime\Identification</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Identification\Object.h">
+      <Filter>Source\Insight\Runtime\Identification</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Systems\File_System.h">
+      <Filter>Source\Insight\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Systems\Frame_Timer.h">
+      <Filter>Source\Insight\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Systems\Managers\Geometry_Manager.h">
+      <Filter>Source\Insight\Systems\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Systems\Managers\Mono_Script_Manager.h">
+      <Filter>Source\Insight\Systems\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Systems\Managers\Physics_Manager.h">
+      <Filter>Source\Insight\Systems\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Systems\Managers\Resource_Manager.h">
+      <Filter>Source\Insight\Systems\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Systems\Managers\Texture_Manager.h">
+      <Filter>Source\Insight\Systems\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\UI\UI_Lib.h">
+      <Filter>Source\Insight\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Utilities\Profiling.h">
+      <Filter>Source\Insight\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Insight\Utilities\String_Helper.h">
+      <Filter>Source\Insight\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_11\D3D11_Deferred_Tech.h">
+      <Filter>Source\Platform\DirectX_11</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_11\D3D11_Helper.h">
+      <Filter>Source\Platform\DirectX_11</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_11\Direct3D11_Context.h">
+      <Filter>Source\Platform\DirectX_11</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_11\Geometry\D3D11_Geometry_Manager.h">
+      <Filter>Source\Platform\DirectX_11\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_11\Geometry\D3D11_Index_Buffer.h">
+      <Filter>Source\Platform\DirectX_11\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_11\Geometry\D3D11_Sphere_Renderer.h">
+      <Filter>Source\Platform\DirectX_11\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_11\Geometry\D3D11_Vertex_Buffer.h">
+      <Filter>Source\Platform\DirectX_11\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_11\Wrappers\Constant_Buffer_Wrapper.h">
+      <Filter>Source\Platform\DirectX_11\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_11\Wrappers\D3D11_ImGui_Layer.h">
+      <Filter>Source\Platform\DirectX_11\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_11\Wrappers\D3D11_Shader.h">
+      <Filter>Source\Platform\DirectX_11\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_11\Wrappers\ie_D3D11_Texture.h">
+      <Filter>Source\Platform\DirectX_11\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\D3D12_Helper.h">
+      <Filter>Source\Platform\DirectX_12</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Direct3D12_Context.h">
+      <Filter>Source\Platform\DirectX_12</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Geometry\D3D12_Geometry_Manager.h">
+      <Filter>Source\Platform\DirectX_12\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Geometry\D3D12_Index_Buffer.h">
+      <Filter>Source\Platform\DirectX_12\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Geometry\D3D12_Sphere_Renderer.h">
+      <Filter>Source\Platform\DirectX_12\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Geometry\D3D12_Vertex_Buffer.h">
+      <Filter>Source\Platform\DirectX_12\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Ray_Tracing\Ray_Trace_Helpers.h">
+      <Filter>Source\Platform\DirectX_12\Ray_Tracing</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Render_Passes\Helpers\Pass_Helpers.h">
+      <Filter>Source\Platform\DirectX_12\Render_Passes\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Render_Passes\Render_Pass_Stack.h">
+      <Filter>Source\Platform\DirectX_12\Render_Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Render_Passes\Render_Passes.h">
+      <Filter>Source\Platform\DirectX_12\Render_Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Wrappers\D3D12_Constant_Buffer_Wrapper.h">
+      <Filter>Source\Platform\DirectX_12\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Wrappers\D3D12_ImGui_Layer.h">
+      <Filter>Source\Platform\DirectX_12\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Wrappers\D3D12_Screen_Quad.h">
+      <Filter>Source\Platform\DirectX_12\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Wrappers\D3D12_Texture.h">
+      <Filter>Source\Platform\DirectX_12\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Wrappers\Descriptor_Heap_Wrapper.h">
+      <Filter>Source\Platform\DirectX_12\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_Shared\Constant_Buffer_Types.h">
+      <Filter>Source\Platform\DirectX_Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\Win32\Console_Window.h">
+      <Filter>Source\Platform\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\Win32\Error\COM_Exception.h">
+      <Filter>Source\Platform\Win32\Error</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\Win32\Win32_Window.h">
+      <Filter>Source\Platform\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\Win32\Window_Resources\Resource.h">
+      <Filter>Source\Platform\Win32\Window_Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\Win32\Window_Resources\framework.h">
+      <Filter>Source\Platform\Win32\Window_Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\Win32\Window_Resources\targetver.h">
+      <Filter>Source\Platform\Win32\Window_Resources</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Core\Application.cpp">
+      <Filter>Source\Insight\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Core\Layer\Editor_Layer.cpp">
+      <Filter>Source\Insight\Core\Layer</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Core\Layer\Game_Layer.cpp">
+      <Filter>Source\Insight\Core\Layer</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Core\Layer\ImGui_Layer.cpp">
+      <Filter>Source\Insight\Core\Layer</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Core\Layer\Layer.cpp">
+      <Filter>Source\Insight\Core\Layer</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Core\Layer\Layer_Stack.cpp">
+      <Filter>Source\Insight\Core\Layer</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Core\Log.cpp">
+      <Filter>Source\Insight\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Core\Scene\Scene.cpp">
+      <Filter>Source\Insight\Core\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Core\Scene\Scene_Node.cpp">
+      <Filter>Source\Insight\Core\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Core\ie_Exception.cpp">
+      <Filter>Source\Insight\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Input\Input_Dispatcher.cpp">
+      <Filter>Source\Insight\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Input\Platform_Key_Codes.cpp">
+      <Filter>Source\Insight\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Math\Transform.cpp">
+      <Filter>Source\Insight\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Math\ie_Vectors.cpp">
+      <Filter>Source\Insight\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\APost_Fx.cpp">
+      <Filter>Source\Insight\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\ASky_Light.cpp">
+      <Filter>Source\Insight\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\ASky_Sphere.cpp">
+      <Filter>Source\Insight\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\Geometry\Index_Buffer.cpp">
+      <Filter>Source\Insight\Rendering\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\Geometry\Mesh.cpp">
+      <Filter>Source\Insight\Rendering\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\Geometry\Mesh_Node.cpp">
+      <Filter>Source\Insight\Rendering\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\Geometry\Model.cpp">
+      <Filter>Source\Insight\Rendering\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\Geometry\Vertex_Buffer.cpp">
+      <Filter>Source\Insight\Rendering\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\Lighting\ADirectional_Light.cpp">
+      <Filter>Source\Insight\Rendering\Lighting</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\Lighting\APoint_Light.cpp">
+      <Filter>Source\Insight\Rendering\Lighting</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\Lighting\ASpot_Light.cpp">
+      <Filter>Source\Insight\Rendering\Lighting</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\Material.cpp">
+      <Filter>Source\Insight\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Rendering\Renderer.cpp">
+      <Filter>Source\Insight\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\AActor.cpp">
+      <Filter>Source\Insight\Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Archetypes\ACamera.cpp">
+      <Filter>Source\Insight\Runtime\Archetypes</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Archetypes\APawn.cpp">
+      <Filter>Source\Insight\Runtime\Archetypes</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Archetypes\APlayer_Character.cpp">
+      <Filter>Source\Insight\Runtime\Archetypes</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Archetypes\APlayer_Controller.cpp">
+      <Filter>Source\Insight\Runtime\Archetypes</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Archetypes\APlayer_Start.cpp">
+      <Filter>Source\Insight\Runtime\Archetypes</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Components\Actor_Component.cpp">
+      <Filter>Source\Insight\Runtime\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Components\CSharp_Scirpt_Component.cpp">
+      <Filter>Source\Insight\Runtime\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Components\Input_Component.cpp">
+      <Filter>Source\Insight\Runtime\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Components\Scene_Component.cpp">
+      <Filter>Source\Insight\Runtime\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Components\Sphere_Collider.cpp">
+      <Filter>Source\Insight\Runtime\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Components\Static_Mesh_Component.cpp">
+      <Filter>Source\Insight\Runtime\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Runtime\Identification\ID.cpp">
+      <Filter>Source\Insight\Runtime\Identification</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Systems\File_System.cpp">
+      <Filter>Source\Insight\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Systems\Managers\Geometry_Manager.cpp">
+      <Filter>Source\Insight\Systems\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Systems\Managers\Mono_Script_Manager.cpp">
+      <Filter>Source\Insight\Systems\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Systems\Managers\Physics_Manager.cpp">
+      <Filter>Source\Insight\Systems\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Systems\Managers\Resource_Manager.cpp">
+      <Filter>Source\Insight\Systems\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Systems\Managers\Texture_Manager.cpp">
+      <Filter>Source\Insight\Systems\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Utilities\Profiling.cpp">
+      <Filter>Source\Insight\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Insight\Utilities\String_Helper.cpp">
+      <Filter>Source\Insight\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_11\D3D11_Deferred_Tech.cpp">
+      <Filter>Source\Platform\DirectX_11</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_11\D3D11_Helper.cpp">
+      <Filter>Source\Platform\DirectX_11</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_11\Direct3D11_Context.cpp">
+      <Filter>Source\Platform\DirectX_11</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_11\Geometry\D3D11_Geometry_Manager.cpp">
+      <Filter>Source\Platform\DirectX_11\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_11\Geometry\D3D11_Index_Buffer.cpp">
+      <Filter>Source\Platform\DirectX_11\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_11\Geometry\D3D11_Sphere_Renderer.cpp">
+      <Filter>Source\Platform\DirectX_11\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_11\Geometry\D3D11_Vertex_Buffer.cpp">
+      <Filter>Source\Platform\DirectX_11\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_11\Wrappers\Constant_Buffer_Wrapper.cpp">
+      <Filter>Source\Platform\DirectX_11\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_11\Wrappers\D3D11_ImGui_Layer.cpp">
+      <Filter>Source\Platform\DirectX_11\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_11\Wrappers\D3D11_Shader.cpp">
+      <Filter>Source\Platform\DirectX_11\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_11\Wrappers\ie_D3D11_Texture.cpp">
+      <Filter>Source\Platform\DirectX_11\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\D3D12_Helper.cpp">
+      <Filter>Source\Platform\DirectX_12</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Direct3D12_Context.cpp">
+      <Filter>Source\Platform\DirectX_12</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Geometry\D3D12_Geometry_Manager.cpp">
+      <Filter>Source\Platform\DirectX_12\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Geometry\D3D12_Index_Buffer.cpp">
+      <Filter>Source\Platform\DirectX_12\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Geometry\D3D12_Sphere_Renderer.cpp">
+      <Filter>Source\Platform\DirectX_12\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Geometry\D3D12_Vertex_Buffer.cpp">
+      <Filter>Source\Platform\DirectX_12\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Ray_Tracing\Ray_Trace_Helpers.cpp">
+      <Filter>Source\Platform\DirectX_12\Ray_Tracing</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Render_Passes\Helpers\Pass_Helpers.cpp">
+      <Filter>Source\Platform\DirectX_12\Render_Passes\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Render_Passes\Render_Passes.cpp">
+      <Filter>Source\Platform\DirectX_12\Render_Passes</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Wrappers\D3D12_Constant_Buffer_Wrapper.cpp">
+      <Filter>Source\Platform\DirectX_12\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Wrappers\D3D12_ImGui_Layer.cpp">
+      <Filter>Source\Platform\DirectX_12\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Wrappers\D3D12_Screen_Quad.cpp">
+      <Filter>Source\Platform\DirectX_12\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Wrappers\D3D12_Texture.cpp">
+      <Filter>Source\Platform\DirectX_12\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Wrappers\Descriptor_Heap_Wrapper.cpp">
+      <Filter>Source\Platform\DirectX_12\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\Win32\Console_Window.cpp">
+      <Filter>Source\Platform\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\Win32\Win32_Window.cpp">
+      <Filter>Source\Platform\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Third_Party\Vendor_Build.cpp">
+      <Filter>Third_Party</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="$(MSBuildThisFileDirectory)Source\Shaders\HLSL\Deferred_Rendering\Geometry_Pass.pixel.hlsl">
+      <Filter>Source\Shaders\HLSL\Deferred_Rendering</Filter>
+    </FxCompile>
+    <FxCompile Include="$(MSBuildThisFileDirectory)Source\Shaders\HLSL\Deferred_Rendering\Geometry_Pass.vertex.hlsl">
+      <Filter>Source\Shaders\HLSL\Deferred_Rendering</Filter>
+    </FxCompile>
+    <FxCompile Include="$(MSBuildThisFileDirectory)Source\Shaders\HLSL\Deferred_Rendering\Light_Pass.pixel.hlsl">
+      <Filter>Source\Shaders\HLSL\Deferred_Rendering</Filter>
+    </FxCompile>
+    <FxCompile Include="$(MSBuildThisFileDirectory)Source\Shaders\HLSL\Deferred_Rendering\Light_Pass.vertex.hlsl">
+      <Filter>Source\Shaders\HLSL\Deferred_Rendering</Filter>
+    </FxCompile>
+    <FxCompile Include="$(MSBuildThisFileDirectory)Source\Shaders\HLSL\Forward_Rendering\Transparency_Pass.pixel.hlsl">
+      <Filter>Source\Shaders\HLSL\Forward_Rendering</Filter>
+    </FxCompile>
+    <FxCompile Include="$(MSBuildThisFileDirectory)Source\Shaders\HLSL\Forward_Rendering\Transparency_Pass.vertex.hlsl">
+      <Filter>Source\Shaders\HLSL\Forward_Rendering</Filter>
+    </FxCompile>
+    <FxCompile Include="$(MSBuildThisFileDirectory)Source\Shaders\HLSL\Shared\Debug_Screen_Quad.pixel.hlsl">
+      <Filter>Source\Shaders\HLSL\Shared</Filter>
+    </FxCompile>
+    <FxCompile Include="$(MSBuildThisFileDirectory)Source\Shaders\HLSL\Shared\Gaussian_Blur.compute.hlsl">
+      <Filter>Source\Shaders\HLSL\Shared</Filter>
+    </FxCompile>
+    <FxCompile Include="$(MSBuildThisFileDirectory)Source\Shaders\HLSL\Shared\PostProcess_Composite.pixel.hlsl">
+      <Filter>Source\Shaders\HLSL\Shared</Filter>
+    </FxCompile>
+    <FxCompile Include="$(MSBuildThisFileDirectory)Source\Shaders\HLSL\Shared\Screen_Aligned_Quad.vertex.hlsl">
+      <Filter>Source\Shaders\HLSL\Shared</Filter>
+    </FxCompile>
+    <FxCompile Include="$(MSBuildThisFileDirectory)Source\Shaders\HLSL\Shared\Shadow_Pass.pixel.hlsl">
+      <Filter>Source\Shaders\HLSL\Shared</Filter>
+    </FxCompile>
+    <FxCompile Include="$(MSBuildThisFileDirectory)Source\Shaders\HLSL\Shared\Shadow_Pass.vertex.hlsl">
+      <Filter>Source\Shaders\HLSL\Shared</Filter>
+    </FxCompile>
+    <FxCompile Include="$(MSBuildThisFileDirectory)Source\Shaders\HLSL\Shared\Skybox.pixel.hlsl">
+      <Filter>Source\Shaders\HLSL\Shared</Filter>
+    </FxCompile>
+    <FxCompile Include="$(MSBuildThisFileDirectory)Source\Shaders\HLSL\Shared\Skybox.vertex.hlsl">
+      <Filter>Source\Shaders\HLSL\Shared</Filter>
+    </FxCompile>
+    <FxCompile Include="$(MSBuildThisFileDirectory)Source\Shaders\HLSL\Shared\Threshold_Down_Sample.compute.hlsl">
+      <Filter>Source\Shaders\HLSL\Shared</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)Engine-Make.lua" />
+  </ItemGroup>
+</Project>
