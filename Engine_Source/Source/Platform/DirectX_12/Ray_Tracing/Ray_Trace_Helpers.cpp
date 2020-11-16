@@ -257,27 +257,14 @@ namespace Insight {
 	{
 		NvidiaHelpers::RayTracingPipelineGenerator Pipeline(m_pDeviceRef.Get());
 
-		const std::wstring_view& ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring ShaderFolder(ExeDirectory);
-
 		// Ray Gen
-		ShaderFolder += L"../Engine/RayGen.hlsl";
-		m_RayGenLibrary = NvidiaHelpers::CompileShaderLibrary(ShaderFolder.c_str());
+		m_RayGenLibrary = NvidiaHelpers::CompileShaderLibrary(FileSystem::GetShaderPathW(L"RayGen.hlsl").c_str());
 		// Miss
-		ShaderFolder.clear();
-		ShaderFolder = ExeDirectory;
-		ShaderFolder += L"../Engine/Miss.hlsl";
-		m_MissLibrary = NvidiaHelpers::CompileShaderLibrary(ShaderFolder.c_str());
+		m_MissLibrary = NvidiaHelpers::CompileShaderLibrary(FileSystem::GetShaderPathW(L"Miss.hlsl").c_str());
 		// Hit
-		ShaderFolder.clear();
-		ShaderFolder = ExeDirectory;
-		ShaderFolder += L"../Engine/Closest_Hit.hlsl";
-		m_HitLibrary = NvidiaHelpers::CompileShaderLibrary(ShaderFolder.c_str());
+		m_HitLibrary = NvidiaHelpers::CompileShaderLibrary(FileSystem::GetShaderPathW(L"Closest_Hit.hlsl").c_str());
 		// Shadow
-		ShaderFolder.clear();
-		ShaderFolder = ExeDirectory;
-		ShaderFolder += L"../Engine/Shadow_Ray.hlsl";
-		m_ShadowLibrary = NvidiaHelpers::CompileShaderLibrary(ShaderFolder.c_str());
+		m_ShadowLibrary = NvidiaHelpers::CompileShaderLibrary(FileSystem::GetShaderPathW(L"Shadow_Ray.hlsl").c_str());
 
 
 		Pipeline.AddLibrary(m_RayGenLibrary.Get(), { L"RayGen" });

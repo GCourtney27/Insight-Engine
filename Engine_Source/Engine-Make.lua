@@ -28,16 +28,16 @@ project ("Engine_Source")
 	--pchheader ("Engine_pch.h")
 	--pchsource ("Source/Engine_pch.cpp")
 	
-	files
-	{
-		"Engine-Make.lua",
-		"Third_Party/Vendor_Build.cpp",
-		"Source/**.cpp",
-		"Source/**.h",
-		"Source/**.vertex.hlsl",
-		"Source/**.pixel.hlsl",
-		"Source/**.compute.hlsl",
-	}
+	-- files
+	-- {
+	-- 	"Engine-Make.lua",
+	-- 	"Third_Party/Vendor_Build.cpp",
+	-- 	"Source/**.cpp",
+	-- 	"Source/**.h",
+	-- 	"Source/**.vertex.hlsl",
+	-- 	"Source/**.pixel.hlsl",
+	-- 	"Source/**.compute.hlsl",
+	-- }
 	--
 	--defines
 	--{
@@ -46,23 +46,23 @@ project ("Engine_Source")
 	--	"IE_BUILD_CONFIG=%{CustomDefines.IE_BUILD_CONFIG}",
 	--}
 	--
-	--includedirs
-	--{
-	--	-- Third Party
-	--	"%{EngineIncludeDirs.Microsoft}/",
-    --    "%{EngineIncludeDirs.Microsoft}/DirectX12/WinPixEventRuntime.1.0.161208001/Include/",
-	--	"%{EngineIncludeDirs.Microsoft}/DirectX12",
-	--	"%{EngineIncludeDirs.Nvidia}/DirectX12/",
-	--	"%{EngineIncludeDirs.rapidjson}/include/",
-	--	"%{EngineIncludeDirs.spdlog}/include/",
-	--	--"%{EngineIncludeDirs.ImGuizmo}/",
-	--	"%{EngineIncludeDirs.Mono}/",
-	--	"%{EngineIncludeDirs.ImGui}/",
-	--	"%{EngineIncludeDirs.assimp}/",
-	--	
-	--	-- Engine
-	--	"Source/",
-	--}
+	-- includedirs
+	-- {
+	-- 	-- Third Party
+	-- 	"%{EngineIncludeDirs.Microsoft}/",
+    --     "%{EngineIncludeDirs.Microsoft}/DirectX12/WinPixEventRuntime.1.0.161208001/Include/",
+	-- 	"%{EngineIncludeDirs.Microsoft}/DirectX12",
+	-- 	"%{EngineIncludeDirs.Nvidia}/DirectX12/",
+	-- 	"%{EngineIncludeDirs.rapidjson}/include/",
+	-- 	"%{EngineIncludeDirs.spdlog}/include/",
+	-- 	--"%{EngineIncludeDirs.ImGuizmo}/",
+	-- 	"%{EngineIncludeDirs.Mono}/",
+	-- 	"%{EngineIncludeDirs.ImGui}/",
+	-- 	"%{EngineIncludeDirs.assimp}/",
+		
+	-- 	-- Engine
+	-- 	"Source/",
+	-- }
 	--
 	--links
 	--{
@@ -86,17 +86,17 @@ project ("Engine_Source")
 	--	}
 	--	
 		-- Shaders
-        filter { "files:**.pixel.hlsl" }
-            shadertype "Pixel"
-            shadermodel "5.0"
+        -- filter { "files:**.pixel.hlsl" }
+        --     shadertype "Pixel"
+        --     shadermodel "5.0"
         
-        filter { "files:**.vertex.hlsl" }
-            shadertype "Vertex"
-            shadermodel "5.0"
+        -- filter { "files:**.vertex.hlsl" }
+        --     shadertype "Vertex"
+        --     shadermodel "5.0"
 	
-        filter { "files:**.compute.hlsl" }
-            shadertype "Compute"
-            shadermodel "5.0"
+        -- filter { "files:**.compute.hlsl" }
+        --     shadertype "Compute"
+        --     shadermodel "5.0"
 	
 	-- End filter - windows
 	--

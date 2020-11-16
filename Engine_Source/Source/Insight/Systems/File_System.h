@@ -29,6 +29,8 @@ namespace Insight {
 		static bool LoadSceneFromJson(const std::string& FileName, Scene* pScene);
 		static bool WriteSceneToJson(Scene* pScene);
 		static bool FileExistsInContentDirectory(const std::string& Path);
+		static std::string GetShaderPath(const char* Shader);
+		static std::wstring GetShaderPathW(const wchar_t* Shader);
 
 	protected:
 		static std::string UserDocumentsFolder;

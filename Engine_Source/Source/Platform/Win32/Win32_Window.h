@@ -10,9 +10,9 @@ namespace Insight {
 	public:
 		struct WindowData
 		{
-			std::string WindowClassName = "Retina Engine Class";
+			std::string WindowClassName = "Insight Engine Class";
 			std::wstring WindowClassName_wide;
-			std::string WindowTitle = "Retina Editor";
+			std::string WindowTitle = "Insight Editor";
 			std::wstring WindowTitle_wide;
 			UINT Width, Height;
 			bool VSyncEnabled = true;

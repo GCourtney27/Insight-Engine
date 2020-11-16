@@ -8,14 +8,14 @@
 #include "Insight/Core/Application.h"
 #include "Insight/Core/Layer/Layer.h"
 #include "Insight/Core/Layer/ImGui_Layer.h"
-#include "Insight/Core/Log.h"
 #if defined (IE_PLATFORM_BUILD_WIN32)
 #include "Platform/Win32/Win32_Window.h"
-#elif defined (IE_PLAFORM_UWP)
+#elif defined (IE_PLAFORM_BUILD_UWP)
 // TODO UWP Window include
 #endif
 
 // Util
+#include "Insight/Core/Log.h"
 #include "Insight/Core/ie_Exception.h"
 #include "Insight/Utilities/Profiling.h"
 

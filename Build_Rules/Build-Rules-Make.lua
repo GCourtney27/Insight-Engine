@@ -2,17 +2,18 @@
 
 rootDirPath		= "../"
 engineDirPath	= rootDirPath .. "Engine_Source/"
+-- Assuming Mono is installed on the computer
 monoInstallDir	= "C:/Program Files/Mono/"
 
-EngineIncludeDirs = {}
-EngineIncludeDirs["ImGui"] 	    = engineDirPath .. "Third_Party/imgui/"
-EngineIncludeDirs["ImGuizmo"] 	= engineDirPath .. "Third_Party/ImGuizmo/"
-EngineIncludeDirs["Microsoft"] 	= engineDirPath .. "Third_Party/Microsoft/"
-EngineIncludeDirs["rapidjson"]  = engineDirPath .. "Third_Party/rapidjson/"
-EngineIncludeDirs["spdlog"] 	= engineDirPath .. "Third_Party/spdlog/"
-EngineIncludeDirs["Mono"] 		= monoInstallDir .. "/include/mono-2.0/"
-EngineIncludeDirs["assimp"] 	= engineDirPath .. "Third_Party/assimp-3.3.1/include/"
-EngineIncludeDirs["Nvidia"] 	= engineDirPath .. "Third_Party/Nvidia/"
+engineIncludeDirs = {}
+engineIncludeDirs["ImGui"] 	    = engineDirPath .. "Third_Party/imgui/"
+engineIncludeDirs["ImGuizmo"] 	= engineDirPath .. "Third_Party/ImGuizmo/"
+engineIncludeDirs["Microsoft"] 	= engineDirPath .. "Third_Party/Microsoft/"
+engineIncludeDirs["rapidjson"]  = engineDirPath .. "Third_Party/rapidjson/"
+engineIncludeDirs["spdlog"] 	= engineDirPath .. "Third_Party/spdlog/"
+engineIncludeDirs["Mono"] 		= monoInstallDir .. "/include/mono-2.0/"
+engineIncludeDirs["assimp"] 	= engineDirPath .. "Third_Party/assimp-3.3.1/include/"
+engineIncludeDirs["Nvidia"] 	= engineDirPath .. "Third_Party/Nvidia/"
 
 
 project ("Engine_Build_UWP")
@@ -25,19 +26,22 @@ project ("Engine_Build_UWP")
 
 	targetdir (rootDirPath .. "Binaries/" .. outputdir .. "/%{prj.name}")
     objdir (rootDirPath .. "Binaries/Intermediates/" .. outputdir .. "/%{prj.name}")
-	
-	pchheader ("Engine_pch.h")
-	pchsource ("Source/Engine_pch.cpp")
 
-	defines
-	{
-		"IE_PLATFORM_BUILD_UWP",
+	-- pchheader ("Engine_pch.h")
+	-- pchsource ("Source/Engine_pch.cpp")
 
-		"_CRT_SECURE_NO_WARNINGS",
-		"IE_BUILD_DIR=%{CustomDefines.IE_BUILD_DIR}/Engine/",
-		"IE_BUILD_CONFIG=%{CustomDefines.IE_BUILD_CONFIG}",
-	}
-	
+	-- defines
+	-- {
+	-- 	"IE_PLATFORM_BUILD_UWP",
+
+	-- 	"_CRT_SECURE_NO_WARNINGS",
+	-- 	"IE_BUILD_DIR=%{CustomDefines.IE_BUILD_DIR}/Engine/",
+	-- 	"IE_BUILD_CONFIG=%{CustomDefines.IE_BUILD_CONFIG}",
+	-- }
+
+
+
+
 
 
 
@@ -49,10 +53,10 @@ project ("Engine_Build_Win32")
 	staticruntime ("off")
 	systemversion ("latest")
 	targetname ("InsightEngine_Win32")
-	
+
 	targetdir (rootDirPath .. "Binaries/" .. outputdir .. "/%{prj.name}")
     objdir (rootDirPath .. "Binaries/Intermediates/" .. outputdir .. "/%{prj.name}")
-	
+
 	pchheader ("Engine_pch.h")
 	pchsource ("PCH_Source/Engine_pch.cpp")
 
@@ -64,6 +68,13 @@ project ("Engine_Build_Win32")
 		-- PCH for Engine Source Build
 		"PCH_Source/**.h",
 		"PCH_Source/**.cpp",
+
+		engineDirPath .. "Third_Party/Vendor_Build.cpp",
+		engineDirPath .. "Source/**.cpp",
+		engineDirPath .. "Source/**.h",
+		engineDirPath .. "Source/**.vertex.hlsl",
+		engineDirPath .. "Source/**.pixel.hlsl",
+		engineDirPath .. "Source/**.compute.hlsl",
 	}
 
 	defines
@@ -79,17 +90,17 @@ project ("Engine_Build_Win32")
 	includedirs
 	{
 		-- Third Party
-		"%{EngineIncludeDirs.Microsoft}",
-        "%{EngineIncludeDirs.Microsoft}DirectX12/WinPixEventRuntime.1.0.161208001/Include/",
-		"%{EngineIncludeDirs.Microsoft}DirectX12/",
-		"%{EngineIncludeDirs.Nvidia}DirectX12/",
-		"%{EngineIncludeDirs.rapidjson}include/",
-		"%{EngineIncludeDirs.spdlog}include/",
-		"%{EngineIncludeDirs.ImGuizmo}",
-		"%{EngineIncludeDirs.Mono}",
-		"%{EngineIncludeDirs.ImGui}",
-		"%{EngineIncludeDirs.assimp}",
-		
+		"%{engineIncludeDirs.Microsoft}",
+        "%{engineIncludeDirs.Microsoft}DirectX12/WinPixEventRuntime.1.0.161208001/Include/",
+		"%{engineIncludeDirs.Microsoft}DirectX12/",
+		"%{engineIncludeDirs.Nvidia}DirectX12/",
+		"%{engineIncludeDirs.rapidjson}include/",
+		"%{engineIncludeDirs.spdlog}include/",
+		--"%{engineIncludeDirs.ImGuizmo}",
+		"%{engineIncludeDirs.Mono}",
+		"%{engineIncludeDirs.ImGui}",
+		"%{engineIncludeDirs.assimp}",
+
 		-- Engine Source code
 		engineDirPath .. "Source/",
 
@@ -107,7 +118,20 @@ project ("Engine_Build_Win32")
 	{
 		"MultiProcessorCompile"
 	}
-		
+
+
+	-- Shaders
+	filter { "files:**.pixel.hlsl" }
+		shadertype "Pixel"
+		shadermodel "5.0"
+
+	filter { "files:**.vertex.hlsl" }
+		shadertype "Vertex"
+		shadermodel "5.0"
+
+	filter { "files:**.compute.hlsl" }
+		shadertype "Compute"
+		shadermodel "5.0"
 
 
 

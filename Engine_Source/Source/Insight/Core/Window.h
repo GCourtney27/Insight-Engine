@@ -1,5 +1,5 @@
 #pragma once
-
+#include <Engine_pch.h>
 
 #include <Insight/Core.h>
 #include "Insight/Events/Event.h"
@@ -12,10 +12,10 @@ namespace Insight {
 	{
 		std::string Title;
 		std::string Class;
-		UINT Width;
-		UINT Height;
+		uint32_t Width;
+		uint32_t Height;
 
-		WindowProps(const std::string& title = "Insight Editor", const std::string winClass = "IE Class", UINT width = 1700, UINT height = 1000)
+		WindowProps(const std::string& title = "Insight Editor", const std::string winClass = "IE Class", uint32_t width = 1700, uint32_t height = 1000)
 			: Title(title), Width(width), Height(height) {}
 	};
 

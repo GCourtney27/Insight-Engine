@@ -285,6 +285,34 @@ namespace Insight {
 #endif
 	}
 
+	std::string FileSystem::GetShaderPath(const char* Shader)
+	{
+		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::string Path = "../";
+#if defined (IE_PLATFORM_BUILD_WIN32)
+		Path += "Engine_Build_Win32/";
+		Path += Shader;
+#elif defined (IE_PLATFORM_BUILD_UWP)
+		Path += "Engine_Build_UWP/";
+		Path += Shader;
+#endif
+		return Path;
+	}
+
+	std::wstring FileSystem::GetShaderPathW(const wchar_t* Shader)
+	{
+		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring Path = ExeDirectory.data();
+		Path += L"../";
+#if defined (IE_PLATFORM_BUILD_WIN32)
+		Path += L"Engine_Build_Win32/";
+#elif defined (IE_PLATFORM_BUILD_UWP)
+		Path += L"Engine_Build_UWP/";
+#endif
+		Path += Shader;
+		return Path;
+	}
+
 	void FileSystem::SetExecutableDirectory()
 	{
 		WCHAR Path[512];

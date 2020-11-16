@@ -1,11 +1,9 @@
 // Copyright Insight Interactive. All Rights Reserved.
 #pragma once
+#include <Engine_pch.h>
 
 #include <Insight/Core.h>
 #include "Insight/Input/Key_Codes.h"
-#include <string>
-#include <sstream>
-#include <functional>
 
 namespace Insight {
 

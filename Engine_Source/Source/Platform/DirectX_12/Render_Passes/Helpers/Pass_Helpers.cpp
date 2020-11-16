@@ -70,11 +70,7 @@ namespace Insight {
 		// Create the pipeline state.
 
 		ComPtr<ID3DBlob> pComputeShader;
-		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring VertexShaderFolder(ExeDirectory);
-		VertexShaderFolder += L"../Engine/Threshold_Down_Sample.compute.cso";
-
-		hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pComputeShader);
+		hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"Threshold_Down_Sample.compute.cso").c_str(), &pComputeShader);
 		ThrowIfFailed(hr, "Failed to read compute shader for D3D 12 context");
 
 		D3D12_SHADER_BYTECODE ComputeShaderBytecode = {};
@@ -173,13 +169,8 @@ namespace Insight {
 		ThrowIfFailed(hr, "Failed to create root signature for D3D 12 context.");
 
 		// Create the pipeline state.
-
-		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring ComputeShaderFolder(ExeDirectory);
-		ComputeShaderFolder += L"../Engine/Gaussian_Blur.compute.cso";
-
 		ComPtr<ID3DBlob> pComputeShader;
-		hr = D3DReadFileToBlob(ComputeShaderFolder.c_str(), &pComputeShader);
+		hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"Gaussian_Blur.compute.cso").c_str(), &pComputeShader);
 		ThrowIfFailed(hr, "Failed to read compute shader for D3D 12 context");
 
 		D3D12_SHADER_BYTECODE ComputeShaderBytecode = {};

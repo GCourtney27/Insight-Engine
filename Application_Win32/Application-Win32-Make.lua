@@ -46,6 +46,8 @@ project (appName .. "_Win32")
 		"%{applicationIncludeDirs.Engine_Source}/Third_Party/",
 
 		"Source/",
+
+		rootDirPath .. "Build_Rules/PCH_Source/"
 	}
 
 	links
@@ -94,12 +96,12 @@ project (appName .. "_Win32")
 		-- DirectX
 		("{COPY} ".. engineThirdPartyDir .."/Microsoft/DirectX12/Bin/dxcompiler.dll ../Binaries/"..outputdir.."/" .. appName .. "_Win32"),
 		("{COPY} ".. engineThirdPartyDir .."/Microsoft/DirectX12/Bin/dxil.dll ../Binaries/"..outputdir.."/" .. appName .. "_Win32"),
-		("{COPY} ../Engine/Source/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/Engine"),
+		("{COPY} ../Engine_Source/Source/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/Engine_Build_Win32"),
 		-- PIX
 		("{COPY} ".. engineThirdPartyDir .."/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../Binaries/"..outputdir.."/" .. appName .. "_Win32"),
 		("{COPY} ".. engineThirdPartyDir .."/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../Binaries/"..outputdir.."/" .. appName .. "_Win32"),
 		-- Copy over default engine assets
-		("{COPY} ../Engine/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Default_Assets/")
+		("{COPY} ../Engine_Source/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Default_Assets/")
 	}
 
 

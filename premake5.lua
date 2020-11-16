@@ -3,7 +3,7 @@
 
 workspace ("InsightEngine")
 	architecture ("x64")
-	startproject ("Application_Windows")
+	startproject ("Application_Win32")
 
 	configurations
 	{
@@ -25,13 +25,7 @@ group ("Tools")
 	include ("Engine_Source/Third_Party/ImGui/premake5.lua")
 group ("")
 
--- Engine
-include ("Engine_Source/Engine-Make.lua")
 
--- Engine Source Build Rules
-group ("Build Rules")
-	include ("Build_Rules/Build-Rules-Make.lua")
-group ""
 -- Applications
 group ("Applications")
 	include ("Application_Win32/Application-Win32-Make.lua")
@@ -39,3 +33,13 @@ group ("Applications")
 	include ("Application_UWP/Application-UWP-Make.lua")
 
 group ("")
+
+
+-- Engine
+include ("Engine_Source/Engine-Make.lua")
+
+
+-- Engine Source Build Rules
+group ("Build Rules")
+	include ("Build_Rules/Build-Rules-Make.lua")
+group ""

@@ -111,15 +111,9 @@ namespace Insight {
 		ComPtr<ID3DBlob> pVertexShader;
 		ComPtr<ID3DBlob> pPixelShader;
 
-		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring VertexShaderFolder(ExeDirectory);
-		VertexShaderFolder += L"../Engine/Geometry_Pass.vertex.cso";
-		std::wstring PixelShaderFolder(ExeDirectory);
-		PixelShaderFolder += L"../Engine/Geometry_Pass.pixel.cso";
-
-		HRESULT hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
+		HRESULT hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"Geometry_Pass.vertex.cso").c_str(), &pVertexShader);
 		ThrowIfFailed(hr, "Failed to read Vertex Shader for D3D 12 context.");
-		hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
+		hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"Geometry_Pass.pixel.cso").c_str(), &pPixelShader);
 		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
 
 		D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
@@ -383,15 +377,9 @@ namespace Insight {
 		ComPtr<ID3DBlob> pVertexShader;
 		ComPtr<ID3DBlob> pPixelShader;
 
-		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring VertexShaderFolder(ExeDirectory);
-		VertexShaderFolder += L"../Engine/Light_Pass.vertex.cso";
-		std::wstring PixelShaderFolder(ExeDirectory);
-		PixelShaderFolder += L"../Engine/Light_Pass.pixel.cso";
-
-		HRESULT hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
+		HRESULT hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"Light_Pass.vertex.cso").c_str(), &pVertexShader);
 		ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context.");
-		hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
+		hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"Light_Pass.pixel.cso").c_str(), &pPixelShader);
 		ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context.");
 
 
@@ -571,15 +559,9 @@ namespace Insight {
 		ComPtr<ID3DBlob> pVertexShader;
 		ComPtr<ID3DBlob> pPixelShader;
 
-		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring VertexShaderFolder(ExeDirectory);
-		VertexShaderFolder += L"../Engine/Skybox.vertex.cso";
-		std::wstring PixelShaderFolder(ExeDirectory);
-		PixelShaderFolder += L"../Engine/Skybox.pixel.cso";
-
-		HRESULT hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
+		HRESULT hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"Skybox.vertex.cso").c_str(), &pVertexShader);
 		ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context");
-		hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
+		hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"Skybox.pixel.cso").c_str(), &pPixelShader);
 		ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context");
 
 
@@ -708,9 +690,9 @@ namespace Insight {
 		std::wstring PixelShaderFolder(ExeDirectory);
 		PixelShaderFolder += L"../Engine/PostProcess_Composite.pixel.cso";
 
-		HRESULT hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
+		HRESULT hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"Screen_Aligned_Quad.vertex.cso").c_str(), &pVertexShader);
 		ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context.");
-		hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
+		hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"PostProcess_Composite.pixel.cso").c_str(), &pPixelShader);
 		ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context.");
 
 
