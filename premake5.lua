@@ -1,6 +1,8 @@
 -- Helpful premake documentation
 -- Tokens https://github.com/premake/premake-core/wiki/Tokens
 
+-- The main entry point for the project build system. 
+
 workspace ("InsightEngine")
 	architecture ("x64")
 	startproject ("Application_Win32")
@@ -25,19 +27,14 @@ group ("Tools")
 	include ("Engine_Source/Third_Party/ImGui/premake5.lua")
 group ("")
 
-
 -- Applications
 group ("Applications")
 	include ("Application_Win32/Application-Win32-Make.lua")
-
 	include ("Application_UWP/Application-UWP-Make.lua")
-
 group ("")
-
 
 -- Engine
 include ("Engine_Source/Engine-Make.lua")
-
 
 -- Engine Source Build Rules
 group ("Build Rules")

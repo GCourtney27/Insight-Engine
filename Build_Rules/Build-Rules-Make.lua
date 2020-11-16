@@ -1,4 +1,6 @@
 -- Build Rules for Engine Source Code
+-- Build_Rules projects take the Engine_Source project and define variables 
+-- and build parameters to make a library from. 
 
 rootDirPath		= "../"
 engineDirPath	= rootDirPath .. "Engine_Source/"
@@ -6,14 +8,15 @@ engineDirPath	= rootDirPath .. "Engine_Source/"
 monoInstallDir	= "C:/Program Files/Mono/"
 
 engineIncludeDirs = {}
-engineIncludeDirs["ImGui"] 	    = engineDirPath .. "Third_Party/imgui/"
-engineIncludeDirs["ImGuizmo"] 	= engineDirPath .. "Third_Party/ImGuizmo/"
-engineIncludeDirs["Microsoft"] 	= engineDirPath .. "Third_Party/Microsoft/"
-engineIncludeDirs["rapidjson"]  = engineDirPath .. "Third_Party/rapidjson/"
-engineIncludeDirs["spdlog"] 	= engineDirPath .. "Third_Party/spdlog/"
-engineIncludeDirs["Mono"] 		= monoInstallDir .. "/include/mono-2.0/"
-engineIncludeDirs["assimp"] 	= engineDirPath .. "Third_Party/assimp-3.3.1/include/"
-engineIncludeDirs["Nvidia"] 	= engineDirPath .. "Third_Party/Nvidia/"
+engineIncludeDirs["ImGui"] 	    	= engineDirPath .. "Third_Party/imgui/"
+engineIncludeDirs["ImGuizmo"] 		= engineDirPath .. "Third_Party/ImGuizmo/"
+engineIncludeDirs["Microsoft"] 		= engineDirPath .. "Third_Party/Microsoft/"
+engineIncludeDirs["rapidjson"]  	= engineDirPath .. "Third_Party/rapidjson/"
+engineIncludeDirs["spdlog"] 		= engineDirPath .. "Third_Party/spdlog/"
+engineIncludeDirs["Mono"] 			= monoInstallDir .. "include/mono-2.0/"
+engineIncludeDirs["assimp"] 		= engineDirPath .. "Third_Party/assimp-3.3.1/include/"
+engineIncludeDirs["Nvidia"] 		= engineDirPath .. "Third_Party/Nvidia/"
+engineIncludeDirs["Engine_Source"] 	= rootDirPath .. "Engine_Source/"
 
 
 project ("Engine_Build_UWP")
@@ -69,12 +72,12 @@ project ("Engine_Build_Win32")
 		"PCH_Source/**.h",
 		"PCH_Source/**.cpp",
 
-		engineDirPath .. "Third_Party/Vendor_Build.cpp",
-		engineDirPath .. "Source/**.cpp",
-		engineDirPath .. "Source/**.h",
-		engineDirPath .. "Source/**.vertex.hlsl",
-		engineDirPath .. "Source/**.pixel.hlsl",
-		engineDirPath .. "Source/**.compute.hlsl",
+		"%{engineIncludeDirs.Engine_Source}/Third_Party/Vendor_Build.cpp",
+		"%{engineIncludeDirs.Engine_Source}/Source/**.cpp",
+		"%{engineIncludeDirs.Engine_Source}/Source/**.h",
+		"%{engineIncludeDirs.Engine_Source}/Source/**.vertex.hlsl",
+		"%{engineIncludeDirs.Engine_Source}/Source/**.pixel.hlsl",
+		"%{engineIncludeDirs.Engine_Source}/Source/**.compute.hlsl",
 	}
 
 	defines
@@ -102,7 +105,7 @@ project ("Engine_Build_Win32")
 		"%{engineIncludeDirs.assimp}",
 
 		-- Engine Source code
-		engineDirPath .. "Source/",
+		"%{engineIncludeDirs.Engine_Source}/Source/",
 
 		-- This Projects PCH
 		"PCH_Source/"
