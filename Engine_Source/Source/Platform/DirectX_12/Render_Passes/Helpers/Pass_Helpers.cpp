@@ -41,7 +41,7 @@ namespace Insight {
 		PIXEndEvent(m_pCommandListRef.Get());
 	}
 
-	void ThresholdDownSampleHelper::LoadPipeline(ComPtr<ID3D12Device> pDevice)
+	void ThresholdDownSampleHelper::LoadPipeline(Microsoft::WRL::ComPtr<ID3D12Device> pDevice)
 	{
 		// Create the root signature.
 
@@ -57,8 +57,8 @@ namespace Insight {
 		CD3DX12_ROOT_SIGNATURE_DESC RootSignatureDesc;
 		RootSignatureDesc.Init(_countof(RootParameters), RootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_NONE);
 
-		ComPtr<ID3DBlob> RootSignatureBlob;
-		ComPtr<ID3DBlob> ErrorBlob;
+		Microsoft::WRL::ComPtr<ID3DBlob> RootSignatureBlob;
+		Microsoft::WRL::ComPtr<ID3DBlob> ErrorBlob;
 
 		HRESULT hr = D3D12SerializeRootSignature(&RootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, RootSignatureBlob.GetAddressOf(), ErrorBlob.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to serialize root signature for D3D 12 context.");
@@ -69,7 +69,7 @@ namespace Insight {
 
 		// Create the pipeline state.
 
-		ComPtr<ID3DBlob> pComputeShader;
+		Microsoft::WRL::ComPtr<ID3DBlob> pComputeShader;
 		hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"Threshold_Down_Sample.compute.cso").c_str(), &pComputeShader);
 		ThrowIfFailed(hr, "Failed to read compute shader for D3D 12 context");
 
@@ -143,7 +143,7 @@ namespace Insight {
 		PIXEndEvent(m_pCommandListRef.Get());
 	}
 
-	void GaussianBlurHelper::LoadPipeline(ComPtr<ID3D12Device> pDevice)
+	void GaussianBlurHelper::LoadPipeline(Microsoft::WRL::ComPtr<ID3D12Device> pDevice)
 	{
 		// Create the root signature.
 
@@ -159,8 +159,8 @@ namespace Insight {
 		CD3DX12_ROOT_SIGNATURE_DESC RootSignatureDesc;
 		RootSignatureDesc.Init(_countof(RootParameters), RootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_NONE);
 
-		ComPtr<ID3DBlob> RootSignatureBlob;
-		ComPtr<ID3DBlob> ErrorBlob;
+		Microsoft::WRL::ComPtr<ID3DBlob> RootSignatureBlob;
+		Microsoft::WRL::ComPtr<ID3DBlob> ErrorBlob;
 
 		HRESULT hr = D3D12SerializeRootSignature(&RootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, RootSignatureBlob.GetAddressOf(), ErrorBlob.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to serialize root signature for D3D 12 context.");
@@ -169,7 +169,7 @@ namespace Insight {
 		ThrowIfFailed(hr, "Failed to create root signature for D3D 12 context.");
 
 		// Create the pipeline state.
-		ComPtr<ID3DBlob> pComputeShader;
+		Microsoft::WRL::ComPtr<ID3DBlob> pComputeShader;
 		hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"Gaussian_Blur.compute.cso").c_str(), &pComputeShader);
 		ThrowIfFailed(hr, "Failed to read compute shader for D3D 12 context");
 

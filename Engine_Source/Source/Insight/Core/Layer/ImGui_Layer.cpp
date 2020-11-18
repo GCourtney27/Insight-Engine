@@ -65,19 +65,19 @@ namespace Insight {
 	{
 		EventDispatcher dispatcher(event);
 		// Mouse Buttons
-		dispatcher.Dispatch<MouseButtonPressedEvent>(IE_BIND_EVENT_FN(ImGuiLayer::OnMouseButtonPressedEvent));
-		dispatcher.Dispatch<MouseButtonReleasedEvent>(IE_BIND_EVENT_FN(ImGuiLayer::OnMouseButtonReleasedEvent));
+		dispatcher.Dispatch<MouseButtonPressedEvent>(IE_BIND_LOCAL_EVENT_FN(ImGuiLayer::OnMouseButtonPressedEvent));
+		dispatcher.Dispatch<MouseButtonReleasedEvent>(IE_BIND_LOCAL_EVENT_FN(ImGuiLayer::OnMouseButtonReleasedEvent));
 		// Mouse Moved
 		//dispatcher.Dispatch<MouseMovedEvent>(IE_BIND_EVENT_FN(ImGuiLayer::OnMouseMovedEvent));
-		dispatcher.Dispatch<MouseRawMoveEvent>(IE_BIND_EVENT_FN(ImGuiLayer::OnMouseRawMoveEvent));
-		dispatcher.Dispatch<MouseScrolledEvent>(IE_BIND_EVENT_FN(ImGuiLayer::OnMouseScrollEvent));
+		dispatcher.Dispatch<MouseRawMoveEvent>(IE_BIND_LOCAL_EVENT_FN(ImGuiLayer::OnMouseRawMoveEvent));
+		dispatcher.Dispatch<MouseScrolledEvent>(IE_BIND_LOCAL_EVENT_FN(ImGuiLayer::OnMouseScrollEvent));
 		// Key Pressed
-		dispatcher.Dispatch<KeyPressedEvent>(IE_BIND_EVENT_FN(ImGuiLayer::OnKeyPressedEvent));
-		dispatcher.Dispatch<KeyReleasedEvent>(IE_BIND_EVENT_FN(ImGuiLayer::OnKeyReleasedEvent));
+		dispatcher.Dispatch<KeyPressedEvent>(IE_BIND_LOCAL_EVENT_FN(ImGuiLayer::OnKeyPressedEvent));
+		dispatcher.Dispatch<KeyReleasedEvent>(IE_BIND_LOCAL_EVENT_FN(ImGuiLayer::OnKeyReleasedEvent));
 		// Key Typed
-		dispatcher.Dispatch<KeyTypedEvent>(IE_BIND_EVENT_FN(ImGuiLayer::OnKeyTypedEvent));
+		dispatcher.Dispatch<KeyTypedEvent>(IE_BIND_LOCAL_EVENT_FN(ImGuiLayer::OnKeyTypedEvent));
 		// Widnow Resized
-		dispatcher.Dispatch<WindowResizeEvent>(IE_BIND_EVENT_FN(ImGuiLayer::OnWindowResizedEvent));
+		dispatcher.Dispatch<WindowResizeEvent>(IE_BIND_LOCAL_EVENT_FN(ImGuiLayer::OnWindowResizedEvent));
 	}
 
 	bool ImGuiLayer::IsMouseOverUI()

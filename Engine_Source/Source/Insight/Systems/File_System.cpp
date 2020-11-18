@@ -280,37 +280,37 @@ namespace Insight {
 		RawPath += "Content/" + Path;
 #if defined (IE_PLATFORM_BUILD_WIN32)
 		return PathFileExistsA(RawPath.c_str());
-#elif defined (IE_PLATFORM_UWP)
-		// TODO 
+#elif defined (IE_PLATFORM_BUILD_UWP)
+		#pragma message ("fix me")
+		return false;
 #endif
 	}
 
 	std::string FileSystem::GetShaderPath(const char* Shader)
 	{
-		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::string Path = "../";
+		std::string ExeDirectory = StringHelper::WideToString(FileSystem::GetExecutbleDirectoryW());
+		ExeDirectory += "../";
 #if defined (IE_PLATFORM_BUILD_WIN32)
-		Path += "Engine_Build_Win32/";
-		Path += Shader;
+		ExeDirectory += "Engine_Build_Win32/";
+		ExeDirectory += Shader;
 #elif defined (IE_PLATFORM_BUILD_UWP)
-		Path += "Engine_Build_UWP/";
-		Path += Shader;
+		ExeDirectory += "Engine_Build_UWP/";
+		ExeDirectory += Shader;
 #endif
-		return Path;
+		return ExeDirectory;
 	}
 
 	std::wstring FileSystem::GetShaderPathW(const wchar_t* Shader)
 	{
-		const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
-		std::wstring Path = ExeDirectory.data();
-		Path += L"../";
+		std::wstring ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		ExeDirectory += L"../";
 #if defined (IE_PLATFORM_BUILD_WIN32)
-		Path += L"Engine_Build_Win32/";
+		ExeDirectory += L"Engine_Build_Win32/";
 #elif defined (IE_PLATFORM_BUILD_UWP)
-		Path += L"Engine_Build_UWP/";
+		ExeDirectory += L"Engine_Build_UWP/";
 #endif
-		Path += Shader;
-		return Path;
+		ExeDirectory += Shader;
+		return ExeDirectory;
 	}
 
 	void FileSystem::SetExecutableDirectory()
@@ -340,11 +340,14 @@ namespace Insight {
 
 	void FileSystem::SetUserDocumentsFolderDirectory()
 	{
+#pragma message ("Fix this to be platform independent and remove the documents functionality.")
 		wchar_t Folder[1024];
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		HRESULT hr = SHGetFolderPathW(NULL, CSIDL_MYDOCUMENTS, 0, 0, Folder);
 		if (FAILED(hr)) {
 			IE_DEBUG_LOG(LogSeverity::Error, "Failed to get path to user documents folder.");
 		}
+#endif // IE_PLATFORM_BUILD_WIN32
 		UserDocumentsFolder = StringHelper::WideToString( Folder );
 	}
 

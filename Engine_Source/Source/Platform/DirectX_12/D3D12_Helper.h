@@ -64,18 +64,18 @@ namespace Insight {
 		int									m_FrameIndex = 0;
 		UINT64								m_FenceValues[m_FrameBufferCount] = {};
 		HANDLE								m_FenceEvent = {};
-		ComPtr<ID3D12Fence>					m_pFence;
+		Microsoft::WRL::ComPtr<ID3D12Fence>					m_pFence;
 
-		ComPtr<IDXGIAdapter1>				m_pAdapter;
-		ComPtr<ID3D12Device>				m_pDevice;
-		ComPtr<IDXGIFactory4>				m_pDxgiFactory;
-		ComPtr<IDXGISwapChain3>				m_pSwapChain;
+		Microsoft::WRL::ComPtr<IDXGIAdapter1>				m_pAdapter;
+		Microsoft::WRL::ComPtr<ID3D12Device>				m_pDevice;
+		Microsoft::WRL::ComPtr<IDXGIFactory4>				m_pDxgiFactory;
+		Microsoft::WRL::ComPtr<IDXGISwapChain3>				m_pSwapChain;
 
-		ComPtr<ID3D12CommandQueue>			m_pGraphicsCommandQueue;
-		ComPtr<ID3D12CommandQueue>			m_pComputeCommandQueue;
+		Microsoft::WRL::ComPtr<ID3D12CommandQueue>			m_pGraphicsCommandQueue;
+		Microsoft::WRL::ComPtr<ID3D12CommandQueue>			m_pComputeCommandQueue;
 
-		ComPtr<ID3D12Resource>				m_pRenderTargets[m_FrameBufferCount];
-		ComPtr<ID3D12DescriptorHeap>		m_pRtvHeap;
+		Microsoft::WRL::ComPtr<ID3D12Resource>				m_pRenderTargets[m_FrameBufferCount];
+		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>		m_pRtvHeap;
 		
 		DXGI_FORMAT							m_SwapChainBackBufferFormat;
 		UINT								m_RtvDescriptorSize;

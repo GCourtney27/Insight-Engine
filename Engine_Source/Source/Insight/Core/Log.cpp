@@ -10,7 +10,7 @@ namespace Insight {
 
 		std::shared_ptr<spdlog::logger> Logger::s_CoreLogger;
 		std::shared_ptr<spdlog::logger> Logger::s_ClientLogger;
-#if defined IE_DEBUG || defined IE_RELEASE
+#if defined IE_DEBUG && defined (IE_PLATFORM_BUILD_WIN32)
 		ConsoleWindow Logger::m_ConsoleWindow;
 #endif
 

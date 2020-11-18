@@ -8,7 +8,7 @@ namespace Insight {
 
 	using namespace Microsoft::WRL;
 
-	class GeometryManager
+	class INSIGHT_API GeometryManager
 	{
 	public:
 		typedef std::vector<StrongModelPtr> SceneModels;

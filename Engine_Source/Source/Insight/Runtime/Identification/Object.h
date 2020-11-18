@@ -1,10 +1,11 @@
 #pragma once
 #include "Insight/Runtime/Identification/ID.h"
+#include <Insight/Core.h>
 
 namespace Insight {
 
 	// Base class for all Entitys
-	class Object
+	class INSIGHT_API Object
 	{
 	public:
 		Object(const ID& id = ID()) : m_id(id) {}

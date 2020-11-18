@@ -121,7 +121,6 @@ namespace Insight {
 		inline bool OnWindowResize(WindowResizeEvent& e) 
 		{
 			s_Instance->m_IsMinimized = e.GetIsMinimized();
-			s_Instance->m_AspectRatio = static_cast<float>(e.GetWidth()) / static_cast<float>(e.GetHeight());
 			s_Instance->OnWindowResize_Impl();
 			return true;
 		}
@@ -168,7 +167,6 @@ namespace Insight {
 		inline static bool GetIsRayTraceEnabled() { return s_Instance->m_GraphicsSettings.RayTraceEnabled; }
 		inline static TargetRenderAPI GetAPI() { return s_Instance->m_GraphicsSettings.TargetRenderAPI; }
 		inline static uint8_t GetFrameBufferCount() { return s_Instance->m_FrameBufferCount; }
-		inline static void SetVSyncEnabled(bool enabled) { s_Instance->m_VSyncEnabled = enabled; }
 		static void SetActiveCamera(Runtime::ACamera* pCamera) { s_Instance->m_pWorldCameraRef = pCamera; }
 
 		CB_PS_DirectionalLight GetDirectionalLightCB() const;
@@ -219,7 +217,7 @@ namespace Insight {
 		virtual void DestroySkybox_Impl() = 0;
 
 	protected:
-		Renderer(bool vSyncEabled);
+		Renderer();
 
 		void SetIsRayTraceSupported(bool Supported) { m_IsRayTraceSupported = Supported; }
 
@@ -231,8 +229,6 @@ namespace Insight {
 
 		static const uint8_t m_FrameBufferCount = 3u;
 
-		float m_AspectRatio = 0.0f;
-		bool m_VSyncEnabled = false;
 		bool m_IsMinimized = false;
 		bool m_FullScreenMode = false;
 		bool m_WindowedMode = true;

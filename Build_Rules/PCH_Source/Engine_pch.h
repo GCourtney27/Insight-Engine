@@ -20,6 +20,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <type_traits>
+#include <string_view>
 
 #if _MSC_VER >= 1700
 	using std::shared_ptr;
@@ -56,24 +57,23 @@
 #include "Insight/Utilities/String_Helper.h"
 #include "Insight/Systems/File_System.h"
 
+
+
 // -----------
 // Platforms |
 // -----------
 
-// === Windows === //
-#if defined IE_PLATFORM_BUILD_WIN32
+// ---------------------------------
+//		Shared Windows Platform		|
+// ---------------------------------
+// Some files can be shared between UWP and Win32.
+#if defined (IE_PLATFORM_WINDOWS)
 
-	#ifndef WIN32_LEAN_AND_MEAN
-		#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers.
-	#endif
-
-	// Windows API	
+	// Windows
 	#include <Windows.h>
 	#include <wrl/client.h>
-	#include <windowsx.h>
-	#include <shlobj.h>
-	#include "Shlwapi.h"
-	#include <strsafe.h>
+	#include <wrl/event.h>
+	#include <Windows.h>
 
 	// Direct3D 12
 	#include <d3d12.h>
@@ -85,20 +85,55 @@
 	#include <d3d11.h>
 
 	// DirectX
+	#if defined(NTDDI_WIN10_RS2)
+	#include <dxgi1_6.h>
+	#else
+	#include <dxgi1_5.h>
+	#endif
 	#include <dxgi1_2.h>
 	#include <dxgi1_4.h>
 	#include <wincodec.h>
 	#include <DirectXMath.h>
 	#include <D3Dcompiler.h>
+	#if defined (IE_DEBUG)
+	#include <dxgidebug.h>
+	#endif
+
+
+#endif // IE_PLATFORM_WINDOWS
+
+
+// ---------------
+//		Win32	  |
+// ---------------
+#if defined IE_PLATFORM_BUILD_WIN32
+
+	#ifndef WIN32_LEAN_AND_MEAN
+		#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers.
+	#endif
+
+	// Windows API	
+	#include <windowsx.h>
+	#include <shlobj.h>
+	#include "Shlwapi.h"
+	#include <strsafe.h>
 	
-	using Microsoft::WRL::ComPtr;
-
-
 #endif // IE_PLATFORM_BUILD_WIN32
 
-// === Mac === //
-#ifdef IE_PLATFORM_MAC
 
+// -------------------------------------
+//		Universal Windows Platform		|
+// -------------------------------------
+#ifdef IE_PLATFORM_BUILD_UWP
 
+	#include "winrt/Windows.ApplicationModel.h"
+	#include "winrt/Windows.ApplicationModel.Core.h"
+	#include "winrt/Windows.ApplicationModel.Activation.h"
+	#include "winrt/Windows.Foundation.h"
+	#include "winrt/Windows.Graphics.Display.h"
+	#include "winrt/Windows.System.h"
+	#include "winrt/Windows.UI.Core.h"
+	#include "winrt/Windows.UI.Input.h"
+	#include "winrt/Windows.UI.ViewManagement.h"
 
-#endif // IE_PLATFORM_MAC
+#endif // IE_PLATFORM_BUILD_UWP

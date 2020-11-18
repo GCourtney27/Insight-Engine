@@ -12,7 +12,7 @@ struct ImGuiIO;
 
 namespace Insight {
 
-	class ImGuiLayer : public Layer
+	class INSIGHT_API ImGuiLayer : public Layer
 	{
 	public:
 		ImGuiLayer();

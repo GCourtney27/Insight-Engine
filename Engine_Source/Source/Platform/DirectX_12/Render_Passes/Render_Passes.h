@@ -15,7 +15,7 @@ namespace Insight {
 	class Direct3D12Context;
 	class FrameResources;
 
-	class RenderPass
+	class INSIGHT_API RenderPass
 	{
 	public:
 		friend class RenderPassStack;
@@ -72,12 +72,12 @@ namespace Insight {
 		// Reference to the GPU memory for the resources in the application.
 		CDescriptorHeapWrapper*				m_pCBVSRVHeapRef = nullptr;
 		// Reference Command list used to execure commands assocaiated with this pass.
-		ComPtr<ID3D12GraphicsCommandList>	m_pCommandListRef;
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>	m_pCommandListRef;
 		// Reference to the shader root siganture this pass will exeute with.
-		ComPtr<ID3D12RootSignature>			m_pRootSignatureRef;
+		Microsoft::WRL::ComPtr<ID3D12RootSignature>			m_pRootSignatureRef;
 
 		// The state of the pipeline including which shaders get exected.
-		ComPtr<ID3D12PipelineState> m_pPipelineState;
+		Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pPipelineState;
 		// Clear color for all buffers the render passes will clear to.
 		static constexpr float					s_ScreenClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
@@ -92,17 +92,17 @@ namespace Insight {
 	/*		Geometry Pass		 */
 	/*===========================*/
 
-	class DeferredGeometryPass : public RenderPass
+	class INSIGHT_API DeferredGeometryPass : public RenderPass
 	{
 	public:
 		DeferredGeometryPass()			= default;
 		virtual ~DeferredGeometryPass() = default;
 
 		// Returns the Scene Depth buffer.
-		inline ComPtr<ID3D12Resource> GetSceneDepthTexture() const { return m_pSceneDepthStencilTexture; }
+		inline Microsoft::WRL::ComPtr<ID3D12Resource> GetSceneDepthTexture() const { return m_pSceneDepthStencilTexture; }
 		
 		// Returns a texture from the G-Buffer for a given index.
-		inline ComPtr<ID3D12Resource> GetGBufferRenderTargetTexture(uint8_t Index) const { return m_pRenderTargetTextures[Index]; }
+		inline Microsoft::WRL::ComPtr<ID3D12Resource> GetGBufferRenderTargetTexture(uint8_t Index) const { return m_pRenderTargetTextures[Index]; }
 		
 		// Returns the format for a G-Buffer texture at a given index.
 		inline DXGI_FORMAT GetGBufferRenderTargetFormatAtIndex(uint8_t Index) const { return m_GBufferRTVFormats[Index]; }
@@ -129,7 +129,7 @@ namespace Insight {
 
 		CDescriptorHeapWrapper		m_RTVHeap;
 		CDescriptorHeapWrapper		m_DSVHeap;
-		ComPtr<ID3D12Resource>		m_pRenderTargetTextures[m_NumRenderTargets];
+		Microsoft::WRL::ComPtr<ID3D12Resource>		m_pRenderTargetTextures[m_NumRenderTargets];
 
 		DXGI_FORMAT	m_GBufferRTVFormats[m_NumRenderTargets] = {
 						DXGI_FORMAT_R11G11B10_FLOAT,	// Albedo
@@ -142,7 +142,7 @@ namespace Insight {
 		DXGI_FORMAT	m_DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		DXGI_FORMAT	m_DSVSRVFormat = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 		FLOAT		m_DepthClearValue = 1.0f;
-		ComPtr<ID3D12Resource>	m_pSceneDepthStencilTexture;
+		Microsoft::WRL::ComPtr<ID3D12Resource>	m_pSceneDepthStencilTexture;
 	};
 
 
@@ -150,17 +150,17 @@ namespace Insight {
 	/*			Light Pass			*/
 	/*==============================*/
 
-	class DeferredLightPass : public RenderPass
+	class INSIGHT_API DeferredLightPass : public RenderPass
 	{
 	public:
 		DeferredLightPass()				= default;
 		virtual ~DeferredLightPass()	= default;
 
 		// Set the reference to the G-Buffer.
-		inline void SetRenderTargetTextureRef(ComPtr<ID3D12Resource> pRenderTarget) { m_GBufferRefs.push_back(pRenderTarget); }
+		inline void SetRenderTargetTextureRef(Microsoft::WRL::ComPtr<ID3D12Resource> pRenderTarget) { m_GBufferRefs.push_back(pRenderTarget); }
 
 		// Set the reference to the Scene Depth Buffer.
-		inline void SetSceneDepthTextureRef(ComPtr<ID3D12Resource> pDepthTexture) { m_pSceneDepthTextureRef = pDepthTexture; }
+		inline void SetSceneDepthTextureRef(Microsoft::WRL::ComPtr<ID3D12Resource> pDepthTexture) { m_pSceneDepthTextureRef = pDepthTexture; }
 
 		// Set the referance to the global skylight;
 		inline void SetSkyLightRef(ASkyLight* pSkyLight) { m_pSkyLightRef = pSkyLight; }
@@ -169,13 +169,13 @@ namespace Insight {
 		inline uint8_t GetNumRenderTargets() const { return m_NumRenderTargets; }
 
 		// Returns the result of the light pass.
-		inline ComPtr<ID3D12Resource> GetLightPassResult() const { return m_pRenderTargetTextures[0]; }
+		inline Microsoft::WRL::ComPtr<ID3D12Resource> GetLightPassResult() const { return m_pRenderTargetTextures[0]; }
 
 		// Returns the CPU handle to the light pass result buffer.
 		inline D3D12_CPU_DESCRIPTOR_HANDLE GetLightPassResultCPUHandle() { return m_RTVHeap.hCPU(0); }
 
 		// Returns the prefilted bloom threshold buffer.
-		inline ComPtr<ID3D12Resource> GetBloomThresholdResult() const { return m_pRenderTargetTextures[1]; }
+		inline Microsoft::WRL::ComPtr<ID3D12Resource> GetBloomThresholdResult() const { return m_pRenderTargetTextures[1]; }
 
 		// Returns the CPU handle to the Bloom threshold buffer.
 		inline D3D12_CPU_DESCRIPTOR_HANDLE GetBloomThresholdCPUHandle() { return m_RTVHeap.hCPU(1); }
@@ -190,7 +190,7 @@ namespace Insight {
 		virtual void UnSet(FrameResources* pFrameResources) override;
 	private:
 		static const uint8_t	m_NumRenderTargets = 2u;
-		ComPtr<ID3D12Resource>	m_pRenderTargetTextures[m_NumRenderTargets];
+		Microsoft::WRL::ComPtr<ID3D12Resource>	m_pRenderTargetTextures[m_NumRenderTargets];
 
 		DXGI_FORMAT	m_RTVFormats[m_NumRenderTargets] = {
 						DXGI_FORMAT_R32G32B32A32_FLOAT,	// Light Pass result
@@ -200,9 +200,9 @@ namespace Insight {
 		CDescriptorHeapWrapper	m_RTVHeap;
 
 		// G-Buffer references from the geometry pass.
-		std::vector<ComPtr<ID3D12Resource>> m_GBufferRefs;
+		std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> m_GBufferRefs;
 		// Scene depth texture referenced from the geometry pass.
-		ComPtr<ID3D12Resource> m_pSceneDepthTextureRef;
+		Microsoft::WRL::ComPtr<ID3D12Resource> m_pSceneDepthTextureRef;
 
 		ASkyLight* m_pSkyLightRef = nullptr;
 	};
@@ -213,17 +213,17 @@ namespace Insight {
 	/*		Sky Pass		 */
 	/*=======================*/
 
-	class SkyPass : public RenderPass
+	class INSIGHT_API SkyPass : public RenderPass
 	{
 	public:
 		SkyPass() = default;
 		~SkyPass() = default;
 	
 		// Set the reference to the Scene depth texture.
-		inline void SetSceneDepthTextureRef(ComPtr<ID3D12Resource> pSceneDepthBuffer, D3D12_CPU_DESCRIPTOR_HANDLE pDSV) { m_pSceneDepthTextureRef = pSceneDepthBuffer; m_pDSVHandle = pDSV; }
+		inline void SetSceneDepthTextureRef(Microsoft::WRL::ComPtr<ID3D12Resource> pSceneDepthBuffer, D3D12_CPU_DESCRIPTOR_HANDLE pDSV) { m_pSceneDepthTextureRef = pSceneDepthBuffer; m_pDSVHandle = pDSV; }
 		
 		// Set the reference to the render target to draw the sky to.
-		inline void SetRenderTargetRef(ComPtr<ID3D12Resource> pRenderTarget, D3D12_CPU_DESCRIPTOR_HANDLE pRTV) { m_pRenderTargetRef = pRenderTarget; m_pRTVHandle = pRTV;}
+		inline void SetRenderTargetRef(Microsoft::WRL::ComPtr<ID3D12Resource> pRenderTarget, D3D12_CPU_DESCRIPTOR_HANDLE pRTV) { m_pRenderTargetRef = pRenderTarget; m_pRTVHandle = pRTV;}
 		
 		// Set the sky that will be drawn.
 		inline void SetSkySphereRef(ASkySphere* pSkySphere) { m_pSkyShereRef = pSkySphere; }
@@ -237,8 +237,8 @@ namespace Insight {
 		virtual void CreateResources() override;
 
 	private:
-		ComPtr<ID3D12Resource> m_pSceneDepthTextureRef;
-		ComPtr<ID3D12Resource> m_pRenderTargetRef;
+		Microsoft::WRL::ComPtr<ID3D12Resource> m_pSceneDepthTextureRef;
+		Microsoft::WRL::ComPtr<ID3D12Resource> m_pRenderTargetRef;
 		ASkySphere* m_pSkyShereRef = nullptr;
 
 		D3D12_CPU_DESCRIPTOR_HANDLE m_pRTVHandle;
@@ -250,7 +250,7 @@ namespace Insight {
 	/*		Ray-Traced Shadows Pass		 */
 	/*===================================*/
 
-	class RayTracedShadowsPass : public RenderPass
+	class INSIGHT_API RayTracedShadowsPass : public RenderPass
 	{
 	public:
 		RayTracedShadowsPass() = default;
@@ -268,7 +268,7 @@ namespace Insight {
 
 	private:
 		RayTraceHelpers			m_RTHelper;
-		ComPtr<ID3D12Resource>	m_pRayTraceOutput_SRV;
+		Microsoft::WRL::ComPtr<ID3D12Resource>	m_pRayTraceOutput_SRV;
 
 	};
 
@@ -277,7 +277,7 @@ namespace Insight {
 	/*		Shadow Map Pass		 */
 	/*===========================*/
 
-	class ShadowMapPass : public RenderPass
+	class INSIGHT_API ShadowMapPass : public RenderPass
 	{
 	public:
 		ShadowMapPass() = default;
@@ -297,7 +297,7 @@ namespace Insight {
 	/*		Bloom Pass		 */
 	/*=======================*/
 
-	class BloomPass : public RenderPass
+	class INSIGHT_API BloomPass : public RenderPass
 	{
 	public:
 		BloomPass() = default;
@@ -307,7 +307,7 @@ namespace Insight {
 			Create the downsampler and assigned the resources it will depend on.
 			@param pCommandList - The command list the downsampler will execute on.
 		*/
-		void InitHelpers(ComPtr<ID3D12GraphicsCommandList> pCommandList);
+		void InitHelpers(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pCommandList);
 
 		void ResizeHelperBuffers()
 		{
@@ -330,20 +330,20 @@ namespace Insight {
 		
 	private:
 		// The Unorder Access View that will be used to downsample and blur.
-		ComPtr<ID3D12Resource>		m_pDownsampleResult_UAV;
+		Microsoft::WRL::ComPtr<ID3D12Resource>		m_pDownsampleResult_UAV;
 
 		// The Shader Resource View alias for the UAV that was downsampled to in with "BloomPass::m_DownSampleHelper".
 		// The constents are populated via a ID3D12GraphicsCommandList::ResourceCopy command, with 
 		// "BloomPass::m_pDownsampleResult_UAV" being the source for the copy.
-		ComPtr<ID3D12Resource>		m_pDownsampleResult_SRV;
+		Microsoft::WRL::ComPtr<ID3D12Resource>		m_pDownsampleResult_SRV;
 
 		// Unordered Access View to the intermediate resource to blur to.
-		ComPtr<ID3D12Resource>		m_pIntermediateBuffer_UAV;
+		Microsoft::WRL::ComPtr<ID3D12Resource>		m_pIntermediateBuffer_UAV;
 
 		// The Sahder Resouce view alias of "BloomPass::m_pBloomBlurIntermediateBuffer_UAV". This is the final blurred image.
 		// The contents are populated via a "ID3D12GraphicsCommandList::ResourceCopy" command, with 
 		// "BloomPass::m_pIntermediateBuffer_UAV" being the source for the copy.
-		ComPtr<ID3D12Resource>		m_pIntermediateBuffer_SRV;
+		Microsoft::WRL::ComPtr<ID3D12Resource>		m_pIntermediateBuffer_SRV;
 
 		// Helper that will downsample the bloom render target.
 		ThresholdDownSampleHelper	m_DownSampleHelper;
@@ -358,14 +358,14 @@ namespace Insight {
 	/*		Post-Process Composite Pass		 */
 	/*=======================================*/
 
-	class PostProcessCompositePass : public RenderPass
+	class INSIGHT_API PostProcessCompositePass : public RenderPass
 	{
 	public:
 		PostProcessCompositePass()	= default;
 		~PostProcessCompositePass() = default;
 		
 		// Set the reference to the Scene Depth Buffer.
-		inline void SetSceneDepthTextureRef(ComPtr<ID3D12Resource> pDepthTexture) { m_pSceneDepthTextureRef = pDepthTexture; }
+		inline void SetSceneDepthTextureRef(Microsoft::WRL::ComPtr<ID3D12Resource> pDepthTexture) { m_pSceneDepthTextureRef = pDepthTexture; }
 
 
 		virtual void OnStackAttach() {}
@@ -379,7 +379,7 @@ namespace Insight {
 		virtual bool Set(FrameResources* pFrameResources) override;
 		virtual void UnSet(FrameResources* pFrameResources) override;
 	private:
-		ComPtr<ID3D12Resource> m_pSceneDepthTextureRef;
+		Microsoft::WRL::ComPtr<ID3D12Resource> m_pSceneDepthTextureRef;
 		static const uint8_t m_NumRenderTargets = 1u;
 	};
 

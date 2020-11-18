@@ -85,7 +85,7 @@ project (appName .. "_Win32")
 	systemversion "latest"
 	defines
 	{
-		"IE_PLATFORM_BUILD_WIN32"
+		"IE_PLATFORM_BUILD_WIN32",
 	}
 	flags
 	{

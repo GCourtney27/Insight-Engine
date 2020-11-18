@@ -1,9 +1,4 @@
-#include "Client_App.h"
-
-namespace TankGame {
-
-
-}
+#include "ClientApp.h"
 
 Insight::Application* Insight::CreateApplication()
 {

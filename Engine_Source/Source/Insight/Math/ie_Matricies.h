@@ -10,7 +10,7 @@ namespace Insight {
 		/*
 			Per-component matricies
 		*/
-#if defined IE_PLATFORM_BUILD_WIN32
+#if defined IE_PLATFORM_WINDOWS
 		using ieFloat3x3 = DirectX::XMFLOAT3X3;
 		using ieFloat4x4 = DirectX::XMFLOAT4X4;
 #elif defined RN_PLATFORM_MAC
@@ -25,7 +25,7 @@ namespace Insight {
 		/*
 			SIMD Matricies
 		*/
-#if defined IE_PLATFORM_BUILD_WIN32
+#if defined IE_PLATFORM_WINDOWS
 		using ieMatrix = DirectX::XMMATRIX;
 		using ieMatrix2x2 = DirectX::XMMATRIX;
 		using ieMatrix3x3 = DirectX::XMMATRIX;

@@ -19,9 +19,9 @@ namespace Insight {
 	public:
 		struct AccelerationStructureBuffers
 		{
-			ComPtr<ID3D12Resource> pScratch;      // Scratch memory for AS builder
-			ComPtr<ID3D12Resource> pResult;       // Where the AS is
-			ComPtr<ID3D12Resource> pInstanceDesc; // Hold the matrices of the instances
+			Microsoft::WRL::ComPtr<ID3D12Resource> pScratch;      // Scratch memory for AS builder
+			Microsoft::WRL::ComPtr<ID3D12Resource> pResult;       // Where the AS is
+			Microsoft::WRL::ComPtr<ID3D12Resource> pInstanceDesc; // Hold the matrices of the instances
 		};
 	private:
 		struct CB_CHS_LightParams
@@ -53,11 +53,11 @@ namespace Insight {
 		}
 
 		inline ID3D12Resource* GetOutputBuffer() { return m_pOutputBuffer_UAV.Get(); }
-		uint32_t RegisterBottomLevelASGeometry(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVeticies, uint32_t NumIndices, DirectX::XMMATRIX WorldMat);
+		uint32_t RegisterBottomLevelASGeometry(Microsoft::WRL::ComPtr<ID3D12Resource> pVertexBuffer, Microsoft::WRL::ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVeticies, uint32_t NumIndices, DirectX::XMMATRIX WorldMat);
 
 	private:
-		AccelerationStructureBuffers CreateBottomLevelAS(std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> VertexBuffers, std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> IndexBuffers = {});
-		void CreateTopLevelAS(const std::vector<std::pair<ComPtr<ID3D12Resource>, DirectX::XMMATRIX>>& instances, bool UpdateOnly = false);
+		AccelerationStructureBuffers CreateBottomLevelAS(std::vector<std::pair<Microsoft::WRL::ComPtr<ID3D12Resource>, uint32_t>> VertexBuffers, std::vector<std::pair<Microsoft::WRL::ComPtr<ID3D12Resource>, uint32_t>> IndexBuffers = {});
+		void CreateTopLevelAS(const std::vector<std::pair<Microsoft::WRL::ComPtr<ID3D12Resource>, DirectX::XMMATRIX>>& instances, bool UpdateOnly = false);
 		void CreateAccelerationStructures();
 
 		void CreateRTPipeline();
@@ -66,18 +66,18 @@ namespace Insight {
 		void CreateShaderResourceHeap();
 		void CreateBuffers();
 		
-		ComPtr<ID3D12RootSignature> CreateRayGenSignature();
-		ComPtr<ID3D12RootSignature> CreateMissSignature();
-		ComPtr<ID3D12RootSignature> CreateHitSignature();
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> CreateRayGenSignature();
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> CreateMissSignature();
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> CreateHitSignature();
 
 	private:
 		uint32_t m_NextAvailabledInstanceArrIndex = 0U;
 
-		std::vector< std::pair<ComPtr<ID3D12Resource>, uint32_t> > m_ASVertexBuffers;
-		std::vector< std::pair<ComPtr<ID3D12Resource>, uint32_t> > m_ASIndexBuffers;
+		std::vector< std::pair<Microsoft::WRL::ComPtr<ID3D12Resource>, uint32_t> > m_ASVertexBuffers;
+		std::vector< std::pair<Microsoft::WRL::ComPtr<ID3D12Resource>, uint32_t> > m_ASIndexBuffers;
 
-		ComPtr<ID3D12Device5>				m_pDeviceRef;
-		ComPtr<ID3D12GraphicsCommandList4>	m_pCommandListRef;
+		Microsoft::WRL::ComPtr<ID3D12Device5>				m_pDeviceRef;
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4>	m_pCommandListRef;
 
 		uint32_t m_WindowWidth = 0U;
 		uint32_t m_WindowHeight = 0U;
@@ -90,36 +90,36 @@ namespace Insight {
 		// 3: light constant buffer
 		CDescriptorHeapWrapper				m_srvUavHeap;
 
-		ComPtr<ID3D12Resource>					m_pCameraBuffer;
+		Microsoft::WRL::ComPtr<ID3D12Resource>					m_pCameraBuffer;
 		int										m_CameraBufferSize = 0;
 		CB_RG_CameraParams						m_CBCameraParams;
-		ComPtr<ID3D12Resource>					m_pLightBuffer;
+		Microsoft::WRL::ComPtr<ID3D12Resource>					m_pLightBuffer;
 		int										m_LightBufferSize = 0;
 		CB_CHS_LightParams						m_CBLightParams;
-		
-		ComPtr<ID3D12Resource>					m_pOutputBuffer_UAV;
+
+		Microsoft::WRL::ComPtr<ID3D12Resource>					m_pOutputBuffer_UAV;
 
 		NvidiaHelpers::TopLevelASGenerator		m_TopLevelASGenerator;
 		AccelerationStructureBuffers			m_TopLevelASBuffers;
 
-		std::vector<std::pair<ComPtr<ID3D12Resource>, DirectX::XMMATRIX>> m_Instances;
+		std::vector<std::pair<Microsoft::WRL::ComPtr<ID3D12Resource>, DirectX::XMMATRIX>> m_Instances;
 		std::vector<AccelerationStructureBuffers> m_AccelerationStructureBuffers;
 		
-		ComPtr<IDxcBlob> m_RayGenLibrary;
-		ComPtr<IDxcBlob> m_HitLibrary;
-		ComPtr<IDxcBlob> m_MissLibrary;
-		ComPtr<IDxcBlob> m_ShadowLibrary;
+		Microsoft::WRL::ComPtr<IDxcBlob> m_RayGenLibrary;
+		Microsoft::WRL::ComPtr<IDxcBlob> m_HitLibrary;
+		Microsoft::WRL::ComPtr<IDxcBlob> m_MissLibrary;
+		Microsoft::WRL::ComPtr<IDxcBlob> m_ShadowLibrary;
 
-		ComPtr<ID3D12RootSignature> m_RayGenSignature;
-		ComPtr<ID3D12RootSignature> m_HitSignature;
-		ComPtr<ID3D12RootSignature> m_MissSignature;
-		ComPtr<ID3D12RootSignature> m_ShadowSignature;
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_RayGenSignature;
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_HitSignature;
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_MissSignature;
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_ShadowSignature;
 
-		ComPtr<ID3D12StateObject> m_rtStateObject;
-		ComPtr<ID3D12StateObjectProperties> m_rtStateObjectProps;
+		Microsoft::WRL::ComPtr<ID3D12StateObject> m_rtStateObject;
+		Microsoft::WRL::ComPtr<ID3D12StateObjectProperties> m_rtStateObjectProps;
 
 		NvidiaHelpers::ShaderBindingTableGenerator m_sbtHelper;
-		ComPtr<ID3D12Resource> m_sbtStorage;
+		Microsoft::WRL::ComPtr<ID3D12Resource> m_sbtStorage;
 	};
 
 }

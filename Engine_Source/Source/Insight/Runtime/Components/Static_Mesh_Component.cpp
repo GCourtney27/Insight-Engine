@@ -125,7 +125,7 @@ namespace Insight {
 		void StaticMeshComponent::OnEvent(Event& e)
 		{
 			EventDispatcher Dispatcher(e);
-			Dispatcher.Dispatch<TranslationEvent>(IE_BIND_EVENT_FN(StaticMeshComponent::OnEventTranslation));
+			Dispatcher.Dispatch<TranslationEvent>(IE_BIND_LOCAL_EVENT_FN(StaticMeshComponent::OnEventTranslation));
 		}
 
 		void StaticMeshComponent::OnInit()

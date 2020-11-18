@@ -120,12 +120,12 @@ namespace Insight {
 
 	uint32_t RayTraceHelpers::RegisterBottomLevelASGeometry(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVeticies, uint32_t NumIndices, XMMATRIX WorldMat)
 	{
-		m_ASVertexBuffers.push_back(std::pair(pVertexBuffer, NumVeticies));
-		m_ASIndexBuffers.push_back(std::pair(pIndexBuffer, NumIndices));
+		m_ASVertexBuffers.push_back(std::make_pair(pVertexBuffer, NumVeticies));
+		m_ASIndexBuffers.push_back(std::make_pair(pIndexBuffer, NumIndices));
 
 		AccelerationStructureBuffers BottomLevelBuffers = CreateBottomLevelAS({ {pVertexBuffer.Get(), NumVeticies} }, { {pIndexBuffer.Get(), NumIndices} });
 
-		m_Instances.push_back(std::pair(BottomLevelBuffers.pResult, WorldMat));
+		m_Instances.push_back(std::make_pair(BottomLevelBuffers.pResult, WorldMat));
 		return m_NextAvailabledInstanceArrIndex++;
 	}
 

@@ -10,8 +10,8 @@
 #include "Insight/Core/Layer/ImGui_Layer.h"
 #if defined (IE_PLATFORM_BUILD_WIN32)
 #include "Platform/Win32/Win32_Window.h"
-#elif defined (IE_PLAFORM_BUILD_UWP)
-// TODO UWP Window include
+#elif defined (IE_PLATFORM_BUILD_UWP)
+#include "Platform/UWP/UWP_Window.h"
 #endif
 
 // Util

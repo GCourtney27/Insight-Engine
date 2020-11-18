@@ -25,12 +25,8 @@ namespace Insight {
 
 
 
-	Direct3D12Context::Direct3D12Context(Win32Window* WindowHandle)
-		: m_pWindowRef(WindowHandle),
-		Renderer(false)
+	Direct3D12Context::Direct3D12Context()
 	{
-		IE_ASSERT(WindowHandle != nullptr, "Window handle is NULL, cannot initialize D3D 12 context with NULL window handle.");
-		m_AspectRatio = static_cast<float>(m_pWindowRef->GetWidth()) / static_cast<float>(m_pWindowRef->GetHeight());
 	}
 
 	Direct3D12Context::~Direct3D12Context()
@@ -42,12 +38,12 @@ namespace Insight {
 	{
 		// Wait until GPU is done consuming all data
 		// before closing all handles and releasing resources
-		m_d3dDeviceResources.WaitForGPU();
+		m_DeviceResources.WaitForGPU();
 
 		if (!m_AllowTearing) 
-			m_d3dDeviceResources.GetSwapChain().SetFullscreenState(false, NULL);
+			m_DeviceResources.GetSwapChain().SetFullscreenState(false, NULL);
 
-		m_d3dDeviceResources.CleanUp();
+		m_DeviceResources.CleanUp();
 	}
 
 	bool Direct3D12Context::Init_Impl()
@@ -56,15 +52,15 @@ namespace Insight {
 
 		try 
 		{
-			m_d3dDeviceResources.Init(this);
+			m_DeviceResources.Init(this);
 			
-			m_FrameResources.Init(&m_d3dDeviceResources.GetDeviceContext());
-			HRESULT hr = m_cbvsrvHeap.Create(&m_d3dDeviceResources.GetDeviceContext(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 70, true);
+			m_FrameResources.Init(&m_DeviceResources.GetDeviceContext());
+			HRESULT hr = m_cbvsrvHeap.Create(&m_DeviceResources.GetDeviceContext(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 70, true);
 			ThrowIfFailed(hr, "Failed to create descriptor heap for shader visible resources.");
 
 			CreateCommandAllocators();
 
-			PIXBeginEvent(&m_d3dDeviceResources.GetGraphicsCommandQueue(), 0, L"D3D12 Context Setup");
+			PIXBeginEvent(&m_DeviceResources.GetGraphicsCommandQueue(), 0, L"D3D12 Context Setup");
 			{
 				//CreateScreenQuad();
 				CreateViewport();
@@ -120,7 +116,7 @@ namespace Insight {
 
 				CreateSwapChainRTVDescriptorHeap();
 			}
-			PIXEndEvent(&m_d3dDeviceResources.GetGraphicsCommandQueue());
+			PIXEndEvent(&m_DeviceResources.GetGraphicsCommandQueue());
 		}
 		catch (COMException& Ex) 
 		{
@@ -361,8 +357,8 @@ namespace Insight {
 			m_pTransparencyPass_CommandList->SetPipelineState(m_pTransparency_PSO.Get());
 			m_pTransparencyPass_CommandList->SetGraphicsRootSignature(m_pForwardShadingPass_RS.Get());
 
-			m_pTransparencyPass_CommandList->RSSetScissorRects(1, &m_d3dDeviceResources.GetClientScissorRect());
-			m_pTransparencyPass_CommandList->RSSetViewports(1, &m_d3dDeviceResources.GetClientViewPort());
+			m_pTransparencyPass_CommandList->RSSetScissorRects(1, &m_DeviceResources.GetClientScissorRect());
+			m_pTransparencyPass_CommandList->RSSetViewports(1, &m_DeviceResources.GetClientViewPort());
 			m_pTransparencyPass_CommandList->OMSetRenderTargets(1, &m_rtvHeap.hCPU(4), TRUE, &m_dsvHeap.hCPU(0));
 
 			m_pTransparencyPass_CommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -386,8 +382,8 @@ namespace Insight {
 
 			m_pPostEffectsPass_CommandList->OMSetRenderTargets(1, &GetSwapChainRTV(), TRUE, nullptr);
 
-			m_pPostEffectsPass_CommandList->RSSetScissorRects(1, &m_d3dDeviceResources.GetClientScissorRect());
-			m_pPostEffectsPass_CommandList->RSSetViewports(1, &m_d3dDeviceResources.GetClientViewPort());
+			m_pPostEffectsPass_CommandList->RSSetScissorRects(1, &m_DeviceResources.GetClientScissorRect());
+			m_pPostEffectsPass_CommandList->RSSetViewports(1, &m_DeviceResources.GetClientViewPort());
 
 			m_pPostEffectsPass_CommandList->SetPipelineState(m_pDebugScreenQuad_PSO.Get());
 			m_pPostEffectsPass_CommandList->SetGraphicsRootSignature(m_pDebugScreenQuad_RS.Get());
@@ -510,7 +506,7 @@ namespace Insight {
 			m_pPostEffectsPass_CommandList.Get(),
 #endif
 		};
-		m_d3dDeviceResources.GetGraphicsCommandQueue().ExecuteCommandLists(_countof(ppScenePassLists), ppScenePassLists);
+		m_DeviceResources.GetGraphicsCommandQueue().ExecuteCommandLists(_countof(ppScenePassLists), ppScenePassLists);
 
 		// Bloom Compute
 #if BLOOM_ENABLED
@@ -527,7 +523,7 @@ namespace Insight {
 
 #endif // BLOOM_ENABLED
 
-		m_d3dDeviceResources.WaitForGPU();
+		m_DeviceResources.WaitForGPU();
 	}
 
 	void Direct3D12Context::SwapBuffers_Impl()
@@ -535,9 +531,9 @@ namespace Insight {
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
 		UINT PresentFlags = (m_AllowTearing && m_WindowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
-		ThrowIfFailed(m_d3dDeviceResources.GetSwapChain().Present(m_VSyncEnabled, PresentFlags), "Failed to present frame for D3D 12 context.");
+		ThrowIfFailed(m_DeviceResources.GetSwapChain().Present(m_pWindowRef->GetIsVsyncEnabled(), PresentFlags), "Failed to present frame for D3D 12 context.");
 
-		m_d3dDeviceResources.MoveToNextFrame();
+		m_DeviceResources.MoveToNextFrame();
 	}
 
 	void Direct3D12Context::OnWindowResize_Impl()
@@ -547,7 +543,7 @@ namespace Insight {
 			if (m_WindowResizeComplete) 
 			{
 				m_WindowResizeComplete = false;
-				m_d3dDeviceResources.WaitForGPU();
+				m_DeviceResources.WaitForGPU();
 
 				UpdateSizeDependentResources();
 			}
@@ -558,7 +554,11 @@ namespace Insight {
 
 	void Direct3D12Context::OnWindowFullScreen_Impl()
 	{
-		HWND& pHWND = m_pWindowRef->GetWindowHandleRef();
+#if defined (IE_PLATFORM_BUILD_WIN32)
+
+		Win32Window* pWindow = reinterpret_cast<Win32Window*>(m_pWindowRef);
+
+		HWND& pHWND = pWindow->GetWindowHandleRef();
 
 		if (m_FullScreenMode)
 		{
@@ -567,28 +567,28 @@ namespace Insight {
 			SetWindowPos(
 				pHWND,
 				HWND_NOTOPMOST,
-				m_pWindowRef->GetWindowRect().left,
-				m_pWindowRef->GetWindowRect().top,
-				m_pWindowRef->GetWindowRect().right - m_pWindowRef->GetWindowRect().left,
-				m_pWindowRef->GetWindowRect().bottom - m_pWindowRef->GetWindowRect().top,
+				pWindow->GetWindowRect().left,
+				pWindow->GetWindowRect().top,
+				pWindow->GetWindowRect().right - pWindow->GetWindowRect().left,
+				pWindow->GetWindowRect().bottom - pWindow->GetWindowRect().top,
 				SWP_FRAMECHANGED | SWP_NOACTIVATE
 			);
 			ShowWindow(pHWND, SW_NORMAL);
 		}
 		else
 		{
-			GetWindowRect(pHWND, &m_pWindowRef->GetWindowRect());
+			GetWindowRect(pHWND, &pWindow->GetWindowRect());
 
 			SetWindowLong(pHWND, GWL_STYLE, WS_OVERLAPPEDWINDOW & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
 
 			RECT fullscreenWindowRect;
 			try
 			{
-				if (&m_d3dDeviceResources.GetSwapChain())
+				if (&m_DeviceResources.GetSwapChain())
 				{
 					// Get the settings of the display on which the app's window is currently displayed
 					ComPtr<IDXGIOutput> pOutput;
-					ThrowIfFailed(m_d3dDeviceResources.GetSwapChain().GetContainingOutput(&pOutput), "Failed to get containing output while switching to fullscreen mode in D3D 12 context.");
+					ThrowIfFailed(m_DeviceResources.GetSwapChain().GetContainingOutput(&pOutput), "Failed to get containing output while switching to fullscreen mode in D3D 12 context.");
 					DXGI_OUTPUT_DESC Desc;
 					ThrowIfFailed(pOutput->GetDesc(&Desc), "Failed to get description from output while switching to fullscreen mode in D3D 12 context.");
 					fullscreenWindowRect = Desc.DesktopCoordinates;
@@ -629,6 +629,7 @@ namespace Insight {
 			ShowWindow(pHWND, SW_MAXIMIZE);
 		}
 		m_FullScreenMode = !m_FullScreenMode;
+#endif // IE_PLATFORM_BUILD_WIN32
 	}
 
 	void Direct3D12Context::OnShaderReload_Impl()
@@ -692,15 +693,15 @@ namespace Insight {
 	void Direct3D12Context::CreateSwapChainRTVDescriptorHeap()
 	{
 		HRESULT hr;
-		m_d3dDeviceResources.WaitForGPU();
+		m_DeviceResources.WaitForGPU();
 
-		m_SwapChainRTVHeap.Create(&m_d3dDeviceResources.GetDeviceContext(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_FrameBufferCount, false);
+		m_SwapChainRTVHeap.Create(&m_DeviceResources.GetDeviceContext(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_FrameBufferCount, false);
 
 		for (UINT i = 0; i < m_FrameBufferCount; i++) 
 		{
-			hr = m_d3dDeviceResources.GetSwapChain().GetBuffer(i, IID_PPV_ARGS(&m_pSwapChainRenderTargets[i]));
+			hr = m_DeviceResources.GetSwapChain().GetBuffer(i, IID_PPV_ARGS(&m_pSwapChainRenderTargets[i]));
 			ThrowIfFailed(hr, "Failed to get buffer in swap chain during descriptor heap initialization for D3D 12 context.");
-			m_d3dDeviceResources.GetDeviceContext().CreateRenderTargetView(m_pSwapChainRenderTargets[i].Get(), nullptr, m_SwapChainRTVHeap.hCPU(i));
+			m_DeviceResources.GetDeviceContext().CreateRenderTargetView(m_pSwapChainRenderTargets[i].Get(), nullptr, m_SwapChainRTVHeap.hCPU(i));
 
 			WCHAR name[32];
 			swprintf_s(name, L"SwapChain Render Target %d", i);
@@ -712,7 +713,7 @@ namespace Insight {
 	{
 		HRESULT hr = S_OK;
 		return;
-		ID3D12Device* pDevice = &m_d3dDeviceResources.GetDeviceContext();
+		ID3D12Device* pDevice = &m_DeviceResources.GetDeviceContext();
 		m_dsvHeap.Create(pDevice, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 2);
 		CD3DX12_HEAP_PROPERTIES DefaultHeapProps(D3D12_HEAP_TYPE_DEFAULT);
 
@@ -876,7 +877,7 @@ namespace Insight {
 		HRESULT hr = D3D12SerializeRootSignature(&RootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, RootSignatureBlob.GetAddressOf(), ErrorBlob.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to serialize root signature for D3D 12 context.");
 
-		hr = m_d3dDeviceResources.GetDeviceContext().CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pDeferredShadingPass_RS));
+		hr = m_DeviceResources.GetDeviceContext().CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pDeferredShadingPass_RS));
 		ThrowIfFailed(hr, "Failed to create root signature for D3D 12 context.");
 	}
 
@@ -961,7 +962,7 @@ namespace Insight {
 		HRESULT hr = D3D12SerializeRootSignature(&RootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, RootSignatureBlob.GetAddressOf(), ErrorBlob.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to serialize root signature for D3D 12 context.");
 
-		hr = m_d3dDeviceResources.GetDeviceContext().CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pForwardShadingPass_RS));
+		hr = m_DeviceResources.GetDeviceContext().CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pForwardShadingPass_RS));
 		ThrowIfFailed(hr, "Failed to create root signature for D3D 12 context.");
 	}
 
@@ -985,7 +986,7 @@ namespace Insight {
 		HRESULT hr = D3D12SerializeRootSignature(&RootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, RootSignatureBlob.GetAddressOf(), ErrorBlob.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to serialize root signature for D3D 12 context.");
 
-		hr = m_d3dDeviceResources.GetDeviceContext().CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pBloomPass_RS));
+		hr = m_DeviceResources.GetDeviceContext().CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pBloomPass_RS));
 		ThrowIfFailed(hr, "Failed to create root signature for D3D 12 context.");
 	}
 
@@ -1027,7 +1028,7 @@ namespace Insight {
 		HRESULT hr = D3D12SerializeRootSignature(&RootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, RootSignatureBlob.GetAddressOf(), ErrorBlob.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to serialize root signature for D3D 12 context.");
 
-		hr = m_d3dDeviceResources.GetDeviceContext().CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pDebugScreenQuad_RS));
+		hr = m_DeviceResources.GetDeviceContext().CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pDebugScreenQuad_RS));
 		ThrowIfFailed(hr, "Failed to create root signature for D3D 12 context.");
 	}
 
@@ -1040,7 +1041,7 @@ namespace Insight {
 			ComPtr<ID3DBlob> pVertexShader;
 			ComPtr<ID3DBlob> pPixelShader;
 
-			const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+			const wchar_t* ExeDirectory = FileSystem::GetExecutbleDirectoryW();
 			std::wstring VertShaderFolder(ExeDirectory);
 			VertShaderFolder += L"../Renderer/Shadow_Pass.vertex.cso";
 			std::wstring PixelShaderFolder(ExeDirectory);
@@ -1095,7 +1096,7 @@ namespace Insight {
 			PsoDesc.NumRenderTargets = 0;
 			PsoDesc.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
 
-			hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pShadowPass_PSO));
+			hr = m_DeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pShadowPass_PSO));
 			ThrowIfFailed(hr, "Failed to create graphics pipeline state for shadow pass in D3D 12 context.");
 			m_pShadowPass_PSO->SetName(L"PSO Shadow Pass");
 		}
@@ -1105,7 +1106,7 @@ namespace Insight {
 			ComPtr<ID3DBlob> pVertexShader;
 			ComPtr<ID3DBlob> pPixelShader;
 
-			const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+			const wchar_t* ExeDirectory = FileSystem::GetExecutbleDirectoryW();
 			std::wstring VertexShaderFolder(ExeDirectory);
 			VertexShaderFolder += L"../Renderer/Screen_Aligned_Quad.vertex.cso";
 			std::wstring PixelShaderFolder(ExeDirectory);
@@ -1149,10 +1150,10 @@ namespace Insight {
 			descPipelineState.SampleMask = UINT_MAX;
 			descPipelineState.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 			descPipelineState.NumRenderTargets = 1;
-			descPipelineState.RTVFormats[0] = m_d3dDeviceResources.GetSwapChainBackBufferFormat();
+			descPipelineState.RTVFormats[0] = m_DeviceResources.GetSwapChainBackBufferFormat();
 			descPipelineState.SampleDesc.Count = 1;
 
-			hr = m_d3dDeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pDebugScreenQuad_PSO));
+			hr = m_DeviceResources.GetDeviceContext().CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pDebugScreenQuad_PSO));
 			ThrowIfFailed(hr, "Failed to create graphics pipeline state for Debug Screen Quad pass in D3D 12 context.");
 			m_pDebugScreenQuad_PSO->SetName(L"PSO Debug Screen Quad Pass");
 		}
@@ -1161,7 +1162,7 @@ namespace Insight {
 		{
 			ComPtr<ID3DBlob> pComputeShader;
 
-			const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+			const wchar_t* ExeDirectory = FileSystem::GetExecutbleDirectoryW();
 			std::wstring VertexShaderFolder(ExeDirectory);
 			VertexShaderFolder += L"../Renderer/Threshold_Down_Sample.compute.cso";
 
@@ -1176,7 +1177,7 @@ namespace Insight {
 			PipelineDesc.CS = ComputeShaderBytecode;
 			PipelineDesc.pRootSignature = m_pBloomPass_RS.Get();
 
-			hr = m_d3dDeviceResources.GetDeviceContext().CreateComputePipelineState(&PipelineDesc, IID_PPV_ARGS(&m_pThresholdDownSample_PSO));
+			hr = m_DeviceResources.GetDeviceContext().CreateComputePipelineState(&PipelineDesc, IID_PPV_ARGS(&m_pThresholdDownSample_PSO));
 			ThrowIfFailed(hr, "Failed to create texture downsampling pipeline for bloom pass.");
 			m_pThresholdDownSample_PSO->SetName(L"Bloom Pass PSO");
 		}
@@ -1185,7 +1186,7 @@ namespace Insight {
 		{
 			ComPtr<ID3DBlob> pComputeShader;
 
-			const std::wstring_view ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+			const wchar_t* ExeDirectory = FileSystem::GetExecutbleDirectoryW();
 			std::wstring ComputeShaderFolder(ExeDirectory);
 			ComputeShaderFolder += L"../Renderer/Gaussian_Blur.compute.cso";
 
@@ -1200,7 +1201,7 @@ namespace Insight {
 			PipelineDesc.CS = ComputeShaderBytecode;
 			PipelineDesc.pRootSignature = m_pBloomPass_RS.Get();
 
-			hr = m_d3dDeviceResources.GetDeviceContext().CreateComputePipelineState(&PipelineDesc, IID_PPV_ARGS(&m_pGaussianBlur_PSO));
+			hr = m_DeviceResources.GetDeviceContext().CreateComputePipelineState(&PipelineDesc, IID_PPV_ARGS(&m_pGaussianBlur_PSO));
 			ThrowIfFailed(hr, "Failed to create gaussian blur pipeline for bloom pass.");
 			m_pGaussianBlur_PSO->SetName(L"Bloom Pass PSO");
 		}
@@ -1215,12 +1216,12 @@ namespace Insight {
 		{
 			for (int i = 0; i < m_FrameBufferCount; i++)
 			{
-				hr = m_d3dDeviceResources.GetDeviceContext().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pScenePass_CommandAllocators[i]));
+				hr = m_DeviceResources.GetDeviceContext().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pScenePass_CommandAllocators[i]));
 				ThrowIfFailed(hr, "Failed to Scene Pass Create Command Allocator for D3D 12 context");
 				m_pScenePass_CommandAllocators[i]->SetName(L"Scene Pass Command Allocator");
 			}
 
-			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pScenePass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pScenePass_CommandList));
+			hr = m_DeviceResources.GetDeviceContext().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pScenePass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pScenePass_CommandList));
 			ThrowIfFailed(hr, "Failed to Scene Pass Create Command List for D3D 12 context");
 			m_pScenePass_CommandList->SetName(L"Scene Pass Command List");
 
@@ -1232,12 +1233,12 @@ namespace Insight {
 		{
 			for (int i = 0; i < m_FrameBufferCount; i++)
 			{
-				hr = m_d3dDeviceResources.GetDeviceContext().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pShadowPass_CommandAllocators[i]));
+				hr = m_DeviceResources.GetDeviceContext().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pShadowPass_CommandAllocators[i]));
 				ThrowIfFailed(hr, "Failed to Create Command Allocator for D3D 12 context");
 				m_pShadowPass_CommandAllocators[i]->SetName(L"Shadow Pass Command Allocator");
 			}
 
-			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pShadowPass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pShadowPass_CommandList));
+			hr = m_DeviceResources.GetDeviceContext().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pShadowPass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pShadowPass_CommandList));
 			ThrowIfFailed(hr, "Failed to Create Shadow Pass Command List for D3D 12 context");
 			m_pShadowPass_CommandList->SetName(L"Shadow Pass Command List");
 
@@ -1248,12 +1249,12 @@ namespace Insight {
 		{
 			for (int i = 0; i < m_FrameBufferCount; i++)
 			{
-				hr = m_d3dDeviceResources.GetDeviceContext().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pTransparencyPass_CommandAllocators[i]));
+				hr = m_DeviceResources.GetDeviceContext().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pTransparencyPass_CommandAllocators[i]));
 				ThrowIfFailed(hr, "Failed to Create Command Allocator for D3D 12 context");
 				m_pTransparencyPass_CommandAllocators[i]->SetName(L"Transparency Pass Command Allocator");
 			}
 
-			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pTransparencyPass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pTransparencyPass_CommandList));
+			hr = m_DeviceResources.GetDeviceContext().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pTransparencyPass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pTransparencyPass_CommandList));
 			ThrowIfFailed(hr, "Failed to Create Transparency Pass Command List for D3D 12 context");
 			m_pTransparencyPass_CommandList->SetName(L"Transparency Pass Command List");
 
@@ -1264,12 +1265,12 @@ namespace Insight {
 		{
 			for (int i = 0; i < m_FrameBufferCount; i++)
 			{
-				hr = m_d3dDeviceResources.GetDeviceContext().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pPostEffectsPass_CommandAllocators[i]));
+				hr = m_DeviceResources.GetDeviceContext().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pPostEffectsPass_CommandAllocators[i]));
 				ThrowIfFailed(hr, "Failed to Create Command Allocator for D3D 12 context");
 				m_pPostEffectsPass_CommandAllocators[i]->SetName(L"Post-Process Pass Command Allocator");
 			}
 
-			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pPostEffectsPass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pPostEffectsPass_CommandList));
+			hr = m_DeviceResources.GetDeviceContext().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pPostEffectsPass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pPostEffectsPass_CommandList));
 			ThrowIfFailed(hr, "Failed to Create Post-Process Pass Command List for D3D 12 context");
 			m_pPostEffectsPass_CommandList->SetName(L"Post-Process Pass Command List");
 
@@ -1280,12 +1281,12 @@ namespace Insight {
 		{
 			for (int i = 0; i < m_FrameBufferCount; i++)
 			{
-				hr = m_d3dDeviceResources.GetDeviceContext().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_COMPUTE, IID_PPV_ARGS(&m_pDownSample_CommandAllocators[i]));
+				hr = m_DeviceResources.GetDeviceContext().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_COMPUTE, IID_PPV_ARGS(&m_pDownSample_CommandAllocators[i]));
 				ThrowIfFailed(hr, "Failed to Create Command Allocator for D3D 12 context");
 				m_pDownSample_CommandAllocators[i]->SetName(L"Gaussian Blur Command Allocator");
 			}
 
-			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COMPUTE, m_pDownSample_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pDownSample_CommandList));
+			hr = m_DeviceResources.GetDeviceContext().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COMPUTE, m_pDownSample_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pDownSample_CommandList));
 			ThrowIfFailed(hr, "Failed to Create Gaussian Blur Command List for D3D 12 context");
 			m_pDownSample_CommandList->SetName(L"Gaussian Blur Command List");
 
@@ -1296,12 +1297,12 @@ namespace Insight {
 		{
 			for (int i = 0; i < m_FrameBufferCount; i++)
 			{
-				hr = m_d3dDeviceResources.GetDeviceContext().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pRayTracePass_CommandAllocators[i]));
+				hr = m_DeviceResources.GetDeviceContext().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pRayTracePass_CommandAllocators[i]));
 				ThrowIfFailed(hr, "Failed to Create Command Allocator for D3D 12 context");
 				m_pRayTracePass_CommandAllocators[i]->SetName(L"Post-Process Pass Command Allocator");
 			}
 
-			hr = m_d3dDeviceResources.GetDeviceContext().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pRayTracePass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pRayTracePass_CommandList));
+			hr = m_DeviceResources.GetDeviceContext().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pRayTracePass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pRayTracePass_CommandList));
 			ThrowIfFailed(hr, "Failed to Create Post-Process Pass Command List for D3D 12 context");
 			m_pRayTracePass_CommandList->SetName(L"Ray Trace Pass Command List");
 
@@ -1314,9 +1315,9 @@ namespace Insight {
 			m_pTransparencyPass_CommandList.Get(),
 			m_pPostEffectsPass_CommandList.Get()
 		};
-		m_d3dDeviceResources.GetGraphicsCommandQueue().ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-		m_d3dDeviceResources.IncrementAndSignalFence();
-		m_d3dDeviceResources.WaitForGPU();
+		m_DeviceResources.GetGraphicsCommandQueue().ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+		m_DeviceResources.IncrementAndSignalFence();
+		m_DeviceResources.WaitForGPU();
 	}
 
 	void Direct3D12Context::CreateViewport()
@@ -1370,11 +1371,11 @@ namespace Insight {
 			m_pScenePass_CommandList.Get(),
 			m_pRayTracePass_CommandList.Get()
 		};
-		m_d3dDeviceResources.GetGraphicsCommandQueue().ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+		m_DeviceResources.GetGraphicsCommandQueue().ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
-		m_d3dDeviceResources.IncrementAndSignalFence();
+		m_DeviceResources.IncrementAndSignalFence();
 
-		m_d3dDeviceResources.WaitForGPU();
+		m_DeviceResources.WaitForGPU();
 	}
 
 	void Direct3D12Context::UpdateSizeDependentResources()
@@ -1407,18 +1408,18 @@ namespace Insight {
 			for (uint8_t i = 0; i < m_FrameBufferCount; ++i)
 				m_pSwapChainRenderTargets[i].Reset();
 
-			m_d3dDeviceResources.ResizeResources();
+			m_DeviceResources.ResizeResources();
 			CreateSwapChainRTVDescriptorHeap();
 			BOOL FullScreenState;
-			m_d3dDeviceResources.GetSwapChain().GetFullscreenState(&FullScreenState, nullptr);
+			m_DeviceResources.GetSwapChain().GetFullscreenState(&FullScreenState, nullptr);
 			m_WindowedMode = !FullScreenState;
-			m_d3dDeviceResources.SetFrameIndex(m_d3dDeviceResources.GetSwapChain().GetCurrentBackBufferIndex());
+			m_DeviceResources.SetFrameIndex(m_DeviceResources.GetSwapChain().GetCurrentBackBufferIndex());
 		}
 
 		// Recreate Camera Projection Matrix
 		{
 			if (!m_pWorldCameraRef->GetIsOrthographic()) {
-				m_pWorldCameraRef->SetPerspectiveProjectionValues(m_pWorldCameraRef->GetFOV(), static_cast<float>(m_pWindowRef->GetWidth()) / static_cast<float>(m_pWindowRef->GetHeight()), m_pWorldCameraRef->GetNearZ(), m_pWorldCameraRef->GetFarZ());
+				m_pWorldCameraRef->SetPerspectiveProjectionValues(m_pWorldCameraRef->GetFOV(), m_pWindowRef->GetAspectRatio(), m_pWorldCameraRef->GetNearZ(), m_pWorldCameraRef->GetFarZ());
 			}
 		}
 	}

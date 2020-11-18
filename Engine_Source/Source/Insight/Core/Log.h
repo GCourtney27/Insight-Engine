@@ -27,7 +27,7 @@ namespace Insight {
 		private:
 			static std::shared_ptr<spdlog::logger> s_CoreLogger;
 			static std::shared_ptr<spdlog::logger> s_ClientLogger;
-#if defined IE_DEBUG || defined IE_RELEASE
+#if defined (IE_DEBUG) && defined (IE_PLATFORM_BUILD_WIN32)
 			static ConsoleWindow m_ConsoleWindow;
 #endif
 		};

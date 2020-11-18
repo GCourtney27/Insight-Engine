@@ -87,7 +87,7 @@ namespace Insight {
 		virtual int GetCategoryFlags() const override { return -1; }
 	};
 
-	class EventDispatcher
+	class INSIGHT_API EventDispatcher
 	{
 		template<typename Event>
 		using EventFn = std::function<bool(Event&)>;

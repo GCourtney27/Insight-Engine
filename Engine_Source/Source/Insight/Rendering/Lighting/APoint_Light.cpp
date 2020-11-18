@@ -94,7 +94,7 @@ namespace Insight {
 	void APointLight::OnEvent(Event& e)
 	{
 		EventDispatcher Dispatcher(e);
-		Dispatcher.Dispatch<TranslationEvent>(IE_BIND_EVENT_FN(APointLight::OnEventTranslation));
+		Dispatcher.Dispatch<TranslationEvent>(IE_BIND_LOCAL_EVENT_FN(APointLight::OnEventTranslation));
 	}
 
 	void APointLight::BeginPlay()

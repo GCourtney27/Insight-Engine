@@ -28,27 +28,14 @@ namespace Insight {
 
 	void TextureManager::FlushTextureCache()
 	{
-		for (auto [Id, Tex] : m_AlbedoTextureMap) {
-			Tex.reset();
-		}
-		for (auto [Id, Tex] : m_NormalTextureMap) {
-			Tex.reset();
-		}
-		for (auto [Id, Tex] : m_MetallicTextureMap) {
-			Tex.reset();
-		}
-		for (auto [Id, Tex] : m_RoughnessTextureMap) {
-			Tex.reset();
-		}
-		for (auto [Id, Tex] : m_AOTextureMap) {
-			Tex.reset();
-		}
-		for (auto [Id, Tex] : m_OpacityTextureMap) {
-			Tex.reset();
-		}
-		for (auto [Id, Tex] : m_TranslucencyTextureMap) {
-			Tex.reset();
-		}
+		m_AlbedoTextureMap.clear();
+		m_NormalTextureMap.clear();
+		m_MetallicTextureMap.clear();
+		m_RoughnessTextureMap.clear();
+		m_AOTextureMap.clear();
+		m_OpacityTextureMap.clear();
+		m_TranslucencyTextureMap.clear();
+
 
 	}
 
@@ -193,7 +180,7 @@ namespace Insight {
 
 	bool TextureManager::LoadDefaultTextures()
 	{
-		std::wstring_view ExeDir = FileSystem::GetExecutbleDirectoryW();
+		const wchar_t* ExeDir = FileSystem::GetExecutbleDirectoryW();
 		std::wstring ExeDirectory(ExeDir);
 		ExeDirectory += L"../Default_Assets/";
 		
@@ -230,7 +217,7 @@ namespace Insight {
 
 		switch (Renderer::GetAPI())
 		{
-#if defined IE_PLATFORM_BUILD_WIN32
+#if defined (IE_PLATFORM_WINDOWS)
 		case Renderer::TargetRenderAPI::Direct3D_11:
 		{
 			m_DefaultAlbedoTexture = make_shared<ieD3D11Texture>(AlbedoTexInfo);
@@ -252,7 +239,7 @@ namespace Insight {
 			m_DefaultAOTexture = make_shared<ieD3D12Texture>(AOTexInfo, cbvSrvHeapStart);
 			break;
 		}
-#endif
+#endif // IE_PLATFORM_WINDOWS
 		default:
 		{
 			IE_DEBUG_LOG(LogSeverity::Error, "Failed to load default textures for api: {0}", Renderer::GetAPI());

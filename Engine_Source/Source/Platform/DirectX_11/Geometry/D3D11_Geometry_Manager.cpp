@@ -21,7 +21,7 @@ namespace Insight {
 
 		D3D11_BUFFER_DESC PerObjectBufferDesc = {};
 		PerObjectBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-		PerObjectBufferDesc.BindFlags = D3D10_BIND_CONSTANT_BUFFER;
+		PerObjectBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		PerObjectBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		PerObjectBufferDesc.MiscFlags = 0U;
 		PerObjectBufferDesc.ByteWidth = static_cast<UINT>(sizeof(CB_VS_PerObject) + (16 - sizeof(CB_VS_PerObject) % 16));
@@ -31,7 +31,7 @@ namespace Insight {
 
 		D3D11_BUFFER_DESC MatOverridesBufferDesc = {};
 		MatOverridesBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-		MatOverridesBufferDesc.BindFlags = D3D10_BIND_CONSTANT_BUFFER;
+		MatOverridesBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		MatOverridesBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		MatOverridesBufferDesc.MiscFlags = 0U;
 		MatOverridesBufferDesc.ByteWidth = static_cast<UINT>(sizeof(CB_PS_VS_PerObjectMaterialAdditives) + (16 - sizeof(CB_PS_VS_PerObjectMaterialAdditives) % 16));

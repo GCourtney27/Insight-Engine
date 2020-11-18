@@ -6,7 +6,7 @@ namespace Insight {
 
 	
 
-	class ieD3D11SphereRenderer
+	class INSIGHT_API ieD3D11SphereRenderer
 	{
 	public:
 		void Init(float radius, int slices, int segments, ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext);
@@ -16,8 +16,8 @@ namespace Insight {
 	private:
 		ID3D11Device* m_pDevice;
 		ID3D11DeviceContext* m_pDeviceContext;
-		ComPtr<ID3D11Buffer> m_pVertexBuffer;
-		ComPtr<ID3D11Buffer> m_pIndexBuffer;
+		Microsoft::WRL::ComPtr<ID3D11Buffer> m_pVertexBuffer;
+		Microsoft::WRL::ComPtr<ID3D11Buffer> m_pIndexBuffer;
 		int m_Slices;
 		int m_Segments;
 		int m_TriangleSize;

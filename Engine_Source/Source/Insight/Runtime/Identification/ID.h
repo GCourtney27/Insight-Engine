@@ -2,10 +2,12 @@
 
 #include <string>
 
+#include <Insight/Core.h>
+
 namespace Insight {
 
 
-	class ID
+	class INSIGHT_API ID
 	{
 	public:
 		enum eLayer

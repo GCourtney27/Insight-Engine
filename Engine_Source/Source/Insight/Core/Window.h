@@ -8,54 +8,65 @@ class RenderingContext;
 
 namespace Insight {
 
-	struct WindowProps
+	struct WindowDescription
 	{
-		std::string Title;
-		std::string Class;
+		std::wstring Title;
+		std::wstring Class;
 		uint32_t Width;
 		uint32_t Height;
 
-		WindowProps(const std::string& title = "Insight Editor", const std::string winClass = "IE Class", uint32_t width = 1700, uint32_t height = 1000)
-			: Title(title), Width(width), Height(height) {}
+		WindowDescription(const std::wstring& title = L"Insight Editor", const std::wstring winClass = L"IE Class", uint32_t width = 1700, uint32_t height = 1000)
+			: Title(title), Class(winClass), Width(width), Height(height) 
+		{
+		}
 	};
 
 	class INSIGHT_API Window
 	{
 	public:
 		using EventCallbackFn = std::function<void(Event&)>;
-		
+
 		virtual ~Window() {}
 
 		virtual void OnUpdate() = 0;
 		virtual void Shutdown() = 0;
-
 		virtual void PostInit() = 0;
 
-		virtual uint32_t GetWidth() const = 0;
-		virtual uint32_t GetHeight() const = 0;
-		virtual std::pair<uint32_t, uint32_t> GetDimensions() const = 0;
-		virtual bool SetWindowTitle(const std::string& newText, bool completlyOverride = false) = 0;
-		virtual bool SetWindowTitleFPS(float fps) = 0;
-
-		virtual void Resize(uint32_t newWidth, uint32_t newHeight, bool isMinimized) = 0;
-		virtual void ToggleFullScreen(bool enabled) = 0;
-
-		// Window Attributes
-		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
 		virtual bool ProccessWindowMessages() = 0;
-		virtual void SetVSync(bool enabled) = 0;
-		virtual const bool& IsFullScreenActive() const = 0;
-		virtual const bool& IsVsyncActive() const = 0;
+		
+		inline void Resize(uint32_t NewWidth, uint32_t NewHeight, bool IsMinimized) 
+		{ 
+			IE_ASSERT(NewWidth > 0 && NewHeight > 0, "Window width and/or height cannot be zero.");
+			m_WindowWidth = NewWidth;
+			m_WindowHeight = NewHeight; 
+			m_AspectRatio = static_cast<float>(NewWidth) / static_cast<float>(NewHeight); 
+		}
+		virtual void CreateMessageBox(const std::wstring& Message, const std::wstring Title) = 0;
 
 		virtual void* GetNativeWindow() const = 0;
+		virtual bool SetWindowTitleFPS(float fps) = 0;
+		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
+		virtual bool SetWindowTitle(const std::string& newText, bool completlyOverride = false) = 0;
 
-		virtual inline float GeAspectRatio() const = 0;
-
-		static Window* Create(const WindowProps& props = WindowProps());
+		uint32_t GetWidth() const { return m_WindowWidth; }
+		uint32_t GetHeight() const { return m_WindowHeight; }
+		std::pair<uint32_t, uint32_t> GetDimensions() const { return std::make_pair(m_WindowWidth, m_WindowHeight); }
+		inline float GetAspectRatio() const { return m_AspectRatio; }
+		inline bool GetIsVsyncEnabled() const { return m_VSyncEnabled; }
+		inline bool GetIsFullScreenEnabled() const { return m_FullScreenEnabled; }
+		inline void SetVSyncEnabled(bool Enabled) { m_VSyncEnabled = Enabled; }
+		inline void SetAspectRatio(float AspectRatio) { m_AspectRatio = AspectRatio; }
+		virtual void SetFullScreenEnabled(bool Enabled) { m_FullScreenEnabled = Enabled; }
 
 
 	protected:
-
+		float m_AspectRatio = -1.0f;
+		bool m_VSyncEnabled = false;
+		bool m_FullScreenEnabled = false;
+		uint32_t m_WindowWidth = 0u;
+		uint32_t m_WindowHeight = 0u;
+		std::wstring m_WindowTitle;
+		std::wstring m_WindowClassName;
 	};
 
 }

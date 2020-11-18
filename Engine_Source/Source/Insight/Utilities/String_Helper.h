@@ -2,7 +2,7 @@
 
 namespace Insight {
 
-	class StringHelper
+	class INSIGHT_API StringHelper
 	{
 	public:
 		static std::wstring StringToWide(const std::string& str);

@@ -1,6 +1,10 @@
 // Copyright Insight Interactive. All Rights Reserved.
 #include <Engine_pch.h>
 
+// The contents can only be accessed on a Win32 platform.
+// If it is not present than just compile it out.
+#if defined (IE_PLATFORM_BUILD_WIN32)
+
 #include "Win32_Window.h"
 
 #include "Insight/Core/Application.h"
@@ -18,31 +22,28 @@
 namespace Insight {
 
 
-	Window* Window::Create(const WindowProps& props)
+	Win32Window::Win32Window(const WindowDescription& props)
 	{
-		return new Win32Window(props);
-	}
+		IE_ASSERT(props.Class != L"", "Window class name cannot be blank");
+		IE_ASSERT(props.Title != L"", "Window title cannot be blank.");
+		IE_ASSERT(props.Width > 0 && props.Height > 0, "Width and height of window cannot be 0.");
 
-	Win32Window::Win32Window(const WindowProps& props)
-	{
-		m_Data.WindowTitle = props.Title;
-		m_Data.WindowTitle_wide = StringHelper::StringToWide(m_Data.WindowTitle);
-		m_Data.WindowClassName = props.Title + " Class";
-		m_Data.WindowClassName_wide = StringHelper::StringToWide(m_Data.WindowClassName);
-		m_Data.Width = props.Width;
-		m_Data.Height = props.Height;
+		m_WindowTitle = props.Title;
+		m_WindowClassName = props.Class;
+		m_WindowWidth = props.Width;
+		m_WindowHeight = props.Height;
 	}
 
 	LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-		Win32Window::WindowData& data = *(Win32Window::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+		Win32Window& pWindow = *(Win32Window*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
 		switch (uMsg) 
 		{
 		case WM_NCCREATE:
 		{
 			const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
-			Win32Window::WindowData* data = reinterpret_cast<Win32Window::WindowData*>(pCreate->lpCreateParams);
+			Win32Window* data = reinterpret_cast<Win32Window*>(pCreate->lpCreateParams);
 			SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(data));
 
 			return 1;
@@ -51,77 +52,77 @@ namespace Insight {
 		{
 			PostQuitMessage(0);
 			WindowCloseEvent event;
-			data.EventCallback(event);
+			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
 		// Mouse Input
 		case WM_MOUSEMOVE:
 		{
 			MouseMovedEvent event(LOWORD(lParam), HIWORD(lParam), (KeyMapCode)(KeyMapCode_Mouse_MoveX | KeyMapCode_Mouse_MoveY));
-			data.EventCallback(event);
+			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
 		case WM_MOUSEWHEEL:
 		{
 			float yOffset = GET_WHEEL_DELTA_WPARAM(wParam) / 120.0f;
 			MouseScrolledEvent event(0.0f, yOffset, KeyMapCode_Mouse_Wheel_Up, InputEventType_Moved);
-			data.EventCallback(event);
+			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
 		case WM_MOUSEHWHEEL:
 		{
 			float xOffset = GET_WHEEL_DELTA_WPARAM(wParam) / 120.0f;
 			MouseScrolledEvent event(xOffset, 0.0f, (KeyMapCode)(KeyMapCode_Mouse_Wheel_Left | KeyMapCode_Mouse_Wheel_Right), InputEventType_Moved);
-			data.EventCallback(event);
+			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
 		case WM_LBUTTONDOWN:
 		{
 			MouseButtonPressedEvent event(KeyMapCode_Mouse_Button_Left);
-			data.EventCallback(event);
+			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
 		case WM_LBUTTONUP:
 		{
 			MouseButtonReleasedEvent event(KeyMapCode_Mouse_Button_Left);
-			data.EventCallback(event);
+			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
 		case WM_RBUTTONDOWN:
 		{
 			MouseButtonPressedEvent event(KeyMapCode_Mouse_Button_Right);
-			data.EventCallback(event);
+			pWindow.GetEventCallbackFn()(event);
 
 			// WIP Right click context menu
 			//RECT clientRect = {};
 			//POINT Point = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
-			//TrackPopupMenu(data.hContextMenu, TPM_LEFTALIGN | TPM_TOPALIGN, Point.x, Point.y, 0, hWnd, &clientRect);
+			//TrackPopupMenu(pWindow.GetEventCallbackFn().hContextMenu, TPM_LEFTALIGN | TPM_TOPALIGN, Point.x, Point.y, 0, hWnd, &clientRect);
 
 			return 0;
 		}
 		case WM_RBUTTONUP:
 		{
 			MouseButtonReleasedEvent event(KeyMapCode_Mouse_Button_Right);
-			data.EventCallback(event);
+			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
 		case WM_MBUTTONDOWN:
 		{
 			MouseButtonPressedEvent event(KeyMapCode_Mouse_Button_Middle);
-			data.EventCallback(event);
+			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
 		case WM_MBUTTONUP:
 		{
 			MouseButtonReleasedEvent event(KeyMapCode_Mouse_Button_Middle);
-			data.EventCallback(event);
+			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
 		// Keyboard Input
 		case WM_CHAR:
 		{
 			KeyTypedEvent event((KeyMapCode)((char)wParam));
-			data.EventCallback(event);
+			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
 		case WM_KEYDOWN:
@@ -131,34 +132,34 @@ namespace Insight {
 			{
 				PostQuitMessage(0);
 				WindowCloseEvent event;
-				data.EventCallback(event);
+				pWindow.GetEventCallbackFn()(event);
 				return 0;
 			}
 
 			if (wParam == VK_F11)
 			{
-				if (data.FullScreenEnabled)
+				if (pWindow.GetIsFullScreenEnabled())
 				{
-					data.FullScreenEnabled = false;
+					pWindow.SetFullScreenEnabled(false);
 					WindowToggleFullScreenEvent event(false);
-					data.EventCallback(event);
+					pWindow.GetEventCallbackFn()(event);
 				}
 				else
 				{
-					data.FullScreenEnabled = true;
+					pWindow.SetFullScreenEnabled(true);
 					WindowToggleFullScreenEvent event(true);
-					data.EventCallback(event);
+					pWindow.GetEventCallbackFn()(event);
 				}
 
 			}
 			KeyPressedEvent event((KeyMapCode)((char)wParam), 0);
-			data.EventCallback(event);
+			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
 		case WM_KEYUP:
 		{
 			KeyReleasedEvent event((KeyMapCode)((char)wParam));
-			data.EventCallback(event);
+			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
 		// Aplication Events
@@ -172,21 +173,22 @@ namespace Insight {
 			RECT clientRect = {};
 			GetClientRect(hWnd, &clientRect);
 			WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, wParam == SIZE_MINIMIZED);
-			data.EventCallback(event);
+			pWindow.GetEventCallbackFn()(event);
 
 			IE_DEBUG_LOG(LogSeverity::Log, "Window size has changed");
 			return 0;
 		}
 		case WM_SIZE:
 		{
-			if (data.IsFirstLaunch) {
-				data.IsFirstLaunch = false;
+			static bool IsFirstLaunch = true;
+			if (IsFirstLaunch) {
+				IsFirstLaunch = false;
 				return 0;
 			}
 			RECT clientRect = {};
 			GetClientRect(hWnd, &clientRect);
 			WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, wParam == SIZE_MINIMIZED);
-			data.EventCallback(event);
+			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
 		case WM_INPUT:
@@ -205,12 +207,12 @@ namespace Insight {
 						if (raw->data.mouse.lLastX != 0.0f)
 						{
 							MouseMovedEvent event((float)raw->data.mouse.lLastX, 0.0f, KeyMapCode_Mouse_MoveX);
-							data.EventCallback(event);
+							pWindow.GetEventCallbackFn()(event);
 						}
 						if (raw->data.mouse.lLastY != 0.0f)
 						{
 							MouseMovedEvent event(0.0f, (float)raw->data.mouse.lLastY, KeyMapCode_Mouse_MoveY);
-							data.EventCallback(event);
+							pWindow.GetEventCallbackFn()(event);
 						}
 					}
 				}
@@ -242,32 +244,34 @@ namespace Insight {
 			}
 			case IDM_EDITOR_TOGGLE:
 			{
-				data.EditorUIEnabled = !data.EditorUIEnabled;
-				IE_STRIP_FOR_GAME_DIST(Application::Get().GetEditorLayer().SetUIEnabled(data.EditorUIEnabled);)
+				//pWindow.GetEventCallbackFn().EditorUIEnabled = !pWindow.GetEventCallbackFn().EditorUIEnabled;
+				static bool EditorUIEnabled = true;
+				EditorUIEnabled = !EditorUIEnabled;
+				IE_STRIP_FOR_GAME_DIST(Application::Get().GetEditorLayer().SetUIEnabled(EditorUIEnabled);)
 					break;
 			}
 			case IDM_EDITOR_RELOAD_SCRIPTS:
 			{
 				AppScriptReloadEvent event;
-				data.EventCallback(event);
+				pWindow.GetEventCallbackFn()(event);
 				break;
 			}
 			case IDM_BEGIN_PLAY:
 			{
 				AppBeginPlayEvent event;
-				data.EventCallback(event);
+				pWindow.GetEventCallbackFn()(event);
 				break;
 			}
 			case IDM_END_PLAY:
 			{
 				AppEndPlayEvent event;
-				data.EventCallback(event);
+				pWindow.GetEventCallbackFn()(event);
 				break;
 			}
 			case IDM_SCENE_SAVE:
 			{
 				SceneSaveEvent event;
-				data.EventCallback(event);
+				pWindow.GetEventCallbackFn()(event);
 				IE_DEBUG_LOG(LogSeverity::Log, "Scene Saved");
 				break;
 			}
@@ -277,7 +281,7 @@ namespace Insight {
 				int APIVersion = ((int)Renderer::GetAPI()) + 10;
 				const wchar_t* RTEnabled = Renderer::GetIsRayTraceEnabled() ? L"Enabled" : L"Disabled";
 				swprintf_s(AboutMsgBuffer, L"Version - 1.8 \nRenderer - Direct3D %i (Ray Tracing: %s) \n\nVendor Runtime: \nMono - v6.8.0.123 \nAssimp - v3.3.1 \nRapidJson - v1.0.0 \nImGui - v1.75", APIVersion, RTEnabled);
-				data.pWindow->CreateMessageBox(AboutMsgBuffer, L"About Retina Editor");
+				pWindow.CreateMessageBox(AboutMsgBuffer, L"About Retina Editor");
 
 				break;
 			}
@@ -285,13 +289,13 @@ namespace Insight {
 			{
 				PostQuitMessage(0);
 				WindowCloseEvent event;
-				data.EventCallback(event);
+				pWindow.GetEventCallbackFn()(event);
 				break;
 			}
 			case IDM_VISUALIZE_FINAL_RESULT:
 			{
 				IE_DEBUG_LOG(LogSeverity::Log, "Visualize final result");
-				//ModifyMenuW(data.hGraphicsVisualizeSubMenu, IDM_VISUALIZE_FINAL_RESULT, MF_CHECKED, IDM_VISUALIZE_FINAL_RESULT, L"&Final Result");
+				//ModifyMenuW(pWindow.GetEventCallbackFn().hGraphicsVisualizeSubMenu, IDM_VISUALIZE_FINAL_RESULT, MF_CHECKED, IDM_VISUALIZE_FINAL_RESULT, L"&Final Result");
 
 				break;
 			}
@@ -331,7 +335,7 @@ namespace Insight {
 				Renderer::GraphicsSettings Settings = {};
 				Settings.TargetRenderAPI = Renderer::TargetRenderAPI::Direct3D_11;
 				FileSystem::SaveEngineUserSettings(Settings);
-				data.pWindow->CreateMessageBox(L"You must relaunch engine for changes to take effect.", L"Graphics API changed to DirectX 11");
+				pWindow.CreateMessageBox(L"You must relaunch engine for changes to take effect.", L"Graphics API changed to DirectX 11");
 				break;
 			}
 			case IDM_RENDERER_D3D_12:
@@ -340,14 +344,15 @@ namespace Insight {
 				Renderer::GraphicsSettings Settings = {};
 				Settings.TargetRenderAPI = Renderer::TargetRenderAPI::Direct3D_12;
 				FileSystem::SaveEngineUserSettings(Settings);
-				data.pWindow->CreateMessageBox(L"You must relaunch engine for changes to take effect.", L"Graphics API changed to DirectX 12");
+				pWindow.CreateMessageBox(L"You must relaunch engine for changes to take effect.", L"Graphics API changed to DirectX 12");
 				break;
 			}
 			case IDM_RELOAD_SHADERS:
 			{
 				IE_DEBUG_LOG(LogSeverity::Log, "Reloading scripts.");
 				ShaderReloadEvent event;
-				data.EventCallback(event);
+				pWindow.GetEventCallbackFn()(event);
+				break;
 			}
 			default:
 				return DefWindowProcW(hWnd, uMsg, wParam, lParam);
@@ -391,14 +396,14 @@ namespace Insight {
 
 		RegisterWindowClass();
 
-		int centerScreenX = ::GetSystemMetrics(SM_CXSCREEN) / 2 - m_Data.Width / 2;
-		int centerScreenY = ::GetSystemMetrics(SM_CYSCREEN) / 2 - m_Data.Height / 2;
+		int centerScreenX = ::GetSystemMetrics(SM_CXSCREEN) / 2 - m_WindowWidth / 2;
+		int centerScreenY = ::GetSystemMetrics(SM_CYSCREEN) / 2 - m_WindowHeight / 2;
 
 		// Center the window on the users monitor
 		m_WindowRect.left = centerScreenX;
 		m_WindowRect.top = centerScreenY + 35;
-		m_WindowRect.right = m_WindowRect.left + m_Data.Width;
-		m_WindowRect.bottom = m_WindowRect.top + m_Data.Height;
+		m_WindowRect.right = m_WindowRect.left + m_WindowWidth;
+		m_WindowRect.bottom = m_WindowRect.top + m_WindowHeight;
 		::AdjustWindowRect(&m_WindowRect, WS_OVERLAPPEDWINDOW | WS_EX_ACCEPTFILES, FALSE);
 
 		// Create the menu bar
@@ -410,8 +415,8 @@ namespace Insight {
 		// Create the main window for the engine/game
 		m_hWindow = ::CreateWindowExW(
 			WS_EX_ACCEPTFILES,						// Window Styles
-			m_Data.WindowClassName_wide.c_str(),	// Window Class
-			m_Data.WindowTitle_wide.c_str(),		// Window Title
+			m_WindowClassName.c_str(),	// Window Class
+			m_WindowTitle.c_str(),		// Window Title
 			WS_OVERLAPPEDWINDOW,					// Window Style
 
 			m_WindowRect.left,							// Start X
@@ -422,7 +427,7 @@ namespace Insight {
 			NULL,					// Parent window
 			m_hMenuBar,				// Menu
 			*m_WindowsAppInstance,	// Current Windows program application instance passed from WinMain
-			&m_Data					// Additional application data
+			this					// Additional application data
 		);
 
 		if (m_hWindow == NULL) {
@@ -430,9 +435,6 @@ namespace Insight {
 			IE_DEBUG_LOG(LogSeverity::Critical, "    Error: {0}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
 			return false;
 		}
-
-		m_Data.hGraphicsVisualizeSubMenu = &m_hGraphicsVisualizeSubMenu;
-		m_Data.pWindow = this;
 
 		//m_nCmdShowArgs = SW_SHOWMAXIMIZED;
 
@@ -449,7 +451,7 @@ namespace Insight {
 		RECT ClientRect = {};
 		::GetClientRect(m_hWindow, &ClientRect);
 		WindowResizeEvent Event(ClientRect.right - ClientRect.left, ClientRect.bottom - ClientRect.top, false);
-		m_Data.EventCallback(Event);
+		GetEventCallbackFn()(Event);
 	}
 
 	void Win32Window::RegisterWindowClass()
@@ -465,13 +467,13 @@ namespace Insight {
 		wc.hCursor = ::LoadCursor(0, IDC_ARROW);
 		wc.lpszMenuName = 0;
 		wc.hbrBackground = 0;
-		wc.lpszClassName = m_Data.WindowClassName_wide.c_str();
+		wc.lpszClassName = m_WindowClassName.c_str();
 
 		::RegisterClassEx(&wc);
 		DWORD error = ::GetLastError();
 		if (error > 0)
 		{
-			IE_DEBUG_LOG(LogSeverity::Error, "An error occured while registering window class: {0} ", m_Data.WindowClassName);
+			IE_DEBUG_LOG(LogSeverity::Error, "An error occured while registering window class: {0} ", StringHelper::WideToString(m_WindowClassName));
 			IE_DEBUG_LOG(LogSeverity::Error, "    Error: {1}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
 		}
 	}
@@ -480,7 +482,7 @@ namespace Insight {
 	{
 		m_hMenuBar = ::CreateMenu();
 		if (m_hMenuBar == NULL) {
-			IE_DEBUG_LOG(LogSeverity::Error, "Failed to create menu bar for window \"{0}\"", m_Data.WindowTitle);
+			IE_DEBUG_LOG(LogSeverity::Error, "Failed to create menu bar for window \"{0}\"", StringHelper::WideToString(m_WindowTitle));
 			return;
 		}
 
@@ -509,8 +511,6 @@ namespace Insight {
 			::AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_END_PLAY, L"&Stop");
 			::AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_EDITOR_RELOAD_SCRIPTS, L"&Reload Scripts");
 			::AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_EDITOR_TOGGLE, L"&Toggle Editor UI");
-
-			m_Data.hEditorSubMenu = &m_hEditorSubMenu;
 		}
 
 		// Graphics SubMenu
@@ -544,7 +544,6 @@ namespace Insight {
 			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_AO_BUFFER, L"&Ambient Occlusion (PBR Texture)");
 			::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);*/
 
-			m_Data.hGraphicsVisualizeSubMenu = &m_hGraphicsVisualizeSubMenu;
 		}
 	}
 
@@ -555,7 +554,6 @@ namespace Insight {
 			::AppendMenuW(m_hContextMenu, MF_STRING, IDM_VISUALIZE_AO_BUFFER, L"&Hello");
 			::AppendMenuW(m_hContextMenu, MF_STRING, IDM_VISUALIZE_AO_BUFFER, L"&World");
 		}
-		m_Data.hContextMenu = &m_hContextMenu;
 	}
 
 	LPCTSTR Win32Window::GetLastWindowsError()
@@ -584,17 +582,6 @@ namespace Insight {
 		return (LPCTSTR)lpDisplayBuf;
 	}
 
-	void Win32Window::Resize(UINT newWidth, UINT newHeight, bool isMinimized)
-	{
-		m_Data.Width = newWidth;
-		m_Data.Height = newHeight;
-	}
-
-	void Win32Window::ToggleFullScreen(bool enabled)
-	{
-		m_Data.FullScreenEnabled = enabled;
-	}
-
 	bool Win32Window::ProccessWindowMessages()
 	{
 		MSG msg;
@@ -618,7 +605,7 @@ namespace Insight {
 
 	Win32Window::~Win32Window()
 	{
-		IE_DEBUG_LOG(LogSeverity::Warning, "Destroying window: {0}", m_Data.WindowTitle);
+		IE_DEBUG_LOG(LogSeverity::Warning, "Destroying window: {0}", StringHelper::WideToString(m_WindowTitle));
 		Shutdown();
 	}
 
@@ -634,15 +621,15 @@ namespace Insight {
 			succeeded = SetWindowText(m_hWindow, StringHelper::StringToWide(NewText).c_str());
 		}
 		else {
-			m_Data.WindowTitle_wide = m_Data.WindowTitle_wide + L" - " + StringHelper::StringToWide(NewText);
-			succeeded = SetWindowText(m_hWindow, m_Data.WindowTitle_wide.c_str());
+			m_WindowTitle = m_WindowTitle + L" - " + StringHelper::StringToWide(NewText);
+			succeeded = SetWindowText(m_hWindow, m_WindowTitle.c_str());
 		}
 		return succeeded;
 	}
 
 	bool Win32Window::SetWindowTitleFPS(float fps)
 	{
-		std::wstring windowTitle = m_Data.WindowTitle_wide + L" FPS: " + std::to_wstring((UINT)fps);
+		std::wstring windowTitle = m_WindowTitle + L" FPS: " + std::to_wstring((UINT)fps);
 		return static_cast<bool>(SetWindowText(m_hWindow, windowTitle.c_str()));
 	}
 
@@ -651,26 +638,9 @@ namespace Insight {
 		return m_hWindow;
 	}
 
-	void Win32Window::CreateMessageBox(const wchar_t* Message, const wchar_t* Title)
+	void Win32Window::CreateMessageBox(const std::wstring& Message, const std::wstring Title)
 	{
-		MessageBox(m_hWindow, Message, Title, MB_OK);
-	}
-
-	void Win32Window::SetVSync(bool enabled)
-	{
-		IE_DEBUG_LOG(LogSeverity::Log, "V-sync: " + enabled ? "enabled" : "disabled");
-		m_Data.VSyncEnabled = enabled;
-		Renderer::SetVSyncEnabled(m_Data.VSyncEnabled);
-	}
-
-	const bool& Win32Window::IsVsyncActive() const
-	{
-		return m_Data.VSyncEnabled;
-	}
-
-	const bool& Win32Window::IsFullScreenActive() const
-	{
-		return m_Data.FullScreenEnabled;
+		::MessageBox(m_hWindow, Message.c_str(), Title.c_str(), MB_OK);
 	}
 
 	void Win32Window::Shutdown()
@@ -679,10 +649,11 @@ namespace Insight {
 
 		if (m_hWindow != NULL)
 		{
-			::UnregisterClass(this->m_Data.WindowClassName_wide.c_str(), *m_WindowsAppInstance);
+			::UnregisterClass(this->m_WindowClassName.c_str(), *m_WindowsAppInstance);
 			::DestroyWindow(m_hWindow);
 		}
 	}
 
 }
 
+#endif // IE_PLATFORM_BUILD_WIN32

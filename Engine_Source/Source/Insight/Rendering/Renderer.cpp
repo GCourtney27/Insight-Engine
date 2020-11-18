@@ -13,8 +13,7 @@ namespace Insight {
 
 	Renderer* Renderer::s_Instance = nullptr;
 
-	Renderer::Renderer(bool vSyncEabled)
-		: m_VSyncEnabled(vSyncEabled)
+	Renderer::Renderer()
 	{
 	}
 
@@ -48,20 +47,18 @@ namespace Insight {
 
 		switch (GraphicsSettings.TargetRenderAPI)
 		{
-#if defined IE_PLATFORM_BUILD_WIN32
+#if defined (IE_PLATFORM_WINDOWS)
 		case TargetRenderAPI::Direct3D_11:
 		{
-			Win32Window* Window = (Win32Window*)pWindow;
-			s_Instance = new Direct3D11Context(Window);
+			s_Instance = new Direct3D11Context();
 			break;
 		}
 		case TargetRenderAPI::Direct3D_12:
 		{
-			Win32Window* Window = (Win32Window*)pWindow;
-			s_Instance = new Direct3D12Context(Window);
+			s_Instance = new Direct3D12Context();
 			break;
 		}
-#endif // IE_PLATFORM_BUILD_WIN32
+#endif // IE_PLATFORM_WINDOWS
 		default:
 		{
 			IE_DEBUG_LOG(LogSeverity::Error, "Failed to create render with given context type: {0}", GraphicsSettings.TargetRenderAPI);

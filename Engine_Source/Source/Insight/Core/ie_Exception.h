@@ -4,7 +4,7 @@
 
 namespace Insight {
 
-	class ieException
+	class INSIGHT_API ieException
 	{
 	public:
 		ieException() = default;

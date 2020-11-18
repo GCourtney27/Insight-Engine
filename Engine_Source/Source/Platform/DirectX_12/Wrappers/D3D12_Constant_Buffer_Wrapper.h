@@ -2,15 +2,13 @@
 
 #include <Insight/Core.h>
 #include "Platform/Win32/Error/COM_Exception.h"
-#include <d3d12.h>
-#include <wrl/client.h>
 
 namespace Insight {
 
 	
 
 	template <typename ConstantBufferType>
-	class D3D12ConstantBuffer
+	class INSIGHT_API D3D12ConstantBuffer
 	{
 	public:
 		D3D12ConstantBuffer() = default;
@@ -79,7 +77,7 @@ namespace Insight {
 
 	private:
 		int m_BufferSize = (sizeof(ConstantBufferType) + 255) & ~255;
-		ComPtr<ID3D12Resource> m_pResource;
+		Microsoft::WRL::ComPtr<ID3D12Resource> m_pResource;
 		UINT8* m_GPUAddress = nullptr;
 	};
 

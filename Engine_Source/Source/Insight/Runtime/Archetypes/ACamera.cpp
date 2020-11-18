@@ -20,17 +20,17 @@ namespace Insight {
 			SetViewTarget(ViewTarget, false, true);
 
 			// Setup event callbacks for camera movement.
-			m_pInputComponent->BindAxis("MoveForward", IE_BIND_EVENT_FN(ACamera::MoveForward));
-			m_pInputComponent->BindAxis("MoveRight", IE_BIND_EVENT_FN(ACamera::MoveRight));
-			m_pInputComponent->BindAxis("MoveUp", IE_BIND_EVENT_FN(ACamera::MoveUp));
-			m_pInputComponent->BindAxis("LookUp", IE_BIND_EVENT_FN(ACamera::LookUp));
-			m_pInputComponent->BindAxis("LookRight", IE_BIND_EVENT_FN(ACamera::LookRight));
-			m_pInputComponent->BindAxis("MouseWheelUp", IE_BIND_EVENT_FN(ACamera::MoveForward));
+			m_pInputComponent->BindAxis("MoveForward", IE_BIND_LOCAL_EVENT_FN(ACamera::MoveForward));
+			m_pInputComponent->BindAxis("MoveRight", IE_BIND_LOCAL_EVENT_FN(ACamera::MoveRight));
+			m_pInputComponent->BindAxis("MoveUp", IE_BIND_LOCAL_EVENT_FN(ACamera::MoveUp));
+			m_pInputComponent->BindAxis("LookUp", IE_BIND_LOCAL_EVENT_FN(ACamera::LookUp));
+			m_pInputComponent->BindAxis("LookRight", IE_BIND_LOCAL_EVENT_FN(ACamera::LookRight));
+			m_pInputComponent->BindAxis("MouseWheelUp", IE_BIND_LOCAL_EVENT_FN(ACamera::MoveForward));
 
-			m_pInputComponent->BindAction("CameraPitchYawLock", InputEventType_Pressed, IE_BIND_VOID_FN(ACamera::TogglePitchYawRotation));
-			m_pInputComponent->BindAction("CameraPitchYawLock", InputEventType_Released, IE_BIND_VOID_FN(ACamera::TogglePitchYawRotation));
-			m_pInputComponent->BindAction("Sprint", InputEventType_Pressed, IE_BIND_VOID_FN(ACamera::Sprint));
-			m_pInputComponent->BindAction("Sprint", InputEventType_Released, IE_BIND_VOID_FN(ACamera::Sprint));
+			m_pInputComponent->BindAction("CameraPitchYawLock", InputEventType_Pressed, IE_BIND_LOCAL_VOID_FN(ACamera::TogglePitchYawRotation));
+			m_pInputComponent->BindAction("CameraPitchYawLock", InputEventType_Released, IE_BIND_LOCAL_VOID_FN(ACamera::TogglePitchYawRotation));
+			m_pInputComponent->BindAction("Sprint", InputEventType_Pressed, IE_BIND_LOCAL_VOID_FN(ACamera::Sprint));
+			m_pInputComponent->BindAction("Sprint", InputEventType_Released, IE_BIND_LOCAL_VOID_FN(ACamera::Sprint));
 		}
 
 		ACamera::~ACamera()
@@ -66,7 +66,7 @@ namespace Insight {
 		void ACamera::OnEvent(Event& e)
 		{
 			EventDispatcher Dispatcher(e);
-			Dispatcher.Dispatch<MouseScrolledEvent>(IE_BIND_EVENT_FN(ACamera::OnMouseScrolled));
+			Dispatcher.Dispatch<MouseScrolledEvent>(IE_BIND_LOCAL_EVENT_FN(ACamera::OnMouseScrolled));
 
 		}
 

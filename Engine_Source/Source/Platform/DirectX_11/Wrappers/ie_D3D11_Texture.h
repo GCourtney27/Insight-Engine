@@ -32,10 +32,10 @@ namespace Insight {
 		void InitTextureFromFile();
 		uint32_t GetShaderRegisterLocation();
 	private:
-		ComPtr<ID3D11Device> m_pDevice;
-		ComPtr<ID3D11DeviceContext> m_pDeviceContext;
+		Microsoft::WRL::ComPtr<ID3D11Device> m_pDevice;
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_pDeviceContext;
 
-		ComPtr<ID3D11ShaderResourceView> m_pTextureView;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_pTextureView;
 		uint32_t m_ShaderRegister;
 	};
 

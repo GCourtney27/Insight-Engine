@@ -55,7 +55,7 @@ namespace Insight {
 		ID3D12GraphicsCommandList*	m_pTranslucencyPass_CommandList;
 		CDescriptorHeapWrapper*		m_pCbvSrvHeapStart;
 
-		ComPtr<ID3D12Resource>		m_pTexture;
+		Microsoft::WRL::ComPtr<ID3D12Resource>		m_pTexture;
 		D3D12_RESOURCE_DESC			m_D3DTextureDesc = {};
 		SRVHeapIndex				m_GPUHeapIndex;
 

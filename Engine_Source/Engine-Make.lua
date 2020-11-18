@@ -7,3 +7,15 @@ project ("Engine_Source")
 	language "C++"
 	cppdialect "C++17"
 	
+	-- files
+	-- {
+	-- 	-- This Project's Make File
+	-- 	"Engine-Make.lua",
+
+	-- 	"%{engineIncludeDirs.Engine_Source}/Third_Party/Vendor_Build.cpp",
+	-- 	"%{engineIncludeDirs.Engine_Source}/Source/**.cpp",
+	-- 	"%{engineIncludeDirs.Engine_Source}/Source/**.h",
+	-- 	"%{engineIncludeDirs.Engine_Source}/Source/**.vertex.hlsl",
+	-- 	"%{engineIncludeDirs.Engine_Source}/Source/**.pixel.hlsl",
+	-- 	"%{engineIncludeDirs.Engine_Source}/Source/**.compute.hlsl",
+	-- }

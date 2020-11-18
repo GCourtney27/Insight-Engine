@@ -1,7 +1,7 @@
 /*
-	Entry point for windows applications.
+	Entry point for Win32 desktop applications.
 */
-#include "Client_App.h"
+#include "Win32_Client_App.h"
 
 
 int APIENTRY wWinMain(
@@ -11,47 +11,29 @@ int APIENTRY wWinMain(
 	_In_ int nCmdShow
 )
 {
-	IE_STRIP_FOR_GAME_DIST(
-		if (!Insight::Debug::Logger::Init()) 
-		{
-			IE_FATAL_ERROR(L"Failed to create core logger.");
-		}
-	)
 
 	auto pApplication = Insight::CreateApplication();
-
+	try 
 	{
-		ScopedPerfTimer("Core application initialization", OutputType_Millis);
-
-		try 
+		std::shared_ptr<Insight::Win32Window> pWindowsWindow = std::make_shared<Insight::Win32Window>(Insight::WindowDescription());
+		if (!pWindowsWindow->Init(hInstance, nCmdShow, lpCmdLine)) 
 		{
-			std::shared_ptr<Insight::Win32Window> pWindowsWindow = std::make_shared<Insight::Win32Window>(Insight::WindowProps());
-			if (!pWindowsWindow->Init(hInstance, nCmdShow, lpCmdLine)) 
-			{
-				IE_FATAL_ERROR(L"Fatal Error: Failed to initialize window.");
-				return false;
-			}
-			pWindowsWindow->SetEventCallback(std::bind(&Insight::Application::OnEvent, pApplication, std::placeholders::_1));
-			pApplication->SetWindow(pWindowsWindow);
+			IE_FATAL_ERROR(L"Fatal Error: Failed to initialize window.");
+			return false;
+		}
+		pWindowsWindow->SetEventCallback(IE_BIND_EVENT_FN(Insight::Application::OnEvent, pApplication.get()));
+		pApplication->SetWindow(pWindowsWindow);
 
-			if (!pApplication->Init()) 
-			{
-				IE_FATAL_ERROR(L"Failed to initialize core engine. Exiting.");
-				return -1;
-			}
-		}
-		catch (Insight::ieException& e) 
+		if (!pApplication->Init()) 
 		{
-			IE_DEBUG_LOG(LogSeverity::Critical, e.What());
-			if (pApplication != nullptr) delete pApplication;
-			return -1;
+			IE_FATAL_ERROR(L"Failed to initialize core engine. Exiting.");
+			return Insight::Application::ieErrorCode_Failed;
 		}
-		pApplication->PostInit();
 	}
-
-	pApplication->Run();
-
-	delete pApplication;
-
-	return 0;
+	catch (Insight::ieException& e) 
+	{
+		IE_DEBUG_LOG(LogSeverity::Critical, e.What());
+		return Insight::Application::ieErrorCode_Failed;
+	}
+	return pApplication->Run();
 }

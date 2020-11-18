@@ -18,16 +18,16 @@ namespace Insight {
 		}
 		virtual void Destroy() override;
 
-		ComPtr<ID3D12Resource> GetIndexBuffer() { return m_pIndexBuffer; }
-		ComPtr<ID3D12Resource> GetUploadHeap() { return m_pIndexBufferUploadHeap; }
+		Microsoft::WRL::ComPtr<ID3D12Resource> GetIndexBuffer() { return m_pIndexBuffer; }
+		Microsoft::WRL::ComPtr<ID3D12Resource> GetUploadHeap() { return m_pIndexBufferUploadHeap; }
 		D3D12_INDEX_BUFFER_VIEW& GetIndexBufferView() { return m_IndexBufferView; }
 
 	protected:
 		virtual bool CreateResources() override;
 
 	private:
-		ComPtr<ID3D12Resource>		m_pIndexBufferUploadHeap;
-		ComPtr<ID3D12Resource>		m_pIndexBuffer;
+		Microsoft::WRL::ComPtr<ID3D12Resource>		m_pIndexBufferUploadHeap;
+		Microsoft::WRL::ComPtr<ID3D12Resource>		m_pIndexBuffer;
 		D3D12_INDEX_BUFFER_VIEW		m_IndexBufferView = {};
 	};
 }

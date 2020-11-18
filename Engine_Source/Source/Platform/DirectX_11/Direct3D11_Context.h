@@ -62,7 +62,7 @@ namespace Insight {
 		virtual void DestroySkybox_Impl() override;
 
 	private:
-		Direct3D11Context(Win32Window* windowHandle);
+		Direct3D11Context();
 		virtual ~Direct3D11Context();
 
 		void CreateDXGIFactory();
@@ -80,7 +80,6 @@ namespace Insight {
 
 	private:
 		HWND*				m_pWindowHandle = nullptr;
-		Win32Window*		m_pWindow = nullptr;
 		GeometryManager*	m_pModelManager = nullptr;
 		bool				m_WindowResizeComplete = true;
 		float				m_ClearColor[4] = { 0.1f, 0.1f, 0.3f, 1.0f };
@@ -96,18 +95,18 @@ namespace Insight {
 
 		//D3D11Helper m_DeviceResources;
 
-		ComPtr<IDXGIFactory1> m_pDxgiFactory;
-		ComPtr<IDXGIAdapter> m_pAdapter;
-
-		ComPtr<ID3D11Device> m_pDevice;
-		ComPtr<ID3D11DeviceContext> m_pDeviceContext;
-		ComPtr<IDXGISwapChain> m_pSwapChain;
-		ComPtr<ID3D11RenderTargetView> m_pRenderTargetView;
-		ComPtr<ID3D11Texture2D> m_pBackBuffer;
-
-
-		ComPtr<ID3D11SamplerState> m_pLinearWrap_SamplerState;
-		ComPtr<ID3D11SamplerState> m_pPointClamp_SamplerState;
+		Microsoft::WRL::ComPtr<IDXGIFactory1> m_pDxgiFactory;
+		Microsoft::WRL::ComPtr<IDXGIAdapter> m_pAdapter;
+		
+		Microsoft::WRL::ComPtr<ID3D11Device> m_pDevice;
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_pDeviceContext;
+		Microsoft::WRL::ComPtr<IDXGISwapChain> m_pSwapChain;
+		Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_pRenderTargetView;
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> m_pBackBuffer;
+		
+		
+		Microsoft::WRL::ComPtr<ID3D11SamplerState> m_pLinearWrap_SamplerState;
+		Microsoft::WRL::ComPtr<ID3D11SamplerState> m_pPointClamp_SamplerState;
 
 		ieD3D11SphereRenderer* m_SkySphere;
 

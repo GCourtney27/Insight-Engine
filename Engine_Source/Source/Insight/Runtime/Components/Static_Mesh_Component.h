@@ -50,6 +50,10 @@ namespace Insight {
 			inline void SetPosition(ieVector3& Pos) { m_pModel->GetMeshRootTransformRef().SetPosition(Pos.x, Pos.y, Pos.z); }
 			inline void SetRotation(ieVector3& Rot) { m_pModel->GetMeshRootTransformRef().SetRotation(Rot.x, Rot.y, Rot.z); }
 			inline void SetScale(ieVector3& Sca) { m_pModel->GetMeshRootTransformRef().SetScale(Sca.x, Sca.y, Sca.z); }
+
+			inline void SetPosition(float X, float Y, float Z) { m_pModel->GetMeshRootTransformRef().SetPosition(X, Y, Z); }
+			inline void SetRotation(float X, float Y, float Z) { m_pModel->GetMeshRootTransformRef().SetRotation(X, Y, Z); }
+			inline void SetScale(float X, float Y, float Z) { m_pModel->GetMeshRootTransformRef().SetScale(X, Y, Z); }
 		private:
 			bool OnEventTranslation(TranslationEvent& e);
 

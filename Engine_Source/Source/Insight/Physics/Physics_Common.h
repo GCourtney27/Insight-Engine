@@ -6,7 +6,7 @@ namespace Insight {
 
 	using namespace Math;
 
-	class IPhysicsObject
+	class INSIGHT_API IPhysicsObject
 	{
 	public:
 		enum class eColliderType

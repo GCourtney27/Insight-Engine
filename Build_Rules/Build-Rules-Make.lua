@@ -18,31 +18,142 @@ engineIncludeDirs["assimp"] 		= engineDirPath .. "Third_Party/assimp-3.3.1/inclu
 engineIncludeDirs["Nvidia"] 		= engineDirPath .. "Third_Party/Nvidia/"
 engineIncludeDirs["Engine_Source"] 	= rootDirPath .. "Engine_Source/"
 
-
-project ("Engine_Build_UWP")
+-- Premake does not support UWP project generation
+-- So just add the Visual Studio created one.
+externalProject ("Engine_Build_UWP")
 	location (rootDirPath .. "Build_Rules")
-	kind ("SharedLib")
+	uuid ("fe59aa74-6c29-46ba-a960-07f3b21af5e9")
+	kind ("StaticLib")
 	language ("C++")
-	cppdialect ("C++17")
 	staticruntime ("off")
-	targetname ("InsightEngine_%{cfg.system}")
+	systemversion ("latest")
+	targetname ("InsightEngine_UWP")
 
 	targetdir (rootDirPath .. "Binaries/" .. outputdir .. "/%{prj.name}")
     objdir (rootDirPath .. "Binaries/Intermediates/" .. outputdir .. "/%{prj.name}")
 
-	-- pchheader ("Engine_pch.h")
-	-- pchsource ("Source/Engine_pch.cpp")
+	pchheader ("Engine_pch.h")
+	pchsource ("PCH_Source/Engine_pch.cpp")
 
-	-- defines
-	-- {
-	-- 	"IE_PLATFORM_BUILD_UWP",
+	files
+	{
+		-- This Project's Make File
+		"Build-Rules-Make.lua",
 
-	-- 	"_CRT_SECURE_NO_WARNINGS",
-	-- 	"IE_BUILD_DIR=%{CustomDefines.IE_BUILD_DIR}/Engine/",
-	-- 	"IE_BUILD_CONFIG=%{CustomDefines.IE_BUILD_CONFIG}",
-	-- }
+		-- PCH for Engine Source Build
+		"PCH_Source/**.h",
+		"PCH_Source/**.cpp",
+
+		"%{engineIncludeDirs.Engine_Source}/Third_Party/Vendor_Build.cpp",
+		"%{engineIncludeDirs.Engine_Source}/Source/**.cpp",
+		"%{engineIncludeDirs.Engine_Source}/Source/**.h",
+		"%{engineIncludeDirs.Engine_Source}/Source/**.vertex.hlsl",
+		"%{engineIncludeDirs.Engine_Source}/Source/**.pixel.hlsl",
+		"%{engineIncludeDirs.Engine_Source}/Source/**.compute.hlsl",
+	}
+
+	defines
+	{
+		-- Tells the Engine to Compile for Win32 Platform
+		"IE_PLATFORM_BUILD_WIN32",
+
+		"_CRT_SECURE_NO_WARNINGS",
+		"IE_BUILD_DIR=%{CustomDefines.IE_BUILD_DIR}/${prj.name}/",
+		"IE_BUILD_CONFIG=%{CustomDefines.IE_BUILD_CONFIG}",
+	}
+
+	includedirs
+	{
+		-- Third Party
+		"%{engineIncludeDirs.Microsoft}",
+        "%{engineIncludeDirs.Microsoft}DirectX12/WinPixEventRuntime.1.0.161208001/Include/",
+		"%{engineIncludeDirs.Microsoft}DirectX12/",
+		"%{engineIncludeDirs.Nvidia}DirectX12/",
+		"%{engineIncludeDirs.rapidjson}include/",
+		"%{engineIncludeDirs.spdlog}include/",
+		--"%{engineIncludeDirs.ImGuizmo}",
+		"%{engineIncludeDirs.Mono}",
+		"%{engineIncludeDirs.ImGui}",
+		"%{engineIncludeDirs.assimp}",
+
+		-- Engine Source code
+		"%{engineIncludeDirs.Engine_Source}/Source/",
+
+		-- This Projects PCH
+		"PCH_Source/"
+	}
+
+	links
+	{
+        "ImGui",
+        "Engine_Source"
+	}
+
+	flags
+	{
+		"MultiProcessorCompile"
+	}
 
 
+	-- Shaders
+	filter { "files:**.pixel.hlsl" }
+		shadertype "Pixel"
+		shadermodel "5.0"
+
+	filter { "files:**.vertex.hlsl" }
+		shadertype "Vertex"
+		shadermodel "5.0"
+
+	filter { "files:**.compute.hlsl" }
+		shadertype "Compute"
+		shadermodel "5.0"
+
+
+
+	-- Engine Development
+	filter "configurations:Debug"
+		defines "IE_DEBUG"
+		runtime "Debug"
+		symbols "on"
+		defines
+        {
+            "IE_DEBUG"
+        }
+
+	-- Engine Release
+	filter "configurations:Release"
+		defines "IE_RELEASE"
+		runtime "Release"
+		optimize "on"
+		symbols "on"
+		defines
+		{
+			"IE_DEPLOYMENT",
+			"IE_DEBUG"
+		}
+
+
+
+	-- Full Engine Distribution, all performance logs and debugging windows stripped
+	filter "configurations:Engine-Dist"
+		defines "IE_ENGINE_DIST"
+		runtime "Release"
+		optimize "on"
+		symbols "on"
+		defines
+		{
+			"IE_DISTRIBUTION"
+		}
+	-- Full Game Distribution, all engine debug tools(level editors, editor user interfaces) stripped
+	filter "configurations:Game-Dist"
+		defines "IE_GAME_DIST"
+		runtime "Release"
+		optimize "on"
+		symbols "on"
+		defines
+		{
+			"IE_DISTRIBUTION"
+		}
 
 
 

@@ -23,10 +23,7 @@ namespace Insight {
 
 
 
-	Direct3D11Context::Direct3D11Context(Win32Window* WindowHandle)
-		: m_pWindowHandle(&WindowHandle->GetWindowHandleRef()),
-		m_pWindow(WindowHandle),
-		Renderer(false)
+	Direct3D11Context::Direct3D11Context()
 	{
 	}
 
@@ -46,7 +43,7 @@ namespace Insight {
 		CreateScissorRect();
 		CreateSamplers();
 
-		m_DeferredShadingTech.Init(m_pDevice.Get(), m_pDeviceContext.Get(), m_pWindow);
+		//m_DeferredShadingTech.Init(m_pDevice.Get(), m_pDeviceContext.Get(), m_pWindow);
 		LoadAssets();
 
 		return true;
@@ -244,7 +241,7 @@ namespace Insight {
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
 		UINT PresentFlags = (m_AllowTearing && m_WindowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
-		HRESULT hr = m_pSwapChain->Present(m_VSyncEnabled, PresentFlags);
+		HRESULT hr = m_pSwapChain->Present(m_pWindowRef->GetIsVsyncEnabled(), PresentFlags);
 		ThrowIfFailed(hr, "Failed to present frame for D3D 11 context.");
 	}
 
@@ -278,75 +275,78 @@ namespace Insight {
 
 	void Direct3D11Context::OnWindowFullScreen_Impl()
 	{
-		if (m_FullScreenMode)
-		{
-			SetWindowLong(*m_pWindowHandle, GWL_STYLE, WS_OVERLAPPEDWINDOW);
+#if defined (IE_PLATFORM_BUILD_WIN32)
 
-			SetWindowPos(
-				*m_pWindowHandle,
-				HWND_NOTOPMOST,
-				m_pWindow->GetWindowRect().left,
-				m_pWindow->GetWindowRect().top,
-				m_pWindow->GetWindowRect().right - m_pWindow->GetWindowRect().left,
-				m_pWindow->GetWindowRect().bottom - m_pWindow->GetWindowRect().top,
-				SWP_FRAMECHANGED | SWP_NOACTIVATE
-			);
-			ShowWindow(*m_pWindowHandle, SW_NORMAL);
-		}
-		else
-		{
-			GetWindowRect(*m_pWindowHandle, &m_pWindow->GetWindowRect());
+		//if (m_FullScreenMode)
+		//{
+		//	SetWindowLong(*m_pWindowHandle, GWL_STYLE, WS_OVERLAPPEDWINDOW);
 
-			SetWindowLong(*m_pWindowHandle, GWL_STYLE, WS_OVERLAPPEDWINDOW & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
+		//	SetWindowPos(
+		//		*m_pWindowHandle,
+		//		HWND_NOTOPMOST,
+		//		m_pWindow->GetWindowRect().left,
+		//		m_pWindow->GetWindowRect().top,
+		//		m_pWindow->GetWindowRect().right - m_pWindow->GetWindowRect().left,
+		//		m_pWindow->GetWindowRect().bottom - m_pWindow->GetWindowRect().top,
+		//		SWP_FRAMECHANGED | SWP_NOACTIVATE
+		//	);
+		//	ShowWindow(*m_pWindowHandle, SW_NORMAL);
+		//}
+		//else
+		//{
+		//	GetWindowRect(*m_pWindowHandle, &m_pWindow->GetWindowRect());
 
-			RECT FullscreenWindowRect;
-			try
-			{
-				if (m_pSwapChain)
-				{
-					// Get the settings of the display on which the app's window is currently displayed
-					ComPtr<IDXGIOutput> pOutput;
-					ThrowIfFailed(m_pSwapChain->GetContainingOutput(&pOutput), "Failed to get containing output while switching to fullscreen mode in D3D 12 context.");
-					DXGI_OUTPUT_DESC Desc;
-					ThrowIfFailed(pOutput->GetDesc(&Desc), "Failed to get description from output while switching to fullscreen mode in D3D 12 context.");
-					FullscreenWindowRect = Desc.DesktopCoordinates;
-				}
-				else
-				{
-					// Fallback to EnumDisplaySettings _Implementation
-					throw COMException(NULL, "No Swap chain available", __FILE__, __FUNCTION__, __LINE__);
-				}
-			}
-			catch (COMException& e)
-			{
-				UNREFERENCED_PARAMETER(e);
+		//	SetWindowLong(*m_pWindowHandle, GWL_STYLE, WS_OVERLAPPEDWINDOW & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
 
-				// Get the settings of the primary display
-				DEVMODE DevMode = {};
-				DevMode.dmSize = sizeof(DEVMODE);
-				EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &DevMode);
+		//	RECT FullscreenWindowRect;
+		//	try
+		//	{
+		//		if (m_pSwapChain)
+		//		{
+		//			// Get the settings of the display on which the app's window is currently displayed
+		//			ComPtr<IDXGIOutput> pOutput;
+		//			ThrowIfFailed(m_pSwapChain->GetContainingOutput(&pOutput), "Failed to get containing output while switching to fullscreen mode in D3D 12 context.");
+		//			DXGI_OUTPUT_DESC Desc;
+		//			ThrowIfFailed(pOutput->GetDesc(&Desc), "Failed to get description from output while switching to fullscreen mode in D3D 12 context.");
+		//			FullscreenWindowRect = Desc.DesktopCoordinates;
+		//		}
+		//		else
+		//		{
+		//			// Fallback to EnumDisplaySettings _Implementation
+		//			throw COMException(NULL, "No Swap chain available", __FILE__, __FUNCTION__, __LINE__);
+		//		}
+		//	}
+		//	catch (COMException& e)
+		//	{
+		//		UNREFERENCED_PARAMETER(e);
 
-				FullscreenWindowRect = {
-					DevMode.dmPosition.x,
-					DevMode.dmPosition.y,
-					DevMode.dmPosition.x + static_cast<LONG>(DevMode.dmPelsWidth),
-					DevMode.dmPosition.y + static_cast<LONG>(DevMode.dmPelsHeight)
-				};
-			}
+		//		// Get the settings of the primary display
+		//		DEVMODE DevMode = {};
+		//		DevMode.dmSize = sizeof(DEVMODE);
+		//		EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &DevMode);
 
-			SetWindowPos(
-				*m_pWindowHandle,
-				HWND_TOPMOST,
-				FullscreenWindowRect.left,
-				FullscreenWindowRect.top,
-				FullscreenWindowRect.right,
-				FullscreenWindowRect.bottom,
-				SWP_FRAMECHANGED | SWP_NOACTIVATE);
+		//		FullscreenWindowRect = {
+		//			DevMode.dmPosition.x,
+		//			DevMode.dmPosition.y,
+		//			DevMode.dmPosition.x + static_cast<LONG>(DevMode.dmPelsWidth),
+		//			DevMode.dmPosition.y + static_cast<LONG>(DevMode.dmPelsHeight)
+		//		};
+		//	}
+
+		//	SetWindowPos(
+		//		*m_pWindowHandle,
+		//		HWND_TOPMOST,
+		//		FullscreenWindowRect.left,
+		//		FullscreenWindowRect.top,
+		//		FullscreenWindowRect.right,
+		//		FullscreenWindowRect.bottom,
+		//		SWP_FRAMECHANGED | SWP_NOACTIVATE);
 
 
-			ShowWindow(*m_pWindowHandle, SW_MAXIMIZE);
-		}
-		m_FullScreenMode = !m_FullScreenMode;
+		//	ShowWindow(*m_pWindowHandle, SW_MAXIMIZE);
+		//}
+		//m_FullScreenMode = !m_FullScreenMode;
+#endif // IE_PLATFORM_BUILD_WIN32
 	}
 
 	void Direct3D11Context::OnShaderReload_Impl()
@@ -371,7 +371,7 @@ namespace Insight {
 		// Re-Create GBuffer
 		{
 			m_DeferredShadingTech.Destroy();
-			m_DeferredShadingTech.Init(m_pDevice.Get(), m_pDeviceContext.Get(), m_pWindow);
+			//m_DeferredShadingTech.Init(m_pDevice.Get(), m_pDeviceContext.Get(), m_pWindowRef);
 		}
 
 		// Recreate Camera Projection Matrix
@@ -449,7 +449,6 @@ namespace Insight {
 
 	void Direct3D11Context::CreateDeviceAndSwapChain()
 	{
-		HRESULT hr;
 		GetHardwareAdapter(m_pDxgiFactory.Get(), &m_pAdapter);
 
 		UINT DeviceCreateFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
@@ -479,8 +478,9 @@ namespace Insight {
 		SwapChainDesc.Windowed = TRUE;
 		SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 		SwapChainDesc.Flags = m_AllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
-
-		hr = ::D3D11CreateDeviceAndSwapChain(
+		
+#if defined (IE_PLATFORM_BUILD_WIN32)
+		HRESULT hr = ::D3D11CreateDeviceAndSwapChain(
 			m_pAdapter.Get(),
 			D3D_DRIVER_TYPE_UNKNOWN,
 			NULL,
@@ -499,6 +499,8 @@ namespace Insight {
 		if (m_AllowTearing) {
 			ThrowIfFailed(m_pDxgiFactory->MakeWindowAssociation(*m_pWindowHandle, DXGI_MWA_NO_ALT_ENTER), "Failed to make window association for D3D 11 context.");
 		}
+#endif // IE_PLATFORM_BUILD_WIN32
+
 	}
 
 	void Direct3D11Context::CreateRTV()
@@ -523,8 +525,8 @@ namespace Insight {
 		m_ScenePassViewPort = {};
 		m_ScenePassViewPort.TopLeftX = 0.0f;
 		m_ScenePassViewPort.TopLeftY = 0.0f;
-		m_ScenePassViewPort.Width = static_cast<FLOAT>(m_pWindow->GetWidth());
-		m_ScenePassViewPort.Height = static_cast<FLOAT>(m_pWindow->GetHeight());
+		m_ScenePassViewPort.Width = static_cast<FLOAT>(m_pWindowRef->GetWidth());
+		m_ScenePassViewPort.Height = static_cast<FLOAT>(m_pWindowRef->GetHeight());
 		m_ScenePassViewPort.MinDepth = 0.0f;
 		m_ScenePassViewPort.MaxDepth = 1.0f;
 	}

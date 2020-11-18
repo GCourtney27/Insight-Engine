@@ -53,7 +53,7 @@ namespace Insight {
 				IE_ASSERT(Component, "Trying to add null component to actor.");
 
 				Component->OnAttach();
-				Component->SetEventCallback(IE_BIND_EVENT_FN(AActor::OnEvent));
+				Component->SetEventCallback(IE_BIND_LOCAL_EVENT_FN(AActor::OnEvent));
 
 				m_Components.push_back(Component);
 				m_NumComponents++;

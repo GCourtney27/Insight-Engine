@@ -277,7 +277,7 @@ namespace Insight {
 		void AActor::OnEvent(Event& e)
 		{
 			EventDispatcher Dispatcher(e);
-			Dispatcher.Dispatch<PhysicsEvent>(IE_BIND_EVENT_FN(AActor::OnCollision));
+			Dispatcher.Dispatch<PhysicsEvent>(IE_BIND_LOCAL_EVENT_FN(AActor::OnCollision));
 
 			for (uint32_t i = 0; i < m_NumComponents; ++i)
 			{

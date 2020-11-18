@@ -101,7 +101,7 @@ namespace Insight {
 		RenderContext.GetScenePassCommandList().ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pIndexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER));
 	}
 
-	void D3D12ScreenQuad::OnRender(ComPtr<ID3D12GraphicsCommandList> pCommandList)
+	void D3D12ScreenQuad::OnRender(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pCommandList)
 	{
 		pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 		pCommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);

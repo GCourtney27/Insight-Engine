@@ -83,8 +83,9 @@ namespace ConstPlatformInputCodes
 	const int  PlatformGamepadThumbstick_Right_Axis_X = VK_GAMEPAD_RIGHT_THUMBSTICK_RIGHT;
 	const int  PlatformGamepadThumbstick_Right_Axis_Y = VK_GAMEPAD_RIGHT_THUMBSTICK_UP;
 
-#elif defined IE_PLATFORM_BUILD_MAC
+#elif defined IE_PLATFORM_BUILD_UWP
 	// Mac platform codes
+#elif IE_PLATFORM_BUILD_MAC
 #else
 #error Unidentified platform. Cannot define proper keycodes.
 #endif

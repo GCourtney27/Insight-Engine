@@ -7,16 +7,16 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="be2660d4-6cce-45d1-a923-a6e6f39cf2d4"
+    Name="97ce381c-f04f-4730-8be8-e15b366773b0"
     Publisher="CN=Garre"
     Version="1.0.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="be2660d4-6cce-45d1-a923-a6e6f39cf2d4" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="97ce381c-f04f-4730-8be8-e15b366773b0" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>Application_UWP</DisplayName>
-    <PublisherDisplayName>Garrett Courtney</PublisherDisplayName>
-    <Logo>Assets\Insight-Logo-Store.png</Logo>
+    <PublisherDisplayName>Garre</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
   <Dependencies>
@@ -32,20 +32,13 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="Application_UWP.App">
       <uap:VisualElements
-        DisplayName="Insight Editor"
-        Square44x44Logo="Assets\Insight-Logo-Large.png"
-        Description="Insight Engine UWP that runs on Windows 10 and Xbox."
-        BackgroundColor="transparent" Square150x150Logo="Assets\Insight-Logo.png">
-        <uap:DefaultTile Square71x71Logo="Assets\Insight-Logo-Small.png"  Wide310x150Logo="Assets\Insight-Logo-Wide.png" Square310x310Logo="Insight-Logo-Large.png">
-          <uap:ShowNameOnTiles>
-            <uap:ShowOn Tile="square150x150Logo"/>
-            <uap:ShowOn Tile="wide310x150Logo"/>
-            <uap:ShowOn Tile="square310x310Logo"/>
-          </uap:ShowNameOnTiles>
-        </uap:DefaultTile >
-        <uap:SplashScreen Image="Assets\Insight-Splash.png"  BackgroundColor="black"/>
-        <uap:InitialRotationPreference>
-          <uap:Rotation Preference="landscape"/></uap:InitialRotationPreference>
+        DisplayName="Application_UWP"
+        Square150x150Logo="Assets\Logo.png"
+        Square44x44Logo="Assets\SmallLogo.png"
+        Description="Application_UWP"
+        BackgroundColor="transparent">
+        <uap:DefaultTile Wide310x150Logo="Assets\WideLogo.png"/>
+        <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
     </Application>
   </Applications>

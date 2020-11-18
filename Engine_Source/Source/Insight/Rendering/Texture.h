@@ -5,7 +5,7 @@
 namespace Insight {
 
 
-	class Texture
+	class INSIGHT_API Texture
 	{
 	public:
 		typedef int ID;

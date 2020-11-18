@@ -11,13 +11,13 @@ namespace Insight {
 	{
 	public:
 		void Init(ScreenSpaceVertex Verticies[], uint32_t VertexBufferSize, uint32_t Indices[], uint32_t IndexBufferSize);
-		void OnRender(ComPtr<ID3D12GraphicsCommandList> commandList);
+		void OnRender(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList);
 
 	private:
-		ComPtr<ID3D12Resource> 		m_pVertexBuffer;
-		ComPtr<ID3D12Resource>		m_pIndexBuffer;
-		ComPtr<ID3D12Resource>		m_pVertexBufferUploadHeap;
-		ComPtr<ID3D12Resource>		m_pIndexBufferUploadHeap;
+		Microsoft::WRL::ComPtr<ID3D12Resource> 		m_pVertexBuffer;
+		Microsoft::WRL::ComPtr<ID3D12Resource>		m_pIndexBuffer;
+		Microsoft::WRL::ComPtr<ID3D12Resource>		m_pVertexBufferUploadHeap;
+		Microsoft::WRL::ComPtr<ID3D12Resource>		m_pIndexBufferUploadHeap;
 		
 		D3D12_VERTEX_BUFFER_VIEW	m_VertexBufferView;
 		D3D12_INDEX_BUFFER_VIEW		m_IndexBufferView;

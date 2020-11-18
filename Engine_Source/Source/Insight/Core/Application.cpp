@@ -8,7 +8,7 @@
 #include "Insight/Core/ie_Exception.h"
 #include "Insight/Rendering/Renderer.h"
 
-#if defined IE_PLATFORM_BUILD_WIN32
+#if defined (IE_PLATFORM_WINDOWS)
 	#include "Platform/DirectX_11/Wrappers/D3D11_ImGui_Layer.h"
 	#include "Platform/DirectX_12/Wrappers/D3D12_ImGui_Layer.h"
 	#include "Platform/Win32/Win32_Window.h"
@@ -32,6 +32,15 @@ namespace Insight {
 	{
 		IE_ASSERT(!s_Instance, "Trying to create Application instance when one already exists!");
 		s_Instance = this;
+
+
+		// Initialize the core logger.
+		IE_STRIP_FOR_GAME_DIST(
+			if (!Insight::Debug::Logger::Init())
+			{
+				IE_FATAL_ERROR(L"Failed to create core logger.");
+			}
+		)
 	}
 
 	Application::~Application()
@@ -40,10 +49,12 @@ namespace Insight {
 
 	bool Application::Init()
 	{
-		// Initize the main file system 
+		ScopedPerfTimer("Core application initialization", OutputType_Millis);
+
+		// Initize the main file system.
 		FileSystem::Init(ProjectName);
 
-		// Create and initialize the renderer 
+		// Create and initialize the renderer.
 		Renderer::SetSettingsAndCreateContext(FileSystem::LoadGraphicsSettingsFromJson(), m_pWindow.get());
 
 		// Create the game layer that will host all game logic.
@@ -70,9 +81,9 @@ namespace Insight {
 
 		m_pWindow->PostInit();
 		ResourceManager::Get().PostAppInit();
-		IE_DEBUG_LOG(LogSeverity::Verbose, "Application Initialized");
-
 		m_pGameLayer->PostInit();
+
+		IE_DEBUG_LOG(LogSeverity::Verbose, "Application Initialized");
 	}
 
 	float g_GPUThreadFPS = 0.0f;
@@ -109,7 +120,7 @@ namespace Insight {
 		}
 	}
 
-	void Application::Run()
+	Application::ieErrorCode Application::Run()
 	{
 		IE_ADD_FOR_GAME_DIST(
 			BeginPlay(AppBeginPlayEvent{})
@@ -143,6 +154,8 @@ namespace Insight {
 
 		// Shutdown the application and release all resources.
 		Shutdown();
+
+		return ieErrorCode_Success;
 	}
 
 	void Application::Shutdown()
@@ -153,7 +166,7 @@ namespace Insight {
 	{
 		switch (Renderer::GetAPI())
 		{
-#if defined(IE_PLATFORM_BUILD_WIN32)
+#if defined(IE_PLATFORM_WINDOWS)
 		case Renderer::TargetRenderAPI::Direct3D_11:
 			IE_STRIP_FOR_GAME_DIST(m_pImGuiLayer = new D3D11ImGuiLayer());
 			break;
@@ -195,14 +208,14 @@ namespace Insight {
 	void Application::OnEvent(Event& e)
 	{
 		EventDispatcher Dispatcher(e);
-		Dispatcher.Dispatch<WindowCloseEvent>(IE_BIND_EVENT_FN(Application::OnWindowClose));
-		Dispatcher.Dispatch<WindowResizeEvent>(IE_BIND_EVENT_FN(Application::OnWindowResize));
-		Dispatcher.Dispatch<WindowToggleFullScreenEvent>(IE_BIND_EVENT_FN(Application::OnWindowFullScreen));
-		Dispatcher.Dispatch<SceneSaveEvent>(IE_BIND_EVENT_FN(Application::SaveScene));
-		Dispatcher.Dispatch<AppBeginPlayEvent>(IE_BIND_EVENT_FN(Application::BeginPlay));
-		Dispatcher.Dispatch<AppEndPlayEvent>(IE_BIND_EVENT_FN(Application::EndPlay));
-		Dispatcher.Dispatch<AppScriptReloadEvent>(IE_BIND_EVENT_FN(Application::ReloadScripts));
-		Dispatcher.Dispatch<ShaderReloadEvent>(IE_BIND_EVENT_FN(Application::ReloadShaders));
+		Dispatcher.Dispatch<WindowCloseEvent>(IE_BIND_LOCAL_EVENT_FN(Application::OnWindowClose));
+		Dispatcher.Dispatch<WindowResizeEvent>(IE_BIND_LOCAL_EVENT_FN(Application::OnWindowResize));
+		Dispatcher.Dispatch<WindowToggleFullScreenEvent>(IE_BIND_LOCAL_EVENT_FN(Application::OnWindowFullScreen));
+		Dispatcher.Dispatch<SceneSaveEvent>(IE_BIND_LOCAL_EVENT_FN(Application::SaveScene));
+		Dispatcher.Dispatch<AppBeginPlayEvent>(IE_BIND_LOCAL_EVENT_FN(Application::BeginPlay));
+		Dispatcher.Dispatch<AppEndPlayEvent>(IE_BIND_LOCAL_EVENT_FN(Application::EndPlay));
+		Dispatcher.Dispatch<AppScriptReloadEvent>(IE_BIND_LOCAL_EVENT_FN(Application::ReloadScripts));
+		Dispatcher.Dispatch<ShaderReloadEvent>(IE_BIND_LOCAL_EVENT_FN(Application::ReloadShaders));
 
 		// Process input event callbacks. 
 		m_InputDispatcher.ProcessInputEvent(e);
@@ -229,7 +242,7 @@ namespace Insight {
 
 	bool Application::OnWindowFullScreen(WindowToggleFullScreenEvent& e)
 	{
-		m_pWindow->ToggleFullScreen(e.GetFullScreenEnabled());
+		m_pWindow->SetFullScreenEnabled(e.GetFullScreenEnabled());
 		Renderer::PushEvent<WindowToggleFullScreenEvent>(e);
 		return true;
 	}

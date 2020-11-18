@@ -10,12 +10,12 @@ namespace Insight {
 
 	struct RenderTargetTexture
 	{
-		ComPtr<ID3D11Texture2D> Texture = nullptr;
-		ComPtr<ID3D11RenderTargetView> RenderTargetView = nullptr;
-		ComPtr<ID3D11ShaderResourceView> ShaderResourceView = nullptr;
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> Texture = nullptr;
+		Microsoft::WRL::ComPtr<ID3D11RenderTargetView> RenderTargetView = nullptr;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> ShaderResourceView = nullptr;
 	};
 
-	class ieD3D11ScreenQuad
+	class INSIGHT_API ieD3D11ScreenQuad
 	{
 	public:
 		ieD3D11ScreenQuad() = default;
@@ -25,10 +25,10 @@ namespace Insight {
 		void OnRender();
 
 	private:
-		ComPtr<ID3D11Device> m_pDevice;
-		ComPtr<ID3D11DeviceContext> m_pDeviceContext;
-		ComPtr<ID3D11Buffer> m_pVertexBuffer;
-		ComPtr<ID3D11Buffer> m_pIndexBuffer;
+		Microsoft::WRL::ComPtr<ID3D11Device> m_pDevice;
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_pDeviceContext;
+		Microsoft::WRL::ComPtr<ID3D11Buffer> m_pVertexBuffer;
+		Microsoft::WRL::ComPtr<ID3D11Buffer> m_pIndexBuffer;
 		uint32_t m_NumVerticis;
 		uint32_t m_NumIndices;
 	};
@@ -62,8 +62,8 @@ namespace Insight {
 		void CreatePostEffectsPass();
 
 	private:
-		ComPtr<ID3D11Device>				m_pDevice = nullptr;
-		ComPtr<ID3D11DeviceContext>			m_pDeviceContext = nullptr;
+		Microsoft::WRL::ComPtr<ID3D11Device>				m_pDevice = nullptr;
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext>			m_pDeviceContext = nullptr;
 		Win32Window*						m_pWindow;
 		float								m_DepthClearValue = 1.0f;
 		float								m_ClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -87,11 +87,11 @@ namespace Insight {
 		//3:  SRV-Position(RTV->SRV)
 		RenderTargetTexture m_GBuffer[m_NumRTV];
 
-		ComPtr<ID3D11DepthStencilView> m_DepthStencilView = nullptr;
-		ComPtr<ID3D11Texture2D> m_pDepthStencilTexture = nullptr;
-		ComPtr<ID3D11ShaderResourceView> m_pSceneDepthView = nullptr;
-		ComPtr<ID3D11RasterizerState> m_pRasterizarState;
-		ComPtr<ID3D11DepthStencilState> m_pDefaultDepthStencilState = nullptr;
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_DepthStencilView = nullptr;
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> m_pDepthStencilTexture = nullptr;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_pSceneDepthView = nullptr;
+		Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_pRasterizarState;
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_pDefaultDepthStencilState = nullptr;
 
 		// Light Pass
 		// ----------
@@ -103,15 +103,15 @@ namespace Insight {
 		// --------
 		VertexShader m_SkyPassVS;
 		PixelShader m_SkyPassPS;
-		ComPtr<ID3D11DepthStencilState> m_pSkyPass_DepthStencilState;
-		ComPtr<ID3D11RasterizerState> m_pSkyPass_RasterizarState;
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_pSkyPass_DepthStencilState;
+		Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_pSkyPass_RasterizarState;
 
 		// Transparency Pass
 		// -----------------
 		VertexShader m_TransparencyPassVS;
 		PixelShader m_TransparencyPassPS;
-		ComPtr<ID3D11RasterizerState> m_pTransparency_RasterizerState;
-		ComPtr<ID3D11BlendState> m_pTransparencyPass_BlendState;
+		Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_pTransparency_RasterizerState;
+		Microsoft::WRL::ComPtr<ID3D11BlendState> m_pTransparencyPass_BlendState;
 
 		// PostFx Pass
 		// -----------

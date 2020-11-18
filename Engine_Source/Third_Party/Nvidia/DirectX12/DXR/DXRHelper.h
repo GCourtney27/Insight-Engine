@@ -8,13 +8,20 @@
 #include <sstream>
 #include <string>
 #include <d3d12.h>
-//#include "DXSampleHelper.h"
 #include <d3d12.h>
 #include <dxgi1_2.h>
 
 #include <dxcapi.h>
 
 #include <vector>
+
+#if defined (IE_PLATFORM_BUILD_WIN32) && defined (IE_DEBUG)
+#define IE_MessageBox(WindowParent, Message, Title, Button) MessageBox(WindowParent, Message, Title, Button);
+#define IE_MessageBoxA(WindowParent, Message, Title, Button) MessageBoxA(WindowParent, Message, Title, Button);
+#else
+#define IE_MessageBox(WindowParent, Message, Title, Button)
+#define IE_MessageBoxA(WindowParent, Message, Title, Button)
+#endif
 
 namespace nv_helpers_dx12
 {
@@ -43,7 +50,7 @@ inline ID3D12Resource* CreateBuffer(ID3D12Device* m_device, uint64_t size,
   HRESULT hr = (m_device->CreateCommittedResource(&heapProps, D3D12_HEAP_FLAG_NONE, &bufDesc,
                                                   initState, nullptr, IID_PPV_ARGS(&pBuffer)));
   if (FAILED(hr)) {
-      MessageBox(0, L"Failed to create committed resource", L"Error", MB_OK);
+      IE_MessageBox(0, L"Failed to create committed resource", L"Error", MB_OK);
   }
   return pBuffer;
 }
@@ -78,15 +85,15 @@ IDxcBlob* CompileShaderLibrary(LPCWSTR fileName)
   {
     hr = (DxcCreateInstance(CLSID_DxcCompiler, __uuidof(IDxcCompiler), (void **)&pCompiler));
     if (FAILED(hr)) {
-        MessageBox(0, L"Failed to create dxc instance", L"Error", MB_OK);
+        IE_MessageBox(0, L"Failed to create dxc instance", L"Error", MB_OK);
     }
-    hr = (DxcCreateInstance(CLSID_DxcLibrary, __uuidof(IDxcLibrary), (void **)&pLibrary));
+    hr = (DxcCreateInstance(CLSID_DxcLibrary, __uuidof(IDxcLibrary), (void**)&pLibrary));
     if (FAILED(hr)) {
-        MessageBox(0, L"Failed to create dxc instance", L"Error", MB_OK);
+        IE_MessageBox(0, L"Failed to create dxc instance", L"Error", MB_OK);
     }
     hr = (pLibrary->CreateIncludeHandler(&dxcIncludeHandler));
     if (FAILED(hr)) {
-        MessageBox(0, L"Failed to Ccreate include handler", L"Error", MB_OK);
+        IE_MessageBox(0, L"Failed to Ccreate include handler", L"Error", MB_OK);
     }
   }
   // Open and read the file
@@ -104,21 +111,21 @@ IDxcBlob* CompileShaderLibrary(LPCWSTR fileName)
   hr = (pLibrary->CreateBlobWithEncodingFromPinned(
       (LPBYTE)sShader.c_str(), (uint32_t)sShader.size(), 0, &pTextBlob));
   if (FAILED(hr)) {
-      MessageBox(0, L"Failed to Create Swap Chain", L"Error", MB_OK);
+      IE_MessageBox(0, L"Failed to Create Swap Chain", L"Error", MB_OK);
   }
   // Compile
   IDxcOperationResult* pResult;
   hr = (pCompiler->Compile(pTextBlob, fileName, L"", L"lib_6_3", nullptr, 0, nullptr, 0,
                                    dxcIncludeHandler, &pResult));
   if (FAILED(hr)) {
-      MessageBox(0, L"Failed to compile shader library", L"Error", MB_OK);
+      IE_MessageBox(0, L"Failed to compile shader library", L"Error", MB_OK);
   }
 
   // Verify the result
   HRESULT resultCode;
   hr = (pResult->GetStatus(&resultCode));
   if (FAILED(hr)) {
-      MessageBox(0, L"Failed ot get status of shader compile", L"Error", MB_OK);
+      IE_MessageBox(0, L"Failed ot get status of shader compile", L"Error", MB_OK);
   }
   if (FAILED(resultCode))
   {
@@ -137,14 +144,14 @@ IDxcBlob* CompileShaderLibrary(LPCWSTR fileName)
     std::string errorMsg = "Shader Compiler Error:\n";
     errorMsg.append(infoLog.data());
 
-    MessageBoxA(nullptr, errorMsg.c_str(), "Error!", MB_OK);
+    IE_MessageBoxA(nullptr, errorMsg.c_str(), "Error!", MB_OK);
     throw std::logic_error("Failed compile shader");
   }
 
   IDxcBlob* pBlob;
   hr = (pResult->GetResult(&pBlob));
   if (FAILED(hr)) {
-      MessageBox(0, L"Failed to get result of IDxcBlob", L"Error", MB_OK);
+      IE_MessageBox(0, L"Failed to get result of IDxcBlob", L"Error", MB_OK);
   }
   return pBlob;
 }
@@ -164,7 +171,7 @@ ID3D12DescriptorHeap* CreateDescriptorHeap(ID3D12Device* device, uint32_t count,
   ID3D12DescriptorHeap* pHeap;
   HRESULT hr = (device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&pHeap)));
   if (FAILED(hr)) {
-      MessageBox(0, L"Failed to create descriptor heap", L"Error", MB_OK);
+      IE_MessageBox(0, L"Failed to create descriptor heap", L"Error", MB_OK);
   }
   return pHeap;
 }

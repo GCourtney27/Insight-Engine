@@ -9,7 +9,7 @@
 namespace Insight {
 
 
-	class RenderPassStack
+	class INSIGHT_API RenderPassStack
 	{
 	public:
 		RenderPassStack() = default;

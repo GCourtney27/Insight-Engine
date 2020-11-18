@@ -18,7 +18,7 @@ namespace Insight {
 		Renderer::RegisterWorldDirectionalLight(this);
 
 		m_pSceneComponent = CreateDefaultSubobject<Runtime::SceneComponent>();
-		m_pSceneComponent->SetEventCallback(IE_BIND_EVENT_FN(ADirectionalLight::OnEvent));
+		m_pSceneComponent->SetEventCallback(IE_BIND_LOCAL_EVENT_FN(ADirectionalLight::OnEvent));
 		m_pSceneComponent->SetRotation(0.0f, 1.0f, 6.0f);
 
 		m_ShaderCB.DiffuseColor = ieVector3(1.0f, 1.0f, 1.0f);
@@ -165,7 +165,7 @@ namespace Insight {
 	void ADirectionalLight::OnEvent(Event& e)
 	{
 		EventDispatcher Dispatcher(e);
-		Dispatcher.Dispatch<TranslationEvent>(IE_BIND_EVENT_FN(ADirectionalLight::OnEventTranslation));
+		Dispatcher.Dispatch<TranslationEvent>(IE_BIND_LOCAL_EVENT_FN(ADirectionalLight::OnEventTranslation));
 	}
 
 	void ADirectionalLight::BeginPlay()

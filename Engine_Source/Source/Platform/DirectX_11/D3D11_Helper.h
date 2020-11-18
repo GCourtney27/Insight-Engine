@@ -19,7 +19,7 @@ namespace Insight {
 		void CreateDXGIFactory();
 
 	private:
-		ComPtr<IDXGIFactory> pFactory;
+		Microsoft::WRL::ComPtr<IDXGIFactory> pFactory;
 
 
 	};

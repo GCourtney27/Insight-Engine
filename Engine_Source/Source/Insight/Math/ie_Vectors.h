@@ -99,11 +99,11 @@ namespace Insight {
 			Use ieVectors instead.
 		*/
 
-#if defined IE_PLATFORM_BUILD_WIN32
+#if defined (IE_PLATFORM_WINDOWS)
 		using ieVector2 = DirectX::SimpleMath::Vector2;
 		using ieVector3 = DirectX::SimpleMath::Vector3;
 		using ieVector4 = DirectX::SimpleMath::Vector4;
-#elif defined RN_PLATFORM_MAC
+#elif defined IE_PLATFORM_MAC
 		using ieVector2 = glm::vec2;
 		using ieVector3 = glm::vec3;
 		using ieVector4 = glm::vec4;

@@ -38,6 +38,12 @@ namespace Insight {
 	class INSIGHT_API Application
 	{
 	public:
+		typedef enum _ieErrorCode
+		{
+			ieErrorCode_Failed = -1,
+			ieErrorCode_Success = 0,
+		} ieErrorCode;
+	public:
 		Application();
 		virtual ~Application();
 
@@ -53,7 +59,7 @@ namespace Insight {
 		// Called when the main portion of the applicaiton has been initialized.
 		virtual void PostInit();
 		// Main loop of the application. This is the main entry point for every frame.
-		virtual void Run();
+		virtual ieErrorCode Run();
 		// Shutdown the application and release all resources.
 		virtual void Shutdown();
 
@@ -119,7 +125,7 @@ namespace Insight {
 	};
 
 	// To be defined by client.
-	Application* CreateApplication();
+	std::unique_ptr<Application> CreateApplication();
 
 }
 

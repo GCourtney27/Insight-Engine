@@ -77,7 +77,7 @@ namespace Insight {
 		// Enable debug layers if in debug builds
 #if defined IE_DEBUG
 		{
-			ComPtr<ID3D12Debug> debugController;
+			Microsoft::WRL::ComPtr<ID3D12Debug> debugController;
 			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
 			{
 				debugController->EnableDebugLayer();
@@ -92,7 +92,7 @@ namespace Insight {
 
 	void D3D12Helper::GetHardwareAdapter(IDXGIFactory2* pFactory, IDXGIAdapter1** ppAdapter)
 	{
-		ComPtr<IDXGIAdapter1> pAdapter;
+		Microsoft::WRL::ComPtr<IDXGIAdapter1> pAdapter;
 		*ppAdapter = nullptr;
 		UINT currentVideoCardMemory = 0;
 		DXGI_ADAPTER_DESC1 Desc;
@@ -120,7 +120,7 @@ namespace Insight {
 			// Check if we can support ray tracing with the device
 			if (m_pRenderContextRef->GetIsRayTraceEnabled()) {
 
-				ComPtr<ID3D12Device5> TempDevice;
+				Microsoft::WRL::ComPtr<ID3D12Device5> TempDevice;
 				if (SUCCEEDED(D3D12CreateDevice(pAdapter.Get(), D3D_FEATURE_LEVEL_12_1, __uuidof(ID3D12Device5), &TempDevice))) {
 					if (CheckRayTracingSupport(TempDevice.Get())) {
 
@@ -161,7 +161,7 @@ namespace Insight {
 
 		// If ray tracing is supported create the device DXR needs
 		if (m_pRenderContextRef->m_IsRayTraceSupported) {
-			ComPtr<ID3D12Device5> TempDevice;
+			Microsoft::WRL::ComPtr<ID3D12Device5> TempDevice;
 			HRESULT hr = D3D12CreateDevice(m_pAdapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&TempDevice));
 			ThrowIfFailed(hr, "Failed to create logical device for ray tracing.");
 			m_pDevice = TempDevice.Detach();
@@ -215,22 +215,28 @@ namespace Insight {
 		SwapChainDesc.Flags	= m_pRenderContextRef->m_AllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 		SwapChainDesc.SampleDesc = m_SampleDesc;
 		
-#if defined (IE_PLATFORM_BUILD_WIN32)
 		Microsoft::WRL::ComPtr<IDXGISwapChain1> TempSwapChain = {};
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		hr = m_pDxgiFactory->CreateSwapChainForHwnd(&m_pRenderContextRef->GetCommandQueue(), m_pRenderContextRef->GetWindowRefAs<Win32Window>().GetWindowHandleRef(), &SwapChainDesc, nullptr, nullptr, &TempSwapChain);
 		ThrowIfFailed(hr, "Failed to Create Swap Chain");
-#elif defined IE_PLATFORM_UWP
-		// TODO
-		hr = m_pDxgiFactory->CreateSwapChain(reinterpret_cast<IUnknown*>(m_pWindow->GetNativeWindow(), &SwapChainDesc, &m_pSwapChain);
-		ThrowIfFailed(hr, "Failed to Create Swap Chain");
-#endif
-		if (m_pRenderContextRef->m_AllowTearing) {
+		if (m_pRenderContextRef->m_AllowTearing) 
+		{
 			ThrowIfFailed(m_pDxgiFactory->MakeWindowAssociation(m_pRenderContextRef->GetWindowRefAs<Win32Window>().GetWindowHandleRef(), DXGI_MWA_NO_ALT_ENTER),
 				"Failed to Make Window Association");
-		}
+		}	
+#elif defined IE_PLATFORM_BUILD_UWP
+		hr = m_pDxgiFactory->CreateSwapChainForCoreWindow(
+			&m_pRenderContextRef->GetCommandQueue(),
+			reinterpret_cast<::IUnknown*>(m_pRenderContextRef->GetWindowRef().GetNativeWindow()),
+			&SwapChainDesc,
+			nullptr,
+			&TempSwapChain
+		);
+		ThrowIfFailed(hr, "Failed to Create Swap Chain");
+#endif
+
 
 		ThrowIfFailed(TempSwapChain.As(&m_pSwapChain), "Failed to cast SwapChain ComPtr");
-
 		m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 
 		DXGI_SWAP_CHAIN_DESC1 Desc = {};

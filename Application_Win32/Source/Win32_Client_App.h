@@ -10,20 +10,19 @@
 
  ======================================================================*/
 
-#define Game Sandbox
 
 namespace SandBoxApp {
 
 	using Super = Insight::Application;
 
-	class Game : public Insight::Application
+	class Win32SandboxApp : public Insight::Application
 	{
 	public:
-		Game()
+		Win32SandboxApp()
 		{
 		}
 
-		virtual ~Game()
+		virtual ~Win32SandboxApp()
 		{
 		}
 
@@ -32,6 +31,8 @@ namespace SandBoxApp {
 			Super::Init();
 
 			FillScene();
+
+			Super::PostInit();
 
 			return true;
 		}
@@ -43,9 +44,9 @@ namespace SandBoxApp {
 		}
 
 		// Main loop of the application. This is the main entry point for every frame.
-		virtual void Run() override
+		virtual Application::ieErrorCode Run() override
 		{
-			Super::Run();
+			return Super::Run();
 		}
 
 		// Shutdown the application and release all resources.

@@ -5,15 +5,15 @@
 
 
 
-template<class ConstantBufferType>
-class ConstantBuffer
+template <class ConstantBufferType>
+class INSIGHT_API ConstantBuffer
 {
 private:
 	ConstantBuffer(const ConstantBuffer<ConstantBufferType>& rhs);
 
 private:
 
-	ComPtr<ID3D11Buffer> m_Buffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_Buffer;
 	ID3D11DeviceContext* m_pDeviceContext = nullptr;
 
 public:

@@ -136,7 +136,7 @@ namespace Insight {
 		m_IndexView.SizeInBytes = sizeof(int) * (UINT)triangles.size();
 	}
 
-	void ieD3D12SphereRenderer::Render(ComPtr<ID3D12GraphicsCommandList> commandList)
+	void ieD3D12SphereRenderer::Render(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList)
 	{
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		commandList->IASetIndexBuffer(&m_IndexView);

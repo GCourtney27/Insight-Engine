@@ -19,7 +19,7 @@
 
 #include "DirectX12/TK/Inc/GamePad.h"
 
-#define IE_D3D12_FrameIndex m_d3dDeviceResources.GetFrameIndex()
+#define IE_D3D12_FrameIndex m_DeviceResources.GetFrameIndex()
 
 
 namespace Insight {
@@ -31,7 +31,7 @@ namespace Insight {
 		FrameResources()	= default;
 		~FrameResources()	= default;
 
-		void Init(ComPtr<ID3D12Device> pDevice)
+		void Init(Microsoft::WRL::ComPtr<ID3D12Device> pDevice)
 		{
 			// Constant Buffer containing lights for the world.
 			m_CBLights.Init(pDevice.Get(), L"Lights Constant Buffer");
@@ -92,21 +92,6 @@ namespace Insight {
 		D3D12ConstantBuffer<CB_PS_VS_PerObjectMaterialAdditives>	m_CBPerObjectMaterial;
 	};
 
-	//class CD3D12CommandListWrapper
-	//{
-	//public:
-	//	void Create(ComPtr<ID3D12Device> pDevice)
-	//	{
-	//		//TODO
-	//	}
-
-	//	inline ComPtr<ID3D12GraphicsCommandList> GetCommandList() const { return m_pCommandList; }
-	//	inline ComPtr<ID3D12CommandAllocator> GetCommandAllocatorAtIndex(uint8_t Index) const { return m_pCommandAllocators[Index]; ] }
-
-	//protected:
-	//	ComPtr<ID3D12GraphicsCommandList> m_pCommandList;
-	//	ComPtr<ID3D12CommandAllocator> m_pCommandAllocators[Renderer::GetFrameBufferCount()];
-	//};
 
 	class Win32Window;
 	class GeometryManager;
@@ -157,17 +142,17 @@ namespace Insight {
 		virtual bool CreateSkybox_Impl() override;
 		virtual void DestroySkybox_Impl() override;
 
-		inline ID3D12Device& GetDeviceContext() const { return m_d3dDeviceResources.GetDeviceContext(); }
-		inline DXGI_FORMAT GetSwapChainBackBufferFormat() const { return m_d3dDeviceResources.GetSwapChainBackBufferFormat(); }
+		inline ID3D12Device& GetDeviceContext() const { return m_DeviceResources.GetDeviceContext(); }
+		inline DXGI_FORMAT GetSwapChainBackBufferFormat() const { return m_DeviceResources.GetSwapChainBackBufferFormat(); }
 
 		inline ID3D12GraphicsCommandList& GetScenePassCommandList() const { return *m_pScenePass_CommandList.Get(); }
 		inline ID3D12GraphicsCommandList& GetPostProcessPassCommandList() const { return *m_pPostEffectsPass_CommandList.Get(); }
 		inline ID3D12GraphicsCommandList& GetShadowPassCommandList() const { return *m_pShadowPass_CommandList.Get(); }
 		inline ID3D12GraphicsCommandList& GetTransparencyPassCommandList() const { return *m_pTransparencyPass_CommandList.Get(); }
 
-		inline D3D12_RECT GetClientScissorRect() const { return m_d3dDeviceResources.GetClientScissorRect(); }
-		inline D3D12_VIEWPORT GetClientViewPort() const { return m_d3dDeviceResources.GetClientViewPort(); }
-		inline ID3D12CommandQueue& GetCommandQueue() const { return m_d3dDeviceResources.GetGraphicsCommandQueue(); }
+		inline D3D12_RECT GetClientScissorRect() const { return m_DeviceResources.GetClientScissorRect(); }
+		inline D3D12_VIEWPORT GetClientViewPort() const { return m_DeviceResources.GetClientViewPort(); }
+		inline ID3D12CommandQueue& GetCommandQueue() const { return m_DeviceResources.GetGraphicsCommandQueue(); }
 		inline CDescriptorHeapWrapper& GetCBVSRVDescriptorHeap() { return m_cbvsrvHeap; }
 		
 		inline ID3D12Resource& GetConstantBufferPerObjectUploadHeap() const { return *m_FrameResources.m_CBPerObject.GetResource(); }
@@ -177,12 +162,12 @@ namespace Insight {
 
 		const CB_PS_VS_PerFrame& GetPerFrameCB() const { return m_FrameResources.m_CBPerFrame.Data; }
 
-		inline void SetActiveCommandList(ComPtr<ID3D12GraphicsCommandList> pCommandList) { m_pActiveCommandList = pCommandList; }
+		inline void SetActiveCommandList(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pCommandList) { m_pActiveCommandList = pCommandList; }
 
 		// Ray Tracing
 		// -----------
 		ID3D12Resource* GetRayTracingSRV() const { return m_RayTraceOutput_SRV.Get(); }
-		[[nodiscard]] uint32_t RegisterGeometryWithRTAccelerationStucture(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat);
+		[[nodiscard]] uint32_t RegisterGeometryWithRTAccelerationStucture(Microsoft::WRL::ComPtr<ID3D12Resource> pVertexBuffer, Microsoft::WRL::ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat);
 		void UpdateRTAccelerationStructureMatrix(uint32_t InstanceArrIndex, DirectX::XMMATRIX NewWorldMat) { m_RayTracedShadowPass.GetRTHelper()->UpdateInstanceTransformByIndex(InstanceArrIndex, NewWorldMat); }
 
 
@@ -197,7 +182,7 @@ namespace Insight {
 
 		
 	private:
-		Direct3D12Context(Win32Window* windowHandle);
+		Direct3D12Context();
 		virtual ~Direct3D12Context();
 
 		void CloseCommandListAndSignalCommandQueue();
@@ -216,8 +201,6 @@ namespace Insight {
 		// Create app resources
 		
 		void CreateDSVs();
-		void CreateRTVs();
-		void CreateSRVs();
 		void CreateDeferredShadingRS();
 		void CreateForwardShadingRS();
 		// Texture down-sample and Gaussian Blur pipelines share the same shader inputs for the Bloom Pass.
@@ -241,8 +224,7 @@ namespace Insight {
 		void ResourceBarrier(ID3D12GraphicsCommandList* pCommandList, ID3D12Resource* pResource, D3D12_RESOURCE_STATES StateBefore, D3D12_RESOURCE_STATES StateAfter, uint32_t NumBarriers = 1u);
 		
 	private:
-		Win32Window*		m_pWindowRef = nullptr;
-		D3D12Helper			m_d3dDeviceResources;
+		D3D12Helper					m_DeviceResources;
 
 		RenderPassStack				m_RenderPassStack;
 		DeferredGeometryPass		m_GeometryPass;
@@ -265,22 +247,22 @@ namespace Insight {
 
 		// D3D 12 Usings
 
-		ComPtr<ID3D12GraphicsCommandList>	m_pActiveCommandList;
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>	m_pActiveCommandList;
 
-		ComPtr<ID3D12GraphicsCommandList4>	m_pRayTracePass_CommandList;
-		ComPtr<ID3D12CommandAllocator>		m_pRayTracePass_CommandAllocators[m_FrameBufferCount];
-		ComPtr<ID3D12GraphicsCommandList>	m_pShadowPass_CommandList;
-		ComPtr<ID3D12CommandAllocator>		m_pShadowPass_CommandAllocators[m_FrameBufferCount];
-		ComPtr<ID3D12GraphicsCommandList>	m_pScenePass_CommandList;
-		ComPtr<ID3D12CommandAllocator>		m_pScenePass_CommandAllocators[m_FrameBufferCount];
-		ComPtr<ID3D12GraphicsCommandList>	m_pTransparencyPass_CommandList;
-		ComPtr<ID3D12CommandAllocator>		m_pTransparencyPass_CommandAllocators[m_FrameBufferCount];
-		ComPtr<ID3D12GraphicsCommandList>	m_pPostEffectsPass_CommandList;
-		ComPtr<ID3D12CommandAllocator>		m_pPostEffectsPass_CommandAllocators[m_FrameBufferCount];
-		ComPtr<ID3D12GraphicsCommandList>	m_pDownSample_CommandList;
-		ComPtr<ID3D12CommandAllocator>		m_pDownSample_CommandAllocators[m_FrameBufferCount];
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4>	m_pRayTracePass_CommandList;
+		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>		m_pRayTracePass_CommandAllocators[m_FrameBufferCount];
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>	m_pShadowPass_CommandList;
+		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>		m_pShadowPass_CommandAllocators[m_FrameBufferCount];
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>	m_pScenePass_CommandList;
+		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>		m_pScenePass_CommandAllocators[m_FrameBufferCount];
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>	m_pTransparencyPass_CommandList;
+		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>		m_pTransparencyPass_CommandAllocators[m_FrameBufferCount];
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>	m_pPostEffectsPass_CommandList;
+		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>		m_pPostEffectsPass_CommandAllocators[m_FrameBufferCount];
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>	m_pDownSample_CommandList;
+		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>		m_pDownSample_CommandAllocators[m_FrameBufferCount];
 
-		ComPtr<ID3D12Resource>				m_pSwapChainRenderTargets[m_FrameBufferCount];
+		Microsoft::WRL::ComPtr<ID3D12Resource>				m_pSwapChainRenderTargets[m_FrameBufferCount];
 		
 		//-----Light Pass-----
 		// 0: Albedo
@@ -297,26 +279,26 @@ namespace Insight {
 		//1:  ShadowDepth
 		CDescriptorHeapWrapper				m_dsvHeap;
 
-		ComPtr<ID3D12Resource>				m_pShadowDepthTexture;
-		ComPtr<ID3D12Resource>				m_RayTraceOutput_SRV;
+		Microsoft::WRL::ComPtr<ID3D12Resource>				m_pShadowDepthTexture;
+		Microsoft::WRL::ComPtr<ID3D12Resource>				m_RayTraceOutput_SRV;
+		
+		Microsoft::WRL::ComPtr<ID3D12Resource>				m_pBloomBlurResult_UAV;
+		Microsoft::WRL::ComPtr<ID3D12Resource>				m_pBloomBlurResult_SRV;
+		Microsoft::WRL::ComPtr<ID3D12Resource>				m_pBloomBlurIntermediateBuffer_UAV;
+		Microsoft::WRL::ComPtr<ID3D12Resource>				m_pBloomBlurIntermediateBuffer_SRV;
 
-		ComPtr<ID3D12Resource>				m_pBloomBlurResult_UAV;
-		ComPtr<ID3D12Resource>				m_pBloomBlurResult_SRV;
-		ComPtr<ID3D12Resource>				m_pBloomBlurIntermediateBuffer_UAV;
-		ComPtr<ID3D12Resource>				m_pBloomBlurIntermediateBuffer_SRV;
 
+		Microsoft::WRL::ComPtr<ID3D12RootSignature>			m_pDeferredShadingPass_RS;
+		Microsoft::WRL::ComPtr<ID3D12RootSignature>			m_pForwardShadingPass_RS;
+		Microsoft::WRL::ComPtr<ID3D12RootSignature>			m_pBloomPass_RS;
+		Microsoft::WRL::ComPtr<ID3D12RootSignature>			m_pDebugScreenQuad_RS;
 
-		ComPtr<ID3D12RootSignature>			m_pDeferredShadingPass_RS;
-		ComPtr<ID3D12RootSignature>			m_pForwardShadingPass_RS;
-		ComPtr<ID3D12RootSignature>			m_pBloomPass_RS;
-		ComPtr<ID3D12RootSignature>			m_pDebugScreenQuad_RS;
-
-		ComPtr<ID3D12PipelineState>			m_pShadowPass_PSO;
-		ComPtr<ID3D12PipelineState>			m_pSkyPass_PSO;
-		ComPtr<ID3D12PipelineState>			m_pTransparency_PSO;
-		ComPtr<ID3D12PipelineState>			m_pDebugScreenQuad_PSO;
-		ComPtr<ID3D12PipelineState>			m_pThresholdDownSample_PSO;
-		ComPtr<ID3D12PipelineState>			m_pGaussianBlur_PSO;
+		Microsoft::WRL::ComPtr<ID3D12PipelineState>			m_pShadowPass_PSO;
+		Microsoft::WRL::ComPtr<ID3D12PipelineState>			m_pSkyPass_PSO;
+		Microsoft::WRL::ComPtr<ID3D12PipelineState>			m_pTransparency_PSO;
+		Microsoft::WRL::ComPtr<ID3D12PipelineState>			m_pDebugScreenQuad_PSO;
+		Microsoft::WRL::ComPtr<ID3D12PipelineState>			m_pThresholdDownSample_PSO;
+		Microsoft::WRL::ComPtr<ID3D12PipelineState>			m_pGaussianBlur_PSO;
 
 		//-----Pipeline-----
 		//0:   SRV-Albedo(RTV->SRV)

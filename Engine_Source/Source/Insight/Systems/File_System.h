@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string_view>
-
 #include <Insight/Core.h>
 #include "Insight/Rendering/Renderer.h"
 
@@ -19,10 +17,10 @@ namespace Insight {
 
 		static void SaveEngineUserSettings(Renderer::GraphicsSettings Settings);
 		
-		static inline std::string_view GetExecutableDirectory() { return std::string_view{ FileSystem::ExecutableDirectory.c_str() }; }
-		static inline std::wstring_view GetExecutbleDirectoryW() { return std::wstring_view{ FileSystem::ExecutableDirectoryW.c_str() }; }
-		static inline std::string_view GetProjectDirectory() { return std::string_view{ FileSystem::ProjectDirectory.c_str() }; }
-		static inline std::string_view GetUserDocumentsFolderPath() { return std::string_view{ FileSystem::UserDocumentsFolder.c_str() }; }
+		static inline const char* GetExecutableDirectory() { return FileSystem::ExecutableDirectory.c_str(); }
+		static inline const wchar_t* GetExecutbleDirectoryW() { return FileSystem::ExecutableDirectoryW.c_str(); }
+		static inline const char* GetProjectDirectory() { return FileSystem::ProjectDirectory.c_str(); }
+		static inline const char* GetUserDocumentsFolderPath() { return FileSystem::UserDocumentsFolder.c_str(); }
 		static std::string GetProjectRelativeContentDirectory(std::string Path);
 
 		static Renderer::GraphicsSettings LoadGraphicsSettingsFromJson();

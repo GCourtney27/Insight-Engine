@@ -52,6 +52,7 @@ namespace Insight {
 			// The Window only send one event telling us the key has been pressed.
 			// We need to continuously check it to see if it is being held.
 			// We do this below.
+#if defined (IE_PLATFORM_BUILD_WIN32)
 			for (uint32_t i = 0; i < m_AxisMappings.size(); i++)
 			{
 				// If the key in the axis mapping is pressed, dispatch an event.
@@ -64,7 +65,7 @@ namespace Insight {
 					ProcessInputEvent(e);
 				}
 			}
-
+#endif
 			// Gamepad
 			// -------
 			// Constant gamepad polling is poor for performance, so set
@@ -77,16 +78,16 @@ namespace Insight {
 		{
 			EventDispatcher Dispatcher(e);
 			// Mouse Buttons
-			Dispatcher.Dispatch<MouseMovedEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchMouseMoveEvent));
-			Dispatcher.Dispatch<MouseButtonPressedEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchActionEvent));
-			Dispatcher.Dispatch<MouseButtonReleasedEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchActionEvent));
+			Dispatcher.Dispatch<MouseMovedEvent>(IE_BIND_LOCAL_EVENT_FN(InputDispatcher::DispatchMouseMoveEvent));
+			Dispatcher.Dispatch<MouseButtonPressedEvent>(IE_BIND_LOCAL_EVENT_FN(InputDispatcher::DispatchActionEvent));
+			Dispatcher.Dispatch<MouseButtonReleasedEvent>(IE_BIND_LOCAL_EVENT_FN(InputDispatcher::DispatchActionEvent));
 			// Mouse Scroll
-			Dispatcher.Dispatch<MouseScrolledEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchMouseScrolledEvent));
+			Dispatcher.Dispatch<MouseScrolledEvent>(IE_BIND_LOCAL_EVENT_FN(InputDispatcher::DispatchMouseScrolledEvent));
 
 			// Key Pressed
-			Dispatcher.Dispatch<KeyPressedEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchAxisEvent));
-			Dispatcher.Dispatch<KeyPressedEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchActionEvent));
-			Dispatcher.Dispatch<KeyReleasedEvent>(IE_BIND_EVENT_FN(InputDispatcher::DispatchActionEvent));
+			Dispatcher.Dispatch<KeyPressedEvent>(IE_BIND_LOCAL_EVENT_FN(InputDispatcher::DispatchAxisEvent));
+			Dispatcher.Dispatch<KeyPressedEvent>(IE_BIND_LOCAL_EVENT_FN(InputDispatcher::DispatchActionEvent));
+			Dispatcher.Dispatch<KeyReleasedEvent>(IE_BIND_LOCAL_EVENT_FN(InputDispatcher::DispatchActionEvent));
 
 			// Key Typed
 			//Dispatcher.Dispatch<KeyTypedEvent>(IE_BIND_EVENT_FN(InputManager::OnKeyTypedEvent));
