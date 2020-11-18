@@ -55,7 +55,7 @@ namespace Insight {
 
 		// Initialize the core components of the application. Should be called once
 		// at the beginning of the application, after the window has been initialized.
-		virtual bool Init();
+		virtual void Initialize();
 		// Called when the main portion of the applicaiton has been initialized.
 		virtual void PostInit();
 		// Main loop of the application. This is the main entry point for every frame.

@@ -17,21 +17,27 @@
 #include "Insight/Events/Key_Event.h"
 #include "Insight/Events/Mouse_Event.h"
 #include "Insight/Events/Application_Event.h"
-
+#include "Insight/Core/ie_Exception.h"
 
 namespace Insight {
 
 
-	Win32Window::Win32Window(const WindowDescription& props)
+	Win32Window::Win32Window(const Win32WindowDescription& Desc)
 	{
-		IE_ASSERT(props.Class != L"", "Window class name cannot be blank");
-		IE_ASSERT(props.Title != L"", "Window title cannot be blank.");
-		IE_ASSERT(props.Width > 0 && props.Height > 0, "Width and height of window cannot be 0.");
+		IE_ASSERT(Desc.Class != L"", "Window class name cannot be blank");
+		IE_ASSERT(Desc.Title != L"", "Window title cannot be blank.");
+		IE_ASSERT(Desc.Width > 0 && Desc.Height > 0, "Width and height of window cannot be 0.");
 
-		m_WindowTitle = props.Title;
-		m_WindowClassName = props.Class;
-		m_WindowWidth = props.Width;
-		m_WindowHeight = props.Height;
+		m_WindowTitle = Desc.Title;
+		m_WindowClassName = Desc.Class;
+		m_WindowWidth = Desc.Width;
+		m_WindowHeight = Desc.Height;
+		m_WindowsAppInstance = Desc.AppInstance;
+		m_NumCmdLineArgs = Desc.NumCmdArgs;
+		m_CmdLineArgs = Desc.CmdArgs.c_str();
+		m_EventCallbackFn = Desc.EventCallbackFunction;
+
+		Init();
 	}
 
 	LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -366,11 +372,8 @@ namespace Insight {
 		return DefWindowProc(hWnd, uMsg, wParam, lParam);
 	}
 
-	bool Win32Window::Init(HINSTANCE& hInstance, int nCmdShow, LPWSTR CmdLineArgs)
+	bool Win32Window::Init()
 	{
-		m_WindowsAppInstance = &hInstance;
-		m_NumCmdLineArgs = nCmdShow;
-
 		HRESULT hr = ::CoInitialize(NULL);
 		if (FAILED(hr)){
 			IE_DEBUG_LOG(LogSeverity::Error, "Failed to initialize COM library.");
@@ -426,14 +429,14 @@ namespace Insight {
 
 			NULL,					// Parent window
 			m_hMenuBar,				// Menu
-			*m_WindowsAppInstance,	// Current Windows program application instance passed from WinMain
+			m_WindowsAppInstance,	// Current Windows program application instance passed from WinMain
 			this					// Additional application data
 		);
 
 		if (m_hWindow == NULL) {
 			IE_DEBUG_LOG(LogSeverity::Critical, "Unable to create Windows window.");
 			IE_DEBUG_LOG(LogSeverity::Critical, "    Error: {0}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
-			return false;
+			throw ieException("Fatal Error: Failed to initialize Win32 window. Handle returned nullptr from Windows API. Window description may have contained invalid parameters.");
 		}
 
 		//m_nCmdShowArgs = SW_SHOWMAXIMIZED;
@@ -462,7 +465,7 @@ namespace Insight {
 		wc.lpfnWndProc = WindowProcedure;
 		wc.cbClsExtra = 0;
 		wc.cbWndExtra = 0;
-		wc.hInstance = *m_WindowsAppInstance;
+		wc.hInstance = m_WindowsAppInstance;
 		wc.hIcon = ::LoadIcon(0, IDI_WINLOGO);
 		wc.hCursor = ::LoadCursor(0, IDC_ARROW);
 		wc.lpszMenuName = 0;
@@ -649,7 +652,7 @@ namespace Insight {
 
 		if (m_hWindow != NULL)
 		{
-			::UnregisterClass(this->m_WindowClassName.c_str(), *m_WindowsAppInstance);
+			::UnregisterClass(this->m_WindowClassName.c_str(), m_WindowsAppInstance);
 			::DestroyWindow(m_hWindow);
 		}
 	}

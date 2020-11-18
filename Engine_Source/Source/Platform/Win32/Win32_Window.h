@@ -5,10 +5,20 @@
 
 namespace Insight {
 
+	
+	struct Win32WindowDescription : public WindowDescription
+	{
+		HINSTANCE AppInstance;
+
+		template <typename ... WindowDescriptionArgs>
+		Win32WindowDescription(HINSTANCE hInstance, WindowDescriptionArgs ... args)
+			: AppInstance(hInstance), WindowDescription(args...) {}
+	};
+
 	class INSIGHT_API Win32Window : public Window
 	{
 	public:
-		Win32Window(const WindowDescription& props);
+		Win32Window(const Win32WindowDescription& props);
 		virtual ~Win32Window();
 
 		virtual void OnUpdate() override;
@@ -21,7 +31,7 @@ namespace Insight {
 		bool SetWindowTitle(const std::string& newText, bool completlyOverride = false) override;
 		bool SetWindowTitleFPS(float fps) override;
 
-		inline HINSTANCE& GetWindowsApplicationReference() const { return *m_WindowsAppInstance; }
+		inline HINSTANCE GetWindowsApplicationReference() const { return m_WindowsAppInstance; }
 		inline HWND& GetWindowHandleRef() { return m_hWindow; }
 		inline RECT& GetWindowRect() { return m_WindowRect; }
 
@@ -29,7 +39,7 @@ namespace Insight {
 
 		// Window Attributes
 		virtual inline void SetEventCallback(const EventCallbackFn& callback) override { m_EventCallbackFn = callback; }
-		virtual bool Init(HINSTANCE& hInstance, int nCmdShow, LPWSTR CmdLineArgs);
+		virtual bool Init();
 		
 
 		HMENU& GetGraphicsSubmenu() { return m_hGraphicsVisualizeSubMenu; }
@@ -44,7 +54,6 @@ namespace Insight {
 		void InitializeContextMenu();
 		LPCTSTR GetLastWindowsError();
 	private:
-		EventCallbackFn m_EventCallbackFn;
 		
 		HWND	m_hWindow;
 		HMENU	m_hContextMenu;
@@ -56,9 +65,9 @@ namespace Insight {
 		HMENU	m_hGraphicsVisualizeSubMenu;
 		HMENU	m_hGraphicsCurrentRenderContextSubMenu;
 
-		HINSTANCE* m_WindowsAppInstance;
+		HINSTANCE m_WindowsAppInstance;
 		int m_NumCmdLineArgs;
-		LPWSTR m_CmdLineArgs;
+		std::wstring m_CmdLineArgs;
 		RECT m_WindowRect;
 
 	};

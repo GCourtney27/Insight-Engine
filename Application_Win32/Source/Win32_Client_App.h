@@ -26,15 +26,14 @@ namespace SandBoxApp {
 		{
 		}
 
-		virtual bool Init() override
+		virtual void Initialize() override
 		{
-			Super::Init();
-
+			Super::Initialize();
+			
+			// TODO: Place world creation code here.
 			FillScene();
 
 			Super::PostInit();
-
-			return true;
 		}
 		 
 		// Called when the main portion of the applicaiton has been initialized.

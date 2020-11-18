@@ -11,29 +11,21 @@ int APIENTRY wWinMain(
 	_In_ int nCmdShow
 )
 {
+	auto pApp = Insight::CreateApplication();
 
-	auto pApplication = Insight::CreateApplication();
 	try 
 	{
-		std::shared_ptr<Insight::Win32Window> pWindowsWindow = std::make_shared<Insight::Win32Window>(Insight::WindowDescription());
-		if (!pWindowsWindow->Init(hInstance, nCmdShow, lpCmdLine)) 
-		{
-			IE_FATAL_ERROR(L"Fatal Error: Failed to initialize window.");
-			return false;
-		}
-		pWindowsWindow->SetEventCallback(IE_BIND_EVENT_FN(Insight::Application::OnEvent, pApplication.get()));
-		pApplication->SetWindow(pWindowsWindow);
+		Insight::Win32WindowDescription WindowDesc(hInstance, IE_BIND_EVENT_FN(Insight::Application::OnEvent, pApp.get()), nCmdShow, lpCmdLine);
+		std::shared_ptr<Insight::Win32Window> pWindowsWindow = std::make_shared<Insight::Win32Window>(WindowDesc);
 
-		if (!pApplication->Init()) 
-		{
-			IE_FATAL_ERROR(L"Failed to initialize core engine. Exiting.");
-			return Insight::Application::ieErrorCode_Failed;
-		}
+		pApp->SetWindow(pWindowsWindow);
+		pApp->Initialize();
 	}
-	catch (Insight::ieException& e) 
+	catch (Insight::ieException& Ex) 
 	{
-		IE_DEBUG_LOG(LogSeverity::Critical, e.What());
+		IE_DEBUG_LOG(LogSeverity::Critical, Ex.What());
 		return Insight::Application::ieErrorCode_Failed;
 	}
-	return pApplication->Run();
+
+	return pApp->Run();
 }

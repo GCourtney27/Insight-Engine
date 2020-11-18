@@ -47,7 +47,7 @@ namespace Insight {
 	{
 	}
 
-	bool Application::Init()
+	void Application::Initialize()
 	{
 		ScopedPerfTimer("Core application initialization", OutputType_Millis);
 
@@ -71,8 +71,6 @@ namespace Insight {
 
 		// Push core app layers to the layer stack
 		PushCoreLayers();
-
-		return true;
 	}
 
 	void Application::PostInit()

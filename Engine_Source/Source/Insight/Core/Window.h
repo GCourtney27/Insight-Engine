@@ -8,15 +8,21 @@ class RenderingContext;
 
 namespace Insight {
 
+
+	using EventCallbackFn = std::function<void(Event&)>;
+
 	struct WindowDescription
 	{
-		std::wstring Title;
-		std::wstring Class;
 		uint32_t Width;
 		uint32_t Height;
+		std::wstring Title;
+		std::wstring Class;
+		int NumCmdArgs;
+		std::wstring CmdArgs;
+		EventCallbackFn EventCallbackFunction;
 
-		WindowDescription(const std::wstring& title = L"Insight Editor", const std::wstring winClass = L"IE Class", uint32_t width = 1700, uint32_t height = 1000)
-			: Title(title), Class(winClass), Width(width), Height(height) 
+		WindowDescription(EventCallbackFn CallbackFn, int CmdLineArgCount = 0, std::wstring CmdArgVals = L"", const std::wstring& title = L"Insight Editor", const std::wstring winClass = L"IE Class", uint32_t width = 1700, uint32_t height = 1000)
+			: EventCallbackFunction(CallbackFn), NumCmdArgs(CmdLineArgCount), CmdArgs(CmdArgVals), Title(title), Class(winClass), Width(width), Height(height)
 		{
 		}
 	};
@@ -24,7 +30,6 @@ namespace Insight {
 	class INSIGHT_API Window
 	{
 	public:
-		using EventCallbackFn = std::function<void(Event&)>;
 
 		virtual ~Window() {}
 
@@ -60,6 +65,8 @@ namespace Insight {
 
 
 	protected:
+		EventCallbackFn m_EventCallbackFn;
+		
 		float m_AspectRatio = -1.0f;
 		bool m_VSyncEnabled = false;
 		bool m_FullScreenEnabled = false;
