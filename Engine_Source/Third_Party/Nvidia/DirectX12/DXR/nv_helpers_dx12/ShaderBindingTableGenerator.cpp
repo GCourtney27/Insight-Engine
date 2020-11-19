@@ -228,6 +228,11 @@ uint32_t ShaderBindingTableGenerator::CopyShaderData(
   return static_cast<uint32_t>(shaders.size()) * entrySize;
 }
 
+unsigned long long GetMax(unsigned long long A, unsigned long long B)
+{
+    return (A > B) ? A : B;
+}
+
 //--------------------------------------------------------------------------------------------------
 //
 // Compute the size of the SBT entries for a set of entries, which is determined by the maximum
@@ -238,7 +243,7 @@ uint32_t ShaderBindingTableGenerator::GetEntrySize(const std::vector<SBTEntry>& 
   size_t maxArgs = 0;
   for (const auto& shader : entries)
   {
-    maxArgs = std::max(maxArgs, shader.m_inputData.size());
+    maxArgs = GetMax(maxArgs, shader.m_inputData.size());
   }
   // A SBT entry is made of a program ID and a set of parameters, taking 8 bytes each. Those
   // parameters can either be 8-bytes pointers, or 4-bytes constants

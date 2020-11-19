@@ -7,7 +7,7 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="6be76a64-fd6e-4dfd-a757-c7e0c2e06e07"
+    Name="InsightApplication"
     Publisher="CN=Garre"
     Version="1.0.0.0" />
 
@@ -15,7 +15,7 @@
 
   <Properties>
     <DisplayName>Application_UWP_WinRT</DisplayName>
-    <PublisherDisplayName>Garre</PublisherDisplayName>
+    <PublisherDisplayName>Garrett</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 

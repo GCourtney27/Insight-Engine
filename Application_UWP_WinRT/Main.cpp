@@ -41,13 +41,11 @@ public:
 
         CoreApplication::Resuming({ this, &ViewProvider::OnResuming });
 
-        //m_game = std::make_unique<Game>();
         m_pApp = Insight::CreateApplication();
     }
 
     void Uninitialize() noexcept
     {
-        //m_game.reset();
         m_pApp.reset();
     }
 
@@ -116,7 +114,6 @@ public:
         m_pWindowsWindow = std::make_shared<Insight::UWPWindow>(WindowDesc);
         m_pApp->SetWindow(m_pWindowsWindow);
         m_pApp->Initialize();
-        //m_game->Initialize(windowPtr, outputWidth, outputHeight, rotation);
     }
 
     void Load(winrt::hstring const &) noexcept
@@ -129,7 +126,6 @@ public:
         {
             if (m_visible)
             {
-                //m_game->Tick();
                 m_pApp->Run();
                 
                 CoreWindow::GetForCurrentThread().Dispatcher().ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);

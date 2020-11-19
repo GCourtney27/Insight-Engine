@@ -30,7 +30,7 @@ namespace Insight {
 			virtual void OnPostInit() {}
 			virtual void OnDestroy() = 0;
 			virtual void OnRender() = 0;
-			virtual void OnUpdate(const float& DeltaTime) {}
+			virtual void OnUpdate(const float DeltaTime) {}
 			virtual void OnChanged() {}
 			// Sub-menus this component sould render when its owning actor is 
 			// selected in the details panel. 

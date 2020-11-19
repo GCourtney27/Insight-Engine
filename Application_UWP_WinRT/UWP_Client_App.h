@@ -7,14 +7,14 @@ namespace SandBoxApp {
 
 	using Super = Insight::Application;
 
-	class Win32SandboxApp : public Insight::Application
+	class UWPSandboxApp : public Insight::Application
 	{
 	public:
-		Win32SandboxApp()
+		UWPSandboxApp()
 		{
 		}
 
-		virtual ~Win32SandboxApp()
+		virtual ~UWPSandboxApp()
 		{
 		}
 
