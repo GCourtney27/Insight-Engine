@@ -30,7 +30,7 @@ group ("")
 -- Applications
 group ("Applications")
 	include ("Application_Win32/Application-Win32-Make.lua")
-	include ("Application_UWP/Application-UWP-Make.lua")
+	include ("Application_UWP_WinRT/Application-UWP-Make.lua")
 group ("")
 
 -- Engine

@@ -6,50 +6,38 @@
 
 namespace Insight {
 
+
+	struct UWPWindowDescription : WindowDescription
+	{
+		::IUnknown* pWindow;
+
+		template <typename ... WindowDescriptionArgs>
+		UWPWindowDescription(::IUnknown* pWindowHandle, WindowDescriptionArgs ... args)
+			: pWindow(pWindowHandle), WindowDescription(args...) {}
+	};
+
 	class INSIGHT_API UWPWindow : public Window
 	{
 	public:
-		struct WindowData
-		{
-			std::string WindowClassName = "Insight Engine Class";
-			std::wstring WindowClassName_wide;
-			std::string WindowTitle = "Insight Editor";
-			std::wstring WindowTitle_wide;
-			UINT Width, Height;
-			bool VSyncEnabled = true;
-			bool FullScreenEnabled = false;
-			bool EditorUIEnabled = true;
-			bool IsFirstLaunch = true;
-			UWPWindow* pWindow;
-
-			EventCallbackFn EventCallback;
-		};
-	public:
-		UWPWindow(const WindowDescription& props);
+		UWPWindow(const UWPWindowDescription& props);
 		virtual ~UWPWindow();
 
-		bool Init(::IUnknown* pWindow)
-		{
-			m_pWindow = pWindow;
-			return true;
-		}
+		void Init();
 
 		virtual void OnUpdate() override {}
 		virtual void Shutdown() override {}
-
 		virtual void PostInit() override {}
-
-		virtual void* GetNativeWindow() const override { return static_cast<void*>(m_pWindow); }
-		virtual bool SetWindowTitle(const std::string& newText, bool completlyOverride = false) override { return true; }
-		virtual bool SetWindowTitleFPS(float fps) override { return true; }
-
-		virtual void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
 		virtual bool ProccessWindowMessages() override { return true; }
 
-		virtual void CreateMessageBox(const std::wstring& Message, const std::wstring Title) override {}
+		virtual void* GetNativeWindow() const override { return static_cast<void*>(m_pWindow); }
+		virtual void CreateMessageBox(const std::wstring& Message, const std::wstring Title) override {};
+
+		virtual bool SetWindowTitleFPS(float fps) override { return false; }
+		virtual void SetEventCallback(const EventCallbackFn& callback) override {}
+		virtual bool SetWindowTitle(const std::string& newText, bool completlyOverride = false) { return false; }
+
 
 	private:
-		WindowData m_Data;
 		::IUnknown* m_pWindow;
 	};
 }

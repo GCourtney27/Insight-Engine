@@ -56,6 +56,7 @@ namespace Insight {
 	private:
 		
 		HWND	m_hWindow;
+
 		HMENU	m_hContextMenu;
 		HMENU	m_hMenuBar;
 		HMENU	m_hFileSubMenu;

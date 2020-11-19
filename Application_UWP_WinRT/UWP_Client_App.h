@@ -2,38 +2,30 @@
 
 #include <Insight.h>
 
-/*=====================================================================
-
-	This class is your game. Include all gameplay logic here it will get
-	called and synced with the engine. If you would want to change the
-	title of your game, Edit the macro 'Game'.
-
- ======================================================================*/
-
-#define Game Sandbox
 
 namespace SandBoxApp {
 
 	using Super = Insight::Application;
 
-	class Game : public Insight::Application
+	class Win32SandboxApp : public Insight::Application
 	{
 	public:
-		Game()
+		Win32SandboxApp()
 		{
 		}
 
-		virtual ~Game()
+		virtual ~Win32SandboxApp()
 		{
 		}
 
-		virtual bool Init() override
+		virtual void Initialize() override
 		{
-			Super::Init();
+			Super::Initialize();
 
+			// TODO: Place world creation code here.
 			FillScene();
 
-			return true;
+			Super::PostInit();
 		}
 
 		// Called when the main portion of the applicaiton has been initialized.
@@ -43,9 +35,9 @@ namespace SandBoxApp {
 		}
 
 		// Main loop of the application. This is the main entry point for every frame.
-		virtual void Run() override
+		virtual Application::ieErrorCode Run() override
 		{
-			Super::Run();
+			return Super::Run();
 		}
 
 		// Shutdown the application and release all resources.
@@ -250,4 +242,3 @@ namespace SandBoxApp {
 	};
 
 }
-

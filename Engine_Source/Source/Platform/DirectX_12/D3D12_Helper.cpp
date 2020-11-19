@@ -232,9 +232,8 @@ namespace Insight {
 			nullptr,
 			&TempSwapChain
 		);
-		ThrowIfFailed(hr, "Failed to Create Swap Chain");
+		ThrowIfFailed(hr, "Failed to Create Swap Chain for UWP CoreWindow.");
 #endif
-
 
 		ThrowIfFailed(TempSwapChain.As(&m_pSwapChain), "Failed to cast SwapChain ComPtr");
 		m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();

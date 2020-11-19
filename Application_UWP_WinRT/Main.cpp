@@ -3,7 +3,7 @@
 //
 
 #include "pch.h"
-#include "Insight.h"
+#include "UWP_Client_App.h"
 
 
 using namespace winrt::Windows::ApplicationModel;
@@ -42,11 +42,13 @@ public:
         CoreApplication::Resuming({ this, &ViewProvider::OnResuming });
 
         //m_game = std::make_unique<Game>();
+        m_pApp = Insight::CreateApplication();
     }
 
     void Uninitialize() noexcept
     {
         //m_game.reset();
+        m_pApp.reset();
     }
 
     void SetWindow(CoreWindow const & window)
@@ -110,6 +112,10 @@ public:
         }
 
         auto windowPtr = static_cast<::IUnknown*>(winrt::get_abi(window));
+        Insight::UWPWindowDescription WindowDesc(windowPtr, IE_BIND_EVENT_FN(Insight::Application::OnEvent, m_pApp.get()));
+        m_pWindowsWindow = std::make_shared<Insight::UWPWindow>(WindowDesc);
+        m_pApp->SetWindow(m_pWindowsWindow);
+        m_pApp->Initialize();
         //m_game->Initialize(windowPtr, outputWidth, outputHeight, rotation);
     }
 
@@ -124,7 +130,8 @@ public:
             if (m_visible)
             {
                 //m_game->Tick();
-
+                m_pApp->Run();
+                
                 CoreWindow::GetForCurrentThread().Dispatcher().ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
             }
             else
@@ -263,6 +270,8 @@ private:
     float                   m_DPI;
     float                   m_logicalWidth;
     float                   m_logicalHeight;
+    std::unique_ptr<Insight::Application> m_pApp;
+    std::shared_ptr<Insight::UWPWindow> m_pWindowsWindow;
 
     winrt::Windows::Graphics::Display::DisplayOrientations	m_nativeOrientation;
     winrt::Windows::Graphics::Display::DisplayOrientations	m_currentOrientation;
