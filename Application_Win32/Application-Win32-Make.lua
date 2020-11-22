@@ -2,6 +2,7 @@
 -- The client exe that gets executed and runs.
 
 appName = "Application"
+projectName = appName .. "_Win32"
 
 engineThirdPartyDir = "../Engine_Source/Third_Party/"
 monoInstallDir = "C:/Program Files/Mono/"
@@ -19,13 +20,13 @@ applicationIncludeDirs["Engine_Source_Src"]			= rootDirPath .. "Engine_Source/So
 applicationIncludeDirs["Engine_Source_Third_Party"]	= rootDirPath .. "Engine_Source/Third_Party/"
 applicationIncludeDirs["Build_Rules"]				= rootDirPath .. "Build_Rules/"
 
-project (appName .. "_Win32")
-	location (rootDirPath .. appName .. "_Win32")
+project (projectName)
+	location (rootDirPath .. projectName)
 	kind "WindowedApp"
 	cppdialect "C++17"
 	language "C++"
 	staticruntime "off"
-	targetname(appName .. "_Win32")
+	targetname(projectName)
 	
 	targetdir (rootDirPath .. "Binaries/" .. outputdir .. "/%{prj.name}")
     objdir (rootDirPath .. "Binaries/Intermediates/" .. outputdir .. "/%{prj.name}")
@@ -94,22 +95,23 @@ project (appName .. "_Win32")
 	postbuildcommands
 	{
 		-- Assimp
-		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/assimp-3.3.1/build/code/Debug/assimp-vc140-mt.dll ../Binaries/" .. outputdir .. "/" .. appName .. "_Win32"),
+		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/assimp-3.3.1/build/code/Debug/assimp-vc140-mt.dll ../Binaries/" .. outputdir .. "/" .. projectName),
 		-- DX11 Debug Layers
-		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll ../Binaries/" .. outputdir .. "/" .. appName .. "_Win32"),
-		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3DX11d_43.dll ../Binaries/"..outputdir.."/" .. appName .. "_Win32"),
-		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3D11Ref.dll ../Binaries/"..outputdir.."/" .. appName .. "_Win32"),
+		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll ../Binaries/" .. outputdir .. "/" .. projectName),
+		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3DX11d_43.dll ../Binaries/"..outputdir.."/" .. projectName),
+		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3D11Ref.dll ../Binaries/"..outputdir.."/" .. projectName),
 		-- Mono
-		("{COPY} \"".. monoInstallDir .."/bin/mono-2.0-sgen.dll\" ../Binaries/" .. outputdir .. "/" .. appName .. "_Win32"),
+		("{COPY} \"".. monoInstallDir .."/bin/mono-2.0-sgen.dll\" ../Binaries/" .. outputdir .. "/" .. projectName),
 		-- DirectX
-		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxcompiler.dll ../Binaries/"..outputdir.."/" .. appName .. "_Win32"),
-		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxil.dll ../Binaries/"..outputdir.."/" .. appName .. "_Win32"),
-		("{COPY} ../Engine_Source/Source/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/Engine_Build_Win32"),
+		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxcompiler.dll ../Binaries/"..outputdir.."/" .. projectName),
+		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxil.dll ../Binaries/"..outputdir.."/" .. projectName),
 		-- PIX
-		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../Binaries/"..outputdir.."/" .. appName .. "_Win32"),
-		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../Binaries/"..outputdir.."/" .. appName .. "_Win32"),
+		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../Binaries/"..outputdir.."/" .. projectName),
+		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../Binaries/"..outputdir.."/" .. projectName),
+		-- Copy over assets
+		("{COPY} %{wks.location}Content ../Binaries/" .. outputdir .. "/Content"),
 		-- Copy over default engine assets
-		("{COPY} ../Engine_Source/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Default_Assets/")
+		("{COPY} ../Engine_Source/Assets ../Binaries/"..outputdir.."/Content/Engine")
 	}
 
 
@@ -158,8 +160,9 @@ project (appName .. "_Win32")
 			-- PIX					
 			("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../Binaries/"..outputdir.."/Engine"),
 			("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../Binaries/"..outputdir.."/Engine"),
-			-- Copy over default engine assets
-			("{COPY} %{wks.location}/Engine_Source/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Default_Assets/")
+			-- Copy over assets
+			("{COPY} $(USERPROFILE)/Documents/Insight-Projects/Development-Project/Content/** ../Binaries/" .. outputdir .. "/Content"),
+			("{COPY} %{wks.location}/Engine_Source/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Content/Default_Assets/")
 		}
 
 	filter "configurations:EngineDist"
@@ -185,8 +188,8 @@ project (appName .. "_Win32")
 			("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxcompiler.dll ../Binaries/"..outputdir.."/Engine"),
 			("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxil.dll ../Binaries/"..outputdir.."/Engine"),
 			("{COPY} %{wks.location}/Engine/Source/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/Engine"),
-			-- Copy over default engine assets
-			("{COPY} %{wks.location}/Engine/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Default_Assets/")
+			-- Copy over assets
+			("{COPY} %{wks.location}/Engine_Source/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Content/Default_Assets/")
 		}
 		
 	filter "configurations:GameDist"
@@ -212,6 +215,7 @@ project (appName .. "_Win32")
 			("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxcompiler.dll ../Binaries/"..outputdir.."/Engine"),
 			("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxil.dll ../Binaries/"..outputdir.."/Engine"),
 			("{COPY} %{wks.location}/Engine/Source/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/Engine"),
+			("{COPY} %{wks.location}/Engine_Source/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Content/Default_Assets/")
 		}
 
 	

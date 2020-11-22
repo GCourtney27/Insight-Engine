@@ -30,7 +30,7 @@ namespace Insight {
 		virtual bool ProccessWindowMessages() override { return true; }
 
 		virtual void* GetNativeWindow() const override { return static_cast<void*>(m_pWindow); }
-		virtual void CreateMessageBox(const std::wstring& Message, const std::wstring Title) override {};
+		virtual void CreateMessageBox(const std::wstring& Message, const std::wstring Title) override;
 
 		virtual bool SetWindowTitleFPS(float fps) override { return false; }
 		virtual void SetEventCallback(const EventCallbackFn& callback) override {}

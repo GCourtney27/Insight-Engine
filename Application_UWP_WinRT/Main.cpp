@@ -11,6 +11,7 @@ using namespace winrt::Windows::ApplicationModel::Core;
 using namespace winrt::Windows::ApplicationModel::Activation;
 using namespace winrt::Windows::UI::Core;
 using namespace winrt::Windows::UI::Input;
+using namespace winrt::Windows::UI::Popups;
 using namespace winrt::Windows::UI::ViewManagement;
 using namespace winrt::Windows::System;
 using namespace winrt::Windows::Foundation;

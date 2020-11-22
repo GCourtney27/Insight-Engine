@@ -233,6 +233,11 @@ project ("Engine_Build_Win32")
 		"MultiProcessorCompile"
 	}
 
+	postbuildcommands
+	{
+		("{COPY} ../Engine_Source/Source/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/%{prj.name}"),
+	}
+
 
 	-- Shaders
 	filter { "files:**.pixel.hlsl" }

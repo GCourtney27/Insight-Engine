@@ -17,7 +17,6 @@ workspace ("InsightEngine")
 
 outputdir = "%{cfg.buildcfg}-$(SDKIdentifier)-$(Platform)"
 
-
 CustomDefines = {}
 CustomDefines["IE_BUILD_DIR"] = "../Bin/" .. outputdir
 CustomDefines["IE_BUILD_CONFIG"] = outputdir

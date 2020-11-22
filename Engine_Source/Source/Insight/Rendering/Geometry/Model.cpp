@@ -46,7 +46,7 @@ namespace Insight {
 		m_pMaterial = pMaterial;
 
 		m_AssetDirectoryRelativePath = path;
-		m_Directory = FileSystem::GetProjectRelativeContentDirectory(path);
+		m_Directory = FileSystem::GetRelativeContentDirectory(path);
 		m_FileName = StringHelper::GetFilenameFromDirectory(m_Directory);
 		SceneNode::SetDisplayName("Static Mesh");
 

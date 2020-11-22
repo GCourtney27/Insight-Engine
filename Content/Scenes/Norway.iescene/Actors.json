@@ -1,0 +1,218 @@
+{
+    "Set": [
+        {
+            "Type": "SkySphere",
+            "DisplayName": "Sky Sphere Actor",
+            "Transform": [
+                {
+                    "posX": 0.0,
+                    "posY": 0.0,
+                    "posZ": 0.0,
+                    "rotX": 0.0,
+                    "rotY": 0.0,
+                    "rotZ": 0.0,
+                    "scaX": 1.0,
+                    "scaY": 1.0,
+                    "scaZ": 1.0
+                }
+            ],
+            "Sky": [
+                {
+                    "Diffuse": "Textures/Skyboxes/PlainSunset/PlainSunset_Diff.dds"
+                }
+            ],
+            "Subobjects": []
+        },
+        {
+            "Type": "SkyLight",
+            "DisplayName": "Sky Light Actor",
+            "Transform": [
+                {
+                    "posX": 0.0,
+                    "posY": 0.0,
+                    "posZ": 0.0,
+                    "rotX": 0.0,
+                    "rotY": 0.0,
+                    "rotZ": 0.0,
+                    "scaX": 1.0,
+                    "scaY": 1.0,
+                    "scaZ": 1.0
+                }
+            ],
+            "Sky": [
+                {
+                    "BRDFLUT": "Textures/Skyboxes/ibl_brdf_lut.png",
+                    "Irradiance": "Textures/Skyboxes/PlainSunset/PlainSunset_IR_New.dds",
+                    "Radiance": "Textures/Skyboxes/PlainSunset/PlainSunset_EnvMap_New.dds"
+                }
+            ],
+            "Subobjects": []
+        },
+        {
+            "Type": "PostFxVolume",
+            "DisplayName": "Post-Process Actor",
+            "Transform": [
+                {
+                    "posX": 0.0,
+                    "posY": 0.0,
+                    "posZ": 0.0,
+                    "rotX": 0.0,
+                    "rotY": 0.0,
+                    "rotZ": 0.0,
+                    "scaX": 1.0,
+                    "scaY": 1.0,
+                    "scaZ": 1.0
+                }
+            ],
+            "PostFx": [
+                {
+                    "vnInnerRadius": 0.10000000149011612,
+                    "vnOuterRadius": 1.0,
+                    "vnOpacity": 1.0,
+                    "vnEnabled": true
+                },
+                {
+                    "fgStrength": 16.0,
+                    "fgEnabled": false
+                },
+                {
+                    "caIntensity": 16.0,
+                    "caEnabled": false
+                },
+                {
+                    "blIntensity": 0.6,
+                    "blEnabled": true
+                }
+            ],
+            "Subobjects": []
+        },
+        {
+            "Type": "Actor",
+            "DisplayName": "Wooden Floor",
+            "Subobjects": [
+                {
+                    "SceneComponent": [
+                        {
+                            "Transform":[
+                                {
+                                    "posX": 0.013513565063476563,
+                                    "posY": -5.508386611938477,
+                                    "posZ": 0.0,
+                                    "rotX": 0.0,
+                                    "rotY": 0.0,
+                                    "rotZ": 0.0,
+                                    "scaX": 324.23944091796877,
+                                    "scaY": 324.23944091796877,
+                                    "scaZ": 324.23944091796877
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "StaticMesh": [
+                        {
+                            "Mesh": "Models/Quad.obj",
+                            "Enabled": true,
+                            "LocalTransform": [
+                                {
+                                    "posX": 0.0,
+                                    "posY": 0.0,
+                                    "posZ": 0.0,
+                                    "rotX": 0.0,
+                                    "rotY": 0.0,
+                                    "rotZ": 0.0,
+                                    "scaX": 1.0,
+                                    "scaY": 1.0,
+                                    "scaZ": 1.0
+                                }
+                            ]
+                        },
+                        {
+                            "Category": 0,
+                            "AlbedoMapID": 6,
+                            "NormalMapID": 7,
+                            "MetallicMapID": 8,
+                            "RoughnessMapID": 9,
+                            "AOMapID": 10,
+                            "uvOffset": [
+                                {
+                                    "x": 0.0,
+                                    "y": 0.0
+                                }
+                            ],
+                            "Tiling": [
+                                {
+                                    "u": 15.0,
+                                    "v": 15.0
+                                }
+                            ],
+                            "Color_Override": [
+                                {
+                                    "r": 0.0,
+                                    "g": 0.0,
+                                    "b": 0.0
+                                }
+                            ],
+                            "Metallic_Override": 0.0,
+                            "Roughness_Override": 0.0
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Type": "PointLight",
+            "DisplayName": "Point Light",
+            "Transform": [
+                {
+                    "posX": -43.502323150634769,
+                    "posY": 10.0,
+                    "posZ": -32.0,
+                    "rotX": 0.0,
+                    "rotY": 0.0,
+                    "rotZ": 0.0,
+                    "scaX": 1.0,
+                    "scaY": 1.0,
+                    "scaZ": 1.0
+                }
+            ],
+            "Emission": [
+                {
+                    "diffuseR": 0.9340000152587891,
+                    "diffuseG": 0.8759999871253967,
+                    "diffuseB": 0.7570000290870667,
+                    "strength": 8.0
+                }
+            ],
+            "Subobjects": []
+        },
+        {
+            "Type": "DirectionalLight",
+            "DisplayName": "Directional Light",
+            "Transform": [
+                {
+                    "posX": 0.0,
+                    "posY": 0.0,
+                    "posZ": 0.0,
+                    "rotX": 0.1,
+                    "rotY": -5.0,
+                    "rotZ": -6.5,
+                    "scaX": 1.0,
+                    "scaY": 1.0,
+                    "scaZ": 1.0
+                }
+            ],
+            "Emission": [
+                {
+                    "diffuseR": 0.6209999918937683,
+                    "diffuseG": 0.6890000104904175,
+                    "diffuseB": 0.6990000009536743,
+                    "strength": 5.109999895095825,
+                    "shadowDarkness": 0.0
+                }
+            ],
+            "Subobjects": []
+        }
+    ]
+}

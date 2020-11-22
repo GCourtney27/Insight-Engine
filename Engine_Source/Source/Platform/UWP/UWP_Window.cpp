@@ -28,4 +28,9 @@ namespace Insight {
 
 	}
 
+	void UWPWindow::CreateMessageBox(const std::wstring& Message, const std::wstring Title)
+	{
+		
+	}
+
 }

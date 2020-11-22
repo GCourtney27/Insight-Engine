@@ -129,9 +129,25 @@ namespace Insight {
 		DirectX::ResourceUploadBatch resourceUpload(pDevice);
 		resourceUpload.Begin();
 
-		HRESULT hr = DirectX::CreateWICTextureFromFile(pDevice, resourceUpload, m_TextureInfo.Filepath.c_str(), &m_pTexture, m_TextureInfo.GenerateMipMaps);
+		HRESULT hr = S_OK;
+#if defined (IE_PLATFORM_BUILD_WIN32)
+		hr = DirectX::CreateWICTextureFromFile(pDevice, resourceUpload, m_TextureInfo.Filepath.c_str(), &m_pTexture, m_TextureInfo.GenerateMipMaps);
+
+#elif defined (IE_PLATFORM_BUILD_UWP)
+
+		//auto tempFolder = winrt::Windows::Storage::ApplicationData::Current().TemporaryFolder();
+		auto tempFolder = winrt::Windows::ApplicationModel::Package::Current().InstalledLocation();
+		winrt::hstring name = m_TextureInfo.Filepath.c_str();
+		//auto future = tempFolder.GetFileAsync(L"../../Content/Textures/BambooWood/BambooWood_Albedo.png");
+		auto future = tempFolder.GetFileAsync(m_TextureInfo.Filepath.c_str());
+		if(future.get())
+			hr = DirectX::CreateWICTextureFromFile(pDevice, resourceUpload, future.get().Path().c_str(), &m_pTexture, m_TextureInfo.GenerateMipMaps);
+
+#endif
+
 		if (FAILED(hr)) {
 			IE_DEBUG_LOG(LogSeverity::Error, "Failed to Create WIC texture from file with path \"{0}\"", StringHelper::WideToString(m_TextureInfo.Filepath));
+			return false;
 		}
 
 		m_D3DTextureDesc = m_pTexture->GetDesc();

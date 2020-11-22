@@ -66,7 +66,7 @@ namespace Insight {
 
 			Texture::IE_TEXTURE_INFO TexInfo = {};
 			TexInfo.Id = ID;
-			TexInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeContentDirectory(Filepath));
+			TexInfo.Filepath = StringHelper::StringToWide(FileSystem::GetRelativeContentDirectory(Filepath));
 			TexInfo.GenerateMipMaps = GenMipMaps;
 			TexInfo.Type = (Texture::eTextureType)Type;
 
@@ -181,39 +181,38 @@ namespace Insight {
 	bool TextureManager::LoadDefaultTextures()
 	{
 		const wchar_t* ExeDir = FileSystem::GetExecutbleDirectoryW();
-		std::wstring ExeDirectory(ExeDir);
-		ExeDirectory += L"../Default_Assets/";
+		std::wstring DefaultAssetDirectory = FileSystem::GetRelativeContentDirectoryW(L"Engine/Textures/Default_Object/");
 		
 		// Albedo
 		IE_TEXTURE_INFO AlbedoTexInfo = {};
 		AlbedoTexInfo.Id = DEFAULT_ALBEDO_TEXTURE_ID;
 		AlbedoTexInfo.GenerateMipMaps = true;
 		AlbedoTexInfo.Type = Texture::eTextureType::eTextureType_Albedo;
-		AlbedoTexInfo.Filepath = ExeDirectory + L"Default_Albedo.png";
+		AlbedoTexInfo.Filepath = DefaultAssetDirectory + L"Default_Albedo.png";
 		// Normal
 		IE_TEXTURE_INFO NormalTexInfo = {};
 		NormalTexInfo.Id = DEFAULT_NORMAL_TEXTURE_ID;
 		NormalTexInfo.GenerateMipMaps = true;
 		NormalTexInfo.Type = Texture::eTextureType::eTextureType_Normal;
-		NormalTexInfo.Filepath = ExeDirectory + L"Default_Normal.png";
+		NormalTexInfo.Filepath = DefaultAssetDirectory + L"Default_Normal.png";
 		// Metallic
 		IE_TEXTURE_INFO MetallicTexInfo = {};
 		MetallicTexInfo.Id = DEFAULT_METALLIC_TEXTURE_ID;
 		MetallicTexInfo.GenerateMipMaps = true;
 		MetallicTexInfo.Type = Texture::eTextureType::eTextureType_Metallic;
-		MetallicTexInfo.Filepath = ExeDirectory + L"Default_Metallic.png";
+		MetallicTexInfo.Filepath = DefaultAssetDirectory + L"Default_Metallic.png";
 		// Roughness
 		IE_TEXTURE_INFO RoughnessTexInfo = {};
 		RoughnessTexInfo.Id = DEFAULT_ROUGHNESS_TEXTURE_ID;
 		RoughnessTexInfo.GenerateMipMaps = true;
 		RoughnessTexInfo.Type = Texture::eTextureType::eTextureType_Roughness;
-		RoughnessTexInfo.Filepath = ExeDirectory + L"Default_RoughAO.png";
+		RoughnessTexInfo.Filepath = DefaultAssetDirectory + L"Default_RoughAO.png";
 		// AO
 		IE_TEXTURE_INFO AOTexInfo = {};
 		AOTexInfo.Id = DEFAULT_AO_TEXTURE_ID;
 		AOTexInfo.GenerateMipMaps = true;
 		AOTexInfo.Type = Texture::eTextureType::eTextureType_AmbientOcclusion;
-		AOTexInfo.Filepath = ExeDirectory + L"Default_RoughAO.png";
+		AOTexInfo.Filepath = DefaultAssetDirectory + L"Default_RoughAO.png";
 
 		switch (Renderer::GetAPI())
 		{

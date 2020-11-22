@@ -114,10 +114,10 @@
 	#endif
 
 	// Windows API	
+	#include <strsafe.h>
 	#include <windowsx.h>
 	#include <shlobj.h>
 	#include "Shlwapi.h"
-	#include <strsafe.h>
 	
 #endif // IE_PLATFORM_BUILD_WIN32
 
@@ -136,5 +136,7 @@
 	#include "winrt/Windows.UI.Core.h"
 	#include "winrt/Windows.UI.Input.h"
 	#include "winrt/Windows.UI.ViewManagement.h"
+	#include "winrt/Windows.Storage.h"
+	#include "winrt/Windows.Storage.Pickers.h"
 
 #endif // IE_PLATFORM_BUILD_UWP

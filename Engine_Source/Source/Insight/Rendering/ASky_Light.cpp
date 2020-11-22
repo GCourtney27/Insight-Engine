@@ -36,19 +36,19 @@ namespace Insight {
 
 
 		Texture::IE_TEXTURE_INFO brdfInfo;
-		brdfInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeContentDirectory(brdfLUT));
+		brdfInfo.Filepath = StringHelper::StringToWide(FileSystem::GetRelativeContentDirectory(brdfLUT));
 		brdfInfo.Type = Texture::eTextureType::eTextureType_IBLBRDFLUT;
 		brdfInfo.IsCubeMap = false;
 		brdfInfo.GenerateMipMaps = false;
 
 		Texture::IE_TEXTURE_INFO irMapInfo;
-		irMapInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeContentDirectory(irMap));
+		irMapInfo.Filepath = StringHelper::StringToWide(FileSystem::GetRelativeContentDirectory(irMap));
 		irMapInfo.Type = Texture::eTextureType::eTextureType_SkyIrradience;
 		irMapInfo.IsCubeMap = true;
 		brdfInfo.GenerateMipMaps = false;
 
 		Texture::IE_TEXTURE_INFO radMapInfo;
-		radMapInfo.Filepath = StringHelper::StringToWide(FileSystem::GetProjectRelativeContentDirectory(envMap));
+		radMapInfo.Filepath = StringHelper::StringToWide(FileSystem::GetRelativeContentDirectory(envMap));
 		radMapInfo.Type = Texture::eTextureType::eTextureType_SkyRadianceMap;
 		radMapInfo.IsCubeMap = true;
 		brdfInfo.GenerateMipMaps = false;
