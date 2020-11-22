@@ -16,8 +16,8 @@
 
 namespace Insight {
 
-	std::string FileSystem::ExecutableDirectory = "";
-	std::wstring FileSystem::ExecutableDirectoryW = L"";
+	std::string FileSystem::WorkingDirectory = "";
+	std::wstring FileSystem::WorkingDirectoryW = L"";
 
 	FileSystem::FileSystem()
 	{
@@ -29,9 +29,9 @@ namespace Insight {
 
 	bool FileSystem::Init(const char* ProjectName)
 	{
-		SetExecutableDirectory();
+		SetWorkingDirectory();
 		
-		FileSystem::ExecutableDirectory = GetExecutableDirectory();
+		FileSystem::WorkingDirectory = GetWorkingDirectory();
 		return true;
 	}
 
@@ -87,18 +87,18 @@ namespace Insight {
 	std::string FileSystem::GetRelativeContentDirectory(const std::string& Path)
 	{
 #if defined (IE_PLATFORM_BUILD_WIN32)
-		return std::string(ExecutableDirectory + "../Content/" + Path);
+		return std::string(WorkingDirectory + "../Content/" + Path);
 #elif defined (IE_PLATFORM_BUILD_UWP)
-		return std::string(ExecutableDirectory + "../../Content/" + Path);
+		return std::string(WorkingDirectory + "/Content/" + Path);
 #endif
 	}
 
 	std::wstring FileSystem::GetRelativeContentDirectoryW(const std::wstring& Path)
 	{
 #if defined (IE_PLATFORM_BUILD_WIN32)
-		return std::wstring(ExecutableDirectoryW + L"../Content/" + Path);
+		return std::wstring(WorkingDirectoryW + L"../Content/" + Path);
 #elif defined (IE_PLATFORM_BUILD_UWP)
-		return std::wstring(ExecutableDirectoryW + L"../../Content/" + Path);
+		return std::wstring(WorkingDirectoryW + L"/Content/" + Path);
 #endif
 	}
 
@@ -290,15 +290,15 @@ namespace Insight {
 		RawPath += "../Content/" + Path;
 		return PathFileExistsA(RawPath.c_str());
 #elif defined (IE_PLATFORM_BUILD_UWP)
-		RawPath += "../../Content/" + Path;
-		#pragma message ("fix me")
+		RawPath += "Content/" + Path;
+		#pragma message ("UWP: FileExistsInContentDirectory not implemented for this platform. Fix me")
 		return false;
 #endif
 	}
 
 	std::string FileSystem::GetShaderPath(const char* Shader)
 	{
-		std::string ExeDirectory = StringHelper::WideToString(FileSystem::GetExecutbleDirectoryW());
+		std::string ExeDirectory = StringHelper::WideToString(FileSystem::GetWorkingDirectoryW());
 #if defined (IE_PLATFORM_BUILD_WIN32)
 		ExeDirectory += "../";
 		ExeDirectory += "Engine_Build_Win32/";
@@ -313,20 +313,20 @@ namespace Insight {
 
 	std::wstring FileSystem::GetShaderPathW(const wchar_t* Shader)
 	{
-		std::wstring ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		std::wstring WorkingDirectory = FileSystem::GetWorkingDirectoryW();
 #if defined (IE_PLATFORM_BUILD_WIN32)
-		ExeDirectory += L"../";
-		ExeDirectory += L"Engine_Build_Win32/";
+		WorkingDirectory += L"../";
+		WorkingDirectory += L"Engine_Build_Win32/";
 #elif defined (IE_PLATFORM_BUILD_UWP)
-		ExeDirectory += L"../../";
-		ExeDirectory += L"Engine_Build_UWP/";
+		WorkingDirectory += L"/Engine_Build_UWP/";
 #endif
-		ExeDirectory += Shader;
-		return ExeDirectory;
+		WorkingDirectory += Shader;
+		return WorkingDirectory;
 	}
 
-	void FileSystem::SetExecutableDirectory()
+	void FileSystem::SetWorkingDirectory()
 	{
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		WCHAR Path[512];
 		UINT RawPathSize = _countof(Path);
 		DWORD PathSize = GetModuleFileName(nullptr, Path, RawPathSize);
@@ -338,8 +338,15 @@ namespace Insight {
 		if (LastSlash) {
 			*(LastSlash + 1) = L'\0';
 		}
-		FileSystem::ExecutableDirectoryW = std::wstring{ Path };
-		FileSystem::ExecutableDirectory = StringHelper::WideToString(FileSystem::ExecutableDirectoryW);
+		FileSystem::WorkingDirectoryW = std::wstring{ Path };
+
+#elif defined (IE_PLATFORM_BUILD_UWP)
+		auto folder = winrt::Windows::Storage::ApplicationData::Current().LocalFolder();
+		FileSystem::WorkingDirectoryW = folder.Path().c_str();
+		FileSystem::WorkingDirectoryW += L"/";
+#endif
+
+		FileSystem::WorkingDirectory = StringHelper::WideToString(FileSystem::WorkingDirectoryW);
 	}
 
 }

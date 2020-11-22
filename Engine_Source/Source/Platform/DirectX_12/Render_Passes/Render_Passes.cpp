@@ -684,7 +684,7 @@ namespace Insight {
 		ComPtr<ID3DBlob> pVertexShader;
 		ComPtr<ID3DBlob> pPixelShader;
 
-		const wchar_t* ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		const wchar_t* ExeDirectory = FileSystem::GetWorkingDirectoryW();
 		std::wstring VertexShaderFolder(ExeDirectory);
 		VertexShaderFolder += L"../Engine/Screen_Aligned_Quad.vertex.cso";
 		std::wstring PixelShaderFolder(ExeDirectory);

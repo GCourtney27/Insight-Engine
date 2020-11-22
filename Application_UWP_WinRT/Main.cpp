@@ -127,7 +127,7 @@ public:
         {
             if (m_visible)
             {
-                m_pApp->Run();
+                m_pApp->RunSingleThreaded();
                 
                 CoreWindow::GetForCurrentThread().Dispatcher().ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
             }
@@ -346,7 +346,8 @@ private:
         {
             std::swap(outputWidth, outputHeight);
         }
-
+        Insight::WindowResizeEvent e(outputWidth, outputHeight, false);
+        m_pWindowsWindow->GetEventCallbackFn()(e);
         //m_game->OnWindowSizeChanged(outputWidth, outputHeight, rotation);
     }
 };

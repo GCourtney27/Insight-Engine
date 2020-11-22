@@ -208,7 +208,7 @@ namespace Insight {
 	{
 		HRESULT hr;
 
-		const wchar_t* ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		const wchar_t* ExeDirectory = FileSystem::GetWorkingDirectoryW();
 		std::wstring VertexShaderFolder(ExeDirectory);
 		VertexShaderFolder += L"../Renderer/Geometry_Pass.vertex.cso";
 		std::wstring PixelShaderFolder(ExeDirectory);
@@ -309,7 +309,7 @@ namespace Insight {
 	{
 		HRESULT hr;
 
-		const wchar_t* ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		const wchar_t* ExeDirectory = FileSystem::GetWorkingDirectoryW();
 		std::wstring VertexShaderFolder(ExeDirectory);
 		VertexShaderFolder += L"../Renderer/Light_Pass.vertex.cso";
 		std::wstring PixelShaderFolder(ExeDirectory);
@@ -357,7 +357,7 @@ namespace Insight {
 
 	void D3D11DeferredShadingTech::CreateSkyPass()
 	{
-		const wchar_t* ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		const wchar_t* ExeDirectory = FileSystem::GetWorkingDirectoryW();
 		std::wstring VertexShaderFolder(ExeDirectory);
 		VertexShaderFolder += L"../Renderer/Skybox.vertex.cso";
 		std::wstring PixelShaderFolder(ExeDirectory);
@@ -388,7 +388,7 @@ namespace Insight {
 
 	void D3D11DeferredShadingTech::CreateTransparencyPass()
 	{
-		const wchar_t* ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		const wchar_t* ExeDirectory = FileSystem::GetWorkingDirectoryW();
 		std::wstring VertexShaderFolder(ExeDirectory);
 		VertexShaderFolder += L"../Renderer/Transparency_Pass.vertex.cso";
 		std::wstring PixelShaderFolder(ExeDirectory);
@@ -426,7 +426,7 @@ namespace Insight {
 
 	void D3D11DeferredShadingTech::CreatePostEffectsPass()
 	{
-		const wchar_t* ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+		const wchar_t* ExeDirectory = FileSystem::GetWorkingDirectoryW();
 		std::wstring VertexShaderFolder(ExeDirectory);
 		VertexShaderFolder += L"../Renderer/PostProcessComposite.vertex.cso";
 		std::wstring PixelShaderFolder(ExeDirectory);

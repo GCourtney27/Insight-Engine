@@ -180,7 +180,7 @@ namespace Insight {
 
 	bool TextureManager::LoadDefaultTextures()
 	{
-		const wchar_t* ExeDir = FileSystem::GetExecutbleDirectoryW();
+		const wchar_t* ExeDir = FileSystem::GetWorkingDirectoryW();
 		std::wstring DefaultAssetDirectory = FileSystem::GetRelativeContentDirectoryW(L"Engine/Textures/Default_Object/");
 		
 		// Albedo

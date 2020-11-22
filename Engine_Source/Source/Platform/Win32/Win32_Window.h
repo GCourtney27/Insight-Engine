@@ -38,7 +38,6 @@ namespace Insight {
 		virtual void CreateMessageBox(const std::wstring& Message, const std::wstring Title) override;
 
 		// Window Attributes
-		virtual inline void SetEventCallback(const EventCallbackFn& callback) override { m_EventCallbackFn = callback; }
 		virtual bool Init();
 		
 
@@ -46,7 +45,6 @@ namespace Insight {
 		HMENU& GetEditorSubmenu() { return m_hEditorSubMenu; }
 		HMENU& GetContextSubmenu() { return m_hContextMenu; }
 
-		EventCallbackFn& GetEventCallbackFn() { return m_EventCallbackFn; }
 
 	private:
 		void RegisterWindowClass();

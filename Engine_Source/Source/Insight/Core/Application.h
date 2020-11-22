@@ -60,6 +60,7 @@ namespace Insight {
 		virtual void PostInit();
 		// Main loop of the application. This is the main entry point for every frame.
 		virtual ieErrorCode Run();
+		ieErrorCode RunSingleThreaded();
 		// Shutdown the application and release all resources.
 		virtual void Shutdown();
 
@@ -68,7 +69,6 @@ namespace Insight {
 		void PushLayer(Layer* layer);
 		// Push an overlay to the front of the application's layer stack.
 		void PushOverlay(Layer* layer);
-
 
 		inline void SetWindow(std::shared_ptr<Window> pWindow) 
 		{ 
@@ -120,6 +120,8 @@ namespace Insight {
 		FrameTimer				m_FrameTimer;
 		FileSystem				m_FileSystem;
 		Input::InputDispatcher	m_InputDispatcher;
+		Insight::Runtime::AActor* pARustedBall;
+		Insight::Runtime::SceneComponent* pSCDemoBall;
 	private:
 		static Application*		s_Instance;
 	};

@@ -61,8 +61,7 @@ namespace Insight {
 		m_pGameLayer = new GameLayer();
 
 		// Load the Scene
-		std::string DocumentPath;
-		DocumentPath += "../Content/Scenes/";
+		std::string DocumentPath = FileSystem::GetRelativeContentDirectory("/Scenes/");
 		DocumentPath += TargetSceneName;
 		if (!m_pGameLayer->LoadScene(DocumentPath)) {
 			throw ieException("Failed to initialize scene");
@@ -84,6 +83,8 @@ namespace Insight {
 		IE_DEBUG_LOG(LogSeverity::Verbose, "Application Initialized");
 	}
 
+#define EDITOR_UI_ENABLED 0
+
 	float g_GPUThreadFPS = 0.0f;
 	void Application::RenderThread()
 	{
@@ -103,6 +104,7 @@ namespace Insight {
 			Renderer::OnRender();
 
 			// Render the Editor/UI last. 
+#if EDITOR_UI_ENABLED
 			IE_STRIP_FOR_GAME_DIST
 			(
 			m_pImGuiLayer->Begin();
@@ -111,6 +113,7 @@ namespace Insight {
 			m_pGameLayer->OnImGuiRender();
 			m_pImGuiLayer->End();
 			);
+#endif
 
 			// Submit for draw and present. 
 			Renderer::ExecuteDraw();
@@ -126,7 +129,7 @@ namespace Insight {
 
 		// Put all rendering on another thread. 
 		std::thread RenderThread(&Application::RenderThread, this);
-
+		
 		while (m_Running)
 		{
 			m_FrameTimer.Tick();
@@ -135,6 +138,12 @@ namespace Insight {
 
 			// Process the window's Messages 
 			m_pWindow->OnUpdate();
+
+			static float WorldSeconds = 0.0f;
+			WorldSeconds += DeltaMs;
+			//IE_DEBUG_LOG(LogSeverity::Log, "{0}", std::sin(WorldSeconds));
+			pSCDemoBall->Translate(0.0f, std::sin(WorldSeconds) * 0.02f, 0.0f);
+			
 
 			// Update the input system. 
 			m_InputDispatcher.UpdateInputs(DeltaMs);
@@ -156,6 +165,59 @@ namespace Insight {
 		return ieErrorCode_Success;
 	}
 
+	Application::ieErrorCode Application::RunSingleThreaded()
+	{
+		{
+			m_FrameTimer.Tick();
+			float DeltaMs = m_FrameTimer.DeltaTime();
+			m_pWindow->SetWindowTitleFPS(g_GPUThreadFPS);
+
+			// Process the window's Messages 
+			m_pWindow->OnUpdate();
+			
+			{
+				static FrameTimer GraphicsTimer;
+				GraphicsTimer.Tick();
+				g_GPUThreadFPS = GraphicsTimer.FPS();
+
+				Renderer::OnUpdate(GraphicsTimer.DeltaTime());
+
+				// Prepare for rendering. 
+				Renderer::OnPreFrameRender();
+
+				// Render the world. 
+				Renderer::OnRender();
+
+				// Render the Editor/UI last. 
+#if EDITOR_UI_ENABLED
+				IE_STRIP_FOR_GAME_DIST
+				(
+					m_pImGuiLayer->Begin();
+				for (Layer* pLayer : m_LayerStack)
+					pLayer->OnImGuiRender();
+				m_pGameLayer->OnImGuiRender();
+				m_pImGuiLayer->End();
+				);
+#endif
+
+				// Submit for draw and present. 
+				Renderer::ExecuteDraw();
+				Renderer::SwapBuffers();
+			}
+
+			// Update the input system. 
+			m_InputDispatcher.UpdateInputs(DeltaMs);
+
+			// Update game logic. 
+			m_pGameLayer->Update(DeltaMs);
+
+			// Update the layer stack. 
+			for (Layer* layer : m_LayerStack)
+				layer->OnUpdate(DeltaMs);
+		}
+		return ieErrorCode_Success;
+	}
+
 	void Application::Shutdown()
 	{
 	}
@@ -169,7 +231,9 @@ namespace Insight {
 			IE_STRIP_FOR_GAME_DIST(m_pImGuiLayer = new D3D11ImGuiLayer());
 			break;
 		case Renderer::TargetRenderAPI::Direct3D_12:
+#if EDITOR_UI_ENABLED
 			IE_STRIP_FOR_GAME_DIST(m_pImGuiLayer = new D3D12ImGuiLayer());
+#endif
 			break;
 #endif
 		default:
@@ -177,7 +241,9 @@ namespace Insight {
 			break;
 		}
 
+#if EDITOR_UI_ENABLED
 		IE_STRIP_FOR_GAME_DIST(PushOverlay(m_pImGuiLayer);)
+#endif
 		m_pEditorLayer = new EditorLayer();
 		IE_STRIP_FOR_GAME_DIST(PushOverlay(m_pEditorLayer);)
 

@@ -224,7 +224,7 @@ namespace Insight {
 			ThrowIfFailed(m_pDxgiFactory->MakeWindowAssociation(m_pRenderContextRef->GetWindowRefAs<Win32Window>().GetWindowHandleRef(), DXGI_MWA_NO_ALT_ENTER),
 				"Failed to Make Window Association");
 		}	
-#elif defined IE_PLATFORM_BUILD_UWP
+#elif defined (IE_PLATFORM_BUILD_UWP)
 		hr = m_pDxgiFactory->CreateSwapChainForCoreWindow(
 			&m_pRenderContextRef->GetCommandQueue(),
 			reinterpret_cast<::IUnknown*>(m_pRenderContextRef->GetWindowRef().GetNativeWindow()),

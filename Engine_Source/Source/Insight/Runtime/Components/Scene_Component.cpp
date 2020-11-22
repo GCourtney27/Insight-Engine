@@ -130,18 +130,8 @@ namespace Insight {
 			
 				ImGui::Checkbox("IsStatic", &m_IsStatic);
 
-				if (m_pParent)
-				{
-					m_Transform.SetWorldMatrix(XMMatrixMultiply(m_Transform.GetLocalMatrix(), m_pParent->GetTransformRef().GetWorldMatrix()));
-				}
-				else
-				{
-					m_Transform.SetWorldMatrix(m_Transform.GetLocalMatrix());
-				}
 
-				TranslationEvent e;
-				e.TranslationInfo.WorldMat = m_Transform.GetWorldMatrix();
-				m_TranslationData.EventCallback(e);
+				NotifyTranslationEvent();
 			}
 		}
 
@@ -228,6 +218,21 @@ namespace Insight {
 			//	default: { break; }
 			//	}
 			//}
+		}
+
+		void SceneComponent::NotifyTranslationEvent()
+		{
+			if (m_pParent)
+			{
+				m_Transform.SetWorldMatrix(XMMatrixMultiply(m_Transform.GetLocalMatrix(), m_pParent->GetTransformRef().GetWorldMatrix()));
+			}
+			else
+			{
+				m_Transform.SetWorldMatrix(m_Transform.GetLocalMatrix());
+			}
+			TranslationEvent e;
+			e.TranslationInfo.WorldMat = m_Transform.GetWorldMatrix();
+			m_TranslationData.EventCallback(e);
 		}
 
 	} // end namspace Runtime

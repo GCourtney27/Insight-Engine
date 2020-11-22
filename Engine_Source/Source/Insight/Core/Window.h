@@ -50,7 +50,6 @@ namespace Insight {
 
 		virtual void* GetNativeWindow() const = 0;
 		virtual bool SetWindowTitleFPS(float fps) = 0;
-		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
 		virtual bool SetWindowTitle(const std::string& newText, bool completlyOverride = false) = 0;
 
 		uint32_t GetWidth() const { return m_WindowWidth; }
@@ -62,6 +61,9 @@ namespace Insight {
 		inline void SetVSyncEnabled(bool Enabled) { m_VSyncEnabled = Enabled; }
 		inline void SetAspectRatio(float AspectRatio) { m_AspectRatio = AspectRatio; }
 		virtual void SetFullScreenEnabled(bool Enabled) { m_FullScreenEnabled = Enabled; }
+
+		inline void SetEventCallback(const EventCallbackFn& callback) { m_EventCallbackFn = callback; }
+		EventCallbackFn& GetEventCallbackFn() { return m_EventCallbackFn; }
 
 
 	protected:

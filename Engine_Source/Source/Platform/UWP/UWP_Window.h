@@ -33,7 +33,6 @@ namespace Insight {
 		virtual void CreateMessageBox(const std::wstring& Message, const std::wstring Title) override;
 
 		virtual bool SetWindowTitleFPS(float fps) override { return false; }
-		virtual void SetEventCallback(const EventCallbackFn& callback) override {}
 		virtual bool SetWindowTitle(const std::string& newText, bool completlyOverride = false) { return false; }
 
 

@@ -80,7 +80,12 @@ namespace Debug {
 
 #if defined IE_DEBUG || defined IE_RELEASE
 #define IE_FATAL_ERROR(...) __debugbreak(); OutputDebugString(__VA_ARGS__)
+#if defined (IE_PLATFORM_BUILD_WIN32)
 #define IE_DEBUG_LOG(Severity, ...) ::Debug::Log(Severity, __VA_ARGS__);
+#elif defined (IE_PLATFORM_BUILD_UWP)
+#define WIDE_STRING(...) L#__VA_ARGS__
+#define IE_DEBUG_LOG(Severity, ...) {wchar_t Buffer[512]; swprintf(Buffer, sizeof(Buffer), WIDE_STRING(__VA_ARGS__)); OutputDebugString(Buffer);}
+#endif
 #else
 #define IE_FATAL_ERROR(...)
 #define IE_DEBUG_LOG(LogSeverity, ...)

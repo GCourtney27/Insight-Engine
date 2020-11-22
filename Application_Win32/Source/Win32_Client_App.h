@@ -224,8 +224,8 @@ namespace SandBoxApp {
 			GetScene().AddActor(pAWoodenFloor);
 
 			// Rusted Ball
-			AActor* pARustedBall = new AActor(0, "Rusted Ball");
-			SceneComponent* pSCDemoBall = pARustedBall->CreateDefaultSubobject<SceneComponent>();
+			pARustedBall = new AActor(0, "Rusted Ball");
+			pSCDemoBall = pARustedBall->CreateDefaultSubobject<SceneComponent>();
 			pSCDemoBall->SetScale(20.0f);
 			pSCDemoBall->SetPosition(10.0f, 40.0f, 0.0f);
 			Insight::Material* pRustedIron = new Insight::Material({ 6, 7, 8, 9, 10 });

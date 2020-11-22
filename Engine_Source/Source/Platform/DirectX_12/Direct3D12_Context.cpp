@@ -1041,7 +1041,7 @@ namespace Insight {
 			ComPtr<ID3DBlob> pVertexShader;
 			ComPtr<ID3DBlob> pPixelShader;
 
-			const wchar_t* ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+			const wchar_t* ExeDirectory = FileSystem::GetWorkingDirectoryW();
 			std::wstring VertShaderFolder(ExeDirectory);
 			VertShaderFolder += L"../Renderer/Shadow_Pass.vertex.cso";
 			std::wstring PixelShaderFolder(ExeDirectory);
@@ -1106,7 +1106,7 @@ namespace Insight {
 			ComPtr<ID3DBlob> pVertexShader;
 			ComPtr<ID3DBlob> pPixelShader;
 
-			const wchar_t* ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+			const wchar_t* ExeDirectory = FileSystem::GetWorkingDirectoryW();
 			std::wstring VertexShaderFolder(ExeDirectory);
 			VertexShaderFolder += L"../Renderer/Screen_Aligned_Quad.vertex.cso";
 			std::wstring PixelShaderFolder(ExeDirectory);
@@ -1162,7 +1162,7 @@ namespace Insight {
 		{
 			ComPtr<ID3DBlob> pComputeShader;
 
-			const wchar_t* ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+			const wchar_t* ExeDirectory = FileSystem::GetWorkingDirectoryW();
 			std::wstring VertexShaderFolder(ExeDirectory);
 			VertexShaderFolder += L"../Renderer/Threshold_Down_Sample.compute.cso";
 
@@ -1186,7 +1186,7 @@ namespace Insight {
 		{
 			ComPtr<ID3DBlob> pComputeShader;
 
-			const wchar_t* ExeDirectory = FileSystem::GetExecutbleDirectoryW();
+			const wchar_t* ExeDirectory = FileSystem::GetWorkingDirectoryW();
 			std::wstring ComputeShaderFolder(ExeDirectory);
 			ComputeShaderFolder += L"../Renderer/Gaussian_Blur.compute.cso";
 
@@ -1382,6 +1382,13 @@ namespace Insight {
 	{
 		// Re-Create Render Targets
 		{
+			// Resize the Swapchain
+			for (uint8_t i = 0; i < m_FrameBufferCount; ++i)
+				m_pSwapChainRenderTargets[i].Reset();
+
+			m_DeviceResources.ResizeResources();
+			CreateSwapChainRTVDescriptorHeap();
+
 			// Resize the buffers in the render stack
 			m_RenderPassStack.ReloadBuffers();
 
@@ -1404,12 +1411,7 @@ namespace Insight {
 			m_BloomPass.ResizeHelperBuffers();
 #endif
 
-			// Resize the Swapchain
-			for (uint8_t i = 0; i < m_FrameBufferCount; ++i)
-				m_pSwapChainRenderTargets[i].Reset();
-
-			m_DeviceResources.ResizeResources();
-			CreateSwapChainRTVDescriptorHeap();
+			
 			BOOL FullScreenState;
 			m_DeviceResources.GetSwapChain().GetFullscreenState(&FullScreenState, nullptr);
 			m_WindowedMode = !FullScreenState;
