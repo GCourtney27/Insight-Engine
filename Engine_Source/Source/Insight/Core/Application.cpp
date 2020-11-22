@@ -141,7 +141,6 @@ namespace Insight {
 
 			static float WorldSeconds = 0.0f;
 			WorldSeconds += DeltaMs;
-			//IE_DEBUG_LOG(LogSeverity::Log, "{0}", std::sin(WorldSeconds));
 			pSCDemoBall->Translate(0.0f, std::sin(WorldSeconds) * 0.02f, 0.0f);
 			
 
@@ -174,7 +173,11 @@ namespace Insight {
 
 			// Process the window's Messages 
 			m_pWindow->OnUpdate();
-			
+
+			static float WorldSeconds = 0.0f;
+			WorldSeconds += DeltaMs;
+			pSCDemoBall->Translate(0.0f, std::sin(WorldSeconds) * 0.02f, 0.0f);
+
 			{
 				static FrameTimer GraphicsTimer;
 				GraphicsTimer.Tick();

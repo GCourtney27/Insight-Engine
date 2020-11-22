@@ -33,6 +33,7 @@ namespace Insight {
 
 		inline int GetFrameIndex() const { return m_FrameIndex; }
 		inline void SetFrameIndex(int FrameIndex) { m_FrameIndex = FrameIndex; }
+		inline void ResetFenceValue(uint32_t Index) { m_FenceValues[Index] = m_FrameIndex; }
 		void MoveToNextFrame();
 		void WaitForGPU();
 		FORCE_INLINE void IncrementAndSignalFence()

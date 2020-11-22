@@ -695,6 +695,7 @@ namespace Insight {
 		HRESULT hr;
 		m_DeviceResources.WaitForGPU();
 
+		m_SwapChainRTVHeap.pDH.Reset();
 		m_SwapChainRTVHeap.Create(&m_DeviceResources.GetDeviceContext(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_FrameBufferCount, false);
 
 		for (UINT i = 0; i < m_FrameBufferCount; i++) 
@@ -1380,11 +1381,15 @@ namespace Insight {
 
 	void Direct3D12Context::UpdateSizeDependentResources()
 	{
+
 		// Re-Create Render Targets
 		{
 			// Resize the Swapchain
 			for (uint8_t i = 0; i < m_FrameBufferCount; ++i)
+			{
 				m_pSwapChainRenderTargets[i].Reset();
+				m_DeviceResources.ResetFenceValue(i);
+			}
 
 			m_DeviceResources.ResizeResources();
 			CreateSwapChainRTVDescriptorHeap();

@@ -305,15 +305,11 @@ namespace Insight {
 
 	void D3D12Helper::WaitForGPU()
 	{
-		HRESULT hr;
 		// Schedule a Signal command in the queue.
-		hr = m_pGraphicsCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]);
-		ThrowIfFailed(hr, "Fialed to signal command queue while waiting for GPU");
+		ThrowIfFailed(m_pGraphicsCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]), "Fialed to signal fence event on graphics command queue.");
 
 		// Wait until the fence has been processed.
-		hr = m_pFence.Get()->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_FenceEvent);
-		ThrowIfFailed(hr, "Fialed to set fence on completion event while waiting for GPU");
-
+		ThrowIfFailed(m_pFence->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_FenceEvent), "Failed to set completion event on fence.");
 		WaitForSingleObjectEx(m_FenceEvent, INFINITE, FALSE);
 
 		// Increment the fence value for the current frame.

@@ -60,17 +60,17 @@ namespace Insight {
 			// Remove the parent this scene component.
 			inline void DetachParent() { m_pParent = nullptr; }
 
-			inline void SetPosition(ieVector3 NewPosition) { m_Transform.SetPosition(NewPosition); NotifyTranslationEvent(); }
-			inline void SetRotation(ieVector3 NewRotation) { m_Transform.SetRotation(NewRotation); NotifyTranslationEvent(); }
-			inline void SetScale(ieVector3 NewScale) { m_Transform.SetScale(NewScale); NotifyTranslationEvent(); }
+			inline void SetPosition(ieVector3 NewPosition) { m_Transform.SetPosition(NewPosition); }
+			inline void SetRotation(ieVector3 NewRotation) { m_Transform.SetRotation(NewRotation); }
+			inline void SetScale(ieVector3 NewScale) { m_Transform.SetScale(NewScale); }
 			 
-			inline void SetPosition(float X, float Y, float Z) { m_Transform.SetPosition({ X, Y, Z }); NotifyTranslationEvent(); }
-			inline void SetRotation(float X, float Y, float Z) { m_Transform.SetRotation({ X, Y, Z }); NotifyTranslationEvent(); }
-			inline void SetScale(float X, float Y, float Z) { m_Transform.SetScale({ X, Y, Z }); NotifyTranslationEvent(); }
+			inline void SetPosition(float X, float Y, float Z) { m_Transform.SetPosition({ X, Y, Z }); }
+			inline void SetRotation(float X, float Y, float Z) { m_Transform.SetRotation({ X, Y, Z }); }
+			inline void SetScale(float X, float Y, float Z) { m_Transform.SetScale({ X, Y, Z }); }
 			 
-			inline void SetPosition(float XYZ) { m_Transform.SetPosition({ XYZ, XYZ, XYZ }); NotifyTranslationEvent(); }
-			inline void SetRotation(float XYZ) { m_Transform.SetRotation({ XYZ, XYZ, XYZ }); NotifyTranslationEvent(); }
-			inline void SetScale(float XYZ) { m_Transform.SetScale({ XYZ, XYZ, XYZ }); NotifyTranslationEvent(); }
+			inline void SetPosition(float XYZ) { m_Transform.SetPosition({ XYZ, XYZ, XYZ }); }
+			inline void SetRotation(float XYZ) { m_Transform.SetRotation({ XYZ, XYZ, XYZ }); }
+			inline void SetScale(float XYZ) { m_Transform.SetScale({ XYZ, XYZ, XYZ }); }
 			 
 			inline void Translate(float X, float Y, float Z) { m_Transform.Translate(X, Y, Z); NotifyTranslationEvent(); }
 			inline void Rotate(float X, float Y, float Z) { m_Transform.Rotate(X, Y, Z);  NotifyTranslationEvent(); }
