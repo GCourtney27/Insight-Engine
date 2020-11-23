@@ -123,6 +123,8 @@ public:
 
     void Run()
     {
+        Insight::WindowResizeEvent e(1280, 800, false);
+        m_pWindowsWindow->GetEventCallbackFn()(e);
         while (!m_exit)
         {
             if (m_visible)
@@ -154,8 +156,8 @@ protected:
             }
         }
 
-        int w = 0;
-        int h = 0;
+        int w = 1280;
+        int h = 800;
         //m_game->GetDefaultSize(w, h);
 
         m_DPI = DisplayInformation::GetForCurrentView().LogicalDpi();
