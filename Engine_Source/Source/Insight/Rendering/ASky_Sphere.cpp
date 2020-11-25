@@ -34,7 +34,7 @@ namespace Insight {
 		
 
 		Texture::IE_TEXTURE_INFO diffuseInfo;
-		diffuseInfo.Filepath = StringHelper::StringToWide(FileSystem::GetRelativeContentDirectory(diffuseMap));
+		diffuseInfo.Filepath = FileSystem::GetRelativeContentDirectoryW(StringHelper::StringToWide(diffuseMap));
 		diffuseInfo.Type = Texture::eTextureType::eTextureType_SkyDiffuse;
 		diffuseInfo.GenerateMipMaps = true;
 		diffuseInfo.IsCubeMap = true;

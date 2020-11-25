@@ -23,10 +23,11 @@
 #define _WIN32_IE 0x0600    // Ändern Sie dies in den geeigneten Wert für andere Versionen von IE.
 #endif
 
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN     // Selten verwendete Teile der Windows-Header nicht einbinden.
 // Windows-Headerdateien:
 #include <windows.h>
-
+#endif
 // C RunTime-Headerdateien
 #include <assert.h>
 #include <stdlib.h>

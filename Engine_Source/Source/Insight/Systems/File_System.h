@@ -19,7 +19,6 @@ namespace Insight {
 		
 		static inline const char* GetWorkingDirectory() { return FileSystem::WorkingDirectory.c_str(); }
 		static inline const wchar_t* GetWorkingDirectoryW() { return FileSystem::WorkingDirectoryW.c_str(); }
-		static std::string GetRelativeContentDirectory(const std::string& Path);
 		static std::wstring GetRelativeContentDirectoryW(const std::wstring& Path);
 
 		static Renderer::GraphicsSettings LoadGraphicsSettingsFromJson();

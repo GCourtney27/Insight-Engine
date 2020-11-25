@@ -61,7 +61,7 @@ namespace Insight {
 		m_pGameLayer = new GameLayer();
 
 		// Load the Scene
-		std::string DocumentPath = FileSystem::GetRelativeContentDirectory("/Scenes/");
+		std::string DocumentPath = StringHelper::WideToString(FileSystem::GetRelativeContentDirectoryW(L"/Scenes/"));
 		DocumentPath += TargetSceneName;
 		if (!m_pGameLayer->LoadScene(DocumentPath)) {
 			throw ieException("Failed to initialize scene");

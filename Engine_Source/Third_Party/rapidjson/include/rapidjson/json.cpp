@@ -6,7 +6,7 @@ bool json::load(const char* filename, rapidjson::Document& document)
 {
 	bool success = false;
 
-	std::fstream f(filename);
+	std::ifstream f(filename);
 	if (!f.is_open())
 		return false;
 

@@ -12,7 +12,9 @@
 // Thanks to NeHe on whose OpenGL tutorials this one's based on! :)
 // http://nehe.gamedev.net/
 // ----------------------------------------------------------------------------
+#ifdef _WIN32
 #include <windows.h>
+#endif // _WIN32
 #include <stdio.h>
 #include <GL/gl.h>
 #include <GL/glu.h>

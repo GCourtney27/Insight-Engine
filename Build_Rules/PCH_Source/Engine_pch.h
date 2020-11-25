@@ -1,6 +1,6 @@
 #pragma once
 
-// === Standard Library === //
+// === C/C++ Standard Library === //
 #include <map>
 #include <array>
 #include <stack>
@@ -17,10 +17,10 @@
 #include <iostream>
 #include <algorithm>
 #include <functional>
-#include <unordered_map>
-#include <unordered_set>
 #include <type_traits>
 #include <string_view>
+#include <unordered_map>
+#include <unordered_set>
 
 #if _MSC_VER >= 1700
 	using std::shared_ptr;
@@ -41,22 +41,22 @@
 // === Third Party === //
 // Rapid Json
 #include <rapidjson/json.h>
-#include <rapidjson/document.h>
-#include <rapidjson/filewritestream.h>
-#include <rapidjson/istreamwrapper.h>
 #include <rapidjson/writer.h>
+#include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
-#include <rapidjson/ostreamwrapper.h>
 #include <rapidjson/prettywriter.h>
+#include <rapidjson/ostreamwrapper.h>
+#include <rapidjson/istreamwrapper.h>
+#include <rapidjson/filewritestream.h>
 
 // === Insight Specific === //
 #include "Insight/Core/Log.h"
 #include "Insight/Core/Interfaces.h"
 #include "Insight/Math/ie_Vectors.h"
-#include "Insight/Utilities/Profiling.h"
-#include "Insight/Utilities/String_Helper.h"
-#include "Insight/Systems/File_System.h"
 #include "Insight/Core/ie_Exception.h"
+#include "Insight/Utilities/Profiling.h"
+#include "Insight/Systems/File_System.h"
+#include "Insight/Utilities/String_Helper.h"
 
 
 
@@ -71,16 +71,14 @@
 #if defined (IE_PLATFORM_WINDOWS)
 
 	// Windows
-	#include <Windows.h>
 	#include <wrl/client.h>
 	#include <wrl/event.h>
-	#include <Windows.h>
 
 	// Direct3D 12
 	#include <d3d12.h>
+	#include <dxcapi.h>
 	#include <DirectX12/d3dx12.h> 
 	#include <WinPixEventRuntime/pix3.h>
-	#include <dxcapi.h>
 
 	// Direct3D 11
 	#include <d3d11.h>
@@ -107,17 +105,18 @@
 // ---------------
 //		Win32	  |
 // ---------------
-#if defined IE_PLATFORM_BUILD_WIN32
+#if defined (IE_PLATFORM_BUILD_WIN32)
 
 	#ifndef WIN32_LEAN_AND_MEAN
 		#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers.
 	#endif
 
 	// Windows API	
-	#include <strsafe.h>
-	#include <windowsx.h>
 	#include <shlobj.h>
-	#include "Shlwapi.h"
+	#include <Windows.h>
+	#include <strsafe.h>
+	#include <Shlwapi.h>
+	#include <windowsx.h>
 	
 #endif // IE_PLATFORM_BUILD_WIN32
 
@@ -125,18 +124,18 @@
 // -------------------------------------
 //		Universal Windows Platform		|
 // -------------------------------------
-#ifdef IE_PLATFORM_BUILD_UWP
+#if defined (IE_PLATFORM_BUILD_UWP)
 
-	#include "winrt/Windows.ApplicationModel.h"
-	#include "winrt/Windows.ApplicationModel.Core.h"
-	#include "winrt/Windows.ApplicationModel.Activation.h"
-	#include "winrt/Windows.Foundation.h"
-	#include "winrt/Windows.Graphics.Display.h"
 	#include "winrt/Windows.System.h"
+	#include "winrt/Windows.Storage.h"
 	#include "winrt/Windows.UI.Core.h"
 	#include "winrt/Windows.UI.Input.h"
-	#include "winrt/Windows.UI.ViewManagement.h"
-	#include "winrt/Windows.Storage.h"
+	#include "winrt/Windows.Foundation.h"
 	#include "winrt/Windows.Storage.Pickers.h"
+	#include "winrt/Windows.ApplicationModel.h"
+	#include "winrt/Windows.Graphics.Display.h"
+	#include "winrt/Windows.UI.ViewManagement.h"
+	#include "winrt/Windows.ApplicationModel.Core.h"
+	#include "winrt/Windows.ApplicationModel.Activation.h"
 
 #endif // IE_PLATFORM_BUILD_UWP

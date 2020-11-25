@@ -136,7 +136,6 @@ namespace Insight {
 
 		void ACamera::MoveForward(float Value)
 		{
-			m_pInputComponent->AddGamepadVibration(0, (GampadRumbleMotor)(GampadRumbleMotor_Left | GampadRumbleMotor_Right), Value);
 			Super::MoveForward(Value);
 			UpdateViewMatrix();
 		}

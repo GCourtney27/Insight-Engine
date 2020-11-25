@@ -88,8 +88,9 @@
 #define NOHELP
 #pragma warning(pop)
 
+#ifdef _WIN32
 #include <Windows.h>
-
+#endif
 #ifndef _WIN32_WINNT_WIN10
 #define _WIN32_WINNT_WIN10 0x0A00
 #endif

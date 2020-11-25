@@ -66,7 +66,7 @@ namespace Insight {
 
 			Texture::IE_TEXTURE_INFO TexInfo = {};
 			TexInfo.Id = ID;
-			TexInfo.Filepath = StringHelper::StringToWide(FileSystem::GetRelativeContentDirectory(Filepath));
+			TexInfo.Filepath = FileSystem::GetRelativeContentDirectoryW(StringHelper::StringToWide(Filepath));
 			TexInfo.GenerateMipMaps = GenMipMaps;
 			TexInfo.Type = (Texture::eTextureType)Type;
 

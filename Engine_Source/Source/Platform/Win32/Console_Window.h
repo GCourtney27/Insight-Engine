@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Insight/Core.h>
+#if defined (IE_PLATFORM_BUILD_WIN32)
 #include <Windows.h>
-
 namespace Insight {
 
 	class INSIGHT_API ConsoleWindow
@@ -21,3 +21,4 @@ namespace Insight {
 
 }
 
+#endif

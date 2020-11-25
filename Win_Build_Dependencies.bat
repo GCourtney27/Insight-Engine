@@ -11,18 +11,18 @@ cd build
 echo *****************************************
 echo Compiling assimp source code
 echo *****************************************
-call %~dp0Dependency_Build\Compile_Assimp.bat
+call %~dp0Scripts\Dependency_Build\Compile_Assimp.bat
 
 
 echo *****************************************
 echo Compiling DirectX 12 Tool Kit source code
 echo *****************************************
-call %~dp0Dependency_Build\Compile_DirectX_12_TK.bat
+call %~dp0Scripts\Dependency_Build\Compile_DirectX_12_TK.bat
 
 
 echo *****************************************
 echo Compiling DirectX 11 Tool Kit source code
 echo *****************************************
-call %~dp0Dependency_Build\Compile_DirectX_11_TK.bat
+call %~dp0Scripts\Dependency_Build\Compile_DirectX_11_TK.bat
 
 PAUSE
