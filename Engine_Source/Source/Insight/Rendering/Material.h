@@ -31,8 +31,8 @@ namespace Insight {
 		bool LoadFromJson(const rapidjson::Value& jsonMaterial);
 		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer);
 
-		void AddColorAddative(float R, float G, float B) { m_ShaderCB.DiffuseAdditive.x += R; m_ShaderCB.DiffuseAdditive.y += G; m_ShaderCB.DiffuseAdditive.y += G;}
-		void SetColorAddative(float R, float G, float B) { m_ShaderCB.DiffuseAdditive.x = R; m_ShaderCB.DiffuseAdditive.y = G; m_ShaderCB.DiffuseAdditive.y = G;}
+		void AddColorAddative(float R, float G, float B) { m_ShaderCB.DiffuseAdditive.x += R; m_ShaderCB.DiffuseAdditive.y += G; m_ShaderCB.DiffuseAdditive.y += B;}
+		void SetColorAddative(float R, float G, float B) { m_ShaderCB.DiffuseAdditive.x = R; m_ShaderCB.DiffuseAdditive.y = G; m_ShaderCB.DiffuseAdditive.y = B;}
 		void SetUVTilingOffset(float U, float V) { m_ShaderCB.UVTiling.x = U; m_ShaderCB.UVTiling.y = V; }
 		void AddUVTilingOffset(float U, float V) { m_ShaderCB.UVTiling.x += U; m_ShaderCB.UVTiling.y += V; }
 		void SetUVOffset(float U, float V) { m_ShaderCB.UVOffset.x = U; m_ShaderCB.UVOffset.y = V; }

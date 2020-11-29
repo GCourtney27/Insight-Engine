@@ -17,7 +17,7 @@ namespace Insight {
 	{
 	}
 
-	bool D3D11DeferredShadingTech::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, Win32Window* pWindow)
+	bool D3D11DeferredShadingTech::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, Window* pWindow)
 	{
 		m_pDevice = pDevice;
 		m_pDeviceContext = pDeviceContext;

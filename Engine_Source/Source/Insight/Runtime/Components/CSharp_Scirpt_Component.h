@@ -3,7 +3,7 @@
 
 #include "Actor_Component.h"
 
-#include <mono/metadata/debug-helpers.h>
+//#include <mono/metadata/debug-helpers.h>
 
 namespace Insight {
 
@@ -55,11 +55,11 @@ namespace Insight {
 			void ProcessScriptTransformChanges();
 			void GetTransformFields();
 		private:
-			MonoScriptManager* m_pMonoScriptManager = nullptr;
-			MonoClass* m_pClass = nullptr;
-			MonoObject* m_pObject = nullptr;
-			MonoMethod* m_pBeginPlayMethod = nullptr;
-			MonoMethod* m_pUpdateMethod = nullptr;
+			//MonoScriptManager* m_pMonoScriptManager = nullptr;
+			//MonoClass* m_pClass = nullptr;
+			//MonoObject* m_pObject = nullptr;
+			//MonoMethod* m_pBeginPlayMethod = nullptr;
+			//MonoMethod* m_pUpdateMethod = nullptr;
 
 			std::string m_ModuleName;
 			bool m_CanBeTicked = true;
@@ -68,22 +68,22 @@ namespace Insight {
 			EventData m_EventData;
 
 			// Transform Script Fields
-			MonoObject* m_TransformObject;
+			//MonoObject* m_TransformObject;
 
-			MonoClassField* m_XPositionField;
-			MonoClassField* m_YPositionField;
-			MonoClassField* m_ZPositionField;
-			MonoObject* m_PositionObj;
+			//MonoClassField* m_XPositionField;
+			//MonoClassField* m_YPositionField;
+			//MonoClassField* m_ZPositionField;
+			//MonoObject* m_PositionObj;
 
-			MonoClassField* m_XRotationField;
-			MonoClassField* m_YRotationField;
-			MonoClassField* m_ZRotationField;
-			MonoObject* m_RotationObj;
+			//MonoClassField* m_XRotationField;
+			//MonoClassField* m_YRotationField;
+			//MonoClassField* m_ZRotationField;
+			//MonoObject* m_RotationObj;
 
-			MonoClassField* m_XScaleField;
-			MonoClassField* m_YScaleField;
-			MonoClassField* m_ZScaleField;
-			MonoObject* m_ScaleObj;
+			//MonoClassField* m_XScaleField;
+			//MonoClassField* m_YScaleField;
+			//MonoClassField* m_ZScaleField;
+			//MonoObject* m_ScaleObj;
 		private:
 			static uint32_t s_NumActiveCSScriptComponents;
 

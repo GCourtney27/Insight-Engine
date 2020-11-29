@@ -160,13 +160,15 @@ namespace Insight {
 		GetHardwareAdapter(m_pDxgiFactory.Get(), &m_pAdapter);
 
 		// If ray tracing is supported create the device DXR needs
-		if (m_pRenderContextRef->m_IsRayTraceSupported) {
+		if (m_pRenderContextRef->m_IsRayTraceSupported) 
+		{
 			Microsoft::WRL::ComPtr<ID3D12Device5> TempDevice;
 			HRESULT hr = D3D12CreateDevice(m_pAdapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&TempDevice));
 			ThrowIfFailed(hr, "Failed to create logical device for ray tracing.");
 			m_pDevice = TempDevice.Detach();
 		}
-		else {
+		else 
+		{
 			HRESULT hr = D3D12CreateDevice(m_pAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_pDevice));
 			ThrowIfFailed(hr, "Failed to create logical device.");
 		}

@@ -3,6 +3,11 @@
 
 -- The main entry point for the project build system. 
 
+-- Add the premake module to enable WinRT project building.
+require ("vstudio")
+dofile  ("Vendor/premake/Modules/winrt/_preload.lua")
+require ("Vendor/premake/Modules/winrt")
+
 workspace ("InsightEngine")
 	architecture ("x64")
 	startproject ("Application_Win32")
@@ -18,7 +23,7 @@ workspace ("InsightEngine")
 outputdir = "%{cfg.buildcfg}-$(SDKIdentifier)-$(Platform)"
 
 CustomDefines = {}
-CustomDefines["IE_BUILD_DIR"] = "../Bin/" .. outputdir
+CustomDefines["IE_BUILD_DIR"] = "../Binaries/" .. outputdir
 CustomDefines["IE_BUILD_CONFIG"] = outputdir
 
 -- Tools
@@ -38,4 +43,4 @@ include ("Engine_Source/Engine-Make.lua")
 -- Engine Source Build Rules
 group ("Build Rules")
 	include ("Build_Rules/Build-Rules-Make.lua")
-group ""
+group ("")

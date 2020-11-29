@@ -2,6 +2,7 @@
 
 #include "Insight/Core/Window.h"
 
+#if defined (IE_PLATFORM_BUILD_WIN32)
 
 namespace Insight {
 
@@ -72,3 +73,4 @@ namespace Insight {
 	};
 
 }
+#endif

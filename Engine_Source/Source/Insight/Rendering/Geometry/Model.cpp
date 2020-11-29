@@ -5,6 +5,7 @@
 #include "Insight/Rendering/Material.h"
 
 #include "Insight/UI/UI_Lib.h"
+#include "DirectX12/TK/Inc/Model.h"
 
 namespace Insight {
 
@@ -122,10 +123,12 @@ namespace Insight {
 		}
 
 		m_pRoot = ParseNode_r(pScene->mRootNode);
+
 		return true;
 	}
 
-	unique_ptr<MeshNode> Model::ParseNode_r(aiNode* pNode)
+
+	unique_ptr<MeshNode> Model::ParseNode_r(::aiNode* pNode)
 	{
 		ieTransform transform;
 		if (pNode->mParent) {
@@ -150,7 +153,7 @@ namespace Insight {
 		return pMeshNode;
 	}
 
-	unique_ptr<Mesh> Model::ProcessMesh(aiMesh* pMesh, const aiScene* pScene)
+	unique_ptr<Mesh> Model::ProcessMesh(::aiMesh* pMesh, const ::aiScene* pScene)
 	{
 		std::vector<Vertex3D> Verticies; Verticies.reserve(pMesh->mNumVertices);
 		std::vector<DWORD> Indices;

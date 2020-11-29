@@ -22,11 +22,11 @@ applicationIncludeDirs["Build_Rules"]				= rootDirPath .. "Build_Rules/"
 
 project (projectName)
 	location (rootDirPath .. projectName)
-	kind "WindowedApp"
-	cppdialect "C++17"
-	language "C++"
-	staticruntime "off"
-	targetname(projectName)
+	kind ("WindowedApp")
+	cppdialect ("C++17")
+	language ("C++")
+	staticruntime ("off")
+	targetname (projectName)
 	
 	targetdir (rootDirPath .. "Binaries/" .. outputdir .. "/%{prj.name}")
     objdir (rootDirPath .. "Binaries/Intermediates/" .. outputdir .. "/%{prj.name}")
@@ -83,7 +83,7 @@ project (projectName)
 		"Engine_Build_Win32",
 	}
 
-	systemversion "latest"
+	systemversion ("latest")
 	defines
 	{
 		"IE_PLATFORM_BUILD_WIN32",

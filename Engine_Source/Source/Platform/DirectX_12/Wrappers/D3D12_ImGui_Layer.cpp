@@ -49,7 +49,7 @@ namespace Insight {
 
 		Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
 		
-		HWND& WindowHandle = RenderContext.GetWindowRefAs<Win32Window>().GetWindowHandleRef();
+		HWND& WindowHandle = *reinterpret_cast<HWND*>(RenderContext.GetWindowRef().GetNativeWindow());
 
 		// Setup Platform/Renderer bindings
 #if defined (IE_PLATFORM_BUILD_WIN32)

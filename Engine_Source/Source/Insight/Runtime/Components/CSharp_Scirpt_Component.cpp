@@ -19,10 +19,10 @@ namespace Insight {
 		CSharpScriptComponent::CSharpScriptComponent(AActor* pOwner)
 			: ActorComponent("C-Sharp Script Component", pOwner)
 		{
-			m_pMonoScriptManager = &ResourceManager::Get().GetMonoScriptManager();
-			if (m_pMonoScriptManager) {
+			//m_pMonoScriptManager = &ResourceManager::Get().GetMonoScriptManager();
+			/*if (m_pMonoScriptManager) {
 				m_pMonoScriptManager->RegisterScript(this);
-			}
+			}*/
 		}
 
 		CSharpScriptComponent::~CSharpScriptComponent()
@@ -45,18 +45,18 @@ namespace Insight {
 		void CSharpScriptComponent::RegisterScript()
 		{
 			// Register the class with mono runtime
-			if (!m_pMonoScriptManager->CreateClass(m_pClass, m_pObject, m_ModuleName.c_str())) {
+		/*	if (!m_pMonoScriptManager->CreateClass(m_pClass, m_pObject, m_ModuleName.c_str())) {
 				IE_DEBUG_LOG(LogSeverity::Error, "Failed to create C# class for \"{0}\"", m_ModuleName);
 				return;
-			}
+			}*/
 
 			// Register the engine methods for the object
-			if (!m_pMonoScriptManager->CreateMethod(m_pClass, m_pBeginPlayMethod, m_ModuleName.c_str(), "BeginPlay()")) {
+			/*if (!m_pMonoScriptManager->CreateMethod(m_pClass, m_pBeginPlayMethod, m_ModuleName.c_str(), "BeginPlay()")) {
 				IE_DEBUG_LOG(LogSeverity::Error, "Failed to find method \"BeginPlay\" in script \"{0}\"", m_ModuleName);
 			}
 			if (!m_pMonoScriptManager->CreateMethod(m_pClass, m_pUpdateMethod, m_ModuleName.c_str(), "Tick(double)")) {
 				IE_DEBUG_LOG(LogSeverity::Error, "Failed to find method \"Tick\" in script \"{0}\"", m_ModuleName);
-			}
+			}*/
 
 			GetTransformFields();
 			UpdateScriptFields();
@@ -108,9 +108,9 @@ namespace Insight {
 
 		void CSharpScriptComponent::OnDestroy()
 		{
-			if (m_pMonoScriptManager) {
-				m_pMonoScriptManager = nullptr;
-			}
+			//if (m_pMonoScriptManager) {
+			//	m_pMonoScriptManager = nullptr;
+			//}
 			ResourceManager::Get().GetMonoScriptManager().UnRegisterScript(this);
 		}
 
@@ -156,38 +156,38 @@ namespace Insight {
 
 		void CSharpScriptComponent::GetTransformFields()
 		{
-			// Get Transform Object
-			MonoProperty* transformProp = mono_class_get_property_from_name(m_pClass, "Transform");
-			MonoMethod* transformGetMethod = mono_property_get_get_method(transformProp);
-			m_TransformObject = mono_runtime_invoke(transformGetMethod, m_pObject, nullptr, nullptr);
-			MonoClass* transformClass = mono_object_get_class(m_TransformObject);
+			//// Get Transform Object
+			//MonoProperty* transformProp = mono_class_get_property_from_name(m_pClass, "Transform");
+			//MonoMethod* transformGetMethod = mono_property_get_get_method(transformProp);
+			//m_TransformObject = mono_runtime_invoke(transformGetMethod, m_pObject, nullptr, nullptr);
+			//MonoClass* transformClass = mono_object_get_class(m_TransformObject);
 
-			// Get Postion Object inside Transform
-			MonoProperty* posProp = mono_class_get_property_from_name(transformClass, "Position");
-			MonoMethod* posGetMethod = mono_property_get_get_method(posProp);
-			m_PositionObj = mono_runtime_invoke(posGetMethod, m_TransformObject, nullptr, nullptr);
-			MonoClass* posClass = mono_object_get_class(m_PositionObj);
-			m_XPositionField = mono_class_get_field_from_name(posClass, "m_X");
-			m_YPositionField = mono_class_get_field_from_name(posClass, "m_Y");
-			m_ZPositionField = mono_class_get_field_from_name(posClass, "m_Z");
+			//// Get Postion Object inside Transform
+			//MonoProperty* posProp = mono_class_get_property_from_name(transformClass, "Position");
+			//MonoMethod* posGetMethod = mono_property_get_get_method(posProp);
+			//m_PositionObj = mono_runtime_invoke(posGetMethod, m_TransformObject, nullptr, nullptr);
+			//MonoClass* posClass = mono_object_get_class(m_PositionObj);
+			//m_XPositionField = mono_class_get_field_from_name(posClass, "m_X");
+			//m_YPositionField = mono_class_get_field_from_name(posClass, "m_Y");
+			//m_ZPositionField = mono_class_get_field_from_name(posClass, "m_Z");
 
-			// Get Scale Object inside Transform
-			MonoProperty* scaProp = mono_class_get_property_from_name(transformClass, "Scale");
-			MonoMethod* scaGetMethod = mono_property_get_get_method(scaProp);
-			m_ScaleObj = mono_runtime_invoke(scaGetMethod, m_TransformObject, nullptr, nullptr);
-			MonoClass* scaClass = mono_object_get_class(m_ScaleObj);
-			m_XScaleField = mono_class_get_field_from_name(scaClass, "m_X");
-			m_YScaleField = mono_class_get_field_from_name(scaClass, "m_Y");
-			m_ZScaleField = mono_class_get_field_from_name(scaClass, "m_Z");
+			//// Get Scale Object inside Transform
+			//MonoProperty* scaProp = mono_class_get_property_from_name(transformClass, "Scale");
+			//MonoMethod* scaGetMethod = mono_property_get_get_method(scaProp);
+			//m_ScaleObj = mono_runtime_invoke(scaGetMethod, m_TransformObject, nullptr, nullptr);
+			//MonoClass* scaClass = mono_object_get_class(m_ScaleObj);
+			//m_XScaleField = mono_class_get_field_from_name(scaClass, "m_X");
+			//m_YScaleField = mono_class_get_field_from_name(scaClass, "m_Y");
+			//m_ZScaleField = mono_class_get_field_from_name(scaClass, "m_Z");
 
-			// Get Rotation Object inside Transform
-			MonoProperty* rotProp = mono_class_get_property_from_name(transformClass, "Rotation");
-			MonoMethod* rotGetMethod = mono_property_get_get_method(rotProp);
-			m_RotationObj = mono_runtime_invoke(rotGetMethod, m_TransformObject, nullptr, nullptr);
-			MonoClass* rotClass = mono_object_get_class(m_RotationObj);
-			m_XRotationField = mono_class_get_field_from_name(rotClass, "m_X");
-			m_YRotationField = mono_class_get_field_from_name(rotClass, "m_Y");
-			m_ZRotationField = mono_class_get_field_from_name(rotClass, "m_Z");
+			//// Get Rotation Object inside Transform
+			//MonoProperty* rotProp = mono_class_get_property_from_name(transformClass, "Rotation");
+			//MonoMethod* rotGetMethod = mono_property_get_get_method(rotProp);
+			//m_RotationObj = mono_runtime_invoke(rotGetMethod, m_TransformObject, nullptr, nullptr);
+			//MonoClass* rotClass = mono_object_get_class(m_RotationObj);
+			//m_XRotationField = mono_class_get_field_from_name(rotClass, "m_X");
+			//m_YRotationField = mono_class_get_field_from_name(rotClass, "m_Y");
+			//m_ZRotationField = mono_class_get_field_from_name(rotClass, "m_Z");
 
 		}
 
@@ -230,8 +230,8 @@ namespace Insight {
 
 		void CSharpScriptComponent::BeginPlay()
 		{
-			if (!m_CanBeCalledOnBeginPlay) { return; }
-			m_pMonoScriptManager->InvokeMethod(m_pBeginPlayMethod, m_pObject, nullptr);
+			//if (!m_CanBeCalledOnBeginPlay) { return; }
+			//m_pMonoScriptManager->InvokeMethod(m_pBeginPlayMethod, m_pObject, nullptr);
 		}
 
 		void CSharpScriptComponent::EditorEndPlay()
@@ -246,7 +246,7 @@ namespace Insight {
 			void* args[1];
 			double doubleDt = (double)DeltaMs;
 			args[0] = &doubleDt;
-			m_pMonoScriptManager->InvokeMethod(m_pUpdateMethod, m_pObject, args);
+			//m_pMonoScriptManager->InvokeMethod(m_pUpdateMethod, m_pObject, args);
 
 			ProcessScriptTransformChanges();
 		}

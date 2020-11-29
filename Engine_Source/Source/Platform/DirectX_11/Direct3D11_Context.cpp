@@ -474,7 +474,7 @@ namespace Insight {
 		SwapChainDesc.SampleDesc = m_SampleDesc;
 		SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		SwapChainDesc.BufferCount = static_cast<UINT>(m_FrameBufferCount);
-		SwapChainDesc.OutputWindow = *m_pWindowHandle;
+		SwapChainDesc.OutputWindow = *reinterpret_cast<HWND*>(m_pWindowRef->GetNativeWindow());
 		SwapChainDesc.Windowed = TRUE;
 		SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 		SwapChainDesc.Flags = m_AllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
@@ -497,10 +497,10 @@ namespace Insight {
 		ThrowIfFailed(hr, "Failed to create swapchain for D3D 11 context");
 
 		if (m_AllowTearing) {
-			ThrowIfFailed(m_pDxgiFactory->MakeWindowAssociation(*m_pWindowHandle, DXGI_MWA_NO_ALT_ENTER), "Failed to make window association for D3D 11 context.");
+			ThrowIfFailed(m_pDxgiFactory->MakeWindowAssociation(*reinterpret_cast<HWND*>(m_pWindowRef->GetNativeWindow()), DXGI_MWA_NO_ALT_ENTER), "Failed to make window association for D3D 11 context.");
 		}
 #endif // IE_PLATFORM_BUILD_WIN32
-
+		
 	}
 
 	void Direct3D11Context::CreateRTV()

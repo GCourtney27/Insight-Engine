@@ -79,7 +79,6 @@ namespace Insight {
 		void LoadAssets();
 
 	private:
-		HWND*				m_pWindowHandle = nullptr;
 		GeometryManager*	m_pModelManager = nullptr;
 		bool				m_WindowResizeComplete = true;
 		float				m_ClearColor[4] = { 0.1f, 0.1f, 0.3f, 1.0f };

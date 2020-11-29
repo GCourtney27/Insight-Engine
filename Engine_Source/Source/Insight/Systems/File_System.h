@@ -17,7 +17,6 @@ namespace Insight {
 
 		static void SaveEngineUserSettings(Renderer::GraphicsSettings Settings);
 		
-		static inline const char* GetWorkingDirectory() { return FileSystem::WorkingDirectory.c_str(); }
 		static inline const wchar_t* GetWorkingDirectoryW() { return FileSystem::WorkingDirectoryW.c_str(); }
 		static std::wstring GetRelativeContentDirectoryW(const std::wstring& Path);
 
@@ -29,7 +28,6 @@ namespace Insight {
 		static std::wstring GetShaderPathW(const wchar_t* Shader);
 
 	protected:
-		static std::string WorkingDirectory;
 		static std::wstring WorkingDirectoryW;
 
 	private:

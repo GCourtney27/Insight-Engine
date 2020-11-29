@@ -8,14 +8,14 @@
   IgnorableNamespaces="uap mp iot">
 
   <Identity
-    Name="InsightApplication"
+    Name="InsightEngineApplication"
     Publisher="CN=Garre"
     Version="1.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="6be76a64-fd6e-4dfd-a757-c7e0c2e06e07" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>Application_UWP_WinRT</DisplayName>
+    <DisplayName>IE_Application_UWP_WinRT</DisplayName>
     <PublisherDisplayName>Garrett</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -33,7 +33,7 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="Application_UWP_WinRT.App">
       <uap:VisualElements
-        DisplayName="Insight Engine App"
+        DisplayName="Insight Engine Application"
         Square150x150Logo="Assets\Logo.png"
         Square44x44Logo="Assets\SmallLogo.png"
         Description="Application_UWP_WinRT"

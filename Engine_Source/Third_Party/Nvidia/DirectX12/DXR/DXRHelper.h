@@ -125,7 +125,7 @@ IDxcBlob* CompileShaderLibrary(LPCWSTR fileName)
   HRESULT resultCode;
   hr = (pResult->GetStatus(&resultCode));
   if (FAILED(hr)) {
-      IE_MessageBox(0, L"Failed ot get status of shader compile", L"Error", MB_OK);
+      IE_MessageBox(0, L"Failed to get status of shader compile", L"Error", MB_OK);
   }
   if (FAILED(resultCode))
   {

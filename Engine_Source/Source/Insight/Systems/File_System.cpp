@@ -16,7 +16,6 @@
 
 namespace Insight {
 
-	std::string FileSystem::WorkingDirectory = "";
 	std::wstring FileSystem::WorkingDirectoryW = L"";
 
 	FileSystem::FileSystem()
@@ -31,7 +30,6 @@ namespace Insight {
 	{
 		SetWorkingDirectory();
 		
-		FileSystem::WorkingDirectory = GetWorkingDirectory();
 		return true;
 	}
 
@@ -287,20 +285,6 @@ namespace Insight {
 #endif
 	}
 
-	std::string FileSystem::GetShaderPath(const char* Shader)
-	{
-		std::string ExeDirectory = StringHelper::WideToString(FileSystem::GetWorkingDirectoryW());
-#if defined (IE_PLATFORM_BUILD_WIN32)
-		ExeDirectory += "../";
-		ExeDirectory += "Engine_Build_Win32/";
-		ExeDirectory += Shader;
-#elif defined (IE_PLATFORM_BUILD_UWP)
-		ExeDirectory += "Engine_Build_UWP/";
-		ExeDirectory += Shader;
-#endif
-		return ExeDirectory;
-	}
-
 	std::wstring FileSystem::GetShaderPathW(const wchar_t* Shader)
 	{
 		std::wstring WorkingDirectory = FileSystem::GetWorkingDirectoryW();
@@ -328,12 +312,10 @@ namespace Insight {
 			*(LastSlash + 1) = L'\0';
 		}
 		FileSystem::WorkingDirectoryW = std::wstring{ Path };
-		FileSystem::WorkingDirectory = StringHelper::WideToString(FileSystem::WorkingDirectoryW);
 
 #elif defined (IE_PLATFORM_BUILD_UWP)
 		// Relative to the exe
 		FileSystem::WorkingDirectoryW = L"";
-		FileSystem::WorkingDirectory = "";
 #endif
 	}
 
