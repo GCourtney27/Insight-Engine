@@ -5,7 +5,8 @@
 #include "Insight/Utilities/String_Helper.h"
 #include "Insight/Systems/Managers/Resource_Manager.h"
 
-#include "imgui.h"
+#include "Insight/UI/UI_Lib.h"
+
 
 namespace Insight {
 
@@ -271,21 +272,22 @@ namespace Insight {
 
 	void Material::OnImGuiRender()
 	{
-		if (ImGui::TreeNodeEx("Material", ImGuiTreeNodeFlags_DefaultOpen))
+		if (UI::TreeNodeEx("Material", UI::TreeNode_DefaultOpen))
 		{
-			ImGui::Text("PBR Offsets");
-			ImGuiColorEditFlags colorWheelFlags = ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_PickerHueWheel;
+			UI::Text("PBR Offsets");
+			constexpr UI::ColorPickerFlags colorWheelFlags = UI::ColorPickerFlags_NoAlpha | UI::ColorPickerFlags_Uint8 | UI::ColorPickerFlags_PickerHueWheel;
+
 			// Imgui will edit the color values in a normalized 0 to 1 space. 
 			// In the shaders we transform the color values back into 0 to 255 space.
-			ImGui::ColorEdit3("Diffuse Additive: ", &m_ShaderCB.DiffuseAdditive.x, colorWheelFlags);
-			ImGui::SliderFloat("Metallic Addative", &m_ShaderCB.MetallicAdditive, -1.0f, 1.0f);
-			ImGui::SliderFloat("Roughness Addative", &m_ShaderCB.RoughnessAdditive, -1.0f, 1.0f);
-			//ImGui::SliderFloat("Specular Addative", &m_ShaderCB.Specular, -1.0f, 1.0f, "%.3f", 0.01f);
-			ImGui::DragFloat("Specular Addative", &m_ShaderCB.Specular, 0.01f, 0.0f, 0.8f);
-			ImGui::Text("UVs");
-			ImGui::DragFloat2("Tiling:", &m_ShaderCB.UVTiling.x, 0.01f, -50.0f, 50.0f);
-			ImGui::DragFloat2("Offset:", &m_ShaderCB.UVOffset.x, 0.01f, -50.0f, 50.0f);
-			ImGui::TreePop();
+			UI::ColorPicker3("Diffuse Additive: ", &m_ShaderCB.DiffuseAdditive.x, colorWheelFlags);
+			UI::SliderFloat("Metallic Addative", &m_ShaderCB.MetallicAdditive, -1.0f, 1.0f);
+			UI::SliderFloat("Roughness Addative", &m_ShaderCB.RoughnessAdditive, -1.0f, 1.0f);
+			//UI::SliderFloat("Specular Addative", &m_ShaderCB.Specular, -1.0f, 1.0f, "%.3f", 0.01f);
+			UI::DragFloat("Specular Addative", &m_ShaderCB.Specular, 0.01f, 0.0f, 0.8f);
+			UI::Text("UVs");
+			UI::DragFloat2("Tiling:", &m_ShaderCB.UVTiling.x, 0.01f, -50.0f, 50.0f);
+			UI::DragFloat2("Offset:", &m_ShaderCB.UVOffset.x, 0.01f, -50.0f, 50.0f);
+			UI::TreePopNode();
 		}
 
 	}

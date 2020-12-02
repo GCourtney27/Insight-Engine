@@ -195,6 +195,10 @@ namespace Insight {
 		GeometryManager::Render(RenderPassType::RenderPassType_Scene);
 	}
 
+	void Direct3D11Context::OnEditorRender_Impl()
+	{
+	}
+
 	void Direct3D11Context::OnMidFrameRender_Impl()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;

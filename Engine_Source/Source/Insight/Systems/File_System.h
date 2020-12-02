@@ -13,7 +13,7 @@ namespace Insight {
 		FileSystem();
 		~FileSystem();
 
-		static bool Init(const char* ProjectName);
+		static bool Init();
 
 		static void SaveEngineUserSettings(Renderer::GraphicsSettings Settings);
 		

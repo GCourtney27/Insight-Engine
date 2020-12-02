@@ -3,8 +3,9 @@
 #include "ImGui_Layer.h"
 #include "Insight/Core/Application.h"
 
+#if defined (IE_PLATFORM_BUILD_WIN32)
 #include "imgui.h"
-//#include "ImGuizmo.h"
+#endif
 
 namespace Insight {
 
@@ -16,11 +17,14 @@ namespace Insight {
 
 	ImGuiLayer::~ImGuiLayer()
 	{
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		delete m_pIO;
+#endif
 	}
 
 	void ImGuiLayer::OnAttach()
 	{
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		IMGUI_CHECKVERSION();
 		m_pIO = new ImGuiIO();
 		ImGui::CreateContext();
@@ -38,11 +42,14 @@ namespace Insight {
 		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 
 		*m_pIO = io;
+#endif
 	}
 
 	void ImGuiLayer::OnDetach()
 	{
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		ImGui::DestroyContext();
+#endif
 	}
 
 	void ImGuiLayer::OnImGuiRender()
@@ -51,14 +58,18 @@ namespace Insight {
 
 	void ImGuiLayer::Begin()
 	{
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		ImGui::NewFrame();
 		//ImGuizmo::BeginFrame();
 		//ImGui::DockSpaceOverViewport(0, ImGuiDockNodeFlags_PassthruCentralNode);
+#endif
 	}
 
 	void ImGuiLayer::End()
 	{
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		ImGui::Render();
+#endif
 	}
 
 	void ImGuiLayer::OnEvent(Event& event)
@@ -82,77 +93,98 @@ namespace Insight {
 
 	bool ImGuiLayer::IsMouseOverUI()
 	{
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		return ImGui::IsAnyWindowHovered();
+#endif
+		return false;
 	}
 
 	bool ImGuiLayer::OnMouseButtonPressedEvent(MouseButtonPressedEvent& e)
 	{
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		ImGuiIO& io = ImGui::GetIO();
 		uint8_t Keycode = 0;
 		TranslateMouseCode(e.GetKeyCode(), Keycode);
 		io.MouseDown[Keycode] = true;
+#endif
 		return false;
 	}
 
 	bool ImGuiLayer::OnMouseButtonReleasedEvent(MouseButtonReleasedEvent& e)
 	{
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		ImGuiIO& io = ImGui::GetIO();
 		uint8_t Keycode = 0;
 		TranslateMouseCode(e.GetKeyCode(), Keycode);
 		io.MouseDown[Keycode] = false;
+#endif
 		return false;
 	}
 
 	bool ImGuiLayer::OnMouseRawMoveEvent(MouseRawMoveEvent& e)
 	{
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		ImGuiIO& io = ImGui::GetIO();
 		io.MousePos = ImVec2((float)e.GetX(), (float)e.GetY());
+#endif
 		return false;
 	}
 
 	bool ImGuiLayer::OnMouseMovedEvent(MouseMovedEvent& e)
 	{
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		ImGuiIO& io = ImGui::GetIO();
 		io.MousePos = ImVec2(e.GetX(), e.GetY());
+#endif
 		return false;
 	}
 
 	bool ImGuiLayer::OnMouseScrollEvent(MouseScrolledEvent& e)
 	{
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		ImGuiIO& io = ImGui::GetIO();
 		io.MouseWheel += e.GetYOffset();
 		io.MouseWheelH += e.GetXOffset();
+#endif
 		return false;
 	}
 
 	bool ImGuiLayer::OnKeyPressedEvent(KeyPressedEvent& e)
 	{
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[e.GetKeyCode()] = true;
+#endif
 		return false;
 	}
 
 	bool ImGuiLayer::OnKeyReleasedEvent(KeyReleasedEvent& e)
 	{
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[e.GetKeyCode()] = false;
+#endif
 		return false;
 	}
 
 	bool ImGuiLayer::OnKeyTypedEvent(KeyTypedEvent& e)
 	{
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		ImGuiIO& io = ImGui::GetIO();
 		int keycode = e.GetKeyCode();
 		if (keycode > 0 && keycode < 0x10000)
 			io.AddInputCharacter((unsigned short)keycode);
+#endif
 		return false;
 	}
 
 	bool ImGuiLayer::OnWindowResizedEvent(WindowResizeEvent& e)
 	{
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		ImGuiIO& io = ImGui::GetIO();
 		io.DisplaySize = ImVec2(static_cast<float>(e.GetWidth()), static_cast<float>(e.GetHeight()));
 		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+#endif
 		return false;
 	}
 

@@ -258,7 +258,7 @@ namespace Insight {
 		NvidiaHelpers::RayTracingPipelineGenerator Pipeline(m_pDeviceRef.Get());
 
 		// Ray Gen
-		m_RayGenLibrary = NvidiaHelpers::CompileShaderLibrary(FileSystem::GetShaderPathW(L"RayGen.rtlib.hlsl").c_str());
+		m_RayGenLibrary = NvidiaHelpers::CompileShaderLibrary(FileSystem::GetShaderPathW(L"Ray_Gen.rtlib.hlsl").c_str());
 		// Miss
 		m_MissLibrary = NvidiaHelpers::CompileShaderLibrary(FileSystem::GetShaderPathW(L"Miss.rtlib.hlsl").c_str());
 		// Hit

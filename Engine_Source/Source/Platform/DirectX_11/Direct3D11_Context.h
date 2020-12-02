@@ -51,6 +51,7 @@ namespace Insight {
 		virtual void OnWindowFullScreen_Impl() override;
 		// Reloads all shaders
 		virtual void OnShaderReload_Impl() override;
+		virtual void OnEditorRender_Impl() override;
 
 		virtual void SetVertexBuffers_Impl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) override;
 		virtual void SetIndexBuffer_Impl(ieIndexBuffer* pBuffer) override;

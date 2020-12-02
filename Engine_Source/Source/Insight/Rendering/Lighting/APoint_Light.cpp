@@ -4,7 +4,7 @@
 
 #include "Insight/Runtime/Components/Scene_Component.h"
 #include "Insight/Rendering/Renderer.h"
-#include "imgui.h"
+#include "Insight/UI/UI_Lib.h"
 
 namespace Insight {
 
@@ -113,16 +113,17 @@ namespace Insight {
 	{
 		AActor::OnImGuiRender();
 
-		ImGui::Spacing();
-		ImGui::Spacing();
+		UI::Spacing();
+		UI::Spacing();
 
-		if (ImGui::CollapsingHeader("Emission", ImGuiTreeNodeFlags_DefaultOpen))
+		if (UI::CollapsingHeader("Emission", UI::TreeNode_DefaultOpen))
 		{
-			ImGuiColorEditFlags colorWheelFlags = ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_PickerHueWheel;
+			constexpr UI::ColorPickerFlags colorWheelFlags = UI::ColorPickerFlags_NoAlpha | UI::ColorPickerFlags_Uint8 | UI::ColorPickerFlags_PickerHueWheel;
+
 			// Imgui will edit the color values in a normalized 0 to 1 space. 
 			// In the shaders we transform the color values back into 0 to 255 space.
-			ImGui::ColorEdit3("Diffuse", &m_ShaderCB.DiffuseColor.x, colorWheelFlags);
-			ImGui::DragFloat("Strength", &m_ShaderCB.Strength, 0.1f, 0.0f, 100.0f);
+			UI::ColorPicker3("Diffuse", &m_ShaderCB.DiffuseColor.x, colorWheelFlags);
+			UI::DragFloat("Strength", &m_ShaderCB.Strength, 0.1f, 0.0f, 100.0f);
 		}
 
 	}

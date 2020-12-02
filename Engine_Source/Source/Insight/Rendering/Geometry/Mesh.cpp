@@ -11,7 +11,7 @@
 #include "Platform/DirectX_12/Geometry/D3D12_Vertex_Buffer.h"
 #include "Platform/DirectX_12/Direct3D12_Context.h"
 
-#include "imgui.h"
+
 
 namespace Insight {
 

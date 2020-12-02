@@ -5,7 +5,6 @@
 #include "Insight/Events/Application_Event.h"
 #include "Insight/Systems/Managers/Physics_Manager.h"
 
-#include "imgui.h"
 
 namespace Insight {
 
@@ -56,7 +55,7 @@ namespace Insight {
 
 		void SphereColliderComponent::OnImGuiRender()
 		{
-			ImGui::Spacing();
+			/*ImGui::Spacing();
 			ImGui::PushID(m_IDBuffer);
 
 			if (ImGui::CollapsingHeader(m_ComponentName, ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -65,7 +64,7 @@ namespace Insight {
 
 			}
 
-			ImGui::PopID();
+			ImGui::PopID();*/
 		}
 
 		void SphereColliderComponent::RenderSceneHeirarchy()

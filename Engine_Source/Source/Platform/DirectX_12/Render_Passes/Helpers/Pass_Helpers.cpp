@@ -21,7 +21,7 @@ namespace Insight {
 	{
 		constexpr UINT ThreadsPerPixel = 16U;
 
-		PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Downsampling Texture");
+		BeginTrackRenderEvent(m_pCommandListRef.Get(), 0, L"Downsampling Texture");
 		{
 			m_pCommandListRef->SetPipelineState(m_pPipeilneState.Get());
 			m_pCommandListRef->SetComputeRootSignature(m_pRootSignature.Get());
@@ -38,7 +38,7 @@ namespace Insight {
 				1													
 			);
 		}
-		PIXEndEvent(m_pCommandListRef.Get());
+		EndTrackRenderEvent(m_pCommandListRef.Get());
 	}
 
 	void ThresholdDownSampleHelper::LoadPipeline(Microsoft::WRL::ComPtr<ID3D12Device> pDevice)
@@ -100,7 +100,7 @@ namespace Insight {
 
 		// Horizontal Pass
 		// ---------------
-		PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Blurring HORIZONTALLY");
+		BeginTrackRenderEvent(m_pCommandListRef.Get(), 0, L"Blurring HORIZONTALLY");
 		{
 			m_pCommandListRef->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pSourceUAVRef.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE));
 			// Copy the UAV to a shader readable SRV
@@ -118,11 +118,11 @@ namespace Insight {
 
 			m_pCommandListRef->Dispatch(m_WindowDimensions.first / ThreadsPerPixel, m_WindowDimensions.second / ThreadsPerPixel, 1);
 		}
-		PIXEndEvent(m_pCommandListRef.Get());
+		EndTrackRenderEvent(m_pCommandListRef.Get());
 
 		// Vertical Pass
 		// -------------
-		PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Blurring VERTICALLY");
+		BeginTrackRenderEvent(m_pCommandListRef.Get(), 0, L"Blurring VERTICALLY");
 		{
 			m_pCommandListRef->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pIntermediateUAVRef.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE));
 			// Copy the UAV to a shader readable SRV
@@ -140,7 +140,7 @@ namespace Insight {
 
 			m_pCommandListRef->Dispatch(m_WindowDimensions.first / ThreadsPerPixel, m_WindowDimensions.second / ThreadsPerPixel, 1);
 		}
-		PIXEndEvent(m_pCommandListRef.Get());
+		EndTrackRenderEvent(m_pCommandListRef.Get());
 	}
 
 	void GaussianBlurHelper::LoadPipeline(Microsoft::WRL::ComPtr<ID3D12Device> pDevice)

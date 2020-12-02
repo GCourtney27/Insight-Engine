@@ -26,7 +26,7 @@ namespace Insight {
 	{
 	}
 
-	bool FileSystem::Init(const char* ProjectName)
+	bool FileSystem::Init()
 	{
 		SetWorkingDirectory();
 		

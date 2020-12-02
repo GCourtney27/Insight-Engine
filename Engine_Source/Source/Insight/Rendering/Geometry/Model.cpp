@@ -56,31 +56,31 @@ namespace Insight {
 
 	void Model::OnImGuiRender()
 	{
-		ImGui::Text("Asset: ");
-		ImGui::SameLine();
-		ImGui::Text(m_FileName.c_str());
-		ImGui::PushID(m_FileName.c_str());
+		UI::Text("Asset: ");
+		UI::SameLine();
+		UI::Text(m_FileName.c_str());
+		UI::PushID(m_FileName.c_str());
 
-		ImGui::Text("Transform");
+		UI::Text("Transform");
 		UI::DrawVector3Control("Position", m_pRoot->GetTransformRef().GetPositionRef());
 		UI::DrawVector3Control("Rotation", m_pRoot->GetTransformRef().GetRotationRef());
 		UI::DrawVector3Control("Scale", m_pRoot->GetTransformRef().GetScaleRef(), 1.0f);
 
-		ImGui::Text("Rendering");
-		ImGui::Checkbox("Casts Shadows ##StaticMesh", &m_CastsShadows);
-		ImGui::Checkbox("Visible ##StaticMesh", &m_Visible);
+		UI::Text("Rendering");
+		UI::Checkbox("Casts Shadows ##StaticMesh", &m_CastsShadows);
+		UI::Checkbox("Visible ##StaticMesh", &m_Visible);
 
-		ImGui::PopID();
+		UI::PopID();
 	}
 
 	void Model::RenderSceneHeirarchy()
 	{
-		if (ImGui::TreeNode(SceneNode::GetDisplayName())) {
+		if (UI::TreeNode(SceneNode::GetDisplayName())) {
 			SceneNode::RenderSceneHeirarchy();
 			m_pRoot->RenderSceneHeirarchy();
 
-			ImGui::TreePop();
-			ImGui::Spacing();
+			UI::TreePop();
+			UI::Spacing();
 		}
 	}
 
@@ -107,6 +107,7 @@ namespace Insight {
 
 	bool Model::LoadModelFromFile(const std::string& path)
 	{
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		Assimp::Importer Importer;
 		const aiScene* pScene = Importer.ReadFile(
 			path, 
@@ -123,10 +124,96 @@ namespace Insight {
 		}
 
 		m_pRoot = ParseNode_r(pScene->mRootNode);
+#elif defined (IE_PLATFORM_BUILD_UWP)
+		//std::string p = "C:/VSDev/Insight-Interactive/InsightEngine/Binaries/Debug-Windows-x64/Application_UWP_WinRT/AppX/" + path;
+		FILE* fp = fopen(path.c_str(), "rb");
+		HRESULT hr = HRESULT_FROM_WIN32(GetLastError());
+		if (!fp) return false;
 
+		fseek(fp, 0, SEEK_END);
+		long file_size = ftell(fp);
+		fseek(fp, 0, SEEK_SET);
+		auto* content = new ofbx::u8[file_size];
+		fread(content, 1, file_size, fp);
+		ofbx::IScene* pScene = ofbx::load((ofbx::u8*)content, file_size, (ofbx::u64)ofbx::LoadFlags::TRIANGULATE);
+		if (!pScene) {
+			IE_DEBUG_LOG(LogSeverity::Warning, "ofbx import error: {0}", ofbx::getError());
+		}
+		else {
+
+
+			int obj_idx = 0;
+			int indices_offset = 0;
+			int normals_offset = 0;
+			int mesh_count = pScene->getMeshCount();
+			for (int i = 0; i < mesh_count; ++i)
+			{
+				const ofbx::Mesh& mesh = *(pScene->getMesh(i));
+				const ofbx::Geometry& geom = *mesh.getGeometry();
+				int vertex_count = geom.getVertexCount();
+				const ofbx::Vec3* vertices = geom.getVertices();
+
+				std::vector<Vertex3D> Verticies; Verticies.reserve(vertex_count);
+				std::vector<DWORD> Indices;
+
+				for (int i = 0; i < vertex_count; ++i)
+				{
+					Vertex3D Vert;
+
+					Vert.Position.x = vertices[i].x;
+					Vert.Position.y = vertices[i].y;
+					Vert.Position.z = vertices[i].z;
+
+					bool has_normals = geom.getNormals() != nullptr;
+					if (has_normals)
+					{
+						const ofbx::Vec3* normals = geom.getNormals();
+
+						Vert.Normal.x = normals[i].x;
+						Vert.Normal.y = normals[i].y;
+						Vert.Normal.z = normals[i].z;
+					}
+
+					bool has_uvs = geom.getUVs() != nullptr;
+					if (has_uvs)
+					{
+						const ofbx::Vec2* uvs = geom.getUVs();
+						int count = geom.getIndexCount();
+
+						Vert.TexCoords.x = uvs[i].x;
+						Vert.TexCoords.y = uvs[i].y;
+					}
+
+					Verticies.push_back(Vert);
+				}
+
+				const int* faceIndices = geom.getFaceIndices();
+				int index_count = geom.getIndexCount();
+				bool new_face = true;
+				for (int i = 0; i < index_count; ++i)
+				{
+					int idx = (faceIndices[i] < 0) ? -faceIndices[i] : (faceIndices[i] + 1);
+					int vertex_idx = indices_offset + idx;
+					Indices.push_back(vertex_idx);
+				}
+
+
+				m_Meshes.push_back(std::make_unique<Mesh>(Verticies, Indices));
+			}
+
+			ieTransform transform;
+			XMMATRIX mat = XMMatrixIdentity();
+			transform.SetWorldMatrix(mat);
+			std::vector<Mesh*> curMeshPtrs;
+			curMeshPtrs.push_back(m_Meshes[0].get());
+
+			m_pRoot = std::make_unique<MeshNode>(curMeshPtrs, transform, "My Model");
+		}
+#endif
 		return true;
 	}
 
+#if defined (IE_PLATFORM_BUILD_WIN32)
 
 	unique_ptr<MeshNode> Model::ParseNode_r(::aiNode* pNode)
 	{
@@ -210,5 +297,5 @@ namespace Insight {
 
 		return std::make_unique<Mesh>(Verticies, Indices);
 	}
-
+#endif
 }

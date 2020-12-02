@@ -2,14 +2,16 @@
 
 #include "Mesh.h"
 
-
 #include "Insight/Core/Scene/Scene_Node.h"
 #include "Insight/Rendering/Geometry/Mesh_Node.h"
 
-
+#if defined (IE_PLATFORM_BUILD_WIN32)
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+#elif defined (IE_PLATFORM_BUILD_UWP)
+#include "ofbx.h"
+#endif
 
 namespace Insight {
 
@@ -41,7 +43,7 @@ namespace Insight {
 		bool GetCanCastShadows() { return m_CastsShadows; }
 		bool SetCanCastShadows(bool Enabled) { m_CastsShadows = Enabled; }
 
-		unique_ptr<Mesh>& GetMeshAtIndex(int index) { return m_Meshes[index]; }
+		std::unique_ptr<Mesh>& GetMeshAtIndex(int index) { return m_Meshes[index]; }
 		const size_t GetNumChildMeshes() const { return m_Meshes.size(); }
 
 		void CalculateParent(const ieMatrix4x4& parentMat);
@@ -51,13 +53,16 @@ namespace Insight {
 	private:
 		bool LoadModelFromFile(const std::string& path);
 		
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		unique_ptr<MeshNode> ParseNode_r(aiNode* pNode);
 		unique_ptr<Mesh> ProcessMesh(aiMesh* pMesh, const aiScene* pScene);
+#elif defined (IE_PLATFORM_BUILD_UWP)
 
+#endif
 
 	private:
-		std::vector<unique_ptr<Mesh>> m_Meshes;
-		unique_ptr<MeshNode> m_pRoot;
+		std::vector<std::unique_ptr<Mesh>> m_Meshes;
+		std::unique_ptr<MeshNode> m_pRoot;
 		
 		Material* m_pMaterial = nullptr;
 

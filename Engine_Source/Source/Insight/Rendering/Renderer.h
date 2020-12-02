@@ -149,6 +149,7 @@ namespace Insight {
 
 		}
 
+		inline void OnEditorRender() { s_Instance->OnEditorRender_Impl(); }
 
 
 		// Set the graphics settings for the context
@@ -201,6 +202,7 @@ namespace Insight {
 		virtual void OnPreFrameRender_Impl() = 0;
 		virtual void OnRender_Impl() = 0;
 		virtual void OnMidFrameRender_Impl() = 0;
+		virtual void OnEditorRender_Impl() = 0;
 		virtual void ExecuteDraw_Impl() = 0;
 		virtual void SwapBuffers_Impl() = 0;
 		virtual void OnWindowResize_Impl() = 0;

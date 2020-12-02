@@ -6,8 +6,6 @@
 #include "Insight/Runtime/AActor.h"
 #include "Insight/Core/Application.h"
 
-#include "imgui.h"
-#include <misc/cpp/imgui_stdlib.h>
 
 namespace Insight {
 
@@ -206,7 +204,7 @@ namespace Insight {
 
 		void CSharpScriptComponent::OnImGuiRender()
 		{
-			ImGui::PushID(m_IDBuffer);
+			/*ImGui::PushID(m_IDBuffer);
 
 			if (ImGui::CollapsingHeader(m_ComponentName, ImGuiTreeNodeFlags_DefaultOpen)) {
 
@@ -221,7 +219,7 @@ namespace Insight {
 
 			}
 
-			ImGui::PopID();
+			ImGui::PopID();*/
 		}
 
 		void CSharpScriptComponent::RenderSceneHeirarchy()

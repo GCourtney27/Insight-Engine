@@ -10,9 +10,8 @@
 
 //TEMP
 #include "Insight/Rendering/Material.h"
+#include "Insight/UI/UI_Lib.h"
 
-#include "imgui.h"
-#include <misc/cpp/imgui_stdlib.h>
 
 namespace Insight {
 
@@ -93,11 +92,11 @@ namespace Insight {
 
 		void AActor::RenderSceneHeirarchy()
 		{
-			ImGuiTreeNodeFlags TreeFlags = m_Children.empty() ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
-			TreeFlags |= ImGuiTreeNodeFlags_SpanAvailWidth;
-			const bool IsExpanded = ImGui::TreeNodeEx(SceneNode::GetDisplayName(), TreeFlags);
+			UI::NodeFlags TreeFlags = m_Children.empty() ? UI::TreeNode_Leaf : UI::TreeNode_OpenArrow | UI::TreeNode_OpenDoubleClick;
+			TreeFlags |= UI::TreeNode_SpanAvailWidth;
+			const bool IsExpanded = UI::TreeNodeEx(SceneNode::GetDisplayName(), TreeFlags);
 
-			if (ImGui::IsItemClicked()) {
+			if (UI::IsItemClicked()) {
 				IE_STRIP_FOR_GAME_DIST(Application::Get().GetEditorLayer().SetSelectedActor(this);)
 			}
 
@@ -109,25 +108,25 @@ namespace Insight {
 					m_Components[i]->RenderSceneHeirarchy();
 				}
 
-				ImGui::TreePop();
-				ImGui::Spacing();
+				UI::TreePopNode();
+				UI::Spacing();
 			}
 		}
 
 		static int currentIndex = 0;
 		void AActor::OnImGuiRender()
 		{
-			if (ImGui::InputText("##ActorNameField", &m_DisplayName, ImGuiInputTextFlags_EnterReturnsTrue)) {
+			if (UI::InputTextField("##ActorNameField", m_DisplayName, UI::InputTextFieldFlags_EnterReturnsTrue)) {
 				if (m_DisplayName == "") {
 					m_DisplayName = "MyActor";
 				}
 			}
 
-			ImGuiTreeNodeFlags TreeFlags = ImGuiTreeNodeFlags_Leaf;
-			if (ImGui::TreeNodeEx("Actions", ImGuiTreeNodeFlags_OpenOnArrow)) {
+			UI::NodeFlags TreeFlags = UI::TreeNode_Leaf;
+			if (UI::TreeNodeEx("Actions", UI::TreeNode_OpenArrow)) {
 
-				ImGui::TreeNodeEx("Delete Actor", TreeFlags);
-				if (ImGui::IsItemClicked()) {
+				UI::TreeNodeEx("Delete Actor", TreeFlags);
+				if (UI::IsItemClicked()) {
 
 					// Set the Details panel to be blank
 					Application::Get().GetEditorLayer().SetSelectedActor(nullptr);
@@ -135,27 +134,27 @@ namespace Insight {
 					m_Parent->RemoveChild(this);
 					// Pop the rest of the tree nodes for ImGui.
 					// Thers no reason to leave this scope the actor has been deleted.
-					ImGui::TreePop();
-					ImGui::TreePop();
+					UI::TreePopNode();
+					UI::TreePopNode();
 					return;
 				}
-				ImGui::TreePop();
-				/*ImGui::TreeNodeEx("Remove All Components", TreeFlags);
-				if (ImGui::IsItemClicked()) {
+				UI::TreePopNode();
+				/*UI::TreeNodeEx("Remove All Components", TreeFlags);
+				if (UI::IsItemClicked()) {
 					RemoveAllSubobjects();
 				}
-				ImGui::TreePop();*/
+				UI::TreePop();*/
 
-				ImGui::TreePop();
+				UI::TreePopNode();
 			}
 
-			ImGui::Spacing();
+			UI::Spacing();
 
 			// Add new component drop down
 			{
-				ImGui::NewLine();
+				UI::NewLine();
 				static constexpr char* availableComponents[] = { "", "Static Mesh Component", "C-Sharp Script Component" };
-				if (ImGui::Combo("Add Component", &currentIndex, availableComponents, IM_ARRAYSIZE(availableComponents))) {
+				if (UI::ComboBox("Add Component", currentIndex, availableComponents, _countof(availableComponents))) {
 					switch (currentIndex) {
 					case 0: break;
 					case 1:
@@ -181,13 +180,13 @@ namespace Insight {
 					}
 				}
 
-				ImGui::NewLine();
+				UI::NewLine();
 			}
 
 			// Render each components details panels
 			for (size_t i = 0; i < m_NumComponents; ++i)
 			{
-				ImGui::Spacing();
+				UI::Spacing();
 				m_Components[i]->OnImGuiRender();
 			}
 		}

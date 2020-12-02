@@ -16,17 +16,11 @@
     <Filter Include="Source\Insight\Core\Scene">
       <UniqueIdentifier>{3015A0FE-9CD7-D388-E587-62155189AC66}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Insight\Events">
-      <UniqueIdentifier>{1FA84A17-8B14-0612-5408-9E6FC033287A}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Insight\Input">
       <UniqueIdentifier>{DA90C227-C61F-4CF1-6F3E-60EC5BAC5C97}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Insight\Math">
       <UniqueIdentifier>{5416E1AB-C077-BEB9-49E5-046CB545F578}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Insight\Physics">
-      <UniqueIdentifier>{0D872430-F980-4D82-E2ED-E392CE86B3EE}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Insight\Rendering">
       <UniqueIdentifier>{A89F977D-94C4-E6FD-BD0F-CC8DA993E51B}</UniqueIdentifier>
@@ -54,9 +48,6 @@
     </Filter>
     <Filter Include="Source\Insight\Systems\Managers">
       <UniqueIdentifier>{BF91E65E-2B75-F59E-3478-23DBA0DABBEF}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Insight\UI">
-      <UniqueIdentifier>{E8E982BF-5400-8155-9D77-0C7709CD51DD}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Insight\Utilities">
       <UniqueIdentifier>{C6FAF744-B21F-47C5-DB6A-2C55C7EE45E3}</UniqueIdentifier>
@@ -91,20 +82,11 @@
     <Filter Include="Source\Platform\DirectX_12\Wrappers">
       <UniqueIdentifier>{5132DD1A-BDEB-47C5-464B-629FB203FE34}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Platform\DirectX_Shared">
-      <UniqueIdentifier>{02BB704D-EEE0-3AB4-D726-C07FC3EB5F80}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Platform\UWP">
       <UniqueIdentifier>{55A8A6DE-C109-84EC-4A77-CA9EB6D7BAAB}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Platform\Win32">
       <UniqueIdentifier>{CCA72023-3814-DC1D-0108-747B6D33FE85}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Platform\Win32\Error">
-      <UniqueIdentifier>{05D8ED02-71E5-1BE9-FACB-17D466D8E79F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Platform\Win32\Window_Resources">
-      <UniqueIdentifier>{8DAE5559-7900-2D49-621F-6A594E104632}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Shaders">
       <UniqueIdentifier>{2F060343-1BD4-F648-0468-676FF0D4D2AD}</UniqueIdentifier>
@@ -117,6 +99,9 @@
     </Filter>
     <Filter Include="Source\Shaders\HLSL\Forward_Rendering">
       <UniqueIdentifier>{B221DCEB-1EE6-DADB-E74B-0BA653CF7611}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Shaders\HLSL\Ray_Tracing">
+      <UniqueIdentifier>{13472D33-7F2A-3C73-882D-6AAFF48F02C4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Shaders\HLSL\Shared">
       <UniqueIdentifier>{D73A1531-C34A-C101-2C04-26201833B09A}</UniqueIdentifier>

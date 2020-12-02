@@ -18,8 +18,7 @@
 
 #include "Insight/Core/Layer/ImGui_Layer.h"
 
-#include "imgui.h"
-//#include "ImGuizmo.h"
+#include "Insight/UI/UI_Lib.h"
 
 namespace Insight {
 
@@ -60,76 +59,75 @@ namespace Insight {
 
 	void EditorLayer::RenderSceneHeirarchy()
 	{
-		ImGui::Begin("Heirarchy");
+		UI::BeginWindow("Heirarchy");
 		{
-			if (ImGui::CollapsingHeader(m_pSceneRootRef->GetDisplayName(), ImGuiTreeNodeFlags_DefaultOpen))
+			if (UI::CollapsingHeader(m_pSceneRootRef->GetDisplayName(), UI::TreeNode_DefaultOpen))
 			{
 				m_pSceneRootRef->RenderSceneHeirarchy();
 			}
 		}
-		ImGui::End();
+		UI::EndWindow();
 	}
 
 	void EditorLayer::RenderInspector()
 	{
-		ImGui::Begin("Details");
+		UI::BeginWindow("Details");
 		{
 			if (m_pSelectedActor != nullptr) {
 
-				//RenderSelectionGizmo();
 				m_pSelectedActor->OnImGuiRender();
 			}
 		}
-		ImGui::End();
+		UI::EndWindow();
 	}
 
 	void EditorLayer::RenderCreatorWindow()
 	{
-		ImGui::Begin("Creator");
+		UI::BeginWindow("Creator");
 		{
-			ImGuiTreeNodeFlags TreeFlags = ImGuiTreeNodeFlags_Leaf;
-			
-			if (ImGui::CollapsingHeader("Lights", ImGuiTreeNodeFlags_DefaultOpen)) {
+			UI::NodeFlags TreeFlags = UI::TreeNode_Leaf;
+
+			if (UI::CollapsingHeader("Lights", UI::TreeNode_DefaultOpen)) {
 
 
-				ImGui::TreeNodeEx("Point Light", TreeFlags);
-				if (ImGui::IsItemClicked()) {
+				UI::TreeNodeEx("Point Light", TreeFlags);
+				if (UI::IsItemClicked()) {
 					IE_DEBUG_LOG(LogSeverity::Log, "Create Point light");
 					static int PointLightIndex = 0;
 					Runtime::ActorType ActorType = "MyPointLight" + std::to_string(PointLightIndex++);
 					m_pSceneRootRef->AddChild(new APointLight(5, ActorType));
 				}
-				ImGui::TreePop();
+				UI::TreePopNode();
 
-				ImGui::TreeNodeEx("Spot Light", TreeFlags);
-				if (ImGui::IsItemClicked()) {
+				UI::TreeNodeEx("Spot Light", TreeFlags);
+				if (UI::IsItemClicked()) {
 					IE_DEBUG_LOG(LogSeverity::Log, "Create Spot light");
 					static int SpotLightIndex = 0;
 					Runtime::ActorType ActorType = "MySpotLight" + std::to_string(SpotLightIndex++);
 					m_pSceneRootRef->AddChild(new ASpotLight(5, ActorType));
 				}
-				ImGui::TreePop();
+				UI::TreePopNode();
 
-				ImGui::TreeNodeEx("Directional Light", TreeFlags);
-				if (ImGui::IsItemClicked()) {
+				UI::TreeNodeEx("Directional Light", TreeFlags);
+				if (UI::IsItemClicked()) {
 					IE_DEBUG_LOG(LogSeverity::Log, "Create Directional light");
 					static int DirectionalLightIndex = 0;
 					Runtime::ActorType ActorType = "MyDirectionalLight" + std::to_string(DirectionalLightIndex++);
 					m_pSceneRootRef->AddChild(new ADirectionalLight(5, ActorType));
 				}
-				ImGui::TreePop();
+				UI::TreePopNode();
 			}
 
-			if (ImGui::CollapsingHeader("Actors", ImGuiTreeNodeFlags_DefaultOpen)) {
+			if (UI::CollapsingHeader("Actors", UI::TreeNode_DefaultOpen)) {
 
-				ImGui::TreeNodeEx("Empty Actor", TreeFlags);
-				if (ImGui::IsItemClicked()) {
+				UI::TreeNodeEx("Empty Actor", TreeFlags);
+				if (UI::IsItemClicked()) {
 					IE_DEBUG_LOG(LogSeverity::Log, "Create Empty Actor");
 					static int ActorIndex = 0;
 					Runtime::ActorType ActorType = "MyActor" + std::to_string(ActorIndex++);
 					m_pSceneRootRef->AddChild(new Runtime::AActor(5, ActorType));
 				}
-				ImGui::TreePop();
+				UI::TreePopNode();
 
 				/*ImGui::TreeNodeEx("TODO: Post-Process Actor", TreeFlags);
 				if (ImGui::IsItemClicked()) {
@@ -160,7 +158,7 @@ namespace Insight {
 			}
 
 		}
-		ImGui::End();
+		UI::EndWindow();
 	}
 
 	void EditorLayer::OnUpdate(const float DeltaMs)

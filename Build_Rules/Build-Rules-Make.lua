@@ -9,6 +9,7 @@ engineDirPath	= rootDirPath .. "Engine_Source/"
 monoInstallDir	= "C:/Program Files/Mono/"
 
 engineIncludeDirs = {}
+engineIncludeDirs["OpenFBX"]		= engineDirPath .. "Third_Party/OpenFBX/src/"
 engineIncludeDirs["ImGui"] 	    	= engineDirPath .. "Third_Party/imgui/"
 engineIncludeDirs["ImGuizmo"] 		= engineDirPath .. "Third_Party/ImGuizmo/"
 engineIncludeDirs["Microsoft"] 		= engineDirPath .. "Third_Party/Microsoft/"
@@ -65,7 +66,6 @@ project ("Engine_Build_UWP")
 	{
 		-- Tells the Engine to Compile for Win32 Platform
 		"IE_PLATFORM_BUILD_UWP",
-
 		"_CRT_SECURE_NO_WARNINGS",
 		"IE_BUILD_DIR=%{CustomDefines.IE_BUILD_DIR}/${prj.name}/",
 		"IE_BUILD_CONFIG=%{CustomDefines.IE_BUILD_CONFIG}",
@@ -74,6 +74,7 @@ project ("Engine_Build_UWP")
 	includedirs
 	{
 		-- Third Party
+		"%{engineIncludeDirs.OpenFBX}",
 		"%{engineIncludeDirs.Microsoft}",
         "%{engineIncludeDirs.Microsoft}DirectX12/WinPixEventRuntime.1.0.161208001/Include/",
 		"%{engineIncludeDirs.Microsoft}DirectX12/",
@@ -81,8 +82,6 @@ project ("Engine_Build_UWP")
 		"%{engineIncludeDirs.rapidjson}include/",
 		"%{engineIncludeDirs.spdlog}include/",
 		--"%{engineIncludeDirs.ImGuizmo}",
-		"%{engineIncludeDirs.Mono}",
-		"%{engineIncludeDirs.ImGui}",
 		"%{engineIncludeDirs.assimp}",
 
 		-- Engine Source code
@@ -94,7 +93,6 @@ project ("Engine_Build_UWP")
 
 	links
 	{
-        "ImGui",
         "Engine_Source"
 	}
 
@@ -249,7 +247,8 @@ project ("Engine_Build_Win32")
 
 	postbuildcommands
 	{
-		("{COPY} ../Engine_Source/Source/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/%{prj.name}"),
+		-- ("{COPY} ../Engine_Source/Source/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/%{prj.name}"),
+		("%{wks.location}Engine_Source/Source/Shaders/HLSL/Ray_Tracing/Compile_RT_Shaders.bat %{wks.location}Binaries/" .. outputdir .. "/%{prj.name}"),
 	}
 
 

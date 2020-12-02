@@ -8,7 +8,7 @@ engineThirdPartyDir = "../Engine_Source/Third_Party/"
 rootDirPath = "../"
 
 applicationIncludeDirs = {}
-applicationIncludeDirs["assimp"]					= engineThirdPartyDir .. "assimp-3.3.1/include/"
+applicationIncludeDirs["OpenFBX"]					= engineThirdPartyDir .. "OpenFBX/src/"
 applicationIncludeDirs["Microsoft"] 				= engineThirdPartyDir .. "Microsoft/"
 applicationIncludeDirs["Nvidia"]					= engineThirdPartyDir .. "Nvidia/"
 applicationIncludeDirs["spdlog"]					= engineThirdPartyDir .. "spdlog/include/"
@@ -24,7 +24,7 @@ project (projectName)
 	language ("C++")
 	cppdialect ("C++17")
 	staticruntime ("off")
-	systemversion ("10.0.18362.0")
+	systemversion ("latest")
 	targetname (projectName)
 	
 	targetdir (rootDirPath .. "Binaries/" .. outputdir .. "/%{prj.name}")
@@ -37,7 +37,7 @@ project (projectName)
 	generatewinmd ("false")
 	certificatefile ("Application_UWP_WinRT_TemporaryKey.pfx")
 	certificatethumbprint ("cda81d56ffb83d59cc6f6a105f3b91c51fbc6e99")
-
+	
 	pchheader ("pch.h")
 	pchsource ("Source/pch.cpp")
 
@@ -58,7 +58,7 @@ project (projectName)
 
 	includedirs
 	{
-		"%{applicationIncludeDirs.assimp}",
+		"%{applicationIncludeDirs.OpenFBX}",
 		"%{applicationIncludeDirs.Microsoft}",
 		"%{applicationIncludeDirs.Microsoft}/DirectX12",
 		"%{applicationIncludeDirs.Nvidia}DirectX12/",
@@ -76,20 +76,13 @@ project (projectName)
 	}
 
 	links
-	{
-        -- Third Party
-		"MonoPosixHelper.lib",
-		"mono-2.0-sgen.lib",
-        "libmono-static-sgen.lib",
-		"assimp-vc140-mt.lib",
-        
+	{        
         -- DirectX/Windows API
 		"d3d12.lib",
 		"dxgi.lib",
 		"d3d11.lib",
 		"WinPixEventRuntime.lib",
 		"WinPixEventRuntime_UAP.lib",
-		"Shlwapi.lib",
 		"DirectXTK.lib",
 		"D3Dcompiler.lib",
 		"dxcompiler.lib",
@@ -99,7 +92,6 @@ project (projectName)
 		"Engine_Build_UWP",
 	}
 
-	systemversion ("latest")
 	defines
 	{
 		-- Tells the Engine to Compile for UWP Platform
@@ -111,14 +103,10 @@ project (projectName)
 	}
 	postbuildcommands
 	{
-		-- Assimp
-		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/assimp-3.3.1/build/code/Debug/assimp-vc140-mt.dll ../Binaries/" .. outputdir .. "/" .. projectName),
 		-- DX11 Debug Layers
 		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll ../Binaries/" .. outputdir .. "/" .. projectName),
 		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3DX11d_43.dll ../Binaries/"..outputdir.."/" .. projectName),
 		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3D11Ref.dll ../Binaries/"..outputdir.."/" .. projectName),
-		-- Mono
-		("{COPY} \"".. monoInstallDir .."/bin/mono-2.0-sgen.dll\" ../Binaries/" .. outputdir .. "/" .. projectName),
 		-- DirectX
 		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxcompiler.dll ../Binaries/"..outputdir.."/" .. projectName),
 		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxil.dll ../Binaries/"..outputdir.."/" .. projectName),

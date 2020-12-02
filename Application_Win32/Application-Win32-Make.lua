@@ -42,7 +42,8 @@ project (projectName)
 
 	includedirs
 	{
-		"%{applicationIncludeDirs.assimp}",
+		engineThirdPartyDir .. "assimp-3.3.1/include/",
+		-- "%{applicationIncludeDirs.assimp}",
 		"%{applicationIncludeDirs.Microsoft}",
 		"%{applicationIncludeDirs.Nvidia}DirectX12/",
 		"%{applicationIncludeDirs.Microsoft}DirectX12/WinPixEventRuntime.1.0.161208001/Include/",

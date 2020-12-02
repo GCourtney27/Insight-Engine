@@ -125,6 +125,7 @@ namespace Insight {
 		virtual void OnPreFrameRender_Impl() override;
 		virtual void OnRender_Impl() override;
 		virtual void OnMidFrameRender_Impl() override;
+		virtual void OnEditorRender_Impl() override;
 		virtual void ExecuteDraw_Impl() override;
 		virtual void SwapBuffers_Impl() override;
 		virtual void OnWindowResize_Impl() override;
