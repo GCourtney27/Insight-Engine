@@ -22,11 +22,11 @@ applicationIncludeDirs["Build_Rules"]				= rootDirPath .. "Build_Rules/"
 
 project (projectName)
 	location (rootDirPath .. projectName)
-	kind "WindowedApp"
-	cppdialect "C++17"
-	language "C++"
-	staticruntime "off"
-	targetname(projectName)
+	kind ("WindowedApp")
+	cppdialect ("C++17")
+	language ("C++")
+	staticruntime ("off")
+	targetname (projectName)
 	
 	targetdir (rootDirPath .. "Binaries/" .. outputdir .. "/%{prj.name}")
     objdir (rootDirPath .. "Binaries/Intermediates/" .. outputdir .. "/%{prj.name}")
@@ -42,7 +42,8 @@ project (projectName)
 
 	includedirs
 	{
-		"%{applicationIncludeDirs.assimp}",
+		engineThirdPartyDir .. "assimp-3.3.1/include/",
+		-- "%{applicationIncludeDirs.assimp}",
 		"%{applicationIncludeDirs.Microsoft}",
 		"%{applicationIncludeDirs.Nvidia}DirectX12/",
 		"%{applicationIncludeDirs.Microsoft}DirectX12/WinPixEventRuntime.1.0.161208001/Include/",
@@ -83,7 +84,7 @@ project (projectName)
 		"Engine_Build_Win32",
 	}
 
-	systemversion "latest"
+	systemversion ("latest")
 	defines
 	{
 		"IE_PLATFORM_BUILD_WIN32",

@@ -258,15 +258,18 @@ namespace Insight {
 		NvidiaHelpers::RayTracingPipelineGenerator Pipeline(m_pDeviceRef.Get());
 
 		// Ray Gen
-		m_RayGenLibrary = NvidiaHelpers::CompileShaderLibrary(FileSystem::GetShaderPathW(L"RayGen.hlsl").c_str());
+		m_RayGenLibrary = NvidiaHelpers::CompileShaderLibrary(FileSystem::GetShaderPathW(L"Ray_Gen.rtlib.hlsl").c_str());
 		// Miss
-		m_MissLibrary = NvidiaHelpers::CompileShaderLibrary(FileSystem::GetShaderPathW(L"Miss.hlsl").c_str());
+		m_MissLibrary = NvidiaHelpers::CompileShaderLibrary(FileSystem::GetShaderPathW(L"Miss.rtlib.hlsl").c_str());
 		// Hit
-		m_HitLibrary = NvidiaHelpers::CompileShaderLibrary(FileSystem::GetShaderPathW(L"Closest_Hit.hlsl").c_str());
+		m_HitLibrary = NvidiaHelpers::CompileShaderLibrary(FileSystem::GetShaderPathW(L"Closest_Hit.rtlib.hlsl").c_str());
 		// Shadow
-		m_ShadowLibrary = NvidiaHelpers::CompileShaderLibrary(FileSystem::GetShaderPathW(L"Shadow_Ray.hlsl").c_str());
+		m_ShadowLibrary = NvidiaHelpers::CompileShaderLibrary(FileSystem::GetShaderPathW(L"Shadow_Ray.rtlib.hlsl").c_str());
 
-
+		//ComPtr<ID3DBlob> ShaderBlob;
+		//HRESULT hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"RayGen.rtlib.cso").c_str(), &ShaderBlob);
+		//m_RayGenLibrary = ShaderBlob.Detach();
+		//Pipeline.AddLibrary(reinterpret_cast<IDxcBlob*>(ShaderBlob.Get()), { L"RayGen" });
 		Pipeline.AddLibrary(m_RayGenLibrary.Get(), { L"RayGen" });
 		Pipeline.AddLibrary(m_MissLibrary.Get(), { L"Miss" });
 		Pipeline.AddLibrary(m_HitLibrary.Get(), { L"ClosestHit" });

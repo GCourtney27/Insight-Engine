@@ -6,14 +6,13 @@
 
 #include "Platform/DirectX_12/Direct3D12_Context.h"
 #include "Platform/Win32/Win32_Window.h"
-#include <examples/imgui_impl_dx12.cpp>
 
-#include "imgui.h"
-#include "examples/imgui_impl_dx12.h"
 #if defined (IE_PLATFORM_BUILD_WIN32)
+#include "imgui.h"
+#include <examples/imgui_impl_dx12.cpp>
+#include "examples/imgui_impl_dx12.h"
 #include "examples/imgui_impl_win32.h"
-#endif // IE_PLATFORM_BUILD_WIN32
-
+#endif
 namespace Insight {
 
 
@@ -21,6 +20,7 @@ namespace Insight {
 	{
 		Super::OnAttach();
 
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		// Set ImGui Key Bindings
 		{
 			m_pIO->KeyMap[ImGuiKey_Tab] = VK_TAB;
@@ -48,12 +48,11 @@ namespace Insight {
 		}
 
 		Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
+		void* pNativeWindow = RenderContext.GetWindowRef().GetNativeWindow();
 		
-		HWND& WindowHandle = RenderContext.GetWindowRefAs<Win32Window>().GetWindowHandleRef();
-
 		// Setup Platform/Renderer bindings
 #if defined (IE_PLATFORM_BUILD_WIN32)
-		bool impleWin32Succeeded = ImGui_ImplWin32_Init(WindowHandle);
+		bool impleWin32Succeeded = ImGui_ImplWin32_Init(pNativeWindow);
 		if (!impleWin32Succeeded)
 			IE_DEBUG_LOG(LogSeverity::Error, "Failed to initialize ImGui for Win32 - D3D 12. Some controls may not be functional or editor may not be rendered.");
 #endif // IE_PLATFORM_BUILD_WIN32
@@ -75,12 +74,13 @@ namespace Insight {
 			IE_DEBUG_LOG(LogSeverity::Warning, "Failed to initialize ImGui for DX12. Editor will not be rendered");
 
 		m_pCommandList = &RenderContext.GetPostProcessPassCommandList();
+#endif
 	}
 
 	void D3D12ImGuiLayer::OnDetach()
 	{
-		ImGui_ImplDX12_Shutdown();
 #if defined (IE_PLATFORM_BUILD_WIN32)
+		ImGui_ImplDX12_Shutdown();
 		ImGui_ImplWin32_Shutdown();
 #endif // IE_PLATFORM_BUILD_WIN32
 		Super::OnDetach();
@@ -94,8 +94,8 @@ namespace Insight {
 
 	void D3D12ImGuiLayer::Begin()
 	{
-		ImGui_ImplDX12_NewFrame();
 #if defined (IE_PLATFORM_BUILD_WIN32)
+		ImGui_ImplDX12_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 #endif // IE_PLATFORM_BUILD_WIN32
 		Super::Begin();
@@ -103,9 +103,11 @@ namespace Insight {
 
 	void D3D12ImGuiLayer::End()
 	{
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		m_pCommandList->SetDescriptorHeaps(1, &m_pDescriptorHeap);
 		Super::End();
 		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList);
+#endif
 	}
 
 }

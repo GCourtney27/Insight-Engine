@@ -2,12 +2,14 @@
 -- Build_Rules projects take the Engine_Source project and define variables 
 -- and build parameters to make a library from. 
 
+
 rootDirPath		= "../"
 engineDirPath	= rootDirPath .. "Engine_Source/"
--- Assuming Mono is installed on the computer
+-- Assuming Mono is installed on the computer in the default diretory.
 monoInstallDir	= "C:/Program Files/Mono/"
 
 engineIncludeDirs = {}
+engineIncludeDirs["OpenFBX"]		= engineDirPath .. "Third_Party/OpenFBX/src/"
 engineIncludeDirs["ImGui"] 	    	= engineDirPath .. "Third_Party/imgui/"
 engineIncludeDirs["ImGuizmo"] 		= engineDirPath .. "Third_Party/ImGuizmo/"
 engineIncludeDirs["Microsoft"] 		= engineDirPath .. "Third_Party/Microsoft/"
@@ -20,20 +22,28 @@ engineIncludeDirs["Engine_Source"] 	= rootDirPath .. "Engine_Source/"
 
 -- Premake does not support UWP project generation
 -- So just add the Visual Studio created one.
-externalProject ("Engine_Build_UWP")
+project ("Engine_Build_UWP")
 	location (rootDirPath .. "Build_Rules")
-	uuid ("fe59aa74-6c29-46ba-a960-07f3b21af5e9")
 	kind ("StaticLib")
 	language ("C++")
+	cppdialect ("C++17")
 	staticruntime ("off")
 	systemversion ("latest")
-	targetname ("InsightEngine_UWP")
+	targetname ("%{prj.name}")
 
 	targetdir (rootDirPath .. "Binaries/" .. outputdir .. "/%{prj.name}")
     objdir (rootDirPath .. "Binaries/Intermediates/" .. outputdir .. "/%{prj.name}")
 
+	platforms { "x64" }
+	defaultlanguage ("en-US")
+	system  ("windowsuniversal")
+	consumewinrtextension ("false")
+	generatewinmd ("false")
+
 	pchheader ("Engine_pch.h")
 	pchsource ("PCH_Source/Engine_pch.cpp")
+
+
 
 	files
 	{
@@ -55,8 +65,7 @@ externalProject ("Engine_Build_UWP")
 	defines
 	{
 		-- Tells the Engine to Compile for Win32 Platform
-		"IE_PLATFORM_BUILD_WIN32",
-
+		"IE_PLATFORM_BUILD_UWP",
 		"_CRT_SECURE_NO_WARNINGS",
 		"IE_BUILD_DIR=%{CustomDefines.IE_BUILD_DIR}/${prj.name}/",
 		"IE_BUILD_CONFIG=%{CustomDefines.IE_BUILD_CONFIG}",
@@ -65,6 +74,7 @@ externalProject ("Engine_Build_UWP")
 	includedirs
 	{
 		-- Third Party
+		"%{engineIncludeDirs.OpenFBX}",
 		"%{engineIncludeDirs.Microsoft}",
         "%{engineIncludeDirs.Microsoft}DirectX12/WinPixEventRuntime.1.0.161208001/Include/",
 		"%{engineIncludeDirs.Microsoft}DirectX12/",
@@ -72,8 +82,6 @@ externalProject ("Engine_Build_UWP")
 		"%{engineIncludeDirs.rapidjson}include/",
 		"%{engineIncludeDirs.spdlog}include/",
 		--"%{engineIncludeDirs.ImGuizmo}",
-		"%{engineIncludeDirs.Mono}",
-		"%{engineIncludeDirs.ImGui}",
 		"%{engineIncludeDirs.assimp}",
 
 		-- Engine Source code
@@ -85,13 +93,17 @@ externalProject ("Engine_Build_UWP")
 
 	links
 	{
-        "ImGui",
         "Engine_Source"
 	}
 
 	flags
 	{
 		"MultiProcessorCompile"
+	}
+
+	postbuildcommands
+	{
+		("{COPY} ../Engine_Source/Source/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/%{prj.name}"),
 	}
 
 
@@ -166,7 +178,7 @@ project ("Engine_Build_Win32")
 	cppdialect ("C++17")
 	staticruntime ("off")
 	systemversion ("latest")
-	targetname ("InsightEngine_Win32")
+	targetname ("%{prj.name}")
 
 	targetdir (rootDirPath .. "Binaries/" .. outputdir .. "/%{prj.name}")
     objdir (rootDirPath .. "Binaries/Intermediates/" .. outputdir .. "/%{prj.name}")
@@ -235,7 +247,8 @@ project ("Engine_Build_Win32")
 
 	postbuildcommands
 	{
-		("{COPY} ../Engine_Source/Source/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/%{prj.name}"),
+		-- ("{COPY} ../Engine_Source/Source/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/%{prj.name}"),
+		("%{wks.location}Engine_Source/Source/Shaders/HLSL/Ray_Tracing/Compile_RT_Shaders.bat %{wks.location}Binaries/" .. outputdir .. "/%{prj.name}"),
 	}
 
 
@@ -251,7 +264,6 @@ project ("Engine_Build_Win32")
 	filter { "files:**.compute.hlsl" }
 		shadertype "Compute"
 		shadermodel "5.0"
-
 
 
 	-- Engine Development

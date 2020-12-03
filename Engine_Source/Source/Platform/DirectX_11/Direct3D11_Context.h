@@ -51,6 +51,7 @@ namespace Insight {
 		virtual void OnWindowFullScreen_Impl() override;
 		// Reloads all shaders
 		virtual void OnShaderReload_Impl() override;
+		virtual void OnEditorRender_Impl() override;
 
 		virtual void SetVertexBuffers_Impl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) override;
 		virtual void SetIndexBuffer_Impl(ieIndexBuffer* pBuffer) override;
@@ -79,7 +80,6 @@ namespace Insight {
 		void LoadAssets();
 
 	private:
-		HWND*				m_pWindowHandle = nullptr;
 		GeometryManager*	m_pModelManager = nullptr;
 		bool				m_WindowResizeComplete = true;
 		float				m_ClearColor[4] = { 0.1f, 0.1f, 0.3f, 1.0f };

@@ -7,13 +7,12 @@
 #include "Platform/DirectX_11/Direct3D11_Context.h"
 #include "Platform/Win32/Win32_Window.h"
 
+#if defined (IE_PLATFORM_BUILD_WIN32)
 #include "imgui.h"
 #include "examples/imgui_impl_dx11.h"
 #include <examples/imgui_impl_dx11.cpp>
-#if defined (IE_PLATFORM_BUILD_WIN32)
 #include "examples/imgui_impl_win32.h"
-#endif // IE_PLATFORM_BUILD_WIN32
-
+#endif
 
 namespace Insight {
 
@@ -22,6 +21,7 @@ namespace Insight {
 	void D3D11ImGuiLayer::OnAttach()
 	{
 		ImGuiLayer::OnAttach();
+#if defined (IE_PLATFORM_BUILD_WIN32)
 
 		// Set ImGui Key Bindings
 		{
@@ -51,7 +51,7 @@ namespace Insight {
 
 		Direct3D11Context& RenderContext = Renderer::GetAs<Direct3D11Context>();
 		
-		HWND& WindowHandle = RenderContext.GetWindowRefAs<Win32Window>().GetWindowHandleRef();
+		HWND& WindowHandle = *reinterpret_cast<HWND*>(RenderContext.GetWindowRef().GetNativeWindow());
 
 #if defined (IE_PLATFORM_BUILD_WIN32)
 		if (!ImGui_ImplWin32_Init(WindowHandle)) {
@@ -59,13 +59,13 @@ namespace Insight {
 		}
 #endif // IE_PLATFORM_BUILD_WIN32
 		ImGui_ImplDX11_Init(&RenderContext.GetDevice(), &RenderContext.GetDeviceContext());
-
+#endif
 	}
 
 	void D3D11ImGuiLayer::OnDetach()
 	{
-		ImGui_ImplDX11_Shutdown();
 #if defined (IE_PLATFORM_BUILD_WIN32)
+		ImGui_ImplDX11_Shutdown();
 		ImGui_ImplWin32_Shutdown();
 #endif // IE_PLATFORM_BUILD_WIN32
 		ImGuiLayer::OnDetach();
@@ -79,8 +79,8 @@ namespace Insight {
 
 	void D3D11ImGuiLayer::Begin()
 	{
-		ImGui_ImplDX11_NewFrame();
 #if defined (IE_PLATFORM_BUILD_WIN32)
+		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 #endif // IE_PLATFORM_BUILD_WIN32
 		ImGuiLayer::Begin();
@@ -89,7 +89,9 @@ namespace Insight {
 	void D3D11ImGuiLayer::End()
 	{
 		ImGuiLayer::End();
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+#endif
 	}
 
 }

@@ -6,7 +6,8 @@
 #include "Insight/Runtime/Components/Actor_Component.h"
 #include "Insight/Core/Application.h"
 
-#include "imgui.h"
+#include "Insight/UI/UI_Lib.h"
+
 
 namespace Insight {
 
@@ -94,19 +95,19 @@ namespace Insight {
 		{
 			Super::OnImGuiRender();
 
-			ImGui::Text("View");
+			UI::Text("View");
 			if (!m_IsOrthographic) {
-				ImGui::DragFloat("Field of View", &m_Fov, 0.5f, 1.0f, 180.0f);
+				UI::DragFloat("Field of View", &m_Fov, 0.5f, 1.0f, 180.0f);
 			}
-			ImGui::DragFloat("Near Z", &m_NearZ, 0.01f, 0.00001f, 5.0f);
-			ImGui::DragFloat("Far Z", &m_FarZ, 1.0f, 1.0f, 10000.0f);
+			UI::DragFloat("Near Z", &m_NearZ, 0.01f, 0.00001f, 5.0f);
+			UI::DragFloat("Far Z", &m_FarZ, 1.0f, 1.0f, 10000.0f);
 
-			ImGui::Text("Post-Processing");
-			ImGui::DragFloat("Exposure", &m_Exposure, 0.01f, 0.0f, 1.0f);
+			UI::Text("Post-Processing");
+			UI::DragFloat("Exposure", &m_Exposure, 0.01f, 0.0f, 1.0f);
 
-			ImGui::Text("Projection");
+			UI::Text("Projection");
 			constexpr char* projectionMethods[] = { "Perspective", "Orthographic" };
-			ImGui::Combo("Method", (int*)&m_IsOrthographic, projectionMethods, IM_ARRAYSIZE(projectionMethods));
+			UI::ComboBox("Method", *((int*)&m_IsOrthographic), projectionMethods, _countof(projectionMethods));
 			if (!m_IsOrthographic) {
 				SetPerspectiveProjectionValues(m_Fov, m_AspectRatio, m_NearZ, m_FarZ);
 			}

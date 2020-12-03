@@ -8,8 +8,6 @@
 #include "Insight/Runtime/Archetypes/ACamera.h"
 #include "Insight/Core/Window.h"
 
-#include "imgui.h"
-
 namespace Insight {
 
 

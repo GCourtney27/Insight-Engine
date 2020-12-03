@@ -7,6 +7,7 @@
 #include "Insight/Systems/Managers/Geometry_Manager.h"
 #include "Platform/DirectX_12/Direct3D12_Context.h"
 
+
 namespace Insight {
 
 
@@ -22,7 +23,7 @@ namespace Insight {
 
 	bool DeferredGeometryPass::Set(FrameResources* pFrameResources)
 	{
-		PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Rendering Geometry Pass");
+		BeginTrackRenderEvent(m_pCommandListRef.Get(), 0, L"Rendering Geometry Pass");
 		{
 			m_pRenderContextRef->SetActiveCommandList(m_pCommandListRef);
 
@@ -60,7 +61,7 @@ namespace Insight {
 			m_pCommandListRef->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 			GeometryManager::Render(RenderPassType::RenderPassType_Scene);
 		}
-		PIXEndEvent(m_pCommandListRef.Get());
+		EndTrackRenderEvent(m_pCommandListRef.Get());
 
 		return false;
 	}
@@ -302,7 +303,7 @@ namespace Insight {
 
 	bool DeferredLightPass::Set(FrameResources* pFrameResources)
 	{
-		PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Rendering Light Pass");
+		BeginTrackRenderEvent(m_pCommandListRef.Get(), 0, L"Rendering Light Pass");
 		{
 			//m_pRenderContextRef->SetActiveCommandList(m_pCommandListRef);
 
@@ -344,7 +345,7 @@ namespace Insight {
 			// Render.
 			g_ScreenQuad.OnRender(m_pCommandListRef);
 		}
-		PIXEndEvent(m_pCommandListRef.Get());
+		EndTrackRenderEvent(m_pCommandListRef.Get());
 
 		return true;
 	}
@@ -518,7 +519,7 @@ namespace Insight {
 
 	bool SkyPass::Set(FrameResources* pFrameResources)
 	{
-		PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Rendering Sky Pass");
+		BeginTrackRenderEvent(m_pCommandListRef.Get(), 0, L"Rendering Sky Pass");
 		{
 			m_pRenderContextRef->SetActiveCommandList(m_pCommandListRef);
 
@@ -534,7 +535,7 @@ namespace Insight {
 				m_pSkyShereRef->RenderSky();
 			}
 		}
-		PIXEndEvent(m_pCommandListRef.Get());
+		EndTrackRenderEvent(m_pCommandListRef.Get());
 		return true;
 	}
 
@@ -626,7 +627,7 @@ namespace Insight {
 
 	bool PostProcessCompositePass::Set(FrameResources* pFrameResources)
 	{
-		PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Rendering Post-Process Pass");
+		BeginTrackRenderEvent(m_pCommandListRef.Get(), 0, L"Rendering Post-Process Pass");
 		{
 			ID3D12DescriptorHeap* ppHeaps[] = { m_pCBVSRVHeapRef->pDH.Get() };
 			m_pCommandListRef->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
@@ -657,7 +658,7 @@ namespace Insight {
 			// Render.
 			g_ScreenQuad.OnRender(m_pCommandListRef);
 		}
-		PIXEndEvent(m_pCommandListRef.Get());
+		EndTrackRenderEvent(m_pCommandListRef.Get());
 		return true;
 	}
 
@@ -747,7 +748,7 @@ namespace Insight {
 
 	bool RayTracedShadowsPass::Set(FrameResources* pFrameResources)
 	{
-		PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Rendering Ray Trace Pass");
+		BeginTrackRenderEvent(m_pCommandListRef.Get(), 0, L"Rendering Ray Trace Pass");
 		{
 			m_RTHelper.SetCommonPipeline();
 			m_RTHelper.TraceScene();
@@ -756,7 +757,7 @@ namespace Insight {
 			m_pCommandListRef->CopyResource(m_pRayTraceOutput_SRV.Get(), m_RTHelper.GetOutputBuffer());
 			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pRayTraceOutput_SRV.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 		}
-		PIXEndEvent(m_pCommandListRef.Get());
+		EndTrackRenderEvent(m_pCommandListRef.Get());
 		return true;
 	}
 
@@ -850,7 +851,7 @@ namespace Insight {
 
 	bool BloomPass::Set(FrameResources* pFrameResources)
 	{
-		PIXBeginEvent(m_pCommandListRef.Get(), 0, L"Computing Bloom Blur Pass");
+		BeginTrackRenderEvent(m_pCommandListRef.Get(), 0, L"Computing Bloom Blur Pass");
 		{
 			ID3D12DescriptorHeap* ppHeaps[] = { m_pCBVSRVHeapRef->pDH.Get() };
 			m_pCommandListRef->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
@@ -861,7 +862,7 @@ namespace Insight {
 			// Gaussian blur the downsampled buffer.
 			m_GaussianBlurHelper.Execute(pFrameResources);
 		}
-		PIXEndEvent(m_pCommandListRef.Get());
+		EndTrackRenderEvent(m_pCommandListRef.Get());
 
 		return true;
 	}

@@ -60,7 +60,7 @@ namespace Insight {
 
 			CreateCommandAllocators();
 
-			PIXBeginEvent(&m_DeviceResources.GetGraphicsCommandQueue(), 0, L"D3D12 Context Setup");
+			BeginTrackRenderEvent(&m_DeviceResources.GetGraphicsCommandQueue(), 0, L"D3D12 Context Setup");
 			{
 				//CreateScreenQuad();
 				CreateViewport();
@@ -116,7 +116,7 @@ namespace Insight {
 
 				CreateSwapChainRTVDescriptorHeap();
 			}
-			PIXEndEvent(&m_DeviceResources.GetGraphicsCommandQueue());
+			EndTrackRenderEvent(&m_DeviceResources.GetGraphicsCommandQueue());
 		}
 		catch (COMException& Ex) 
 		{
@@ -252,21 +252,21 @@ namespace Insight {
 		}
 
 		// Reset Scene Pass
-		//PIXBeginEvent(m_pScenePass_CommandList.Get(), 0, L"Resetting Scene Pass Command List");
+		//BeginTrackRenderEvent(m_pScenePass_CommandList.Get(), 0, L"Resetting Scene Pass Command List");
 		//{
 		//	m_pScenePass_CommandList->RSSetScissorRects(1, &m_d3dDeviceResources.GetClientScissorRect());
 		//	m_pScenePass_CommandList->RSSetViewports(1, &m_d3dDeviceResources.GetClientViewPort());
 		//}
-		//PIXEndEvent(m_pScenePass_CommandList.Get());
+		//EndTrackRenderEvent(m_pScenePass_CommandList.Get());
 
 		// Reset Shadow Pass
-		/*PIXBeginEvent(m_pShadowPass_CommandList.Get(), 0, L"Resetting Shadow Pass Command List");
+		/*BeginTrackRenderEvent(m_pShadowPass_CommandList.Get(), 0, L"Resetting Shadow Pass Command List");
 		{
 			m_pShadowPass_CommandList->RSSetScissorRects(1, &m_ShadowPass_ScissorRect);
 			m_pShadowPass_CommandList->RSSetViewports(1, &m_ShadowPass_ViewPort);
 			m_pShadowPass_CommandList->OMSetRenderTargets(0, nullptr, FALSE, &m_dsvHeap.hCPU(1));
 		}
-		PIXEndEvent(m_pShadowPass_CommandList.Get());*/
+		EndTrackRenderEvent(m_pShadowPass_CommandList.Get());*/
 	}
 
 	void Direct3D12Context::OnRender_Impl()
@@ -302,7 +302,7 @@ namespace Insight {
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
-		PIXBeginEvent(m_pShadowPass_CommandList.Get(), 0, L"Rendering Shadow Pass");
+		BeginTrackRenderEvent(m_pShadowPass_CommandList.Get(), 0, L"Rendering Shadow Pass");
 		{
 			ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
 			m_pShadowPass_CommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
@@ -326,7 +326,7 @@ namespace Insight {
 			GeometryManager::Render(RenderPassType::RenderPassType_Shadow);
 			ResourceBarrier(m_pShadowPass_CommandList.Get(), m_pShadowDepthTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 		}
-		PIXEndEvent(m_pShadowPass_CommandList.Get());
+		EndTrackRenderEvent(m_pShadowPass_CommandList.Get());
 	}
 
 	void Direct3D12Context::OnMidFrameRender_Impl()
@@ -345,11 +345,15 @@ namespace Insight {
 
 	}
 
+	void Direct3D12Context::OnEditorRender_Impl()
+	{
+	}
+
 	void Direct3D12Context::BindTransparencyPass()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
-		PIXBeginEvent(m_pTransparencyPass_CommandList.Get(), 0, "Rendering Transparency Pass");
+		BeginTrackRenderEvent(m_pTransparencyPass_CommandList.Get(), 0, "Rendering Transparency Pass");
 		{
 			ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
 			m_pTransparencyPass_CommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
@@ -368,14 +372,14 @@ namespace Insight {
 
 			GeometryManager::Render(RenderPassType::RenderPassType_Transparency);
 		}
-		PIXEndEvent(m_pTransparencyPass_CommandList.Get());
+		EndTrackRenderEvent(m_pTransparencyPass_CommandList.Get());
 	}
 
 	void Direct3D12Context::DrawDebugScreenQuad()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
-		PIXBeginEvent(m_pPostEffectsPass_CommandList.Get(), 0, L"Rendering Debug Screen Quad Pass");
+		BeginTrackRenderEvent(m_pPostEffectsPass_CommandList.Get(), 0, L"Rendering Debug Screen Quad Pass");
 		{
 			ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
 			m_pPostEffectsPass_CommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
@@ -394,7 +398,7 @@ namespace Insight {
 
 			m_DebugScreenQuad.OnRender(m_pPostEffectsPass_CommandList);
 		}
-		PIXEndEvent(m_pPostEffectsPass_CommandList.Get());
+		EndTrackRenderEvent(m_pPostEffectsPass_CommandList.Get());
 	}
 
 	void Direct3D12Context::BlurBloomBuffer()
@@ -403,13 +407,13 @@ namespace Insight {
 
 		constexpr UINT ThreadsPerPixel = 16U;
 
-		PIXBeginEvent(m_pDownSample_CommandList.Get(), 0, L"Computing Bloom Blur Pass");
+		BeginTrackRenderEvent(m_pDownSample_CommandList.Get(), 0, L"Computing Bloom Blur Pass");
 		{
 			ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
 			m_pDownSample_CommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
 			// Down sample the buffer
-			PIXBeginEvent(m_pDownSample_CommandList.Get(), 0, L"Down-sampling the bloom texture");
+			BeginTrackRenderEvent(m_pDownSample_CommandList.Get(), 0, L"Down-sampling the bloom texture");
 			{
 				m_pDownSample_CommandList->SetPipelineState(m_pThresholdDownSample_PSO.Get());
 				m_pDownSample_CommandList->SetComputeRootSignature(m_pBloomPass_RS.Get());
@@ -422,14 +426,14 @@ namespace Insight {
 
 				//m_pDownSample_CommandList->Dispatch(m_WindowWidth / ThreadsPerPixel, m_WindowHeight / ThreadsPerPixel, 1);
 			}
-			PIXEndEvent(m_pDownSample_CommandList.Get());
+			EndTrackRenderEvent(m_pDownSample_CommandList.Get());
 
 			m_pDownSample_CommandList->SetPipelineState(m_pGaussianBlur_PSO.Get());
 
 			// Begin blur, two passes, horizontal then vertical
 			// Horizontal Pass
 			// ---------------
-			PIXBeginEvent(m_pDownSample_CommandList.Get(), 0, L"Blurring bloom texture HORIZONTALLY");
+			BeginTrackRenderEvent(m_pDownSample_CommandList.Get(), 0, L"Blurring bloom texture HORIZONTALLY");
 			{
 				ResourceBarrier(m_pDownSample_CommandList.Get(), m_pBloomBlurResult_UAV.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
 				// Copy the UAV to a shader readable SRV
@@ -448,11 +452,11 @@ namespace Insight {
 
 				//m_pDownSample_CommandList->Dispatch(m_WindowWidth / ThreadsPerPixel, m_WindowHeight / ThreadsPerPixel, 1);
 			}
-			PIXEndEvent(m_pDownSample_CommandList.Get());
+			EndTrackRenderEvent(m_pDownSample_CommandList.Get());
 
 			// Vertical Pass
 			// -------------
-			PIXBeginEvent(m_pDownSample_CommandList.Get(), 0, L"Blurring bloom texture VERTICALLY");
+			BeginTrackRenderEvent(m_pDownSample_CommandList.Get(), 0, L"Blurring bloom texture VERTICALLY");
 			{
 				ResourceBarrier(m_pDownSample_CommandList.Get(), m_pBloomBlurIntermediateBuffer_UAV.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
 				// Copy the UAV to a shader readable SRV
@@ -470,9 +474,9 @@ namespace Insight {
 
 				//m_pDownSample_CommandList->Dispatch(m_WindowWidth / ThreadsPerPixel, m_WindowHeight / ThreadsPerPixel, 1);
 			}
-			PIXEndEvent(m_pDownSample_CommandList.Get());
+			EndTrackRenderEvent(m_pDownSample_CommandList.Get());
 		}
-		PIXEndEvent(m_pDownSample_CommandList.Get());
+		EndTrackRenderEvent(m_pDownSample_CommandList.Get());
 	}
 
 	void Direct3D12Context::ExecuteDraw_Impl()
@@ -838,7 +842,8 @@ namespace Insight {
 		constexpr FLOAT MinLOD = 0.0f, MaxLOD = 9.0f;
 		StaticSamplers[1].Init(
 			1,
-			D3D12_FILTER_MIN_MAG_MIP_LINEAR,//D3D12_FILTER_ANISOTROPIC
+			D3D12_FILTER_ANISOTROPIC,
+			//D3D12_FILTER_MIN_MAG_MIP_LINEAR,
 			D3D12_TEXTURE_ADDRESS_MODE_WRAP,
 			D3D12_TEXTURE_ADDRESS_MODE_WRAP,
 			D3D12_TEXTURE_ADDRESS_MODE_WRAP,

@@ -9,7 +9,8 @@
 #include "Platform/DirectX_11/Wrappers/ie_D3D11_Texture.h"
 #include "Platform/DirectX_12/Direct3D12_Context.h"
 
-#include "imgui.h"
+#include "Insight/UI/UI_Lib.h"
+
 
 namespace Insight {
 
@@ -196,7 +197,7 @@ namespace Insight {
 	{
 		AActor::OnImGuiRender();
 		
-		ImGui::Checkbox("Sky Light Enabled", &m_Enabled);
+		UI::Checkbox("Sky Light Enabled", &m_Enabled);
 	}
 
 	void ASkyLight::BindCubeMaps(bool RenderPassIsDeferred)

@@ -6,7 +6,8 @@
 #include "Insight/Rendering/Renderer.h"
 #include "Insight/Runtime/Archetypes/ACamera.h"
 #include "Insight/Core/Application.h"
-#include "imgui.h"
+
+#include "Insight/UI/UI_Lib.h"
 
 namespace Insight {
 
@@ -184,28 +185,28 @@ namespace Insight {
 	{
 		AActor::OnImGuiRender();
 
-		ImGui::Spacing();
-		ImGui::Spacing();
+		UI::Spacing();
+		UI::Spacing();
 
-		ImGui::DragFloat3("light cam pos offset: ", &LightCamPositionOffset.x, 1.0f, 180.0f, 180.0f);
-		ImGui::DragFloat("light cam near z: ", &m_NearPlane, 1.0f, 0.0f, 180.0f);
-		ImGui::DragFloat("light cam far z: ", &m_FarPlane, 1.0f, 0.0f, 1000.0f);
-		ImGui::DragFloat("light view width: ", &m_ViewWidth, 1.0f, 0.0f, 1000.0f);
-		ImGui::DragFloat("light view height: ", &m_ViewHeight, 1.0f, 0.0f, 1000.0f);
+		UI::DragFloat3("light cam pos offset: ", &LightCamPositionOffset.x, 1.0f, 180.0f, 180.0f);
+		UI::DragFloat("light cam near z: ", &m_NearPlane, 1.0f, 0.0f, 180.0f);
+		UI::DragFloat("light cam far z: ", &m_FarPlane, 1.0f, 0.0f, 1000.0f);
+		UI::DragFloat("light view width: ", &m_ViewWidth, 1.0f, 0.0f, 1000.0f);
+		UI::DragFloat("light view height: ", &m_ViewHeight, 1.0f, 0.0f, 1000.0f);
 		
-		ImGui::Spacing();
-		ImGui::Spacing();
+		UI::Spacing();
+		UI::Spacing();
 
-		if (ImGui::CollapsingHeader("Emission", ImGuiTreeNodeFlags_DefaultOpen))
+		if (UI::CollapsingHeader("Emission", UI::TreeNode_DefaultOpen))
 		{
-			constexpr ImGuiColorEditFlags colorWheelFlags = ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_Uint8 | ImGuiColorEditFlags_PickerHueWheel;
+			constexpr UI::ColorPickerFlags colorWheelFlags = UI::ColorPickerFlags_NoAlpha | UI::ColorPickerFlags_Uint8 | UI::ColorPickerFlags_PickerHueWheel;
 			// Imgui will edit the color values in a normalized 0 to 1 space. 
 			// In the shaders we transform the color values back into 0 to 255 space.
-			ImGui::ColorEdit3("Diffuse", &m_ShaderCB.DiffuseColor.x, colorWheelFlags);
-			ImGui::DragFloat("Strength", &m_ShaderCB.Strength, 0.01f, 0.0f, 10.0f);
+			UI::ColorPicker3("Diffuse", &m_ShaderCB.DiffuseColor.x, colorWheelFlags);
+			UI::DragFloat("Strength", &m_ShaderCB.Strength, 0.01f, 0.0f, 10.0f);
 
-			ImGui::Text("Shadows");
-			ImGui::DragFloat("Shadow Darkness Multiplier: ", &m_ShaderCB.ShadowDarknessMultiplier, 0.05f, 0.0f, 1.0f);
+			UI::Text("Shadows");
+			UI::DragFloat("Shadow Darkness Multiplier: ", &m_ShaderCB.ShadowDarknessMultiplier, 0.05f, 0.0f, 1.0f);
 		}
 
 		m_ShaderCB.NearZ = m_NearPlane;

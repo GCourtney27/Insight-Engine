@@ -3,7 +3,8 @@
 
 #include "Insight/Rendering/Geometry/Mesh.h"
 #include "Mesh_Node.h"
-#include "imgui.h"
+
+#include "Insight/UI/UI_Lib.h"
 
 namespace Insight {
 	
@@ -35,10 +36,10 @@ namespace Insight {
 	void MeshNode::RenderSceneHeirarchy()
 	{
 
-		ImGuiTreeNodeFlags treeFlags = m_Children.empty() ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
-		const bool isExpanded = ImGui::TreeNodeEx(m_DisplayName.c_str(), treeFlags);
+		UI::NodeFlags treeFlags = m_Children.empty() ? UI::TreeNode_Leaf : UI::TreeNode_OpenArrow | UI::TreeNode_OpenDoubleClick;
+		const bool isExpanded = UI::TreeNodeEx(m_DisplayName.c_str(), treeFlags);
 
-		if (ImGui::IsItemClicked()) {
+		if (UI::IsItemClicked()) {
 			// TODO: Open material editor window
 			IE_DEBUG_LOG(LogSeverity::Verbose, "Model node clicked");
 		}
@@ -48,8 +49,8 @@ namespace Insight {
 			for (int i = 0; i < numChildren; ++i) {
 				m_Children[i]->RenderSceneHeirarchy();
 			}
-			ImGui::TreePop();
-			ImGui::Spacing();
+			UI::TreePopNode();
+			UI::Spacing();
 		}
 	}
 	

@@ -149,12 +149,12 @@ namespace Insight {
 
 		void StaticMeshComponent::OnImGuiRender()
 		{
-			ImGui::Spacing();
-			ImGui::PushID(m_IDBuffer);
+			UI::Spacing();
+			UI::PushID(m_IDBuffer);
 
-			if (ImGui::CollapsingHeader(m_ComponentName, ImGuiTreeNodeFlags_DefaultOpen)) {
+			if (UI::CollapsingHeader(m_ComponentName, UI::TreeNode_DefaultOpen)) {
 
-				if (ImGui::InputText("New Mesh Dir: ", &m_DynamicAssetDir, ImGuiInputTextFlags_EnterReturnsTrue)) {
+				if (UI::InputTextField("New Mesh Dir: ", m_DynamicAssetDir, UI::InputTextFieldFlags_EnterReturnsTrue)) {
 					if (FileSystem::FileExistsInContentDirectory(m_DynamicAssetDir)) {
 						AttachMesh(m_DynamicAssetDir);
 					}
@@ -166,7 +166,7 @@ namespace Insight {
 				m_pModel->OnImGuiRender();
 				m_pMaterial->OnImGuiRender();
 			}
-			ImGui::PopID();
+			UI::PopID();
 		}
 
 		void StaticMeshComponent::RenderSceneHeirarchy()

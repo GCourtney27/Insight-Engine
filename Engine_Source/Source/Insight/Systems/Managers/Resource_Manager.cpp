@@ -14,14 +14,14 @@ namespace Insight {
 		s_Instance = this;
 
 		m_pTextureManager = new TextureManager();
-		m_pMonoScriptManager = new MonoScriptManager();
+		//m_pMonoScriptManager = new MonoScriptManager();
 	}
 
 	ResourceManager::~ResourceManager()
 	{
 		GeometryManager::Shutdown();
 		delete m_pTextureManager;
-		delete m_pMonoScriptManager;
+		//delete m_pMonoScriptManager;
 	}
 
 	bool ResourceManager::Init()
@@ -29,7 +29,7 @@ namespace Insight {
 		GeometryManager::CreateInstance();
 		GeometryManager::Init();
 
-		m_pMonoScriptManager->Init();
+		//m_pMonoScriptManager->Init();
 		m_pTextureManager->Init();
 		return true;
 	}
@@ -37,7 +37,7 @@ namespace Insight {
 	bool ResourceManager::PostAppInit()
 	{
 		m_pTextureManager->PostInit();
-		m_pMonoScriptManager->PostInit();
+		//m_pMonoScriptManager->PostInit();
 
 		return true;
 	}
@@ -57,7 +57,7 @@ namespace Insight {
 	{
 		GeometryManager::FlushModelCache();
 		m_pTextureManager->FlushTextureCache();
-		m_pMonoScriptManager->Cleanup();
+		//m_pMonoScriptManager->Cleanup();
 	}
 
 }

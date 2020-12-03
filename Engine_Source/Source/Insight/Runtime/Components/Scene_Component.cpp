@@ -5,6 +5,7 @@
 #include "Insight/Runtime/Archetypes/ACamera.h"
 
 #include "Insight/UI/UI_Lib.h"
+#include "Insight/Core/Application.h"
 
 namespace Insight {
 
@@ -120,15 +121,15 @@ namespace Insight {
 		{
 			RenderSelectionGizmo();
 			
-			if (ImGui::CollapsingHeader(m_ComponentName, ImGuiTreeNodeFlags_DefaultOpen)) {
+			if (UI::CollapsingHeader(m_ComponentName, UI::TreeNode_DefaultOpen)) {
 
 				// Show the actor's transform values
-				ImGui::Text("Transform");
+				UI::Text("Transform");
 				UI::DrawVector3Control("Position", m_Transform.GetPositionRef());
 				UI::DrawVector3Control("Rotation", m_Transform.GetRotationRef());
 				UI::DrawVector3Control("Scale", m_Transform.GetScaleRef(), 1.0f);
 			
-				ImGui::Checkbox("IsStatic", &m_IsStatic);
+				UI::Checkbox("IsStatic", &m_IsStatic);
 
 
 				NotifyTranslationEvent();
@@ -165,15 +166,16 @@ namespace Insight {
 		//static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
 		void SceneComponent::RenderSelectionGizmo()
 		{
-			//static ACamera& s_WorldCameraRef = ACamera::Get();
+			/*static ACamera& s_WorldCameraRef = Application::Get().GetGameLayer().GetScene()->GetSceneCamera();
 
-			//XMFLOAT4X4 objectMat;
-			//XMFLOAT4X4 deltaMat;
-			//XMFLOAT4X4 viewMat;
-			//XMFLOAT4X4 projMat;
-			//XMStoreFloat4x4(&objectMat, m_Transform.GetLocalMatrix());
-			//XMStoreFloat4x4(&viewMat, s_WorldCameraRef.GetViewMatrix());
-			//XMStoreFloat4x4(&projMat, s_WorldCameraRef.GetProjectionMatrix());
+			XMFLOAT4X4 objectMat;
+			XMFLOAT4X4 deltaMat;
+			XMFLOAT4X4 viewMat;
+			XMFLOAT4X4 projMat;
+			XMStoreFloat4x4(&objectMat, m_Transform.GetLocalMatrix());
+			XMStoreFloat4x4(&viewMat, s_WorldCameraRef.GetViewMatrix());
+			XMStoreFloat4x4(&projMat, s_WorldCameraRef.GetProjectionMatrix());
+#pragma message ("Fix selection guizmo!")*/
 
 			//if (Input::IsKeyPressed('W')) {
 			//	mCurrentGizmoOperation = ImGuizmo::TRANSLATE;

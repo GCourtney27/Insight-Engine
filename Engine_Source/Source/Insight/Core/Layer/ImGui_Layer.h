@@ -3,9 +3,9 @@
 #include <Insight/Core.h>
 
 #include "Insight/Core/Layer/Layer.h"
-#include "Insight/Events/Application_Event.h"
 #include "Insight/Events/Key_Event.h"
 #include "Insight/Events/Mouse_Event.h"
+#include "Insight/Events/Application_Event.h"
 
 
 struct ImGuiIO;

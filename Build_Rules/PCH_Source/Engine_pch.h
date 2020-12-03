@@ -72,13 +72,11 @@
 
 	// Windows
 	#include <wrl/client.h>
-	#include <wrl/event.h>
 
 	// Direct3D 12
 	#include <d3d12.h>
-	#include <dxcapi.h>
+	#include <dxcapi.h> // Dxc runtime shader compiling 
 	#include <DirectX12/d3dx12.h> 
-	#include <WinPixEventRuntime/pix3.h>
 
 	// Direct3D 11
 	#include <d3d11.h>
@@ -98,6 +96,16 @@
 	#include <dxgidebug.h>
 	#endif
 
+#define TrackGraphicsEvents 0
+
+#if TrackGraphicsEvents
+#include <WinPixEventRuntime/pix3.h>
+#define BeginTrackRenderEvent(pCommandList, Color, Tag) PIXBeginEvent(pCommandList, Color, Tag);
+#define EndTrackRenderEvent(pCommandList) PIXEndEvent(pCommandList);
+#else
+#define BeginTrackRenderEvent(pCommandList, Color, Tag)
+#define EndTrackRenderEvent(pCommandList)
+#endif
 
 #endif // IE_PLATFORM_WINDOWS
 
@@ -121,17 +129,18 @@
 #endif // IE_PLATFORM_BUILD_WIN32
 
 
-// -------------------------------------
-//		Universal Windows Platform		|
-// -------------------------------------
+// ---------------------------------------------
+//		Universal Windows Platform (UWP)		|
+// ---------------------------------------------
 #if defined (IE_PLATFORM_BUILD_UWP)
 
+	// Windows Runtime
 	#include "winrt/Windows.System.h"
-	#include "winrt/Windows.Storage.h"
+	//#include "winrt/Windows.Storage.h"
 	#include "winrt/Windows.UI.Core.h"
 	#include "winrt/Windows.UI.Input.h"
 	#include "winrt/Windows.Foundation.h"
-	#include "winrt/Windows.Storage.Pickers.h"
+	//#include "winrt/Windows.Storage.Pickers.h"
 	#include "winrt/Windows.ApplicationModel.h"
 	#include "winrt/Windows.Graphics.Display.h"
 	#include "winrt/Windows.UI.ViewManagement.h"

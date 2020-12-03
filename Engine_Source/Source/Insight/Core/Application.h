@@ -110,10 +110,12 @@ namespace Insight {
 		virtual bool ReloadShaders(ShaderReloadEvent& e);
 	protected:
 		std::shared_ptr<Window>	m_pWindow;
+		
 		IE_STRIP_FOR_GAME_DIST(ImGuiLayer* m_pImGuiLayer = nullptr; )
-			IE_STRIP_FOR_GAME_DIST(EditorLayer* m_pEditorLayer = nullptr; )
-			PerfOverlay* m_pPerfOverlay = nullptr;
+		IE_STRIP_FOR_GAME_DIST(EditorLayer* m_pEditorLayer = nullptr; )
+		PerfOverlay* m_pPerfOverlay = nullptr;
 		GameLayer* m_pGameLayer = nullptr;
+		
 		bool					m_Running = true;
 		bool					m_AppInitialized = false;
 		LayerStack				m_LayerStack;

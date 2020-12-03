@@ -4,7 +4,9 @@
 
 #include "Insight/Runtime/Components/Actor_Component.h"
 #include "Insight/Core/Application.h"
-#include "imgui.h"
+
+#include "Insight/UI/UI_Lib.h"
+
 
 namespace Insight {
 
@@ -209,31 +211,31 @@ namespace Insight {
 	{
 		AActor::OnImGuiRender();
 
-		ImGui::Text("Vignette");
-		ImGui::Spacing();
-		ImGui::Checkbox("vnEnabled", (bool*)&m_ShaderCB.vnEnabled);
-		ImGui::DragFloat("Inner Radius", &m_TempInnerRadius, 0.1f, 0.0f, 50.0f);
-		ImGui::DragFloat("Outer Radius", &m_TempOuterRadius, 0.1f, 0.0f, 50.0f);
-		ImGui::DragFloat("Opacity", &m_ShaderCB.vnOpacity, 0.15f, 0.0f, 10.0f);
+		UI::Text("Vignette");
+		UI::Spacing();
+		UI::Checkbox("vnEnabled", (bool*)&m_ShaderCB.vnEnabled);
+		UI::DragFloat("Inner Radius", &m_TempInnerRadius, 0.1f, 0.0f, 50.0f);
+		UI::DragFloat("Outer Radius", &m_TempOuterRadius, 0.1f, 0.0f, 50.0f);
+		UI::DragFloat("Opacity", &m_ShaderCB.vnOpacity, 0.15f, 0.0f, 10.0f);
 		if (m_TempInnerRadius > m_TempOuterRadius) {
 			m_TempInnerRadius = m_TempOuterRadius;
 		}
 		m_ShaderCB.vnInnerRadius = m_TempInnerRadius;
 		m_ShaderCB.vnOuterRadius = m_TempOuterRadius;
-		ImGui::Spacing();
+		UI::Spacing();
 
-		ImGui::Text("Bloom");
-		ImGui::Checkbox("blEnabled", (bool*)&m_ShaderCB.blEnabled);
-		ImGui::DragFloat("blStrength", &m_ShaderCB.blCombineCoefficient, 0.1f, 0.0f, 80.0f);
+		UI::Text("Bloom");
+		UI::Checkbox("blEnabled", (bool*)&m_ShaderCB.blEnabled);
+		UI::DragFloat("blStrength", &m_ShaderCB.blCombineCoefficient, 0.1f, 0.0f, 80.0f);
 
-		ImGui::Text("Film Grain");
-		ImGui::Checkbox("fgEnabled", (bool*)&m_ShaderCB.fgEnabled);
-		ImGui::DragFloat("Strength", &m_ShaderCB.fgStrength, 0.1f, 0.0f, 80.0f);
-		ImGui::Spacing();
+		UI::Text("Film Grain");
+		UI::Checkbox("fgEnabled", (bool*)&m_ShaderCB.fgEnabled);
+		UI::DragFloat("Strength", &m_ShaderCB.fgStrength, 0.1f, 0.0f, 80.0f);
+		UI::Spacing();
 
-		ImGui::Text("Chromatic Aberration");
-		ImGui::Checkbox("caEnabled", (bool*)&m_ShaderCB.caEnabled);
-		ImGui::DragFloat("Intensity", &m_ShaderCB.caIntensity, 0.1f, 0.0f, 80.0f);
+		UI::Text("Chromatic Aberration");
+		UI::Checkbox("caEnabled", (bool*)&m_ShaderCB.caEnabled);
+		UI::DragFloat("Intensity", &m_ShaderCB.caIntensity, 0.1f, 0.0f, 80.0f);
 	}
 
 }

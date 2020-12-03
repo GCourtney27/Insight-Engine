@@ -8,11 +8,14 @@
 #include "Insight/Core/ie_Exception.h"
 #include "Insight/Rendering/Renderer.h"
 
-#if defined (IE_PLATFORM_WINDOWS)
+#if defined (IE_PLATFORM_BUILD_WIN32)
 	#include "Platform/DirectX_11/Wrappers/D3D11_ImGui_Layer.h"
 	#include "Platform/DirectX_12/Wrappers/D3D12_ImGui_Layer.h"
 	#include "Platform/Win32/Win32_Window.h"
 #endif
+
+#define EDITOR_UI_ENABLED 0
+
 
 // TODO: Make the project hot swapable
 // TODO: Make sample projects
@@ -20,7 +23,6 @@
 // ----------------------------
 // DemoScene
 // MultipleLights
-static const char* ProjectName = "Development-Project";
 static const char* TargetSceneName = "Debug.iescene";
 
 namespace Insight {
@@ -52,7 +54,7 @@ namespace Insight {
 		ScopedPerfTimer("Core application initialization", OutputType_Millis);
 
 		// Initize the main file system.
-		FileSystem::Init(ProjectName);
+		FileSystem::Init();
 
 		// Create and initialize the renderer.
 		Renderer::SetSettingsAndCreateContext(FileSystem::LoadGraphicsSettingsFromJson(), m_pWindow.get());
@@ -83,7 +85,6 @@ namespace Insight {
 		IE_DEBUG_LOG(LogSeverity::Verbose, "Application Initialized");
 	}
 
-#define EDITOR_UI_ENABLED 0
 
 	float g_GPUThreadFPS = 0.0f;
 	void Application::RenderThread()
@@ -139,9 +140,9 @@ namespace Insight {
 			// Process the window's Messages 
 			m_pWindow->OnUpdate();
 
-			static float WorldSeconds = 0.0f;
-			WorldSeconds += DeltaMs;
-			pSCDemoBall->Translate(0.0f, std::sin(WorldSeconds) * 0.02f, 0.0f);
+			//static float WorldSeconds = 0.0f;
+			//WorldSeconds += DeltaMs;
+			//pSCDemoBall->Translate(0.0f, std::sin(WorldSeconds) * 0.02f, 0.0f);
 			
 
 			// Update the input system. 
@@ -174,9 +175,9 @@ namespace Insight {
 			// Process the window's Messages 
 			m_pWindow->OnUpdate();
 
-			static float WorldSeconds = 0.0f;
-			WorldSeconds += DeltaMs;
-			pSCDemoBall->Translate(0.0f, std::sin(WorldSeconds) * 0.02f, 0.0f);
+			//static float WorldSeconds = 0.0f;
+			//WorldSeconds += DeltaMs;
+			//pSCDemoBall->Translate(0.0f, std::sin(WorldSeconds) * 0.02f, 0.0f);
 
 			{
 				static FrameTimer GraphicsTimer;
@@ -229,26 +230,29 @@ namespace Insight {
 	{
 		switch (Renderer::GetAPI())
 		{
-#if defined(IE_PLATFORM_WINDOWS)
+#if defined (IE_PLATFORM_BUILD_WIN32) && (EDITOR_UI_ENABLED)
 		case Renderer::TargetRenderAPI::Direct3D_11:
-			IE_STRIP_FOR_GAME_DIST(m_pImGuiLayer = new D3D11ImGuiLayer());
+			IE_STRIP_FOR_GAME_DIST(
+				m_pImGuiLayer = new D3D11ImGuiLayer()
+				PushOverlay(m_pImGuiLayer);
+			);
 			break;
 		case Renderer::TargetRenderAPI::Direct3D_12:
-#if EDITOR_UI_ENABLED
-			IE_STRIP_FOR_GAME_DIST(m_pImGuiLayer = new D3D12ImGuiLayer());
-#endif
+			IE_STRIP_FOR_GAME_DIST(
+				m_pImGuiLayer = new D3D12ImGuiLayer()
+				PushOverlay(m_pImGuiLayer);
+			);
 			break;
-#endif
 		default:
 			IE_DEBUG_LOG(LogSeverity::Error, "Failed to create ImGui layer in application with API of type \"{0}\"", Renderer::GetAPI());
 			break;
+#endif
 		}
 
-#if EDITOR_UI_ENABLED
-		IE_STRIP_FOR_GAME_DIST(PushOverlay(m_pImGuiLayer);)
-#endif
-		m_pEditorLayer = new EditorLayer();
-		IE_STRIP_FOR_GAME_DIST(PushOverlay(m_pEditorLayer);)
+		IE_STRIP_FOR_GAME_DIST(
+			m_pEditorLayer = new EditorLayer();
+			PushOverlay(m_pEditorLayer);
+		)
 
 		m_pPerfOverlay = new PerfOverlay();
 		PushOverlay(m_pPerfOverlay);
