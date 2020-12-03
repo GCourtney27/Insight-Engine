@@ -75,7 +75,6 @@
 
 	// Direct3D 12
 	#include <d3d12.h>
-	#include <dxcapi.h> // Dxc runtime shader compiling 
 	#include <DirectX12/d3dx12.h> 
 
 	// Direct3D 11

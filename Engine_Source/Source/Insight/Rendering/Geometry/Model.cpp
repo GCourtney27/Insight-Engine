@@ -125,9 +125,10 @@ namespace Insight {
 
 		m_pRoot = ParseNode_r(pScene->mRootNode);
 #elif defined (IE_PLATFORM_BUILD_UWP)
-		//std::string p = "C:/VSDev/Insight-Interactive/InsightEngine/Binaries/Debug-Windows-x64/Application_UWP_WinRT/AppX/" + path;
+
 		FILE* fp = fopen(path.c_str(), "rb");
 		HRESULT hr = HRESULT_FROM_WIN32(GetLastError());
+		
 		if (!fp) return false;
 
 		fseek(fp, 0, SEEK_END);
@@ -136,11 +137,12 @@ namespace Insight {
 		auto* content = new ofbx::u8[file_size];
 		fread(content, 1, file_size, fp);
 		ofbx::IScene* pScene = ofbx::load((ofbx::u8*)content, file_size, (ofbx::u64)ofbx::LoadFlags::TRIANGULATE);
-		if (!pScene) {
+		if (!pScene)
+		{
 			IE_DEBUG_LOG(LogSeverity::Warning, "ofbx import error: {0}", ofbx::getError());
 		}
-		else {
-
+		else 
+		{
 
 			int obj_idx = 0;
 			int indices_offset = 0;
@@ -149,10 +151,10 @@ namespace Insight {
 			for (int i = 0; i < mesh_count; ++i)
 			{
 				const ofbx::Mesh& mesh = *(pScene->getMesh(i));
-				const ofbx::Geometry& geom = *mesh.getGeometry();
+				const ofbx::Geometry& geom = *(mesh.getGeometry());
+
 				int vertex_count = geom.getVertexCount();
 				const ofbx::Vec3* vertices = geom.getVertices();
-
 				std::vector<Vertex3D> Verticies; Verticies.reserve(vertex_count);
 				std::vector<DWORD> Indices;
 
@@ -189,7 +191,6 @@ namespace Insight {
 
 				const int* faceIndices = geom.getFaceIndices();
 				int index_count = geom.getIndexCount();
-				bool new_face = true;
 				for (int i = 0; i < index_count; ++i)
 				{
 					int idx = (faceIndices[i] < 0) ? -faceIndices[i] : (faceIndices[i] + 1);
@@ -197,8 +198,11 @@ namespace Insight {
 					Indices.push_back(vertex_idx);
 				}
 
-
 				m_Meshes.push_back(std::make_unique<Mesh>(Verticies, Indices));
+
+				/*indices_offset += vertex_count;
+				normals_offset += index_count;
+				++obj_idx;*/
 			}
 
 			ieTransform transform;
@@ -206,9 +210,10 @@ namespace Insight {
 			transform.SetWorldMatrix(mat);
 			std::vector<Mesh*> curMeshPtrs;
 			curMeshPtrs.push_back(m_Meshes[0].get());
-
+			
 			m_pRoot = std::make_unique<MeshNode>(curMeshPtrs, transform, "My Model");
 		}
+		fclose(fp);
 #endif
 		return true;
 	}
@@ -246,7 +251,8 @@ namespace Insight {
 		std::vector<DWORD> Indices;
 		
 		// Load Verticies
-		for (uint32_t i = 0; i < pMesh->mNumVertices; i++) {
+		for (uint32_t i = 0; i < pMesh->mNumVertices; i++) 
+		{
 
 			Vertex3D Vertex;
 
@@ -262,7 +268,8 @@ namespace Insight {
 
 
 			// Texture Coords/Tangents
-			if (pMesh->mTextureCoords[0]) {
+			if (pMesh->mTextureCoords[0]) 
+			{
 
 				Vertex.TexCoords.x = (float)pMesh->mTextureCoords[0][i].x;
 				Vertex.TexCoords.y = (float)pMesh->mTextureCoords[0][i].y;
@@ -275,7 +282,9 @@ namespace Insight {
 				Vertex.BiTangent.y = pMesh->mBitangents[i].y;
 				Vertex.BiTangent.z = pMesh->mBitangents[i].z;
 				
-			} else {
+			} 
+			else 
+			{
 
 				Vertex.TexCoords	= ieFloat2(0.0f, 0.0f);
 				Vertex.Tangent		= ieFloat3(0.0f, 0.0f, 0.0f);
@@ -286,11 +295,12 @@ namespace Insight {
 		}
 
 		// Load Indices
-		for (uint32_t i = 0; i < pMesh->mNumFaces; i++) {
+		for (uint32_t i = 0; i < pMesh->mNumFaces; i++) 
+		{
 
 			aiFace face = pMesh->mFaces[i];
-			for (unsigned int j = 0; j < face.mNumIndices; j++) {
-
+			for (unsigned int j = 0; j < face.mNumIndices; j++) 
+			{
 				Indices.push_back(face.mIndices[j]);
 			}
 		}

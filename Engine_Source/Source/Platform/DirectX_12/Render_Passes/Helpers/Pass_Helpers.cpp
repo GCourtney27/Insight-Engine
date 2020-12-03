@@ -4,7 +4,7 @@
 
 #include "Platform/Win32/Error/COM_Exception.h"
 #include "Platform/DirectX_12/Direct3D12_Context.h"
-
+#include "Platform/DirectX_12/Wrappers/D3D12_Shader.h"
 
 namespace Insight {
 
@@ -69,16 +69,12 @@ namespace Insight {
 
 		// Create the pipeline state.
 
-		Microsoft::WRL::ComPtr<ID3DBlob> pComputeShader;
-		hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"Threshold_Down_Sample.compute.cso").c_str(), &pComputeShader);
-		ThrowIfFailed(hr, "Failed to read compute shader for D3D 12 context");
-
-		D3D12_SHADER_BYTECODE ComputeShaderBytecode = {};
-		ComputeShaderBytecode.BytecodeLength = pComputeShader->GetBufferSize();
-		ComputeShaderBytecode.pShaderBytecode = pComputeShader->GetBufferPointer();
+		D3D12Shader ComputeShader;
+		hr = ComputeShader.LoadFromFile(FileSystem::GetShaderPathW(L"Threshold_Down_Sample.compute.cso").c_str());
+		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
 
 		D3D12_COMPUTE_PIPELINE_STATE_DESC PipelineDesc = {};
-		PipelineDesc.CS = ComputeShaderBytecode;
+		PipelineDesc.CS = ComputeShader.GetByteCode();
 		PipelineDesc.pRootSignature = m_pRootSignature.Get();
 
 		hr = pDevice->CreateComputePipelineState(&PipelineDesc, IID_PPV_ARGS(&m_pPipeilneState));
@@ -169,16 +165,13 @@ namespace Insight {
 		ThrowIfFailed(hr, "Failed to create root signature for D3D 12 context.");
 
 		// Create the pipeline state.
-		Microsoft::WRL::ComPtr<ID3DBlob> pComputeShader;
-		hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"Gaussian_Blur.compute.cso").c_str(), &pComputeShader);
-		ThrowIfFailed(hr, "Failed to read compute shader for D3D 12 context");
 
-		D3D12_SHADER_BYTECODE ComputeShaderBytecode = {};
-		ComputeShaderBytecode.BytecodeLength = pComputeShader->GetBufferSize();
-		ComputeShaderBytecode.pShaderBytecode = pComputeShader->GetBufferPointer();
+		D3D12Shader ComputeShader;
+		hr = ComputeShader.LoadFromFile(FileSystem::GetShaderPathW(L"Gaussian_Blur.compute.cso").c_str());
+		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
 
 		D3D12_COMPUTE_PIPELINE_STATE_DESC PipelineDesc = {};
-		PipelineDesc.CS = ComputeShaderBytecode;
+		PipelineDesc.CS = ComputeShader.GetByteCode();
 		PipelineDesc.pRootSignature = m_pRootSignature.Get();
 
 		hr = pDevice->CreateComputePipelineState(&PipelineDesc, IID_PPV_ARGS(&m_pPipelineState));

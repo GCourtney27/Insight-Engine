@@ -52,7 +52,7 @@ namespace Insight {
 		#define EDITOR_SLIDER_FLOAT_2(label, v, v_min, v_max, format, power) ImGui::SliderFloat2(label, v, v_min, v_max, format, power)
 		#define EDITOR_COLOR_PICKER_3(Label, Color, Flags) ImGui::ColorEdit3(Label, Color, Flags)
 		#define EDITOR_BEGIN_WINDOW(Title) ImGui::Begin(Title)
-		#define EDITOR_END_WINDOW(Title) ImGui::End()
+		#define EDITOR_END_WINDOW() ImGui::End()
 		#define EDITOR_COMBO_BOX(Label, CurrentItem, Items, NumItems) ImGui::Combo(Label, &CurrentItem, Items, NumItems);
 		#define EDITOR_NEW_LINE() ImGui::NewLine()
 		#define EDITOR_COLLAPSING_HEADER(Label, Flags) ImGui::CollapsingHeader(Label, Flags)
@@ -79,7 +79,7 @@ namespace Insight {
 		#define EDITOR_SLIDER_FLOAT_2(label, v, v_min, v_max, format, power)
 		#define EDITOR_COLOR_PICKER_3(Label, Color, Flags) false
 		#define EDITOR_BEGIN_WINDOW(Title) 
-		#define EDITOR_END_WINDOW(Title)
+		#define EDITOR_END_WINDOW()
 		#define EDITOR_COMBO_BOX(Label, CurrentItem, Items, NumItems) false
 		#define EDITOR_NEW_LINE()
 		#define EDITOR_COLLAPSING_HEADER(Label, Flags) false

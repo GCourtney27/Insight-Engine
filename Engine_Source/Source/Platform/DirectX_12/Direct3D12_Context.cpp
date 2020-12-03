@@ -1053,10 +1053,10 @@ namespace Insight {
 			std::wstring PixelShaderFolder(ExeDirectory);
 			PixelShaderFolder += L"../Renderer/Shadow_Pass.pixel.cso";
 
-			hr = D3DReadFileToBlob(VertShaderFolder.c_str(), &pVertexShader);
+			/*hr = D3DReadFileToBlob(VertShaderFolder.c_str(), &pVertexShader);
 			ThrowIfFailed(hr, "Failed to read Vertex Shader for D3D 12 context.");
 			hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
-			ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
+			ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");*/
 
 			D3D12_SHADER_BYTECODE VertexShaderBytecode = {};
 			VertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
@@ -1118,10 +1118,10 @@ namespace Insight {
 			std::wstring PixelShaderFolder(ExeDirectory);
 			PixelShaderFolder += L"../Renderer/Debug_Screen_Quad.pixel.cso";
 
-			hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
+			/*hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
 			ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context.");
 			hr = D3DReadFileToBlob(PixelShaderFolder.c_str(), &pPixelShader);
-			ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context.");
+			ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context.");*/
 
 
 			D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
@@ -1172,7 +1172,7 @@ namespace Insight {
 			std::wstring VertexShaderFolder(ExeDirectory);
 			VertexShaderFolder += L"../Renderer/Threshold_Down_Sample.compute.cso";
 
-			hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pComputeShader);
+			//hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pComputeShader);
 			ThrowIfFailed(hr, "Failed to read compute shader for D3D 12 context");
 
 			D3D12_SHADER_BYTECODE ComputeShaderBytecode = {};
@@ -1196,7 +1196,7 @@ namespace Insight {
 			std::wstring ComputeShaderFolder(ExeDirectory);
 			ComputeShaderFolder += L"../Renderer/Gaussian_Blur.compute.cso";
 
-			hr = D3DReadFileToBlob(ComputeShaderFolder.c_str(), &pComputeShader);
+			//hr = D3DReadFileToBlob(ComputeShaderFolder.c_str(), &pComputeShader);
 			ThrowIfFailed(hr, "Failed to read compute shader for D3D 12 context");
 
 			D3D12_SHADER_BYTECODE ComputeShaderBytecode = {};

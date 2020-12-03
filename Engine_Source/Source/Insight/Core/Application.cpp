@@ -14,7 +14,7 @@
 	#include "Platform/Win32/Win32_Window.h"
 #endif
 
-#define EDITOR_UI_ENABLED 0
+#define EDITOR_UI_ENABLED 1
 
 
 // TODO: Make the project hot swapable
@@ -233,20 +233,20 @@ namespace Insight {
 #if defined (IE_PLATFORM_BUILD_WIN32) && (EDITOR_UI_ENABLED)
 		case Renderer::TargetRenderAPI::Direct3D_11:
 			IE_STRIP_FOR_GAME_DIST(
-				m_pImGuiLayer = new D3D11ImGuiLayer()
+				m_pImGuiLayer = new D3D11ImGuiLayer();
 				PushOverlay(m_pImGuiLayer);
 			);
 			break;
 		case Renderer::TargetRenderAPI::Direct3D_12:
 			IE_STRIP_FOR_GAME_DIST(
-				m_pImGuiLayer = new D3D12ImGuiLayer()
+				m_pImGuiLayer = new D3D12ImGuiLayer();
 				PushOverlay(m_pImGuiLayer);
 			);
 			break;
-		default:
-			IE_DEBUG_LOG(LogSeverity::Error, "Failed to create ImGui layer in application with API of type \"{0}\"", Renderer::GetAPI());
-			break;
 #endif
+		default:
+			IE_DEBUG_LOG(LogSeverity::Error, "Failed to create ImGui layer in application with API of type \"{0}\" Or application has disabled editor.", Renderer::GetAPI());
+			break;
 		}
 
 		IE_STRIP_FOR_GAME_DIST(

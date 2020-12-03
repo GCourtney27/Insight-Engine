@@ -3,15 +3,15 @@
 echo *****************************************
 echo Creating assimp VS2019 project
 echo *****************************************
-cd Engine_Source\Third_Party\assimp-3.3.1
+cd Engine_Source\Third_Party\assimp-5.0.1
 mkdir build
 cd build
-%~dp0Vendor\CMake\bin\cmake.exe %~dp0Engine_Source\Third_Party\assimp-3.3.1
+%~dp0Vendor\CMake\bin\cmake.exe %~dp0Engine_Source\Third_Party\assimp-5.0.1
 
 echo *****************************************
 echo Compiling assimp source code
 echo *****************************************
-call %~dp0Scripts\Dependency_Build\Compile_Assimp.bat
+call %~dp0Scripts\Dependency_Build\Compile_Assimp_5.0.1.bat
 
 
 echo *****************************************

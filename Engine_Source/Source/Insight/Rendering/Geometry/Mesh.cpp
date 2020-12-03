@@ -16,7 +16,7 @@
 namespace Insight {
 
 
-	Mesh::Mesh(Verticies Verticies, Indices Indices)
+	Mesh::Mesh(const Verticies& Verticies, const Indices& Indices)
 	{
 		Init(Verticies, Indices);
 	}
@@ -43,7 +43,7 @@ namespace Insight {
 		delete m_pIndexBuffer;
 	}
 
-	void Mesh::Init(Verticies& Verticies, Indices& Indices)
+	void Mesh::Init(const Verticies& Verticies, const Indices& Indices)
 	{
 		CreateBuffers(Verticies, Indices);
 	}
@@ -87,7 +87,7 @@ namespace Insight {
 	{
 	}
 
-	void Mesh::CreateBuffers(Verticies& Verticies, Indices& Indices)
+	void Mesh::CreateBuffers(const Verticies& Verticies, const Indices& Indices)
 	{
 		switch (Renderer::GetAPI()) {
 		case Renderer::TargetRenderAPI::Direct3D_11:

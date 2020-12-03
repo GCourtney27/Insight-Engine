@@ -104,11 +104,6 @@ namespace Insight {
 
 		std::vector<std::pair<Microsoft::WRL::ComPtr<ID3D12Resource>, DirectX::XMMATRIX>> m_Instances;
 		std::vector<AccelerationStructureBuffers> m_AccelerationStructureBuffers;
-		
-		Microsoft::WRL::ComPtr<IDxcBlob> m_RayGenLibrary;
-		Microsoft::WRL::ComPtr<IDxcBlob> m_HitLibrary;
-		Microsoft::WRL::ComPtr<IDxcBlob> m_MissLibrary;
-		Microsoft::WRL::ComPtr<IDxcBlob> m_ShadowLibrary;
 
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_RayGenSignature;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_HitSignature;

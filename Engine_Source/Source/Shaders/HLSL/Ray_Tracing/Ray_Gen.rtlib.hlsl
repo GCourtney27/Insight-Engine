@@ -30,8 +30,8 @@ void RayGen()
     // Define a ray, consisting of origin, direction, and the min-max distance values
     float4 Target = mul(float4(d.x, -d.y, 1, 1), InverseProjection);
     RayDesc Ray;
-    Ray.Origin = mul(float4(0, 0, 0, 1), InverseView);
-    Ray.Direction = mul(float4(Target.xyz, 0), InverseView);
+    Ray.Origin = mul(float4(0, 0, 0, 1), InverseView).xyz;
+    Ray.Direction = mul(float4(Target.xyz, 0), InverseView).xyz;
     Ray.TMin = 0;
     Ray.TMax = 100000;
     

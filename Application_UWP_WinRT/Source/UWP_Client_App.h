@@ -208,7 +208,8 @@ namespace SandBoxApp {
 			pWood->SetUVTilingOffset(9.0f, 9.0f);
 			AActor* pAWoodenFloor = new AActor(0, "Wooden Floor");
 			SceneComponent* pSCWoodenFloor = pAWoodenFloor->CreateDefaultSubobject<SceneComponent>();
-			pSCWoodenFloor->SetScale(1000.0f);
+			pSCWoodenFloor->SetScale(0.1f);
+			//pSCWoodenFloor->SetScale(1000.0f);
 			pSCWoodenFloor->SetPosition(0.0f, -20.0f, 0.0f);
 			StaticMeshComponent* pSMQuad = pAWoodenFloor->CreateDefaultSubobject<StaticMeshComponent>();
 			pSMQuad->SetMaterial(pWood);

@@ -8,6 +8,7 @@
 #include "Platform/Win32/Win32_Window.h"
 #include "Platform/DirectX_12/Direct3D12_Context.h"
 #include "Platform/DirectX_12/Geometry/D3D12_Sphere_Renderer.h"
+#include "Platform/DirectX_12/Wrappers/D3D12_Shader.h"
 
 #include "DXR/DXRHelper.h"
 #include "DXR/nv_helpers_dx12/BottomLevelASGenerator.h"
@@ -258,22 +259,22 @@ namespace Insight {
 		NvidiaHelpers::RayTracingPipelineGenerator Pipeline(m_pDeviceRef.Get());
 
 		// Ray Gen
-		m_RayGenLibrary = NvidiaHelpers::CompileShaderLibrary(FileSystem::GetShaderPathW(L"Ray_Gen.rtlib.hlsl").c_str());
+		D3D12Shader RayGenShader;
+		ThrowIfFailed(RayGenShader.LoadFromFile(FileSystem::GetShaderPathW(L"Ray_Gen.rtlib.cso").c_str()), "Failed to load Ray Gen library from cso.");
 		// Miss
-		m_MissLibrary = NvidiaHelpers::CompileShaderLibrary(FileSystem::GetShaderPathW(L"Miss.rtlib.hlsl").c_str());
+		D3D12Shader MissShader;
+		ThrowIfFailed(MissShader.LoadFromFile(FileSystem::GetShaderPathW(L"Miss.rtlib.cso").c_str()), "Failed to load Miss library from cso.");
 		// Hit
-		m_HitLibrary = NvidiaHelpers::CompileShaderLibrary(FileSystem::GetShaderPathW(L"Closest_Hit.rtlib.hlsl").c_str());
+		D3D12Shader ClosestShader;
+		ThrowIfFailed(ClosestShader.LoadFromFile(FileSystem::GetShaderPathW(L"Closest_Hit.rtlib.cso").c_str()), "Failed to load Closest Hit library from cso.");
 		// Shadow
-		m_ShadowLibrary = NvidiaHelpers::CompileShaderLibrary(FileSystem::GetShaderPathW(L"Shadow_Ray.rtlib.hlsl").c_str());
+		D3D12Shader ShadowShader;
+		ThrowIfFailed(ShadowShader.LoadFromFile(FileSystem::GetShaderPathW(L"Shadow_Ray.rtlib.cso").c_str()), "Failed to load Shadow Ray library from cso.");
 
-		//ComPtr<ID3DBlob> ShaderBlob;
-		//HRESULT hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"RayGen.rtlib.cso").c_str(), &ShaderBlob);
-		//m_RayGenLibrary = ShaderBlob.Detach();
-		//Pipeline.AddLibrary(reinterpret_cast<IDxcBlob*>(ShaderBlob.Get()), { L"RayGen" });
-		Pipeline.AddLibrary(m_RayGenLibrary.Get(), { L"RayGen" });
-		Pipeline.AddLibrary(m_MissLibrary.Get(), { L"Miss" });
-		Pipeline.AddLibrary(m_HitLibrary.Get(), { L"ClosestHit" });
-		Pipeline.AddLibrary(m_ShadowLibrary.Get(), { L"ShadowClosestHit", L"ShadowMiss" });
+		Pipeline.AddLibrary(&RayGenShader, { L"RayGen" });
+		Pipeline.AddLibrary(&MissShader, { L"Miss" });
+		Pipeline.AddLibrary(&ClosestShader, { L"ClosestHit" });
+		Pipeline.AddLibrary(&ShadowShader, { L"ShadowClosestHit", L"ShadowMiss" });
 
 		m_RayGenSignature = CreateRayGenSignature();
 		m_MissSignature = CreateMissSignature();

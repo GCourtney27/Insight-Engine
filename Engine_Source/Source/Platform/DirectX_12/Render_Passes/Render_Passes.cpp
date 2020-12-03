@@ -6,6 +6,7 @@
 #include "Platform/Win32/Win32_Window.h"
 #include "Insight/Systems/Managers/Geometry_Manager.h"
 #include "Platform/DirectX_12/Direct3D12_Context.h"
+#include "Platform/DirectX_12/Wrappers/D3D12_Shader.h"
 
 
 namespace Insight {
@@ -109,21 +110,16 @@ namespace Insight {
 
 	void DeferredGeometryPass::LoadPipeline()
 	{
-		ComPtr<ID3DBlob> pVertexShader;
 		ComPtr<ID3DBlob> pPixelShader;
 
-		HRESULT hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"Geometry_Pass.vertex.cso").c_str(), &pVertexShader);
+		D3D12Shader VertexShader;
+		HRESULT hr = VertexShader.LoadFromFile(FileSystem::GetShaderPathW(L"Geometry_Pass.vertex.cso").c_str());
 		ThrowIfFailed(hr, "Failed to read Vertex Shader for D3D 12 context.");
-		hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"Geometry_Pass.pixel.cso").c_str(), &pPixelShader);
+
+		D3D12Shader PixelShader;
+		hr = PixelShader.LoadFromFile(FileSystem::GetShaderPathW(L"Geometry_Pass.pixel.cso").c_str());
 		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
 
-		D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
-		vertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
-		vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
-
-		D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
-		pixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
-		pixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
 
 		D3D12_INPUT_ELEMENT_DESC inputLayout[5] =
 		{
@@ -139,8 +135,8 @@ namespace Insight {
 		InputLayoutDesc.pInputElementDescs = inputLayout;
 
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC PsoDesc = {};
-		PsoDesc.VS = vertexShaderBytecode;
-		PsoDesc.PS = pixelShaderBytecode;
+		PsoDesc.VS = VertexShader.GetByteCode();
+		PsoDesc.PS = PixelShader.GetByteCode();
 		PsoDesc.InputLayout = InputLayoutDesc;
 		PsoDesc.pRootSignature = m_pRootSignatureRef.Get();
 		PsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
@@ -375,22 +371,14 @@ namespace Insight {
 
 	void DeferredLightPass::LoadPipeline()
 	{
-		ComPtr<ID3DBlob> pVertexShader;
-		ComPtr<ID3DBlob> pPixelShader;
+		D3D12Shader PixelShader;
+		HRESULT hr = PixelShader.LoadFromFile(FileSystem::GetShaderPathW(L"Light_Pass.pixel.cso").c_str());
+		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
 
-		HRESULT hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"Light_Pass.vertex.cso").c_str(), &pVertexShader);
-		ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context.");
-		hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"Light_Pass.pixel.cso").c_str(), &pPixelShader);
-		ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context.");
+		D3D12Shader VertexShader;
+		hr = VertexShader.LoadFromFile(FileSystem::GetShaderPathW(L"Light_Pass.vertex.cso").c_str());
+		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
 
-
-		D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
-		vertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
-		vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
-
-		D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
-		pixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
-		pixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
 
 		D3D12_INPUT_ELEMENT_DESC inputLayout[2] =
 		{
@@ -403,8 +391,8 @@ namespace Insight {
 		InputLayoutDesc.pInputElementDescs = inputLayout;
 
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC descPipelineState = {};
-		descPipelineState.VS = vertexShaderBytecode;
-		descPipelineState.PS = pixelShaderBytecode;
+		descPipelineState.VS = VertexShader.GetByteCode();
+		descPipelineState.PS = PixelShader.GetByteCode();
 		descPipelineState.InputLayout = InputLayoutDesc;
 		descPipelineState.pRootSignature = m_pRootSignatureRef.Get();
 		descPipelineState.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
@@ -557,22 +545,13 @@ namespace Insight {
 
 	void SkyPass::LoadPipeline()
 	{
-		ComPtr<ID3DBlob> pVertexShader;
-		ComPtr<ID3DBlob> pPixelShader;
+		D3D12Shader VertexShader;
+		HRESULT hr = VertexShader.LoadFromFile(FileSystem::GetShaderPathW(L"Skybox.vertex.cso").c_str());
+		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
 
-		HRESULT hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"Skybox.vertex.cso").c_str(), &pVertexShader);
-		ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context");
-		hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"Skybox.pixel.cso").c_str(), &pPixelShader);
-		ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context");
-
-
-		D3D12_SHADER_BYTECODE VertexShaderBytecode = {};
-		VertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
-		VertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
-
-		D3D12_SHADER_BYTECODE PixelShaderBytecode = {};
-		PixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
-		PixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
+		D3D12Shader PixelShader;
+		hr = PixelShader.LoadFromFile(FileSystem::GetShaderPathW(L"Skybox.pixel.cso").c_str());
+		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
 
 		D3D12_INPUT_ELEMENT_DESC InputLayout[2] =
 		{
@@ -595,8 +574,8 @@ namespace Insight {
 		RasterizerStateDesc.FillMode = D3D12_FILL_MODE_SOLID;
 
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineDesc = {};
-		pipelineDesc.VS = VertexShaderBytecode;
-		pipelineDesc.PS = PixelShaderBytecode;
+		pipelineDesc.VS = VertexShader.GetByteCode();
+		pipelineDesc.PS = PixelShader.GetByteCode();
 		pipelineDesc.InputLayout = InputLayoutDesc;
 		pipelineDesc.pRootSignature = m_pRootSignatureRef.Get();
 		pipelineDesc.DepthStencilState = DepthStencilStateDesc;
@@ -682,28 +661,14 @@ namespace Insight {
 
 	void PostProcessCompositePass::LoadPipeline()
 	{
-		ComPtr<ID3DBlob> pVertexShader;
-		ComPtr<ID3DBlob> pPixelShader;
+		D3D12Shader VertexShader;
+		HRESULT hr = VertexShader.LoadFromFile(FileSystem::GetShaderPathW(L"Screen_Aligned_Quad.vertex.cso").c_str());
+		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
 
-		const wchar_t* ExeDirectory = FileSystem::GetWorkingDirectoryW();
-		std::wstring VertexShaderFolder(ExeDirectory);
-		VertexShaderFolder += L"../Engine/Screen_Aligned_Quad.vertex.cso";
-		std::wstring PixelShaderFolder(ExeDirectory);
-		PixelShaderFolder += L"../Engine/PostProcess_Composite.pixel.cso";
+		D3D12Shader PixelShader;
+		hr = PixelShader.LoadFromFile(FileSystem::GetShaderPathW(L"PostProcess_Composite.pixel.cso").c_str());
+		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
 
-		HRESULT hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"Screen_Aligned_Quad.vertex.cso").c_str(), &pVertexShader);
-		ThrowIfFailed(hr, "Failed to compile Vertex Shader for D3D 12 context.");
-		hr = D3DReadFileToBlob(FileSystem::GetShaderPathW(L"PostProcess_Composite.pixel.cso").c_str(), &pPixelShader);
-		ThrowIfFailed(hr, "Failed to compile Pixel Shader for D3D 12 context.");
-
-
-		D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
-		vertexShaderBytecode.BytecodeLength = pVertexShader->GetBufferSize();
-		vertexShaderBytecode.pShaderBytecode = pVertexShader->GetBufferPointer();
-
-		D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
-		pixelShaderBytecode.BytecodeLength = pPixelShader->GetBufferSize();
-		pixelShaderBytecode.pShaderBytecode = pPixelShader->GetBufferPointer();
 
 		D3D12_INPUT_ELEMENT_DESC inputLayout[2] =
 		{
@@ -716,8 +681,8 @@ namespace Insight {
 		InputLayoutDesc.pInputElementDescs = inputLayout;
 
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC PipelineStateDesc = {};
-		PipelineStateDesc.VS = vertexShaderBytecode;
-		PipelineStateDesc.PS = pixelShaderBytecode;
+		PipelineStateDesc.VS = VertexShader.GetByteCode();
+		PipelineStateDesc.PS = PixelShader.GetByteCode();
 		PipelineStateDesc.InputLayout = InputLayoutDesc;
 		PipelineStateDesc.pRootSignature = m_pRootSignatureRef.Get();
 		PipelineStateDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);

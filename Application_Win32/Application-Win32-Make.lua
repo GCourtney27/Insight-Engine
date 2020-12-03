@@ -9,7 +9,7 @@ monoInstallDir = "C:/Program Files/Mono/"
 rootDirPath = "../"
 
 applicationIncludeDirs = {}
-applicationIncludeDirs["assimp"]					= engineThirdPartyDir .. "assimp-3.3.1/include/"
+applicationIncludeDirs["assimp"]					= engineThirdPartyDir .. "assimp-5.0.1/include/"
 applicationIncludeDirs["Microsoft"] 				= engineThirdPartyDir .. "Microsoft/"
 applicationIncludeDirs["Nvidia"]					= engineThirdPartyDir .. "Nvidia/"
 applicationIncludeDirs["spdlog"]					= engineThirdPartyDir .. "spdlog/include/"
@@ -42,7 +42,7 @@ project (projectName)
 
 	includedirs
 	{
-		engineThirdPartyDir .. "assimp-3.3.1/include/",
+		engineThirdPartyDir .. "assimp-5.0.1/include/",
 		-- "%{applicationIncludeDirs.assimp}",
 		"%{applicationIncludeDirs.Microsoft}",
 		"%{applicationIncludeDirs.Nvidia}DirectX12/",
@@ -66,7 +66,7 @@ project (projectName)
 		"MonoPosixHelper.lib",
 		"mono-2.0-sgen.lib",
         "libmono-static-sgen.lib",
-		"assimp-vc140-mt.lib",
+		"assimp-vc142-mtd.lib",
         
         -- DirectX/Windows API
 		"d3d12.lib",
@@ -76,8 +76,6 @@ project (projectName)
 		"WinPixEventRuntime_UAP.lib",
 		"Shlwapi.lib",
 		"DirectXTK.lib",
-		"D3Dcompiler.lib",
-		"dxcompiler.lib",
         "DirectXTK12.lib",
 		
 		-- Set the Runtime Library to Win32
@@ -96,16 +94,13 @@ project (projectName)
 	postbuildcommands
 	{
 		-- Assimp
-		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/assimp-3.3.1/build/code/Debug/assimp-vc140-mt.dll ../Binaries/" .. outputdir .. "/" .. projectName),
+		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Debug/assimp-vc142-mtd.dll ../Binaries/" .. outputdir .. "/" .. projectName),
 		-- DX11 Debug Layers
 		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll ../Binaries/" .. outputdir .. "/" .. projectName),
 		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3DX11d_43.dll ../Binaries/"..outputdir.."/" .. projectName),
 		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3D11Ref.dll ../Binaries/"..outputdir.."/" .. projectName),
 		-- Mono
 		("{COPY} \"".. monoInstallDir .."/bin/mono-2.0-sgen.dll\" ../Binaries/" .. outputdir .. "/" .. projectName),
-		-- DirectX
-		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxcompiler.dll ../Binaries/"..outputdir.."/" .. projectName),
-		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxil.dll ../Binaries/"..outputdir.."/" .. projectName),
 		-- PIX
 		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../Binaries/"..outputdir.."/" .. projectName),
 		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../Binaries/"..outputdir.."/" .. projectName),
@@ -124,7 +119,7 @@ project (projectName)
 		symbols "on"
 		libdirs
 		{
-            "%{applicationIncludeDirs.Engine_Source_Third_Party}/assimp-3.3.1/build/code/Debug/",
+            "%{applicationIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Debug/",
             "%{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
             "%{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Debug/",
             "%{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Debug/",
@@ -137,7 +132,7 @@ project (projectName)
 		optimize "on"
 		libdirs
 		{
-			"%{applicationIncludeDirs.Engine_Source_Third_Party}/assimp-3.3.1/build/code/Release",
+			"%{applicationIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Release",
             "%{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
             "%{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
 			"%{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
@@ -147,7 +142,7 @@ project (projectName)
 		postbuildcommands
 		{
 			-- Assimp
-			("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../Binaries/"..outputdir.."/Engine"),
+			("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Release/assimp-vc140-mt.dll ../Binaries/"..outputdir.."/Engine"),
 			-- DX11 Debug Layers	
 			("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll ../Binaries/"..outputdir.."/Engine"),
 			("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3DX11d_43.dll ../Binaries/"..outputdir.."/Engine"),
@@ -172,7 +167,7 @@ project (projectName)
 		symbols "on"
 		libdirs
 		{
-			"%{applicationIncludeDirs.Engine_Source_Third_Party}/assimp-3.3.1/build/code/Release",
+			"%{applicationIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Release",
             "%{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
             "%{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
 			"%{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
@@ -182,7 +177,7 @@ project (projectName)
 		postbuildcommands
 		{
 			-- assimp
-			("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../Binaries/"..outputdir.."/Engine"),
+			("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Release/assimp-vc140-mt.dll ../Binaries/"..outputdir.."/Engine"),
 			-- mono
 			("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Mono/bin/mono-2.0-sgen.dll ../Binaries/"..outputdir.."/Engine"),
 			-- DirectX
@@ -199,7 +194,7 @@ project (projectName)
 		symbols "on"
 		libdirs
 		{
-            "%{applicationIncludeDirs.Engine_Source_Third_Party}/assimp-3.3.1/build/code/Release",            
+            "%{applicationIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Release",            
             "%{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
             "%{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
 			"%{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
@@ -209,7 +204,7 @@ project (projectName)
 		postbuildcommands
 		{
 			-- assimp
-			("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../Binaries/"..outputdir.."/Engine"),
+			("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Release/assimp-vc140-mt.dll ../Binaries/"..outputdir.."/Engine"),
 			-- mono
 			("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Mono/bin/mono-2.0-sgen.dll ../Binaries/"..outputdir.."/Engine"),
 			-- DirectX

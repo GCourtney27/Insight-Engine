@@ -15,7 +15,7 @@ namespace Insight {
 	class INSIGHT_API Mesh
 	{
 	public:
-		Mesh(Verticies Verticies, Indices Indices);
+		Mesh(const Verticies& Verticies, const Indices& Indices);
 		Mesh(Mesh&& mesh) noexcept;
 		~Mesh();
 
@@ -35,8 +35,8 @@ namespace Insight {
 		uint32_t GetIndexBufferSize();
 
 	private:
-		void Init(Verticies& verticies, Indices& indices);
-		void CreateBuffers(Verticies& Verticies, Indices& Indices);
+		void Init(const Verticies& verticies, const Indices& indices);
+		void CreateBuffers(const Verticies& Verticies, const Indices& Indices);
 		void UpdateAccelerationStructures();
 	private:
 		ieVertexBuffer* m_pVertexBuffer;

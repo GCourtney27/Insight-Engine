@@ -16,7 +16,7 @@ engineIncludeDirs["Microsoft"] 		= engineDirPath .. "Third_Party/Microsoft/"
 engineIncludeDirs["rapidjson"]  	= engineDirPath .. "Third_Party/rapidjson/"
 engineIncludeDirs["spdlog"] 		= engineDirPath .. "Third_Party/spdlog/"
 engineIncludeDirs["Mono"] 			= monoInstallDir .. "include/mono-2.0/"
-engineIncludeDirs["assimp"] 		= engineDirPath .. "Third_Party/assimp-3.3.1/include/"
+engineIncludeDirs["assimp"] 		= engineDirPath .. "Third_Party/assimp-5.0.1/include/"
 engineIncludeDirs["Nvidia"] 		= engineDirPath .. "Third_Party/Nvidia/"
 engineIncludeDirs["Engine_Source"] 	= rootDirPath .. "Engine_Source/"
 
@@ -66,7 +66,9 @@ project ("Engine_Build_UWP")
 	{
 		-- Tells the Engine to Compile for Win32 Platform
 		"IE_PLATFORM_BUILD_UWP",
+
 		"_CRT_SECURE_NO_WARNINGS",
+
 		"IE_BUILD_DIR=%{CustomDefines.IE_BUILD_DIR}/${prj.name}/",
 		"IE_BUILD_CONFIG=%{CustomDefines.IE_BUILD_CONFIG}",
 	}
@@ -81,6 +83,7 @@ project ("Engine_Build_UWP")
 		"%{engineIncludeDirs.Nvidia}DirectX12/",
 		"%{engineIncludeDirs.rapidjson}include/",
 		"%{engineIncludeDirs.spdlog}include/",
+		"%{engineIncludeDirs.ImGui}",
 		--"%{engineIncludeDirs.ImGuizmo}",
 		"%{engineIncludeDirs.assimp}",
 
@@ -93,6 +96,7 @@ project ("Engine_Build_UWP")
 
 	links
 	{
+        "ImGui",
         "Engine_Source"
 	}
 
@@ -103,7 +107,8 @@ project ("Engine_Build_UWP")
 
 	postbuildcommands
 	{
-		("{COPY} ../Engine_Source/Source/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/%{prj.name}"),
+		-- Compile the ray tracing shaders.
+		("%{wks.location}Engine_Source/Source/Shaders/HLSL/Ray_Tracing/Compile_RT_Shaders.bat %{wks.location}Binaries/" .. outputdir .. "/%{prj.name}"),
 	}
 
 
@@ -247,7 +252,7 @@ project ("Engine_Build_Win32")
 
 	postbuildcommands
 	{
-		-- ("{COPY} ../Engine_Source/Source/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/%{prj.name}"),
+		-- Compile the ray tracing shaders.
 		("%{wks.location}Engine_Source/Source/Shaders/HLSL/Ray_Tracing/Compile_RT_Shaders.bat %{wks.location}Binaries/" .. outputdir .. "/%{prj.name}"),
 	}
 

@@ -60,10 +60,9 @@ rtStateObject = pipeline.Generate();
 */
 
 #pragma once
+#include "Platform/DirectX_12/Wrappers/D3D12_Shader.h"
 
 #include "d3d12.h"
-
-#include <dxcapi.h>
 
 #include <string>
 #include <vector>
@@ -82,7 +81,7 @@ public:
   /// Add a DXIL library to the pipeline. Note that this library has to be
   /// compiled with dxc, using a lib_6_3 target. The exported symbols must correspond exactly to the
   /// names of the shaders declared in the library, although unused ones can be omitted.
-  void AddLibrary(IDxcBlob* dxilLibrary, const std::vector<std::wstring>& symbolExports);
+  void AddLibrary(Insight::D3D12Shader* pShader, const std::vector<std::wstring>& symbolExports);
 
   /// In DXR the hit-related shaders are grouped into hit groups. Such shaders are:
   /// - The intersection shader, which can be used to intersect custom geometry, and is called upon
@@ -126,13 +125,13 @@ private:
   /// Storage for DXIL libraries and their exported symbols
   struct Library
   {
-    Library(IDxcBlob* dxil, const std::vector<std::wstring>& exportedSymbols);
+    Library(Insight::D3D12Shader* pShader, const std::vector<std::wstring>& exportedSymbols);
 
     Library(const Library& source);
 
-    IDxcBlob* m_dxil;
     const std::vector<std::wstring> m_exportedSymbols;
-
+    
+    Insight::D3D12Shader* m_pShader;
     std::vector<D3D12_EXPORT_DESC> m_exports;
     D3D12_DXIL_LIBRARY_DESC m_libDesc;
   };

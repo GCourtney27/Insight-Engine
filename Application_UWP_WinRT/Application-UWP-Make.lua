@@ -59,6 +59,7 @@ project (projectName)
 	includedirs
 	{
 		"%{applicationIncludeDirs.OpenFBX}",
+		"%{applicationIncludeDirs.assimp}",
 		"%{applicationIncludeDirs.Microsoft}",
 		"%{applicationIncludeDirs.Microsoft}/DirectX12",
 		"%{applicationIncludeDirs.Nvidia}DirectX12/",
@@ -86,15 +87,15 @@ project (projectName)
 		"DirectXTK.lib",
 		"D3Dcompiler.lib",
 		"dxcompiler.lib",
-        "DirectXTK12.lib",
+		"DirectXTK12.lib",
 		
-		-- Set the Runtime Library to Win32
+		-- Set the engine library to UWP
 		"Engine_Build_UWP",
 	}
 
 	defines
 	{
-		-- Tells the Engine to Compile for UWP Platform
+		-- Compile for UWP platform
 		"IE_PLATFORM_BUILD_UWP",
 	}
 	flags
@@ -127,7 +128,7 @@ project (projectName)
 	symbols "on"
 	libdirs
 	{
-		"%{applicationIncludeDirs.Engine_Source_Third_Party}/assimp-3.3.1/build/code/Debug/",
+		"%{applicationIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Debug/",
 		"%{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
 		"%{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Debug/",
 		"%{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Debug/",
