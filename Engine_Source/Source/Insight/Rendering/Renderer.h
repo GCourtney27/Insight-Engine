@@ -76,7 +76,7 @@ namespace Insight {
 		// Set the target graphics rendering API and create a context to it.
 		// Once set, it cannot be changed through the lifespan application, you must 
 		// set it re-launch the app.
-		static bool SetSettingsAndCreateContext(GraphicsSettings GraphicsSettings, Window* pWindow);
+		static bool SetSettingsAndCreateContext(GraphicsSettings GraphicsSettings, std::shared_ptr<Window> pWindow);
 
 		// Initilize renderer's API library.
 		static inline bool Init() { return s_Instance->Init_Impl(); }
@@ -248,7 +248,7 @@ namespace Insight {
 		APostFx* m_pPostFx = nullptr;
 
 		Runtime::ACamera* m_pWorldCameraRef = nullptr;
-		Window* m_pWindowRef;
+		std::shared_ptr<Window> m_pWindowRef;
 
 		std::queue<WindowResizeEvent> m_WindowResizeEventQueue;
 		std::queue<WindowToggleFullScreenEvent> m_WindowFullScreenEventQueue;

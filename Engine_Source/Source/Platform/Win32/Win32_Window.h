@@ -29,6 +29,7 @@ namespace Insight {
 		virtual void* GetNativeWindow() const override;
 		virtual bool ProccessWindowMessages() override;
 
+		virtual InputEventType GetAsyncKeyState(KeyMapCode Key) const override;
 		bool SetWindowTitle(const std::string& newText, bool completlyOverride = false) override;
 		bool SetWindowTitleFPS(float fps) override;
 
@@ -36,7 +37,7 @@ namespace Insight {
 		inline HWND& GetWindowHandleRef() { return m_hWindow; }
 		inline RECT& GetWindowRect() { return m_WindowRect; }
 
-		virtual void CreateMessageBox(const std::wstring& Message, const std::wstring Title) override;
+		virtual void CreateMessageBox(const std::wstring& Message, const std::wstring& Title) override;
 
 		// Window Attributes
 		virtual bool Init();
@@ -73,4 +74,4 @@ namespace Insight {
 	};
 
 }
-#endif
+#endif // IE_PLATFORM_BUILD_WIN32

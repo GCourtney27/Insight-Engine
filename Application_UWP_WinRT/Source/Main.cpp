@@ -67,6 +67,14 @@ public:
         }
 #endif
 
+        winrt::Windows::System::VirtualKey k = winrt::Windows::System::VirtualKey::A;
+        auto state = window.GetAsyncKeyState(k);
+        
+        if (state == winrt::Windows::UI::Core::CoreVirtualKeyStates::Down)
+        {
+
+        }
+
         window.VisibilityChanged({ this, &ViewProvider::OnVisibilityChanged });
 
         window.Closed([this](auto&&, auto&&) { m_exit = true; });
@@ -85,7 +93,7 @@ public:
         });
 
         auto currentDisplayInformation = DisplayInformation::GetForCurrentView();
-
+        
         currentDisplayInformation.DpiChanged({ this, &ViewProvider::OnDpiChanged });
 
         currentDisplayInformation.OrientationChanged({ this, &ViewProvider::OnOrientationChanged });
@@ -109,22 +117,21 @@ public:
         {
             std::swap(outputWidth, outputHeight);
         }
-
-        auto windowPtr = static_cast<::IUnknown*>(winrt::get_abi(window));
-        Insight::UWPWindowDescription WindowDesc(windowPtr, IE_BIND_EVENT_FN(Insight::Application::OnEvent, m_pApp.get()));
-        m_pWindowsWindow = std::make_shared<Insight::UWPWindow>(WindowDesc);
-        m_pApp->SetWindow(m_pWindowsWindow);
+        
+        Insight::UWPWindowDescription WindowDesc(window, IE_BIND_EVENT_FN(Insight::Application::OnEvent, m_pApp.get()));
+        m_pUWPWindow = std::make_shared<Insight::UWPWindow>(WindowDesc);
+        m_pApp->SetWindow(m_pUWPWindow);
         m_pApp->Initialize();
     }
 
-    void Load(winrt::hstring const &) noexcept
+    void Load(winrt::hstring const&) noexcept
     {
     }
 
     void Run()
     {
         Insight::WindowResizeEvent e(1280, 800, false);
-        m_pWindowsWindow->GetEventCallbackFn()(e);
+        m_pUWPWindow->GetEventCallbackFn()(e);
         while (!m_exit)
         {
             if (m_visible)
@@ -270,7 +277,7 @@ private:
     float                   m_logicalWidth;
     float                   m_logicalHeight;
     std::unique_ptr<Insight::Application> m_pApp;
-    std::shared_ptr<Insight::UWPWindow> m_pWindowsWindow;
+    std::shared_ptr<Insight::UWPWindow> m_pUWPWindow;
 
     winrt::Windows::Graphics::Display::DisplayOrientations	m_nativeOrientation;
     winrt::Windows::Graphics::Display::DisplayOrientations	m_currentOrientation;
@@ -349,7 +356,7 @@ private:
             std::swap(outputWidth, outputHeight);
         }
         Insight::WindowResizeEvent e(outputWidth, outputHeight, false);
-        m_pWindowsWindow->GetEventCallbackFn()(e);
+        m_pUWPWindow->GetEventCallbackFn()(e);
         //m_game->OnWindowSizeChanged(outputWidth, outputHeight, rotation);
     }
 };

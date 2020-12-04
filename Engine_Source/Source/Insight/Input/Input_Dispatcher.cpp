@@ -2,6 +2,8 @@
 
 #include "Input_Dispatcher.h"
 
+#include "Insight/Core/Window.h"
+
 namespace Insight {
 
 	namespace Input {
@@ -49,27 +51,22 @@ namespace Insight {
 		{
 			// Keyboard
 			// --------
-			// The Window only send one event telling us the key has been pressed.
+			// The Window only sends one event telling us the key has been pressed.
 			// We need to continuously check it to see if it is being held.
 			// We do this below.
-#if defined (IE_PLATFORM_BUILD_WIN32)
 			for (uint32_t i = 0; i < m_AxisMappings.size(); i++)
 			{
 				// If the key in the axis mapping is pressed, dispatch an event.
-				SHORT KeyState = ::GetAsyncKeyState(m_AxisMappings[i].MappedKeyCode);
-				bool Pressed = (BIT_SHIFT(15)) & KeyState;
-				if (Pressed)
-				{
+				if(m_pOwningWindowRef->GetAsyncKeyState(m_AxisMappings[i].MappedKeyCode) == InputEventType_Pressed)
+								{
 					// Dispatching KeyHolding events will happen in InputDispatcher::DispatchActionEvent
 					KeyPressedEvent e(m_AxisMappings[i].MappedKeyCode, 0, 1.0f);
 					ProcessInputEvent(e);
 				}
 			}
-#endif
+
 			// Gamepad
 			// -------
-			// Constant gamepad polling is poor for performance, so set
-			// a poll interval and update the controller every other frame.
 			HandleControllerInput(DeltaMs);
 
 		}
@@ -231,6 +228,8 @@ namespace Insight {
 
 		void InputDispatcher::HandleControllerInput(const float DeltaMs)
 		{
+			// Constant gamepad polling is poor for performance, so set
+			// a poll interval and update the controller every other frame.
 			static float GamepadPollRate = 0.0f;
 			GamepadPollRate += DeltaMs;
 			if (GamepadPollRate >= m_GamepadPollInterval)

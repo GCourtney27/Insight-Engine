@@ -14,7 +14,7 @@
 	#include "Platform/Win32/Win32_Window.h"
 #endif
 
-#define EDITOR_UI_ENABLED 1
+#define EDITOR_UI_ENABLED 0
 
 
 // TODO: Make the project hot swapable
@@ -57,7 +57,7 @@ namespace Insight {
 		FileSystem::Init();
 
 		// Create and initialize the renderer.
-		Renderer::SetSettingsAndCreateContext(FileSystem::LoadGraphicsSettingsFromJson(), m_pWindow.get());
+		Renderer::SetSettingsAndCreateContext(FileSystem::LoadGraphicsSettingsFromJson(), m_pWindow);
 
 		// Create the game layer that will host all game logic.
 		m_pGameLayer = new GameLayer();
@@ -208,6 +208,8 @@ namespace Insight {
 				Renderer::ExecuteDraw();
 				Renderer::SwapBuffers();
 			}
+
+			m_pWindow->OnUpdate();
 
 			// Update the input system. 
 			m_InputDispatcher.UpdateInputs(DeltaMs);

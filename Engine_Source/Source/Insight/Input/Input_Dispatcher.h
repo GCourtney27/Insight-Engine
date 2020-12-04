@@ -89,6 +89,11 @@ namespace Insight {
 			static InputDispatcher& Get() { return *s_Instance; }
 
 			/*
+				Sets a referece to the owning window this application uses and dispaches events from.
+			*/
+			void SetWindowRef(std::shared_ptr<Window> pWindow) { m_pOwningWindowRef = pWindow; }
+
+			/*
 				Updates the keyboard axis mappings with the OS.
 			*/
 			void UpdateInputs(float DeltaMs);
@@ -140,6 +145,7 @@ namespace Insight {
 
 
 		private:
+			std::shared_ptr<Window> m_pOwningWindowRef;
 			// Holds all axis mapping profiles.
 			std::vector<AxisMapping> m_AxisMappings;
 			// Holds all callback funcitons and their corisponding hints found the Axis mappings stored in InputDispatcher::m_AxisMappings.

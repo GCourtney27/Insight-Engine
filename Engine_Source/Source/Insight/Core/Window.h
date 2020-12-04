@@ -3,6 +3,7 @@
 
 #include <Insight/Core.h>
 #include "Insight/Events/Event.h"
+#include "Insight/Input/Key_Codes.h"
 
 class RenderingContext;
 
@@ -46,10 +47,11 @@ namespace Insight {
 			m_WindowHeight = NewHeight; 
 			m_AspectRatio = static_cast<float>(NewWidth) / static_cast<float>(NewHeight); 
 		}
-		virtual void CreateMessageBox(const std::wstring& Message, const std::wstring Title) = 0;
+		virtual void CreateMessageBox(const std::wstring& Message, const std::wstring& Title) = 0;
 
 		virtual void* GetNativeWindow() const = 0;
 		virtual bool SetWindowTitleFPS(float fps) = 0;
+		virtual InputEventType GetAsyncKeyState(KeyMapCode Key) const = 0;
 		virtual bool SetWindowTitle(const std::string& newText, bool completlyOverride = false) = 0;
 
 		uint32_t GetWidth() const { return m_WindowWidth; }

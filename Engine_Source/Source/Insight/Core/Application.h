@@ -73,6 +73,7 @@ namespace Insight {
 		inline void SetWindow(std::shared_ptr<Window> pWindow) 
 		{ 
 			m_pWindow = pWindow; 
+			m_InputDispatcher.SetWindowRef(pWindow);
 		}
 		
 		// Returns a reference to the currently active scene.

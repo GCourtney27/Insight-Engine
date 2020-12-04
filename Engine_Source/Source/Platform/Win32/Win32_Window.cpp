@@ -40,6 +40,17 @@ namespace Insight {
 		Init();
 	}
 
+	InputEventType Win32Window::GetAsyncKeyState(KeyMapCode Key) const
+	{
+		SHORT KeyState = ::GetAsyncKeyState(Key);
+		bool Pressed = (BIT_SHIFT(15)) & KeyState;
+		
+		if (Pressed)
+			return InputEventType_Pressed;
+		else
+			return InputEventType_Released;
+	}
+
 	LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		Win32Window& pWindow = *(Win32Window*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
@@ -641,7 +652,7 @@ namespace Insight {
 		return m_hWindow;
 	}
 
-	void Win32Window::CreateMessageBox(const std::wstring& Message, const std::wstring Title)
+	void Win32Window::CreateMessageBox(const std::wstring& Message, const std::wstring& Title)
 	{
 		::MessageBox(m_hWindow, Message.c_str(), Title.c_str(), MB_OK);
 	}

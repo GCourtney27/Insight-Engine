@@ -40,7 +40,7 @@ namespace Insight {
 	{
 	}
 
-	bool Renderer::SetSettingsAndCreateContext(GraphicsSettings GraphicsSettings, Window* pWindow)
+	bool Renderer::SetSettingsAndCreateContext(GraphicsSettings GraphicsSettings, std::shared_ptr<Window> pWindow)
 	{
 		IE_ASSERT(!s_Instance, "Rendering Context already exists! Cannot have more that one context created at a time.");
 		IE_ASSERT(pWindow, "Cannot initialize renderer with NULL window context.");
