@@ -560,7 +560,7 @@ namespace Insight {
 	{
 #if defined (IE_PLATFORM_BUILD_WIN32)
 
-		Win32Window* pWindow = reinterpret_cast<Win32Window*>(m_pWindowRef);
+		Win32Window* pWindow = reinterpret_cast<Win32Window*>(m_pWindowRef.get());
 
 		HWND& pHWND = pWindow->GetWindowHandleRef();
 

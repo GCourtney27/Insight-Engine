@@ -110,10 +110,4 @@
       <UniqueIdentifier>{CFF8B343-3BAE-2C39-C4A2-26103057233D}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Wrappers\D3D12_Shader.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX_12\Wrappers\D3D12_Shader.cpp" />
-  </ItemGroup>
 </Project>

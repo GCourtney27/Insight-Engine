@@ -9,7 +9,6 @@ engineDirPath	= rootDirPath .. "Engine_Source/"
 monoInstallDir	= "C:/Program Files/Mono/"
 
 engineIncludeDirs = {}
-engineIncludeDirs["OpenFBX"]		= engineDirPath .. "Third_Party/OpenFBX/src/"
 engineIncludeDirs["ImGui"] 	    	= engineDirPath .. "Third_Party/imgui/"
 engineIncludeDirs["ImGuizmo"] 		= engineDirPath .. "Third_Party/ImGuizmo/"
 engineIncludeDirs["Microsoft"] 		= engineDirPath .. "Third_Party/Microsoft/"
@@ -17,6 +16,7 @@ engineIncludeDirs["rapidjson"]  	= engineDirPath .. "Third_Party/rapidjson/"
 engineIncludeDirs["spdlog"] 		= engineDirPath .. "Third_Party/spdlog/"
 engineIncludeDirs["Mono"] 			= monoInstallDir .. "include/mono-2.0/"
 engineIncludeDirs["assimp"] 		= engineDirPath .. "Third_Party/assimp-5.0.1/include/"
+engineIncludeDirs["OpenFBX"]		= engineDirPath .. "Third_Party/OpenFBX/src/"
 engineIncludeDirs["Nvidia"] 		= engineDirPath .. "Third_Party/Nvidia/"
 engineIncludeDirs["Engine_Source"] 	= rootDirPath .. "Engine_Source/"
 
@@ -76,6 +76,7 @@ project ("Engine_Build_UWP")
 	includedirs
 	{
 		-- Third Party
+		"%{engineIncludeDirs.assimp}",
 		"%{engineIncludeDirs.OpenFBX}",
 		"%{engineIncludeDirs.Microsoft}",
         "%{engineIncludeDirs.Microsoft}DirectX12/WinPixEventRuntime.1.0.161208001/Include/",

@@ -43,8 +43,8 @@ namespace Insight {
 			m_ActionMappings.push_back({ "Sprint", GamepadCode_Button_Thumbstick_Left });
 
 
-			m_GamepadLeftStickSensitivity = 20.0f;
-			m_GamepadRightStickSensitivity = 20.0f;
+			m_GamepadLeftStickSensitivity = 10.0f;
+			m_GamepadRightStickSensitivity = 10.0f;
 		}
 
 		void InputDispatcher::UpdateInputs(float DeltaMs)

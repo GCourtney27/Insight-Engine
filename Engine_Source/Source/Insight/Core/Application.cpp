@@ -14,8 +14,11 @@
 	#include "Platform/Win32/Win32_Window.h"
 #endif
 
+#if defined (IE_PLATFORM_BUILD_WIN32)
+#define EDITOR_UI_ENABLED 1
+#else
 #define EDITOR_UI_ENABLED 0
-
+#endif
 
 // TODO: Make the project hot swapable
 // TODO: Make sample projects

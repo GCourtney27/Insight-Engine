@@ -108,7 +108,7 @@ namespace Insight {
 		{ 
 			constexpr bool IsValidWindow = std::is_base_of<Window, Win32Window>::value;
 			static_assert(IsValidWindow, "Class type is not a valid window.");
-			return *(WindowClassType*)(s_Instance->m_pWindowRef);
+			return *(WindowClassType*)(s_Instance->m_pWindowRef.get());
 		}
 		
 		static inline Window& GetWindowRef() { return *(s_Instance->m_pWindowRef); }

@@ -184,6 +184,18 @@ namespace Insight {
 
 						Vert.TexCoords.x = uvs[i].x;
 						Vert.TexCoords.y = uvs[i].y;
+
+						const ofbx::Vec3* tans = geom.getTangents();
+						Vert.Tangent.x = tans[i].x;
+						Vert.Tangent.y = tans[i].y;
+						Vert.Tangent.z = tans[i].z;
+						
+						ieVector3 TempTangent(tans[i].x, tans[i].y, tans[i].z);
+						ieVector3 Normal(Vert.Normal.x, Vert.Normal.y, Vert.Normal.z);
+						ieVector3 BiTangent = TempTangent.Cross(Normal);
+						Vert.BiTangent.x = BiTangent.x;
+						Vert.BiTangent.y = BiTangent.y;
+						Vert.BiTangent.z = BiTangent.z;
 					}
 
 					Verticies.push_back(Vert);
@@ -200,9 +212,9 @@ namespace Insight {
 
 				m_Meshes.push_back(std::make_unique<Mesh>(Verticies, Indices));
 
-				/*indices_offset += vertex_count;
-				normals_offset += index_count;
-				++obj_idx;*/
+				//indices_offset += vertex_count;
+				//normals_offset += index_count;
+				//++obj_idx;
 			}
 
 			ieTransform transform;
@@ -225,7 +237,6 @@ namespace Insight {
 		ieTransform transform;
 		if (pNode->mParent) {
 			XMMATRIX mat = XMMatrixMultiply(XMMATRIX(&pNode->mTransformation.a1), XMMATRIX(&pNode->mParent->mTransformation.a1));
-			//transform.SetLocalMatrix(XMMatrixTranspose(XMMATRIX(&pNode->mTransformation.a1)));
 			transform.SetWorldMatrix(mat);
 		}
 
@@ -253,7 +264,6 @@ namespace Insight {
 		// Load Verticies
 		for (uint32_t i = 0; i < pMesh->mNumVertices; i++) 
 		{
-
 			Vertex3D Vertex;
 
 			// Position
@@ -270,7 +280,6 @@ namespace Insight {
 			// Texture Coords/Tangents
 			if (pMesh->mTextureCoords[0]) 
 			{
-
 				Vertex.TexCoords.x = (float)pMesh->mTextureCoords[0][i].x;
 				Vertex.TexCoords.y = (float)pMesh->mTextureCoords[0][i].y;
 
@@ -281,11 +290,9 @@ namespace Insight {
 				Vertex.BiTangent.x = pMesh->mBitangents[i].x;
 				Vertex.BiTangent.y = pMesh->mBitangents[i].y;
 				Vertex.BiTangent.z = pMesh->mBitangents[i].z;
-				
 			} 
 			else 
 			{
-
 				Vertex.TexCoords	= ieFloat2(0.0f, 0.0f);
 				Vertex.Tangent		= ieFloat3(0.0f, 0.0f, 0.0f);
 				Vertex.BiTangent	= ieFloat3(0.0f, 0.0f, 0.0f);
@@ -297,11 +304,11 @@ namespace Insight {
 		// Load Indices
 		for (uint32_t i = 0; i < pMesh->mNumFaces; i++) 
 		{
+			aiFace Face = pMesh->mFaces[i];
 
-			aiFace face = pMesh->mFaces[i];
-			for (unsigned int j = 0; j < face.mNumIndices; j++) 
+			for (uint32_t j = 0; j < Face.mNumIndices; j++) 
 			{
-				Indices.push_back(face.mIndices[j]);
+				Indices.push_back(Face.mIndices[j]);
 			}
 		}
 

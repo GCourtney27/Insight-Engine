@@ -8,6 +8,7 @@ engineThirdPartyDir = "../Engine_Source/Third_Party/"
 rootDirPath = "../"
 
 applicationIncludeDirs = {}
+applicationIncludeDirs["assimp"]					= engineThirdPartyDir .. "assimp-5.0.1/include/"
 applicationIncludeDirs["OpenFBX"]					= engineThirdPartyDir .. "OpenFBX/src/"
 applicationIncludeDirs["Microsoft"] 				= engineThirdPartyDir .. "Microsoft/"
 applicationIncludeDirs["Nvidia"]					= engineThirdPartyDir .. "Nvidia/"
@@ -59,7 +60,7 @@ project (projectName)
 	includedirs
 	{
 		"%{applicationIncludeDirs.OpenFBX}",
-		"%{applicationIncludeDirs.assimp}",
+		-- "%{applicationIncludeDirs.assimp}",
 		"%{applicationIncludeDirs.Microsoft}",
 		"%{applicationIncludeDirs.Microsoft}/DirectX12",
 		"%{applicationIncludeDirs.Nvidia}DirectX12/",
@@ -77,7 +78,10 @@ project (projectName)
 	}
 
 	links
-	{        
+	{     
+		-- Third Party   
+		--"assimp-vc142-mtd.lib",
+
         -- DirectX/Windows API
 		"d3d12.lib",
 		"dxgi.lib",
@@ -104,6 +108,7 @@ project (projectName)
 	}
 	postbuildcommands
 	{
+		--("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Release/assimp-vc140-mt.dll ../Binaries/"..outputdir.."/Engine"),
 		-- DX11 Debug Layers
 		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll ../Binaries/" .. outputdir .. "/" .. projectName),
 		("{COPY} %{applicationIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3DX11d_43.dll ../Binaries/"..outputdir.."/" .. projectName),

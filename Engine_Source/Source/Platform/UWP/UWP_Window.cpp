@@ -90,24 +90,21 @@ namespace Insight {
 	{
 		auto CPProps = args.CurrentPoint().Properties();
 
-		bool LeftPressed = CPProps.IsLeftButtonPressed();
-		if (!m_MouseButtonPressStates[c_MouseButtonLeft] && LeftPressed)
+		if (!m_MouseButtonPressStates[c_MouseButtonLeft] && CPProps.IsLeftButtonPressed())
 		{
 			m_MouseButtonPressStates[c_MouseButtonLeft] = true;
 			MouseButtonPressedEvent event(KeyMapCode_Mouse_Button_Left);
 			m_EventCallbackFn(event);
 		}
 
-		bool RighttPressed = CPProps.IsRightButtonPressed();
-		if (!m_MouseButtonPressStates[c_MouseButtonRight] && RighttPressed)
+		if (!m_MouseButtonPressStates[c_MouseButtonRight] && CPProps.IsRightButtonPressed())
 		{
 			m_MouseButtonPressStates[c_MouseButtonRight] = true;
 			MouseButtonPressedEvent event(KeyMapCode_Mouse_Button_Right);
 			m_EventCallbackFn(event);
 		}
 
-		bool MiddletPressed = CPProps.IsMiddleButtonPressed();
-		if (!m_MouseButtonPressStates[c_MouseButtonMiddle] && MiddletPressed)
+		if (!m_MouseButtonPressStates[c_MouseButtonMiddle] && CPProps.IsMiddleButtonPressed())
 		{
 			m_MouseButtonPressStates[c_MouseButtonMiddle] = true;
 			MouseButtonPressedEvent event(KeyMapCode_Mouse_Button_Middle);
@@ -121,8 +118,7 @@ namespace Insight {
 	{
 		auto CPProps = args.CurrentPoint().Properties();
 
-		bool LeftPressed = CPProps.IsLeftButtonPressed();
-		if (m_MouseButtonPressStates[c_MouseButtonLeft] && !LeftPressed)
+		if (m_MouseButtonPressStates[c_MouseButtonLeft] && !CPProps.IsLeftButtonPressed())
 		{
 			m_MouseButtonPressStates[c_MouseButtonLeft] = false;
 
@@ -130,8 +126,7 @@ namespace Insight {
 			m_EventCallbackFn(event);
 		}
 
-		bool RighttPressed = CPProps.IsRightButtonPressed();
-		if (m_MouseButtonPressStates[c_MouseButtonRight] && !RighttPressed)
+		if (m_MouseButtonPressStates[c_MouseButtonRight] && !CPProps.IsRightButtonPressed())
 		{
 			m_MouseButtonPressStates[c_MouseButtonRight] = false;
 
@@ -139,8 +134,7 @@ namespace Insight {
 			m_EventCallbackFn(event);
 		}
 
-		bool MiddletPressed = CPProps.IsMiddleButtonPressed();
-		if (m_MouseButtonPressStates[c_MouseButtonMiddle] && !MiddletPressed)
+		if (m_MouseButtonPressStates[c_MouseButtonMiddle] && !CPProps.IsMiddleButtonPressed())
 		{
 			m_MouseButtonPressStates[c_MouseButtonMiddle] = false;
 			
@@ -151,6 +145,8 @@ namespace Insight {
 
 	void UWPWindow::OnMouseMoved_Callback(winrt::Windows::UI::Core::CoreWindow const& sender, winrt::Windows::UI::Core::PointerEventArgs const& args)
 	{
+		MouseMovedEvent event(args.CurrentPoint().Position().X, args.CurrentPoint().Position().Y, (KeyMapCode)(KeyMapCode_Mouse_MoveX | KeyMapCode_Mouse_MoveY));
+		m_EventCallbackFn(event);
 	}
 
 }
