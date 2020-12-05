@@ -5,7 +5,6 @@
 #include "Insight/Rendering/Material.h"
 
 #include "Insight/UI/UI_Lib.h"
-#include "DirectX12/TK/Inc/Model.h"
 
 namespace Insight {
 
@@ -120,119 +119,60 @@ namespace Insight {
 		}
 
 		for (size_t i = 0; i < pScene->mNumMeshes; ++i) {
-			m_Meshes.push_back(std::move(ProcessMesh(pScene->mMeshes[i], pScene)));
+			m_Meshes.push_back(
+				std::move(AssimpProcessMesh(pScene->mMeshes[i], pScene))
+			);
 		}
 
-		m_pRoot = ParseNode_r(pScene->mRootNode);
+		m_pRoot = AssimpParseNode_r(pScene->mRootNode);
+
 #elif defined (IE_PLATFORM_BUILD_UWP)
 
-		FILE* fp = fopen(path.c_str(), "rb");
+		FILE* pFile = fopen(path.c_str(), "rb");
 		HRESULT hr = HRESULT_FROM_WIN32(GetLastError());
-		
-		if (!fp) return false;
+		if (!pFile)
+			return false;
 
-		fseek(fp, 0, SEEK_END);
-		long file_size = ftell(fp);
-		fseek(fp, 0, SEEK_SET);
-		auto* content = new ofbx::u8[file_size];
-		fread(content, 1, file_size, fp);
-		ofbx::IScene* pScene = ofbx::load((ofbx::u8*)content, file_size, (ofbx::u64)ofbx::LoadFlags::TRIANGULATE);
+		fseek(pFile, 0, SEEK_END);
+		long file_size = ftell(pFile);
+		fseek(pFile, 0, SEEK_SET);
+		auto* FileContents = new ofbx::u8[file_size];
+		fread(FileContents, 1, file_size, pFile);
+		ofbx::IScene* pScene = ofbx::load(FileContents, file_size, (ofbx::u64)ofbx::LoadFlags::TRIANGULATE);
+			
 		if (!pScene)
 		{
 			IE_DEBUG_LOG(LogSeverity::Warning, "ofbx import error: {0}", ofbx::getError());
+			return false;
 		}
 		else 
 		{
-
-			int obj_idx = 0;
-			int indices_offset = 0;
-			int normals_offset = 0;
-			int mesh_count = pScene->getMeshCount();
-			for (int i = 0; i < mesh_count; ++i)
+			int MeshCount = pScene->getMeshCount();
+			for (int i = 0; i < MeshCount; ++i)
 			{
-				const ofbx::Mesh& mesh = *(pScene->getMesh(i));
-				const ofbx::Geometry& geom = *(mesh.getGeometry());
-
-				int vertex_count = geom.getVertexCount();
-				const ofbx::Vec3* vertices = geom.getVertices();
-				std::vector<Vertex3D> Verticies; Verticies.reserve(vertex_count);
-				std::vector<DWORD> Indices;
-
-				for (int i = 0; i < vertex_count; ++i)
-				{
-					Vertex3D Vert;
-
-					Vert.Position.x = vertices[i].x;
-					Vert.Position.y = vertices[i].y;
-					Vert.Position.z = vertices[i].z;
-
-					bool has_normals = geom.getNormals() != nullptr;
-					if (has_normals)
-					{
-						const ofbx::Vec3* normals = geom.getNormals();
-
-						Vert.Normal.x = normals[i].x;
-						Vert.Normal.y = normals[i].y;
-						Vert.Normal.z = normals[i].z;
-					}
-
-					bool has_uvs = geom.getUVs() != nullptr;
-					if (has_uvs)
-					{
-						const ofbx::Vec2* uvs = geom.getUVs();
-						int count = geom.getIndexCount();
-
-						Vert.TexCoords.x = uvs[i].x;
-						Vert.TexCoords.y = uvs[i].y;
-
-						const ofbx::Vec3* tans = geom.getTangents();
-						Vert.Tangent.x = tans[i].x;
-						Vert.Tangent.y = tans[i].y;
-						Vert.Tangent.z = tans[i].z;
-						
-						ieVector3 TempTangent(tans[i].x, tans[i].y, tans[i].z);
-						ieVector3 Normal(Vert.Normal.x, Vert.Normal.y, Vert.Normal.z);
-						ieVector3 BiTangent = TempTangent.Cross(Normal);
-						Vert.BiTangent.x = BiTangent.x;
-						Vert.BiTangent.y = BiTangent.y;
-						Vert.BiTangent.z = BiTangent.z;
-					}
-
-					Verticies.push_back(Vert);
-				}
-
-				const int* faceIndices = geom.getFaceIndices();
-				int index_count = geom.getIndexCount();
-				for (int i = 0; i < index_count; ++i)
-				{
-					int idx = (faceIndices[i] < 0) ? -faceIndices[i] : (faceIndices[i] + 1);
-					int vertex_idx = indices_offset + idx;
-					Indices.push_back(vertex_idx);
-				}
-
-				m_Meshes.push_back(std::make_unique<Mesh>(Verticies, Indices));
-
-				//indices_offset += vertex_count;
-				//normals_offset += index_count;
-				//++obj_idx;
+				m_Meshes.push_back(
+					std::move(OFBXProcessMesh(*(pScene->getMesh(i))))
+				);
 			}
-
-			ieTransform transform;
-			XMMATRIX mat = XMMatrixIdentity();
-			transform.SetWorldMatrix(mat);
-			std::vector<Mesh*> curMeshPtrs;
-			curMeshPtrs.push_back(m_Meshes[0].get());
 			
-			m_pRoot = std::make_unique<MeshNode>(curMeshPtrs, transform, "My Model");
+			//m_pRoot = OFBXParseNode_r(pScene->getRoot());
+
+			ieTransform Transform;
+			//Transform.SetWorldMatrix(XMMATRIX((float)pScene->getRoot()->getLocalTransform().m));
+			Transform.SetWorldMatrix(XMMatrixIdentity());
+			std::vector<Mesh*> CurMeshPtrs;
+			CurMeshPtrs.push_back(m_Meshes[0].get());
+			m_pRoot = std::make_unique<MeshNode>(CurMeshPtrs, Transform, pScene->getRoot()->name);
 		}
-		fclose(fp);
+		delete[] FileContents;
+		fclose(pFile);
 #endif
 		return true;
 	}
 
 #if defined (IE_PLATFORM_BUILD_WIN32)
 
-	unique_ptr<MeshNode> Model::ParseNode_r(::aiNode* pNode)
+	unique_ptr<MeshNode> Model::AssimpParseNode_r(::aiNode* pNode)
 	{
 		ieTransform transform;
 		if (pNode->mParent) {
@@ -250,13 +190,13 @@ namespace Insight {
 		
 		auto pMeshNode = std::make_unique<MeshNode>(curMeshPtrs, transform, pNode->mName.C_Str());
 		for (UINT i = 0; i < pNode->mNumChildren; ++i) {
-			pMeshNode->AddChild(ParseNode_r(pNode->mChildren[i]));
+			pMeshNode->AddChild(AssimpParseNode_r(pNode->mChildren[i]));
 		}
 
 		return pMeshNode;
 	}
 
-	unique_ptr<Mesh> Model::ProcessMesh(::aiMesh* pMesh, const ::aiScene* pScene)
+	unique_ptr<Mesh> Model::AssimpProcessMesh(::aiMesh* pMesh, const ::aiScene* pScene)
 	{
 		std::vector<Vertex3D> Verticies; Verticies.reserve(pMesh->mNumVertices);
 		std::vector<DWORD> Indices;
@@ -314,5 +254,76 @@ namespace Insight {
 
 		return std::make_unique<Mesh>(Verticies, Indices);
 	}
+
+#elif defined (IE_PLATFORM_BUILD_UWP)
+	
+	std::unique_ptr<Mesh> Model::OFBXProcessMesh(const ofbx::Mesh& FBXMesh)
+	{
+		const ofbx::Geometry& Geometry = *(FBXMesh.getGeometry());
+
+		const ofbx::Vec3* RawVerticies = Geometry.getVertices();
+		int VertexCount = Geometry.getVertexCount();
+		std::vector<Vertex3D> Verticies; Verticies.reserve(VertexCount);
+		std::vector<DWORD> Indices;
+
+		for (int i = 0; i < VertexCount; ++i)
+		{
+			Vertex3D Vertex;
+
+			Vertex.Position.x = RawVerticies[i].x;
+			Vertex.Position.y = RawVerticies[i].y;
+			Vertex.Position.z = RawVerticies[i].z;
+
+			if (Geometry.getNormals() != nullptr)
+			{
+				const ofbx::Vec3* normals = Geometry.getNormals();
+
+				Vertex.Normal.x = normals[i].x;
+				Vertex.Normal.y = normals[i].y;
+				Vertex.Normal.z = normals[i].z;
+			}
+
+			if (Geometry.getUVs() != nullptr)
+			{
+				const ofbx::Vec2* uvs = Geometry.getUVs();
+				int count = Geometry.getIndexCount();
+
+				Vertex.TexCoords.x = uvs[i].x;
+				Vertex.TexCoords.y = uvs[i].y;
+
+				const ofbx::Vec3* tans = Geometry.getTangents();
+				Vertex.Tangent.x = tans[i].x;
+				Vertex.Tangent.y = tans[i].y;
+				Vertex.Tangent.z = tans[i].z;
+
+				ieVector3 TempTangent(tans[i].x, tans[i].y, tans[i].z);
+				ieVector3 Normal(Vertex.Normal.x, Vertex.Normal.y, Vertex.Normal.z);
+				ieVector3 BiTangent = TempTangent.Cross(Normal);
+				Vertex.BiTangent.x = BiTangent.x;
+				Vertex.BiTangent.y = BiTangent.y;
+				Vertex.BiTangent.z = BiTangent.z;
+			}
+
+			Verticies.push_back(Vertex);
+		}
+
+		const int* RawFaceIndicies = Geometry.getFaceIndices();
+		int IndexCount = Geometry.getIndexCount();
+		for (int i = 0; i < IndexCount; ++i)
+		{
+			int idx = RawFaceIndicies[i];
+
+			// If the index is negative in fbx that means it is the last index of that polygon.
+			// So, make it positive and subtrct one.
+			if (idx < 0)
+				idx = -(idx + 1);
+
+			Indices.push_back(idx);
+		}
+
+		return std::make_unique<Mesh>(Verticies, Indices);
+	}
+
+
 #endif
 }

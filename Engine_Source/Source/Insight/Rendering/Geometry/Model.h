@@ -54,10 +54,10 @@ namespace Insight {
 		bool LoadModelFromFile(const std::string& path);
 		
 #if defined (IE_PLATFORM_BUILD_WIN32)
-		unique_ptr<MeshNode> ParseNode_r(aiNode* pNode);
-		unique_ptr<Mesh> ProcessMesh(aiMesh* pMesh, const aiScene* pScene);
+		std::unique_ptr<MeshNode> AssimpParseNode_r(aiNode* pNode);
+		std::unique_ptr<Mesh> AssimpProcessMesh(aiMesh* pMesh, const aiScene* pScene);
 #elif defined (IE_PLATFORM_BUILD_UWP)
-
+		std::unique_ptr<Mesh> OFBXProcessMesh(const ofbx::Mesh& FBXMesh);
 #endif
 
 	private:
