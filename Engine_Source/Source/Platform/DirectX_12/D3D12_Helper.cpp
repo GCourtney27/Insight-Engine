@@ -97,15 +97,13 @@ namespace Insight {
 		UINT currentVideoCardMemory = 0;
 		DXGI_ADAPTER_DESC1 Desc;
 
-		auto CheckRayTracingSupport = [](ID3D12Device* pDevice) {
+		auto CheckRayTracingSupport = [](ID3D12Device* pDevice) 
+		{
 
 			D3D12_FEATURE_DATA_D3D12_OPTIONS5 Options5 = {};
 			ThrowIfFailed(pDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &Options5, sizeof(Options5)), "Failed to query feature support for ray trace with device.");
-			if (Options5.RaytracingTier < D3D12_RAYTRACING_TIER_1_0) {
-				IE_DEBUG_LOG(LogSeverity::Warning, "Ray tracing not supported on this device.");
-				return false;
-			}
-			return true;
+			if (Options5.RaytracingTier < D3D12_RAYTRACING_TIER_1_0) return false;
+			else return true;
 		};
 
 		for (UINT AdapterIndex = 0; DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapters1(AdapterIndex, &pAdapter); ++AdapterIndex)
@@ -114,22 +112,23 @@ namespace Insight {
 			pAdapter->GetDesc1(&Desc);
 
 			// Make sure we get the video card that is not a software adapter
-			// and it has the most video memory
+			// and it has the most video memory.
 			if (Desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE || Desc.DedicatedVideoMemory < currentVideoCardMemory) continue;
 
-			// Check if we can support ray tracing with the device
-			if (m_pRenderContextRef->GetIsRayTraceEnabled()) {
-
+			// Check if we can support ray tracing with the device.
+			if (m_pRenderContextRef->GetIsRayTraceEnabled()) 
+			{
+				// Pass in a temp device to poll feature support later.
 				Microsoft::WRL::ComPtr<ID3D12Device5> TempDevice;
-				if (SUCCEEDED(D3D12CreateDevice(pAdapter.Get(), D3D_FEATURE_LEVEL_12_1, __uuidof(ID3D12Device5), &TempDevice))) {
-					if (CheckRayTracingSupport(TempDevice.Get())) {
-
+				if (SUCCEEDED(D3D12CreateDevice(pAdapter.Get(), D3D_FEATURE_LEVEL_12_1, __uuidof(ID3D12Device5), &TempDevice))) 
+				{
+					if (CheckRayTracingSupport(TempDevice.Get())) 
+					{
 						currentVideoCardMemory = static_cast<UINT>(Desc.DedicatedVideoMemory);
-						if (*ppAdapter != nullptr) {
+						if (*ppAdapter != nullptr) 
 							(*ppAdapter)->Release();
-						}
+						
 						*ppAdapter = pAdapter.Detach();
-
 						m_pRenderContextRef->SetIsRayTraceSupported(true);
 
 						IE_DEBUG_LOG(LogSeverity::Warning, "Found suitable Direct3D 12 graphics hardware that can support ray tracing: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
@@ -138,16 +137,16 @@ namespace Insight {
 				}
 			}
 
-			// If we cannot support ray tracing, just see if D3D 12 is supported and create a default device
-			if (SUCCEEDED(D3D12CreateDevice(pAdapter.Get(), D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device), nullptr))) {
-
+			// If we cannot support ray tracing, just see if D3D 12 is supported and create a default device.
+			if (SUCCEEDED(D3D12CreateDevice(pAdapter.Get(), D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device), nullptr))) 
+			{
 				currentVideoCardMemory = static_cast<UINT>(Desc.DedicatedVideoMemory);
-				if (*ppAdapter != nullptr) {
+				if (*ppAdapter != nullptr) 
 					(*ppAdapter)->Release();
-				}
+				
 				*ppAdapter = pAdapter.Detach();
 
-				IE_DEBUG_LOG(LogSeverity::Warning, "Found suitable Direct3D 12 graphics hardware: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
+				IE_DEBUG_LOG(LogSeverity::Log, "Found suitable Direct3D 12 graphics hardware: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
 			}
 		}
 		Desc = {};

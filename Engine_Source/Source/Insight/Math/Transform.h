@@ -42,11 +42,11 @@ namespace Insight {
 		inline void SetRotation(const ieVector3& vector)	{ m_Rotation = vector; RotateLocalMatrix(); UpdateLocalMatrix(); }
 		inline void SetScale(const ieVector3& vector)		{ m_Scale = vector; ScaleLocalMatrix(); UpdateLocalMatrix(); }
 
-		inline const ieVector3& GetLocalForward()		const { return m_LocalForward; }
+		inline const ieVector3& GetLocalForward()	const { return m_LocalForward; }
 		inline const ieVector3& GetLocalBackward()	const { return m_LocalBackward; }
 		inline const ieVector3& GetLocalLeft()		const { return m_LocalLeft; }
 		inline const ieVector3& GetLocalRight()		const { return m_LocalRight; }
-		inline const ieVector3& GetLocalUp()			const { return m_LocalUp; }
+		inline const ieVector3& GetLocalUp()		const { return m_LocalUp; }
 		inline const ieVector3& GetLocalDown()		const { return m_LocalDown; }
 
 		void Translate(float x, float y, float z);

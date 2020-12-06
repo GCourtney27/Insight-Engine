@@ -33,6 +33,31 @@ namespace Insight {
 		return true;
 	}
 
+	char* FileSystem::ReadRawData(const char* Path, size_t& OutDataSize)
+	{
+		FILE* pFile = fopen(Path, "rb");
+		if (!pFile)
+		{
+			HRESULT hr = HRESULT_FROM_WIN32(GetLastError());
+			IE_DEBUG_LOG(LogSeverity::Error, "Failed to read raw file with path: \"{0}\"", Path);
+			OutDataSize = -1;
+			return nullptr;
+		}
+
+		// Get the size of the file.
+		fseek(pFile, 0, SEEK_END);
+		OutDataSize = ftell(pFile);
+		fseek(pFile, 0, SEEK_SET);
+		
+		// Fill the buffer with the data in the file.
+		char* FileContents = new char[OutDataSize];
+		fread(FileContents, 1, OutDataSize, pFile);
+
+		fclose(pFile);
+
+		return FileContents;
+	}
+
 	void FileSystem::SaveEngineUserSettings(Renderer::GraphicsSettings Settings)
 	{
 

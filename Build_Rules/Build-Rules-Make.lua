@@ -9,16 +9,17 @@ engineDirPath	= rootDirPath .. "Engine_Source/"
 monoInstallDir	= "C:/Program Files/Mono/"
 
 engineIncludeDirs = {}
-engineIncludeDirs["ImGui"] 	    	= engineDirPath .. "Third_Party/imgui/"
-engineIncludeDirs["ImGuizmo"] 		= engineDirPath .. "Third_Party/ImGuizmo/"
-engineIncludeDirs["Microsoft"] 		= engineDirPath .. "Third_Party/Microsoft/"
-engineIncludeDirs["rapidjson"]  	= engineDirPath .. "Third_Party/rapidjson/"
-engineIncludeDirs["spdlog"] 		= engineDirPath .. "Third_Party/spdlog/"
-engineIncludeDirs["Mono"] 			= monoInstallDir .. "include/mono-2.0/"
-engineIncludeDirs["assimp"] 		= engineDirPath .. "Third_Party/assimp-5.0.1/include/"
-engineIncludeDirs["OpenFBX"]		= engineDirPath .. "Third_Party/OpenFBX/src/"
-engineIncludeDirs["Nvidia"] 		= engineDirPath .. "Third_Party/Nvidia/"
-engineIncludeDirs["Engine_Source"] 	= rootDirPath .. "Engine_Source/"
+engineIncludeDirs["ImGui"] 	    		= engineDirPath .. "Third_Party/imgui/"
+engineIncludeDirs["ImGuizmo"] 			= engineDirPath .. "Third_Party/ImGuizmo/"
+engineIncludeDirs["Microsoft"] 			= engineDirPath .. "Third_Party/Microsoft/"
+engineIncludeDirs["rapidjson"]  		= engineDirPath .. "Third_Party/rapidjson/"
+engineIncludeDirs["spdlog"] 			= engineDirPath .. "Third_Party/spdlog/"
+engineIncludeDirs["Mono"] 				= monoInstallDir .. "include/mono-2.0/"
+engineIncludeDirs["assimp"] 			= engineDirPath .. "Third_Party/assimp-5.0.1/include/"
+engineIncludeDirs["OpenFBX"]			= engineDirPath .. "Third_Party/OpenFBX/src/"
+engineIncludeDirs["tinyobjloader"]		= engineDirPath .. "Third_Party/tinyobjloader/include/"
+engineIncludeDirs["Nvidia"] 			= engineDirPath .. "Third_Party/Nvidia/"
+engineIncludeDirs["Engine_Source"] 		= rootDirPath .. "Engine_Source/"
 
 -- Premake does not support UWP project generation
 -- So just add the Visual Studio created one.
@@ -79,6 +80,7 @@ project ("Engine_Build_UWP")
 		"%{engineIncludeDirs.assimp}",
 		"%{engineIncludeDirs.OpenFBX}",
 		"%{engineIncludeDirs.Microsoft}",
+		"%{engineIncludeDirs.tinyobjloader}",
         "%{engineIncludeDirs.Microsoft}DirectX12/WinPixEventRuntime.1.0.161208001/Include/",
 		"%{engineIncludeDirs.Microsoft}DirectX12/",
 		"%{engineIncludeDirs.Nvidia}DirectX12/",

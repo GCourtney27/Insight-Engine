@@ -8,6 +8,7 @@ engineThirdPartyDir = "../Engine_Source/Third_Party/"
 rootDirPath = "../"
 
 applicationIncludeDirs = {}
+applicationIncludeDirs["tinyobjloader"]				= engineThirdPartyDir .. "tinyobjloader/include/"
 applicationIncludeDirs["assimp"]					= engineThirdPartyDir .. "assimp-5.0.1/include/"
 applicationIncludeDirs["OpenFBX"]					= engineThirdPartyDir .. "OpenFBX/src/"
 applicationIncludeDirs["Microsoft"] 				= engineThirdPartyDir .. "Microsoft/"
@@ -60,6 +61,7 @@ project (projectName)
 	includedirs
 	{
 		"%{applicationIncludeDirs.OpenFBX}",
+		"%{applicationIncludeDirs.tinyobjloader}",
 		-- "%{applicationIncludeDirs.assimp}",
 		"%{applicationIncludeDirs.Microsoft}",
 		"%{applicationIncludeDirs.Microsoft}/DirectX12",

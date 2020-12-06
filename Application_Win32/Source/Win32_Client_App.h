@@ -220,7 +220,7 @@ namespace SandBoxApp {
 			pSCWoodenFloor->SetPosition(0.0f, -20.0f, 0.0f);
 			StaticMeshComponent* pSMQuad = pAWoodenFloor->CreateDefaultSubobject<StaticMeshComponent>();
 			pSMQuad->SetMaterial(pWood);
-			pSMQuad->AttachMesh("Models/Quad.obj");
+			pSMQuad->AttachMesh("Models/Quad.fbx");
 			GetScene().AddActor(pAWoodenFloor);
 
 			// Rusted Ball
@@ -231,7 +231,7 @@ namespace SandBoxApp {
 			Insight::Material* pRustedIron = new Insight::Material({ 6, 7, 8, 9, 10 });
 			StaticMeshComponent* pSMCube = pARustedBall->CreateDefaultSubobject<StaticMeshComponent>();
 			pSMCube->SetMaterial(pRustedIron);
-			pSMCube->AttachMesh("Models/Sphere.obj");
+			pSMCube->AttachMesh("Models/Sphere.fbx");
 			GetScene().AddActor(pARustedBall);
 
 			// Bamboo Ball
@@ -242,7 +242,7 @@ namespace SandBoxApp {
 			Insight::Material* pBamboo = new Insight::Material({ 11, 12, 13, 14, 15 });
 			StaticMeshComponent* pSMBall = pABambooBall->CreateDefaultSubobject<StaticMeshComponent>();
 			pSMBall->SetMaterial(pBamboo);
-			pSMBall->AttachMesh("Models/Sphere.obj");
+			pSMBall->AttachMesh("Models/Sphere.fbx");
 			GetScene().AddActor(pABambooBall);
 
 		}
