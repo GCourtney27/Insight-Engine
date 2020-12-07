@@ -227,8 +227,8 @@ namespace SandBoxApp {
 			pSMCube->AttachMesh("Models/Sphere.fbx");
 			GetScene().AddActor(pARustedBall);
 
-			// Bamboo Ball
-			AActor* pABambooBall = new AActor(0, "Bamboo Ball");
+			// Bamboo Cube
+			AActor* pABambooBall = new AActor(0, "Bamboo Cube");
 			SceneComponent* pSCBall = pABambooBall->CreateDefaultSubobject<SceneComponent>();
 			pSCBall->SetScale(20.0f);
 			pSCBall->SetPosition(-50.0f, 40.0f, 0.0f);

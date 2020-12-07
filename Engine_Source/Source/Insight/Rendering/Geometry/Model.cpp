@@ -169,70 +169,10 @@ namespace Insight {
 			}
 			delete[] FileContents;
 		}
-		else if (FileExtension == "OBJ" || FileExtension == "obj")
+		else 
 		{
-			std::string inputfile = "cornell_box.obj";
-			tinyobj::attrib_t attrib;
-			std::vector<tinyobj::shape_t> shapes;
-			std::vector<tinyobj::material_t> materials;
-			std::filebuf fb;
-			fb.open(path.c_str(), std::ios::in);
-			std::istream inStream(&fb);
-			std::string warn;
-			std::string err;
-			bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, &inStream, nullptr, true);
-			fb.close();
-			
-			// Loop over shapes
-			for (size_t s = 0; s < shapes.size(); s++) 
-			{
-				const tinyobj::mesh_t& mesh = shapes[s].mesh;
-
-				// Loop over faces(polygon)
-				size_t index_offset = 0;
-				std::vector<Vertex3D> Verticies; Verticies.reserve(mesh.num_face_vertices.size());
-				std::vector<DWORD> Indices;
-				for (size_t f = 0; f < mesh.num_face_vertices.size(); f++)
-				{
-					int NumVerticies = mesh.num_face_vertices[f];
-
-					// Loop over vertices in the face.
-					for (size_t v = 0; v < NumVerticies; v++)
-					{
-						Vertex3D Vertex;
-						// access to vertex
-						tinyobj::index_t idx = mesh.indices[index_offset + v];
-						Vertex.Position.x = attrib.vertices[3 * idx.vertex_index + 0];
-						Vertex.Position.y = attrib.vertices[3 * idx.vertex_index + 1];
-						Vertex.Position.z = attrib.vertices[3 * idx.vertex_index + 2];
-						Vertex.Normal.x = attrib.normals[3 * idx.normal_index + 0];
-						Vertex.Normal.y = attrib.normals[3 * idx.normal_index + 1];
-						Vertex.Normal.z = attrib.normals[3 * idx.normal_index + 2];
-						Vertex.TexCoords.x = attrib.texcoords[2 * idx.texcoord_index + 0];
-						Vertex.TexCoords.y = attrib.texcoords[2 * idx.texcoord_index + 1];
-
-						Verticies.push_back(Vertex);
-					} // verticies
-
-					index_offset += NumVerticies;
-				} // faces
-
-				size_t NumIndices = mesh.indices.size();
-				for (size_t i = 0; i < NumIndices; i++)
-				{
-					Indices.push_back(mesh.indices[i].vertex_index);
-				}
-
-				m_Meshes.push_back(std::make_unique<Mesh>(Verticies, Indices));
-			} // shapes
-
-			ieTransform transform;
-			transform.SetWorldMatrix(XMMatrixIdentity());
-			//shapes[0].mesh.tags[0].name;
-			std::vector<Mesh*> curMeshPtrs;
-			curMeshPtrs.push_back(m_Meshes[0].get());
-			m_pRoot = std::make_unique<MeshNode>(curMeshPtrs, transform, "Test");
-
+			IE_DEBUG_LOG(LogSeverity::Error, "Invalid mash filetype provided. ONly .FBX files are supported for UWP platforms.");
+			return false;
 		}
 #endif
 		return true;

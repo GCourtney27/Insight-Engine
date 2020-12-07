@@ -193,7 +193,10 @@ namespace Insight {
 				m_pModel.reset();
 			}
 			m_pModel = make_shared<Model>();
-			m_pModel->Create(AssestDirectoryRelPath, m_pMaterial);
+			if (!m_pModel->Create(AssestDirectoryRelPath, m_pMaterial)) {
+				m_pModel.reset();
+				return;
+			}
 
 			Material::eMaterialType MaterialType = m_pMaterial->GetMaterialType();
 
@@ -243,7 +246,8 @@ namespace Insight {
 
 		bool StaticMeshComponent::OnEventTranslation(TranslationEvent& e)
 		{
-			m_pModel->CalculateParent(e.TranslationInfo.WorldMat);
+			if(m_pModel)
+				m_pModel->CalculateParent(e.TranslationInfo.WorldMat);
 
 			return false;
 		}
