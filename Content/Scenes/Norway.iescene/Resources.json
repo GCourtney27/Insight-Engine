@@ -1,0 +1,284 @@
+{
+    "Textures":[
+        {
+            "Name": "WoodenPlanks_Albedo",
+            "ID": 1,
+            "Filepath": "Textures/WoodenPlanks/WoodenPlanks_Albedo.png",
+            "Type": 0,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "WoodenPlanks_Normal",
+            "ID": 2,
+            "Filepath": "Textures/WoodenPlanks/WoodenPlanks_Normal.png",
+            "Type": 1,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "WoodenPlanks_Roughness",
+            "ID": 3,
+            "Filepath": "Textures/WoodenPlanks/WoodenPlanks_Roughness.png",
+            "Type": 2,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "WoodenPlanks_Metallic",
+            "ID": 4,
+            "Filepath": "Textures/WoodenPlanks/WoodenPlanks_Metallic.png",
+            "Type": 3,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "WoodenPlanks_AO",
+            "ID": 5,
+            "Filepath": "Textures/WoodenPlanks/WoodenPlanks_AO.png",
+            "Type": 4,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "MuddyLeaves_Albedo",
+            "ID": 6,
+            "Filepath": "Textures/MudLeaves/MuddyLeaves_Albedo.jpg",
+            "Type": 0,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "MuddyLeaves_Normal",
+            "ID": 7,
+            "Filepath": "Textures/MudLeaves/MuddyLeaves_Normal.jpg",
+            "Type": 1,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "MuddyLeaves_Metallic",
+            "ID": 8,
+            "Filepath": "Textures/MudLeaves/MuddyLeaves_Specular.jpg",
+            "Type": 3,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "MuddyLeaves_Roughness",
+            "ID": 9,
+            "Filepath": "Textures/MudLeaves/MuddyLeaves_Roughness.jpg",
+            "Type": 2,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "MuddyLeaves_AO",
+            "ID": 10,
+            "Filepath": "Textures/MudLeaves/MuddyLeaves_AO.jpg",
+            "Type": 4,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "WoodenPlanks_Albedo",
+            "ID": 11,
+            "Filepath": "Textures/WoodenPlanks/WoodenPlanks_Albedo.png",
+            "Type": 0,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "WoodenPlanks_Normal",
+            "ID": 12,
+            "Filepath": "Textures/WoodenPlanks/WoodenPlanks_Normal.png",
+            "Type": 1,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "WoodenPlanks_Metallic",
+            "ID": 13,
+            "Filepath": "Textures/WoodenPlanks/WoodenPlanks_Metallic.png",
+            "Type": 3,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "WoodenPlanks_Roughness",
+            "ID": 14,
+            "Filepath": "Textures/WoodenPlanks/WoodenPlanks_Roughness.png",
+            "Type": 2,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "WoodenPlanks_AO",
+            "ID": 15,
+            "Filepath": "Textures/WoodenPlanks/WoodenPlanks_AO.png",
+            "Type": 4,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "RedWood_Albedo",
+            "ID": 16,
+            "Filepath": "Objects/Norway/House/Textures/RedWood/RedWood_Albedo.jpg",
+            "Type": 0,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "RedWood_Normal",
+            "ID": 17,
+            "Filepath": "Objects/Norway/House/Textures/RedWood/RedWood_Normal.jpg",
+            "Type": 1,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "RedWood_Specular",
+            "ID": 18,
+            "Filepath": "Objects/Norway/House/Textures/RedWood/RedWood_Specular.jpg",
+            "Type": 3,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "RedWood_Roughness",
+            "ID": 19,
+            "Filepath": "Objects/Norway/House/Textures/RedWood/RedWood_Roughness.jpg",
+            "Type": 2,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "RedWood_AO",
+            "ID": 20,
+            "Filepath": "Objects/Norway/House/Textures/RedWood/RedWood_AO.jpg",
+            "Type": 4,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "WhiteWood_Albedo",
+            "ID": 21,
+            "Filepath": "Objects/Norway/House/Textures/WhiteWood/WhiteWood_Albedo.jpg",
+            "Type": 0,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "WhiteWood_Normal",
+            "ID": 22,
+            "Filepath": "Objects/Norway/House/Textures/WhiteWood/WhiteWood_Normal.jpg",
+            "Type": 1,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "WhiteWood_Metallic",
+            "ID": 23,
+            "Filepath": "Objects/Norway/House/Textures/WhiteWood/WhiteWood_Metallic.jpg",
+            "Type": 3,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "WhiteWood_Roughness",
+            "ID": 24,
+            "Filepath": "Objects/Norway/House/Textures/WhiteWood/WhiteWood_Roughness.jpg",
+            "Type": 2,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "WhiteWood_Roughness",
+            "ID": 25,
+            "Filepath": "Objects/Norway/House/Textures/WhiteWood/WhiteWood_Roughness.jpg",
+            "Type": 4,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "FactoryWall_Albedo",
+            "ID": 26,
+            "Filepath": "Objects/Norway/House/Textures/FactoryWall/FactoryWall_Albedo.png",
+            "Type": 0,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "FactoryWall_Normal",
+            "ID": 27,
+            "Filepath": "Objects/Norway/House/Textures/FactoryWall/FactoryWall_Normal.png",
+            "Type": 1,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "FactoryWall_Specular",
+            "ID": 28,
+            "Filepath": "Objects/Norway/House/Textures/FactoryWall/FactoryWall_Specular.png",
+            "Type": 3,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "FactoryWall_Roughness",
+            "ID": 29,
+            "Filepath": "Objects/Norway/House/Textures/FactoryWall/FactoryWall_Roughness.png",
+            "Type": 2,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "FactoryWall_AO",
+            "ID": 30,
+            "Filepath": "Objects/Norway/House/Textures/FactoryWall/FactoryWall_AO.png",
+            "Type": 4,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "WornWoodPlanks_Albedo",
+            "ID": 31,
+            "Filepath": "Objects/Norway/Opaque/WornWoodPlanks/WornWoodPlanks_Albedo.jpg",
+            "Type": 0,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "WornWoodPlanks_Normal",
+            "ID": 32,
+            "Filepath": "Objects/Norway/Opaque/WornWoodPlanks/WornWoodPlanks_Normal.jpg",
+            "Type": 1,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "WornWoodPlanks_Specular",
+            "ID": 33,
+            "Filepath": "Objects/Norway/Opaque/WornWoodPlanks/WornWoodPlanks_Specular.jpg",
+            "Type": 3,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "WordWoodPlanks_Roughness",
+            "ID": 34,
+            "Filepath": "Objects/Norway/Opaque/WornWoodPlanks/WornWoodPlanks_Roughness.jpg",
+            "Type": 2,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "WornWoodPlanks_AO",
+            "ID": 35,
+            "Filepath": "Objects/Norway/Opaque/WornWoodPlanks/WornWoodPlanks_AO.jpg",
+            "Type": 4,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "RustedIron_Albedo",
+            "ID": 36,
+            "Filepath": "Textures/1911/M1911_01_16-bit_Diffuse.png",
+            "Type": 0,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "RustedIron_Normal",
+            "ID": 37,
+            "Filepath": "Textures/1911/M1911_01_16-bit_Normal.png",
+            "Type": 1,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "RustedIron_Specular",
+            "ID": 38,
+            "Filepath": "Textures/1911/M1911_01_16-bit_Metallic.png",
+            "Type": 3,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "RustedIron_Roughness",
+            "ID": 39,
+            "Filepath": "Textures/1911/M1911_01_16-bit_Roughness.png",
+            "Type": 2,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "RustedIron_AO",
+            "ID": 40,
+            "Filepath": "Textures/1911/M1911_01_16-bit_Height.png",
+            "Type": 4,
+            "GenerateMipMaps": true
+        }
+    ]
+}

@@ -1,0 +1,45 @@
+# CMake generation dependency list for this directory.
+C:/Program Files/CMake/share/cmake-3.18/Modules/CMakeCInformation.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/CMakeCXXInformation.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/CMakeCommonLanguageInclude.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/CMakeGenericSystem.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/CMakeInitializeConfigs.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/CMakeLanguageInformation.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/CMakeParseArguments.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/CMakeRCInformation.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/CMakeSystemSpecificInformation.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/CMakeSystemSpecificInitialize.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/CheckFunctionExists.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/CheckIncludeFile.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/CheckIncludeFileCXX.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/CheckTypeSize.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/Compiler/CMakeCommonCompilerMacros.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/Compiler/MSVC-C.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/Compiler/MSVC-CXX.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/FindPackageMessage.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/FindPkgConfig.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/Platform/Windows-MSVC-C.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/Platform/Windows-MSVC-CXX.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/Platform/Windows-MSVC.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/Platform/Windows.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/Platform/WindowsPaths.cmake
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/CMakeLists.txt
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/assimp-config-version.cmake.in
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/assimp-config.cmake.in
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/assimp.pc.in
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/assimpTargets-debug.cmake.in
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/assimpTargets-release.cmake.in
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/assimpTargets.cmake.in
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/build/CMakeFiles/3.18.4/CMakeCCompiler.cmake
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/build/CMakeFiles/3.18.4/CMakeCXXCompiler.cmake
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/build/CMakeFiles/3.18.4/CMakeRCCompiler.cmake
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/build/CMakeFiles/3.18.4/CMakeSystem.cmake
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/cmake-modules/FindDirectX.cmake
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/cmake-modules/FindPkgMacros.cmake
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/cmake-modules/FindZLIB.cmake
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/cmake-modules/PrecompiledHeader.cmake
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/cmake-modules/cmake_uninstall.cmake.in
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/cmake/HunterGate.cmake
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/include/assimp/config.h.in
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/revision.h.in
