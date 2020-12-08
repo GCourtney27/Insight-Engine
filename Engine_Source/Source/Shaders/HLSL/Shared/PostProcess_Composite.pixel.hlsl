@@ -16,7 +16,7 @@ RWTexture2D<float4> rw_BloomPassResult : register(u1);
 // Samplers
 // --------
 sampler s_PointClampSampler : register(s0);
-SamplerState s_LinearWrapSampler : register(s1);
+sampler s_LinearWrapSampler : register(s1);
 
 // Function Signatures
 // -------------------
@@ -42,7 +42,7 @@ float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
 {
 	float3 LightPassResult = t_LightPassResult.Sample(s_PointClampSampler, ps_in.texCoords).rgb;
 	
-	float3 result = LightPassResult;
+    float3 result = LightPassResult;
 	
 	if (blEnabled)
 	{

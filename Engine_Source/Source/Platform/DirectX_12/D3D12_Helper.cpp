@@ -280,15 +280,21 @@ namespace Insight {
 
 		m_FenceEvent = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
 		if (m_FenceEvent == nullptr) THROW_COM_ERROR("Fence Event was nullptr");
+
+		m_ComputeFenceEvent = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
+		if (m_ComputeFenceEvent == nullptr) THROW_COM_ERROR("Fence Event was nullptr");
 	}
 
 	void D3D12Helper::MoveToNextFrame()
 	{
 		HRESULT hr;
 
-		// Schedule a Signal command in the queue.
+		// Schedule a Signal command in the queues.
 		const UINT64 currentFenceValue = m_FenceValues[m_FrameIndex];
 		hr = m_pGraphicsCommandQueue->Signal(m_pFence.Get(), currentFenceValue);
+		ThrowIfFailed(hr, "Failed to signal fence on Command Queue");
+
+		hr = m_pComputeCommandQueue->Signal(m_pFence.Get(), currentFenceValue);
 		ThrowIfFailed(hr, "Failed to signal fence on Command Queue");
 
 		// Advance the frame index.
@@ -297,9 +303,15 @@ namespace Insight {
 		// Check to see if the next frame is ready to start.
 		if (m_pFence->GetCompletedValue() < m_FenceValues[m_FrameIndex])
 		{
+			// Wait for the submitted work on the graphics queue to finish.
 			hr = m_pFence->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_FenceEvent);
 			ThrowIfFailed(hr, "Failed to set completion event on fence");
 			WaitForSingleObjectEx(m_FenceEvent, INFINITE, FALSE);
+			
+			// Wait for the submitted work on the compute queue to finish.
+			hr = m_pFence->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_ComputeFenceEvent);
+			ThrowIfFailed(hr, "Failed to set completion event on fence");
+			WaitForSingleObjectEx(m_ComputeFenceEvent, INFINITE, FALSE);
 		}
 
 		// Set the fence value for the next frame.
@@ -314,6 +326,13 @@ namespace Insight {
 		// Wait until the fence has been processed.
 		ThrowIfFailed(m_pFence->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_FenceEvent), "Failed to set completion event on fence.");
 		WaitForSingleObjectEx(m_FenceEvent, INFINITE, FALSE);
+		
+		// Schedule a Signal command in the queue.
+		ThrowIfFailed(m_pComputeCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]), "Fialed to signal fence event on graphics command queue.");
+
+		// Wait until the fence has been processed.
+		ThrowIfFailed(m_pFence->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_ComputeFenceEvent), "Failed to set completion event on fence.");
+		WaitForSingleObjectEx(m_ComputeFenceEvent, INFINITE, FALSE);
 
 		// Increment the fence value for the current frame.
 		m_FenceValues[m_FrameIndex]++;

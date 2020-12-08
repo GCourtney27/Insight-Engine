@@ -629,6 +629,7 @@ namespace Insight {
 			m_pCommandListRef->SetPipelineState(m_pPipelineState.Get());
 
 			// Bind resources to the pipeline.
+			m_pCommandListRef->SetGraphicsRootDescriptorTable(5, m_pCBVSRVHeapRef->hGPU(0)); // G-Buffer textures with depth buffer
 			m_pCommandListRef->SetGraphicsRootDescriptorTable(16, m_pCBVSRVHeapRef->hGPU(5)); // Light Pass result
 			m_pCommandListRef->SetGraphicsRootDescriptorTable(18, m_pCBVSRVHeapRef->hGPU(9)); // Bloom Pass result
 			pFrameResources->m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pCommandListRef.Get(), 1);
@@ -789,7 +790,7 @@ namespace Insight {
 	/*		Bloom Pass		 */
 	/*=======================*/
 
-	void BloomPass::InitHelpers(ComPtr<ID3D12GraphicsCommandList> pCommandList)
+	void BloomPass::InitHelpers(ComPtr<ID3D12GraphicsCommandList> pFirstPassCommandList, ComPtr<ID3D12GraphicsCommandList> pSecondPassCommandList)
 	{
 		uint32_t WindowWidth = m_pRenderContextRef->GetWindowRef().GetWidth();
 		uint32_t WindowHeight = m_pRenderContextRef->GetWindowRef().GetHeight();
@@ -798,14 +799,16 @@ namespace Insight {
 		m_DownSampleHelper.Create(
 			&m_pRenderContextRef->GetDeviceContext(),
 			{ WindowWidth, WindowHeight }, 
-			pCommandList, 
+			pFirstPassCommandList,
 			m_pCBVSRVHeapRef->hGPU(8),
 			m_pCBVSRVHeapRef->hGPU(9)
 		);
-		
+
 		m_GaussianBlurHelper.Create(
+			m_pRenderContextRef,
 			&m_pRenderContextRef->GetDeviceContext(),
-			pCommandList,
+			pFirstPassCommandList,
+			pSecondPassCommandList,
 			{ WindowWidth, WindowHeight },
 			m_pDownsampleResult_UAV, m_pCBVSRVHeapRef->hGPU(9),
 			m_pDownsampleResult_SRV, m_pCBVSRVHeapRef->hGPU(10),
@@ -816,7 +819,7 @@ namespace Insight {
 
 	bool BloomPass::Set(FrameResources* pFrameResources)
 	{
-		BeginTrackRenderEvent(m_pCommandListRef.Get(), 0, L"Computing Bloom Blur Pass");
+		BeginTrackRenderEvent(m_pCommandListRef.Get(), 0, L"Computing Bloom Pass");
 		{
 			ID3D12DescriptorHeap* ppHeaps[] = { m_pCBVSRVHeapRef->pDH.Get() };
 			m_pCommandListRef->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);

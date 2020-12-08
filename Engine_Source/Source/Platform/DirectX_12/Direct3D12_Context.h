@@ -143,6 +143,7 @@ namespace Insight {
 
 		inline ID3D12Device& GetDeviceContext() const { return m_DeviceResources.GetDeviceContext(); }
 		inline DXGI_FORMAT GetSwapChainBackBufferFormat() const { return m_DeviceResources.GetSwapChainBackBufferFormat(); }
+		inline D3D12Helper& GetDeviceResources() { return m_DeviceResources; }
 
 		inline ID3D12GraphicsCommandList& GetScenePassCommandList() const { return *m_pScenePass_CommandList.Get(); }
 		inline ID3D12GraphicsCommandList& GetPostProcessPassCommandList() const { return *m_pPostEffectsPass_CommandList.Get(); }
@@ -179,6 +180,12 @@ namespace Insight {
 			return Handle;
 		}
 
+		void TempReset()
+		{
+			ThrowIfFailed(m_pBloomFirstPass_CommandList->Reset(m_pBloomFirstPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
+				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
+
+		}
 		
 	private:
 		Direct3D12Context();
@@ -191,7 +198,6 @@ namespace Insight {
 		void BindShadowPass();
 		void BindTransparencyPass();
 		void DrawDebugScreenQuad();
-		void BlurBloomBuffer();
 
 		// D3D12 Initialize
 		
@@ -258,8 +264,10 @@ namespace Insight {
 		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>		m_pTransparencyPass_CommandAllocators[m_FrameBufferCount];
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>	m_pPostEffectsPass_CommandList;
 		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>		m_pPostEffectsPass_CommandAllocators[m_FrameBufferCount];
-		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>	m_pDownSample_CommandList;
-		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>		m_pDownSample_CommandAllocators[m_FrameBufferCount];
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>	m_pBloomFirstPass_CommandList;
+		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>		m_pBloomFirstPass_CommandAllocators[m_FrameBufferCount];
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>	m_pBloomSecondPass_CommandList;
+		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>		m_pBloomSecondPass_CommandAllocators[m_FrameBufferCount];
 
 		Microsoft::WRL::ComPtr<ID3D12Resource>				m_pSwapChainRenderTargets[m_FrameBufferCount];
 		

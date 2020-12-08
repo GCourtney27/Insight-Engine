@@ -18,7 +18,7 @@
 #include "Platform/DirectX_12/Geometry/D3D12_Index_Buffer.h"
 #include "Platform/DirectX_12/Geometry/D3D12_Sphere_Renderer.h"
 
-#define BLOOM_ENABLED 0
+#define BLOOM_ENABLED 1
 
 namespace Insight {
 
@@ -102,8 +102,8 @@ namespace Insight {
 
 #if BLOOM_ENABLED
 						// Create the Bloom Pass ad push it to the render stack.
-						m_BloomPass.Create(this, &m_cbvsrvHeap, m_pDownSample_CommandList.Get(), nullptr);
-						m_BloomPass.InitHelpers(m_pDownSample_CommandList);
+						m_BloomPass.Create(this, &m_cbvsrvHeap, m_pBloomFirstPass_CommandList.Get(), nullptr);
+						m_BloomPass.InitHelpers(m_pBloomFirstPass_CommandList, m_pBloomSecondPass_CommandList.Get());
 						m_RenderPassStack.PushPassOverlay(&m_BloomPass);
 #endif
 						// Create the Post Process Composite Pass ad push it to the render stack.
@@ -210,7 +210,10 @@ namespace Insight {
 			ThrowIfFailed(m_pPostEffectsPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
 #if BLOOM_ENABLED
-			ThrowIfFailed(m_pDownSample_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
+			ThrowIfFailed(m_pBloomFirstPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
+				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
+
+			ThrowIfFailed(m_pBloomSecondPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
 #endif // BLOOM_ENABLED
 
@@ -235,7 +238,11 @@ namespace Insight {
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 
 #if BLOOM_ENABLED
-			ThrowIfFailed(m_pDownSample_CommandList->Reset(m_pDownSample_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
+			m_pBloomFirstPass_CommandList->Close();
+			ThrowIfFailed(m_pBloomFirstPass_CommandList->Reset(m_pBloomFirstPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
+				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
+			
+			ThrowIfFailed(m_pBloomSecondPass_CommandList->Reset(m_pBloomSecondPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 #endif
 			if (m_GraphicsSettings.RayTraceEnabled) {
@@ -336,7 +343,7 @@ namespace Insight {
 		//BindLightingPass();
 		
 #if BLOOM_ENABLED
-		BlurBloomBuffer();
+		//BlurBloomBuffer();
 #endif // BLOOM_ENABLED
 
 		//BindPostFxPass();
@@ -401,84 +408,6 @@ namespace Insight {
 		EndTrackRenderEvent(m_pPostEffectsPass_CommandList.Get());
 	}
 
-	void Direct3D12Context::BlurBloomBuffer()
-	{
-		RETURN_IF_WINDOW_NOT_VISIBLE;
-
-		constexpr UINT ThreadsPerPixel = 16U;
-
-		BeginTrackRenderEvent(m_pDownSample_CommandList.Get(), 0, L"Computing Bloom Blur Pass");
-		{
-			ID3D12DescriptorHeap* ppHeaps[] = { m_cbvsrvHeap.pDH.Get() };
-			m_pDownSample_CommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
-
-			// Down sample the buffer
-			BeginTrackRenderEvent(m_pDownSample_CommandList.Get(), 0, L"Down-sampling the bloom texture");
-			{
-				m_pDownSample_CommandList->SetPipelineState(m_pThresholdDownSample_PSO.Get());
-				m_pDownSample_CommandList->SetComputeRootSignature(m_pBloomPass_RS.Get());
-
-				m_FrameResources.m_CBDownSampleParams.Data.Threshold = 0.5f;
-				m_FrameResources.m_CBDownSampleParams.SubmitToGPU();
-				m_FrameResources.m_CBDownSampleParams.SetAsComputeRootConstantBufferView(m_pDownSample_CommandList.Get(), 0);
-				m_pDownSample_CommandList->SetComputeRootDescriptorTable(1, m_cbvsrvHeap.hGPU(8));
-				m_pDownSample_CommandList->SetComputeRootDescriptorTable(2, m_cbvsrvHeap.hGPU(9));
-
-				//m_pDownSample_CommandList->Dispatch(m_WindowWidth / ThreadsPerPixel, m_WindowHeight / ThreadsPerPixel, 1);
-			}
-			EndTrackRenderEvent(m_pDownSample_CommandList.Get());
-
-			m_pDownSample_CommandList->SetPipelineState(m_pGaussianBlur_PSO.Get());
-
-			// Begin blur, two passes, horizontal then vertical
-			// Horizontal Pass
-			// ---------------
-			BeginTrackRenderEvent(m_pDownSample_CommandList.Get(), 0, L"Blurring bloom texture HORIZONTALLY");
-			{
-				ResourceBarrier(m_pDownSample_CommandList.Get(), m_pBloomBlurResult_UAV.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
-				// Copy the UAV to a shader readable SRV
-				ResourceBarrier(m_pDownSample_CommandList.Get(), m_pBloomBlurResult_SRV.Get(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
-				m_pDownSample_CommandList->CopyResource(m_pBloomBlurResult_SRV.Get(), m_pBloomBlurResult_UAV.Get());
-				ResourceBarrier(m_pDownSample_CommandList.Get(), m_pBloomBlurResult_SRV.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-				ResourceBarrier(m_pDownSample_CommandList.Get(), m_pBloomBlurResult_UAV.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-
-
-				m_pDownSample_CommandList->SetComputeRootDescriptorTable(1, m_cbvsrvHeap.hGPU(10)); // Set the SRV of the down sampled bloom texture
-				m_pDownSample_CommandList->SetComputeRootDescriptorTable(2, m_cbvsrvHeap.hGPU(11)); // Set the UAV for the intermediate buffer
-
-				m_FrameResources.m_CBBlurParams.Data.Direction = 0;
-				m_FrameResources.m_CBBlurParams.SubmitToGPU();
-				m_FrameResources.m_CBBlurParams.SetAsComputeRootConstantBufferView(m_pDownSample_CommandList.Get(), 0);
-
-				//m_pDownSample_CommandList->Dispatch(m_WindowWidth / ThreadsPerPixel, m_WindowHeight / ThreadsPerPixel, 1);
-			}
-			EndTrackRenderEvent(m_pDownSample_CommandList.Get());
-
-			// Vertical Pass
-			// -------------
-			BeginTrackRenderEvent(m_pDownSample_CommandList.Get(), 0, L"Blurring bloom texture VERTICALLY");
-			{
-				ResourceBarrier(m_pDownSample_CommandList.Get(), m_pBloomBlurIntermediateBuffer_UAV.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
-				// Copy the UAV to a shader readable SRV
-				ResourceBarrier(m_pDownSample_CommandList.Get(), m_pBloomBlurIntermediateBuffer_SRV.Get(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
-				m_pDownSample_CommandList->CopyResource(m_pBloomBlurIntermediateBuffer_SRV.Get(), m_pBloomBlurIntermediateBuffer_UAV.Get());
-				ResourceBarrier(m_pDownSample_CommandList.Get(), m_pBloomBlurIntermediateBuffer_SRV.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-				ResourceBarrier(m_pDownSample_CommandList.Get(), m_pBloomBlurIntermediateBuffer_UAV.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-
-				m_FrameResources.m_CBBlurParams.Data.Direction = 1;
-				m_FrameResources.m_CBBlurParams.SubmitToGPU();
-				m_FrameResources.m_CBBlurParams.SetAsComputeRootConstantBufferView(m_pDownSample_CommandList.Get(), 0);
-
-				m_pDownSample_CommandList->SetComputeRootDescriptorTable(1, m_cbvsrvHeap.hGPU(12)); // Set the SRV of the down sampled intermediate bloom texture
-				m_pDownSample_CommandList->SetComputeRootDescriptorTable(2, m_cbvsrvHeap.hGPU(9)); // Set the origional UAV for final blur pass
-
-				//m_pDownSample_CommandList->Dispatch(m_WindowWidth / ThreadsPerPixel, m_WindowHeight / ThreadsPerPixel, 1);
-			}
-			EndTrackRenderEvent(m_pDownSample_CommandList.Get());
-		}
-		EndTrackRenderEvent(m_pDownSample_CommandList.Get());
-	}
-
 	void Direct3D12Context::ExecuteDraw_Impl()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
@@ -493,7 +422,7 @@ namespace Insight {
 		//ThrowIfFailed(m_pTransparencyPass_CommandList->Close(), "Failed to close the command list for D3D 12 context transparency pass.");
 		ThrowIfFailed(m_pPostEffectsPass_CommandList->Close(), "Failed to close the command list for D3D 12 context post-process pass.");
 #if BLOOM_ENABLED
-		ThrowIfFailed(m_pDownSample_CommandList->Close(), "Failed to close command list for D3D 12 context bloom blur pass.");
+		ThrowIfFailed(m_pBloomSecondPass_CommandList->Close(), "Failed to close command list for D3D 12 context bloom blur pass.");
 #endif
 		if (m_GraphicsSettings.RayTraceEnabled) 
 			ThrowIfFailed(m_pRayTracePass_CommandList->Close(), "Failed to close the command list for D3D 12 context ray trace pass.");
@@ -515,15 +444,15 @@ namespace Insight {
 		// Bloom Compute
 #if BLOOM_ENABLED
 		ID3D12CommandList* ppComputeLists[] = {
-			m_pDownSample_CommandList.Get(),
+			m_pBloomSecondPass_CommandList.Get(),
 		};
-		m_d3dDeviceResources.GetComputeCommandQueue().ExecuteCommandLists(_countof(ppComputeLists), ppComputeLists);
+		m_DeviceResources.GetComputeCommandQueue().ExecuteCommandLists(_countof(ppComputeLists), ppComputeLists);
 
 		// Post Process Pass
 		ID3D12CommandList* ppPostFxPassLists[] = {
 			m_pPostEffectsPass_CommandList.Get(),
 		};
-		m_d3dDeviceResources.GetGraphicsCommandQueue().ExecuteCommandLists(_countof(ppPostFxPassLists), ppPostFxPassLists);
+		m_DeviceResources.GetGraphicsCommandQueue().ExecuteCommandLists(_countof(ppPostFxPassLists), ppPostFxPassLists);
 
 #endif // BLOOM_ENABLED
 
@@ -1285,18 +1214,33 @@ namespace Insight {
 
 		// Gaussian Blur Pass
 		{
+			// First Pass
 			for (int i = 0; i < m_FrameBufferCount; i++)
 			{
-				hr = m_DeviceResources.GetDeviceContext().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_COMPUTE, IID_PPV_ARGS(&m_pDownSample_CommandAllocators[i]));
+				hr = m_DeviceResources.GetDeviceContext().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_COMPUTE, IID_PPV_ARGS(&m_pBloomFirstPass_CommandAllocators[i]));
 				ThrowIfFailed(hr, "Failed to Create Command Allocator for D3D 12 context");
-				m_pDownSample_CommandAllocators[i]->SetName(L"Gaussian Blur Command Allocator");
+				m_pBloomFirstPass_CommandAllocators[i]->SetName(L"Gaussian Blur Command Allocator");
 			}
 
-			hr = m_DeviceResources.GetDeviceContext().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COMPUTE, m_pDownSample_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pDownSample_CommandList));
+			hr = m_DeviceResources.GetDeviceContext().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COMPUTE, m_pBloomFirstPass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pBloomFirstPass_CommandList));
 			ThrowIfFailed(hr, "Failed to Create Gaussian Blur Command List for D3D 12 context");
-			m_pDownSample_CommandList->SetName(L"Gaussian Blur Command List");
+			m_pBloomFirstPass_CommandList->SetName(L"Gaussian Blur Command List");
 
-			m_pDownSample_CommandList->Close();
+			m_pBloomFirstPass_CommandList->Close();
+		
+			// Second Pass
+			for (int i = 0; i < m_FrameBufferCount; i++)
+			{
+				hr = m_DeviceResources.GetDeviceContext().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_COMPUTE, IID_PPV_ARGS(&m_pBloomSecondPass_CommandAllocators[i]));
+				ThrowIfFailed(hr, "Failed to Create Command Allocator for D3D 12 context");
+				m_pBloomSecondPass_CommandAllocators[i]->SetName(L"Gaussian Blur Command Allocator");
+			}
+
+			hr = m_DeviceResources.GetDeviceContext().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COMPUTE, m_pBloomSecondPass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pBloomSecondPass_CommandList));
+			ThrowIfFailed(hr, "Failed to Create Gaussian Blur Command List for D3D 12 context");
+			m_pBloomSecondPass_CommandList->SetName(L"Gaussian Blur Command List");
+
+			m_pBloomSecondPass_CommandList->Close();
 		}
 
 		// Ray Trace Pass

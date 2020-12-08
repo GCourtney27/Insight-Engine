@@ -325,15 +325,15 @@ namespace Insight {
 			Create the downsampler and assigned the resources it will depend on.
 			@param pCommandList - The command list the downsampler will execute on.
 		*/
-		void InitHelpers(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pCommandList);
+		void InitHelpers(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pFirstPassCommandList, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pSecondPassCommandList);
 
 		void ResizeHelperBuffers()
 		{
 			m_DownSampleHelper.SetSRVSourceHandle(m_pCBVSRVHeapRef->hGPU(8));
 			m_DownSampleHelper.SetUAVDestinationHandle(m_pCBVSRVHeapRef->hGPU(9));
 		
-			m_GaussianBlurHelper.SetSourceSRV(m_pDownsampleResult_SRV, m_pCBVSRVHeapRef->hGPU(9));
-			m_GaussianBlurHelper.SetSourceUAV(m_pDownsampleResult_UAV, m_pCBVSRVHeapRef->hGPU(10));
+			m_GaussianBlurHelper.SetSourceUAV(m_pDownsampleResult_UAV, m_pCBVSRVHeapRef->hGPU(9));
+			m_GaussianBlurHelper.SetSourceSRV(m_pDownsampleResult_SRV, m_pCBVSRVHeapRef->hGPU(10));
 			m_GaussianBlurHelper.SetIntermediateUAV(m_pIntermediateBuffer_UAV, m_pCBVSRVHeapRef->hGPU(11));
 			m_GaussianBlurHelper.SetIntermediateSRV(m_pIntermediateBuffer_SRV, m_pCBVSRVHeapRef->hGPU(12));
 		}
