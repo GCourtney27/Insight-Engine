@@ -43,7 +43,7 @@ namespace Insight {
 		CreateScissorRect();
 		CreateSamplers();
 
-		//m_DeferredShadingTech.Init(m_pDevice.Get(), m_pDeviceContext.Get(), m_pWindow);
+		m_DeferredShadingTech.Init(m_pDevice.Get(), m_pDeviceContext.Get(), m_pWindowRef.get());
 		LoadAssets();
 
 		return true;
@@ -105,29 +105,23 @@ namespace Insight {
 
 		static float WorldTime;
 		WorldTime += DeltaMs;
-		/*uint32_t WindowWidth = GetWindowRef().GetWidth() / 2u;
-		uint32_t WindowHeight = GetWindowRef().GetHeight() / 2u;*/
 
 		// Send Per-Frame Data to GPU
-		/*XMFLOAT4X4 viewFloat;
-		XMStoreFloat4x4(&viewFloat, XMMatrixTranspose(m_pWorldCamera->GetViewMatrix()));
-		XMFLOAT4X4 projectionFloat;
-		XMStoreFloat4x4(&projectionFloat, XMMatrixTranspose(m_pWorldCamera->GetProjectionMatrix()));
 		m_PerFrameData.Data.DeltaMs = DeltaMs;
-		m_PerFrameData.Data.view = viewFloat;
-		m_PerFrameData.Data.projection = projectionFloat;*/
+		m_PerFrameData.Data.View = m_pWorldCameraRef->GetViewMatrix();
+		m_PerFrameData.Data.Projection = m_pWorldCameraRef->GetProjectionMatrix();
 		m_PerFrameData.Data.CameraPosition = m_pWorldCameraRef->GetPosition();
 		m_PerFrameData.Data.DeltaMs = DeltaMs;
 		m_PerFrameData.Data.WorldTime = WorldTime;
-		m_PerFrameData.Data.RayTraceEnabled = 0.0f;
+		m_PerFrameData.Data.RayTraceEnabled = false;
 		m_PerFrameData.Data.CameraNearZ = m_pWorldCameraRef->GetNearZ();
 		m_PerFrameData.Data.CameraFarZ = m_pWorldCameraRef->GetFarZ();
 		m_PerFrameData.Data.CameraExposure = m_pWorldCameraRef->GetExposure();
 		m_PerFrameData.Data.NumPointLights = (float)m_PointLights.size();
 		m_PerFrameData.Data.NumDirectionalLights = (m_pWorldDirectionalLight != nullptr) ? 1.0f : 0.0f;
 		m_PerFrameData.Data.NumSpotLights = (float)m_SpotLights.size();
-		//m_PerFrameData.Data.ScreenSize.x = (float)WindowWidth;
-		//m_PerFrameData.Data.ScreenSize.y = (float)WindowHeight;
+		m_PerFrameData.Data.ScreenSize.x = (float)m_pWindowRef->GetWidth();
+		m_PerFrameData.Data.ScreenSize.y = (float)m_pWindowRef->GetHeight();
 		m_PerFrameData.SubmitToGPU();
 
 		// Send Point Lights to GPU
@@ -263,7 +257,7 @@ namespace Insight {
 
 				DXGI_SWAP_CHAIN_DESC SwapChainDesc = {};
 				m_pSwapChain->GetDesc(&SwapChainDesc);
-				//hr = m_pSwapChain->ResizeBuffers(m_FrameBufferCount, m_WindowWidth, m_WindowHeight, SwapChainDesc.BufferDesc.Format, SwapChainDesc.Flags);
+				hr = m_pSwapChain->ResizeBuffers(m_FrameBufferCount, m_pWindowRef->GetWidth(), m_pWindowRef->GetHeight(), SwapChainDesc.BufferDesc.Format, SwapChainDesc.Flags);
 				ThrowIfFailed(hr, "Failed to resize swap chain buffers for D3D 11 context.");
 
 				BOOL fullScreenState;
@@ -281,75 +275,78 @@ namespace Insight {
 	{
 #if defined (IE_PLATFORM_BUILD_WIN32)
 
-		//if (m_FullScreenMode)
-		//{
-		//	SetWindowLong(*m_pWindowHandle, GWL_STYLE, WS_OVERLAPPEDWINDOW);
+		Win32Window* pWindow = reinterpret_cast<Win32Window*>(m_pWindowRef.get());
+		HWND& pHWND = pWindow->GetWindowHandleRef();
 
-		//	SetWindowPos(
-		//		*m_pWindowHandle,
-		//		HWND_NOTOPMOST,
-		//		m_pWindow->GetWindowRect().left,
-		//		m_pWindow->GetWindowRect().top,
-		//		m_pWindow->GetWindowRect().right - m_pWindow->GetWindowRect().left,
-		//		m_pWindow->GetWindowRect().bottom - m_pWindow->GetWindowRect().top,
-		//		SWP_FRAMECHANGED | SWP_NOACTIVATE
-		//	);
-		//	ShowWindow(*m_pWindowHandle, SW_NORMAL);
-		//}
-		//else
-		//{
-		//	GetWindowRect(*m_pWindowHandle, &m_pWindow->GetWindowRect());
+		if (m_FullScreenMode)
+		{
+			SetWindowLong(pHWND, GWL_STYLE, WS_OVERLAPPEDWINDOW);
 
-		//	SetWindowLong(*m_pWindowHandle, GWL_STYLE, WS_OVERLAPPEDWINDOW & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
+			SetWindowPos(
+				pHWND,
+				HWND_NOTOPMOST,
+				pWindow->GetWindowRect().left,
+				pWindow->GetWindowRect().top,
+				pWindow->GetWindowRect().right - pWindow->GetWindowRect().left,
+				pWindow->GetWindowRect().bottom - pWindow->GetWindowRect().top,
+				SWP_FRAMECHANGED | SWP_NOACTIVATE
+			);
+			ShowWindow(pHWND, SW_NORMAL);
+		}
+		else
+		{
+			GetWindowRect(pHWND, &pWindow->GetWindowRect());
 
-		//	RECT FullscreenWindowRect;
-		//	try
-		//	{
-		//		if (m_pSwapChain)
-		//		{
-		//			// Get the settings of the display on which the app's window is currently displayed
-		//			ComPtr<IDXGIOutput> pOutput;
-		//			ThrowIfFailed(m_pSwapChain->GetContainingOutput(&pOutput), "Failed to get containing output while switching to fullscreen mode in D3D 12 context.");
-		//			DXGI_OUTPUT_DESC Desc;
-		//			ThrowIfFailed(pOutput->GetDesc(&Desc), "Failed to get description from output while switching to fullscreen mode in D3D 12 context.");
-		//			FullscreenWindowRect = Desc.DesktopCoordinates;
-		//		}
-		//		else
-		//		{
-		//			// Fallback to EnumDisplaySettings _Implementation
-		//			throw COMException(NULL, "No Swap chain available", __FILE__, __FUNCTION__, __LINE__);
-		//		}
-		//	}
-		//	catch (COMException& e)
-		//	{
-		//		UNREFERENCED_PARAMETER(e);
+			SetWindowLong(pHWND, GWL_STYLE, WS_OVERLAPPEDWINDOW & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
 
-		//		// Get the settings of the primary display
-		//		DEVMODE DevMode = {};
-		//		DevMode.dmSize = sizeof(DEVMODE);
-		//		EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &DevMode);
+			RECT FullscreenWindowRect;
+			try
+			{
+				if (m_pSwapChain)
+				{
+					// Get the settings of the display on which the app's window is currently displayed
+					ComPtr<IDXGIOutput> pOutput;
+					ThrowIfFailed(m_pSwapChain->GetContainingOutput(&pOutput), "Failed to get containing output while switching to fullscreen mode in D3D 12 context.");
+					DXGI_OUTPUT_DESC Desc;
+					ThrowIfFailed(pOutput->GetDesc(&Desc), "Failed to get description from output while switching to fullscreen mode in D3D 12 context.");
+					FullscreenWindowRect = Desc.DesktopCoordinates;
+				}
+				else
+				{
+					// Fallback to EnumDisplaySettings _Implementation
+					throw COMException(NULL, "No Swap chain available", __FILE__, __FUNCTION__, __LINE__);
+				}
+			}
+			catch (COMException& e)
+			{
+				UNREFERENCED_PARAMETER(e);
 
-		//		FullscreenWindowRect = {
-		//			DevMode.dmPosition.x,
-		//			DevMode.dmPosition.y,
-		//			DevMode.dmPosition.x + static_cast<LONG>(DevMode.dmPelsWidth),
-		//			DevMode.dmPosition.y + static_cast<LONG>(DevMode.dmPelsHeight)
-		//		};
-		//	}
+				// Get the settings of the primary display
+				DEVMODE DevMode = {};
+				DevMode.dmSize = sizeof(DEVMODE);
+				EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &DevMode);
 
-		//	SetWindowPos(
-		//		*m_pWindowHandle,
-		//		HWND_TOPMOST,
-		//		FullscreenWindowRect.left,
-		//		FullscreenWindowRect.top,
-		//		FullscreenWindowRect.right,
-		//		FullscreenWindowRect.bottom,
-		//		SWP_FRAMECHANGED | SWP_NOACTIVATE);
+				FullscreenWindowRect = {
+					DevMode.dmPosition.x,
+					DevMode.dmPosition.y,
+					DevMode.dmPosition.x + static_cast<LONG>(DevMode.dmPelsWidth),
+					DevMode.dmPosition.y + static_cast<LONG>(DevMode.dmPelsHeight)
+				};
+			}
+
+			SetWindowPos(
+				pHWND,
+				HWND_TOPMOST,
+				FullscreenWindowRect.left,
+				FullscreenWindowRect.top,
+				FullscreenWindowRect.right,
+				FullscreenWindowRect.bottom,
+				SWP_FRAMECHANGED | SWP_NOACTIVATE);
 
 
-		//	ShowWindow(*m_pWindowHandle, SW_MAXIMIZE);
-		//}
-		//m_FullScreenMode = !m_FullScreenMode;
+			ShowWindow(pHWND, SW_MAXIMIZE);
+		}
+		m_FullScreenMode = !m_FullScreenMode;
 #endif // IE_PLATFORM_BUILD_WIN32
 	}
 
@@ -375,13 +372,13 @@ namespace Insight {
 		// Re-Create GBuffer
 		{
 			m_DeferredShadingTech.Destroy();
-			//m_DeferredShadingTech.Init(m_pDevice.Get(), m_pDeviceContext.Get(), m_pWindowRef);
+			m_DeferredShadingTech.Init(m_pDevice.Get(), m_pDeviceContext.Get(), m_pWindowRef.get());
 		}
 
 		// Recreate Camera Projection Matrix
 		{
 			if (!m_pWorldCameraRef->GetIsOrthographic()) {
-				//m_pWorldCameraRef->SetPerspectiveProjectionValues(m_pWorldCameraRef->GetFOV(), static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight), m_pWorldCameraRef->GetNearZ(), m_pWorldCameraRef->GetFarZ());
+				m_pWorldCameraRef->SetPerspectiveProjectionValues(m_pWorldCameraRef->GetFOV(), static_cast<float>(m_pWindowRef->GetWidth()) / static_cast<float>(m_pWindowRef->GetHeight()), m_pWorldCameraRef->GetNearZ(), m_pWorldCameraRef->GetFarZ());
 			}
 		}
 	}
@@ -390,8 +387,8 @@ namespace Insight {
 	{
 		m_ScenePassViewPort.TopLeftX = 0.0f;
 		m_ScenePassViewPort.TopLeftY = 0.0f;
-		//m_ScenePassViewPort.Width = static_cast<FLOAT>(m_WindowWidth);
-		//m_ScenePassViewPort.Height = static_cast<FLOAT>(m_WindowHeight);
+		m_ScenePassViewPort.Width = static_cast<FLOAT>(m_pWindowRef->GetWidth());
+		m_ScenePassViewPort.Height = static_cast<FLOAT>(m_pWindowRef->GetHeight());
 
 		m_ScenePassScissorRect.left = static_cast<LONG>(m_ScenePassViewPort.TopLeftX);
 		m_ScenePassScissorRect.right = static_cast<LONG>(m_ScenePassViewPort.TopLeftX + m_ScenePassViewPort.Width);
@@ -468,8 +465,8 @@ namespace Insight {
 
 		// TODO Query for HDR support
 		DXGI_SWAP_CHAIN_DESC SwapChainDesc = { };
-		//SwapChainDesc.BufferDesc.Width = m_WindowWidth;
-		//SwapChainDesc.BufferDesc.Height = m_WindowHeight;
+		SwapChainDesc.BufferDesc.Width = m_pWindowRef->GetWidth();
+		SwapChainDesc.BufferDesc.Height = m_pWindowRef->GetHeight();
 		SwapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
 		SwapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
 		SwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -478,7 +475,7 @@ namespace Insight {
 		SwapChainDesc.SampleDesc = m_SampleDesc;
 		SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		SwapChainDesc.BufferCount = static_cast<UINT>(m_FrameBufferCount);
-		SwapChainDesc.OutputWindow = *reinterpret_cast<HWND*>(m_pWindowRef->GetNativeWindow());
+		SwapChainDesc.OutputWindow = reinterpret_cast<Win32Window*>(m_pWindowRef.get())->GetWindowHandleRef();
 		SwapChainDesc.Windowed = TRUE;
 		SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 		SwapChainDesc.Flags = m_AllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
@@ -501,7 +498,7 @@ namespace Insight {
 		ThrowIfFailed(hr, "Failed to create swapchain for D3D 11 context");
 
 		if (m_AllowTearing) {
-			ThrowIfFailed(m_pDxgiFactory->MakeWindowAssociation(*reinterpret_cast<HWND*>(m_pWindowRef->GetNativeWindow()), DXGI_MWA_NO_ALT_ENTER), "Failed to make window association for D3D 11 context.");
+			ThrowIfFailed(m_pDxgiFactory->MakeWindowAssociation(reinterpret_cast<Win32Window*>(m_pWindowRef.get())->GetWindowHandleRef(), DXGI_MWA_NO_ALT_ENTER), "Failed to make window association for D3D 11 context.");
 		}
 #endif // IE_PLATFORM_BUILD_WIN32
 		
@@ -539,8 +536,8 @@ namespace Insight {
 	{
 		m_ScenePassScissorRect.left = 0;
 		m_ScenePassScissorRect.top = 0;
-		//m_ScenePassScissorRect.right = m_WindowWidth;
-		//m_ScenePassScissorRect.bottom = m_WindowHeight;
+		m_ScenePassScissorRect.right = m_pWindowRef->GetWidth();
+		m_ScenePassScissorRect.bottom = m_pWindowRef->GetHeight();
 	}
 
 	void Direct3D11Context::CreateSamplers()

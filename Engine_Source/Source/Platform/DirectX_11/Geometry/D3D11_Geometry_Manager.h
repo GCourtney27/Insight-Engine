@@ -14,6 +14,9 @@ namespace Insight {
 		virtual void Render_Impl(RenderPassType RenderPass) override;
 		virtual void GatherGeometry_Impl() override;
 
+		virtual VertexBufferHandle CreateVertexBuffer_Impl() override;
+		virtual IndexBufferHandle CreateIndexBuffer_Impl() override;
+
 	private:
 		D3D11GeometryManager() = default;
 		virtual ~D3D11GeometryManager();

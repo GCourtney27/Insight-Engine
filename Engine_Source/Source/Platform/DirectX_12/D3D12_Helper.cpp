@@ -97,13 +97,15 @@ namespace Insight {
 		UINT currentVideoCardMemory = 0;
 		DXGI_ADAPTER_DESC1 Desc;
 
-		auto CheckRayTracingSupport = [](ID3D12Device* pDevice) 
+		auto CheckRayTracingSupport = [] (ID3D12Device* pDevice) 
 		{
-
 			D3D12_FEATURE_DATA_D3D12_OPTIONS5 Options5 = {};
-			ThrowIfFailed(pDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &Options5, sizeof(Options5)), "Failed to query feature support for ray trace with device.");
-			if (Options5.RaytracingTier < D3D12_RAYTRACING_TIER_1_0) return false;
-			else return true;
+			HRESULT hr = pDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &Options5, sizeof(Options5));
+			ThrowIfFailed(hr, "Failed to query feature support for ray trace with device.");
+			if (Options5.RaytracingTier < D3D12_RAYTRACING_TIER_1_0) 
+				return false;
+			else 
+				return true;
 		};
 
 		for (UINT AdapterIndex = 0; DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapters1(AdapterIndex, &pAdapter); ++AdapterIndex)
@@ -122,6 +124,7 @@ namespace Insight {
 				Microsoft::WRL::ComPtr<ID3D12Device5> TempDevice;
 				if (SUCCEEDED(D3D12CreateDevice(pAdapter.Get(), D3D_FEATURE_LEVEL_12_1, __uuidof(ID3D12Device5), &TempDevice))) 
 				{
+					// If the device supports the feature level check to see if it can support DXR.
 					if (CheckRayTracingSupport(TempDevice.Get())) 
 					{
 						currentVideoCardMemory = static_cast<UINT>(Desc.DedicatedVideoMemory);
@@ -131,7 +134,7 @@ namespace Insight {
 						*ppAdapter = pAdapter.Detach();
 						m_pRenderContextRef->SetIsRayTraceSupported(true);
 
-						IE_DEBUG_LOG(LogSeverity::Warning, "Found suitable Direct3D 12 graphics hardware that can support ray tracing: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
+						IE_DEBUG_LOG(LogSeverity::Log, "Found suitable Direct3D 12 graphics hardware that can support ray tracing: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
 						continue;
 					}
 				}
@@ -146,7 +149,7 @@ namespace Insight {
 				
 				*ppAdapter = pAdapter.Detach();
 
-				IE_DEBUG_LOG(LogSeverity::Log, "Found suitable Direct3D 12 graphics hardware: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
+				IE_DEBUG_LOG(LogSeverity::Log, "Found suitable Direct3D 12 graphics hardware: {0}", StringHelper::WideToString(Desc.Description));
 			}
 		}
 		Desc = {};
@@ -177,44 +180,44 @@ namespace Insight {
 	{
 		// Create Graphics Command Queue
 		D3D12_COMMAND_QUEUE_DESC GraphicsCommandQueueDesc = {};
-		GraphicsCommandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-		GraphicsCommandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+		GraphicsCommandQueueDesc.Flags	= D3D12_COMMAND_QUEUE_FLAG_NONE;
+		GraphicsCommandQueueDesc.Type	= D3D12_COMMAND_LIST_TYPE_DIRECT;
 
 		HRESULT hr = m_pDevice->CreateCommandQueue(&GraphicsCommandQueueDesc, IID_PPV_ARGS(&m_pGraphicsCommandQueue));
-		ThrowIfFailed(hr, "Failed to Create Command Queue");
+		ThrowIfFailed(hr, "Failed to create graphics command queue");
 		
 		// Create Compute Command Queue
 		D3D12_COMMAND_QUEUE_DESC ComputeCommandQueueDesc = {};
-		ComputeCommandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-		ComputeCommandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_COMPUTE;
+		ComputeCommandQueueDesc.Flags	= D3D12_COMMAND_QUEUE_FLAG_NONE;
+		ComputeCommandQueueDesc.Type	= D3D12_COMMAND_LIST_TYPE_COMPUTE;
 
 		hr = m_pDevice->CreateCommandQueue(&ComputeCommandQueueDesc, IID_PPV_ARGS(&m_pComputeCommandQueue));
-		ThrowIfFailed(hr, "Failed to Create Command Queue");
+		ThrowIfFailed(hr, "Failed to create compute command queue");
 	}
 
 	void D3D12Helper::CreateSwapChain()
 	{
 		HRESULT hr;
 
-		uint32_t WindowWidth = m_pRenderContextRef->GetWindowRef().GetWidth() / 2u;
-		uint32_t WindowHeight = m_pRenderContextRef->GetWindowRef().GetHeight() / 2u;
+		uint32_t WindowWidth	= m_pRenderContextRef->GetWindowRef().GetWidth() / 2u;
+		uint32_t WindowHeight	= m_pRenderContextRef->GetWindowRef().GetHeight() / 2u;
 
 		DXGI_MODE_DESC backBufferDesc = {};
-		backBufferDesc.Width = WindowWidth;
-		backBufferDesc.Height = WindowHeight;
+		backBufferDesc.Width	= WindowWidth;
+		backBufferDesc.Height	= WindowHeight;
 
 		m_SampleDesc = {};
 		m_SampleDesc.Count = 1;
 
 		DXGI_SWAP_CHAIN_DESC1 SwapChainDesc = {};
-		SwapChainDesc.BufferCount = m_FrameBufferCount;
-		SwapChainDesc.Width = WindowWidth;
-		SwapChainDesc.Height = WindowHeight;
-		SwapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; // Dont save the contents of the back buffer after presented
-		SwapChainDesc.Flags	= m_pRenderContextRef->m_AllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
-		SwapChainDesc.SampleDesc = m_SampleDesc;
+		SwapChainDesc.BufferCount	= m_FrameBufferCount;
+		SwapChainDesc.Width			= WindowWidth;
+		SwapChainDesc.Height		= WindowHeight;
+		SwapChainDesc.Format		= DXGI_FORMAT_R8G8B8A8_UNORM;
+		SwapChainDesc.BufferUsage	= DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		SwapChainDesc.SwapEffect	= DXGI_SWAP_EFFECT_FLIP_DISCARD; // Dont save the contents of the back buffer after presented
+		SwapChainDesc.Flags			= m_pRenderContextRef->m_AllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
+		SwapChainDesc.SampleDesc	= m_SampleDesc;
 		
 		Microsoft::WRL::ComPtr<IDXGISwapChain1> TempSwapChain = {};
 #if defined (IE_PLATFORM_BUILD_WIN32)
@@ -249,12 +252,12 @@ namespace Insight {
 		uint32_t WindowWidth = m_pRenderContextRef->GetWindowRef().GetWidth() / 2u;
 		uint32_t WindowHeight = m_pRenderContextRef->GetWindowRef().GetHeight() / 2u;
 
-		m_Client_ViewPort.TopLeftX = 0;
-		m_Client_ViewPort.TopLeftY = 0;
-		m_Client_ViewPort.Width = static_cast<FLOAT>(WindowWidth);
-		m_Client_ViewPort.Height = static_cast<FLOAT>(WindowHeight);
-		m_Client_ViewPort.MinDepth = 0.0f;
-		m_Client_ViewPort.MaxDepth = 1.0f;
+		m_Client_ViewPort.TopLeftX	= 0;
+		m_Client_ViewPort.TopLeftY	= 0;
+		m_Client_ViewPort.Width		= static_cast<FLOAT>(WindowWidth);
+		m_Client_ViewPort.Height	= static_cast<FLOAT>(WindowHeight);
+		m_Client_ViewPort.MinDepth	= 0.0f;
+		m_Client_ViewPort.MaxDepth	= 1.0f;
 	}
 
 	void D3D12Helper::CreateScissorRect()
@@ -262,10 +265,10 @@ namespace Insight {
 		uint32_t WindowWidth = m_pRenderContextRef->GetWindowRef().GetWidth() / 2u;
 		uint32_t WindowHeight = m_pRenderContextRef->GetWindowRef().GetHeight() / 2u;
 
-		m_Client_ScissorRect.left = 0;
-		m_Client_ScissorRect.top = 0;
-		m_Client_ScissorRect.right = WindowWidth;
-		m_Client_ScissorRect.bottom = WindowHeight;
+		m_Client_ScissorRect.left	= 0;
+		m_Client_ScissorRect.top	= 0;
+		m_Client_ScissorRect.right	= static_cast<LONG>(WindowWidth);
+		m_Client_ScissorRect.bottom = static_cast<LONG>(WindowHeight);
 	}
 
 	void D3D12Helper::CreateFenceEvent()
@@ -276,8 +279,7 @@ namespace Insight {
 		m_FenceValues[m_FrameIndex]++;
 
 		m_FenceEvent = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
-		if (m_FenceEvent == nullptr)
-			THROW_COM_ERROR("Fence Event was nullptr");
+		if (m_FenceEvent == nullptr) THROW_COM_ERROR("Fence Event was nullptr");
 	}
 
 	void D3D12Helper::MoveToNextFrame()

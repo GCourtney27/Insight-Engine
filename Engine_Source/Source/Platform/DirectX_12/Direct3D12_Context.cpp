@@ -163,7 +163,7 @@ namespace Insight {
 		m_FrameResources.m_CBPerFrame.Data.RayTraceEnabled = (float)m_GraphicsSettings.RayTraceEnabled;
 		m_FrameResources.m_CBPerFrame.Data.NumSpotLights = (float)m_SpotLights.size();
 		m_FrameResources.m_CBPerFrame.Data.ScreenSize.x = (float)m_pWindowRef->GetWidth();
-		m_FrameResources.m_CBPerFrame.Data.ScreenSize.y = (float)m_pWindowRef->GetHeight();;
+		m_FrameResources.m_CBPerFrame.Data.ScreenSize.y = (float)m_pWindowRef->GetHeight();
 		m_FrameResources.m_CBPerFrame.SubmitToGPU();
 
 		//if (m_GraphicsSettings.RayTraceEnabled) m_RTHelper.UpdateCBVs();
