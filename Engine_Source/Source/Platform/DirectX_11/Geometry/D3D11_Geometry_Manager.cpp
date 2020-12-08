@@ -14,12 +14,12 @@ namespace Insight {
 
 	D3D11GeometryManager::VertexBufferHandle D3D11GeometryManager::CreateVertexBuffer_Impl()
 	{
-
+		return -1;
 	}
 
 	D3D11GeometryManager::IndexBufferHandle D3D11GeometryManager::CreateIndexBuffer_Impl()
 	{
-
+		return -1;
 	}
 
 	bool D3D11GeometryManager::Init_Impl()

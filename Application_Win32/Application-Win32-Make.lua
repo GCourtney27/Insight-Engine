@@ -48,7 +48,7 @@ project (projectName)
 		"%{applicationIncludeDirs.Microsoft}DirectX12/WinPixEventRuntime.1.0.161208001/Include/",
 		"%{applicationIncludeDirs.spdlog}",
 		"%{applicationIncludeDirs.rapidjson}",
-		"%{applicationIncludeDirs.Mono}/mono-2.0/",
+		"%{applicationIncludeDirs.Mono}mono-2.0/",
 		"%{applicationIncludeDirs.Engine_Source_Src}/",
 		"%{applicationIncludeDirs.Engine_Source_Third_Party}/",
 		
