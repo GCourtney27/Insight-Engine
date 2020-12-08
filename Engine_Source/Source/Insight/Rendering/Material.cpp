@@ -21,28 +21,28 @@ namespace Insight {
 		m_MaterialType = eMaterialType::eMaterialType_Opaque;
 
 		TextureManager& TextureManager = ResourceManager::Get().GetTextureManager();
-		m_AlbedoMap		= TextureManager.GetTextureByID(TextureMangerIds[0], Texture::eTextureType_Albedo);
-		m_NormalMap		= TextureManager.GetTextureByID(TextureMangerIds[1], Texture::eTextureType_Normal);
-		m_MetallicMap	= TextureManager.GetTextureByID(TextureMangerIds[2], Texture::eTextureType_Metallic);
-		m_RoughnessMap	= TextureManager.GetTextureByID(TextureMangerIds[3], Texture::eTextureType_Roughness);
-		m_AOMap			= TextureManager.GetTextureByID(TextureMangerIds[4], Texture::eTextureType_AmbientOcclusion);
+		m_AlbedoMap		= TextureMangerIds[0] > 0 ? TextureManager.GetTextureByID(TextureMangerIds[0], Texture::eTextureType_Albedo) : nullptr;
+		m_NormalMap		= TextureMangerIds[1] > 0 ? TextureManager.GetTextureByID(TextureMangerIds[1], Texture::eTextureType_Normal) : nullptr;
+		m_MetallicMap	= TextureMangerIds[2] > 0 ? TextureManager.GetTextureByID(TextureMangerIds[2], Texture::eTextureType_Metallic) : nullptr;
+		m_RoughnessMap	= TextureMangerIds[3] > 0 ? TextureManager.GetTextureByID(TextureMangerIds[3], Texture::eTextureType_Roughness) : nullptr;
+		m_AOMap			= TextureMangerIds[4] > 0 ? TextureManager.GetTextureByID(TextureMangerIds[4], Texture::eTextureType_AmbientOcclusion) : nullptr;
 		
 		// If we got back a default texture, queue the texture for the texture manager
 		// to give us the proper texture once it is loaded.
 		{
-			if (m_AlbedoMap->IsDefaultTexture()) {
+			if (m_AlbedoMap && m_AlbedoMap->IsDefaultTexture()) {
 				TextureManager.RegisterTextureLoadCallback(TextureMangerIds[0], &m_AlbedoMap);
 			}
-			if (m_NormalMap->IsDefaultTexture()) {
+			if (m_NormalMap && m_NormalMap->IsDefaultTexture()) {
 				TextureManager.RegisterTextureLoadCallback(TextureMangerIds[1], &m_NormalMap);
 			}
-			if (m_MetallicMap->IsDefaultTexture()) {
+			if (m_MetallicMap && m_MetallicMap->IsDefaultTexture()) {
 				TextureManager.RegisterTextureLoadCallback(TextureMangerIds[2], &m_MetallicMap);
 			}
-			if (m_RoughnessMap->IsDefaultTexture()) {
+			if (m_RoughnessMap && m_RoughnessMap->IsDefaultTexture()) {
 				TextureManager.RegisterTextureLoadCallback(TextureMangerIds[3], &m_RoughnessMap);
 			}
-			if (m_AOMap->IsDefaultTexture()) {
+			if (m_AOMap && m_AOMap->IsDefaultTexture()) {
 				TextureManager.RegisterTextureLoadCallback(TextureMangerIds[4], &m_AOMap);
 			}
 		}

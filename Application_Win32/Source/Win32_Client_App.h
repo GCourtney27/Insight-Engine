@@ -244,6 +244,17 @@ namespace SandBoxApp {
 			pSMBall->SetMaterial(pBamboo);
 			pSMBall->AttachMesh("Models/Sphere.fbx");
 			GetScene().AddActor(pABambooBall);
+			
+			// m1911
+			/*AActor* pAPistol = new AActor(0, "m1911 Pistol");
+			SceneComponent* pSCPistol = pAPistol->CreateDefaultSubobject<SceneComponent>();
+			pSCPistol->SetScale(0.1f);
+			pSCPistol->SetPosition(-50.0f, 40.0f, 0.0f);
+			Insight::Material* pPistolMat = new Insight::Material({ 16, 17, 18, 19, 20 });
+			StaticMeshComponent* pSMPistol = pAPistol->CreateDefaultSubobject<StaticMeshComponent>();
+			pSMPistol->SetMaterial(pPistolMat);
+			pSMPistol->AttachMesh("Models/1911a1.fbx");
+			GetScene().AddActor(pAPistol);*/
 
 		}
 

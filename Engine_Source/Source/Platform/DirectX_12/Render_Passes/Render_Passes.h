@@ -129,7 +129,7 @@ namespace Insight {
 
 		CDescriptorHeapWrapper		m_RTVHeap;
 		CDescriptorHeapWrapper		m_DSVHeap;
-		Microsoft::WRL::ComPtr<ID3D12Resource>		m_pRenderTargetTextures[m_NumRenderTargets];
+		ID3D12Resource*				m_pRenderTargetTextures[m_NumRenderTargets];
 
 		DXGI_FORMAT	m_GBufferRTVFormats[m_NumRenderTargets] = {
 						DXGI_FORMAT_R11G11B10_FLOAT,	// Albedo
@@ -157,7 +157,7 @@ namespace Insight {
 		virtual ~DeferredLightPass()	= default;
 
 		// Set the reference to the G-Buffer.
-		inline void SetRenderTargetTextureRef(Microsoft::WRL::ComPtr<ID3D12Resource> pRenderTarget) { m_GBufferRefs.push_back(pRenderTarget); }
+		inline void SetRenderTargetTextureRef(Microsoft::WRL::ComPtr<ID3D12Resource> pRenderTarget) { m_GBufferRefs.push_back(pRenderTarget.Get()); }
 
 		// Set the reference to the Scene Depth Buffer.
 		inline void SetSceneDepthTextureRef(Microsoft::WRL::ComPtr<ID3D12Resource> pDepthTexture) { m_pSceneDepthTextureRef = pDepthTexture; }
@@ -190,7 +190,7 @@ namespace Insight {
 		virtual void UnSet(FrameResources* pFrameResources) override;
 	private:
 		static const uint8_t	m_NumRenderTargets = 2u;
-		Microsoft::WRL::ComPtr<ID3D12Resource>	m_pRenderTargetTextures[m_NumRenderTargets];
+		ID3D12Resource*	m_pRenderTargetTextures[m_NumRenderTargets];
 
 		DXGI_FORMAT	m_RTVFormats[m_NumRenderTargets] = {
 						DXGI_FORMAT_R32G32B32A32_FLOAT,	// Light Pass result
@@ -200,7 +200,7 @@ namespace Insight {
 		CDescriptorHeapWrapper	m_RTVHeap;
 
 		// G-Buffer references from the geometry pass.
-		std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> m_GBufferRefs;
+		std::vector<ID3D12Resource*> m_GBufferRefs;
 		// Scene depth texture referenced from the geometry pass.
 		Microsoft::WRL::ComPtr<ID3D12Resource> m_pSceneDepthTextureRef;
 

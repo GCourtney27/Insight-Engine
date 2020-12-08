@@ -37,7 +37,11 @@ namespace Insight {
 			virtual void OnImGuiRender() override;
 
 			void RenderSceneHeirarchy() override;
-			void AttachMesh(const std::string& AssesDirectoryRelPath);
+			/*
+				Attach a mesh to to be rendered.
+				@param Path - Path to the mesh relative to the "Content/" directory.
+			*/
+			void AttachMesh(const std::string& Path);
 			void SetMaterial(Material* pMaterial);
 
 			virtual void BeginPlay() override;

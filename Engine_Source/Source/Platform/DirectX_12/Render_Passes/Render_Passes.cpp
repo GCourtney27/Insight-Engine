@@ -32,11 +32,11 @@ namespace Insight {
 			m_pCommandListRef->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
 			// Set the buffers to a Render Target state.
-			for (uint8_t i = 0; i < m_NumRenderTargets; ++i)
-				m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pRenderTargetTextures[i].Get(), IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), &m_pRenderTargetTextures[0], IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_RENDER_TARGET, m_NumRenderTargets);
 
 			// Make sure we can write to the depth buffer in this pass.
-			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pSceneDepthStencilTexture.Get(), IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+			ID3D12Resource* SceneDepthTextureResources[] = { m_pSceneDepthStencilTexture.Get() };
+			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), SceneDepthTextureResources, IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
 			// Clear the render targets.
 			for (uint8_t i = 0; i < m_NumRenderTargets; ++i)
@@ -70,11 +70,11 @@ namespace Insight {
 	void DeferredGeometryPass::UnSet(FrameResources* pFrameResources)
 	{
 		// After we are finished with the buffers but them in a generic state for other passes to use them.
-		for (uint8_t i = 0; i < m_NumRenderTargets; ++i)
-			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, IE_D3D12_DEFAULT_RESOURCE_STATE);
+		m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), &m_pRenderTargetTextures[0], D3D12_RESOURCE_STATE_RENDER_TARGET, IE_D3D12_DEFAULT_RESOURCE_STATE, m_NumRenderTargets);
 
 		// Set the depth buffer to a generic state for others to use.
-		m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pSceneDepthStencilTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, IE_D3D12_DEFAULT_RESOURCE_STATE);
+		ID3D12Resource* SceneDepthTextureResources[] = { m_pSceneDepthStencilTexture.Get() };
+		m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), SceneDepthTextureResources, D3D12_RESOURCE_STATE_DEPTH_WRITE, IE_D3D12_DEFAULT_RESOURCE_STATE);
 	}
 
 	bool DeferredGeometryPass::InternalCreate()
@@ -100,6 +100,7 @@ namespace Insight {
 
 			Created = true;
 		}
+		ZeroMemory(m_pRenderTargetTextures, sizeof(ID3D12Resource*) * m_NumRenderTargets);
 
 		LoadPipeline();
 
@@ -166,8 +167,7 @@ namespace Insight {
 		// Destroy resources if they already exist. We might be resizing the window if we come back here.
 		for (auto Resource : m_pRenderTargetTextures)
 		{
-			if (Resource.Get())
-				Resource.Reset();
+			if (Resource) COM_SAFE_RELEASE(Resource);
 		}
 
 		if (m_pSceneDepthStencilTexture.Get())
@@ -222,7 +222,7 @@ namespace Insight {
 		for (uint8_t i = 0; i < m_NumRenderTargets; i++)
 		{
 			RTVDesc.Format = m_GBufferRTVFormats[i];
-			pDevice->CreateRenderTargetView(m_pRenderTargetTextures[i].Get(), &RTVDesc, m_RTVHeap.hCPU(i));
+			pDevice->CreateRenderTargetView(m_pRenderTargetTextures[i], &RTVDesc, m_RTVHeap.hCPU(i));
 		}
 
 		// Create Shader Resource Views.
@@ -236,7 +236,7 @@ namespace Insight {
 		for (uint8_t i = 0; i < m_NumRenderTargets; i++)
 		{
 			SRVDesc.Format = m_GBufferRTVFormats[i];
-			pDevice->CreateShaderResourceView(m_pRenderTargetTextures[i].Get(), &SRVDesc, m_pCBVSRVHeapRef->hCPU(i));
+			pDevice->CreateShaderResourceView(m_pRenderTargetTextures[i], &SRVDesc, m_pCBVSRVHeapRef->hCPU(i));
 		}
 		m_pRenderTargetTextures[0]->SetName(L"Render Target SRV Albedo");
 		m_pRenderTargetTextures[1]->SetName(L"Render Target SRV Normal");
@@ -307,15 +307,14 @@ namespace Insight {
 			m_pCommandListRef->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
 			// Set the light pass and bloom threshold results in a Render Target state.
-			for (uint8_t i = 0; i < m_NumRenderTargets; ++i)
-				m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pRenderTargetTextures[i].Get(), IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), &m_pRenderTargetTextures[0], IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_RENDER_TARGET, m_NumRenderTargets);
 
 			// Transition the G-Buffer to shader resources we can sample from.
-			for (uint8_t i = 0; i < m_GBufferRefs.size(); ++i)
-				m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_GBufferRefs[i].Get(), IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_GBufferRefs.data(), IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, (uint32_t)m_GBufferRefs.size());
 
 			// Make sure we can read from the depth buffer.
-			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pSceneDepthTextureRef.Get(), IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_DEPTH_READ);
+			ID3D12Resource* SceneDepthTextureResources[] = { m_pSceneDepthTextureRef.Get() };
+			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), SceneDepthTextureResources, IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_DEPTH_READ);
 
 			// Clear the render targets.
 			for (uint8_t i = 0; i < m_NumRenderTargets; ++i)
@@ -349,19 +348,20 @@ namespace Insight {
 	void DeferredLightPass::UnSet(FrameResources* pFrameResources)
 	{
 		// Set the light pass and bloom threshold results in a generic state.
-		for (uint8_t i = 0; i < m_NumRenderTargets; ++i)
-			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pRenderTargetTextures[i].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, IE_D3D12_DEFAULT_RESOURCE_STATE);
+		m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), &m_pRenderTargetTextures[0], D3D12_RESOURCE_STATE_RENDER_TARGET, IE_D3D12_DEFAULT_RESOURCE_STATE, m_NumRenderTargets);
 
 		// Transition the G-Buffer back to a common state for other passes.
-		for (uint8_t i = 0; i < m_GBufferRefs.size(); ++i)
-			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_GBufferRefs[i].Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, IE_D3D12_DEFAULT_RESOURCE_STATE);
+		m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_GBufferRefs.data(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, IE_D3D12_DEFAULT_RESOURCE_STATE, (uint32_t)m_GBufferRefs.size());
 
 		// Set the depth buffer back to a generic state.
-		m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pSceneDepthTextureRef.Get(), D3D12_RESOURCE_STATE_DEPTH_READ, IE_D3D12_DEFAULT_RESOURCE_STATE);
+		ID3D12Resource* SceneDepthResources[] = { m_pSceneDepthTextureRef.Get() };
+		m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), SceneDepthResources, D3D12_RESOURCE_STATE_DEPTH_READ, IE_D3D12_DEFAULT_RESOURCE_STATE);
 	}
 
 	bool DeferredLightPass::InternalCreate()
 	{
+		ZeroMemory(m_pRenderTargetTextures, sizeof(ID3D12Resource*) * m_NumRenderTargets);
+
 		LoadPipeline();
 
 		CreateResources();
@@ -423,8 +423,7 @@ namespace Insight {
 		// Destroy resources if they already exist. We might be resizing the window if we come back here.
 		for (auto Resource : m_pRenderTargetTextures)
 		{
-			if (Resource.Get())
-				Resource.Reset();
+			if (Resource) COM_SAFE_RELEASE(Resource);
 		}
 
 		if (m_GBufferRefs.size() > 0)
@@ -478,7 +477,7 @@ namespace Insight {
 		for (uint8_t i = 0; i < m_NumRenderTargets; i++)
 		{
 			RTVDesc.Format = m_RTVFormats[i];
-			pDevice->CreateRenderTargetView(m_pRenderTargetTextures[i].Get(), &RTVDesc, m_RTVHeap.hCPU(i));
+			pDevice->CreateRenderTargetView(m_pRenderTargetTextures[i], &RTVDesc, m_RTVHeap.hCPU(i));
 		}
 
 		// Create SRVs for Render Targets
@@ -491,12 +490,12 @@ namespace Insight {
 
 		// Light Pass Result
 		SRVDesc.Format = m_RTVFormats[0];
-		pDevice->CreateShaderResourceView(m_pRenderTargetTextures[0].Get(), &SRVDesc, m_pCBVSRVHeapRef->hCPU(5)); // Slot 4 gets taken by the scene depth buffer.
+		pDevice->CreateShaderResourceView(m_pRenderTargetTextures[0], &SRVDesc, m_pCBVSRVHeapRef->hCPU(5)); // Slot 4 gets taken by the scene depth buffer.
 		m_pRenderTargetTextures[0]->SetName(L"Render Target SRV Light Pass Result");
 
 		// Bloom Threshold
 		SRVDesc.Format = m_RTVFormats[1];
-		pDevice->CreateShaderResourceView(m_pRenderTargetTextures[1].Get(), &SRVDesc, m_pCBVSRVHeapRef->hCPU(8));
+		pDevice->CreateShaderResourceView(m_pRenderTargetTextures[1], &SRVDesc, m_pCBVSRVHeapRef->hCPU(8));
 		m_pRenderTargetTextures[1]->SetName(L"Render Target SRV Bloom Buffer");
 	}
 
@@ -513,9 +512,11 @@ namespace Insight {
 
 			if (m_pSkyShereRef)
 			{
-				m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pSceneDepthTextureRef.Get(), IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+				ID3D12Resource* SceneDepthResources[] = { m_pSceneDepthTextureRef.Get() };
+				m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), SceneDepthResources, IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
-				m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pRenderTargetRef.Get(), IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+				ID3D12Resource* RenderTargetResources[] = { m_pRenderTargetRef.Get() };
+				m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), RenderTargetResources, IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_RENDER_TARGET);
 				
 				m_pCommandListRef->OMSetRenderTargets(1, &m_pRTVHandle, TRUE, &m_pDSVHandle);
 				m_pCommandListRef->SetPipelineState(m_pPipelineState.Get());
@@ -529,10 +530,11 @@ namespace Insight {
 
 	void SkyPass::UnSet(FrameResources* pFrameResources)
 	{
-
-		m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pSceneDepthTextureRef.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, IE_D3D12_DEFAULT_RESOURCE_STATE);
-
-		m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pRenderTargetRef.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, IE_D3D12_DEFAULT_RESOURCE_STATE);
+		ID3D12Resource* SceneDepthResources[] = { m_pSceneDepthTextureRef.Get() };
+		m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), SceneDepthResources, D3D12_RESOURCE_STATE_DEPTH_WRITE, IE_D3D12_DEFAULT_RESOURCE_STATE);
+		
+		ID3D12Resource* RenderTargetResources[] = { m_pRenderTargetRef.Get() };
+		m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), RenderTargetResources, D3D12_RESOURCE_STATE_RENDER_TARGET, IE_D3D12_DEFAULT_RESOURCE_STATE);
 	}
 
 	bool SkyPass::InternalCreate()
@@ -612,10 +614,12 @@ namespace Insight {
 			m_pCommandListRef->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
 			// Transition the main render target.
-			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pRenderContextRef->GetSwapChainRenderTarget(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+			ID3D12Resource* SwapChainResources[] = { m_pRenderContextRef->GetSwapChainRenderTarget() };
+			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), SwapChainResources, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 			// Make sure we can read from the depth buffer.
-			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pSceneDepthTextureRef.Get(), IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_DEPTH_READ);
+			ID3D12Resource* SceneDepthResources[] = { m_pSceneDepthTextureRef.Get() };
+			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), SceneDepthResources, IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_DEPTH_READ);
 
 			m_pCommandListRef->ClearRenderTargetView(m_pRenderContextRef->GetSwapChainRTV(), s_ScreenClearColor, 0, nullptr);
 
@@ -629,7 +633,7 @@ namespace Insight {
 			m_pCommandListRef->SetPipelineState(m_pPipelineState.Get());
 
 			// Bind resources to the pipeline.
-			m_pCommandListRef->SetGraphicsRootDescriptorTable(5, m_pCBVSRVHeapRef->hGPU(0)); // G-Buffer textures with depth buffer
+			m_pCommandListRef->SetGraphicsRootDescriptorTable(5,  m_pCBVSRVHeapRef->hGPU(0)); // G-Buffer textures with depth buffer
 			m_pCommandListRef->SetGraphicsRootDescriptorTable(16, m_pCBVSRVHeapRef->hGPU(5)); // Light Pass result
 			m_pCommandListRef->SetGraphicsRootDescriptorTable(18, m_pCBVSRVHeapRef->hGPU(9)); // Bloom Pass result
 			pFrameResources->m_CBPerFrame.SetAsGraphicsRootConstantBufferView(m_pCommandListRef.Get(), 1);
@@ -650,7 +654,8 @@ namespace Insight {
 		);
 
 		// Set the depth buffer back to a generic state.
-		m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pSceneDepthTextureRef.Get(), D3D12_RESOURCE_STATE_DEPTH_READ, IE_D3D12_DEFAULT_RESOURCE_STATE);
+		ID3D12Resource* Resources[] = { m_pSceneDepthTextureRef.Get() };
+		m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), Resources, D3D12_RESOURCE_STATE_DEPTH_READ, IE_D3D12_DEFAULT_RESOURCE_STATE);
 	}
 
 	bool PostProcessCompositePass::InternalCreate()
@@ -718,10 +723,10 @@ namespace Insight {
 		{
 			m_RTHelper.SetCommonPipeline();
 			m_RTHelper.TraceScene();
-
-			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pRayTraceOutput_SRV.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
+			ID3D12Resource* Resources[] = { m_pRayTraceOutput_SRV.Get() };
+			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), Resources, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
 			m_pCommandListRef->CopyResource(m_pRayTraceOutput_SRV.Get(), m_RTHelper.GetOutputBuffer());
-			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pRayTraceOutput_SRV.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), Resources, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 		}
 		EndTrackRenderEvent(m_pCommandListRef.Get());
 		return true;

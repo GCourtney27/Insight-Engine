@@ -475,7 +475,7 @@ namespace Insight {
 		SwapChainDesc.SampleDesc = m_SampleDesc;
 		SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		SwapChainDesc.BufferCount = static_cast<UINT>(m_FrameBufferCount);
-		SwapChainDesc.OutputWindow = reinterpret_cast<Win32Window*>(m_pWindowRef.get())->GetWindowHandleRef();
+		//SwapChainDesc.OutputWindow = reinterpret_cast<Win32Window*>(m_pWindowRef.get())->GetWindowHandleRef();
 		SwapChainDesc.Windowed = TRUE;
 		SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 		SwapChainDesc.Flags = m_AllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;

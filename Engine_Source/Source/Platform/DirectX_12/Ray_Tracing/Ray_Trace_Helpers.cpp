@@ -86,7 +86,8 @@ namespace Insight {
 		ID3D12DescriptorHeap* ppHeaps[] = { m_srvUavHeap.pDH.Get() };
 		m_pCommandListRef->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
-		m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pOutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		ID3D12Resource* ShadowDepthResources[] = { m_pOutputBuffer_UAV.Get() };
+		m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), ShadowDepthResources, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 		m_DispatchRaysDesc = {};
 		uint32_t RayGenerationSectionSizeInBytes = m_sbtHelper.GetRayGenSectionSize();
@@ -116,7 +117,9 @@ namespace Insight {
 	void RayTraceHelpers::TraceScene()
 	{
 		m_pCommandListRef->DispatchRays(&m_DispatchRaysDesc);
-		m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pOutputBuffer_UAV.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
+
+		ID3D12Resource* ShadowDepthResources[] = { m_pOutputBuffer_UAV.Get() };
+		m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), ShadowDepthResources, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
 	}
 
 	uint32_t RayTraceHelpers::RegisterBottomLevelASGeometry(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVeticies, uint32_t NumIndices, XMMATRIX WorldMat)

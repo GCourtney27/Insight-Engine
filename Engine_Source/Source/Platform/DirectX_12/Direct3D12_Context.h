@@ -221,12 +221,26 @@ namespace Insight {
 		void CreateScissorRect();
 		void CreateScreenQuad();
 
-		// Close GPU handle and release resources for the D3D 12 context.
+		/*
+			Close GPU handle and release resources for the D3D 12 context.
+		*/
 		void InternalCleanup();
-		// Resize render targets and depth stencil. Usually called from 'OnWindowResize'.
+		
+		/*
+			Resize render targets and depth stencil. Usually called from 'OnWindowResize'.
+		*/
 		void UpdateSizeDependentResources();
 
-		void ResourceBarrier(ID3D12GraphicsCommandList* pCommandList, ID3D12Resource* pResource, D3D12_RESOURCE_STATES StateBefore, D3D12_RESOURCE_STATES StateAfter, uint32_t NumBarriers = 1u);
+		/*
+			Batches multiple resoures into a single transition. MSDN recomends batching transitions for performance reasons. So, this method should
+			be prefered over regular 'CommandList::ResourceBarrier' calls. Note: Can only batch 8 resources at a time.
+			@param pCommandList - Command list to execute the transitions on.
+			@param pResaources - A pointer to the first element in an array of resources to transition.
+			@param StateBefore - The current state of the resources.
+			@param StateAfter - The state to transition the resources to.
+			@param NumBarriers - Number of resoures present in pResources array to batch together.
+		*/
+		void ResourceBarrier(ID3D12GraphicsCommandList* pCommandList, ID3D12Resource** pResources, D3D12_RESOURCE_STATES StateBefore, D3D12_RESOURCE_STATES StateAfter, uint32_t NumBarriers = 1u);
 		
 	private:
 		D3D12Helper					m_DeviceResources;

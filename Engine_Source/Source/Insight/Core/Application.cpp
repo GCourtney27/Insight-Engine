@@ -346,7 +346,9 @@ namespace Insight {
 	bool Application::ReloadScripts(AppScriptReloadEvent& e)
 	{
 		IE_DEBUG_LOG(LogSeverity::Log, "Reloading C# Scripts");
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		ResourceManager::Get().GetMonoScriptManager().ReCompile();
+#endif
 		return true;
 	}
 

@@ -250,30 +250,6 @@ namespace Insight {
 					"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
 			}
 		}
-
-		// Prepare the Render Target for this Frame
-		{
-			//ResourceBarrier(m_pScenePass_CommandList.Get(), GetSwapChainRenderTarget(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-			//const float ClearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-			//m_pScenePass_CommandList->ClearRenderTargetView(GetSwapChainRTV(), ClearColor, 0, nullptr);
-		}
-
-		// Reset Scene Pass
-		//BeginTrackRenderEvent(m_pScenePass_CommandList.Get(), 0, L"Resetting Scene Pass Command List");
-		//{
-		//	m_pScenePass_CommandList->RSSetScissorRects(1, &m_d3dDeviceResources.GetClientScissorRect());
-		//	m_pScenePass_CommandList->RSSetViewports(1, &m_d3dDeviceResources.GetClientViewPort());
-		//}
-		//EndTrackRenderEvent(m_pScenePass_CommandList.Get());
-
-		// Reset Shadow Pass
-		/*BeginTrackRenderEvent(m_pShadowPass_CommandList.Get(), 0, L"Resetting Shadow Pass Command List");
-		{
-			m_pShadowPass_CommandList->RSSetScissorRects(1, &m_ShadowPass_ScissorRect);
-			m_pShadowPass_CommandList->RSSetViewports(1, &m_ShadowPass_ViewPort);
-			m_pShadowPass_CommandList->OMSetRenderTargets(0, nullptr, FALSE, &m_dsvHeap.hCPU(1));
-		}
-		EndTrackRenderEvent(m_pShadowPass_CommandList.Get());*/
 	}
 
 	void Direct3D12Context::OnRender_Impl()
@@ -289,20 +265,6 @@ namespace Insight {
 			Pass->Render(&m_FrameResources);
 		}
 
-		return;
-
-		// Render Shadows.
-		m_pActiveCommandList = m_pShadowPass_CommandList;
-		BindShadowPass();
-
-		// Render Scene.
-		m_pActiveCommandList = m_pScenePass_CommandList;
-		//BindGeometryPass();
-
-		// Transparency Forward Pass.
-		m_pActiveCommandList = m_pTransparencyPass_CommandList;
-		BindTransparencyPass();
-
 	}
 
 	void Direct3D12Context::BindShadowPass()
@@ -317,7 +279,8 @@ namespace Insight {
 			m_pShadowPass_CommandList->SetPipelineState(m_pShadowPass_PSO.Get());
 			m_pShadowPass_CommandList->SetGraphicsRootSignature(m_pDeferredShadingPass_RS.Get());
 
-			ResourceBarrier(m_pShadowPass_CommandList.Get(), m_pShadowDepthTexture.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+			ID3D12Resource* ShadowDepthResources[] = { m_pShadowDepthTexture.Get() };
+			ResourceBarrier(m_pShadowPass_CommandList.Get(), ShadowDepthResources, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
 			m_pShadowPass_CommandList->ClearDepthStencilView(m_dsvHeap.hCPU(1), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0xFF, 0, nullptr);
 			m_pShadowPass_CommandList->OMSetRenderTargets(0, nullptr, FALSE, &m_dsvHeap.hCPU(1));
@@ -331,7 +294,7 @@ namespace Insight {
 
 			// TODO Shadow pass logic here put this on another thread
 			GeometryManager::Render(RenderPassType::RenderPassType_Shadow);
-			ResourceBarrier(m_pShadowPass_CommandList.Get(), m_pShadowDepthTexture.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+			ResourceBarrier(m_pShadowPass_CommandList.Get(), ShadowDepthResources, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 		}
 		EndTrackRenderEvent(m_pShadowPass_CommandList.Get());
 	}
@@ -339,17 +302,6 @@ namespace Insight {
 	void Direct3D12Context::OnMidFrameRender_Impl()
 	{
 		RETURN_IF_WINDOW_NOT_VISIBLE;
-
-		//BindLightingPass();
-		
-#if BLOOM_ENABLED
-		//BlurBloomBuffer();
-#endif // BLOOM_ENABLED
-
-		//BindPostFxPass();
-
-		//DrawDebugScreenQuad();
-
 	}
 
 	void Direct3D12Context::OnEditorRender_Impl()
@@ -414,7 +366,10 @@ namespace Insight {
 
 		// Prepare render target to be presented on the swap chain
 		IE_STRIP_FOR_GAME_DIST(
-			ResourceBarrier(m_pPostEffectsPass_CommandList.Get(), GetSwapChainRenderTarget(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+			ID3D12Resource * Resources[] = {
+				GetSwapChainRenderTarget()
+			};
+			ResourceBarrier(m_pPostEffectsPass_CommandList.Get(), Resources, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 		);
 
 		//ThrowIfFailed(m_pShadowPass_CommandList->Close(), "Failed to close the command list for D3D 12 context shadow pass.");
@@ -1380,9 +1335,26 @@ namespace Insight {
 		}
 	}
 
-	void Direct3D12Context::ResourceBarrier(ID3D12GraphicsCommandList* pCommandList, ID3D12Resource* pResource, D3D12_RESOURCE_STATES StateBefore, D3D12_RESOURCE_STATES StateAfter, uint32_t NumBarriers)
+	void Direct3D12Context::ResourceBarrier(ID3D12GraphicsCommandList* pCommandList, ID3D12Resource** pResources, D3D12_RESOURCE_STATES StateBefore, D3D12_RESOURCE_STATES StateAfter, uint32_t NumBarriers)
 	{
-		pCommandList->ResourceBarrier(NumBarriers, &CD3DX12_RESOURCE_BARRIER::Transition(pResource, StateBefore, StateAfter));
+		constexpr int MaxBarrierTransitions = 8;
+#if defined (IE_DEBUG)
+		assert(NumBarriers <= MaxBarrierTransitions);
+#endif
+		// Batching transitions is much faster for the GPU than one at a time.
+		D3D12_RESOURCE_BARRIER Barriers[MaxBarrierTransitions];
+		ZeroMemory(Barriers, sizeof(D3D12_RESOURCE_BARRIER) * MaxBarrierTransitions);
+		
+		for (uint32_t i = 0; i < NumBarriers; ++i)
+		{
+			Barriers[i].Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+			Barriers[i].Transition.Subresource	= D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+			Barriers[i].Transition.pResource	= pResources[i];
+			Barriers[i].Flags					= D3D12_RESOURCE_BARRIER_FLAG_NONE;
+			Barriers[i].Transition.StateBefore	= StateBefore;
+			Barriers[i].Transition.StateAfter	= StateAfter;
+		}
+		pCommandList->ResourceBarrier(NumBarriers, Barriers);
 	}
 
 }
