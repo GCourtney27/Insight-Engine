@@ -12,6 +12,8 @@ namespace Insight {
 	{
 	public:
 		typedef std::vector<StrongModelPtr> SceneModels;
+		typedef uint64_t VertexBufferHandle;
+		typedef uint64_t IndexBufferHandle;
 		friend class D3D12GeometryManager;
 		friend class D3D11GeometryManager;
 	public:
@@ -45,11 +47,16 @@ namespace Insight {
 		// Unregister a model with a translucent material to not be drawn in the translucency pass
 		static void UnRegisterTranslucentModel(StrongModelPtr Model);
 
+		static inline VertexBufferHandle CreateVertexBuffer() { return s_Instance->CreateVertexBuffer_Impl(); }
+		static inline IndexBufferHandle CreateIndexBuffer() { return s_Instance->CreateIndexBuffer_Impl(); }
+
 
 	protected:
 		virtual bool Init_Impl() = 0;
 		virtual void Render_Impl(RenderPassType RenderPass) = 0;
 		virtual void GatherGeometry_Impl() = 0;
+		virtual VertexBufferHandle CreateVertexBuffer_Impl() = 0;
+		virtual IndexBufferHandle CreateIndexBuffer_Impl() = 0;
 
 	protected:
 		SceneModels m_OpaqueModels;

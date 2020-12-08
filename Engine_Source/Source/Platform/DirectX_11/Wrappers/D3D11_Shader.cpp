@@ -9,11 +9,11 @@ namespace Insight {
 	bool VertexShader::Init(Microsoft::WRL::ComPtr<ID3D11Device>& pDevice, std::wstring& ShaderPath, D3D11_INPUT_ELEMENT_DESC* pLayoutDesc, UINT NumElements)
 	{
 		// If the shader exists already then we are probably resising a window or
-		// doing something else. Dont read in a file or recreate the shader, just return
+		// doing something else. Dont read in a file or recreate the shader, just return.
 		if (m_pShader.Get()) {
 			return true;
 		}
-		HRESULT hr = E_FAIL;// = D3DReadFileToBlob(ShaderPath.c_str(), m_pShaderByteCode.GetAddressOf());
+		HRESULT hr = D3DReadFileToBlob(ShaderPath.c_str(), m_pShaderByteCode.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to read D3D 11 vertex shader from file.");
 
 		hr = pDevice->CreateVertexShader(m_pShaderByteCode->GetBufferPointer(), m_pShaderByteCode->GetBufferSize(), NULL, m_pShader.GetAddressOf());

@@ -4,6 +4,9 @@
 
 #include "Insight/Systems/Managers/Geometry_Manager.h"
 
+#include "Platform/DirectX_12/Geometry/D3D12_Vertex_Buffer.h"
+#include "Platform/DirectX_12/Geometry/D3D12_Index_Buffer.h"
+
 namespace Insight {
 
 	class INSIGHT_API D3D12GeometryManager : public GeometryManager
@@ -13,6 +16,9 @@ namespace Insight {
 		virtual bool Init_Impl() override;
 		virtual void Render_Impl(RenderPassType RenderPass) override;
 		virtual void GatherGeometry_Impl() override;
+
+		virtual VertexBufferHandle CreateVertexBuffer_Impl() override;
+		virtual IndexBufferHandle CreateIndexBuffer_Impl() override;
 
 	private:
 		D3D12GeometryManager() = default;
@@ -35,6 +41,8 @@ namespace Insight {
 		UINT32 m_PerObjectCBDrawOffset = 0u;
 		UINT32 m_GPUAddressUploadOffset = 0u;
 
+		std::vector<D3D12VertexBuffer> m_Vertexbuffers;
+		std::vector<D3D12IndexBuffer> m_Indexbuffers;
 	};
 
 }

@@ -246,6 +246,24 @@ namespace Insight {
 	};
 
 
+	/*===========================================*/
+	/*		Screen-Space Reflections Pass		 */
+	/*===========================================*/
+	class INSIGHT_API ScreenSpaceReflectionsPass : public RenderPass
+	{
+
+	};
+
+
+	/*===============================================*/
+	/*		Screen-Space Ambient Occlusion Pass		 */
+	/*===============================================*/
+	class INSIGHT_API ScreenSpaceAmbientOcclusionPass : public RenderPass
+	{
+
+	};
+
+
 	/*===================================*/
 	/*		Ray-Traced Shadows Pass		 */
 	/*===================================*/
@@ -267,7 +285,7 @@ namespace Insight {
 		virtual void CreateResources() override;
 
 	private:
-		RayTraceHelpers			m_RTHelper;
+		RayTraceHelpers							m_RTHelper;
 		Microsoft::WRL::ComPtr<ID3D12Resource>	m_pRayTraceOutput_SRV;
 
 	};

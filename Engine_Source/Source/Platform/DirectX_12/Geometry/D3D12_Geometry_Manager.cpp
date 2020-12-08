@@ -14,6 +14,16 @@ namespace Insight {
 	{
 	}
 
+	D3D12GeometryManager::VertexBufferHandle D3D12GeometryManager::CreateVertexBuffer_Impl()
+	{
+
+	}
+
+	D3D12GeometryManager::IndexBufferHandle D3D12GeometryManager::CreateIndexBuffer_Impl()
+	{
+
+	}
+
 	bool D3D12GeometryManager::Init_Impl()
 	{
 		Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
