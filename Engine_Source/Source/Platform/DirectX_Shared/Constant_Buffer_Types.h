@@ -17,21 +17,21 @@
 
 struct CB_VS_PerObject
 {
-	DirectX::XMMATRIX World;
+	DirectX::XMMATRIX World;//4x4
 };
 
 struct CB_PS_VS_PerObjectMaterialAdditives
 {
 	float RoughnessAdditive;
 	float MetallicAdditive;
-	DirectX::XMFLOAT2 UVOffset;
+	DirectX::XMFLOAT2 UVOffset;//4
 
 	DirectX::XMFLOAT2 UVTiling;
 	float Padding1;
-	float Padding2;
+	float Padding2;//4
 	
 	DirectX::XMFLOAT3 DiffuseAdditive;
-	float Specular;
+	float Specular;//4
 };
 
 struct CB_PS_VS_PerFrame

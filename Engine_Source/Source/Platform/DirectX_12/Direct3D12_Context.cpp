@@ -210,6 +210,7 @@ namespace Insight {
 			ThrowIfFailed(m_pPostEffectsPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
 #if BLOOM_ENABLED
+			m_pBloomFirstPass_CommandList->Close();
 			ThrowIfFailed(m_pBloomFirstPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
 
@@ -238,7 +239,6 @@ namespace Insight {
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 
 #if BLOOM_ENABLED
-			m_pBloomFirstPass_CommandList->Close();
 			ThrowIfFailed(m_pBloomFirstPass_CommandList->Reset(m_pBloomFirstPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 			
@@ -470,26 +470,26 @@ namespace Insight {
 			SetWindowLong(pHWND, GWL_STYLE, WS_OVERLAPPEDWINDOW & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
 
 			RECT fullscreenWindowRect;
-			try
+			//try
+			//{
+			//	if (&m_DeviceResources.GetSwapChain())
+			//	{
+			//		// Get the settings of the display on which the app's window is currently displayed
+			//		ComPtr<IDXGIOutput> pOutput;
+			//		ThrowIfFailed(m_DeviceResources.GetSwapChain().GetContainingOutput(&pOutput), "Failed to get containing output while switching to fullscreen mode in D3D 12 context.");
+			//		DXGI_OUTPUT_DESC Desc;
+			//		ThrowIfFailed(pOutput->GetDesc(&Desc), "Failed to get description from output while switching to fullscreen mode in D3D 12 context.");
+			//		fullscreenWindowRect = Desc.DesktopCoordinates;
+			//	}
+			//	else
+			//	{
+			//		// Fallback to EnumDisplaySettings implementation
+			//		throw COMException(NULL, "No Swap chain available", __FILE__, __FUNCTION__, __LINE__);
+			//	}
+			//}
+			//catch (COMException& e)
 			{
-				if (&m_DeviceResources.GetSwapChain())
-				{
-					// Get the settings of the display on which the app's window is currently displayed
-					ComPtr<IDXGIOutput> pOutput;
-					ThrowIfFailed(m_DeviceResources.GetSwapChain().GetContainingOutput(&pOutput), "Failed to get containing output while switching to fullscreen mode in D3D 12 context.");
-					DXGI_OUTPUT_DESC Desc;
-					ThrowIfFailed(pOutput->GetDesc(&Desc), "Failed to get description from output while switching to fullscreen mode in D3D 12 context.");
-					fullscreenWindowRect = Desc.DesktopCoordinates;
-				}
-				else
-				{
-					// Fallback to EnumDisplaySettings implementation
-					throw COMException(NULL, "No Swap chain available", __FILE__, __FUNCTION__, __LINE__);
-				}
-			}
-			catch (COMException& e)
-			{
-				UNREFERENCED_PARAMETER(e);
+				//UNREFERENCED_PARAMETER(e);
 
 				// Get the settings of the primary display
 				DEVMODE devMode = {};
@@ -1338,9 +1338,10 @@ namespace Insight {
 	void Direct3D12Context::ResourceBarrier(ID3D12GraphicsCommandList* pCommandList, ID3D12Resource** pResources, D3D12_RESOURCE_STATES StateBefore, D3D12_RESOURCE_STATES StateAfter, uint32_t NumBarriers)
 	{
 		constexpr int MaxBarrierTransitions = 8;
-#if defined (IE_DEBUG)
-		assert(NumBarriers <= MaxBarrierTransitions);
-#endif
+		
+		IE_ASSERT(NumBarriers <= MaxBarrierTransitions, "Can only transition 8 resources at a time.");
+		IE_ASSERT(pResources, "pResources cannot be nullptr.");
+		
 		// Batching transitions is much faster for the GPU than one at a time.
 		D3D12_RESOURCE_BARRIER Barriers[MaxBarrierTransitions];
 		ZeroMemory(Barriers, sizeof(D3D12_RESOURCE_BARRIER) * MaxBarrierTransitions);

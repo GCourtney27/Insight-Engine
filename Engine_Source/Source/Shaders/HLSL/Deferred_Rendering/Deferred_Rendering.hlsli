@@ -70,6 +70,9 @@ cbuffer cbPerObjectAdditive : register(b4)
     
     float3 diffuseAdditive;
     float specular;
+    
+    float3 emissiveColor;
+    float emissiveStrength;
 };
 
 /* Shadow Pass */

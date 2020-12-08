@@ -180,11 +180,10 @@ namespace Insight {
 			return Handle;
 		}
 
-		void TempReset()
+		inline void ResetBloomPass()
 		{
 			ThrowIfFailed(m_pBloomFirstPass_CommandList->Reset(m_pBloomFirstPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
-
 		}
 		
 	private:
