@@ -57,7 +57,9 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     float3 albedo = pow(abs(t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb), float3(2.2, 2.2, 2.2));
     float4 roughMetAOSpecularBufferSample = t_RoughnessMetallicAOSpecularGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgba;
     float3 worldPosition = t_PositionGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).xyz;
+    worldPosition = mul(float4(worldPosition, 1.0), cbInverseView);
     float3 normal = t_NormalGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).xyz;
+    normal = mul(float4(normal, 1.0), cbInverseView);
     float sceneDepth = t_SceneDepthGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
     float roughness = roughMetAOSpecularBufferSample.r;
     float metallic = roughMetAOSpecularBufferSample.g;
@@ -127,7 +129,7 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     float3 combinedLightLuminance = (pointLightLuminance + spotLightLuminance) + (directionalLightLuminance);
     
      // Combine Light Luminance
-    float3 pixelColor = ambient + combinedLightLuminance;
+    float3 pixelColor = /*ambient +*/ combinedLightLuminance;
     
     // Bloom
     float brightness = dot(pixelColor.rgb, float3(0.2126, 0.7152, 0.0722));

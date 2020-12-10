@@ -104,6 +104,13 @@
             "Filepath": "Textures/BambooWood/BambooWood_AO.png",
             "Type": 4,
             "GenerateMipMaps": true
+        },
+        {
+            "Name": "Rainbow_Albedo",
+            "ID": 16,
+            "Filepath": "Textures/Debug/RainbowCheckerboard_Albedo.jpg",
+            "Type": 0,
+            "GenerateMipMaps": true
         }
     ]
 }

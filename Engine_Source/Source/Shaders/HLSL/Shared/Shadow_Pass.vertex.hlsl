@@ -14,8 +14,8 @@ VS_OUTPUT_SHADOWPASS main(VS_INPUT_SHADOWPASS vs_in)
     //vs_in.position.y *= 0.5;
     //vs_in.position.z *= 0.5;
     
-    float4 worldPos = mul(float4(vs_in.position, 1.0), world);
-    float4x4 wvpLightSpace = mul(mul(world, dirLight.lightSpaceView), dirLight.lightSpaceProj);
+    float4 worldPos = mul(float4(vs_in.position, 1.0), cbWorld);
+    float4x4 wvpLightSpace = mul(mul(cbWorld, dirLight.lightSpaceView), dirLight.lightSpaceProj);
         
     vs_out.sv_position = mul(float4(vs_in.position, 1.0), wvpLightSpace);
     vs_out.fragPos = worldPos.xyz;

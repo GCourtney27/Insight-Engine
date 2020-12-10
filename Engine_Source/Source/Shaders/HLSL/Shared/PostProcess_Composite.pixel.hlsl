@@ -1,3 +1,4 @@
+#include <../Common/Insight_Common.hlsli>
 #include <..//Deferred_Rendering/Deferred_Rendering.hlsli>
 
 // Texture Inputs
@@ -38,11 +39,149 @@ struct PS_INPUT_POSTFX
 	float2 texCoords : TEXCOORD;
 };
 
+#define getPosition(texCoord) t_PositionGBuffer.Sample(s_PointClampSampler, texCoord).xyz
+#define getDepth(texCoord) t_SceneDepthGBuffer.Sample(s_PointClampSampler, texCoord).xyz
+
+float3 fresnelSchlick(float cosTheta, float3 F0)
+{
+    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
+float3 hash(float3 a)
+{
+    const float3 Scale = float3(0.8, 0.8, 0.8);
+    const float K = 19.19;
+    a = frac(a * Scale);
+    a += dot(a, a.yxz + K);
+    return frac((a.xxy + a.yxx) * a.zyx);
+}
+
+float2 BinarySearch(inout float3 dir, inout float3 hitCoord, inout float dDepth)
+{
+    const int numBinarySearchSteps = 10;
+    
+    float depth;
+    float4 projectedCoord;
+    
+    for (int i = 0; i < numBinarySearchSteps; i++)
+    {
+        projectedCoord      = mul(float4(hitCoord, 1.0), cbProjection);
+        projectedCoord.xy  /= projectedCoord.w;
+        projectedCoord.xy = projectedCoord.xy * 0.5 + 0.5;
+        
+
+        depth = getPosition(projectedCoord.xy).z;
+ 
+        dDepth = hitCoord.z - depth;
+
+        dir *= 0.5;
+        
+        if (dDepth > 0.0)
+            hitCoord += dir;
+        else
+            hitCoord -= dir;
+    }
+    
+    projectedCoord = mul(float4(hitCoord, 1.0), cbProjection);
+    projectedCoord.xy /= projectedCoord.w;
+    projectedCoord.xy = projectedCoord.xy * 0.5 + 0.5;
+ 
+    return float2(projectedCoord.xy);
+}
+
+float2 RayMarch(float3 dir, inout float3 hitCoord, out float dDepth)
+{
+    const float step = 0.05;
+    const float maxSteps = 30;
+    
+    
+    dir *= step;
+  
+    for (int i = 0; i < maxSteps; i++)
+    {
+        hitCoord += dir;
+ 
+        float4  projectedCoord      = mul(float4(hitCoord, 1.0), cbProjection);
+                projectedCoord.xy  /= projectedCoord.w;
+        projectedCoord.xy = projectedCoord.xy * 0.5 + 0.5;
+ 
+        float depth = getPosition(projectedCoord.xy).z;
+       
+        dDepth = hitCoord.z - depth;
+
+        if ((dir.z - dDepth) < 1.2 && dDepth <= 0.0)
+        {
+            return BinarySearch(dir, hitCoord, dDepth);
+        }
+    }
+ 
+    return float2(-1.0, -1.0);
+}
+
+#define fresnelExp 5.0
+float fresnel(float3 direction, float3 normal)
+{
+    float3 halfDirection = normalize(normal + direction);
+    
+    float cosine = dot(halfDirection, direction);
+    float product = max(cosine, 0.0);
+    float factor = 1.0 - pow(product, fresnelExp);
+    
+    return factor;
+}
+
+
 float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
 {
 	float3 LightPassResult = t_LightPassResult.Sample(s_PointClampSampler, ps_in.texCoords).rgb;
 	
-    float3 result = LightPassResult;
+    //return float4(LightPassResult, 1.0);
+	
+    float Metallic  = t_RoughnessMetallicAOGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).b;
+    float Roughness = t_RoughnessMetallicAOGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
+    float Spec      = t_RoughnessMetallicAOGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).a;
+    float3 Albedo   = t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb;
+    
+    float3 ViewNormal = t_NormalGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb; // View space
+    float3 ViewPosition = getPosition(ps_in.texCoords); // View space
+    
+    float3 WorldPosition = mul(float4(ViewPosition, 1.0), cbInverseView).xyz;
+    float3 jitt = hash(WorldPosition) * Roughness;
+	
+    // Reflection vector
+    float3 reflected = normalize(reflect(normalize(ViewPosition), normalize(ViewNormal)));
+    
+    
+    float3 hitPos = ViewPosition;
+    float dDepth;
+    const float minRayStep = 0.2;
+    float2 coords = RayMarch(jitt + reflected * max(-ViewPosition.z, minRayStep), hitPos, dDepth);
+     
+    float LLimiter = 0.1;
+    float L = length(getPosition(coords) - ViewPosition);
+    L = clamp(L * LLimiter, 0, 1);
+    float error = 1 - L;
+
+    float f = fresnel(reflected, ViewNormal);
+    
+    
+    float3 SSR = t_AlbedoGBuffer.Sample(s_LinearWrapSampler, coords.xy).rgb; // * error * f;
+    
+    float3 SSRResult;
+    
+    if(coords.x != -1.0 && coords.y != -1.0)
+    {
+        SSRResult = lerp(t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords), float4(SSR, 1.0), Spec).rgb;
+    }
+    else
+    {
+        SSRResult = lerp(t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords), float4(0.0, 0.0, 1.0, 1.0), Spec).rgb;
+    }
+    
+    return float4(SSRResult, 1.0);
+    //return float4(LightPassResult + SSR, 1.0);
+    
+    float3 result = LightPassResult ;
 	
 	if (blEnabled)
 	{

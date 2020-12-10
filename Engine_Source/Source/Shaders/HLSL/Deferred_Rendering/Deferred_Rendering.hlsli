@@ -4,7 +4,7 @@
 
 cbuffer cbPerObject : register(b0)
 {
-    float4x4 world;
+    float4x4 cbWorld;
 };
 
 cbuffer cbPerFrame : register(b1)

@@ -133,14 +133,14 @@ namespace Insight {
 
 		DXGI_FORMAT	m_GBufferRTVFormats[m_NumRenderTargets] = {
 						DXGI_FORMAT_R11G11B10_FLOAT,	// Albedo
-						DXGI_FORMAT_R16G16B16A16_SNORM,	// Normal
+						DXGI_FORMAT_R16G16B16A16_FLOAT,	// Normal
 						DXGI_FORMAT_R16G16B16A16_FLOAT,	// (R)Roughness/(G)Metallic/(B)AO/ (A)Specular
 						DXGI_FORMAT_R32G32B32A32_FLOAT, // Position
 		};
 
 		// Depth
-		DXGI_FORMAT	m_DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		DXGI_FORMAT	m_DSVSRVFormat = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		DXGI_FORMAT	m_DSVFormat = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+		DXGI_FORMAT	m_DSVSRVFormat = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
 		FLOAT		m_DepthClearValue = 1.0f;
 		Microsoft::WRL::ComPtr<ID3D12Resource>	m_pSceneDepthStencilTexture;
 	};

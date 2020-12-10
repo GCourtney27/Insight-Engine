@@ -62,7 +62,6 @@ namespace Insight {
 
 			BeginTrackRenderEvent(&m_DeviceResources.GetGraphicsCommandQueue(), 0, L"D3D12 Context Setup");
 			{
-				//CreateScreenQuad();
 				CreateViewport();
 				CreateScissorRect();
 
@@ -110,7 +109,6 @@ namespace Insight {
 						m_PostProcessCompositePass.Create(this, &m_cbvsrvHeap, m_pPostEffectsPass_CommandList.Get(), m_pDeferredShadingPass_RS.Get());
 						m_PostProcessCompositePass.SetSceneDepthTextureRef(m_GeometryPass.GetSceneDepthTexture());
 						m_RenderPassStack.PushPassOverlay(&m_PostProcessCompositePass);
-
 					}
 				}
 
@@ -210,7 +208,6 @@ namespace Insight {
 			ThrowIfFailed(m_pPostEffectsPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
 #if BLOOM_ENABLED
-			m_pBloomFirstPass_CommandList->Close();
 			ThrowIfFailed(m_pBloomFirstPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
 
@@ -377,12 +374,12 @@ namespace Insight {
 		//ThrowIfFailed(m_pTransparencyPass_CommandList->Close(), "Failed to close the command list for D3D 12 context transparency pass.");
 		ThrowIfFailed(m_pPostEffectsPass_CommandList->Close(), "Failed to close the command list for D3D 12 context post-process pass.");
 #if BLOOM_ENABLED
+		ThrowIfFailed(m_pBloomFirstPass_CommandList->Close(), "Failed to close command list for D3D 12 context bloom blur pass.");
 		ThrowIfFailed(m_pBloomSecondPass_CommandList->Close(), "Failed to close command list for D3D 12 context bloom blur pass.");
 #endif
 		if (m_GraphicsSettings.RayTraceEnabled) 
 			ThrowIfFailed(m_pRayTracePass_CommandList->Close(), "Failed to close the command list for D3D 12 context ray trace pass.");
 		
-
 
 		// Scene Pass
 		ID3D12CommandList* ppScenePassLists[] = {
@@ -470,39 +467,18 @@ namespace Insight {
 			SetWindowLong(pHWND, GWL_STYLE, WS_OVERLAPPEDWINDOW & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
 
 			RECT fullscreenWindowRect;
-			//try
-			//{
-			//	if (&m_DeviceResources.GetSwapChain())
-			//	{
-			//		// Get the settings of the display on which the app's window is currently displayed
-			//		ComPtr<IDXGIOutput> pOutput;
-			//		ThrowIfFailed(m_DeviceResources.GetSwapChain().GetContainingOutput(&pOutput), "Failed to get containing output while switching to fullscreen mode in D3D 12 context.");
-			//		DXGI_OUTPUT_DESC Desc;
-			//		ThrowIfFailed(pOutput->GetDesc(&Desc), "Failed to get description from output while switching to fullscreen mode in D3D 12 context.");
-			//		fullscreenWindowRect = Desc.DesktopCoordinates;
-			//	}
-			//	else
-			//	{
-			//		// Fallback to EnumDisplaySettings implementation
-			//		throw COMException(NULL, "No Swap chain available", __FILE__, __FUNCTION__, __LINE__);
-			//	}
-			//}
-			//catch (COMException& e)
-			{
-				//UNREFERENCED_PARAMETER(e);
 
-				// Get the settings of the primary display
-				DEVMODE devMode = {};
-				devMode.dmSize = sizeof(DEVMODE);
-				EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &devMode);
+			// Get the settings of the primary display
+			DEVMODE devMode = {};
+			devMode.dmSize = sizeof(DEVMODE);
+			EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &devMode);
 
-				fullscreenWindowRect = {
-					devMode.dmPosition.x,
-					devMode.dmPosition.y,
-					devMode.dmPosition.x + static_cast<LONG>(devMode.dmPelsWidth),
-					devMode.dmPosition.y + static_cast<LONG>(devMode.dmPelsHeight)
-				};
-			}
+			fullscreenWindowRect = {
+				devMode.dmPosition.x,
+				devMode.dmPosition.y,
+				devMode.dmPosition.x + static_cast<LONG>(devMode.dmPelsWidth),
+				devMode.dmPosition.y + static_cast<LONG>(devMode.dmPelsHeight)
+			};
 
 			SetWindowPos(
 				pHWND,
