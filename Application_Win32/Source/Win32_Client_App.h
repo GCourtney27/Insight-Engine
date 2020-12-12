@@ -212,20 +212,19 @@ namespace SandBoxApp {
 			//return;
 
 			// Wooden Floor
-			//Insight::Material* pWood = new Insight::Material({ 1, 2, 3, 4, 5 });
-			Insight::Material* pRustedIron = new Insight::Material({ 6, 7, 8, 9, 10 });
-			//pWood->SetUVTilingOffset(9.0f, 9.0f);
-			pRustedIron->SetUVTilingOffset(5.0f, 5.0f);
+			Insight::Material* pWood = new Insight::Material({ 1, 2, 3, 4, 5 });
+			pWood->SetUVTilingOffset(9.0f, 9.0f);
 			AActor* pAWoodenFloor = new AActor(0, "Wooden Floor");
 			SceneComponent* pSCWoodenFloor = pAWoodenFloor->CreateDefaultSubobject<SceneComponent>();
 			pSCWoodenFloor->SetScale(1000.0f);
 			pSCWoodenFloor->SetPosition(0.0f, -20.0f, 0.0f);
 			StaticMeshComponent* pSMQuad = pAWoodenFloor->CreateDefaultSubobject<StaticMeshComponent>();
-			pSMQuad->SetMaterial(pRustedIron);
+			pSMQuad->SetMaterial(pWood);
 			pSMQuad->AttachMesh("Models/Quad.fbx");
 			GetScene().AddActor(pAWoodenFloor);
 
 			// Rusted Ball
+			Insight::Material* pRustedIron = new Insight::Material({ 6, 7, 8, 9, 10 });
 			pARustedBall = new AActor(0, "Rusted Ball");
 			pSCDemoBall = pARustedBall->CreateDefaultSubobject<SceneComponent>();
 			pSCDemoBall->SetScale(20.0f);

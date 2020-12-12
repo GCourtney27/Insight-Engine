@@ -40,8 +40,7 @@ PS_OUTPUT_GEOMPASS main(PS_INPUT_GEOMPASS ps_in)
     normal.z =  normalSample.z;
     normal = normalize(mul(normal, tanToView));
     
-    ps_out.normal = float4(ps_in.normal, 1.0);
-    //ps_out.normal = float4(normal, 1.0); // Tangent space
+    ps_out.normal = float4(normal, 1.0); // Tangent space
     ps_out.position = float4(ps_in.fragPos, 1.0);
     
     ps_out.albedo = t_AlbedoObject.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb + diffuseAdditive;

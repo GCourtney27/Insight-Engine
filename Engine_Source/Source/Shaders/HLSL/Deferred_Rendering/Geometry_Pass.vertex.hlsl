@@ -13,13 +13,11 @@ VS_OUTPUT_GEOMPASS main(VS_INPUT_GEOMPASS vs_in)
     
     vs_out.sv_position = mul(float4(vs_in.position, 1.0f), worldViewProjection);
 	
-    //vs_out.fragPos = worldPos.xyz;
-    vs_out.fragPos = mul(float4(vs_in.position, 1.0), cbView);
-    
+    vs_out.fragPos = worldPos.xyz;
     
     vs_out.texCoords    = float2((vs_in.texCoords.x + uvOffset.x) * tiling.x, (vs_in.texCoords.y + uvOffset.y) * tiling.y);
     
-    vs_out.normal       = normalize(mul(float4(vs_in.normal, 0.0f), cbView).xyz);
+    vs_out.normal       = normalize(mul(float4(vs_in.normal, 0.0f), cbWorld).xyz);
     vs_out.tangent      = mul(float4(vs_in.tangent, 1.0), worldView).xyz;
     vs_out.biTangent    = mul(float4(vs_in.biTangent, 1.0), worldView).xyz;
 
