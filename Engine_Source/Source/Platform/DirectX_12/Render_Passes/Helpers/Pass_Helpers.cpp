@@ -89,54 +89,70 @@ namespace Insight {
 
 	void GaussianBlurHelper::Execute(FrameResources* pFrameResources)
 	{
-		m_pCommandListRef->SetPipelineState(m_pPipelineState.Get());
-		m_pCommandListRef->SetComputeRootSignature(m_pRootSignature.Get());
+		m_pFirstPass_CommandListRef->SetPipelineState(m_pPipelineState.Get());
+		m_pFirstPass_CommandListRef->SetComputeRootSignature(m_pRootSignature.Get());
 
-		constexpr UINT ThreadsPerPixel = 16U;
+		constexpr uint16_t ThreadsPerPixel = 16U;
 
 		// Horizontal Pass
 		// ---------------
-		BeginTrackRenderEvent(m_pCommandListRef.Get(), 0, L"Blurring HORIZONTALLY");
+		BeginTrackRenderEvent(m_pFirstPass_CommandListRef.Get(), 0, L"Blurring HORIZONTALLY");
 		{
-			m_pCommandListRef->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pSourceUAVRef.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE));
+			m_pFirstPass_CommandListRef->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pSourceUAVRef.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE));
 			// Copy the UAV to a shader readable SRV
-			m_pCommandListRef->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pSourceSRVRef.Get(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST));
-			m_pCommandListRef->CopyResource(m_pSourceSRVRef.Get(), m_pSourceUAVRef.Get());
-			m_pCommandListRef->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pSourceSRVRef.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE));
-			m_pCommandListRef->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pSourceUAVRef.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
+			m_pFirstPass_CommandListRef->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pSourceSRVRef.Get(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST));
+			m_pFirstPass_CommandListRef->CopyResource(m_pSourceSRVRef.Get(), m_pSourceUAVRef.Get());
+			m_pFirstPass_CommandListRef->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pSourceSRVRef.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE));
+			m_pFirstPass_CommandListRef->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pSourceUAVRef.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
 
-			m_pCommandListRef->SetComputeRootDescriptorTable(1, m_hSourceSRV); // Set the SRV of the down sampled bloom texture
-			m_pCommandListRef->SetComputeRootDescriptorTable(2, m_hIntermediateUAV); // Set the UAV for the intermediate buffer
+			m_pFirstPass_CommandListRef->SetComputeRootDescriptorTable(1, m_hSourceSRV); // Set the SRV of the down sampled bloom texture
+			m_pFirstPass_CommandListRef->SetComputeRootDescriptorTable(2, m_hIntermediateUAV); // Set the UAV for the intermediate buffer
 
 			pFrameResources->m_CBBlurParams.Data.Direction = BlurPassHorizontal;
 			pFrameResources->m_CBBlurParams.SubmitToGPU();
-			pFrameResources->m_CBBlurParams.SetAsComputeRootConstantBufferView(m_pCommandListRef.Get(), 0);
+			pFrameResources->m_CBBlurParams.SetAsComputeRootConstantBufferView(m_pFirstPass_CommandListRef.Get(), 0);
 
-			m_pCommandListRef->Dispatch(m_WindowDimensions.first / ThreadsPerPixel, m_WindowDimensions.second / ThreadsPerPixel, 1);
+			m_pFirstPass_CommandListRef->Dispatch(m_WindowDimensions.first / ThreadsPerPixel, m_WindowDimensions.second / ThreadsPerPixel, 1);
 		}
-		EndTrackRenderEvent(m_pCommandListRef.Get());
+		EndTrackRenderEvent(m_pFirstPass_CommandListRef.Get());
+
+		// Wait for the first pass to complete so the buffers can be blurred for the second blur pass.
+		ThrowIfFailed(m_pFirstPass_CommandListRef->Close(), "Failed to close command list for D3D 12 context bloom blur pass.");
+
+		ID3D12CommandList* ppComputeLists[] = {
+			m_pFirstPass_CommandListRef.Get(),
+		};
+		m_pRenderContext->GetDeviceResources().GetComputeCommandQueue().ExecuteCommandLists(_countof(ppComputeLists), ppComputeLists);
+		m_pRenderContext->ResetBloomPass();
 
 		// Vertical Pass
 		// -------------
-		BeginTrackRenderEvent(m_pCommandListRef.Get(), 0, L"Blurring VERTICALLY");
+		BeginTrackRenderEvent(m_pSecondPass_CommandListRef.Get(), 0, L"Blurring VERTICALLY");
 		{
-			m_pCommandListRef->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pIntermediateUAVRef.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE));
+			// Prep the pass.
+			m_pSecondPass_CommandListRef->SetPipelineState(m_pPipelineState.Get());
+			m_pSecondPass_CommandListRef->SetComputeRootSignature(m_pRootSignature.Get());
+
+			ID3D12DescriptorHeap* ppHeaps[] = { m_pRenderContext->GetCBVSRVDescriptorHeap().pDH.Get() };
+			m_pSecondPass_CommandListRef->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+
+			m_pSecondPass_CommandListRef->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pIntermediateUAVRef.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE));
 			// Copy the UAV to a shader readable SRV
-			m_pCommandListRef->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pIntermediateSRVRef.Get(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST));
-			m_pCommandListRef->CopyResource(m_pIntermediateSRVRef.Get(), m_pIntermediateUAVRef.Get());
-			m_pCommandListRef->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pIntermediateSRVRef.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE));
-			m_pCommandListRef->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pIntermediateUAVRef.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
+			m_pSecondPass_CommandListRef->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pIntermediateSRVRef.Get(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST));
+			m_pSecondPass_CommandListRef->CopyResource(m_pIntermediateSRVRef.Get(), m_pIntermediateUAVRef.Get());
+			m_pSecondPass_CommandListRef->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pIntermediateSRVRef.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE));
+			m_pSecondPass_CommandListRef->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pIntermediateUAVRef.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
 
 			pFrameResources->m_CBBlurParams.Data.Direction = BlurPassVertical;
 			pFrameResources->m_CBBlurParams.SubmitToGPU();
-			pFrameResources->m_CBBlurParams.SetAsComputeRootConstantBufferView(m_pCommandListRef.Get(), 0);
+			pFrameResources->m_CBBlurParams.SetAsComputeRootConstantBufferView(m_pSecondPass_CommandListRef.Get(), 0);
 
-			m_pCommandListRef->SetComputeRootDescriptorTable(1, m_hIntermediateSRV);	// Set the SRV of the intermediate texture, Which now contains a horizontally blurred texture
-			m_pCommandListRef->SetComputeRootDescriptorTable(2, m_hSourceUAV);			// Set the origional UAV for final blur pass.
+			m_pSecondPass_CommandListRef->SetComputeRootDescriptorTable(1, m_hIntermediateSRV);	// Set the SRV of the intermediate texture, Which now contains a horizontally blurred texture
+			m_pSecondPass_CommandListRef->SetComputeRootDescriptorTable(2, m_hSourceUAV);		// Set the origional UAV for final blur pass.
 
-			m_pCommandListRef->Dispatch(m_WindowDimensions.first / ThreadsPerPixel, m_WindowDimensions.second / ThreadsPerPixel, 1);
+			m_pSecondPass_CommandListRef->Dispatch(m_WindowDimensions.first / ThreadsPerPixel, m_WindowDimensions.second / ThreadsPerPixel, 1);
 		}
-		EndTrackRenderEvent(m_pCommandListRef.Get());
+		EndTrackRenderEvent(m_pSecondPass_CommandListRef.Get());
 	}
 
 	void GaussianBlurHelper::LoadPipeline(Microsoft::WRL::ComPtr<ID3D12Device> pDevice)
@@ -148,7 +164,7 @@ namespace Insight {
 		DescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0); // Bloom UAV Destination
 
 		CD3DX12_ROOT_PARAMETER RootParameters[3] = {};
-		RootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL); // Ping buffer
+		RootParameters[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL); 
 		RootParameters[1].InitAsDescriptorTable(1, &DescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL); // Source Texture
 		RootParameters[2].InitAsDescriptorTable(1, &DescriptorRanges[1], D3D12_SHADER_VISIBILITY_ALL); // Destination Texture
 

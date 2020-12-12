@@ -21,11 +21,15 @@ namespace Insight {
 		void FlushAllResources();
 
 		TextureManager& GetTextureManager() { return *m_pTextureManager; }
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		MonoScriptManager& GetMonoScriptManager() { return *m_pMonoScriptManager; }
+#endif
 
 	private:
 		TextureManager* m_pTextureManager = nullptr;
+#if defined (IE_PLATFORM_BUILD_WIN32)
 		MonoScriptManager* m_pMonoScriptManager = nullptr;
+#endif
 	private:
 		static ResourceManager* s_Instance;
 	};

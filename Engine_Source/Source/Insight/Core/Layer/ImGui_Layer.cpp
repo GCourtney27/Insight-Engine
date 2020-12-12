@@ -31,7 +31,7 @@ namespace Insight {
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;		// Enable Gamepad Controls
-		//io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
 
 		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
@@ -61,7 +61,7 @@ namespace Insight {
 #if defined (IE_PLATFORM_BUILD_WIN32)
 		ImGui::NewFrame();
 		//ImGuizmo::BeginFrame();
-		//ImGui::DockSpaceOverViewport(0, ImGuiDockNodeFlags_PassthruCentralNode);
+		ImGui::DockSpaceOverViewport(0, ImGuiDockNodeFlags_PassthruCentralNode);
 #endif
 	}
 

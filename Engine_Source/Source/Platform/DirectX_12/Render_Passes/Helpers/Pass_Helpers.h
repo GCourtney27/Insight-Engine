@@ -6,6 +6,8 @@
 namespace Insight {
 
 	class FrameResources;
+	class Direct3D12Context;
+
 
 	/*
 		A reusable downsampler that can be used to pack a SRV into a UAV.
@@ -88,8 +90,10 @@ namespace Insight {
 		~GaussianBlurHelper() = default;
 
 		inline void Create(
+			Direct3D12Context* pRenderContext,
 			Microsoft::WRL::ComPtr<ID3D12Device> pDevice, 
-			Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pCommandList,
+			Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pFirstPass_CommandList,
+			Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pSecondPass_CommandList,
 			std::pair<uint32_t, uint32_t> WindowDimensions,
 			Microsoft::WRL::ComPtr<ID3D12Resource> pSourceUAV, D3D12_GPU_DESCRIPTOR_HANDLE hSourceUAV,				//9
 			Microsoft::WRL::ComPtr<ID3D12Resource> pSourceSRV, D3D12_GPU_DESCRIPTOR_HANDLE hSourceSRV,				//10
@@ -97,7 +101,10 @@ namespace Insight {
 			Microsoft::WRL::ComPtr<ID3D12Resource> pIntermediateSRV, D3D12_GPU_DESCRIPTOR_HANDLE hIntermediateSRV	//12
 		)
 		{
-			m_pCommandListRef	= pCommandList;
+			m_pRenderContext = pRenderContext;
+
+			m_pFirstPass_CommandListRef	= pFirstPass_CommandList;
+			m_pSecondPass_CommandListRef = pSecondPass_CommandList;
 			m_WindowDimensions	= WindowDimensions;
 
 			if(!m_pSourceUAVRef.Get())
@@ -134,7 +141,10 @@ namespace Insight {
 		void LoadPipeline(Microsoft::WRL::ComPtr<ID3D12Device> pDevice);
 
 	private:
-		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_pCommandListRef;
+		Direct3D12Context* m_pRenderContext;
+
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_pFirstPass_CommandListRef;
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_pSecondPass_CommandListRef;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_pRootSignature;
 		Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pPipelineState;
 		std::pair<uint32_t, uint32_t> m_WindowDimensions;

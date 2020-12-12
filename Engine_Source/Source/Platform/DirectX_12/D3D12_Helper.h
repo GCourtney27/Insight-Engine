@@ -65,6 +65,7 @@ namespace Insight {
 		int									m_FrameIndex = 0;
 		UINT64								m_FenceValues[m_FrameBufferCount] = {};
 		HANDLE								m_FenceEvent = {};
+		HANDLE								m_ComputeFenceEvent = {};
 		Microsoft::WRL::ComPtr<ID3D12Fence>					m_pFence;
 
 		Microsoft::WRL::ComPtr<IDXGIAdapter1>				m_pAdapter;

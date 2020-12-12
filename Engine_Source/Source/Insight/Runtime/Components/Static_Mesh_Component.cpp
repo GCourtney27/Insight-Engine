@@ -184,16 +184,16 @@ namespace Insight {
 			return true;
 		}
 
-		void StaticMeshComponent::AttachMesh(const std::string& AssestDirectoryRelPath)
+		void StaticMeshComponent::AttachMesh(const std::string& Path)
 		{
-			ScopedPerfTimer(("StaticMeshComponent::AttachMesh \"" + AssestDirectoryRelPath + "\"").c_str(), OutputType_Seconds);
+			ScopedPerfTimer(("StaticMeshComponent::AttachMesh \"" + Path + "\"").c_str(), OutputType_Seconds);
 
 			if (m_pModel) {
 				GeometryManager::UnRegisterOpaqueModel(m_pModel);
 				m_pModel.reset();
 			}
 			m_pModel = make_shared<Model>();
-			if (!m_pModel->Create(AssestDirectoryRelPath, m_pMaterial)) {
+			if (!m_pModel->Create(Path, m_pMaterial)) {
 				m_pModel.reset();
 				return;
 			}

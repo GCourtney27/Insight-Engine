@@ -109,7 +109,7 @@ namespace Insight {
 			//if (m_pMonoScriptManager) {
 			//	m_pMonoScriptManager = nullptr;
 			//}
-			ResourceManager::Get().GetMonoScriptManager().UnRegisterScript(this);
+			//ResourceManager::Get().GetMonoScriptManager().UnRegisterScript(this);
 		}
 
 		void CSharpScriptComponent::UpdateScriptFields()

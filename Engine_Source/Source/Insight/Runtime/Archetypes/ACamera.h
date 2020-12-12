@@ -15,8 +15,8 @@ namespace Insight {
 		constexpr float DEFAULT_SENSITIVITY = 150.0f;
 		constexpr float DEFAULT_FOV			= 45.0f;
 		constexpr float DEFAULT_EXPOSURE	= 0.5f;
-		constexpr float DEFAULT_NEAR_Z		= 0.0001f;
-		constexpr float DEFAULT_FAR_Z		= 1000.0f;
+		constexpr float DEFAULT_NEAR_Z		= 0.5f;
+		constexpr float DEFAULT_FAR_Z		= 3000.0f;
 
 		using namespace DirectX;
 

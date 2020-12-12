@@ -83,6 +83,22 @@ namespace Insight {
 				debugController->EnableDebugLayer();
 				DxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 			}
+
+			Microsoft::WRL::ComPtr<IDXGIInfoQueue> dxgiInfoQueue;
+			if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(dxgiInfoQueue.GetAddressOf()))))
+			{
+				dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR, true);
+				dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION, true);
+
+				DXGI_INFO_QUEUE_MESSAGE_ID hide[] =
+				{
+					80 /* IDXGISwapChain::GetContainingOutput: The swapchain's adapter does not control the output on which the swapchain's window resides. */,
+				};
+				DXGI_INFO_QUEUE_FILTER filter = {};
+				filter.DenyList.NumIDs = _countof(hide);
+				filter.DenyList.pIDList = hide;
+				dxgiInfoQueue->AddStorageFilterEntries(DXGI_DEBUG_DXGI, &filter);
+			}
 		}
 #endif
 
@@ -280,15 +296,21 @@ namespace Insight {
 
 		m_FenceEvent = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
 		if (m_FenceEvent == nullptr) THROW_COM_ERROR("Fence Event was nullptr");
+
+		m_ComputeFenceEvent = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
+		if (m_ComputeFenceEvent == nullptr) THROW_COM_ERROR("Fence Event was nullptr");
 	}
 
 	void D3D12Helper::MoveToNextFrame()
 	{
 		HRESULT hr;
 
-		// Schedule a Signal command in the queue.
+		// Schedule a Signal command in the queues.
 		const UINT64 currentFenceValue = m_FenceValues[m_FrameIndex];
 		hr = m_pGraphicsCommandQueue->Signal(m_pFence.Get(), currentFenceValue);
+		ThrowIfFailed(hr, "Failed to signal fence on Command Queue");
+
+		hr = m_pComputeCommandQueue->Signal(m_pFence.Get(), currentFenceValue);
 		ThrowIfFailed(hr, "Failed to signal fence on Command Queue");
 
 		// Advance the frame index.
@@ -297,9 +319,15 @@ namespace Insight {
 		// Check to see if the next frame is ready to start.
 		if (m_pFence->GetCompletedValue() < m_FenceValues[m_FrameIndex])
 		{
+			// Wait for the submitted work on the graphics queue to finish.
 			hr = m_pFence->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_FenceEvent);
 			ThrowIfFailed(hr, "Failed to set completion event on fence");
 			WaitForSingleObjectEx(m_FenceEvent, INFINITE, FALSE);
+			
+			// Wait for the submitted work on the compute queue to finish.
+			hr = m_pFence->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_ComputeFenceEvent);
+			ThrowIfFailed(hr, "Failed to set completion event on fence");
+			WaitForSingleObjectEx(m_ComputeFenceEvent, INFINITE, FALSE);
 		}
 
 		// Set the fence value for the next frame.
@@ -314,6 +342,13 @@ namespace Insight {
 		// Wait until the fence has been processed.
 		ThrowIfFailed(m_pFence->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_FenceEvent), "Failed to set completion event on fence.");
 		WaitForSingleObjectEx(m_FenceEvent, INFINITE, FALSE);
+		
+		// Schedule a Signal command in the queue.
+		ThrowIfFailed(m_pComputeCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]), "Fialed to signal fence event on graphics command queue.");
+
+		// Wait until the fence has been processed.
+		ThrowIfFailed(m_pFence->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_ComputeFenceEvent), "Failed to set completion event on fence.");
+		WaitForSingleObjectEx(m_ComputeFenceEvent, INFINITE, FALSE);
 
 		// Increment the fence value for the current frame.
 		m_FenceValues[m_FrameIndex]++;

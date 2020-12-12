@@ -134,7 +134,7 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     if (brightness > 1.0)
         ps_out.BloomBuffer.rgb = pixelColor;
     else
-        ps_out.BloomBuffer.rgb = float3(1.0, 0.0, 0.0);
+        ps_out.BloomBuffer.rgb = float3(0.0, 0.0, 0.0);
     
     // Color Correction
     //HDRToneMap(pixelColor);

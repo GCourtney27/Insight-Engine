@@ -224,11 +224,11 @@ namespace SandBoxApp {
 			GetScene().AddActor(pAWoodenFloor);
 
 			// Rusted Ball
+			Insight::Material* pRustedIron = new Insight::Material({ 6, 7, 8, 9, 10 });
 			pARustedBall = new AActor(0, "Rusted Ball");
 			pSCDemoBall = pARustedBall->CreateDefaultSubobject<SceneComponent>();
 			pSCDemoBall->SetScale(20.0f);
 			pSCDemoBall->SetPosition(10.0f, 40.0f, 0.0f);
-			Insight::Material* pRustedIron = new Insight::Material({ 6, 7, 8, 9, 10 });
 			StaticMeshComponent* pSMCube = pARustedBall->CreateDefaultSubobject<StaticMeshComponent>();
 			pSMCube->SetMaterial(pRustedIron);
 			pSMCube->AttachMesh("Models/Sphere.fbx");
@@ -244,6 +244,19 @@ namespace SandBoxApp {
 			pSMBall->SetMaterial(pBamboo);
 			pSMBall->AttachMesh("Models/Sphere.fbx");
 			GetScene().AddActor(pABambooBall);
+			
+			// Cube
+			AActor* pACube = new AActor(0, "Cube");
+			SceneComponent* pSCPistol = pACube->CreateDefaultSubobject<SceneComponent>();
+			pSCPistol->SetScale(5.0f);
+			pSCPistol->SetPosition(-300.0f, 60.0f, 0.0f);
+			pSCPistol->SetScale(5.0f, 120.0f, 200.0f);
+			Insight::Material* pCheckeredMat = new Insight::Material({ 16 });
+			pCheckeredMat->SetUVTilingOffset(5.0f, 5.0f);
+			StaticMeshComponent* pSMCube2 = pACube->CreateDefaultSubobject<StaticMeshComponent>();
+			pSMCube2->SetMaterial(pCheckeredMat);
+			pSMCube2->AttachMesh("Models/Cube.fbx");
+			GetScene().AddActor(pACube);
 
 		}
 

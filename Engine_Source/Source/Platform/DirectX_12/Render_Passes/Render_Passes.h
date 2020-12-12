@@ -129,18 +129,18 @@ namespace Insight {
 
 		CDescriptorHeapWrapper		m_RTVHeap;
 		CDescriptorHeapWrapper		m_DSVHeap;
-		Microsoft::WRL::ComPtr<ID3D12Resource>		m_pRenderTargetTextures[m_NumRenderTargets];
+		ID3D12Resource*				m_pRenderTargetTextures[m_NumRenderTargets];
 
 		DXGI_FORMAT	m_GBufferRTVFormats[m_NumRenderTargets] = {
 						DXGI_FORMAT_R11G11B10_FLOAT,	// Albedo
-						DXGI_FORMAT_R16G16B16A16_SNORM,	// Normal
+						DXGI_FORMAT_R16G16B16A16_FLOAT,	// Normal
 						DXGI_FORMAT_R16G16B16A16_FLOAT,	// (R)Roughness/(G)Metallic/(B)AO/ (A)Specular
 						DXGI_FORMAT_R32G32B32A32_FLOAT, // Position
 		};
 
 		// Depth
-		DXGI_FORMAT	m_DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		DXGI_FORMAT	m_DSVSRVFormat = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		DXGI_FORMAT	m_DSVFormat = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+		DXGI_FORMAT	m_DSVSRVFormat = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
 		FLOAT		m_DepthClearValue = 1.0f;
 		Microsoft::WRL::ComPtr<ID3D12Resource>	m_pSceneDepthStencilTexture;
 	};
@@ -157,7 +157,7 @@ namespace Insight {
 		virtual ~DeferredLightPass()	= default;
 
 		// Set the reference to the G-Buffer.
-		inline void SetRenderTargetTextureRef(Microsoft::WRL::ComPtr<ID3D12Resource> pRenderTarget) { m_GBufferRefs.push_back(pRenderTarget); }
+		inline void SetRenderTargetTextureRef(Microsoft::WRL::ComPtr<ID3D12Resource> pRenderTarget) { m_GBufferRefs.push_back(pRenderTarget.Get()); }
 
 		// Set the reference to the Scene Depth Buffer.
 		inline void SetSceneDepthTextureRef(Microsoft::WRL::ComPtr<ID3D12Resource> pDepthTexture) { m_pSceneDepthTextureRef = pDepthTexture; }
@@ -190,7 +190,7 @@ namespace Insight {
 		virtual void UnSet(FrameResources* pFrameResources) override;
 	private:
 		static const uint8_t	m_NumRenderTargets = 2u;
-		Microsoft::WRL::ComPtr<ID3D12Resource>	m_pRenderTargetTextures[m_NumRenderTargets];
+		ID3D12Resource*	m_pRenderTargetTextures[m_NumRenderTargets];
 
 		DXGI_FORMAT	m_RTVFormats[m_NumRenderTargets] = {
 						DXGI_FORMAT_R32G32B32A32_FLOAT,	// Light Pass result
@@ -200,7 +200,7 @@ namespace Insight {
 		CDescriptorHeapWrapper	m_RTVHeap;
 
 		// G-Buffer references from the geometry pass.
-		std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> m_GBufferRefs;
+		std::vector<ID3D12Resource*> m_GBufferRefs;
 		// Scene depth texture referenced from the geometry pass.
 		Microsoft::WRL::ComPtr<ID3D12Resource> m_pSceneDepthTextureRef;
 
@@ -325,15 +325,15 @@ namespace Insight {
 			Create the downsampler and assigned the resources it will depend on.
 			@param pCommandList - The command list the downsampler will execute on.
 		*/
-		void InitHelpers(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pCommandList);
+		void InitHelpers(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pFirstPassCommandList, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pSecondPassCommandList);
 
 		void ResizeHelperBuffers()
 		{
 			m_DownSampleHelper.SetSRVSourceHandle(m_pCBVSRVHeapRef->hGPU(8));
 			m_DownSampleHelper.SetUAVDestinationHandle(m_pCBVSRVHeapRef->hGPU(9));
 		
-			m_GaussianBlurHelper.SetSourceSRV(m_pDownsampleResult_SRV, m_pCBVSRVHeapRef->hGPU(9));
-			m_GaussianBlurHelper.SetSourceUAV(m_pDownsampleResult_UAV, m_pCBVSRVHeapRef->hGPU(10));
+			m_GaussianBlurHelper.SetSourceUAV(m_pDownsampleResult_UAV, m_pCBVSRVHeapRef->hGPU(9));
+			m_GaussianBlurHelper.SetSourceSRV(m_pDownsampleResult_SRV, m_pCBVSRVHeapRef->hGPU(10));
 			m_GaussianBlurHelper.SetIntermediateUAV(m_pIntermediateBuffer_UAV, m_pCBVSRVHeapRef->hGPU(11));
 			m_GaussianBlurHelper.SetIntermediateSRV(m_pIntermediateBuffer_SRV, m_pCBVSRVHeapRef->hGPU(12));
 		}

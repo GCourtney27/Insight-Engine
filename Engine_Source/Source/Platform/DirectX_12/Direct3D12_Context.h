@@ -143,6 +143,7 @@ namespace Insight {
 
 		inline ID3D12Device& GetDeviceContext() const { return m_DeviceResources.GetDeviceContext(); }
 		inline DXGI_FORMAT GetSwapChainBackBufferFormat() const { return m_DeviceResources.GetSwapChainBackBufferFormat(); }
+		inline D3D12Helper& GetDeviceResources() { return m_DeviceResources; }
 
 		inline ID3D12GraphicsCommandList& GetScenePassCommandList() const { return *m_pScenePass_CommandList.Get(); }
 		inline ID3D12GraphicsCommandList& GetPostProcessPassCommandList() const { return *m_pPostEffectsPass_CommandList.Get(); }
@@ -179,6 +180,11 @@ namespace Insight {
 			return Handle;
 		}
 
+		inline void ResetBloomPass()
+		{
+			ThrowIfFailed(m_pBloomFirstPass_CommandList->Reset(m_pBloomFirstPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
+				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
+		}
 		
 	private:
 		Direct3D12Context();
@@ -191,7 +197,6 @@ namespace Insight {
 		void BindShadowPass();
 		void BindTransparencyPass();
 		void DrawDebugScreenQuad();
-		void BlurBloomBuffer();
 
 		// D3D12 Initialize
 		
@@ -215,12 +220,26 @@ namespace Insight {
 		void CreateScissorRect();
 		void CreateScreenQuad();
 
-		// Close GPU handle and release resources for the D3D 12 context.
+		/*
+			Close GPU handle and release resources for the D3D 12 context.
+		*/
 		void InternalCleanup();
-		// Resize render targets and depth stencil. Usually called from 'OnWindowResize'.
+		
+		/*
+			Resize render targets and depth stencil. Usually called from 'OnWindowResize'.
+		*/
 		void UpdateSizeDependentResources();
 
-		void ResourceBarrier(ID3D12GraphicsCommandList* pCommandList, ID3D12Resource* pResource, D3D12_RESOURCE_STATES StateBefore, D3D12_RESOURCE_STATES StateAfter, uint32_t NumBarriers = 1u);
+		/*
+			Batches multiple resoures into a single transition. MSDN recomends batching transitions for performance reasons. So, this method should
+			be prefered over regular 'CommandList::ResourceBarrier' calls. Note: Can only batch 8 resources at a time.
+			@param pCommandList - Command list to execute the transitions on.
+			@param pResaources - A pointer to the first element in an array of resources to transition.
+			@param StateBefore - The current state of the resources.
+			@param StateAfter - The state to transition the resources to.
+			@param NumBarriers - Number of resoures present in pResources array to batch together.
+		*/
+		void ResourceBarrier(ID3D12GraphicsCommandList* pCommandList, ID3D12Resource** pResources, D3D12_RESOURCE_STATES StateBefore, D3D12_RESOURCE_STATES StateAfter, uint32_t NumBarriers = 1u);
 		
 	private:
 		D3D12Helper					m_DeviceResources;
@@ -258,8 +277,10 @@ namespace Insight {
 		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>		m_pTransparencyPass_CommandAllocators[m_FrameBufferCount];
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>	m_pPostEffectsPass_CommandList;
 		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>		m_pPostEffectsPass_CommandAllocators[m_FrameBufferCount];
-		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>	m_pDownSample_CommandList;
-		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>		m_pDownSample_CommandAllocators[m_FrameBufferCount];
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>	m_pBloomFirstPass_CommandList;
+		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>		m_pBloomFirstPass_CommandAllocators[m_FrameBufferCount];
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>	m_pBloomSecondPass_CommandList;
+		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>		m_pBloomSecondPass_CommandAllocators[m_FrameBufferCount];
 
 		Microsoft::WRL::ComPtr<ID3D12Resource>				m_pSwapChainRenderTargets[m_FrameBufferCount];
 		

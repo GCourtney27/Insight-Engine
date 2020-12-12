@@ -95,7 +95,8 @@
 	#include <dxgidebug.h>
 	#endif
 
-#define TrackGraphicsEvents 0
+
+#define TrackGraphicsEvents 1
 
 #if TrackGraphicsEvents
 #include <WinPixEventRuntime/pix3.h>

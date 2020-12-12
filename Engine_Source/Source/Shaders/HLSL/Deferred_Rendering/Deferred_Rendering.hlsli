@@ -4,7 +4,7 @@
 
 cbuffer cbPerObject : register(b0)
 {
-    float4x4 world;
+    float4x4 cbWorld;
 };
 
 cbuffer cbPerFrame : register(b1)
@@ -70,6 +70,9 @@ cbuffer cbPerObjectAdditive : register(b4)
     
     float3 diffuseAdditive;
     float specular;
+    
+    float3 emissiveColor;
+    float emissiveStrength;
 };
 
 /* Shadow Pass */
