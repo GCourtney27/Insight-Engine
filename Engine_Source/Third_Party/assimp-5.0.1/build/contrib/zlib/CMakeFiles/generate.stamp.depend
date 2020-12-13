@@ -1,0 +1,9 @@
+# CMake generation dependency list for this directory.
+C:/Program Files/CMake/share/cmake-3.18/Modules/CheckCSourceCompiles.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/CheckFunctionExists.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/CheckIncludeFile.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/CheckIncludeFileCXX.cmake
+C:/Program Files/CMake/share/cmake-3.18/Modules/CheckTypeSize.cmake
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/contrib/zlib/CMakeLists.txt
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/contrib/zlib/zconf.h.cmakein
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/contrib/zlib/zlib.pc.cmakein

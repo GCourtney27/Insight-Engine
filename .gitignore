@@ -3,11 +3,14 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# MacOS Files
+*.DS_Store
 
 # Binaries
-bin/
-bin-int/
+[Bb]inaries/
 Engine/Vendor/Mono
+Engine/Third_Party/imgui/bin
+Engine/Third_Party/imgui/bin-int
 
 # User-specific files
 *.rsuser

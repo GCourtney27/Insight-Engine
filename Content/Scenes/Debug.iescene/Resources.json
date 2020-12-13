@@ -1,0 +1,116 @@
+{
+    "Textures":[
+        {
+            "Name": "HardwoodBrownPlanks_Albedo",
+            "ID": 1,
+            "Filepath": "Textures/HardwoodBrownPlanks/HardwoodBrownPlanks_Albedo.png",
+            "Type": 0,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "HardwoodBrownPlanks_Normal",
+            "ID": 2,
+            "Filepath": "Textures/HardwoodBrownPlanks/HardwoodBrownPlanks_Normal.png",
+            "Type": 1,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "HardwoodBrownPlanks_Metallic",
+            "ID": 3,
+            "Filepath": "Textures/HardwoodBrownPlanks/HardwoodBrownPlanks_Metallic.png",
+            "Type": 3,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "HardwoodBrownPlanks_Roughness",
+            "ID": 4,
+            "Filepath": "Textures/HardwoodBrownPlanks/HardwoodBrownPlanks_Roughness.png",
+            "Type": 2,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "HardwoodBrownPlanks_AO",
+            "ID": 5,
+            "Filepath": "Textures/HardwoodBrownPlanks/HardwoodBrownPlanks_AO.png",
+            "Type": 4,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "RustedIron_Albedo",
+            "ID": 6,
+            "Filepath": "Textures/RustedIron/RustedIron_Albedo.png",
+            "Type": 0,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "RustedIron_Normal",
+            "ID": 7,
+            "Filepath": "Textures/RustedIron/RustedIron_Normal.png",
+            "Type": 1,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "RustedIron_Metallic",
+            "ID": 8,
+            "Filepath": "Textures/RustedIron/RustedIron_Metallic.png",
+            "Type": 3,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "RustedIron_Roughness",
+            "ID": 9,
+            "Filepath": "Textures/RustedIron/RustedIron_Roughness.png",
+            "Type": 2,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "RustedIron_AO",
+            "ID": 10,
+            "Filepath": "Textures/RustedIron/RustedIron_AO.png",
+            "Type": 4,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "Bamboo_Albedo",
+            "ID": 11,
+            "Filepath": "Textures/BambooWood/BambooWood_Albedo.png",
+            "Type": 0,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "BambooWood_Normal",
+            "ID": 12,
+            "Filepath": "Textures/BambooWood/BambooWood_Normal.png",
+            "Type": 1,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "BambooWood_Metallic",
+            "ID": 13,
+            "Filepath": "Textures/BambooWood/BambooWood_Metallic.png",
+            "Type": 3,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "BambooWood_Roughness",
+            "ID": 14,
+            "Filepath": "Textures/BambooWood/BambooWood_Roughness.png",
+            "Type": 2,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "BambooWood_AO",
+            "ID": 15,
+            "Filepath": "Textures/BambooWood/BambooWood_AO.png",
+            "Type": 4,
+            "GenerateMipMaps": true
+        },
+        {
+            "Name": "Rainbow_Albedo",
+            "ID": 16,
+            "Filepath": "Textures/Debug/RainbowCheckerboard_Albedo.jpg",
+            "Type": 0,
+            "GenerateMipMaps": true
+        }
+    ]
+}

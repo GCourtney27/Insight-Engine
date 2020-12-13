@@ -1,0 +1,4 @@
+# CMake generation dependency list for this directory.
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/cmake-modules/FindDirectX.cmake
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/cmake-modules/FindPkgMacros.cmake
+C:/VSDev/Insight-Interactive/InsightEngine/Engine_Source/Third_Party/assimp-5.0.1/tools/assimp_view/CMakeLists.txt

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{56EB95D1-428D-C0A7-2B48-D4FB178947F8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight">
+      <UniqueIdentifier>{9B188450-87E6-7756-707A-E87C5CE753BB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Core">
+      <UniqueIdentifier>{D3D5DBAB-3F37-B9B9-C8A4-FF6B3405F078}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Core\Layer">
+      <UniqueIdentifier>{DFA420FE-4B67-5488-9417-E31400192D66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Core\Scene">
+      <UniqueIdentifier>{3015A0FE-9CD7-D388-E587-62155189AC66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Input">
+      <UniqueIdentifier>{DA90C227-C61F-4CF1-6F3E-60EC5BAC5C97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Math">
+      <UniqueIdentifier>{5416E1AB-C077-BEB9-49E5-046CB545F578}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Rendering">
+      <UniqueIdentifier>{A89F977D-94C4-E6FD-BD0F-CC8DA993E51B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Rendering\Geometry">
+      <UniqueIdentifier>{03EA3841-6F58-8EC0-B841-49C024EF835C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Rendering\Lighting">
+      <UniqueIdentifier>{2D506FFF-99BE-C47E-E2A7-7F7E4E55BA1A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Runtime">
+      <UniqueIdentifier>{CE90A5E7-BA8A-CE39-A3F7-644A8F9034A6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Runtime\Archetypes">
+      <UniqueIdentifier>{F58D2DF8-61FC-8277-AAE5-3D7716937813}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Runtime\Components">
+      <UniqueIdentifier>{23990D5C-8F07-63DB-D8F0-1DDB449E5877}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Runtime\Identification">
+      <UniqueIdentifier>{A7513CE6-1316-3BD6-DC7B-6BA048FFD60B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Systems">
+      <UniqueIdentifier>{A2D94E3E-8ED3-7790-7740-0EA163D9DDFC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Systems\Managers">
+      <UniqueIdentifier>{BF91E65E-2B75-F59E-3478-23DBA0DABBEF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Insight\Utilities">
+      <UniqueIdentifier>{C6FAF744-B21F-47C5-DB6A-2C55C7EE45E3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform">
+      <UniqueIdentifier>{6A48A913-D6D3-16D8-DFE4-99CC4BEF72D8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\DirectX_11">
+      <UniqueIdentifier>{4D904D68-39A0-F938-A259-5E578E88E8D1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\DirectX_11\Geometry">
+      <UniqueIdentifier>{48646C8A-B41D-D734-3D7D-F10EA9358DA4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\DirectX_11\Wrappers">
+      <UniqueIdentifier>{30A1D216-9C5A-3DC1-25BA-579B9172F330}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\DirectX_12">
+      <UniqueIdentifier>{4E904D68-3AA0-F938-A359-5E578F88E8D1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\DirectX_12\Geometry">
+      <UniqueIdentifier>{69F5768E-D5AE-E138-5E0E-FC12CAC697A8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\DirectX_12\Ray_Tracing">
+      <UniqueIdentifier>{1076D632-FCC7-AD22-E5E6-EA32D1D7C60B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\DirectX_12\Render_Passes">
+      <UniqueIdentifier>{6BF9C154-5776-B597-80F3-B5AB6CCF512B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\DirectX_12\Render_Passes\Helpers">
+      <UniqueIdentifier>{2DE59F39-198E-0769-4224-23E82E2C22AA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\DirectX_12\Wrappers">
+      <UniqueIdentifier>{5132DD1A-BDEB-47C5-464B-629FB203FE34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\UWP">
+      <UniqueIdentifier>{55A8A6DE-C109-84EC-4A77-CA9EB6D7BAAB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Platform\Win32">
+      <UniqueIdentifier>{CCA72023-3814-DC1D-0108-747B6D33FE85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Shaders">
+      <UniqueIdentifier>{2F060343-1BD4-F648-0468-676FF0D4D2AD}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Shaders\HLSL">
+      <UniqueIdentifier>{D184F40C-3DE6-D11A-C653-18CD32B408DA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Shaders\HLSL\Deferred_Rendering">
+      <UniqueIdentifier>{5ED0BBBB-4A22-93AB-3341-D0BB1F32AC94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Shaders\HLSL\Forward_Rendering">
+      <UniqueIdentifier>{B221DCEB-1EE6-DADB-E74B-0BA653CF7611}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Shaders\HLSL\Ray_Tracing">
+      <UniqueIdentifier>{13472D33-7F2A-3C73-882D-6AAFF48F02C4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Shaders\HLSL\Shared">
+      <UniqueIdentifier>{D73A1531-C34A-C101-2C04-26201833B09A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Third_Party">
+      <UniqueIdentifier>{CFF8B343-3BAE-2C39-C4A2-26103057233D}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
