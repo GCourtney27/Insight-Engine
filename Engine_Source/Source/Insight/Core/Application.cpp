@@ -9,9 +9,9 @@
 #include "Insight/Rendering/Renderer.h"
 
 #if defined (IE_PLATFORM_BUILD_WIN32)
-	#include "Platform/DirectX_11/Wrappers/D3D11_ImGui_Layer.h"
-	#include "Platform/DirectX_12/Wrappers/D3D12_ImGui_Layer.h"
-	#include "Platform/Win32/Win32_Window.h"
+#include "Platform/DirectX_11/Wrappers/D3D11_ImGui_Layer.h"
+#include "Platform/DirectX_12/Wrappers/D3D12_ImGui_Layer.h"
+#include "Platform/Win32/Win32_Window.h"
 #endif
 
 #if defined (IE_PLATFORM_BUILD_WIN32)
@@ -30,7 +30,7 @@ static const char* TargetSceneName = "Debug.iescene";
 
 namespace Insight {
 
-	
+
 	Application* Application::s_Instance = nullptr;
 
 	Application::Application()
@@ -111,10 +111,11 @@ namespace Insight {
 #if EDITOR_UI_ENABLED
 			IE_STRIP_FOR_GAME_DIST
 			(
-			m_pImGuiLayer->Begin();
+				m_pImGuiLayer->Begin();
 			for (Layer* pLayer : m_LayerStack)
 				pLayer->OnImGuiRender();
 			m_pGameLayer->OnImGuiRender();
+			Renderer::OnEditorRender();
 			m_pImGuiLayer->End();
 			);
 #endif
@@ -133,30 +134,33 @@ namespace Insight {
 
 		// Put all rendering on another thread. 
 		std::thread RenderThread(&Application::RenderThread, this);
-		
+
 		while (m_Running)
 		{
-			m_FrameTimer.Tick();
-			float DeltaMs = m_FrameTimer.DeltaTime();
-			m_pWindow->SetWindowTitleFPS(g_GPUThreadFPS);
+			if (m_pWindow->GetIsVisible())
+			{
+				m_FrameTimer.Tick();
+				float DeltaMs = m_FrameTimer.DeltaTime();
+				m_pWindow->SetWindowTitleFPS(g_GPUThreadFPS);
 
-			// Process the window's Messages 
-			m_pWindow->OnUpdate();
+				// Process the window's Messages 
+				m_pWindow->OnUpdate();
 
-			//static float WorldSeconds = 0.0f;
-			//WorldSeconds += DeltaMs;
-			//pSCDemoBall->Translate(0.0f, std::sin(WorldSeconds) * 0.02f, 0.0f);
-			
+				//static float WorldSeconds = 0.0f;
+				//WorldSeconds += DeltaMs;
+				//pSCDemoBall->Translate(0.0f, std::sin(WorldSeconds) * 0.02f, 0.0f);
 
-			// Update the input system. 
-			m_InputDispatcher.UpdateInputs(DeltaMs);
 
-			// Update game logic. 
-			m_pGameLayer->Update(DeltaMs);
+				// Update the input system. 
+				m_InputDispatcher.UpdateInputs(DeltaMs);
 
-			// Update the layer stack. 
-			for (Layer* layer : m_LayerStack)
-				layer->OnUpdate(DeltaMs);
+				// Update game logic. 
+				m_pGameLayer->Update(DeltaMs);
+
+				// Update the layer stack. 
+				for (Layer* layer : m_LayerStack)
+					layer->OnUpdate(DeltaMs);
+			}
 		}
 
 		// Close the render thread and flush the GPU.
@@ -239,13 +243,13 @@ namespace Insight {
 		case Renderer::TargetRenderAPI::Direct3D_11:
 			IE_STRIP_FOR_GAME_DIST(
 				m_pImGuiLayer = new D3D11ImGuiLayer();
-				PushOverlay(m_pImGuiLayer);
+			PushOverlay(m_pImGuiLayer);
 			);
 			break;
 		case Renderer::TargetRenderAPI::Direct3D_12:
 			IE_STRIP_FOR_GAME_DIST(
 				m_pImGuiLayer = new D3D12ImGuiLayer();
-				PushOverlay(m_pImGuiLayer);
+			PushOverlay(m_pImGuiLayer);
 			);
 			break;
 #endif
@@ -256,10 +260,10 @@ namespace Insight {
 
 		IE_STRIP_FOR_GAME_DIST(
 			m_pEditorLayer = new EditorLayer();
-			PushOverlay(m_pEditorLayer);
+		PushOverlay(m_pEditorLayer);
 		)
 
-		m_pPerfOverlay = new PerfOverlay();
+			m_pPerfOverlay = new PerfOverlay();
 		PushOverlay(m_pPerfOverlay);
 	}
 

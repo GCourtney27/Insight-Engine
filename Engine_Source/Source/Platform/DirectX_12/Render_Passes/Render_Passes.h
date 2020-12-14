@@ -44,6 +44,8 @@ namespace Insight {
 
 		// Resize and/or recreate any resoures this pass contains.
 		inline void ResizeBuffers() { this->CreateResources(); }
+
+		inline void SetRootSignature(ID3D12RootSignature* pRootSignature) { m_pRootSignatureRef = pRootSignature; }
 		
 	protected:
 		RenderPass()			= default;

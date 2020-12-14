@@ -195,7 +195,7 @@ namespace Insight {
 			IE_DEBUG_LOG(LogSeverity::Log, "Window size has changed");
 			return 0;
 		}
-		case WM_SIZE:
+		/*case WM_SIZE:
 		{
 			static bool IsFirstLaunch = true;
 			if (IsFirstLaunch) {
@@ -207,7 +207,7 @@ namespace Insight {
 			WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, wParam == SIZE_MINIMIZED);
 			pWindow.GetEventCallbackFn()(event);
 			return 0;
-		}
+		}*/
 		case WM_INPUT:
 		{
 			UINT DataSize;

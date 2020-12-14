@@ -35,9 +35,9 @@ namespace Insight {
 
 	void D3D12Helper::ResizeResources()
 	{
-
 		uint32_t WindowWidth = m_pRenderContextRef->GetWindowRef().GetWidth();
 		uint32_t WindowHeight = m_pRenderContextRef->GetWindowRef().GetHeight();
+
 
 		// Resize the swapchain
 		{
@@ -54,7 +54,7 @@ namespace Insight {
 			m_Client_ViewPort.TopLeftY = 0.0f;
 			m_Client_ViewPort.Width = static_cast<FLOAT>(WindowWidth);
 			m_Client_ViewPort.Height = static_cast<FLOAT>(WindowHeight);
-			  
+
 			m_Client_ScissorRect.left = static_cast<LONG>(m_Client_ViewPort.TopLeftX);
 			m_Client_ScissorRect.right = static_cast<LONG>(m_Client_ViewPort.TopLeftX + m_Client_ViewPort.Width);
 			m_Client_ScissorRect.top = static_cast<LONG>(m_Client_ViewPort.TopLeftY);
@@ -194,29 +194,35 @@ namespace Insight {
 
 	void D3D12Helper::CreateCommandQueues()
 	{
+		HRESULT hr;
+
 		// Create Graphics Command Queue
-		D3D12_COMMAND_QUEUE_DESC GraphicsCommandQueueDesc = {};
-		GraphicsCommandQueueDesc.Flags	= D3D12_COMMAND_QUEUE_FLAG_NONE;
-		GraphicsCommandQueueDesc.Type	= D3D12_COMMAND_LIST_TYPE_DIRECT;
+		{
+			D3D12_COMMAND_QUEUE_DESC GraphicsCommandQueueDesc = {};
+			GraphicsCommandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+			GraphicsCommandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
-		HRESULT hr = m_pDevice->CreateCommandQueue(&GraphicsCommandQueueDesc, IID_PPV_ARGS(&m_pGraphicsCommandQueue));
-		ThrowIfFailed(hr, "Failed to create graphics command queue");
-		
+			hr = m_pDevice->CreateCommandQueue(&GraphicsCommandQueueDesc, IID_PPV_ARGS(&m_pGraphicsCommandQueue));
+			ThrowIfFailed(hr, "Failed to create graphics command queue");
+		}
+
 		// Create Compute Command Queue
-		D3D12_COMMAND_QUEUE_DESC ComputeCommandQueueDesc = {};
-		ComputeCommandQueueDesc.Flags	= D3D12_COMMAND_QUEUE_FLAG_NONE;
-		ComputeCommandQueueDesc.Type	= D3D12_COMMAND_LIST_TYPE_COMPUTE;
+		{
+			D3D12_COMMAND_QUEUE_DESC ComputeCommandQueueDesc = {};
+			ComputeCommandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+			ComputeCommandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_COMPUTE;
 
-		hr = m_pDevice->CreateCommandQueue(&ComputeCommandQueueDesc, IID_PPV_ARGS(&m_pComputeCommandQueue));
-		ThrowIfFailed(hr, "Failed to create compute command queue");
+			hr = m_pDevice->CreateCommandQueue(&ComputeCommandQueueDesc, IID_PPV_ARGS(&m_pComputeCommandQueue));
+			ThrowIfFailed(hr, "Failed to create compute command queue");
+		}
 	}
 
 	void D3D12Helper::CreateSwapChain()
 	{
 		HRESULT hr;
 
-		uint32_t WindowWidth	= m_pRenderContextRef->GetWindowRef().GetWidth() / 2u;
-		uint32_t WindowHeight	= m_pRenderContextRef->GetWindowRef().GetHeight() / 2u;
+		uint32_t WindowWidth	= m_pRenderContextRef->GetWindowRef().GetWidth();
+		uint32_t WindowHeight	= m_pRenderContextRef->GetWindowRef().GetHeight();
 
 		DXGI_MODE_DESC backBufferDesc = {};
 		backBufferDesc.Width	= WindowWidth;
@@ -265,8 +271,8 @@ namespace Insight {
 
 	void D3D12Helper::CreateViewport()
 	{
-		uint32_t WindowWidth = m_pRenderContextRef->GetWindowRef().GetWidth() / 2u;
-		uint32_t WindowHeight = m_pRenderContextRef->GetWindowRef().GetHeight() / 2u;
+		uint32_t WindowWidth = m_pRenderContextRef->GetWindowRef().GetWidth();
+		uint32_t WindowHeight = m_pRenderContextRef->GetWindowRef().GetHeight();
 
 		m_Client_ViewPort.TopLeftX	= 0;
 		m_Client_ViewPort.TopLeftY	= 0;
@@ -278,8 +284,8 @@ namespace Insight {
 
 	void D3D12Helper::CreateScissorRect()
 	{
-		uint32_t WindowWidth = m_pRenderContextRef->GetWindowRef().GetWidth() / 2u;
-		uint32_t WindowHeight = m_pRenderContextRef->GetWindowRef().GetHeight() / 2u;
+		uint32_t WindowWidth = m_pRenderContextRef->GetWindowRef().GetWidth();
+		uint32_t WindowHeight = m_pRenderContextRef->GetWindowRef().GetHeight();
 
 		m_Client_ScissorRect.left	= 0;
 		m_Client_ScissorRect.top	= 0;

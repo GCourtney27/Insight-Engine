@@ -46,6 +46,7 @@ namespace Insight {
 			m_WindowWidth = NewWidth;
 			m_WindowHeight = NewHeight; 
 			m_AspectRatio = static_cast<float>(NewWidth) / static_cast<float>(NewHeight); 
+			m_IsVisible = !IsMinimized;
 		}
 		virtual void CreateMessageBox(const std::wstring& Message, const std::wstring& Title) = 0;
 
@@ -58,8 +59,10 @@ namespace Insight {
 		uint32_t GetHeight() const { return m_WindowHeight; }
 		std::pair<uint32_t, uint32_t> GetDimensions() const { return std::make_pair(m_WindowWidth, m_WindowHeight); }
 		inline float GetAspectRatio() const { return m_AspectRatio; }
+		inline bool GetIsVisible() const { return m_IsVisible; }
 		inline bool GetIsVsyncEnabled() const { return m_VSyncEnabled; }
 		inline bool GetIsFullScreenEnabled() const { return m_FullScreenEnabled; }
+		inline void SetIsVisible(bool Visible) { m_IsVisible = Visible; }
 		inline void SetVSyncEnabled(bool Enabled) { m_VSyncEnabled = Enabled; }
 		inline void SetAspectRatio(float AspectRatio) { m_AspectRatio = AspectRatio; }
 		virtual void SetFullScreenEnabled(bool Enabled) { m_FullScreenEnabled = Enabled; }
@@ -74,6 +77,7 @@ namespace Insight {
 		float m_AspectRatio = -1.0f;
 		bool m_VSyncEnabled = false;
 		bool m_FullScreenEnabled = false;
+		bool m_IsVisible = true;
 		uint32_t m_WindowWidth = 0u;
 		uint32_t m_WindowHeight = 0u;
 		std::wstring m_WindowTitle;

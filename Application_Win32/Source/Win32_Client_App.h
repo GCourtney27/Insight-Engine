@@ -245,8 +245,8 @@ namespace SandBoxApp {
 			pSMBall->AttachMesh("Models/Sphere.fbx");
 			GetScene().AddActor(pABambooBall);
 			
-			// Cube
-			AActor* pACube = new AActor(0, "Cube");
+			// Wall
+			AActor* pACube = new AActor(0, "Wall");
 			SceneComponent* pSCPistol = pACube->CreateDefaultSubobject<SceneComponent>();
 			pSCPistol->SetScale(5.0f);
 			pSCPistol->SetPosition(-300.0f, 60.0f, 0.0f);
