@@ -20,7 +20,8 @@
 
 #include "Insight/UI/UI_Lib.h"
 
-#define BLOOM_ENABLED 1
+#define SHADOWMAPPING_ENABLED 0
+#define TRANSPARENCYPASS_ENABLED 0
 
 namespace Insight {
 
@@ -99,12 +100,10 @@ namespace Insight {
 						m_SkyPass.SetSkySphereRef(m_pSkySphere);
 						m_RenderPassStack.PushPass(&m_SkyPass);
 
-#if BLOOM_ENABLED
 						// Create the Bloom Pass ad push it to the render stack.
 						m_BloomPass.Create(this, &m_cbvsrvHeap, m_pBloomFirstPass_CommandList.Get(), nullptr);
 						m_BloomPass.InitHelpers(m_pBloomFirstPass_CommandList, m_pBloomSecondPass_CommandList.Get());
 						m_RenderPassStack.PushPassOverlay(&m_BloomPass);
-#endif
 						// Create the Post Process Composite Pass ad push it to the render stack.
 						m_PostProcessCompositePass.Create(this, &m_cbvsrvHeap, m_pPostEffectsPass_CommandList.Get(), m_pDeferredShadingPass_RS.Get());
 						m_PostProcessCompositePass.SetSceneDepthTextureRef(m_GeometryPass.GetSceneDepthTexture());
@@ -199,21 +198,22 @@ namespace Insight {
 			ThrowIfFailed(m_pScenePass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Scene Pass");
 
-			//ThrowIfFailed(m_pShadowPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
-			//	"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Shadow Pass");
-
-			//ThrowIfFailed(m_pTransparencyPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
-			//	"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Transparency Pass");
-
+#if SHADOWMAPPING_ENABLED
+			ThrowIfFailed(m_pShadowPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
+				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Shadow Pass");
+#endif
+#if TRANSPARENCYPASS_ENABLED
+			ThrowIfFailed(m_pTransparencyPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
+				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Transparency Pass");
+#endif
 			ThrowIfFailed(m_pPostEffectsPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
-#if BLOOM_ENABLED
+			
 			ThrowIfFailed(m_pBloomFirstPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
 
 			ThrowIfFailed(m_pBloomSecondPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
-#endif // BLOOM_ENABLED
 
 			if (m_GraphicsSettings.RayTraceEnabled) {
 				ThrowIfFailed(m_pRayTracePass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
@@ -226,22 +226,25 @@ namespace Insight {
 			ThrowIfFailed(m_pScenePass_CommandList->Reset(m_pScenePass_CommandAllocators[IE_D3D12_FrameIndex].Get(), nullptr),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Scene Pass");
 
-			//ThrowIfFailed(m_pShadowPass_CommandList->Reset(m_pShadowPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pShadowPass_PSO.Get()),
-			//	"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Shadow Pass");
+#if SHADOWMAPPING_ENABLED
+			ThrowIfFailed(m_pShadowPass_CommandList->Reset(m_pShadowPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pShadowPass_PSO.Get()),
+				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Shadow Pass");
+#endif 
 
-			//ThrowIfFailed(m_pTransparencyPass_CommandList->Reset(m_pTransparencyPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pTransparency_PSO.Get()),
-			//	"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
+#if TRANSPARENCYPASS_ENABLED
+			ThrowIfFailed(m_pTransparencyPass_CommandList->Reset(m_pTransparencyPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pTransparency_PSO.Get()),
+				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
+#endif
 
 			ThrowIfFailed(m_pPostEffectsPass_CommandList->Reset(m_pPostEffectsPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), nullptr),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 
-#if BLOOM_ENABLED
 			ThrowIfFailed(m_pBloomFirstPass_CommandList->Reset(m_pBloomFirstPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 
 			ThrowIfFailed(m_pBloomSecondPass_CommandList->Reset(m_pBloomSecondPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
-#endif
+		
 			if (m_GraphicsSettings.RayTraceEnabled) {
 				ThrowIfFailed(m_pRayTracePass_CommandList->Reset(m_pRayTracePass_CommandAllocators[IE_D3D12_FrameIndex].Get(), nullptr),
 					"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
@@ -305,90 +308,105 @@ namespace Insight {
 	{
 		UI::BeginWindow("Renderer");
 		{
-
-			// Texture Filtering
+			if (UI::TreeNodeEx("Textures", UI::TreeNode_DefaultOpen))
 			{
-				ImGui::PushID("TexFilt");
-				ImGui::Columns(2);
-				ImGui::Text("Texture Filtering Anisotropic");
-				ImGui::NextColumn();
-				constexpr char* TextureFilterLevels[] = { "1x", "2x", "4x", "8x", "16x" };
-				static int SelectionIndex = sqrt((float)m_GraphicsSettings.MaxAnisotropy);
-				if (UI::ComboBox("##TexResolution", SelectionIndex, TextureFilterLevels, _countof(TextureFilterLevels)))
+				// Texture Filtering
 				{
-					IE_DEBUG_LOG(LogSeverity::Log, "Texture Filtering: {0} (Raw Value: {1})", TextureFilterLevels[SelectionIndex], pow(2, SelectionIndex));
-					m_GraphicsSettings.MaxAnisotropy = pow(2, SelectionIndex);
-					CreateDeferredShadingRS();
-					m_GeometryPass.SetRootSignature(m_pDeferredShadingPass_RS.Get());
-					m_GeometryPass.ReloadShaders();
+					UI::PushID("TexFilt");
+					UI::Columns(2);
+					UI::Text("Filtering Anisotropic");
+					UI::NextColumn();
+					constexpr char* TextureFilterLevels[] = { "1x", "2x", "4x", "8x", "16x" };
+					static int SelectionIndex = sqrt((float)m_GraphicsSettings.MaxAnisotropy);
+					if (UI::ComboBox("##TexResolution", SelectionIndex, TextureFilterLevels, _countof(TextureFilterLevels)))
+					{
+						IE_DEBUG_LOG(LogSeverity::Log, "Texture Filtering: {0} (Raw Value: {1})", TextureFilterLevels[SelectionIndex], pow(2, SelectionIndex));
+						m_GraphicsSettings.MaxAnisotropy = pow(2, SelectionIndex);
+						CreateDeferredShadingRS();
+						m_GeometryPass.SetRootSignature(m_pDeferredShadingPass_RS.Get());
+						m_GeometryPass.ReloadShaders();
+					}
+					UI::EndColumns();
+					UI::PopID();
 				}
-				ImGui::NewLine();
-				ImGui::EndColumns();
-				ImGui::PopID();
+
+				// Texture Quality
+				{
+					UI::PushID("TexRes");
+					UI::Columns(2);
+					UI::Text("Quality (Mip LOD Bias)");
+					UI::NextColumn();
+					constexpr char* TextureQuality[] = { "High", "Medium", "Low" };
+					static int SelectionIndex = m_GraphicsSettings.MipLodBias / 2;
+					if (UI::ComboBox("##TexQuality", SelectionIndex, TextureQuality, _countof(TextureQuality)))
+					{
+						IE_DEBUG_LOG(LogSeverity::Log, "Texture Quality: {0} (Raw Value: {1})", TextureQuality[SelectionIndex], 2 * SelectionIndex);
+						m_GraphicsSettings.MipLodBias = 2 * SelectionIndex;
+						CreateDeferredShadingRS();
+						m_GeometryPass.SetRootSignature(m_pDeferredShadingPass_RS.Get());
+						m_GeometryPass.ReloadShaders();
+					}
+					UI::EndColumns();
+					UI::PopID();
+				}
+				UI::TreePopNode();
 			}
 
-			// Texture Quality
+			if (UI::TreeNodeEx("Ray Tracing", UI::TreeNode_DefaultOpen))
 			{
-				ImGui::PushID("TexRes");
-				ImGui::Columns(2);
-				ImGui::Text("Texture Quality (Mip LOD Bias)");
-				ImGui::NextColumn();
-				constexpr char* TextureQuality[] = { "Ultra", "High", "Normal", "Medium", "Low" };
-				static int SelectionIndex = m_GraphicsSettings.MipLodBias / 2;
-				if (UI::ComboBox("##TexQuality", SelectionIndex, TextureQuality, _countof(TextureQuality)))
+				// RT Shadows
 				{
-					IE_DEBUG_LOG(LogSeverity::Log, "Texture Quality: {0} (Raw Value: {1})", TextureQuality[SelectionIndex], 2 * SelectionIndex);
-					m_GraphicsSettings.MipLodBias = 2 * SelectionIndex;
-					CreateDeferredShadingRS();
-					m_GeometryPass.SetRootSignature(m_pDeferredShadingPass_RS.Get());
-					m_GeometryPass.ReloadShaders();
+					UI::PushID("RTShadows");
+					UI::Columns(2);
+					UI::Text("Shadows Enabled: ");
+					UI::NextColumn();
+					static bool RTEnabled = m_GraphicsSettings.RayTraceEnabled;
+					if (UI::Checkbox("", &RTEnabled))
+					{
+						bool PrevState = !RTEnabled;
+						if (PrevState) // Disabling ray tracing
+						{
+							m_RenderPassStack.PopPass(&m_RayTracedShadowPass);
+						}
+						else // Enable ray tracing
+						{
+							//m_RayTracedShadowPass.Create(this, &m_cbvsrvHeap, m_pRayTracePass_CommandList.Get(), nullptr);
+							m_RenderPassStack.PushPass(&m_RayTracedShadowPass);
+							//m_RayTracedShadowPass.GetRTHelper()->GenerateAccelerationStructure();
+						}
+						m_GraphicsSettings.RayTraceEnabled = RTEnabled;
+					}
+					UI::EndColumns();
+					UI::PopID();
 				}
-				ImGui::NewLine();
-				ImGui::EndColumns();
-				ImGui::PopID();
-			}
-
-			// RT Shadows
-			{
-				ImGui::PushID("RTShadows");
-				ImGui::Columns(2);
-				ImGui::Text("RayTraced Shadows Enabled: ");
-				ImGui::NextColumn();
-				static bool RTEnabled = m_GraphicsSettings.RayTraceEnabled;
-				if (UI::Checkbox("", &RTEnabled))
-				{
-					m_GraphicsSettings.RayTraceEnabled = RTEnabled;
-				}
-				ImGui::NewLine();
-				ImGui::EndColumns();
-				ImGui::PopID();
+				UI::TreePopNode();
 			}
 
 			// Resolution Scale
 			/*{
-				ImGui::PushID("RenderRes");
-				ImGui::Columns(2);
+				UI::PushID("RenderRes");
+				UI::Columns(2);
 				
-				ImGui::Text("Resolution Scale: ");
-				ImGui::NextColumn();
+				UI::Text("Resolution Scale: ");
+				UI::NextColumn();
 
 				static float ResolutionScaleFactor = 100;
-				if (ImGui::DragFloat("##RenderResolutionScale", &ResolutionScaleFactor, 1.0f, 1.0f, 100.0f))
+				if (UI::DragFloat("##RenderResolutionScale", &ResolutionScaleFactor, 1.0f, 1.0f, 100.0f))
 				{
 					uint32_t NewWidth = m_pWindowRef->GetWidth() * (ResolutionScaleFactor / 100.0f);
 					uint32_t NewHeight = m_pWindowRef->GetHeight() * (ResolutionScaleFactor / 100.0f);
 
 					IE_DEBUG_LOG(LogSeverity::Log, "Scale Factor: {0} (Width: {1} | Height: {2})", ResolutionScaleFactor, NewWidth, NewHeight);
-					
 				}
 
-				ImGui::EndColumns();
-				ImGui::NewLine();
-				ImGui::PopID();
+				UI::EndColumns();
+				UI::NewLine();
+				UI::PopID();
 			}*/
 
 		}
 		UI::EndWindow();
+
 	}
 
 	void Direct3D12Context::BindTransparencyPass()
@@ -448,51 +466,50 @@ namespace Insight {
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
 		// Prepare render target to be presented on the swap chain
-		IE_STRIP_FOR_GAME_DIST(
+		IE_STRIP_FOR_GAME_DIST
+		(
 			ID3D12Resource * Resources[] = {
 				GetSwapChainRenderTarget()
 			};
 			ResourceBarrier(m_pPostEffectsPass_CommandList.Get(), Resources, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 		);
 
-		//ThrowIfFailed(m_pShadowPass_CommandList->Close(), "Failed to close the command list for D3D 12 context shadow pass.");
+#if SHADOWMAPPING_ENABLED
+		ThrowIfFailed(m_pShadowPass_CommandList->Close(), "Failed to close the command list for D3D 12 context shadow pass.");
+#endif
 		ThrowIfFailed(m_pScenePass_CommandList->Close(), "Failed to close command list for D3D 12 context scene pass.");
-		//ThrowIfFailed(m_pTransparencyPass_CommandList->Close(), "Failed to close the command list for D3D 12 context transparency pass.");
+#if TRANSPARENCYPASS_ENABLED
+		ThrowIfFailed(m_pTransparencyPass_CommandList->Close(), "Failed to close the command list for D3D 12 context transparency pass.");
+#endif
 		ThrowIfFailed(m_pPostEffectsPass_CommandList->Close(), "Failed to close the command list for D3D 12 context post-process pass.");
-#if BLOOM_ENABLED
 		ThrowIfFailed(m_pBloomFirstPass_CommandList->Close(), "Failed to close command list for D3D 12 context bloom blur pass.");
 		ThrowIfFailed(m_pBloomSecondPass_CommandList->Close(), "Failed to close command list for D3D 12 context bloom blur pass.");
-#endif
 		if (m_GraphicsSettings.RayTraceEnabled)
 			ThrowIfFailed(m_pRayTracePass_CommandList->Close(), "Failed to close the command list for D3D 12 context ray trace pass.");
 
-
 		// Scene Pass
-		ID3D12CommandList* ppScenePassLists[] = {
-			//m_pShadowPass_CommandList.Get(), // Execute shadow pass first because we'll need the depth textures for the light pass
-			m_pRayTracePass_CommandList.Get(),
-			m_pScenePass_CommandList.Get(),
-			//m_pTransparencyPass_CommandList.Get(),
-#if !BLOOM_ENABLED
-			m_pPostEffectsPass_CommandList.Get(),
+		std::vector<ID3D12CommandList*> pSubmittions;
+#if SHADOWMAPPING_ENABLED
+		pSubmittions.push_back(m_pShadowPass_CommandList.Get());
 #endif
-		};
-		m_DeviceResources.GetGraphicsCommandQueue().ExecuteCommandLists(_countof(ppScenePassLists), ppScenePassLists);
+		if (m_GraphicsSettings.RayTraceEnabled)
+			pSubmittions.push_back(m_pRayTracePass_CommandList.Get());
+		pSubmittions.push_back(m_pScenePass_CommandList.Get());
+#if TRANSPARENCYPASS_ENABLED
+		pSubmittions.push_back(m_pTransparencyPass_CommandList.Get());
+#endif
+		m_DeviceResources.GetGraphicsCommandQueue().ExecuteCommandLists(pSubmittions.size(), pSubmittions.data());
 
 		// Bloom Compute
-#if BLOOM_ENABLED
-		ID3D12CommandList* ppComputeLists[] = {
-			m_pBloomSecondPass_CommandList.Get(),
-		};
-		m_DeviceResources.GetComputeCommandQueue().ExecuteCommandLists(_countof(ppComputeLists), ppComputeLists);
+		pSubmittions.clear();
+		pSubmittions.push_back(m_pBloomSecondPass_CommandList.Get());
+		m_DeviceResources.GetComputeCommandQueue().ExecuteCommandLists(pSubmittions.size(), pSubmittions.data());
 
 		// Post Process Pass
-		ID3D12CommandList* ppPostFxPassLists[] = {
-			m_pPostEffectsPass_CommandList.Get(),
-		};
-		m_DeviceResources.GetGraphicsCommandQueue().ExecuteCommandLists(_countof(ppPostFxPassLists), ppPostFxPassLists);
+		pSubmittions.clear();
+		pSubmittions.push_back(m_pPostEffectsPass_CommandList.Get());
+		m_DeviceResources.GetGraphicsCommandQueue().ExecuteCommandLists(pSubmittions.size(), pSubmittions.data());
 
-#endif // BLOOM_ENABLED
 
 		m_DeviceResources.WaitForGPU();
 	}
@@ -1330,7 +1347,6 @@ namespace Insight {
 	void Direct3D12Context::CloseCommandListAndSignalCommandQueue()
 	{
 		// Generate the acceleration structures for the ray tracer
-		//if (m_GraphicsSettings.RayTraceEnabled) m_RTHelper.GenerateAccelerationStructure();
 		if (m_GraphicsSettings.RayTraceEnabled)
 			m_RayTracedShadowPass.GetRTHelper()->GenerateAccelerationStructure();
 
@@ -1380,9 +1396,7 @@ namespace Insight {
 
 			m_PostProcessCompositePass.SetSceneDepthTextureRef(m_GeometryPass.GetSceneDepthTexture());
 
-#if BLOOM_ENABLED
 			m_BloomPass.ResizeHelperBuffers();
-#endif
 
 			BOOL FullScreenState;
 			m_DeviceResources.GetSwapChain().GetFullscreenState(&FullScreenState, nullptr);

@@ -70,10 +70,20 @@ namespace Insight {
 		inline void SetEventCallback(const EventCallbackFn& callback) { m_EventCallbackFn = callback; }
 		EventCallbackFn& GetEventCallbackFn() { return m_EventCallbackFn; }
 
+		inline int ConvertDipsToPixels(float dips) const noexcept
+		{
+			return int(dips * m_DPI / 96.0f + 0.5f);
+		}
+
+		inline float ConvertPixelsToDips(int pixels) const noexcept
+		{
+			return (float(pixels) * 96.0f / m_DPI);
+		}
 
 	protected:
 		EventCallbackFn m_EventCallbackFn;
 		
+		float m_DPI = 96.0f;
 		float m_AspectRatio = -1.0f;
 		bool m_VSyncEnabled = false;
 		bool m_FullScreenEnabled = false;

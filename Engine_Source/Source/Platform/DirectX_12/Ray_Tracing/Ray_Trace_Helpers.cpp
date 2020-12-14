@@ -54,6 +54,30 @@ namespace Insight {
 
 	void RayTraceHelpers::Destroy()
 	{
+		m_ASVertexBuffers.clear();
+		m_ASIndexBuffers.clear();
+
+		m_pDeviceRef = nullptr;
+		m_pCommandListRef = nullptr;
+
+		m_srvUavHeap.pDH.Reset();
+
+		m_pCameraBuffer.Reset();
+		m_pLightBuffer.Reset();
+
+		m_pOutputBuffer_UAV.Reset();
+
+		m_TopLevelASBuffers.pInstanceDesc.Reset();
+		m_TopLevelASBuffers.pResult.Reset();
+		m_TopLevelASBuffers.pScratch.Reset();
+
+		m_Instances.clear();
+		m_AccelerationStructureBuffers.clear();
+
+		m_rtStateObject.Reset();
+		m_rtStateObjectProps.Reset();
+		
+		m_sbtStorage.Reset();
 	}
 
 	void RayTraceHelpers::UpdateCBVs()

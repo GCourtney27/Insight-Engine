@@ -278,6 +278,12 @@ namespace Insight {
 
 		RayTraceHelpers* GetRTHelper() { return &m_RTHelper; }
 
+		virtual void OnStackDetach() override
+		{
+			//m_RTHelper.Destroy();
+			//m_pRayTraceOutput_SRV.Reset();
+		}
+
 	protected:
 		virtual bool Set(FrameResources* pFrameResources) override;
 		virtual void UnSet(FrameResources* pFrameResources) override;

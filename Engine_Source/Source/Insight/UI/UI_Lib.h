@@ -64,8 +64,9 @@ namespace Insight {
 		#define EDITOR_POP_ID() ImGui::PopID()
 		#define EDITOR_TREE_NODE(Label) ImGui::TreeNode(Label)
 		#define EDITOR_TREE_POP() ImGui::TreePop()
-
-
+		#define EDITOR_COLUMNS(NumColumns) ImGui::Columns(NumColumns)
+		#define EDITOR_NEXT_COLUMN() ImGui::NextColumn()
+		#define EDITOR_END_COLUMNS() ImGui::EndColumns();
 
 #elif defined (IE_PLATFORM_BUILD_UWP)
 		#define EDITOR_TEXTBOX(Text)
@@ -91,8 +92,9 @@ namespace Insight {
 		#define EDITOR_POP_ID()
 		#define EDITOR_TREE_NODE(Label) false
 		#define EDITOR_TREE_POP()
-
-
+		#define EDITOR_COLUMNS(NumColumns)
+		#define EDITOR_NEXT_COLUMN()
+		#define EDITOR_END_COLUMNS()
 
 #endif
 
@@ -124,6 +126,21 @@ namespace Insight {
 		static inline void SameLine()
 		{
 			EDITOR_SAME_LINE();
+		}
+
+		static inline void Columns(int NumColumns)
+		{
+			EDITOR_COLUMNS(NumColumns);
+		}
+
+		static inline void NextColumn()
+		{
+			EDITOR_NEXT_COLUMN();
+		}
+
+		static inline void EndColumns()
+		{
+			EDITOR_END_COLUMNS()
 		}
 
 		static inline void Spacing()

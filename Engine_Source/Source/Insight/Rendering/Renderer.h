@@ -62,7 +62,7 @@ namespace Insight {
 		{
 			TargetRenderAPI TargetRenderAPI = TargetRenderAPI::Direct3D_12;
 			uint32_t MaxAnisotropy = 1U;	// Texture Filtering (1, 4, 8, 16) *16 highest quality
-			float MipLodBias = 0.0f;		// Texture Quality (0 - 9) *9 highest quality
+			float MipLodBias = 0.0f;		// Texture Quality (0 - 9) *0 highest quality
 			bool RayTraceEnabled = false;
 			int pad[3];
 		};
