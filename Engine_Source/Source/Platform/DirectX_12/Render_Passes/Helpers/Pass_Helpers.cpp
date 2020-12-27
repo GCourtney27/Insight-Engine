@@ -123,7 +123,7 @@ namespace Insight {
 			m_pFirstPass_CommandListRef.Get(),
 		};
 		m_pRenderContext->GetDeviceResources().GetComputeCommandQueue().ExecuteCommandLists(_countof(ppComputeLists), ppComputeLists);
-		m_pRenderContext->ResetBloomPass();
+		m_pRenderContext->ResetBloomFirstPass();
 
 		// Vertical Pass
 		// -------------

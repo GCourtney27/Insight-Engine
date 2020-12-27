@@ -50,6 +50,7 @@ namespace Insight {
 		}
 		virtual void CreateMessageBox(const std::wstring& Message, const std::wstring& Title) = 0;
 
+		virtual std::pair<uint32_t, uint32_t> GetDPI() const = 0;
 		virtual void* GetNativeWindow() const = 0;
 		virtual bool SetWindowTitleFPS(float fps) = 0;
 		virtual InputEventType GetAsyncKeyState(KeyMapCode Key) const = 0;

@@ -94,6 +94,8 @@ project (projectName)
 		"D3Dcompiler.lib",
 		"dxcompiler.lib",
 		"DirectXTK12.lib",
+		"d2d1.lib",
+		"dwrite.lib",
 		
 		-- Set the engine library to UWP
 		"Engine_Build_UWP",

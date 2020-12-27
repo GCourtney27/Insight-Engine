@@ -66,14 +66,14 @@ namespace Insight {
 
 	void ieD3D11Texture::InitDDSTexture()
 	{
-		HRESULT hr = DirectX::CreateDDSTextureFromFile(m_pDevice.Get(), m_pDeviceContext.Get(), m_TextureInfo.Filepath.c_str(), nullptr, m_pTextureView.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to load D3D 11 DDS texture from file.");
+		//HRESULT hr = DirectX::CreateDDSTextureFromFile(m_pDevice.Get(), m_pDeviceContext.Get(), m_TextureInfo.Filepath.c_str(), nullptr, m_pTextureView.GetAddressOf());
+		//ThrowIfFailed(hr, "Failed to load D3D 11 DDS texture from file.");
 	}
 
 	void ieD3D11Texture::InitTextureFromFile()
 	{
-		HRESULT hr = DirectX::CreateWICTextureFromFile(m_pDevice.Get(), m_TextureInfo.Filepath.c_str(), nullptr, m_pTextureView.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to load D3D 11 WIC texture from file.");
+		//HRESULT hr = DirectX::CreateWICTextureFromFile(m_pDevice.Get(), m_TextureInfo.Filepath.c_str(), nullptr, m_pTextureView.GetAddressOf());
+		//ThrowIfFailed(hr, "Failed to load D3D 11 WIC texture from file.");
 	}
 
 	uint32_t ieD3D11Texture::GetShaderRegisterLocation()

@@ -409,4 +409,29 @@ namespace Insight {
 		static const uint8_t m_NumRenderTargets = 1u;
 	};
 
+
+	/*=======================================*/
+	/*		Post-Process Composite Pass		 */
+	/*=======================================*/
+
+	class TextRenderPass : public RenderPass
+	{
+	public:
+		TextRenderPass() = default;
+		~TextRenderPass() = default;
+		
+		virtual void OnStackAttach() {}
+		virtual void OnStackDetach() {}
+
+	protected:
+		virtual bool InternalCreate()	override;
+		virtual void LoadPipeline() override;
+		virtual void CreateResources()	override;
+
+		virtual bool Set(FrameResources* pFrameResources) override;
+		virtual void UnSet(FrameResources* pFrameResources) override;
+
+	private:
+
+	};
 }

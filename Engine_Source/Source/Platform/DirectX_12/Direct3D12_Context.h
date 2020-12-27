@@ -5,7 +5,7 @@
 #include "Insight/Rendering/Renderer.h"
 
 #include "Platform/Win32/Error/COM_Exception.h"
-#include "Platform/DirectX_12/D3D12_Helper.h"
+#include "Platform/DirectX_12/D3D12_Device_Resources.h"
 #include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
 #include "Platform/DirectX_12/Wrappers/D3D12_Constant_Buffer_Wrapper.h"
 #include "Platform/DirectX_12/Wrappers/D3D12_Screen_Quad.h"
@@ -104,7 +104,7 @@ namespace Insight {
 	{
 	public:
 		friend class Renderer;
-		friend class D3D12Helper;
+		friend class D3D12DeviceResources;
 
 		friend class RayTraceHelpers;
 
@@ -141,9 +141,9 @@ namespace Insight {
 		virtual bool CreateSkybox_Impl() override;
 		virtual void DestroySkybox_Impl() override;
 
-		inline ID3D12Device& GetDeviceContext() const { return m_DeviceResources.GetDeviceContext(); }
+		inline ID3D12Device& GetDeviceContext() const { return m_DeviceResources.GetDevice(); }
 		inline DXGI_FORMAT GetSwapChainBackBufferFormat() const { return m_DeviceResources.GetSwapChainBackBufferFormat(); }
-		inline D3D12Helper& GetDeviceResources() { return m_DeviceResources; }
+		inline D3D12DeviceResources& GetDeviceResources() { return m_DeviceResources; }
 
 		inline ID3D12GraphicsCommandList& GetScenePassCommandList() const { return *m_pScenePass_CommandList.Get(); }
 		inline ID3D12GraphicsCommandList& GetPostProcessPassCommandList() const { return *m_pPostEffectsPass_CommandList.Get(); }
@@ -167,7 +167,7 @@ namespace Insight {
 		// Ray Tracing
 		// -----------
 		ID3D12Resource* GetRayTracingSRV() const { return m_RayTraceOutput_SRV.Get(); }
-		[[nodiscard]] uint32_t RegisterGeometryWithRTAccelerationStucture(Microsoft::WRL::ComPtr<ID3D12Resource> pVertexBuffer, Microsoft::WRL::ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat);
+		NO_DISCARD uint32_t RegisterGeometryWithRTAccelerationStucture(Microsoft::WRL::ComPtr<ID3D12Resource> pVertexBuffer, Microsoft::WRL::ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat);
 		void UpdateRTAccelerationStructureMatrix(uint32_t InstanceArrIndex, DirectX::XMMATRIX NewWorldMat) { m_RayTracedShadowPass.GetRTHelper()->UpdateInstanceTransformByIndex(InstanceArrIndex, NewWorldMat); }
 
 
@@ -180,7 +180,7 @@ namespace Insight {
 			return Handle;
 		}
 
-		inline void ResetBloomPass()
+		inline void ResetBloomFirstPass()
 		{
 			ThrowIfFailed(m_pBloomFirstPass_CommandList->Reset(m_pBloomFirstPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
@@ -241,8 +241,10 @@ namespace Insight {
 		*/
 		void ResourceBarrier(ID3D12GraphicsCommandList* pCommandList, ID3D12Resource** pResources, D3D12_RESOURCE_STATES StateBefore, D3D12_RESOURCE_STATES StateAfter, uint32_t NumBarriers = 1u);
 		
+		void DEBUGLoadAssets();
+
 	private:
-		D3D12Helper					m_DeviceResources;
+		D3D12DeviceResources					m_DeviceResources;
 
 		RenderPassStack				m_RenderPassStack;
 		DeferredGeometryPass		m_GeometryPass;
@@ -252,6 +254,7 @@ namespace Insight {
 		BloomPass					m_BloomPass;
 		PostProcessCompositePass	m_PostProcessCompositePass;
 
+		Microsoft::WRL::ComPtr<IDWriteTextFormat> m_textFormat;
 
 
 		D3D12ScreenQuad		m_DebugScreenQuad;
@@ -283,7 +286,9 @@ namespace Insight {
 		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>		m_pBloomSecondPass_CommandAllocators[m_FrameBufferCount];
 
 		Microsoft::WRL::ComPtr<ID3D12Resource>				m_pSwapChainRenderTargets[m_FrameBufferCount];
-		
+		Microsoft::WRL::ComPtr<ID3D11Resource> m_WrappedBackBuffers[m_FrameBufferCount];
+		Microsoft::WRL::ComPtr<ID2D1Bitmap1> m_d2dRenderTargets[m_FrameBufferCount];
+
 		//-----Light Pass-----
 		// 0: Albedo
 		// 1: Normal

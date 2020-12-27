@@ -36,6 +36,13 @@ namespace Insight {
 
 		virtual void* GetNativeWindow() const override { return static_cast<void*>(winrt::get_abi(*m_pCoreWindow)); }
 		virtual void CreateMessageBox(const std::wstring& Message, const std::wstring& Title) override;
+		
+		virtual std::pair<uint32_t, uint32_t> GetDPI() const override
+		{
+			winrt::Windows::UI::Core::CoreWindow Window = winrt::Windows::UI::Core::CoreWindow::GetForCurrentThread();
+			auto Bounds = Window.Bounds();
+			return std::make_pair(ConvertDipsToPixels(Bounds.Width), ConvertDipsToPixels(Bounds.Height));
+		}
 
 		virtual InputEventType GetAsyncKeyState(KeyMapCode Key) const override;
 		virtual bool SetWindowTitleFPS(float fps) override { return false; }
@@ -54,7 +61,7 @@ namespace Insight {
 
 	private:
 		bool m_MouseButtonPressStates[3];
-		const uint32_t c_MouseButtonLeft = 0, c_MouseButtonRight = 1, c_MouseButtonMiddle = 2;
+		const uint8_t c_MouseButtonLeft = 0, c_MouseButtonRight = 1, c_MouseButtonMiddle = 2;
 
 		const ::winrt::Windows::UI::Core::CoreWindow* m_pCoreWindow;
 	};
