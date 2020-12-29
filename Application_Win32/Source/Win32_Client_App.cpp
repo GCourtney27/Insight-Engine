@@ -4,5 +4,5 @@
 
 std::unique_ptr<Insight::Application> Insight::CreateApplication()
 {
-	return std::make_unique<SandBoxApp::UWPSandboxApp>();
+	return std::make_unique<SandBoxApp::Win32SandboxApp>();
 }

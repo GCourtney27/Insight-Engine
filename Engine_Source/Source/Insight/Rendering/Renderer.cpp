@@ -7,6 +7,7 @@
 #include "Platform/DirectX_11/Direct3D11_Context.h"
 #include "Platform/DirectX_12/Direct3D12_Context.h"
 
+#include "Insight/Rendering/Lighting/ADirectional_Light.h"
 
 namespace Insight {
 

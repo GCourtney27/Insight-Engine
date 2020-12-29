@@ -87,10 +87,12 @@ namespace Insight {
 		inline GameLayer& GetGameLayer() { return *m_pGameLayer; }
 		// Get the editor layer for the application.
 		IE_STRIP_FOR_GAME_DIST(inline EditorLayer& GetEditorLayer() { return *m_pEditorLayer; })
-		// Get the main rendering window assocciated with the application. 
+		// Returns a reference to the main rendering window assocciated with the application. 
 		inline Window& GetWindow() { return *m_pWindow; }
-		// Get the frame timer for the application. 
-		inline FrameTimer& GetFrameTimer() { return m_FrameTimer; }
+		// Returns a reference to the game threads performance timer.
+		inline FrameTimer& GetGameThreadPerfTimer() { return m_GameThreadTimer; }
+		// Returns a reference to the graphics thread performance timer
+		inline FrameTimer& GetGraphicsThreadPerfTimer() { return m_GraphicsThreadTimer; }
 
 		// Returns true if the editor is currently simmulating a game session.
 		inline static bool IsPlaySessionUnderWay() { return s_Instance->m_pGameLayer->IsPlaySesionUnderWay(); }
@@ -120,7 +122,8 @@ namespace Insight {
 		bool					m_Running = true;
 		bool					m_AppInitialized = false;
 		LayerStack				m_LayerStack;
-		FrameTimer				m_FrameTimer;
+		FrameTimer				m_GameThreadTimer;
+		FrameTimer				m_GraphicsThreadTimer;
 		FileSystem				m_FileSystem;
 		Input::InputDispatcher	m_InputDispatcher;
 		Insight::Runtime::AActor* pARustedBall;

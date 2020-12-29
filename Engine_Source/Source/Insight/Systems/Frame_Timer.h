@@ -81,9 +81,10 @@ namespace Insight {
 			return m_DeltaTime * 1000.0f;
 		}
 
-		inline float FPS() const
+		template <typename ConversionType = float>
+		inline ConversionType FPS() const
 		{
-			return m_FramesPerSecond;
+			return static_cast<ConversionType>(m_FramesPerSecond);
 		}
 
 	private:

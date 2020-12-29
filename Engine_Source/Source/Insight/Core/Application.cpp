@@ -92,14 +92,13 @@ namespace Insight {
 	float g_GPUThreadFPS = 0.0f;
 	void Application::RenderThread()
 	{
-		FrameTimer GraphicsTimer;
 
 		while (m_Running)
 		{
-			GraphicsTimer.Tick();
-			g_GPUThreadFPS = GraphicsTimer.FPS();
+			m_GraphicsThreadTimer.Tick();
+			g_GPUThreadFPS = m_GraphicsThreadTimer.FPS();
 
-			Renderer::OnUpdate(GraphicsTimer.DeltaTime());
+			Renderer::OnUpdate(m_GraphicsThreadTimer.DeltaTime());
 
 			// Prepare for rendering. 
 			Renderer::OnPreFrameRender();
@@ -139,8 +138,8 @@ namespace Insight {
 		{
 			if (m_pWindow->GetIsVisible())
 			{
-				m_FrameTimer.Tick();
-				float DeltaMs = m_FrameTimer.DeltaTime();
+				m_GameThreadTimer.Tick();
+				float DeltaMs = m_GameThreadTimer.DeltaTime();
 				m_pWindow->SetWindowTitleFPS(g_GPUThreadFPS);
 
 				// Process the window's Messages 
@@ -175,8 +174,8 @@ namespace Insight {
 	Application::ieErrorCode Application::RunSingleThreaded()
 	{
 		{
-			m_FrameTimer.Tick();
-			float DeltaMs = m_FrameTimer.DeltaTime();
+			m_GameThreadTimer.Tick();
+			float DeltaMs = m_GameThreadTimer.DeltaTime();
 			m_pWindow->SetWindowTitleFPS(g_GPUThreadFPS);
 
 			// Process the window's Messages 

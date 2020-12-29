@@ -4,14 +4,10 @@
 
 #include "Insight/Rendering/Renderer.h"
 
-#include "Platform/Win32/Error/COM_Exception.h"
 #include "Platform/DirectX_12/D3D12_Device_Resources.h"
-#include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
-#include "Platform/DirectX_12/Wrappers/D3D12_Constant_Buffer_Wrapper.h"
 #include "Platform/DirectX_12/Wrappers/D3D12_Screen_Quad.h"
-
-#include "Insight/Rendering/Lighting/ADirectional_Light.h"
 #include "Platform/DirectX_12/Render_Passes/Render_Pass_Stack.h"
+
 
 /*
 	Render context for Windows Direct3D 12 API. 
@@ -116,6 +112,7 @@ namespace Insight {
 		friend class PostProcessCompositePass;
 		friend class RayTracedShadowsPass;
 		friend class BloomPass;
+		friend class D3D12ImGuiLayer;
 
 	public:
 		virtual bool Init_Impl() override;
@@ -141,7 +138,7 @@ namespace Insight {
 		virtual bool CreateSkybox_Impl() override;
 		virtual void DestroySkybox_Impl() override;
 
-		inline ID3D12Device& GetDeviceContext() const { return m_DeviceResources.GetDevice(); }
+		inline ID3D12Device& GetDeviceContext() const { return m_DeviceResources.GetD3D12Device(); }
 		inline DXGI_FORMAT GetSwapChainBackBufferFormat() const { return m_DeviceResources.GetSwapChainBackBufferFormat(); }
 		inline D3D12DeviceResources& GetDeviceResources() { return m_DeviceResources; }
 
@@ -170,16 +167,6 @@ namespace Insight {
 		NO_DISCARD uint32_t RegisterGeometryWithRTAccelerationStucture(Microsoft::WRL::ComPtr<ID3D12Resource> pVertexBuffer, Microsoft::WRL::ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat);
 		void UpdateRTAccelerationStructureMatrix(uint32_t InstanceArrIndex, DirectX::XMMATRIX NewWorldMat) { m_RayTracedShadowPass.GetRTHelper()->UpdateInstanceTransformByIndex(InstanceArrIndex, NewWorldMat); }
 
-
-		ID3D12Resource* GetSwapChainRenderTarget() const { return m_pSwapChainRenderTargets[IE_D3D12_FrameIndex].Get(); }
-
-		inline D3D12_CPU_DESCRIPTOR_HANDLE GetSwapChainRTV() const
-		{
-			D3D12_CPU_DESCRIPTOR_HANDLE Handle;
-			Handle.ptr = m_SwapChainRTVHeap.hCPUHeapStart.ptr + m_SwapChainRTVHeap.HandleIncrementSize * IE_D3D12_FrameIndex;
-			return Handle;
-		}
-
 		inline void ResetBloomFirstPass()
 		{
 			ThrowIfFailed(m_pBloomFirstPass_CommandList->Reset(m_pBloomFirstPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
@@ -200,8 +187,6 @@ namespace Insight {
 
 		// D3D12 Initialize
 		
-		void CreateSwapChainRTVDescriptorHeap();
-
 		// Create app resources
 		
 		void CreateDSVs();
@@ -231,20 +216,22 @@ namespace Insight {
 		void UpdateSizeDependentResources();
 
 		/*
-			Batches multiple resoures into a single transition. MSDN recomends batching transitions for performance reasons. So, this method should
+			Batches multiple resoures into a single transition. MSDN recommends batching transitions for performance reasons. So, this method should 
 			be prefered over regular 'CommandList::ResourceBarrier' calls. Note: Can only batch 8 resources at a time.
 			@param pCommandList - Command list to execute the transitions on.
-			@param pResaources - A pointer to the first element in an array of resources to transition.
+			@param pResources - A pointer to the first element in an array of resources to transition.
 			@param StateBefore - The current state of the resources.
 			@param StateAfter - The state to transition the resources to.
 			@param NumBarriers - Number of resoures present in pResources array to batch together.
 		*/
 		void ResourceBarrier(ID3D12GraphicsCommandList* pCommandList, ID3D12Resource** pResources, D3D12_RESOURCE_STATES StateBefore, D3D12_RESOURCE_STATES StateAfter, uint32_t NumBarriers = 1u);
 		
-		void DEBUGLoadAssets();
+		void LoadAssets();
 
 	private:
-		D3D12DeviceResources					m_DeviceResources;
+		D3D12DeviceResources		m_DeviceResources;
+
+		FrameResources				m_FrameResources;
 
 		RenderPassStack				m_RenderPassStack;
 		DeferredGeometryPass		m_GeometryPass;
@@ -254,6 +241,7 @@ namespace Insight {
 		BloomPass					m_BloomPass;
 		PostProcessCompositePass	m_PostProcessCompositePass;
 
+		Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> m_textBrush;
 		Microsoft::WRL::ComPtr<IDWriteTextFormat> m_textFormat;
 
 
@@ -285,9 +273,7 @@ namespace Insight {
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>	m_pBloomSecondPass_CommandList;
 		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>		m_pBloomSecondPass_CommandAllocators[m_FrameBufferCount];
 
-		Microsoft::WRL::ComPtr<ID3D12Resource>				m_pSwapChainRenderTargets[m_FrameBufferCount];
-		Microsoft::WRL::ComPtr<ID3D11Resource> m_WrappedBackBuffers[m_FrameBufferCount];
-		Microsoft::WRL::ComPtr<ID2D1Bitmap1> m_d2dRenderTargets[m_FrameBufferCount];
+
 
 		//-----Light Pass-----
 		// 0: Albedo
@@ -298,8 +284,7 @@ namespace Insight {
 		// 4: Light Pass result
 		// 5: Bloom Buffer
 		CDescriptorHeapWrapper				m_rtvHeap;
-		// Number of decriptors depends on frame buffer count. Start slot is 0.
-		CDescriptorHeapWrapper				m_SwapChainRTVHeap;
+
 		//0:  SceneDepth
 		//1:  ShadowDepth
 		CDescriptorHeapWrapper				m_dsvHeap;
@@ -350,7 +335,6 @@ namespace Insight {
 		const UINT m_ShadowMapWidth = 2048;
 		const UINT m_ShadowMapHeight = 2048;
 
-		FrameResources m_FrameResources;
 
 	};
 

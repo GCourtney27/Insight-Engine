@@ -47,8 +47,8 @@ namespace Insight {
 			m_pIO->KeyMap[ImGuiKey_Z] = 'Z';
 		}
 
-		Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
-		void* pNativeWindow = RenderContext.GetWindowRef().GetNativeWindow();
+		m_pRenderContextRef = &Renderer::GetAs<Direct3D12Context>();
+		void* pNativeWindow = m_pRenderContextRef->GetWindowRef().GetNativeWindow();
 		
 		// Setup Platform/Renderer bindings
 #if defined (IE_PLATFORM_BUILD_WIN32)
@@ -61,19 +61,19 @@ namespace Insight {
 		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 		desc.NumDescriptors = 1;
 		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-		hr = RenderContext.GetDeviceContext().CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_pDescriptorHeap));
+		hr = m_pRenderContextRef->GetDeviceContext().CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_pDescriptorHeap));
 
 		bool impleDX12Succeeded = ImGui_ImplDX12_Init(
-			&RenderContext.GetDeviceContext(),
-			RenderContext.GetFrameBufferCount(),
-			RenderContext.GetSwapChainBackBufferFormat(),
+			&m_pRenderContextRef->GetDeviceContext(),
+			m_pRenderContextRef->GetFrameBufferCount(),
+			m_pRenderContextRef->GetSwapChainBackBufferFormat(),
 			m_pDescriptorHeap,
 			m_pDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
 			m_pDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 		if (!impleDX12Succeeded)
 			IE_DEBUG_LOG(LogSeverity::Warning, "Failed to initialize ImGui for DX12. Editor will not be rendered");
 
-		m_pCommandList = &RenderContext.GetPostProcessPassCommandList();
+		m_pCommandList = &m_pRenderContextRef->GetPostProcessPassCommandList();
 #endif
 	}
 

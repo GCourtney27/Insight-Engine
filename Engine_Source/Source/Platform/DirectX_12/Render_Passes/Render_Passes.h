@@ -73,7 +73,7 @@ namespace Insight {
 		Direct3D12Context*					m_pRenderContextRef = nullptr;
 		// Reference to the GPU memory for the resources in the application.
 		CDescriptorHeapWrapper*				m_pCBVSRVHeapRef = nullptr;
-		// Reference Command list used to execure commands assocaiated with this pass.
+		// Reference command list used to execute commands assocaiated with this pass.
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>	m_pCommandListRef;
 		// Reference to the shader root siganture this pass will exeute with.
 		Microsoft::WRL::ComPtr<ID3D12RootSignature>			m_pRootSignatureRef;

@@ -4,6 +4,7 @@
 
 #include "Platform/Win32/Error/COM_Exception.h"
 
+#include "Platform/DirectX_12/Wrappers/Descriptor_Heap_Wrapper.h"
 
 
 
@@ -21,16 +22,27 @@ namespace Insight {
 		void ResizeResources();
 		void CleanUp();
 
-		inline ID3D12Device& GetDevice() const { return *m_pD3D12Device.Get(); }
+		inline ID3D12Device& GetD3D12Device() const { return *m_pD3D12Device.Get(); }
 		inline IDXGIAdapter1& GetAdapter() const { return *m_pAdapter.Get(); }
-		inline IDXGIFactory4& GetDXGIFactor() const { return *m_pDxgiFactory.Get(); }
+		inline IDXGIFactory4& GetDXGIFactory() const { return *m_pDxgiFactory.Get(); }
+
+		inline ID3D12Resource& GetSwapChainRenderTarget() const { return *m_pSwapChainRenderTargets[m_FrameIndex].Get(); }
+		inline D3D12_CPU_DESCRIPTOR_HANDLE GetSwapChainRTV() const
+		{
+			D3D12_CPU_DESCRIPTOR_HANDLE Handle;
+			Handle.ptr = m_SwapChainRTVHeap.hCPUHeapStart.ptr + m_SwapChainRTVHeap.HandleIncrementSize * m_FrameIndex;
+			return Handle;
+		}
+		inline ID2D1Bitmap1& GetD2DRenderTarget() const { return *m_d2dRenderTargets[m_FrameIndex].Get(); }
+		inline ID3D11Resource& GetWrappedD2DBackBuffer() const { return *m_WrappedBackBuffers[m_FrameIndex].Get(); }
+
 
 		inline ID3D11On12Device& GetD3D11On12Device() const { return *m_D3D11On12Device.Get(); }
 		inline ID2D1DeviceContext2& GetD2DDeviceContext() const { return *m_d2dDeviceContext.Get(); }
 		inline IDWriteFactory& GetWriteFactory() const { return *m_dWriteFactory.Get(); }
+		inline ID3D11DeviceContext& GetD3D11DeviceContext() const { return *m_pD3D11DeviceContext.Get(); }
 
 		inline IDXGISwapChain3& GetSwapChain() const { return *m_pSwapChain.Get(); }
-		inline ID3D12Resource* GetSwapChainRenderTarget() const { return m_pRenderTargets[m_FrameIndex].Get(); }
 		inline ID3D12CommandQueue& GetGraphicsCommandQueue() const { return *m_pGraphicsCommandQueue.Get(); }
 		inline ID3D12CommandQueue& GetComputeCommandQueue() const { return *m_pComputeCommandQueue.Get(); }
 		inline DXGI_FORMAT GetSwapChainBackBufferFormat() const { return m_SwapChainBackBufferFormat; }
@@ -62,6 +74,8 @@ namespace Insight {
 
 		void CreateD3D11On12Resources();
 
+		void CreateSwapchainRTVDescriptors();
+
 	private:
 		Direct3D12Context*		m_pRenderContextRef;
 
@@ -74,19 +88,22 @@ namespace Insight {
 		UINT64								m_FenceValues[m_FrameBufferCount] = {};
 		HANDLE								m_FenceEvent = {};
 		HANDLE								m_ComputeFenceEvent = {};
-		Microsoft::WRL::ComPtr<ID3D12Fence>					m_pFence;
+		Microsoft::WRL::ComPtr<ID3D12Fence>	m_pFence;
 
 		Microsoft::WRL::ComPtr<IDXGIAdapter1>				m_pAdapter;
 		Microsoft::WRL::ComPtr<ID3D12Device>				m_pD3D12Device;
 		Microsoft::WRL::ComPtr<IDXGIFactory4>				m_pDxgiFactory;
 		Microsoft::WRL::ComPtr<IDXGISwapChain3>				m_pSwapChain;
 
-		Microsoft::WRL::ComPtr<ID3D12CommandQueue>			m_pUICommandQueue;
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue>			m_pComputeCommandQueue;
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue>			m_pGraphicsCommandQueue;
 
-		Microsoft::WRL::ComPtr<ID3D12Resource>				m_pRenderTargets[m_FrameBufferCount];
-		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>		m_pRtvHeap;
+		// Number of decriptors depends on frame buffer count. Start slot is 0.
+		CDescriptorHeapWrapper				m_SwapChainRTVHeap;
+
+		Microsoft::WRL::ComPtr<ID3D12Resource>				m_pSwapChainRenderTargets[m_FrameBufferCount];
+		Microsoft::WRL::ComPtr<ID3D11Resource>				m_WrappedBackBuffers[m_FrameBufferCount];
+		Microsoft::WRL::ComPtr<ID2D1Bitmap1>				m_d2dRenderTargets[m_FrameBufferCount];
 
 		DXGI_FORMAT							m_SwapChainBackBufferFormat;
 		UINT								m_RtvDescriptorSize;

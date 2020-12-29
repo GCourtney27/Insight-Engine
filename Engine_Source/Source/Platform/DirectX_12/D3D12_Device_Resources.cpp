@@ -7,12 +7,12 @@
 
 namespace Insight {
 
-	
+
 	/*
 		Feature levels the application will target.
 	*/
-	constexpr D3D_FEATURE_LEVEL cx_TargetFeatureLevel			= D3D_FEATURE_LEVEL_11_0;
-	constexpr D3D_FEATURE_LEVEL cx_RayTraceTargetFeatureLevel	= D3D_FEATURE_LEVEL_12_1;
+	constexpr D3D_FEATURE_LEVEL cx_TargetFeatureLevel = D3D_FEATURE_LEVEL_11_0;
+	constexpr D3D_FEATURE_LEVEL cx_RayTraceTargetFeatureLevel = D3D_FEATURE_LEVEL_12_1;
 
 
 	D3D12DeviceResources::D3D12DeviceResources()
@@ -32,6 +32,7 @@ namespace Insight {
 		CreateCommandQueues();
 		CreateSwapChain();
 		CreateD3D11On12Resources();
+		CreateSwapchainRTVDescriptors();
 
 		CreateViewport();
 		CreateScissorRect();
@@ -47,14 +48,33 @@ namespace Insight {
 		uint32_t WindowWidth = m_pRenderContextRef->GetWindowRef().GetWidth();
 		uint32_t WindowHeight = m_pRenderContextRef->GetWindowRef().GetHeight();
 
+		m_d2dDevice.Reset();
+		m_d2dFactory.Reset();
+		m_dWriteFactory.Reset();
+		m_D3D11On12Device.Reset();
+		m_d2dDeviceContext.Reset();
+		m_pD3D11DeviceContext.Reset(); 
+
+		for (int i = 0; i < m_FrameBufferCount; ++i)
+		{
+			// Release the swapchain resources.
+			m_pSwapChainRenderTargets[i].Reset();
+			m_WrappedBackBuffers[i].Reset();
+			m_d2dRenderTargets[i].Reset();
+
+			// Reset the fence values to sync future frames.
+			ResetFenceValue(i);
+		}
 
 		// Resize the swapchain
 		{
-			HRESULT hr;
 			DXGI_SWAP_CHAIN_DESC SwapChainDesc = {};
 			m_pSwapChain->GetDesc(&SwapChainDesc);
-			hr = m_pSwapChain->ResizeBuffers(m_FrameBufferCount, WindowWidth, WindowHeight, SwapChainDesc.BufferDesc.Format, SwapChainDesc.Flags);
+			HRESULT hr = m_pSwapChain->ResizeBuffers(SwapChainDesc.BufferCount, WindowWidth, WindowHeight, SwapChainDesc.BufferDesc.Format, SwapChainDesc.Flags);
 			ThrowIfFailed(hr, "Failed to resize swap chain buffers for D3D 12 context.");
+
+			CreateD3D11On12Resources();
+			CreateSwapchainRTVDescriptors();
 		}
 
 		// Update View and Scissor rects
@@ -127,7 +147,7 @@ namespace Insight {
 			D3D11DeviceCreateFlags,	// Device Create Flags
 			nullptr,				// Feature Levels
 			0,						// Num Feature Levels
-			reinterpret_cast<::IUnknown**>(m_pUICommandQueue.GetAddressOf()), // Command Queue
+			reinterpret_cast<::IUnknown**>(m_pGraphicsCommandQueue.GetAddressOf()), // Command Queue
 			1,						// Num Queues
 			0,						// Node Mask
 			D3D11Device.GetAddressOf(),				// D3D11 Device
@@ -296,14 +316,6 @@ namespace Insight {
 		D3D12_COMMAND_QUEUE_DESC QueueDesc = {};
 		QueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 
-		// Create UI Command Queue
-		{
-			QueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-
-			hr = m_pD3D12Device->CreateCommandQueue(&QueueDesc, IID_PPV_ARGS(&m_pUICommandQueue));
-			ThrowIfFailed(hr, "Failed to create ui command queue.");
-		}
-		
 		// Create Graphics Command Queue
 		{
 			QueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
@@ -378,6 +390,59 @@ namespace Insight {
 		DXGI_SWAP_CHAIN_DESC1 Desc = {};
 		m_pSwapChain->GetDesc1(&Desc);
 		m_SwapChainBackBufferFormat = Desc.Format;
+
+
+	}
+
+	void D3D12DeviceResources::CreateSwapchainRTVDescriptors()
+	{
+		HRESULT hr;
+
+		m_SwapChainRTVHeap.pDH.Reset();
+		m_SwapChainRTVHeap.Create(m_pD3D12Device.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_FrameBufferCount, false);
+
+
+
+		std::pair<uint32_t, uint32_t> DPI = m_pRenderContextRef->GetWindowRef().GetDPI();
+		//float DPIX, DPIY;
+		//m_d2dFactory->GetDesktopDpi(&DPIX, &DPIY);
+		D2D1_BITMAP_PROPERTIES1 BitmapProps = D2D1::BitmapProperties1(
+			D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
+			D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED),
+			static_cast<float>(DPI.first),
+			static_cast<float>(DPI.second)
+		);
+
+		for (UINT i = 0; i < m_FrameBufferCount; i++)
+		{
+			hr = m_pSwapChain->GetBuffer(i, IID_PPV_ARGS(&m_pSwapChainRenderTargets[i]));
+			ThrowIfFailed(hr, "Failed to get buffer in swap chain during descriptor heap initialization for D3D 12 context.");
+			m_pD3D12Device->CreateRenderTargetView(m_pSwapChainRenderTargets[i].Get(), nullptr, m_SwapChainRTVHeap.hCPU(i));
+
+			WCHAR name[32];
+			swprintf_s(name, L"SwapChain Render Target %d", i);
+			m_pSwapChainRenderTargets[i]->SetName(name);
+
+			// Create a wrapped 11On12 resource of this back buffer. Since we are 
+			// rendering all D3D12 content first and then all D2D content, we specify 
+			// the In resource state as RENDER_TARGET - because D3D12 will have last 
+			// used it in this state - and the Out resource state as PRESENT. When 
+			// ReleaseWrappedResources() is called on the 11On12 device, the resource 
+			// will be transitioned to the PRESENT state.
+			D3D11_RESOURCE_FLAGS d3d11Flags = { D3D11_BIND_RENDER_TARGET };
+			m_D3D11On12Device->CreateWrappedResource(
+				m_pSwapChainRenderTargets[i].Get(),
+				&d3d11Flags,
+				D3D12_RESOURCE_STATE_RENDER_TARGET,
+				D3D12_RESOURCE_STATE_PRESENT,
+				IID_PPV_ARGS(&m_WrappedBackBuffers[i])
+			);
+
+			// Create a render target for D2D to draw directly to this back buffer.
+			Microsoft::WRL::ComPtr<IDXGISurface> pSurface;
+			ThrowIfFailed(m_WrappedBackBuffers[i].As(&pSurface), "Failed to cast surface as wrapped buffer.");
+			m_d2dDeviceContext->CreateBitmapFromDxgiSurface(pSurface.Get(), &BitmapProps, &m_d2dRenderTargets[i]);
+		}
 	}
 
 	void D3D12DeviceResources::CreateViewport()

@@ -7,6 +7,8 @@
 
 namespace Insight {
 	
+	class Direct3D12Context;
+	
 	class INSIGHT_API D3D12ImGuiLayer : public ImGuiLayer
 	{
 	private:
@@ -23,6 +25,7 @@ namespace Insight {
 		virtual void End() override;
 
 	private:
+		Direct3D12Context* m_pRenderContextRef;
 		ID3D12DescriptorHeap* m_pDescriptorHeap = nullptr;
 		ID3D12GraphicsCommandList* m_pCommandList = nullptr;
 	};
