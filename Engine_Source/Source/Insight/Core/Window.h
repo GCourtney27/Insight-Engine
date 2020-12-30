@@ -44,10 +44,11 @@ namespace Insight {
 		inline void Resize(uint32_t NewWidth, uint32_t NewHeight, bool IsMinimized) 
 		{ 
 			IE_ASSERT(NewWidth > 0 && NewHeight > 0, "Window width and/or height cannot be zero.");
-			m_WindowWidth = NewWidth;
-			m_WindowHeight = NewHeight; 
-			m_AspectRatio = static_cast<float>(NewWidth) / static_cast<float>(NewHeight); 
-			m_IsVisible = !IsMinimized;
+			
+			m_LogicalWidth	= ConvertDipsToPixels((float)NewWidth);
+			m_LogicalHeight = ConvertDipsToPixels((float)NewHeight);
+			m_AspectRatio	= static_cast<float>(NewWidth) / static_cast<float>(NewHeight); 
+			m_IsVisible		= !IsMinimized;
 
 			SetNativeWindowDPI();
 		}
@@ -60,16 +61,16 @@ namespace Insight {
 		virtual InputEventType GetAsyncKeyState(KeyMapCode Key) const = 0;
 		virtual bool SetWindowTitle(const std::string& newText, bool completlyOverride = false) = 0;
 
-		uint32_t GetWidth() const { return m_WindowWidth; }
-		uint32_t GetHeight() const { return m_WindowHeight; }
-		std::pair<uint32_t, uint32_t> GetDimensions() const { return std::make_pair(m_WindowWidth, m_WindowHeight); }
-		inline float GetAspectRatio() const { return m_AspectRatio; }
-		inline bool GetIsVisible() const { return m_IsVisible; }
-		inline bool GetIsVsyncEnabled() const { return m_VSyncEnabled; }
-		inline bool GetIsFullScreenEnabled() const { return m_FullScreenEnabled; }
-		inline void SetIsVisible(bool Visible) { m_IsVisible = Visible; }
-		inline void SetVSyncEnabled(bool Enabled) { m_VSyncEnabled = Enabled; }
-		inline void SetAspectRatio(float AspectRatio) { m_AspectRatio = AspectRatio; }
+		uint32_t GetWidth()								const { return m_LogicalWidth; }
+		uint32_t GetHeight()							const { return m_LogicalHeight; }
+		std::pair<uint32_t, uint32_t> GetDimensions()	const { return std::make_pair(m_LogicalWidth, m_LogicalHeight); }
+		inline float GetAspectRatio()					const { return m_AspectRatio; }
+		inline bool GetIsVisible()						const { return m_IsVisible; }
+		inline bool GetIsVsyncEnabled()					const { return m_VSyncEnabled; }
+		inline bool GetIsFullScreenEnabled()			const { return m_FullScreenEnabled; }
+		inline void SetIsVisible(bool Visible)			{ m_IsVisible = Visible; }
+		inline void SetVSyncEnabled(bool Enabled)		{ m_VSyncEnabled = Enabled; }
+		inline void SetAspectRatio(float AspectRatio)	{ m_AspectRatio = AspectRatio; }
 		virtual void SetFullScreenEnabled(bool Enabled) { m_FullScreenEnabled = Enabled; }
 
 		inline void SetEventCallback(const EventCallbackFn& callback) { m_EventCallbackFn = callback; }
@@ -96,8 +97,8 @@ namespace Insight {
 		bool m_VSyncEnabled = false;
 		bool m_FullScreenEnabled = false;
 		bool m_IsVisible = true;
-		uint32_t m_WindowWidth = 0u;
-		uint32_t m_WindowHeight = 0u;
+		uint32_t m_LogicalWidth = 0u;
+		uint32_t m_LogicalHeight = 0u;
 		std::wstring m_WindowTitle;
 		std::wstring m_WindowClassName;
 	};

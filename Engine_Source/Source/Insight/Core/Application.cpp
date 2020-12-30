@@ -91,9 +91,10 @@ namespace Insight {
 	float g_GPUThreadFPS = 0.0f;
 	void Application::RenderThread()
 	{
-
 		while (m_Running)
 		{
+			if (m_IsSuspended) continue;
+
 			m_GraphicsThreadTimer.Tick();
 			g_GPUThreadFPS = m_GraphicsThreadTimer.FPS();
 
@@ -135,6 +136,8 @@ namespace Insight {
 
 		while (m_Running)
 		{
+			if (m_IsSuspended) continue;
+
 			if (m_pWindow->GetIsVisible())
 			{
 				m_GameThreadTimer.Tick();
@@ -228,9 +231,9 @@ namespace Insight {
 
 	void Application::PushCoreLayers()
 	{
+#if defined (IE_PLATFORM_BUILD_WIN32) && (EDITOR_UI_ENABLED)
 		switch (Renderer::GetAPI())
 		{
-#if defined (IE_PLATFORM_BUILD_WIN32) && (EDITOR_UI_ENABLED)
 		case Renderer::TargetRenderAPI::Direct3D_11:
 			IE_STRIP_FOR_GAME_DIST(
 				m_pImGuiLayer = new D3D11ImGuiLayer();
@@ -243,11 +246,11 @@ namespace Insight {
 			PushOverlay(m_pImGuiLayer);
 			);
 			break;
-#endif
 		default:
 			IE_DEBUG_LOG(LogSeverity::Error, "Failed to create ImGui layer in application with API of type \"{0}\" Or application has disabled editor.", Renderer::GetAPI());
 			break;
 		}
+#endif
 
 		IE_STRIP_FOR_GAME_DIST(
 			m_pEditorLayer = new EditorLayer();
@@ -315,6 +318,18 @@ namespace Insight {
 	{
 		m_pWindow->SetFullScreenEnabled(e.GetFullScreenEnabled());
 		Renderer::PushEvent<WindowToggleFullScreenEvent>(e);
+		return true;
+	}
+
+	bool Application::OnAppSuspendingEvent(AppSuspendingEvent& e)
+	{
+		m_IsSuspended = true;
+		return true;
+	}
+
+	bool Application::OnAppResumingEvent(AppResumingEvent& e)
+	{
+		m_IsSuspended = false;
 		return true;
 	}
 

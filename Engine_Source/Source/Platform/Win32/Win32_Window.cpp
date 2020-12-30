@@ -30,8 +30,8 @@ namespace Insight {
 
 		m_WindowTitle = Desc.Title;
 		m_WindowClassName = Desc.Class;
-		m_WindowWidth = Desc.Width;
-		m_WindowHeight = Desc.Height;
+		m_LogicalWidth = Desc.Width;
+		m_LogicalHeight = Desc.Height;
 		m_WindowsAppInstance = Desc.AppInstance;
 		m_NumCmdLineArgs = Desc.NumCmdArgs;
 		m_CmdLineArgs = Desc.CmdArgs.c_str();
@@ -410,14 +410,14 @@ namespace Insight {
 
 		RegisterWindowClass();
 
-		int centerScreenX = ::GetSystemMetrics(SM_CXSCREEN) / 2 - m_WindowWidth / 2;
-		int centerScreenY = ::GetSystemMetrics(SM_CYSCREEN) / 2 - m_WindowHeight / 2;
+		int centerScreenX = ::GetSystemMetrics(SM_CXSCREEN) / 2 - m_LogicalWidth / 2;
+		int centerScreenY = ::GetSystemMetrics(SM_CYSCREEN) / 2 - m_LogicalHeight / 2;
 
 		// Center the window on the users monitor
 		m_WindowRect.left = centerScreenX;
 		m_WindowRect.top = centerScreenY + 35;
-		m_WindowRect.right = m_WindowRect.left + m_WindowWidth;
-		m_WindowRect.bottom = m_WindowRect.top + m_WindowHeight;
+		m_WindowRect.right = m_WindowRect.left + m_LogicalWidth;
+		m_WindowRect.bottom = m_WindowRect.top + m_LogicalHeight;
 		::AdjustWindowRect(&m_WindowRect, WS_OVERLAPPEDWINDOW | WS_EX_ACCEPTFILES, FALSE);
 
 		// Create the menu bar

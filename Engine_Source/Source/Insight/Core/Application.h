@@ -105,12 +105,15 @@ namespace Insight {
 		virtual bool OnWindowClose(WindowCloseEvent& e);
 		virtual bool OnWindowResize(WindowResizeEvent& e);
 		virtual bool OnWindowFullScreen(WindowToggleFullScreenEvent& e);
+		bool OnAppSuspendingEvent(AppSuspendingEvent& e);
+		bool OnAppResumingEvent(AppResumingEvent& e);
 
 		virtual bool SaveScene(SceneSaveEvent& e);
 		virtual bool BeginPlay(AppBeginPlayEvent& e);
 		virtual bool EndPlay(AppEndPlayEvent& e);
 		virtual bool ReloadScripts(AppScriptReloadEvent& e);
 		virtual bool ReloadShaders(ShaderReloadEvent& e);
+
 	protected:
 		std::shared_ptr<Window>	m_pWindow;
 		
@@ -119,6 +122,7 @@ namespace Insight {
 		PerfOverlay* m_pPerfOverlay = nullptr;
 		GameLayer* m_pGameLayer = nullptr;
 		
+		bool					m_IsSuspended = false;
 		bool					m_Running = true;
 		bool					m_AppInitialized = false;
 		LayerStack				m_LayerStack;
