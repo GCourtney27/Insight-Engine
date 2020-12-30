@@ -412,7 +412,7 @@ namespace Insight {
 
 	void Direct3D11Context::GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter** ppAdapter)
 	{
-		HRESULT hr;
+		HRESULT hr = S_OK;
 
 		ComPtr<IDXGIAdapter> pAdapter;
 		*ppAdapter = nullptr;
@@ -431,7 +431,7 @@ namespace Insight {
 			if ((Desc.DedicatedVideoMemory < CurrentVideoCardMemory) || IsSoftwareAdapter) {
 				continue;
 			}
-			hr = ::D3D11CreateDevice(pAdapter.Get(), D3D_DRIVER_TYPE_UNKNOWN, NULL, NULL, nullptr, 0, D3D11_SDK_VERSION, NULL, NULL, NULL);
+			//hr = ::D3D11CreateDevice(pAdapter.Get(), D3D_DRIVER_TYPE_UNKNOWN, NULL, NULL, nullptr, 0, D3D11_SDK_VERSION, NULL, NULL, NULL);
 			if (SUCCEEDED(hr)) {
 
 				CurrentVideoCardMemory = static_cast<uint32_t>(Desc.DedicatedSystemMemory);
@@ -481,7 +481,7 @@ namespace Insight {
 		SwapChainDesc.Flags = m_AllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 		
 #if defined (IE_PLATFORM_BUILD_WIN32)
-		HRESULT hr = ::D3D11CreateDeviceAndSwapChain(
+		/*HRESULT hr = ::D3D11CreateDeviceAndSwapChain(
 			m_pAdapter.Get(),
 			D3D_DRIVER_TYPE_UNKNOWN,
 			NULL,
@@ -495,7 +495,7 @@ namespace Insight {
 			NULL,
 			&m_pDeviceContext
 		);
-		ThrowIfFailed(hr, "Failed to create swapchain for D3D 11 context");
+		ThrowIfFailed(hr, "Failed to create swapchain for D3D 11 context");*/
 
 		if (m_AllowTearing) {
 			ThrowIfFailed(m_pDxgiFactory->MakeWindowAssociation(reinterpret_cast<Win32Window*>(m_pWindowRef.get())->GetWindowHandleRef(), DXGI_MWA_NO_ALT_ENTER), "Failed to make window association for D3D 11 context.");

@@ -90,14 +90,14 @@ namespace Insight {
 		// 3: light constant buffer
 		CDescriptorHeapWrapper				m_srvUavHeap;
 
-		Microsoft::WRL::ComPtr<ID3D12Resource>					m_pCameraBuffer;
+		Microsoft::WRL::ComPtr<ID3D12Resource>	m_pCameraBuffer;
 		int										m_CameraBufferSize = 0;
 		CB_RG_CameraParams						m_CBCameraParams;
-		Microsoft::WRL::ComPtr<ID3D12Resource>					m_pLightBuffer;
+		Microsoft::WRL::ComPtr<ID3D12Resource>	m_pLightBuffer;
 		int										m_LightBufferSize = 0;
 		CB_CHS_LightParams						m_CBLightParams;
 
-		Microsoft::WRL::ComPtr<ID3D12Resource>					m_pOutputBuffer_UAV;
+		Microsoft::WRL::ComPtr<ID3D12Resource>	m_pOutputBuffer_UAV;
 
 		NvidiaHelpers::TopLevelASGenerator		m_TopLevelASGenerator;
 		AccelerationStructureBuffers			m_TopLevelASBuffers;

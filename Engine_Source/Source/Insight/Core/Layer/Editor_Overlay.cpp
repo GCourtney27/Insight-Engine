@@ -1,7 +1,7 @@
 // Copyright Insight Interactive. All Rights Reserved.
 #include <Engine_pch.h>
 
-#include "Editor_Layer.h"
+#include "Editor_Overlay.h"
 
 #include "Insight/Runtime/Archetypes/ACamera.h"
 #include "Insight/Runtime/AActor.h"
@@ -16,7 +16,7 @@
 #include "Insight/Core/Scene/Scene_Node.h"
 #include "Insight/Core/Scene/Scene.h"
 
-#include "Insight/Core/Layer/ImGui_Layer.h"
+#include "Insight/Core/Layer/ImGui_Overlay.h"
 
 #include "Insight/UI/UI_Lib.h"
 

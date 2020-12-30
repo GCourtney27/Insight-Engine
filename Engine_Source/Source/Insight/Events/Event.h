@@ -11,7 +11,7 @@ namespace Insight {
 	{
 		None = 0,
 		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved, ToggleWindowFullScreen, ShaderReload,
-		AppBeginPlay, AppEndPlay, AppTick, AppUpdate, AppRender, AppScriptReload,
+		AppBeginPlay, AppEndPlay, AppTick, AppUpdate, AppRender, AppScriptReload, AppSuspending, AppResuming,
 		SceneSave,
 		KeyPressed, KeyReleased, KeyTyped, KeyHeld,
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, RawMouseMoved, MouseScrolled,
@@ -21,13 +21,13 @@ namespace Insight {
 	enum EventCategory
 	{
 		None = 0,
-		EventCategoryApplication = BIT_SHIFT(0),
-		EventCategoryInput = BIT_SHIFT(1),
-		EventCategoryKeyboard = BIT_SHIFT(2),
-		EventCategoryMouse = BIT_SHIFT(3),
-		EventCategoryMouseButton = BIT_SHIFT(4),
-		EventCategoryPhysics = BIT_SHIFT(5),
-		EventCategoryTranslation = BIT_SHIFT(6)
+		EventCategoryApplication	= BIT_SHIFT(0),
+		EventCategoryInput			= BIT_SHIFT(1),
+		EventCategoryKeyboard		= BIT_SHIFT(2),
+		EventCategoryMouse			= BIT_SHIFT(3),
+		EventCategoryMouseButton	= BIT_SHIFT(4),
+		EventCategoryPhysics		= BIT_SHIFT(5),
+		EventCategoryTranslation	= BIT_SHIFT(6)
 	};
 
 #define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::##type; }\

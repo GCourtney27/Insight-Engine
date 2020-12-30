@@ -27,9 +27,9 @@
 #include "Insight/Input/Input_Dispatcher.h"
 
 #include "Insight/Core/Layer/Game_Layer.h"
-#include "Insight/Core/Layer/ImGui_Layer.h"
-#include "Insight/Core/Layer/Editor_Layer.h"
-#include "Insight/Core/Layer/Perf_Monitor_Layer.h"
+#include "Insight/Core/Layer/ImGui_Overlay.h"
+#include "Insight/Core/Layer/Editor_Overlay.h"
+#include "Insight/Core/Layer/Perf_Overlay.h"
 
 
 namespace Insight {
@@ -87,10 +87,12 @@ namespace Insight {
 		inline GameLayer& GetGameLayer() { return *m_pGameLayer; }
 		// Get the editor layer for the application.
 		IE_STRIP_FOR_GAME_DIST(inline EditorLayer& GetEditorLayer() { return *m_pEditorLayer; })
-		// Get the main rendering window assocciated with the application. 
+		// Returns a reference to the main rendering window assocciated with the application. 
 		inline Window& GetWindow() { return *m_pWindow; }
-		// Get the frame timer for the application. 
-		inline FrameTimer& GetFrameTimer() { return m_FrameTimer; }
+		// Returns a reference to the game threads performance timer.
+		inline FrameTimer& GetGameThreadPerfTimer() { return m_GameThreadTimer; }
+		// Returns a reference to the graphics thread performance timer
+		inline FrameTimer& GetGraphicsThreadPerfTimer() { return m_GraphicsThreadTimer; }
 
 		// Returns true if the editor is currently simmulating a game session.
 		inline static bool IsPlaySessionUnderWay() { return s_Instance->m_pGameLayer->IsPlaySesionUnderWay(); }
@@ -103,12 +105,15 @@ namespace Insight {
 		virtual bool OnWindowClose(WindowCloseEvent& e);
 		virtual bool OnWindowResize(WindowResizeEvent& e);
 		virtual bool OnWindowFullScreen(WindowToggleFullScreenEvent& e);
+		bool OnAppSuspendingEvent(AppSuspendingEvent& e);
+		bool OnAppResumingEvent(AppResumingEvent& e);
 
 		virtual bool SaveScene(SceneSaveEvent& e);
 		virtual bool BeginPlay(AppBeginPlayEvent& e);
 		virtual bool EndPlay(AppEndPlayEvent& e);
 		virtual bool ReloadScripts(AppScriptReloadEvent& e);
 		virtual bool ReloadShaders(ShaderReloadEvent& e);
+
 	protected:
 		std::shared_ptr<Window>	m_pWindow;
 		
@@ -117,14 +122,15 @@ namespace Insight {
 		PerfOverlay* m_pPerfOverlay = nullptr;
 		GameLayer* m_pGameLayer = nullptr;
 		
+		bool					m_IsSuspended = false;
 		bool					m_Running = true;
 		bool					m_AppInitialized = false;
 		LayerStack				m_LayerStack;
-		FrameTimer				m_FrameTimer;
+		FrameTimer				m_GameThreadTimer;
+		FrameTimer				m_GraphicsThreadTimer;
 		FileSystem				m_FileSystem;
 		Input::InputDispatcher	m_InputDispatcher;
-		Insight::Runtime::AActor* pARustedBall;
-		Insight::Runtime::SceneComponent* pSCDemoBall;
+
 	private:
 		static Application*		s_Instance;
 	};

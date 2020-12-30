@@ -17,16 +17,16 @@ namespace Insight {
 		IE_ASSERT(Desc.Title != L"", "Window title cannot be blank.");
 		IE_ASSERT(Desc.Width > 0 && Desc.Height > 0, "Width and height of window cannot be 0.");
 
-		m_WindowTitle		= Desc.Title;
-		m_WindowClassName	= Desc.Class;
-		m_WindowWidth		= Desc.Width;
-		m_WindowHeight		= Desc.Height;
-		m_pCoreWindow		= Desc.pWindow;
-		m_EventCallbackFn	= Desc.EventCallbackFunction;
+		m_WindowTitle = Desc.Title;
+		m_WindowClassName = Desc.Class;
+		m_LogicalWidth = Desc.Width;
+		m_LogicalHeight = Desc.Height;
+		m_pCoreWindow = Desc.pWindow;
+		m_EventCallbackFn = Desc.EventCallbackFunction;
 
 		Init();
 	}
-	
+
 	UWPWindow::~UWPWindow()
 	{
 	}
@@ -36,11 +36,27 @@ namespace Insight {
 		for (int i = 0; i < 3; ++i)
 			m_MouseButtonPressStates[i] = false;
 
+		// Input
 		m_pCoreWindow->KeyDown({ this, &UWPWindow::OnKeyDown_Callback });
 		m_pCoreWindow->KeyUp({ this, &UWPWindow::OnKeyUp_Callback });
 		m_pCoreWindow->PointerPressed({ this, &UWPWindow::OnMousePressed_Callback });
 		m_pCoreWindow->PointerReleased({ this, &UWPWindow::OnMouseReleased_Callback });
 		m_pCoreWindow->PointerMoved({ this, &UWPWindow::OnMouseMoved_Callback });
+
+		// App
+		m_pCoreWindow->Closed(
+			[this](auto&&, auto&&)
+			{
+				WindowCloseEvent event;
+				GetEventCallbackFn()(event);
+			}
+		);
+
+		m_pCoreWindow->SizeChanged({ this, &UWPWindow::OnWindowSizeChanged_Callback });
+		
+		winrt::Windows::ApplicationModel::Core::CoreApplication::Suspending({ this, &UWPWindow::OnSuspending });
+		winrt::Windows::ApplicationModel::Core::CoreApplication::Resuming({ this, &UWPWindow::OnResuming });
+
 	}
 
 	bool UWPWindow::ProccessWindowMessages()
@@ -50,11 +66,19 @@ namespace Insight {
 
 	void UWPWindow::CreateMessageBox(const std::wstring& Message, const std::wstring& Title)
 	{
-		
+
 	}
 
 	void UWPWindow::OnUpdate()
 	{
+		using namespace winrt::Windows::UI::Core;
+		CoreWindow::GetForCurrentThread().Dispatcher().ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
+	}
+
+	void UWPWindow::BackgroundUpdate()
+	{
+		using namespace winrt::Windows::UI::Core;
+		CoreWindow::GetForCurrentThread().Dispatcher().ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
 	}
 
 	InputEventType UWPWindow::GetAsyncKeyState(KeyMapCode Key) const
@@ -110,7 +134,7 @@ namespace Insight {
 			MouseButtonPressedEvent event(KeyMapCode_Mouse_Button_Middle);
 			m_EventCallbackFn(event);
 		}
-		
+
 		//CPProps.MouseWheelDelta();
 	}
 
@@ -137,7 +161,7 @@ namespace Insight {
 		if (m_MouseButtonPressStates[c_MouseButtonMiddle] && !CPProps.IsMiddleButtonPressed())
 		{
 			m_MouseButtonPressStates[c_MouseButtonMiddle] = false;
-			
+
 			MouseButtonPressedEvent event(KeyMapCode_Mouse_Button_Middle);
 			m_EventCallbackFn(event);
 		}
@@ -149,6 +173,45 @@ namespace Insight {
 		m_EventCallbackFn(event);
 	}
 
-}
+	void UWPWindow::OnWindowSizeChanged_Callback(winrt::Windows::UI::Core::CoreWindow const& Sender, winrt::Windows::UI::Core::WindowSizeChangedEventArgs const& Args)
+	{
+		uint32_t Width = static_cast<uint32_t>(Sender.Bounds().Width);
+		uint32_t Height = static_cast<uint32_t>(Sender.Bounds().Height);
+		Resize(Width, Height, !m_IsVisible);
 
+		// Notify
+		WindowResizeEvent e(Width, Height, !m_IsVisible);
+		GetEventCallbackFn()(e);
+	}
+
+	void UWPWindow::OnDpiChanged(winrt::Windows::Graphics::Display::DisplayInformation const& Sender, winrt::Windows::Foundation::IInspectable const& Args)
+	{
+		m_DPI = Sender.LogicalDpi();
+		Resize(m_LogicalWidth, m_LogicalHeight, m_IsVisible);
+		
+		// Notify
+		WindowResizeEvent e(m_LogicalWidth, m_LogicalHeight, !m_IsVisible);
+		GetEventCallbackFn()(e);
+	}
+
+	void UWPWindow::OnSuspending(winrt::Windows::Foundation::IInspectable const& /*sender*/, winrt::Windows::ApplicationModel::SuspendingEventArgs const& args)
+	{
+		auto Deferral = args.SuspendingOperation().GetDeferral();
+
+		auto d = std::async(std::launch::async, [this, Deferral]()
+			{
+				AppSuspendingEvent e;
+				GetEventCallbackFn()(e);
+
+				Deferral.Complete();
+			});
+	}
+
+	void UWPWindow::OnResuming(winrt::Windows::Foundation::IInspectable const& sender, winrt::Windows::Foundation::IInspectable const& args)
+	{
+		AppResumingEvent e;
+		GetEventCallbackFn()(e);
+	}
+
+}
 #endif // IE_PLATFORM_BUILD_UWP

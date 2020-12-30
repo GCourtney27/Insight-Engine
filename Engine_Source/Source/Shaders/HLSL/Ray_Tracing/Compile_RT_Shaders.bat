@@ -1,5 +1,6 @@
 @echo off
 
+@REM Change to the specified output directory from command line args.
 cd /D "%~dp0"
 mkdir Binaries
 
@@ -9,7 +10,7 @@ for /r %%f in (*.rtlib.hlsl) do (
 )
 
 @REM Copy the files to the specified command line output directory.
-xcopy /s/e "Binaries\*.rtlib.cso" "%1"
+xcopy /s/e/q "Binaries\*.rtlib.cso" "%1"
 
 @REM Delete the intermediate output directory.
 rmdir /s/q "Binaries\"

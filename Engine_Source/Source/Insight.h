@@ -8,7 +8,7 @@
 #include "Insight/Core/Application.h"
 #include "Insight/Core/Layer/Layer.h"
 #if defined (IE_PLATFORM_BUILD_WIN32)
-#include "Insight/Core/Layer/ImGui_Layer.h"
+#include "Insight/Core/Layer/ImGui_Overlay.h"
 #include "Platform/Win32/Win32_Window.h"
 #elif defined (IE_PLATFORM_BUILD_UWP)
 #include "Platform/UWP/UWP_Window.h"

@@ -7,6 +7,7 @@
 #include "Platform/DirectX_11/Direct3D11_Context.h"
 #include "Platform/DirectX_12/Direct3D12_Context.h"
 
+#include "Insight/Rendering/Lighting/ADirectional_Light.h"
 
 namespace Insight {
 
@@ -40,7 +41,7 @@ namespace Insight {
 	{
 	}
 
-	bool Renderer::SetSettingsAndCreateContext(GraphicsSettings GraphicsSettings, std::shared_ptr<Window> pWindow)
+	bool Renderer::SetSettingsAndCreateContext(const GraphicsSettings& GraphicsSettings, std::shared_ptr<Window> pWindow)
 	{
 		IE_ASSERT(!s_Instance, "Rendering Context already exists! Cannot have more that one context created at a time.");
 		IE_ASSERT(pWindow, "Cannot initialize renderer with NULL window context.");

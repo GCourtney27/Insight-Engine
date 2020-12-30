@@ -44,6 +44,8 @@ namespace Insight {
 
 		// Resize and/or recreate any resoures this pass contains.
 		inline void ResizeBuffers() { this->CreateResources(); }
+
+		inline void SetRootSignature(ID3D12RootSignature* pRootSignature) { m_pRootSignatureRef = pRootSignature; }
 		
 	protected:
 		RenderPass()			= default;
@@ -71,7 +73,7 @@ namespace Insight {
 		Direct3D12Context*					m_pRenderContextRef = nullptr;
 		// Reference to the GPU memory for the resources in the application.
 		CDescriptorHeapWrapper*				m_pCBVSRVHeapRef = nullptr;
-		// Reference Command list used to execure commands assocaiated with this pass.
+		// Reference command list used to execute commands assocaiated with this pass.
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>	m_pCommandListRef;
 		// Reference to the shader root siganture this pass will exeute with.
 		Microsoft::WRL::ComPtr<ID3D12RootSignature>			m_pRootSignatureRef;
@@ -276,6 +278,12 @@ namespace Insight {
 
 		RayTraceHelpers* GetRTHelper() { return &m_RTHelper; }
 
+		virtual void OnStackDetach() override
+		{
+			//m_RTHelper.Destroy();
+			//m_pRayTraceOutput_SRV.Reset();
+		}
+
 	protected:
 		virtual bool Set(FrameResources* pFrameResources) override;
 		virtual void UnSet(FrameResources* pFrameResources) override;
@@ -401,4 +409,29 @@ namespace Insight {
 		static const uint8_t m_NumRenderTargets = 1u;
 	};
 
+
+	/*=======================================*/
+	/*		Post-Process Composite Pass		 */
+	/*=======================================*/
+
+	class TextRenderPass : public RenderPass
+	{
+	public:
+		TextRenderPass() = default;
+		~TextRenderPass() = default;
+		
+		virtual void OnStackAttach() {}
+		virtual void OnStackDetach() {}
+
+	protected:
+		virtual bool InternalCreate()	override;
+		virtual void LoadPipeline() override;
+		virtual void CreateResources()	override;
+
+		virtual bool Set(FrameResources* pFrameResources) override;
+		virtual void UnSet(FrameResources* pFrameResources) override;
+
+	private:
+
+	};
 }

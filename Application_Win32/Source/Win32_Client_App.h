@@ -15,14 +15,14 @@ namespace SandBoxApp {
 
 	using Super = Insight::Application;
 
-	class UWPSandboxApp : public Insight::Application
+	class Win32SandboxApp : public Insight::Application
 	{
 	public:
-		UWPSandboxApp()
+		Win32SandboxApp()
 		{
 		}
 
-		virtual ~UWPSandboxApp()
+		virtual ~Win32SandboxApp()
 		{
 		}
 
@@ -225,8 +225,8 @@ namespace SandBoxApp {
 
 			// Rusted Ball
 			Insight::Material* pRustedIron = new Insight::Material({ 6, 7, 8, 9, 10 });
-			pARustedBall = new AActor(0, "Rusted Ball");
-			pSCDemoBall = pARustedBall->CreateDefaultSubobject<SceneComponent>();
+			AActor* pARustedBall = new AActor(0, "Rusted Ball");
+			SceneComponent* pSCDemoBall = pARustedBall->CreateDefaultSubobject<SceneComponent>();
 			pSCDemoBall->SetScale(20.0f);
 			pSCDemoBall->SetPosition(10.0f, 40.0f, 0.0f);
 			StaticMeshComponent* pSMCube = pARustedBall->CreateDefaultSubobject<StaticMeshComponent>();
@@ -245,8 +245,8 @@ namespace SandBoxApp {
 			pSMBall->AttachMesh("Models/Sphere.fbx");
 			GetScene().AddActor(pABambooBall);
 			
-			// Cube
-			AActor* pACube = new AActor(0, "Cube");
+			// Wall
+			AActor* pACube = new AActor(0, "Wall");
 			SceneComponent* pSCPistol = pACube->CreateDefaultSubobject<SceneComponent>();
 			pSCPistol->SetScale(5.0f);
 			pSCPistol->SetPosition(-300.0f, 60.0f, 0.0f);

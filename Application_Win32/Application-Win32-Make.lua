@@ -76,6 +76,8 @@ project (projectName)
 		"Shlwapi.lib",
 		"DirectXTK.lib",
         "DirectXTK12.lib",
+		"d2d1.lib",
+		"dwrite.lib",
 		
 		-- Set the Runtime Library to Win32
 		"Engine_Build_Win32",
@@ -116,6 +118,7 @@ project (projectName)
 	filter "configurations:Debug"
 		defines "IE_DEBUG"
 		symbols "on"
+		runtime "Debug"
 		libdirs
 		{
             "%{win32AppIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Debug/",

@@ -30,7 +30,7 @@ sampler s_LinearClampSampler : register(s2);
 // -------------------
 void HDRToneMap(inout float3 target);
 void GammaCorrect(inout float3 target);
-float ShadowCalculation(float4 fragPosLightSpace, float3 normal, float3 lightDir);
+float ShadowCalculation(float4 fragPosLightSpace, float3 WorldNormal, float3 LightDir);
 
 // Pixel Shader Return Value
 // -------------------------
@@ -54,21 +54,24 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     ps_out.LitImage     = float4(0.0f, 0.0f, 0.0f, 0.0f);
     
 	// Sample Textures
-    float3 albedo = pow(abs(t_AlbedoGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgb), float3(2.2, 2.2, 2.2));
-    float4 roughMetAOSpecularBufferSample = t_RoughnessMetallicAOSpecularGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).rgba;
-    float3 worldPosition = t_PositionGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).xyz;
-    float3 normal = t_NormalGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).xyz;
-    float sceneDepth = t_SceneDepthGBuffer.Sample(s_LinearWrapSampler, ps_in.texCoords).r;
-    float roughness = roughMetAOSpecularBufferSample.r;
-    float metallic = roughMetAOSpecularBufferSample.g;
-    float ambientOcclusion = roughMetAOSpecularBufferSample.b;
-    float specular = roughMetAOSpecularBufferSample.a;
+    float2 PixelCoords = ps_in.texCoords * cbScreenSize;
+    int3 LoadLocation = int3(PixelCoords, 0.0);
+    
+    float3 WorldNormal = t_NormalGBuffer.Load(LoadLocation).rgb;
+    float3 WorldPosition = t_PositionGBuffer.Load(LoadLocation).rgb;
+    float3 Albedo = pow(t_AlbedoGBuffer.Load(LoadLocation).rgb, float3(2.2, 2.2, 2.2));
+    float4 roughMetAOSpecGBuffSample = t_RoughnessMetallicAOSpecularGBuffer.Load(LoadLocation);
+    
+    float Roughness = roughMetAOSpecGBuffSample.r;
+    float Metallic = roughMetAOSpecGBuffSample.g;
+    float StaticAO = roughMetAOSpecGBuffSample.b;
+    float Specular = roughMetAOSpecGBuffSample.a;
         
-    float3 viewDirection = normalize(cbCameraPosition - worldPosition);
+    float3 ViewDirection = normalize(cbCameraPosition - WorldPosition);
         
-    float3 F0 = float3(specular, specular, specular);
-    float3 baseReflectivity = lerp(F0, albedo, metallic);
-    float NdotV = max(dot(normal, viewDirection), 0.0000001);
+    float3 F0 = float3(Specular, Specular, Specular);
+    float3 baseReflectivity = lerp(F0, Albedo, Metallic);
+    float NdotV = max(dot(WorldNormal, ViewDirection), 0.0000001);
     
     float3 spotLightLuminance = float3(0.0, 0.0, 0.0);
     float3 pointLightLuminance = float3(0.0, 0.0, 0.0);
@@ -78,7 +81,7 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     // Directional Lights
     for (int d = 0; d < cbNumDirectionalLights; d++)
     {
-        float3 lightDir = normalize(-dirLight.direction);
+        float3 LightDir = normalize(-dirLight.direction);
         
         // Shadowing
         float shadow = 1.0f;
@@ -88,42 +91,42 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
         }
         else
         {
-            float4 fragPosLightSpace = mul(mul(float4(worldPosition, 1.0), dirLight.lightSpaceView), dirLight.lightSpaceProj);
-            shadow = ShadowCalculation(fragPosLightSpace, normal, lightDir);
+            float4 fragPosLightSpace = mul(mul(float4(WorldPosition, 1.0), dirLight.lightSpaceView), dirLight.lightSpaceProj);
+            shadow = ShadowCalculation(fragPosLightSpace, WorldNormal, LightDir);
 
             // Visuaize RT shadow map
             //ps_out.LitImage = float4(shadow, shadow, shadow, 1.0);
             //return ps_out;
         }
         
-        directionalLightLuminance += CaclualteDirectionalLight(dirLight, viewDirection, normal, worldPosition, NdotV, albedo, roughness, metallic, baseReflectivity) * (shadow);
+        directionalLightLuminance += CaclualteDirectionalLight(dirLight, ViewDirection, WorldNormal, WorldPosition, NdotV, Albedo, Roughness, Metallic, baseReflectivity) * (shadow);
     }
     
     // Spot Lights
     for (int s = 0; s < cbNumSpotLights; s++)
     {
-        spotLightLuminance += CalculateSpotLight(spotLights[s], viewDirection, NdotV, worldPosition, normal, albedo, roughness, metallic, baseReflectivity);
+        spotLightLuminance += CalculateSpotLight(spotLights[s], ViewDirection, NdotV, WorldPosition, WorldNormal, Albedo, Roughness, Metallic, baseReflectivity);
     }
     
     // Point Lights
     for (int p = 0; p < cbNumPointLights; p++)
     {
-        pointLightLuminance += CalculatePointLight(pointLights[p], worldPosition, viewDirection, NdotV, normal, albedo, metallic, roughness, baseReflectivity);;
+        pointLightLuminance += CalculatePointLight(pointLights[p], WorldPosition, ViewDirection, NdotV, WorldNormal, Albedo, Metallic, Roughness, baseReflectivity);;
     }
     
     // IBL
     // Irradiance
-    float3 F_IBL = FresnelSchlickRoughness(max(NdotV, 0.0), baseReflectivity, roughness);
-    float3 kD_IBL = (1.0f - F_IBL) * (1.0f - metallic);
-    float3 diffuse_IBL = tc_IrradianceMap.Sample(s_LinearClampSampler, normal).rgb * albedo * kD_IBL;
+    float3 F_IBL = FresnelSchlickRoughness(max(NdotV, 0.0), baseReflectivity, Roughness);
+    float3 kD_IBL = (1.0f - F_IBL) * (1.0f - Metallic);
+    float3 diffuse_IBL = tc_IrradianceMap.Sample(s_LinearClampSampler, WorldNormal).rgb * Albedo * kD_IBL;
 
     // Specular IBL
     const float MAX_REFLECTION_MIP_LOD = 7.0f;
-    float3 environmentMapColor = tc_RadianceMap.SampleLevel(s_LinearClampSampler, reflect(-viewDirection, normal), roughness * MAX_REFLECTION_MIP_LOD).rgb;
-    float2 brdf = t_BrdfLUT.Sample(s_LinearClampSampler, float2(NdotV, roughness)).rg;
-    float3 specular_IBL = environmentMapColor * (F_IBL * brdf.r + brdf.g);
+    float3 environmentMapColor = tc_RadianceMap.SampleLevel(s_LinearClampSampler, reflect(-ViewDirection, WorldNormal), Roughness * MAX_REFLECTION_MIP_LOD).rgb;
+    float2 brdf = t_BrdfLUT.Sample(s_LinearClampSampler, float2(NdotV, Roughness)).rg;
+    float3 Specular_IBL = environmentMapColor * (F_IBL * brdf.r + brdf.g);
     
-    float3 ambient = (diffuse_IBL + specular_IBL) * ambientOcclusion;
+    float3 ambient = (diffuse_IBL + Specular_IBL) * StaticAO;
     float3 combinedLightLuminance = (pointLightLuminance + spotLightLuminance) + (directionalLightLuminance);
     
      // Combine Light Luminance
@@ -155,7 +158,7 @@ void GammaCorrect(inout float3 target)
     target = pow(target.rgb, float3(1.0 / gamma, 1.0 / gamma, 1.0 / gamma));
 }
 
-float ShadowCalculation(float4 fragPosLightSpace, float3 normal, float3 lightDir)
+float ShadowCalculation(float4 fragPosLightSpace, float3 WorldNormal, float3 LightDir)
 {
     float3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     if (projCoords.z > 1.0)
@@ -167,7 +170,7 @@ float ShadowCalculation(float4 fragPosLightSpace, float3 normal, float3 lightDir
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
     // check whether current frag pos is in shadow
-    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+    float bias = max(0.05 * (1.0 - dot(WorldNormal, LightDir)), 0.005);
     
     // Soften Shadows
     uint3 texDimensions = int3(0, 0, 0);

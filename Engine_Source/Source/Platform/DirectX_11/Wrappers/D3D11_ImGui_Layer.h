@@ -2,7 +2,7 @@
 
 #include <Insight/Core.h>
 
-#include "Insight/Core/Layer/ImGui_Layer.h"
+#include "Insight/Core/Layer/ImGui_Overlay.h"
 
 namespace Insight {
 

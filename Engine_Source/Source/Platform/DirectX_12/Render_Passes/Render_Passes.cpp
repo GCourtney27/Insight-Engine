@@ -614,17 +614,17 @@ namespace Insight {
 			m_pCommandListRef->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
 			// Transition the main render target.
-			ID3D12Resource* SwapChainResources[] = { m_pRenderContextRef->GetSwapChainRenderTarget() };
+			ID3D12Resource* SwapChainResources[] = { &m_pRenderContextRef->GetDeviceResources().GetSwapChainRenderTarget() };
 			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), SwapChainResources, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 			// Make sure we can read from the depth buffer.
 			ID3D12Resource* SceneDepthResources[] = { m_pSceneDepthTextureRef.Get() };
 			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), SceneDepthResources, IE_D3D12_DEFAULT_RESOURCE_STATE, D3D12_RESOURCE_STATE_DEPTH_READ);
 
-			m_pCommandListRef->ClearRenderTargetView(m_pRenderContextRef->GetSwapChainRTV(), s_ScreenClearColor, 0, nullptr);
+			m_pCommandListRef->ClearRenderTargetView(m_pRenderContextRef->GetDeviceResources().GetSwapChainRTV(), s_ScreenClearColor, 0, nullptr);
 
 			// Set the render target and rasterizer settings.
-			m_pCommandListRef->OMSetRenderTargets(1, &m_pRenderContextRef->GetSwapChainRTV(), TRUE, nullptr);
+			m_pCommandListRef->OMSetRenderTargets(1, &m_pRenderContextRef->GetDeviceResources().GetSwapChainRTV(), TRUE, nullptr);
 			m_pCommandListRef->RSSetScissorRects(1, &m_pRenderContextRef->GetClientScissorRect());
 			m_pCommandListRef->RSSetViewports(1, &m_pRenderContextRef->GetClientViewPort());
 
@@ -648,10 +648,8 @@ namespace Insight {
 
 	void PostProcessCompositePass::UnSet(FrameResources* pFrameResources)
 	{
-		// Transition the render target for presentation to the sreen on the swap chain.
-		IE_ADD_FOR_GAME_DIST(
-			m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), m_pRenderContextRef->GetSwapChainRenderTarget(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-		);
+		// We dont need to transition the Swapchain render target back to present
+		// D2D will do it for us.
 
 		// Set the depth buffer back to a generic state.
 		ID3D12Resource* Resources[] = { m_pSceneDepthTextureRef.Get() };

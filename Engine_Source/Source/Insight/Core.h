@@ -47,6 +47,8 @@
 #define RAW_LITERAL(Value) #Value
 #define MACRO_TO_STRING(Macro) RAW_LITERAL(Macro);
 #define FORCE_INLINE __forceinline
+#define INLINE inline 
+#define NO_DISCARD [[nodiscard]]
 
 // Includes
 #include "Insight/Math/Math_Helpers.h"

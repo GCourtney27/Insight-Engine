@@ -39,14 +39,20 @@ namespace Insight {
 
 		virtual void CreateMessageBox(const std::wstring& Message, const std::wstring& Title) override;
 
+
+
 		// Window Attributes
 		virtual bool Init();
-		
 
 		HMENU& GetGraphicsSubmenu() { return m_hGraphicsVisualizeSubMenu; }
 		HMENU& GetEditorSubmenu() { return m_hEditorSubMenu; }
 		HMENU& GetContextSubmenu() { return m_hContextMenu; }
 
+	protected:
+		virtual inline void SetNativeWindowDPI() override
+		{
+			m_DPI = static_cast<float>(::GetDpiForWindow(m_hWindow));
+		}
 
 	private:
 		void RegisterWindowClass();

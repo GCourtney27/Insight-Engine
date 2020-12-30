@@ -73,12 +73,15 @@
 	// Windows
 	#include <wrl/client.h>
 
+	// Direct3D 11
+	//#include <d3d11.h>
+
 	// Direct3D 12
+	#include <d2d1_3.h>
+	#include <dwrite.h>
+	#include <d3d11on12.h>
 	#include <d3d12.h>
 	#include <DirectX12/d3dx12.h> 
-
-	// Direct3D 11
-	#include <d3d11.h>
 
 	// DirectX
 	#if defined(NTDDI_WIN10_RS2)
@@ -86,13 +89,11 @@
 	#else
 	#include <dxgi1_5.h>
 	#endif
-	#include <dxgi1_2.h>
-	#include <dxgi1_4.h>
 	#include <wincodec.h>
 	#include <DirectXMath.h>
-	#include <D3Dcompiler.h>
+	#include <d3dcompiler.h>
 	#if defined (IE_DEBUG)
-	#include <dxgidebug.h>
+		#include <dxgidebug.h>
 	#endif
 
 

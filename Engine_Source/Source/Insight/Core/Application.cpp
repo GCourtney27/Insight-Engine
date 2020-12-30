@@ -4,14 +4,13 @@
 #include "Application.h"
 
 #include "Insight/Runtime/AActor.h"
-#include "Insight/Core/Layer/ImGui_Layer.h"
 #include "Insight/Core/ie_Exception.h"
 #include "Insight/Rendering/Renderer.h"
 
 #if defined (IE_PLATFORM_BUILD_WIN32)
-	#include "Platform/DirectX_11/Wrappers/D3D11_ImGui_Layer.h"
-	#include "Platform/DirectX_12/Wrappers/D3D12_ImGui_Layer.h"
-	#include "Platform/Win32/Win32_Window.h"
+#include "Platform/DirectX_11/Wrappers/D3D11_ImGui_Layer.h"
+#include "Platform/DirectX_12/Wrappers/D3D12_ImGui_Layer.h"
+#include "Platform/Win32/Win32_Window.h"
 #endif
 
 #if defined (IE_PLATFORM_BUILD_WIN32)
@@ -30,7 +29,7 @@ static const char* TargetSceneName = "Debug.iescene";
 
 namespace Insight {
 
-	
+
 	Application* Application::s_Instance = nullptr;
 
 	Application::Application()
@@ -92,14 +91,14 @@ namespace Insight {
 	float g_GPUThreadFPS = 0.0f;
 	void Application::RenderThread()
 	{
-		FrameTimer GraphicsTimer;
-
 		while (m_Running)
 		{
-			GraphicsTimer.Tick();
-			g_GPUThreadFPS = GraphicsTimer.FPS();
+			if (m_IsSuspended) continue;
 
-			Renderer::OnUpdate(GraphicsTimer.DeltaTime());
+			m_GraphicsThreadTimer.Tick();
+			g_GPUThreadFPS = m_GraphicsThreadTimer.FPS();
+
+			Renderer::OnUpdate(m_GraphicsThreadTimer.DeltaTime());
 
 			// Prepare for rendering. 
 			Renderer::OnPreFrameRender();
@@ -111,10 +110,11 @@ namespace Insight {
 #if EDITOR_UI_ENABLED
 			IE_STRIP_FOR_GAME_DIST
 			(
-			m_pImGuiLayer->Begin();
+				m_pImGuiLayer->Begin();
 			for (Layer* pLayer : m_LayerStack)
 				pLayer->OnImGuiRender();
 			m_pGameLayer->OnImGuiRender();
+			Renderer::OnEditorRender();
 			m_pImGuiLayer->End();
 			);
 #endif
@@ -133,30 +133,33 @@ namespace Insight {
 
 		// Put all rendering on another thread. 
 		std::thread RenderThread(&Application::RenderThread, this);
-		
+
 		while (m_Running)
 		{
-			m_FrameTimer.Tick();
-			float DeltaMs = m_FrameTimer.DeltaTime();
-			m_pWindow->SetWindowTitleFPS(g_GPUThreadFPS);
+			if (m_IsSuspended) continue;
 
-			// Process the window's Messages 
-			m_pWindow->OnUpdate();
+			if (m_pWindow->GetIsVisible())
+			{
+				m_GameThreadTimer.Tick();
+				float DeltaMs = m_GameThreadTimer.DeltaTime();
 
-			//static float WorldSeconds = 0.0f;
-			//WorldSeconds += DeltaMs;
-			//pSCDemoBall->Translate(0.0f, std::sin(WorldSeconds) * 0.02f, 0.0f);
-			
+				// Process the window's Messages 
+				m_pWindow->OnUpdate();
 
-			// Update the input system. 
-			m_InputDispatcher.UpdateInputs(DeltaMs);
+				// Update the input system. 
+				m_InputDispatcher.UpdateInputs(DeltaMs);
 
-			// Update game logic. 
-			m_pGameLayer->Update(DeltaMs);
+				// Update game logic. 
+				m_pGameLayer->Update(DeltaMs);
 
-			// Update the layer stack. 
-			for (Layer* layer : m_LayerStack)
-				layer->OnUpdate(DeltaMs);
+				// Update the layer stack. 
+				for (Layer* pLayer : m_LayerStack)
+					pLayer->OnUpdate(DeltaMs);
+			}
+			else
+			{
+				m_pWindow->BackgroundUpdate();
+			}
 		}
 
 		// Close the render thread and flush the GPU.
@@ -171,16 +174,11 @@ namespace Insight {
 	Application::ieErrorCode Application::RunSingleThreaded()
 	{
 		{
-			m_FrameTimer.Tick();
-			float DeltaMs = m_FrameTimer.DeltaTime();
-			m_pWindow->SetWindowTitleFPS(g_GPUThreadFPS);
+			m_GameThreadTimer.Tick();
+			float DeltaMs = m_GameThreadTimer.DeltaTime();
 
 			// Process the window's Messages 
 			m_pWindow->OnUpdate();
-
-			//static float WorldSeconds = 0.0f;
-			//WorldSeconds += DeltaMs;
-			//pSCDemoBall->Translate(0.0f, std::sin(WorldSeconds) * 0.02f, 0.0f);
 
 			{
 				static FrameTimer GraphicsTimer;
@@ -233,30 +231,30 @@ namespace Insight {
 
 	void Application::PushCoreLayers()
 	{
+#if defined (IE_PLATFORM_BUILD_WIN32) && (EDITOR_UI_ENABLED)
 		switch (Renderer::GetAPI())
 		{
-#if defined (IE_PLATFORM_BUILD_WIN32) && (EDITOR_UI_ENABLED)
 		case Renderer::TargetRenderAPI::Direct3D_11:
 			IE_STRIP_FOR_GAME_DIST(
 				m_pImGuiLayer = new D3D11ImGuiLayer();
-				PushOverlay(m_pImGuiLayer);
+			PushOverlay(m_pImGuiLayer);
 			);
 			break;
 		case Renderer::TargetRenderAPI::Direct3D_12:
 			IE_STRIP_FOR_GAME_DIST(
 				m_pImGuiLayer = new D3D12ImGuiLayer();
-				PushOverlay(m_pImGuiLayer);
+			PushOverlay(m_pImGuiLayer);
 			);
 			break;
-#endif
 		default:
 			IE_DEBUG_LOG(LogSeverity::Error, "Failed to create ImGui layer in application with API of type \"{0}\" Or application has disabled editor.", Renderer::GetAPI());
 			break;
 		}
+#endif
 
 		IE_STRIP_FOR_GAME_DIST(
 			m_pEditorLayer = new EditorLayer();
-			PushOverlay(m_pEditorLayer);
+		PushOverlay(m_pEditorLayer);
 		)
 
 		m_pPerfOverlay = new PerfOverlay();
@@ -320,6 +318,18 @@ namespace Insight {
 	{
 		m_pWindow->SetFullScreenEnabled(e.GetFullScreenEnabled());
 		Renderer::PushEvent<WindowToggleFullScreenEvent>(e);
+		return true;
+	}
+
+	bool Application::OnAppSuspendingEvent(AppSuspendingEvent& e)
+	{
+		m_IsSuspended = true;
+		return true;
+	}
+
+	bool Application::OnAppResumingEvent(AppResumingEvent& e)
+	{
+		m_IsSuspended = false;
 		return true;
 	}
 

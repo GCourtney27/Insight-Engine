@@ -127,6 +127,24 @@ namespace Insight {
 			EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
+	class INSIGHT_API AppSuspendingEvent : public Event
+	{
+	public:
+		AppSuspendingEvent() {}
+
+		EVENT_CLASS_TYPE(AppSuspending)
+			EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	};
+
+	class INSIGHT_API AppResumingEvent : public Event
+	{
+	public:
+		AppResumingEvent() {}
+
+		EVENT_CLASS_TYPE(AppResuming)
+			EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	};
+
 	class INSIGHT_API AppScriptReloadEvent : public Event
 	{
 	public:
