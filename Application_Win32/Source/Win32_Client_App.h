@@ -225,8 +225,8 @@ namespace SandBoxApp {
 
 			// Rusted Ball
 			Insight::Material* pRustedIron = new Insight::Material({ 6, 7, 8, 9, 10 });
-			pARustedBall = new AActor(0, "Rusted Ball");
-			pSCDemoBall = pARustedBall->CreateDefaultSubobject<SceneComponent>();
+			AActor* pARustedBall = new AActor(0, "Rusted Ball");
+			SceneComponent* pSCDemoBall = pARustedBall->CreateDefaultSubobject<SceneComponent>();
 			pSCDemoBall->SetScale(20.0f);
 			pSCDemoBall->SetPosition(10.0f, 40.0f, 0.0f);
 			StaticMeshComponent* pSMCube = pARustedBall->CreateDefaultSubobject<StaticMeshComponent>();

@@ -4,7 +4,6 @@
 #include "Application.h"
 
 #include "Insight/Runtime/AActor.h"
-#include "Insight/Core/Layer/ImGui_Layer.h"
 #include "Insight/Core/ie_Exception.h"
 #include "Insight/Rendering/Renderer.h"
 
@@ -140,15 +139,9 @@ namespace Insight {
 			{
 				m_GameThreadTimer.Tick();
 				float DeltaMs = m_GameThreadTimer.DeltaTime();
-				m_pWindow->SetWindowTitleFPS(g_GPUThreadFPS);
 
 				// Process the window's Messages 
 				m_pWindow->OnUpdate();
-
-				//static float WorldSeconds = 0.0f;
-				//WorldSeconds += DeltaMs;
-				//pSCDemoBall->Translate(0.0f, std::sin(WorldSeconds) * 0.02f, 0.0f);
-
 
 				// Update the input system. 
 				m_InputDispatcher.UpdateInputs(DeltaMs);
@@ -157,8 +150,12 @@ namespace Insight {
 				m_pGameLayer->Update(DeltaMs);
 
 				// Update the layer stack. 
-				for (Layer* layer : m_LayerStack)
-					layer->OnUpdate(DeltaMs);
+				for (Layer* pLayer : m_LayerStack)
+					pLayer->OnUpdate(DeltaMs);
+			}
+			else
+			{
+				m_pWindow->BackgroundUpdate();
 			}
 		}
 
@@ -176,14 +173,9 @@ namespace Insight {
 		{
 			m_GameThreadTimer.Tick();
 			float DeltaMs = m_GameThreadTimer.DeltaTime();
-			m_pWindow->SetWindowTitleFPS(g_GPUThreadFPS);
 
 			// Process the window's Messages 
 			m_pWindow->OnUpdate();
-
-			//static float WorldSeconds = 0.0f;
-			//WorldSeconds += DeltaMs;
-			//pSCDemoBall->Translate(0.0f, std::sin(WorldSeconds) * 0.02f, 0.0f);
 
 			{
 				static FrameTimer GraphicsTimer;
@@ -262,7 +254,7 @@ namespace Insight {
 		PushOverlay(m_pEditorLayer);
 		)
 
-			m_pPerfOverlay = new PerfOverlay();
+		m_pPerfOverlay = new PerfOverlay();
 		PushOverlay(m_pPerfOverlay);
 	}
 

@@ -11,15 +11,17 @@
 #include "Platform/DirectX_Shared/Constant_Buffer_Types.h"
 #include "Insight/Events/Event.h"
 
+
 /*
 	Represents a base for a graphics context the application will use for rendering.
-	Context is API independent, meaning all rendering calls will pass through a *Imple
+	Context is API independent, meaning all rendering calls will pass through a *_Impl
 	method and dispatched to the appropriate active rendering API.
 
 	Example usage:
 	Set a vertex buffers for rendering - Renderer::SetVertexBuffers(0, 1, ieVertexBuffer);
 */
 
+// Early return from a method if the window is not visible.
 #define RETURN_IF_WINDOW_NOT_VISIBLE if (!m_WindowVisible || !m_WindowResizeComplete) { return; }
 
 
@@ -61,10 +63,10 @@ namespace Insight {
 		struct GraphicsSettings
 		{
 			TargetRenderAPI TargetRenderAPI = TargetRenderAPI::Direct3D_12;
-			uint32_t MaxAnisotropy = 1U;	// Texture Filtering (1, 4, 8, 16) *16 highest quality
-			float MipLodBias = 0.0f;		// Texture Quality (0 - 9) *0 highest quality
-			bool RayTraceEnabled = false;
-			int pad[3];
+			uint32_t		MaxAnisotropy = 1U;	// Texture Filtering (1, 4, 8, 16) *16 highest quality
+			float			MipLodBias = 0.0f;	// Texture Quality (0 - 9) *0 highest quality
+			bool			RayTraceEnabled = false;
+			int				pad[3];
 		};
 
 	public:
@@ -78,9 +80,9 @@ namespace Insight {
 		{
 			// Make sure the requested class is a valid render context.
 			constexpr bool ValidClass = std::is_base_of<Renderer, RenderContext>::value;
-			static_assert(ValidClass, "Trying to get Rendere with invalid context type.");
+			static_assert(ValidClass, "Trying to get Renderer with invalid context type.");
 
-			return *((RenderContext*)s_Instance);
+			return *(static_cast<RenderContext*>(s_Instance));
 		}
 
 		/* 
@@ -128,7 +130,7 @@ namespace Insight {
 			Draws shadow pass first then binds geometry pass for future draw commands.
 		*/
 		static inline void OnRender() { s_Instance->OnRender_Impl(); }
-		
+
 		/*
 			Executes operations that happen in the middle of a frame.
 		*/
@@ -391,6 +393,7 @@ namespace Insight {
 	protected:
 		RenderPassType m_RenderPass = RenderPassType::RenderPassType_Scene;
 		GraphicsSettings m_GraphicsSettings = {};
+		
 
 		static const uint8_t m_FrameBufferCount = 3u;
 

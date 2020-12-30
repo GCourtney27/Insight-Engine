@@ -1,6 +1,6 @@
 #include <Engine_pch.h>
 
-#include "ImGui_Layer.h"
+#include "ImGui_Overlay.h"
 #include "Insight/Core/Application.h"
 
 #if defined (IE_PLATFORM_BUILD_WIN32)

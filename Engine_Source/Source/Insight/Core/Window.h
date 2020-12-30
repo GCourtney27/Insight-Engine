@@ -35,6 +35,7 @@ namespace Insight {
 		virtual ~Window() {}
 
 		virtual void OnUpdate() = 0;
+		virtual void BackgroundUpdate() {}
 		virtual void Shutdown() = 0;
 		virtual void PostInit() = 0;
 
@@ -47,10 +48,13 @@ namespace Insight {
 			m_WindowHeight = NewHeight; 
 			m_AspectRatio = static_cast<float>(NewWidth) / static_cast<float>(NewHeight); 
 			m_IsVisible = !IsMinimized;
+
+			SetNativeWindowDPI();
 		}
 		virtual void CreateMessageBox(const std::wstring& Message, const std::wstring& Title) = 0;
 
-		virtual std::pair<uint32_t, uint32_t> GetDPI() const = 0;
+		template <typename DataType = float>
+		inline DataType GetDPI() const { return static_cast<DataType>(m_DPI); }
 		virtual void* GetNativeWindow() const = 0;
 		virtual bool SetWindowTitleFPS(float fps) = 0;
 		virtual InputEventType GetAsyncKeyState(KeyMapCode Key) const = 0;
@@ -80,6 +84,9 @@ namespace Insight {
 		{
 			return (float(pixels) * 96.0f / m_DPI);
 		}
+
+	protected:
+		virtual void SetNativeWindowDPI() = 0;
 
 	protected:
 		EventCallbackFn m_EventCallbackFn;

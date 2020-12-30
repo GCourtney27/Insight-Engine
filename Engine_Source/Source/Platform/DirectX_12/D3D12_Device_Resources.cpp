@@ -403,14 +403,14 @@ namespace Insight {
 
 
 
-		std::pair<uint32_t, uint32_t> DPI = m_pRenderContextRef->GetWindowRef().GetDPI();
+		float DPI = m_pRenderContextRef->GetWindowRef().GetDPI();
 		//float DPIX, DPIY;
 		//m_d2dFactory->GetDesktopDpi(&DPIX, &DPIY);
 		D2D1_BITMAP_PROPERTIES1 BitmapProps = D2D1::BitmapProperties1(
 			D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
 			D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED),
-			static_cast<float>(DPI.first),
-			static_cast<float>(DPI.second)
+			DPI,
+			DPI
 		);
 
 		for (UINT i = 0; i < m_FrameBufferCount; i++)

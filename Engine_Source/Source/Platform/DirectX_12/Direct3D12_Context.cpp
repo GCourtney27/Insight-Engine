@@ -134,7 +134,7 @@ namespace Insight {
 	{
 		auto& DWriteFactory = m_DeviceResources.GetWriteFactory();
 
-		ThrowIfFailed(m_DeviceResources.GetD2DDeviceContext().CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Pink), &m_textBrush), "Failed to create solid color brush.");
+		ThrowIfFailed(m_DeviceResources.GetD2DDeviceContext().CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Green), &m_textBrush), "Failed to create solid color brush.");
 		HRESULT hr = DWriteFactory.CreateTextFormat(
 			L"Verdana",
 			NULL,

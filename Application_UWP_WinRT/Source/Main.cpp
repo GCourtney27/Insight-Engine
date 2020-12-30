@@ -52,7 +52,7 @@ public:
 
     void SetWindow(CoreWindow const & window)
     {
-        window.SizeChanged({ this, &ViewProvider::OnWindowSizeChanged });
+        //window.SizeChanged({ this, &ViewProvider::OnWindowSizeChanged });
 
 #if defined(NTDDI_WIN10_RS2) && (NTDDI_VERSION >= NTDDI_WIN10_RS2)
         try
@@ -77,7 +77,7 @@ public:
 
         window.VisibilityChanged({ this, &ViewProvider::OnVisibilityChanged });
 
-        window.Closed([this](auto&&, auto&&) { m_exit = true; });
+        //window.Closed([this](auto&&, auto&&) { m_exit = true; });
 
         auto dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
 
@@ -117,8 +117,14 @@ public:
         {
             std::swap(outputWidth, outputHeight);
         }
-        
-        Insight::UWPWindowDescription WindowDesc(window, IE_BIND_EVENT_FN(Insight::Application::OnEvent, m_pApp.get()));
+
+        // ! IMPORTANT !
+        // In order to keep an instance of the main window available 
+        // for all threads we make a static referene here so the CoreWindow
+        // does not get destroyed. We cannot call 'CoreWindow::GetForCurrentThread'
+        // on the graphics thread for example.
+        static CoreWindow s_Window = CoreWindow::GetForCurrentThread();
+        Insight::UWPWindowDescription WindowDesc(s_Window, IE_BIND_EVENT_FN(Insight::Application::OnEvent, m_pApp.get()));
         m_pUWPWindow = std::make_shared<Insight::UWPWindow>(WindowDesc);
         m_pApp->SetWindow(m_pUWPWindow);
         m_pApp->Initialize();
@@ -132,19 +138,8 @@ public:
     {
         Insight::WindowResizeEvent e(1280, 800, false);
         m_pUWPWindow->GetEventCallbackFn()(e);
-        while (!m_exit)
-        {
-            if (m_visible)
-            {
-                m_pApp->RunSingleThreaded();
-                
-                CoreWindow::GetForCurrentThread().Dispatcher().ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
-            }
-            else
-            {
-                CoreWindow::GetForCurrentThread().Dispatcher().ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
-            }
-        }
+
+        m_pApp->Run();
     }
 
 protected:
@@ -214,7 +209,7 @@ protected:
         if (m_in_sizemove)
             return;
 
-        HandleWindowSizeChanged();
+        //HandleWindowSizeChanged();
     }
 
     void OnVisibilityChanged(CoreWindow const & /*sender*/, VisibilityChangedEventArgs const & args)

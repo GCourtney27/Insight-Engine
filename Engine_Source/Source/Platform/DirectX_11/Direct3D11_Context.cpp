@@ -412,7 +412,7 @@ namespace Insight {
 
 	void Direct3D11Context::GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter** ppAdapter)
 	{
-		HRESULT hr;
+		HRESULT hr = S_OK;
 
 		ComPtr<IDXGIAdapter> pAdapter;
 		*ppAdapter = nullptr;

@@ -27,9 +27,9 @@
 #include "Insight/Input/Input_Dispatcher.h"
 
 #include "Insight/Core/Layer/Game_Layer.h"
-#include "Insight/Core/Layer/ImGui_Layer.h"
-#include "Insight/Core/Layer/Editor_Layer.h"
-#include "Insight/Core/Layer/Perf_Monitor_Layer.h"
+#include "Insight/Core/Layer/ImGui_Overlay.h"
+#include "Insight/Core/Layer/Editor_Overlay.h"
+#include "Insight/Core/Layer/Perf_Overlay.h"
 
 
 namespace Insight {
@@ -126,8 +126,7 @@ namespace Insight {
 		FrameTimer				m_GraphicsThreadTimer;
 		FileSystem				m_FileSystem;
 		Input::InputDispatcher	m_InputDispatcher;
-		Insight::Runtime::AActor* pARustedBall;
-		Insight::Runtime::SceneComponent* pSCDemoBall;
+
 	private:
 		static Application*		s_Instance;
 	};
