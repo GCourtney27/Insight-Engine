@@ -7,6 +7,8 @@
 
 class RenderingContext;
 
+constexpr int cx_MaxLoadString = 100;
+
 namespace Insight {
 
 
@@ -22,7 +24,7 @@ namespace Insight {
 		std::wstring CmdArgs;
 		EventCallbackFn EventCallbackFunction;
 
-		WindowDescription(EventCallbackFn CallbackFn, int CmdLineArgCount = 0, std::wstring CmdArgVals = L"", const std::wstring& title = L"Insight Editor", const std::wstring winClass = L"IE Class", uint32_t width = 1700, uint32_t height = 1000)
+		WindowDescription(EventCallbackFn CallbackFn, int CmdLineArgCount = 0, std::wstring CmdArgVals = L"", const std::wstring& title = L"Insight Ed", const std::wstring winClass = L"CLASS", uint32_t width = 1700, uint32_t height = 1000)
 			: EventCallbackFunction(CallbackFn), NumCmdArgs(CmdLineArgCount), CmdArgs(CmdArgVals), Title(title), Class(winClass), Width(width), Height(height)
 		{
 		}
@@ -71,7 +73,9 @@ namespace Insight {
 		inline void SetIsVisible(bool Visible)			{ m_IsVisible = Visible; }
 		inline void SetVSyncEnabled(bool Enabled)		{ m_VSyncEnabled = Enabled; }
 		inline void SetAspectRatio(float AspectRatio)	{ m_AspectRatio = AspectRatio; }
+		inline void SetDPI(float NewDPI)				{ m_DPI = NewDPI; Resize(m_LogicalWidth, m_LogicalHeight, !m_IsVisible); }
 		virtual void SetFullScreenEnabled(bool Enabled) { m_FullScreenEnabled = Enabled; }
+
 
 		inline void SetEventCallback(const EventCallbackFn& callback) { m_EventCallbackFn = callback; }
 		EventCallbackFn& GetEventCallbackFn() { return m_EventCallbackFn; }
@@ -99,6 +103,7 @@ namespace Insight {
 		bool m_IsVisible = true;
 		uint32_t m_LogicalWidth = 0u;
 		uint32_t m_LogicalHeight = 0u;
+
 		std::wstring m_WindowTitle;
 		std::wstring m_WindowClassName;
 	};

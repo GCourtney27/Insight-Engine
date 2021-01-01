@@ -186,8 +186,7 @@ namespace Insight {
 
 	void UWPWindow::OnDpiChanged(winrt::Windows::Graphics::Display::DisplayInformation const& Sender, winrt::Windows::Foundation::IInspectable const& Args)
 	{
-		m_DPI = Sender.LogicalDpi();
-		Resize(m_LogicalWidth, m_LogicalHeight, m_IsVisible);
+		SetDPI(Sender.LogicalDpi());
 		
 		// Notify
 		WindowResizeEvent e(m_LogicalWidth, m_LogicalHeight, !m_IsVisible);

@@ -6,10 +6,35 @@
 
 namespace Insight {
 
+	/*
+		Function signature for a callback that can process custom IDM_*
+		commands from windows resource files.
+
+		Acceptable function sugnature: LRESULT _stdcall MyMethod(int&)
+	*/
+	typedef LRESULT (*OutLResInIntRefMethod_t)(int&);
 	
 	struct Win32WindowDescription : public WindowDescription
 	{
-		HINSTANCE AppInstance;
+		/*
+			The windows app instance for this program.
+		*/
+		HINSTANCE		AppInstance;
+		
+		/*
+			Window accelerator table.
+		*/
+		HACCEL			AccelerationTable;
+		
+		/*
+			Name of the menu bar.
+		*/
+		std::wstring	MenuBarName;
+		
+		/*
+			Custom callback used to handle accelerator tabale commands.
+		*/
+		OutLResInIntRefMethod_t CustomCallback;
 
 		template <typename ... WindowDescriptionArgs>
 		Win32WindowDescription(HINSTANCE hInstance, WindowDescriptionArgs ... args)
@@ -39,7 +64,8 @@ namespace Insight {
 
 		virtual void CreateMessageBox(const std::wstring& Message, const std::wstring& Title) override;
 
-
+		static OutLResInIntRefMethod_t MakeCustomCallback(void* Method) { return (OutLResInIntRefMethod_t)Method; }
+		OutLResInIntRefMethod_t GetCustomCallback() { return m_CustomCallback; }
 
 		// Window Attributes
 		virtual bool Init();
@@ -59,9 +85,13 @@ namespace Insight {
 		void InitializeMenuBar();
 		void InitializeContextMenu();
 		LPCTSTR GetLastWindowsError();
+
 	private:
 		
 		HWND	m_hWindow;
+		HACCEL	m_hAccelerationTable;
+		std::wstring m_MenuBarName;
+		OutLResInIntRefMethod_t m_CustomCallback;
 
 		HMENU	m_hContextMenu;
 		HMENU	m_hMenuBar;
