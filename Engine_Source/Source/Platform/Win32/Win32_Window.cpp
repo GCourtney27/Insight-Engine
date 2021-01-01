@@ -31,15 +31,15 @@ namespace Insight {
 
 		m_WindowTitle			= Desc.Title;
 		m_WindowClassName		= Desc.Class;
-		m_MenuBarName			= Desc.MenuBarName;
 		m_LogicalWidth			= Desc.Width;
 		m_LogicalHeight			= Desc.Height;
+		m_MenuBarName			= Desc.MenuBarName;
 		m_WindowsAppInstance	= Desc.AppInstance;
 		m_hAccelerationTable	= Desc.AccelerationTable;
 		m_NumCmdLineArgs		= Desc.NumCmdArgs;
-		m_CmdLineArgs			= Desc.CmdArgs.c_str();
+		m_CmdLineArgs			= Desc.CmdArgs;
 		m_EventCallbackFn		= Desc.EventCallbackFunction;
-		m_CustomCallback = Desc.CustomCallback;
+		m_CustomCallback		= Desc.CustomCallback;
 
 		Init();
 	}
@@ -373,7 +373,7 @@ namespace Insight {
 		wc.hInstance = m_WindowsAppInstance;
 		wc.hIcon = ::LoadIcon(0, IDI_WINLOGO);
 		wc.hCursor = ::LoadCursor(0, IDC_ARROW);
-		wc.lpszMenuName = m_MenuBarName.c_str();
+		wc.lpszMenuName = m_MenuBarName;
 		wc.hbrBackground = 0;
 		wc.lpszClassName = m_WindowClassName.c_str();
 
@@ -495,7 +495,11 @@ namespace Insight {
 		MSG msg;
 		::ZeroMemory(&msg, sizeof(MSG));
 
-		while (GetMessage(&msg, nullptr, 0, 0))
+		while (::PeekMessage(&msg,	// Where to store message (if one exists).
+			m_hWindow,				// Handle to window we are checking messages for.
+			0,						// Minimum Filter Msg Value - We are not filtering for specific messages but min and max could be used to do so.
+			0,						// Maximum Filter Msg Value.
+			PM_REMOVE))				// Post message read behavior, just remove the message once finished with it.
 		{
 			if (!TranslateAccelerator(msg.hwnd, m_hAccelerationTable, &msg))
 			{
@@ -503,18 +507,6 @@ namespace Insight {
 				DispatchMessage(&msg);
 			}
 		}
-
-		//while (::PeekMessage(&msg,	// Where to store message (if one exists)
-		//	m_hWindow,			// Handle to window we are checking messages for
-		//	0,						// Minimum Filter Msg Value - We are not filterinf for specific messages but min and max could be used to do so
-		//	0,						// Maximum Filter Msg Value
-		//	PM_REMOVE))				// Remove mesage after captureing it via PeekMessage
-		//{
-		//	if (msg.message == WM_QUIT)
-		//		return false;
-		//	::TranslateMessage(&msg);		// Translate message from virtual key message into character messages
-		//	::DispatchMessage(&msg);		// Dispatch message to our WindowProc for this window
-		//}
 
 		IE_ASSERT(_CrtCheckMemory(), "Heap is currupted!");
 		return true;

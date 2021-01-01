@@ -29,7 +29,7 @@ namespace Insight {
 		/*
 			Name of the menu bar.
 		*/
-		std::wstring	MenuBarName;
+		LPCWSTR	MenuBarName;
 		
 		/*
 			Custom callback used to handle accelerator tabale commands.
@@ -64,7 +64,7 @@ namespace Insight {
 
 		virtual void CreateMessageBox(const std::wstring& Message, const std::wstring& Title) override;
 
-		static OutLResInIntRefMethod_t MakeCustomCallback(void* Method) { return (OutLResInIntRefMethod_t)Method; }
+		static OutLResInIntRefMethod_t MakeCustomAcceleratorCallback(void* Method) { return (OutLResInIntRefMethod_t)Method; }
 		OutLResInIntRefMethod_t GetCustomCallback() { return m_CustomCallback; }
 
 		// Window Attributes
@@ -90,7 +90,7 @@ namespace Insight {
 		
 		HWND	m_hWindow;
 		HACCEL	m_hAccelerationTable;
-		std::wstring m_MenuBarName;
+		LPCWSTR m_MenuBarName;
 		OutLResInIntRefMethod_t m_CustomCallback;
 
 		HMENU	m_hContextMenu;

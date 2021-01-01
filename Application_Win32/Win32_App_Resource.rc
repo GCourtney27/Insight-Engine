@@ -83,7 +83,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_APP_TITLE           "1919"
+    IDS_APP_TITLE           "Insight Editor"
     IDC_WIN32APP            "IEWIN32APP"
 END
 

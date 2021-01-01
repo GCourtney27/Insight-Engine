@@ -9,7 +9,7 @@ HINSTANCE g_AppInstance;
 std::shared_ptr<Insight::Win32Window> g_WindowsWindow;
 
 void LoadWindowProps(Insight::Win32WindowDescription& WindowDesc);
-LRESULT CALLBACK CustomParamParse(const int& Command);
+LRESULT CALLBACK ProcessAccelCommand(const int& Command);
 
 int APIENTRY wWinMain(
 	_In_		HINSTANCE hInstance,
@@ -51,13 +51,16 @@ void LoadWindowProps(Insight::Win32WindowDescription& WindowDesc)
 	// Load the app class name.
 	LoadStringW(g_AppInstance, IDC_WIN32APP, LoadBuffer, MAX_STRING_LOAD_LENGTH);
 	WindowDesc.Class = { LoadBuffer };
+	// Load the accelerator table.
 	WindowDesc.AccelerationTable = LoadAccelerators(g_AppInstance, MAKEINTRESOURCE(IDC_WIN32APP));
-	//WindowDesc.MenuBarName = MAKEINTRESOURCEW(IDC_WIN32APP);
-	WindowDesc.CustomCallback = Insight::Win32Window::MakeCustomCallback(CustomParamParse);
+	// Load the menu bar via the string table name.
+	WindowDesc.MenuBarName = MAKEINTRESOURCEW(IDC_WIN32APP);
+	// Assign the custom callback to proccess events from the accelerator table.
+	WindowDesc.CustomCallback = Insight::Win32Window::MakeCustomAcceleratorCallback(ProcessAccelCommand);
 	
 }
 
-LRESULT CALLBACK CustomParamParse(const int& Command)
+LRESULT CALLBACK ProcessAccelCommand(const int& Command)
 {
 	switch (Command)
 	{
