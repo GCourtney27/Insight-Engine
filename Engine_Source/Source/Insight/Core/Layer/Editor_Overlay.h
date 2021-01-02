@@ -46,6 +46,8 @@ namespace Insight {
 		void RenderInspector();
 		void RenderSelectionGizmo();
 		void RenderCreatorWindow();
+		void RenderRendererSettings();
+
 	private:
 		Runtime::AActor*		m_pSelectedActor = nullptr;
 		SceneNode*				m_pSceneRootRef = nullptr;

@@ -361,7 +361,7 @@ namespace Insight {
 #if defined (IE_PLATFORM_BUILD_WIN32)
 		hr = m_pDxgiFactory->CreateSwapChainForHwnd(
 			m_pGraphicsCommandQueue.Get(),
-			m_pRenderContextRef->GetWindowRefAs<Win32Window>().GetWindowHandleRef(),
+			static_cast<HWND>(m_pRenderContextRef->GetWindowRef().GetNativeWindow()),
 			&SwapChainDesc,
 			nullptr,
 			nullptr,

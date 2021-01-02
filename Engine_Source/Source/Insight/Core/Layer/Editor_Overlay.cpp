@@ -55,6 +55,7 @@ namespace Insight {
 		RenderSceneHeirarchy();
 		RenderCreatorWindow();
 		RenderInspector();
+		RenderRendererSettings();
 	}
 
 	void EditorLayer::RenderSceneHeirarchy()
@@ -159,6 +160,112 @@ namespace Insight {
 
 		}
 		UI::EndWindow();
+	}
+
+	void EditorLayer::RenderRendererSettings()
+	{
+		Renderer::GraphicsSettings& Settings = Renderer::GetGraphicsSettings();
+
+		//UI::BeginWindow("Renderer");
+		//{
+		//	if (UI::TreeNodeEx("Textures", UI::TreeNode_DefaultOpen))
+		//	{
+		//		// Texture Filtering
+		//		{
+		//			UI::PushID("TexFilt");
+		//			UI::Columns(2);
+		//			UI::Text("Filtering Anisotropic");
+		//			UI::NextColumn();
+		//			constexpr char* TextureFilterLevels[] = { "1x", "2x", "4x", "8x", "16x" };
+		//			static int SelectionIndex = (int)sqrtf((float)Settings.MaxAnisotropy);
+		//			if (UI::ComboBox("##TexResolution", SelectionIndex, TextureFilterLevels, _countof(TextureFilterLevels)))
+		//			{
+		//				IE_DEBUG_LOG(LogSeverity::Log, "Texture Filtering: {0} (Raw Value: {1})", TextureFilterLevels[SelectionIndex], pow(2, SelectionIndex));
+		//				Settings.MaxAnisotropy = (uint32_t)powf(2.0f, (float)SelectionIndex);
+		//				CreateDeferredShadingRS();
+		//				m_GeometryPass.SetRootSignature(m_pDeferredShadingPass_RS.Get());
+		//				m_GeometryPass.ReloadShaders();
+		//			}
+		//			UI::EndColumns();
+		//			UI::PopID();
+		//		}
+
+		//		// Texture Quality
+		//		{
+		//			UI::PushID("TexRes");
+		//			UI::Columns(2);
+		//			UI::Text("Quality (Mip LOD Bias)");
+		//			UI::NextColumn();
+		//			constexpr char* TextureQuality[] = { "High", "Medium", "Low" };
+		//			static int SelectionIndex = (int)Settings.MipLodBias / 2;
+		//			if (UI::ComboBox("##TexQuality", SelectionIndex, TextureQuality, _countof(TextureQuality)))
+		//			{
+		//				IE_DEBUG_LOG(LogSeverity::Log, "Texture Quality: {0} (Raw Value: {1})", TextureQuality[SelectionIndex], 2 * SelectionIndex);
+		//				Settings.MipLodBias = 2.0f * (float)SelectionIndex;
+		//				CreateDeferredShadingRS();
+		//				m_GeometryPass.SetRootSignature(m_pDeferredShadingPass_RS.Get());
+		//				m_GeometryPass.ReloadShaders();
+		//			}
+		//			UI::EndColumns();
+		//			UI::PopID();
+		//		}
+		//		UI::TreePopNode();
+		//	}
+
+		//	if (UI::TreeNodeEx("Ray Tracing", UI::TreeNode_DefaultOpen))
+		//	{
+		//		// RT Shadows
+		//		{
+		//			UI::PushID("RTShadows");
+		//			UI::Columns(2);
+		//			UI::Text("Shadows Enabled: ");
+		//			UI::NextColumn();
+		//			static bool RTEnabled = Settings.RayTraceEnabled;
+		//			if (UI::Checkbox("", &RTEnabled))
+		//			{
+		//				bool PrevState = !RTEnabled;
+		//				if (PrevState) // Disabling ray tracing
+		//				{
+		//					m_RenderPassStack.PopPass(&m_RayTracedShadowPass);
+		//				}
+		//				else // Enable ray tracing
+		//				{
+		//					//m_RayTracedShadowPass.Create(this, &m_cbvsrvHeap, m_pRayTracePass_CommandList.Get(), nullptr);
+		//					m_RenderPassStack.PushPass(&m_RayTracedShadowPass);
+		//					//m_RayTracedShadowPass.GetRTHelper()->GenerateAccelerationStructure();
+		//				}
+		//				Settings.RayTraceEnabled = RTEnabled;
+		//			}
+		//			UI::EndColumns();
+		//			UI::PopID();
+		//		}
+		//		UI::TreePopNode();
+		//	}
+
+		//	// Resolution Scale
+		//	/*{
+		//		UI::PushID("RenderRes");
+		//		UI::Columns(2);
+
+		//		UI::Text("Resolution Scale: ");
+		//		UI::NextColumn();
+
+		//		static float ResolutionScaleFactor = 100;
+		//		if (UI::DragFloat("##RenderResolutionScale", &ResolutionScaleFactor, 1.0f, 1.0f, 100.0f))
+		//		{
+		//			uint32_t NewWidth = m_pWindowRef->GetWidth() * (ResolutionScaleFactor / 100.0f);
+		//			uint32_t NewHeight = m_pWindowRef->GetHeight() * (ResolutionScaleFactor / 100.0f);
+
+		//			IE_DEBUG_LOG(LogSeverity::Log, "Scale Factor: {0} (Width: {1} | Height: {2})", ResolutionScaleFactor, NewWidth, NewHeight);
+		//		}
+
+		//		UI::EndColumns();
+		//		UI::NewLine();
+		//		UI::PopID();
+		//	}*/
+
+		//}
+		//UI::EndWindow();
 	}
 
 	void EditorLayer::OnUpdate(const float DeltaMs)

@@ -82,7 +82,7 @@ public:
 
     void Run()
     {
-        Insight::WindowResizeEvent e(1280, 800, false);
+        Insight::WindowResizeEvent e(m_pUWPWindow->GetWidth(), m_pUWPWindow->GetHeight(), false);
         m_pUWPWindow->GetEventCallbackFn()(e);
 
         m_pApp->Run();

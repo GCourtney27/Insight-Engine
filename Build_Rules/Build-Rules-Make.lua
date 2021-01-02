@@ -55,6 +55,7 @@ project ("Engine_Build_UWP")
 		"PCH_Source/**.h",
 		"PCH_Source/**.cpp",
 
+		-- Source Code
 		"%{engineIncludeDirs.Engine_Source}/Third_Party/Vendor_Build.cpp",
 		"%{engineIncludeDirs.Engine_Source}/Source/**.cpp",
 		"%{engineIncludeDirs.Engine_Source}/Source/**.h",
@@ -202,7 +203,8 @@ project ("Engine_Build_Win32")
 		-- PCH for Engine Source Build
 		"PCH_Source/**.h",
 		"PCH_Source/**.cpp",
-
+		
+		-- Engine Source
 		"%{engineIncludeDirs.Engine_Source}/Third_Party/Vendor_Build.cpp",
 		"%{engineIncludeDirs.Engine_Source}/Source/**.cpp",
 		"%{engineIncludeDirs.Engine_Source}/Source/**.h",

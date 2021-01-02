@@ -227,6 +227,7 @@ namespace Insight {
 
 	void Application::Shutdown()
 	{
+		m_pWindow->Shutdown();
 	}
 
 	void Application::PushCoreLayers()

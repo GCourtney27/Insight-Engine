@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Insight.h>
+#include <resource.h>
 
 /*=====================================================================
 

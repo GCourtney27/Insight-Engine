@@ -16,8 +16,8 @@ win32AppIncludeDirs["spdlog"]					= engineThirdPartyDir .. "spdlog/include/"
 win32AppIncludeDirs["rapidjson"] 				= engineThirdPartyDir .. "rapidjson/include/"
 win32AppIncludeDirs["Mono"]						= monoInstallDir .. "include/"
 win32AppIncludeDirs["Engine_Source_Root"]		= rootDirPath .. "Engine_Source/"
-win32AppIncludeDirs["Engine_Source_Src"]			= rootDirPath .. "Engine_Source/Source/"
-win32AppIncludeDirs["Engine_Source_Third_Party"]	= rootDirPath .. "Engine_Source/Third_Party/"
+win32AppIncludeDirs["Engine_Source_Src"]		= rootDirPath .. "Engine_Source/Source/"
+win32AppIncludeDirs["Engine_Source_Third_Party"]= rootDirPath .. "Engine_Source/Third_Party/"
 win32AppIncludeDirs["Build_Rules"]				= rootDirPath .. "Build_Rules/"
 
 project (projectName)
@@ -38,10 +38,13 @@ project (projectName)
 		-- Personal Source Files for this Application
 		"Source/**.h",
 		"Source/**.cpp",
+		"./**.h",
+		"./**.rc",
+
 	}
 
 	includedirs
-	{
+	{		
 		"%{win32AppIncludeDirs.assimp}",
 		"%{win32AppIncludeDirs.Microsoft}",
 		"%{win32AppIncludeDirs.Nvidia}DirectX12/",
@@ -54,6 +57,8 @@ project (projectName)
 		
 		-- Personal Source Files for this Application
 		"Source/",
+
+		"./",
 
 		-- Shared Header Includes for this Project
 		"%{win32AppIncludeDirs.Build_Rules}/PCH_Source/",
