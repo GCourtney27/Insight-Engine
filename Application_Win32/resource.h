@@ -4,6 +4,8 @@
 //
 #define IDS_APP_TITLE                   101
 #define IDC_WIN32APP                    102
+#define IDD_ABOUT                       105
+#define IDI_WIN32APP                    107
 #define File                            40001
 #define Edit                            40002
 #define ID_ACCELERATOR40003             40003
@@ -30,7 +32,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        105
+#define _APS_NEXT_RESOURCE_VALUE        108
 #define _APS_NEXT_COMMAND_VALUE         40023
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101

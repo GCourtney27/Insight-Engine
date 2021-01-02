@@ -11,6 +11,7 @@ std::unique_ptr<Insight::Application> g_pApp;
 
 void LoadWindowProps(Insight::Win32WindowDescription& WindowDesc);
 LRESULT CALLBACK ProcessAccelCommand(const int& Command);
+INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(
 	_In_		HINSTANCE hInstance,
@@ -94,11 +95,12 @@ LRESULT CALLBACK ProcessAccelCommand(const int& Command)
 	/* File Submenu */
 	case (IDM_FILE_ABOUT):
 	{
-		wchar_t AboutMsgBuffer[256];
+		/*wchar_t AboutMsgBuffer[256];
 		int APIVersion = ((int)Insight::Renderer::GetAPI()) + 10;
 		const wchar_t* RTEnabled = Insight::Renderer::GetIsRayTraceEnabled() ? L"Enabled" : L"Disabled";
 		swprintf_s(AboutMsgBuffer, L"Version - 1.8 \nRenderer - Direct3D %i (Ray Tracing: %s) \n\nVendor Runtime: \nMono - v6.8.0.123 \nAssimp - v3.3.1 \nRapidJson - v1.0.0 \nImGui - v1.75", APIVersion, RTEnabled);
-		g_pWindow->CreateMessageBox(AboutMsgBuffer, L"About Retina Editor");
+		g_pWindow->CreateMessageBox(AboutMsgBuffer, L"About Retina Editor");*/
+		DialogBox(g_AppInstance, MAKEINTRESOURCE(IDD_ABOUT), static_cast<HWND>(g_pWindow->GetNativeWindow()), About);
 		break;
 	}
 	case (IDM_FILE_SAVE):
@@ -120,4 +122,23 @@ LRESULT CALLBACK ProcessAccelCommand(const int& Command)
 	}
 
 	return 0;
+}
+
+INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	UNREFERENCED_PARAMETER(lParam);
+	switch (message)
+	{
+	case WM_INITDIALOG:
+		return (INT_PTR)TRUE;
+
+	case WM_COMMAND:
+		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+		{
+			EndDialog(hDlg, LOWORD(wParam));
+			return (INT_PTR)TRUE;
+		}
+		break;
+	}
+	return (INT_PTR)FALSE;
 }
