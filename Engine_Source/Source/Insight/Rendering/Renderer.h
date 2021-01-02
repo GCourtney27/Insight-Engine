@@ -227,7 +227,7 @@ namespace Insight {
 		/*
 			Get the current graphics settings the renderer is using.
 		*/
-		static GraphicsSettings GetGraphicsSettings() { return s_Instance->m_GraphicsSettings; }
+		static GraphicsSettings& GetGraphicsSettings() { return s_Instance->m_GraphicsSettings; }
 		
 		/*
 			Sets the currently active render pass.

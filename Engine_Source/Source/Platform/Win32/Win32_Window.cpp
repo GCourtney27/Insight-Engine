@@ -46,7 +46,7 @@ namespace Insight {
 
 	InputEventType Win32Window::GetAsyncKeyState(KeyMapCode Key) const
 	{
-		SHORT KeyState = ::GetAsyncKeyState(Key);
+		short KeyState = ::GetAsyncKeyState(Key);
 		bool Pressed = (BIT_SHIFT(15)) & KeyState;
 		
 		if (Pressed)
@@ -62,55 +62,54 @@ namespace Insight {
 		switch (uMsg) 
 		{
 		// Application
-		case WM_NCCREATE:
+		case (WM_NCCREATE):
 		{
 			const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
 			Win32Window* data = reinterpret_cast<Win32Window*>(pCreate->lpCreateParams);
 			SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(data));
-
-			return DefWindowProc(hWnd, uMsg, wParam, lParam);
+			break;
 		}
-		case WM_DESTROY:
+		case (WM_QUIT):
+		case (WM_DESTROY):
 		{
-			PostQuitMessage(0);
 			WindowCloseEvent event;
 			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
 		// Mouse Input
-		case WM_MOUSEMOVE:
+		case (WM_MOUSEMOVE):
 		{
 			MouseMovedEvent event(LOWORD(lParam), HIWORD(lParam), (KeyMapCode)(KeyMapCode_Mouse_MoveX | KeyMapCode_Mouse_MoveY));
 			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
-		case WM_MOUSEWHEEL:
+		case (WM_MOUSEWHEEL):
 		{
 			float yOffset = GET_WHEEL_DELTA_WPARAM(wParam) / 120.0f;
 			MouseScrolledEvent event(0.0f, yOffset, KeyMapCode_Mouse_Wheel_Up, InputEventType_Moved);
 			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
-		case WM_MOUSEHWHEEL:
+		case (WM_MOUSEHWHEEL):
 		{
 			float xOffset = GET_WHEEL_DELTA_WPARAM(wParam) / 120.0f;
 			MouseScrolledEvent event(xOffset, 0.0f, (KeyMapCode)(KeyMapCode_Mouse_Wheel_Left | KeyMapCode_Mouse_Wheel_Right), InputEventType_Moved);
 			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
-		case WM_LBUTTONDOWN:
+		case (WM_LBUTTONDOWN):
 		{
 			MouseButtonPressedEvent event(KeyMapCode_Mouse_Button_Left);
 			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
-		case WM_LBUTTONUP:
+		case (WM_LBUTTONUP):
 		{
 			MouseButtonReleasedEvent event(KeyMapCode_Mouse_Button_Left);
 			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
-		case WM_RBUTTONDOWN:
+		case (WM_RBUTTONDOWN):
 		{
 			MouseButtonPressedEvent event(KeyMapCode_Mouse_Button_Right);
 			pWindow.GetEventCallbackFn()(event);
@@ -122,32 +121,32 @@ namespace Insight {
 
 			return 0;
 		}
-		case WM_RBUTTONUP:
+		case (WM_RBUTTONUP):
 		{
 			MouseButtonReleasedEvent event(KeyMapCode_Mouse_Button_Right);
 			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
-		case WM_MBUTTONDOWN:
+		case (WM_MBUTTONDOWN):
 		{
 			MouseButtonPressedEvent event(KeyMapCode_Mouse_Button_Middle);
 			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
-		case WM_MBUTTONUP:
+		case (WM_MBUTTONUP):
 		{
 			MouseButtonReleasedEvent event(KeyMapCode_Mouse_Button_Middle);
 			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
 		// Keyboard Input
-		case WM_CHAR:
+		case (WM_CHAR):
 		{
 			KeyTypedEvent event((KeyMapCode)((char)wParam));
 			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
-		case WM_KEYDOWN:
+		case (WM_KEYDOWN):
 		{
 			// Debug force engine close Escape key
 			if (wParam == VK_ESCAPE)
@@ -177,24 +176,24 @@ namespace Insight {
 			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
-		case WM_KEYUP:
+		case (WM_KEYUP):
 		{
 			KeyReleasedEvent event((KeyMapCode)((char)wParam));
 			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
 		// Aplication Events
-		case WM_DPICHANGED:
+		case (WM_DPICHANGED):
 		{
 			pWindow.SetDPI(HIWORD(wParam));
 			return 0;
 		}
-		case WM_COMPACTING:
+		case (WM_COMPACTING):
 		{
 			IE_DEBUG_LOG(LogSeverity::Warning, "System memory is low!");
 			return 0;
 		}
-		case WM_EXITSIZEMOVE:
+		case (WM_EXITSIZEMOVE):
 		{
 			RECT clientRect = {};
 			GetClientRect(hWnd, &clientRect);
@@ -204,7 +203,7 @@ namespace Insight {
 			IE_DEBUG_LOG(LogSeverity::Log, "Window size has changed");
 			return 0;
 		}
-		case WM_SIZE:
+		case (WM_SIZE):
 		{
 			/*static bool IsFirstLaunch = true;
 			if (IsFirstLaunch) {
@@ -217,7 +216,7 @@ namespace Insight {
 			pWindow.GetEventCallbackFn()(event);*/
 			return 0;
 		}
-		case WM_INPUT:
+		case (WM_INPUT):
 		{
 			UINT DataSize;
 			GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, NULL, &DataSize, sizeof(RAWINPUTHEADER));
@@ -244,9 +243,9 @@ namespace Insight {
 				}
 
 			}
-			return DefWindowProc(hWnd, uMsg, wParam, lParam);
+			break;
 		}
-		case WM_DROPFILES:
+		case (WM_DROPFILES):
 		{
 			/*WindowsWindow::WindowData& data = *(WindowsWindow::WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			UINT iFile;
@@ -256,18 +255,17 @@ namespace Insight {
 			IE_DEBUG_LOG(LogSeverity::Log, "File dropped on window");*/
 		}
 		// Menu Bar Events
-		case WM_COMMAND:
+		case (WM_COMMAND):
 		{
 			// Process any custom commands the user puts in using IDM_*
 			int wmId = LOWORD(wParam);
-			pWindow.GetCustomCallback()(wmId);
+			auto Fn = pWindow.GetCustomCallback();
+			if (Fn) Fn(wmId);
 
-			return DefWindowProc(hWnd, uMsg, wParam, lParam);
+			break;
 		}
 		default:
-		{
-			return DefWindowProc(hWnd, uMsg, wParam, lParam);
-		}
+			break;
 		}
 
 
@@ -547,6 +545,7 @@ namespace Insight {
 
 	void* Win32Window::GetNativeWindow() const
 	{
+		//return (void*)&m_hWindow;
 		return m_hWindow;
 	}
 

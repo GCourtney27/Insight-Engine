@@ -65,13 +65,23 @@ IDC_WIN32APP MENU
 BEGIN
     POPUP "File"
     BEGIN
-        MENUITEM "Save",                        ID_FILE_SAVE
-        MENUITEM "Open",                        ID_FILE_OPEN
-        MENUITEM "Quit",                        ID_FILE_QUIT
+        MENUITEM "About",                       IDM_FILE_ABOUT
+        MENUITEM "Save",                        IDM_FILE_SAVE
+        MENUITEM "Open",                        IDM_FILE_OPEN
+        MENUITEM "Quit",                        IDM_FILE_QUIT
     END
     POPUP "Edit"
     BEGIN
-        MENUITEM "Editor Preferences",          ID_EDIT_EDITORSETTINGS
+        MENUITEM "Toggle UI",                   IDM_TOGGLEUI
+    END
+    POPUP "Rendering"
+    BEGIN
+        MENUITEM "Reload Shaders",              IDM_RENDERING_RELOADSHADERS
+    END
+    POPUP "Editor"
+    BEGIN
+        MENUITEM "Begin Play",                  IDM_EDITOR_BEGINPLAY
+        MENUITEM "End Play",                    IDM_EDITOR_ENDPLAY
     END
 END
 

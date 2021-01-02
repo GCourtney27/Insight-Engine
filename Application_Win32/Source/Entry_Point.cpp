@@ -6,7 +6,8 @@
 #define MAX_STRING_LOAD_LENGTH 100
 HINSTANCE g_AppInstance;
 
-std::shared_ptr<Insight::Win32Window> g_WindowsWindow;
+std::shared_ptr<Insight::Win32Window> g_pWindow;
+std::unique_ptr<Insight::Application> g_pApp;
 
 void LoadWindowProps(Insight::Win32WindowDescription& WindowDesc);
 LRESULT CALLBACK ProcessAccelCommand(const int& Command);
@@ -22,15 +23,15 @@ int APIENTRY wWinMain(
 
 	g_AppInstance = hInstance;
 	
-	auto pApp = Insight::CreateApplication();
+	g_pApp = Insight::CreateApplication();
 	try 
 	{
-		Insight::Win32WindowDescription WindowDesc(g_AppInstance, IE_BIND_EVENT_FN(Insight::Application::OnEvent, pApp.get()), nCmdShow, lpCmdLine);
+		Insight::Win32WindowDescription WindowDesc(g_AppInstance, IE_BIND_EVENT_FN(Insight::Application::OnEvent, g_pApp.get()), nCmdShow, lpCmdLine);
 		LoadWindowProps(WindowDesc);
-		g_WindowsWindow = std::make_shared<Insight::Win32Window>(WindowDesc);
+		g_pWindow = std::make_shared<Insight::Win32Window>(WindowDesc);
 
-		pApp->SetWindow(g_WindowsWindow);
-		pApp->Initialize();
+		g_pApp->SetWindow(g_pWindow);
+		g_pApp->Initialize();
 	}
 	catch (Insight::ieException& Ex) 
 	{
@@ -38,7 +39,7 @@ int APIENTRY wWinMain(
 		return Insight::Application::ieErrorCode_Failed;
 	}
 
-	return pApp->Run();
+	return g_pApp->Run();
 }
 
 void LoadWindowProps(Insight::Win32WindowDescription& WindowDesc)
@@ -66,10 +67,57 @@ LRESULT CALLBACK ProcessAccelCommand(const int& Command)
 	{
 	case IDM_TOGGLEUI:
 	{
-		OutputDebugStringW(L"Key pressed.");
+		static bool EditorUIEnabled = true;
+		EditorUIEnabled = !EditorUIEnabled;
+		g_pApp->GetEditorLayer().SetUIEnabled(EditorUIEnabled);
+		break;
+	}
+	case (IDM_RENDERING_RELOADSHADERS):
+	{
+		Insight::ShaderReloadEvent event;
+		g_pWindow->GetEventCallbackFn()(event);
+		break;
+	}
+	/* Editor Submenu */
+	case (IDM_EDITOR_BEGINPLAY):
+	{
+		Insight::AppBeginPlayEvent event;
+		g_pWindow->GetEventCallbackFn()(event);
+		break;
+	}
+	case (IDM_EDITOR_ENDPLAY):
+	{
+		Insight::AppEndPlayEvent event;
+		g_pWindow->GetEventCallbackFn()(event);
+		break;
+	}
+	/* File Submenu */
+	case (IDM_FILE_ABOUT):
+	{
+		wchar_t AboutMsgBuffer[256];
+		int APIVersion = ((int)Insight::Renderer::GetAPI()) + 10;
+		const wchar_t* RTEnabled = Insight::Renderer::GetIsRayTraceEnabled() ? L"Enabled" : L"Disabled";
+		swprintf_s(AboutMsgBuffer, L"Version - 1.8 \nRenderer - Direct3D %i (Ray Tracing: %s) \n\nVendor Runtime: \nMono - v6.8.0.123 \nAssimp - v3.3.1 \nRapidJson - v1.0.0 \nImGui - v1.75", APIVersion, RTEnabled);
+		g_pWindow->CreateMessageBox(AboutMsgBuffer, L"About Retina Editor");
+		break;
+	}
+	case (IDM_FILE_SAVE):
+	{
+
+		break;
+	}
+	case (IDM_FILE_OPEN):
+	{
+		break;
+	}
+	case (IDM_FILE_QUIT):
+	{
+		DestroyWindow(static_cast<HWND>(g_pWindow->GetNativeWindow()));
+		break;
 	}
 	default:
-		return 0;
+		break;
 	}
+
 	return 0;
 }

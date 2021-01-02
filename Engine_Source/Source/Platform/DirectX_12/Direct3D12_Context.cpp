@@ -133,15 +133,17 @@ namespace Insight {
 	void Direct3D12Context::LoadAssets()
 	{
 		auto& DWriteFactory = m_DeviceResources.GetWriteFactory();
+		auto& D2DDeviceContext = m_DeviceResources.GetD2DDeviceContext();
+		constexpr int FontSize = 20;
 
-		ThrowIfFailed(m_DeviceResources.GetD2DDeviceContext().CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Green), &m_textBrush), "Failed to create solid color brush.");
+		ThrowIfFailed(D2DDeviceContext.CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Green), &m_textBrush), "Failed to create solid color brush.");
 		HRESULT hr = DWriteFactory.CreateTextFormat(
 			L"Verdana",
 			NULL,
 			DWRITE_FONT_WEIGHT_NORMAL,
 			DWRITE_FONT_STYLE_NORMAL,
 			DWRITE_FONT_STRETCH_NORMAL,
-			20,
+			FontSize,
 			L"en-us",
 			&m_textFormat
 		);
@@ -332,107 +334,6 @@ namespace Insight {
 
 	void Direct3D12Context::OnEditorRender_Impl()
 	{
-		UI::BeginWindow("Renderer");
-		{
-			if (UI::TreeNodeEx("Textures", UI::TreeNode_DefaultOpen))
-			{
-				// Texture Filtering
-				{
-					UI::PushID("TexFilt");
-					UI::Columns(2);
-					UI::Text("Filtering Anisotropic");
-					UI::NextColumn();
-					constexpr char* TextureFilterLevels[] = { "1x", "2x", "4x", "8x", "16x" };
-					static int SelectionIndex = (int)sqrtf((float)m_GraphicsSettings.MaxAnisotropy);
-					if (UI::ComboBox("##TexResolution", SelectionIndex, TextureFilterLevels, _countof(TextureFilterLevels)))
-					{
-						IE_DEBUG_LOG(LogSeverity::Log, "Texture Filtering: {0} (Raw Value: {1})", TextureFilterLevels[SelectionIndex], pow(2, SelectionIndex));
-						m_GraphicsSettings.MaxAnisotropy = (uint32_t)powf(2.0f, (float)SelectionIndex);
-						CreateDeferredShadingRS();
-						m_GeometryPass.SetRootSignature(m_pDeferredShadingPass_RS.Get());
-						m_GeometryPass.ReloadShaders();
-					}
-					UI::EndColumns();
-					UI::PopID();
-				}
-
-				// Texture Quality
-				{
-					UI::PushID("TexRes");
-					UI::Columns(2);
-					UI::Text("Quality (Mip LOD Bias)");
-					UI::NextColumn();
-					constexpr char* TextureQuality[] = { "High", "Medium", "Low" };
-					static int SelectionIndex = (int)m_GraphicsSettings.MipLodBias / 2;
-					if (UI::ComboBox("##TexQuality", SelectionIndex, TextureQuality, _countof(TextureQuality)))
-					{
-						IE_DEBUG_LOG(LogSeverity::Log, "Texture Quality: {0} (Raw Value: {1})", TextureQuality[SelectionIndex], 2 * SelectionIndex);
-						m_GraphicsSettings.MipLodBias = 2.0f * (float)SelectionIndex;
-						CreateDeferredShadingRS();
-						m_GeometryPass.SetRootSignature(m_pDeferredShadingPass_RS.Get());
-						m_GeometryPass.ReloadShaders();
-					}
-					UI::EndColumns();
-					UI::PopID();
-				}
-				UI::TreePopNode();
-			}
-
-			if (UI::TreeNodeEx("Ray Tracing", UI::TreeNode_DefaultOpen))
-			{
-				// RT Shadows
-				{
-					UI::PushID("RTShadows");
-					UI::Columns(2);
-					UI::Text("Shadows Enabled: ");
-					UI::NextColumn();
-					static bool RTEnabled = m_GraphicsSettings.RayTraceEnabled;
-					if (UI::Checkbox("", &RTEnabled))
-					{
-						bool PrevState = !RTEnabled;
-						if (PrevState) // Disabling ray tracing
-						{
-							m_RenderPassStack.PopPass(&m_RayTracedShadowPass);
-						}
-						else // Enable ray tracing
-						{
-							//m_RayTracedShadowPass.Create(this, &m_cbvsrvHeap, m_pRayTracePass_CommandList.Get(), nullptr);
-							m_RenderPassStack.PushPass(&m_RayTracedShadowPass);
-							//m_RayTracedShadowPass.GetRTHelper()->GenerateAccelerationStructure();
-						}
-						m_GraphicsSettings.RayTraceEnabled = RTEnabled;
-					}
-					UI::EndColumns();
-					UI::PopID();
-				}
-				UI::TreePopNode();
-			}
-
-			// Resolution Scale
-			/*{
-				UI::PushID("RenderRes");
-				UI::Columns(2);
-
-				UI::Text("Resolution Scale: ");
-				UI::NextColumn();
-
-				static float ResolutionScaleFactor = 100;
-				if (UI::DragFloat("##RenderResolutionScale", &ResolutionScaleFactor, 1.0f, 1.0f, 100.0f))
-				{
-					uint32_t NewWidth = m_pWindowRef->GetWidth() * (ResolutionScaleFactor / 100.0f);
-					uint32_t NewHeight = m_pWindowRef->GetHeight() * (ResolutionScaleFactor / 100.0f);
-
-					IE_DEBUG_LOG(LogSeverity::Log, "Scale Factor: {0} (Width: {1} | Height: {2})", ResolutionScaleFactor, NewWidth, NewHeight);
-				}
-
-				UI::EndColumns();
-				UI::NewLine();
-				UI::PopID();
-			}*/
-
-		}
-		UI::EndWindow();
-
 	}
 
 	void Direct3D12Context::BindTransparencyPass()
