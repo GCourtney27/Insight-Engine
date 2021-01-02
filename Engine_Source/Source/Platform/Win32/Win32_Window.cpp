@@ -40,6 +40,8 @@ namespace Insight {
 		m_CmdLineArgs			= Desc.CmdArgs;
 		m_EventCallbackFn		= Desc.EventCallbackFunction;
 		m_CustomCallback		= Desc.CustomCallback;
+		m_Icon					= Desc.Icon;
+		m_Cursor				= Desc.Cursor;
 
 		Init();
 	}
@@ -364,16 +366,17 @@ namespace Insight {
 	{
 		WNDCLASSEX wc = {};
 		wc.cbSize = sizeof(WNDCLASSEX);
-		wc.style = 0;
-		wc.lpfnWndProc = WindowProcedure;
-		wc.cbClsExtra = 0;
-		wc.cbWndExtra = 0;
-		wc.hInstance = m_WindowsAppInstance;
-		wc.hIcon = ::LoadIcon(0, IDI_WINLOGO);
-		wc.hCursor = ::LoadCursor(0, IDC_ARROW);
-		wc.lpszMenuName = m_MenuBarName;
-		wc.hbrBackground = 0;
-		wc.lpszClassName = m_WindowClassName.c_str();
+
+		wc.style			= 0;
+		wc.lpfnWndProc		= WindowProcedure;
+		wc.cbClsExtra		= 0;
+		wc.cbWndExtra		= 0;
+		wc.hInstance		= m_WindowsAppInstance;
+		wc.hIcon			= m_Icon;
+		wc.hCursor			= m_Cursor;
+		wc.lpszMenuName		= m_MenuBarName;
+		wc.hbrBackground	= 0;
+		wc.lpszClassName	= m_WindowClassName.c_str();
 
 		::RegisterClassEx(&wc);
 		DWORD error = ::GetLastError();

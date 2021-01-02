@@ -2,9 +2,10 @@
 
 #include "Insight/Core/Window.h"
 
-#if defined (IE_PLATFORM_BUILD_WIN32)
 
 namespace Insight {
+
+#if defined (IE_PLATFORM_BUILD_WIN32)
 
 	/*
 		Function signature for a callback that can process custom IDM_*
@@ -31,6 +32,16 @@ namespace Insight {
 		*/
 		LPCWSTR	MenuBarName;
 		
+		/*
+			The icon for the window of the application.
+		*/
+		HICON Icon;
+
+		/*
+			The mouse corsor for the application.
+		*/
+		HCURSOR Cursor;
+
 		/*
 			Custom callback used to handle accelerator tabale commands.
 		*/
@@ -93,6 +104,10 @@ namespace Insight {
 		LPCWSTR m_MenuBarName;
 		OutLResInIntRefMethod_t m_CustomCallback;
 
+		HICON m_Icon;
+		HCURSOR m_Cursor;
+
+
 		HMENU	m_hContextMenu;
 		HMENU	m_hMenuBar;
 		HMENU	m_hFileSubMenu;
@@ -109,5 +124,5 @@ namespace Insight {
 
 	};
 
-}
 #endif // IE_PLATFORM_BUILD_WIN32
+}
