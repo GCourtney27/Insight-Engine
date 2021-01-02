@@ -39,7 +39,7 @@ namespace Insight {
 		m_NumCmdLineArgs		= Desc.NumCmdArgs;
 		m_CmdLineArgs			= Desc.CmdArgs;
 		m_EventCallbackFn		= Desc.EventCallbackFunction;
-		m_CustomCallback		= Desc.CustomCallback;
+		m_CustomCallback		= Desc.UserAccelCallback;
 		m_Icon					= Desc.Icon;
 		m_Cursor				= Desc.Cursor;
 

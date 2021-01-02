@@ -82,7 +82,7 @@ project ("Engine_Build_UWP")
 		"%{engineIncludeDirs.OpenFBX}",
 		"%{engineIncludeDirs.Microsoft}",
 		"%{engineIncludeDirs.tinyobjloader}",
-        "%{engineIncludeDirs.Microsoft}DirectX12/WinPixEventRuntime.1.0.161208001/Include/",
+        "%{engineIncludeDirs.Microsoft}/WinPixEventRuntime/Include/",
 		"%{engineIncludeDirs.Microsoft}DirectX12/",
 		"%{engineIncludeDirs.Nvidia}DirectX12/",
 		"%{engineIncludeDirs.rapidjson}include/",
@@ -227,7 +227,7 @@ project ("Engine_Build_Win32")
 	{
 		-- Third Party
 		"%{engineIncludeDirs.Microsoft}",
-        "%{engineIncludeDirs.Microsoft}DirectX12/WinPixEventRuntime.1.0.161208001/Include/",
+        "%{engineIncludeDirs.Microsoft}/WinPixEventRuntime/Include/",
 		"%{engineIncludeDirs.Microsoft}DirectX12/",
 		"%{engineIncludeDirs.Nvidia}DirectX12/",
 		"%{engineIncludeDirs.rapidjson}include/",

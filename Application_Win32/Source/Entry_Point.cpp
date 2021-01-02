@@ -63,7 +63,7 @@ void LoadWindowProps(Insight::Win32WindowDescription& WindowDesc)
 	// Load the menu bar via the string table name.
 	WindowDesc.MenuBarName			= MAKEINTRESOURCEW(IDC_WIN32APP);
 	// Assign the custom callback to proccess events from the accelerator table.
-	WindowDesc.CustomCallback		= Insight::Win32Window::MakeCustomAcceleratorCallback(ProcessAccelCommand);
+	WindowDesc.UserAccelCallback = Insight::Win32Window::MakeAccelCallback(ProcessAccelCommand);
 	// Load the icon for the window.
 	WindowDesc.Icon					= LoadIcon(g_AppInstance, MAKEINTRESOURCE(IDI_WIN32APP));
 	// Load the cursor for the application.

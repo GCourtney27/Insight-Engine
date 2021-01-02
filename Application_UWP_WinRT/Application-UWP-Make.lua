@@ -8,9 +8,9 @@ engineThirdPartyDir = "../Engine_Source/Third_Party/"
 rootDirPath = "../"
 
 uwpAppIncludeDirs = {}
-uwpAppIncludeDirs["tinyobjloader"]				= engineThirdPartyDir .. "tinyobjloader/include/"
+uwpAppIncludeDirs["tinyobjloader"]			= engineThirdPartyDir .. "tinyobjloader/include/"
 uwpAppIncludeDirs["assimp"]					= engineThirdPartyDir .. "assimp-5.0.1/include/"
-uwpAppIncludeDirs["OpenFBX"]					= engineThirdPartyDir .. "OpenFBX/src/"
+uwpAppIncludeDirs["OpenFBX"]				= engineThirdPartyDir .. "OpenFBX/src/"
 uwpAppIncludeDirs["Microsoft"] 				= engineThirdPartyDir .. "Microsoft/"
 uwpAppIncludeDirs["Nvidia"]					= engineThirdPartyDir .. "Nvidia/"
 uwpAppIncludeDirs["spdlog"]					= engineThirdPartyDir .. "spdlog/include/"
@@ -66,7 +66,7 @@ project (projectName)
 		"%{uwpAppIncludeDirs.Microsoft}",
 		"%{uwpAppIncludeDirs.Microsoft}/DirectX12",
 		"%{uwpAppIncludeDirs.Nvidia}DirectX12/",
-		"%{uwpAppIncludeDirs.Microsoft}DirectX12/WinPixEventRuntime.1.0.161208001/Include/",
+		"%{uwpAppIncludeDirs.Microsoft}/WinPixEventRuntime/Include/",
 		"%{uwpAppIncludeDirs.spdlog}",
 		"%{uwpAppIncludeDirs.rapidjson}",
 		"%{uwpAppIncludeDirs.Engine_Source_Src}/",
@@ -88,7 +88,6 @@ project (projectName)
 		"d3d12.lib",
 		"dxgi.lib",
 		"d3d11.lib",
-		"WinPixEventRuntime.lib",
 		"WinPixEventRuntime_UAP.lib",
 		"DirectXTK.lib",
 		"D3Dcompiler.lib",
@@ -121,8 +120,7 @@ project (projectName)
 		("{COPY} %{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxcompiler.dll ../Binaries/"..outputdir.."/" .. projectName),
 		("{COPY} %{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxil.dll ../Binaries/"..outputdir.."/" .. projectName),
 		-- PIX
-		("{COPY} %{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../Binaries/"..outputdir.."/" .. projectName),
-		("{COPY} %{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../Binaries/"..outputdir.."/" .. projectName),
+		("{COPY} %{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/WinPixEventRuntime/bin/x64/WinPixEventRuntime_UAP.dll ../Binaries/"..outputdir.."/" .. projectName),
 		-- Copy over assets
 		("{COPY} %{wks.location}Content ../Binaries/" .. outputdir .. "/Content"),
 		-- Copy over default engine assets
@@ -138,7 +136,7 @@ project (projectName)
 	libdirs
 	{
 		"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Debug/",
-		"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
+		"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/WinPixEventRuntime/bin/x64",
 		"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Debug/",
 		"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Debug/",
 		monoInstallDir .. "/lib/",
@@ -151,9 +149,8 @@ project (projectName)
 		libdirs
 		{
 			"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/assimp-3.3.1/build/code/Release",
-			"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
+			"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/WinPixEventRuntime/bin/x64",
 			"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
-			"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
 			"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
 			monoInstallDir .. "/lib",
 		}
@@ -172,8 +169,7 @@ project (projectName)
 			("{COPY} %{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxil.dll ../Binaries/"..outputdir.."/Engine"),
 			("{COPY} %{wks.location}/Engine/Source/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/Engine"),
 			-- PIX					
-			("{COPY} %{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../Binaries/"..outputdir.."/Engine"),
-			("{COPY} %{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../Binaries/"..outputdir.."/Engine"),
+			("{COPY} %{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/WinPixEventRuntime/bin/x64/WinPixEventRuntime_UAP.dll ../Binaries/"..outputdir.."/Engine"),
 			-- Copy over assets
 			("{COPY} $(USERPROFILE)/Documents/Insight-Projects/Development-Project/Content/** ../Binaries/" .. outputdir .. "/Content"),
 			("{COPY} %{wks.location}/Engine_Source/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Content/Default_Assets/")
@@ -186,9 +182,8 @@ project (projectName)
 		libdirs
 		{
 			"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/assimp-3.3.1/build/code/Release",
-			"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
+			"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/WinPixEventRuntime/bin/x64",
 			"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
-			"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
 			"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
 			monoInstallDir .. "/lib",
 		}
@@ -213,7 +208,7 @@ project (projectName)
 		libdirs
 		{
 			"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/assimp-3.3.1/build/code/Release",            
-			"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
+			"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/WinPixEventRuntime/bin/x64",
 			"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
 			"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
 			"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",

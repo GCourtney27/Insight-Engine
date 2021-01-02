@@ -132,7 +132,7 @@ namespace Insight {
 		virtual void SetVertexBuffers_Impl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) override;
 		virtual void SetIndexBuffer_Impl(ieIndexBuffer* pBuffer) override;
 		virtual void DrawIndexedInstanced_Impl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) override;
-		virtual void DrawText_Impl(const char* Text) override;
+		virtual void DrawText_Impl(const wchar_t* Text) override;
 
 		virtual void RenderSkySphere_Impl() override;
 		virtual bool CreateSkybox_Impl() override;
@@ -244,6 +244,7 @@ namespace Insight {
 		Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> m_textBrush;
 		Microsoft::WRL::ComPtr<IDWriteTextFormat> m_textFormat;
 
+		std::wstring m_Text;
 
 		D3D12ScreenQuad		m_DebugScreenQuad;
 		D3D12_VIEWPORT		m_ShadowPass_ViewPort = {};

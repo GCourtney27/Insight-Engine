@@ -254,7 +254,7 @@ namespace Insight {
 			TODO: Renders text to be rendered.
 			@param Text - Text to be rendered on screen
 		*/
-		static void DrawText(const char* Text) { s_Instance->DrawText_Impl(Text); }
+		static void DrawText(const wchar_t* Text) { s_Instance->DrawText_Impl(Text); }
 		
 		/*
 			Renders the world sky sphere.
@@ -365,7 +365,7 @@ namespace Insight {
 		virtual void SetVertexBuffers_Impl(uint32_t StartSlot, uint32_t NumBuffers, ieVertexBuffer* pBuffers) = 0;
 		virtual void SetIndexBuffer_Impl(ieIndexBuffer* pBuffer) = 0;
 		virtual void DrawIndexedInstanced_Impl(uint32_t IndexCountPerInstance, uint32_t NumInstances, uint32_t StartIndexLocation, uint32_t BaseVertexLoaction, uint32_t StartInstanceLocation) = 0;
-		virtual void DrawText_Impl(const char* Text) = 0;
+		virtual void DrawText_Impl(const wchar_t* Text) = 0;
 
 		virtual void RenderSkySphere_Impl() = 0;
 		virtual bool CreateSkybox_Impl() = 0;

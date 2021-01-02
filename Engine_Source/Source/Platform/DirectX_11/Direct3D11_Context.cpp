@@ -66,7 +66,7 @@ namespace Insight {
 		m_pDeviceContext->DrawIndexed(IndexCountPerInstance, StartIndexLocation, BaseVertexLoaction);
 	}
 
-	void Direct3D11Context::DrawText_Impl(const char* Text)
+	void Direct3D11Context::DrawText_Impl(const wchar_t* Text)
 	{
 	}
 
