@@ -8,7 +8,8 @@ namespace Insight {
 	
 	
 	GameLayer::GameLayer()
-		: Layer("Game Layer")
+		:	Layer("Game Layer"),
+			m_TickScene(false)
 	{
 		m_pScene = new Scene();
 	}

@@ -23,8 +23,8 @@ win32AppIncludeDirs["Build_Rules"]				= rootDirPath .. "Build_Rules/"
 project (projectName)
 	location (rootDirPath .. projectName)
 	kind ("WindowedApp")
-	cppdialect ("C++17")
 	language ("C++")
+	cppdialect ("C++17")
 	staticruntime ("off")
 	targetname (projectName)
 	

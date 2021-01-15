@@ -14,17 +14,17 @@ namespace Insight {
 		GameLayer();
 		~GameLayer();
 
-		virtual void OnAttach() override;
-		virtual void OnDetach() override;
-		virtual void OnImGuiRender() override;
+		virtual void OnAttach()			override;
+		virtual void OnDetach()			override;
+		virtual void OnImGuiRender()	override;
 
-		virtual void OnUpdate(const float DeltaMs) override;
-		virtual void OnEvent(Event& event) override;
+		virtual void OnUpdate(const float DeltaMs)	override;
+		virtual void OnEvent(Event& event)			override;
 
 		bool LoadScene(const std::string& FileName);
 
-		inline Scene* GetScene() const { return m_pScene; }
-		bool IsPlaySesionUnderWay() { return m_TickScene; }
+		inline Scene* GetScene() const	{ return m_pScene; }
+		bool IsPlaySessionUnderWay()	{ return m_TickScene; }
 
 		void BeginPlay();
 		void Update(const float DeltaMs);
@@ -32,8 +32,8 @@ namespace Insight {
 		void PostInit();
 
 	private:
-		Scene* m_pScene = nullptr;
-		bool m_TickScene = false;
+		Scene* m_pScene;
+		bool m_TickScene;
 	};
 
 }

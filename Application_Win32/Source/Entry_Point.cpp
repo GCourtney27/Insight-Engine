@@ -103,12 +103,12 @@ LRESULT CALLBACK ProcessAccelCommand(const int& Command)
 	/* File Submenu */
 	case (IDM_FILE_ABOUT):
 	{
-		/*wchar_t AboutMsgBuffer[256];
+		wchar_t AboutMsgBuffer[256];
 		int APIVersion = ((int)Insight::Renderer::GetAPI()) + 10;
 		const wchar_t* RTEnabled = Insight::Renderer::GetIsRayTraceEnabled() ? L"Enabled" : L"Disabled";
 		swprintf_s(AboutMsgBuffer, L"Version - 1.8 \nRenderer - Direct3D %i (Ray Tracing: %s) \n\nVendor Runtime: \nMono - v6.8.0.123 \nAssimp - v3.3.1 \nRapidJson - v1.0.0 \nImGui - v1.75", APIVersion, RTEnabled);
-		g_pWindow->CreateMessageBox(AboutMsgBuffer, L"About Retina Editor");*/
-		DialogBox(g_AppInstance, MAKEINTRESOURCE(IDD_ABOUT), static_cast<HWND>(g_pWindow->GetNativeWindow()), About);
+		g_pWindow->CreateMessageBox(AboutMsgBuffer, L"About Retina Editor");
+		//DialogBox(g_AppInstance, MAKEINTRESOURCE(IDD_ABOUT), static_cast<HWND>(g_pWindow->GetNativeWindow()), About);
 		break;
 	}
 	case (IDM_FILE_SAVE):

@@ -23,7 +23,7 @@
 
 #define SHADOWMAPPING_ENABLED 0
 #define TRANSPARENCYPASS_ENABLED 0
-#define BLOOM_ENABLED 1
+#define BLOOM_ENABLED 0
 
 
 namespace Insight {

@@ -44,8 +44,6 @@ project ("Engine_Build_UWP")
 	pchheader ("Engine_pch.h")
 	pchsource ("PCH_Source/Engine_pch.cpp")
 
-
-
 	files
 	{
 		-- This Project's Make File
@@ -66,13 +64,9 @@ project ("Engine_Build_UWP")
 
 	defines
 	{
-		-- Tells the Engine to Compile for Win32 Platform
+		-- Tells the engine to compile for UWP platform
 		"IE_PLATFORM_BUILD_UWP",
-
 		"_CRT_SECURE_NO_WARNINGS",
-
-		"IE_BUILD_DIR=%{CustomDefines.IE_BUILD_DIR}/${prj.name}/",
-		"IE_BUILD_CONFIG=%{CustomDefines.IE_BUILD_CONFIG}",
 	}
 
 	includedirs
@@ -114,7 +108,6 @@ project ("Engine_Build_UWP")
 		-- Compile the ray tracing shaders.
 		("%{wks.location}Engine_Source/Source/Shaders/HLSL/Ray_Tracing/Compile_RT_Shaders.bat %{wks.location}Binaries/" .. outputdir .. "/%{prj.name}"),
 	}
-
 
 	-- Shaders
 	filter { "files:**.pixel.hlsl" }
@@ -215,12 +208,9 @@ project ("Engine_Build_Win32")
 
 	defines
 	{
-		-- Tells the Engine to Compile for Win32 Platform
+		-- Tells the engine to compile for Win32 platform
 		"IE_PLATFORM_BUILD_WIN32",
-
 		"_CRT_SECURE_NO_WARNINGS",
-		"IE_BUILD_DIR=%{CustomDefines.IE_BUILD_DIR}/${prj.name}/",
-		"IE_BUILD_CONFIG=%{CustomDefines.IE_BUILD_CONFIG}",
 	}
 
 	includedirs
@@ -260,7 +250,6 @@ project ("Engine_Build_Win32")
 		-- Compile the ray tracing shaders.
 		("%{wks.location}Engine_Source/Source/Shaders/HLSL/Ray_Tracing/Compile_RT_Shaders.bat %{wks.location}Binaries/" .. outputdir .. "/%{prj.name}"),
 	}
-
 
 	-- Shaders
 	filter { "files:**.pixel.hlsl" }

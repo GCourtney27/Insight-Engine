@@ -310,9 +310,6 @@ namespace Insight {
 		m_WindowRect.bottom = m_WindowRect.top + m_LogicalHeight;
 		::AdjustWindowRect(&m_WindowRect, WS_OVERLAPPEDWINDOW | WS_EX_ACCEPTFILES, FALSE);
 
-		// Create the menu bar
-		//IE_STRIP_FOR_GAME_DIST(InitializeMenuBar();)
-
 		// Create mouse Right-Click context menu
 		//IE_STRIP_FOR_GAME_DIST(InitializeContextMenu();)
 
