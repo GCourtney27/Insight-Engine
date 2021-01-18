@@ -28,8 +28,8 @@ project (projectName)
 	staticruntime ("off")
 	targetname (projectName)
 	
-	targetdir (rootDirPath .. "Binaries/" .. outputdir .. "/%{prj.name}")
-    objdir (rootDirPath .. "Binaries/Intermediates/" .. outputdir .. "/%{prj.name}")
+	targetdir (rootDirPath .. binaryDirectory .. "%{prj.name}")
+    objdir (rootDirPath .. intDirectory .. "%{prj.name}")
 
 	files
 	{
@@ -39,8 +39,8 @@ project (projectName)
 		"Source/**.h",
 		"Source/**.cpp",
 		"./**.h",
-		"./**.rc",
 
+		"./**.rc",
 	}
 
 	includedirs

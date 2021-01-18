@@ -32,8 +32,8 @@ project ("Engine_Build_UWP")
 	systemversion ("latest")
 	targetname ("%{prj.name}")
 
-	targetdir (rootDirPath .. "Binaries/" .. outputdir .. "/%{prj.name}")
-    objdir (rootDirPath .. "Binaries/Intermediates/" .. outputdir .. "/%{prj.name}")
+	targetdir (rootDirPath .. binaryDirectory .. "/%{prj.name}")
+    objdir (rootDirPath .. intDirectory .. "/%{prj.name}")
 
 	platforms { "x64" }
 	defaultlanguage ("en-US")
@@ -189,8 +189,8 @@ project ("Engine_Build_Win32")
 	systemversion ("latest")
 	targetname ("%{prj.name}")
 
-	targetdir (rootDirPath .. "Binaries/" .. outputdir .. "/%{prj.name}")
-    objdir (rootDirPath .. "Binaries/Intermediates/" .. outputdir .. "/%{prj.name}")
+	targetdir (rootDirPath .. binaryDirectory .. "%{prj.name}")
+    objdir (rootDirPath .. intDirectory .. "%{prj.name}")
 
 	pchheader ("Engine_pch.h")
 	pchsource ("PCH_Source/Engine_pch.cpp")

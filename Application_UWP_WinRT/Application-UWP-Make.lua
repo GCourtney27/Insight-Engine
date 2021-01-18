@@ -29,8 +29,8 @@ project (projectName)
 	systemversion ("latest")
 	targetname (projectName)
 	
-	targetdir (rootDirPath .. "Binaries/" .. outputdir .. "/%{prj.name}")
-	objdir (rootDirPath .. "Binaries/Intermediates/" .. outputdir .. "/%{prj.name}")
+	targetdir (rootDirPath .. binaryDirectory .. "%{prj.name}")
+	objdir (rootDirPath .. intDirectory .. "%{prj.name}")
 
 	platforms { "x64" }
 	defaultlanguage ("en-US")
