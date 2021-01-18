@@ -22,8 +22,8 @@ namespace Insight {
 		virtual void OnUpdate(const float DeltaMs) override
 		{
 			m_FrameTimer.Tick();
-			char OutputBuffer[256];
-			sprintf_s(OutputBuffer, "FPS: %f\nFrame Time: %fms", GetFPS(), GetFrameTime());
+			wchar_t OutputBuffer[256];
+			swprintf_s(OutputBuffer, L"FPS: %f\nFrame Time: %fms", GetFPS(), GetFrameTime());
 			Renderer::DrawText(OutputBuffer);
 		}
 

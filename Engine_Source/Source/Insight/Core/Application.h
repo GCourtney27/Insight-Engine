@@ -95,7 +95,7 @@ namespace Insight {
 		inline FrameTimer& GetGraphicsThreadPerfTimer() { return m_GraphicsThreadTimer; }
 
 		// Returns true if the editor is currently simmulating a game session.
-		inline static bool IsPlaySessionUnderWay() { return s_Instance->m_pGameLayer->IsPlaySesionUnderWay(); }
+		inline static bool IsPlaySessionUnderWay() { return s_Instance->m_pGameLayer->IsPlaySessionUnderWay(); }
 		inline static const bool& IsApplicationRunning() { return s_Instance->m_Running; }
 
 	private:
