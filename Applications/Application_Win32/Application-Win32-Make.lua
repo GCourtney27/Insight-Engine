@@ -4,9 +4,9 @@
 appName = "Application"
 projectName = appName .. "_Win32"
 
-engineThirdPartyDir = "../Engine_Source/Third_Party/"
+rootDirPath = "../../"
+engineThirdPartyDir = rootDirPath .. "Engine_Source/Third_Party/"
 monoInstallDir = "C:/Program Files/Mono/"
-rootDirPath = "../"
 
 win32AppIncludeDirs = {}
 win32AppIncludeDirs["assimp"]					= engineThirdPartyDir .. "assimp-5.0.1/include/"
@@ -21,7 +21,7 @@ win32AppIncludeDirs["Engine_Source_Third_Party"]= rootDirPath .. "Engine_Source/
 win32AppIncludeDirs["Build_Rules"]				= rootDirPath .. "Build_Rules/"
 
 project (projectName)
-	location (rootDirPath .. projectName)
+	location (rootDirPath .. "Applications/" .. projectName)
 	kind ("WindowedApp")
 	language ("C++")
 	cppdialect ("C++17")
@@ -99,19 +99,19 @@ project (projectName)
 	postbuildcommands
 	{
 		-- Assimp
-		("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Debug/assimp-vc142-mtd.dll ../Binaries/" .. outputdir .. "/" .. projectName),
+		("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Debug/assimp-vc142-mtd.dll %{cfg.targetdir}"),
 		-- DX11 Debug Layers
-		("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll ../Binaries/" .. outputdir .. "/" .. projectName),
-		("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3DX11d_43.dll ../Binaries/"..outputdir.."/" .. projectName),
-		("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3D11Ref.dll ../Binaries/"..outputdir.."/" .. projectName),
+		("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll %{cfg.targetdir}"),
+		("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3DX11d_43.dll %{cfg.targetdir}"),
+		("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3D11Ref.dll %{cfg.targetdir}"),
 		-- Mono
-		("{COPY} \"".. monoInstallDir .."/bin/mono-2.0-sgen.dll\" ../Binaries/" .. outputdir .. "/" .. projectName),
+		("{COPY} \"".. monoInstallDir .."/bin/mono-2.0-sgen.dll\" %{cfg.targetdir}"),
 		-- PIX
-		("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/WinPixEventRuntime/bin/x64/WinPixEventRuntime.dll ../Binaries/"..outputdir.."/" .. projectName),
+		("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/WinPixEventRuntime/bin/x64/WinPixEventRuntime.dll %{cfg.targetdir}"),
 		-- Copy over assets
-		("{COPY} %{wks.location}Content ../Binaries/" .. outputdir .. "/Content"),
+		("{COPY} %{wks.location}Content %{cfg.targetdir}/../Content"),
 		-- Copy over default engine assets
-		("{COPY} ../Engine_Source/Assets ../Binaries/"..outputdir.."/Content/Engine")
+		("{COPY} ../../Engine_Source/Assets %{cfg.targetdir}/../Content/Engine")
 	}
 
 
