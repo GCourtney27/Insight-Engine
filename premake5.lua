@@ -18,18 +18,23 @@ workspace ("InsightEngine")
 		"Release",
 		"Game-Dist"
 	}
-	configurations
-	{
-		"Debug-Win32",
-		"Release-Win32",
-		"GameDist-Win32",
-		"Debug-UWP",
-		"Release-UWP",
-		"GameDist-UWP"
-	}
+	
+	-- configurations
+	-- {
+	-- 	"Debug-Win32",
+	-- 	"Release-Win32",
+	-- 	"GameDist-Win32",
+	-- 	"Debug-UWP",
+	-- 	"Release-UWP",
+	-- 	"GameDist-UWP"
+	-- }
 
 outputdir = "%{cfg.buildcfg}-$(SDKIdentifier)-$(Platform)"
 
+binaryFolder = "Binaries/"
+intFolder = binaryFolder .. "Intermediates/"
+binaryDirectory = binaryFolder .. outputdir .. "/"
+intDirectory = intFolder .. outputdir .. "/"
 
 
 -- Tools
@@ -39,8 +44,8 @@ group ("")
 
 -- Applications
 group ("Applications")
-	include ("Application_Win32/Application-Win32-Make.lua")
-	include ("Application_UWP_WinRT/Application-UWP-Make.lua")
+	include ("Applications/Application_Win32/Application-Win32-Make.lua")
+	include ("Applications/Application_UWP_WinRT/Application-UWP-Make.lua")
 group ("")
 
 -- Engine

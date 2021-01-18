@@ -4,8 +4,8 @@
 appName = "Application"
 projectName = appName .. "_UWP_WinRT"
 
-engineThirdPartyDir = "../Engine_Source/Third_Party/"
-rootDirPath = "../"
+rootDirPath = "../../"
+engineThirdPartyDir = rootDirPath .. "Engine_Source/Third_Party/"
 
 uwpAppIncludeDirs = {}
 uwpAppIncludeDirs["tinyobjloader"]			= engineThirdPartyDir .. "tinyobjloader/include/"
@@ -21,7 +21,7 @@ uwpAppIncludeDirs["Engine_Source_Third_Party"]	= rootDirPath .. "Engine_Source/T
 uwpAppIncludeDirs["Build_Rules"]				= rootDirPath .. "Build_Rules/"
 
 project (projectName)
-	location (rootDirPath .. projectName)
+	location (rootDirPath.. "Applications/" .. projectName)
 	kind ("WindowedApp")
 	language ("C++")
 	cppdialect ("C++17")
@@ -29,8 +29,8 @@ project (projectName)
 	systemversion ("latest")
 	targetname (projectName)
 	
-	targetdir (rootDirPath .. "Binaries/" .. outputdir .. "/%{prj.name}")
-	objdir (rootDirPath .. "Binaries/Intermediates/" .. outputdir .. "/%{prj.name}")
+	targetdir (rootDirPath .. binaryDirectory .. "%{prj.name}")
+	objdir (rootDirPath .. intDirectory .. "%{prj.name}")
 
 	platforms { "x64" }
 	defaultlanguage ("en-US")
