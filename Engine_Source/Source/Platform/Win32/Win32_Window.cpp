@@ -39,7 +39,7 @@ namespace Insight {
 		m_NumCmdLineArgs		= Desc.NumCmdArgs;
 		m_CmdLineArgs			= Desc.CmdArgs;
 		m_EventCallbackFn		= Desc.EventCallbackFunction;
-		m_CustomCallback		= Desc.CustomCallback;
+		m_CustomCallback		= Desc.UserAccelCallback;
 		m_Icon					= Desc.Icon;
 		m_Cursor				= Desc.Cursor;
 
@@ -309,9 +309,6 @@ namespace Insight {
 		m_WindowRect.right = m_WindowRect.left + m_LogicalWidth;
 		m_WindowRect.bottom = m_WindowRect.top + m_LogicalHeight;
 		::AdjustWindowRect(&m_WindowRect, WS_OVERLAPPEDWINDOW | WS_EX_ACCEPTFILES, FALSE);
-
-		// Create the menu bar
-		//IE_STRIP_FOR_GAME_DIST(InitializeMenuBar();)
 
 		// Create mouse Right-Click context menu
 		//IE_STRIP_FOR_GAME_DIST(InitializeContextMenu();)

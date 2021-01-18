@@ -1,5 +1,5 @@
 # Insight Engine
-Game engine written in C/C++ with DirectX 11/12graphics API support. <br />
+Game engine written in C/C++ with DirectX 12 support. <br />
 
 **World Editor**
 * Quickly update the transforms and components of your objects in real-time without having to close the engine and make adjustments. ImGui being used to provide quick window docking display information for Game Objects

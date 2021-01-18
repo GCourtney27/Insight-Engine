@@ -82,7 +82,7 @@ namespace Insight {
 		
 	private:
 		ResourceManager m_ResourceManager;
-
+		// ECS::EntityAdmin m_EntityAdmin;
 	};
 
 }

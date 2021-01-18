@@ -21,10 +21,9 @@
 
 #include "Insight/UI/UI_Lib.h"
 
-
 #define SHADOWMAPPING_ENABLED 0
 #define TRANSPARENCYPASS_ENABLED 0
-#define BLOOM_ENABLED 1
+#define BLOOM_ENABLED 0
 
 
 namespace Insight {
@@ -124,7 +123,7 @@ namespace Insight {
 		}
 		catch (COMException& Ex)
 		{
-			m_pWindowRef->CreateMessageBox(Ex.what(), L"Fatal Error");
+			m_pWindowRef->CreateMessageBox(Ex.what(), L"Fatal Error!");
 			return false;
 		}
 		return true;
@@ -508,9 +507,8 @@ namespace Insight {
 	{
 #if defined (IE_PLATFORM_BUILD_WIN32)
 
-		Win32Window* pWindow = reinterpret_cast<Win32Window*>(m_pWindowRef.get());
-
-		HWND& pHWND = pWindow->GetWindowHandleRef();
+		Win32Window* pWindow = &GetWindowRefAs<Win32Window>();
+		HWND pHWND = static_cast<HWND>(m_pWindowRef->GetNativeWindow());
 
 		if (m_FullScreenMode)
 		{
@@ -586,8 +584,9 @@ namespace Insight {
 		m_pActiveCommandList->DrawIndexedInstanced(IndexCountPerInstance, NumInstances, StartIndexLocation, BaseVertexLoaction, StartInstanceLocation);
 	}
 
-	void Direct3D12Context::DrawText_Impl(const char* Text)
+	void Direct3D12Context::DrawText_Impl(const wchar_t* Text)
 	{
+		//m_Text += Text;
 		//m_SpriteBatch->Begin(m_pPostEffectsPass_CommandList.Get());
 		//m_pFont->DrawString(m_SpriteBatch.get(), Text, )
 		//m_SpriteBatch->End();

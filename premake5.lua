@@ -16,15 +16,21 @@ workspace ("InsightEngine")
 	{
 		"Debug",
 		"Release",
-		"Engine-Dist",
 		"Game-Dist"
+	}
+	configurations
+	{
+		"Debug-Win32",
+		"Release-Win32",
+		"GameDist-Win32",
+		"Debug-UWP",
+		"Release-UWP",
+		"GameDist-UWP"
 	}
 
 outputdir = "%{cfg.buildcfg}-$(SDKIdentifier)-$(Platform)"
 
-CustomDefines = {}
-CustomDefines["IE_BUILD_DIR"] = "../Binaries/" .. outputdir
-CustomDefines["IE_BUILD_CONFIG"] = outputdir
+
 
 -- Tools
 group ("Tools")

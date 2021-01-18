@@ -45,7 +45,7 @@ namespace Insight {
 		/*
 			Custom callback used to handle accelerator tabale commands.
 		*/
-		OutLResInIntRefMethod_t CustomCallback;
+		OutLResInIntRefMethod_t UserAccelCallback;
 
 		template <typename ... WindowDescriptionArgs>
 		Win32WindowDescription(HINSTANCE hInstance, WindowDescriptionArgs ... args)
@@ -75,7 +75,7 @@ namespace Insight {
 
 		virtual void CreateMessageBox(const std::wstring& Message, const std::wstring& Title) override;
 
-		static OutLResInIntRefMethod_t MakeCustomAcceleratorCallback(void* Method) { return (OutLResInIntRefMethod_t)Method; }
+		static OutLResInIntRefMethod_t MakeAccelCallback(void* Fn) { return (OutLResInIntRefMethod_t)Fn; }
 		OutLResInIntRefMethod_t GetCustomCallback() { return m_CustomCallback; }
 
 		// Window Attributes

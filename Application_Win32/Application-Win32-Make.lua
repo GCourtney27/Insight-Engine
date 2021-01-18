@@ -23,8 +23,8 @@ win32AppIncludeDirs["Build_Rules"]				= rootDirPath .. "Build_Rules/"
 project (projectName)
 	location (rootDirPath .. projectName)
 	kind ("WindowedApp")
-	cppdialect ("C++17")
 	language ("C++")
+	cppdialect ("C++17")
 	staticruntime ("off")
 	targetname (projectName)
 	
@@ -48,7 +48,7 @@ project (projectName)
 		"%{win32AppIncludeDirs.assimp}",
 		"%{win32AppIncludeDirs.Microsoft}",
 		"%{win32AppIncludeDirs.Nvidia}DirectX12/",
-		"%{win32AppIncludeDirs.Microsoft}DirectX12/WinPixEventRuntime.1.0.161208001/Include/",
+		"%{win32AppIncludeDirs.Microsoft}WinPixEventRuntime/Include/",
 		"%{win32AppIncludeDirs.spdlog}",
 		"%{win32AppIncludeDirs.rapidjson}",
 		"%{win32AppIncludeDirs.Mono}mono-2.0/",
@@ -77,7 +77,6 @@ project (projectName)
 		"dxgi.lib",
 		"d3d11.lib",
 		"WinPixEventRuntime.lib",
-		"WinPixEventRuntime_UAP.lib",
 		"Shlwapi.lib",
 		"DirectXTK.lib",
         "DirectXTK12.lib",
@@ -108,8 +107,7 @@ project (projectName)
 		-- Mono
 		("{COPY} \"".. monoInstallDir .."/bin/mono-2.0-sgen.dll\" ../Binaries/" .. outputdir .. "/" .. projectName),
 		-- PIX
-		("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../Binaries/"..outputdir.."/" .. projectName),
-		("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../Binaries/"..outputdir.."/" .. projectName),
+		("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/WinPixEventRuntime/bin/x64/WinPixEventRuntime.dll ../Binaries/"..outputdir.."/" .. projectName),
 		-- Copy over assets
 		("{COPY} %{wks.location}Content ../Binaries/" .. outputdir .. "/Content"),
 		-- Copy over default engine assets
@@ -127,7 +125,7 @@ project (projectName)
 		libdirs
 		{
             "%{win32AppIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Debug/",
-            "%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
+            "%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/WinPixEventRuntime/bin/x64/",
             "%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Debug/",
             "%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Debug/",
 			monoInstallDir .. "/lib/",
@@ -139,11 +137,11 @@ project (projectName)
 		optimize "on"
 		libdirs
 		{
-			"%{win32AppIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Release",
-            "%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
-            "%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
-			"%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
-            "%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
+			"%{win32AppIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Release/",
+            "%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/WinPixEventRuntime/bin/x64/",
+            "%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release/",
+			"%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release/",
+            "%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release/",
 			monoInstallDir .. "/lib",
 		}
 		postbuildcommands
@@ -175,7 +173,7 @@ project (projectName)
 		libdirs
 		{
 			"%{win32AppIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Release",
-            "%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
+            "%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/WinPixEventRuntime/bin/x64",
             "%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
 			"%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
             "%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
@@ -201,8 +199,8 @@ project (projectName)
 		symbols "on"
 		libdirs
 		{
-            "%{win32AppIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Release",            
-            "%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/",
+			"%{win32AppIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Release",            
+            "%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/WinPixEventRuntime/bin/x64",
             "%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
 			"%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
             "%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
