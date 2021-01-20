@@ -30,6 +30,7 @@ int APIENTRY wWinMain(
 	g_AppInstance = hInstance;
 	
 	g_pApp = Insight::CreateApplication();
+
 	try 
 	{
 		Insight::Win32WindowDescription WindowDesc(g_AppInstance, IE_BIND_EVENT_FN(Insight::Application::OnEvent, g_pApp.get()), nCmdShow, lpCmdLine);

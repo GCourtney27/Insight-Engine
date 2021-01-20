@@ -19,6 +19,7 @@ uwpAppIncludeDirs["Engine_Source_Root"]		= rootDirPath .. "Engine_Source/"
 uwpAppIncludeDirs["Engine_Source_Src"]			= rootDirPath .. "Engine_Source/Source/"
 uwpAppIncludeDirs["Engine_Source_Third_Party"]	= rootDirPath .. "Engine_Source/Third_Party/"
 uwpAppIncludeDirs["Build_Rules"]				= rootDirPath .. "Build_Rules/"
+uwpAppIncludeDirs["Game_Runtime"]				= rootDirPath .. "Game_Runtime/Source/"
 
 project (projectName)
 	location (rootDirPath.. "Applications/" .. projectName)
@@ -77,6 +78,9 @@ project (projectName)
 
 		-- Shared Header Includes for this Project
 		"%{uwpAppIncludeDirs.Build_Rules}/PCH_Source/",
+
+		-- Runtie for the game
+		"%{uwpAppIncludeDirs.Game_Runtime}/",
 	}
 
 	links
@@ -113,24 +117,26 @@ project (projectName)
 	{
 		--("{COPY} %{uwpAppIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Release/assimp-vc140-mt.dll ../Binaries/"..outputdir.."/Engine"),
 		-- DX11 Debug Layers
-		("{COPY} %{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll ../Binaries/" .. outputdir .. "/" .. projectName),
-		("{COPY} %{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3DX11d_43.dll ../Binaries/"..outputdir.."/" .. projectName),
-		("{COPY} %{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3D11Ref.dll ../Binaries/"..outputdir.."/" .. projectName),
+		("{COPY} %{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll %{cfg.targetdir}"),
+		("{COPY} %{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3DX11d_43.dll %{cfg.targetdir}"),
+		("{COPY} %{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3D11Ref.dll %{cfg.targetdir}"),
 		-- DirectX
-		("{COPY} %{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxcompiler.dll ../Binaries/"..outputdir.."/" .. projectName),
-		("{COPY} %{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxil.dll ../Binaries/"..outputdir.."/" .. projectName),
+		("{COPY} %{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxcompiler.dll %{cfg.targetdir}"),
+		("{COPY} %{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxil.dll %{cfg.targetdir}"),
 		-- PIX
-		("{COPY} %{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/WinPixEventRuntime/bin/x64/WinPixEventRuntime_UAP.dll ../Binaries/"..outputdir.."/" .. projectName),
+		("{COPY} %{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/WinPixEventRuntime/bin/x64/WinPixEventRuntime_UAP.dll %{cfg.targetdir}"),
 		-- Copy over assets
-		("{COPY} %{wks.location}Content ../Binaries/" .. outputdir .. "/Content"),
+		("{COPY} %{wks.location}Content %{cfg.targetdir}/../Content"),
 		-- Copy over default engine assets
-		("{COPY} ../Engine_Source/Assets ../Binaries/"..outputdir.."/Content/Engine")
+		("{COPY} ../../Engine_Source/Assets %{cfg.targetdir}/../Content/Engine"),
+		-- Copy the game runtime
+		("{COPY} %{cfg.targetdir}/../Game_Runtime/Game_Runtime.dll %{cfg.targetdir}")
 	}
 
 		
 	-- Build Configurations
 
-	filter "configurations:Debug"
+	filter "configurations:Debug*"
 	defines "IE_DEBUG"
 	symbols "on"
 	libdirs
@@ -140,9 +146,10 @@ project (projectName)
 		"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Debug/",
 		"%{uwpAppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Debug/",
 		monoInstallDir .. "/lib/",
+		"%{cfg.targetdir}/../Game_Runtime/"
 	}
 
-	filter "configurations:Release"
+	filter "configurations:Release*"
 		defines "IE_RELEASE"
 		symbols "on"
 		optimize "on"
@@ -201,7 +208,7 @@ project (projectName)
 			("{COPY} %{wks.location}/Engine_Source/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Content/Default_Assets/")
 		}
 
-	filter "configurations:GameDist"
+	filter "configurations:Dist*"
 		defines "IE_GAME_DIST"
 		optimize "on"
 		symbols "on"

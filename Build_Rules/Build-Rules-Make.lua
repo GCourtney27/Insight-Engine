@@ -20,6 +20,7 @@ engineIncludeDirs["OpenFBX"]			= engineDirPath .. "Third_Party/OpenFBX/src/"
 engineIncludeDirs["tinyobjloader"]		= engineDirPath .. "Third_Party/tinyobjloader/include/"
 engineIncludeDirs["Nvidia"] 			= engineDirPath .. "Third_Party/Nvidia/"
 engineIncludeDirs["Engine_Source"] 		= rootDirPath .. "Engine_Source/"
+engineIncludeDirs["Game_Runtime"]		= rootDirPath .. "Game_Runtime/Source/"
 
 -- Premake does not support UWP project generation
 -- So just add the Visual Studio created one.
@@ -53,7 +54,7 @@ project ("Engine_Build_UWP")
 		"PCH_Source/**.h",
 		"PCH_Source/**.cpp",
 
-		-- Source Code
+		-- Engine Code
 		"%{engineIncludeDirs.Engine_Source}/Third_Party/Vendor_Build.cpp",
 		"%{engineIncludeDirs.Engine_Source}/Source/**.cpp",
 		"%{engineIncludeDirs.Engine_Source}/Source/**.h",
@@ -83,13 +84,15 @@ project ("Engine_Build_UWP")
 		"%{engineIncludeDirs.spdlog}include/",
 		"%{engineIncludeDirs.ImGui}",
 		--"%{engineIncludeDirs.ImGuizmo}",
-		"%{engineIncludeDirs.assimp}",
 
 		-- Engine Source code
 		"%{engineIncludeDirs.Engine_Source}/Source/",
 
 		-- This Projects PCH
-		"PCH_Source/"
+		"PCH_Source/",
+
+		-- Game runtime source
+		"%{engineIncludeDirs.Game_Runtime}/",
 	}
 
 	links
@@ -125,7 +128,7 @@ project ("Engine_Build_UWP")
 
 
 	-- Engine Development
-	filter "configurations:Debug"
+	filter "configurations:Debug*"
 		defines "IE_DEBUG"
 		runtime "Debug"
 		symbols "on"
@@ -135,7 +138,7 @@ project ("Engine_Build_UWP")
         }
 
 	-- Engine Release
-	filter "configurations:Release"
+	filter "configurations:Release*"
 		defines "IE_RELEASE"
 		runtime "Release"
 		optimize "on"
@@ -159,7 +162,7 @@ project ("Engine_Build_UWP")
 			"IE_DISTRIBUTION"
 		}
 	-- Full Game Distribution, all engine debug tools(level editors, editor user interfaces) stripped
-	filter "configurations:Game-Dist"
+	filter "configurations:Dist*"
 		defines "IE_GAME_DIST"
 		runtime "Release"
 		optimize "on"
@@ -231,7 +234,10 @@ project ("Engine_Build_Win32")
 		"%{engineIncludeDirs.Engine_Source}/Source/",
 
 		-- This Projects PCH
-		"PCH_Source/"
+		"PCH_Source/",
+
+		-- Game runtime source
+		"%{engineIncludeDirs.Game_Runtime}/",
 	}
 
 	links
@@ -266,7 +272,7 @@ project ("Engine_Build_Win32")
 
 
 	-- Engine Development
-	filter "configurations:Debug"
+	filter "configurations:Debug*"
 		defines "IE_DEBUG"
 		runtime "Debug"
 		symbols "on"
@@ -276,7 +282,7 @@ project ("Engine_Build_Win32")
         }
 
 	-- Engine Release
-	filter "configurations:Release"
+	filter "configurations:Release*"
 		defines "IE_RELEASE"
 		runtime "Release"
 		optimize "on"
@@ -300,7 +306,7 @@ project ("Engine_Build_Win32")
 			"IE_DISTRIBUTION"
 		}
 	-- Full Game Distribution, all engine debug tools(level editors, editor user interfaces) stripped
-	filter "configurations:Game-Dist"
+	filter "configurations:Dist*"
 		defines "IE_GAME_DIST"
 		runtime "Release"
 		optimize "on"

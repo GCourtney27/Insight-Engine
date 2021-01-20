@@ -31,6 +31,7 @@
 #include "Insight/Core/Layer/Editor_Overlay.h"
 #include "Insight/Core/Layer/Perf_Overlay.h"
 
+#include "Insight/Runtime/Game_Framework/IGame.h"
 
 namespace Insight {
 
@@ -40,8 +41,8 @@ namespace Insight {
 	public:
 		typedef enum _ieErrorCode
 		{
-			ieErrorCode_Failed = -1,
-			ieErrorCode_Success = 0,
+			ieErrorCode_Failed	= 0,
+			ieErrorCode_Success = 1,
 		} ieErrorCode;
 	public:
 		Application();
@@ -69,7 +70,7 @@ namespace Insight {
 		void PushLayer(Layer* layer);
 		// Push an overlay to the front of the application's layer stack.
 		void PushOverlay(Layer* layer);
-
+		// Sets a reference to the main window to render too.
 		inline void SetWindow(std::shared_ptr<Window> pWindow) 
 		{ 
 			m_pWindow = pWindow; 
@@ -98,9 +99,14 @@ namespace Insight {
 		inline static bool IsPlaySessionUnderWay() { return s_Instance->m_pGameLayer->IsPlaySessionUnderWay(); }
 		inline static const bool& IsApplicationRunning() { return s_Instance->m_Running; }
 
+		void OnGameHotReload();
+		void LoadGameRuntime();
+		void UnloadGameRuntime();
+
 	private:
 		void PushCoreLayers();
 		void RenderThread();
+		bool LoadGame();
 
 		virtual bool OnWindowClose(WindowCloseEvent& e);
 		virtual bool OnWindowResize(WindowResizeEvent& e);
@@ -116,6 +122,8 @@ namespace Insight {
 
 	protected:
 		std::shared_ptr<Window>	m_pWindow;
+
+		IGame* m_pGame;
 		
 		IE_STRIP_FOR_GAME_DIST(ImGuiLayer* m_pImGuiLayer = nullptr; )
 		IE_STRIP_FOR_GAME_DIST(EditorLayer* m_pEditorLayer = nullptr; )

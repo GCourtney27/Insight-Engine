@@ -16,18 +16,12 @@ workspace ("InsightEngine")
 	{
 		"Debug",
 		"Release",
-		"Game-Dist"
+		"Dist",
+		"Debug-Package",
+		"Release-Package",
+		"Dist-Package",
 	}
 	
-	-- configurations
-	-- {
-	-- 	"Debug-Win32",
-	-- 	"Release-Win32",
-	-- 	"GameDist-Win32",
-	-- 	"Debug-UWP",
-	-- 	"Release-UWP",
-	-- 	"GameDist-UWP"
-	-- }
 
 outputdir = "%{cfg.buildcfg}-$(SDKIdentifier)-$(Platform)"
 
@@ -47,6 +41,9 @@ group ("Applications")
 	include ("Applications/Application_Win32/Application-Win32-Make.lua")
 	include ("Applications/Application_UWP_WinRT/Application-UWP-Make.lua")
 group ("")
+
+-- Game Runtime
+include ("Game_Runtime/Game-Runtime-Make.lua")
 
 -- Engine
 include ("Engine_Source/Engine-Make.lua")

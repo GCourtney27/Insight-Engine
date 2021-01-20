@@ -19,6 +19,7 @@ win32AppIncludeDirs["Engine_Source_Root"]		= rootDirPath .. "Engine_Source/"
 win32AppIncludeDirs["Engine_Source_Src"]		= rootDirPath .. "Engine_Source/Source/"
 win32AppIncludeDirs["Engine_Source_Third_Party"]= rootDirPath .. "Engine_Source/Third_Party/"
 win32AppIncludeDirs["Build_Rules"]				= rootDirPath .. "Build_Rules/"
+win32AppIncludeDirs["Game_Runtime"]				= rootDirPath .. "Game_Runtime/Source/"
 
 project (projectName)
 	location (rootDirPath .. "Applications/" .. projectName)
@@ -62,6 +63,10 @@ project (projectName)
 
 		-- Shared Header Includes for this Project
 		"%{win32AppIncludeDirs.Build_Rules}/PCH_Source/",
+
+		-- Runtime for the game
+		"%{win32AppIncludeDirs.Game_Runtime}/",
+		
 	}
 
 	links
@@ -85,6 +90,8 @@ project (projectName)
 		
 		-- Set the Runtime Library to Win32
 		"Engine_Build_Win32",
+
+		"Game_Runtime",
 	}
 
 	systemversion ("latest")
@@ -111,9 +118,14 @@ project (projectName)
 		-- Copy over assets
 		("{COPY} %{wks.location}Content %{cfg.targetdir}/../Content"),
 		-- Copy over default engine assets
-		("{COPY} ../../Engine_Source/Assets %{cfg.targetdir}/../Content/Engine")
+		("{COPY} ../../Engine_Source/Assets %{cfg.targetdir}/../Content/Engine"),
+		-- Copy the game runtime
+		("{COPY} %{cfg.targetdir}/../Game_Runtime/Game_Runtime.dll %{cfg.targetdir}")
 	}
 
+
+	filter "configurations:not *Package"
+		defines { "BUILD_GAME_DLL" }
 
 
 -- Build Configurations
@@ -129,6 +141,7 @@ project (projectName)
             "%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Debug/",
             "%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Debug/",
 			monoInstallDir .. "/lib/",
+			"%{cfg.targetdir}/../Game_Runtime/"
 		}
 	
 	filter "configurations:Release"
@@ -147,49 +160,22 @@ project (projectName)
 		postbuildcommands
 		{
 			-- Assimp
-			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Release/assimp-vc140-mt.dll ../Binaries/"..outputdir.."/Engine"),
+			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Release/assimp-vc140-mt.dll %{cfg.targetdir}"),
 			-- DX11 Debug Layers	
-			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll ../Binaries/"..outputdir.."/Engine"),
-			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3DX11d_43.dll ../Binaries/"..outputdir.."/Engine"),
-			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3D11Ref.dll ../Binaries/"..outputdir.."/Engine"),
+			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll %{cfg.targetdir}"),
+			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3DX11d_43.dll %{cfg.targetdir}"),
+			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/Bin/D3D11Ref.dll %{cfg.targetdir}"),
 			-- Mono					
-			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Mono/bin/mono-2.0-sgen.dll ../Binaries/"..outputdir.."/Engine"),
+			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Mono/bin/mono-2.0-sgen.dll %{cfg.targetdir}"),
 			-- DirectX				
-			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxcompiler.dll ../Binaries/"..outputdir.."/Engine"),
-			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxil.dll ../Binaries/"..outputdir.."/Engine"),
+			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxcompiler.dll %{cfg.targetdir}"),
+			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxil.dll %{cfg.targetdir}"),
 			("{COPY} %{wks.location}/Engine/Source/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/Engine"),
 			-- PIX					
-			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll ../Binaries/"..outputdir.."/Engine"),
-			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll ../Binaries/"..outputdir.."/Engine"),
+			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll %{cfg.targetdir}"),
+			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll %{cfg.targetdir}"),
 			-- Copy over assets
 			("{COPY} $(USERPROFILE)/Documents/Insight-Projects/Development-Project/Content/** ../Binaries/" .. outputdir .. "/Content"),
-			("{COPY} %{wks.location}/Engine_Source/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Content/Default_Assets/")
-		}
-
-	filter "configurations:EngineDist"
-		defines "IE_ENGINE_DIST"
-		optimize "on"
-		symbols "on"
-		libdirs
-		{
-			"%{win32AppIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Release",
-            "%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/WinPixEventRuntime/bin/x64",
-            "%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
-			"%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
-            "%{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
-			monoInstallDir .. "/lib",
-		}
-		postbuildcommands
-		{
-			-- assimp
-			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Release/assimp-vc140-mt.dll ../Binaries/"..outputdir.."/Engine"),
-			-- mono
-			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Mono/bin/mono-2.0-sgen.dll ../Binaries/"..outputdir.."/Engine"),
-			-- DirectX
-			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxcompiler.dll ../Binaries/"..outputdir.."/Engine"),
-			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxil.dll ../Binaries/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}/Engine/Source/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/Engine"),
-			-- Copy over assets
 			("{COPY} %{wks.location}/Engine_Source/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Content/Default_Assets/")
 		}
 		
@@ -209,12 +195,12 @@ project (projectName)
 		postbuildcommands
 		{
 			-- assimp
-			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Release/assimp-vc140-mt.dll ../Binaries/"..outputdir.."/Engine"),
+			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/assimp-5.0.1/build/code/Release/assimp-vc140-mt.dll %{cfg.targetdir}"),
 			-- mono
-			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Mono/bin/mono-2.0-sgen.dll ../Binaries/"..outputdir.."/Engine"),
+			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Mono/bin/mono-2.0-sgen.dll %{cfg.targetdir}"),
 			-- DirectX
-			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxcompiler.dll ../Binaries/"..outputdir.."/Engine"),
-			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxil.dll ../Binaries/"..outputdir.."/Engine"),
+			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxcompiler.dll %{cfg.targetdir}"),
+			("{COPY} %{win32AppIncludeDirs.Engine_Source_Third_Party}/Microsoft/DirectX12/Bin/dxil.dll %{cfg.targetdir}"),
 			("{COPY} %{wks.location}/Engine/Source/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/Engine"),
 			("{COPY} %{wks.location}/Engine_Source/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Content/Default_Assets/")
 		}

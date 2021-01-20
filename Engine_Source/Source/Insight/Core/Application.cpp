@@ -19,6 +19,8 @@
 #define EDITOR_UI_ENABLED 0
 #endif
 
+#include "Game_Runtime/Game.h"
+
 // TODO: Make the project hot swapable
 // TODO: Make sample projects
 // Scenes (Development-Project)
@@ -63,6 +65,9 @@ namespace Insight {
 
 		// Create the game layer that will host all game logic.
 		m_pGameLayer = new GameLayer();
+
+		if (!LoadGame())
+			IE_DEBUG_LOG(LogSeverity::Error, "Failed to load core game.");
 
 		// Load the Scene
 		std::string DocumentPath = StringHelper::WideToString(FileSystem::GetRelativeContentDirectoryW(L"/Scenes/"));
@@ -228,6 +233,7 @@ namespace Insight {
 	void Application::Shutdown()
 	{
 		m_pWindow->Shutdown();
+		if (m_pGame) delete m_pGame;
 	}
 
 	void Application::PushCoreLayers()
@@ -260,6 +266,36 @@ namespace Insight {
 
 		m_pPerfOverlay = new PerfOverlay();
 		PushOverlay(m_pPerfOverlay);
+	}
+
+	bool Application::LoadGame()
+	{
+		
+		m_pGame = new InsightGame();
+
+		// Mangled address of the game factory.
+		char SymbolBuffer[128];
+		sprintf_s(SymbolBuffer, "?CreateGameInstance@@YAPEAXXZ");
+		typedef void* (*OutVoidPInVoidMethod_t)();
+
+		// Assemble the path to the game runtime dll
+		std::wstringstream ss;
+		ss << FileSystem::GetWorkingDirectoryW();
+		ss << "Game_Runtime.dll";
+
+		// Load the Dll.
+		//HMODULE Module = LoadLibraryExW(ss.str().c_str(), NULL, NULL);
+		//if (Module)
+		//{
+		//	// Create the game.
+		//	OutVoidPInVoidMethod_t GameFactory = (OutVoidPInVoidMethod_t)GetProcAddress(Module, SymbolBuffer);
+		//	m_pGame = static_cast<IGame*>(GameFactory());
+		//}
+		//// Make sure the game module was loaded correctly.
+		bool Succeded = IGame::CheckLoadSuccess(m_pGame->GetLoadStatus());
+		IE_ASSERT(Succeded, "Game module was not loaded correctly.");
+		
+		return Succeded;
 	}
 
 	void Application::PushLayer(Layer* layer)

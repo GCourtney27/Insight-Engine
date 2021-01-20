@@ -16,6 +16,7 @@ namespace Insight {
 
 	GameLayer::~GameLayer()
 	{
+		delete m_pScene;
 	}
 
 	void GameLayer::BeginPlay()

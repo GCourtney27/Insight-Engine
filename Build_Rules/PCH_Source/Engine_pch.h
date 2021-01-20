@@ -148,4 +148,5 @@
 	#include "winrt/Windows.ApplicationModel.Core.h"
 	#include "winrt/Windows.ApplicationModel.Activation.h"
 
+
 #endif // IE_PLATFORM_BUILD_UWP
