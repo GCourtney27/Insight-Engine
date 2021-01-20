@@ -129,7 +129,7 @@ namespace Insight {
 		IE_STRIP_FOR_GAME_DIST(EditorLayer* m_pEditorLayer = nullptr; )
 		PerfOverlay* m_pPerfOverlay = nullptr;
 		GameLayer* m_pGameLayer = nullptr;
-		
+
 		bool					m_IsSuspended = false;
 		bool					m_Running = true;
 		bool					m_AppInitialized = false;

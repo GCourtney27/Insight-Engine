@@ -120,12 +120,9 @@ project (projectName)
 		-- Copy over default engine assets
 		("{COPY} ../../Engine_Source/Assets %{cfg.targetdir}/../Content/Engine"),
 		-- Copy the game runtime
-		("{COPY} %{cfg.targetdir}/../Game_Runtime/Game_Runtime.dll %{cfg.targetdir}")
+		--("{COPY} %{cfg.targetdir}/../Game_Runtime/Game_Runtime.dll %{cfg.targetdir}")
 	}
 
-
-	filter "configurations:not *Package"
-		defines { "BUILD_GAME_DLL" }
 
 
 -- Build Configurations

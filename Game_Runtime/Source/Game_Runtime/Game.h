@@ -13,11 +13,12 @@ public:
 
 	}
 
-	virtual Insight::ModuleLoadStatus GetLoadStatus() { return Insight::ModuleLoadStatus::Success; }
+	virtual int TESTGetVal() override;
+
+
+	virtual Insight::ModuleLoadStatus GetLoadStatus();
 
 };
 
-GAME_API void* CreateGameInstance()
-{
-	return static_cast<void*>(new InsightGame());
-}
+GAME_API void* CreateGameInstance();
+

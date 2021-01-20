@@ -216,6 +216,9 @@ project ("Engine_Build_Win32")
 		"_CRT_SECURE_NO_WARNINGS",
 	}
 
+	filter "configurations:not *Package"
+		defines { "BUILD_GAME_DLL" }
+
 	includedirs
 	{
 		-- Third Party

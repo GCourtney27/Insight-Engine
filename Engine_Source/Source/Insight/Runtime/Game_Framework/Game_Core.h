@@ -5,8 +5,8 @@
 #define InsightGame GameInternal
 
 // Determine if the IGame framework should import of export the symbols.
-#if defined BUILD_GAME_DLL
-#	if defined COMPILE_DLL
+#if defined (BUILD_GAME_DLL)
+#	if defined (COMPILE_DLL)
 #		define GAME_API __declspec(dllexport)
 #		include "Insight/Runtime/Game_Framework/IGame.h"
 #	else

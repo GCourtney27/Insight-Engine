@@ -16,7 +16,7 @@ project (projectName)
 	language ("C++")
 	cppdialect ("C++17")
 
-	targetdir (rootDirPath .. binaryDirectory .. "%{prj.name}")
+	targetdir (rootDirPath .. binaryDirectory .. "%{prj.name}/Staging")
     objdir (rootDirPath .. intDirectory .. "%{prj.name}")
 
 	files

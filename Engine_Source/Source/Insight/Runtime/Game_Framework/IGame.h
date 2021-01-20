@@ -43,6 +43,8 @@ namespace Insight
 		/*Actor* AddActor();
 		void RemoveActor();*/
 
+		virtual int TESTGetVal() = 0;
+
 	public:
 		// Called when the game dll is loaded.
 		virtual void OnDllLoad() {}

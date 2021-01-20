@@ -20,7 +20,7 @@
 #endif
 
 #include "Game_Runtime/Game.h"
-
+#include <imgui.h>
 // TODO: Make the project hot swapable
 // TODO: Make sample projects
 // Scenes (Development-Project)
@@ -92,7 +92,7 @@ namespace Insight {
 		IE_DEBUG_LOG(LogSeverity::Verbose, "Application Initialized");
 	}
 
-
+	static bool s_ReloadRuntime = false;
 	float g_GPUThreadFPS = 0.0f;
 	void Application::RenderThread()
 	{
@@ -120,6 +120,12 @@ namespace Insight {
 				pLayer->OnImGuiRender();
 			m_pGameLayer->OnImGuiRender();
 			Renderer::OnEditorRender();
+			ImGui::Begin("Game Runtime");
+			if (ImGui::Button("Reload", { 100, 100 }))
+			{
+				s_ReloadRuntime = true;
+			}
+			ImGui::End();
 			m_pImGuiLayer->End();
 			);
 #endif
@@ -153,6 +159,19 @@ namespace Insight {
 
 				// Update the input system. 
 				m_InputDispatcher.UpdateInputs(DeltaMs);
+
+				int Val = -1;
+				if (m_pGame)
+				{
+					Val = m_pGame->TESTGetVal();
+				}
+				IE_DEBUG_LOG(LogSeverity::Log, "Game Module: {0}", Val);
+
+				if (s_ReloadRuntime)
+				{
+					LoadGame();
+				}
+
 
 				// Update game logic. 
 				m_pGameLayer->Update(DeltaMs);
@@ -268,11 +287,30 @@ namespace Insight {
 		PushOverlay(m_pPerfOverlay);
 	}
 
+	static HMODULE GameModule = NULL;
 	bool Application::LoadGame()
 	{
+		bool Succeeded = false;
+		/*
 		
-		m_pGame = new InsightGame();
+			Winrt does not support dynamic dll loading for security reasons.
+			This means no LoadLibraryExW or GetProcAddress
 
+			So, We will only allow dynamic dll loading and reloading if and only if we
+			are in windows development builds. This allows us to have C++ scripting.
+
+			Otherwise we will just load the dll into memory and access the game as normal.
+		
+		*/
+
+		static bool Initialized = false;
+		if (!Initialized)
+		{
+			system("xcopy /q /c /y \"../Game_Runtime/Staging\" \"../Game_Runtime\"");
+			Initialized = true;
+		}
+
+#if defined (BUILD_GAME_DLL)
 		// Mangled address of the game factory.
 		char SymbolBuffer[128];
 		sprintf_s(SymbolBuffer, "?CreateGameInstance@@YAPEAXXZ");
@@ -281,21 +319,45 @@ namespace Insight {
 		// Assemble the path to the game runtime dll
 		std::wstringstream ss;
 		ss << FileSystem::GetWorkingDirectoryW();
-		ss << "Game_Runtime.dll";
+		ss << "../Game_Runtime/Game_Runtime.dll";
 
 		// Load the Dll.
-		//HMODULE Module = LoadLibraryExW(ss.str().c_str(), NULL, NULL);
-		//if (Module)
-		//{
-		//	// Create the game.
-		//	OutVoidPInVoidMethod_t GameFactory = (OutVoidPInVoidMethod_t)GetProcAddress(Module, SymbolBuffer);
-		//	m_pGame = static_cast<IGame*>(GameFactory());
-		//}
-		//// Make sure the game module was loaded correctly.
-		bool Succeded = IGame::CheckLoadSuccess(m_pGame->GetLoadStatus());
-		IE_ASSERT(Succeded, "Game module was not loaded correctly.");
+		if (GameModule)
+		{
+			FreeLibrary(GameModule);
+			GameModule = NULL;
+
+			// Steps that must be done in order.
+			// 1. Compile the new library
+			// 2. Free the oly library from memeory with FreeLibrary
+			// 3. Copy and paste the new library raplaceing the old one
+			// 4. Load the library again with LoadLibraryExW
+
+			system("xcopy /q /c /y \"../Game_Runtime/Staging\" \"../Game_Runtime\"");
+
+
+			//"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\IDE\devenv" %~dp0..\..\Engine_Source\InsightEngine.sln /build Debug /project %~dp0..\..\Game_Runtime\Game_Runtime.vcxproj /projectconfig Debug
+			//system("\"C:\\Program Files(x86)\\Microsoft Visual Studio\\2019\\Enterprise\\Common7\\IDE\\devenv\" ..\\..\\..\\Game_Runtime\\Game_Runtime.vcxproj /build");
+			//system("copy ../Game_Runtime/Game_Runtime.dll ../Application_Win32/");
+		}
+		GameModule = LoadLibraryExW(ss.str().c_str(), NULL, NULL);
+		if (GameModule)
+		{
+			// Create the game.
+			OutVoidPInVoidMethod_t GameFactory = (OutVoidPInVoidMethod_t)GetProcAddress(GameModule, SymbolBuffer);
+			m_pGame = static_cast<IGame*>(GameFactory());
+		}
 		
-		return Succeded;
+#else
+		m_pGame = new InsightGame();
+#endif
+		IE_ASSERT(m_pGame != nullptr, "Game was not translated from module correctly.");
+
+		// Make sure the game module was loaded correctly.
+		Succeeded = IGame::CheckLoadSuccess(m_pGame->GetLoadStatus());
+		IE_ASSERT(Succeeded, "Game module was not loaded correctly.");
+		s_ReloadRuntime = false;
+		return Succeeded;
 	}
 
 	void Application::PushLayer(Layer* layer)
