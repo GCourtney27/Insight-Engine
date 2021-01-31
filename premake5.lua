@@ -33,7 +33,7 @@ intDirectory = intFolder .. outputdir .. "/"
 
 -- Tools
 group ("Tools")
-	include ("Engine_Source/Third_Party/ImGui/premake5.lua")
+	include ("Engine/Third_Party/ImGui/premake5.lua")
 group ("")
 
 -- Applications
@@ -42,11 +42,8 @@ group ("Applications")
 	include ("Applications/Application_UWP_WinRT/Application-UWP-Make.lua")
 group ("")
 
--- Game Runtime
-include ("Game_Runtime/Game-Runtime-Make.lua")
-
 -- Engine
-include ("Engine_Source/Engine-Make.lua")
+include ("Engine/Engine-Make.lua")
 
 -- Engine Source Build Rules
 group ("Build Rules")

@@ -1,10 +1,10 @@
 -- Build Rules for Engine Source Code
--- Build_Rules projects take the Engine_Source project and define variables 
+-- Build_Rules projects take the Engine project and define variables 
 -- and build parameters to make a library from. 
 
 
 rootDirPath		= "../"
-engineDirPath	= rootDirPath .. "Engine_Source/"
+engineDirPath	= rootDirPath .. "Engine/"
 -- Assuming Mono is installed on the computer in the default diretory.
 monoInstallDir	= "C:/Program Files/Mono/"
 
@@ -19,12 +19,12 @@ engineIncludeDirs["assimp"] 			= engineDirPath .. "Third_Party/assimp-5.0.1/incl
 engineIncludeDirs["OpenFBX"]			= engineDirPath .. "Third_Party/OpenFBX/src/"
 engineIncludeDirs["tinyobjloader"]		= engineDirPath .. "Third_Party/tinyobjloader/include/"
 engineIncludeDirs["Nvidia"] 			= engineDirPath .. "Third_Party/Nvidia/"
-engineIncludeDirs["Engine_Source"] 		= rootDirPath .. "Engine_Source/"
+engineIncludeDirs["Engine"] 			= rootDirPath .. "Engine/"
 engineIncludeDirs["Game_Runtime"]		= rootDirPath .. "Game_Runtime/Source/"
 
 -- Premake does not support UWP project generation
 -- So just add the Visual Studio created one.
-project ("Engine_Build_UWP")
+project ("EngineBuild_UWP")
 	location (rootDirPath .. "Build_Rules")
 	kind ("StaticLib")
 	language ("C++")
@@ -54,13 +54,13 @@ project ("Engine_Build_UWP")
 		"PCH_Source/**.h",
 		"PCH_Source/**.cpp",
 
-		-- Engine Code
-		"%{engineIncludeDirs.Engine_Source}/Third_Party/Vendor_Build.cpp",
-		"%{engineIncludeDirs.Engine_Source}/Source/**.cpp",
-		"%{engineIncludeDirs.Engine_Source}/Source/**.h",
-		"%{engineIncludeDirs.Engine_Source}/Source/**.vertex.hlsl",
-		"%{engineIncludeDirs.Engine_Source}/Source/**.pixel.hlsl",
-		"%{engineIncludeDirs.Engine_Source}/Source/**.compute.hlsl",
+		-- Engine
+		"%{engineIncludeDirs.Engine}/Third_Party/Vendor_Build.cpp",
+		"%{engineIncludeDirs.Engine}/Source/**.cpp",
+		"%{engineIncludeDirs.Engine}/Source/**.h",
+		"%{engineIncludeDirs.Engine}/Source/**.vertex.hlsl",
+		"%{engineIncludeDirs.Engine}/Source/**.pixel.hlsl",
+		"%{engineIncludeDirs.Engine}/Source/**.compute.hlsl",
 	}
 
 	defines
@@ -86,19 +86,17 @@ project ("Engine_Build_UWP")
 		--"%{engineIncludeDirs.ImGuizmo}",
 
 		-- Engine Source code
-		"%{engineIncludeDirs.Engine_Source}/Source/",
+		"%{engineIncludeDirs.Engine}/Source/",
 
 		-- This Projects PCH
 		"PCH_Source/",
 
-		-- Game runtime source
-		"%{engineIncludeDirs.Game_Runtime}/",
 	}
 
 	links
 	{
         "ImGui",
-        "Engine_Source"
+        "Engine"
 	}
 
 	flags
@@ -109,7 +107,7 @@ project ("Engine_Build_UWP")
 	postbuildcommands
 	{
 		-- Compile the ray tracing shaders.
-		("%{wks.location}Engine_Source/Source/Shaders/HLSL/Ray_Tracing/Compile_RT_Shaders.bat %{wks.location}Binaries/" .. outputdir .. "/%{prj.name}"),
+		("%{wks.location}Engine/Source/Shaders/HLSL/RayTracing/CompileRTShaders.bat %{wks.location}Binaries/" .. outputdir .. "/%{prj.name}"),
 	}
 
 	-- Shaders
@@ -176,7 +174,7 @@ project ("Engine_Build_UWP")
 
 
 
-project ("Engine_Build_Win32")
+project ("EngineBuild_Win32")
 	location (rootDirPath .. "Build_Rules")
 	kind ("StaticLib")
 	language ("C++")
@@ -200,13 +198,13 @@ project ("Engine_Build_Win32")
 		"PCH_Source/**.h",
 		"PCH_Source/**.cpp",
 		
-		-- Engine Source
-		"%{engineIncludeDirs.Engine_Source}/Third_Party/Vendor_Build.cpp",
-		"%{engineIncludeDirs.Engine_Source}/Source/**.cpp",
-		"%{engineIncludeDirs.Engine_Source}/Source/**.h",
-		"%{engineIncludeDirs.Engine_Source}/Source/**.vertex.hlsl",
-		"%{engineIncludeDirs.Engine_Source}/Source/**.pixel.hlsl",
-		"%{engineIncludeDirs.Engine_Source}/Source/**.compute.hlsl",
+		-- Engine
+		"%{engineIncludeDirs.Engine}/Third_Party/Vendor_Build.cpp",
+		"%{engineIncludeDirs.Engine}/Source/**.cpp",
+		"%{engineIncludeDirs.Engine}/Source/**.h",
+		"%{engineIncludeDirs.Engine}/Source/**.vertex.hlsl",
+		"%{engineIncludeDirs.Engine}/Source/**.pixel.hlsl",
+		"%{engineIncludeDirs.Engine}/Source/**.compute.hlsl",
 	}
 
 	defines
@@ -215,9 +213,6 @@ project ("Engine_Build_Win32")
 		"IE_PLATFORM_BUILD_WIN32",
 		"_CRT_SECURE_NO_WARNINGS",
 	}
-
-	filter "configurations:not *Package"
-		defines { "BUILD_GAME_DLL" }
 
 	includedirs
 	{
@@ -234,7 +229,7 @@ project ("Engine_Build_Win32")
 		"%{engineIncludeDirs.assimp}",
 
 		-- Engine Source code
-		"%{engineIncludeDirs.Engine_Source}/Source/",
+		"%{engineIncludeDirs.Engine}/Source/",
 
 		-- This Projects PCH
 		"PCH_Source/",
@@ -246,7 +241,7 @@ project ("Engine_Build_Win32")
 	links
 	{
         "ImGui",
-        "Engine_Source"
+        "Engine"
 	}
 
 	flags
@@ -257,7 +252,7 @@ project ("Engine_Build_Win32")
 	postbuildcommands
 	{
 		-- Compile the ray tracing shaders.
-		("%{wks.location}Engine_Source/Source/Shaders/HLSL/Ray_Tracing/Compile_RT_Shaders.bat %{wks.location}Binaries/" .. outputdir .. "/%{prj.name}"),
+		("%{wks.location}Engine/Source/Shaders/HLSL/RayTracing/CompileRTShaders.bat %{wks.location}Binaries/" .. outputdir .. "/%{prj.name}"),
 	}
 
 	-- Shaders

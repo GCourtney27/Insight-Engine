@@ -53,10 +53,10 @@
 #include "Insight/Core/Log.h"
 #include "Insight/Core/Interfaces.h"
 #include "Insight/Math/ie_Vectors.h"
-#include "Insight/Core/ie_Exception.h"
+#include "Insight/Core/Exception.h"
 #include "Insight/Utilities/Profiling.h"
-#include "Insight/Systems/File_System.h"
-#include "Insight/Utilities/String_Helper.h"
+#include "Insight/Systems/FileSystem.h"
+#include "Insight/Utilities/StringHelper.h"
 
 
 
