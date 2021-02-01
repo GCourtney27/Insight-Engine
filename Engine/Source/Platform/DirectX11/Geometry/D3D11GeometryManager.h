@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Insight/Core.h>
+#include <Runtime/Core.h>
 
-#include "Insight/Systems/Managers/GeometryManager.h"
+#include "Runtime/Systems/Managers/GeometryManager.h"
 
 namespace Insight {
 

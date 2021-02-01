@@ -9,16 +9,16 @@ engineDirPath	= rootDirPath .. "Engine/"
 monoInstallDir	= "C:/Program Files/Mono/"
 
 engineIncludeDirs = {}
-engineIncludeDirs["ImGui"] 	    		= engineDirPath .. "Third_Party/imgui/"
-engineIncludeDirs["ImGuizmo"] 			= engineDirPath .. "Third_Party/ImGuizmo/"
-engineIncludeDirs["Microsoft"] 			= engineDirPath .. "Third_Party/Microsoft/"
-engineIncludeDirs["rapidjson"]  		= engineDirPath .. "Third_Party/rapidjson/"
-engineIncludeDirs["spdlog"] 			= engineDirPath .. "Third_Party/spdlog/"
+engineIncludeDirs["ImGui"] 	    		= engineDirPath .. "ThirdParty/imgui/"
+engineIncludeDirs["ImGuizmo"] 			= engineDirPath .. "ThirdParty/ImGuizmo/"
+engineIncludeDirs["Microsoft"] 			= engineDirPath .. "ThirdParty/Microsoft/"
+engineIncludeDirs["rapidjson"]  		= engineDirPath .. "ThirdParty/rapidjson/"
+engineIncludeDirs["spdlog"] 			= engineDirPath .. "ThirdParty/spdlog/"
 engineIncludeDirs["Mono"] 				= monoInstallDir .. "include/mono-2.0/"
-engineIncludeDirs["assimp"] 			= engineDirPath .. "Third_Party/assimp-5.0.1/include/"
-engineIncludeDirs["OpenFBX"]			= engineDirPath .. "Third_Party/OpenFBX/src/"
-engineIncludeDirs["tinyobjloader"]		= engineDirPath .. "Third_Party/tinyobjloader/include/"
-engineIncludeDirs["Nvidia"] 			= engineDirPath .. "Third_Party/Nvidia/"
+engineIncludeDirs["assimp"] 			= engineDirPath .. "ThirdParty/assimp-5.0.1/include/"
+engineIncludeDirs["OpenFBX"]			= engineDirPath .. "ThirdParty/OpenFBX/src/"
+engineIncludeDirs["tinyobjloader"]		= engineDirPath .. "ThirdParty/tinyobjloader/include/"
+engineIncludeDirs["Nvidia"] 			= engineDirPath .. "ThirdParty/Nvidia/"
 engineIncludeDirs["Engine"] 			= rootDirPath .. "Engine/"
 engineIncludeDirs["Game_Runtime"]		= rootDirPath .. "Game_Runtime/Source/"
 
@@ -55,12 +55,12 @@ project ("EngineBuild_UWP")
 		"PCH_Source/**.cpp",
 
 		-- Engine
-		"%{engineIncludeDirs.Engine}/Third_Party/Vendor_Build.cpp",
+		"%{engineIncludeDirs.Engine}/ThirdParty/Vendor_Build.cpp",
 		"%{engineIncludeDirs.Engine}/Source/**.cpp",
 		"%{engineIncludeDirs.Engine}/Source/**.h",
-		"%{engineIncludeDirs.Engine}/Source/**.vertex.hlsl",
-		"%{engineIncludeDirs.Engine}/Source/**.pixel.hlsl",
-		"%{engineIncludeDirs.Engine}/Source/**.compute.hlsl",
+		"%{engineIncludeDirs.Engine}/Shaders/**.vertex.hlsl",
+		"%{engineIncludeDirs.Engine}/Shaders/**.pixel.hlsl",
+		"%{engineIncludeDirs.Engine}/Shaders/**.compute.hlsl",
 	}
 
 	defines
@@ -107,7 +107,7 @@ project ("EngineBuild_UWP")
 	postbuildcommands
 	{
 		-- Compile the ray tracing shaders.
-		("%{wks.location}Engine/Source/Shaders/HLSL/RayTracing/CompileRTShaders.bat %{wks.location}Binaries/" .. outputdir .. "/%{prj.name}"),
+		("%{wks.location}Engine/Shaders/HLSL/RayTracing/CompileRTShaders.bat %{wks.location}Binaries/" .. outputdir .. "/%{prj.name}"),
 	}
 
 	-- Shaders
@@ -199,12 +199,12 @@ project ("EngineBuild_Win32")
 		"PCH_Source/**.cpp",
 		
 		-- Engine
-		"%{engineIncludeDirs.Engine}/Third_Party/Vendor_Build.cpp",
+		"%{engineIncludeDirs.Engine}/ThirdParty/Vendor_Build.cpp",
 		"%{engineIncludeDirs.Engine}/Source/**.cpp",
 		"%{engineIncludeDirs.Engine}/Source/**.h",
-		"%{engineIncludeDirs.Engine}/Source/**.vertex.hlsl",
-		"%{engineIncludeDirs.Engine}/Source/**.pixel.hlsl",
-		"%{engineIncludeDirs.Engine}/Source/**.compute.hlsl",
+		"%{engineIncludeDirs.Engine}/Shaders/**.vertex.hlsl",
+		"%{engineIncludeDirs.Engine}/Shaders/**.pixel.hlsl",
+		"%{engineIncludeDirs.Engine}/Shaders/**.compute.hlsl",
 	}
 
 	defines
@@ -252,7 +252,7 @@ project ("EngineBuild_Win32")
 	postbuildcommands
 	{
 		-- Compile the ray tracing shaders.
-		("%{wks.location}Engine/Source/Shaders/HLSL/RayTracing/CompileRTShaders.bat %{wks.location}Binaries/" .. outputdir .. "/%{prj.name}"),
+		("%{wks.location}Engine/Shaders/HLSL/RayTracing/CompileRTShaders.bat %{wks.location}Binaries/" .. outputdir .. "/%{prj.name}"),
 	}
 
 	-- Shaders

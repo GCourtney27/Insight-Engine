@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Insight/Core.h>
+#include <Runtime/Core.h>
 
-#include "Insight/Rendering/Geometry/IndexBuffer.h"
+#include "Runtime/Rendering/Geometry/IndexBuffer.h"
 
 namespace Insight {
 

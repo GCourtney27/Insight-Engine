@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Insight/Core.h>
+#include <Runtime/Core.h>
 
-#include "Insight/Core/Window.h"
-#include "Insight/Input/KeyCodes.h"
+#include "Runtime/Core/Window.h"
+#include "Runtime/Input/KeyCodes.h"
 
 
 namespace Insight {

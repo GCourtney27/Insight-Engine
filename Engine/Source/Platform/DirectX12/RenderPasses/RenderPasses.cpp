@@ -2,9 +2,9 @@
 
 #include "RenderPasses.h"
 
-#include "Insight/Rendering/ASkyLight.h"
+#include "Runtime/Rendering/ASkyLight.h"
 #include "Platform/Win32/Win32Window.h"
-#include "Insight/Systems/Managers/GeometryManager.h"
+#include "Runtime/Systems/Managers/GeometryManager.h"
 #include "Platform/DirectX12/Direct3D12Context.h"
 #include "Platform/DirectX12/Wrappers/D3D12Shader.h"
 

@@ -33,7 +33,7 @@ intDirectory = intFolder .. outputdir .. "/"
 
 -- Tools
 group ("Tools")
-	include ("Engine/Third_Party/ImGui/premake5.lua")
+	include ("Engine/ThirdParty/ImGui/premake5.lua")
 group ("")
 
 -- Applications

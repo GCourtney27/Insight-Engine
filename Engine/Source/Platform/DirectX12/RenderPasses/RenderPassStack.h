@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <Insight/Core.h>
+#include <Runtime/Core.h>
 
 #include <vector>
 

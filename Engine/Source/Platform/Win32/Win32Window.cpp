@@ -7,17 +7,17 @@
 
 #include "Win32Window.h"
 
-#include "Insight/Core/Application.h"
-#include "Insight/Rendering/Renderer.h"
+#include "Runtime/Core/Application.h"
+#include "Runtime/Rendering/Renderer.h"
 
-#include "Insight/Core/Log.h"
-#include "Insight/Utilities/StringHelper.h"
+#include "Runtime/Core/Log.h"
+#include "Runtime/Utilities/StringHelper.h"
 //#include "Platform/Win32/Resources/Resource.h"
 
-#include "Insight/Events/KeyEvent.h"
-#include "Insight/Events/MouseEvent.h"
-#include "Insight/Events/ApplicationEvent.h"
-#include "Insight/Core/Exception.h"
+#include "Runtime/Events/KeyEvent.h"
+#include "Runtime/Events/MouseEvent.h"
+#include "Runtime/Events/ApplicationEvent.h"
+#include "Runtime/Core/Exception.h"
 
 
 namespace Insight {

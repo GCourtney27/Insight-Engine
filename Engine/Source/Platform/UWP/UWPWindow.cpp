@@ -4,10 +4,10 @@
 
 #include "UWPWindow.h"
 
-#include "Insight/Events/KeyEvent.h"
-#include "Insight/Events/MouseEvent.h"
-#include "Insight/Events/ApplicationEvent.h"
-#include "Insight/Core/Exception.h"
+#include "Runtime/Events/KeyEvent.h"
+#include "Runtime/Events/MouseEvent.h"
+#include "Runtime/Events/ApplicationEvent.h"
+#include "Runtime/Core/Exception.h"
 
 namespace Insight {
 

@@ -50,13 +50,13 @@
 #include <rapidjson/filewritestream.h>
 
 // === Insight Specific === //
-#include "Insight/Core/Log.h"
-#include "Insight/Core/Interfaces.h"
-#include "Insight/Math/ie_Vectors.h"
-#include "Insight/Core/Exception.h"
-#include "Insight/Utilities/Profiling.h"
-#include "Insight/Systems/FileSystem.h"
-#include "Insight/Utilities/StringHelper.h"
+#include "Runtime/Core/Log.h"
+#include "Runtime/Core/Interfaces.h"
+#include "Runtime/Math/ie_Vectors.h"
+#include "Runtime/Core/Exception.h"
+#include "Runtime/Utilities/Profiling.h"
+#include "Runtime/Systems/FileSystem.h"
+#include "Runtime/Utilities/StringHelper.h"
 
 
 

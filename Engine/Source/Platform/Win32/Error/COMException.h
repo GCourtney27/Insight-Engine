@@ -1,8 +1,8 @@
 #pragma once
 #include <comdef.h>
 
-#include "Insight/Utilities/StringHelper.h"
-#include "Insight/Core/Exception.h"
+#include "Runtime/Utilities/StringHelper.h"
+#include "Runtime/Core/Exception.h"
 
 namespace Insight {
 

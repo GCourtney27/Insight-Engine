@@ -50,7 +50,7 @@ namespace SandBoxApp {
 
 		void Norway()
 		{
-			using namespace Insight::Runtime;
+			using namespace Insight::GameFramework;
 			using namespace Insight;
 
 			// House Resting Terrain

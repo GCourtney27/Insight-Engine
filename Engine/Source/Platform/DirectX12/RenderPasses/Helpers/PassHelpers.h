@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Insight/Core.h>
+#include <Runtime/Core.h>
 #include "Platform/DirectX12/Wrappers/DescriptorHeapWrapper.h"
 
 namespace Insight {

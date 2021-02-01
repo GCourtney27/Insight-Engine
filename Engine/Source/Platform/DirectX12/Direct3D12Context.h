@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Insight/Core.h>
+#include <Runtime/Core.h>
 
-#include "Insight/Rendering/Renderer.h"
+#include "Runtime/Rendering/Renderer.h"
 
 #include "Platform/DirectX12/D3D12DeviceResources.h"
 #include "Platform/DirectX12/Wrappers/D3D12ScreenQuad.h"

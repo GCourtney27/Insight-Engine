@@ -59,7 +59,7 @@ namespace SandBoxApp {
 
 		void Norway()
 		{
-			using namespace Insight::Runtime;
+			using namespace Insight::GameFramework;
 			using namespace Insight;
 
 			// House Resting Terrain
@@ -206,7 +206,7 @@ namespace SandBoxApp {
 
 		void FillScene()
 		{
-			using namespace Insight::Runtime;
+			using namespace Insight::GameFramework;
 			using namespace Insight;
 			
 			//Norway();

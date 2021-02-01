@@ -5,25 +5,25 @@
 */
 
 // Core
-#include "Insight/Core/Application.h"
-#include "Insight/Core/Layer/Layer.h"
+#include "Runtime/Core/Application.h"
+#include "Runtime/Core/Layer/Layer.h"
 #if defined (IE_PLATFORM_BUILD_WIN32)
-#include "Insight/Core/Layer/ImGuiOverlay.h"
+#include "Runtime/Core/Layer/ImGuiOverlay.h"
 #include "Platform/Win32/Win32Window.h"
 #elif defined (IE_PLATFORM_BUILD_UWP)
 #include "Platform/UWP/UWPWindow.h"
 #endif
 
 // Util
-#include "Insight/Core/Log.h"
-#include "Insight/Core/Exception.h"
-#include "Insight/Utilities/Profiling.h"
+#include "Runtime/Core/Log.h"
+#include "Runtime/Core/Exception.h"
+#include "Runtime/Utilities/Profiling.h"
 
 // Rendering
-#include "Insight/Rendering/Material.h"
+#include "Runtime/Rendering/Material.h"
 
 // Game Framework
-#include "Insight/Runtime/Components/StaticMeshComponent.h"
+#include "Runtime/GameFramework/Components/StaticMeshComponent.h"
 
 
 

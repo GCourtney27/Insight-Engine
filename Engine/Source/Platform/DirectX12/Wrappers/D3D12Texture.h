@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Insight/Core.h>
+#include <Runtime/Core.h>
 
-#include "Insight/Rendering/Texture.h"
+#include "Runtime/Rendering/Texture.h"
 #include "Platform/DirectX12/Wrappers/DescriptorHeapWrapper.h"
 
 namespace Insight {

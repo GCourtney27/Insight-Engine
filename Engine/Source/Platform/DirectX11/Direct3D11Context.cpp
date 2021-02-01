@@ -2,21 +2,21 @@
 
 #include "Direct3D11Context.h"
 
-#include "Insight/Core/Application.h"
+#include "Runtime/Core/Application.h"
 #include "Platform/Win32/Win32Window.h"
 #include "Platform/DirectX11/Geometry/D3D11IndexBuffer.h"
 #include "Platform/DirectX11/Geometry/D3D11VertexBuffer.h"
 #include "Platform/DirectX11/Geometry/D3D11SphereRenderer.h"
 
-#include "Insight/Runtime/Archetypes/APlayerCharacter.h"
-#include "Insight/Systems/Managers/GeometryManager.h"
+#include "Runtime/GameFramework/Archetypes/APlayerCharacter.h"
+#include "Runtime/Systems/Managers/GeometryManager.h"
 
-#include "Insight/Rendering/APostFx.h"
-#include "Insight/Rendering/ASkyLight.h"
-#include "Insight/Rendering/ASkySphere.h"
-#include "Insight/Rendering/Lighting/ASpotLight.h"
-#include "Insight/Rendering/Lighting/APointLight.h"
-#include "Insight/Rendering/Lighting/ADirectionalLight.h"
+#include "Runtime/Rendering/APostFx.h"
+#include "Runtime/Rendering/ASkyLight.h"
+#include "Runtime/Rendering/ASkySphere.h"
+#include "Runtime/Rendering/Lighting/ASpotLight.h"
+#include "Runtime/Rendering/Lighting/APointLight.h"
+#include "Runtime/Rendering/Lighting/ADirectionalLight.h"
 
 namespace Insight {
 

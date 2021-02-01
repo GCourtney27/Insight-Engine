@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Insight/Core.h>
+#include <Runtime/Core.h>
 
-#include "Insight/Rendering/Renderer.h"
+#include "Runtime/Rendering/Renderer.h"
 #include "Platform/Win32/Error/COMException.h"
 
 #include "Platform/DirectX11/D3D11Helper.h"

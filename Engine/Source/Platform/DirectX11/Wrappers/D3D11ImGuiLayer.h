@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Insight/Core.h>
+#include <Runtime/Core.h>
 
-#include "Insight/Core/Layer/ImGuiOverlay.h"
+#include "Runtime/Core/Layer/ImGuiOverlay.h"
 
 namespace Insight {
 
