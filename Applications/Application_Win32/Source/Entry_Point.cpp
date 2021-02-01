@@ -43,7 +43,7 @@ int APIENTRY wWinMain(
 	catch (Insight::ieException& Ex) 
 	{
 		IE_DEBUG_LOG(LogSeverity::Critical, Ex.What());
-		return Insight::Application::ieErrorCode_Failed;
+		return Insight::Application::EC_Failed;
 	}
 
 	return g_pApp->Run();

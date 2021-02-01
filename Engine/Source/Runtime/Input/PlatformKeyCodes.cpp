@@ -4,7 +4,7 @@
 
 namespace ConstPlatformInputCodes
 {
-#if IE_PLATFORM_BUILD_WIN32 || (IE_PLATFORM_BUILD_UWP)
+#if IE_PLATFORM_BUILD_WIN32 || IE_PLATFORM_BUILD_UWP
 
 	const int PlatformMouseCode_Button_Left = VK_LBUTTON;
 	const int PlatformMouseCode_Button_Right = VK_RBUTTON;
@@ -74,19 +74,18 @@ namespace ConstPlatformInputCodes
 	const int  PlatformGamepadButtonCode_Thumbstick_Right = VK_GAMEPAD_RIGHT_THUMBSTICK_BUTTON;
 	const int  PlatformGamepadButtonCode_Shoulder_Left = VK_GAMEPAD_LEFT_SHOULDER;
 	const int  PlatformGamepadButtonCode_Shoulder_Right = VK_GAMEPAD_RIGHT_SHOULDER;
-	;
+	
 	const int  PlatformGamepadTriggerCode_Left = VK_GAMEPAD_LEFT_TRIGGER;
 	const int  PlatformGamepadTriggerCode_Right = VK_GAMEPAD_RIGHT_TRIGGER;
-	;
+	
 	const int  PlatformGamepadThumbstick_Left_Axis_X = VK_GAMEPAD_LEFT_THUMBSTICK_RIGHT;
 	const int  PlatformGamepadThumbstick_Left_Axis_Y = VK_GAMEPAD_LEFT_THUMBSTICK_UP;
 	const int  PlatformGamepadThumbstick_Right_Axis_X = VK_GAMEPAD_RIGHT_THUMBSTICK_RIGHT;
 	const int  PlatformGamepadThumbstick_Right_Axis_Y = VK_GAMEPAD_RIGHT_THUMBSTICK_UP;
 
-#elif defined IE_PLATFORM_BUILD_UWP
-	// Mac platform codes
 #elif IE_PLATFORM_BUILD_MAC
+#	error Mac platform is not currently supported.
 #else
-#error Unidentified platform. Cannot define proper keycodes.
+#	error Unidentified platform. Cannot define proper keycodes.
 #endif
 }

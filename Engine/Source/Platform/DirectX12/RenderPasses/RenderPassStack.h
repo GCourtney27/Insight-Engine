@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <Runtime/Core.h>
+#include <Runtime/CoreMacros.h>
 
 #include <vector>
 

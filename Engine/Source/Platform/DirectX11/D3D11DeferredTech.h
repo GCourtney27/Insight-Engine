@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include <Runtime/CoreMacros.h>
 
 #include "Platform/DirectX11/Wrappers/D3D11Shader.h"
 

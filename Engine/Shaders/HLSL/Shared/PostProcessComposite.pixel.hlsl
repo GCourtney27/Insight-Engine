@@ -47,6 +47,10 @@ float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
     
     float3 result = LightPassResult;
 	
+    if (caEnabled)
+    {
+        result = AddChromaticAberration(result, ps_in.texCoords);
+    }
 	if (blEnabled)
 	{
 		result = AddBloom(result, ps_in.texCoords);
@@ -58,10 +62,6 @@ float4 main(PS_INPUT_POSTFX ps_in) : SV_TARGET
 	if (fgEnabled)
 	{
 		result = AddFilmGrain(result, ps_in.texCoords);
-	}
-	if (caEnabled)
-	{
-		result = AddChromaticAberration(result, ps_in.texCoords);
 	}
     
 	HDRToneMap(result);
@@ -98,17 +98,16 @@ float3 AddBloom(float3 sourceColor, float2 texCoords)
 float3 AddChromaticAberration(float3 sourceColor, float2 texCoords)
 {
 	float2 texel = 1.0 / cbScreenSize;
-	float2 coords = (texCoords - 0.5) * 2.0;
+    float2 coords = (texCoords - 0.5) * 2.0;
 	float coordsDot = dot(coords, coords);
     
 	float2 precompute = caIntensity * coordsDot * coords;
 	float2 uvR = texCoords - texel.xy * precompute;
 	float2 uvB = texCoords + texel.xy * precompute;
     
-    // TODO: this effect overwrites other effects because it adds the color texture directly. Fix it
-	sourceColor.r = t_LightPassResult.Sample(s_LinearWrapSampler, uvR).r;
-	sourceColor.g = t_LightPassResult.Sample(s_LinearWrapSampler, texCoords).g;
-	sourceColor.b = t_LightPassResult.Sample(s_LinearWrapSampler, uvB).b;
+	sourceColor.r += t_LightPassResult.Sample(s_LinearWrapSampler, uvR).r;
+	sourceColor.g += t_LightPassResult.Sample(s_LinearWrapSampler, texCoords).g;
+	sourceColor.b += t_LightPassResult.Sample(s_LinearWrapSampler, uvB).b;
     
 	return sourceColor;
 }
@@ -250,7 +249,7 @@ float3 SSR(float2 TexCoords)
     float3 Albedo = t_AlbedoGBuffer.Sample(s_LinearWrapSampler, TexCoords).rgb;
     
     float3 ViewNormal = t_NormalGBuffer.Sample(s_LinearWrapSampler, TexCoords).rgb; // View space
-    ViewNormal = mul(float4(ViewNormal, 1.0), cbInverseView);
+    ViewNormal = mul(float4(ViewNormal, 1.0), cbInverseView).xyz;
     float3 ViewPosition = GetPositionViewSpace(TexCoords); // View space
     
     float3 WorldPosition = mul(float4(ViewPosition, 1.0), cbInverseView).xyz;

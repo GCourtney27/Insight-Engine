@@ -22,7 +22,6 @@ namespace SandBoxApp {
 		{
 			Super::Initialize();
 
-			// TODO: Place world creation code here.
 			FillScene();
 
 			Super::PostInit();

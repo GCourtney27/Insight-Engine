@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Runtime/Core.h"
+#include <Runtime/CoreMacros.h>
 
 #include "Platform/DirectX12/RayTracing/RayTraceHelpers.h"
 #include "Platform/DirectX12/RenderPasses/Helpers/PassHelpers.h"

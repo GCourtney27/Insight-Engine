@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include <Runtime/CoreMacros.h>
 #include "Platform/Win32/Error/COMException.h"
 
 namespace Insight {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include <Runtime/CoreMacros.h>
 #if IE_PLATFORM_BUILD_WIN32
 #include <Windows.h>
 namespace Insight {

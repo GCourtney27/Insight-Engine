@@ -19,7 +19,6 @@ uwpAppIncludeDirs["Engine_Root"]			= rootDirPath .. "Engine/"
 uwpAppIncludeDirs["Engine_Src"]				= rootDirPath .. "Engine/Source/"
 uwpAppIncludeDirs["Engine_ThirdParty"]		= rootDirPath .. "Engine/ThirdParty/"
 uwpAppIncludeDirs["BuildRules"]				= rootDirPath .. "Engine/BuildRules/"
-uwpAppIncludeDirs["Game_Runtime"]			= rootDirPath .. "Game_Runtime/Source/"
 
 project (projectName)
 	location (rootDirPath.. "Applications/" .. projectName)
@@ -78,7 +77,6 @@ project (projectName)
 
 		-- Shared Header Includes for this Project
 		"%{uwpAppIncludeDirs.BuildRules}/PCH_Source/",
-
 	}
 
 	links

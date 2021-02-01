@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include <Runtime/CoreMacros.h>
 
 #include "Runtime/GameFramework/AActor.h"
 #include "Platform/DirectXShared/ConstantBufferTypes.h"

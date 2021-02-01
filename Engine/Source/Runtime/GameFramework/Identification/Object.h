@@ -1,6 +1,6 @@
 #pragma once
 #include "Runtime/GameFramework/Identification/ID.h"
-#include <Runtime/Core.h>
+#include <Runtime/CoreMacros.h>
 
 namespace Insight {
 

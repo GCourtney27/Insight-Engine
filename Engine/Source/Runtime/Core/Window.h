@@ -1,7 +1,7 @@
 #pragma once
 #include <Engine_pch.h>
 
-#include <Runtime/Core.h>
+#include <Runtime/CoreMacros.h>
 #include "Runtime/Events/Event.h"
 #include "Runtime/Input/KeyCodes.h"
 

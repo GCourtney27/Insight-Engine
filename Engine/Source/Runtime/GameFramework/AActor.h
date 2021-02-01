@@ -1,5 +1,5 @@
 #pragma once
-#include <Runtime/Core.h>
+#include <Runtime/CoreMacros.h>
 
 #include "Runtime/Events/Event.h"
 #include "Runtime/Math/Transform.h"

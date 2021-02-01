@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include <Runtime/CoreMacros.h>
 #include "Runtime/Systems/Managers/GeometryManager.h"
 #include "Runtime/Systems/Managers/TextureManager.h"
 #include "Runtime/Systems/Managers/MonoScriptManager.h"

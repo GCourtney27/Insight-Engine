@@ -129,33 +129,6 @@ namespace Insight {
 					m_pSceneRootRef->AddChild(new GameFramework::AActor(5, ActorType));
 				}
 				UI::TreePopNode();
-
-				/*ImGui::TreeNodeEx("TODO: Post-Process Actor", TreeFlags);
-				if (ImGui::IsItemClicked()) {
-					IE_DEBUG_LOG(LogSeverity::Log, "Create Empty Actor");
-					ActorType ActorType = "PostProcess Actor";
-					m_pSceneRootRef->AddChild(new APostFx(5, ActorType));
-				}
-				ImGui::TreePop();*/
-
-
-				/*ImGui::TreeNodeEx("Sky Sphere Actor", TreeFlags);
-				if (ImGui::IsItemClicked()) {
-					IE_DEBUG_LOG(LogSeverity::Log, "Create Sky Sphere  Actor");
-					ActorType ActorType = "Sky Sphere Actor";
-					m_pSceneRootRef->AddChild(new ASkySphere(5, ActorType));
-				}
-				ImGui::TreePop();*/
-
-
-				//ImGui::TreeNodeEx("TODO: Sky Light Actor", TreeFlags);
-				//if (ImGui::IsItemClicked()) {
-				//	IE_DEBUG_LOG(LogSeverity::Log, "Create Empty Actor");
-				//	//static int ActorIndex = 0;
-				//	//ActorType ActorType = "MyActor" + std::to_string(ActorIndex++);
-				//	//m_pSceneRootRef->AddChild(new AActor(5, ActorType));
-				//}
-				//ImGui::TreePop();
 			}
 
 		}

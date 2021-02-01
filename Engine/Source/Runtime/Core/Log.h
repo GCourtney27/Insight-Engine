@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include <Runtime/CoreMacros.h>
 #ifdef IE_PLATFORM_BUILD_WIN32
 #include "Platform/Win32/Console_Window.h"
 #endif 

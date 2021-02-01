@@ -4,11 +4,8 @@
 #include <resource.h>
 
 /*=====================================================================
-
 	This class is your game. Include all gameplay logic here it will get
-	called and synced with the engine. If you would want to change the
-	title of your game, Edit the macro 'Game'.
-
+	called and synced with the engine.
  ======================================================================*/
 
 
@@ -31,7 +28,6 @@ namespace SandBoxApp {
 		{
 			Super::Initialize();
 			
-			// TODO: Place world creation code here.
 			FillScene();
 
 			Super::PostInit();

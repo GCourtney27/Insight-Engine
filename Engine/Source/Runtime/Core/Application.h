@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <Runtime/Core.h>
+#include <Runtime/CoreMacros.h>
 
 #include "Runtime/Core/Window.h"
 #include "Runtime/Core/Scene/Scene.h"
@@ -39,8 +39,8 @@ namespace Insight {
 	public:
 		typedef enum _ieErrorCode
 		{
-			ieErrorCode_Failed	= 0,
-			ieErrorCode_Success = 1,
+			EC_Failed	= 0,
+			EC_Success	= 1,
 		} ieErrorCode;
 	public:
 		Application();

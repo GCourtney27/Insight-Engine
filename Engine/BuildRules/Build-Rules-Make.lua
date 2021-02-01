@@ -93,7 +93,6 @@ project ("EngineBuild_UWP")
 	links
 	{
         "ImGui",
-        "Engine"
 	}
 
 	flags
@@ -230,15 +229,12 @@ project ("EngineBuild_Win32")
 
 		-- This Projects PCH
 		"PCH_Source/",
-
-		-- Game runtime source
-		"%{engineIncludeDirs.Game_Runtime}/",
 	}
 
 	links
 	{
         "ImGui",
-        "Engine"
+        --"Engine"
 	}
 
 	flags

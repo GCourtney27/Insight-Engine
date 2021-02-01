@@ -19,12 +19,6 @@
 #define EDITOR_UI_ENABLED 0
 #endif
 
-// TODO: Make the project hot swapable
-// TODO: Make sample projects
-// Scenes (Development-Project)
-// ----------------------------
-// DemoScene
-// MultipleLights
 static const char* TargetSceneName = "Debug.iescene";
 
 namespace Insight {
@@ -168,7 +162,7 @@ namespace Insight {
 		// Shutdown the application and release all resources.
 		Shutdown();
 
-		return ieErrorCode_Success;
+		return EC_Success;
 	}
 
 	Application::ieErrorCode Application::RunSingleThreaded()
@@ -222,7 +216,7 @@ namespace Insight {
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate(DeltaMs);
 		}
-		return ieErrorCode_Success;
+		return EC_Success;
 	}
 
 	void Application::Shutdown()

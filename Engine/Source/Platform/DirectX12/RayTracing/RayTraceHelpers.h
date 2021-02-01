@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include <Runtime/CoreMacros.h>
 
 #include "DXR/nv_helpers_dx12/TopLevelASGenerator.h"
 #include "DXR/nv_helpers_dx12/ShaderBindingTableGenerator.h"
