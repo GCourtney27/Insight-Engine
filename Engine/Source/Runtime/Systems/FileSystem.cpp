@@ -62,7 +62,7 @@ namespace Insight {
 	{
 
 		rapidjson::Document RawSettingsFile;
-		const std::string SettingsDir = "../Content/PROFSAVE.ini";
+		const std::string SettingsDir = "../Content/Engine.ini";
 		if (!json::load(SettingsDir.c_str(), RawSettingsFile)) {
 			IE_DEBUG_LOG(LogSeverity::Error, "Failed to load graphics settings from file: \"{0}\". Default graphics settings will be applied.", SettingsDir);
 
@@ -96,12 +96,12 @@ namespace Insight {
 			
 
 			// Final Export
-			std::string sceneName = "../PROFSAVE.ini";
+			std::string sceneName = "../Engine.ini";
 			std::ofstream offstream(sceneName.c_str());
 			offstream << StrBuffer.GetString();
 
 			if (!offstream.good()) {
-				IE_DEBUG_LOG(LogSeverity::Error, "Failed to save graphics properties to PROFSAVE.ini.");
+				IE_DEBUG_LOG(LogSeverity::Error, "Failed to save graphics properties to Engine.ini.");
 			}
 		}
 
@@ -109,9 +109,9 @@ namespace Insight {
 
 	std::wstring FileSystem::GetRelativeContentDirectoryW(const std::wstring& Path)
 	{
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 		return std::wstring(WorkingDirectoryW + L"../Content/" + Path);
-#elif defined (IE_PLATFORM_BUILD_UWP)
+#elif IE_PLATFORM_BUILD_UWP
 		return std::wstring(WorkingDirectoryW + L"Assets/Content/" + Path);
 #endif
 	}
@@ -125,7 +125,7 @@ namespace Insight {
 			ScopedPerfTimer("LoadSceneFromJson::LoadGraphicsSettingsFromJson", OutputType_Seconds);
 
 			rapidjson::Document RawSettingsFile;
-			const std::string SettingsDir = StringHelper::WideToString(GetRelativeContentDirectoryW(L"PROFSAVE.ini"));
+			const std::string SettingsDir = StringHelper::WideToString(GetRelativeContentDirectoryW(L"Engine.ini"));
 			if (!json::load(SettingsDir.c_str(), RawSettingsFile)) {
 				IE_DEBUG_LOG(LogSeverity::Error, "Failed to load graphics settings from file: \"{0}\". Default graphics settings will be applied.", SettingsDir);
 				return UserGraphicsSettings;
@@ -300,10 +300,10 @@ namespace Insight {
 	bool FileSystem::FileExistsInContentDirectory(const std::string& Path)
 	{
 		std::string RawPath;
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 		RawPath += "../Content/" + Path;
 		return PathFileExistsA(RawPath.c_str());
-#elif defined (IE_PLATFORM_BUILD_UWP)
+#elif IE_PLATFORM_BUILD_UWP
 		RawPath += "Content/" + Path;
 		#pragma message ("UWP: FileExistsInContentDirectory not implemented for this platform.")
 		return false;
@@ -313,9 +313,9 @@ namespace Insight {
 	std::wstring FileSystem::GetShaderPathW(const wchar_t* Shader)
 	{
 		std::wstring WorkingDirectory = FileSystem::GetWorkingDirectoryW();
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 		WorkingDirectory += L"../EngineBuild_Win32/";
-#elif defined (IE_PLATFORM_BUILD_UWP)
+#elif IE_PLATFORM_BUILD_UWP
 		WorkingDirectory += L"EngineBuild_UWP/";
 #endif
 		WorkingDirectory += Shader;
@@ -324,7 +324,7 @@ namespace Insight {
 
 	void FileSystem::SetWorkingDirectory()
 	{
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 		WCHAR Path[512];
 		UINT RawPathSize = _countof(Path);
 		DWORD PathSize = GetModuleFileName(nullptr, Path, RawPathSize);
@@ -338,7 +338,7 @@ namespace Insight {
 		}
 		FileSystem::WorkingDirectoryW = std::wstring{ Path };
 
-#elif defined (IE_PLATFORM_BUILD_UWP)
+#elif IE_PLATFORM_BUILD_UWP
 		// Relative to the exe
 		FileSystem::WorkingDirectoryW = L"";
 #endif

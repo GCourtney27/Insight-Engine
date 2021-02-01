@@ -358,7 +358,7 @@ namespace Insight {
 		SwapChainDesc.SampleDesc = m_SampleDesc;
 
 		Microsoft::WRL::ComPtr<IDXGISwapChain1> TempSwapChain = {};
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 		hr = m_pDxgiFactory->CreateSwapChainForHwnd(
 			m_pGraphicsCommandQueue.Get(),
 			static_cast<HWND>(m_pRenderContextRef->GetWindowRef().GetNativeWindow()),
@@ -373,7 +373,7 @@ namespace Insight {
 			ThrowIfFailed(m_pDxgiFactory->MakeWindowAssociation(m_pRenderContextRef->GetWindowRefAs<Win32Window>().GetWindowHandleRef(), DXGI_MWA_NO_ALT_ENTER),
 				"Failed to Make Window Association");
 		}
-#elif defined (IE_PLATFORM_BUILD_UWP)
+#elif IE_PLATFORM_BUILD_UWP
 		hr = m_pDxgiFactory->CreateSwapChainForCoreWindow(
 			m_pGraphicsCommandQueue.Get(),
 			reinterpret_cast<::IUnknown*>(m_pRenderContextRef->GetWindowRef().GetNativeWindow()),

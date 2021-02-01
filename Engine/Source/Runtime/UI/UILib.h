@@ -1,6 +1,6 @@
 #pragma once
 
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 #include "imgui.h"
 #include "imgui_internal.h"
 #include <misc/cpp/imgui_stdlib.h>
@@ -39,7 +39,7 @@ namespace Insight {
 			InputTextFieldFlags_EnterReturnsTrue = 1 << 5,   // Return 'true' when Enter is pressed (as opposed to every time the value was modified). Consider looking at the IsItemDeactivatedAfterEdit() function.
 		};
 
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 
 		#define EDITOR_TEXTBOX(Text) ImGui::Text(Text)
 		#define EDITOR_SPACING() ImGui::Spacing()
@@ -68,7 +68,7 @@ namespace Insight {
 		#define EDITOR_NEXT_COLUMN() ImGui::NextColumn()
 		#define EDITOR_END_COLUMNS() ImGui::EndColumns();
 
-#elif defined (IE_PLATFORM_BUILD_UWP)
+#elif IE_PLATFORM_BUILD_UWP
 		#define EDITOR_TEXTBOX(Text)
 		#define EDITOR_SPACING()
 		#define EDITOR_INPUT_TEXT_FIELD(Label, TargetBuffer, Flags) false
@@ -230,7 +230,7 @@ namespace Insight {
 
 		static void DrawVector3Control(const std::string& Label, Math::ieVector3& Values, float ResetValue = 0.0f, float ColumnWidth = 100.0f)
 		{
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 
 			ImGui::PushID(Label.c_str());
 

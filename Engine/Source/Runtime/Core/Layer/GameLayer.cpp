@@ -22,7 +22,7 @@ namespace Insight {
 	void GameLayer::BeginPlay()
 	{
 		m_TickScene = true;
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 		ResourceManager::Get().GetMonoScriptManager().OnBeginPlay();
 #endif
 		m_pScene->BeginPlay();
@@ -37,7 +37,7 @@ namespace Insight {
 	{
 		m_TickScene = false;
 		m_pScene->EndPlaySession();
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 		ResourceManager::Get().GetMonoScriptManager().OnEndPlaySession();
 #endif
 	}

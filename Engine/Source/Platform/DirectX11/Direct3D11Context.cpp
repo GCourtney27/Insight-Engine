@@ -273,7 +273,7 @@ namespace Insight {
 
 	void Direct3D11Context::OnWindowFullScreen_Impl()
 	{
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 
 		Win32Window* pWindow = reinterpret_cast<Win32Window*>(m_pWindowRef.get());
 		HWND& pHWND = pWindow->GetWindowHandleRef();
@@ -480,7 +480,7 @@ namespace Insight {
 		SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 		SwapChainDesc.Flags = m_AllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 		
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 		/*HRESULT hr = ::D3D11CreateDeviceAndSwapChain(
 			m_pAdapter.Get(),
 			D3D_DRIVER_TYPE_UNKNOWN,

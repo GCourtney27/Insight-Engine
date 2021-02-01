@@ -3,7 +3,7 @@
 
 #include "MonoScriptManager.h"
 
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 
 #include "Runtime/Systems/Managers/ResourceManager.h"
 

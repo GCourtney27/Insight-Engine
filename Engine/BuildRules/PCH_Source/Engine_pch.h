@@ -68,7 +68,7 @@
 //		Shared Windows Platform		|
 // ---------------------------------
 // Some files can be shared between UWP and Win32.
-#if defined (IE_PLATFORM_WINDOWS)
+#if IE_PLATFORM_WINDOWS
 
 	// Windows
 	#include <wrl/client.h>
@@ -114,7 +114,7 @@
 // ---------------
 //		Win32	  |
 // ---------------
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 
 	#ifndef WIN32_LEAN_AND_MEAN
 		#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers.
@@ -133,7 +133,7 @@
 // ---------------------------------------------
 //		Universal Windows Platform (UWP)		|
 // ---------------------------------------------
-#if defined (IE_PLATFORM_BUILD_UWP)
+#if IE_PLATFORM_BUILD_UWP
 
 	// Windows Runtime
 	#include "winrt/Windows.System.h"

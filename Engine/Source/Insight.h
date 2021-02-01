@@ -7,10 +7,10 @@
 // Core
 #include "Runtime/Core/Application.h"
 #include "Runtime/Core/Layer/Layer.h"
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 #include "Runtime/Core/Layer/ImGuiOverlay.h"
 #include "Platform/Win32/Win32Window.h"
-#elif defined (IE_PLATFORM_BUILD_UWP)
+#elif IE_PLATFORM_BUILD_UWP
 #include "Platform/UWP/UWPWindow.h"
 #endif
 

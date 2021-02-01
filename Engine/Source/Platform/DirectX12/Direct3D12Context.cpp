@@ -505,7 +505,7 @@ namespace Insight {
 
 	void Direct3D12Context::OnWindowFullScreen_Impl()
 	{
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 
 		Win32Window* pWindow = &GetWindowRefAs<Win32Window>();
 		HWND pHWND = static_cast<HWND>(m_pWindowRef->GetNativeWindow());

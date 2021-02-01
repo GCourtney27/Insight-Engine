@@ -2,7 +2,7 @@
 
 // The contents can only be accessed on a Win32 platform.
 // If it is not present than just compile it out.
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 #include "Console_Window.h"
 
 namespace Insight {

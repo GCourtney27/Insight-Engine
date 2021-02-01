@@ -5,7 +5,7 @@
 
 namespace Insight {
 
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 
 	/*
 		Function signature for a callback that can process custom IDM_*

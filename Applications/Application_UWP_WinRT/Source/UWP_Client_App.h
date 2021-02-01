@@ -197,7 +197,7 @@ namespace SandBoxApp {
 
 		void FillScene()
 		{
-			using namespace Insight::Runtime;
+			using namespace Insight::GameFramework;
 			using namespace Insight;
 
 			//Norway();

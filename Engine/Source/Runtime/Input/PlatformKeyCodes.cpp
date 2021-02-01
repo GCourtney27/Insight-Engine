@@ -4,7 +4,7 @@
 
 namespace ConstPlatformInputCodes
 {
-#if defined (IE_PLATFORM_BUILD_WIN32) || (IE_PLATFORM_BUILD_UWP)
+#if IE_PLATFORM_BUILD_WIN32 || (IE_PLATFORM_BUILD_UWP)
 
 	const int PlatformMouseCode_Button_Left = VK_LBUTTON;
 	const int PlatformMouseCode_Button_Right = VK_RBUTTON;

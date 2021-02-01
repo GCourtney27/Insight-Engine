@@ -8,7 +8,7 @@
 
 namespace Insight {
 
-#if defined (IE_PLATFORM_BUILD_UWP)
+#if IE_PLATFORM_BUILD_UWP
 
 
 	struct UWPWindowDescription : WindowDescription

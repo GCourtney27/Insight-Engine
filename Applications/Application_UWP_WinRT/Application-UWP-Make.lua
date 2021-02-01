@@ -18,7 +18,7 @@ uwpAppIncludeDirs["rapidjson"] 				= engineThirdPartyDir .. "rapidjson/include/"
 uwpAppIncludeDirs["Engine_Root"]			= rootDirPath .. "Engine/"
 uwpAppIncludeDirs["Engine_Src"]				= rootDirPath .. "Engine/Source/"
 uwpAppIncludeDirs["Engine_ThirdParty"]		= rootDirPath .. "Engine/ThirdParty/"
-uwpAppIncludeDirs["Build_Rules"]			= rootDirPath .. "Build_Rules/"
+uwpAppIncludeDirs["BuildRules"]				= rootDirPath .. "Engine/BuildRules/"
 uwpAppIncludeDirs["Game_Runtime"]			= rootDirPath .. "Game_Runtime/Source/"
 
 project (projectName)
@@ -77,7 +77,7 @@ project (projectName)
 		"Source/",
 
 		-- Shared Header Includes for this Project
-		"%{uwpAppIncludeDirs.Build_Rules}/PCH_Source/",
+		"%{uwpAppIncludeDirs.BuildRules}/PCH_Source/",
 
 	}
 
@@ -105,7 +105,7 @@ project (projectName)
 	defines
 	{
 		-- Compile for UWP platform
-		"IE_PLATFORM_BUILD_UWP",
+		"IE_PLATFORM_BUILD_UWP=1",
 	}
 	flags
 	{

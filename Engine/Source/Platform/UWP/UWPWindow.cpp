@@ -1,6 +1,6 @@
 #include <Engine_pch.h>
 
-#if defined (IE_PLATFORM_BUILD_UWP)
+#if IE_PLATFORM_BUILD_UWP
 
 #include "UWPWindow.h"
 

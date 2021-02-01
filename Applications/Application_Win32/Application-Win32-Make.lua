@@ -15,10 +15,10 @@ win32AppIncludeDirs["Nvidia"]					= engineThirdPartyDir .. "Nvidia/"
 win32AppIncludeDirs["spdlog"]					= engineThirdPartyDir .. "spdlog/include/"
 win32AppIncludeDirs["rapidjson"] 				= engineThirdPartyDir .. "rapidjson/include/"
 win32AppIncludeDirs["Mono"]						= monoInstallDir .. "include/"
-win32AppIncludeDirs["Engine_Root"]		= rootDirPath .. "Engine/"
-win32AppIncludeDirs["Engine_Src"]		= rootDirPath .. "Engine/Source/"
-win32AppIncludeDirs["Engine_ThirdParty"]= rootDirPath .. "Engine/ThirdParty/"
-win32AppIncludeDirs["Build_Rules"]				= rootDirPath .. "Build_Rules/"
+win32AppIncludeDirs["Engine_Root"]				= rootDirPath .. "Engine/"
+win32AppIncludeDirs["Engine_Src"]				= rootDirPath .. "Engine/Source/"
+win32AppIncludeDirs["Engine_ThirdParty"]		= rootDirPath .. "Engine/ThirdParty/"
+win32AppIncludeDirs["BuildRules"]				= rootDirPath .. "Engine/BuildRules/"
 win32AppIncludeDirs["Game_Runtime"]				= rootDirPath .. "Game_Runtime/Source/"
 
 project (projectName)
@@ -62,7 +62,7 @@ project (projectName)
 		"./",
 
 		-- Shared Header Includes for this Project
-		"%{win32AppIncludeDirs.Build_Rules}/PCH_Source/",
+		"%{win32AppIncludeDirs.BuildRules}/PCH_Source/",
 		
 	}
 
@@ -92,7 +92,7 @@ project (projectName)
 	systemversion ("latest")
 	defines
 	{
-		"IE_PLATFORM_BUILD_WIN32",
+		"IE_PLATFORM_BUILD_WIN32=1",
 	}
 	flags
 	{

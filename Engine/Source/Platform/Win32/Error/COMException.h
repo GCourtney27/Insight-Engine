@@ -15,9 +15,9 @@ namespace Insight {
 		COMException(HRESULT hr, const std::string& msg, const std::string& file, const std::string& function, int line)
 			: ieException(msg.c_str())
 		{
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 			_com_error error(hr);
-#elif defined (IE_PLATFORM_BUILD_UWP)
+#elif IE_PLATFORM_BUILD_UWP
 			_com_error error(hr, StringHelper::StringToWide(msg).c_str());
 #endif
 			whatmsg = L"Msg: " + StringHelper::StringToWide(std::string(msg)) + L"\n";

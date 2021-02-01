@@ -47,5 +47,5 @@ include ("Engine/Engine-Make.lua")
 
 -- Engine Source Build Rules
 group ("Build Rules")
-	include ("Build_Rules/Build-Rules-Make.lua")
+	include ("Engine/BuildRules/Build-Rules-Make.lua")
 group ("")

@@ -7,13 +7,13 @@
 #include "Runtime/Core/Exception.h"
 #include "Runtime/Rendering/Renderer.h"
 
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 #include "Platform/DirectX11/Wrappers/D3D11ImGuiLayer.h"
 #include "Platform/DirectX12/Wrappers/D3D12ImGuiLayer.h"
 #include "Platform/Win32/Win32Window.h"
 #endif
 
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 #define EDITOR_UI_ENABLED 1
 #else
 #define EDITOR_UI_ENABLED 0
@@ -232,7 +232,7 @@ namespace Insight {
 
 	void Application::PushCoreLayers()
 	{
-#if defined (IE_PLATFORM_BUILD_WIN32) && (EDITOR_UI_ENABLED)
+#if IE_PLATFORM_BUILD_WIN32 && (EDITOR_UI_ENABLED)
 		switch (Renderer::GetAPI())
 		{
 		case Renderer::TargetRenderAPI::Direct3D_11:
@@ -357,7 +357,7 @@ namespace Insight {
 	bool Application::ReloadScripts(AppScriptReloadEvent& e)
 	{
 		IE_DEBUG_LOG(LogSeverity::Log, "Reloading C# Scripts");
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 		ResourceManager::Get().GetMonoScriptManager().ReCompile();
 #endif
 		return true;

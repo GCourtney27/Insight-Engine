@@ -6,7 +6,7 @@
 
 #include "Runtime/UI/UILib.h"
 
-#if defined (IE_PLATFORM_BUILD_UWP)
+#if IE_PLATFORM_BUILD_UWP
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tinyobjloader/tiny_obj_loader.h>
 #endif
@@ -110,7 +110,7 @@ namespace Insight {
 
 	bool Model::LoadModelFromFile(const std::string& path)
 	{
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 		Assimp::Importer Importer;
 		const aiScene* pScene = Importer.ReadFile(
 			path,
@@ -130,7 +130,7 @@ namespace Insight {
 
 		m_pRoot = AssimpParseNode_r(pScene->mRootNode);
 
-#elif defined (IE_PLATFORM_BUILD_UWP)
+#elif IE_PLATFORM_BUILD_UWP
 
 		std::string FileExtension = StringHelper::GetFileExtension(path);
 		if (FileExtension == "FBX" || FileExtension == "fbx")
@@ -178,7 +178,7 @@ namespace Insight {
 		return true;
 	}
 
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 
 	unique_ptr<MeshNode> Model::AssimpParseNode_r(::aiNode* pNode)
 	{
@@ -263,7 +263,7 @@ namespace Insight {
 		return std::make_unique<Mesh>(Verticies, Indices);
 }
 
-#elif defined (IE_PLATFORM_BUILD_UWP)
+#elif IE_PLATFORM_BUILD_UWP
 
 	std::unique_ptr<Mesh> Model::OFBXProcessMesh(const ofbx::Mesh& FBXMesh)
 	{

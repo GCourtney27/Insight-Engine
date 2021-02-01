@@ -1,8 +1,8 @@
 #pragma once
 
 // We are compiling for Win32 or UWP we can assume our platform is Windows
-#if defined (IE_PLATFORM_BUILD_WIN32) || defined (IE_PLATFORM_BUILD_UWP)
-	#define IE_PLATFORM_WINDOWS
+#if IE_PLATFORM_BUILD_WIN32 || IE_PLATFORM_BUILD_UWP
+	#define IE_PLATFORM_WINDOWS 1
 #endif
 
 // Only msvc supports __declspec

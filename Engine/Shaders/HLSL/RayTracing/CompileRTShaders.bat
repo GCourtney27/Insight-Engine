@@ -6,7 +6,7 @@ mkdir Binaries
 
 @REM Compile the shaders.
 for /r %%f in (*.rtlib.hlsl) do (
-    ..\..\..\..\Tools\DxCompiler\dxc.exe -Qembed_debug -T lib_6_3 -Fo Binaries/%%~nf.cso -Zi %%f
+    ..\..\..\Developer\DxCompiler\dxc.exe -Qembed_debug -T lib_6_3 -Fo Binaries/%%~nf.cso -Zi %%f
 )
 
 @REM Copy the files to the specified command line output directory.

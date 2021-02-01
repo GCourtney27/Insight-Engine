@@ -2,7 +2,7 @@
 #pragma once
 #include <Runtime/Core.h>
 
-#if defined (IE_PLATFORM_BUILD_WIN32)
+#if IE_PLATFORM_BUILD_WIN32
 
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>

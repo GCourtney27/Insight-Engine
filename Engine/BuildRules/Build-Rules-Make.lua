@@ -1,10 +1,10 @@
 -- Build Rules for Engine Source Code
--- Build_Rules projects take the Engine project and define variables 
+-- BuildRules projects take the Engine project and define variables 
 -- and build parameters to make a library from. 
 
 
-rootDirPath		= "../"
-engineDirPath	= rootDirPath .. "Engine/"
+rootDirPath		= "../../"
+engineDirPath	= "../"
 -- Assuming Mono is installed on the computer in the default diretory.
 monoInstallDir	= "C:/Program Files/Mono/"
 
@@ -19,13 +19,10 @@ engineIncludeDirs["assimp"] 			= engineDirPath .. "ThirdParty/assimp-5.0.1/inclu
 engineIncludeDirs["OpenFBX"]			= engineDirPath .. "ThirdParty/OpenFBX/src/"
 engineIncludeDirs["tinyobjloader"]		= engineDirPath .. "ThirdParty/tinyobjloader/include/"
 engineIncludeDirs["Nvidia"] 			= engineDirPath .. "ThirdParty/Nvidia/"
-engineIncludeDirs["Engine"] 			= rootDirPath .. "Engine/"
-engineIncludeDirs["Game_Runtime"]		= rootDirPath .. "Game_Runtime/Source/"
+engineIncludeDirs["Engine"] 			= engineDirPath
 
--- Premake does not support UWP project generation
--- So just add the Visual Studio created one.
 project ("EngineBuild_UWP")
-	location (rootDirPath .. "Build_Rules")
+	location (engineDirPath .. "BuildRules")
 	kind ("StaticLib")
 	language ("C++")
 	cppdialect ("C++17")
@@ -66,7 +63,7 @@ project ("EngineBuild_UWP")
 	defines
 	{
 		-- Tells the engine to compile for UWP platform
-		"IE_PLATFORM_BUILD_UWP",
+		"IE_PLATFORM_BUILD_UWP=1",
 		"_CRT_SECURE_NO_WARNINGS",
 	}
 
@@ -175,7 +172,7 @@ project ("EngineBuild_UWP")
 
 
 project ("EngineBuild_Win32")
-	location (rootDirPath .. "Build_Rules")
+	location (engineDirPath .. "BuildRules")
 	kind ("StaticLib")
 	language ("C++")
 	cppdialect ("C++17")
@@ -210,7 +207,7 @@ project ("EngineBuild_Win32")
 	defines
 	{
 		-- Tells the engine to compile for Win32 platform
-		"IE_PLATFORM_BUILD_WIN32",
+		"IE_PLATFORM_BUILD_WIN32=1",
 		"_CRT_SECURE_NO_WARNINGS",
 	}
 
