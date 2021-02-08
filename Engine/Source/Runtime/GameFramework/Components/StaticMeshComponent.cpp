@@ -159,7 +159,7 @@ namespace Insight {
 						AttachMesh(m_DynamicAssetDir);
 					}
 					else {
-						IE_DEBUG_LOG(LogSeverity::Error, "File does not exist with path: \"{0}\"", m_DynamicAssetDir);
+						IE_LOG(Error, "File does not exist with path: \"{0}\"", m_DynamicAssetDir);
 					}
 				}
 
@@ -186,7 +186,8 @@ namespace Insight {
 
 		void StaticMeshComponent::AttachMesh(const std::string& Path)
 		{
-			ScopedPerfTimer(("StaticMeshComponent::AttachMesh \"" + Path + "\"").c_str(), OutputType_Seconds);
+			std::string s = "StaticMesh::AttachMesh -> " + Path;
+			ScopedSecondTimer(s.c_str());
 
 			if (m_pModel) {
 				GeometryManager::UnRegisterOpaqueModel(m_pModel);

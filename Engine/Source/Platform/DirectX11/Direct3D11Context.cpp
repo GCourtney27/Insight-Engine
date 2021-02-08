@@ -33,7 +33,7 @@ namespace Insight {
 
 	bool Direct3D11Context::Init_Impl()
 	{
-		IE_DEBUG_LOG(LogSeverity::Log, "Renderer: D3D 11");
+		IE_LOG(Log, "Renderer: D3D 11");
 
 		CreateDXGIFactory();
 		CreateDeviceAndSwapChain();
@@ -440,12 +440,12 @@ namespace Insight {
 				}
 				*ppAdapter = pAdapter.Detach();
 
-				IE_DEBUG_LOG(LogSeverity::Warning, "Found suitable Direct3D 11 graphics hardware: {0}", StringHelper::WideToString(Desc.Description));
+				IE_LOG(Warning, "Found suitable Direct3D 11 graphics hardware: {0}", StringHelper::WideToString(Desc.Description));
 			}
 		}
 		Desc = {};
 		(*ppAdapter)->GetDesc(&Desc);
-		IE_DEBUG_LOG(LogSeverity::Warning, "\"{0}\" selected as Direct3D 11 graphics hardware.", StringHelper::WideToString(Desc.Description));
+		IE_LOG(Warning, "\"{0}\" selected as Direct3D 11 graphics hardware.", StringHelper::WideToString(Desc.Description));
 	}
 
 	void Direct3D11Context::CreateDeviceAndSwapChain()

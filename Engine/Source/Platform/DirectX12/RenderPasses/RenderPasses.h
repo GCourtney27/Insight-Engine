@@ -87,6 +87,9 @@ namespace Insight {
 		// Execution of a resource could happen from any pass, "ResourceBarrier'ing to this state will
 		// insure there are no state conflics.
 		static const D3D12_RESOURCE_STATES IE_D3D12_DEFAULT_RESOURCE_STATE = D3D12_RESOURCE_STATE_COMMON;
+
+		// Debugging
+
 	};
 
 

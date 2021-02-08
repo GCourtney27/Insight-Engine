@@ -23,7 +23,7 @@ namespace Insight {
 
 	Mesh::Mesh(Mesh&& mesh) noexcept
 	{
-		IE_DEBUG_LOG(LogSeverity::Warning, "Mesh being moved in memory.");
+		IE_LOG(Warning, "Mesh being moved in memory.");
 		
 		m_pIndexBuffer = mesh.m_pIndexBuffer;
 		m_pVertexBuffer = mesh.m_pVertexBuffer;
@@ -124,7 +124,7 @@ namespace Insight {
 		}
 		default:
 		{
-			IE_DEBUG_LOG(LogSeverity::Error, "Failed to determine vertex buffer type for mesh.");
+			IE_LOG(Error, "Failed to determine vertex buffer type for mesh.");
 			break;
 		}
 		}

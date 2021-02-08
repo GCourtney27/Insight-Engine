@@ -84,6 +84,7 @@ project ("EngineBuild_UWP")
 
 		-- Engine Source code
 		"%{engineIncludeDirs.Engine}/Source/",
+		"%{engineIncludeDirs.Engine}/Shaders/",
 
 		-- This Projects PCH
 		"PCH_Source/",
@@ -226,6 +227,7 @@ project ("EngineBuild_Win32")
 
 		-- Engine Source code
 		"%{engineIncludeDirs.Engine}/Source/",
+		"%{engineIncludeDirs.Engine}/Shaders/",
 
 		-- This Projects PCH
 		"PCH_Source/",
@@ -246,6 +248,7 @@ project ("EngineBuild_Win32")
 	{
 		-- Compile the ray tracing shaders.
 		("%{wks.location}Engine/Shaders/HLSL/RayTracing/CompileRTShaders.bat %{wks.location}Binaries/" .. outputdir .. "/%{prj.name}"),
+
 	}
 
 	-- Shaders

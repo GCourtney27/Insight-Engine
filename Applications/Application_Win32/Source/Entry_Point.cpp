@@ -42,7 +42,7 @@ int APIENTRY wWinMain(
 	}
 	catch (Insight::ieException& Ex) 
 	{
-		IE_DEBUG_LOG(LogSeverity::Critical, Ex.What());
+		IE_LOG(Critical, Ex.What());
 		return Insight::Application::EC_Failed;
 	}
 

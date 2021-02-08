@@ -19,7 +19,6 @@ win32AppIncludeDirs["Engine_Root"]				= rootDirPath .. "Engine/"
 win32AppIncludeDirs["Engine_Src"]				= rootDirPath .. "Engine/Source/"
 win32AppIncludeDirs["Engine_ThirdParty"]		= rootDirPath .. "Engine/ThirdParty/"
 win32AppIncludeDirs["BuildRules"]				= rootDirPath .. "Engine/BuildRules/"
-win32AppIncludeDirs["Game_Runtime"]				= rootDirPath .. "Game_Runtime/Source/"
 
 project (projectName)
 	location (rootDirPath .. "Applications/" .. projectName)
@@ -28,6 +27,7 @@ project (projectName)
 	cppdialect ("C++17")
 	staticruntime ("off")
 	targetname (projectName)
+	systemversion ("latest")
 	
 	targetdir (rootDirPath .. binaryDirectory .. "%{prj.name}")
     objdir (rootDirPath .. intDirectory .. "%{prj.name}")
@@ -89,7 +89,6 @@ project (projectName)
 		"EngineBuild_Win32",
 	}
 
-	systemversion ("latest")
 	defines
 	{
 		"IE_PLATFORM_BUILD_WIN32=1",
@@ -115,7 +114,6 @@ project (projectName)
 		-- Copy over default engine assets
 		("{COPY} ../../Engine/Assets %{cfg.targetdir}/../Content/Engine"),
 	}
-
 
 
 -- Build Configurations

@@ -23,6 +23,7 @@ workspace ("InsightEngine")
 	}
 	
 
+
 outputdir = "%{cfg.buildcfg}-$(SDKIdentifier)-$(Platform)"
 
 binaryFolder = "Binaries/"

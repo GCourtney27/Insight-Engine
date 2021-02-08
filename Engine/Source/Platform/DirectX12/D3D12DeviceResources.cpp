@@ -95,7 +95,7 @@ namespace Insight {
 	{
 		// Close the fence handle on the GPU
 		if (!CloseHandle(m_FenceEvent)) {
-			IE_DEBUG_LOG(LogSeverity::Error, "Failed to close GPU handle while cleaning up the D3D 12 context.");
+			IE_LOG(Error, "Failed to close GPU handle while cleaning up the D3D 12 context.");
 		}
 	}
 
@@ -252,7 +252,7 @@ namespace Insight {
 						*ppAdapter = pAdapter.Detach();
 						m_pRenderContextRef->SetIsRayTraceSupported(true);
 
-						IE_DEBUG_LOG(LogSeverity::Log, "Found suitable D3D 12 hardware that can support DXR: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
+						IE_LOG(Log, "Found suitable D3D 12 hardware that can support DXR: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
 						continue;
 					}
 				}
@@ -265,12 +265,12 @@ namespace Insight {
 				if (*ppAdapter != nullptr) (*ppAdapter)->Release();
 
 				*ppAdapter = pAdapter.Detach();
-				IE_DEBUG_LOG(LogSeverity::Log, "Found suitable D3D 12 hardware: {0}", StringHelper::WideToString(Desc.Description));
+				IE_LOG(Log, "Found suitable D3D 12 hardware: {0}", StringHelper::WideToString(Desc.Description));
 			}
 		}
 		Desc = {};
 		(*ppAdapter)->GetDesc1(&Desc);
-		IE_DEBUG_LOG(LogSeverity::Warning, "\"{0}\" selected as D3D 12 graphics hardware.", StringHelper::WideToString(Desc.Description));
+		IE_LOG(Warning, "\"{0}\" selected as D3D 12 graphics hardware.", StringHelper::WideToString(Desc.Description));
 	}
 
 	void D3D12DeviceResources::CreateDevice()
@@ -289,7 +289,7 @@ namespace Insight {
 
 			DXGI_ADAPTER_DESC Desc;
 			warpAdapter->GetDesc(&Desc);
-			IE_DEBUG_LOG(LogSeverity::Warning, "\"{0}\" selected as D3D 12 graphics hardware.", StringHelper::WideToString(Desc.Description));
+			IE_LOG(Warning, "\"{0}\" selected as D3D 12 graphics hardware.", StringHelper::WideToString(Desc.Description));
 		}
 		else
 		{

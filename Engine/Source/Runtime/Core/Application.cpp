@@ -47,7 +47,7 @@ namespace Insight {
 
 	void Application::Initialize()
 	{
-		ScopedPerfTimer("Core application initialization", OutputType_Millis);
+		ScopedMilliSecondTimer("Core application initialization");
 
 		// Initize the main file system.
 		FileSystem::Init();
@@ -78,7 +78,7 @@ namespace Insight {
 		ResourceManager::Get().PostAppInit();
 		m_pGameLayer->PostInit();
 
-		IE_DEBUG_LOG(LogSeverity::Verbose, "Application Initialized");
+		IE_LOG(Verbose, "Application Initialized");
 	}
 
 	static bool s_ReloadRuntime = false;
@@ -242,7 +242,7 @@ namespace Insight {
 			);
 			break;
 		default:
-			IE_DEBUG_LOG(LogSeverity::Error, "Failed to create ImGui layer in application with API of type \"{0}\" Or application has disabled editor.", Renderer::GetAPI());
+			IE_LOG(Error, "Failed to create ImGui layer in application with API of type \"{0}\" Or application has disabled editor.", Renderer::GetAPI());
 			break;
 		}
 #endif
@@ -350,7 +350,7 @@ namespace Insight {
 
 	bool Application::ReloadScripts(AppScriptReloadEvent& e)
 	{
-		IE_DEBUG_LOG(LogSeverity::Log, "Reloading C# Scripts");
+		IE_LOG(Log, "Reloading C# Scripts");
 #if IE_PLATFORM_BUILD_WIN32
 		ResourceManager::Get().GetMonoScriptManager().ReCompile();
 #endif

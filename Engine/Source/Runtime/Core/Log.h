@@ -23,9 +23,13 @@ namespace Insight {
 			inline static void HoldForUserInput() { system("PAUSE"); }
 
 			inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
+			inline static std::shared_ptr<spdlog::logger>& GetWarningLogger() { return s_WarningLogger; }
+			inline static std::shared_ptr<spdlog::logger>& GetErrorLogger() { return s_ErrorLogger; }
 			inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
 		private:
 			static std::shared_ptr<spdlog::logger> s_CoreLogger;
+			static std::shared_ptr<spdlog::logger> s_WarningLogger;
+			static std::shared_ptr<spdlog::logger> s_ErrorLogger;
 			static std::shared_ptr<spdlog::logger> s_ClientLogger;
 #if defined (IE_DEBUG) && defined (IE_PLATFORM_BUILD_WIN32)
 			static ConsoleWindow m_ConsoleWindow;
@@ -37,7 +41,7 @@ namespace Insight {
 
 }
 
-enum class LogSeverity
+enum class ELogSeverity
 {
 	Log,
 	Verbose,
@@ -49,25 +53,25 @@ enum class LogSeverity
 namespace Debug {
 
 	// Logger that will log output to the console window. Recommended that you dont call directly. 
-	// Instead, use IE_DEBUG_LOG so logs will be stripped from release builds.
+	// Instead, use IE_LOG so logs will be stripped from release builds.
 	template <typename ... LogContents>
-	inline constexpr void Log(LogSeverity Severity = LogSeverity::Log, LogContents ... Contents)
+	inline constexpr void LogHelper(ELogSeverity Severity = ELogSeverity::Log, LogContents ... Contents)
 	{
 		switch (Severity)
 		{
-		case LogSeverity::Log:
+		case ELogSeverity::Log:
 			Insight::Debug::Logger::GetCoreLogger()->info(Contents...);
 			break;
-		case LogSeverity::Verbose:
+		case ELogSeverity::Verbose:
 			Insight::Debug::Logger::GetCoreLogger()->trace(Contents...);
 			break;
-		case LogSeverity::Warning:
-			Insight::Debug::Logger::GetCoreLogger()->warn(Contents...);
+		case ELogSeverity::Warning:
+			Insight::Debug::Logger::GetWarningLogger()->warn(Contents...);
 			break;
-		case LogSeverity::Error:
-			Insight::Debug::Logger::GetCoreLogger()->error(Contents...);
+		case ELogSeverity::Error:
+			Insight::Debug::Logger::GetErrorLogger()->error(Contents...);
 			break;
-		case LogSeverity::Critical:
+		case ELogSeverity::Critical:
 			Insight::Debug::Logger::GetCoreLogger()->critical(Contents...);
 			break;
 		default:
@@ -79,14 +83,14 @@ namespace Debug {
 
 
 #if defined (IE_DEBUG) || defined (IE_RELEASE)
-	#define IE_FATAL_ERROR(...) __debugbreak(); OutputDebugString(__VA_ARGS__)
-	#if IE_PLATFORM_BUILD_WIN32
-		#define IE_DEBUG_LOG(Severity, ...) ::Debug::Log(Severity, __VA_ARGS__);
-	#elif IE_PLATFORM_BUILD_UWP
-		#define WIDE_STRING(...) L#__VA_ARGS__
-		#define IE_DEBUG_LOG(Severity, ...) {wchar_t Buffer[512]; swprintf(Buffer, sizeof(Buffer), WIDE_STRING(__VA_ARGS__)); OutputDebugString(Buffer);}
-	#endif
+#	define IE_FATAL_ERROR(...) __debugbreak(); OutputDebugString(__VA_ARGS__)
+#	if IE_PLATFORM_BUILD_WIN32
+#		define IE_LOG(Severity, ...) ::Debug::LogHelper(ELogSeverity::##Severity, __VA_ARGS__);
+#	elif IE_PLATFORM_BUILD_UWP
+#		define WIDE_STRING(...) L#__VA_ARGS__
+#		define IE_LOG(Severity, ...) {wchar_t Buffer[512]; swprintf(Buffer, sizeof(Buffer), WIDE_STRING(__VA_ARGS__)); OutputDebugString(Buffer);}
+#	endif
 #else
-	#define IE_FATAL_ERROR(...)
-	#define IE_DEBUG_LOG(LogSeverity, ...)
+#	define IE_FATAL_ERROR(...)
+#	define IE_LOG(LogSeverity, ...)
 #endif

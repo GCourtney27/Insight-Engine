@@ -48,13 +48,13 @@ namespace Insight {
 	}
 	void GameLayer::OnAttach()
 	{
-		IE_DEBUG_LOG(LogSeverity::Log, "Game Layer Attached");
+		IE_LOG(Log, "Game Layer Attached");
 		BeginPlay();
 	}
 
 	void GameLayer::OnDetach()
 	{
-		IE_DEBUG_LOG(LogSeverity::Log, "Game Layer Detached");
+		IE_LOG(Log, "Game Layer Detached");
 		EndPlay();
 	}
 
@@ -76,7 +76,7 @@ namespace Insight {
 	bool GameLayer::LoadScene(const std::string& FileName)
 	{
 		if (!m_pScene->Init(FileName)) {
-			IE_DEBUG_LOG(LogSeverity::Error, "Failed to load Scene \"{0}\"", FileName);
+			IE_LOG(Error, "Failed to load Scene \"{0}\"", FileName);
 			return false;
 		}
 		return true;

@@ -24,7 +24,7 @@
 #endif // IE_DEBUG
 
 #if defined IE_ENABLE_ASSERTS
-	#define IE_ASSERT(x, ...) { if( !(x) ) { IE_DEBUG_LOG(LogSeverity::Error, "Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+	#define IE_ASSERT(x, ...) { if( !(x) ) { IE_LOG(Error, "Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
 #else
 	#define IE_ASSERT(x, ...)
 #endif // IE_ENABLE_ASSERTS

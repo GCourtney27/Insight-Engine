@@ -857,10 +857,13 @@ namespace Insight {
 	void BloomPass::CreateResources()
 	{
 		ID3D12Device* pDevice = &m_pRenderContextRef->GetDeviceContext();
-		const UINT WindowWidth = static_cast<UINT>(m_pRenderContextRef->GetWindowRef().GetWidth());
-		const UINT WindowHeight = static_cast<UINT>(m_pRenderContextRef->GetWindowRef().GetHeight());
+		const uint32_t WindowWidth	= static_cast<UINT>(m_pRenderContextRef->GetWindowRef().GetWidth());
+		const uint32_t WindowHeight = static_cast<UINT>(m_pRenderContextRef->GetWindowRef().GetHeight());
+		const uint32_t TargetWidth	= WindowWidth	/ 2u;
+		const uint32_t TargetHeight = WindowHeight	/ 2u;
 		CD3DX12_HEAP_PROPERTIES DefaultHeapProps(D3D12_HEAP_TYPE_DEFAULT);
 
+		IE_LOG(Warning, "Creating bloom render targets with source resolution {0}, {1}", WindowWidth, WindowHeight);
 
 		// Down Sample UAV
 		D3D12_RESOURCE_DESC ResourceDesc = {};
@@ -869,8 +872,8 @@ namespace Insight {
 		ResourceDesc.SampleDesc = { 1, 0 };
 		ResourceDesc.MipLevels = 1;
 		ResourceDesc.DepthOrArraySize = 1;
-		ResourceDesc.Width = WindowWidth / 2u; // Downsample to half-resolution.
-		ResourceDesc.Height = WindowHeight / 2u;
+		ResourceDesc.Width = TargetWidth;
+		ResourceDesc.Height = TargetHeight;
 		ResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 		ResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 		ResourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -892,9 +895,8 @@ namespace Insight {
 		pDevice->CreateUnorderedAccessView(m_pDownsampleResult_UAV.Get(), nullptr, &UAVDesc, m_pCBVSRVHeapRef->hCPU(9));
 		m_pDownsampleResult_UAV->SetName(L"UAV: Bloom Pass Down Sampled Buffer");
 
-		// Shader Resource View for the Down-Sampled Buffer m_pDownsampleResult_UAV
-		ResourceDesc.Width = WindowWidth / 2u;
-		ResourceDesc.Height = WindowHeight / 2u;
+		// Shader Resource View for the Down-Sampled Buffer BloomPass::m_pDownsampleResult_UAV
+		// This will be populated with the BloomPass::m_pDownsampleResult_UAV via a copy per frame
 		D3D12_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
 		SRVDesc.Format = ResourceDesc.Format;
 		SRVDesc.Texture2D.MipLevels = 1U;
@@ -919,7 +921,14 @@ namespace Insight {
 
 		// UAV Down-Sampled Intermediate Buffer
 		m_pIntermediateBuffer_UAV.Reset();
-		hr = pDevice->CreateCommittedResource(&DefaultHeapProps, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, nullptr, IID_PPV_ARGS(&m_pIntermediateBuffer_UAV));
+		hr = pDevice->CreateCommittedResource(
+			&DefaultHeapProps, 
+			D3D12_HEAP_FLAG_NONE, 
+			&ResourceDesc, 
+			D3D12_RESOURCE_STATE_UNORDERED_ACCESS, 
+			nullptr, 
+			IID_PPV_ARGS(&m_pIntermediateBuffer_UAV)
+		);
 		ThrowIfFailed(hr, "Failed to create committed resource for bloom down sampled intermdiate UAV.");
 		pDevice->CreateUnorderedAccessView(m_pIntermediateBuffer_UAV.Get(), nullptr, &UAVDesc, m_pCBVSRVHeapRef->hCPU(11));
 		m_pIntermediateBuffer_UAV->SetName(L"UAV: Bloom Pass Down Sampled INTERMEDIENT Buffer");
@@ -927,7 +936,14 @@ namespace Insight {
 		// SRV Bloom Blur Intermediate Buffer
 		m_pIntermediateBuffer_SRV.Reset();
 		ThrowIfFailed(hr, "Failed to create committed resource for down sampled UAV.");
-		hr = pDevice->CreateCommittedResource(&DefaultHeapProps, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, nullptr, IID_PPV_ARGS(&m_pIntermediateBuffer_SRV));
+		hr = pDevice->CreateCommittedResource(
+			&DefaultHeapProps, 
+			D3D12_HEAP_FLAG_NONE, 
+			&ResourceDesc, 
+			D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, 
+			nullptr, 
+			IID_PPV_ARGS(&m_pIntermediateBuffer_SRV)
+		);
 		pDevice->CreateShaderResourceView(m_pIntermediateBuffer_SRV.Get(), &SRVDesc, m_pCBVSRVHeapRef->hCPU(12));
 		m_pIntermediateBuffer_SRV->SetName(L"SRV: Bloom Pass Down Sampled INTERMEDIENT Buffer");
 	}

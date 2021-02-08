@@ -23,7 +23,7 @@
 
 #define SHADOWMAPPING_ENABLED 0
 #define TRANSPARENCYPASS_ENABLED 0
-#define BLOOM_ENABLED 0
+#define BLOOM_ENABLED 1
 
 
 namespace Insight {
@@ -52,7 +52,7 @@ namespace Insight {
 
 	bool Direct3D12Context::Init_Impl()
 	{
-		IE_DEBUG_LOG(LogSeverity::Log, "Renderer: D3D 12");
+		IE_LOG(Log, "Renderer: D3D 12");
 
 		try
 		{
@@ -133,7 +133,7 @@ namespace Insight {
 	{
 		auto& DWriteFactory = m_DeviceResources.GetWriteFactory();
 		auto& D2DDeviceContext = m_DeviceResources.GetD2DDeviceContext();
-		constexpr int FontSize = 20;
+		constexpr float FontSize = 20;
 
 		ThrowIfFailed(D2DDeviceContext.CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Green), &m_textBrush), "Failed to create solid color brush.");
 		HRESULT hr = DWriteFactory.CreateTextFormat(
@@ -191,7 +191,6 @@ namespace Insight {
 		m_FrameResources.m_CBPerFrame.Data.ScreenSize.y = (float)m_pWindowRef->GetHeight();
 		m_FrameResources.m_CBPerFrame.SubmitToGPU();
 
-		//if (m_GraphicsSettings.RayTraceEnabled) m_RTHelper.UpdateCBVs();
 		if (m_GraphicsSettings.RayTraceEnabled) m_RayTracedShadowPass.GetRTHelper()->UpdateCBVs();
 
 
@@ -398,9 +397,14 @@ namespace Insight {
 #if TRANSPARENCYPASS_ENABLED
 		ThrowIfFailed(m_pTransparencyPass_CommandList->Close(), "Failed to close the command list for D3D 12 context transparency pass.");
 #endif
+		
 		ThrowIfFailed(m_pPostEffectsPass_CommandList->Close(), "Failed to close the command list for D3D 12 context post-process pass.");
+		
+#if BLOOM_ENABLED
 		ThrowIfFailed(m_pBloomFirstPass_CommandList->Close(), "Failed to close command list for D3D 12 context bloom blur pass.");
 		ThrowIfFailed(m_pBloomSecondPass_CommandList->Close(), "Failed to close command list for D3D 12 context bloom blur pass.");
+#endif
+
 		if (m_GraphicsSettings.RayTraceEnabled)
 			ThrowIfFailed(m_pRayTracePass_CommandList->Close(), "Failed to close the command list for D3D 12 context ray trace pass.");
 
@@ -430,7 +434,6 @@ namespace Insight {
 
 		BeginTrackRenderEvent(&m_DeviceResources.GetGraphicsCommandQueue(), 0, "Render UI");
 		{
-			
 			D2D1_SIZE_F rtSize = m_DeviceResources.GetD2DRenderTarget().GetSize();
 			D2D1_RECT_F textRect = D2D1::RectF(0, 0, rtSize.width, rtSize.height);
 			FrameTimer& GraphicsFrameTimer = Application::Get().GetGraphicsThreadPerfTimer();
@@ -561,7 +564,6 @@ namespace Insight {
 #endif // IE_PLATFORM_BUILD_WIN32
 	}
 
-
 	void Direct3D12Context::OnShaderReload_Impl()
 	{
 		m_RenderPassStack.ReloadPipelines();
@@ -663,7 +665,7 @@ namespace Insight {
 				&ShadowDepthOptomizedClearValue,
 				IID_PPV_ARGS(&m_pShadowDepthTexture));
 			if (FAILED(hr))
-				IE_DEBUG_LOG(LogSeverity::Error, "Failed to create comitted resource for depth stencil view");
+				IE_LOG(Error, "Failed to create comitted resource for depth stencil view");
 			m_pShadowDepthTexture->SetName(L"Shadow Depth Buffer");
 			pDevice->CreateDepthStencilView(m_pShadowDepthTexture.Get(), &ShadowDepthDesc, m_dsvHeap.hCPU(1));
 

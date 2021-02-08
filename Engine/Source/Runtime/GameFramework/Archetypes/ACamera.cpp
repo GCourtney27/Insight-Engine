@@ -192,7 +192,7 @@ namespace Insight {
 
 		void ACamera::Test()
 		{
-			IE_DEBUG_LOG(LogSeverity::Log, "Test Fn!");
+			IE_LOG(Log, "Test Fn!");
 		}
 
 

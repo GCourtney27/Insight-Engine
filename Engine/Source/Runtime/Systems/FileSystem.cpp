@@ -39,7 +39,7 @@ namespace Insight {
 		if (!pFile)
 		{
 			HRESULT hr = HRESULT_FROM_WIN32(GetLastError());
-			IE_DEBUG_LOG(LogSeverity::Error, "Failed to read raw file with path: \"{0}\"", Path);
+			IE_LOG(Error, "Failed to read raw file with path: \"{0}\"", Path);
 			OutDataSize = -1;
 			return nullptr;
 		}
@@ -64,7 +64,7 @@ namespace Insight {
 		rapidjson::Document RawSettingsFile;
 		const std::string SettingsDir = "../Content/Engine.ini";
 		if (!json::load(SettingsDir.c_str(), RawSettingsFile)) {
-			IE_DEBUG_LOG(LogSeverity::Error, "Failed to load graphics settings from file: \"{0}\". Default graphics settings will be applied.", SettingsDir);
+			IE_LOG(Error, "Failed to load graphics settings from file: \"{0}\". Default graphics settings will be applied.", SettingsDir);
 
 		}
 
@@ -101,7 +101,7 @@ namespace Insight {
 			offstream << StrBuffer.GetString();
 
 			if (!offstream.good()) {
-				IE_DEBUG_LOG(LogSeverity::Error, "Failed to save graphics properties to Engine.ini.");
+				IE_LOG(Error, "Failed to save graphics properties to Engine.ini.");
 			}
 		}
 
@@ -122,12 +122,12 @@ namespace Insight {
 		GraphicsSettings UserGraphicsSettings = {};
 
 		{
-			ScopedPerfTimer("LoadSceneFromJson::LoadGraphicsSettingsFromJson", OutputType_Seconds);
+			ScopedSecondTimer("LoadSceneFromJson::LoadGraphicsSettingsFromJson");
 
 			rapidjson::Document RawSettingsFile;
 			const std::string SettingsDir = StringHelper::WideToString(GetRelativeContentDirectoryW(L"Engine.ini"));
 			if (!json::load(SettingsDir.c_str(), RawSettingsFile)) {
-				IE_DEBUG_LOG(LogSeverity::Error, "Failed to load graphics settings from file: \"{0}\". Default graphics settings will be applied.", SettingsDir);
+				IE_LOG(Error, "Failed to load graphics settings from file: \"{0}\". Default graphics settings will be applied.", SettingsDir);
 				return UserGraphicsSettings;
 			}
 			int MaxAniso, TargetRenderAPI;
@@ -147,12 +147,12 @@ namespace Insight {
 	{
 		// Load in Meta.json
 		{
-			ScopedPerfTimer("LoadSceneFromJson::LoadMetaData", OutputType_Seconds);
+			ScopedSecondTimer("LoadSceneFromJson::LoadMetaData");
 
 			rapidjson::Document rawMetaFile;
 			const std::string metaDir = FileName + "/Meta.json";
 			if (!json::load(metaDir.c_str(), rawMetaFile)) {
-				IE_DEBUG_LOG(LogSeverity::Error, "Failed to load meta file from scene: \"{0}\" from file.", FileName);
+				IE_LOG(Error, "Failed to load meta file from scene: \"{0}\" from file.", FileName);
 				return false;
 			}
 			std::string sceneName;
@@ -164,33 +164,33 @@ namespace Insight {
 			json::get_int(rawMetaFile, "NumSceneActors", NumActorsInScene);
 			pScene->ResizeSceneGraph(NumActorsInScene);
 
-			IE_DEBUG_LOG(LogSeverity::Verbose, "Scene meta data loaded.");
+			IE_LOG(Verbose, "Scene meta data loaded.");
 		}
 
 		// Load in Resources.json
 		{
-			ScopedPerfTimer("LoadSceneFromJson::LoadResources", OutputType_Seconds);
+			ScopedSecondTimer("LoadSceneFromJson::LoadResources");
 
 			rapidjson::Document RawResourceFile;
 			const std::string ResorurceDir = FileName + "/Resources.json";
 			if (!json::load(ResorurceDir.c_str(), RawResourceFile)) {
-				IE_DEBUG_LOG(LogSeverity::Error, "Failed to load resource file from scene: \"{0}\" from file.", FileName);
+				IE_LOG(Error, "Failed to load resource file from scene: \"{0}\" from file.", FileName);
 				return false;
 			}
 
 			ResourceManager::Get().LoadResourcesFromJson(RawResourceFile);
 
-			IE_DEBUG_LOG(LogSeverity::Verbose, "Scene resouces loaded.");
+			IE_LOG(Verbose, "Scene resouces loaded.");
 		}
 
 		// Load in Actors.json last once resources have been intialized
 		{
-			ScopedPerfTimer("LoadSceneFromJson::LoadActors", OutputType_Seconds);
+			ScopedSecondTimer("LoadSceneFromJson::LoadActors");
 
 			rapidjson::Document RawActorsFile;
 			const std::string ActorsDir = FileName + "/Actors.json";
 			if (!json::load(ActorsDir.c_str(), RawActorsFile)) {
-				IE_DEBUG_LOG(LogSeverity::Error, "Failed to load actor file from scene: \"{0}\" from file.", FileName);
+				IE_LOG(Error, "Failed to load actor file from scene: \"{0}\" from file.", FileName);
 				return false;
 			}
 
@@ -237,7 +237,7 @@ namespace Insight {
 				}
 
 				if (pNewActor == nullptr) {
-					IE_DEBUG_LOG(LogSeverity::Error, "Failed to parse actor \"{0}\" into scene", (ActorDisplayName == "") ? "INVALID NAME" : ActorDisplayName);
+					IE_LOG(Error, "Failed to parse actor \"{0}\" into scene", (ActorDisplayName == "") ? "INVALID NAME" : ActorDisplayName);
 					continue;
 				}
 
@@ -245,7 +245,7 @@ namespace Insight {
 				ActorSceneIndex++;
 			}
 
-			IE_DEBUG_LOG(LogSeverity::Verbose, "Scene actors loaded.");
+			IE_LOG(Verbose, "Scene actors loaded.");
 		}
 
 		return true;
@@ -271,7 +271,7 @@ namespace Insight {
 			offstream << StrBuffer.GetString();
 
 			if (!offstream.good()) {
-				IE_DEBUG_LOG(LogSeverity::Error, "Failed to save meta data for scene: {0}", pScene->GetDisplayName());
+				IE_LOG(Error, "Failed to save meta data for scene: {0}", pScene->GetDisplayName());
 				return false;
 			}
 		}
@@ -289,7 +289,7 @@ namespace Insight {
 			offstream << StrBuffer.GetString();
 
 			if (!offstream.good()) {
-				IE_DEBUG_LOG(LogSeverity::Error, "Failed to save actors for scene: {0}", pScene->GetDisplayName());
+				IE_LOG(Error, "Failed to save actors for scene: {0}", pScene->GetDisplayName());
 				return false;
 			}
 		}

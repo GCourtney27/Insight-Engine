@@ -4,3 +4,5 @@ C:\VSDev\Insight-Interactive\InsightEngine\Engine\Third_Party\ImGui\bin\Debug-Wi
 C:\VSDev\Insight-Interactive\InsightEngine\Engine\Third_Party\ImGui\bin-int\Debug-Windows-x64\ImGui\ImGui.pdb
 C:\VSDev\Insight-Interactive\InsightEngine\Engine\ThirdParty\ImGui\bin\Debug-Windows-x64\ImGui\ImGui.pdb
 C:\VSDev\Insight-Interactive\InsightEngine\Engine\ThirdParty\ImGui\bin-int\Debug-Windows-x64\ImGui\ImGui.pdb
+C:\Dev\Insight-Interactive\InsightEngine\Engine\ThirdParty\ImGui\bin\Debug-Windows-x64\ImGui\ImGui.pdb
+C:\Dev\Insight-Interactive\InsightEngine\Engine\ThirdParty\ImGui\bin-int\Debug-Windows-x64\ImGui\ImGui.pdb

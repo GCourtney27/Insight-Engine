@@ -19,7 +19,7 @@ namespace Insight {
 
 	Model::Model(Model&& model) noexcept
 	{
-		IE_DEBUG_LOG(LogSeverity::Warning, "Model being moved in memory.");
+		IE_LOG(Warning, "Model being moved in memory.");
 
 		m_Meshes = std::move(model.m_Meshes);
 		m_pRoot = std::move(model.m_pRoot);
@@ -118,7 +118,7 @@ namespace Insight {
 		);
 
 		if (!pScene || pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !pScene->mRootNode) {
-			IE_DEBUG_LOG(LogSeverity::Error, "Assimp import error: {0}", Importer.GetErrorString());
+			IE_LOG(Error, "Assimp import error: {0}", Importer.GetErrorString());
 			return false;
 		}
 
@@ -147,7 +147,7 @@ namespace Insight {
 			const ofbx::GlobalSettings* s = pScene->getGlobalSettings();
 			if (!pScene)
 			{
-				IE_DEBUG_LOG(LogSeverity::Warning, "ofbx import error: {0}", ofbx::getError());
+				IE_LOG(Warning, "ofbx import error: {0}", ofbx::getError());
 				return false;
 			}
 			else
@@ -171,7 +171,7 @@ namespace Insight {
 		}
 		else 
 		{
-			IE_DEBUG_LOG(LogSeverity::Error, "Invalid mash filetype provided. ONly .FBX files are supported for UWP platforms.");
+			IE_LOG(Error, "Invalid mash filetype provided. ONly .FBX files are supported for UWP platforms.");
 			return false;
 		}
 #endif

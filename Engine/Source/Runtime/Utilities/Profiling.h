@@ -1,69 +1,177 @@
 #pragma once
-#include <Runtime/CoreMacros.h>
 
+#include <Runtime/CoreMacros.h>
 #include <chrono>
 
 
 #if defined IE_SCOPE_PROFILING_ENABLED
-#define ScopedPerfTimer(Message, OutputType) Insight::Profiling::ScopedTimer Timer(Message, Insight::Profiling::ScopedTimer::eOutputType::##OutputType);
+// Scoped timer whos base output method is milliseconds.
+#	define ScopeTimer(Message, OutputType) Insight::Profiling::ScopedTimer Timer(Message, Insight::Profiling::EOutputType::OT_##OutputType);
+
+// Scoped timer whos base output method is seconds.
+#	define ScopedSecondTimer(Message) Insight::Profiling::ScopedTimer Timer(Message, Insight::Profiling::EOutputType::OT_Seconds);
+
+// Scoped timer whos base output method is miliseconds.
+#	define ScopedMilliSecondTimer(Message) Insight::Profiling::ScopedTimer Timer(Message, Insight::Profiling::EOutputType::OT_Milliseconds);
+
+// Scoped timer whos base output method is nanoseconds.
+#	define ScopedNanoSecondTimer(Message) Insight::Profiling::ScopedTimer Timer(Message, Insight::Profiling::EOutputType::OT_NanoSeconds);
+
+// Scoped timer whos base output method is microseconds.
+#	define ScopedMicroSecondTimer(Message) Insight::Profiling::ScopedTimer Timer(Message, Insight::Profiling::EOutputType::OT_MicroSeconds);
 #else
-	#define ScopedPerfTimer
+#	define ScopeTimer(Message, EOutputType)
+#	define ScopedMilliSecondTimer(Message)
+#	define ScopedSecondTimer(Message)
+#	define ScopedNanoSecondTimer(Message)
 #endif
 
 namespace Insight {
 
 	namespace Profiling {
 
-		struct INSIGHT_API ScopedTimer
+		enum class EOutputType
 		{
-			enum class eOutputType
-			{
-				OutputType_Seconds,
-				OutputType_Millis
-			};
+			OT_Seconds,
+			OT_Milliseconds,
+			OT_NanoSeconds,
+			OT_MicroSeconds
+		};
 
-			ScopedTimer(const char* pScopeName, eOutputType outputType = eOutputType::OutputType_Millis)
-				: m_ScopeName(pScopeName), m_OutputType(outputType)
+		/*
+			Outlines a timer with start and stop capabilities.
+		*/
+		template <typename TimeType>
+		struct INSIGHT_API Timer
+		{
+			Timer(EOutputType OutputType)
+				: m_OutputType(OutputType)
+				, m_Started(false)
 			{
-				m_Start = std::chrono::high_resolution_clock::now();
+			}
+			virtual ~Timer() = default;
+			
+			/*
+				Starts the timer.
+			*/
+			FORCE_INLINE void Start()
+			{
+				if (!GetIsTimerStarted())
+				{
+					SetTimerStarted(true);
+					m_Start = std::chrono::steady_clock::now();
+				}
+				else
+				{
+					IE_LOG(Warning, "Timer already started!");
+				}
 			}
 
-			~ScopedTimer()
+			/*
+				Stops the timer and calculates the amount of time elapsed since Timer::Start().
+			*/
+			FORCE_INLINE void Stop()
 			{
-				m_End = std::chrono::high_resolution_clock::now();
-				m_Duration = m_End - m_Start;
-
-				float time = 0.0f;
-				switch (m_OutputType) {
-				case eOutputType::OutputType_Millis:
+				if (GetIsTimerStarted())
 				{
-					time = m_Duration.count();
-					if (time > 1.0f) {
-						IE_DEBUG_LOG(LogSeverity::Warning, "{0} took {1}ms. Performance degradation.", m_ScopeName, time);
-					}
-					else {
-						IE_DEBUG_LOG(LogSeverity::Log, "{0} took {1}s", m_ScopeName, time);
-					}
+					SetTimerStarted(false);
+					m_End = std::chrono::steady_clock::now();
+					m_Duration = m_End - m_Start;
 				}
-				case eOutputType::OutputType_Seconds:
+				else
 				{
-					time = m_Duration.count() * 1000.0f;
-					if (time > 1000.0f) {
-						IE_DEBUG_LOG(LogSeverity::Warning, "{0} took {1}s. Performance degradation.", m_ScopeName, time);
-					}
-					else {
-						IE_DEBUG_LOG(LogSeverity::Log, "{0} took {1}s", m_ScopeName, time);
-					}
+					IE_LOG(Warning, "Timer being stopped without being started!")
 				}
-				}
-
 			}
-		private:
+
+			/*
+				Returns true if the timer has started or false if not.
+			*/
+			FORCE_INLINE bool GetIsTimerStarted() const 
+			{
+				return m_Started;
+			}
+
+			/*
+				Set if the timer has started.
+				@param Started - Weather the timer has been started.
+			*/
+			FORCE_INLINE void SetTimerStarted(bool Started)
+			{
+				m_Started = Started;
+			}
+
+			/*
+				Returns the amount of time the timer tracked in nanoseconds.
+			*/
+			FORCE_INLINE TimeType GetElapsedNanos() const
+			{
+				return (TimeType)std::chrono::duration_cast<std::chrono::nanoseconds>(m_Duration).count();
+			}
+
+			/*
+				Returns the amount of time the timer tracked in milliseconds.
+			*/
+			FORCE_INLINE TimeType GetElapsedMiliSeconds() const
+			{
+				return (TimeType)std::chrono::duration_cast<std::chrono::milliseconds>(m_Duration).count();
+			}
+
+			/*
+				Returns the amount of time the timer tracked in seconds.
+			*/
+			FORCE_INLINE TimeType GetElepsedSeconds() const
+			{
+				return (TimeType)std::chrono::duration_cast<std::chrono::seconds>(m_Duration).count() + (GetElapsedMiliSeconds() / 1000.0);
+			}
+
+			/*
+				Returns the amount of time the timer tracked in microseconds.
+			*/
+			FORCE_INLINE TimeType GetElepsedMicroSeconds() const
+			{
+				return (TimeType)std::chrono::duration_cast<std::chrono::microseconds>(m_Duration).count();
+			}
+
+
+		protected:
+			bool m_Started;
+			EOutputType m_OutputType;
+			std::chrono::duration<TimeType> m_Duration;
 			std::chrono::time_point<std::chrono::steady_clock> m_Start, m_End;
-			std::chrono::duration<float> m_Duration;
+		};
 
-			std::string m_ScopeName;
-			eOutputType m_OutputType;
+		struct INSIGHT_API ScopedTimer : private Timer<double>
+		{
+			ScopedTimer(const char* ScopeName, EOutputType OutputType = EOutputType::OT_Milliseconds)
+				: m_ScopeName(ScopeName), Timer(OutputType)
+			{
+				Start();
+			}
+			virtual ~ScopedTimer()
+			{
+				Stop();
+				switch (m_OutputType)
+				{
+				case EOutputType::OT_Milliseconds:
+					IE_LOG(Log, "{0} took {1} milliseconds", m_ScopeName, GetElapsedMiliSeconds());
+					break;
+				case EOutputType::OT_Seconds:
+					IE_LOG(Log, "{0} took {1} seconds", m_ScopeName, GetElepsedSeconds());
+					break;
+				case EOutputType::OT_NanoSeconds:
+					IE_LOG(Log, "{0} took {1} nanoseconds", m_ScopeName, GetElapsedNanos());
+					break;
+				case EOutputType::OT_MicroSeconds:
+					IE_LOG(Log, "{0} took {1} microseconds", m_ScopeName, GetElepsedMicroSeconds());
+					break;
+				default:
+					break;
+				}
+			}
+
+		private:
+			const char* m_ScopeName;
 		};
 
 	} // End namespace Profiling

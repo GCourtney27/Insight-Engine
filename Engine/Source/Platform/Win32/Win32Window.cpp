@@ -192,7 +192,7 @@ namespace Insight {
 		}
 		case (WM_COMPACTING):
 		{
-			IE_DEBUG_LOG(LogSeverity::Warning, "System memory is low!");
+			IE_LOG(Warning, "System memory is low!");
 			return 0;
 		}
 		case (WM_EXITSIZEMOVE):
@@ -202,7 +202,7 @@ namespace Insight {
 			WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, wParam == SIZE_MINIMIZED);
 			pWindow.GetEventCallbackFn()(event);
 
-			IE_DEBUG_LOG(LogSeverity::Log, "Window size has changed");
+			IE_LOG(Log, "Window size has changed");
 			return 0;
 		}
 		case (WM_SIZE):
@@ -254,7 +254,7 @@ namespace Insight {
 			LPSTR lpszFile;
 			UINT cch;
 			DragQueryFileA((HDROP)wParam, iFile, lpszFile, cch);
-			IE_DEBUG_LOG(LogSeverity::Log, "File dropped on window");*/
+			IE_LOG(Log, "File dropped on window");*/
 		}
 		// Menu Bar Events
 		case (WM_COMMAND):
@@ -278,7 +278,7 @@ namespace Insight {
 	{
 		HRESULT hr = ::CoInitialize(NULL);
 		if (FAILED(hr)){
-			IE_DEBUG_LOG(LogSeverity::Error, "Failed to initialize COM library.");
+			IE_LOG(Error, "Failed to initialize COM library.");
 		}
 
 		static bool RIDInitialized = false;
@@ -293,7 +293,7 @@ namespace Insight {
 
 			if (RegisterRawInputDevices(&RID, 1, sizeof(RID)) == FALSE)
 			{
-				IE_DEBUG_LOG(LogSeverity::Error, "Failed to register raw input devices. Error: {0}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
+				IE_LOG(Error, "Failed to register raw input devices. Error: {0}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
 				return false;
 			}
 			RIDInitialized = true;
@@ -332,8 +332,8 @@ namespace Insight {
 		);
 
 		if (m_hWindow == NULL) {
-			IE_DEBUG_LOG(LogSeverity::Critical, "Unable to create Windows window.");
-			IE_DEBUG_LOG(LogSeverity::Critical, "    Error: {0}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
+			IE_LOG(Critical, "Unable to create Windows window.");
+			IE_LOG(Critical, "    Error: {0}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
 			throw ieException("Fatal Error: Failed to initialize Win32 window. Handle returned nullptr from Windows API. Window description may have contained invalid parameters.");
 		}
 
@@ -347,7 +347,7 @@ namespace Insight {
 		//m_hAcceleratorTable = LoadAccelerators(m_WindowsAppInstance, MAKEINTRESOURCE(IDC_INSIGHTENGINE));
 
 
-		IE_DEBUG_LOG(LogSeverity::Verbose, "Window Initialized");
+		IE_LOG(Verbose, "Window Initialized");
 		return true;
 	}
 
@@ -379,8 +379,8 @@ namespace Insight {
 		DWORD error = ::GetLastError();
 		if (error > 0)
 		{
-			IE_DEBUG_LOG(LogSeverity::Error, "An error occured while registering window class: {0} ", StringHelper::WideToString(m_WindowClassName));
-			IE_DEBUG_LOG(LogSeverity::Error, "    Error: {1}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
+			IE_LOG(Error, "An error occured while registering window class: {0} ", StringHelper::WideToString(m_WindowClassName));
+			IE_LOG(Error, "    Error: {1}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
 		}
 	}
 
@@ -388,7 +388,7 @@ namespace Insight {
 	{
 		m_hMenuBar = ::CreateMenu();
 		if (m_hMenuBar == NULL) {
-			IE_DEBUG_LOG(LogSeverity::Error, "Failed to create menu bar for window \"{0}\"", StringHelper::WideToString(m_WindowTitle));
+			IE_LOG(Error, "Failed to create menu bar for window \"{0}\"", StringHelper::WideToString(m_WindowTitle));
 			return;
 		}
 
@@ -512,7 +512,7 @@ namespace Insight {
 
 	Win32Window::~Win32Window()
 	{
-		IE_DEBUG_LOG(LogSeverity::Warning, "Destroying window: {0}", StringHelper::WideToString(m_WindowTitle));
+		IE_LOG(Warning, "Destroying window: {0}", StringHelper::WideToString(m_WindowTitle));
 		Shutdown();
 	}
 
