@@ -17,7 +17,7 @@ namespace Insight {
 		SphereColliderComponent::SphereColliderComponent(AActor* pOwner)
 			: ActorComponent("Sphere Collider Component", pOwner)
 		{
-			m_ColliderType = ColliderType::SPHERE;
+			m_ColliderType = ColliderType::CT_SPHERE;
 
 		}
 

@@ -31,10 +31,9 @@ namespace Insight {
 		IE_ASSERT(!s_Instance, "Trying to create Application instance when one already exists!");
 		s_Instance = this;
 
-
 		// Initialize the core logger.
 		IE_STRIP_FOR_GAME_DIST(
-			if (!Insight::Debug::Logger::Initialize())
+			if (!Debug::Logger::Initialize())
 			{
 				IE_LOG(Error, "Failed to create core logger.");
 			}
@@ -43,6 +42,13 @@ namespace Insight {
 
 	Application::~Application()
 	{
+	}
+
+	void Application::DumpApp()
+	{
+		Debug::Logger::AppendMessageForCoreDump("Core dump requested by application.");
+		Debug::Logger::InitiateCoreDump();
+
 	}
 
 	void Application::Initialize()
@@ -119,7 +125,7 @@ namespace Insight {
 		}
 	}
 
-	Application::ieErrorCode Application::Run()
+	Application::EErrorCode Application::Run()
 	{
 		IE_ADD_FOR_GAME_DIST(
 			BeginPlay(AppBeginPlayEvent{})
@@ -165,7 +171,7 @@ namespace Insight {
 		return EC_Success;
 	}
 
-	Application::ieErrorCode Application::RunSingleThreaded()
+	Application::EErrorCode Application::RunSingleThreaded()
 	{
 		{
 			m_GameThreadTimer.Tick();
@@ -229,13 +235,13 @@ namespace Insight {
 #if IE_PLATFORM_BUILD_WIN32 && (EDITOR_UI_ENABLED)
 		switch (Renderer::GetAPI())
 		{
-		case Renderer::TargetRenderAPI::Direct3D_11:
+		case Renderer::ETargetRenderAPI::Direct3D_11:
 			IE_STRIP_FOR_GAME_DIST(
 				m_pImGuiLayer = new D3D11ImGuiLayer();
 			PushOverlay(m_pImGuiLayer);
 			);
 			break;
-		case Renderer::TargetRenderAPI::Direct3D_12:
+		case Renderer::ETargetRenderAPI::Direct3D_12:
 			IE_STRIP_FOR_GAME_DIST(
 				m_pImGuiLayer = new D3D12ImGuiLayer();
 			PushOverlay(m_pImGuiLayer);

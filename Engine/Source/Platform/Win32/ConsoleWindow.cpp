@@ -60,7 +60,7 @@ namespace Insight {
 		// Set the default console color.
 		SetForegroundColor(m_Desc.DefaultForegroundColor);
 
-		bool Valid = IsWindow(m_WindowHandle) && m_OutputHandle;
+		bool Valid = IsWindow(m_WindowHandle) && m_OutputHandle && m_WindowHMenu;
 		return Valid;
 	}
 

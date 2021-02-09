@@ -137,7 +137,7 @@ namespace Insight {
 			json::get_int(RendererSettings[0], "TextureFiltering", MaxAniso);
 			json::get_bool(RendererSettings[0], "RayTraceEnabled", UserGraphicsSettings.RayTraceEnabled);
 			UserGraphicsSettings.MaxAnisotropy = MaxAniso;
-			UserGraphicsSettings.TargetRenderAPI = (Renderer::TargetRenderAPI)TargetRenderAPI;
+			UserGraphicsSettings.TargetRenderAPI = (Renderer::ETargetRenderAPI)TargetRenderAPI;
 		}
 
 		return UserGraphicsSettings;

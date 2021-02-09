@@ -28,10 +28,10 @@ namespace Insight {
 			m_pInputComponent->BindAxis("LookRight", IE_BIND_LOCAL_EVENT_FN(ACamera::LookRight));
 			m_pInputComponent->BindAxis("MouseWheelUp", IE_BIND_LOCAL_EVENT_FN(ACamera::MoveForward));
 
-			m_pInputComponent->BindAction("CameraPitchYawLock", InputEventType_Pressed, IE_BIND_LOCAL_VOID_FN(ACamera::TogglePitchYawRotation));
-			m_pInputComponent->BindAction("CameraPitchYawLock", InputEventType_Released, IE_BIND_LOCAL_VOID_FN(ACamera::TogglePitchYawRotation));
-			m_pInputComponent->BindAction("Sprint", InputEventType_Pressed, IE_BIND_LOCAL_VOID_FN(ACamera::Sprint));
-			m_pInputComponent->BindAction("Sprint", InputEventType_Released, IE_BIND_LOCAL_VOID_FN(ACamera::Sprint));
+			m_pInputComponent->BindAction("CameraPitchYawLock", IET_Pressed, IE_BIND_LOCAL_VOID_FN(ACamera::TogglePitchYawRotation));
+			m_pInputComponent->BindAction("CameraPitchYawLock", IET_Released, IE_BIND_LOCAL_VOID_FN(ACamera::TogglePitchYawRotation));
+			m_pInputComponent->BindAction("Sprint", IET_Pressed, IE_BIND_LOCAL_VOID_FN(ACamera::Sprint));
+			m_pInputComponent->BindAction("Sprint", IET_Released, IE_BIND_LOCAL_VOID_FN(ACamera::Sprint));
 		}
 
 		ACamera::~ACamera()

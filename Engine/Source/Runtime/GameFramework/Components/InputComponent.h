@@ -54,14 +54,14 @@ namespace Insight {
 				@param EventType: An event type that must be satisfied before the Callback can be invoked.
 				@param Callback: A pointer to the funciton to call once the action has been invoked.
 			*/
-			void BindAction(const char* ActionName, InputEventType EventType, Input::EventInputActionFn Callback);
+			void BindAction(const char* ActionName, EInputEventType EventType, Input::EventInputActionFn Callback);
 			/*
 				Add vibration to a players gamepad.
 				@param PlayerIndex: The index of the player to add vibration to.
 				@param Motor: The motor to add vibration to. This can be either the left or right gamepad motor.
 				@param Amount: A normalized value (0 - 1) that specifies the amount of vibration to add to the controller. 0 being no vibration and 1 being full vibration.
 			*/
-			void AddGamepadVibration(uint32_t PlayerIndex, GampadRumbleMotor Motor, float Amount);
+			void AddGamepadVibration(uint32_t PlayerIndex, EGampadRumbleMotor Motor, float Amount);
 
 		private:
 			const float DEFAULT_THUMBSTICK_LEFT_SENSITIVITY = 20.0f;

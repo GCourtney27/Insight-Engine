@@ -9,20 +9,20 @@ namespace Insight {
 	class INSIGHT_API IPhysicsObject
 	{
 	public:
-		enum class eColliderType
+		enum class EColliderType
 		{
-			INVALID,
-			SPHERE,
-			BOX
+			CT_INVALID,
+			CT_SPHERE,
+			CT_BOX
 		};
-		using ColliderType = IPhysicsObject::eColliderType;
+		using ColliderType = IPhysicsObject::EColliderType;
 
 	public:
 
-		eColliderType GetColliderType() { return m_ColliderType; }
+		EColliderType GetColliderType() { return m_ColliderType; }
 
 	protected:
-		ColliderType m_ColliderType = ColliderType::INVALID;
+		ColliderType m_ColliderType = EColliderType::CT_INVALID;
 		bool m_IsStatic = false;
 	};
 

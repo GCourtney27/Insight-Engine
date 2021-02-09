@@ -28,7 +28,7 @@ namespace Insight {
 		bool LoadResourcesFromJson(const rapidjson::Value& jsonTextures);
 		// Returns a reference to an existing texture by id that is owned by the manager. 
 		// Returns the default texture for the given texture type if it does not exist.
-		StrongTexturePtr GetTextureByID(Texture::ID TextureID, Texture::eTextureType TextreType);
+		StrongTexturePtr GetTextureByID(Texture::ID TextureID, Texture::ETextureType TextreType);
 		// Queue a texture to wait for its file asset to be loaded. 
 		void RegisterTextureLoadCallback(Texture::ID AwaitingTextureId, StrongTexturePtr* AwaitingTexture);
 

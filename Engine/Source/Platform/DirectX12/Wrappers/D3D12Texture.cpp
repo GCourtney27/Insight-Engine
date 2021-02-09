@@ -106,7 +106,7 @@ namespace Insight {
 		srvDesc.Texture2D.MipLevels = m_D3DTextureDesc.MipLevels;
 		srvDesc.Format = m_D3DTextureDesc.Format;
 		// Regular dds texture or a cubemap?
-		srvDesc.ViewDimension = (m_TextureInfo.Type >= eTextureType::eTextureType_SkyIrradience) ? D3D12_SRV_DIMENSION_TEXTURECUBE : D3D12_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.ViewDimension = (m_TextureInfo.Type >= ETextureType::TT_SkyIrradience) ? D3D12_SRV_DIMENSION_TEXTURECUBE : D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		pDevice->CreateShaderResourceView(m_pTexture.Get(), &srvDesc, srvHeapHandle.hCPU(CBVSRV_HEAP_TEXTURE_START_SLOT + s_NumSceneTextures));
 
@@ -160,60 +160,60 @@ namespace Insight {
 		return true;
 	}
 
-	UINT ieD3D12Texture::GetRootParameterIndexForTextureType(eTextureType TextureType)
+	UINT ieD3D12Texture::GetRootParameterIndexForTextureType(ETextureType TextureType)
 	{
 		switch (m_TextureInfo.Type) {
-		case eTextureType::eTextureType_Albedo:
+		case ETextureType::TT_Albedo:
 		{
 			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START;
 			break;
 		}
-		case eTextureType::eTextureType_Normal:
+		case ETextureType::TT_Normal:
 		{
 			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 1;
 			break;
 		}
-		case eTextureType::eTextureType_Roughness:
+		case ETextureType::TT_Roughness:
 		{
 			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 2;
 			break;
 		}
-		case eTextureType::eTextureType_Metallic:
+		case ETextureType::TT_Metallic:
 		{
 			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 3;
 			break;
 		}
-		case eTextureType::eTextureType_Opacity:
+		case ETextureType::TT_Opacity:
 		{
 			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 3;
 			break;
 		}
-		case eTextureType::eTextureType_AmbientOcclusion:
+		case ETextureType::TT_AmbientOcclusion:
 		{
 			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 4;
 			break;
 		}
-		case eTextureType::eTextureType_Translucency:
+		case ETextureType::TT_Translucency:
 		{
 			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 4;
 			break;
 		}
-		case eTextureType::eTextureType_SkyIrradience:
+		case ETextureType::TT_SkyIrradience:
 		{
 			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 6;
 			break;
 		}
-		case eTextureType::eTextureType_SkyRadianceMap:
+		case ETextureType::TT_SkyRadianceMap:
 		{
 			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 7;
 			break;
 		}
-		case eTextureType::eTextureType_IBLBRDFLUT:
+		case ETextureType::TT_IBLBRDFLUT:
 		{
 			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 8;
 			break;
 		}
-		case eTextureType::eTextureType_SkyDiffuse:
+		case ETextureType::TT_SkyDiffuse:
 		{
 			return OBJECT_TEXTURE_DEF_PASS_ROOT_PARAM_INDEX_START + 9;
 			break;

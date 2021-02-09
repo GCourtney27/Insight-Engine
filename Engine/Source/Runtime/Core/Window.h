@@ -60,7 +60,7 @@ namespace Insight {
 		inline DataType GetDPI() const { return static_cast<DataType>(m_DPI); }
 		virtual void* GetNativeWindow() const = 0;
 		virtual bool SetWindowTitleFPS(float fps) = 0;
-		virtual InputEventType GetAsyncKeyState(KeyMapCode Key) const = 0;
+		virtual EInputEventType GetAsyncKeyState(KeyMapCode Key) const = 0;
 		virtual bool SetWindowTitle(const std::string& newText, bool completlyOverride = false) = 0;
 
 		uint32_t GetWidth()								const { return m_LogicalWidth; }

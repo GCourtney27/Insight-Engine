@@ -18,14 +18,14 @@ namespace Insight {
 
 	Material::Material(std::array<Texture::ID, 5> TextureMangerIds)
 	{
-		m_MaterialType = eMaterialType::eMaterialType_Opaque;
+		m_MaterialType = EMaterialType::MT_Opaque;
 
 		TextureManager& TextureManager = ResourceManager::Get().GetTextureManager();
-		m_AlbedoMap		= TextureMangerIds[0] > 0 ? TextureManager.GetTextureByID(TextureMangerIds[0], Texture::eTextureType_Albedo) : nullptr;
-		m_NormalMap		= TextureMangerIds[1] > 0 ? TextureManager.GetTextureByID(TextureMangerIds[1], Texture::eTextureType_Normal) : nullptr;
-		m_MetallicMap	= TextureMangerIds[2] > 0 ? TextureManager.GetTextureByID(TextureMangerIds[2], Texture::eTextureType_Metallic) : nullptr;
-		m_RoughnessMap	= TextureMangerIds[3] > 0 ? TextureManager.GetTextureByID(TextureMangerIds[3], Texture::eTextureType_Roughness) : nullptr;
-		m_AOMap			= TextureMangerIds[4] > 0 ? TextureManager.GetTextureByID(TextureMangerIds[4], Texture::eTextureType_AmbientOcclusion) : nullptr;
+		m_AlbedoMap		= TextureMangerIds[0] > 0 ? TextureManager.GetTextureByID(TextureMangerIds[0], Texture::TT_Albedo) : nullptr;
+		m_NormalMap		= TextureMangerIds[1] > 0 ? TextureManager.GetTextureByID(TextureMangerIds[1], Texture::TT_Normal) : nullptr;
+		m_MetallicMap	= TextureMangerIds[2] > 0 ? TextureManager.GetTextureByID(TextureMangerIds[2], Texture::TT_Metallic) : nullptr;
+		m_RoughnessMap	= TextureMangerIds[3] > 0 ? TextureManager.GetTextureByID(TextureMangerIds[3], Texture::TT_Roughness) : nullptr;
+		m_AOMap			= TextureMangerIds[4] > 0 ? TextureManager.GetTextureByID(TextureMangerIds[4], Texture::TT_AmbientOcclusion) : nullptr;
 		
 		// If we got back a default texture, queue the texture for the texture manager
 		// to give us the proper texture once it is loaded.
@@ -54,7 +54,7 @@ namespace Insight {
 		m_RoughnessTextureManagerID = TextureMangerIds[3];
 		m_AoTextureManagerID		= TextureMangerIds[4];
 
-		m_MaterialType					= eMaterialType::eMaterialType_Opaque;
+		m_MaterialType					= EMaterialType::MT_Opaque;
 		m_ShaderCB.DiffuseAdditive		= ieVector3(0.0f, 0.0f, 0.0f);
 		m_ShaderCB.MetallicAdditive		= 0.0f;
 		m_ShaderCB.RoughnessAdditive	= 0.0f;
@@ -96,7 +96,7 @@ namespace Insight {
 	{
 		Material* pMaterial = new Material();
 
-		pMaterial->m_MaterialType = eMaterialType::eMaterialType_Opaque;
+		pMaterial->m_MaterialType = EMaterialType::MT_Opaque;
 
 		TextureManager& TextureManager = ResourceManager::Get().GetTextureManager();
 
@@ -112,7 +112,7 @@ namespace Insight {
 		pMaterial->m_RoughnessTextureManagerID	= pMaterial->m_RoughnessMap->GetTextureInfo().Id;
 		pMaterial->m_AoTextureManagerID			= pMaterial->m_AOMap->GetTextureInfo().Id;
 
-		pMaterial->m_MaterialType				= eMaterialType::eMaterialType_Opaque;
+		pMaterial->m_MaterialType				= EMaterialType::MT_Opaque;
 		pMaterial->m_ShaderCB.DiffuseAdditive	= ieVector3(0.0f, 0.0f, 0.0f);
 		pMaterial->m_ShaderCB.MetallicAdditive	= 0.0f;
 		pMaterial->m_ShaderCB.RoughnessAdditive = 0.0f;
@@ -131,7 +131,7 @@ namespace Insight {
 
 		json::get_int(JsonMaterial, "Category", *((int*)&m_MaterialType));
 
-		if (m_MaterialType == eMaterialType::eMaterialType_Opaque) {
+		if (m_MaterialType == EMaterialType::MT_Opaque) {
 
 			json::get_int(JsonMaterial, "AlbedoMapID", m_AlbedoTextureManagerID);
 			json::get_int(JsonMaterial, "NormalMapID", m_NormalTextureManagerID);
@@ -140,13 +140,13 @@ namespace Insight {
 			json::get_int(JsonMaterial, "AOMapID", m_AoTextureManagerID);
 
 			TextureManager& textureManager = ResourceManager::Get().GetTextureManager();
-			m_AlbedoMap = textureManager.GetTextureByID(m_AlbedoTextureManagerID, Texture::eTextureType::eTextureType_Albedo);
-			m_NormalMap = textureManager.GetTextureByID(m_NormalTextureManagerID, Texture::eTextureType::eTextureType_Normal);
-			m_MetallicMap = textureManager.GetTextureByID(m_MetallicTextureManagerID, Texture::eTextureType::eTextureType_Metallic);
-			m_RoughnessMap = textureManager.GetTextureByID(m_RoughnessTextureManagerID, Texture::eTextureType::eTextureType_Roughness);
-			m_AOMap = textureManager.GetTextureByID(m_AoTextureManagerID, Texture::eTextureType::eTextureType_AmbientOcclusion);
+			m_AlbedoMap = textureManager.GetTextureByID(m_AlbedoTextureManagerID, Texture::ETextureType::TT_Albedo);
+			m_NormalMap = textureManager.GetTextureByID(m_NormalTextureManagerID, Texture::ETextureType::TT_Normal);
+			m_MetallicMap = textureManager.GetTextureByID(m_MetallicTextureManagerID, Texture::ETextureType::TT_Metallic);
+			m_RoughnessMap = textureManager.GetTextureByID(m_RoughnessTextureManagerID, Texture::ETextureType::TT_Roughness);
+			m_AOMap = textureManager.GetTextureByID(m_AoTextureManagerID, Texture::ETextureType::TT_AmbientOcclusion);
 
-		} if (m_MaterialType == eMaterialType::eMaterialType_Translucent) {
+		} if (m_MaterialType == EMaterialType::MT_Translucent) {
 
 			json::get_int(JsonMaterial, "AlbedoMapID", m_AlbedoTextureManagerID);
 			json::get_int(JsonMaterial, "NormalMapID", m_NormalTextureManagerID);
@@ -155,11 +155,11 @@ namespace Insight {
 			json::get_int(JsonMaterial, "TranslucencyMapID", m_TranslucencyTextureManagerID);
 
 			TextureManager& textureManager = ResourceManager::Get().GetTextureManager();
-			m_AlbedoMap = textureManager.GetTextureByID(m_AlbedoTextureManagerID, Texture::eTextureType::eTextureType_Albedo);
-			m_NormalMap = textureManager.GetTextureByID(m_NormalTextureManagerID, Texture::eTextureType::eTextureType_Normal);
-			m_RoughnessMap = textureManager.GetTextureByID(m_RoughnessTextureManagerID, Texture::eTextureType::eTextureType_Roughness);
-			m_OpacityMap = textureManager.GetTextureByID(m_OpacityTextureManagerID, Texture::eTextureType::eTextureType_Opacity);
-			m_TranslucencyMap = textureManager.GetTextureByID(m_TranslucencyTextureManagerID, Texture::eTextureType::eTextureType_Translucency);
+			m_AlbedoMap = textureManager.GetTextureByID(m_AlbedoTextureManagerID, Texture::ETextureType::TT_Albedo);
+			m_NormalMap = textureManager.GetTextureByID(m_NormalTextureManagerID, Texture::ETextureType::TT_Normal);
+			m_RoughnessMap = textureManager.GetTextureByID(m_RoughnessTextureManagerID, Texture::ETextureType::TT_Roughness);
+			m_OpacityMap = textureManager.GetTextureByID(m_OpacityTextureManagerID, Texture::ETextureType::TT_Opacity);
+			m_TranslucencyMap = textureManager.GetTextureByID(m_TranslucencyTextureManagerID, Texture::ETextureType::TT_Translucency);
 		}
 
 		json::get_float(jsonUVOffset[0], "x", m_ShaderCB.UVOffset.x);
@@ -188,7 +188,7 @@ namespace Insight {
 
 		// Textures
 		{
-			if (m_MaterialType == eMaterialType::eMaterialType_Opaque) {
+			if (m_MaterialType == EMaterialType::MT_Opaque) {
 				Writer.Key("AlbedoMapID");
 				Writer.Int(m_AlbedoTextureManagerID);
 				Writer.Key("NormalMapID");
@@ -200,7 +200,7 @@ namespace Insight {
 				Writer.Key("AOMapID");
 				Writer.Int(m_AoTextureManagerID);
 			}
-			else if (m_MaterialType == eMaterialType::eMaterialType_Translucent) {
+			else if (m_MaterialType == EMaterialType::MT_Translucent) {
 				Writer.Key("AlbedoMapID");
 				Writer.Int(m_AlbedoTextureManagerID);
 				Writer.Key("NormalMapID");

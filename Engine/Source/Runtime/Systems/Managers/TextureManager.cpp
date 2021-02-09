@@ -68,7 +68,7 @@ namespace Insight {
 			TexInfo.Id = ID;
 			TexInfo.Filepath = FileSystem::GetRelativeContentDirectoryW(StringHelper::StringToWide(Filepath));
 			TexInfo.GenerateMipMaps = GenMipMaps;
-			TexInfo.Type = (Texture::eTextureType)Type;
+			TexInfo.Type = (Texture::ETextureType)Type;
 
 			m_TextureLoadFutures.push_back(std::async(std::launch::async, &TextureManager::RegisterTextureByType, this, TexInfo));
 			//RegisterTextureByType(TexInfo);
@@ -79,11 +79,11 @@ namespace Insight {
 		return true;
 	}
 
-	StrongTexturePtr TextureManager::GetTextureByID(Texture::ID TextureID, Texture::eTextureType TextureType)
+	StrongTexturePtr TextureManager::GetTextureByID(Texture::ID TextureID, Texture::ETextureType TextureType)
 	{
 		switch (TextureType) 
 		{
-		case Texture::eTextureType::eTextureType_Albedo:
+		case Texture::ETextureType::TT_Albedo:
 		{
 			auto Iter = m_AlbedoTextureMap.find(TextureID);
 			if (Iter != m_AlbedoTextureMap.end()) {
@@ -93,7 +93,7 @@ namespace Insight {
 				return m_DefaultAlbedoTexture;
 			}
 		}
-		case Texture::eTextureType::eTextureType_Normal:
+		case Texture::ETextureType::TT_Normal:
 		{
 			auto Iter = m_NormalTextureMap.find(TextureID);
 			if (Iter != m_NormalTextureMap.end()) {
@@ -103,7 +103,7 @@ namespace Insight {
 				return m_DefaultNormalTexture;
 			}
 		}
-		case Texture::eTextureType::eTextureType_Roughness:
+		case Texture::ETextureType::TT_Roughness:
 		{
 			auto Iter = m_RoughnessTextureMap.find(TextureID);
 			if (Iter != m_RoughnessTextureMap.end()) {
@@ -113,7 +113,7 @@ namespace Insight {
 				return m_DefaultRoughnessTexture;
 			}
 		}
-		case Texture::eTextureType::eTextureType_Metallic:
+		case Texture::ETextureType::TT_Metallic:
 		{
 			auto Iter = m_MetallicTextureMap.find(TextureID);
 			if (Iter != m_MetallicTextureMap.end()) {
@@ -123,7 +123,7 @@ namespace Insight {
 				return m_DefaultMetallicTexture;
 			}
 		}
-		case Texture::eTextureType::eTextureType_AmbientOcclusion:
+		case Texture::ETextureType::TT_AmbientOcclusion:
 		{
 			auto Iter = m_AOTextureMap.find(TextureID);
 			if (Iter != m_AOTextureMap.end()) {
@@ -133,7 +133,7 @@ namespace Insight {
 				return m_DefaultAOTexture;
 			}
 		}
-		case Texture::eTextureType::eTextureType_Opacity:
+		case Texture::ETextureType::TT_Opacity:
 		{
 			auto Iter = m_OpacityTextureMap.find(TextureID);
 			if (Iter != m_OpacityTextureMap.end()) {
@@ -143,7 +143,7 @@ namespace Insight {
 				return m_DefaultAOTexture;
 			}
 		}
-		case Texture::eTextureType::eTextureType_Translucency:
+		case Texture::ETextureType::TT_Translucency:
 		{
 			auto Iter = m_TranslucencyTextureMap.find(TextureID);
 			if (Iter != m_TranslucencyTextureMap.end()) {
@@ -187,37 +187,37 @@ namespace Insight {
 		IE_TEXTURE_INFO AlbedoTexInfo = {};
 		AlbedoTexInfo.Id = DEFAULT_ALBEDO_TEXTURE_ID;
 		AlbedoTexInfo.GenerateMipMaps = true;
-		AlbedoTexInfo.Type = Texture::eTextureType::eTextureType_Albedo;
+		AlbedoTexInfo.Type = Texture::ETextureType::TT_Albedo;
 		AlbedoTexInfo.Filepath = DefaultAssetDirectory + L"Default_Albedo.png";
 		// Normal
 		IE_TEXTURE_INFO NormalTexInfo = {};
 		NormalTexInfo.Id = DEFAULT_NORMAL_TEXTURE_ID;
 		NormalTexInfo.GenerateMipMaps = true;
-		NormalTexInfo.Type = Texture::eTextureType::eTextureType_Normal;
+		NormalTexInfo.Type = Texture::ETextureType::TT_Normal;
 		NormalTexInfo.Filepath = DefaultAssetDirectory + L"Default_Normal.png";
 		// Metallic
 		IE_TEXTURE_INFO MetallicTexInfo = {};
 		MetallicTexInfo.Id = DEFAULT_METALLIC_TEXTURE_ID;
 		MetallicTexInfo.GenerateMipMaps = true;
-		MetallicTexInfo.Type = Texture::eTextureType::eTextureType_Metallic;
+		MetallicTexInfo.Type = Texture::ETextureType::TT_Metallic;
 		MetallicTexInfo.Filepath = DefaultAssetDirectory + L"Default_Metallic.png";
 		// Roughness
 		IE_TEXTURE_INFO RoughnessTexInfo = {};
 		RoughnessTexInfo.Id = DEFAULT_ROUGHNESS_TEXTURE_ID;
 		RoughnessTexInfo.GenerateMipMaps = true;
-		RoughnessTexInfo.Type = Texture::eTextureType::eTextureType_Roughness;
+		RoughnessTexInfo.Type = Texture::ETextureType::TT_Roughness;
 		RoughnessTexInfo.Filepath = DefaultAssetDirectory + L"Default_RoughAO.png";
 		// AO
 		IE_TEXTURE_INFO AOTexInfo = {};
 		AOTexInfo.Id = DEFAULT_AO_TEXTURE_ID;
 		AOTexInfo.GenerateMipMaps = true;
-		AOTexInfo.Type = Texture::eTextureType::eTextureType_AmbientOcclusion;
+		AOTexInfo.Type = Texture::ETextureType::TT_AmbientOcclusion;
 		AOTexInfo.Filepath = DefaultAssetDirectory + L"Default_RoughAO.png";
 
 		switch (Renderer::GetAPI())
 		{
 #if defined (IE_PLATFORM_WINDOWS)
-		case Renderer::TargetRenderAPI::Direct3D_11:
+		case Renderer::ETargetRenderAPI::Direct3D_11:
 		{
 			m_DefaultAlbedoTexture = make_shared<ieD3D11Texture>(AlbedoTexInfo);
 			m_DefaultNormalTexture = make_shared<ieD3D11Texture>(NormalTexInfo);
@@ -226,7 +226,7 @@ namespace Insight {
 			m_DefaultAOTexture = make_shared<ieD3D11Texture>(AOTexInfo);
 			break;
 		}
-		case Renderer::TargetRenderAPI::Direct3D_12:
+		case Renderer::ETargetRenderAPI::Direct3D_12:
 		{
 			Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
 			CDescriptorHeapWrapper& cbvSrvHeapStart = RenderContext.GetCBVSRVDescriptorHeap();
@@ -259,46 +259,46 @@ namespace Insight {
 	{
 		switch (Renderer::GetAPI())
 		{
-			case Renderer::TargetRenderAPI::Direct3D_11:
+			case Renderer::ETargetRenderAPI::Direct3D_11:
 			{
 				switch (TexInfo.Type) {
-				case Texture::eTextureType::eTextureType_Albedo:
+				case Texture::ETextureType::TT_Albedo:
 				{
 					std::lock_guard<std::mutex> Lock(s_AlbedoMutex);
 					m_AlbedoTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D11Texture>(TexInfo)) });
 					break;
 				}
-				case Texture::eTextureType::eTextureType_Normal:
+				case Texture::ETextureType::TT_Normal:
 				{
 					std::lock_guard<std::mutex> Lock(s_NormalMutex);
 					m_NormalTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D11Texture>(TexInfo)) });
 					break;
 				}
-				case Texture::eTextureType::eTextureType_Roughness:
+				case Texture::ETextureType::TT_Roughness:
 				{
 					std::lock_guard<std::mutex> Lock(s_RoughnessMutex);
 					m_RoughnessTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D11Texture>(TexInfo)) });
 					break;
 				}
-				case Texture::eTextureType::eTextureType_Metallic:
+				case Texture::ETextureType::TT_Metallic:
 				{
 					std::lock_guard<std::mutex> Lock(s_MetallicMutex);
 					m_MetallicTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D11Texture>(TexInfo)) });
 					break;
 				}
-				case Texture::eTextureType::eTextureType_AmbientOcclusion:
+				case Texture::ETextureType::TT_AmbientOcclusion:
 				{
 					std::lock_guard<std::mutex> Lock(s_AOMutex);
 					m_AOTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D11Texture>(TexInfo)) });
 					break;
 				}
-				case Texture::eTextureType::eTextureType_Opacity:
+				case Texture::ETextureType::TT_Opacity:
 				{
 					std::lock_guard<std::mutex> Lock(s_OpacityMutex);
 					m_OpacityTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D11Texture>(TexInfo)) });
 					break;
 				}
-				case Texture::eTextureType::eTextureType_Translucency:
+				case Texture::ETextureType::TT_Translucency:
 				{
 					std::lock_guard<std::mutex> Lock(s_TranslucencyMutex);
 					m_TranslucencyTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D11Texture>(TexInfo)) });
@@ -312,49 +312,49 @@ namespace Insight {
 				}
 				break;
 			}
-			case Renderer::TargetRenderAPI::Direct3D_12:
+			case Renderer::ETargetRenderAPI::Direct3D_12:
 			{
 				Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
 				CDescriptorHeapWrapper& cbvSrvHeapStart = RenderContext.GetCBVSRVDescriptorHeap();
 
 				switch (TexInfo.Type) {
-				case Texture::eTextureType::eTextureType_Albedo:
+				case Texture::ETextureType::TT_Albedo:
 				{
 					std::lock_guard<std::mutex> Lock(s_AlbedoMutex);
 					m_AlbedoTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart)) });
 					break;
 				}
-				case Texture::eTextureType::eTextureType_Normal:
+				case Texture::ETextureType::TT_Normal:
 				{
 					std::lock_guard<std::mutex> Lock(s_NormalMutex);
 					m_NormalTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart)) });
 					break;
 				}
-				case Texture::eTextureType::eTextureType_Roughness:
+				case Texture::ETextureType::TT_Roughness:
 				{
 					std::lock_guard<std::mutex> Lock(s_RoughnessMutex);
 					m_RoughnessTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart)) });
 					break;
 				}
-				case Texture::eTextureType::eTextureType_Metallic:
+				case Texture::ETextureType::TT_Metallic:
 				{
 					std::lock_guard<std::mutex> Lock(s_MetallicMutex);
 					m_MetallicTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart)) });
 					break;
 				}
-				case Texture::eTextureType::eTextureType_AmbientOcclusion:
+				case Texture::ETextureType::TT_AmbientOcclusion:
 				{
 					std::lock_guard<std::mutex> Lock(s_AOMutex);
 					m_AOTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart)) });
 					break;
 				}
-				case Texture::eTextureType::eTextureType_Opacity:
+				case Texture::ETextureType::TT_Opacity:
 				{
 					std::lock_guard<std::mutex> Lock(s_OpacityMutex);
 					m_OpacityTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart)) });
 					break;
 				}
-				case Texture::eTextureType::eTextureType_Translucency:
+				case Texture::ETextureType::TT_Translucency:
 				{
 					std::lock_guard<std::mutex> Lock(s_TranslucencyMutex);
 					m_TranslucencyTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart)) });

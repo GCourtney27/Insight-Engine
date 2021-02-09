@@ -38,7 +38,7 @@ namespace Insight {
 		virtual void* GetNativeWindow() const override { return static_cast<void*>(winrt::get_abi(*m_pCoreWindow)); }
 		virtual void CreateMessageBox(const std::wstring& Message, const std::wstring& Title) override;
 
-		virtual InputEventType GetAsyncKeyState(KeyMapCode Key) const override;
+		virtual EInputEventType GetAsyncKeyState(KeyMapCode Key) const override;
 		virtual bool SetWindowTitleFPS(float fps) override { return false; }
 		virtual bool SetWindowTitle(const std::string& newText, bool completlyOverride = false) { return false; }
 

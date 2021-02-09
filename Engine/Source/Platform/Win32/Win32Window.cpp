@@ -46,15 +46,15 @@ namespace Insight {
 		Init();
 	}
 
-	InputEventType Win32Window::GetAsyncKeyState(KeyMapCode Key) const
+	EInputEventType Win32Window::GetAsyncKeyState(KeyMapCode Key) const
 	{
 		short KeyState = ::GetAsyncKeyState(Key);
 		bool Pressed = (BIT_SHIFT(15)) & KeyState;
 		
 		if (Pressed)
-			return InputEventType_Pressed;
+			return IET_Pressed;
 		else
-			return InputEventType_Released;
+			return IET_Released;
 	}
 
 	LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -88,14 +88,14 @@ namespace Insight {
 		case (WM_MOUSEWHEEL):
 		{
 			float yOffset = GET_WHEEL_DELTA_WPARAM(wParam) / 120.0f;
-			MouseScrolledEvent event(0.0f, yOffset, KeyMapCode_Mouse_Wheel_Up, InputEventType_Moved);
+			MouseScrolledEvent event(0.0f, yOffset, KeyMapCode_Mouse_Wheel_Up, IET_Moved);
 			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}
 		case (WM_MOUSEHWHEEL):
 		{
 			float xOffset = GET_WHEEL_DELTA_WPARAM(wParam) / 120.0f;
-			MouseScrolledEvent event(xOffset, 0.0f, (KeyMapCode)(KeyMapCode_Mouse_Wheel_Left | KeyMapCode_Mouse_Wheel_Right), InputEventType_Moved);
+			MouseScrolledEvent event(xOffset, 0.0f, (KeyMapCode)(KeyMapCode_Mouse_Wheel_Left | KeyMapCode_Mouse_Wheel_Right), IET_Moved);
 			pWindow.GetEventCallbackFn()(event);
 			return 0;
 		}

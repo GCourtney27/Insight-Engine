@@ -80,57 +80,57 @@ namespace Insight {
 	{
 		switch (m_TextureInfo.Type)
 		{
-		case eTextureType::eTextureType_Albedo:
+		case ETextureType::TT_Albedo:
 		{
 			return 5;
 			break;
 		}
-		case eTextureType::eTextureType_Normal:
+		case ETextureType::TT_Normal:
 		{
 			return 6;
 			break;
 		}
-		case eTextureType::eTextureType_Roughness:
+		case ETextureType::TT_Roughness:
 		{
 			return 7;
 			break;
 		}
-		case eTextureType::eTextureType_Metallic:
+		case ETextureType::TT_Metallic:
 		{
 			return 8;
 			break;
 		}
-		case eTextureType::eTextureType_Opacity:
+		case ETextureType::TT_Opacity:
 		{
 			return 8;
 			break;
 		}
-		case eTextureType::eTextureType_AmbientOcclusion:
+		case ETextureType::TT_AmbientOcclusion:
 		{
 			return 9;
 			break;
 		}
-		case eTextureType::eTextureType_Translucency:
+		case ETextureType::TT_Translucency:
 		{
 			return 9;
 			break;
 		}
-		case eTextureType::eTextureType_SkyIrradience:
+		case ETextureType::TT_SkyIrradience:
 		{
 			return 11;
 			break;
 		}
-		case eTextureType::eTextureType_SkyRadianceMap:
+		case ETextureType::TT_SkyRadianceMap:
 		{
 			return 12;
 			break;
 		}
-		case eTextureType::eTextureType_IBLBRDFLUT:
+		case ETextureType::TT_IBLBRDFLUT:
 		{
 			return 13;
 			break;
 		}
-		case eTextureType::eTextureType_SkyDiffuse:
+		case ETextureType::TT_SkyDiffuse:
 		{
 			return 14;
 			break;

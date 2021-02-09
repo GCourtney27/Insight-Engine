@@ -49,12 +49,12 @@ namespace Insight {
 		switch (GraphicsSettings.TargetRenderAPI)
 		{
 #if defined (IE_PLATFORM_WINDOWS)
-		case TargetRenderAPI::Direct3D_11:
+		case ETargetRenderAPI::Direct3D_11:
 		{
 			s_Instance = new Direct3D11Context();
 			break;
 		}
-		case TargetRenderAPI::Direct3D_12:
+		case ETargetRenderAPI::Direct3D_12:
 		{
 			s_Instance = new Direct3D12Context();
 			break;

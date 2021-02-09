@@ -49,7 +49,7 @@ namespace Insight {
 		bool InitTextureFromFile(CDescriptorHeapWrapper& srvHeapHandle);
 		// Get the Root Parameter Index this texture belongs too.
 		// This should only be called once during initialization of the texture.
-		UINT GetRootParameterIndexForTextureType(eTextureType TextureType);
+		UINT GetRootParameterIndexForTextureType(ETextureType TextureType);
 	private:
 		ID3D12GraphicsCommandList*	m_pScenePass_CommandList;
 		ID3D12GraphicsCommandList*	m_pTranslucencyPass_CommandList;

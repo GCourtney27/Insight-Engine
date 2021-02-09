@@ -9,7 +9,7 @@ namespace Insight {
 	{
 	public:
 		MouseMovedEvent(float x, float y, KeyMapCode KeyMapCode)
-			: InputEvent(KeyMapCode, InputEventType_Moved), m_MouseX(x), m_MouseY(y) {}
+			: InputEvent(KeyMapCode, IET_Moved), m_MouseX(x), m_MouseY(y) {}
 
 		inline float GetX() const { return m_MouseX; }
 		inline float GetY() const { return m_MouseY; }
@@ -30,7 +30,7 @@ namespace Insight {
 	class INSIGHT_API MouseRawMoveEvent : public Event, public InputEvent
 	{
 	public:
-		MouseRawMoveEvent(int x, int y, KeyMapCode KeyMapCode, InputEventType EventType)
+		MouseRawMoveEvent(int x, int y, KeyMapCode KeyMapCode, EInputEventType EventType)
 			: InputEvent(KeyMapCode, EventType), m_MouseX(x), m_MouseY(y) {}
 
 		inline int GetX() const { return m_MouseX; }
@@ -52,7 +52,7 @@ namespace Insight {
 	class INSIGHT_API MouseScrolledEvent : public Event, public InputEvent
 	{
 	public:
-		MouseScrolledEvent(float xOffset, float yOffset, KeyMapCode KeyMapCode, InputEventType EventType)
+		MouseScrolledEvent(float xOffset, float yOffset, KeyMapCode KeyMapCode, EInputEventType EventType)
 			: InputEvent(KeyMapCode, EventType), m_XOffset(xOffset), m_YOffset(yOffset) {}
 
 		inline float GetXOffset() const { return m_XOffset; }
@@ -77,7 +77,7 @@ namespace Insight {
 
 		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 	protected:
-		MouseButtonEvent(KeyMapCode KeyMapCode, InputEventType EventType)
+		MouseButtonEvent(KeyMapCode KeyMapCode, EInputEventType EventType)
 			: InputEvent(KeyMapCode, EventType) {}
 
 	};
@@ -86,7 +86,7 @@ namespace Insight {
 	{
 	public:
 		MouseButtonPressedEvent(KeyMapCode KeyMapCode)
-			: MouseButtonEvent(KeyMapCode, InputEventType_Pressed) {}
+			: MouseButtonEvent(KeyMapCode, IET_Pressed) {}
 
 		EVENT_CLASS_TYPE(MouseButtonPressed)
 	};
@@ -95,7 +95,7 @@ namespace Insight {
 	{
 	public:
 		MouseButtonReleasedEvent(KeyMapCode KeyMapCode)
-			: MouseButtonEvent(KeyMapCode, InputEventType_Released) {}
+			: MouseButtonEvent(KeyMapCode, IET_Released) {}
 
 		EVENT_CLASS_TYPE(MouseButtonReleased)
 	};

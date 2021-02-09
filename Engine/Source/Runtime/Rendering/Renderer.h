@@ -50,7 +50,7 @@ namespace Insight {
 		/*
 			Valid render API's supported by the engine.
 		*/
-		typedef enum class TargetRenderAPI
+		typedef enum class ETargetRenderAPI
 		{
 			Invalid,
 			Direct3D_11,
@@ -62,7 +62,7 @@ namespace Insight {
 		*/
 		struct GraphicsSettings
 		{
-			TargetRenderAPI TargetRenderAPI = TargetRenderAPI::Direct3D_12;
+			ETargetRenderAPI TargetRenderAPI = ETargetRenderAPI::Direct3D_12;
 			uint32_t		MaxAnisotropy = 1U;	// Texture Filtering (1, 4, 8, 16) *16 highest quality
 			float			MipLodBias = 0.0f;	// Texture Quality (0 - 9) *0 highest quality
 			bool			RayTraceEnabled = false;
@@ -279,7 +279,7 @@ namespace Insight {
 		/*
 			Returns the currently active render API in used for this graphics context.
 		*/
-		inline static TargetRenderAPI GetAPI() { return s_Instance->m_GraphicsSettings.TargetRenderAPI; }
+		inline static ETargetRenderAPI GetAPI() { return s_Instance->m_GraphicsSettings.TargetRenderAPI; }
 		
 		/*
 			Returns the amount of frame buffers the swap chain contains.

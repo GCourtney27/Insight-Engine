@@ -7,6 +7,8 @@ namespace Insight {
 
 	namespace Debug {
 
+		std::string Logger::s_CoreDumpMessage;
+
 #if defined IE_DEBUG && defined IE_PLATFORM_BUILD_WIN32
 		ConsoleWindow Logger::s_ConsoleWindow;
 #endif
@@ -22,6 +24,30 @@ namespace Insight {
 			bool ConsoleCreated = s_ConsoleWindow.Create(WindowDesc);
 
 			return ConsoleCreated;
+		}
+
+		Logger::~Logger()
+		{
+		}
+
+		void Logger::InitiateCoreDump()
+		{
+			// Assemble the data.
+			time_t RawTime;
+			struct tm* TimeInfo;
+			char DateBuffer[80];
+			time(&RawTime);
+			TimeInfo = localtime(&RawTime);
+			strftime(DateBuffer, 80, "Date: %y-%m-%d  Time: %I:%M%p", TimeInfo);
+			
+			// Write the message to the dump file.
+			std::ofstream OFStream;
+			OFStream.open("CoreDump.txt");
+			OFStream << "Insight Engine Core Dump\n";
+			OFStream << DateBuffer;
+			OFStream << "\n";
+			OFStream << s_CoreDumpMessage.c_str();
+			OFStream.close();
 		}
 
 
@@ -75,6 +101,7 @@ namespace Insight {
 			printf(TraceBuffer);
 			printf(OutputBuffer);
 			printf("\n");
+			// Log category may have changed the color, reset it back to the default.
 			Insight::Debug::Logger::GetConsoleWindow().ResetColors();
 #	elif IE_PLATFORM_BUILD_UWP
 #		if _MSC_BUILD // Only Visual Studio can use 'OutputDebugString*'

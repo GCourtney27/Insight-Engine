@@ -65,7 +65,7 @@ namespace Insight {
 		virtual void* GetNativeWindow() const override;
 		virtual bool ProccessWindowMessages() override;
 
-		virtual InputEventType GetAsyncKeyState(KeyMapCode Key) const override;
+		virtual EInputEventType GetAsyncKeyState(KeyMapCode Key) const override;
 		bool SetWindowTitle(const std::string& newText, bool completlyOverride = false) override;
 		bool SetWindowTitleFPS(float fps) override;
 

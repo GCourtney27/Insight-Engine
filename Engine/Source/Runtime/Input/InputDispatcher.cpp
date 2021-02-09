@@ -57,7 +57,7 @@ namespace Insight {
 			for (uint32_t i = 0; i < m_AxisMappings.size(); i++)
 			{
 				// If the key in the axis mapping is pressed, dispatch an event.
-				if(m_pOwningWindowRef->GetAsyncKeyState(m_AxisMappings[i].MappedKeyCode) == InputEventType_Pressed)
+				if(m_pOwningWindowRef->GetAsyncKeyState(m_AxisMappings[i].MappedKeyCode) == IET_Pressed)
 								{
 					// Dispatching KeyHolding events will happen in InputDispatcher::DispatchActionEvent
 					KeyPressedEvent e(m_AxisMappings[i].MappedKeyCode, 0, 1.0f);
@@ -95,12 +95,12 @@ namespace Insight {
 			m_AxisCallbacks[Name].push_back(Callback);
 		}
 
-		void InputDispatcher::RegisterActionCallback(const char* Name, InputEventType EventType, EventInputActionFn Callback)
+		void InputDispatcher::RegisterActionCallback(const char* Name, EInputEventType EventType, EventInputActionFn Callback)
 		{
 			m_ActionCallbacks[{Name, EventType}].push_back(Callback);
 		}
 
-		void InputDispatcher::AddGamepadVibration(uint32_t PlayerIndex, GampadRumbleMotor Direction, float Amount)
+		void InputDispatcher::AddGamepadVibration(uint32_t PlayerIndex, EGampadRumbleMotor Direction, float Amount)
 		{
 			IE_ASSERT(PlayerIndex <= XUSER_MAX_COUNT, "Trying to add vibration to an invalid controller index");
 
@@ -187,7 +187,7 @@ namespace Insight {
 			{
 				if (Action.MappedKeyCode == e.GetKeyCode())
 				{
-					if (e.GetEventType() == InputEventType_Released)
+					if (e.GetEventType() == IET_Released)
 					{
 						Action.CanDispatch = true;
 						// The key had been released reset 
@@ -197,7 +197,7 @@ namespace Insight {
 
 					// If the key has been pressed once or a key is being held, dispatch the function calls.
 					// Note: KeyHeld events are only dispatched from the timer code below.
-					if (Action.CanDispatch || (e.GetEventType() == InputEventType_Held))
+					if (Action.CanDispatch || (e.GetEventType() == IET_Held))
 					{
 						auto Callbacks = &m_ActionCallbacks[{Action.Hint, e.GetEventType()}];
 						for (EventInputActionFn Callback : *Callbacks)
@@ -207,7 +207,7 @@ namespace Insight {
 						}
 					}
 
-					if (e.GetEventType() == InputEventType_Pressed)
+					if (e.GetEventType() == IET_Pressed)
 					{
 						Action.CanDispatch = false;
 						// If the the key is pressed start the timer to see if the key is being held.

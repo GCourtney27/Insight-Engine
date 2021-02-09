@@ -10,7 +10,7 @@ namespace Insight {
 	class INSIGHT_API ID
 	{
 	public:
-		enum eLayer
+		enum ELayer
 		{
 			DEFAULT
 		};

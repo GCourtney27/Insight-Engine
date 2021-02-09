@@ -199,12 +199,12 @@ namespace Insight {
 				return;
 			}
 
-			Material::eMaterialType MaterialType = m_pMaterial->GetMaterialType();
+			Material::EMaterialType MaterialType = m_pMaterial->GetMaterialType();
 
-			if (MaterialType == Material::eMaterialType::eMaterialType_Opaque) {
+			if (MaterialType == Material::EMaterialType::MT_Opaque) {
 				GeometryManager::RegisterOpaqueModel(m_pModel);
 			}
-			else if (MaterialType == Material::eMaterialType::eMaterialType_Translucent) {
+			else if (MaterialType == Material::EMaterialType::MT_Translucent) {
 				GeometryManager::RegisterTranslucentModel(m_pModel);
 			}
 

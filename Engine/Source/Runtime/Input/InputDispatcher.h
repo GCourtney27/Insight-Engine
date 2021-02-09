@@ -109,14 +109,14 @@ namespace Insight {
 			/*
 				Register an Action callback function. Used by Actor input components.
 			*/
-			void RegisterActionCallback(const char* Name, InputEventType EventType, EventInputActionFn Callback);
+			void RegisterActionCallback(const char* Name, EInputEventType EventType, EventInputActionFn Callback);
 			/*
 				Adds vibration to a controller at a player index.
 				@param PlayerIndex: The index of the player to add vibration to.
 				@param Motor: The motor to add vibration to. This can be either the left or right gamepad motor.
 				@param Amount: A normalized value (0 - 1) that specifies the amount of vibration to add to the controller. 0 being no vibration and 1 being full vibration.
 			*/
-			void AddGamepadVibration(uint32_t PlayerIndex, GampadRumbleMotor Direction, float Amount);
+			void AddGamepadVibration(uint32_t PlayerIndex, EGampadRumbleMotor Direction, float Amount);
 
 		private:
 			/*
@@ -153,7 +153,7 @@ namespace Insight {
 			// Holds all action mapping profiles.
 			std::vector<ActionMapping> m_ActionMappings;
 			// Holds all callback funcitons and their corisponding hints found the actoin mappings stored in InputDispatcher::m_ActionMappings.
-			std::map<std::pair<std::string, InputEventType>, std::vector<EventInputActionFn>> m_ActionCallbacks;
+			std::map<std::pair<std::string, EInputEventType>, std::vector<EventInputActionFn>> m_ActionCallbacks;
 
 			// Max amount of time the user pressed a key before it is recognized as being held.
 			float m_MaxKeyHoldTime = 1.0f;

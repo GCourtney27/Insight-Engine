@@ -6,14 +6,14 @@
 namespace Insight {
 
 
-	typedef enum _InputEventType
+	typedef enum EInputEventType
 	{
-		InputEventType_Pressed	= 0,
-		InputEventType_Released	= 1,
-		InputEventType_Held		= 2,
-		InputEventType_Typed	= 3,
-		InputEventType_Moved	= 4,
-	} InputEventType;
+		IET_Pressed	= 0,
+		IET_Released	= 1,
+		IET_Held		= 2,
+		IET_Typed	= 3,
+		IET_Moved	= 4,
+	} EInputEventType;
 
 	
 	typedef int KeyMapCode;
@@ -112,11 +112,11 @@ namespace Insight {
 
 
 
-	typedef enum _GampadRumbleMotor
+	typedef enum EGampadRumbleMotor
 	{
 		GampadRumbleMotor_Left	= BIT_SHIFT(0),
 		GampadRumbleMotor_Right = BIT_SHIFT(1),
-	} GampadRumbleMotor;
+	} EGampadRumbleMotor;
 
 }
 

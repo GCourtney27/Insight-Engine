@@ -11,7 +11,7 @@ namespace Insight {
 
 		EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput)
 	protected:
-		KeyEvent(KeyMapCode KeyCode, InputEventType Status)
+		KeyEvent(KeyMapCode KeyCode, EInputEventType Status)
 			: InputEvent(KeyCode, Status) {}
 
 	};
@@ -20,7 +20,7 @@ namespace Insight {
 	{
 	public:
 		KeyPressedEvent(KeyMapCode keycode, int repeatCount, float MoveDelta = 1.0f)
-			: KeyEvent(keycode, InputEventType_Pressed), m_RepeatCount(repeatCount), m_MoveDelta(MoveDelta)
+			: KeyEvent(keycode, IET_Pressed), m_RepeatCount(repeatCount), m_MoveDelta(MoveDelta)
 		{}
 
 		inline int GetRepeatCount() const { return m_RepeatCount; }
@@ -43,7 +43,7 @@ namespace Insight {
 	{
 	public:
 		KeyHeldEvent(KeyMapCode Keycode)
-			: KeyEvent(Keycode, InputEventType_Held) {}
+			: KeyEvent(Keycode, IET_Held) {}
 
 		std::string ToString() const override
 		{
@@ -59,7 +59,7 @@ namespace Insight {
 	{
 	public:
 		KeyReleasedEvent(KeyMapCode Keycode)
-			: KeyEvent(Keycode, InputEventType_Released) {}
+			: KeyEvent(Keycode, IET_Released) {}
 
 		std::string ToString() const override
 		{
@@ -75,7 +75,7 @@ namespace Insight {
 	{
 	public:
 		KeyTypedEvent(KeyMapCode Keycode)
-			: KeyEvent(Keycode, InputEventType_Typed) {}
+			: KeyEvent(Keycode, IET_Typed) {}
 
 
 		std::string ToString() const override

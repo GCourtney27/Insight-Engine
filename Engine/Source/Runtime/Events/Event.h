@@ -7,7 +7,7 @@
 
 namespace Insight {
 
-	enum class EventType
+	enum class EEventType
 	{
 		None = 0,
 		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved, ToggleWindowFullScreen, ShaderReload,
@@ -18,7 +18,7 @@ namespace Insight {
 		PhysicsCollisionEvent, WorldTranslationEvent
 	};
 
-	enum EventCategory
+	enum EEventCategory
 	{
 		None = 0,
 		EventCategoryApplication	= BIT_SHIFT(0),
@@ -30,8 +30,8 @@ namespace Insight {
 		EventCategoryTranslation	= BIT_SHIFT(6)
 	};
 
-#define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::##type; }\
-								virtual EventType GetEventType() const override { return GetStaticType(); }\
+#define EVENT_CLASS_TYPE(type) static EEventType GetStaticType() { return EEventType::##type; }\
+								virtual EEventType GetEventType() const override { return GetStaticType(); }\
 								virtual const char* GetName() const override { return #type; }
 
 #define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const override { return category; }
@@ -40,14 +40,14 @@ namespace Insight {
 	{
 		friend class EventDispatcher;
 	public:
-		virtual EventType GetEventType() const = 0;
+		virtual EEventType GetEventType() const = 0;
 		virtual const char * GetName() const = 0;
 		virtual int GetCategoryFlags() const = 0;
 		virtual std::string ToString() const { return GetName(); }
 
 		inline bool Handled() const { return m_Handled; }
 
-		inline bool IsInCategory(EventCategory category)
+		inline bool IsInCategory(EEventCategory category)
 		{
 			return GetCategoryFlags() & category;
 		}
@@ -59,7 +59,7 @@ namespace Insight {
 	{
 	public:
 		inline KeyMapCode GetKeyCode() const { return m_KeyMapCode; }
-		inline InputEventType GetEventType() const { return m_Status; }
+		inline EInputEventType GetEventType() const { return m_Status; }
 		
 		std::string ToString() const
 		{
@@ -68,12 +68,12 @@ namespace Insight {
 			return ss.str();
 		}
 	protected:
-		InputEvent(KeyMapCode KeyMapCode, InputEventType Status)
+		InputEvent(KeyMapCode KeyMapCode, EInputEventType Status)
 			: m_KeyMapCode(KeyMapCode), m_Status(Status) 
 		{}
 
 		KeyMapCode m_KeyMapCode;
-		InputEventType m_Status;
+		EInputEventType m_Status;
 	};
 
 	class INSIGHT_API RendererEvent : public Event
@@ -82,7 +82,7 @@ namespace Insight {
 		RendererEvent() = default;
 		~RendererEvent() = default;
 
-		virtual EventType GetEventType() const override { return EventType::AppRender; }
+		virtual EEventType GetEventType() const override { return EEventType::AppRender; }
 		virtual const char* GetName() const override { return "Default Render Event Type"; }
 		virtual int GetCategoryFlags() const override { return -1; }
 	};

@@ -51,12 +51,12 @@ namespace Insight {
 		{
 		}
 
-		void InputComponent::BindAction(const char* ActionName, InputEventType EventType, Input::EventInputActionFn Callback)
+		void InputComponent::BindAction(const char* ActionName, EInputEventType EventType, Input::EventInputActionFn Callback)
 		{
 			Input::InputDispatcher::Get().RegisterActionCallback(ActionName, EventType, Callback);
 		}
 
-		void InputComponent::AddGamepadVibration(uint32_t PlayerIndex, GampadRumbleMotor Motor, float Amount)
+		void InputComponent::AddGamepadVibration(uint32_t PlayerIndex, EGampadRumbleMotor Motor, float Amount)
 		{
 			Input::InputDispatcher::Get().AddGamepadVibration(PlayerIndex, Motor, Amount);
 		}

@@ -10,11 +10,11 @@ namespace Insight {
 	class INSIGHT_API Material
 	{
 	public:
-		enum eMaterialType
+		enum EMaterialType
 		{
-			eMaterialType_Invalid = -1,
-			eMaterialType_Opaque = 0,
-			eMaterialType_Translucent = 1,
+			MT_Invalid = -1,
+			MT_Opaque = 0,
+			MT_Translucent = 1,
 		};
 	public:
 		Material();
@@ -42,8 +42,8 @@ namespace Insight {
 		void SetRoughnessOverride(float Override) { m_ShaderCB.RoughnessAdditive = Override; }
 		void AddRoughnessOverride(float Override) { m_ShaderCB.RoughnessAdditive += Override; }
 
-		eMaterialType GetMaterialType() const { return m_MaterialType; }
-		void SetMaterialType(eMaterialType MaterialType) { m_MaterialType = MaterialType; }
+		EMaterialType GetMaterialType() const { return m_MaterialType; }
+		void SetMaterialType(EMaterialType MaterialType) { m_MaterialType = MaterialType; }
 
 		CB_PS_VS_PerObjectMaterialAdditives GetMaterialOverrideConstantBuffer() { return m_ShaderCB; }
 
@@ -52,7 +52,7 @@ namespace Insight {
 		void BindResources(bool IsDeferredPass);
 
 	private:
-		eMaterialType m_MaterialType = eMaterialType::eMaterialType_Invalid;
+		EMaterialType m_MaterialType = EMaterialType::MT_Invalid;
 
 		StrongTexturePtr m_AlbedoMap;
 		StrongTexturePtr m_NormalMap;

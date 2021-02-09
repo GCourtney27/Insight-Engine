@@ -42,7 +42,9 @@ int APIENTRY wWinMain(
 	}
 	catch (Insight::ieException& Ex) 
 	{
-		IE_LOG(Critical, Ex.What());
+		// A fatal error has occured. Dump the application to a file.
+		Insight::Debug::Logger::AppendMessageForCoreDump(Ex.What());
+		Insight::Debug::Logger::InitiateCoreDump();
 		return Insight::Application::EC_Failed;
 	}
 

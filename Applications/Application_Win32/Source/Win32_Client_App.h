@@ -40,7 +40,7 @@ namespace SandBoxApp {
 		}
 
 		// Main loop of the application. This is the main entry point for every frame.
-		virtual Application::ieErrorCode Run() override
+		virtual Application::EErrorCode Run() override
 		{
 			return Super::Run();
 		}

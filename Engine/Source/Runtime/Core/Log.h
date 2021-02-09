@@ -28,11 +28,20 @@ namespace Insight {
 		{
 		public:
 			static bool Initialize();
-			~Logger() = default;
+			~Logger();
+
+			inline static void AppendMessageForCoreDump(const char* Message)
+			{
+				s_CoreDumpMessage.append(Message);
+				s_CoreDumpMessage.append("\n");
+			}
+
+			static void InitiateCoreDump();
 
 			inline static ConsoleWindow& GetConsoleWindow() { return s_ConsoleWindow; }
 
 		private:
+			static std::string s_CoreDumpMessage;
 #	if defined (IE_DEBUG) && defined (IE_PLATFORM_BUILD_WIN32)
 			static ConsoleWindow s_ConsoleWindow;
 #	endif
@@ -48,6 +57,9 @@ namespace Insight {
 } // end namespace Insight
 
 #if defined (IE_DEBUG) || defined (IE_RELEASE)
+
+// If Expr is true, a exception will be raised.
+#	define IE_FATAL_ERROR(Expr, Message, Category) if( !(Expr) ) { throw ieException(Message, Category); }
 
 // Log a message to the console.
 #	define IE_LOG(Severity, fmt, ...) ::Insight::Debug::LogHelper(ELogSeverity::##Severity, fmt, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);

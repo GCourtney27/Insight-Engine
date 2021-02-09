@@ -81,7 +81,7 @@ namespace Insight {
 		CoreWindow::GetForCurrentThread().Dispatcher().ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
 	}
 
-	InputEventType UWPWindow::GetAsyncKeyState(KeyMapCode Key) const
+	EInputEventType UWPWindow::GetAsyncKeyState(KeyMapCode Key) const
 	{
 		const winrt::Windows::System::VirtualKey VirtualKey = (winrt::Windows::System::VirtualKey)Key;
 		auto state = winrt::Windows::UI::Core::CoreWindow::GetForCurrentThread().GetAsyncKeyState(VirtualKey);

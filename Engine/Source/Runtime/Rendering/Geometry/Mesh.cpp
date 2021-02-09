@@ -90,13 +90,13 @@ namespace Insight {
 	void Mesh::CreateBuffers(const Verticies& Verticies, const Indices& Indices)
 	{
 		switch (Renderer::GetAPI()) {
-		case Renderer::TargetRenderAPI::Direct3D_11:
+		case Renderer::ETargetRenderAPI::Direct3D_11:
 		{
 			m_pVertexBuffer = new D3D11VertexBuffer(Verticies);
 			m_pIndexBuffer = new D3D11IndexBuffer(Indices);
 			break;
 		}
-		case Renderer::TargetRenderAPI::Direct3D_12:
+		case Renderer::ETargetRenderAPI::Direct3D_12:
 		{
 			m_pVertexBuffer = new D3D12VertexBuffer(Verticies);
 			m_pIndexBuffer = new D3D12IndexBuffer(Indices);
@@ -117,7 +117,7 @@ namespace Insight {
 
 			break;
 		}
-		case Renderer::TargetRenderAPI::Invalid:
+		case Renderer::ETargetRenderAPI::Invalid:
 		{
 			assert(false); // Mesh trying to be created before the renderer has been initialized.
 			break;

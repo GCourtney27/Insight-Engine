@@ -37,11 +37,11 @@ namespace Insight {
 	class INSIGHT_API Application
 	{
 	public:
-		typedef enum _ieErrorCode
+		typedef enum EErrorCode
 		{
 			EC_Failed	= 0,
 			EC_Success	= 1,
-		} ieErrorCode;
+		} EErrorCode;
 	public:
 		Application();
 		virtual ~Application();
@@ -51,6 +51,7 @@ namespace Insight {
 
 		inline static Application& Get() { return *s_Instance; }
 
+		void DumpApp();
 
 		// Initialize the core components of the application. Should be called once
 		// at the beginning of the application, after the window has been initialized.
@@ -58,8 +59,8 @@ namespace Insight {
 		// Called when the main portion of the applicaiton has been initialized.
 		virtual void PostInit();
 		// Main loop of the application. This is the main entry point for every frame.
-		virtual ieErrorCode Run();
-		ieErrorCode RunSingleThreaded();
+		virtual EErrorCode Run();
+		EErrorCode RunSingleThreaded();
 		// Shutdown the application and release all resources.
 		virtual void Shutdown();
 
