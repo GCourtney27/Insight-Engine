@@ -13,7 +13,6 @@ engineIncludeDirs["ImGui"] 	    		= engineDirPath .. "ThirdParty/imgui/"
 engineIncludeDirs["ImGuizmo"] 			= engineDirPath .. "ThirdParty/ImGuizmo/"
 engineIncludeDirs["Microsoft"] 			= engineDirPath .. "ThirdParty/Microsoft/"
 engineIncludeDirs["rapidjson"]  		= engineDirPath .. "ThirdParty/rapidjson/"
-engineIncludeDirs["spdlog"] 			= engineDirPath .. "ThirdParty/spdlog/"
 engineIncludeDirs["Mono"] 				= monoInstallDir .. "include/mono-2.0/"
 engineIncludeDirs["assimp"] 			= engineDirPath .. "ThirdParty/assimp-5.0.1/include/"
 engineIncludeDirs["OpenFBX"]			= engineDirPath .. "ThirdParty/OpenFBX/src/"
@@ -78,7 +77,6 @@ project ("EngineBuild_UWP")
 		"%{engineIncludeDirs.Microsoft}DirectX12/",
 		"%{engineIncludeDirs.Nvidia}DirectX12/",
 		"%{engineIncludeDirs.rapidjson}include/",
-		"%{engineIncludeDirs.spdlog}include/",
 		"%{engineIncludeDirs.ImGui}",
 		--"%{engineIncludeDirs.ImGuizmo}",
 
@@ -219,7 +217,6 @@ project ("EngineBuild_Win32")
 		"%{engineIncludeDirs.Microsoft}DirectX12/",
 		"%{engineIncludeDirs.Nvidia}DirectX12/",
 		"%{engineIncludeDirs.rapidjson}include/",
-		"%{engineIncludeDirs.spdlog}include/",
 		--"%{engineIncludeDirs.ImGuizmo}",
 		"%{engineIncludeDirs.Mono}",
 		"%{engineIncludeDirs.ImGui}",

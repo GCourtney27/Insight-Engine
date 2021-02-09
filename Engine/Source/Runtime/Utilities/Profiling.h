@@ -154,16 +154,16 @@ namespace Insight {
 				switch (m_OutputType)
 				{
 				case EOutputType::OT_Milliseconds:
-					IE_LOG(Log, "{0} took {1} milliseconds", m_ScopeName, GetElapsedMiliSeconds());
+					IE_LOG(Log, "%s took %f milliseconds", m_ScopeName, GetElapsedMiliSeconds());
 					break;
 				case EOutputType::OT_Seconds:
-					IE_LOG(Log, "{0} took {1} seconds", m_ScopeName, GetElepsedSeconds());
+					IE_LOG(Log, "%s took %f seconds", m_ScopeName, GetElepsedSeconds());
 					break;
 				case EOutputType::OT_NanoSeconds:
-					IE_LOG(Log, "{0} took {1} nanoseconds", m_ScopeName, GetElapsedNanos());
+					IE_LOG(Log, "%s took %f nanoseconds", m_ScopeName, GetElapsedNanos());
 					break;
 				case EOutputType::OT_MicroSeconds:
-					IE_LOG(Log, "{0} took {1} microseconds", m_ScopeName, GetElepsedMicroSeconds());
+					IE_LOG(Log, "%s took %f microseconds", m_ScopeName, GetElepsedMicroSeconds());
 					break;
 				default:
 					break;

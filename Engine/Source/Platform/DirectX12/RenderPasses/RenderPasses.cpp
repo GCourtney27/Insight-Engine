@@ -863,7 +863,7 @@ namespace Insight {
 		const uint32_t TargetHeight = WindowHeight	/ 2u;
 		CD3DX12_HEAP_PROPERTIES DefaultHeapProps(D3D12_HEAP_TYPE_DEFAULT);
 
-		IE_LOG(Warning, "Creating bloom render targets with source resolution {0}, {1}", WindowWidth, WindowHeight);
+		IE_LOG(Warning, "Creating bloom render targets with source resolution %i, %i", WindowWidth, WindowHeight);
 
 		// Down Sample UAV
 		D3D12_RESOURCE_DESC ResourceDesc = {};

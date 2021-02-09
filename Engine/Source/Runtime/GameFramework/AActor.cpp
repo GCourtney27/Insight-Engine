@@ -159,7 +159,7 @@ namespace Insight {
 					case 0: break;
 					case 1:
 					{
-						IE_LOG(Log, "Adding Static Mesh Component to \"{0}\"", AActor::GetDisplayName());
+						IE_LOG(Log, "Adding Static Mesh Component to \"%s\"", AActor::GetDisplayName());
 						StaticMeshComponent* ptr = AActor::CreateDefaultSubobject<StaticMeshComponent>();
 						ptr->SetMaterial(std::move(Material::CreateDefaultTexturedMaterial()));
 						ptr->AttachMesh("Models/Quad.obj");
@@ -168,13 +168,13 @@ namespace Insight {
 					}
 					case 2:
 					{
-						IE_LOG(Log, "Adding C-Sharp Script Component to \"{0}\"", AActor::GetDisplayName());
+						IE_LOG(Log, "Adding C-Sharp Script Component to \"%s\"", AActor::GetDisplayName());
 						CSharpScriptComponent* ptr = AActor::CreateDefaultSubobject<CSharpScriptComponent>();
 						break;
 					}
 					default:
 					{
-						IE_LOG(Log, "Failed to determine component to add to actor \"{0}\" with index of \"{1}\"", AActor::GetDisplayName(), currentIndex);
+						IE_LOG(Log, "Failed to determine component to add to actor \"%s\" with index of \"%i\"", AActor::GetDisplayName(), currentIndex);
 						break;
 					}
 					}

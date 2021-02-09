@@ -119,7 +119,7 @@ namespace Insight {
 		}
 		case Renderer::TargetRenderAPI::Invalid:
 		{
-			IE_FATAL_ERROR(L"Mesh trying to be created before the renderer has been initialized.");
+			assert(false); // Mesh trying to be created before the renderer has been initialized.
 			break;
 		}
 		default:

@@ -137,7 +137,7 @@ namespace Insight {
 		}
 		default:
 		{
-			IE_LOG(Error, "Failed to determine shader register of texture with type \"{0}\" in D3D 11 context.", m_TextureInfo.Type);
+			IE_LOG(Error, "Failed to determine shader register of texture with type \"%i\" in D3D 11 context.", m_TextureInfo.Type);
 		}
 		}
 		return - 1;

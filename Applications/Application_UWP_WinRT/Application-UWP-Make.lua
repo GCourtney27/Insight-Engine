@@ -13,7 +13,6 @@ uwpAppIncludeDirs["assimp"]					= engineThirdPartyDir .. "assimp-5.0.1/include/"
 uwpAppIncludeDirs["OpenFBX"]				= engineThirdPartyDir .. "OpenFBX/src/"
 uwpAppIncludeDirs["Microsoft"] 				= engineThirdPartyDir .. "Microsoft/"
 uwpAppIncludeDirs["Nvidia"]					= engineThirdPartyDir .. "Nvidia/"
-uwpAppIncludeDirs["spdlog"]					= engineThirdPartyDir .. "spdlog/include/"
 uwpAppIncludeDirs["rapidjson"] 				= engineThirdPartyDir .. "rapidjson/include/"
 uwpAppIncludeDirs["Engine_Root"]			= rootDirPath .. "Engine/"
 uwpAppIncludeDirs["Engine_Src"]				= rootDirPath .. "Engine/Source/"
@@ -67,7 +66,6 @@ project (projectName)
 		"%{uwpAppIncludeDirs.Microsoft}/DirectX12",
 		"%{uwpAppIncludeDirs.Nvidia}DirectX12/",
 		"%{uwpAppIncludeDirs.Microsoft}/WinPixEventRuntime/Include/",
-		"%{uwpAppIncludeDirs.spdlog}",
 		"%{uwpAppIncludeDirs.rapidjson}",
 		"%{uwpAppIncludeDirs.Engine_Src}/",
 		"%{uwpAppIncludeDirs.Engine_ThirdParty}/",

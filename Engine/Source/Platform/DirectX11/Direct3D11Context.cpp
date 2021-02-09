@@ -440,12 +440,12 @@ namespace Insight {
 				}
 				*ppAdapter = pAdapter.Detach();
 
-				IE_LOG(Warning, "Found suitable Direct3D 11 graphics hardware: {0}", StringHelper::WideToString(Desc.Description));
+				IE_LOG(Warning, "Found suitable Direct3D 11 graphics hardware: %s", StringHelper::WideToString(Desc.Description).c_str());
 			}
 		}
 		Desc = {};
 		(*ppAdapter)->GetDesc(&Desc);
-		IE_LOG(Warning, "\"{0}\" selected as Direct3D 11 graphics hardware.", StringHelper::WideToString(Desc.Description));
+		IE_LOG(Warning, "\"%s\" selected as Direct3D 11 graphics hardware.", StringHelper::WideToString(Desc.Description).c_str());
 	}
 
 	void Direct3D11Context::CreateDeviceAndSwapChain()

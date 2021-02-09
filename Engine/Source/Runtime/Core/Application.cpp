@@ -34,9 +34,9 @@ namespace Insight {
 
 		// Initialize the core logger.
 		IE_STRIP_FOR_GAME_DIST(
-			if (!Insight::Debug::Logger::Init())
+			if (!Insight::Debug::Logger::Initialize())
 			{
-				IE_FATAL_ERROR(L"Failed to create core logger.");
+				IE_LOG(Error, "Failed to create core logger.");
 			}
 		)
 	}
@@ -242,7 +242,7 @@ namespace Insight {
 			);
 			break;
 		default:
-			IE_LOG(Error, "Failed to create ImGui layer in application with API of type \"{0}\" Or application has disabled editor.", Renderer::GetAPI());
+			IE_LOG(Error, "Failed to create ImGui layer in application with API of type \"%i\" Or application has disabled editor.", Renderer::GetAPI());
 			break;
 		}
 #endif

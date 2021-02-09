@@ -39,7 +39,7 @@ namespace Insight {
 		if (!pFile)
 		{
 			HRESULT hr = HRESULT_FROM_WIN32(GetLastError());
-			IE_LOG(Error, "Failed to read raw file with path: \"{0}\"", Path);
+			IE_LOG(Error, "Failed to read raw file with path: \"%s\"", Path);
 			OutDataSize = -1;
 			return nullptr;
 		}
@@ -64,7 +64,7 @@ namespace Insight {
 		rapidjson::Document RawSettingsFile;
 		const std::string SettingsDir = "../Content/Engine.ini";
 		if (!json::load(SettingsDir.c_str(), RawSettingsFile)) {
-			IE_LOG(Error, "Failed to load graphics settings from file: \"{0}\". Default graphics settings will be applied.", SettingsDir);
+			IE_LOG(Error, "Failed to load graphics settings from file: \"%s\". Default graphics settings will be applied.", SettingsDir.c_str());
 
 		}
 
@@ -127,7 +127,7 @@ namespace Insight {
 			rapidjson::Document RawSettingsFile;
 			const std::string SettingsDir = StringHelper::WideToString(GetRelativeContentDirectoryW(L"Engine.ini"));
 			if (!json::load(SettingsDir.c_str(), RawSettingsFile)) {
-				IE_LOG(Error, "Failed to load graphics settings from file: \"{0}\". Default graphics settings will be applied.", SettingsDir);
+				IE_LOG(Error, "Failed to load graphics settings from file: \"%s\". Default graphics settings will be applied.", SettingsDir.c_str());
 				return UserGraphicsSettings;
 			}
 			int MaxAniso, TargetRenderAPI;
@@ -152,7 +152,7 @@ namespace Insight {
 			rapidjson::Document rawMetaFile;
 			const std::string metaDir = FileName + "/Meta.json";
 			if (!json::load(metaDir.c_str(), rawMetaFile)) {
-				IE_LOG(Error, "Failed to load meta file from scene: \"{0}\" from file.", FileName);
+				IE_LOG(Error, "Failed to load meta file from scene: \"%s\" from file.", FileName.c_str());
 				return false;
 			}
 			std::string sceneName;
@@ -164,7 +164,7 @@ namespace Insight {
 			json::get_int(rawMetaFile, "NumSceneActors", NumActorsInScene);
 			pScene->ResizeSceneGraph(NumActorsInScene);
 
-			IE_LOG(Verbose, "Scene meta data loaded.");
+			IE_LOG(Log, "Scene meta data loaded.");
 		}
 
 		// Load in Resources.json
@@ -174,13 +174,13 @@ namespace Insight {
 			rapidjson::Document RawResourceFile;
 			const std::string ResorurceDir = FileName + "/Resources.json";
 			if (!json::load(ResorurceDir.c_str(), RawResourceFile)) {
-				IE_LOG(Error, "Failed to load resource file from scene: \"{0}\" from file.", FileName);
+				IE_LOG(Error, "Failed to load resource file from scene: \"%s\" from file.", FileName.c_str());
 				return false;
 			}
 
 			ResourceManager::Get().LoadResourcesFromJson(RawResourceFile);
 
-			IE_LOG(Verbose, "Scene resouces loaded.");
+			IE_LOG(Log, "Scene resouces loaded.");
 		}
 
 		// Load in Actors.json last once resources have been intialized
@@ -190,7 +190,7 @@ namespace Insight {
 			rapidjson::Document RawActorsFile;
 			const std::string ActorsDir = FileName + "/Actors.json";
 			if (!json::load(ActorsDir.c_str(), RawActorsFile)) {
-				IE_LOG(Error, "Failed to load actor file from scene: \"{0}\" from file.", FileName);
+				IE_LOG(Error, "Failed to load actor file from scene: \"%s\" from file.", FileName.c_str());
 				return false;
 			}
 
@@ -237,7 +237,7 @@ namespace Insight {
 				}
 
 				if (pNewActor == nullptr) {
-					IE_LOG(Error, "Failed to parse actor \"{0}\" into scene", (ActorDisplayName == "") ? "INVALID NAME" : ActorDisplayName);
+					IE_LOG(Error, "Failed to parse actor \"%s\" into scene", (ActorDisplayName.c_str() == "") ? "INVALID NAME" : ActorDisplayName.c_str());
 					continue;
 				}
 
@@ -245,7 +245,7 @@ namespace Insight {
 				ActorSceneIndex++;
 			}
 
-			IE_LOG(Verbose, "Scene actors loaded.");
+			IE_LOG(Log, "Scene actors loaded.");
 		}
 
 		return true;
@@ -271,7 +271,7 @@ namespace Insight {
 			offstream << StrBuffer.GetString();
 
 			if (!offstream.good()) {
-				IE_LOG(Error, "Failed to save meta data for scene: {0}", pScene->GetDisplayName());
+				IE_LOG(Error, "Failed to save meta data for scene: %s", pScene->GetDisplayName().c_str());
 				return false;
 			}
 		}
@@ -289,7 +289,7 @@ namespace Insight {
 			offstream << StrBuffer.GetString();
 
 			if (!offstream.good()) {
-				IE_LOG(Error, "Failed to save actors for scene: {0}", pScene->GetDisplayName());
+				IE_LOG(Error, "Failed to save actors for scene: %s", pScene->GetDisplayName().c_str());
 				return false;
 			}
 		}

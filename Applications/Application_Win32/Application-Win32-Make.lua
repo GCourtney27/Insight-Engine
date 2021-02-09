@@ -12,7 +12,6 @@ win32AppIncludeDirs = {}
 win32AppIncludeDirs["assimp"]					= engineThirdPartyDir .. "assimp-5.0.1/include/"
 win32AppIncludeDirs["Microsoft"] 				= engineThirdPartyDir .. "Microsoft/"
 win32AppIncludeDirs["Nvidia"]					= engineThirdPartyDir .. "Nvidia/"
-win32AppIncludeDirs["spdlog"]					= engineThirdPartyDir .. "spdlog/include/"
 win32AppIncludeDirs["rapidjson"] 				= engineThirdPartyDir .. "rapidjson/include/"
 win32AppIncludeDirs["Mono"]						= monoInstallDir .. "include/"
 win32AppIncludeDirs["Engine_Root"]				= rootDirPath .. "Engine/"
@@ -50,7 +49,6 @@ project (projectName)
 		"%{win32AppIncludeDirs.Microsoft}",
 		"%{win32AppIncludeDirs.Nvidia}DirectX12/",
 		"%{win32AppIncludeDirs.Microsoft}WinPixEventRuntime/Include/",
-		"%{win32AppIncludeDirs.spdlog}",
 		"%{win32AppIncludeDirs.rapidjson}",
 		"%{win32AppIncludeDirs.Mono}mono-2.0/",
 		"%{win32AppIncludeDirs.Engine_Src}/",

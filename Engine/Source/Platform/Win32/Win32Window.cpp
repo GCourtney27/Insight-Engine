@@ -293,7 +293,7 @@ namespace Insight {
 
 			if (RegisterRawInputDevices(&RID, 1, sizeof(RID)) == FALSE)
 			{
-				IE_LOG(Error, "Failed to register raw input devices. Error: {0}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
+				IE_LOG(Error, "Failed to register raw input devices. Error: %s", StringHelper::WideToString(std::wstring(GetLastWindowsError()).c_str()));
 				return false;
 			}
 			RIDInitialized = true;
@@ -333,7 +333,7 @@ namespace Insight {
 
 		if (m_hWindow == NULL) {
 			IE_LOG(Critical, "Unable to create Windows window.");
-			IE_LOG(Critical, "    Error: {0}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
+			IE_LOG(Critical, "    Error: %s", StringHelper::WideToString(std::wstring(GetLastWindowsError())).c_str());
 			throw ieException("Fatal Error: Failed to initialize Win32 window. Handle returned nullptr from Windows API. Window description may have contained invalid parameters.");
 		}
 
@@ -379,8 +379,8 @@ namespace Insight {
 		DWORD error = ::GetLastError();
 		if (error > 0)
 		{
-			IE_LOG(Error, "An error occured while registering window class: {0} ", StringHelper::WideToString(m_WindowClassName));
-			IE_LOG(Error, "    Error: {1}", StringHelper::WideToString(std::wstring(GetLastWindowsError())));
+			IE_LOG(Error, "An error occured while registering window class: %s ", StringHelper::WideToString(m_WindowClassName).c_str());
+			IE_LOG(Error, "    Error: %s", StringHelper::WideToString(std::wstring(GetLastWindowsError())).c_str());
 		}
 	}
 
@@ -388,7 +388,7 @@ namespace Insight {
 	{
 		m_hMenuBar = ::CreateMenu();
 		if (m_hMenuBar == NULL) {
-			IE_LOG(Error, "Failed to create menu bar for window \"{0}\"", StringHelper::WideToString(m_WindowTitle));
+			IE_LOG(Error, "Failed to create menu bar for window \"%s\"", StringHelper::WideToString(m_WindowTitle).c_str());
 			return;
 		}
 
@@ -512,7 +512,7 @@ namespace Insight {
 
 	Win32Window::~Win32Window()
 	{
-		IE_LOG(Warning, "Destroying window: {0}", StringHelper::WideToString(m_WindowTitle));
+		IE_LOG(Warning, "Destroying window: %s", StringHelper::WideToString(m_WindowTitle).c_str());
 		Shutdown();
 	}
 

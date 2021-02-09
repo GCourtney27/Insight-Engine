@@ -127,7 +127,7 @@ namespace Insight {
 		Destroy();
 		m_ResourceManager.FlushAllResources();
 		if (!Init(NewScene)) {
-			IE_LOG(Error, "Failed to flush current scene \"{0}\" and load new scene with filepath: \"{1}\"", m_DisplayName, NewScene);
+			IE_LOG(Error, "Failed to flush current scene \"%s\" and load new scene with filepath: \"%s\"", m_DisplayName.c_str(), NewScene.c_str());
 			return false;
 		}
 

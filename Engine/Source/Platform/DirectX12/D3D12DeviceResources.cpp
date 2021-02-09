@@ -252,7 +252,7 @@ namespace Insight {
 						*ppAdapter = pAdapter.Detach();
 						m_pRenderContextRef->SetIsRayTraceSupported(true);
 
-						IE_LOG(Log, "Found suitable D3D 12 hardware that can support DXR: {0}", StringHelper::WideToString(std::wstring{ Desc.Description }));
+						IE_LOG(Log, "Found suitable D3D 12 hardware that can support DXR: %s", StringHelper::WideToString(std::wstring{ Desc.Description }).c_str());
 						continue;
 					}
 				}
@@ -265,12 +265,12 @@ namespace Insight {
 				if (*ppAdapter != nullptr) (*ppAdapter)->Release();
 
 				*ppAdapter = pAdapter.Detach();
-				IE_LOG(Log, "Found suitable D3D 12 hardware: {0}", StringHelper::WideToString(Desc.Description));
+				IE_LOG(Log, "Found suitable D3D 12 hardware: %s", StringHelper::WideToString(Desc.Description).c_str());
 			}
 		}
 		Desc = {};
 		(*ppAdapter)->GetDesc1(&Desc);
-		IE_LOG(Warning, "\"{0}\" selected as D3D 12 graphics hardware.", StringHelper::WideToString(Desc.Description));
+		IE_LOG(Warning, "\"%s\" selected as D3D 12 graphics hardware.", StringHelper::WideToString(Desc.Description).c_str());
 	}
 
 	void D3D12DeviceResources::CreateDevice()
@@ -289,7 +289,7 @@ namespace Insight {
 
 			DXGI_ADAPTER_DESC Desc;
 			warpAdapter->GetDesc(&Desc);
-			IE_LOG(Warning, "\"{0}\" selected as D3D 12 graphics hardware.", StringHelper::WideToString(Desc.Description));
+			IE_LOG(Warning, "\"%s\" selected as D3D 12 graphics hardware.", StringHelper::WideToString(Desc.Description).c_str());
 		}
 		else
 		{

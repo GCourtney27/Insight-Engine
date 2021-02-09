@@ -37,7 +37,7 @@ namespace Insight {
 			s_Instance = new D3D12GeometryManager();
 			break;
 		default:
-			IE_FATAL_ERROR(L"Failed to determine graphics api to initialize geometry manager. The render may have not been initialized properly or may not have been initialized at all.");
+			assert(false); // Failed to determine graphics api to initialize geometry manager. The render may have not been initialized properly or may not have been initialized at all.
 			break;
 		}
 

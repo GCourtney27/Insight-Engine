@@ -159,7 +159,7 @@ namespace Insight {
 						AttachMesh(m_DynamicAssetDir);
 					}
 					else {
-						IE_LOG(Error, "File does not exist with path: \"{0}\"", m_DynamicAssetDir);
+						IE_LOG(Error, "File does not exist with path: \"%s\"", m_DynamicAssetDir.c_str());
 					}
 				}
 
