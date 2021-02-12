@@ -3,6 +3,7 @@
 
 appName = "Application"
 projectName = appName .. "_UWP_WinRT"
+platform = "UWP"
 
 rootDirPath = "../../"
 engineThirdPartyDir = rootDirPath .. "Engine/ThirdParty/"
@@ -28,8 +29,8 @@ project (projectName)
 	systemversion ("latest")
 	targetname (projectName)
 	
-	targetdir (rootDirPath .. binaryDirectory .. "%{prj.name}")
-	objdir (rootDirPath .. intDirectory .. "%{prj.name}")
+	targetdir (ieGetBuildFolder(platform))
+	objdir (ieGetBuildIntFolder(platform))
 
 	platforms { "x64" }
 	defaultlanguage ("en-US")

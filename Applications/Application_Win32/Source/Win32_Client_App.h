@@ -27,7 +27,7 @@ namespace SandBoxApp {
 		virtual void Initialize() override
 		{
 			Super::Initialize();
-			
+
 			FillScene();
 
 			Super::PostInit();

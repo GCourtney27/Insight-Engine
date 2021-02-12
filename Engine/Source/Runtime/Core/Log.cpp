@@ -15,15 +15,18 @@ namespace Insight {
 
 		bool Logger::Initialize()
 		{
+#	if defined (IE_DEBUG) && defined (IE_PLATFORM_BUILD_WIN32)
 			// Initialize the console window.
 			ConsoleWindowDesc WindowDesc;
 			WindowDesc.CanClose = false;
 			WindowDesc.BufferDims = ieFloat2(700, 320);
 			WindowDesc.WindowDims = ieFloat2(170, 42);
 			WindowDesc.DefaultForegroundColor = CC_White;
-			bool ConsoleCreated = s_ConsoleWindow.Create(WindowDesc);
+			WindowDesc.LoggerName = "Insight";
+			s_ConsoleWindow.Create(WindowDesc);
+#endif
 
-			return ConsoleCreated;
+			return true;
 		}
 
 		Logger::~Logger()
@@ -55,6 +58,7 @@ namespace Insight {
 
 		void LogHelper(ELogSeverity Severity, const char* fmt, const char* File, const char* Function, int Line, ...)
 		{
+			static const char* LoggerName = Logger::GetConsoleWindow().GetName().c_str();
 			char TraceBuffer[1024];
 			char OutputBuffer[1024];
 
@@ -62,33 +66,42 @@ namespace Insight {
 			va_list args;
 			va_start(args, Line); // Start capturing arguments after the 'Line' parameter in the method.
 			{
-				_vsnprintf(OutputBuffer, sizeof(OutputBuffer), fmt, args);
+				::_vsnprintf(OutputBuffer, sizeof(OutputBuffer), fmt, args);
 			}
 			va_end(args);
+
+			// Determine the default log color.
+			// Some platforms dont support the Win32 console window.
+			EConsoleColor LogColor
+#	if defined (IE_DEBUG) && defined (IE_PLATFORM_BUILD_WIN32)
+				= Logger::GetConsoleWindow().GetDesc().DefaultForegroundColor;
+#else
+				= CC_White;
+#endif
 
 			switch (Severity)
 			{
 			case ELogSeverity::Log:
-				sprintf_s(TraceBuffer, "[Insight][Log] - ");
+				::sprintf_s(TraceBuffer, "[%s][Log] - ", LoggerName);
 				break;
 			case ELogSeverity::Verbose:
-				Insight::Debug::Logger::GetConsoleWindow().SetForegroundColor(Insight::EConsoleColor::CC_Green);
-				sprintf_s(TraceBuffer, "[Insight][Verbose][%s-%s-%i] - ", File, Function, Line);
+				LogColor = CC_Green;
+				::sprintf_s(TraceBuffer, "[%s][Verbose][%s-%s-%i] - ", LoggerName, File, Function, Line);
 				break;
 			case ELogSeverity::Warning:
-				Insight::Debug::Logger::GetConsoleWindow().SetForegroundColor(Insight::EConsoleColor::CC_Yellow);
-				sprintf_s(TraceBuffer, "[Insight][Warning] - ");
+				LogColor = CC_Yellow;
+				::sprintf_s(TraceBuffer, "[%s][Warning] - ", LoggerName);
 				break;
 			case ELogSeverity::Error:
-				Insight::Debug::Logger::GetConsoleWindow().SetForegroundColor(Insight::EConsoleColor::CC_Red);
-				sprintf_s(TraceBuffer, "[Insight][Error] - ");
+				LogColor = CC_Red;
+				::sprintf_s(TraceBuffer, "[%s][Error] - ", LoggerName);
 				break;
 			case ELogSeverity::Critical:
-				Insight::Debug::Logger::GetConsoleWindow().SetForegroundColor(Insight::EConsoleColor::CC_Orange);
-				sprintf_s(TraceBuffer, "[Insight][Critical] - ");
+				LogColor = CC_Orange;
+				::sprintf_s(TraceBuffer, "[%s][Critical] - ", LoggerName);
 				break;
 			default:
-				sprintf_s(TraceBuffer, "Invalid log severity given to logger. Choose one option from Log::LogSeverity enum.");
+				::sprintf_s(TraceBuffer, "Invalid log severity given to logger. Choose one option from ELogSeverity enum.");
 				break;
 			}
 
@@ -98,9 +111,10 @@ namespace Insight {
 
 			// Print to the console.
 #	if IE_PLATFORM_BUILD_WIN32
-			printf(TraceBuffer);
-			printf(OutputBuffer);
-			printf("\n");
+			Logger::GetConsoleWindow().SetForegroundColor(LogColor);
+			::printf(TraceBuffer);
+			::printf(OutputBuffer);
+			::printf("\n");
 			// Log category may have changed the color, reset it back to the default.
 			Insight::Debug::Logger::GetConsoleWindow().ResetColors();
 #	elif IE_PLATFORM_BUILD_UWP

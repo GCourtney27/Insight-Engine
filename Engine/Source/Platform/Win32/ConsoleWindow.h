@@ -29,10 +29,16 @@ namespace Insight {
 	*/
 	struct ConsoleWindowDesc
 	{
+		// Wether the window is allowed to close.
 		bool CanClose;
+		// Output buffer dimensions.
 		Math::ieFloat2 BufferDims;
+		// Window dimensions
 		Math::ieFloat2 WindowDims;
+		// The default text color when adding text to the log.
 		EConsoleColor DefaultForegroundColor;
+		// The name of this logger.
+		std::string LoggerName;
 	};
 
 	class INSIGHT_API ConsoleWindow
@@ -66,6 +72,11 @@ namespace Insight {
 			Returns a handle to the printable surface of the window.
 		*/
 		inline HANDLE	GetOutputHandle()	const { return m_OutputHandle; }
+
+		/*
+			Returns the name of the logger.
+		*/
+		inline const std::string& GetName() const { return m_Desc.LoggerName; }
 
 		/*
 			Sets the color of the logger text on screen. All messages proceeding this call 

@@ -248,13 +248,6 @@ namespace Insight {
 		return true;
 	}
 
-	static std::mutex s_AlbedoMutex;
-	static std::mutex s_NormalMutex;
-	static std::mutex s_MetallicMutex;
-	static std::mutex s_RoughnessMutex;
-	static std::mutex s_AOMutex;
-	static std::mutex s_OpacityMutex;
-	static std::mutex s_TranslucencyMutex;
 	void TextureManager::RegisterTextureByType(const IE_TEXTURE_INFO TexInfo)
 	{
 		switch (Renderer::GetAPI())

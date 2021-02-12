@@ -1,13 +1,13 @@
 #pragma once
 
-// We are compiling for Win32 or UWP we can assume our platform is Windows
+// If we are compiling for Win32 or UWP we can assume our platform is Windows
 #if IE_PLATFORM_BUILD_WIN32 || IE_PLATFORM_BUILD_UWP
 #	define IE_PLATFORM_WINDOWS 1
 #endif
 
 // Only msvc supports __declspec
 #if defined (IE_PLATFORM_WINDOWS)
-#	if defined IE_DYNAMIC_LINK
+#	if IE_DYNAMIC_LINK
 #		if defined IE_BUILD_DLL
 #			define INSIGHT_API __declspec(dllexport)
 #		else
@@ -43,7 +43,7 @@
 #define IE_BIND_LOCAL_EVENT_FN(Fn) std::bind( &Fn, this, std::placeholders::_1 )
 #define IE_BIND_EVENT_FN(Fn, Class) std::bind( &Fn, Class, std::placeholders::_1 )
 #define IE_BIND_LOCAL_VOID_FN(Fn) std::bind( &Fn, this )
-#define COM_SAFE_RELEASE(ComObject) if((ComObject)) { (ComObject)->Release(); (ComObject) = nullptr; }
+#define COM_SAFE_RELEASE(ComObject) if( (ComObject) ) { (ComObject)->Release(); (ComObject) = nullptr; }
 #define RAW_LITERAL(Value) #Value
 #define MACRO_TO_STRING(Macro) RAW_LITERAL(Macro);
 #define FORCE_INLINE __forceinline

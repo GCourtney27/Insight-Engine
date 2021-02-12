@@ -15,11 +15,12 @@ workspace ("InsightEngine")
 	configurations
 	{
 		"Debug",
-		"Release",
-		"Dist",
-		"Debug-Package",
-		"Release-Package",
-		"Dist-Package",
+		"Editor-Debug",
+		"Editor-Release",
+		"Editor-Shipping",
+		"Game-Debug",
+		"Game-Release",
+		"Game-Shipping"
 	}
 	
 
@@ -28,8 +29,14 @@ outputdir = "%{cfg.buildcfg}-$(SDKIdentifier)-$(Platform)"
 
 binaryFolder = "Binaries/"
 intFolder = binaryFolder .. "Intermediates/"
-binaryDirectory = binaryFolder .. outputdir .. "/"
-intDirectory = intFolder .. outputdir .. "/"
+
+function ieGetBuildFolder(platform)
+	return "%{wks.location}/" .. binaryFolder .. "/%{cfg.buildcfg}-" .. platform .. "-%{cfg.architecture}/%{prj.name}"
+end
+
+function ieGetBuildIntFolder(platform)
+	return "%{wks.location}/" .. intFolder .. "/%{cfg.buildcfg}-" .. platform .. "-%{cfg.architecture}/%{prj.name}"
+end
 
 
 -- Tools
@@ -48,5 +55,7 @@ include ("Engine/Engine-Make.lua")
 
 -- Engine Source Build Rules
 group ("Build Rules")
-	include ("Engine/BuildRules/Build-Rules-Make.lua")
+	include ("Engine/BuildRules/Build-UWP-Make.lua")
+	include ("Engine/BuildRules/Build-Win32-Make.lua")
+--	include ("Engine/BuildRules/Build-XboxOne-Make.lua") --TODO
 group ("")

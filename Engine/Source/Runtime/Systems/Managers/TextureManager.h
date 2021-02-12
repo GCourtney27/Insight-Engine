@@ -69,6 +69,14 @@ namespace Insight {
 		std::vector<std::future<void>> m_TextureLoadFutures;
 
 		std::map<Texture::ID, std::list<StrongTexturePtr*>> m_AwaitingLoadTextures;
+
+		std::mutex s_AlbedoMutex;
+		std::mutex s_NormalMutex;
+		std::mutex s_MetallicMutex;
+		std::mutex s_RoughnessMutex;
+		std::mutex s_AOMutex;
+		std::mutex s_OpacityMutex;
+		std::mutex s_TranslucencyMutex;
 	};
 
 }

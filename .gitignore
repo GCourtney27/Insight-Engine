@@ -8,9 +8,9 @@
 
 # Binaries
 [Bb]inaries/
-Engine_Source/Vendor/Mono
-Engine_Source/Third_Party/imgui/bin
-Engine_Source/Third_Party/imgui/bin-int
+Engine/Vendor/Mono
+Engine/ThirdParty/imgui/bin
+Engine/ThirdParty/imgui/bin-int
 
 # User-specific files
 *.rsuser

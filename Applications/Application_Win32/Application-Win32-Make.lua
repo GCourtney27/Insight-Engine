@@ -2,10 +2,11 @@
 -- The client exe that gets executed.
 
 appName = "Application"
-projectName = appName .. "_Win32"
+platform = "Win32"
+projectName = appName .. "_" .. platform
+engineRuntime = "EngineBuild_" .. platform
 
-rootDirPath = "../../"
-engineThirdPartyDir = rootDirPath .. "Engine/ThirdParty/"
+engineThirdPartyDir = "%{wks.location}/Engine/ThirdParty/"
 monoInstallDir = "C:/Program Files/Mono/"
 
 win32AppIncludeDirs = {}
@@ -14,22 +15,24 @@ win32AppIncludeDirs["Microsoft"] 				= engineThirdPartyDir .. "Microsoft/"
 win32AppIncludeDirs["Nvidia"]					= engineThirdPartyDir .. "Nvidia/"
 win32AppIncludeDirs["rapidjson"] 				= engineThirdPartyDir .. "rapidjson/include/"
 win32AppIncludeDirs["Mono"]						= monoInstallDir .. "include/"
-win32AppIncludeDirs["Engine_Root"]				= rootDirPath .. "Engine/"
-win32AppIncludeDirs["Engine_Src"]				= rootDirPath .. "Engine/Source/"
-win32AppIncludeDirs["Engine_ThirdParty"]		= rootDirPath .. "Engine/ThirdParty/"
-win32AppIncludeDirs["BuildRules"]				= rootDirPath .. "Engine/BuildRules/"
+win32AppIncludeDirs["Engine_Root"]				= "%{wks.location}/Engine/"
+win32AppIncludeDirs["Engine_Src"]				= "%{wks.location}/Engine/Source/"
+win32AppIncludeDirs["Engine_ThirdParty"]		= engineThirdPartyDir
+win32AppIncludeDirs["BuildRules"]				= "%{wks.location}/Engine/BuildRules/"
+
 
 project (projectName)
-	location (rootDirPath .. "Applications/" .. projectName)
+	location ("%{wks.location}/Applications/" .. projectName)
 	kind ("WindowedApp")
 	language ("C++")
 	cppdialect ("C++17")
 	staticruntime ("off")
-	targetname (projectName)
+	targetname ("%{prj.name}")
 	systemversion ("latest")
 	
-	targetdir (rootDirPath .. binaryDirectory .. "%{prj.name}")
-    objdir (rootDirPath .. intDirectory .. "%{prj.name}")
+	targetdir (ieGetBuildFolder(platform))
+	objdir (ieGetBuildIntFolder(platform))
+	debugdir ("%{cfg.targetdir}/")
 
 	files
 	{
@@ -51,17 +54,16 @@ project (projectName)
 		"%{win32AppIncludeDirs.Microsoft}WinPixEventRuntime/Include/",
 		"%{win32AppIncludeDirs.rapidjson}",
 		"%{win32AppIncludeDirs.Mono}mono-2.0/",
-		"%{win32AppIncludeDirs.Engine_Src}/",
-		"%{win32AppIncludeDirs.Engine_ThirdParty}/",
+		"%{win32AppIncludeDirs.Engine_Src}",
+		"%{win32AppIncludeDirs.Engine_ThirdParty}",
 		
-		-- Personal Source Files for this Application
+		-- Personal source files for this application
 		"Source/",
 
 		"./",
 
 		-- Shared Header Includes for this Project
 		"%{win32AppIncludeDirs.BuildRules}/PCH_Source/",
-		
 	}
 
 	links
@@ -84,7 +86,7 @@ project (projectName)
 		"dwrite.lib",
 		
 		-- Set the Runtime Library to Win32
-		"EngineBuild_Win32",
+		engineRuntime,
 	}
 
 	defines
@@ -115,11 +117,11 @@ project (projectName)
 
 
 -- Build Configurations
-
-	filter "configurations:Debug"
-		defines "IE_DEBUG"
-		symbols "on"
-		runtime "Debug"
+--
+	filter "configurations:*Debug"
+		defines ("IE_DEBUG")
+		symbols ("On")
+		runtime ("Debug")
 		libdirs
 		{
             "%{win32AppIncludeDirs.Engine_ThirdParty}/assimp-5.0.1/build/code/Debug/",
@@ -129,10 +131,13 @@ project (projectName)
 			monoInstallDir .. "/lib/",
 		}
 	
-	filter "configurations:Release"
-		defines "IE_RELEASE"
-		symbols "on"
-		optimize "on"
+
+
+	filter "configurations:*Release"
+		defines { "IE_RELEASE", "IE_DEBUG" }
+		symbols ("on")
+		runtime ("Release")
+		optimize ("on")
 		libdirs
 		{
 			"%{win32AppIncludeDirs.Engine_ThirdParty}/assimp-5.0.1/build/code/Release/",
