@@ -29,7 +29,7 @@ project ("EngineBuild_Win32")
 	systemversion ("latest")
 	targetname ("%{prj.name}")
 	
-	targetdir (ieGetBuildFolder(platform))
+	targetdir (ieGetBuildFolder(platform) .. "%{prj.name}")
 	objdir (ieGetBuildIntFolder(platform))
 	debugdir ("%{cfg.targetdir}/")
 
@@ -111,47 +111,4 @@ project ("EngineBuild_Win32")
 		shadertype "Compute"
 		shadermodel "5.0"
 
-
-
-	-- Engine Development
-	filter "configurations:*Debug"
-		defines ("IE_DEBUG")
-		runtime ("Debug")
-		symbols ("On")
-		optimize ("Off")
-
-	-- Engine Release
-	filter "configurations:Release*"
-		defines "IE_RELEASE"
-		runtime "Release"
-		optimize "on"
-		symbols "on"
-		defines
-		{
-			"IE_DEPLOYMENT",
-			"IE_DEBUG"
-		}
-
-
-
-	-- Full Engine Distribution, all performance logs and debugging windows stripped
-	filter "configurations:Engine-Dist"
-		defines "IE_ENGINE_DIST"
-		runtime "Release"
-		optimize "on"
-		symbols "on"
-		defines
-		{
-			"IE_DISTRIBUTION"
-		}
-	-- Full Game Distribution, all engine debug tools(level editors, editor user interfaces) stripped
-	filter "configurations:Dist*"
-		defines "IE_GAME_DIST"
-		runtime "Release"
-		optimize "on"
-		symbols "on"
-		defines
-		{
-			"IE_DISTRIBUTION"
-		}
-
+dofile ("Common-Build-Config.lua")

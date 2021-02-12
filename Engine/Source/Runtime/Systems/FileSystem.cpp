@@ -18,6 +18,7 @@ namespace Insight {
 
 	std::wstring FileSystem::WorkingDirectoryW = L"";
 
+
 	FileSystem::FileSystem()
 	{
 	}
@@ -110,7 +111,7 @@ namespace Insight {
 	std::wstring FileSystem::GetRelativeContentDirectoryW(const std::wstring& Path)
 	{
 #if IE_PLATFORM_BUILD_WIN32
-		return std::wstring(WorkingDirectoryW + L"../Content/" + Path);
+		return std::wstring(L"Content/" + Path);
 #elif IE_PLATFORM_BUILD_UWP
 		return std::wstring(WorkingDirectoryW + L"Assets/Content/" + Path);
 #endif
@@ -314,7 +315,7 @@ namespace Insight {
 	{
 		std::wstring WorkingDirectory = FileSystem::GetWorkingDirectoryW();
 #if IE_PLATFORM_BUILD_WIN32
-		WorkingDirectory += L"../EngineBuild_Win32/";
+		WorkingDirectory += L"EngineBuild_Win32/";
 #elif IE_PLATFORM_BUILD_UWP
 		WorkingDirectory += L"EngineBuild_UWP/";
 #endif
@@ -324,7 +325,7 @@ namespace Insight {
 
 	void FileSystem::SetWorkingDirectory()
 	{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_PLATFORM_BUILD_WIN32/*
 		WCHAR Path[512];
 		UINT RawPathSize = _countof(Path);
 		DWORD PathSize = GetModuleFileName(nullptr, Path, RawPathSize);
@@ -336,7 +337,7 @@ namespace Insight {
 		if (LastSlash) {
 			*(LastSlash + 1) = L'\0';
 		}
-		FileSystem::WorkingDirectoryW = std::wstring{ Path };
+		FileSystem::WorkingDirectoryW = std::wstring{ Path };*/
 
 #elif IE_PLATFORM_BUILD_UWP
 		// Relative to the exe

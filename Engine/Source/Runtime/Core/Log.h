@@ -51,7 +51,7 @@ namespace Insight {
 			*/
 			static void InitiateCoreDump();
 
-#	if defined (IE_DEBUG) && defined (IE_PLATFORM_BUILD_WIN32)
+#	if (IE_DEBUG) && defined (IE_PLATFORM_BUILD_WIN32)
 			/*
 				Returns a reference to the currently active console window.
 			*/
@@ -74,7 +74,7 @@ namespace Insight {
 	} // end namespace Debug
 } // end namespace Insight
 
-#if defined (IE_DEBUG) || defined (IE_RELEASE)
+#if IE_DEBUG
 
 /*
 	If Expr is true, a exception will be raised.

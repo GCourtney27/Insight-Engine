@@ -8,19 +8,29 @@ require ("vstudio")
 dofile  ("Vendor/premake/Modules/winrt/_preload.lua")
 require ("Vendor/premake/Modules/winrt")
 
+
+
 workspace ("InsightEngine")
 	architecture ("x64")
 	startproject ("Application_Win32")
 
 	configurations
 	{
-		"Debug",
-		"Editor-Debug",
-		"Editor-Release",
-		"Editor-Shipping",
-		"Game-Debug",
-		"Game-Release",
-		"Game-Shipping"
+		-- Debug symbols for engine activated. Optimal configuration for
+		-- adding and testing new engine features.
+		"DebugEditor",
+
+		-- Debug symbols for engine activated and able to open
+		-- projects and edit worlds.
+		"Development",
+		
+		-- Optomized engine code with debug symbols for game code.
+		-- Builds a standalone exe that can be luanched, and the game played.
+		"DebugGame",
+
+		-- Full engine and game code optomizations applied.
+		-- Builds a standalone exe that can be luanched, and the game played.
+		"ShippingGame"
 	}
 	
 
@@ -31,7 +41,7 @@ binaryFolder = "Binaries/"
 intFolder = binaryFolder .. "Intermediates/"
 
 function ieGetBuildFolder(platform)
-	return "%{wks.location}/" .. binaryFolder .. "/%{cfg.buildcfg}-" .. platform .. "-%{cfg.architecture}/%{prj.name}"
+	return "%{wks.location}/" .. binaryFolder .. "/%{cfg.buildcfg}-" .. platform .. "-%{cfg.architecture}/"
 end
 
 function ieGetBuildIntFolder(platform)

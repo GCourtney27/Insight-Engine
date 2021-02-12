@@ -1,9 +1,11 @@
 -- UWP Application
 
+include ("../../Engine/BuildRules/Common-Build-Config.lua")
+
 
 appName = "Application"
-projectName = appName .. "_UWP_WinRT"
 platform = "UWP"
+projectName = appName .. "_UWP_WinRT"
 
 rootDirPath = "../../"
 engineThirdPartyDir = rootDirPath .. "Engine/ThirdParty/"

@@ -1,4 +1,7 @@
 
+include ("Common-Build-Config.lua")
+
+
 rootDirPath		= "../../"
 engineDirPath	= "../"
 platform = "UWP"
@@ -84,14 +87,12 @@ project ("EngineBuild_UWP")
 
 		-- This Projects PCH
 		"PCH_Source/",
-
 	}
 
 	links
 	{
         "ImGui",
 	}
-
 	flags
 	{
 		"MultiProcessorCompile"
@@ -100,7 +101,7 @@ project ("EngineBuild_UWP")
 	postbuildcommands
 	{
 		-- Compile the ray tracing shaders.
-		("%{wks.location}Engine/Shaders/HLSL/RayTracing/CompileRTShaders.bat %{wks.location}Binaries/" .. outputdir .. "/%{prj.name}"),
+		("%{wks.location}Engine/Shaders/HLSL/RayTracing/CompileRTShaders.bat ".. ieGetBuildFolder(platform)),
 	}
 
 	-- Shaders
@@ -119,26 +120,18 @@ project ("EngineBuild_UWP")
 
 
 	-- Engine Development
-	filter "configurations:Debug*"
-		defines "IE_DEBUG"
-		runtime "Debug"
-		symbols "on"
-		defines
-        {
-            "IE_DEBUG"
-        }
+	filter "configurations:*Debug"
+		defines ("IE_DEBUG")
+		runtime ("Debug")
+		symbols ("On")
+		optimize ("Off")
 
 	-- Engine Release
-	filter "configurations:Release*"
-		defines "IE_RELEASE"
+	filter "configurations:*Release"
+		defines { "IE_RELEASE", "IE_DEBUG" }
 		runtime "Release"
 		optimize "on"
 		symbols "on"
-		defines
-		{
-			"IE_DEPLOYMENT",
-			"IE_DEBUG"
-		}
 
 
 

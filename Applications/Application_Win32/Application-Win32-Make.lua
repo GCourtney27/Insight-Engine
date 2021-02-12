@@ -1,6 +1,8 @@
 -- Application
 -- The client exe that gets executed.
 
+
+
 appName = "Application"
 platform = "Win32"
 projectName = appName .. "_" .. platform
@@ -33,6 +35,8 @@ project (projectName)
 	targetdir (ieGetBuildFolder(platform))
 	objdir (ieGetBuildIntFolder(platform))
 	debugdir ("%{cfg.targetdir}/")
+
+
 
 	files
 	{
@@ -110,18 +114,15 @@ project (projectName)
 		-- PIX
 		("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/WinPixEventRuntime/bin/x64/WinPixEventRuntime.dll %{cfg.targetdir}"),
 		-- Copy over assets
-		("{COPY} %{wks.location}Content %{cfg.targetdir}/../Content"),
+		("{COPY} %{wks.location}Content %{cfg.targetdir}/Content"),
 		-- Copy over default engine assets
-		("{COPY} ../../Engine/Assets %{cfg.targetdir}/../Content/Engine"),
+		("{COPY} ../../Engine/Assets %{cfg.targetdir}/Content/Engine"),
 	}
 
 
 -- Build Configurations
 --
-	filter "configurations:*Debug"
-		defines ("IE_DEBUG")
-		symbols ("On")
-		runtime ("Debug")
+	filter "configurations:DebugEditor"
 		libdirs
 		{
             "%{win32AppIncludeDirs.Engine_ThirdParty}/assimp-5.0.1/build/code/Debug/",
@@ -133,11 +134,7 @@ project (projectName)
 	
 
 
-	filter "configurations:*Release"
-		defines { "IE_RELEASE", "IE_DEBUG" }
-		symbols ("on")
-		runtime ("Release")
-		optimize ("on")
+	filter "configurations:Development or DebugGame"
 		libdirs
 		{
 			"%{win32AppIncludeDirs.Engine_ThirdParty}/assimp-5.0.1/build/code/Release/",
@@ -169,10 +166,7 @@ project (projectName)
 			("{COPY} %{wks.location}/Engine/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Content/Default_Assets/")
 		}
 		
-	filter "configurations:GameDist"
-		defines "IE_GAME_DIST"
-		optimize "on"
-		symbols "on"
+	filter "configurations:ShippingGame"
 		libdirs
 		{
 			"%{win32AppIncludeDirs.Engine_ThirdParty}/assimp-5.0.1/build/code/Release",            
@@ -195,4 +189,5 @@ project (projectName)
 			("{COPY} %{wks.location}/Engine/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Content/Default_Assets/")
 		}
 
+dofile ("../../Engine/BuildRules/Common-Build-Config.lua")
 	
