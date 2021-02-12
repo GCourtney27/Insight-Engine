@@ -54,7 +54,7 @@ namespace Insight {
 		*/
 		struct AxisMapping
 		{
-			const char	Hint[MaxHintStringLength];
+			char		Hint[MaxHintStringLength];
 			KeyMapCode	MappedKeyCode;
 			float		Scale;
 		};
@@ -71,7 +71,7 @@ namespace Insight {
 		*/
 		struct ActionMapping
 		{
-			const char	Hint[MaxHintStringLength];
+			char		Hint[MaxHintStringLength];
 			KeyMapCode	MappedKeyCode;
 			bool		CanDispatch = true;
 			float		HoldTime;

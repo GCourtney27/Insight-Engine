@@ -58,7 +58,7 @@ project ("EngineBuild_Win32")
 	{
 		-- Tells the engine to compile for Win32 platform
 		"IE_PLATFORM_BUILD_WIN32=1",
-		"_CRT_SECURE_NO_WARNINGS",
+		"_CRT_SECURE_NO_WARNINGS"
 	}
 
 	includedirs

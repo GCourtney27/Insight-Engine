@@ -30,10 +30,10 @@ project "ImGui"
 		cppdialect "C++17"
 		staticruntime "off"
 
-	filter "configurations:Debug"
+	filter "configurations:*Debug*"
 		runtime "Debug"
 		symbols "on"
 
-	filter "configurations:Release"
+	filter "configurations:*Shipping*"
 		runtime "Release"
 		optimize "on"

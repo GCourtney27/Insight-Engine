@@ -47,6 +47,7 @@ project (projectName)
 		"Source/**.cpp",
 		"./**.h",
 
+		-- Windows resource and acceleration files
 		"./**.rc",
 	}
 
@@ -95,7 +96,7 @@ project (projectName)
 
 	defines
 	{
-		"IE_PLATFORM_BUILD_WIN32=1",
+		"IE_PLATFORM_BUILD_WIN32=1"
 	}
 	flags
 	{

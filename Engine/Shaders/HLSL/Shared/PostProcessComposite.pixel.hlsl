@@ -90,7 +90,7 @@ float3 AddBloom(float3 sourceColor, float2 texCoords)
 {	
     float2 PixelCoords = (texCoords) * (cbScreenSize / 2.0);
     //float2 PixelCoords = (texCoords * cbScreenSize) * 2;
-    float4 BloomPassResult = rw_BloomPassResult.Load(int3((int2) PixelCoords, 0));
+    float4 BloomPassResult = rw_BloomPassResult[PixelCoords];
     //return BloomPassResult.rgb;
     return mad(blCombineCoefficient, sourceColor, BloomPassResult.rgb);
 }
