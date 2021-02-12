@@ -24,10 +24,6 @@ namespace Insight {
 			@param Settings - Settings to write to disk.
 		*/
 		static void SaveEngineUserSettings(Renderer::GraphicsSettings Settings);
-		/*
-			Get the working directory for the executable.
-		*/
-		static inline const wchar_t* GetWorkingDirectoryW() { return FileSystem::WorkingDirectoryW.c_str(); }
 
 		/*
 			Get the directory for where the applications content (ie. textures, models etc.) is stored.		
@@ -78,16 +74,6 @@ namespace Insight {
 		static char* ReadRawData(const char* Path, size_t& OutDataSize);
 
 	protected:
-		/*
-			The working directory for the application.
-		*/
-		static std::wstring WorkingDirectoryW;
-
-	private:
-		/*
-			Set the current working directory for the application.
-		*/
-		static void SetWorkingDirectory();
 	};
 
 }

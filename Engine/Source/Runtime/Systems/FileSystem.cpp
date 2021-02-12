@@ -16,8 +16,6 @@
 
 namespace Insight {
 
-	std::wstring FileSystem::WorkingDirectoryW = L"";
-
 
 	FileSystem::FileSystem()
 	{
@@ -29,8 +27,6 @@ namespace Insight {
 
 	bool FileSystem::Init()
 	{
-		SetWorkingDirectory();
-		
 		return true;
 	}
 
@@ -61,7 +57,6 @@ namespace Insight {
 
 	void FileSystem::SaveEngineUserSettings(Renderer::GraphicsSettings Settings)
 	{
-
 		rapidjson::Document RawSettingsFile;
 		const std::string SettingsDir = "../Content/Engine.ini";
 		if (!json::load(SettingsDir.c_str(), RawSettingsFile)) {
@@ -113,7 +108,7 @@ namespace Insight {
 #if IE_PLATFORM_BUILD_WIN32
 		return std::wstring(L"Content/" + Path);
 #elif IE_PLATFORM_BUILD_UWP
-		return std::wstring(WorkingDirectoryW + L"Assets/Content/" + Path);
+		return std::wstring(L"Content/" + Path);
 #endif
 	}
 
@@ -302,7 +297,7 @@ namespace Insight {
 	{
 		std::string RawPath;
 #if IE_PLATFORM_BUILD_WIN32
-		RawPath += "../Content/" + Path;
+		RawPath += "Content/" + Path;
 		return PathFileExistsA(RawPath.c_str());
 #elif IE_PLATFORM_BUILD_UWP
 		RawPath += "Content/" + Path;
@@ -313,36 +308,13 @@ namespace Insight {
 
 	std::wstring FileSystem::GetShaderPathW(const wchar_t* Shader)
 	{
-		std::wstring WorkingDirectory = FileSystem::GetWorkingDirectoryW();
+		std::wstring Path = L"";
 #if IE_PLATFORM_BUILD_WIN32
-		WorkingDirectory += L"EngineBuild_Win32/";
+		Path += L"EngineBuild_Win32/";
 #elif IE_PLATFORM_BUILD_UWP
-		WorkingDirectory += L"EngineBuild_UWP/";
+		Path += L"EngineBuild_UWP/";
 #endif
-		WorkingDirectory += Shader;
-		return WorkingDirectory;
+		Path += Shader;
+		return Path;
 	}
-
-	void FileSystem::SetWorkingDirectory()
-	{
-#if IE_PLATFORM_BUILD_WIN32/*
-		WCHAR Path[512];
-		UINT RawPathSize = _countof(Path);
-		DWORD PathSize = GetModuleFileName(nullptr, Path, RawPathSize);
-		if (PathSize == 0 || PathSize == RawPathSize) {
-			throw ieException("Failed to get module path name or path may have been truncated.");
-		}
-
-		WCHAR* LastSlash = wcsrchr(Path, L'\\');
-		if (LastSlash) {
-			*(LastSlash + 1) = L'\0';
-		}
-		FileSystem::WorkingDirectoryW = std::wstring{ Path };*/
-
-#elif IE_PLATFORM_BUILD_UWP
-		// Relative to the exe
-		FileSystem::WorkingDirectoryW = L"";
-#endif
-	}
-
 }

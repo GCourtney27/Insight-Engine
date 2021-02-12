@@ -957,7 +957,8 @@ namespace Insight {
 			ComPtr<ID3DBlob> pVertexShader;
 			ComPtr<ID3DBlob> pPixelShader;
 
-			const wchar_t* ExeDirectory = FileSystem::GetWorkingDirectoryW();
+			//const wchar_t* ExeDirectory = FileSystem::GetWorkingDirectoryW();
+			const wchar_t* ExeDirectory = 0;
 			std::wstring VertShaderFolder(ExeDirectory);
 			VertShaderFolder += L"../Renderer/Shadow_Pass.vertex.cso";
 			std::wstring PixelShaderFolder(ExeDirectory);
@@ -1022,7 +1023,7 @@ namespace Insight {
 			ComPtr<ID3DBlob> pVertexShader;
 			ComPtr<ID3DBlob> pPixelShader;
 
-			const wchar_t* ExeDirectory = FileSystem::GetWorkingDirectoryW();
+			const wchar_t* ExeDirectory = 0;
 			std::wstring VertexShaderFolder(ExeDirectory);
 			VertexShaderFolder += L"../Renderer/Screen_Aligned_Quad.vertex.cso";
 			std::wstring PixelShaderFolder(ExeDirectory);
@@ -1078,7 +1079,7 @@ namespace Insight {
 		{
 			ComPtr<ID3DBlob> pComputeShader;
 
-			const wchar_t* ExeDirectory = FileSystem::GetWorkingDirectoryW();
+			const wchar_t* ExeDirectory = 0;
 			std::wstring VertexShaderFolder(ExeDirectory);
 			VertexShaderFolder += L"../Renderer/Threshold_Down_Sample.compute.cso";
 
@@ -1102,7 +1103,7 @@ namespace Insight {
 		{
 			ComPtr<ID3DBlob> pComputeShader;
 
-			const wchar_t* ExeDirectory = FileSystem::GetWorkingDirectoryW();
+			const wchar_t* ExeDirectory = 0;
 			std::wstring ComputeShaderFolder(ExeDirectory);
 			ComputeShaderFolder += L"../Renderer/Gaussian_Blur.compute.cso";
 
