@@ -123,17 +123,15 @@ project (projectName)
 		-- PIX
 		("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/WinPixEventRuntime/bin/x64/WinPixEventRuntime_UAP.dll %{cfg.targetdir}"),
 		-- Copy over assets
-		("{COPY} %{wks.location}Content %{cfg.targetdir}/../Content"),
+		("{COPY} %{wks.location}Content %{cfg.targetdir}/Content"),
 		-- Copy over default engine assets
-		("{COPY} ../../Engine/Assets %{cfg.targetdir}/../Content/Engine"),
+		("{COPY} ../../Engine/Assets %{cfg.targetdir}/Content/Engine"),
 	}
 
 		
 	-- Build Configurations
 
-	filter "configurations:Debug*"
-	defines "IE_DEBUG"
-	symbols "on"
+	filter "configurations:DebugEditor"
 	libdirs
 	{
 		"%{uwpAppIncludeDirs.Engine_ThirdParty}/assimp-5.0.1/build/code/Debug/",
@@ -143,87 +141,57 @@ project (projectName)
 		monoInstallDir .. "/lib/",
 	}
 
-	filter "configurations:Release*"
-		defines "IE_RELEASE"
-		symbols "on"
-		optimize "on"
-		libdirs
-		{
-			"%{uwpAppIncludeDirs.Engine_ThirdParty}/assimp-3.3.1/build/code/Release",
-			"%{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/WinPixEventRuntime/bin/x64",
-			"%{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
-			"%{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
-			monoInstallDir .. "/lib",
-		}
-		postbuildcommands
-		{
-			-- Assimp
-			("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../Binaries/"..outputdir.."/Engine"),
-			-- DX11 Debug Layers	
-			("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll ../Binaries/"..outputdir.."/Engine"),
-			("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX11/Bin/D3DX11d_43.dll ../Binaries/"..outputdir.."/Engine"),
-			("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX11/Bin/D3D11Ref.dll ../Binaries/"..outputdir.."/Engine"),
-			-- Mono					
-			("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Mono/bin/mono-2.0-sgen.dll ../Binaries/"..outputdir.."/Engine"),
-			-- DirectX				
-			("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/Bin/dxcompiler.dll ../Binaries/"..outputdir.."/Engine"),
-			("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/Bin/dxil.dll ../Binaries/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}/Engine/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/Engine"),
-			-- PIX					
-			("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/WinPixEventRuntime/bin/x64/WinPixEventRuntime_UAP.dll ../Binaries/"..outputdir.."/Engine"),
-			-- Copy over assets
-			("{COPY} $(USERPROFILE)/Documents/Insight-Projects/Development-Project/Content/** ../Binaries/" .. outputdir .. "/Content"),
-			("{COPY} %{wks.location}/Engine/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Content/Default_Assets/")
-		}
+	filter "configurations:Development or DebugGame"
+	libdirs
+	{
+		"%{uwpAppIncludeDirs.Engine_ThirdParty}/assimp-3.3.1/build/code/Release",
+		"%{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/WinPixEventRuntime/bin/x64",
+		"%{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
+		"%{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
+		monoInstallDir .. "/lib",
+	}
+	postbuildcommands
+	{
+		-- Assimp
+		("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../Binaries/"..outputdir.."/Engine"),
+		-- DX11 Debug Layers	
+		("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll ../Binaries/"..outputdir.."/Engine"),
+		("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX11/Bin/D3DX11d_43.dll ../Binaries/"..outputdir.."/Engine"),
+		("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX11/Bin/D3D11Ref.dll ../Binaries/"..outputdir.."/Engine"),
+		-- Mono					
+		("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Mono/bin/mono-2.0-sgen.dll ../Binaries/"..outputdir.."/Engine"),
+		-- DirectX				
+		("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/Bin/dxcompiler.dll ../Binaries/"..outputdir.."/Engine"),
+		("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/Bin/dxil.dll ../Binaries/"..outputdir.."/Engine"),
+		("{COPY} %{wks.location}/Engine/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/Engine"),
+		-- PIX					
+		("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/WinPixEventRuntime/bin/x64/WinPixEventRuntime_UAP.dll ../Binaries/"..outputdir.."/Engine"),
+		-- Copy over assets
+		("{COPY} $(USERPROFILE)/Documents/Insight-Projects/Development-Project/Content/** ../Binaries/" .. outputdir .. "/Content"),
+		("{COPY} %{wks.location}/Engine/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Content/Default_Assets/")
+	}
 
-	filter "configurations:EngineDist"
-		defines "IE_ENGINE_DIST"
-		optimize "on"
-		symbols "on"
-		libdirs
-		{
-			"%{uwpAppIncludeDirs.Engine_ThirdParty}/assimp-3.3.1/build/code/Release",
-			"%{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/WinPixEventRuntime/bin/x64",
-			"%{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
-			"%{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
-			monoInstallDir .. "/lib",
-		}
-		postbuildcommands
-		{
-			-- assimp
-			("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../Binaries/"..outputdir.."/Engine"),
-			-- mono
-			("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Mono/bin/mono-2.0-sgen.dll ../Binaries/"..outputdir.."/Engine"),
-			-- DirectX
-			("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/Bin/dxcompiler.dll ../Binaries/"..outputdir.."/Engine"),
-			("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/Bin/dxil.dll ../Binaries/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}/Engine/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/Engine"),
-			-- Copy over assets
-			("{COPY} %{wks.location}/Engine/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Content/Default_Assets/")
-		}
+	filter "configurations:ShippingGame"
+	libdirs
+	{
+		"%{uwpAppIncludeDirs.Engine_ThirdParty}/assimp-3.3.1/build/code/Release",            
+		"%{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/WinPixEventRuntime/bin/x64",
+		"%{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
+		"%{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
+		"%{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
+		monoInstallDir .. "/lib",
+	}
+	postbuildcommands
+	{
+		-- assimp
+		("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../Binaries/"..outputdir.."/Engine"),
+		-- mono
+		("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Mono/bin/mono-2.0-sgen.dll ../Binaries/"..outputdir.."/Engine"),
+		-- DirectX
+		("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/Bin/dxcompiler.dll ../Binaries/"..outputdir.."/Engine"),
+		("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/Bin/dxil.dll ../Binaries/"..outputdir.."/Engine"),
+		("{COPY} %{wks.location}/Engine/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/Engine"),
+		("{COPY} %{wks.location}/Engine/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Content/Default_Assets/")
+	}
 
-	filter "configurations:Dist*"
-		defines "IE_GAME_DIST"
-		optimize "on"
-		symbols "on"
-		libdirs
-		{
-			"%{uwpAppIncludeDirs.Engine_ThirdParty}/assimp-3.3.1/build/code/Release",            
-			"%{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/WinPixEventRuntime/bin/x64",
-			"%{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
-			"%{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
-			"%{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
-			monoInstallDir .. "/lib",
-		}
-		postbuildcommands
-		{
-			-- assimp
-			("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/assimp-3.3.1/build/code/Release/assimp-vc140-mt.dll ../Binaries/"..outputdir.."/Engine"),
-			-- mono
-			("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Mono/bin/mono-2.0-sgen.dll ../Binaries/"..outputdir.."/Engine"),
-			-- DirectX
-			("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/Bin/dxcompiler.dll ../Binaries/"..outputdir.."/Engine"),
-			("{COPY} %{uwpAppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/Bin/dxil.dll ../Binaries/"..outputdir.."/Engine"),
-			("{COPY} %{wks.location}/Engine/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/Engine"),
-			("{COPY} %{wks.location}/Engine/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Content/Default_Assets/")
-		}
+dofile ("../../Engine/BuildRules/Common-Build-Config.lua")

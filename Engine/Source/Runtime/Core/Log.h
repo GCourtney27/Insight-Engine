@@ -51,6 +51,8 @@ namespace Insight {
 			*/
 			static void InitiateCoreDump();
 
+			static inline const char* GetLoggerName() { return s_LoggerName; }
+
 #	if (IE_DEBUG) && defined (IE_PLATFORM_BUILD_WIN32)
 			/*
 				Returns a reference to the currently active console window.
@@ -59,6 +61,7 @@ namespace Insight {
 #endif
 
 		private:
+			static const char* s_LoggerName;
 			static std::string s_CoreDumpMessage;
 #	if defined (IE_DEBUG) && defined (IE_PLATFORM_BUILD_WIN32)
 			static ConsoleWindow s_ConsoleWindow;
@@ -91,6 +94,13 @@ namespace Insight {
 	@param ... - Optional arguments to supply when printing.
 */
 #	define IE_LOG(Severity, fmt, ...) ::Insight::Debug::LogHelper(ELogSeverity::##Severity, fmt, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);
+
+#if IE_PLATFORM_BUILD_WIN32
+#	define SET_CONSOLE_OUT_COLOR(Color) ::Inight::Debug::Logger::GetConsoleWindow().SetForegroundColor(EConsoleColor::##Color)
+#else
+#	define SET_CONSOLE_OUT_COLOR(Color)
+#endif 
+
 
 #else
 #	define IE_FATAL_ERROR(...)

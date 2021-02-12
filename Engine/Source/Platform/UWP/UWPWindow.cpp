@@ -86,9 +86,9 @@ namespace Insight {
 		const winrt::Windows::System::VirtualKey VirtualKey = (winrt::Windows::System::VirtualKey)Key;
 		auto state = winrt::Windows::UI::Core::CoreWindow::GetForCurrentThread().GetAsyncKeyState(VirtualKey);
 		if (state == winrt::Windows::UI::Core::CoreVirtualKeyStates::Down)
-			return InputEventType_Pressed;
+			return IET_Pressed;
 		else
-			return InputEventType_Released;
+			return IET_Released;
 	}
 
 

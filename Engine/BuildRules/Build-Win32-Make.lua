@@ -95,7 +95,7 @@ project ("EngineBuild_Win32")
 	postbuildcommands
 	{
 		-- Compile the ray tracing shaders.
-		("%{wks.location}Engine/Shaders/HLSL/RayTracing/CompileRTShaders.bat " .. ieGetBuildFolder(platform)),
+		("%{wks.location}Engine/Shaders/HLSL/RayTracing/CompileRTShaders.bat " .. ieGetBuildFolder(platform) .. "%{prj.name}"),
 	}
 
 	-- Shaders
