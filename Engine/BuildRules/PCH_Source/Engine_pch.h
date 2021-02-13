@@ -70,31 +70,33 @@
 // Some files can be shared between UWP and Win32.
 #if IE_PLATFORM_WINDOWS
 
-	// Windows
-	#include <wrl/client.h>
+//	Windows
+#	include <wrl/client.h>
+#	include <atlbase.h>
 
-	// Direct3D 11
-	//#include <d3d11.h>
+// Direct3D 11
+//#	include <d3d11.h>
 
-	// Direct3D 12
-	#include <d2d1_3.h>
-	#include <dwrite.h>
-	#include <d3d11on12.h>
-	#include <d3d12.h>
-	#include <DirectX12/d3dx12.h> 
+//	Direct3D 12
+#	include <d3d12.h>
+#	include <d2d1_3.h>
+#	include <dwrite.h>
+#	include <d3d11on12.h>
+#	include <DirectX12/d3dx12.h> 
+#	include "DxcAPI/inc/d3d12shader.h"
 
-	// DirectX
-	#if defined(NTDDI_WIN10_RS2)
-	#include <dxgi1_6.h>
-	#else
-	#include <dxgi1_5.h>
-	#endif
-	#include <wincodec.h>
-	#include <DirectXMath.h>
-	#include <d3dcompiler.h>
-	#if defined (IE_DEBUG)
-		#include <dxgidebug.h>
-	#endif
+// DirectX
+#	if defined(NTDDI_WIN10_RS2)
+#		include <dxgi1_6.h>
+#	else
+#		include <dxgi1_5.h>
+#	endif
+#		include <wincodec.h>
+#		include <DirectXMath.h>
+#		include "DxcAPI/inc/dxcapi.h"
+#	if defined (IE_DEBUG)
+#		include <dxgidebug.h>
+#	endif
 
 
 #define TrackGraphicsEvents 1

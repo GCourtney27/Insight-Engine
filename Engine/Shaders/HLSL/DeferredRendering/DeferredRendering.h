@@ -1,5 +1,5 @@
-#include <../Common/InsightCommon.hlsli>
-#include <../Common/LightsCommon.hlsli>
+//#include <Shaders/HLSL/Common/InsightCommon.hlsli>
+#include "Shaders/HLSL/Common/LightsCommon.h"
 #define MAX_PER_OBJECT_LOD 9
 
 cbuffer cbPerObject : register(b0)
@@ -133,6 +133,14 @@ struct PS_INPUT_GEOMPASS
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
     float3 biTangent : BITANGENT;
+};
+
+struct PS_OUTPUT_GEOMPASS
+{
+    float3 albedo : SV_Target0;
+    float4 normal : SV_Target1;
+    float4 roughnessMetallicAOSpec : SV_Target2;
+    float4 position : SV_Target3;
 };
 
 /* Lighting Pass */

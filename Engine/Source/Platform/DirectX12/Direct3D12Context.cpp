@@ -50,9 +50,150 @@ namespace Insight {
 		m_DeviceResources.CleanUp();
 	}
 
+	enum EShaderType
+	{
+		ST_Vertex,
+		ST_Pixel
+	};
+
+	static HRESULT CompileShader(LPCWSTR pFile, LPCWSTR EntryPoint, LPCWSTR BuildTarget)
+	{
+
+	}
+
 	bool Direct3D12Context::Init_Impl()
 	{
 		IE_LOG(Log, "Renderer: D3D 12");
+
+		Microsoft::WRL::ComPtr<IDxcUtils> pUtils;
+		Microsoft::WRL::ComPtr<IDxcCompiler3> pCompiler;
+		DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&pUtils));
+		DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&pCompiler));
+
+		CComPtr<IDxcIncludeHandler> pIncludeHandler;
+		HRESULT hr = pUtils->CreateDefaultIncludeHandler(&pIncludeHandler);
+
+		LPCWSTR CmdArgs[] =
+		{
+			L"GeometryPass.hlsl",		// Optional shader name for error information
+			L"-E", L"VSmain",			// Entry point
+			L"-T", L"vs_6_0",			// Build target
+#if IE_DEBUG
+			L"-Zi",						// Enable debug information
+			L"-Fo", L"GeometryPass.bin", // The file to save the debug information too.
+			L"-Fd", L"GeometryPass.pdb", // The file to save the debug information too.
+			L"-Od",						// Disable optomizations
+#endif
+			L"-Zpr",						// Pack matricies in row-major
+		};
+
+		// 
+		// Load the file
+		//
+		CComPtr<IDxcBlobEncoding> pSource = NULL;
+		hr = pUtils->LoadFile(FileSystem::GetShaderPathW(L"DeferredRendering/GeometryPass.hlsl").c_str(), NULL, &pSource);
+		DxcBuffer Source;
+		Source.Ptr = pSource->GetBufferPointer();
+		Source.Size = pSource->GetBufferSize();
+		Source.Encoding = DXC_CP_ACP;
+
+		//
+		// Compile the vertex shader
+		//
+		CComPtr<IDxcResult> pVSResult;
+		pCompiler->Compile(
+			&Source, 
+			CmdArgs,
+			_countof(CmdArgs), 
+			pIncludeHandler, 
+			IID_PPV_ARGS(&pVSResult)
+		);
+
+		//
+		// Check for errors in the compilation
+		//
+		CComPtr<IDxcBlobUtf8> pErrors = NULL;
+		pVSResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&pErrors), NULL);
+		if (pErrors != NULL && pErrors->GetStringLength() != 0)
+			IE_LOG(Warning, "Errors while compilng shader: %s", pErrors->GetStringPointer());
+
+		pVSResult->GetStatus(&hr);
+		if (FAILED(hr))
+		{
+			IE_LOG(Error, "There was a error while compileing shaders.");
+		}
+
+
+		LPCWSTR PSCmdArgs[] =
+		{
+			L"GeometryPass.hlsl",		// Optional shader name for error information
+			L"-E", L"PSmain",			// Entry point
+			L"-T", L"ps_6_0",			// Build target
+#if IE_DEBUG
+			L"-Zi",							// Enable debug information
+			L"-Fo", L"GeometryPass.bin",	// The file to save the debug information too.
+			L"-Fd", L"GeometryPass.pdb",	// The file to save the debug information too.
+			L"-Od",							// Disable optomizations
+#endif
+			L"-Zpr",					// Pack matricies in row-major
+		};
+
+		//
+		// Compile the pixel shader
+		//
+		CComPtr<IDxcResult> pPSResult;
+		pCompiler->Compile(
+			&Source,
+			PSCmdArgs,
+			_countof(CmdArgs),
+			pIncludeHandler,
+			IID_PPV_ARGS(&pPSResult)
+		);
+		//
+		// Check for errors in the compilation
+		//
+		CComPtr<IDxcBlobUtf8> pPSErrors = NULL;
+		pVSResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&pPSErrors), NULL);
+		if (pPSErrors != NULL && pPSErrors->GetStringLength() != 0)
+			IE_LOG(Warning, "Errors while compilng shader: %s", pPSErrors->GetStringPointer());
+
+		pVSResult->GetStatus(&hr);
+		if (FAILED(hr))
+		{
+			IE_LOG(Error, "There was a error while compileing shaders.");
+		}
+
+		//
+		// Save shader binary.
+		// TODO: Cache this
+		CComPtr<IDxcBlob> pShader = nullptr;
+		CComPtr<IDxcBlobUtf16> pShaderName = nullptr;
+		pVSResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&pShader), &pShaderName);
+		if (pShader != nullptr)
+		{
+			FILE* fp = NULL;
+			wchar_t FilePath[128];
+			swprintf_s(FilePath, L"Shaders/HLSL/%s", reinterpret_cast<const wchar_t*>(pShaderName->GetStringPointer()));
+			_wfopen_s(&fp, FilePath, L"wb");
+			fwrite(pShader->GetBufferPointer(), pShader->GetBufferSize(), 1, fp);
+			fclose(fp);
+		}
+
+		////
+		//// Save the shader pdb
+		////
+		//CComPtr<IDxcBlob> pPDB = nullptr;
+		//CComPtr<IDxcBlobUtf16> pPDBName = nullptr;
+		//pVSResult->GetOutput(DXC_OUT_PDB, IID_PPV_ARGS(&pPDB), &pPDBName);
+		//{
+		//	FILE* fp = NULL;
+
+		//	// Note that if you don't specify -Fd, a pdb name will be automatically generated. Use this file name to save the pdb so that PIX can find it quickly.
+		//	_wfopen_s(&fp, pPDBName->GetStringPointer(), L"wb");
+		//	fwrite(pPDB->GetBufferPointer(), pPDB->GetBufferSize(), 1, fp);
+		//	fclose(fp);
+		//}
+
 
 		try
 		{

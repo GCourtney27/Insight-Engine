@@ -105,11 +105,7 @@ namespace Insight {
 
 	std::wstring FileSystem::GetRelativeContentDirectoryW(const std::wstring& Path)
 	{
-#if IE_PLATFORM_BUILD_WIN32
 		return std::wstring(L"Content/" + Path);
-#elif IE_PLATFORM_BUILD_UWP
-		return std::wstring(L"Content/" + Path);
-#endif
 	}
 
 	Renderer::GraphicsSettings FileSystem::LoadGraphicsSettingsFromJson()
@@ -119,7 +115,7 @@ namespace Insight {
 
 		{
 			ScopedSecondTimer("LoadSceneFromJson::LoadGraphicsSettingsFromJson");
-
+			
 			rapidjson::Document RawSettingsFile;
 			const std::string SettingsDir = StringHelper::WideToString(GetRelativeContentDirectoryW(L"Engine.ini"));
 			if (!json::load(SettingsDir.c_str(), RawSettingsFile)) {
@@ -308,13 +304,11 @@ namespace Insight {
 
 	std::wstring FileSystem::GetShaderPathW(const wchar_t* Shader)
 	{
-		std::wstring Path = L"";
-#if IE_PLATFORM_BUILD_WIN32
-		Path += L"EngineBuild_Win32/";
-#elif IE_PLATFORM_BUILD_UWP
-		Path += L"EngineBuild_UWP/";
+		std::wstring Path = L"Shaders/";
+#if IE_PLATFORM_WINDOWS
+		Path.append(L"HLSL/");
 #endif
-		Path += Shader;
+		Path.append(Shader);
 		return Path;
 	}
 }

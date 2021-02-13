@@ -49,9 +49,6 @@ project ("EngineBuild_Win32")
 		"%{engineIncludeDirs.Engine}/ThirdParty/Vendor_Build.cpp",
 		"%{engineIncludeDirs.Engine}/Source/**.cpp",
 		"%{engineIncludeDirs.Engine}/Source/**.h",
-		"%{engineIncludeDirs.Engine}/Shaders/**.vertex.hlsl",
-		"%{engineIncludeDirs.Engine}/Shaders/**.pixel.hlsl",
-		"%{engineIncludeDirs.Engine}/Shaders/**.compute.hlsl",
 	}
 
 	defines
@@ -91,24 +88,5 @@ project ("EngineBuild_Win32")
 	{
 		"MultiProcessorCompile"
 	}
-
-	postbuildcommands
-	{
-		-- Compile the ray tracing shaders.
-		("%{wks.location}Engine/Shaders/HLSL/RayTracing/CompileRTShaders.bat " .. ieGetBuildFolder(platform) .. "%{prj.name}"),
-	}
-
-	-- Shaders
-	filter { "files:**.pixel.hlsl" }
-		shadertype "Pixel"
-		shadermodel "5.0"
-
-	filter { "files:**.vertex.hlsl" }
-		shadertype "Vertex"
-		shadermodel "5.0"
-
-	filter { "files:**.compute.hlsl" }
-		shadertype "Compute"
-		shadermodel "5.0"
 
 dofile ("Common-Build-Config.lua")

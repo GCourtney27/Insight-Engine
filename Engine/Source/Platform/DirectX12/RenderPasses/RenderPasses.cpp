@@ -114,7 +114,7 @@ namespace Insight {
 		ComPtr<ID3DBlob> pPixelShader;
 
 		D3D12Shader VertexShader;
-		HRESULT hr = VertexShader.LoadFromFile(FileSystem::GetShaderPathW(L"GeometryPass.vertex.cso").c_str());
+		HRESULT hr = VertexShader.LoadFromFile(FileSystem::GetShaderPathW(L"DeferredRendering/GeometryPass.vertex.cso").c_str());
 		ThrowIfFailed(hr, "Failed to read Vertex Shader for D3D 12 context.");
 
 		D3D12Shader PixelShader;

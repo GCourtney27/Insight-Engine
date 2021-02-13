@@ -17,6 +17,7 @@ win32AppIncludeDirs["Microsoft"] 				= engineThirdPartyDir .. "Microsoft/"
 win32AppIncludeDirs["Nvidia"]					= engineThirdPartyDir .. "Nvidia/"
 win32AppIncludeDirs["rapidjson"] 				= engineThirdPartyDir .. "rapidjson/include/"
 win32AppIncludeDirs["Mono"]						= monoInstallDir .. "include/"
+win32AppIncludeDirs["DxcAPI"]					= engineThirdPartyDir .. "Microsoft/DxcAPI/"
 win32AppIncludeDirs["Engine_Root"]				= "%{wks.location}/Engine/"
 win32AppIncludeDirs["Engine_Src"]				= "%{wks.location}/Engine/Source/"
 win32AppIncludeDirs["Engine_ThirdParty"]		= engineThirdPartyDir
@@ -34,9 +35,8 @@ project (projectName)
 	
 	targetdir (ieGetBuildFolder(platform))
 	objdir (ieGetBuildIntFolder(platform))
-	debugdir ("%{cfg.targetdir}/")
-
-
+	
+	debugdir ("%{wks.location}")
 
 	files
 	{
@@ -59,6 +59,7 @@ project (projectName)
 		"%{win32AppIncludeDirs.Microsoft}WinPixEventRuntime/Include/",
 		"%{win32AppIncludeDirs.rapidjson}",
 		"%{win32AppIncludeDirs.Mono}mono-2.0/",
+		"%{win32AppIncludeDirs.DxcAPI}inc/",
 		"%{win32AppIncludeDirs.Engine_Src}",
 		"%{win32AppIncludeDirs.Engine_ThirdParty}",
 		
@@ -77,7 +78,6 @@ project (projectName)
 		"MonoPosixHelper.lib",
 		"mono-2.0-sgen.lib",
         "libmono-static-sgen.lib",
-		"assimp-vc142-mtd.lib",
         
         -- DirectX/Windows API
 		"d3d12.lib",
@@ -89,9 +89,15 @@ project (projectName)
         "DirectXTK12.lib",
 		"d2d1.lib",
 		"dwrite.lib",
+		"dxcompiler.lib",
 		
 		-- Set the Runtime Library to Win32
 		engineRuntime,
+	}
+
+	libdirs
+	{
+		"%{win32AppIncludeDirs.DxcAPI}lib/x64",
 	}
 
 	defines
@@ -104,26 +110,23 @@ project (projectName)
 	}
 	postbuildcommands
 	{
-		-- Assimp
-		("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/assimp-5.0.1/build/code/Debug/assimp-vc142-mtd.dll %{cfg.targetdir}"),
-		-- DX11 Debug Layers
-		("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll %{cfg.targetdir}"),
-		("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX11/Bin/D3DX11d_43.dll %{cfg.targetdir}"),
-		("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX11/Bin/D3D11Ref.dll %{cfg.targetdir}"),
 		-- Mono
 		("{COPY} \"".. monoInstallDir .."/bin/mono-2.0-sgen.dll\" %{cfg.targetdir}"),
-		-- PIX
-		("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/WinPixEventRuntime/bin/x64/WinPixEventRuntime.dll %{cfg.targetdir}"),
-		-- Copy over assets
-		("{COPY} %{wks.location}Content %{cfg.targetdir}/Content"),
-		-- Copy over default engine assets
-		("{COPY} ../../Engine/Assets %{cfg.targetdir}/Content/Engine"),
+		-- DxCompiler
+		("{COPY} %{win32AppIncludeDirs.DxcAPI}/bin/x64/dxcompiler.dll %{cfg.targetdir}"),
+		("{COPY} %{win32AppIncludeDirs.DxcAPI}/bin/x64/dxil.dll %{cfg.targetdir}"),
+		-- Remove the engine build library to lighten the folder.
+		--("Rmdir /Q /S $(TargetDir)" .. engineRuntime)
 	}
 
 
 -- Build Configurations
 --
 	filter "configurations:DebugEditor"
+		links
+		{
+			"assimp-vc142-mtd.lib",
+		}
 		libdirs
 		{
             "%{win32AppIncludeDirs.Engine_ThirdParty}/assimp-5.0.1/build/code/Debug/",
@@ -132,41 +135,51 @@ project (projectName)
             "%{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Debug/",
 			monoInstallDir .. "/lib/",
 		}
+		postbuildcommands
+		{
+			-- Assimp
+			("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/assimp-5.0.1/build/code/Debug/assimp-vc142-mtd.dll %{cfg.targetdir}"),
+			-- PIX
+			("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/WinPixEventRuntime/bin/x64/WinPixEventRuntime.dll %{cfg.targetdir}"),
+
+			-- Create a virtual copy of the assets folder
+			("IF NOT EXIST $(TargetDir)Content mklink /D $(TargetDir)Content %{wks.location}Engine\\Content"),
+--			("mklink /D $(TargetDir)Content %{wks.location}Engine\\Content"),
+
+			-- Create a virtual copy of the shaders folder
+			("IF NOT EXIST $(TargetDir)Shaders mklink /D $(TargetDir)Shaders %{wks.location}Engine\\Shaders"),
+		}
 	
 
 
 	filter "configurations:Development or DebugGame"
+		links
+		{
+			"assimp-vc142-mt.lib",
+		}
 		libdirs
 		{
-			"%{win32AppIncludeDirs.Engine_ThirdParty}/assimp-5.0.1/build/code/Release/",
+            "%{win32AppIncludeDirs.Engine_ThirdParty}/assimp-5.0.1/build/code/Release/",
             "%{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/WinPixEventRuntime/bin/x64/",
             "%{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release/",
-			"%{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release/",
             "%{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release/",
 			monoInstallDir .. "/lib",
 		}
 		postbuildcommands
 		{
 			-- Assimp
-			("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/assimp-5.0.1/build/code/Release/assimp-vc140-mt.dll %{cfg.targetdir}"),
-			-- DX11 Debug Layers	
-			("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX11/Bin/D3D11SDKLayers.dll %{cfg.targetdir}"),
-			("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX11/Bin/D3DX11d_43.dll %{cfg.targetdir}"),
-			("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX11/Bin/D3D11Ref.dll %{cfg.targetdir}"),
-			-- Mono					
-			("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/Mono/bin/mono-2.0-sgen.dll %{cfg.targetdir}"),
-			-- DirectX				
-			("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/Bin/dxcompiler.dll %{cfg.targetdir}"),
-			("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/Bin/dxil.dll %{cfg.targetdir}"),
-			("{COPY} %{wks.location}/Engine/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/Engine"),
+			("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/assimp-5.0.1/build/code/Release/assimp-vc142-mt.dll %{cfg.targetdir}"),
 			-- PIX					
-			("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime.dll %{cfg.targetdir}"),
-			("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/WinPixEventRuntime.1.0.161208001/bin/WinPixEventRuntime_UAP.dll %{cfg.targetdir}"),
-			-- Copy over assets
-			("{COPY} $(USERPROFILE)/Documents/Insight-Projects/Development-Project/Content/** ../Binaries/" .. outputdir .. "/Content"),
-			("{COPY} %{wks.location}/Engine/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Content/Default_Assets/")
+			("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/WinPixEventRuntime/bin/x64/WinPixEventRuntime.dll %{cfg.targetdir}"),
+			-- Copy over the assets
+			("{COPY} %{wks.location}Engine/Content %{cfg.targetdir}/Content"),
+			-- Copy over the shaders
+			("{COPY} %{wks.location}Engine/Shaders %{cfg.targetdir}/Shaders"),
+
 		}
 		
+
+
 	filter "configurations:ShippingGame"
 		libdirs
 		{
