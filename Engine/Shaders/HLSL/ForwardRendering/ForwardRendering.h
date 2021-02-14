@@ -1,5 +1,5 @@
-#include <../Common/InsightCommon.hlsli>
-#include <../Common/LightsCommon.hlsli>
+#include "Shaders/HLSL/Common/InsightCommon.h"
+#include "Shaders/HLSL/Common/LightsCommon.h"
 
 cbuffer cbPerObject : register(b0)
 {

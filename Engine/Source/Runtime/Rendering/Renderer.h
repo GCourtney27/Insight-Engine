@@ -66,6 +66,7 @@ namespace Insight {
 			uint32_t		MaxAnisotropy = 1U;	// Texture Filtering (1, 4, 8, 16) *16 highest quality
 			float			MipLodBias = 0.0f;	// Texture Quality (0 - 9) *0 highest quality
 			bool			RayTraceEnabled = false;
+			bool			ShadersCompiled = false;
 			int				pad[3];
 		};
 

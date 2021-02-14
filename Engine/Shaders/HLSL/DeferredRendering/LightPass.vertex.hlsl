@@ -1,5 +1,5 @@
-#include <../Common/InsightCommon.hlsli>
-#include <DeferredRendering.hlsli>	
+#include "Shaders/HLSL/Common/InsightCommon.h"
+#include "Shaders/HLSL/DeferredRendering/DeferredRendering.h"	
 
 VS_OUTPUT_LIGHTPASS main(VS_INPUT_LIGHTPASS vs_in)
 {

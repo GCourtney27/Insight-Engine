@@ -1,4 +1,5 @@
-#include "RayTraceCommon.hlsli"
+#include "Shaders/HLSL/RayTracing/RayTraceCommon.h"
+
 
 [shader("miss")]
 void Miss(inout HitInfo HitInfo : SV_RayPayload)

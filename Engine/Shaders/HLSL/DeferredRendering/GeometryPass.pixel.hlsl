@@ -1,5 +1,5 @@
-#include <../Common/InsightCommon.hlsli>
-#include <DeferredRendering.hlsli>	
+#include "Shaders/HLSL/Common/InsightCommon.h"
+#include "Shaders/HLSL/DeferredRendering/DeferredRendering.h"	
 
 // Per-Object Texture Inputs
 // --------------
@@ -13,14 +13,6 @@ Texture2D t_AOObject        : register(t9);
 // Samplers
 // --------
 SamplerState s_LinearWrapSampler : register(s1);
-
-struct PS_OUTPUT_GEOMPASS
-{
-    float3 albedo                   : SV_Target0;
-    float4 normal                   : SV_Target1;
-    float4 roughnessMetallicAOSpec  : SV_Target2;
-    float4 position                 : SV_Target3;
-};
 
 // Entry Point
 // -----------

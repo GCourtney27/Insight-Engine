@@ -21,6 +21,8 @@
 
 #include "Runtime/UI/UILib.h"
 
+#include <filesystem>
+
 #define SHADOWMAPPING_ENABLED 0
 #define TRANSPARENCYPASS_ENABLED 0
 #define BLOOM_ENABLED 1
@@ -50,20 +52,23 @@ namespace Insight {
 		m_DeviceResources.CleanUp();
 	}
 
-	enum EShaderType
+	static HRESULT CompileShader(LPCWSTR FileName, LPCWSTR Target, LPCWSTR DebugName, LPCWSTR FilePath)
 	{
-		ST_Vertex,
-		ST_Pixel
-	};
-
-	static HRESULT CompileShader(LPCWSTR pFile, LPCWSTR EntryPoint, LPCWSTR BuildTarget)
-	{
-
-	}
-
-	bool Direct3D12Context::Init_Impl()
-	{
-		IE_LOG(Log, "Renderer: D3D 12");
+		std::vector<LPCWSTR> CompileCommands;
+		CompileCommands.emplace_back(DebugName);
+		CompileCommands.emplace_back(L"-E"); CompileCommands.emplace_back(L"main");
+		CompileCommands.emplace_back(L"-T"); CompileCommands.emplace_back(Target);
+#if IE_DEBUG
+		CompileCommands.emplace_back(L"-Zi");
+		std::wstring CSO = FileName;
+		CSO.append(L".cso");
+		std::wstring PDB = FileName;
+		PDB.append(L".pdb");
+		CompileCommands.emplace_back(L"-Fo"); CompileCommands.emplace_back(CSO.c_str());
+		CompileCommands.emplace_back(L"-Fd"); CompileCommands.emplace_back(PDB.c_str());
+		CompileCommands.emplace_back(L"-Od");
+#endif
+		CompileCommands.emplace_back(L" -Zr ");
 
 		Microsoft::WRL::ComPtr<IDxcUtils> pUtils;
 		Microsoft::WRL::ComPtr<IDxcCompiler3> pCompiler;
@@ -71,27 +76,15 @@ namespace Insight {
 		DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&pCompiler));
 
 		CComPtr<IDxcIncludeHandler> pIncludeHandler;
-		HRESULT hr = pUtils->CreateDefaultIncludeHandler(&pIncludeHandler);
+		ThrowIfFailed(pUtils->CreateDefaultIncludeHandler(&pIncludeHandler), "Failed to create default include handler for shader compiler.");
 
-		LPCWSTR CmdArgs[] =
-		{
-			L"GeometryPass.hlsl",		// Optional shader name for error information
-			L"-E", L"VSmain",			// Entry point
-			L"-T", L"vs_6_0",			// Build target
-#if IE_DEBUG
-			L"-Zi",						// Enable debug information
-			L"-Fo", L"GeometryPass.bin", // The file to save the debug information too.
-			L"-Fd", L"GeometryPass.pdb", // The file to save the debug information too.
-			L"-Od",						// Disable optomizations
-#endif
-			L"-Zpr",						// Pack matricies in row-major
-		};
 
 		// 
 		// Load the file
 		//
 		CComPtr<IDxcBlobEncoding> pSource = NULL;
-		hr = pUtils->LoadFile(FileSystem::GetShaderPathW(L"DeferredRendering/GeometryPass.hlsl").c_str(), NULL, &pSource);
+		HRESULT hr = pUtils->LoadFile(FilePath, NULL, &pSource);
+		ThrowIfFailed(hr, "Failed to load shader file for compilation.")
 		DxcBuffer Source;
 		Source.Ptr = pSource->GetBufferPointer();
 		Source.Size = pSource->GetBufferSize();
@@ -101,67 +94,31 @@ namespace Insight {
 		// Compile the vertex shader
 		//
 		CComPtr<IDxcResult> pVSResult;
-		pCompiler->Compile(
-			&Source, 
-			CmdArgs,
-			_countof(CmdArgs), 
-			pIncludeHandler, 
+		hr = pCompiler->Compile(
+			&Source,
+			CompileCommands.data(),
+			CompileCommands.size(),
+			pIncludeHandler,
 			IID_PPV_ARGS(&pVSResult)
 		);
+		ThrowIfFailed(hr, "Failed to compile shader file.");
 
 		//
 		// Check for errors in the compilation
 		//
 		CComPtr<IDxcBlobUtf8> pErrors = NULL;
-		pVSResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&pErrors), NULL);
+		hr = pVSResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&pErrors), NULL);
 		if (pErrors != NULL && pErrors->GetStringLength() != 0)
 			IE_LOG(Warning, "Errors while compilng shader: %s", pErrors->GetStringPointer());
+		ThrowIfFailed(hr, "Failed to get error outpur for compiled shader result.");
 
 		pVSResult->GetStatus(&hr);
 		if (FAILED(hr))
 		{
 			IE_LOG(Error, "There was a error while compileing shaders.");
+			return hr;
 		}
 
-
-		LPCWSTR PSCmdArgs[] =
-		{
-			L"GeometryPass.hlsl",		// Optional shader name for error information
-			L"-E", L"PSmain",			// Entry point
-			L"-T", L"ps_6_0",			// Build target
-#if IE_DEBUG
-			L"-Zi",							// Enable debug information
-			L"-Fo", L"GeometryPass.bin",	// The file to save the debug information too.
-			L"-Fd", L"GeometryPass.pdb",	// The file to save the debug information too.
-			L"-Od",							// Disable optomizations
-#endif
-			L"-Zpr",					// Pack matricies in row-major
-		};
-
-		//
-		// Compile the pixel shader
-		//
-		CComPtr<IDxcResult> pPSResult;
-		pCompiler->Compile(
-			&Source,
-			PSCmdArgs,
-			_countof(CmdArgs),
-			pIncludeHandler,
-			IID_PPV_ARGS(&pPSResult)
-		);
-		//
-		// Check for errors in the compilation
-		//
-		CComPtr<IDxcBlobUtf8> pPSErrors = NULL;
-		pVSResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&pPSErrors), NULL);
-		if (pPSErrors != NULL && pPSErrors->GetStringLength() != 0)
-			IE_LOG(Warning, "Errors while compilng shader: %s", pPSErrors->GetStringPointer());
-
-		pVSResult->GetStatus(&hr);
-		if (FAILED(hr))
-		{
-			IE_LOG(Error, "There was a error while compileing shaders.");
-		}
 
 		//
 		// Save shader binary.
@@ -173,27 +130,84 @@ namespace Insight {
 		{
 			FILE* fp = NULL;
 			wchar_t FilePath[128];
-			swprintf_s(FilePath, L"Shaders/HLSL/%s", reinterpret_cast<const wchar_t*>(pShaderName->GetStringPointer()));
+			swprintf_s(FilePath, L"Shaders/ShaderCache/HLSL/%s", reinterpret_cast<const wchar_t*>(pShaderName->GetStringPointer()));
 			_wfopen_s(&fp, FilePath, L"wb");
 			fwrite(pShader->GetBufferPointer(), pShader->GetBufferSize(), 1, fp);
 			fclose(fp);
 		}
 
-		////
-		//// Save the shader pdb
-		////
-		//CComPtr<IDxcBlob> pPDB = nullptr;
-		//CComPtr<IDxcBlobUtf16> pPDBName = nullptr;
-		//pVSResult->GetOutput(DXC_OUT_PDB, IID_PPV_ARGS(&pPDB), &pPDBName);
-		//{
-		//	FILE* fp = NULL;
+#if IE_DEBUG
+		//
+		// Save the shader pdb
+		//
+		CComPtr<IDxcBlob> pPDB = nullptr;
+		CComPtr<IDxcBlobUtf16> pPDBName = nullptr;
+		pVSResult->GetOutput(DXC_OUT_PDB, IID_PPV_ARGS(&pPDB), &pPDBName);
+		{
+			FILE* fp = NULL;
 
-		//	// Note that if you don't specify -Fd, a pdb name will be automatically generated. Use this file name to save the pdb so that PIX can find it quickly.
-		//	_wfopen_s(&fp, pPDBName->GetStringPointer(), L"wb");
-		//	fwrite(pPDB->GetBufferPointer(), pPDB->GetBufferSize(), 1, fp);
-		//	fclose(fp);
-		//}
+			// Note that if you don't specify -Fd, a pdb name will be automatically generated. Use this file name to save the pdb so that PIX can find it quickly.
+			wchar_t FilePath[128];
+			swprintf_s(FilePath, L"Shaders/ShaderCache/HLSL/%s", reinterpret_cast<const wchar_t*>(pPDBName->GetStringPointer()));
+			_wfopen_s(&fp, FilePath, L"wb");
+			fwrite(pPDB->GetBufferPointer(), pPDB->GetBufferSize(), 1, fp);
+			fclose(fp);
+		}
+#endif
 
+		return S_OK;
+	}
+
+	void Direct3D12Context::TryCompiledShaders()
+	{
+		// If the shaders have already been compiled,
+		// no need to try to compiled them again.
+		if (GetGraphicsSettings().ShadersCompiled)
+			return;
+
+		IE_LOG(Warning, "No shader cache found. Compiling, Please wait...")
+
+		using RecursiveDirectoryIter = std::filesystem::recursive_directory_iterator;
+		for (const auto& Directory : RecursiveDirectoryIter("Shaders\\HLSL\\"))
+		{
+			/*std::stringstream ss;
+			ss << Directory;
+			
+			IE_LOG(Log, "%s", ss.str().c_str());*/
+
+
+			size_t firstPos = Directory.path().string().find_first_of(".") + 1;
+			size_t lastPos = Directory.path().string().find_last_of(".");
+			if (firstPos != std::string::npos && lastPos != std::string::npos)
+			{
+				std::wstring FileName = StringHelper::StringToWide(StringHelper::GetFilenameFromDirectory(Directory.path().string()));
+				std::wstring FilePathW = StringHelper::StringToWide(Directory.path().string());
+
+				std::string ext = Directory.path().string().substr(firstPos);
+				if (ext[0] == 'p')
+				{
+					CompileShader(FileName.c_str(), L"ps_6_0", FileName.c_str(), FilePathW.c_str());
+				} else if (ext[0] == 'v')
+				{
+					CompileShader(FileName.c_str(), L"vs_6_0", FileName.c_str(), FilePathW.c_str());
+				} else if (ext[0] == 'c')
+				{
+					CompileShader(FileName.c_str(), L"cs_6_0", FileName.c_str(), FilePathW.c_str());
+				} else if (ext[0] == 'r')
+				{
+					CompileShader(FileName.c_str(), L"lib_6_3", FileName.c_str(), FilePathW.c_str());
+				}
+				//IE_LOG(Log, "%s", ext.c_str());
+			}
+		}
+
+		IE_LOG(Warning, "Shaders compiled.");
+		GetGraphicsSettings().ShadersCompiled = true;
+	}
+
+	bool Direct3D12Context::Init_Impl()
+	{
+		IE_LOG(Log, "Renderer: D3D 12");
 
 		try
 		{
@@ -217,6 +231,8 @@ namespace Insight {
 					CreateForwardShadingRS();
 					CreateBloomPassRS();
 					CreateDebugScreenQuadRS();
+
+					TryCompiledShaders();
 
 					{
 						// Create the Geometry Pass and push it to the render stack.
@@ -294,6 +310,9 @@ namespace Insight {
 
 	void Direct3D12Context::Destroy_Impl()
 	{
+		// TODO: TEMP Move somewhere else
+		GraphicsSettings& Settings = GetGraphicsSettings();
+		FileSystem::SaveEngineUserSettings(Settings);
 		InternalCleanup();
 	}
 

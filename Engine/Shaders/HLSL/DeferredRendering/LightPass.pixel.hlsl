@@ -1,5 +1,5 @@
-#include <../Common/InsightCommon.hlsli>
-#include <DeferredRendering.hlsli>	
+#include "Shaders/HLSL/Common/InsightCommon.h"
+#include "Shaders/HLSL/DeferredRendering/DeferredRendering.h"	
 
 #define SHADOW_DEPTH_BIAS 0.00005f
 

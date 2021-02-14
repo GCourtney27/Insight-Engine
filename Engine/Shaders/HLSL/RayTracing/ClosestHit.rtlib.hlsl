@@ -1,5 +1,5 @@
 //#include <../Common/Insight_Common.hlsli>
-#include "RayTraceCommon.hlsli"
+#include "Shaders/HLSL/RayTracing/RayTraceCommon.h"
 
 struct Vertex
 {

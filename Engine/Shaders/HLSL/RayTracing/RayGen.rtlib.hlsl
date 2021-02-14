@@ -1,5 +1,6 @@
 //#include <../Common/Insight_Common.hlsli>
-#include "RayTraceCommon.hlsli"
+#include "Shaders/HLSL/RayTracing/RayTraceCommon.h"
+
 #pragma pack_matrix(row_major)
 
 // Raytracing output texture, accessed as a UAV

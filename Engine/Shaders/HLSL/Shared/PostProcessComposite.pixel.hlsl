@@ -1,5 +1,5 @@
-#include <../Common/InsightCommon.hlsli>
-#include <..//DeferredRendering/DeferredRendering.hlsli>
+#include "Shaders/HLSL/Common/InsightCommon.h"
+#include "Shaders/HLSL/DeferredRendering/DeferredRendering.h"
 
 // Texture Inputs
 // --------------

@@ -227,6 +227,7 @@ namespace Insight {
 
 	void Application::Shutdown()
 	{
+		Renderer::Destroy();
 		m_pWindow->Shutdown();
 	}
 

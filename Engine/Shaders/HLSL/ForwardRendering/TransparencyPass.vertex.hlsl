@@ -1,5 +1,5 @@
-#include <../Common/InsightCommon.hlsli>
-#include <ForwardRendering.hlsli>
+#include "Shaders/HLSL/Common/InsightCommon.h"
+#include "Shaders/HLSL/ForwardRendering/ForwardRendering.h"
 
 struct VS_INPUT
 {

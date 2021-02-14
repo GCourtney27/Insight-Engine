@@ -1,5 +1,5 @@
-#include <../Common/InsightCommon.hlsli>
-#include <ForwardRendering.hlsli>
+#include "Shaders/HLSL/Common/InsightCommon.h"
+#include "Shaders/HLSL/ForwardRendering/ForwardRendering.h"
 
 Texture2D t_Albedo      : register(t0);
 Texture2D t_Normal      : register(t1);

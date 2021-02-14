@@ -1,4 +1,4 @@
-#include <../Common/LightsCommon.hlsli>
+#include "Shaders/HLSL/Common/LightsCommon.h"
 
 Texture2D t_DebugTexture : register(t0);
 

@@ -70,7 +70,7 @@ namespace Insight {
 		// Create the pipeline state.
 
 		D3D12Shader ComputeShader;
-		hr = ComputeShader.LoadFromFile(FileSystem::GetShaderPathW(L"ThresholdDownSample.compute.cso").c_str());
+		hr = ComputeShader.LoadFromFile(FileSystem::GetShaderPathW(L"ThresholdDownSample.compute.hlsl.cso").c_str());
 		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
 
 		D3D12_COMPUTE_PIPELINE_STATE_DESC PipelineDesc = {};
@@ -183,7 +183,7 @@ namespace Insight {
 		// Create the pipeline state.
 
 		D3D12Shader ComputeShader;
-		hr = ComputeShader.LoadFromFile(FileSystem::GetShaderPathW(L"GaussianBlur.compute.cso").c_str());
+		hr = ComputeShader.LoadFromFile(FileSystem::GetShaderPathW(L"GaussianBlur.compute.hlsl.cso").c_str());
 		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
 
 		D3D12_COMPUTE_PIPELINE_STATE_DESC PipelineDesc = {};

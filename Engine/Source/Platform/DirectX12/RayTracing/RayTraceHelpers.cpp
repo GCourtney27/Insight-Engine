@@ -287,16 +287,16 @@ namespace Insight {
 
 		// Ray Gen
 		D3D12Shader RayGenShader;
-		ThrowIfFailed(RayGenShader.LoadFromFile(FileSystem::GetShaderPathW(L"RayGen.rtlib.cso").c_str()), "Failed to load Ray Gen library from cso.");
+		ThrowIfFailed(RayGenShader.LoadFromFile(FileSystem::GetShaderPathW(L"RayGen.rtlib.hlsl.cso").c_str()), "Failed to load Ray Gen library from cso.");
 		// Miss
 		D3D12Shader MissShader;
-		ThrowIfFailed(MissShader.LoadFromFile(FileSystem::GetShaderPathW(L"Miss.rtlib.cso").c_str()), "Failed to load Miss library from cso.");
+		ThrowIfFailed(MissShader.LoadFromFile(FileSystem::GetShaderPathW(L"Miss.rtlib.hlsl.cso").c_str()), "Failed to load Miss library from cso.");
 		// Hit
 		D3D12Shader ClosestShader;
-		ThrowIfFailed(ClosestShader.LoadFromFile(FileSystem::GetShaderPathW(L"ClosestHit.rtlib.cso").c_str()), "Failed to load Closest Hit library from cso.");
+		ThrowIfFailed(ClosestShader.LoadFromFile(FileSystem::GetShaderPathW(L"ClosestHit.rtlib.hlsl.cso").c_str()), "Failed to load Closest Hit library from cso.");
 		// Shadow
 		D3D12Shader ShadowShader;
-		ThrowIfFailed(ShadowShader.LoadFromFile(FileSystem::GetShaderPathW(L"ShadowRay.rtlib.cso").c_str()), "Failed to load Shadow Ray library from cso.");
+		ThrowIfFailed(ShadowShader.LoadFromFile(FileSystem::GetShaderPathW(L"ShadowRay.rtlib.hlsl.cso").c_str()), "Failed to load Shadow Ray library from cso.");
 
 		Pipeline.AddLibrary(&RayGenShader, { L"RayGen" });
 		Pipeline.AddLibrary(&MissShader, { L"Miss" });

@@ -55,14 +55,14 @@ namespace Insight {
 		return FileContents;
 	}
 
-	void FileSystem::SaveEngineUserSettings(Renderer::GraphicsSettings Settings)
+	void FileSystem::SaveEngineUserSettings(const Renderer::GraphicsSettings& Settings)
 	{
-		rapidjson::Document RawSettingsFile;
-		const std::string SettingsDir = "../Content/Engine.ini";
+		/*rapidjson::Document RawSettingsFile;
+		const std::string SettingsDir = "Content/Engine.ini";
 		if (!json::load(SettingsDir.c_str(), RawSettingsFile)) {
 			IE_LOG(Error, "Failed to load graphics settings from file: \"%s\". Default graphics settings will be applied.", SettingsDir.c_str());
 
-		}
+		}*/
 
 		{
 			rapidjson::StringBuffer StrBuffer;
@@ -83,6 +83,8 @@ namespace Insight {
 					Writer.Int(Settings.MaxAnisotropy);
 					Writer.Key("RayTraceEnabled");
 					Writer.Bool(Settings.RayTraceEnabled);
+					Writer.Key("ShadersCompiled");
+					Writer.Bool(Settings.ShadersCompiled);
 
 					Writer.EndObject();
 				}
@@ -92,7 +94,7 @@ namespace Insight {
 			
 
 			// Final Export
-			std::string sceneName = "../Engine.ini";
+			std::string sceneName = "Content/Engine.ini";
 			std::ofstream offstream(sceneName.c_str());
 			offstream << StrBuffer.GetString();
 
@@ -128,6 +130,7 @@ namespace Insight {
 			json::get_float(RendererSettings[0], "TextureQuality", UserGraphicsSettings.MipLodBias);
 			json::get_int(RendererSettings[0], "TextureFiltering", MaxAniso);
 			json::get_bool(RendererSettings[0], "RayTraceEnabled", UserGraphicsSettings.RayTraceEnabled);
+			json::get_bool(RendererSettings[0], "ShadersCompiled", UserGraphicsSettings.ShadersCompiled);
 			UserGraphicsSettings.MaxAnisotropy = MaxAniso;
 			UserGraphicsSettings.TargetRenderAPI = (Renderer::ETargetRenderAPI)TargetRenderAPI;
 		}
@@ -306,7 +309,7 @@ namespace Insight {
 	{
 		std::wstring Path = L"Shaders/";
 #if IE_PLATFORM_WINDOWS
-		Path.append(L"HLSL/");
+		Path.append(L"ShaderCache/HLSL/");
 #endif
 		Path.append(Shader);
 		return Path;

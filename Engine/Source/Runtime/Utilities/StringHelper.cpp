@@ -12,7 +12,20 @@ namespace Insight {
 
 	std::string StringHelper::WideToString(const std::wstring& wStr)
 	{
-		return std::string( wStr.begin(), wStr.end() );
+		std::setlocale(LC_ALL, "");
+		const std::locale locale("");
+		typedef std::codecvt<wchar_t, char, std::mbstate_t> converter_type;
+		const converter_type& converter = std::use_facet<converter_type>(locale);
+		std::vector<char> to(wStr.length() * converter.max_length());
+		std::mbstate_t state;
+		const wchar_t* from_next;
+		char* to_next;
+		const converter_type::result result = converter.out(state, wStr.data(), wStr.data() + wStr.length(), from_next, &to[0], &to[0] + to.size(), to_next);
+		if (result == converter_type::ok || result == converter_type::noconv) {
+			return std::string (&to[0], to_next);
+		}
+
+		return std::string{};
 	}
 
 	std::string StringHelper::GetDirectoryFromPath(const std::string & filepath)
@@ -36,14 +49,14 @@ namespace Insight {
 		return std::string();
 	}
 
-	std::string StringHelper::GetFileExtension(const std::string & filename)
+	std::string StringHelper::GetFileExtension(const std::string & Filename)
 	{
-		size_t off = filename.find_last_of('.');
-		if (off == std::string::npos)
+		size_t Offset = Filename.find_last_of('.');
+		if (Offset == std::string::npos)
 		{
-			return {};
+			return std::string{};
 		}
-		return std::string(filename.substr(off + 1));
+		return std::string(Filename.substr(Offset + 1));
 	}
 
 	std::string StringHelper::GetFilenameFromDirectory(const std::string& filename)

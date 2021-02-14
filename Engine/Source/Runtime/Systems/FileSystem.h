@@ -23,7 +23,7 @@ namespace Insight {
 			Save the Engine settings out to cached file in "Content/" directory
 			@param Settings - Settings to write to disk.
 		*/
-		static void SaveEngineUserSettings(Renderer::GraphicsSettings Settings);
+		static void SaveEngineUserSettings(const Renderer::GraphicsSettings& Settings);
 
 		/*
 			Get the directory for where the applications content (ie. textures, models etc.) is stored.		

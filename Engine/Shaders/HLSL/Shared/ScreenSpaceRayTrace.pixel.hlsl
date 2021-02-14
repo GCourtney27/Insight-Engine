@@ -1,4 +1,4 @@
-#include <../DeferredRendering/DeferredRendering.hlsli>	
+#include "Shaders/HLSL/DeferredRendering/DeferredRendering.h"
 
 struct PS_OUTPUT_SHADOWPASS
 {

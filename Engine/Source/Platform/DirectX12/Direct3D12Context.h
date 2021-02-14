@@ -173,6 +173,10 @@ namespace Insight {
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 		}
 		
+
+		void TryCompiledShaders();
+		
+
 	private:
 		Direct3D12Context();
 		virtual ~Direct3D12Context();

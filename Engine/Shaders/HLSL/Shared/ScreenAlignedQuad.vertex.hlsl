@@ -1,4 +1,4 @@
-#include <../DeferredRendering/DeferredRendering.hlsli>	
+#include "Shaders/HLSL/DeferredRendering/DeferredRendering.h"
 
 struct VS_INPUT_POSTFX
 {
