@@ -38,6 +38,7 @@ namespace Insight {
 			fseek(fp, 0, SEEK_SET);
 			m_pShader = new char[BytecodeLength];
 			fread(m_pShader, 1, BytecodeLength, fp);
+			fclose(fp);
 
 			m_ShaderByteCode.BytecodeLength = BytecodeLength;
 			m_ShaderByteCode.pShaderBytecode = m_pShader;

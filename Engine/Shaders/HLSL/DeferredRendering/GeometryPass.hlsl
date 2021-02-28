@@ -1,4 +1,3 @@
-//#include <../Common/InsightCommon.hlsli>
 #include "Shaders/HLSL/DeferredRendering/DeferredRendering.h"
 
 ////////////////////////////

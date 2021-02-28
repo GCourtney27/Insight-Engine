@@ -25,7 +25,7 @@
 
 #define SHADOWMAPPING_ENABLED 0
 #define TRANSPARENCYPASS_ENABLED 0
-#define BLOOM_ENABLED 1
+#define BLOOM_ENABLED 0
 
 
 namespace Insight {
@@ -68,7 +68,7 @@ namespace Insight {
 		CompileCommands.emplace_back(L"-Fd"); CompileCommands.emplace_back(PDB.c_str());
 		CompileCommands.emplace_back(L"-Od");
 #endif
-		CompileCommands.emplace_back(L" -Zr ");
+		CompileCommands.emplace_back(L"-Zpr");
 
 		Microsoft::WRL::ComPtr<IDxcUtils> pUtils;
 		Microsoft::WRL::ComPtr<IDxcCompiler3> pCompiler;
@@ -77,7 +77,6 @@ namespace Insight {
 
 		CComPtr<IDxcIncludeHandler> pIncludeHandler;
 		ThrowIfFailed(pUtils->CreateDefaultIncludeHandler(&pIncludeHandler), "Failed to create default include handler for shader compiler.");
-
 
 		// 
 		// Load the file
@@ -97,7 +96,7 @@ namespace Insight {
 		hr = pCompiler->Compile(
 			&Source,
 			CompileCommands.data(),
-			CompileCommands.size(),
+			(UINT32)CompileCommands.size(),
 			pIncludeHandler,
 			IID_PPV_ARGS(&pVSResult)
 		);
@@ -122,7 +121,7 @@ namespace Insight {
 
 		//
 		// Save shader binary.
-		// TODO: Cache this
+		//
 		CComPtr<IDxcBlob> pShader = nullptr;
 		CComPtr<IDxcBlobUtf16> pShaderName = nullptr;
 		pVSResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&pShader), &pShaderName);
@@ -158,24 +157,26 @@ namespace Insight {
 		return S_OK;
 	}
 
-	void Direct3D12Context::TryCompiledShaders()
+	void Direct3D12Context::TryCompiledShaders(bool bForceRecompile/* = false*/)
 	{
-		// If the shaders have already been compiled,
-		// no need to try to compiled them again.
-		if (GetGraphicsSettings().ShadersCompiled)
-			return;
+		if (std::filesystem::exists("Shaders/ShaderCache/HLSL/"))
+		{
+			if(!bForceRecompile)
+				return; 
+		}
+		else
+		{
+			IE_LOG(Warning, "No shader cache found.");
+			std::filesystem::create_directory("Shaders/ShaderCache/HLSL/");
 
-		IE_LOG(Warning, "No shader cache found. Compiling, Please wait...")
+		}
+
+		IE_LOG(Warning, "Compiling shaders, please wait...");
+
 
 		using RecursiveDirectoryIter = std::filesystem::recursive_directory_iterator;
 		for (const auto& Directory : RecursiveDirectoryIter("Shaders\\HLSL\\"))
 		{
-			/*std::stringstream ss;
-			ss << Directory;
-			
-			IE_LOG(Log, "%s", ss.str().c_str());*/
-
-
 			size_t firstPos = Directory.path().string().find_first_of(".") + 1;
 			size_t lastPos = Directory.path().string().find_last_of(".");
 			if (firstPos != std::string::npos && lastPos != std::string::npos)
@@ -202,7 +203,7 @@ namespace Insight {
 		}
 
 		IE_LOG(Warning, "Shaders compiled.");
-		GetGraphicsSettings().ShadersCompiled = true;
+		//GetGraphicsSettings().ShadersCompiled = true;
 	}
 
 	bool Direct3D12Context::Init_Impl()
@@ -426,12 +427,13 @@ namespace Insight {
 			ThrowIfFailed(m_pPostEffectsPass_CommandList->Reset(m_pPostEffectsPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), nullptr),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 
+#if BLOOM_ENABLED
 			ThrowIfFailed(m_pBloomFirstPass_CommandList->Reset(m_pBloomFirstPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 
 			ThrowIfFailed(m_pBloomSecondPass_CommandList->Reset(m_pBloomSecondPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
 				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
-
+#endif
 			if (m_GraphicsSettings.RayTraceEnabled) {
 				ThrowIfFailed(m_pRayTracePass_CommandList->Reset(m_pRayTracePass_CommandAllocators[IE_D3D12_FrameIndex].Get(), nullptr),
 					"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
@@ -581,11 +583,12 @@ namespace Insight {
 #endif
 		m_DeviceResources.GetGraphicsCommandQueue().ExecuteCommandLists((UINT)pSubmittions.size(), pSubmittions.data());
 
+#if BLOOM_ENABLED
 		// Bloom Compute
 		pSubmittions.clear();
 		pSubmittions.push_back(m_pBloomSecondPass_CommandList.Get());
 		m_DeviceResources.GetComputeCommandQueue().ExecuteCommandLists((UINT)pSubmittions.size(), pSubmittions.data());
-
+#endif
 		// Post Process Pass
 		pSubmittions.clear();
 		pSubmittions.push_back(m_pPostEffectsPass_CommandList.Get());
@@ -726,6 +729,7 @@ namespace Insight {
 
 	void Direct3D12Context::OnShaderReload_Impl()
 	{
+		TryCompiledShaders(true);
 		m_RenderPassStack.ReloadPipelines();
 	}
 

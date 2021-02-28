@@ -174,7 +174,7 @@ namespace Insight {
 		}
 		
 
-		void TryCompiledShaders();
+		void TryCompiledShaders(bool bForceRecompile = false);
 		
 
 	private:

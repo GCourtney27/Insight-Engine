@@ -143,6 +143,7 @@ PS_OUTPUT_LIGHTPASS main(PS_INPUT_LIGHTPASS ps_in)
     //HDRToneMap(pixelColor);
     //GammaCorrect(pixelColor);
     ps_out.LitImage.rgb = pixelColor;
+    //ps_out.LitImage.rgb = float3(1.0f, 0.0f, 0.0f);
     
     return ps_out;
 }

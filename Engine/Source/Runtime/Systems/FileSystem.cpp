@@ -83,8 +83,6 @@ namespace Insight {
 					Writer.Int(Settings.MaxAnisotropy);
 					Writer.Key("RayTraceEnabled");
 					Writer.Bool(Settings.RayTraceEnabled);
-					Writer.Key("ShadersCompiled");
-					Writer.Bool(Settings.ShadersCompiled);
 
 					Writer.EndObject();
 				}
@@ -130,7 +128,6 @@ namespace Insight {
 			json::get_float(RendererSettings[0], "TextureQuality", UserGraphicsSettings.MipLodBias);
 			json::get_int(RendererSettings[0], "TextureFiltering", MaxAniso);
 			json::get_bool(RendererSettings[0], "RayTraceEnabled", UserGraphicsSettings.RayTraceEnabled);
-			json::get_bool(RendererSettings[0], "ShadersCompiled", UserGraphicsSettings.ShadersCompiled);
 			UserGraphicsSettings.MaxAnisotropy = MaxAniso;
 			UserGraphicsSettings.TargetRenderAPI = (Renderer::ETargetRenderAPI)TargetRenderAPI;
 		}

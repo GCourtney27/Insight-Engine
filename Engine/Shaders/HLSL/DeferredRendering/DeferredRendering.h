@@ -1,5 +1,5 @@
-//#include <Shaders/HLSL/Common/InsightCommon.hlsli>
 #include "Shaders/HLSL/Common/LightsCommon.h"
+
 #define MAX_PER_OBJECT_LOD 9
 
 cbuffer cbPerObject : register(b0)

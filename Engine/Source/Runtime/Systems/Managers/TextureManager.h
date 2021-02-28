@@ -70,13 +70,13 @@ namespace Insight {
 
 		std::map<Texture::ID, std::list<StrongTexturePtr*>> m_AwaitingLoadTextures;
 
-		std::mutex s_AlbedoMutex;
-		std::mutex s_NormalMutex;
-		std::mutex s_MetallicMutex;
-		std::mutex s_RoughnessMutex;
-		std::mutex s_AOMutex;
-		std::mutex s_OpacityMutex;
-		std::mutex s_TranslucencyMutex;
+		std::mutex m_AlbedoMutex;
+		std::mutex m_NormalMutex;
+		std::mutex m_MetallicMutex;
+		std::mutex m_RoughnessMutex;
+		std::mutex m_AOMutex;
+		std::mutex m_OpacityMutex;
+		std::mutex m_TranslucencyMutex;
 	};
 
 }

@@ -34,6 +34,19 @@ workspace ("InsightEngine")
 	}
 	
 
+	--platforms
+	--{
+	--	"Windows Desktop",
+	--	"Xbox One",
+	--	"Universal Windows",
+	--}
+
+	filter {"platforms:Windows Desktop"}
+		startproject ("Application_Win32")
+	
+	filter {"platforms:Universal Windows"}
+		startproject ("Application_UWP_WinRT")
+
 
 outputdir = "%{cfg.buildcfg}-$(SDKIdentifier)-$(Platform)"
 
