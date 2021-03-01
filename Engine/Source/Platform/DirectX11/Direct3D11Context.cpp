@@ -305,11 +305,11 @@ namespace Insight {
 				if (m_pSwapChain)
 				{
 					// Get the settings of the display on which the app's window is currently displayed
-					ComPtr<IDXGIOutput> pOutput;
+					//ComPtr<IDXGIOutput> pOutput;
 					//ThrowIfFailed(m_pSwapChain->GetContainingOutput(&pOutput), "Failed to get containing output while switching to fullscreen mode in D3D 12 context.");
-					DXGI_OUTPUT_DESC Desc;
+					//DXGI_OUTPUT_DESC Desc;
 					//ThrowIfFailed(pOutput->GetDesc(&Desc), "Failed to get description from output while switching to fullscreen mode in D3D 12 context.");
-					FullscreenWindowRect = Desc.DesktopCoordinates;
+					//FullscreenWindowRect = Desc.DesktopCoordinates;
 				}
 				else
 				{

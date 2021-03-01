@@ -52,8 +52,8 @@ namespace Insight {
 		
 		// Setup Platform/Renderer bindings
 #if IE_PLATFORM_BUILD_WIN32
-		bool impleWin32Succeeded = ImGui_ImplWin32_Init(pNativeWindow);
-		if (!impleWin32Succeeded)
+		bool implWin32Succeeded = ImGui_ImplWin32_Init(pNativeWindow);
+		if (!implWin32Succeeded)
 			IE_LOG(Error, TEXT("Failed to initialize ImGui for Win32 - D3D 12. Some controls may not be functional or editor may not be rendered."));
 #endif // IE_PLATFORM_BUILD_WIN32
 		HRESULT hr;

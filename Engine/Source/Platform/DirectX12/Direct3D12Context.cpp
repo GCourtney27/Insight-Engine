@@ -51,23 +51,23 @@ namespace Insight {
 		m_DeviceResources.CleanUp();
 	}
 
-	static HRESULT CompileShader(LPCWSTR FileName, LPCWSTR Target, LPCWSTR DebugName, LPCWSTR FilePath)
+	static HRESULT CompileShader(const WChar* FileName, const WChar* Target, const WChar* DebugName, const WChar* FilePath)
 	{
 		std::vector<LPCWSTR> CompileCommands;
 		CompileCommands.emplace_back(DebugName);
 		CompileCommands.emplace_back(L"-E"); CompileCommands.emplace_back(L"main");
-		CompileCommands.emplace_back(L"-T"); CompileCommands.emplace_back(Target);
+		CompileCommands.emplace_back(L"-T"); CompileCommands.emplace_back(Target); // Compile target
 #if IE_DEBUG
-		CompileCommands.emplace_back(L"-Zi");
+		CompileCommands.emplace_back(L"-Zi"); // Enable debug information
 		std::wstring CSO = FileName;
 		CSO.append(L".cso");
 		std::wstring PDB = FileName;
 		PDB.append(L".pdb");
-		CompileCommands.emplace_back(L"-Fo"); CompileCommands.emplace_back(CSO.c_str());
-		CompileCommands.emplace_back(L"-Fd"); CompileCommands.emplace_back(PDB.c_str());
-		CompileCommands.emplace_back(L"-Od");
+		CompileCommands.emplace_back(L"-Fo"); CompileCommands.emplace_back(CSO.c_str()); // output obj file
+		CompileCommands.emplace_back(L"-Fd"); CompileCommands.emplace_back(PDB.c_str()); // Write debug information to file
+		CompileCommands.emplace_back(L"-Od"); // Disable optimizations
 #endif
-		CompileCommands.emplace_back(L"-Zpr");
+		CompileCommands.emplace_back(L"-Zpr"); // Pack matricies in row-major
 
 		Microsoft::WRL::ComPtr<IDxcUtils> pUtils;
 		Microsoft::WRL::ComPtr<IDxcCompiler3> pCompiler;

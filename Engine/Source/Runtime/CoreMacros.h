@@ -5,6 +5,10 @@
 #	define IE_PLATFORM_WINDOWS 1
 #endif
 
+#if IE_PLATFORM_BUILD_XBOX_ONE && IE_DEBUG && IE_WITH_EDITOR
+#	error Cannot build debug editor with UWP configuration active.
+#endif
+
 // Only msvc supports __declspec
 #if defined (IE_PLATFORM_WINDOWS)
 #	if IE_DYNAMIC_LINK
@@ -50,6 +54,12 @@
 #define FORCE_INLINE __forceinline
 #define INLINE inline 
 #define NO_DISCARD [[nodiscard]]
+//#undef TEXT
+//#ifdef UNICODE
+//#	define TEXT(Text) L#Text
+//#else
+//#	define Text(Text)
+//#endif
 
 // Includes
 #include "Runtime/Math/MathHelpers.h"

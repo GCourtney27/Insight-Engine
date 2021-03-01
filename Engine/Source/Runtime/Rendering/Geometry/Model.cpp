@@ -133,15 +133,15 @@ namespace Insight {
 
 #elif IE_PLATFORM_BUILD_UWP
 
-		std::string FileExtension = StringHelper::GetFileExtension(path);
-		if (FileExtension == "FBX" || FileExtension == "fbx")
+		EString FileExtension = StringHelper::GetFileExtension(path);
+		if (FileExtension == TEXT("FBX") || FileExtension == TEXT("fbx"))
 		{
 			size_t FileSize;
-			char* FileContents = FileSystem::ReadRawData(path.c_str(), FileSize);
+			std::unique_ptr<TChar> FileContents = FileSystem::ReadRawData(path.c_str(), FileSize);
 			if (!FileContents) 
 				return false;
 			ofbx::IScene* pScene = ofbx::load(
-				(const ofbx::u8*)FileContents, 
+				(const ofbx::u8*)FileContents.get(), 
 				(int)FileSize, 
 				(ofbx::u64)ofbx::LoadFlags::TRIANGULATE
 			);
@@ -168,11 +168,10 @@ namespace Insight {
 				CurMeshPtrs.push_back(m_Meshes[0].get());
 				m_pRoot = std::make_unique<MeshNode>(CurMeshPtrs, Transform, pScene->getRoot()->name);
 			}
-			delete[] FileContents;
 		}
 		else 
 		{
-			IE_LOG(Error, "Invalid mash filetype provided. ONly .FBX files are supported for UWP platforms.");
+			IE_LOG(Error, TEXT("Invalid mash filetype provided. ONly .FBX files are supported for UWP platforms."));
 			return false;
 		}
 #endif

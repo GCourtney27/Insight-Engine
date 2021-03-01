@@ -18,7 +18,7 @@ namespace Insight {
 #if IE_PLATFORM_BUILD_WIN32
 			_com_error error(hr);
 #elif IE_PLATFORM_BUILD_UWP
-			_com_error error(hr, StringHelper::StringToWide(msg).c_str());
+			_com_error error(hr, msg.c_str());
 #endif
 			whatmsg =  TEXT("Msg: ") + EString(msg) + L"\n";
 			whatmsg += error.ErrorMessage();

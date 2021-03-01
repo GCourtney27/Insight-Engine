@@ -41,12 +41,8 @@ namespace Insight {
 				Appends a message to be dumped to log file.
 				@param Message - The message to be written to the dump file.
 			*/
-			inline static void AppendMessageForCoreDump(const TChar* Message)
-			{
-				s_CoreDumpMessage.append(Message);
-				s_CoreDumpMessage.append(TEXT("\n"));
-			}
-
+			static void AppendMessageForCoreDump(const TChar* Message);
+			
 			/*
 				Begins the core dump and writs to a file.
 			*/

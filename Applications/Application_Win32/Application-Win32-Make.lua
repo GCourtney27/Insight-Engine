@@ -1,6 +1,6 @@
 -- Application
 -- The client exe that gets executed.
-
+include ("../Common-App-Config.lua")
 
 
 appName = "Application"
@@ -9,7 +9,6 @@ projectName = appName .. "_" .. platform
 engineRuntime = "EngineBuild_" .. platform
 
 engineThirdPartyDir = "%{wks.location}/Engine/ThirdParty/"
-monoInstallDir = "C:/Program Files/Mono/"
 
 win32AppIncludeDirs = {}
 win32AppIncludeDirs["assimp"]					= engineThirdPartyDir .. "assimp-5.0.1/include/"
@@ -111,10 +110,12 @@ project (projectName)
 	postbuildcommands
 	{
 		-- Mono
-		("{COPY} \"".. monoInstallDir .."/bin/mono-2.0-sgen.dll\" %{cfg.targetdir}"),
+		"%{commonPostBuildCommands.monodll}",
+
 		-- DxCompiler
-		("{COPY} %{win32AppIncludeDirs.DxcAPI}/bin/x64/dxcompiler.dll %{cfg.targetdir}"),
-		("{COPY} %{win32AppIncludeDirs.DxcAPI}/bin/x64/dxil.dll %{cfg.targetdir}"),
+		"%{commonPostBuildCommands.dxildll}",
+		"%{commonPostBuildCommands.dxcompilerdll}",
+
 		-- Remove the engine build library to lighten the folder.
 		--("Rmdir /Q /S $(TargetDir)" .. engineRuntime)
 	}
@@ -138,16 +139,16 @@ project (projectName)
 		postbuildcommands
 		{
 			-- Assimp
-			("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/assimp-5.0.1/build/code/Debug/assimp-vc142-mtd.dll %{cfg.targetdir}"),
-			-- PIX
-			("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/WinPixEventRuntime/bin/x64/WinPixEventRuntime.dll %{cfg.targetdir}"),
+			"%{commonPostBuildCommands.assimpdll_debug}",
 
+			-- PIX
+			"%{commonPostBuildCommands.PIXRuntimeWin32dll}",
+			
 			-- Create a virtual copy of the assets folder
-			("IF NOT EXIST $(TargetDir)Content mklink /D $(TargetDir)Content %{wks.location}Engine\\Content"),
---			("mklink /D $(TargetDir)Content %{wks.location}Engine\\Content"),
+			"%{commonPostBuildCommands.debugContentDir}",
 
 			-- Create a virtual copy of the shaders folder
-			("IF NOT EXIST $(TargetDir)Shaders mklink /D $(TargetDir)Shaders %{wks.location}Engine\\Shaders"),
+			"%{commonPostBuildCommands.debugShaderDir}",
 		}
 	
 
@@ -168,39 +169,46 @@ project (projectName)
 		postbuildcommands
 		{
 			-- Assimp
-			("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/assimp-5.0.1/build/code/Release/assimp-vc142-mt.dll %{cfg.targetdir}"),
+			"%{commonPostBuildCommands.assimpdll_release}",
+			
 			-- PIX					
-			("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/WinPixEventRuntime/bin/x64/WinPixEventRuntime.dll %{cfg.targetdir}"),
-			-- Copy over the assets
-			("{COPY} %{wks.location}Engine/Content %{cfg.targetdir}/Content"),
-			-- Copy over the shaders
-			("{COPY} %{wks.location}Engine/Shaders %{cfg.targetdir}/Shaders"),
+			"%{commonPostBuildCommands.PIXRuntimeWin32dll}",
 
+			-- Copy over the assets
+			"%{commonPostBuildCommands.releaseContentDir}",
+
+			-- Copy over the shaders
+			"%{commonPostBuildCommands.releaseShaderDir}",
 		}
 		
 
 
 	filter "configurations:ShippingGame"
+		links
+		{
+			"assimp-vc142-mt.lib",
+		}
 		libdirs
 		{
 			"%{win32AppIncludeDirs.Engine_ThirdParty}/assimp-5.0.1/build/code/Release",            
             "%{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/WinPixEventRuntime/bin/x64",
             "%{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/TK/Bin/Desktop_2019_Win10/x64/Release",
-			"%{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/DXTex/DirectXTex/Bin/Desktop_2019_Win10/x64/Release",
             "%{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX11/TK/Bin/Desktop_2019_Win10/x64/Release",
 			monoInstallDir .. "/lib",
 		}
 		postbuildcommands
 		{
-			-- assimp
-			("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/assimp-5.0.1/build/code/Release/assimp-vc140-mt.dll %{cfg.targetdir}"),
+			-- Assimp
+			"%{commonPostBuildCommands.assimpdll_release}",
+
 			-- mono
 			("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/Mono/bin/mono-2.0-sgen.dll %{cfg.targetdir}"),
-			-- DirectX
-			("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/Bin/dxcompiler.dll %{cfg.targetdir}"),
-			("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/Microsoft/DirectX12/Bin/dxil.dll %{cfg.targetdir}"),
-			("{COPY} %{wks.location}/Engine/Shaders/HLSL/Ray_Tracing/** ../Binaries/" .. outputdir.."/Engine"),
-			("{COPY} %{wks.location}/Engine/Assets/Textures/Default_Object/** ../Binaries/"..outputdir.."/Content/Default_Assets/")
+
+			-- Copy over the assets
+			"%{commonPostBuildCommands.releaseContentDir}",
+
+			-- Copy over the shaders
+			"%{commonPostBuildCommands.releaseShaderDir}",
 		}
 
 dofile ("../../Engine/BuildRules/Common-Build-Config.lua")

@@ -34,6 +34,12 @@ namespace Insight {
 		{
 		}
 
+		void Logger::AppendMessageForCoreDump(const TChar* Message)
+		{
+			s_CoreDumpMessage.append(Message);
+			s_CoreDumpMessage.append(TEXT("\n"));
+		}
+
 		void Logger::InitiateCoreDump()
 		{
 			// Assemble the data.
