@@ -12,8 +12,8 @@ namespace Insight {
 
 	namespace GameFramework {
 
-		typedef std::string ActorType;
-		typedef std::string ActorName;
+		typedef EString ActorType;
+		typedef EString ActorName;
 
 		class INSIGHT_API AActor : public SceneNode
 		{
@@ -21,7 +21,7 @@ namespace Insight {
 			typedef std::vector<ActorComponent*> ActorComponents;
 
 		public:
-			AActor(ActorId Id, ActorName ActorName = "MyActor");
+			AActor(ActorId Id, ActorName ActorName = TEXT("MyActor"));
 			virtual ~AActor();
 
 			virtual bool LoadFromJson(const rapidjson::Value* jsonActor) override;

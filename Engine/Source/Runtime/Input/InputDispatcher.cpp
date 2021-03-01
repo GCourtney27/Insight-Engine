@@ -437,7 +437,7 @@ namespace Insight {
 						{
 							TriggerLPressed = true;
 							float TriggerNormalized = TriggerL / 255;
-							//IE_LOG(Log, "0 - 1: {0}", TriggerNormalized);
+							//IE_LOG(Log, TEXT("0 - 1: {0}"), TriggerNormalized);
 							KeyPressedEvent e(GamepadCode_Trigger_Left, 0, TriggerNormalized);
 							ProcessInputEvent(e);
 						}
@@ -458,7 +458,7 @@ namespace Insight {
 						{
 							TriggerRPressed = true;
 							float TriggerNormalized = TriggerR / 255;
-							//IE_LOG(Log, "0 - 1: {0}", TriggerNormalized);
+							//IE_LOG(Log, TEXT("0 - 1: {0}"), TriggerNormalized);
 							KeyPressedEvent e(GamepadCode_Trigger_Right, 0, TriggerNormalized);
 							ProcessInputEvent(e);
 						}

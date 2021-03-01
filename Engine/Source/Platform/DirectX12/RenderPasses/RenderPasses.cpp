@@ -115,11 +115,11 @@ namespace Insight {
 
 		D3D12Shader VertexShader;
 		HRESULT hr = VertexShader.LoadFromFile(FileSystem::GetShaderPathW(L"GeometryPass.vertex.hlsl.cso").c_str());
-		ThrowIfFailed(hr, "Failed to read Vertex Shader for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to read Vertex Shader for D3D 12 context."));
 
 		D3D12Shader PixelShader;
 		hr = PixelShader.LoadFromFile(FileSystem::GetShaderPathW(L"GeometryPass.pixel.hlsl.cso").c_str());
-		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to read Pixel Shader for D3D 12 context."));
 
 
 		D3D12_INPUT_ELEMENT_DESC inputLayout[5] =
@@ -153,7 +153,7 @@ namespace Insight {
 
 		m_pPipelineState.Reset();
 		hr = m_pRenderContextRef->GetDeviceContext().CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pPipelineState));
-		ThrowIfFailed(hr, "Failed to create graphics pipeline state for geometry pass.");
+		ThrowIfFailed(hr, TEXT("Failed to create graphics pipeline state for geometry pass."));
 		m_pPipelineState->SetName(L"PSO Geometry Pass");
 	}
 
@@ -176,7 +176,7 @@ namespace Insight {
 		// Create the render targets
 		if (m_RTVHeap.pDH.Get()) m_RTVHeap.Destroy();
 		HRESULT hr = m_RTVHeap.Create(pDevice, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_NumRenderTargets);
-		ThrowIfFailed(hr, "Failed to create render target view descriptor heap for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to create render target view descriptor heap for D3D 12 context."));
 
 		D3D12_RESOURCE_DESC ResourceDesc = {};
 		ResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -206,7 +206,7 @@ namespace Insight {
 				&ClearVal,
 				IID_PPV_ARGS(&m_pRenderTargetTextures[i])
 			);
-			ThrowIfFailed(hr, "Failed to create committed resource for RTV at index: " + std::to_string(i));
+			ThrowIfFailed(hr, TEXT("Failed to create committed resource for RTV at index: ") + ToString(i));
 		}
 		m_pRenderTargetTextures[0]->SetName(L"Render Target Texture Albedo");
 		m_pRenderTargetTextures[1]->SetName(L"Render Target Texture Normal");
@@ -273,7 +273,7 @@ namespace Insight {
 			&SceneDepthOptomizedClearValue,
 			IID_PPV_ARGS(&m_pSceneDepthStencilTexture)
 		);
-		ThrowIfFailed(hr, "Failed to create comitted resource for depth stencil view");
+		ThrowIfFailed(hr, TEXT("Failed to create comitted resource for depth stencil view"));
 		m_pSceneDepthStencilTexture->SetName(L"Scene Depth Stencil Buffer");
 
 		D3D12_DEPTH_STENCIL_VIEW_DESC SceneDSVDesc = {};
@@ -373,11 +373,11 @@ namespace Insight {
 	{
 		D3D12Shader PixelShader;
 		HRESULT hr = PixelShader.LoadFromFile(FileSystem::GetShaderPathW(L"LightPass.pixel.hlsl.cso").c_str());
-		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to read Pixel Shader for D3D 12 context."));
 
 		D3D12Shader VertexShader;
 		hr = VertexShader.LoadFromFile(FileSystem::GetShaderPathW(L"LightPass.vertex.hlsl.cso").c_str());
-		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to read Pixel Shader for D3D 12 context."));
 
 
 		D3D12_INPUT_ELEMENT_DESC inputLayout[2] =
@@ -409,7 +409,7 @@ namespace Insight {
 
 		m_pPipelineState.Reset();
 		hr = m_pRenderContextRef->GetDeviceContext().CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pPipelineState));
-		ThrowIfFailed(hr, "Failed to create graphics pipeline state for lighting pass.");
+		ThrowIfFailed(hr, TEXT("Failed to create graphics pipeline state for lighting pass."));
 		m_pPipelineState->SetName(L"PSO Light Pass");
 	}
 
@@ -435,7 +435,7 @@ namespace Insight {
 		// Create the render targets
 		if (m_RTVHeap.pDH.Get()) m_RTVHeap.Destroy();
 		HRESULT hr = m_RTVHeap.Create(pDevice, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_NumRenderTargets);
-		ThrowIfFailed(hr, "Failed to create render target view descriptor heap for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to create render target view descriptor heap for D3D 12 context."));
 
 		D3D12_RESOURCE_DESC ResourceDesc = {};
 		ResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -464,7 +464,7 @@ namespace Insight {
 				&ClearVal,
 				IID_PPV_ARGS(&m_pRenderTargetTextures[i])
 			);
-			ThrowIfFailed(hr, "Failed to create committed resource for RTV at index: " + std::to_string(i));
+			ThrowIfFailed(hr, TEXT("Failed to create committed resource for RTV at index: ") + ToString(i));
 		}
 		m_pRenderTargetTextures[0]->SetName(L"Render Target Texture Light Pass Result");
 		m_pRenderTargetTextures[1]->SetName(L"Render Target Texture Bloom");
@@ -549,11 +549,11 @@ namespace Insight {
 	{
 		D3D12Shader VertexShader;
 		HRESULT hr = VertexShader.LoadFromFile(FileSystem::GetShaderPathW(L"Skybox.vertex.hlsl.cso").c_str());
-		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to read Pixel Shader for D3D 12 context."));
 
 		D3D12Shader PixelShader;
 		hr = PixelShader.LoadFromFile(FileSystem::GetShaderPathW(L"Skybox.pixel.hlsl.cso").c_str());
-		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to read Pixel Shader for D3D 12 context."));
 
 		D3D12_INPUT_ELEMENT_DESC InputLayout[2] =
 		{
@@ -592,7 +592,7 @@ namespace Insight {
 
 
 		hr = m_pRenderContextRef->GetDeviceContext().CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&m_pPipelineState));
-		ThrowIfFailed(hr, "Failed to create skybox pipeline state object for .");
+		ThrowIfFailed(hr, TEXT("Failed to create skybox pipeline state object for ."));
 		m_pPipelineState->SetName(L"PSO Sky Pass");
 	}
 
@@ -667,11 +667,11 @@ namespace Insight {
 	{
 		D3D12Shader VertexShader;
 		HRESULT hr = VertexShader.LoadFromFile(FileSystem::GetShaderPathW(L"ScreenAlignedQuad.vertex.hlsl.cso").c_str());
-		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to read Pixel Shader for D3D 12 context."));
 
 		D3D12Shader PixelShader;
 		hr = PixelShader.LoadFromFile(FileSystem::GetShaderPathW(L"PostProcessComposite.pixel.hlsl.cso").c_str());
-		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to read Pixel Shader for D3D 12 context."));
 
 
 		D3D12_INPUT_ELEMENT_DESC inputLayout[2] =
@@ -702,7 +702,7 @@ namespace Insight {
 
 		m_pPipelineState.Reset();
 		hr = m_pRenderContextRef->GetDeviceContext().CreateGraphicsPipelineState(&PipelineStateDesc, IID_PPV_ARGS(&m_pPipelineState));
-		ThrowIfFailed(hr, "Failed to create graphics pipeline state for Post-Fx pass in D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to create graphics pipeline state for Post-Fx pass in D3D 12 context."));
 		m_pPipelineState->SetName(L"PSO Post-Process Combine Pass");
 	}
 
@@ -777,7 +777,7 @@ namespace Insight {
 			NULL, 
 			IID_PPV_ARGS(&m_pRayTraceOutput_SRV)
 		);
-		ThrowIfFailed(hr, "Failed to create ray trace output SRV.");
+		ThrowIfFailed(hr, TEXT("Failed to create ray trace output SRV."));
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
 		SRVDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -863,7 +863,7 @@ namespace Insight {
 		const uint32_t TargetHeight = WindowHeight	/ 2u;
 		CD3DX12_HEAP_PROPERTIES DefaultHeapProps(D3D12_HEAP_TYPE_DEFAULT);
 
-		IE_LOG(Warning, "Creating bloom render targets with source resolution %i, %i", WindowWidth, WindowHeight);
+		IE_LOG(Warning, TEXT("Creating bloom render targets with source resolution %i, %i"), WindowWidth, WindowHeight);
 
 		// Down Sample UAV
 		D3D12_RESOURCE_DESC ResourceDesc = {};
@@ -888,7 +888,7 @@ namespace Insight {
 			nullptr,
 			IID_PPV_ARGS(&m_pDownsampleResult_UAV)
 		);
-		ThrowIfFailed(hr, "Failed to create committed resource for bloom down sampled UAV.");
+		ThrowIfFailed(hr, TEXT("Failed to create committed resource for bloom down sampled UAV."));
 
 		D3D12_UNORDERED_ACCESS_VIEW_DESC UAVDesc = {};
 		UAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
@@ -913,7 +913,7 @@ namespace Insight {
 			nullptr, 
 			IID_PPV_ARGS(&m_pDownsampleResult_SRV)
 		);
-		ThrowIfFailed(hr, "Failed to create committed resource for down sampled UAV.");
+		ThrowIfFailed(hr, TEXT("Failed to create committed resource for down sampled UAV."));
 		pDevice->CreateShaderResourceView(m_pDownsampleResult_SRV.Get(), &SRVDesc, m_pCBVSRVHeapRef->hCPU(10));
 		m_pDownsampleResult_SRV->SetName(L"SRV: Bloom Pass Down Sampled Buffer");
 
@@ -929,13 +929,13 @@ namespace Insight {
 			nullptr, 
 			IID_PPV_ARGS(&m_pIntermediateBuffer_UAV)
 		);
-		ThrowIfFailed(hr, "Failed to create committed resource for bloom down sampled intermdiate UAV.");
+		ThrowIfFailed(hr, TEXT("Failed to create committed resource for bloom down sampled intermdiate UAV."));
 		pDevice->CreateUnorderedAccessView(m_pIntermediateBuffer_UAV.Get(), nullptr, &UAVDesc, m_pCBVSRVHeapRef->hCPU(11));
 		m_pIntermediateBuffer_UAV->SetName(L"UAV: Bloom Pass Down Sampled INTERMEDIENT Buffer");
 
 		// SRV Bloom Blur Intermediate Buffer
 		m_pIntermediateBuffer_SRV.Reset();
-		ThrowIfFailed(hr, "Failed to create committed resource for down sampled UAV.");
+		ThrowIfFailed(hr, TEXT("Failed to create committed resource for down sampled UAV."));
 		hr = pDevice->CreateCommittedResource(
 			&DefaultHeapProps, 
 			D3D12_HEAP_FLAG_NONE, 

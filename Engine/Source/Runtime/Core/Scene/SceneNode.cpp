@@ -9,7 +9,7 @@ namespace Insight {
 
 
 
-	SceneNode::SceneNode(std::string displayName)
+	SceneNode::SceneNode(const EString displayName)
 		: m_DisplayName(displayName)
 	{
 	}
@@ -95,7 +95,7 @@ namespace Insight {
 
 	void SceneNode::BeginPlay()
 	{
-		IE_LOG(Log, "%s", m_DisplayName.c_str());
+		IE_LOG(Log, TEXT("%s"), m_DisplayName.c_str());
 		for (auto i = m_Children.begin(); i != m_Children.end(); ++i) {
 			(*i)->BeginPlay();
 		}

@@ -12,7 +12,7 @@ namespace Insight {
 	class INSIGHT_API SceneNode
 	{
 	public:
-		SceneNode(std::string displayName = "Default Scene Node");
+		SceneNode(const EString displayName = TEXT("Default Scene Node"));
 		virtual ~SceneNode();
 
 		void SetParent(SceneNode* parent) 
@@ -21,8 +21,8 @@ namespace Insight {
 			m_Parent = parent;
 		}
 
-		const char* GetDisplayName() { return m_DisplayName.c_str(); }
-		void SetDisplayName(std::string Name) { m_DisplayName = Name; }
+		const TChar* GetDisplayName() { return m_DisplayName.c_str(); }
+		void SetDisplayName(EString Name) { m_DisplayName = Name; }
 		void SetCanBeFileParsed(bool CanBeParsed) { m_CanBeFileParsed = CanBeParsed; }
 
 		void ResizeNumChildren(size_t NumChildren) { m_Children.reserve(NumChildren); }
@@ -52,7 +52,7 @@ namespace Insight {
 		std::vector<SceneNode*> m_Children;
 	protected:
 		SceneNode* m_Parent = nullptr;
-		std::string m_DisplayName;
+		EString m_DisplayName;
 		bool m_CanBeFileParsed = true;
 	};
 

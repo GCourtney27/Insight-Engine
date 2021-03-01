@@ -12,14 +12,14 @@
 #endif
 namespace Insight {
 
-	Model::Model(const std::string& Path, Material* Material)
+	Model::Model(const EString& Path, Material* Material)
 	{
 		Create(Path, Material);
 	}
 
 	Model::Model(Model&& model) noexcept
 	{
-		IE_LOG(Warning, "Model being moved in memory.");
+		IE_LOG(Warning, TEXT("Model being moved in memory."));
 
 		m_Meshes = std::move(model.m_Meshes);
 		m_pRoot = std::move(model.m_pRoot);
@@ -45,14 +45,14 @@ namespace Insight {
 		}
 	}
 
-	bool Model::Create(const std::string& path, Material* pMaterial)
+	bool Model::Create(const EString& path, Material* pMaterial)
 	{
 		m_pMaterial = pMaterial;
 
 		m_AssetDirectoryRelativePath = path;
-		m_Directory = StringHelper::WideToString(FileSystem::GetRelativeContentDirectoryW(StringHelper::StringToWide(path)));
+		m_Directory = FileSystem::GetRelativeContentDirectoryW(path);
 		m_FileName = StringHelper::GetFilenameFromDirectory(m_Directory);
-		SceneNode::SetDisplayName("Static Mesh");
+		SceneNode::SetDisplayName(TEXT("Static Mesh"));
 
 		return LoadModelFromFile(m_Directory);
 	}
@@ -61,8 +61,8 @@ namespace Insight {
 	{
 		UI::Text("Asset: ");
 		UI::SameLine();
-		UI::Text(m_FileName.c_str());
-		UI::PushID(m_FileName.c_str());
+		UI::Text(StringHelper::WideToString(m_FileName).c_str());
+		UI::PushID(StringHelper::WideToString(m_FileName).c_str());
 
 		UI::Text("Transform");
 		UI::DrawVector3Control("Position", m_pRoot->GetTransformRef().GetPositionRef());
@@ -78,7 +78,7 @@ namespace Insight {
 
 	void Model::RenderSceneHeirarchy()
 	{
-		if (UI::TreeNode(SceneNode::GetDisplayName())) {
+		if (UI::TreeNode(StringHelper::WideToString(SceneNode::GetDisplayName()).c_str())) {
 			SceneNode::RenderSceneHeirarchy();
 			m_pRoot->RenderSceneHeirarchy();
 
@@ -108,17 +108,18 @@ namespace Insight {
 		}
 	}
 
-	bool Model::LoadModelFromFile(const std::string& path)
+	bool Model::LoadModelFromFile(const EString& path)
 	{
 #if IE_PLATFORM_BUILD_WIN32
 		Assimp::Importer Importer;
+		
 		const aiScene* pScene = Importer.ReadFile(
-			path,
+			StringHelper::WideToString(path),
 			aiProcess_ImproveCacheLocality | aiProcessPreset_TargetRealtime_Fast | aiProcess_ConvertToLeftHanded
 		);
 
 		if (!pScene || pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !pScene->mRootNode) {
-			IE_LOG(Error, "Assimp import error: {0}", Importer.GetErrorString());
+			IE_LOG(Error, TEXT("Assimp import error: %s"), Importer.GetErrorString());
 			return false;
 		}
 
@@ -147,7 +148,7 @@ namespace Insight {
 			const ofbx::GlobalSettings* s = pScene->getGlobalSettings();
 			if (!pScene)
 			{
-				IE_LOG(Warning, "ofbx import error: {0}", ofbx::getError());
+				IE_LOG(Warning, TEXT("ofbx import error: {0}"), ofbx::getError());
 				return false;
 			}
 			else

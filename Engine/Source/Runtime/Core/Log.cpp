@@ -7,8 +7,8 @@ namespace Insight {
 
 	namespace Debug {
 
-		std::string Logger::s_CoreDumpMessage;
-		const char* Logger::s_LoggerName = "Insight Engine";
+		EString Logger::s_CoreDumpMessage;
+		const TChar* Logger::s_LoggerName = TEXT("Insight Engine");
 
 #if defined IE_DEBUG && defined IE_PLATFORM_BUILD_WIN32
 		ConsoleWindow Logger::s_ConsoleWindow;
@@ -57,16 +57,16 @@ namespace Insight {
 
 
 
-		void LogHelper(ELogSeverity Severity, const char* fmt, const char* File, const char* Function, int Line, ...)
+		void LogHelper(ELogSeverity Severity, const TChar* fmt, const TChar* File, const TChar* Function, int Line, ...)
 		{
-			char TraceBuffer[1024];
-			char OutputBuffer[1024];
+			TChar TraceBuffer[1024];
+			TChar OutputBuffer[1024];
 
 			// Initialize the output message buffer.
 			va_list args;
 			va_start(args, Line); // Start capturing arguments after the 'Line' parameter in the method.
 			{
-				::_vsnprintf(OutputBuffer, sizeof(OutputBuffer), fmt, args);
+				::_vsnwprintf(OutputBuffer, sizeof(OutputBuffer), fmt, args);
 			}
 			va_end(args);
 
@@ -74,45 +74,45 @@ namespace Insight {
 			{
 			case ELogSeverity::Log:
 				SET_CONSOLE_OUT_COLOR(CC_White);
-				::sprintf_s(TraceBuffer, "[%s][Log] - ", Logger::GetLoggerName());
+				::swprintf_s(TraceBuffer, TEXT("[%s][Log] - "), Logger::GetLoggerName());
 				break;
 			case ELogSeverity::Verbose:
 				SET_CONSOLE_OUT_COLOR(CC_Green);
-				::sprintf_s(TraceBuffer, "[%s][Verbose][%s-%s-%i] - ", Logger::GetLoggerName(), File, Function, Line);
+				::swprintf_s(TraceBuffer, TEXT("[%s][Verbose][%s-%s-%i] - "), Logger::GetLoggerName(), File, Function, Line);
 				break;
 			case ELogSeverity::Warning:
 				SET_CONSOLE_OUT_COLOR(CC_Yellow);
-				::sprintf_s(TraceBuffer, "[%s][Warning] - ", Logger::GetLoggerName());
+				::swprintf_s(TraceBuffer, TEXT("[%s][Warning] - "), Logger::GetLoggerName());
 				break;
 			case ELogSeverity::Error:
 				SET_CONSOLE_OUT_COLOR(CC_Red);
-				::sprintf_s(TraceBuffer, "[%s][Error] - ", Logger::GetLoggerName());
+				::swprintf_s(TraceBuffer, TEXT("[%s][Error] - "), Logger::GetLoggerName());
 				break;
 			case ELogSeverity::Critical:
 				SET_CONSOLE_OUT_COLOR(CC_Orange);
-				::sprintf_s(TraceBuffer, "[%s][Critical] - ", Logger::GetLoggerName());
+				::swprintf_s(TraceBuffer, TEXT("[%s][Critical] - "), Logger::GetLoggerName());
 				break;
 			default:
-				::sprintf_s(TraceBuffer, "Invalid log severity given to logger. Choose one option from ELogSeverity enum.");
+				::swprintf_s(TraceBuffer, TEXT("Invalid log severity given to logger. Choose one option from ELogSeverity enum."));
 				break;
 			}
 
 			// Ensure the buffers are null terminated to avoid MSVC-C6054.
 			TraceBuffer[1023] = '\0';
 			OutputBuffer[1023] = '\0';
-
+			
 			// Print to the console.
 #	if IE_PLATFORM_BUILD_WIN32
-			::printf(TraceBuffer);
-			::printf(OutputBuffer);
-			::printf("\n");
+			::wprintf(TraceBuffer);
+			::wprintf(OutputBuffer);
+			::wprintf(TEXT("\n"));
 			// Log category may have changed the color, reset it back to the default.
 			Insight::Debug::Logger::GetConsoleWindow().ResetColors();
 #	elif IE_PLATFORM_BUILD_UWP
 #		if _MSC_BUILD // Only Visual Studio can use 'OutputDebugString*'
-			::OutputDebugStringA(TraceBuffer);
-			::OutputDebugStringA(OutputBuffer);
-			::OutputDebugStringA("\n");
+			::OutputDebugString(TraceBuffer);
+			::OutputDebugString(OutputBuffer);
+			::OutputDebugString(TEXT("\n"));
 #		endif // _MSC_BUILD
 #	endif
 		}

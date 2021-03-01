@@ -29,10 +29,10 @@ namespace Insight {
 				IID_PPV_ARGS(&m_pResource));
 			m_pResource->SetName(DebugName);
 			
-			ThrowIfFailed(hr, "Failed to create upload heap for %s upload resource heap.");
+			ThrowIfFailed(hr, TEXT("Failed to create upload heap for %s upload resource heap."));
 			CD3DX12_RANGE ReadRange(0, 0);
 			hr = m_pResource->Map(0, &ReadRange, reinterpret_cast<void**>(&m_GPUAddress));
-			ThrowIfFailed(hr, "Failed to create map heap for per-frame upload resource heaps");
+			ThrowIfFailed(hr, TEXT("Failed to create map heap for per-frame upload resource heaps"));
 			m_pResource->Unmap(0, nullptr);
 
 			return true;

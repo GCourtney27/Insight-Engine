@@ -62,7 +62,7 @@ namespace Insight {
 	{
 		UI::BeginWindow("Heirarchy");
 		{
-			if (UI::CollapsingHeader(m_pSceneRootRef->GetDisplayName(), UI::TreeNode_DefaultOpen))
+			if (UI::CollapsingHeader(StringHelper::WideToString(m_pSceneRootRef->GetDisplayName()).c_str(), UI::TreeNode_DefaultOpen))
 			{
 				m_pSceneRootRef->RenderSceneHeirarchy();
 			}
@@ -93,27 +93,27 @@ namespace Insight {
 
 				UI::TreeNodeEx("Point Light", TreeFlags);
 				if (UI::IsItemClicked()) {
-					IE_LOG(Log, "Create Point light");
+					IE_LOG(Log, TEXT("Create Point light"));
 					static int PointLightIndex = 0;
-					GameFramework::ActorType ActorType = "MyPointLight" + std::to_string(PointLightIndex++);
+					GameFramework::ActorType ActorType = TEXT("MyPointLight") + ToString(PointLightIndex++);
 					m_pSceneRootRef->AddChild(new APointLight(5, ActorType));
 				}
 				UI::TreePopNode();
 
 				UI::TreeNodeEx("Spot Light", TreeFlags);
 				if (UI::IsItemClicked()) {
-					IE_LOG(Log, "Create Spot light");
+					IE_LOG(Log, TEXT("Create Spot light"));
 					static int SpotLightIndex = 0;
-					GameFramework::ActorType ActorType = "MySpotLight" + std::to_string(SpotLightIndex++);
+					GameFramework::ActorType ActorType = TEXT("MySpotLight") + ToString(SpotLightIndex++);
 					m_pSceneRootRef->AddChild(new ASpotLight(5, ActorType));
 				}
 				UI::TreePopNode();
 
 				UI::TreeNodeEx("Directional Light", TreeFlags);
 				if (UI::IsItemClicked()) {
-					IE_LOG(Log, "Create Directional light");
+					IE_LOG(Log, TEXT("Create Directional light"));
 					static int DirectionalLightIndex = 0;
-					GameFramework::ActorType ActorType = "MyDirectionalLight" + std::to_string(DirectionalLightIndex++);
+					GameFramework::ActorType ActorType = TEXT("MyDirectionalLight") + ToString(DirectionalLightIndex++);
 					m_pSceneRootRef->AddChild(new ADirectionalLight(5, ActorType));
 				}
 				UI::TreePopNode();
@@ -123,9 +123,9 @@ namespace Insight {
 
 				UI::TreeNodeEx("Empty Actor", TreeFlags);
 				if (UI::IsItemClicked()) {
-					IE_LOG(Log, "Create Empty Actor");
+					IE_LOG(Log, TEXT("Create Empty Actor"));
 					static int ActorIndex = 0;
-					GameFramework::ActorType ActorType = "MyActor" + std::to_string(ActorIndex++);
+					GameFramework::ActorType ActorType = TEXT("MyActor") + ToString(ActorIndex++);
 					m_pSceneRootRef->AddChild(new GameFramework::AActor(5, ActorType));
 				}
 				UI::TreePopNode();
@@ -153,7 +153,7 @@ namespace Insight {
 		//			static int SelectionIndex = (int)sqrtf((float)Settings.MaxAnisotropy);
 		//			if (UI::ComboBox("##TexResolution", SelectionIndex, TextureFilterLevels, _countof(TextureFilterLevels)))
 		//			{
-		//				IE_LOG(Log, "Texture Filtering: {0} (Raw Value: {1})", TextureFilterLevels[SelectionIndex], pow(2, SelectionIndex));
+		//				IE_LOG(Log, TEXT("Texture Filtering: {0} (Raw Value: {1})"), TextureFilterLevels[SelectionIndex], pow(2, SelectionIndex));
 		//				Settings.MaxAnisotropy = (uint32_t)powf(2.0f, (float)SelectionIndex);
 		//				CreateDeferredShadingRS();
 		//				m_GeometryPass.SetRootSignature(m_pDeferredShadingPass_RS.Get());
@@ -173,7 +173,7 @@ namespace Insight {
 		//			static int SelectionIndex = (int)Settings.MipLodBias / 2;
 		//			if (UI::ComboBox("##TexQuality", SelectionIndex, TextureQuality, _countof(TextureQuality)))
 		//			{
-		//				IE_LOG(Log, "Texture Quality: {0} (Raw Value: {1})", TextureQuality[SelectionIndex], 2 * SelectionIndex);
+		//				IE_LOG(Log, TEXT("Texture Quality: {0} (Raw Value: {1})"), TextureQuality[SelectionIndex], 2 * SelectionIndex);
 		//				Settings.MipLodBias = 2.0f * (float)SelectionIndex;
 		//				CreateDeferredShadingRS();
 		//				m_GeometryPass.SetRootSignature(m_pDeferredShadingPass_RS.Get());
@@ -229,7 +229,7 @@ namespace Insight {
 		//			uint32_t NewWidth = m_pWindowRef->GetWidth() * (ResolutionScaleFactor / 100.0f);
 		//			uint32_t NewHeight = m_pWindowRef->GetHeight() * (ResolutionScaleFactor / 100.0f);
 
-		//			IE_LOG(Log, "Scale Factor: {0} (Width: {1} | Height: {2})", ResolutionScaleFactor, NewWidth, NewHeight);
+		//			IE_LOG(Log, TEXT("Scale Factor: {0} (Width: {1} | Height: {2})"), ResolutionScaleFactor, NewWidth, NewHeight);
 		//		}
 
 		//		UI::EndColumns();

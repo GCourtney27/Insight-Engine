@@ -1,17 +1,15 @@
 #pragma once
+#include <Runtime/CoreMacros.h>
 
 namespace Insight {
 
-	class INSIGHT_API StringHelper
+	namespace StringHelper
 	{
-	public:
-		static std::wstring StringToWide(const std::string& str);
-		static std::string WideToString(const std::wstring& wStr);
-		static std::string GetDirectoryFromPath(const std::string & filepath);
-		static std::string GetFileExtension(const std::string & filename);
-		static std::string GetFilenameFromDirectory(const std::string & filename);
-		static std::string GetFilenameFromDirectoryW(const std::wstring & filename);
-		static std::wstring GetFilenameFromDirectoryAsWideW(const std::wstring & filename);
-		std::string GetFilenameFromDirectoryNoExtension(const std::string& filename);
-	};
+		std::wstring StringToWide(const std::string& str);
+		std::string WideToString(const std::wstring& wStr);
+		EString GetDirectoryFromPath(const EString& filepath);
+		EString GetFileExtension(const EString& filename);
+		EString GetFilenameFromDirectory(const EString& filename);
+		EString GetFilenameFromDirectoryNoExtension(const EString& filename);
+	}
 }

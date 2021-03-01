@@ -51,7 +51,7 @@ namespace Insight {
 			Writer->String("PointLight");
 
 			Writer->Key("DisplayName");
-			Writer->String(SceneNode::GetDisplayName());
+			Writer->String(StringHelper::WideToString(SceneNode::GetDisplayName()).c_str());
 
 			Writer->Key("Subobjects");
 			Writer->StartArray(); // Start Write SubObjects

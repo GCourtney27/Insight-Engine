@@ -11,7 +11,7 @@ namespace Insight {
 	class INSIGHT_API ASkySphere : public GameFramework::AActor
 	{
 	public:
-		ASkySphere(ActorId id, GameFramework::ActorType type = "Sky Sphere Actor");
+		ASkySphere(ActorId id, GameFramework::ActorType type = TEXT("Sky Sphere Actor"));
 		virtual ~ASkySphere();
 
 		virtual bool LoadFromJson(const rapidjson::Value* jsonSkySphere) override;

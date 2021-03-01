@@ -33,7 +33,7 @@ namespace Insight {
 			ETextureType Type = ETextureType::TT_Invalid;
 			bool GenerateMipMaps = true;
 			bool IsCubeMap = false;
-			std::wstring Filepath;
+			EString Filepath;
 			ID Id;
 		};
 

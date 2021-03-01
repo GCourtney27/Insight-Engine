@@ -62,7 +62,7 @@ namespace Insight {
 			Writer->String("SpotLight");
 
 			Writer->Key("DisplayName");
-			Writer->String(SceneNode::GetDisplayName());
+			Writer->String(StringHelper::WideToString(SceneNode::GetDisplayName()).c_str());
 
 			Writer->Key("Transform");
 			Writer->StartArray(); // Start Write Transform

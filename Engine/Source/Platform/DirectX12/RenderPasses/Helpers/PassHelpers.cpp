@@ -61,24 +61,24 @@ namespace Insight {
 		Microsoft::WRL::ComPtr<ID3DBlob> ErrorBlob;
 
 		HRESULT hr = D3D12SerializeRootSignature(&RootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, RootSignatureBlob.GetAddressOf(), ErrorBlob.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to serialize root signature for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to serialize root signature for D3D 12 context."));
 
 		hr = pDevice->CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature));
-		ThrowIfFailed(hr, "Failed to create root signature for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to create root signature for D3D 12 context."));
 
 
 		// Create the pipeline state.
 
 		D3D12Shader ComputeShader;
 		hr = ComputeShader.LoadFromFile(FileSystem::GetShaderPathW(L"ThresholdDownSample.compute.hlsl.cso").c_str());
-		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to read Pixel Shader for D3D 12 context."));
 
 		D3D12_COMPUTE_PIPELINE_STATE_DESC PipelineDesc = {};
 		PipelineDesc.CS = ComputeShader.GetByteCode();
 		PipelineDesc.pRootSignature = m_pRootSignature.Get();
 
 		hr = pDevice->CreateComputePipelineState(&PipelineDesc, IID_PPV_ARGS(&m_pPipeilneState));
-		ThrowIfFailed(hr, "Failed to create texture downsampling pipeline for bloom pass.");
+		ThrowIfFailed(hr, TEXT("Failed to create texture downsampling pipeline for bloom pass."));
 		m_pPipeilneState->SetName(L"PSO Threshold Downsample");
 	}
 
@@ -117,7 +117,7 @@ namespace Insight {
 		EndTrackRenderEvent(m_pFirstPass_CommandListRef.Get());
 
 		// Wait for the first pass to complete so the buffers can be blurred for the second blur pass.
-		ThrowIfFailed(m_pFirstPass_CommandListRef->Close(), "Failed to close command list for D3D 12 context bloom blur pass.");
+		ThrowIfFailed(m_pFirstPass_CommandListRef->Close(), TEXT("Failed to close command list for D3D 12 context bloom blur pass."));
 
 		ID3D12CommandList* ppComputeLists[] = {
 			m_pFirstPass_CommandListRef.Get(),
@@ -175,23 +175,23 @@ namespace Insight {
 		Microsoft::WRL::ComPtr<ID3DBlob> ErrorBlob;
 
 		HRESULT hr = D3D12SerializeRootSignature(&RootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, RootSignatureBlob.GetAddressOf(), ErrorBlob.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to serialize root signature for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to serialize root signature for D3D 12 context."));
 
 		hr = pDevice->CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature));
-		ThrowIfFailed(hr, "Failed to create root signature for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to create root signature for D3D 12 context."));
 
 		// Create the pipeline state.
 
 		D3D12Shader ComputeShader;
 		hr = ComputeShader.LoadFromFile(FileSystem::GetShaderPathW(L"GaussianBlur.compute.hlsl.cso").c_str());
-		ThrowIfFailed(hr, "Failed to read Pixel Shader for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to read Pixel Shader for D3D 12 context."));
 
 		D3D12_COMPUTE_PIPELINE_STATE_DESC PipelineDesc = {};
 		PipelineDesc.CS = ComputeShader.GetByteCode();
 		PipelineDesc.pRootSignature = m_pRootSignature.Get();
 
 		hr = pDevice->CreateComputePipelineState(&PipelineDesc, IID_PPV_ARGS(&m_pPipelineState));
-		ThrowIfFailed(hr, "Failed to create gaussian blur pipeline for bloom pass.");
+		ThrowIfFailed(hr, TEXT("Failed to create gaussian blur pipeline for bloom pass."));
 		m_pPipelineState->SetName(L"Bloom Pass PSO");
 	}
 

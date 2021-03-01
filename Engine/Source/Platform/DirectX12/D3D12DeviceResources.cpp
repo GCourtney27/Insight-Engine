@@ -71,7 +71,7 @@ namespace Insight {
 			DXGI_SWAP_CHAIN_DESC SwapChainDesc = {};
 			m_pSwapChain->GetDesc(&SwapChainDesc);
 			HRESULT hr = m_pSwapChain->ResizeBuffers(SwapChainDesc.BufferCount, WindowWidth, WindowHeight, SwapChainDesc.BufferDesc.Format, SwapChainDesc.Flags);
-			ThrowIfFailed(hr, "Failed to resize swap chain buffers for D3D 12 context.");
+			ThrowIfFailed(hr, TEXT("Failed to resize swap chain buffers for D3D 12 context."));
 
 			CreateD3D11On12Resources();
 			CreateSwapchainRTVDescriptors();
@@ -95,7 +95,7 @@ namespace Insight {
 	{
 		// Close the fence handle on the GPU
 		if (!CloseHandle(m_FenceEvent)) {
-			IE_LOG(Error, "Failed to close GPU handle while cleaning up the D3D 12 context.");
+			IE_LOG(Error, TEXT("Failed to close GPU handle while cleaning up the D3D 12 context."));
 		}
 	}
 
@@ -136,7 +136,7 @@ namespace Insight {
 			Filter.DenyList.NumIDs = _countof(DenyIds);
 			Filter.DenyList.pIDList = DenyIds;
 
-			ThrowIfFailed(InfoQueue->PushStorageFilter(&Filter), "Failed to push debug storage filter.");
+			ThrowIfFailed(InfoQueue->PushStorageFilter(&Filter), TEXT("Failed to push debug storage filter."));
 		}
 #endif
 
@@ -154,20 +154,20 @@ namespace Insight {
 			m_pD3D11DeviceContext.GetAddressOf(),	// D3D11 Device Context
 			nullptr
 		);
-		ThrowIfFailed(hr, "Failed to create D3D11On12 device.");
+		ThrowIfFailed(hr, TEXT("Failed to create D3D11On12 device."));
 
 		hr = D3D11Device.As(&m_D3D11On12Device);
-		ThrowIfFailed(hr, "Failed to cast D3D11 device as D3D11On12.");
+		ThrowIfFailed(hr, TEXT("Failed to cast D3D11 device as D3D11On12."));
 
 		// Create D2D/DWrite componenets
 		D2D1_DEVICE_CONTEXT_OPTIONS DeviceOptions = D2D1_DEVICE_CONTEXT_OPTIONS_NONE;
 		hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, __uuidof(ID2D1Factory3), &d2dFactoryOptions, &m_d2dFactory);
-		ThrowIfFailed(hr, "");
+		ThrowIfFailed(hr, TEXT(""));
 		Microsoft::WRL::ComPtr<IDXGIDevice> dxgiDevice;
-		ThrowIfFailed(m_D3D11On12Device.As(&dxgiDevice), "");
-		ThrowIfFailed(m_d2dFactory->CreateDevice(dxgiDevice.Get(), &m_d2dDevice), "");
-		ThrowIfFailed(m_d2dDevice->CreateDeviceContext(DeviceOptions, &m_d2dDeviceContext), "");
-		ThrowIfFailed(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), &m_dWriteFactory), "");
+		ThrowIfFailed(m_D3D11On12Device.As(&dxgiDevice), TEXT(""));
+		ThrowIfFailed(m_d2dFactory->CreateDevice(dxgiDevice.Get(), &m_d2dDevice), TEXT(""));
+		ThrowIfFailed(m_d2dDevice->CreateDeviceContext(DeviceOptions, &m_d2dDeviceContext), TEXT(""));
+		ThrowIfFailed(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), &m_dWriteFactory), TEXT(""));
 
 	}
 
@@ -205,7 +205,7 @@ namespace Insight {
 #endif
 
 		HRESULT hr = CreateDXGIFactory2(DxgiFactoryFlags, IID_PPV_ARGS(&m_pDxgiFactory));
-		ThrowIfFailed(hr, "Failed to create DXGI Factory.");
+		ThrowIfFailed(hr, TEXT("Failed to create DXGI Factory."));
 	}
 
 	void D3D12DeviceResources::GetHardwareAdapter(IDXGIFactory2* pFactory, IDXGIAdapter1** ppAdapter)
@@ -219,7 +219,7 @@ namespace Insight {
 		{
 			D3D12_FEATURE_DATA_D3D12_OPTIONS5 Options5 = {};
 			HRESULT hr = pDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &Options5, sizeof(Options5));
-			ThrowIfFailed(hr, "Failed to query feature support for ray trace with device.");
+			ThrowIfFailed(hr, TEXT("Failed to query feature support for ray trace with device."));
 			if (Options5.RaytracingTier < D3D12_RAYTRACING_TIER_1_0)
 				return false;
 			else
@@ -252,7 +252,7 @@ namespace Insight {
 						*ppAdapter = pAdapter.Detach();
 						m_pRenderContextRef->SetIsRayTraceSupported(true);
 
-						IE_LOG(Log, "Found suitable D3D 12 hardware that can support DXR: %s", StringHelper::WideToString(std::wstring{ Desc.Description }).c_str());
+						IE_LOG(Log, TEXT("Found suitable D3D 12 hardware that can support DXR: %s"), StringHelper::WideToString(std::wstring{ Desc.Description }).c_str());
 						continue;
 					}
 				}
@@ -265,12 +265,12 @@ namespace Insight {
 				if (*ppAdapter != nullptr) (*ppAdapter)->Release();
 
 				*ppAdapter = pAdapter.Detach();
-				IE_LOG(Log, "Found suitable D3D 12 hardware: %s", StringHelper::WideToString(Desc.Description).c_str());
+				IE_LOG(Log, TEXT("Found suitable D3D 12 hardware: %s"), StringHelper::WideToString(Desc.Description).c_str());
 			}
 		}
 		Desc = {};
 		(*ppAdapter)->GetDesc1(&Desc);
-		IE_LOG(Warning, "\"%s\" selected as D3D 12 graphics hardware.", StringHelper::WideToString(Desc.Description).c_str());
+		IE_LOG(Warning, TEXT("\"%s\" selected as D3D 12 graphics hardware."), StringHelper::WideToString(Desc.Description).c_str());
 	}
 
 	void D3D12DeviceResources::CreateDevice()
@@ -279,17 +279,17 @@ namespace Insight {
 		{
 			Microsoft::WRL::ComPtr<IDXGIAdapter> warpAdapter;
 			HRESULT hr = m_pDxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter));
-			ThrowIfFailed(hr, "Failed to enumerate WARP adapter for D3D12.");
+			ThrowIfFailed(hr, TEXT("Failed to enumerate WARP adapter for D3D12."));
 
 			hr = D3D12CreateDevice(warpAdapter.Get(), cx_TargetFeatureLevel, IID_PPV_ARGS(&m_pD3D12Device));
-			ThrowIfFailed(hr, "Failed to create WARP device for D3D12.");
+			ThrowIfFailed(hr, TEXT("Failed to create WARP device for D3D12."));
 
 			// WARP adapters are software adapters. They almost never support DXR Ray Tracing.
 			m_pRenderContextRef->SetIsRayTraceSupported(false);
 
 			DXGI_ADAPTER_DESC Desc;
 			warpAdapter->GetDesc(&Desc);
-			IE_LOG(Warning, "\"%s\" selected as D3D 12 graphics hardware.", StringHelper::WideToString(Desc.Description).c_str());
+			IE_LOG(Warning, TEXT("\"%s\" selected as D3D 12 graphics hardware."), StringHelper::WideToString(Desc.Description).c_str());
 		}
 		else
 		{
@@ -299,12 +299,12 @@ namespace Insight {
 			if (m_pRenderContextRef->m_IsRayTraceSupported)
 			{
 				HRESULT hr = D3D12CreateDevice(m_pAdapter.Get(), cx_RayTraceTargetFeatureLevel, IID_PPV_ARGS(&m_pD3D12Device));
-				ThrowIfFailed(hr, "Failed to create D3D12 device for ray tracing.");
+				ThrowIfFailed(hr, TEXT("Failed to create D3D12 device for ray tracing."));
 			}
 			else
 			{
 				HRESULT hr = D3D12CreateDevice(m_pAdapter.Get(), cx_TargetFeatureLevel, IID_PPV_ARGS(&m_pD3D12Device));
-				ThrowIfFailed(hr, "Failed to create D3D 12 device.");
+				ThrowIfFailed(hr, TEXT("Failed to create D3D 12 device."));
 			}
 		}
 	}
@@ -321,7 +321,7 @@ namespace Insight {
 			QueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
 			hr = m_pD3D12Device->CreateCommandQueue(&QueueDesc, IID_PPV_ARGS(&m_pGraphicsCommandQueue));
-			ThrowIfFailed(hr, "Failed to create graphics command queue.");
+			ThrowIfFailed(hr, TEXT("Failed to create graphics command queue."));
 		}
 
 		// Create Compute Command Queue
@@ -329,7 +329,7 @@ namespace Insight {
 			QueueDesc.Type = D3D12_COMMAND_LIST_TYPE_COMPUTE;
 
 			hr = m_pD3D12Device->CreateCommandQueue(&QueueDesc, IID_PPV_ARGS(&m_pComputeCommandQueue));
-			ThrowIfFailed(hr, "Failed to create compute command queue.");
+			ThrowIfFailed(hr, TEXT("Failed to create compute command queue."));
 		}
 	}
 
@@ -367,11 +367,11 @@ namespace Insight {
 			nullptr,
 			&TempSwapChain
 		);
-		ThrowIfFailed(hr, "Failed to Create Swap Chain");
+		ThrowIfFailed(hr, TEXT("Failed to Create Swap Chain"));
 		if (m_pRenderContextRef->m_AllowTearing)
 		{
 			ThrowIfFailed(m_pDxgiFactory->MakeWindowAssociation(m_pRenderContextRef->GetWindowRefAs<Win32Window>().GetWindowHandleRef(), DXGI_MWA_NO_ALT_ENTER),
-				"Failed to Make Window Association");
+				TEXT("Failed to Make Window Association"));
 		}
 #elif IE_PLATFORM_BUILD_UWP
 		hr = m_pDxgiFactory->CreateSwapChainForCoreWindow(
@@ -381,10 +381,10 @@ namespace Insight {
 			nullptr,
 			&TempSwapChain
 		);
-		ThrowIfFailed(hr, "Failed to Create Swap Chain for UWP CoreWindow.");
+		ThrowIfFailed(hr, TEXT("Failed to Create Swap Chain for UWP CoreWindow."));
 #endif
 
-		ThrowIfFailed(TempSwapChain.As(&m_pSwapChain), "Failed to cast SwapChain ComPtr");
+		ThrowIfFailed(TempSwapChain.As(&m_pSwapChain), TEXT("Failed to cast SwapChain ComPtr"));
 		m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 
 		DXGI_SWAP_CHAIN_DESC1 Desc = {};
@@ -416,7 +416,7 @@ namespace Insight {
 		for (UINT i = 0; i < m_FrameBufferCount; i++)
 		{
 			hr = m_pSwapChain->GetBuffer(i, IID_PPV_ARGS(&m_pSwapChainRenderTargets[i]));
-			ThrowIfFailed(hr, "Failed to get buffer in swap chain during descriptor heap initialization for D3D 12 context.");
+			ThrowIfFailed(hr, TEXT("Failed to get buffer in swap chain during descriptor heap initialization for D3D 12 context."));
 			m_pD3D12Device->CreateRenderTargetView(m_pSwapChainRenderTargets[i].Get(), nullptr, m_SwapChainRTVHeap.hCPU(i));
 
 			WCHAR name[32];
@@ -440,7 +440,7 @@ namespace Insight {
 
 			// Create a render target for D2D to draw directly to this back buffer.
 			Microsoft::WRL::ComPtr<IDXGISurface> pSurface;
-			ThrowIfFailed(m_WrappedBackBuffers[i].As(&pSurface), "Failed to cast surface as wrapped buffer.");
+			ThrowIfFailed(m_WrappedBackBuffers[i].As(&pSurface), TEXT("Failed to cast surface as wrapped buffer."));
 			m_d2dDeviceContext->CreateBitmapFromDxgiSurface(pSurface.Get(), &BitmapProps, &m_d2dRenderTargets[i]);
 		}
 	}
@@ -473,14 +473,14 @@ namespace Insight {
 	{
 		HRESULT hr;
 		hr = m_pD3D12Device->CreateFence(m_FenceValues[m_FrameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pFence));
-		ThrowIfFailed(hr, "Failed to create Fence Event");
+		ThrowIfFailed(hr, TEXT("Failed to create Fence Event"));
 		m_FenceValues[m_FrameIndex]++;
 
 		m_FenceEvent = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
-		if (m_FenceEvent == nullptr) THROW_COM_ERROR("Fence Event was nullptr");
+		if (m_FenceEvent == nullptr) THROW_COM_ERROR(TEXT("Fence Event was nullptr"));
 
 		m_ComputeFenceEvent = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
-		if (m_ComputeFenceEvent == nullptr) THROW_COM_ERROR("Fence Event was nullptr");
+		if (m_ComputeFenceEvent == nullptr) THROW_COM_ERROR(TEXT("Fence Event was nullptr"));
 	}
 
 	void D3D12DeviceResources::MoveToNextFrame()
@@ -490,10 +490,10 @@ namespace Insight {
 		// Schedule a Signal command in the queues.
 		const UINT64 currentFenceValue = m_FenceValues[m_FrameIndex];
 		hr = m_pGraphicsCommandQueue->Signal(m_pFence.Get(), currentFenceValue);
-		ThrowIfFailed(hr, "Failed to signal fence on Command Queue");
+		ThrowIfFailed(hr, TEXT("Failed to signal fence on graphics command queue"));
 
 		hr = m_pComputeCommandQueue->Signal(m_pFence.Get(), currentFenceValue);
-		ThrowIfFailed(hr, "Failed to signal fence on Command Queue");
+		ThrowIfFailed(hr, TEXT("Failed to signal fence on compute command queue"));
 
 		// Advance the frame index.
 		m_FrameIndex = (m_FrameIndex + 1) % m_FrameBufferCount;
@@ -503,12 +503,12 @@ namespace Insight {
 		{
 			// Wait for the submitted work on the graphics queue to finish.
 			hr = m_pFence->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_FenceEvent);
-			ThrowIfFailed(hr, "Failed to set completion event on fence");
+			ThrowIfFailed(hr, TEXT("Failed to set completion event on fence"));
 			WaitForSingleObjectEx(m_FenceEvent, INFINITE, FALSE);
 
 			// Wait for the submitted work on the compute queue to finish.
 			hr = m_pFence->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_ComputeFenceEvent);
-			ThrowIfFailed(hr, "Failed to set completion event on fence");
+			ThrowIfFailed(hr, TEXT("Failed to set completion event on fence"));
 			WaitForSingleObjectEx(m_ComputeFenceEvent, INFINITE, FALSE);
 		}
 
@@ -519,17 +519,17 @@ namespace Insight {
 	void D3D12DeviceResources::WaitForGPU()
 	{
 		// Schedule a Signal command in the queue.
-		ThrowIfFailed(m_pGraphicsCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]), "Fialed to signal fence event on graphics command queue.");
+		ThrowIfFailed(m_pGraphicsCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]), TEXT("Fialed to signal fence event on graphics command queue."));
 
 		// Wait until the fence has been processed.
-		ThrowIfFailed(m_pFence->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_FenceEvent), "Failed to set completion event on fence.");
+		ThrowIfFailed(m_pFence->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_FenceEvent), TEXT("Failed to set completion event on fence."));
 		WaitForSingleObjectEx(m_FenceEvent, INFINITE, FALSE);
 
 		// Schedule a Signal command in the queue.
-		ThrowIfFailed(m_pComputeCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]), "Fialed to signal fence event on graphics command queue.");
+		ThrowIfFailed(m_pComputeCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]), TEXT("Fialed to signal fence event on graphics command queue."));
 
 		// Wait until the fence has been processed.
-		ThrowIfFailed(m_pFence->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_ComputeFenceEvent), "Failed to set completion event on fence.");
+		ThrowIfFailed(m_pFence->SetEventOnCompletion(m_FenceValues[m_FrameIndex], m_ComputeFenceEvent), TEXT("Failed to set completion event on fence."));
 		WaitForSingleObjectEx(m_ComputeFenceEvent, INFINITE, FALSE);
 
 		// Increment the fence value for the current frame.

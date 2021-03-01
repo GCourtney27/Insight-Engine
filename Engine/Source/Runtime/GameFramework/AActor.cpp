@@ -72,7 +72,7 @@ namespace Insight {
 				Writer->String("Actor");
 
 				Writer->Key("DisplayName");
-				Writer->String(SceneNode::GetDisplayName());
+				Writer->String(StringHelper::WideToString(SceneNode::GetDisplayName()).c_str());
 
 				Writer->Key("Subobjects");
 				Writer->StartArray(); // Start Write SubObjects
@@ -94,7 +94,7 @@ namespace Insight {
 		{
 			UI::NodeFlags TreeFlags = m_Children.empty() ? UI::TreeNode_Leaf : UI::TreeNode_OpenArrow | UI::TreeNode_OpenDoubleClick;
 			TreeFlags |= UI::TreeNode_SpanAvailWidth;
-			const bool IsExpanded = UI::TreeNodeEx(SceneNode::GetDisplayName(), TreeFlags);
+			const bool IsExpanded = UI::TreeNodeEx(StringHelper::WideToString(SceneNode::GetDisplayName()).c_str(), TreeFlags);
 
 			if (UI::IsItemClicked()) {
 				IE_STRIP_FOR_GAME_DIST(Application::Get().GetEditorLayer().SetSelectedActor(this);)
@@ -116,9 +116,9 @@ namespace Insight {
 		static int currentIndex = 0;
 		void AActor::OnImGuiRender()
 		{
-			if (UI::InputTextField("##ActorNameField", m_DisplayName, UI::InputTextFieldFlags_EnterReturnsTrue)) {
-				if (m_DisplayName == "") {
-					m_DisplayName = "MyActor";
+			if (UI::InputTextField("##ActorNameField", StringHelper::WideToString(m_DisplayName), UI::InputTextFieldFlags_EnterReturnsTrue)) {
+				if (m_DisplayName == TEXT("")) {
+					m_DisplayName = TEXT("MyActor");
 				}
 			}
 
@@ -159,22 +159,22 @@ namespace Insight {
 					case 0: break;
 					case 1:
 					{
-						IE_LOG(Log, "Adding Static Mesh Component to \"%s\"", AActor::GetDisplayName());
+						IE_LOG(Log, TEXT("Adding Static Mesh Component to \"%s\""), AActor::GetDisplayName());
 						StaticMeshComponent* ptr = AActor::CreateDefaultSubobject<StaticMeshComponent>();
 						ptr->SetMaterial(std::move(Material::CreateDefaultTexturedMaterial()));
-						ptr->AttachMesh("Models/Quad.obj");
+						ptr->AttachMesh(TEXT("Models/Quad.obj"));
 
 						break;
 					}
 					case 2:
 					{
-						IE_LOG(Log, "Adding C-Sharp Script Component to \"%s\"", AActor::GetDisplayName());
+						IE_LOG(Log, TEXT("Adding C-Sharp Script Component to \"%s\""), AActor::GetDisplayName());
 						CSharpScriptComponent* ptr = AActor::CreateDefaultSubobject<CSharpScriptComponent>();
 						break;
 					}
 					default:
 					{
-						IE_LOG(Log, "Failed to determine component to add to actor \"%s\" with index of \"%i\"", AActor::GetDisplayName(), currentIndex);
+						IE_LOG(Log, TEXT("Failed to determine component to add to actor \"%s\" with index of \"%i\""), AActor::GetDisplayName(), currentIndex);
 						break;
 					}
 					}
@@ -308,7 +308,7 @@ namespace Insight {
 
 		bool AActor::OnCollision(PhysicsEvent& e)
 		{
-			IE_LOG(Log, "Physics Collision");
+			IE_LOG(Log, TEXT("Physics Collision"));
 			return false;
 		}
 

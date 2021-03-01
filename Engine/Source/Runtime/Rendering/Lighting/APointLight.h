@@ -14,7 +14,7 @@ namespace Insight {
 	class INSIGHT_API APointLight : public GameFramework::AActor
 	{
 	public:
-		APointLight(ActorId id, GameFramework::ActorType type = "Point Light Actor");
+		APointLight(ActorId id, GameFramework::ActorType type = TEXT("Point Light Actor"));
 		virtual ~APointLight();
 
 		virtual bool LoadFromJson(const rapidjson::Value* jsonPointLight) override;

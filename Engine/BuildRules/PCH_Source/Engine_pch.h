@@ -16,6 +16,7 @@
 #include <fstream>
 #include <iostream>
 #include <algorithm>
+#include <filesystem>
 #include <functional>
 #include <type_traits>
 #include <string_view>
@@ -51,13 +52,13 @@
 
 // === Insight Specific === //
 #include "Runtime/Core/Log.h"
+#include "Runtime/Core/EString.h"
 #include "Runtime/Core/Interfaces.h"
 #include "Runtime/Math/ie_Vectors.h"
 #include "Runtime/Core/Exception.h"
-#include "Runtime/Utilities/Profiling.h"
 #include "Runtime/Systems/FileSystem.h"
+#include "Runtime/Utilities/Profiling.h"
 #include "Runtime/Utilities/StringHelper.h"
-
 
 
 // -----------

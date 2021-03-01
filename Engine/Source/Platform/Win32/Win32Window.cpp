@@ -192,7 +192,7 @@ namespace Insight {
 		}
 		case (WM_COMPACTING):
 		{
-			IE_LOG(Warning, "System memory is low!");
+			IE_LOG(Warning, TEXT("System memory is low!"));
 			return 0;
 		}
 		case (WM_EXITSIZEMOVE):
@@ -202,7 +202,7 @@ namespace Insight {
 			WindowResizeEvent event(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, wParam == SIZE_MINIMIZED);
 			pWindow.GetEventCallbackFn()(event);
 
-			IE_LOG(Log, "Window size has changed");
+			IE_LOG(Log, TEXT("Window size has changed"));
 			return 0;
 		}
 		case (WM_SIZE):
@@ -254,7 +254,7 @@ namespace Insight {
 			LPSTR lpszFile;
 			UINT cch;
 			DragQueryFileA((HDROP)wParam, iFile, lpszFile, cch);
-			IE_LOG(Log, "File dropped on window");*/
+			IE_LOG(Log, TEXT("File dropped on window"));*/
 		}
 		// Menu Bar Events
 		case (WM_COMMAND):
@@ -278,7 +278,7 @@ namespace Insight {
 	{
 		HRESULT hr = ::CoInitialize(NULL);
 		if (FAILED(hr)){
-			IE_LOG(Error, "Failed to initialize COM library.");
+			IE_LOG(Error, TEXT("Failed to initialize COM library."));
 		}
 
 		static bool RIDInitialized = false;
@@ -293,7 +293,7 @@ namespace Insight {
 
 			if (RegisterRawInputDevices(&RID, 1, sizeof(RID)) == FALSE)
 			{
-				IE_LOG(Error, "Failed to register raw input devices. Error: %s", StringHelper::WideToString(std::wstring(GetLastWindowsError()).c_str()));
+				IE_LOG(Error, TEXT("Failed to register raw input devices. Error: %s"), StringHelper::WideToString(std::wstring(GetLastWindowsError()).c_str()));
 				return false;
 			}
 			RIDInitialized = true;
@@ -332,9 +332,9 @@ namespace Insight {
 		);
 
 		if (m_hWindow == NULL) {
-			IE_LOG(Critical, "Unable to create Windows window.");
-			IE_LOG(Critical, "    Error: %s", StringHelper::WideToString(std::wstring(GetLastWindowsError())).c_str());
-			throw ieException("Fatal Error: Failed to initialize Win32 window. Handle returned nullptr from Windows API. Window description may have contained invalid parameters.");
+			IE_LOG(Critical, TEXT("Unable to create Windows window."));
+			IE_LOG(Critical, TEXT("    Error: %s"), StringHelper::WideToString(std::wstring(GetLastWindowsError())).c_str());
+			throw ieException(TEXT("Fatal Error: Failed to initialize Win32 window. Handle returned nullptr from Windows API. Window description may have contained invalid parameters."));
 		}
 
 		//m_nCmdShowArgs = SW_SHOWMAXIMIZED;
@@ -347,7 +347,7 @@ namespace Insight {
 		//m_hAcceleratorTable = LoadAccelerators(m_WindowsAppInstance, MAKEINTRESOURCE(IDC_INSIGHTENGINE));
 
 
-		IE_LOG(Verbose, "Window Initialized");
+		IE_LOG(Verbose, TEXT("Window Initialized"));
 		return true;
 	}
 
@@ -379,8 +379,8 @@ namespace Insight {
 		DWORD error = ::GetLastError();
 		if (error > 0)
 		{
-			IE_LOG(Error, "An error occured while registering window class: %s ", StringHelper::WideToString(m_WindowClassName).c_str());
-			IE_LOG(Error, "    Error: %s", StringHelper::WideToString(std::wstring(GetLastWindowsError())).c_str());
+			IE_LOG(Error, TEXT("An error occured while registering window class: %s"), StringHelper::WideToString(m_WindowClassName).c_str());
+			IE_LOG(Error, TEXT("    Error: %s"), StringHelper::WideToString(std::wstring(GetLastWindowsError())).c_str());
 		}
 	}
 
@@ -388,7 +388,7 @@ namespace Insight {
 	{
 		m_hMenuBar = ::CreateMenu();
 		if (m_hMenuBar == NULL) {
-			IE_LOG(Error, "Failed to create menu bar for window \"%s\"", StringHelper::WideToString(m_WindowTitle).c_str());
+			IE_LOG(Error, TEXT("Failed to create menu bar for window \"%s\""), StringHelper::WideToString(m_WindowTitle).c_str());
 			return;
 		}
 
@@ -512,7 +512,7 @@ namespace Insight {
 
 	Win32Window::~Win32Window()
 	{
-		IE_LOG(Warning, "Destroying window: %s", StringHelper::WideToString(m_WindowTitle).c_str());
+		IE_LOG(Warning, TEXT("Destroying window: %s"), StringHelper::WideToString(m_WindowTitle).c_str());
 		Shutdown();
 	}
 
@@ -538,7 +538,7 @@ namespace Insight {
 	bool Win32Window::SetWindowTitleFPS(float fps)
 	{
 #pragma message ("Win32Window::SetWindowTitleFPS not completed.")
-		//std::wstring windowTitle = m_WindowTitle + L" FPS: " + std::to_wstring((UINT)fps);
+		//std::wstring windowTitle = m_WindowTitle + L" FPS: " + ToString((UINT)fps);
 		//return static_cast<bool>(SetWindowText(m_hWindow, windowTitle.c_str()));
 		return true;
 	}

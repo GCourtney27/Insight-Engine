@@ -13,7 +13,7 @@ namespace Insight {
 		class INSIGHT_API APlayerCharacter : public APawn
 		{
 		public:
-			APlayerCharacter(ActorId id, ActorName name = "Player Character");
+			APlayerCharacter(ActorId id, ActorName name = TEXT("Player Character"));
 			virtual ~APlayerCharacter();
 
 			inline static APlayerCharacter& Get() { return *s_Instance; }

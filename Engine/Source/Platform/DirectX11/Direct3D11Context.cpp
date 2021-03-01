@@ -33,7 +33,7 @@ namespace Insight {
 
 	bool Direct3D11Context::Init_Impl()
 	{
-		IE_LOG(Log, "Renderer: D3D 11");
+		IE_LOG(Log, TEXT("Renderer: D3D 11"));
 
 		CreateDXGIFactory();
 		CreateDeviceAndSwapChain();
@@ -240,7 +240,7 @@ namespace Insight {
 
 		UINT PresentFlags = (m_AllowTearing && m_WindowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
 		HRESULT hr = m_pSwapChain->Present(m_pWindowRef->GetIsVsyncEnabled(), PresentFlags);
-		ThrowIfFailed(hr, "Failed to present frame for D3D 11 context.");
+		//ThrowIfFailed(hr, "Failed to present frame for D3D 11 context.");
 	}
 
 	void Direct3D11Context::OnWindowResize_Impl()
@@ -258,7 +258,7 @@ namespace Insight {
 				DXGI_SWAP_CHAIN_DESC SwapChainDesc = {};
 				m_pSwapChain->GetDesc(&SwapChainDesc);
 				hr = m_pSwapChain->ResizeBuffers(m_FrameBufferCount, m_pWindowRef->GetWidth(), m_pWindowRef->GetHeight(), SwapChainDesc.BufferDesc.Format, SwapChainDesc.Flags);
-				ThrowIfFailed(hr, "Failed to resize swap chain buffers for D3D 11 context.");
+				//ThrowIfFailed(hr, "Failed to resize swap chain buffers for D3D 11 context.");
 
 				BOOL fullScreenState;
 				m_pSwapChain->GetFullscreenState(&fullScreenState, nullptr);
@@ -306,15 +306,15 @@ namespace Insight {
 				{
 					// Get the settings of the display on which the app's window is currently displayed
 					ComPtr<IDXGIOutput> pOutput;
-					ThrowIfFailed(m_pSwapChain->GetContainingOutput(&pOutput), "Failed to get containing output while switching to fullscreen mode in D3D 12 context.");
+					//ThrowIfFailed(m_pSwapChain->GetContainingOutput(&pOutput), "Failed to get containing output while switching to fullscreen mode in D3D 12 context.");
 					DXGI_OUTPUT_DESC Desc;
-					ThrowIfFailed(pOutput->GetDesc(&Desc), "Failed to get description from output while switching to fullscreen mode in D3D 12 context.");
+					//ThrowIfFailed(pOutput->GetDesc(&Desc), "Failed to get description from output while switching to fullscreen mode in D3D 12 context.");
 					FullscreenWindowRect = Desc.DesktopCoordinates;
 				}
 				else
 				{
 					// Fallback to EnumDisplaySettings _Implementation
-					throw COMException(NULL, "No Swap chain available", __FILE__, __FUNCTION__, __LINE__);
+					//throw COMException(NULL, "No Swap chain available", __FILE__, __FUNCTION__, __LINE__);
 				}
 			}
 			catch (COMException& e)
@@ -363,10 +363,10 @@ namespace Insight {
 		{
 			HRESULT hr;
 			hr = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(m_pBackBuffer.GetAddressOf()));
-			ThrowIfFailed(hr, "Failed to get the back buffer from the swapchain for D3D 11 context during window resize.");
+			//ThrowIfFailed(hr, "Failed to get the back buffer from the swapchain for D3D 11 context during window resize.");
 
 			hr = m_pDevice->CreateRenderTargetView(m_pBackBuffer.Get(), NULL, m_pRenderTargetView.GetAddressOf());
-			ThrowIfFailed(hr, "Failed to create render target view for D3D 11 context during window resize.");
+			//ThrowIfFailed(hr, "Failed to create render target view for D3D 11 context during window resize.");
 		}
 
 		// Re-Create GBuffer
@@ -407,7 +407,7 @@ namespace Insight {
 	void Direct3D11Context::CreateDXGIFactory()
 	{
 		HRESULT hr = ::CreateDXGIFactory1(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(m_pDxgiFactory.GetAddressOf()));
-		ThrowIfFailed(hr, "Failed to create Dxgi Factor for DirectX 11.");
+		//ThrowIfFailed(hr, "Failed to create Dxgi Factor for DirectX 11.");
 	}
 
 	void Direct3D11Context::GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter** ppAdapter)
@@ -440,12 +440,12 @@ namespace Insight {
 				}
 				*ppAdapter = pAdapter.Detach();
 
-				IE_LOG(Warning, "Found suitable Direct3D 11 graphics hardware: %s", StringHelper::WideToString(Desc.Description).c_str());
+				IE_LOG(Warning, TEXT("Found suitable Direct3D 11 graphics hardware: %s"), StringHelper::WideToString(Desc.Description).c_str());
 			}
 		}
 		Desc = {};
 		(*ppAdapter)->GetDesc(&Desc);
-		IE_LOG(Warning, "\"%s\" selected as Direct3D 11 graphics hardware.", StringHelper::WideToString(Desc.Description).c_str());
+		IE_LOG(Warning, TEXT("\"%s\" selected as Direct3D 11 graphics hardware."), StringHelper::WideToString(Desc.Description).c_str());
 	}
 
 	void Direct3D11Context::CreateDeviceAndSwapChain()
@@ -498,7 +498,7 @@ namespace Insight {
 		ThrowIfFailed(hr, "Failed to create swapchain for D3D 11 context");*/
 
 		if (m_AllowTearing) {
-			ThrowIfFailed(m_pDxgiFactory->MakeWindowAssociation(reinterpret_cast<Win32Window*>(m_pWindowRef.get())->GetWindowHandleRef(), DXGI_MWA_NO_ALT_ENTER), "Failed to make window association for D3D 11 context.");
+			//ThrowIfFailed(m_pDxgiFactory->MakeWindowAssociation(reinterpret_cast<Win32Window*>(m_pWindowRef.get())->GetWindowHandleRef(), DXGI_MWA_NO_ALT_ENTER), "Failed to make window association for D3D 11 context.");
 		}
 #endif // IE_PLATFORM_BUILD_WIN32
 		
@@ -508,10 +508,10 @@ namespace Insight {
 	{
 		HRESULT hr;
 		hr = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(m_pBackBuffer.GetAddressOf()));
-		ThrowIfFailed(hr, "Failed to get the back buffer from the swapchain for D3D 11 context.");
+		//ThrowIfFailed(hr, "Failed to get the back buffer from the swapchain for D3D 11 context.");
 
 		hr = m_pDevice->CreateRenderTargetView(m_pBackBuffer.Get(), NULL, m_pRenderTargetView.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create render target view for D3D 11 context.");
+		//ThrowIfFailed(hr, "Failed to create render target view for D3D 11 context.");
 	}
 
 	void Direct3D11Context::CreateConstantBufferViews()
@@ -551,7 +551,7 @@ namespace Insight {
 		SamplerPointClampDesc.MinLOD = 0.0f;
 		SamplerPointClampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 		HRESULT hr = m_pDevice->CreateSamplerState(&SamplerPointClampDesc, m_pPointClamp_SamplerState.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create linear wrap sampler for D3D11 context.");
+		//ThrowIfFailed(hr, "Failed to create linear wrap sampler for D3D11 context.");
 
 		D3D11_SAMPLER_DESC SamplerLinearWrapDesc = {};
 		SamplerLinearWrapDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -564,7 +564,7 @@ namespace Insight {
 		SamplerLinearWrapDesc.MipLODBias = m_GraphicsSettings.MipLodBias;
 		SamplerLinearWrapDesc.MaxAnisotropy = m_GraphicsSettings.MaxAnisotropy;
 		hr = m_pDevice->CreateSamplerState(&SamplerLinearWrapDesc, m_pLinearWrap_SamplerState.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create linear wrap sampler for D3D11 context.");
+		//ThrowIfFailed(hr, "Failed to create linear wrap sampler for D3D11 context.");
 	}
 
 	void Direct3D11Context::LoadAssets()

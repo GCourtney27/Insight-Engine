@@ -55,8 +55,7 @@ namespace Insight {
 		FORCE_INLINE void IncrementAndSignalFence()
 		{
 			m_FenceValues[m_FrameIndex]++;
-			ThrowIfFailed(m_pGraphicsCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]),
-				"Failed to signal command queue while incremenitign fence values for D3D 12 device resources.");
+			ThrowIfFailed(m_pGraphicsCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]), TEXT(""));
 		}
 
 		inline const D3D12_VIEWPORT GetClientViewPort() const { return m_Client_ViewPort; }

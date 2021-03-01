@@ -45,6 +45,7 @@
 #define IE_BIND_LOCAL_VOID_FN(Fn) std::bind( &Fn, this )
 #define COM_SAFE_RELEASE(ComObject) if( (ComObject) ) { (ComObject)->Release(); (ComObject) = nullptr; }
 #define RAW_LITERAL(Value) #Value
+#define WIDE_STRING(Value) L#Value
 #define MACRO_TO_STRING(Macro) RAW_LITERAL(Macro);
 #define FORCE_INLINE __forceinline
 #define INLINE inline 

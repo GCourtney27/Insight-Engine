@@ -58,10 +58,10 @@ namespace Insight {
 			return true;
 		}
 		HRESULT hr = E_FAIL;// = D3DReadFileToBlob(shaderpath.c_str(), m_pShaderByteCode.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to read D3D 11 pixel shader from file.");
+		//ThrowIfFailed(hr);
 
 		hr = device->CreatePixelShader(m_pShaderByteCode.Get()->GetBufferPointer(), m_pShaderByteCode.Get()->GetBufferSize(), NULL, m_pShader.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create D3D 11 pixel shader from blob.");
+		//ThrowIfFailed(hr);
 
 		return true;
 	}

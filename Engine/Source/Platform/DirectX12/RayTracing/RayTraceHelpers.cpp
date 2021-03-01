@@ -89,7 +89,7 @@ namespace Insight {
 		
 		// Copy the camera matrix contents
 		uint8_t* pCameraData;
-		ThrowIfFailed(m_pCameraBuffer->Map(0, nullptr, (void**)&pCameraData), "Failed to map camera buffer");
+		ThrowIfFailed(m_pCameraBuffer->Map(0, nullptr, (void**)&pCameraData), TEXT("Failed to map camera buffer"));
 		memcpy(pCameraData, &m_CBCameraParams, m_CameraBufferSize);
 		m_pCameraBuffer->Unmap(0, nullptr);
 
@@ -99,7 +99,7 @@ namespace Insight {
 		m_CBLightParams.ShadowDarkness = DirLightData.ShadowDarknessMultiplier;
 
 		uint8_t* pLightData;
-		ThrowIfFailed(m_pLightBuffer->Map(0, nullptr, (void**)&pLightData), "Failed to map light buffer");
+		ThrowIfFailed(m_pLightBuffer->Map(0, nullptr, (void**)&pLightData), TEXT("Failed to map light buffer"));
 		memcpy(pLightData, &m_CBLightParams, m_LightBufferSize);
 		m_pLightBuffer->Unmap(0, nullptr);
 
@@ -287,16 +287,16 @@ namespace Insight {
 
 		// Ray Gen
 		D3D12Shader RayGenShader;
-		ThrowIfFailed(RayGenShader.LoadFromFile(FileSystem::GetShaderPathW(L"RayGen.rtlib.hlsl.cso").c_str()), "Failed to load Ray Gen library from cso.");
+		ThrowIfFailed(RayGenShader.LoadFromFile(FileSystem::GetShaderPathW(L"RayGen.rtlib.hlsl.cso").c_str()), TEXT("Failed to load Ray Gen library from cso."));
 		// Miss
 		D3D12Shader MissShader;
-		ThrowIfFailed(MissShader.LoadFromFile(FileSystem::GetShaderPathW(L"Miss.rtlib.hlsl.cso").c_str()), "Failed to load Miss library from cso.");
+		ThrowIfFailed(MissShader.LoadFromFile(FileSystem::GetShaderPathW(L"Miss.rtlib.hlsl.cso").c_str()), TEXT("Failed to load Miss library from cso."));
 		// Hit
 		D3D12Shader ClosestShader;
-		ThrowIfFailed(ClosestShader.LoadFromFile(FileSystem::GetShaderPathW(L"ClosestHit.rtlib.hlsl.cso").c_str()), "Failed to load Closest Hit library from cso.");
+		ThrowIfFailed(ClosestShader.LoadFromFile(FileSystem::GetShaderPathW(L"ClosestHit.rtlib.hlsl.cso").c_str()), TEXT("Failed to load Closest Hit library from cso."));
 		// Shadow
 		D3D12Shader ShadowShader;
-		ThrowIfFailed(ShadowShader.LoadFromFile(FileSystem::GetShaderPathW(L"ShadowRay.rtlib.hlsl.cso").c_str()), "Failed to load Shadow Ray library from cso.");
+		ThrowIfFailed(ShadowShader.LoadFromFile(FileSystem::GetShaderPathW(L"ShadowRay.rtlib.hlsl.cso").c_str()), TEXT("Failed to load Shadow Ray library from cso."));
 
 		Pipeline.AddLibrary(&RayGenShader, { L"RayGen" });
 		Pipeline.AddLibrary(&MissShader, { L"Miss" });
@@ -326,7 +326,7 @@ namespace Insight {
 		// Compile the pipeline for execution on the GPU.
 		m_rtStateObject = Pipeline.Generate();
 
-		ThrowIfFailed(m_rtStateObject->QueryInterface(IID_PPV_ARGS(&m_rtStateObjectProps)), "Failed to query interface when creating rt state object.");
+		ThrowIfFailed(m_rtStateObject->QueryInterface(IID_PPV_ARGS(&m_rtStateObjectProps)), TEXT("Failed to query interface when creating rt state object."));
 	}
 
 	void RayTraceHelpers::CreateRTOutputBuffer()
@@ -355,7 +355,7 @@ namespace Insight {
 			nullptr,
 			IID_PPV_ARGS(&m_pOutputBuffer_UAV)
 		);
-		ThrowIfFailed(hr, "Failed to create raytracing outptut buffer.");
+		ThrowIfFailed(hr, TEXT("Failed to create raytracing outptut buffer."));
 		m_pOutputBuffer_UAV->SetName(L"Ray Traceing Output Buffer");
 
 		// Output Buffer

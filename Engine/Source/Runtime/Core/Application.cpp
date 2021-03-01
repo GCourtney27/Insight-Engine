@@ -35,7 +35,7 @@ namespace Insight {
 		IE_STRIP_FOR_GAME_DIST(
 			if (!Debug::Logger::Initialize())
 			{
-				IE_LOG(Error, "Failed to create core logger.");
+				IE_LOG(Error, TEXT("Failed to create core logger."));
 			}
 		)
 	}
@@ -46,14 +46,14 @@ namespace Insight {
 
 	void Application::DumpApp()
 	{
-		Debug::Logger::AppendMessageForCoreDump("Core dump requested by application.");
+		Debug::Logger::AppendMessageForCoreDump(TEXT("Core dump requested by application."));
 		Debug::Logger::InitiateCoreDump();
 
 	}
 
 	void Application::Initialize()
 	{
-		ScopedMilliSecondTimer("Core application initialization");
+		ScopedMilliSecondTimer(TEXT("Core app init"));
 
 		// Initize the main file system.
 		FileSystem::Init();
@@ -68,7 +68,7 @@ namespace Insight {
 		std::string DocumentPath = StringHelper::WideToString(FileSystem::GetRelativeContentDirectoryW(L"/Scenes/"));
 		DocumentPath += TargetSceneName;
 		if (!m_pGameLayer->LoadScene(DocumentPath)) {
-			throw ieException("Failed to initialize scene");
+			throw ieException(TEXT("Failed to initialize scene"));
 		}
 		Renderer::SetActiveCamera(&m_pGameLayer->GetScene()->GetSceneCamera());
 
@@ -84,7 +84,7 @@ namespace Insight {
 		ResourceManager::Get().PostAppInit();
 		m_pGameLayer->PostInit();
 
-		IE_LOG(Verbose, "Application Initialized");
+		IE_LOG(Verbose, TEXT("App Initialized"));
 	}
 
 	static bool s_ReloadRuntime = false;
@@ -249,7 +249,7 @@ namespace Insight {
 			);
 			break;
 		default:
-			IE_LOG(Error, "Failed to create ImGui layer in application with API of type \"%i\" Or application has disabled editor.", Renderer::GetAPI());
+			IE_LOG(Error, TEXT("Failed to create ImGui layer in application with API of type \"%i\" Or application has disabled editor."), Renderer::GetAPI());
 			break;
 		}
 #endif
@@ -357,7 +357,7 @@ namespace Insight {
 
 	bool Application::ReloadScripts(AppScriptReloadEvent& e)
 	{
-		IE_LOG(Log, "Reloading C# Scripts");
+		IE_LOG(Log, TEXT("Reloading C# Scripts"));
 #if IE_PLATFORM_BUILD_WIN32
 		ResourceManager::Get().GetMonoScriptManager().ReCompile();
 #endif

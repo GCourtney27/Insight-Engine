@@ -246,17 +246,17 @@ namespace Insight {
 			// Create Textures
 			TextureDesc.Format = m_RtvFormat[i];
 			hr = m_pDevice->CreateTexture2D(&TextureDesc, nullptr, m_GBuffer[i].Texture.GetAddressOf());
-			ThrowIfFailed(hr, "Failed to create 2D texture for g-buffer in D3D 11 context.");
+			//ThrowIfFailed(hr);
 
 			// Create Render Targets
 			RTVDesc.Format = m_RtvFormat[i];
 			hr = m_pDevice->CreateRenderTargetView(m_GBuffer[i].Texture.Get(), &RTVDesc, m_GBuffer[i].RenderTargetView.GetAddressOf());
-			ThrowIfFailed(hr, "Failed to create render target view for g-buffer in D3D 11 context.");
+			//ThrowIfFailed(hr);
 
 			// Create Shader Resource Views
 			SRVDesc.Format = m_RtvFormat[i];
 			m_pDevice->CreateShaderResourceView(m_GBuffer[i].Texture.Get(), &SRVDesc, m_GBuffer[i].ShaderResourceView.GetAddressOf());
-			ThrowIfFailed(hr, "Failed to create shader resource view for g-buffer in D3D 11 context.");
+			//ThrowIfFailed(hr);
 		}
 
 		D3D11_TEXTURE2D_DESC DepthStencilBufferDesc = {};
@@ -272,14 +272,14 @@ namespace Insight {
 		DepthStencilBufferDesc.CPUAccessFlags = 0U;
 		DepthStencilBufferDesc.MiscFlags = 0U;
 		hr = m_pDevice->CreateTexture2D(&DepthStencilBufferDesc, nullptr, m_pDepthStencilTexture.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create 2D texture for depth buffer in D3D 11 context.");
+		//ThrowIfFailed(hr);
 
 		D3D11_DEPTH_STENCIL_VIEW_DESC DSVDesc = {};
 		DSVDesc.Format = DXGI_FORMAT_D32_FLOAT;
 		DSVDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 		DSVDesc.Texture2D.MipSlice = 0;
 		m_pDevice->CreateDepthStencilView(m_pDepthStencilTexture.Get(), &DSVDesc, m_DepthStencilView.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create depth stencil view for g-buffer in D3D 11 context.");
+		//ThrowIfFailed(hr);
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC DSVSRVDesc = {};
 		DSVSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
@@ -288,21 +288,21 @@ namespace Insight {
 		DSVSRVDesc.Texture2D.MipLevels = 1U;
 		DSVSRVDesc.Texture2D.MostDetailedMip = 0;
 		hr = m_pDevice->CreateShaderResourceView(m_pDepthStencilTexture.Get(), &DSVSRVDesc, &m_pSceneDepthView);
-		ThrowIfFailed(hr, "Faield to create shader resource view for depth stencil.");
+		//ThrowIfFailed(hr);
 
 		// Create Rasterizer State
 		D3D11_RASTERIZER_DESC RasterizerDesc = {};
 		RasterizerDesc.FillMode = D3D11_FILL_SOLID;
 		RasterizerDesc.CullMode = D3D11_CULL_BACK;
 		hr = m_pDevice->CreateRasterizerState(&RasterizerDesc, m_pRasterizarState.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create rasterizer state for D3D11 context");
+		//ThrowIfFailed(hr);
 
 		D3D11_DEPTH_STENCIL_DESC DSDesc = {};
 		DSDesc.DepthEnable = TRUE;
 		DSDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 		DSDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 		hr = m_pDevice->CreateDepthStencilState(&DSDesc, m_pDefaultDepthStencilState.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create depthstencil state for D3D11 context");
+		//ThrowIfFailed(hr);
 	}
 
 	void D3D11DeferredShadingTech::CreateLightPass()
@@ -342,17 +342,17 @@ namespace Insight {
 		// Create Texture
 		TextureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		hr = m_pDevice->CreateTexture2D(&TextureDesc, nullptr, m_LightPassResult.Texture.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create 2D texture for g-buffer in D3D 11 context.");
+		//ThrowIfFailed(hr);
 
 		// Create Render Target
 		RTVDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		hr = m_pDevice->CreateRenderTargetView(m_LightPassResult.Texture.Get(), &RTVDesc, m_LightPassResult.RenderTargetView.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create render target view for g-buffer in D3D 11 context.");
+		//ThrowIfFailed(hr);
 
 		// Create Shader Resource View
 		SRVDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		m_pDevice->CreateShaderResourceView(m_LightPassResult.Texture.Get(), &SRVDesc, m_LightPassResult.ShaderResourceView.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create shader resource view for g-buffer in D3D 11 context.");
+		//ThrowIfFailed(hr);
 	}
 
 	void D3D11DeferredShadingTech::CreateSkyPass()
@@ -382,7 +382,7 @@ namespace Insight {
 		RasterizerDesc.CullMode = D3D11_CULL_FRONT;
 		RasterizerDesc.FillMode = D3D11_FILL_SOLID;
 		HRESULT hr = m_pDevice->CreateRasterizerState(&RasterizerDesc, m_pSkyPass_RasterizarState.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create rasterizer state for D3D11 context");
+		//ThrowIfFailed(hr);
 
 	}
 
@@ -476,7 +476,7 @@ namespace Insight {
 			VertexBufferData.pSysMem = Verticies;
 
 			hr = m_pDevice->CreateBuffer(&VertexBufferDesc, &VertexBufferData, m_pVertexBuffer.GetAddressOf());
-			ThrowIfFailed(hr, "Failed to create vertex buffer for D3D11 context.");
+			//ThrowIfFailed(hr);
 
 			DWORD Indices[] =
 			{
@@ -495,7 +495,7 @@ namespace Insight {
 			D3D11_SUBRESOURCE_DATA IndexBufferData = {};
 			IndexBufferData.pSysMem = Indices;
 			hr = m_pDevice->CreateBuffer(&IndexBufferDesc, &IndexBufferData, m_pIndexBuffer.GetAddressOf());
-			ThrowIfFailed(hr, "Failed to create D3D 11 index buffer");
+			//ThrowIfFailed(hr);
 		}
 
 		return true;

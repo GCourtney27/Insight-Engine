@@ -18,10 +18,10 @@ namespace Insight {
 	{
 		uint32_t Width;
 		uint32_t Height;
-		std::wstring Title;
-		std::wstring Class;
+		EString Title;
+		EString Class;
 		int NumCmdArgs;
-		std::wstring CmdArgs;
+		EString CmdArgs;
 		EventCallbackFn EventCallbackFunction;
 
 		WindowDescription(EventCallbackFn CallbackFn, int CmdLineArgCount = 0, std::wstring CmdArgVals = L"", const std::wstring& title = L"Insight Ed", const std::wstring winClass = L"CLASS", uint32_t width = 1700, uint32_t height = 1000)
@@ -104,8 +104,8 @@ namespace Insight {
 		uint32_t m_LogicalWidth = 0u;
 		uint32_t m_LogicalHeight = 0u;
 
-		std::wstring m_WindowTitle;
-		std::wstring m_WindowClassName;
+		EString m_WindowTitle;
+		EString m_WindowClassName;
 	};
 
 }

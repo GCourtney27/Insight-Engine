@@ -153,7 +153,7 @@ namespace Insight {
 		}
 		default:
 		{
-			IE_LOG(Warning, "Failed to get texture handle for texture with ID: %i", TextureID);
+			IE_LOG(Warning, TEXT("Failed to get texture handle for texture with ID: %i"), TextureID);
 			break;
 		}
 		}
@@ -238,7 +238,7 @@ namespace Insight {
 #endif // IE_PLATFORM_WINDOWS
 		default:
 		{
-			IE_LOG(Error, "Failed to load default textures for api: %i", Renderer::GetAPI());
+			IE_LOG(Error, TEXT("Failed to load default textures for api: %i"), Renderer::GetAPI());
 			break;
 		}
 		}
@@ -296,7 +296,7 @@ namespace Insight {
 				}
 				default:
 				{
-					IE_LOG(Warning, "Failed to identify texture to create with ID of %i", TexInfo.Id);
+					IE_LOG(Warning, TEXT("Failed to identify texture to create with ID of %i"), TexInfo.Id);
 					break;
 				}
 				}
@@ -352,7 +352,7 @@ namespace Insight {
 				}
 				default:
 				{
-					IE_LOG(Warning, "Failed to identify texture to create with ID of: %i", TexInfo.Id);
+					IE_LOG(Warning, TEXT("Failed to identify texture to create with ID of: %i"), TexInfo.Id);
 					break;
 				}
 				}
@@ -360,7 +360,7 @@ namespace Insight {
 			}
 			default:
 			{
-				IE_LOG(Error, "Failed to determine graphics api to initialize texture. The renderer may not have been initialized yet.");
+				IE_LOG(Error, TEXT("Failed to determine graphics api to initialize texture. The renderer may not have been initialized yet."));
 				break;
 			}
 
