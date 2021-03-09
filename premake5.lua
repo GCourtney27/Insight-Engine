@@ -34,18 +34,18 @@ workspace ("InsightEngine")
 	}
 	
 
-	--platforms
-	--{
-	--	"Windows Desktop",
-	--	"Xbox One",
-	--	"Universal Windows",
-	--}
+	platforms
+	{
+		-- An app that runs using the Win32 API.
+		"Win32Desktop",
 
-	filter {"platforms:Windows Desktop"}
-		startproject ("Application_Win32")
-	
-	filter {"platforms:Universal Windows"}
-		startproject ("Application_UWP_WinRT")
+		-- An app that runs on Xbox One platforms
+		"XboxOne",
+		
+		-- An app that runs on the Windows Runtime (UWP)
+		"UniversalWindowsDesktop",
+	}
+
 
 
 outputdir = "%{cfg.buildcfg}-$(SDKIdentifier)-$(Platform)"
@@ -53,12 +53,12 @@ outputdir = "%{cfg.buildcfg}-$(SDKIdentifier)-$(Platform)"
 binaryFolder = "Binaries/"
 intFolder = binaryFolder .. "Intermediates/"
 
-function ieGetBuildFolder(platform)
-	return "%{wks.location}/" .. binaryFolder .. "/%{cfg.buildcfg}-" .. platform .. "-%{cfg.architecture}/"
+function ieGetBuildFolder()
+	return "%{wks.location}/" .. binaryFolder .. "/%{cfg.buildcfg}-%{cfg.platform}-%{cfg.architecture}/"
 end
 
-function ieGetBuildIntFolder(platform)
-	return "%{wks.location}/" .. intFolder .. "/%{cfg.buildcfg}-" .. platform .. "-%{cfg.architecture}/%{prj.name}"
+function ieGetBuildIntFolder()
+	return "%{wks.location}/" .. intFolder .. "/%{cfg.buildcfg}-%{cfg.platform}-%{cfg.architecture}/%{prj.name}"
 end
 
 
@@ -70,15 +70,17 @@ group ("")
 -- Applications
 group ("Applications")
 	include ("Applications/Application_Win32/Application-Win32-Make.lua")
-	include ("Applications/Application_UWP_WinRT/Application-UWP-Make.lua")
+	include ("Applications/Application_UWP/Application-UWP-Make.lua")
 group ("")
 
 -- Engine
 include ("Engine/Engine-Make.lua")
 
+--Shaders
+include ("Engine/Shaders/Shaders-Make.lua")
+
 -- Engine Source Build Rules
 group ("Build Rules")
 	include ("Engine/BuildRules/Build-UWP-Make.lua")
 	include ("Engine/BuildRules/Build-Win32-Make.lua")
---	include ("Engine/BuildRules/Build-XboxOne-Make.lua") --TODO
 group ("")

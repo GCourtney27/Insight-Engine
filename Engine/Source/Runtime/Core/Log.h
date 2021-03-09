@@ -102,4 +102,5 @@ namespace Insight {
 #else
 #	define IE_FATAL_ERROR(...)
 #	define IE_LOG(LogSeverity, fmt, ...)
+#	define SET_CONSOLE_OUT_COLOR(Color)
 #endif

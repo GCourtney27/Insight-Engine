@@ -84,7 +84,6 @@
 #	include <dwrite.h>
 #	include <d3d11on12.h>
 #	include <DirectX12/d3dx12.h> 
-#	include "DxcAPI/inc/d3d12shader.h"
 
 // DirectX
 #	if defined(NTDDI_WIN10_RS2)
@@ -94,21 +93,18 @@
 #	endif
 #		include <wincodec.h>
 #		include <DirectXMath.h>
-#		include "DxcAPI/inc/dxcapi.h"
 #	if defined (IE_DEBUG)
 #		include <dxgidebug.h>
 #	endif
 
-
-#define TrackGraphicsEvents 1
-
-#if TrackGraphicsEvents
-#include <WinPixEventRuntime/pix3.h>
-#define BeginTrackRenderEvent(pCommandList, Color, Tag) PIXBeginEvent(pCommandList, Color, Tag);
-#define EndTrackRenderEvent(pCommandList) PIXEndEvent(pCommandList);
+	// Track render events for PIX
+#if TRACK_RENDER_EVENTS
+#	include <WinPixEventRuntime/pix3.h>
+#	define BeginTrackRenderEvent(pCommandList, Color, Tag) PIXBeginEvent(pCommandList, Color, Tag);
+#	define EndTrackRenderEvent(pCommandList) PIXEndEvent(pCommandList);
 #else
-#define BeginTrackRenderEvent(pCommandList, Color, Tag)
-#define EndTrackRenderEvent(pCommandList)
+#	define BeginTrackRenderEvent(pCommandList, Color, Tag)
+#	define EndTrackRenderEvent(pCommandList)
 #endif
 
 #endif // IE_PLATFORM_WINDOWS
@@ -119,16 +115,16 @@
 // ---------------
 #if IE_PLATFORM_BUILD_WIN32
 
-	#ifndef WIN32_LEAN_AND_MEAN
-		#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers.
-	#endif
+#	ifndef WIN32_LEAN_AND_MEAN
+#		define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers.
+#	endif
 
-	// Windows API	
-	#include <shlobj.h>
-	#include <Windows.h>
-	#include <strsafe.h>
-	#include <Shlwapi.h>
-	#include <windowsx.h>
+// Windows API	
+#	include <shlobj.h>
+#	include <Windows.h>
+#	include <strsafe.h>
+#	include <Shlwapi.h>
+#	include <windowsx.h>
 	
 #endif // IE_PLATFORM_BUILD_WIN32
 
@@ -139,17 +135,17 @@
 #if IE_PLATFORM_BUILD_UWP
 
 	// Windows Runtime
-	#include "winrt/Windows.System.h"
-	//#include "winrt/Windows.Storage.h"
-	#include "winrt/Windows.UI.Core.h"
-	#include "winrt/Windows.UI.Input.h"
-	#include "winrt/Windows.Foundation.h"
-	//#include "winrt/Windows.Storage.Pickers.h"
-	#include "winrt/Windows.ApplicationModel.h"
-	#include "winrt/Windows.Graphics.Display.h"
-	#include "winrt/Windows.UI.ViewManagement.h"
-	#include "winrt/Windows.ApplicationModel.Core.h"
-	#include "winrt/Windows.ApplicationModel.Activation.h"
+#	include "winrt/Windows.System.h"
+//#	include "winrt/Windows.Storage.h"
+#	include "winrt/Windows.UI.Core.h"
+#	include "winrt/Windows.UI.Input.h"
+#	include "winrt/Windows.Foundation.h"
+//#	include "winrt/Windows.Storage.Pickers.h"
+#	include "winrt/Windows.ApplicationModel.h"
+#	include "winrt/Windows.Graphics.Display.h"
+#	include "winrt/Windows.UI.ViewManagement.h"
+#	include "winrt/Windows.ApplicationModel.Core.h"
+#	include "winrt/Windows.ApplicationModel.Activation.h"
 
 
 #endif // IE_PLATFORM_BUILD_UWP

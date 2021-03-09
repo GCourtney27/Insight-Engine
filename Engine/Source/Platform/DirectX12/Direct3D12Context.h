@@ -91,11 +91,6 @@ namespace Insight {
 	class GeometryManager;
 	class ieD3D12SphereRenderer;
 
-	typedef ID3D12Resource D3D12Texture2D;
-	typedef ID3D12Resource D3D12RenderTargetView;
-	typedef ID3D12Resource D3D12ShaderResourceView;
-	typedef ID3D12Resource D3D12UnoreredAccessView;
-
 	class INSIGHT_API Direct3D12Context : public Renderer
 	{
 	public:

@@ -114,11 +114,11 @@ namespace Insight {
 		ComPtr<ID3DBlob> pPixelShader;
 
 		D3D12Shader VertexShader;
-		HRESULT hr = VertexShader.LoadFromFile(FileSystem::GetShaderPathW(L"GeometryPass.vertex.hlsl.cso").c_str());
+		HRESULT hr = VertexShader.LoadFromFile(FileSystem::GetShaderPathW(L"GeometryPass.vs.cso").c_str());
 		ThrowIfFailed(hr, TEXT("Failed to read Vertex Shader for D3D 12 context."));
 
 		D3D12Shader PixelShader;
-		hr = PixelShader.LoadFromFile(FileSystem::GetShaderPathW(L"GeometryPass.pixel.hlsl.cso").c_str());
+		hr = PixelShader.LoadFromFile(FileSystem::GetShaderPathW(L"GeometryPass.ps.cso").c_str());
 		ThrowIfFailed(hr, TEXT("Failed to read Pixel Shader for D3D 12 context."));
 
 
@@ -165,13 +165,12 @@ namespace Insight {
 		const CD3DX12_HEAP_PROPERTIES DefaultHeapProps(D3D12_HEAP_TYPE_DEFAULT);
 
 		// Destroy resources if they already exist. We might be resizing the window if we come back here.
-		for (auto Resource : m_pRenderTargetTextures)
+		for (auto* Resource : m_pRenderTargetTextures)
 		{
-			if (Resource) COM_SAFE_RELEASE(Resource);
+			COM_SAFE_RELEASE(Resource);
 		}
 
-		if (m_pSceneDepthStencilTexture.Get())
-			m_pSceneDepthStencilTexture.Reset();
+		COM_SAFE_RELEASE(m_pSceneDepthStencilTexture);
 
 		// Create the render targets
 		if (m_RTVHeap.pDH.Get()) m_RTVHeap.Destroy();
@@ -372,11 +371,11 @@ namespace Insight {
 	void DeferredLightPass::LoadPipeline()
 	{
 		D3D12Shader PixelShader;
-		HRESULT hr = PixelShader.LoadFromFile(FileSystem::GetShaderPathW(L"LightPass.pixel.hlsl.cso").c_str());
+		HRESULT hr = PixelShader.LoadFromFile(FileSystem::GetShaderPathW(L"LightPass.ps.cso").c_str());
 		ThrowIfFailed(hr, TEXT("Failed to read Pixel Shader for D3D 12 context."));
 
 		D3D12Shader VertexShader;
-		hr = VertexShader.LoadFromFile(FileSystem::GetShaderPathW(L"LightPass.vertex.hlsl.cso").c_str());
+		hr = VertexShader.LoadFromFile(FileSystem::GetShaderPathW(L"LightPass.vs.cso").c_str());
 		ThrowIfFailed(hr, TEXT("Failed to read Pixel Shader for D3D 12 context."));
 
 
@@ -548,11 +547,11 @@ namespace Insight {
 	void SkyPass::LoadPipeline()
 	{
 		D3D12Shader VertexShader;
-		HRESULT hr = VertexShader.LoadFromFile(FileSystem::GetShaderPathW(L"Skybox.vertex.hlsl.cso").c_str());
+		HRESULT hr = VertexShader.LoadFromFile(FileSystem::GetShaderPathW(L"Skybox.vs.cso").c_str());
 		ThrowIfFailed(hr, TEXT("Failed to read Pixel Shader for D3D 12 context."));
 
 		D3D12Shader PixelShader;
-		hr = PixelShader.LoadFromFile(FileSystem::GetShaderPathW(L"Skybox.pixel.hlsl.cso").c_str());
+		hr = PixelShader.LoadFromFile(FileSystem::GetShaderPathW(L"Skybox.ps.cso").c_str());
 		ThrowIfFailed(hr, TEXT("Failed to read Pixel Shader for D3D 12 context."));
 
 		D3D12_INPUT_ELEMENT_DESC InputLayout[2] =
@@ -666,11 +665,11 @@ namespace Insight {
 	void PostProcessCompositePass::LoadPipeline()
 	{
 		D3D12Shader VertexShader;
-		HRESULT hr = VertexShader.LoadFromFile(FileSystem::GetShaderPathW(L"ScreenAlignedQuad.vertex.hlsl.cso").c_str());
+		HRESULT hr = VertexShader.LoadFromFile(FileSystem::GetShaderPathW(L"ScreenAlignedQuad.vs.cso").c_str());
 		ThrowIfFailed(hr, TEXT("Failed to read Pixel Shader for D3D 12 context."));
 
 		D3D12Shader PixelShader;
-		hr = PixelShader.LoadFromFile(FileSystem::GetShaderPathW(L"PostProcessComposite.pixel.hlsl.cso").c_str());
+		hr = PixelShader.LoadFromFile(FileSystem::GetShaderPathW(L"PostProcessComposite.ps.cso").c_str());
 		ThrowIfFailed(hr, TEXT("Failed to read Pixel Shader for D3D 12 context."));
 
 

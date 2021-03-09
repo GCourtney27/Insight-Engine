@@ -115,11 +115,9 @@ namespace Insight {
 			// Log category may have changed the color, reset it back to the default.
 			Insight::Debug::Logger::GetConsoleWindow().ResetColors();
 #	elif IE_PLATFORM_BUILD_UWP
-#		if _MSC_BUILD // Only Visual Studio can use 'OutputDebugString*'
 			::OutputDebugString(TraceBuffer);
 			::OutputDebugString(OutputBuffer);
 			::OutputDebugString(TEXT("\n"));
-#		endif // _MSC_BUILD
 #	endif
 		}
 

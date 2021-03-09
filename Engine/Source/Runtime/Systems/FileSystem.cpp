@@ -304,12 +304,9 @@ namespace Insight {
 #endif
 	}
 
-	std::wstring FileSystem::GetShaderPathW(const wchar_t* Shader)
+	EString FileSystem::GetShaderPathW(const TChar* Shader)
 	{
-		std::wstring Path = L"Shaders/";
-#if IE_PLATFORM_WINDOWS
-		Path.append(L"ShaderCache/HLSL/");
-#endif
+		EString Path = L"Shaders/";
 		Path.append(Shader);
 		return Path;
 	}

@@ -215,8 +215,23 @@ namespace Insight {
 		UINT CurrentMemory = 0;
 		DXGI_ADAPTER_DESC1 Desc;
 
+		
+
+		auto CheckSM6_0Support = [](ID3D12Device* pDevice)
+		{
+			IE_ASSERT(pDevice);
+			D3D12_FEATURE_DATA_SHADER_MODEL sm6_0{ D3D_SHADER_MODEL_6_0 };
+			HRESULT hr = pDevice->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &sm6_0, sizeof(sm6_0));
+			ThrowIfFailed(hr, TEXT("Failed to query feature support for shader model 6 with device."));
+			if (sm6_0.HighestShaderModel >= D3D_SHADER_MODEL_6_0)
+				return true;
+			else
+				return false;
+		};
+
 		auto CheckRayTracingSupport = [](ID3D12Device* pDevice)
 		{
+			IE_ASSERT(pDevice);
 			D3D12_FEATURE_DATA_D3D12_OPTIONS5 Options5 = {};
 			HRESULT hr = pDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &Options5, sizeof(Options5));
 			ThrowIfFailed(hr, TEXT("Failed to query feature support for ray trace with device."));
@@ -252,7 +267,7 @@ namespace Insight {
 						*ppAdapter = pAdapter.Detach();
 						m_pRenderContextRef->SetIsRayTraceSupported(true);
 
-						IE_LOG(Log, TEXT("Found suitable D3D 12 hardware that can support DXR: %s"), StringHelper::WideToString(std::wstring{ Desc.Description }).c_str());
+						IE_LOG(Log, TEXT("Found suitable D3D 12 hardware that can support DXR: %s"), Desc.Description);
 						continue;
 					}
 				}
@@ -265,12 +280,14 @@ namespace Insight {
 				if (*ppAdapter != nullptr) (*ppAdapter)->Release();
 
 				*ppAdapter = pAdapter.Detach();
-				IE_LOG(Log, TEXT("Found suitable D3D 12 hardware: %s"), StringHelper::WideToString(Desc.Description).c_str());
+				IE_LOG(Log, TEXT("Found suitable D3D 12 hardware: %s"), Desc.Description);
 			}
+
+
 		}
 		Desc = {};
 		(*ppAdapter)->GetDesc1(&Desc);
-		IE_LOG(Warning, TEXT("\"%s\" selected as D3D 12 graphics hardware."), StringHelper::WideToString(Desc.Description).c_str());
+		IE_LOG(Warning, TEXT("\"%s\" selected as D3D 12 graphics hardware."), Desc.Description);
 	}
 
 	void D3D12DeviceResources::CreateDevice()
@@ -306,6 +323,25 @@ namespace Insight {
 				HRESULT hr = D3D12CreateDevice(m_pAdapter.Get(), cx_TargetFeatureLevel, IID_PPV_ARGS(&m_pD3D12Device));
 				ThrowIfFailed(hr, TEXT("Failed to create D3D 12 device."));
 			}
+
+			D3D_FEATURE_LEVEL FeatureLevels[] = {
+				D3D_FEATURE_LEVEL_12_1,
+				D3D_FEATURE_LEVEL_12_0,
+				D3D_FEATURE_LEVEL_11_1,
+				D3D_FEATURE_LEVEL_11_0,
+				D3D_FEATURE_LEVEL_10_1,
+				D3D_FEATURE_LEVEL_10_0,
+				D3D_FEATURE_LEVEL_9_3,
+				D3D_FEATURE_LEVEL_9_2,
+				D3D_FEATURE_LEVEL_9_1
+			};
+			int NumLevels = _countof(FeatureLevels);
+
+			D3D12_FEATURE_DATA_FEATURE_LEVELS FormatInfo = {  };
+			FormatInfo.NumFeatureLevels = NumLevels;
+			FormatInfo.pFeatureLevelsRequested = FeatureLevels;
+			HRESULT hr = m_pD3D12Device->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &FormatInfo, sizeof(FormatInfo));
+			IE_LOG(Log, TEXT(""));
 		}
 	}
 

@@ -2,7 +2,6 @@
 include ("Common-Build-Config.lua")
 
 
-rootDirPath		= "../../"
 engineDirPath	= "../"
 platform = "UWP"
 
@@ -27,11 +26,11 @@ project ("EngineBuild_UWP")
 	language ("C++")
 	cppdialect ("C++17")
 	staticruntime ("off")
-	systemversion ("latest")
+	systemversion ("10.0.18362.0")
 	targetname ("%{prj.name}")
 	
-	targetdir (ieGetBuildFolder(platform))
-	objdir (ieGetBuildIntFolder(platform))
+	targetdir (ieGetBuildFolder())
+	objdir (ieGetBuildIntFolder())
 
 	platforms { "x64" }
 	defaultlanguage ("en-US")
@@ -76,13 +75,11 @@ project ("EngineBuild_UWP")
 		"%{engineIncludeDirs.Nvidia}DirectX12/",
 		"%{engineIncludeDirs.rapidjson}include/",
 		"%{engineIncludeDirs.ImGui}",
-		--"%{engineIncludeDirs.ImGuizmo}",
 
 		-- Engine Source code
 		"%{engineIncludeDirs.Engine}/Source/",
-		"%{engineIncludeDirs.Engine}/Shaders/",
 
-		-- This Projects PCH
+		-- This projects PCH
 		"PCH_Source/",
 	}
 
@@ -95,17 +92,21 @@ project ("EngineBuild_UWP")
 		"MultiProcessorCompile"
 	}
 
-	-- Shaders
-	filter { "files:**.pixel.hlsl" }
-		shadertype "Pixel"
-		shadermodel "5.0"
 
-	filter { "files:**.vertex.hlsl" }
-		shadertype "Vertex"
-		shadermodel "5.0"
+--Filters
 
-	filter { "files:**.compute.hlsl" }
-		shadertype "Compute"
-		shadermodel "5.0"
+	filter { "platforms:XboxOne" }
+	defines
+	{
+		"IE_PLATFORM_BUILD_XBOX_ONE=1",
+		"TRACK_RENDER_EVENTS=0",
+	}
+		
+
+	filter { "platforms:UniversalWindowsDesktop" }
+	defines
+	{
+		"TRACK_RENDER_EVENTS=1", 
+	}
 
 dofile ("Common-Build-Config.lua")

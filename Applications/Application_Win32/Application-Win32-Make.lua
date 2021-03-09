@@ -32,10 +32,10 @@ project (projectName)
 	targetname ("%{prj.name}")
 	systemversion ("latest")
 	
-	targetdir (ieGetBuildFolder(platform))
-	objdir (ieGetBuildIntFolder(platform))
+	targetdir (ieGetBuildFolder())
+	objdir (ieGetBuildIntFolder())
 	
-	debugdir ("%{wks.location}")
+	debugdir (ieGetBuildFolder())
 
 	files
 	{
@@ -90,6 +90,8 @@ project (projectName)
 		"dwrite.lib",
 		"dxcompiler.lib",
 		
+		"Shaders",
+
 		-- Set the Runtime Library to Win32
 		engineRuntime,
 	}
@@ -112,17 +114,16 @@ project (projectName)
 		-- Mono
 		"%{commonPostBuildCommands.monodll}",
 
-		-- DxCompiler
-		"%{commonPostBuildCommands.dxildll}",
-		"%{commonPostBuildCommands.dxcompilerdll}",
-
 		-- Remove the engine build library to lighten the folder.
 		--("Rmdir /Q /S $(TargetDir)" .. engineRuntime)
+
+		-- Delete the duplicate shaders
+		"%{commonPostBuildCommands.delShaderDups}",
 	}
 
 
 -- Build Configurations
---
+
 	filter "configurations:DebugEditor"
 		links
 		{
@@ -146,9 +147,6 @@ project (projectName)
 			
 			-- Create a virtual copy of the assets folder
 			"%{commonPostBuildCommands.debugContentDir}",
-
-			-- Create a virtual copy of the shaders folder
-			"%{commonPostBuildCommands.debugShaderDir}",
 		}
 	
 
@@ -176,9 +174,6 @@ project (projectName)
 
 			-- Copy over the assets
 			"%{commonPostBuildCommands.releaseContentDir}",
-
-			-- Copy over the shaders
-			"%{commonPostBuildCommands.releaseShaderDir}",
 		}
 		
 
@@ -201,14 +196,8 @@ project (projectName)
 			-- Assimp
 			"%{commonPostBuildCommands.assimpdll_release}",
 
-			-- mono
-			("{COPY} %{win32AppIncludeDirs.Engine_ThirdParty}/Mono/bin/mono-2.0-sgen.dll %{cfg.targetdir}"),
-
 			-- Copy over the assets
 			"%{commonPostBuildCommands.releaseContentDir}",
-
-			-- Copy over the shaders
-			"%{commonPostBuildCommands.releaseShaderDir}",
 		}
 
 dofile ("../../Engine/BuildRules/Common-Build-Config.lua")
