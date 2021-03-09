@@ -110,11 +110,11 @@ namespace Insight {
 		resourceDesc.Height = 1;
 		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 		hr = pDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(m_VertexBuffer.GetAddressOf()));
-		ThrowIfFailed(hr, "Faield to create commited resource for skysphere");
+		ThrowIfFailed(hr, TEXT("Faield to create commited resource for skysphere"));
 
 		UINT8* dataBegin;
 		hr = m_VertexBuffer->Map(0, nullptr, reinterpret_cast<void**>(&dataBegin));
-		ThrowIfFailed(hr, "Failed to map resource fo GPU");
+		ThrowIfFailed(hr, TEXT("Failed to map resource fo GPU"));
 		memcpy(dataBegin, &verts[0], sizeof(SimpleVertex) * verts.size());
 		m_VertexBuffer->Unmap(0, nullptr);
 
@@ -124,9 +124,9 @@ namespace Insight {
 
 		resourceDesc.Width = sizeof(int) * triangles.size();
 		hr = pDevice->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(m_IndexBuffer.GetAddressOf()));
-		ThrowIfFailed(hr, "Failed to create commited resource for skysphere");
+		ThrowIfFailed(hr, TEXT("Failed to create commited resource for skysphere"));
 		m_IndexBuffer->Map(0, nullptr, reinterpret_cast<void**>(&dataBegin));
-		ThrowIfFailed(hr, "Failed to map commited resource to GPU");
+		ThrowIfFailed(hr, TEXT("Failed to map commited resource to GPU"));
 		memcpy(dataBegin, &triangles[0], sizeof(int) * triangles.size());
 		m_IndexBuffer->Unmap(0, nullptr);
 

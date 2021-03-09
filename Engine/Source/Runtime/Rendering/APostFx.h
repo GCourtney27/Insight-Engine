@@ -10,7 +10,7 @@ namespace Insight {
 	class INSIGHT_API APostFx : public GameFramework::AActor
 	{
 	public:
-		APostFx(ActorId id, GameFramework::ActorType type = "Spot Light Actor");
+		APostFx(ActorId id, GameFramework::ActorType type = TEXT("Post-Process Actor"));
 		virtual ~APostFx();
 
 		virtual bool LoadFromJson(const rapidjson::Value* jsonPostFx) override;

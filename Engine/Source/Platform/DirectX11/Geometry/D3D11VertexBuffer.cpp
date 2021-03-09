@@ -44,7 +44,7 @@ namespace Insight {
 		VertexBufferData.pSysMem = m_Verticies.data();
 
 		HRESULT hr = RenderContext.GetDevice().CreateBuffer(&VertexBufferDesc, &VertexBufferData, &m_pVertexBuffer);
-		ThrowIfFailed(hr, "Failed to create vertex buffer for D3D 11 context.");
+		//ThrowIfFailed(hr);
 
 		return true;
 	}

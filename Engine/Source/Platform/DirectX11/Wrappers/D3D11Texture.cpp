@@ -49,10 +49,9 @@ namespace Insight {
 		m_pDevice = &RenderContext.GetDevice();
 		m_pDeviceContext = &RenderContext.GetDeviceContext();
 
-		std::string Filepath = StringHelper::WideToString(m_TextureInfo.Filepath);
-
-		std::string FileExtension = StringHelper::GetFileExtension(Filepath);
-		if (FileExtension == "dds") {
+		
+		EString FileExtension = StringHelper::GetFileExtension(m_TextureInfo.Filepath);
+		if (FileExtension == TEXT("dds")) {
 			InitDDSTexture();
 		}
 		else {
@@ -137,7 +136,7 @@ namespace Insight {
 		}
 		default:
 		{
-			IE_LOG(Error, "Failed to determine shader register of texture with type \"%i\" in D3D 11 context.", m_TextureInfo.Type);
+			IE_LOG(Error, TEXT("Failed to determine shader register of texture with type \"%i\" in D3D 11 context."), m_TextureInfo.Type);
 		}
 		}
 		return - 1;

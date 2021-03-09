@@ -6,17 +6,17 @@
 #endif
 
 // Only msvc supports __declspec
-#if defined (IE_PLATFORM_WINDOWS)
 #	if IE_DYNAMIC_LINK
-#		if defined IE_BUILD_DLL
-#			define INSIGHT_API __declspec(dllexport)
-#		else
-#			define INSIGHT_API __declspec(dllimport)
+#		if defined (IE_PLATFORM_WINDOWS)
+#			if defined IE_BUILD_DLL
+#				define INSIGHT_API __declspec(dllexport)
+#			else
+#				define INSIGHT_API __declspec(dllimport)
+#			endif // IE_PLATFORM_BUILD_WIN32
 #		endif
 #	else
 #		define INSIGHT_API
 #	endif
-#endif // IE_PLATFORM_BUILD_WIN32
 
 #if defined IE_DEBUG
 #	define IE_ENABLE_ASSERTS
@@ -45,6 +45,7 @@
 #define IE_BIND_LOCAL_VOID_FN(Fn) std::bind( &Fn, this )
 #define COM_SAFE_RELEASE(ComObject) if( (ComObject) ) { (ComObject)->Release(); (ComObject) = nullptr; }
 #define RAW_LITERAL(Value) #Value
+#define WIDE_STRING(Value) L#Value
 #define MACRO_TO_STRING(Macro) RAW_LITERAL(Macro);
 #define FORCE_INLINE __forceinline
 #define INLINE inline 

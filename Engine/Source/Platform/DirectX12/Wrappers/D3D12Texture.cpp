@@ -51,7 +51,6 @@ namespace Insight {
 
 	bool ieD3D12Texture::Init(IE_TEXTURE_INFO createInfo, CDescriptorHeapWrapper& srvHeapHandle)
 	{
-		std::string Filepath = StringHelper::WideToString(createInfo.Filepath);
 		Direct3D12Context& RenderContext = Renderer::GetAs<Direct3D12Context>();
 
 
@@ -60,11 +59,11 @@ namespace Insight {
 		m_pTranslucencyPass_CommandList = &RenderContext.GetTransparencyPassCommandList();
 		m_TextureInfo = createInfo;
 
-		std::string FileExtension = StringHelper::GetFileExtension(Filepath);
-		if (FileExtension == "dds") {
+		EString FileExtension = StringHelper::GetFileExtension(createInfo.Filepath);
+		if (FileExtension == TEXT("dds")) {
 			InitDDSTexture(srvHeapHandle);
 		}
-		else if (FileExtension == "hdr") {
+		else if (FileExtension == TEXT("hdr")) {
 			InitHDRTexture(srvHeapHandle);
 		}
 		else {
@@ -88,12 +87,12 @@ namespace Insight {
 		HRESULT hr;
 		hr = DirectX::CreateDDSTextureFromFile(pDevice, ResourceUpload, m_TextureInfo.Filepath.c_str(), &m_pTexture, m_TextureInfo.GenerateMipMaps, 0, nullptr, &m_TextureInfo.IsCubeMap);
 		if (FAILED(hr)) {
-			IE_LOG(Error, "Failed to load DDS texture from file with path \"%s\"", StringHelper::WideToString(m_TextureInfo.Filepath).c_str());
+			IE_LOG(Error, TEXT("Failed to load DDS texture from file with path \"%s\""), StringHelper::WideToString(m_TextureInfo.Filepath).c_str());
 		}
 
 		m_D3DTextureDesc = m_pTexture->GetDesc();
 		if (!ResourceUpload.IsSupportedForGenerateMips(m_D3DTextureDesc.Format)) {
-			//IE_LOG(Warning, "Mip map generation not supported for texture: %s", m_DisplayName.c_str());
+			//IE_LOG(Warning, TEXT("Mip map generation not supported for texture: %s"), m_DisplayName.c_str());
 		}
 
 		// Upload the resources to the GPU
@@ -133,13 +132,13 @@ namespace Insight {
 		hr = DirectX::CreateWICTextureFromFile(pDevice, resourceUpload, m_TextureInfo.Filepath.c_str(), &m_pTexture, m_TextureInfo.GenerateMipMaps);
 
 		if (FAILED(hr)) {
-			IE_LOG(Error, "Failed to Create WIC texture from file with path \"%s\"", StringHelper::WideToString(m_TextureInfo.Filepath).c_str());
+			IE_LOG(Error, TEXT("Failed to Create WIC texture from file with path \"%s\""), StringHelper::WideToString(m_TextureInfo.Filepath).c_str());
 			return false;
 		}
 
 		m_D3DTextureDesc = m_pTexture->GetDesc();
 		if (!resourceUpload.IsSupportedForGenerateMips(m_D3DTextureDesc.Format)) {
-			//IE_LOG(Warning, "Mip map generation not supported for texture: %s", m_DisplayName.c_str());
+			//IE_LOG(Warning, TEXT("Mip map generation not supported for texture: %s"), m_DisplayName.c_str());
 		}
 
 		// Upload the resources to the GPU
@@ -220,7 +219,7 @@ namespace Insight {
 		}
 		default:
 		{
-			IE_LOG(Warning, "Failed to get root parameter index with texture type: %i", TextureType);
+			IE_LOG(Warning, TEXT("Failed to get root parameter index with texture type: %i"), TextureType);
 			break;
 		}
 		}

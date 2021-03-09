@@ -2,6 +2,7 @@
 
 #include <Runtime/CoreMacros.h>
 
+#include "Runtime/Core/EString.h"
 #if defined IE_PLATFORM_BUILD_WIN32
 #	include "Platform/Win32/ConsoleWindow.h"
 #endif 
@@ -40,18 +41,14 @@ namespace Insight {
 				Appends a message to be dumped to log file.
 				@param Message - The message to be written to the dump file.
 			*/
-			inline static void AppendMessageForCoreDump(const char* Message)
-			{
-				s_CoreDumpMessage.append(Message);
-				s_CoreDumpMessage.append("\n");
-			}
-
+			static void AppendMessageForCoreDump(const TChar* Message);
+			
 			/*
 				Begins the core dump and writs to a file.
 			*/
 			static void InitiateCoreDump();
 
-			static inline const char* GetLoggerName() { return s_LoggerName; }
+			static inline const TChar* GetLoggerName() { return s_LoggerName; }
 
 #	if (IE_DEBUG) && defined (IE_PLATFORM_BUILD_WIN32)
 			/*
@@ -61,8 +58,8 @@ namespace Insight {
 #endif
 
 		private:
-			static const char* s_LoggerName;
-			static std::string s_CoreDumpMessage;
+			static const TChar* s_LoggerName;
+			static EString s_CoreDumpMessage;
 #	if defined (IE_DEBUG) && defined (IE_PLATFORM_BUILD_WIN32)
 			static ConsoleWindow s_ConsoleWindow;
 #	endif
@@ -72,7 +69,7 @@ namespace Insight {
 
 		// Logger that will log output to the console window. Recommended that you dont call directly. 
 		// Instead, use IE_LOG so logs will be stripped from release builds.
-		void LogHelper(ELogSeverity Severity, const char* fmt, const char* File, const char* Function, int Line, ...);
+		void LogHelper(ELogSeverity Severity, const TChar* fmt, const TChar* File, const TChar* Function, int Line, ...);
 
 	} // end namespace Debug
 } // end namespace Insight
@@ -93,7 +90,7 @@ namespace Insight {
 	@param fmt - the format to display when writing to the console.
 	@param ... - Optional arguments to supply when printing.
 */
-#	define IE_LOG(Severity, fmt, ...) ::Insight::Debug::LogHelper(ELogSeverity::##Severity, fmt, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);
+#	define IE_LOG(Severity, fmt, ...) ::Insight::Debug::LogHelper(ELogSeverity::##Severity, fmt, __FILEW__, __FUNCTIONW__, __LINE__, __VA_ARGS__);
 
 #if IE_PLATFORM_BUILD_WIN32
 #	define SET_CONSOLE_OUT_COLOR(Color) ::Insight::Debug::Logger::GetConsoleWindow().SetForegroundColor(EConsoleColor::##Color)
@@ -105,4 +102,5 @@ namespace Insight {
 #else
 #	define IE_FATAL_ERROR(...)
 #	define IE_LOG(LogSeverity, fmt, ...)
+#	define SET_CONSOLE_OUT_COLOR(Color)
 #endif

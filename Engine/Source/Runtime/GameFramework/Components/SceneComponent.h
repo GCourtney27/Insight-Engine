@@ -89,7 +89,7 @@ namespace Insight {
 
 		private:
 			void RenderSelectionGizmo();
-			inline void NotifyTranslationEvent();
+			void NotifyTranslationEvent();
 
 		private:
 			ieTransform m_Transform;

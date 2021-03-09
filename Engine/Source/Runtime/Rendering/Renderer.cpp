@@ -62,7 +62,7 @@ namespace Insight {
 #endif // IE_PLATFORM_WINDOWS
 		default:
 		{
-			IE_LOG(Error, "Failed to create render with given context type: {0}", GraphicsSettings.TargetRenderAPI);
+			IE_LOG(Error, TEXT("Failed to create render with given context type: %i"), GraphicsSettings.TargetRenderAPI);
 			break;
 		}
 		}

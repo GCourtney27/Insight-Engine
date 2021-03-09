@@ -23,12 +23,12 @@ namespace Insight {
 	class INSIGHT_API Model : public SceneNode
 	{
 	public:
-		Model(const std::string& Path, Material* Material);
+		Model(const EString& Path, Material* Material);
 		Model() {}
 		Model(Model&& Model) noexcept;
 		~Model();
 
-		bool Create(const std::string& path, Material* pMaterial);
+		bool Create(const EString& path, Material* pMaterial);
 		void OnImGuiRender();
 		void RenderSceneHeirarchy();
 		void BindResources(bool IsDeferredPass);
@@ -36,8 +36,8 @@ namespace Insight {
 		ieTransform& GetMeshRootTransformRef() { return m_pRoot->GetTransformRef(); }
 
 		Material& GetMaterialRef() { return *m_pMaterial; }
-		std::string GetDirectory() { return m_Directory; }
-		std::string GetAssetDirectoryRelativePath() { return m_AssetDirectoryRelativePath; }
+		EString GetDirectory() { return m_Directory; }
+		EString GetAssetDirectoryRelativePath() { return m_AssetDirectoryRelativePath; }
 
 		// Visibility
 		bool GetCanBeRendered() { return m_Visible; }
@@ -53,7 +53,7 @@ namespace Insight {
 		void Destroy();
 
 	private:
-		bool LoadModelFromFile(const std::string& path);
+		bool LoadModelFromFile(const EString& path);
 		
 #if IE_PLATFORM_BUILD_WIN32
 		std::unique_ptr<MeshNode> AssimpParseNode_r(aiNode* pNode);
@@ -69,9 +69,9 @@ namespace Insight {
 		
 		Material* m_pMaterial = nullptr;
 
-		std::string m_AssetDirectoryRelativePath;
-		std::string m_Directory;
-		std::string m_FileName;
+		EString m_AssetDirectoryRelativePath;
+		EString m_Directory;
+		EString m_FileName;
 
 		bool m_CastsShadows = true;
 		bool m_Visible = true;

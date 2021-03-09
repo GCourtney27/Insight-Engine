@@ -13,14 +13,14 @@ namespace Insight {
 		if (m_pShader.Get()) {
 			return true;
 		}
-		HRESULT hr = D3DReadFileToBlob(ShaderPath.c_str(), m_pShaderByteCode.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to read D3D 11 vertex shader from file.");
+		//HRESULT hr = D3DReadFileToBlob(ShaderPath.c_str(), m_pShaderByteCode.GetAddressOf());
+		//ThrowIfFailed(hr, "Failed to read D3D 11 vertex shader from file.");
 
-		hr = pDevice->CreateVertexShader(m_pShaderByteCode->GetBufferPointer(), m_pShaderByteCode->GetBufferSize(), NULL, m_pShader.GetAddressOf());
+		/*hr = pDevice->CreateVertexShader(m_pShaderByteCode->GetBufferPointer(), m_pShaderByteCode->GetBufferSize(), NULL, m_pShader.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create D3D 11 vertex shader from blob.");
 
 		hr = pDevice->CreateInputLayout(pLayoutDesc, NumElements, m_pShaderByteCode->GetBufferPointer(), m_pShaderByteCode->GetBufferSize(), m_pInputLayout.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create D3D 11 vertex shader input layout.");
+		ThrowIfFailed(hr, "Failed to create D3D 11 vertex shader input layout.");*/
 
 		return true;
 	}
@@ -58,10 +58,10 @@ namespace Insight {
 			return true;
 		}
 		HRESULT hr = E_FAIL;// = D3DReadFileToBlob(shaderpath.c_str(), m_pShaderByteCode.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to read D3D 11 pixel shader from file.");
+		//ThrowIfFailed(hr);
 
 		hr = device->CreatePixelShader(m_pShaderByteCode.Get()->GetBufferPointer(), m_pShaderByteCode.Get()->GetBufferSize(), NULL, m_pShader.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create D3D 11 pixel shader from blob.");
+		//ThrowIfFailed(hr);
 
 		return true;
 	}

@@ -103,7 +103,7 @@ namespace Insight {
 			Writer->String("DirectionalLight");
 
 			Writer->Key("DisplayName");
-			Writer->String(SceneNode::GetDisplayName());
+			Writer->String(StringHelper::WideToString(SceneNode::GetDisplayName()).c_str());
 
 			// Directional Light Attributes
 			Writer->Key("Emission");

@@ -10,7 +10,7 @@ namespace Insight {
 	class INSIGHT_API ADirectionalLight : public GameFramework::AActor
 	{
 	public:
-		ADirectionalLight(ActorId id, GameFramework::ActorType type = "Directional Light Actor");
+		ADirectionalLight(ActorId id, GameFramework::ActorType type = TEXT("Directional Light Actor"));
 		virtual ~ADirectionalLight();
 
 		virtual bool LoadFromJson(const rapidjson::Value* jsonDirectionalLight) override;

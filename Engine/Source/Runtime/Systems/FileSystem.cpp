@@ -30,13 +30,13 @@ namespace Insight {
 		return true;
 	}
 
-	char* FileSystem::ReadRawData(const char* Path, size_t& OutDataSize)
+	std::unique_ptr<TChar> FileSystem::ReadRawData(const TChar* Path, size_t& OutDataSize)
 	{
-		FILE* pFile = fopen(Path, "rb");
+		FILE* pFile = _wfopen(Path, TEXT("rb"));
 		if (!pFile)
 		{
 			HRESULT hr = HRESULT_FROM_WIN32(GetLastError());
-			IE_LOG(Error, "Failed to read raw file with path: \"%s\"", Path);
+			IE_LOG(Error, TEXT("Failed to read raw file with path: \"%s\""), Path);
 			OutDataSize = -1;
 			return nullptr;
 		}
@@ -47,22 +47,22 @@ namespace Insight {
 		fseek(pFile, 0, SEEK_SET);
 		
 		// Fill the buffer with the data in the file.
-		char* FileContents = new char[OutDataSize];
-		fread(FileContents, 1, OutDataSize, pFile);
+		std::unique_ptr<TChar> FileContents(new TChar[OutDataSize]);
+		fread(FileContents.get(), 1, OutDataSize, pFile);
 
 		fclose(pFile);
 
 		return FileContents;
 	}
 
-	void FileSystem::SaveEngineUserSettings(Renderer::GraphicsSettings Settings)
+	void FileSystem::SaveEngineUserSettings(const Renderer::GraphicsSettings& Settings)
 	{
-		rapidjson::Document RawSettingsFile;
-		const std::string SettingsDir = "../Content/Engine.ini";
+		/*rapidjson::Document RawSettingsFile;
+		const std::string SettingsDir = "Content/Engine.ini";
 		if (!json::load(SettingsDir.c_str(), RawSettingsFile)) {
 			IE_LOG(Error, "Failed to load graphics settings from file: \"%s\". Default graphics settings will be applied.", SettingsDir.c_str());
 
-		}
+		}*/
 
 		{
 			rapidjson::StringBuffer StrBuffer;
@@ -92,12 +92,12 @@ namespace Insight {
 			
 
 			// Final Export
-			std::string sceneName = "../Engine.ini";
+			std::string sceneName = "Content/Engine.ini";
 			std::ofstream offstream(sceneName.c_str());
 			offstream << StrBuffer.GetString();
 
 			if (!offstream.good()) {
-				IE_LOG(Error, "Failed to save graphics properties to Engine.ini.");
+				IE_LOG(Error, TEXT("Failed to save graphics properties to Engine.ini."));
 			}
 		}
 
@@ -105,11 +105,7 @@ namespace Insight {
 
 	std::wstring FileSystem::GetRelativeContentDirectoryW(const std::wstring& Path)
 	{
-#if IE_PLATFORM_BUILD_WIN32
 		return std::wstring(L"Content/" + Path);
-#elif IE_PLATFORM_BUILD_UWP
-		return std::wstring(L"Content/" + Path);
-#endif
 	}
 
 	Renderer::GraphicsSettings FileSystem::LoadGraphicsSettingsFromJson()
@@ -118,12 +114,12 @@ namespace Insight {
 		GraphicsSettings UserGraphicsSettings = {};
 
 		{
-			ScopedSecondTimer("LoadSceneFromJson::LoadGraphicsSettingsFromJson");
-
+			ScopedSecondTimer(TEXT("LoadSceneFromJson::LoadGraphicsSettingsFromJson"));
+			
 			rapidjson::Document RawSettingsFile;
 			const std::string SettingsDir = StringHelper::WideToString(GetRelativeContentDirectoryW(L"Engine.ini"));
 			if (!json::load(SettingsDir.c_str(), RawSettingsFile)) {
-				IE_LOG(Error, "Failed to load graphics settings from file: \"%s\". Default graphics settings will be applied.", SettingsDir.c_str());
+				IE_LOG(Error, TEXT("Failed to load graphics settings from file: \"%s\". Default graphics settings will be applied."), SettingsDir.c_str());
 				return UserGraphicsSettings;
 			}
 			int MaxAniso, TargetRenderAPI;
@@ -143,12 +139,12 @@ namespace Insight {
 	{
 		// Load in Meta.json
 		{
-			ScopedSecondTimer("LoadSceneFromJson::LoadMetaData");
+			ScopedSecondTimer(TEXT("LoadSceneFromJson::LoadMetaData"));
 
 			rapidjson::Document rawMetaFile;
 			const std::string metaDir = FileName + "/Meta.json";
 			if (!json::load(metaDir.c_str(), rawMetaFile)) {
-				IE_LOG(Error, "Failed to load meta file from scene: \"%s\" from file.", FileName.c_str());
+				IE_LOG(Error, TEXT("Failed to load meta file from scene: \"%s\" from file."), FileName.c_str());
 				return false;
 			}
 			std::string sceneName;
@@ -160,33 +156,33 @@ namespace Insight {
 			json::get_int(rawMetaFile, "NumSceneActors", NumActorsInScene);
 			pScene->ResizeSceneGraph(NumActorsInScene);
 
-			IE_LOG(Log, "Scene meta data loaded.");
+			IE_LOG(Log, TEXT("Scene meta data loaded."));
 		}
 
 		// Load in Resources.json
 		{
-			ScopedSecondTimer("LoadSceneFromJson::LoadResources");
+			ScopedSecondTimer(TEXT("LoadSceneFromJson::LoadResources"));
 
 			rapidjson::Document RawResourceFile;
 			const std::string ResorurceDir = FileName + "/Resources.json";
 			if (!json::load(ResorurceDir.c_str(), RawResourceFile)) {
-				IE_LOG(Error, "Failed to load resource file from scene: \"%s\" from file.", FileName.c_str());
+				IE_LOG(Error, TEXT("Failed to load resource file from scene: \"%s\" from file."), FileName.c_str());
 				return false;
 			}
 
 			ResourceManager::Get().LoadResourcesFromJson(RawResourceFile);
 
-			IE_LOG(Log, "Scene resouces loaded.");
+			IE_LOG(Log, TEXT("Scene resouces loaded."));
 		}
 
 		// Load in Actors.json last once resources have been intialized
 		{
-			ScopedSecondTimer("LoadSceneFromJson::LoadActors");
+			ScopedSecondTimer(TEXT("LoadSceneFromJson::LoadActors"));
 
 			rapidjson::Document RawActorsFile;
 			const std::string ActorsDir = FileName + "/Actors.json";
 			if (!json::load(ActorsDir.c_str(), RawActorsFile)) {
-				IE_LOG(Error, "Failed to load actor file from scene: \"%s\" from file.", FileName.c_str());
+				IE_LOG(Error, TEXT("Failed to load actor file from scene: \"%s\" from file."), FileName.c_str());
 				return false;
 			}
 
@@ -198,42 +194,44 @@ namespace Insight {
 			{
 				const rapidjson::Value& jsonActor = SceneObjects[a];
 
-				std::string ActorDisplayName;
-				std::string ActorType;
-				json::get_string(jsonActor, "DisplayName", ActorDisplayName);
-				json::get_string(jsonActor, "Type", ActorType);
+				std::string DisplayName;
+				std::string Type;
+				json::get_string(jsonActor, "DisplayName", DisplayName);
+				json::get_string(jsonActor, "Type", Type);
+				EString ActorDisplayName = StringHelper::StringToWide(DisplayName);
+				EString ActorType = StringHelper::StringToWide(Type);
 
-				if (ActorType == "Actor") {
+				if (ActorType == TEXT("Actor")) {
 					pNewActor = new GameFramework::AActor(ActorSceneIndex, ActorDisplayName);
 					pNewActor->LoadFromJson(&jsonActor);
 				}
-				else if (ActorType == "PointLight") {
+				else if (ActorType == TEXT("PointLight")) {
 					pNewActor = new APointLight(ActorSceneIndex, ActorDisplayName);
 					pNewActor->LoadFromJson(&jsonActor);
 				}
-				else if (ActorType == "SpotLight") {
+				else if (ActorType == TEXT("SpotLight")) {
 					pNewActor = new ASpotLight(ActorSceneIndex, ActorDisplayName);
 					pNewActor->LoadFromJson(&jsonActor);
 				}
- 				else if (ActorType == "DirectionalLight") {
+ 				else if (ActorType == TEXT("DirectionalLight")) {
 					pNewActor = new ADirectionalLight(ActorSceneIndex, ActorDisplayName);
 					pNewActor->LoadFromJson(&jsonActor);
 				}
-				else if (ActorType == "SkySphere") {
+				else if (ActorType == TEXT("SkySphere")) {
 					pNewActor = new ASkySphere(ActorSceneIndex, ActorDisplayName);
-					pNewActor->LoadFromJson(&jsonActor);
+						pNewActor->LoadFromJson(&jsonActor);
 				}
-				else if (ActorType == "SkyLight") {
+				else if (ActorType == TEXT("SkyLight")) {
 					pNewActor = new ASkyLight(ActorSceneIndex, ActorDisplayName);
-					pNewActor->LoadFromJson(&jsonActor);
+						pNewActor->LoadFromJson(&jsonActor);
 				}
-				else if (ActorType == "PostFxVolume") {
+				else if (ActorType == TEXT("PostFxVolume")) {
 					pNewActor = new APostFx(ActorSceneIndex, ActorDisplayName);
 					pNewActor->LoadFromJson(&jsonActor);
 				}
 
 				if (pNewActor == nullptr) {
-					IE_LOG(Error, "Failed to parse actor \"%s\" into scene", (ActorDisplayName.c_str() == "") ? "INVALID NAME" : ActorDisplayName.c_str());
+					IE_LOG(Error, TEXT("Failed to parse actor \"%s\" into scene"), (ActorDisplayName.c_str() == TEXT("")) ? TEXT("INVALID NAME") : ActorDisplayName.c_str());
 					continue;
 				}
 
@@ -241,7 +239,7 @@ namespace Insight {
 				ActorSceneIndex++;
 			}
 
-			IE_LOG(Log, "Scene actors loaded.");
+			IE_LOG(Log, TEXT("Scene actors loaded."));
 		}
 
 		return true;
@@ -267,7 +265,7 @@ namespace Insight {
 			offstream << StrBuffer.GetString();
 
 			if (!offstream.good()) {
-				IE_LOG(Error, "Failed to save meta data for scene: %s", pScene->GetDisplayName().c_str());
+				IE_LOG(Error, TEXT("Failed to save meta data for scene: %s"), pScene->GetDisplayName().c_str());
 				return false;
 			}
 		}
@@ -285,7 +283,7 @@ namespace Insight {
 			offstream << StrBuffer.GetString();
 
 			if (!offstream.good()) {
-				IE_LOG(Error, "Failed to save actors for scene: %s", pScene->GetDisplayName().c_str());
+				IE_LOG(Error, TEXT("Failed to save actors for scene: %s"), pScene->GetDisplayName().c_str());
 				return false;
 			}
 		}
@@ -306,15 +304,10 @@ namespace Insight {
 #endif
 	}
 
-	std::wstring FileSystem::GetShaderPathW(const wchar_t* Shader)
+	EString FileSystem::GetShaderPathW(const TChar* Shader)
 	{
-		std::wstring Path = L"";
-#if IE_PLATFORM_BUILD_WIN32
-		Path += L"EngineBuild_Win32/";
-#elif IE_PLATFORM_BUILD_UWP
-		Path += L"EngineBuild_UWP/";
-#endif
-		Path += Shader;
+		EString Path = L"Shaders/";
+		Path.append(Shader);
 		return Path;
 	}
 }

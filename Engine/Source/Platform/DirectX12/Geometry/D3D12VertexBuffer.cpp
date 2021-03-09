@@ -32,7 +32,7 @@ namespace Insight {
 			nullptr,
 			IID_PPV_ARGS(&m_pVertexBuffer));
 		if (FAILED(hr)) {
-			IE_LOG(Error, "Failed to upload vertex buffer resource heap");
+			IE_LOG(Error, TEXT("Failed to upload vertex buffer resource heap"));
 			return false;
 		}
 		m_pVertexBuffer->SetName(L"Vertex Buffer Resource Heap");
@@ -45,7 +45,7 @@ namespace Insight {
 			nullptr,
 			IID_PPV_ARGS(&m_pVertexBufferUploadHeap));
 		if (FAILED(hr)) {
-			IE_LOG(Error, "Failed to upload vertex buffer heap");
+			IE_LOG(Error, TEXT("Failed to upload vertex buffer heap"));
 			return false;
 		}
 		m_pVertexBufferUploadHeap->SetName(L"Vertex Buffer Upload Resource Heap");

@@ -63,7 +63,7 @@ namespace Insight {
 				}
 				else
 				{
-					IE_LOG(Warning, "Timer already started!");
+					IE_LOG(Warning, TEXT("Timer already started!"));
 				}
 			}
 
@@ -80,7 +80,7 @@ namespace Insight {
 				}
 				else
 				{
-					IE_LOG(Warning, "Timer being stopped without being started!")
+					IE_LOG(Warning, TEXT("Timer being stopped without being started!"))
 				}
 			}
 
@@ -143,7 +143,7 @@ namespace Insight {
 
 		struct INSIGHT_API ScopedTimer : private Timer<double>
 		{
-			ScopedTimer(const char* ScopeName, EOutputType OutputType = EOutputType::OT_Milliseconds)
+			ScopedTimer(const TChar* ScopeName, EOutputType OutputType = EOutputType::OT_Milliseconds)
 				: m_ScopeName(ScopeName), Timer(OutputType)
 			{
 				Start();
@@ -154,16 +154,16 @@ namespace Insight {
 				switch (m_OutputType)
 				{
 				case EOutputType::OT_Milliseconds:
-					IE_LOG(Log, "%s took %f milliseconds", m_ScopeName, GetElapsedMiliSeconds());
+					IE_LOG(Log, TEXT("%s took %f milliseconds"), m_ScopeName, GetElapsedMiliSeconds());
 					break;
 				case EOutputType::OT_Seconds:
-					IE_LOG(Log, "%s took %f seconds", m_ScopeName, GetElepsedSeconds());
+					IE_LOG(Log, TEXT("%s took %f seconds"), m_ScopeName, GetElepsedSeconds());
 					break;
 				case EOutputType::OT_NanoSeconds:
-					IE_LOG(Log, "%s took %f nanoseconds", m_ScopeName, GetElapsedNanos());
+					IE_LOG(Log, TEXT("%s took %f nanoseconds"), m_ScopeName, GetElapsedNanos());
 					break;
 				case EOutputType::OT_MicroSeconds:
-					IE_LOG(Log, "%s took %f microseconds", m_ScopeName, GetElepsedMicroSeconds());
+					IE_LOG(Log, TEXT("%s took %f microseconds"), m_ScopeName, GetElepsedMicroSeconds());
 					break;
 				default:
 					break;
@@ -171,7 +171,7 @@ namespace Insight {
 			}
 
 		private:
-			const char* m_ScopeName;
+			const TChar* m_ScopeName;
 		};
 
 	} // End namespace Profiling

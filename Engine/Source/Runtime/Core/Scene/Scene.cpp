@@ -36,7 +36,7 @@ namespace Insight {
 
 	bool Scene::Init(const std::string& fileName)
 	{
-		m_pSceneRoot = new SceneNode("Scene Root");
+		m_pSceneRoot = new SceneNode(TEXT("Scene Root"));
 
 		// Initialize resource managers this scene will need.
 		m_ResourceManager.Init();
@@ -127,7 +127,7 @@ namespace Insight {
 		Destroy();
 		m_ResourceManager.FlushAllResources();
 		if (!Init(NewScene)) {
-			IE_LOG(Error, "Failed to flush current scene \"%s\" and load new scene with filepath: \"%s\"", m_DisplayName.c_str(), NewScene.c_str());
+			IE_LOG(Error, TEXT("Failed to flush current scene \"%s\" and load new scene with filepath: \"%s\""), m_DisplayName.c_str(), NewScene.c_str());
 			return false;
 		}
 

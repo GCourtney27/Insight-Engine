@@ -37,7 +37,7 @@ namespace Insight {
 		PerObjectBufferDesc.ByteWidth = static_cast<UINT>(sizeof(CB_VS_PerObject) + (16 - sizeof(CB_VS_PerObject) % 16));
 		PerObjectBufferDesc.StructureByteStride = 0U;
 		HRESULT hr = m_pDevice->CreateBuffer(&PerObjectBufferDesc, nullptr, m_pIntermediatePerObjectCB.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create intermediate Per-Object constant buffer for D3D 11 context.");
+		//ThrowIfFailed(hr, "Failed to create intermediate Per-Object constant buffer for D3D 11 context.");
 
 		D3D11_BUFFER_DESC MatOverridesBufferDesc = {};
 		MatOverridesBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -47,7 +47,7 @@ namespace Insight {
 		MatOverridesBufferDesc.ByteWidth = static_cast<UINT>(sizeof(CB_PS_VS_PerObjectMaterialAdditives) + (16 - sizeof(CB_PS_VS_PerObjectMaterialAdditives) % 16));
 		MatOverridesBufferDesc.StructureByteStride = 0U;
 		hr = m_pDevice->CreateBuffer(&MatOverridesBufferDesc, nullptr, m_pIntermediatematOverridesCB.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create intermediate Per-Object material override constant buffer for D3D 11 context.");
+		//ThrowIfFailed(hr, "Failed to create intermediate Per-Object material override constant buffer for D3D 11 context.");
 
 
 

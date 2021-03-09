@@ -14,7 +14,7 @@ namespace Insight {
 		class INSIGHT_API APlayerStart : public AActor
 		{
 		public:
-			APlayerStart(ActorId id, ActorName name = "Player Start");
+			APlayerStart(ActorId id, ActorName name = TEXT("Player Start"));
 			virtual ~APlayerStart();
 
 			virtual bool OnInit() override;

@@ -17,9 +17,9 @@ namespace Insight {
 
 	public:
 		ID();
-		ID(const std::string& id)
+		ID(const EString& id)
 			: m_Name(id), m_Id(id), m_Tag(id) {}
-		ID(const char* id)
+		ID(const TChar* id)
 			: m_Name(id), m_Id(id), m_Tag(id) {}
 
 		bool operator == (const ID& id) const { return m_Id == id.m_Id; }
@@ -27,30 +27,30 @@ namespace Insight {
 
 		bool IsValid() const
 		{
-			return (m_Id != "");
+			return (m_Id != TEXT(""));
 		}
 
 		static size_t ms_uniqueID;
-		static std::string GetUniqueID();
-		void SetUniqueID(std::string id) { m_Id = id; }
+		static EString GetUniqueID();
+		void SetUniqueID(const EString& id) { m_Id = id; }
 
-		std::string& GetName() { return m_Name; }
-		void SetName(std::string name) { m_Name = name; }
+		EString& GetName() { return m_Name; }
+		void SetName(const EString& name) { m_Name = name; }
 
-		std::string& GetType() { return m_Type; }
-		void SetType(std::string type) { m_Type = type; }
+		EString& GetType() { return m_Type; }
+		void SetType(const EString& type) { m_Type = type; }
 
-		std::string& GetTag() { return m_Tag; }
-		void SetTag(std::string tag) { m_Tag = tag; }
+		EString& GetTag() { return m_Tag; }
+		void SetTag(const EString& tag) { m_Tag = tag; }
 
 		void SetLayer(const int& layer) { m_Layer = layer; }
 		int GetLayer() const { return m_Layer; }
 
 	protected:
-		std::string m_Type;
-		std::string m_Name;
-		std::string m_Id;
-		std::string m_Tag;
+		EString m_Type;
+		EString m_Name;
+		EString m_Id;
+		EString m_Tag;
 		int m_Layer;
 	};
 

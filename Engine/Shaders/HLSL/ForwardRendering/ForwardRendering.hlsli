@@ -1,5 +1,5 @@
-#include <../Common/InsightCommon.hlsli>
-#include <../Common/LightsCommon.hlsli>
+#include "../Common/InsightCommon.hlsli"
+#include "../Common/LightsCommon.hlsli"
 
 cbuffer cbPerObject : register(b0)
 {

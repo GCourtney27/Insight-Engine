@@ -2,7 +2,6 @@
 include ("Common-Build-Config.lua")
 
 
-rootDirPath		= "../../"
 engineDirPath	= "../"
 platform = "UWP"
 
@@ -27,11 +26,11 @@ project ("EngineBuild_UWP")
 	language ("C++")
 	cppdialect ("C++17")
 	staticruntime ("off")
-	systemversion ("latest")
+	systemversion ("10.0.18362.0")
 	targetname ("%{prj.name}")
 	
-	targetdir (ieGetBuildFolder(platform))
-	objdir (ieGetBuildIntFolder(platform))
+	targetdir (ieGetBuildFolder())
+	objdir (ieGetBuildIntFolder())
 
 	platforms { "x64" }
 	defaultlanguage ("en-US")
@@ -55,9 +54,6 @@ project ("EngineBuild_UWP")
 		"%{engineIncludeDirs.Engine}/ThirdParty/Vendor_Build.cpp",
 		"%{engineIncludeDirs.Engine}/Source/**.cpp",
 		"%{engineIncludeDirs.Engine}/Source/**.h",
-		"%{engineIncludeDirs.Engine}/Shaders/**.vertex.hlsl",
-		"%{engineIncludeDirs.Engine}/Shaders/**.pixel.hlsl",
-		"%{engineIncludeDirs.Engine}/Shaders/**.compute.hlsl",
 	}
 
 	defines
@@ -79,13 +75,11 @@ project ("EngineBuild_UWP")
 		"%{engineIncludeDirs.Nvidia}DirectX12/",
 		"%{engineIncludeDirs.rapidjson}include/",
 		"%{engineIncludeDirs.ImGui}",
-		--"%{engineIncludeDirs.ImGuizmo}",
 
 		-- Engine Source code
 		"%{engineIncludeDirs.Engine}/Source/",
-		"%{engineIncludeDirs.Engine}/Shaders/",
 
-		-- This Projects PCH
+		-- This projects PCH
 		"PCH_Source/",
 	}
 
@@ -98,23 +92,21 @@ project ("EngineBuild_UWP")
 		"MultiProcessorCompile"
 	}
 
-	postbuildcommands
+
+--Filters
+
+	filter { "platforms:XboxOne" }
+	defines
 	{
-		-- Compile the ray tracing shaders.
-		("%{wks.location}Engine/Shaders/HLSL/RayTracing/CompileRTShaders.bat ".. ieGetBuildFolder(platform) .. "%{prj.name}"),
+		"IE_PLATFORM_BUILD_XBOX_ONE=1",
+		"TRACK_RENDER_EVENTS=0",
 	}
+		
 
-	-- Shaders
-	filter { "files:**.pixel.hlsl" }
-		shadertype "Pixel"
-		shadermodel "5.0"
-
-	filter { "files:**.vertex.hlsl" }
-		shadertype "Vertex"
-		shadermodel "5.0"
-
-	filter { "files:**.compute.hlsl" }
-		shadertype "Compute"
-		shadermodel "5.0"
+	filter { "platforms:UniversalWindowsDesktop" }
+	defines
+	{
+		"TRACK_RENDER_EVENTS=1", 
+	}
 
 dofile ("Common-Build-Config.lua")

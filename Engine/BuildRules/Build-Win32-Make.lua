@@ -29,8 +29,8 @@ project ("EngineBuild_Win32")
 	systemversion ("latest")
 	targetname ("%{prj.name}")
 	
-	targetdir (ieGetBuildFolder(platform) .. "%{prj.name}")
-	objdir (ieGetBuildIntFolder(platform))
+	targetdir (ieGetBuildFolder() .. "%{prj.name}")
+	objdir (ieGetBuildIntFolder())
 	debugdir ("%{cfg.targetdir}/")
 
 	pchheader ("Engine_pch.h")
@@ -49,16 +49,14 @@ project ("EngineBuild_Win32")
 		"%{engineIncludeDirs.Engine}/ThirdParty/Vendor_Build.cpp",
 		"%{engineIncludeDirs.Engine}/Source/**.cpp",
 		"%{engineIncludeDirs.Engine}/Source/**.h",
-		"%{engineIncludeDirs.Engine}/Shaders/**.vertex.hlsl",
-		"%{engineIncludeDirs.Engine}/Shaders/**.pixel.hlsl",
-		"%{engineIncludeDirs.Engine}/Shaders/**.compute.hlsl",
 	}
 
 	defines
 	{
 		-- Tells the engine to compile for Win32 platform
 		"IE_PLATFORM_BUILD_WIN32=1",
-		"_CRT_SECURE_NO_WARNINGS"
+		"_CRT_SECURE_NO_WARNINGS",
+		"TRACK_RENDER_EVENTS=1", 
 	}
 
 	includedirs
@@ -76,7 +74,6 @@ project ("EngineBuild_Win32")
 
 		-- Engine Source code
 		"%{engineIncludeDirs.Engine}/Source/",
-		"%{engineIncludeDirs.Engine}/Shaders/",
 
 		-- This Projects PCH
 		"PCH_Source/",
@@ -92,23 +89,9 @@ project ("EngineBuild_Win32")
 		"MultiProcessorCompile"
 	}
 
-	postbuildcommands
-	{
-		-- Compile the ray tracing shaders.
-		("%{wks.location}Engine/Shaders/HLSL/RayTracing/CompileRTShaders.bat " .. ieGetBuildFolder(platform) .. "%{prj.name}"),
-	}
-
-	-- Shaders
-	filter { "files:**.pixel.hlsl" }
-		shadertype "Pixel"
-		shadermodel "5.0"
-
-	filter { "files:**.vertex.hlsl" }
-		shadertype "Vertex"
-		shadermodel "5.0"
-
-	filter { "files:**.compute.hlsl" }
-		shadertype "Compute"
-		shadermodel "5.0"
+	--premake.override(premake.vstudio.vc2010, "importExtensionTargets", function (oldfn, prj)
+	--  oldfn(prj)
+	--  premake.w('<Import Project="$(SolutionDir)\\Engine\\Tools\\MSBuildTools\\dxc.targets" />')
+	--end)
 
 dofile ("Common-Build-Config.lua")

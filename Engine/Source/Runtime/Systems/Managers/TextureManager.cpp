@@ -35,8 +35,6 @@ namespace Insight {
 		m_AOTextureMap.clear();
 		m_OpacityTextureMap.clear();
 		m_TranslucencyTextureMap.clear();
-
-
 	}
 
 	bool TextureManager::Init()
@@ -71,7 +69,7 @@ namespace Insight {
 			TexInfo.Type = (Texture::ETextureType)Type;
 
 			m_TextureLoadFutures.push_back(std::async(std::launch::async, &TextureManager::RegisterTextureByType, this, TexInfo));
-			//RegisterTextureByType(TexInfo);
+			//RegisterTextureByType(TexInfo); //  Uncomment for single threaded texture loading
 
 			m_HighestTextureId = ((int)m_HighestTextureId < ID) ? ID : m_HighestTextureId;
 		}
@@ -155,7 +153,7 @@ namespace Insight {
 		}
 		default:
 		{
-			IE_LOG(Warning, "Failed to get texture handle for texture with ID: %i", TextureID);
+			IE_LOG(Warning, TEXT("Failed to get texture handle for texture with ID: %i"), TextureID);
 			break;
 		}
 		}
@@ -240,7 +238,7 @@ namespace Insight {
 #endif // IE_PLATFORM_WINDOWS
 		default:
 		{
-			IE_LOG(Error, "Failed to load default textures for api: %i", Renderer::GetAPI());
+			IE_LOG(Error, TEXT("Failed to load default textures for api: %i"), Renderer::GetAPI());
 			break;
 		}
 		}
@@ -256,49 +254,49 @@ namespace Insight {
 				switch (TexInfo.Type) {
 				case Texture::ETextureType::TT_Albedo:
 				{
-					std::lock_guard<std::mutex> Lock(s_AlbedoMutex);
+					std::lock_guard<std::mutex> Lock(m_AlbedoMutex);
 					m_AlbedoTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D11Texture>(TexInfo)) });
 					break;
 				}
 				case Texture::ETextureType::TT_Normal:
 				{
-					std::lock_guard<std::mutex> Lock(s_NormalMutex);
+					std::lock_guard<std::mutex> Lock(m_NormalMutex);
 					m_NormalTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D11Texture>(TexInfo)) });
 					break;
 				}
 				case Texture::ETextureType::TT_Roughness:
 				{
-					std::lock_guard<std::mutex> Lock(s_RoughnessMutex);
+					std::lock_guard<std::mutex> Lock(m_RoughnessMutex);
 					m_RoughnessTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D11Texture>(TexInfo)) });
 					break;
 				}
 				case Texture::ETextureType::TT_Metallic:
 				{
-					std::lock_guard<std::mutex> Lock(s_MetallicMutex);
+					std::lock_guard<std::mutex> Lock(m_MetallicMutex);
 					m_MetallicTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D11Texture>(TexInfo)) });
 					break;
 				}
 				case Texture::ETextureType::TT_AmbientOcclusion:
 				{
-					std::lock_guard<std::mutex> Lock(s_AOMutex);
+					std::lock_guard<std::mutex> Lock(m_AOMutex);
 					m_AOTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D11Texture>(TexInfo)) });
 					break;
 				}
 				case Texture::ETextureType::TT_Opacity:
 				{
-					std::lock_guard<std::mutex> Lock(s_OpacityMutex);
+					std::lock_guard<std::mutex> Lock(m_OpacityMutex);
 					m_OpacityTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D11Texture>(TexInfo)) });
 					break;
 				}
 				case Texture::ETextureType::TT_Translucency:
 				{
-					std::lock_guard<std::mutex> Lock(s_TranslucencyMutex);
+					std::lock_guard<std::mutex> Lock(m_TranslucencyMutex);
 					m_TranslucencyTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D11Texture>(TexInfo)) });
 					break;
 				}
 				default:
 				{
-					IE_LOG(Warning, "Failed to identify texture to create with ID of %i", TexInfo.Id);
+					IE_LOG(Warning, TEXT("Failed to identify texture to create with ID of %i"), TexInfo.Id);
 					break;
 				}
 				}
@@ -312,49 +310,49 @@ namespace Insight {
 				switch (TexInfo.Type) {
 				case Texture::ETextureType::TT_Albedo:
 				{
-					std::lock_guard<std::mutex> Lock(s_AlbedoMutex);
+					std::lock_guard<std::mutex> Lock(m_AlbedoMutex);
 					m_AlbedoTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart)) });
 					break;
 				}
 				case Texture::ETextureType::TT_Normal:
 				{
-					std::lock_guard<std::mutex> Lock(s_NormalMutex);
+					std::lock_guard<std::mutex> Lock(m_NormalMutex);
 					m_NormalTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart)) });
 					break;
 				}
 				case Texture::ETextureType::TT_Roughness:
 				{
-					std::lock_guard<std::mutex> Lock(s_RoughnessMutex);
+					std::lock_guard<std::mutex> Lock(m_RoughnessMutex);
 					m_RoughnessTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart)) });
 					break;
 				}
 				case Texture::ETextureType::TT_Metallic:
 				{
-					std::lock_guard<std::mutex> Lock(s_MetallicMutex);
+					std::lock_guard<std::mutex> Lock(m_MetallicMutex);
 					m_MetallicTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart)) });
 					break;
 				}
 				case Texture::ETextureType::TT_AmbientOcclusion:
 				{
-					std::lock_guard<std::mutex> Lock(s_AOMutex);
+					std::lock_guard<std::mutex> Lock(m_AOMutex);
 					m_AOTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart)) });
 					break;
 				}
 				case Texture::ETextureType::TT_Opacity:
 				{
-					std::lock_guard<std::mutex> Lock(s_OpacityMutex);
+					std::lock_guard<std::mutex> Lock(m_OpacityMutex);
 					m_OpacityTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart)) });
 					break;
 				}
 				case Texture::ETextureType::TT_Translucency:
 				{
-					std::lock_guard<std::mutex> Lock(s_TranslucencyMutex);
+					std::lock_guard<std::mutex> Lock(m_TranslucencyMutex);
 					m_TranslucencyTextureMap.insert({ TexInfo.Id, std::move(make_shared<ieD3D12Texture>(TexInfo, cbvSrvHeapStart)) });
 					break;
 				}
 				default:
 				{
-					IE_LOG(Warning, "Failed to identify texture to create with ID of: %i", TexInfo.Id);
+					IE_LOG(Warning, TEXT("Failed to identify texture to create with ID of: %i"), TexInfo.Id);
 					break;
 				}
 				}
@@ -362,7 +360,7 @@ namespace Insight {
 			}
 			default:
 			{
-				IE_LOG(Error, "Failed to determine graphics api to initialize texture. The renderer may not have been initialized yet.");
+				IE_LOG(Error, TEXT("Failed to determine graphics api to initialize texture. The renderer may not have been initialized yet."));
 				break;
 			}
 

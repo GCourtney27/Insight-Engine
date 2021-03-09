@@ -42,7 +42,7 @@ namespace Insight {
 		D3D11_SUBRESOURCE_DATA indexBufferData;
 		indexBufferData.pSysMem = reinterpret_cast<void*>(m_Indices.data());
 		HRESULT hr = RenderContext.GetDevice().CreateBuffer(&IndexBufferDesc, &indexBufferData, &m_pIndexBuffer);
-		ThrowIfFailed(hr, "Failed to create index buffer for D3D 11 context.");
+		//ThrowIfFailed(hr);
 
 		return true;
 	}

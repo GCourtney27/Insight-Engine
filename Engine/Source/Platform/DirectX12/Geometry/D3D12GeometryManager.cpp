@@ -42,7 +42,7 @@ namespace Insight {
 
 		if (!(m_pScenePassCommandList && m_pShadowPassCommandList && m_pTransparencyPassCommandList && m_ConstantBufferUploadHeaps && m_ConstantBufferMaterialUploadHeaps))
 		{
-			IE_LOG(Error, "Failed to initialize one or more resources for D3D12 model manager.");
+			IE_LOG(Error, TEXT("Failed to initialize one or more resources for D3D12 model manager."));
 			return false;
 		}
 		return true;

@@ -91,11 +91,6 @@ namespace Insight {
 	class GeometryManager;
 	class ieD3D12SphereRenderer;
 
-	typedef ID3D12Resource D3D12Texture2D;
-	typedef ID3D12Resource D3D12RenderTargetView;
-	typedef ID3D12Resource D3D12ShaderResourceView;
-	typedef ID3D12Resource D3D12UnoreredAccessView;
-
 	class INSIGHT_API Direct3D12Context : public Renderer
 	{
 	public:
@@ -169,10 +164,13 @@ namespace Insight {
 
 		inline void ResetBloomFirstPass()
 		{
-			ThrowIfFailed(m_pBloomFirstPass_CommandList->Reset(m_pBloomFirstPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
-				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
+			ThrowIfFailed(m_pBloomFirstPass_CommandList->Reset(m_pBloomFirstPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()), TEXT(""));
 		}
 		
+
+		void TryCompiledShaders(bool bForceRecompile = false);
+		
+
 	private:
 		Direct3D12Context();
 		virtual ~Direct3D12Context();

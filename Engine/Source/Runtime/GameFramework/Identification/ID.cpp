@@ -10,9 +10,9 @@ namespace Insight {
 		m_Id = GetUniqueID();
 	}
 
-	std::string ID::GetUniqueID()
+	EString ID::GetUniqueID()
 	{
-		return ("uid_" + std::to_string(ms_uniqueID++));
+		return (TEXT("uid_") + ToString(ms_uniqueID++));
 	}
 
 }

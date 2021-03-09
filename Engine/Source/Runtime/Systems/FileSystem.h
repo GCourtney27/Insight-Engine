@@ -23,7 +23,7 @@ namespace Insight {
 			Save the Engine settings out to cached file in "Content/" directory
 			@param Settings - Settings to write to disk.
 		*/
-		static void SaveEngineUserSettings(Renderer::GraphicsSettings Settings);
+		static void SaveEngineUserSettings(const Renderer::GraphicsSettings& Settings);
 
 		/*
 			Get the directory for where the applications content (ie. textures, models etc.) is stored.		
@@ -66,12 +66,11 @@ namespace Insight {
 		static std::wstring GetShaderPathW(const wchar_t* Shader);
 
 		/*
-			Reads in the raw data for a file and returns its contents. nullptr if the file read was unsuccessful. WARNING: Creates data on the heap,
-			make sure to free the return value once you are finished with it.
+			Reads in the raw data for a file and returns its contents. nullptr if the file read was unsuccessful.
 			@param Path - Exe relative path to the file to read.
 			@param OutDataSize - Populated with the size of the file that is read in. -1 if the file read was unsuccessful.
 		*/
-		static char* ReadRawData(const char* Path, size_t& OutDataSize);
+		static std::unique_ptr<TChar> ReadRawData(const TChar* Path, size_t& OutDataSize);
 
 	protected:
 	};

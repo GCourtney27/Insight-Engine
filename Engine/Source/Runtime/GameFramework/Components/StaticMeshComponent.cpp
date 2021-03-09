@@ -34,7 +34,7 @@ namespace Insight {
 			// Load Mesh
 			std::string ModelPath;
 			json::get_string(JsonStaticMeshComponent[0], "Mesh", ModelPath);
-			AttachMesh(ModelPath);
+			AttachMesh(StringHelper::StringToWide(ModelPath));
 
 			json::get_bool(JsonStaticMeshComponent[0], "Enabled", ActorComponent::m_Enabled);
 
@@ -71,7 +71,7 @@ namespace Insight {
 				Writer.StartObject(); // Start Mesh Directory
 				{
 					Writer.Key("Mesh");
-					Writer.String(m_pModel->GetAssetDirectoryRelativePath().c_str());
+					Writer.String(StringHelper::WideToString(m_pModel->GetAssetDirectoryRelativePath()).c_str());
 					Writer.Key("Enabled");
 					Writer.Bool(ActorComponent::m_Enabled);
 					Writer.Key("LocalTransform");
@@ -154,15 +154,6 @@ namespace Insight {
 
 			if (UI::CollapsingHeader(m_ComponentName, UI::TreeNode_DefaultOpen)) {
 
-				if (UI::InputTextField("New Mesh Dir: ", m_DynamicAssetDir, UI::InputTextFieldFlags_EnterReturnsTrue)) {
-					if (FileSystem::FileExistsInContentDirectory(m_DynamicAssetDir)) {
-						AttachMesh(m_DynamicAssetDir);
-					}
-					else {
-						IE_LOG(Error, "File does not exist with path: \"%s\"", m_DynamicAssetDir.c_str());
-					}
-				}
-
 				m_pModel->OnImGuiRender();
 				m_pMaterial->OnImGuiRender();
 			}
@@ -174,7 +165,7 @@ namespace Insight {
 		}
 
 		static std::mutex s_MeshMutex;
-		static bool LoadModelAsync(StrongModelPtr Model, const std::string& Path, Material* Material)
+		static bool LoadModelAsync(StrongModelPtr Model, const EString& Path, Material* Material)
 		{
 			Model->Create(Path, Material);
 
@@ -184,9 +175,9 @@ namespace Insight {
 			return true;
 		}
 
-		void StaticMeshComponent::AttachMesh(const std::string& Path)
+		void StaticMeshComponent::AttachMesh(const EString& Path)
 		{
-			std::string s = "StaticMesh::AttachMesh -> " + Path;
+			EString s = TEXT("StaticMesh::AttachMesh -> ") + Path;
 			ScopedSecondTimer(s.c_str());
 
 			if (m_pModel) {

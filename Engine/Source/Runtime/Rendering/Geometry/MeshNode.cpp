@@ -41,7 +41,7 @@ namespace Insight {
 
 		if (UI::IsItemClicked()) {
 			// TODO: Open material editor window
-			IE_LOG(Verbose, "Model node clicked");
+			IE_LOG(Verbose, TEXT("Model node clicked"));
 		}
 
 		if (isExpanded) {

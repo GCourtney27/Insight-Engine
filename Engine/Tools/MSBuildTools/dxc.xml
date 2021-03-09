@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectSchemaDefinitions xmlns="http://schemas.microsoft.com/build/2009/properties">
+  <!-- Associate DXCShader item type with .hlsl files -->
+  <ItemType Name="DXCShader" DisplayName="DXC Shader" />
+  <ContentType Name="DXCShader" ItemType="DXCShader" DisplayName="DXC Shader" />
+  <FileExtension Name=".hlsl" ContentType="DXCShader" />
+</ProjectSchemaDefinitions>

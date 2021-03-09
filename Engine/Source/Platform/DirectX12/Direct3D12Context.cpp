@@ -21,9 +21,10 @@
 
 #include "Runtime/UI/UILib.h"
 
+
 #define SHADOWMAPPING_ENABLED 0
 #define TRANSPARENCYPASS_ENABLED 0
-#define BLOOM_ENABLED 1
+#define BLOOM_ENABLED 0
 
 
 namespace Insight {
@@ -52,15 +53,27 @@ namespace Insight {
 
 	bool Direct3D12Context::Init_Impl()
 	{
-		IE_LOG(Log, "Renderer: D3D 12");
+		IE_LOG(Log, TEXT("Renderer: D3D 12"));
 
 		try
 		{
 			m_DeviceResources.Init(this);
 
+			D3D12_FEATURE_DATA_SHADER_MODEL sm6_0{ D3D_SHADER_MODEL_6_0 };
+			HRESULT hr = m_DeviceResources.GetD3D12Device().CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &sm6_0, sizeof(sm6_0));
+			ThrowIfFailed(hr, TEXT("Failed to query feature support for shader model 6 with device."));
+			if (sm6_0.HighestShaderModel >= D3D_SHADER_MODEL_6_0)
+			{
+				IE_LOG(Log, TEXT("Shader model 6 is supported."));
+			}
+			else
+			{
+				IE_LOG(Error, TEXT("Shader model 6 not supported on selected device."));
+			}
+
 			m_FrameResources.Init(&m_DeviceResources.GetD3D12Device());
-			HRESULT hr = m_cbvsrvHeap.Create(&m_DeviceResources.GetD3D12Device(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 70, true);
-			ThrowIfFailed(hr, "Failed to create descriptor heap for shader visible resources.");
+			hr = m_cbvsrvHeap.Create(&m_DeviceResources.GetD3D12Device(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 70, true);
+			ThrowIfFailed(hr, TEXT("Failed to create descriptor heap for shader visible resources."));
 
 			CreateCommandAllocators();
 
@@ -77,6 +90,9 @@ namespace Insight {
 					CreateBloomPassRS();
 					CreateDebugScreenQuadRS();
 
+//#if !IE_PLATFORM_BUILD_XBOX_ONE
+//					TryCompiledShaders();
+//#endif
 					{
 						// Create the Geometry Pass and push it to the render stack.
 						m_GeometryPass.Create(this, &m_cbvsrvHeap, m_pScenePass_CommandList.Get(), m_pDeferredShadingPass_RS.Get());
@@ -135,7 +151,7 @@ namespace Insight {
 		auto& D2DDeviceContext = m_DeviceResources.GetD2DDeviceContext();
 		constexpr float FontSize = 20;
 
-		ThrowIfFailed(D2DDeviceContext.CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Green), &m_textBrush), "Failed to create solid color brush.");
+		ThrowIfFailed(D2DDeviceContext.CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Green), &m_textBrush), TEXT("Failed to create solid color brush."));
 		HRESULT hr = DWriteFactory.CreateTextFormat(
 			L"Verdana",
 			NULL,
@@ -153,6 +169,9 @@ namespace Insight {
 
 	void Direct3D12Context::Destroy_Impl()
 	{
+		// TODO: TEMP Move somewhere else
+		GraphicsSettings& Settings = GetGraphicsSettings();
+		FileSystem::SaveEngineUserSettings(Settings);
 		InternalCleanup();
 	}
 
@@ -223,39 +242,39 @@ namespace Insight {
 		// Reset Command Allocators
 		{
 			ThrowIfFailed(m_pScenePass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
-				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Scene Pass");
+				TEXT("Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Scene Pass"));
 
 #if SHADOWMAPPING_ENABLED
 			ThrowIfFailed(m_pShadowPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
-				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Shadow Pass");
+				TEXT("Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Shadow Pass"));
 #endif
 #if TRANSPARENCYPASS_ENABLED
 			ThrowIfFailed(m_pTransparencyPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
 				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Transparency Pass");
 #endif
 			ThrowIfFailed(m_pPostEffectsPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
-				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
+				TEXT("Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass"));
 
 			ThrowIfFailed(m_pBloomFirstPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
-				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
+				TEXT("Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass"));
 
 			ThrowIfFailed(m_pBloomSecondPass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
-				"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass");
+				TEXT("Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Post-Process Pass"));
 
 			if (m_GraphicsSettings.RayTraceEnabled) {
 				ThrowIfFailed(m_pRayTracePass_CommandAllocators[IE_D3D12_FrameIndex]->Reset(),
-					"Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
+					TEXT("Failed to reset command allocator in Direct3D12Context::OnPreFrameRender for Ray Trace Pass"));
 			}
 		}
 
 		// Reset Command Lists
 		{
 			ThrowIfFailed(m_pScenePass_CommandList->Reset(m_pScenePass_CommandAllocators[IE_D3D12_FrameIndex].Get(), nullptr),
-				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Scene Pass");
+				TEXT("Failed to reset command list in Direct3D12Context::OnPreFrameRender for Scene Pass"));
 
 #if SHADOWMAPPING_ENABLED
 			ThrowIfFailed(m_pShadowPass_CommandList->Reset(m_pShadowPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pShadowPass_PSO.Get()),
-				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Shadow Pass");
+				TEXT("Failed to reset command list in Direct3D12Context::OnPreFrameRender for Shadow Pass"));
 #endif 
 
 #if TRANSPARENCYPASS_ENABLED
@@ -264,17 +283,18 @@ namespace Insight {
 #endif
 
 			ThrowIfFailed(m_pPostEffectsPass_CommandList->Reset(m_pPostEffectsPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), nullptr),
-				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
+				TEXT("Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass"));
 
+#if BLOOM_ENABLED
 			ThrowIfFailed(m_pBloomFirstPass_CommandList->Reset(m_pBloomFirstPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
-				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
+				TEXT("Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass"));
 
 			ThrowIfFailed(m_pBloomSecondPass_CommandList->Reset(m_pBloomSecondPass_CommandAllocators[IE_D3D12_FrameIndex].Get(), m_pThresholdDownSample_PSO.Get()),
-				"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass");
-
+				TEXT("Failed to reset command list in Direct3D12Context::OnPreFrameRender for Transparency Pass"));
+#endif
 			if (m_GraphicsSettings.RayTraceEnabled) {
 				ThrowIfFailed(m_pRayTracePass_CommandList->Reset(m_pRayTracePass_CommandAllocators[IE_D3D12_FrameIndex].Get(), nullptr),
-					"Failed to reset command list in Direct3D12Context::OnPreFrameRender for Ray Trace Pass");
+					TEXT("Failed to reset command list in Direct3D12Context::OnPreFrameRender for Ray Trace Pass"));
 			}
 		}
 	}
@@ -391,22 +411,22 @@ namespace Insight {
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
 #if SHADOWMAPPING_ENABLED
-		ThrowIfFailed(m_pShadowPass_CommandList->Close(), "Failed to close the command list for D3D 12 context shadow pass.");
+		ThrowIfFailed(m_pShadowPass_CommandList->Close(), TEXT("Failed to close the command list for D3D 12 context shadow pass."));
 #endif
-		ThrowIfFailed(m_pScenePass_CommandList->Close(), "Failed to close command list for D3D 12 context scene pass.");
+		ThrowIfFailed(m_pScenePass_CommandList->Close(), TEXT("Failed to close command list for D3D 12 context scene pass."));
 #if TRANSPARENCYPASS_ENABLED
-		ThrowIfFailed(m_pTransparencyPass_CommandList->Close(), "Failed to close the command list for D3D 12 context transparency pass.");
+		ThrowIfFailed(m_pTransparencyPass_CommandList->Close(), TEXT("Failed to close the command list for D3D 12 context transparency pass."));
 #endif
 		
-		ThrowIfFailed(m_pPostEffectsPass_CommandList->Close(), "Failed to close the command list for D3D 12 context post-process pass.");
+		ThrowIfFailed(m_pPostEffectsPass_CommandList->Close(), TEXT("Failed to close the command list for D3D 12 context post-process pass."));
 		
 #if BLOOM_ENABLED
-		ThrowIfFailed(m_pBloomFirstPass_CommandList->Close(), "Failed to close command list for D3D 12 context bloom blur pass.");
-		ThrowIfFailed(m_pBloomSecondPass_CommandList->Close(), "Failed to close command list for D3D 12 context bloom blur pass.");
+		ThrowIfFailed(m_pBloomFirstPass_CommandList->Close(), TEXT("Failed to close command list for D3D 12 context bloom blur pass."));
+		ThrowIfFailed(m_pBloomSecondPass_CommandList->Close(), TEXT("Failed to close command list for D3D 12 context bloom blur pass."));
 #endif
 
 		if (m_GraphicsSettings.RayTraceEnabled)
-			ThrowIfFailed(m_pRayTracePass_CommandList->Close(), "Failed to close the command list for D3D 12 context ray trace pass.");
+			ThrowIfFailed(m_pRayTracePass_CommandList->Close(), TEXT("Failed to close the command list for D3D 12 context ray trace pass."));
 
 		// Scene Pass
 		std::vector<ID3D12CommandList*> pSubmittions;
@@ -421,11 +441,12 @@ namespace Insight {
 #endif
 		m_DeviceResources.GetGraphicsCommandQueue().ExecuteCommandLists((UINT)pSubmittions.size(), pSubmittions.data());
 
+#if BLOOM_ENABLED
 		// Bloom Compute
 		pSubmittions.clear();
 		pSubmittions.push_back(m_pBloomSecondPass_CommandList.Get());
 		m_DeviceResources.GetComputeCommandQueue().ExecuteCommandLists((UINT)pSubmittions.size(), pSubmittions.data());
-
+#endif
 		// Post Process Pass
 		pSubmittions.clear();
 		pSubmittions.push_back(m_pPostEffectsPass_CommandList.Get());
@@ -438,8 +459,8 @@ namespace Insight {
 			D2D1_RECT_F textRect = D2D1::RectF(0, 0, rtSize.width, rtSize.height);
 			FrameTimer& GraphicsFrameTimer = Application::Get().GetGraphicsThreadPerfTimer();
 			FrameTimer& GameFrameTimer = Application::Get().GetGameThreadPerfTimer();
-			std::wstring Text = L"GPU Thread: " + std::to_wstring(GraphicsFrameTimer.FPS<int>()) + L" | " + std::to_wstring((int)GraphicsFrameTimer.MilliSeconds()) + L"ms\n";
-			Text += L"Game Thread: " + std::to_wstring(GameFrameTimer.FPS<int>()) + L" | " + std::to_wstring((int)GameFrameTimer.MilliSeconds()) + L"ms";
+			std::wstring Text = L"GPU Thread: " + ToString(GraphicsFrameTimer.FPS<int>()) + L" | " + ToString((int)GraphicsFrameTimer.MilliSeconds()) + L"ms\n";
+			Text += L"Game Thread: " + ToString(GameFrameTimer.FPS<int>()) + L" | " + ToString((int)GameFrameTimer.MilliSeconds()) + L"ms";
 
 			auto& D2DDeviceContext = m_DeviceResources.GetD2DDeviceContext();
 			auto& D3D11On12Device = m_DeviceResources.GetD3D11On12Device();
@@ -463,7 +484,7 @@ namespace Insight {
 				&textRect,
 				m_textBrush.Get()
 			);
-			ThrowIfFailed(D2DDeviceContext.EndDraw(), "Failed to end draw for D2D.");
+			ThrowIfFailed(D2DDeviceContext.EndDraw(), TEXT("Failed to end draw for D2D."));
 
 			// Release our wrapped render target resource. Releasing 
 			// transitions the back buffer resource to the state specified
@@ -484,7 +505,7 @@ namespace Insight {
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
 		UINT PresentFlags = (m_AllowTearing && m_WindowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
-		ThrowIfFailed(m_DeviceResources.GetSwapChain().Present(m_pWindowRef->GetIsVsyncEnabled(), PresentFlags), "Failed to present frame for D3D 12 context.");
+		ThrowIfFailed(m_DeviceResources.GetSwapChain().Present(m_pWindowRef->GetIsVsyncEnabled(), PresentFlags), TEXT("Failed to present frame for D3D 12 context."));
 
 		m_DeviceResources.MoveToNextFrame();
 	}
@@ -665,7 +686,8 @@ namespace Insight {
 				&ShadowDepthOptomizedClearValue,
 				IID_PPV_ARGS(&m_pShadowDepthTexture));
 			if (FAILED(hr))
-				IE_LOG(Error, "Failed to create comitted resource for depth stencil view");
+				IE_LOG(Error, TEXT("Failed to create comitted resource for depth stencil view"));
+
 			m_pShadowDepthTexture->SetName(L"Shadow Depth Buffer");
 			pDevice->CreateDepthStencilView(m_pShadowDepthTexture.Get(), &ShadowDepthDesc, m_dsvHeap.hCPU(1));
 
@@ -790,11 +812,11 @@ namespace Insight {
 		ComPtr<ID3DBlob> ErrorBlob;
 
 		HRESULT hr = D3D12SerializeRootSignature(&RootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, RootSignatureBlob.GetAddressOf(), ErrorBlob.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to serialize root signature for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to serialize root signature for D3D 12 context."));
 
 		m_pDeferredShadingPass_RS.Reset();
 		hr = m_DeviceResources.GetD3D12Device().CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pDeferredShadingPass_RS));
-		ThrowIfFailed(hr, "Failed to create root signature for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to create root signature for D3D 12 context."));
 	}
 
 	void Direct3D12Context::CreateForwardShadingRS()
@@ -876,10 +898,10 @@ namespace Insight {
 		ComPtr<ID3DBlob> ErrorBlob;
 
 		HRESULT hr = D3D12SerializeRootSignature(&RootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, RootSignatureBlob.GetAddressOf(), ErrorBlob.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to serialize root signature for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to serialize root signature for D3D 12 context."));
 
 		hr = m_DeviceResources.GetD3D12Device().CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pForwardShadingPass_RS));
-		ThrowIfFailed(hr, "Failed to create root signature for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to create root signature for D3D 12 context."));
 	}
 
 	void Direct3D12Context::CreateBloomPassRS()
@@ -900,10 +922,10 @@ namespace Insight {
 		ComPtr<ID3DBlob> ErrorBlob;
 
 		HRESULT hr = D3D12SerializeRootSignature(&RootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, RootSignatureBlob.GetAddressOf(), ErrorBlob.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to serialize root signature for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to serialize root signature for D3D 12 context."));
 
 		hr = m_DeviceResources.GetD3D12Device().CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pBloomPass_RS));
-		ThrowIfFailed(hr, "Failed to create root signature for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to create root signature for D3D 12 context."));
 	}
 
 	void Direct3D12Context::CreateDebugScreenQuadRS()
@@ -942,10 +964,10 @@ namespace Insight {
 		ComPtr<ID3DBlob> ErrorBlob;
 
 		HRESULT hr = D3D12SerializeRootSignature(&RootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, RootSignatureBlob.GetAddressOf(), ErrorBlob.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to serialize root signature for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to serialize root signature for D3D 12 context."));
 
 		hr = m_DeviceResources.GetD3D12Device().CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pDebugScreenQuad_RS));
-		ThrowIfFailed(hr, "Failed to create root signature for D3D 12 context.");
+		ThrowIfFailed(hr, TEXT("Failed to create root signature for D3D 12 context."));
 	}
 
 	void Direct3D12Context::LoadPipelines()
@@ -1014,7 +1036,7 @@ namespace Insight {
 			PsoDesc.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
 
 			hr = m_DeviceResources.GetD3D12Device().CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_pShadowPass_PSO));
-			ThrowIfFailed(hr, "Failed to create graphics pipeline state for shadow pass in D3D 12 context.");
+			ThrowIfFailed(hr, TEXT("Failed to create graphics pipeline state for shadow pass in D3D 12 context."));
 			m_pShadowPass_PSO->SetName(L"PSO Shadow Pass");
 		}
 
@@ -1024,9 +1046,9 @@ namespace Insight {
 			ComPtr<ID3DBlob> pPixelShader;
 
 			const wchar_t* ExeDirectory = 0;
-			std::wstring VertexShaderFolder(ExeDirectory);
+			EString VertexShaderFolder(ExeDirectory);
 			VertexShaderFolder += L"../Renderer/Screen_Aligned_Quad.vertex.cso";
-			std::wstring PixelShaderFolder(ExeDirectory);
+			EString PixelShaderFolder(ExeDirectory);
 			PixelShaderFolder += L"../Renderer/Debug_Screen_Quad.pixel.cso";
 
 			/*hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);
@@ -1071,7 +1093,7 @@ namespace Insight {
 			descPipelineState.SampleDesc.Count = 1;
 
 			hr = m_DeviceResources.GetD3D12Device().CreateGraphicsPipelineState(&descPipelineState, IID_PPV_ARGS(&m_pDebugScreenQuad_PSO));
-			ThrowIfFailed(hr, "Failed to create graphics pipeline state for Debug Screen Quad pass in D3D 12 context.");
+			ThrowIfFailed(hr, TEXT("Failed to create graphics pipeline state for Debug Screen Quad pass in D3D 12 context."));
 			m_pDebugScreenQuad_PSO->SetName(L"PSO Debug Screen Quad Pass");
 		}
 
@@ -1084,7 +1106,7 @@ namespace Insight {
 			VertexShaderFolder += L"../Renderer/Threshold_Down_Sample.compute.cso";
 
 			//hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pComputeShader);
-			ThrowIfFailed(hr, "Failed to read compute shader for D3D 12 context");
+			ThrowIfFailed(hr, TEXT("Failed to read compute shader for D3D 12 context"));
 
 			D3D12_SHADER_BYTECODE ComputeShaderBytecode = {};
 			ComputeShaderBytecode.BytecodeLength = pComputeShader->GetBufferSize();
@@ -1095,7 +1117,7 @@ namespace Insight {
 			PipelineDesc.pRootSignature = m_pBloomPass_RS.Get();
 
 			hr = m_DeviceResources.GetD3D12Device().CreateComputePipelineState(&PipelineDesc, IID_PPV_ARGS(&m_pThresholdDownSample_PSO));
-			ThrowIfFailed(hr, "Failed to create texture downsampling pipeline for bloom pass.");
+			ThrowIfFailed(hr, TEXT("Failed to create texture downsampling pipeline for bloom pass."));
 			m_pThresholdDownSample_PSO->SetName(L"Bloom Pass PSO");
 		}
 
@@ -1108,7 +1130,7 @@ namespace Insight {
 			ComputeShaderFolder += L"../Renderer/Gaussian_Blur.compute.cso";
 
 			//hr = D3DReadFileToBlob(ComputeShaderFolder.c_str(), &pComputeShader);
-			ThrowIfFailed(hr, "Failed to read compute shader for D3D 12 context");
+			ThrowIfFailed(hr, TEXT("Failed to read compute shader for D3D 12 context"));
 
 			D3D12_SHADER_BYTECODE ComputeShaderBytecode = {};
 			ComputeShaderBytecode.BytecodeLength = pComputeShader->GetBufferSize();
@@ -1119,7 +1141,7 @@ namespace Insight {
 			PipelineDesc.pRootSignature = m_pBloomPass_RS.Get();
 
 			hr = m_DeviceResources.GetD3D12Device().CreateComputePipelineState(&PipelineDesc, IID_PPV_ARGS(&m_pGaussianBlur_PSO));
-			ThrowIfFailed(hr, "Failed to create gaussian blur pipeline for bloom pass.");
+			ThrowIfFailed(hr, TEXT("Failed to create gaussian blur pipeline for bloom pass."));
 			m_pGaussianBlur_PSO->SetName(L"Bloom Pass PSO");
 		}
 
@@ -1134,12 +1156,12 @@ namespace Insight {
 			for (int i = 0; i < m_FrameBufferCount; i++)
 			{
 				hr = m_DeviceResources.GetD3D12Device().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pScenePass_CommandAllocators[i]));
-				ThrowIfFailed(hr, "Failed to Scene Pass Create Command Allocator for D3D 12 context");
+				ThrowIfFailed(hr, TEXT("Failed to Scene Pass Create Command Allocator for D3D 12 context"));
 				m_pScenePass_CommandAllocators[i]->SetName(L"Scene Pass Command Allocator");
 			}
 
 			hr = m_DeviceResources.GetD3D12Device().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pScenePass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pScenePass_CommandList));
-			ThrowIfFailed(hr, "Failed to Scene Pass Create Command List for D3D 12 context");
+			ThrowIfFailed(hr, TEXT("Failed to Scene Pass Create Command List for D3D 12 context"));
 			m_pScenePass_CommandList->SetName(L"Scene Pass Command List");
 
 			// Dont close the Scene Pass command list yet. 
@@ -1151,12 +1173,12 @@ namespace Insight {
 			for (int i = 0; i < m_FrameBufferCount; i++)
 			{
 				hr = m_DeviceResources.GetD3D12Device().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pShadowPass_CommandAllocators[i]));
-				ThrowIfFailed(hr, "Failed to Create Command Allocator for D3D 12 context");
+				ThrowIfFailed(hr, TEXT("Failed to Create Command Allocator for D3D 12 context"));
 				m_pShadowPass_CommandAllocators[i]->SetName(L"Shadow Pass Command Allocator");
 			}
 
 			hr = m_DeviceResources.GetD3D12Device().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pShadowPass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pShadowPass_CommandList));
-			ThrowIfFailed(hr, "Failed to Create Shadow Pass Command List for D3D 12 context");
+			ThrowIfFailed(hr, TEXT("Failed to Create Shadow Pass Command List for D3D 12 context"));
 			m_pShadowPass_CommandList->SetName(L"Shadow Pass Command List");
 
 			m_pShadowPass_CommandList->Close();
@@ -1167,12 +1189,12 @@ namespace Insight {
 			for (int i = 0; i < m_FrameBufferCount; i++)
 			{
 				hr = m_DeviceResources.GetD3D12Device().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pTransparencyPass_CommandAllocators[i]));
-				ThrowIfFailed(hr, "Failed to Create Command Allocator for D3D 12 context");
+				ThrowIfFailed(hr, TEXT("Failed to Create Command Allocator for D3D 12 context"));
 				m_pTransparencyPass_CommandAllocators[i]->SetName(L"Transparency Pass Command Allocator");
 			}
 
 			hr = m_DeviceResources.GetD3D12Device().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pTransparencyPass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pTransparencyPass_CommandList));
-			ThrowIfFailed(hr, "Failed to Create Transparency Pass Command List for D3D 12 context");
+			ThrowIfFailed(hr, TEXT("Failed to Create Transparency Pass Command List for D3D 12 context"));
 			m_pTransparencyPass_CommandList->SetName(L"Transparency Pass Command List");
 
 			m_pTransparencyPass_CommandList->Close();
@@ -1183,12 +1205,12 @@ namespace Insight {
 			for (int i = 0; i < m_FrameBufferCount; i++)
 			{
 				hr = m_DeviceResources.GetD3D12Device().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pPostEffectsPass_CommandAllocators[i]));
-				ThrowIfFailed(hr, "Failed to Create Command Allocator for D3D 12 context");
+				ThrowIfFailed(hr, TEXT("Failed to Create Command Allocator for D3D 12 context"));
 				m_pPostEffectsPass_CommandAllocators[i]->SetName(L"Post-Process Pass Command Allocator");
 			}
 
 			hr = m_DeviceResources.GetD3D12Device().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pPostEffectsPass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pPostEffectsPass_CommandList));
-			ThrowIfFailed(hr, "Failed to Create Post-Process Pass Command List for D3D 12 context");
+			ThrowIfFailed(hr, TEXT("Failed to Create Post-Process Pass Command List for D3D 12 context"));
 			m_pPostEffectsPass_CommandList->SetName(L"Post-Process Pass Command List");
 
 			m_pPostEffectsPass_CommandList->Close();
@@ -1200,12 +1222,12 @@ namespace Insight {
 			for (int i = 0; i < m_FrameBufferCount; i++)
 			{
 				hr = m_DeviceResources.GetD3D12Device().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_COMPUTE, IID_PPV_ARGS(&m_pBloomFirstPass_CommandAllocators[i]));
-				ThrowIfFailed(hr, "Failed to Create Command Allocator for D3D 12 context");
+				ThrowIfFailed(hr, TEXT("Failed to Create Command Allocator for D3D 12 context"));
 				m_pBloomFirstPass_CommandAllocators[i]->SetName(L"Gaussian Blur Command Allocator");
 			}
 
 			hr = m_DeviceResources.GetD3D12Device().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COMPUTE, m_pBloomFirstPass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pBloomFirstPass_CommandList));
-			ThrowIfFailed(hr, "Failed to Create Gaussian Blur Command List for D3D 12 context");
+			ThrowIfFailed(hr, TEXT("Failed to Create Gaussian Blur Command List for D3D 12 context"));
 			m_pBloomFirstPass_CommandList->SetName(L"Gaussian Blur Command List");
 
 			m_pBloomFirstPass_CommandList->Close();
@@ -1214,12 +1236,12 @@ namespace Insight {
 			for (int i = 0; i < m_FrameBufferCount; i++)
 			{
 				hr = m_DeviceResources.GetD3D12Device().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_COMPUTE, IID_PPV_ARGS(&m_pBloomSecondPass_CommandAllocators[i]));
-				ThrowIfFailed(hr, "Failed to Create Command Allocator for D3D 12 context");
+				ThrowIfFailed(hr, TEXT("Failed to Create Command Allocator for D3D 12 context"));
 				m_pBloomSecondPass_CommandAllocators[i]->SetName(L"Gaussian Blur Command Allocator");
 			}
 
 			hr = m_DeviceResources.GetD3D12Device().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COMPUTE, m_pBloomSecondPass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pBloomSecondPass_CommandList));
-			ThrowIfFailed(hr, "Failed to Create Gaussian Blur Command List for D3D 12 context");
+			ThrowIfFailed(hr, TEXT("Failed to Create Gaussian Blur Command List for D3D 12 context"));
 			m_pBloomSecondPass_CommandList->SetName(L"Gaussian Blur Command List");
 
 			m_pBloomSecondPass_CommandList->Close();
@@ -1230,12 +1252,12 @@ namespace Insight {
 			for (int i = 0; i < m_FrameBufferCount; i++)
 			{
 				hr = m_DeviceResources.GetD3D12Device().CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_pRayTracePass_CommandAllocators[i]));
-				ThrowIfFailed(hr, "Failed to Create Command Allocator for D3D 12 context");
+				ThrowIfFailed(hr, TEXT("Failed to Create Command Allocator for D3D 12 context"));
 				m_pRayTracePass_CommandAllocators[i]->SetName(L"Post-Process Pass Command Allocator");
 			}
 
 			hr = m_DeviceResources.GetD3D12Device().CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pRayTracePass_CommandAllocators[0].Get(), NULL, IID_PPV_ARGS(&m_pRayTracePass_CommandList));
-			ThrowIfFailed(hr, "Failed to Create Post-Process Pass Command List for D3D 12 context");
+			ThrowIfFailed(hr, TEXT("Failed to Create Post-Process Pass Command List for D3D 12 context"));
 			m_pRayTracePass_CommandList->SetName(L"Ray Trace Pass Command List");
 
 			// Dont close the Ray Trace Pass command list yet. 

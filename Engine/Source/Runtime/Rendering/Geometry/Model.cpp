@@ -12,14 +12,14 @@
 #endif
 namespace Insight {
 
-	Model::Model(const std::string& Path, Material* Material)
+	Model::Model(const EString& Path, Material* Material)
 	{
 		Create(Path, Material);
 	}
 
 	Model::Model(Model&& model) noexcept
 	{
-		IE_LOG(Warning, "Model being moved in memory.");
+		IE_LOG(Warning, TEXT("Model being moved in memory."));
 
 		m_Meshes = std::move(model.m_Meshes);
 		m_pRoot = std::move(model.m_pRoot);
@@ -45,14 +45,14 @@ namespace Insight {
 		}
 	}
 
-	bool Model::Create(const std::string& path, Material* pMaterial)
+	bool Model::Create(const EString& path, Material* pMaterial)
 	{
 		m_pMaterial = pMaterial;
 
 		m_AssetDirectoryRelativePath = path;
-		m_Directory = StringHelper::WideToString(FileSystem::GetRelativeContentDirectoryW(StringHelper::StringToWide(path)));
+		m_Directory = FileSystem::GetRelativeContentDirectoryW(path);
 		m_FileName = StringHelper::GetFilenameFromDirectory(m_Directory);
-		SceneNode::SetDisplayName("Static Mesh");
+		SceneNode::SetDisplayName(TEXT("Static Mesh"));
 
 		return LoadModelFromFile(m_Directory);
 	}
@@ -61,8 +61,8 @@ namespace Insight {
 	{
 		UI::Text("Asset: ");
 		UI::SameLine();
-		UI::Text(m_FileName.c_str());
-		UI::PushID(m_FileName.c_str());
+		UI::Text(StringHelper::WideToString(m_FileName).c_str());
+		UI::PushID(StringHelper::WideToString(m_FileName).c_str());
 
 		UI::Text("Transform");
 		UI::DrawVector3Control("Position", m_pRoot->GetTransformRef().GetPositionRef());
@@ -78,7 +78,7 @@ namespace Insight {
 
 	void Model::RenderSceneHeirarchy()
 	{
-		if (UI::TreeNode(SceneNode::GetDisplayName())) {
+		if (UI::TreeNode(StringHelper::WideToString(SceneNode::GetDisplayName()).c_str())) {
 			SceneNode::RenderSceneHeirarchy();
 			m_pRoot->RenderSceneHeirarchy();
 
@@ -108,17 +108,18 @@ namespace Insight {
 		}
 	}
 
-	bool Model::LoadModelFromFile(const std::string& path)
+	bool Model::LoadModelFromFile(const EString& path)
 	{
 #if IE_PLATFORM_BUILD_WIN32
 		Assimp::Importer Importer;
+		
 		const aiScene* pScene = Importer.ReadFile(
-			path,
+			StringHelper::WideToString(path),
 			aiProcess_ImproveCacheLocality | aiProcessPreset_TargetRealtime_Fast | aiProcess_ConvertToLeftHanded
 		);
 
 		if (!pScene || pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !pScene->mRootNode) {
-			IE_LOG(Error, "Assimp import error: {0}", Importer.GetErrorString());
+			IE_LOG(Error, TEXT("Assimp import error: %s"), Importer.GetErrorString());
 			return false;
 		}
 
@@ -132,22 +133,22 @@ namespace Insight {
 
 #elif IE_PLATFORM_BUILD_UWP
 
-		std::string FileExtension = StringHelper::GetFileExtension(path);
-		if (FileExtension == "FBX" || FileExtension == "fbx")
+		EString FileExtension = StringHelper::GetFileExtension(path);
+		if (FileExtension == TEXT("FBX") || FileExtension == TEXT("fbx"))
 		{
 			size_t FileSize;
-			char* FileContents = FileSystem::ReadRawData(path.c_str(), FileSize);
+			std::unique_ptr<TChar> FileContents = FileSystem::ReadRawData(path.c_str(), FileSize);
 			if (!FileContents) 
 				return false;
 			ofbx::IScene* pScene = ofbx::load(
-				(const ofbx::u8*)FileContents, 
+				(const ofbx::u8*)FileContents.get(), 
 				(int)FileSize, 
 				(ofbx::u64)ofbx::LoadFlags::TRIANGULATE
 			);
 			const ofbx::GlobalSettings* s = pScene->getGlobalSettings();
 			if (!pScene)
 			{
-				IE_LOG(Warning, "ofbx import error: {0}", ofbx::getError());
+				IE_LOG(Warning, TEXT("ofbx import error: {0}"), ofbx::getError());
 				return false;
 			}
 			else
@@ -167,11 +168,10 @@ namespace Insight {
 				CurMeshPtrs.push_back(m_Meshes[0].get());
 				m_pRoot = std::make_unique<MeshNode>(CurMeshPtrs, Transform, pScene->getRoot()->name);
 			}
-			delete[] FileContents;
 		}
 		else 
 		{
-			IE_LOG(Error, "Invalid mash filetype provided. ONly .FBX files are supported for UWP platforms.");
+			IE_LOG(Error, TEXT("Invalid mash filetype provided. ONly .FBX files are supported for UWP platforms."));
 			return false;
 		}
 #endif

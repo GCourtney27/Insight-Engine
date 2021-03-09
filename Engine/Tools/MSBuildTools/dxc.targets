@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <!-- Include definitions from dxc.xml, which defines the DXCShader item. -->
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)dxc.xml" />
+    <!-- Hook up DXCShader items to be built by the DXC target. -->
+    <AvailableItemName Include="DXCShader">
+      <Targets>DXC</Targets>
+    </AvailableItemName>
+  </ItemGroup>
+
+  <Target
+    Name="DXC"
+    Condition="'@(DXCShader)' != ''"
+    BeforeTargets="ClCompile">
+    <Message Importance="High" Text="Building shaders!!!" />
+  </Target>
+</Project>

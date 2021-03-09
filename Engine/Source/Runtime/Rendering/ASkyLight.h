@@ -11,7 +11,7 @@ namespace Insight {
 	class INSIGHT_API ASkyLight : public GameFramework::AActor
 	{
 	public:
-		ASkyLight(ActorId id, GameFramework::ActorType type = "Sky Light Actor");
+		ASkyLight(ActorId id, GameFramework::ActorType type = TEXT("Sky Light Actor"));
 		virtual ~ASkyLight();
 
 		virtual bool LoadFromJson(const rapidjson::Value* jsonSkyLight) override;

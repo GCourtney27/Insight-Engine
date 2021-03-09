@@ -20,7 +20,7 @@ namespace Insight {
 		public:
 			using Super = AActor;
 		public:
-			APawn(ActorId id, ActorName name = "Pawn");
+			APawn(ActorId id, ActorName name = TEXT("Pawn"));
 			virtual ~APawn();
 
 			virtual bool OnInit() override;

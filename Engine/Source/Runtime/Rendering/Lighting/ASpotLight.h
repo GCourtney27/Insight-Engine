@@ -10,7 +10,7 @@ namespace Insight {
 	class INSIGHT_API ASpotLight : public GameFramework::AActor
 	{
 	public:
-		ASpotLight(ActorId id, GameFramework::ActorType type = "Spot Light Actor");
+		ASpotLight(ActorId id, GameFramework::ActorType type = TEXT("Spot Light Actor"));
 		virtual ~ASpotLight();
 
 		virtual bool LoadFromJson(const rapidjson::Value* jsonSpotLight) override;

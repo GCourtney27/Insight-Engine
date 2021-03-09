@@ -100,7 +100,7 @@ namespace Insight {
 		VertexBufferData.pSysMem = verts.data();
 
 		hr = m_pDevice->CreateBuffer(&VertexBufferDesc, &VertexBufferData, m_pVertexBuffer.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create vertex buffer for D3D11 context.");
+		//ThrowIfFailed(hr);
 
 		D3D11_BUFFER_DESC IndexBufferDesc = {};
 		IndexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -112,7 +112,7 @@ namespace Insight {
 		D3D11_SUBRESOURCE_DATA IndexBufferData = {};
 		IndexBufferData.pSysMem = triangles.data();
 		hr = m_pDevice->CreateBuffer(&IndexBufferDesc, &IndexBufferData, m_pIndexBuffer.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create D3D 11 index buffer");
+		//ThrowIfFailed(hr);
 	}
 
 	void ieD3D11SphereRenderer::Render()

@@ -16,7 +16,7 @@ namespace Insight {
 
 
 		ACamera::ACamera(ViewTarget ViewTarget)
-			: APawn(0, "Camera")
+			: APawn(0, TEXT("Camera"))
 		{
 			SetViewTarget(ViewTarget, false, true);
 
@@ -192,7 +192,7 @@ namespace Insight {
 
 		void ACamera::Test()
 		{
-			IE_LOG(Log, "Test Fn!");
+			IE_LOG(Log, TEXT("Test Fn!"));
 		}
 
 

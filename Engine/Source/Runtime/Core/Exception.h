@@ -18,20 +18,20 @@ namespace Insight {
 		} EExceptionCategory;
 	public:
 		ieException() = delete;
-		ieException(const char* Msg, EExceptionCategory Type = EC_Generic)
+		ieException(const TChar* Msg, EExceptionCategory Type = EC_Generic)
 		{
 			m_WhatMsg = Msg;
 			m_Type = Type;
 		}
 		~ieException() = default;
 
-		const char* What() const
+		const TChar* What() const
 		{
 			return m_WhatMsg;
 		}
 
 	private:
-		const char* m_WhatMsg;
+		const TChar* m_WhatMsg;
 		EExceptionCategory m_Type;
 	};
 
