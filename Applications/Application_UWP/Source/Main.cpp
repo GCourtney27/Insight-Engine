@@ -23,6 +23,7 @@ class ViewProvider : public winrt::implements<ViewProvider, IFrameworkView>
 public:
     ViewProvider() noexcept
     {
+        //LoadPackagedLibrary()
     }
 
     // IFrameworkView methods

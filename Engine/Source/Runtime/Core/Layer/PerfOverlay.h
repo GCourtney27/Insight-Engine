@@ -4,7 +4,7 @@
 #include "Runtime/Core/Layer/Layer.h"
 
 #include "Runtime/Systems/FrameTimer.h"
-#include "Runtime/Rendering/Renderer.h"
+#include "Runtime/Graphics/Renderer.h"
 
 namespace Insight {
 

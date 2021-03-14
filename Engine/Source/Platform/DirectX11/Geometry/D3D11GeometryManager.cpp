@@ -3,7 +3,7 @@
 #include "D3D11GeometryManager.h"
 
 #include "Platform/DirectX11/Direct3D11Context.h"
-#include "Runtime/Rendering/Material.h"
+#include "Runtime/Graphics/Material.h"
 
 namespace Insight {
 

@@ -3,7 +3,7 @@
 #include <Runtime/CoreMacros.h>
 
 #include "ActorComponent.h"
-#include "Runtime/Rendering/Geometry/Model.h"
+#include "Runtime/Graphics/Geometry/Model.h"
 
 namespace Insight {
 

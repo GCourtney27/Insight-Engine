@@ -8,12 +8,12 @@
 #include "Runtime/Systems/Managers/GeometryManager.h"
 #include "Platform/DirectX12/RayTracing/RayTraceHelpers.h"
 
-#include "Runtime/Rendering/APostFx.h"
-#include "Runtime/Rendering/ASkyLight.h"
-#include "Runtime/Rendering/ASkySphere.h"
-#include "Runtime/Rendering/Lighting/ASpotLight.h"
-#include "Runtime/Rendering/Lighting/APointLight.h"
-#include "Runtime/Rendering/Lighting/ADirectionalLight.h"
+#include "Runtime/Graphics/APostFx.h"
+#include "Runtime/Graphics/ASkyLight.h"
+#include "Runtime/Graphics/ASkySphere.h"
+#include "Runtime/Graphics/Lighting/ASpotLight.h"
+#include "Runtime/Graphics/Lighting/APointLight.h"
+#include "Runtime/Graphics/Lighting/ADirectionalLight.h"
 
 #include "Platform/DirectX12/Geometry/D3D12VertexBuffer.h"
 #include "Platform/DirectX12/Geometry/D3D12IndexBuffer.h"

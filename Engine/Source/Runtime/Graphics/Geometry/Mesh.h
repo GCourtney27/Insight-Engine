@@ -6,8 +6,8 @@
 
 #include "Platform/DirectXShared/ConstantBufferTypes.h"
 
-#include "Runtime/Rendering/Geometry/VertexBuffer.h"
-#include "Runtime/Rendering/Geometry/IndexBuffer.h"
+#include "Runtime/Graphics/Geometry/VertexBuffer.h"
+#include "Runtime/Graphics/Geometry/IndexBuffer.h"
 
 namespace Insight {
 

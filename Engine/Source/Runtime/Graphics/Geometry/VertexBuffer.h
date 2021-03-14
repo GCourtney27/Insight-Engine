@@ -2,7 +2,7 @@
 
 #include <Runtime/CoreMacros.h>
 
-#include "Runtime/Rendering/Geometry/Vertex.h"
+#include "Runtime/Graphics/Geometry/Vertex.h"
 
 namespace Insight {
 

@@ -3,7 +3,7 @@
 #include "Mesh.h"
 
 #include "Runtime/Core/Scene/SceneNode.h"
-#include "Runtime/Rendering/Geometry/MeshNode.h"
+#include "Runtime/Graphics/Geometry/MeshNode.h"
 
 #if IE_PLATFORM_BUILD_WIN32
 #include <assimp/Importer.hpp>

@@ -3,7 +3,7 @@
 #include "ASkyLight.h"
 
 #include "Runtime/GameFramework/Components/ActorComponent.h"
-#include "Runtime/Rendering/Renderer.h"
+#include "Runtime/Graphics/Renderer.h"
 
 #include "Platform/DirectX12/Wrappers/D3D12Texture.h"
 #include "Platform/DirectX11/Wrappers/D3D11Texture.h"

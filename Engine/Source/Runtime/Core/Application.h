@@ -31,8 +31,12 @@
 #include "Runtime/Core/Layer/EditorOverlay.h"
 #include "Runtime/Core/Layer/PerfOverlay.h"
 
-namespace Insight {
+#include "Runtime/Graphics/Public/IRenderContext.h"
 
+
+namespace Insight 
+{
+	using namespace Graphics;
 
 	class INSIGHT_API Application
 	{
@@ -52,6 +56,8 @@ namespace Insight {
 		inline static Application& Get() { return *s_Instance; }
 
 		void DumpApp();
+
+		IRenderContext* m_pRenderContext = NULL;
 
 		// Initialize the core components of the application. Should be called once
 		// at the beginning of the application, after the window has been initialized.

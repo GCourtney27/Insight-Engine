@@ -2,7 +2,7 @@
 
 #include "Model.h"
 #include "Runtime/Utilities/StringHelper.h"
-#include "Runtime/Rendering/Material.h"
+#include "Runtime/Graphics/Material.h"
 
 #include "Runtime/UI/UILib.h"
 

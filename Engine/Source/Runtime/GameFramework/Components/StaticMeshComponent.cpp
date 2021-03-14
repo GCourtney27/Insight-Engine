@@ -4,8 +4,8 @@
 
 #include "Runtime/GameFramework/AActor.h"
 #include "Runtime/Systems/Managers/ResourceManager.h"
-#include "Runtime/Rendering/Renderer.h"
-#include "Runtime/Rendering/Material.h"
+#include "Runtime/Graphics/Renderer.h"
+#include "Runtime/Graphics/Material.h"
 
 #include "Runtime/UI/UILib.h"
 

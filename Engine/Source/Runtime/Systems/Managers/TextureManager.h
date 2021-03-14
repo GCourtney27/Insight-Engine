@@ -2,7 +2,7 @@
 
 #include <Runtime/CoreMacros.h>
 
-#include "Runtime/Rendering/Texture.h"
+#include "Runtime/Graphics/Texture.h"
 
 #define DEFAULT_ALBEDO_TEXTURE_ID -1
 #define DEFAULT_NORMAL_TEXTURE_ID -2

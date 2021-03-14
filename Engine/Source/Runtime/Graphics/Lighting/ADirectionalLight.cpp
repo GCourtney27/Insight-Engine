@@ -3,7 +3,7 @@
 #include "ADirectionalLight.h"
 
 #include "Runtime/GameFramework/Components/ActorComponent.h"
-#include "Runtime/Rendering/Renderer.h"
+#include "Runtime/Graphics/Renderer.h"
 #include "Runtime/GameFramework/Archetypes/ACamera.h"
 #include "Runtime/Core/Application.h"
 

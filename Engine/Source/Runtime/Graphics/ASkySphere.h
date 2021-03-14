@@ -1,28 +1,31 @@
 #pragma once
-#pragma once
 
 #include <Runtime/CoreMacros.h>
 
 #include "Runtime/GameFramework/AActor.h"
-#include "Runtime/Rendering/Texture.h"
+#include "Runtime/Graphics/Texture.h"
 
 namespace Insight {
 
-	class INSIGHT_API ASkyLight : public GameFramework::AActor
+	
+	class INSIGHT_API ASkySphere : public GameFramework::AActor
 	{
 	public:
-		ASkyLight(ActorId id, GameFramework::ActorType type = TEXT("Sky Light Actor"));
-		virtual ~ASkyLight();
+		ASkySphere(ActorId id, GameFramework::ActorType type = TEXT("Sky Sphere Actor"));
+		virtual ~ASkySphere();
 
-		virtual bool LoadFromJson(const rapidjson::Value* jsonSkyLight) override;
+		virtual bool LoadFromJson(const rapidjson::Value* jsonSkySphere) override;
 		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>* Writer) override;
-
+		
 		virtual bool OnInit();
 		virtual bool OnPostInit();
 		virtual void OnUpdate(const float DeltaMs);
 		virtual void OnPreRender(XMMATRIX parentMat);
 		virtual void OnRender();
 		virtual void Destroy();
+
+		void RenderSky();
+
 
 		void OnEvent(Event& e);
 
@@ -32,16 +35,8 @@ namespace Insight {
 
 		virtual void OnImGuiRender() override;
 
-		void BindCubeMaps(bool RenderPassIsDeferred);
-
-		/*CB_PS_SpotLight GetConstantBuffer() { return m_ShaderCB; }*/
-
 	private:
-		bool m_Enabled = true;
-		
-		Texture* m_Irradiance;
-		Texture* m_Radiance;
-		Texture* m_BrdfLUT;
+		Texture* m_Diffuse;
 
 	};
 

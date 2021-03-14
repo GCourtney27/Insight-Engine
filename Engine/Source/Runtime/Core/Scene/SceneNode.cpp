@@ -1,6 +1,6 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Rendering/Renderer.h"
+#include "Runtime/Graphics/Renderer.h"
 #include "Runtime/GameFramework/AActor.h"
 #include "SceneNode.h"
 #include "Runtime/Core/Scene/Scene.h"

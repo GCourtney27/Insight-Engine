@@ -2,7 +2,7 @@
 
 #include "GeometryManager.h"
 
-#include "Runtime/Rendering/Renderer.h"
+#include "Runtime/Graphics/Renderer.h"
 #include "Runtime/GameFramework/Archetypes/APlayerCharacter.h"
 
 #include "Platform/DirectX12/Direct3D12Context.h"

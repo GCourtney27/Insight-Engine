@@ -2,7 +2,7 @@
 
 #include <Runtime/CoreMacros.h>
 
-#include "Runtime/Rendering/Texture.h"
+#include "Runtime/Graphics/Texture.h"
 #include "Platform/DirectXShared/ConstantBufferTypes.h"
 
 namespace Insight {

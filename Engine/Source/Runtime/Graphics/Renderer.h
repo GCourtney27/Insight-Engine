@@ -4,9 +4,9 @@
 
 #include "Runtime/Core/Interfaces.h"
 
-#include "Runtime/Rendering/ASkySphere.h"
-#include "Runtime/Rendering/Geometry/VertexBuffer.h"
-#include "Runtime/Rendering/Geometry/IndexBuffer.h"
+#include "Runtime/Graphics/ASkySphere.h"
+#include "Runtime/Graphics/Geometry/VertexBuffer.h"
+#include "Runtime/Graphics/Geometry/IndexBuffer.h"
 
 #include "Platform/DirectXShared/ConstantBufferTypes.h"
 #include "Runtime/Events/Event.h"

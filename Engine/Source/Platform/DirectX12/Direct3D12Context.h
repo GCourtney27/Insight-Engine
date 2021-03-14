@@ -2,7 +2,7 @@
 
 #include <Runtime/CoreMacros.h>
 
-#include "Runtime/Rendering/Renderer.h"
+#include "Runtime/Graphics/Renderer.h"
 
 #include "Platform/DirectX12/D3D12DeviceResources.h"
 #include "Platform/DirectX12/Wrappers/D3D12ScreenQuad.h"

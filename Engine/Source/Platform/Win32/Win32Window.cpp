@@ -8,7 +8,7 @@
 #include "Win32Window.h"
 
 #include "Runtime/Core/Application.h"
-#include "Runtime/Rendering/Renderer.h"
+#include "Runtime/Graphics/Renderer.h"
 
 #include "Runtime/Core/Log.h"
 #include "Runtime/Utilities/StringHelper.h"

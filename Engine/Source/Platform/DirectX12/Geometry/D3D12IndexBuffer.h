@@ -2,7 +2,7 @@
 
 #include <Runtime/CoreMacros.h>
 
-#include "Runtime/Rendering/Geometry/IndexBuffer.h"
+#include "Runtime/Graphics/Geometry/IndexBuffer.h"
 
 namespace Insight {
 

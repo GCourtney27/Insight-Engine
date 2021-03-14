@@ -5,7 +5,7 @@
 
 #include "Runtime/GameFramework/AActor.h"
 #include "Runtime/Core/Exception.h"
-#include "Runtime/Rendering/Renderer.h"
+#include "Runtime/Graphics/Renderer.h"
 
 #if IE_PLATFORM_BUILD_WIN32
 #include "Platform/DirectX11/Wrappers/D3D11ImGuiLayer.h"
@@ -60,6 +60,8 @@ namespace Insight {
 
 		// Create and initialize the renderer.
 		Renderer::SetSettingsAndCreateContext(FileSystem::LoadGraphicsSettingsFromJson(), m_pWindow);
+
+		//m_pRenderContext
 
 		// Create the game layer that will host all game logic.
 		m_pGameLayer = new GameLayer();

@@ -2,7 +2,7 @@
 
 #include <Runtime/CoreMacros.h>
 
-#include "Runtime/Rendering/Renderer.h"
+#include "Runtime/Graphics/Renderer.h"
 #include "Platform/Win32/Error/COMException.h"
 
 #include "Platform/DirectX11/D3D11Helper.h"

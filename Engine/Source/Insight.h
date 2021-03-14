@@ -20,7 +20,7 @@
 #include "Runtime/Utilities/Profiling.h"
 
 // Rendering
-#include "Runtime/Rendering/Material.h"
+#include "Runtime/Graphics/Material.h"
 
 // Game Framework
 #include "Runtime/GameFramework/Components/StaticMeshComponent.h"

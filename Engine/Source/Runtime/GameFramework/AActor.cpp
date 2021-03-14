@@ -9,7 +9,7 @@
 #include "Runtime/GameFramework/Components/SphereCollider.h"
 
 //TEMP
-#include "Runtime/Rendering/Material.h"
+#include "Runtime/Graphics/Material.h"
 #include "Runtime/UI/UILib.h"
 
 
