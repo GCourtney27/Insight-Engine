@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 
 #include "Runtime/Graphics/Texture.h"
 #include "Platform/DirectX12/Wrappers/DescriptorHeapWrapper.h"

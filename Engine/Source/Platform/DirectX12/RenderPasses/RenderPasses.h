@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 
 #include "Platform/DirectX12/RayTracing/RayTraceHelpers.h"
 #include "Platform/DirectX12/RenderPasses/Helpers/PassHelpers.h"
@@ -13,7 +13,7 @@ namespace Insight {
 	
 
 	class Direct3D12Context;
-	class FrameResources;
+	class D3D12FrameResources;
 
 	class INSIGHT_API RenderPass
 	{

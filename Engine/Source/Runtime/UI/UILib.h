@@ -7,9 +7,6 @@
 //#include "ImGuizmo.h"
 #endif
 
-
-#include "Runtime/Math/ie_Vectors.h"
-
 namespace Insight {
 
 	namespace UI {
@@ -228,7 +225,7 @@ namespace Insight {
 			return EDITOR_IS_ITEM_CLICKED();
 		}
 
-		static void DrawVector3Control(const std::string& Label, Math::ieVector3& Values, float ResetValue = 0.0f, float ColumnWidth = 100.0f)
+		static void DrawVector3Control(const std::string& Label, FVector3& Values, float ResetValue = 0.0f, float ColumnWidth = 100.0f)
 		{
 #if IE_PLATFORM_BUILD_WIN32
 
@@ -252,9 +249,9 @@ namespace Insight {
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
 			if (ImGui::Button("X", ButtonSize))
-				Values.x = ResetValue;
+				Values.X = ResetValue;
 			ImGui::SameLine();
-			ImGui::DragFloat("##X", &Values.x, 0.1f);
+			ImGui::DragFloat("##X", &Values.X, 0.1f);
 			ImGui::PopItemWidth();
 			ImGui::SameLine();
 			ImGui::PopStyleColor(3);
@@ -263,9 +260,9 @@ namespace Insight {
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
 			if (ImGui::Button("Y", ButtonSize))
-				Values.y = ResetValue;
+				Values.Y = ResetValue;
 			ImGui::SameLine();
-			ImGui::DragFloat("##Y", &Values.y, 0.1f);
+			ImGui::DragFloat("##Y", &Values.Y, 0.1f);
 			ImGui::PopItemWidth();
 			ImGui::SameLine();
 			ImGui::PopStyleColor(3);
@@ -274,9 +271,9 @@ namespace Insight {
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 1.0f });
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
 			if (ImGui::Button("Z", ButtonSize))
-				Values.z = ResetValue;
+				Values.Z = ResetValue;
 			ImGui::SameLine();
-			ImGui::DragFloat("##Z", &Values.z, 0.1f);
+			ImGui::DragFloat("##Z", &Values.Z, 0.1f);
 			ImGui::PopItemWidth();
 			ImGui::SameLine();
 			ImGui::PopStyleColor(3);

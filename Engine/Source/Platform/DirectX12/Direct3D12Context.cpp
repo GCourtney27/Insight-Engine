@@ -189,14 +189,14 @@ namespace Insight {
 		static float WorldSecond = 0.0f;
 		WorldSecond += DeltaMs;
 
-		XMVECTOR InvMatDeterminent;
+		DirectX::XMVECTOR InvMatDeterminent;
 
 		// Send Per-Frame Data to GPU
 		m_FrameResources.m_CBPerFrame.Data.View = m_pWorldCameraRef->GetViewMatrix();
 		m_FrameResources.m_CBPerFrame.Data.Projection = m_pWorldCameraRef->GetProjectionMatrix();
 		m_FrameResources.m_CBPerFrame.Data.InverseView = XMMatrixInverse(&InvMatDeterminent, m_pWorldCameraRef->GetViewMatrix());
 		m_FrameResources.m_CBPerFrame.Data.InverseProjection = XMMatrixInverse(&InvMatDeterminent, m_pWorldCameraRef->GetProjectionMatrix());
-		m_FrameResources.m_CBPerFrame.Data.CameraPosition = m_pWorldCameraRef->GetPosition();
+		m_FrameResources.m_CBPerFrame.Data.CameraPosition = m_pWorldCameraRef->GetPosition().ToFVector3();
 		m_FrameResources.m_CBPerFrame.Data.DeltaMs = DeltaMs;
 		m_FrameResources.m_CBPerFrame.Data.WorldTime = WorldSecond;
 		m_FrameResources.m_CBPerFrame.Data.CameraNearZ = m_pWorldCameraRef->GetNearZ();
@@ -206,8 +206,8 @@ namespace Insight {
 		m_FrameResources.m_CBPerFrame.Data.NumDirectionalLights = (m_pWorldDirectionalLight != nullptr) ? 1.0f : 0.0f;
 		m_FrameResources.m_CBPerFrame.Data.RayTraceEnabled = (float)m_GraphicsSettings.RayTraceEnabled;
 		m_FrameResources.m_CBPerFrame.Data.NumSpotLights = (float)m_SpotLights.size();
-		m_FrameResources.m_CBPerFrame.Data.ScreenSize.x = (float)m_pWindowRef->GetWidth();
-		m_FrameResources.m_CBPerFrame.Data.ScreenSize.y = (float)m_pWindowRef->GetHeight();
+		m_FrameResources.m_CBPerFrame.Data.ScreenSize.X = (float)m_pWindowRef->GetWidth();
+		m_FrameResources.m_CBPerFrame.Data.ScreenSize.Y = (float)m_pWindowRef->GetHeight();
 		m_FrameResources.m_CBPerFrame.SubmitToGPU();
 
 		if (m_GraphicsSettings.RayTraceEnabled) m_RayTracedShadowPass.GetRTHelper()->UpdateCBVs();

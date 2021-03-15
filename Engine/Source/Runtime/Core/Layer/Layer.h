@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 #include "Runtime/Events/Event.h"
 #include "Platform/DirectX12/RenderPasses/RenderPasses.h"
 

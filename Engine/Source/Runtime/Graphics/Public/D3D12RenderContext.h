@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 
 // Insight
 #include "Runtime/Graphics/Public/IRenderContext.h"

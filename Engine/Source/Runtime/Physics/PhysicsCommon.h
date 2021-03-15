@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Runtime/Math/ie_Vectors.h"
 
 namespace Insight {
 
-	using namespace Math;
 
 	class INSIGHT_API IPhysicsObject
 	{
@@ -28,13 +26,13 @@ namespace Insight {
 
 	struct Contact 
 	{
-		ieVector3 HitPoint;
-		ieVector3 HitNormal;
+		FVector3 HitPoint;
+		FVector3 HitNormal;
 		float Distance;
 		IPhysicsObject* ObjectOne;
 		IPhysicsObject* ObjectTwo;
 
-		Contact(ieVector3 _HitPoint, ieVector3 _HitNormal, float _Distance, IPhysicsObject* _ObjectOne, IPhysicsObject* _ObjectTwo)
+		Contact(FVector3 _HitPoint, FVector3 _HitNormal, float _Distance, IPhysicsObject* _ObjectOne, IPhysicsObject* _ObjectTwo)
 			: HitPoint(_HitPoint), HitNormal(_HitNormal), Distance(_Distance), ObjectOne(_ObjectOne), ObjectTwo(_ObjectTwo) {}
 	};
 

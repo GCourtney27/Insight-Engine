@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 
 namespace Insight {
 
@@ -11,7 +11,7 @@ namespace Insight {
 			: m_MeshChildren(meshChildren), m_Transform(transform), m_DisplayName(displayName) {}
 		~MeshNode() {}
 
-		void PreRender(XMMATRIX& parentMat, UINT32& gpuAddressOffset);
+		void PreRender(ieMatrix& parentMat, UINT32& gpuAddressOffset);
 		void Render();
 		void RenderSceneHeirarchy();
 

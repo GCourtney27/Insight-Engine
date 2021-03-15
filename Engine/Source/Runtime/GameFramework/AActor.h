@@ -1,8 +1,8 @@
 #pragma once
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 
 #include "Runtime/Events/Event.h"
-#include "Runtime/Math/Transform.h"
+#include "Runtime/Math/Public/Transform.h"
 #include "Runtime/Core/Scene/SceneNode.h"
 #include "Runtime/GameFramework/Components/SceneComponent.h"
 #include "Runtime/Events/ApplicationEvent.h"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 
 #include "Runtime/GameFramework/AActor.h"
 #include "Platform/DirectXShared/ConstantBufferTypes.h"
@@ -19,7 +19,7 @@ namespace Insight {
 		virtual bool OnInit();
 		virtual bool OnPostInit();
 		virtual void OnUpdate(const float DeltaMs);
-		virtual void OnPreRender(XMMATRIX parentMat);
+		virtual void OnPreRender(ieMatrix& parentMat);
 		virtual void OnRender();
 		virtual void Destroy();
 

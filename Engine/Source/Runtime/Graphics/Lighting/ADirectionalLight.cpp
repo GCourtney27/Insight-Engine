@@ -22,8 +22,8 @@ namespace Insight {
 		m_pSceneComponent->SetEventCallback(IE_BIND_LOCAL_EVENT_FN(ADirectionalLight::OnEvent));
 		m_pSceneComponent->SetRotation(0.0f, 1.0f, 6.0f);
 
-		m_ShaderCB.DiffuseColor = ieVector3(1.0f, 1.0f, 1.0f);
-		m_ShaderCB.Direction = m_pSceneComponent->GetRotation();
+		m_ShaderCB.DiffuseColor = FVector3(1.0f, 1.0f, 1.0f);
+		m_ShaderCB.Direction = m_pSceneComponent->GetRotation().ToFVector3();
 		m_ShaderCB.Strength = 8.0f;
 		m_ShaderCB.ShadowDarknessMultiplier = 0.6f;
 
@@ -56,7 +56,7 @@ namespace Insight {
 		json::get_float(emission[0], "strength", Strength);
 		json::get_float(emission[0], "shadowDarkness", ShdowDarkness);
 
-		m_ShaderCB.DiffuseColor = XMFLOAT3(DiffuseR, DiffuseG, DiffuseB);
+		m_ShaderCB.DiffuseColor = FVector3(DiffuseR, DiffuseG, DiffuseB);
 		//m_ShaderCB.Direction = AActor::GetTransformRef().GetRotationRef();
 		m_ShaderCB.Strength = Strength;
 		m_ShaderCB.ShadowDarknessMultiplier = ShdowDarkness;
@@ -64,25 +64,12 @@ namespace Insight {
 		m_NearPlane = 1.0f;
 		m_FarPlane = 210.0f;
 		
-		LightCamPositionOffset = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		LightCamPositionOffset = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
-		m_ShaderCB.Direction = m_pSceneComponent->GetRotation();
+		m_ShaderCB.Direction = m_pSceneComponent->GetRotation().ToFVector3();
 
-		XMFLOAT3 LookAtPos = m_pSceneComponent->GetPosition();
-		XMVECTOR LookAtPosVec = XMLoadFloat3(&LookAtPos);
-
-		XMFLOAT3 Up(0.0f, 1.0f, 0.0f);
-		XMVECTOR UpVec = XMLoadFloat3(&Up);
-		XMFLOAT3 direction = m_ShaderCB.Direction;
-		direction.x = -direction.x + LightCamPositionOffset.x;
-		direction.y =  direction.y + LightCamPositionOffset.y;
-		direction.z = -direction.z + LightCamPositionOffset.z;
-
-		LightCamPositionVec = XMLoadFloat3(&direction);
-
-
-		LightView = XMMatrixLookAtLH(LightCamPositionVec, LookAtPosVec, UpVec);
-		LightProj = XMMatrixOrthographicLH(m_ViewWidth, m_ViewHeight, m_NearPlane, m_FarPlane);
+		LightView = DirectX::XMMatrixLookAtLH(m_pSceneComponent->GetRotation().Data(), m_pSceneComponent->GetPosition().Data(), const_cast<FVector*>(&FVector::Up)->Data());
+		LightProj = DirectX::XMMatrixOrthographicLH(m_ViewWidth, m_ViewHeight, m_NearPlane, m_FarPlane);
 
 		XMStoreFloat4x4(&LightViewFloat, XMMatrixTranspose(LightView));
 		XMStoreFloat4x4(&LightProjFloat, XMMatrixTranspose(LightProj));
@@ -111,11 +98,11 @@ namespace Insight {
 			{
 				Writer->StartObject();
 				Writer->Key("diffuseR");
-				Writer->Double(m_ShaderCB.DiffuseColor.x);
+				Writer->Double(m_ShaderCB.DiffuseColor.X);
 				Writer->Key("diffuseG");
-				Writer->Double(m_ShaderCB.DiffuseColor.y);
+				Writer->Double(m_ShaderCB.DiffuseColor.Y);
 				Writer->Key("diffuseB");
-				Writer->Double(m_ShaderCB.DiffuseColor.z);
+				Writer->Double(m_ShaderCB.DiffuseColor.Z);
 				Writer->Key("strength");
 				Writer->Double(m_ShaderCB.Strength);
 				Writer->EndObject();
@@ -150,7 +137,7 @@ namespace Insight {
 	{
 	}
 
-	void ADirectionalLight::OnPreRender(XMMATRIX parentMat)
+	void ADirectionalLight::OnPreRender(ieMatrix& parentMat)
 	{
 	}
 
@@ -202,7 +189,7 @@ namespace Insight {
 			constexpr UI::ColorPickerFlags colorWheelFlags = UI::ColorPickerFlags_NoAlpha | UI::ColorPickerFlags_Uint8 | UI::ColorPickerFlags_PickerHueWheel;
 			// Imgui will edit the color values in a normalized 0 to 1 space. 
 			// In the shaders we transform the color values back into 0 to 255 space.
-			UI::ColorPicker3("Diffuse", &m_ShaderCB.DiffuseColor.x, colorWheelFlags);
+			UI::ColorPicker3("Diffuse", &m_ShaderCB.DiffuseColor.X, colorWheelFlags);
 			UI::DragFloat("Strength", &m_ShaderCB.Strength, 0.01f, 0.0f, 10.0f);
 
 			UI::Text("Shadows");
@@ -215,28 +202,22 @@ namespace Insight {
 
 	bool ADirectionalLight::OnEventTranslation(TranslationEvent& e)
 	{
-		m_ShaderCB.Direction = m_pSceneComponent->GetRotation();
+		m_ShaderCB.Direction = m_pSceneComponent->GetRotation().ToFVector3();
 
 		CreateProjectionMatrix(m_ShaderCB.Direction);
 		
 		return false;
 	}
 
-	void ADirectionalLight::CreateProjectionMatrix(ieVector3 Direction)
+	void ADirectionalLight::CreateProjectionMatrix(FVector3 Direction)
 	{
-		XMFLOAT3 LookAtPos(0.0f, 0.0f, 0.0f);
-		XMVECTOR LookAtPosVec = XMLoadFloat3(&LookAtPos);
-		XMFLOAT3 Up(0.0f, 1.0f, 0.0f);
-		XMVECTOR UpVec = XMLoadFloat3(&Up);
+		DirectX::XMFLOAT3 LookAtPos(0.0f, 0.0f, 0.0f);
+		DirectX::XMVECTOR LookAtPosVec = XMLoadFloat3(&LookAtPos);
+		DirectX::XMFLOAT3 Up(0.0f, 1.0f, 0.0f);
+		DirectX::XMVECTOR UpVec = XMLoadFloat3(&Up);
 
-		XMFLOAT3 direction = m_ShaderCB.Direction;
-		direction.x = direction.x + LightCamPositionOffset.x;
-		direction.y = direction.y + LightCamPositionOffset.y;
-		direction.z = direction.z + LightCamPositionOffset.z;
-		LightCamPositionVec = XMLoadFloat3(&direction);
-
-		LightView = XMMatrixLookAtLH(LightCamPositionVec, LookAtPosVec, UpVec);
-		LightProj = XMMatrixOrthographicLH(m_ViewWidth, m_ViewHeight, m_NearPlane, m_FarPlane);
+		LightView = DirectX::XMMatrixLookAtLH(m_pSceneComponent->GetRotation().Data(), LookAtPosVec, UpVec);
+		LightProj = DirectX::XMMatrixOrthographicLH(m_ViewWidth, m_ViewHeight, m_NearPlane, m_FarPlane);
 
 		XMStoreFloat4x4(&m_ShaderCB.LightSpaceView, LightView);
 		XMStoreFloat4x4(&m_ShaderCB.LightSpaceProj, LightProj);

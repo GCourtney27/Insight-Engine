@@ -47,17 +47,17 @@ namespace Insight {
 			json::get_float(MeshTransform[0], "posX", posX);
 			json::get_float(MeshTransform[0], "posY", posY);
 			json::get_float(MeshTransform[0], "posZ", posZ);
-			m_pModel->GetMeshRootTransformRef().SetPosition(ieVector3(posX, posY, posZ));
+			m_pModel->GetMeshRootTransformRef().SetPosition(posX, posY, posZ);
 			// Rotation
 			json::get_float(MeshTransform[0], "rotX", rotX);
 			json::get_float(MeshTransform[0], "rotY", rotY);
 			json::get_float(MeshTransform[0], "rotZ", rotZ);
-			m_pModel->GetMeshRootTransformRef().SetRotation(ieVector3(rotX, rotY, rotZ));
+			m_pModel->GetMeshRootTransformRef().SetRotation(rotX, rotY, rotZ);
 			// Scale
 			json::get_float(MeshTransform[0], "scaX", scaX);
 			json::get_float(MeshTransform[0], "scaY", scaY);
 			json::get_float(MeshTransform[0], "scaZ", scaZ);
-			m_pModel->GetMeshRootTransformRef().SetScale(ieVector3(scaX, scaY, scaZ));
+			m_pModel->GetMeshRootTransformRef().SetScale(scaX, scaY, scaZ);
 
 			return true;
 		}
@@ -78,31 +78,31 @@ namespace Insight {
 					Writer.StartArray();
 					{
 						ieTransform& MeshTransform = m_pModel->GetMeshRootTransformRef();
-						ieVector3 Pos = MeshTransform.GetPosition();
-						ieVector3 Rot = MeshTransform.GetRotation();
-						ieVector3 Sca = MeshTransform.GetScale();
+						FVector Pos = MeshTransform.GetPosition();
+						FVector Rot = MeshTransform.GetRotation();
+						FVector Sca = MeshTransform.GetScale();
 						Writer.StartObject();
 						// Position
 						Writer.Key("posX");
-						Writer.Double(Pos.x);
+						Writer.Double(Pos.X());
 						Writer.Key("posY");
-						Writer.Double(Pos.y);
+						Writer.Double(Pos.Y());
 						Writer.Key("posZ");
-						Writer.Double(Pos.z);
+						Writer.Double(Pos.Z());
 						// Rotation
 						Writer.Key("rotX");
-						Writer.Double(Rot.x);
+						Writer.Double(Rot.X());
 						Writer.Key("rotY");
-						Writer.Double(Rot.y);
+						Writer.Double(Rot.Y());
 						Writer.Key("rotZ");
-						Writer.Double(Rot.z);
+						Writer.Double(Rot.Z());
 						// Scale
 						Writer.Key("scaX");
-						Writer.Double(Sca.x);
+						Writer.Double(Sca.X());
 						Writer.Key("scaY");
-						Writer.Double(Sca.y);
+						Writer.Double(Sca.Y());
 						Writer.Key("scaZ");
-						Writer.Double(Sca.z);
+						Writer.Double(Sca.Z());
 						Writer.EndObject();
 					}
 					Writer.EndArray();

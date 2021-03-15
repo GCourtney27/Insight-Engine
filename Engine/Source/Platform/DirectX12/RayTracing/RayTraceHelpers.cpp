@@ -95,7 +95,7 @@ namespace Insight {
 
 		// Copy the directional light contents
 		const CB_PS_DirectionalLight DirLightData = m_pRenderContextRef->GetDirectionalLightCB();
-		m_CBLightParams.DirLightDirection = XMFLOAT4(DirLightData.Direction.x, DirLightData.Direction.y, DirLightData.Direction.z, 1.0f);
+		m_CBLightParams.DirLightDirection = DirectX::XMFLOAT4(DirLightData.Direction.X, DirLightData.Direction.Y, DirLightData.Direction.Z, 1.0f);
 		m_CBLightParams.ShadowDarkness = DirLightData.ShadowDarknessMultiplier;
 
 		uint8_t* pLightData;
@@ -146,7 +146,7 @@ namespace Insight {
 		m_pRenderContextRef->ResourceBarrier(m_pCommandListRef.Get(), ShadowDepthResources, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
 	}
 
-	uint32_t RayTraceHelpers::RegisterBottomLevelASGeometry(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVeticies, uint32_t NumIndices, XMMATRIX WorldMat)
+	uint32_t RayTraceHelpers::RegisterBottomLevelASGeometry(ComPtr<ID3D12Resource> pVertexBuffer, ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVeticies, uint32_t NumIndices, DirectX::XMMATRIX& WorldMat)
 	{
 		m_ASVertexBuffers.push_back(std::make_pair(pVertexBuffer, NumVeticies));
 		m_ASIndexBuffers.push_back(std::make_pair(pIndexBuffer, NumIndices));

@@ -1,24 +1,22 @@
 #pragma once
-#include "Runtime/Math/ie_Vectors.h"
+
+#include <Runtime/Core.h>
 
 namespace Insight {
 
-	using Math::ieFloat2;
-	using Math::ieFloat3;
-
 	struct Vertex3D
 	{
-		ieFloat3 Position	 = {};
-		ieFloat2 TexCoords	 = {};
-		ieFloat3 Normal		 = {};
-		ieFloat3 Tangent	 = {};
-		ieFloat3 BiTangent	 = {};
+		FVector3 Position	 = {};
+		FVector2 TexCoords	 = {};
+		FVector3 Normal		 = {};
+		FVector3 Tangent	 = {};
+		FVector3 BiTangent	 = {};
 	};
 
 	struct ScreenSpaceVertex
 	{
-		ieFloat3 Position	 = {};
-		ieFloat2 TexCoords	 = {};
+		FVector3 Position	 = {};
+		FVector2 TexCoords	 = {};
 	};
 
 

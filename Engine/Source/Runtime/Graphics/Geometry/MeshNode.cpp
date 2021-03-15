@@ -10,7 +10,7 @@ namespace Insight {
 	
 
 
-	void MeshNode::PreRender(XMMATRIX& parentMat, UINT32& gpuAddressOffset)
+	void MeshNode::PreRender(ieMatrix& parentMat, UINT32& gpuAddressOffset)
 	{
 		auto worldMat = XMMatrixMultiply(m_Transform.GetLocalMatrix(), parentMat);
 

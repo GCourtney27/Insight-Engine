@@ -119,11 +119,12 @@ namespace Insight {
 
 		void ACamera::UpdateViewMatrix()
 		{
-			m_CamRotationMatrix = XMMatrixRotationRollPitchYaw(m_pSceneComponent->GetRotation().x, m_pSceneComponent->GetRotation().y, 0.0f);
-			m_CamTarget = XMVector3TransformCoord(Vector3::Forward, m_CamRotationMatrix);
+			m_CamRotationMatrix = XMMatrixRotationRollPitchYaw(m_pSceneComponent->GetRotation().X(), m_pSceneComponent->GetRotation().Y(), 0.0f);
+			m_CamTarget = XMVector3TransformCoord(const_cast<FVector*>(&FVector::Forward)->Data(), m_CamRotationMatrix);
+			
 			m_CamTarget += m_pSceneComponent->GetPosition();
-			m_UpDir = XMVector3TransformCoord(Vector3::Up, m_CamRotationMatrix);
-			m_ViewMatrix = XMMatrixLookAtLH(m_pSceneComponent->GetPosition(), m_CamTarget, m_UpDir);
+			m_UpDir = XMVector3TransformCoord(const_cast<FVector*>(&FVector::Up)->Data(), m_CamRotationMatrix);
+			m_ViewMatrix = XMMatrixLookAtLH(m_pSceneComponent->GetPosition().Data(), m_CamTarget.Data(), m_UpDir.Data());
 		}
 
 		bool ACamera::OnMouseScrolled(MouseScrolledEvent& e)

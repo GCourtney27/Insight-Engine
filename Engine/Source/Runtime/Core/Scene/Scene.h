@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 
 #include "Runtime/Systems/Managers/ResourceManager.h"
 #include "Runtime/GameFramework/Archetypes/ACamera.h"
@@ -74,7 +74,6 @@ namespace Insight {
 		GameFramework::ACamera* m_pCamera = nullptr;
 		GameFramework::ViewTarget m_EditorViewTarget;
 
-		ieVector3 newPos;
 		GameFramework::AActor* m_pSelectedActor = nullptr;
 
 		SceneNode* m_pSceneRoot = nullptr;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 
 #include "ActorComponent.h"
 #include "Runtime/Graphics/Geometry/Model.h"
@@ -51,9 +51,9 @@ namespace Insight {
 			virtual void OnAttach() override;
 			virtual void OnDetach() override;
 
-			inline void SetPosition(ieVector3& Pos) { m_pModel->GetMeshRootTransformRef().SetPosition(Pos.x, Pos.y, Pos.z); }
-			inline void SetRotation(ieVector3& Rot) { m_pModel->GetMeshRootTransformRef().SetRotation(Rot.x, Rot.y, Rot.z); }
-			inline void SetScale(ieVector3& Sca) { m_pModel->GetMeshRootTransformRef().SetScale(Sca.x, Sca.y, Sca.z); }
+			inline void SetPosition(const FVector& Pos) { m_pModel->GetMeshRootTransformRef().SetPosition(Pos); }
+			inline void SetRotation(const FVector& Rot) { m_pModel->GetMeshRootTransformRef().SetRotation(Rot); }
+			inline void SetScale(const FVector& Scale) { m_pModel->GetMeshRootTransformRef().SetScale(Scale); }
 
 			inline void SetPosition(float X, float Y, float Z) { m_pModel->GetMeshRootTransformRef().SetPosition(X, Y, Z); }
 			inline void SetRotation(float X, float Y, float Z) { m_pModel->GetMeshRootTransformRef().SetRotation(X, Y, Z); }

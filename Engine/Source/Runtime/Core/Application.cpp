@@ -20,7 +20,6 @@
 #endif
 
 static const char* TargetSceneName = "Debug.iescene";
-
 namespace Insight {
 
 

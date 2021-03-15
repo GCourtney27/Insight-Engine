@@ -48,9 +48,9 @@ namespace Insight {
 		CreateBuffers(Verticies, Indices);
 	}
 
-	void Mesh::PreRender(const XMMATRIX& parentMat)
+	void Mesh::PreRender(const ieMatrix4x4& parentMat)
 	{
-		m_Transform.SetWorldMatrix(XMMatrixMultiply(parentMat, m_Transform.GetLocalMatrix()));
+		m_Transform.SetWorldMatrix(DirectX::XMMatrixMultiply(parentMat, m_Transform.GetLocalMatrix()));
 		m_ConstantBufferPerObject.World = m_Transform.GetWorldMatrixRef();
 
 		if (m_ShouldUpdateAS) UpdateAccelerationStructures();

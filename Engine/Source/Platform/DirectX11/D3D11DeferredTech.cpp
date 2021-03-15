@@ -458,10 +458,10 @@ namespace Insight {
 		{
 			ScreenSpaceVertex Verticies[] =
 			{
-				{ ieFloat3{-1.0f, -1.0f, 1.0f}, ieFloat2{0.0f, 1.0f} },// Bottom Left
-				{ ieFloat3{-1.0f, 1.0f, 1.0f}, ieFloat2{0.0f, 0.0f} }, // Top Left
-				{ ieFloat3{1.0f, 1.0f, 1.0f}, ieFloat2{1.0f, 0.0f} }, // Top Right
-				{ ieFloat3{1.0f, -1.0f, 1.0f}, ieFloat2{1.0f, 1.0f} } // Bottom Right
+				{ FVector3{-1.0f, -1.0f, 1.0f}, FVector2{0.0f, 1.0f} },// Bottom Left
+				{ FVector3{-1.0f, 1.0f, 1.0f},	FVector2{0.0f, 0.0f} }, // Top Left
+				{ FVector3{1.0f, 1.0f, 1.0f},	FVector2{1.0f, 0.0f} }, // Top Right
+				{ FVector3{1.0f, -1.0f, 1.0f},	FVector2{1.0f, 1.0f} } // Bottom Right
 			};
 			m_NumVerticis = 4U;
 

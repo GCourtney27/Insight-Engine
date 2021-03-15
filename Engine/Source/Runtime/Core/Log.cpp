@@ -20,8 +20,8 @@ namespace Insight {
 			// Initialize the console window.
 			ConsoleWindowDesc WindowDesc;
 			WindowDesc.CanClose = false;
-			WindowDesc.BufferDims = ieFloat2(700, 320);
-			WindowDesc.WindowDims = ieFloat2(170, 42);
+			WindowDesc.BufferDims = FVector2(700, 320);
+			WindowDesc.WindowDims = FVector2(170, 42);
 			WindowDesc.DefaultForegroundColor = CC_White;
 			WindowDesc.LoggerName = "Insight";
 			s_ConsoleWindow.Create(WindowDesc);

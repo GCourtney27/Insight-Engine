@@ -1,13 +1,12 @@
 #pragma once
 
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 
 #include "Runtime/GameFramework/Archetypes/APawn.h"
 
 
 namespace Insight {
 
-	using namespace DirectX::SimpleMath;
 
 	namespace GameFramework {
 
@@ -25,8 +24,8 @@ namespace Insight {
 		// 'new camera' set the view target of the global camera.
 		struct ViewTarget
 		{
-			ieVector3 Position	= Vector3::Zero;
-			ieVector3 Rotation	= Vector3::Zero;
+			FVector Position	= FVector::Zero;
+			FVector Rotation	= FVector::Zero;
 			float FieldOfView	= DEFAULT_FOV;
 			float Sensitivity	= DEFAULT_SENSITIVITY;
 			float Speed			= DEFAULT_BASE_SPEED;
@@ -53,7 +52,7 @@ namespace Insight {
 			void ProcessMouseScroll(float yOffset);
 			void ProcessMouseMovement(float xOffset, float yOffset);
 
-			ieVector3 GetPosition() const { return m_pSceneComponent->GetPosition(); }
+			FVector GetPosition() const { return m_pSceneComponent->GetPosition(); }
 			inline XMMATRIX GetViewMatrix() const { return m_ViewMatrix; }
 			inline XMMATRIX GetProjectionMatrix() const { return m_ProjectionMatrix; };
 			inline float GetFOV() const { return m_Fov; }
@@ -139,8 +138,8 @@ namespace Insight {
 
 			// Cached Internal Variables.
 			XMMATRIX m_CamRotationMatrix;
-			XMVECTOR m_CamTarget;
-			XMVECTOR m_UpDir;
+			FVector m_CamTarget;
+			FVector m_UpDir;
 
 		};
 

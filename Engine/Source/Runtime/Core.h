@@ -52,7 +52,10 @@
 #define NO_DISCARD [[nodiscard]]
 
 // Includes
-#include "Runtime/Math/MathHelpers.h"
+#include "Runtime/Math/Public/MathHelpers.h"
+#include "Runtime/Math/Public/PrimitiveTypes.h"
+#include "Runtime/Math/Public/Vectors.h"
+
 
 // Rendering
 #define MAX_POINT_LIGHTS_SUPPORTED 16u

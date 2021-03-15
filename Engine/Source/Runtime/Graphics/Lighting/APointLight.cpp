@@ -15,7 +15,7 @@ namespace Insight {
 	{
 		Renderer::RegisterPointLight(this);
 
-		m_ShaderCB.DiffuseColor = ieVector3(1.0f, 1.0f, 1.0f);
+		m_ShaderCB.DiffuseColor = FVector3(1.0f, 1.0f, 1.0f);
 		m_ShaderCB.Strength = 1.0f;
 
 		// Load Components
@@ -37,7 +37,7 @@ namespace Insight {
 		json::get_float(emission[0], "diffuseB", diffuseB);
 		json::get_float(emission[0], "strength", strength);
 
-		m_ShaderCB.DiffuseColor = XMFLOAT3(diffuseR, diffuseG, diffuseB);
+		m_ShaderCB.DiffuseColor = FVector3(diffuseR, diffuseG, diffuseB);
 		m_ShaderCB.Strength = strength;
 
 		return true;
@@ -79,7 +79,7 @@ namespace Insight {
 
 	void APointLight::OnUpdate(const float DeltaMs)
 	{
-		m_ShaderCB.Position = m_pSceneComponent->GetPosition();
+		m_ShaderCB.Position = m_pSceneComponent->GetPosition().ToFVector3();
 	}
 
 	void APointLight::OnRender()
@@ -122,7 +122,7 @@ namespace Insight {
 
 			// Imgui will edit the color values in a normalized 0 to 1 space. 
 			// In the shaders we transform the color values back into 0 to 255 space.
-			UI::ColorPicker3("Diffuse", &m_ShaderCB.DiffuseColor.x, colorWheelFlags);
+			UI::ColorPicker3("Diffuse", &m_ShaderCB.DiffuseColor.X, colorWheelFlags);
 			UI::DragFloat("Strength", &m_ShaderCB.Strength, 0.1f, 0.0f, 100.0f);
 		}
 
@@ -130,7 +130,7 @@ namespace Insight {
 
 	bool APointLight::OnEventTranslation(TranslationEvent& e)
 	{
-		m_ShaderCB.Position = m_pSceneComponent->GetPosition();
+		m_ShaderCB.Position = m_pSceneComponent->GetPosition().ToFVector3();
 		return false;
 	}
 

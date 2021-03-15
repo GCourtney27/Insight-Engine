@@ -110,7 +110,7 @@ namespace Insight {
 		m_PerFrameData.Data.DeltaMs = DeltaMs;
 		m_PerFrameData.Data.View = m_pWorldCameraRef->GetViewMatrix();
 		m_PerFrameData.Data.Projection = m_pWorldCameraRef->GetProjectionMatrix();
-		m_PerFrameData.Data.CameraPosition = m_pWorldCameraRef->GetPosition();
+		m_PerFrameData.Data.CameraPosition = m_pWorldCameraRef->GetPosition().ToFVector3();
 		m_PerFrameData.Data.DeltaMs = DeltaMs;
 		m_PerFrameData.Data.WorldTime = WorldTime;
 		m_PerFrameData.Data.RayTraceEnabled = false;
@@ -120,8 +120,8 @@ namespace Insight {
 		m_PerFrameData.Data.NumPointLights = (float)m_PointLights.size();
 		m_PerFrameData.Data.NumDirectionalLights = (m_pWorldDirectionalLight != nullptr) ? 1.0f : 0.0f;
 		m_PerFrameData.Data.NumSpotLights = (float)m_SpotLights.size();
-		m_PerFrameData.Data.ScreenSize.x = (float)m_pWindowRef->GetWidth();
-		m_PerFrameData.Data.ScreenSize.y = (float)m_pWindowRef->GetHeight();
+		m_PerFrameData.Data.ScreenSize.X = (float)m_pWindowRef->GetWidth();
+		m_PerFrameData.Data.ScreenSize.Y = (float)m_pWindowRef->GetHeight();
 		m_PerFrameData.SubmitToGPU();
 
 		// Send Point Lights to GPU

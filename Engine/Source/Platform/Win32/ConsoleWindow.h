@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 
 #if IE_PLATFORM_BUILD_WIN32
 
-#include "Runtime/Math/ie_Vectors.h"
+#include <Windows.h>
 
 namespace Insight {
 
@@ -14,13 +14,13 @@ namespace Insight {
 	enum EConsoleColor
 	{
 		CC_Black	= 0,
-		CC_Red		= FOREGROUND_RED,
-		CC_Green	= FOREGROUND_GREEN,
-		CC_Blue		= FOREGROUND_BLUE,
-		CC_Yellow	= FOREGROUND_RED	| FOREGROUND_GREEN,
-		CC_Cyan		= FOREGROUND_GREEN	| FOREGROUND_BLUE,
-		CC_White	= FOREGROUND_RED	| FOREGROUND_GREEN | FOREGROUND_BLUE,
-		CC_Magenta	= FOREGROUND_RED	| FOREGROUND_BLUE,
+		CC_Red		= 0x0004,
+		CC_Green	= 0x0002,
+		CC_Blue		= 0x0001,
+		CC_Yellow	= CC_Red	| CC_Green,
+		CC_Cyan		= CC_Green	| CC_Blue,
+		CC_White	= CC_Red | CC_Green | CC_Blue,
+		CC_Magenta	= CC_Red | CC_Blue,
 		CC_Orange	= CC_Red | CC_Yellow,
 	};
 
@@ -32,9 +32,9 @@ namespace Insight {
 		// Wether the window is allowed to close.
 		bool CanClose;
 		// Output buffer dimensions.
-		Math::ieFloat2 BufferDims;
+		FVector2 BufferDims;
 		// Window dimensions
-		Math::ieFloat2 WindowDims;
+		FVector2 WindowDims;
 		// The default text color when adding text to the log.
 		EConsoleColor DefaultForegroundColor;
 		// The name of this logger.

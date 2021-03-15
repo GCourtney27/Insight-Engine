@@ -80,7 +80,7 @@ struct ImGuiViewportDataDx12
 
     UINT                        FrameIndex;
     FrameContext*               FrameCtx;
-    FrameResources*             Resources;
+    ::FrameResources*             Resources;
 
     ImGuiViewportDataDx12()
     {
@@ -94,7 +94,7 @@ struct ImGuiViewportDataDx12
         FenceEvent = NULL;
         FrameIndex = UINT_MAX;
         FrameCtx = new FrameContext[g_numFramesInFlight];
-        Resources = new FrameResources[g_numFramesInFlight];
+        Resources = new ::FrameResources[g_numFramesInFlight];
 
         for (UINT i = 0; i < g_numFramesInFlight; ++i)
         {
@@ -144,7 +144,7 @@ struct VERTEX_CONSTANT_BUFFER
 static void ImGui_ImplDX12_InitPlatformInterface();
 static void ImGui_ImplDX12_ShutdownPlatformInterface();
 
-static void ImGui_ImplDX12_SetupRenderState(ImDrawData* draw_data, ID3D12GraphicsCommandList* ctx, FrameResources* fr)
+static void ImGui_ImplDX12_SetupRenderState(ImDrawData* draw_data, ID3D12GraphicsCommandList* ctx, ::FrameResources* fr)
 {
     // Setup orthographic projection matrix into our constant buffer
     // Our visible imgui space lies from draw_data->DisplayPos (top left) to draw_data->DisplayPos+data_data->DisplaySize (bottom right).
@@ -209,7 +209,7 @@ void ImGui_ImplDX12_RenderDrawData(ImDrawData* draw_data, ID3D12GraphicsCommandL
 
     ImGuiViewportDataDx12* render_data = (ImGuiViewportDataDx12*)draw_data->OwnerViewport->RendererUserData;
     render_data->FrameIndex++;
-    FrameResources* fr = &render_data->Resources[render_data->FrameIndex % g_numFramesInFlight];
+    ::FrameResources* fr = &render_data->Resources[render_data->FrameIndex % g_numFramesInFlight];
 
     // Create and grow vertex/index buffers if needed
     if (fr->VertexBuffer == NULL || fr->VertexBufferSize < draw_data->TotalVtxCount)
