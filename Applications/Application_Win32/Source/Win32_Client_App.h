@@ -132,9 +132,9 @@ namespace SandBoxApp {
 			StaticMeshComponent * pHouseSupports = pAHouse->CreateDefaultSubobject<StaticMeshComponent>();
 			pHouseSupports->SetMaterial(Material::CreateDefaultTexturedMaterial());
 			pHouseSupports->AttachMesh(TEXT("Objects/Norway/House/House_Supports.obj"));
-			pHouseSupports->SetPosition(FVector(-30.5f, -28.65f, 88.45f));
-			pHouseSupports->SetRotation(FVector(0.0f, 1.55f, 0.0f));
-			pHouseSupports->SetScale(FVector(40.0f, 40.0f, 40.0f));
+			pHouseSupports->SetPosition(FVector3(-30.5f, -28.65f, 88.45f));
+			pHouseSupports->SetRotation(FVector3(0.0f, 1.55f, 0.0f));
+			pHouseSupports->SetScale(FVector3(40.0f, 40.0f, 40.0f));
 			// Foliage Supports
 			StaticMeshComponent * pFoliageSupports = pAHouse->CreateDefaultSubobject<StaticMeshComponent>();
 			pFoliageSupports->SetMaterial(Material::CreateDefaultTexturedMaterial());
@@ -144,9 +144,9 @@ namespace SandBoxApp {
 			StaticMeshComponent * pPatio = pAHouse->CreateDefaultSubobject<StaticMeshComponent>();
 			pPatio->SetMaterial(pPatioMat);
 			pPatio->AttachMesh(TEXT("Objects/Norway/House/Patio.obj"));
-			pPatio->SetPosition(FVector(-47.85f, -36.15f, 108.9f));
-			pPatio->SetRotation(FVector(0.0f, 1.55f, 0.0f));
-			pPatio->SetScale(FVector(50.0f, 50.0f, 50.0f));
+			pPatio->SetPosition(FVector3(-47.85f, -36.15f, 108.9f));
+			pPatio->SetRotation(FVector3(0.0f, 1.55f, 0.0f));
+			pPatio->SetScale(FVector3(50.0f, 50.0f, 50.0f));
 
 			GetScene().AddActor(pAHouse);
 
@@ -181,7 +181,7 @@ namespace SandBoxApp {
 			pFrontRocks->SetMaterial(pFrontRocksMat);
 			//pFrontRocks->AttachMesh("Models/1911a1.fbx");
 			pFrontRocks->AttachMesh(TEXT("Models/Sphere.obj"));
-			pFrontRocks->SetRotation(FVector(1.5f, 0.0f, 0.0f));
+			pFrontRocks->SetRotation(FVector3(1.5f, 0.0f, 0.0f));
 
 			GetScene().AddActor(pASphere);
 

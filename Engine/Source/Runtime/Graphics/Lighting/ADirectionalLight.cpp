@@ -23,7 +23,7 @@ namespace Insight {
 		m_pSceneComponent->SetRotation(0.0f, 1.0f, 6.0f);
 
 		m_ShaderCB.DiffuseColor = FVector3(1.0f, 1.0f, 1.0f);
-		m_ShaderCB.Direction = m_pSceneComponent->GetRotation().ToFVector3();
+		m_ShaderCB.Direction = m_pSceneComponent->GetRotation();
 		m_ShaderCB.Strength = 8.0f;
 		m_ShaderCB.ShadowDarknessMultiplier = 0.6f;
 
@@ -66,9 +66,9 @@ namespace Insight {
 		
 		LightCamPositionOffset = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
-		m_ShaderCB.Direction = m_pSceneComponent->GetRotation().ToFVector3();
+		m_ShaderCB.Direction = m_pSceneComponent->GetRotation();
 
-		LightView = DirectX::XMMatrixLookAtLH(m_pSceneComponent->GetRotation().Data(), m_pSceneComponent->GetPosition().Data(), const_cast<FVector*>(&FVector::Up)->Data());
+		LightView = DirectX::XMMatrixLookAtLH(m_pSceneComponent->GetRotation(), m_pSceneComponent->GetPosition(), FVector3::Up);
 		LightProj = DirectX::XMMatrixOrthographicLH(m_ViewWidth, m_ViewHeight, m_NearPlane, m_FarPlane);
 
 		XMStoreFloat4x4(&LightViewFloat, XMMatrixTranspose(LightView));
@@ -98,11 +98,11 @@ namespace Insight {
 			{
 				Writer->StartObject();
 				Writer->Key("diffuseR");
-				Writer->Double(m_ShaderCB.DiffuseColor.X);
+				Writer->Double(m_ShaderCB.DiffuseColor.x);
 				Writer->Key("diffuseG");
-				Writer->Double(m_ShaderCB.DiffuseColor.Y);
+				Writer->Double(m_ShaderCB.DiffuseColor.y);
 				Writer->Key("diffuseB");
-				Writer->Double(m_ShaderCB.DiffuseColor.Z);
+				Writer->Double(m_ShaderCB.DiffuseColor.z);
 				Writer->Key("strength");
 				Writer->Double(m_ShaderCB.Strength);
 				Writer->EndObject();
@@ -137,7 +137,7 @@ namespace Insight {
 	{
 	}
 
-	void ADirectionalLight::OnPreRender(ieMatrix& parentMat)
+	void ADirectionalLight::OnPreRender(FMatrix& parentMat)
 	{
 	}
 
@@ -189,7 +189,7 @@ namespace Insight {
 			constexpr UI::ColorPickerFlags colorWheelFlags = UI::ColorPickerFlags_NoAlpha | UI::ColorPickerFlags_Uint8 | UI::ColorPickerFlags_PickerHueWheel;
 			// Imgui will edit the color values in a normalized 0 to 1 space. 
 			// In the shaders we transform the color values back into 0 to 255 space.
-			UI::ColorPicker3("Diffuse", &m_ShaderCB.DiffuseColor.X, colorWheelFlags);
+			UI::ColorPicker3("Diffuse", &m_ShaderCB.DiffuseColor.x, colorWheelFlags);
 			UI::DragFloat("Strength", &m_ShaderCB.Strength, 0.01f, 0.0f, 10.0f);
 
 			UI::Text("Shadows");
@@ -202,7 +202,7 @@ namespace Insight {
 
 	bool ADirectionalLight::OnEventTranslation(TranslationEvent& e)
 	{
-		m_ShaderCB.Direction = m_pSceneComponent->GetRotation().ToFVector3();
+		m_ShaderCB.Direction = m_pSceneComponent->GetRotation();
 
 		CreateProjectionMatrix(m_ShaderCB.Direction);
 		
@@ -216,7 +216,7 @@ namespace Insight {
 		DirectX::XMFLOAT3 Up(0.0f, 1.0f, 0.0f);
 		DirectX::XMVECTOR UpVec = XMLoadFloat3(&Up);
 
-		LightView = DirectX::XMMatrixLookAtLH(m_pSceneComponent->GetRotation().Data(), LookAtPosVec, UpVec);
+		LightView = DirectX::XMMatrixLookAtLH(m_pSceneComponent->GetRotation(), LookAtPosVec, UpVec);
 		LightProj = DirectX::XMMatrixOrthographicLH(m_ViewWidth, m_ViewHeight, m_NearPlane, m_FarPlane);
 
 		XMStoreFloat4x4(&m_ShaderCB.LightSpaceView, LightView);

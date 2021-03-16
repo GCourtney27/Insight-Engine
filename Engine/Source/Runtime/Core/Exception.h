@@ -2,12 +2,14 @@
 
 #include <Runtime/Core.h>
 
-namespace Insight {
+namespace Insight 
+{
+
 
 	class INSIGHT_API ieException
 	{
 	public:
-		typedef enum EExceptionCategory
+		enum EExceptionCategory
 		{
 			EC_Generic		= BIT_SHIFT(0),
 			EC_Application	= BIT_SHIFT(1),
@@ -15,7 +17,7 @@ namespace Insight {
 			EC_Scripting	= BIT_SHIFT(3),
 			EC_Physics		= BIT_SHIFT(4),
 			EC_Engine		= BIT_SHIFT(5),
-		} EExceptionCategory;
+		};
 	public:
 		ieException() = delete;
 		ieException(const TChar* Msg, EExceptionCategory Type = EC_Generic)

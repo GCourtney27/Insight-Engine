@@ -47,8 +47,8 @@ namespace Insight {
 		m_EditorViewTarget = GameFramework::ACamera::GetDefaultViewTarget();
 		m_EditorViewTarget.FieldOfView = 75.0f;
 		//m_EditorViewTarget.Position = FVector3(-17.0f, 8.0f, -31.0f);
-		m_EditorViewTarget.Position = FVector(83.0f, 31.0f, -23.0f);
-		m_EditorViewTarget.Rotation = FVector(0.478f, -0.981f, 0.0f);
+		m_EditorViewTarget.Position = FVector3(83.0f, 31.0f, -23.0f);
+		m_EditorViewTarget.Rotation = FVector3(0.478f, -0.981f, 0.0f);
 		m_EditorViewTarget.NearZ = 0.5f;
 		m_EditorViewTarget.FarZ = 3500.0f;
 

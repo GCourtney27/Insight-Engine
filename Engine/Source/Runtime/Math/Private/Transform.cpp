@@ -77,7 +77,7 @@ namespace Insight {
 
 	void ieTransform::Translate(float x, float y, float z)
 	{
-		FVector Offset(x, y, z);
+		FVector3 Offset(x, y, z);
 		m_Position += Offset;
 		TranslateLocalMatrix();
 		UpdateLocalMatrix();
@@ -85,7 +85,8 @@ namespace Insight {
 
 	void ieTransform::Rotate(float XInDegrees, float YInDegrees, float ZInDegrees)
 	{
-		FVector Offset(DEGREES_TO_RADIANS(XInDegrees), DEGREES_TO_RADIANS(YInDegrees), DEGREES_TO_RADIANS(ZInDegrees));
+		
+		FVector3 Offset(XMConvertToRadians(XInDegrees), XMConvertToRadians(YInDegrees), XMConvertToRadians(ZInDegrees));
 		m_Rotation += Offset;
 		RotateLocalMatrix();
 		UpdateLocalMatrix();
@@ -93,13 +94,13 @@ namespace Insight {
 
 	void ieTransform::Scale(float x, float y, float z)
 	{
-		FVector Offset(x, y, z);
+		FVector3 Offset(x, y, z);
 		m_Scale += Offset; 
 		ScaleLocalMatrix();
 		UpdateLocalMatrix();
 	}
 
-	void ieTransform::LookAt( FVector& target)
+	void ieTransform::LookAt(FVector3& target)
 	{
 		// Verify that look at pos is not the same as Model pos. They cannot be the same as that wouldn't make sense and would result in undefined behavior
 		if (target == m_Position)
@@ -108,42 +109,42 @@ namespace Insight {
 		}
 
 		float pitch = 0.0f;
-		if (target.Y() != 0.0f)
+		if (target.y != 0.0f)
 		{
-			const float distance = sqrt(target.X() * target.X() + target.Z() * target.Z());
-			pitch = atanf(target.Y() / distance);
+			const float distance = sqrt(target.x * target.x + target.z * target.z);
+			pitch = atanf(target.y / distance);
 		}
 
 		float yaw = 0.0f;
-		if (target.X() != 0.0f)
+		if (target.x != 0.0f)
 		{
-			yaw = atanf(target.X() / target.Z());
+			yaw = atanf(target.x / target.z);
 		}
-		if (target.Z() > 0)
+		if (target.z > 0)
 		{
 			yaw += DirectX::XM_PI;
 		}
 
-		SetRotation( (pitch, yaw, 0.0f) );
+		SetRotation(pitch, yaw, 0.0f);
 	}
 
-	void ieTransform::SetDirection(FVector& NewDirection)
+	void ieTransform::SetDirection(FVector3& NewDirection)
 	{
-		DirectX::XMMATRIX vecRotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(NewDirection.X(), NewDirection.Y(), NewDirection.Z());
-		m_LocalForward = DirectX::XMVector3TransformCoord(const_cast<FVector*>(&FVector::Forward)->Data(), vecRotationMatrix);
-		m_LocalBackward = DirectX::XMVector3TransformCoord(const_cast<FVector*>(&FVector::Backward)->Data(), vecRotationMatrix);
-		m_LocalLeft = DirectX::XMVector3TransformCoord(const_cast<FVector*>(&FVector::Left)->Data(), vecRotationMatrix);
-		m_LocalRight = DirectX::XMVector3TransformCoord(const_cast<FVector*>(&FVector::Right)->Data(), vecRotationMatrix);
-		m_LocalUp = DirectX::XMVector3TransformCoord(const_cast<FVector*>(&FVector::Up)->Data(), vecRotationMatrix);
-		m_LocalDown = DirectX::XMVector3TransformCoord(const_cast<FVector*>(&FVector::Down)->Data(), vecRotationMatrix);
+		DirectX::XMMATRIX vecRotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(NewDirection.x, NewDirection.y, NewDirection.z);
+		m_LocalForward = DirectX::XMVector3TransformCoord(FVector3::Forward, vecRotationMatrix);
+		m_LocalBackward = DirectX::XMVector3TransformCoord(FVector3::Backward, vecRotationMatrix);
+		m_LocalLeft = DirectX::XMVector3TransformCoord(FVector3::Left, vecRotationMatrix);
+		m_LocalRight = DirectX::XMVector3TransformCoord(FVector3::Right, vecRotationMatrix);
+		m_LocalUp = DirectX::XMVector3TransformCoord(FVector3::Up, vecRotationMatrix);
+		m_LocalDown = DirectX::XMVector3TransformCoord(FVector3::Down, vecRotationMatrix);
 	}
 
-	void ieTransform::SetLocalMatrix(ieMatrix matrix)
+	void ieTransform::SetLocalMatrix(FMatrix matrix)
 	{
 		m_LocalMatrix = matrix;
 	}
 
-	void ieTransform::SetWorldMatrix(ieMatrix matrix)
+	void ieTransform::SetWorldMatrix(FMatrix matrix)
 	{
 		m_WorldMatrix = matrix;
 	}
@@ -171,7 +172,7 @@ namespace Insight {
 
 	void ieTransform::TranslateLocalMatrix()
 	{
-		m_TranslationMat = DirectX::XMMatrixTranslationFromVector(m_Position.Data());
+		m_TranslationMat = DirectX::XMMatrixTranslationFromVector(m_Position);
 	}
 
 	void ieTransform::ScaleLocalMatrix()
@@ -180,7 +181,7 @@ namespace Insight {
 		// send to origin
 		m_TranslationMat = DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f);
 		// scale
-		m_ScaleMat = DirectX::XMMatrixScaling(m_Scale.X(), m_Scale.Y(), m_Scale.Z());
+		m_ScaleMat = DirectX::XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
 		// send back to position
 		m_TranslationMat = position;
 
@@ -188,18 +189,18 @@ namespace Insight {
 
 	void ieTransform::RotateLocalMatrix()
 	{
-		m_RotationMat = DirectX::XMMatrixRotationRollPitchYaw(m_Rotation.X(), m_Rotation.Y(), m_Rotation.Z());
+		m_RotationMat = DirectX::XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z);
 	}
 
 	void ieTransform::UpdateLocalDirectionVectors()
 	{
-		ieMatrix vecRotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(m_Rotation.X(), m_Rotation.Y(), m_Rotation.Z());
-		m_LocalForward = DirectX::XMVector3TransformCoord(const_cast<FVector*>(&FVector::Forward)->Data(), m_RotationMat);
-		m_LocalBackward = DirectX::XMVector3TransformCoord(const_cast<FVector*>(&FVector::Backward)->Data(), m_RotationMat);
-		m_LocalLeft = DirectX::XMVector3TransformCoord(const_cast<FVector*>(&FVector::Left)->Data(), m_RotationMat);
-		m_LocalRight = DirectX::XMVector3TransformCoord(const_cast<FVector*>(&FVector::Right)->Data(), m_RotationMat);
-		m_LocalUp = DirectX::XMVector3TransformCoord(const_cast<FVector*>(&FVector::Up)->Data(), m_RotationMat);
-		m_LocalDown = DirectX::XMVector3TransformCoord(const_cast<FVector*>(&FVector::Down)->Data(), m_RotationMat);
+		FMatrix vecRotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z);
+		m_LocalForward = DirectX::XMVector3TransformCoord(FVector3::Forward, m_RotationMat);
+		m_LocalBackward = DirectX::XMVector3TransformCoord(FVector3::Backward, m_RotationMat);
+		m_LocalLeft = DirectX::XMVector3TransformCoord(FVector3::Left, m_RotationMat);
+		m_LocalRight = DirectX::XMVector3TransformCoord(FVector3::Right, m_RotationMat);
+		m_LocalUp = DirectX::XMVector3TransformCoord(FVector3::Up, m_RotationMat);
+		m_LocalDown = DirectX::XMVector3TransformCoord(FVector3::Down, m_RotationMat);
 	}
 
 	void ieTransform::UpdateEditorOriginPositionRotationScale()

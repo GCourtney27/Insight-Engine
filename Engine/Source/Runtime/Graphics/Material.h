@@ -31,12 +31,12 @@ namespace Insight {
 		bool LoadFromJson(const rapidjson::Value& jsonMaterial);
 		bool WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer);
 
-		void AddColorAddative(float R, float G, float B) { m_ShaderCB.DiffuseAdditive.X += R; m_ShaderCB.DiffuseAdditive.Y += G; m_ShaderCB.DiffuseAdditive.Y += B;}
-		void SetColorAddative(float R, float G, float B) { m_ShaderCB.DiffuseAdditive.X = R; m_ShaderCB.DiffuseAdditive.Y = G; m_ShaderCB.DiffuseAdditive.Y = B;}
-		void SetUVTilingOffset(float U, float V) { m_ShaderCB.UVTiling.X = U; m_ShaderCB.UVTiling.Y = V; }
-		void AddUVTilingOffset(float U, float V) { m_ShaderCB.UVTiling.X += U; m_ShaderCB.UVTiling.Y += V; }
-		void SetUVOffset(float U, float V) { m_ShaderCB.UVOffset.X = U; m_ShaderCB.UVOffset.Y = V; }
-		void AddUVOffset(float U, float V) { m_ShaderCB.UVOffset.X += U; m_ShaderCB.UVOffset.Y += V; }
+		void AddColorAddative(float R, float G, float B) { m_ShaderCB.DiffuseAdditive.x += R; m_ShaderCB.DiffuseAdditive.y += G; m_ShaderCB.DiffuseAdditive.z += B;}
+		void SetColorAddative(float R, float G, float B) { m_ShaderCB.DiffuseAdditive.x = R; m_ShaderCB.DiffuseAdditive.y = G; m_ShaderCB.DiffuseAdditive.z = B;}
+		void SetUVTilingOffset(float U, float V) { m_ShaderCB.UVTiling.x = U; m_ShaderCB.UVTiling.y = V; }
+		void AddUVTilingOffset(float U, float V) { m_ShaderCB.UVTiling.x += U; m_ShaderCB.UVTiling.y += V; }
+		void SetUVOffset(float U, float V) { m_ShaderCB.UVOffset.x = U; m_ShaderCB.UVOffset.y = V; }
+		void AddUVOffset(float U, float V) { m_ShaderCB.UVOffset.x += U; m_ShaderCB.UVOffset.y += V; }
 		void SetMetallicOverride(float Override) { m_ShaderCB.MetallicAdditive = Override; }
 		void AddMetallicOverride(float Override) { m_ShaderCB.MetallicAdditive += Override; }
 		void SetRoughnessOverride(float Override) { m_ShaderCB.RoughnessAdditive = Override; }

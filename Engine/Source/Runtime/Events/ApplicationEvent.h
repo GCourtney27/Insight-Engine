@@ -78,7 +78,7 @@ namespace Insight {
 
 		struct TranslationDetails
 		{
-			ieMatrix4x4 WorldMat;
+			FMatrix WorldMat;
 		} TranslationInfo;
 	};
 

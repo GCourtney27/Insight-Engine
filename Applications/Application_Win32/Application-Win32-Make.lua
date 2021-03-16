@@ -84,7 +84,6 @@ project (projectName)
 		"d3d11.lib",
 		"WinPixEventRuntime.lib",
 		"Shlwapi.lib",
-		"DirectXTK.lib",
         "DirectXTK12.lib",
 		"d2d1.lib",
 		"dwrite.lib",

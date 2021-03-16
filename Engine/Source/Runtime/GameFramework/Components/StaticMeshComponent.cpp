@@ -78,31 +78,31 @@ namespace Insight {
 					Writer.StartArray();
 					{
 						ieTransform& MeshTransform = m_pModel->GetMeshRootTransformRef();
-						FVector Pos = MeshTransform.GetPosition();
-						FVector Rot = MeshTransform.GetRotation();
-						FVector Sca = MeshTransform.GetScale();
+						FVector3 Pos = MeshTransform.GetPosition();
+						FVector3 Rot = MeshTransform.GetRotation();
+						FVector3 Sca = MeshTransform.GetScale();
 						Writer.StartObject();
 						// Position
 						Writer.Key("posX");
-						Writer.Double(Pos.X());
+						Writer.Double(Pos.x);
 						Writer.Key("posY");
-						Writer.Double(Pos.Y());
+						Writer.Double(Pos.y);
 						Writer.Key("posZ");
-						Writer.Double(Pos.Z());
+						Writer.Double(Pos.z);
 						// Rotation
 						Writer.Key("rotX");
-						Writer.Double(Rot.X());
+						Writer.Double(Rot.x);
 						Writer.Key("rotY");
-						Writer.Double(Rot.Y());
+						Writer.Double(Rot.y);
 						Writer.Key("rotZ");
-						Writer.Double(Rot.Z());
+						Writer.Double(Rot.z);
 						// Scale
 						Writer.Key("scaX");
-						Writer.Double(Sca.X());
+						Writer.Double(Sca.x);
 						Writer.Key("scaY");
-						Writer.Double(Sca.Y());
+						Writer.Double(Sca.y);
 						Writer.Key("scaZ");
-						Writer.Double(Sca.Z());
+						Writer.Double(Sca.z);
 						Writer.EndObject();
 					}
 					Writer.EndArray();

@@ -19,7 +19,7 @@ using namespace Insight;
 
 struct CB_VS_PerObject
 {
-	DirectX::XMMATRIX World;//4x4
+	FMatrix World;//4x4
 };
 
 struct CB_PS_VS_PerObjectMaterialAdditives
@@ -40,10 +40,10 @@ struct CB_PS_VS_PerFrame
 {
 	FVector3 CameraPosition;
 	float CameraExposure;//4
-	DirectX::XMMATRIX View;//4x4
-	DirectX::XMMATRIX InverseView;//4x4
-	DirectX::XMMATRIX Projection;//4x4
-	DirectX::XMMATRIX InverseProjection;//4x4
+	FMatrix View;//4x4
+	FMatrix InverseView;//4x4
+	FMatrix Projection;//4x4
+	FMatrix InverseProjection;//4x4
 	float CameraNearZ;
 	float CameraFarZ;
 	float DeltaMs;

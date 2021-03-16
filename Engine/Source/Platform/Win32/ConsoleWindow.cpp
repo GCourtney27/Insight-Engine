@@ -31,8 +31,8 @@ namespace Insight {
 		// Get the console info and set the number of lines
 		AllocConsole();
 		GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &coninfo);
-		coninfo.dwSize.Y = (SHORT)m_Desc.BufferDims.X;
-		coninfo.dwSize.X = (SHORT)m_Desc.BufferDims.Y;
+		coninfo.dwSize.Y = (SHORT)m_Desc.BufferDims.x;
+		coninfo.dwSize.X = (SHORT)m_Desc.BufferDims.y;
 		SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coninfo.dwSize);
 		
 		m_OutputHandle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -40,8 +40,8 @@ namespace Insight {
 		SMALL_RECT rect;
 		rect.Left = 0;
 		rect.Top = 0;
-		rect.Right = (SHORT)m_Desc.WindowDims.X;
-		rect.Bottom = (SHORT)m_Desc.WindowDims.Y;
+		rect.Right = (SHORT)m_Desc.WindowDims.x;
+		rect.Bottom = (SHORT)m_Desc.WindowDims.y;
 		SetConsoleWindowInfo(m_OutputHandle, TRUE, &rect);
 
 		FILE *stream;

@@ -65,16 +65,16 @@ namespace Insight {
 		UI::PushID(StringHelper::WideToString(m_FileName).c_str());
 
 		UI::Text("Transform");
-		FVector3 Pos = m_pRoot->GetTransformRef().GetPosition().ToFVector3();
-		FVector3 Rot = m_pRoot->GetTransformRef().GetRotation().ToFVector3();
-		FVector3 Sca = m_pRoot->GetTransformRef().GetScale().ToFVector3();
+		FVector3 Pos = m_pRoot->GetTransformRef().GetPosition();
+		FVector3 Rot = m_pRoot->GetTransformRef().GetRotation();
+		FVector3 Sca = m_pRoot->GetTransformRef().GetScale();
 		UI::DrawVector3Control("Position", Pos);
 		UI::DrawVector3Control("Rotation", Rot);
 		UI::DrawVector3Control("Scale", Sca, 1.0f);
 
-		m_pRoot->GetTransformRef().SetPosition( Pos.X, Pos.Y, Pos.Z );
-		m_pRoot->GetTransformRef().SetRotation( Rot.X, Rot.Y, Rot.Z );
-		m_pRoot->GetTransformRef().SetScale( Sca.X, Sca.Y, Sca.Z );
+		m_pRoot->GetTransformRef().SetPosition( Pos.x, Pos.y, Pos.z );
+		m_pRoot->GetTransformRef().SetRotation( Rot.x, Rot.y, Rot.z );
+		m_pRoot->GetTransformRef().SetScale( Sca.x, Sca.y, Sca.z );
 
 		UI::Text("Rendering");
 		UI::Checkbox("Casts Shadows ##StaticMesh", &m_CastsShadows);
@@ -99,7 +99,7 @@ namespace Insight {
 		m_pMaterial->BindResources(IsDeferredPass);
 	}
 
-	void Model::CalculateParent(const ieMatrix4x4& parentMat)
+	void Model::CalculateParent(const FMatrix& parentMat)
 	{
 		auto worldMat = XMMatrixMultiply(m_pRoot->GetTransformRef().GetLocalMatrixRef(), parentMat);
 		for (unique_ptr<Mesh>& mesh : m_Meshes) {
@@ -222,29 +222,29 @@ namespace Insight {
 			Vertex3D Vertex;
 
 			// Position
-			Vertex.Position.X = pMesh->mVertices[i].x;
-			Vertex.Position.Y = pMesh->mVertices[i].y;
-			Vertex.Position.Z = pMesh->mVertices[i].z;
+			Vertex.Position.x = pMesh->mVertices[i].x;
+			Vertex.Position.y = pMesh->mVertices[i].y;
+			Vertex.Position.z = pMesh->mVertices[i].z;
 
 			// Normals
-			Vertex.Normal.X = (float)pMesh->mNormals[i].x;
-			Vertex.Normal.Y = (float)pMesh->mNormals[i].y;
-			Vertex.Normal.Z = (float)pMesh->mNormals[i].z;
+			Vertex.Normal.x = (float)pMesh->mNormals[i].x;
+			Vertex.Normal.y = (float)pMesh->mNormals[i].y;
+			Vertex.Normal.z = (float)pMesh->mNormals[i].z;
 
 
 			// Texture Coords/Tangents
 			if (pMesh->mTextureCoords[0])
 			{
-				Vertex.TexCoords.X = (float)pMesh->mTextureCoords[0][i].x;
-				Vertex.TexCoords.Y = (float)pMesh->mTextureCoords[0][i].y;
+				Vertex.TexCoords.x = (float)pMesh->mTextureCoords[0][i].x;
+				Vertex.TexCoords.y = (float)pMesh->mTextureCoords[0][i].y;
 
-				Vertex.Tangent.X = pMesh->mTangents[i].x;
-				Vertex.Tangent.Y = pMesh->mTangents[i].y;
-				Vertex.Tangent.Z = pMesh->mTangents[i].z;
+				Vertex.Tangent.x = pMesh->mTangents[i].x;
+				Vertex.Tangent.y = pMesh->mTangents[i].y;
+				Vertex.Tangent.z = pMesh->mTangents[i].z;
 
-				Vertex.BiTangent.X = pMesh->mBitangents[i].x;
-				Vertex.BiTangent.Y = pMesh->mBitangents[i].y;
-				Vertex.BiTangent.Z = pMesh->mBitangents[i].z;
+				Vertex.BiTangent.x = pMesh->mBitangents[i].x;
+				Vertex.BiTangent.y = pMesh->mBitangents[i].y;
+				Vertex.BiTangent.z = pMesh->mBitangents[i].z;
 			}
 			else
 			{
@@ -285,17 +285,17 @@ namespace Insight {
 		{
 			Vertex3D Vertex;
 
-			Vertex.Position.X = (float)RawVerticies[i].x;
-			Vertex.Position.Y = (float)RawVerticies[i].y;
-			Vertex.Position.Z = (float)RawVerticies[i].z;
+			Vertex.Position.x = (float)RawVerticies[i].x;
+			Vertex.Position.y = (float)RawVerticies[i].y;
+			Vertex.Position.z = (float)RawVerticies[i].z;
 
 			if (Geometry.getNormals() != nullptr)
 			{
 				const ofbx::Vec3* normals = Geometry.getNormals();
 
-				Vertex.Normal.X = (float)normals[i].x;
-				Vertex.Normal.Y = (float)normals[i].y;
-				Vertex.Normal.Z = (float)normals[i].z;
+				Vertex.Normal.x = (float)normals[i].x;
+				Vertex.Normal.y = (float)normals[i].y;
+				Vertex.Normal.z = (float)normals[i].z;
 			}
 
 			if (Geometry.getUVs() != nullptr)
@@ -303,22 +303,22 @@ namespace Insight {
 				const ofbx::Vec2* uvs = Geometry.getUVs();
 				int count = Geometry.getIndexCount();
 
-				Vertex.TexCoords.X = (float)uvs[i].x;
-				Vertex.TexCoords.Y = (float)uvs[i].y;
+				Vertex.TexCoords.x = (float)uvs[i].x;
+				Vertex.TexCoords.y = (float)uvs[i].y;
 				
 				const ofbx::Vec3* tans = Geometry.getTangents();
 				if (tans)
 				{
-					Vertex.Tangent.X = (float)tans[i].x;
-					Vertex.Tangent.Y = (float)tans[i].y;
-					Vertex.Tangent.Z = (float)tans[i].z;
+					Vertex.Tangent.x = (float)tans[i].x;
+					Vertex.Tangent.y = (float)tans[i].y;
+					Vertex.Tangent.z = (float)tans[i].z;
 				
 					FVector3 TempTangent((float)tans[i].x, (float)tans[i].y, (float)tans[i].z);
-					FVector3 Normal(Vertex.Normal.X, Vertex.Normal.Y, Vertex.Normal.Z);
+					FVector3 Normal(Vertex.Normal.x, Vertex.Normal.y, Vertex.Normal.z);
 					FVector3 BiTangent = FVector3::Cross(Normal, TempTangent);
-					Vertex.BiTangent.X = BiTangent.X;
-					Vertex.BiTangent.Y = BiTangent.Y;
-					Vertex.BiTangent.Z = BiTangent.Z;
+					Vertex.BiTangent.x = BiTangent.x;
+					Vertex.BiTangent.y = BiTangent.y;
+					Vertex.BiTangent.z = BiTangent.z;
 				}
 				else
 				{

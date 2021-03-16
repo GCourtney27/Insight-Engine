@@ -19,7 +19,7 @@ namespace Insight {
 		virtual bool OnInit();
 		virtual bool OnPostInit();
 		virtual void OnUpdate(const float DeltaMs);
-		virtual void OnPreRender(ieMatrix& parentMat);
+		virtual void OnPreRender(FMatrix& parentMat);
 		virtual void OnRender();
 		virtual void Destroy();
 

@@ -162,15 +162,15 @@ namespace Insight {
 			m_TranslucencyMap = textureManager.GetTextureByID(m_TranslucencyTextureManagerID, Texture::ETextureType::TT_Translucency);
 		}
 
-		json::get_float(jsonUVOffset[0], "x", m_ShaderCB.UVOffset.X);
-		json::get_float(jsonUVOffset[0], "y", m_ShaderCB.UVOffset.Y);
+		json::get_float(jsonUVOffset[0], "x", m_ShaderCB.UVOffset.x);
+		json::get_float(jsonUVOffset[0], "y", m_ShaderCB.UVOffset.y);
 
-		json::get_float(jsonTilingOffset[0], "u", m_ShaderCB.UVTiling.X);
-		json::get_float(jsonTilingOffset[0], "v", m_ShaderCB.UVTiling.Y);
+		json::get_float(jsonTilingOffset[0], "u", m_ShaderCB.UVTiling.x);
+		json::get_float(jsonTilingOffset[0], "v", m_ShaderCB.UVTiling.y);
 
-		json::get_float(jsonColorOverride[0], "r", m_ShaderCB.DiffuseAdditive.X);
-		json::get_float(jsonColorOverride[0], "g", m_ShaderCB.DiffuseAdditive.Y);
-		json::get_float(jsonColorOverride[0], "b", m_ShaderCB.DiffuseAdditive.Z);
+		json::get_float(jsonColorOverride[0], "r", m_ShaderCB.DiffuseAdditive.x);
+		json::get_float(jsonColorOverride[0], "g", m_ShaderCB.DiffuseAdditive.y);
+		json::get_float(jsonColorOverride[0], "b", m_ShaderCB.DiffuseAdditive.z);
 
 		json::get_float(JsonMaterial, "Metallic_Override", m_ShaderCB.MetallicAdditive);
 		json::get_float(JsonMaterial, "Roughness_Override", m_ShaderCB.RoughnessAdditive);
@@ -222,9 +222,9 @@ namespace Insight {
 			Writer.StartObject();
 			{
 				Writer.Key("x");
-				Writer.Double(m_ShaderCB.UVOffset.X);
+				Writer.Double(m_ShaderCB.UVOffset.x);
 				Writer.Key("y");
-				Writer.Double(m_ShaderCB.UVOffset.Y);
+				Writer.Double(m_ShaderCB.UVOffset.y);
 			}
 			Writer.EndObject();
 			Writer.EndArray(); // End Offsets
@@ -234,9 +234,9 @@ namespace Insight {
 			Writer.StartObject();
 			{
 				Writer.Key("u");
-				Writer.Double(m_ShaderCB.UVTiling.X);
+				Writer.Double(m_ShaderCB.UVTiling.x);
 				Writer.Key("v");
-				Writer.Double(m_ShaderCB.UVTiling.Y);
+				Writer.Double(m_ShaderCB.UVTiling.y);
 			}
 			Writer.EndObject();
 			Writer.EndArray(); // End Tiling
@@ -249,11 +249,11 @@ namespace Insight {
 			Writer.StartObject();
 			{
 				Writer.Key("r");
-				Writer.Double(m_ShaderCB.DiffuseAdditive.X);
+				Writer.Double(m_ShaderCB.DiffuseAdditive.x);
 				Writer.Key("g");
-				Writer.Double(m_ShaderCB.DiffuseAdditive.Y);
+				Writer.Double(m_ShaderCB.DiffuseAdditive.y);
 				Writer.Key("b");
-				Writer.Double(m_ShaderCB.DiffuseAdditive.Z);
+				Writer.Double(m_ShaderCB.DiffuseAdditive.z);
 			}
 			Writer.EndObject();
 			Writer.EndArray(); // End Tiling
@@ -279,14 +279,14 @@ namespace Insight {
 
 			// Imgui will edit the color values in a normalized 0 to 1 space. 
 			// In the shaders we transform the color values back into 0 to 255 space.
-			UI::ColorPicker3("Diffuse Additive: ", &m_ShaderCB.DiffuseAdditive.X, colorWheelFlags);
+			UI::ColorPicker3("Diffuse Additive: ", &m_ShaderCB.DiffuseAdditive.x, colorWheelFlags);
 			UI::SliderFloat("Metallic Addative", &m_ShaderCB.MetallicAdditive, -1.0f, 1.0f);
 			UI::SliderFloat("Roughness Addative", &m_ShaderCB.RoughnessAdditive, -1.0f, 1.0f);
 			//UI::SliderFloat("Specular Addative", &m_ShaderCB.Specular, -1.0f, 1.0f, "%.3f", 0.01f);
 			UI::DragFloat("Specular Addative", &m_ShaderCB.Specular, 0.01f, 0.0f, 0.8f);
 			UI::Text("UVs");
-			UI::DragFloat2("Tiling:", &m_ShaderCB.UVTiling.X, 0.01f, -50.0f, 50.0f);
-			UI::DragFloat2("Offset:", &m_ShaderCB.UVOffset.X, 0.01f, -50.0f, 50.0f);
+			UI::DragFloat2("Tiling:", &m_ShaderCB.UVTiling.x, 0.01f, -50.0f, 50.0f);
+			UI::DragFloat2("Offset:", &m_ShaderCB.UVOffset.x, 0.01f, -50.0f, 50.0f);
 			UI::TreePopNode();
 		}
 

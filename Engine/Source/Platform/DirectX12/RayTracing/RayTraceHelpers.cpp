@@ -95,7 +95,7 @@ namespace Insight {
 
 		// Copy the directional light contents
 		const CB_PS_DirectionalLight DirLightData = m_pRenderContextRef->GetDirectionalLightCB();
-		m_CBLightParams.DirLightDirection = DirectX::XMFLOAT4(DirLightData.Direction.X, DirLightData.Direction.Y, DirLightData.Direction.Z, 1.0f);
+		m_CBLightParams.DirLightDirection = DirectX::XMFLOAT4(DirLightData.Direction.x, DirLightData.Direction.y, DirLightData.Direction.z, 1.0f);
 		m_CBLightParams.ShadowDarkness = DirLightData.ShadowDarknessMultiplier;
 
 		uint8_t* pLightData;

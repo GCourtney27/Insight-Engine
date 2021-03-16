@@ -17,9 +17,9 @@ namespace Insight {
 		public:
 			struct TranslationData
 			{
-				FVector Translation;
-				FVector Rotation;
-				FVector Scale;
+				FVector3 Translation;
+				FVector3 Rotation;
+				FVector3 Scale;
 
 				EventCallbackFn EventCallback;
 			};
@@ -60,9 +60,9 @@ namespace Insight {
 			// Remove the parent this scene component.
 			inline void DetachParent() { m_pParent = nullptr; }
 
-			inline void SetPosition(FVector NewPosition) { m_Transform.SetPosition(NewPosition); }
-			inline void SetRotation(FVector NewRotation) { m_Transform.SetRotation(NewRotation); }
-			inline void SetScale(FVector NewScale) { m_Transform.SetScale(NewScale); }
+			inline void SetPosition(FVector3 NewPosition) { m_Transform.SetPosition(NewPosition); }
+			inline void SetRotation(FVector3 NewRotation) { m_Transform.SetRotation(NewRotation); }
+			inline void SetScale(FVector3 NewScale) { m_Transform.SetScale(NewScale); }
 			 
 			inline void SetPosition(float X, float Y, float Z) { m_Transform.SetPosition({ X, Y, Z }); }
 			inline void SetRotation(float X, float Y, float Z) { m_Transform.SetRotation({ X, Y, Z }); }
@@ -76,9 +76,9 @@ namespace Insight {
 			inline void Rotate(float X, float Y, float Z) { m_Transform.Rotate(X, Y, Z);  NotifyTranslationEvent(); }
 			inline void Scale(float X, float Y, float Z) { m_Transform.Scale(X, Y, Z); NotifyTranslationEvent(); }
 
-			inline FVector GetPosition() { return m_Transform.GetPosition(); }
-			inline FVector GetRotation() { return m_Transform.GetRotation(); }
-			inline FVector GetScale() { return m_Transform.GetScale(); }
+			inline FVector3 GetPosition() { return m_Transform.GetPosition(); }
+			inline FVector3 GetRotation() { return m_Transform.GetRotation(); }
+			inline FVector3 GetScale() { return m_Transform.GetScale(); }
 
 			inline const ieTransform& GetTransform() const { return m_Transform; }
 			inline ieTransform& GetTransformRef() { return m_Transform; }

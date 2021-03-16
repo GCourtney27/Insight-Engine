@@ -5,6 +5,7 @@
 #if IE_PLATFORM_BUILD_WIN32
 
 #include <Windows.h>
+#include "Runtime/Math/Public/Vectors.h"
 
 namespace Insight {
 
@@ -13,15 +14,15 @@ namespace Insight {
 	*/
 	enum EConsoleColor
 	{
-		CC_Black	= 0,
+		CC_Black	= 0x0000,
 		CC_Red		= 0x0004,
 		CC_Green	= 0x0002,
 		CC_Blue		= 0x0001,
 		CC_Yellow	= CC_Red	| CC_Green,
 		CC_Cyan		= CC_Green	| CC_Blue,
-		CC_White	= CC_Red | CC_Green | CC_Blue,
-		CC_Magenta	= CC_Red | CC_Blue,
-		CC_Orange	= CC_Red | CC_Yellow,
+		CC_White	= CC_Red	| CC_Green | CC_Blue,
+		CC_Magenta	= CC_Red	| CC_Blue,
+		CC_Orange	= CC_Red	| CC_Yellow,
 	};
 
 	/*

@@ -142,7 +142,7 @@ namespace Insight {
 	{
 	}
 
-	void ASkySphere::OnPreRender(ieMatrix& parentMat)
+	void ASkySphere::OnPreRender(FMatrix& parentMat)
 	{
 	}
 

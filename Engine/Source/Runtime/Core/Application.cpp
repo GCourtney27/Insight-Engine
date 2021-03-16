@@ -19,6 +19,9 @@
 #define EDITOR_UI_ENABLED 0
 #endif
 
+#include <DirectX12/TK/Inc/SimpleMath.h>
+#include <DirectXMath.h>
+
 static const char* TargetSceneName = "Debug.iescene";
 namespace Insight {
 
@@ -34,7 +37,7 @@ namespace Insight {
 		IE_STRIP_FOR_GAME_DIST(
 			if (!Debug::Logger::Initialize())
 			{
-				IE_LOG(Error, TEXT("Failed to create core logger."));
+				throw ieException(TEXT("Failed to initialize core logger"), ieException::EExceptionCategory::EC_Engine);
 			}
 		)
 	}

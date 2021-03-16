@@ -10,9 +10,9 @@ namespace Insight {
 	
 
 
-	void MeshNode::PreRender(ieMatrix& parentMat, UINT32& gpuAddressOffset)
+	void MeshNode::PreRender(FMatrix& parentMat, UINT32& gpuAddressOffset)
 	{
-		auto worldMat = XMMatrixMultiply(m_Transform.GetLocalMatrix(), parentMat);
+		FMatrix worldMat = XMMatrixMultiply(m_Transform.GetLocalMatrix(), parentMat);
 
 		int numChildren = (int)m_Children.size();
 		for (int i = 0; i < numChildren; ++i) {

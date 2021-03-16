@@ -47,9 +47,9 @@ namespace Insight {
 
 		bool SceneComponent::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
 		{
-			FVector Pos = m_Transform.GetPosition();
-			FVector Rot = m_Transform.GetRotation();
-			FVector Sca = m_Transform.GetScale();
+			FVector3 Pos = m_Transform.GetPosition();
+			FVector3 Rot = m_Transform.GetRotation();
+			FVector3 Sca = m_Transform.GetScale();
 
 			Writer.Key("SceneComponent");
 			Writer.StartArray();
@@ -58,25 +58,25 @@ namespace Insight {
 				{
 					// Position
 					Writer.Key("posX");
-					Writer.Double(Pos.X());
+					Writer.Double(Pos.x);
 					Writer.Key("posY");
-					Writer.Double(Pos.Y());
+					Writer.Double(Pos.y);
 					Writer.Key("posZ");
-					Writer.Double(Pos.Z());
+					Writer.Double(Pos.z);
 					// Rotation
 					Writer.Key("rotX");
-					Writer.Double(Rot.X());
+					Writer.Double(Rot.x);
 					Writer.Key("rotY");
-					Writer.Double(Rot.Y());
+					Writer.Double(Rot.y);
 					Writer.Key("rotZ");
-					Writer.Double(Rot.Z());
+					Writer.Double(Rot.z);
 					// Scale
 					Writer.Key("scaX");
-					Writer.Double(Sca.X());
+					Writer.Double(Sca.x);
 					Writer.Key("scaY");
-					Writer.Double(Sca.Y());
+					Writer.Double(Sca.y);
 					Writer.Key("scaZ");
-					Writer.Double(Sca.Z());
+					Writer.Double(Sca.z);
 				}
 				Writer.EndObject();
 			}
@@ -125,15 +125,15 @@ namespace Insight {
 
 				// Show the actor's transform values
 				UI::Text("Transform");
-				FVector3 Pos = m_Transform.GetPosition().ToFVector3();
-				FVector3 Rot = m_Transform.GetRotation().ToFVector3();
-				FVector3 Sca = m_Transform.GetScale().ToFVector3();
+				FVector3 Pos = m_Transform.GetPosition();
+				FVector3 Rot = m_Transform.GetRotation();
+				FVector3 Sca = m_Transform.GetScale();
 				UI::DrawVector3Control("Position", Pos);
 				UI::DrawVector3Control("Rotation", Rot);
 				UI::DrawVector3Control("Scale", Sca, 1.0f);
-				m_Transform.SetPosition(Pos.X, Pos.Y, Pos.Z);
-				m_Transform.SetRotation(Rot.X, Rot.Y, Rot.Z);
-				m_Transform.SetScale(Sca.X, Sca.Y, Sca.Z);
+				m_Transform.SetPosition(Pos.x, Pos.y, Pos.z);
+				m_Transform.SetRotation(Rot.x, Rot.y, Rot.z);
+				m_Transform.SetScale(Sca.x, Sca.y, Sca.z);
 			
 				UI::Checkbox("IsStatic", &m_IsStatic);
 

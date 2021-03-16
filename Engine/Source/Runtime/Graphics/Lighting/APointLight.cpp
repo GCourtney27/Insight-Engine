@@ -79,7 +79,7 @@ namespace Insight {
 
 	void APointLight::OnUpdate(const float DeltaMs)
 	{
-		m_ShaderCB.Position = m_pSceneComponent->GetPosition().ToFVector3();
+		m_ShaderCB.Position = m_pSceneComponent->GetPosition();
 	}
 
 	void APointLight::OnRender()
@@ -122,7 +122,7 @@ namespace Insight {
 
 			// Imgui will edit the color values in a normalized 0 to 1 space. 
 			// In the shaders we transform the color values back into 0 to 255 space.
-			UI::ColorPicker3("Diffuse", &m_ShaderCB.DiffuseColor.X, colorWheelFlags);
+			UI::ColorPicker3("Diffuse", &m_ShaderCB.DiffuseColor.x, colorWheelFlags);
 			UI::DragFloat("Strength", &m_ShaderCB.Strength, 0.1f, 0.0f, 100.0f);
 		}
 
@@ -130,7 +130,7 @@ namespace Insight {
 
 	bool APointLight::OnEventTranslation(TranslationEvent& e)
 	{
-		m_ShaderCB.Position = m_pSceneComponent->GetPosition().ToFVector3();
+		m_ShaderCB.Position = m_pSceneComponent->GetPosition();
 		return false;
 	}
 

@@ -165,7 +165,7 @@ namespace Insight {
 	{
 	}
 
-	void ASkyLight::OnPreRender(ieMatrix& parentMat)
+	void ASkyLight::OnPreRender(FMatrix& parentMat)
 	{
 	}
 

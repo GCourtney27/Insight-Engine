@@ -24,8 +24,8 @@ namespace Insight {
 		// 'new camera' set the view target of the global camera.
 		struct ViewTarget
 		{
-			FVector Position	= FVector::Zero;
-			FVector Rotation	= FVector::Zero;
+			FVector3 Position	= FVector3::Zero;
+			FVector3 Rotation	= FVector3::Zero;
 			float FieldOfView	= DEFAULT_FOV;
 			float Sensitivity	= DEFAULT_SENSITIVITY;
 			float Speed			= DEFAULT_BASE_SPEED;
@@ -52,7 +52,7 @@ namespace Insight {
 			void ProcessMouseScroll(float yOffset);
 			void ProcessMouseMovement(float xOffset, float yOffset);
 
-			FVector GetPosition() const { return m_pSceneComponent->GetPosition(); }
+			FVector3 GetPosition() const { return m_pSceneComponent->GetPosition(); }
 			inline XMMATRIX GetViewMatrix() const { return m_ViewMatrix; }
 			inline XMMATRIX GetProjectionMatrix() const { return m_ProjectionMatrix; };
 			inline float GetFOV() const { return m_Fov; }
@@ -138,8 +138,8 @@ namespace Insight {
 
 			// Cached Internal Variables.
 			XMMATRIX m_CamRotationMatrix;
-			FVector m_CamTarget;
-			FVector m_UpDir;
+			FVector3 m_CamTarget;
+			FVector3 m_UpDir;
 
 		};
 

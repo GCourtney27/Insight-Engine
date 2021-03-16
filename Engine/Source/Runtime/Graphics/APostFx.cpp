@@ -179,7 +179,7 @@ namespace Insight {
 
 	}
 
-	void APostFx::OnPreRender(ieMatrix& parentMat)
+	void APostFx::OnPreRender(FMatrix& parentMat)
 	{
 	}
 
