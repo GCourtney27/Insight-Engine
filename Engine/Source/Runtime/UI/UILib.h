@@ -7,9 +7,6 @@
 //#include "ImGuizmo.h"
 #endif
 
-
-#include "Runtime/Math/ie_Vectors.h"
-
 namespace Insight {
 
 	namespace UI {
@@ -228,7 +225,7 @@ namespace Insight {
 			return EDITOR_IS_ITEM_CLICKED();
 		}
 
-		static void DrawVector3Control(const std::string& Label, Math::ieVector3& Values, float ResetValue = 0.0f, float ColumnWidth = 100.0f)
+		static void DrawVector3Control(const std::string& Label, FVector3& Values, float ResetValue = 0.0f, float ColumnWidth = 100.0f)
 		{
 #if IE_PLATFORM_BUILD_WIN32
 
@@ -276,7 +273,7 @@ namespace Insight {
 			if (ImGui::Button("Z", ButtonSize))
 				Values.z = ResetValue;
 			ImGui::SameLine();
-			ImGui::DragFloat("##Z", &Values.z, 0.1f);
+			ImGui::DragFloat("##Z", &Values.y, 0.1f);
 			ImGui::PopItemWidth();
 			ImGui::SameLine();
 			ImGui::PopStyleColor(3);

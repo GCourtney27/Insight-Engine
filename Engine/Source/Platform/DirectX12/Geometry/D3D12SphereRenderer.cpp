@@ -28,10 +28,10 @@ namespace Insight {
 		std::vector< SimpleVertex > verts;
 		verts.resize((m_Segments + 1) * m_Slices + 2);
 
-		const float _pi = XM_PI;
-		const float _2pi = XM_2PI;
+		const float _pi = DirectX::XM_PI;
+		const float _2pi = DirectX::XM_2PI;
 
-		verts[0].position = XMFLOAT4(0, m_Radius, 0, 1);
+		verts[0].position = DirectX::XMFLOAT4(0, m_Radius, 0, 1);
 		for (int lat = 0; lat < m_Slices; lat++)
 		{
 			float a1 = _pi * (float)(lat + 1) / (m_Slices + 1);
@@ -44,10 +44,10 @@ namespace Insight {
 				float sin2 = sinf(a2);
 				float cos2 = cosf(a2);
 
-				verts[lon + lat * (m_Segments + 1) + 1].position = XMFLOAT4(sin1 * cos2 * m_Radius, cos1 * m_Radius, sin1 * sin2 * m_Radius, 1);
+				verts[lon + lat * (m_Segments + 1) + 1].position = DirectX::XMFLOAT4(sin1 * cos2 * m_Radius, cos1 * m_Radius, sin1 * sin2 * m_Radius, 1);
 			}
 		}
-		verts[verts.size() - 1].position = XMFLOAT4(0, -m_Radius, 0, 1);
+		verts[verts.size() - 1].position = DirectX::XMFLOAT4(0, -m_Radius, 0, 1);
 
 		int NumFaces = (int)verts.size();
 		int NumTris = NumFaces * 2;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 
 #include "Runtime/GameFramework/AActor.h"
 #include "Runtime/GameFramework/Components/InputComponent.h"
@@ -30,10 +30,12 @@ namespace Insight {
 			inline void SetMovementSpeed(const float& movementSpeed) { m_MovementSpeed = movementSpeed; }
 
 		protected:
-			void Move(const ieVector3& Direction, const float Value)
+			void Move(const FVector3& Direction, const float Value)
 			{
 				float Velocity = m_MovementSpeed * Value * m_DeltaMs;
-				m_pSceneComponent->GetPositionRef() += Direction * Velocity;
+				FVector3 Pos = m_pSceneComponent->GetPosition();
+				Pos += Direction * Velocity;
+				m_pSceneComponent->SetPosition(Pos);
 			}
 			void MoveForward(float Value);
 			void MoveRight(float Value);

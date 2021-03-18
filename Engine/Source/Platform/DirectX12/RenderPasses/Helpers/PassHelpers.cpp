@@ -19,7 +19,7 @@ namespace Insight {
 
 	void ThresholdDownSampleHelper::Execute(FrameResources* pFrameResources)
 	{
-		constexpr UINT ThreadsPerPixel = 16U;
+		constexpr Int32 ThreadsPerPixel = 16U;
 
 		BeginTrackRenderEvent(m_pCommandListRef.Get(), 0, L"Downsampling Texture");
 		{
@@ -33,8 +33,8 @@ namespace Insight {
 			m_pCommandListRef->SetComputeRootDescriptorTable(2, m_hUAVDestination);
 
 			m_pCommandListRef->Dispatch(
-				static_cast<UINT>(m_DownSampleTargetDimensions.first / ThreadsPerPixel),
-				static_cast<UINT>(m_DownSampleTargetDimensions.second / ThreadsPerPixel),
+				(Int32)(m_DownSampleTargetDimensions.x / ThreadsPerPixel),
+				(Int32)(m_DownSampleTargetDimensions.y / ThreadsPerPixel),
 				1													
 			);
 		}
@@ -112,7 +112,7 @@ namespace Insight {
 			pFrameResources->m_CBBlurParams.SubmitToGPU();
 			pFrameResources->m_CBBlurParams.SetAsComputeRootConstantBufferView(m_pFirstPass_CommandListRef.Get(), 0);
 
-			m_pFirstPass_CommandListRef->Dispatch(m_WindowDimensions.first / ThreadsPerPixel, m_WindowDimensions.second / ThreadsPerPixel, 1);
+			m_pFirstPass_CommandListRef->Dispatch((Int32)(m_WindowDimensions.x / ThreadsPerPixel), (Int32)(m_WindowDimensions.y / ThreadsPerPixel), 1);
 		}
 		EndTrackRenderEvent(m_pFirstPass_CommandListRef.Get());
 
@@ -150,7 +150,7 @@ namespace Insight {
 			m_pSecondPass_CommandListRef->SetComputeRootDescriptorTable(1, m_hIntermediateSRV);	// Set the SRV of the intermediate texture, Which now contains a horizontally blurred texture
 			m_pSecondPass_CommandListRef->SetComputeRootDescriptorTable(2, m_hSourceUAV);		// Set the origional UAV for final blur pass.
 
-			m_pSecondPass_CommandListRef->Dispatch(m_WindowDimensions.first / ThreadsPerPixel, m_WindowDimensions.second / ThreadsPerPixel, 1);
+			m_pSecondPass_CommandListRef->Dispatch((Int32)(m_WindowDimensions.x / ThreadsPerPixel), (Int32)(m_WindowDimensions.y / ThreadsPerPixel), 1);
 		}
 		EndTrackRenderEvent(m_pSecondPass_CommandListRef.Get());
 	}

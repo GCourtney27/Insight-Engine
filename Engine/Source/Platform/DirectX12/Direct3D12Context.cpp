@@ -189,7 +189,7 @@ namespace Insight {
 		static float WorldSecond = 0.0f;
 		WorldSecond += DeltaMs;
 
-		XMVECTOR InvMatDeterminent;
+		DirectX::XMVECTOR InvMatDeterminent;
 
 		// Send Per-Frame Data to GPU
 		m_FrameResources.m_CBPerFrame.Data.View = m_pWorldCameraRef->GetViewMatrix();

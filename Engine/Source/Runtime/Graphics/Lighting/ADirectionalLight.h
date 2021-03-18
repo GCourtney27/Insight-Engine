@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 
 #include "Runtime/GameFramework/AActor.h"
 #include "Platform/DirectXShared/ConstantBufferTypes.h"
@@ -19,7 +19,7 @@ namespace Insight {
 		virtual bool OnInit();
 		virtual bool OnPostInit();
 		virtual void OnUpdate(const float DeltaMs);
-		virtual void OnPreRender(XMMATRIX parentMat);
+		virtual void OnPreRender(FMatrix& parentMat);
 		virtual void OnRender();
 		virtual void Destroy();
 
@@ -33,25 +33,25 @@ namespace Insight {
 
 		inline CB_PS_DirectionalLight GetConstantBuffer() { return m_ShaderCB; }
 
-		XMFLOAT4X4 LightViewFloat;
-		XMFLOAT4X4 LightProjFloat;
+		DirectX::XMFLOAT4X4 LightViewFloat;
+		DirectX::XMFLOAT4X4 LightProjFloat;
 
 	private:
 		bool OnEventTranslation(TranslationEvent& e);
 
-		void CreateProjectionMatrix(ieVector3 Direction);
+		void CreateProjectionMatrix(FVector3 Direction);
 	private:
 		CB_PS_DirectionalLight m_ShaderCB;
 		GameFramework::SceneComponent* m_pSceneComponent = nullptr;
 
-		XMVECTOR LightCamPositionVec;
-		XMFLOAT3 LightCamPositionOffset;
+		DirectX::XMVECTOR LightCamPositionVec;
+		DirectX::XMFLOAT3 LightCamPositionOffset;
 		float m_NearPlane;
 		float m_FarPlane;
 		float m_ViewWidth;
 		float m_ViewHeight;
-		XMMATRIX LightView;
-		XMMATRIX LightProj;
+		DirectX::XMMATRIX LightView;
+		DirectX::XMMATRIX LightProj;
 	};
 
 }

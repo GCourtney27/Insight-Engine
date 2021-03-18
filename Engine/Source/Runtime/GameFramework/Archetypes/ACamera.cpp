@@ -21,6 +21,7 @@ namespace Insight {
 			SetViewTarget(ViewTarget, false, true);
 
 			// Setup event callbacks for camera movement.
+			//
 			m_pInputComponent->BindAxis("MoveForward", IE_BIND_LOCAL_EVENT_FN(ACamera::MoveForward));
 			m_pInputComponent->BindAxis("MoveRight", IE_BIND_LOCAL_EVENT_FN(ACamera::MoveRight));
 			m_pInputComponent->BindAxis("MoveUp", IE_BIND_LOCAL_EVENT_FN(ACamera::MoveUp));
@@ -62,13 +63,6 @@ namespace Insight {
 
 			UpdateViewMatrix();
 			m_pSceneComponent->GetTransformRef().UpdateLocalDirectionVectors();
-		}
-
-		void ACamera::OnEvent(Event& e)
-		{
-			EventDispatcher Dispatcher(e);
-			Dispatcher.Dispatch<MouseScrolledEvent>(IE_BIND_LOCAL_EVENT_FN(ACamera::OnMouseScrolled));
-
 		}
 
 		void ACamera::SetPerspectiveProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ)
@@ -119,20 +113,8 @@ namespace Insight {
 
 		void ACamera::UpdateViewMatrix()
 		{
-			m_CamRotationMatrix = XMMatrixRotationRollPitchYaw(m_pSceneComponent->GetRotation().x, m_pSceneComponent->GetRotation().y, 0.0f);
-			m_CamTarget = XMVector3TransformCoord(Vector3::Forward, m_CamRotationMatrix);
-			m_CamTarget += m_pSceneComponent->GetPosition();
-			m_UpDir = XMVector3TransformCoord(Vector3::Up, m_CamRotationMatrix);
-			m_ViewMatrix = XMMatrixLookAtLH(m_pSceneComponent->GetPosition(), m_CamTarget, m_UpDir);
-		}
-
-		bool ACamera::OnMouseScrolled(MouseScrolledEvent& e)
-		{
-			if (Application::Get().GetImGuiLayer().IsMouseOverUI()) {
-				return false;
-			}
-
-			return false;
+			FVector3 Target = m_pSceneComponent->GetPosition() + m_pSceneComponent->GetTransform().GetLocalForward();
+			m_ViewMatrix = XMMatrixLookAtLH(m_pSceneComponent->GetPosition(), Target, m_pSceneComponent->GetTransformRef().GetLocalUp());
 		}
 
 		void ACamera::MoveForward(float Value)
@@ -189,12 +171,6 @@ namespace Insight {
 			else
 				m_MovementSpeed = DEFAULT_BASE_SPEED;
 		}
-
-		void ACamera::Test()
-		{
-			IE_LOG(Log, TEXT("Test Fn!"));
-		}
-
 
 	} // end namespace GameFramework
 } // end namespace Insight

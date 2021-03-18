@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 #include "Platform/DirectX12/Wrappers/DescriptorHeapWrapper.h"
 
 namespace Insight {
@@ -31,7 +31,7 @@ namespace Insight {
 		*/
 		inline void Create(
 			Microsoft::WRL::ComPtr<ID3D12Device> pDevice,
-			std::pair<uint32_t, uint32_t> DownSampleTargetDimensions,
+			FVector2 DownSampleTargetDimensions,
 			Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pCommandList,
 			D3D12_GPU_DESCRIPTOR_HANDLE hSRVSource, D3D12_GPU_DESCRIPTOR_HANDLE hUAVDestination
 		)
@@ -76,7 +76,7 @@ namespace Insight {
 		// A GPU hande to a Unordered Access View for "ThresholdDownSampleHelper::m_hSRVSource" to downsize to.
 		D3D12_GPU_DESCRIPTOR_HANDLE m_hUAVDestination;
 		// The dimensions the dimensions of the UV to downsample too.
-		std::pair<uint32_t, uint32_t> m_DownSampleTargetDimensions;
+		FVector2 m_DownSampleTargetDimensions;
 	};
 
 
@@ -94,7 +94,7 @@ namespace Insight {
 			Microsoft::WRL::ComPtr<ID3D12Device> pDevice, 
 			Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pFirstPass_CommandList,
 			Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pSecondPass_CommandList,
-			std::pair<uint32_t, uint32_t> WindowDimensions,
+			FVector2 WindowDimensions,
 			Microsoft::WRL::ComPtr<ID3D12Resource> pSourceUAV, D3D12_GPU_DESCRIPTOR_HANDLE hSourceUAV,				//9
 			Microsoft::WRL::ComPtr<ID3D12Resource> pSourceSRV, D3D12_GPU_DESCRIPTOR_HANDLE hSourceSRV,				//10
 			Microsoft::WRL::ComPtr<ID3D12Resource> pIntermediateUAV, D3D12_GPU_DESCRIPTOR_HANDLE hIntermediateUAV,	//11
@@ -147,7 +147,7 @@ namespace Insight {
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_pSecondPass_CommandListRef;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_pRootSignature;
 		Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pPipelineState;
-		std::pair<uint32_t, uint32_t> m_WindowDimensions;
+		FVector2 m_WindowDimensions;
 
 		Microsoft::WRL::ComPtr<ID3D12Resource> m_pSourceUAVRef; D3D12_GPU_DESCRIPTOR_HANDLE m_hSourceUAV;
 		Microsoft::WRL::ComPtr<ID3D12Resource> m_pSourceSRVRef; D3D12_GPU_DESCRIPTOR_HANDLE m_hSourceSRV;

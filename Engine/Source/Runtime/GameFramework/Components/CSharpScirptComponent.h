@@ -1,5 +1,5 @@
 #pragma once
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 
 #include "ActorComponent.h"
 

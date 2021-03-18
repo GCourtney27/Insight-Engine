@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 
-#include "Runtime/Math/Transform.h"
+#include "Runtime/Math/Public/Transform.h"
 
 #include "Platform/DirectXShared/ConstantBufferTypes.h"
 
@@ -19,7 +19,7 @@ namespace Insight {
 		Mesh(Mesh&& mesh) noexcept;
 		~Mesh();
 
-		void PreRender(const ieMatrix4x4& parentMat);
+		void PreRender(const FMatrix& parentMat);
 		void Render();
 		void Destroy();
 		void OnImGuiRender();
@@ -46,7 +46,7 @@ namespace Insight {
 		CB_VS_PerObject	m_ConstantBufferPerObject = {};
 
 		bool			m_CastsShadows = true;
-		uint32_t		m_RTInstanceIndex = 0U;
+		Int32			m_RTInstanceIndex = 0U;
 		bool			m_ShouldUpdateAS = false;
 	};
 }

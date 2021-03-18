@@ -1,6 +1,6 @@
 // Copyright Insight Interactive. All Rights Reserved.
 #pragma once
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 
 #if IE_PLATFORM_BUILD_WIN32
 

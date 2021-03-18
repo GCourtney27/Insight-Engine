@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 
-#include "Runtime/Math/Transform.h"
+#include "Runtime/Math/Public/Transform.h"
 
 
 namespace Insight {

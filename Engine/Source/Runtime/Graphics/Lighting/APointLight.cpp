@@ -15,7 +15,7 @@ namespace Insight {
 	{
 		Renderer::RegisterPointLight(this);
 
-		m_ShaderCB.DiffuseColor = ieVector3(1.0f, 1.0f, 1.0f);
+		m_ShaderCB.DiffuseColor = FVector3(1.0f, 1.0f, 1.0f);
 		m_ShaderCB.Strength = 1.0f;
 
 		// Load Components
@@ -37,7 +37,7 @@ namespace Insight {
 		json::get_float(emission[0], "diffuseB", diffuseB);
 		json::get_float(emission[0], "strength", strength);
 
-		m_ShaderCB.DiffuseColor = XMFLOAT3(diffuseR, diffuseG, diffuseB);
+		m_ShaderCB.DiffuseColor = FVector3(diffuseR, diffuseG, diffuseB);
 		m_ShaderCB.Strength = strength;
 
 		return true;

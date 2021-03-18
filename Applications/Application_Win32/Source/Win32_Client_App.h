@@ -132,9 +132,9 @@ namespace SandBoxApp {
 			StaticMeshComponent * pHouseSupports = pAHouse->CreateDefaultSubobject<StaticMeshComponent>();
 			pHouseSupports->SetMaterial(Material::CreateDefaultTexturedMaterial());
 			pHouseSupports->AttachMesh(TEXT("Objects/Norway/House/House_Supports.obj"));
-			pHouseSupports->SetPosition(ieVector3(-30.5f, -28.65f, 88.45f));
-			pHouseSupports->SetRotation(ieVector3(0.0f, 1.55f, 0.0f));
-			pHouseSupports->SetScale(ieVector3(40.0f, 40.0f, 40.0f));
+			pHouseSupports->SetPosition(FVector3(-30.5f, -28.65f, 88.45f));
+			pHouseSupports->SetRotation(FVector3(0.0f, 1.55f, 0.0f));
+			pHouseSupports->SetScale(FVector3(40.0f, 40.0f, 40.0f));
 			// Foliage Supports
 			StaticMeshComponent * pFoliageSupports = pAHouse->CreateDefaultSubobject<StaticMeshComponent>();
 			pFoliageSupports->SetMaterial(Material::CreateDefaultTexturedMaterial());
@@ -144,9 +144,9 @@ namespace SandBoxApp {
 			StaticMeshComponent * pPatio = pAHouse->CreateDefaultSubobject<StaticMeshComponent>();
 			pPatio->SetMaterial(pPatioMat);
 			pPatio->AttachMesh(TEXT("Objects/Norway/House/Patio.obj"));
-			pPatio->SetPosition(ieVector3(-47.85f, -36.15f, 108.9f));
-			pPatio->SetRotation(ieVector3(0.0f, 1.55f, 0.0f));
-			pPatio->SetScale(ieVector3(50.0f, 50.0f, 50.0f));
+			pPatio->SetPosition(FVector3(-47.85f, -36.15f, 108.9f));
+			pPatio->SetRotation(FVector3(0.0f, 1.55f, 0.0f));
+			pPatio->SetScale(FVector3(50.0f, 50.0f, 50.0f));
 
 			GetScene().AddActor(pAHouse);
 
@@ -167,9 +167,9 @@ namespace SandBoxApp {
 
 			// DEBUG
 			AActor* pASphere = new AActor(0, TEXT("Rusted Orb"));
-			/*pAFrontRocks->GetTransformRef().SetPosition(ieVector3(14.5f, 1.9f, -81.0f));
-			pAFrontRocks->GetTransformRef().SetScale(ieVector3(0.063f, 0.063f, 0.063f));
-			pAFrontRocks->GetTransformRef().SetRotation(ieVector3(0.0f, 3.158f, 0.0f));*/
+			/*pAFrontRocks->GetTransformRef().SetPosition(FVector3(14.5f, 1.9f, -81.0f));
+			pAFrontRocks->GetTransformRef().SetScale(FVector3(0.063f, 0.063f, 0.063f));
+			pAFrontRocks->GetTransformRef().SetRotation(FVector3(0.0f, 3.158f, 0.0f));*/
 			SceneComponent* pSCSphere = pASphere->CreateDefaultSubobject<SceneComponent>();
 			pSCSphere->SetPosition(49.5f, 38.9f, -16.0f);
 			pSCSphere->SetScale(6.0f, 6.0f, 6.0f);
@@ -181,21 +181,21 @@ namespace SandBoxApp {
 			pFrontRocks->SetMaterial(pFrontRocksMat);
 			//pFrontRocks->AttachMesh("Models/1911a1.fbx");
 			pFrontRocks->AttachMesh(TEXT("Models/Sphere.obj"));
-			pFrontRocks->SetRotation(ieVector3(1.5f, 0.0f, 0.0f));
+			pFrontRocks->SetRotation(FVector3(1.5f, 0.0f, 0.0f));
 
 			GetScene().AddActor(pASphere);
 
 			// Front Rocks
 			/*AActor* pAFrontRocks = new AActor(0, "Front Rocks");
-			pAFrontRocks->GetTransformRef().SetPosition(ieVector3(14.5f, 1.9f, -81.0f));
-			pAFrontRocks->GetTransformRef().SetScale(ieVector3(0.063f, 0.063f, 0.063f));
-			pAFrontRocks->GetTransformRef().SetRotation(ieVector3(0.0f, 3.158f, 0.0f));
+			pAFrontRocks->GetTransformRef().SetPosition(FVector3(14.5f, 1.9f, -81.0f));
+			pAFrontRocks->GetTransformRef().SetScale(FVector3(0.063f, 0.063f, 0.063f));
+			pAFrontRocks->GetTransformRef().SetRotation(FVector3(0.0f, 3.158f, 0.0f));
 
 			Insight::Material* pFrontRocksMat = new Insight::Material({ 36, 37, 38, 39, 40 });
 			StaticMeshComponent* pFrontRocks = pAFrontRocks->CreateDefaultSubobject<StaticMeshComponent>();
 			pFrontRocks->SetMaterial(pFrontRocksMat);
 			pFrontRocks->AttachMesh("Objects/Norway/Opaque/CoastRock/CoastRock_LOD2.obj");
-			pFrontRocks->SetRotation(ieVector3(0.5f, 0.0f, 0.0f));
+			pFrontRocks->SetRotation(FVector3(0.5f, 0.0f, 0.0f));
 
 			GetScene().AddActor(pAFrontRocks);*/
 		}

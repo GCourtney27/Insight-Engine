@@ -17,7 +17,7 @@ namespace Insight {
 		: AActor(id, type)
 	{
 		Renderer::AddPostFxActor(this);
-		m_ShaderCB.blBrightnessThreshold = XMFLOAT3{ 0.2126f, 0.7152f, 0.0722f };
+		m_ShaderCB.blBrightnessThreshold = FVector3( 0.2126f, 0.7152f, 0.0722f );
 	}
 
 	APostFx::~APostFx()
@@ -76,9 +76,9 @@ namespace Insight {
 			Writer->StartArray(); // Start Write Transform
 			{
 				//ieTransform& Transform = SceneNode::GetTransformRef();
-				//ieVector3 Pos = Transform.GetPosition();
-				//ieVector3 Rot = Transform.GetRotation();
-				//ieVector3 Sca = Transform.GetScale();
+				//FVector3 Pos = Transform.GetPosition();
+				//FVector3 Rot = Transform.GetRotation();
+				//FVector3 Sca = Transform.GetScale();
 
 				//Writer->StartObject();
 				//// Position
@@ -179,7 +179,7 @@ namespace Insight {
 
 	}
 
-	void APostFx::OnPreRender(XMMATRIX parentMat)
+	void APostFx::OnPreRender(FMatrix& parentMat)
 	{
 	}
 

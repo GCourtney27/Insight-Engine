@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 
 #include "Runtime/Core/EString.h"
 #if defined IE_PLATFORM_BUILD_WIN32

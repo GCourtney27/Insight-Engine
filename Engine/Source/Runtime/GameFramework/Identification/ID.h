@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 
 namespace Insight {
 

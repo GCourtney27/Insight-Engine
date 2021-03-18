@@ -47,17 +47,17 @@ namespace Insight {
 			json::get_float(MeshTransform[0], "posX", posX);
 			json::get_float(MeshTransform[0], "posY", posY);
 			json::get_float(MeshTransform[0], "posZ", posZ);
-			m_pModel->GetMeshRootTransformRef().SetPosition(ieVector3(posX, posY, posZ));
+			m_pModel->GetMeshRootTransformRef().SetPosition(posX, posY, posZ);
 			// Rotation
 			json::get_float(MeshTransform[0], "rotX", rotX);
 			json::get_float(MeshTransform[0], "rotY", rotY);
 			json::get_float(MeshTransform[0], "rotZ", rotZ);
-			m_pModel->GetMeshRootTransformRef().SetRotation(ieVector3(rotX, rotY, rotZ));
+			m_pModel->GetMeshRootTransformRef().SetRotation(rotX, rotY, rotZ);
 			// Scale
 			json::get_float(MeshTransform[0], "scaX", scaX);
 			json::get_float(MeshTransform[0], "scaY", scaY);
 			json::get_float(MeshTransform[0], "scaZ", scaZ);
-			m_pModel->GetMeshRootTransformRef().SetScale(ieVector3(scaX, scaY, scaZ));
+			m_pModel->GetMeshRootTransformRef().SetScale(scaX, scaY, scaZ);
 
 			return true;
 		}
@@ -78,9 +78,9 @@ namespace Insight {
 					Writer.StartArray();
 					{
 						ieTransform& MeshTransform = m_pModel->GetMeshRootTransformRef();
-						ieVector3 Pos = MeshTransform.GetPosition();
-						ieVector3 Rot = MeshTransform.GetRotation();
-						ieVector3 Sca = MeshTransform.GetScale();
+						FVector3 Pos = MeshTransform.GetPosition();
+						FVector3 Rot = MeshTransform.GetRotation();
+						FVector3 Sca = MeshTransform.GetScale();
 						Writer.StartObject();
 						// Position
 						Writer.Key("posX");

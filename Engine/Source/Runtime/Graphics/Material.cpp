@@ -55,11 +55,11 @@ namespace Insight {
 		m_AoTextureManagerID		= TextureMangerIds[4];
 
 		m_MaterialType					= EMaterialType::MT_Opaque;
-		m_ShaderCB.DiffuseAdditive		= ieVector3(0.0f, 0.0f, 0.0f);
+		m_ShaderCB.DiffuseAdditive		= FVector3(0.0f, 0.0f, 0.0f);
 		m_ShaderCB.MetallicAdditive		= 0.0f;
 		m_ShaderCB.RoughnessAdditive	= 0.0f;
-		m_ShaderCB.UVTiling				= ieVector2(1.0f, 1.0f);
-		m_ShaderCB.UVOffset				= ieVector2(0.0f, 0.0f);
+		m_ShaderCB.UVTiling				= FVector2(1.0f, 1.0f);
+		m_ShaderCB.UVOffset				= FVector2(0.0f, 0.0f);
 		m_ShaderCB.Specular				= 0.04f;
 	}
 
@@ -113,11 +113,11 @@ namespace Insight {
 		pMaterial->m_AoTextureManagerID			= pMaterial->m_AOMap->GetTextureInfo().Id;
 
 		pMaterial->m_MaterialType				= EMaterialType::MT_Opaque;
-		pMaterial->m_ShaderCB.DiffuseAdditive	= ieVector3(0.0f, 0.0f, 0.0f);
+		pMaterial->m_ShaderCB.DiffuseAdditive	= FVector3(0.0f, 0.0f, 0.0f);
 		pMaterial->m_ShaderCB.MetallicAdditive	= 0.0f;
 		pMaterial->m_ShaderCB.RoughnessAdditive = 0.0f;
-		pMaterial->m_ShaderCB.UVTiling			= ieVector2(5.0f, 5.0f);
-		pMaterial->m_ShaderCB.UVOffset			= ieVector2(0.0f, 0.0f);
+		pMaterial->m_ShaderCB.UVTiling			= FVector2(5.0f, 5.0f);
+		pMaterial->m_ShaderCB.UVOffset			= FVector2(0.0f, 0.0f);
 		pMaterial->m_ShaderCB.Specular			= 0.04f;
 
 		return pMaterial;

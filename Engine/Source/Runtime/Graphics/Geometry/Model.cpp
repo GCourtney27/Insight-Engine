@@ -65,9 +65,16 @@ namespace Insight {
 		UI::PushID(StringHelper::WideToString(m_FileName).c_str());
 
 		UI::Text("Transform");
-		UI::DrawVector3Control("Position", m_pRoot->GetTransformRef().GetPositionRef());
-		UI::DrawVector3Control("Rotation", m_pRoot->GetTransformRef().GetRotationRef());
-		UI::DrawVector3Control("Scale", m_pRoot->GetTransformRef().GetScaleRef(), 1.0f);
+		FVector3 Pos = m_pRoot->GetTransformRef().GetPosition();
+		FVector3 Rot = m_pRoot->GetTransformRef().GetRotation();
+		FVector3 Sca = m_pRoot->GetTransformRef().GetScale();
+		UI::DrawVector3Control("Position", Pos);
+		UI::DrawVector3Control("Rotation", Rot);
+		UI::DrawVector3Control("Scale", Sca, 1.0f);
+
+		m_pRoot->GetTransformRef().SetPosition( Pos.x, Pos.y, Pos.z );
+		m_pRoot->GetTransformRef().SetRotation( Rot.x, Rot.y, Rot.z );
+		m_pRoot->GetTransformRef().SetScale( Sca.x, Sca.y, Sca.z );
 
 		UI::Text("Rendering");
 		UI::Checkbox("Casts Shadows ##StaticMesh", &m_CastsShadows);
@@ -92,7 +99,7 @@ namespace Insight {
 		m_pMaterial->BindResources(IsDeferredPass);
 	}
 
-	void Model::CalculateParent(const ieMatrix4x4& parentMat)
+	void Model::CalculateParent(const FMatrix& parentMat)
 	{
 		auto worldMat = XMMatrixMultiply(m_pRoot->GetTransformRef().GetLocalMatrixRef(), parentMat);
 		for (unique_ptr<Mesh>& mesh : m_Meshes) {
@@ -184,7 +191,7 @@ namespace Insight {
 	{
 		ieTransform transform;
 		if (pNode->mParent) {
-			XMMATRIX mat = XMMatrixMultiply(XMMATRIX(&pNode->mTransformation.a1), XMMATRIX(&pNode->mParent->mTransformation.a1));
+			DirectX::XMMATRIX mat = DirectX::XMMatrixMultiply(DirectX::XMMATRIX(&pNode->mTransformation.a1), DirectX::XMMATRIX(&pNode->mParent->mTransformation.a1));
 			transform.SetWorldMatrix(mat);
 		}
 
@@ -241,9 +248,9 @@ namespace Insight {
 			}
 			else
 			{
-				Vertex.TexCoords = ieFloat2(0.0f, 0.0f);
-				Vertex.Tangent = ieFloat3(0.0f, 0.0f, 0.0f);
-				Vertex.BiTangent = ieFloat3(0.0f, 0.0f, 0.0f);
+				Vertex.TexCoords = FVector2(0.0f, 0.0f);
+				Vertex.Tangent = FVector3(0.0f, 0.0f, 0.0f);
+				Vertex.BiTangent = FVector3(0.0f, 0.0f, 0.0f);
 			}
 
 			Verticies.push_back(Vertex);
@@ -298,7 +305,7 @@ namespace Insight {
 
 				Vertex.TexCoords.x = (float)uvs[i].x;
 				Vertex.TexCoords.y = (float)uvs[i].y;
-
+				
 				const ofbx::Vec3* tans = Geometry.getTangents();
 				if (tans)
 				{
@@ -306,18 +313,18 @@ namespace Insight {
 					Vertex.Tangent.y = (float)tans[i].y;
 					Vertex.Tangent.z = (float)tans[i].z;
 				
-					ieVector3 TempTangent((float)tans[i].x, (float)tans[i].y, (float)tans[i].z);
-					ieVector3 Normal(Vertex.Normal.x, Vertex.Normal.y, Vertex.Normal.z);
-					ieVector3 BiTangent = TempTangent.Cross(Normal);
+					FVector3 TempTangent((float)tans[i].x, (float)tans[i].y, (float)tans[i].z);
+					FVector3 Normal(Vertex.Normal.x, Vertex.Normal.y, Vertex.Normal.z);
+					FVector3 BiTangent = FVector3::Cross(Normal, TempTangent);
 					Vertex.BiTangent.x = BiTangent.x;
 					Vertex.BiTangent.y = BiTangent.y;
 					Vertex.BiTangent.z = BiTangent.z;
 				}
 				else
 				{
-					Vertex.TexCoords = ieFloat2(0.0f, 0.0f);
-					Vertex.Tangent = ieFloat3(0.0f, 0.0f, 0.0f);
-					Vertex.BiTangent = ieFloat3(0.0f, 0.0f, 0.0f);
+					Vertex.TexCoords = FVector2(0.0f, 0.0f);
+					Vertex.Tangent = FVector3(0.0f, 0.0f, 0.0f);
+					Vertex.BiTangent = FVector3(0.0f, 0.0f, 0.0f);
 				}
 
 			}

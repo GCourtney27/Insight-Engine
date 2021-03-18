@@ -1,7 +1,7 @@
 #pragma once
 #include <Engine_pch.h>
 
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 #include "Runtime/Events/Event.h"
 #include "Runtime/Input/KeyCodes.h"
 
@@ -43,9 +43,9 @@ namespace Insight {
 
 		virtual bool ProccessWindowMessages() = 0;
 		
-		inline void Resize(uint32_t NewWidth, uint32_t NewHeight, bool IsMinimized) 
+		inline void Resize(Int32 NewWidth, Int32 NewHeight, bool IsMinimized) 
 		{ 
-			IE_ASSERT(NewWidth > 0 && NewHeight > 0, "Window width and/or height cannot be zero.");
+			IE_ASSERT(NewWidth > 0.f && NewHeight > 0.f, "Window width and/or height cannot be zero.");
 			
 			m_LogicalWidth	= ConvertDipsToPixels((float)NewWidth);
 			m_LogicalHeight = ConvertDipsToPixels((float)NewHeight);
@@ -63,9 +63,9 @@ namespace Insight {
 		virtual EInputEventType GetAsyncKeyState(KeyMapCode Key) const = 0;
 		virtual bool SetWindowTitle(const std::string& newText, bool completlyOverride = false) = 0;
 
-		uint32_t GetWidth()								const { return m_LogicalWidth; }
-		uint32_t GetHeight()							const { return m_LogicalHeight; }
-		std::pair<uint32_t, uint32_t> GetDimensions()	const { return std::make_pair(m_LogicalWidth, m_LogicalHeight); }
+		Int32 GetWidth()								const { return m_LogicalWidth; }
+		Int32 GetHeight()								const { return m_LogicalHeight; }
+		FVector2 GetDimensions()						const { return FVector2((float)m_LogicalWidth, (float)m_LogicalHeight); }
 		inline float GetAspectRatio()					const { return m_AspectRatio; }
 		inline bool GetIsVisible()						const { return m_IsVisible; }
 		inline bool GetIsVsyncEnabled()					const { return m_VSyncEnabled; }
@@ -101,8 +101,8 @@ namespace Insight {
 		bool m_VSyncEnabled = false;
 		bool m_FullScreenEnabled = false;
 		bool m_IsVisible = true;
-		uint32_t m_LogicalWidth = 0u;
-		uint32_t m_LogicalHeight = 0u;
+		Int32 m_LogicalWidth = 0u;
+		Int32 m_LogicalHeight = 0u;
 
 		EString m_WindowTitle;
 		EString m_WindowClassName;

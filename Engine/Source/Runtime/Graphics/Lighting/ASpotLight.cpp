@@ -18,8 +18,8 @@ namespace Insight {
 	{
 		Renderer::RegisterSpotLight(this);
 
-		m_ShaderCB.DiffuseColor = ieVector3(1.0f, 1.0f, 1.0f);
-		m_ShaderCB.Direction = Vector3::Down;
+		m_ShaderCB.DiffuseColor = FVector3(1.0f, 1.0f, 1.0f);
+		m_ShaderCB.Direction = FVector3::Down;
 		m_ShaderCB.Strength = 1.0f;
 		m_ShaderCB.InnerCutoff = cos(XMConvertToRadians(m_TempInnerCutoff));
 		m_ShaderCB.OuterCutoff = cos(XMConvertToRadians(m_TempOuterCutoff));
@@ -68,9 +68,9 @@ namespace Insight {
 			Writer->StartArray(); // Start Write Transform
 			{
 				//ieTransform& Transform = SceneNode::GetTransformRef();
-				//ieVector3 Pos = Transform.GetPosition();
-				//ieVector3 Rot = Transform.GetRotation();
-				//ieVector3 Sca = Transform.GetScale();
+				//FVector3 Pos = Transform.GetPosition();
+				//FVector3 Rot = Transform.GetRotation();
+				//FVector3 Sca = Transform.GetScale();
 
 				//Writer->StartObject();
 				//// Position
@@ -154,7 +154,7 @@ namespace Insight {
 	{
 	}
 
-	void ASpotLight::OnPreRender(XMMATRIX parentMat)
+	void ASpotLight::OnPreRender(FMatrix& parentMat)
 	{
 	}
 

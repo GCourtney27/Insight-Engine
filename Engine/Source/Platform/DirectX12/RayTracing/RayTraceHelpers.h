@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 
 #include "DXR/nv_helpers_dx12/TopLevelASGenerator.h"
 #include "DXR/nv_helpers_dx12/ShaderBindingTableGenerator.h"
@@ -53,7 +53,7 @@ namespace Insight {
 		}
 
 		inline ID3D12Resource* GetOutputBuffer() { return m_pOutputBuffer_UAV.Get(); }
-		uint32_t RegisterBottomLevelASGeometry(Microsoft::WRL::ComPtr<ID3D12Resource> pVertexBuffer, Microsoft::WRL::ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVeticies, uint32_t NumIndices, DirectX::XMMATRIX WorldMat);
+		uint32_t RegisterBottomLevelASGeometry(Microsoft::WRL::ComPtr<ID3D12Resource> pVertexBuffer, Microsoft::WRL::ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVeticies, uint32_t NumIndices, DirectX::XMMATRIX& WorldMat);
 
 	private:
 		AccelerationStructureBuffers CreateBottomLevelAS(std::vector<std::pair<Microsoft::WRL::ComPtr<ID3D12Resource>, uint32_t>> VertexBuffers, std::vector<std::pair<Microsoft::WRL::ComPtr<ID3D12Resource>, uint32_t>> IndexBuffers = {});

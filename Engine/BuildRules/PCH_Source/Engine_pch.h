@@ -14,12 +14,14 @@
 #include <sstream>
 #include <utility>
 #include <fstream>
+#include <assert.h>
 #include <iostream>
 #include <algorithm>
 #include <filesystem>
 #include <functional>
 #include <type_traits>
 #include <string_view>
+#include <xmmintrin.h>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -54,12 +56,11 @@
 #include "Runtime/Core/Log.h"
 #include "Runtime/Core/EString.h"
 #include "Runtime/Core/Interfaces.h"
-#include "Runtime/Math/ie_Vectors.h"
 #include "Runtime/Core/Exception.h"
 #include "Runtime/Systems/FileSystem.h"
 #include "Runtime/Utilities/Profiling.h"
+#include "Runtime/Math/Public/PrimitiveTypes.h"
 #include "Runtime/Utilities/StringHelper.h"
-
 
 // -----------
 // Platforms |

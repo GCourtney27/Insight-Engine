@@ -13,10 +13,4 @@
   <ItemGroup>
     <ProjectCapability Include="SourceItemsFromImports" />
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX12\Public\DeviceResources.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX12\Private\DeviceResources.cpp" />
-  </ItemGroup>
 </Project>

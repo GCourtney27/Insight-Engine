@@ -64,8 +64,8 @@ namespace Insight {
 		{
 			GameFramework::AActor* pCollider;
 			float Velocity;
-			/*ieVector3 Direction;
-			ieVector3 Normal;*/
+			/*FVector3 Direction;
+			FVector3 Normal;*/
 		} CollisionInfo;
 	};
 
@@ -78,7 +78,7 @@ namespace Insight {
 
 		struct TranslationDetails
 		{
-			ieMatrix4x4 WorldMat;
+			FMatrix WorldMat;
 		} TranslationInfo;
 	};
 

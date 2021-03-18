@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 
 #include <DirectXMath.h>
 
@@ -15,33 +15,35 @@
 
 */
 
+using namespace Insight;
+
 struct CB_VS_PerObject
 {
-	DirectX::XMMATRIX World;//4x4
+	FMatrix World;//4x4
 };
 
 struct CB_PS_VS_PerObjectMaterialAdditives
 {
 	float RoughnessAdditive;
 	float MetallicAdditive;
-	DirectX::XMFLOAT2 UVOffset;//4
+	FVector2 UVOffset;//4
 
-	DirectX::XMFLOAT2 UVTiling;
+	FVector2 UVTiling;
 	float Padding1;
 	float Padding2;//4
 	
-	DirectX::XMFLOAT3 DiffuseAdditive;
+	FVector3 DiffuseAdditive;
 	float Specular;//4
 };
 
 struct CB_PS_VS_PerFrame
 {
-	DirectX::XMFLOAT3 CameraPosition;
+	FVector3 CameraPosition;
 	float CameraExposure;//4
-	DirectX::XMMATRIX View;//4x4
-	DirectX::XMMATRIX InverseView;//4x4
-	DirectX::XMMATRIX Projection;//4x4
-	DirectX::XMMATRIX InverseProjection;//4x4
+	FMatrix View;//4x4
+	FMatrix InverseView;//4x4
+	FMatrix Projection;//4x4
+	FMatrix InverseProjection;//4x4
 	float CameraNearZ;
 	float CameraFarZ;
 	float DeltaMs;
@@ -50,7 +52,7 @@ struct CB_PS_VS_PerFrame
 	float NumDirectionalLights;
 	float NumSpotLights;
 	float RayTraceEnabled;
-	DirectX::XMFLOAT2 ScreenSize;
+	FVector2 ScreenSize;
 	float Padding1;
 	float Padding2;
 
@@ -58,19 +60,19 @@ struct CB_PS_VS_PerFrame
 
 struct CB_PS_PointLight
 {
-	DirectX::XMFLOAT3 Position;
+	FVector3 Position;
 	float Strength;//4
 
-	DirectX::XMFLOAT3 DiffuseColor;
+	FVector3 DiffuseColor;
 	float Padding1;//4
 };
 
 struct CB_PS_DirectionalLight
 {
-	DirectX::XMFLOAT3 Direction;
+	FVector3 Direction;
 	float ShadowDarknessMultiplier;//4
 
-	DirectX::XMFLOAT3 DiffuseColor;
+	FVector3 DiffuseColor;
 	float Strength;//4
 
 	DirectX::XMFLOAT4X4 LightSpaceView;
@@ -83,12 +85,12 @@ struct CB_PS_DirectionalLight
 
 struct CB_PS_SpotLight
 {
-	DirectX::XMFLOAT3 Position;
+	FVector3 Position;
 	float InnerCutoff;//4
-	DirectX::XMFLOAT3 Direction;
+	FVector3 Direction;
 	float OuterCutoff;//4
 
-	DirectX::XMFLOAT3 DiffuseColor;
+	FVector3 DiffuseColor;
 	float Strength;//4
 };
 
@@ -111,7 +113,7 @@ struct CB_PS_PostFx
 	// Bloom
 	int blEnabled;
 	float blCombineCoefficient;
-	DirectX::XMFLOAT3 blBrightnessThreshold;
+	FVector3 blBrightnessThreshold;
 	float pad[3];
 };
 

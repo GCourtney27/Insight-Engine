@@ -2,7 +2,7 @@
 #pragma once
 #include <Engine_pch.h>
 
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 #include "Runtime/Input/KeyCodes.h"
 
 namespace Insight {

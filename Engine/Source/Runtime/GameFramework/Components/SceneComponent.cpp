@@ -30,26 +30,26 @@ namespace Insight {
 			json::get_float(Transform[0], "posX", X);
 			json::get_float(Transform[0], "posY", Y);
 			json::get_float(Transform[0], "posZ", Z);
-			m_Transform.SetPosition(ieVector3(X, Y, Z));
+			m_Transform.SetPosition(X, Y, Z);
 			// Rotation
 			json::get_float(Transform[0], "rotX", X);
 			json::get_float(Transform[0], "rotY", Y);
 			json::get_float(Transform[0], "rotZ", Z);
-			m_Transform.SetRotation(ieVector3(X, Y, Z));
+			m_Transform.SetRotation(X, Y, Z);
 			// Scale
 			json::get_float(Transform[0], "scaX", X);
 			json::get_float(Transform[0], "scaZ", Z);
 			json::get_float(Transform[0], "scaY", Y);
-			m_Transform.SetScale(ieVector3(X, Y, Z));
+			m_Transform.SetScale(X, Y, Z);
 
 			return true;
 		}
 
 		bool SceneComponent::WriteToJson(rapidjson::PrettyWriter<rapidjson::StringBuffer>& Writer)
 		{
-			ieVector3 Pos = m_Transform.GetPosition();
-			ieVector3 Rot = m_Transform.GetRotation();
-			ieVector3 Sca = m_Transform.GetScale();
+			FVector3 Pos = m_Transform.GetPosition();
+			FVector3 Rot = m_Transform.GetRotation();
+			FVector3 Sca = m_Transform.GetScale();
 
 			Writer.Key("SceneComponent");
 			Writer.StartArray();
@@ -125,9 +125,15 @@ namespace Insight {
 
 				// Show the actor's transform values
 				UI::Text("Transform");
-				UI::DrawVector3Control("Position", m_Transform.GetPositionRef());
-				UI::DrawVector3Control("Rotation", m_Transform.GetRotationRef());
-				UI::DrawVector3Control("Scale", m_Transform.GetScaleRef(), 1.0f);
+				FVector3 Pos = m_Transform.GetPosition();
+				FVector3 Rot = m_Transform.GetRotation();
+				FVector3 Sca = m_Transform.GetScale();
+				UI::DrawVector3Control("Position", Pos);
+				UI::DrawVector3Control("Rotation", Rot);
+				UI::DrawVector3Control("Scale", Sca, 1.0f);
+				m_Transform.SetPosition(Pos.x, Pos.y, Pos.z);
+				m_Transform.SetRotation(Rot.x, Rot.y, Rot.z);
+				m_Transform.SetScale(Sca.x, Sca.y, Sca.z);
 			
 				UI::Checkbox("IsStatic", &m_IsStatic);
 

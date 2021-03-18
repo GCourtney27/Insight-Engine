@@ -794,13 +794,13 @@ namespace Insight {
 
 	void BloomPass::InitHelpers(ComPtr<ID3D12GraphicsCommandList> pFirstPassCommandList, ComPtr<ID3D12GraphicsCommandList> pSecondPassCommandList)
 	{
-		uint32_t WindowWidth = m_pRenderContextRef->GetWindowRef().GetWidth();
-		uint32_t WindowHeight = m_pRenderContextRef->GetWindowRef().GetHeight();
+		Int32 WindowWidth = m_pRenderContextRef->GetWindowRef().GetWidth();
+		Int32 WindowHeight = m_pRenderContextRef->GetWindowRef().GetHeight();
 
 		// The handles have been created elsewhere in the code so we just pass them in from the heap.
 		m_DownSampleHelper.Create(
 			&m_pRenderContextRef->GetDeviceContext(),
-			{ WindowWidth, WindowHeight }, 
+			FVector2((float)WindowWidth, (float)WindowHeight),
 			pFirstPassCommandList,
 			m_pCBVSRVHeapRef->hGPU(8),
 			m_pCBVSRVHeapRef->hGPU(9)
@@ -811,7 +811,7 @@ namespace Insight {
 			&m_pRenderContextRef->GetDeviceContext(),
 			pFirstPassCommandList,
 			pSecondPassCommandList,
-			{ WindowWidth, WindowHeight },
+			FVector2((float)WindowWidth, (float)WindowHeight),
 			m_pDownsampleResult_UAV, m_pCBVSRVHeapRef->hGPU(9),
 			m_pDownsampleResult_SRV, m_pCBVSRVHeapRef->hGPU(10),
 			m_pIntermediateBuffer_UAV, m_pCBVSRVHeapRef->hGPU(11),

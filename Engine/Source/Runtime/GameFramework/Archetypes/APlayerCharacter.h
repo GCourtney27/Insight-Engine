@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 
 #include "Runtime/GameFramework/Archetypes/APawn.h"
 #include "Runtime/GameFramework/Archetypes/ACamera.h"
@@ -24,8 +24,8 @@ namespace Insight {
 				return ViewTarget;
 			}
 
-			ieVector3 GetPosition() const { return m_pCharacterRoot->GetPosition(); }
-			ieVector3 GetRotation() const { return m_pCharacterRoot->GetRotation(); }
+			FVector3 GetPosition() const { return m_pCharacterRoot->GetPosition(); }
+			FVector3 GetRotation() const { return m_pCharacterRoot->GetRotation(); }
 			void SetPosition(float X, float Y, float Z) { m_pCharacterRoot->SetPosition(X, Y, Z); }
 			void SetRotation(float X, float Y, float Z) { m_pCharacterRoot->SetRotation(X, Y, Z); }
 

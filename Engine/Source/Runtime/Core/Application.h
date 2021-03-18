@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <Runtime/CoreMacros.h>
+#include <Runtime/Core.h>
 
 #include "Runtime/Core/Window.h"
 #include "Runtime/Core/Scene/Scene.h"
