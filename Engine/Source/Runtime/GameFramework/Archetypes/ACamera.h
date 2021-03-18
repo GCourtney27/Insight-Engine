@@ -17,8 +17,6 @@ namespace Insight {
 		constexpr float DEFAULT_NEAR_Z		= 0.5f;
 		constexpr float DEFAULT_FAR_Z		= 3000.0f;
 
-		using namespace DirectX;
-
 		// Represents the outline of a camera. There can only be one
 		// camera in the world at any given time. To switch to a 
 		// 'new camera' set the view target of the global camera.
@@ -52,9 +50,9 @@ namespace Insight {
 			void ProcessMouseScroll(float yOffset);
 			void ProcessMouseMovement(float xOffset, float yOffset);
 
-			FVector3 GetPosition() const { return m_pSceneComponent->GetPosition(); }
-			inline XMMATRIX GetViewMatrix() const { return m_ViewMatrix; }
-			inline XMMATRIX GetProjectionMatrix() const { return m_ProjectionMatrix; };
+			inline FVector3 GetPosition() const { return m_pSceneComponent->GetPosition(); }
+			inline FMatrix GetViewMatrix() const { return m_ViewMatrix; }
+			inline FMatrix GetProjectionMatrix() const { return m_ProjectionMatrix; };
 			inline float GetFOV() const { return m_Fov; }
 			inline float GetNearZ() const { return m_NearZ; }
 			inline float GetFarZ() const { return m_FarZ; }
@@ -92,8 +90,6 @@ namespace Insight {
 				m_pSceneComponent->GetTransformRef().UpdateLocalDirectionVectors();
 			}
 
-			void OnEvent(Event& e);
-
 			void SetPerspectiveProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ);
 			void SetOrthographicsProjectionValues(float viewWidth, float viewHeight, float nearZ, float farZ);
 			void RenderSceneHeirarchy() override;
@@ -103,9 +99,7 @@ namespace Insight {
 			int GetIsOrthographic() { return m_IsOrthographic; }
 		private:
 			void UpdateViewMatrix();
-			bool OnMouseScrolled(MouseScrolledEvent& e);
 
-			// TODO: Move this to the Pawn class! Translation
 			void MoveForward(float Value);
 			void MoveRight(float Value);
 			void MoveUp(float Value);
@@ -114,33 +108,20 @@ namespace Insight {
 			void TogglePitchYawRotation();
 			void Sprint();
 
-			// DEBUG
-			void Test();
 		private:
-			XMFLOAT4X4 m_ViewMat4x4;
-			XMMATRIX m_ViewMatrix;
-			XMFLOAT4X4 m_ProjectionMat4x4;
-			XMMATRIX m_ProjectionMatrix;
-
+			FMatrix m_ViewMatrix;
+			FMatrix m_ProjectionMatrix;
+			
 			bool m_IsOrthographic = false;
 			bool CanRotateCamera = false;
-			float m_Yaw = 0.0f;
-			float m_Pitch = 0.0f;
-			float m_Roll = 0.0f;
-
+			
 			float m_MouseSensitivity = 0.0f;
 
 			float m_Fov = 0.0f;
-			float m_NearZ = 0.0001f;
+			float m_NearZ = 0.01f;
 			float m_FarZ = 0.0f;
 			float m_AspectRatio = 0.0f;
 			float m_Exposure = 1.0f;
-
-			// Cached Internal Variables.
-			XMMATRIX m_CamRotationMatrix;
-			FVector3 m_CamTarget;
-			FVector3 m_UpDir;
-
 		};
 
 	} // end namespace GameFramework

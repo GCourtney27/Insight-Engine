@@ -198,6 +198,10 @@ namespace DirectX
             static void TransformNormal(_In_reads_(count) const Vector2* varray, size_t count, const Matrix& m, _Out_writes_(count) Vector2* resultArray) noexcept;
 
             // Constants
+            static const Vector2 Up;
+            static const Vector2 Down;
+            static const Vector2 Left;
+            static const Vector2 Right;
             static const Vector2 Zero;
             static const Vector2 One;
             static const Vector2 UnitX;
