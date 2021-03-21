@@ -87,7 +87,6 @@ namespace Insight {
 				if (UpdateView) {
 					UpdateViewMatrix();
 				}
-				m_pSceneComponent->GetTransformRef().UpdateLocalDirectionVectors();
 			}
 
 			void SetPerspectiveProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ);

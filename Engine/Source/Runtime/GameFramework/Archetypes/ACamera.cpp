@@ -62,7 +62,6 @@ namespace Insight {
 			m_pSceneComponent->Rotate(yPos * m_MouseSensitivity, xPos * m_MouseSensitivity, 0.0f);
 
 			UpdateViewMatrix();
-			m_pSceneComponent->GetTransformRef().UpdateLocalDirectionVectors();
 		}
 
 		void ACamera::SetPerspectiveProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ)
@@ -142,7 +141,6 @@ namespace Insight {
 				m_pSceneComponent->Rotate(Value * m_MouseSensitivity * m_DeltaMs, 0.0f, 0.0f);
 
 				UpdateViewMatrix();
-				m_pSceneComponent->GetTransformRef().UpdateLocalDirectionVectors();
 			}
 		}
 
@@ -153,7 +151,6 @@ namespace Insight {
 				m_pSceneComponent->Rotate(0.0f, Value * m_MouseSensitivity * m_DeltaMs, 0.0f);
 
 				UpdateViewMatrix();
-				m_pSceneComponent->GetTransformRef().UpdateLocalDirectionVectors();
 			}
 		}
 

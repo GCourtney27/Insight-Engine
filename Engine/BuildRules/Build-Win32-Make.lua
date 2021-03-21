@@ -57,6 +57,7 @@ project ("EngineBuild_Win32")
 		"IE_PLATFORM_BUILD_WIN32=1",
 		"_CRT_SECURE_NO_WARNINGS",
 		"TRACK_RENDER_EVENTS=1", 
+		"IE_WITH_DXR",
 	}
 
 	includedirs

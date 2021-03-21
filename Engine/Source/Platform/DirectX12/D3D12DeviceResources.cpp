@@ -376,10 +376,6 @@ namespace Insight {
 		uint32_t WindowWidth = m_pRenderContextRef->GetWindowRef().GetWidth();
 		uint32_t WindowHeight = m_pRenderContextRef->GetWindowRef().GetHeight();
 
-		DXGI_MODE_DESC backBufferDesc = {};
-		backBufferDesc.Width = WindowWidth;
-		backBufferDesc.Height = WindowHeight;
-
 		m_SampleDesc = {};
 		m_SampleDesc.Count = 1;
 

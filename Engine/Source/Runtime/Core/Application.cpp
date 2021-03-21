@@ -19,8 +19,7 @@
 #define EDITOR_UI_ENABLED 0
 #endif
 
-#include <DirectX12/TK/Inc/SimpleMath.h>
-#include <DirectXMath.h>
+#include "Platform/DirectX12/Public/D3D12RenderContextFactory.h"
 
 static const char* TargetSceneName = "Debug.iescene";
 namespace Insight {
@@ -50,12 +49,47 @@ namespace Insight {
 	{
 		Debug::Logger::AppendMessageForCoreDump(TEXT("Core dump requested by application."));
 		Debug::Logger::InitiateCoreDump();
-
 	}
 
 	void Application::Initialize()
 	{
 		ScopedMilliSecondTimer(TEXT("Core app init"));
+
+		// TEST
+		{
+			Graphics::IRenderContext* pRenderContext = NULL;
+			Graphics::ERenderBackend api = Graphics::ERenderBackend::Direct3D_12;
+			// TEST Setup renderer
+			{
+				switch (api)
+				{
+				case Graphics::ERenderBackend::Direct3D_12:
+				{
+					IE_LOG(Log, TEXT("Initializing graphics context with D3D12 rendering backend."));
+					Graphics::DX12::D3D12RenderContextFactory Factory;
+					Factory.CreateContext(&pRenderContext, m_pWindow);
+				}
+				break;
+				default:
+					break;
+				}
+			}
+			IE_LOG(Log, TEXT("Graphics context initialized."));
+
+			while (m_Running)
+			{
+				// Process the window's Messages 
+				m_pWindow->OnUpdate();
+
+				pRenderContext->PreFrame();
+
+				// Render stuff
+
+				pRenderContext->SubmitFrame();
+			}
+			SAFE_DELETE_PTR(pRenderContext);
+		}
+		return;
 
 		// Initize the main file system.
 		FileSystem::Init();
@@ -131,6 +165,9 @@ namespace Insight {
 
 	Application::EErrorCode Application::Run()
 	{
+
+		return EErrorCode::EC_Success;
+
 		IE_ADD_FOR_GAME_DIST(
 			BeginPlay(AppBeginPlayEvent{})
 		);

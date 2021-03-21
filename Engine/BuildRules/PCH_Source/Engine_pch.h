@@ -108,6 +108,9 @@
 #	define EndTrackRenderEvent(pCommandList)
 #endif
 
+	using namespace ::DirectX;
+	using namespace ::DirectX::SimpleMath;
+
 #endif // IE_PLATFORM_WINDOWS
 
 

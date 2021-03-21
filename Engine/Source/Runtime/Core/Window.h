@@ -13,6 +13,7 @@ namespace Insight {
 
 
 	using EventCallbackFn = std::function<void(Event&)>;
+	using FullScreenEventCallbackFn = std::function<void(bool)>;
 
 	struct WindowDescription
 	{
@@ -76,6 +77,7 @@ namespace Insight {
 		inline void SetDPI(float NewDPI)				{ m_DPI = NewDPI; Resize(m_LogicalWidth, m_LogicalHeight, !m_IsVisible); }
 		virtual void SetFullScreenEnabled(bool Enabled) { m_FullScreenEnabled = Enabled; }
 
+		inline void AddFullScreenCallback(FullScreenEventCallbackFn Fn) { m_WindowFullScreenCallbacks.push_back(Fn); }
 
 		inline void SetEventCallback(const EventCallbackFn& callback) { m_EventCallbackFn = callback; }
 		EventCallbackFn& GetEventCallbackFn() { return m_EventCallbackFn; }
@@ -103,6 +105,7 @@ namespace Insight {
 		bool m_IsVisible = true;
 		Int32 m_LogicalWidth = 0u;
 		Int32 m_LogicalHeight = 0u;
+		std::vector<FullScreenEventCallbackFn> m_WindowFullScreenCallbacks;
 
 		EString m_WindowTitle;
 		EString m_WindowClassName;

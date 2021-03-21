@@ -44,7 +44,7 @@ namespace Insight {
 			static void AppendMessageForCoreDump(const TChar* Message);
 			
 			/*
-				Begins the core dump and writs to a file.
+				Begins the core dump and writes to a file.
 			*/
 			static void InitiateCoreDump();
 
