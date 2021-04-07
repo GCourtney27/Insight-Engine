@@ -1,19 +1,32 @@
 #pragma once
 
 #include <Runtime/Core.h>
-#include "Platform/Win32/Error/COMException.h"
+
+#include "Platform/Public/Utility/COMException.h"
+
+#include "Runtime/Graphics/Geometry/IConstantBuffer.h"
 
 namespace Insight {
 
 	
 
 	template <typename ConstantBufferType>
-	class INSIGHT_API D3D12ConstantBuffer
+	class INSIGHT_API D3D12ConstantBuffer : public IConstantBuffer
 	{
 	public:
 		D3D12ConstantBuffer() = default;
 		~D3D12ConstantBuffer() = default;
 		D3D12ConstantBuffer(D3D12ConstantBuffer& rhs) = delete;
+
+		virtual void Bind() override
+		{
+			memcpy(m_GPUAddress, &Data, sizeof(ConstantBufferType));
+		}
+
+		virtual void Create() override
+		{
+
+		}
 
 		ConstantBufferType Data = {};
 
@@ -33,16 +46,16 @@ namespace Insight {
 			CD3DX12_RANGE ReadRange(0, 0);
 			hr = m_pResource->Map(0, &ReadRange, reinterpret_cast<void**>(&m_GPUAddress));
 			ThrowIfFailed(hr, TEXT("Failed to create map heap for per-frame upload resource heaps"));
-			m_pResource->Unmap(0, nullptr);
+			//m_pResource->Unmap(0, nullptr);
 
 			return true;
 		}
 
 		void SubmitToGPU()
 		{
-			m_pResource->Map(0, nullptr, (void**)&m_GPUAddress);
+			//m_pResource->Map(0, nullptr, (void**)&m_GPUAddress);
 			memcpy(m_GPUAddress, &Data, sizeof(ConstantBufferType));
-			m_pResource->Unmap(0, nullptr);
+			//m_pResource->Unmap(0, nullptr);
 		}
 		
 		ID3D12Resource* GetResource() const

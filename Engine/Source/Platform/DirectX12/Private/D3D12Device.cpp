@@ -2,7 +2,7 @@
 
 #include "Platform/DirectX12/Public/D3D12Device.h"
 
-#include "Platform/Win32/Error/COMException.h"
+#include "Platform/Public/Utility/COMException.h"
 
 namespace Insight
 {
@@ -54,7 +54,6 @@ namespace Insight
 					), TEXT("Failed to create D3D12 device!"));
 				}
 			}
-
 
 			void D3D12Device::GetHardwareAdapter(IDXGIFactory6* pFactory, IDXGIAdapter1** ppAdapter, const IED3D12DeviceInitParams& InitParams, IED3D12DeviceQueryResult& OutDeviceQueryResult)
 			{

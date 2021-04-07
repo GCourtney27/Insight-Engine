@@ -43,4 +43,3 @@ inline constexpr As SCast(Value& Val)
 {
 	return static_cast<As>(Val);
 }
-

@@ -16,16 +16,12 @@ namespace Insight
 			void D3D12RenderContext::UnInitialize()
 			{
 			}
+			
 			void D3D12RenderContext::PreFrame()
 			{
 			}
+
 			void D3D12RenderContext::SubmitFrame()
-			{
-			}
-			void D3D12RenderContext::CreateTexture()
-			{
-			}
-			void D3D12RenderContext::CreateBuffer()
 			{
 			}
 		}

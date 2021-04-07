@@ -2,7 +2,7 @@
 
 #include <Runtime/Core.h>
 
-#include "Platform/Win32/Error/COMException.h"
+#include "Platform/Public/Utility/COMException.h"
 
 #include "Platform/DirectX12/Wrappers/DescriptorHeapWrapper.h"
 

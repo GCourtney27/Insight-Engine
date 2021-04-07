@@ -42,12 +42,14 @@
 #include "Runtime/Math/Public/PrimitiveTypes.h"
 #include "Runtime/Core/Public/Cast.h"
 
+#define NOMINMAX
+
 // Utilities
 #define BIT_SHIFT(x) ( 1 << x )
 #define IE_BIND_LOCAL_EVENT_FN(Fn) std::bind( &Fn, this, std::placeholders::_1 )
 #define IE_BIND_EVENT_FN(Fn, Class) std::bind( &Fn, Class, std::placeholders::_1 )
 #define IE_BIND_LOCAL_VOID_FN(Fn) std::bind( &Fn, this )
-#define SAFE_DELETE_PTR(Ptr) if( (Ptr) ) { delete (Ptr); }
+#define SAFE_DELETE_PTR(Ptr) if( (Ptr) ) { delete (Ptr); } else { IE_LOG(Warning, TEXT("Trying to delete null pointer!")) }
 #define COM_SAFE_RELEASE(ComObject) if( (ComObject) ) { (ComObject)->Release(); (ComObject) = nullptr; }
 #define RAW_LITERAL(Value) #Value
 #define WIDE_STRING(Value) L#Value
@@ -56,9 +58,9 @@
 #define INLINE inline 
 #define NO_DISCARD [[nodiscard]]
 template <typename T>
-FORCE_INLINE constexpr void ZeroMem(T* Mem)
+FORCE_INLINE constexpr void ZeroMem(T* Mem, size_t Size = sizeof(T))
 {
-	::memset(RCast<void*>(Mem), 0, sizeof(T));
+	::memset(RCast<void*>(Mem), 0, Size);
 }
 
 // Rendering

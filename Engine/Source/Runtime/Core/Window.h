@@ -14,6 +14,7 @@ namespace Insight {
 
 	using EventCallbackFn = std::function<void(Event&)>;
 	using FullScreenEventCallbackFn = std::function<void(bool)>;
+	using WindowResizeCallbackFn = std::function<void(FVector2)>;
 
 	struct WindowDescription
 	{
@@ -75,9 +76,18 @@ namespace Insight {
 		inline void SetVSyncEnabled(bool Enabled)		{ m_VSyncEnabled = Enabled; }
 		inline void SetAspectRatio(float AspectRatio)	{ m_AspectRatio = AspectRatio; }
 		inline void SetDPI(float NewDPI)				{ m_DPI = NewDPI; Resize(m_LogicalWidth, m_LogicalHeight, !m_IsVisible); }
-		virtual void SetFullScreenEnabled(bool Enabled) { m_FullScreenEnabled = Enabled; }
+		virtual inline void SetFullScreenEnabled(bool Enabled) 
+		{ 
+			m_FullScreenEnabled = Enabled;
+			
+			// Invoke the Callbacks
+			//
+			for (auto& Callback : m_WindowFullScreenCallbacks)
+				Callback(m_FullScreenEnabled);
+		}
 
 		inline void AddFullScreenCallback(FullScreenEventCallbackFn Fn) { m_WindowFullScreenCallbacks.push_back(Fn); }
+		inline void AddWindowResizeCallback(WindowResizeCallbackFn Fn) { m_WindowResizeCallbacks.push_back(Fn); }
 
 		inline void SetEventCallback(const EventCallbackFn& callback) { m_EventCallbackFn = callback; }
 		EventCallbackFn& GetEventCallbackFn() { return m_EventCallbackFn; }
@@ -106,6 +116,7 @@ namespace Insight {
 		Int32 m_LogicalWidth = 0u;
 		Int32 m_LogicalHeight = 0u;
 		std::vector<FullScreenEventCallbackFn> m_WindowFullScreenCallbacks;
+		std::vector<WindowResizeCallbackFn> m_WindowResizeCallbacks;
 
 		EString m_WindowTitle;
 		EString m_WindowClassName;

@@ -14,6 +14,8 @@ namespace Insight
 
 		namespace DX12
 		{
+			using Super = IRenderContextFactory;
+
 			class INSIGHT_API D3D12RenderContextFactory final : public IRenderContextFactory
 			{
 			public:
@@ -24,14 +26,13 @@ namespace Insight
 
 			protected:
 				virtual void CreateDevice(IDevice** OutDevice) override;
-				virtual void CreateSwapChain(ISwapChain** OutSwapChain, ICommandManager* InCommandManager) override;
+				virtual void CreateSwapChain(ISwapChain** OutSwapChain, ICommandManager* InCommandManager, IDevice* InDevice) override;
 				virtual void CreateCommandManager(ICommandManager** OutCommandManager, IDevice* InDevice) override;
+				virtual void CreateContextManager(IContextManager** OutCommandContext) override;
 
 				void CreateDXGIFactory();
 
 				IDXGIFactory6* GetDXGIFactory() const { return m_pDXGIFactory; }
-
-				IRenderContext* m_pTarget;
 
 				// DirectX
 				//

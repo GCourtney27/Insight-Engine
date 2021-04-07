@@ -11,7 +11,7 @@ namespace Insight {
 	namespace GameFramework {
 
 
-		constexpr float DEFAULT_SENSITIVITY = 150.0f;
+		constexpr float DEFAULT_SENSITIVITY = 25.0f;
 		constexpr float DEFAULT_FOV			= 45.0f;
 		constexpr float DEFAULT_EXPOSURE	= 0.5f;
 		constexpr float DEFAULT_NEAR_Z		= 0.5f;

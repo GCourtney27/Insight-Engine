@@ -2,7 +2,7 @@
 
 #include "D3D11Shader.h"
 
-#include "Platform/Win32/Error/COMException.h"
+#include "Platform/Public/Utility/COMException.h"
 
 namespace Insight {
 

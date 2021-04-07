@@ -3,7 +3,7 @@
 #include "D3D11DeferredTech.h"
 
 #include "Platform/Win32/Win32Window.h"
-#include "Platform/Win32/Error/COMException.h"
+#include "Platform/Public/Utility/COMException.h"
 #include "Runtime/Graphics/Geometry/Vertex.h"
 
 namespace Insight {

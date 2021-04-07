@@ -8,6 +8,7 @@
 
 #include "Runtime/Graphics/Geometry/VertexBuffer.h"
 #include "Runtime/Graphics/Geometry/IndexBuffer.h"
+#include "Runtime/Graphics/Geometry/IConstantBuffer.h"
 
 namespace Insight {
 
@@ -44,6 +45,7 @@ namespace Insight {
 
 		ieTransform		m_Transform;
 		CB_VS_PerObject	m_ConstantBufferPerObject = {};
+		IConstantBuffer* m_pConstantBuffer;
 
 		bool			m_CastsShadows = true;
 		Int32			m_RTInstanceIndex = 0U;

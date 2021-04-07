@@ -2,6 +2,7 @@
 
 #include <Runtime/Core.h>
 
+
 namespace Insight
 {
 	namespace Graphics
@@ -9,18 +10,18 @@ namespace Insight
 		class IDevice;
 		class ISwapChain;
 		class ICommandManager;
+		class IContextManager;
 
 		enum class ERenderBackend
 		{
+			// TODO: Direct3D_11,
 			Direct3D_12,
 		};
 
 		class INSIGHT_API IRenderContext
 		{
-		public:
 			friend class IRenderContextFactory;
 			friend class D3D12RenderContextFactory;
-
 		public:
 			virtual ~IRenderContext()
 			{
@@ -29,37 +30,30 @@ namespace Insight
 
 			virtual void PreFrame() = 0;
 			virtual void SubmitFrame() = 0;
-
-			virtual void CreateTexture() = 0;
-			virtual void CreateBuffer() = 0;
-			virtual ieVertexBuffer& CreateVertexBuffer() = 0;
-			virtual ieIndexBuffer& CreateIndexBuffer() = 0;
-
-			virtual void BindVertexBuffer(const ieVertexBuffer& Vertexbuffer) = 0;
-			virtual void BindIndexBuffer(const ieIndexBuffer& IndexBuffer) = 0;
-
-			virtual void DrawMesh() = 0;
+			void Present();
 
 			void OnFullScreenToggled(bool FullScreenEnabled);
+			void OnNativeResolutionChanged(const FVector2& NewResolution);
 			void EnableVSync(bool VsyncEnabled);
 
 			// Debug Utilites
-			//void DrawLine(FVector3 Start, FVector3 End, Color LineColor)
-			//void DrawOnScreenText(FVector2 Location, Color TextColor)
-			//void DrawRay(FVector3 Start, FVector3 Direction, Color LineColor, bool bIgnoreDepth)
+			// void DrawLine(FVector3 Start, FVector3 End, Color LineColor)
+			// void DrawOnScreenText(FVector2 Location, Color TextColor)
+			// void DrawRay(FVector3 Start, FVector3 Direction, Color LineColor, bool bIgnoreDepth)
 
-			inline IDevice** GetDevice()					{ return &m_pDevice; }
-			inline ISwapChain** GetSwapChain()				{ return &m_pSwapChain; }
-			inline ICommandManager** GetCommandManager()	{ return &m_pCommandManager; }
+			//
+			// Getters/Setters
+			//
+			FORCE_INLINE IDevice** GetDevice()						{ return &m_pDevice;	}
+			FORCE_INLINE ISwapChain** GetSwapChain()				{ return &m_pSwapChain; }
+			FORCE_INLINE std::shared_ptr<Window> GetWindow() const	{ return m_pWindow;		}
 			
 			void SetWindow(std::shared_ptr<Window> pWindow);
-			inline std::shared_ptr<Window> GetWindow() const { return m_pWindow; }
 
 		protected:
 			IRenderContext()
 				: m_pDevice(NULL)
 				, m_pSwapChain(NULL)
-				, m_pCommandManager(NULL)
 			{
 			}
 
@@ -67,12 +61,12 @@ namespace Insight
 			virtual void UnInitialize();
 
 		protected:
+
 			std::shared_ptr<Window> m_pWindow;
 
 			IDevice* m_pDevice;
 			ISwapChain* m_pSwapChain;
-			ICommandManager* m_pCommandManager;
-			
+
 			std::vector<ieVertexBuffer> m_VertexBuffers;
 			std::vector<ieIndexBuffer> m_IndexBuffers;
 

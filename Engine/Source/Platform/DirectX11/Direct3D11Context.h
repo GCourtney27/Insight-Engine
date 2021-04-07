@@ -3,7 +3,7 @@
 #include <Runtime/Core.h>
 
 #include "Runtime/Graphics/Renderer.h"
-#include "Platform/Win32/Error/COMException.h"
+#include "Platform/Public/Utility/COMException.h"
 
 #include "Platform/DirectX11/D3D11Helper.h"
 #include "Platform/DirectX11/Wrappers/ConstantBufferWrapper.h"

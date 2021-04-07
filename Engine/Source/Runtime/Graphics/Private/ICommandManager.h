@@ -2,33 +2,15 @@
 
 #include "Runtime/Core.h"
 
+#include "Runtime/Graphics/Public/CommonEnums.h"
+
 namespace Insight
 {
 	namespace Graphics
 	{
 		class IDevice;
-
-		enum ECommandQueueType
-		{
-			CQT_Direct,
-			CQT_Compute,
-			CQT_Copy,
-			CQT_Bundle,
-		};
-
-#if IE_PLATFORM_WINDOWS
-		FORCE_INLINE constexpr D3D12_COMMAND_LIST_TYPE IECommandQueueTypeToD3DCommandQueueType(const ECommandQueueType& Type)
-		{
-			switch (Type)
-			{
-			case ECommandQueueType::CQT_Direct: return D3D12_COMMAND_LIST_TYPE_DIRECT;
-			case ECommandQueueType::CQT_Compute: return D3D12_COMMAND_LIST_TYPE_COMPUTE;
-			default:
-				IE_LOG(Error, TEXT("Failed to convert command queue type with specified enum value to D3D12 command queue type!"));
-				return D3D12_COMMAND_LIST_TYPE_DIRECT;
-			}
-		}
-#endif
+		class ICommandContext;
+		class ICommandAllocator;
 
 		class INSIGHT_API ICommandQueue
 		{
@@ -36,29 +18,50 @@ namespace Insight
 		public:
 			virtual void* GetNativeQueue() = 0;
 
+			virtual void WaitforFence(UInt64 FenceValue) = 0;
+			virtual bool IsFenceCompleted(UInt64 FenceValue) = 0;
+
 		protected:
-			ICommandQueue(const ECommandQueueType& Type)
+			ICommandQueue(const ECommandListType& Type)
 				: m_Type(Type)
 			{
 			}
-			~ICommandQueue()
+			virtual ~ICommandQueue()
 			{
 			}
 			
-			ECommandQueueType m_Type;
+			ECommandListType m_Type;
 		};
 
 		class INSIGHT_API ICommandManager
 		{
-			friend class D3D12ContextFactory;
+			friend class D3D12RenderContextFactory;
+			friend class D3D12CommandManager;
 			friend class IRenderContext;
 		public:
 			virtual void Initialize(IDevice* pDevice) = 0;
 
+			virtual void CreateNewCommandContext(const ECommandListType& Type, ICommandContext** pContext, void** pData) = 0;
+
+			virtual void WaitForFence(UInt64 Value) = 0;
+
+			inline ICommandQueue* GetQueue(ECommandListType Type)
+			{
+				switch (Type)
+				{
+				case ECommandListType::CLT_Direct: return m_pGraphicsQueue;
+				case ECommandListType::CLT_Compute: return m_pComputeQueue;
+				default:
+					IE_LOG(Warning, TEXT("Unidentified enum value provided when getting command queue: %i"), Type);
+					return (ICommandQueue*)(NULL);
+				}
+			}
+			inline ICommandQueue* GetGraphicsQueue()	const { return m_pGraphicsQueue; }
+			inline ICommandQueue* GetComputeQueue()		const { return m_pComputeQueue; }
 
 		protected:
 			ICommandManager() 
-				: m_pDevice(NULL)
+				: m_pDeviceRef(NULL)
 				, m_pGraphicsQueue(NULL)
 				, m_pComputeQueue(NULL)
 			{
@@ -68,22 +71,20 @@ namespace Insight
 				UnInitialize();
 			}
 
-
 			virtual void UnInitialize()
 			{
-				m_pDevice = NULL;
+				m_pDeviceRef = NULL;
 
-				SAFE_DELETE_PTR(m_pGraphicsQueue);
-				SAFE_DELETE_PTR(m_pComputeQueue);
+				m_pGraphicsQueue = NULL;
+				m_pComputeQueue	= NULL;
 			}
-
-
-			inline ICommandQueue* GetGraphicsQueue() const { return m_pGraphicsQueue; }
-			inline ICommandQueue* GetComputeQueue() const { return m_pComputeQueue; }
 
 			inline void SetGraphicsQueue(ICommandQueue* pCommandQueue) { m_pGraphicsQueue = pCommandQueue; }
 
-			IDevice* m_pDevice;
+			IDevice* m_pDeviceRef;
+
+			// Implementations of this interface control the lifetime of these objects.
+			//
 			ICommandQueue* m_pGraphicsQueue;
 			ICommandQueue* m_pComputeQueue;
 		};

@@ -2,7 +2,7 @@
 
 #include "PassHelpers.h"
 
-#include "Platform/Win32/Error/COMException.h"
+#include "Platform/Public/Utility/COMException.h"
 #include "Platform/DirectX12/Direct3D12Context.h"
 #include "Platform/DirectX12/Wrappers/D3D12Shader.h"
 

@@ -19,7 +19,15 @@
 #define EDITOR_UI_ENABLED 0
 #endif
 
-#include "Platform/DirectX12/Public/D3D12RenderContextFactory.h"
+
+#define IE_RENDER_MULTI_PLATFORM 1
+
+#if IE_RENDER_MULTI_PLATFORM
+#include "Runtime/Graphics/Public/RenderCore.h"
+// TEMP
+#include "Runtime/Graphics/Private/ISwapChain.h"
+#endif // IE_RENDER_MULTI_PLATFORM
+
 
 static const char* TargetSceneName = "Debug.iescene";
 namespace Insight {
@@ -55,18 +63,20 @@ namespace Insight {
 	{
 		ScopedMilliSecondTimer(TEXT("Core app init"));
 
+#if IE_RENDER_MULTI_PLATFORM
 		// TEST
 		{
-			Graphics::IRenderContext* pRenderContext = NULL;
-			Graphics::ERenderBackend api = Graphics::ERenderBackend::Direct3D_12;
+			using namespace Graphics;
+			IRenderContext* pRenderContext = NULL;
+			ERenderBackend api = ERenderBackend::Direct3D_12;
 			// TEST Setup renderer
 			{
 				switch (api)
 				{
-				case Graphics::ERenderBackend::Direct3D_12:
+				case ERenderBackend::Direct3D_12:
 				{
 					IE_LOG(Log, TEXT("Initializing graphics context with D3D12 rendering backend."));
-					Graphics::DX12::D3D12RenderContextFactory Factory;
+					DX12::D3D12RenderContextFactory Factory;
 					Factory.CreateContext(&pRenderContext, m_pWindow);
 				}
 				break;
@@ -76,6 +86,25 @@ namespace Insight {
 			}
 			IE_LOG(Log, TEXT("Graphics context initialized."));
 
+			// TODO: View and Scissor rects should be controlled elsewhere
+			ViewPort ViewPort;
+			ViewPort.TopLeftX = 0.f;
+			ViewPort.TopLeftY = 0.f;
+			ViewPort.MinDepth = 0.f;
+			ViewPort.MaxDepth = 1.f;
+			ViewPort.Width = (float)m_pWindow->GetWidth();
+			ViewPort.Height = (float)m_pWindow->GetHeight();
+
+			Rect ScissorRect;
+			ScissorRect.Left = 0;
+			ScissorRect.Top = 0;
+			ScissorRect.Right = m_pWindow->GetWidth();
+			ScissorRect.Bottom = m_pWindow->GetHeight();
+
+			ISwapChain** pSwapChain = pRenderContext->GetSwapChain();
+			Color ClearColor(0.f, 1.f, 0.f);
+			(*pSwapChain)->SetClearColor(ClearColor);
+			
 			while (m_Running)
 			{
 				// Process the window's Messages 
@@ -84,20 +113,32 @@ namespace Insight {
 				pRenderContext->PreFrame();
 
 				// Render stuff
+				ICommandContext& Context = ICommandContext::Begin(L"Frame");
+				{
+					IColorBuffer* CurrentBackBuffer = (*pSwapChain)->GetColorBufferForCurrentFrame();
+					Context.TransitionResource(*DCast<IGPUResource*>(CurrentBackBuffer), RS_RenderTarget);
+
+					Context.ClearColorBuffer(*CurrentBackBuffer, ScissorRect);
+
+					Context.RSSetViewPorts(1, &ViewPort);
+					Context.RSSetScissorRects(1, &ScissorRect);
+					
+					Context.TransitionResource(*DCast<IGPUResource*>(CurrentBackBuffer), RS_Present);
+				}
+				Context.Finish();
 
 				pRenderContext->SubmitFrame();
+				pRenderContext->Present();
 			}
 			SAFE_DELETE_PTR(pRenderContext);
 		}
 		return;
-
+#endif
 		// Initize the main file system.
 		FileSystem::Init();
 
 		// Create and initialize the renderer.
 		Renderer::SetSettingsAndCreateContext(FileSystem::LoadGraphicsSettingsFromJson(), m_pWindow);
-
-		//m_pRenderContext
 
 		// Create the game layer that will host all game logic.
 		m_pGameLayer = new GameLayer();
@@ -165,9 +206,6 @@ namespace Insight {
 
 	Application::EErrorCode Application::Run()
 	{
-
-		return EErrorCode::EC_Success;
-
 		IE_ADD_FOR_GAME_DIST(
 			BeginPlay(AppBeginPlayEvent{})
 		);
@@ -352,7 +390,9 @@ namespace Insight {
 	bool Application::OnWindowResize(WindowResizeEvent& e)
 	{
 		m_pWindow->Resize(e.GetWidth(), e.GetHeight(), e.GetIsMinimized());
+#if !IE_RENDER_MULTI_PLATFORM
 		Renderer::PushEvent<WindowResizeEvent>(e);
+#endif
 
 		return true;
 	}
@@ -360,7 +400,9 @@ namespace Insight {
 	bool Application::OnWindowFullScreen(WindowToggleFullScreenEvent& e)
 	{
 		m_pWindow->SetFullScreenEnabled(e.GetFullScreenEnabled());
+#if !IE_RENDER_MULTI_PLATFORM
 		Renderer::PushEvent<WindowToggleFullScreenEvent>(e);
+#endif
 		return true;
 	}
 

@@ -2,13 +2,17 @@
 
 #include "Platform/DirectX12/Public/D3D12RenderContextFactory.h"
 #include "Platform/DirectX12/Public/D3D12RenderContext.h"
+#include "Platform/DirectX12/Public/D3D12CommandContext.h"
 #include "Platform/DirectX12/Public/D3D12Device.h"
-#include "Platform/DirectX12/Private/D3D12SwapChain.h"
 #include "Platform/DirectX12/Private/D3D12CommandManager.h"
-#include "Platform/Win32/Error/COMException.h"
+#include "Platform/DirectX12/Private/D3D12SwapChain.h"
+#include "Platform/DirectX12/Public/D3D12DescriptorAllocator.h"
+#include "Platform/Public/Utility/COMException.h"
 
 #include "Runtime/Graphics/Public/IRenderContext.h"
 #include "Runtime/Core/Window.h"
+
+#include "Runtime/Graphics/Public/GraphicsCore.h"
 
 namespace Insight
 {
@@ -18,8 +22,7 @@ namespace Insight
 		{
 
 			D3D12RenderContextFactory::D3D12RenderContextFactory()
-				: m_pTarget(NULL)
-				, m_pDXGIFactory(NULL)
+				: m_pDXGIFactory(NULL)
 			{
 				CreateDXGIFactory();
 			}
@@ -35,19 +38,15 @@ namespace Insight
 				IE_ASSERT(OutContext != NULL);
 
 				(*OutContext) = new D3D12RenderContext();
-				m_pTarget = (*OutContext);
-				m_pTarget->SetWindow(pWindow);
-				
-				CreateDevice(m_pTarget->GetDevice());
-				CreateCommandManager(m_pTarget->GetCommandManager(), *m_pTarget->GetDevice());
-				CreateSwapChain(m_pTarget->GetSwapChain(), *m_pTarget->GetCommandManager());
+				Super::m_pTarget = (*OutContext);
+				Super::m_pTarget->SetWindow(pWindow);
+
+				Super::InitializeMainComponents();
 			}
 
 			void D3D12RenderContextFactory::CreateDevice(IDevice** OutDevice)
 			{
-				(*OutDevice) = new D3D12Device();
-				D3D12Device* pD3D12Device = DCast<D3D12Device*>((*OutDevice));
-				IE_ASSERT(pD3D12Device != NULL);
+				D3D12Device* pD3D12Device = CreateRenderComponentObject<D3D12Device>(OutDevice);
 
 				IED3D12DeviceInitParams DeviceInitParams;
 				ZeroMem(&DeviceInitParams);
@@ -99,37 +98,44 @@ namespace Insight
 				ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&m_pDXGIFactory)), TEXT("Failed to create DXGI factory!"));
 			}
 
-			void D3D12RenderContextFactory::CreateSwapChain(ISwapChain** OutSwapChain, ICommandManager* InCommandManager)
+			void D3D12RenderContextFactory::CreateSwapChain(ISwapChain** OutSwapChain, ICommandManager* InCommandManager, IDevice* InDevice)
 			{
-				(*OutSwapChain) = new D3D12SwapChain();
-				D3D12SwapChain* pD3D12SwapChain = DCast<D3D12SwapChain*>((*OutSwapChain));
-				IE_ASSERT(pD3D12SwapChain != NULL); // Trying to create a swap chain with an invalid device.
+				D3D12SwapChain* pD3D12SwapChain = CreateRenderComponentObject<D3D12SwapChain>(OutSwapChain);
 
 				D3D12CommandManager* pCommandManager = DCast<D3D12CommandManager*>(InCommandManager);
 				IE_ASSERT(pCommandManager != NULL); // Trying to create swap chain with invalid command manager.
 
+				IE_ASSERT(InDevice != NULL);
+				ID3D12Device* pID3D12Device = RCast<ID3D12Device*>(InDevice->GetNativeDevice());
+
 				D3D12CommandQueue* pD3D12CommandQueue = RCast<D3D12CommandQueue*>(pCommandManager->GetGraphicsQueue());
-				IESwapChainCreateDesc SwapChainInitParams;
+				IESwapChainDesc SwapChainInitParams;
 				ZeroMem(&SwapChainInitParams);
-				SwapChainInitParams.Width = m_pTarget->GetWindow()->GetWidth();
-				SwapChainInitParams.Height = m_pTarget->GetWindow()->GetHeight();
+				SwapChainInitParams.Width = Super::m_pTarget->GetWindow()->GetWidth();
+				SwapChainInitParams.Height = Super::m_pTarget->GetWindow()->GetHeight();
 				SwapChainInitParams.BufferCount = 3;
-				SwapChainInitParams.Format = TF_RGB8_UNORM;
+				SwapChainInitParams.Format = TF_R8G8B8A8_UNORM;
 				SwapChainInitParams.SampleDesc.Count = 1;
 				SwapChainInitParams.SampleDesc.Quality = 0;
-				SwapChainInitParams.NativeWindow = m_pTarget->GetWindow()->GetNativeWindow();
+				SwapChainInitParams.NativeWindow = Super::m_pTarget->GetWindow()->GetNativeWindow();
 				SwapChainInitParams.AllowTearing = true;
-				pD3D12SwapChain->Initialize(SwapChainInitParams, &m_pDXGIFactory, pD3D12CommandQueue);
+				pD3D12SwapChain->Initialize(InDevice);
+				pD3D12SwapChain->Create(SwapChainInitParams, &m_pDXGIFactory, pD3D12CommandQueue, pID3D12Device);
 			}
 
 			void D3D12RenderContextFactory::CreateCommandManager(ICommandManager** OutCommandManager, IDevice* InDevice)
 			{
 				IE_ASSERT(InDevice != NULL); // Trying to create command manager with null device.
-				(*OutCommandManager) = new D3D12CommandManager();
-				D3D12CommandManager* pD3D12CommandManager = DCast<D3D12CommandManager*>((*OutCommandManager));
-				IE_ASSERT(pD3D12CommandManager);
+
+				D3D12CommandManager* pD3D12CommandManager = CreateRenderComponentObject<D3D12CommandManager>(OutCommandManager);
 
 				pD3D12CommandManager->Initialize(InDevice);
+			}
+			
+			void D3D12RenderContextFactory::CreateContextManager(IContextManager** OutCommandContext)
+			{
+				D3D12ContextManager* pD3D12ContextManager = CreateRenderComponentObject<D3D12ContextManager>(OutCommandContext);
+
 			}
 		}
 	}

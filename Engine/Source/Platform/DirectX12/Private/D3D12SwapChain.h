@@ -17,22 +17,41 @@ namespace Insight
 			public:
 				D3D12SwapChain();
 				~D3D12SwapChain();
-				
+
+				virtual void Initialize(IDevice* pDevice) override;
+
 				virtual void SwapBuffers() override;
-				virtual void Resize() override;
+				virtual void Resize(const FVector2& NewResolution) override;
+				virtual void SetNumBackBuffes(UInt32 NumBuffers) override;
+				virtual void SetBackBufferFormat(ETextureFormat& Format) override;
 
 				virtual void* GetNativeSwapChain() const { return SCast<void*>(m_pDXGISwapChain); }
 
 				virtual void ToggleFullScreen(bool IsEnabled) override;
 
-				void Initialize(const IESwapChainCreateDesc& InitParams, IDXGIFactory6** ppDXGIFactory, D3D12CommandQueue* ppCommandQueue);
+				void Create(const IESwapChainDesc& InitParams, IDXGIFactory6** ppDXGIFactory, D3D12CommandQueue* ppCommandQueue, ID3D12Device* pDevice);
+
 
 			protected:
 				virtual void UnInitialize() override;
 
+				//
+				// Utility
+				//
+				void ResizeDXGIBuffers();
+
+
+				//
+				// D3D Initialize
+				//
+				void BindSwapChainBackBuffers();
+
 			protected:
+
+				ID3D12Device* m_pID3D12DeviceRef;
+
 				IDXGISwapChain3* m_pDXGISwapChain;
-				DXGI_SWAP_CHAIN_DESC1 m_Desc;
+
 			};
 		}
 	}

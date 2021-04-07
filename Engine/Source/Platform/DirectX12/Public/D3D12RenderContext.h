@@ -4,8 +4,6 @@
 
 // Insight
 #include "Runtime/Graphics/Public/IRenderContext.h"
-// Platform
-#include "Platform/DirectX12/Public/DeviceResources.h"
 
 
 namespace Insight
@@ -26,16 +24,6 @@ namespace Insight
 
 				virtual void PreFrame() override;
 				virtual void SubmitFrame() override;
-
-				virtual void CreateTexture() override;
-				virtual void CreateBuffer() override;
-				virtual ieVertexBuffer& CreateVertexBuffer() override { return m_VertexBuffers[0]; }
-				virtual ieIndexBuffer& CreateIndexBuffer() override { return m_IndexBuffers[0]; }
-
-				virtual void BindVertexBuffer(ieVertexBuffer const& Vertexbuffer) override {}
-				virtual void BindIndexBuffer(ieIndexBuffer const& IndexBuffer) override {}
-
-				virtual void DrawMesh() override {}
 
 			protected:
 

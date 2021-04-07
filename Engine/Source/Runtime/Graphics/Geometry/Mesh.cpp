@@ -17,6 +17,7 @@ namespace Insight {
 
 
 	Mesh::Mesh(const Verticies& Verticies, const Indices& Indices)
+		: m_pConstantBuffer(NULL)
 	{
 		Init(Verticies, Indices);
 	}
@@ -78,6 +79,8 @@ namespace Insight {
 
 	void Mesh::Render()
 	{
+		//TODO: pContantBuffer->Bind()
+		//m_pConstantBuffer->Bind();
 		Renderer::SetVertexBuffers(0, 1, m_pVertexBuffer);
 		Renderer::SetIndexBuffer(m_pIndexBuffer);
 		Renderer::DrawIndexedInstanced(m_pIndexBuffer->GetNumIndices(), 1, 0, 0, 0);
@@ -114,7 +117,7 @@ namespace Insight {
 						m_Transform.GetWorldMatrix()
 					);
 			}
-
+			m_pConstantBuffer = new D3D12ConstantBuffer< CB_VS_PerObject>();
 			break;
 		}
 		case Renderer::ETargetRenderAPI::Invalid:
