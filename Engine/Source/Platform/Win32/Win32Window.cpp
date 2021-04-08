@@ -159,7 +159,7 @@ namespace Insight {
 				return 0;
 			}
 
-			if (wParam == VK_F11)
+			/*if (wParam == VK_F11)
 			{
 				if (pWindow.GetIsFullScreenEnabled())
 				{
@@ -173,7 +173,7 @@ namespace Insight {
 					WindowToggleFullScreenEvent event(true);
 					pWindow.GetEventCallbackFn()(event);
 				}
-			}
+			}*/
 			KeyPressedEvent event((KeyMapCode)((char)wParam), 0);
 			pWindow.GetEventCallbackFn()(event);
 			return 0;
@@ -459,6 +459,74 @@ namespace Insight {
 		{
 			//::AppendMenuW(m_hContextMenu, MF_STRING, IDM_VISUALIZE_AO_BUFFER, L"&Hello");
 			//::AppendMenuW(m_hContextMenu, MF_STRING, IDM_VISUALIZE_AO_BUFFER, L"&World");
+		}
+	}
+
+	void Win32Window::OnWindowModeChanged()
+	{
+		switch (GetWindowMode())
+		{
+		case EWindowMode::WM_Borderless:
+			if (!GetIsFullScreenActive())
+			{
+				//
+				// Bring us out of full screen mode.
+				//
+				::SetWindowLong(m_hWindow, GWL_STYLE, m_WindowStyle);
+
+				::SetWindowPos(
+					m_hWindow,
+					HWND_NOTOPMOST,
+					m_WindowRect.left,
+					m_WindowRect.top,
+					m_WindowRect.right - m_WindowRect.left,
+					m_WindowRect.bottom - m_WindowRect.top,
+					SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+				::ShowWindow(m_hWindow, SW_NORMAL);
+
+				IE_LOG(Log, TEXT("Exiting fullscreen mode."));
+			}
+			else
+			{
+				//
+				// Bring us into fullscreen mode.
+				//
+				
+				// Save the old window rect so we can restore it when exiting fullscreen mode.
+				::GetWindowRect(m_hWindow, &m_WindowRect);
+
+				// Make the window borderless so that the client area can fill the screen.
+				SetWindowLong(m_hWindow, GWL_STYLE, m_WindowStyle & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
+
+				// Get the settings of the primary display
+				DEVMODE DevMode = {};
+				DevMode.dmSize = sizeof(DEVMODE);
+				EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &DevMode);
+
+				RECT FullscreenWindowRect= {
+					DevMode.dmPosition.x,
+					DevMode.dmPosition.y,
+					DevMode.dmPosition.x + static_cast<LONG>(DevMode.dmPelsWidth),
+					DevMode.dmPosition.y + static_cast<LONG>(DevMode.dmPelsHeight)
+				};
+
+				SetWindowPos(
+					m_hWindow,
+					HWND_TOPMOST,
+					FullscreenWindowRect.left,
+					FullscreenWindowRect.top,
+					FullscreenWindowRect.right,
+					FullscreenWindowRect.bottom,
+					SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+				ShowWindow(m_hWindow, SW_MAXIMIZE);
+
+				IE_LOG(Log, TEXT("Entering fullscreen mode."));
+			}
+			break;
+		case EWindowMode::WM_Windowed:
+			break;
 		}
 	}
 

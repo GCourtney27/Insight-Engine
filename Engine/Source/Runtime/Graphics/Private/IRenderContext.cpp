@@ -23,8 +23,8 @@ namespace Insight
 
 			// Setup event callbacks
 			//
-			m_pWindow->AddFullScreenCallback(IE_BIND_LOCAL_EVENT_FN(IRenderContext::OnFullScreenToggled));
-			m_pWindow->AddWindowResizeCallback(IE_BIND_LOCAL_EVENT_FN(IRenderContext::OnNativeResolutionChanged));
+			m_pWindow->AttachWindowModeChangedCallback(IE_BIND_LOCAL_EVENT_FN(IRenderContext::OnWindowModeChanged));
+			m_pWindow->AttachWindowResizeCallback(IE_BIND_LOCAL_EVENT_FN(IRenderContext::OnNativeResolutionChanged));
 		}
 
 		void IRenderContext::UnInitialize()
@@ -35,15 +35,15 @@ namespace Insight
 			SAFE_DELETE_PTR(m_pSwapChain);
 		}
 
-		void IRenderContext::OnFullScreenToggled(bool FullScreenEnabled)
+		void IRenderContext::OnWindowModeChanged(EWindowMode Mode)
 		{
-			m_pSwapChain->ToggleFullScreen(FullScreenEnabled);
+			m_pSwapChain->ToggleFullScreen(Mode == EWindowMode::WM_FullScreen);
 		}
 
 		void IRenderContext::OnNativeResolutionChanged(const FVector2& NewResolution)
 		{
-			// TODO: Resize an UI contexts not necessarily the scene context.
-			//		because th user can decide the scene render resolution to 
+			// TODO: Resize UI contexts not necessarily the scene context.
+			//		because the user can decide the scene render resolution to 
 			//		save performance.
 			//m_pSwapChain->Resize(NewResolution);
 		}

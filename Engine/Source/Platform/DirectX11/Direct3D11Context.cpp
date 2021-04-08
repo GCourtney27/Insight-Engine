@@ -239,7 +239,7 @@ namespace Insight {
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
 		UINT PresentFlags = (m_AllowTearing && m_WindowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
-		HRESULT hr = m_pSwapChain->Present(m_pWindowRef->GetIsVsyncEnabled(), PresentFlags);
+		//HRESULT hr = m_pSwapChain->Present(m_pWindowRef->GetIsVsyncEnabled(), PresentFlags);
 		//ThrowIfFailed(hr, "Failed to present frame for D3D 11 context.");
 	}
 

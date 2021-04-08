@@ -61,11 +61,11 @@ namespace Insight
 
 		void IRenderContextFactory::InitializeMainComponents()
 		{
-			CreateDevice(m_pTarget->GetDevice());
+			CreateDevice(m_pTarget->GetDeviceAddress());
 
-			CreateCommandManager(&g_pCommandManager, *m_pTarget->GetDevice());
+			CreateCommandManager(&g_pCommandManager, *m_pTarget->GetDeviceAddress());
 			CreateContextManager(&g_pContextManager);
-			CreateSwapChain(m_pTarget->GetSwapChain(), g_pCommandManager, *(m_pTarget->GetDevice()));
+			CreateSwapChain(m_pTarget->GetSwapChainAddress(), g_pCommandManager, *(m_pTarget->GetDeviceAddress()));
 		}
 	}
 }

@@ -63,5 +63,29 @@ namespace Insight
 				return Graphics::ECommandListType::CLT_Direct;
 			}
 		}
+
+		HRESULT CreateSwapChain(void* NativeWindow, const DXGI_SWAP_CHAIN_DESC1* Desc, BOOL AllowTearing, IDXGIFactory6** ppInFactory, IUnknown* pDevice, IDXGISwapChain3** ppOutSwapChain)
+		{
+			HRESULT hr = S_OK;
+			IDXGISwapChain1* pTempSwapChain = NULL;
+#if IE_PLATFORM_BUILD_WIN32
+			hr = (*ppInFactory)->CreateSwapChainForHwnd(pDevice, SCast<HWND>(NativeWindow), Desc, NULL, NULL, &pTempSwapChain);
+			ThrowIfFailed(hr, TEXT("Failed to create swap chain for HWND!"));
+			if (AllowTearing)
+			{
+				ThrowIfFailed((*ppInFactory)->MakeWindowAssociation(SCast<HWND>(NativeWindow), DXGI_MWA_NO_ALT_ENTER)
+					, TEXT("Failed to Make Window Association"));
+			}
+#elif IE_PLATFORM_BUILD_UWP
+			hr = (*ppInFactory)->CreateSwapChainForCoreWindow(pDevice, RCast<::IUnknown*>(NativeWindow), Desc, NULL, &pTempSwapChain);
+			ThrowIfFailed(hr, TEXT("Failed to Create swap chain for CoreWindow!"));
+#endif
+
+			ThrowIfFailed(pTempSwapChain->QueryInterface(IID_PPV_ARGS(ppOutSwapChain))
+				, TEXT("Failed to query interface for temporary DXGI swapchain!"));
+
+			return hr;
+		}
+
 	}
 }

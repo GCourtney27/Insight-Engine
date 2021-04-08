@@ -118,7 +118,6 @@ namespace Insight
 				SwapChainInitParams.SampleDesc.Count = 1;
 				SwapChainInitParams.SampleDesc.Quality = 0;
 				SwapChainInitParams.NativeWindow = Super::m_pTarget->GetWindow()->GetNativeWindow();
-				SwapChainInitParams.AllowTearing = true;
 				pD3D12SwapChain->Initialize(InDevice);
 				pD3D12SwapChain->Create(SwapChainInitParams, &m_pDXGIFactory, pD3D12CommandQueue, pID3D12Device);
 			}

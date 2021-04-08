@@ -12,8 +12,18 @@ constexpr int cx_MaxLoadString = 100;
 namespace Insight {
 
 
+	enum EWindowMode
+	{
+		WM_Borderless = 1,
+		WM_Windowed = 2,
+		WM_FullScreen = WM_Borderless,
+	};
+
+	//
+	//  Callback types
+	//
 	using EventCallbackFn = std::function<void(Event&)>;
-	using FullScreenEventCallbackFn = std::function<void(bool)>;
+	using WindowModeCallbackFn = std::function<void(EWindowMode)>;
 	using WindowResizeCallbackFn = std::function<void(FVector2)>;
 
 	struct WindowDescription
@@ -68,26 +78,17 @@ namespace Insight {
 		Int32 GetWidth()								const { return m_LogicalWidth; }
 		Int32 GetHeight()								const { return m_LogicalHeight; }
 		FVector2 GetDimensions()						const { return FVector2((float)m_LogicalWidth, (float)m_LogicalHeight); }
-		inline float GetAspectRatio()					const { return m_AspectRatio; }
-		inline bool GetIsVisible()						const { return m_IsVisible; }
-		inline bool GetIsVsyncEnabled()					const { return m_VSyncEnabled; }
-		inline bool GetIsFullScreenEnabled()			const { return m_FullScreenEnabled; }
-		inline void SetIsVisible(bool Visible)			{ m_IsVisible = Visible; }
-		inline void SetVSyncEnabled(bool Enabled)		{ m_VSyncEnabled = Enabled; }
-		inline void SetAspectRatio(float AspectRatio)	{ m_AspectRatio = AspectRatio; }
-		inline void SetDPI(float NewDPI)				{ m_DPI = NewDPI; Resize(m_LogicalWidth, m_LogicalHeight, !m_IsVisible); }
-		virtual inline void SetFullScreenEnabled(bool Enabled) 
-		{ 
-			m_FullScreenEnabled = Enabled;
-			
-			// Invoke the Callbacks
-			//
-			for (auto& Callback : m_WindowFullScreenCallbacks)
-				Callback(m_FullScreenEnabled);
-		}
+		FORCE_INLINE float GetAspectRatio()				const { return m_AspectRatio; }
+		FORCE_INLINE bool GetIsVisible()				const { return m_IsVisible; }
+		FORCE_INLINE bool GetIsFullScreenActive()		const { return m_WindowMode == EWindowMode::WM_Borderless; }
+		FORCE_INLINE EWindowMode GetWindowMode()			{ return m_WindowMode;}
+		FORCE_INLINE void SetIsVisible(bool Visible)		{ m_IsVisible = Visible; }
+		FORCE_INLINE void SetAspectRatio(float AspectRatio)	{ m_AspectRatio = AspectRatio; }
+		FORCE_INLINE void SetWindowMode(EWindowMode Mode);
+		FORCE_INLINE void SetDPI(float NewDPI)				{ m_DPI = NewDPI; Resize(m_LogicalWidth, m_LogicalHeight, !m_IsVisible); }
 
-		inline void AddFullScreenCallback(FullScreenEventCallbackFn Fn) { m_WindowFullScreenCallbacks.push_back(Fn); }
-		inline void AddWindowResizeCallback(WindowResizeCallbackFn Fn) { m_WindowResizeCallbacks.push_back(Fn); }
+		FORCE_INLINE void AttachWindowModeChangedCallback(WindowModeCallbackFn Fn) { m_WindowModeChangedCallbacks.push_back(Fn); }
+		FORCE_INLINE void AttachWindowResizeCallback(WindowResizeCallbackFn Fn) { m_WindowResizeCallbacks.push_back(Fn); }
 
 		inline void SetEventCallback(const EventCallbackFn& callback) { m_EventCallbackFn = callback; }
 		EventCallbackFn& GetEventCallbackFn() { return m_EventCallbackFn; }
@@ -104,22 +105,41 @@ namespace Insight {
 
 	protected:
 		virtual void SetNativeWindowDPI() = 0;
+		virtual void OnWindowModeChanged() = 0;
 
 	protected:
 		EventCallbackFn m_EventCallbackFn;
 		
 		float m_DPI = 96.0f;
 		float m_AspectRatio = -1.0f;
-		bool m_VSyncEnabled = false;
-		bool m_FullScreenEnabled = false;
 		bool m_IsVisible = true;
+		EWindowMode m_WindowMode = EWindowMode::WM_Windowed;
 		Int32 m_LogicalWidth = 0u;
 		Int32 m_LogicalHeight = 0u;
-		std::vector<FullScreenEventCallbackFn> m_WindowFullScreenCallbacks;
+		
+		std::vector<WindowModeCallbackFn> m_WindowModeChangedCallbacks;
 		std::vector<WindowResizeCallbackFn> m_WindowResizeCallbacks;
 
 		EString m_WindowTitle;
 		EString m_WindowClassName;
 	};
+
+
+	//
+	// Inline function implementations
+	//
+	void Window::SetWindowMode(EWindowMode Mode)
+	{
+		m_WindowMode = Mode; 
+
+		// Let the platform window account for changes.
+		//
+		OnWindowModeChanged();
+
+		// Invoke the callbacks.
+		//
+		for (auto& Callback : m_WindowModeChangedCallbacks)
+			Callback(m_WindowMode);
+	}
 
 }

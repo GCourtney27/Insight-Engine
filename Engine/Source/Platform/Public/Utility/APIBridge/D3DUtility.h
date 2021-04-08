@@ -16,6 +16,7 @@ namespace Insight
 		D3D12_COMMAND_LIST_TYPE IECommandListTypeToD3DCommandListType(const Graphics::ECommandListType& Type);
 		Graphics::ECommandListType D3DCommandListTypeToIECommandListType(D3D12_COMMAND_LIST_TYPE Type);
 
+		HRESULT CreateSwapChain(void* NativeWindow, const DXGI_SWAP_CHAIN_DESC1* Desc, BOOL AllowTearing, IDXGIFactory6** ppInFactory, IUnknown* pDevice, IDXGISwapChain3** ppOutSwapChain);
 
 #endif
 	}

@@ -7,19 +7,20 @@
 #include "Platform/DirectX12/Private/D3D12CommandManager.h"
 #include "Platform/DirectX12/Private/D3D12CommonGlobals.h"
 
+
 namespace Insight
 {
 	namespace Graphics
 	{
 		namespace DX12
 		{
-			
+
 			D3D12SwapChain::D3D12SwapChain()
 				: m_pID3D12DeviceRef(NULL)
 				, m_pDXGISwapChain(NULL)
 			{
 			}
-			
+
 			D3D12SwapChain::~D3D12SwapChain()
 			{
 				UnInitialize();
@@ -42,9 +43,11 @@ namespace Insight
 
 				m_pID3D12DeviceRef = pDevice;
 				m_Desc = InitParams;
-				//m_DisplayPlanes.reserve(InitParams.BufferCount);
-				for (UInt64 i = 0; i < InitParams.BufferCount; ++i)
+				for (UInt32 i = 0; i < InitParams.BufferCount; ++i)
 					m_DisplayPlanes.push_back(new D3D12ColorBuffer());
+				
+
+				CheckTearingSupport((*ppDXGIFactory));
 
 				DXGI_SAMPLE_DESC SampleDesc;
 				ZeroMem(&SampleDesc);
@@ -60,38 +63,9 @@ namespace Insight
 				Desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 				Desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 				Desc.Format = PlatformUtils::IETextureFormatToDXGIFormat(InitParams.Format);
-				Desc.Flags = InitParams.AllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
+				Desc.Flags = GetIsTearingSupported() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 
-				HRESULT hr = S_OK;
-				IDXGISwapChain1* pTempSwapChain = NULL;
-#if IE_PLATFORM_BUILD_WIN32
-				hr = (*ppDXGIFactory)->CreateSwapChainForHwnd(
-					pCommandQueue,
-					SCast<HWND>(InitParams.NativeWindow),
-					&Desc,
-					nullptr,
-					nullptr,
-					&pTempSwapChain
-				);
-				ThrowIfFailed(hr, TEXT("Failed to create swap chain for HWND!"));
-				if (InitParams.AllowTearing)
-				{
-					ThrowIfFailed((*ppDXGIFactory)->MakeWindowAssociation(SCast<HWND>(InitParams.NativeWindow), DXGI_MWA_NO_ALT_ENTER)
-						, TEXT("Failed to Make Window Association"));
-				}
-#elif IE_PLATFORM_BUILD_UWP
-				hr = (*ppDXGIFactory)->CreateSwapChainForCoreWindow(
-					pCommandQueue,
-					RCast<::IUnknown*>(InitParams.NativeWindow),
-					&Desc,
-					nullptr,
-					&pTempSwapChain
-				);
-				ThrowIfFailed(hr, TEXT("Failed to Create swap chain for CoreWindow!"));
-#endif
-
-				ThrowIfFailed(pTempSwapChain->QueryInterface(IID_PPV_ARGS(&m_pDXGISwapChain))
-					, TEXT("Failed to query interface for temporary DXGI swapchain!"));
+				PlatformUtils::CreateSwapChain(InitParams.NativeWindow, &Desc, GetIsTearingSupported(), ppDXGIFactory, pCommandQueue, &m_pDXGISwapChain);
 
 				SetCurrentFrameIndex(m_pDXGISwapChain->GetCurrentBackBufferIndex());
 
@@ -100,14 +74,25 @@ namespace Insight
 
 			void D3D12SwapChain::UnInitialize()
 			{
+				ThrowIfFailed(m_pDXGISwapChain->SetFullscreenState(FALSE, NULL), TEXT("Failed to bring the swapchain out of fullscreen mode!"));
+
 				COM_SAFE_RELEASE(m_pDXGISwapChain);
 			}
-			
+
+			void D3D12SwapChain::CheckTearingSupport(IDXGIFactory6* pFactory)
+			{
+				IE_ASSERT(pFactory != NULL);
+
+				BOOL AllowTearing = 0;
+				HRESULT hr = pFactory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &AllowTearing, sizeof(AllowTearing));
+				SetIsTearingSupported(SUCCEEDED(hr) && AllowTearing);
+			}
+
 			void D3D12SwapChain::SwapBuffers()
 			{
-				UInt32 PresetFlags = ( m_Desc.AllowTearing && m_bFullScreenEnabled )
+				UInt32 PresetFlags = (GetIsTearingSupported() && m_bFullScreenEnabled)
 					? DXGI_PRESENT_ALLOW_TEARING : 0;
-				m_pDXGISwapChain->Present( SCast<UInt32>(m_bVSyncEnabled), PresetFlags );
+				m_pDXGISwapChain->Present(SCast<UInt32>(m_bVSyncEnabled), PresetFlags);
 
 				MoveToNextFrame();
 			}
@@ -137,19 +122,22 @@ namespace Insight
 			{
 				ISwapChain::ToggleFullScreen(IsEnabled);
 
-				HRESULT hr = S_OK;
-				BOOL FullScreenState;
-				hr = m_pDXGISwapChain->GetFullscreenState(&FullScreenState, NULL);
-				ThrowIfFailed(hr, TEXT("Failed to get full screen state for swap chain!"))
-
-				if (IsEnabled && FullScreenState)
+				if (!GetIsTearingSupported())
 				{
-					IE_LOG(Warning, TEXT("Full screen state is already active."));
-					return;
+					HRESULT hr = S_OK;
+					BOOL FullScreenState;
+					hr = m_pDXGISwapChain->GetFullscreenState(&FullScreenState, NULL);
+					ThrowIfFailed(hr, TEXT("Failed to get full screen state for swap chain!"))
+
+					if (IsEnabled && FullScreenState)
+					{
+						IE_LOG(Warning, TEXT("Full screen state is already active."));
+						return;
+					}
+
+					hr = m_pDXGISwapChain->SetFullscreenState(!FullScreenState, NULL);
+					ThrowIfFailed(hr, TEXT("Failed to set fullscreen state for swap chain!"));
 				}
-				
-				hr = m_pDXGISwapChain->SetFullscreenState(!FullScreenState, NULL);
-				ThrowIfFailed(hr, TEXT("Failed to set fullscreen state for swap chain!"));
 			}
 
 			void D3D12SwapChain::ResizeDXGIBuffers()
@@ -162,7 +150,7 @@ namespace Insight
 				ThrowIfFailed(hr, TEXT("Failed to resize DXGI swap chain."));
 
 				m_pDXGISwapChain->GetDesc1(&DXGIDesc);
-				m_Desc.AllowTearing = DXGIDesc.Flags & DXGI_PRESENT_ALLOW_TEARING;
+				SetIsTearingSupported(DXGIDesc.Flags & DXGI_PRESENT_ALLOW_TEARING);
 			}
 
 			void D3D12SwapChain::BindSwapChainBackBuffers()
@@ -175,7 +163,7 @@ namespace Insight
 					Microsoft::WRL::ComPtr<ID3D12Resource> DisplayPlane;
 					ThrowIfFailed(m_pDXGISwapChain->GetBuffer(i, IID_PPV_ARGS(&DisplayPlane))
 						, TEXT("Failed to bind buffer with DXGI swapchain back buffer!"));
-					
+
 					IE_ASSERT(m_DisplayPlanes[i] != NULL);
 					m_DisplayPlanes[i]->CreateFromSwapChain(m_pDeviceRef, TEXT("SwapChain display plane"), DisplayPlane.Detach());
 				}

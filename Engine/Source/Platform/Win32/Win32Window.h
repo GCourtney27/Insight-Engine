@@ -90,6 +90,7 @@ namespace Insight {
 		{
 			m_DPI = static_cast<float>(::GetDpiForWindow(m_hWindow));
 		}
+		virtual void OnWindowModeChanged() override;
 
 	private:
 		void RegisterWindowClass();
@@ -121,6 +122,9 @@ namespace Insight {
 		int m_NumCmdLineArgs;
 		std::wstring m_CmdLineArgs;
 		RECT m_WindowRect;
+
+		static const UInt32 m_WindowStyle = WS_OVERLAPPEDWINDOW;
+
 
 	};
 

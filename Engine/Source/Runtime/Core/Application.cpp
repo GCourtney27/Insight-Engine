@@ -101,10 +101,12 @@ namespace Insight {
 			ScissorRect.Right = m_pWindow->GetWidth();
 			ScissorRect.Bottom = m_pWindow->GetHeight();
 
-			ISwapChain** pSwapChain = pRenderContext->GetSwapChain();
-			Color ClearColor(0.f, 1.f, 0.f);
-			(*pSwapChain)->SetClearColor(ClearColor);
+			ISwapChain* pSwapChain = pRenderContext->GetSwapChain();
+			Color ClearColor(0.f, .0f, 1.f);
+			pSwapChain->SetClearColor(ClearColor);
 			
+			m_pWindow->SetWindowMode(EWindowMode::WM_Windowed);
+
 			while (m_Running)
 			{
 				// Process the window's Messages 
@@ -115,15 +117,15 @@ namespace Insight {
 				// Render stuff
 				ICommandContext& Context = ICommandContext::Begin(L"Frame");
 				{
-					IColorBuffer* CurrentBackBuffer = (*pSwapChain)->GetColorBufferForCurrentFrame();
-					Context.TransitionResource(*DCast<IGPUResource*>(CurrentBackBuffer), RS_RenderTarget);
+					IColorBuffer* CurrentBackBuffer = pSwapChain->GetColorBufferForCurrentFrame();
+					IGPUResource& BackSwapChainBuffer = *DCast<IGPUResource*>(CurrentBackBuffer);
+					Context.TransitionResource(BackSwapChainBuffer, RS_RenderTarget);
 
 					Context.ClearColorBuffer(*CurrentBackBuffer, ScissorRect);
-
 					Context.RSSetViewPorts(1, &ViewPort);
 					Context.RSSetScissorRects(1, &ScissorRect);
 					
-					Context.TransitionResource(*DCast<IGPUResource*>(CurrentBackBuffer), RS_Present);
+					Context.TransitionResource(BackSwapChainBuffer, RS_Present);
 				}
 				Context.Finish();
 
@@ -399,7 +401,6 @@ namespace Insight {
 
 	bool Application::OnWindowFullScreen(WindowToggleFullScreenEvent& e)
 	{
-		m_pWindow->SetFullScreenEnabled(e.GetFullScreenEnabled());
 #if !IE_RENDER_MULTI_PLATFORM
 		Renderer::PushEvent<WindowToggleFullScreenEvent>(e);
 #endif

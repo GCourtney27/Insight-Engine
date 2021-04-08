@@ -34,7 +34,6 @@ namespace Insight
 
 			protected:
 				virtual void UnInitialize() override;
-
 				//
 				// Utility
 				//
@@ -45,6 +44,7 @@ namespace Insight
 				// D3D Initialize
 				//
 				void BindSwapChainBackBuffers();
+				void CheckTearingSupport(IDXGIFactory6* pFactory);
 
 			protected:
 

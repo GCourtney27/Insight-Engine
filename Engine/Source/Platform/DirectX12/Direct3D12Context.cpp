@@ -505,7 +505,7 @@ namespace Insight {
 		RETURN_IF_WINDOW_NOT_VISIBLE;
 
 		UINT PresentFlags = (m_AllowTearing && m_WindowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
-		ThrowIfFailed(m_DeviceResources.GetSwapChain().Present(m_pWindowRef->GetIsVsyncEnabled(), PresentFlags), TEXT("Failed to present frame for D3D 12 context."));
+		ThrowIfFailed(m_DeviceResources.GetSwapChain().Present(0, PresentFlags), TEXT("Failed to present frame for D3D 12 context."));
 
 		m_DeviceResources.MoveToNextFrame();
 	}
