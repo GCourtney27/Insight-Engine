@@ -65,25 +65,17 @@ namespace Insight {
 		virtual void* GetNativeWindow() const override;
 		virtual bool ProccessWindowMessages() override;
 
-		virtual EInputEventType GetAsyncKeyState(KeyMapCode Key) const override;
-		bool SetWindowTitle(const std::string& newText, bool completlyOverride = false) override;
-		bool SetWindowTitleFPS(float fps) override;
+		bool SetWindowTitle(const EString& newText, bool completlyOverride = false) override;
 
 		inline HINSTANCE GetWindowsApplicationReference() const { return m_WindowsAppInstance; }
 		inline HWND& GetWindowHandleRef() { return m_hWindow; }
 		inline RECT& GetWindowRect() { return m_WindowRect; }
-
-		virtual void CreateMessageBox(const std::wstring& Message, const std::wstring& Title) override;
 
 		static OutLResInIntRefMethod_t MakeAccelCallback(void* Fn) { return (OutLResInIntRefMethod_t)Fn; }
 		OutLResInIntRefMethod_t GetCustomCallback() { return m_CustomCallback; }
 
 		// Window Attributes
 		virtual bool Init();
-
-		HMENU& GetGraphicsSubmenu() { return m_hGraphicsVisualizeSubMenu; }
-		HMENU& GetEditorSubmenu() { return m_hEditorSubMenu; }
-		HMENU& GetContextSubmenu() { return m_hContextMenu; }
 
 	protected:
 		virtual inline void SetNativeWindowDPI() override
@@ -94,8 +86,6 @@ namespace Insight {
 
 	private:
 		void RegisterWindowClass();
-		void InitializeMenuBar();
-		void InitializeContextMenu();
 		LPCTSTR GetLastWindowsError();
 
 	private:
@@ -109,23 +99,12 @@ namespace Insight {
 		HCURSOR m_Cursor;
 
 
-		HMENU	m_hContextMenu;
-		HMENU	m_hMenuBar;
-		HMENU	m_hFileSubMenu;
-		HMENU	m_hEditSubMenu;
-		HMENU	m_hEditorSubMenu;
-		HMENU	m_hGraphicsSubMenu;
-		HMENU	m_hGraphicsVisualizeSubMenu;
-		HMENU	m_hGraphicsCurrentRenderContextSubMenu;
-
 		HINSTANCE m_WindowsAppInstance;
 		int m_NumCmdLineArgs;
-		std::wstring m_CmdLineArgs;
+		EString m_CmdLineArgs;
 		RECT m_WindowRect;
 
 		static const UInt32 m_WindowStyle = WS_OVERLAPPEDWINDOW;
-
-
 	};
 
 #endif // IE_PLATFORM_BUILD_WIN32

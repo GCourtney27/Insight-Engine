@@ -139,7 +139,7 @@ namespace Insight {
 		}
 		catch (COMException& Ex)
 		{
-			m_pWindowRef->CreateMessageBox(Ex.what(), L"Fatal Error!");
+			Platform::CreateMessageBox(Ex.what(), L"Fatal Error!", m_pWindowRef->GetNativeWindow());
 			return false;
 		}
 		return true;

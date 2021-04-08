@@ -64,11 +64,6 @@ namespace Insight {
 		return true;
 	}
 
-	void UWPWindow::CreateMessageBox(const std::wstring& Message, const std::wstring& Title)
-	{
-
-	}
-
 	void UWPWindow::OnUpdate()
 	{
 		using namespace winrt::Windows::UI::Core;
@@ -79,16 +74,6 @@ namespace Insight {
 	{
 		using namespace winrt::Windows::UI::Core;
 		CoreWindow::GetForCurrentThread().Dispatcher().ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
-	}
-
-	EInputEventType UWPWindow::GetAsyncKeyState(KeyMapCode Key) const
-	{
-		const winrt::Windows::System::VirtualKey VirtualKey = (winrt::Windows::System::VirtualKey)Key;
-		auto state = winrt::Windows::UI::Core::CoreWindow::GetForCurrentThread().GetAsyncKeyState(VirtualKey);
-		if (state == winrt::Windows::UI::Core::CoreVirtualKeyStates::Down)
-			return IET_Pressed;
-		else
-			return IET_Released;
 	}
 
 

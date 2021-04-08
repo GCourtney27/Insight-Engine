@@ -46,17 +46,6 @@ namespace Insight {
 		Init();
 	}
 
-	EInputEventType Win32Window::GetAsyncKeyState(KeyMapCode Key) const
-	{
-		short KeyState = ::GetAsyncKeyState(Key);
-		bool Pressed = (BIT_SHIFT(15)) & KeyState;
-		
-		if (Pressed)
-			return IET_Pressed;
-		else
-			return IET_Released;
-	}
-
 	LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		Win32Window& pWindow = *(Win32Window*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
@@ -310,9 +299,6 @@ namespace Insight {
 		m_WindowRect.bottom = m_WindowRect.top + m_LogicalHeight;
 		::AdjustWindowRect(&m_WindowRect, WS_OVERLAPPEDWINDOW | WS_EX_ACCEPTFILES, FALSE);
 
-		// Create mouse Right-Click context menu
-		//IE_STRIP_FOR_GAME_DIST(InitializeContextMenu();)
-
 		// Create the main window for the engine/game
 		m_hWindow = ::CreateWindowExW(
 			WS_EX_ACCEPTFILES,						// Window Styles
@@ -337,14 +323,9 @@ namespace Insight {
 			throw ieException(TEXT("Fatal Error: Failed to initialize Win32 window. Handle returned nullptr from Windows API. Window description may have contained invalid parameters."));
 		}
 
-		//m_nCmdShowArgs = SW_SHOWMAXIMIZED;
-		//SetWindowText(m_hWindow, L"Hello");
-
 		::ShowWindow(m_hWindow, m_NumCmdLineArgs);
 		::SetForegroundWindow(m_hWindow);
 		::SetFocus(m_hWindow);
-
-		//m_hAcceleratorTable = LoadAccelerators(m_WindowsAppInstance, MAKEINTRESOURCE(IDC_INSIGHTENGINE));
 
 
 		IE_LOG(Verbose, TEXT("Window Initialized"));
@@ -381,84 +362,6 @@ namespace Insight {
 		{
 			IE_LOG(Error, TEXT("An error occured while registering window class: %s"), StringHelper::WideToString(m_WindowClassName).c_str());
 			IE_LOG(Error, TEXT("    Error: %s"), StringHelper::WideToString(std::wstring(GetLastWindowsError())).c_str());
-		}
-	}
-
-	void Win32Window::InitializeMenuBar()
-	{
-		m_hMenuBar = ::CreateMenu();
-		if (m_hMenuBar == NULL) {
-			IE_LOG(Error, TEXT("Failed to create menu bar for window \"%s\""), StringHelper::WideToString(m_WindowTitle).c_str());
-			return;
-		}
-
-		//// File SubMenu
-		//{
-		//	m_hFileSubMenu = ::CreateMenu();
-		//	::AppendMenuW(m_hMenuBar, MF_POPUP, (UINT_PTR)m_hFileSubMenu, L"&File");
-		//	::AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_SCENE_SAVE, L"&Save Scene");
-		//	//::AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_NEW_SCENE, L"New Scene");
-		//	::AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_ABOUT, L"&About");
-		//	::AppendMenuW(m_hFileSubMenu, MF_STRING, IDM_EXIT, L"&Exit");
-		//}
-
-		//// Edit SubMenu
-		//{
-		//	m_hEditSubMenu = ::CreateMenu();
-		//	::AppendMenuW(m_hMenuBar, MF_POPUP, (UINT_PTR)m_hEditSubMenu, L"&Edit");
-
-		//}
-
-		//// Editor SubMenu
-		//{
-		//	m_hEditorSubMenu = ::CreateMenu();
-		//	::AppendMenuW(m_hMenuBar, MF_POPUP, (UINT_PTR)m_hEditorSubMenu, L"&Editor");
-		//	::AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_BEGIN_PLAY, L"&Play");
-		//	::AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_END_PLAY, L"&Stop");
-		//	::AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_EDITOR_RELOAD_SCRIPTS, L"&Reload Scripts");
-		//	::AppendMenuW(m_hEditorSubMenu, MF_STRING, IDM_EDITOR_TOGGLE, L"&Toggle Editor UI");
-		//}
-
-		//// Graphics SubMenu
-		//{
-		//	m_hGraphicsSubMenu = ::CreateMenu();
-		//	m_hGraphicsVisualizeSubMenu = ::CreateMenu();
-
-		//	m_hGraphicsCurrentRenderContextSubMenu = ::CreateMenu();
-		//	::AppendMenuW(m_hGraphicsSubMenu, MF_STRING, IDM_RELOAD_SHADERS, L"Relead Shaders");
-		//	::AppendMenuW(m_hGraphicsSubMenu, MF_POPUP, (UINT_PTR)m_hGraphicsCurrentRenderContextSubMenu, L"&Renderer");
-		//	::AppendMenuW(m_hGraphicsCurrentRenderContextSubMenu, MF_UNCHECKED, IDM_RENDERER_D3D_11, L"&Direct3D 11");
-		//	::AppendMenuW(m_hGraphicsCurrentRenderContextSubMenu, MF_UNCHECKED, IDM_RENDERER_D3D_12, L"&Direct3D 12");
-
-		//	::AppendMenuW(m_hMenuBar, MF_POPUP, (UINT_PTR)m_hGraphicsSubMenu, L"&Graphics");
-		//	//AppendMenuW(m_GraphicsSubMenuHandle, MF_STRING, (UINT_PTR)m_GraphicsSubMenuHandle, L"&Reload Post-Fx Pass Shader");
-		//	//AppendMenuW(m_GraphicsSubMenuHandle, MF_STRING, (UINT_PTR)m_GraphicsSubMenuHandle, L"&Reload Geometry Pass Shader");
-		//	//AppendMenuW(m_GraphicsSubMenuHandle, MF_STRING, (UINT_PTR)m_GraphicsSubMenuHandle, L"&Reload Light Pass Shader");
-		//	/*::AppendMenuW(m_hGraphicsSubMenu, MF_POPUP, (UINT_PTR)m_hGraphicsVisualizeSubMenu, L"&Visualize G-Buffer");
-		//	::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_FINAL_RESULT, L"&Final Result");
-		//	::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
-		//	::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_LIGHT_PASS_RESULT, L"&Light Pass Result");
-		//	::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
-		//	::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_ALBEDO_BUFFER, L"&Albedo");
-		//	::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
-		//	::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_NORMAL_BUFFER, L"&Normal");
-		//	::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
-		//	::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_ROUGHNESS_BUFFER, L"&Roughness");
-		//	::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
-		//	::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_METALLIC_BUFFER, L"&Metallic");
-		//	::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);
-		//	::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_UNCHECKED, IDM_VISUALIZE_AO_BUFFER, L"&Ambient Occlusion (PBR Texture)");
-		//	::AppendMenuW(m_hGraphicsVisualizeSubMenu, MF_SEPARATOR, 0, 0);*/
-
-		//}
-	}
-
-	void Win32Window::InitializeContextMenu()
-	{
-		m_hContextMenu = ::CreatePopupMenu();
-		{
-			//::AppendMenuW(m_hContextMenu, MF_STRING, IDM_VISUALIZE_AO_BUFFER, L"&Hello");
-			//::AppendMenuW(m_hContextMenu, MF_STRING, IDM_VISUALIZE_AO_BUFFER, L"&World");
 		}
 	}
 
@@ -589,37 +492,22 @@ namespace Insight {
 		ProccessWindowMessages();
 	}
 
-	bool Win32Window::SetWindowTitle(const std::string& NewText, bool CompletlyOverride)
+	bool Win32Window::SetWindowTitle(const EString& NewText, bool CompletlyOverride)
 	{
 		BOOL succeeded = true;
-#pragma message ("Win32Window::SetWindowTitle not completed.")
-		/*if (CompletlyOverride) {
-			succeeded = SetWindowText(m_hWindow, StringHelper::StringToWide(NewText).c_str());
+		if (CompletlyOverride) {
+			succeeded = SetWindowText(m_hWindow, NewText.c_str());
 		}
 		else {
-			m_WindowTitle = m_WindowTitle + L" - " + StringHelper::StringToWide(NewText);
+			m_WindowTitle = m_WindowTitle + L" - " + NewText;
 			succeeded = SetWindowText(m_hWindow, m_WindowTitle.c_str());
-		}*/
+		}
 		return succeeded;
-	}
-
-	bool Win32Window::SetWindowTitleFPS(float fps)
-	{
-#pragma message ("Win32Window::SetWindowTitleFPS not completed.")
-		//std::wstring windowTitle = m_WindowTitle + L" FPS: " + ToString((UINT)fps);
-		//return static_cast<bool>(SetWindowText(m_hWindow, windowTitle.c_str()));
-		return true;
 	}
 
 	void* Win32Window::GetNativeWindow() const
 	{
-		//return (void*)&m_hWindow;
 		return m_hWindow;
-	}
-
-	void Win32Window::CreateMessageBox(const std::wstring& Message, const std::wstring& Title)
-	{
-		::MessageBox(m_hWindow, Message.c_str(), Title.c_str(), MB_OK);
 	}
 
 	void Win32Window::Shutdown()

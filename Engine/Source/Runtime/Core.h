@@ -41,6 +41,7 @@
 // Includes
 #include "Runtime/Math/Public/PrimitiveTypes.h"
 #include "Runtime/Core/Public/Cast.h"
+#include "Platform/Public/Common.h"
 
 #define NOMINMAX
 

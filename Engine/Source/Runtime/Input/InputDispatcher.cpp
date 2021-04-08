@@ -57,7 +57,7 @@ namespace Insight {
 			for (uint32_t i = 0; i < m_AxisMappings.size(); i++)
 			{
 				// If the key in the axis mapping is pressed, dispatch an event.
-				if(m_pOwningWindowRef->GetAsyncKeyState(m_AxisMappings[i].MappedKeyCode) == IET_Pressed)
+				if(Platform::GetAsyncKeyState(m_AxisMappings[i].MappedKeyCode) == IET_Pressed)
 								{
 					// Dispatching KeyHolding events will happen in InputDispatcher::DispatchActionEvent
 					KeyPressedEvent e(m_AxisMappings[i].MappedKeyCode, 0, 1.0f);

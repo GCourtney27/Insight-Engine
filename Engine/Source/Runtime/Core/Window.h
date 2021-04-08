@@ -46,7 +46,7 @@ namespace Insight {
 	{
 	public:
 
-		virtual ~Window() {}
+		virtual ~Window() = default;
 
 		virtual void OnUpdate() = 0;
 		virtual void BackgroundUpdate() {}
@@ -54,30 +54,18 @@ namespace Insight {
 		virtual void PostInit() = 0;
 
 		virtual bool ProccessWindowMessages() = 0;
-		
-		inline void Resize(Int32 NewWidth, Int32 NewHeight, bool IsMinimized) 
-		{ 
-			IE_ASSERT(NewWidth > 0.f && NewHeight > 0.f, "Window width and/or height cannot be zero.");
-			
-			m_LogicalWidth	= ConvertDipsToPixels((float)NewWidth);
-			m_LogicalHeight = ConvertDipsToPixels((float)NewHeight);
-			m_AspectRatio	= static_cast<float>(NewWidth) / static_cast<float>(NewHeight); 
-			m_IsVisible		= !IsMinimized;
 
-			SetNativeWindowDPI();
-		}
-		virtual void CreateMessageBox(const std::wstring& Message, const std::wstring& Title) = 0;
+		virtual void* GetNativeWindow() const = 0;
+		virtual bool SetWindowTitle(const EString& newText, bool completlyOverride = false) = 0;
+
+		FORCE_INLINE void Resize(Int32 NewWidth, Int32 NewHeight, bool IsMinimized);
+
 
 		template <typename DataType = float>
-		inline DataType GetDPI() const { return static_cast<DataType>(m_DPI); }
-		virtual void* GetNativeWindow() const = 0;
-		virtual bool SetWindowTitleFPS(float fps) = 0;
-		virtual EInputEventType GetAsyncKeyState(KeyMapCode Key) const = 0;
-		virtual bool SetWindowTitle(const std::string& newText, bool completlyOverride = false) = 0;
-
-		Int32 GetWidth()								const { return m_LogicalWidth; }
-		Int32 GetHeight()								const { return m_LogicalHeight; }
-		FVector2 GetDimensions()						const { return FVector2((float)m_LogicalWidth, (float)m_LogicalHeight); }
+		FORCE_INLINE DataType GetDPI() const { return static_cast<DataType>(m_DPI); }
+		FORCE_INLINE Int32 GetWidth()					const { return m_LogicalWidth; }
+		FORCE_INLINE Int32 GetHeight()					const { return m_LogicalHeight; }
+		FORCE_INLINE FVector2 GetDimensions()			const { return FVector2((float)m_LogicalWidth, (float)m_LogicalHeight); }
 		FORCE_INLINE float GetAspectRatio()				const { return m_AspectRatio; }
 		FORCE_INLINE bool GetIsVisible()				const { return m_IsVisible; }
 		FORCE_INLINE bool GetIsFullScreenActive()		const { return m_WindowMode == EWindowMode::WM_Borderless; }
@@ -90,32 +78,34 @@ namespace Insight {
 		FORCE_INLINE void AttachWindowModeChangedCallback(WindowModeCallbackFn Fn) { m_WindowModeChangedCallbacks.push_back(Fn); }
 		FORCE_INLINE void AttachWindowResizeCallback(WindowResizeCallbackFn Fn) { m_WindowResizeCallbacks.push_back(Fn); }
 
-		inline void SetEventCallback(const EventCallbackFn& callback) { m_EventCallbackFn = callback; }
-		EventCallbackFn& GetEventCallbackFn() { return m_EventCallbackFn; }
+		FORCE_INLINE EventCallbackFn& GetEventCallbackFn() { return m_EventCallbackFn; }
+		FORCE_INLINE void SetEventCallback(const EventCallbackFn& callback) { m_EventCallbackFn = callback; }
 
-		inline int ConvertDipsToPixels(float dips) const noexcept
-		{
-			return int(dips * m_DPI / 96.0f + 0.5f);
-		}
-
-		inline float ConvertPixelsToDips(int pixels) const noexcept
-		{
-			return (float(pixels) * 96.0f / m_DPI);
-		}
-
+		FORCE_INLINE int ConvertDipsToPixels(float dips) const noexcept;
+		FORCE_INLINE float ConvertPixelsToDips(int pixels) const noexcept;
+		
 	protected:
 		virtual void SetNativeWindowDPI() = 0;
 		virtual void OnWindowModeChanged() = 0;
 
+		Window()
+			: m_DPI(96.f)
+			, m_AspectRatio(-1.f)
+			, m_IsVisible(true)
+			, m_WindowMode(EWindowMode::WM_Windowed)
+			, m_LogicalWidth(0u)
+			, m_LogicalHeight(0u)
+		{
+		}
 	protected:
 		EventCallbackFn m_EventCallbackFn;
 		
-		float m_DPI = 96.0f;
-		float m_AspectRatio = -1.0f;
-		bool m_IsVisible = true;
-		EWindowMode m_WindowMode = EWindowMode::WM_Windowed;
-		Int32 m_LogicalWidth = 0u;
-		Int32 m_LogicalHeight = 0u;
+		float m_DPI;
+		float m_AspectRatio;
+		bool m_IsVisible;
+		EWindowMode m_WindowMode;
+		Int32 m_LogicalWidth;
+		Int32 m_LogicalHeight;
 		
 		std::vector<WindowModeCallbackFn> m_WindowModeChangedCallbacks;
 		std::vector<WindowResizeCallbackFn> m_WindowResizeCallbacks;
@@ -128,6 +118,28 @@ namespace Insight {
 	//
 	// Inline function implementations
 	//
+	int Window::ConvertDipsToPixels(float dips) const noexcept
+	{
+		return int(dips * m_DPI / 96.0f + 0.5f);
+	}
+
+	float Window::ConvertPixelsToDips(int pixels) const noexcept
+	{
+		return (float(pixels) * 96.0f / m_DPI);
+	}
+
+	void Window::Resize(Int32 NewWidth, Int32 NewHeight, bool IsMinimized)
+	{
+		IE_ASSERT(NewWidth > 0.f && NewHeight > 0.f, "Window width and/or height cannot be zero.");
+
+		m_LogicalWidth = ConvertDipsToPixels((float)NewWidth);
+		m_LogicalHeight = ConvertDipsToPixels((float)NewHeight);
+		m_AspectRatio = static_cast<float>(NewWidth) / static_cast<float>(NewHeight);
+		m_IsVisible = !IsMinimized;
+
+		SetNativeWindowDPI();
+	}
+
 	void Window::SetWindowMode(EWindowMode Mode)
 	{
 		m_WindowMode = Mode; 

@@ -114,8 +114,8 @@ namespace Insight {
 
 	typedef enum EGampadRumbleMotor
 	{
-		GampadRumbleMotor_Left	= BIT_SHIFT(0),
-		GampadRumbleMotor_Right = BIT_SHIFT(1),
+		GampadRumbleMotor_Left	= 0x00,
+		GampadRumbleMotor_Right = 0x01,
 	} EGampadRumbleMotor;
 
 }
