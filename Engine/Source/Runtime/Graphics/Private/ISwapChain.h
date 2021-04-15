@@ -13,15 +13,6 @@ namespace Insight
 		class IColorBuffer;
 		class IDevice;
 
-		struct IESwapChainDesc
-		{
-			UInt32 Width;
-			UInt32 Height;
-			UInt32 BufferCount;
-			SampleDesc SampleDesc;
-			ETextureFormat Format;
-			void* NativeWindow;
-		};
 
 		class INSIGHT_API ISwapChain
 		{
@@ -32,7 +23,7 @@ namespace Insight
 			virtual void SwapBuffers() = 0;
 			virtual void Resize(const FVector2& NewResolution) = 0;
 			virtual void SetNumBackBuffes(UInt32 NumBuffers) = 0;
-			virtual void SetBackBufferFormat(ETextureFormat& Format) = 0;
+			virtual void SetBackBufferFormat(EFormat& Format) = 0;
 
 			virtual void* GetNativeSwapChain() const = 0;
 

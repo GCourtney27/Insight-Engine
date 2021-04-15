@@ -18,7 +18,7 @@ namespace Insight
 				D3D12GPUResource();
 				virtual ~D3D12GPUResource();
 
-				virtual void Destroy();
+				virtual void Destroy() override;
 
 				//
 				// Getters/Setters

@@ -7,6 +7,7 @@
 #include "Runtime/Graphics/Public/ICommandContext.h"
 #include "Runtime/Graphics/Public/CommonStructs.h"
 #include "Runtime/Graphics/Public/CommonEnums.h"
+#include "Runtime/Graphics/Public/CommonStructHelpers.h"
 
 //
 // Factories

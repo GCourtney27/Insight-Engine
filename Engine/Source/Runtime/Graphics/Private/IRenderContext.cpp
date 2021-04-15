@@ -29,7 +29,7 @@ namespace Insight
 
 		void IRenderContext::UnInitialize()
 		{
-			SAFE_DELETE_PTR(m_pDevice);
+			SAFE_DELETE_PTR(g_pDevice);
 			SAFE_DELETE_PTR(g_pCommandManager);
 			SAFE_DELETE_PTR(g_pContextManager);
 			SAFE_DELETE_PTR(m_pSwapChain);

@@ -35,10 +35,10 @@ namespace Insight
 			inline DerivedType* CreateRenderComponentObject(BaseType** ppBase, InitArgs ... args)
 			{
 				*ppBase = new DerivedType(args...);
-				DerivedType* pNewValue = DCast<DerivedType*>(*ppBase);
-				IE_ASSERT(pNewValue != NULL);
+				DerivedType* pDericedClass = DCast<DerivedType*>(*ppBase);
+				IE_ASSERT(pDericedClass != NULL);
 
-				return pNewValue;
+				return pDericedClass;
 			}
 			
 
@@ -61,11 +61,11 @@ namespace Insight
 
 		void IRenderContextFactory::InitializeMainComponents()
 		{
-			CreateDevice(m_pTarget->GetDeviceAddress());
+			CreateDevice(&g_pDevice);
 
-			CreateCommandManager(&g_pCommandManager, *m_pTarget->GetDeviceAddress());
+			CreateCommandManager(&g_pCommandManager, g_pDevice);
 			CreateContextManager(&g_pContextManager);
-			CreateSwapChain(m_pTarget->GetSwapChainAddress(), g_pCommandManager, *(m_pTarget->GetDeviceAddress()));
+			CreateSwapChain(m_pTarget->GetSwapChainAddress(), g_pCommandManager, g_pDevice);
 		}
 	}
 }

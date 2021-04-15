@@ -23,6 +23,7 @@ namespace Insight
 		public:
 			virtual void* GetNativeDevice() const = 0;
 
+
 		protected:
 			IDevice() {}
 			virtual ~IDevice() {}

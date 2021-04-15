@@ -18,8 +18,9 @@ namespace Insight
 			{
 			public:
 				D3D12PixelBuffer() {}
+				virtual ~D3D12PixelBuffer() {}
 
-				virtual ResourceDesc DescribeTex2D(UInt32 Width, UInt32 Height, UInt32 DepthOrArraySize, UInt32 NumMips, ETextureFormat Format, UInt32 Flags) override;
+				virtual ResourceDesc DescribeTex2D(UInt32 Width, UInt32 Height, UInt32 DepthOrArraySize, UInt32 NumMips, EFormat Format, UInt32 Flags) override;
 				virtual void AssociateWithResource(IDevice* Device, const EString& Name, void* Resource, EResourceState CurrentState) override;
 				virtual void CreateTextureResource(IDevice* Device, const EString& Name, const ResourceDesc& ResourceDesc, const ClearValue& ClearValue) override;
 

@@ -33,15 +33,10 @@ namespace Insight {
 	class INSIGHT_API WindowToggleFullScreenEvent : public RendererEvent
 	{
 	public:
-		WindowToggleFullScreenEvent(bool enabled) 
-			: m_Enabled(enabled) {}
-
-		inline bool GetFullScreenEnabled() const { return m_Enabled; }
+		WindowToggleFullScreenEvent() = default;
 
 		EVENT_CLASS_TYPE(ToggleWindowFullScreen)
 			EVENT_CLASS_CATEGORY(EventCategoryApplication)
-	private:
-		bool m_Enabled;
 	};
 
 	class INSIGHT_API WindowCloseEvent : public Event

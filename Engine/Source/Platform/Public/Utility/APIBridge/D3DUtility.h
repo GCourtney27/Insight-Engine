@@ -10,8 +10,8 @@ namespace Insight
 	namespace PlatformUtils
 	{
 #if IE_PLATFORM_WINDOWS
-		DXGI_FORMAT IETextureFormatToDXGIFormat(const Graphics::ETextureFormat& Format);
-		Graphics::ETextureFormat DXGIFormatToIETextureFormat(DXGI_FORMAT Format);
+		DXGI_FORMAT IETextureFormatToDXGIFormat(const Graphics::EFormat& Format);
+		Graphics::EFormat DXGIFormatToIETextureFormat(DXGI_FORMAT Format);
 
 		D3D12_COMMAND_LIST_TYPE IECommandListTypeToD3DCommandListType(const Graphics::ECommandListType& Type);
 		Graphics::ECommandListType D3DCommandListTypeToIECommandListType(D3D12_COMMAND_LIST_TYPE Type);

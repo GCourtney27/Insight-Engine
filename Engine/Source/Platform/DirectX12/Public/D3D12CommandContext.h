@@ -5,6 +5,9 @@
 #include "Runtime/Graphics/Public/ICommandContext.h"
 #include "Runtime/Graphics/Private/ICommandManager.h"
 
+#include "Platform/DirectX12/Private/D3D12DynamicDescriptorHeap.h"
+#include <Runtime/Graphics/Public/IRootSignature.h>
+
 namespace Insight
 {
 	namespace Graphics
@@ -38,6 +41,8 @@ namespace Insight
 				virtual void  UnInitialize() override;
 				virtual void  Reset() override;
 
+				virtual void OMSetRenderTargets(UInt32 NumRTVs, const IColorBuffer* Targets[]) override;
+
 				virtual void RSSetViewPorts(UInt32 NumViewPorts, const ViewPort* ViewPorts) override;
 				virtual void RSSetScissorRects(UInt32 NumScissorRects, const Rect* ScissorRects) override;
 				
@@ -45,11 +50,21 @@ namespace Insight
 
 				virtual void CreateTexture2D() override;
 				virtual void CreateBuffer() override;
+				
+				virtual void SetDescriptorHeap(EResourceHeapType Type, ID3D12DescriptorHeap* HeapPtr) override;
 
-				virtual void BindVertexBuffer(const ieVertexBuffer& Vertexbuffer) override;
-				virtual void BindIndexBuffer(const ieIndexBuffer& IndexBuffer) override;
+				virtual void BindVertexBuffer(UInt32 Slot, IVertexBuffer& Vertexbuffer) override;
+				virtual void BindIndexBuffer(IIndexBuffer& IndexBuffer) override;
 
-				virtual void DrawMesh() override;
+				virtual void SetPipelineState(IPipelineState& Pipeline) override;
+				virtual void SetGraphicsRootSignature(IRootSignature& Signature) override;
+				virtual void SetPrimitiveTopologyType(EPrimitiveTopology TopologyType) override;
+
+				virtual void Draw(UInt32 VertexCount, UInt32 VertexStartOffset = 0) override;
+				virtual void DrawIndexed(UInt32 IndexCount, UInt32 StartIndexLocation = 0, Int32 BaseVertexLocation = 0) override;
+				virtual void DrawInstanced(UInt32 VertexCountPerInstance, UInt32 InstanceCount, UInt32 StartVertexLocation = 0, UInt32 StartInstanceLocation = 0) override;
+				virtual void DrawIndexedInstanced(UInt32 IndexCountPerInstance, UInt32 InstanceCount, UINT StartIndexLocation, UInt32 BaseVertexLocation, UInt32 StartInstanceLocation) override;
+
 
 				virtual void TransitionResource(IGPUResource& Resource, EResourceState NewState, bool FlushImmediate = false) override;
 
@@ -63,12 +78,20 @@ namespace Insight
 				D3D12CommandContext(const ECommandListType& Type);
 				~D3D12CommandContext();
 
+				virtual void BindDescriptorHeaps() override;
+
+
 				D3D12_COMMAND_LIST_TYPE m_D3DCmdListType;
 				UInt32 m_NumBarriersToFlush;
 				D3D12_RESOURCE_BARRIER m_ResourceBarrierBuffer[16];
 
 				ID3D12GraphicsCommandList* m_pID3D12CommandList;
 				ID3D12CommandAllocator* m_pID3D12CurrentCmdAllocator;
+
+				ID3D12DescriptorHeap* m_CurrentDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
+
+				D3D12DynamicDescriptorHeap m_DynamicViewDescriptorHeap;		// HEAP_TYPE_CBV_SRV_UAV
+				D3D12DynamicDescriptorHeap m_DynamicSamplerDescriptorHeap;	// HEAP_TYPE_SAMPLER
 
 			};
 		}

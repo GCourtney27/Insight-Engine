@@ -12,6 +12,10 @@ namespace Insight
 		class ICommandManager;
 		class IColorBuffer;
 		class IGPUResource;
+		class IIndexBuffer;
+		class IVertexBuffer;
+		class IPipelineState;
+		class IRootSignature;
 
 		struct ViewPort;
 		struct Rect;
@@ -59,6 +63,8 @@ namespace Insight
 			virtual UInt64 Flush(bool WaitForCompletion = false) = 0;
 			virtual UInt64 Finish(bool WaitForCompletion = false) = 0;
 
+			virtual void OMSetRenderTargets(UInt32 NumRTVs, const IColorBuffer* Targets[]) = 0;
+
 			virtual void RSSetViewPorts(UInt32 NumViewPorts, const ViewPort* ViewPorts) = 0;
 			virtual void RSSetScissorRects(UInt32 NumScissorRects, const Rect* ScissorRects) = 0;
 
@@ -66,11 +72,20 @@ namespace Insight
 
 			virtual void CreateTexture2D() = 0;
 			virtual void CreateBuffer() = 0;
+			
+			virtual void SetDescriptorHeap(EResourceHeapType Type, ID3D12DescriptorHeap* HeapPtr) = 0;
 
-			virtual void BindVertexBuffer(const ieVertexBuffer& Vertexbuffer) = 0;
-			virtual void BindIndexBuffer(const ieIndexBuffer& IndexBuffer) = 0;
+			virtual void BindVertexBuffer(UInt32 Slot, IVertexBuffer& Vertexbuffer) = 0;
+			virtual void BindIndexBuffer(IIndexBuffer& IndexBuffer) = 0;
 
-			virtual void DrawMesh() = 0;
+			virtual void SetPipelineState(IPipelineState& Pipeline) = 0;
+			virtual void SetGraphicsRootSignature(IRootSignature& Signature) = 0;
+			virtual void SetPrimitiveTopologyType(EPrimitiveTopology TopologyType) = 0;
+
+			virtual void Draw(UInt32 VertexCount, UInt32 VertexStartOffset) = 0;
+			virtual void DrawIndexed(UInt32 IndexCount, UInt32 StartIndexLocation, Int32 BaseVertexLocation) = 0;
+			virtual void DrawInstanced(UInt32 VertexCountPerInstance, UInt32 InstanceCount, UInt32 StartVertexLocation, UInt32 StartInstanceLocation) = 0;
+			virtual void DrawIndexedInstanced(UInt32 IndexCountPerInstance, UInt32 InstanceCount, UINT StartIndexLocation, UInt32 BaseVertexLocation, UInt32 StartInstanceLocation) = 0;
 
 			virtual void TransitionResource(IGPUResource& Resource, EResourceState NewState, bool FlushImmediate = false) = 0;
 
@@ -87,6 +102,8 @@ namespace Insight
 			virtual ~ICommandContext() 
 			{
 			}
+
+			virtual void BindDescriptorHeaps() = 0;
 
 			EString m_ID;
 			ECommandListType m_Type;

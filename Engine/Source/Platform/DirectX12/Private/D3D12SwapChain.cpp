@@ -112,7 +112,7 @@ namespace Insight
 				ResizeDXGIBuffers();
 			}
 
-			void D3D12SwapChain::SetBackBufferFormat(ETextureFormat& Format)
+			void D3D12SwapChain::SetBackBufferFormat(EFormat& Format)
 			{
 				m_Desc.Format = Format;
 				ResizeDXGIBuffers();

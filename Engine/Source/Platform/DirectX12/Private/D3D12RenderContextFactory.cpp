@@ -114,7 +114,7 @@ namespace Insight
 				SwapChainInitParams.Width = Super::m_pTarget->GetWindow()->GetWidth();
 				SwapChainInitParams.Height = Super::m_pTarget->GetWindow()->GetHeight();
 				SwapChainInitParams.BufferCount = 3;
-				SwapChainInitParams.Format = TF_R8G8B8A8_UNORM;
+				SwapChainInitParams.Format = F_R8G8B8A8_UNORM;
 				SwapChainInitParams.SampleDesc.Count = 1;
 				SwapChainInitParams.SampleDesc.Quality = 0;
 				SwapChainInitParams.NativeWindow = Super::m_pTarget->GetWindow()->GetNativeWindow();

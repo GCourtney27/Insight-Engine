@@ -16,21 +16,40 @@ namespace Insight
 		{
 			friend class ISwapChain;
 		public:
+			virtual ~IColorBuffer() = default;
+
 			virtual void CreateFromSwapChain(IDevice* pDevice, const EString& Name, void* pResource) = 0;
-			virtual void Create(IDevice* pDevice, const EString& Name, UInt32 Width, UInt32 Height, UInt32 NumMips, ETextureFormat Format) = 0;
+			virtual void Create(IDevice* pDevice, const EString& Name, UInt32 Width, UInt32 Height, UInt32 NumMips, EFormat Format) = 0;
 
 			FORCE_INLINE void SetClearColor(Color Color) { m_ClearColor = Color; }
 			FORCE_INLINE Color GetClearColor() const { return m_ClearColor; }
 
 		protected:
-			IColorBuffer() {}
-			virtual ~IColorBuffer() {}
+			IColorBuffer() 
+				: m_ClearColor(0.f, 0.f, 0.f, 1.f)
+				, m_NumMipMaps(0u)
+				, m_FragmentCount(1u)
+				, m_SampleCount(1u)
+			{
+			}
 
+			virtual void CreateDerivedViews(IDevice* pDevice, EFormat Format, UInt32 ArraySize, UInt32 NumMips) = 0;
+
+			EResourceFlags CombineResourceFlags() const
+			{
+				EResourceFlags Flags = RF_None;
+
+				if (Flags == RF_None && m_FragmentCount == 1)
+					Flags |= RF_AllowUnorderedAccess;
+
+				return RF_AllowRenderTarget | Flags;
+			}
+
+		protected:
 			Color m_ClearColor;
-			UInt32 m_NumMips;
+			UInt32 m_NumMipMaps;
 			UInt32 m_FragmentCount;
 			UInt32 m_SampleCount;
-
 		};
 	}
 }

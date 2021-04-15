@@ -12,11 +12,11 @@ namespace Insight
 		//		Texture Type conversions
 		// ----------------------------------
 
-		DXGI_FORMAT IETextureFormatToDXGIFormat(const Graphics::ETextureFormat& Format)
+		DXGI_FORMAT IETextureFormatToDXGIFormat(const Graphics::EFormat& Format)
 		{
 			switch (Format)
 			{
-			case Graphics::ETextureFormat::TF_R8G8B8A8_UNORM: return DXGI_FORMAT_R8G8B8A8_UNORM;
+			case Graphics::EFormat::F_R8G8B8A8_UNORM: return DXGI_FORMAT_R8G8B8A8_UNORM;
 			default:
 				IE_LOG(Error, TEXT("Invalid format trying to convert ETextureFormat to DXGI_FORMAT!"));
 				return DXGI_FORMAT_B8G8R8A8_TYPELESS;
@@ -24,14 +24,14 @@ namespace Insight
 
 		}
 
-		Graphics::ETextureFormat DXGIFormatToIETextureFormat(DXGI_FORMAT Format)
+		Graphics::EFormat DXGIFormatToIETextureFormat(DXGI_FORMAT Format)
 		{
 			switch (Format)
 			{
-			case DXGI_FORMAT_R8G8B8A8_UNORM: return Graphics::ETextureFormat::TF_R8G8B8A8_UNORM;
+			case DXGI_FORMAT_R8G8B8A8_UNORM: return Graphics::EFormat::F_R8G8B8A8_UNORM;
 			default:
 				IE_LOG(Error, TEXT("Invalid format trying to convert DXGI_FORMAT to ETextureFormat!"));
-				return Graphics::ETextureFormat::TF_R8G8B8A8_UNORM;
+				return Graphics::EFormat::F_R8G8B8A8_UNORM;
 			}
 		}
 

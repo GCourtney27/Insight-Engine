@@ -59,6 +59,12 @@ namespace Insight
 			inline ICommandQueue* GetGraphicsQueue()	const { return m_pGraphicsQueue; }
 			inline ICommandQueue* GetComputeQueue()		const { return m_pComputeQueue; }
 
+			// Test to see if a fence has already been reached
+			inline bool IsFenceComplete(uint64_t FenceValue)
+			{
+				return GetQueue(ECommandListType(FenceValue >> 56))->IsFenceCompleted(FenceValue);
+			}
+
 		protected:
 			ICommandManager() 
 				: m_pDeviceRef(NULL)

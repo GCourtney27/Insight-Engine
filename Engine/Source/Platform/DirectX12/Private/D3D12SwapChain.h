@@ -23,7 +23,7 @@ namespace Insight
 				virtual void SwapBuffers() override;
 				virtual void Resize(const FVector2& NewResolution) override;
 				virtual void SetNumBackBuffes(UInt32 NumBuffers) override;
-				virtual void SetBackBufferFormat(ETextureFormat& Format) override;
+				virtual void SetBackBufferFormat(EFormat& Format) override;
 
 				virtual void* GetNativeSwapChain() const { return SCast<void*>(m_pDXGISwapChain); }
 

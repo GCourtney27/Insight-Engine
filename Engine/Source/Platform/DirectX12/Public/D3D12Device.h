@@ -33,6 +33,8 @@ namespace Insight
 
 				virtual void* GetNativeDevice() const override { return RCast<void*>(m_pD3DDevice); }
 
+
+
 			protected:
 				void GetHardwareAdapter(IDXGIFactory6* pFactory, IDXGIAdapter1** ppAdapter, const IED3D12DeviceInitParams& InitParams, IED3D12DeviceQueryResult& OutDeviceQueryResult);
 				

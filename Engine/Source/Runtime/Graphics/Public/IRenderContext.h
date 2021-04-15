@@ -41,7 +41,6 @@ namespace Insight
 			//
 			// Getters/Setters
 			//
-			FORCE_INLINE IDevice* GetDevice()					const { return m_pDevice; }
 			FORCE_INLINE ISwapChain* GetSwapChain()				const { return m_pSwapChain; }
 			FORCE_INLINE std::shared_ptr<Window> GetWindow()	const { return m_pWindow; }
 			
@@ -49,12 +48,10 @@ namespace Insight
 
 		protected:
 			IRenderContext()
-				: m_pDevice(NULL)
-				, m_pSwapChain(NULL)
+				:  m_pSwapChain(NULL)
 			{
 			}
 
-			FORCE_INLINE IDevice** GetDeviceAddress() { return &m_pDevice; }
 			FORCE_INLINE ISwapChain** GetSwapChainAddress() { return &m_pSwapChain; }
 
 
@@ -65,7 +62,6 @@ namespace Insight
 
 			std::shared_ptr<Window> m_pWindow;
 
-			IDevice* m_pDevice;
 			ISwapChain* m_pSwapChain;
 
 			std::vector<ieVertexBuffer> m_VertexBuffers;

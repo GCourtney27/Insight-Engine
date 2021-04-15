@@ -148,21 +148,10 @@ namespace Insight {
 				return 0;
 			}
 
-			/*if (wParam == VK_F11)
+			if (wParam == VK_F11)
 			{
-				if (pWindow.GetIsFullScreenEnabled())
-				{
-					pWindow.SetFullScreenEnabled(false);
-					WindowToggleFullScreenEvent event(false);
-					pWindow.GetEventCallbackFn()(event);
-				}
-				else
-				{
-					pWindow.SetFullScreenEnabled(true);
-					WindowToggleFullScreenEvent event(true);
-					pWindow.GetEventCallbackFn()(event);
-				}
-			}*/
+				pWindow.GetEventCallbackFn()(WindowToggleFullScreenEvent{});
+			}
 			KeyPressedEvent event((KeyMapCode)((char)wParam), 0);
 			pWindow.GetEventCallbackFn()(event);
 			return 0;
@@ -369,28 +358,7 @@ namespace Insight {
 	{
 		switch (GetWindowMode())
 		{
-		case EWindowMode::WM_Borderless:
-			if (!GetIsFullScreenActive())
-			{
-				//
-				// Bring us out of full screen mode.
-				//
-				::SetWindowLong(m_hWindow, GWL_STYLE, m_WindowStyle);
-
-				::SetWindowPos(
-					m_hWindow,
-					HWND_NOTOPMOST,
-					m_WindowRect.left,
-					m_WindowRect.top,
-					m_WindowRect.right - m_WindowRect.left,
-					m_WindowRect.bottom - m_WindowRect.top,
-					SWP_FRAMECHANGED | SWP_NOACTIVATE);
-
-				::ShowWindow(m_hWindow, SW_NORMAL);
-
-				IE_LOG(Log, TEXT("Exiting fullscreen mode."));
-			}
-			else
+		case EWindowMode::WM_FullScreen:
 			{
 				//
 				// Bring us into fullscreen mode.
@@ -429,6 +397,22 @@ namespace Insight {
 			}
 			break;
 		case EWindowMode::WM_Windowed:
+		{
+			::SetWindowLong(m_hWindow, GWL_STYLE, m_WindowStyle);
+
+			::SetWindowPos(
+				m_hWindow,
+				HWND_NOTOPMOST,
+				m_WindowRect.left,
+				m_WindowRect.top,
+				m_WindowRect.right - m_WindowRect.left,
+				m_WindowRect.bottom - m_WindowRect.top,
+				SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+			::ShowWindow(m_hWindow, SW_NORMAL);
+
+			IE_LOG(Log, TEXT("Exiting fullscreen mode."));
+		}
 			break;
 		}
 	}

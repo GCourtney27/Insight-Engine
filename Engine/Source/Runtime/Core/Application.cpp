@@ -26,9 +26,17 @@
 #include "Runtime/Graphics/Public/RenderCore.h"
 // TEMP
 #include "Runtime/Graphics/Private/ISwapChain.h"
+#include "Runtime/Graphics/Private/IDevice.h"
 #endif // IE_RENDER_MULTI_PLATFORM
 
+#include "Platform/DirectX12/Public/Resource/D3D12ColorBuffer.h"
+#include "Platform/DirectX12/Public/Resource/D3D12VertexBuffer.h"
+#include "Platform/DirectX12/Public/Resource/D3D12IndexBuffer.h"
+#include "Platform/DirectX12/Public/D3D12PipelineState.h"
+#include "Platform/DirectX12/Public/D3D12RootSignature.h"
 
+#include "Platform/DirectX12/Wrappers/D3D12Shader.h"
+#include <d3dcompiler.h>
 static const char* TargetSceneName = "Debug.iescene";
 namespace Insight {
 
@@ -69,7 +77,7 @@ namespace Insight {
 			using namespace Graphics;
 			IRenderContext* pRenderContext = NULL;
 			ERenderBackend api = ERenderBackend::Direct3D_12;
-			// TEST Setup renderer
+			// Setup renderer
 			{
 				switch (api)
 				{
@@ -107,6 +115,116 @@ namespace Insight {
 			
 			m_pWindow->SetWindowMode(EWindowMode::WM_Windowed);
 
+			IColorBuffer* pSceneBuffer = new DX12::D3D12ColorBuffer();
+			pSceneBuffer->Create(g_pDevice, TEXT("Scene Buffer"), m_pWindow->GetWidth(), m_pWindow->GetHeight(), 1u, pSwapChain->GetDesc().Format);
+
+			IRootSignature* pRS = new DX12::D3D12RootSignature();
+			RootSignatureDesc RSDesc = {};
+			RSDesc.Flags |= RSF_AllowInputAssemblerLayout;
+			pRS->Initialize(RSDesc);
+
+			InputElementDesc InputElements[] =
+			{
+				{ "POSITION", 0, F_R32G32B32_FLOAT, 0, 0, IC_PerVertexData, 0 },
+				{ "COLOR", 0, F_R32G32B32A32_FLOAT, 0, 12, IC_PerVertexData, 0 },
+			};
+			::Microsoft::WRL::ComPtr<ID3DBlob> vertexShader;
+			::Microsoft::WRL::ComPtr<ID3DBlob> pixelShader;
+
+#if defined(_DEBUG)
+			// Enable better shader debugging with the graphics debugging tools.
+			UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#else
+			UINT compileFlags = 0;
+#endif
+			ThrowIfFailed(D3DCompileFromFile(L"Shaders.hlsl", nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, nullptr), TEXT(""));
+			ThrowIfFailed(D3DCompileFromFile(L"Shaders.hlsl", nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, nullptr), TEXT(""));
+
+
+			IPipelineState* pPSO = new DX12::D3D12PipelineState();
+			PipelineStateDesc PSODesc = {};
+			PSODesc.VertexShader = { vertexShader->GetBufferPointer(), vertexShader->GetBufferSize() };
+			PSODesc.PixelShader = { pixelShader->GetBufferPointer(), pixelShader->GetBufferSize() };
+			PSODesc.InputLayout.NumElements = _countof(InputElements);
+			PSODesc.InputLayout.pInputElementDescs = InputElements;
+			PSODesc.pRootSignature = pRS;
+			PSODesc.DepthStencilState = CommonStructHelpers::CDepthStencilStateDesc();
+			PSODesc.BlendState = CommonStructHelpers::CBlendDesc();
+			PSODesc.RasterizerDesc = CommonStructHelpers::CRasterizerDesc();
+			PSODesc.SampleMask = UINT_MAX;
+			PSODesc.PrimitiveTopologyType = PTT_Triangle;
+			PSODesc.NumRenderTargets = pSwapChain->GetDesc().BufferCount;
+			PSODesc.RTVFormats[0] = pSwapChain->GetDesc().Format;
+			PSODesc.SampleDesc = { 1, 0 };
+			pPSO->Initialize(PSODesc);
+
+			struct Mesh
+			{
+				Mesh()
+					: m_vb(new DX12::D3D12VertexBuffer)
+					, m_ib(new DX12::D3D12IndexBuffer)
+				{
+					
+				}
+				void Load() { Init(); }
+
+				void Draw(ICommandContext& GfxContext)
+				{
+					GfxContext.SetPrimitiveTopologyType(PT_TiangleList);
+
+					//GfxContext.BindIndexBuffer( *m_ib );// TODO Init index buffer views
+					GfxContext.BindVertexBuffer( 0, *m_vb );
+					GfxContext.DrawInstanced(m_NumVerts, 1, 0, 0 );
+				}
+
+			protected:
+				struct ScreenSpaceVertex
+				{
+					FVector3 Position;
+					FVector4 Color;
+				};
+				void Init()
+				{
+					ScreenSpaceVertex TriangleVertices[] =
+					{
+						{ { 0.0f, 0.25f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+						{ { 0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+						{ { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
+					};
+					const UINT VertexBufferSize = sizeof(TriangleVertices);
+					m_NumVerts = VertexBufferSize / sizeof(ScreenSpaceVertex);
+
+					ID3D12Device* pID3D12Device = RCast<ID3D12Device*>(g_pDevice->GetNativeDevice());
+
+					D3D12_VERTEX_BUFFER_VIEW* pVbView = RCast<D3D12_VERTEX_BUFFER_VIEW*>(m_vb->GetNativeBufferView());
+					DX12::D3D12VertexBuffer* pBuffer = DCast<DX12::D3D12VertexBuffer*>(m_vb);
+					ID3D12Device* pD3DDevice = RCast<ID3D12Device*>(g_pDevice->GetNativeDevice());
+					pBuffer->Create(pD3DDevice, VertexBufferSize);
+
+					ID3D12Resource* pResource = pBuffer->GetResource();
+
+					// Copy the triangle data to the vertex buffer.
+					UINT8* pVertexDataBegin;
+					CD3DX12_RANGE readRange(0, 0);        // We do not intend to read from this resource on the CPU.
+					ThrowIfFailed(pResource->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin)), TEXT("Failed to map memory!"));
+					memcpy(pVertexDataBegin, TriangleVertices, sizeof(TriangleVertices));
+					pResource->Unmap(0, nullptr);
+
+					// Initialize the vertex buffer view.
+					pVbView->BufferLocation = pResource->GetGPUVirtualAddress();
+					pVbView->StrideInBytes = sizeof(ScreenSpaceVertex);
+					pVbView->SizeInBytes = VertexBufferSize;
+				}
+
+				UInt32 m_NumVerts;
+
+				IVertexBuffer* m_vb;
+				IIndexBuffer* m_ib;
+			};
+
+			Mesh mesh;
+			mesh.Load();
+
 			while (m_Running)
 			{
 				// Process the window's Messages 
@@ -115,26 +233,39 @@ namespace Insight {
 				pRenderContext->PreFrame();
 
 				// Render stuff
-				ICommandContext& Context = ICommandContext::Begin(L"Frame");
+				ICommandContext& CmdContext = ICommandContext::Begin(L"Frame");
 				{
-					IColorBuffer* CurrentBackBuffer = pSwapChain->GetColorBufferForCurrentFrame();
-					IGPUResource& BackSwapChainBuffer = *DCast<IGPUResource*>(CurrentBackBuffer);
-					Context.TransitionResource(BackSwapChainBuffer, RS_RenderTarget);
+					IColorBuffer* pSwapChainBackBuffer = pSwapChain->GetColorBufferForCurrentFrame();
+					IGPUResource& BackSwapChainBuffer = *DCast<IGPUResource*>(pSwapChainBackBuffer);
+					CmdContext.TransitionResource(BackSwapChainBuffer, RS_RenderTarget);
 
-					Context.ClearColorBuffer(*CurrentBackBuffer, ScissorRect);
-					Context.RSSetViewPorts(1, &ViewPort);
-					Context.RSSetScissorRects(1, &ScissorRect);
+					//const IColorBuffer* RTs[] = { pSceneBuffer };
+					//Context.OMSetRenderTargets(1, RTs);
+					//Context.ClearColorBuffer(*pSceneBuffer, ScissorRect);
+
+					CmdContext.ClearColorBuffer(*pSwapChainBackBuffer, ScissorRect);
+					const IColorBuffer* RTs[] = { pSwapChainBackBuffer };
+					CmdContext.OMSetRenderTargets(1, RTs);
+					CmdContext.RSSetViewPorts(1, &ViewPort);
+					CmdContext.RSSetScissorRects(1, &ScissorRect);
 					
-					Context.TransitionResource(BackSwapChainBuffer, RS_Present);
+					CmdContext.SetPipelineState(*pPSO);
+					CmdContext.SetGraphicsRootSignature(*pRS);
+
+					// TODO: Render model
+					mesh.Draw(CmdContext);
+
+					CmdContext.TransitionResource(BackSwapChainBuffer, RS_Present);
 				}
-				Context.Finish();
+				CmdContext.Finish();
 
 				pRenderContext->SubmitFrame();
 				pRenderContext->Present();
 			}
 			SAFE_DELETE_PTR(pRenderContext);
 		}
-		return;
+
+		exit(EXIT_SUCCESS); // Just for easier debugging quit the entire program.
 #endif
 		// Initize the main file system.
 		FileSystem::Init();
@@ -401,6 +532,11 @@ namespace Insight {
 
 	bool Application::OnWindowFullScreen(WindowToggleFullScreenEvent& e)
 	{
+		if(m_pWindow->GetWindowMode() == EWindowMode::WM_FullScreen)
+			m_pWindow->SetWindowMode(EWindowMode::WM_Windowed);
+		else
+			m_pWindow->SetWindowMode(EWindowMode::WM_FullScreen);
+
 #if !IE_RENDER_MULTI_PLATFORM
 		Renderer::PushEvent<WindowToggleFullScreenEvent>(e);
 #endif

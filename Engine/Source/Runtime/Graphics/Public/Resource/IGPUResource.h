@@ -39,6 +39,8 @@ namespace Insight
 			virtual ~IGPUResource() 
 			{
 			}
+			virtual void Destroy() = 0;
+
 
 			EResourceState m_UsageState;
 			EResourceState m_TransitioningState;

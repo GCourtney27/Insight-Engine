@@ -28,15 +28,15 @@ namespace Insight {
 
 	struct WindowDescription
 	{
-		uint32_t Width;
-		uint32_t Height;
+		UInt32 Width;
+		UInt32 Height;
 		EString Title;
 		EString Class;
 		int NumCmdArgs;
 		EString CmdArgs;
 		EventCallbackFn EventCallbackFunction;
 
-		WindowDescription(EventCallbackFn CallbackFn, int CmdLineArgCount = 0, std::wstring CmdArgVals = L"", const std::wstring& title = L"Insight Ed", const std::wstring winClass = L"CLASS", uint32_t width = 1700, uint32_t height = 1000)
+		WindowDescription(EventCallbackFn CallbackFn, int CmdLineArgCount = 0, std::wstring CmdArgVals = L"", const std::wstring& title = L"Insight Ed", const std::wstring winClass = L"CLASS", UInt32 width = 1700, UInt32 height = 1000)
 			: EventCallbackFunction(CallbackFn), NumCmdArgs(CmdLineArgCount), CmdArgs(CmdArgVals), Title(title), Class(winClass), Width(width), Height(height)
 		{
 		}
@@ -69,9 +69,9 @@ namespace Insight {
 		FORCE_INLINE float GetAspectRatio()				const { return m_AspectRatio; }
 		FORCE_INLINE bool GetIsVisible()				const { return m_IsVisible; }
 		FORCE_INLINE bool GetIsFullScreenActive()		const { return m_WindowMode == EWindowMode::WM_Borderless; }
-		FORCE_INLINE EWindowMode GetWindowMode()			{ return m_WindowMode;}
-		FORCE_INLINE void SetIsVisible(bool Visible)		{ m_IsVisible = Visible; }
-		FORCE_INLINE void SetAspectRatio(float AspectRatio)	{ m_AspectRatio = AspectRatio; }
+		FORCE_INLINE EWindowMode GetWindowMode()			  { return m_WindowMode; }
+		FORCE_INLINE void SetIsVisible(bool Visible)		  { m_IsVisible = Visible; }
+		FORCE_INLINE void SetAspectRatio(float AspectRatio)	  { m_AspectRatio = AspectRatio; }
 		FORCE_INLINE void SetWindowMode(EWindowMode Mode);
 		FORCE_INLINE void SetDPI(float NewDPI)				{ m_DPI = NewDPI; Resize(m_LogicalWidth, m_LogicalHeight, !m_IsVisible); }
 
