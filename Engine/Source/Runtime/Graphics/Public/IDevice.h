@@ -2,6 +2,8 @@
 
 #include <Runtime/Core.h>
 
+#include "Runtime/Graphics/Public/GraphicsCore.h"
+
 namespace Insight
 {
 	namespace Graphics
@@ -23,6 +25,8 @@ namespace Insight
 		public:
 			virtual void* GetNativeDevice() const = 0;
 
+			virtual void CreatePipelineState(const PipelineStateDesc& PSODesc, IPipelineState** ppOutPSO) = 0;
+			virtual void CreateRootSignature(const RootSignatureDesc& RSDesc, IRootSignature** ppOutSignature) = 0;
 
 		protected:
 			IDevice() {}

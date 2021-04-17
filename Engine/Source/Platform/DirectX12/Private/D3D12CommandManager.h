@@ -76,7 +76,6 @@ namespace Insight
 
 				virtual void WaitForFence(UInt64 FenceValue) override;
 
-			protected:
 				D3D12CommandManager()
 					: m_pID3D12DeviceRef(NULL)
 					, m_pD3D12DeviceRef(NULL)
@@ -89,6 +88,8 @@ namespace Insight
 					m_pID3D12DeviceRef = NULL;
 					m_pD3D12DeviceRef = NULL;
 				}
+				
+			protected:
 
 				virtual void UnInitialize() override;
 

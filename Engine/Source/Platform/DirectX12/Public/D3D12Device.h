@@ -2,7 +2,7 @@
 
 #include <Runtime/Core.h>
 
-#include "Runtime/Graphics/Private/IDevice.h"
+#include "Runtime/Graphics/Public/IDevice.h"
 
 
 namespace Insight
@@ -34,6 +34,8 @@ namespace Insight
 				virtual void* GetNativeDevice() const override { return RCast<void*>(m_pD3DDevice); }
 
 
+				virtual void CreatePipelineState(const PipelineStateDesc& PSODesc, IPipelineState** ppOutPSO) override;
+				virtual void CreateRootSignature(const RootSignatureDesc& RSDesc, IRootSignature** ppOutSignature) override;
 
 			protected:
 				void GetHardwareAdapter(IDXGIFactory6* pFactory, IDXGIAdapter1** ppAdapter, const IED3D12DeviceInitParams& InitParams, IED3D12DeviceQueryResult& OutDeviceQueryResult);

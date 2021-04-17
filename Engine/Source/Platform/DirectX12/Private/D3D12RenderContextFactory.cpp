@@ -7,6 +7,7 @@
 #include "Platform/DirectX12/Private/D3D12CommandManager.h"
 #include "Platform/DirectX12/Private/D3D12SwapChain.h"
 #include "Platform/DirectX12/Public/D3D12DescriptorAllocator.h"
+#include "Platform/DirectX12/Public/D3D12GeometryManager.h"
 #include "Platform/Public/Utility/COMException.h"
 
 #include "Runtime/Graphics/Public/IRenderContext.h"
@@ -134,6 +135,12 @@ namespace Insight
 			void D3D12RenderContextFactory::CreateContextManager(IContextManager** OutCommandContext)
 			{
 				D3D12ContextManager* pD3D12ContextManager = CreateRenderComponentObject<D3D12ContextManager>(OutCommandContext);
+
+			}
+			
+			void D3D12RenderContextFactory::CreateGeometryManager(IGeometryManager** OutGeometryManager)
+			{
+				D3D12GeometryManager* pD3D12ContextManager = CreateRenderComponentObject<D3D12GeometryManager>(OutGeometryManager);
 
 			}
 		}

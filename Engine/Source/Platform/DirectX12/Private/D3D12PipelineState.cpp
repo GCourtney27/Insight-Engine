@@ -4,7 +4,7 @@
 #include "Platform/Public/Utility/COMException.h"
 
 #include "Runtime/Graphics/Public/GraphicsCore.h"
-#include "Runtime/Graphics/Private/IDevice.h"
+#include "Runtime/Graphics/Public/IDevice.h"
 #include "Runtime/Graphics/Public/IRootSignature.h"
 
 namespace Insight

@@ -4,7 +4,7 @@
 
 #include "Runtime/Graphics/Public/IRenderContext.h"
 #include "Runtime/Graphics/Public/ICommandContext.h"
-#include "Runtime/Graphics/Private/IDevice.h"
+#include "Runtime/Graphics/Public/IDevice.h"
 #include "Runtime/Graphics/Private/ISwapChain.h"
 #include "Runtime/Graphics/Private/ICommandManager.h"
 
@@ -33,6 +33,7 @@ namespace Insight
 			SAFE_DELETE_PTR(g_pCommandManager);
 			SAFE_DELETE_PTR(g_pContextManager);
 			SAFE_DELETE_PTR(m_pSwapChain);
+			SAFE_DELETE_PTR(g_pGeometryManager);
 		}
 
 		void IRenderContext::OnWindowModeChanged(EWindowMode Mode)

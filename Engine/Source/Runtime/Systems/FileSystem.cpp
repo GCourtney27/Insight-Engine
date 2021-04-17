@@ -30,12 +30,11 @@ namespace Insight {
 		return true;
 	}
 
-	std::unique_ptr<TChar> FileSystem::ReadRawData(const TChar* Path, size_t& OutDataSize)
+	std::unique_ptr<char> FileSystem::ReadRawData(const TChar* Path, size_t& OutDataSize)
 	{
 		FILE* pFile = _wfopen(Path, TEXT("rb"));
 		if (!pFile)
 		{
-			HRESULT hr = HRESULT_FROM_WIN32(GetLastError());
 			IE_LOG(Error, TEXT("Failed to read raw file with path: \"%s\""), Path);
 			OutDataSize = -1;
 			return nullptr;
@@ -47,7 +46,7 @@ namespace Insight {
 		fseek(pFile, 0, SEEK_SET);
 		
 		// Fill the buffer with the data in the file.
-		std::unique_ptr<TChar> FileContents(new TChar[OutDataSize]);
+		std::unique_ptr<char> FileContents(new char[OutDataSize]);
 		fread(FileContents.get(), 1, OutDataSize, pFile);
 
 		fclose(pFile);

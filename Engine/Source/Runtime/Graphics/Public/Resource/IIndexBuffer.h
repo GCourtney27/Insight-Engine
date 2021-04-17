@@ -10,11 +10,12 @@ namespace Insight
 		class INSIGHT_API IIndexBuffer
 		{
 		public:
+			virtual ~IIndexBuffer() {}
+
 			virtual void* GetNativeBufferView() = 0;
 
 		protected:
 			IIndexBuffer() {}
-			~IIndexBuffer() {}
 		};
 	}
 }

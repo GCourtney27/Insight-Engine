@@ -16,6 +16,7 @@ namespace Insight
 		class ICommandManager;
 		class IContextManager;
 		class IDescriptorAllocator;
+		class IGeometryManager;
 
 		class INSIGHT_API IRenderContextFactory
 		{
@@ -29,19 +30,8 @@ namespace Insight
 			virtual void CreateSwapChain(ISwapChain** OutSwapChain, ICommandManager* InCommandManager, IDevice* InDevice) = 0;
 			virtual void CreateCommandManager(ICommandManager** OutCommandManager, IDevice* InDevice) = 0;
 			virtual void CreateContextManager(IContextManager** OutCommandContext) = 0;
-
-
-			template <typename DerivedType, typename BaseType, typename ... InitArgs>
-			inline DerivedType* CreateRenderComponentObject(BaseType** ppBase, InitArgs ... args)
-			{
-				*ppBase = new DerivedType(args...);
-				DerivedType* pDericedClass = DCast<DerivedType*>(*ppBase);
-				IE_ASSERT(pDericedClass != NULL);
-
-				return pDericedClass;
-			}
+			virtual void CreateGeometryManager(IGeometryManager** OutGeometryManager) = 0;
 			
-
 		protected:
 			IRenderContextFactory()
 				: m_pTarget(NULL)
@@ -66,6 +56,7 @@ namespace Insight
 			CreateCommandManager(&g_pCommandManager, g_pDevice);
 			CreateContextManager(&g_pContextManager);
 			CreateSwapChain(m_pTarget->GetSwapChainAddress(), g_pCommandManager, g_pDevice);
+			CreateGeometryManager(&g_pGeometryManager);
 		}
 	}
 }

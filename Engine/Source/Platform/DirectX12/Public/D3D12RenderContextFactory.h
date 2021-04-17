@@ -29,6 +29,7 @@ namespace Insight
 				virtual void CreateSwapChain(ISwapChain** OutSwapChain, ICommandManager* InCommandManager, IDevice* InDevice) override;
 				virtual void CreateCommandManager(ICommandManager** OutCommandManager, IDevice* InDevice) override;
 				virtual void CreateContextManager(IContextManager** OutCommandContext) override;
+				virtual void CreateGeometryManager(IGeometryManager** OutGeometryManager) override;
 
 				void CreateDXGIFactory();
 

@@ -20,13 +20,12 @@ namespace Insight
 				friend class IRenderContextFactory;
 				friend class D3D12RenderContextFactory;
 			public:
+				D3D12ContextManager();
+				virtual ~D3D12ContextManager();
+
 				virtual ICommandContext* AllocateContext(ECommandListType Type) override;
 				virtual void FreeContext(ICommandContext* pContext) override;
 				virtual void DestroyAllContexts() override;
-
-			protected:
-				D3D12ContextManager();
-				virtual ~D3D12ContextManager();
 			};
 
 

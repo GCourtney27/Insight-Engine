@@ -3,6 +3,8 @@
 #include "Platform/DirectX12/Public/D3D12Device.h"
 
 #include "Platform/Public/Utility/COMException.h"
+#include "Platform/DirectX12/Public/D3D12RootSignature.h"
+#include "Platform/DirectX12/Public/D3D12PipelineState.h"
 
 namespace Insight
 {
@@ -53,6 +55,18 @@ namespace Insight
 						IID_PPV_ARGS(&m_pD3DDevice)
 					), TEXT("Failed to create D3D12 device!"));
 				}
+			}
+
+			void D3D12Device::CreatePipelineState(const PipelineStateDesc& PSODesc, IPipelineState** ppOutPSO)
+			{
+				D3D12PipelineState* pD3D12PSO = CreateRenderComponentObject< D3D12PipelineState>(ppOutPSO);
+				pD3D12PSO->Initialize(PSODesc);
+			}
+
+			void D3D12Device::CreateRootSignature(const RootSignatureDesc& RSDesc, IRootSignature** ppOutSignature)
+			{
+				D3D12RootSignature* pD3D12RS = CreateRenderComponentObject<D3D12RootSignature>(ppOutSignature);
+				pD3D12RS->Initialize(RSDesc);
 			}
 
 			void D3D12Device::GetHardwareAdapter(IDXGIFactory6* pFactory, IDXGIAdapter1** ppAdapter, const IED3D12DeviceInitParams& InitParams, IED3D12DeviceQueryResult& OutDeviceQueryResult)

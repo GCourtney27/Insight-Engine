@@ -26,7 +26,7 @@
 #include "Runtime/Graphics/Public/RenderCore.h"
 // TEMP
 #include "Runtime/Graphics/Private/ISwapChain.h"
-#include "Runtime/Graphics/Private/IDevice.h"
+#include "Runtime/Graphics/Public/IDevice.h"
 #endif // IE_RENDER_MULTI_PLATFORM
 
 #include "Platform/DirectX12/Public/Resource/D3D12ColorBuffer.h"
@@ -112,16 +112,16 @@ namespace Insight {
 			ISwapChain* pSwapChain = pRenderContext->GetSwapChain();
 			Color ClearColor(0.f, .0f, 1.f);
 			pSwapChain->SetClearColor(ClearColor);
-			
+
 			m_pWindow->SetWindowMode(EWindowMode::WM_Windowed);
 
 			IColorBuffer* pSceneBuffer = new DX12::D3D12ColorBuffer();
 			pSceneBuffer->Create(g_pDevice, TEXT("Scene Buffer"), m_pWindow->GetWidth(), m_pWindow->GetHeight(), 1u, pSwapChain->GetDesc().Format);
 
-			IRootSignature* pRS = new DX12::D3D12RootSignature();
 			RootSignatureDesc RSDesc = {};
 			RSDesc.Flags |= RSF_AllowInputAssemblerLayout;
-			pRS->Initialize(RSDesc);
+			IRootSignature* pRS = NULL;
+			g_pDevice->CreateRootSignature(RSDesc, &pRS);
 
 			InputElementDesc InputElements[] =
 			{
@@ -130,18 +130,46 @@ namespace Insight {
 			};
 			::Microsoft::WRL::ComPtr<ID3DBlob> vertexShader;
 			::Microsoft::WRL::ComPtr<ID3DBlob> pixelShader;
-
-#if defined(_DEBUG)
-			// Enable better shader debugging with the graphics debugging tools.
-			UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+			UINT compileFlags =
+#if IE_DEBUG
+				// Enable better shader debugging with the graphics debugging tools.
+				D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #else
-			UINT compileFlags = 0;
+				0;
 #endif
-			ThrowIfFailed(D3DCompileFromFile(L"Shaders.hlsl", nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, nullptr), TEXT(""));
-			ThrowIfFailed(D3DCompileFromFile(L"Shaders.hlsl", nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, nullptr), TEXT(""));
+			std::string ShaderSource = R"(
+struct PSInput
+{
+    float4 position : SV_POSITION;
+    float4 color : COLOR;
+};
+
+struct VSInput
+{
+    float4 Position : POSITION;
+    float4 Color : COLOR;
+};
+
+PSInput VSMain(VSInput Input)
+{
+    PSInput Result;
+
+    Result.position = Input.Position;
+    Result.color = Input.Color;
+
+    return Result;
+}
+
+float4 PSMain(PSInput Input) : SV_TARGET
+{
+    return Input.color;
+}
+				)";
+			ThrowIfFailed(D3DCompile(ShaderSource.data(), ShaderSource.size() * sizeof(char), NULL, NULL, NULL, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, NULL), TEXT(""));
+			ThrowIfFailed(D3DCompile(ShaderSource.data(), ShaderSource.size() * sizeof(char), NULL, NULL, NULL, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, NULL), TEXT(""));
 
 
-			IPipelineState* pPSO = new DX12::D3D12PipelineState();
+			IPipelineState* pPSO = NULL;
 			PipelineStateDesc PSODesc = {};
 			PSODesc.VertexShader = { vertexShader->GetBufferPointer(), vertexShader->GetBufferSize() };
 			PSODesc.PixelShader = { pixelShader->GetBufferPointer(), pixelShader->GetBufferSize() };
@@ -156,25 +184,29 @@ namespace Insight {
 			PSODesc.NumRenderTargets = pSwapChain->GetDesc().BufferCount;
 			PSODesc.RTVFormats[0] = pSwapChain->GetDesc().Format;
 			PSODesc.SampleDesc = { 1, 0 };
-			pPSO->Initialize(PSODesc);
+			g_pDevice->CreatePipelineState(PSODesc, &pPSO);
 
-			struct Mesh
+			struct StaticMesh
 			{
-				Mesh()
-					: m_vb(new DX12::D3D12VertexBuffer)
-					, m_ib(new DX12::D3D12IndexBuffer)
+				StaticMesh()
 				{
-					
+					m_DrawArgs.VertexBufferHandle = g_pGeometryManager->AllocateVertexBuffer();
+					//m_DrawArgs.IndexBufferHandle = g_pGeometryManager->AllocateIndexBuffer();
 				}
-				void Load() { Init(); }
+				virtual ~StaticMesh()
+				{
+					//UnInit();
+				}
+				void Load(const TChar* Filepath) { Init(); }
 
 				void Draw(ICommandContext& GfxContext)
 				{
 					GfxContext.SetPrimitiveTopologyType(PT_TiangleList);
 
+					IVertexBuffer& VertBuffer = g_pGeometryManager->GetVertexBufferByUID(m_DrawArgs.VertexBufferHandle);
 					//GfxContext.BindIndexBuffer( *m_ib );// TODO Init index buffer views
-					GfxContext.BindVertexBuffer( 0, *m_vb );
-					GfxContext.DrawInstanced(m_NumVerts, 1, 0, 0 );
+					GfxContext.BindVertexBuffer(0, VertBuffer);
+					GfxContext.DrawInstanced(m_DrawArgs.NumVerts, 1, 0, 0);
 				}
 
 			protected:
@@ -182,6 +214,13 @@ namespace Insight {
 				{
 					FVector3 Position;
 					FVector4 Color;
+				};
+				struct DrawArgs
+				{
+					UInt32 NumVerts;
+					UInt32 NumIndices;
+					VertexBufferUID VertexBufferHandle;
+					IndexBufferUID IndexBufferHandle;
 				};
 				void Init()
 				{
@@ -191,39 +230,26 @@ namespace Insight {
 						{ { 0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
 						{ { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
 					};
-					const UINT VertexBufferSize = sizeof(TriangleVertices);
-					m_NumVerts = VertexBufferSize / sizeof(ScreenSpaceVertex);
+					const UInt32 VertexBufferSize = sizeof(TriangleVertices);
+					m_DrawArgs.NumVerts = VertexBufferSize / sizeof(ScreenSpaceVertex);
 
-					ID3D12Device* pID3D12Device = RCast<ID3D12Device*>(g_pDevice->GetNativeDevice());
-
-					D3D12_VERTEX_BUFFER_VIEW* pVbView = RCast<D3D12_VERTEX_BUFFER_VIEW*>(m_vb->GetNativeBufferView());
-					DX12::D3D12VertexBuffer* pBuffer = DCast<DX12::D3D12VertexBuffer*>(m_vb);
-					ID3D12Device* pD3DDevice = RCast<ID3D12Device*>(g_pDevice->GetNativeDevice());
-					pBuffer->Create(pD3DDevice, VertexBufferSize);
-
-					ID3D12Resource* pResource = pBuffer->GetResource();
-
-					// Copy the triangle data to the vertex buffer.
-					UINT8* pVertexDataBegin;
-					CD3DX12_RANGE readRange(0, 0);        // We do not intend to read from this resource on the CPU.
-					ThrowIfFailed(pResource->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin)), TEXT("Failed to map memory!"));
-					memcpy(pVertexDataBegin, TriangleVertices, sizeof(TriangleVertices));
-					pResource->Unmap(0, nullptr);
-
-					// Initialize the vertex buffer view.
-					pVbView->BufferLocation = pResource->GetGPUVirtualAddress();
-					pVbView->StrideInBytes = sizeof(ScreenSpaceVertex);
-					pVbView->SizeInBytes = VertexBufferSize;
+					IE_ASSERT(m_DrawArgs.VertexBufferHandle != IE_INVALID_VERTEX_BUFFER_HANDLE);
+					IVertexBuffer& Buffer = g_pGeometryManager->GetVertexBufferByUID(m_DrawArgs.VertexBufferHandle);
+					Buffer.Create(TEXT("My Mesh"), VertexBufferSize, sizeof(ScreenSpaceVertex), TriangleVertices);
 				}
 
-				UInt32 m_NumVerts;
+				void UnInit()
+				{
+					g_pGeometryManager->DeAllocateVertexBuffer(m_DrawArgs.VertexBufferHandle);
+					//g_pGeometryManager->DeAllocateIndexBuffer(m_DrawArgs.IndexBufferHandle);
+				}
 
-				IVertexBuffer* m_vb;
-				IIndexBuffer* m_ib;
+				DrawArgs m_DrawArgs;
 			};
 
-			Mesh mesh;
-			mesh.Load();
+
+			StaticMesh mesh;
+			mesh.Load(TEXT("TODO: Filepath"));
 
 			while (m_Running)
 			{
@@ -248,7 +274,7 @@ namespace Insight {
 					CmdContext.OMSetRenderTargets(1, RTs);
 					CmdContext.RSSetViewPorts(1, &ViewPort);
 					CmdContext.RSSetScissorRects(1, &ScissorRect);
-					
+
 					CmdContext.SetPipelineState(*pPSO);
 					CmdContext.SetGraphicsRootSignature(*pRS);
 
@@ -267,6 +293,7 @@ namespace Insight {
 
 		exit(EXIT_SUCCESS); // Just for easier debugging quit the entire program.
 #endif
+
 		// Initize the main file system.
 		FileSystem::Init();
 
@@ -471,7 +498,7 @@ namespace Insight {
 		PushOverlay(m_pEditorLayer);
 		)
 
-		m_pPerfOverlay = new PerfOverlay();
+			m_pPerfOverlay = new PerfOverlay();
 		PushOverlay(m_pPerfOverlay);
 	}
 
@@ -532,7 +559,7 @@ namespace Insight {
 
 	bool Application::OnWindowFullScreen(WindowToggleFullScreenEvent& e)
 	{
-		if(m_pWindow->GetWindowMode() == EWindowMode::WM_FullScreen)
+		if (m_pWindow->GetWindowMode() == EWindowMode::WM_FullScreen)
 			m_pWindow->SetWindowMode(EWindowMode::WM_Windowed);
 		else
 			m_pWindow->SetWindowMode(EWindowMode::WM_FullScreen);

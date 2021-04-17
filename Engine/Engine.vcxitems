@@ -13,4 +13,12 @@
   <ItemGroup>
     <ProjectCapability Include="SourceItemsFromImports" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX12\Public\D3D12GeometryManager.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Source\Runtime\Graphics\Public\IGeometryManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Platform\DirectX12\Private\D3D12GeometryManagerTEMPNAME.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Source\Runtime\Graphics\Private\IGeometryManager.cpp" />
+  </ItemGroup>
 </Project>
