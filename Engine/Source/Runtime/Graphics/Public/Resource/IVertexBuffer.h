@@ -10,7 +10,7 @@ namespace Insight
 	{
 		class INSIGHT_API IVertexBuffer
 		{
-			friend class IGeometryManager;
+			friend class IGeometryBufferManager;
 		public:
 			virtual ~IVertexBuffer() {}
 			

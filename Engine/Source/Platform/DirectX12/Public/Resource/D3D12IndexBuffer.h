@@ -13,6 +13,7 @@ namespace Insight
 		{
 			class INSIGHT_API D3D12IndexBuffer : public IIndexBuffer, public D3D12GPUResource
 			{
+				friend class D3D12GeometryBufferManager;
 			public:
 				D3D12IndexBuffer() {}
 				~D3D12IndexBuffer() {}

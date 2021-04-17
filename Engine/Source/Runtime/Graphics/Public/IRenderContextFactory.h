@@ -16,7 +16,7 @@ namespace Insight
 		class ICommandManager;
 		class IContextManager;
 		class IDescriptorAllocator;
-		class IGeometryManager;
+		class IGeometryBufferManager;
 
 		class INSIGHT_API IRenderContextFactory
 		{
@@ -30,7 +30,7 @@ namespace Insight
 			virtual void CreateSwapChain(ISwapChain** OutSwapChain, ICommandManager* InCommandManager, IDevice* InDevice) = 0;
 			virtual void CreateCommandManager(ICommandManager** OutCommandManager, IDevice* InDevice) = 0;
 			virtual void CreateContextManager(IContextManager** OutCommandContext) = 0;
-			virtual void CreateGeometryManager(IGeometryManager** OutGeometryManager) = 0;
+			virtual void CreateGeometryManager(IGeometryBufferManager** OutGeometryManager) = 0;
 			
 		protected:
 			IRenderContextFactory()

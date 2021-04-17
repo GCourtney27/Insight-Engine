@@ -2,7 +2,7 @@
 
 #include "Runtime/Core.h"
 
-#include "Runtime/Graphics/Public/IGeometryManager.h"
+#include "Runtime/Graphics/Public/IGeometryBufferManager.h"
 
 #include "Platform/DirectX12/Public/Resource/D3D12VertexBuffer.h"
 #include "Platform/DirectX12/Public/Resource/D3D12IndexBuffer.h"
@@ -13,11 +13,11 @@ namespace Insight
 	{
 		namespace DX12
 		{
-			class INSIGHT_API D3D12GeometryManager : public IGeometryManager
+			class INSIGHT_API D3D12GeometryBufferManager : public IGeometryBufferManager
 			{
 			public:
-				D3D12GeometryManager() {}
-				~D3D12GeometryManager() {}
+				D3D12GeometryBufferManager() {}
+				~D3D12GeometryBufferManager() {}
 				
 				virtual VertexBufferUID AllocateVertexBuffer() override
 				{
@@ -37,13 +37,13 @@ namespace Insight
 					return IE_INVALID_INDEX_BUFFER_HANDLE;
 				}
 
-				virtual void DeAllocateVertexBuffer(VertexBufferUID& UID) override
+				FORCE_INLINE virtual void DeAllocateVertexBuffer(VertexBufferUID& UID) override
 				{
 					IE_ASSERT(UID != IE_INVALID_VERTEX_BUFFER_HANDLE);
 					m_VertexBufferLUT.erase(UID);
 				}
 
-				virtual void DeAllocateIndexBuffer(IndexBufferUID& UID) override
+				FORCE_INLINE virtual void DeAllocateIndexBuffer(IndexBufferUID& UID) override
 				{
 					IE_ASSERT(UID != IE_INVALID_INDEX_BUFFER_HANDLE);
 					m_IndexBufferLUT.erase(UID);

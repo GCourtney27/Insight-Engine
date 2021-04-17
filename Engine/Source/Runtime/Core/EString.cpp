@@ -1,6 +1,6 @@
 #include <Engine_pch.h>
 
-#include "EString.h"
+#include "Runtime/Core/EString.h"
 
 namespace Insight
 {

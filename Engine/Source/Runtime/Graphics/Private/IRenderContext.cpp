@@ -7,6 +7,7 @@
 #include "Runtime/Graphics/Public/IDevice.h"
 #include "Runtime/Graphics/Private/ISwapChain.h"
 #include "Runtime/Graphics/Private/ICommandManager.h"
+#include "Runtime/Graphics/Public/IGeometryBufferManager.h"
 
 #include "Runtime/Core/Window.h"
 

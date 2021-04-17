@@ -35,5 +35,54 @@ namespace Insight
 			#pragma message CreateMessageBox not defined for UWP platform!
 #endif
 		}
+
+		DLLHandle LoadDynamicLibrary(const wchar_t* Filepath)
+		{
+			return (DLLHandle)
+#if IE_PLATFORM_BUILD_WIN32
+			LoadLibrary(Filepath);
+#elif IE_PLATFORM_BUILD_UWP
+			LoadPackagedLibrary(Filepath, 0);
+#endif
+		}
+
+		Int32 FreeDynamicLibrary(DLLHandle Handle)
+		{
+			IE_ASSERT(Handle != NULL); // Trying to free a handle to a null library.
+
+#if IE_PLATFORM_BUILD_WIN32 || IE_PLATFORM_BUILD_UWP
+			return (Int32)FreeLibrary((HMODULE)Handle);
+#endif
+		}
+
+
+		wchar_t* GetLastPlatformError()
+		{
+#if IE_PLATFORM_BUILD_WIN32 || IE_PLATFORM_BUILD_UWP
+			LPVOID lpMsgBuf;
+			LPVOID lpDisplayBuf;
+			DWORD dw = ::GetLastError();
+
+			FormatMessage(
+				FORMAT_MESSAGE_ALLOCATE_BUFFER |
+				FORMAT_MESSAGE_FROM_SYSTEM |
+				FORMAT_MESSAGE_IGNORE_INSERTS,
+				NULL,
+				dw,
+				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+				(LPTSTR)&lpMsgBuf,
+				0, NULL);
+
+			lpDisplayBuf = (LPVOID)::LocalAlloc(LMEM_ZEROINIT, (lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)"") + 40) * sizeof(TCHAR));
+			StringCchPrintf(
+				(LPTSTR)lpDisplayBuf,
+				::LocalSize(lpDisplayBuf) / sizeof(TCHAR),
+				TEXT("%s failed with error %d: %s"),
+				"", dw, lpMsgBuf
+			);
+			return (wchar_t*)lpDisplayBuf;
+#endif
+			return NULL;
+		}
 	}
 }

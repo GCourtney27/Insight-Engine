@@ -9,8 +9,9 @@ namespace Insight
 	namespace Graphics
 	{
 
-		class INSIGHT_API IGeometryManager
+		class INSIGHT_API IGeometryBufferManager
 		{
+			friend class IRenderContext;
 		public:
 			virtual VertexBufferUID AllocateVertexBuffer() = 0;
 			virtual IndexBufferUID AllocateIndexBuffer() = 0;
@@ -22,8 +23,8 @@ namespace Insight
 			virtual IIndexBuffer& GetIndexBufferByUID(IndexBufferUID& UID) = 0;
 
 		protected:
-			IGeometryManager() {}
-			~IGeometryManager() {}
+			IGeometryBufferManager() {}
+			~IGeometryBufferManager() {}
 
 			static VertexBufferUID s_NextVertexBufferID;
 			static IndexBufferUID s_NextIndexBufferID;

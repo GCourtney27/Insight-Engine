@@ -7,7 +7,7 @@
 #include "Platform/DirectX12/Private/D3D12CommandManager.h"
 #include "Platform/DirectX12/Private/D3D12SwapChain.h"
 #include "Platform/DirectX12/Public/D3D12DescriptorAllocator.h"
-#include "Platform/DirectX12/Public/D3D12GeometryManager.h"
+#include "Platform/DirectX12/Public/D3D12GeometryBufferManager.h"
 #include "Platform/Public/Utility/COMException.h"
 
 #include "Runtime/Graphics/Public/IRenderContext.h"
@@ -128,6 +128,7 @@ namespace Insight
 				IE_ASSERT(InDevice != NULL); // Trying to create command manager with null device.
 
 				D3D12CommandManager* pD3D12CommandManager = CreateRenderComponentObject<D3D12CommandManager>(OutCommandManager);
+				IE_ASSERT(pD3D12CommandManager != NULL);
 
 				pD3D12CommandManager->Initialize(InDevice);
 			}
@@ -135,13 +136,13 @@ namespace Insight
 			void D3D12RenderContextFactory::CreateContextManager(IContextManager** OutCommandContext)
 			{
 				D3D12ContextManager* pD3D12ContextManager = CreateRenderComponentObject<D3D12ContextManager>(OutCommandContext);
-
+				IE_ASSERT(pD3D12ContextManager != NULL);
 			}
 			
-			void D3D12RenderContextFactory::CreateGeometryManager(IGeometryManager** OutGeometryManager)
+			void D3D12RenderContextFactory::CreateGeometryManager(IGeometryBufferManager** OutGeometryManager)
 			{
-				D3D12GeometryManager* pD3D12ContextManager = CreateRenderComponentObject<D3D12GeometryManager>(OutGeometryManager);
-
+				D3D12GeometryBufferManager* pD3D12ContextManager = CreateRenderComponentObject<D3D12GeometryBufferManager>(OutGeometryManager);
+				IE_ASSERT(pD3D12ContextManager != NULL);
 			}
 		}
 	}

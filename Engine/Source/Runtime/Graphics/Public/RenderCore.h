@@ -8,7 +8,7 @@
 #include "Runtime/Graphics/Public/CommonStructs.h"
 #include "Runtime/Graphics/Public/CommonEnums.h"
 #include "Runtime/Graphics/Public/CommonStructHelpers.h"
-#include "Runtime/Graphics/Public/IGeometryManager.h"
+#include "Runtime/Graphics/Public/IGeometryBufferManager.h"
 
 //
 // Factories

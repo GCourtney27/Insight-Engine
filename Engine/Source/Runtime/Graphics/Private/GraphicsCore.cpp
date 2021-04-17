@@ -11,7 +11,7 @@ namespace Insight
 		ICommandManager* g_pCommandManager = NULL;
 		IContextManager* g_pContextManager = NULL;
 		IDevice* g_pDevice = NULL;
-		IGeometryManager* g_pGeometryManager = NULL;
+		IGeometryBufferManager* g_pGeometryManager = NULL;
 
 	}
 }

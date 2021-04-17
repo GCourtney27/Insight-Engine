@@ -8,11 +8,11 @@ namespace Insight {
 
 	typedef enum EInputEventType
 	{
-		IET_Pressed	= 0,
+		IET_Pressed		= 0,
 		IET_Released	= 1,
 		IET_Held		= 2,
-		IET_Typed	= 3,
-		IET_Moved	= 4,
+		IET_Typed		= 3,
+		IET_Moved		= 4,
 	} EInputEventType;
 
 	

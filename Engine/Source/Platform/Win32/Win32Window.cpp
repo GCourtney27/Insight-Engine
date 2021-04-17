@@ -271,7 +271,7 @@ namespace Insight {
 
 			if (RegisterRawInputDevices(&RID, 1, sizeof(RID)) == FALSE)
 			{
-				IE_LOG(Error, TEXT("Failed to register raw input devices. Error: %s"), StringHelper::WideToString(std::wstring(GetLastWindowsError()).c_str()));
+				IE_LOG(Error, TEXT("Failed to register raw input devices. Error: %s"), Platform::GetLastPlatformError());
 				return false;
 			}
 			RIDInitialized = true;
@@ -308,7 +308,7 @@ namespace Insight {
 
 		if (m_hWindow == NULL) {
 			IE_LOG(Critical, TEXT("Unable to create Windows window."));
-			IE_LOG(Critical, TEXT("    Error: %s"), StringHelper::WideToString(std::wstring(GetLastWindowsError())).c_str());
+			IE_LOG(Critical, TEXT("    Error: %s"), Platform::GetLastPlatformError());
 			throw ieException(TEXT("Fatal Error: Failed to initialize Win32 window. Handle returned nullptr from Windows API. Window description may have contained invalid parameters."));
 		}
 
@@ -350,7 +350,7 @@ namespace Insight {
 		if (error > 0)
 		{
 			IE_LOG(Error, TEXT("An error occured while registering window class: %s"), StringHelper::WideToString(m_WindowClassName).c_str());
-			IE_LOG(Error, TEXT("    Error: %s"), StringHelper::WideToString(std::wstring(GetLastWindowsError())).c_str());
+			IE_LOG(Error, TEXT("    Error: %s"), Platform::GetLastPlatformError());
 		}
 	}
 
@@ -415,32 +415,6 @@ namespace Insight {
 		}
 			break;
 		}
-	}
-
-	LPCTSTR Win32Window::GetLastWindowsError()
-	{
-		LPVOID lpMsgBuf;
-		LPVOID lpDisplayBuf;
-		DWORD dw = ::GetLastError();
-
-		FormatMessage(
-			FORMAT_MESSAGE_ALLOCATE_BUFFER |
-			FORMAT_MESSAGE_FROM_SYSTEM |
-			FORMAT_MESSAGE_IGNORE_INSERTS,
-			NULL,
-			dw,
-			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			(LPTSTR)&lpMsgBuf,
-			0, NULL);
-
-		lpDisplayBuf = (LPVOID)::LocalAlloc(LMEM_ZEROINIT, (lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)"") + 40) * sizeof(TCHAR));
-		StringCchPrintf(
-			(LPTSTR)lpDisplayBuf,
-			::LocalSize(lpDisplayBuf) / sizeof(TCHAR),
-			TEXT("%s failed with error %d: %s"),
-			"", dw, lpMsgBuf
-		);
-		return (LPCTSTR)lpDisplayBuf;
 	}
 
 	bool Win32Window::ProccessWindowMessages()

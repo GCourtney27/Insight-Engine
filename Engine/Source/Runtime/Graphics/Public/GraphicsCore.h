@@ -42,7 +42,7 @@ namespace Insight
 		// Graphics rendering device.
 		extern class IDevice* g_pDevice;
 		// Geometry buffer overloard.
-		extern class IGeometryManager* g_pGeometryManager;
+		extern class IGeometryBufferManager* g_pGeometryManager;
 
 		// UIDs
 		//

@@ -16,7 +16,7 @@ namespace Insight
 		{
 			class INSIGHT_API D3D12VertexBuffer : public IVertexBuffer, public D3D12GPUResource
 			{
-				friend class D3D12GeometryManager;
+				friend class D3D12GeometryBufferManager;
 			public:
 				D3D12VertexBuffer() {}
 				~D3D12VertexBuffer() {}

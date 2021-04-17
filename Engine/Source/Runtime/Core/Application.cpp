@@ -115,12 +115,13 @@ namespace Insight {
 
 			m_pWindow->SetWindowMode(EWindowMode::WM_Windowed);
 
+
 			IColorBuffer* pSceneBuffer = new DX12::D3D12ColorBuffer();
 			pSceneBuffer->Create(g_pDevice, TEXT("Scene Buffer"), m_pWindow->GetWidth(), m_pWindow->GetHeight(), 1u, pSwapChain->GetDesc().Format);
-
+			
+			IRootSignature* pRS = NULL;
 			RootSignatureDesc RSDesc = {};
 			RSDesc.Flags |= RSF_AllowInputAssemblerLayout;
-			IRootSignature* pRS = NULL;
 			g_pDevice->CreateRootSignature(RSDesc, &pRS);
 
 			InputElementDesc InputElements[] =
@@ -137,7 +138,8 @@ namespace Insight {
 #else
 				0;
 #endif
-			std::string ShaderSource = R"(
+			std::string ShaderSource = 
+				R"(
 struct PSInput
 {
     float4 position : SV_POSITION;

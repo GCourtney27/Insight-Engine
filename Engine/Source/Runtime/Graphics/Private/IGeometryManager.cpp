@@ -1,14 +1,14 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Graphics/Public/IGeometryManager.h"
+#include "Runtime/Graphics/Public/IGeometryBufferManager.h"
 
 
 namespace Insight
 {
 	namespace Graphics
 	{
-		VertexBufferUID IGeometryManager::s_NextVertexBufferID = 0u;
-		IndexBufferUID IGeometryManager::s_NextIndexBufferID = 0u;
+		VertexBufferUID IGeometryBufferManager::s_NextVertexBufferID = 0u;
+		IndexBufferUID IGeometryBufferManager::s_NextIndexBufferID = 0u;
 
 	}
 }

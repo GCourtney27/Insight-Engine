@@ -86,7 +86,6 @@ namespace Insight {
 
 	private:
 		void RegisterWindowClass();
-		LPCTSTR GetLastWindowsError();
 
 	private:
 		

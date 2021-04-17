@@ -1,6 +1,6 @@
 #include <Engine_pch.h>
 
-#include "Platform/DirectX12/Public/D3D12GeometryManager.h"
+#include "Platform/DirectX12/Public/D3D12GeometryBufferManager.h"
 
 namespace Insight
 {
