@@ -18,8 +18,10 @@ namespace Insight
 		public:
 			virtual void* GetNativeQueue() = 0;
 
-			virtual void WaitforFence(UInt64 FenceValue) = 0;
+			virtual void WaitForFence(UInt64 FenceValue) = 0;
 			virtual bool IsFenceCompleted(UInt64 FenceValue) = 0;
+			virtual UInt64 IncrementFence() = 0;
+			void WaitForIdle() { WaitForFence(IncrementFence()); }
 
 		protected:
 			ICommandQueue(const ECommandListType& Type)
@@ -44,6 +46,11 @@ namespace Insight
 			virtual void CreateNewCommandContext(const ECommandListType& Type, ICommandContext** pContext, void** pData) = 0;
 
 			virtual void WaitForFence(UInt64 Value) = 0;
+			inline virtual void IdleGPU()
+			{
+				m_pGraphicsQueue->WaitForIdle();
+				//m_pComputeQueue->WaitForIdle(); // TODO: Add Compute functionality
+			}
 
 			inline ICommandQueue* GetQueue(ECommandListType Type)
 			{

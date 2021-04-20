@@ -6,6 +6,8 @@
 
 #include "Platform/DirectX12/Public/Resource/D3D12VertexBuffer.h"
 #include "Platform/DirectX12/Public/Resource/D3D12IndexBuffer.h"
+#include "Runtime/Graphics/Public/GraphicsCore.h"
+#include "Runtime/Graphics/Private/ICommandManager.h" // TEMP
 
 namespace Insight
 {
@@ -37,8 +39,12 @@ namespace Insight
 					return IE_INVALID_INDEX_BUFFER_HANDLE;
 				}
 
+				// TODO Fix multiple file names so these can go inside this class's cpp file.
+
 				FORCE_INLINE virtual void DeAllocateVertexBuffer(VertexBufferUID& UID) override
 				{
+					g_pCommandManager->IdleGPU();
+
 					IE_ASSERT(UID != IE_INVALID_VERTEX_BUFFER_HANDLE);
 					m_VertexBufferLUT.erase(UID);
 				}

@@ -10,3 +10,4 @@ project (projectName)
 	kind ("SharedItems")
 	language ("C++")
 	cppdialect ("C++17")
+

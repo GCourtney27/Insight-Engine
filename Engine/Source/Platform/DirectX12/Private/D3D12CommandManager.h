@@ -20,8 +20,9 @@ namespace Insight
 			public:
 				inline virtual void* GetNativeQueue() override { return RCast<void*>(m_pID3D12CommandQueue); }
 
-				virtual void WaitforFence(UInt64 FenceValue) override;
+				virtual void WaitForFence(UInt64 FenceValue) override;
 				virtual bool IsFenceCompleted(UInt64 FenceValue) override;
+				virtual UInt64 IncrementFence() override;
 
 				UInt64 ExecuteCommandList(ID3D12CommandList* pCommandList);
 				

@@ -68,8 +68,8 @@ group ("")
 
 -- Applications
 group ("Applications")
-	include ("Applications/Application_Win32/Application-Win32-Make.lua")
 	include ("Applications/Application_UWP/Application-UWP-Make.lua")
+	include ("Applications/Application_Win32/Application-Win32-Make.lua")
 group ("")
 
 -- Engine
@@ -80,6 +80,6 @@ include ("Engine/Shaders/Shaders-Make.lua")
 
 -- Engine Source Build Rules
 group ("Build Rules")
-	include ("Engine/BuildRules/Build-UWP-Make.lua")
 	include ("Engine/BuildRules/Build-Win32-Make.lua")
+	include ("Engine/BuildRules/Build-UWP-Make.lua")
 group ("")

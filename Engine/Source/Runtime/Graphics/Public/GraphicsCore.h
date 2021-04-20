@@ -14,6 +14,8 @@
 #define IE_DEFAULT_DEPTH_BIAS 0
 #define IE_DEFAULT_DEPTH_BIAS_CLAMP 0.0f
 #define IE_DEFAULT_SLOPE_SCALED_DEPTH_BIAS 0.0f
+#define IE_INVALID_VERTEX_BUFFER_HANDLE (Insight::Graphics::VertexBufferUID)(-1)
+#define IE_INVALID_INDEX_BUFFER_HANDLE (Insight::Graphics::IndexBufferUID)(-1)
 
 namespace Insight
 {
@@ -27,7 +29,6 @@ namespace Insight
 		class IRootSignature;
 		class IVertexBuffer;
 		class IIndexBuffer;
-		
 		// Structs
 		struct PipelineStateDesc;
 		struct RootSignatureDesc;
@@ -44,8 +45,10 @@ namespace Insight
 		// Geometry buffer overloard.
 		extern class IGeometryBufferManager* g_pGeometryManager;
 
-		// UIDs
+
+		// Typedefs
 		//
+		// UIDs
 		typedef UInt32 VertexBufferUID;
 		typedef UInt32 IndexBufferUID;
 
@@ -61,9 +64,5 @@ namespace Insight
 
 			return pDericedClass;
 		}
-
-
-#define IE_INVALID_VERTEX_BUFFER_HANDLE (VertexBufferUID)(-1)
-#define IE_INVALID_INDEX_BUFFER_HANDLE (IndexBufferUID)(-1)
 	}
 }

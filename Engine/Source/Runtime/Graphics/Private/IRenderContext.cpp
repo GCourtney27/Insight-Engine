@@ -30,6 +30,8 @@ namespace Insight
 
 		void IRenderContext::UnInitialize()
 		{
+			g_pCommandManager->IdleGPU();
+
 			SAFE_DELETE_PTR(g_pDevice);
 			SAFE_DELETE_PTR(g_pCommandManager);
 			SAFE_DELETE_PTR(g_pContextManager);

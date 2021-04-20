@@ -72,10 +72,10 @@ namespace Insight {
 		ScopedMilliSecondTimer(TEXT("Core app init"));
 
 #if IE_RENDER_MULTI_PLATFORM
-		// TEST
-		{
 			using namespace Graphics;
 			IRenderContext* pRenderContext = NULL;
+		// TEST
+		{
 			ERenderBackend api = ERenderBackend::Direct3D_12;
 			// Setup renderer
 			{
@@ -197,7 +197,7 @@ float4 PSMain(PSInput Input) : SV_TARGET
 				}
 				virtual ~StaticMesh()
 				{
-					//UnInit();
+					UnInit();
 				}
 				void Load(const TChar* Filepath) { Init(); }
 
@@ -290,8 +290,8 @@ float4 PSMain(PSInput Input) : SV_TARGET
 				pRenderContext->SubmitFrame();
 				pRenderContext->Present();
 			}
-			SAFE_DELETE_PTR(pRenderContext);
 		}
+			SAFE_DELETE_PTR(pRenderContext);
 
 		exit(EXIT_SUCCESS); // Just for easier debugging quit the entire program.
 #endif

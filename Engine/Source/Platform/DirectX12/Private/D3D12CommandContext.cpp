@@ -321,7 +321,7 @@ namespace Insight
 				m_DynamicSamplerDescriptorHeap.CleanupUsedHeaps(FenceValue);
 
 				if (WaitForCompletion)
-					pQueue->WaitforFence(FenceValue);
+					pQueue->WaitForFence(FenceValue);
 
 				g_pContextManager->FreeContext(this);
 

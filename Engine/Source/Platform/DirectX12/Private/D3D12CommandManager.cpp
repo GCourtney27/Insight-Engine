@@ -63,8 +63,9 @@ namespace Insight
 			void D3D12CommandManager::WaitForFence(UInt64 FenceValue)
 			{
 				ICommandQueue* Queue = g_pCommandManager->GetQueue( (ECommandListType)(FenceValue >> 56) );
-				Queue->WaitforFence(FenceValue);
+				Queue->WaitForFence(FenceValue);
 			}
+
 
 
 			// -----------------------
@@ -96,7 +97,7 @@ namespace Insight
 				return m_NextFenceValue++;
 			}
 
-			void D3D12CommandQueue::WaitforFence(UInt64 FenceValue)
+			void D3D12CommandQueue::WaitForFence(UInt64 FenceValue)
 			{
 				if (IsFenceCompleted(FenceValue))
 					return;
@@ -108,6 +109,13 @@ namespace Insight
 					WaitForSingleObject(m_FenceEventHandle, INFINITE);
 					m_LastCompletedFenceValue = FenceValue;
 				}
+			}
+			
+			UInt64 D3D12CommandQueue::IncrementFence()
+			{
+				std::lock_guard<std::mutex> LockGuard(m_FenceMutex);
+				m_pID3D12CommandQueue->Signal(m_pFence, m_NextFenceValue);
+				return m_NextFenceValue++;
 			}
 
 			bool D3D12CommandQueue::IsFenceCompleted(UInt64 FenceValue)
