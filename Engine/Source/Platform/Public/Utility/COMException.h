@@ -1,7 +1,7 @@
 #pragma once
 #include <comdef.h>
 
-#include "Runtime/Utilities/StringHelper.h"
+#include "Runtime/Core/Utilities/StringHelper.h"
 #include "Runtime/Core/Exception.h"
 
 namespace Insight {

@@ -1,7 +1,7 @@
 #include <Engine_pch.h>
 
 #include "Model.h"
-#include "Runtime/Utilities/StringHelper.h"
+#include "Runtime/Core/Utilities/StringHelper.h"
 #include "Runtime/Graphics/Material.h"
 
 #include "Runtime/UI/UILib.h"

@@ -1,7 +1,7 @@
 #pragma once
 #include <Runtime/Core.h>
 
-#include "Runtime/Events/Event.h"
+#include "Runtime/Core/Events/Event.h"
 
 
 namespace Insight {

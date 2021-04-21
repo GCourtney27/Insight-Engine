@@ -58,9 +58,9 @@
 #include "Runtime/Core/Interfaces.h"
 #include "Runtime/Core/Exception.h"
 #include "Runtime/Systems/FileSystem.h"
-#include "Runtime/Utilities/Profiling.h"
+#include "Runtime/Core/Utilities/Profiling.h"
 #include "Runtime/Math/Public/PrimitiveTypes.h"
-#include "Runtime/Utilities/StringHelper.h"
+#include "Runtime/Core/Utilities/StringHelper.h"
 
 // -----------
 // Platforms |

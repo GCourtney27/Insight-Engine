@@ -123,14 +123,17 @@ namespace Insight {
 			RootSignatureDesc RSDesc = {};
 			RSDesc.Flags |= RSF_AllowInputAssemblerLayout;
 			g_pDevice->CreateRootSignature(RSDesc, &pRS);
-
+			
 			InputElementDesc InputElements[] =
 			{
-				{ "POSITION", 0, F_R32G32B32_FLOAT, 0, 0, IC_PerVertexData, 0 },
-				{ "COLOR", 0, F_R32G32B32A32_FLOAT, 0, 12, IC_PerVertexData, 0 },
+				{ "POSITION",	0, F_R32G32B32_FLOAT,		0, IE_APPEND_ALIGNED_ELEMENT,	IC_PerVertexData, 0 },
+				{ "COLOR",		0, F_R32G32B32A32_FLOAT,	0, IE_APPEND_ALIGNED_ELEMENT,	IC_PerVertexData, 0 },
+				{ "TEXCOORD",	0, F_R32G32_FLOAT,			0, IE_APPEND_ALIGNED_ELEMENT,	IC_PerVertexData, 0 },
 			};
+			
 			::Microsoft::WRL::ComPtr<ID3DBlob> vertexShader;
 			::Microsoft::WRL::ComPtr<ID3DBlob> pixelShader;
+			::Microsoft::WRL::ComPtr<ID3DBlob> errBuffer;
 			UINT compileFlags =
 #if IE_DEBUG
 				// Enable better shader debugging with the graphics debugging tools.
@@ -140,35 +143,37 @@ namespace Insight {
 #endif
 			std::string ShaderSource = 
 				R"(
-struct PSInput
-{
-    float4 position : SV_POSITION;
-    float4 color : COLOR;
-};
+					struct PSInput
+					{
+						float4 position : SV_POSITION;
+						float4 color : COLOR;
+					};
 
-struct VSInput
-{
-    float4 Position : POSITION;
-    float4 Color : COLOR;
-};
+					struct VSInput
+					{
+						float4 Position : POSITION;
+						float4 Color : COLOR;
+						float2 texCoords : TEXCOORD;
+					};
 
-PSInput VSMain(VSInput Input)
-{
-    PSInput Result;
+					PSInput VSMain(VSInput Input)
+					{
+						PSInput Result;
 
-    Result.position = Input.Position;
-    Result.color = Input.Color;
+						Result.position = Input.Position;
+						Result.color = Input.Color;
 
-    return Result;
-}
+						return Result;
+					}
 
-float4 PSMain(PSInput Input) : SV_TARGET
-{
-    return Input.color;
-}
+					float4 PSMain(PSInput Input) : SV_TARGET
+					{
+						return Input.color;
+					}
 				)";
-			ThrowIfFailed(D3DCompile(ShaderSource.data(), ShaderSource.size() * sizeof(char), NULL, NULL, NULL, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, NULL), TEXT(""));
-			ThrowIfFailed(D3DCompile(ShaderSource.data(), ShaderSource.size() * sizeof(char), NULL, NULL, NULL, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, NULL), TEXT(""));
+
+			HRESULT hr = D3DCompile(ShaderSource.data(), ShaderSource.size() * sizeof(char), NULL, NULL, NULL, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, &errBuffer);
+			hr = D3DCompile(ShaderSource.data(), ShaderSource.size() * sizeof(char), NULL, NULL, NULL, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, &errBuffer);
 
 
 			IPipelineState* pPSO = NULL;
@@ -188,14 +193,14 @@ float4 PSMain(PSInput Input) : SV_TARGET
 			PSODesc.SampleDesc = { 1, 0 };
 			g_pDevice->CreatePipelineState(PSODesc, &pPSO);
 
-			struct StaticMesh
+			struct Mesh
 			{
-				StaticMesh()
+				Mesh()
 				{
 					m_DrawArgs.VertexBufferHandle = g_pGeometryManager->AllocateVertexBuffer();
-					//m_DrawArgs.IndexBufferHandle = g_pGeometryManager->AllocateIndexBuffer();
+					m_DrawArgs.IndexBufferHandle = g_pGeometryManager->AllocateIndexBuffer();
 				}
-				virtual ~StaticMesh()
+				virtual ~Mesh()
 				{
 					UnInit();
 				}
@@ -203,12 +208,13 @@ float4 PSMain(PSInput Input) : SV_TARGET
 
 				void Draw(ICommandContext& GfxContext)
 				{
-					GfxContext.SetPrimitiveTopologyType(PT_TiangleList);
-
 					IVertexBuffer& VertBuffer = g_pGeometryManager->GetVertexBufferByUID(m_DrawArgs.VertexBufferHandle);
-					//GfxContext.BindIndexBuffer( *m_ib );// TODO Init index buffer views
+					IIndexBuffer& IndexBuffer = g_pGeometryManager->GetIndexBufferByUID(m_DrawArgs.IndexBufferHandle);
+
+					GfxContext.SetPrimitiveTopologyType(PT_TiangleList);
 					GfxContext.BindVertexBuffer(0, VertBuffer);
-					GfxContext.DrawInstanced(m_DrawArgs.NumVerts, 1, 0, 0);
+					GfxContext.BindIndexBuffer(IndexBuffer);
+					GfxContext.DrawIndexedInstanced(m_DrawArgs.NumIndices, 1, 0, 0, 0);
 				}
 
 			protected:
@@ -216,6 +222,7 @@ float4 PSMain(PSInput Input) : SV_TARGET
 				{
 					FVector3 Position;
 					FVector4 Color;
+					FVector2 TexCoords;
 				};
 				struct DrawArgs
 				{
@@ -226,31 +233,50 @@ float4 PSMain(PSInput Input) : SV_TARGET
 				};
 				void Init()
 				{
-					ScreenSpaceVertex TriangleVertices[] =
+					ScreenSpaceVertex Verts[4] =
 					{
-						{ { 0.0f, 0.25f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-						{ { 0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-						{ { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
+						// Top Left
+						{ { -0.25f, 0.0f, 0.0f }, { 1.0f, 0.5f, 0.0f, 1.0f } },
+						// Top Right
+						{ {  0.25f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+						// Bottom Left
+						{ { -0.25f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+						// Bottom Right
+						{ { 0.25f, -0.5f, 0.0f }, { 0.5f, 0.0f, 1.0f, 1.0f } }
 					};
-					const UInt32 VertexBufferSize = sizeof(TriangleVertices);
+					const UInt32 VertexBufferSize = sizeof(Verts);
 					m_DrawArgs.NumVerts = VertexBufferSize / sizeof(ScreenSpaceVertex);
 
-					IE_ASSERT(m_DrawArgs.VertexBufferHandle != IE_INVALID_VERTEX_BUFFER_HANDLE);
+					// Init Vertex buffer.
+					IE_ASSERT(m_DrawArgs.VertexBufferHandle != IE_INVALID_VERTEX_BUFFER_HANDLE); // Vertex buffer was not registered properly with geometry buffer manager
 					IVertexBuffer& Buffer = g_pGeometryManager->GetVertexBufferByUID(m_DrawArgs.VertexBufferHandle);
-					Buffer.Create(TEXT("My Mesh"), VertexBufferSize, sizeof(ScreenSpaceVertex), TriangleVertices);
+					Buffer.Create(TEXT("Vertex Buffer"), VertexBufferSize, sizeof(ScreenSpaceVertex), Verts);
+
+					UInt32 Indices[6] =
+					{
+						0, 1, 3,
+						0, 3, 2,
+					};
+					UInt32 IndexBufferSize = sizeof(Indices);
+					m_DrawArgs.NumIndices = IndexBufferSize / sizeof(UInt32);
+
+					// Init Index buffer
+					IE_ASSERT(m_DrawArgs.IndexBufferHandle != IE_INVALID_INDEX_BUFFER_HANDLE); // Index buffer was not registered properly with geometry buffer manager
+					IIndexBuffer& IndexBuffer = g_pGeometryManager->GetIndexBufferByUID(m_DrawArgs.IndexBufferHandle);
+					IndexBuffer.Create(TEXT("Index Buffer"), IndexBufferSize, Indices);
 				}
 
 				void UnInit()
 				{
 					g_pGeometryManager->DeAllocateVertexBuffer(m_DrawArgs.VertexBufferHandle);
-					//g_pGeometryManager->DeAllocateIndexBuffer(m_DrawArgs.IndexBufferHandle);
+					g_pGeometryManager->DeAllocateIndexBuffer(m_DrawArgs.IndexBufferHandle);
 				}
 
 				DrawArgs m_DrawArgs;
 			};
 
 
-			StaticMesh mesh;
+			Mesh mesh;
 			mesh.Load(TEXT("TODO: Filepath"));
 
 			while (m_Running)

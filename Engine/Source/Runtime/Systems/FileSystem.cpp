@@ -5,7 +5,7 @@
 #include "Runtime/Core/Application.h"
 #include "Runtime/Core/Scene/scene.h"
 #include "Runtime/Core/Exception.h"
-#include "Runtime/Utilities/StringHelper.h"
+#include "Runtime/Core/Utilities/StringHelper.h"
 
 #include "Runtime/Graphics/APostFx.h"
 #include "Runtime/Graphics/ASkyLight.h"

@@ -35,8 +35,13 @@ namespace Insight
 
 				virtual IndexBufferUID AllocateIndexBuffer() override
 				{
-					// TODO
-					return IE_INVALID_INDEX_BUFFER_HANDLE;
+					IndexBufferUID NewUID = s_NextIndexBufferID++;
+					auto InsertResult = m_IndexBufferLUT.try_emplace(NewUID, D3D12IndexBuffer{});
+					IE_ASSERT(InsertResult.second == true); // Trying to create a index buffer with an already existing ID! This is not allowed.
+
+					m_IndexBufferLUT[NewUID].SetUID(NewUID);
+
+					return NewUID;
 				}
 
 				// TODO Fix multiple file names so these can go inside this class's cpp file.
@@ -51,6 +56,8 @@ namespace Insight
 
 				FORCE_INLINE virtual void DeAllocateIndexBuffer(IndexBufferUID& UID) override
 				{
+					g_pCommandManager->IdleGPU();
+					
 					IE_ASSERT(UID != IE_INVALID_INDEX_BUFFER_HANDLE);
 					m_IndexBufferLUT.erase(UID);
 				}

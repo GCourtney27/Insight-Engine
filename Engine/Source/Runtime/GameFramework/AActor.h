@@ -1,11 +1,11 @@
 #pragma once
 #include <Runtime/Core.h>
 
-#include "Runtime/Events/Event.h"
+#include "Runtime/Core/Events/Event.h"
 #include "Runtime/Math/Public/Transform.h"
 #include "Runtime/Core/Scene/SceneNode.h"
 #include "Runtime/GameFramework/Components/SceneComponent.h"
-#include "Runtime/Events/ApplicationEvent.h"
+#include "Runtime/Core/Events/ApplicationEvent.h"
 
 
 namespace Insight {

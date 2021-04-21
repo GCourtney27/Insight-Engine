@@ -17,7 +17,7 @@
 // Util
 #include "Runtime/Core/Log.h"
 #include "Runtime/Core/Exception.h"
-#include "Runtime/Utilities/Profiling.h"
+#include "Runtime/Core/Utilities/Profiling.h"
 
 // Rendering
 #include "Runtime/Graphics/Material.h"

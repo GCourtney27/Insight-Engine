@@ -2,7 +2,7 @@
 
 #include "Material.h"
 
-#include "Runtime/Utilities/StringHelper.h"
+#include "Runtime/Core/Utilities/StringHelper.h"
 #include "Runtime/Systems/Managers/ResourceManager.h"
 
 #include "Runtime/UI/UILib.h"

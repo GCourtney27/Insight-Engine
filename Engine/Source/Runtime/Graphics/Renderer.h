@@ -9,7 +9,7 @@
 #include "Runtime/Graphics/Geometry/IndexBuffer.h"
 
 #include "Platform/DirectXShared/ConstantBufferTypes.h"
-#include "Runtime/Events/Event.h"
+#include "Runtime/Core/Events/Event.h"
 
 
 /*

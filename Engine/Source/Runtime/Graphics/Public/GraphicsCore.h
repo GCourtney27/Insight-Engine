@@ -16,6 +16,7 @@
 #define IE_DEFAULT_SLOPE_SCALED_DEPTH_BIAS 0.0f
 #define IE_INVALID_VERTEX_BUFFER_HANDLE (Insight::Graphics::VertexBufferUID)(-1)
 #define IE_INVALID_INDEX_BUFFER_HANDLE (Insight::Graphics::IndexBufferUID)(-1)
+#define	IE_APPEND_ALIGNED_ELEMENT	( 0xFFFFFFFF )
 
 namespace Insight
 {

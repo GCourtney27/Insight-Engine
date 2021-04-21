@@ -38,7 +38,7 @@ dispatch rays description.
 #include "ShaderBindingTableGenerator.h"
 #include <string>
 #include <stdexcept>
-#include "Runtime/Utilities/StringHelper.h"
+#include "Runtime/Core/Utilities/StringHelper.h"
 
 // Helper to compute aligned buffer sizes
 #ifndef ROUND_UP

@@ -26,9 +26,9 @@
 
 #include <Runtime/Core.h>
 
-#include "Runtime/Events/Event.h"
-#include "Runtime/Events/KeyEvent.h"
-#include "Runtime/Events/MouseEvent.h"
+#include "Runtime/Core/Events/Event.h"
+#include "Runtime/Core/Events/KeyEvent.h"
+#include "Runtime/Core/Events/MouseEvent.h"
 
 // For XBox Controllers
 #include <Xinput.h>
