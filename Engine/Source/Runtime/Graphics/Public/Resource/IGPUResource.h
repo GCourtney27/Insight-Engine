@@ -41,6 +41,7 @@ namespace Insight
 			}
 			virtual void Destroy() = 0;
 
+			//virtual void InitializeGPUResource() = 0;
 
 			EResourceState m_UsageState;
 			EResourceState m_TransitioningState;

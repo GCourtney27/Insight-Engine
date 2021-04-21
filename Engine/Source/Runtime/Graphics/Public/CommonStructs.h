@@ -95,6 +95,13 @@ namespace Insight
 			UInt8 RenderTargetWriteMask;
 		};
 
+		struct SubResourceData
+		{
+			const void* pData;
+			Int64 RowPitch;
+			Int64 SlicePitch;
+		};
+
 		struct BlendDesc
 		{
 			bool AlphaToCoverageEnable;

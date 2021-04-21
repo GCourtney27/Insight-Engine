@@ -7,6 +7,7 @@
 
 #include "Platform/Public/Utility/COMException.h" // TEMP!!
 #include "Runtime/Graphics/Public/IDevice.h"
+#include "Runtime/Graphics/Public/ICommandContext.h"
 
 namespace Insight
 {
@@ -26,32 +27,54 @@ namespace Insight
 				virtual void Create(const EString& Name, UInt32 VertexDataSize, UInt32 VertexStrideSize, void* pVerticies) override
 				{
 					ID3D12Device* pID3D12Device = RCast<ID3D12Device*>(g_pDevice->GetNativeDevice());
-
-					auto HeapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+					IE_ASSERT(pID3D12Device != NULL)
 					auto ResDesc = CD3DX12_RESOURCE_DESC::Buffer(VertexDataSize);
+
+
+					// Initialize GPU Resource.
+					//
 					ThrowIfFailed(pID3D12Device->CreateCommittedResource(
-						&HeapProps,
+						&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+						D3D12_HEAP_FLAG_NONE,
+						&ResDesc,
+						D3D12_RESOURCE_STATE_COPY_DEST,
+						nullptr,
+						IID_PPV_ARGS(&m_pID3D12Resource)
+					), TEXT("Failed to create default heap for vertex buffer!"));
+#if IE_DEBUG
+					m_pID3D12Resource->SetName(Name.c_str());
+#endif // IE_DEBUG
+
+
+					// Initialize Upload Heap.
+					//
+					D3D12GPUResource UploadHeap;
+					ThrowIfFailed(pID3D12Device->CreateCommittedResource(
+						&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 						D3D12_HEAP_FLAG_NONE,
 						&ResDesc,
 						D3D12_RESOURCE_STATE_GENERIC_READ,
 						nullptr,
-						IID_PPV_ARGS(&m_pID3D12Resource)), TEXT("Failed to create commited resource!"));
+						IID_PPV_ARGS(UploadHeap.GetAddressOf())
+					), TEXT("Failed to create upload heap for vertex buffer!"));
 
-					// Copy the triangle data to the vertex buffer.
-					UINT8* pVertexDataBegin;
-					CD3DX12_RANGE readRange(0, 0);        // We do not intend to read from this resource on the CPU.
-					ThrowIfFailed(m_pID3D12Resource->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin)), TEXT("Failed to map memory!"));
-					memcpy(pVertexDataBegin, pVerticies, (size_t)VertexDataSize);
-					m_pID3D12Resource->Unmap(0, nullptr);
+					SubResourceData vertexData = {};
+					vertexData.pData = pVerticies; 
+					vertexData.RowPitch = VertexDataSize; 
+					vertexData.SlicePitch = VertexDataSize;
 
-					// Initialize the vertex buffer view.
+					ICommandContext& InitContext = ICommandContext::Begin(L"");
+					{
+						InitContext.UpdateSubresources(*this, UploadHeap, 0, 0, 1, vertexData);
+					}
+					InitContext.Finish(true);
+					//UploadHeap.DestroyCOMResource();
+
+					// Initialize the Vertex Buffer View.
+					//
 					m_D3D12VertexBufferView.BufferLocation = m_pID3D12Resource->GetGPUVirtualAddress();
 					m_D3D12VertexBufferView.StrideInBytes = VertexStrideSize;
 					m_D3D12VertexBufferView.SizeInBytes = VertexDataSize;
-
-#if IE_DEBUG
-					m_pID3D12Resource->SetName(Name.c_str());
-#endif // IE_DEBUG
 				}
 
 			protected:

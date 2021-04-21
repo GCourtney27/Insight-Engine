@@ -39,6 +39,8 @@ namespace Insight
 			RS_DepthRead = 0x20,
 			RS_NonPixelShaderResource = 0x40,
 			RS_PixelShaderResource = 0x80,
+			RS_CopyDestination = 0x400,
+
 			RS_Present = 0,
 		};
 #		define RESOURCE_STATE_INVALID		((EResourceState)-1)

@@ -52,6 +52,8 @@ namespace Insight
 				
 				virtual void SetDescriptorHeap(EResourceHeapType Type, ID3D12DescriptorHeap* HeapPtr) override;
 
+				virtual void UpdateSubresources(IGPUResource& Destination, IGPUResource& Intermediate, UInt32 IntermediateOffset, UInt32 FirstSubresource, UInt32 NumSubresources, SubResourceData& SubresourceData) override;
+
 				virtual void BindVertexBuffer(UInt32 Slot, IVertexBuffer& Vertexbuffer) override;
 				virtual void BindIndexBuffer(IIndexBuffer& IndexBuffer) override;
 

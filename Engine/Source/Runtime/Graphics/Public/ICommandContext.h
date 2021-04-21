@@ -19,6 +19,7 @@ namespace Insight
 
 		struct ViewPort;
 		struct Rect;
+		struct SubResourceData;
 
 		constexpr int cx_ContextPoolSize = 4;
 		constexpr int cx_AvailableContextPoolSize = cx_ContextPoolSize;
@@ -74,6 +75,8 @@ namespace Insight
 			virtual void CreateBuffer() = 0;
 			
 			virtual void SetDescriptorHeap(EResourceHeapType Type, ID3D12DescriptorHeap* HeapPtr) = 0;
+
+			virtual void UpdateSubresources(IGPUResource& Destination, IGPUResource& Intermediate, UInt32 IntermediateOffset, UInt32 FirstSubresource, UInt32 NumSubresources, SubResourceData& SubresourceData) = 0;
 
 			virtual void BindVertexBuffer(UInt32 Slot, IVertexBuffer& Vertexbuffer) = 0;
 			virtual void BindIndexBuffer(IIndexBuffer& IndexBuffer) = 0;

@@ -248,7 +248,7 @@ namespace Insight {
 					m_DrawArgs.NumVerts = VertexBufferSize / sizeof(ScreenSpaceVertex);
 
 					// Init Vertex buffer.
-					IE_ASSERT(m_DrawArgs.VertexBufferHandle != IE_INVALID_VERTEX_BUFFER_HANDLE); // Vertex buffer was not registered properly with geometry buffer manager
+					IE_ASSERT(m_DrawArgs.VertexBufferHandle != IE_INVALID_VERTEX_BUFFER_HANDLE); // Vertex buffer was not registered properly with geometry buffer manager.
 					IVertexBuffer& Buffer = g_pGeometryManager->GetVertexBufferByUID(m_DrawArgs.VertexBufferHandle);
 					Buffer.Create(TEXT("Vertex Buffer"), VertexBufferSize, sizeof(ScreenSpaceVertex), Verts);
 
@@ -261,7 +261,7 @@ namespace Insight {
 					m_DrawArgs.NumIndices = IndexBufferSize / sizeof(UInt32);
 
 					// Init Index buffer
-					IE_ASSERT(m_DrawArgs.IndexBufferHandle != IE_INVALID_INDEX_BUFFER_HANDLE); // Index buffer was not registered properly with geometry buffer manager
+					IE_ASSERT(m_DrawArgs.IndexBufferHandle != IE_INVALID_INDEX_BUFFER_HANDLE); // Index buffer was not registered properly with geometry buffer manager.
 					IIndexBuffer& IndexBuffer = g_pGeometryManager->GetIndexBufferByUID(m_DrawArgs.IndexBufferHandle);
 					IndexBuffer.Create(TEXT("Index Buffer"), IndexBufferSize, Indices);
 				}
@@ -306,8 +306,9 @@ namespace Insight {
 					CmdContext.SetPipelineState(*pPSO);
 					CmdContext.SetGraphicsRootSignature(*pRS);
 
-					// TODO: Render model
+
 					mesh.Draw(CmdContext);
+
 
 					CmdContext.TransitionResource(BackSwapChainBuffer, RS_Present);
 				}

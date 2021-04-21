@@ -19,6 +19,7 @@ namespace Insight
 				virtual ~D3D12GPUResource();
 
 				virtual void Destroy() override;
+				inline void DestroyCOMResource() { COM_SAFE_RELEASE(m_pID3D12Resource); }
 
 				//
 				// Getters/Setters

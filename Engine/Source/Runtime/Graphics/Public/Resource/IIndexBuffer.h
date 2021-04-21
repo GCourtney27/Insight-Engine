@@ -9,6 +9,8 @@ namespace Insight
 {
 	namespace Graphics
 	{
+		class ICommandContext;
+
 		class INSIGHT_API IIndexBuffer
 		{
 			friend class IGeometryBufferManager;

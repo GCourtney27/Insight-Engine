@@ -198,6 +198,19 @@ namespace Insight
 				}
 			}
 
+			void D3D12CommandContext::UpdateSubresources(IGPUResource& Destination, IGPUResource& Intermediate, UInt32 IntermediateOffset, UInt32 FirstSubresource, UInt32 NumSubresources, SubResourceData& SubresourceData) 
+			{
+				
+				ID3D12Resource* pID3D12Destination = DCast<D3D12GPUResource*>(&Destination)->GetResource();
+				ID3D12Resource* pID3D12Intermediate = DCast<D3D12GPUResource*>(&Intermediate)->GetResource();
+				D3D12_SUBRESOURCE_DATA SRData = {};
+				SRData.pData = SubresourceData.pData;
+				SRData.RowPitch = SubresourceData.RowPitch;
+				SRData.SlicePitch = SubresourceData.SlicePitch;
+
+				::UpdateSubresources(m_pID3D12CommandList, pID3D12Destination, pID3D12Intermediate, IntermediateOffset, FirstSubresource, NumSubresources, &SRData);
+			}
+
 			void D3D12CommandContext::BindVertexBuffer(UInt32 Slot, IVertexBuffer& VertexBuffer)
 			{
 				D3D12_VERTEX_BUFFER_VIEW* pView = RCast<D3D12_VERTEX_BUFFER_VIEW*>(VertexBuffer.GetNativeBufferView());
