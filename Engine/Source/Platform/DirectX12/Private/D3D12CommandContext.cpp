@@ -7,8 +7,10 @@
 #include "Platform/DirectX12/Public/Resource/D3D12ColorBuffer.h"
 #include "Platform/DirectX12/Public/Resource/D3D12IndexBuffer.h"
 #include "Platform/DirectX12/Public/Resource/D3D12VertexBuffer.h"
+#include "Platform/DirectX12/Public/Resource/D3D12DepthBuffer.h"
 #include "Platform/DirectX12/Public/D3D12PipelineState.h"
 #include "Platform/DirectX12/Public/D3D12RootSignature.h"
+#include "Platform/DirectX12/Public/D3D12DescriptorHeap.h"
 
 #include "Runtime/Graphics/Public/GraphicsCore.h"
 
@@ -92,6 +94,7 @@ namespace Insight
 			{
 				ZeroMem(m_ResourceBarrierBuffer, _countof(m_ResourceBarrierBuffer) * sizeof(D3D12_RESOURCE_BARRIER));
 				m_D3DCmdListType = PlatformUtils::IECommandListTypeToD3DCommandListType(Type);
+				ZeroMem(m_CurrentDescriptorHeaps, sizeof(m_CurrentDescriptorHeaps));
 			}
 
 			D3D12CommandContext::~D3D12CommandContext()
@@ -139,21 +142,37 @@ namespace Insight
 				// TODO Reset root signature
 			}
 			
-			void D3D12CommandContext::OMSetRenderTargets(UInt32 NumRTVs, const IColorBuffer* Targets[])
+			void D3D12CommandContext::OMSetRenderTargets(UInt32 NumRTVs, const IColorBuffer* Targets[], IDepthBuffer* pDepthBuffer)
 			{
 				constexpr UInt32 cx_MaxRTVBinds = 12;
-				D3D12_CPU_DESCRIPTOR_HANDLE Handles[cx_MaxRTVBinds];
-				ZeroMem(&Handles, sizeof(D3D12_CPU_DESCRIPTOR_HANDLE) * cx_MaxRTVBinds);
+				D3D12_CPU_DESCRIPTOR_HANDLE RTVHandles[cx_MaxRTVBinds];
+				ZeroMem(&RTVHandles, sizeof(D3D12_CPU_DESCRIPTOR_HANDLE) * cx_MaxRTVBinds);
 
 				for (UInt32 i = 0; i < NumRTVs; ++i)
 				{
 					const D3D12ColorBuffer* pBuffer = DCast<const D3D12ColorBuffer*>(Targets[i]);
 					IE_ASSERT(pBuffer != NULL);
 
-					Handles[i] = pBuffer->GetRTVHandle();
+					RTVHandles[i] = pBuffer->GetRTVHandle();
 				}
 
-				m_pID3D12CommandList->OMSetRenderTargets(NumRTVs, Handles, false, NULL);
+				D3D12_CPU_DESCRIPTOR_HANDLE DSVHandle;
+				DSVHandle.ptr = NULL;
+				if (pDepthBuffer != NULL)
+				{
+					D3D12DepthBuffer* pD3D12DepthBuffer = DCast<D3D12DepthBuffer*>(pDepthBuffer);
+					DSVHandle = pD3D12DepthBuffer->GetDSV();
+				}
+				
+				m_pID3D12CommandList->OMSetRenderTargets(NumRTVs, RTVHandles, false, &DSVHandle);
+			}
+
+			void D3D12CommandContext::ClearDepth(IDepthBuffer& DepthBuffer)
+			{
+				D3D12DepthBuffer* pD3D12DepthBuffer = DCast<D3D12DepthBuffer*>(&DepthBuffer);
+				D3D12_CPU_DESCRIPTOR_HANDLE  DSVHandle = pD3D12DepthBuffer->GetDSV();
+
+				m_pID3D12CommandList->ClearDepthStencilView(DSVHandle, D3D12_CLEAR_FLAG_DEPTH, DepthBuffer.GetClearDepth(), DepthBuffer.GetClearStencil(), 0, NULL);
 			}
 
 			void D3D12CommandContext::RSSetViewPorts(UInt32 NumViewPorts, const ViewPort* ViewPorts)
@@ -189,18 +208,20 @@ namespace Insight
 			{
 			}
 
-			void D3D12CommandContext::SetDescriptorHeap(EResourceHeapType Type, ID3D12DescriptorHeap* HeapPtr)
+			void D3D12CommandContext::SetDescriptorHeap(EResourceHeapType Type, IDescriptorHeap* HeapPtr)
 			{
-				if (m_CurrentDescriptorHeaps[Type] != HeapPtr)
+				D3D12DescriptorHeap* pID3D12Heap = RCast<D3D12DescriptorHeap*>(HeapPtr);
+				IE_ASSERT(pID3D12Heap != NULL);
+
+				if (m_CurrentDescriptorHeaps[Type] != pID3D12Heap->GetHeapPointer())
 				{
-					m_CurrentDescriptorHeaps[Type] = HeapPtr;
+					m_CurrentDescriptorHeaps[Type] = pID3D12Heap->GetHeapPointer();
 					BindDescriptorHeaps();
 				}
 			}
 
 			void D3D12CommandContext::UpdateSubresources(IGPUResource& Destination, IGPUResource& Intermediate, UInt32 IntermediateOffset, UInt32 FirstSubresource, UInt32 NumSubresources, SubResourceData& SubresourceData) 
 			{
-				
 				ID3D12Resource* pID3D12Destination = DCast<D3D12GPUResource*>(&Destination)->GetResource();
 				ID3D12Resource* pID3D12Intermediate = DCast<D3D12GPUResource*>(&Intermediate)->GetResource();
 				D3D12_SUBRESOURCE_DATA SRData = {};

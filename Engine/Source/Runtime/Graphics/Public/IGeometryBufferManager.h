@@ -24,7 +24,7 @@ namespace Insight
 
 		protected:
 			IGeometryBufferManager() {}
-			~IGeometryBufferManager() {}
+			virtual ~IGeometryBufferManager() {}
 
 			static VertexBufferUID s_NextVertexBufferID;
 			static IndexBufferUID s_NextIndexBufferID;

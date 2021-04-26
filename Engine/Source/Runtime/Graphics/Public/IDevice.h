@@ -27,6 +27,7 @@ namespace Insight
 
 			virtual void CreatePipelineState(const PipelineStateDesc& PSODesc, IPipelineState** ppOutPSO) = 0;
 			virtual void CreateRootSignature(const RootSignatureDesc& RSDesc, IRootSignature** ppOutSignature) = 0;
+			virtual void CreateDescriptorHeap(const EString&& DebugHeapName, EResourceHeapType&& Type, UInt32&& MaxCount, IDescriptorHeap** ppOutHeap) = 0;
 
 		protected:
 			IDevice() {}

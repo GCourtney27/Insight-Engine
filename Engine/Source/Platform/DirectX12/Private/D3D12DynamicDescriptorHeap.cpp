@@ -265,7 +265,7 @@ namespace Insight
                 }
 
                 // This can trigger the creation of a new heap
-                m_OwningContext.SetDescriptorHeap((EResourceHeapType)m_DescriptorType, GetHeapPointer());
+                m_OwningContext.SetDescriptorHeap((EResourceHeapType)m_DescriptorType, this);
                 HandleCache.CopyAndBindStaleTables(m_DescriptorType, m_DescriptorSize, Allocate(NeededSize), CmdList, SetFunc);
             }
 
@@ -286,7 +286,7 @@ namespace Insight
                     UnbindAllValid();
                 }
 
-                m_OwningContext.SetDescriptorHeap((EResourceHeapType)m_DescriptorType, GetHeapPointer());
+                m_OwningContext.SetDescriptorHeap((EResourceHeapType)m_DescriptorType, this);
 
                 DescriptorHandle DestHandle = m_FirstDescriptor + m_CurrentOffset * m_DescriptorSize;
                 m_CurrentOffset += 1;

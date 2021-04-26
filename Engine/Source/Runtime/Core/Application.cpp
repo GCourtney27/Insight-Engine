@@ -32,8 +32,10 @@
 #include "Platform/DirectX12/Public/Resource/D3D12ColorBuffer.h"
 #include "Platform/DirectX12/Public/Resource/D3D12VertexBuffer.h"
 #include "Platform/DirectX12/Public/Resource/D3D12IndexBuffer.h"
+#include "Platform/DirectX12/Public/Resource/D3D12DepthBuffer.h"
 #include "Platform/DirectX12/Public/D3D12PipelineState.h"
 #include "Platform/DirectX12/Public/D3D12RootSignature.h"
+#include "Platform/DirectX12/Public/D3D12DescriptorHeap.h"
 
 #include "Platform/DirectX12/Wrappers/D3D12Shader.h"
 #include <d3dcompiler.h>
@@ -72,8 +74,8 @@ namespace Insight {
 		ScopedMilliSecondTimer(TEXT("Core app init"));
 
 #if IE_RENDER_MULTI_PLATFORM
-			using namespace Graphics;
-			IRenderContext* pRenderContext = NULL;
+		using namespace Graphics;
+		IRenderContext* pRenderContext = NULL;
 		// TEST
 		{
 			ERenderBackend api = ERenderBackend::Direct3D_12;
@@ -110,7 +112,7 @@ namespace Insight {
 			ScissorRect.Bottom = m_pWindow->GetHeight();
 
 			ISwapChain* pSwapChain = pRenderContext->GetSwapChain();
-			Color ClearColor(0.f, .0f, 1.f);
+			Color ClearColor(0.f, .3f, .3f);
 			pSwapChain->SetClearColor(ClearColor);
 
 			m_pWindow->SetWindowMode(EWindowMode::WM_Windowed);
@@ -118,22 +120,24 @@ namespace Insight {
 
 			IColorBuffer* pSceneBuffer = new DX12::D3D12ColorBuffer();
 			pSceneBuffer->Create(g_pDevice, TEXT("Scene Buffer"), m_pWindow->GetWidth(), m_pWindow->GetHeight(), 1u, pSwapChain->GetDesc().Format);
-			
+
+			IDepthBuffer* pDepthBuffer = new DX12::D3D12DepthBuffer();
+			pDepthBuffer->Create(TEXT("Scene Depth Buffer"), m_pWindow->GetWidth(), m_pWindow->GetHeight(), F_D32_Float);
+
+
 			IRootSignature* pRS = NULL;
 			RootSignatureDesc RSDesc = {};
 			RSDesc.Flags |= RSF_AllowInputAssemblerLayout;
 			g_pDevice->CreateRootSignature(RSDesc, &pRS);
-			
+
 			InputElementDesc InputElements[] =
 			{
-				{ "POSITION",	0, F_R32G32B32_FLOAT,		0, IE_APPEND_ALIGNED_ELEMENT,	IC_PerVertexData, 0 },
-				{ "COLOR",		0, F_R32G32B32A32_FLOAT,	0, IE_APPEND_ALIGNED_ELEMENT,	IC_PerVertexData, 0 },
-				{ "TEXCOORD",	0, F_R32G32_FLOAT,			0, IE_APPEND_ALIGNED_ELEMENT,	IC_PerVertexData, 0 },
+				{ "POSITION",	0, F_R32G32B32_Float,		0, 0,	IC_PerVertexData, 0 },
+				{ "COLOR",		0, F_R32G32B32A32_Float,	0, 12,	IC_PerVertexData, 0 },
 			};
-			
+
 			::Microsoft::WRL::ComPtr<ID3DBlob> vertexShader;
 			::Microsoft::WRL::ComPtr<ID3DBlob> pixelShader;
-			::Microsoft::WRL::ComPtr<ID3DBlob> errBuffer;
 			UINT compileFlags =
 #if IE_DEBUG
 				// Enable better shader debugging with the graphics debugging tools.
@@ -141,7 +145,7 @@ namespace Insight {
 #else
 				0;
 #endif
-			std::string ShaderSource = 
+			std::string ShaderSource =
 				R"(
 					struct PSInput
 					{
@@ -151,16 +155,15 @@ namespace Insight {
 
 					struct VSInput
 					{
-						float4 Position : POSITION;
+						float3 Position : POSITION;
 						float4 Color : COLOR;
-						float2 texCoords : TEXCOORD;
 					};
 
 					PSInput VSMain(VSInput Input)
 					{
 						PSInput Result;
 
-						Result.position = Input.Position;
+						Result.position = float4(Input.Position, 1.0f);
 						Result.color = Input.Color;
 
 						return Result;
@@ -172,8 +175,8 @@ namespace Insight {
 					}
 				)";
 
-			HRESULT hr = D3DCompile(ShaderSource.data(), ShaderSource.size() * sizeof(char), NULL, NULL, NULL, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, &errBuffer);
-			hr = D3DCompile(ShaderSource.data(), ShaderSource.size() * sizeof(char), NULL, NULL, NULL, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, &errBuffer);
+			HRESULT hr = D3DCompile(ShaderSource.data(), ShaderSource.size() * sizeof(char), NULL, NULL, NULL, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, NULL);
+			hr = D3DCompile(ShaderSource.data(), ShaderSource.size() * sizeof(char), NULL, NULL, NULL, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, NULL);
 
 
 			IPipelineState* pPSO = NULL;
@@ -184,14 +187,19 @@ namespace Insight {
 			PSODesc.InputLayout.pInputElementDescs = InputElements;
 			PSODesc.pRootSignature = pRS;
 			PSODesc.DepthStencilState = CommonStructHelpers::CDepthStencilStateDesc();
+			PSODesc.DepthStencilState.DepthFunc = CF_GreaterEqual;
 			PSODesc.BlendState = CommonStructHelpers::CBlendDesc();
 			PSODesc.RasterizerDesc = CommonStructHelpers::CRasterizerDesc();
 			PSODesc.SampleMask = UINT_MAX;
 			PSODesc.PrimitiveTopologyType = PTT_Triangle;
 			PSODesc.NumRenderTargets = pSwapChain->GetDesc().BufferCount;
 			PSODesc.RTVFormats[0] = pSwapChain->GetDesc().Format;
+			PSODesc.DSVFormat = DCast<IPixelBuffer*>(pDepthBuffer)->GetFormat();
 			PSODesc.SampleDesc = { 1, 0 };
 			g_pDevice->CreatePipelineState(PSODesc, &pPSO);
+
+			IDescriptorHeap* pTextureHeap = NULL;
+			g_pDevice->CreateDescriptorHeap(TEXT("Scene Texture Descriptors"), RHT_CBV_SRV_UAV, 4096, &pTextureHeap);
 
 			struct Mesh
 			{
@@ -222,8 +230,8 @@ namespace Insight {
 				{
 					FVector3 Position;
 					FVector4 Color;
-					FVector2 TexCoords;
 				};
+
 				struct DrawArgs
 				{
 					UInt32 NumVerts;
@@ -288,28 +296,37 @@ namespace Insight {
 
 				// Render stuff
 				ICommandContext& CmdContext = ICommandContext::Begin(L"Frame");
-				{
+				{					
+					// Bind
+					CmdContext.SetDescriptorHeap(RHT_CBV_SRV_UAV, pTextureHeap);
+
+					// Transition
 					IColorBuffer* pSwapChainBackBuffer = pSwapChain->GetColorBufferForCurrentFrame();
 					IGPUResource& BackSwapChainBuffer = *DCast<IGPUResource*>(pSwapChainBackBuffer);
 					CmdContext.TransitionResource(BackSwapChainBuffer, RS_RenderTarget);
+					IGPUResource& DepthBufferResource = *DCast<IGPUResource*>(pDepthBuffer);
+					CmdContext.TransitionResource(DepthBufferResource, RS_DepthWrite);
 
 					//const IColorBuffer* RTs[] = { pSceneBuffer };
 					//Context.OMSetRenderTargets(1, RTs);
 					//Context.ClearColorBuffer(*pSceneBuffer, ScissorRect);
-
-					CmdContext.ClearColorBuffer(*pSwapChainBackBuffer, ScissorRect);
+					
+					// Set
 					const IColorBuffer* RTs[] = { pSwapChainBackBuffer };
-					CmdContext.OMSetRenderTargets(1, RTs);
+					CmdContext.OMSetRenderTargets(1, RTs, pDepthBuffer);
 					CmdContext.RSSetViewPorts(1, &ViewPort);
 					CmdContext.RSSetScissorRects(1, &ScissorRect);
-
 					CmdContext.SetPipelineState(*pPSO);
 					CmdContext.SetGraphicsRootSignature(*pRS);
 
-
+					// Clear
+					CmdContext.ClearColorBuffer(*pSwapChainBackBuffer, ScissorRect);
+					CmdContext.ClearDepth(*pDepthBuffer);
+					
+					// Draw
 					mesh.Draw(CmdContext);
 
-
+					// Present
 					CmdContext.TransitionResource(BackSwapChainBuffer, RS_Present);
 				}
 				CmdContext.Finish();
@@ -318,7 +335,7 @@ namespace Insight {
 				pRenderContext->Present();
 			}
 		}
-			SAFE_DELETE_PTR(pRenderContext);
+		SAFE_DELETE_PTR(pRenderContext);
 
 		exit(EXIT_SUCCESS); // Just for easier debugging quit the entire program.
 #endif

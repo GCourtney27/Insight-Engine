@@ -30,9 +30,12 @@ namespace Insight
 		class IRootSignature;
 		class IVertexBuffer;
 		class IIndexBuffer;
+		class IDescriptorHeap;
 		// Structs
 		struct PipelineStateDesc;
 		struct RootSignatureDesc;
+		// Enums
+		enum EResourceHeapType;
 
 
 		// Extern Variables

@@ -16,6 +16,8 @@ namespace Insight
 		class IVertexBuffer;
 		class IPipelineState;
 		class IRootSignature;
+		class IDepthBuffer;
+		class IDescriptorHeap;
 
 		struct ViewPort;
 		struct Rect;
@@ -64,17 +66,18 @@ namespace Insight
 			virtual UInt64 Flush(bool WaitForCompletion = false) = 0;
 			virtual UInt64 Finish(bool WaitForCompletion = false) = 0;
 
-			virtual void OMSetRenderTargets(UInt32 NumRTVs, const IColorBuffer* Targets[]) = 0;
+			virtual void OMSetRenderTargets(UInt32 NumRTVs, const IColorBuffer* Targets[], IDepthBuffer* pDepthBuffer) = 0;
 
 			virtual void RSSetViewPorts(UInt32 NumViewPorts, const ViewPort* ViewPorts) = 0;
 			virtual void RSSetScissorRects(UInt32 NumScissorRects, const Rect* ScissorRects) = 0;
 
 			virtual void ClearColorBuffer(IColorBuffer& Buffer, Rect& Rect) = 0;
+			virtual void ClearDepth(IDepthBuffer& DepthBuffer) = 0;
 
 			virtual void CreateTexture2D() = 0;
 			virtual void CreateBuffer() = 0;
 			
-			virtual void SetDescriptorHeap(EResourceHeapType Type, ID3D12DescriptorHeap* HeapPtr) = 0;
+			virtual void SetDescriptorHeap(EResourceHeapType Type, IDescriptorHeap* HeapPtr) = 0;
 
 			virtual void UpdateSubresources(IGPUResource& Destination, IGPUResource& Intermediate, UInt32 IntermediateOffset, UInt32 FirstSubresource, UInt32 NumSubresources, SubResourceData& SubresourceData) = 0;
 

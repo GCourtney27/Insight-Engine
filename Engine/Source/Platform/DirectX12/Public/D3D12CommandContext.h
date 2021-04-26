@@ -40,7 +40,8 @@ namespace Insight
 				virtual void  UnInitialize() override;
 				virtual void  Reset() override;
 
-				virtual void OMSetRenderTargets(UInt32 NumRTVs, const IColorBuffer* Targets[]) override;
+				virtual void OMSetRenderTargets(UInt32 NumRTVs, const IColorBuffer* Targets[], IDepthBuffer* pDepthBuffer) override;
+				virtual void ClearDepth(IDepthBuffer& DepthBuffer) override;
 
 				virtual void RSSetViewPorts(UInt32 NumViewPorts, const ViewPort* ViewPorts) override;
 				virtual void RSSetScissorRects(UInt32 NumScissorRects, const Rect* ScissorRects) override;
@@ -50,7 +51,7 @@ namespace Insight
 				virtual void CreateTexture2D() override;
 				virtual void CreateBuffer() override;
 				
-				virtual void SetDescriptorHeap(EResourceHeapType Type, ID3D12DescriptorHeap* HeapPtr) override;
+				virtual void SetDescriptorHeap(EResourceHeapType Type, IDescriptorHeap* HeapPtr) override;
 
 				virtual void UpdateSubresources(IGPUResource& Destination, IGPUResource& Intermediate, UInt32 IntermediateOffset, UInt32 FirstSubresource, UInt32 NumSubresources, SubResourceData& SubresourceData) override;
 

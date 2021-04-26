@@ -5,6 +5,7 @@
 #include "Platform/Public/Utility/COMException.h"
 #include "Platform/DirectX12/Public/D3D12RootSignature.h"
 #include "Platform/DirectX12/Public/D3D12PipelineState.h"
+#include "Platform/DirectX12/Public/D3D12Descriptorheap.h"
 
 namespace Insight
 {
@@ -67,6 +68,11 @@ namespace Insight
 			{
 				D3D12RootSignature* pD3D12RS = CreateRenderComponentObject<D3D12RootSignature>(ppOutSignature);
 				pD3D12RS->Initialize(RSDesc);
+			}
+			void D3D12Device::CreateDescriptorHeap(const EString&& DebugHeapName, EResourceHeapType&& Type, UInt32&& MaxCount, IDescriptorHeap** ppOutHeap)
+			{
+				D3D12DescriptorHeap* pD3D12Heap = CreateRenderComponentObject<D3D12DescriptorHeap>(ppOutHeap);
+				pD3D12Heap->Create(DebugHeapName, Type, MaxCount);
 			}
 
 			void D3D12Device::GetHardwareAdapter(IDXGIFactory6* pFactory, IDXGIAdapter1** ppAdapter, const IED3D12DeviceInitParams& InitParams, IED3D12DeviceQueryResult& OutDeviceQueryResult)

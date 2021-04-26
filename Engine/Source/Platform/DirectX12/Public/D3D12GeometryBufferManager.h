@@ -19,7 +19,7 @@ namespace Insight
 			{
 			public:
 				D3D12GeometryBufferManager() {}
-				~D3D12GeometryBufferManager() {}
+				virtual ~D3D12GeometryBufferManager() {}
 				
 				virtual VertexBufferUID AllocateVertexBuffer() override
 				{
