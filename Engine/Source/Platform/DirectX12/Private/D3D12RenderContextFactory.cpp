@@ -8,12 +8,13 @@
 #include "Platform/DirectX12/Private/D3D12SwapChain.h"
 #include "Platform/DirectX12/Public/D3D12DescriptorAllocator.h"
 #include "Platform/DirectX12/Public/D3D12GeometryBufferManager.h"
+#include "Platform/DirectX12/Public/ResourceManagement/D3D12ConstantBufferManager.h"
 #include "Platform/Public/Utility/COMException.h"
 
 #include "Runtime/Graphics/Public/IRenderContext.h"
 #include "Runtime/Core/Window.h"
 
-#include "Runtime/Graphics/Public/GraphicsCore.h"
+#include <Runtime/Graphics/Public/GraphicsCore.h>
 
 namespace Insight
 {
@@ -143,6 +144,12 @@ namespace Insight
 			{
 				D3D12GeometryBufferManager* pD3D12ContextManager = CreateRenderComponentObject<D3D12GeometryBufferManager>(OutGeometryManager);
 				IE_ASSERT(pD3D12ContextManager != NULL);
+			}
+			
+			void D3D12RenderContextFactory::CreateConstantBufferManager(IConstantBufferManager** OutCBManager)
+			{
+				D3D12ConstantBufferManager* pD3D12CBManager = CreateRenderComponentObject<D3D12ConstantBufferManager>(OutCBManager);
+				IE_ASSERT(pD3D12CBManager != NULL)
 			}
 		}
 	}

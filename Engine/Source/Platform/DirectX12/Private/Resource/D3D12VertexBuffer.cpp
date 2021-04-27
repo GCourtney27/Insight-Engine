@@ -16,8 +16,8 @@ namespace Insight
 			void D3D12VertexBuffer::Create(const EString& Name, UInt32 VertexDataSize, UInt32 VertexStrideSize, void* pVerticies)
 			{
 				ID3D12Device* pID3D12Device = RCast<ID3D12Device*>(g_pDevice->GetNativeDevice());
-				IE_ASSERT(pID3D12Device != NULL)
-					auto ResDesc = CD3DX12_RESOURCE_DESC::Buffer(VertexDataSize);
+				IE_ASSERT(pID3D12Device != NULL);
+				auto ResDesc = CD3DX12_RESOURCE_DESC::Buffer(VertexDataSize);
 
 
 				// Initialize GPU Resource.

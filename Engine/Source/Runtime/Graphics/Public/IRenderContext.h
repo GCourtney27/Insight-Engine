@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Runtime/Core.h>
+#include <Runtime/Graphics/Public/GraphicsCore.h>
 
 
 namespace Insight
@@ -9,11 +10,6 @@ namespace Insight
 
 	namespace Graphics
 	{
-		class IDevice;
-		class ISwapChain;
-		class ICommandManager;
-		class IContextManager;
-
 		enum class ERenderBackend
 		{
 			// TODO: Direct3D_11,

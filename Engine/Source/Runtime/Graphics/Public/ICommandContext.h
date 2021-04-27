@@ -2,26 +2,12 @@
 
 #include <Runtime/Core.h>
 
-#include "Runtime/Graphics/Public/CommonEnums.h"
+#include <Runtime/Graphics/Public/GraphicsCore.h>
 
 namespace Insight
 {
 	namespace Graphics
 	{
-		class ICommandContext;
-		class ICommandManager;
-		class IColorBuffer;
-		class IGPUResource;
-		class IIndexBuffer;
-		class IVertexBuffer;
-		class IPipelineState;
-		class IRootSignature;
-		class IDepthBuffer;
-		class IDescriptorHeap;
-
-		struct ViewPort;
-		struct Rect;
-		struct SubResourceData;
 
 		constexpr int cx_ContextPoolSize = 4;
 		constexpr int cx_AvailableContextPoolSize = cx_ContextPoolSize;
@@ -83,6 +69,7 @@ namespace Insight
 
 			virtual void BindVertexBuffer(UInt32 Slot, IVertexBuffer& Vertexbuffer) = 0;
 			virtual void BindIndexBuffer(IIndexBuffer& IndexBuffer) = 0;
+			virtual void SetGraphicsConstantBuffer(UInt32 Index, IConstantBuffer* pConstantBuffer) = 0;
 
 			virtual void SetPipelineState(IPipelineState& Pipeline) = 0;
 			virtual void SetGraphicsRootSignature(IRootSignature& Signature) = 0;

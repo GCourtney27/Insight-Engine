@@ -21,7 +21,7 @@ engineIncludeDirs["Nvidia"] 			= engineDirPath .. "ThirdParty/Nvidia/"
 engineIncludeDirs["Engine"] 			= engineDirPath
 
 project ("EngineBuild_Win32")
-	location (engineDirPath .. "BuildRules")
+	location (engineDirPath)
 	kind ("StaticLib")
 	language ("C++")
 	cppdialect ("C++17")

@@ -17,47 +17,68 @@
 #define IE_INVALID_VERTEX_BUFFER_HANDLE (Insight::Graphics::VertexBufferUID)(-1)
 #define IE_INVALID_INDEX_BUFFER_HANDLE (Insight::Graphics::IndexBufferUID)(-1)
 #define	IE_APPEND_ALIGNED_ELEMENT	( 0xFFFFFFFF )
+#define IE_MAX_CONSTANT_BUFFER_SIZE 256
+#define IE_INVALID_CONSTANT_BUFFER_HANDLE (Insight::Graphics::ConstantBufferUID)(-1)
 
 namespace Insight
 {
 	namespace Graphics
 	{
-		// Forward Declares
+		// ----------------------
+		//	Forward Declarations
+		// ----------------------
 		//
 		// Classes
 		class IDevice;
+		class ISwapChain;
+		class IColorBuffer;
+		class IDepthBuffer;
+		class IGPUResource;
 		class IPipelineState;
 		class IRootSignature;
 		class IVertexBuffer;
 		class IIndexBuffer;
 		class IDescriptorHeap;
+		class ICommandManager;
+		class IContextManager;
+		class ICommandContext;
+		class IConstantBufferManager;
+		class IGeometryBufferManager;
+		class IConstantBuffer;
 		// Structs
 		struct PipelineStateDesc;
 		struct RootSignatureDesc;
 		// Enums
 		enum EResourceHeapType;
 
-
-		// Extern Variables
+		// ------------------
+		//	Extern Variables
+		// ------------------
 		// 
 		// Command context managment overlord.
-		extern class ICommandManager* g_pCommandManager;
-		// Graphics context managmetn overlord.
-		extern class IContextManager* g_pContextManager;
+		extern ICommandManager* g_pCommandManager;
+		// Graphics context management overlord.
+		extern IContextManager* g_pContextManager;
 		// Graphics rendering device.
-		extern class IDevice* g_pDevice;
+		extern IDevice* g_pDevice;
 		// Geometry buffer overloard.
-		extern class IGeometryBufferManager* g_pGeometryManager;
+		extern IGeometryBufferManager* g_pGeometryManager;
+		// Constant buffer overlord.
+		extern IConstantBufferManager* g_pConstantBufferManager;
 
 
-		// Typedefs
+		// ----------
+		//	Typedefs
+		// ----------
 		//
 		// UIDs
 		typedef UInt32 VertexBufferUID;
 		typedef UInt32 IndexBufferUID;
+		typedef UInt32 ConstantBufferUID;
 
-
-		// Utility Methods
+		// -----------------
+		//	Utility Methods
+		// -----------------
 		//
 		template <typename DerivedType, typename BaseType, typename ... InitArgs>
 		inline DerivedType* CreateRenderComponentObject(BaseType** ppBase, InitArgs ... args)

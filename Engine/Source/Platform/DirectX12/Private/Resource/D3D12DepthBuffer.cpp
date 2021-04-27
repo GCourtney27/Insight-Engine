@@ -2,8 +2,9 @@
 
 #include "Platform/DirectX12/Public/Resource/D3D12DepthBuffer.h"
 
-#include "Platform/DirectX12/Private/D3D12CommonGlobals.h"
+#include "Platform/DirectX12/Private/D3D12BackendCore.h"
 #include "Runtime/Graphics/Public/IDevice.h"
+
 
 namespace Insight
 {

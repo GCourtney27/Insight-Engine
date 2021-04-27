@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Runtime/Core.h"
+#include <Runtime/Core.h>
+#include <Runtime/Graphics/Public/GraphicsCore.h>
 
 #include "Runtime/Graphics/Public/IGeometryBufferManager.h"
 
 #include "Platform/DirectX12/Public/Resource/D3D12VertexBuffer.h"
 #include "Platform/DirectX12/Public/Resource/D3D12IndexBuffer.h"
-#include "Runtime/Graphics/Public/GraphicsCore.h"
 #include "Runtime/Graphics/Private/ICommandManager.h" // TEMP
 
 namespace Insight
@@ -21,28 +21,9 @@ namespace Insight
 				D3D12GeometryBufferManager() {}
 				virtual ~D3D12GeometryBufferManager() {}
 				
-				virtual VertexBufferUID AllocateVertexBuffer() override
-				{
-					VertexBufferUID NewUID = s_NextVertexBufferID++;
+				virtual VertexBufferUID AllocateVertexBuffer() override;
 
-					auto InsertResult = m_VertexBufferLUT.try_emplace(NewUID, D3D12VertexBuffer{});
-					IE_ASSERT(InsertResult.second == true); // Trying to create a vertex buffer with an already existing ID! This is not allowed.
-					
-					m_VertexBufferLUT[NewUID].SetUID(NewUID);
-
-					return NewUID;
-				}
-
-				virtual IndexBufferUID AllocateIndexBuffer() override
-				{
-					IndexBufferUID NewUID = s_NextIndexBufferID++;
-					auto InsertResult = m_IndexBufferLUT.try_emplace(NewUID, D3D12IndexBuffer{});
-					IE_ASSERT(InsertResult.second == true); // Trying to create a index buffer with an already existing ID! This is not allowed.
-
-					m_IndexBufferLUT[NewUID].SetUID(NewUID);
-
-					return NewUID;
-				}
+				virtual IndexBufferUID AllocateIndexBuffer() override;
 
 				// TODO Fix multiple file names so these can go inside this class's cpp file.
 
@@ -78,8 +59,6 @@ namespace Insight
 			protected:
 				std::unordered_map<VertexBufferUID, D3D12VertexBuffer> m_VertexBufferLUT;
 				std::unordered_map<IndexBufferUID, D3D12IndexBuffer> m_IndexBufferLUT;
-
-
 			};
 		}
 	}

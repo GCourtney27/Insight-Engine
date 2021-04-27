@@ -6,8 +6,6 @@
 #include "Platform/Public/Utility/COMException.h"
 #include "Platform/Public/Utility/APIBridge/D3DUtility.h"
 
-#include "Runtime/Graphics/Public/GraphicsCore.h"
-
 
 namespace Insight
 {

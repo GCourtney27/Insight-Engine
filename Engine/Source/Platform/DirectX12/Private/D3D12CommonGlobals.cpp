@@ -1,6 +1,6 @@
 #include <Engine_pch.h>
 
-#include "Platform/DirectX12/Private/D3D12CommonGlobals.h"
+#include "Platform/DirectX12/Private/D3D12BackendCore.h"
 
 namespace Insight
 {

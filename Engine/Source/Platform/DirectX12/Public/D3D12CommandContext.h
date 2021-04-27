@@ -1,12 +1,14 @@
 #pragma once
 
 #include <Runtime/Core.h>
+#include <Runtime/Graphics/Public/GraphicsCore.h>
 
 #include "Runtime/Graphics/Public/ICommandContext.h"
 #include "Runtime/Graphics/Private/ICommandManager.h"
 
 #include "Platform/DirectX12/Private/D3D12DynamicDescriptorHeap.h"
 #include <Runtime/Graphics/Public/IRootSignature.h>
+
 
 namespace Insight
 {
@@ -57,6 +59,7 @@ namespace Insight
 
 				virtual void BindVertexBuffer(UInt32 Slot, IVertexBuffer& Vertexbuffer) override;
 				virtual void BindIndexBuffer(IIndexBuffer& IndexBuffer) override;
+				virtual void SetGraphicsConstantBuffer(UInt32 Index, IConstantBuffer* pConstantBuffer) override;
 
 				virtual void SetPipelineState(IPipelineState& Pipeline) override;
 				virtual void SetGraphicsRootSignature(IRootSignature& Signature) override;

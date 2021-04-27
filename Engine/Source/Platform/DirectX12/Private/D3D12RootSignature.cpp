@@ -2,10 +2,9 @@
 
 #include "Platform/DirectX12/Public/D3D12RootSignature.h"
 
-#include "Runtime/Graphics/Public/GraphicsCore.h"
 #include "Runtime/Graphics/Public/IDevice.h"
-
 #include "Platform/Public/Utility/COMException.h"
+
 
 namespace Insight
 {

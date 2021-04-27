@@ -1,9 +1,10 @@
 #pragma once
 
 #include <Runtime/Core.h>
-#include "Runtime/Graphics/Public/GraphicsCore.h"
+#include <Runtime/Graphics/Public/GraphicsCore.h>
 
 #include "Platform/DirectX12/Public/Common/D3D12Utility.h"
+
 
 namespace Insight
 {

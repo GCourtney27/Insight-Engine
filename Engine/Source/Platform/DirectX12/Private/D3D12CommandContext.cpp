@@ -2,8 +2,8 @@
 
 #include "Platform/DirectX12/Public/D3D12CommandContext.h"
 
-#include "Platform/DirectX12/Private/D3D12CommandManager.h"
 #include "Platform/Public/Utility/APIBridge/D3DUtility.h"
+#include "Platform/DirectX12/Private/D3D12CommandManager.h"
 #include "Platform/DirectX12/Public/Resource/D3D12ColorBuffer.h"
 #include "Platform/DirectX12/Public/Resource/D3D12IndexBuffer.h"
 #include "Platform/DirectX12/Public/Resource/D3D12VertexBuffer.h"
@@ -11,8 +11,7 @@
 #include "Platform/DirectX12/Public/D3D12PipelineState.h"
 #include "Platform/DirectX12/Public/D3D12RootSignature.h"
 #include "Platform/DirectX12/Public/D3D12DescriptorHeap.h"
-
-#include "Runtime/Graphics/Public/GraphicsCore.h"
+#include "Platform/DirectX12/Public/ResourceManagement/D3D12ConstantBufferManager.h"
 
 
 namespace Insight
@@ -242,6 +241,14 @@ namespace Insight
 			{
 				D3D12_INDEX_BUFFER_VIEW* pView = RCast<D3D12_INDEX_BUFFER_VIEW*>(IndexBuffer.GetNativeBufferView());
 				m_pID3D12CommandList->IASetIndexBuffer(pView);
+			}
+
+			void D3D12CommandContext::SetGraphicsConstantBuffer(UInt32 Index, IConstantBuffer* pConstantBuffer)
+			{
+				D3D12ConstantBuffer& D3D12Cb = *DCast<D3D12ConstantBuffer*>(pConstantBuffer);
+				D3D12Cb.UploadBuffer();
+				D3D12_GPU_VIRTUAL_ADDRESS Address = D3D12Cb.GetGPUVirtualAddress();
+				m_pID3D12CommandList->SetGraphicsRootConstantBufferView(Index, Address);
 			}
 
 			void D3D12CommandContext::SetPipelineState(IPipelineState& Pipeline)

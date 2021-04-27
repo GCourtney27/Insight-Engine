@@ -1,7 +1,5 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Graphics/Public/GraphicsCore.h"
-
 #include "Runtime/Graphics/Public/ICommandContext.h"
 
 

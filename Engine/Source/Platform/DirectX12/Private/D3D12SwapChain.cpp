@@ -5,7 +5,7 @@
 #include "Platform/DirectX12/Public/Resource/D3D12ColorBuffer.h"
 #include "Platform/Public/Utility/APIBridge/D3DUtility.h"
 #include "Platform/DirectX12/Private/D3D12CommandManager.h"
-#include "Platform/DirectX12/Private/D3D12CommonGlobals.h"
+#include "Platform/DirectX12/Private/D3D12BackendCore.h"
 
 
 namespace Insight

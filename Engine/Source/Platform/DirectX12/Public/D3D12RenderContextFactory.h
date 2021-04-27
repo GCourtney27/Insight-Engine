@@ -30,6 +30,7 @@ namespace Insight
 				virtual void CreateCommandManager(ICommandManager** OutCommandManager, IDevice* InDevice) override;
 				virtual void CreateContextManager(IContextManager** OutCommandContext) override;
 				virtual void CreateGeometryManager(IGeometryBufferManager** OutGeometryManager) override;
+				virtual void CreateConstantBufferManager(IConstantBufferManager** OutCBManager) override;
 
 				void CreateDXGIFactory();
 

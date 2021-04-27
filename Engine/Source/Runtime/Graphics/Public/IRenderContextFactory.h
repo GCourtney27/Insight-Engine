@@ -1,9 +1,10 @@
 #pragma once
 
 #include <Runtime/Core.h>
+#include <Runtime/Graphics/Public/GraphicsCore.h>
 
-#include "Runtime/Graphics/Public/GraphicsCore.h"
 #include "Runtime/Graphics/Public/IRenderContext.h"
+
 
 namespace Insight
 {
@@ -31,7 +32,8 @@ namespace Insight
 			virtual void CreateCommandManager(ICommandManager** OutCommandManager, IDevice* InDevice) = 0;
 			virtual void CreateContextManager(IContextManager** OutCommandContext) = 0;
 			virtual void CreateGeometryManager(IGeometryBufferManager** OutGeometryManager) = 0;
-			
+			virtual void CreateConstantBufferManager(IConstantBufferManager** OutCBManager) = 0;
+
 		protected:
 			IRenderContextFactory()
 				: m_pTarget(NULL)
@@ -57,6 +59,7 @@ namespace Insight
 			CreateContextManager(&g_pContextManager);
 			CreateSwapChain(m_pTarget->GetSwapChainAddress(), g_pCommandManager, g_pDevice);
 			CreateGeometryManager(&g_pGeometryManager);
+			CreateConstantBufferManager(&g_pConstantBufferManager);
 		}
 	}
 }

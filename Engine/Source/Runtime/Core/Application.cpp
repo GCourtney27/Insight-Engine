@@ -27,6 +27,7 @@
 // TEMP
 #include "Runtime/Graphics/Private/ISwapChain.h"
 #include "Runtime/Graphics/Public/IDevice.h"
+#include "Runtime/Graphics/Public/ResourceManagement/IConstantBufferManager.h"
 #endif // IE_RENDER_MULTI_PLATFORM
 
 #include "Platform/DirectX12/Public/Resource/D3D12ColorBuffer.h"
@@ -125,9 +126,18 @@ namespace Insight {
 			pDepthBuffer->Create(TEXT("Scene Depth Buffer"), m_pWindow->GetWidth(), m_pWindow->GetHeight(), F_D32_Float);
 
 
+			RootParameter pRootParams[1];
+			ZeroMem(pRootParams, sizeof(RootParameter) * _countof(pRootParams));
+			pRootParams[0].ShaderVisibility = SV_All;
+			pRootParams[0].ParameterType = RPT_ConstantBufferView;
+			pRootParams[0].Descriptor.ShaderRegister = 0;
+			pRootParams[0].Descriptor.RegisterSpace = 0;
+
 			IRootSignature* pRS = NULL;
 			RootSignatureDesc RSDesc = {};
 			RSDesc.Flags |= RSF_AllowInputAssemblerLayout;
+			RSDesc.NumParams = 1;
+			RSDesc.pParameters = pRootParams;
 			g_pDevice->CreateRootSignature(RSDesc, &pRS);
 
 			InputElementDesc InputElements[] =
@@ -147,32 +157,38 @@ namespace Insight {
 #endif
 			std::string ShaderSource =
 				R"(
-					struct PSInput
-					{
-						float4 position : SV_POSITION;
-						float4 color : COLOR;
-					};
+cbuffer cbSceneConstants : register(b0)
+{
+	float4 WorldTime;
+};
 
-					struct VSInput
-					{
-						float3 Position : POSITION;
-						float4 Color : COLOR;
-					};
+struct PSInput
+{
+	float4 position : SV_POSITION;
+	float4 color : COLOR;
+};
 
-					PSInput VSMain(VSInput Input)
-					{
-						PSInput Result;
+struct VSInput
+{
+	float3 Position : POSITION;
+	float4 Color : COLOR;
+};
 
-						Result.position = float4(Input.Position, 1.0f);
-						Result.color = Input.Color;
+PSInput VSMain(VSInput Input)
+{
+	PSInput Result;
 
-						return Result;
-					}
+	Result.position = float4(Input.Position, 1.0f);
+	Result.color = Input.Color;
+	Result.color.r += sin(WorldTime);
 
-					float4 PSMain(PSInput Input) : SV_TARGET
-					{
-						return Input.color;
-					}
+	return Result;
+}
+
+float4 PSMain(PSInput Input) : SV_TARGET
+{
+	return Input.color;
+}
 				)";
 
 			HRESULT hr = D3DCompile(ShaderSource.data(), ShaderSource.size() * sizeof(char), NULL, NULL, NULL, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, NULL);
@@ -281,14 +297,48 @@ namespace Insight {
 				}
 
 				DrawArgs m_DrawArgs;
+				ieTransform m_Transform;
 			};
 
 
-			Mesh mesh;
-			mesh.Load(TEXT("TODO: Filepath"));
+			struct Actor
+			{
+				Actor()
+				{
+					m_Mesh.Load(TEXT("TODO: Filepath"));
+				}
+
+				void Update(float DeltaMS)
+				{
+
+				}
+
+				void Render(ICommandContext& RenderContext)
+				{
+					m_Mesh.Draw(RenderContext);
+				}
+
+				Mesh m_Mesh;
+			};
+
+			struct SceneConstants
+			{
+				FVector4 WorldTime;
+			};
+
+			Graphics::IConstantBuffer* pSceneConstantBuffer = NULL;
+			g_pConstantBufferManager->CreateConstantBuffer(TEXT("Scene Constants"), &pSceneConstantBuffer, sizeof(SceneConstants));
+
+			Actor MyActor;
+			GameFramework::ACamera WorldCamera( {  } );
+
+
+			FrameTimer GFXTimer;
 
 			while (m_Running)
 			{
+				GFXTimer.Tick();
+
 				// Process the window's Messages 
 				m_pWindow->OnUpdate();
 
@@ -296,10 +346,7 @@ namespace Insight {
 
 				// Render stuff
 				ICommandContext& CmdContext = ICommandContext::Begin(L"Frame");
-				{					
-					// Bind
-					CmdContext.SetDescriptorHeap(RHT_CBV_SRV_UAV, pTextureHeap);
-
+				{	
 					// Transition
 					IColorBuffer* pSwapChainBackBuffer = pSwapChain->GetColorBufferForCurrentFrame();
 					IGPUResource& BackSwapChainBuffer = *DCast<IGPUResource*>(pSwapChainBackBuffer);
@@ -307,10 +354,14 @@ namespace Insight {
 					IGPUResource& DepthBufferResource = *DCast<IGPUResource*>(pDepthBuffer);
 					CmdContext.TransitionResource(DepthBufferResource, RS_DepthWrite);
 
+					// TODO: For PostFX
 					//const IColorBuffer* RTs[] = { pSceneBuffer };
-					//Context.OMSetRenderTargets(1, RTs);
-					//Context.ClearColorBuffer(*pSceneBuffer, ScissorRect);
-					
+					//CmdContext.OMSetRenderTargets(1, RTs);
+					//CmdContext.ClearColorBuffer(*pSceneBuffer, ScissorRect);
+
+					// Bind
+					CmdContext.SetDescriptorHeap(RHT_CBV_SRV_UAV, pTextureHeap);
+
 					// Set
 					const IColorBuffer* RTs[] = { pSwapChainBackBuffer };
 					CmdContext.OMSetRenderTargets(1, RTs, pDepthBuffer);
@@ -323,8 +374,12 @@ namespace Insight {
 					CmdContext.ClearColorBuffer(*pSwapChainBackBuffer, ScissorRect);
 					CmdContext.ClearDepth(*pDepthBuffer);
 					
+					pSceneConstantBuffer->GetBufferDataPointer<SceneConstants>()->WorldTime.x = (float)GFXTimer.Seconds();
+					CmdContext.SetGraphicsConstantBuffer(0, pSceneConstantBuffer);
+
 					// Draw
-					mesh.Draw(CmdContext);
+					MyActor.Update(GFXTimer.DeltaTime());
+					MyActor.Render(CmdContext);
 
 					// Present
 					CmdContext.TransitionResource(BackSwapChainBuffer, RS_Present);
