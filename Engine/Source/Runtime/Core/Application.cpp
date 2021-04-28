@@ -157,9 +157,13 @@ namespace Insight {
 #endif
 			std::string ShaderSource =
 				R"(
-cbuffer cbSceneConstants : register(b0)
+#pragma pack_matrix(row_mjor)
+
+cbuffer SceneConstants : register(b0)
 {
-	float4 WorldTime;
+	float4x4 ViewMat;
+	float4x4 ProjMat;
+	float4x4 WorldMat;
 };
 
 struct PSInput
@@ -178,9 +182,12 @@ PSInput VSMain(VSInput Input)
 {
 	PSInput Result;
 
-	Result.position = float4(Input.Position, 1.0f);
+	matrix WorldView                = mul(WorldMat, ViewMat);
+    float4x4 worldViewProjection    = mul(WorldView, ProjMat);
+    
+
+	Result.position = mul(float4(Input.Position, 1.0f), worldViewProjection);
 	Result.color = Input.Color;
-	Result.color.r += sin(WorldTime);
 
 	return Result;
 }
@@ -257,17 +264,46 @@ float4 PSMain(PSInput Input) : SV_TARGET
 				};
 				void Init()
 				{
-					ScreenSpaceVertex Verts[4] =
-					{
-						// Top Left
-						{ { -0.25f, 0.0f, 0.0f }, { 1.0f, 0.5f, 0.0f, 1.0f } },
-						// Top Right
-						{ {  0.25f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-						// Bottom Left
-						{ { -0.25f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-						// Bottom Right
-						{ { 0.25f, -0.5f, 0.0f }, { 0.5f, 0.0f, 1.0f, 1.0f } }
+					
+					ScreenSpaceVertex Verts[] = {
+						{ { -0.5f,  0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+						{ {  0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f, 1.0f, 1.0f } },
+						{ { -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f } },
+						{ {  0.5f,  0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+						{ {  0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+						{ {  0.5f,  0.5f,  0.5f }, { 1.0f, 0.0f, 1.0f, 1.0f } },
+						{ {  0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f } },
+						{ {  0.5f,  0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+						{ { -0.5f,  0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+						{ { -0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f, 1.0f, 1.0f } },
+						{ { -0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f } },
+						{ { -0.5f,  0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+						{ {  0.5f,  0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+						{ { -0.5f, -0.5f,  0.5f }, { 1.0f, 0.0f, 1.0f, 1.0f } },
+						{ {  0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f } },
+						{ { -0.5f,  0.5f,  0.5f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+						{ { -0.5f,  0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+						{ {  0.5f,  0.5f,  0.5f }, { 1.0f, 0.0f, 1.0f, 1.0f } },
+						{ {  0.5f,  0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f } },
+						{ { -0.5f,  0.5f,  0.5f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+						{ {  0.5f, -0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+						{ { -0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f, 1.0f, 1.0f } },
+						{ {  0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f } },
+						{ { -0.5f, -0.5f,  0.5f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
 					};
+					
+
+					//ScreenSpaceVertex Verts[4] =
+					//{
+					//	// Top Left
+					//	{ { -0.25f, 0.0f, 0.0f }, { 1.0f, 0.5f, 0.0f, 1.0f } },
+					//	// Top Right
+					//	{ {  0.25f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+					//	// Bottom Left
+					//	{ { -0.25f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+					//	// Bottom Right
+					//	{ { 0.25f, -0.5f, 0.0f }, { 0.5f, 0.0f, 1.0f, 1.0f } }
+					//};
 					const UInt32 VertexBufferSize = sizeof(Verts);
 					m_DrawArgs.NumVerts = VertexBufferSize / sizeof(ScreenSpaceVertex);
 
@@ -276,10 +312,31 @@ float4 PSMain(PSInput Input) : SV_TARGET
 					IVertexBuffer& Buffer = g_pGeometryManager->GetVertexBufferByUID(m_DrawArgs.VertexBufferHandle);
 					Buffer.Create(TEXT("Vertex Buffer"), VertexBufferSize, sizeof(ScreenSpaceVertex), Verts);
 
-					UInt32 Indices[6] =
+					UInt32 Indices[] =
 					{
-						0, 1, 3,
-						0, 3, 2,
+						// front face
+						0, 1, 2, // first triangle
+						0, 3, 1, // second triangle
+
+						// left face
+						4, 5, 6, // first triangle
+						4, 7, 5, // second triangle
+
+						// right face
+						8, 9, 10, // first triangle
+						8, 11, 9, // second triangle
+
+						// back face
+						12, 13, 14, // first triangle
+						12, 15, 13, // second triangle
+
+						// top face
+						16, 17, 18, // first triangle
+						16, 19, 17, // second triangle
+
+						// bottom face
+						20, 21, 22, // first triangle
+						20, 23, 21, // second triangle
 					};
 					UInt32 IndexBufferSize = sizeof(Indices);
 					m_DrawArgs.NumIndices = IndexBufferSize / sizeof(UInt32);
@@ -297,9 +354,7 @@ float4 PSMain(PSInput Input) : SV_TARGET
 				}
 
 				DrawArgs m_DrawArgs;
-				ieTransform m_Transform;
 			};
-
 
 			struct Actor
 			{
@@ -310,7 +365,7 @@ float4 PSMain(PSInput Input) : SV_TARGET
 
 				void Update(float DeltaMS)
 				{
-
+					m_Transform.Rotate(0.0001f, 0.0002f, 0.0003f);
 				}
 
 				void Render(ICommandContext& RenderContext)
@@ -318,19 +373,56 @@ float4 PSMain(PSInput Input) : SV_TARGET
 					m_Mesh.Draw(RenderContext);
 				}
 
+				ieTransform m_Transform;
 				Mesh m_Mesh;
 			};
 
+			struct Camera : public Actor
+			{
+				Camera(FVector2 ViewPortDims)
+				{
+					UpdateViewMat();
+					SetProjectionValues(45.f, ViewPortDims.x / ViewPortDims.y, 0.1f, 1000.f);
+				}
+
+				void SetProjectionValues(float FOVDegrees, float AspectRatio, float NearZ, float FarZ)
+				{
+					m_NearZ = NearZ;
+					m_FarZ = FarZ;
+					float fovRadians = FOVDegrees * (3.14f / 180.0f);
+					m_ProjMat = XMMatrixPerspectiveFovLH(fovRadians, AspectRatio, NearZ, FarZ);
+				}
+
+				void Update()
+				{
+					UpdateViewMat();
+				}
+
+				float m_NearZ;
+				float m_FarZ;
+				FMatrix m_ViewMat;
+				FMatrix m_ProjMat;
+				
+			private:
+				void UpdateViewMat()
+				{
+					FVector3 Target = m_Transform.GetPosition() + m_Transform.GetLocalForward();
+					m_ViewMat = XMMatrixLookAtLH(m_Transform.GetPosition(), Target, m_Transform.GetLocalUp());
+				}
+			};
+			Camera Camera(m_pWindow->GetDimensions());
+			Camera.m_Transform.SetPosition(0.f, 0.f, -5.f);
+
+			Actor MyCubeActor;
+
 			struct SceneConstants
 			{
-				FVector4 WorldTime;
+				FMatrix ViewMat;
+				FMatrix ProjMat;
+				FMatrix WorldMat;
 			};
-
 			Graphics::IConstantBuffer* pSceneConstantBuffer = NULL;
 			g_pConstantBufferManager->CreateConstantBuffer(TEXT("Scene Constants"), &pSceneConstantBuffer, sizeof(SceneConstants));
-
-			Actor MyActor;
-			GameFramework::ACamera WorldCamera( {  } );
 
 
 			FrameTimer GFXTimer;
@@ -373,13 +465,21 @@ float4 PSMain(PSInput Input) : SV_TARGET
 					// Clear
 					CmdContext.ClearColorBuffer(*pSwapChainBackBuffer, ScissorRect);
 					CmdContext.ClearDepth(*pDepthBuffer);
-					
-					pSceneConstantBuffer->GetBufferDataPointer<SceneConstants>()->WorldTime.x = (float)GFXTimer.Seconds();
-					CmdContext.SetGraphicsConstantBuffer(0, pSceneConstantBuffer);
+
+					// Update
+					Camera.Update();
+					MyCubeActor.Update(GFXTimer.DeltaTime());
+					{
+						SceneConstants* pData = pSceneConstantBuffer->GetBufferDataPointer<SceneConstants>();
+						pData->ViewMat = Camera.m_ViewMat.Transpose();
+						pData->ProjMat = Camera.m_ProjMat.Transpose();
+						pData->WorldMat = MyCubeActor.m_Transform.GetLocalMatrix().Transpose();
+						
+						CmdContext.SetGraphicsConstantBuffer(0, pSceneConstantBuffer);
+					}
 
 					// Draw
-					MyActor.Update(GFXTimer.DeltaTime());
-					MyActor.Render(CmdContext);
+					MyCubeActor.Render(CmdContext);
 
 					// Present
 					CmdContext.TransitionResource(BackSwapChainBuffer, RS_Present);
