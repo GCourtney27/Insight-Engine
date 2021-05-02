@@ -13,7 +13,7 @@ namespace Insight
 	{
 	public:
 		ieTransform();
-		FORCE_INLINE ~ieTransform() = default;
+		~ieTransform();
 		FORCE_INLINE ieTransform(const ieTransform& Transform)
 		{
 			*this = Transform;
@@ -28,6 +28,25 @@ namespace Insight
 
 		void EditorEndPlay();
 		void EditorInit() { UpdateEditorOriginPositionRotationScale(); }
+
+		inline ieTransform* GetParent() const { return m_pParent; }
+		inline void SetParent(ieTransform* NewParent) 
+		{
+			m_pParent = NewParent; 
+			if (m_pParent != NULL)
+			{
+				m_pParent->AddChild(*this);
+			}
+			ComputeWorldMatrix();
+		}
+		inline void UnsetParent() 
+		{ 
+			if (m_pParent != NULL)
+			{
+				m_pParent->RemoveChild(this);
+				m_pParent = NULL; 
+			}
+		}
 
 		inline FVector3 GetPosition()	const { return m_Position; }
 		inline FVector3 GetRotation()	const { return m_Rotation; }
@@ -136,10 +155,29 @@ namespace Insight
 		bool m_Transformed = false;
 		void UpdateIfTransformed(bool ForceUpdate = false);
 
-		inline void RotateVector(FVector3& outResult, const FVector3& Direction, const FMatrix& Matrix)
-		{
-			outResult = XMVector3TransformCoord(Direction, m_RotationMat);
-		}
+		inline void RotateVector(FVector3& outResult, const FVector3& Direction, const FMatrix& Matrix);
+		
+		/*
+			Add a child that will be updated relative to this transform.
+		*/
+		inline void AddChild(ieTransform& Child);
+		/*
+			Remove a child from being updated form this transform.
+		*/
+		inline bool RemoveChild(ieTransform* Child);
+		/*
+			Repoint the children attached to this tansform to this parent's parent.
+		*/
+		inline void ReAssignChildrenToParent();
+		/*
+			Compute the world space matrix of this transform.
+		*/
+		inline void ComputeWorldMatrix();
+		/*
+			Update the children relative to this transform.
+		*/
+		inline void UpdateChildren();
+
 
 		// Matrix Operations
 		//
@@ -147,6 +185,9 @@ namespace Insight
 		void TranslateLocalMatrix();
 		void ScaleLocalMatrix();
 		void RotateLocalMatrix();
+
+		ieTransform* m_pParent;
+		std::vector<ieTransform*> m_Children;
 
 		FMatrix m_LocalMatrix = DirectX::XMMatrixIdentity();
 		FMatrix m_WorldMatrix = DirectX::XMMatrixIdentity();
@@ -172,4 +213,57 @@ namespace Insight
 
 	};
 
+	// ----------------------------
+	// Inline function definitions
+	// ----------------------------
+
+	void ieTransform::RotateVector(FVector3& outResult, const FVector3& Direction, const FMatrix& Matrix)
+	{
+		outResult = XMVector3TransformCoord(Direction, m_RotationMat);
+	}
+
+	void ieTransform::AddChild(ieTransform& Child) 
+	{ 
+		m_Children.push_back(&Child); 
+	}
+
+	bool ieTransform::RemoveChild(ieTransform* Child)
+	{
+		auto Iter = std::find(m_Children.begin(), m_Children.end(), Child);
+		if (Iter != m_Children.end())
+		{
+			m_Children.erase(Iter);
+			return true;
+		}
+		return false;
+	}
+
+	void ieTransform::ReAssignChildrenToParent()
+	{
+		for (size_t i = 0; i < m_Children.size(); ++i)
+		{
+			m_Children[i]->SetParent(GetParent());
+		}
+	}
+
+	void ieTransform::ComputeWorldMatrix()
+	{
+		if (m_pParent != NULL)
+		{
+			m_WorldMatrix = m_LocalMatrix * m_pParent->GetWorldMatrix();
+		}
+		else
+		{
+			m_WorldMatrix = m_LocalMatrix;
+		}
+		UpdateChildren();
+	}
+
+	void ieTransform::UpdateChildren()
+	{
+		for (size_t i = 0; i < m_Children.size(); ++i)
+		{
+			m_Children[i]->ComputeWorldMatrix();
+		}
+	}
 }

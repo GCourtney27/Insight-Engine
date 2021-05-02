@@ -21,7 +21,7 @@ namespace Insight
 					StencilReadMask = IE_DEFAULT_STENCIL_READ_MASK;
 					StencilWriteMask = IE_DEFAULT_STENCIL_WRITE_MASK;
 					const StencilOpDesc DefaultStencilOp =
-					{ SO_Keep, SO_Keep, SO_Keep, CF_Allways };
+					{ SO_Keep, SO_Keep, SO_Keep, CF_Always };
 					FrontFace = DefaultStencilOp;
 					BackFace = DefaultStencilOp;
 				}

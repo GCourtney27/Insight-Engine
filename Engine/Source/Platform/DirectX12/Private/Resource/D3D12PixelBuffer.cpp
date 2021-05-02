@@ -65,9 +65,23 @@ namespace Insight
 				ID3D12Device* pID3D12Device = RCast<ID3D12Device*>(pD3D12Device->GetNativeDevice());
 				IE_ASSERT(pID3D12Device != NULL);
 
+				D3D12_CLEAR_VALUE D3D12ClearVal;
+				ZeroMem(&D3D12ClearVal, sizeof(D3D12_CLEAR_VALUE));
+				memcpy(D3D12ClearVal.Color, ClearValue.Color, 4 * sizeof(float));
+				D3D12ClearVal.DepthStencil.Depth = ClearValue.DepthStencil.Depth;
+				D3D12ClearVal.DepthStencil.Stencil = ClearValue.DepthStencil.Stencil;
+				D3D12ClearVal.Format = (DXGI_FORMAT)ClearValue.Format;
+
 				{
 					CD3DX12_HEAP_PROPERTIES HeapProps(D3D12_HEAP_TYPE_DEFAULT);
-					HRESULT hr = pID3D12Device->CreateCommittedResource(&HeapProps, D3D12_HEAP_FLAG_NONE, RCast<const D3D12_RESOURCE_DESC*>(&ResourceDesc), (D3D12_RESOURCE_STATES)RS_Common, RCast<const D3D12_CLEAR_VALUE*>(&ClearValue), IID_PPV_ARGS(&m_pID3D12Resource));
+					HRESULT hr = pID3D12Device->CreateCommittedResource(
+						&HeapProps, 
+						D3D12_HEAP_FLAG_NONE, 
+						RCast<const D3D12_RESOURCE_DESC*>(&ResourceDesc), 
+						(D3D12_RESOURCE_STATES)RS_Common, 
+						&D3D12ClearVal,
+						IID_PPV_ARGS(&m_pID3D12Resource)
+					);
 					ThrowIfFailed(hr, TEXT("Failed to create committed GPU resource!"));
 				}
 

@@ -125,18 +125,35 @@ namespace Insight {
 			IDepthBuffer* pDepthBuffer = new DX12::D3D12DepthBuffer();
 			pDepthBuffer->Create(TEXT("Scene Depth Buffer"), m_pWindow->GetWidth(), m_pWindow->GetHeight(), F_D32_Float);
 
+			enum EShaderBufferRegisters
+			{
+				SBR_SceneConstants = 0,
+				SBR_MeshWorld = 1,
+				SBR_MaterialParams = 2,
+			};
 
-			RootParameter pRootParams[1];
+			RootParameter pRootParams[3];
 			ZeroMem(pRootParams, sizeof(RootParameter) * _countof(pRootParams));
+			// Scene Constants
 			pRootParams[0].ShaderVisibility = SV_All;
 			pRootParams[0].ParameterType = RPT_ConstantBufferView;
-			pRootParams[0].Descriptor.ShaderRegister = 0;
+			pRootParams[0].Descriptor.ShaderRegister = SBR_SceneConstants;
 			pRootParams[0].Descriptor.RegisterSpace = 0;
+			// Mesh World
+			pRootParams[1].ShaderVisibility = SV_All;
+			pRootParams[1].ParameterType = RPT_ConstantBufferView;
+			pRootParams[1].Descriptor.ShaderRegister = SBR_MeshWorld;
+			pRootParams[1].Descriptor.RegisterSpace = 0;
+			// Material
+			pRootParams[2].ShaderVisibility = SV_All;
+			pRootParams[2].ParameterType = RPT_ConstantBufferView;
+			pRootParams[2].Descriptor.ShaderRegister = SBR_MaterialParams;
+			pRootParams[2].Descriptor.RegisterSpace = 0;
 
 			IRootSignature* pRS = NULL;
 			RootSignatureDesc RSDesc = {};
 			RSDesc.Flags |= RSF_AllowInputAssemblerLayout;
-			RSDesc.NumParams = 1;
+			RSDesc.NumParams = _countof(pRootParams);
 			RSDesc.pParameters = pRootParams;
 			g_pDevice->CreateRootSignature(RSDesc, &pRS);
 
@@ -157,25 +174,31 @@ namespace Insight {
 #endif
 			std::string ShaderSource =
 				R"(
-#pragma pack_matrix(row_mjor)
-
+// Constant buffers
 cbuffer SceneConstants : register(b0)
 {
 	float4x4 ViewMat;
 	float4x4 ProjMat;
-	float4x4 WorldMat;
 };
-
-struct PSInput
+cbuffer MeshWorld : register(b1)
 {
-	float4 position : SV_POSITION;
-	float4 color : COLOR;
-};
+	float4x4 WorldMat;
+}
+cbuffer Material : register(b2)
+{
+	float4 Color;
+}
 
+// Structs 
 struct VSInput
 {
 	float3 Position : POSITION;
 	float4 Color : COLOR;
+};
+struct PSInput
+{
+	float4 Position : SV_POSITION;
+	float4 VertexColor : COLOR;
 };
 
 PSInput VSMain(VSInput Input)
@@ -185,24 +208,25 @@ PSInput VSMain(VSInput Input)
 	matrix WorldView                = mul(WorldMat, ViewMat);
     float4x4 worldViewProjection    = mul(WorldView, ProjMat);
     
-
-	Result.position = mul(float4(Input.Position, 1.0f), worldViewProjection);
-	Result.color = Input.Color;
+	Result.Position = mul(float4(Input.Position, 1.0f), worldViewProjection);
+	Result.VertexColor = Input.Color;
 
 	return Result;
 }
 
 float4 PSMain(PSInput Input) : SV_TARGET
 {
-	return Input.color;
+	float4 Result = lerp(Input.VertexColor, Color, 0.3f);
+return Result;	
+return Color;
 }
-				)";
+)";
 
 			HRESULT hr = D3DCompile(ShaderSource.data(), ShaderSource.size() * sizeof(char), NULL, NULL, NULL, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, NULL);
 			hr = D3DCompile(ShaderSource.data(), ShaderSource.size() * sizeof(char), NULL, NULL, NULL, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, NULL);
 
 
-			IPipelineState* pPSO = NULL;
+			IPipelineState* pScenePassPSO = NULL;
 			PipelineStateDesc PSODesc = {};
 			PSODesc.VertexShader = { vertexShader->GetBufferPointer(), vertexShader->GetBufferSize() };
 			PSODesc.PixelShader = { pixelShader->GetBufferPointer(), pixelShader->GetBufferSize() };
@@ -210,7 +234,7 @@ float4 PSMain(PSInput Input) : SV_TARGET
 			PSODesc.InputLayout.pInputElementDescs = InputElements;
 			PSODesc.pRootSignature = pRS;
 			PSODesc.DepthStencilState = CommonStructHelpers::CDepthStencilStateDesc();
-			PSODesc.DepthStencilState.DepthFunc = CF_GreaterEqual;
+			//PSODesc.DepthStencilState.DepthFunc = CF_GreaterEqual;
 			PSODesc.BlendState = CommonStructHelpers::CBlendDesc();
 			PSODesc.RasterizerDesc = CommonStructHelpers::CRasterizerDesc();
 			PSODesc.SampleMask = UINT_MAX;
@@ -219,98 +243,78 @@ float4 PSMain(PSInput Input) : SV_TARGET
 			PSODesc.RTVFormats[0] = pSwapChain->GetDesc().Format;
 			PSODesc.DSVFormat = DCast<IPixelBuffer*>(pDepthBuffer)->GetFormat();
 			PSODesc.SampleDesc = { 1, 0 };
-			g_pDevice->CreatePipelineState(PSODesc, &pPSO);
+			g_pDevice->CreatePipelineState(PSODesc, &pScenePassPSO);
 
 			IDescriptorHeap* pTextureHeap = NULL;
 			g_pDevice->CreateDescriptorHeap(TEXT("Scene Texture Descriptors"), RHT_CBV_SRV_UAV, 4096, &pTextureHeap);
 
+
+			struct SceneConstants
+			{
+				FMatrix ViewMat;
+				FMatrix ProjMat;
+				//FMatrix ViewProjMat;
+			};
+			struct MeshWorld
+			{
+				FMatrix WorldMat;
+			};
+			struct Material
+			{
+				FVector4 Color;
+			};
+			Graphics::IConstantBuffer* pSceneConstantBuffer = NULL;
+			g_pConstantBufferManager->CreateConstantBuffer(TEXT("Scene Constants"), &pSceneConstantBuffer, sizeof(SceneConstants));
+
+
 			struct Mesh
 			{
 				Mesh()
+					: m_pMaterialCB(NULL)
 				{
-					m_DrawArgs.VertexBufferHandle = g_pGeometryManager->AllocateVertexBuffer();
-					m_DrawArgs.IndexBufferHandle = g_pGeometryManager->AllocateIndexBuffer();
+					Init();
 				}
 				virtual ~Mesh()
 				{
 					UnInit();
 				}
-				void Load(const TChar* Filepath) { Init(); }
 
-				void Draw(ICommandContext& GfxContext)
+				void Load(const EString& Path)
 				{
-					IVertexBuffer& VertBuffer = g_pGeometryManager->GetVertexBufferByUID(m_DrawArgs.VertexBufferHandle);
-					IIndexBuffer& IndexBuffer = g_pGeometryManager->GetIndexBufferByUID(m_DrawArgs.IndexBufferHandle);
-
-					GfxContext.SetPrimitiveTopologyType(PT_TiangleList);
-					GfxContext.BindVertexBuffer(0, VertBuffer);
-					GfxContext.BindIndexBuffer(IndexBuffer);
-					GfxContext.DrawIndexedInstanced(m_DrawArgs.NumIndices, 1, 0, 0, 0);
-				}
-
-			protected:
-				struct ScreenSpaceVertex
-				{
-					FVector3 Position;
-					FVector4 Color;
-				};
-
-				struct DrawArgs
-				{
-					UInt32 NumVerts;
-					UInt32 NumIndices;
-					VertexBufferUID VertexBufferHandle;
-					IndexBufferUID IndexBufferHandle;
-				};
-				void Init()
-				{
-					
-					ScreenSpaceVertex Verts[] = {
-						{ { -0.5f,  0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-						{ {  0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f, 1.0f, 1.0f } },
-						{ { -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f } },
-						{ {  0.5f,  0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-						{ {  0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-						{ {  0.5f,  0.5f,  0.5f }, { 1.0f, 0.0f, 1.0f, 1.0f } },
-						{ {  0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f } },
-						{ {  0.5f,  0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-						{ { -0.5f,  0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-						{ { -0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f, 1.0f, 1.0f } },
-						{ { -0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f } },
-						{ { -0.5f,  0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-						{ {  0.5f,  0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-						{ { -0.5f, -0.5f,  0.5f }, { 1.0f, 0.0f, 1.0f, 1.0f } },
-						{ {  0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f } },
-						{ { -0.5f,  0.5f,  0.5f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-						{ { -0.5f,  0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-						{ {  0.5f,  0.5f,  0.5f }, { 1.0f, 0.0f, 1.0f, 1.0f } },
-						{ {  0.5f,  0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f } },
-						{ { -0.5f,  0.5f,  0.5f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-						{ {  0.5f, -0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-						{ { -0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f, 1.0f, 1.0f } },
-						{ {  0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f } },
-						{ { -0.5f, -0.5f,  0.5f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+					Vertex3D Verts[] = {
+						{ { -0.5f,  0.5f, -0.5f }, { 1.f, 0.f, 0.f, 1.f } },
+						{ {  0.5f, -0.5f, -0.5f }, { 0.f, 1.f, 0.f, 1.f } },
+						{ { -0.5f, -0.5f, -0.5f }, { 0.f, 0.f, 1.f, 1.f } },
+						{ {  0.5f,  0.5f, -0.5f }, { 1.f, 0.f, 0.f, 1.f } },
+						{ {  0.5f, -0.5f, -0.5f }, { 0.f, 1.f, 0.f, 1.f } },
+						{ {  0.5f,  0.5f,  0.5f }, { 0.f, 0.f, 1.f, 1.f } },
+						{ {  0.5f, -0.5f,  0.5f }, { 1.f, 0.f, 0.f, 1.f } },
+						{ {  0.5f,  0.5f, -0.5f }, { 0.f, 1.f, 0.f, 1.f } },
+						{ { -0.5f,  0.5f,  0.5f }, { 0.f, 0.f, 1.f, 1.f } },
+						{ { -0.5f, -0.5f, -0.5f }, { 1.f, 0.f, 0.f, 1.f } },
+						{ { -0.5f, -0.5f,  0.5f }, { 0.f, 1.f, 0.f, 1.f } },
+						{ { -0.5f,  0.5f, -0.5f }, { 0.f, 0.f, 1.f, 1.f } },
+						{ {  0.5f,  0.5f,  0.5f }, { 1.f, 0.f, 0.f, 1.f } },
+						{ { -0.5f, -0.5f,  0.5f }, { 0.f, 1.f, 0.f, 1.f } },
+						{ {  0.5f, -0.5f,  0.5f }, { 0.f, 0.f, 1.f, 1.f } },
+						{ { -0.5f,  0.5f,  0.5f }, { 1.f, 0.f, 0.f, 1.f } },
+						{ { -0.5f,  0.5f, -0.5f }, { 0.f, 1.f, 0.f, 1.f } },
+						{ {  0.5f,  0.5f,  0.5f }, { 0.f, 0.f, 1.f, 1.f } },
+						{ {  0.5f,  0.5f, -0.5f }, { 1.f, 0.f, 0.f, 1.f } },
+						{ { -0.5f,  0.5f,  0.5f }, { 0.f, 1.f, 0.f, 1.f } },
+						{ {  0.5f, -0.5f,  0.5f }, { 0.f, 0.f, 1.f, 1.f } },
+						{ { -0.5f, -0.5f, -0.5f }, { 1.f, 0.f, 0.f, 1.f } },
+						{ {  0.5f, -0.5f, -0.5f }, { 0.f, 1.f, 0.f, 1.f } },
+						{ { -0.5f, -0.5f,  0.5f }, { 0.f, 0.f, 1.f, 1.f } },
 					};
-					
 
-					//ScreenSpaceVertex Verts[4] =
-					//{
-					//	// Top Left
-					//	{ { -0.25f, 0.0f, 0.0f }, { 1.0f, 0.5f, 0.0f, 1.0f } },
-					//	// Top Right
-					//	{ {  0.25f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-					//	// Bottom Left
-					//	{ { -0.25f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-					//	// Bottom Right
-					//	{ { 0.25f, -0.5f, 0.0f }, { 0.5f, 0.0f, 1.0f, 1.0f } }
-					//};
 					const UInt32 VertexBufferSize = sizeof(Verts);
-					m_DrawArgs.NumVerts = VertexBufferSize / sizeof(ScreenSpaceVertex);
+					m_DrawArgs.NumVerts = VertexBufferSize / sizeof(Vertex3D);
 
 					// Init Vertex buffer.
 					IE_ASSERT(m_DrawArgs.VertexBufferHandle != IE_INVALID_VERTEX_BUFFER_HANDLE); // Vertex buffer was not registered properly with geometry buffer manager.
 					IVertexBuffer& Buffer = g_pGeometryManager->GetVertexBufferByUID(m_DrawArgs.VertexBufferHandle);
-					Buffer.Create(TEXT("Vertex Buffer"), VertexBufferSize, sizeof(ScreenSpaceVertex), Verts);
+					Buffer.Create(TEXT("Vertex Buffer"), VertexBufferSize, sizeof(Vertex3D), Verts);
 
 					UInt32 Indices[] =
 					{
@@ -347,33 +351,111 @@ float4 PSMain(PSInput Input) : SV_TARGET
 					IndexBuffer.Create(TEXT("Index Buffer"), IndexBufferSize, Indices);
 				}
 
+				void Draw(ICommandContext& GfxContext)
+				{
+					IVertexBuffer& VertBuffer = g_pGeometryManager->GetVertexBufferByUID(m_DrawArgs.VertexBufferHandle);
+					IIndexBuffer& IndexBuffer = g_pGeometryManager->GetIndexBufferByUID(m_DrawArgs.IndexBufferHandle);
+
+					// Set the material.
+					Material* pMat = m_pMaterialCB->GetBufferDataPointer<Material>();
+					pMat->Color = m_Material.Color;
+					GfxContext.SetGraphicsConstantBuffer(SBR_MaterialParams, m_pMaterialCB);
+
+					// Set the world buffer.
+					MeshWorld* pWorld = m_pMeshWorldCB->GetBufferDataPointer<MeshWorld>();
+					pWorld->WorldMat = m_Transform.GetWorldMatrix().Transpose();
+					GfxContext.SetGraphicsConstantBuffer(SBR_MeshWorld, m_pMeshWorldCB);
+
+					GfxContext.SetPrimitiveTopologyType(PT_TiangleList);
+					GfxContext.BindVertexBuffer(0, VertBuffer);
+					GfxContext.BindIndexBuffer(IndexBuffer);
+					GfxContext.DrawIndexedInstanced(m_DrawArgs.NumIndices, 1, 0, 0, 0);
+				}
+
+				inline Material& GetMaterial() { return m_Material; }
+				inline ieTransform& GetTransform() { return m_Transform; }
+
+			protected:
+				struct Vertex3D
+				{
+					FVector3 Position;
+					FVector4 Color;
+				};
+
+				struct DrawArgs
+				{
+					UInt32 NumVerts;
+					UInt32 NumIndices;
+					VertexBufferUID VertexBufferHandle;
+					IndexBufferUID IndexBufferHandle;
+				};
+
+				void Init()
+				{
+					m_DrawArgs.VertexBufferHandle = g_pGeometryManager->AllocateVertexBuffer();
+					m_DrawArgs.IndexBufferHandle = g_pGeometryManager->AllocateIndexBuffer();
+
+					g_pConstantBufferManager->CreateConstantBuffer(TEXT("Material Params"), &m_pMaterialCB, sizeof(Material));
+					g_pConstantBufferManager->CreateConstantBuffer(TEXT("Mesh World Params"), &m_pMeshWorldCB, sizeof(MeshWorld));
+				}
+
 				void UnInit()
 				{
 					g_pGeometryManager->DeAllocateVertexBuffer(m_DrawArgs.VertexBufferHandle);
 					g_pGeometryManager->DeAllocateIndexBuffer(m_DrawArgs.IndexBufferHandle);
+
+					// TODO: Destroy constant buffer
 				}
 
+				Graphics::IConstantBuffer* m_pMaterialCB;
+				Graphics::IConstantBuffer* m_pMeshWorldCB;
+				ieTransform m_Transform;
+				Material m_Material;
 				DrawArgs m_DrawArgs;
 			};
 
 			struct Actor
 			{
+				using Super = Actor;
 				Actor()
 				{
-					m_Mesh.Load(TEXT("TODO: Filepath"));
+				}
+				~Actor() {}
+
+				virtual void Update(float DeltaMs)
+				{
 				}
 
-				void Update(float DeltaMS)
+				virtual void Render(ICommandContext& RenderContext)
 				{
-					m_Transform.Rotate(0.0001f, 0.0002f, 0.0003f);
-				}
-
-				void Render(ICommandContext& RenderContext)
-				{
-					m_Mesh.Draw(RenderContext);
 				}
 
 				ieTransform m_Transform;
+			};
+
+			struct StaticMeshActor : public Actor
+			{
+				StaticMeshActor()
+				{
+					m_Mesh.Load(L"Path");
+					m_Mesh.GetTransform().SetParent(&m_Transform);
+				}
+
+				virtual void Update(float DeltaMs) override
+				{
+					Super::Update(DeltaMs);
+
+					FVector3 Rotation = m_Transform.GetRotation();
+					m_Mesh.GetMaterial().Color = FVector4(Rotation.x, Rotation.y, Rotation.z, 1.f);
+
+				}
+
+				virtual void Render(ICommandContext& RenderContext) override
+				{
+					Super::Render(RenderContext);
+					m_Mesh.Draw(RenderContext);
+				}
+
 				Mesh m_Mesh;
 			};
 
@@ -384,7 +466,20 @@ float4 PSMain(PSInput Input) : SV_TARGET
 					UpdateViewMat();
 					SetProjectionValues(45.f, ViewPortDims.x / ViewPortDims.y, 0.1f, 1000.f);
 				}
+				virtual ~Camera() {}
 
+				void Update(float DeltaMs) override
+				{
+					Super::Update(DeltaMs);
+					UpdateViewMat();
+				}
+
+				float m_NearZ;
+				float m_FarZ;
+				FMatrix m_ViewMat;
+				FMatrix m_ProjMat;
+
+			private:
 				void SetProjectionValues(float FOVDegrees, float AspectRatio, float NearZ, float FarZ)
 				{
 					m_NearZ = NearZ;
@@ -393,36 +488,19 @@ float4 PSMain(PSInput Input) : SV_TARGET
 					m_ProjMat = XMMatrixPerspectiveFovLH(fovRadians, AspectRatio, NearZ, FarZ);
 				}
 
-				void Update()
-				{
-					UpdateViewMat();
-				}
-
-				float m_NearZ;
-				float m_FarZ;
-				FMatrix m_ViewMat;
-				FMatrix m_ProjMat;
-				
-			private:
 				void UpdateViewMat()
 				{
 					FVector3 Target = m_Transform.GetPosition() + m_Transform.GetLocalForward();
 					m_ViewMat = XMMatrixLookAtLH(m_Transform.GetPosition(), Target, m_Transform.GetLocalUp());
 				}
 			};
+
 			Camera Camera(m_pWindow->GetDimensions());
 			Camera.m_Transform.SetPosition(0.f, 0.f, -5.f);
-
-			Actor MyCubeActor;
-
-			struct SceneConstants
-			{
-				FMatrix ViewMat;
-				FMatrix ProjMat;
-				FMatrix WorldMat;
-			};
-			Graphics::IConstantBuffer* pSceneConstantBuffer = NULL;
-			g_pConstantBufferManager->CreateConstantBuffer(TEXT("Scene Constants"), &pSceneConstantBuffer, sizeof(SceneConstants));
+			StaticMeshActor MyCubeActor;
+			StaticMeshActor AnotherCubeActor;
+			AnotherCubeActor.m_Transform.SetPosition(2.f, 0.f, 0.f);
+			AnotherCubeActor.m_Transform.SetParent(&MyCubeActor.m_Transform);
 
 
 			FrameTimer GFXTimer;
@@ -430,6 +508,8 @@ float4 PSMain(PSInput Input) : SV_TARGET
 			while (m_Running)
 			{
 				GFXTimer.Tick();
+				float DeltaMs = GFXTimer.DeltaTime();
+
 
 				// Process the window's Messages 
 				m_pWindow->OnUpdate();
@@ -438,7 +518,7 @@ float4 PSMain(PSInput Input) : SV_TARGET
 
 				// Render stuff
 				ICommandContext& CmdContext = ICommandContext::Begin(L"Frame");
-				{	
+				{
 					// Transition
 					IColorBuffer* pSwapChainBackBuffer = pSwapChain->GetColorBufferForCurrentFrame();
 					IGPUResource& BackSwapChainBuffer = *DCast<IGPUResource*>(pSwapChainBackBuffer);
@@ -454,32 +534,35 @@ float4 PSMain(PSInput Input) : SV_TARGET
 					// Bind
 					CmdContext.SetDescriptorHeap(RHT_CBV_SRV_UAV, pTextureHeap);
 
+					// Clear
+					CmdContext.ClearColorBuffer(*pSwapChainBackBuffer, ScissorRect);
+					CmdContext.ClearDepth(*pDepthBuffer);
+
 					// Set
 					const IColorBuffer* RTs[] = { pSwapChainBackBuffer };
 					CmdContext.OMSetRenderTargets(1, RTs, pDepthBuffer);
 					CmdContext.RSSetViewPorts(1, &ViewPort);
 					CmdContext.RSSetScissorRects(1, &ScissorRect);
-					CmdContext.SetPipelineState(*pPSO);
+					CmdContext.SetPipelineState(*pScenePassPSO);
 					CmdContext.SetGraphicsRootSignature(*pRS);
 
-					// Clear
-					CmdContext.ClearColorBuffer(*pSwapChainBackBuffer, ScissorRect);
-					CmdContext.ClearDepth(*pDepthBuffer);
 
 					// Update
-					Camera.Update();
-					MyCubeActor.Update(GFXTimer.DeltaTime());
+					Camera.Update(DeltaMs);
+					MyCubeActor.Update(DeltaMs);
+					AnotherCubeActor.Update(DeltaMs);
+					MyCubeActor.m_Transform.Rotate(0.001f, 0.002f, 0.003f);
 					{
+						// Set Constant Buffers
 						SceneConstants* pData = pSceneConstantBuffer->GetBufferDataPointer<SceneConstants>();
 						pData->ViewMat = Camera.m_ViewMat.Transpose();
 						pData->ProjMat = Camera.m_ProjMat.Transpose();
-						pData->WorldMat = MyCubeActor.m_Transform.GetLocalMatrix().Transpose();
-						
-						CmdContext.SetGraphicsConstantBuffer(0, pSceneConstantBuffer);
+						CmdContext.SetGraphicsConstantBuffer(SBR_SceneConstants, pSceneConstantBuffer);
 					}
 
 					// Draw
 					MyCubeActor.Render(CmdContext);
+					AnotherCubeActor.Render(CmdContext);
 
 					// Present
 					CmdContext.TransitionResource(BackSwapChainBuffer, RS_Present);
@@ -756,7 +839,7 @@ float4 PSMain(PSInput Input) : SV_TARGET
 #endif
 
 		return true;
-	}
+}
 
 	bool Application::OnWindowFullScreen(WindowToggleFullScreenEvent& e)
 	{

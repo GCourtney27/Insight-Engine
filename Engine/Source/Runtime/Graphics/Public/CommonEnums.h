@@ -204,7 +204,7 @@ namespace Insight
 			CF_Greater = 5,
 			CF_NotEqual = 6,
 			CF_GreaterEqual = 7,
-			CF_Allways = 8,
+			CF_Always = 8,
 		};
 
 		enum ELogicOp

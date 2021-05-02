@@ -14,7 +14,7 @@ namespace Insight
 			class INSIGHT_API D3D12DepthBuffer : public IDepthBuffer, public D3D12PixelBuffer
 			{
 			public:
-				D3D12DepthBuffer(float ClearDepth = 0.0f, uint8_t ClearStencil = 0)
+				D3D12DepthBuffer(float ClearDepth = 1.0f, uint8_t ClearStencil = 0)
 					: IDepthBuffer(ClearDepth, ClearStencil)
 				{
 					m_hDSV[0].ptr = D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN;
