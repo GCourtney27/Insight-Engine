@@ -174,11 +174,12 @@ namespace Insight {
 #endif
 			std::string ShaderSource =
 				R"(
-// Constant buffers
+// Constant Buffers
 cbuffer SceneConstants : register(b0)
 {
 	float4x4 ViewMat;
 	float4x4 ProjMat;
+	float WorldTime;
 };
 cbuffer MeshWorld : register(b1)
 {
@@ -217,8 +218,7 @@ PSInput VSMain(VSInput Input)
 float4 PSMain(PSInput Input) : SV_TARGET
 {
 	float4 Result = lerp(Input.VertexColor, Color, 0.3f);
-return Result;	
-return Color;
+	return Result;	
 }
 )";
 
@@ -253,7 +253,7 @@ return Color;
 			{
 				FMatrix ViewMat;
 				FMatrix ProjMat;
-				//FMatrix ViewProjMat;
+				float WorldTime;
 			};
 			struct MeshWorld
 			{
@@ -404,7 +404,8 @@ return Color;
 					g_pGeometryManager->DeAllocateVertexBuffer(m_DrawArgs.VertexBufferHandle);
 					g_pGeometryManager->DeAllocateIndexBuffer(m_DrawArgs.IndexBufferHandle);
 
-					// TODO: Destroy constant buffer
+					g_pConstantBufferManager->DestroyConstantBuffer(m_pMeshWorldCB->GetUID());
+					g_pConstantBufferManager->DestroyConstantBuffer(m_pMaterialCB->GetUID());
 				}
 
 				Graphics::IConstantBuffer* m_pMaterialCB;
@@ -447,6 +448,7 @@ return Color;
 
 					FVector3 Rotation = m_Transform.GetRotation();
 					m_Mesh.GetMaterial().Color = FVector4(Rotation.x, Rotation.y, Rotation.z, 1.f);
+					m_Mesh.GetMaterial().Color /= 2.f;
 
 				}
 
@@ -557,6 +559,7 @@ return Color;
 						SceneConstants* pData = pSceneConstantBuffer->GetBufferDataPointer<SceneConstants>();
 						pData->ViewMat = Camera.m_ViewMat.Transpose();
 						pData->ProjMat = Camera.m_ProjMat.Transpose();
+						pData->WorldTime = (float)GFXTimer.Seconds();
 						CmdContext.SetGraphicsConstantBuffer(SBR_SceneConstants, pSceneConstantBuffer);
 					}
 
