@@ -12,7 +12,7 @@
 #include "Platform/DirectX12/Public/D3D12RootSignature.h"
 #include "Platform/DirectX12/Public/D3D12DescriptorHeap.h"
 #include "Platform/DirectX12/Public/ResourceManagement/D3D12ConstantBufferManager.h"
-
+#include "Platform/DirectX12/Public/Resource/D3D12Texture.h"
 
 namespace Insight
 {
@@ -90,6 +90,8 @@ namespace Insight
 				, m_pID3D12CurrentCmdAllocator(NULL)
 				, m_DynamicViewDescriptorHeap(*this, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
 				, m_DynamicSamplerDescriptorHeap(*this, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER)
+				, m_CpuLinearAllocator(LAT_CpuWritable)
+				, m_GpuLinearAllocator(LAT_GpuExclusive)
 			{
 				ZeroMem(m_ResourceBarrierBuffer, _countof(m_ResourceBarrierBuffer) * sizeof(D3D12_RESOURCE_BARRIER));
 				m_D3DCmdListType = PlatformUtils::IECommandListTypeToD3DCommandListType(Type);
@@ -139,6 +141,8 @@ namespace Insight
 				m_pID3D12CommandList->Reset(m_pID3D12CurrentCmdAllocator, NULL);
 
 				// TODO Reset root signature
+				BindDescriptorHeaps();
+
 			}
 			
 			void D3D12CommandContext::OMSetRenderTargets(UInt32 NumRTVs, const IColorBuffer* Targets[], IDepthBuffer* pDepthBuffer)
@@ -219,7 +223,12 @@ namespace Insight
 				}
 			}
 
-			void D3D12CommandContext::UpdateSubresources(IGPUResource& Destination, IGPUResource& Intermediate, UInt32 IntermediateOffset, UInt32 FirstSubresource, UInt32 NumSubresources, SubResourceData& SubresourceData) 
+			DynAlloc D3D12CommandContext::ReserveUploadMemory(UInt64 SizeInBytes)
+			{
+				return m_CpuLinearAllocator.Allocate(SizeInBytes);
+			}
+
+			void D3D12CommandContext::UpdateSubresources(IGPUResource& Destination, IGPUResource& Intermediate, UInt32 IntermediateOffset, UInt32 FirstSubresource, UInt32 NumSubresources, SubResourceData& SubresourceData)
 			{
 				ID3D12Resource* pID3D12Destination = DCast<D3D12GPUResource*>(&Destination)->GetResource();
 				ID3D12Resource* pID3D12Intermediate = DCast<D3D12GPUResource*>(&Intermediate)->GetResource();
@@ -249,6 +258,12 @@ namespace Insight
 				D3D12Cb.UploadBuffer();
 				D3D12_GPU_VIRTUAL_ADDRESS Address = D3D12Cb.GetGPUVirtualAddress();
 				m_pID3D12CommandList->SetGraphicsRootConstantBufferView(Index, Address);
+			}
+
+			void D3D12CommandContext::SetTexture(UInt32 Slot, DescriptorHandle& pTexture)
+			{
+				D3D12_GPU_DESCRIPTOR_HANDLE GpuHandle{ pTexture.GetGpuPtr() };
+				m_pID3D12CommandList->SetGraphicsRootDescriptorTable(Slot, GpuHandle);
 			}
 
 			void D3D12CommandContext::SetPipelineState(IPipelineState& Pipeline)
@@ -341,7 +356,8 @@ namespace Insight
 				m_pID3D12CommandList->Reset(m_pID3D12CurrentCmdAllocator, NULL);
 
 				// TODO: Set root signature
-				// TODO: Bind descriptor heaps
+
+				BindDescriptorHeaps();
 
 				return 0;
 
@@ -357,7 +373,8 @@ namespace Insight
 				pQueue->DiscardAllocator(FenceValue, m_pID3D12CurrentCmdAllocator);
 				m_pID3D12CurrentCmdAllocator = NULL;
 
-				// TODO: Cleanup linear CPU/GPU allocators
+				m_CpuLinearAllocator.CleanupUsedPages(FenceValue);
+				m_GpuLinearAllocator.CleanupUsedPages(FenceValue);
 				m_DynamicViewDescriptorHeap.CleanupUsedHeaps(FenceValue);
 				m_DynamicSamplerDescriptorHeap.CleanupUsedHeaps(FenceValue);
 

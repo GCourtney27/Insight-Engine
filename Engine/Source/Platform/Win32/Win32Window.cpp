@@ -419,19 +419,19 @@ namespace Insight {
 
 	bool Win32Window::ProccessWindowMessages()
 	{
-		MSG msg;
-		::ZeroMemory(&msg, sizeof(MSG));
+		MSG Msg;
+		ZeroMem(&Msg, sizeof(MSG));
 
-		while (::PeekMessage(&msg,	// Where to store message (if one exists).
+		while (::PeekMessage(&Msg,	// Where to store message (if one exists).
 			m_hWindow,				// Handle to window we are checking messages for.
 			0,						// Minimum Filter Msg Value - We are not filtering for specific messages but min and max could be used to do so.
 			0,						// Maximum Filter Msg Value.
 			PM_REMOVE))				// Post message read behavior, just remove the message once finished with it.
 		{
-			if (!TranslateAccelerator(msg.hwnd, m_hAccelerationTable, &msg))
+			if (!TranslateAccelerator(Msg.hwnd, m_hAccelerationTable, &Msg))
 			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
+				TranslateMessage(&Msg);
+				DispatchMessage(&Msg);
 			}
 		}
 

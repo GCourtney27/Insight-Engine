@@ -49,11 +49,11 @@ workspace ("InsightEngine")
 
 outputdir = "%{cfg.buildcfg}-$(SDKIdentifier)-$(Platform)"
 
-binaryFolder = "Binaries/"
-intFolder = binaryFolder .. "Intermediates/"
+buildFolder = "Build/"
+intFolder = buildFolder .. "Intermediates/"
 
 function ieGetBuildFolder()
-	return "%{wks.location}/" .. binaryFolder .. "/%{cfg.buildcfg}-%{cfg.platform}-%{cfg.architecture}/"
+	return "%{wks.location}/" .. buildFolder .. "/%{cfg.buildcfg}-%{cfg.platform}-%{cfg.architecture}/"
 end
 
 function ieGetBuildIntFolder()

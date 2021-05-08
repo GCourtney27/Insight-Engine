@@ -6,6 +6,7 @@
 #include "Runtime/Graphics/Private/ISwapChain.h"
 #include "Runtime/Graphics/Private/ICommandManager.h"
 #include "Runtime/Graphics/Public/IGeometryBufferManager.h"
+#include "Runtime/Graphics/Public/ResourceManagement/ITextureManager.h"
 
 #include "Runtime/Core/Window.h"
 
@@ -35,6 +36,7 @@ namespace Insight
 			SAFE_DELETE_PTR(g_pContextManager);
 			SAFE_DELETE_PTR(m_pSwapChain);
 			SAFE_DELETE_PTR(g_pGeometryManager);
+			SAFE_DELETE_PTR(g_pTextureManager);
 		}
 
 		void IRenderContext::OnWindowModeChanged(EWindowMode Mode)

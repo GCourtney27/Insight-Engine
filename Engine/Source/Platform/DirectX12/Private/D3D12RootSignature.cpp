@@ -21,7 +21,7 @@ namespace Insight
 			{
 				COM_SAFE_RELEASE(m_pID3D12RootSignature);
 			}
-			
+
 			void D3D12RootSignature::Initialize(const RootSignatureDesc& Desc)
 			{
 				ID3D12Device* pID3D12Device = RCast<ID3D12Device*>(g_pDevice->GetNativeDevice());
@@ -42,3 +42,37 @@ namespace Insight
 		}
 	}
 }
+
+/*
+
+				std::vector<CD3DX12_ROOT_PARAMETER> RootParams;
+				RootParams.reserve(Desc.NumParams);
+				for (size_t i = 0; i < Desc.NumParams; ++i)
+				{
+					const RootParameter& Param = Desc.pParameters[i];
+					CD3DX12_ROOT_PARAMETER CRootParam;
+					switch (Param.ParameterType)
+					{
+					case RPT_ConstantBufferView:
+						CRootParam.InitAsConstantBufferView(Param.Descriptor.ShaderRegister, Param.Descriptor.RegisterSpace, (D3D12_SHADER_VISIBILITY)Param.ShaderVisibility);
+						break;
+					case RPT_DescriptorTable:
+					{
+						std::vector<CD3DX12_DESCRIPTOR_RANGE> Ranges;
+						Ranges.reserve(Param.DescriptorTable.NumDescriptors);
+						for (size_t i = 0; i < Param.DescriptorTable.NumDescriptors; ++i)
+						{
+							CD3DX12_DESCRIPTOR_RANGE CRange;
+							CRange.Init(
+								(D3D12_DESCRIPTOR_RANGE_TYPE)Param.DescriptorTable.pDescriptorRanges[i].Type,
+								Param.DescriptorTable.pDescriptorRanges[i].NumDescriptors,
+								Param.DescriptorTable.pDescriptorRanges[i].BaseShaderRegister,
+								Param.DescriptorTable.pDescriptorRanges[i].OffsetInDescriptorsFromTableStart);
+							Ranges.push_back(CRange);
+						}
+						CRootParam.InitAsDescriptorTable(Param.DescriptorTable.NumDescriptors, Ranges.data(), (D3D12_SHADER_VISIBILITY)Param.ShaderVisibility);
+					}
+					}
+					RootParams.push_back(CRootParam);
+				}
+*/

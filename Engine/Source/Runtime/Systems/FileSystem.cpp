@@ -30,7 +30,7 @@ namespace Insight {
 		return true;
 	}
 
-	std::unique_ptr<char> FileSystem::ReadRawData(const TChar* Path, size_t& OutDataSize)
+	ByteArray FileSystem::ReadRawData(const TChar* Path, size_t& OutDataSize)
 	{
 		FILE* pFile = _wfopen(Path, TEXT("rb"));
 		if (!pFile)
@@ -46,12 +46,12 @@ namespace Insight {
 		fseek(pFile, 0, SEEK_SET);
 		
 		// Fill the buffer with the data in the file.
-		std::unique_ptr<char> FileContents(new char[OutDataSize]);
-		fread(FileContents.get(), 1, OutDataSize, pFile);
+		ByteArray Array = std::make_shared<std::vector<UInt8>>(OutDataSize);
+		fread(Array->data(), 1, OutDataSize, pFile);
 
 		fclose(pFile);
 
-		return FileContents;
+		return Array;
 	}
 
 	void FileSystem::SaveEngineUserSettings(const Renderer::GraphicsSettings& Settings)

@@ -16,6 +16,7 @@
 #include <fstream>
 #include <assert.h>
 #include <iostream>
+#include <typeinfo>
 #include <algorithm>
 #include <filesystem>
 #include <functional>
@@ -55,8 +56,9 @@
 // === Insight Specific === //
 #include "Runtime/Core/Log.h"
 #include "Runtime/Core/EString.h"
-#include "Runtime/Core/Interfaces.h"
 #include "Runtime/Core/Exception.h"
+#include "Runtime/Core/Interfaces.h"
+#include "Runtime/Core/Public/Types.h"
 #include "Runtime/Systems/FileSystem.h"
 #include "Runtime/Core/Utilities/Profiling.h"
 #include "Runtime/Math/Public/PrimitiveTypes.h"

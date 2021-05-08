@@ -8,6 +8,7 @@
 
 #include "Platform/DirectX12/Private/D3D12DynamicDescriptorHeap.h"
 #include <Runtime/Graphics/Public/IRootSignature.h>
+#include "Platform/DirectX12/Private/LinearAllocator.h"
 
 
 namespace Insight
@@ -55,11 +56,13 @@ namespace Insight
 				
 				virtual void SetDescriptorHeap(EResourceHeapType Type, IDescriptorHeap* HeapPtr) override;
 
+				DynAlloc ReserveUploadMemory(UInt64 SizeInBytes);
 				virtual void UpdateSubresources(IGPUResource& Destination, IGPUResource& Intermediate, UInt32 IntermediateOffset, UInt32 FirstSubresource, UInt32 NumSubresources, SubResourceData& SubresourceData) override;
 
 				virtual void BindVertexBuffer(UInt32 Slot, IVertexBuffer& Vertexbuffer) override;
 				virtual void BindIndexBuffer(IIndexBuffer& IndexBuffer) override;
 				virtual void SetGraphicsConstantBuffer(UInt32 Index, IConstantBuffer* pConstantBuffer) override;
+				virtual void SetTexture(UInt32 Slot, DescriptorHandle& pTexture) override;
 
 				virtual void SetPipelineState(IPipelineState& Pipeline) override;
 				virtual void SetGraphicsRootSignature(IRootSignature& Signature) override;
@@ -98,6 +101,8 @@ namespace Insight
 				D3D12DynamicDescriptorHeap m_DynamicViewDescriptorHeap;		// HEAP_TYPE_CBV_SRV_UAV
 				D3D12DynamicDescriptorHeap m_DynamicSamplerDescriptorHeap;	// HEAP_TYPE_SAMPLER
 
+				LinearAllocator m_CpuLinearAllocator;
+				LinearAllocator m_GpuLinearAllocator;
 			};
 		}
 	}

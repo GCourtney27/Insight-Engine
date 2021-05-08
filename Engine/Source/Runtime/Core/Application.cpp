@@ -30,6 +30,9 @@
 #include "Runtime/Graphics/Public/ResourceManagement/IConstantBufferManager.h"
 #endif // IE_RENDER_MULTI_PLATFORM
 
+#include "Runtime/Graphics/Private/IUnknown.h"
+
+
 #include "Platform/DirectX12/Public/Resource/D3D12ColorBuffer.h"
 #include "Platform/DirectX12/Public/Resource/D3D12VertexBuffer.h"
 #include "Platform/DirectX12/Public/Resource/D3D12IndexBuffer.h"
@@ -37,6 +40,7 @@
 #include "Platform/DirectX12/Public/D3D12PipelineState.h"
 #include "Platform/DirectX12/Public/D3D12RootSignature.h"
 #include "Platform/DirectX12/Public/D3D12DescriptorHeap.h"
+#include "Platform/DirectX12/Public/Resource/D3D12Texture.h"
 
 #include "Platform/DirectX12/Wrappers/D3D12Shader.h"
 #include <d3dcompiler.h>
@@ -130,9 +134,10 @@ namespace Insight {
 				SBR_SceneConstants = 0,
 				SBR_MeshWorld = 1,
 				SBR_MaterialParams = 2,
+				SBR_Texture = 3,
 			};
 
-			RootParameter pRootParams[3];
+			RootParameter pRootParams[4];
 			ZeroMem(pRootParams, sizeof(RootParameter) * _countof(pRootParams));
 			// Scene Constants
 			pRootParams[0].ShaderVisibility = SV_All;
@@ -149,18 +154,50 @@ namespace Insight {
 			pRootParams[2].ParameterType = RPT_ConstantBufferView;
 			pRootParams[2].Descriptor.ShaderRegister = SBR_MaterialParams;
 			pRootParams[2].Descriptor.RegisterSpace = 0;
+			// Texture
+			DescriptorRange pDescriptorRanges[1];
+				ZeroMem(pDescriptorRanges, sizeof(RootDescriptor) * _countof(pDescriptorRanges));
+				pDescriptorRanges[0].Type = DRT_ShaderResourceView;
+				pDescriptorRanges[0].BaseShaderRegister = 0;
+				pDescriptorRanges[0].NumDescriptors = 1;
+				pDescriptorRanges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+				pDescriptorRanges[0].RegisterSpace = 0;
+			pRootParams[3].ShaderVisibility = SV_Pixel;
+			pRootParams[3].ParameterType = RPT_DescriptorTable;
+			pRootParams[3].DescriptorTable.NumDescriptors = _countof(pDescriptorRanges);
+			pRootParams[3].DescriptorTable.pDescriptorRanges = pDescriptorRanges;
+
+			constexpr float MinLOD = 0.0f, MaxLOD = 9.0f;
+			StaticSamplerDesc pSamplers[1];
+			pSamplers[0].ShaderRegister = 0;
+			pSamplers[0].Filter = F_Anisotropic;
+			pSamplers[0].AddressU = TAM_Wrap;
+			pSamplers[0].AddressV = TAM_Wrap;
+			pSamplers[0].AddressW = TAM_Wrap;
+			pSamplers[0].MipLODBias = 0;
+			pSamplers[0].MaxAnisotropy = 1;
+			pSamplers[0].ComparisonFunc = CF_LessEqual;
+			pSamplers[0].BorderColor = SBC_Opaque_White;
+			pSamplers[0].MinLOD = MinLOD;
+			pSamplers[0].MaxLOD = MaxLOD;
+			pSamplers[0].ShaderVisibility = SV_Pixel;
+			pSamplers[0].RegisterSpace = 0;
+
 
 			IRootSignature* pRS = NULL;
 			RootSignatureDesc RSDesc = {};
 			RSDesc.Flags |= RSF_AllowInputAssemblerLayout;
-			RSDesc.NumParams = _countof(pRootParams);
 			RSDesc.pParameters = pRootParams;
+			RSDesc.NumParams = _countof(pRootParams);
+			RSDesc.pStaticSamplers = pSamplers;
+			RSDesc.NumStaticSamplers = _countof(pSamplers);
 			g_pDevice->CreateRootSignature(RSDesc, &pRS);
 
 			InputElementDesc InputElements[] =
 			{
-				{ "POSITION",	0, F_R32G32B32_Float,		0, 0,	IC_PerVertexData, 0 },
-				{ "COLOR",		0, F_R32G32B32A32_Float,	0, 12,	IC_PerVertexData, 0 },
+				{ "POSITION",	0, F_R32G32B32_Float,		0, IE_APPEND_ALIGNED_ELEMENT,	IC_PerVertexData, 0 },
+				{ "COLOR",		0, F_R32G32B32A32_Float,	0, IE_APPEND_ALIGNED_ELEMENT,	IC_PerVertexData, 0 },
+				{ "UVs",		0, F_R32G32_Float,			0, IE_APPEND_ALIGNED_ELEMENT,	IC_PerVertexData, 0 },
 			};
 
 			::Microsoft::WRL::ComPtr<ID3DBlob> vertexShader;
@@ -173,53 +210,64 @@ namespace Insight {
 				0;
 #endif
 			std::string ShaderSource =
-				R"(
-// Constant Buffers
-cbuffer SceneConstants : register(b0)
-{
-	float4x4 ViewMat;
-	float4x4 ProjMat;
-	float WorldTime;
-};
-cbuffer MeshWorld : register(b1)
-{
-	float4x4 WorldMat;
-}
-cbuffer Material : register(b2)
-{
-	float4 Color;
-}
+R"(
+			// Constant Buffers
+			cbuffer SceneConstants : register(b0)
+			{
+				float4x4 ViewMat;
+				float4x4 ProjMat;
+				float WorldTime;
+			};
+			cbuffer MeshWorld : register(b1)
+			{
+				float4x4 WorldMat;
+			}
+			cbuffer Material : register(b2)
+			{
+				float4 Color;
+			}
 
-// Structs 
-struct VSInput
-{
-	float3 Position : POSITION;
-	float4 Color : COLOR;
-};
-struct PSInput
-{
-	float4 Position : SV_POSITION;
-	float4 VertexColor : COLOR;
-};
+			// Textures and Samplers
+			Texture2D Texture : register(t0);
+			SamplerState LinearWrapSampler : register(s0);
 
-PSInput VSMain(VSInput Input)
-{
-	PSInput Result;
+			// Structs 
+			struct VSInput
+			{
+				float3 Position : POSITION;
+				float4 Color : COLOR;
+				float2 UVs	: UVs;
+			};
+			struct PSInput
+			{
+				float4 Position : SV_POSITION;
+				float4 VertexColor : COLOR;
+				float2 UVs : UVs;
+			};
 
-	matrix WorldView                = mul(WorldMat, ViewMat);
-    float4x4 worldViewProjection    = mul(WorldView, ProjMat);
+			PSInput VSMain(VSInput Input)
+			{
+				PSInput Result;
+
+				float4x4 WorldView              = mul(WorldMat, ViewMat);
+				float4x4 worldViewProjection    = mul(WorldView, ProjMat);
     
-	Result.Position = mul(float4(Input.Position, 1.0f), worldViewProjection);
-	Result.VertexColor = Input.Color;
+				Result.Position = mul(float4(Input.Position, 1.0f), worldViewProjection);
+				Result.VertexColor = Input.Color;
+				Result.UVs = Input.UVs;
 
-	return Result;
-}
+				return Result;
+			}
 
-float4 PSMain(PSInput Input) : SV_TARGET
-{
-	float4 Result = lerp(Input.VertexColor, Color, 0.3f);
-	return Result;	
-}
+			float4 PSMain(PSInput Input) : SV_TARGET
+			{
+				//return float4(Input.UVs.x, Input.UVs.y, 0, 1);
+				float3 TexCol = Texture.Sample(LinearWrapSampler, Input.UVs).rgb;
+				return float4(TexCol, 1.0f);
+
+				float4 Result = lerp(Input.VertexColor, Color, 0.3f);
+				return Result;	
+			}
 )";
 
 			HRESULT hr = D3DCompile(ShaderSource.data(), ShaderSource.size() * sizeof(char), NULL, NULL, NULL, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, NULL);
@@ -245,7 +293,7 @@ float4 PSMain(PSInput Input) : SV_TARGET
 			PSODesc.SampleDesc = { 1, 0 };
 			g_pDevice->CreatePipelineState(PSODesc, &pScenePassPSO);
 
-			IDescriptorHeap* pTextureHeap = NULL;
+			static IDescriptorHeap* pTextureHeap = NULL;
 			g_pDevice->CreateDescriptorHeap(TEXT("Scene Texture Descriptors"), RHT_CBV_SRV_UAV, 4096, &pTextureHeap);
 
 
@@ -282,30 +330,36 @@ float4 PSMain(PSInput Input) : SV_TARGET
 				void Load(const EString& Path)
 				{
 					Vertex3D Verts[] = {
-						{ { -0.5f,  0.5f, -0.5f }, { 1.f, 0.f, 0.f, 1.f } },
-						{ {  0.5f, -0.5f, -0.5f }, { 0.f, 1.f, 0.f, 1.f } },
-						{ { -0.5f, -0.5f, -0.5f }, { 0.f, 0.f, 1.f, 1.f } },
-						{ {  0.5f,  0.5f, -0.5f }, { 1.f, 0.f, 0.f, 1.f } },
-						{ {  0.5f, -0.5f, -0.5f }, { 0.f, 1.f, 0.f, 1.f } },
-						{ {  0.5f,  0.5f,  0.5f }, { 0.f, 0.f, 1.f, 1.f } },
-						{ {  0.5f, -0.5f,  0.5f }, { 1.f, 0.f, 0.f, 1.f } },
-						{ {  0.5f,  0.5f, -0.5f }, { 0.f, 1.f, 0.f, 1.f } },
-						{ { -0.5f,  0.5f,  0.5f }, { 0.f, 0.f, 1.f, 1.f } },
-						{ { -0.5f, -0.5f, -0.5f }, { 1.f, 0.f, 0.f, 1.f } },
-						{ { -0.5f, -0.5f,  0.5f }, { 0.f, 1.f, 0.f, 1.f } },
-						{ { -0.5f,  0.5f, -0.5f }, { 0.f, 0.f, 1.f, 1.f } },
-						{ {  0.5f,  0.5f,  0.5f }, { 1.f, 0.f, 0.f, 1.f } },
-						{ { -0.5f, -0.5f,  0.5f }, { 0.f, 1.f, 0.f, 1.f } },
-						{ {  0.5f, -0.5f,  0.5f }, { 0.f, 0.f, 1.f, 1.f } },
-						{ { -0.5f,  0.5f,  0.5f }, { 1.f, 0.f, 0.f, 1.f } },
-						{ { -0.5f,  0.5f, -0.5f }, { 0.f, 1.f, 0.f, 1.f } },
-						{ {  0.5f,  0.5f,  0.5f }, { 0.f, 0.f, 1.f, 1.f } },
-						{ {  0.5f,  0.5f, -0.5f }, { 1.f, 0.f, 0.f, 1.f } },
-						{ { -0.5f,  0.5f,  0.5f }, { 0.f, 1.f, 0.f, 1.f } },
-						{ {  0.5f, -0.5f,  0.5f }, { 0.f, 0.f, 1.f, 1.f } },
-						{ { -0.5f, -0.5f, -0.5f }, { 1.f, 0.f, 0.f, 1.f } },
-						{ {  0.5f, -0.5f, -0.5f }, { 0.f, 1.f, 0.f, 1.f } },
-						{ { -0.5f, -0.5f,  0.5f }, { 0.f, 0.f, 1.f, 1.f } },
+						// Front
+						{ { -0.5f,  0.5f, -0.5f }, { 1.f, 0.f, 0.f, 1.f }, { 0.0f, 0.0f} },
+						{ {  0.5f, -0.5f, -0.5f }, { 0.f, 1.f, 0.f, 1.f }, { 0.0f, 1.0f} },
+						{ { -0.5f, -0.5f, -0.5f }, { 0.f, 0.f, 1.f, 1.f }, { 0.0f, 1.0f} },
+						{ {  0.5f,  0.5f, -0.5f }, { 1.f, 0.f, 0.f, 1.f }, { 1.0f, 0.0f} },
+						// Right 
+						{ {  0.5f, -0.5f, -0.5f }, { 0.f, 1.f, 0.f, 1.f }, { 0.0f, 0.0f} },
+						{ {  0.5f,  0.5f,  0.5f }, { 0.f, 0.f, 1.f, 1.f }, { 0.0f, 1.0f} },
+						{ {  0.5f, -0.5f,  0.5f }, { 1.f, 0.f, 0.f, 1.f }, { 0.0f, 1.0f} },
+						{ {  0.5f,  0.5f, -0.5f }, { 0.f, 1.f, 0.f, 1.f }, { 1.0f, 0.0f} },
+						// Left
+						{ { -0.5f,  0.5f,  0.5f }, { 0.f, 0.f, 1.f, 1.f }, { 0.0f, 0.0f } },
+						{ { -0.5f, -0.5f, -0.5f }, { 1.f, 0.f, 0.f, 1.f }, { 0.0f, 1.0f } },
+						{ { -0.5f, -0.5f,  0.5f }, { 0.f, 1.f, 0.f, 1.f }, { 0.0f, 1.0f } },
+						{ { -0.5f,  0.5f, -0.5f }, { 0.f, 0.f, 1.f, 1.f }, { 1.0f, 0.0f } },
+						// Back
+						{ {  0.5f,  0.5f,  0.5f }, { 1.f, 0.f, 0.f, 1.f }, { 0.0f, 0.0f} },
+						{ { -0.5f, -0.5f,  0.5f }, { 0.f, 1.f, 0.f, 1.f }, { 0.0f, 1.0f} },
+						{ {  0.5f, -0.5f,  0.5f }, { 0.f, 0.f, 1.f, 1.f }, { 0.0f, 1.0f} },
+						{ { -0.5f,  0.5f,  0.5f }, { 1.f, 0.f, 0.f, 1.f }, { 1.0f, 0.0f} },
+						// Top
+						{ { -0.5f,  0.5f, -0.5f }, { 0.f, 1.f, 0.f, 1.f }, { 0.0f, 0.0f} },
+						{ {  0.5f,  0.5f,  0.5f }, { 0.f, 0.f, 1.f, 1.f }, { 0.0f, 1.0f} },
+						{ {  0.5f,  0.5f, -0.5f }, { 1.f, 0.f, 0.f, 1.f }, { 0.0f, 1.0f} },
+						{ { -0.5f,  0.5f,  0.5f }, { 0.f, 1.f, 0.f, 1.f }, { 1.0f, 0.0f} },
+						// Bottom
+						{ {  0.5f, -0.5f,  0.5f }, { 0.f, 0.f, 1.f, 1.f }, { 0.0f, 0.0f} },
+						{ { -0.5f, -0.5f, -0.5f }, { 1.f, 0.f, 0.f, 1.f }, { 0.0f, 1.0f} },
+						{ {  0.5f, -0.5f, -0.5f }, { 0.f, 1.f, 0.f, 1.f }, { 0.0f, 1.0f} },
+						{ { -0.5f, -0.5f,  0.5f }, { 0.f, 0.f, 1.f, 1.f }, { 1.0f, 0.0f} },
 					};
 
 					const UInt32 VertexBufferSize = sizeof(Verts);
@@ -366,20 +420,24 @@ float4 PSMain(PSInput Input) : SV_TARGET
 					pWorld->WorldMat = m_Transform.GetWorldMatrix().Transpose();
 					GfxContext.SetGraphicsConstantBuffer(SBR_MeshWorld, m_pMeshWorldCB);
 
+					// Set material texture
+					GfxContext.SetTexture(SBR_Texture, m_TextureSRVs);
+
 					GfxContext.SetPrimitiveTopologyType(PT_TiangleList);
 					GfxContext.BindVertexBuffer(0, VertBuffer);
 					GfxContext.BindIndexBuffer(IndexBuffer);
 					GfxContext.DrawIndexedInstanced(m_DrawArgs.NumIndices, 1, 0, 0, 0);
 				}
 
-				inline Material& GetMaterial() { return m_Material; }
-				inline ieTransform& GetTransform() { return m_Transform; }
+				inline Material& GetMaterial()		{ return m_Material; }
+				inline ieTransform& GetTransform()	{ return m_Transform; }
 
 			protected:
 				struct Vertex3D
 				{
 					FVector3 Position;
 					FVector4 Color;
+					FVector2 UV0;
 				};
 
 				struct DrawArgs
@@ -397,6 +455,29 @@ float4 PSMain(PSInput Input) : SV_TARGET
 
 					g_pConstantBufferManager->CreateConstantBuffer(TEXT("Material Params"), &m_pMaterialCB, sizeof(Material));
 					g_pConstantBufferManager->CreateConstantBuffer(TEXT("Mesh World Params"), &m_pMeshWorldCB, sizeof(MeshWorld));
+
+
+					// TODO: Only dds textures can be loaded right now.
+					const TChar* TexturePath = L"Content/Textures/Debug/DebugCheckerBoard_Albedo.dds";
+					ITextureRef pTexture = g_pTextureManager->LoadTexture(TexturePath, DT_Magenta2D, false);
+
+					m_TextureSRVs = pTextureHeap->Alloc(1);
+
+					uint32_t DestCount = 1;
+					uint32_t SourceCounts[] = { 1 };
+					const ITexture* ITex = pTexture.Get();
+					const DX12::D3D12Texture* Tex = DCast<const DX12::D3D12Texture*>(ITex);
+					D3D12_CPU_DESCRIPTOR_HANDLE SourceTextures[1] =
+					{
+						Tex->GetSRV()
+					};
+					D3D12_CPU_DESCRIPTOR_HANDLE CpuHandle{ m_TextureSRVs.GetCpuPtr() };
+					ID3D12Device* pD3D12Device = RCast<ID3D12Device*>(g_pDevice->GetNativeDevice());
+
+					pD3D12Device->CopyDescriptors(1, &CpuHandle, &DestCount,
+						DestCount, SourceTextures, SourceCounts, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+					m_TextureSRVs.m_CpuHandle.Ptr = CpuHandle.ptr;
 				}
 
 				void UnInit()
@@ -413,6 +494,9 @@ float4 PSMain(PSInput Input) : SV_TARGET
 				ieTransform m_Transform;
 				Material m_Material;
 				DrawArgs m_DrawArgs;
+
+				// TODO: Should be moved to a more expanded material class.
+				DescriptorHandle m_TextureSRVs;
 			};
 
 			struct Actor
@@ -470,9 +554,16 @@ float4 PSMain(PSInput Input) : SV_TARGET
 				}
 				virtual ~Camera() {}
 
+				float Time = 0.f;
 				void Update(float DeltaMs) override
 				{
 					Super::Update(DeltaMs);
+					Time += DeltaMs;
+					FVector3 Pos = m_Transform.GetPosition();
+					Pos.y = sinf(Time * 0.3f);
+					Pos.x = sinf(Time * 0.3f);
+					m_Transform.SetPosition(Pos);
+
 					UpdateViewMat();
 				}
 
@@ -503,7 +594,27 @@ float4 PSMain(PSInput Input) : SV_TARGET
 			StaticMeshActor AnotherCubeActor;
 			AnotherCubeActor.m_Transform.SetPosition(2.f, 0.f, 0.f);
 			AnotherCubeActor.m_Transform.SetParent(&MyCubeActor.m_Transform);
+			
+			{
+				class A : public IUnknown
+				{ 
+				public: 
+					A() {}
+					virtual ~A() {}
+				};
+				
+				class B : public A 
+				{
+				public:
+					B() {}
+					virtual ~B() {}
+				};
 
+				A* val = new B();
+				B* ptr = val->GetDerivedType<B>();
+				IE_ASSERT(ptr);
+				delete val;
+			}
 
 			FrameTimer GFXTimer;
 

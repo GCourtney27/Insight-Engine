@@ -1,3 +1,4 @@
+// Copyright Insight Interactive. All rights reserved.
 /*
 	File Cast.h
 
@@ -7,6 +8,7 @@
 	Wrapper for C++ casting operations.
 */
 #pragma once
+#include <Runtime/Core.h>
 
 /*
 	Performs a const_cast on specified value.

@@ -35,13 +35,15 @@ namespace Insight
 
                 m_DescriptorSize = pID3D12Device->GetDescriptorHandleIncrementSize(m_HeapDesc.Type);
                 m_NumFreeDescriptors = m_HeapDesc.NumDescriptors;
+                CpuDescriptorHandle CpuHandle{ m_Heap->GetCPUDescriptorHandleForHeapStart().ptr };
+                GpuDescriptorHandle GpuHandle{ m_Heap->GetGPUDescriptorHandleForHeapStart().ptr };
                 m_FirstHandle = DescriptorHandle(
-                    m_Heap->GetCPUDescriptorHandleForHeapStart(),
-                    m_Heap->GetGPUDescriptorHandleForHeapStart());
+                    CpuHandle,
+                    GpuHandle);
                 m_NextFreeHandle = m_FirstHandle;
             }
 
-            DescriptorHandle D3D12DescriptorHeap::Alloc(uint32_t Count)
+            DescriptorHandle D3D12DescriptorHeap::Alloc(UInt32 Count)
             {
                 IE_ASSERT(HasAvailableSpace(Count), "Descriptor Heap out of space.  Increase heap size.");
                 DescriptorHandle ret = m_NextFreeHandle;

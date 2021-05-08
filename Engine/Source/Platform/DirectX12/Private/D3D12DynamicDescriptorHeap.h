@@ -92,6 +92,10 @@ namespace Insight
                 DescriptorHandle m_FirstDescriptor;
                 std::vector<ID3D12DescriptorHeap*> m_RetiredHeaps;
 
+                // DONT CALL.
+                virtual DescriptorHandle Alloc(UInt32 Count) override { return DescriptorHandle {}; }
+
+
                 // Describes a descriptor table entry:  a region of the handle cache and which handles have been set
                 struct DescriptorTableCache
                 {

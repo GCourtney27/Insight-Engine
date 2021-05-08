@@ -7,7 +7,7 @@
 *.DS_Store
 
 # Binaries
-[Bb]inaries/
+[Bb]uild/
 Engine/Vendor/Mono
 Engine/ThirdParty/imgui/bin
 Engine/ThirdParty/imgui/bin-int

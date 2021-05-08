@@ -19,6 +19,7 @@
 #define	IE_APPEND_ALIGNED_ELEMENT	( 0xFFFFFFFF )
 #define IE_MAX_CONSTANT_BUFFER_SIZE 256
 #define IE_INVALID_CONSTANT_BUFFER_HANDLE (Insight::Graphics::ConstantBufferUID)(-1)
+#define IE_INVALID_GPU_ADDRESS (-1)
 
 namespace Insight
 {
@@ -33,6 +34,7 @@ namespace Insight
 		class ISwapChain;
 		class IColorBuffer;
 		class IDepthBuffer;
+		class ITexture;
 		class IGPUResource;
 		class IPipelineState;
 		class IRootSignature;
@@ -44,16 +46,20 @@ namespace Insight
 		class ICommandContext;
 		class IConstantBufferManager;
 		class IGeometryBufferManager;
+		class ITextureManager;
 		class IConstantBuffer;
+		class DescriptorHandle;
 		// Structs
 		struct PipelineStateDesc;
 		struct RootSignatureDesc;
 		// Enums
 		enum EResourceHeapType;
 
+
 		// ------------------
 		//	Extern Variables
 		// ------------------
+		// The render context manages the lifetime of these objects.
 		// 
 		// Command context managment overlord.
 		extern ICommandManager* g_pCommandManager;
@@ -65,7 +71,12 @@ namespace Insight
 		extern IGeometryBufferManager* g_pGeometryManager;
 		// Constant buffer overlord.
 		extern IConstantBufferManager* g_pConstantBufferManager;
-
+		// Texture overlord.
+		extern ITextureManager* g_pTextureManager;
+		// Default texture containter.
+		// The texture manager manages the lifetime of the objects this array's elements point too.
+		// Each API has their own texture type.
+		extern ITexture* g_DefaultTextures[];
 
 		// ----------
 		//	Typedefs
@@ -80,14 +91,26 @@ namespace Insight
 		//	Utility Methods
 		// -----------------
 		//
+		/*
+			Constructs a core render component and returns the result. Used during initialization of 
+			core rendering components such as the swapchain, render device, managers etc.   
+			Example Usage: D3D12Device pNewDevice = CreateRenderComponentObject<D3D12Device>(pDevice); Where pDevice is of type IDevice.
+			@param ppBase - The interface to store the result into.
+			@param args - Optional additional arguments for the object's constructor.
+		*/
 		template <typename DerivedType, typename BaseType, typename ... InitArgs>
 		inline DerivedType* CreateRenderComponentObject(BaseType** ppBase, InitArgs ... args)
 		{
-			*ppBase = new DerivedType(args...);
-			DerivedType* pDericedClass = DCast<DerivedType*>(*ppBase);
-			IE_ASSERT(pDericedClass != NULL);
+			(*ppBase) = new DerivedType(args...);
+			DerivedType* pDerivedClass = DCast<DerivedType*>( (*ppBase) );
+			IE_ASSERT(pDerivedClass != NULL);
 
-			return pDericedClass;
+			return pDerivedClass;
 		}
+
+		/*
+			Returns a default texture given an enum value.
+		*/
+		ITexture* GetDefaultTexture(EDefaultTexture TexID);
 	}
 }

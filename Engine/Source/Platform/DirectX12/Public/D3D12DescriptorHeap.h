@@ -6,67 +6,12 @@
 #include "Runtime/Graphics/Public/IDescriptorHeap.h"
 #include "Platform/DirectX12/Public/Common/D3D12Utility.h"
 
-
 namespace Insight
 {
 	namespace Graphics
 	{
 		namespace DX12
 		{
-            // This handle refers to a descriptor or a descriptor table (contiguous descriptors) that is shader visible.
-            class DescriptorHandle
-            {
-            public:
-                DescriptorHandle()
-                {
-                    m_CpuHandle.ptr = D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN;
-                    m_GpuHandle.ptr = D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN;
-                }
-
-                /*
-                // Should we allow constructing handles that might not be shader visible?
-                DescriptorHandle( D3D12_CPU_DESCRIPTOR_HANDLE CpuHandle )
-                    : m_CpuHandle(CpuHandle)
-                {
-                    m_GpuHandle.ptr = D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN;
-                }
-                */
-
-                DescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE CpuHandle, D3D12_GPU_DESCRIPTOR_HANDLE GpuHandle)
-                    : m_CpuHandle(CpuHandle), m_GpuHandle(GpuHandle)
-                {
-                }
-
-                DescriptorHandle operator+ (INT OffsetScaledByDescriptorSize) const
-                {
-                    DescriptorHandle ret = *this;
-                    ret += OffsetScaledByDescriptorSize;
-                    return ret;
-                }
-
-                void operator += (INT OffsetScaledByDescriptorSize)
-                {
-                    if (m_CpuHandle.ptr != D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN)
-                        m_CpuHandle.ptr += OffsetScaledByDescriptorSize;
-                    if (m_GpuHandle.ptr != D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN)
-                        m_GpuHandle.ptr += OffsetScaledByDescriptorSize;
-                }
-
-                const D3D12_CPU_DESCRIPTOR_HANDLE* operator&() const { return &m_CpuHandle; }
-                operator D3D12_CPU_DESCRIPTOR_HANDLE() const { return m_CpuHandle; }
-                operator D3D12_GPU_DESCRIPTOR_HANDLE() const { return m_GpuHandle; }
-
-                size_t GetCpuPtr() const { return m_CpuHandle.ptr; }
-                uint64_t GetGpuPtr() const { return m_GpuHandle.ptr; }
-                bool IsNull() const { return m_CpuHandle.ptr == D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN; }
-                bool IsShaderVisible() const { return m_GpuHandle.ptr != D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN; }
-
-            private:
-                D3D12_CPU_DESCRIPTOR_HANDLE m_CpuHandle;
-                D3D12_GPU_DESCRIPTOR_HANDLE m_GpuHandle;
-            };
-
-
 			class INSIGHT_API D3D12DescriptorHeap : public IDescriptorHeap
 			{
             public:
@@ -80,7 +25,7 @@ namespace Insight
                 void Destroy(void) { m_Heap = nullptr; }
 
                 bool HasAvailableSpace(uint32_t Count) const { return Count <= m_NumFreeDescriptors; }
-                DescriptorHandle Alloc(uint32_t Count = 1);
+                virtual DescriptorHandle Alloc(UInt32 Count = 1) override;
 
                 DescriptorHandle operator[] (uint32_t arrayIdx) const { return m_FirstHandle + arrayIdx * m_DescriptorSize; }
 

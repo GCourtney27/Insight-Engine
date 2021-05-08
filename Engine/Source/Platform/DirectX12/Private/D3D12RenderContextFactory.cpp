@@ -1,6 +1,10 @@
 #include <Engine_pch.h>
 
+#include <Runtime/Graphics/Public/GraphicsCore.h>
 #include "Platform/DirectX12/Public/D3D12RenderContextFactory.h"
+
+#include "Runtime/Core/Window.h"
+
 #include "Platform/DirectX12/Public/D3D12RenderContext.h"
 #include "Platform/DirectX12/Public/D3D12CommandContext.h"
 #include "Platform/DirectX12/Public/D3D12Device.h"
@@ -9,12 +13,9 @@
 #include "Platform/DirectX12/Public/D3D12DescriptorAllocator.h"
 #include "Platform/DirectX12/Public/D3D12GeometryBufferManager.h"
 #include "Platform/DirectX12/Public/ResourceManagement/D3D12ConstantBufferManager.h"
+#include "Platform/DirectX12/Public/ResourceManagement/D3D12TextureManager.h"
 #include "Platform/Public/Utility/COMException.h"
 
-#include "Runtime/Graphics/Public/IRenderContext.h"
-#include "Runtime/Core/Window.h"
-
-#include <Runtime/Graphics/Public/GraphicsCore.h>
 
 namespace Insight
 {
@@ -149,7 +150,14 @@ namespace Insight
 			void D3D12RenderContextFactory::CreateConstantBufferManager(IConstantBufferManager** OutCBManager)
 			{
 				D3D12ConstantBufferManager* pD3D12CBManager = CreateRenderComponentObject<D3D12ConstantBufferManager>(OutCBManager);
-				IE_ASSERT(pD3D12CBManager != NULL)
+				IE_ASSERT(pD3D12CBManager != NULL);
+			}
+			
+			void D3D12RenderContextFactory::CreateTextureManager(ITextureManager** OutTexManager)
+			{
+				D3D12TextureManager* pD3D12TexManager = CreateRenderComponentObject<D3D12TextureManager>(OutTexManager);
+				IE_ASSERT(pD3D12TexManager != NULL);
+
 			}
 		}
 	}

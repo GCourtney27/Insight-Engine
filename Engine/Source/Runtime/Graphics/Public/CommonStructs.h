@@ -251,5 +251,15 @@ namespace Insight
 			const StaticSamplerDesc* pStaticSamplers;
 			ERootSignatureFlags Flags;
 		};
+
+		struct CpuDescriptorHandle
+		{
+			UInt64 Ptr;
+		};
+		
+		struct GpuDescriptorHandle
+		{
+			UInt64 Ptr;
+		};
 	}
 }

@@ -120,9 +120,10 @@ namespace Insight
                 {
                     IE_ASSERT(m_CurrentOffset == 0);
                     m_CurrentHeapPtr = RequestDescriptorHeap(m_DescriptorType);
-                    m_FirstDescriptor = DescriptorHandle(
-                        m_CurrentHeapPtr->GetCPUDescriptorHandleForHeapStart(),
-                        m_CurrentHeapPtr->GetGPUDescriptorHandleForHeapStart());
+                    CpuDescriptorHandle CpuHandle{ m_CurrentHeapPtr->GetCPUDescriptorHandleForHeapStart().ptr };
+                    GpuDescriptorHandle GpuHandle{ m_CurrentHeapPtr->GetGPUDescriptorHandleForHeapStart().ptr };
+                    m_CurrentHeapPtr->GetGPUDescriptorHandleForHeapStart();
+                    m_FirstDescriptor = DescriptorHandle(CpuHandle, GpuHandle);
                 }
 
                 return m_CurrentHeapPtr;
@@ -196,13 +197,14 @@ namespace Insight
                 for (uint32_t i = 0; i < StaleParamCount; ++i)
                 {
                     RootIndex = RootIndices[i];
-                    (CmdList->*SetFunc)(RootIndex, DestHandleStart);
+                    D3D12_GPU_DESCRIPTOR_HANDLE GpuHandle{ DestHandleStart.GetGpuPtr() };
+                    (CmdList->*SetFunc)(RootIndex, GpuHandle);
 
                     DescriptorTableCache& RootDescTable = m_RootDescriptorTable[RootIndex];
 
                     D3D12_CPU_DESCRIPTOR_HANDLE* SrcHandles = RootDescTable.TableStart;
                     uint64_t SetHandles = (uint64_t)RootDescTable.AssignedHandlesBitMap;
-                    D3D12_CPU_DESCRIPTOR_HANDLE CurDest = DestHandleStart;
+                    D3D12_CPU_DESCRIPTOR_HANDLE CurDest{ DestHandleStart.GetCpuPtr() };
                     DestHandleStart += TableSize[i] * DescriptorSize;
 
                     unsigned long SkipCount;
@@ -291,10 +293,11 @@ namespace Insight
 
                 DescriptorHandle DestHandle = m_FirstDescriptor + m_CurrentOffset * m_DescriptorSize;
                 m_CurrentOffset += 1;
+                D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle{ DestHandle.GetCpuPtr() };
+                D3D12_GPU_DESCRIPTOR_HANDLE GPUHandle{ DestHandle.GetGpuPtr() };
+                pID3D12Device->CopyDescriptorsSimple(1, CPUHandle, Handle, m_DescriptorType);
 
-                pID3D12Device->CopyDescriptorsSimple(1, DestHandle, Handle, m_DescriptorType);
-
-                return DestHandle;
+                return GPUHandle;
             }
 
             void D3D12DynamicDescriptorHeap::DescriptorHandleCache::UnbindAllValid()

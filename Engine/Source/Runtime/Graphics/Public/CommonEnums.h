@@ -57,6 +57,7 @@ namespace Insight
 			RS_UnorderedAccess = 0x08,
 			RS_DepthWrite = 0x10,
 			RS_DepthRead = 0x20,
+			RS_GenericRead = (((((0x1 | 0x2) | 0x40) | 0x80) | 0x200) | 0x800),
 			RS_NonPixelShaderResource = 0x40,
 			RS_PixelShaderResource = 0x80,
 			RS_CopyDestination = 0x400,
@@ -347,6 +348,19 @@ namespace Insight
 			DRT_UnorderedAccessView = (DRT_ShaderResourceView + 1),
 			DRT_ConstantBufferView = (DRT_UnorderedAccessView + 1),
 			DRT_Sampler = (DRT_ConstantBufferView + 1),
+		};
+
+		enum EDefaultTexture
+		{
+			DT_Magenta2D,  // Useful for indicating missing textures
+			DT_BlackOpaque2D,
+			DT_BlackTransparent2D,
+			DT_WhiteOpaque2D,
+			DT_WhiteTransparent2D,
+			DT_DefaultNormalMap,
+			DT_BlackCubeMap,
+			
+			DT_NumDefaultTextures
 		};
 	}
 }

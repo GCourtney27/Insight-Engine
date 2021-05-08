@@ -33,6 +33,7 @@ namespace Insight
 			virtual void CreateContextManager(IContextManager** OutCommandContext) = 0;
 			virtual void CreateGeometryManager(IGeometryBufferManager** OutGeometryManager) = 0;
 			virtual void CreateConstantBufferManager(IConstantBufferManager** OutCBManager) = 0;
+			virtual void CreateTextureManager(ITextureManager** OutTexManager) = 0;
 
 		protected:
 			IRenderContextFactory()
@@ -60,6 +61,7 @@ namespace Insight
 			CreateSwapChain(m_pTarget->GetSwapChainAddress(), g_pCommandManager, g_pDevice);
 			CreateGeometryManager(&g_pGeometryManager);
 			CreateConstantBufferManager(&g_pConstantBufferManager);
+			CreateTextureManager(&g_pTextureManager);
 		}
 	}
 }
