@@ -13,7 +13,7 @@ namespace Insight
 			friend class IConstantBufferManager;
 		public:
 			template <typename BufferCastType>
-			FORCE_INLINE BufferCastType* GetBufferDataPointer();
+			FORCE_INLINE BufferCastType* GetBufferPointer();
 			FORCE_INLINE ConstantBufferUID GetUID() const;
 			FORCE_INLINE UInt32 GetBufferSize() const;
 
@@ -42,6 +42,8 @@ namespace Insight
 			virtual void CreateConstantBuffer(const EString& Name, IConstantBuffer** OutBuffer, UInt32 BufferSizeInBytes) = 0;
 			virtual void DestroyConstantBuffer(ConstantBufferUID BufferHandle) = 0;
 
+			virtual void Initialize() = 0;
+
 		protected:
 			IConstantBufferManager() {}
 			virtual ~IConstantBufferManager() {}
@@ -65,7 +67,7 @@ namespace Insight
 		}
 
 		template <typename BufferCastType>
-		FORCE_INLINE BufferCastType* IConstantBuffer::GetBufferDataPointer()
+		FORCE_INLINE BufferCastType* IConstantBuffer::GetBufferPointer()
 		{
 			return RCast<BufferCastType*>(m_Data);
 		}

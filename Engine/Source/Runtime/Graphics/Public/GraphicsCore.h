@@ -35,6 +35,7 @@ namespace Insight
 		class IColorBuffer;
 		class IDepthBuffer;
 		class ITexture;
+		class ITextureRef;
 		class IGPUResource;
 		class IPipelineState;
 		class IRootSignature;
@@ -77,6 +78,8 @@ namespace Insight
 		// The texture manager manages the lifetime of the objects this array's elements point too.
 		// Each API has their own texture type.
 		extern ITexture* g_DefaultTextures[];
+		// Heap holding all shader visible textures.
+		extern IDescriptorHeap* g_pTextureHeap;
 
 		// ----------
 		//	Typedefs

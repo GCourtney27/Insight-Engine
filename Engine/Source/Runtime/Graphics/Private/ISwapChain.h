@@ -1,10 +1,9 @@
 #pragma once
 
 #include <Runtime/Core.h>
+#include <Runtime/Graphics/Public/GraphicsCore.h>
 
 #include "Runtime/Graphics/Public/Resource/IColorBuffer.h"
-#include "Runtime/Graphics/Public/CommonEnums.h"
-#include "Runtime/Graphics/Public/CommonStructs.h"
 
 namespace Insight
 {
@@ -35,7 +34,7 @@ namespace Insight
 			//
 			// Getters
 			//
-			FORCE_INLINE IESwapChainDesc GetDesc()		const { return m_Desc; }
+			FORCE_INLINE IESwapChainDescription GetDesc()		const { return m_Desc; }
 			FORCE_INLINE UInt32 GetCurrentFrameIndex()	const { return m_FrameIndex; }
 			FORCE_INLINE Color	GetClearColor()			const { return m_ClearColor; }
 			FORCE_INLINE bool GetIsVSyncEnabled()		const { return m_bVSyncEnabled; }
@@ -85,7 +84,7 @@ namespace Insight
 			virtual void UnInitialize() = 0;
 
 		protected:
-			IESwapChainDesc m_Desc;
+			IESwapChainDescription m_Desc;
 			UInt32 m_FrameIndex;
 			Color m_ClearColor;
 			bool m_bFullScreenEnabled;

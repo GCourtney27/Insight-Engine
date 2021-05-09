@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Runtime/Math/Public/PrimitiveTypes.h"
+
+
 namespace Insight
 {
 	template <size_t S>

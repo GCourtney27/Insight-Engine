@@ -19,6 +19,7 @@ namespace Insight
 		IConstantBufferManager* g_pConstantBufferManager = NULL;
 		ITextureManager* g_pTextureManager = NULL;
 		ITexture* g_DefaultTextures[DT_NumDefaultTextures];
+		IDescriptorHeap* g_pTextureHeap = NULL;
 
 
 		// -----------------------------

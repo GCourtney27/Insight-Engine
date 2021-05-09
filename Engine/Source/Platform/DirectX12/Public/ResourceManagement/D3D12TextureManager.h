@@ -35,7 +35,6 @@ namespace Insight
 			public:
 				D3D12TextureManager() 
 				{
-					Initialize();
 				}
 				virtual ~D3D12TextureManager() 
 				{
@@ -44,14 +43,13 @@ namespace Insight
 
 				virtual ITextureRef LoadTexture(const EString& FileName, EDefaultTexture Fallback, bool forceSRGB) override;
 
+				virtual void Initialize() override;
+				virtual void UnInitialize() override;
+
 			private:
 				virtual IManagedTexture* FindOrLoadTexture(const EString& FileName, EDefaultTexture Fallback, bool forceSRGB) override;
 				virtual void DestroyTexture(const EString& Key) override;
 				
-			protected:
-				virtual void Initialize() override;
-				virtual void UnInitialize() override;
-
 			private:
 				std::map<EString, std::unique_ptr<D3D12ManagedTexture>> m_TextureCache;
 				D3D12Texture m_DefaultTextures[DT_NumDefaultTextures];

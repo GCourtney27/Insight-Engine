@@ -10,6 +10,11 @@
 #include "Runtime/Graphics/Public/CommonStructHelpers.h"
 #include "Runtime/Graphics/Public/IGeometryBufferManager.h"
 #include "Runtime/Graphics/Public/ResourceManagement/ITextureManager.h"
+#include "Runtime/Graphics/Public/IDescriptorHeap.h"
+#include "Runtime/Graphics/Public/Resource/IVertexBuffer.h"
+#include "Runtime/Graphics/Public/Resource/IIndexBuffer.h"
+#include "Runtime/Graphics/Public/Resource/IPixelBuffer.h"
+#include "Runtime/Graphics/Public/Resource/IDepthBuffer.h"
 
 //
 // Factories

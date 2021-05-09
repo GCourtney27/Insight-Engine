@@ -6,6 +6,10 @@
 #include "Platform/DirectX12/Public/D3D12RootSignature.h"
 #include "Platform/DirectX12/Public/D3D12PipelineState.h"
 #include "Platform/DirectX12/Public/D3D12Descriptorheap.h"
+#include "Platform/DirectX12/Public/Resource/D3D12Texture.h"
+#include "Platform/DirectX12/Public/Resource/D3D12ColorBuffer.h"
+#include "Platform/DirectX12/Public/Resource/D3D12DepthBuffer.h"
+
 
 namespace Insight
 {
@@ -36,6 +40,7 @@ namespace Insight
 				//
 				if (InitParams.ForceWarpAdapter)
 				{
+					// Force the device to be a software adapter. NOT recommended for games.
 					Microsoft::WRL::ComPtr<IDXGIAdapter> pWarpAdapter;
 					ThrowIfFailed((*ppDXGIFactory)->EnumWarpAdapter(IID_PPV_ARGS(&pWarpAdapter)), TEXT("Failed to enumerate warp adapter!"));
 
@@ -71,8 +76,33 @@ namespace Insight
 			}
 			void D3D12Device::CreateDescriptorHeap(const EString&& DebugHeapName, EResourceHeapType&& Type, UInt32&& MaxCount, IDescriptorHeap** ppOutHeap)
 			{
-				D3D12DescriptorHeap* pD3D12Heap = CreateRenderComponentObject<D3D12DescriptorHeap>(ppOutHeap);
-				pD3D12Heap->Create(DebugHeapName, Type, MaxCount);
+				(*ppOutHeap) = CreateRenderComponentObject<D3D12DescriptorHeap>(ppOutHeap);
+				D3D12DescriptorHeap* pHeap = DCast<D3D12DescriptorHeap*>(*ppOutHeap);
+				pHeap->Create(DebugHeapName, Type, MaxCount);
+			}
+
+			void D3D12Device::CreateColorBuffer(const EString& Name, UInt32 Width, UInt32 Height, UInt32 NumMips, EFormat Format, IColorBuffer** ppOutColorBuffer)
+			{
+				(*ppOutColorBuffer) = new DX12::D3D12ColorBuffer();
+				(*ppOutColorBuffer)->Create(this, Name, Width, Height, NumMips, Format);
+			}
+
+			void D3D12Device::CreateDepthBuffer(const EString& Name, UInt32 Width, UInt32 Height, EFormat Format, IDepthBuffer** ppOutDepthBuffer)
+			{
+				(*ppOutDepthBuffer) = new DX12::D3D12DepthBuffer();
+				(*ppOutDepthBuffer)->Create(Name, Width, Height, Format);
+			}
+
+			void D3D12Device::CopyDescriptors(UInt32 NumDestDescriptorRanges, const CpuDescriptorHandle* pDestDescriptorRangeStarts, const UInt32* pDestDescriptorRangeSizes, UInt32 NumSrcDescriptorRanges, const ITexture** pSrcDescriptorRangeStarts, const UInt32* pSrcDescriptorRangeSizes, EResourceHeapType DescriptorHeapsType)
+			{
+				D3D12_CPU_DESCRIPTOR_HANDLE CpuHandle{ pDestDescriptorRangeStarts->Ptr };
+				std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> SourceStarts;
+				for (UInt32 i = 0; i < NumSrcDescriptorRanges; i++)
+				{
+					const DX12::D3D12Texture* Tex = DCast<const DX12::D3D12Texture*>(pSrcDescriptorRangeStarts[i]);
+					SourceStarts.push_back(Tex->GetSRV());
+				}
+				m_pD3DDevice->CopyDescriptors(NumDestDescriptorRanges, &CpuHandle, (const UINT*)pDestDescriptorRangeSizes, NumSrcDescriptorRanges, SourceStarts.data(), (const UINT*)pSrcDescriptorRangeSizes, (D3D12_DESCRIPTOR_HEAP_TYPE)DescriptorHeapsType);
 			}
 
 			void D3D12Device::GetHardwareAdapter(IDXGIFactory6* pFactory, IDXGIAdapter1** ppAdapter, const IED3D12DeviceInitParams& InitParams, IED3D12DeviceQueryResult& OutDeviceQueryResult)
@@ -86,7 +116,7 @@ namespace Insight
 					DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapterByGpuPreference(AdapterIndex, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&pAdapter));
 					++AdapterIndex)
 				{
-					Desc = { 0 };
+					ZeroMem(&Desc);
 					pAdapter->GetDesc1(&Desc);
 
 					// Make sure we get the video card that is not a software adapter
@@ -133,7 +163,7 @@ namespace Insight
 				}
 				IE_ASSERT((*ppAdapter)); // Could not locate a proper adapter that supports D3D12.
 
-				Desc = { 0 };
+				ZeroMem(&Desc);
 				(*ppAdapter)->GetDesc1(&Desc);
 				OutDeviceQueryResult.DeviceName = Desc.Description;
 				IE_LOG(Warning, TEXT("\"%s\" selected as D3D 12 graphics hardware."), OutDeviceQueryResult.DeviceName.c_str());
@@ -152,7 +182,7 @@ namespace Insight
 
 			bool D3D12Device::CheckSM6Support(ID3D12Device* pDevice)
 			{
-				IE_ASSERT(pDevice);
+				IE_ASSERT(pDevice != NULL); // Cannot check for device feature support with a null device.
 				D3D12_FEATURE_DATA_SHADER_MODEL sm6_0{ D3D_SHADER_MODEL_6_0 };
 				ThrowIfFailed(pDevice->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &sm6_0, sizeof(sm6_0))
 					, TEXT("Failed to query feature support for shader model 6 with device."));
@@ -161,7 +191,7 @@ namespace Insight
 
 			bool D3D12Device::CheckDXRSupport(ID3D12Device* pDevice)
 			{
-				IE_ASSERT(pDevice);
+				IE_ASSERT(pDevice != NULL); // Cannot check for device feature support with a null device.
 				D3D12_FEATURE_DATA_D3D12_OPTIONS5 Options5 = {};
 				ThrowIfFailed(pDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &Options5, sizeof(Options5))
 					, TEXT("Failed to query feature support for ray trace with device."));

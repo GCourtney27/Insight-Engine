@@ -56,7 +56,7 @@ namespace Insight
             bool IsNull() const { return m_CpuHandle.Ptr == IE_INVALID_GPU_ADDRESS; }
             bool IsShaderVisible() const { return m_GpuHandle.Ptr != IE_INVALID_GPU_ADDRESS; }
 
-        //private:
+        private:
             CpuDescriptorHandle m_CpuHandle;
             GpuDescriptorHandle m_GpuHandle;
         };

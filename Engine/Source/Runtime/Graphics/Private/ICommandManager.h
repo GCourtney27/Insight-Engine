@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Runtime/Core.h"
+#include <Runtime/Core.h>
+#include <Runtime/Graphics/Public/GraphicsCore.h>
 
-#include "Runtime/Graphics/Public/CommonEnums.h"
 
 namespace Insight
 {

@@ -100,7 +100,7 @@ namespace Insight
                 D3D12Texture* pD3D12FallbackTexture = DCast<D3D12Texture*>(GetDefaultTexture(fallback));
                 IE_ASSERT(pD3D12FallbackTexture != NULL)
                 D3D12_CPU_DESCRIPTOR_HANDLE FallbackSRVHandle = pD3D12FallbackTexture->GetSRV();
-
+                
                 if (memory->size() == 0)
                 {
                     m_hCpuDescriptorHandle = FallbackSRVHandle;
@@ -123,11 +123,12 @@ namespace Insight
                     }
                     else
                     {
+                        IE_LOG(Warning, TEXT("Failed to create dds texture from memory. Falling back to default texture: %i"), fallback)
                         pD3D12Device->CopyDescriptorsSimple(1, m_hCpuDescriptorHandle, FallbackSRVHandle,
                             D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
                     }
                 }
-
+                AssociateWithShaderVisibleHeap();
                 m_IsLoading = false;
             }
         }

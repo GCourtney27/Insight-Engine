@@ -13,6 +13,7 @@
 #include "Platform/DirectX12/Public/D3D12DescriptorHeap.h"
 #include "Platform/DirectX12/Public/ResourceManagement/D3D12ConstantBufferManager.h"
 #include "Platform/DirectX12/Public/Resource/D3D12Texture.h"
+#include "Runtime/Graphics/Public/ResourceManagement/ITextureManager.h"
 
 namespace Insight
 {
@@ -54,6 +55,7 @@ namespace Insight
 				}
 				IE_ASSERT(ret != nullptr);
 
+				
 				D3D12CommandContext* pD3D12Context = DCast<D3D12CommandContext*>(ret);
 				IE_ASSERT(pD3D12Context != NULL);
 
@@ -230,8 +232,11 @@ namespace Insight
 
 			void D3D12CommandContext::UpdateSubresources(IGPUResource& Destination, IGPUResource& Intermediate, UInt32 IntermediateOffset, UInt32 FirstSubresource, UInt32 NumSubresources, SubResourceData& SubresourceData)
 			{
-				ID3D12Resource* pID3D12Destination = DCast<D3D12GPUResource*>(&Destination)->GetResource();
-				ID3D12Resource* pID3D12Intermediate = DCast<D3D12GPUResource*>(&Intermediate)->GetResource();
+				D3D12GPUResource* pD3D12DestGpuResource = DCast<D3D12GPUResource*>(&Destination);
+				D3D12GPUResource* pD3D12IntGpuResource = DCast<D3D12GPUResource*>(&Intermediate);
+
+				ID3D12Resource* pID3D12Destination = pD3D12DestGpuResource->GetResource();
+				ID3D12Resource* pID3D12Intermediate = pD3D12IntGpuResource->GetResource();
 				D3D12_SUBRESOURCE_DATA SRData = {};
 				SRData.pData = SubresourceData.pData;
 				SRData.RowPitch = SubresourceData.RowPitch;
@@ -260,9 +265,12 @@ namespace Insight
 				m_pID3D12CommandList->SetGraphicsRootConstantBufferView(Index, Address);
 			}
 
-			void D3D12CommandContext::SetTexture(UInt32 Slot, DescriptorHandle& pTexture)
+			void D3D12CommandContext::SetTexture(UInt32 Slot, ITextureRef& pTexture)
 			{
-				D3D12_GPU_DESCRIPTOR_HANDLE GpuHandle{ pTexture.GetGpuPtr() };
+				const D3D12Texture* pD3D12Tex = DCast<const D3D12Texture*>(pTexture.Get());
+				IE_ASSERT(pD3D12Tex != NULL);
+
+				D3D12_GPU_DESCRIPTOR_HANDLE GpuHandle{ pD3D12Tex->GetShaderVisibleDescriptorHandle().GetGpuPtr() };
 				m_pID3D12CommandList->SetGraphicsRootDescriptorTable(Slot, GpuHandle);
 			}
 
@@ -314,8 +322,12 @@ namespace Insight
 
 				if (NewState != OldState)
 				{
-					IE_ASSERT(m_NumBarriersToFlush < 16, "Exceeded arbitrary limit on buffered barriers");
+					IE_ASSERT(m_NumBarriersToFlush < 16, "Exceeded arbitrary limit on buffered barriers.");
 					D3D12_RESOURCE_BARRIER& BarrierDesc = m_ResourceBarrierBuffer[m_NumBarriersToFlush++];
+					
+
+					D3D12GPUResource* res = DCast<D3D12GPUResource*>(&Resource);
+
 
 					BarrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 					BarrierDesc.Transition.pResource = DCast<D3D12GPUResource*>(&Resource)->GetResource();
@@ -347,8 +359,9 @@ namespace Insight
 				FlushResourceBarriers();
 
 				IE_ASSERT(m_pID3D12CurrentCmdAllocator != NULL);
-
-				UInt64 FenceValue = DCast<D3D12CommandQueue*>(g_pCommandManager->GetGraphicsQueue())->ExecuteCommandList(m_pID3D12CommandList);
+				
+				D3D12CommandQueue* pQueue = DCast<D3D12CommandQueue*>(g_pCommandManager->GetGraphicsQueue());
+				UInt64 FenceValue = pQueue->ExecuteCommandList(m_pID3D12CommandList);
 
 				if (WaitForCompletion)
 					g_pCommandManager->WaitForFence(FenceValue);
@@ -367,6 +380,7 @@ namespace Insight
 			{
 				FlushResourceBarriers();
 
+				
 				D3D12CommandQueue* pQueue = DCast<D3D12CommandQueue*>(g_pCommandManager->GetQueue(m_Type));
 
 				UInt64 FenceValue = pQueue->ExecuteCommandList(m_pID3D12CommandList);

@@ -49,13 +49,14 @@ namespace Insight
 				D3D12ConstantBufferManager()
 					: m_pID3D12DeviceRef(NULL)
 				{
-					m_pID3D12DeviceRef = RCast<ID3D12Device*>(g_pDevice->GetNativeDevice());
-					IE_ASSERT(m_pID3D12DeviceRef != NULL);
 				}
 				virtual ~D3D12ConstantBufferManager() 
 				{
 					m_pID3D12DeviceRef = NULL;
 				}
+
+				virtual void Initialize() override;
+
 
 				virtual void CreateConstantBuffer(const EString& Name, IConstantBuffer** OutBuffer, UInt32 BufferSizeInBytes) override;
 				virtual void DestroyConstantBuffer(ConstantBufferUID BufferHandle);

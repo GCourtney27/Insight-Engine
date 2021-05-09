@@ -53,6 +53,7 @@ namespace Insight
                 D3D12_CPU_DESCRIPTOR_HANDLE ret = m_CurrentHandle;
                 m_CurrentHandle.ptr += Count * m_DescriptorSize;
                 m_RemainingFreeHandles -= Count;
+                
                 return ret;
             }
 

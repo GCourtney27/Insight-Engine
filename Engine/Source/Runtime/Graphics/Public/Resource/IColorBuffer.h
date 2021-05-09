@@ -1,10 +1,10 @@
 #pragma once
 
 #include <Runtime/Core.h>
-
-#include "Runtime/Graphics/Public/CommonEnums.h"
+#include <Runtime/Graphics/Public/GraphicsCore.h>
 
 #include "Runtime/Graphics/Public/Resource/IPixelBuffer.h"
+
 
 namespace Insight
 {

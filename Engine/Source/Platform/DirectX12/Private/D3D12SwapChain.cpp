@@ -31,7 +31,7 @@ namespace Insight
 				m_pDeviceRef = pDevice;
 			}
 
-			void D3D12SwapChain::Create(const IESwapChainDesc& InitParams, IDXGIFactory6** ppDXGIFactory, D3D12CommandQueue* ppCommandQueue, ID3D12Device* pDevice)
+			void D3D12SwapChain::Create(const IESwapChainDescription& InitParams, IDXGIFactory6** ppDXGIFactory, D3D12CommandQueue* ppCommandQueue, ID3D12Device* pDevice)
 			{
 				IE_ASSERT(ppCommandQueue != NULL);
 				IE_ASSERT(ppDXGIFactory != NULL);

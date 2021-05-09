@@ -30,19 +30,7 @@
 #include "Runtime/Graphics/Public/ResourceManagement/IConstantBufferManager.h"
 #endif // IE_RENDER_MULTI_PLATFORM
 
-#include "Runtime/Graphics/Private/IUnknown.h"
 
-
-#include "Platform/DirectX12/Public/Resource/D3D12ColorBuffer.h"
-#include "Platform/DirectX12/Public/Resource/D3D12VertexBuffer.h"
-#include "Platform/DirectX12/Public/Resource/D3D12IndexBuffer.h"
-#include "Platform/DirectX12/Public/Resource/D3D12DepthBuffer.h"
-#include "Platform/DirectX12/Public/D3D12PipelineState.h"
-#include "Platform/DirectX12/Public/D3D12RootSignature.h"
-#include "Platform/DirectX12/Public/D3D12DescriptorHeap.h"
-#include "Platform/DirectX12/Public/Resource/D3D12Texture.h"
-
-#include "Platform/DirectX12/Wrappers/D3D12Shader.h"
 #include <d3dcompiler.h>
 static const char* TargetSceneName = "Debug.iescene";
 namespace Insight {
@@ -123,11 +111,11 @@ namespace Insight {
 			m_pWindow->SetWindowMode(EWindowMode::WM_Windowed);
 
 
-			IColorBuffer* pSceneBuffer = new DX12::D3D12ColorBuffer();
-			pSceneBuffer->Create(g_pDevice, TEXT("Scene Buffer"), m_pWindow->GetWidth(), m_pWindow->GetHeight(), 1u, pSwapChain->GetDesc().Format);
+			IColorBuffer* pSceneBuffer = NULL;
+			g_pDevice->CreateColorBuffer(TEXT("Scene Buffer"), m_pWindow->GetWidth(), m_pWindow->GetHeight(), 1u, pSwapChain->GetDesc().Format, &pSceneBuffer);
 
-			IDepthBuffer* pDepthBuffer = new DX12::D3D12DepthBuffer();
-			pDepthBuffer->Create(TEXT("Scene Depth Buffer"), m_pWindow->GetWidth(), m_pWindow->GetHeight(), F_D32_Float);
+			IDepthBuffer* pDepthBuffer = NULL;
+			g_pDevice->CreateDepthBuffer(TEXT("Scene Depth Buffer"), m_pWindow->GetWidth(), m_pWindow->GetHeight(), F_D32_Float, &pDepthBuffer);
 
 			enum EShaderBufferRegisters
 			{
@@ -202,7 +190,7 @@ namespace Insight {
 
 			::Microsoft::WRL::ComPtr<ID3DBlob> vertexShader;
 			::Microsoft::WRL::ComPtr<ID3DBlob> pixelShader;
-			UINT compileFlags =
+			UInt32 compileFlags =
 #if IE_DEBUG
 				// Enable better shader debugging with the graphics debugging tools.
 				D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
@@ -293,21 +281,19 @@ R"(
 			PSODesc.SampleDesc = { 1, 0 };
 			g_pDevice->CreatePipelineState(PSODesc, &pScenePassPSO);
 
-			static IDescriptorHeap* pTextureHeap = NULL;
-			g_pDevice->CreateDescriptorHeap(TEXT("Scene Texture Descriptors"), RHT_CBV_SRV_UAV, 4096, &pTextureHeap);
 
 
-			struct SceneConstants
+			__declspec(align(16)) struct SceneConstants
 			{
 				FMatrix ViewMat;
 				FMatrix ProjMat;
 				float WorldTime;
 			};
-			struct MeshWorld
+			__declspec(align(16)) struct MeshWorld
 			{
 				FMatrix WorldMat;
 			};
-			struct Material
+			__declspec(align(16)) struct Material
 			{
 				FVector4 Color;
 			};
@@ -319,6 +305,7 @@ R"(
 			{
 				Mesh()
 					: m_pMaterialCB(NULL)
+					, m_pMeshWorldCB(NULL)
 				{
 					Init();
 				}
@@ -411,17 +398,17 @@ R"(
 					IIndexBuffer& IndexBuffer = g_pGeometryManager->GetIndexBufferByUID(m_DrawArgs.IndexBufferHandle);
 
 					// Set the material.
-					Material* pMat = m_pMaterialCB->GetBufferDataPointer<Material>();
+					Material* pMat = m_pMaterialCB->GetBufferPointer<Material>();
 					pMat->Color = m_Material.Color;
 					GfxContext.SetGraphicsConstantBuffer(SBR_MaterialParams, m_pMaterialCB);
 
 					// Set the world buffer.
-					MeshWorld* pWorld = m_pMeshWorldCB->GetBufferDataPointer<MeshWorld>();
+					MeshWorld* pWorld = m_pMeshWorldCB->GetBufferPointer<MeshWorld>();
 					pWorld->WorldMat = m_Transform.GetWorldMatrix().Transpose();
 					GfxContext.SetGraphicsConstantBuffer(SBR_MeshWorld, m_pMeshWorldCB);
 
 					// Set material texture
-					GfxContext.SetTexture(SBR_Texture, m_TextureSRVs);
+					GfxContext.SetTexture(SBR_Texture, *pActiveTexture);
 
 					GfxContext.SetPrimitiveTopologyType(PT_TiangleList);
 					GfxContext.BindVertexBuffer(0, VertBuffer);
@@ -432,6 +419,10 @@ R"(
 				inline Material& GetMaterial()		{ return m_Material; }
 				inline ieTransform& GetTransform()	{ return m_Transform; }
 
+				// TODO: Should be moved to a more expanded material class.
+				ITextureRef m_AlbedoTexture;
+				ITextureRef m_NormalTexture;
+				ITextureRef* pActiveTexture;
 			protected:
 				struct Vertex3D
 				{
@@ -459,25 +450,11 @@ R"(
 
 					// TODO: Only dds textures can be loaded right now.
 					const TChar* TexturePath = L"Content/Textures/Debug/DebugCheckerBoard_Albedo.dds";
-					ITextureRef pTexture = g_pTextureManager->LoadTexture(TexturePath, DT_Magenta2D, false);
+					m_AlbedoTexture = g_pTextureManager->LoadTexture(TexturePath, DT_Magenta2D, false);
+					const TChar* NormalTexturePath = L"Content/Textures/RustedIron/RustedIron_Albedo.dds";
+					m_NormalTexture = g_pTextureManager->LoadTexture(NormalTexturePath, DT_Magenta2D, false);
 
-					m_TextureSRVs = pTextureHeap->Alloc(1);
-
-					uint32_t DestCount = 1;
-					uint32_t SourceCounts[] = { 1 };
-					const ITexture* ITex = pTexture.Get();
-					const DX12::D3D12Texture* Tex = DCast<const DX12::D3D12Texture*>(ITex);
-					D3D12_CPU_DESCRIPTOR_HANDLE SourceTextures[1] =
-					{
-						Tex->GetSRV()
-					};
-					D3D12_CPU_DESCRIPTOR_HANDLE CpuHandle{ m_TextureSRVs.GetCpuPtr() };
-					ID3D12Device* pD3D12Device = RCast<ID3D12Device*>(g_pDevice->GetNativeDevice());
-
-					pD3D12Device->CopyDescriptors(1, &CpuHandle, &DestCount,
-						DestCount, SourceTextures, SourceCounts, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
-					m_TextureSRVs.m_CpuHandle.Ptr = CpuHandle.ptr;
+					pActiveTexture = &m_AlbedoTexture;
 				}
 
 				void UnInit()
@@ -495,8 +472,6 @@ R"(
 				Material m_Material;
 				DrawArgs m_DrawArgs;
 
-				// TODO: Should be moved to a more expanded material class.
-				DescriptorHandle m_TextureSRVs;
 			};
 
 			struct Actor
@@ -534,6 +509,26 @@ R"(
 					m_Mesh.GetMaterial().Color = FVector4(Rotation.x, Rotation.y, Rotation.z, 1.f);
 					m_Mesh.GetMaterial().Color /= 2.f;
 
+
+					static float Timer = 0.f;
+					static float Time = 2.f;
+					Timer += DeltaMs;
+					if (Timer >= Time)
+					{
+						Timer = 0.f;
+						static bool IsFirstTex = false;
+						if (IsFirstTex) 
+						{
+							IsFirstTex = false;
+							m_Mesh.pActiveTexture = &m_Mesh.m_NormalTexture;
+						}
+						else
+						{
+							IsFirstTex = true;
+							m_Mesh.pActiveTexture = &m_Mesh.m_AlbedoTexture;
+						}
+					}
+
 				}
 
 				virtual void Render(ICommandContext& RenderContext) override
@@ -554,15 +549,9 @@ R"(
 				}
 				virtual ~Camera() {}
 
-				float Time = 0.f;
 				void Update(float DeltaMs) override
 				{
 					Super::Update(DeltaMs);
-					Time += DeltaMs;
-					FVector3 Pos = m_Transform.GetPosition();
-					Pos.y = sinf(Time * 0.3f);
-					Pos.x = sinf(Time * 0.3f);
-					m_Transform.SetPosition(Pos);
 
 					UpdateViewMat();
 				}
@@ -595,26 +584,6 @@ R"(
 			AnotherCubeActor.m_Transform.SetPosition(2.f, 0.f, 0.f);
 			AnotherCubeActor.m_Transform.SetParent(&MyCubeActor.m_Transform);
 			
-			{
-				class A : public IUnknown
-				{ 
-				public: 
-					A() {}
-					virtual ~A() {}
-				};
-				
-				class B : public A 
-				{
-				public:
-					B() {}
-					virtual ~B() {}
-				};
-
-				A* val = new B();
-				B* ptr = val->GetDerivedType<B>();
-				IE_ASSERT(ptr);
-				delete val;
-			}
 
 			FrameTimer GFXTimer;
 
@@ -645,7 +614,7 @@ R"(
 					//CmdContext.ClearColorBuffer(*pSceneBuffer, ScissorRect);
 
 					// Bind
-					CmdContext.SetDescriptorHeap(RHT_CBV_SRV_UAV, pTextureHeap);
+					CmdContext.SetDescriptorHeap(RHT_CBV_SRV_UAV, g_pTextureHeap);
 
 					// Clear
 					CmdContext.ClearColorBuffer(*pSwapChainBackBuffer, ScissorRect);
@@ -667,7 +636,7 @@ R"(
 					MyCubeActor.m_Transform.Rotate(0.001f, 0.002f, 0.003f);
 					{
 						// Set Constant Buffers
-						SceneConstants* pData = pSceneConstantBuffer->GetBufferDataPointer<SceneConstants>();
+						SceneConstants* pData = pSceneConstantBuffer->GetBufferPointer<SceneConstants>();
 						pData->ViewMat = Camera.m_ViewMat.Transpose();
 						pData->ProjMat = Camera.m_ProjMat.Transpose();
 						pData->WorldTime = (float)GFXTimer.Seconds();
@@ -685,9 +654,10 @@ R"(
 
 				pRenderContext->SubmitFrame();
 				pRenderContext->Present();
+
+				IE_LOG(Log, TEXT("FPS: %f"), GFXTimer.FPS());
 			}
 		}
-		SAFE_DELETE_PTR(pRenderContext);
 
 		exit(EXIT_SUCCESS); // Just for easier debugging quit the entire program.
 #endif

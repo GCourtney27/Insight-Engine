@@ -52,7 +52,7 @@ namespace Insight
 			MipRegion SamplerFeedbackMipRegion;
 		};
 
-		struct IESwapChainDesc
+		struct IESwapChainDescription
 		{
 			UInt32 Width;
 			UInt32 Height;

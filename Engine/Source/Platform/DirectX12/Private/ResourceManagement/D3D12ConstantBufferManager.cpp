@@ -48,6 +48,12 @@ namespace Insight
 			// D3D12ConstantBufferManager
 			// ---------------------------
 
+			void D3D12ConstantBufferManager::Initialize()
+			{
+				m_pID3D12DeviceRef = RCast<ID3D12Device*>(g_pDevice->GetNativeDevice());
+				IE_ASSERT(m_pID3D12DeviceRef != NULL);
+			}
+
 			void D3D12ConstantBufferManager::CreateConstantBuffer(const EString& Name, IConstantBuffer** OutBuffer, UInt32 BufferSizeInBytes)
 			{
 				ConstantBufferUID NewID = s_NextAvailableBufferID++;

@@ -2,6 +2,7 @@
 
 #include <Runtime/Core.h>
 
+
 namespace Insight
 {
 	namespace Graphics
@@ -15,7 +16,7 @@ namespace Insight
 			virtual void Create(const EString& Name, UInt32 Width, UInt32 Height, EFormat Format) = 0;
 
 			FORCE_INLINE float GetClearDepth() const { return m_ClearDepth; }
-			FORCE_INLINE uint8_t GetClearStencil() const { return m_ClearStencil; }
+			FORCE_INLINE UInt8 GetClearStencil() const { return m_ClearStencil; }
 
 		protected:
 			IDepthBuffer(float ClearDepth, UInt8 ClearStencil)

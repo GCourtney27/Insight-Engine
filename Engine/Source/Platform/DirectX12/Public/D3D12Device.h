@@ -37,6 +37,17 @@ namespace Insight
 				virtual void CreatePipelineState(const PipelineStateDesc& PSODesc, IPipelineState** ppOutPSO) override;
 				virtual void CreateRootSignature(const RootSignatureDesc& RSDesc, IRootSignature** ppOutSignature) override;
 				virtual void CreateDescriptorHeap(const EString&& DebugHeapName, EResourceHeapType&& Type, UInt32&& MaxCount, IDescriptorHeap** ppOutHeap) override;
+				virtual void CreateColorBuffer(const EString& Name, UInt32 Width, UInt32 Height, UInt32 NumMips, EFormat Format, IColorBuffer** ppOutColorBuffer) override;
+				virtual void CreateDepthBuffer(const EString& Name, UInt32 Width, UInt32 Height, EFormat Format, IDepthBuffer** ppOutDepthBuffer) override;
+				virtual void CopyDescriptors(
+					UInt32 NumDestDescriptorRanges,
+					const CpuDescriptorHandle* pDestDescriptorRangeStarts,
+					const UInt32* pDestDescriptorRangeSizes,
+					UInt32 NumSrcDescriptorRanges,
+					const ITexture** pSrcDescriptorRangeStarts,
+					const UInt32* pSrcDescriptorRangeSizes,
+					EResourceHeapType DescriptorHeapsType
+				) override;
 
 			protected:
 				void GetHardwareAdapter(IDXGIFactory6* pFactory, IDXGIAdapter1** ppAdapter, const IED3D12DeviceInitParams& InitParams, IED3D12DeviceQueryResult& OutDeviceQueryResult);

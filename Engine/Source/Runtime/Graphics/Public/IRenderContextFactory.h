@@ -52,7 +52,7 @@ namespace Insight
 		// IRenderContextFactory inline function implementations
 		//
 
-		void IRenderContextFactory::InitializeMainComponents()
+		FORCE_INLINE void IRenderContextFactory::InitializeMainComponents()
 		{
 			CreateDevice(&g_pDevice);
 

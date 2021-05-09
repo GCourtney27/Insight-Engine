@@ -29,7 +29,7 @@ namespace Insight
 
 				virtual void ToggleFullScreen(bool IsEnabled) override;
 
-				void Create(const IESwapChainDesc& InitParams, IDXGIFactory6** ppDXGIFactory, D3D12CommandQueue* ppCommandQueue, ID3D12Device* pDevice);
+				void Create(const IESwapChainDescription& InitParams, IDXGIFactory6** ppDXGIFactory, D3D12CommandQueue* ppCommandQueue, ID3D12Device* pDevice);
 
 
 			protected:

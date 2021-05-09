@@ -9,6 +9,7 @@
 #include "Platform/DirectX12/Public/D3D12CommandContext.h"
 #include "Platform/Public/Utility/COMException.h"
 
+
 namespace Insight
 {
 	namespace Graphics
@@ -152,6 +153,23 @@ namespace Insight
 			{
 				D3D12GPUResource::Destroy();
 				m_hCpuDescriptorHandle.ptr = D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN;
+			}
+			
+			void D3D12Texture::AssociateWithShaderVisibleHeap()
+			{
+				if (!g_pTextureHeap) return;
+
+				static const int s_NumTextures = 1;
+				m_DescriptorHandle = g_pTextureHeap->Alloc(s_NumTextures);
+
+				UInt32 DestCount = s_NumTextures;
+				UInt32 SourceCounts[s_NumTextures] = { 1 };
+				const ITexture* SourceTextures[s_NumTextures] =
+				{
+					this
+				};
+				// Copy the texture data to the texture heap.
+				g_pDevice->CopyDescriptors(1, &m_DescriptorHandle, &DestCount, DestCount, SourceTextures, SourceCounts, RHT_CBV_SRV_UAV);
 			}
 		}
 	}
