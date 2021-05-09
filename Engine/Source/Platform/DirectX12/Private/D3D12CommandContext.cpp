@@ -257,18 +257,22 @@ namespace Insight
 				m_pID3D12CommandList->IASetIndexBuffer(pView);
 			}
 
-			void D3D12CommandContext::SetGraphicsConstantBuffer(UInt32 Index, IConstantBuffer* pConstantBuffer)
+			void D3D12CommandContext::SetGraphicsConstantBuffer(UInt32 RootParameterIndex, IConstantBuffer* pConstantBuffer)
 			{
 				D3D12ConstantBuffer& D3D12Cb = *DCast<D3D12ConstantBuffer*>(pConstantBuffer);
 				D3D12Cb.UploadBuffer();
 				D3D12_GPU_VIRTUAL_ADDRESS Address = D3D12Cb.GetGPUVirtualAddress();
-				m_pID3D12CommandList->SetGraphicsRootConstantBufferView(Index, Address);
+				m_pID3D12CommandList->SetGraphicsRootConstantBufferView(RootParameterIndex, Address);
 			}
 
 			void D3D12CommandContext::SetTexture(UInt32 Slot, ITextureRef& pTexture)
 			{
 				const D3D12Texture* pD3D12Tex = DCast<const D3D12Texture*>(pTexture.Get());
-				IE_ASSERT(pD3D12Tex != NULL);
+				if (pD3D12Tex == NULL || !pTexture.IsValid())
+				{
+					IE_LOG(Warning, TEXT("A texture was bound but was not valid. Was it loaded correctly?"));
+					return;
+				}
 
 				D3D12_GPU_DESCRIPTOR_HANDLE GpuHandle{ pD3D12Tex->GetShaderVisibleDescriptorHandle().GetGpuPtr() };
 				m_pID3D12CommandList->SetGraphicsRootDescriptorTable(Slot, GpuHandle);

@@ -162,6 +162,9 @@ namespace Insight
 				static const int s_NumTextures = 1;
 				m_DescriptorHandle = g_pTextureHeap->Alloc(s_NumTextures);
 
+				// TODO: In order to get a linear disciptor table this might have to move to the material class
+				// So a descriptor range array in a single root parameter could fit all the descriptors inside 'SourceTextures' array
+				// Command context would have to change to have a 'DescriptorHandle' instead of a 'TextureRef' though.
 				UInt32 DestCount = s_NumTextures;
 				UInt32 SourceCounts[s_NumTextures] = { 1 };
 				const ITexture* SourceTextures[s_NumTextures] =

@@ -61,7 +61,7 @@ namespace Insight
 
 				virtual void BindVertexBuffer(UInt32 Slot, IVertexBuffer& Vertexbuffer) override;
 				virtual void BindIndexBuffer(IIndexBuffer& IndexBuffer) override;
-				virtual void SetGraphicsConstantBuffer(UInt32 Index, IConstantBuffer* pConstantBuffer) override;
+				virtual void SetGraphicsConstantBuffer(UInt32 RootParameterIndex, IConstantBuffer* pConstantBuffer) override;
 				virtual void SetTexture(UInt32 Slot, ITextureRef& pTexture) override;
 
 				virtual void SetPipelineState(IPipelineState& Pipeline) override;

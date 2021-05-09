@@ -69,7 +69,7 @@ namespace Insight
 
 			virtual void BindVertexBuffer(UInt32 Slot, IVertexBuffer& Vertexbuffer) = 0;
 			virtual void BindIndexBuffer(IIndexBuffer& IndexBuffer) = 0;
-			virtual void SetGraphicsConstantBuffer(UInt32 Index, IConstantBuffer* pConstantBuffer) = 0;
+			virtual void SetGraphicsConstantBuffer(UInt32 RootParameterIndex, IConstantBuffer* pConstantBuffer) = 0;
 			virtual void SetTexture(UInt32 Slot, ITextureRef& pTexture) = 0;
 
 			virtual void SetPipelineState(IPipelineState& Pipeline) = 0;
