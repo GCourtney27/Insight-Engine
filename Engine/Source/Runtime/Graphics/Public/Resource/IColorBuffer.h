@@ -18,8 +18,8 @@ namespace Insight
 		public:
 			virtual ~IColorBuffer() = default;
 
-			virtual void CreateFromSwapChain(IDevice* pDevice, const EString& Name, void* pResource) = 0;
-			virtual void Create(IDevice* pDevice, const EString& Name, UInt32 Width, UInt32 Height, UInt32 NumMips, EFormat Format) = 0;
+			virtual void CreateFromSwapChain(IDevice* pDevice, const FString& Name, void* pResource) = 0;
+			virtual void Create(IDevice* pDevice, const FString& Name, UInt32 Width, UInt32 Height, UInt32 NumMips, EFormat Format) = 0;
 
 			FORCE_INLINE void SetClearColor(Color Color) { m_ClearColor = Color; }
 			FORCE_INLINE Color GetClearColor() const { return m_ClearColor; }

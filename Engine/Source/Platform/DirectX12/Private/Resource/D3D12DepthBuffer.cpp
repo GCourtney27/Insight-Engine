@@ -12,7 +12,7 @@ namespace Insight
 	{
 		namespace DX12
 		{
-            void D3D12DepthBuffer::Create(const EString& Name, UInt32 Width, UInt32 Height, EFormat Format)
+            void D3D12DepthBuffer::Create(const FString& Name, UInt32 Width, UInt32 Height, EFormat Format)
             {
                 ResourceDesc ResourceDesc = DescribeTex2D(Width, Height, 1, 1, Format, RF_AllowDepthStencil);
                 ResourceDesc.SampleDesc.Count = 1;

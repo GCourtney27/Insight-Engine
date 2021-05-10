@@ -29,7 +29,7 @@ namespace Insight
 			FORCE_INLINE void SetBufferSize(UInt32 BufferSize);
 			FORCE_INLINE void SetUID(const ConstantBufferUID& UID);
 
-			virtual void Create(const EString& Name, UInt32 BufferSize) = 0;
+			virtual void Create(const FString& Name, UInt32 BufferSize) = 0;
 
 			UInt32 m_BufferSize;
 			ConstantBufferUID m_UID;
@@ -39,7 +39,7 @@ namespace Insight
 		class INSIGHT_API IConstantBufferManager
 		{
 		public:
-			virtual void CreateConstantBuffer(const EString& Name, IConstantBuffer** OutBuffer, UInt32 BufferSizeInBytes) = 0;
+			virtual void CreateConstantBuffer(const FString& Name, IConstantBuffer** OutBuffer, UInt32 BufferSizeInBytes) = 0;
 			virtual void DestroyConstantBuffer(ConstantBufferUID BufferHandle) = 0;
 
 			virtual void Initialize() = 0;

@@ -3,12 +3,12 @@
 #include "Runtime/Graphics/Public/IRenderContext.h"
 #include "Runtime/Graphics/Public/ICommandContext.h"
 #include "Runtime/Graphics/Public/IDevice.h"
-#include "Runtime/Graphics/Private/ISwapChain.h"
+#include "Runtime/Graphics/Public/ISwapChain.h"
 #include "Runtime/Graphics/Private/ICommandManager.h"
 #include "Runtime/Graphics/Public/IGeometryBufferManager.h"
 #include "Runtime/Graphics/Public/ResourceManagement/ITextureManager.h"
 
-#include "Runtime/Core/Window.h"
+#include "Runtime/Core/Public/Window.h"
 
 
 namespace Insight

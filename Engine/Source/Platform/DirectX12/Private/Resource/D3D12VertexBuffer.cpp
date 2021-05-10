@@ -13,7 +13,7 @@ namespace Insight
 		namespace DX12
 		{
 
-			void D3D12VertexBuffer::Create(const EString& Name, UInt32 VertexDataSize, UInt32 VertexStrideSize, void* pVerticies)
+			void D3D12VertexBuffer::Create(const FString& Name, UInt32 VertexDataSize, UInt32 VertexStrideSize, void* pVerticies)
 			{
 				ID3D12Device* pID3D12Device = RCast<ID3D12Device*>(g_pDevice->GetNativeDevice());
 				IE_ASSERT(pID3D12Device != NULL);

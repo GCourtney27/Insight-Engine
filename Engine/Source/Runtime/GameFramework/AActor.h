@@ -1,19 +1,19 @@
 #pragma once
 #include <Runtime/Core.h>
 
-#include "Runtime/Core/Events/Event.h"
+#include "Runtime/Core/Public/Events/Event.h"
 #include "Runtime/Math/Public/Transform.h"
-#include "Runtime/Core/Scene/SceneNode.h"
+#include "Runtime/Core/Public/Scene/SceneNode.h"
 #include "Runtime/GameFramework/Components/SceneComponent.h"
-#include "Runtime/Core/Events/ApplicationEvent.h"
+#include "Runtime/Core/Public/Events/ApplicationEvent.h"
 
 
 namespace Insight {
 
 	namespace GameFramework {
 
-		typedef EString ActorType;
-		typedef EString ActorName;
+		typedef FString ActorType;
+		typedef FString ActorName;
 
 		class INSIGHT_API AActor : public SceneNode
 		{

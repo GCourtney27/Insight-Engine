@@ -19,7 +19,7 @@ namespace Insight
 			virtual void CreateFromMemory(ByteArray memory, EDefaultTexture fallback, bool sRGB) = 0;
 
 		protected:
-			IManagedTexture(const EString& Path)
+			IManagedTexture(const FString& Path)
 				: m_MapKey(Path)
 			{
 			}
@@ -28,7 +28,7 @@ namespace Insight
 			bool IsValid(void) const { return m_IsValid; }
 			void Unload();
 
-			EString m_MapKey;		// For deleting from the map later
+			FString m_MapKey;		// For deleting from the map later
 			bool m_IsValid;
 			bool m_IsLoading;
 			size_t m_ReferenceCount;
@@ -41,11 +41,11 @@ namespace Insight
 			friend class IRenderContext;
 		public:
 
-			virtual ITextureRef LoadTexture(const EString& FileName, EDefaultTexture Fallback, bool forceSRGB) = 0;
-			virtual void DestroyTexture(const EString& Key) = 0;
+			virtual ITextureRef LoadTexture(const FString& FileName, EDefaultTexture Fallback, bool forceSRGB) = 0;
+			virtual void DestroyTexture(const FString& Key) = 0;
 
 		private:
-			virtual IManagedTexture* FindOrLoadTexture(const EString& FileName, EDefaultTexture Fallback, bool forceSRGB) = 0;
+			virtual IManagedTexture* FindOrLoadTexture(const FString& FileName, EDefaultTexture Fallback, bool forceSRGB) = 0;
 
 			void DestroyDefaultTextures();
 

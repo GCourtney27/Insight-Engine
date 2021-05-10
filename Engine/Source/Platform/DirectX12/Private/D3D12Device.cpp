@@ -74,20 +74,20 @@ namespace Insight
 				D3D12RootSignature* pD3D12RS = CreateRenderComponentObject<D3D12RootSignature>(ppOutSignature);
 				pD3D12RS->Initialize(RSDesc);
 			}
-			void D3D12Device::CreateDescriptorHeap(const EString&& DebugHeapName, EResourceHeapType&& Type, UInt32&& MaxCount, IDescriptorHeap** ppOutHeap)
+			void D3D12Device::CreateDescriptorHeap(const FString&& DebugHeapName, EResourceHeapType&& Type, UInt32&& MaxCount, IDescriptorHeap** ppOutHeap)
 			{
 				(*ppOutHeap) = CreateRenderComponentObject<D3D12DescriptorHeap>(ppOutHeap);
 				D3D12DescriptorHeap* pHeap = DCast<D3D12DescriptorHeap*>(*ppOutHeap);
 				pHeap->Create(DebugHeapName, Type, MaxCount);
 			}
 
-			void D3D12Device::CreateColorBuffer(const EString& Name, UInt32 Width, UInt32 Height, UInt32 NumMips, EFormat Format, IColorBuffer** ppOutColorBuffer)
+			void D3D12Device::CreateColorBuffer(const FString& Name, UInt32 Width, UInt32 Height, UInt32 NumMips, EFormat Format, IColorBuffer** ppOutColorBuffer)
 			{
 				(*ppOutColorBuffer) = new DX12::D3D12ColorBuffer();
 				(*ppOutColorBuffer)->Create(this, Name, Width, Height, NumMips, Format);
 			}
 
-			void D3D12Device::CreateDepthBuffer(const EString& Name, UInt32 Width, UInt32 Height, EFormat Format, IDepthBuffer** ppOutDepthBuffer)
+			void D3D12Device::CreateDepthBuffer(const FString& Name, UInt32 Width, UInt32 Height, EFormat Format, IDepthBuffer** ppOutDepthBuffer)
 			{
 				(*ppOutDepthBuffer) = new DX12::D3D12DepthBuffer();
 				(*ppOutDepthBuffer)->Create(Name, Width, Height, Format);

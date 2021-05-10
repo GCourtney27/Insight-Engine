@@ -2,14 +2,14 @@
 
 #include <Runtime/Core.h>
 
-#include "Runtime/Core/Interfaces.h"
+#include "Runtime/Core/Public/Interfaces.h"
 
 #include "Runtime/Graphics/ASkySphere.h"
 #include "Runtime/Graphics/Geometry/VertexBuffer.h"
 #include "Runtime/Graphics/Geometry/IndexBuffer.h"
 
 #include "Platform/DirectXShared/ConstantBufferTypes.h"
-#include "Runtime/Core/Events/Event.h"
+#include "Runtime/Core/Public/Events/Event.h"
 
 
 /*

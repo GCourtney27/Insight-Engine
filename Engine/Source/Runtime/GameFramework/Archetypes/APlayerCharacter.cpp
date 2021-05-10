@@ -3,7 +3,7 @@
 
 #include "APlayerCharacter.h"
 
-#include "Runtime/Core/Application.h"
+#include "Runtime/Core/Public/Application.h"
 #include "Runtime/GameFramework/Components/ActorComponent.h"
 
 namespace Insight {

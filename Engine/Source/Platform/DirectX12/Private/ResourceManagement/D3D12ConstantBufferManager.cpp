@@ -12,7 +12,7 @@ namespace Insight
 			// D3D12ConstantBuffer
 			// -------------------
 
-			void D3D12ConstantBuffer::Create(const EString& Name, UInt32 BufferSize)
+			void D3D12ConstantBuffer::Create(const FString& Name, UInt32 BufferSize)
 			{
 				SetBufferSize(GetAlignedBufferSize(BufferSize));
 
@@ -54,7 +54,7 @@ namespace Insight
 				IE_ASSERT(m_pID3D12DeviceRef != NULL);
 			}
 
-			void D3D12ConstantBufferManager::CreateConstantBuffer(const EString& Name, IConstantBuffer** OutBuffer, UInt32 BufferSizeInBytes)
+			void D3D12ConstantBufferManager::CreateConstantBuffer(const FString& Name, IConstantBuffer** OutBuffer, UInt32 BufferSizeInBytes)
 			{
 				ConstantBufferUID NewID = s_NextAvailableBufferID++;
 

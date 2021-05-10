@@ -13,7 +13,7 @@ namespace Insight
 		public:
 			virtual ~IDepthBuffer() {}
 
-			virtual void Create(const EString& Name, UInt32 Width, UInt32 Height, EFormat Format) = 0;
+			virtual void Create(const FString& Name, UInt32 Width, UInt32 Height, EFormat Format) = 0;
 
 			FORCE_INLINE float GetClearDepth() const { return m_ClearDepth; }
 			FORCE_INLINE UInt8 GetClearStencil() const { return m_ClearStencil; }

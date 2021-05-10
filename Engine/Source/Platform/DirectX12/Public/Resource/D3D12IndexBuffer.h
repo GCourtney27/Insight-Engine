@@ -21,7 +21,7 @@ namespace Insight
 				
 				virtual void* GetNativeBufferView() override { return RCast<void*>(&m_D3D12IndexBufferView); }
 
-				virtual void Create(const EString& Name, UInt32 IndexDataSize, void* pIndices) override;
+				virtual void Create(const FString& Name, UInt32 IndexDataSize, void* pIndices) override;
 
 
 			protected:

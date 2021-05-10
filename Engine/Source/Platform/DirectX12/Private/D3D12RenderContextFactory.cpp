@@ -4,7 +4,7 @@
 #include <Runtime/Graphics/Public/GraphicsCore.h>
 #include "Platform/DirectX12/Public/D3D12RenderContextFactory.h"
 
-#include "Runtime/Core/Window.h"
+#include "Runtime/Core/Public/Window.h"
 
 #include "Platform/DirectX12/Public/D3D12RenderContext.h"
 #include "Platform/DirectX12/Public/D3D12CommandContext.h"

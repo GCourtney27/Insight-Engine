@@ -71,7 +71,7 @@ namespace Insight
 			IDescriptorHeap() {}
 			virtual ~IDescriptorHeap() {}
 
-			virtual void Create(const EString& DebugHeapName, EResourceHeapType Type, uint32_t MaxCount) = 0;
+			virtual void Create(const FString& DebugHeapName, EResourceHeapType Type, uint32_t MaxCount) = 0;
 
 		};
 	}

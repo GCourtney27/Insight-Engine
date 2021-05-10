@@ -10,7 +10,7 @@ namespace Insight {
 		m_Id = GetUniqueID();
 	}
 
-	EString ID::GetUniqueID()
+	FString ID::GetUniqueID()
 	{
 		return (TEXT("uid_") + ToString(ms_uniqueID++));
 	}

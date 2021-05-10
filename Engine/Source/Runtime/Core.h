@@ -39,11 +39,11 @@
 #endif
 
 // Includes
-#include "Runtime/Math/Public/PrimitiveTypes.h"
+#include "Runtime/Core/Public/DataTypes.h"
 #include "Runtime/Core/Public/EnumHelper.h"
 #include "Runtime/Core/Public/Cast.h"
-//#include "Runtime/Core/EString.h"
 #include "Platform/Public/Common.h"
+#include "Runtime/Core/Public/ieObject/ieObjectFwd.h"
 
 #define NOMINMAX
 
@@ -60,6 +60,8 @@
 #define FORCE_INLINE __forceinline
 #define INLINE inline 
 #define NO_DISCARD [[nodiscard]]
+#define ALIGN(InBytes) __declspec(align(InBytes))
+#define TO_UNICODE(Msg) L##Msg
 template <typename T>
 FORCE_INLINE constexpr void ZeroMem(T* Mem, size_t Size = sizeof(T))
 {

@@ -17,7 +17,7 @@ namespace Insight {
 
 	public:
 		ID();
-		ID(const EString& id)
+		ID(const FString& id)
 			: m_Name(id), m_Id(id), m_Tag(id) {}
 		ID(const TChar* id)
 			: m_Name(id), m_Id(id), m_Tag(id) {}
@@ -31,26 +31,26 @@ namespace Insight {
 		}
 
 		static size_t ms_uniqueID;
-		static EString GetUniqueID();
-		void SetUniqueID(const EString& id) { m_Id = id; }
+		static FString GetUniqueID();
+		void SetUniqueID(const FString& id) { m_Id = id; }
 
-		EString& GetName() { return m_Name; }
-		void SetName(const EString& name) { m_Name = name; }
+		FString& GetName() { return m_Name; }
+		void SetName(const FString& name) { m_Name = name; }
 
-		EString& GetType() { return m_Type; }
-		void SetType(const EString& type) { m_Type = type; }
+		FString& GetType() { return m_Type; }
+		void SetType(const FString& type) { m_Type = type; }
 
-		EString& GetTag() { return m_Tag; }
-		void SetTag(const EString& tag) { m_Tag = tag; }
+		FString& GetTag() { return m_Tag; }
+		void SetTag(const FString& tag) { m_Tag = tag; }
 
 		void SetLayer(const int& layer) { m_Layer = layer; }
 		int GetLayer() const { return m_Layer; }
 
 	protected:
-		EString m_Type;
-		EString m_Name;
-		EString m_Id;
-		EString m_Tag;
+		FString m_Type;
+		FString m_Name;
+		FString m_Id;
+		FString m_Tag;
 		int m_Layer;
 	};
 

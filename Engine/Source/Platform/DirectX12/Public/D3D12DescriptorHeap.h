@@ -21,7 +21,7 @@ namespace Insight
                 virtual void* GetNativeHeap() override { return RCast<ID3D12DescriptorHeap*>(m_Heap.Get()); }
 
 
-                virtual void Create(const EString& DebugHeapName, EResourceHeapType Type, uint32_t MaxCount) override;
+                virtual void Create(const FString& DebugHeapName, EResourceHeapType Type, uint32_t MaxCount) override;
                 void Destroy(void) { m_Heap = nullptr; }
 
                 bool HasAvailableSpace(uint32_t Count) const { return Count <= m_NumFreeDescriptors; }

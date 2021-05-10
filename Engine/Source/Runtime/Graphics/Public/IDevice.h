@@ -16,7 +16,7 @@ namespace Insight
 
 		struct IEDeviceQueryResult
 		{
-			EString DeviceName;
+			FString DeviceName;
 		};
 
 		class INSIGHT_API IDevice
@@ -27,9 +27,9 @@ namespace Insight
 
 			virtual void CreatePipelineState(const PipelineStateDesc& PSODesc, IPipelineState** ppOutPSO) = 0;
 			virtual void CreateRootSignature(const RootSignatureDesc& RSDesc, IRootSignature** ppOutSignature) = 0;
-			virtual void CreateDescriptorHeap(const EString&& DebugHeapName, EResourceHeapType&& Type, UInt32&& MaxCount, IDescriptorHeap** ppOutHeap) = 0;
-			virtual void CreateColorBuffer(const EString& Name, UInt32 Width, UInt32 Height, UInt32 NumMips, EFormat Format, IColorBuffer** ppOutColorBuffer) = 0;
-			virtual void CreateDepthBuffer(const EString& Name, UInt32 Width, UInt32 Height, EFormat Format, IDepthBuffer** ppOutDepthBuffer) = 0;
+			virtual void CreateDescriptorHeap(const FString&& DebugHeapName, EResourceHeapType&& Type, UInt32&& MaxCount, IDescriptorHeap** ppOutHeap) = 0;
+			virtual void CreateColorBuffer(const FString& Name, UInt32 Width, UInt32 Height, UInt32 NumMips, EFormat Format, IColorBuffer** ppOutColorBuffer) = 0;
+			virtual void CreateDepthBuffer(const FString& Name, UInt32 Width, UInt32 Height, EFormat Format, IDepthBuffer** ppOutDepthBuffer) = 0;
 			virtual void CopyDescriptors(
 				UInt32 NumDestDescriptorRanges,
 				const CpuDescriptorHandle* pDestDescriptorRangeStarts,

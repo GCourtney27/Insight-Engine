@@ -172,10 +172,10 @@ namespace Insight
 //		size_t lastPos = Directory.path().string().find_last_of(".");
 //		if (firstPos != std::string::npos && lastPos != std::string::npos)
 //		{
-//			EString FileName = StringHelper::GetFilenameFromDirectory(Directory.path().wstring());
-//			EString FilePathW = Directory.path().wstring();
+//			FString FileName = StringHelper::GetFilenameFromDirectory(Directory.path().wstring());
+//			FString FilePathW = Directory.path().wstring();
 //
-//			EString Ext = Directory.path().wstring().substr(firstPos);
+//			FString Ext = Directory.path().wstring().substr(firstPos);
 //
 //			//if (ext != L"hlsli" && ext != L"bat")
 //			//if (StrCmpCW(ext.c_str(), TEXT("hlsli")) != 0) // TODO: Fastest, UWP compatible? Uses shlwapi.h

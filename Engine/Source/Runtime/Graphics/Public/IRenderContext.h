@@ -10,7 +10,7 @@ namespace Insight
 
 	namespace Graphics
 	{
-		enum class ERenderBackend
+		enum ERenderBackend
 		{
 			// TODO: Direct3D_11,
 			Direct3D_12,

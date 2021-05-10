@@ -2,7 +2,7 @@
 
 #include "Direct3D12Context.h"
 
-#include "Runtime/Core/Application.h"
+#include "Runtime/Core/Public/Application.h"
 #include "Platform/Win32/Win32Window.h"
 #include "Runtime/GameFramework/Archetypes/APlayerCharacter.h"
 #include "Runtime/Systems/Managers/GeometryManager.h"
@@ -1046,9 +1046,9 @@ namespace Insight {
 			ComPtr<ID3DBlob> pPixelShader;
 
 			const wchar_t* ExeDirectory = 0;
-			EString VertexShaderFolder(ExeDirectory);
+			FString VertexShaderFolder(ExeDirectory);
 			VertexShaderFolder += L"../Renderer/Screen_Aligned_Quad.vertex.cso";
-			EString PixelShaderFolder(ExeDirectory);
+			FString PixelShaderFolder(ExeDirectory);
 			PixelShaderFolder += L"../Renderer/Debug_Screen_Quad.pixel.cso";
 
 			/*hr = D3DReadFileToBlob(VertexShaderFolder.c_str(), &pVertexShader);

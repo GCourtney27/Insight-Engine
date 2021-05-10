@@ -2,7 +2,7 @@
 
 #include <Runtime/Core.h>
 
-#include "Runtime/Core/Layer/ImGuiOverlay.h"
+#include "Runtime/Core/Public/Layer/ImGuiOverlay.h"
 
 
 namespace Insight {

@@ -41,7 +41,7 @@ namespace Insight {
 				Attach a mesh to to be rendered.
 				@param Path - Path to the mesh relative to the "Content/" directory.
 			*/
-			void AttachMesh(const EString& Path);
+			void AttachMesh(const FString& Path);
 			void SetMaterial(Material* pMaterial);
 
 			virtual void BeginPlay() override;

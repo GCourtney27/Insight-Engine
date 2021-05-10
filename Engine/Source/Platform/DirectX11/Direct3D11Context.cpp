@@ -2,7 +2,7 @@
 
 #include "Direct3D11Context.h"
 
-#include "Runtime/Core/Application.h"
+#include "Runtime/Core/Public/Application.h"
 #include "Platform/Win32/Win32Window.h"
 #include "Platform/DirectX11/Geometry/D3D11IndexBuffer.h"
 #include "Platform/DirectX11/Geometry/D3D11VertexBuffer.h"

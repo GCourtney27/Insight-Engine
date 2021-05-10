@@ -81,7 +81,7 @@ namespace Insight
                 // Static methods
                 static ID3D12DescriptorHeap* RequestDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE HeapType);
                 static void DiscardDescriptorHeaps(D3D12_DESCRIPTOR_HEAP_TYPE HeapType, uint64_t FenceValueForReset, const std::vector<ID3D12DescriptorHeap*>& UsedHeaps);
-                virtual void Create(const EString& DebugHeapName, EResourceHeapType Type, uint32_t MaxCount) override { /* Intentionally Left Blank */ }
+                virtual void Create(const FString& DebugHeapName, EResourceHeapType Type, uint32_t MaxCount) override { /* Intentionally Left Blank */ }
 
                 // Non-static members
                 D3D12CommandContext& m_OwningContext;

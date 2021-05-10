@@ -2,7 +2,7 @@
 
 #include <Runtime/Core.h>
 
-#include "Runtime/Core/Interfaces.h"
+#include "Runtime/Core/Public/Interfaces.h"
 
 #include "Runtime/GameFramework/Components/ActorComponent.h"
 #include "Runtime/Physics/PhysicsCommon.h"

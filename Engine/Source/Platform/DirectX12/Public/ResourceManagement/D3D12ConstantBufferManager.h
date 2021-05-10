@@ -35,7 +35,7 @@ namespace Insight
 				FORCE_INLINE void UploadBuffer();
 				FORCE_INLINE static UInt32 GetAlignedBufferSize(UInt32 BufferSize);
 
-				virtual void Create(const EString& Name, UInt32 BufferSize) override;
+				virtual void Create(const FString& Name, UInt32 BufferSize) override;
 
 			private:
 				D3D12_CPU_DESCRIPTOR_HANDLE m_CBV;
@@ -58,7 +58,7 @@ namespace Insight
 				virtual void Initialize() override;
 
 
-				virtual void CreateConstantBuffer(const EString& Name, IConstantBuffer** OutBuffer, UInt32 BufferSizeInBytes) override;
+				virtual void CreateConstantBuffer(const FString& Name, IConstantBuffer** OutBuffer, UInt32 BufferSizeInBytes) override;
 				virtual void DestroyConstantBuffer(ConstantBufferUID BufferHandle);
 
 			private:
