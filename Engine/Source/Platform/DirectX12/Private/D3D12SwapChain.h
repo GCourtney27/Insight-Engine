@@ -2,7 +2,7 @@
 
 #include <Runtime/Core.h>
 
-#include "Runtime/Graphics/Private/ISwapChain.h"
+#include "Runtime/Graphics/Public/ISwapChain.h"
 
 namespace Insight
 {

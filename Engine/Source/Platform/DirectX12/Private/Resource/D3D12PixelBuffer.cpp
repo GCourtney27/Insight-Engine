@@ -34,7 +34,7 @@ namespace Insight
 				return Desc;
 			}
 
-			void D3D12PixelBuffer::AssociateWithResource(IDevice* pDevice, const EString& Name, void* pResource, EResourceState CurrentState)
+			void D3D12PixelBuffer::AssociateWithResource(IDevice* pDevice, const FString& Name, void* pResource, EResourceState CurrentState)
 			{
 				IE_ASSERT(pResource != NULL);
 
@@ -55,7 +55,7 @@ namespace Insight
 #		endif // IE_DEBUG
 			}
 			
-			void D3D12PixelBuffer::CreateTextureResource(IDevice* pDevice, const EString& Name, const ResourceDesc& ResourceDesc, const ClearValue& ClearValue)
+			void D3D12PixelBuffer::CreateTextureResource(IDevice* pDevice, const FString& Name, const ResourceDesc& ResourceDesc, const ClearValue& ClearValue)
 			{
 				IE_ASSERT(pDevice != NULL);
 				

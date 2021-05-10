@@ -5,7 +5,7 @@
 #include "Runtime/GameFramework/Components/ActorComponent.h"
 #include "Runtime/Graphics/Renderer.h"
 #include "Runtime/GameFramework/Archetypes/ACamera.h"
-#include "Runtime/Core/Application.h"
+#include "Runtime/Core/Public/Application.h"
 
 #include "Runtime/UI/UILib.h"
 

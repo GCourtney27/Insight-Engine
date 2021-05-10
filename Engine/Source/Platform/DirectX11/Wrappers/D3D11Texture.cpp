@@ -50,7 +50,7 @@ namespace Insight {
 		m_pDeviceContext = &RenderContext.GetDeviceContext();
 
 		
-		EString FileExtension = StringHelper::GetFileExtension(m_TextureInfo.Filepath);
+		FString FileExtension = StringHelper::GetFileExtension(m_TextureInfo.Filepath);
 		if (FileExtension == TEXT("dds")) {
 			InitDDSTexture();
 		}

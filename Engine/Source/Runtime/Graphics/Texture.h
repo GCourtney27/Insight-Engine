@@ -33,7 +33,7 @@ namespace Insight {
 			ETextureType Type = ETextureType::TT_Invalid;
 			bool GenerateMipMaps = true;
 			bool IsCubeMap = false;
-			EString Filepath;
+			FString Filepath;
 			ID Id;
 		};
 

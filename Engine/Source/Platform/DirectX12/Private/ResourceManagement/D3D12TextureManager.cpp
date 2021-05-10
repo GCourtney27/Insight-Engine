@@ -41,19 +41,19 @@ namespace Insight
 				m_TextureCache.clear();
 			}
 			
-            ITextureRef D3D12TextureManager::LoadTexture(const EString& FileName, EDefaultTexture Fallback, bool forceSRGB)
+            ITextureRef D3D12TextureManager::LoadTexture(const FString& FileName, EDefaultTexture Fallback, bool forceSRGB)
             {
                 return FindOrLoadTexture(FileName, Fallback, forceSRGB);
             }
 
-            IManagedTexture* D3D12TextureManager::FindOrLoadTexture(const EString& FileName, EDefaultTexture Fallback, bool forceSRGB)
+            IManagedTexture* D3D12TextureManager::FindOrLoadTexture(const FString& FileName, EDefaultTexture Fallback, bool forceSRGB)
 			{
                 D3D12ManagedTexture* tex = NULL;
 
                 {
                     std::lock_guard<std::mutex> Guard(m_Mutex);
 
-                    EString key = FileName;
+                    FString key = FileName;
                     if (forceSRGB)
                         key += L"_sRGB";
 
@@ -85,7 +85,7 @@ namespace Insight
                 return tex;
 			}
             
-            void D3D12TextureManager::DestroyTexture(const EString& Key)
+            void D3D12TextureManager::DestroyTexture(const FString& Key)
             {
                 std::lock_guard<std::mutex> Gaurd(m_Mutex);
 

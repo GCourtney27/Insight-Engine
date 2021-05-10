@@ -20,7 +20,7 @@ namespace Insight
 
 				virtual void* GetNativeBufferView() override { return RCast<void*>(&m_D3D12VertexBufferView); }
 
-				virtual void Create(const EString& Name, UInt32 VertexDataSize, UInt32 VertexStrideSize, void* pVerticies) override;
+				virtual void Create(const FString& Name, UInt32 VertexDataSize, UInt32 VertexStrideSize, void* pVerticies) override;
 
 			protected:
 				D3D12_VERTEX_BUFFER_VIEW m_D3D12VertexBufferView;

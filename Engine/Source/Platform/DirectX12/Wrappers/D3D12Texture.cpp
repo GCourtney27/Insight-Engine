@@ -59,7 +59,7 @@ namespace Insight {
 		m_pTranslucencyPass_CommandList = &RenderContext.GetTransparencyPassCommandList();
 		m_TextureInfo = createInfo;
 
-		EString FileExtension = StringHelper::GetFileExtension(createInfo.Filepath);
+		FString FileExtension = StringHelper::GetFileExtension(createInfo.Filepath);
 		if (FileExtension == TEXT("dds")) {
 			InitDDSTexture(srvHeapHandle);
 		}

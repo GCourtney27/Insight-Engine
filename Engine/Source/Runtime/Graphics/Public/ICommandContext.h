@@ -47,7 +47,7 @@ namespace Insight
 			virtual void UnInitialize() = 0;
 			virtual void Reset() = 0;
 
-			static ICommandContext& Begin(const EString& ID);
+			static ICommandContext& Begin(const FString& ID);
 			
 			virtual UInt64 Flush(bool WaitForCompletion = false) = 0;
 			virtual UInt64 Finish(bool WaitForCompletion = false) = 0;
@@ -85,7 +85,7 @@ namespace Insight
 
 			virtual void FlushResourceBarriers() = 0;
 
-			void SetID(const EString& NewID) { m_ID = NewID; }
+			void SetID(const FString& NewID) { m_ID = NewID; }
 
 		protected:
 			ICommandContext(const ECommandListType& Type) 
@@ -99,7 +99,7 @@ namespace Insight
 
 			virtual void BindDescriptorHeaps() = 0;
 
-			EString m_ID;
+			FString m_ID;
 			ECommandListType m_Type;
 		};
 	}

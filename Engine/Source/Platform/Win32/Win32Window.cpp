@@ -7,17 +7,17 @@
 
 #include "Win32Window.h"
 
-#include "Runtime/Core/Application.h"
+#include "Runtime/Core/Public/Application.h"
 #include "Runtime/Graphics/Renderer.h"
 
-#include "Runtime/Core/Log.h"
-#include "Runtime/Core/Utilities/StringHelper.h"
+#include "Runtime/Core/Public/Log.h"
+#include "Runtime/Core/Public/Utility/StringHelper.h"
 //#include "Platform/Win32/Resources/Resource.h"
 
-#include "Runtime/Core/Events/KeyEvent.h"
-#include "Runtime/Core/Events/MouseEvent.h"
-#include "Runtime/Core/Events/ApplicationEvent.h"
-#include "Runtime/Core/Exception.h"
+#include "Runtime/Core/Public/Events/KeyEvent.h"
+#include "Runtime/Core/Public/Events/MouseEvent.h"
+#include "Runtime/Core/Public/Events/ApplicationEvent.h"
+#include "Runtime/Core/Public/Exception.h"
 
 
 namespace Insight {
@@ -450,7 +450,7 @@ namespace Insight {
 		ProccessWindowMessages();
 	}
 
-	bool Win32Window::SetWindowTitle(const EString& NewText, bool CompletlyOverride)
+	bool Win32Window::SetWindowTitle(const FString& NewText, bool CompletlyOverride)
 	{
 		BOOL succeeded = true;
 		if (CompletlyOverride) {

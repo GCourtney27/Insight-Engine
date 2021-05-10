@@ -23,7 +23,7 @@ namespace Insight
 			}
 		}
 
-		ICommandContext& ICommandContext::Begin(const EString& ID)
+		ICommandContext& ICommandContext::Begin(const FString& ID)
 		{
 			ICommandContext* NewContext = g_pContextManager->AllocateContext(ECommandListType::CLT_Direct);
 			NewContext->SetID(ID);

@@ -1,7 +1,7 @@
 #include <Engine_pch.h>
 
 #include "Model.h"
-#include "Runtime/Core/Utilities/StringHelper.h"
+#include "Runtime/Core/Public/Utility/StringHelper.h"
 #include "Runtime/Graphics/Material.h"
 
 #include "Runtime/UI/UILib.h"
@@ -12,7 +12,7 @@
 #endif
 namespace Insight {
 
-	Model::Model(const EString& Path, Material* Material)
+	Model::Model(const FString& Path, Material* Material)
 	{
 		Create(Path, Material);
 	}
@@ -45,7 +45,7 @@ namespace Insight {
 		}
 	}
 
-	bool Model::Create(const EString& path, Material* pMaterial)
+	bool Model::Create(const FString& path, Material* pMaterial)
 	{
 		m_pMaterial = pMaterial;
 
@@ -115,7 +115,7 @@ namespace Insight {
 		}
 	}
 
-	bool Model::LoadModelFromFile(const EString& path)
+	bool Model::LoadModelFromFile(const FString& path)
 	{
 #if IE_PLATFORM_BUILD_WIN32
 		Assimp::Importer Importer;
@@ -140,7 +140,7 @@ namespace Insight {
 
 #elif IE_PLATFORM_BUILD_UWP
 
-		EString FileExtension = StringHelper::GetFileExtension(path);
+		FString FileExtension = StringHelper::GetFileExtension(path);
 		if (FileExtension == TEXT("FBX") || FileExtension == TEXT("fbx"))
 		{
 			size_t FileSize;

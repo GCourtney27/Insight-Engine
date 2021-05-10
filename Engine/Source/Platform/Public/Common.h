@@ -2,7 +2,7 @@
 
 #include <Runtime/Core.h>
 
-#include "Runtime/Input/KeyCodes.h"
+#include "Runtime/Core/Public/Input/KeyCodes.h"
 
 namespace Insight
 {

@@ -4,7 +4,7 @@
 #include "ACamera.h"
 
 #include "Runtime/GameFramework/Components/ActorComponent.h"
-#include "Runtime/Core/Application.h"
+#include "Runtime/Core/Public/Application.h"
 
 #include "Runtime/UI/UILib.h"
 

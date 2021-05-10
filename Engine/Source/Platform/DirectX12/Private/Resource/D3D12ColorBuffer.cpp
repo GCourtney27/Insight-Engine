@@ -23,7 +23,7 @@ namespace Insight
             {
             }
             
-            void D3D12ColorBuffer::CreateFromSwapChain(IDevice* pDevice, const EString& Name, void* pResource)
+            void D3D12ColorBuffer::CreateFromSwapChain(IDevice* pDevice, const FString& Name, void* pResource)
 			{
 				ID3D12Device* pID3D12Device = RCast<ID3D12Device*>(pDevice->GetNativeDevice());
 				AssociateWithResource(pDevice, Name, pResource, RS_Present);
@@ -32,7 +32,7 @@ namespace Insight
 				pID3D12Device->CreateRenderTargetView(RCast<ID3D12Resource*>(pResource), NULL, m_RTVHandle);
 			}
 			
-			void D3D12ColorBuffer::Create(IDevice* pDevice, const EString& Name, UInt32 Width, UInt32 Height, UInt32 NumMips, EFormat Format)
+			void D3D12ColorBuffer::Create(IDevice* pDevice, const FString& Name, UInt32 Width, UInt32 Height, UInt32 NumMips, EFormat Format)
 			{
 				NumMips = (NumMips == 0 ? ComputeNumMips(Width, Height) : NumMips);
 				EResourceFlags Flags = CombineResourceFlags();

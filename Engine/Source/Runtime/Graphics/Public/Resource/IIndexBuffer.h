@@ -19,7 +19,7 @@ namespace Insight
 
 			virtual void* GetNativeBufferView() = 0;
 
-			virtual void Create(const EString& Name, UInt32 IndexDataSize, void* pIndices) = 0;
+			virtual void Create(const FString& Name, UInt32 IndexDataSize, void* pIndices) = 0;
 
 		protected:
 			IIndexBuffer() {}

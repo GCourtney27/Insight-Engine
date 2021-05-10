@@ -2,7 +2,7 @@
 
 #include "AActor.h"
 
-#include "Runtime/Core/Application.h"
+#include "Runtime/Core/Public/Application.h"
 #include "Runtime/GameFramework/Components/ActorComponent.h"
 #include "Runtime/GameFramework/Components/StaticMeshComponent.h"
 #include "Runtime/GameFramework/Components/CSharpScirptComponent.h"

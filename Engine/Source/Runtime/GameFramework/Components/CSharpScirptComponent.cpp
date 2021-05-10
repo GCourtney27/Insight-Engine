@@ -4,7 +4,7 @@
 
 #include "Runtime/Systems/Managers/ResourceManager.h"
 #include "Runtime/GameFramework/AActor.h"
-#include "Runtime/Core/Application.h"
+#include "Runtime/Core/Public/Application.h"
 
 
 namespace Insight {

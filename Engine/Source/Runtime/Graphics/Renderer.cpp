@@ -2,7 +2,7 @@
 
 #include "Renderer.h"
 
-#include "Runtime/Core/Application.h"
+#include "Runtime/Core/Public/Application.h"
 
 #include "Platform/DirectX11/Direct3D11Context.h"
 #include "Platform/DirectX12/Direct3D12Context.h"

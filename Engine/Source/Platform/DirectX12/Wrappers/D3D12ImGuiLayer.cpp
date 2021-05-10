@@ -2,7 +2,7 @@
 
 #include "D3D12ImGuiLayer.h"
 
-#include "Runtime/Core/Application.h"
+#include "Runtime/Core/Public/Application.h"
 
 #include "Platform/DirectX12/Direct3D12Context.h"
 #include "Platform/Win32/Win32Window.h"

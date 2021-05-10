@@ -18,7 +18,7 @@ namespace Insight
 			
 			virtual void* GetNativeBufferView() = 0;
 
-			virtual void Create(const EString& Name, UInt32 VertexDataSize, UInt32 VertexStrideSize, void* pVerticies) = 0;
+			virtual void Create(const FString& Name, UInt32 VertexDataSize, UInt32 VertexStrideSize, void* pVerticies) = 0;
 
 		protected:
 			IVertexBuffer() {}

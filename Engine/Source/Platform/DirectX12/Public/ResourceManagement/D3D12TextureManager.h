@@ -17,7 +17,7 @@ namespace Insight
 			class INSIGHT_API D3D12ManagedTexture : public IManagedTexture, public D3D12Texture
 			{
 			public:
-				D3D12ManagedTexture(const EString& FileName)
+				D3D12ManagedTexture(const FString& FileName)
 					: IManagedTexture(FileName)
 				{
 				}
@@ -41,17 +41,17 @@ namespace Insight
 					UnInitialize();
 				}
 
-				virtual ITextureRef LoadTexture(const EString& FileName, EDefaultTexture Fallback, bool forceSRGB) override;
+				virtual ITextureRef LoadTexture(const FString& FileName, EDefaultTexture Fallback, bool forceSRGB) override;
 
 				virtual void Initialize() override;
 				virtual void UnInitialize() override;
 
 			private:
-				virtual IManagedTexture* FindOrLoadTexture(const EString& FileName, EDefaultTexture Fallback, bool forceSRGB) override;
-				virtual void DestroyTexture(const EString& Key) override;
+				virtual IManagedTexture* FindOrLoadTexture(const FString& FileName, EDefaultTexture Fallback, bool forceSRGB) override;
+				virtual void DestroyTexture(const FString& Key) override;
 				
 			private:
-				std::map<EString, std::unique_ptr<D3D12ManagedTexture>> m_TextureCache;
+				std::map<FString, std::unique_ptr<D3D12ManagedTexture>> m_TextureCache;
 				D3D12Texture m_DefaultTextures[DT_NumDefaultTextures];
 			};
 		}

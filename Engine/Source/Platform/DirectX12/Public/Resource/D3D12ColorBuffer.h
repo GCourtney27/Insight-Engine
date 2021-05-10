@@ -17,8 +17,8 @@ namespace Insight
 				D3D12ColorBuffer();
 				virtual ~D3D12ColorBuffer();
 				
-				virtual void CreateFromSwapChain(IDevice* pDevice, const EString& Name, void* pResource) override;
-				virtual void Create(IDevice* pDevice, const EString& Name, UInt32 Width, UInt32 Height, UInt32 NumMips, EFormat Format) override;
+				virtual void CreateFromSwapChain(IDevice* pDevice, const FString& Name, void* pResource) override;
+				virtual void Create(IDevice* pDevice, const FString& Name, UInt32 Width, UInt32 Height, UInt32 NumMips, EFormat Format) override;
 
 				FORCE_INLINE D3D12_CPU_DESCRIPTOR_HANDLE GetSRVHandle() const { return m_SRVHandle; }
 				FORCE_INLINE D3D12_CPU_DESCRIPTOR_HANDLE GetRTVHandle() const { return m_RTVHandle; }

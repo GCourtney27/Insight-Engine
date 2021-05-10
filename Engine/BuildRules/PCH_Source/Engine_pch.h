@@ -54,15 +54,12 @@
 #include <rapidjson/filewritestream.h>
 
 // === Insight Specific === //
-#include "Runtime/Core/Log.h"
-#include "Runtime/Core/EString.h"
-#include "Runtime/Core/Exception.h"
-#include "Runtime/Core/Interfaces.h"
-#include "Runtime/Core/Public/Types.h"
-#include "Runtime/Systems/FileSystem.h"
-#include "Runtime/Core/Utilities/Profiling.h"
-#include "Runtime/Math/Public/PrimitiveTypes.h"
-#include "Runtime/Core/Utilities/StringHelper.h"
+#include "Runtime/Core/Public/Log.h"
+#include "Runtime/Core/Public/Exception.h"
+#include "Runtime/Core/Public/Interfaces.h"
+#include "Runtime/Core/Public/FileSystem.h"
+#include "Runtime/Core/Public/Utility/Profiling.h"
+#include "Runtime/Core/Public/Utility/StringHelper.h"
 
 // -----------
 // Platforms |

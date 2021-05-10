@@ -12,7 +12,7 @@ namespace Insight
 	{
 		namespace DX12
 		{
-			void D3D12IndexBuffer::Create(const EString& Name, UInt32 IndexDataSize, void* pIndices)
+			void D3D12IndexBuffer::Create(const FString& Name, UInt32 IndexDataSize, void* pIndices)
 			{
 				ID3D12Device* pID3D12Device = RCast<ID3D12Device*>(g_pDevice->GetNativeDevice());
 				IE_ASSERT(pID3D12Device != NULL)

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Runtime/Core/Window.h"
+#include "Runtime/Core/Public/Window.h"
 
 
 namespace Insight {
@@ -65,7 +65,7 @@ namespace Insight {
 		virtual void* GetNativeWindow() const override;
 		virtual bool ProccessWindowMessages() override;
 
-		bool SetWindowTitle(const EString& newText, bool completlyOverride = false) override;
+		bool SetWindowTitle(const FString& newText, bool completlyOverride = false) override;
 
 		inline HINSTANCE GetWindowsApplicationReference() const { return m_WindowsAppInstance; }
 		inline HWND& GetWindowHandleRef() { return m_hWindow; }
@@ -100,7 +100,7 @@ namespace Insight {
 
 		HINSTANCE m_WindowsAppInstance;
 		int m_NumCmdLineArgs;
-		EString m_CmdLineArgs;
+		FString m_CmdLineArgs;
 		RECT m_WindowRect;
 
 		static const UInt32 m_WindowStyle = WS_OVERLAPPEDWINDOW;

@@ -26,7 +26,7 @@ namespace Insight
 				}
 				virtual ~D3D12DepthBuffer() {}
 
-				virtual void Create(const EString& Name, UInt32 Width, UInt32 Height, EFormat Format) override;
+				virtual void Create(const FString& Name, UInt32 Width, UInt32 Height, EFormat Format) override;
 
 				// Get pre-created CPU-visible descriptor handles
 				const D3D12_CPU_DESCRIPTOR_HANDLE& GetDSV() const { return m_hDSV[0]; }

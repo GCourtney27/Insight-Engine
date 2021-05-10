@@ -165,7 +165,7 @@ namespace Insight {
 		}
 
 		static std::mutex s_MeshMutex;
-		static bool LoadModelAsync(StrongModelPtr Model, const EString& Path, Material* Material)
+		static bool LoadModelAsync(StrongModelPtr Model, const FString& Path, Material* Material)
 		{
 			Model->Create(Path, Material);
 
@@ -175,9 +175,9 @@ namespace Insight {
 			return true;
 		}
 
-		void StaticMeshComponent::AttachMesh(const EString& Path)
+		void StaticMeshComponent::AttachMesh(const FString& Path)
 		{
-			EString s = TEXT("StaticMesh::AttachMesh -> ") + Path;
+			FString s = TEXT("StaticMesh::AttachMesh -> ") + Path;
 			ScopedSecondTimer(s.c_str());
 
 			if (m_pModel) {

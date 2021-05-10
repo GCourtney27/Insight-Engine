@@ -5,7 +5,7 @@
 #include "Runtime/GameFramework/Archetypes/ACamera.h"
 
 #include "Runtime/UI/UILib.h"
-#include "Runtime/Core/Application.h"
+#include "Runtime/Core/Public/Application.h"
 
 namespace Insight {
 

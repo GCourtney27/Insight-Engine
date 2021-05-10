@@ -2,7 +2,7 @@
 
 #include "RayTraceHelpers.h"
 
-#include "Runtime/Core/Application.h"
+#include "Runtime/Core/Public/Application.h"
 #include "Runtime/Graphics/Geometry/Vertex.h"
 
 #include "Platform/Win32/Win32Window.h"

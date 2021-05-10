@@ -1,8 +1,8 @@
 #pragma once
 #include <comdef.h>
 
-#include "Runtime/Core/Utilities/StringHelper.h"
-#include "Runtime/Core/Exception.h"
+#include "Runtime/Core/Public/Utility/StringHelper.h"
+#include "Runtime/Core/Public/Exception.h"
 
 namespace Insight {
 	
@@ -12,7 +12,7 @@ namespace Insight {
 	class INSIGHT_API COMException : public ieException
 	{
 	public:
-		COMException(HRESULT hr, const EString& msg, const EString& file, const EString& function, int line)
+		COMException(HRESULT hr, const FString& msg, const FString& file, const FString& function, int line)
 			: ieException(msg.c_str())
 		{
 #if IE_PLATFORM_BUILD_WIN32
@@ -20,7 +20,7 @@ namespace Insight {
 #elif IE_PLATFORM_BUILD_UWP || IE_PLATFORM_BUILD_XBOX_ONE
 			_com_error error(hr, msg.c_str());
 #endif
-			whatmsg =  TEXT("Msg: ") + EString(msg) + L"\n";
+			whatmsg =  TEXT("Msg: ") + FString(msg) + L"\n";
 			whatmsg += error.ErrorMessage();
 			whatmsg += TEXT("\nFile: ") + file;
 			whatmsg += TEXT("\nFunction: ") + function;
@@ -33,7 +33,7 @@ namespace Insight {
 		}
 
 	private:
-		EString whatmsg;
+		FString whatmsg;
 	};
 
 }
