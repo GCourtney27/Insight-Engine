@@ -24,10 +24,6 @@
 
 #if IE_RENDER_MULTI_PLATFORM
 #include "Runtime/Graphics/Public/RenderCore.h"
-// TEMP
-#include "Runtime/Graphics/Private/ISwapChain.h"
-#include "Runtime/Graphics/Public/IDevice.h"
-#include "Runtime/Graphics/Public/ResourceManagement/IConstantBufferManager.h"
 #endif // IE_RENDER_MULTI_PLATFORM
 
 
@@ -329,24 +325,24 @@ float4 PSMain(PSInput Input) : SV_TARGET
 
 
 
-			__declspec(align(16)) struct SceneConstants
+			ALIGN(16) struct SceneConstants
 			{
 				FMatrix ViewMat;
 				FMatrix ProjMat;
 				float WorldTime;
 			};
-			__declspec(align(16)) struct MeshWorld
+			ALIGN(16) struct MeshWorld
 			{
 				FMatrix WorldMat;
 			};
-			__declspec(align(16)) struct MaterialConstants
+			ALIGN(16) struct MaterialConstants
 			{
 				FVector4 Color;
 			};
 #define IE_MAX_POINT_LIGHTS 4
 #define IE_MAX_SPOT_LIGHTS 4
 #define IE_MAX_DIRECTIONAL_LIGHTS 4
-			__declspec(align(16)) struct PointLight
+			ALIGN(16) struct PointLight
 			{
 				FVector3 Position;
 				FVector3 Color;

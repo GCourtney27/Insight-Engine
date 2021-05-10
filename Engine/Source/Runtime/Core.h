@@ -60,6 +60,7 @@
 #define FORCE_INLINE __forceinline
 #define INLINE inline 
 #define NO_DISCARD [[nodiscard]]
+#define ALIGN(InBytes) __declspec(align(InBytes))
 template <typename T>
 FORCE_INLINE constexpr void ZeroMem(T* Mem, size_t Size = sizeof(T))
 {
