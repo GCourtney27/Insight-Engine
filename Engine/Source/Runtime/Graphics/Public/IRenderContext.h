@@ -1,3 +1,4 @@
+// Copyright Insight Interactive. All Rights Reserved.
 #pragma once
 
 #include <Runtime/Core.h>
@@ -12,8 +13,8 @@ namespace Insight
 	{
 		enum ERenderBackend
 		{
-			// TODO: Direct3D_11,
-			Direct3D_12,
+			// TODO: RB_Direct3D11,
+			RB_Direct3D12,
 		};
 
 		class INSIGHT_API IRenderContext

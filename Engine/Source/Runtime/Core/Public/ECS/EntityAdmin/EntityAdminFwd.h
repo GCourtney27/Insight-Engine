@@ -68,7 +68,7 @@ namespace ECS {
 		}
 
 		/*
-			Destroy the EntityAdmin and all component maps and Entitys.
+			Destroy the EntityAdmin and all component maps and entities.
 		*/
 		void Flush()
 		{
@@ -93,6 +93,7 @@ namespace ECS {
 		/*
 			Adds a component to the EntityAdmin and returns a pointer to the new instance. 
 			Returns nullptr if creation fails.
+			Warning: Return value is not to be cached! Only use the return pointer for basic initialization prceeding this call.
 
 			@param Entity - The Entity to attach the component too.
 			@param Args - Arguments for the componnets constructor.

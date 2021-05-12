@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ECS/Core/Core.h"
+#include "Runtime/Core/Public/ECS/Core/Core.h"
 
 #include <assert.h>
 
@@ -13,10 +13,12 @@ namespace ECS
 	{
 	protected:
 		const char* m_DebugName;
+		const EntityAdmin& m_EntityAdminRef;
 
 	protected:
-		SystemBase(const char* DebugName)
-			: m_DebugName(DebugName)
+		SystemBase(const EntityAdmin& EntityAdmin, const char* DebugName)
+			: m_EntityAdminRef(EntityAdmin)
+			, m_DebugName(DebugName)
 		{
 		}
 		virtual ~SystemBase() = default;
@@ -33,12 +35,12 @@ namespace ECS
 	class GenericSystem : public SystemBase
 	{
 	protected:
-		GenericComponentMap<ComponentType>& m_ComponentMapRef;
+		GenericComponentMap<ComponentType>* m_ComponentMapRef;
 
 	public:
 		GenericSystem(const EntityAdmin& EntityAdmin, const char* DebugName = "")
-			: SystemBase(DebugName)
-			, m_ComponentMapRef(*EntityAdmin.GetComponentMap<ComponentType>())
+			: SystemBase(EntityAdmin,DebugName)
+			, m_ComponentMapRef(EntityAdmin.GetComponentMap<ComponentType>())
 		{
 		}
 		virtual ~GenericSystem() {}
@@ -53,7 +55,11 @@ namespace ECS
 		*/
 		ECS_FORCE_INLINE std::vector<ComponentType>& GetRawComponentData()
 		{
-			return m_ComponentMapRef.m_RawComponents;
+			if (m_ComponentMapRef == nullptr) 
+			{
+				m_ComponentMapRef = m_EntityAdminRef.GetComponentMap<ComponentType>();
+			}
+			return m_ComponentMapRef->m_RawComponents;
 		}
 	};
 

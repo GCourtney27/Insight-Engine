@@ -68,11 +68,9 @@ namespace Insight
 
 
 #ifdef UNICODE
-
 	typedef wchar_t TChar;
 	typedef ::std::wstring FString;
 #else
-#	define TEXT(String)
 	typedef char TChar;
 	typedef ::std::string FString;
 #endif // UNICODE

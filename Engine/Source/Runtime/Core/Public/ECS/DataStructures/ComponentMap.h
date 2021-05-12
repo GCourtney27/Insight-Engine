@@ -129,7 +129,7 @@ namespace ECS
 		template <typename ... Args>
 		ComponentType* AddComponent(const Entity_t& Owner, Args ... args)
 		{
-			m_RawComponents.push_back(ComponentType(args...));
+			m_RawComponents.emplace_back(args...);
 			ComponentUID_t id = m_RawComponents[m_NextAvailableIndex].GetId();
 			m_ComponentMap[id] = PackedKey{ Owner, m_NextAvailableIndex };
 			m_NextAvailableIndex++;

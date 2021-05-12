@@ -3,6 +3,6 @@
 namespace Insight
 {
 	class ieObjectBase;
-	class AActor;
+	class ieActor;
 	class ieWorld;
 }

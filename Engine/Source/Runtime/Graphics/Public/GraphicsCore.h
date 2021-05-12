@@ -1,3 +1,4 @@
+// Copyright Insight Interactive. All Rights Reserved.
 #pragma once
 #include "Runtime/Graphics/Public/CommonEnums.h"
 #include "Runtime/Graphics/Public/CommonStructs.h"
@@ -20,6 +21,15 @@
 #define IE_MAX_CONSTANT_BUFFER_SIZE 256
 #define IE_INVALID_CONSTANT_BUFFER_HANDLE (Insight::Graphics::ConstantBufferUID)(-1)
 #define IE_INVALID_GPU_ADDRESS (-1)
+
+#ifdef IE_PLATFORM_WINDOWS
+#	define IE_D3D12_RENDER_NAME "Direct3D 12"
+#	define IE_D3D11_RENDER_NAME "Direct3D 11"
+#else
+#	define IE_D3D12_RENDER_NAME
+#	define IE_D3D11_RENDER_NAME
+#endif // IE_PLATFORM_WINDOWS
+
 
 namespace Insight
 {
@@ -86,8 +96,12 @@ namespace Insight
 		// ----------
 		//
 		// UIDs
+		//
+		// Handle to vertex buffer instance in the IGeometryBufferManager.
 		typedef UInt32 VertexBufferUID;
+		// Handle to index buffer instance in the IGeometryBufferManager.
 		typedef UInt32 IndexBufferUID;
+		// Handle to constant buffer instance in the IConstantBufferManager.
 		typedef UInt32 ConstantBufferUID;
 
 		// -----------------

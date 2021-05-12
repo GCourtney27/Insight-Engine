@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ECS/Core/Core.h"
-#include "ECS/EntityAdmin/EntityFwd.h"
+#include "Runtime/Core/Public/ECS/Core/Core.h"
+#include "Runtime/Core/Public/ECS/EntityAdmin/EntityFwd.h"
 
 #include <string_view>
 
@@ -69,7 +69,7 @@ namespace ECS
 
 	private:
 		/*
-			Registers a new it for this component type.
+			Registers a new id for this component type.
 			@param OutId - The Id to register.
 		*/
 		ECS_FORCE_INLINE static void RegisterNewId(ComponentUID_t& OutId)
