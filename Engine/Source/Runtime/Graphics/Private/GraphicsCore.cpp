@@ -3,6 +3,9 @@
 #include <Runtime/Graphics/Public/GraphicsCore.h>
 
 #include "Runtime/Graphics/Public/Resource/ITexture.h"
+#include "Runtime/Graphics/Public/ResourceManagement/ModelManager.h"
+#include "Runtime/Graphics/Public/ResourceManagement/MaterialManager.h"
+
 
 namespace Insight
 {
@@ -20,7 +23,8 @@ namespace Insight
 		ITextureManager* g_pTextureManager = NULL;
 		ITexture* g_DefaultTextures[DT_NumDefaultTextures];
 		IDescriptorHeap* g_pTextureHeap = NULL;
-
+		StaticGeometryManager g_StaticGeometryManager;
+		MaterialManager g_MaterialManager;
 
 		// -----------------------------
 		//	Function Definitions

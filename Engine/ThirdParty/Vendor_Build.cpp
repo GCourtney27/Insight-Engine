@@ -23,9 +23,7 @@
 #include "DXR/nv_helpers_dx12/ShaderBindingTableGenerator.cpp"
 
 // OpenFBX
-#if IE_PLATFORM_BUILD_UWP
 #include "miniz.c"
 #include "miniz.h"
 #include "ofbx.cpp"
-#endif
 

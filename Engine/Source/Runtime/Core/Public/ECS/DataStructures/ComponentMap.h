@@ -37,7 +37,7 @@ namespace ECS
 		typedef uint32_t	ArrayIndex;
 
 		/*
-			Represends a packed valuu for easier insertions and extractions 
+			Represends a packed value for easier insertions and extractions 
 			in the component map.
 		*/
 		struct alignas (sizeof(uint32_t)) PackedKey
@@ -57,7 +57,7 @@ namespace ECS
 
 	public:
 		/*
-			Key value paur for each unique component and its index in the raw component array.
+			Key value pair for each unique component and its index in the raw component array.
 		*/
 		std::unordered_map<ComponentUID_t, PackedKey> m_ComponentMap;
 		
@@ -82,7 +82,7 @@ namespace ECS
 		virtual ~GenericComponentMap()
 		{
 			size_t ComponentsSize	= m_RawComponents.size() * sizeof(ComponentType);
-			size_t ComponentMapSize	= m_ComponentMap.size() * (sizeof(ComponentUID_t) + sizeof(std::pair<Entity_t, ArrayIndex>));
+			size_t ComponentMapSize	= m_ComponentMap.size() * (sizeof(ComponentUID_t) + sizeof(PackedKey));
 			DebugLog("[WARNING] Generic ComponentMap being destroyed. Raw component memory [%zi] bytes | Component map [%zi] bytes\n", ComponentsSize, ComponentMapSize);
 		}
 
@@ -127,14 +127,15 @@ namespace ECS
 			Adds a component to the component map and returns a pointer to it.
 		*/
 		template <typename ... Args>
-		ComponentType* AddComponent(const Entity_t& Owner, Args ... args)
+		ComponentType& AddComponent(const Entity_t& Owner, Args&& ... args)
 		{
+			//if (m_RawComponents.size() == 0) m_RawComponents.reserve(4);
 			m_RawComponents.emplace_back(args...);
 			ComponentUID_t id = m_RawComponents[m_NextAvailableIndex].GetId();
 			m_ComponentMap[id] = PackedKey{ Owner, m_NextAvailableIndex };
 			m_NextAvailableIndex++;
 
-			return &m_RawComponents[m_NextAvailableIndex - 1];
+			return m_RawComponents[m_NextAvailableIndex - 1];
 		}
 
 		/*

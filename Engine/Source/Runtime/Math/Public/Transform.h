@@ -13,23 +13,47 @@ namespace Insight
 	class INSIGHT_API ieTransform
 	{
 	public:
-		ieTransform();
-		~ieTransform();
-		FORCE_INLINE ieTransform(const ieTransform& Transform)
+		ieTransform::ieTransform()
+			: m_pParent(NULL)
+			, m_Position(FVector3::Zero)
+			, m_Rotation(FVector3::Zero)
+			, m_Scale(FVector3::One)
+			, m_EditorPlayOriginPosition(m_Position)
+			, m_EditorPlayOriginRotation(m_Rotation)
+			, m_EditorPlayOriginScale(m_Scale)
+		{
+		}
+		ieTransform::~ieTransform()
+		{
+			ReAssignChildrenToParent();
+			UnsetParent();
+		}
+		ieTransform(const ieTransform&& Other) noexcept
+		{
+			m_Scale		= Other.m_Scale;
+			m_Position	= Other.m_Position;
+			m_Rotation	= Other.m_Rotation;
+		}
+		ieTransform(const ieTransform& Transform)
 		{
 			*this = Transform;
 		}
-		FORCE_INLINE ieTransform& operator = (const ieTransform& Transform)
+		ieTransform& operator = (const ieTransform& Other)
 		{
-			SetPosition(Transform.m_Position);
-			SetRotation(Transform.m_Rotation);
-			SetScale(Transform.m_Scale);
+			m_Position	= Other.m_Position;
+			m_Scale		= Other.m_Scale;
+			m_Rotation	= Other.m_Rotation;
+
+			CompuleAllMatriciesAndupdateChildren();
 			return *this;
 		}
 
 		void EditorEndPlay();
 		void EditorInit() { UpdateEditorOriginPositionRotationScale(); }
 
+		/*
+			Returns the parent of this transform. Null if no parent.
+		*/
 		inline ieTransform* GetParent() const { return m_pParent; }
 		inline void SetParent(ieTransform* NewParent) 
 		{
@@ -186,6 +210,7 @@ namespace Insight
 		void TranslateLocalMatrix();
 		void ScaleLocalMatrix();
 		void RotateLocalMatrix();
+		inline void CompuleAllMatriciesAndupdateChildren();
 
 		ieTransform* m_pParent;
 		std::vector<ieTransform*> m_Children;
@@ -214,21 +239,22 @@ namespace Insight
 
 	};
 
-	// ----------------------------
-	// Inline function definitions
-	// ----------------------------
 
-	void ieTransform::RotateVector(FVector3& outResult, const FVector3& Direction, const FMatrix& Matrix)
+	// 
+	// Inline function definitions
+	// 
+
+	inline void ieTransform::RotateVector(FVector3& outResult, const FVector3& Direction, const FMatrix& Matrix)
 	{
 		outResult = XMVector3TransformCoord(Direction, m_RotationMat);
 	}
 
-	void ieTransform::AddChild(ieTransform& Child) 
+	inline void ieTransform::AddChild(ieTransform& Child)
 	{ 
 		m_Children.push_back(&Child); 
 	}
 
-	bool ieTransform::RemoveChild(ieTransform* Child)
+	inline bool ieTransform::RemoveChild(ieTransform* Child)
 	{
 		auto Iter = std::find(m_Children.begin(), m_Children.end(), Child);
 		if (Iter != m_Children.end())
@@ -239,7 +265,7 @@ namespace Insight
 		return false;
 	}
 
-	void ieTransform::ReAssignChildrenToParent()
+	inline void ieTransform::ReAssignChildrenToParent()
 	{
 		for (size_t i = 0; i < m_Children.size(); ++i)
 		{
@@ -247,7 +273,7 @@ namespace Insight
 		}
 	}
 
-	void ieTransform::ComputeWorldMatrix()
+	inline void ieTransform::ComputeWorldMatrix()
 	{
 		if (m_pParent != NULL)
 		{
@@ -260,11 +286,22 @@ namespace Insight
 		UpdateChildren();
 	}
 
-	void ieTransform::UpdateChildren()
+	inline void ieTransform::UpdateChildren()
 	{
 		for (size_t i = 0; i < m_Children.size(); ++i)
 		{
 			m_Children[i]->ComputeWorldMatrix();
 		}
+	}
+
+	inline void ieTransform::CompuleAllMatriciesAndupdateChildren()
+	{
+
+		TranslateLocalMatrix();
+		ScaleLocalMatrix();
+		RotateLocalMatrix();
+		UpdateLocalMatrix();
+		ComputeWorldMatrix();
+		UpdateChildren();
 	}
 }

@@ -33,6 +33,10 @@
 
 namespace Insight
 {
+	class StaticGeometryManager;
+	class MaterialManager;
+
+
 	namespace Graphics
 	{
 		// ----------------------
@@ -90,6 +94,11 @@ namespace Insight
 		extern ITexture* g_DefaultTextures[];
 		// Heap holding all shader visible textures.
 		extern IDescriptorHeap* g_pTextureHeap;
+		// Manager of all static mesh geometry in the world.
+		extern StaticGeometryManager g_StaticGeometryManager;
+		// Manager for all materials used by meshes in the world.
+		extern MaterialManager g_MaterialManager;
+
 
 		// ----------
 		//	Typedefs
@@ -103,6 +112,7 @@ namespace Insight
 		typedef UInt32 IndexBufferUID;
 		// Handle to constant buffer instance in the IConstantBufferManager.
 		typedef UInt32 ConstantBufferUID;
+
 
 		// -----------------
 		//	Utility Methods

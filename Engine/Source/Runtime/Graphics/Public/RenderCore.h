@@ -11,6 +11,7 @@
 #include "Runtime/Graphics/Public/ICommandContext.h"
 #include "Runtime/Graphics/Public/IDescriptorHeap.h"
 #include "Runtime/Graphics/Public/CommonStructHelpers.h"
+#include "Runtime/Graphics/Public/ICommandManager.h"
 #include "Runtime/Graphics/Public/IGeometryBufferManager.h"
 #include "Runtime/Graphics/Public/Resource/IVertexBuffer.h"
 #include "Runtime/Graphics/Public/Resource/IIndexBuffer.h"

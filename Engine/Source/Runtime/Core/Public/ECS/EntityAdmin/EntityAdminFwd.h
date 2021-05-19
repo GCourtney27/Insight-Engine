@@ -59,10 +59,11 @@ namespace ECS {
 	public:
 		EntityAdmin()
 			: m_AvailableEntityIndex(0)
-		{}
+		{
+		}
 		~EntityAdmin()
 		{
-			DebugLog("Cleaning Up EntityAdmin (%i bytes).\n", static_cast<unsigned int>(sizeof(*this)));
+			DebugLog("Cleaning Up Entity Admin.\n");
 
 			Flush();
 		}
@@ -99,32 +100,31 @@ namespace ECS {
 			@param Args - Arguments for the componnets constructor.
 		*/
 		template <typename ComponentType, typename ... InitArgs>
-		ComponentType* AddComponent(Entity_t Entity, InitArgs & ... Args)
+		ComponentType& AddComponent(Entity_t Entity, InitArgs & ... Args)
 		{
 			// Verify input values.
 			ValidateComponent<ComponentType>();
-			if (!IsValidEntity(Entity)) // Trying to get a component for an invalid Entity.
-				return static_cast<ComponentType*>(nullptr);
-
+			RuntimeAssert(IsValidEntity(Entity)); // Trying to get a component for an invalid Entity.
 
 			using SpecializedMap = GenericComponentMap<ComponentType>;
 			// Fetch the hashed id of the component type.
 			ComponentHash_t ComponentHash = ECS::ComponentHash<ComponentType>();
+			ECS::ComponentMapBase* pMap = nullptr;
+
 			// Locate the hashed component id in the EntityAdmin.
 			auto Iter = m_EntityAdminComponents.find(ComponentHash);
 			if (Iter != m_EntityAdminComponents.end())
 			{
-				auto ComponentMap = EntityAdminHelpers::TryGetComponentMapByBase<ComponentType>(Iter->second);
-				return ComponentMap->AddComponent(Entity, Args...);
+				pMap = Iter->second;
 			}
 			else
 			{
 				m_EntityAdminComponents[ComponentHash] = new SpecializedMap();
-				auto ComponentMap = EntityAdminHelpers::TryGetComponentMapByBase<ComponentType>(m_EntityAdminComponents[ComponentHash]);
-				return ComponentMap->AddComponent(Entity, Args...);
+				pMap = m_EntityAdminComponents[ComponentHash];
 			}
 
-			return static_cast<ComponentType*>(nullptr);
+			auto ComponentMap = EntityAdminHelpers::TryGetComponentMapByBase<ComponentType>(pMap);
+			return ComponentMap->AddComponent(Entity, Args...);
 		}
 
 		/*

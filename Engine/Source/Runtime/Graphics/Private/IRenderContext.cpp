@@ -4,9 +4,10 @@
 #include "Runtime/Graphics/Public/ICommandContext.h"
 #include "Runtime/Graphics/Public/IDevice.h"
 #include "Runtime/Graphics/Public/ISwapChain.h"
-#include "Runtime/Graphics/Private/ICommandManager.h"
+#include "Runtime/Graphics/Public/ICommandManager.h"
 #include "Runtime/Graphics/Public/IGeometryBufferManager.h"
 #include "Runtime/Graphics/Public/ResourceManagement/ITextureManager.h"
+#include "Runtime/Graphics/Public/ResourceManagement/IConstantBufferManager.h"
 
 #include "Runtime/Core/Public/Window.h"
 
@@ -30,6 +31,14 @@ namespace Insight
 		void IRenderContext::UnInitialize()
 		{
 			g_pCommandManager->IdleGPU();
+
+			SAFE_DELETE_PTR(g_pDevice);
+			SAFE_DELETE_PTR(m_pSwapChain);
+			SAFE_DELETE_PTR(g_pCommandManager);
+			SAFE_DELETE_PTR(g_pContextManager);
+			SAFE_DELETE_PTR(g_pGeometryManager);
+			SAFE_DELETE_PTR(g_pConstantBufferManager);
+			SAFE_DELETE_PTR(g_pTextureManager);
 		}
 
 		void IRenderContext::OnWindowModeChanged(EWindowMode Mode)

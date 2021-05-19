@@ -38,6 +38,7 @@ namespace Insight
 
 		class INSIGHT_API IConstantBufferManager
 		{
+			friend class IRenderContext;
 		public:
 			virtual void CreateConstantBuffer(const FString& Name, IConstantBuffer** OutBuffer, UInt32 BufferSizeInBytes) = 0;
 			virtual void DestroyConstantBuffer(ConstantBufferUID BufferHandle) = 0;
@@ -45,8 +46,12 @@ namespace Insight
 			virtual void Initialize() = 0;
 
 		protected:
-			IConstantBufferManager() {}
-			virtual ~IConstantBufferManager() {}
+			IConstantBufferManager() 
+			{
+			}
+			virtual ~IConstantBufferManager() 
+			{
+			}
 
 			static ConstantBufferUID s_NextAvailableBufferID;
 		};

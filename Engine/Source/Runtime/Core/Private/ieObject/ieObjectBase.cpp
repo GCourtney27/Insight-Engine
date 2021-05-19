@@ -29,6 +29,6 @@ namespace Insight
 	void ieObjectBase::RemoveFromWorld()
 	{
 		// Remove the actor and destroy all of its components.
-		m_pWorld->DestroyEntity(m_WorldId);
+		//m_pWorld->DestroyEntity(m_WorldId);
 	}
 }

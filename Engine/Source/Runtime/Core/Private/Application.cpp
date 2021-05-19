@@ -27,8 +27,8 @@
 #endif // IE_RENDER_MULTI_PLATFORM
 
 #include "Runtime/Core/Public/ieObject/ieStaticMeshActor.h"
-#include "Runtime/Core/Public/ieObject/ieCameraActor.h"
-
+#include "Runtime/Core/Public/ieObject/Components/ieCameraComponent.h"
+#include "Runtime/Core/Public/ieObject/iePlayerCharacter.h"
 
 static const char* TargetSceneName = "Debug.iescene";
 namespace Insight {
@@ -64,89 +64,45 @@ namespace Insight {
 	{
 		ScopedMilliSecondTimer(TEXT("Core app init"));
 
-		{
-			m_World.Initialize(m_pWindow);
-
-			// TEMP
-			ieStaticMeshActor m_SMActor(&m_World);
-			ieCameraActor m_CameraActor(&m_World, m_pWindow->GetDimensions());
-			m_CameraActor.GetTransform().SetPosition(0.f, 0.f, -4.f);
-			m_World.SetSceneCamera(&m_CameraActor);
-
-			m_World.BeginPlay();
-
-			while (m_Running)
-			{
-				m_pWindow->OnUpdate();
-				
-				m_World.Tick();
-
-				m_World.Render();
-			}
-		}
-		
-		exit(EXIT_SUCCESS); // Just for easier debugging quit the entire program.
-
 #if IE_RENDER_MULTI_PLATFORM
-		using namespace Graphics;
-		IRenderContext* pRenderContext = NULL;
-		// TEST
+		m_World.Initialize(m_pWindow);
+
+
+		// TEMP
+		ieStaticMeshActor m_SMActor(&m_World);
+		m_SMActor.GetTransform().SetPosition(0.f, 0.f, 5.f);
+
+		//ieStaticMeshActor m_SMActor2(&m_World);
+		//m_SMActor2.GetTransform().SetPosition(0.f, 0.f, 3.f);
+		//m_SMActor2.GetTransform().SetParent(&m_SMActor.GetTransform());
+
+		iePlayerCharacter m_Player(&m_World);
+
+		m_World.BeginPlay();
+
+		float DeltaMs = 0.f;
+		while (m_Running)
 		{
-			//struct Camera : public Actor
-			//{
-			//	Camera(FVector2 ViewPortDims)
-			//	{
-			//		UpdateViewMat();
-			//		SetProjectionValues(45.f, ViewPortDims.x / ViewPortDims.y, 0.1f, 1000.f);
-			//	}
-			//	virtual ~Camera() {}
+			m_AppTimer.Tick();
+			DeltaMs = m_AppTimer.DeltaTime();
 
-			//	void Update(float DeltaMs) override
-			//	{
-			//		Super::Update(DeltaMs);
+			m_pWindow->OnUpdate();
 
-			//		UpdateViewMat();
-			//	}
+			// Update the input system. 
+			m_InputDispatcher.UpdateInputs(DeltaMs);
 
-			//	float m_NearZ;
-			//	float m_FarZ;
-			//	FMatrix m_ViewMat;
-			//	FMatrix m_ProjMat;
+			m_World.TickWorld(DeltaMs);
+			m_World.ExecuteCoreSystems();
 
-			//private:
-			//	void SetProjectionValues(float FOVDegrees, float AspectRatio, float NearZ, float FarZ)
-			//	{
-			//		m_NearZ = NearZ;
-			//		m_FarZ = FarZ;
-			//		float fovRadians = FOVDegrees * (3.14f / 180.0f);
-			//		m_ProjMat = XMMatrixPerspectiveFovLH(fovRadians, AspectRatio, NearZ, FarZ);
-			//	}
+			// TODO if(SimulationActive)
+				m_World.ExecuteGameplaySystems();
 
-			//	void UpdateViewMat()
-			//	{
-			//		FVector3 Target = m_Transform.GetPosition() + m_Transform.GetLocalForward();
-			//		m_ViewMat = XMMatrixLookAtLH(m_Transform.GetPosition(), Target, m_Transform.GetLocalUp());
-			//	}
-			//};
+			m_World.Render();
+			// m_UI.Render();
 
-			//Camera Camera(m_pWindow->GetDimensions());
-			//Camera.m_Transform.SetPosition(0.f, 0.f, -5.f);
-			//StaticMeshActor MyCubeActor;
-			//StaticMeshActor AnotherCubeActor;
-			//AnotherCubeActor.m_Transform.SetPosition(2.f, 0.f, 0.f);
-			//AnotherCubeActor.m_Transform.SetParent(&MyCubeActor.m_Transform);
-			//
-
-
-			//while (m_Running)
-			//{
-			//	GFXTimer.Tick();
-			//	float DeltaMs = GFXTimer.DeltaTime();
-
-
-			//	//IE_LOG(Log, TEXT("FPS: %f"), GFXTimer.FPS());
-			//}
+			//IE_LOG(Log, TEXT("FPS: %f"), m_AppTimer.FPS());
 		}
+		Graphics::g_pCommandManager->IdleGPU();
 
 		exit(EXIT_SUCCESS); // Just for easier debugging quit the entire program.
 #endif
@@ -412,7 +368,7 @@ namespace Insight {
 #endif
 
 		return true;
-}
+	}
 
 	bool Application::OnWindowFullScreen(WindowToggleFullScreenEvent& e)
 	{

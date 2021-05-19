@@ -4,29 +4,34 @@
 #include <Runtime/Core.h>
 
 #include "Runtime/Core/Public/ECS/ECS.h"
+
 #include "Runtime/Graphics/Public/WorldRenderer/WorldRenderer.h"
+#include "Runtime/Core/Public/ComponentSystems/CameraSystem.h"
+
 
 namespace Insight
 {
-	class ieCameraActor;
 	using BeginPlayFn = std::function<void()>;
 	using TickFn = std::function<void(float)>;
 
+	class ieCameraComponent;
 
 	class INSIGHT_API ieWorld
 	{
+		friend class ieActor;
 		friend class ieObjectBase;
 		friend class Application;
 	public:
 		ieWorld() 
 			: m_EntityAdmin()
 			, m_WorldRenderer(this, m_EntityAdmin)
+			, m_CameraSystem(m_EntityAdmin)
 		{
 		}
 		~ieWorld() 
 		{
 			m_EntityAdmin.Flush();
-			m_pCurrentCamera = NULL;
+			m_pCurrentRenderCamera = NULL;
 		}
 
 		void Initialize(std::shared_ptr<Window> pWindow)
@@ -36,19 +41,30 @@ namespace Insight
 
 		void BeginPlay()
 		{
-			UInt32 NumListeners = (UInt32)m_BeginPlayListeners.size();
+			const UInt32 kNumListeners = (UInt32)m_BeginPlayListeners.size();
 			
-			for (UInt32 i = 0; i < NumListeners; ++i)
+			for (UInt32 i = 0; i < kNumListeners; ++i)
 				m_BeginPlayListeners[i]();
 		}
 
-		void Tick()
+		void ExecuteCoreSystems()
 		{
-			float DeltaMs = GetDeltaTime();
-			UInt32 NumListeners = (UInt32)m_TickListeners.size();
+			m_CameraSystem.Execute();
 
-			for (UInt32 i = 0; i < NumListeners; ++i)
-				m_TickListeners[i](DeltaMs);
+		}
+
+		void ExecuteGameplaySystems()
+		{
+		}
+
+		void TickWorld(float TimeStep)
+		{
+			m_AppDeltaTime = TimeStep;
+
+			const UInt32 kNumListeners = (UInt32)m_TickListeners.size();
+
+			for (UInt32 i = 0; i < kNumListeners; ++i)
+				m_TickListeners[i](TimeStep);
 		}
 
 		/*
@@ -66,17 +82,17 @@ namespace Insight
 		/*
 			Returns a reference to the camera actor currently rendering frames to the main viewport.
 		*/
-		inline ieCameraActor* GetCurrentSceneCamera() const;
+		inline ieCameraComponent* GetCurrentSceneRenderCamera() const;
 
 		/*
 			Set the camera to render frames to the main viewport.
 		*/
-		inline void SetSceneCamera(ieCameraActor* pCamera);
+		inline void SetSceneRenderCamera(ieCameraComponent* pCamera);
 
 		/*
-			Returns the time between frame updates in milliseconds.
+			Returns the time between each frame in milliseconds.
 		*/
-		inline float GetDeltaTime() const;
+		inline float ieWorld::GetDeltaTime();
 
 	protected:
 		/*
@@ -86,7 +102,6 @@ namespace Insight
 		{
 			m_WorldRenderer.Render();
 			// m_PostEffectsRenderer.Render();
-			// m_GameUI.Render();
 		}
 
 		/*
@@ -100,13 +115,19 @@ namespace Insight
 		*/
 		inline void DestroyEntity(ECS::Entity_t EntityWorldId);
 
+		inline ECS::EntityAdmin& GetEntityAdmin()
+		{
+			return m_EntityAdmin;
+		}
+
 	private:
 		ECS::EntityAdmin m_EntityAdmin;
 		WorldRenderer m_WorldRenderer;
 		// TODO: PostEffectsRenderer m_PostEffectsRenderer;
-		// TODO: UIRenderer m_GameUI;
+		CameraSystem m_CameraSystem;
+		float m_AppDeltaTime;
 
-		ieCameraActor* m_pCurrentCamera;
+		ieCameraComponent* m_pCurrentRenderCamera;
 
 		std::vector<TickFn> m_TickListeners;
 		std::vector<BeginPlayFn> m_BeginPlayListeners;
@@ -137,18 +158,18 @@ namespace Insight
 		m_EntityAdmin.DestroyEntity(EntityWorldId);
 	}
 
-	inline ieCameraActor* ieWorld::GetCurrentSceneCamera() const
+	inline ieCameraComponent* ieWorld::GetCurrentSceneRenderCamera() const
 	{
-		return m_pCurrentCamera;
+		return m_pCurrentRenderCamera;
 	}
 
-	inline void ieWorld::SetSceneCamera(ieCameraActor* pCamera)
+	inline void ieWorld::SetSceneRenderCamera(ieCameraComponent* pCamera)
 	{
-		m_pCurrentCamera = pCamera;
+		m_pCurrentRenderCamera = pCamera;
 	}
 
-	inline float ieWorld::GetDeltaTime() const
+	inline float ieWorld::GetDeltaTime()
 	{
-		return m_WorldRenderer.GetFrameTime();
+		return m_AppDeltaTime;
 	}
 }

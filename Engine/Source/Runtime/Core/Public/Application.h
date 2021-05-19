@@ -61,7 +61,6 @@ namespace Insight
 
 		void DumpApp();
 
-		Graphics::IRenderContext* m_pRenderContext = NULL;
 		ieWorld m_World;
 
 		// Initialize the core components of the application. Should be called once
@@ -139,6 +138,7 @@ namespace Insight
 		LayerStack				m_LayerStack;
 		FrameTimer				m_GameThreadTimer;
 		FrameTimer				m_GraphicsThreadTimer;
+		FrameTimer				m_AppTimer;
 		FileSystem				m_FileSystem;
 		Input::InputDispatcher	m_InputDispatcher;
 

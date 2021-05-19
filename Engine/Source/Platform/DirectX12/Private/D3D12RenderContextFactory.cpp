@@ -24,16 +24,6 @@ namespace Insight
 	{
 		namespace DX12
 		{
-
-			static D3D12Device s_D3D12Device;
-			static D3D12SwapChain s_D3D12SwapChain;
-			static D3D12CommandManager s_D3D12CmdManager;
-			static D3D12ContextManager s_D3D12CtxManager;
-			static D3D12GeometryBufferManager s_D3D12GeomBufferManager;
-			static D3D12ConstantBufferManager s_D3D12ConstBuffManager;
-			static D3D12TextureManager s_D3D12TexManager;
-			static D3D12RenderContext s_D3D12Context;
-
 			D3D12RenderContextFactory::D3D12RenderContextFactory()
 				: m_pDXGIFactory(NULL)
 			{
@@ -50,7 +40,8 @@ namespace Insight
 				IE_ASSERT(m_pDXGIFactory != NULL); // Cannot create D3D12 context with null dxgi factory.
 				IE_ASSERT(OutContext != NULL); // Cannot create render context will null target.
 
-				(*OutContext) = &s_D3D12Context;
+				
+				(*OutContext) = new D3D12RenderContext();
 				Super::m_pTarget = (*OutContext);
 				Super::m_pTarget->SetWindow(pWindow);
 
@@ -64,7 +55,7 @@ namespace Insight
 
 			void D3D12RenderContextFactory::CreateDevice(IDevice** OutDevice)
 			{
-				(*OutDevice) = &s_D3D12Device;
+				D3D12Device* pD3D12Device = CreateRenderComponentObject<D3D12Device>(OutDevice);
 
 				IED3D12DeviceInitParams DeviceInitParams;
 				ZeroMem(&DeviceInitParams);
@@ -74,7 +65,7 @@ namespace Insight
 				DeviceInitParams.MinDXRFeatureLevel = D3D_FEATURE_LEVEL_12_1;
 				IED3D12DeviceQueryResult DeviceQueryResult;
 				ZeroMem(&DeviceQueryResult);
-				s_D3D12Device.Initialize(DeviceInitParams, DeviceQueryResult, RCast<void**>(&m_pDXGIFactory));
+				pD3D12Device->Initialize(DeviceInitParams, DeviceQueryResult, RCast<void**>(&m_pDXGIFactory));
 			}
 
 			void D3D12RenderContextFactory::CreateDXGIFactory()
@@ -118,7 +109,7 @@ namespace Insight
 
 			void D3D12RenderContextFactory::CreateSwapChain(ISwapChain** OutSwapChain, ICommandManager* InCommandManager, IDevice* InDevice)
 			{
-				(*OutSwapChain) = &s_D3D12SwapChain;
+				D3D12SwapChain* pD3D12SwapChain = CreateRenderComponentObject<D3D12SwapChain>(OutSwapChain);
 				
 				D3D12CommandManager* pCommandManager = DCast<D3D12CommandManager*>(InCommandManager);
 				IE_ASSERT(pCommandManager != NULL); // Trying to create swap chain with invalid command manager.
@@ -136,41 +127,41 @@ namespace Insight
 				SwapChainInitParams.SampleDesc.Count = 1;
 				SwapChainInitParams.SampleDesc.Quality = 0;
 				SwapChainInitParams.NativeWindow = Super::m_pTarget->GetWindow()->GetNativeWindow();
-				s_D3D12SwapChain.Initialize(InDevice);
-				s_D3D12SwapChain.Create(SwapChainInitParams, &m_pDXGIFactory, pD3D12CommandQueue, pID3D12Device);
+				pD3D12SwapChain->Initialize(InDevice);
+				pD3D12SwapChain->Create(SwapChainInitParams, &m_pDXGIFactory, pD3D12CommandQueue, pID3D12Device);
 			}
 
 			void D3D12RenderContextFactory::CreateCommandManager(ICommandManager** OutCommandManager, IDevice* InDevice)
 			{
 				IE_ASSERT(InDevice != NULL); // Trying to create command manager with null device.
 
-				(*OutCommandManager) = &s_D3D12CmdManager;
+				D3D12CommandManager* pD3D12CommandManager = CreateRenderComponentObject<D3D12CommandManager>(OutCommandManager);
 
-				s_D3D12CmdManager.Initialize(InDevice);
+				pD3D12CommandManager->Initialize(InDevice);
 			}
 			
 			void D3D12RenderContextFactory::CreateContextManager(IContextManager** OutCommandContext)
 			{
-				(*OutCommandContext) = &s_D3D12CtxManager;
+				CreateRenderComponentObject<D3D12ContextManager>(OutCommandContext);
 			}
 			
 			void D3D12RenderContextFactory::CreateGeometryManager(IGeometryBufferManager** OutGeometryManager)
 			{
-				(*OutGeometryManager) = &s_D3D12GeomBufferManager;
+				CreateRenderComponentObject<D3D12GeometryBufferManager>(OutGeometryManager);
 			}
 			
 			void D3D12RenderContextFactory::CreateConstantBufferManager(IConstantBufferManager** OutCBManager)
 			{
-				(*OutCBManager) = &s_D3D12ConstBuffManager;
+				D3D12ConstantBufferManager* pD3D12CBManager = CreateRenderComponentObject<D3D12ConstantBufferManager>(OutCBManager);
 
-				s_D3D12ConstBuffManager.Initialize();
+				pD3D12CBManager->Initialize();
 			}
 			
 			void D3D12RenderContextFactory::CreateTextureManager(ITextureManager** OutTexManager)
 			{
-				(*OutTexManager) = &s_D3D12TexManager;
+				D3D12TextureManager* pD3D12TexManager = CreateRenderComponentObject<D3D12TextureManager>(OutTexManager);
 
-				s_D3D12TexManager.Initialize();
+				pD3D12TexManager->Initialize();
 			}
 		}
 	}

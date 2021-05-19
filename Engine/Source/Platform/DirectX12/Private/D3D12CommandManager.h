@@ -3,7 +3,7 @@
 #include <Runtime/Core.h>
 #include <Runtime/Graphics/Public/GraphicsCore.h>
 
-#include "Runtime/Graphics/Private/ICommandManager.h"
+#include "Runtime/Graphics/Public/ICommandManager.h"
 #include "Platform/DirectX12/Private/D3D12CommandAllocatorPool.h"
 
 namespace Insight

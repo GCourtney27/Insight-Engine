@@ -11,6 +11,8 @@ namespace Insight
 		, m_bCanReveiveTickEvents(true)
 	{
 		pWorld->AttachBegiPlayListener(IE_BIND_LOCAL_VOID_FN(ieActor::BeginPlay));
-		pWorld->AttachTickListener(IE_BIND_LOCAL_EVENT_FN(ieActor::Tick));
+		
+		if(m_bCanReveiveTickEvents)
+			pWorld->AttachTickListener(IE_BIND_LOCAL_EVENT_FN(ieActor::Tick));
 	}
 }

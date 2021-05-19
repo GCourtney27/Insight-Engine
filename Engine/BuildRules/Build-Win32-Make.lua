@@ -72,6 +72,7 @@ project ("EngineBuild_Win32")
 		"%{engineIncludeDirs.Mono}",
 		"%{engineIncludeDirs.ImGui}",
 		"%{engineIncludeDirs.assimp}",
+		"%{engineIncludeDirs.OpenFBX}",
 
 		-- Engine Source code
 		"%{engineIncludeDirs.Engine}/Source/",

@@ -7,7 +7,7 @@
 
 #include "Platform/DirectX12/Public/Resource/D3D12VertexBuffer.h"
 #include "Platform/DirectX12/Public/Resource/D3D12IndexBuffer.h"
-#include "Runtime/Graphics/Private/ICommandManager.h" // TEMP
+#include "Runtime/Graphics/Public/ICommandManager.h" // TEMP
 
 namespace Insight
 {
@@ -19,7 +19,9 @@ namespace Insight
 			{
 			public:
 				D3D12GeometryBufferManager() {}
-				virtual ~D3D12GeometryBufferManager() {}
+				virtual ~D3D12GeometryBufferManager() 
+				{
+				}
 				
 				virtual VertexBufferUID AllocateVertexBuffer() override;
 

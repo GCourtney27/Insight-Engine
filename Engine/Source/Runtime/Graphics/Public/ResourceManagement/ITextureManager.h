@@ -73,6 +73,12 @@ namespace Insight
 			ITextureRef(const ITextureRef& ref);
 			ITextureRef(IManagedTexture* tex = nullptr);
 			~ITextureRef();
+			ITextureRef& operator=(const ITextureRef& Other)
+			{
+				this->m_Ref = Other.m_Ref;
+				return *this;
+			}
+
 
 			void operator= (std::nullptr_t);
 			void operator= (ITextureRef& rhs);
@@ -87,7 +93,7 @@ namespace Insight
 			const ITexture* operator->() const;
 
 		private:
-			IManagedTexture* m_ref;
+			IManagedTexture* m_Ref;
 		};
 	}
 }

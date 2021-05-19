@@ -3,7 +3,7 @@
 
 #include "Runtime/Graphics/Public/WorldRenderer/WorldRenderer.h"
 
-#include "Runtime/Core/Public/ieObject/ieCameraActor.h"
+#include "Runtime/Core/Public/ieObject/Components/ieCameraComponent.h"
 #include "Runtime/Core/Public/ieObject/ieWorld.h"
 
 //#ifdef IE_WITH_D3D12
@@ -150,6 +150,9 @@ namespace Insight
 		Graphics::InputElementDesc InputElements[] =
 		{
 			{ "POSITION",	0, Graphics::F_R32G32B32_Float,		0, IE_APPEND_ALIGNED_ELEMENT,		Graphics::IC_PerVertexData, 0 },
+			{ "NORMAL",		0, Graphics::F_R32G32B32_Float,		0, IE_APPEND_ALIGNED_ELEMENT,		Graphics::IC_PerVertexData, 0 },
+			{ "TANGENT",		0, Graphics::F_R32G32B32_Float,		0, IE_APPEND_ALIGNED_ELEMENT,		Graphics::IC_PerVertexData, 0 },
+			{ "BITANGENT",		0, Graphics::F_R32G32B32_Float,		0, IE_APPEND_ALIGNED_ELEMENT,		Graphics::IC_PerVertexData, 0 },
 			{ "COLOR",		0, Graphics::F_R32G32B32A32_Float,	0, IE_APPEND_ALIGNED_ELEMENT,		Graphics::IC_PerVertexData, 0 },
 			{ "UVs",		0, Graphics::F_R32G32_Float,			0, IE_APPEND_ALIGNED_ELEMENT,	Graphics::IC_PerVertexData, 0 },
 		};
@@ -202,6 +205,9 @@ SamplerState LinearWrapSampler : register(s0);
 struct VSInput
 {
 	float3 Position : POSITION;
+	float3 Normal : NORMAL;
+	float3 Tangent : TANGENT;
+	float3 BiTangent : BITANGENT;
 	float4 Color : COLOR;
 	float2 UVs	: UVs;
 };
@@ -244,6 +250,7 @@ float4 PSMain(PSInput Input) : SV_TARGET
 	float3 Color = AlbedoSample * Radiance;
 	float3 Result = Color ;
 
+//return float4(PointLights[0].Position - Input.WorldPos, 1.0);
 	return float4(Result, 1.0f);
 }
 )";
@@ -331,7 +338,7 @@ float4 PSMain(PSInput Input) : SV_TARGET
 
 
 				{
-					ieCameraActor& CurrentCamera = *(m_pWorld->GetCurrentSceneCamera());
+					ieCameraComponent& CurrentCamera = *(m_pWorld->GetCurrentSceneRenderCamera());
 
 					// Set Constant Buffers
 					SceneConstants* pData = m_pSceneConstantBuffer->GetBufferPointer<SceneConstants>();

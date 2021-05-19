@@ -14,15 +14,12 @@ namespace Insight
 		ieStaticMeshActor(ieWorld* pWorld)
 			: ieActor(pWorld, L"ieStaticMeshActor")
 		{
-
 			ieStaticMeshComponent& pMesh = CreateDefaultSubObject<ieStaticMeshComponent>(TEXT("Static mesh component"));
-			pMesh.Load(L"TODO: Mesh from file");
 			pMesh.GetTransform().SetParent(&m_Transform);
 		}
 		virtual ~ieStaticMeshActor()
 		{
 		}
-
 
 		virtual void BeginPlay() override
 		{
@@ -32,10 +29,17 @@ namespace Insight
 		virtual void Tick(float DeltaMs) override
 		{
 			Super::Tick(DeltaMs);
-			m_Transform.Rotate(0.f, 0.001f, 0.f);
+			//m_Transform.Rotate(0.f, 0.001f, 0.f);
+		}
+
+		inline ieTransform& GetTransform()
+		{
+			return m_Transform;
 		}
 
 	private:
 		ieTransform m_Transform;
+
 	};
+
 }

@@ -30,57 +30,58 @@ namespace Insight
 		}
 
 
-		ITextureRef::ITextureRef(const ITextureRef& ref) : m_ref(ref.m_ref)
+		ITextureRef::ITextureRef(const ITextureRef& ref) 
+			: m_Ref(ref.m_Ref)
 		{
-			if (m_ref != nullptr)
-				++m_ref->m_ReferenceCount;
+			if (m_Ref != nullptr)
+				++m_Ref->m_ReferenceCount;
 		}
 
-		ITextureRef::ITextureRef(IManagedTexture* tex) : m_ref(tex)
+		ITextureRef::ITextureRef(IManagedTexture* tex) : m_Ref(tex)
 		{
-			if (m_ref != nullptr)
-				++m_ref->m_ReferenceCount;
+			if (m_Ref != nullptr)
+				++m_Ref->m_ReferenceCount;
 		}
 
 		ITextureRef::~ITextureRef()
 		{
-			if (m_ref != nullptr && --m_ref->m_ReferenceCount == 0)
-				m_ref->Unload();
+			if (m_Ref != nullptr && --m_Ref->m_ReferenceCount == 0)
+				m_Ref->Unload();
 		}
 
 		void ITextureRef::operator= (std::nullptr_t)
 		{
-			if (m_ref != nullptr)
-				--m_ref->m_ReferenceCount;
+			if (m_Ref != nullptr)
+				--m_Ref->m_ReferenceCount;
 
-			m_ref = nullptr;
+			m_Ref = nullptr;
 		}
 
 		void ITextureRef::operator= (ITextureRef& rhs)
 		{
-			if (m_ref != nullptr)
-				--m_ref->m_ReferenceCount;
+			if (m_Ref != nullptr)
+				--m_Ref->m_ReferenceCount;
 
-			m_ref = rhs.m_ref;
+			m_Ref = rhs.m_Ref;
 
-			if (m_ref != nullptr)
-				++m_ref->m_ReferenceCount;
+			if (m_Ref != nullptr)
+				++m_Ref->m_ReferenceCount;
 		}
 
 		bool ITextureRef::IsValid() const
 		{
-			return m_ref && m_ref->IsValid();
+			return m_Ref && m_Ref->IsValid();
 		}
 
 		const ITexture* ITextureRef::Get() const
 		{
-			return DCast<ITexture*>(m_ref);
+			return DCast<ITexture*>(m_Ref);
 		}
 
 		const ITexture* ITextureRef::operator->() const
 		{
-			IE_ASSERT(m_ref != nullptr);
-			return DCast<ITexture*>(m_ref);
+			IE_ASSERT(m_Ref != nullptr);
+			return DCast<ITexture*>(m_Ref);
 		}
 	}
 }

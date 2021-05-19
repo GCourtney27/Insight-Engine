@@ -62,12 +62,13 @@ namespace Insight
 
 		virtual ~WorldRenderer()
 		{
+			SAFE_DELETE_PTR(m_pRenderContext);
 		}
 
 		/*
 			Returns the time in milliseonds between each frame.
 		*/
-		inline float GetFrameTime() const;
+		inline float GetFrameRenderTime() const;
 
 		void Initialize(std::shared_ptr<Window> pWindow, Graphics::ERenderBackend api);
 
@@ -117,7 +118,7 @@ namespace Insight
 	// Inline funciton implementations
 	//
 
-	inline float WorldRenderer::GetFrameTime() const
+	inline float WorldRenderer::GetFrameRenderTime() const
 	{
 		return m_GFXTimer.DeltaTime();
 	}

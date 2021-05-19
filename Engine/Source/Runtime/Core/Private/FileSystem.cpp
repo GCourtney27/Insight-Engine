@@ -14,7 +14,8 @@
 #include "Runtime/Graphics/Lighting/APointLight.h"
 #include "Runtime/Graphics/Lighting/ADirectionalLight.h"
 
-namespace Insight {
+namespace Insight 
+{
 
 
 	FileSystem::FileSystem()

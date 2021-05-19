@@ -51,7 +51,8 @@ namespace ECS
 		virtual void Execute() = 0;
 
 		/*
-			Returns a reference to the container holding the raw component data.
+			Returns a reference to the container holding the raw component data. 
+			Derived systems should execute with the return value of this.
 		*/
 		ECS_FORCE_INLINE std::vector<ComponentType>& GetRawComponentData()
 		{

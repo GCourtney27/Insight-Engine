@@ -16,6 +16,7 @@ win32AppIncludeDirs["Microsoft"] 				= engineThirdPartyDir .. "Microsoft/"
 win32AppIncludeDirs["Nvidia"]					= engineThirdPartyDir .. "Nvidia/"
 win32AppIncludeDirs["rapidjson"] 				= engineThirdPartyDir .. "rapidjson/include/"
 win32AppIncludeDirs["Mono"]						= monoInstallDir .. "include/"
+win32AppIncludeDirs["OpenFBX"]					= engineThirdPartyDir .. "OpenFBX/src/"
 win32AppIncludeDirs["DxcAPI"]					= engineThirdPartyDir .. "Microsoft/DxcAPI/"
 win32AppIncludeDirs["Engine_Root"]				= "%{wks.location}/Engine/"
 win32AppIncludeDirs["Engine_Src"]				= "%{wks.location}/Engine/Source/"
@@ -60,6 +61,7 @@ project (projectName)
 		"%{win32AppIncludeDirs.Mono}mono-2.0/",
 		"%{win32AppIncludeDirs.DxcAPI}inc/",
 		"%{win32AppIncludeDirs.Engine_Src}",
+		"%{win32AppIncludeDirs.OpenFBX}",
 		"%{win32AppIncludeDirs.Engine_ThirdParty}",
 		
 		-- Personal source files for this application

@@ -6,24 +6,6 @@
 namespace Insight {
 
 
-
-	ieTransform::ieTransform()
-		: m_pParent(NULL)
-		, m_Position(FVector3::Zero)
-		, m_Rotation(FQuat::Identity)
-		, m_Scale(FVector3::One)
-		, m_EditorPlayOriginPosition(m_Position)
-		, m_EditorPlayOriginRotation(m_Rotation)
-		, m_EditorPlayOriginScale(m_Scale)
-	{
-	}
-
-	ieTransform::~ieTransform()
-	{
-		ReAssignChildrenToParent();
-		UnsetParent();
-	}
-
 	void ieTransform::EditorEndPlay()
 	{
 		m_Position = m_EditorPlayOriginPosition;
