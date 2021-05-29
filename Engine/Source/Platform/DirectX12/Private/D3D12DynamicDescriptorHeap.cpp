@@ -327,11 +327,11 @@ namespace Insight
                 m_StaleRootParamsBitMap |= (1 << RootIndex);
             }
 
-            /*void D3D12DynamicDescriptorHeap::DescriptorHandleCache::ParseRootSignature(D3D12_DESCRIPTOR_HEAP_TYPE Type, const RootSignature& RootSig)
+            void D3D12DynamicDescriptorHeap::DescriptorHandleCache::ParseRootSignature(D3D12_DESCRIPTOR_HEAP_TYPE Type, const IRootSignature& RootSig)
             {
                 UInt32 CurrentOffset = 0;
 
-                ASSERT(RootSig.m_NumParameters <= 16, "Maybe we need to support something greater");
+                IE_ASSERT(RootSig.m_NumParameters <= 16, "Maybe we need to support something greater");
 
                 m_StaleRootParamsBitMap = 0;
                 m_RootDescriptorTablesBitMap = (Type == D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER ?
@@ -344,7 +344,7 @@ namespace Insight
                     TableParams ^= (1 << RootIndex);
 
                     UInt32 TableSize = RootSig.m_DescriptorTableSize[RootIndex];
-                    ASSERT(TableSize > 0);
+                    IE_ASSERT(TableSize > 0);
 
                     DescriptorTableCache& RootDescriptorTable = m_RootDescriptorTable[RootIndex];
                     RootDescriptorTable.AssignedHandlesBitMap = 0;
@@ -357,7 +357,7 @@ namespace Insight
                 m_MaxCachedDescriptors = CurrentOffset;
 
                 IE_ASSERT(m_MaxCachedDescriptors <= kMaxNumDescriptors, "Exceeded user-supplied maximum cache size");
-            }*/
+            }
 
 		}
 	}

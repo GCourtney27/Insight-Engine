@@ -59,10 +59,13 @@ namespace Insight
 				DynAlloc ReserveUploadMemory(UInt64 SizeInBytes);
 				virtual void UpdateSubresources(IGPUResource& Destination, IGPUResource& Intermediate, UInt32 IntermediateOffset, UInt32 FirstSubresource, UInt32 NumSubresources, SubResourceData& SubresourceData) override;
 
+				virtual void SetDepthBufferAsTexture(UInt32 RootParameterIndex, const IDepthBuffer* pDepthBuffer) override;
+				virtual void SetColorBuffersAsTextures(UInt32 RootParameterIndex, UInt32 Offset, UInt32 Count, const IColorBuffer* Buffers[]) override;
+				virtual void SetColorBufferAsTexture(UInt32 RootParameterIndex, UInt32 Offset, IColorBuffer* Buffer) override;
 				virtual void BindVertexBuffer(UInt32 Slot, IVertexBuffer& Vertexbuffer) override;
 				virtual void BindIndexBuffer(IIndexBuffer& IndexBuffer) override;
 				virtual void SetGraphicsConstantBuffer(UInt32 RootParameterIndex, IConstantBuffer* pConstantBuffer) override;
-				virtual void SetTexture(UInt32 Slot, ITextureRef& pTexture) override;
+				virtual void SetTexture(UInt32 RootParameterIndex, ITextureRef& pTexture) override;
 
 				virtual void SetPipelineState(IPipelineState& Pipeline) override;
 				virtual void SetGraphicsRootSignature(IRootSignature& Signature) override;

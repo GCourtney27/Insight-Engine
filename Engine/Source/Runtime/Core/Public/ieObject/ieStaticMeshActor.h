@@ -14,8 +14,8 @@ namespace Insight
 		ieStaticMeshActor(ieWorld* pWorld)
 			: ieActor(pWorld, L"ieStaticMeshActor")
 		{
-			ieStaticMeshComponent& pMesh = CreateDefaultSubObject<ieStaticMeshComponent>(TEXT("Static mesh component"));
-			pMesh.GetTransform().SetParent(&m_Transform);
+			ieStaticMeshComponent* pMesh = CreateDefaultSubObject<ieStaticMeshComponent>(TEXT("Static mesh component"));
+			pMesh->GetTransform().SetParent(&m_Transform);
 		}
 		virtual ~ieStaticMeshActor()
 		{

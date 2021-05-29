@@ -58,8 +58,10 @@
 #define FORCE_INLINE				__forceinline
 #define INLINE						inline 
 #define NO_DISCARD					[[nodiscard]]
-#define ALIGN(InBytes)				__declspec(align(InBytes))
-#define NULL 0
+#define IE_ALIGN(InBytes)				__declspec( align(InBytes) )
+#define NULL						0
+#define IE_ARRAYSIZE(Arr)			( sizeof(Arr) / sizeof(Arr[0]) )
+#define IE_MAX_PATH					260
 
 template <typename T>
 FORCE_INLINE constexpr void ZeroMem(T* Mem, size_t Size = sizeof(T))
@@ -71,3 +73,5 @@ FORCE_INLINE constexpr void ZeroMem(T* Mem, size_t Size = sizeof(T))
 #define MAX_POINT_LIGHTS_SUPPORTED 16u
 #define MAX_DIRECTIONAL_LIGHTS_SUPPORTED 1u
 #define MAX_SPOT_LIGHTS_SUPPORTED 16u
+
+#define IE_CACHEOPTIMIZED_ECS_ENABLED 0

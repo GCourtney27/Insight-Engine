@@ -5,6 +5,7 @@
 
 #include "Runtime/Core/Public/ieObject/Components/ieCameraComponent.h"
 #include "Runtime/Core/Public/ieObject/ieWorld.h"
+#include "Runtime/Graphics/Public/GeometryGenerator.h"
 
 //#ifdef IE_WITH_D3D12
 #include "Platform/DirectX12/Public/D3D12RenderContextFactory.h"
@@ -18,6 +19,22 @@ namespace Insight
 	{
 		IE_ASSERT(pWindow.get() != NULL); // Trying to create a renderer with no window to render to!
 		m_pWindow = pWindow;
+
+		static UINT QuadIndices[] =
+		{
+			0, 1, 3,
+			0, 3, 2
+		};
+
+		static ScreenSpaceVertex FullScreenQuadVerts[] =
+		{
+			{ { -1.0f, 1.0f, 0.0f }, { 0.0f, 0.0f } }, // Top Left
+			{ {  1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } }, // Top Right
+			{ { -1.0f,-1.0f, 0.0f }, { 0.0f, 1.0f } }, // Bottom Left
+			{ {  1.0f,-1.0f, 0.0f }, { 1.0f, 1.0f } }, // Bottom Right
+		};
+
+
 
 
 		// Setup renderer
@@ -58,7 +75,10 @@ namespace Insight
 		// TODO: Set from somewhere else.
 		m_pWindow->SetWindowMode(EWindowMode::WM_Windowed);
 
+		m_DeferedShadingPipeline.Initialize(m_pWorld, m_pWindow->GetDimensions(), Graphics::g_pDevice, m_pSwapChain->GetDesc().Format);
 		CreateResources();
+
+		pScreenQuad = GeometryGenerator::GenerateScreenAlignedQuadMesh();
 
 		IE_LOG(Log, TEXT("Graphics context initialized."));
 	}
@@ -66,225 +86,226 @@ namespace Insight
 
 	void WorldRenderer::CreateResources()
 	{
-		Graphics::g_pDevice->CreateColorBuffer(TEXT("Scene Buffer"), m_pWindow->GetWidth(), m_pWindow->GetHeight(), 1u, m_pSwapChain->GetDesc().Format, &m_pSceneBuffer);
-
-		Graphics::g_pDevice->CreateDepthBuffer(TEXT("Scene Depth Buffer"), m_pWindow->GetWidth(), m_pWindow->GetHeight(), Graphics::F_D32_Float, &m_pDepthBuffer);
-
-
-		Graphics::RootParameter pRootParams[6];
-		ZeroMem(pRootParams, sizeof(Graphics::RootParameter) * _countof(pRootParams));
-		// Scene Constants
-		pRootParams[0].ShaderVisibility = Graphics::SV_All;
-		pRootParams[0].ParameterType = Graphics::RPT_ConstantBufferView;
-		pRootParams[0].Descriptor.ShaderRegister = SPI_SceneConstants;
-		pRootParams[0].Descriptor.RegisterSpace = 0;
-		// Mesh World
-		pRootParams[1].ShaderVisibility = Graphics::SV_All;
-		pRootParams[1].ParameterType = Graphics::RPT_ConstantBufferView;
-		pRootParams[1].Descriptor.ShaderRegister = SPI_MeshWorld;
-		pRootParams[1].Descriptor.RegisterSpace = 0;
-		// Material
-		pRootParams[2].ShaderVisibility = Graphics::SV_All;
-		pRootParams[2].ParameterType = Graphics::RPT_ConstantBufferView;
-		pRootParams[2].Descriptor.ShaderRegister = SPI_MaterialParams;
-		pRootParams[2].Descriptor.RegisterSpace = 0;
-		// Lights
-		pRootParams[3].ShaderVisibility = Graphics::SV_All;
-		pRootParams[3].ParameterType = Graphics::RPT_ConstantBufferView;
-		pRootParams[3].Descriptor.ShaderRegister = SPI_Lights;
-		pRootParams[3].Descriptor.RegisterSpace = 0;
-		// Textures
-		// Albedo
-		Graphics::DescriptorRange pDescriptorRanges[2];
-		ZeroMem(pDescriptorRanges, sizeof(Graphics::RootDescriptor) * _countof(pDescriptorRanges));
-		pDescriptorRanges[0].Type = Graphics::DRT_ShaderResourceView;
-		pDescriptorRanges[0].BaseShaderRegister = 0;
-		pDescriptorRanges[0].NumDescriptors = 1;
-		pDescriptorRanges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-		pDescriptorRanges[0].RegisterSpace = 0;
-		pDescriptorRanges[1].Type = Graphics::DRT_ShaderResourceView;
-		pDescriptorRanges[1].BaseShaderRegister = 1;
-		pDescriptorRanges[1].NumDescriptors = 1;
-		pDescriptorRanges[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-		pDescriptorRanges[1].RegisterSpace = 0;
-		pRootParams[4].ShaderVisibility = Graphics::SV_Pixel;
-		pRootParams[4].ParameterType = Graphics::RPT_DescriptorTable;
-		pRootParams[4].DescriptorTable.NumDescriptors = 1;
-		pRootParams[4].DescriptorTable.pDescriptorRanges = &pDescriptorRanges[0];
-		// Normal
-		pRootParams[5].ShaderVisibility = Graphics::SV_Pixel;
-		pRootParams[5].ParameterType = Graphics::RPT_DescriptorTable;
-		pRootParams[5].DescriptorTable.NumDescriptors = 1;
-		pRootParams[5].DescriptorTable.pDescriptorRanges = &pDescriptorRanges[1];
-
-
-		constexpr float MinLOD = 0.0f, MaxLOD = 9.0f;
-		Graphics::StaticSamplerDesc pSamplers[1];
-		pSamplers[0].ShaderRegister = 0;
-		pSamplers[0].Filter = Graphics::F_Anisotropic;
-		pSamplers[0].AddressU = Graphics::TAM_Wrap;
-		pSamplers[0].AddressV = Graphics::TAM_Wrap;
-		pSamplers[0].AddressW = Graphics::TAM_Wrap;
-		pSamplers[0].MipLODBias = 0;
-		pSamplers[0].MaxAnisotropy = 1;
-		pSamplers[0].ComparisonFunc = Graphics::CF_LessEqual;
-		pSamplers[0].BorderColor = Graphics::SBC_Opaque_White;
-		pSamplers[0].MinLOD = MinLOD;
-		pSamplers[0].MaxLOD = MaxLOD;
-		pSamplers[0].ShaderVisibility = Graphics::SV_Pixel;
-		pSamplers[0].RegisterSpace = 0;
-
-
-		Graphics::RootSignatureDesc RSDesc = {};
-		RSDesc.Flags |= Graphics::RSF_AllowInputAssemblerLayout;
-		RSDesc.pParameters = pRootParams;
-		RSDesc.NumParams = _countof(pRootParams);
-		RSDesc.pStaticSamplers = pSamplers;
-		RSDesc.NumStaticSamplers = _countof(pSamplers);
-		Graphics::g_pDevice->CreateRootSignature(RSDesc, &m_pCommonRS);
-
-		//
-		// Create pipeline
-		//
-
-		Graphics::InputElementDesc InputElements[] =
-		{
-			{ "POSITION",	0, Graphics::F_R32G32B32_Float,		0, IE_APPEND_ALIGNED_ELEMENT,		Graphics::IC_PerVertexData, 0 },
-			{ "NORMAL",		0, Graphics::F_R32G32B32_Float,		0, IE_APPEND_ALIGNED_ELEMENT,		Graphics::IC_PerVertexData, 0 },
-			{ "TANGENT",		0, Graphics::F_R32G32B32_Float,		0, IE_APPEND_ALIGNED_ELEMENT,		Graphics::IC_PerVertexData, 0 },
-			{ "BITANGENT",		0, Graphics::F_R32G32B32_Float,		0, IE_APPEND_ALIGNED_ELEMENT,		Graphics::IC_PerVertexData, 0 },
-			{ "COLOR",		0, Graphics::F_R32G32B32A32_Float,	0, IE_APPEND_ALIGNED_ELEMENT,		Graphics::IC_PerVertexData, 0 },
-			{ "UVs",		0, Graphics::F_R32G32_Float,			0, IE_APPEND_ALIGNED_ELEMENT,	Graphics::IC_PerVertexData, 0 },
-		};
-
-		::Microsoft::WRL::ComPtr<ID3DBlob> vertexShader;
-		::Microsoft::WRL::ComPtr<ID3DBlob> pixelShader;
-		UInt32 compileFlags =
-#if IE_DEBUG
-			// Enable better shader debugging with the graphics debugging tools.
-			D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-#else
-			0;
-#endif
-		std::string ShaderSource =
-			R"(
-// Constant Buffers
-cbuffer SceneConstants : register(b0)
-{
-	float4x4 ViewMat;
-	float4x4 ProjMat;
-	float3 CameraPos;
-	float3 ViewVector;
-	float WorldTime;
-};
-cbuffer MeshWorld : register(b1)
-{
-	float4x4 WorldMat;
-}
-cbuffer Material : register(b2)
-{
-	float4 Color;
-}
-struct PointLight
-{
-	float3 Position;
-	float3 Color;
-	float Brightness;
-};
-cbuffer SceneLights : register(b3)
-{
-	PointLight PointLights[4];
-}
-
-// Textures and Samplers
-Texture2D Albedo : register(t0);
-Texture2D Normal : register(t1);
-SamplerState LinearWrapSampler : register(s0);
-
-// Structs 
-struct VSInput
-{
-	float3 Position : POSITION;
-	float3 Normal : NORMAL;
-	float3 Tangent : TANGENT;
-	float3 BiTangent : BITANGENT;
-	float4 Color : COLOR;
-	float2 UVs	: UVs;
-};
-struct PSInput
-{
-	float4 Position : SV_POSITION;
-	float3 WorldPos : WORLDPOS;
-	float4 VertexColor : COLOR;
-	float2 UVs : UVs;
-};
-
-PSInput VSMain(VSInput Input)
-{
-	PSInput Result;
-
-	float4x4 WorldView              = mul(WorldMat, ViewMat);
-	float4x4 worldViewProjection    = mul(WorldView, ProjMat);
-    
-	Result.Position = mul(float4(Input.Position, 1.0f), worldViewProjection);
-	Result.WorldPos = mul(float4(Input.Position, 1.0f), WorldMat).xyz;
-	Result.VertexColor = Input.Color;
-	Result.UVs = Input.UVs;
-
-	return Result;
-}
-
-float4 PSMain(PSInput Input) : SV_TARGET
-{
-	float3 AlbedoSample = Albedo.Sample(LinearWrapSampler, Input.UVs).rgb;
-	float3 NormalSample = Normal.Sample(LinearWrapSampler, Input.UVs).rgb;
-	float3 NormalVec = normalize(NormalSample);
-
-	float3 LightDir = -normalize(PointLights[0].Position - Input.WorldPos);
-	float Angle = max(dot(NormalVec, LightDir), 0);
-
-	float Distance = length(PointLights[0].Position - Input.WorldPos);
-	float Attenuation = 1.0f / (Distance * Distance);
-	float3 Radiance = (PointLights[0].Color * PointLights[0].Brightness) * Attenuation;
-
-	float3 Color = AlbedoSample * Radiance;
-	float3 Result = Color ;
-
-//return float4(PointLights[0].Position - Input.WorldPos, 1.0);
-	return float4(Result, 1.0f);
-}
-)";
-		ID3DBlob* pError = NULL;
-		HRESULT hr = D3DCompile(ShaderSource.data(), ShaderSource.size() * sizeof(char), NULL, NULL, NULL, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, &pError);
-		if (pError != NULL)
-		{
-			std::string err = (char*)pError->GetBufferPointer();
-			IE_LOG(Error, TEXT("Shader Compile Error: %s"), StringHelper::StringToWide(err).c_str());
-		}
-		hr = D3DCompile(ShaderSource.data(), ShaderSource.size() * sizeof(char), NULL, NULL, NULL, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, &pError);
-		if (pError != NULL)
-		{
-			std::string err = (char*)pError->GetBufferPointer();
-			IE_LOG(Error, TEXT("Shader Compile Error: %s"), StringHelper::StringToWide(err).c_str());
-		}
-
-		Graphics::PipelineStateDesc PSODesc = {};
-		PSODesc.VertexShader = { vertexShader->GetBufferPointer(), vertexShader->GetBufferSize() };
-		PSODesc.PixelShader = { pixelShader->GetBufferPointer(), pixelShader->GetBufferSize() };
-		PSODesc.InputLayout.NumElements = _countof(InputElements);
-		PSODesc.InputLayout.pInputElementDescs = InputElements;
-		PSODesc.pRootSignature = m_pCommonRS;
-		PSODesc.DepthStencilState = Graphics::CommonStructHelpers::CDepthStencilStateDesc();
-		//PSODesc.DepthStencilState.DepthFunc = CF_GreaterEqual;
-		PSODesc.BlendState = Graphics::CommonStructHelpers::CBlendDesc();
-		PSODesc.RasterizerDesc = Graphics::CommonStructHelpers::CRasterizerDesc();
-		PSODesc.SampleMask = UINT_MAX;
-		PSODesc.PrimitiveTopologyType = Graphics::PTT_Triangle;
-		PSODesc.NumRenderTargets = m_pSwapChain->GetDesc().BufferCount;
-		PSODesc.RTVFormats[0] = m_pSwapChain->GetDesc().Format;
-		PSODesc.DSVFormat = DCast<Graphics::IPixelBuffer*>(m_pDepthBuffer)->GetFormat();
-		PSODesc.SampleDesc = { 1, 0 };
-		Graphics::g_pDevice->CreatePipelineState(PSODesc, &m_pScenePassPSO);
+//		Graphics::g_pDevice->CreateColorBuffer(TEXT("Scene Buffer"), m_pWindow->GetWidth(), m_pWindow->GetHeight(), 1u, m_pSwapChain->GetDesc().Format, &m_pSceneBuffer);
+//
+//		Graphics::g_pDevice->CreateDepthBuffer(TEXT("Scene Depth Buffer"), m_pWindow->GetWidth(), m_pWindow->GetHeight(), Graphics::F_D32_Float, &m_pDepthBuffer);
+//
+//
+//		Graphics::RootParameter pRootParams[6];
+//		ZeroMem(pRootParams, sizeof(Graphics::RootParameter) * _countof(pRootParams));
+//		// Scene Constants
+//		//pRootParams[0].ShaderVisibility = Graphics::SV_All;
+//		//pRootParams[0].ParameterType = Graphics::RPT_ConstantBufferView;
+//		//pRootParams[0].Descriptor.ShaderRegister = RPI_SceneConstants;
+//		//pRootParams[0].Descriptor.RegisterSpace = 0;
+//		//// Mesh World
+//		//pRootParams[1].ShaderVisibility = Graphics::SV_All;
+//		//pRootParams[1].ParameterType = Graphics::RPT_ConstantBufferView;
+//		//pRootParams[1].Descriptor.ShaderRegister = RPI_MeshWorld;
+//		//pRootParams[1].Descriptor.RegisterSpace = 0;
+//		//// Material
+//		//pRootParams[2].ShaderVisibility = Graphics::SV_All;
+//		//pRootParams[2].ParameterType = Graphics::RPT_ConstantBufferView;
+//		//pRootParams[2].Descriptor.ShaderRegister = RPI_MaterialParams;
+//		//pRootParams[2].Descriptor.RegisterSpace = 0;
+//		//// Lights
+//		//pRootParams[3].ShaderVisibility = Graphics::SV_All;
+//		//pRootParams[3].ParameterType = Graphics::RPT_ConstantBufferView;
+//		//pRootParams[3].Descriptor.ShaderRegister = RPI_Lights;
+//		//pRootParams[3].Descriptor.RegisterSpace = 0;
+//		// Textures
+//		Graphics::DescriptorRange pDescriptorRanges[2];
+//		ZeroMem(pDescriptorRanges, sizeof(Graphics::RootDescriptor) * _countof(pDescriptorRanges));
+//		/*pDescriptorRanges[kAlbedoTextureRange].Type = Graphics::DRT_ShaderResourceView;
+//		pDescriptorRanges[kAlbedoTextureRange].BaseShaderRegister = 0;
+//		pDescriptorRanges[kAlbedoTextureRange].NumDescriptors = 1;
+//		pDescriptorRanges[kAlbedoTextureRange].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+//		pDescriptorRanges[kAlbedoTextureRange].RegisterSpace = 0;
+//		pDescriptorRanges[kNormalTextureRange].Type = Graphics::DRT_ShaderResourceView;
+//		pDescriptorRanges[kNormalTextureRange].BaseShaderRegister = 1;
+//		pDescriptorRanges[kNormalTextureRange].NumDescriptors = 1;
+//		pDescriptorRanges[kNormalTextureRange].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+//		pDescriptorRanges[kNormalTextureRange].RegisterSpace = 0;*/
+//		//// Albedo
+//		//pRootParams[4].ShaderVisibility = Graphics::SV_Pixel;
+//		//pRootParams[4].ParameterType = Graphics::RPT_DescriptorTable;
+//		//pRootParams[4].DescriptorTable.NumDescriptors = 1;
+//		//pRootParams[4].DescriptorTable.pDescriptorRanges = &pDescriptorRanges[kAlbedoTextureRange];
+//		//// Normal
+//		//pRootParams[5].ShaderVisibility = Graphics::SV_Pixel;
+//		//pRootParams[5].ParameterType = Graphics::RPT_DescriptorTable;
+//		//pRootParams[5].DescriptorTable.NumDescriptors = 1;
+//		//pRootParams[5].DescriptorTable.pDescriptorRanges = &pDescriptorRanges[kNormalTextureRange];
+//
+//
+//		constexpr float MinLOD = 0.0f, MaxLOD = 9.0f;
+//		Graphics::StaticSamplerDesc pSamplers[1];
+//		pSamplers[0].ShaderRegister = 0;
+//		pSamplers[0].Filter = Graphics::F_Anisotropic;
+//		pSamplers[0].AddressU = Graphics::TAM_Wrap;
+//		pSamplers[0].AddressV = Graphics::TAM_Wrap;
+//		pSamplers[0].AddressW = Graphics::TAM_Wrap;
+//		pSamplers[0].MipLODBias = 0;
+//		pSamplers[0].MaxAnisotropy = 1;
+//		pSamplers[0].ComparisonFunc = Graphics::CF_LessEqual;
+//		pSamplers[0].BorderColor = Graphics::SBC_Opaque_White;
+//		pSamplers[0].MinLOD = MinLOD;
+//		pSamplers[0].MaxLOD = MaxLOD;
+//		pSamplers[0].ShaderVisibility = Graphics::SV_Pixel;
+//		pSamplers[0].RegisterSpace = 0;
+//
+//
+//		Graphics::RootSignatureDesc RSDesc = {};
+//		RSDesc.Flags |= Graphics::RSF_AllowInputAssemblerLayout;
+//		RSDesc.pParameters = pRootParams;
+//		RSDesc.NumParams = _countof(pRootParams);
+//		RSDesc.pStaticSamplers = pSamplers;
+//		RSDesc.NumStaticSamplers = _countof(pSamplers);
+//		Graphics::g_pDevice->CreateRootSignature(RSDesc, &m_pCommonRS);
+//
+//		//
+//		// Create pipeline
+//		//
+//
+//		Graphics::InputElementDesc InputElements[] =
+//		{
+//			{ "POSITION",	0, Graphics::F_R32G32B32_Float,		0, IE_APPEND_ALIGNED_ELEMENT,	Graphics::IC_PerVertexData, 0 },
+//			{ "NORMAL",		0, Graphics::F_R32G32B32_Float,		0, IE_APPEND_ALIGNED_ELEMENT,	Graphics::IC_PerVertexData, 0 },
+//			{ "TANGENT",	0, Graphics::F_R32G32B32_Float,		0, IE_APPEND_ALIGNED_ELEMENT,	Graphics::IC_PerVertexData, 0 },
+//			{ "BITANGENT",	0, Graphics::F_R32G32B32_Float,		0, IE_APPEND_ALIGNED_ELEMENT,	Graphics::IC_PerVertexData, 0 },
+//			{ "COLOR",		0, Graphics::F_R32G32B32A32_Float,	0, IE_APPEND_ALIGNED_ELEMENT,	Graphics::IC_PerVertexData, 0 },
+//			{ "UVs",		0, Graphics::F_R32G32_Float,		0, IE_APPEND_ALIGNED_ELEMENT,	Graphics::IC_PerVertexData, 0 },
+//		};
+//
+//		::Microsoft::WRL::ComPtr<ID3DBlob> vertexShader;
+//		::Microsoft::WRL::ComPtr<ID3DBlob> pixelShader;
+//		UInt32 compileFlags =
+//#if IE_DEBUG
+//			// Enable better shader debugging with the graphics debugging tools.
+//			D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+//#else
+//			0;
+//#endif
+//		std::string ShaderSource =
+//			R"(
+//// Constant Buffers
+//cbuffer SceneConstants : register(b0)
+//{
+//	float4x4 ViewMat;
+//	float4x4 ProjMat;
+//	float3 CameraPos;
+//	float3 ViewVector;
+//	float WorldTime;
+//};
+//cbuffer MeshWorld : register(b1)
+//{
+//	float4x4 WorldMat;
+//}
+//cbuffer Material : register(b2)
+//{
+//	float4 Color;
+//}
+//struct PointLight
+//{
+//	float3 Position;
+//	float3 Color;
+//	float Brightness;
+//};
+//cbuffer SceneLights : register(b3)
+//{
+//	PointLight PointLights[4];
+//}
+//
+//// Textures and Samplers
+//Texture2D Albedo : register(t0);
+//Texture2D Normal : register(t1);
+//SamplerState LinearWrapSampler : register(s0);
+//
+//// Structs 
+//struct VSInput
+//{
+//	float3 Position : POSITION;
+//	float3 Normal : NORMAL;
+//	float3 Tangent : TANGENT;
+//	float3 BiTangent : BITANGENT;
+//	float4 Color : COLOR;
+//	float2 UVs	: UVs;
+//};
+//struct PSInput
+//{
+//	float4 Position : SV_POSITION;
+//	float3 WorldPos : WORLDPOS;
+//	float4 VertexColor : COLOR;
+//	float2 UVs : UVs;
+//};
+//
+//PSInput VSMain(VSInput Input)
+//{
+//	PSInput Result;
+//
+//	float4x4 WorldView              = mul(WorldMat, ViewMat);
+//	float4x4 worldViewProjection    = mul(WorldView, ProjMat);
+//    
+//	Result.Position = mul(float4(Input.Position, 1.0f), worldViewProjection);
+//	Result.WorldPos = mul(float4(Input.Position, 1.0f), WorldMat).xyz;
+//	Result.VertexColor = Input.Color;
+//	Result.UVs = Input.UVs;
+//
+//	return Result;
+//}
+//
+//float4 PSMain(PSInput Input) : SV_TARGET
+//{
+//	float3 AlbedoSample = Albedo.Sample(LinearWrapSampler, Input.UVs).rgb;
+//	float3 NormalSample = Normal.Sample(LinearWrapSampler, Input.UVs).rgb;
+//	float3 NormalVec = normalize(NormalSample);
+//
+//	float3 LightDir = -normalize(PointLights[0].Position - Input.WorldPos);
+//	float Angle = max(dot(NormalVec, LightDir), 0);
+//
+//	float Distance = length(PointLights[0].Position - Input.WorldPos);
+//	float Attenuation = 1.0f / (Distance * Distance);
+//	float3 Radiance = (PointLights[0].Color * PointLights[0].Brightness) * Attenuation;
+//
+//	float3 Color = AlbedoSample * Radiance;
+//	float3 Result = Color ;
+//
+////return float4(PointLights[0].Position - Input.WorldPos, 1.0);
+//	return float4(Result, 1.0f);
+//}
+//)";
+//		ID3DBlob* pError = NULL;
+//		HRESULT hr = D3DCompile(ShaderSource.data(), ShaderSource.size() * sizeof(char), NULL, NULL, NULL, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, &pError);
+//		if (pError != NULL)
+//		{
+//			std::string err = (char*)pError->GetBufferPointer();
+//			IE_LOG(Error, TEXT("Shader Compile Error: %s"), StringHelper::StringToWide(err).c_str());
+//		}
+//		hr = D3DCompile(ShaderSource.data(), ShaderSource.size() * sizeof(char), NULL, NULL, NULL, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, &pError);
+//		if (pError != NULL)
+//		{
+//			std::string err = (char*)pError->GetBufferPointer();
+//			IE_LOG(Error, TEXT("Shader Compile Error: %s"), StringHelper::StringToWide(err).c_str());
+//		}
+//
+//		Graphics::PipelineStateDesc PSODesc = {};
+//		PSODesc.VertexShader = { vertexShader->GetBufferPointer(), vertexShader->GetBufferSize() };
+//		PSODesc.PixelShader = { pixelShader->GetBufferPointer(), pixelShader->GetBufferSize() };
+//		PSODesc.InputLayout.NumElements = _countof(InputElements);
+//		PSODesc.InputLayout.pInputElementDescs = InputElements;
+//		PSODesc.pRootSignature = m_pCommonRS;
+//		PSODesc.DepthStencilState = Graphics::CommonStructHelpers::CDepthStencilStateDesc();
+//		//PSODesc.DepthStencilState.DepthFunc = CF_GreaterEqual;
+//		PSODesc.BlendState = Graphics::CommonStructHelpers::CBlendDesc();
+//		PSODesc.RasterizerDesc = Graphics::CommonStructHelpers::CRasterizerDesc();
+//		PSODesc.SampleMask = UINT_MAX;
+//		PSODesc.PrimitiveTopologyType = Graphics::PTT_Triangle;
+//		PSODesc.NumRenderTargets = m_pSwapChain->GetDesc().BufferCount;
+//		PSODesc.RTVFormats[0] = m_pSwapChain->GetDesc().Format;
+//		PSODesc.DSVFormat = DCast<Graphics::IPixelBuffer*>(m_pDepthBuffer)->GetFormat();
+//		PSODesc.SampleDesc = { 1, 0 };
+//		Graphics::g_pDevice->CreatePipelineState(PSODesc, &m_pScenePassPSO);
+//		
 
 		//
 		// Init constant buffers
@@ -293,7 +314,34 @@ float4 PSMain(PSInput Input) : SV_TARGET
 
 		Graphics::g_pConstantBufferManager->CreateConstantBuffer(TEXT("Scene Lights"), &m_pLightConstantBuffer, sizeof(SceneLights));
 
+	}
 
+	void WorldRenderer::SetCommonState(Graphics::ICommandContext& CmdContext)
+	{
+		// Set View and Scissor
+		//
+		CmdContext.RSSetViewPorts(1, &m_SceneViewPort);
+		CmdContext.RSSetScissorRects(1, &m_SceneScissorRect);
+
+		// Set Constant Buffers
+		//
+		ieCameraComponent& CurrentCamera = *(m_pWorld->GetCurrentSceneRenderCamera());
+		SceneConstants* pData = m_pSceneConstantBuffer->GetBufferPointer<SceneConstants>();
+		pData->ViewMat		= CurrentCamera.GetViewMatrix().Transpose();
+		pData->ProjMat		= CurrentCamera.GetProjectionMatrix().Transpose();
+		pData->ViewMat.Invert(pData->InverseViewMat);
+		pData->ProjMat.Invert(pData->InverseProjMat);
+		pData->CameraPos	= CurrentCamera.GetTransform().GetAbsoluteWorldPosition();
+		pData->WorldTime	= (float)m_GFXTimer.Seconds();
+		pData->CameraFarZ	= CurrentCamera.GetFarZ();
+		pData->CameraNearZ	= CurrentCamera.GetNearZ();
+		CmdContext.SetGraphicsConstantBuffer(kSceneConstants, m_pSceneConstantBuffer);
+
+		SceneLights* pLights = m_pLightConstantBuffer->GetBufferPointer<SceneLights>();
+		pLights->PointLights[0].Position	= FVector4(45.f, 0.f, 0.f, 1.f);
+		pLights->PointLights[0].Color		= FVector4(1.f, 1.f, 1.f, 1.f);
+		pLights->PointLights[0].Brightness	= 20.f;
+		CmdContext.SetGraphicsConstantBuffer(kLights, m_pLightConstantBuffer);
 	}
 
 	void WorldRenderer::Render()
@@ -309,56 +357,50 @@ float4 PSMain(PSInput Input) : SV_TARGET
 			// Render stuff
 			Graphics::ICommandContext& CmdContext = Graphics::ICommandContext::Begin(L"Frame");
 			{
-				// Transition
+				// Transition Swapchain for Final Presentation
 				Graphics::IColorBuffer* pSwapChainBackBuffer = m_pSwapChain->GetColorBufferForCurrentFrame();
 				Graphics::IGPUResource& BackSwapChainBuffer = *DCast<Graphics::IGPUResource*>(pSwapChainBackBuffer);
 				CmdContext.TransitionResource(BackSwapChainBuffer, Graphics::RS_RenderTarget);
-				Graphics::IGPUResource& DepthBufferResource = *DCast<Graphics::IGPUResource*>(m_pDepthBuffer);
-				CmdContext.TransitionResource(DepthBufferResource, Graphics::RS_DepthWrite);
+				//Graphics::IGPUResource& DepthBufferResource = *DCast<Graphics::IGPUResource*>(m_pDepthBuffer);
+				//CmdContext.TransitionResource(DepthBufferResource, Graphics::RS_DepthWrite);
 
-				// TODO: For PostFX
-				//const IColorBuffer* RTs[] = { pSceneBuffer };
-				//CmdContext.OMSetRenderTargets(1, RTs);
-				//CmdContext.ClearColorBuffer(*pSceneBuffer, ScissorRect);
-
-				// Bind
+				// Bind the texture heap
 				CmdContext.SetDescriptorHeap(Graphics::RHT_CBV_SRV_UAV, Graphics::g_pTextureHeap);
 
-				// Clear
-				CmdContext.ClearColorBuffer(*pSwapChainBackBuffer, m_SceneScissorRect);
-				CmdContext.ClearDepth(*m_pDepthBuffer);
 
-				// Set
-				const Graphics::IColorBuffer* RTs[] = { pSwapChainBackBuffer };
-				CmdContext.OMSetRenderTargets(1, RTs, m_pDepthBuffer);
-				CmdContext.RSSetViewPorts(1, &m_SceneViewPort);
-				CmdContext.RSSetScissorRects(1, &m_SceneScissorRect);
-				CmdContext.SetPipelineState(*m_pScenePassPSO);
-				CmdContext.SetGraphicsRootSignature(*m_pCommonRS);
+				// Render the Geometry Pass
+				//
+				m_DeferedShadingPipeline.m_GeometryPass.Set(CmdContext, m_SceneScissorRect);
 
+				// Set common state
+				//
+				SetCommonState(CmdContext);
 
-				{
-					ieCameraComponent& CurrentCamera = *(m_pWorld->GetCurrentSceneRenderCamera());
-
-					// Set Constant Buffers
-					SceneConstants* pData = m_pSceneConstantBuffer->GetBufferPointer<SceneConstants>();
-					pData->ViewMat = CurrentCamera.GetViewMatrix().Transpose();
-					pData->ProjMat = CurrentCamera.GetProjectionMatrix().Transpose();
-					pData->CameraPos = CurrentCamera.GetTransform().GetPosition();
-					pData->ViewVector = CurrentCamera.GetTransform().GetLocalForward();
-					pData->WorldTime = (float)m_GFXTimer.Seconds();
-					CmdContext.SetGraphicsConstantBuffer(SPI_SceneConstants, m_pSceneConstantBuffer);
-
-					SceneLights* pLights = m_pLightConstantBuffer->GetBufferPointer<SceneLights>();
-					pLights->PointLights[0].Position = FVector3(-3.f, 0.f, 0.f);
-					pLights->PointLights[0].Color = FVector3(1.f, 1.f, 1.f);
-					pLights->PointLights[0].Brightness = 7.f;
-					CmdContext.SetGraphicsConstantBuffer(SPI_Lights, m_pLightConstantBuffer);
-				}
 
 				// Draw world
 				RenderStaticMeshGeometry(CmdContext);
 				RenderSkinnedMeshGeometry(CmdContext);
+
+				m_DeferedShadingPipeline.m_GeometryPass.UnSet(CmdContext);
+
+				CmdContext.ClearColorBuffer(*pSwapChainBackBuffer, m_SceneScissorRect);
+				const Graphics::IColorBuffer* pRTs[] = {
+					pSwapChainBackBuffer,
+				};
+				CmdContext.OMSetRenderTargets(1, pRTs, NULL);
+				CmdContext.RSSetViewPorts(1, &m_SceneViewPort);
+				CmdContext.RSSetScissorRects(1, &m_SceneScissorRect);
+
+
+				// Render the Light Pass
+				//
+				m_DeferedShadingPipeline.m_LightPass.Set(CmdContext, m_SceneScissorRect, m_DeferedShadingPipeline.m_GeometryPass);
+				SetCommonState(CmdContext);
+				CmdContext.SetPrimitiveTopologyType(Graphics::PT_TiangleList);
+				CmdContext.BindVertexBuffer(0, pScreenQuad->GetVertexBuffer());
+				CmdContext.BindIndexBuffer(pScreenQuad->GetIndexBuffer());
+				CmdContext.DrawIndexedInstanced(pScreenQuad->GetNumIndices(), 1, 0, 0, 0);
+
 
 				// Present
 				CmdContext.TransitionResource(BackSwapChainBuffer, Graphics::RS_Present);
@@ -369,5 +411,15 @@ float4 PSMain(PSInput Input) : SV_TARGET
 			m_pRenderContext->Present();
 		}
 
+	}
+	void WorldRenderer::RenderStaticMeshGeometry(Graphics::ICommandContext& GfxContext)
+	{
+		std::vector<ieActor*>& Actors = m_pWorld->GetAllActors();
+		for (UInt32 i = 0; i < Actors.size(); ++i)
+		{
+			Actors[i]->Render(GfxContext);
+		}
+		//IE_LOG(Log, TEXT("Rendering static mesh geometry."));
+		//m_StaticMeshRenderer.Render(GfxContext);
 	}
 }

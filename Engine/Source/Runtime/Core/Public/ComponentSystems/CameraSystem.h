@@ -7,18 +7,18 @@
 
 namespace Insight
 {
-	class INSIGHT_API CameraSystem : public ECS::GenericSystem<ieCameraComponent>
+	class INSIGHT_API CameraSystem /*: public ECS::GenericSystem<ieCameraComponent>*/
 	{
 	public:
 		CameraSystem(const ECS::EntityAdmin& EntityAdmin)
-			: GenericSystem(EntityAdmin, "Camera System")
+			//: GenericSystem(EntityAdmin, "Camera System")
 		{
 		}
 		~CameraSystem()
 		{
 		}
 
-		virtual void Execute() override
+		virtual void Execute() /*override*/
 		{
 			UpdateCameras();
 		}
@@ -27,12 +27,12 @@ namespace Insight
 
 		void UpdateCameras()
 		{
-			std::vector<ieCameraComponent>& Components = GetRawComponentData();
+			/*std::vector<ieCameraComponent>& Components = GetRawComponentData();
 
 			for (ieCameraComponent& Camera : Components)
 			{
 				Camera.UpdateViewMat();
-			}
+			}*/
 		}
 
 	};

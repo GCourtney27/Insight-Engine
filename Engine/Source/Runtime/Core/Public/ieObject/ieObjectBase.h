@@ -66,5 +66,14 @@ namespace Insight
 			Cached component ids.
 		*/
 		std::vector<ECS::ComponentUID_t> m_ComponentIds;
+
+	protected:
+		/*
+			All SubObjects owned by this object.
+			TODO: Add cache optomized ecs system.
+		*/
+		std::vector<class ieComponentBase*> m_SubObjects;
+
+		UInt32 m_NumSubobjects;
 	};
 }

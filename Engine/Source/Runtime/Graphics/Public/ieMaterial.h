@@ -16,12 +16,21 @@ namespace Insight
 	class INSIGHT_API ieMaterial
 	{
 		friend class MaterialManager;
-		ALIGN(16) struct MaterialConstants
+
+		IE_ALIGN(16) struct MaterialConstants
 		{
 			FVector4 Color;
 		};
+		enum EMaterialType
+		{
+			MT_Opaque,
+			MT_Translucent,
+		};
+
 	public:
 		ieMaterial()
+			: m_UID(IE_INVALID_MATERIAL_ID)
+			, m_Type(MT_Opaque)
 		{
 		}
 		~ieMaterial()
@@ -38,14 +47,58 @@ namespace Insight
 
 		void Bind(Graphics::ICommandContext& GfxContext)
 		{
-			// Set constants.
-			MaterialConstants* pMat = m_pConstantsCB->GetBufferPointer<MaterialConstants>();
-			pMat->Color = m_Constants.Color;
-			GfxContext.SetGraphicsConstantBuffer(SPI_MaterialParams, m_pConstantsCB);
+			switch (m_Type)
+			{
+			case MT_Opaque:
+				BindForOpaquePass(GfxContext);
+				break;
+			case MT_Translucent:
+				BindForTranslucentPass(GfxContext);
+				break;
+			default:
+				IE_ASSERT(false, "Invalid material type provided when binding for draw.");
+				break;
+			}
+		}
 
-			// Set Textures
-			GfxContext.SetTexture(SPI_Texture_Albedo, m_AlbedoTexture);
-			GfxContext.SetTexture(SPI_Texture_Normal, m_NormalTexture);
+		FVector4 GetColor() const
+		{
+			return m_Constants.Color;
+		}
+
+		Graphics::ITextureRef GetAlbedoTexture() const
+		{
+			return m_AlbedoTexture;
+		}
+
+		Graphics::ITextureRef GetNormalTexture() const
+		{
+			return m_NormalTexture;
+		}
+
+		EMaterialType GetType() const
+		{
+			return m_Type;
+		}
+
+		void SetColor(FVector4& Color)
+		{
+			m_Constants.Color = Color;
+		}
+
+		void SetAlbedoTexture(Graphics::ITextureRef TextureRef)
+		{
+			m_AlbedoTexture = TextureRef;
+		}
+
+		void SetNormalTexture(Graphics::ITextureRef TextureRef)
+		{
+			m_NormalTexture = TextureRef;
+		}
+
+		void SetType(EMaterialType Type)
+		{
+			m_Type = Type;
 		}
 
 		MaterialID GetUID() const
@@ -53,19 +106,38 @@ namespace Insight
 			return m_UID;
 		}
 
+		bool IsValid()
+		{
+			return m_UID != IE_INVALID_MATERIAL_ID;
+		}
+
 	protected:
+		void BindForOpaquePass(Graphics::ICommandContext& GfxContext)
+		{
+			// Set constants.
+			MaterialConstants* pMat = m_pConstantsCB->GetBufferPointer<MaterialConstants>();
+			pMat->Color = m_Constants.Color;
+			GfxContext.SetGraphicsConstantBuffer(kMaterial, m_pConstantsCB);
+
+			// Set Textures
+			{
+				if (m_AlbedoTexture.IsValid())
+					GfxContext.SetTexture(GRP_MaterialTextureAlbedo, m_AlbedoTexture);
+
+				if (m_NormalTexture.IsValid())
+					GfxContext.SetTexture(GRP_MaterialTextureNormal, m_NormalTexture);
+			}
+		}
+
+		void BindForTranslucentPass(Graphics::ICommandContext& GfxContext)
+		{
+			// TODO Forward transparent pass
+		}
+
 		void Initialize()
 		{
 			// Init constant buffers
 			Graphics::g_pConstantBufferManager->CreateConstantBuffer(TEXT("Material Params"), &m_pConstantsCB, sizeof(MaterialConstants));
-
-			// Load Textures
-			// 
-			// TODO: Only dds textures can be loaded right now.
-			const TChar* AlbedoTexturePath = L"Content/Textures/RustedIron/RustedIron_Albedo.dds";
-			m_AlbedoTexture = Graphics::g_pTextureManager->LoadTexture(AlbedoTexturePath, Graphics::DT_Magenta2D, false);
-			const TChar* NormalTexturePath = L"Content/Textures/RustedIron/RustedIron_Normal.dds";
-			m_NormalTexture = Graphics::g_pTextureManager->LoadTexture(NormalTexturePath, Graphics::DT_Magenta2D, false);
 		}
 
 		void UnInitialize()
@@ -85,5 +157,6 @@ namespace Insight
 		Graphics::ITextureRef m_NormalTexture;
 
 		MaterialID m_UID;
+		EMaterialType m_Type;
 	};
 }

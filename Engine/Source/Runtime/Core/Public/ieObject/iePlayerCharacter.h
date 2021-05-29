@@ -8,18 +8,19 @@
 
 namespace Insight
 {
-	class INSIGHT_API iePlayerCharacter : iePawn
+	class INSIGHT_API iePlayerCharacter : public iePawn
 	{
 	public:
 		iePlayerCharacter(ieWorld* pWorld)
 			: iePawn(pWorld)
 		{
-			ieCameraComponent& Camera = CreateDefaultSubObject<ieCameraComponent>(TEXT("Player camera"));
-			m_pCamera = &Camera;
+			ieCameraComponent* Camera = CreateDefaultSubObject<ieCameraComponent>(TEXT("Player camera"));
+			m_pCamera = Camera;
 
-			GetWorld()->SetSceneRenderCamera(m_pCamera);
-			m_pCamera->GetTransform().SetPosition(0.f, 0.f, -3.f);
+			//GetWorld()->SetSceneRenderCamera(m_pCamera);
+			//m_pCamera->GetTransform().SetPosition(0.f, 0.f, -3.f);
 			m_pCamera->GetTransform().SetParent(&m_Transform);
+			m_CanRotateCamera = false;
 		}
 		virtual ~iePlayerCharacter()
 		{
@@ -41,30 +42,32 @@ namespace Insight
 			// Setup event callbacks for camera movement.
 			//
 			// Locamotion
-			Controller.BindAxis("MoveForward", IE_BIND_EVENT_FN(iePawn::MoveForward, (iePawn*)this));
-			Controller.BindAxis("MoveRight", IE_BIND_EVENT_FN(iePawn::MoveRight, (iePawn*)this));
-			Controller.BindAxis("MoveUp", IE_BIND_EVENT_FN(iePawn::MoveUp, (iePawn*)this));
-			Controller.BindAxis("MouseWheelUp", IE_BIND_EVENT_FN(iePawn::MoveForward, (iePawn*)this));
-			Controller.BindAction("Sprint", IET_Pressed, std::bind(&iePawn::Sprint, (iePawn*)this));
-			Controller.BindAction("Sprint", IET_Released, std::bind(&iePawn::Sprint, (iePawn*)this));
+			Controller.BindAxis("MoveForward", this, &iePawn::MoveForward);
+			Controller.BindAxis("MoveRight", this, &iePawn::MoveRight);
+			Controller.BindAxis("MoveUp", this, &iePawn::MoveUp);
+			Controller.BindAction("Sprint", IET_Pressed, this, &iePawn::Sprint);
+			Controller.BindAction("Sprint", IET_Released, this, &iePawn::Sprint);
+			Controller.BindAxis("MouseWheelUp", (iePawn*)this, &iePawn::MoveForward);
 
 			// Camera
-			Controller.BindAction("CameraPitchYawLock", IET_Pressed, std::bind(&iePlayerCharacter::TogglePitchYawRotation, this));
-			Controller.BindAction("CameraPitchYawLock", IET_Released, std::bind(&iePlayerCharacter::TogglePitchYawRotation, this));
-			Controller.BindAxis("LookUp", IE_BIND_EVENT_FN(iePlayerCharacter::LookUp, this));
-			Controller.BindAxis("LookRight", IE_BIND_EVENT_FN(iePlayerCharacter::LookRight, this));
+			Controller.BindAction("CameraPitchYawLock", IET_Pressed, this, &iePlayerCharacter::TogglePitchYawRotation);
+			Controller.BindAction("CameraPitchYawLock", IET_Released, this, &iePlayerCharacter::TogglePitchYawRotation);
+			Controller.BindAxis("LookUp", this, &iePlayerCharacter::LookUp);
+			Controller.BindAxis("LookRight", this, &iePlayerCharacter::LookRight);
 		}
 
 	protected:
 
 		void LookUp(float Value)
 		{
-			m_pCamera->GetTransform().Rotate(Value * m_CameraPitchSpeedMultiplier * GetWorld()->GetDeltaTime(), 0.0f, 0.0f);
+			if(m_CanRotateCamera)
+				m_pCamera->GetTransform().Rotate(Value * m_CameraPitchSpeedMultiplier * GetWorld()->GetDeltaTime(), 0.0f, 0.0f);
 		}
 
 		void LookRight(float Value)
 		{
-			m_pCamera->GetTransform().Rotate(0.0f, Value * m_CameraYawSpeedMultiplier * GetWorld()->GetDeltaTime(), 0.0f);
+			if (m_CanRotateCamera)
+				m_pCamera->GetTransform().Rotate(0.0f, Value * m_CameraYawSpeedMultiplier * GetWorld()->GetDeltaTime(), 0.0f);
 		}
 
 		void TogglePitchYawRotation()

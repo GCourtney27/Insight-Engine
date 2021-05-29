@@ -9,8 +9,8 @@ namespace Insight
 {
 	static const float kDefaultMovementSpeed = 60.f;
 	static const float kDefaultSprintSpeed = kDefaultMovementSpeed * 2.f;
-	static const float kDefaultCameraPitchSpeedMultiplier = 5.f;
-	static const float kDefaultCameraYawSpeedMultiplier = 5.f;
+	static const float kDefaultCameraPitchSpeedMultiplier = .5f;
+	static const float kDefaultCameraYawSpeedMultiplier = .5f;
 
 	class INSIGHT_API iePawn : public ieActor
 	{
@@ -23,13 +23,14 @@ namespace Insight
 			, m_CameraYawSpeedMultiplier(kDefaultCameraYawSpeedMultiplier)
 			, m_MovementSpeed(kDefaultMovementSpeed)
 			, m_SprintSpeed(kDefaultSprintSpeed)
+			, m_Velocity(0.f)
 			, m_bIsSprinting(false)
 			, m_pController(NULL)
 			, m_Transform()
 			, m_CurrentModementSpeed(0.f)
 		{
-			ieControllerComponent& Controller = CreateDefaultSubObject<ieControllerComponent>(TEXT("Player Controller"));
-			m_pController = &Controller;
+			ieControllerComponent* Controller = CreateDefaultSubObject<ieControllerComponent>(TEXT("Player Controller"));
+			m_pController = Controller;
 		}
 		virtual ~iePawn()
 		{
@@ -52,7 +53,7 @@ namespace Insight
 		}
 
 
-	private:
+	protected:
 		void Move(const FVector3& Direction, const float Value);
 
 
@@ -61,6 +62,7 @@ namespace Insight
 		float m_CameraYawSpeedMultiplier;
 		float m_MovementSpeed;
 		float m_SprintSpeed;
+		float m_Velocity;
 		bool m_bIsSprinting;
 		ieControllerComponent* m_pController;
 		ieTransform m_Transform;

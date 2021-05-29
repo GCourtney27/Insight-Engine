@@ -155,6 +155,7 @@ namespace Insight
 			PT_Linelist = 2,
 			PT_Linestrip = 3,
 			PT_TiangleList = 4,
+			PT_TriangleStrip = 5,
 		};
 
 		enum EPipelineStateFlags

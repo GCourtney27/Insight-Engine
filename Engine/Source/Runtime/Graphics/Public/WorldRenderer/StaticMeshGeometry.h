@@ -18,7 +18,7 @@ namespace Insight
 		Graphics::IndexBufferUID IndexBufferHandle;
 	};
 
-	ALIGN(16) struct MeshWorldCBData
+	IE_ALIGN(16) struct MeshWorldCBData
 	{
 		FMatrix WorldMat;
 	};
@@ -50,13 +50,13 @@ namespace Insight
 		inline UInt32 GetNumIndices() const;
 		inline UInt64 GetUID() const;
 
-		void Create(void* pVertexData, UInt32 VertexDataSize, void* pIndexData, UInt32 IndexDataSize);
+		void Create(void* pVertexData, UInt32 VertexDataSize, UInt32 NumVerticies, UInt32 VertexSize, void* pIndexData, UInt32 IndexDataSize, UInt32 NumIndices);
 
 	private:
 		inline void Initialize();
 		inline void UnInitialize();
 
-		inline void SetUID(UInt64 NewUID);
+		inline void SetHashName(UInt64 NewUID);
 
 
 	protected:
@@ -118,7 +118,7 @@ namespace Insight
 		Graphics::g_pGeometryManager->DeAllocateIndexBuffer(m_DrawArgs.IndexBufferHandle);
 	}
 	
-	inline void StaticMeshGeometry::SetUID(UInt64 NewGUID)
+	inline void StaticMeshGeometry::SetHashName(UInt64 NewGUID)
 	{
 		m_Uid = NewGUID;
 	}

@@ -46,5 +46,18 @@ namespace Insight
 		*/
 		wchar_t* GetLastPlatformError();
 
+		/*
+			Gets the current working directory of the application, not including the name of the executable.
+			@param BufferSize - The size of `Buffer` parameter in bytes.
+			@param Buffer - The character buffer to pupulate with the path.
+		*/
+		void GetWorkingDirectory(size_t BufferSize, TChar* Buffer);
+
+		/*
+			Set the working directory of the application.
+			@param Path - The new working directory path.
+		*/
+		void SetWorkingDirectory(TChar* Path);
+
 	}
 }

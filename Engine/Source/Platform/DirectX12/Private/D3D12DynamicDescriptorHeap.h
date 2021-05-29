@@ -5,6 +5,7 @@
 #include "Platform/DirectX12/Public/Common/D3D12Utility.h"
 
 #include "Platform/DirectX12/Public/D3D12DescriptorHeap.h"
+#include "Runtime/Graphics/Public/IRootSignature.h"
 
 namespace Insight
 {
@@ -44,17 +45,16 @@ namespace Insight
                 // Bypass the cache and upload directly to the shader-visible heap
                 D3D12_GPU_DESCRIPTOR_HANDLE UploadDirect(D3D12_CPU_DESCRIPTOR_HANDLE Handles);
 
-                // TODO
                 // Deduce cache layout needed to support the descriptor tables needed by the root signature.
-                /*void ParseGraphicsRootSignature(const RootSignature& RootSig)
+                void ParseGraphicsRootSignature(const IRootSignature& RootSig)
                 {
                     m_GraphicsHandleCache.ParseRootSignature(m_DescriptorType, RootSig);
                 }
 
-                void ParseComputeRootSignature(const RootSignature& RootSig)
+                void ParseComputeRootSignature(const IRootSignature& RootSig)
                 {
                     m_ComputeHandleCache.ParseRootSignature(m_DescriptorType, RootSig);
-                }*/
+                }
 
                 // Upload any new descriptors in the cache to the shader-visible heap.
                 inline void CommitGraphicsRootDescriptorTables(ID3D12GraphicsCommandList* CmdList)
@@ -134,7 +134,7 @@ namespace Insight
 
                     void UnbindAllValid();
                     void StageDescriptorHandles(UInt32 RootIndex, UInt32 Offset, UInt32 NumHandles, const D3D12_CPU_DESCRIPTOR_HANDLE Handles[]);
-                    //void ParseRootSignature(D3D12_DESCRIPTOR_HEAP_TYPE Type, const RootSignature& RootSig);
+                    void ParseRootSignature(D3D12_DESCRIPTOR_HEAP_TYPE Type, const IRootSignature& RootSig);
                 };
 
                 DescriptorHandleCache m_GraphicsHandleCache;

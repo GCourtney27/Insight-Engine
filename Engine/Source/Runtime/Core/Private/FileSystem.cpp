@@ -28,12 +28,17 @@ namespace Insight
 
 	bool FileSystem::Init()
 	{
+		// Set the working directory of the application no matter what environment we are running in.
+		TChar Path[IE_MAX_PATH];
+		Platform::GetWorkingDirectory(IE_MAX_PATH, Path);
+		Platform::SetWorkingDirectory(Path);
+
 		return true;
 	}
 
-	ByteArray FileSystem::ReadRawData(const TChar* Path, size_t& OutDataSize)
+	ByteArray FileSystem::ReadRawData(const WChar* Path, size_t& OutDataSize)
 	{
-		FILE* pFile = _wfopen(Path, TEXT("rb"));
+		FILE* pFile = _wfopen(Path, L"rb");
 		if (!pFile)
 		{
 			IE_LOG(Error, TEXT("Failed to read raw file with path: \"%s\""), Path);
@@ -48,6 +53,7 @@ namespace Insight
 		
 		// Fill the buffer with the data in the file.
 		ByteArray Array = std::make_shared<std::vector<UInt8>>(OutDataSize);
+		Array.get()->reserve(OutDataSize);
 		fread(Array->data(), 1, OutDataSize, pFile);
 
 		fclose(pFile);

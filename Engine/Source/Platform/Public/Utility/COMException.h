@@ -8,6 +8,7 @@ namespace Insight {
 	
 #	define ThrowIfFailed( hr, msg ) if( FAILED( hr ) ) throw COMException (hr, msg, __FILEW__, __FUNCTIONW__, __LINE__ );
 #	define THROW_COM_ERROR(msg) throw COMException(NULL, msg, __FILEW__, __FUNCTIONW__, __LINE__)
+#	define ASSERT_SUCCEEDED(hr) IE_ASSERT(hr == S_OK);
 
 	class INSIGHT_API COMException : public ieException
 	{

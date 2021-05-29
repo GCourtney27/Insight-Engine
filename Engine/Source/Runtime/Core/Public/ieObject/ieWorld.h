@@ -32,6 +32,11 @@ namespace Insight
 		{
 			m_EntityAdmin.Flush();
 			m_pCurrentRenderCamera = NULL;
+
+			for (UInt32 i = 0; i < m_WorldActors.size(); ++i)
+			{
+				delete m_WorldActors[i];
+			}
 		}
 
 		void Initialize(std::shared_ptr<Window> pWindow)
@@ -67,6 +72,16 @@ namespace Insight
 				m_TickListeners[i](TimeStep);
 		}
 
+#if !IE_CACHEOPTIMIZED_ECS_ENABLED
+		template <typename ActorClass>
+		ActorClass* CreateActor()
+		{
+			ieActor* pNewClass = new ActorClass(this);
+			m_WorldActors.push_back(pNewClass);
+			return SCast<ActorClass*>(pNewClass);
+		}
+#endif
+
 		/*
 			Register a function to receive tick events.
 			@param Fn - Function to be called when world Tick is invoked.
@@ -93,6 +108,11 @@ namespace Insight
 			Returns the time between each frame in milliseconds.
 		*/
 		inline float ieWorld::GetDeltaTime();
+
+		inline std::vector<ieActor*>& GetAllActors()
+		{
+			return m_WorldActors;
+		}
 
 	protected:
 		/*
@@ -131,6 +151,8 @@ namespace Insight
 
 		std::vector<TickFn> m_TickListeners;
 		std::vector<BeginPlayFn> m_BeginPlayListeners;
+
+		std::vector<ieActor*> m_WorldActors;
 	};
 
 	//

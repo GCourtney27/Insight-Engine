@@ -80,7 +80,7 @@ namespace Insight {
 			inline FVector3 GetRotation() { return m_Transform.GetRotation(); }
 			inline FVector3 GetScale() { return m_Transform.GetScale(); }
 
-			inline const ieTransform& GetTransform() const { return m_Transform; }
+			inline ieTransform& GetTransform() { return m_Transform; }
 			inline ieTransform& GetTransformRef() { return m_Transform; }
 
 		private:

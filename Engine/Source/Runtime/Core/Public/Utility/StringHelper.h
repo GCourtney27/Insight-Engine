@@ -1,8 +1,8 @@
 #pragma once
 #include <Runtime/Core.h>
 
-namespace Insight {
-
+namespace Insight 
+{
 	namespace StringHelper
 	{
 		std::wstring StringToWide(const std::string& str);

@@ -27,6 +27,7 @@ namespace Insight
 		void SetLoadCompleted(bool Completed)
 		{
 			m_IsLoading = !Completed;
+			m_IsValid = Completed;
 		}
 
 	protected:

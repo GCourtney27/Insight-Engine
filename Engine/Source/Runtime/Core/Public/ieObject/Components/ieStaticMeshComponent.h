@@ -17,59 +17,59 @@ namespace Insight
 	class ieObjectBase;
 
 
-	class INSIGHT_API ieStaticMeshComponent : public ieComponentBase<ieStaticMeshComponent>
+	class INSIGHT_API ieStaticMeshComponent : public ieComponentBase/*<ieStaticMeshComponent>*/
 	{
 	public:
-		ieStaticMeshComponent()
+		ieStaticMeshComponent(ieActor* pOwner)
 			: ieComponentBase()
 			, m_pMeshWorldCB(NULL)
 			, m_Transform()
 			, m_bIsDrawEnabled(true)
 		{
-			FString Name = L"SM: " + ToString(GetId());
-			SetName(Name);
-
-			Graphics::g_pConstantBufferManager->CreateConstantBuffer(L"World CB", &m_pMeshWorldCB, sizeof(MeshWorld));
-
-			Graphics::g_StaticGeometryManager.LoadFBXFromFile(L"Content/Models/Cube.fbx");
-			m_GeometryRef = Graphics::g_StaticGeometryManager.GetStaticMeshByName(L"Cube");
-
-			Graphics::g_MaterialManager.LoadMaterialFromFile(L"Content/Materials/M_RustedMetal.ieMat");
-			m_MaterialRef = Graphics::g_MaterialManager.GetMaterialByName(L"M_RustedMetal.ieMat");
+			Graphics::g_pConstantBufferManager->CreateConstantBuffer(L"[Static Mesh Component] World CB", &m_pMeshWorldCB, sizeof(MeshWorld));
 		}
 		virtual ~ieStaticMeshComponent()
 		{
 		}
 		ieStaticMeshComponent(ieStaticMeshComponent&& Other)
 		{
-			m_GeometryRef		= std::move(Other.m_GeometryRef);
-			m_Transform			= std::move(Other.m_Transform);
-			m_pMeshWorldCB		= std::move(Other.m_pMeshWorldCB);
-			m_MaterialRef		= Other.m_MaterialRef;
-			m_bIsDrawEnabled	= std::move(Other.m_bIsDrawEnabled);
+			m_GeometryRef = std::move(Other.m_GeometryRef);
+			m_Transform = std::move(Other.m_Transform);
+			m_pMeshWorldCB = std::move(Other.m_pMeshWorldCB);
+			m_MaterialRef = Other.m_MaterialRef;
+			m_bIsDrawEnabled = std::move(Other.m_bIsDrawEnabled);
 		}
 		ieStaticMeshComponent& operator=(const ieStaticMeshComponent& Other) = default;
 
 
-		void Draw(Graphics::ICommandContext& GfxContext)
+		virtual void Render(Graphics::ICommandContext& GfxContext) override
 		{
 			if (!GetIsDrawEnabled()) return;
 
-			// Set the material information.
-			m_MaterialRef->Bind(GfxContext);
+			if (m_MaterialRef.IsValid())
+			{
+				// Set the material information.
+				m_MaterialRef->Bind(GfxContext);
+			}
 
-			// Set the world buffer.
-			MeshWorld* pWorld = m_pMeshWorldCB->GetBufferPointer<MeshWorld>();
-			pWorld->WorldMat = m_Transform.GetWorldMatrix().Transpose();
-			GfxContext.SetGraphicsConstantBuffer(SPI_MeshWorld, m_pMeshWorldCB);
+			if (m_GeometryRef.IsValid())
+			{
+				// Set the world buffer.
+				MeshWorld* pWorld = m_pMeshWorldCB->GetBufferPointer<MeshWorld>();
+				pWorld->WorldMat = m_Transform.GetWorldMatrix().Transpose();
+				GfxContext.SetGraphicsConstantBuffer(kMeshWorld, m_pMeshWorldCB);
 
-			// TODO Request draw from model in model manager.
-			// Render the geometry.
-			GfxContext.SetPrimitiveTopologyType(Graphics::PT_TiangleList);
-			GfxContext.BindVertexBuffer(0, m_GeometryRef->GetVertexBuffer());
-			GfxContext.BindIndexBuffer(m_GeometryRef->GetIndexBuffer());
-			GfxContext.DrawIndexedInstanced(m_GeometryRef->GetNumIndices(), 1, 0, 0, 0);
+				// TODO Request draw from model in model manager.
+				// Render the geometry.
+				GfxContext.SetPrimitiveTopologyType(Graphics::PT_TiangleList);
+				GfxContext.BindVertexBuffer(0, m_GeometryRef->GetVertexBuffer());
+				GfxContext.BindIndexBuffer(m_GeometryRef->GetIndexBuffer());
+				GfxContext.DrawIndexedInstanced(m_GeometryRef->GetNumIndices(), 1, 0, 0, 0);
+			}
 		}
+
+		inline void SetMesh(StaticMeshGeometryRef Mesh) { m_GeometryRef = Mesh; }
+		inline void SetMaterial(MaterialRef Material) { m_MaterialRef = Material; }
 
 		inline MaterialRef& GetMaterial() { return m_MaterialRef; }
 		inline ieTransform& GetTransform() { return m_Transform; }
@@ -82,7 +82,6 @@ namespace Insight
 		MaterialRef m_MaterialRef;
 		ieTransform m_Transform;
 		bool m_bIsDrawEnabled;
-
 	};
 
 

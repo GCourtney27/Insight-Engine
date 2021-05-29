@@ -65,14 +65,14 @@ namespace Insight
 
 			void D3D12Device::CreatePipelineState(const PipelineStateDesc& PSODesc, IPipelineState** ppOutPSO)
 			{
-				D3D12PipelineState* pD3D12PSO = CreateRenderComponentObject< D3D12PipelineState>(ppOutPSO);
+				D3D12PipelineState* pD3D12PSO = CreateRenderComponentObject<D3D12PipelineState>(ppOutPSO);
 				pD3D12PSO->Initialize(PSODesc);
 			}
 
 			void D3D12Device::CreateRootSignature(const RootSignatureDesc& RSDesc, IRootSignature** ppOutSignature)
 			{
 				D3D12RootSignature* pD3D12RS = CreateRenderComponentObject<D3D12RootSignature>(ppOutSignature);
-				pD3D12RS->Initialize(RSDesc);
+				//pD3D12RS->Initialize(RSDesc);
 			}
 			void D3D12Device::CreateDescriptorHeap(const FString&& DebugHeapName, EResourceHeapType&& Type, UInt32&& MaxCount, IDescriptorHeap** ppOutHeap)
 			{

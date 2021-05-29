@@ -59,7 +59,7 @@ namespace Insight
 		void operator= (std::nullptr_t);
 		void operator= (StaticMeshGeometryRef& rhs);
 
-		// Check that this points to a valid texture (which loaded successfully)
+		// Check that this points to a valid peice of static geometry (which loaded successfully)
 		bool IsValid() const;
 
 		// Get the texture pointer.  Client is responsible to not dereference
@@ -82,11 +82,14 @@ namespace Insight
 
 		void LoadFBXFromFile(const FString& FilePath);
 		void DestroyMesh(const FString& Key);
+		bool MeshExists(const FString& Name);
 
 		StaticMeshGeometryRef GetStaticMeshByName(const FString& Name)
 		{
 			return m_ModelCache.at(Name).get();
 		}
+
+		StaticMeshGeometryRef RegisterGeometry(const FString& Name, void* Verticies, UInt32 VertexDataSizeInBytes, UInt32 NumVerticies, UInt32 VertexSize, void* Indices, UInt32 IndexDataSizeInBytes, UInt32 NumIndices);
 
 	protected:
 		void ParseFBXMesh(const ofbx::Mesh& Mesh, std::vector<GeometryVertex3D>& OutVerticies, std::vector<UInt32>& OutIndices);

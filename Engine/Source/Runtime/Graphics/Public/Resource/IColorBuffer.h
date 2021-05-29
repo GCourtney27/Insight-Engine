@@ -24,8 +24,9 @@ namespace Insight
 			FORCE_INLINE void SetClearColor(Color Color) { m_ClearColor = Color; }
 			FORCE_INLINE Color GetClearColor() const { return m_ClearColor; }
 
+
 		protected:
-			IColorBuffer() 
+			IColorBuffer()
 				: m_ClearColor(0.f, 0.f, 0.f, 1.f)
 				, m_NumMipMaps(0u)
 				, m_FragmentCount(1u)

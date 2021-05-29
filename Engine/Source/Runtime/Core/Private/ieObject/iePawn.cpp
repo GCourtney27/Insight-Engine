@@ -9,9 +9,9 @@ namespace Insight
 {
 	void iePawn::Move(const FVector3& Direction, const float Value)
 	{
-		float Velocity = m_MovementSpeed * Value * GetWorld()->GetDeltaTime();
+		m_Velocity = m_MovementSpeed * Value * GetWorld()->GetDeltaTime();
 		FVector3 Pos = m_Transform.GetPosition();
-		Pos += Direction * Velocity;
+		Pos += Direction * m_Velocity;
 		m_Transform.SetPosition(Pos);
 	}
 

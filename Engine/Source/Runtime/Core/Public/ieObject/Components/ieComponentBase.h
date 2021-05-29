@@ -6,9 +6,13 @@
 
 namespace Insight
 {
+	namespace Graphics
+	{
+		class ICommandContext;
+	}
 
-	template <typename DerivedType>
-	class INSIGHT_API ieComponentBase : public ECS::ComponentBase<DerivedType>
+	//template <typename DerivedType>
+	class INSIGHT_API ieComponentBase/* : public ECS::ComponentBase<DerivedType>*/
 	{
 		friend class ieActor;
 		friend class ieObjectBase;
@@ -29,6 +33,26 @@ namespace Insight
 		}
 
 		virtual void Tick(float DeltaMs)
+		{
+		}
+
+		virtual void Render(Graphics::ICommandContext& GfxContext)
+		{
+		}
+
+		virtual void OnAttach()
+		{
+		}
+
+		virtual void OnDetach()
+		{
+		}
+
+		virtual void OnCreate()
+		{
+		}
+
+		virtual void OnDestroy()
 		{
 		}
 

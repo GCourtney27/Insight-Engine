@@ -62,6 +62,7 @@ namespace Insight
 		void DumpApp();
 
 		ieWorld m_World;
+		void RenderTEST();
 
 		// Initialize the core components of the application. Should be called once
 		// at the beginning of the application, after the window has been initialized.

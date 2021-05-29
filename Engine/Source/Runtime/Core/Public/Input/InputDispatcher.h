@@ -106,10 +106,12 @@ namespace Insight {
 				Register an Axis callback function. Used by Actor input components.
 			*/
 			void RegisterAxisCallback(const char* Name, EventInputAxisFn Callback);
+
 			/*
 				Register an Action callback function. Used by Actor input components.
 			*/
 			void RegisterActionCallback(const char* Name, EInputEventType EventType, EventInputActionFn Callback);
+
 			/*
 				Adds vibration to a controller at a player index.
 				@param PlayerIndex: The index of the player to add vibration to.

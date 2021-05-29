@@ -197,7 +197,7 @@ namespace Insight
 
 		struct RootDescriptorTable
 		{
-			UInt32 NumDescriptors;
+			UInt32 NumDescriptorRanges;
 			const DescriptorRange* pDescriptorRanges;
 		};
 
@@ -212,6 +212,20 @@ namespace Insight
 		{
 			UInt32 ShaderRegister;
 			UInt32 RegisterSpace;
+		};
+
+		struct SamplerDesc
+		{
+			EFilter Filter;
+			ETextureAddressMode AddressU;
+			ETextureAddressMode AddressV;
+			ETextureAddressMode AddressW;
+			float MipLODBias;
+			UInt32 MaxAnisotropy;
+			EComparisonFunc ComparisonFunc;
+			float BorderColor[4];
+			float MinLOD;
+			float MaxLOD;
 		};
 
 		struct StaticSamplerDesc
@@ -260,6 +274,11 @@ namespace Insight
 		struct GpuDescriptorHandle
 		{
 			UInt64 Ptr;
+		};
+
+		struct Blob
+		{
+
 		};
 	}
 }

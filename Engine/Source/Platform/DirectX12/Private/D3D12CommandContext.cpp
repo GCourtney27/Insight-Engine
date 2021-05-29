@@ -161,15 +161,17 @@ namespace Insight
 					RTVHandles[i] = pBuffer->GetRTVHandle();
 				}
 
-				D3D12_CPU_DESCRIPTOR_HANDLE DSVHandle;
-				DSVHandle.ptr = NULL;
 				if (pDepthBuffer != NULL)
 				{
+					D3D12_CPU_DESCRIPTOR_HANDLE DSVHandle;
 					D3D12DepthBuffer* pD3D12DepthBuffer = DCast<D3D12DepthBuffer*>(pDepthBuffer);
 					DSVHandle = pD3D12DepthBuffer->GetDSV();
+					m_pID3D12CommandList->OMSetRenderTargets(NumRTVs, RTVHandles, false, &DSVHandle);
 				}
-				
-				m_pID3D12CommandList->OMSetRenderTargets(NumRTVs, RTVHandles, false, &DSVHandle);
+				else
+				{
+					m_pID3D12CommandList->OMSetRenderTargets(NumRTVs, RTVHandles, false, NULL);
+				}
 			}
 
 			void D3D12CommandContext::ClearDepth(IDepthBuffer& DepthBuffer)
@@ -215,12 +217,12 @@ namespace Insight
 
 			void D3D12CommandContext::SetDescriptorHeap(EResourceHeapType Type, IDescriptorHeap* HeapPtr)
 			{
-				D3D12DescriptorHeap* pID3D12Heap = RCast<D3D12DescriptorHeap*>(HeapPtr);
+				D3D12DynamicDescriptorHeap* pID3D12Heap = RCast<D3D12DynamicDescriptorHeap*>(HeapPtr);
 				IE_ASSERT(pID3D12Heap != NULL);
 
-				if (m_CurrentDescriptorHeaps[Type] != pID3D12Heap->GetHeapPointer())
+				if (m_CurrentDescriptorHeaps[Type] != pID3D12Heap->GetNativeHeap())
 				{
-					m_CurrentDescriptorHeaps[Type] = pID3D12Heap->GetHeapPointer();
+					m_CurrentDescriptorHeaps[Type] = RCast<ID3D12DescriptorHeap*>(pID3D12Heap->GetNativeHeap());
 					BindDescriptorHeaps();
 				}
 			}
@@ -245,6 +247,30 @@ namespace Insight
 				::UpdateSubresources(m_pID3D12CommandList, pID3D12Destination, pID3D12Intermediate, IntermediateOffset, FirstSubresource, NumSubresources, &SRData);
 			}
 
+			void D3D12CommandContext::SetDepthBufferAsTexture(UInt32 RootParameterIndex, const IDepthBuffer* pDepthBuffer)
+			{
+				const D3D12DepthBuffer* pD3D12DepthBuffer = DCast<const D3D12DepthBuffer*>(pDepthBuffer);
+				m_DynamicViewDescriptorHeap.SetGraphicsDescriptorHandles(RootParameterIndex, 0, 1, &pD3D12DepthBuffer->GetDepthSRV());
+			}
+
+			void D3D12CommandContext::SetColorBuffersAsTextures(UInt32 RootParameterIndex, UInt32 Offset, UInt32 Count, const IColorBuffer* Buffers[])
+			{
+				std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> Handles;
+				for (UInt32 i = 0; i < Count; ++i)
+				{
+					const D3D12ColorBuffer* pD3D12ColorBuffer = DCast<const D3D12ColorBuffer*>(Buffers[i]);
+					IE_ASSERT(pD3D12ColorBuffer != NULL);
+					Handles.push_back(pD3D12ColorBuffer->GetSRVHandle());
+				}
+				m_DynamicViewDescriptorHeap.SetGraphicsDescriptorHandles(RootParameterIndex, Offset, Count, Handles.data());
+			}
+
+			void D3D12CommandContext::SetColorBufferAsTexture(UInt32 RootParameterIndex, UInt32 Offset, IColorBuffer* Buffer)
+			{
+				const IColorBuffer* Buffers[] = { Buffer };
+				SetColorBuffersAsTextures(RootParameterIndex, Offset, 1, Buffers);
+			}
+
 			void D3D12CommandContext::BindVertexBuffer(UInt32 Slot, IVertexBuffer& VertexBuffer)
 			{
 				D3D12_VERTEX_BUFFER_VIEW* pView = RCast<D3D12_VERTEX_BUFFER_VIEW*>(VertexBuffer.GetNativeBufferView());
@@ -265,7 +291,7 @@ namespace Insight
 				m_pID3D12CommandList->SetGraphicsRootConstantBufferView(RootParameterIndex, Address);
 			}
 
-			void D3D12CommandContext::SetTexture(UInt32 Slot, ITextureRef& pTexture)
+			void D3D12CommandContext::SetTexture(UInt32 RootParameterIndex, ITextureRef& pTexture)
 			{
 				const D3D12Texture* pD3D12Tex = DCast<const D3D12Texture*>(pTexture.Get());
 				if (pD3D12Tex == NULL || !pTexture.IsValid())
@@ -275,7 +301,7 @@ namespace Insight
 				}
 
 				D3D12_GPU_DESCRIPTOR_HANDLE GpuHandle{ pD3D12Tex->GetShaderVisibleDescriptorHandle().GetGpuPtr() };
-				m_pID3D12CommandList->SetGraphicsRootDescriptorTable(Slot, GpuHandle);
+				m_pID3D12CommandList->SetGraphicsRootDescriptorTable(RootParameterIndex, GpuHandle);
 			}
 
 			void D3D12CommandContext::SetPipelineState(IPipelineState& Pipeline)
@@ -292,6 +318,9 @@ namespace Insight
 				IE_ASSERT(pD3D12Signature != NULL);
 
 				m_pID3D12CommandList->SetGraphicsRootSignature(pD3D12Signature);
+
+				m_DynamicViewDescriptorHeap.ParseGraphicsRootSignature(Signature);
+				m_DynamicSamplerDescriptorHeap.ParseGraphicsRootSignature(Signature);
 			}
 
 			void D3D12CommandContext::Draw(UInt32 VertexCount, UInt32 VertexStartOffset) 
@@ -329,9 +358,6 @@ namespace Insight
 					IE_ASSERT(m_NumBarriersToFlush < 16, "Exceeded arbitrary limit on buffered barriers.");
 					D3D12_RESOURCE_BARRIER& BarrierDesc = m_ResourceBarrierBuffer[m_NumBarriersToFlush++];
 					
-
-					D3D12GPUResource* res = DCast<D3D12GPUResource*>(&Resource);
-
 
 					BarrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 					BarrierDesc.Transition.pResource = DCast<D3D12GPUResource*>(&Resource)->GetResource();

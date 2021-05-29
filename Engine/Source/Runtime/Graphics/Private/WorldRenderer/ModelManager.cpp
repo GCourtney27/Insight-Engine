@@ -32,6 +32,12 @@ namespace Insight
 
 	}
 
+	bool StaticGeometryManager::MeshExists(const FString& Name)
+	{
+		auto Iter = m_ModelCache.find(Name);
+		return Iter != m_ModelCache.end();
+	}
+
 	void StaticGeometryManager::LoadFBXFromFile(const FString& FilePath)
 	{
 		ManagedStaticMeshGeometry* pMesh = NULL;
@@ -55,7 +61,10 @@ namespace Insight
 			(ofbx::u64)ofbx::LoadFlags::TRIANGULATE
 		);
 		if (pScene == NULL)
-			IE_LOG(Error, TEXT("An error occured when loading a model."));
+		{
+			IE_LOG(Error, TEXT("[Static Geometry Manager][ofbx] An error occured when loading a model: %s"), StringHelper::StringToWide(ofbx::getError()).c_str());
+			return;
+		}
 
 		// Parse the mesh.
 		//
@@ -81,14 +90,33 @@ namespace Insight
 				else
 				{
 					ParseFBXMesh(Mesh, Verticies, Indices);
+					
 					pMesh = new ManagedStaticMeshGeometry(Name);
+					pMesh->SetHashName(HashName);
+					pMesh->Create(Verticies.data(), (UInt32)Verticies.size() * sizeof(GeometryVertex3D), (UInt32)Verticies.size(), sizeof(GeometryVertex3D), Indices.data(), (UInt32)Indices.size() * sizeof(UInt32), (UInt32)Indices.size());
+					pMesh->SetLoadCompleted(true);
+					
 					m_ModelCache[Name].reset(pMesh);
 				}
-				pMesh->SetUID(HashName);
-				pMesh->Create(Verticies.data(), Verticies.size() * sizeof(Vertex3D), Indices.data(), Indices.size() * sizeof(UInt32));
-				pMesh->SetLoadCompleted(true);
 			}
 		}
+	}
+
+	StaticMeshGeometryRef StaticGeometryManager::RegisterGeometry(const FString& Name, void* Verticies, UInt32 VertexDataSizeInBytes, UInt32 NumVerticies, UInt32 VertexSize, void* Indices, UInt32 IndexDataSizeInBytes, UInt32 NumIndices)
+	{
+#if IE_WITH_EDITOR
+		IE_ASSERT(MeshExists(Name) == false); // Trying to register a mesh that already exist or has the same name as a mesh that is already registered.
+#endif
+
+		UInt64 HashName = std::hash<FString>{}(Name);
+		ManagedStaticMeshGeometry* pMesh = new ManagedStaticMeshGeometry(Name);
+		pMesh->SetHashName(HashName);
+		pMesh->Create(Verticies, VertexDataSizeInBytes, NumVerticies, VertexSize, Indices, IndexDataSizeInBytes, NumIndices);
+		pMesh->SetLoadCompleted(true);
+		
+		m_ModelCache[Name].reset(pMesh);
+
+		return pMesh;
 	}
 
 	void StaticGeometryManager::ParseFBXMesh(const ofbx::Mesh& Mesh, std::vector<GeometryVertex3D>& OutVerticies, std::vector<UInt32>& OutIndices)

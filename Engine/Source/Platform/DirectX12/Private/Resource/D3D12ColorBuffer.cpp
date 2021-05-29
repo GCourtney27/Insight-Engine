@@ -115,7 +115,7 @@ namespace Insight
                 }
 
                 ID3D12Resource* Resource = m_pID3D12Resource.Get();
-
+                
                 // Create the render target view
                 pID3D12Device->CreateRenderTargetView(Resource, &RTVDesc, m_RTVHandle);
 

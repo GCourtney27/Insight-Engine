@@ -70,9 +70,10 @@ namespace Insight {
 			@param Path - Exe relative path to the file to read.
 			@param OutDataSize - Populated with the size of the file that is read in. -1 if the file read was unsuccessful.
 		*/
-		static ByteArray ReadRawData(const TChar* Path, size_t& OutDataSize);
+		static ByteArray ReadRawData(const WChar* Path, size_t& OutDataSize);
 
 	protected:
+
 	};
 
 }

@@ -13,16 +13,21 @@
 #include "Runtime/Core/Public/ieObject/Components/ieStaticMeshComponent.h"
 #include "Runtime/Graphics/Public/WorldRenderer/Common.h"
 
+#include "Runtime/Core/Public/ieObject/ieActor.h"
+#include "Runtime/Graphics/Public/WorldRenderer/DeferredRenderer/DeferredRenderer.h"
+
 namespace Insight
 {
 	class ieWorld;
 
 	template <typename MeshRenderType>
-	class INSIGHT_API GeometryRenderer : public ECS::GenericSystem<MeshRenderType>
+	class INSIGHT_API GeometryRenderer /*: public ECS::GenericSystem<MeshRenderType>*/
 	{
+		ieWorld* m_pWorldRef;
 	public:
-		GeometryRenderer(const ECS::EntityAdmin& EntityAdmin, const char* DebugName)
-			: GenericSystem(EntityAdmin, DebugName)
+		GeometryRenderer(ieWorld* pWorld, const ECS::EntityAdmin& EntityAdmin, const char* DebugName)
+			//: GenericSystem(EntityAdmin, DebugName)
+			: m_pWorldRef(pWorld)
 		{
 		}
 		virtual ~GeometryRenderer() {}
@@ -34,6 +39,7 @@ namespace Insight
 
 		void Render(Graphics::ICommandContext& GfxContext)
 		{
+#if IE_CACHEOPTIMIZED_ECS_ENABLED
 			std::vector<MeshRenderType>& Components = GetRawComponentData();
 
 			// TODO: 1) Sort the scene
@@ -43,6 +49,7 @@ namespace Insight
 			{
 				Mesh.Draw(GfxContext);
 			}
+#endif
 		}
 
 	protected:
@@ -54,7 +61,7 @@ namespace Insight
 	public:
 		WorldRenderer(ieWorld* pWorld, const ECS::EntityAdmin& EntityAdmin)
 			: m_pRenderContext(NULL)
-			, m_StaticMeshRenderer(EntityAdmin, "Static Mesh Renderer")
+			//, m_StaticMeshRenderer(EntityAdmin, "Static Mesh Renderer")
 			, m_pWorld(pWorld)
 			//, m_SkinnedMeshRenderer(EntityAdmin)
 		{
@@ -74,11 +81,8 @@ namespace Insight
 
 		void Render();
 
-		void RenderStaticMeshGeometry(Graphics::ICommandContext& GfxContext)
-		{
-			//IE_LOG(Log, TEXT("Rendering static mesh geometry."));
-			m_StaticMeshRenderer.Render(GfxContext);
-		}
+		void RenderStaticMeshGeometry(Graphics::ICommandContext& GfxContext);
+		
 
 		void RenderSkinnedMeshGeometry(Graphics::ICommandContext& GfxContext)
 		{
@@ -87,17 +91,21 @@ namespace Insight
 
 	private:
 		void CreateResources();
+		void SetCommonState(Graphics::ICommandContext& CmdContext);
 
 	protected:
 		Graphics::IRenderContext* m_pRenderContext;
 		ieWorld* m_pWorld;
-		GeometryRenderer<ieStaticMeshComponent> m_StaticMeshRenderer;
+		//GeometryRenderer<ieStaticMeshComponent> m_StaticMeshRenderer;
 		//GeometryRenderer<ieSkinnedMeshComponent> m_SkinnedMeshRenderer;
 		std::shared_ptr<Window> m_pWindow;
 		Graphics::ViewPort m_SceneViewPort;
 		Graphics::Rect m_SceneScissorRect;
 
 		FrameTimer m_GFXTimer;
+
+		DeferredShadingPipeline m_DeferedShadingPipeline;
+		StaticMeshGeometryRef pScreenQuad;
 
 		// 
 		// Render Resources

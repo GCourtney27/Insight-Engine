@@ -29,6 +29,7 @@
 #include "Runtime/Core/Public/ieObject/ieStaticMeshActor.h"
 #include "Runtime/Core/Public/ieObject/Components/ieCameraComponent.h"
 #include "Runtime/Core/Public/ieObject/iePlayerCharacter.h"
+#include "Runtime/Core/Public/ieObject/ieCameraActor.h"
 
 static const char* TargetSceneName = "Debug.iescene";
 namespace Insight {
@@ -60,25 +61,70 @@ namespace Insight {
 		Debug::Logger::InitiateCoreDump();
 	}
 
+	void Application::RenderTEST()
+	{
+		while (m_Running)
+		{
+			m_World.Render();
+		}
+	}
+
 	void Application::Initialize()
 	{
 		ScopedMilliSecondTimer(TEXT("Core app init"));
 
+		// Initize the main file system.
+		FileSystem::Init();
+
 #if IE_RENDER_MULTI_PLATFORM
 		m_World.Initialize(m_pWindow);
 
+		ieCameraActor* pDebugCamera = m_World.CreateActor<ieCameraActor>();
+		m_World.SetSceneRenderCamera(pDebugCamera->GetCamera());
+		
 
+		// Load Assets. TODO: This would come from a level file
+		// Load Models
+		Graphics::g_StaticGeometryManager.LoadFBXFromFile(L"Content/Models/Cube.fbx");
+		Graphics::g_MaterialManager.LoadMaterialFromFile(L"Content/Materials/M_RustedMetal.ieMat");
+		// Load Textures
+		// TODO: Only dds textures can be loaded right now.
+		const TChar* AlbedoTexturePath = L"Content/Textures/RustedIron/RustedIron_Albedo.dds";
+		Graphics::ITextureRef AlbedoTexture = Graphics::g_pTextureManager->LoadTexture(AlbedoTexturePath, Graphics::DT_Magenta2D, false);
+		const TChar* NormalTexturePath = L"Content/Textures/RustedIron/RustedIron_Normal.dds";
+		Graphics::ITextureRef NormalTexture = Graphics::g_pTextureManager->LoadTexture(NormalTexturePath, Graphics::DT_Magenta2D, false);
+		
+		// Create references to loaded assets
+		StaticMeshGeometryRef CubeMesh = Graphics::g_StaticGeometryManager.GetStaticMeshByName(L"Cube");
+		MaterialRef RustedMetalMat = Graphics::g_MaterialManager.GetMaterialByName(L"M_RustedMetal.ieMat");
+		RustedMetalMat->SetAlbedoTexture(AlbedoTexture);
+		RustedMetalMat->SetNormalTexture(NormalTexture);
+		RustedMetalMat->SetColor(FVector4(1.f, 0.f, 0.f, 1.f));
+
+		ieStaticMeshActor* pCubeActor = m_World.CreateActor<ieStaticMeshActor>();
+		pCubeActor->GetTransform().SetPosition(0.f, 0.f, 50.f);
+		pCubeActor->GetTransform().SetScale(20.f, 20.f, 20.f);
+		ieStaticMeshComponent* pSMCubeActor = pCubeActor->GetSubobject<ieStaticMeshComponent>();
+		pSMCubeActor->SetMaterial(RustedMetalMat);
+		pSMCubeActor->SetMesh(CubeMesh);
+
+		iePlayerCharacter* pPlayerCharacter = m_World.CreateActor<iePlayerCharacter>();
+		
 		// TEMP
-		ieStaticMeshActor m_SMActor(&m_World);
-		m_SMActor.GetTransform().SetPosition(0.f, 0.f, 5.f);
+		//ieCameraActor m_DebugCamera(&m_World);
+		//m_World.SetSceneRenderCamera(m_DebugCamera.GetCamera());
+
+		//ieStaticMeshActor m_SMActor(&m_World);
+		//m_SMActor.GetTransform().SetPosition(0.f, 0.f, 5.f);
 
 		//ieStaticMeshActor m_SMActor2(&m_World);
 		//m_SMActor2.GetTransform().SetPosition(0.f, 0.f, 3.f);
 		//m_SMActor2.GetTransform().SetParent(&m_SMActor.GetTransform());
 
-		iePlayerCharacter m_Player(&m_World);
+		//iePlayerCharacter m_Player(&m_World);
 
 		m_World.BeginPlay();
+		//std::thread RenderThread(&Application::RenderTEST, this);
 
 		float DeltaMs = 0.f;
 		while (m_Running)
@@ -102,13 +148,11 @@ namespace Insight {
 
 			//IE_LOG(Log, TEXT("FPS: %f"), m_AppTimer.FPS());
 		}
+		//RenderThread.join();
 		Graphics::g_pCommandManager->IdleGPU();
 
 		exit(EXIT_SUCCESS); // Just for easier debugging quit the entire program.
 #endif
-
-		// Initize the main file system.
-		FileSystem::Init();
 
 		// Create and initialize the renderer.
 		Renderer::SetSettingsAndCreateContext(FileSystem::LoadGraphicsSettingsFromJson(), m_pWindow);

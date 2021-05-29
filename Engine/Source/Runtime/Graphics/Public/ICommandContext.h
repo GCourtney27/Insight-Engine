@@ -67,6 +67,9 @@ namespace Insight
 
 			virtual void UpdateSubresources(IGPUResource& Destination, IGPUResource& Intermediate, UInt32 IntermediateOffset, UInt32 FirstSubresource, UInt32 NumSubresources, SubResourceData& SubresourceData) = 0;
 
+			virtual void SetDepthBufferAsTexture(UInt32 RootParameterIndex, const IDepthBuffer* pDepthBuffer) = 0;
+			virtual void SetColorBuffersAsTextures(UInt32 RootParameterIndex, UInt32 Offset, UInt32 Count, const IColorBuffer* Buffers[]) = 0;
+			virtual void SetColorBufferAsTexture(UInt32 RootParameterIndex, UInt32 Offset, IColorBuffer* Buffer) = 0;
 			virtual void BindVertexBuffer(UInt32 Slot, IVertexBuffer& Vertexbuffer) = 0;
 			virtual void BindIndexBuffer(IIndexBuffer& IndexBuffer) = 0;
 			virtual void SetGraphicsConstantBuffer(UInt32 RootParameterIndex, IConstantBuffer* pConstantBuffer) = 0;

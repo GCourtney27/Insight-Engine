@@ -11,18 +11,18 @@
 
 namespace Insight
 {
-	void StaticMeshGeometry::Create(void* pVertexData, UInt32 VertexDataSize, void* pIndexData, UInt32 IndexDataSize)
+	void StaticMeshGeometry::Create(void* pVertexData, UInt32 VertexDataSize, UInt32 NumVerticies, UInt32 VertexSize, void* pIndexData, UInt32 IndexDataSize, UInt32 NumIndices)
 	{
 		// Create the vertex buffer
-		m_DrawArgs.NumVerts = VertexDataSize / sizeof(GeometryVertex3D);
+		m_DrawArgs.NumVerts = NumVerticies;
 
 		// Init Vertex buffer.
 		IE_ASSERT(m_DrawArgs.VertexBufferHandle != IE_INVALID_VERTEX_BUFFER_HANDLE); // Vertex buffer was not registered properly with geometry buffer manager.
 		Graphics::IVertexBuffer& Buffer = Graphics::g_pGeometryManager->GetVertexBufferByUID(m_DrawArgs.VertexBufferHandle);
-		Buffer.Create(TEXT("Vertex Buffer"), VertexDataSize, sizeof(GeometryVertex3D), pVertexData);
+		Buffer.Create(TEXT("Vertex Buffer"), VertexDataSize, VertexSize, pVertexData);
 
 		// Create the index buffer
-		m_DrawArgs.NumIndices = IndexDataSize / sizeof(UInt32);
+		m_DrawArgs.NumIndices = NumIndices;
 
 		// Init Index buffer
 		IE_ASSERT(m_DrawArgs.IndexBufferHandle != IE_INVALID_INDEX_BUFFER_HANDLE); // Index buffer was not registered properly with geometry buffer manager.

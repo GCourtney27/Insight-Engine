@@ -84,5 +84,42 @@ namespace Insight
 #endif
 			return NULL;
 		}
+
+		void GetWorkingDirectory(size_t BufferSize, TChar* Buffer)
+		{
+#if IE_PLATFORM_BUILD_WIN32
+
+			// Fetch the current directory (includes the exe name).
+			DWORD Result = ::GetModuleFileName(NULL, Buffer, BufferSize);
+			if (Result == 0)
+				IE_LOG(Error, TEXT("Failed to read application root current directory. Windows Error %i"), GetLastError());
+
+			// Start at the end and remove the exe name character by character.
+			for (size_t i = BufferSize - 1; i != 0; --i)
+			{
+				if (Buffer[i] != TChar('\\') && Buffer[i] != TChar('/'))
+				{
+					Buffer[i] = 0;
+				}
+				else
+					break;
+			}
+#elif IE_PLATFORM_BUILD_UWP
+			// The default working directory is the .exe root in UWP apps. Which is automatically registered.
+			ZeroMem(Buffer, BufferSize);
+			Buffer[0] = "\0";
+#endif
+		}
+
+		void SetWorkingDirectory(TChar* Path)
+		{
+#if IE_PLATFORM_BUILD_WIN32
+			bool Result = ::SetCurrentDirectory(Path);
+			if (!Result)
+				IE_LOG(Error, TEXT("Failed to set the current directory of the exe. Windows Error: %i"), GetLastError());
+#elif IE_PLATFORM_BUILD_UWP
+			(void)Path;
+#endif
+		}
 	}
 }

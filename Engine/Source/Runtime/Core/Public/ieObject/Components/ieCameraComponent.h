@@ -9,6 +9,10 @@
 
 namespace Insight
 {
+	const float kDefaultFOV = 75.f;
+	const float kDefaultNearZ = 0.001f;
+	const float kDefaultFarZ = 1000.f;
+	
 	enum EViewType
 	{
 		VT_Perspective,
@@ -32,7 +36,7 @@ namespace Insight
 		EViewType ProjectionType;
 	};
 
-	class INSIGHT_API ieCameraComponent : public ieComponentBase<ieCameraComponent>
+	class INSIGHT_API ieCameraComponent : public ieComponentBase/*<ieCameraComponent>*/
 	{
 	protected:
 		friend class CameraSystem;
@@ -41,14 +45,26 @@ namespace Insight
 		ProjectionProperties m_ViewProps;
 
 	public:
-		ieCameraComponent()
+		ieCameraComponent(ieActor* pOwner)
 		{
 			UpdateViewMat();
 			
-			SetProjectionValues(45.f, 1600.f, 900.f, 0.001f, 1000.f);
+			SetProjectionValues(kDefaultFOV, 1600.f, 900.f, kDefaultNearZ, kDefaultFarZ);
 		}
-		virtual ~ieCameraComponent() {}
+		virtual ~ieCameraComponent() 
+		{
+		}
+		ieCameraComponent(ieCameraComponent&& Other) noexcept
+		{
+			m_Transform = std::move(Other.m_Transform);
+			m_ViewProps = Other.m_ViewProps;
+		}
 		ieCameraComponent& operator=(const ieCameraComponent& Other) = default;
+
+		virtual void Tick(float DeltaMs) override
+		{
+			UpdateViewMat();
+		}
 
 		inline ieTransform& GetTransform()
 		{
@@ -107,8 +123,8 @@ namespace Insight
 		void UpdateViewMat()
 		{
 			m_ViewProps.ViewMat = XMMatrixLookAtLH(
-				  m_Transform.GetPosition()
-				, m_Transform.GetPosition() + m_Transform.GetLocalForward()
+				  m_Transform.GetAbsoluteWorldPosition()
+				, m_Transform.GetAbsoluteWorldPosition() + m_Transform.GetLocalForward()
 				, m_Transform.GetLocalUp()
 			);
 		}

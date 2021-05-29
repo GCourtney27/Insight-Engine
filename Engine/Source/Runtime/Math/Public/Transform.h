@@ -18,9 +18,6 @@ namespace Insight
 			, m_Position(FVector3::Zero)
 			, m_Rotation(FVector3::Zero)
 			, m_Scale(FVector3::One)
-			, m_EditorPlayOriginPosition(m_Position)
-			, m_EditorPlayOriginRotation(m_Rotation)
-			, m_EditorPlayOriginScale(m_Scale)
 		{
 		}
 		ieTransform::~ieTransform()
@@ -28,11 +25,17 @@ namespace Insight
 			ReAssignChildrenToParent();
 			UnsetParent();
 		}
-		ieTransform(const ieTransform&& Other) noexcept
+		ieTransform(ieTransform&& Other) noexcept
 		{
 			m_Scale		= Other.m_Scale;
 			m_Position	= Other.m_Position;
 			m_Rotation	= Other.m_Rotation;
+			m_pParent	= Other.m_pParent;
+			m_Children	= std::move(Other.m_Children);
+
+			ComputeAllMatriciesAndUpdateChildren();
+
+			Other.m_pParent = NULL;
 		}
 		ieTransform(const ieTransform& Transform)
 		{
@@ -44,12 +47,10 @@ namespace Insight
 			m_Scale		= Other.m_Scale;
 			m_Rotation	= Other.m_Rotation;
 
-			CompuleAllMatriciesAndupdateChildren();
+			ComputeAllMatriciesAndUpdateChildren();
 			return *this;
 		}
 
-		void EditorEndPlay();
-		void EditorInit() { UpdateEditorOriginPositionRotationScale(); }
 
 		/*
 			Returns the parent of this transform. Null if no parent.
@@ -73,91 +74,114 @@ namespace Insight
 			}
 		}
 
+		/*
+			Returns the objects position relative to it's parent.
+		*/
 		inline FVector3 GetPosition()	const { return m_Position; }
 		inline FVector3 GetRotation()	const { return m_Rotation; }
 		inline FVector3 GetScale()		const { return m_Scale; }
 
-		inline void SetPosition(float X, float Y, float Z)
-		{
-			SetPosition(FVector3(X, Y, Z));
-		}
 		/*
-			Set the rotation of the transform using Pitch, Yaw, Roll in degrees.
+			Returns the absolute world position of this actor. As in, 
+			it's position in world space not relative to it's parent (if it has one).
 		*/
-		inline void SetRotation(float Pitch, float Yaw, float Roll)
+		inline FVector3 GetAbsoluteWorldPosition()
 		{
-			SetRotation(FVector3(Pitch, Yaw, Roll));
-		}
-		inline void SetScale(float X, float Y, float Z)
-		{
-			SetScale(FVector3(X, Y, Z));
-		}
-		inline void SetPosition(const FVector3& Position) 
-		{ 
-			m_Position = Position;
-			TranslateLocalMatrix(); 
-			UpdateLocalMatrix(); 
-		}
-		inline void SetRotation(const FVector3& Rotation)
-		{
-			m_Rotation = Rotation;
-			RotateLocalMatrix();
-			UpdateLocalMatrix();
-		}
-		inline void SetScale(const FVector3& Scale) 
-		{ 
-			m_Scale = Scale;
-			ScaleLocalMatrix(); 
-			UpdateLocalMatrix(); 
+			if (m_pParent != NULL)
+			{
+				return m_pParent->GetPosition() + m_Position;
+			}
+			return m_Position;
 		}
 
-		inline FVector3 GetLocalUp()		const { return m_LocalUp;		}
-		inline FVector3 GetLocalDown()		const { return m_LocalDown;		}
-		inline FVector3 GetLocalLeft()		const { return m_LocalLeft;		}
-		inline FVector3 GetLocalRight()		const { return m_LocalRight;	}
-		inline FVector3 GetLocalForward()	const { return m_LocalForward;	}
-		inline FVector3 GetLocalBackward()	const { return m_LocalBackward; }
+		/*
+			Set the position of the object relative to its parent.
+		*/
+		inline void SetPosition(float X, float Y, float Z);
+		
+		/*
+			Set the rotation of the transform using Pitch, Yaw, Roll in degrees relative to its parent.
+		*/
+		inline void SetRotation(float Pitch, float Yaw, float Roll);
+		
+		/*
+			Set the scale of the object relative to its parent.
+		*/
+		inline void SetScale(float X, float Y, float Z);
 
-		inline void Translate(float X, float Y, float Z)
-		{
-			m_Position.x += X;
-			m_Position.y += Y;
-			m_Position.z += Z;
-			TranslateLocalMatrix();
-			UpdateLocalMatrix();
-		}
-		inline void Rotate(float Pitch, float Yaw, float Roll)
-		{
-			m_Rotation.x += Pitch;
-			m_Rotation.y += Yaw;
-			m_Rotation.z += Roll;
-			RotateLocalMatrix();
-			UpdateLocalMatrix();
-		}
-		inline void Scale(float X, float Y, float Z)
-		{
-			m_Scale.x += X;
-			m_Scale.y += Y;
-			m_Scale.z += Z;
-			ScaleLocalMatrix();
-			UpdateLocalMatrix();
-		}
+		inline void SetPosition(const FVector3& Position);
+		inline void SetRotation(const FVector3& Rotation);
+		inline void SetScale(const FVector3& Scale);
 
-		void LookAt(FVector3& LookAtPos);
+		/*
+			Returns the transform local UP vector.
+		*/
+		inline FVector3 GetLocalUp();
 
-		// Returns objects local matrix
-		FMatrix GetLocalMatrix() { UpdateIfTransformed(); return m_LocalMatrix; }
-		// Returns a reference to the objects local matrix
-		FMatrix& GetLocalMatrixRef() { UpdateIfTransformed(); return m_LocalMatrix; }
-		// Set the objects local matrix
+		/*
+			Returns the transform local DOWN vector.
+		*/
+		inline FVector3 GetLocalDown();
+		
+		/*
+			Returns the transform local LEFT vector.
+		*/
+		inline FVector3 GetLocalLeft();
+		
+		/*
+			Returns the transform local RIGHT vector.
+		*/
+		inline FVector3 GetLocalRight();
+		
+		/*
+			Returns the transform local FORWARD vector.
+		*/
+		inline FVector3 GetLocalForward();
+		
+		/*
+			Returns the transform local BACKWARD vector.
+		*/
+		inline FVector3 GetLocalBackward();
+
+
+		inline void Translate(const FVector3& Translation);
+		inline void Rotate(const FVector3& Rotation);
+		inline void Scale(const FVector3& NewScale);
+
+		inline void Translate(float X, float Y, float Z);
+		inline void Rotate(float Pitch, float Yaw, float Roll);
+		inline void Scale(float X, float Y, float Z);
+
+		/*
+			Transform the point to look at a point in space.
+		*/
+		void LookAt(const FVector3& LookAtPos);
+
+		/*
+			Returns objects local matrix.
+		*/
+		FMatrix GetLocalMatrix() { return m_LocalMatrix; }
+		/*
+			Returns a reference to the objects local matrix
+		*/
+		FMatrix& GetLocalMatrixRef() { return m_LocalMatrix; }
+		/*
+			Set the objects local matrix
+		*/
 		void SetLocalMatrix(const FMatrix& matrix);
 		FMatrix GetLocalMatrixTransposed() const { return XMMatrixTranspose(m_LocalMatrix); }
 
-		// Returns the objects world space matrix
-		FMatrix GetWorldMatrix() { UpdateIfTransformed(); return m_WorldMatrix; }
-		// Returns a reference to the objects world space matrix
+		/*
+			Returns the objects world space matrix
+		*/
+		FMatrix GetWorldMatrix() { return m_WorldMatrix; }
+		/*
+			Returns a reference to the objects world space matrix
+		*/
 		FMatrix& GetWorldMatrixRef() { return m_WorldMatrix; }
-		// Set the objects world matrix
+		/*
+			Set the objects world matrix
+		*/
 		void SetWorldMatrix(const FMatrix& matrix);
 		FMatrix GetWorldMatrixTransposed() const { return XMMatrixTranspose(m_WorldMatrix); }
 
@@ -174,11 +198,7 @@ namespace Insight
 		void SetScaleMatrix(FMatrix matrix) { m_ScaleMat = matrix; UpdateLocalMatrix(); }
 
 
-		void UpdateEditorOriginPositionRotationScale();
 	protected:
-
-		bool m_Transformed = false;
-		void UpdateIfTransformed(bool ForceUpdate = false);
 
 		inline void RotateVector(FVector3& outResult, const FVector3& Direction, const FMatrix& Matrix);
 		
@@ -210,7 +230,8 @@ namespace Insight
 		void TranslateLocalMatrix();
 		void ScaleLocalMatrix();
 		void RotateLocalMatrix();
-		inline void CompuleAllMatriciesAndupdateChildren();
+		inline void ComputeAllMatriciesAndUpdateChildren();
+		inline void UpdateLocalVectors();
 
 		ieTransform* m_pParent;
 		std::vector<ieTransform*> m_Children;
@@ -226,10 +247,6 @@ namespace Insight
 		FVector3 m_Rotation;
 		FVector3 m_Scale;
 
-		FVector3 m_EditorPlayOriginPosition;
-		FVector3 m_EditorPlayOriginRotation;
-		FVector3 m_EditorPlayOriginScale;
-
 		FVector3 m_LocalForward = FVector3::Forward;
 		FVector3 m_LocalBackward = FVector3::Backward;
 		FVector3 m_LocalLeft = FVector3::Left;
@@ -244,9 +261,9 @@ namespace Insight
 	// Inline function definitions
 	// 
 
-	inline void ieTransform::RotateVector(FVector3& outResult, const FVector3& Direction, const FMatrix& Matrix)
+	inline void ieTransform::RotateVector(FVector3& outResult, const FVector3& inTarget, const FMatrix& inRotationMatrix)
 	{
-		outResult = XMVector3TransformCoord(Direction, m_RotationMat);
+		outResult = XMVector3TransformCoord(inTarget, inRotationMatrix);
 	}
 
 	inline void ieTransform::AddChild(ieTransform& Child)
@@ -294,14 +311,142 @@ namespace Insight
 		}
 	}
 
-	inline void ieTransform::CompuleAllMatriciesAndupdateChildren()
+	inline void ieTransform::ComputeAllMatriciesAndUpdateChildren()
 	{
-
 		TranslateLocalMatrix();
 		ScaleLocalMatrix();
 		RotateLocalMatrix();
 		UpdateLocalMatrix();
 		ComputeWorldMatrix();
 		UpdateChildren();
+	}
+	
+	inline void ieTransform::UpdateLocalVectors()
+	{
+		RotateVector(m_LocalUp, FVector3::Up, m_RotationMat);
+		RotateVector(m_LocalDown, FVector3::Down, m_RotationMat);
+		RotateVector(m_LocalLeft, FVector3::Left, m_RotationMat);
+		RotateVector(m_LocalRight, FVector3::Right, m_RotationMat);
+		RotateVector(m_LocalForward, FVector3::Forward, m_RotationMat);
+		RotateVector(m_LocalBackward, FVector3::Backward, m_RotationMat);
+	}
+
+	inline void ieTransform::Translate(const FVector3& Translation)
+	{
+		Translate(Translation.x, Translation.y, Translation.z);
+	}
+	
+	inline void ieTransform::Translate(float X, float Y, float Z)
+	{
+		float NewX = m_Position.x + X;
+		float NewY = m_Position.x + Y;
+		float NewZ = m_Position.x + Z;
+		SetPosition(NewX, NewY, NewZ);
+	}
+	
+	inline void ieTransform::Rotate(const FVector3& Rotation)
+	{
+		Rotate(Rotation.x, Rotation.y, Rotation.z);
+	}
+	
+	inline void ieTransform::Rotate(float Pitch, float Yaw, float Roll)
+	{
+		m_Rotation.x += Pitch;
+		m_Rotation.y += Yaw;
+		m_Rotation.z += Roll;
+		RotateLocalMatrix();
+		UpdateLocalMatrix();
+	}
+	
+	inline void ieTransform::Scale(const FVector3& NewScale)
+	{
+		Scale(NewScale.x, NewScale.y, NewScale.z);
+	}
+	
+	inline void ieTransform::Scale(float X, float Y, float Z)
+	{
+		m_Scale.x += X;
+		m_Scale.y += Y;
+		m_Scale.z += Z;
+		ScaleLocalMatrix();
+		UpdateLocalMatrix();
+	}
+
+	inline void ieTransform::SetPosition(float X, float Y, float Z)
+	{
+		m_Position.x = X;
+		m_Position.y = Y;
+		m_Position.z = Z;
+		TranslateLocalMatrix();
+		UpdateLocalMatrix();
+	}
+	
+	inline void ieTransform::SetRotation(float Pitch, float Yaw, float Roll)
+	{
+		m_Rotation.x = Pitch;
+		m_Rotation.y = Yaw;
+		m_Rotation.z = Roll;
+		RotateLocalMatrix();
+		UpdateLocalMatrix();
+	}
+
+	inline void ieTransform::SetScale(float X, float Y, float Z)
+	{
+		m_Scale.x = X;
+		m_Scale.y = Y;
+		m_Scale.z = Z;
+		ScaleLocalMatrix();
+		UpdateLocalMatrix();
+	}
+	
+	inline void ieTransform::SetPosition(const FVector3& Position)
+	{
+		SetPosition(Position.x, Position.y, Position.z);
+	}
+	
+	inline void ieTransform::SetRotation(const FVector3& Rotation)
+	{
+		SetRotation(Rotation.x, Rotation.y, Rotation.z);
+	}
+	
+	inline void ieTransform::SetScale(const FVector3& Scale)
+	{
+		SetScale(m_Scale.x, m_Scale.y, m_Scale.z);
+	}
+
+	inline FVector3 ieTransform::GetLocalUp()
+	{
+		RotateVector(m_LocalUp, FVector3::Up, m_RotationMat);
+		return m_LocalUp;
+	}
+	
+	inline FVector3 ieTransform::GetLocalDown()
+	{
+		RotateVector(m_LocalDown, FVector3::Down, m_RotationMat);
+		return m_LocalDown;
+	}
+	
+	inline FVector3 ieTransform::GetLocalLeft()
+	{
+		RotateVector(m_LocalLeft, FVector3::Left, m_RotationMat);
+		return m_LocalLeft;
+	}
+	
+	inline FVector3 ieTransform::GetLocalRight()
+	{
+		RotateVector(m_LocalRight, FVector3::Right, m_RotationMat);
+		return m_LocalRight;
+	}
+	
+	inline FVector3 ieTransform::GetLocalForward()
+	{
+		RotateVector(m_LocalForward, FVector3::Forward, m_RotationMat);
+		return m_LocalForward;
+	}
+	
+	inline FVector3 ieTransform::GetLocalBackward()
+	{
+		RotateVector(m_LocalBackward, FVector3::Backward, m_RotationMat);
+		return m_LocalBackward;
 	}
 }

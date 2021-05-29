@@ -6,15 +6,7 @@
 namespace Insight {
 
 
-	void ieTransform::EditorEndPlay()
-	{
-		m_Position = m_EditorPlayOriginPosition;
-		m_Rotation = m_EditorPlayOriginRotation;
-		m_Scale = m_EditorPlayOriginScale;
-		UpdateIfTransformed(true);
-	}
-
-	void ieTransform::LookAt(FVector3& target)
+	void ieTransform::LookAt(const FVector3& target)
 	{
 		// Verify that look at pos is not the same as Model pos. They cannot be the same as that wouldn't make sense and would result in undefined behavior
 		if (target == m_Position)
@@ -52,21 +44,6 @@ namespace Insight {
 		m_WorldMatrix = matrix;
 	}
 
-	void ieTransform::UpdateIfTransformed(bool ForceUpdate)
-	{
-		if ((m_Transformed && !Application::Get().IsPlaySessionUnderWay()) || ForceUpdate)
-		{
-			TranslateLocalMatrix();
-			ScaleLocalMatrix();
-			RotateLocalMatrix();
-
-			UpdateLocalMatrix();
-			UpdateEditorOriginPositionRotationScale();
-
-			m_Transformed = false;
-		}
-	}
-
 	void ieTransform::UpdateLocalMatrix()
 	{
 		m_LocalMatrix = m_ScaleMat * m_TranslationMat * m_RotationMat;
@@ -86,19 +63,5 @@ namespace Insight {
 	void ieTransform::RotateLocalMatrix()
 	{
 		m_RotationMat = DirectX::XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z);
-		RotateVector(m_LocalForward, FVector3::Forward, m_RotationMat);
-		RotateVector(m_LocalBackward, FVector3::Backward, m_RotationMat);
-		RotateVector(m_LocalLeft, FVector3::Left, m_RotationMat);
-		RotateVector(m_LocalRight, FVector3::Right, m_RotationMat);
-		RotateVector(m_LocalUp, FVector3::Up, m_RotationMat);
-		RotateVector(m_LocalDown, FVector3::Down, m_RotationMat);
 	}
-
-	void ieTransform::UpdateEditorOriginPositionRotationScale()
-	{
-		m_EditorPlayOriginPosition = m_Position;
-		m_EditorPlayOriginRotation = m_Rotation;
-		m_EditorPlayOriginScale = m_Scale;
-	}
-
 }
