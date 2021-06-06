@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
 #include "Platform/Public/Utility/COMException.h"
-#include "Runtime/Graphics/Public/CommonEnums.h"
+#include "Graphics/Public/CommonEnums.h"
 
 namespace Insight
 {

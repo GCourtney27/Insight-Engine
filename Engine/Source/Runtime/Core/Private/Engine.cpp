@@ -1,19 +1,20 @@
 // Copyright Insight Interactive. All Rights Reserved.
 #include <Engine_pch.h>
 
-#include "Runtime/Core/Public/Application.h"
+#include "Core/Public/Engine.h"
 
-#include "Runtime/GameFramework/AActor.h"
-#include "Runtime/Core/Public/Exception.h"
-#include "Runtime/Graphics/Renderer.h"
+#include "GameFramework/AActor.h"
+#include "Core/Public/Exception.h"
+#include "Graphics/Renderer.h"
+#include "EngineDefines.h"
 
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 #include "Platform/DirectX11/Wrappers/D3D11ImGuiLayer.h"
 #include "Platform/DirectX12/Wrappers/D3D12ImGuiLayer.h"
 #include "Platform/Win32/Win32Window.h"
 #endif
 
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 #define EDITOR_UI_ENABLED 1
 #else
 #define EDITOR_UI_ENABLED 0
@@ -22,13 +23,13 @@
 #define IE_RENDER_MULTI_PLATFORM 1
 
 #if IE_RENDER_MULTI_PLATFORM
-#include "Runtime/Graphics/Public/RenderCore.h"
+#include "Graphics/Public/RenderCore.h"
 #endif // IE_RENDER_MULTI_PLATFORM
 
-#include "Runtime/Core/Public/ieObject/ieStaticMeshActor.h"
-#include "Runtime/Core/Public/ieObject/Components/ieCameraComponent.h"
-#include "Runtime/Core/Public/ieObject/iePlayerCharacter.h"
-#include "Runtime/Core/Public/ieObject/ieCameraActor.h"
+#include "Core/Public/ieObject/ieStaticMeshActor.h"
+#include "Core/Public/ieObject/Components/ieCameraComponent.h"
+#include "Core/Public/ieObject/iePlayerCharacter.h"
+#include "Core/Public/ieObject/ieCameraActor.h"
 
 static const char* TargetSceneName = "Debug.iescene";
 namespace Insight {
@@ -349,7 +350,7 @@ namespace Insight {
 
 	void Engine::PushCoreLayers()
 	{
-#if IE_PLATFORM_BUILD_WIN32 && (EDITOR_UI_ENABLED)
+#if IE_WIN32 && (EDITOR_UI_ENABLED)
 		switch (Renderer::GetAPI())
 		{
 		case Renderer::ETargetRenderAPI::Direct3D_11:
@@ -482,7 +483,7 @@ namespace Insight {
 	bool Engine::ReloadScripts(AppScriptReloadEvent& e)
 	{
 		IE_LOG(Log, TEXT("Reloading C# Scripts"));
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		ResourceManager::Get().GetMonoScriptManager().ReCompile();
 #endif
 		return true;

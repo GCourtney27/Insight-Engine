@@ -1,10 +1,10 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Core/Public/Input/PlatformKeyCodes.h"
+#include "Core/Public/Input/PlatformKeyCodes.h"
 
 namespace ConstPlatformInputCodes
 {
-#if IE_PLATFORM_BUILD_WIN32 || IE_PLATFORM_BUILD_UWP
+#if IE_WIN32 || IE_UWP_DESKTOP
 
 	const int PlatformMouseCode_Button_Left = VK_LBUTTON;
 	const int PlatformMouseCode_Button_Right = VK_RBUTTON;

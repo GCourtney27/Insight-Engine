@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Core/Public/ieObject/Components/ieComponentBase.h"
-#include "Runtime/Core/Public/Input/InputDispatcher.h"
+#include "Core/Public/ieObject/Components/ieComponentBase.h"
+#include "Core/Public/Input/InputDispatcher.h"
 
 namespace Insight
 {

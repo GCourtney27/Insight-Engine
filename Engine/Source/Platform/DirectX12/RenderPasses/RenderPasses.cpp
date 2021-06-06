@@ -2,9 +2,9 @@
 
 #include "RenderPasses.h"
 
-#include "Runtime/Graphics/ASkyLight.h"
+#include "Graphics/ASkyLight.h"
 #include "Platform/Win32/Win32Window.h"
-#include "Runtime/Systems/Managers/GeometryManager.h"
+#include "Systems/Managers/GeometryManager.h"
 #include "Platform/DirectX12/Direct3D12Context.h"
 #include "Platform/DirectX12/Wrappers/D3D12Shader.h"
 
@@ -100,7 +100,7 @@ namespace Insight {
 
 			Created = true;
 		}
-		ZeroMemory(m_pRenderTargetTextures, sizeof(ID3D12Resource*) * m_NumRenderTargets);
+		ZeroMemRanged(m_pRenderTargetTextures, sizeof(ID3D12Resource*) * m_NumRenderTargets);
 
 		LoadPipeline();
 
@@ -359,7 +359,7 @@ namespace Insight {
 
 	bool DeferredLightPass::InternalCreate()
 	{
-		ZeroMemory(m_pRenderTargetTextures, sizeof(ID3D12Resource*) * m_NumRenderTargets);
+		ZeroMemRanged(m_pRenderTargetTextures, sizeof(ID3D12Resource*) * m_NumRenderTargets);
 
 		LoadPipeline();
 

@@ -68,7 +68,7 @@ namespace Insight
 		{
 			HRESULT hr = S_OK;
 			IDXGISwapChain1* pTempSwapChain = NULL;
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 			hr = (*ppInFactory)->CreateSwapChainForHwnd(pDevice, SCast<HWND>(NativeWindow), Desc, NULL, NULL, &pTempSwapChain);
 			ThrowIfFailed(hr, TEXT("Failed to create swap chain for HWND!"));
 			if (AllowTearing)
@@ -76,7 +76,7 @@ namespace Insight
 				ThrowIfFailed((*ppInFactory)->MakeWindowAssociation(SCast<HWND>(NativeWindow), DXGI_MWA_NO_ALT_ENTER)
 					, TEXT("Failed to Make Window Association"));
 			}
-#elif IE_PLATFORM_BUILD_UWP
+#elif IE_UWP_DESKTOP
 			hr = (*ppInFactory)->CreateSwapChainForCoreWindow(pDevice, RCast<::IUnknown*>(NativeWindow), Desc, NULL, &pTempSwapChain);
 			ThrowIfFailed(hr, TEXT("Failed to Create swap chain for CoreWindow!"));
 #endif

@@ -20,6 +20,7 @@ win32AppIncludeDirs["OpenFBX"]					= engineThirdPartyDir .. "OpenFBX/src/"
 win32AppIncludeDirs["DxcAPI"]					= engineThirdPartyDir .. "Microsoft/DxcAPI/"
 win32AppIncludeDirs["Engine_Root"]				= "%{wks.location}/Engine/"
 win32AppIncludeDirs["Engine_Src"]				= "%{wks.location}/Engine/Source/"
+win32AppIncludeDirs["Engine_Src_Runtime"]		= "%{wks.location}/Engine/Source/Runtime/"
 win32AppIncludeDirs["Engine_ThirdParty"]		= engineThirdPartyDir
 win32AppIncludeDirs["BuildRules"]				= "%{wks.location}/Engine/BuildRules/"
 
@@ -61,12 +62,12 @@ project (projectName)
 		"%{win32AppIncludeDirs.Mono}mono-2.0/",
 		"%{win32AppIncludeDirs.DxcAPI}inc/",
 		"%{win32AppIncludeDirs.Engine_Src}",
+		"%{win32AppIncludeDirs.Engine_Src_Runtime}",
 		"%{win32AppIncludeDirs.OpenFBX}",
 		"%{win32AppIncludeDirs.Engine_ThirdParty}",
 		
 		-- Personal source files for this application
 		"Source/",
-
 		"./",
 
 		-- Shared Header Includes for this Project
@@ -104,7 +105,8 @@ project (projectName)
 
 	defines
 	{
-		"IE_PLATFORM_BUILD_WIN32=1"
+		"IE_WIN32=1",
+		"INSIGHT_ENGINE=1",
 	}
 	flags
 	{

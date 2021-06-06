@@ -1,12 +1,12 @@
 // Copyright Insight Interactive. All Rights Reserved.
 #pragma once
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Core/Public/Layer/Layer.h"
+#include "Core/Public/Layer/Layer.h"
 
-#include "Runtime/Core/Public/Events/MouseEvent.h"
+#include "Core/Public/Events/MouseEvent.h"
 
-#include "Runtime/Physics/Ray.h"
+#include "Physics/Ray.h"
 
 namespace Insight {
 

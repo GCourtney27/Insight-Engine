@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Runtime/Core/Public/ECS/Core/Core.h"
+#include "Core/Public/ECS/Core/Core.h"
 
 #include <assert.h>
 
@@ -24,7 +24,7 @@ namespace ECS
 		virtual ~SystemBase() = default;
 
 	public:
-		ECS_FORCE_INLINE const char* GetDebugName() const
+		ECS_FORCEINLINE const char* GetDebugName() const
 		{
 			return m_DebugName;
 		}
@@ -54,7 +54,7 @@ namespace ECS
 			Returns a reference to the container holding the raw component data. 
 			Derived systems should execute with the return value of this.
 		*/
-		ECS_FORCE_INLINE std::vector<ComponentType>& GetRawComponentData()
+		ECS_FORCEINLINE std::vector<ComponentType>& GetRawComponentData()
 		{
 			if (m_ComponentMapRef == nullptr) 
 			{

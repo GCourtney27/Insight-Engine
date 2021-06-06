@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 #include <Runtime/Graphics/Public/GraphicsCore.h>
 
-#include "Runtime/Graphics/Public/IRenderContext.h"
+#include "Graphics/Public/IRenderContext.h"
 
 
 namespace Insight
@@ -25,7 +25,7 @@ namespace Insight
 
 			virtual void CreateContext(IRenderContext** OutContext, std::shared_ptr<Window> InWindow) = 0;
 
-			FORCE_INLINE void InitializeMainComponents();
+			FORCEINLINE void InitializeMainComponents();
 
 			virtual void CreateDevice(IDevice** OutDevice) = 0;
 			virtual void CreateSwapChain(ISwapChain** OutSwapChain, ICommandManager* InCommandManager, IDevice* InDevice) = 0;
@@ -52,7 +52,7 @@ namespace Insight
 		// IRenderContextFactory inline function implementations
 		//
 
-		FORCE_INLINE void IRenderContextFactory::InitializeMainComponents()
+		FORCEINLINE void IRenderContextFactory::InitializeMainComponents()
 		{
 			CreateDevice(&g_pDevice);
 

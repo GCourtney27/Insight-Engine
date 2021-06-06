@@ -3,22 +3,22 @@
 */
 #pragma once
 
-#include "Runtime/Graphics/Public/IDevice.h"
-#include "Runtime/Graphics/Public/ISwapChain.h"
-#include "Runtime/Graphics/Public/CommonEnums.h"
-#include "Runtime/Graphics/Public/CommonStructs.h"
-#include "Runtime/Graphics/Public/IRenderContext.h"
-#include "Runtime/Graphics/Public/ICommandContext.h"
-#include "Runtime/Graphics/Public/IDescriptorHeap.h"
-#include "Runtime/Graphics/Public/CommonStructHelpers.h"
-#include "Runtime/Graphics/Public/ICommandManager.h"
-#include "Runtime/Graphics/Public/IGeometryBufferManager.h"
-#include "Runtime/Graphics/Public/Resource/IVertexBuffer.h"
-#include "Runtime/Graphics/Public/Resource/IIndexBuffer.h"
-#include "Runtime/Graphics/Public/Resource/IPixelBuffer.h"
-#include "Runtime/Graphics/Public/Resource/IDepthBuffer.h"
-#include "Runtime/Graphics/Public/ResourceManagement/ITextureManager.h"
-#include "Runtime/Graphics/Public/ResourceManagement/IConstantBufferManager.h"
+#include "Graphics/Public/IDevice.h"
+#include "Graphics/Public/ISwapChain.h"
+#include "Graphics/Public/CommonEnums.h"
+#include "Graphics/Public/CommonStructs.h"
+#include "Graphics/Public/IRenderContext.h"
+#include "Graphics/Public/ICommandContext.h"
+#include "Graphics/Public/IDescriptorHeap.h"
+#include "Graphics/Public/CommonStructHelpers.h"
+#include "Graphics/Public/ICommandManager.h"
+#include "Graphics/Public/IGeometryBufferManager.h"
+#include "Graphics/Public/Resource/IVertexBuffer.h"
+#include "Graphics/Public/Resource/IIndexBuffer.h"
+#include "Graphics/Public/Resource/IPixelBuffer.h"
+#include "Graphics/Public/Resource/IDepthBuffer.h"
+#include "Graphics/Public/ResourceManagement/ITextureManager.h"
+#include "Graphics/Public/ResourceManagement/IConstantBufferManager.h"
 
 
 //

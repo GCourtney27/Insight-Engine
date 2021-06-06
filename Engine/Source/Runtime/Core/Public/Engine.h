@@ -16,22 +16,22 @@
 
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Core/Public/Window.h"
-#include "Runtime/Core/Public/Scene/Scene.h"
-#include "Runtime/Core/Public/Utility/FrameTimer.h"
-#include "Runtime/Core/Public/Layer/LayerStack.h"
+#include "Core/Public/Window.h"
+#include "Core/Public/Scene/Scene.h"
+#include "Core/Public/Utility/FrameTimer.h"
+#include "Core/Public/Layer/LayerStack.h"
 
-#include "Runtime/Core/Public/Events/ApplicationEvent.h"
-#include "Runtime/Core/Public/Input/InputDispatcher.h"
+#include "Core/Public/Events/ApplicationEvent.h"
+#include "Core/Public/Input/InputDispatcher.h"
 
-#include "Runtime/Core/Public/Layer/GameLayer.h"
-#include "Runtime/Core/Public/Layer/ImGuiOverlay.h"
-#include "Runtime/Core/Public/Layer/EditorOverlay.h"
-#include "Runtime/Core/Public/Layer/PerfOverlay.h"
+#include "Core/Public/Layer/GameLayer.h"
+#include "Core/Public/Layer/ImGuiOverlay.h"
+#include "Core/Public/Layer/EditorOverlay.h"
+#include "Core/Public/Layer/PerfOverlay.h"
 
-#include "Runtime/Core/Public/ieObject/ieWorld.h"
+#include "Core/Public/ieObject/ieWorld.h"
 
 
 namespace Insight 
@@ -148,7 +148,7 @@ namespace Insight
 	};
 
 	// To be defined by client.
-	std::unique_ptr<Engine> CreateApplication();
+	extern std::unique_ptr<Engine> CreateEngine();
 
 }
 

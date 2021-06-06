@@ -2,7 +2,7 @@
 
 #include "APawn.h"
 
-#include "Runtime/Core/Public/Events/MouseEvent.h"
+#include "Core/Public/Events/MouseEvent.h"
 
 namespace Insight {
 

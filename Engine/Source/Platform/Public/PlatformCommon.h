@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Core/Public/Input/KeyCodes.h"
+#include "Core/Public/Input/KeyCodes.h"
 
 namespace Insight
 {

@@ -1,6 +1,6 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Graphics/Public/ieMaterial.h"
+#include "Graphics/Public/ieMaterial.h"
 
 namespace Insight
 {
@@ -68,7 +68,7 @@ namespace Insight
 
 		char* pFileMem = (char*)_alloca(DataLengths);
 		void* pMemStart = pFileMem;
-		ZeroMem(pFileMem, DataLengths);
+		ZeroMemRanged(pFileMem, DataLengths);
 
 		// Write the header.
 		*pFileMem = 'A'; pFileMem++;

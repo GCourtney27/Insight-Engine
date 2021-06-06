@@ -2,8 +2,8 @@
 
 #include "RayTraceHelpers.h"
 
-#include "Runtime/Core/Public/Application.h"
-#include "Runtime/Graphics/Geometry/Vertex.h"
+#include "Core/Public/Engine.h"
+#include "Graphics/Geometry/Vertex.h"
 
 #include "Platform/Win32/Win32Window.h"
 #include "Platform/DirectX12/Direct3D12Context.h"

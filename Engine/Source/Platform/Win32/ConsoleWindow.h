@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 
 #include <Windows.h>
-#include "Runtime/Math/Public/Vectors.h"
+#include "Math/Public/Vectors.h"
 
 namespace Insight {
 

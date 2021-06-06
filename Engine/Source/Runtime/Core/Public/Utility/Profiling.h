@@ -1,6 +1,7 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
+#include "InsightStd.h"
 #include <chrono>
 
 
@@ -54,7 +55,7 @@ namespace Insight {
 			/*
 				Starts the timer.
 			*/
-			FORCE_INLINE void Start()
+			FORCEINLINE void Start()
 			{
 				if (!GetIsTimerStarted())
 				{
@@ -70,7 +71,7 @@ namespace Insight {
 			/*
 				Stops the timer and calculates the amount of time elapsed since Timer::Start().
 			*/
-			FORCE_INLINE void Stop()
+			FORCEINLINE void Stop()
 			{
 				if (GetIsTimerStarted())
 				{
@@ -87,7 +88,7 @@ namespace Insight {
 			/*
 				Returns true if the timer has started or false if not.
 			*/
-			FORCE_INLINE bool GetIsTimerStarted() const 
+			FORCEINLINE bool GetIsTimerStarted() const 
 			{
 				return m_Started;
 			}
@@ -96,7 +97,7 @@ namespace Insight {
 				Set if the timer has started.
 				@param Started - Weather the timer has been started.
 			*/
-			FORCE_INLINE void SetTimerStarted(bool Started)
+			FORCEINLINE void SetTimerStarted(bool Started)
 			{
 				m_Started = Started;
 			}
@@ -104,7 +105,7 @@ namespace Insight {
 			/*
 				Returns the amount of time the timer tracked in nanoseconds.
 			*/
-			FORCE_INLINE TimeType GetElapsedNanos() const
+			FORCEINLINE TimeType GetElapsedNanos() const
 			{
 				return (TimeType)std::chrono::duration_cast<std::chrono::nanoseconds>(m_Duration).count();
 			}
@@ -112,7 +113,7 @@ namespace Insight {
 			/*
 				Returns the amount of time the timer tracked in milliseconds.
 			*/
-			FORCE_INLINE TimeType GetElapsedMiliSeconds() const
+			FORCEINLINE TimeType GetElapsedMiliSeconds() const
 			{
 				return (TimeType)std::chrono::duration_cast<std::chrono::milliseconds>(m_Duration).count();
 			}
@@ -120,7 +121,7 @@ namespace Insight {
 			/*
 				Returns the amount of time the timer tracked in seconds.
 			*/
-			FORCE_INLINE TimeType GetElepsedSeconds() const
+			FORCEINLINE TimeType GetElepsedSeconds() const
 			{
 				return (TimeType)std::chrono::duration_cast<std::chrono::seconds>(m_Duration).count() + (GetElapsedMiliSeconds() / 1000.0);
 			}
@@ -128,7 +129,7 @@ namespace Insight {
 			/*
 				Returns the amount of time the timer tracked in microseconds.
 			*/
-			FORCE_INLINE TimeType GetElepsedMicroSeconds() const
+			FORCEINLINE TimeType GetElepsedMicroSeconds() const
 			{
 				return (TimeType)std::chrono::duration_cast<std::chrono::microseconds>(m_Duration).count();
 			}

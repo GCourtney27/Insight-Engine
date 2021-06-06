@@ -10,7 +10,7 @@
 */
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
 
 namespace Insight

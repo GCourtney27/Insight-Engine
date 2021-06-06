@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Runtime/Core/Public/ECS/Core/Core.h"
+#include "Core/Public/ECS/Core/Core.h"
 
-#include "Runtime/Core/Public/ECS/Component/ComponentUtil.h"
-#include "Runtime/Core/Public/ECS/DataStructures/ComponentMap.h"
+#include "Core/Public/ECS/Component/ComponentUtil.h"
+#include "Core/Public/ECS/DataStructures/ComponentMap.h"
 
 #include <functional>
 
@@ -36,7 +36,7 @@ namespace ECS {
 			@param pBaseMap - A pointer to a 'EntityAdmin::m_EntityAdminComponents' value.
 		*/
 		template <typename ComponentMapType>
-		ECS_FORCE_INLINE constexpr auto TryGetComponentMapByBase(ComponentMapBase* pBaseMap)
+		ECS_FORCEINLINE constexpr auto TryGetComponentMapByBase(ComponentMapBase* pBaseMap)
 		{
 			return dynamic_cast<GenericComponentMap<ComponentMapType>*>(pBaseMap);
 		}

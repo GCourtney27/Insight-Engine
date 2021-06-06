@@ -145,7 +145,7 @@ namespace Insight
 			void D3D12CommandQueue::CreateD3D12Queue()
 			{
 				D3D12_COMMAND_QUEUE_DESC Desc;
-				ZeroMem(&Desc);
+				ZeroMemRanged(&Desc);
 				Desc.Type = PlatformUtils::IECommandListTypeToD3DCommandListType(m_Type);
 				Desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 				HRESULT hr = m_pID3DDeviceRef->CreateCommandQueue(&Desc, IID_PPV_ARGS(&m_pID3D12CommandQueue));

@@ -2,24 +2,24 @@
 
 #include "Direct3D12Context.h"
 
-#include "Runtime/Core/Public/Application.h"
+#include "Core/Public/Engine.h"
 #include "Platform/Win32/Win32Window.h"
-#include "Runtime/GameFramework/Archetypes/APlayerCharacter.h"
-#include "Runtime/Systems/Managers/GeometryManager.h"
+#include "GameFramework/Archetypes/APlayerCharacter.h"
+#include "Systems/Managers/GeometryManager.h"
 #include "Platform/DirectX12/RayTracing/RayTraceHelpers.h"
 
-#include "Runtime/Graphics/APostFx.h"
-#include "Runtime/Graphics/ASkyLight.h"
-#include "Runtime/Graphics/ASkySphere.h"
-#include "Runtime/Graphics/Lighting/ASpotLight.h"
-#include "Runtime/Graphics/Lighting/APointLight.h"
-#include "Runtime/Graphics/Lighting/ADirectionalLight.h"
+#include "Graphics/APostFx.h"
+#include "Graphics/ASkyLight.h"
+#include "Graphics/ASkySphere.h"
+#include "Graphics/Lighting/ASpotLight.h"
+#include "Graphics/Lighting/APointLight.h"
+#include "Graphics/Lighting/ADirectionalLight.h"
 
 #include "Platform/DirectX12/Geometry/D3D12VertexBuffer.h"
 #include "Platform/DirectX12/Geometry/D3D12IndexBuffer.h"
 #include "Platform/DirectX12/Geometry/D3D12SphereRenderer.h"
 
-#include "Runtime/UI/UILib.h"
+#include "UI/UILib.h"
 
 
 #define SHADOWMAPPING_ENABLED 0
@@ -90,7 +90,7 @@ namespace Insight {
 					CreateBloomPassRS();
 					CreateDebugScreenQuadRS();
 
-//#if !IE_PLATFORM_BUILD_XBOX_ONE
+//#if !IE_XBOX_ONE
 //					TryCompiledShaders();
 //#endif
 					{
@@ -529,7 +529,7 @@ namespace Insight {
 
 	void Direct3D12Context::OnWindowFullScreen_Impl()
 	{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 
 		Win32Window* pWindow = &GetWindowRefAs<Win32Window>();
 		HWND pHWND = static_cast<HWND>(m_pWindowRef->GetNativeWindow());
@@ -582,7 +582,7 @@ namespace Insight {
 			ShowWindow(pHWND, SW_MAXIMIZE);
 		}
 		m_FullScreenMode = !m_FullScreenMode;
-#endif // IE_PLATFORM_BUILD_WIN32
+#endif // IE_WIN32
 	}
 
 	void Direct3D12Context::OnShaderReload_Impl()
@@ -1385,7 +1385,7 @@ namespace Insight {
 
 		// Batching transitions is much faster for the GPU than one at a time.
 		D3D12_RESOURCE_BARRIER Barriers[MaxBarrierTransitions];
-		ZeroMemory(Barriers, sizeof(D3D12_RESOURCE_BARRIER) * MaxBarrierTransitions);
+		ZeroMemRanged(Barriers, sizeof(D3D12_RESOURCE_BARRIER) * MaxBarrierTransitions);
 
 		for (uint8_t i = 0; i < NumBarriers; ++i)
 		{

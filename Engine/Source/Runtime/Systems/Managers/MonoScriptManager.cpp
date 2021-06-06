@@ -3,11 +3,11 @@
 
 #include "MonoScriptManager.h"
 
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 
-#include "Runtime/Systems/Managers/ResourceManager.h"
+#include "Systems/Managers/ResourceManager.h"
 
-#include "Runtime/GameFramework/Components/CSharpScirptComponent.h"
+#include "GameFramework/Components/CSharpScirptComponent.h"
 
 #include "imgui.h"
 
@@ -88,7 +88,7 @@ namespace Insight {
 		return true;
 		if (!m_ManagerIsInitialized) {
 
-			const char* BuildConfig = MACRO_TO_STRING(IE_BUILD_CONFIG);
+			const char* BuildConfig = IE_CONFIG_STRING;
 			//m_AssemblyDir = FileSystem::GetProjectDirectory();
 			m_AssemblyDir += "/Bin/";
 			m_AssemblyDir += BuildConfig;
@@ -175,4 +175,4 @@ namespace Insight {
 	}
 
 }
-#endif // IE_PLATFORM_BUILD_WIN32
+#endif // IE_WIN32

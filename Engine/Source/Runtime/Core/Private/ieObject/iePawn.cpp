@@ -1,8 +1,8 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Core/Public/ieObject/iePawn.h"
+#include "Core/Public/ieObject/iePawn.h"
 
-#include "Runtime/Core/Public/ieObject/ieWorld.h"
+#include "Core/Public/ieObject/ieWorld.h"
 
 
 namespace Insight

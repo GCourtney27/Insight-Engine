@@ -1,7 +1,7 @@
 // Copyright Insight Interactive. All Rights Reserved.
 #pragma once
 
-#include "Runtime/Core/Public/Input/PlatformKeyCodes.h"
+#include "Core/Public/Input/PlatformKeyCodes.h"
 
 namespace Insight {
 

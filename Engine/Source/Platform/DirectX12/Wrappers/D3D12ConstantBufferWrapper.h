@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
 #include "Platform/Public/Utility/COMException.h"
 
-#include "Runtime/Graphics/Geometry/IConstantBuffer.h"
+#include "Graphics/Geometry/IConstantBuffer.h"
 
 namespace Insight {
 

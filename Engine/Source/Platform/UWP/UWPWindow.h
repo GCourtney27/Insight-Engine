@@ -1,14 +1,14 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Core/Window.h"
-#include "Runtime/Input/KeyCodes.h"
+#include "Core/Window.h"
+#include "Input/KeyCodes.h"
 
 
 namespace Insight {
 
-#if IE_PLATFORM_BUILD_UWP
+#if IE_UWP_DESKTOP
 
 
 	struct UWPWindowDescription : WindowDescription

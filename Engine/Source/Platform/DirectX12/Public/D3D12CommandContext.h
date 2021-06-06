@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 #include <Runtime/Graphics/Public/GraphicsCore.h>
 
-#include "Runtime/Graphics/Public/ICommandContext.h"
-#include "Runtime/Graphics/Public/ICommandManager.h"
+#include "Graphics/Public/ICommandContext.h"
+#include "Graphics/Public/ICommandManager.h"
 
 #include "Platform/DirectX12/Private/D3D12DynamicDescriptorHeap.h"
 #include <Runtime/Graphics/Public/IRootSignature.h>

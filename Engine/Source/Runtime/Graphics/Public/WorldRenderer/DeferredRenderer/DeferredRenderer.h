@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Graphics/Public/RenderCore.h"
+#include "Graphics/Public/RenderCore.h"
 
 
 namespace Insight

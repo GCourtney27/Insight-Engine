@@ -2,14 +2,14 @@
 
 #include "Mesh.h"
 
-#include "Runtime/Core/Public/Scene/SceneNode.h"
-#include "Runtime/Graphics/Geometry/MeshNode.h"
+#include "Core/Public/Scene/SceneNode.h"
+#include "Graphics/Geometry/MeshNode.h"
 
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
-#elif IE_PLATFORM_BUILD_UWP
+#elif IE_UWP_DESKTOP
 #include "ofbx.h"
 //#define TINYOBJLOADER_IMPLEMENTATION
 //#include <tinyobjloader/tiny_obj_loader.h>
@@ -55,10 +55,10 @@ namespace Insight {
 	private:
 		bool LoadModelFromFile(const FString& path);
 		
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		std::unique_ptr<MeshNode> AssimpParseNode_r(aiNode* pNode);
 		std::unique_ptr<Mesh> AssimpProcessMesh(aiMesh* pMesh, const aiScene* pScene);
-#elif IE_PLATFORM_BUILD_UWP
+#elif IE_UWP_DESKTOP
 		std::unique_ptr<Mesh> OFBXProcessMesh(const ofbx::Mesh& FBXMesh);
 		//std::unique_ptr<Mesh> TinyOBJProcessMesh();
 #endif

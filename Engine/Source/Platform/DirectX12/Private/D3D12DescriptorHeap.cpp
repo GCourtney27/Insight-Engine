@@ -2,7 +2,7 @@
 
 #include "Platform/DirectX12/Public/D3D12DescriptorHeap.h"
 
-#include "Runtime/Graphics/Public/IDevice.h"
+#include "Graphics/Public/IDevice.h"
 
 
 namespace Insight

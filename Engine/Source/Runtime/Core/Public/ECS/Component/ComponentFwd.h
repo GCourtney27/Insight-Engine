@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Runtime/Core/Public/ECS/Core/Core.h"
-#include "Runtime/Core/Public/ECS/EntityAdmin/EntityFwd.h"
+#include "Core/Public/ECS/Core/Core.h"
+#include "Core/Public/ECS/EntityAdmin/EntityFwd.h"
 
 #include <string_view>
 
@@ -38,20 +38,20 @@ namespace ECS
 		/*
 			Returns the components unique ID.
 		*/
-		ECS_FORCE_INLINE ComponentUID_t GetId() const noexcept(true) { return m_UID; }
+		ECS_FORCEINLINE ComponentUID_t GetId() const noexcept(true) { return m_UID; }
 
 		/*
 			Set the components unique ID.
 		*/
-		ECS_FORCE_INLINE void SetId(const ComponentUID_t& ID) noexcept(true) { m_UID = ID; }
+		ECS_FORCEINLINE void SetId(const ComponentUID_t& ID) noexcept(true) { m_UID = ID; }
 
 
-		ECS_FORCE_INLINE bool operator ==(const ComponentType& rhs)
+		ECS_FORCEINLINE bool operator ==(const ComponentType& rhs)
 		{
 			return this->GetId() == rhs.GetId();
 		}
 
-		ECS_FORCE_INLINE bool operator !=(const ComponentType& rhs)
+		ECS_FORCEINLINE bool operator !=(const ComponentType& rhs)
 		{
 			return !(this == rhs);
 		}
@@ -60,7 +60,7 @@ namespace ECS
 		ComponentBase()
 		{
 			// Zero the component.
-			ZeroMemRanged(this, sizeof(ComponentBase<ComponentType>));
+			ZeroMemRangedRanged(this, sizeof(ComponentBase<ComponentType>));
 
 			// Register the ID.
 			RegisterNewId(m_UID);
@@ -72,7 +72,7 @@ namespace ECS
 			Registers a new id for this component type.
 			@param OutId - The Id to register.
 		*/
-		ECS_FORCE_INLINE static void RegisterNewId(ComponentUID_t& OutId)
+		ECS_FORCEINLINE static void RegisterNewId(ComponentUID_t& OutId)
 		{
 			OutId = s_ComponentID++;
 		}

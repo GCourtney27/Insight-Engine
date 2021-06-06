@@ -1,10 +1,10 @@
 // Copyright Insight Interactive. All Rights Reserved.
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Core/Public/ieObject/ieActor.h"
-#include "Runtime/Core/Public/ieObject/Components/ieStaticMeshComponent.h"
+#include "Core/Public/ieObject/ieActor.h"
+#include "Core/Public/ieObject/Components/ieStaticMeshComponent.h"
 
 namespace Insight
 {

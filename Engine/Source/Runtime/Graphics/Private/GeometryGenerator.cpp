@@ -1,6 +1,6 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Graphics/Public/GeometryGenerator.h"
+#include "Graphics/Public/GeometryGenerator.h"
 
 namespace Insight
 {

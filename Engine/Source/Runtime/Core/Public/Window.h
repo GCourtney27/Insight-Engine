@@ -1,13 +1,11 @@
 #pragma once
 #include <Engine_pch.h>
 
-#include <Runtime/Core.h>
-#include "Runtime/Core/Public/Events/Event.h"
-#include "Runtime/Core/Public/Input/KeyCodes.h"
+#include "EngineDefines.h"
+#include "Core/Public/Events/Event.h"
+#include "Core/Public/Input/KeyCodes.h"
 
 class RenderingContext;
-
-constexpr int cx_MaxLoadString = 100;
 
 namespace Insight {
 
@@ -58,31 +56,31 @@ namespace Insight {
 		virtual void* GetNativeWindow() const = 0;
 		virtual bool SetWindowTitle(const FString& newText, bool completlyOverride = false) = 0;
 
-		FORCE_INLINE void Resize(Int32 NewWidth, Int32 NewHeight, bool IsMinimized);
+		FORCEINLINE void Resize(Int32 NewWidth, Int32 NewHeight, bool IsMinimized);
 
 
 		template <typename DataType = float>
-		FORCE_INLINE DataType GetDPI() const { return static_cast<DataType>(m_DPI); }
-		FORCE_INLINE Int32 GetWidth()					const { return m_LogicalWidth; }
-		FORCE_INLINE Int32 GetHeight()					const { return m_LogicalHeight; }
-		FORCE_INLINE FVector2 GetDimensions()			const { return FVector2((float)m_LogicalWidth, (float)m_LogicalHeight); }
-		FORCE_INLINE float GetAspectRatio()				const { return m_AspectRatio; }
-		FORCE_INLINE bool GetIsVisible()				const { return m_IsVisible; }
-		FORCE_INLINE bool GetIsFullScreenActive()		const { return m_WindowMode == EWindowMode::WM_Borderless; }
-		FORCE_INLINE EWindowMode GetWindowMode()			  { return m_WindowMode; }
-		FORCE_INLINE void SetIsVisible(bool Visible)		  { m_IsVisible = Visible; }
-		FORCE_INLINE void SetAspectRatio(float AspectRatio)	  { m_AspectRatio = AspectRatio; }
-		FORCE_INLINE void SetWindowMode(EWindowMode Mode);
-		FORCE_INLINE void SetDPI(float NewDPI)				{ m_DPI = NewDPI; Resize(m_LogicalWidth, m_LogicalHeight, !m_IsVisible); }
+		FORCEINLINE DataType GetDPI() const { return static_cast<DataType>(m_DPI); }
+		FORCEINLINE Int32 GetWidth()					const { return m_LogicalWidth; }
+		FORCEINLINE Int32 GetHeight()					const { return m_LogicalHeight; }
+		FORCEINLINE FVector2 GetDimensions()			const { return FVector2((float)m_LogicalWidth, (float)m_LogicalHeight); }
+		FORCEINLINE float GetAspectRatio()				const { return m_AspectRatio; }
+		FORCEINLINE bool GetIsVisible()				const { return m_IsVisible; }
+		FORCEINLINE bool GetIsFullScreenActive()		const { return m_WindowMode == EWindowMode::WM_Borderless; }
+		FORCEINLINE EWindowMode GetWindowMode()			  { return m_WindowMode; }
+		FORCEINLINE void SetIsVisible(bool Visible)		  { m_IsVisible = Visible; }
+		FORCEINLINE void SetAspectRatio(float AspectRatio)	  { m_AspectRatio = AspectRatio; }
+		FORCEINLINE void SetWindowMode(EWindowMode Mode);
+		FORCEINLINE void SetDPI(float NewDPI)				{ m_DPI = NewDPI; Resize(m_LogicalWidth, m_LogicalHeight, !m_IsVisible); }
 
-		FORCE_INLINE void AttachWindowModeChangedCallback(WindowModeCallbackFn Fn) { m_WindowModeChangedCallbacks.push_back(Fn); }
-		FORCE_INLINE void AttachWindowResizeCallback(WindowResizeCallbackFn Fn) { m_WindowResizeCallbacks.push_back(Fn); }
+		FORCEINLINE void AttachWindowModeChangedCallback(WindowModeCallbackFn Fn) { m_WindowModeChangedCallbacks.push_back(Fn); }
+		FORCEINLINE void AttachWindowResizeCallback(WindowResizeCallbackFn Fn) { m_WindowResizeCallbacks.push_back(Fn); }
 
-		FORCE_INLINE EventCallbackFn& GetEventCallbackFn() { return m_EventCallbackFn; }
-		FORCE_INLINE void SetEventCallback(const EventCallbackFn& callback) { m_EventCallbackFn = callback; }
+		FORCEINLINE EventCallbackFn& GetEventCallbackFn() { return m_EventCallbackFn; }
+		FORCEINLINE void SetEventCallback(const EventCallbackFn& callback) { m_EventCallbackFn = callback; }
 
-		FORCE_INLINE int ConvertDipsToPixels(float dips) const noexcept;
-		FORCE_INLINE float ConvertPixelsToDips(int pixels) const noexcept;
+		FORCEINLINE int ConvertDipsToPixels(float dips) const noexcept;
+		FORCEINLINE float ConvertPixelsToDips(int pixels) const noexcept;
 		
 	protected:
 		virtual void SetNativeWindowDPI() = 0;

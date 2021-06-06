@@ -94,11 +94,11 @@ namespace Insight {
 
 		//Create D3D resources
 		D3D12_HEAP_PROPERTIES heapProperty;
-		ZeroMemory(&heapProperty, sizeof(heapProperty));
+		ZeroMemRanged(&heapProperty, sizeof(heapProperty));
 		heapProperty.Type = D3D12_HEAP_TYPE_UPLOAD;
 
 		D3D12_RESOURCE_DESC resourceDesc;
-		ZeroMemory(&resourceDesc, sizeof(resourceDesc));
+		ZeroMemRanged(&resourceDesc, sizeof(resourceDesc));
 		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 		resourceDesc.Alignment = 0;
 		resourceDesc.SampleDesc.Count = 1;

@@ -2,8 +2,8 @@
 
 #include "Mesh.h"
 
-#include "Runtime/Core/Public/Application.h"
-#include "Runtime/Graphics/Renderer.h"
+#include "Core/Public/Engine.h"
+#include "Graphics/Renderer.h"
 
 #include "Platform/DirectX11/Geometry/D3D11IndexBuffer.h"
 #include "Platform/DirectX11/Geometry/D3D11VertexBuffer.h"

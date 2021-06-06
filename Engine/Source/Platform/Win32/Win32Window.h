@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Runtime/Core/Public/Window.h"
+#include "Core/Public/Window.h"
 
 
 namespace Insight {
 
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 
 	/*
 		Function signature for a callback that can process custom IDM_*
@@ -106,5 +106,5 @@ namespace Insight {
 		static const UInt32 m_WindowStyle = WS_OVERLAPPEDWINDOW;
 	};
 
-#endif // IE_PLATFORM_BUILD_WIN32
+#endif // IE_WIN32
 }

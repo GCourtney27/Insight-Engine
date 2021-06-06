@@ -1,6 +1,6 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Graphics/Public/IGeometryBufferManager.h"
+#include "Graphics/Public/IGeometryBufferManager.h"
 
 
 namespace Insight

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Core/Public/ECS/EntityAdmin/EntityAdminFwd.h"
+#include "Core/Public/ECS/EntityAdmin/EntityAdminFwd.h"
 
 
 namespace Insight

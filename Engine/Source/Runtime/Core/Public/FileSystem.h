@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Runtime/Core.h>
-#include "Runtime/Graphics/Renderer.h"
+#include "EngineDefines.h"
+#include "Graphics/Renderer.h"
 
 namespace Insight {
 

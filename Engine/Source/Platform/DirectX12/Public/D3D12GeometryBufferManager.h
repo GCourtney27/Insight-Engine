@@ -1,13 +1,13 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 #include <Runtime/Graphics/Public/GraphicsCore.h>
 
-#include "Runtime/Graphics/Public/IGeometryBufferManager.h"
+#include "Graphics/Public/IGeometryBufferManager.h"
 
 #include "Platform/DirectX12/Public/Resource/D3D12VertexBuffer.h"
 #include "Platform/DirectX12/Public/Resource/D3D12IndexBuffer.h"
-#include "Runtime/Graphics/Public/ICommandManager.h" // TEMP
+#include "Graphics/Public/ICommandManager.h" // TEMP
 
 namespace Insight
 {
@@ -29,7 +29,7 @@ namespace Insight
 
 				// TODO Fix multiple file names so these can go inside this class's cpp file.
 
-				FORCE_INLINE virtual void DeAllocateVertexBuffer(VertexBufferUID& UID) override
+				FORCEINLINE virtual void DeAllocateVertexBuffer(VertexBufferUID& UID) override
 				{
 					g_pCommandManager->IdleGPU();
 
@@ -37,7 +37,7 @@ namespace Insight
 					m_VertexBufferLUT.erase(UID);
 				}
 
-				FORCE_INLINE virtual void DeAllocateIndexBuffer(IndexBufferUID& UID) override
+				FORCEINLINE virtual void DeAllocateIndexBuffer(IndexBufferUID& UID) override
 				{
 					g_pCommandManager->IdleGPU();
 					
@@ -45,13 +45,13 @@ namespace Insight
 					m_IndexBufferLUT.erase(UID);
 				}
 
-				FORCE_INLINE virtual IVertexBuffer& GetVertexBufferByUID(VertexBufferUID& UID) override
+				FORCEINLINE virtual IVertexBuffer& GetVertexBufferByUID(VertexBufferUID& UID) override
 				{
 					IE_ASSERT(UID != IE_INVALID_VERTEX_BUFFER_HANDLE);
 					return m_VertexBufferLUT.at(UID);
 				}
 
-				FORCE_INLINE virtual IIndexBuffer& GetIndexBufferByUID(IndexBufferUID& UID) override
+				FORCEINLINE virtual IIndexBuffer& GetIndexBufferByUID(IndexBufferUID& UID) override
 				{
 					IE_ASSERT(UID != IE_INVALID_INDEX_BUFFER_HANDLE);
 					return m_IndexBufferLUT.at(UID);

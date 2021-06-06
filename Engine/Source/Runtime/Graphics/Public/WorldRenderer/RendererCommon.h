@@ -1,17 +1,14 @@
 // Copyright Insight Interactive. All Rights Reserved.
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Math/Public/Matricies.h"
-#include "Runtime/Math/Public/Vectors.h"
-#include "Runtime/Graphics/Public/CommonStructs.h"
+#include "Math/Public/Matricies.h"
+#include "Math/Public/Vectors.h"
+#include "Graphics/Public/CommonStructs.h"
 
 namespace Insight
 {
-#	define IE_MAX_SPOT_LIGHTS 4
-#	define IE_MAX_POINT_LIGHTS 4
-#	define IE_MAX_DIRECTIONAL_LIGHTS 4
 
 
 	/*

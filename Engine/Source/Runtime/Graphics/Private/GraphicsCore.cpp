@@ -2,9 +2,9 @@
 
 #include <Runtime/Graphics/Public/GraphicsCore.h>
 
-#include "Runtime/Graphics/Public/Resource/ITexture.h"
-#include "Runtime/Graphics/Public/ResourceManagement/ModelManager.h"
-#include "Runtime/Graphics/Public/ResourceManagement/MaterialManager.h"
+#include "Graphics/Public/Resource/ITexture.h"
+#include "Graphics/Public/ResourceManagement/ModelManager.h"
+#include "Graphics/Public/ResourceManagement/MaterialManager.h"
 
 
 namespace Insight

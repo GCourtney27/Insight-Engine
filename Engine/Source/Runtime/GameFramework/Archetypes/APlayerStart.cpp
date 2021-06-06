@@ -2,7 +2,7 @@
 
 #include "APlayerStart.h"
 
-#include "Runtime/GameFramework/Archetypes/APlayerCharacter.h"
+#include "GameFramework/Archetypes/APlayerCharacter.h"
 
 namespace Insight {
 

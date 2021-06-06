@@ -1,7 +1,7 @@
 // Copyright Insight Interactive. All Rights Reserved.
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 #include <Runtime/Graphics/Public/GraphicsCore.h>
 
 
@@ -38,8 +38,8 @@ namespace Insight
 			//
 			// Getters/Setters
 			//
-			FORCE_INLINE ISwapChain* GetSwapChain()				const { return m_pSwapChain; }
-			FORCE_INLINE std::shared_ptr<Window> GetWindow()	const { return m_pWindow; }
+			FORCEINLINE ISwapChain* GetSwapChain()				const { return m_pSwapChain; }
+			FORCEINLINE std::shared_ptr<Window> GetWindow()	const { return m_pWindow; }
 			
 			void SetWindow(std::shared_ptr<Window> pWindow);
 
@@ -49,7 +49,7 @@ namespace Insight
 			{
 			}
 
-			FORCE_INLINE ISwapChain** GetSwapChainAddress() { return &m_pSwapChain; }
+			FORCEINLINE ISwapChain** GetSwapChainAddress() { return &m_pSwapChain; }
 
 
 			virtual void Initialize() = 0;

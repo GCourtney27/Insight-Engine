@@ -1,16 +1,16 @@
 // Copyright Insight Interactive. All Rights Reserved.
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Core/Public/ieObject/Components/ieComponentBase.h"
+#include "Core/Public/ieObject/Components/ieComponentBase.h"
 
-#include "Runtime/Math/Public/Transform.h"
-#include "Runtime/Graphics/Public/WorldRenderer/RendererCommon.h"
-#include "Runtime/Core/Public/ECS/Component/ComponentFwd.h"
-#include "Runtime/Graphics/Public/GraphicsCore.h"
-#include "Runtime/Graphics/Public/ResourceManagement/ModelManager.h"
-#include "Runtime/Graphics/Public/ResourceManagement/MaterialManager.h"
+#include "Math/Public/Transform.h"
+#include "Graphics/Public/WorldRenderer/RendererCommon.h"
+#include "Core/Public/ECS/Component/ComponentFwd.h"
+#include "Graphics/Public/GraphicsCore.h"
+#include "Graphics/Public/ResourceManagement/ModelManager.h"
+#include "Graphics/Public/ResourceManagement/MaterialManager.h"
 
 namespace Insight
 {

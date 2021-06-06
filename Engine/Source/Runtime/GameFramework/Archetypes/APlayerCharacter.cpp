@@ -3,8 +3,8 @@
 
 #include "APlayerCharacter.h"
 
-#include "Runtime/Core/Public/Application.h"
-#include "Runtime/GameFramework/Components/ActorComponent.h"
+#include "Core/Public/Engine.h"
+#include "GameFramework/Components/ActorComponent.h"
 
 namespace Insight {
 

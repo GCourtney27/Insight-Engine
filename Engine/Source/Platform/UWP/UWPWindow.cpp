@@ -1,13 +1,13 @@
 #include <Engine_pch.h>
 
-#if IE_PLATFORM_BUILD_UWP
+#if IE_UWP_DESKTOP
 
 #include "UWPWindow.h"
 
-#include "Runtime/Core/Events/KeyEvent.h"
-#include "Runtime/Core/Events/MouseEvent.h"
-#include "Runtime/Core/Events/ApplicationEvent.h"
-#include "Runtime/Core/Exception.h"
+#include "Core/Events/KeyEvent.h"
+#include "Core/Events/MouseEvent.h"
+#include "Core/Events/ApplicationEvent.h"
+#include "Core/Exception.h"
 
 namespace Insight {
 
@@ -198,4 +198,4 @@ namespace Insight {
 	}
 
 }
-#endif // IE_PLATFORM_BUILD_UWP
+#endif // IE_UWP_DESKTOP

@@ -1,14 +1,14 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Math/Public/Transform.h"
+#include "Math/Public/Transform.h"
 
 #include "Platform/DirectXShared/ConstantBufferTypes.h"
 
-#include "Runtime/Graphics/Geometry/VertexBuffer.h"
-#include "Runtime/Graphics/Geometry/IndexBuffer.h"
-#include "Runtime/Graphics/Geometry/IConstantBuffer.h"
+#include "Graphics/Geometry/VertexBuffer.h"
+#include "Graphics/Geometry/IndexBuffer.h"
+#include "Graphics/Geometry/IConstantBuffer.h"
 
 namespace Insight {
 

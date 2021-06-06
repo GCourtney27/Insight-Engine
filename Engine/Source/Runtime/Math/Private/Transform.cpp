@@ -1,7 +1,7 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Math/Public/Transform.h"
-#include "Runtime/Core/Public/Application.h"
+#include "Math/Public/Transform.h"
+#include "Core/Public/Engine.h"
 
 namespace Insight {
 

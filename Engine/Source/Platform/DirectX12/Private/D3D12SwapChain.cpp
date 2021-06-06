@@ -50,12 +50,12 @@ namespace Insight
 				CheckTearingSupport((*ppDXGIFactory));
 
 				DXGI_SAMPLE_DESC SampleDesc;
-				ZeroMem(&SampleDesc);
+				ZeroMemRanged(&SampleDesc);
 				SampleDesc.Count = 1;
 				SampleDesc.Quality = 0;
 
 				DXGI_SWAP_CHAIN_DESC1 Desc;
-				ZeroMem(&Desc);
+				ZeroMemRanged(&Desc);
 				Desc.Width = InitParams.Width;
 				Desc.Height = InitParams.Height;
 				Desc.BufferCount = InitParams.BufferCount;

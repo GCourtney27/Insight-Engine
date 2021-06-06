@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Graphics/Public/IRenderContextFactory.h"
+#include "Graphics/Public/IRenderContextFactory.h"
 
 namespace Insight
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
 namespace Insight 
 {
@@ -11,12 +11,12 @@ namespace Insight
 	public:
 		enum EExceptionCategory
 		{
-			EC_Generic		= BIT_SHIFT(0),
-			EC_Application	= BIT_SHIFT(1),
-			EC_Rendering	= BIT_SHIFT(2),
-			EC_Scripting	= BIT_SHIFT(3),
-			EC_Physics		= BIT_SHIFT(4),
-			EC_Engine		= BIT_SHIFT(5),
+			EC_Generic		=  1 << 0,
+			EC_Application	=  1 << 1,
+			EC_Rendering	=  1 << 2,
+			EC_Scripting	=  1 << 3,
+			EC_Physics		=  1 << 4,
+			EC_Engine		=  1 << 5,
 		};
 	public:
 		ieException() = delete;

@@ -18,12 +18,7 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 /*
 	App driver.
 */
-int APIENTRY wWinMain(
-	_In_		HINSTANCE hInstance,
-	_In_opt_	HINSTANCE hPrevInstance,
-	_In_		LPWSTR lpCmdLine,
-	_In_		int nCmdShow
-)
+IE_ENTRY_POINT
 {
 	using namespace Insight;
 
@@ -31,7 +26,7 @@ int APIENTRY wWinMain(
 
 	g_WindowsAppInstance = hInstance;
 	
-	g_pEngine = Insight::CreateApplication();
+	g_pEngine = Insight::CreateEngine();
 
 #if _DEBUG
 	try 
@@ -41,6 +36,12 @@ int APIENTRY wWinMain(
 		LoadWindowProps(WindowDesc);
 		g_pWindow = std::make_shared<Win32Window>(WindowDesc);
 
+		FString Title = TEXT("Insight Engine - "
+			IE_PLATFORM_STRING 
+			" - "
+			IE_CONFIG_STRING);
+		g_pWindow->SetWindowTitle(Title, true);
+		
 		g_pEngine->SetWindow(g_pWindow);
 		g_pEngine->Initialize();
 	}

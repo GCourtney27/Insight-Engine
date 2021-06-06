@@ -1,8 +1,8 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Core/Public/Layer/GameLayer.h"
+#include "Core/Public/Layer/GameLayer.h"
 
-#include "Runtime/Core/Public/Scene/Scene.h"
+#include "Core/Public/Scene/Scene.h"
 
 namespace Insight {
 	
@@ -22,7 +22,7 @@ namespace Insight {
 	void GameLayer::BeginPlay()
 	{
 		m_TickScene = true;
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		ResourceManager::Get().GetMonoScriptManager().OnBeginPlay();
 #endif
 		m_pScene->BeginPlay();
@@ -37,7 +37,7 @@ namespace Insight {
 	{
 		m_TickScene = false;
 		m_pScene->EndPlaySession();
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		ResourceManager::Get().GetMonoScriptManager().OnEndPlaySession();
 #endif
 	}

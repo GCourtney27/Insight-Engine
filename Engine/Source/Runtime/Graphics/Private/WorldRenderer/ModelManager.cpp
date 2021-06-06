@@ -1,6 +1,6 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Graphics/Public/ResourceManagement/ModelManager.h"
+#include "Graphics/Public/ResourceManagement/ModelManager.h"
 
 #include "ofbx.h"
 

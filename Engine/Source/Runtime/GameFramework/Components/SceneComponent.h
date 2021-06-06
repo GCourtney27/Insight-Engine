@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Math/Public/Transform.h"
+#include "Math/Public/Transform.h"
 #include "ActorComponent.h"
 
 namespace Insight {

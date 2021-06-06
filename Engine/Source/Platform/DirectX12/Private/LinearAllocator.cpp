@@ -3,8 +3,8 @@
 #include "Platform/DirectX12/Private/LinearAllocator.h"
 
 #include "Platform/DirectX12/Private/D3D12CommandManager.h"
-#include "Runtime/Graphics/Public/IDevice.h"
-#include "Runtime/Math/Public/Common.h"
+#include "Graphics/Public/IDevice.h"
+#include "Math/Public/Common.h"
 
 namespace Insight
 {

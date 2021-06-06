@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 #include <Runtime/Graphics/Public/GraphicsCore.h>
 
-#include "Runtime/Graphics/Public/IDescriptorHeap.h"
+#include "Graphics/Public/IDescriptorHeap.h"
 #include "Platform/DirectX12/Public/Common/D3D12Utility.h"
 
 namespace Insight

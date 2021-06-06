@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Core/Public/ieObject/ieObjectBase.h"
+#include "Core/Public/ieObject/ieObjectBase.h"
 
 namespace Insight
 {

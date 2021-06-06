@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Math/ie_Vectors.h"
+#include "Math/ie_Vectors.h"
 
 namespace Colors
 {

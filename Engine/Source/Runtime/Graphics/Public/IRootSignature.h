@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Graphics/Public/GraphicsCore.h"
+#include "Graphics/Public/GraphicsCore.h"
 
 namespace Insight
 {
@@ -81,7 +81,7 @@ namespace Insight
 			void SetTableRange(UInt32 RangeIndex, EDescriptorRangeType Type, UInt32 Register, UInt32 Count, UInt32 Space = 0)
 			{
 				DescriptorRange* range = const_cast<DescriptorRange*>(m_RootParam.DescriptorTable.pDescriptorRanges + RangeIndex);
-				ZeroMem(range, sizeof(DescriptorRange));
+				ZeroMemRanged(range, sizeof(DescriptorRange));
 				range->Type = Type;
 				range->NumDescriptors = Count;
 				range->BaseShaderRegister = Register;

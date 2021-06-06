@@ -2,10 +2,10 @@
 
 #include "Material.h"
 
-#include "Runtime/Core/Public/Utility/StringHelper.h"
-#include "Runtime/Systems/Managers/ResourceManager.h"
+#include "Core/Public/Utility/StringHelper.h"
+#include "Systems/Managers/ResourceManager.h"
 
-#include "Runtime/UI/UILib.h"
+#include "UI/UILib.h"
 
 
 namespace Insight {

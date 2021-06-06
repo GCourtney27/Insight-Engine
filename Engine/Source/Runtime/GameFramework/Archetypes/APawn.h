@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/GameFramework/AActor.h"
-#include "Runtime/GameFramework/Components/InputComponent.h"
+#include "GameFramework/AActor.h"
+#include "GameFramework/Components/InputComponent.h"
 
 
 namespace Insight {

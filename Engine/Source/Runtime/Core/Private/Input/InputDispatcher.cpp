@@ -1,6 +1,6 @@
 #include "Engine_pch.h"
 
-#include "Runtime/Core/Public/Input/InputDispatcher.h"
+#include "Core/Public/Input/InputDispatcher.h"
 
 
 namespace Insight {
@@ -104,7 +104,7 @@ namespace Insight {
 			IE_ASSERT(PlayerIndex <= XUSER_MAX_COUNT, "Trying to add vibration to an invalid controller index");
 
 			XINPUT_VIBRATION VibrationInfo;
-			ZeroMemory(&VibrationInfo, sizeof(XINPUT_VIBRATION));
+			ZeroMemRanged(&VibrationInfo, sizeof(XINPUT_VIBRATION));
 
 			if (Direction & GampadRumbleMotor_Left)
 				VibrationInfo.wLeftMotorSpeed = static_cast<WORD>(65535 / (65535 * Amount));
@@ -239,7 +239,7 @@ namespace Insight {
 				for (UINT i = 0; i < XUSER_MAX_COUNT; ++i)
 				{
 					XINPUT_STATE State;
-					ZeroMemory(&State, sizeof(XINPUT_STATE));
+					ZeroMemRanged(&State, sizeof(XINPUT_STATE));
 					dwResult = XInputGetState(i, &State);
 
 					if (dwResult == ERROR_SUCCESS)

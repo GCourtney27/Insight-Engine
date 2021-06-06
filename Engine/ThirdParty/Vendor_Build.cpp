@@ -1,7 +1,7 @@
 #include <Engine_pch.h>
 
 // ImGui
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 #include <examples/imgui_impl_win32.cpp>
 #include <misc/cpp/imgui_stdlib.cpp>
 
@@ -10,7 +10,7 @@
 //#include "ImGuizmo.cpp"
 //#include "ImGradient.cpp"
 //#include "ImCurveEdit.cpp"
-#endif // IE_PLATFORM_BUILD_WIN32
+#endif // IE_WIN32
 
 // RapidJson
 #include <rapidjson/json.cpp>

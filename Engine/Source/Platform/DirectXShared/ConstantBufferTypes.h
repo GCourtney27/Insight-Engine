@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
 #include <DirectXMath.h>
 
@@ -119,9 +119,9 @@ struct CB_PS_PostFx
 
 struct CB_PS_Lights
 {
-	CB_PS_PointLight PointLights[MAX_POINT_LIGHTS_SUPPORTED];
+	CB_PS_PointLight PointLights[IE_MAX_POINT_LIGHTS];
 	CB_PS_DirectionalLight DirectionalLight;
-	CB_PS_SpotLight SpotLights[MAX_SPOT_LIGHTS_SUPPORTED];
+	CB_PS_SpotLight SpotLights[IE_MAX_SPOT_LIGHTS];
 };
 
 struct CB_CS_DownSampleParams

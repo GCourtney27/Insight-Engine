@@ -3,8 +3,8 @@
 #include "Platform/DirectX12/Public/D3D12PipelineState.h"
 #include "Platform/Public/Utility/COMException.h"
 
-#include "Runtime/Graphics/Public/IDevice.h"
-#include "Runtime/Graphics/Public/IRootSignature.h"
+#include "Graphics/Public/IDevice.h"
+#include "Graphics/Public/IRootSignature.h"
 
 namespace Insight
 {

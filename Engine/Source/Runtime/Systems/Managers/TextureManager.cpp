@@ -1,8 +1,8 @@
 #include <Engine_pch.h>
 
 #include "TextureManager.h"
-#include "Runtime/Core/Public/Utility/StringHelper.h"
-#include "Runtime/Graphics/Renderer.h"
+#include "Core/Public/Utility/StringHelper.h"
+#include "Graphics/Renderer.h"
 
 #include "Platform/DirectX12/Direct3D12Context.h"
 #include "Platform/DirectX12/Wrappers/D3D12Texture.h"

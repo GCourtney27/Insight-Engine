@@ -1,24 +1,24 @@
 // Copyright Insight Interactive. All Rights Reserved.
 #include <Engine_pch.h>
 
-#include "Runtime/Core/Public/Layer/EditorOverlay.h"
+#include "Core/Public/Layer/EditorOverlay.h"
 
-#include "Runtime/GameFramework/Archetypes/ACamera.h"
-#include "Runtime/GameFramework/AActor.h"
+#include "GameFramework/Archetypes/ACamera.h"
+#include "GameFramework/AActor.h"
 
-#include "Runtime/Graphics/APostFx.h"
-#include "Runtime/Graphics/ASkySphere.h"
-#include "Runtime/Graphics/Lighting/ASpotLight.h"
-#include "Runtime/Graphics/Lighting/APointLight.h"
-#include "Runtime/Graphics/Lighting/ADirectionalLight.h"
+#include "Graphics/APostFx.h"
+#include "Graphics/ASkySphere.h"
+#include "Graphics/Lighting/ASpotLight.h"
+#include "Graphics/Lighting/APointLight.h"
+#include "Graphics/Lighting/ADirectionalLight.h"
 
-#include "Runtime/Core/Public/Application.h"
-#include "Runtime/Core/Public/Scene/SceneNode.h"
-#include "Runtime/Core/Public/Scene/Scene.h"
+#include "Core/Public/Engine.h"
+#include "Core/Public/Scene/SceneNode.h"
+#include "Core/Public/Scene/Scene.h"
 
-#include "Runtime/Core/Public/Layer/ImGuiOverlay.h"
+#include "Core/Public/Layer/ImGuiOverlay.h"
 
-#include "Runtime/UI/UILib.h"
+#include "UI/UILib.h"
 
 namespace Insight {
 

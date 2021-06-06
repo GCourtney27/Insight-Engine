@@ -1,10 +1,10 @@
 #pragma once
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Core/Public/Layer/Layer.h"
+#include "Core/Public/Layer/Layer.h"
 
-#include "Runtime/Core/Public/Utility/FrameTimer.h"
-#include "Runtime/Graphics/Renderer.h"
+#include "Core/Public/Utility/FrameTimer.h"
+#include "Graphics/Renderer.h"
 
 namespace Insight {
 

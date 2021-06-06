@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Graphics/Public/Resource/IVertexBuffer.h"
+#include "Graphics/Public/Resource/IVertexBuffer.h"
 #include "Platform/DirectX12/Public/Resource/D3D12GPUResource.h"
 
 namespace Insight

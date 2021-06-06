@@ -1,10 +1,10 @@
 #include <Engine_pch.h>
 
 
-#include "Runtime/Graphics/Geometry/Mesh.h"
+#include "Graphics/Geometry/Mesh.h"
 #include "MeshNode.h"
 
-#include "Runtime/UI/UILib.h"
+#include "UI/UILib.h"
 
 namespace Insight {
 	

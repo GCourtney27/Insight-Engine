@@ -2,15 +2,15 @@
 
 #include "AActor.h"
 
-#include "Runtime/Core/Public/Application.h"
-#include "Runtime/GameFramework/Components/ActorComponent.h"
-#include "Runtime/GameFramework/Components/StaticMeshComponent.h"
-#include "Runtime/GameFramework/Components/CSharpScirptComponent.h"
-#include "Runtime/GameFramework/Components/SphereCollider.h"
+#include "Core/Public/Engine.h"
+#include "GameFramework/Components/ActorComponent.h"
+#include "GameFramework/Components/StaticMeshComponent.h"
+#include "GameFramework/Components/CSharpScirptComponent.h"
+#include "GameFramework/Components/SphereCollider.h"
 
 //TEMP
-#include "Runtime/Graphics/Material.h"
-#include "Runtime/UI/UILib.h"
+#include "Graphics/Material.h"
+#include "UI/UILib.h"
 
 
 namespace Insight {

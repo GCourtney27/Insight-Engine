@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 #include <Runtime/Graphics/Public/GraphicsCore.h>
 
 namespace Insight
@@ -15,9 +15,9 @@ namespace Insight
 
 			virtual void Destroy() = 0;
 
-			FORCE_INLINE UInt32 GetWidth() const { return m_Width; }
-			FORCE_INLINE UInt32 GetHeight() const { return m_Height; }
-			FORCE_INLINE UInt32 GetDepth() const { return m_Depth; }
+			FORCEINLINE UInt32 GetWidth() const { return m_Width; }
+			FORCEINLINE UInt32 GetHeight() const { return m_Height; }
+			FORCEINLINE UInt32 GetDepth() const { return m_Depth; }
 
 		protected:
 			ITexture() 

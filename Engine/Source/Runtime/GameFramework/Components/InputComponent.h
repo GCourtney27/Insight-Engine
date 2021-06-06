@@ -2,8 +2,8 @@
 #pragma once
 
 #include "ActorComponent.h"
-#include "Runtime/Core/Public/Input/KeyCodes.h"
-#include "Runtime/Core/Public/Input/InputDispatcher.h"
+#include "Core/Public/Input/KeyCodes.h"
+#include "Core/Public/Input/InputDispatcher.h"
 
 namespace Insight {
 

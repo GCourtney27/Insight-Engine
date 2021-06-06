@@ -1,15 +1,15 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Graphics/Public/IRenderContext.h"
-#include "Runtime/Graphics/Public/ICommandContext.h"
-#include "Runtime/Graphics/Public/IDevice.h"
-#include "Runtime/Graphics/Public/ISwapChain.h"
-#include "Runtime/Graphics/Public/ICommandManager.h"
-#include "Runtime/Graphics/Public/IGeometryBufferManager.h"
-#include "Runtime/Graphics/Public/ResourceManagement/ITextureManager.h"
-#include "Runtime/Graphics/Public/ResourceManagement/IConstantBufferManager.h"
+#include "Graphics/Public/IRenderContext.h"
+#include "Graphics/Public/ICommandContext.h"
+#include "Graphics/Public/IDevice.h"
+#include "Graphics/Public/ISwapChain.h"
+#include "Graphics/Public/ICommandManager.h"
+#include "Graphics/Public/IGeometryBufferManager.h"
+#include "Graphics/Public/ResourceManagement/ITextureManager.h"
+#include "Graphics/Public/ResourceManagement/IConstantBufferManager.h"
 
-#include "Runtime/Core/Public/Window.h"
+#include "Core/Public/Window.h"
 
 
 namespace Insight

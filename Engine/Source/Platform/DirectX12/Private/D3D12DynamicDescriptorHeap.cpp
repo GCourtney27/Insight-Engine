@@ -5,7 +5,7 @@
 #include "Platform/DirectX12/Private/D3D12CommandManager.h"
 #include "Platform/DirectX12/Public/D3D12CommandContext.h"
 
-#include "Runtime/Graphics/Public/IDevice.h"
+#include "Graphics/Public/IDevice.h"
 
 
 namespace Insight

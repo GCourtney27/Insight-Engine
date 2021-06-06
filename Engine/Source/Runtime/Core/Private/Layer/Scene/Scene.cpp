@@ -1,12 +1,12 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Core/Public/Scene/Scene.h"
+#include "Core/Public/Scene/Scene.h"
 
-#include "Runtime/Core/Public/Application.h"
-#include "Runtime/GameFramework/Archetypes/APlayerCharacter.h"
-#include "Runtime/GameFramework/Archetypes/APlayerStart.h"
-#include "Runtime/GameFramework/Archetypes/ACamera.h"
-#include "Runtime/Core/Public/Window.h"
+#include "Core/Public/Engine.h"
+#include "GameFramework/Archetypes/APlayerCharacter.h"
+#include "GameFramework/Archetypes/APlayerStart.h"
+#include "GameFramework/Archetypes/ACamera.h"
+#include "Core/Public/Window.h"
 
 namespace Insight {
 

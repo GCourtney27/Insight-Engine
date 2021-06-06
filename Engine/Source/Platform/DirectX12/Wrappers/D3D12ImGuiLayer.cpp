@@ -2,12 +2,12 @@
 
 #include "D3D12ImGuiLayer.h"
 
-#include "Runtime/Core/Public/Application.h"
+#include "Core/Public/Engine.h"
 
 #include "Platform/DirectX12/Direct3D12Context.h"
 #include "Platform/Win32/Win32Window.h"
 
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 #	include "imgui.h"
 #	include <examples/imgui_impl_dx12.cpp>
 #	include "examples/imgui_impl_dx12.h"
@@ -20,7 +20,7 @@ namespace Insight {
 	{
 		Super::OnAttach();
 
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		// Set ImGui Key Bindings
 		{
 			m_pIO->KeyMap[ImGuiKey_Tab] = VK_TAB;
@@ -51,11 +51,11 @@ namespace Insight {
 		void* pNativeWindow = m_pRenderContextRef->GetWindowRef().GetNativeWindow();
 		
 		// Setup Platform/Renderer bindings
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		bool implWin32Succeeded = ImGui_ImplWin32_Init(pNativeWindow);
 		if (!implWin32Succeeded)
 			IE_LOG(Error, TEXT("Failed to initialize ImGui for Win32 - D3D 12. Some controls may not be functional or editor may not be rendered."));
-#endif // IE_PLATFORM_BUILD_WIN32
+#endif // IE_WIN32
 		HRESULT hr;
 		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
 		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
@@ -79,10 +79,10 @@ namespace Insight {
 
 	void D3D12ImGuiLayer::OnDetach()
 	{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		ImGui_ImplDX12_Shutdown();
 		ImGui_ImplWin32_Shutdown();
-#endif // IE_PLATFORM_BUILD_WIN32
+#endif // IE_WIN32
 		Super::OnDetach();
 	}
 
@@ -94,16 +94,16 @@ namespace Insight {
 
 	void D3D12ImGuiLayer::Begin()
 	{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		ImGui_ImplDX12_NewFrame();
 		ImGui_ImplWin32_NewFrame();
-#endif // IE_PLATFORM_BUILD_WIN32
+#endif // IE_WIN32
 		Super::Begin();
 	}
 
 	void D3D12ImGuiLayer::End()
 	{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		m_pCommandList->SetDescriptorHeaps(1, &m_pDescriptorHeap);
 		Super::End();
 		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList);

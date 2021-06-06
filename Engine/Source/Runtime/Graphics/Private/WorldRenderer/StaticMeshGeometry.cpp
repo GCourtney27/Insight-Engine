@@ -1,12 +1,12 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Graphics/Public/WorldRenderer/StaticMeshGeometry.h"
+#include "Graphics/Public/WorldRenderer/StaticMeshGeometry.h"
 
-#include "Runtime/Graphics/Public/ResourceManagement/IConstantBufferManager.h"
-#include "Runtime/Graphics/Public/Resource/IVertexBuffer.h"
-#include "Runtime/Graphics/Public/Resource/IIndexBuffer.h"
-#include "Runtime/Graphics/Public/ICommandContext.h"
-#include "Runtime/Graphics/Public/WorldRenderer/RendererCommon.h"
+#include "Graphics/Public/ResourceManagement/IConstantBufferManager.h"
+#include "Graphics/Public/Resource/IVertexBuffer.h"
+#include "Graphics/Public/Resource/IIndexBuffer.h"
+#include "Graphics/Public/ICommandContext.h"
+#include "Graphics/Public/WorldRenderer/RendererCommon.h"
 
 
 namespace Insight

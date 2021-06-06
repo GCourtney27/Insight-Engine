@@ -3,21 +3,21 @@
 
 // The contents can only be accessed on a Win32 platform.
 // If it is not present than just compile it out.
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 
 #include "Win32Window.h"
 
-#include "Runtime/Core/Public/Application.h"
-#include "Runtime/Graphics/Renderer.h"
+#include "Core/Public/Engine.h"
+#include "Graphics/Renderer.h"
 
-#include "Runtime/Core/Public/Log.h"
-#include "Runtime/Core/Public/Utility/StringHelper.h"
+#include "Core/Public/Log.h"
+#include "Core/Public/Utility/StringHelper.h"
 //#include "Platform/Win32/Resources/Resource.h"
 
-#include "Runtime/Core/Public/Events/KeyEvent.h"
-#include "Runtime/Core/Public/Events/MouseEvent.h"
-#include "Runtime/Core/Public/Events/ApplicationEvent.h"
-#include "Runtime/Core/Public/Exception.h"
+#include "Core/Public/Events/KeyEvent.h"
+#include "Core/Public/Events/MouseEvent.h"
+#include "Core/Public/Events/ApplicationEvent.h"
+#include "Core/Public/Exception.h"
 
 
 namespace Insight {
@@ -420,7 +420,7 @@ namespace Insight {
 	bool Win32Window::ProccessWindowMessages()
 	{
 		MSG Msg;
-		ZeroMem(&Msg, sizeof(MSG));
+		ZeroMemRanged(&Msg, sizeof(MSG));
 
 		while (::PeekMessage(&Msg,	// Where to store message (if one exists).
 			m_hWindow,				// Handle to window we are checking messages for.
@@ -481,4 +481,4 @@ namespace Insight {
 
 }
 
-#endif // IE_PLATFORM_BUILD_WIN32
+#endif // IE_WIN32

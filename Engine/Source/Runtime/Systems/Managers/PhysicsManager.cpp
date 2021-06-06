@@ -2,7 +2,7 @@
 
 #include "PhysicsManager.h"
 
-#include "Runtime/Physics/PhysicsCommon.h"
+#include "Physics/PhysicsCommon.h"
 
 
 namespace Insight {

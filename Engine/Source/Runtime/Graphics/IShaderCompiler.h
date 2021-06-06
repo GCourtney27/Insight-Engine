@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
 namespace Insight
 {
@@ -33,7 +33,7 @@ namespace Insight
 	};*/
 	/*
 	
-#if !IE_PLATFORM_BUILD_XBOX_ONE
+#if !IE_XBOX_ONE
 	static HRESULT CompileShader(const WChar* FileName, const WChar* Target, const WChar* DebugName, const WChar* FilePath)
 	{
 		std::vector<LPCWSTR> CompileCommands;

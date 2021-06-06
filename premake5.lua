@@ -39,9 +39,12 @@ workspace ("InsightEngine")
 		-- An app that runs using the Win32 API.
 		"Win32Desktop",
 
-		-- An app that runs on Xbox One platforms
-		"XboxOne",
+		-- First generation Xbox One consoles.
+		"Durango",
 		
+		-- Second generation Xbox One (X)
+		"Scorpio",
+
 		-- An app that runs on the Windows Runtime (UWP)
 		"UniversalWindowsDesktop",
 	}

@@ -1,12 +1,12 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Graphics/Public/WorldRenderer/DeferredRenderer/DeferredRenderer.h"
+#include "Graphics/Public/WorldRenderer/DeferredRenderer/DeferredRenderer.h"
 
-#include "Runtime/Graphics/Public/IDevice.h"
+#include "Graphics/Public/IDevice.h"
 
-#include "Runtime/Graphics/Public/WorldRenderer/RendererCommon.h"
-#include "Runtime/Graphics/Public/IPipelineState.h"
-#include "Runtime/Graphics/Public/IRootSignature.h"
+#include "Graphics/Public/WorldRenderer/RendererCommon.h"
+#include "Graphics/Public/IPipelineState.h"
+#include "Graphics/Public/IRootSignature.h"
 
 
 namespace Insight

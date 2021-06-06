@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Graphics/Renderer.h"
+#include "Graphics/Renderer.h"
 
 #include "Platform/DirectX12/D3D12DeviceResources.h"
 #include "Platform/DirectX12/Wrappers/D3D12ScreenQuad.h"
@@ -159,7 +159,7 @@ namespace Insight {
 		// Ray Tracing
 		// -----------
 		ID3D12Resource* GetRayTracingSRV() const { return m_RayTraceOutput_SRV.Get(); }
-		NO_DISCARD uint32_t RegisterGeometryWithRTAccelerationStucture(Microsoft::WRL::ComPtr<ID3D12Resource> pVertexBuffer, Microsoft::WRL::ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat);
+		IE_NO_DISCARD uint32_t RegisterGeometryWithRTAccelerationStucture(Microsoft::WRL::ComPtr<ID3D12Resource> pVertexBuffer, Microsoft::WRL::ComPtr<ID3D12Resource> pIndexBuffer, uint32_t NumVerticies, uint32_t NumIndices, DirectX::XMMATRIX MeshWorldMat);
 		void UpdateRTAccelerationStructureMatrix(uint32_t InstanceArrIndex, DirectX::XMMATRIX NewWorldMat) { m_RayTracedShadowPass.GetRTHelper()->UpdateInstanceTransformByIndex(InstanceArrIndex, NewWorldMat); }
 
 		inline void ResetBloomFirstPass()

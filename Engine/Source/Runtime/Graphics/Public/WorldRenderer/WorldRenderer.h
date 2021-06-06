@@ -1,22 +1,22 @@
 // Copyright Insight Interactive. All Rights Reserved.
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Graphics/Public/RenderCore.h"
+#include "Graphics/Public/RenderCore.h"
 
-#include "Runtime/Core/Public/ieObject/ieActor.h"
-#include "Runtime/Core/Public/ECS/EntityAdmin/SystemFwd.h"
-#include "Runtime/Core/Public/ECS/EntityAdmin/EntityAdminFwd.h"
+#include "Core/Public/ieObject/ieActor.h"
+#include "Core/Public/ECS/EntityAdmin/SystemFwd.h"
+#include "Core/Public/ECS/EntityAdmin/EntityAdminFwd.h"
 
-#include "Runtime/Core/Public/Window.h"
-#include "Runtime/Core/Public/Utility/FrameTimer.h"
-#include "Runtime/Graphics/Public/WorldRenderer/RendererCommon.h"
-#include "Runtime/Core/Public/ieObject/Components/ieStaticMeshComponent.h"
+#include "Core/Public/Window.h"
+#include "Core/Public/Utility/FrameTimer.h"
+#include "Graphics/Public/WorldRenderer/RendererCommon.h"
+#include "Core/Public/ieObject/Components/ieStaticMeshComponent.h"
 
-#include "Runtime/Graphics/Public/WorldRenderer/SkyBoxPass.h"
-#include "Runtime/Graphics/Public/WorldRenderer/PostProcessUber.h"
-#include "Runtime/Graphics/Public/WorldRenderer/DeferredRenderer/DeferredRenderer.h"
+#include "Graphics/Public/WorldRenderer/SkyBoxPass.h"
+#include "Graphics/Public/WorldRenderer/PostProcessUber.h"
+#include "Graphics/Public/WorldRenderer/DeferredRenderer/DeferredRenderer.h"
 
 namespace Insight
 {

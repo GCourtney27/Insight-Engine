@@ -1,9 +1,9 @@
 // Copyright Insight Interactive. All Rights Reserved.
 #include <Engine_pch.h>
 
-#include "Runtime/Core/Public/ieObject/ieObjectBase.h"
+#include "Core/Public/ieObject/ieObjectBase.h"
 
-#include "Runtime/Core/Public/ieObject/ieWorld.h"
+#include "Core/Public/ieObject/ieWorld.h"
 
 namespace Insight
 {

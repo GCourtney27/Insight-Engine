@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Graphics/Geometry/Vertex.h"
+#include "Graphics/Geometry/Vertex.h"
 
 namespace Insight {
 

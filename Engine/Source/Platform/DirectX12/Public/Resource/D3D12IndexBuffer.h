@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Graphics/Public/Resource/IIndexBuffer.h"
+#include "Graphics/Public/Resource/IIndexBuffer.h"
 #include "Platform/DirectX12/Public/Resource/D3D12GPUResource.h"
 
 

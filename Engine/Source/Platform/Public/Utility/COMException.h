@@ -1,8 +1,8 @@
 #pragma once
 #include <comdef.h>
 
-#include "Runtime/Core/Public/Utility/StringHelper.h"
-#include "Runtime/Core/Public/Exception.h"
+#include "Core/Public/Utility/StringHelper.h"
+#include "Core/Public/Exception.h"
 
 namespace Insight {
 	
@@ -16,9 +16,9 @@ namespace Insight {
 		COMException(HRESULT hr, const FString& msg, const FString& file, const FString& function, int line)
 			: ieException(msg.c_str())
 		{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 			_com_error error(hr);
-#elif IE_PLATFORM_BUILD_UWP || IE_PLATFORM_BUILD_XBOX_ONE
+#elif IE_UWP_DESKTOP || IE_XBOX_ONE
 			_com_error error(hr, msg.c_str());
 #endif
 			whatmsg =  TEXT("Msg: ") + FString(msg) + L"\n";

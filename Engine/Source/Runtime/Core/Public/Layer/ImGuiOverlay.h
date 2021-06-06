@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Core/Public/Layer/Layer.h"
-#include "Runtime/Core/Public/Events/KeyEvent.h"
-#include "Runtime/Core/Public/Events/MouseEvent.h"
-#include "Runtime/Core/Public/Events/ApplicationEvent.h"
+#include "Core/Public/Layer/Layer.h"
+#include "Core/Public/Events/KeyEvent.h"
+#include "Core/Public/Events/MouseEvent.h"
+#include "Core/Public/Events/ApplicationEvent.h"
 
 
 struct ImGuiIO;

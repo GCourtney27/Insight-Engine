@@ -2,14 +2,14 @@
 
 #include "ASkyLight.h"
 
-#include "Runtime/GameFramework/Components/ActorComponent.h"
-#include "Runtime/Graphics/Renderer.h"
+#include "GameFramework/Components/ActorComponent.h"
+#include "Graphics/Renderer.h"
 
 #include "Platform/DirectX12/Wrappers/D3D12Texture.h"
 #include "Platform/DirectX11/Wrappers/D3D11Texture.h"
 #include "Platform/DirectX12/Direct3D12Context.h"
 
-#include "Runtime/UI/UILib.h"
+#include "UI/UILib.h"
 
 
 namespace Insight {

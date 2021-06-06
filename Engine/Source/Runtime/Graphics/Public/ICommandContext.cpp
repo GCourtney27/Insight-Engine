@@ -1,6 +1,6 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Graphics/Public/ICommandContext.h"
+#include "Graphics/Public/ICommandContext.h"
 
 
 namespace Insight

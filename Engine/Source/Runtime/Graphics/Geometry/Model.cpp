@@ -1,12 +1,12 @@
 #include <Engine_pch.h>
 
 #include "Model.h"
-#include "Runtime/Core/Public/Utility/StringHelper.h"
-#include "Runtime/Graphics/Material.h"
+#include "Core/Public/Utility/StringHelper.h"
+#include "Graphics/Material.h"
 
-#include "Runtime/UI/UILib.h"
+#include "UI/UILib.h"
 
-#if IE_PLATFORM_BUILD_UWP
+#if IE_UWP_DESKTOP
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tinyobjloader/tiny_obj_loader.h>
 #endif
@@ -117,7 +117,7 @@ namespace Insight {
 
 	bool Model::LoadModelFromFile(const FString& path)
 	{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		Assimp::Importer Importer;
 		
 		const aiScene* pScene = Importer.ReadFile(
@@ -138,7 +138,7 @@ namespace Insight {
 
 		m_pRoot = AssimpParseNode_r(pScene->mRootNode);
 
-#elif IE_PLATFORM_BUILD_UWP
+#elif IE_UWP_DESKTOP
 
 		FString FileExtension = StringHelper::GetFileExtension(path);
 		if (FileExtension == TEXT("FBX") || FileExtension == TEXT("fbx"))
@@ -185,7 +185,7 @@ namespace Insight {
 		return true;
 	}
 
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 
 	unique_ptr<MeshNode> Model::AssimpParseNode_r(::aiNode* pNode)
 	{
@@ -270,7 +270,7 @@ namespace Insight {
 		return std::make_unique<Mesh>(Verticies, Indices);
 }
 
-#elif IE_PLATFORM_BUILD_UWP
+#elif IE_UWP_DESKTOP
 
 	std::unique_ptr<Mesh> Model::OFBXProcessMesh(const ofbx::Mesh& FBXMesh)
 	{

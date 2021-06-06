@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Graphics/Texture.h"
+#include "Graphics/Texture.h"
 
 #define DEFAULT_ALBEDO_TEXTURE_ID -1
 #define DEFAULT_NORMAL_TEXTURE_ID -2

@@ -1,8 +1,9 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
+#include "InsightStd.h"
 
-#if defined IE_PLATFORM_BUILD_WIN32
+#if defined IE_WIN32
 #	include "Platform/Win32/ConsoleWindow.h"
 #endif 
 
@@ -49,7 +50,7 @@ namespace Insight {
 
 			static inline const TChar* GetLoggerName() { return s_LoggerName; }
 
-#	if (IE_DEBUG) && defined (IE_PLATFORM_BUILD_WIN32)
+#	if (IE_DEBUG) && defined (IE_WIN32)
 			/*
 				Returns a reference to the currently active console window.
 			*/
@@ -59,7 +60,7 @@ namespace Insight {
 		private:
 			static const TChar* s_LoggerName;
 			static FString s_CoreDumpMessage;
-#	if defined (IE_DEBUG) && defined (IE_PLATFORM_BUILD_WIN32)
+#	if defined (IE_DEBUG) && defined (IE_WIN32)
 			static ConsoleWindow s_ConsoleWindow;
 #	endif
 		};
@@ -91,7 +92,7 @@ namespace Insight {
 */
 #	define IE_LOG(Severity, fmt, ...) ::Insight::Debug::LogHelper(ELogSeverity::##Severity, fmt, __FILEW__, __FUNCTIONW__, __LINE__, __VA_ARGS__);
 
-#	if IE_PLATFORM_BUILD_WIN32
+#	if IE_WIN32
 #		define SET_CONSOLE_OUT_COLOR(Color) ::Insight::Debug::Logger::GetConsoleWindow().SetForegroundColor(EConsoleColor::##Color)
 #	else
 #		define SET_CONSOLE_OUT_COLOR(Color)

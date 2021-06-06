@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Runtime/Core.h>
-#include "Runtime/Core/Public/Layer/Layer.h"
+#include "EngineDefines.h"
+#include "Core/Public/Layer/Layer.h"
 
 namespace Insight {
 

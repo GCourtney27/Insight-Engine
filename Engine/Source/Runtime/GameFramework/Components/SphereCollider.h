@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Core/Public/Interfaces.h"
+#include "Core/Public/Interfaces.h"
 
-#include "Runtime/GameFramework/Components/ActorComponent.h"
-#include "Runtime/Physics/PhysicsCommon.h"
+#include "GameFramework/Components/ActorComponent.h"
+#include "Physics/PhysicsCommon.h"
 
 namespace Insight {
 

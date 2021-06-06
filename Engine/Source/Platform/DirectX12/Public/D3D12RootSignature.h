@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 #include <Runtime/Graphics/Public/GraphicsCore.h>
 
-#include "Runtime/Graphics/Public/IRootSignature.h"
+#include "Graphics/Public/IRootSignature.h"
 
 
 namespace Insight

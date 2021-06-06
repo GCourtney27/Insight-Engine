@@ -32,7 +32,7 @@ namespace Insight {
 
 		//Load Index Data
 		D3D11_BUFFER_DESC IndexBufferDesc;
-		ZeroMemory(&IndexBufferDesc, sizeof(IndexBufferDesc));
+		ZeroMemRanged(&IndexBufferDesc, sizeof(IndexBufferDesc));
 		IndexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 		IndexBufferDesc.ByteWidth = sizeof(DWORD) * m_NumIndices;
 		IndexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;

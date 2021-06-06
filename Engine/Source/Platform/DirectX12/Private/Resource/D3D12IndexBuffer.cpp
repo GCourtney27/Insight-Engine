@@ -2,8 +2,8 @@
 
 #include "Platform/DirectX12/Public/Resource/D3D12IndexBuffer.h"
 
-#include "Runtime/Graphics/Public/IDevice.h"
-#include "Runtime/Graphics/Public/ICommandContext.h"
+#include "Graphics/Public/IDevice.h"
+#include "Graphics/Public/ICommandContext.h"
 #include "Platform/Public/Utility/COMException.h"
 
 namespace Insight

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Runtime/Core/Public/ECS/EntityAdmin/EntityFwd.h"
-#include "Runtime/Core/Public/ECS/Component/ComponentFwd.h"
+#include "Core/Public/ECS/EntityAdmin/EntityFwd.h"
+#include "Core/Public/ECS/Component/ComponentFwd.h"
 
 #include <unordered_map>
 
@@ -110,7 +110,7 @@ namespace ECS
 		/*
 			Returns the number of raw components in the map.
 		*/
-		ECS_FORCE_INLINE size_t GetNumComponents() const
+		ECS_FORCEINLINE size_t GetNumComponents() const
 		{
 			return m_RawComponents.size();
 		}
@@ -118,7 +118,7 @@ namespace ECS
 		/*
 			Returns the size of the underlying component container in bytes.
 		*/
-		ECS_FORCE_INLINE size_t GetContainerSize() const
+		ECS_FORCEINLINE size_t GetContainerSize() const
 		{
 			return m_RawComponents.size() * sizeof(ComponentType);
 		}

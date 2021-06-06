@@ -1,6 +1,6 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Core/Public/Log.h"
+#include "Core/Public/Log.h"
 
 
 namespace Insight {
@@ -10,13 +10,13 @@ namespace Insight {
 		FString Logger::s_CoreDumpMessage;
 		const TChar* Logger::s_LoggerName = TEXT("Insight Engine");
 
-#if defined IE_DEBUG && defined IE_PLATFORM_BUILD_WIN32
+#if defined IE_DEBUG && defined IE_WIN32
 		ConsoleWindow Logger::s_ConsoleWindow;
 #endif
 
 		bool Logger::Initialize()
 		{
-#	if defined (IE_DEBUG) && defined (IE_PLATFORM_BUILD_WIN32)
+#	if defined (IE_DEBUG) && defined (IE_WIN32)
 			// Initialize the console window.
 			ConsoleWindowDesc WindowDesc;
 			WindowDesc.CanClose = false;
@@ -108,13 +108,13 @@ namespace Insight {
 			OutputBuffer[1023] = '\0';
 			
 			// Print to the console.
-#	if IE_PLATFORM_BUILD_WIN32
+#	if IE_WIN32
 			::wprintf(TraceBuffer);
 			::wprintf(OutputBuffer);
 			::wprintf(TEXT("\n"));
 			// Log category may have changed the color, reset it back to the default.
 			Insight::Debug::Logger::GetConsoleWindow().ResetColors();
-#	elif IE_PLATFORM_BUILD_UWP
+#	elif IE_UWP_DESKTOP
 			::OutputDebugString(TraceBuffer);
 			::OutputDebugString(OutputBuffer);
 			::OutputDebugString(TEXT("\n"));

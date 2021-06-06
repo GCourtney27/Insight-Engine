@@ -1,6 +1,6 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Core/Public/DataTypes.h"
+#include "Core/Public/DataTypes.h"
 
 namespace Insight
 {

@@ -1,6 +1,6 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Graphics/Public/Resource/IVertexBuffer.h"
+#include "Graphics/Public/Resource/IVertexBuffer.h"
 
 namespace Insight
 {

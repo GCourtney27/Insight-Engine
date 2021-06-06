@@ -1,18 +1,18 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Core/Public/FileSystem.h"
+#include "Core/Public/FileSystem.h"
 
-#include "Runtime/Core/Public/Application.h"
-#include "Runtime/Core/Public/Scene/scene.h"
-#include "Runtime/Core/Public/Exception.h"
-#include "Runtime/Core/Public/Utility/StringHelper.h"
+#include "Core/Public/Engine.h"
+#include "Core/Public/Scene/scene.h"
+#include "Core/Public/Exception.h"
+#include "Core/Public/Utility/StringHelper.h"
 
-#include "Runtime/Graphics/APostFx.h"
-#include "Runtime/Graphics/ASkyLight.h"
-#include "Runtime/Graphics/ASkySphere.h"
-#include "Runtime/Graphics/Lighting/ASpotLight.h"
-#include "Runtime/Graphics/Lighting/APointLight.h"
-#include "Runtime/Graphics/Lighting/ADirectionalLight.h"
+#include "Graphics/APostFx.h"
+#include "Graphics/ASkyLight.h"
+#include "Graphics/ASkySphere.h"
+#include "Graphics/Lighting/ASpotLight.h"
+#include "Graphics/Lighting/APointLight.h"
+#include "Graphics/Lighting/ADirectionalLight.h"
 
 namespace Insight 
 {
@@ -301,10 +301,10 @@ namespace Insight
 	bool FileSystem::FileExistsInContentDirectory(const std::string& Path)
 	{
 		std::string RawPath;
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		RawPath += "Content/" + Path;
 		return PathFileExistsA(RawPath.c_str());
-#elif IE_PLATFORM_BUILD_UWP
+#elif IE_UWP_DESKTOP
 		RawPath += "Content/" + Path;
 		#pragma message ("UWP: FileExistsInContentDirectory not implemented for this platform.")
 		return false;

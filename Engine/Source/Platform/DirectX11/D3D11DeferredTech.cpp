@@ -4,7 +4,7 @@
 
 #include "Platform/Win32/Win32Window.h"
 #include "Platform/Public/Utility/COMException.h"
-#include "Runtime/Graphics/Geometry/Vertex.h"
+#include "Graphics/Geometry/Vertex.h"
 
 namespace Insight {
 

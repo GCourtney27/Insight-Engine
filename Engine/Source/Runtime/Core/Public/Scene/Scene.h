@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Systems/Managers/ResourceManager.h"
-#include "Runtime/GameFramework/Archetypes/ACamera.h"
+#include "Systems/Managers/ResourceManager.h"
+#include "GameFramework/Archetypes/ACamera.h"
 
 
 namespace Insight {

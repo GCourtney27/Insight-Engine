@@ -2,8 +2,8 @@
 
 #include "ASkySphere.h"
 
-#include "Runtime/GameFramework/Components/ActorComponent.h"
-#include "Runtime/GameFramework/Components/StaticMeshComponent.h"
+#include "GameFramework/Components/ActorComponent.h"
+#include "GameFramework/Components/StaticMeshComponent.h"
 
 #include "Platform/DirectX12/Wrappers/D3D12Texture.h"
 #include "Platform/DirectX11/Wrappers/D3D11Texture.h"

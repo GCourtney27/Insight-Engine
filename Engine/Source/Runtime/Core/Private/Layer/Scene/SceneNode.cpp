@@ -1,9 +1,9 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Graphics/Renderer.h"
-#include "Runtime/GameFramework/AActor.h"
-#include "Runtime/Core/Public/Scene/SceneNode.h"
-#include "Runtime/Core/Public/Scene/Scene.h"
+#include "Graphics/Renderer.h"
+#include "GameFramework/AActor.h"
+#include "Core/Public/Scene/SceneNode.h"
+#include "Core/Public/Scene/Scene.h"
 
 namespace Insight {
 

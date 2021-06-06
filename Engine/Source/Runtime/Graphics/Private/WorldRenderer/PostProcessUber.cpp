@@ -1,10 +1,10 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Graphics/Public/WorldRenderer/PostProcessUber.h"
+#include "Graphics/Public/WorldRenderer/PostProcessUber.h"
 
-#include "Runtime/Graphics/Public/WorldRenderer/RendererCommon.h"
-#include "Runtime/Graphics/Public/IPipelineState.h"
-#include "Runtime/Graphics/Public/IRootSignature.h"
+#include "Graphics/Public/WorldRenderer/RendererCommon.h"
+#include "Graphics/Public/IPipelineState.h"
+#include "Graphics/Public/IRootSignature.h"
 
 
 namespace Insight

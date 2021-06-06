@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Runtime/Core.h"
+#include "Core.h"
 
-#include "Runtime/Graphics/Public/ieMaterial.h"
+#include "Graphics/Public/ieMaterial.h"
 
 namespace Insight
 {

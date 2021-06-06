@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Graphics/Public/RenderCore.h"
-#include "Runtime/Graphics/Public/ResourceManagement/ModelManager.h"
-#include "Runtime/Graphics/Public/ResourceManagement/ITextureManager.h"
+#include "Graphics/Public/RenderCore.h"
+#include "Graphics/Public/ResourceManagement/ModelManager.h"
+#include "Graphics/Public/ResourceManagement/ITextureManager.h"
 
 
 namespace Insight

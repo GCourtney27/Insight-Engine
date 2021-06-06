@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Runtime/Core/Public/ECS/Core/Core.h"
+#include "Core/Public/ECS/Core/Core.h"
 
 
 
@@ -20,7 +20,7 @@ namespace ECS
 	/*
 		Returns true if the Entity is valid, false if not.
 	*/
-	ECS_FORCE_INLINE bool IsValidEntity(const Entity_t& Entity)
+	ECS_FORCEINLINE bool IsValidEntity(const Entity_t& Entity)
 	{
 		return Entity != InvalidEntity;
 	}
@@ -28,7 +28,7 @@ namespace ECS
 	/*
 		Invalidates an Entity. WARNING: does not release component references.
 	*/
-	ECS_FORCE_INLINE void InvalidateEntity(Entity_t& Entity)
+	ECS_FORCEINLINE void InvalidateEntity(Entity_t& Entity)
 	{
 		Entity = InvalidEntity;
 	}

@@ -2,10 +2,10 @@
 
 #include "ASpotLight.h"
 
-#include "Runtime/GameFramework/Components/ActorComponent.h"
-#include "Runtime/Graphics/Renderer.h"
+#include "GameFramework/Components/ActorComponent.h"
+#include "Graphics/Renderer.h"
 
-#include "Runtime/UI/UILib.h"
+#include "UI/UILib.h"
 
 
 namespace Insight {

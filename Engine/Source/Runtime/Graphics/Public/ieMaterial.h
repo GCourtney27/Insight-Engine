@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Runtime/Core.h"
+#include "Core.h"
 
-#include "Runtime/Graphics/Public/ICommandContext.h"
-#include "Runtime/Graphics/Public/WorldRenderer/RendererCommon.h"
-#include "Runtime/Graphics/Public/ResourceManagement/ITextureManager.h"
-#include "Runtime/Graphics/Public/ResourceManagement/IConstantBufferManager.h"
+#include "Graphics/Public/ICommandContext.h"
+#include "Graphics/Public/WorldRenderer/RendererCommon.h"
+#include "Graphics/Public/ResourceManagement/ITextureManager.h"
+#include "Graphics/Public/ResourceManagement/IConstantBufferManager.h"
 
 
 namespace Insight

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Graphics/Public/WorldRenderer/StaticMeshGeometry.h"
+#include "Graphics/Public/WorldRenderer/StaticMeshGeometry.h"
 
 
 namespace ofbx

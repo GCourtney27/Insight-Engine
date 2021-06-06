@@ -1,8 +1,8 @@
 // Copyright Insight Interactive. All Rights Reserved.
 #pragma once
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
@@ -53,4 +53,4 @@ namespace Insight {
 	};
 
 }
-#endif // IE_PLATFORM_BUILD_WIN32
+#endif // IE_WIN32

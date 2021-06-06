@@ -66,7 +66,7 @@ namespace Insight
 				IE_ASSERT(pID3D12Device != NULL);
 
 				D3D12_CLEAR_VALUE D3D12ClearVal;
-				ZeroMem(&D3D12ClearVal, sizeof(D3D12_CLEAR_VALUE));
+				ZeroMemRanged(&D3D12ClearVal, sizeof(D3D12_CLEAR_VALUE));
 				memcpy(D3D12ClearVal.Color, ClearValue.Color, 4 * sizeof(float));
 				D3D12ClearVal.DepthStencil.Depth = ClearValue.DepthStencil.Depth;
 				D3D12ClearVal.DepthStencil.Stencil = ClearValue.DepthStencil.Stencil;

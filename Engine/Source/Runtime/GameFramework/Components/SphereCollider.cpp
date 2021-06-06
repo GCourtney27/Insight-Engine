@@ -2,8 +2,8 @@
 
 #include "SphereCollider.h"
 
-#include "Runtime/Core/Public/Events/ApplicationEvent.h"
-#include "Runtime/Systems/Managers/PhysicsManager.h"
+#include "Core/Public/Events/ApplicationEvent.h"
+#include "Systems/Managers/PhysicsManager.h"
 
 
 namespace Insight {

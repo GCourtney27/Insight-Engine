@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
 namespace Insight {
 

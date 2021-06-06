@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Graphics/Public/ISwapChain.h"
+#include "Graphics/Public/ISwapChain.h"
 
 namespace Insight
 {

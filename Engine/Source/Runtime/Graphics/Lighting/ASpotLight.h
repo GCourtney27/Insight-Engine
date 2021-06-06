@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/GameFramework/AActor.h"
+#include "GameFramework/AActor.h"
 #include "Platform/DirectXShared/ConstantBufferTypes.h"
 
 namespace Insight {

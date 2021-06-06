@@ -2,12 +2,12 @@
 
 #include "ADirectionalLight.h"
 
-#include "Runtime/GameFramework/Components/ActorComponent.h"
-#include "Runtime/Graphics/Renderer.h"
-#include "Runtime/GameFramework/Archetypes/ACamera.h"
-#include "Runtime/Core/Public/Application.h"
+#include "GameFramework/Components/ActorComponent.h"
+#include "Graphics/Renderer.h"
+#include "GameFramework/Archetypes/ACamera.h"
+#include "Core/Public/Engine.h"
 
-#include "Runtime/UI/UILib.h"
+#include "UI/UILib.h"
 
 namespace Insight {
 

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Core/Public/ECS/EntityAdmin/SystemFwd.h"
-#include "Runtime/Core/Public/ieObject/Components/ieCameraComponent.h"
+#include "Core/Public/ECS/EntityAdmin/SystemFwd.h"
+#include "Core/Public/ieObject/Components/ieCameraComponent.h"
 
 namespace Insight
 {

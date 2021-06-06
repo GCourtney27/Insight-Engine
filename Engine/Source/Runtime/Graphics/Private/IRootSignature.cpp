@@ -1,6 +1,6 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Graphics/Public/IRootSignature.h"
+#include "Graphics/Public/IRootSignature.h"
 
 namespace Insight
 {

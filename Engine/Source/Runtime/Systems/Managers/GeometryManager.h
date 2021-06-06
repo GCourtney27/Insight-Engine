@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Graphics/Geometry/Model.h"
+#include "Graphics/Geometry/Model.h"
 
 namespace Insight {
 

@@ -1,10 +1,10 @@
 #include <Engine_pch.h>
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 #include <Runtime/Graphics/Public/GraphicsCore.h>
 #include "Platform/DirectX12/Public/D3D12RenderContextFactory.h"
 
-#include "Runtime/Core/Public/Window.h"
+#include "Core/Public/Window.h"
 
 #include "Platform/DirectX12/Public/D3D12RenderContext.h"
 #include "Platform/DirectX12/Public/D3D12CommandContext.h"
@@ -62,13 +62,13 @@ namespace Insight
 				D3D12Device* pD3D12Device = CreateRenderComponentObject<D3D12Device>(OutDevice);
 
 				IED3D12DeviceInitParams DeviceInitParams;
-				ZeroMem(&DeviceInitParams);
+				ZeroMemRanged(&DeviceInitParams);
 				DeviceInitParams.CheckForDXRSupport = true;
 				DeviceInitParams.ForceWarpAdapter	= false;
 				DeviceInitParams.MinFeatureLevel	= D3D_FEATURE_LEVEL_11_0;
 				DeviceInitParams.MinDXRFeatureLevel = D3D_FEATURE_LEVEL_12_1;
 				IED3D12DeviceQueryResult DeviceQueryResult;
-				ZeroMem(&DeviceQueryResult);
+				ZeroMemRanged(&DeviceQueryResult);
 				pD3D12Device->Initialize(DeviceInitParams, DeviceQueryResult, RCast<void**>(&m_pDXGIFactory));
 			}
 
@@ -123,7 +123,7 @@ namespace Insight
 
 				D3D12CommandQueue* pD3D12CommandQueue = RCast<D3D12CommandQueue*>(pCommandManager->GetGraphicsQueue());
 				IESwapChainDescription SwapChainInitParams;
-				ZeroMem(&SwapChainInitParams);
+				ZeroMemRanged(&SwapChainInitParams);
 				SwapChainInitParams.Width = Super::m_pTarget->GetWindow()->GetWidth();
 				SwapChainInitParams.Height = Super::m_pTarget->GetWindow()->GetHeight();
 				SwapChainInitParams.BufferCount = 3;

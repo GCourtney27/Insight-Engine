@@ -1,9 +1,9 @@
 // Copyright Insight Interactive. All Rights Reserved.
 #pragma once
 
-#include "Runtime/Core/Public/ieObject/iePawn.h"
+#include "Core/Public/ieObject/iePawn.h"
 
-#include "Runtime/Core/Public/ieObject/Components/ieCameraComponent.h"
+#include "Core/Public/ieObject/Components/ieCameraComponent.h"
 
 
 namespace Insight

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
 
 namespace Insight
@@ -15,8 +15,8 @@ namespace Insight
 
 			virtual void Create(const FString& Name, UInt32 Width, UInt32 Height, EFormat Format) = 0;
 
-			FORCE_INLINE float GetClearDepth() const { return m_ClearDepth; }
-			FORCE_INLINE UInt8 GetClearStencil() const { return m_ClearStencil; }
+			FORCEINLINE float GetClearDepth() const { return m_ClearDepth; }
+			FORCEINLINE UInt8 GetClearStencil() const { return m_ClearStencil; }
 
 		protected:
 			IDepthBuffer(float ClearDepth, UInt8 ClearStencil)

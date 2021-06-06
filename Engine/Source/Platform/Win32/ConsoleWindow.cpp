@@ -3,7 +3,7 @@
 // The contents can only be accessed on a Win32 platform.
 // If it is not present than just compile it out.
 
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 #include "ConsoleWindow.h"
 
 namespace Insight {
@@ -71,4 +71,4 @@ namespace Insight {
 		CloseHandle(m_OutputHandle);
 	}
 }
-#endif  // IE_PLATFORM_BUILD_WIN32
+#endif  // IE_WIN32

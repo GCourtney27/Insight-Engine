@@ -8,7 +8,7 @@
 	Wrapper for C++ casting operations.
 */
 #pragma once
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
 /*
 	Performs a const_cast on specified value.

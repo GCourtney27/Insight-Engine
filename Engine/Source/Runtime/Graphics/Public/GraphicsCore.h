@@ -1,7 +1,7 @@
 // Copyright Insight Interactive. All Rights Reserved.
 #pragma once
-#include "Runtime/Graphics/Public/CommonEnums.h"
-#include "Runtime/Graphics/Public/CommonStructs.h"
+#include "Graphics/Public/CommonEnums.h"
+#include "Graphics/Public/CommonStructs.h"
 
 #if RENDER_CORE_BUILD_DLL
 #	define RENDER_API __declspec(dllexport)

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 #include <Runtime/Graphics/Public/GraphicsCore.h>
 
-#include "Runtime/Graphics/Public/Resource/IColorBuffer.h"
+#include "Graphics/Public/Resource/IColorBuffer.h"
 
 namespace Insight
 {
@@ -29,34 +29,34 @@ namespace Insight
 			virtual void ToggleFullScreen(bool IsEnabled) { SetIsFullScreenEnabled(IsEnabled); }
 			virtual void ToggleVsync(bool IsEnabled) { SetIsVSyncEnabled(IsEnabled); }
 
-			FORCE_INLINE void MoveToNextFrame();
+			FORCEINLINE void MoveToNextFrame();
 
 			//
 			// Getters
 			//
-			FORCE_INLINE IESwapChainDescription GetDesc()		const { return m_Desc; }
-			FORCE_INLINE UInt32 GetCurrentFrameIndex()	const { return m_FrameIndex; }
-			FORCE_INLINE Color	GetClearColor()			const { return m_ClearColor; }
-			FORCE_INLINE bool GetIsVSyncEnabled()		const { return m_bVSyncEnabled; }
-			FORCE_INLINE bool GetIsTearingSupported()	const { return m_bAllowTearing; }
-			FORCE_INLINE UInt32 GetNumBackBuffers()		const { return m_Desc.BufferCount; }
-			FORCE_INLINE bool GetIsFullScreenEnabled()	const { return m_bFullScreenEnabled; }
-			FORCE_INLINE IColorBuffer* GetColorBufferForCurrentFrame() const { return m_DisplayPlanes[GetCurrentFrameIndex()]; }
+			FORCEINLINE IESwapChainDescription GetDesc()		const { return m_Desc; }
+			FORCEINLINE UInt32 GetCurrentFrameIndex()	const { return m_FrameIndex; }
+			FORCEINLINE Color	GetClearColor()			const { return m_ClearColor; }
+			FORCEINLINE bool GetIsVSyncEnabled()		const { return m_bVSyncEnabled; }
+			FORCEINLINE bool GetIsTearingSupported()	const { return m_bAllowTearing; }
+			FORCEINLINE UInt32 GetNumBackBuffers()		const { return m_Desc.BufferCount; }
+			FORCEINLINE bool GetIsFullScreenEnabled()	const { return m_bFullScreenEnabled; }
+			FORCEINLINE IColorBuffer* GetColorBufferForCurrentFrame() const { return m_DisplayPlanes[GetCurrentFrameIndex()]; }
 
 			//
 			// Setters
 			//
-			FORCE_INLINE void SetCurrentFrameIndex(UInt32 Index) { m_FrameIndex = Index; }
-			FORCE_INLINE void SetClearColor(const Color& NewColor);
-			FORCE_INLINE void SetIsFullScreenEnabled(bool bEnabled) { m_bFullScreenEnabled = bEnabled; }
-			FORCE_INLINE void SetIsVSyncEnabled(bool bEnabled)
+			FORCEINLINE void SetCurrentFrameIndex(UInt32 Index) { m_FrameIndex = Index; }
+			FORCEINLINE void SetClearColor(const Color& NewColor);
+			FORCEINLINE void SetIsFullScreenEnabled(bool bEnabled) { m_bFullScreenEnabled = bEnabled; }
+			FORCEINLINE void SetIsVSyncEnabled(bool bEnabled)
 			{
 				if (m_bFullScreenEnabled)
 					m_bVSyncEnabled = bEnabled;
 				else
 					IE_LOG(Error, TEXT("Trying to enable VSync while in windowed mode! This is not allowed."));
 			}
-			FORCE_INLINE void SetIsTearingSupported(bool bSupported) { m_bAllowTearing = bSupported; }
+			FORCEINLINE void SetIsTearingSupported(bool bSupported) { m_bAllowTearing = bSupported; }
 
 		protected:
 			ISwapChain()

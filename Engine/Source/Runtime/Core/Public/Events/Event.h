@@ -2,8 +2,8 @@
 #pragma once
 #include <Engine_pch.h>
 
-#include <Runtime/Core.h>
-#include "Runtime/Core/Public/Input/KeyCodes.h"
+#include "EngineDefines.h"
+#include "Core/Public/Input/KeyCodes.h"
 
 namespace Insight {
 
@@ -21,13 +21,13 @@ namespace Insight {
 	enum EEventCategory
 	{
 		None = 0,
-		EventCategoryApplication	= BIT_SHIFT(0),
-		EventCategoryInput			= BIT_SHIFT(1),
-		EventCategoryKeyboard		= BIT_SHIFT(2),
-		EventCategoryMouse			= BIT_SHIFT(3),
-		EventCategoryMouseButton	= BIT_SHIFT(4),
-		EventCategoryPhysics		= BIT_SHIFT(5),
-		EventCategoryTranslation	= BIT_SHIFT(6)
+		EventCategoryApplication	= 1 << 0,
+		EventCategoryInput			= 1 << 1,
+		EventCategoryKeyboard		= 1 << 2,
+		EventCategoryMouse			= 1 << 3,
+		EventCategoryMouseButton	= 1 << 4,
+		EventCategoryPhysics		= 1 << 5,
+		EventCategoryTranslation	= 1 << 6
 	};
 
 #define EVENT_CLASS_TYPE(type) static EEventType GetStaticType() { return EEventType::##type; }\

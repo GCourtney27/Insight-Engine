@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Graphics/Public/Resource/IColorBuffer.h"
+#include "Graphics/Public/Resource/IColorBuffer.h"
 #include "Platform/DirectX12/Public/Resource/D3D12PixelBuffer.h"
 
 namespace Insight
@@ -20,8 +20,8 @@ namespace Insight
 				virtual void CreateFromSwapChain(IDevice* pDevice, const FString& Name, void* pResource) override;
 				virtual void Create(IDevice* pDevice, const FString& Name, UInt32 Width, UInt32 Height, UInt32 NumMips, EFormat Format) override;
 
-				FORCE_INLINE D3D12_CPU_DESCRIPTOR_HANDLE GetSRVHandle() const { return m_SRVHandle; }
-				FORCE_INLINE D3D12_CPU_DESCRIPTOR_HANDLE GetRTVHandle() const { return m_RTVHandle; }
+				FORCEINLINE D3D12_CPU_DESCRIPTOR_HANDLE GetSRVHandle() const { return m_SRVHandle; }
+				FORCEINLINE D3D12_CPU_DESCRIPTOR_HANDLE GetRTVHandle() const { return m_RTVHandle; }
 
 			protected:
 				virtual void CreateDerivedViews(IDevice* pDevice, EFormat Format, UInt32 ArraySize, UInt32 NumMips) override;

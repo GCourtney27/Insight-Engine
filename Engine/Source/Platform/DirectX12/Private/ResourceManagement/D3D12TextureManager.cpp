@@ -3,8 +3,8 @@
 #include "Platform/DirectX12/Public/ResourceManagement/D3D12TextureManager.h"
 
 #include "Platform/DirectX12/Private/D3D12BackendCore.h"
-#include "Runtime/Graphics/Public/GraphicsCore.h"
-#include "Runtime/Graphics/Public/IDevice.h"
+#include "Graphics/Public/GraphicsCore.h"
+#include "Graphics/Public/IDevice.h"
 #include "Platform/DirectX12/Private/Utility/DDSTextureLoader.h"
 
 namespace Insight

@@ -1,10 +1,10 @@
 #pragma once
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/GameFramework/AActor.h"
-#include "Runtime/Graphics/Texture.h"
+#include "GameFramework/AActor.h"
+#include "Graphics/Texture.h"
 
 namespace Insight {
 

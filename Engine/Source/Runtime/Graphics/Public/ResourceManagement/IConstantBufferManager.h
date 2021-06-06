@@ -1,6 +1,7 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
+#include "InsightStd.h"
 #include <Runtime/Graphics/Public/GraphicsCore.h>
 
 
@@ -13,21 +14,21 @@ namespace Insight
 			friend class IConstantBufferManager;
 		public:
 			template <typename BufferCastType>
-			FORCE_INLINE BufferCastType* GetBufferPointer();
-			FORCE_INLINE ConstantBufferUID GetUID() const;
-			FORCE_INLINE UInt32 GetBufferSize() const;
+			FORCEINLINE BufferCastType* GetBufferPointer();
+			FORCEINLINE ConstantBufferUID GetUID() const;
+			FORCEINLINE UInt32 GetBufferSize() const;
 
 		protected:
 			IConstantBuffer()
 				: m_BufferSize(0)
 				, m_UID(IE_INVALID_CONSTANT_BUFFER_HANDLE)
 			{
-				ZeroMem(m_Data, sizeof(char) * IE_MAX_CONSTANT_BUFFER_SIZE);
+				ZeroMemRanged(m_Data, sizeof(char) * IE_MAX_CONSTANT_BUFFER_SIZE);
 			}
 			~IConstantBuffer() = default;
 
-			FORCE_INLINE void SetBufferSize(UInt32 BufferSize);
-			FORCE_INLINE void SetUID(const ConstantBufferUID& UID);
+			FORCEINLINE void SetBufferSize(UInt32 BufferSize);
+			FORCEINLINE void SetUID(const ConstantBufferUID& UID);
 
 			virtual void Create(const FString& Name, UInt32 BufferSize) = 0;
 
@@ -61,28 +62,28 @@ namespace Insight
 		// Inline function implementations
 		//
 
-		FORCE_INLINE ConstantBufferUID IConstantBuffer::GetUID() const
+		FORCEINLINE ConstantBufferUID IConstantBuffer::GetUID() const
 		{ 
 			return m_UID; 
 		}
 		
-		FORCE_INLINE UInt32 IConstantBuffer::GetBufferSize() const
+		FORCEINLINE UInt32 IConstantBuffer::GetBufferSize() const
 		{ 
 			return m_BufferSize; 
 		}
 
 		template <typename BufferCastType>
-		FORCE_INLINE BufferCastType* IConstantBuffer::GetBufferPointer()
+		FORCEINLINE BufferCastType* IConstantBuffer::GetBufferPointer()
 		{
 			return RCast<BufferCastType*>(m_Data);
 		}
 
-		FORCE_INLINE void IConstantBuffer::SetBufferSize(UInt32 BufferSize)
+		FORCEINLINE void IConstantBuffer::SetBufferSize(UInt32 BufferSize)
 		{ 
 			m_BufferSize = BufferSize; 
 		}
 		
-		FORCE_INLINE void IConstantBuffer::SetUID(const ConstantBufferUID& UID)
+		FORCEINLINE void IConstantBuffer::SetUID(const ConstantBufferUID& UID)
 		{ 
 			m_UID = UID; 
 		}

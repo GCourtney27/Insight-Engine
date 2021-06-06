@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Graphics/Public/GraphicsCore.h"
-#include "Runtime/Math/Public/Matricies.h"
-#include "Runtime/Graphics/Public/IGeometryBufferManager.h"
+#include "Graphics/Public/GraphicsCore.h"
+#include "Math/Public/Matricies.h"
+#include "Graphics/Public/IGeometryBufferManager.h"
 
 
 

@@ -54,12 +54,12 @@
 #include <rapidjson/filewritestream.h>
 
 // === Insight Specific === //
-#include "Runtime/Core/Public/Log.h"
-#include "Runtime/Core/Public/Exception.h"
-#include "Runtime/Core/Public/Interfaces.h"
-#include "Runtime/Core/Public/FileSystem.h"
-#include "Runtime/Core/Public/Utility/Profiling.h"
-#include "Runtime/Core/Public/Utility/StringHelper.h"
+#include "Core/Public/Log.h"
+#include "Core/Public/Exception.h"
+#include "Core/Public/Interfaces.h"
+#include "Core/Public/FileSystem.h"
+#include "Core/Public/Utility/Profiling.h"
+#include "Core/Public/Utility/StringHelper.h"
 
 // -----------
 // Platforms |
@@ -117,7 +117,7 @@
 // ---------------
 //		Win32	  |
 // ---------------
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 
 #	ifndef WIN32_LEAN_AND_MEAN
 #		define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers.
@@ -130,13 +130,13 @@
 #	include <Shlwapi.h>
 #	include <windowsx.h>
 	
-#endif // IE_PLATFORM_BUILD_WIN32
+#endif // IE_WIN32
 
 
 // ---------------------------------------------
 //		Universal Windows Platform (UWP)		|
 // ---------------------------------------------
-#if IE_PLATFORM_BUILD_UWP
+#if IE_UWP_DESKTOP
 
 	// Windows Runtime
 #	include "winrt/Windows.System.h"
@@ -152,4 +152,4 @@
 #	include "winrt/Windows.ApplicationModel.Activation.h"
 
 
-#endif // IE_PLATFORM_BUILD_UWP
+#endif // IE_UWP_DESKTOP

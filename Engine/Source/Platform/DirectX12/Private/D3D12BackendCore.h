@@ -1,6 +1,6 @@
 #pragma once
-#include "Runtime/Graphics/Public/CommonEnums.h"
-#include "Runtime/Graphics/Public/CommonStructs.h"
+#include "Graphics/Public/CommonEnums.h"
+#include "Graphics/Public/CommonStructs.h"
 
 #include "Platform/DirectX12/Public/D3D12DescriptorAllocator.h"
 

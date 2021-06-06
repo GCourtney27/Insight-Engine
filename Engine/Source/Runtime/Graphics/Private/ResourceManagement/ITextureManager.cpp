@@ -1,6 +1,6 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Graphics/Public/ResourceManagement/ITextureManager.h"
+#include "Graphics/Public/ResourceManagement/ITextureManager.h"
 
 namespace Insight
 {

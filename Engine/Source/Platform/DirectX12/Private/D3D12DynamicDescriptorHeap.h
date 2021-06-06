@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
 #include "Platform/DirectX12/Public/Common/D3D12Utility.h"
 
 #include "Platform/DirectX12/Public/D3D12DescriptorHeap.h"
-#include "Runtime/Graphics/Public/IRootSignature.h"
+#include "Graphics/Public/IRootSignature.h"
 
 namespace Insight
 {

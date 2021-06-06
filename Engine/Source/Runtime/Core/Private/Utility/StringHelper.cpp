@@ -1,6 +1,6 @@
 ﻿#include <Engine_pch.h>
 
-#include "Runtime/Core/Public/Utility/StringHelper.h"
+#include "Core/Public/Utility/StringHelper.h"
 
 namespace Insight 
 {

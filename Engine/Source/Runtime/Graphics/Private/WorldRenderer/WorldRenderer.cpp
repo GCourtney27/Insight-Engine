@@ -1,11 +1,11 @@
 // Copyright Insight Interactive. All Rights Reserved.
 #include <Engine_pch.h>
 
-#include "Runtime/Graphics/Public/WorldRenderer/WorldRenderer.h"
+#include "Graphics/Public/WorldRenderer/WorldRenderer.h"
 
-#include "Runtime/Core/Public/ieObject/Components/ieCameraComponent.h"
-#include "Runtime/Core/Public/ieObject/ieWorld.h"
-#include "Runtime/Graphics/Public/GeometryGenerator.h"
+#include "Core/Public/ieObject/Components/ieCameraComponent.h"
+#include "Core/Public/ieObject/ieWorld.h"
+#include "Graphics/Public/GeometryGenerator.h"
 
 //#ifdef IE_WITH_D3D12
 #include "Platform/DirectX12/Public/D3D12RenderContextFactory.h"

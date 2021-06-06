@@ -2,9 +2,9 @@
 
 #include "CSharpScirptComponent.h"
 
-#include "Runtime/Systems/Managers/ResourceManager.h"
-#include "Runtime/GameFramework/AActor.h"
-#include "Runtime/Core/Public/Application.h"
+#include "Systems/Managers/ResourceManager.h"
+#include "GameFramework/AActor.h"
+#include "Core/Public/Engine.h"
 
 
 namespace Insight {

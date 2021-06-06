@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Runtime/Core/Public/ECS/Core/Core.h"
-#include "Runtime/Core/Public/ECS/Component/ComponentFwd.h"
+#include "Core/Public/ECS/Core/Core.h"
+#include "Core/Public/ECS/Component/ComponentFwd.h"
 
 #include <string_view>
 

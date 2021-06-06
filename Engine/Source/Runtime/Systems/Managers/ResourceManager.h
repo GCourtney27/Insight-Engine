@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Runtime/Core.h>
-#include "Runtime/Systems/Managers/GeometryManager.h"
-#include "Runtime/Systems/Managers/TextureManager.h"
-#include "Runtime/Systems/Managers/MonoScriptManager.h"
+#include "EngineDefines.h"
+#include "Systems/Managers/GeometryManager.h"
+#include "Systems/Managers/TextureManager.h"
+#include "Systems/Managers/MonoScriptManager.h"
 
 namespace Insight {
 
@@ -21,13 +21,13 @@ namespace Insight {
 		void FlushAllResources();
 
 		TextureManager& GetTextureManager() { return *m_pTextureManager; }
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		MonoScriptManager& GetMonoScriptManager() { return *m_pMonoScriptManager; }
 #endif
 
 	private:
 		TextureManager* m_pTextureManager = nullptr;
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		MonoScriptManager* m_pMonoScriptManager = nullptr;
 #endif
 	private:

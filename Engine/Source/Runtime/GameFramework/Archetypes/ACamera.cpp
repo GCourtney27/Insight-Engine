@@ -3,10 +3,10 @@
 
 #include "ACamera.h"
 
-#include "Runtime/GameFramework/Components/ActorComponent.h"
-#include "Runtime/Core/Public/Application.h"
+#include "GameFramework/Components/ActorComponent.h"
+#include "Core/Public/Engine.h"
 
-#include "Runtime/UI/UILib.h"
+#include "UI/UILib.h"
 
 
 namespace Insight {

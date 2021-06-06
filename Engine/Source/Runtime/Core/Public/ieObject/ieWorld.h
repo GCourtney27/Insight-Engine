@@ -1,12 +1,12 @@
 // Copyright Insight Interactive. All Rights Reserved.
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Core/Public/ECS/ECS.h"
+#include "Core/Public/ECS/ECS.h"
 
-#include "Runtime/Graphics/Public/WorldRenderer/WorldRenderer.h"
-#include "Runtime/Core/Public/ComponentSystems/CameraSystem.h"
+#include "Graphics/Public/WorldRenderer/WorldRenderer.h"
+#include "Core/Public/ComponentSystems/CameraSystem.h"
 
 
 namespace Insight

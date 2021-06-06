@@ -3,8 +3,8 @@
 #include "Platform/DirectX12/Public/Resource/D3D12Texture.h"
 #include "Platform/DirectX12/Private/D3D12BackendCore.h"
 
-#include "Runtime/Graphics/Public/IDevice.h"
-#include "Runtime/Graphics/Public/ICommandContext.h"
+#include "Graphics/Public/IDevice.h"
+#include "Graphics/Public/ICommandContext.h"
 #include "Platform/DirectX12/Private/LinearAllocator.h"
 #include "Platform/DirectX12/Public/D3D12CommandContext.h"
 #include "Platform/Public/Utility/COMException.h"

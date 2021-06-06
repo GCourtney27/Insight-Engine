@@ -1,6 +1,6 @@
 #include <Engine_pch.h>
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
 namespace Insight
 {

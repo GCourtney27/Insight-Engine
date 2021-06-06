@@ -1,5 +1,5 @@
 #pragma once
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
 #include "Platform/DirectXShared/ConstantBufferTypes.h"
 

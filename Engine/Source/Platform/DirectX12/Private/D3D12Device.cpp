@@ -120,7 +120,7 @@ namespace Insight
 					DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapterByGpuPreference(AdapterIndex, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&pAdapter));
 					++AdapterIndex)
 				{
-					ZeroMem(&Desc);
+					ZeroMemRanged(&Desc);
 					pAdapter->GetDesc1(&Desc);
 
 					// Make sure we get the video card that is not a software adapter
@@ -167,7 +167,7 @@ namespace Insight
 				}
 				IE_ASSERT((*ppAdapter)); // Could not locate a proper adapter that supports D3D12.
 
-				ZeroMem(&Desc);
+				ZeroMemRanged(&Desc);
 				(*ppAdapter)->GetDesc1(&Desc);
 				OutDeviceQueryResult.DeviceName = Desc.Description;
 				IE_LOG(Warning, TEXT("\"%s\" selected as D3D 12 graphics hardware."), OutDeviceQueryResult.DeviceName.c_str());

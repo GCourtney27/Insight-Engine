@@ -2,7 +2,7 @@
 
 #include "Platform/Public/PlatformCommon.h"
 
-#include "Runtime/Core/Public/Cast.h"
+#include "Core/Public/Cast.h"
 
 namespace Insight
 {
@@ -11,10 +11,10 @@ namespace Insight
 		EInputEventType GetAsyncKeyState(KeyMapCode Key)
 		{
 			bool Pressed = false;
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 			short KeyState = ::GetAsyncKeyState(Key);
-			Pressed = ( BIT_SHIFT(15) & KeyState );
-#elif IE_PLATFORM_BUILD_UWP
+			Pressed = ( (1 << 15) & KeyState );
+#elif IE_UWP_DESKTOP
 			const winrt::Windows::System::VirtualKey VirtualKey = (winrt::Windows::System::VirtualKey)Key;
 			auto State = winrt::Windows::UI::Core::CoreWindow::GetForCurrentThread().GetAsyncKeyState(VirtualKey);
 			Pressed = ( State == winrt::Windows::UI::Core::CoreVirtualKeyStates::Down );
@@ -24,9 +24,9 @@ namespace Insight
 
 		void CreateMessageBox(const wchar_t* Message, const wchar_t* Title, void* pParentWindow)
 		{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 			::MessageBox(RCast<HWND>(pParentWindow), Message, Title, MB_OK);
-#elif IE_PLATFORM_BUILD_UWP
+#elif IE_UWP_DESKTOP
 			#pragma message ("CreateMessageBox not defined for UWP platform!")
 #endif
 		}
@@ -34,9 +34,9 @@ namespace Insight
 		DLLHandle LoadDynamicLibrary(const wchar_t* Filepath)
 		{
 			return (DLLHandle)(
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 				LoadLibrary(Filepath)
-#elif IE_PLATFORM_BUILD_UWP
+#elif IE_UWP_DESKTOP
 				LoadPackagedLibrary(Filepath, 0)
 #endif
 			);
@@ -46,7 +46,7 @@ namespace Insight
 		{
 			IE_ASSERT(Handle != NULL); // Trying to free a handle to a null library.
 
-#if IE_PLATFORM_BUILD_WIN32 || IE_PLATFORM_BUILD_UWP
+#if IE_WIN32 || IE_UWP_DESKTOP
 			return (Int32)FreeLibrary((HMODULE)Handle);
 #endif
 		}
@@ -54,7 +54,7 @@ namespace Insight
 
 		wchar_t* GetLastPlatformError()
 		{
-#if IE_PLATFORM_BUILD_WIN32 || IE_PLATFORM_BUILD_UWP
+#if IE_WIN32 || IE_UWP_DESKTOP
 			LPVOID lpMsgBuf;
 			LPVOID lpDisplayBuf;
 			DWORD ErrCode = ::GetLastError();
@@ -83,7 +83,7 @@ namespace Insight
 
 		void GetWorkingDirectory(size_t BufferSize, TChar* Buffer)
 		{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 			// Fetch the current directory (includes the exe name).
 			DWORD Result = ::GetModuleFileName(NULL, Buffer, (DWORD)BufferSize);
 			if (Result == 0)
@@ -103,22 +103,22 @@ namespace Insight
 					break;
 				}
 			}
-#elif IE_PLATFORM_BUILD_UWP
+#elif IE_UWP_DESKTOP
 			(void)BufferSize;
 
 			// The default working directory is the .exe root in UWP apps. Which is automatically registered and cannot be changed.
-			ZeroMem(Buffer, BufferSize);
+			ZeroMemRanged(Buffer, BufferSize);
 			Buffer[0] = "\0";
 #endif
 		}
 
 		void SetWorkingDirectory(TChar* Path)
 		{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 			bool Result = ::SetCurrentDirectory(Path);
 			if (!Result)
 				IE_LOG(Error, TEXT("Failed to set the current directory of the exe. Windows Error: %i"), GetLastError());
-#elif IE_PLATFORM_BUILD_UWP
+#elif IE_UWP_DESKTOP
 			(void)Path;
 #endif
 		}

@@ -1,11 +1,11 @@
 // Copyright Insight Interactive. All Rights Reserved.
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Core/Public/ieObject/ieObjectBase.h"
+#include "Core/Public/ieObject/ieObjectBase.h"
 
-#include "Runtime/Core/Public/ieObject/Components/ieComponentBase.h"
+#include "Core/Public/ieObject/Components/ieComponentBase.h"
 
 namespace Insight
 {
@@ -57,7 +57,7 @@ namespace Insight
 
 
 		template <typename SubObjectType, typename ... Args>
-		FORCE_INLINE SubObjectType* CreateDefaultSubObject(const FString& Name, Args ... args)
+		FORCEINLINE SubObjectType* CreateDefaultSubObject(const FString& Name, Args ... args)
 		{
 #if IE_CACHEOPTIMIZED_ECS_ENABLED
 			SubObjectType& pResult = GetWorld()->GetEntityAdmin().AddComponent<SubObjectType>(GetWorldId(), args...);
@@ -91,7 +91,7 @@ namespace Insight
 		}
 
 		template <typename SubObjectType>
-		FORCE_INLINE void RemoveSubObjectById(const ECS::ComponentUID_t& ComponentId)
+		FORCEINLINE void RemoveSubObjectById(const ECS::ComponentUID_t& ComponentId)
 		{
 #if IE_CACHEOPTIMIZED_ECS_ENABLED
 			GetWorld()->GetEntityAdmin().RemoveComponentById<SubObjectType>(ComponentId);
@@ -99,7 +99,7 @@ namespace Insight
 		}
 
 		template <typename SubObjectType>
-		FORCE_INLINE void RemoveSubObject(const SubObjectType& Component)
+		FORCEINLINE void RemoveSubObject(const SubObjectType& Component)
 		{
 #if IE_CACHEOPTIMIZED_ECS_ENABLED
 			GetWorld()->GetEntityAdmin().RemoveComponentById<SubObjectType>(Component.GetId());

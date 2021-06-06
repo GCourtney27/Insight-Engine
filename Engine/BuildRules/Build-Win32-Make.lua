@@ -54,9 +54,10 @@ project ("EngineBuild_Win32")
 	defines
 	{
 		-- Tells the engine to compile for Win32 platform
-		"IE_PLATFORM_BUILD_WIN32=1",
+		"IE_WIN32=1",
 		"_CRT_SECURE_NO_WARNINGS",
 		"TRACK_RENDER_EVENTS=1", 
+		"INSIGHT_ENGINE=1",
 		"IE_WITH_DXR",
 	}
 
@@ -76,6 +77,7 @@ project ("EngineBuild_Win32")
 
 		-- Engine Source code
 		"%{engineIncludeDirs.Engine}/Source/",
+		"%{engineIncludeDirs.Engine}/Source/Runtime/",
 
 		-- This Projects PCH
 		"PCH_Source/",

@@ -1,6 +1,6 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Graphics/Public/ResourceManagement/MaterialManager.h"
+#include "Graphics/Public/ResourceManagement/MaterialManager.h"
 
 namespace Insight
 {

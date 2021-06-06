@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
 #include "Platform/Public/Utility/COMException.h"
 
@@ -52,7 +52,7 @@ namespace Insight {
 		inline void ResetFenceValue(uint32_t Index) { m_FenceValues[Index] = m_FrameIndex; }
 		void MoveToNextFrame();
 		void WaitForGPU();
-		FORCE_INLINE void IncrementAndSignalFence()
+		FORCEINLINE void IncrementAndSignalFence()
 		{
 			m_FenceValues[m_FrameIndex]++;
 			ThrowIfFailed(m_pGraphicsCommandQueue->Signal(m_pFence.Get(), m_FenceValues[m_FrameIndex]), TEXT(""));

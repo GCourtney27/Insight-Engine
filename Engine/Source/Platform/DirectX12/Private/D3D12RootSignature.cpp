@@ -2,8 +2,8 @@
 
 #include "Platform/DirectX12/Public/D3D12RootSignature.h"
 
-#include "Runtime/Graphics/Public/IDevice.h"
-#include "Runtime/Core/Public/Utility/Hash.h"
+#include "Graphics/Public/IDevice.h"
+#include "Core/Public/Utility/Hash.h"
 #include "Platform/Public/Utility/COMException.h"
 
 namespace Insight

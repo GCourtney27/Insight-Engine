@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Graphics/Public/IDevice.h"
+#include "Graphics/Public/IDevice.h"
 
 
 namespace Insight

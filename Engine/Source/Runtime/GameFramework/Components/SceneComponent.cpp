@@ -2,10 +2,10 @@
 
 #include "SceneComponent.h"
 
-#include "Runtime/GameFramework/Archetypes/ACamera.h"
+#include "GameFramework/Archetypes/ACamera.h"
 
-#include "Runtime/UI/UILib.h"
-#include "Runtime/Core/Public/Application.h"
+#include "UI/UILib.h"
+#include "Core/Public/Engine.h"
 
 namespace Insight {
 

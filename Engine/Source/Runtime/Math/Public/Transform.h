@@ -1,11 +1,11 @@
 // Copyright Insight Interactive. All Rights Reserved.
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Math/Public/Vectors.h"
-#include "Runtime/Math/Public/Matricies.h"
-#include "Runtime/Math/Public/Quaternion.h"
+#include "Math/Public/Vectors.h"
+#include "Math/Public/Matricies.h"
+#include "Math/Public/Quaternion.h"
 
 namespace Insight
 {

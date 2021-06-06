@@ -24,11 +24,11 @@
 */
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Core/Public/Events/Event.h"
-#include "Runtime/Core/Public/Events/KeyEvent.h"
-#include "Runtime/Core/Public/Events/MouseEvent.h"
+#include "Core/Public/Events/Event.h"
+#include "Core/Public/Events/KeyEvent.h"
+#include "Core/Public/Events/MouseEvent.h"
 
 // For XBox Controllers
 #include <Xinput.h>

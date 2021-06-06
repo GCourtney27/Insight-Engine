@@ -35,12 +35,12 @@
 // -----
 // Core	|
 // -----
-#include "Runtime/Core/Public/Application.h"
-#include "Runtime/Core/Public/Layer/Layer.h"
-#if IE_PLATFORM_BUILD_WIN32
-#include "Runtime/Core/Public/Layer/ImGuiOverlay.h"
+#include "Core/Public/Engine.h"
+#include "Core/Public/Layer/Layer.h"
+#if IE_WIN32
+#include "Core/Public/Layer/ImGuiOverlay.h"
 #include "Platform/Win32/Win32Window.h"
-#elif IE_PLATFORM_BUILD_UWP
+#elif IE_UWP_DESKTOP
 #include "Platform/UWP/UWPWindow.h"
 #endif
 
@@ -48,19 +48,19 @@
 // Utility	|
 // ---------
 
-#include "Runtime/Core/Public/Log.h"
-#include "Runtime/Core/Public/Exception.h"
-#include "Runtime/Core/Public/Utility/Profiling.h"
+#include "Core/Public/Log.h"
+#include "Core/Public/Exception.h"
+#include "Core/Public/Utility/Profiling.h"
 
 // ------------
 // Rendering	|
 // ------------
-#include "Runtime/Graphics/Material.h"
+#include "Graphics/Material.h"
 
 // -----------------
 // Game Framework	|
 // -----------------
-#include "Runtime/GameFramework/Components/StaticMeshComponent.h"
+#include "GameFramework/Components/StaticMeshComponent.h"
 
 
 

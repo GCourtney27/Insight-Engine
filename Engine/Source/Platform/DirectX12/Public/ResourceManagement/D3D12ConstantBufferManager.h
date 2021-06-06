@@ -1,13 +1,13 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 #include <Runtime/Graphics/Public/GraphicsCore.h>
 
-#include "Runtime/Graphics/Public/ResourceManagement/IConstantBufferManager.h"
+#include "Graphics/Public/ResourceManagement/IConstantBufferManager.h"
 #include "Platform/DirectX12/Public/Resource/D3D12GPUResource.h"
 
 #include "Platform/DirectX12/Private/D3D12BackendCore.h"
-#include "Runtime/Graphics/Public/IDevice.h"
+#include "Graphics/Public/IDevice.h"
 #include "Platform/Public/Utility/COMException.h"
 
 namespace Insight
@@ -28,12 +28,12 @@ namespace Insight
 				}
 				~D3D12ConstantBuffer() = default;
 
-				FORCE_INLINE D3D12_CPU_DESCRIPTOR_HANDLE CBV() const;
-				FORCE_INLINE void* GetGPUWritePointer() const;
+				FORCEINLINE D3D12_CPU_DESCRIPTOR_HANDLE CBV() const;
+				FORCEINLINE void* GetGPUWritePointer() const;
 
 			protected:
-				FORCE_INLINE void UploadBuffer();
-				FORCE_INLINE static UInt32 GetAlignedBufferSize(UInt32 BufferSize);
+				FORCEINLINE void UploadBuffer();
+				FORCEINLINE static UInt32 GetAlignedBufferSize(UInt32 BufferSize);
 
 				virtual void Create(const FString& Name, UInt32 BufferSize) override;
 
@@ -72,22 +72,22 @@ namespace Insight
 
 			// D3D12ConstantBuffer
 
-			FORCE_INLINE D3D12_CPU_DESCRIPTOR_HANDLE D3D12ConstantBuffer::CBV() const
+			FORCEINLINE D3D12_CPU_DESCRIPTOR_HANDLE D3D12ConstantBuffer::CBV() const
 			{ 
 				return m_CBV; 
 			}
 			
-			FORCE_INLINE void* D3D12ConstantBuffer::GetGPUWritePointer() const
+			FORCEINLINE void* D3D12ConstantBuffer::GetGPUWritePointer() const
 			{ 
 				return m_pWritePointer; 
 			}
 
-			FORCE_INLINE void D3D12ConstantBuffer::UploadBuffer()
+			FORCEINLINE void D3D12ConstantBuffer::UploadBuffer()
 			{
 				memcpy(GetGPUWritePointer(), RCast<const void*>(m_Data), GetBufferSize());
 			}
 
-			FORCE_INLINE UInt32 D3D12ConstantBuffer::GetAlignedBufferSize(UInt32 BufferSize)
+			FORCEINLINE UInt32 D3D12ConstantBuffer::GetAlignedBufferSize(UInt32 BufferSize)
 			{
 				return (BufferSize + (D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT - 1)) & ~(D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT - 1); // Must be a multiple 256 bytes
 			}

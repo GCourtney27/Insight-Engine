@@ -2,12 +2,12 @@
 
 #include "Renderer.h"
 
-#include "Runtime/Core/Public/Application.h"
+#include "Core/Public/Engine.h"
 
 #include "Platform/DirectX11/Direct3D11Context.h"
 #include "Platform/DirectX12/Direct3D12Context.h"
 
-#include "Runtime/Graphics/Lighting/ADirectionalLight.h"
+#include "Graphics/Lighting/ADirectionalLight.h"
 
 namespace Insight {
 

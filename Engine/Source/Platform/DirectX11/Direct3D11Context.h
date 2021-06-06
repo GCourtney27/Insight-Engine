@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Graphics/Renderer.h"
+#include "Graphics/Renderer.h"
 #include "Platform/Public/Utility/COMException.h"
 
 #include "Platform/DirectX11/D3D11Helper.h"

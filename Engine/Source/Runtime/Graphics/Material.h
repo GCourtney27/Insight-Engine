@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Graphics/Texture.h"
+#include "Graphics/Texture.h"
 #include "Platform/DirectXShared/ConstantBufferTypes.h"
 
 namespace Insight {

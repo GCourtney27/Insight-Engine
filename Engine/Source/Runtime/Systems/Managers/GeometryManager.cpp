@@ -2,8 +2,8 @@
 
 #include "GeometryManager.h"
 
-#include "Runtime/Graphics/Renderer.h"
-#include "Runtime/GameFramework/Archetypes/APlayerCharacter.h"
+#include "Graphics/Renderer.h"
+#include "GameFramework/Archetypes/APlayerCharacter.h"
 
 #include "Platform/DirectX12/Direct3D12Context.h"
 #include "Platform/DirectX11/Geometry/D3D11GeometryManager.h"

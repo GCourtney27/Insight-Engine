@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Runtime/Core.h>
-#include "Runtime/Core/Public/ieObject/Components/ieComponentBase.h"
+#include "EngineDefines.h"
+#include "Core/Public/ieObject/Components/ieComponentBase.h"
 
-#include "Runtime/Math/Public/Transform.h"
+#include "Math/Public/Transform.h"
 
 
 

@@ -26,7 +26,7 @@
 #include "Platform/DirectX12/Public/Resource/D3D12GPUResource.h"
 #include "Platform/DirectX12/Public/D3D12CommandContext.h"
 #include "Platform/DirectX12/Private/LinearAllocator.h"
-#include "Runtime/Graphics/Public/GraphicsCore.h"
+#include "Graphics/Public/GraphicsCore.h"
 
 struct handle_closer { void operator()(HANDLE h) { if (h) CloseHandle(h); } };
 typedef public std::unique_ptr<void, handle_closer> ScopedHandle;

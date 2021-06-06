@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 #include <Runtime/Graphics/Public/GraphicsCore.h>
 
-#include "Runtime/Graphics/Public/Resource/IPixelBuffer.h"
+#include "Graphics/Public/Resource/IPixelBuffer.h"
 
 
 namespace Insight
@@ -21,8 +21,8 @@ namespace Insight
 			virtual void CreateFromSwapChain(IDevice* pDevice, const FString& Name, void* pResource) = 0;
 			virtual void Create(IDevice* pDevice, const FString& Name, UInt32 Width, UInt32 Height, UInt32 NumMips, EFormat Format) = 0;
 
-			FORCE_INLINE void SetClearColor(Color Color) { m_ClearColor = Color; }
-			FORCE_INLINE Color GetClearColor() const { return m_ClearColor; }
+			FORCEINLINE void SetClearColor(Color Color) { m_ClearColor = Color; }
+			FORCEINLINE Color GetClearColor() const { return m_ClearColor; }
 
 
 		protected:

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 #include <Runtime/Graphics/Public/GraphicsCore.h>
 
 
@@ -16,12 +16,12 @@ namespace Insight
 			//
 			// Getters/Setters
 			//
-			FORCE_INLINE void SetUsageState(EResourceState NewState) { m_UsageState = NewState; }
-			FORCE_INLINE void SetTransitionState(EResourceState NewState) { m_TransitioningState = NewState; }
-			FORCE_INLINE void SetVersionID(UInt32 NewID) { m_VersionID = NewID; }
-			FORCE_INLINE EResourceState GetUsageState() const { return m_UsageState; }
-			FORCE_INLINE EResourceState GetTransitionState() const { return m_TransitioningState; }
-			FORCE_INLINE UInt32 GetVersionID() const { return m_VersionID; }
+			FORCEINLINE void SetUsageState(EResourceState NewState) { m_UsageState = NewState; }
+			FORCEINLINE void SetTransitionState(EResourceState NewState) { m_TransitioningState = NewState; }
+			FORCEINLINE void SetVersionID(UInt32 NewID) { m_VersionID = NewID; }
+			FORCEINLINE EResourceState GetUsageState() const { return m_UsageState; }
+			FORCEINLINE EResourceState GetTransitionState() const { return m_TransitioningState; }
+			FORCEINLINE UInt32 GetVersionID() const { return m_VersionID; }
 
 		protected:
 			IGPUResource(EResourceState CurrentState, EResourceState TransitionState)

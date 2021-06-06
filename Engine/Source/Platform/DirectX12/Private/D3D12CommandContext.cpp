@@ -13,7 +13,7 @@
 #include "Platform/DirectX12/Public/D3D12DescriptorHeap.h"
 #include "Platform/DirectX12/Public/ResourceManagement/D3D12ConstantBufferManager.h"
 #include "Platform/DirectX12/Public/Resource/D3D12Texture.h"
-#include "Runtime/Graphics/Public/ResourceManagement/ITextureManager.h"
+#include "Graphics/Public/ResourceManagement/ITextureManager.h"
 
 namespace Insight
 {
@@ -95,9 +95,9 @@ namespace Insight
 				, m_CpuLinearAllocator(LAT_CpuWritable)
 				, m_GpuLinearAllocator(LAT_GpuExclusive)
 			{
-				ZeroMem(m_ResourceBarrierBuffer, _countof(m_ResourceBarrierBuffer) * sizeof(D3D12_RESOURCE_BARRIER));
+				ZeroMemRanged(m_ResourceBarrierBuffer, _countof(m_ResourceBarrierBuffer) * sizeof(D3D12_RESOURCE_BARRIER));
 				m_D3DCmdListType = PlatformUtils::IECommandListTypeToD3DCommandListType(Type);
-				ZeroMem(m_CurrentDescriptorHeaps, sizeof(m_CurrentDescriptorHeaps));
+				ZeroMemRanged(m_CurrentDescriptorHeaps, sizeof(m_CurrentDescriptorHeaps));
 			}
 
 			D3D12CommandContext::~D3D12CommandContext()
@@ -175,7 +175,7 @@ namespace Insight
 			{
 				constexpr UInt32 cx_MaxRTVBinds = 12;
 				D3D12_CPU_DESCRIPTOR_HANDLE RTVHandles[cx_MaxRTVBinds];
-				ZeroMem(&RTVHandles, sizeof(D3D12_CPU_DESCRIPTOR_HANDLE) * cx_MaxRTVBinds);
+				ZeroMemRanged(&RTVHandles, sizeof(D3D12_CPU_DESCRIPTOR_HANDLE) * cx_MaxRTVBinds);
 
 				for (UInt32 i = 0; i < NumRTVs; ++i)
 				{

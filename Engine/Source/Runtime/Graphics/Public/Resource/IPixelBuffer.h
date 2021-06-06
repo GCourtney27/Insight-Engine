@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 
-#include "Runtime/Graphics/Public/Resource/IGPUResource.h"
+#include "Graphics/Public/Resource/IGPUResource.h"
 
 namespace Insight
 {
@@ -15,13 +15,13 @@ namespace Insight
 			virtual void AssociateWithResource(IDevice* Device, const FString& Name, void* Resource, EResourceState CurrentState) = 0;
 			virtual void CreateTextureResource(IDevice* Device, const FString& Name, const ResourceDesc& ResourceDesc, const ClearValue& ClearValue) = 0;
 
-			FORCE_INLINE EFormat GetFormat() const { return m_Format; }
+			FORCEINLINE EFormat GetFormat() const { return m_Format; }
 
-			static FORCE_INLINE EFormat GetBaseFormat(EFormat BaseFormat);
-			static FORCE_INLINE EFormat GetUAVFormat(EFormat BaseFormat);
-			static FORCE_INLINE EFormat GetDSVFormat(EFormat DefaultFormat);
-			static FORCE_INLINE EFormat GetStencilFormat(EFormat DefaultFormat);
-			static FORCE_INLINE EFormat GetDepthFormat(EFormat DefaultFormat);
+			static FORCEINLINE EFormat GetBaseFormat(EFormat BaseFormat);
+			static FORCEINLINE EFormat GetUAVFormat(EFormat BaseFormat);
+			static FORCEINLINE EFormat GetDSVFormat(EFormat DefaultFormat);
+			static FORCEINLINE EFormat GetStencilFormat(EFormat DefaultFormat);
+			static FORCEINLINE EFormat GetDepthFormat(EFormat DefaultFormat);
 
 			// Compute the number of texture levels needed to reduce to 1x1.  This uses
 			// _BitScanReverse to find the highest set bit.  Each dimension reduces by

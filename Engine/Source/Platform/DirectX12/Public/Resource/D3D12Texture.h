@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Runtime/Core.h>
+#include "EngineDefines.h"
 #include <Runtime/Graphics/Public/GraphicsCore.h>
 
-#include "Runtime/Graphics/Public/Resource/ITexture.h"
+#include "Graphics/Public/Resource/ITexture.h"
 #include "Platform/DirectX12/Public/Resource/D3D12GPUResource.h"
-#include "Runtime/Graphics//Public/IDescriptorHeap.h"
+#include "Graphics//Public/IDescriptorHeap.h"
 
 namespace Insight
 {

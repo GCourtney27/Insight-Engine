@@ -2,21 +2,21 @@
 
 #include "Direct3D11Context.h"
 
-#include "Runtime/Core/Public/Application.h"
+#include "Core/Public/Engine.h"
 #include "Platform/Win32/Win32Window.h"
 #include "Platform/DirectX11/Geometry/D3D11IndexBuffer.h"
 #include "Platform/DirectX11/Geometry/D3D11VertexBuffer.h"
 #include "Platform/DirectX11/Geometry/D3D11SphereRenderer.h"
 
-#include "Runtime/GameFramework/Archetypes/APlayerCharacter.h"
-#include "Runtime/Systems/Managers/GeometryManager.h"
+#include "GameFramework/Archetypes/APlayerCharacter.h"
+#include "Systems/Managers/GeometryManager.h"
 
-#include "Runtime/Graphics/APostFx.h"
-#include "Runtime/Graphics/ASkyLight.h"
-#include "Runtime/Graphics/ASkySphere.h"
-#include "Runtime/Graphics/Lighting/ASpotLight.h"
-#include "Runtime/Graphics/Lighting/APointLight.h"
-#include "Runtime/Graphics/Lighting/ADirectionalLight.h"
+#include "Graphics/APostFx.h"
+#include "Graphics/ASkyLight.h"
+#include "Graphics/ASkySphere.h"
+#include "Graphics/Lighting/ASpotLight.h"
+#include "Graphics/Lighting/APointLight.h"
+#include "Graphics/Lighting/ADirectionalLight.h"
 
 namespace Insight {
 
@@ -273,7 +273,7 @@ namespace Insight {
 
 	void Direct3D11Context::OnWindowFullScreen_Impl()
 	{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 
 		Win32Window* pWindow = reinterpret_cast<Win32Window*>(m_pWindowRef.get());
 		HWND& pHWND = pWindow->GetWindowHandleRef();
@@ -347,7 +347,7 @@ namespace Insight {
 			ShowWindow(pHWND, SW_MAXIMIZE);
 		}
 		m_FullScreenMode = !m_FullScreenMode;
-#endif // IE_PLATFORM_BUILD_WIN32
+#endif // IE_WIN32
 	}
 
 	void Direct3D11Context::OnShaderReload_Impl()
@@ -480,7 +480,7 @@ namespace Insight {
 		SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 		SwapChainDesc.Flags = m_AllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 		
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		/*HRESULT hr = ::D3D11CreateDeviceAndSwapChain(
 			m_pAdapter.Get(),
 			D3D_DRIVER_TYPE_UNKNOWN,
@@ -500,7 +500,7 @@ namespace Insight {
 		if (m_AllowTearing) {
 			//ThrowIfFailed(m_pDxgiFactory->MakeWindowAssociation(reinterpret_cast<Win32Window*>(m_pWindowRef.get())->GetWindowHandleRef(), DXGI_MWA_NO_ALT_ENTER), "Failed to make window association for D3D 11 context.");
 		}
-#endif // IE_PLATFORM_BUILD_WIN32
+#endif // IE_WIN32
 		
 	}
 

@@ -1,8 +1,8 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Graphics/Public/WorldRenderer/RendererCommon.h"
+#include "Graphics/Public/WorldRenderer/RendererCommon.h"
 
-#include "Runtime/Graphics/Public/GraphicsCore.h"
+#include "Graphics/Public/GraphicsCore.h"
 
 
 namespace Insight

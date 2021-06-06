@@ -1,9 +1,9 @@
 #include <Engine_pch.h>
 
-#include "Runtime/Core/Public/Layer/ImGuiOverlay.h"
-#include "Runtime/Core/Public/Application.h"
+#include "Core/Public/Layer/ImGuiOverlay.h"
+#include "Core/Public/Engine.h"
 
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 #	include "imgui.h"
 #endif
 
@@ -17,14 +17,14 @@ namespace Insight {
 
 	ImGuiLayer::~ImGuiLayer()
 	{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		delete m_pIO;
 #endif
 	}
 
 	void ImGuiLayer::OnAttach()
 	{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		IMGUI_CHECKVERSION();
 		m_pIO = new ImGuiIO();
 		ImGui::CreateContext();
@@ -47,7 +47,7 @@ namespace Insight {
 
 	void ImGuiLayer::OnDetach()
 	{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		ImGui::DestroyContext();
 #endif
 	}
@@ -58,7 +58,7 @@ namespace Insight {
 
 	void ImGuiLayer::Begin()
 	{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		ImGui::NewFrame();
 		//ImGuizmo::BeginFrame();
 		ImGui::DockSpaceOverViewport(0, ImGuiDockNodeFlags_PassthruCentralNode);
@@ -67,7 +67,7 @@ namespace Insight {
 
 	void ImGuiLayer::End()
 	{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		ImGui::Render();
 #endif
 	}
@@ -93,7 +93,7 @@ namespace Insight {
 
 	bool ImGuiLayer::IsMouseOverUI()
 	{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		return ImGui::IsAnyWindowHovered();
 #endif
 		return false;
@@ -101,7 +101,7 @@ namespace Insight {
 
 	bool ImGuiLayer::OnMouseButtonPressedEvent(MouseButtonPressedEvent& e)
 	{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		ImGuiIO& io = ImGui::GetIO();
 		uint8_t Keycode = 0;
 		TranslateMouseCode(e.GetKeyCode(), Keycode);
@@ -112,7 +112,7 @@ namespace Insight {
 
 	bool ImGuiLayer::OnMouseButtonReleasedEvent(MouseButtonReleasedEvent& e)
 	{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		ImGuiIO& io = ImGui::GetIO();
 		uint8_t Keycode = 0;
 		TranslateMouseCode(e.GetKeyCode(), Keycode);
@@ -123,7 +123,7 @@ namespace Insight {
 
 	bool ImGuiLayer::OnMouseRawMoveEvent(MouseRawMoveEvent& e)
 	{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		ImGuiIO& io = ImGui::GetIO();
 		io.MousePos = ImVec2((float)e.GetX(), (float)e.GetY());
 #endif
@@ -132,7 +132,7 @@ namespace Insight {
 
 	bool ImGuiLayer::OnMouseMovedEvent(MouseMovedEvent& e)
 	{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		ImGuiIO& io = ImGui::GetIO();
 		io.MousePos = ImVec2(e.GetX(), e.GetY());
 #endif
@@ -141,7 +141,7 @@ namespace Insight {
 
 	bool ImGuiLayer::OnMouseScrollEvent(MouseScrolledEvent& e)
 	{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		ImGuiIO& io = ImGui::GetIO();
 		io.MouseWheel += e.GetYOffset();
 		io.MouseWheelH += e.GetXOffset();
@@ -151,7 +151,7 @@ namespace Insight {
 
 	bool ImGuiLayer::OnKeyPressedEvent(KeyPressedEvent& e)
 	{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[e.GetKeyCode()] = true;
 #endif
@@ -160,7 +160,7 @@ namespace Insight {
 
 	bool ImGuiLayer::OnKeyReleasedEvent(KeyReleasedEvent& e)
 	{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[e.GetKeyCode()] = false;
 #endif
@@ -169,7 +169,7 @@ namespace Insight {
 
 	bool ImGuiLayer::OnKeyTypedEvent(KeyTypedEvent& e)
 	{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		ImGuiIO& io = ImGui::GetIO();
 		int keycode = e.GetKeyCode();
 		if (keycode > 0 && keycode < 0x10000)
@@ -180,7 +180,7 @@ namespace Insight {
 
 	bool ImGuiLayer::OnWindowResizedEvent(WindowResizeEvent& e)
 	{
-#if IE_PLATFORM_BUILD_WIN32
+#if IE_WIN32
 		ImGuiIO& io = ImGui::GetIO();
 		io.DisplaySize = ImVec2(static_cast<float>(e.GetWidth()), static_cast<float>(e.GetHeight()));
 		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
