@@ -23,7 +23,7 @@ namespace Insight
 				}
 				virtual ~D3D12ManagedTexture() = default;
 
-				virtual void CreateFromMemory(ByteArray memory, EDefaultTexture fallback, bool bForceSRGB) override;
+				virtual void CreateFromMemory(DataBlob memory, EDefaultTexture fallback, bool bForceSRGB) override;
 
 			};
 

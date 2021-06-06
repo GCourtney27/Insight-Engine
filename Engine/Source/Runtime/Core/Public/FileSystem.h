@@ -63,14 +63,14 @@ namespace Insight {
 			Returns the path to the pre-compiled code for a shader as an UNICODE string.
 			@param Shader - Name of the shader to read.
 		*/
-		static std::wstring GetShaderPathW(const wchar_t* Shader);
+		static std::wstring GetShaderPathW(const TChar* Shader);
 
 		/*
 			Reads in the raw data for a file and returns its contents. nullptr if the file read was unsuccessful.
 			@param Path - Exe relative path to the file to read.
 			@param OutDataSize - Populated with the size of the file that is read in. -1 if the file read was unsuccessful.
 		*/
-		static ByteArray ReadRawData(const WChar* Path, size_t& OutDataSize);
+		static DataBlob ReadRawData(const WChar* Path);
 
 	protected:
 

@@ -5,15 +5,17 @@
 
 #include "Runtime/Graphics/Public/RenderCore.h"
 
-#include "Runtime/Core/Public/ECS/EntityAdmin/EntityAdminFwd.h"
+#include "Runtime/Core/Public/ieObject/ieActor.h"
 #include "Runtime/Core/Public/ECS/EntityAdmin/SystemFwd.h"
+#include "Runtime/Core/Public/ECS/EntityAdmin/EntityAdminFwd.h"
 
 #include "Runtime/Core/Public/Window.h"
 #include "Runtime/Core/Public/Utility/FrameTimer.h"
+#include "Runtime/Graphics/Public/WorldRenderer/RendererCommon.h"
 #include "Runtime/Core/Public/ieObject/Components/ieStaticMeshComponent.h"
-#include "Runtime/Graphics/Public/WorldRenderer/Common.h"
 
-#include "Runtime/Core/Public/ieObject/ieActor.h"
+#include "Runtime/Graphics/Public/WorldRenderer/SkyBoxPass.h"
+#include "Runtime/Graphics/Public/WorldRenderer/PostProcessUber.h"
 #include "Runtime/Graphics/Public/WorldRenderer/DeferredRenderer/DeferredRenderer.h"
 
 namespace Insight
@@ -98,13 +100,14 @@ namespace Insight
 		ieWorld* m_pWorld;
 		//GeometryRenderer<ieStaticMeshComponent> m_StaticMeshRenderer;
 		//GeometryRenderer<ieSkinnedMeshComponent> m_SkinnedMeshRenderer;
-		std::shared_ptr<Window> m_pWindow;
 		Graphics::ViewPort m_SceneViewPort;
 		Graphics::Rect m_SceneScissorRect;
 
 		FrameTimer m_GFXTimer;
 
 		DeferredShadingPipeline m_DeferedShadingPipeline;
+		PostProcessUber m_PostProcessUber;
+		SkyboxPass m_SkyPass;
 		StaticMeshGeometryRef pScreenQuad;
 
 		// 

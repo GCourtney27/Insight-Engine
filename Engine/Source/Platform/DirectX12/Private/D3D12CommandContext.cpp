@@ -55,7 +55,7 @@ namespace Insight
 				}
 				IE_ASSERT(ret != nullptr);
 
-				
+
 				D3D12CommandContext* pD3D12Context = DCast<D3D12CommandContext*>(ret);
 				IE_ASSERT(pD3D12Context != NULL);
 
@@ -146,7 +146,31 @@ namespace Insight
 				BindDescriptorHeaps();
 
 			}
-			
+
+			void D3D12CommandContext::BeginDebugMarker(const TChar* Message)
+			{
+#		if IE_TRACK_RENDER_EVENTS
+				PIXBeginEvent(m_pID3D12CommandList, 0, Message);
+#		endif
+			}
+
+			void D3D12CommandContext::EndDebugMarker()
+			{
+#		if IE_TRACK_RENDER_EVENTS
+				PIXEndEvent(m_pID3D12CommandList);
+#		endif
+			}
+
+			void D3D12CommandContext::ClearState(IPipelineState* pNewPipelineState)
+			{
+				ID3D12PipelineState* pD3D12PipeState = NULL;
+				if (pNewPipelineState != NULL)
+				{
+					pD3D12PipeState = RCast<ID3D12PipelineState*>(DCast<D3D12PipelineState*>(pNewPipelineState)->GetNativePSO());
+				}
+				m_pID3D12CommandList->ClearState(pD3D12PipeState);
+			}
+
 			void D3D12CommandContext::OMSetRenderTargets(UInt32 NumRTVs, const IColorBuffer* Targets[], IDepthBuffer* pDepthBuffer)
 			{
 				constexpr UInt32 cx_MaxRTVBinds = 12;
@@ -296,7 +320,9 @@ namespace Insight
 				const D3D12Texture* pD3D12Tex = DCast<const D3D12Texture*>(pTexture.Get());
 				if (pD3D12Tex == NULL || !pTexture.IsValid())
 				{
-					IE_LOG(Warning, TEXT("A texture was bound but was not valid. Was it loaded correctly?"));
+					// If the textre is invalid or incomplete: bind the default black texture instead.
+					D3D12_GPU_DESCRIPTOR_HANDLE GpuHandle{ DCast<D3D12Texture*>(g_DefaultTextures[DT_BlackOpaque2D])->GetShaderVisibleDescriptorHandle().GetGpuPtr() };
+					m_pID3D12CommandList->SetGraphicsRootDescriptorTable(RootParameterIndex, GpuHandle);
 					return;
 				}
 
@@ -323,16 +349,16 @@ namespace Insight
 				m_DynamicSamplerDescriptorHeap.ParseGraphicsRootSignature(Signature);
 			}
 
-			void D3D12CommandContext::Draw(UInt32 VertexCount, UInt32 VertexStartOffset) 
+			void D3D12CommandContext::Draw(UInt32 VertexCount, UInt32 VertexStartOffset)
 			{
 				DrawInstanced(VertexCount, 1, VertexStartOffset, 0);
 			}
-			
-			void D3D12CommandContext::DrawIndexed(UInt32 IndexCount, UInt32 StartIndexLocation, Int32 BaseVertexLocation) 
+
+			void D3D12CommandContext::DrawIndexed(UInt32 IndexCount, UInt32 StartIndexLocation, Int32 BaseVertexLocation)
 			{
 				DrawIndexedInstanced(IndexCount, 1, StartIndexLocation, BaseVertexLocation, 0);
 			}
-			
+
 			void D3D12CommandContext::DrawInstanced(UInt32 VertexCountPerInstance, UInt32 InstanceCount, UInt32 StartVertexLocation, UInt32 StartInstanceLocation)
 			{
 				FlushResourceBarriers();
@@ -340,8 +366,8 @@ namespace Insight
 				m_DynamicSamplerDescriptorHeap.CommitGraphicsRootDescriptorTables(m_pID3D12CommandList);
 				m_pID3D12CommandList->DrawInstanced(VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
 			}
-			
-			void D3D12CommandContext::DrawIndexedInstanced(UInt32 IndexCountPerInstance, UInt32 InstanceCount, UINT StartIndexLocation, UInt32 BaseVertexLocation, UInt32 StartInstanceLocation) 
+
+			void D3D12CommandContext::DrawIndexedInstanced(UInt32 IndexCountPerInstance, UInt32 InstanceCount, UINT StartIndexLocation, UInt32 BaseVertexLocation, UInt32 StartInstanceLocation)
 			{
 				FlushResourceBarriers();
 				m_DynamicViewDescriptorHeap.CommitGraphicsRootDescriptorTables(m_pID3D12CommandList);
@@ -357,7 +383,7 @@ namespace Insight
 				{
 					IE_ASSERT(m_NumBarriersToFlush < 16, "Exceeded arbitrary limit on buffered barriers.");
 					D3D12_RESOURCE_BARRIER& BarrierDesc = m_ResourceBarrierBuffer[m_NumBarriersToFlush++];
-					
+
 
 					BarrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 					BarrierDesc.Transition.pResource = DCast<D3D12GPUResource*>(&Resource)->GetResource();
@@ -389,7 +415,7 @@ namespace Insight
 				FlushResourceBarriers();
 
 				IE_ASSERT(m_pID3D12CurrentCmdAllocator != NULL);
-				
+
 				D3D12CommandQueue* pQueue = DCast<D3D12CommandQueue*>(g_pCommandManager->GetGraphicsQueue());
 				UInt64 FenceValue = pQueue->ExecuteCommandList(m_pID3D12CommandList);
 
@@ -409,8 +435,8 @@ namespace Insight
 			UInt64 D3D12CommandContext::Finish(bool WaitForCompletion/* = false*/)
 			{
 				FlushResourceBarriers();
+				EndDebugMarker();
 
-				
 				D3D12CommandQueue* pQueue = DCast<D3D12CommandQueue*>(g_pCommandManager->GetQueue(m_Type));
 
 				UInt64 FenceValue = pQueue->ExecuteCommandList(m_pID3D12CommandList);

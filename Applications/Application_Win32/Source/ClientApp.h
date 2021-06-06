@@ -11,9 +11,9 @@
 
 namespace SandBoxApp {
 
-	using Super = Insight::Application;
+	using Super = Insight::Engine;
 
-	class Win32SandboxApp : public Insight::Application
+	class Win32SandboxApp : public Insight::Engine
 	{
 	public:
 		Win32SandboxApp()

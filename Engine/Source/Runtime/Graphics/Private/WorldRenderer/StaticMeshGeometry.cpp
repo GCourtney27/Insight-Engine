@@ -6,7 +6,7 @@
 #include "Runtime/Graphics/Public/Resource/IVertexBuffer.h"
 #include "Runtime/Graphics/Public/Resource/IIndexBuffer.h"
 #include "Runtime/Graphics/Public/ICommandContext.h"
-#include "Runtime/Graphics/Public/WorldRenderer/Common.h"
+#include "Runtime/Graphics/Public/WorldRenderer/RendererCommon.h"
 
 
 namespace Insight

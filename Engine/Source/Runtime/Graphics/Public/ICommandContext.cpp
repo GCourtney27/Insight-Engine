@@ -27,6 +27,8 @@ namespace Insight
 		{
 			ICommandContext* NewContext = g_pContextManager->AllocateContext(ECommandListType::CLT_Direct);
 			NewContext->SetID(ID);
+			NewContext->BeginDebugMarker(ID.c_str());
+
 			return *NewContext;
 		}
 	}

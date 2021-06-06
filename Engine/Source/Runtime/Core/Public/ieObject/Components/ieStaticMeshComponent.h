@@ -6,7 +6,7 @@
 #include "Runtime/Core/Public/ieObject/Components/ieComponentBase.h"
 
 #include "Runtime/Math/Public/Transform.h"
-#include "Runtime/Graphics/Public/WorldRenderer/Common.h"
+#include "Runtime/Graphics/Public/WorldRenderer/RendererCommon.h"
 #include "Runtime/Core/Public/ECS/Component/ComponentFwd.h"
 #include "Runtime/Graphics/Public/GraphicsCore.h"
 #include "Runtime/Graphics/Public/ResourceManagement/ModelManager.h"

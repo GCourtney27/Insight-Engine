@@ -51,6 +51,10 @@ namespace Insight
 				// Initialize heaps and other resources.
 				IE_ASSERT(g_pDevice != NULL);
 				g_pDevice->CreateDescriptorHeap(TEXT("Scene Texture Descriptors"), RHT_CBV_SRV_UAV, 4096, &g_pTextureHeap);
+
+				CreateGeometryManager(&g_pGeometryManager);
+				CreateConstantBufferManager(&g_pConstantBufferManager);
+				CreateTextureManager(&g_pTextureManager);
 			}
 
 			void D3D12RenderContextFactory::CreateDevice(IDevice** OutDevice)

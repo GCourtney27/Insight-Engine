@@ -25,24 +25,31 @@ LP_PSOutput main(LP_PSInput Input)
 {
     LP_PSOutput Output;
 
+    // Sample G-Buffer.
     float3 AlbedoSample = g_AlbedoGBuffer.Sample(g_LinearWrapSampler, Input.UVs).rgb;
     float3 NormalSample = g_NormalGBuffer.Sample(g_LinearWrapSampler, Input.UVs).rgb;
-    float3 WorldPos = g_PositionGBuffer.Sample(g_LinearWrapSampler, Input.UVs).rgb;
+    float3 WorldPos     = g_PositionGBuffer.Sample(g_LinearWrapSampler, Input.UVs).rgb;
 	
+    // Acummulate point light luminance.
+    float3 PointLightLuminance;
+    for (int i = 0; i < NumPointLights; i++)
+    {
+        float3 LightDir = -normalize(PointLights[i].Position.xyz - WorldPos);
+        float Angle = max(dot(NormalSample, LightDir), 0);
+
+        float Distance = length(PointLights[i].Position.xyz - WorldPos);
+        float Attenuation = 1.0f / (Distance * Distance);
+        PointLightLuminance += (PointLights[i].Color.rgb * PointLights[i].Brightness) * Attenuation;
+    }
+        
+    float3 LightLuminance = PointLightLuminance;
+    
+    Output.Result = float4(AlbedoSample * LightLuminance, 1);
+    
 	// DEBUG
 	//
-    Output.Result = float4(AlbedoSample, 1);
-    return Output;
-
-    float3 LightDir = -normalize(PointLights[0].Position.xyz - WorldPos);
-    float Angle = max(dot(NormalSample, LightDir), 0);
-
-    float Distance = length(PointLights[0].Position.xyz - WorldPos);
-    float Attenuation = 1.0f / (Distance * Distance);
-    float3 Radiance = (PointLights[0].Color.rgb * PointLights[0].Brightness) * Attenuation;
-
-    Output.Result = float4(MatColor * Radiance, 1);
-
+    //Output.Result = float4(Radiance, 1);
+    
     return Output;
 }
 

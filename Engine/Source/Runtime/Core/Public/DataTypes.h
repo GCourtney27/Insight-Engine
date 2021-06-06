@@ -9,7 +9,9 @@
 
 */
 #pragma once
+
 #include <Runtime/Core.h>
+
 
 namespace Insight
 {
@@ -63,8 +65,44 @@ namespace Insight
 	*/
 	typedef long long Int64;
 
-
 	typedef std::shared_ptr<std::vector<UInt8>> ByteArray;
+	
+	/*
+		A byte array whos memory is reference counted.
+	*/
+	struct DataBlob
+	{
+		friend class FileSystem;
+	public:
+		DataBlob();
+		~DataBlob() = default;
+
+		inline bool IsValid() const
+		{
+			return m_ByteArray.get() && m_DataSize > 0;
+		}
+		inline void Invalidate()
+		{
+			m_ByteArray.reset();
+			m_ByteArray = NULL;
+			m_DataSize = -1;
+		}
+		inline std::vector<UInt8>* operator->()
+		{
+			return m_ByteArray.get();
+		}
+		inline UInt8* GetBufferPointer() const
+		{
+			return m_ByteArray.get()->data();
+		}
+		inline size_t GetDataSize() const
+		{
+			return m_DataSize;
+		}
+	private:
+		ByteArray m_ByteArray;
+		size_t m_DataSize;
+	};
 
 
 #ifdef UNICODE

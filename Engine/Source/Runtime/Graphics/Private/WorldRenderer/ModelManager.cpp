@@ -44,11 +44,10 @@ namespace Insight
 
 		// Read the data file from disk.
 		//
-		size_t DataSize = 0;
-		ByteArray Memory = FileSystem::ReadRawData(FilePath.c_str(), DataSize);
-		IE_ASSERT(DataSize != -1); // Failed to load model.
+		DataBlob Memory = FileSystem::ReadRawData(FilePath.c_str());
+		IE_ASSERT(Memory.IsValid()); // Failed to load model.
 
-		const ofbx::u8* pData = (const ofbx::u8*)Memory.get()->data();
+		const ofbx::u8* pData = (const ofbx::u8*)Memory.GetBufferPointer();
 		std::vector<Vertex3D> Verticies;
 		std::vector<UInt32> Indices;
 
@@ -57,7 +56,7 @@ namespace Insight
 		//
 		ofbx::IScene* pScene = ofbx::load(
 			pData,
-			(int)DataSize,
+			(int)Memory.GetDataSize(),
 			(ofbx::u64)ofbx::LoadFlags::TRIANGULATE
 		);
 		if (pScene == NULL)

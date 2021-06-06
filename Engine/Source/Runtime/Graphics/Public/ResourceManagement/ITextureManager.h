@@ -16,7 +16,7 @@ namespace Insight
 
 		public:
 			void WaitForLoad() const;
-			virtual void CreateFromMemory(ByteArray memory, EDefaultTexture fallback, bool sRGB) = 0;
+			virtual void CreateFromMemory(DataBlob memory, EDefaultTexture fallback, bool sRGB) = 0;
 
 		protected:
 			IManagedTexture(const FString& Path)
@@ -78,7 +78,10 @@ namespace Insight
 				this->m_Ref = Other.m_Ref;
 				return *this;
 			}
-
+			const FString& GetCacheKey() const
+			{
+				return m_Ref->m_MapKey;
+			}
 
 			void operator= (std::nullptr_t);
 			void operator= (ITextureRef& rhs);

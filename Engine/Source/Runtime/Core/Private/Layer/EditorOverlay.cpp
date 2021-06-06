@@ -34,8 +34,8 @@ namespace Insight {
 
 	void EditorLayer::OnAttach()
 	{
-		m_pCurrentSceneRef = Application::Get().GetGameLayer().GetScene();
-		m_pImGuiLayerRef = &Application::Get().GetImGuiLayer();
+		m_pCurrentSceneRef = Engine::Get().GetGameLayer().GetScene();
+		m_pImGuiLayerRef = &Engine::Get().GetImGuiLayer();
 		m_pSceneRootRef = &m_pCurrentSceneRef->GetSceneRoot();
 		m_pSceneCameraRef = &m_pCurrentSceneRef->GetSceneCamera();
 	}

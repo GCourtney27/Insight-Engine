@@ -4,21 +4,21 @@
 #include <chrono>
 
 
-#if defined IE_SCOPE_PROFILING_ENABLED
+#if IE_SCOPE_PROFILING_ENABLED
 // Scoped timer whos base output method is milliseconds.
-#	define ScopeTimer(Message, OutputType) Insight::Profiling::ScopedTimer Timer(Message, Insight::Profiling::EOutputType::OT_##OutputType);
+#	define ScopeTimer(Message, OutputType) Insight::Profiling::ScopedTimer _Timer(Message, Insight::Profiling::EOutputType::OT_##OutputType);
 
 // Scoped timer whos base output method is seconds.
-#	define ScopedSecondTimer(Message) Insight::Profiling::ScopedTimer Timer(Message, Insight::Profiling::EOutputType::OT_Seconds);
+#	define ScopedSecondTimer(Message) Insight::Profiling::ScopedTimer _Timer(Message, Insight::Profiling::EOutputType::OT_Seconds);
 
 // Scoped timer whos base output method is miliseconds.
-#	define ScopedMilliSecondTimer(Message) Insight::Profiling::ScopedTimer Timer(Message, Insight::Profiling::EOutputType::OT_Milliseconds);
+#	define ScopedMilliSecondTimer(Message) Insight::Profiling::ScopedTimer _Timer(Message, Insight::Profiling::EOutputType::OT_Milliseconds);
 
 // Scoped timer whos base output method is nanoseconds.
-#	define ScopedNanoSecondTimer(Message) Insight::Profiling::ScopedTimer Timer(Message, Insight::Profiling::EOutputType::OT_NanoSeconds);
+#	define ScopedNanoSecondTimer(Message) Insight::Profiling::ScopedTimer _Timer(Message, Insight::Profiling::EOutputType::OT_NanoSeconds);
 
 // Scoped timer whos base output method is microseconds.
-#	define ScopedMicroSecondTimer(Message) Insight::Profiling::ScopedTimer Timer(Message, Insight::Profiling::EOutputType::OT_MicroSeconds);
+#	define ScopedMicroSecondTimer(Message) Insight::Profiling::ScopedTimer _Timer(Message, Insight::Profiling::EOutputType::OT_MicroSeconds);
 #else
 #	define ScopeTimer(Message, EOutputType)
 #	define ScopedMilliSecondTimer(Message)

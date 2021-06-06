@@ -10,9 +10,9 @@ GP_PSInput main(GP_VSInput Input)
     GP_PSInput Result;
 
     float4x4 WorldView = mul(WorldMat, ViewMat);
-    float4x4 worldViewProjection = mul(WorldView, ProjMat);
+    float4x4 WorldViewProjection = mul(WorldView, ProjMat);
     
-    Result.Position = mul(float4(Input.Position, 1.0f), worldViewProjection);
+    Result.Position = mul(float4(Input.Position, 1.0f), WorldViewProjection);
     Result.WorldPos = mul(float4(Input.Position, 1.0f), WorldMat).xyz;
 	
     Result.VertexColor = Input.Color;

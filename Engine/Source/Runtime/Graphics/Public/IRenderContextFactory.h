@@ -59,9 +59,6 @@ namespace Insight
 			CreateCommandManager(&g_pCommandManager, g_pDevice);
 			CreateContextManager(&g_pContextManager);
 			CreateSwapChain(m_pTarget->GetSwapChainAddress(), g_pCommandManager, g_pDevice);
-			CreateGeometryManager(&g_pGeometryManager);
-			CreateConstantBufferManager(&g_pConstantBufferManager);
-			CreateTextureManager(&g_pTextureManager);
 		}
 	}
 }

@@ -56,7 +56,7 @@ namespace Insight {
 		m_pCamera->SetCanBeFileParsed(false);
 		m_pCamera->SetPerspectiveProjectionValues(
 			m_EditorViewTarget.FieldOfView,
-			Application::Get().GetWindow().GetAspectRatio(),
+			Engine::Get().GetWindow().GetAspectRatio(),
 			m_EditorViewTarget.NearZ,
 			m_EditorViewTarget.FarZ
 		);

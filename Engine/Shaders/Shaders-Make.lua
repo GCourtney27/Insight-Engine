@@ -17,7 +17,8 @@ project (projectName)
         "HLSL/DeferredRendering/**.hlsl*",
         "HLSL/ForwardRendering/**.hlsl*",
         "HLSL/Shared/**.hlsl*",
-        "HLSL/Public/**.hlsl*"
+        "HLSL/Public/**.hlsl*",
+        "HLSL/Private/**.hlsl*"
     }                     
 
     postbuildcommands

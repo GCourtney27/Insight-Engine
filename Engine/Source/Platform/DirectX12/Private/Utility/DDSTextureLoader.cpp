@@ -1188,13 +1188,13 @@ static HRESULT CreateTextureFromDDS(_In_ ID3D12Device* d3dDevice,
             DX12::D3D12GPUResource DestTexture(*texture, RS_CopyDestination);
 
             {
-                UInt32 NumSubresources = 1;
+                UInt32 NumSubresources = arraySize;
+                NumSubresources *= (UInt32)mipCount;
                 UINT64 uploadBufferSize = GetRequiredIntermediateSize(*texture, 0, NumSubresources);
 
                 ICommandContext& InitContext = ICommandContext::Begin(L"Texture Init");
                 DX12::D3D12CommandContext& D3D12InitContext = *DCast<DX12::D3D12CommandContext*>(&InitContext);
                 {
-
                     // copy data to the intermediate upload heap and then schedule a copy from the upload heap to the default texture
                     DX12::DynAlloc mem = D3D12InitContext.ReserveUploadMemory(uploadBufferSize);
                     UpdateSubresources(RCast<ID3D12GraphicsCommandList*>(InitContext.GetNativeContext()), *texture, mem.Buffer.GetResource(), 0, 0, NumSubresources, initData.get());

@@ -91,11 +91,11 @@ namespace Insight {
 */
 #	define IE_LOG(Severity, fmt, ...) ::Insight::Debug::LogHelper(ELogSeverity::##Severity, fmt, __FILEW__, __FUNCTIONW__, __LINE__, __VA_ARGS__);
 
-#if IE_PLATFORM_BUILD_WIN32
-#	define SET_CONSOLE_OUT_COLOR(Color) ::Insight::Debug::Logger::GetConsoleWindow().SetForegroundColor(EConsoleColor::##Color)
-#else
-#	define SET_CONSOLE_OUT_COLOR(Color)
-#endif 
+#	if IE_PLATFORM_BUILD_WIN32
+#		define SET_CONSOLE_OUT_COLOR(Color) ::Insight::Debug::Logger::GetConsoleWindow().SetForegroundColor(EConsoleColor::##Color)
+#	else
+#		define SET_CONSOLE_OUT_COLOR(Color)
+#	endif 
 
 
 #else

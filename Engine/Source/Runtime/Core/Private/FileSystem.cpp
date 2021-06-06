@@ -36,29 +36,30 @@ namespace Insight
 		return true;
 	}
 
-	ByteArray FileSystem::ReadRawData(const WChar* Path, size_t& OutDataSize)
+	DataBlob FileSystem::ReadRawData(const WChar* Path)
 	{
+		DataBlob Data;
+
 		FILE* pFile = _wfopen(Path, L"rb");
 		if (!pFile)
 		{
 			IE_LOG(Error, TEXT("Failed to read raw file with path: \"%s\""), Path);
-			OutDataSize = -1;
-			return nullptr;
+			Data.Invalidate();
+			return Data;
 		}
 
 		// Get the size of the file.
 		fseek(pFile, 0, SEEK_END);
-		OutDataSize = ftell(pFile);
+		Data.m_DataSize = ftell(pFile);
 		fseek(pFile, 0, SEEK_SET);
 		
 		// Fill the buffer with the data in the file.
-		ByteArray Array = std::make_shared<std::vector<UInt8>>(OutDataSize);
-		Array.get()->reserve(OutDataSize);
-		fread(Array->data(), 1, OutDataSize, pFile);
+		Data->reserve(Data.m_DataSize);
+		fread(Data.GetBufferPointer(), 1, Data.m_DataSize, pFile);
 
 		fclose(pFile);
 
-		return Array;
+		return Data;
 	}
 
 	void FileSystem::SaveEngineUserSettings(const Renderer::GraphicsSettings& Settings)

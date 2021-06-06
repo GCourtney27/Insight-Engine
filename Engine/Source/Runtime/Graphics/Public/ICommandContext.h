@@ -49,6 +49,10 @@ namespace Insight
 
 			static ICommandContext& Begin(const FString& ID);
 			
+			virtual void BeginDebugMarker(const TChar* Message) = 0;
+			virtual void EndDebugMarker() = 0;
+			virtual void ClearState(IPipelineState* pNewPipelineState) = 0;
+
 			virtual UInt64 Flush(bool WaitForCompletion = false) = 0;
 			virtual UInt64 Finish(bool WaitForCompletion = false) = 0;
 
@@ -94,6 +98,7 @@ namespace Insight
 			ICommandContext(const ECommandListType& Type) 
 				: m_ID()
 				, m_Type(Type)
+
 			{
 			}
 			virtual ~ICommandContext() 

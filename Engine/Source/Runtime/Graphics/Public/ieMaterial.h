@@ -3,7 +3,7 @@
 #include "Runtime/Core.h"
 
 #include "Runtime/Graphics/Public/ICommandContext.h"
-#include "Runtime/Graphics/Public/WorldRenderer/Common.h"
+#include "Runtime/Graphics/Public/WorldRenderer/RendererCommon.h"
 #include "Runtime/Graphics/Public/ResourceManagement/ITextureManager.h"
 #include "Runtime/Graphics/Public/ResourceManagement/IConstantBufferManager.h"
 
@@ -60,6 +60,10 @@ namespace Insight
 				break;
 			}
 		}
+
+		void CreateFromMemory(DataBlob Memory);
+		void WriteToFile();
+		
 
 		FVector4 GetColor() const
 		{
@@ -119,13 +123,10 @@ namespace Insight
 			pMat->Color = m_Constants.Color;
 			GfxContext.SetGraphicsConstantBuffer(kMaterial, m_pConstantsCB);
 
-			// Set Textures
+			// Set Textures.
 			{
-				if (m_AlbedoTexture.IsValid())
-					GfxContext.SetTexture(GRP_MaterialTextureAlbedo, m_AlbedoTexture);
-
-				if (m_NormalTexture.IsValid())
-					GfxContext.SetTexture(GRP_MaterialTextureNormal, m_NormalTexture);
+				GfxContext.SetTexture(GRP_MaterialTextureAlbedo, m_AlbedoTexture);
+				GfxContext.SetTexture(GRP_MaterialTextureNormal, m_NormalTexture);
 			}
 		}
 
@@ -150,11 +151,21 @@ namespace Insight
 			m_UID = NewId;
 		}
 
+		void SetDebugName(const FString& Name)
+		{
+#if IE_DEBUG
+			m_DebugName = Name;
+#endif
+		}
+
 	private:
 		Graphics::IConstantBuffer* m_pConstantsCB;
 		MaterialConstants m_Constants;
 		Graphics::ITextureRef m_AlbedoTexture;
 		Graphics::ITextureRef m_NormalTexture;
+#if IE_DEBUG
+		FString m_DebugName;
+#endif
 
 		MaterialID m_UID;
 		EMaterialType m_Type;

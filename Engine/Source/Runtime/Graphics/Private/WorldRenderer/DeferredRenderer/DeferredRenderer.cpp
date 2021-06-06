@@ -4,9 +4,10 @@
 
 #include "Runtime/Graphics/Public/IDevice.h"
 
-#include "Runtime/Graphics/Public/WorldRenderer/Common.h"
+#include "Runtime/Graphics/Public/WorldRenderer/RendererCommon.h"
 #include "Runtime/Graphics/Public/IPipelineState.h"
 #include "Runtime/Graphics/Public/IRootSignature.h"
+
 
 namespace Insight
 {
@@ -14,7 +15,7 @@ namespace Insight
 	// Deferred Renderer Implementation
 	//
 
-	void DeferredShadingPipeline::Initialize(ieWorld* pWorld, FVector2 RenderResolution, Graphics::IDevice* pDevice, Graphics::EFormat SwapchainFormatTEMP)
+	void DeferredShadingPipeline::Initialize(FVector2 RenderResolution, Graphics::IDevice* pDevice, Graphics::EFormat SwapchainFormatTEMP)
 	{
 		m_GeometryPass.Initialize(pDevice, RenderResolution);
 		m_LightPass.Initialize(pDevice, RenderResolution, SwapchainFormatTEMP);
@@ -36,23 +37,10 @@ namespace Insight
 	{
 		using namespace Graphics;
 
-		constexpr float MinLOD = 0.0f, MaxLOD = 9.0f;
-		SamplerDesc LinearWrapSamplerDesc;
-		LinearWrapSamplerDesc.Filter = F_Comparison_Min_Mag_Mip_Linear;
-		LinearWrapSamplerDesc.AddressU = TAM_Wrap;
-		LinearWrapSamplerDesc.AddressV = TAM_Wrap;
-		LinearWrapSamplerDesc.AddressW = TAM_Wrap;
-		LinearWrapSamplerDesc.MipLODBias = 0;
-		LinearWrapSamplerDesc.MaxAnisotropy = 1;
-		LinearWrapSamplerDesc.ComparisonFunc = CF_LessEqual;
-		LinearWrapSamplerDesc.MinLOD = MinLOD;
-		LinearWrapSamplerDesc.MaxLOD = MaxLOD;
-
-
 		RootSignatureDesc TEMPDesc = {};
 		pDevice->CreateRootSignature(TEMPDesc, &m_pRS);
 		m_pRS->Reset(6, 1);
-		(*m_pRS).InitStaticSampler(0, LinearWrapSamplerDesc, SV_Pixel);
+		(*m_pRS).InitStaticSampler(0, g_LinearWrapSamplerDesc, SV_Pixel);
 		// Common
 		(*m_pRS)[kSceneConstants].InitAsConstantBuffer(kSceneConstants, SV_All);
 		(*m_pRS)[kMeshWorld].InitAsConstantBuffer(kMeshWorld, SV_Vertex);
@@ -83,28 +71,15 @@ namespace Insight
 
 		// Create the pipeline state.
 		//
-		InputElementDesc InputElements[] =
-		{
-			{ "POSITION",	0, F_R32G32B32_Float,		0, IE_APPEND_ALIGNED_ELEMENT,	IC_PerVertexData, 0 },
-			{ "NORMAL",		0, F_R32G32B32_Float,		0, IE_APPEND_ALIGNED_ELEMENT,	IC_PerVertexData, 0 },
-			{ "TANGENT",	0, F_R32G32B32_Float,		0, IE_APPEND_ALIGNED_ELEMENT,	IC_PerVertexData, 0 },
-			{ "BITANGENT",	0, F_R32G32B32_Float,		0, IE_APPEND_ALIGNED_ELEMENT,	IC_PerVertexData, 0 },
-			{ "COLOR",		0, F_R32G32B32A32_Float,	0, IE_APPEND_ALIGNED_ELEMENT,	IC_PerVertexData, 0 },
-			{ "UVS",		0, F_R32G32_Float,			0, IE_APPEND_ALIGNED_ELEMENT,	IC_PerVertexData, 0 },
-		};
-
-		size_t VSShaderSize = 0;
-		ByteArray VSShader = FileSystem::ReadRawData(L"Shaders/GenericGeometryPass.vs.cso", VSShaderSize);
-
-		size_t PSShaderSize = 0;
-		ByteArray PSShader = FileSystem::ReadRawData(L"Shaders/GenericGeometryPass.ps.cso", PSShaderSize);
+		DataBlob VSShader = FileSystem::ReadRawData(L"Shaders/GenericGeometryPass.vs.cso");
+		DataBlob PSShader = FileSystem::ReadRawData(L"Shaders/GenericGeometryPass.ps.cso");
 
 
 		PipelineStateDesc PSODesc = {};
-		PSODesc.VertexShader = { VSShader.get()->data(), VSShaderSize };
-		PSODesc.PixelShader = { PSShader.get()->data(), PSShaderSize };
-		PSODesc.InputLayout.NumElements = _countof(InputElements);
-		PSODesc.InputLayout.pInputElementDescs = InputElements;
+		PSODesc.VertexShader = { VSShader.GetBufferPointer(), VSShader.GetDataSize() };
+		PSODesc.PixelShader = { PSShader.GetBufferPointer(), PSShader.GetDataSize() };
+		PSODesc.InputLayout.pInputElementDescs = g_SceneMeshInputElements;
+		PSODesc.InputLayout.NumElements = kNumSceneMeshCommonInputElements;
 		PSODesc.pRootSignature = m_pRS;
 		PSODesc.DepthStencilState = CommonStructHelpers::CDepthStencilStateDesc();
 		//PSODesc.DepthStencilState.DepthFunc = CF_GreaterEqual;
@@ -137,6 +112,7 @@ namespace Insight
 	void DeferredShadingPipeline::GeometryPass::Set(Graphics::ICommandContext& GfxContext, Graphics::Rect Viewrect)
 	{
 		using namespace Graphics;
+		GfxContext.BeginDebugMarker(TEXT("Geometry Pass"));
 
 		// Transition
 		// 
@@ -148,7 +124,7 @@ namespace Insight
 		IGPUResource& PositionGBufferResource = *DCast<IGPUResource*>(&GetGBufferColorBuffer(GB_Position));
 		GfxContext.TransitionResource(PositionGBufferResource, RS_RenderTarget);
 		// Depth
-		IGPUResource& DepthBufferResource = *DCast<IGPUResource*>(m_pDepthBuffer);
+		IGPUResource& DepthBufferResource = *DCast<IGPUResource*>(GetSceneDepthBuffer());
 		GfxContext.TransitionResource(DepthBufferResource, RS_DepthWrite);
 
 		// Clear
@@ -156,7 +132,7 @@ namespace Insight
 		GfxContext.ClearColorBuffer(GetGBufferColorBuffer(GB_Albedo), Viewrect);
 		GfxContext.ClearColorBuffer(GetGBufferColorBuffer(GB_Normal), Viewrect);
 		GfxContext.ClearColorBuffer(GetGBufferColorBuffer(GB_Position), Viewrect);
-		GfxContext.ClearDepth(*m_pDepthBuffer);
+		GfxContext.ClearDepth(*GetSceneDepthBuffer());
 
 
 		// Set
@@ -168,7 +144,7 @@ namespace Insight
 		GfxContext.OMSetRenderTargets(
 			GB_NumBuffers,
 			RTs,
-			m_pDepthBuffer);
+			GetSceneDepthBuffer());
 		GfxContext.SetPipelineState(*m_pPSO);
 		GfxContext.SetGraphicsRootSignature(*m_pRS);
 
@@ -178,7 +154,7 @@ namespace Insight
 	{
 		Graphics::IGPUResource& AlbedoGBufferResource = *DCast<Graphics::IGPUResource*>(&GetGBufferColorBuffer(GB_Albedo));
 		GfxContext.TransitionResource(AlbedoGBufferResource, Graphics::RS_PixelShaderResource);
-		
+
 		Graphics::IGPUResource& NormalGBufferResource = *DCast<Graphics::IGPUResource*>(&GetGBufferColorBuffer(GB_Normal));
 		GfxContext.TransitionResource(NormalGBufferResource, Graphics::RS_PixelShaderResource);
 
@@ -187,6 +163,8 @@ namespace Insight
 
 		Graphics::IGPUResource& DepthBuffferResource = *DCast<Graphics::IGPUResource*>(GetSceneDepthBuffer());
 		GfxContext.TransitionResource(DepthBuffferResource, Graphics::RS_DepthRead);
+
+		GfxContext.EndDebugMarker();
 	}
 
 
@@ -199,75 +177,53 @@ namespace Insight
 	{
 		using namespace Graphics;
 
-		{
-			constexpr float MinLOD = 0.0f, MaxLOD = 9.0f;
-			SamplerDesc LinearWrapSamplerDesc;
-			LinearWrapSamplerDesc.Filter = F_Comparison_Min_Mag_Mip_Linear;
-			LinearWrapSamplerDesc.AddressU = TAM_Wrap;
-			LinearWrapSamplerDesc.AddressV = TAM_Wrap;
-			LinearWrapSamplerDesc.AddressW = TAM_Wrap;
-			LinearWrapSamplerDesc.MipLODBias = 0;
-			LinearWrapSamplerDesc.MaxAnisotropy = 1;
-			LinearWrapSamplerDesc.ComparisonFunc = CF_LessEqual;
-			LinearWrapSamplerDesc.MinLOD = MinLOD;
-			LinearWrapSamplerDesc.MaxLOD = MaxLOD;
+		// Create the render targets.
+		//
+		pDevice->CreateColorBuffer(TEXT("[Light Pass] Result"), (UInt32)RenderResolution.x, (UInt32)RenderResolution.y, 1, F_R32G32B32A32_Float, &m_pPassResult);
 
-
-			RootSignatureDesc TEMPDesc = {};
-			pDevice->CreateRootSignature(TEMPDesc, &m_pRS);
-			m_pRS->Reset(8, 1);
-			(*m_pRS).InitStaticSampler(0, LinearWrapSamplerDesc, SV_Pixel);
-			// Common
-			(*m_pRS)[kSceneConstants].InitAsConstantBuffer(kSceneConstants, SV_All);
-			(*m_pRS)[kMeshWorld].InitAsConstantBuffer(kMeshWorld, SV_Vertex);
-			(*m_pRS)[kMaterial].InitAsConstantBuffer(kMaterial, SV_Pixel);
-			(*m_pRS)[kLights].InitAsConstantBuffer(kLights, SV_Pixel);
-			// Pipeline
-			// Scene Depth
-			(*m_pRS)[LRP_GBufferTextureSceneDepth].InitAsDescriptorTable(1, SV_Pixel);
-			(*m_pRS)[LRP_GBufferTextureSceneDepth].SetTableRange(0, DRT_ShaderResourceView, 0, 1);
-			// Albedo
-			(*m_pRS)[LRP_GBufferTextureAlbedo].InitAsDescriptorTable(1, SV_Pixel);
-			(*m_pRS)[LRP_GBufferTextureAlbedo].SetTableRange(0, DRT_ShaderResourceView, 1, 1);
-			// Normal
-			(*m_pRS)[LRP_GBufferTextureNormal].InitAsDescriptorTable(1, SV_Pixel);
-			(*m_pRS)[LRP_GBufferTextureNormal].SetTableRange(0, DRT_ShaderResourceView, 2, 1);
-			// Position
-			(*m_pRS)[LRP_GBufferTexturePosition].InitAsDescriptorTable(1, SV_Pixel);
-			(*m_pRS)[LRP_GBufferTexturePosition].SetTableRange(0, DRT_ShaderResourceView, 3, 1);
-			(*m_pRS).Finalize(L"[Deferred Renderer][Light Pass] RootSig", RSF_AllowInputAssemblerLayout);
-		}
+		RootSignatureDesc TEMPDesc = {};
+		pDevice->CreateRootSignature(TEMPDesc, &m_pRS);
+		m_pRS->Reset(8, 1);
+		(*m_pRS).InitStaticSampler(0, g_LinearWrapSamplerDesc, SV_Pixel);
+		// Common
+		(*m_pRS)[kSceneConstants].InitAsConstantBuffer(kSceneConstants, SV_All);
+		(*m_pRS)[kMeshWorld].InitAsConstantBuffer(kMeshWorld, SV_Vertex);
+		(*m_pRS)[kMaterial].InitAsConstantBuffer(kMaterial, SV_Pixel);
+		(*m_pRS)[kLights].InitAsConstantBuffer(kLights, SV_Pixel);
+		// Pipeline
+		// Scene Depth
+		(*m_pRS)[LRP_GBufferTextureSceneDepth].InitAsDescriptorTable(1, SV_Pixel);
+		(*m_pRS)[LRP_GBufferTextureSceneDepth].SetTableRange(0, DRT_ShaderResourceView, 0, 1);
+		// Albedo
+		(*m_pRS)[LRP_GBufferTextureAlbedo].InitAsDescriptorTable(1, SV_Pixel);
+		(*m_pRS)[LRP_GBufferTextureAlbedo].SetTableRange(0, DRT_ShaderResourceView, 1, 1);
+		// Normal
+		(*m_pRS)[LRP_GBufferTextureNormal].InitAsDescriptorTable(1, SV_Pixel);
+		(*m_pRS)[LRP_GBufferTextureNormal].SetTableRange(0, DRT_ShaderResourceView, 2, 1);
+		// Position
+		(*m_pRS)[LRP_GBufferTexturePosition].InitAsDescriptorTable(1, SV_Pixel);
+		(*m_pRS)[LRP_GBufferTexturePosition].SetTableRange(0, DRT_ShaderResourceView, 3, 1);
+		(*m_pRS).Finalize(L"[Deferred Renderer][Light Pass] RootSig", RSF_AllowInputAssemblerLayout);
 
 
 		// Create the pipeline state.
 		//
-		InputElementDesc InputElements[] =
-		{
-			{ "POSITION",	0, F_R32G32_Float,	0, IE_APPEND_ALIGNED_ELEMENT,	IC_PerVertexData, 0 },
-			{ "UVS",		0, F_R32G32_Float,	0, IE_APPEND_ALIGNED_ELEMENT,	IC_PerVertexData, 0 },
-		};
-
-
-		size_t VSShaderSize = 0;
-		ByteArray VSShader = FileSystem::ReadRawData(L"Shaders/GenericLightPass.vs.cso", VSShaderSize);
-
-		size_t PSShaderSize = 0;
-		ByteArray PSShader = FileSystem::ReadRawData(L"Shaders/GenericLightPass.ps.cso", PSShaderSize);
-
+		DataBlob VSShader = FileSystem::ReadRawData(L"Shaders/GenericLightPass.vs.cso");
+		DataBlob PSShader = FileSystem::ReadRawData(L"Shaders/GenericLightPass.ps.cso");
 
 		PipelineStateDesc PSODesc = {};
-		PSODesc.VertexShader = { VSShader.get()->data(), VSShaderSize };
-		PSODesc.PixelShader = { PSShader.get()->data(), PSShaderSize };
-		PSODesc.InputLayout.NumElements = _countof(InputElements);
-		PSODesc.InputLayout.pInputElementDescs = InputElements;
+		PSODesc.VertexShader = { VSShader.GetBufferPointer(), VSShader.GetDataSize() };
+		PSODesc.PixelShader = { PSShader.GetBufferPointer(), PSShader.GetDataSize() };
+		PSODesc.InputLayout.NumElements = kNumScreenSpaceInputElements;
+		PSODesc.InputLayout.pInputElementDescs = g_ScreenSpaceInputElements;
 		PSODesc.pRootSignature = m_pRS;
 		PSODesc.DepthStencilState.DepthEnable = false;
 		PSODesc.BlendState = CommonStructHelpers::CBlendDesc();
 		PSODesc.RasterizerDesc = CommonStructHelpers::CRasterizerDesc();
 		PSODesc.SampleMask = UINT_MAX;
 		PSODesc.PrimitiveTopologyType = PTT_Triangle;
-		PSODesc.NumRenderTargets = 1; // The Swapchain 
-		PSODesc.RTVFormats[0] = SwapchainFormatTEMP;
+		PSODesc.NumRenderTargets = 1;
+		PSODesc.RTVFormats[0] = SwapchainFormatTEMP;// GetPassResultFormat();
 		PSODesc.SampleDesc = { 1, 0 };
 		pDevice->CreatePipelineState(PSODesc, &m_pPSO);
 	}
@@ -276,11 +232,13 @@ namespace Insight
 	{
 		SAFE_DELETE_PTR(m_pRS);
 		SAFE_DELETE_PTR(m_pPSO);
-		// TODO: SAFE_DELETE_PTR(m_LightPassResult);
+		SAFE_DELETE_PTR(m_pPassResult);
 	}
 
 	void DeferredShadingPipeline::LightPass::Set(Graphics::ICommandContext& GfxContext, Graphics::Rect Viewrect, const DeferredShadingPipeline::GeometryPass& GeometryPass)
 	{
+		GfxContext.BeginDebugMarker(TEXT("Light Pass"));
+
 		GfxContext.SetPipelineState(*m_pPSO);
 		GfxContext.SetGraphicsRootSignature(*m_pRS);
 
@@ -292,5 +250,6 @@ namespace Insight
 
 	void DeferredShadingPipeline::LightPass::UnSet(Graphics::ICommandContext& GfxContext)
 	{
+		GfxContext.EndDebugMarker();
 	}
 }

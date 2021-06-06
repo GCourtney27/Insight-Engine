@@ -20,7 +20,7 @@ namespace Insight
 	{
 		friend class ieActor;
 		friend class ieObjectBase;
-		friend class Application;
+		friend class Engine;
 	public:
 		ieWorld() 
 			: m_EntityAdmin()

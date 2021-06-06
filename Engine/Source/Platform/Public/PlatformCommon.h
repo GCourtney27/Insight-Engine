@@ -8,7 +8,7 @@ namespace Insight
 {
 	namespace Platform
 	{
-#define IE_DECLARE_HANDLE(name) struct name##__{int unused;}; typedef struct name##__ *name
+#define IE_DECLARE_HANDLE(name) struct name##__{ int Unused; }; typedef struct name##__ *name
 		IE_DECLARE_HANDLE(DLLHandle);
 
 		/*

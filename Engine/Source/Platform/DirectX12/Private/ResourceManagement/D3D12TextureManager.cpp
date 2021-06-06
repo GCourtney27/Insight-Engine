@@ -48,7 +48,7 @@ namespace Insight
 
             IManagedTexture* D3D12TextureManager::FindOrLoadTexture(const FString& FileName, EDefaultTexture Fallback, bool forceSRGB)
 			{
-                D3D12ManagedTexture* tex = NULL;
+                D3D12ManagedTexture* pTexture = NULL;
 
                 {
                     std::lock_guard<std::mutex> Guard(m_Mutex);
@@ -63,26 +63,24 @@ namespace Insight
                     {
                         // If a texture was already created make sure it has finished loading before
                         // returning a point to it.
-                        tex = iter->second.get();
-                        tex->WaitForLoad();
-                        return tex;
+                        pTexture = iter->second.get();
+                        pTexture->WaitForLoad();
+                        return pTexture;
                     }
                     else
                     {
                         // If it's not found, create a new managed texture and start loading it.
-                        tex = new D3D12ManagedTexture(key);
-                        m_TextureCache[key].reset(tex);
+                        pTexture = new D3D12ManagedTexture(key);
+                        m_TextureCache[key].reset(pTexture);
                     }
                 }
 
                 // TODO Filesystem readfilesync
-                size_t OutSize = 0;
-                
-                ByteArray ba = FileSystem::ReadRawData(FileName.c_str(), OutSize);
-                tex->CreateFromMemory(ba, Fallback, forceSRGB);
+                DataBlob Data = FileSystem::ReadRawData(FileName.c_str());
+                pTexture->CreateFromMemory(Data, Fallback, forceSRGB);
 
                 // This was the first time it was requested, so indicate that the caller must read the file.
-                return tex;
+                return pTexture;
 			}
             
             void D3D12TextureManager::DestroyTexture(const FString& Key)
@@ -94,14 +92,14 @@ namespace Insight
                     m_TextureCache.erase(Iter);
             }
             
-            void D3D12ManagedTexture::CreateFromMemory(ByteArray memory, EDefaultTexture fallback, bool bForceSRGB)
+            void D3D12ManagedTexture::CreateFromMemory(DataBlob memory, EDefaultTexture fallback, bool bForceSRGB)
             {
                 ID3D12Device* pD3D12Device = RCast<ID3D12Device*>(g_pDevice->GetNativeDevice());
                 D3D12Texture* pD3D12FallbackTexture = DCast<D3D12Texture*>(GetDefaultTexture(fallback));
                 IE_ASSERT(pD3D12FallbackTexture != NULL)
                 D3D12_CPU_DESCRIPTOR_HANDLE FallbackSRVHandle = pD3D12FallbackTexture->GetSRV();
                 
-                if (memory->size() == 0)
+                if (!memory.IsValid())
                 {
                     m_hCpuDescriptorHandle = FallbackSRVHandle;
                 }
@@ -110,16 +108,16 @@ namespace Insight
                     // We probably have a texture to load, so let's allocate a new descriptor
                     m_hCpuDescriptorHandle = AllocateDescriptor(pD3D12Device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
                     
-                    ID3D12Resource** pResource = GetAddressOf();
-                    HRESULT hr = CreateDDSTextureFromMemory(pD3D12Device, (const uint8_t*)memory->data(), memory->size(),
-                        0, bForceSRGB, pResource, m_hCpuDescriptorHandle);
+                    HRESULT hr = CreateDDSTextureFromMemory(pD3D12Device, (const uint8_t*)memory.GetBufferPointer(), memory.GetDataSize(),
+                        0, bForceSRGB, GetAddressOf(), m_hCpuDescriptorHandle);
                     if (SUCCEEDED(hr))
                     {
+                        D3D12_RESOURCE_DESC Desc = GetResource()->GetDesc();
+                        m_Width     = (uint32_t)Desc.Width;
+                        m_Height    = Desc.Height;
+                        m_Depth     = Desc.DepthOrArraySize;
+                        
                         m_IsValid = true;
-                        D3D12_RESOURCE_DESC desc = GetResource()->GetDesc();
-                        m_Width = (uint32_t)desc.Width;
-                        m_Height = desc.Height;
-                        m_Depth = desc.DepthOrArraySize;
                     }
                     else
                     {

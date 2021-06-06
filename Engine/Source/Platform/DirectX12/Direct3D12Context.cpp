@@ -457,8 +457,8 @@ namespace Insight {
 		{
 			D2D1_SIZE_F rtSize = m_DeviceResources.GetD2DRenderTarget().GetSize();
 			D2D1_RECT_F textRect = D2D1::RectF(0, 0, rtSize.width, rtSize.height);
-			FrameTimer& GraphicsFrameTimer = Application::Get().GetGraphicsThreadPerfTimer();
-			FrameTimer& GameFrameTimer = Application::Get().GetGameThreadPerfTimer();
+			FrameTimer& GraphicsFrameTimer = Engine::Get().GetGraphicsThreadPerfTimer();
+			FrameTimer& GameFrameTimer = Engine::Get().GetGameThreadPerfTimer();
 			std::wstring Text = L"GPU Thread: " + ToString(GraphicsFrameTimer.FPS<int>()) + L" | " + ToString((int)GraphicsFrameTimer.MilliSeconds()) + L"ms\n";
 			Text += L"Game Thread: " + ToString(GameFrameTimer.FPS<int>()) + L" | " + ToString((int)GameFrameTimer.MilliSeconds()) + L"ms";
 

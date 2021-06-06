@@ -63,7 +63,6 @@ namespace Insight
 				ICommandContext& InitContext = ICommandContext::Begin(L"Texture Init");
 				D3D12CommandContext& D3D12InitContext = *DCast<D3D12CommandContext*>(&InitContext);
 				{
-
 					// copy data to the intermediate upload heap and then schedule a copy from the upload heap to the default texture
 					DynAlloc mem = D3D12InitContext.ReserveUploadMemory(uploadBufferSize);
 					UpdateSubresources(RCast<ID3D12GraphicsCommandList*>(InitContext.GetNativeContext()), GetResource(), mem.Buffer.GetResource(), 0, 0, NumSubresources, &texResource);
@@ -76,6 +75,8 @@ namespace Insight
 				if (m_hCpuDescriptorHandle.ptr == IE_INVALID_GPU_ADDRESS)
 					m_hCpuDescriptorHandle = AllocateDescriptor(pD3D12Device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 				pD3D12Device->CreateShaderResourceView(m_pID3D12Resource.Get(), nullptr, m_hCpuDescriptorHandle);
+
+				AssociateWithShaderVisibleHeap();
 			}
 
 			void D3D12Texture::CreateCube(UInt64 RowPitchBytes, UInt64 Width, UInt64 Height, EFormat Format, const void* InitialData)
@@ -127,7 +128,6 @@ namespace Insight
 				ICommandContext& InitContext = ICommandContext::Begin(L"Texture Init");
 				D3D12CommandContext& D3D12InitContext = *DCast<D3D12CommandContext*>(&InitContext);
 				{
-
 					// copy data to the intermediate upload heap and then schedule a copy from the upload heap to the default texture
 					DynAlloc mem = D3D12InitContext.ReserveUploadMemory(uploadBufferSize);
 					UpdateSubresources(RCast<ID3D12GraphicsCommandList*>(InitContext.GetNativeContext()), GetResource(), mem.Buffer.GetResource(), 0, 0, NumSubresources, &texResource);

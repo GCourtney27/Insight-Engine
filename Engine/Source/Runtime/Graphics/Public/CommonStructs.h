@@ -2,6 +2,9 @@
 
 #include <Runtime/Core.h>
 
+#include "Runtime/Graphics/Public/CommonEnums.h"
+
+
 namespace Insight
 {
 	namespace Graphics

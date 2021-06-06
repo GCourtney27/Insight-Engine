@@ -95,14 +95,18 @@ namespace Insight
 
 			void D3D12Device::CopyDescriptors(UInt32 NumDestDescriptorRanges, const CpuDescriptorHandle* pDestDescriptorRangeStarts, const UInt32* pDestDescriptorRangeSizes, UInt32 NumSrcDescriptorRanges, const ITexture** pSrcDescriptorRangeStarts, const UInt32* pSrcDescriptorRangeSizes, EResourceHeapType DescriptorHeapsType)
 			{
+				constexpr UInt32 kMaxHandles = 12;
+				D3D12_CPU_DESCRIPTOR_HANDLE SourceStarts[kMaxHandles];
+
+				IE_ASSERT(NumSrcDescriptorRanges <= kMaxHandles);
+
 				D3D12_CPU_DESCRIPTOR_HANDLE CpuHandle{ pDestDescriptorRangeStarts->Ptr };
-				std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> SourceStarts;
 				for (UInt32 i = 0; i < NumSrcDescriptorRanges; i++)
 				{
 					const DX12::D3D12Texture* Tex = DCast<const DX12::D3D12Texture*>(pSrcDescriptorRangeStarts[i]);
-					SourceStarts.push_back(Tex->GetSRV());
+					SourceStarts[i] = Tex->GetSRV();
 				}
-				m_pD3DDevice->CopyDescriptors(NumDestDescriptorRanges, &CpuHandle, (const UINT*)pDestDescriptorRangeSizes, NumSrcDescriptorRanges, SourceStarts.data(), (const UINT*)pSrcDescriptorRangeSizes, (D3D12_DESCRIPTOR_HEAP_TYPE)DescriptorHeapsType);
+				m_pD3DDevice->CopyDescriptors(NumDestDescriptorRanges, &CpuHandle, (const UINT*)pDestDescriptorRangeSizes, NumSrcDescriptorRanges, SourceStarts, (const UINT*)pSrcDescriptorRangeSizes, (D3D12_DESCRIPTOR_HEAP_TYPE)DescriptorHeapsType);
 			}
 
 			void D3D12Device::GetHardwareAdapter(IDXGIFactory6* pFactory, IDXGIAdapter1** ppAdapter, const IED3D12DeviceInitParams& InitParams, IED3D12DeviceQueryResult& OutDeviceQueryResult)

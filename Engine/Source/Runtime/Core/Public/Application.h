@@ -47,17 +47,17 @@ namespace Insight
 		EC_Success = 1,
 	};
 
-	class INSIGHT_API Application
+	class INSIGHT_API Engine
 	{
 	public:
 	public:
-		Application();
-		virtual ~Application();
+		Engine();
+		virtual ~Engine();
 
-		Application(Application& App) = delete;
-		Application(Application&& App) = delete;
+		Engine(Engine& App) = delete;
+		Engine(Engine&& App) = delete;
 
-		inline static Application& Get() { return *s_Instance; }
+		inline static Engine& Get() { return *s_Instance; }
 
 		void DumpApp();
 
@@ -144,11 +144,11 @@ namespace Insight
 		Input::InputDispatcher	m_InputDispatcher;
 
 	private:
-		static Application*		s_Instance;
+		static Engine*		s_Instance;
 	};
 
 	// To be defined by client.
-	std::unique_ptr<Application> CreateApplication();
+	std::unique_ptr<Engine> CreateApplication();
 
 }
 

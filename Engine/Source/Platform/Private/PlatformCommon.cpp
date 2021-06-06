@@ -1,7 +1,8 @@
 #include <Engine_pch.h>
 
-#include "Platform/Public/Common.h"
+#include "Platform/Public/PlatformCommon.h"
 
+#include "Runtime/Core/Public/Cast.h"
 
 namespace Insight
 {
@@ -9,22 +10,16 @@ namespace Insight
 	{
 		EInputEventType GetAsyncKeyState(KeyMapCode Key)
 		{
+			bool Pressed = false;
 #if IE_PLATFORM_BUILD_WIN32
 			short KeyState = ::GetAsyncKeyState(Key);
-			bool Pressed = (BIT_SHIFT(15)) & KeyState;
-
-			if (Pressed)
-				return IET_Pressed;
-			else
-				return IET_Released;
+			Pressed = ( BIT_SHIFT(15) & KeyState );
 #elif IE_PLATFORM_BUILD_UWP
 			const winrt::Windows::System::VirtualKey VirtualKey = (winrt::Windows::System::VirtualKey)Key;
-			auto state = winrt::Windows::UI::Core::CoreWindow::GetForCurrentThread().GetAsyncKeyState(VirtualKey);
-			if (state == winrt::Windows::UI::Core::CoreVirtualKeyStates::Down)
-				return IET_Pressed;
-			else
-				return IET_Released;
+			auto State = winrt::Windows::UI::Core::CoreWindow::GetForCurrentThread().GetAsyncKeyState(VirtualKey);
+			Pressed = ( State == winrt::Windows::UI::Core::CoreVirtualKeyStates::Down );
 #endif
+			return Pressed ? IET_Pressed : IET_Released;
 		}
 
 		void CreateMessageBox(const wchar_t* Message, const wchar_t* Title, void* pParentWindow)
@@ -32,18 +27,19 @@ namespace Insight
 #if IE_PLATFORM_BUILD_WIN32
 			::MessageBox(RCast<HWND>(pParentWindow), Message, Title, MB_OK);
 #elif IE_PLATFORM_BUILD_UWP
-			#pragma message CreateMessageBox not defined for UWP platform!
+			#pragma message ("CreateMessageBox not defined for UWP platform!")
 #endif
 		}
 
 		DLLHandle LoadDynamicLibrary(const wchar_t* Filepath)
 		{
-			return (DLLHandle)
+			return (DLLHandle)(
 #if IE_PLATFORM_BUILD_WIN32
-			LoadLibrary(Filepath);
+				LoadLibrary(Filepath)
 #elif IE_PLATFORM_BUILD_UWP
-			LoadPackagedLibrary(Filepath, 0);
+				LoadPackagedLibrary(Filepath, 0)
 #endif
+			);
 		}
 
 		Int32 FreeDynamicLibrary(DLLHandle Handle)
@@ -61,24 +57,24 @@ namespace Insight
 #if IE_PLATFORM_BUILD_WIN32 || IE_PLATFORM_BUILD_UWP
 			LPVOID lpMsgBuf;
 			LPVOID lpDisplayBuf;
-			DWORD dw = ::GetLastError();
+			DWORD ErrCode = ::GetLastError();
 
 			FormatMessage(
 				FORMAT_MESSAGE_ALLOCATE_BUFFER |
 				FORMAT_MESSAGE_FROM_SYSTEM |
 				FORMAT_MESSAGE_IGNORE_INSERTS,
 				NULL,
-				dw,
+				ErrCode,
 				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 				(LPTSTR)&lpMsgBuf,
 				0, NULL);
 
-			lpDisplayBuf = (LPVOID)::LocalAlloc(LMEM_ZEROINIT, (lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)"") + 40) * sizeof(TCHAR));
+			lpDisplayBuf = (LPVOID)::LocalAlloc(LMEM_ZEROINIT, (lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)L"") + 40) * sizeof(TCHAR));
 			StringCchPrintf(
 				(LPTSTR)lpDisplayBuf,
 				::LocalSize(lpDisplayBuf) / sizeof(TCHAR),
 				TEXT("%s failed with error %d: %s"),
-				"", dw, lpMsgBuf
+				"", ErrCode, lpMsgBuf
 			);
 			return (wchar_t*)lpDisplayBuf;
 #endif
@@ -88,24 +84,29 @@ namespace Insight
 		void GetWorkingDirectory(size_t BufferSize, TChar* Buffer)
 		{
 #if IE_PLATFORM_BUILD_WIN32
-
 			// Fetch the current directory (includes the exe name).
-			DWORD Result = ::GetModuleFileName(NULL, Buffer, BufferSize);
+			DWORD Result = ::GetModuleFileName(NULL, Buffer, (DWORD)BufferSize);
 			if (Result == 0)
-				IE_LOG(Error, TEXT("Failed to read application root current directory. Windows Error %i"), GetLastError());
+				IE_LOG(Error, TEXT("Failed to read application root current directory. Windows Error: %i"), GetLastError());
 
 			// Start at the end and remove the exe name character by character.
 			for (size_t i = BufferSize - 1; i != 0; --i)
 			{
 				if (Buffer[i] != TChar('\\') && Buffer[i] != TChar('/'))
 				{
+					// Erase the character
 					Buffer[i] = 0;
 				}
 				else
+				{
+					// Found the first set of slashes; the exe has been erased.
 					break;
+				}
 			}
 #elif IE_PLATFORM_BUILD_UWP
-			// The default working directory is the .exe root in UWP apps. Which is automatically registered.
+			(void)BufferSize;
+
+			// The default working directory is the .exe root in UWP apps. Which is automatically registered and cannot be changed.
 			ZeroMem(Buffer, BufferSize);
 			Buffer[0] = "\0";
 #endif

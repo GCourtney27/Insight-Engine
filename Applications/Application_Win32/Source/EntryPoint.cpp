@@ -6,9 +6,9 @@
 #define MAX_STRING_LOAD_LENGTH 100
 
 // App globals.
-HINSTANCE g_AppInstance;
+HINSTANCE g_WindowsAppInstance;
 std::shared_ptr<Insight::Win32Window> g_pWindow;
-std::unique_ptr<Insight::Application> g_pApp;
+std::unique_ptr<Insight::Engine> g_pEngine;
 
 // Callbacks
 void LoadWindowProps(Insight::Win32WindowDescription& WindowDesc);
@@ -29,20 +29,20 @@ int APIENTRY wWinMain(
 
 	UNREFERENCED_PARAMETER(hPrevInstance);
 
-	g_AppInstance = hInstance;
+	g_WindowsAppInstance = hInstance;
 	
-	g_pApp = Insight::CreateApplication();
+	g_pEngine = Insight::CreateApplication();
 
 #if _DEBUG
 	try 
 #endif // _DEBUG
 	{
-		Win32WindowDescription WindowDesc(g_AppInstance, IE_BIND_EVENT_FN(Application::OnEvent, g_pApp.get()), nCmdShow, lpCmdLine);
+		Win32WindowDescription WindowDesc(g_WindowsAppInstance, IE_BIND_EVENT_FN(Engine::OnEvent, g_pEngine.get()), nCmdShow, lpCmdLine);
 		LoadWindowProps(WindowDesc);
 		g_pWindow = std::make_shared<Win32Window>(WindowDesc);
 
-		g_pApp->SetWindow(g_pWindow);
-		g_pApp->Initialize();
+		g_pEngine->SetWindow(g_pWindow);
+		g_pEngine->Initialize();
 	}
 #if _DEBUG
 	catch (Insight::ieException& Ex)
@@ -54,7 +54,7 @@ int APIENTRY wWinMain(
 	}
 #endif // _DEBUG
 
-	return g_pApp->Run();
+	return g_pEngine->Run();
 }
 
 void LoadWindowProps(Insight::Win32WindowDescription& WindowDesc)
@@ -62,19 +62,19 @@ void LoadWindowProps(Insight::Win32WindowDescription& WindowDesc)
 	WCHAR LoadBuffer[MAX_STRING_LOAD_LENGTH];
 
 	// Load the app title.
-	LoadStringW(g_AppInstance, IDS_APP_TITLE, LoadBuffer, MAX_STRING_LOAD_LENGTH);
+	LoadStringW(g_WindowsAppInstance, IDS_APP_TITLE, LoadBuffer, MAX_STRING_LOAD_LENGTH);
 	WindowDesc.Title	= { LoadBuffer };
 	// Load the app class name.
-	LoadStringW(g_AppInstance, IDC_WIN32APP, LoadBuffer, MAX_STRING_LOAD_LENGTH);
+	LoadStringW(g_WindowsAppInstance, IDC_WIN32APP, LoadBuffer, MAX_STRING_LOAD_LENGTH);
 	WindowDesc.Class	= { LoadBuffer };
 	// Load the accelerator table.
-	WindowDesc.AccelerationTable	= LoadAccelerators(g_AppInstance, MAKEINTRESOURCE(IDC_WIN32APP));
+	WindowDesc.AccelerationTable	= LoadAccelerators(g_WindowsAppInstance, MAKEINTRESOURCE(IDC_WIN32APP));
 	// Load the menu bar via the string table name.
 	WindowDesc.MenuBarName			= MAKEINTRESOURCEW(IDC_WIN32APP);
 	// Assign the custom callback to proccess events from the accelerator table.
 	WindowDesc.UserAccelCallback = Insight::Win32Window::MakeAccelCallback(ProcessAccelCommand);
 	// Load the icon for the window.
-	WindowDesc.Icon					= LoadIcon(g_AppInstance, MAKEINTRESOURCE(IDI_WIN32APP));
+	WindowDesc.Icon					= LoadIcon(g_WindowsAppInstance, MAKEINTRESOURCE(IDI_WIN32APP));
 	// Load the cursor for the application.
 	WindowDesc.Cursor				= ::LoadCursor(0, IDC_ARROW);
 }
@@ -87,7 +87,7 @@ LRESULT CALLBACK ProcessAccelCommand(const int& Command)
 	{
 		static bool EditorUIEnabled = true;
 		EditorUIEnabled = !EditorUIEnabled;
-		g_pApp->GetEditorLayer().SetUIEnabled(EditorUIEnabled);
+		g_pEngine->GetEditorLayer().SetUIEnabled(EditorUIEnabled);
 		break;
 	}
 	case (IDM_RENDERING_RELOADSHADERS):

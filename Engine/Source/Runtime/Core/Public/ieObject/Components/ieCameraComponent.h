@@ -43,6 +43,7 @@ namespace Insight
 
 		ieTransform m_Transform;
 		ProjectionProperties m_ViewProps;
+		float m_FieldOfView;
 
 	public:
 		ieCameraComponent(ieActor* pOwner)

@@ -43,6 +43,10 @@ namespace Insight
 				virtual void  UnInitialize() override;
 				virtual void  Reset() override;
 
+				virtual void BeginDebugMarker(const TChar* Message) override;
+				virtual void EndDebugMarker() override;
+				virtual void ClearState(IPipelineState* pNewPipelineState) override;
+
 				virtual void OMSetRenderTargets(UInt32 NumRTVs, const IColorBuffer* Targets[], IDepthBuffer* pDepthBuffer) override;
 				virtual void ClearDepth(IDepthBuffer& DepthBuffer) override;
 
@@ -91,7 +95,6 @@ namespace Insight
 
 				virtual void BindDescriptorHeaps() override;
 
-
 				D3D12_COMMAND_LIST_TYPE m_D3DCmdListType;
 				UInt32 m_NumBarriersToFlush;
 				D3D12_RESOURCE_BARRIER m_ResourceBarrierBuffer[16];
@@ -106,6 +109,7 @@ namespace Insight
 
 				LinearAllocator m_CpuLinearAllocator;
 				LinearAllocator m_GpuLinearAllocator;
+
 			};
 		}
 	}

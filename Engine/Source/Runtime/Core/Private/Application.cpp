@@ -19,7 +19,6 @@
 #define EDITOR_UI_ENABLED 0
 #endif
 
-
 #define IE_RENDER_MULTI_PLATFORM 1
 
 #if IE_RENDER_MULTI_PLATFORM
@@ -35,9 +34,9 @@ static const char* TargetSceneName = "Debug.iescene";
 namespace Insight {
 
 
-	Application* Application::s_Instance = nullptr;
+	Engine* Engine::s_Instance = nullptr;
 
-	Application::Application()
+	Engine::Engine()
 	{
 		IE_ASSERT(!s_Instance, "Trying to create Application instance when one already exists!");
 		s_Instance = this;
@@ -51,27 +50,19 @@ namespace Insight {
 		)
 	}
 
-	Application::~Application()
+	Engine::~Engine()
 	{
 	}
 
-	void Application::DumpApp()
+	void Engine::DumpApp()
 	{
-		Debug::Logger::AppendMessageForCoreDump(TEXT("Core dump requested by application."));
+		Debug::Logger::AppendMessageForCoreDump(TEXT("Core dump requested by engine."));
 		Debug::Logger::InitiateCoreDump();
 	}
 
-	void Application::RenderTEST()
+	void Engine::Initialize()
 	{
-		while (m_Running)
-		{
-			m_World.Render();
-		}
-	}
-
-	void Application::Initialize()
-	{
-		ScopedMilliSecondTimer(TEXT("Core app init"));
+		ScopedMilliSecondTimer(TEXT("Core engine init"));
 
 		// Initize the main file system.
 		FileSystem::Init();
@@ -80,33 +71,64 @@ namespace Insight {
 		m_World.Initialize(m_pWindow);
 
 		ieCameraActor* pDebugCamera = m_World.CreateActor<ieCameraActor>();
+		pDebugCamera->GetSubobject<ieCameraComponent>()->SetProjectionValues(80.f, (float)m_pWindow->GetWidth(), (float)m_pWindow->GetHeight(), 0.01f, 10000.f);
 		m_World.SetSceneRenderCamera(pDebugCamera->GetCamera());
 		
+		// Mesh database
+		// Submesh name -> Owning file filename
+		// Submesh name -> Owning file filename
+		// ...
+
+		// Mesh Manager
+		/*
+			[in] SubmeshName
+
+			Filename = MeshDatabase[Submesh name]
+			
+			MeshFile = LoadMesh(Filename);
+			Foreach submesh in MeshFile
+				if submesh.name == SubmeshName
+					ParseMeshfile and return MeshRef
+		*/
 
 		// Load Assets. TODO: This would come from a level file
 		// Load Models
 		Graphics::g_StaticGeometryManager.LoadFBXFromFile(L"Content/Models/Cube.fbx");
-		Graphics::g_MaterialManager.LoadMaterialFromFile(L"Content/Materials/M_RustedMetal.ieMat");
+		Graphics::g_StaticGeometryManager.LoadFBXFromFile(L"Content/Models/Quad.fbx");
+		// Load Materials
+		Graphics::g_MaterialManager.LoadMaterialFromFile(L"M_DefaultMat.ieMat");
+		Graphics::g_MaterialManager.LoadMaterialFromFile(L"M_RustedMetal.ieMat");
 		// Load Textures
 		// TODO: Only dds textures can be loaded right now.
-		const TChar* AlbedoTexturePath = L"Content/Textures/RustedIron/RustedIron_Albedo.dds";
-		Graphics::ITextureRef AlbedoTexture = Graphics::g_pTextureManager->LoadTexture(AlbedoTexturePath, Graphics::DT_Magenta2D, false);
-		const TChar* NormalTexturePath = L"Content/Textures/RustedIron/RustedIron_Normal.dds";
-		Graphics::ITextureRef NormalTexture = Graphics::g_pTextureManager->LoadTexture(NormalTexturePath, Graphics::DT_Magenta2D, false);
+		Graphics::ITextureRef AlbedoTexture = Graphics::g_pTextureManager->LoadTexture(L"Content/Textures/RustedIron/RustedIron_Albedo.dds", Graphics::DT_Magenta2D, false);
+		Graphics::ITextureRef NormalTexture = Graphics::g_pTextureManager->LoadTexture(L"Content/Textures/RustedIron/RustedIron_Normal.dds", Graphics::DT_Magenta2D, false);
+		//Graphics::ITextureRef DebugTexture = Graphics::g_pTextureManager->LoadTexture(L"Content/Textures/Debug/DebugCheckerBoard_Albedo.dds", Graphics::DT_Magenta2D, false);
 		
 		// Create references to loaded assets
 		StaticMeshGeometryRef CubeMesh = Graphics::g_StaticGeometryManager.GetStaticMeshByName(L"Cube");
-		MaterialRef RustedMetalMat = Graphics::g_MaterialManager.GetMaterialByName(L"M_RustedMetal.ieMat");
+		StaticMeshGeometryRef QuadMesh = Graphics::g_StaticGeometryManager.GetStaticMeshByName(L"Plane");
+		MaterialRef RustedMetalMat = Graphics::g_MaterialManager.GetMaterialByName(L"M_RustedMetal");
 		RustedMetalMat->SetAlbedoTexture(AlbedoTexture);
 		RustedMetalMat->SetNormalTexture(NormalTexture);
-		RustedMetalMat->SetColor(FVector4(1.f, 0.f, 0.f, 1.f));
+		MaterialRef DefaultMat = Graphics::g_MaterialManager.GetMaterialByName(L"M_DefaultMat");
+		DefaultMat->SetColor(FVector4(.6f, .6f, .6f, 1.f));
+		//DefaultMat->SetAlbedoTexture(DebugTexture);
+		//DefaultMat->WriteToFile();
 
 		ieStaticMeshActor* pCubeActor = m_World.CreateActor<ieStaticMeshActor>();
-		pCubeActor->GetTransform().SetPosition(0.f, 0.f, 50.f);
+		pCubeActor->GetTransform().SetPosition(0.f, 50.f, 50.f);
 		pCubeActor->GetTransform().SetScale(20.f, 20.f, 20.f);
 		ieStaticMeshComponent* pSMCubeActor = pCubeActor->GetSubobject<ieStaticMeshComponent>();
 		pSMCubeActor->SetMaterial(RustedMetalMat);
 		pSMCubeActor->SetMesh(CubeMesh);
+
+		ieStaticMeshActor* pQuadActor = m_World.CreateActor<ieStaticMeshActor>();
+		pQuadActor->GetTransform().SetPosition(0.f, -50.f, 50.f);
+		pQuadActor->GetTransform().SetScale(800.f, 800.f, 800.f);
+		ieStaticMeshComponent* pSMQuadActor = pQuadActor->GetSubobject<ieStaticMeshComponent>();
+		pSMQuadActor->SetMaterial(DefaultMat);
+		pSMQuadActor->SetMesh(QuadMesh);
+
 
 		iePlayerCharacter* pPlayerCharacter = m_World.CreateActor<iePlayerCharacter>();
 		
@@ -124,7 +146,6 @@ namespace Insight {
 		//iePlayerCharacter m_Player(&m_World);
 
 		m_World.BeginPlay();
-		//std::thread RenderThread(&Application::RenderTEST, this);
 
 		float DeltaMs = 0.f;
 		while (m_Running)
@@ -148,7 +169,6 @@ namespace Insight {
 
 			//IE_LOG(Log, TEXT("FPS: %f"), m_AppTimer.FPS());
 		}
-		//RenderThread.join();
 		Graphics::g_pCommandManager->IdleGPU();
 
 		exit(EXIT_SUCCESS); // Just for easier debugging quit the entire program.
@@ -168,11 +188,11 @@ namespace Insight {
 		}
 		Renderer::SetActiveCamera(&m_pGameLayer->GetScene()->GetSceneCamera());
 
-		// Push core app layers to the layer stack
+		// Push core engine layers to the layer stack
 		PushCoreLayers();
 	}
 
-	void Application::PostInit()
+	void Engine::PostInit()
 	{
 		Renderer::PostInit();
 
@@ -185,7 +205,7 @@ namespace Insight {
 
 	static bool s_ReloadRuntime = false;
 	float g_GPUThreadFPS = 0.0f;
-	void Application::RenderThread()
+	void Engine::RenderThread()
 	{
 		while (m_Running)
 		{
@@ -221,14 +241,14 @@ namespace Insight {
 		}
 	}
 
-	EErrorCode Application::Run()
+	EErrorCode Engine::Run()
 	{
 		IE_ADD_FOR_GAME_DIST(
 			BeginPlay(AppBeginPlayEvent{})
 		);
 
 		// Put all rendering on another thread. 
-		std::thread RenderThread(&Application::RenderThread, this);
+		std::thread RenderThread(&Engine::RenderThread, this);
 
 		while (m_Running)
 		{
@@ -261,13 +281,13 @@ namespace Insight {
 		// Close the render thread and flush the GPU.
 		RenderThread.join();
 
-		// Shutdown the application and release all resources.
+		// Shutdown the engine and release all resources.
 		Shutdown();
 
 		return EC_Success;
 	}
 
-	EErrorCode Application::RunSingleThreaded()
+	EErrorCode Engine::RunSingleThreaded()
 	{
 		{
 			m_GameThreadTimer.Tick();
@@ -321,13 +341,13 @@ namespace Insight {
 		return EC_Success;
 	}
 
-	void Application::Shutdown()
+	void Engine::Shutdown()
 	{
 		Renderer::Destroy();
 		m_pWindow->Shutdown();
 	}
 
-	void Application::PushCoreLayers()
+	void Engine::PushCoreLayers()
 	{
 #if IE_PLATFORM_BUILD_WIN32 && (EDITOR_UI_ENABLED)
 		switch (Renderer::GetAPI())
@@ -345,7 +365,7 @@ namespace Insight {
 			);
 			break;
 		default:
-			IE_LOG(Error, TEXT("Failed to create ImGui layer in application with API of type \"%i\" Or application has disabled editor."), Renderer::GetAPI());
+			IE_LOG(Error, TEXT("Failed to create ImGui layer in engine with API of type \"%i\" Or engine has disabled editor."), Renderer::GetAPI());
 			break;
 		}
 #endif
@@ -359,13 +379,13 @@ namespace Insight {
 		PushOverlay(m_pPerfOverlay);
 	}
 
-	void Application::PushLayer(Layer* layer)
+	void Engine::PushLayer(Layer* layer)
 	{
 		m_LayerStack.PushLayer(layer);
 		layer->OnAttach();
 	}
 
-	void Application::PushOverlay(Layer* layer)
+	void Engine::PushOverlay(Layer* layer)
 	{
 		m_LayerStack.PushOverLay(layer);
 		layer->OnAttach();
@@ -377,17 +397,17 @@ namespace Insight {
 	// Events Callbacks |
 	// -----------------
 
-	void Application::OnEvent(Event& e)
+	void Engine::OnEvent(Event& e)
 	{
 		EventDispatcher Dispatcher(e);
-		Dispatcher.Dispatch<WindowCloseEvent>(IE_BIND_LOCAL_EVENT_FN(Application::OnWindowClose));
-		Dispatcher.Dispatch<WindowResizeEvent>(IE_BIND_LOCAL_EVENT_FN(Application::OnWindowResize));
-		Dispatcher.Dispatch<WindowToggleFullScreenEvent>(IE_BIND_LOCAL_EVENT_FN(Application::OnWindowFullScreen));
-		Dispatcher.Dispatch<SceneSaveEvent>(IE_BIND_LOCAL_EVENT_FN(Application::SaveScene));
-		Dispatcher.Dispatch<AppBeginPlayEvent>(IE_BIND_LOCAL_EVENT_FN(Application::BeginPlay));
-		Dispatcher.Dispatch<AppEndPlayEvent>(IE_BIND_LOCAL_EVENT_FN(Application::EndPlay));
-		Dispatcher.Dispatch<AppScriptReloadEvent>(IE_BIND_LOCAL_EVENT_FN(Application::ReloadScripts));
-		Dispatcher.Dispatch<ShaderReloadEvent>(IE_BIND_LOCAL_EVENT_FN(Application::ReloadShaders));
+		Dispatcher.Dispatch<WindowCloseEvent>(IE_BIND_LOCAL_EVENT_FN(Engine::OnWindowClose));
+		Dispatcher.Dispatch<WindowResizeEvent>(IE_BIND_LOCAL_EVENT_FN(Engine::OnWindowResize));
+		Dispatcher.Dispatch<WindowToggleFullScreenEvent>(IE_BIND_LOCAL_EVENT_FN(Engine::OnWindowFullScreen));
+		Dispatcher.Dispatch<SceneSaveEvent>(IE_BIND_LOCAL_EVENT_FN(Engine::SaveScene));
+		Dispatcher.Dispatch<AppBeginPlayEvent>(IE_BIND_LOCAL_EVENT_FN(Engine::BeginPlay));
+		Dispatcher.Dispatch<AppEndPlayEvent>(IE_BIND_LOCAL_EVENT_FN(Engine::EndPlay));
+		Dispatcher.Dispatch<AppScriptReloadEvent>(IE_BIND_LOCAL_EVENT_FN(Engine::ReloadScripts));
+		Dispatcher.Dispatch<ShaderReloadEvent>(IE_BIND_LOCAL_EVENT_FN(Engine::ReloadShaders));
 
 		// Process input event callbacks. 
 		m_InputDispatcher.ProcessInputEvent(e);
@@ -398,13 +418,13 @@ namespace Insight {
 		}
 	}
 
-	bool Application::OnWindowClose(WindowCloseEvent& e)
+	bool Engine::OnWindowClose(WindowCloseEvent& e)
 	{
 		m_Running = false;
 		return true;
 	}
 
-	bool Application::OnWindowResize(WindowResizeEvent& e)
+	bool Engine::OnWindowResize(WindowResizeEvent& e)
 	{
 		m_pWindow->Resize(e.GetWidth(), e.GetHeight(), e.GetIsMinimized());
 #if !IE_RENDER_MULTI_PLATFORM
@@ -414,7 +434,7 @@ namespace Insight {
 		return true;
 	}
 
-	bool Application::OnWindowFullScreen(WindowToggleFullScreenEvent& e)
+	bool Engine::OnWindowFullScreen(WindowToggleFullScreenEvent& e)
 	{
 		if (m_pWindow->GetWindowMode() == EWindowMode::WM_FullScreen)
 			m_pWindow->SetWindowMode(EWindowMode::WM_Windowed);
@@ -427,31 +447,31 @@ namespace Insight {
 		return true;
 	}
 
-	bool Application::OnAppSuspendingEvent(AppSuspendingEvent& e)
+	bool Engine::OnAppSuspendingEvent(AppSuspendingEvent& e)
 	{
 		m_IsSuspended = true;
 		return true;
 	}
 
-	bool Application::OnAppResumingEvent(AppResumingEvent& e)
+	bool Engine::OnAppResumingEvent(AppResumingEvent& e)
 	{
 		m_IsSuspended = false;
 		return true;
 	}
 
-	bool Application::SaveScene(SceneSaveEvent& e)
+	bool Engine::SaveScene(SceneSaveEvent& e)
 	{
 		std::future<bool> Future = std::async(std::launch::async, FileSystem::WriteSceneToJson, m_pGameLayer->GetScene());
 		return true;
 	}
 
-	bool Application::BeginPlay(AppBeginPlayEvent& e)
+	bool Engine::BeginPlay(AppBeginPlayEvent& e)
 	{
 		PushLayer(m_pGameLayer);
 		return true;
 	}
 
-	bool Application::EndPlay(AppEndPlayEvent& e)
+	bool Engine::EndPlay(AppEndPlayEvent& e)
 	{
 		m_pGameLayer->EndPlay();
 		m_LayerStack.PopLayer(m_pGameLayer);
@@ -459,7 +479,7 @@ namespace Insight {
 		return true;
 	}
 
-	bool Application::ReloadScripts(AppScriptReloadEvent& e)
+	bool Engine::ReloadScripts(AppScriptReloadEvent& e)
 	{
 		IE_LOG(Log, TEXT("Reloading C# Scripts"));
 #if IE_PLATFORM_BUILD_WIN32
@@ -468,7 +488,7 @@ namespace Insight {
 		return true;
 	}
 
-	bool Application::ReloadShaders(ShaderReloadEvent& e)
+	bool Engine::ReloadShaders(ShaderReloadEvent& e)
 	{
 		//Renderer::OnShaderReload(); 
 		Renderer::PushEvent<ShaderReloadEvent>(e);

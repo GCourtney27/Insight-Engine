@@ -83,7 +83,7 @@ namespace Insight
 		{
 			std::lock_guard<std::mutex> Gaurd(m_MapMutex);
 
-			FString Name = StringHelper::GetFilenameFromDirectory(Path);
+			FString Name = StringHelper::GetFilenameFromDirectoryNoExtension(Path);
 			UInt64 HashName = std::hash<FString>{}(Name);
 
 			auto Iter = m_MaterialCache.find(Name);
@@ -100,8 +100,11 @@ namespace Insight
 				m_MaterialCache[Name].reset(pMat);
 			}
 
-			pMat->SetUID(HashName);
+			//DataBlob Data = FileSystem::ReadRawData(Path.c_str());
+			//pMat->CreateFromMemory(Data);
 			pMat->Initialize();
+			pMat->SetDebugName(Name);
+			pMat->SetUID(HashName);
 			pMat->SetLoadCompleted(true);
 		}
 	}

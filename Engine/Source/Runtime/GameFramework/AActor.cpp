@@ -97,7 +97,7 @@ namespace Insight {
 			const bool IsExpanded = UI::TreeNodeEx(StringHelper::WideToString(SceneNode::GetDisplayName()).c_str(), TreeFlags);
 
 			if (UI::IsItemClicked()) {
-				IE_STRIP_FOR_GAME_DIST(Application::Get().GetEditorLayer().SetSelectedActor(this);)
+				IE_STRIP_FOR_GAME_DIST(Engine::Get().GetEditorLayer().SetSelectedActor(this);)
 			}
 
 			if (IsExpanded) {
@@ -129,7 +129,7 @@ namespace Insight {
 				if (UI::IsItemClicked()) {
 
 					// Set the Details panel to be blank
-					Application::Get().GetEditorLayer().SetSelectedActor(nullptr);
+					Engine::Get().GetEditorLayer().SetSelectedActor(nullptr);
 					// remove the actor fom the world
 					m_Parent->RemoveChild(this);
 					// Pop the rest of the tree nodes for ImGui.
