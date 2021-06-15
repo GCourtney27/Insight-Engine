@@ -1,13 +1,44 @@
 #include <Engine_pch.h>
 
-#include "Platform/Public/PlatformCommon.h"
+#include "Platform/Public/System.h"
 
 #include "Core/Public/Cast.h"
 
 namespace Insight
 {
-	namespace Platform
+	namespace System
 	{
+
+		//
+		//	Per-Platform Functions and Structures
+		//
+#	if IE_WIN32
+		struct Win32ThreadData
+		{
+			JobEntryPoint EntryPoint;
+			void* UserData;
+			const char* Name;
+			DWORD Id;
+		};
+
+		unsigned int WINAPI Win32ThreadEntry(void* pArgs)
+		{
+			Win32ThreadData Data = *(Win32ThreadData*)pArgs;
+			delete pArgs;
+
+			Data.EntryPoint(Data.UserData);
+
+			return EXIT_SUCCESS;
+		}
+
+#	endif
+
+
+
+		//
+		// System Funtion Implementations
+		//
+
 		EInputEventType GetAsyncKeyState(KeyMapCode Key)
 		{
 			bool Pressed = false;
@@ -33,6 +64,7 @@ namespace Insight
 
 		DLLHandle LoadDynamicLibrary(const wchar_t* Filepath)
 		{
+			IE_LOG(Log, TEXT("Loading module: %s"), Filepath);
 			return (DLLHandle)(
 #if IE_WIN32
 				LoadLibrary(Filepath)
@@ -120,6 +152,62 @@ namespace Insight
 				IE_LOG(Error, TEXT("Failed to set the current directory of the exe. Windows Error: %i"), GetLastError());
 #elif IE_UWP_DESKTOP
 			(void)Path;
+#endif
+		}
+		
+		UInt32 GetProcessorCount()
+		{
+			UInt32 ProcessorCount = 0u;
+#if IE_WIN32 || IE_UWP_DESKTOP
+			SYSTEM_INFO SystemInfo = {};
+			GetSystemInfo(&SystemInfo);
+			ProcessorCount = SystemInfo.dwNumberOfProcessors;
+#endif
+			return ProcessorCount;
+		}
+		
+		ThreadId CreateAndRunThread(const char* Name, const UInt32 CoreIdx, JobEntryPoint EntryPoint, void* UserData/* = NULL*/, const UInt64 StackSize/* = kDefaultStackSize*/, const Int32 Flags/* = kJoinable*/)
+		{
+			ThreadId Thread;
+#if IE_WIN32
+			Win32ThreadData* ThreadData = new Win32ThreadData();
+
+			UInt32 ThreadFlags = 0;
+			unsigned int NewThreadId = 0;
+			HANDLE NewThreadHandle = (HANDLE)_beginthreadex(NULL, (unsigned int)StackSize, &Win32ThreadEntry, ThreadData, ThreadFlags, &NewThreadId);
+
+			Thread.Id = NewThreadId;
+			Thread.Handle = NewThreadHandle;
+			
+#endif
+			SetThreadName(Thread, Name);
+			return Thread;
+		}
+
+		void SetThreadName(ThreadId Thread, const char* NewName)
+		{
+#if IE_WIN32
+			struct ThreadNameInfo
+			{
+				DWORD	dwType;		// Must be 0x1000.
+				LPCSTR	szName;		// Pointer to name (in user address space).
+				DWORD	dwThreadID; // Thread ID (-1=caller thread).
+				DWORD	dwFlags;	// Reserved for future use, must be zero.
+			};
+
+			ThreadNameInfo Info;
+			Info.dwType		= 0x1000;
+			Info.szName		= NewName;
+			Info.dwThreadID = Thread.Id;
+			Info.dwFlags	= 0;
+
+			__try
+			{
+				RaiseException(0x406D1388, 0, sizeof(Info) / sizeof(DWORD), (CONST ULONG_PTR*)& Info);
+			}
+			__except (EXCEPTION_CONTINUE_EXECUTION)
+			{
+			}
 #endif
 		}
 	}

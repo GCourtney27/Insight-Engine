@@ -21,7 +21,6 @@ namespace Insight
 
 	protected:
 		ieComponentBase()
-			: m_pOwner(NULL)
 		{
 		}
 		virtual ~ieComponentBase()
@@ -56,11 +55,6 @@ namespace Insight
 		{
 		}
 
-		inline void SetOwner(ieObjectBase* pOwner)
-		{
-			m_pOwner = pOwner;
-		}
-
 		inline const FString& GetName() const
 		{
 			return m_Name;
@@ -72,7 +66,6 @@ namespace Insight
 		}
 
 	private:
-		ieObjectBase* m_pOwner;
 		FString m_Name;
 	};
 }

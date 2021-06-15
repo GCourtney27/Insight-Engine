@@ -8,6 +8,14 @@ struct PointLight
     float4 Position;
     float4 Color;
     float Brightness;
-    float3 Unused0;
+    uint Id;
+};
+
+struct DirectionalLight
+{
+    float4 Direction;
+    float4 Color;
+    float Brightness;
+    uint Id;
 };
 

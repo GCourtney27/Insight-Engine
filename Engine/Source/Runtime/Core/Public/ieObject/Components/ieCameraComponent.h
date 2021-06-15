@@ -1,7 +1,8 @@
 #pragma once
 
 #include "EngineDefines.h"
-#include "Core/Public/ieObject/Components/ieComponentBase.h"
+
+#include "Core/Public/ieObject/Components/ieActorComponent.h"
 
 #include "Math/Public/Transform.h"
 
@@ -36,7 +37,7 @@ namespace Insight
 		EViewType ProjectionType;
 	};
 
-	class INSIGHT_API ieCameraComponent : public ieComponentBase/*<ieCameraComponent>*/
+	class INSIGHT_API ieCameraComponent : public ieActorComponent/*<ieCameraComponent>*/
 	{
 	protected:
 		friend class CameraSystem;
@@ -47,6 +48,7 @@ namespace Insight
 
 	public:
 		ieCameraComponent(ieActor* pOwner)
+			: ieActorComponent(pOwner)
 		{
 			UpdateViewMat();
 			
@@ -55,11 +57,11 @@ namespace Insight
 		virtual ~ieCameraComponent() 
 		{
 		}
-		ieCameraComponent(ieCameraComponent&& Other) noexcept
+		/*ieCameraComponent(ieCameraComponent&& Other) noexcept
 		{
 			m_Transform = std::move(Other.m_Transform);
 			m_ViewProps = Other.m_ViewProps;
-		}
+		}*/
 		ieCameraComponent& operator=(const ieCameraComponent& Other) = default;
 
 		virtual void Tick(float DeltaMs) override

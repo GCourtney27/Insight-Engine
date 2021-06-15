@@ -5,7 +5,7 @@
 #include "Graphics/Public/Resource/ITexture.h"
 #include "Graphics/Public/ResourceManagement/ModelManager.h"
 #include "Graphics/Public/ResourceManagement/MaterialManager.h"
-
+#include "Graphics/Public/ResourceManagement/LightManager.h"
 
 namespace Insight
 {
@@ -25,6 +25,8 @@ namespace Insight
 		IDescriptorHeap* g_pTextureHeap = NULL;
 		StaticGeometryManager g_StaticGeometryManager;
 		MaterialManager g_MaterialManager;
+		LightManager g_LightManager;
+
 
 		// -----------------------------
 		//	Function Definitions

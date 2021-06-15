@@ -24,7 +24,6 @@ namespace Insight
 	public:
 		ieWorld() 
 			: m_EntityAdmin()
-			, m_WorldRenderer(this, m_EntityAdmin)
 			, m_CameraSystem(m_EntityAdmin)
 		{
 		}
@@ -41,7 +40,6 @@ namespace Insight
 
 		void Initialize(std::shared_ptr<Window> pWindow)
 		{
-			m_WorldRenderer.Initialize(pWindow, Graphics::RB_Direct3D12);
 		}
 
 		void BeginPlay()
@@ -115,14 +113,6 @@ namespace Insight
 		}
 
 	protected:
-		/*
-			Renders the world to the main viewport.
-		*/
-		void Render()
-		{
-			m_WorldRenderer.Render();
-			// m_PostEffectsRenderer.Render();
-		}
 
 		/*
 			Creates a entity instance in the entity admin and returns it.
@@ -142,7 +132,6 @@ namespace Insight
 
 	private:
 		ECS::EntityAdmin m_EntityAdmin;
-		WorldRenderer m_WorldRenderer;
 		// TODO: PostEffectsRenderer m_PostEffectsRenderer;
 		CameraSystem m_CameraSystem;
 		float m_AppDeltaTime;

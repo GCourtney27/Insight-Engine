@@ -97,7 +97,7 @@ namespace Insight {
 			const bool IsExpanded = UI::TreeNodeEx(StringHelper::WideToString(SceneNode::GetDisplayName()).c_str(), TreeFlags);
 
 			if (UI::IsItemClicked()) {
-				IE_STRIP_FOR_GAME_DIST(Engine::Get().GetEditorLayer().SetSelectedActor(this);)
+				Engine::Get().GetEditorLayer().SetSelectedActor(this);
 			}
 
 			if (IsExpanded) {

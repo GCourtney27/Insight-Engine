@@ -69,7 +69,7 @@
 //		Shared Windows Platform		|
 // ---------------------------------
 // Some files can be shared between UWP and Win32.
-#if IE_PLATFORM_WINDOWS
+#if IE_WINDOWS
 
 //	Windows
 #	include <wrl/client.h>
@@ -111,7 +111,7 @@
 	using namespace ::DirectX;
 	using namespace ::DirectX::SimpleMath;
 
-#endif // IE_PLATFORM_WINDOWS
+#endif // IE_WINDOWS
 
 
 // ---------------

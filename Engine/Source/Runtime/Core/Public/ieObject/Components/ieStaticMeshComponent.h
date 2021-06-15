@@ -3,7 +3,7 @@
 
 #include "EngineDefines.h"
 
-#include "Core/Public/ieObject/Components/ieComponentBase.h"
+#include "Core/Public/ieObject/Components/ieActorComponent.h"
 
 #include "Math/Public/Transform.h"
 #include "Graphics/Public/WorldRenderer/RendererCommon.h"
@@ -17,11 +17,11 @@ namespace Insight
 	class ieObjectBase;
 
 
-	class INSIGHT_API ieStaticMeshComponent : public ieComponentBase/*<ieStaticMeshComponent>*/
+	class INSIGHT_API ieStaticMeshComponent : public ieActorComponent/*<ieStaticMeshComponent>*/
 	{
 	public:
 		ieStaticMeshComponent(ieActor* pOwner)
-			: ieComponentBase()
+			: ieActorComponent(pOwner)
 			, m_pMeshWorldCB(NULL)
 			, m_Transform()
 			, m_bIsDrawEnabled(true)
@@ -31,14 +31,14 @@ namespace Insight
 		virtual ~ieStaticMeshComponent()
 		{
 		}
-		ieStaticMeshComponent(ieStaticMeshComponent&& Other)
+		/*ieStaticMeshComponent(ieStaticMeshComponent&& Other)
 		{
 			m_GeometryRef = std::move(Other.m_GeometryRef);
 			m_Transform = std::move(Other.m_Transform);
 			m_pMeshWorldCB = std::move(Other.m_pMeshWorldCB);
 			m_MaterialRef = Other.m_MaterialRef;
 			m_bIsDrawEnabled = std::move(Other.m_bIsDrawEnabled);
-		}
+		}*/
 		ieStaticMeshComponent& operator=(const ieStaticMeshComponent& Other) = default;
 
 

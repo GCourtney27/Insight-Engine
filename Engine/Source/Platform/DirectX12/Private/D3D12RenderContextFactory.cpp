@@ -44,6 +44,7 @@ namespace Insight
 				(*OutContext) = new D3D12RenderContext();
 				Super::m_pTarget = (*OutContext);
 				Super::m_pTarget->SetWindow(pWindow);
+				Super::m_pTarget->SetBackendType(RB_Direct3D12);
 
 				// Initialize all main components for the renderer.
 				Super::InitializeMainComponents();

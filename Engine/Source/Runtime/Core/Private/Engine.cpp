@@ -14,12 +14,6 @@
 #include "Platform/Win32/Win32Window.h"
 #endif
 
-#if IE_WIN32
-#define EDITOR_UI_ENABLED 1
-#else
-#define EDITOR_UI_ENABLED 0
-#endif
-
 #define IE_RENDER_MULTI_PLATFORM 1
 
 #if IE_RENDER_MULTI_PLATFORM
@@ -38,17 +32,19 @@ namespace Insight {
 	Engine* Engine::s_Instance = nullptr;
 
 	Engine::Engine()
+		: m_WorldRenderer(&m_World, m_World.GetEntityAdmin())
 	{
 		IE_ASSERT(!s_Instance, "Trying to create Application instance when one already exists!");
 		s_Instance = this;
 
+
+#if IE_WITH_EDITOR
 		// Initialize the core logger.
-		IE_STRIP_FOR_GAME_DIST(
-			if (!Debug::Logger::Initialize())
-			{
-				throw ieException(TEXT("Failed to initialize core logger"), ieException::EExceptionCategory::EC_Engine);
-			}
-		)
+		if (!Debug::Logger::Initialize())
+		{
+			throw ieException(TEXT("Failed to initialize core logger"), ieException::EExceptionCategory::EC_Engine);
+		}
+#endif
 	}
 
 	Engine::~Engine()
@@ -67,7 +63,7 @@ namespace Insight {
 
 		// Initize the main file system.
 		FileSystem::Init();
-
+		
 #if IE_RENDER_MULTI_PLATFORM
 		m_World.Initialize(m_pWindow);
 
@@ -75,6 +71,8 @@ namespace Insight {
 		pDebugCamera->GetSubobject<ieCameraComponent>()->SetProjectionValues(80.f, (float)m_pWindow->GetWidth(), (float)m_pWindow->GetHeight(), 0.01f, 10000.f);
 		m_World.SetSceneRenderCamera(pDebugCamera->GetCamera());
 		
+		m_WorldRenderer.Initialize(m_pWindow, Graphics::RB_Direct3D12);
+
 		// Mesh database
 		// Submesh name -> Owning file filename
 		// Submesh name -> Owning file filename
@@ -113,8 +111,6 @@ namespace Insight {
 		RustedMetalMat->SetNormalTexture(NormalTexture);
 		MaterialRef DefaultMat = Graphics::g_MaterialManager.GetMaterialByName(L"M_DefaultMat");
 		DefaultMat->SetColor(FVector4(.6f, .6f, .6f, 1.f));
-		//DefaultMat->SetAlbedoTexture(DebugTexture);
-		//DefaultMat->WriteToFile();
 
 		ieStaticMeshActor* pCubeActor = m_World.CreateActor<ieStaticMeshActor>();
 		pCubeActor->GetTransform().SetPosition(0.f, 50.f, 50.f);
@@ -130,21 +126,10 @@ namespace Insight {
 		pSMQuadActor->SetMaterial(DefaultMat);
 		pSMQuadActor->SetMesh(QuadMesh);
 
+		
 
 		iePlayerCharacter* pPlayerCharacter = m_World.CreateActor<iePlayerCharacter>();
 		
-		// TEMP
-		//ieCameraActor m_DebugCamera(&m_World);
-		//m_World.SetSceneRenderCamera(m_DebugCamera.GetCamera());
-
-		//ieStaticMeshActor m_SMActor(&m_World);
-		//m_SMActor.GetTransform().SetPosition(0.f, 0.f, 5.f);
-
-		//ieStaticMeshActor m_SMActor2(&m_World);
-		//m_SMActor2.GetTransform().SetPosition(0.f, 0.f, 3.f);
-		//m_SMActor2.GetTransform().SetParent(&m_SMActor.GetTransform());
-
-		//iePlayerCharacter m_Player(&m_World);
 
 		m_World.BeginPlay();
 
@@ -165,7 +150,7 @@ namespace Insight {
 			// TODO if(SimulationActive)
 				m_World.ExecuteGameplaySystems();
 
-			m_World.Render();
+			m_WorldRenderer.Render();
 			// m_UI.Render();
 
 			//IE_LOG(Log, TEXT("FPS: %f"), m_AppTimer.FPS());
@@ -224,16 +209,13 @@ namespace Insight {
 			Renderer::OnRender();
 
 			// Render the Editor/UI last. 
-#if EDITOR_UI_ENABLED
-			IE_STRIP_FOR_GAME_DIST
-			(
-				m_pImGuiLayer->Begin();
+#if IE_WITH_EDITOR
+			m_pImGuiLayer->Begin();
 			for (Layer* pLayer : m_LayerStack)
 				pLayer->OnImGuiRender();
 			m_pGameLayer->OnImGuiRender();
 			Renderer::OnEditorRender();
 			m_pImGuiLayer->End();
-			);
 #endif
 
 			// Submit for draw and present. 
@@ -244,9 +226,7 @@ namespace Insight {
 
 	EErrorCode Engine::Run()
 	{
-		IE_ADD_FOR_GAME_DIST(
-			BeginPlay(AppBeginPlayEvent{})
-		);
+		BeginPlay(AppBeginPlayEvent{});
 
 		// Put all rendering on another thread. 
 		std::thread RenderThread(&Engine::RenderThread, this);
@@ -311,15 +291,12 @@ namespace Insight {
 				Renderer::OnRender();
 
 				// Render the Editor/UI last. 
-#if EDITOR_UI_ENABLED
-				IE_STRIP_FOR_GAME_DIST
-				(
-					m_pImGuiLayer->Begin();
+#if IE_WITH_EDITOR
+				m_pImGuiLayer->Begin();
 				for (Layer* pLayer : m_LayerStack)
 					pLayer->OnImGuiRender();
 				m_pGameLayer->OnImGuiRender();
 				m_pImGuiLayer->End();
-				);
 #endif
 
 				// Submit for draw and present. 
@@ -350,33 +327,27 @@ namespace Insight {
 
 	void Engine::PushCoreLayers()
 	{
-#if IE_WIN32 && (EDITOR_UI_ENABLED)
+#if (IE_WITH_EDITOR)
 		switch (Renderer::GetAPI())
 		{
 		case Renderer::ETargetRenderAPI::Direct3D_11:
-			IE_STRIP_FOR_GAME_DIST(
-				m_pImGuiLayer = new D3D11ImGuiLayer();
+			m_pImGuiLayer = new D3D11ImGuiLayer();
 			PushOverlay(m_pImGuiLayer);
-			);
 			break;
 		case Renderer::ETargetRenderAPI::Direct3D_12:
-			IE_STRIP_FOR_GAME_DIST(
-				m_pImGuiLayer = new D3D12ImGuiLayer();
+			m_pImGuiLayer = new D3D12ImGuiLayer();
 			PushOverlay(m_pImGuiLayer);
-			);
 			break;
 		default:
 			IE_LOG(Error, TEXT("Failed to create ImGui layer in engine with API of type \"%i\" Or engine has disabled editor."), Renderer::GetAPI());
 			break;
 		}
+
+		m_pEditorLayer = new EditorLayer();
+		PushOverlay(m_pEditorLayer);
 #endif
 
-		IE_STRIP_FOR_GAME_DIST(
-			m_pEditorLayer = new EditorLayer();
-		PushOverlay(m_pEditorLayer);
-		)
-
-			m_pPerfOverlay = new PerfOverlay();
+		m_pPerfOverlay = new PerfOverlay();
 		PushOverlay(m_pPerfOverlay);
 	}
 

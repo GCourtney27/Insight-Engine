@@ -6,7 +6,7 @@
 //
 
 // Constant Buffers
-cbuffer SceneConstants : register(kSceneConstantsReg)
+cbuffer SceneConstants      : register(kSceneConstantsReg)
 {
     float4x4 ViewMat;
     float4x4 ProjMat;
@@ -18,16 +18,20 @@ cbuffer SceneConstants : register(kSceneConstantsReg)
     float CameraNearZ;
     float CameraFarZ;
 }
-cbuffer MeshWorld : register(kMeshWorldReg)
+cbuffer MeshWorld           : register(kMeshWorldReg)
 {
     float4x4 WorldMat;
 }
-cbuffer MaterialConstants : register(kMaterialReg)
+cbuffer MaterialConstants   : register(kMaterialReg)
 {
     float4 MatColor;
 };
-cbuffer SceneLights : register(kLightsReg)
+cbuffer SceneLights         : register(kLightsReg)
 {
+    uint NumPointLights;
+    uint NumDirectionalLights;
+	/* float Unused0[2]; */
+
     PointLight PointLights[IE_MAX_POINT_LIGHTS];
-    float NumPointLights;
+	DirectionalLight DirectionalLights[IE_MAX_DIRECTIONAL_LIGHTS];
 }

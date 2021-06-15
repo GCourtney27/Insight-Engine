@@ -38,4 +38,4 @@
 #define ECS_NO_DISCARD				[[nodiscard]]
 #define ECS_FORCEINLINE			__forceinline
 #define ECS_INLINE					inline
-#define ZeroMemRangedRanged(Dst, Size)	memset(Dst, 0, Size)
+#define ZeroMemRangedDEPR(Dst, Size)	memset(Dst, 0, Size)

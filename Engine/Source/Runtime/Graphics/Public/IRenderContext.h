@@ -2,12 +2,13 @@
 #pragma once
 
 #include "EngineDefines.h"
-#include <Runtime/Graphics/Public/GraphicsCore.h>
+#include "Graphics/Public/GraphicsCore.h"
 
 
 namespace Insight
 {
 	enum EWindowMode;
+
 
 	namespace Graphics
 	{
@@ -17,10 +18,15 @@ namespace Insight
 			RB_Direct3D12,
 		};
 
+		namespace DX12
+		{
+			class D3D12RenderContextFactory;
+		}
+
 		class INSIGHT_API IRenderContext
 		{
 			friend class IRenderContextFactory;
-			friend class D3D12RenderContextFactory;
+			friend DX12::D3D12RenderContextFactory;
 		public:
 			virtual ~IRenderContext()
 			{
@@ -38,8 +44,9 @@ namespace Insight
 			//
 			// Getters/Setters
 			//
-			FORCEINLINE ISwapChain* GetSwapChain()				const { return m_pSwapChain; }
-			FORCEINLINE std::shared_ptr<Window> GetWindow()	const { return m_pWindow; }
+			FORCEINLINE ISwapChain* GetSwapChain() const;
+			FORCEINLINE std::shared_ptr<Window> GetWindow()	const;
+			FORCEINLINE ERenderBackend GetBackendType() const;
 			
 			void SetWindow(std::shared_ptr<Window> pWindow);
 
@@ -55,6 +62,8 @@ namespace Insight
 			virtual void Initialize() = 0;
 			virtual void UnInitialize();
 
+			FORCEINLINE void SetBackendType(ERenderBackend Type);
+
 		protected:
 
 			std::shared_ptr<Window> m_pWindow;
@@ -63,7 +72,31 @@ namespace Insight
 
 			std::vector<ieVertexBuffer> m_VertexBuffers;
 			std::vector<ieIndexBuffer> m_IndexBuffers;
-
+			ERenderBackend m_BackendType;
 		};
+
+		//
+		// Inline Function Implementations
+		//
+
+		FORCEINLINE ISwapChain* IRenderContext::GetSwapChain() const
+		{ 
+			return m_pSwapChain; 
+		}
+		
+		FORCEINLINE std::shared_ptr<Window> IRenderContext::GetWindow()	const
+		{ 
+			return m_pWindow; 
+		}
+
+		FORCEINLINE ERenderBackend IRenderContext::GetBackendType() const
+		{
+			return m_BackendType;
+		}
+		
+		FORCEINLINE void IRenderContext::SetBackendType(ERenderBackend Type)
+		{
+			m_BackendType = Type;
+		}
 	}
 } 

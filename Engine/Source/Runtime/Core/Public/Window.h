@@ -33,9 +33,14 @@ namespace Insight {
 		int NumCmdArgs;
 		FString CmdArgs;
 		EventCallbackFn EventCallbackFunction;
+		/*bool HasTitleBar;
+		bool Resizable;*/
 
 		WindowDescription(EventCallbackFn CallbackFn, int CmdLineArgCount = 0, std::wstring CmdArgVals = L"", const std::wstring& title = L"Insight Ed", const std::wstring winClass = L"CLASS", UInt32 width = 1700, UInt32 height = 1000)
-			: EventCallbackFunction(CallbackFn), NumCmdArgs(CmdLineArgCount), CmdArgs(CmdArgVals), Title(title), Class(winClass), Width(width), Height(height)
+			: EventCallbackFunction(CallbackFn)
+			, NumCmdArgs(CmdLineArgCount), CmdArgs(CmdArgVals)
+			, Title(title), Class(winClass)
+			, Width(width), Height(height)
 		{
 		}
 	};

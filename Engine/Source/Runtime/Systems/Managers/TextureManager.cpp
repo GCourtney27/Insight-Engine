@@ -213,7 +213,7 @@ namespace Insight {
 
 		switch (Renderer::GetAPI())
 		{
-#if defined (IE_PLATFORM_WINDOWS)
+#if defined (IE_WINDOWS)
 		case Renderer::ETargetRenderAPI::Direct3D_11:
 		{
 			m_DefaultAlbedoTexture = make_shared<ieD3D11Texture>(AlbedoTexInfo);
@@ -235,7 +235,7 @@ namespace Insight {
 			m_DefaultAOTexture = make_shared<ieD3D12Texture>(AOTexInfo, cbvSrvHeapStart);
 			break;
 		}
-#endif // IE_PLATFORM_WINDOWS
+#endif // IE_WINDOWS
 		default:
 		{
 			IE_LOG(Error, TEXT("Failed to load default textures for api: %i"), Renderer::GetAPI());

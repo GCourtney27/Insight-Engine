@@ -5,7 +5,7 @@
 namespace Insight
 {
 
-#if IE_WITH_EDITOR && IE_PLATFORM_WINDOWS
+#if IE_WITH_EDITOR && IE_WINDOWS
 
 
 

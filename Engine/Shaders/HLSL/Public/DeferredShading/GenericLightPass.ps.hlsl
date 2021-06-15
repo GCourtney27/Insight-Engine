@@ -31,7 +31,7 @@ LP_PSOutput main(LP_PSInput Input)
     float3 WorldPos     = g_PositionGBuffer.Sample(g_LinearWrapSampler, Input.UVs).rgb;
 	
     // Acummulate point light luminance.
-    float3 PointLightLuminance;
+    float3 PointLightLuminance = float3(0.f, 0.f, 0.f);
     for (int i = 0; i < NumPointLights; i++)
     {
         float3 LightDir = -normalize(PointLights[i].Position.xyz - WorldPos);
@@ -39,10 +39,20 @@ LP_PSOutput main(LP_PSInput Input)
 
         float Distance = length(PointLights[i].Position.xyz - WorldPos);
         float Attenuation = 1.0f / (Distance * Distance);
-        PointLightLuminance += (PointLights[i].Color.rgb * PointLights[i].Brightness) * Attenuation;
+        PointLightLuminance += ((PointLights[i].Color.rgb * PointLights[i].Brightness) * Attenuation) * Angle;
+    }
+    
+    // Accumulate directional light luminance.
+    float3 DirectionalLightLuminance = float3(0.f, 0.f, 0.f);
+    for (int d = 0; d < NumDirectionalLights; d++)
+    {
+        float3 LightDir = normalize(DirectionalLights[d].Direction.xyz);
+        float Angle     = max(dot(NormalSample, LightDir), 0);
+        
+        DirectionalLightLuminance += (DirectionalLights[d].Color.rgb * DirectionalLights[d].Brightness) * Angle;
     }
         
-    float3 LightLuminance = PointLightLuminance;
+    float3 LightLuminance = /*PointLightLuminance + */DirectionalLightLuminance;
     
     Output.Result = float4(AlbedoSample * LightLuminance, 1);
     

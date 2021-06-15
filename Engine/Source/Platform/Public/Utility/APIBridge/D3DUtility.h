@@ -9,7 +9,7 @@ namespace Insight
 {
 	namespace PlatformUtils
 	{
-#if IE_PLATFORM_WINDOWS
+#if IE_WINDOWS
 		DXGI_FORMAT IETextureFormatToDXGIFormat(const Graphics::EFormat& Format);
 		Graphics::EFormat DXGIFormatToIETextureFormat(DXGI_FORMAT Format);
 

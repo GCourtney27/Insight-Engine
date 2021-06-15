@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Core.h"
+#include "EngineDefines.h"
+
 
 #include "Graphics/Public/ICommandContext.h"
 #include "Graphics/Public/WorldRenderer/RendererCommon.h"
@@ -17,10 +18,6 @@ namespace Insight
 	{
 		friend class MaterialManager;
 
-		IE_ALIGN(16) struct MaterialConstants
-		{
-			FVector4 Color;
-		};
 		enum EMaterialType
 		{
 			MT_Opaque,
@@ -39,7 +36,7 @@ namespace Insight
 		ieMaterial(ieMaterial&& Other) noexcept
 		{
 			m_pConstantsCB = std::move(Other.m_pConstantsCB);
-			m_Constants = std::move(Other.m_Constants);
+			m_ConstantsData = std::move(Other.m_ConstantsData);
 			m_AlbedoTexture = std::move(Other.m_AlbedoTexture);
 			m_NormalTexture = std::move(Other.m_NormalTexture);
 		}
@@ -67,7 +64,7 @@ namespace Insight
 
 		FVector4 GetColor() const
 		{
-			return m_Constants.Color;
+			return m_ConstantsData.Color;
 		}
 
 		Graphics::ITextureRef GetAlbedoTexture() const
@@ -87,7 +84,7 @@ namespace Insight
 
 		void SetColor(FVector4& Color)
 		{
-			m_Constants.Color = Color;
+			m_ConstantsData.Color = Color;
 		}
 
 		void SetAlbedoTexture(Graphics::ITextureRef TextureRef)
@@ -120,7 +117,7 @@ namespace Insight
 		{
 			// Set constants.
 			MaterialConstants* pMat = m_pConstantsCB->GetBufferPointer<MaterialConstants>();
-			pMat->Color = m_Constants.Color;
+			pMat->Color = m_ConstantsData.Color;
 			GfxContext.SetGraphicsConstantBuffer(kMaterial, m_pConstantsCB);
 
 			// Set Textures.
@@ -160,7 +157,7 @@ namespace Insight
 
 	private:
 		Graphics::IConstantBuffer* m_pConstantsCB;
-		MaterialConstants m_Constants;
+		MaterialConstants m_ConstantsData;
 		Graphics::ITextureRef m_AlbedoTexture;
 		Graphics::ITextureRef m_NormalTexture;
 #if IE_DEBUG

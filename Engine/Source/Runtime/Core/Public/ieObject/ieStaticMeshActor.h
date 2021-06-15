@@ -5,6 +5,8 @@
 
 #include "Core/Public/ieObject/ieActor.h"
 #include "Core/Public/ieObject/Components/ieStaticMeshComponent.h"
+#include "Core/Public/ieObject/Components/iePointLightComponent.h"
+#include "Core/Public/ieObject/Components/ieDirectionalLightComponent.h"
 
 namespace Insight
 {
@@ -16,6 +18,12 @@ namespace Insight
 		{
 			ieStaticMeshComponent* pMesh = CreateDefaultSubObject<ieStaticMeshComponent>(TEXT("Static mesh component"));
 			pMesh->GetTransform().SetParent(&m_Transform);
+
+			iePointLightComponent* pLight = CreateDefaultSubObject<iePointLightComponent>(TEXT(""));
+			pLight->SetColor(1.f, 1.f, 1.f);
+
+			ieDirectionalLightComponent* pDirLight = CreateDefaultSubObject<ieDirectionalLightComponent>(TEXT(""));
+			pDirLight->SetColor(0.3, 0.3, 0.f);
 		}
 		virtual ~ieStaticMeshActor()
 		{

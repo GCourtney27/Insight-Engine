@@ -7,7 +7,10 @@
 
 // If we are compiling for Win32 or UWP we can assume our platform is Windows.
 #if IE_WIN32 || IE_UWP_DESKTOP
-#	define IE_PLATFORM_WINDOWS 1
+#	define IE_WINDOWS 1
+#endif
+#if IE_UWP_DESKTOP || IE_XBOX_ONE || IE_XBOX_ONE_X
+#	define IE_UNIVERSAL_WINDOWS 1
 #endif
 
 
@@ -16,7 +19,7 @@
 #	define IE_CACHEOPTIMIZED_ECS_ENABLED 0
 
 #	if defined _MSC_VER
-	// Only MSVC supports __declspec
+		// Only MSVC supports __declspec
 #		define DLL_EXPORT __declspec(dllexport)
 #		define DLL_IMPORT __declspec(dllimport)
 #	else
@@ -25,7 +28,7 @@
 #	endif // _MSC_VER
 
 #	if IE_DYNAMIC_LINK
-#		if defined (IE_PLATFORM_WINDOWS)
+#		if defined (IE_WINDOWS)
 #			if defined IE_BUILD_DLL
 #				define INSIGHT_API DLL_EXPORT
 #			else
@@ -58,6 +61,11 @@
 #define IE_BIND_EVENT_FN(Fn, Class) std::bind( &Fn, Class, std::placeholders::_1 )
 #define IE_BIND_LOCAL_VOID_FN(Fn)	std::bind( &Fn, this )
 
+
+/////////////////////////////////////////////
+// Platform and Configurations Strings
+/////////////////////////////////////////////
+
 #if IE_WIN32
 #	define IE_PLATFORM_STRING	"Win32 Desktop"
 #elif IE_UWP_DESKTOP 
@@ -67,7 +75,7 @@
 #elif IE_XBOX_ONE_X
 #	define IE_PLATFORM_STRING	"Xbox One X"
 #else
-#message Unrecognized platform provided when determining platform string!
+#	message Unrecognized platform provided when determining platform string!
 #endif
 
 #if IE_DEBUG_EDITOR
@@ -79,36 +87,31 @@
 #elif IE_SHIPPING
 #	define IE_CONFIG_STRING "Shipping"
 #else
-#message Unrecognized configuration when determining config string!
+#	message Unrecognized configuration when determining config string!
 #endif
 
 #endif // INSIGHT_ENGINE
 
+
 //////////////////////////
-//		Entty Point
+//		Entry Point	
 //////////////////////////
 
-#if IE_WIN32
+#if IE_WIN32 || IE_UWP_DESKTOP || IE_XBOX_ONE || IE_XBOX_ONE_X
+// Win32 Api
 #	define IE_ENTRY_POINT						\
 	int APIENTRY wWinMain(						\
 		_In_		HINSTANCE hInstance,		\
 		_In_opt_	HINSTANCE hPrevInstance,	\
 		_In_		LPWSTR lpCmdLine,			\
-		_In_		int nCmdShow)				
-#elif IE_UWP_DESKTOP || IE_XBOX_ONE || IE_XBOX_ONE_X
-#	define IE_ENTRY_POINT						\
-	int WINAPI wWinMain(						\
-		_In_		HINSTANCE hInstance,		\
-		_In_opt_	HINSTANCE hPrevInstance,	\
-		_In_		LPWSTR lpCmdLine,			\
-		_In_		int nCmdShow)				
+		_In_		int nCmdShow)					
 #endif
 
 // Rendering
 //
-#define IE_MAX_SPOT_LIGHTS 4
-#define IE_MAX_POINT_LIGHTS 4
-#define IE_MAX_DIRECTIONAL_LIGHTS 4
+#define IE_MAX_SPOT_LIGHTS			4
+#define IE_MAX_POINT_LIGHTS			4
+#define IE_MAX_DIRECTIONAL_LIGHTS	4
 
 #define kSceneConstantsReg  b0
 #define kMeshWorldReg       b1

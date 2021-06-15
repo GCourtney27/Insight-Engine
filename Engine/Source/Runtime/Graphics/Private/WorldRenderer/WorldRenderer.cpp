@@ -6,7 +6,8 @@
 #include "Core/Public/ieObject/Components/ieCameraComponent.h"
 #include "Core/Public/ieObject/ieWorld.h"
 #include "Graphics/Public/GeometryGenerator.h"
-
+#include "Graphics/Public/ResourceManagement/LightManager.h"
+#include "Platform/Public/System.h"
 //#ifdef IE_WITH_D3D12
 #include "Platform/DirectX12/Public/D3D12RenderContextFactory.h"
 //#endif
@@ -14,13 +15,13 @@
 namespace Insight
 {
 
-	void WorldRenderer::Initialize(std::shared_ptr<Window> pWindow, Graphics::ERenderBackend api)
+	void WorldRenderer::Initialize(std::shared_ptr<Window> pWindow, Graphics::ERenderBackend API)
 	{
 		IE_ASSERT(pWindow.get() != NULL); // Trying to create a renderer with no window to render to!
 		pWindow = pWindow;
 
-		// Setup renderer
-		switch (api)
+		// Setup renderer.
+		switch (API)
 		{
 		case Graphics::RB_Direct3D12:
 		{
@@ -77,13 +78,13 @@ namespace Insight
 		// Init constant buffers
 		//
 		Graphics::g_pConstantBufferManager->CreateConstantBuffer(TEXT("Scene Constants"), &m_pSceneConstantBuffer, sizeof(SceneConstants));
-
 		Graphics::g_pConstantBufferManager->CreateConstantBuffer(TEXT("Scene Lights"), &m_pLightConstantBuffer, sizeof(SceneLights));
-
 	}
 
 	void WorldRenderer::SetCommonState(Graphics::ICommandContext& CmdContext)
 	{
+		using namespace Graphics;
+
 		// Set View and Scissor
 		//
 		CmdContext.RSSetViewPorts(1, &m_SceneViewPort);
@@ -104,16 +105,15 @@ namespace Insight
 		CmdContext.SetGraphicsConstantBuffer(kSceneConstants, m_pSceneConstantBuffer);
 
 		SceneLights* pLights = m_pLightConstantBuffer->GetBufferPointer<SceneLights>();
-		pLights->PointLights[0].Position	= FVector4(45.f, 0.f, 0.f, 1.f);
-		pLights->PointLights[0].Color		= FVector4(1.f, 0.f, 0.f, 1.f);
-		pLights->PointLights[0].Brightness	= 2000.f;
-		pLights->PointLights[1].Position	= FVector4(-45.f, 0.f, 0.f, 1.f);
-		pLights->PointLights[1].Color		= FVector4(0.f, 0.f, 1.f, 1.f);
-		pLights->PointLights[1].Brightness	= 2000.f;
-		pLights->PointLights[2].Position	= FVector4(0.f, 0.f, 45.f, 1.f);
-		pLights->PointLights[2].Color		= FVector4(0.f, 1.f, 0.f, 1.f);
-		pLights->PointLights[2].Brightness	= 2000.f;
-		pLights->NumPointLights = 3.f;
+		UInt64 PointLightBufferSize			= sizeof(PointLightData) * g_LightManager.GetScenePointLightCount();
+		UInt64 DirectionalLightBufferSize	= sizeof(DirectionalLightData) * g_LightManager.GetSceneDirectionalLightCount();
+		CopyMemRanged(g_LightManager.GetPointLighBufferPointer(), pLights->PointLights, PointLightBufferSize);
+		CopyMemRanged(g_LightManager.GetDirectionalLightBufferPointer(), pLights->DirectionalLights, DirectionalLightBufferSize);
+
+		// TODO: pLights->NumSpotLights = Graphics::g_LightManager.GetSceneSpotLightCount();
+		pLights->NumPointLights			= Graphics::g_LightManager.GetScenePointLightCount();
+		pLights->NumDirectionalLights	= Graphics::g_LightManager.GetSceneDirectionalLightCount();
+		
 		CmdContext.SetGraphicsConstantBuffer(kLights, m_pLightConstantBuffer);
 	}
 

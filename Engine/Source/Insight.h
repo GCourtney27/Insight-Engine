@@ -36,12 +36,13 @@
 // Core	|
 // -----
 #include "Core/Public/Engine.h"
+#include "Platform/Public/System.h"
 #include "Core/Public/Layer/Layer.h"
 #if IE_WIN32
-#include "Core/Public/Layer/ImGuiOverlay.h"
-#include "Platform/Win32/Win32Window.h"
+#	include "Core/Public/Layer/ImGuiOverlay.h"
+#	include "Platform/Win32/Win32Window.h"
 #elif IE_UWP_DESKTOP
-#include "Platform/UWP/UWPWindow.h"
+#	include "Platform/UWP/UWPWindow.h"
 #endif
 
 // ---------
@@ -62,5 +63,5 @@
 // -----------------
 #include "GameFramework/Components/StaticMeshComponent.h"
 
-
+using namespace Insight;
 

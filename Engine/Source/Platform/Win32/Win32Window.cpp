@@ -8,6 +8,7 @@
 #include "Win32Window.h"
 
 #include "Core/Public/Engine.h"
+#include "Platform/Public/System.h"
 #include "Graphics/Renderer.h"
 
 #include "Core/Public/Log.h"
@@ -271,7 +272,7 @@ namespace Insight {
 
 			if (RegisterRawInputDevices(&RID, 1, sizeof(RID)) == FALSE)
 			{
-				IE_LOG(Error, TEXT("Failed to register raw input devices. Error: %s"), Platform::GetLastPlatformError());
+				IE_LOG(Error, TEXT("Failed to register raw input devices. Error: %s"), System::GetLastPlatformError());
 				return false;
 			}
 			RIDInitialized = true;
@@ -308,7 +309,7 @@ namespace Insight {
 
 		if (m_hWindow == NULL) {
 			IE_LOG(Critical, TEXT("Unable to create Windows window."));
-			IE_LOG(Critical, TEXT("    Error: %s"), Platform::GetLastPlatformError());
+			IE_LOG(Critical, TEXT("    Error: %s"), System::GetLastPlatformError());
 			throw ieException(TEXT("Fatal Error: Failed to initialize Win32 window. Handle returned nullptr from Windows API. Window description may have contained invalid parameters."));
 		}
 
@@ -350,7 +351,7 @@ namespace Insight {
 		if (error > 0)
 		{
 			IE_LOG(Error, TEXT("An error occured while registering window class: %s"), StringHelper::WideToString(m_WindowClassName).c_str());
-			IE_LOG(Error, TEXT("    Error: %s"), Platform::GetLastPlatformError());
+			IE_LOG(Error, TEXT("    Error: %s"), System::GetLastPlatformError());
 		}
 	}
 

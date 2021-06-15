@@ -84,12 +84,13 @@ namespace Insight
 		void Render();
 
 		void RenderStaticMeshGeometry(Graphics::ICommandContext& GfxContext);
-		
 
 		void RenderSkinnedMeshGeometry(Graphics::ICommandContext& GfxContext)
 		{
 			//m_SkinnedMeshRenderer.Execute();
 		}
+
+		inline Graphics::IRenderContext* GetRenderContext() const;
 
 	private:
 		void CreateResources();
@@ -132,5 +133,10 @@ namespace Insight
 	inline float WorldRenderer::GetFrameRenderTime() const
 	{
 		return m_GFXTimer.DeltaTime();
+	}
+
+	inline Graphics::IRenderContext* WorldRenderer::GetRenderContext() const
+	{
+		return m_pRenderContext;
 	}
 }

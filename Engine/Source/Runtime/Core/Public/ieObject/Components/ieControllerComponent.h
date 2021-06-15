@@ -2,7 +2,7 @@
 
 #include "EngineDefines.h"
 
-#include "Core/Public/ieObject/Components/ieComponentBase.h"
+#include "Core/Public/ieObject/Components/ieActorComponent.h"
 #include "Core/Public/Input/InputDispatcher.h"
 
 namespace Insight
@@ -10,10 +10,11 @@ namespace Insight
 	static const float kThumbStickLeftSensitivity	= 20.0f;
 	static const float kThumbStickRightSensitivity	= 20.0f;
 
-	class INSIGHT_API ieControllerComponent : public ieComponentBase/*<ieControllerComponent>*/
+	class INSIGHT_API ieControllerComponent : public ieActorComponent/*<ieControllerComponent>*/
 	{
 	public:
 		ieControllerComponent(ieActor* pOwner)
+			: ieActorComponent(pOwner)
 		{
 		}
 		virtual ~ieControllerComponent()

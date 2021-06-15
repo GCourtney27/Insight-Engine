@@ -48,7 +48,7 @@ namespace Insight {
 
 		switch (GraphicsSettings.TargetRenderAPI)
 		{
-#if defined (IE_PLATFORM_WINDOWS)
+#if defined (IE_WINDOWS)
 		case ETargetRenderAPI::Direct3D_11:
 		{
 			s_Instance = new Direct3D11Context();
@@ -59,7 +59,7 @@ namespace Insight {
 			s_Instance = new Direct3D12Context();
 			break;
 		}
-#endif // IE_PLATFORM_WINDOWS
+#endif // IE_WINDOWS
 		default:
 		{
 			IE_LOG(Error, TEXT("Failed to create render with given context type: %i"), GraphicsSettings.TargetRenderAPI);

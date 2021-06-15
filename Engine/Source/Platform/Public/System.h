@@ -1,16 +1,40 @@
 #pragma once
 
 #include "EngineDefines.h"
+#include "InsightStd.h"
 
 #include "Core/Public/Input/KeyCodes.h"
 
+
 namespace Insight
 {
-	namespace Platform
+	namespace System
 	{
 #define IE_DECLARE_HANDLE(name) struct name##__{ int Unused; }; typedef struct name##__ *name
 		IE_DECLARE_HANDLE(DLLHandle);
 
+		enum
+		{
+			kDefaultStackSize = IE_MEGABYTES(32),
+		};
+		enum
+		{
+			kJoinable = 0x01,
+			kDetached = 0x02,
+		};
+
+		typedef void(*JobEntryPoint)(void*);
+
+#if IE_WINDOWS
+		struct ThreadId
+		{
+			DWORD Id;
+			HANDLE Handle;
+
+			bool operator == (const ThreadId& rhs) { return rhs.Id == this->Id; }
+			bool operator != (const ThreadId& rhs) { return rhs.Id != this->Id; }
+		};
+#endif
 		/*
 			Return the state of a given key.
 			@param Key - The key to get the state of.
@@ -59,5 +83,14 @@ namespace Insight
 		*/
 		void SetWorkingDirectory(TChar* Path);
 
+		/*
+			Returns the number of CPU cores the current thread posseses.
+		*/
+		UInt32 GetProcessorCount();
+
+
+		ThreadId CreateAndRunThread(const char* Name, const UInt32 CoreIdx, JobEntryPoint EntryPoint, void* UserData = NULL, const UInt64 StackSize = kDefaultStackSize, const Int32 Flags = kJoinable);
+
+		void SetThreadName(ThreadId Thread, const char* NewName);
 	}
 }

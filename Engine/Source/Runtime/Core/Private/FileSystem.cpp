@@ -3,6 +3,7 @@
 #include "Core/Public/FileSystem.h"
 
 #include "Core/Public/Engine.h"
+#include "Platform/Public/System.h"
 #include "Core/Public/Scene/scene.h"
 #include "Core/Public/Exception.h"
 #include "Core/Public/Utility/StringHelper.h"
@@ -30,8 +31,8 @@ namespace Insight
 	{
 		// Set the working directory of the application no matter what environment we are running in.
 		TChar Path[IE_MAX_PATH];
-		Platform::GetWorkingDirectory(IE_MAX_PATH, Path);
-		Platform::SetWorkingDirectory(Path);
+		System::GetWorkingDirectory(IE_MAX_PATH, Path);
+		System::SetWorkingDirectory(Path);
 
 		return true;
 	}

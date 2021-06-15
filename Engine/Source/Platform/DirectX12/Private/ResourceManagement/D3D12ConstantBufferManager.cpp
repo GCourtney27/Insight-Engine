@@ -14,7 +14,7 @@ namespace Insight
 
 			void D3D12ConstantBuffer::Create(const FString& Name, UInt32 BufferSize)
 			{
-				SetBufferSize(GetAlignedBufferSize(BufferSize));
+				SetBufferSize( GetAlignedBufferSize(BufferSize) );
 
 				ID3D12Device* pID3D12Device = RCast<ID3D12Device*>(g_pDevice->GetNativeDevice());
 				auto ResDesc = CD3DX12_RESOURCE_DESC::Buffer(GetBufferSize());
@@ -38,8 +38,8 @@ namespace Insight
 				m_CBV = AllocateDescriptor(pID3D12Device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 				D3D12_CONSTANT_BUFFER_VIEW_DESC CBVDesc = {};
-				CBVDesc.SizeInBytes = GetBufferSize();
-				CBVDesc.BufferLocation = m_pID3D12Resource->GetGPUVirtualAddress();
+				CBVDesc.SizeInBytes		= GetBufferSize();
+				CBVDesc.BufferLocation	= m_pID3D12Resource->GetGPUVirtualAddress();
 				pID3D12Device->CreateConstantBufferView(&CBVDesc, m_CBV);
 			}
 

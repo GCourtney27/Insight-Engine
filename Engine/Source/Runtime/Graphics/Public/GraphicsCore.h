@@ -24,20 +24,20 @@
 #define IE_INVALID_MATERIAL_ID (-1)
 #define IE_DESCRIPTOR_RANGE_OFFSET_APPEND ( 0xFFFFFFFF )
 
-#ifdef IE_PLATFORM_WINDOWS
-#	define IE_D3D12_RENDER_NAME "Direct3D 12"
-#	define IE_D3D11_RENDER_NAME "Direct3D 11"
+#ifdef IE_WINDOWS
+#	define IE_D3D12_RENDER_BACKEND_NAME "Direct3D 12"
+#	define IE_D3D11_RENDER_BACKEND_NAME "Direct3D 11"
 #else
-#	define IE_D3D12_RENDER_NAME
-#	define IE_D3D11_RENDER_NAME
-#endif // IE_PLATFORM_WINDOWS
+#	define IE_D3D12_RENDER_BACKEND_NAME
+#	define IE_D3D11_RENDER_BACKEND_NAME
+#endif // IE_WINDOWS
 
 
 namespace Insight
 {
 	class StaticGeometryManager;
 	class MaterialManager;
-
+	class LightManager;
 
 	namespace Graphics
 	{
@@ -100,7 +100,8 @@ namespace Insight
 		extern StaticGeometryManager g_StaticGeometryManager;
 		// Manager for all materials used by meshes in the world.
 		extern MaterialManager g_MaterialManager;
-
+		// Manager for all lights in the scene
+		extern LightManager g_LightManager;
 
 		// ----------
 		//	Typedefs

@@ -6,9 +6,24 @@
 #include "Math/Public/Matricies.h"
 #include "Math/Public/Vectors.h"
 #include "Graphics/Public/CommonStructs.h"
+#include "Core/Public/Handle.h"
 
 namespace Insight
 {
+
+	// -----------
+	// Handles
+	// -----------
+	//
+	typedef Handle SpotLightDataHandle;
+	typedef Handle PointLightDataHandle;
+	typedef Handle DirectionalLightDataHandle;
+
+#	define IE_INVALID_SPOT_LIGHT_HANDLE			( SpotLightDataHandle		(-1) )
+#	define IE_INVALID_POINT_LIGHT_HANDLE		( PointLightDataHandle		(-1) )
+#	define IE_INVALID_DIRECTIONAL_LIGHT_HANDLE	( DirectionalLightDataHandle(-1) )
+
+	const float kDefaultBrightness = 2000.f;
 
 
 	/*
@@ -107,23 +122,48 @@ namespace Insight
 		FVector4 Color;
 	};
 
-	IE_ALIGN(16) struct PointLight
+	IE_ALIGN(16) struct PointLightData
 	{
-		FVector4 Position;
-		FVector4 Color;
-		float Brightness;
-		float Unused0[3];
+		// The position of the light in world space.
+		FVector4				Position;
+		
+		// The color of the light. Fourth component is unused.
+		FVector4				Color;
+		
+		// The brightness the light will illuminate.
+		float					Brightness;
+		
+		// The unique identifier of the light.
+		PointLightDataHandle	Id;
 	};
-	IE_ALIGN(16) struct DirectionalLight
+	IE_ALIGN(16) struct DirectionalLightData
 	{
-		FVector3 Direction;
-		float Brightness;
+		// The direction of the light.
+		FVector4						Direction;
+		
+		// The color of the light.
+		FVector4						Color;
+
+		// The brightness the light will illuminate.
+		float							Brightness;
+
+		// The unique identifier of the light.
+		DirectionalLightDataHandle		Id;
+	};
+	IE_ALIGN(16) struct SpotLightData
+	{
+		float					TEMP;
+		SpotLightDataHandle		Id;
 	};
 	struct SceneLights
 	{
-		PointLight PointLights[IE_MAX_POINT_LIGHTS];
-		//DirectionalLight DirectionalLights[IE_MAX_DIRECTIONAL_LIGHTS];
-		float NumPointLights;
+		UInt32					NumPointLights;
+		UInt32					NumDirectionalLights;
+		float					Unused0[2];
+
+		PointLightData			PointLights[IE_MAX_POINT_LIGHTS];
+		DirectionalLightData	DirectionalLights[IE_MAX_DIRECTIONAL_LIGHTS];
+		//TODO: SpotLightData			SpotLights[IE_MAX_SPOT_LIGHTS];
 	};
 
 	// Input layouts.
@@ -135,4 +175,6 @@ namespace Insight
 
 	// Sampler Descriptions.
 	extern Graphics::SamplerDesc g_LinearWrapSamplerDesc;
+
+#undef MAKE_LIGHT_HANDLE
 }

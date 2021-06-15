@@ -20,6 +20,7 @@
 #include "Platform/DirectX12/Geometry/D3D12SphereRenderer.h"
 
 #include "UI/UILib.h"
+#include "Platform/Public/System.h"
 
 
 #define SHADOWMAPPING_ENABLED 0
@@ -139,7 +140,7 @@ namespace Insight {
 		}
 		catch (COMException& Ex)
 		{
-			Platform::CreateMessageBox(Ex.what(), L"Fatal Error!", m_pWindowRef->GetNativeWindow());
+			System::CreateMessageBox(Ex.what(), L"Fatal Error!", m_pWindowRef->GetNativeWindow());
 			return false;
 		}
 		return true;

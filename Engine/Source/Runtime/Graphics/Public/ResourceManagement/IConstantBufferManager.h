@@ -23,7 +23,7 @@ namespace Insight
 				: m_BufferSize(0)
 				, m_UID(IE_INVALID_CONSTANT_BUFFER_HANDLE)
 			{
-				ZeroMemRanged(m_Data, sizeof(char) * IE_MAX_CONSTANT_BUFFER_SIZE);
+				ZeroMemRanged(m_Data, sizeof(UInt8) * IE_MAX_CONSTANT_BUFFER_SIZE);
 			}
 			~IConstantBuffer() = default;
 
@@ -34,7 +34,7 @@ namespace Insight
 
 			UInt32 m_BufferSize;
 			ConstantBufferUID m_UID;
-			char m_Data[IE_MAX_CONSTANT_BUFFER_SIZE];
+			UInt8 m_Data[IE_MAX_CONSTANT_BUFFER_SIZE];
 		};
 
 		class INSIGHT_API IConstantBufferManager

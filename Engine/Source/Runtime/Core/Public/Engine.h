@@ -1,12 +1,12 @@
 // Copyright Insight Interactive. All Rights Reserved.
 /*
-	File - Application.h
-	Source - Application.cpp
+	File - Engine.h
+	Source - Engine.cpp
 
 	Author - Garrett Courtney
 
 	Purpose:
-	Core application the engine uses to execute.
+	Core engine games use to execute.
 
 	Description:
 	The application holds the layers that make up the application. Layers give functionality to the application
@@ -32,7 +32,7 @@
 #include "Core/Public/Layer/PerfOverlay.h"
 
 #include "Core/Public/ieObject/ieWorld.h"
-
+#include "Editor/Public/Editor.h"
 
 namespace Insight 
 {
@@ -61,8 +61,6 @@ namespace Insight
 
 		void DumpApp();
 
-		ieWorld m_World;
-		void RenderTEST();
 
 		// Initialize the core components of the application. Should be called once
 		// at the beginning of the application, after the window has been initialized.
@@ -87,6 +85,7 @@ namespace Insight
 			m_InputDispatcher.SetWindowRef(pWindow);
 		}
 		
+		inline ieWorld* GetWorld() { return &m_World; }
 		// Returns a reference to the currently active scene.
 		inline Scene& GetScene() const { return *(m_pGameLayer->GetScene()); }
 		// Get the applications core layer stack.
@@ -97,7 +96,7 @@ namespace Insight
 		// Should only ever be used for editor actions.
 		inline GameLayer& GetGameLayer() { return *m_pGameLayer; }
 		// Get the editor layer for the application.
-		IE_STRIP_FOR_GAME_DIST(inline EditorLayer& GetEditorLayer() { return *m_pEditorLayer; })
+		inline EditorLayer& GetEditorLayer() { return *m_pEditorLayer; }
 		// Returns a reference to the main rendering window assocciated with the application. 
 		inline Window& GetWindow() { return *m_pWindow; }
 		// Returns a reference to the game threads performance timer.
@@ -128,10 +127,13 @@ namespace Insight
 	protected:
 		std::shared_ptr<Window>	m_pWindow;
 
-		IE_STRIP_FOR_GAME_DIST(ImGuiLayer* m_pImGuiLayer = nullptr; )
-		IE_STRIP_FOR_GAME_DIST(EditorLayer* m_pEditorLayer = nullptr; )
+		ImGuiLayer* m_pImGuiLayer = nullptr;
+		EditorLayer* m_pEditorLayer = nullptr;
 		PerfOverlay* m_pPerfOverlay = nullptr;
 		GameLayer* m_pGameLayer = nullptr;
+		
+		WorldRenderer m_WorldRenderer;
+		ieWorld					m_World;
 
 		bool					m_IsSuspended = false;
 		bool					m_Running = true;

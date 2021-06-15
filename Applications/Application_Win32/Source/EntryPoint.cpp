@@ -36,10 +36,11 @@ IE_ENTRY_POINT
 		LoadWindowProps(WindowDesc);
 		g_pWindow = std::make_shared<Win32Window>(WindowDesc);
 
-		FString Title = TEXT("Insight Engine - "
+		FString Title = TEXT("Insight Engine - ["
 			IE_PLATFORM_STRING 
-			" - "
-			IE_CONFIG_STRING);
+			"] - ["
+			IE_CONFIG_STRING
+			"]");
 		g_pWindow->SetWindowTitle(Title, true);
 		
 		g_pEngine->SetWindow(g_pWindow);
@@ -117,7 +118,7 @@ LRESULT CALLBACK ProcessAccelCommand(const int& Command)
 		int APIVersion = ((int)Insight::Renderer::GetAPI()) + 10;
 		const wchar_t* RTEnabled = Insight::Renderer::GetIsRayTraceEnabled() ? L"Enabled" : L"Disabled";
 		swprintf_s(AboutMsgBuffer, L"Version - 1.8 \nRenderer - Direct3D %i (Ray Tracing: %s) \n\nVendor Runtime: \nMono - v6.8.0.123 \nAssimp - v3.3.1 \nRapidJson - v1.0.0 \nImGui - v1.75", APIVersion, RTEnabled);
-		Platform::CreateMessageBox(AboutMsgBuffer, L"About Retina Editor", NULL);
+		System::CreateMessageBox(AboutMsgBuffer, L"About Retina Editor", NULL);
 		break;
 	}
 	case (IDM_FILE_SAVE):
